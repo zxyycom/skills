@@ -43,6 +43,7 @@ test("generated decision declarations expose a portable CLI API", async () => {
     .filter((filename) => filename.endsWith(".d.mts"))
     .sort();
   assert.deepEqual(declarationFiles, [
+    "cli-io.d.mts",
     "cli.d.mts",
     "index.d.mts",
     "scan.d.mts",

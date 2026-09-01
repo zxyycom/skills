@@ -72,6 +72,16 @@ type LedgerCliArgs =
       testId?: string;
     });
 
+type LedgerCliIo = Readonly<{
+  stderr: (text: string) => void;
+  stdout: (text: string) => void;
+}>;
+
+export type TestEvidenceLedgerCliOptions = Readonly<{
+  cwd?: string;
+  io?: LedgerCliIo;
+}>;
+
 const repeatCheckedOptions = [
   "--root",
   "--json",
@@ -84,13 +94,17 @@ const repeatCheckedOptions = [
 ] as const;
 
 export async function runTestEvidenceLedgerCli(
-  argv: readonly string[] = process.argv.slice(2)
+  argv: readonly string[] = process.argv.slice(2),
+  options: TestEvidenceLedgerCliOptions = {}
 ): Promise<number> {
+  const cwd = options.cwd ?? process.cwd();
+  const io = options.io ?? {
+    stderr: (text: string) => process.stderr.write(text),
+    stdout: (text: string) => process.stdout.write(text)
+  };
   const repeated = repeatedOption(argv);
   if (repeated !== null) {
-    process.stderr.write(
-      `error: option '${repeated}' may only be specified once\n`
-    );
+    io.stderr(`error: option '${repeated}' may only be specified once\n`);
     return 2;
   }
 
@@ -110,12 +124,12 @@ export async function runTestEvidenceLedgerCli(
     )
     .option("--json", "Write the command result as JSON.")
     .configureOutput({
-      writeErr: (text) => process.stderr.write(text),
-      writeOut: (text) => process.stdout.write(text)
+      writeErr: io.stderr,
+      writeOut: io.stdout
     });
 
   const execute = async (args: LedgerCliArgs): Promise<void> => {
-    exitCode = await runLedgerCommand(args);
+    exitCode = await runLedgerCommand(args, io);
   };
 
   const check = subcommand(
@@ -125,7 +139,7 @@ export async function runTestEvidenceLedgerCli(
   );
   check.action(() =>
     execute({
-      ...commonCommandArgs(commandOptions(check)),
+      ...commonCommandArgs(commandOptions(check), cwd),
       command: "check"
     })
   );
@@ -138,7 +152,7 @@ export async function runTestEvidenceLedgerCli(
   syncIndex.action(() => {
     const options = commandOptions(syncIndex);
     return execute({
-      ...commonCommandArgs(options),
+      ...commonCommandArgs(options, cwd),
       command: "sync-index",
       write: options.write ?? false
     });
@@ -159,7 +173,7 @@ export async function runTestEvidenceLedgerCli(
   list.action(() => {
     const options = commandOptions(list);
     return execute({
-      ...commonCommandArgs(options),
+      ...commonCommandArgs(options, cwd),
       ...queryCommandArgs(options),
       command: "list",
       tag: options.tag,
@@ -174,7 +188,7 @@ export async function runTestEvidenceLedgerCli(
   ).argument("<case-id>", "Case ID to show.", parseCaseId);
   show.action((caseId: string) =>
     execute({
-      ...commonCommandArgs(commandOptions(show)),
+      ...commonCommandArgs(commandOptions(show), cwd),
       caseId,
       command: "show"
     })
@@ -190,7 +204,7 @@ export async function runTestEvidenceLedgerCli(
   tests.action(() => {
     const options = commandOptions(tests);
     return execute({
-      ...commonCommandArgs(options),
+      ...commonCommandArgs(options, cwd),
       ...queryCommandArgs(options),
       command: "tests"
     });
@@ -202,58 +216,65 @@ export async function runTestEvidenceLedgerCli(
     if (error instanceof CommanderError) {
       return error.exitCode === 0 ? 0 : 2;
     }
-    process.stderr.write(
-      `${error instanceof Error ? error.message : String(error)}\n`
-    );
+    io.stderr(`${error instanceof Error ? error.message : String(error)}\n`);
     return 1;
   }
   return exitCode;
 }
 
-async function runLedgerCommand(args: LedgerCliArgs): Promise<number> {
+async function runLedgerCommand(
+  args: LedgerCliArgs,
+  io: LedgerCliIo
+): Promise<number> {
   return match(args)
-    .with({ command: "check" }, runCheckCommand)
-    .with({ command: "sync-index" }, runSyncIndexCommand)
-    .with({ command: "show" }, runShowCommand)
-    .with({ command: "tests" }, runTestsCommand)
-    .with({ command: "list" }, runListCommand)
+    .with({ command: "check" }, (command) => runCheckCommand(command, io))
+    .with({ command: "sync-index" }, (command) =>
+      runSyncIndexCommand(command, io)
+    )
+    .with({ command: "show" }, (command) => runShowCommand(command, io))
+    .with({ command: "tests" }, (command) => runTestsCommand(command, io))
+    .with({ command: "list" }, (command) => runListCommand(command, io))
     .exhaustive();
 }
 
 async function runCheckCommand(
-  args: Extract<LedgerCliArgs, { command: "check" }>
+  args: Extract<LedgerCliArgs, { command: "check" }>,
+  io: LedgerCliIo
 ): Promise<number> {
   const result = await validateTestEvidenceLedger({
     workspaceRoot: args.workspaceRoot
   });
-  writeOutput(formatLedgerReport(result, args.json));
+  writeOutput(io, formatLedgerReport(result, args.json));
   return hasBlockingTestEvidenceDiagnostics(result.diagnostics) ? 1 : 0;
 }
 
 async function runSyncIndexCommand(
-  args: Extract<LedgerCliArgs, { command: "sync-index" }>
+  args: Extract<LedgerCliArgs, { command: "sync-index" }>,
+  io: LedgerCliIo
 ): Promise<number> {
   const result = await syncTestEvidenceLedgerIndex({
     workspaceRoot: args.workspaceRoot,
     mode: args.write ? "write" : "check"
   });
-  writeOutput(formatLedgerSync(result, args.json));
+  writeOutput(io, formatLedgerSync(result, args.json));
   return result.status === "ok" ? 0 : 1;
 }
 
 async function runShowCommand(
-  args: Extract<LedgerCliArgs, { command: "show" }>
+  args: Extract<LedgerCliArgs, { command: "show" }>,
+  io: LedgerCliIo
 ): Promise<number> {
   const result = await showTestEvidenceCase({
     workspaceRoot: args.workspaceRoot,
     caseId: args.caseId
   });
-  writeOutput(formatLedgerCaseShow(result, args.json));
+  writeOutput(io, formatLedgerCaseShow(result, args.json));
   return hasBlockingTestEvidenceDiagnostics(result.diagnostics) ? 1 : 0;
 }
 
 async function runTestsCommand(
-  args: Extract<LedgerCliArgs, { command: "tests" }>
+  args: Extract<LedgerCliArgs, { command: "tests" }>,
+  io: LedgerCliIo
 ): Promise<number> {
   const result = await queryTestEntities({
     workspaceRoot: args.workspaceRoot,
@@ -261,12 +282,13 @@ async function runTestsCommand(
     limit: args.limit,
     offset: args.offset
   });
-  writeOutput(formatLedgerTestQuery(result, args.json));
+  writeOutput(io, formatLedgerTestQuery(result, args.json));
   return hasBlockingTestEvidenceDiagnostics(result.diagnostics) ? 1 : 0;
 }
 
 async function runListCommand(
-  args: Extract<LedgerCliArgs, { command: "list" }>
+  args: Extract<LedgerCliArgs, { command: "list" }>,
+  io: LedgerCliIo
 ): Promise<number> {
   const result = await queryTestEvidenceCases({
     workspaceRoot: args.workspaceRoot,
@@ -276,7 +298,7 @@ async function runListCommand(
     limit: args.limit,
     offset: args.offset
   });
-  writeOutput(formatLedgerCaseQuery(result, args.json));
+  writeOutput(io, formatLedgerCaseQuery(result, args.json));
   if (!hasBlockingTestEvidenceDiagnostics(result.diagnostics)) {
     return 0;
   }
@@ -291,10 +313,13 @@ function commandOptions(commandNode: Command): ParsedOptions {
   return commandNode.optsWithGlobals<ParsedOptions>();
 }
 
-function commonCommandArgs(options: ParsedOptions): LedgerCliCommonArgs {
+function commonCommandArgs(
+  options: ParsedOptions,
+  cwd: string
+): LedgerCliCommonArgs {
   return {
     json: options.json ?? false,
-    workspaceRoot: path.resolve(options.root)
+    workspaceRoot: path.resolve(cwd, options.root)
   };
 }
 
@@ -418,12 +443,15 @@ function repeatedOption(argv: readonly string[]): string | null {
   return null;
 }
 
-function writeOutput(output: TestEvidenceLedgerCliOutput): void {
+function writeOutput(
+  io: LedgerCliIo,
+  output: TestEvidenceLedgerCliOutput
+): void {
   if (output.stderr.length > 0) {
-    process.stderr.write(output.stderr);
+    io.stderr(output.stderr);
   }
   if (output.stdout.length > 0) {
-    process.stdout.write(output.stdout);
+    io.stdout(output.stdout);
   }
 }
 

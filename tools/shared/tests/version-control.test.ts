@@ -3,7 +3,8 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import test from "node:test";
+import test, { after } from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   openVersionControl,
   repositoryRelativePathFromFileSystemPath,
@@ -13,8 +14,25 @@ import { operationErrorDetail } from "../src/version-control/error-detail.ts";
 import { listFirstParentRevisionChanges } from "../src/version-control/git-first-parent.ts";
 import { openGitVersionControl } from "../src/version-control/git.ts";
 import { parseGitFirstParentRevisionChanges } from "../src/version-control/git-numstat.ts";
+import { createGitRepositoryFixture } from "./git-fixture.ts";
 
 const gitTestOptions = { timeout: 15_000 };
+const versionControlRepositoryFixtureRoot = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "fixtures",
+  "git-repositories",
+  "version-control-repository"
+);
+
+let repositoryTemplate: Promise<string> | null = null;
+let repositoryTemplateParent: string | null = null;
+
+after(async () => {
+  if (repositoryTemplateParent !== null) {
+    await fs.rm(repositoryTemplateParent, { force: true, recursive: true });
+    repositoryTemplateParent = null;
+  }
+});
 
 test("normalizes structured version-control operation error details", () => {
   assert.equal(operationErrorDetail(undefined), null);
@@ -27,6 +45,58 @@ test("normalizes structured version-control operation error details", () => {
   assert.match(structured, /operation.*read revision/u);
   assert.match(structured, /retries.*2/u);
   assert.doesNotMatch(structured, /\[object Object\]/u);
+});
+
+test("materializes an ordinary fixture into isolated Git repositories", async () => {
+  let temporaryRoot = "";
+  await withTempRoot(async (tempRoot) => {
+    temporaryRoot = tempRoot;
+    await assert.rejects(
+      fs.access(path.join(versionControlRepositoryFixtureRoot, ".git"))
+    );
+    assert.doesNotMatch(
+      await fs.readFile(
+        path.join(versionControlRepositoryFixtureRoot, "docs", "tracked.md"),
+        "utf8"
+      ),
+      /(?:^|[\\/])workspace(?:[\\/]|$)/u
+    );
+
+    const first = await createGitRepositoryFixture({
+      fixtureRoot: versionControlRepositoryFixtureRoot,
+      parentDirectory: tempRoot,
+      repositoryName: "first",
+      userEmail: "version-control@example.invalid",
+      userName: "Version Control Test"
+    });
+    const second = await createGitRepositoryFixture({
+      fixtureRoot: versionControlRepositoryFixtureRoot,
+      parentDirectory: tempRoot,
+      repositoryName: "second",
+      userEmail: "version-control@example.invalid",
+      userName: "Version Control Test"
+    });
+
+    assert.equal(
+      runGit(first.repositoryRoot, ["branch", "--show-current"]).trim(),
+      "main"
+    );
+    assert.equal(
+      runGit(first.repositoryRoot, ["config", "core.autocrlf"]).trim(),
+      "false"
+    );
+    assert.equal(first.baselineRevision, second.baselineRevision);
+    await writeFile(first.repositoryRoot, "docs/tracked.md", "changed\n");
+    runGit(first.repositoryRoot, ["add", "docs/tracked.md"]);
+    assert.equal(
+      await fs.readFile(
+        path.join(second.repositoryRoot, "docs", "tracked.md"),
+        "utf8"
+      ),
+      "base\n"
+    );
+  });
+  await assert.rejects(fs.access(temporaryRoot));
 });
 
 async function withTempRoot(
@@ -44,14 +114,9 @@ async function withTempRoot(
 
 async function createRepositoryFixture(tempRoot: string) {
   const repositoryRoot = path.join(tempRoot, "repository");
-  await fs.mkdir(repositoryRoot, { recursive: true });
-  initializeRepository(repositoryRoot);
-
-  await writeFile(repositoryRoot, ".gitignore", "ignored.txt\n");
-  await writeFile(repositoryRoot, "docs/base-only.md", "base only\n");
-  await writeFile(repositoryRoot, "docs/tracked.md", "base\n");
-  runGit(repositoryRoot, ["add", "."]);
-  runGit(repositoryRoot, ["commit", "--quiet", "--message", "base"]);
+  await fs.cp(await repositoryTemplateRoot(), repositoryRoot, {
+    recursive: true
+  });
   const baseRevision = runGit(repositoryRoot, ["rev-parse", "HEAD"]).trim();
 
   await writeFile(repositoryRoot, "docs/tracked.md", "current\n");
@@ -85,6 +150,37 @@ async function createRepositoryFixture(tempRoot: string) {
     repositoryRoot,
     stagedBinary
   };
+}
+
+async function repositoryTemplateRoot(): Promise<string> {
+  repositoryTemplate ??= createRepositoryTemplate();
+  try {
+    return await repositoryTemplate;
+  } catch (error) {
+    repositoryTemplate = null;
+    throw error;
+  }
+}
+
+async function createRepositoryTemplate(): Promise<string> {
+  const parent = await fs.mkdtemp(
+    path.join(os.tmpdir(), "version-control-repository-template-")
+  );
+  repositoryTemplateParent = parent;
+  try {
+    const fixture = await createGitRepositoryFixture({
+      fixtureRoot: versionControlRepositoryFixtureRoot,
+      parentDirectory: parent,
+      repositoryName: "repository",
+      userEmail: "version-control@example.invalid",
+      userName: "Version Control Test"
+    });
+    return fixture.repositoryRoot;
+  } catch (error) {
+    await fs.rm(parent, { force: true, recursive: true });
+    repositoryTemplateParent = null;
+    throw error;
+  }
 }
 
 test(

@@ -12,6 +12,7 @@ import { createStateIndexRuntime } from "../../index-runtime/src/index.ts";
 import {
   listTestEvidenceTopics,
   queryTestEvidence,
+  runTestEvidenceCatalogCli,
   showTestEvidenceCase,
   syncTestEvidenceIndex,
   testEvidenceStateIndexSchema,
@@ -124,7 +125,13 @@ test("catalog ignores legacy config files and rejects config arguments", async (
       "docs/test-evidence/test-evidence-index.json"
     );
 
-    const rejected = await runDistributedCliFailure([
+    const fromInjectedCwd = await runCatalogCliJson<{ total: number }>(
+      ["list", "--root", ".", "--json"],
+      tempRoot
+    );
+    assert.equal(fromInjectedCwd.total, 2);
+
+    const rejected = await runCatalogCliFailure([
       "list",
       "--root",
       tempRoot,
@@ -1327,7 +1334,7 @@ test("unknown and repeated topic CLI arguments fail deterministically", async ()
       )
     );
 
-    const unknown = await runDistributedCliFailure([
+    const unknown = await runCatalogCliFailure([
       "list",
       "--root",
       tempRoot,
@@ -1347,7 +1354,7 @@ test("unknown and repeated topic CLI arguments fail deterministically", async ()
       )
     );
 
-    const repeated = await runDistributedCliFailure([
+    const repeated = await runCatalogCliFailure([
       "list",
       "--root",
       tempRoot,
@@ -1529,24 +1536,6 @@ async function assertDistributedModuleParity(
   assert.equal(result.total, 2);
   assert.equal(result.cases.length, 2);
 
-  const topicsChild = await execFileAsync(
-    "node",
-    [distributedScript, "topics", "--root", workspaceRoot, "--json"],
-    {
-      encoding: "utf8",
-      windowsHide: true
-    }
-  );
-  const topicsResult = JSON.parse(String(topicsChild.stdout)) as {
-    schemaVersion: number;
-    topics: Array<{ id: string }>;
-  };
-  assert.equal(topicsResult.schemaVersion, 4);
-  assert.deepEqual(
-    topicsResult.topics.map((topic) => topic.id),
-    ["access-control", "future-work", "sessions"]
-  );
-
   const indexPath = path.join(
     workspaceRoot,
     "docs",
@@ -1555,33 +1544,31 @@ async function assertDistributedModuleParity(
   );
   await fs.rm(indexPath);
   await fs.mkdir(indexPath);
-  for (const command of [["list"], ["show", "AUTH-ROLE-ACCESS-001"]]) {
-    try {
-      await execFileAsync(
-        "node",
-        [distributedScript, ...command, "--root", workspaceRoot, "--json"],
-        {
-          encoding: "utf8",
-          windowsHide: true
-        }
-      );
-      assert.fail(`${command[0]} should fail when the index cannot be read`);
-    } catch (error) {
-      const failure = error as Error & {
-        code?: number | string;
-        stdout?: string;
-      };
-      assert.equal(failure.code, 1);
-      const output = JSON.parse(failure.stdout ?? "") as {
-        diagnostics: Array<{
-          blocking: boolean;
-          code: string;
-          message: string;
-          severity: "error" | "warning";
-        }>;
-      };
-      assertUnrecoverableIndexReadFailure(output.diagnostics);
-    }
+  try {
+    await execFileAsync(
+      "node",
+      [distributedScript, "list", "--root", workspaceRoot, "--json"],
+      {
+        encoding: "utf8",
+        windowsHide: true
+      }
+    );
+    assert.fail("list should fail when the index cannot be read");
+  } catch (error) {
+    const failure = error as Error & {
+      code?: number | string;
+      stdout?: string;
+    };
+    assert.equal(failure.code, 1);
+    const output = JSON.parse(failure.stdout ?? "") as {
+      diagnostics: Array<{
+        blocking: boolean;
+        code: string;
+        message: string;
+        severity: "error" | "warning";
+      }>;
+    };
+    assertUnrecoverableIndexReadFailure(output.diagnostics);
   }
 }
 
@@ -1632,7 +1619,7 @@ async function rehearseLegacyConsumerUpgrade(
       )}\n`
     );
 
-    const legacyFailure = await runDistributedCliFailure([
+    const legacyFailure = await runCatalogCliFailure([
       "check",
       "--root",
       workspaceRoot,
@@ -1673,7 +1660,7 @@ async function rehearseLegacyConsumerUpgrade(
     );
     await fs.rm(path.join(workspaceRoot, ".test-evidence.json"));
 
-    const topics = await runDistributedCliJson<{
+    const topics = await runCatalogCliJson<{
       topics: Array<{ id: string }>;
     }>(["topics", "--root", workspaceRoot, "--json"]);
     assert.deepEqual(
@@ -1681,14 +1668,14 @@ async function rehearseLegacyConsumerUpgrade(
       ["access-control", "sessions"]
     );
 
-    await runDistributedCliJson([
+    await runCatalogCliJson([
       "sync-index",
       "--write",
       "--root",
       workspaceRoot,
       "--json"
     ]);
-    const checked = await runDistributedCliJson<{
+    const checked = await runCatalogCliJson<{
       diagnostics: Array<{ blocking: boolean }>;
       summary: { testCases: number };
     }>(["check", "--root", workspaceRoot, "--json"]);
@@ -1698,7 +1685,7 @@ async function rehearseLegacyConsumerUpgrade(
       false
     );
 
-    const listed = await runDistributedCliJson<{
+    const listed = await runCatalogCliJson<{
       cases: Array<{ id: string; sourcePath: string }>;
       total: number;
     }>([
@@ -1723,7 +1710,7 @@ async function rehearseLegacyConsumerUpgrade(
       ]
     );
 
-    const shown = await runDistributedCliJson<{
+    const shown = await runCatalogCliJson<{
       case: { id: string; sourcePath: string } | null;
       markdown: string | null;
       topic: { id: string } | null;
@@ -1750,7 +1737,7 @@ async function rehearseLegacyConsumerUpgrade(
         "### Case LEGACY-ONLY-CASE-001: Old source is ignored\n"
       );
     }
-    const afterLegacyChange = await runDistributedCliJson<{
+    const afterLegacyChange = await runCatalogCliJson<{
       total: number;
     }>(["list", "--root", workspaceRoot, "--json"]);
     assert.equal(afterLegacyChange.total, 2);
@@ -1805,39 +1792,45 @@ async function readIndexRevision(
   return index.sourceRevision;
 }
 
-async function runDistributedCliFailure(args: readonly string[]): Promise<{
-  code: number | string | undefined;
+async function runCatalogCli(
+  args: readonly string[],
+  cwd?: string
+): Promise<{
+  code: number;
   stderr: string;
   stdout: string;
 }> {
-  try {
-    await execFileAsync("node", [distributedScript, ...args], {
-      encoding: "utf8",
-      windowsHide: true
-    });
-  } catch (error) {
-    const failure = error as Error & {
-      code?: number | string;
-      stderr?: string;
-      stdout?: string;
-    };
-    return {
-      code: failure.code,
-      stderr: failure.stderr ?? "",
-      stdout: failure.stdout ?? ""
-    };
-  }
-  throw new Error(`CLI should fail: ${args.join(" ")}`);
+  const stderr: string[] = [];
+  const stdout: string[] = [];
+  const code = await runTestEvidenceCatalogCli(args, {
+    cwd,
+    io: {
+      stderr: (text) => stderr.push(text),
+      stdout: (text) => stdout.push(text)
+    }
+  });
+  return { code, stderr: stderr.join(""), stdout: stdout.join("") };
 }
 
-async function runDistributedCliJson<T = unknown>(
-  args: readonly string[]
+async function runCatalogCliFailure(args: readonly string[]): Promise<{
+  code: number;
+  stderr: string;
+  stdout: string;
+}> {
+  const result = await runCatalogCli(args);
+  if (result.code === 0) {
+    throw new Error(`CLI should fail: ${args.join(" ")}`);
+  }
+  return result;
+}
+
+async function runCatalogCliJson<T = unknown>(
+  args: readonly string[],
+  cwd?: string
 ): Promise<T> {
-  const child = await execFileAsync("node", [distributedScript, ...args], {
-    encoding: "utf8",
-    windowsHide: true
-  });
-  return JSON.parse(String(child.stdout)) as T;
+  const result = await runCatalogCli(args, cwd);
+  assert.equal(result.code, 0, result.stderr);
+  return JSON.parse(result.stdout) as T;
 }
 
 async function writeWorkspaceFile(

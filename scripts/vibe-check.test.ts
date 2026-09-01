@@ -614,6 +614,15 @@ const expectedSemanticCommandPaths = new Map<string, string>([
   ]
 ]);
 
+const expectedSemanticPrerequisites = new Map<string, readonly string[]>([
+  ["test:change-plan:public-distribution", ["script:check:change-plan-cli"]],
+  [
+    "test:decision-records:public-distribution",
+    ["script:check:decision-records-cli"]
+  ],
+  ["test:task-graph:public-distribution", ["script:check:task-graph-cli"]]
+]);
+
 test("gate catalog builds semantic default and full Definitions", async () => {
   const runner = completedScript();
   const nativeChecks = passingNativeChecks();
@@ -677,18 +686,26 @@ test("gate catalog builds semantic default and full Definitions", async () => {
     "release:skill-version"
   ]);
   assert.deepEqual(
-    semanticGateChecks.map(({ checkId, command, profile }) => [
-      profile,
-      checkId,
-      command.command,
-      command.args.at(-1)
+    semanticGateChecks.map((check) => [
+      check.profile,
+      check.checkId,
+      check.command.command,
+      check.command.args.at(-1),
+      "dependsOn" in check ? check.dependsOn : []
     ]),
     expectedSemanticGateGroups.map(([profile, checkId, command]) => [
       profile,
       checkId,
       command,
-      expectedSemanticCommandPaths.get(checkId)
+      expectedSemanticCommandPaths.get(checkId),
+      expectedSemanticPrerequisites.get(checkId) ?? []
     ])
+  );
+  assert.deepEqual(
+    fullDefinition.checks
+      .filter(({ checkId }) => expectedSemanticPrerequisites.has(checkId))
+      .map(({ checkId, dependsOn }) => [checkId, dependsOn]),
+    [...expectedSemanticPrerequisites]
   );
   for (const [, checkId, , files] of expectedSemanticGateGroups) {
     const commandPath = expectedSemanticCommandPaths.get(checkId);
@@ -855,6 +872,85 @@ test("package script adapter maps terminal results and settles independent Check
   });
 });
 
+test("public distribution Checks require successful generation Checks", async () => {
+  await withTemporaryDirectory(
+    "skills-vibe-distribution-prerequisites-",
+    async (directory) => {
+      for (const [
+        consumerCheckId,
+        prerequisites
+      ] of expectedSemanticPrerequisites) {
+        const [prerequisite] = prerequisites;
+        const consumerPath = expectedSemanticCommandPaths.get(consumerCheckId);
+        if (consumerPath === undefined) {
+          throw new Error(
+            `missing consumer command path for ${consumerCheckId}`
+          );
+        }
+        for (const behavior of ["passed", "failed", "unavailable"] as const) {
+          const calls: GateCommandInvocation[] = [];
+          const result = await runDefinition(
+            createGateDefinition("full", {
+              nativeChecks: passingNativeChecks(),
+              runCommand: async (invocation) => {
+                calls.push(invocation);
+                if (
+                  scriptForCommand(invocation) !==
+                  prerequisite.slice("script:".length)
+                ) {
+                  return { exitCode: 0, output: "", status: "completed" };
+                }
+                if (behavior === "failed") {
+                  return {
+                    exitCode: 1,
+                    output: "generated artifact drift",
+                    status: "completed"
+                  };
+                }
+                if (behavior === "unavailable") {
+                  return {
+                    output: "generation command unavailable",
+                    reason: "gate-command-start-failed",
+                    status: "unavailable"
+                  };
+                }
+                return {
+                  exitCode: 0,
+                  output: "",
+                  status: "completed"
+                };
+              }
+            }),
+            directory
+          );
+
+          assert.equal(outcomeFor(result, prerequisite).status, behavior);
+          assert.equal(outcomeFor(result, consumerCheckId).status, behavior);
+          assert.equal(
+            calls.filter(
+              (invocation) =>
+                scriptForCommand(invocation) ===
+                prerequisite.slice("script:".length)
+            ).length,
+            1,
+            prerequisite
+          );
+          assert.equal(
+            calls.filter(
+              (invocation) =>
+                invocation.command === "bun" &&
+                invocation.args[0] === "test" &&
+                invocation.args[1] === consumerPath
+            ).length,
+            behavior === "passed" ? 1 : 0,
+            `${consumerCheckId} execution after ${prerequisite} ${behavior}`
+          );
+        }
+      }
+    }
+  );
+});
+
 test("package script runner waits for a cancelled child to close", async () => {
   await withTemporaryDirectory("skills-vibe-cancel-", async (directory) => {
     const marker = path.join(directory, "child-state.txt");
@@ -935,6 +1031,19 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
       defineCheck({
         checkId: "duplicate",
         displayName: "second duplicate",
+        execution() {
+          return { status: "passed", data: { value: true } };
+        }
+      })
+    ],
+    outputs: noOutput
+  });
+  const unknownDependencyDefinition = defineConfig({
+    checks: [
+      defineCheck({
+        checkId: "consumer",
+        dependsOn: ["missing-prerequisite"],
+        displayName: "consumer with an unknown prerequisite",
         execution() {
           return { status: "passed", data: { value: true } };
         }
@@ -1023,6 +1132,14 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
   assert.equal(
     await runVibeCheck([], {
       createDefinition: () => invalidDefinition,
+      reportError: (message) => diagnostics.push(message)
+    }),
+    1
+  );
+  assert.match(diagnostics.at(-1) ?? "", /Vibe Check invocation failed: /u);
+  assert.equal(
+    await runVibeCheck([], {
+      createDefinition: () => unknownDependencyDefinition,
       reportError: (message) => diagnostics.push(message)
     }),
     1

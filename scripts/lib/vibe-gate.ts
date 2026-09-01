@@ -124,6 +124,8 @@ export const releaseRequiredPackageScripts = [
 
 export type GatePackageScript = (typeof releaseRequiredPackageScripts)[number];
 
+export type GatePackageScriptCheckId = `script:${GatePackageScript}`;
+
 const fullOnlyGatePackageScriptSet: ReadonlySet<GatePackageScript> = new Set([
   "test:version-control",
   "test:skill-package-hash"
@@ -147,6 +149,7 @@ export type GateCommand = Readonly<{
 export type SemanticGateCheck = Readonly<{
   checkId: `test:${string}`;
   command: GateCommand;
+  dependsOn?: readonly GatePackageScriptCheckId[];
   displayName: string;
   profile: GateProfile;
 }>;
@@ -173,6 +176,7 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:change-plan:public-distribution",
+    dependsOn: ["script:check:change-plan-cli"],
     displayName: "Change Plan public distribution",
     profile: "default",
     command: bunTest("./tools/change-plan/tests/checks/public-distribution.ts")
@@ -209,6 +213,7 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:decision-records:public-distribution",
+    dependsOn: ["script:check:decision-records-cli"],
     displayName: "Decision Records public distribution",
     profile: "full",
     command: bunTest(
@@ -292,6 +297,7 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:task-graph:public-distribution",
+    dependsOn: ["script:check:task-graph-cli"],
     displayName: "Task Graph public distribution",
     profile: "full",
     command: bunTest("./tools/task-graph/tests/generated-artifacts.test.ts")
@@ -383,7 +389,9 @@ type GateCommandContext =
   | Readonly<{ kind: "package-script"; script: string }>
   | Readonly<{ kind: "semantic" }>;
 
-export function packageScriptCheckId(script: string): string {
+export function packageScriptCheckId(
+  script: GatePackageScript
+): GatePackageScriptCheckId {
   return `script:${script}`;
 }
 
@@ -613,14 +621,64 @@ function createPackageScriptCheck(
   });
 }
 
+function semanticPrerequisiteFailure(
+  check: SemanticGateCheck,
+  dependencies: Readonly<{
+    get(
+      checkId: string
+    ): Readonly<{ ok: boolean; status?: string }> | undefined;
+  }>
+) {
+  for (const checkId of check.dependsOn ?? []) {
+    const dependency = dependencies.get(checkId);
+    const rerun = `bun run ${checkId.slice("script:".length)}`;
+    if (!dependency?.ok) {
+      return {
+        status: "unavailable" as const,
+        reason: {
+          code: "semantic-prerequisite-unavailable",
+          checkIds: [checkId]
+        },
+        messages: [
+          {
+            level: "error" as const,
+            code: "semantic-prerequisite-unavailable",
+            message: `${check.displayName} did not start because ${checkId} has no trusted final result. Fix that prerequisite and rerun ${rerun}.`
+          }
+        ]
+      };
+    }
+    if (dependency.status !== "passed") {
+      return {
+        status: "failed" as const,
+        data: { prerequisite: checkId, prerequisiteStatus: dependency.status },
+        messages: [
+          {
+            level: "error" as const,
+            code: "semantic-prerequisite-failed",
+            message: `${check.displayName} did not start because ${checkId} is ${dependency.status}. Fix that prerequisite and rerun ${rerun}.`
+          }
+        ]
+      };
+    }
+  }
+  return null;
+}
+
 function createSemanticGateCheck(
   check: SemanticGateCheck,
   runner: GateCommandRunner
 ): Check {
   return defineCheck({
     checkId: check.checkId,
+    ...(check.dependsOn === undefined ? {} : { dependsOn: check.dependsOn }),
     displayName: check.displayName,
-    async execution({ project, signal }) {
+    async execution({ dependencies, project, signal }) {
+      const prerequisiteFailure = semanticPrerequisiteFailure(
+        check,
+        dependencies
+      );
+      if (prerequisiteFailure !== null) return prerequisiteFailure;
       return await executeGateCommand({
         command: check.command,
         projectRoot: project.root,

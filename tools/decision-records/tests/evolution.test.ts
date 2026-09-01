@@ -10,50 +10,54 @@ import {
   currentRelativePath,
   decisionFilePath,
   findIndexEntry,
-  initializeGitRepository,
   readIndex,
   runSourceCli,
   runSuccessfulSourceCli,
   traceDecision,
-  withFixtureWorkspace
+  withFixtureWorkspace,
+  withGitFixtureWorkspace
 } from "./support.ts";
 
 test("activate establishes candidate source relations and archives their active targets", () =>
-  withFixtureWorkspace("activate-source-relations", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    commitWorkspace(workspaceRoot);
-    const successorRelativePath = "use-candidate-source-relation.md";
-    await fs.writeFile(
-      decisionFilePath(workspaceRoot, successorRelativePath),
-      candidateDecisionBody({
-        relations: [{ type: "修订", target: currentRelativePath }]
-      }),
-      "utf8"
-    );
+  withGitFixtureWorkspace(
+    "activate-source-relations",
+    async (workspaceRoot) => {
+      const successorRelativePath = "use-candidate-source-relation.md";
+      await fs.writeFile(
+        decisionFilePath(workspaceRoot, successorRelativePath),
+        candidateDecisionBody({
+          relations: [{ type: "修订", target: currentRelativePath }]
+        }),
+        "utf8"
+      );
 
-    const strictBefore = await validateDecisionRecords({ workspaceRoot });
-    assert.deepEqual(strictBefore.errors, []);
-    const output = await runSuccessfulSourceCli([
-      "activate",
-      successorRelativePath,
-      "--alignment",
-      "aligned",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.match(output, /archived new active predecessors/);
+      const strictBefore = await validateDecisionRecords({ workspaceRoot });
+      assert.deepEqual(strictBefore.errors, []);
+      const output = await runSuccessfulSourceCli([
+        "activate",
+        successorRelativePath,
+        "--alignment",
+        "aligned",
+        "--root",
+        workspaceRoot
+      ]);
+      assert.match(output, /archived new active predecessors/);
 
-    const index = await readIndex(
-      path.join(workspaceRoot, "docs", "decisions", "decision-index.json")
-    );
-    assert.equal(findIndexEntry(index, currentRelativePath).status, "archived");
-    assert.deepEqual(findIndexEntry(index, successorRelativePath).relations, [
-      {
-        type: "修订",
-        target: currentRelativePath
-      }
-    ]);
-  }));
+      const index = await readIndex(
+        path.join(workspaceRoot, "docs", "decisions", "decision-index.json")
+      );
+      assert.equal(
+        findIndexEntry(index, currentRelativePath).status,
+        "archived"
+      );
+      assert.deepEqual(findIndexEntry(index, successorRelativePath).relations, [
+        {
+          type: "修订",
+          target: currentRelativePath
+        }
+      ]);
+    }
+  ));
 
 test("activate relation replacement overrides rather than merges candidate relations", () =>
   withFixtureWorkspace("activate-relation-replace", async (workspaceRoot) => {
@@ -399,7 +403,7 @@ test("activate rejects relation replacement for established decisions", () =>
   ));
 
 test("evolve performs a closed split with independently aligned successors", () =>
-  withFixtureWorkspace("evolve-closed-split", async (workspaceRoot) => {
+  withGitFixtureWorkspace("evolve-closed-split", async (workspaceRoot) => {
     const established = await establishClosedSplit(workspaceRoot);
     const index = await readIndex(established.indexPath);
     const coarseState = findIndexEntry(index, established.coarseRelativePath);
@@ -749,7 +753,7 @@ test("evolve keeps a later reallocation separate from its archived predecessor e
   ));
 
 test("discard rejects a split successor that would leave an open split", () =>
-  withFixtureWorkspace("discard-open-split", async (workspaceRoot) => {
+  withGitFixtureWorkspace("discard-open-split", async (workspaceRoot) => {
     const established = await establishClosedSplit(workspaceRoot);
     const discardedPath = decisionFilePath(
       workspaceRoot,
@@ -776,7 +780,7 @@ test("discard rejects a split successor that would leave an open split", () =>
   }));
 
 test("evolve discards one split successor when it replaces the complete closure", () =>
-  withFixtureWorkspace(
+  withGitFixtureWorkspace(
     "evolve-replace-split-successor",
     async (workspaceRoot) => {
       const established = await establishClosedSplit(workspaceRoot);
@@ -818,7 +822,7 @@ test("evolve discards one split successor when it replaces the complete closure"
   ));
 
 test("evolve adds a split successor only when every existing successor is selected", () =>
-  withFixtureWorkspace("evolve-extend-split", async (workspaceRoot) => {
+  withGitFixtureWorkspace("evolve-extend-split", async (workspaceRoot) => {
     const established = await establishClosedSplit(workspaceRoot);
     const thirdRelativePath = "add-third-split-slice.md";
     await fs.writeFile(
@@ -887,7 +891,7 @@ test("evolve rejects a discarded Decision ID selected as a successor without mut
   ));
 
 test("evolve rejects a split extension that omits an existing successor before writing", () =>
-  withFixtureWorkspace("evolve-omit-split", async (workspaceRoot) => {
+  withGitFixtureWorkspace("evolve-omit-split", async (workspaceRoot) => {
     const established = await establishClosedSplit(workspaceRoot);
     const thirdRelativePath = "omit-existing-split-slice.md";
     const thirdPath = decisionFilePath(workspaceRoot, thirdRelativePath);
@@ -1095,8 +1099,6 @@ async function establishAdditionalActivePredecessor(
 async function establishClosedSplit(
   workspaceRoot: string
 ): Promise<ClosedSplit> {
-  initializeGitRepository(workspaceRoot);
-  commitWorkspace(workspaceRoot);
   const coarseRelativePath = "use-coarse-future-direction.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, coarseRelativePath),

@@ -1,0 +1,2 @@
+#!/usr/bin/env node
+console.log(JSON.stringify({ argv: process.argv.slice(2), cwd: process.cwd() }));

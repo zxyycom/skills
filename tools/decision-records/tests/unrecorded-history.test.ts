@@ -15,7 +15,8 @@ import {
   readIndex,
   runSourceCli,
   runSuccessfulSourceCli,
-  withFixtureWorkspace
+  withFixtureWorkspace,
+  withGitFixtureWorkspace
 } from "./support.ts";
 
 test("archive pauses before preserving an unrecorded established decision", () =>
@@ -84,8 +85,6 @@ const unrecordedIntermediateRelativePath = "use-unrecorded-intermediate.md";
 async function establishUnrecordedIntermediate(
   workspaceRoot: string
 ): Promise<{ indexPath: string; intermediatePath: string }> {
-  initializeGitRepository(workspaceRoot);
-  commitWorkspace(workspaceRoot);
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const intermediatePath = decisionFilePath(
     workspaceRoot,
@@ -108,79 +107,84 @@ async function establishUnrecordedIntermediate(
 }
 
 test("unrecorded decision evolution pauses until history is explicitly preserved", () =>
-  withFixtureWorkspace("unrecorded-evolution-keep", async (workspaceRoot) => {
-    const { indexPath, intermediatePath } =
-      await establishUnrecordedIntermediate(workspaceRoot);
-    const successorRelativePath = "use-preserved-unrecorded-history.md";
-    const successorPath = decisionFilePath(
-      workspaceRoot,
-      successorRelativePath
-    );
-    const successorCandidate = candidateDecisionBody();
-    await fs.writeFile(successorPath, successorCandidate, "utf8");
-    const intermediateBeforeWarning = await fs.readFile(
-      intermediatePath,
-      "utf8"
-    );
-    const indexBeforeWarning = await fs.readFile(indexPath, "utf8");
-    const paused = await runSourceCli([
-      "activate",
-      successorRelativePath,
-      "--alignment",
-      "aligned",
-      "--relation",
-      "修订=" + unrecordedIntermediateRelativePath,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(paused.exitCode, 1);
-    assert.match(paused.stderr, /command paused with warnings/);
-    assert.match(
-      paused.stderr,
-      new RegExp(
-        "Predecessor decision " +
-          unrecordedIntermediateRelativePath +
-          " has not entered Git HEAD"
-      )
-    );
-    assert.match(paused.stderr, /this 修订 relation should be preserved/);
-    assert.match(paused.stderr, /--keep-unrecorded-history/);
-    assert.equal(await fs.readFile(successorPath, "utf8"), successorCandidate);
-    assert.equal(
-      await fs.readFile(intermediatePath, "utf8"),
-      intermediateBeforeWarning
-    );
-    assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeWarning);
+  withGitFixtureWorkspace(
+    "unrecorded-evolution-keep",
+    async (workspaceRoot) => {
+      const { indexPath, intermediatePath } =
+        await establishUnrecordedIntermediate(workspaceRoot);
+      const successorRelativePath = "use-preserved-unrecorded-history.md";
+      const successorPath = decisionFilePath(
+        workspaceRoot,
+        successorRelativePath
+      );
+      const successorCandidate = candidateDecisionBody();
+      await fs.writeFile(successorPath, successorCandidate, "utf8");
+      const intermediateBeforeWarning = await fs.readFile(
+        intermediatePath,
+        "utf8"
+      );
+      const indexBeforeWarning = await fs.readFile(indexPath, "utf8");
+      const paused = await runSourceCli([
+        "activate",
+        successorRelativePath,
+        "--alignment",
+        "aligned",
+        "--relation",
+        "修订=" + unrecordedIntermediateRelativePath,
+        "--root",
+        workspaceRoot
+      ]);
+      assert.equal(paused.exitCode, 1);
+      assert.match(paused.stderr, /command paused with warnings/);
+      assert.match(
+        paused.stderr,
+        new RegExp(
+          "Predecessor decision " +
+            unrecordedIntermediateRelativePath +
+            " has not entered Git HEAD"
+        )
+      );
+      assert.match(paused.stderr, /this 修订 relation should be preserved/);
+      assert.match(paused.stderr, /--keep-unrecorded-history/);
+      assert.equal(
+        await fs.readFile(successorPath, "utf8"),
+        successorCandidate
+      );
+      assert.equal(
+        await fs.readFile(intermediatePath, "utf8"),
+        intermediateBeforeWarning
+      );
+      assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeWarning);
 
-    const preserved = await runSourceCli([
-      "activate",
-      successorRelativePath,
-      "--alignment",
-      "aligned",
-      "--relation",
-      "修订=" + unrecordedIntermediateRelativePath,
-      "--keep-unrecorded-history",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(preserved.exitCode, 0, preserved.stderr);
-    const preservedIndex = await readIndex(indexPath);
-    assert.equal(
-      findIndexEntry(preservedIndex, unrecordedIntermediateRelativePath).status,
-      "archived"
-    );
-    assert.deepEqual(
-      findIndexEntry(preservedIndex, successorRelativePath).relations,
-      [{ type: "修订", target: unrecordedIntermediateRelativePath }]
-    );
-  }));
+      const preserved = await runSourceCli([
+        "activate",
+        successorRelativePath,
+        "--alignment",
+        "aligned",
+        "--relation",
+        "修订=" + unrecordedIntermediateRelativePath,
+        "--keep-unrecorded-history",
+        "--root",
+        workspaceRoot
+      ]);
+      assert.equal(preserved.exitCode, 0, preserved.stderr);
+      const preservedIndex = await readIndex(indexPath);
+      assert.equal(
+        findIndexEntry(preservedIndex, unrecordedIntermediateRelativePath)
+          .status,
+        "archived"
+      );
+      assert.deepEqual(
+        findIndexEntry(preservedIndex, successorRelativePath).relations,
+        [{ type: "修订", target: unrecordedIntermediateRelativePath }]
+      );
+    }
+  ));
 
 test("evolve pauses for an unrecorded archived direct predecessor", () =>
-  withFixtureWorkspace(
+  withGitFixtureWorkspace(
     "unrecorded-archived-predecessor",
     async (workspaceRoot) => {
-      initializeGitRepository(workspaceRoot);
-      commitWorkspace(workspaceRoot);
       const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
       const indexPath = path.join(decisionsDirectory, "decision-index.json");
       const predecessorRelativePath = "use-unrecorded-archived-target.md";
@@ -272,11 +276,9 @@ test("evolve pauses for an unrecorded archived direct predecessor", () =>
   ));
 
 test("evolve lists unrecorded predecessor warnings in Decision ID order", () =>
-  withFixtureWorkspace(
+  withGitFixtureWorkspace(
     "unrecorded-predecessor-warning-order",
     async (workspaceRoot) => {
-      initializeGitRepository(workspaceRoot);
-      commitWorkspace(workspaceRoot);
       const predecessorIds = [
         "z-unrecorded-predecessor.md",
         "a-unrecorded-predecessor.md"
@@ -329,7 +331,7 @@ test("evolve lists unrecorded predecessor warnings in Decision ID order", () =>
   ));
 
 test("evolve discards an unrecorded intermediate with explicit final relations", () =>
-  withFixtureWorkspace(
+  withGitFixtureWorkspace(
     "unrecorded-evolution-discard",
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
@@ -387,7 +389,7 @@ test("evolve discards an unrecorded intermediate with explicit final relations",
   ));
 
 test("evolve discard accepts source-empty final relations", () =>
-  withFixtureWorkspace(
+  withGitFixtureWorkspace(
     "unrecorded-evolution-implicit-empty",
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
@@ -419,7 +421,7 @@ test("evolve discard accepts source-empty final relations", () =>
   ));
 
 test("evolve discard accepts an explicitly empty final relation set", () =>
-  withFixtureWorkspace(
+  withGitFixtureWorkspace(
     "unrecorded-evolution-empty-relations",
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
@@ -451,7 +453,7 @@ test("evolve discard accepts an explicitly empty final relation set", () =>
   ));
 
 test("evolve discard accepts an unrelated archived final relation", () =>
-  withFixtureWorkspace(
+  withGitFixtureWorkspace(
     "unrecorded-evolution-relation-boundary",
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
@@ -484,42 +486,48 @@ test("evolve discard accepts an unrelated archived final relation", () =>
   ));
 
 test("evolve discard pauses before deleting a recorded decision", () =>
-  withFixtureWorkspace("recorded-evolution-discard", async (workspaceRoot) => {
-    const { indexPath, intermediatePath } =
-      await establishUnrecordedIntermediate(workspaceRoot);
-    commitWorkspace(workspaceRoot, "record intermediate decision");
-    const successorRelativePath = "reject-recorded-discard.md";
-    const successorPath = decisionFilePath(
-      workspaceRoot,
-      successorRelativePath
-    );
-    const successorCandidate = candidateDecisionBody();
-    await fs.writeFile(successorPath, successorCandidate, "utf8");
-    const intermediateBefore = await fs.readFile(intermediatePath, "utf8");
-    const indexBefore = await fs.readFile(indexPath, "utf8");
-    const rejected = await runSourceCli([
-      "evolve",
-      "--successor",
-      "aligned=" + successorRelativePath,
-      "--discard",
-      unrecordedIntermediateRelativePath,
-      "--relation",
-      "修订=" + currentRelativePath,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(rejected.exitCode, 1);
-    assert.match(rejected.stderr, /has entered Git HEAD/);
-    assert.equal(await fs.readFile(successorPath, "utf8"), successorCandidate);
-    assert.equal(
-      await fs.readFile(intermediatePath, "utf8"),
-      intermediateBefore
-    );
-    assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
-  }));
+  withGitFixtureWorkspace(
+    "recorded-evolution-discard",
+    async (workspaceRoot) => {
+      const { indexPath, intermediatePath } =
+        await establishUnrecordedIntermediate(workspaceRoot);
+      commitWorkspace(workspaceRoot, "record intermediate decision");
+      const successorRelativePath = "reject-recorded-discard.md";
+      const successorPath = decisionFilePath(
+        workspaceRoot,
+        successorRelativePath
+      );
+      const successorCandidate = candidateDecisionBody();
+      await fs.writeFile(successorPath, successorCandidate, "utf8");
+      const intermediateBefore = await fs.readFile(intermediatePath, "utf8");
+      const indexBefore = await fs.readFile(indexPath, "utf8");
+      const rejected = await runSourceCli([
+        "evolve",
+        "--successor",
+        "aligned=" + successorRelativePath,
+        "--discard",
+        unrecordedIntermediateRelativePath,
+        "--relation",
+        "修订=" + currentRelativePath,
+        "--root",
+        workspaceRoot
+      ]);
+      assert.equal(rejected.exitCode, 1);
+      assert.match(rejected.stderr, /has entered Git HEAD/);
+      assert.equal(
+        await fs.readFile(successorPath, "utf8"),
+        successorCandidate
+      );
+      assert.equal(
+        await fs.readFile(intermediatePath, "utf8"),
+        intermediateBefore
+      );
+      assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
+    }
+  ));
 
 test("evolve discard flag deletes a recorded decision without reading Git HEAD", () =>
-  withFixtureWorkspace(
+  withGitFixtureWorkspace(
     "recorded-evolution-discard-flag-corrupt-head",
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
@@ -558,7 +566,7 @@ test("evolve discard flag deletes a recorded decision without reading Git HEAD",
   ));
 
 test("evolve discard flag still pauses for an unrecorded final predecessor", () =>
-  withFixtureWorkspace(
+  withGitFixtureWorkspace(
     "recorded-evolution-discard-flag-unrecorded-relation",
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
@@ -635,7 +643,7 @@ test("evolve discard flag still pauses for an unrecorded final predecessor", () 
   ));
 
 test("evolve discard rejects a predecessor referenced by another candidate", () =>
-  withFixtureWorkspace(
+  withGitFixtureWorkspace(
     "referenced-evolution-discard",
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =

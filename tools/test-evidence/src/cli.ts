@@ -82,9 +82,25 @@ type CatalogCliArgs = CatalogCliBase &
     | Readonly<{ command: "topics" }>
   );
 
+type CatalogCliIo = Readonly<{
+  stderr: (text: string) => void;
+  stdout: (text: string) => void;
+}>;
+
+export type TestEvidenceCatalogCliOptions = Readonly<{
+  cwd?: string;
+  io?: CatalogCliIo;
+}>;
+
 export async function runTestEvidenceCatalogCli(
-  argv: readonly string[] = process.argv.slice(2)
+  argv: readonly string[] = process.argv.slice(2),
+  options: TestEvidenceCatalogCliOptions = {}
 ): Promise<number> {
+  const cwd = options.cwd ?? process.cwd();
+  const io = options.io ?? {
+    stderr: (text: string) => process.stderr.write(text),
+    stdout: (text: string) => process.stdout.write(text)
+  };
   let exitCode = 0;
   const program = new Command()
     .name("test-evidence-catalog")
@@ -97,6 +113,10 @@ export async function runTestEvidenceCatalogCli(
     )
     .option("--json", "Write one machine-readable result to stdout.")
     .configureHelp({ showGlobalOptions: true })
+    .configureOutput({
+      writeErr: io.stderr,
+      writeOut: io.stdout
+    })
     .showHelpAfterError()
     .addHelpText(
       "afterAll",
@@ -108,7 +128,7 @@ export async function runTestEvidenceCatalogCli(
     .exitOverride();
 
   const execute = async (args: CatalogCliArgs): Promise<void> => {
-    exitCode = await runCatalogCommand(args);
+    exitCode = await runCatalogCommand(args, io);
   };
 
   const check = subcommand(
@@ -119,7 +139,7 @@ export async function runTestEvidenceCatalogCli(
   );
   check.action(() =>
     execute({
-      ...commandBase(check),
+      ...commandBase(check, cwd),
       command: "check"
     })
   );
@@ -151,7 +171,7 @@ export async function runTestEvidenceCatalogCli(
         "Filter cases by one defined test-evidence topic."
       ).argParser(parseSingleTopic)
     );
-  list.action(() => execute(listCommandArgs(list)));
+  list.action(() => execute(listCommandArgs(list, cwd)));
 
   const topics = subcommand(
     program,
@@ -160,7 +180,7 @@ export async function runTestEvidenceCatalogCli(
   );
   topics.action(() =>
     execute({
-      ...commandBase(topics),
+      ...commandBase(topics, cwd),
       command: "topics"
     })
   );
@@ -172,7 +192,7 @@ export async function runTestEvidenceCatalogCli(
   );
   show.action((caseId: string) =>
     execute({
-      ...commandBase(show),
+      ...commandBase(show, cwd),
       caseId,
       command: "show"
     })
@@ -189,7 +209,7 @@ export async function runTestEvidenceCatalogCli(
   );
   stageIndex.action((caseIds: string[]) =>
     execute({
-      ...commandBase(stageIndex),
+      ...commandBase(stageIndex, cwd),
       caseIds,
       command: "stage-index"
     })
@@ -200,7 +220,7 @@ export async function runTestEvidenceCatalogCli(
     "sync-index",
     "Check or rebuild the derived test-evidence index."
   ).option("--write", "Atomically rebuild the index from the current catalog.");
-  syncIndex.action(() => execute(syncCommandArgs(syncIndex)));
+  syncIndex.action(() => execute(syncCommandArgs(syncIndex, cwd)));
 
   try {
     await program.parseAsync(["node", "test-evidence-catalog.mjs", ...argv]);
@@ -208,13 +228,16 @@ export async function runTestEvidenceCatalogCli(
     if (error instanceof CommanderError) {
       return error.exitCode === 0 ? 0 : 2;
     }
-    console.error(error instanceof Error ? error.message : String(error));
+    io.stderr(`${error instanceof Error ? error.message : String(error)}\n`);
     return 1;
   }
   return exitCode;
 }
 
-async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
+async function runCatalogCommand(
+  args: CatalogCliArgs,
+  io: CatalogCliIo
+): Promise<number> {
   if (args.command === "stage-index") {
     const execution = await executeTestEvidenceIndexStage({
       caseIds: args.caseIds,
@@ -222,11 +245,14 @@ async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
     });
     return execution.match(
       (result) => {
-        writeOutput(formatTestEvidenceIndexStage(result, args.json));
+        writeOutput(io, formatTestEvidenceIndexStage(result, args.json));
         return 0;
       },
       (failure) => {
-        writeOutput(formatTestEvidenceIndexStage(failure.result, args.json));
+        writeOutput(
+          io,
+          formatTestEvidenceIndexStage(failure.result, args.json)
+        );
         return failure.kind === "invalid-arguments" ? 2 : 1;
       }
     );
@@ -235,34 +261,34 @@ async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
   if (args.command === "sync-index") {
     const result = await syncTestEvidenceIndex({
       mode: args.write ? "write" : "check",
-      workspaceRoot: path.resolve(args.workspaceRoot)
+      workspaceRoot: args.workspaceRoot
     });
-    writeOutput(formatTestEvidenceIndexSync(result, args.json));
+    writeOutput(io, formatTestEvidenceIndexSync(result, args.json));
     return result.status === "ok" ? 0 : 1;
   }
 
   if (args.command === "check") {
     const report = await validateTestEvidence({
-      workspaceRoot: path.resolve(args.workspaceRoot)
+      workspaceRoot: args.workspaceRoot
     });
-    writeOutput(formatTestEvidenceReport(report, args.json));
+    writeOutput(io, formatTestEvidenceReport(report, args.json));
     return hasBlockingDiagnostics(report.diagnostics) ? 1 : 0;
   }
 
   if (args.command === "topics") {
     const result = await listTestEvidenceTopics({
-      workspaceRoot: path.resolve(args.workspaceRoot)
+      workspaceRoot: args.workspaceRoot
     });
-    writeOutput(formatTestEvidenceTopics(result, args.json));
+    writeOutput(io, formatTestEvidenceTopics(result, args.json));
     return hasBlockingDiagnostics(result.diagnostics) ? 1 : 0;
   }
 
   if (args.command === "show") {
     const result = await showTestEvidenceCase({
       caseId: args.caseId,
-      workspaceRoot: path.resolve(args.workspaceRoot)
+      workspaceRoot: args.workspaceRoot
     });
-    writeOutput(formatTestEvidenceCaseShow(result, args.json));
+    writeOutput(io, formatTestEvidenceCaseShow(result, args.json));
     return hasBlockingDiagnostics(result.diagnostics) ? 1 : 0;
   }
 
@@ -271,34 +297,35 @@ async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
     offset: args.offset,
     query: args.query,
     topic: args.topic,
-    workspaceRoot: path.resolve(args.workspaceRoot)
+    workspaceRoot: args.workspaceRoot
   });
   if (hasBlockingDiagnostics(result.diagnostics)) {
-    writeOutput(formatTestEvidenceQueryFailure(result, args.json));
+    writeOutput(io, formatTestEvidenceQueryFailure(result, args.json));
     return result.diagnostics.some(
       (entry) => entry.code === "query.topic-unknown"
     )
       ? 2
       : 1;
   }
-  writeOutput(formatTestEvidenceCaseList(result, args.json));
+  writeOutput(io, formatTestEvidenceCaseList(result, args.json));
   return 0;
 }
 
-function commandBase(commandNode: Command): CatalogCliBase {
+function commandBase(commandNode: Command, cwd: string): CatalogCliBase {
   const options = commandNode.optsWithGlobals<ParsedOptions>();
   return {
     json: options.json ?? false,
-    workspaceRoot: options.root ?? process.cwd()
+    workspaceRoot: path.resolve(cwd, options.root ?? ".")
   };
 }
 
 function listCommandArgs(
-  commandNode: Command
+  commandNode: Command,
+  cwd: string
 ): Extract<CatalogCliArgs, { command: "list" }> {
   const options = commandNode.optsWithGlobals<ParsedOptions>();
   return {
-    ...commandBase(commandNode),
+    ...commandBase(commandNode, cwd),
     command: "list",
     limit: options.limit ?? testEvidenceQueryDefaultLimit,
     offset: options.offset ?? 0,
@@ -308,11 +335,12 @@ function listCommandArgs(
 }
 
 function syncCommandArgs(
-  commandNode: Command
+  commandNode: Command,
+  cwd: string
 ): Extract<CatalogCliArgs, { command: "sync-index" }> {
   const options = commandNode.optsWithGlobals<ParsedOptions>();
   return {
-    ...commandBase(commandNode),
+    ...commandBase(commandNode, cwd),
     command: "sync-index",
     write: options.write ?? false
   };
@@ -373,12 +401,12 @@ function parseCliInteger(value: string): number {
   return parsed;
 }
 
-function writeOutput(output: TestEvidenceCliOutput): void {
+function writeOutput(io: CatalogCliIo, output: TestEvidenceCliOutput): void {
   if (output.stderr.length > 0) {
-    process.stderr.write(output.stderr);
+    io.stderr(output.stderr);
   }
   if (output.stdout.length > 0) {
-    process.stdout.write(output.stdout);
+    io.stdout(output.stdout);
   }
 }
 

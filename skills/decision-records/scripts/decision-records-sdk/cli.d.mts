@@ -6,8 +6,13 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { type DecisionRecordsCliIo } from "./cli-io.mjs";
 import { validateDecisionRecords } from "./index.mjs";
 import { scanDecisionRecords } from "./scan.mjs";
-export declare function runDecisionRecordsCli(argv?: readonly string[]): Promise<number>;
+export type DecisionRecordsCliOptions = {
+    cwd?: string;
+    io?: DecisionRecordsCliIo;
+};
+export declare function runDecisionRecordsCli(argv?: readonly string[], options?: DecisionRecordsCliOptions): Promise<number>;
 export { scanDecisionRecords, validateDecisionRecords };
 export type { DecisionAlignment, DecisionCandidateDocument, DecisionDocument, DecisionId, DecisionIndex, DecisionIndexEntry, DecisionIndexMetadata, DecisionIndexStoredEntry, DecisionIndexState, DecisionListAlignment, DecisionListStatus, DecisionMetadata, DecisionProjection, DecisionRecord, DecisionRecordSource, DecisionRelation, DecisionRelationOverride, DecisionRelationType, DecisionScan, DecisionScanOptions, DecisionSuccessor, DecisionTags, DecisionStatus, DecisionSourceRevision, DecisionSourcePath, DecisionTag, EstablishedDecisionStatus, DecisionValidationResult } from "./types.mjs";

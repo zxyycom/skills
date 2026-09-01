@@ -111,6 +111,16 @@ full 同时验证工作区正确性与 release snapshot，但两者输入不能�
 | 语义 Check | adapter 以 catalog 声明的 `bun test` 或必要的 Node 原生命令运行精确测试入口。非零退出为 failed，不能启动、取消或无法形成可信退出结果为 unavailable；诊断提供同一命令以便直接重跑。 |
 | 维护 package script Check | adapter 以参数数组运行 `bun run <script>`，保留既有稳定维护命令的行为验证；它不替代语义 Check。取消与后代进程回收边界仍由脚本协作处理。 |
 
+三个消费当前工作树分发制品的 public-distribution semantic Check 必须先验证对应的唯一生成一致性 Check：
+
+| public-distribution Check | 生成前置 | 稳定重跑入口 |
+| --- | --- | --- |
+| `test:change-plan:public-distribution` | `script:check:change-plan-cli` | `bun run check:change-plan-cli`、`bun run test:change-plan-cli` |
+| `test:decision-records:public-distribution` | `script:check:decision-records-cli` | `bun run check:decision-records-cli`、`bun run test:decision-records-cli` |
+| `test:task-graph:public-distribution` | `script:check:task-graph-cli` | `bun run check:task-graph-cli`、`bun run test:task-graph-cli` |
+
+`dependsOn` 只向 Vibe 声明静态调度关系。semantic Check 的包装层还必须读取其**直接**前置的最终 product result：只有可信 `passed` 才启动 consumer 脚本；前置 failed、unavailable 或没有可信最终结果时，consumer 不读取制品、不运行，并把修复与重跑指向该前置。此前置表达当前制品的信任边界，避免失败后的无效 consumer 输出并改善归因；它不减少成功路径中既有的单次生成/漂移检查，也不得据此宣称 happy-path 加速。
+
 full 的 release DAG 固定为：
 
 ```text
@@ -190,6 +200,15 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 3. `check:*` 只读验证仓库内容或生成产物；生成工具的 `sync:*` 与 `check:*` 必须使用同一构建路径。
 
 只有具备独立维护操作、完整检查消费者或生成写入责任的命令才保留为 package script。`scripts/validators/project-config.ts` 检查这些稳定入口仍存在于 `package.json`。
+
+### 工具 CLI 与 Git fixture 测试边界
+
+`test:<tool>` 是工具行为与分发边界的稳定重跑入口；需要验证当前 Gate profile 时使用 `bun run check` 或 `bun run check --full`，不在维护说明中以测试文件路径替代这些 package scripts。
+
+1. CLI 的参数组合、领域错误、文本/JSON 输出和退出结果在源码入口测试。入口可以接收局部 `argv`、工作目录和 stdout/stderr writer，但这些测试参数不建立新的公开 SDK。
+2. 真实 Node smoke 只证明源码调用不能覆盖的分发边界：已安装/分发制品可启动、真实 argv 解析、stdout/stderr 分流、退出状态和模块解析。它不复制源码入口已经覆盖的参数矩阵。
+3. 需要固定 Git 基线的测试在其测试 owner 下提交普通原始 fixture 文件树，而不是提交 `.git/`、bundle、可变工作区或绝对路径。启动 helper 复制该树到 case 私有目录，执行真实 `git init`、固定本地配置、`add` 和基线 `commit`；fixture 原始树是长期输入，helper 是唯一初始化路径。
+4. 并行 case 不共享可变 Git 状态：只读查询可以复用只读模板；index、worktree、refs、config、lock 或恢复路径分别使用其隔离所需的私有状态。只有至少两个实际 consumer 共享同一初始化不变量时，才将最小 bootstrap helper 放入 `tools/shared/tests/`。
 
 本仓库使用固定的 `docs/test-evidence/` 根目录、其中的受控 topic 表、
 每个 `<topic>/<slug>.md` 单 case 文件和固定派生索引维护测试账本。账本覆盖

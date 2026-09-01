@@ -1,0 +1,76 @@
+{
+  "definitionVersion": 3,
+  "entries": {
+    "TEST-EVIDENCE-STAGE-A-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STAGE-A-001 Case A baseline Case A baseline remains independently stageable. Case A baseline produces an observable selected index entry. tests/staging.test.ts > TEST-EVIDENCE-STAGE-A-001"
+        ],
+        "topic": [
+          "runtime"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "tests/staging.test.ts > TEST-EVIDENCE-STAGE-A-001"
+        ],
+        "id": "TEST-EVIDENCE-STAGE-A-001",
+        "line": 1,
+        "searchText": "Case A baseline Case A baseline remains independently stageable. Case A baseline produces an observable selected index entry. tests/staging.test.ts > TEST-EVIDENCE-STAGE-A-001",
+        "sourcePath": "runtime/stage-a.md",
+        "summary": "Case A baseline remains independently stageable.",
+        "title": "Case A baseline"
+      }
+    },
+    "TEST-EVIDENCE-STAGE-B-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STAGE-B-001 Case B baseline Case B baseline remains independently stageable. Case B baseline produces an observable selected index entry. tests/staging.test.ts > TEST-EVIDENCE-STAGE-B-001"
+        ],
+        "topic": [
+          "runtime"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "tests/staging.test.ts > TEST-EVIDENCE-STAGE-B-001"
+        ],
+        "id": "TEST-EVIDENCE-STAGE-B-001",
+        "line": 1,
+        "searchText": "Case B baseline Case B baseline remains independently stageable. Case B baseline produces an observable selected index entry. tests/staging.test.ts > TEST-EVIDENCE-STAGE-B-001",
+        "sourcePath": "runtime/stage-b.md",
+        "summary": "Case B baseline remains independently stageable.",
+        "title": "Case B baseline"
+      }
+    }
+  },
+  "keyDefinitions": [
+    {
+      "name": "search",
+      "mode": "text"
+    },
+    {
+      "name": "topic",
+      "mode": "exact"
+    }
+  ],
+  "metadata": {
+    "topics": [
+      {
+        "description": "Runtime staging contract evidence.",
+        "id": "runtime"
+      }
+    ]
+  },
+  "namespace": "test-evidence",
+  "schemaVersion": 3,
+  "sourceRevision": {
+    "entries": {
+      "TEST-EVIDENCE-STAGE-A-001": "sha256:216b6b3430f04dbe93ec75ddd0ab9cab9f80d2e3a5f431db12bf5faa468c6e7b",
+      "TEST-EVIDENCE-STAGE-B-001": "sha256:0e6fd32dc974741af5873d580e2e72f6148687b3c698083aababcdb53a913230"
+    },
+    "metadata": "sha256:db09afdfc3ffc554135fc009f904335c85c71e1f0bd24dea95049c8d721b9f3f"
+  }
+}

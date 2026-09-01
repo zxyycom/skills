@@ -9,7 +9,11 @@ import {
   testEvidenceLedgerReportSchema,
   testEvidenceTestQueryResultSchema
 } from "../src/ledger/index.ts";
-import { runLedgerCli, withLedgerWorkspace } from "./ledger-fixture.ts";
+import {
+  runLedgerCli,
+  runLedgerCliSmoke,
+  withLedgerWorkspace
+} from "./ledger-fixture.ts";
 
 test("ledger CLI check emits machine reports and maps validation status to exits", async () => {
   await withLedgerWorkspace(async (workspaceRoot) => {
@@ -52,6 +56,13 @@ test("ledger CLI check emits machine reports and maps validation status to exits
       relations: 6,
       tags: 2
     });
+
+    const currentFromInjectedCwd = await runLedgerCli(
+      ["--root", ".", "--json", "check"],
+      { cwd: workspaceRoot }
+    );
+    assert.equal(currentFromInjectedCwd.code, 0);
+    assert.equal(currentFromInjectedCwd.stderr, "");
   });
 });
 
@@ -279,5 +290,29 @@ test("ledger CLI rejects missing repeated malformed and excess arguments with us
       assert.equal(result.stdout, "", args.join(" "));
       assert.notEqual(result.stderr, "", args.join(" "));
     }
+  });
+});
+
+test("ledger CLI Node smoke preserves process argv, output streams, and exit status", async () => {
+  await withLedgerWorkspace(async (workspaceRoot) => {
+    await syncTestEvidenceLedgerIndex({ mode: "write", workspaceRoot });
+    const success = await runLedgerCliSmoke([
+      "--root",
+      workspaceRoot,
+      "--json",
+      "check"
+    ]);
+    assert.equal(success.code, 0);
+    assert.equal(success.stderr, "");
+    assert.deepEqual(
+      v.parse(testEvidenceLedgerReportSchema, JSON.parse(success.stdout))
+        .diagnostics,
+      []
+    );
+
+    const invalid = await runLedgerCliSmoke(["check"]);
+    assert.equal(invalid.code, 2);
+    assert.equal(invalid.stdout, "");
+    assert.match(invalid.stderr, /required option '--root <workspace-root>'/u);
   });
 });

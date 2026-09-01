@@ -464,7 +464,7 @@
     "CHANGE-PLAN-CLI-CHECK-ALL-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CLI-CHECK-ALL-001 Check-all CLI 门禁 Active Change 集合 `check-all` 固定门禁 active Change，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整 active 成员结果。 JSON 中每个成员都公开 `distance` 并具有 `status: active`，archive 中的历史成员不进入结果。 tools/change-plan/tests/cli.test.ts > CLI check-all gates active change collections bun test --test-name-pattern=\"^CLI check-all gates active change collections$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-CHECK-ALL-001 Check-all CLI 门禁 Active Change 集合 `check-all` 固定门禁 active Change，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整 active 成员结果。 JSON 中每个成员都公开 `distance` 并具有 `status: active`，archive 中的历史成员不进入结果；源码 CLI 入口以注入的当前目录解析默认根时仍返回同一结构化根级失败。 tools/change-plan/tests/cli.test.ts > CLI check-all gates active change collections bun test --test-name-pattern=\"^CLI check-all gates active change collections$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -478,7 +478,7 @@
         ],
         "id": "CHANGE-PLAN-CLI-CHECK-ALL-001",
         "line": 1,
-        "searchText": "Check-all CLI 门禁 Active Change 集合 `check-all` 固定门禁 active Change，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整 active 成员结果。 JSON 中每个成员都公开 `distance` 并具有 `status: active`，archive 中的历史成员不进入结果。 tools/change-plan/tests/cli.test.ts > CLI check-all gates active change collections bun test --test-name-pattern=\"^CLI check-all gates active change collections$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Check-all CLI 门禁 Active Change 集合 `check-all` 固定门禁 active Change，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整 active 成员结果。 JSON 中每个成员都公开 `distance` 并具有 `status: active`，archive 中的历史成员不进入结果；源码 CLI 入口以注入的当前目录解析默认根时仍返回同一结构化根级失败。 tools/change-plan/tests/cli.test.ts > CLI check-all gates active change collections bun test --test-name-pattern=\"^CLI check-all gates active change collections$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/cli-check-all-gates-active-change-collections.md",
         "summary": "`check-all` 固定门禁 active Change，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。",
         "title": "Check-all CLI 门禁 Active Change 集合"
@@ -666,6 +666,29 @@
         "sourcePath": "change-plan/cli-list-returns-structured-lifecycle-root-diagnostics.md",
         "summary": "List CLI 的 JSON 模式必须把无效 change 根目录作为结构化查询失败返回。",
         "title": "List CLI 返回结构化生命周期根诊断"
+      }
+    },
+    "CHANGE-PLAN-CLI-NODE-SMOKE-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CLI-NODE-SMOKE-001 生成 Change Plan CLI 保持 Node 进程协议 生成的 Change Plan MJS CLI 必须可由真实 Node 进程启动，并保留 success 与 failure 的 stdout/stderr 分流和退出状态。 有效 `check` 以退出码 `0` 输出通过文本且 stderr 为空。 无效计划的 `check` 以退出码 `1` 保持 stdout 为空，并在 stderr 输出失败摘要。 tools/change-plan/tests/cli.test.ts > generated Change Plan CLI preserves the Node success and failure protocol bun test --test-name-pattern=\"^generated Change Plan CLI preserves the Node success and failure protocol$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/change-plan/tests/cli.test.ts > generated Change Plan CLI preserves the Node success and failure protocol",
+          "bun test --test-name-pattern=\"^generated Change Plan CLI preserves the Node success and failure protocol$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CLI-NODE-SMOKE-001",
+        "line": 1,
+        "searchText": "生成 Change Plan CLI 保持 Node 进程协议 生成的 Change Plan MJS CLI 必须可由真实 Node 进程启动，并保留 success 与 failure 的 stdout/stderr 分流和退出状态。 有效 `check` 以退出码 `0` 输出通过文本且 stderr 为空。 无效计划的 `check` 以退出码 `1` 保持 stdout 为空，并在 stderr 输出失败摘要。 tools/change-plan/tests/cli.test.ts > generated Change Plan CLI preserves the Node success and failure protocol bun test --test-name-pattern=\"^generated Change Plan CLI preserves the Node success and failure protocol$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/generated-change-plan-cli-node-smoke.md",
+        "summary": "生成的 Change Plan MJS CLI 必须可由真实 Node 进程启动，并保留 success 与 failure 的 stdout/stderr 分流和退出状态。",
+        "title": "生成 Change Plan CLI 保持 Node 进程协议"
       }
     },
     "CHANGE-PLAN-CLI-PLAN-CANONICAL-INPUTS-001": {
@@ -2117,6 +2140,29 @@
         "title": "Mark-aligned 帮助要求核验当前事实"
       }
     },
+    "DECISION-CLI-NODE-SMOKE-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-NODE-SMOKE-001 生成 Decision Records CLI 保持 Node 进程协议 生成的 Decision Records MJS CLI 必须可由真实 Node 进程启动，并保留 help 成功和参数失败的 stdout/stderr 分流及退出状态。 `--help` 以退出码 `0` 输出当前命令说明且 stderr 为空。 缺少 evolve 的必需 successor 时，进程以退出码 `2` 保持 stdout 为空，并在 stderr 报告参数错误。 tools/decision-records/tests/cli-args.test.ts > generated Decision Records CLI preserves the Node success and failure protocol bun test --test-name-pattern=\"^generated Decision Records CLI preserves the Node success and failure protocol$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > generated Decision Records CLI preserves the Node success and failure protocol",
+          "bun test --test-name-pattern=\"^generated Decision Records CLI preserves the Node success and failure protocol$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-NODE-SMOKE-001",
+        "line": 1,
+        "searchText": "生成 Decision Records CLI 保持 Node 进程协议 生成的 Decision Records MJS CLI 必须可由真实 Node 进程启动，并保留 help 成功和参数失败的 stdout/stderr 分流及退出状态。 `--help` 以退出码 `0` 输出当前命令说明且 stderr 为空。 缺少 evolve 的必需 successor 时，进程以退出码 `2` 保持 stdout 为空，并在 stderr 报告参数错误。 tools/decision-records/tests/cli-args.test.ts > generated Decision Records CLI preserves the Node success and failure protocol bun test --test-name-pattern=\"^generated Decision Records CLI preserves the Node success and failure protocol$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/generated-decision-records-cli-node-smoke.md",
+        "summary": "生成的 Decision Records MJS CLI 必须可由真实 Node 进程启动，并保留 help 成功和参数失败的 stdout/stderr 分流及退出状态。",
+        "title": "生成 Decision Records CLI 保持 Node 进程协议"
+      }
+    },
     "DECISION-CLI-POSITIONAL-ID-001": {
       "keys": {
         "search": [
@@ -2161,6 +2207,29 @@
         "sourcePath": "decision-records/relation-and-clear-relations-options-are-mutually-exclusive.md",
         "summary": "完整关系覆盖与显式空关系是互斥选择，同一命令不能同时使用 `--relation` 和 `--clear-relations`。",
         "title": "Relation 与 clear-relations 参数互斥"
+      }
+    },
+    "DECISION-CLI-RELATIVE-ROOT-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-RELATIVE-ROOT-001 Decision CLI 从注入 cwd 解析相对 root 可直接调用的 Decision Records CLI 在接受注入当前目录时，必须相对该目录解析 `--root`，不能隐式读取进程全局 cwd。 使用注入 cwd 与 `--root .` 解析命令时，领域处理器收到的 `workspaceRoot` 恰好等于注入 cwd。 tools/decision-records/tests/cli-args.test.ts > decision CLI resolves a relative root from injected cwd bun test --test-name-pattern=\"^decision CLI resolves a relative root from injected cwd$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > decision CLI resolves a relative root from injected cwd",
+          "bun test --test-name-pattern=\"^decision CLI resolves a relative root from injected cwd$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-RELATIVE-ROOT-001",
+        "line": 1,
+        "searchText": "Decision CLI 从注入 cwd 解析相对 root 可直接调用的 Decision Records CLI 在接受注入当前目录时，必须相对该目录解析 `--root`，不能隐式读取进程全局 cwd。 使用注入 cwd 与 `--root .` 解析命令时，领域处理器收到的 `workspaceRoot` 恰好等于注入 cwd。 tools/decision-records/tests/cli-args.test.ts > decision CLI resolves a relative root from injected cwd bun test --test-name-pattern=\"^decision CLI resolves a relative root from injected cwd$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/cli-relative-root-resolves-from-injected-cwd.md",
+        "summary": "可直接调用的 Decision Records CLI 在接受注入当前目录时，必须相对该目录解析 `--root`，不能隐式读取进程全局 cwd。",
+        "title": "Decision CLI 从注入 cwd 解析相对 root"
       }
     },
     "DECISION-CLI-REMOVED-PROTOCOL-001": {
@@ -2786,7 +2855,7 @@
     "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001": {
       "keys": {
         "search": [
-          "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001 Evolve CLI 拒绝重复关系覆盖目标 完整关系覆盖中，同一直接前序目标只能出现一次，即使调用方为它声明不同关系类型也不能重复。 两个 `--relation` 使用不同类型但指向同一路径时，生成 CLI 在参数解析期退出 2 并报告重复直接前序目标。 tools/decision-records/tests/cli-args.test.ts > evolve rejects repeated relation override targets at the CLI boundary bun test --test-name-pattern=\"^evolve rejects repeated relation override targets at the CLI boundary$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001 Evolve CLI 拒绝重复关系覆盖目标 完整关系覆盖中，同一直接前序目标只能出现一次，即使调用方为它声明不同关系类型也不能重复。 两个 `--relation` 使用不同类型但指向同一路径时，源码 CLI 入口在参数解析期退出 `2` 并报告重复直接前序目标。 tools/decision-records/tests/cli-args.test.ts > evolve rejects repeated relation override targets at the CLI boundary bun test --test-name-pattern=\"^evolve rejects repeated relation override targets at the CLI boundary$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2800,7 +2869,7 @@
         ],
         "id": "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001",
         "line": 1,
-        "searchText": "Evolve CLI 拒绝重复关系覆盖目标 完整关系覆盖中，同一直接前序目标只能出现一次，即使调用方为它声明不同关系类型也不能重复。 两个 `--relation` 使用不同类型但指向同一路径时，生成 CLI 在参数解析期退出 2 并报告重复直接前序目标。 tools/decision-records/tests/cli-args.test.ts > evolve rejects repeated relation override targets at the CLI boundary bun test --test-name-pattern=\"^evolve rejects repeated relation override targets at the CLI boundary$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Evolve CLI 拒绝重复关系覆盖目标 完整关系覆盖中，同一直接前序目标只能出现一次，即使调用方为它声明不同关系类型也不能重复。 两个 `--relation` 使用不同类型但指向同一路径时，源码 CLI 入口在参数解析期退出 `2` 并报告重复直接前序目标。 tools/decision-records/tests/cli-args.test.ts > evolve rejects repeated relation override targets at the CLI boundary bun test --test-name-pattern=\"^evolve rejects repeated relation override targets at the CLI boundary$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/evolve-rejects-repeated-relation-override-targets-at-the-cli-boundary.md",
         "summary": "完整关系覆盖中，同一直接前序目标只能出现一次，即使调用方为它声明不同关系类型也不能重复。",
         "title": "Evolve CLI 拒绝重复关系覆盖目标"
@@ -2809,7 +2878,7 @@
     "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001": {
       "keys": {
         "search": [
-          "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001 Evolve CLI 拒绝重复后继成员 一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。 同一路径重复提供两个 `--successor` 时，生成 CLI 在参数边界退出 2 并报告重复后继路径。 tools/decision-records/tests/cli-args.test.ts > evolve rejects duplicate successor members at the CLI boundary bun test --test-name-pattern=\"^evolve rejects duplicate successor members at the CLI boundary$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001 Evolve CLI 拒绝重复后继成员 一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。 同一路径重复提供两个 `--successor` 时，源码 CLI 入口在参数边界退出 `2` 并报告重复后继路径。 tools/decision-records/tests/cli-args.test.ts > evolve rejects duplicate successor members at the CLI boundary bun test --test-name-pattern=\"^evolve rejects duplicate successor members at the CLI boundary$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2823,7 +2892,7 @@
         ],
         "id": "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001",
         "line": 1,
-        "searchText": "Evolve CLI 拒绝重复后继成员 一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。 同一路径重复提供两个 `--successor` 时，生成 CLI 在参数边界退出 2 并报告重复后继路径。 tools/decision-records/tests/cli-args.test.ts > evolve rejects duplicate successor members at the CLI boundary bun test --test-name-pattern=\"^evolve rejects duplicate successor members at the CLI boundary$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Evolve CLI 拒绝重复后继成员 一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。 同一路径重复提供两个 `--successor` 时，源码 CLI 入口在参数边界退出 `2` 并报告重复后继路径。 tools/decision-records/tests/cli-args.test.ts > evolve rejects duplicate successor members at the CLI boundary bun test --test-name-pattern=\"^evolve rejects duplicate successor members at the CLI boundary$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/evolve-rejects-duplicate-successor-members-at-the-cli-boundary.md",
         "summary": "一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。",
         "title": "Evolve CLI 拒绝重复后继成员"
@@ -3062,7 +3131,7 @@
     "DECISION-GENERATED-ARTIFACTS-001": {
       "keys": {
         "search": [
-          "DECISION-GENERATED-ARTIFACTS-001 生成决策声明提供可移植 CLI API 分发声明必须从 CLI 运行时导出机械生成，保留既有决策类型并携带可由隔离 TypeScript 消费者解析的最小可达闭包。 根声明与四个可达声明文件保持同步，不引用 TypeScript 源文件或 index-runtime。 隔离消费者可以导入运行时函数和既有公开决策类型，并通过严格 TypeScript 编译。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision declarations expose a portable CLI API bun test --test-name-pattern=\"^generated\\ decision\\ declarations\\ expose\\ a\\ portable\\ CLI\\ API$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-GENERATED-ARTIFACTS-001 生成决策声明提供可移植 CLI API 分发声明必须从 CLI 运行时导出机械生成，保留既有决策类型并携带可由隔离 TypeScript 消费者解析的最小可达闭包。 根声明与五个可达声明文件保持同步；其中 CLI I/O 声明与 CLI API 一同分发，且整个声明树不引用 TypeScript 源文件或 index-runtime。 隔离消费者可以导入运行时函数和既有公开决策类型，并通过严格 TypeScript 编译。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision declarations expose a portable CLI API bun test --test-name-pattern=\"^generated\\ decision\\ declarations\\ expose\\ a\\ portable\\ CLI\\ API$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -3076,7 +3145,7 @@
         ],
         "id": "DECISION-GENERATED-ARTIFACTS-001",
         "line": 1,
-        "searchText": "生成决策声明提供可移植 CLI API 分发声明必须从 CLI 运行时导出机械生成，保留既有决策类型并携带可由隔离 TypeScript 消费者解析的最小可达闭包。 根声明与四个可达声明文件保持同步，不引用 TypeScript 源文件或 index-runtime。 隔离消费者可以导入运行时函数和既有公开决策类型，并通过严格 TypeScript 编译。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision declarations expose a portable CLI API bun test --test-name-pattern=\"^generated\\ decision\\ declarations\\ expose\\ a\\ portable\\ CLI\\ API$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "生成决策声明提供可移植 CLI API 分发声明必须从 CLI 运行时导出机械生成，保留既有决策类型并携带可由隔离 TypeScript 消费者解析的最小可达闭包。 根声明与五个可达声明文件保持同步；其中 CLI I/O 声明与 CLI API 一同分发，且整个声明树不引用 TypeScript 源文件或 index-runtime。 隔离消费者可以导入运行时函数和既有公开决策类型，并通过严格 TypeScript 编译。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision declarations expose a portable CLI API bun test --test-name-pattern=\"^generated\\ decision\\ declarations\\ expose\\ a\\ portable\\ CLI\\ API$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/generated-decision-declarations-expose-portable-cli-api.md",
         "summary": "分发声明必须从 CLI 运行时导出机械生成，保留既有决策类型并携带可由隔离 TypeScript 消费者解析的最小可达闭包。",
         "title": "生成决策声明提供可移植 CLI API"
@@ -5495,6 +5564,29 @@
         "sourcePath": "repository-tooling/gate-catalog-builds-default-and-full-definitions.md",
         "summary": "同一 catalog 必须以稳定语义 ID 构造日常 default 与发布 full；原聚合 package script 继续可直接调用，但不再充当领域测试 leaf。语义拆分保持原 profile 覆盖，并将 release 表达为普通 Check、版本校验和打包三个责任层。",
         "title": "语义门禁目录构造准确的 default 与 full Definition"
+      }
+    },
+    "GATE-DISTRIBUTION-DEPENDENCY-001": {
+      "keys": {
+        "search": [
+          "GATE-DISTRIBUTION-DEPENDENCY-001 Public distribution Checks 依赖当前生成 Check 面向 Change Plan、Decision Records 与 Task Graph 的 public-distribution Check 只在对应的当前生成 Check 成功后运行，避免以漂移或不可用的分发制品继续测试。 三个 consumer 分别依赖 `script:check:change-plan-cli`、`script:check:decision-records-cli` 与 `script:check:task-graph-cli`。 生成 Check 通过时 consumer 恰好运行一次；生成 Check failed 或 unavailable 时 consumer 继承该终态且不启动测试命令。 scripts/vibe-check.test.ts > public distribution Checks require successful generation Checks bun test --test-name-pattern=\"^public distribution Checks require successful generation Checks$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > public distribution Checks require successful generation Checks",
+          "bun test --test-name-pattern=\"^public distribution Checks require successful generation Checks$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-DISTRIBUTION-DEPENDENCY-001",
+        "line": 1,
+        "searchText": "Public distribution Checks 依赖当前生成 Check 面向 Change Plan、Decision Records 与 Task Graph 的 public-distribution Check 只在对应的当前生成 Check 成功后运行，避免以漂移或不可用的分发制品继续测试。 三个 consumer 分别依赖 `script:check:change-plan-cli`、`script:check:decision-records-cli` 与 `script:check:task-graph-cli`。 生成 Check 通过时 consumer 恰好运行一次；生成 Check failed 或 unavailable 时 consumer 继承该终态且不启动测试命令。 scripts/vibe-check.test.ts > public distribution Checks require successful generation Checks bun test --test-name-pattern=\"^public distribution Checks require successful generation Checks$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-public-distribution-requires-current-generation.md",
+        "summary": "面向 Change Plan、Decision Records 与 Task Graph 的 public-distribution Check 只在对应的当前生成 Check 成功后运行，避免以漂移或不可用的分发制品继续测试。",
+        "title": "Public distribution Checks 依赖当前生成 Check"
       }
     },
     "GATE-DUPLICATE-DETECTION-001": {
@@ -12814,7 +12906,7 @@
     "TEST-EVIDENCE-FIXED-CONTRACT-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-FIXED-CONTRACT-001 项目级配置不参与测试账本接口 测试账本的目录、索引和 case ID 规则由固定协议决定，不接受项目级配置改写。 遗留配置文件不能重定向查询，CLI 对 `--config` 返回未知参数错误。 tools/test-evidence/tests/catalog.test.ts > catalog ignores legacy config files and rejects config arguments bun test --test-name-pattern=\"^catalog ignores legacy config files and rejects config arguments$\" ./tools/test-evidence/tests/catalog.test.ts"
+          "TEST-EVIDENCE-FIXED-CONTRACT-001 项目级配置不参与测试账本接口 测试账本的目录、索引和 case ID 规则由固定协议决定，不接受项目级配置改写。 遗留配置文件不能重定向查询；源码 CLI 入口以注入的当前目录解析相对 `--root .`，且对 `--config` 返回未知参数错误。 tools/test-evidence/tests/catalog.test.ts > catalog ignores legacy config files and rejects config arguments bun test --test-name-pattern=\"^catalog ignores legacy config files and rejects config arguments$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12828,7 +12920,7 @@
         ],
         "id": "TEST-EVIDENCE-FIXED-CONTRACT-001",
         "line": 1,
-        "searchText": "项目级配置不参与测试账本接口 测试账本的目录、索引和 case ID 规则由固定协议决定，不接受项目级配置改写。 遗留配置文件不能重定向查询，CLI 对 `--config` 返回未知参数错误。 tools/test-evidence/tests/catalog.test.ts > catalog ignores legacy config files and rejects config arguments bun test --test-name-pattern=\"^catalog ignores legacy config files and rejects config arguments$\" ./tools/test-evidence/tests/catalog.test.ts",
+        "searchText": "项目级配置不参与测试账本接口 测试账本的目录、索引和 case ID 规则由固定协议决定，不接受项目级配置改写。 遗留配置文件不能重定向查询；源码 CLI 入口以注入的当前目录解析相对 `--root .`，且对 `--config` 返回未知参数错误。 tools/test-evidence/tests/catalog.test.ts > catalog ignores legacy config files and rejects config arguments bun test --test-name-pattern=\"^catalog ignores legacy config files and rejects config arguments$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/catalog-ignores-legacy-config-and-rejects-config-arguments.md",
         "summary": "测试账本的目录、索引和 case ID 规则由固定协议决定，不接受项目级配置改写。",
         "title": "项目级配置不参与测试账本接口"
@@ -13182,7 +13274,7 @@
     "TEST-EVIDENCE-LEDGER-CLI-CHECK-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-LEDGER-CLI-CHECK-001 Check CLI 输出机器报告并映射校验状态 `check --json` 必须始终输出完整报告，并以退出码区分阻断诊断与成功校验。 索引缺失返回退出码 1；索引当前返回退出码 0 与无诊断的领域 `schemaVersion: 5` 报告。 tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI check emits machine reports and maps validation status to exits bun test --test-name-pattern=\"^ledger CLI check emits machine reports and maps validation status to exits$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-LEDGER-CLI-CHECK-001 Check CLI 输出机器报告并映射校验状态 `check --json` 必须始终输出完整报告，并以退出码区分阻断诊断与成功校验。 索引缺失返回退出码 `1`；索引当前返回退出码 `0` 与无诊断的领域 `schemaVersion: 5` 报告，并可从注入的当前目录解析相对 root。 tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI check emits machine reports and maps validation status to exits bun test --test-name-pattern=\"^ledger CLI check emits machine reports and maps validation status to exits$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -13196,7 +13288,7 @@
         ],
         "id": "TEST-EVIDENCE-LEDGER-CLI-CHECK-001",
         "line": 1,
-        "searchText": "Check CLI 输出机器报告并映射校验状态 `check --json` 必须始终输出完整报告，并以退出码区分阻断诊断与成功校验。 索引缺失返回退出码 1；索引当前返回退出码 0 与无诊断的领域 `schemaVersion: 5` 报告。 tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI check emits machine reports and maps validation status to exits bun test --test-name-pattern=\"^ledger CLI check emits machine reports and maps validation status to exits$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Check CLI 输出机器报告并映射校验状态 `check --json` 必须始终输出完整报告，并以退出码区分阻断诊断与成功校验。 索引缺失返回退出码 `1`；索引当前返回退出码 `0` 与无诊断的领域 `schemaVersion: 5` 报告，并可从注入的当前目录解析相对 root。 tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI check emits machine reports and maps validation status to exits bun test --test-name-pattern=\"^ledger CLI check emits machine reports and maps validation status to exits$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/ledger-cli-check.md",
         "summary": "`check --json` 必须始终输出完整报告，并以退出码区分阻断诊断与成功校验。",
         "title": "Check CLI 输出机器报告并映射校验状态"
@@ -13223,6 +13315,29 @@
         "sourcePath": "test-evidence/ledger-cli-list.md",
         "summary": "`list` 必须把 Test、Tag、query 与分页参数传入统一查询契约，并保留领域退出码。",
         "title": "List CLI 组合筛选分页并区分未知 Test"
+      }
+    },
+    "TEST-EVIDENCE-LEDGER-CLI-NODE-SMOKE-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-LEDGER-CLI-NODE-SMOKE-001 Ledger CLI Node smoke 保持进程边界 分发 Ledger CLI 必须可由真实 Node 进程按 argv 启动，并保留 JSON stdout、stderr 和退出状态边界。 有效 `check` 以退出码 `0` 返回可解析的无诊断 JSON 报告且 stderr 为空。 缺少必需 root 的调用以退出码 `2` 保持 stdout 为空，并在 stderr 返回用法诊断。 tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI Node smoke preserves process argv, output streams, and exit status bun test --test-name-pattern=\"^ledger CLI Node smoke preserves process argv, output streams, and exit status$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI Node smoke preserves process argv, output streams, and exit status",
+          "bun test --test-name-pattern=\"^ledger CLI Node smoke preserves process argv, output streams, and exit status$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-LEDGER-CLI-NODE-SMOKE-001",
+        "line": 1,
+        "searchText": "Ledger CLI Node smoke 保持进程边界 分发 Ledger CLI 必须可由真实 Node 进程按 argv 启动，并保留 JSON stdout、stderr 和退出状态边界。 有效 `check` 以退出码 `0` 返回可解析的无诊断 JSON 报告且 stderr 为空。 缺少必需 root 的调用以退出码 `2` 保持 stdout 为空，并在 stderr 返回用法诊断。 tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI Node smoke preserves process argv, output streams, and exit status bun test --test-name-pattern=\"^ledger CLI Node smoke preserves process argv, output streams, and exit status$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/ledger-cli-node-smoke-preserves-process-boundary.md",
+        "summary": "分发 Ledger CLI 必须可由真实 Node 进程按 argv 启动，并保留 JSON stdout、stderr 和退出状态边界。",
+        "title": "Ledger CLI Node smoke 保持进程边界"
       }
     },
     "TEST-EVIDENCE-LEDGER-CLI-SHOW-001": {
@@ -14651,6 +14766,29 @@
         "title": "First-parent 历史外的范围不可用"
       }
     },
+    "VERSION-CONTROL-GIT-FIXTURE-001": {
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-GIT-FIXTURE-001 普通 fixture 物化为隔离 Git 仓库 Git 测试 fixture 只提交普通原始文件；启动 helper 必须复制原始树，在 case 私有目录初始化真实 `main` Git 仓库、固定本地配置并提交基线。 原始 fixture 不含 `.git` 或 workspace 绝对路径，物化后的仓库使用 `main` 与 `core.autocrlf=false`，且具有相同基线 revision。 两次物化的可变 Git 状态相互隔离：暂存一份仓库的文件不会改变另一份工作区。 tools/shared/tests/version-control.test.ts > materializes an ordinary fixture into isolated Git repositories bun test --test-name-pattern=\"^materializes an ordinary fixture into isolated Git repositories$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > materializes an ordinary fixture into isolated Git repositories",
+          "bun test --test-name-pattern=\"^materializes an ordinary fixture into isolated Git repositories$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-GIT-FIXTURE-001",
+        "line": 1,
+        "searchText": "普通 fixture 物化为隔离 Git 仓库 Git 测试 fixture 只提交普通原始文件；启动 helper 必须复制原始树，在 case 私有目录初始化真实 `main` Git 仓库、固定本地配置并提交基线。 原始 fixture 不含 `.git` 或 workspace 绝对路径，物化后的仓库使用 `main` 与 `core.autocrlf=false`，且具有相同基线 revision。 两次物化的可变 Git 状态相互隔离：暂存一份仓库的文件不会改变另一份工作区。 tools/shared/tests/version-control.test.ts > materializes an ordinary fixture into isolated Git repositories bun test --test-name-pattern=\"^materializes an ordinary fixture into isolated Git repositories$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/materializes-ordinary-fixtures-into-isolated-git-repositories.md",
+        "summary": "Git 测试 fixture 只提交普通原始文件；启动 helper 必须复制原始树，在 case 私有目录初始化真实 `main` Git 仓库、固定本地配置并提交基线。",
+        "title": "普通 fixture 物化为隔离 Git 仓库"
+      }
+    },
     "VERSION-CONTROL-HEAD-001": {
       "keys": {
         "search": [
@@ -15190,7 +15328,7 @@
       "CHANGE-PLAN-CHECK-VC-001": "sha256:726d3343bc3959cbe4d8f23d0a8d3df6bb106282edb6a50ea83720a7ab8690c5",
       "CHANGE-PLAN-CLI-ARCHIVE-001": "sha256:8ae3b39eaef7fd4af641a001d19f9eb1ea850ecb740bc63fd3bf9bc93e5d24b0",
       "CHANGE-PLAN-CLI-CHECK-001": "sha256:77d0dc65a5414f77e4f36402ceed132306f7c72fbb2686e35c503cdf617acf01",
-      "CHANGE-PLAN-CLI-CHECK-ALL-001": "sha256:91b93b5ca18c732a0270549369138b9262e4201e5163bb8f678e3d1eecac3516",
+      "CHANGE-PLAN-CLI-CHECK-ALL-001": "sha256:e6140c8e0ab24d6df9ec854cbddd3224cfcb92b8b75c0dee15fb04e269871f38",
       "CHANGE-PLAN-CLI-CHECK-ALL-OPTIONS-001": "sha256:d730a1e0119aafc48ca8d36e61abe215cce000e4d0eb0e8dd9520fa4fd1e2365",
       "CHANGE-PLAN-CLI-CHECK-ALL-ROOTS-001": "sha256:daf00a4af5dd0f8044ad26a1a029fabc0b54b7d3fdad9bb6cab69ec9846c5fc3",
       "CHANGE-PLAN-CLI-CHECK-ARCHIVED-001": "sha256:0a9c09732e71570ad75ee215cad011b48518c2ecb152770108f64ab8a4a8c96e",
@@ -15199,6 +15337,7 @@
       "CHANGE-PLAN-CLI-LIST-001": "sha256:13476ab774aab9850b62e1df5b0e28c62de19fe52a0b4f9336e9052f91a2731c",
       "CHANGE-PLAN-CLI-LIST-ARGS-001": "sha256:1c218739f3b4a92f314c012aa0f6acf5660ebdd576a732ef196c65a57798ca7a",
       "CHANGE-PLAN-CLI-LIST-ROOT-001": "sha256:142d5c70f5012973407aa1c114526abd0bed18f207bf2b5c1e02ba755b00bcd3",
+      "CHANGE-PLAN-CLI-NODE-SMOKE-001": "sha256:7e0b2fa6384ff4f62b4c3dccb0741a7dc3e6dfbb72b1cc36967bdeb15c9a1221",
       "CHANGE-PLAN-CLI-PLAN-CANONICAL-INPUTS-001": "sha256:79e6cf72f6e2b509efd6c53d8227100159f672f395abeb1046b9bf8b9877e796",
       "CHANGE-PLAN-CLI-PLAN-COMMIT-001": "sha256:d9552bc31d6a5e90d4d7fa4eec25319cca966277b52a1520d5b8c520dbad40bf",
       "CHANGE-PLAN-CLI-PLAN-NO-HEAD-001": "sha256:3807d0a281290da77157fffe53d156bcaa307f018d766b04b8601081e981b4dd",
@@ -15262,8 +15401,10 @@
       "DECISION-CLI-EVOLVE-RECORDED-FLAG-001": "sha256:a895239ab211475f195ece28e66be2c34f0c6129ef50f5eb3022da5c9755cc1a",
       "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001": "sha256:2ea7b5860f9f3be890ef6a9ce208404f03cc99eb8681c750527d66e138fa5b28",
       "DECISION-CLI-MARK-ALIGNED-HELP-001": "sha256:a0f31da74c2dd5ec39de558a6696137da5d0f3666003ae2c6291864050cfcb97",
+      "DECISION-CLI-NODE-SMOKE-001": "sha256:62017bded5501e5fb0d6fe2d51da9a1491d2df7a27d2084650d0158c1fcf2643",
       "DECISION-CLI-POSITIONAL-ID-001": "sha256:e7098c9b0e0c70ca4619896b6257301a6f7909b731c91a9bf5fb7e48690d9f3a",
       "DECISION-CLI-RELATION-SELECTION-001": "sha256:9fdc9deed74a62b3578886105bcd61fd5a541edf47ee75587711499632cf1c3d",
+      "DECISION-CLI-RELATIVE-ROOT-001": "sha256:ca20002841a8ca2480ec5649e83b5d89a9299a7c42625997300ab14cd7a19c1c",
       "DECISION-CLI-REMOVED-PROTOCOL-001": "sha256:aff69d9c99943524e2b6addccb9fe92465e8b3f5cfe35ee0d0761b8cf97b775b",
       "DECISION-CLI-REMOVED-PROTOCOLS-001": "sha256:749f518dc523cede3a1f90dac7f3dbbc6e06c6d75e58ab732cda092534039162",
       "DECISION-CLI-TAG-001": "sha256:e47638364fad59b8e6037ceb934cc0ab324a16604bef0e18d244554698be9350",
@@ -15291,8 +15432,8 @@
       "DECISION-EVOLVE-DISCARD-SOURCE-EMPTY-001": "sha256:d250d963424a8116841d06d97a7a9c38fa7b91a8266ca67ffac3329907781cc4",
       "DECISION-EVOLVE-DISCARD-SPLIT-CLOSURE-001": "sha256:8ba04b1c9dccf1e56fe6c3b4f2bc6072a6d5acef2ba7df8af820fbdeb1ba5eb7",
       "DECISION-EVOLVE-DISCARD-SUCCESSOR-CONFLICT-001": "sha256:79ad71a2e01775abc2d3ecf0a5860006a3501f5b41e1f9e42d9255b7ccf6e3c1",
-      "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001": "sha256:012ba61e3ef68558605e77f7973a97304da3bb2e4682dc5f9fea504e34423736",
-      "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001": "sha256:621f08d6c375564019aa4aa88b1ad7d1cd6db521d3fb1937a99a4f81b6446af7",
+      "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001": "sha256:dd1f55fa42651be645254b2d9fc30bdbe9a5706aec5881d9e75e63b01ad72aa0",
+      "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001": "sha256:f5fa31b69d97b39fc772c50fc0408579fb431c6c0fce5d0473056a9892b86ebb",
       "DECISION-EVOLVE-ESTABLISHED-REPLACE-001": "sha256:17305233f0e42f3598fa12cfae0f5651ca4391346034e79ea43eeb4c620519ff",
       "DECISION-EVOLVE-HISTORICAL-SUCCESSOR-001": "sha256:fcbd6aa87335f6fb6c3be7ffdedf14209241a792fe3d848aa7761069499d767f",
       "DECISION-EVOLVE-UNSUPPORTED-MULTI-001": "sha256:9a70950d65a76db841d98e34bab8e5c57376c5292bdb108de881eead82418781",
@@ -15303,7 +15444,7 @@
       "DECISION-FILESYSTEM-SCAN-READ-FAILURES-001": "sha256:899de702d15ae0a7ed87168ac45d6308fd544c4ca01b38bd9ad8a3a0835a0d9f",
       "DECISION-FILESYSTEM-TRANSACTION-001": "sha256:78c796f1837a3a0c4dc5b7e1b7b38e868fe053af1bfdfbcebf98d490a52cb2c4",
       "DECISION-FIRST-ESTABLISHMENT-001": "sha256:d5cfabda96a99227ba2f641624dd4a20b9a6f5342bad0b8c7cb5f1ae734b1fc3",
-      "DECISION-GENERATED-ARTIFACTS-001": "sha256:b475a594aec688c0ec54db1fd9f82595c4f2a4bec41ecd19761b2124aaa97713",
+      "DECISION-GENERATED-ARTIFACTS-001": "sha256:3a54c099646d4fbdcbac0ef52025c551b2c0e7bf0e95a6ccdb25cb20c4e7d6ac",
       "DECISION-GENERATED-METADATA-001": "sha256:66294a46153bc12ad45d3ecd1b22116ab4e02f9aa8b8b847639303c9435f2002",
       "DECISION-GENERATED-SCHEMA-001": "sha256:4e76bae4e51d59b2f883167716e2bfa4d2a57ee0dbe96dfe6a59aef8140016a0",
       "DECISION-ID-INDEX-001": "sha256:d27fbe7fe4843bbbc7747c7630f73463493509ce4892c269866da86c92ab6272",
@@ -15409,6 +15550,7 @@
       "ENV-WORKTREE-SETUP-001": "sha256:a232485668782b975b6e416528f415886b669450f36394065848a5027441842f",
       "GATE-CLI-RESULT-001": "sha256:f2e158995ada843cf532592d34817f29864e0745c0d9b479d89b1d5852d79167",
       "GATE-DEFINITION-CATALOG-001": "sha256:a43ab5e3f29ea5402bacace96358a4a808b47ab217fe1264c2118efb105f0d1a",
+      "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:7562eb8f98b853c83356d56a7140b675965d35b78727d7a0e6e650675d7933d7",
       "GATE-DUPLICATE-DETECTION-001": "sha256:5ce85e2b84c401f0419a234702195ae2f539a9b19f40d6f0d1370ec50ec185b3",
       "GATE-FILE-SELECTION-001": "sha256:2a611569231721824b35a68e1227f49b52562b76c5b3ca76cba359d04fd51d77",
       "GATE-FULL-PACKAGING-001": "sha256:56be80b4b9e102f8d8b3765da3661b4f7d0f14d18f3ab18f24d2cc132c2f0ae7",
@@ -15727,7 +15869,7 @@
       "TEST-EVIDENCE-DISTRIBUTED-CLI-001": "sha256:95bc3d4acff4cff6bed1f58232b5ff01ef8d69d7e20cef858fc4a1d9ebefaefa",
       "TEST-EVIDENCE-ENTRY-LIST-001": "sha256:d099986dfef70166f4c7c9163e27535afdcafe8d4c81646c256f75cbb989a378",
       "TEST-EVIDENCE-FAST-OPEN-001": "sha256:a5505d4a6eefd480b197059b158c5cbfee5aa5737838bd4efe0eb11016c9fe4f",
-      "TEST-EVIDENCE-FIXED-CONTRACT-001": "sha256:15e149b90b35557e930a88166964343a32f18e3ad49169aa030b95f14c8114ea",
+      "TEST-EVIDENCE-FIXED-CONTRACT-001": "sha256:c623794429acd7986d46c3e5f7bb20cbde263bd42d5a3c96e1ff6b3a1157defe",
       "TEST-EVIDENCE-INDEX-HARDLINK-001": "sha256:c5cc51fcca71eafdac97d6b306f940e4ca84d4f03cede3bab5ea2cca36fa61c7",
       "TEST-EVIDENCE-INDEX-PROJECTION-VALIDATION-001": "sha256:c5ef3dc0948e347ad2e8331df9265a551d48a4942f1ee677e0b40edb15d066ff",
       "TEST-EVIDENCE-INDEX-SYNC-001": "sha256:11ee0d91a5d716dbf4e58f98a88a80833a96525a3464430b86de4f4f76f5e202",
@@ -15743,8 +15885,9 @@
       "TEST-EVIDENCE-LEDGER-CASE-PARSE-001": "sha256:ae80c34c12b8564eaeb97bef7d540fa1e16ce9945f67dd352a9411e211cb4bb7",
       "TEST-EVIDENCE-LEDGER-CASE-SCHEMA-001": "sha256:3132f5b814262b9a7e063ce13aebd41ccba4e7e98db3745a5e301884d302a886",
       "TEST-EVIDENCE-LEDGER-CLI-ARGS-001": "sha256:b5946539dc6cf58e5ba729631348367521aef8327ea0c860f5bf6732f151fb55",
-      "TEST-EVIDENCE-LEDGER-CLI-CHECK-001": "sha256:b8f5d82f924599264e8a3b1bc0923a462fe5fde53fc8c71d002814e1d867f67f",
+      "TEST-EVIDENCE-LEDGER-CLI-CHECK-001": "sha256:d0a1535c342a0b637af743e8cfdc0f8e3a7a9458afc5bf8ada6359055ac5eb51",
       "TEST-EVIDENCE-LEDGER-CLI-LIST-001": "sha256:95a82e50b6e60d0d47e305adf73493e03dcb9438c7ddaf62eb6d2f5c9f6d47cb",
+      "TEST-EVIDENCE-LEDGER-CLI-NODE-SMOKE-001": "sha256:8a1bf7597661bf60454c742ea6bd236cb0877a0d5abf11cb3bd2bb1d6bdad80d",
       "TEST-EVIDENCE-LEDGER-CLI-SHOW-001": "sha256:906b1f403b9ac7def0961cafee804d29e1ae55fc3bf0d4807f6b072cf79b6295",
       "TEST-EVIDENCE-LEDGER-CLI-SYNC-001": "sha256:684d554adaaad9b831e96fc047bbe2ff92db1ee0496189d5569ee3316a2aaae3",
       "TEST-EVIDENCE-LEDGER-CLI-TESTS-001": "sha256:888486fe22efffb408ee5a74345cbb899e675fbb4470346f6e800f2f532427dd",
@@ -15807,6 +15950,7 @@
       "VERSION-CONTROL-FIRST-PARENT-001": "sha256:54aa1b954c70c7456be3d9e7418030c8b1810080439ddc4c4ab14f6c213ca3e9",
       "VERSION-CONTROL-FIRST-PARENT-FAILURE-001": "sha256:a932264bbf70968e661a976a9f5a45ae85d4c56349df1404202562640c24cbca",
       "VERSION-CONTROL-FIRST-PARENT-RELATION-001": "sha256:a3ba2e94b62fe1c4aa578ce7568d634d1fdaa3ed8090e482d5f420b4fa00bfa8",
+      "VERSION-CONTROL-GIT-FIXTURE-001": "sha256:d868cd9e5a6e486ecc52037e9102903ac8c3ffa4bdef9981a288f30821b3bf69",
       "VERSION-CONTROL-HEAD-001": "sha256:713c4c9d45699e35a3a1dbe413a1cbdf474a6a61620c7e43de611b0505e1bbe6",
       "VERSION-CONTROL-NUMSTAT-001": "sha256:cf0ac87ddcf33d9ac9e04a6d70861e63f24e8a7be833d0c4e9510dd11721617c",
       "VERSION-CONTROL-PENDING-CONFLICT-001": "sha256:2d76d0482c630b49e1aa3eb484d66b1ca933de3a12184d4f009aad452572c4b8",

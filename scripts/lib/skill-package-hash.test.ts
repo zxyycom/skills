@@ -3,7 +3,8 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import test from "node:test";
+import test, { after } from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   calculateSkillPackageHash,
   calculateSkillPackageSnapshotHash,
@@ -17,8 +18,41 @@ import {
 } from "./skill-package-hash.ts";
 import type { SkillPackage } from "./project.ts";
 import { VersionControlError } from "../../tools/shared/src/version-control/index.ts";
+import { createGitRepositoryFixture } from "../../tools/shared/tests/git-fixture.ts";
 
 const gitTestOptions = { timeout: 15_000 };
+const gitFixtureRoot = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../tools/shared/tests/fixtures/git-repositories"
+);
+
+type RepositoryTemplate = Readonly<{
+  parentDirectory: string;
+  repositoryRoot: string;
+}>;
+
+let pendingRepositoryTemplate: Promise<RepositoryTemplate> | null = null;
+let versionGateRepositoryTemplate: Promise<RepositoryTemplate> | null = null;
+
+after(async () => {
+  const templates = await Promise.allSettled(
+    [pendingRepositoryTemplate, versionGateRepositoryTemplate].filter(
+      (template): template is Promise<RepositoryTemplate> => template !== null
+    )
+  );
+  await Promise.all(
+    templates.flatMap((template) =>
+      template.status === "fulfilled"
+        ? [
+            fs.rm(template.value.parentDirectory, {
+              force: true,
+              recursive: true
+            })
+          ]
+        : []
+    )
+  );
+});
 
 async function withTempRoot(
   run: (tempRoot: string) => Promise<void>
@@ -40,25 +74,12 @@ async function createSkillRepositoryFixture(tempRoot: string) {
   const gammaDirectory = path.join(repositoryRoot, "skills", "gamma");
   const alphaCommitted = skillMarkdown("alpha", 3, "alpha committed");
   const alphaStaged = skillMarkdown("alpha", 3, "alpha staged");
-  const alphaMalformed = alphaCommitted.replace(
-    '  version: "3"',
-    "  version: malformed"
-  );
   const betaCommitted = skillMarkdown("beta", 7, "beta committed");
 
+  await fs.cp(await pendingRepositoryTemplateRoot(), repositoryRoot, {
+    recursive: true
+  });
   await fs.mkdir(path.join(alphaDirectory, "nested"), { recursive: true });
-  await fs.mkdir(betaDirectory, { recursive: true });
-  initializeRepository(repositoryRoot);
-
-  await fs.writeFile(path.join(alphaDirectory, "SKILL.md"), alphaMalformed);
-  await fs.writeFile(path.join(betaDirectory, "SKILL.md"), betaCommitted);
-  runGit(repositoryRoot, ["add", "."]);
-  runGit(repositoryRoot, [
-    "commit",
-    "--quiet",
-    "--message",
-    "malformed baseline"
-  ]);
   const malformedRevision = runGit(repositoryRoot, [
     "rev-parse",
     "HEAD"
@@ -718,62 +739,70 @@ async function createVersionGateRepositoryFixture(
     options.fixtureName ?? "version-gate-repository"
   );
   const skillDirectory = path.join(repositoryRoot, "skills", "alpha");
-  await fs.mkdir(path.join(skillDirectory, "scripts"), { recursive: true });
-  await fs.copyFile(
-    path.join(process.cwd(), ".oxfmtrc.json"),
-    path.join(repositoryRoot, ".oxfmtrc.json")
-  );
-  initializeRepository(repositoryRoot);
-  await fs.writeFile(
-    path.join(skillDirectory, "SKILL.md"),
-    skillMarkdown("alpha", 3, "unchanged")
-  );
-  await fs.writeFile(
-    path.join(skillDirectory, "scripts", "cli.mjs"),
-    "export const v = 1;\n//# sourceMappingURL=cli.mjs.map\n"
-  );
-  if (options.includeCliSourceMap !== false) {
-    await fs.writeFile(
-      path.join(skillDirectory, "scripts", "cli.mjs.map"),
-      "initial source map\n"
-    );
+  await fs.cp(await versionGateRepositoryTemplateRoot(), repositoryRoot, {
+    recursive: true
+  });
+  if (options.includeCliSourceMap === false) {
+    await fs.rm(path.join(skillDirectory, "scripts", "cli.mjs.map"));
+    runGit(repositoryRoot, ["rm", "skills/alpha/scripts/cli.mjs.map"]);
+    runGit(repositoryRoot, [
+      "commit",
+      "--quiet",
+      "--message",
+      "remove source map"
+    ]);
   }
-  await fs.writeFile(
-    path.join(skillDirectory, "debug.mjs"),
-    "export const debug = 1;\n//# sourceMappingURL=debug.mjs.map\n"
-  );
-  await fs.writeFile(
-    path.join(skillDirectory, "debug.mjs.map"),
-    "initial debug source map\n"
-  );
-  await fs.writeFile(
-    path.join(skillDirectory, "scripts", "fake.mjs"),
-    'export const fake = "sourceMappingURL=fake.mjs.map";\n'
-  );
-  await fs.writeFile(
-    path.join(skillDirectory, "scripts", "fake.mjs.map"),
-    "initial pseudo-reference source map\n"
-  );
-  await fs.writeFile(
-    path.join(skillDirectory, "scripts", "template.mjs"),
-    "export const template = `\n//# sourceMappingURL=template.mjs.map\n`;\n"
-  );
-  await fs.writeFile(
-    path.join(skillDirectory, "scripts", "template.mjs.map"),
-    "initial template pseudo-reference source map\n"
-  );
-  await fs.writeFile(
-    path.join(skillDirectory, "api.d.mts"),
-    "export type Item = (typeof values)[number];\n"
-  );
-  runGit(repositoryRoot, ["add", "."]);
-  runGit(repositoryRoot, ["commit", "--quiet", "--message", "base"]);
 
   return {
     repositoryRoot,
     skillDirectory,
     skills: [{ directory: skillDirectory, name: "alpha" }]
   };
+}
+
+async function pendingRepositoryTemplateRoot(): Promise<string> {
+  pendingRepositoryTemplate ??= createRepositoryTemplate(
+    "skill-package-hash-pending"
+  );
+  try {
+    return (await pendingRepositoryTemplate).repositoryRoot;
+  } catch (error) {
+    pendingRepositoryTemplate = null;
+    throw error;
+  }
+}
+
+async function versionGateRepositoryTemplateRoot(): Promise<string> {
+  versionGateRepositoryTemplate ??= createRepositoryTemplate(
+    "skill-package-version-gate"
+  );
+  try {
+    return (await versionGateRepositoryTemplate).repositoryRoot;
+  } catch (error) {
+    versionGateRepositoryTemplate = null;
+    throw error;
+  }
+}
+
+async function createRepositoryTemplate(
+  fixtureName: string
+): Promise<RepositoryTemplate> {
+  const parent = await fs.mkdtemp(
+    path.join(os.tmpdir(), `skill-package-${fixtureName}-`)
+  );
+  try {
+    const fixture = await createGitRepositoryFixture({
+      fixtureRoot: path.join(gitFixtureRoot, fixtureName),
+      parentDirectory: parent,
+      repositoryName: "repository",
+      userEmail: "skill-package@example.invalid",
+      userName: "Skill Package Test"
+    });
+    return { parentDirectory: parent, repositoryRoot: fixture.repositoryRoot };
+  } catch (error) {
+    await fs.rm(parent, { force: true, recursive: true });
+    throw error;
+  }
 }
 
 function skillPackageSnapshot(

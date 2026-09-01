@@ -1,0 +1,11 @@
+{
+  "engines": {
+    "bun": ">=1.3.14"
+  },
+  "packageManager": "pnpm@11.7.0",
+  "private": true,
+  "scripts": {
+    "task-graph": "node scripts/task-graph.js"
+  },
+  "type": "module"
+}

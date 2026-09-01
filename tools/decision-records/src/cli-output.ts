@@ -4,60 +4,75 @@ import type {
 } from "./application-result.ts";
 import type { DecisionQuerySuccess } from "./decision-query-service.ts";
 
+import {
+  processDecisionRecordsCliIo,
+  type DecisionRecordsCliIo
+} from "./cli-io.ts";
+
+function writeLine(writer: (text: string) => void, text: string): void {
+  writer(`${text}\n`);
+}
+
 export function printDecisionFailure(
-  failure: DecisionApplicationFailure
+  failure: DecisionApplicationFailure,
+  io: DecisionRecordsCliIo = processDecisionRecordsCliIo
 ): void {
   if (failure.presentation === "command") {
-    console.error("Decision records command failed:");
+    writeLine(io.stderr, "Decision records command failed:");
     for (const error of failure.errors) {
-      console.error("- " + error);
+      writeLine(io.stderr, "- " + error);
     }
     return;
   }
   for (const error of failure.errors) {
-    console.error(error);
+    writeLine(io.stderr, error);
   }
 }
 
 export function printDecisionAttention(
-  attention: DecisionApplicationAttention
+  attention: DecisionApplicationAttention,
+  io: DecisionRecordsCliIo = processDecisionRecordsCliIo
 ): void {
-  console.error("Decision records command paused with warnings:");
+  writeLine(io.stderr, "Decision records command paused with warnings:");
   for (const warning of attention.warnings) {
-    console.error("- " + warning);
+    writeLine(io.stderr, "- " + warning);
   }
 }
 
-export function printDecisionQuerySuccess(result: DecisionQuerySuccess): void {
-  printQueryWarnings(result.warnings);
+export function printDecisionQuerySuccess(
+  result: DecisionQuerySuccess,
+  io: DecisionRecordsCliIo = processDecisionRecordsCliIo
+): void {
+  printQueryWarnings(result.warnings, io);
   switch (result.command) {
     case "candidates":
-      printCandidates(result.records);
+      printCandidates(result.records, io);
       return;
     case "check":
-      printCheck(result.summary);
+      printCheck(result.summary, io);
       return;
     case "list":
-      printList(result.records, result.fullTime);
+      printList(result.records, result.fullTime, io);
       return;
     case "show":
     case "show-candidate":
-      printShow(result);
+      printShow(result, io);
       return;
     case "sync-index":
-      printSyncIndex(result);
+      printSyncIndex(result, io);
       return;
     case "trace":
-      printTrace(result.records, result.edges);
+      printTrace(result.records, result.edges, io);
   }
 }
 
 function printCandidates(
-  records: Extract<DecisionQuerySuccess, { command: "candidates" }>["records"]
+  records: Extract<DecisionQuerySuccess, { command: "candidates" }>["records"],
+  io: DecisionRecordsCliIo
 ): void {
-  console.log("Candidates:");
+  writeLine(io.stdout, "Candidates:");
   if (records.length === 0) {
-    console.log("- none");
+    writeLine(io.stdout, "- none");
     return;
   }
   for (const record of records) {
@@ -65,41 +80,54 @@ function printCandidates(
       "candidate",
       record.decisionId,
       record.sourcePath,
-      record.tags
+      record.tags,
+      io
     );
-    console.log("  title: " + record.projection.title);
-    console.log("  purpose: " + record.projection.purpose);
+    writeLine(io.stdout, "  title: " + record.projection.title);
+    writeLine(io.stdout, "  purpose: " + record.projection.purpose);
   }
 }
 
-export function printCandidateWarnings(sourcePaths: readonly string[]): void {
+export function printCandidateWarnings(
+  sourcePaths: readonly string[],
+  io: DecisionRecordsCliIo = processDecisionRecordsCliIo
+): void {
   if (sourcePaths.length === 0) {
     return;
   }
-  console.error("Decision records command completed with warnings:");
+  writeLine(io.stderr, "Decision records command completed with warnings:");
   for (const sourcePath of sourcePaths) {
-    console.error("- Reviewable decision candidate remains: " + sourcePath);
+    writeLine(
+      io.stderr,
+      "- Reviewable decision candidate remains: " + sourcePath
+    );
   }
-  console.error(
+  writeLine(
+    io.stderr,
     "- Candidates remain outside the decision index; use candidates to review " +
       "them, then activate or discard them explicitly."
   );
 }
 
-function printQueryWarnings(warnings: readonly string[]): void {
+function printQueryWarnings(
+  warnings: readonly string[],
+  io: DecisionRecordsCliIo
+): void {
   if (warnings.length === 0) {
     return;
   }
-  console.error("Decision records query completed with warnings:");
+  writeLine(io.stderr, "Decision records query completed with warnings:");
   for (const warning of warnings) {
-    console.error("- " + warning);
+    writeLine(io.stderr, "- " + warning);
   }
 }
 
 function printCheck(
-  summary: Extract<DecisionQuerySuccess, { command: "check" }>["summary"]
+  summary: Extract<DecisionQuerySuccess, { command: "check" }>["summary"],
+  io: DecisionRecordsCliIo
 ): void {
-  console.log(
+  writeLine(
+    io.stdout,
     "Decision records check passed (" +
       summary.decisionCount +
       " decisions, " +
@@ -118,16 +146,18 @@ function printCheck(
 
 function printList(
   records: Extract<DecisionQuerySuccess, { command: "list" }>["records"],
-  fullTime: boolean
+  fullTime: boolean,
+  io: DecisionRecordsCliIo
 ): void {
-  console.log("Decisions:");
+  writeLine(io.stdout, "Decisions:");
   if (records.length === 0) {
-    console.log("- none");
+    writeLine(io.stdout, "- none");
     return;
   }
   for (const record of records) {
     const timestamp = record.createdAt ?? "unknown";
-    console.log(
+    writeLine(
+      io.stdout,
       "- " +
         record.status +
         " " +
@@ -137,47 +167,52 @@ function printList(
         " " +
         record.decisionId
     );
-    console.log("  sourcePath: " + record.sourcePath);
-    console.log("  tags: " + record.tags.join(", "));
-    console.log("  title: " + record.projection.title);
-    console.log("  purpose: " + record.projection.purpose);
+    writeLine(io.stdout, "  sourcePath: " + record.sourcePath);
+    writeLine(io.stdout, "  tags: " + record.tags.join(", "));
+    writeLine(io.stdout, "  title: " + record.projection.title);
+    writeLine(io.stdout, "  purpose: " + record.projection.purpose);
   }
 }
 
 function printShow(
-  result: Extract<DecisionQuerySuccess, { command: "show" | "show-candidate" }>
+  result: Extract<DecisionQuerySuccess, { command: "show" | "show-candidate" }>,
+  io: DecisionRecordsCliIo
 ): void {
-  console.log("id: " + result.record.decisionId);
-  console.log("sourcePath: " + result.record.sourcePath);
-  console.log("tags: " + result.record.tags.join(", "));
-  console.log("status: " + result.record.status);
-  console.log("alignment: " + result.record.alignment);
-  console.log("createdAt: " + result.record.createdAt);
-  console.log("");
-  console.log(result.body.trimEnd());
+  writeLine(io.stdout, "id: " + result.record.decisionId);
+  writeLine(io.stdout, "sourcePath: " + result.record.sourcePath);
+  writeLine(io.stdout, "tags: " + result.record.tags.join(", "));
+  writeLine(io.stdout, "status: " + result.record.status);
+  writeLine(io.stdout, "alignment: " + result.record.alignment);
+  writeLine(io.stdout, "createdAt: " + result.record.createdAt);
+  writeLine(io.stdout, "");
+  writeLine(io.stdout, result.body.trimEnd());
 }
 
 function printSyncIndex(
-  result: Extract<DecisionQuerySuccess, { command: "sync-index" }>
+  result: Extract<DecisionQuerySuccess, { command: "sync-index" }>,
+  io: DecisionRecordsCliIo
 ): void {
-  console.log(
+  writeLine(
+    io.stdout,
     result.state === "written"
       ? "Rebuilt " + result.indexRelativePath + " from decision Markdown files."
       : "Decision index is up to date."
   );
-  printCandidateWarnings(result.unactivatedPaths);
+  printCandidateWarnings(result.unactivatedPaths, io);
 }
 
 function printTrace(
   records: Extract<DecisionQuerySuccess, { command: "trace" }>["records"],
-  edges: Extract<DecisionQuerySuccess, { command: "trace" }>["edges"]
+  edges: Extract<DecisionQuerySuccess, { command: "trace" }>["edges"],
+  io: DecisionRecordsCliIo
 ): void {
-  console.log("Decisions:");
+  writeLine(io.stdout, "Decisions:");
   if (records.length === 0) {
-    console.log("- none");
+    writeLine(io.stdout, "- none");
   } else {
     for (const record of records) {
-      console.log(
+      writeLine(
+        io.stdout,
         "- " +
           record.status +
           " " +
@@ -189,15 +224,16 @@ function printTrace(
           "] - " +
           record.projection.title
       );
-      console.log("  tags: " + record.tags.join(", "));
+      writeLine(io.stdout, "  tags: " + record.tags.join(", "));
     }
   }
-  console.log("Relations:");
+  writeLine(io.stdout, "Relations:");
   if (edges.length === 0) {
-    console.log("- none");
+    writeLine(io.stdout, "- none");
   } else {
     for (const edge of edges) {
-      console.log(
+      writeLine(
+        io.stdout,
         "- " + edge.source + " --" + edge.type + "--> " + edge.target
       );
     }
@@ -208,9 +244,10 @@ function printRecordHeader(
   status: string,
   decisionId: string,
   sourcePath: string,
-  tags: readonly string[]
+  tags: readonly string[],
+  io: DecisionRecordsCliIo
 ): void {
-  console.log("- " + status + " " + decisionId);
-  console.log("  sourcePath: " + sourcePath);
-  console.log("  tags: " + tags.join(", "));
+  writeLine(io.stdout, "- " + status + " " + decisionId);
+  writeLine(io.stdout, "  sourcePath: " + sourcePath);
+  writeLine(io.stdout, "  tags: " + tags.join(", "));
 }

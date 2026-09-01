@@ -14,11 +14,13 @@ import type {
   DecisionIndexState
 } from "../src/types.ts";
 import { runDecisionRecordsCli as runBundledDecisionRecordsCli } from "../../../skills/decision-records/scripts/decision-records.mjs";
+import { createGitRepositoryFixture } from "../../shared/tests/git-fixture.ts";
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const rootDirectory = path.resolve(testsDirectory, "../../..");
 
 export const fixtureRoot = path.join(testsDirectory, "fixtures", "valid");
+const gitFixtureRoot = path.join(testsDirectory, "fixtures", "git-repository");
 export const generatedCliPath = path.join(
   rootDirectory,
   "skills",
@@ -58,11 +60,17 @@ export const archivedRelativePath = archivedDecisionId;
 
 let fixtureTemplate: Promise<string> | null = null;
 let fixtureTemplatePath: string | null = null;
+let gitFixtureTemplate: Promise<string> | null = null;
+let gitFixtureTemplatePath: string | null = null;
 
 after(async () => {
   if (fixtureTemplatePath !== null) {
     await fs.rm(fixtureTemplatePath, { force: true, recursive: true });
     fixtureTemplatePath = null;
+  }
+  if (gitFixtureTemplatePath !== null) {
+    await fs.rm(gitFixtureTemplatePath, { force: true, recursive: true });
+    gitFixtureTemplatePath = null;
   }
 });
 
@@ -164,6 +172,37 @@ async function createFixtureTemplate(): Promise<string> {
   }
 }
 
+async function gitFixtureTemplateRoot(): Promise<string> {
+  gitFixtureTemplate ??= createGitFixtureTemplate();
+  try {
+    return await gitFixtureTemplate;
+  } catch (error) {
+    gitFixtureTemplate = null;
+    throw error;
+  }
+}
+
+async function createGitFixtureTemplate(): Promise<string> {
+  const templateParent = await fs.mkdtemp(
+    path.join(os.tmpdir(), "decision-records-git-fixture-template-")
+  );
+  gitFixtureTemplatePath = templateParent;
+  try {
+    const fixture = await createGitRepositoryFixture({
+      fixtureRoot: gitFixtureRoot,
+      parentDirectory: templateParent,
+      repositoryName: "repository",
+      userEmail: "decision-records@example.invalid",
+      userName: "Decision Records Test"
+    });
+    return fixture.repositoryRoot;
+  } catch (error) {
+    await fs.rm(templateParent, { force: true, recursive: true });
+    gitFixtureTemplatePath = null;
+    throw error;
+  }
+}
+
 export async function withFixtureWorkspace<T>(
   label: string,
   operation: (workspaceRoot: string) => Promise<T>
@@ -173,6 +212,29 @@ export async function withFixtureWorkspace<T>(
     return await operation(workspaceRoot);
   } finally {
     await fs.rm(workspaceRoot, { force: true, recursive: true });
+  }
+}
+
+/**
+ * Gives a case a fully private copy of a runner-local Git template. The
+ * template is initialized once from the checked-in ordinary fixture, while
+ * each case receives independent objects, index, worktree, refs, and config.
+ */
+export async function withGitFixtureWorkspace<T>(
+  label: string,
+  operation: (workspaceRoot: string) => Promise<T>
+): Promise<T> {
+  const workspaceParent = await fs.mkdtemp(
+    path.join(os.tmpdir(), `decision-records-${label}-`)
+  );
+  const workspaceRoot = path.join(workspaceParent, "workspace");
+  try {
+    await fs.cp(await gitFixtureTemplateRoot(), workspaceRoot, {
+      recursive: true
+    });
+    return await operation(workspaceRoot);
+  } finally {
+    await fs.rm(workspaceParent, { force: true, recursive: true });
   }
 }
 
@@ -190,30 +252,29 @@ export async function withTemporaryWorkspace<T>(
   }
 }
 
+type CliRunner = (
+  args: readonly string[],
+  options: {
+    io: {
+      stderr: (text: string) => void;
+      stdout: (text: string) => void;
+    };
+  }
+) => Promise<number>;
+
 async function captureCliExecution(
-  runner: (args: readonly string[]) => Promise<number>,
+  runner: CliRunner,
   args: readonly string[]
 ): Promise<CliExecution> {
   const stdout: string[] = [];
   const stderr: string[] = [];
-  const originalLog = console.log;
-  const originalError = console.error;
-  console.log = (...values: unknown[]) => {
-    stdout.push(`${values.map(String).join(" ")}\n`);
-  };
-  console.error = (...values: unknown[]) => {
-    stderr.push(`${values.map(String).join(" ")}\n`);
-  };
-  try {
-    return {
-      exitCode: await runner(args),
-      stderr: stderr.join(""),
-      stdout: stdout.join("")
-    };
-  } finally {
-    console.log = originalLog;
-    console.error = originalError;
-  }
+  const exitCode = await runner(args, {
+    io: {
+      stderr: (text) => stderr.push(text),
+      stdout: (text) => stdout.push(text)
+    }
+  });
+  return { exitCode, stderr: stderr.join(""), stdout: stdout.join("") };
 }
 
 export async function runSourceCli(

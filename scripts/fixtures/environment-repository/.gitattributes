@@ -1,0 +1,10 @@
+.githooks/* text eol=lf
+docs/task-graph/task-graph-index.json text eol=lf
+tools/task-graph/references/runtime/package.json text eol=lf
+tools/task-graph/references/runtime/package-lock.json text eol=lf
+skills/task-graph/references/runtime/package.json text eol=lf
+skills/task-graph/references/runtime/package-lock.json text eol=lf
+skills/task-graph/references/task-graph-index.schema.json text eol=lf
+skills/task-graph/scripts/task-graph.d.mts text eol=lf
+skills/task-graph/scripts/task-graph.mjs text eol=lf
+skills/task-graph/scripts/task-graph.mjs.map text eol=lf

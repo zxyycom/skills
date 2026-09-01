@@ -69,41 +69,66 @@ function formatDiagnostic(diagnostic: ChangePlanDiagnostic): string {
   return `- ${location}[${diagnostic.code}] ${diagnostic.message}`;
 }
 
+export type ChangePlanCliIo = {
+  stderr: (text: string) => void;
+  stdout: (text: string) => void;
+};
+
+export type ChangePlanCliOptions = {
+  cwd?: string;
+  io?: ChangePlanCliIo;
+};
+
+const processCliIo: ChangePlanCliIo = {
+  stderr: (text) => process.stderr.write(text),
+  stdout: (text) => process.stdout.write(text)
+};
+
+function writeLine(writer: (text: string) => void, text: string): void {
+  writer(`${text}\n`);
+}
+
 function printCheckDiagnostics(
   prefix: string,
-  result: ChangePlanCheckResult
+  result: ChangePlanCheckResult,
+  io: ChangePlanCliIo
 ): void {
-  console.error(`${prefix} (${result.changeDirectory}):`);
+  writeLine(io.stderr, `${prefix} (${result.changeDirectory}):`);
   for (const diagnostic of result.diagnostics) {
-    console.error(formatDiagnostic(diagnostic));
+    writeLine(io.stderr, formatDiagnostic(diagnostic));
   }
 }
 
-function printDistance(distance: GitDistanceEvidence | null): void {
+function printDistance(
+  distance: GitDistanceEvidence | null,
+  io: ChangePlanCliIo
+): void {
   if (distance !== null) {
-    console.log(formatGitDistance(distance));
+    writeLine(io.stdout, formatGitDistance(distance));
   }
 }
 
 async function runCheckCommand(
   changeDirectory: string,
-  json: boolean
+  json: boolean,
+  io: ChangePlanCliIo
 ): Promise<number> {
   const result = await checkChangePlanDirectory(changeDirectory);
   if (json) {
-    console.log(JSON.stringify(result, null, 2));
+    writeLine(io.stdout, JSON.stringify(result, null, 2));
     return result.valid ? 0 : 1;
   }
   if (!result.valid) {
-    printCheckDiagnostics("Change plan check failed", result);
+    printCheckDiagnostics("Change plan check failed", result, io);
     return 1;
   }
-  console.log(
+  writeLine(
+    io.stdout,
     `Change plan check passed (${result.changeName}; ` +
       `${result.completedTaskCount}/${result.taskCount} tasks completed; ` +
       `stage ${result.stage ?? "none"}).`
   );
-  printDistance(result.distance);
+  printDistance(result.distance, io);
   return 0;
 }
 
@@ -118,25 +143,26 @@ function formatCollectionCheckSummary(
 
 async function runCollectionCheckCommand(
   changeRoot: string | undefined,
-  json: boolean
+  json: boolean,
+  io: ChangePlanCliIo
 ): Promise<number> {
   const result = await checkChangePlanCollection({ changeRoot });
   if (json) {
-    console.log(JSON.stringify(result, null, 2));
+    writeLine(io.stdout, JSON.stringify(result, null, 2));
     return result.valid ? 0 : 1;
   }
   const summary = formatCollectionCheckSummary(result);
   if (result.valid) {
-    console.log(`Change plan collection check passed (${summary}).`);
+    writeLine(io.stdout, `Change plan collection check passed (${summary}).`);
     return 0;
   }
-  console.error(`Change plan collection check failed (${summary}).`);
+  writeLine(io.stderr, `Change plan collection check failed (${summary}).`);
   for (const error of result.errors) {
-    console.error(`- ${error}`);
+    writeLine(io.stderr, `- ${error}`);
   }
   for (const entry of result.entries) {
     if (!entry.valid) {
-      printCheckDiagnostics("Change plan check failed", entry);
+      printCheckDiagnostics("Change plan check failed", entry, io);
     }
   }
   return 1;
@@ -146,7 +172,8 @@ async function runListCommand(
   changeRoot: string | undefined,
   selection: ChangePlanListSelection,
   stage: ChangePlanStage | undefined,
-  json: boolean
+  json: boolean,
+  io: ChangePlanCliIo
 ): Promise<number> {
   const result = await listChangePlans({
     changeRoot,
@@ -154,45 +181,50 @@ async function runListCommand(
     status: selection
   });
   if (json) {
-    console.log(JSON.stringify(result, null, 2));
+    writeLine(io.stdout, JSON.stringify(result, null, 2));
     return result.errors.length === 0 ? 0 : 1;
   }
   if (result.errors.length > 0) {
-    console.error("Change plan list failed:");
+    writeLine(io.stderr, "Change plan list failed:");
     for (const error of result.errors) {
-      console.error(`- ${error}`);
+      writeLine(io.stderr, `- ${error}`);
     }
     return 1;
   }
-  console.log(`Changes (${result.status}; ${result.changeRoot}):`);
+  writeLine(io.stdout, `Changes (${result.status}; ${result.changeRoot}):`);
   if (result.entries.length === 0) {
-    console.log("- none");
+    writeLine(io.stdout, "- none");
     return 0;
   }
   for (const entry of result.entries) {
     if (entry.status === "archived") {
-      console.log(`- archived ${entry.changeName} ${entry.changeDirectory}`);
+      writeLine(
+        io.stdout,
+        `- archived ${entry.changeName} ${entry.changeDirectory}`
+      );
       continue;
     }
-    console.log(
+    writeLine(
+      io.stdout,
       `- ${entry.status} ${entry.changeName} ` +
         `stage=${entry.stage ?? "none"} ` +
         `${entry.completedTaskCount}/${entry.taskCount} ` +
         `${entry.valid ? "valid" : "invalid"} ` +
         entry.changeDirectory
     );
-    printDistance(entry.distance);
+    printDistance(entry.distance, io);
   }
   return 0;
 }
 
 async function runShowCommand(
   changeDirectory: string,
-  json: boolean
+  json: boolean,
+  io: ChangePlanCliIo
 ): Promise<number> {
   const result = await showChangePlanDirectory(changeDirectory);
   if (json) {
-    console.log(JSON.stringify(result, null, 2));
+    writeLine(io.stdout, JSON.stringify(result, null, 2));
     const showSucceeded =
       result.status === "active"
         ? result.check.valid
@@ -200,52 +232,56 @@ async function runShowCommand(
     return showSucceeded ? 0 : 1;
   }
   if (result.status === "archived") {
-    console.log(`Change: ${result.changeName}`);
-    console.log("Status: archived");
-    console.log(`Directory: ${result.changeDirectory}`);
-    console.log("Check: not applicable (archived)");
+    writeLine(io.stdout, `Change: ${result.changeName}`);
+    writeLine(io.stdout, "Status: archived");
+    writeLine(io.stdout, `Directory: ${result.changeDirectory}`);
+    writeLine(io.stdout, "Check: not applicable (archived)");
     for (const artifact of changePlanArtifactNames) {
-      console.log("");
-      console.log(`--- ${artifact} ---`);
+      writeLine(io.stdout, "");
+      writeLine(io.stdout, `--- ${artifact} ---`);
       const contents = result.artifacts[artifact];
-      console.log(
+      writeLine(
+        io.stdout,
         contents === null ? "[missing or unreadable]" : contents.trimEnd()
       );
     }
     if (result.errors.length > 0) {
-      console.error("Archived change show failed:");
+      writeLine(io.stderr, "Archived change show failed:");
       for (const error of result.errors) {
-        console.error(`- ${error}`);
+        writeLine(io.stderr, `- ${error}`);
       }
       return 1;
     }
     return 0;
   }
-  console.log(`Change: ${result.check.changeName}`);
-  console.log(`Status: ${result.status}`);
-  console.log(`Stage: ${result.check.stage ?? "none"}`);
+  writeLine(io.stdout, `Change: ${result.check.changeName}`);
+  writeLine(io.stdout, `Status: ${result.status}`);
+  writeLine(io.stdout, `Stage: ${result.check.stage ?? "none"}`);
   if (result.check.distance !== null) {
-    console.log(`Base commit: ${result.check.distance.baseCommit}`);
-    console.log(`Head commit: ${result.check.distance.headCommit}`);
-    console.log(formatGitDistance(result.check.distance));
+    writeLine(io.stdout, `Base commit: ${result.check.distance.baseCommit}`);
+    writeLine(io.stdout, `Head commit: ${result.check.distance.headCommit}`);
+    writeLine(io.stdout, formatGitDistance(result.check.distance));
   }
-  console.log(`Directory: ${result.check.changeDirectory}`);
-  console.log(
+  writeLine(io.stdout, `Directory: ${result.check.changeDirectory}`);
+  writeLine(
+    io.stdout,
     `Tasks: ${result.check.completedTaskCount}/${result.check.taskCount}`
   );
-  console.log(`Check: ${result.check.valid ? "valid" : "invalid"}`);
+  writeLine(io.stdout, `Check: ${result.check.valid ? "valid" : "invalid"}`);
   for (const artifact of changePlanArtifactNames) {
-    console.log("");
-    console.log(`--- ${artifact} ---`);
+    writeLine(io.stdout, "");
+    writeLine(io.stdout, `--- ${artifact} ---`);
     const contents = result.artifacts[artifact];
-    console.log(
+    writeLine(
+      io.stdout,
       contents === null ? "[missing or unreadable]" : contents.trimEnd()
     );
   }
   if (!result.check.valid) {
     printCheckDiagnostics(
       "Change plan show completed with diagnostics",
-      result.check
+      result.check,
+      io
     );
     return 1;
   }
@@ -254,25 +290,28 @@ async function runShowCommand(
 
 async function runPlanCommand(
   changeDirectory: string,
-  json: boolean
+  json: boolean,
+  io: ChangePlanCliIo
 ): Promise<number> {
   const result: ChangePlanLifecycleResult =
     await planChangePlanDirectory(changeDirectory);
   if (json) {
-    console.log(JSON.stringify(result, null, 2));
+    writeLine(io.stdout, JSON.stringify(result, null, 2));
     return result.success ? 0 : 1;
   }
   if (!result.success) {
-    console.error(
+    writeLine(
+      io.stderr,
       `Change plan ${result.action} failed [${result.errorCode}]: ${result.error}`
     );
     for (const diagnostic of result.diagnostics) {
-      console.error(formatDiagnostic(diagnostic));
+      writeLine(io.stderr, formatDiagnostic(diagnostic));
     }
     return 1;
   }
   const changeName = path.basename(path.resolve(changeDirectory));
-  console.log(
+  writeLine(
+    io.stdout,
     `Change plan ${changeName}: ` +
       `${result.fromStage} -> ${result.metadata.stage} (${result.action}).`
   );
@@ -281,23 +320,25 @@ async function runPlanCommand(
 
 async function runArchiveCommand(
   changeDirectory: string,
-  json: boolean
+  json: boolean,
+  io: ChangePlanCliIo
 ): Promise<number> {
   const result = await archiveChangePlanDirectory(changeDirectory);
   if (json) {
-    console.log(JSON.stringify(result, null, 2));
+    writeLine(io.stdout, JSON.stringify(result, null, 2));
     return result.archived ? 0 : 1;
   }
   if (!result.archived) {
-    console.error(`Change plan archive failed: ${result.error}`);
+    writeLine(io.stderr, `Change plan archive failed: ${result.error}`);
     if (result.check !== null && !result.check.valid) {
       for (const diagnostic of result.check.diagnostics) {
-        console.error(formatDiagnostic(diagnostic));
+        writeLine(io.stderr, formatDiagnostic(diagnostic));
       }
     }
     return 1;
   }
-  console.log(
+  writeLine(
+    io.stdout,
     `Archived change plan ${result.check.changeName} to ` +
       `${result.archivedDirectory} ` +
       `(${result.check.completedTaskCount}/${result.check.taskCount} tasks completed).`
@@ -305,9 +346,9 @@ async function runArchiveCommand(
   return 0;
 }
 
-function invalidArguments(message: string): number {
-  console.error(message);
-  console.error("Run change-plan.mjs --help for usage.");
+function invalidArguments(message: string, io: ChangePlanCliIo): number {
+  writeLine(io.stderr, message);
+  writeLine(io.stderr, "Run change-plan.mjs --help for usage.");
   return 2;
 }
 
@@ -329,8 +370,11 @@ function parseListSelection(
 }
 
 export async function runChangePlanCli(
-  argv: readonly string[] = process.argv.slice(2)
+  argv: readonly string[] = process.argv.slice(2),
+  options: ChangePlanCliOptions = {}
 ): Promise<number> {
+  const cwd = options.cwd ?? process.cwd();
+  const io = options.io ?? processCliIo;
   let parsed: ReturnType<typeof parseArgs>;
   try {
     parsed = parseArgs({
@@ -346,11 +390,14 @@ export async function runChangePlanCli(
       strict: true
     });
   } catch (error) {
-    console.error(error instanceof Error ? error.message : String(error));
+    writeLine(
+      io.stderr,
+      error instanceof Error ? error.message : String(error)
+    );
     return 2;
   }
   if (parsed.values.help === true) {
-    console.log(helpText());
+    writeLine(io.stdout, helpText());
     return 0;
   }
 
@@ -361,7 +408,8 @@ export async function runChangePlanCli(
   if (command === "list") {
     if (operands.length > 1 || operands[0]?.trim().length === 0) {
       return invalidArguments(
-        "Expected: change-plan.mjs list [change-root] [--archived | --all | --stage <stage>] [--json]"
+        "Expected: change-plan.mjs list [change-root] [--archived | --all | --stage <stage>] [--json]",
+        io
       );
     }
     const selection = parseListSelection(
@@ -373,20 +421,30 @@ export async function runChangePlanCli(
       (stageValue !== undefined && selection !== "active")
     ) {
       return invalidArguments(
-        "--archived, --all, and --stage cannot be used together."
+        "--archived, --all, and --stage cannot be used together.",
+        io
       );
     }
     const stage = parseStage(stageArgument);
     if (stageValue !== undefined && stage === undefined) {
-      return invalidArguments("--stage must be draft or plan.");
+      return invalidArguments("--stage must be draft or plan.", io);
     }
-    return await runListCommand(operands[0], selection, stage, json);
+    return await runListCommand(
+      operands[0] === undefined
+        ? path.join(cwd, "changes")
+        : path.resolve(cwd, operands[0]),
+      selection,
+      stage,
+      json,
+      io
+    );
   }
 
   if (command === "check-all") {
     if (operands.length > 1 || operands[0]?.trim().length === 0) {
       return invalidArguments(
-        "Expected: change-plan.mjs check-all [change-root] [--json]"
+        "Expected: change-plan.mjs check-all [change-root] [--json]",
+        io
       );
     }
     if (
@@ -395,10 +453,17 @@ export async function runChangePlanCli(
       stageValue !== undefined
     ) {
       return invalidArguments(
-        "--archived, --all, and --stage are only valid with list."
+        "--archived, --all, and --stage are only valid with list.",
+        io
       );
     }
-    return await runCollectionCheckCommand(operands[0], json);
+    return await runCollectionCheckCommand(
+      operands[0] === undefined
+        ? path.join(cwd, "changes")
+        : path.resolve(cwd, operands[0]),
+      json,
+      io
+    );
   }
 
   if (
@@ -407,7 +472,8 @@ export async function runChangePlanCli(
     stageValue !== undefined
   ) {
     return invalidArguments(
-      "--archived, --all, and --stage are only valid with list."
+      "--archived, --all, and --stage are only valid with list.",
+      io
     );
   }
   const changeDirectory = operands[0];
@@ -416,22 +482,27 @@ export async function runChangePlanCli(
     changeDirectory === undefined ||
     changeDirectory.trim().length === 0
   ) {
-    return invalidArguments("Expected: one <change-directory> operand.");
+    return invalidArguments("Expected: one <change-directory> operand.", io);
   }
   if (command === "show") {
-    return await runShowCommand(changeDirectory, json);
+    return await runShowCommand(path.resolve(cwd, changeDirectory), json, io);
   }
   if (command === "check") {
-    return await runCheckCommand(changeDirectory, json);
+    return await runCheckCommand(path.resolve(cwd, changeDirectory), json, io);
   }
   if (command === "plan") {
-    return await runPlanCommand(changeDirectory, json);
+    return await runPlanCommand(path.resolve(cwd, changeDirectory), json, io);
   }
   if (command === "archive") {
-    return await runArchiveCommand(changeDirectory, json);
+    return await runArchiveCommand(
+      path.resolve(cwd, changeDirectory),
+      json,
+      io
+    );
   }
   return invalidArguments(
-    `Unknown change-plan command: ${command ?? "<missing>"}`
+    `Unknown change-plan command: ${command ?? "<missing>"}`,
+    io
   );
 }
 
@@ -485,7 +556,9 @@ if (isMainModule(import.meta.url)) {
   try {
     process.exitCode = await runChangePlanCli();
   } catch (error) {
-    console.error(error instanceof Error ? error.message : String(error));
+    processCliIo.stderr(
+      `${error instanceof Error ? error.message : String(error)}\n`
+    );
     process.exitCode = 1;
   }
 }

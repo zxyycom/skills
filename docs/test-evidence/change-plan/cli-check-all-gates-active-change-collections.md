@@ -6,4 +6,4 @@ Contract:
 - `check-all` 固定门禁 active Change，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。
 Proves:
 - 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整 active 成员结果。
-- JSON 中每个成员都公开 `distance` 并具有 `status: active`，archive 中的历史成员不进入结果。
+- JSON 中每个成员都公开 `distance` 并具有 `status: active`，archive 中的历史成员不进入结果；源码 CLI 入口以注入的当前目录解析默认根时仍返回同一结构化根级失败。

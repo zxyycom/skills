@@ -18,14 +18,12 @@ import {
   initializeGitRepository,
   runGit,
   runSourceCli,
-  withFixtureWorkspace,
+  withGitFixtureWorkspace,
   writeDecision
 } from "./support.ts";
 
 test("stage selects one Decision ID when its sourcePath moves between root and archive", () =>
-  withFixtureWorkspace("stage-move", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    commitWorkspace(workspaceRoot);
+  withGitFixtureWorkspace("stage-move", async (workspaceRoot) => {
     const currentPath = decisionFilePath(workspaceRoot, currentSourcePath);
     const archivedPath = decisionFilePath(
       workspaceRoot,
@@ -64,9 +62,7 @@ test("stage selects one Decision ID when its sourcePath moves between root and a
   }));
 
 test("stage treats a selected new ID as an addition and preserves an unselected old ID", () =>
-  withFixtureWorkspace("stage-addition", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    commitWorkspace(workspaceRoot);
+  withGitFixtureWorkspace("stage-addition", async (workspaceRoot) => {
     const addedId = "use-added-cli.md";
     await writeDecision(
       workspaceRoot,
@@ -91,9 +87,7 @@ test("stage treats a selected new ID as an addition and preserves an unselected 
   }));
 
 test("stage expresses a basename identity rename by selecting both IDs", () =>
-  withFixtureWorkspace("stage-rename", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    commitWorkspace(workspaceRoot);
+  withGitFixtureWorkspace("stage-rename", async (workspaceRoot) => {
     const renamedId = "use-renamed-cli.md";
     const renamedPath = decisionFilePath(workspaceRoot, renamedId);
     await fs.rename(
@@ -124,37 +118,37 @@ test("stage expresses a basename identity rename by selecting both IDs", () =>
   }));
 
 test("stage does not bind unrelated identical deletion and addition as a rename", () =>
-  withFixtureWorkspace("stage-unrelated-identical", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    const oldId = "use-old-candidate.md";
-    const newId = "use-new-candidate.md";
-    const body = candidateDecisionBody({ title: "相同但无关的候选" });
-    await writeDecision(workspaceRoot, oldId, body);
-    commitWorkspace(workspaceRoot);
-    await fs.rm(decisionFilePath(workspaceRoot, oldId));
-    await writeDecision(workspaceRoot, newId, body);
-    const staged = await runSourceCli([
-      "stage",
-      oldId,
-      newId,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(staged.exitCode, 0, staged.stderr);
-    const status = runGit(workspaceRoot, [
-      "diff",
-      "--cached",
-      "--name-status",
-      "--no-renames"
-    ]);
-    assert.match(status, new RegExp(`D\\tdocs/decisions/${oldId}`));
-    assert.match(status, new RegExp(`A\\tdocs/decisions/${newId}`));
-  }));
+  withGitFixtureWorkspace(
+    "stage-unrelated-identical",
+    async (workspaceRoot) => {
+      const oldId = "use-old-candidate.md";
+      const newId = "use-new-candidate.md";
+      const body = candidateDecisionBody({ title: "相同但无关的候选" });
+      await writeDecision(workspaceRoot, oldId, body);
+      commitWorkspace(workspaceRoot);
+      await fs.rm(decisionFilePath(workspaceRoot, oldId));
+      await writeDecision(workspaceRoot, newId, body);
+      const staged = await runSourceCli([
+        "stage",
+        oldId,
+        newId,
+        "--root",
+        workspaceRoot
+      ]);
+      assert.equal(staged.exitCode, 0, staged.stderr);
+      const status = runGit(workspaceRoot, [
+        "diff",
+        "--cached",
+        "--name-status",
+        "--no-renames"
+      ]);
+      assert.match(status, new RegExp(`D\\tdocs/decisions/${oldId}`));
+      assert.match(status, new RegExp(`A\\tdocs/decisions/${newId}`));
+    }
+  ));
 
 test("stage isolates unselected filesystem changes", () =>
-  withFixtureWorkspace("stage-isolation", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    commitWorkspace(workspaceRoot);
+  withGitFixtureWorkspace("stage-isolation", async (workspaceRoot) => {
     const selectedId = "use-selected-stage.md";
     const unselectedId = "use-unselected-stage.md";
     await writeDecision(workspaceRoot, selectedId, candidateDecisionBody());
@@ -264,9 +258,7 @@ test(
 );
 
 test("stage rejects an existing pending decision index", () =>
-  withFixtureWorkspace("stage-existing-pending", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    commitWorkspace(workspaceRoot);
+  withGitFixtureWorkspace("stage-existing-pending", async (workspaceRoot) => {
     const selectedId = "use-existing-pending.md";
     await writeDecision(workspaceRoot, selectedId, candidateDecisionBody());
     const first = await runSourceCli([
@@ -287,8 +279,7 @@ test("stage rejects an existing pending decision index", () =>
   }));
 
 test("stage rejects an old domain revision before changing pending files", () =>
-  withFixtureWorkspace("stage-old-revision", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
+  withGitFixtureWorkspace("stage-old-revision", async (workspaceRoot) => {
     const decisionsRoot = path.join(workspaceRoot, "docs", "decisions");
     await fs.rm(decisionsRoot, { force: true, recursive: true });
     await fs.mkdir(`${decisionsRoot}/decision-records`, { recursive: true });
@@ -324,9 +315,7 @@ test("stage rejects an old domain revision before changing pending files", () =>
   }));
 
 test("stage applies selected additions modifications deletions and explicit renames", () =>
-  withFixtureWorkspace("stage-overlay", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    commitWorkspace(workspaceRoot);
+  withGitFixtureWorkspace("stage-overlay", async (workspaceRoot) => {
     const modified = decisionFilePath(workspaceRoot, currentSourcePath);
     const deleted = decisionFilePath(workspaceRoot, archivedSourcePath);
     const addedId = "use-added-stage.md";
@@ -429,9 +418,7 @@ test("stage bootstraps a new Decision when revision contains only the derived in
   }));
 
 test("stage rejects invalid duplicate and missing paths without changing pending", () =>
-  withFixtureWorkspace("stage-invalid-input", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    commitWorkspace(workspaceRoot);
+  withGitFixtureWorkspace("stage-invalid-input", async (workspaceRoot) => {
     await fs.writeFile(
       path.join(workspaceRoot, "README.md"),
       "pending\n",
@@ -459,9 +446,7 @@ test("stage rejects invalid duplicate and missing paths without changing pending
   }));
 
 test("stage rejects invalid candidate relation targets before pending writes", () =>
-  withFixtureWorkspace("stage-invalid-candidate", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    commitWorkspace(workspaceRoot);
+  withGitFixtureWorkspace("stage-invalid-candidate", async (workspaceRoot) => {
     const invalid = "use-invalid-relation.md";
     await writeDecision(
       workspaceRoot,
@@ -524,9 +509,7 @@ test("help exposes stage independently without adding lifecycle stage options", 
 });
 
 test("stage preserves concurrent pending bytes discovered by the replacement CAS", () =>
-  withFixtureWorkspace("stage-pending-race", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    commitWorkspace(workspaceRoot);
+  withGitFixtureWorkspace("stage-pending-race", async (workspaceRoot) => {
     const concurrentId = "use-concurrent-pending.md";
     const concurrentBody = candidateDecisionBody({
       title: "并发 pending 决策"
@@ -571,11 +554,9 @@ test("stage preserves concurrent pending bytes discovered by the replacement CAS
 
 test("stage rejects selected source drift before replacing the pending snapshot", async () => {
   for (const mutation of ["change", "delete", "move"] as const) {
-    await withFixtureWorkspace(
+    await withGitFixtureWorkspace(
       `stage-selected-drift-${mutation}`,
       async (workspaceRoot) => {
-        initializeGitRepository(workspaceRoot);
-        commitWorkspace(workspaceRoot);
         const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
         const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
         assert.ok(descriptor);
@@ -669,9 +650,7 @@ test("stage rejects a missing ID when bootstrapping without a revision", () =>
   }));
 
 test("stage isolates unselected invalid filesystem content from a selected revision ID", () =>
-  withFixtureWorkspace("stage-unselected-invalid", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    commitWorkspace(workspaceRoot);
+  withGitFixtureWorkspace("stage-unselected-invalid", async (workspaceRoot) => {
     const invalidName = "invalid_candidate.md";
     await writeDecision(workspaceRoot, invalidName, candidateDecisionBody());
     const selectedPath = decisionFilePath(workspaceRoot, currentSourcePath);
@@ -700,9 +679,7 @@ test("stage isolates unselected invalid filesystem content from a selected revis
   }));
 
 test("stage treats a selected old ID as a deletion without inferring a rename", () =>
-  withFixtureWorkspace("stage-deletion", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    commitWorkspace(workspaceRoot);
+  withGitFixtureWorkspace("stage-deletion", async (workspaceRoot) => {
     const replacementId = "use-unselected-replacement.md";
     await fs.rm(decisionFilePath(workspaceRoot, currentSourcePath));
     await writeDecision(
@@ -734,11 +711,9 @@ test("stage treats a selected old ID as a deletion without inferring a rename", 
   }));
 
 test("stage rejects a selected symlink source outside the decision root", async (t) => {
-  await withFixtureWorkspace(
+  await withGitFixtureWorkspace(
     "stage-selected-symlink",
     async (workspaceRoot) => {
-      initializeGitRepository(workspaceRoot);
-      commitWorkspace(workspaceRoot);
       const selectedPath = decisionFilePath(workspaceRoot, currentSourcePath);
       const outsidePath = path.join(workspaceRoot, "outside-decision.md");
       await fs.writeFile(

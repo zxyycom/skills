@@ -7,16 +7,15 @@ import {
   archivedDecisionId,
   archivedSourcePath,
   candidateDecisionBody,
-  commitWorkspace,
   currentDecisionId,
   currentSourcePath,
   decisionFilePath,
   fileExists,
   findIndexEntry,
-  initializeGitRepository,
   readIndex,
   runSourceCli,
   withFixtureWorkspace,
+  withGitFixtureWorkspace,
   writeDecision
 } from "./support.ts";
 
@@ -75,9 +74,7 @@ test("archive and reactivate move one Decision ID while preserving its Markdown 
   }));
 
 test("relations resolve stable IDs across active and archived locations", () =>
-  withFixtureWorkspace("relations-id", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    commitWorkspace(workspaceRoot);
+  withGitFixtureWorkspace("relations-id", async (workspaceRoot) => {
     const candidateId = "use-id-relations.md";
     await writeDecision(
       workspaceRoot,

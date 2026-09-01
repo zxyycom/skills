@@ -1,6 +1,6 @@
 ---
 title: 按语义身份组织 Vibe Check
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-01T05:11:30Z
 purpose: 让 Vibe Gate 结果按所证明契约和失败 owner 直接定位。

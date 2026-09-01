@@ -1,19 +1,66 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import path from "node:path";
 import test from "node:test";
+import { createCliProgram } from "../src/cli-args.ts";
+import { runDecisionRecordsCli } from "../src/cli.ts";
 import {
   archivedRelativePath,
   currentRelativePath,
   generatedCliPath
 } from "./support.ts";
 
-function runGeneratedCli(args: readonly string[]) {
+type CliExecution = {
+  exitCode: number;
+  stderr: string;
+  stdout: string;
+};
+
+async function runCli(args: readonly string[]): Promise<CliExecution> {
+  const stdout: string[] = [];
+  const stderr: string[] = [];
+  const exitCode = await runDecisionRecordsCli(args, {
+    io: {
+      stderr: (text) => stderr.push(text),
+      stdout: (text) => stdout.push(text)
+    }
+  });
+  return { exitCode, stderr: stderr.join(""), stdout: stdout.join("") };
+}
+
+function runNodeCli(args: readonly string[]) {
   return spawnSync("node", [generatedCliPath, ...args], { encoding: "utf8" });
 }
 
-test("decision CLI top-level help exposes the current command set", () => {
-  const help = runGeneratedCli(["--help"]);
-  assert.equal(help.status, 0);
+test("decision CLI resolves a relative root from injected cwd", async () => {
+  const cwd = path.join(process.cwd(), "decision-records-cli-cwd");
+  let workspaceRoot: string | null = null;
+  const program = createCliProgram(
+    async (args) => {
+      workspaceRoot = args.workspaceRoot;
+      return 0;
+    },
+    () => {},
+    {
+      cwd,
+      io: { stderr: () => {}, stdout: () => {} }
+    }
+  );
+
+  await program.parseAsync([
+    "node",
+    "decision-records.mjs",
+    "check",
+    "--root",
+    "."
+  ]);
+
+  assert.equal(workspaceRoot, cwd);
+});
+
+test("decision CLI top-level help exposes the current command set", async () => {
+  const help = await runCli(["--help"]);
+  assert.equal(help.exitCode, 0);
   assert.match(
     help.stdout,
     /Query and maintain agent-oriented decision records/
@@ -42,39 +89,39 @@ test("decision CLI top-level help exposes the current command set", () => {
   assert.doesNotMatch(help.stdout, /^\s*split(?:\s|$)/m);
 });
 
-test("sync-index rebuilds without an option and rejects the former write flag", () => {
-  const help = runGeneratedCli(["sync-index", "--help"]);
-  assert.equal(help.status, 0);
+test("sync-index rebuilds without an option and rejects the former write flag", async () => {
+  const help = await runCli(["sync-index", "--help"]);
+  assert.equal(help.exitCode, 0);
   assert.match(help.stdout, /Rebuild the JSON index from established Markdown/);
   assert.doesNotMatch(help.stdout, /--write/);
 
-  const legacyFlag = runGeneratedCli(["sync-index", "--write"]);
-  assert.equal(legacyFlag.status, 2);
+  const legacyFlag = await runCli(["sync-index", "--write"]);
+  assert.equal(legacyFlag.exitCode, 2);
   assert.equal(legacyFlag.stdout, "");
   assert.match(legacyFlag.stderr, /unknown option '--write'/);
 });
 
-test("archive help promises to preserve the last alignment", () => {
-  const help = runGeneratedCli(["archive", "--help"]);
-  assert.equal(help.status, 0);
+test("archive help promises to preserve the last alignment", async () => {
+  const help = await runCli(["archive", "--help"]);
+  assert.equal(help.exitCode, 0);
   assert.match(help.stdout, /preserving their last alignment/);
 });
 
-test("discard help requires an explicit recorded decision deletion flag", () => {
-  const help = runGeneratedCli(["discard", "--help"]);
-  assert.equal(help.status, 0);
+test("discard help requires an explicit recorded decision deletion flag", async () => {
+  const help = await runCli(["discard", "--help"]);
+  assert.equal(help.exitCode, 0);
   assert.match(help.stdout, /--delete-recorded-decision/);
   assert.match(help.stdout, /Decision ID that has entered\s+Git HEAD/);
 });
 
-test("evolve rejects a recorded-decision deletion flag without discard", () => {
-  const result = runGeneratedCli([
+test("evolve rejects a recorded-decision deletion flag without discard", async () => {
+  const result = await runCli([
     "evolve",
     "--successor",
     "aligned=use-successor.md",
     "--delete-recorded-decision"
   ]);
-  assert.equal(result.status, 2);
+  assert.equal(result.exitCode, 2);
   assert.equal(result.stdout, "");
   assert.match(
     result.stderr,
@@ -82,25 +129,25 @@ test("evolve rejects a recorded-decision deletion flag without discard", () => {
   );
 });
 
-test("mark-aligned help requires verified current facts", () => {
-  const help = runGeneratedCli(["mark-aligned", "--help"]);
-  assert.equal(help.status, 0);
+test("mark-aligned help requires verified current facts", async () => {
+  const help = await runCli(["mark-aligned", "--help"]);
+  assert.equal(help.exitCode, 0);
   assert.match(
     help.stdout,
     /only after its complete\s+direction\s+has become current fact\s+and been verified against the relevant\s+fact sources/
   );
 });
 
-test("evolve help exposes successor and complete relation selection", () => {
-  const help = runGeneratedCli(["evolve", "--help"]);
-  assert.equal(help.status, 0);
+test("evolve help exposes successor and complete relation selection", async () => {
+  const help = await runCli(["evolve", "--help"]);
+  assert.equal(help.exitCode, 0);
   assert.match(help.stdout, /--successor <alignment=decision-id>/);
   assert.match(help.stdout, /--clear-relations/);
   assert.match(help.stdout, /--discard <decision-id>/);
   assert.doesNotMatch(help.stdout, /--alignment <value>/);
 });
 
-test("decision CLI rejects removed split and positional evolve protocols", () => {
+test("decision CLI rejects removed split and positional evolve protocols", async () => {
   for (const args of [
     ["split", currentRelativePath, "--successor", "aligned=use-successor.md"],
     [
@@ -112,23 +159,23 @@ test("decision CLI rejects removed split and positional evolve protocols", () =>
       "修订=" + currentRelativePath
     ]
   ]) {
-    assert.equal(runGeneratedCli(args).status, 2);
+    assert.equal((await runCli(args)).exitCode, 2);
   }
 });
 
-test("evolve requires at least one successor argument", () => {
+test("evolve requires at least one successor argument", async () => {
   for (const args of [
     ["evolve"],
     ["evolve", "--discard", currentRelativePath]
   ]) {
-    const result = runGeneratedCli(args);
-    assert.equal(result.status, 2);
+    const result = await runCli(args);
+    assert.equal(result.exitCode, 2);
     assert.match(result.stderr, /required option '--successor/);
   }
 });
 
-test("relation and clear-relations options are mutually exclusive", () => {
-  const result = runGeneratedCli([
+test("relation and clear-relations options are mutually exclusive", async () => {
+  const result = await runCli([
     "activate",
     currentRelativePath,
     "--alignment",
@@ -137,59 +184,54 @@ test("relation and clear-relations options are mutually exclusive", () => {
     "修订=" + archivedRelativePath,
     "--clear-relations"
   ]);
-  assert.equal(result.status, 2);
+  assert.equal(result.exitCode, 2);
   assert.match(result.stderr, /cannot be used with option/);
 });
 
-test("decision CLI rejects unknown options", () => {
+test("decision CLI rejects unknown options", async () => {
   for (const args of [
     ["list", "--unknown-option"],
     ["archive", currentRelativePath, "--unknown-option"]
   ]) {
-    const result = runGeneratedCli(args);
-    assert.equal(result.status, 2);
+    const result = await runCli(args);
+    assert.equal(result.exitCode, 2);
     assert.match(result.stderr, /unknown option/);
   }
 });
 
-test("trace rejects a negative depth", () => {
-  const result = runGeneratedCli([
-    "trace",
-    archivedRelativePath,
-    "--depth",
-    "-1"
-  ]);
-  assert.equal(result.status, 2);
+test("trace rejects a negative depth", async () => {
+  const result = await runCli(["trace", archivedRelativePath, "--depth", "-1"]);
+  assert.equal(result.exitCode, 2);
   assert.match(result.stderr, /must be a non-negative integer/);
 });
 
-test("list rejects an invalid tag token", () => {
-  const result = runGeneratedCli(["list", "--tag", "Invalid_Tag"]);
-  assert.equal(result.status, 2);
+test("list rejects an invalid tag token", async () => {
+  const result = await runCli(["list", "--tag", "Invalid_Tag"]);
+  assert.equal(result.exitCode, 2);
   assert.match(result.stderr, /must be a kebab-case tag/);
 });
 
-test("activate requires an alignment argument", () => {
-  const result = runGeneratedCli(["activate", currentRelativePath]);
-  assert.equal(result.status, 2);
+test("activate requires an alignment argument", async () => {
+  const result = await runCli(["activate", currentRelativePath]);
+  assert.equal(result.exitCode, 2);
   assert.match(result.stderr, /required option '--alignment <value>'/);
 });
 
-test("evolve rejects duplicate successor members at the CLI boundary", () => {
+test("evolve rejects duplicate successor members at the CLI boundary", async () => {
   const successorRelativePath = "use-duplicate-successor.md";
-  const result = runGeneratedCli([
+  const result = await runCli([
     "evolve",
     "--successor",
     "aligned=" + successorRelativePath,
     "--successor",
     "aligned=" + successorRelativePath
   ]);
-  assert.equal(result.status, 2);
+  assert.equal(result.exitCode, 2);
   assert.match(result.stderr, /must not repeat a successor Decision ID/);
 });
 
-test("evolve rejects repeated relation override targets at the CLI boundary", () => {
-  const result = runGeneratedCli([
+test("evolve rejects repeated relation override targets at the CLI boundary", async () => {
+  const result = await runCli([
     "evolve",
     "--successor",
     "aligned=use-duplicate-relation.md",
@@ -198,12 +240,12 @@ test("evolve rejects repeated relation override targets at the CLI boundary", ()
     "--relation",
     "替代=" + currentRelativePath
   ]);
-  assert.equal(result.status, 2);
+  assert.equal(result.exitCode, 2);
   assert.match(result.stderr, /must not repeat a direct predecessor target/);
 });
 
-test("decision CLI rejects removed domain and path query protocols", () => {
-  const help = runGeneratedCli(["--help"]);
+test("decision CLI rejects removed domain and path query protocols", async () => {
+  const help = await runCli(["--help"]);
   assert.doesNotMatch(help.stdout, /\bdomains\b/);
   assert.doesNotMatch(help.stdout, /--domain/);
   for (const { args, stderr } of [
@@ -237,14 +279,14 @@ test("decision CLI rejects removed domain and path query protocols", () => {
       stderr: /unknown option/
     }
   ]) {
-    const result = runGeneratedCli(args);
-    assert.equal(result.status, 2, args.join(" "));
+    const result = await runCli(args);
+    assert.equal(result.exitCode, 2, args.join(" "));
     assert.equal(result.stdout, "", args.join(" "));
     assert.match(result.stderr, stderr, args.join(" "));
   }
 });
 
-test("positional Decision IDs are validated at every CLI command boundary", () => {
+test("positional Decision IDs are validated at every CLI command boundary", async () => {
   for (const args of [
     ["activate", "invalid_name.md", "--alignment", "aligned"],
     ["archive", "invalid_name.md"],
@@ -255,8 +297,8 @@ test("positional Decision IDs are validated at every CLI command boundary", () =
     ["stage", "invalid_name.md"],
     ["trace", "invalid_name.md"]
   ]) {
-    const result = runGeneratedCli(args);
-    assert.equal(result.status, 2, args.join(" "));
+    const result = await runCli(args);
+    assert.equal(result.exitCode, 2, args.join(" "));
     assert.equal(result.stdout, "", args.join(" "));
     assert.match(
       result.stderr,
@@ -264,4 +306,19 @@ test("positional Decision IDs are validated at every CLI command boundary", () =
       args.join(" ")
     );
   }
+});
+
+test("generated Decision Records CLI preserves the Node success and failure protocol", () => {
+  const success = runNodeCli(["--help"]);
+  assert.equal(success.status, 0, success.stderr);
+  assert.match(
+    success.stdout,
+    /Query and maintain agent-oriented decision records/
+  );
+  assert.equal(success.stderr, "");
+
+  const failure = runNodeCli(["evolve"]);
+  assert.equal(failure.status, 2);
+  assert.equal(failure.stdout, "");
+  assert.match(failure.stderr, /required option '--successor/);
 });

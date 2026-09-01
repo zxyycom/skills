@@ -44,7 +44,9 @@ test("shows the authoritative Markdown for a repository case", async () => {
       "测试证据目录的固定路径与 case 结构、统一索引同步与回退、" +
       "查询展示，以及 CLI 和分发 API 契约。"
   });
-  assert.match(result.markdown ?? "", /CLI 对 `--config` 返回未知参数错误/u);
+  assert.match(result.markdown ?? "", /注入的当前目录/u);
+  assert.match(result.markdown ?? "", /相对 `--root \.`/u);
+  assert.match(result.markdown ?? "", /`--config` 返回未知参数错误/u);
   assert.doesNotMatch(
     result.markdown ?? "",
     /TEST-EVIDENCE-QUERY-REPOSITORY-001/u

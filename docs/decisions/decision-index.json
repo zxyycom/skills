@@ -113,6 +113,7 @@
       "concentrate-before-generalizing.md": "sha256:a54730507e7286778bcef85d6d2111934e4bb584f1ddaa356b15908b887f4847",
       "converge-records-before-stable-baseline.md": "sha256:520603ccb6e809a934ae4354e961135f1d35b0de99e300091b2cc5659ace15df",
       "coordinate-task-execution-with-transactional-claims.md": "sha256:bc0da13729ca6e05cf3a2c06e929c91fbf3c9f9b091ee31522823eeea05d68c3",
+      "declare-generated-artifact-prerequisites-for-vibe-consumers.md": "sha256:30b7e43b4300ce7335f18a8ae06fc12b5692f106a98758db5ef6793dd3e56422",
       "default-checks-to-warnings.md": "sha256:00b912f535010cd8ad651db6955673aee76632faf5e362f4ddb5a3497a94ee83",
       "default-to-current-task-changes.md": "sha256:6ad8e4b4d0aaa471f237a27862f81072aeab407303021494d4f9c77d3d610a4c",
       "defer-openspec-maintenance-during-removal-review.md": "sha256:8ad6ea656e14c275920d64dd949cff5a59b5c83de20cc6810134ccefe11ce221",
@@ -190,7 +191,7 @@
       "organize-by-main-promise-and-manage-context-association.md": "sha256:6c8833087c20743406dcec11933f07115564ad401e55a901fdba1c03d48abbbf",
       "organize-native-test-cases-by-responsibility-topic.md": "sha256:fffeca77e2976d2e907d75a97f7e018a9eb5e46904e6027d0a569c2a4e0a8d7d",
       "organize-test-cases-by-controlled-topic-path.md": "sha256:a0a2bd943eed48603f0c9b45116257e11f274b30efcf03550373c9997b9d4852",
-      "organize-vibe-checks-by-semantic-identity.md": "sha256:7afe1191c172f39b4970ad479c1aa86b006063a067e986e9490e1cfd52b0699b",
+      "organize-vibe-checks-by-semantic-identity.md": "sha256:5ec13931b5cc03a1c56d5f56dba8aca2b913b0af6c6d9e067f3f1f6a4bb13081",
       "own-recoverable-task-coordination.md": "sha256:fa3feef14ffc617548e028433dd5025eb916447d3b6914e1b0c04e3eff68352c",
       "own-short-lived-task-orchestration.md": "sha256:8deede305fec407b396021a140d2c7741207de199f24780caac33f2b142b19bf",
       "package-current-index-json-schema.md": "sha256:770d5090a85f226c003022ad860b54f016484dc350776c09ca607930d2329ed2",
@@ -3479,6 +3480,38 @@
         "relations": []
       }
     },
+    "declare-generated-artifact-prerequisites-for-vibe-consumers.md": {
+      "keys": {
+        "tag": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "declare-generated-artifact-prerequisites-for-vibe-consumers.md",
+        "title": "为 Vibe 分发 consumer 声明生成前置",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T06:31:41Z",
+        "purpose": "让消费当前分发制品的 Vibe Check 只在对应生成结果可信时运行。",
+        "background": "semantic Check 已按证明契约划分，但 public-distribution consumer 若不依赖生成一致性结果，会在制品漂移后产生无效失败噪声。",
+        "decision": "为真实消费分发制品的 semantic Check 声明精确生成前置，并以调度依赖和直接结果守卫保持可定位的失败边界。",
+        "tags": [
+          "project-tooling"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "organize-vibe-checks-by-semantic-identity.md"
+          }
+        ]
+      }
+    },
     "default-checks-to-warnings.md": {
       "keys": {
         "tag": [
@@ -5863,16 +5896,16 @@
           "project-tooling"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "organize-vibe-checks-by-semantic-identity.md",
+        "sourcePath": "archive/organize-vibe-checks-by-semantic-identity.md",
         "title": "按语义身份组织 Vibe Check",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-01T05:11:30Z",
         "purpose": "让 Vibe Gate 结果按所证明契约和失败 owner 直接定位。",

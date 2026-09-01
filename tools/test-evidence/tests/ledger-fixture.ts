@@ -8,6 +8,7 @@ import type {
   TestEntity,
   TestEvidenceLedgerCase
 } from "../src/ledger/index.ts";
+import { runTestEvidenceLedgerCli } from "../src/ledger/cli.ts";
 
 const execFileAsync = promisify(execFile);
 
@@ -177,7 +178,31 @@ export async function readJsonFile(filePath: string): Promise<unknown> {
   return JSON.parse(await fs.readFile(filePath, "utf8")) as unknown;
 }
 
-export async function runLedgerCli(args: readonly string[]): Promise<{
+export async function runLedgerCli(
+  args: readonly string[],
+  options: Readonly<{ cwd?: string }> = {}
+): Promise<{
+  code: number;
+  stderr: string;
+  stdout: string;
+}> {
+  const stderr: string[] = [];
+  const stdout: string[] = [];
+  const code = await runTestEvidenceLedgerCli(args, {
+    cwd: options.cwd,
+    io: {
+      stderr: (text) => stderr.push(text),
+      stdout: (text) => stdout.push(text)
+    }
+  });
+  return {
+    code,
+    stderr: stderr.join(""),
+    stdout: stdout.join("")
+  };
+}
+
+export async function runLedgerCliSmoke(args: readonly string[]): Promise<{
   code: number;
   stderr: string;
   stdout: string;

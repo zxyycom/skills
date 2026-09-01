@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { runChangePlanCli } from "../src/cli.ts";
 import {
   completedTasks,
   generatedCliPath,
@@ -30,8 +31,31 @@ function isUnknownArray(value: unknown): value is unknown[] {
   return Array.isArray(value);
 }
 
-function runCli(arguments_: readonly string[]) {
+type CliExecution = {
+  exitCode: number;
+  stderr: string;
+  stdout: string;
+};
+
+async function runCli(
+  arguments_: readonly string[],
+  cwd?: string
+): Promise<CliExecution> {
+  const stdout: string[] = [];
+  const stderr: string[] = [];
+  const exitCode = await runChangePlanCli(arguments_, {
+    cwd,
+    io: {
+      stderr: (text) => stderr.push(text),
+      stdout: (text) => stdout.push(text)
+    }
+  });
+  return { exitCode, stderr: stderr.join(""), stdout: stdout.join("") };
+}
+
+function runNodeCli(arguments_: readonly string[], cwd?: string) {
   return spawnSync("node", [generatedCliPath, ...arguments_], {
+    cwd,
     encoding: "utf8"
   });
 }
@@ -134,15 +158,19 @@ async function createCliFixture(tempRoot: string): Promise<CliFixture> {
   };
 }
 
-function testArchivedCheckCommand(fixture: CliFixture): void {
-  const textResult = runCli(["check", fixture.archivedDirectory]);
-  assert.equal(textResult.status, 1);
+async function testArchivedCheckCommand(fixture: CliFixture): Promise<void> {
+  const textResult = await runCli(["check", fixture.archivedDirectory]);
+  assert.equal(textResult.exitCode, 1);
   assert.equal(textResult.stdout, "");
   assert.match(textResult.stderr, /archived-change-not-checkable/u);
   assert.doesNotMatch(textResult.stderr, /missing-required-file|invalid-h1/u);
 
-  const jsonResult = runCli(["check", fixture.archivedDirectory, "--json"]);
-  assert.equal(jsonResult.status, 1);
+  const jsonResult = await runCli([
+    "check",
+    fixture.archivedDirectory,
+    "--json"
+  ]);
+  assert.equal(jsonResult.exitCode, 1);
   assert.equal(jsonResult.stderr, "");
   const parsed: unknown = JSON.parse(jsonResult.stdout);
   assert.ok(isRecord(parsed));
@@ -150,51 +178,44 @@ function testArchivedCheckCommand(fixture: CliFixture): void {
   assert.equal(parsed.taskCount, 0);
 }
 
-function testCheckCommands(fixture: CliFixture): void {
-  const cliSuccess = spawnSync(
-    "node",
-    [generatedCliPath, "check", fixture.validDirectory],
-    { encoding: "utf8" }
-  );
-  assert.equal(cliSuccess.status, 0, cliSuccess.stderr);
+async function testCheckCommands(fixture: CliFixture): Promise<void> {
+  const cliSuccess = await runCli(["check", fixture.validDirectory]);
+  assert.equal(cliSuccess.exitCode, 0, cliSuccess.stderr);
   assert.match(cliSuccess.stdout, /Change plan check passed/u);
   assert.equal(cliSuccess.stderr, "");
 
-  const cliFailure = spawnSync(
-    "node",
-    [generatedCliPath, "check", fixture.invalidTasksDirectory],
-    { encoding: "utf8" }
-  );
-  assert.equal(cliFailure.status, 1);
+  const cliFailure = await runCli(["check", fixture.invalidTasksDirectory]);
+  assert.equal(cliFailure.exitCode, 1);
   assert.match(cliFailure.stderr, /Change plan check failed/u);
   assert.equal(cliFailure.stdout, "");
 
-  const cliJson = spawnSync(
-    "node",
-    [generatedCliPath, "check", fixture.invalidTasksDirectory, "--json"],
-    { encoding: "utf8" }
-  );
-  assert.equal(cliJson.status, 1);
+  const cliJson = await runCli([
+    "check",
+    fixture.invalidTasksDirectory,
+    "--json"
+  ]);
+  assert.equal(cliJson.exitCode, 1);
   assert.equal(cliJson.stderr, "");
   const jsonResult: unknown = JSON.parse(cliJson.stdout);
   assert.ok(isRecord(jsonResult));
   assert.equal(jsonResult.valid, false);
 }
 
-function testActiveCollectionCheckResults(fixture: CliFixture): void {
-  const textFailure = runCli(["check-all", fixture.lifecycleRoot]);
-  assert.equal(textFailure.status, 1);
+async function testActiveCollectionCheckResults(
+  fixture: CliFixture
+): Promise<void> {
+  const textFailure = await runCli(["check-all", fixture.lifecycleRoot]);
+  assert.equal(textFailure.exitCode, 1);
   assert.equal(textFailure.stdout, "");
   assert.match(textFailure.stderr, /collection check failed/u);
   assert.match(textFailure.stderr, /invalid-plan/u);
   assert.match(textFailure.stderr, /missing-required-file/u);
 
-  const defaultRootFailure = spawnSync(
-    "node",
-    [generatedCliPath, "check-all", "--json"],
-    { cwd: path.dirname(fixture.lifecycleRoot), encoding: "utf8" }
+  const defaultRootFailure = await runCli(
+    ["check-all", "--json"],
+    path.dirname(fixture.lifecycleRoot)
   );
-  assert.equal(defaultRootFailure.status, 1);
+  assert.equal(defaultRootFailure.exitCode, 1);
   assert.equal(defaultRootFailure.stderr, "");
   const defaultRootResult: unknown = JSON.parse(defaultRootFailure.stdout);
   assert.ok(isRecord(defaultRootResult));
@@ -226,13 +247,15 @@ function testActiveCollectionCheckResults(fixture: CliFixture): void {
   );
 }
 
-function testCollectionCheckRootDiagnostics(fixture: CliFixture): void {
-  const rootFailure = runCli([
+async function testCollectionCheckRootDiagnostics(
+  fixture: CliFixture
+): Promise<void> {
+  const rootFailure = await runCli([
     "check-all",
     fixture.nonDirectoryChangeRoot,
     "--json"
   ]);
-  assert.equal(rootFailure.status, 1);
+  assert.equal(rootFailure.exitCode, 1);
   assert.equal(rootFailure.stderr, "");
   const rootFailureResult: unknown = JSON.parse(rootFailure.stdout);
   assert.ok(isRecord(rootFailureResult));
@@ -240,47 +263,51 @@ function testCollectionCheckRootDiagnostics(fixture: CliFixture): void {
   assert.ok(isUnknownArray(rootFailureResult.errors));
   assert.match(String(rootFailureResult.errors[0]), /must be a directory/u);
 
-  const textRootFailure = runCli(["check-all", fixture.nonDirectoryChangeRoot]);
-  assert.equal(textRootFailure.status, 1);
+  const textRootFailure = await runCli([
+    "check-all",
+    fixture.nonDirectoryChangeRoot
+  ]);
+  assert.equal(textRootFailure.exitCode, 1);
   assert.equal(textRootFailure.stdout, "");
   assert.match(textRootFailure.stderr, /collection check failed/u);
   assert.match(textRootFailure.stderr, /must be a directory/u);
 }
 
-function testCollectionCheckOptions(fixture: CliFixture): void {
-  const archivedOption = runCli([
+async function testCollectionCheckOptions(fixture: CliFixture): Promise<void> {
+  const archivedOption = await runCli([
     "check-all",
     fixture.lifecycleRoot,
     "--archived"
   ]);
-  assert.equal(archivedOption.status, 2);
+  assert.equal(archivedOption.exitCode, 2);
   assert.match(archivedOption.stderr, /only valid with list/u);
 
-  const allOption = runCli(["check-all", fixture.lifecycleRoot, "--all"]);
-  assert.equal(allOption.status, 2);
+  const allOption = await runCli(["check-all", fixture.lifecycleRoot, "--all"]);
+  assert.equal(allOption.exitCode, 2);
   assert.match(allOption.stderr, /only valid with list/u);
 
-  const stageConflict = runCli([
+  const stageConflict = await runCli([
     "check-all",
     fixture.lifecycleRoot,
     "--stage",
     "draft"
   ]);
-  assert.equal(stageConflict.status, 2);
+  assert.equal(stageConflict.exitCode, 2);
   assert.match(stageConflict.stderr, /only valid with list/u);
 
-  const help = runCli(["--help"]);
-  assert.equal(help.status, 0);
+  const help = await runCli(["--help"]);
+  assert.equal(help.exitCode, 0);
   assert.match(help.stdout, /change-plan\.mjs check-all/u);
 }
 
-function testListLifecycleJson(fixture: CliFixture): void {
-  const cliList = spawnSync(
-    "node",
-    [generatedCliPath, "list", fixture.lifecycleRoot, "--all", "--json"],
-    { encoding: "utf8" }
-  );
-  assert.equal(cliList.status, 0, cliList.stderr);
+async function testListLifecycleJson(fixture: CliFixture): Promise<void> {
+  const cliList = await runCli([
+    "list",
+    fixture.lifecycleRoot,
+    "--all",
+    "--json"
+  ]);
+  assert.equal(cliList.exitCode, 0, cliList.stderr);
   assert.equal(cliList.stderr, "");
   const cliListResult: unknown = JSON.parse(cliList.stdout);
   assert.ok(isRecord(cliListResult));
@@ -311,14 +338,14 @@ function testListLifecycleJson(fixture: CliFixture): void {
     "status"
   ]);
 
-  const stageList = runCli([
+  const stageList = await runCli([
     "list",
     fixture.lifecycleRoot,
     "--stage",
     "plan",
     "--json"
   ]);
-  assert.equal(stageList.status, 0, stageList.stderr);
+  assert.equal(stageList.exitCode, 0, stageList.stderr);
   const stageListResult: unknown = JSON.parse(stageList.stdout);
   assert.ok(isRecord(stageListResult));
   assert.ok(isUnknownArray(stageListResult.entries));
@@ -330,9 +357,9 @@ function testListLifecycleJson(fixture: CliFixture): void {
   );
 }
 
-function testArchivedShowCommand(fixture: CliFixture): void {
-  const textResult = runCli(["show", fixture.archivedDirectory]);
-  assert.equal(textResult.status, 0, textResult.stderr);
+async function testArchivedShowCommand(fixture: CliFixture): Promise<void> {
+  const textResult = await runCli(["show", fixture.archivedDirectory]);
+  assert.equal(textResult.exitCode, 0, textResult.stderr);
   assert.match(textResult.stdout, /Status: archived/u);
   assert.match(textResult.stdout, /Check: not applicable \(archived\)/u);
   assert.match(
@@ -342,8 +369,12 @@ function testArchivedShowCommand(fixture: CliFixture): void {
   assert.doesNotMatch(textResult.stdout, /Stage:|Tasks:|valid|invalid/u);
   assert.equal(textResult.stderr, "");
 
-  const jsonResult = runCli(["show", fixture.archivedDirectory, "--json"]);
-  assert.equal(jsonResult.status, 0, jsonResult.stderr);
+  const jsonResult = await runCli([
+    "show",
+    fixture.archivedDirectory,
+    "--json"
+  ]);
+  assert.equal(jsonResult.exitCode, 0, jsonResult.stderr);
   const parsed: unknown = JSON.parse(jsonResult.stdout);
   assert.ok(isRecord(parsed));
   assert.equal(parsed.status, "archived");
@@ -351,13 +382,13 @@ function testArchivedShowCommand(fixture: CliFixture): void {
   assert.deepEqual(parsed.errors, []);
 }
 
-function testListRootDiagnostics(fixture: CliFixture): void {
-  const cliListFailure = spawnSync(
-    "node",
-    [generatedCliPath, "list", fixture.nonDirectoryChangeRoot, "--json"],
-    { encoding: "utf8" }
-  );
-  assert.equal(cliListFailure.status, 1);
+async function testListRootDiagnostics(fixture: CliFixture): Promise<void> {
+  const cliListFailure = await runCli([
+    "list",
+    fixture.nonDirectoryChangeRoot,
+    "--json"
+  ]);
+  assert.equal(cliListFailure.exitCode, 1);
   assert.equal(cliListFailure.stderr, "");
   const cliListFailureResult: unknown = JSON.parse(cliListFailure.stdout);
   assert.ok(isRecord(cliListFailureResult));
@@ -367,23 +398,20 @@ function testListRootDiagnostics(fixture: CliFixture): void {
   assert.match(firstError, /must be a directory/u);
 }
 
-function testListOptionConflicts(fixture: CliFixture): void {
-  const conflictingListOptions = spawnSync(
-    "node",
-    [generatedCliPath, "list", fixture.lifecycleRoot, "--archived", "--all"],
-    { encoding: "utf8" }
-  );
-  assert.equal(conflictingListOptions.status, 2);
+async function testListOptionConflicts(fixture: CliFixture): Promise<void> {
+  const conflictingListOptions = await runCli([
+    "list",
+    fixture.lifecycleRoot,
+    "--archived",
+    "--all"
+  ]);
+  assert.equal(conflictingListOptions.exitCode, 2);
   assert.match(conflictingListOptions.stderr, /cannot be used together/u);
 }
 
-function testShowCommands(fixture: CliFixture): void {
-  const cliShow = spawnSync(
-    "node",
-    [generatedCliPath, "show", fixture.activeDirectory],
-    { encoding: "utf8" }
-  );
-  assert.equal(cliShow.status, 0, cliShow.stderr);
+async function testShowCommands(fixture: CliFixture): Promise<void> {
+  const cliShow = await runCli(["show", fixture.activeDirectory]);
+  assert.equal(cliShow.exitCode, 0, cliShow.stderr);
   assert.match(cliShow.stdout, /Status: active/u);
   assert.match(cliShow.stdout, /Stage: plan/u);
   assert.match(
@@ -393,12 +421,12 @@ function testShowCommands(fixture: CliFixture): void {
   assert.match(cliShow.stdout, /--- proposal\.md ---/u);
   assert.equal(cliShow.stderr, "");
 
-  const cliInvalidShow = spawnSync(
-    "node",
-    [generatedCliPath, "show", fixture.invalidListedDirectory, "--json"],
-    { encoding: "utf8" }
-  );
-  assert.equal(cliInvalidShow.status, 1);
+  const cliInvalidShow = await runCli([
+    "show",
+    fixture.invalidListedDirectory,
+    "--json"
+  ]);
+  assert.equal(cliInvalidShow.exitCode, 1);
   assert.equal(cliInvalidShow.stderr, "");
   const cliInvalidShowResult: unknown = JSON.parse(cliInvalidShow.stdout);
   assert.ok(isRecord(cliInvalidShowResult));
@@ -444,8 +472,8 @@ async function testPlanConfirmsAndReconfirmsCanonicalInputs(
   ];
 
   for (const [index, directory] of inputs.entries()) {
-    const result = runCli(["plan", directory, "--json"]);
-    assert.equal(result.status, 0, result.stderr);
+    const result = await runCli(["plan", directory, "--json"]);
+    assert.equal(result.exitCode, 0, result.stderr);
     assert.equal(result.stderr, "");
     const parsed: unknown = JSON.parse(result.stdout);
     assert.ok(isRecord(parsed));
@@ -474,15 +502,15 @@ async function testDistanceEvidenceAndDirectPrompts(
   );
   runGit(repository, ["add", "."]);
   runGit(repository, ["commit", "-m", "add plan"]);
-  assert.equal(runCli(["plan", changeDirectory]).status, 0);
+  assert.equal((await runCli(["plan", changeDirectory])).exitCode, 0);
 
-  const zeroText = runCli(["check", changeDirectory]);
-  assert.equal(zeroText.status, 0, zeroText.stderr);
+  const zeroText = await runCli(["check", changeDirectory]);
+  assert.equal(zeroText.exitCode, 0, zeroText.stderr);
   assert.match(
     zeroText.stdout,
     /自计划基线以来，未统计到 Change 目录外的项目变化。/u
   );
-  const zeroJson = runCli(["check", changeDirectory, "--json"]);
+  const zeroJson = await runCli(["check", changeDirectory, "--json"]);
   const zeroResult: unknown = JSON.parse(zeroJson.stdout);
   assert.ok(isRecord(zeroResult));
   assert.ok(isRecord(zeroResult.distance));
@@ -498,13 +526,13 @@ async function testDistanceEvidenceAndDirectPrompts(
   );
   runGit(repository, ["add", "."]);
   runGit(repository, ["commit", "-m", "change only the current plan"]);
-  const changeOnlyText = runCli(["check", changeDirectory]);
-  assert.equal(changeOnlyText.status, 0, changeOnlyText.stderr);
+  const changeOnlyText = await runCli(["check", changeDirectory]);
+  assert.equal(changeOnlyText.exitCode, 0, changeOnlyText.stderr);
   assert.match(
     changeOnlyText.stdout,
     /自计划基线以来，未统计到 Change 目录外的项目变化。/u
   );
-  const changeOnlyJson = runCli(["check", changeDirectory, "--json"]);
+  const changeOnlyJson = await runCli(["check", changeDirectory, "--json"]);
   const changeOnlyResult: unknown = JSON.parse(changeOnlyJson.stdout);
   assert.ok(isRecord(changeOnlyResult));
   assert.ok(isRecord(changeOnlyResult.distance));
@@ -518,13 +546,13 @@ async function testDistanceEvidenceAndDirectPrompts(
   await fs.writeFile(path.join(repository, "project.txt"), "one\ntwo\n");
   runGit(repository, ["add", "project.txt"]);
   runGit(repository, ["commit", "-m", "change project"]);
-  const changedText = runCli(["check", changeDirectory]);
-  assert.equal(changedText.status, 0, changedText.stderr);
+  const changedText = await runCli(["check", changeDirectory]);
+  assert.equal(changedText.exitCode, 0, changedText.stderr);
   assert.match(
     changedText.stdout,
     /距离计划基线已过去 1 个提交，Change 目录外累计变化 2 行；继续前请确认这些变化没有影响当前计划。/u
   );
-  const changedJson = runCli(["check", changeDirectory, "--json"]);
+  const changedJson = await runCli(["check", changeDirectory, "--json"]);
   const changedResult: unknown = JSON.parse(changedJson.stdout);
   assert.ok(isRecord(changedResult));
   assert.deepEqual(changedResult.distance, {
@@ -552,8 +580,8 @@ async function testPlanRecordsExistingHead(tempRoot: string): Promise<void> {
     runGit(repository, ["status", "--porcelain"]),
     /^\?\? changes\//u
   );
-  const result = runCli(["plan", draftDirectory, "--json"]);
-  assert.equal(result.status, 0, result.stderr);
+  const result = await runCli(["plan", draftDirectory, "--json"]);
+  assert.equal(result.exitCode, 0, result.stderr);
   const parsedResult: unknown = JSON.parse(result.stdout);
   assert.ok(isRecord(parsedResult));
   assert.equal(parsedResult.success, true);
@@ -575,8 +603,8 @@ async function testPlanRejectsRepositoryWithoutHead(
   );
   const metadataPath = path.join(noHeadDraftDirectory, ".change-plan.json");
   const metadataBefore = await fs.readFile(metadataPath, "utf8");
-  const noHeadResult = runCli(["plan", noHeadDraftDirectory, "--json"]);
-  assert.equal(noHeadResult.status, 1);
+  const noHeadResult = await runCli(["plan", noHeadDraftDirectory, "--json"]);
+  assert.equal(noHeadResult.exitCode, 1);
   assert.equal(noHeadResult.stderr, "");
   const parsedNoHeadResult: unknown = JSON.parse(noHeadResult.stdout);
   assert.ok(isRecord(parsedNoHeadResult));
@@ -586,12 +614,12 @@ async function testPlanRejectsRepositoryWithoutHead(
 }
 
 async function testArchiveCommands(fixture: CliFixture): Promise<void> {
-  const cliLinkedArchive = spawnSync(
-    "node",
-    [generatedCliPath, "archive", fixture.linkedPlanDirectory, "--json"],
-    { encoding: "utf8" }
-  );
-  assert.equal(cliLinkedArchive.status, 1);
+  const cliLinkedArchive = await runCli([
+    "archive",
+    fixture.linkedPlanDirectory,
+    "--json"
+  ]);
+  assert.equal(cliLinkedArchive.exitCode, 1);
   assert.equal(cliLinkedArchive.stderr, "");
   const cliLinkedArchiveResult: unknown = JSON.parse(cliLinkedArchive.stdout);
   assert.ok(isRecord(cliLinkedArchiveResult));
@@ -605,12 +633,8 @@ async function testArchiveCommands(fixture: CliFixture): Promise<void> {
     "cli-archive-plan",
     { tasks: completedTasks }
   );
-  const cliArchive = spawnSync(
-    "node",
-    [generatedCliPath, "archive", cliArchiveDirectory, "--json"],
-    { encoding: "utf8" }
-  );
-  assert.equal(cliArchive.status, 0, cliArchive.stderr);
+  const cliArchive = await runCli(["archive", cliArchiveDirectory, "--json"]);
+  assert.equal(cliArchive.exitCode, 0, cliArchive.stderr);
   assert.equal(cliArchive.stderr, "");
   const cliArchiveResult: unknown = JSON.parse(cliArchive.stdout);
   assert.ok(isRecord(cliArchiveResult));
@@ -623,21 +647,18 @@ async function testArchiveCommands(fixture: CliFixture): Promise<void> {
     true
   );
 
-  const cliIncompleteArchive = spawnSync(
-    "node",
-    [generatedCliPath, "archive", fixture.activeDirectory],
-    { encoding: "utf8" }
-  );
-  assert.equal(cliIncompleteArchive.status, 1);
+  const cliIncompleteArchive = await runCli([
+    "archive",
+    fixture.activeDirectory
+  ]);
+  assert.equal(cliIncompleteArchive.exitCode, 1);
   assert.match(cliIncompleteArchive.stderr, /all tasks must be completed/u);
   assert.equal(cliIncompleteArchive.stdout, "");
 }
 
-function testUsageCommands(): void {
-  const help = spawnSync("node", [generatedCliPath, "--help"], {
-    encoding: "utf8"
-  });
-  assert.equal(help.status, 0);
+async function testUsageCommands(): Promise<void> {
+  const help = await runCli(["--help"]);
+  assert.equal(help.exitCode, 0);
   assert.match(help.stdout, /change-plan\.mjs list/u);
   assert.match(help.stdout, /change-plan\.mjs show/u);
   assert.match(help.stdout, /change-plan\.mjs check/u);
@@ -650,23 +671,21 @@ function testUsageCommands(): void {
   );
   assert.equal(help.stderr, "");
 
-  const invalidArgument = spawnSync("node", [generatedCliPath, "check"], {
-    encoding: "utf8"
-  });
-  assert.equal(invalidArgument.status, 2);
+  const invalidArgument = await runCli(["check"]);
+  assert.equal(invalidArgument.exitCode, 2);
   assert.match(invalidArgument.stderr, /Expected:/u);
 
   for (const removedCommand of ["implement", "shelve", "reconcile", "resume"]) {
-    const removed = runCli([removedCommand, "/tmp/example-change"]);
-    assert.equal(removed.status, 2);
+    const removed = await runCli([removedCommand, "/tmp/example-change"]);
+    assert.equal(removed.exitCode, 2);
     assert.match(removed.stderr, /Unknown change-plan command/u);
   }
 
-  const invalidStage = runCli(["list", "--stage", "unknown"]);
-  assert.equal(invalidStage.status, 2);
+  const invalidStage = await runCli(["list", "--stage", "unknown"]);
+  assert.equal(invalidStage.exitCode, 2);
   assert.match(invalidStage.stderr, /--stage must be/u);
-  const legacyStage = runCli(["list", "--stage", "implementation"]);
-  assert.equal(legacyStage.status, 2);
+  const legacyStage = await runCli(["list", "--stage", "implementation"]);
+  assert.equal(legacyStage.exitCode, 2);
   assert.match(legacyStage.stderr, /--stage must be draft or plan/u);
 }
 
@@ -727,6 +746,18 @@ test("CLI plan records existing HEAD without requiring committed artifacts", () 
 test("CLI plan rejects a repository without HEAD", () =>
   withTempRoot("cli-plan-no-head", testPlanRejectsRepositoryWithoutHead));
 
-test("CLI exposes only six commands and rejects removed lifecycle commands", () => {
-  testUsageCommands();
-});
+test("CLI exposes only six commands and rejects removed lifecycle commands", () =>
+  testUsageCommands());
+
+test("generated Change Plan CLI preserves the Node success and failure protocol", () =>
+  withCliFixture("node-smoke", async (fixture) => {
+    const success = runNodeCli(["check", fixture.validDirectory]);
+    assert.equal(success.status, 0, success.stderr);
+    assert.match(success.stdout, /Change plan check passed/u);
+    assert.equal(success.stderr, "");
+
+    const failure = runNodeCli(["check", fixture.invalidTasksDirectory]);
+    assert.equal(failure.status, 1);
+    assert.equal(failure.stdout, "");
+    assert.match(failure.stderr, /Change plan check failed/u);
+  }));

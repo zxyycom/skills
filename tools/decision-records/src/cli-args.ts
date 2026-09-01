@@ -1,4 +1,5 @@
 import process from "node:process";
+import path from "node:path";
 import {
   Command as CommanderCommand,
   InvalidArgumentError,
@@ -19,6 +20,10 @@ import {
   type DecisionTraceDirection
 } from "./types.ts";
 import { isDecisionId, isDecisionTag } from "./decision-path.ts";
+import {
+  processDecisionRecordsCliIo,
+  type DecisionRecordsCliIo
+} from "./cli-io.ts";
 
 export type Command =
   | "activate"
@@ -124,6 +129,11 @@ type ParsedOptions = {
 
 type RunCommand = (args: CliArgs) => Promise<number>;
 type SetExitCode = (exitCode: number) => void;
+
+export type CreateCliProgramOptions = {
+  cwd?: string;
+  io?: DecisionRecordsCliIo;
+};
 
 function parseTraceDepth(value: string): number {
   if (!/^(0|[1-9]\d*)$/.test(value)) {
@@ -257,12 +267,13 @@ function requiredDecisionAlignment(
 function commandArgs(
   command: Command,
   commanderCommand: CommanderCommand,
-  decisionIds: DecisionId[] = []
+  decisionIds: DecisionId[] = [],
+  cwd: string
 ): CliArgs {
   const options = commanderCommand.optsWithGlobals<ParsedOptions>();
   const location = {
     decisionsDir: options.decisionsDir ?? "docs/decisions",
-    workspaceRoot: options.root ?? process.cwd()
+    workspaceRoot: path.resolve(cwd, options.root ?? ".")
   };
   switch (command) {
     case "activate":
@@ -389,15 +400,19 @@ function createKeepUnrecordedHistoryOption(): Option {
 
 export function createCliProgram(
   run: RunCommand,
-  setExitCode: SetExitCode
+  setExitCode: SetExitCode,
+  options: CreateCliProgramOptions = {}
 ): CommanderCommand {
+  const cwd = options.cwd ?? process.cwd();
+  const io = options.io ?? processDecisionRecordsCliIo;
   const program = new CommanderCommand()
     .name("decision-records")
     .description(
       "Query and maintain agent-oriented decision records and their lifecycle state."
     )
     .configureHelp({ showGlobalOptions: true })
-    .option("--root <path>", "Workspace root.", process.cwd())
+    .configureOutput({ writeErr: io.stderr, writeOut: io.stdout })
+    .option("--root <path>", "Workspace root.", cwd)
     .option(
       "--decisions-dir <path>",
       "Decision directory. Relative paths resolve from --root.",
@@ -419,7 +434,9 @@ export function createCliProgram(
     commanderCommand: CommanderCommand,
     decisionIds: DecisionId[] = []
   ): Promise<void> {
-    setExitCode(await run(commandArgs(command, commanderCommand, decisionIds)));
+    setExitCode(
+      await run(commandArgs(command, commanderCommand, decisionIds, cwd))
+    );
   }
 
   const check = createSubcommand(

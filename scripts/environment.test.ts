@@ -6,6 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import test, { after } from "node:test";
 import { fileURLToPath } from "node:url";
+import { createGitRepositoryFixture } from "../tools/shared/tests/git-fixture.ts";
 import {
   maintenanceCliPackageScripts,
   type MaintenanceCliCommand
@@ -14,6 +15,12 @@ import {
 const workspaceRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   ".."
+);
+const environmentRepositoryFixtureRoot = path.join(
+  workspaceRoot,
+  "scripts",
+  "fixtures",
+  "environment-repository"
 );
 
 type CommandResult = SpawnSyncReturns<string>;
@@ -51,16 +58,6 @@ async function writeExecutable(
 
 async function populateRepository(root: string): Promise<void> {
   await fs.mkdir(path.join(root, "scripts"), { recursive: true });
-  await fs.mkdir(path.join(root, ".githooks"), { recursive: true });
-  await fs.mkdir(path.join(root, "docs", "task-graph"), { recursive: true });
-  await fs.mkdir(path.join(root, "skills", "task-graph", "scripts"), {
-    recursive: true
-  });
-  await fs.copyFile(
-    path.join(workspaceRoot, ".gitattributes"),
-    path.join(root, ".gitattributes")
-  );
-
   for (const script of [
     "environment.js",
     "setup-git-hooks.js",
@@ -72,64 +69,6 @@ async function populateRepository(root: string): Promise<void> {
       path.join(root, "scripts", script)
     );
   }
-
-  await fs.writeFile(
-    path.join(root, "package.json"),
-    `${JSON.stringify(
-      {
-        engines: { bun: ">=1.3.14" },
-        packageManager: "pnpm@11.7.0",
-        private: true,
-        scripts: {
-          "task-graph": "node scripts/task-graph.js"
-        },
-        type: "module"
-      },
-      null,
-      2
-    )}\n`,
-    "utf8"
-  );
-  await fs.writeFile(
-    path.join(root, "pnpm-lock.yaml"),
-    "lockfileVersion: '9.0'\n",
-    "utf8"
-  );
-  await fs.writeFile(
-    path.join(root, "docs", "task-graph", "task-graph-index.json"),
-    "{}\n",
-    "utf8"
-  );
-  await fs.writeFile(
-    path.join(root, ".githooks", "pre-commit"),
-    "#!/bin/sh\nprintf 'executed\\n' > .hook-ran\nexit 1\n",
-    "utf8"
-  );
-  await fs.chmod(path.join(root, ".githooks", "pre-commit"), 0o644);
-  await fs.writeFile(
-    path.join(root, "skills", "task-graph", "scripts", "task-graph.mjs"),
-    [
-      "#!/usr/bin/env node",
-      "console.log(JSON.stringify({ argv: process.argv.slice(2), cwd: process.cwd() }));",
-      ""
-    ].join("\n"),
-    "utf8"
-  );
-
-  requireSuccess(run("git", ["init", "-b", "main"], root), "git init");
-  requireSuccess(
-    run("git", ["config", "user.name", "Environment Test"], root),
-    "git config user.name"
-  );
-  requireSuccess(
-    run("git", ["config", "user.email", "environment@example.invalid"], root),
-    "git config user.email"
-  );
-  requireSuccess(run("git", ["add", "."], root), "git add");
-  requireSuccess(
-    run("git", ["commit", "--no-verify", "-m", "fixture"], root),
-    "git commit"
-  );
 }
 
 let repositoryTemplate: Promise<string> | null = null;
@@ -160,10 +99,16 @@ async function createRepositoryTemplate(): Promise<string> {
     path.join(os.tmpdir(), "skills environment repository template ")
   );
   repositoryTemplatePath = parent;
-  const root = path.join(parent, "repository");
   try {
-    await populateRepository(root);
-    return root;
+    const fixture = await createGitRepositoryFixture({
+      fixtureRoot: environmentRepositoryFixtureRoot,
+      parentDirectory: parent,
+      prepareRepository: populateRepository,
+      repositoryName: "repository",
+      userEmail: "environment@example.invalid",
+      userName: "Environment Test"
+    });
+    return fixture.repositoryRoot;
   } catch (error) {
     await fs.rm(parent, { recursive: true, force: true });
     repositoryTemplatePath = null;

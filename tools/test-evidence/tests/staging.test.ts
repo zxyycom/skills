@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { after } from "node:test";
 import test from "node:test";
 import * as v from "valibot";
 import { stageTestEvidenceIndex as stageBundledTestEvidenceIndex } from "../../../skills/test-evidence-review/scripts/test-evidence-catalog.mjs";
@@ -14,6 +15,13 @@ import {
   type TestEvidenceStateIndex
 } from "../src/cli.ts";
 import { executeTestEvidenceIndexStage } from "../src/staging.ts";
+import {
+  bootstrapStagingFixtureTemplates,
+  removeStagingFixtureTemplates,
+  runGit,
+  type StagingFixtureTemplates,
+  withStagingGitFixture
+} from "./staging-fixture.ts";
 
 const repositoryRoot = path.resolve(import.meta.dirname, "..", "..", "..");
 const distributedScript = path.join(
@@ -27,6 +35,19 @@ const catalogPath = "docs/test-evidence";
 const indexRepositoryPath = `${catalogPath}/test-evidence-index.json`;
 const topicCatalogPath = `${catalogPath}/test-evidence-topics.json`;
 const defaultTopicDescription = "Runtime staging contract evidence.";
+
+let fixtureTemplates: Promise<StagingFixtureTemplates> | undefined;
+
+function stagingFixtureTemplates(): Promise<StagingFixtureTemplates> {
+  fixtureTemplates ??= bootstrapStagingFixtureTemplates();
+  return fixtureTemplates;
+}
+
+after(async () => {
+  if (fixtureTemplates !== undefined) {
+    await removeStagingFixtureTemplates(await fixtureTemplates);
+  }
+});
 
 type CaseFixture = Readonly<{
   id: string;
@@ -110,189 +131,195 @@ test("stage-index validates fixed case ids before repository access", async () =
 });
 
 test("stage-index isolates one case without reading or staging domain files", async () => {
-  await withTempWorkspace("isolation", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    await writeCatalog(workspaceRoot, [caseA, caseB]);
-    commitAll(workspaceRoot, "baseline");
+  await withStagingGitFixture(
+    await stagingFixtureTemplates(),
+    "catalog-a-b",
+    async (workspaceRoot) => {
+      await fs.writeFile(path.join(workspaceRoot, "outside.txt"), "outside\n");
+      runGit(workspaceRoot, ["add", "outside.txt"]);
+      await writeCatalog(workspaceRoot, [
+        { ...caseA, title: "Case A workspace" },
+        { ...caseB, title: "Case B workspace" }
+      ]);
 
-    await fs.writeFile(path.join(workspaceRoot, "outside.txt"), "outside\n");
-    runGit(workspaceRoot, ["add", "outside.txt"]);
-    await writeCatalog(workspaceRoot, [
-      { ...caseA, title: "Case A workspace" },
-      { ...caseB, title: "Case B workspace" }
-    ]);
+      const baseline = readRevisionIndex(workspaceRoot);
+      const workspace = await readWorkspaceIndex(workspaceRoot);
+      const topicFile = path.join(workspaceRoot, topicCatalogPath);
+      const caseAFile = caseFilePath(workspaceRoot, caseA);
+      const caseBFile = caseFilePath(workspaceRoot, caseB);
+      await fs.writeFile(topicFile, "not valid JSON\n");
+      await fs.writeFile(caseAFile, "not a valid case\n");
+      await fs.writeFile(caseBFile, "also not a valid case\n");
+      const before = {
+        caseA: await fs.readFile(caseAFile),
+        caseB: await fs.readFile(caseBFile),
+        index: await fs.readFile(indexPath(workspaceRoot)),
+        topics: await fs.readFile(topicFile)
+      };
 
-    const baseline = readRevisionIndex(workspaceRoot);
-    const workspace = await readWorkspaceIndex(workspaceRoot);
-    const topicFile = path.join(workspaceRoot, topicCatalogPath);
-    const caseAFile = caseFilePath(workspaceRoot, caseA);
-    const caseBFile = caseFilePath(workspaceRoot, caseB);
-    await fs.writeFile(topicFile, "not valid JSON\n");
-    await fs.writeFile(caseAFile, "not a valid case\n");
-    await fs.writeFile(caseBFile, "also not a valid case\n");
-    const before = {
-      caseA: await fs.readFile(caseAFile),
-      caseB: await fs.readFile(caseBFile),
-      index: await fs.readFile(indexPath(workspaceRoot)),
-      topics: await fs.readFile(topicFile)
-    };
+      const cli = runGeneratedStage(workspaceRoot, [caseA.id], true);
+      assert.equal(cli.status, 0, cli.stderr);
+      assert.equal(cli.stderr, "");
+      const result = v.parse(
+        testEvidenceIndexStageResultSchema,
+        JSON.parse(cli.stdout) as unknown
+      );
+      assert.deepEqual(result, {
+        changed: true,
+        diagnostics: [],
+        indexPath: indexRepositoryPath,
+        namespace: "test-evidence",
+        selectedIds: [caseA.id],
+        state: "staged",
+        status: "ok"
+      });
 
-    const cli = runGeneratedStage(workspaceRoot, [caseA.id], true);
-    assert.equal(cli.status, 0, cli.stderr);
-    assert.equal(cli.stderr, "");
-    const result = v.parse(
-      testEvidenceIndexStageResultSchema,
-      JSON.parse(cli.stdout) as unknown
-    );
-    assert.deepEqual(result, {
-      changed: true,
-      diagnostics: [],
-      indexPath: indexRepositoryPath,
-      namespace: "test-evidence",
-      selectedIds: [caseA.id],
-      state: "staged",
-      status: "ok"
-    });
-
-    const pending = readPendingIndex(workspaceRoot);
-    assert.deepEqual(pending.entries[caseA.id], workspace.entries[caseA.id]);
-    assert.deepEqual(pending.entries[caseB.id], baseline.entries[caseB.id]);
-    assert.deepEqual(pending.metadata, baseline.metadata);
-    assert.deepEqual(
-      pendingPaths(workspaceRoot).sort(),
-      [indexRepositoryPath, "outside.txt"].sort()
-    );
-    assert.deepEqual(await fs.readFile(indexPath(workspaceRoot)), before.index);
-    assert.deepEqual(await fs.readFile(topicFile), before.topics);
-    assert.deepEqual(await fs.readFile(caseAFile), before.caseA);
-    assert.deepEqual(await fs.readFile(caseBFile), before.caseB);
-  });
+      const pending = readPendingIndex(workspaceRoot);
+      assert.deepEqual(pending.entries[caseA.id], workspace.entries[caseA.id]);
+      assert.deepEqual(pending.entries[caseB.id], baseline.entries[caseB.id]);
+      assert.deepEqual(pending.metadata, baseline.metadata);
+      assert.deepEqual(
+        pendingPaths(workspaceRoot).sort(),
+        [indexRepositoryPath, "outside.txt"].sort()
+      );
+      assert.deepEqual(
+        await fs.readFile(indexPath(workspaceRoot)),
+        before.index
+      );
+      assert.deepEqual(await fs.readFile(topicFile), before.topics);
+      assert.deepEqual(await fs.readFile(caseAFile), before.caseA);
+      assert.deepEqual(await fs.readFile(caseBFile), before.caseB);
+    }
+  );
 });
 
 test("stage-index applies selected additions deletions and explicit renames", async () => {
-  await withTempWorkspace("overlay", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    await writeCatalog(workspaceRoot, [caseA, caseB, caseC]);
-    commitAll(workspaceRoot, "baseline");
+  await withStagingGitFixture(
+    await stagingFixtureTemplates(),
+    "catalog-a-b-c",
+    async (workspaceRoot) => {
+      await writeCatalog(workspaceRoot, [
+        { ...caseA, title: "Case A unselected workspace change" },
+        caseD,
+        caseE
+      ]);
+      const baseline = readRevisionIndex(workspaceRoot);
+      const workspace = await readWorkspaceIndex(workspaceRoot);
 
-    await writeCatalog(workspaceRoot, [
-      { ...caseA, title: "Case A unselected workspace change" },
-      caseD,
-      caseE
-    ]);
-    const baseline = readRevisionIndex(workspaceRoot);
-    const workspace = await readWorkspaceIndex(workspaceRoot);
+      const cli = runGeneratedStage(workspaceRoot, [
+        caseE.id,
+        caseB.id,
+        caseD.id,
+        caseC.id
+      ]);
+      assert.equal(cli.status, 0, cli.stderr);
+      assert.equal(cli.stderr, "");
+      assert.match(cli.stdout, /state: staged; changed: true/u);
+      assert.match(
+        cli.stdout,
+        new RegExp(
+          `selected IDs: ${[caseB.id, caseC.id, caseD.id, caseE.id].join(", ")}`,
+          "u"
+        )
+      );
+      assert.match(
+        cli.stdout,
+        /case Markdown, test code, and product code remain outside/u
+      );
 
-    const cli = runGeneratedStage(workspaceRoot, [
-      caseE.id,
-      caseB.id,
-      caseD.id,
-      caseC.id
-    ]);
-    assert.equal(cli.status, 0, cli.stderr);
-    assert.equal(cli.stderr, "");
-    assert.match(cli.stdout, /state: staged; changed: true/u);
-    assert.match(
-      cli.stdout,
-      new RegExp(
-        `selected IDs: ${[caseB.id, caseC.id, caseD.id, caseE.id].join(", ")}`,
-        "u"
-      )
-    );
-    assert.match(
-      cli.stdout,
-      /case Markdown, test code, and product code remain outside/u
-    );
-
-    const pending = readPendingIndex(workspaceRoot);
-    assert.deepEqual(Object.keys(pending.entries), [
-      caseA.id,
-      caseD.id,
-      caseE.id
-    ]);
-    assert.deepEqual(pending.entries[caseA.id], baseline.entries[caseA.id]);
-    assert.deepEqual(pending.entries[caseD.id], workspace.entries[caseD.id]);
-    assert.deepEqual(pending.entries[caseE.id], workspace.entries[caseE.id]);
-    assert.deepEqual(pendingPaths(workspaceRoot), [indexRepositoryPath]);
-  });
+      const pending = readPendingIndex(workspaceRoot);
+      assert.deepEqual(Object.keys(pending.entries), [
+        caseA.id,
+        caseD.id,
+        caseE.id
+      ]);
+      assert.deepEqual(pending.entries[caseA.id], baseline.entries[caseA.id]);
+      assert.deepEqual(pending.entries[caseD.id], workspace.entries[caseD.id]);
+      assert.deepEqual(pending.entries[caseE.id], workspace.entries[caseE.id]);
+      assert.deepEqual(pendingPaths(workspaceRoot), [indexRepositoryPath]);
+    }
+  );
 });
 
 test("stage-index bootstraps the first test evidence index", async () => {
-  await withTempWorkspace("bootstrap", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    await fs.writeFile(path.join(workspaceRoot, "README.md"), "baseline\n");
-    commitAll(workspaceRoot, "baseline");
-    await writeCatalog(workspaceRoot, [caseA, caseB]);
+  await withStagingGitFixture(
+    await stagingFixtureTemplates(),
+    "readme",
+    async (workspaceRoot) => {
+      await writeCatalog(workspaceRoot, [caseA, caseB]);
 
-    const result = await stageBundledTestEvidenceIndex({
-      caseIds: [caseA.id],
-      workspaceRoot
-    });
-    assert.equal(result.status, "ok");
-    assert.equal(result.state, "staged");
-    assert.deepEqual(result.selectedIds, [caseA.id]);
-    assert.deepEqual(pendingPaths(workspaceRoot), [indexRepositoryPath]);
-    const pending = readPendingIndex(workspaceRoot);
-    assert.deepEqual(Object.keys(pending.entries), [caseA.id]);
-    assert.equal(pending.metadata.topics[0]?.id, "runtime");
-  });
+      const result = await stageBundledTestEvidenceIndex({
+        caseIds: [caseA.id],
+        workspaceRoot
+      });
+      assert.equal(result.status, "ok");
+      assert.equal(result.state, "staged");
+      assert.deepEqual(result.selectedIds, [caseA.id]);
+      assert.deepEqual(pendingPaths(workspaceRoot), [indexRepositoryPath]);
+      const pending = readPendingIndex(workspaceRoot);
+      assert.deepEqual(Object.keys(pending.entries), [caseA.id]);
+      assert.equal(pending.metadata.topics[0]?.id, "runtime");
+    }
+  );
 });
 
 test("stage-index permits a legal empty target", async () => {
-  await withTempWorkspace("empty-target", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    await writeCatalog(workspaceRoot, [caseA]);
-    commitAll(workspaceRoot, "baseline");
-    await writeCatalog(workspaceRoot, []);
+  await withStagingGitFixture(
+    await stagingFixtureTemplates(),
+    "catalog-a",
+    async (workspaceRoot) => {
+      await writeCatalog(workspaceRoot, []);
 
-    const result = await stageTestEvidenceIndex({
-      caseIds: [caseA.id],
-      workspaceRoot
-    });
-    assert.equal(result.status, "ok");
-    assert.equal(result.state, "staged");
-    assert.deepEqual(readPendingIndex(workspaceRoot).entries, {});
-  });
+      const result = await stageTestEvidenceIndex({
+        caseIds: [caseA.id],
+        workspaceRoot
+      });
+      assert.equal(result.status, "ok");
+      assert.equal(result.state, "staged");
+      assert.deepEqual(readPendingIndex(workspaceRoot).entries, {});
+    }
+  );
 });
 
 test("stage-index reports an unchanged selected case", async () => {
-  await withTempWorkspace("unchanged", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    await writeCatalog(workspaceRoot, [caseA]);
-    commitAll(workspaceRoot, "baseline");
-
-    const result = await stageTestEvidenceIndex({
-      caseIds: [caseA.id],
-      workspaceRoot
-    });
-    assert.equal(result.status, "ok");
-    assert.equal(result.state, "unchanged");
-    assert.equal(result.changed, false);
-    assert.deepEqual(pendingPaths(workspaceRoot), []);
-  });
+  await withStagingGitFixture(
+    await stagingFixtureTemplates(),
+    "catalog-a",
+    async (workspaceRoot) => {
+      const result = await stageTestEvidenceIndex({
+        caseIds: [caseA.id],
+        workspaceRoot
+      });
+      assert.equal(result.status, "ok");
+      assert.equal(result.state, "unchanged");
+      assert.equal(result.changed, false);
+      assert.deepEqual(pendingPaths(workspaceRoot), []);
+    }
+  );
 });
 
 test("stage-index rejects case ids missing from both indexes", async () => {
-  await withTempWorkspace("missing", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    await writeCatalog(workspaceRoot, [caseA]);
-    commitAll(workspaceRoot, "baseline");
-    const before = await fs.readFile(indexPath(workspaceRoot));
+  await withStagingGitFixture(
+    await stagingFixtureTemplates(),
+    "catalog-a",
+    async (workspaceRoot) => {
+      const before = await fs.readFile(indexPath(workspaceRoot));
 
-    const result = await stageTestEvidenceIndex({
-      caseIds: [caseE.id],
-      workspaceRoot
-    });
-    assert.equal(result.status, "error");
-    assert.equal(result.state, "selection-invalid");
-    assert.deepEqual(result.selectedIds, [caseE.id]);
-    assert.equal(
-      result.diagnostics[0]?.code,
-      "state-index.selected-id-missing"
-    );
-    assert.deepEqual(pendingPaths(workspaceRoot), []);
-    assert.deepEqual(await fs.readFile(indexPath(workspaceRoot)), before);
-  });
+      const result = await stageTestEvidenceIndex({
+        caseIds: [caseE.id],
+        workspaceRoot
+      });
+      assert.equal(result.status, "error");
+      assert.equal(result.state, "selection-invalid");
+      assert.deepEqual(result.selectedIds, [caseE.id]);
+      assert.equal(
+        result.diagnostics[0]?.code,
+        "state-index.selected-id-missing"
+      );
+      assert.deepEqual(pendingPaths(workspaceRoot), []);
+      assert.deepEqual(await fs.readFile(indexPath(workspaceRoot)), before);
+    }
+  );
 });
 
 test("stage-index reports unavailable version control without workspace writes", async () => {
@@ -322,96 +349,99 @@ test("stage-index reports unavailable version control without workspace writes",
 });
 
 test("stage-index rejects existing same-index pending content", async () => {
-  await withTempWorkspace("pending-conflict", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    await writeCatalog(workspaceRoot, [caseA]);
-    commitAll(workspaceRoot, "baseline");
+  await withStagingGitFixture(
+    await stagingFixtureTemplates(),
+    "catalog-a",
+    async (workspaceRoot) => {
+      await writeCatalog(workspaceRoot, [
+        { ...caseA, title: "Pending version" }
+      ]);
+      runGit(workspaceRoot, ["add", indexRepositoryPath]);
+      await fs.writeFile(path.join(workspaceRoot, "outside.txt"), "outside\n");
+      runGit(workspaceRoot, ["add", "outside.txt"]);
+      const pendingBefore = readPendingText(workspaceRoot);
+      await writeCatalog(workspaceRoot, [
+        { ...caseA, title: "Workspace version" }
+      ]);
+      const workspaceBefore = await fs.readFile(indexPath(workspaceRoot));
 
-    await writeCatalog(workspaceRoot, [{ ...caseA, title: "Pending version" }]);
-    runGit(workspaceRoot, ["add", indexRepositoryPath]);
-    await fs.writeFile(path.join(workspaceRoot, "outside.txt"), "outside\n");
-    runGit(workspaceRoot, ["add", "outside.txt"]);
-    const pendingBefore = readPendingText(workspaceRoot);
-    await writeCatalog(workspaceRoot, [
-      { ...caseA, title: "Workspace version" }
-    ]);
-    const workspaceBefore = await fs.readFile(indexPath(workspaceRoot));
-
-    const result = await stageTestEvidenceIndex({
-      caseIds: [caseA.id],
-      workspaceRoot
-    });
-    assert.equal(result.status, "error");
-    assert.equal(result.state, "pending-conflict");
-    assert.equal(result.diagnostics[0]?.code, "state-index.pending-conflict");
-    assert.equal(readPendingText(workspaceRoot), pendingBefore);
-    assert.deepEqual(
-      pendingPaths(workspaceRoot).sort(),
-      [indexRepositoryPath, "outside.txt"].sort()
-    );
-    assert.deepEqual(
-      await fs.readFile(indexPath(workspaceRoot)),
-      workspaceBefore
-    );
-  });
+      const result = await stageTestEvidenceIndex({
+        caseIds: [caseA.id],
+        workspaceRoot
+      });
+      assert.equal(result.status, "error");
+      assert.equal(result.state, "pending-conflict");
+      assert.equal(result.diagnostics[0]?.code, "state-index.pending-conflict");
+      assert.equal(readPendingText(workspaceRoot), pendingBefore);
+      assert.deepEqual(
+        pendingPaths(workspaceRoot).sort(),
+        [indexRepositoryPath, "outside.txt"].sort()
+      );
+      assert.deepEqual(
+        await fs.readFile(indexPath(workspaceRoot)),
+        workspaceBefore
+      );
+    }
+  );
 });
 
 test("stage-index rejects topic metadata changes", async () => {
-  await withTempWorkspace("metadata", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    await writeCatalog(workspaceRoot, [caseA]);
-    commitAll(workspaceRoot, "baseline");
-    await writeCatalog(
-      workspaceRoot,
-      [caseA],
-      "Changed runtime staging contract evidence."
-    );
+  await withStagingGitFixture(
+    await stagingFixtureTemplates(),
+    "catalog-a",
+    async (workspaceRoot) => {
+      await writeCatalog(
+        workspaceRoot,
+        [caseA],
+        "Changed runtime staging contract evidence."
+      );
 
-    const result = await stageTestEvidenceIndex({
-      caseIds: [caseA.id],
-      workspaceRoot
-    });
-    assert.equal(result.status, "error");
-    assert.equal(result.state, "collection-changed");
-    assert.equal(
-      result.diagnostics[0]?.code,
-      "state-index.stage-collection-changed"
-    );
-    assert.deepEqual(pendingPaths(workspaceRoot), []);
-  });
+      const result = await stageTestEvidenceIndex({
+        caseIds: [caseA.id],
+        workspaceRoot
+      });
+      assert.equal(result.status, "error");
+      assert.equal(result.state, "collection-changed");
+      assert.equal(
+        result.diagnostics[0]?.code,
+        "state-index.stage-collection-changed"
+      );
+      assert.deepEqual(pendingPaths(workspaceRoot), []);
+    }
+  );
 });
 
 test("stage-index rejects workspace cases projected to an unknown topic", async () => {
-  await withTempWorkspace("unknown-topic", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    await writeCatalog(workspaceRoot, [caseA]);
-    commitAll(workspaceRoot, "baseline");
+  await withStagingGitFixture(
+    await stagingFixtureTemplates(),
+    "catalog-a",
+    async (workspaceRoot) => {
+      const index = structuredClone(await readWorkspaceIndex(workspaceRoot));
+      const entry = index.entries[caseA.id];
+      assert.ok(entry);
+      entry.state.sourcePath = "unknown/stage-a.md";
+      entry.keys.topic = ["unknown"];
+      await fs.writeFile(
+        indexPath(workspaceRoot),
+        `${JSON.stringify(index, null, 2)}\n`
+      );
 
-    const index = structuredClone(await readWorkspaceIndex(workspaceRoot));
-    const entry = index.entries[caseA.id];
-    assert.ok(entry);
-    entry.state.sourcePath = "unknown/stage-a.md";
-    entry.keys.topic = ["unknown"];
-    await fs.writeFile(
-      indexPath(workspaceRoot),
-      `${JSON.stringify(index, null, 2)}\n`
-    );
-
-    const result = await stageTestEvidenceIndex({
-      caseIds: [caseA.id],
-      workspaceRoot
-    });
-    assert.equal(result.status, "error");
-    assert.equal(result.state, "workspace-index-invalid");
-    assert.ok(
-      result.diagnostics.some(
-        (diagnostic) =>
-          diagnostic.stateId === caseA.id &&
-          diagnostic.code.startsWith("state-index.")
-      )
-    );
-    assert.deepEqual(pendingPaths(workspaceRoot), []);
-  });
+      const result = await stageTestEvidenceIndex({
+        caseIds: [caseA.id],
+        workspaceRoot
+      });
+      assert.equal(result.status, "error");
+      assert.equal(result.state, "workspace-index-invalid");
+      assert.ok(
+        result.diagnostics.some(
+          (diagnostic) =>
+            diagnostic.stateId === caseA.id &&
+            diagnostic.code.startsWith("state-index.")
+        )
+      );
+      assert.deepEqual(pendingPaths(workspaceRoot), []);
+    }
+  );
 });
 
 test("stage-index CLI exposes help and schema-valid exit contracts", async () => {
@@ -531,24 +561,6 @@ function caseMarkdown(fixture: CaseFixture): string {
     `- ${fixture.title} produces an observable selected index entry.`,
     ""
   ].join("\n");
-}
-
-function initializeGitRepository(workspaceRoot: string): void {
-  runGit(workspaceRoot, ["init", "--initial-branch=main"]);
-  runGit(workspaceRoot, ["config", "user.email", "test@example.com"]);
-  runGit(workspaceRoot, ["config", "user.name", "Test"]);
-}
-
-function commitAll(workspaceRoot: string, message: string): void {
-  runGit(workspaceRoot, ["add", "-A"]);
-  runGit(workspaceRoot, ["commit", "-m", message]);
-}
-
-function runGit(workspaceRoot: string, arguments_: readonly string[]): string {
-  return execFileSync("git", ["-C", workspaceRoot, ...arguments_], {
-    encoding: "utf8",
-    windowsHide: true
-  });
 }
 
 function runGeneratedStage(
