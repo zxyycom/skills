@@ -1,8 +1,8 @@
 ### Case TEST-EVIDENCE-RECORD-KEY-SCHEMA-001: State Index Schema 拒绝非法 Case ID Record Key
 
 Entry:
-- `tools/test-evidence/tests/run.ts > state index schemas reject invalid case IDs used as record keys`
-- `bun test --test-name-pattern="^state index schemas reject invalid case IDs used as record keys$" ./tools/test-evidence/tests/run.ts`
+- `tools/test-evidence/tests/catalog.test.ts > state index schemas reject invalid case IDs used as record keys`
+- `bun test --test-name-pattern="^state index schemas reject invalid case IDs used as record keys$" ./tools/test-evidence/tests/catalog.test.ts`
 
 Contract:
 - Test-evidence 的 Valibot schema 与生成 JSON Schema 必须在 `entries` 和 `sourceRevision.entries` 的对象键上共同执行 Case ID 格式约束。

@@ -5,7 +5,7 @@ Entry:
 - `bun test --test-name-pattern="^release version validation passes its baseline through Bun argument arrays$" ./scripts/vibe-check.test.ts`
 
 Contract:
-- release 终结 Check 必须将 baseline 作为 `bun run hash:skills` 的单个参数元素传递，不能拼接 shell 命令字符串。
+- `release:skill-version` 必须将 baseline 作为 `bun run hash:skills` 的单个参数元素传递，不能拼接 shell 命令字符串。
 
 Proves:
 - 含 shell 元字符的 fixture baseline 原样成为 capture script 的一个 argv 元素，并保留 `--baseline-ref` 与 `--quiet` 顺序。

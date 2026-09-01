@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-FIXED-CONTRACT-001: 项目级配置不参与测试账本接口
 Entry:
-- `tools/test-evidence/tests/run.ts > catalog ignores legacy config files and rejects config arguments`
-- `bun test --test-name-pattern="^catalog ignores legacy config files and rejects config arguments$" ./tools/test-evidence/tests/run.ts`
+- `tools/test-evidence/tests/catalog.test.ts > catalog ignores legacy config files and rejects config arguments`
+- `bun test --test-name-pattern="^catalog ignores legacy config files and rejects config arguments$" ./tools/test-evidence/tests/catalog.test.ts`
 Contract:
 - 测试账本的目录、索引和 case ID 规则由固定协议决定，不接受项目级配置改写。
 Proves:

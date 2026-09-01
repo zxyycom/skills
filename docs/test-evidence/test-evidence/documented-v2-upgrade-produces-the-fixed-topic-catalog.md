@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-UPGRADE-V2-001: V2 Consumer 升级到固定 Topic Catalog
 Entry:
-- `tools/test-evidence/tests/run.ts > documented v2 consumer upgrade produces the fixed topic catalog`
-- `bun test --test-name-pattern="^documented v2 consumer upgrade produces the fixed topic catalog$" ./tools/test-evidence/tests/run.ts`
+- `tools/test-evidence/tests/catalog.test.ts > documented v2 consumer upgrade produces the fixed topic catalog`
+- `bun test --test-name-pattern="^documented v2 consumer upgrade produces the fixed topic catalog$" ./tools/test-evidence/tests/catalog.test.ts`
 Contract:
 - v2 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。
 Proves:

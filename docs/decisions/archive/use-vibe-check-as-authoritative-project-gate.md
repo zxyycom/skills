@@ -1,6 +1,6 @@
 ---
 title: 以 Vibe Check 作为权威项目门禁
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-31T09:19:20Z
 purpose: 让日常与发布门禁在一个 Vibe Definition 目录中形成唯一可验证结果。

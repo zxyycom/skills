@@ -1,8 +1,8 @@
 ### Case TEST-EVIDENCE-KEYED-ID-001: 领域解析以 Record Key 作为权威 Case ID
 
 Entry:
-- `tools/test-evidence/tests/run.ts > domain parsing treats the record key as the authoritative case id`
-- `bun test --test-name-pattern="^domain parsing treats the record key as the authoritative case id$" ./tools/test-evidence/tests/run.ts`
+- `tools/test-evidence/tests/catalog.test.ts > domain parsing treats the record key as the authoritative case id`
+- `bun test --test-name-pattern="^domain parsing treats the record key as the authoritative case id$" ./tools/test-evidence/tests/catalog.test.ts`
 
 Contract:
 - Test-evidence state parser 必须从 projection context 接收权威 case ID，并拒绝 state 内 ID 与对象键不一致。

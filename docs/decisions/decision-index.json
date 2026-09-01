@@ -190,6 +190,7 @@
       "organize-by-main-promise-and-manage-context-association.md": "sha256:6c8833087c20743406dcec11933f07115564ad401e55a901fdba1c03d48abbbf",
       "organize-native-test-cases-by-responsibility-topic.md": "sha256:fffeca77e2976d2e907d75a97f7e018a9eb5e46904e6027d0a569c2a4e0a8d7d",
       "organize-test-cases-by-controlled-topic-path.md": "sha256:a0a2bd943eed48603f0c9b45116257e11f274b30efcf03550373c9997b9d4852",
+      "organize-vibe-checks-by-semantic-identity.md": "sha256:7afe1191c172f39b4970ad479c1aa86b006063a067e986e9490e1cfd52b0699b",
       "own-recoverable-task-coordination.md": "sha256:fa3feef14ffc617548e028433dd5025eb916447d3b6914e1b0c04e3eff68352c",
       "own-short-lived-task-orchestration.md": "sha256:8deede305fec407b396021a140d2c7741207de199f24780caac33f2b142b19bf",
       "package-current-index-json-schema.md": "sha256:770d5090a85f226c003022ad860b54f016484dc350776c09ca607930d2329ed2",
@@ -317,7 +318,7 @@
       "use-typed-collection-metadata.md": "sha256:a0e261ea16fca33ef949f83b289b5c323f02ab7501cc55bb7732bf7b3974c801",
       "use-versioned-overlay-skill-updates.md": "sha256:45c50941a04dc9aff4f2e305ec83fd14cb12d3df86e554cd23f6c4974d35f192",
       "use-versioned-runner-result-protocol.md": "sha256:48cde8d9a3cd54768d144286b55ddccec9f52272a234fe75764562d7e7fdcf9c",
-      "use-vibe-check-as-authoritative-project-gate.md": "sha256:efbb550b17493e68f4de4900341afc3e9bf853a6bfa330a1aa73b9f3635de3af",
+      "use-vibe-check-as-authoritative-project-gate.md": "sha256:a0bc3bc9d5cb3c7fec8e38d671c7c325a1f87c83844a419cf1485d52c453ac5c",
       "validate-only-active-change-plans.md": "sha256:14d148173e7fbc11d4a3c13ccb4ccecc8c9b459516ba79072388da911bdfe860",
       "version-index-definition-compatibility.md": "sha256:94002fd6642a327388347c00f5963519a2b44eafa9eab41fd031ecdd48007d32",
       "warn-on-unreferenced-investigation-resources.md": "sha256:c80123faec33a3d0e728a009dee7eae4c0d68984de137dac3b1b934af8bedba0",
@@ -5856,6 +5857,38 @@
         ]
       }
     },
+    "organize-vibe-checks-by-semantic-identity.md": {
+      "keys": {
+        "tag": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "organize-vibe-checks-by-semantic-identity.md",
+        "title": "按语义身份组织 Vibe Check",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T05:11:30Z",
+        "purpose": "让 Vibe Gate 结果按所证明契约和失败 owner 直接定位。",
+        "background": "package script 既是手动聚合容器又曾是 Gate leaf，混合领域事务、CLI 与分发失败，成本顺序也不能承接稳定语义。",
+        "decision": "采用稳定 semantic Check ID 和语义 catalog 替代 package 容器身份，保持 profile 覆盖，并以普通 Check 到版本再到打包的 DAG 组织 release。",
+        "tags": [
+          "project-tooling"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-vibe-check-as-authoritative-project-gate.md"
+          }
+        ]
+      }
+    },
     "own-recoverable-task-coordination.md": {
       "keys": {
         "tag": [
@@ -9781,16 +9814,16 @@
           "project-tooling"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-vibe-check-as-authoritative-project-gate.md",
+        "sourcePath": "archive/use-vibe-check-as-authoritative-project-gate.md",
         "title": "以 Vibe Check 作为权威项目门禁",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-31T09:19:20Z",
         "purpose": "让日常与发布门禁在一个 Vibe Definition 目录中形成唯一可验证结果。",

@@ -1,8 +1,8 @@
 ### Case TEST-EVIDENCE-REVISION-CASE-MOVE-001: Case 移动只改变自身 Entry Revision 并保留身份
 
 Entry:
-- `tools/test-evidence/tests/run.ts > case moves change only their entry revision and preserve identity`
-- `bun test --test-name-pattern="^case moves change only their entry revision and preserve identity$" ./tools/test-evidence/tests/run.ts`
+- `tools/test-evidence/tests/catalog.test.ts > case moves change only their entry revision and preserve identity`
+- `bun test --test-name-pattern="^case moves change only their entry revision and preserve identity$" ./tools/test-evidence/tests/catalog.test.ts`
 
 Contract:
 - Case revision 必须包含源路径，而 Case ID 作为 record key 不随合法移动改变；topic 表未变时 metadata revision 也不得改变。

@@ -84,14 +84,18 @@ export const vibeNativeCheckIds = [
   "function-metrics"
 ] as const;
 
-// This cost-aware order is a scheduler hint, not a semantic priority.
-export const releaseRequiredPackageScripts = [
+export const compatibilityTestPackageScripts = [
   "test:decision-records-cli",
-  "test:environment",
   "test:change-plan-cli",
   "test:task-graph-cli",
   "test:test-evidence-cli",
-  "test:investigation-report-check",
+  "test:investigation-report-check"
+] as const;
+
+// Package scripts remain stable manual aggregation entry points. Gate execution
+// uses the semantic test checks below instead of treating these containers as leaves.
+export const releaseRequiredPackageScripts = [
+  "test:environment",
   "test:index-runtime",
   "test:check",
   "test:skill-updater",
@@ -121,12 +125,8 @@ export const releaseRequiredPackageScripts = [
 export type GatePackageScript = (typeof releaseRequiredPackageScripts)[number];
 
 const fullOnlyGatePackageScriptSet: ReadonlySet<GatePackageScript> = new Set([
-  "test:decision-records-cli",
   "test:version-control",
-  "test:skill-package-hash",
-  "test:investigation-report-check",
-  "test:test-evidence-cli",
-  "test:task-graph-cli"
+  "test:skill-package-hash"
 ]);
 
 export const fullOnlyGatePackageScripts: readonly GatePackageScript[] =
@@ -139,8 +139,200 @@ export const defaultGatePackageScripts: readonly GatePackageScript[] =
     (script) => !fullOnlyGatePackageScriptSet.has(script)
   );
 
-export const releaseVersionPackageScript = "hash:skills";
+export type GateCommand = Readonly<{
+  args: readonly string[];
+  command: "bun" | "node";
+}>;
 
+export type SemanticGateCheck = Readonly<{
+  checkId: `test:${string}`;
+  command: GateCommand;
+  displayName: string;
+  profile: GateProfile;
+}>;
+
+const bunTest = (file: string): GateCommand => ({
+  args: ["test", file],
+  command: "bun"
+});
+
+export const semanticGateChecks = [
+  {
+    checkId: "test:change-plan:artifact-and-active-plan-gates",
+    displayName: "Change Plan artifact and active-plan gates",
+    profile: "default",
+    command: bunTest(
+      "./tools/change-plan/tests/checks/artifact-and-active-plan-gates.ts"
+    )
+  },
+  {
+    checkId: "test:change-plan:lifecycle-archive",
+    displayName: "Change Plan lifecycle and archive",
+    profile: "default",
+    command: bunTest("./tools/change-plan/tests/checks/lifecycle-archive.ts")
+  },
+  {
+    checkId: "test:change-plan:public-distribution",
+    displayName: "Change Plan public distribution",
+    profile: "default",
+    command: bunTest("./tools/change-plan/tests/checks/public-distribution.ts")
+  },
+  {
+    checkId: "test:decision-records:record-and-established-graph",
+    displayName: "Decision Records record and established graph",
+    profile: "full",
+    command: bunTest(
+      "./tools/decision-records/tests/checks/record-and-established-graph.ts"
+    )
+  },
+  {
+    checkId: "test:decision-records:query-and-index-projection",
+    displayName: "Decision Records query and index projection",
+    profile: "full",
+    command: bunTest(
+      "./tools/decision-records/tests/checks/query-and-index-projection.ts"
+    )
+  },
+  {
+    checkId: "test:decision-records:lifecycle-and-recovery",
+    displayName: "Decision Records lifecycle and recovery",
+    profile: "full",
+    command: bunTest(
+      "./tools/decision-records/tests/checks/lifecycle-and-recovery.ts"
+    )
+  },
+  {
+    checkId: "test:decision-records:pending-stage",
+    displayName: "Decision Records pending stage",
+    profile: "full",
+    command: bunTest("./tools/decision-records/tests/stage.test.ts")
+  },
+  {
+    checkId: "test:decision-records:public-distribution",
+    displayName: "Decision Records public distribution",
+    profile: "full",
+    command: bunTest(
+      "./tools/decision-records/tests/checks/public-distribution.ts"
+    )
+  },
+  {
+    checkId: "test:investigation-report:collection-and-resources",
+    displayName: "Investigation Report collection and resources",
+    profile: "full",
+    command: bunTest(
+      "./tools/investigation-report/tests/checks/collection-and-resources.ts"
+    )
+  },
+  {
+    checkId: "test:investigation-report:index-and-query",
+    displayName: "Investigation Report index and query",
+    profile: "full",
+    command: bunTest(
+      "./tools/investigation-report/tests/checks/index-and-query.ts"
+    )
+  },
+  {
+    checkId: "test:investigation-report:transactional-maintenance",
+    displayName: "Investigation Report transactional maintenance",
+    profile: "full",
+    command: bunTest(
+      "./tools/investigation-report/tests/checks/transactional-maintenance.ts"
+    )
+  },
+  {
+    checkId: "test:investigation-report:pending-stage",
+    displayName: "Investigation Report pending stage",
+    profile: "full",
+    command: bunTest("./tools/investigation-report/tests/staging.test.ts")
+  },
+  {
+    checkId: "test:investigation-report:cli-contract",
+    displayName: "Investigation Report CLI contract",
+    profile: "full",
+    command: bunTest("./tools/investigation-report/tests/cli-generated.test.ts")
+  },
+  {
+    checkId: "test:task-graph:index-and-projection",
+    displayName: "Task Graph index and projection",
+    profile: "full",
+    command: bunTest("./tools/task-graph/tests/checks/index-and-projection.ts")
+  },
+  {
+    checkId: "test:task-graph:task-lifecycle",
+    displayName: "Task Graph task lifecycle",
+    profile: "full",
+    command: bunTest("./tools/task-graph/tests/checks/task-lifecycle.ts")
+  },
+  {
+    checkId: "test:task-graph:runtime-and-store",
+    displayName: "Task Graph runtime and store",
+    profile: "full",
+    command: bunTest("./tools/task-graph/tests/checks/runtime-and-store.ts")
+  },
+  {
+    checkId: "test:task-graph:native-store",
+    displayName: "Task Graph native store",
+    profile: "full",
+    command: {
+      command: "node",
+      args: ["--test", "./tools/task-graph/tests/native-store.test.ts"]
+    }
+  },
+  {
+    checkId: "test:task-graph:cli-rendering",
+    displayName: "Task Graph CLI rendering",
+    profile: "full",
+    command: bunTest("./tools/task-graph/tests/checks/cli-rendering.ts")
+  },
+  {
+    checkId: "test:task-graph:pending-stage",
+    displayName: "Task Graph pending stage",
+    profile: "full",
+    command: bunTest("./tools/task-graph/tests/staging.test.ts")
+  },
+  {
+    checkId: "test:task-graph:public-distribution",
+    displayName: "Task Graph public distribution",
+    profile: "full",
+    command: bunTest("./tools/task-graph/tests/generated-artifacts.test.ts")
+  },
+  {
+    checkId: "test:test-evidence:catalog-contract",
+    displayName: "Test Evidence catalog contract",
+    profile: "full",
+    command: bunTest("./tools/test-evidence/tests/catalog.test.ts")
+  },
+  {
+    checkId: "test:test-evidence:ledger-source-and-relations",
+    displayName: "Test Evidence ledger source and relations",
+    profile: "full",
+    command: bunTest(
+      "./tools/test-evidence/tests/checks/ledger-source-and-relations.ts"
+    )
+  },
+  {
+    checkId: "test:test-evidence:ledger-index-and-query",
+    displayName: "Test Evidence ledger index and query",
+    profile: "full",
+    command: bunTest(
+      "./tools/test-evidence/tests/checks/ledger-index-and-query.ts"
+    )
+  },
+  {
+    checkId: "test:test-evidence:ledger-cli",
+    displayName: "Test Evidence ledger CLI",
+    profile: "full",
+    command: bunTest("./tools/test-evidence/tests/ledger-cli.test.ts")
+  },
+  {
+    checkId: "test:test-evidence:pending-stage",
+    displayName: "Test Evidence pending stage",
+    profile: "full",
+    command: bunTest("./tools/test-evidence/tests/staging.test.ts")
+  }
+] as const satisfies readonly SemanticGateCheck[];
+
+export const releaseVersionPackageScript = "hash:skills";
 export function isReleaseBaselineRef(value: unknown): value is string {
   return (
     typeof value === "string" &&
@@ -152,55 +344,53 @@ export function isReleaseBaselineRef(value: unknown): value is string {
   );
 }
 
-export type GatePackageInvocation = Readonly<{
-  args: readonly ["run", string, ...string[]];
-  command: "bun";
+export type GateCommandInvocation = Readonly<{
+  args: readonly string[];
+  command: "bun" | "node";
   cwd: string;
-  script: string;
   signal: AbortSignal;
 }>;
 
-export type GatePackageUnavailableReason =
+export type GateCommandUnavailableReason =
+  | "gate-command-cancelled"
+  | "gate-command-exit-unavailable"
+  | "gate-command-start-failed";
+
+type PackageScriptUnavailableReason =
   | "package-script-cancelled"
   | "package-script-exit-unavailable"
   | "package-script-start-failed";
 
-export type GatePackageRunResult =
-  | Readonly<{
-      exitCode: number;
-      output: string;
-      status: "completed";
-    }>
+export type GateCommandRunResult =
+  | Readonly<{ exitCode: number; output: string; status: "completed" }>
   | Readonly<{
       output: string;
-      reason: GatePackageUnavailableReason;
+      reason: GateCommandUnavailableReason;
       status: "unavailable";
     }>;
 
-export type GatePackageRunner = (
-  invocation: GatePackageInvocation
-) => Promise<GatePackageRunResult>;
+export type GateCommandRunner = (
+  invocation: GateCommandInvocation
+) => Promise<GateCommandRunResult>;
 
 export type GateDefinitionDependencies = Readonly<{
   baselineRef?: string;
   nativeChecks?: readonly Check[];
-  runPackageScript?: GatePackageRunner;
+  runCommand?: GateCommandRunner;
 }>;
+
+type GateCommandContext =
+  | Readonly<{ kind: "package-script"; script: string }>
+  | Readonly<{ kind: "semantic" }>;
 
 export function packageScriptCheckId(script: string): string {
   return `script:${script}`;
 }
 
-export const releaseRequiredCheckIds = [
-  ...releaseRequiredPackageScripts.map(packageScriptCheckId),
-  ...vibeNativeCheckIds
-] as const;
-
 function truncateDiagnostic(value: string): string {
-  if (value.length <= diagnosticOutputLimit) {
-    return value;
-  }
-  return `…${value.slice(-diagnosticOutputLimit)}`;
+  return value.length <= diagnosticOutputLimit
+    ? value
+    : `…${value.slice(-diagnosticOutputLimit)}`;
 }
 
 function outputMessage(output: string): string {
@@ -208,68 +398,106 @@ function outputMessage(output: string): string {
   return diagnostic.length === 0 ? "" : `\n${diagnostic}`;
 }
 
-function unavailableScriptResult(
-  script: string,
-  reason: GatePackageUnavailableReason,
+function quoteCommandArgument(argument: string): string {
+  return /^[A-Za-z0-9_./,:=@+%-]+$/u.test(argument)
+    ? argument
+    : `'${argument.replaceAll("'", `'"'"'`)}'`;
+}
+
+function commandText(
+  invocation: Pick<GateCommandInvocation, "args" | "command">
+): string {
+  return [invocation.command, ...invocation.args]
+    .map(quoteCommandArgument)
+    .join(" ");
+}
+
+function contextReason(
+  context: GateCommandContext,
+  reason: GateCommandUnavailableReason
+): GateCommandUnavailableReason | PackageScriptUnavailableReason {
+  if (context.kind === "semantic") return reason;
+  switch (reason) {
+    case "gate-command-cancelled":
+      return "package-script-cancelled";
+    case "gate-command-exit-unavailable":
+      return "package-script-exit-unavailable";
+    case "gate-command-start-failed":
+      return "package-script-start-failed";
+  }
+}
+
+function unavailableCommandResult(
+  invocation: GateCommandInvocation,
+  context: GateCommandContext,
+  reason: GateCommandUnavailableReason,
   output: string
 ) {
+  const code = contextReason(context, reason);
   return {
     status: "unavailable" as const,
-    reason: { code: reason },
+    reason: { code },
     messages: [
       {
         level: "error" as const,
-        code: reason,
-        message:
-          `Could not run bun run ${script}. ` +
-          `Confirm Bun and the script are available, then run bun run ${script} directly.` +
-          outputMessage(output)
+        code,
+        message: `Could not run ${commandText(invocation)}. Confirm the command is available, then run ${commandText(invocation)} directly.${outputMessage(output)}`
       }
     ]
   };
 }
 
-function settlePackageScript(script: string, result: GatePackageRunResult) {
+function settleGateCommand(
+  invocation: GateCommandInvocation,
+  context: GateCommandContext,
+  result: GateCommandRunResult
+) {
   if (result.status === "unavailable") {
-    return unavailableScriptResult(script, result.reason, result.output);
+    return unavailableCommandResult(
+      invocation,
+      context,
+      result.reason,
+      result.output
+    );
   }
-
-  const data = {
-    exitCode: result.exitCode,
-    script
-  };
-  if (result.exitCode === 0) {
-    return { status: "passed" as const, data };
-  }
+  const data =
+    context.kind === "semantic"
+      ? {
+          args: invocation.args,
+          command: invocation.command,
+          exitCode: result.exitCode
+        }
+      : { exitCode: result.exitCode, script: context.script };
+  if (result.exitCode === 0) return { status: "passed" as const, data };
+  const code =
+    context.kind === "semantic"
+      ? "gate-command-exit-nonzero"
+      : "package-script-exit-nonzero";
   return {
     status: "failed" as const,
     data,
     messages: [
       {
         level: "error" as const,
-        code: "package-script-exit-nonzero",
-        message:
-          `bun run ${script} exited with code ${result.exitCode}. ` +
-          `Run bun run ${script} directly for its full diagnostic.` +
-          outputMessage(result.output)
+        code,
+        message: `${commandText(invocation)} exited with code ${result.exitCode}. Run ${commandText(invocation)} directly for its full diagnostic.${outputMessage(result.output)}`
       }
     ]
   };
 }
 
-export async function runBunPackageScript(
-  invocation: GatePackageInvocation
-): Promise<GatePackageRunResult> {
+export async function runGateCommand(
+  invocation: GateCommandInvocation
+): Promise<GateCommandRunResult> {
   const { args, command, cwd, signal } = invocation;
   if (signal.aborted) {
     return {
       output: "",
-      reason: "package-script-cancelled",
+      reason: "gate-command-cancelled",
       status: "unavailable"
     };
   }
-
-  return new Promise((resolve) => {
+  return await new Promise((resolve) => {
     let output = "";
     let settled = false;
     const child = spawn(command, args, {
@@ -284,11 +512,13 @@ export async function runBunPackageScript(
     child.stderr?.setEncoding("utf8");
     child.stdout?.on("data", appendOutput);
     child.stderr?.on("data", appendOutput);
-
-    const finish = (result: GatePackageRunResult): void => {
-      if (settled) {
-        return;
-      }
+    const unavailable = (reason: GateCommandUnavailableReason) => ({
+      output,
+      reason,
+      status: "unavailable" as const
+    });
+    const finish = (result: GateCommandRunResult): void => {
+      if (settled) return;
       settled = true;
       signal.removeEventListener("abort", abort);
       resolve(result);
@@ -298,35 +528,22 @@ export async function runBunPackageScript(
     };
     signal.addEventListener("abort", abort, { once: true });
     child.once("error", (error: Error) => {
-      if (signal.aborted) {
-        finish({
-          output,
-          reason: "package-script-cancelled",
-          status: "unavailable"
-        });
-        return;
-      }
-      finish({
-        output: `${output}${error.message}`,
-        reason: "package-script-start-failed",
-        status: "unavailable"
-      });
+      appendOutput(error.message);
+      finish(
+        unavailable(
+          signal.aborted
+            ? "gate-command-cancelled"
+            : "gate-command-start-failed"
+        )
+      );
     });
     child.once("close", (exitCode) => {
       if (signal.aborted) {
-        finish({
-          output,
-          reason: "package-script-cancelled",
-          status: "unavailable"
-        });
+        finish(unavailable("gate-command-cancelled"));
         return;
       }
       if (exitCode === null) {
-        finish({
-          output,
-          reason: "package-script-exit-unavailable",
-          status: "unavailable"
-        });
+        finish(unavailable("gate-command-exit-unavailable"));
         return;
       }
       finish({ exitCode, output, status: "completed" });
@@ -334,57 +551,81 @@ export async function runBunPackageScript(
   });
 }
 
-async function executePackageScript(
+async function executeGateCommand(
   input: Readonly<{
-    args: GatePackageInvocation["args"];
+    command: GateCommand;
+    context: GateCommandContext;
     projectRoot: string;
-    runner: GatePackageRunner;
-    script: string;
+    runner: GateCommandRunner;
     signal: AbortSignal;
   }>
 ) {
-  const { args, projectRoot, runner, script, signal } = input;
-  if (signal.aborted) {
-    return unavailableScriptResult(script, "package-script-cancelled", "");
+  const invocation: GateCommandInvocation = {
+    ...input.command,
+    cwd: input.projectRoot,
+    signal: input.signal
+  };
+  if (input.signal.aborted) {
+    return unavailableCommandResult(
+      invocation,
+      input.context,
+      "gate-command-cancelled",
+      ""
+    );
   }
   try {
-    const result = await runner({
-      args,
-      command: "bun",
-      cwd: projectRoot,
-      script,
-      signal
-    });
-    if (signal.aborted) {
-      return unavailableScriptResult(
-        script,
-        "package-script-cancelled",
+    const result = await input.runner(invocation);
+    if (input.signal.aborted) {
+      return unavailableCommandResult(
+        invocation,
+        input.context,
+        "gate-command-cancelled",
         result.output
       );
     }
-    return settlePackageScript(script, result);
+    return settleGateCommand(invocation, input.context, result);
   } catch (error) {
-    return unavailableScriptResult(
-      script,
-      "package-script-start-failed",
+    return unavailableCommandResult(
+      invocation,
+      input.context,
+      "gate-command-start-failed",
       error instanceof Error ? error.message : String(error)
     );
   }
 }
 
 function createPackageScriptCheck(
-  script: string,
-  runner: GatePackageRunner
+  script: GatePackageScript,
+  runner: GateCommandRunner
 ): Check {
   return defineCheck({
     checkId: packageScriptCheckId(script),
     displayName: `Script: ${script}`,
     async execution({ project, signal }) {
-      return executePackageScript({
-        args: ["run", script],
+      return await executeGateCommand({
+        command: { args: ["run", script], command: "bun" },
         projectRoot: project.root,
         runner,
-        script,
+        context: { kind: "package-script", script },
+        signal
+      });
+    }
+  });
+}
+
+function createSemanticGateCheck(
+  check: SemanticGateCheck,
+  runner: GateCommandRunner
+): Check {
+  return defineCheck({
+    checkId: check.checkId,
+    displayName: check.displayName,
+    async execution({ project, signal }) {
+      return await executeGateCommand({
+        command: check.command,
+        projectRoot: project.root,
+        runner,
+        context: { kind: "semantic" },
         signal
       });
     }
@@ -396,19 +637,60 @@ function prepareReleaseBaseline(
 ):
   | Readonly<{ readonly baselineRef: string; readonly status: "ready" }>
   | Readonly<{ readonly status: "invalid" }> {
-  if (!isReleaseBaselineRef(baselineRef)) {
-    return { status: "invalid" };
-  }
-  return { baselineRef, status: "ready" };
+  return isReleaseBaselineRef(baselineRef)
+    ? { baselineRef, status: "ready" }
+    : { status: "invalid" };
 }
 
-function createPackSkillsCheck(
-  runner: GatePackageRunner,
+function releasePrerequisiteFailure(
+  dependencies: Readonly<{
+    get(
+      checkId: string
+    ): Readonly<{ ok: boolean; status?: string }> | undefined;
+  }>
+) {
+  for (const checkId of releaseRequiredCheckIds) {
+    const dependency = dependencies.get(checkId);
+    if (!dependency?.ok) {
+      return {
+        status: "unavailable" as const,
+        reason: {
+          code: "release-prerequisite-unavailable",
+          checkIds: [checkId]
+        },
+        messages: [
+          {
+            level: "error" as const,
+            code: "release-prerequisite-unavailable",
+            message: `Release version validation did not start because ${checkId} has no trusted final result. Fix that prerequisite and rerun bun run check --full.`
+          }
+        ]
+      };
+    }
+    if (dependency.status !== "passed") {
+      return {
+        status: "failed" as const,
+        data: { prerequisite: checkId, prerequisiteStatus: dependency.status },
+        messages: [
+          {
+            level: "error" as const,
+            code: "release-prerequisite-failed",
+            message: `Release version validation did not start because ${checkId} is ${dependency.status}. Fix that prerequisite and rerun bun run check --full.`
+          }
+        ]
+      };
+    }
+  }
+  return null;
+}
+
+function createReleaseVersionCheck(
+  runner: GateCommandRunner,
   baselineRef: string
 ): Check {
   return defineCheck({
-    checkId: "pack:skills",
-    displayName: "Validate versions and package skills",
+    checkId: "release:skill-version",
+    displayName: "Validate skill release versions",
     dependsOn: releaseRequiredCheckIds,
     options: { baselineRef },
     preflight(options: Readonly<{ baselineRef: string }>) {
@@ -423,9 +705,7 @@ function createPackSkillsCheck(
               level: "error" as const,
               code: "release-baseline-invalid",
               message:
-                "The release baseline must be a trimmed, non-empty revision input without a leading hyphen, NUL, CR, or LF. " +
-                "Only hash:skills resolves it after release prerequisites pass. " +
-                "Pass --baseline-ref <ref> to bun run check --full."
+                "The release baseline must be a trimmed, non-empty revision input without a leading hyphen, NUL, CR, or LF. Only hash:skills resolves it after release prerequisites pass. Pass --baseline-ref <ref> to bun run check --full."
             }
           ]
         };
@@ -440,87 +720,86 @@ function createPackSkillsCheck(
         { id: "release-baseline" },
         { baselineRef: options.baselineRef }
       );
-      for (const checkId of releaseRequiredCheckIds) {
-        const dependency = dependencies.get(checkId);
-        if (!dependency.ok) {
-          return {
-            status: "unavailable" as const,
-            reason: {
-              code: "release-prerequisite-unavailable",
-              checkIds: [checkId]
-            },
-            messages: [
-              {
-                level: "error" as const,
-                code: "release-prerequisite-unavailable",
-                message:
-                  `Packaging did not start because ${checkId} has no trusted final result. ` +
-                  "Fix that prerequisite and rerun bun run check --full."
-              }
-            ]
-          };
-        }
-        if (dependency.status !== "passed") {
-          return {
-            status: "failed" as const,
-            data: {
-              baselineRef: options.baselineRef,
-              prerequisite: checkId,
-              prerequisiteStatus: dependency.status
-            },
-            messages: [
-              {
-                level: "error" as const,
-                code: "release-prerequisite-failed",
-                message:
-                  `Packaging did not start because ${checkId} is ${dependency.status}. ` +
-                  "Fix that prerequisite and rerun bun run check --full."
-              }
-            ]
-          };
-        }
-      }
-
-      const versionCheck = await executePackageScript({
-        args: [
-          "run",
-          releaseVersionPackageScript,
-          "--",
-          "--baseline-ref",
-          options.baselineRef,
-          "--quiet"
-        ],
+      const prerequisiteFailure = releasePrerequisiteFailure(dependencies);
+      if (prerequisiteFailure !== null) return prerequisiteFailure;
+      const result = await executeGateCommand({
+        command: {
+          args: [
+            "run",
+            releaseVersionPackageScript,
+            "--",
+            "--baseline-ref",
+            options.baselineRef,
+            "--quiet"
+          ],
+          command: "bun"
+        },
         projectRoot: project.root,
         runner,
-        script: releaseVersionPackageScript,
+        context: {
+          kind: "package-script",
+          script: releaseVersionPackageScript
+        },
         signal
       });
-      if (versionCheck.status !== "passed") {
-        if (versionCheck.status === "failed") {
-          return {
-            ...versionCheck,
-            data: { ...versionCheck.data, baselineRef: options.baselineRef }
-          };
-        }
-        return versionCheck;
-      }
-      const packageResult = await executePackageScript({
-        args: ["run", "pack:skills"],
-        projectRoot: project.root,
-        runner,
-        script: "pack:skills",
-        signal
-      });
-      if (
-        packageResult.status === "passed" ||
-        packageResult.status === "failed"
-      ) {
+      if (result.status === "passed" || result.status === "failed") {
         return {
-          ...packageResult,
-          data: { ...packageResult.data, baselineRef: options.baselineRef }
+          ...result,
+          data: { ...result.data, baselineRef: options.baselineRef }
         };
       }
-      return packageResult;
+      return result;
+    }
+  });
+}
+
+function createPackSkillsCheck(runner: GateCommandRunner): Check {
+  return defineCheck({
+    checkId: "pack:skills",
+    displayName: "Package skills",
+    dependsOn: ["release:skill-version"],
+    async execution({ dependencies, project, signal }) {
+      const version = dependencies.get("release:skill-version");
+      if (!version?.ok) {
+        return {
+          status: "unavailable" as const,
+          reason: {
+            code: "release-version-unavailable",
+            checkIds: ["release:skill-version"]
+          },
+          messages: [
+            {
+              level: "error" as const,
+              code: "release-version-unavailable",
+              message:
+                "Packaging did not start because release:skill-version has no trusted final result. Fix the version check and rerun bun run check --full."
+            }
+          ]
+        };
+      }
+      if (version.status !== "passed") {
+        return {
+          status: "failed" as const,
+          data: {
+            prerequisite: "release:skill-version",
+            prerequisiteStatus: version.status
+          },
+          messages: [
+            {
+              level: "error" as const,
+              code: "release-version-failed",
+              message: `Packaging did not start because release:skill-version is ${version.status}. Fix the version check and rerun bun run check --full.`
+            }
+          ]
+        };
+      }
+      return await executeGateCommand({
+        command: { args: ["run", "pack:skills"], command: "bun" },
+        projectRoot: project.root,
+        runner,
+        context: { kind: "package-script", script: "pack:skills" },
+        signal
+      });
     }
   });
 }
@@ -593,32 +872,60 @@ function selectedPackageScripts(
     : releaseRequiredPackageScripts;
 }
 
+function selectedSemanticGateChecks(
+  profile: GateProfile
+): readonly SemanticGateCheck[] {
+  return semanticGateChecks.filter(
+    (check) => profile === "full" || check.profile === "default"
+  );
+}
+
+export const releaseRequiredCheckIds = [
+  ...vibeNativeCheckIds,
+  ...releaseRequiredPackageScripts.map(packageScriptCheckId),
+  ...semanticGateChecks.map(({ checkId }) => checkId)
+] as const;
+
 export function gateCheckIds(profile: GateProfile): readonly string[] {
-  const checks = [
-    ...vibeNativeCheckIds,
-    ...selectedPackageScripts(profile).map(packageScriptCheckId)
-  ];
-  return profile === "full" ? [...checks, "pack:skills"] : checks;
+  const semanticCheckIds = selectedSemanticGateChecks(profile).map(
+    ({ checkId }) => checkId
+  );
+  const packageCheckIds =
+    selectedPackageScripts(profile).map(packageScriptCheckId);
+  // Ordering is only a scheduler hint: default admits its semantic Checks
+  // before broad maintenance scripts so they do not form a serial tail.
+  const checks =
+    profile === "default"
+      ? [...vibeNativeCheckIds, ...semanticCheckIds, ...packageCheckIds]
+      : [...vibeNativeCheckIds, ...packageCheckIds, ...semanticCheckIds];
+  return profile === "full"
+    ? [...checks, "release:skill-version", "pack:skills"]
+    : checks;
 }
 
 export function createGateDefinition(
   profile: GateProfile,
   dependencies: GateDefinitionDependencies = {}
 ): ProjectDefinition {
-  const runner = dependencies.runPackageScript ?? runBunPackageScript;
+  const runner = dependencies.runCommand ?? runGateCommand;
   const nativeChecks = dependencies.nativeChecks ?? createVibeNativeChecks();
-  const checks: Check[] = [
-    ...nativeChecks,
-    ...selectedPackageScripts(profile).map((script) =>
-      createPackageScriptCheck(script, runner)
-    )
-  ];
+  const semanticChecks = selectedSemanticGateChecks(profile).map((check) =>
+    createSemanticGateCheck(check, runner)
+  );
+  const packageChecks = selectedPackageScripts(profile).map((script) =>
+    createPackageScriptCheck(script, runner)
+  );
+  // Keep the Definition order aligned with gateCheckIds without changing IDs.
+  const checks: Check[] =
+    profile === "default"
+      ? [...nativeChecks, ...semanticChecks, ...packageChecks]
+      : [...nativeChecks, ...packageChecks, ...semanticChecks];
   if (profile === "full") {
     checks.push(
-      createPackSkillsCheck(runner, dependencies.baselineRef ?? "HEAD")
+      createReleaseVersionCheck(runner, dependencies.baselineRef ?? "HEAD"),
+      createPackSkillsCheck(runner)
     );
   }
-
   return defineConfig({
     checks,
     outputs: {

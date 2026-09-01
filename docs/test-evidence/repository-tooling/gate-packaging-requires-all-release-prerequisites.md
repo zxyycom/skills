@@ -5,7 +5,7 @@ Entry:
 - `bun test --test-name-pattern="^full packaging runs once only after every release prerequisite passes$" ./scripts/vibe-check.test.ts`
 
 Contract:
-- `pack:skills` 只属于 full，直接依赖全部 release-required Check；任一普通前置未结算为 passed 都不能进入终结阶段的版本校验或打包，打包失败使 aggregate failed。
+- `release:skill-version` 直接依赖全部普通 release-required Check，`pack:skills` 只依赖版本节点；任一普通前置未结算为 passed 都不能进入版本校验或实际打包，打包失败使 aggregate failed。
 
 Proves:
 - default 不声明或调用 `pack:skills`；成功 full 仅调用一次，并在隔离 `dist/` 写入本次 fixture 制品。

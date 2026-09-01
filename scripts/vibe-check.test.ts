@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 import {
   defineCheck,
@@ -22,7 +23,6 @@ import {
   createGateDefinition,
   createVibeNativeChecks,
   defaultGatePackageScripts,
-  fullOnlyGatePackageScripts,
   gateCheckIds,
   historicalContentExclusions,
   projectJscpdExecutable,
@@ -30,16 +30,22 @@ import {
   releaseRequiredPackageScripts,
   releaseRequiredCheckIds,
   releaseVersionPackageScript,
-  runBunPackageScript,
+  runGateCommand,
+  semanticGateChecks,
   vibeNativeCheckIds,
-  type GatePackageInvocation,
-  type GatePackageRunner
+  type GateCommandInvocation,
+  type GateCommandRunner
 } from "./lib/vibe-gate.ts";
 import {
   resolveGateInvocation,
   runVibeCheck,
   type GateInvocation
 } from "./vibe-check.ts";
+
+const repositoryRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  ".."
+);
 
 const aggregateOptions = {
   checks: "all",
@@ -54,6 +60,12 @@ const noOutput = {
   machinePublication: { enabled: false },
   progressRendering: { enabled: false }
 } as const;
+
+function scriptForCommand(invocation: GateCommandInvocation): string | null {
+  return invocation.command === "bun" && invocation.args[0] === "run"
+    ? (invocation.args[1] ?? null)
+    : null;
+}
 
 async function withTemporaryDirectory<T>(
   prefix: string,
@@ -242,7 +254,7 @@ function nativeChecksWithTerminalOutcome(
   );
 }
 
-function completedScript(exitCode = 0, output = ""): GatePackageRunner {
+function completedScript(exitCode = 0, output = ""): GateCommandRunner {
   return async () => ({ exitCode, output, status: "completed" });
 }
 
@@ -284,89 +296,368 @@ async function assertNativeBlockingCheckContract(
   });
 }
 
-test("gate catalog builds the exact default and full Definitions", () => {
-  const releasePackageScriptOrder = [
-    "test:decision-records-cli",
-    "test:environment",
-    "test:change-plan-cli",
-    "test:task-graph-cli",
-    "test:test-evidence-cli",
-    "test:investigation-report-check",
-    "test:index-runtime",
-    "test:check",
-    "test:skill-updater",
-    "test:skill-validator",
-    "test:relation-graph",
-    "test:version-control",
-    "test:skill-package-hash",
-    "test:skill-release-publisher",
-    "typecheck",
-    "lint",
-    "validate",
-    "check:investigations",
-    "check:decisions",
-    "check:test-evidence-cli",
-    "check:test-evidence-catalog",
-    "check:skill-validator",
-    "check:investigation-report-check",
-    "check:change-plan-cli",
-    "check:decision-records-cli",
-    "check:task-graph-cli",
-    "check:skill-updaters",
-    "test:generated-file",
-    "format:check",
-    "check:task-graph-index"
-  ] as const;
-  const fullOnlyPackageScripts = new Set([
-    "test:decision-records-cli",
-    "test:version-control",
-    "test:skill-package-hash",
-    "test:investigation-report-check",
-    "test:test-evidence-cli",
-    "test:task-graph-cli"
-  ]);
-  const fullOnlyPackageScriptOrder = releasePackageScriptOrder.filter(
-    (script) => fullOnlyPackageScripts.has(script)
-  );
-  const defaultPackageScriptOrder = releasePackageScriptOrder.filter(
-    (script) => !fullOnlyPackageScripts.has(script)
-  );
-  const expectedDefaultCheckIds = [
-    ...vibeNativeCheckIds,
-    ...defaultPackageScriptOrder.map((script) => `script:${script}`)
-  ];
-  const expectedFullCheckIds = [
-    ...vibeNativeCheckIds,
-    ...releasePackageScriptOrder.map((script) => `script:${script}`),
-    "pack:skills"
-  ];
+const expectedSemanticGateGroups = [
+  [
+    "default",
+    "test:change-plan:artifact-and-active-plan-gates",
+    "bun",
+    [
+      "./tools/change-plan/tests/markdown.test.ts",
+      "./tools/change-plan/tests/metadata.test.ts",
+      "./tools/change-plan/tests/check.test.ts",
+      "./tools/change-plan/tests/git-distance.test.ts",
+      "./tools/change-plan/tests/catalog.test.ts"
+    ]
+  ],
+  [
+    "default",
+    "test:change-plan:lifecycle-archive",
+    "bun",
+    [
+      "./tools/change-plan/tests/lifecycle.test.ts",
+      "./tools/change-plan/tests/archive.test.ts"
+    ]
+  ],
+  [
+    "default",
+    "test:change-plan:public-distribution",
+    "bun",
+    [
+      "./tools/change-plan/tests/cli.test.ts",
+      "./tools/change-plan/tests/generated-artifacts.test.ts"
+    ]
+  ],
+  [
+    "full",
+    "test:decision-records:record-and-established-graph",
+    "bun",
+    [
+      "./tools/decision-records/tests/metadata.test.ts",
+      "./tools/decision-records/tests/body-field-validation.test.ts",
+      "./tools/decision-records/tests/type-path-invariants.test.ts",
+      "./tools/decision-records/tests/record-guards.test.ts",
+      "./tools/decision-records/tests/layout-index.test.ts",
+      "./tools/decision-records/tests/relation-validation.test.ts",
+      "./tools/decision-records/tests/state-snapshot.test.ts",
+      "./tools/decision-records/tests/configured-decision-directory.test.ts",
+      "./tools/decision-records/tests/filesystem-boundaries.test.ts"
+    ]
+  ],
+  [
+    "full",
+    "test:decision-records:query-and-index-projection",
+    "bun",
+    [
+      "./tools/decision-records/tests/first-establishment.test.ts",
+      "./tools/decision-records/tests/index-maintenance.test.ts",
+      "./tools/decision-records/tests/queries.test.ts"
+    ]
+  ],
+  [
+    "full",
+    "test:decision-records:lifecycle-and-recovery",
+    "bun",
+    [
+      "./tools/decision-records/tests/activation-archive.test.ts",
+      "./tools/decision-records/tests/candidate-lifecycle.test.ts",
+      "./tools/decision-records/tests/evolution.test.ts",
+      "./tools/decision-records/tests/lifecycle-relations.test.ts",
+      "./tools/decision-records/tests/transaction-recovery.test.ts",
+      "./tools/decision-records/tests/unrecorded-history.test.ts"
+    ]
+  ],
+  [
+    "full",
+    "test:decision-records:pending-stage",
+    "bun",
+    ["./tools/decision-records/tests/stage.test.ts"]
+  ],
+  [
+    "full",
+    "test:decision-records:public-distribution",
+    "bun",
+    [
+      "./tools/decision-records/tests/cli-args.test.ts",
+      "./tools/decision-records/tests/generated-artifacts.test.ts"
+    ]
+  ],
+  [
+    "full",
+    "test:investigation-report:collection-and-resources",
+    "bun",
+    [
+      "./tools/investigation-report/tests/parsing-directory.test.ts",
+      "./tools/investigation-report/tests/resources.test.ts",
+      "./tools/investigation-report/tests/relations.test.ts"
+    ]
+  ],
+  [
+    "full",
+    "test:investigation-report:index-and-query",
+    "bun",
+    [
+      "./tools/investigation-report/tests/index-query.test.ts",
+      "./tools/investigation-report/tests/scale.test.ts"
+    ]
+  ],
+  [
+    "full",
+    "test:investigation-report:transactional-maintenance",
+    "bun",
+    [
+      "./tools/investigation-report/tests/transaction.test.ts",
+      "./tools/investigation-report/tests/discard.test.ts"
+    ]
+  ],
+  [
+    "full",
+    "test:investigation-report:pending-stage",
+    "bun",
+    ["./tools/investigation-report/tests/staging.test.ts"]
+  ],
+  [
+    "full",
+    "test:investigation-report:cli-contract",
+    "bun",
+    ["./tools/investigation-report/tests/cli-generated.test.ts"]
+  ],
+  [
+    "full",
+    "test:task-graph:index-and-projection",
+    "bun",
+    [
+      "./tools/task-graph/tests/schema-index.test.ts",
+      "./tools/task-graph/tests/graph-projection.test.ts"
+    ]
+  ],
+  [
+    "full",
+    "test:task-graph:task-lifecycle",
+    "bun",
+    [
+      "./tools/task-graph/tests/lifecycle.test.ts",
+      "./tools/task-graph/tests/task-removal.test.ts"
+    ]
+  ],
+  [
+    "full",
+    "test:task-graph:runtime-and-store",
+    "bun",
+    [
+      "./tools/task-graph/tests/runtime.test.ts",
+      "./tools/task-graph/tests/store.test.ts"
+    ]
+  ],
+  [
+    "full",
+    "test:task-graph:native-store",
+    "node",
+    ["./tools/task-graph/tests/native-store.test.ts"]
+  ],
+  [
+    "full",
+    "test:task-graph:cli-rendering",
+    "bun",
+    [
+      "./tools/task-graph/tests/cli.test.ts",
+      "./tools/task-graph/tests/task-list-renderer.test.ts"
+    ]
+  ],
+  [
+    "full",
+    "test:task-graph:pending-stage",
+    "bun",
+    ["./tools/task-graph/tests/staging.test.ts"]
+  ],
+  [
+    "full",
+    "test:task-graph:public-distribution",
+    "bun",
+    ["./tools/task-graph/tests/generated-artifacts.test.ts"]
+  ],
+  [
+    "full",
+    "test:test-evidence:catalog-contract",
+    "bun",
+    ["./tools/test-evidence/tests/catalog.test.ts"]
+  ],
+  [
+    "full",
+    "test:test-evidence:ledger-source-and-relations",
+    "bun",
+    [
+      "./tools/test-evidence/tests/ledger-source.test.ts",
+      "./tools/test-evidence/tests/ledger-relations.test.ts"
+    ]
+  ],
+  [
+    "full",
+    "test:test-evidence:ledger-index-and-query",
+    "bun",
+    [
+      "./tools/test-evidence/tests/ledger-api.test.ts",
+      "./tools/test-evidence/tests/ledger-index.test.ts",
+      "./tools/test-evidence/tests/repository-catalog.test.ts"
+    ]
+  ],
+  [
+    "full",
+    "test:test-evidence:ledger-cli",
+    "bun",
+    ["./tools/test-evidence/tests/ledger-cli.test.ts"]
+  ],
+  [
+    "full",
+    "test:test-evidence:pending-stage",
+    "bun",
+    ["./tools/test-evidence/tests/staging.test.ts"]
+  ]
+] as const;
+
+const expectedSemanticCommandPaths = new Map<string, string>([
+  [
+    "test:change-plan:artifact-and-active-plan-gates",
+    "./tools/change-plan/tests/checks/artifact-and-active-plan-gates.ts"
+  ],
+  [
+    "test:change-plan:lifecycle-archive",
+    "./tools/change-plan/tests/checks/lifecycle-archive.ts"
+  ],
+  [
+    "test:change-plan:public-distribution",
+    "./tools/change-plan/tests/checks/public-distribution.ts"
+  ],
+  [
+    "test:decision-records:record-and-established-graph",
+    "./tools/decision-records/tests/checks/record-and-established-graph.ts"
+  ],
+  [
+    "test:decision-records:query-and-index-projection",
+    "./tools/decision-records/tests/checks/query-and-index-projection.ts"
+  ],
+  [
+    "test:decision-records:lifecycle-and-recovery",
+    "./tools/decision-records/tests/checks/lifecycle-and-recovery.ts"
+  ],
+  [
+    "test:decision-records:pending-stage",
+    "./tools/decision-records/tests/stage.test.ts"
+  ],
+  [
+    "test:decision-records:public-distribution",
+    "./tools/decision-records/tests/checks/public-distribution.ts"
+  ],
+  [
+    "test:investigation-report:collection-and-resources",
+    "./tools/investigation-report/tests/checks/collection-and-resources.ts"
+  ],
+  [
+    "test:investigation-report:index-and-query",
+    "./tools/investigation-report/tests/checks/index-and-query.ts"
+  ],
+  [
+    "test:investigation-report:transactional-maintenance",
+    "./tools/investigation-report/tests/checks/transactional-maintenance.ts"
+  ],
+  [
+    "test:investigation-report:pending-stage",
+    "./tools/investigation-report/tests/staging.test.ts"
+  ],
+  [
+    "test:investigation-report:cli-contract",
+    "./tools/investigation-report/tests/cli-generated.test.ts"
+  ],
+  [
+    "test:task-graph:index-and-projection",
+    "./tools/task-graph/tests/checks/index-and-projection.ts"
+  ],
+  [
+    "test:task-graph:task-lifecycle",
+    "./tools/task-graph/tests/checks/task-lifecycle.ts"
+  ],
+  [
+    "test:task-graph:runtime-and-store",
+    "./tools/task-graph/tests/checks/runtime-and-store.ts"
+  ],
+  [
+    "test:task-graph:native-store",
+    "./tools/task-graph/tests/native-store.test.ts"
+  ],
+  [
+    "test:task-graph:cli-rendering",
+    "./tools/task-graph/tests/checks/cli-rendering.ts"
+  ],
+  ["test:task-graph:pending-stage", "./tools/task-graph/tests/staging.test.ts"],
+  [
+    "test:task-graph:public-distribution",
+    "./tools/task-graph/tests/generated-artifacts.test.ts"
+  ],
+  [
+    "test:test-evidence:catalog-contract",
+    "./tools/test-evidence/tests/catalog.test.ts"
+  ],
+  [
+    "test:test-evidence:ledger-source-and-relations",
+    "./tools/test-evidence/tests/checks/ledger-source-and-relations.ts"
+  ],
+  [
+    "test:test-evidence:ledger-index-and-query",
+    "./tools/test-evidence/tests/checks/ledger-index-and-query.ts"
+  ],
+  [
+    "test:test-evidence:ledger-cli",
+    "./tools/test-evidence/tests/ledger-cli.test.ts"
+  ],
+  [
+    "test:test-evidence:pending-stage",
+    "./tools/test-evidence/tests/staging.test.ts"
+  ]
+]);
+
+test("gate catalog builds semantic default and full Definitions", async () => {
   const runner = completedScript();
   const nativeChecks = passingNativeChecks();
   const defaultDefinition = createGateDefinition("default", {
     nativeChecks,
-    runPackageScript: runner
+    runCommand: runner
   });
   const fullDefinition = createGateDefinition("full", {
     nativeChecks,
-    runPackageScript: runner
+    runCommand: runner
   });
-  const defaultCheckIds = defaultDefinition.checks.map(
-    ({ checkId }) => checkId
+  const expectedDefaultSemanticIds = expectedSemanticGateGroups
+    .filter(([profile]) => profile === "default")
+    .map(([, checkId]) => checkId);
+  const expectedFullSemanticIds = expectedSemanticGateGroups.map(
+    ([, checkId]) => checkId
   );
-  const fullCheckIds = fullDefinition.checks.map(({ checkId }) => checkId);
-
-  assert.deepEqual(defaultCheckIds, expectedDefaultCheckIds);
-  assert.deepEqual(fullCheckIds, expectedFullCheckIds);
+  const expectedDefaultCheckIds = [
+    ...vibeNativeCheckIds,
+    ...expectedDefaultSemanticIds,
+    ...defaultGatePackageScripts.map((script) => `script:${script}`)
+  ];
+  const expectedFullCheckIds = [
+    ...vibeNativeCheckIds,
+    ...releaseRequiredPackageScripts.map((script) => `script:${script}`),
+    ...expectedFullSemanticIds,
+    "release:skill-version",
+    "pack:skills"
+  ];
+  assert.deepEqual(
+    defaultDefinition.checks.map(({ checkId }) => checkId),
+    expectedDefaultCheckIds
+  );
+  assert.deepEqual(
+    fullDefinition.checks.map(({ checkId }) => checkId),
+    expectedFullCheckIds
+  );
   assert.deepEqual(gateCheckIds("default"), expectedDefaultCheckIds);
   assert.deepEqual(gateCheckIds("full"), expectedFullCheckIds);
-  assert.equal(defaultCheckIds.includes("pack:skills"), false);
   assert.equal(
-    defaultCheckIds.includes(`script:${releaseVersionPackageScript}`),
+    defaultDefinition.checks.some(({ checkId }) => checkId === "pack:skills"),
     false
   );
-  assert.deepEqual(fullCheckIds.slice(-1), ["pack:skills"]);
   assert.equal(defaultDefinition.scheduler.maxParallel, 4);
-  assert.equal(fullDefinition.scheduler.maxParallel, 4);
   assert.deepEqual(defaultDefinition.outputs, {
     diagnosticLogging: { enabled: false, directory: ".log/vibe-check" },
     machinePublication: {
@@ -375,34 +666,139 @@ test("gate catalog builds the exact default and full Definitions", () => {
     },
     progressRendering: { enabled: true }
   });
-  assert.deepEqual(releaseRequiredPackageScripts, releasePackageScriptOrder);
-  assert.deepEqual(fullOnlyGatePackageScripts, fullOnlyPackageScriptOrder);
-  assert.deepEqual(defaultGatePackageScripts, defaultPackageScriptOrder);
-  assert.equal(defaultGatePackageScripts.length, 24);
-  assert.equal(fullOnlyGatePackageScripts.length, 6);
-  assert.equal(releaseRequiredPackageScripts.length, 30);
-  assert.equal(releaseRequiredCheckIds.length, 36);
+  assert.equal(releaseRequiredCheckIds.length, 56);
   assert.deepEqual(
-    releaseTerminalCheck(fullDefinition).dependsOn,
+    fullDefinition.checks.find(
+      ({ checkId }) => checkId === "release:skill-version"
+    )?.dependsOn,
     releaseRequiredCheckIds
   );
-  assert.deepEqual(releaseTerminalCheck(fullDefinition).options, {
-    baselineRef: "HEAD"
-  });
+  assert.deepEqual(releaseTerminalCheck(fullDefinition).dependsOn, [
+    "release:skill-version"
+  ]);
+  assert.deepEqual(
+    semanticGateChecks.map(({ checkId, command, profile }) => [
+      profile,
+      checkId,
+      command.command,
+      command.args.at(-1)
+    ]),
+    expectedSemanticGateGroups.map(([profile, checkId, command]) => [
+      profile,
+      checkId,
+      command,
+      expectedSemanticCommandPaths.get(checkId)
+    ])
+  );
+  for (const [, checkId, , files] of expectedSemanticGateGroups) {
+    const commandPath = expectedSemanticCommandPaths.get(checkId);
+    assert.ok(commandPath, `missing command path for ${checkId}`);
+    if (commandPath?.includes("/checks/")) {
+      const source = await fs.readFile(
+        path.join(repositoryRoot, commandPath.slice(2)),
+        "utf8"
+      );
+      const importedFiles = [
+        ...source.matchAll(/await import\("(\.\.\/[^"\n]+)"\);/gu)
+      ].map(
+        ([, relativePath]) =>
+          `./${path.posix.normalize(
+            path.posix.join(
+              path.posix.dirname(commandPath.slice(2)),
+              relativePath
+            )
+          )}`
+      );
+      assert.deepEqual(importedFiles, files, checkId);
+    } else {
+      assert.deepEqual([commandPath], files, checkId);
+    }
+  }
+  assert.deepEqual(
+    [
+      "change-plan",
+      "decision-records",
+      "investigation-report",
+      "task-graph",
+      "test-evidence"
+    ].map(
+      (tool) =>
+        semanticGateChecks.filter(({ checkId }) =>
+          checkId.startsWith(`test:${tool}:`)
+        ).length
+    ),
+    [3, 5, 5, 7, 5]
+  );
+  const semanticFiles = expectedSemanticGateGroups.flatMap(
+    ([, , , files]) => files
+  );
+  assert.equal(semanticFiles.length, 58);
+  assert.equal(new Set(semanticFiles).size, semanticFiles.length);
+  for (const tool of [
+    "change-plan",
+    "decision-records",
+    "investigation-report",
+    "task-graph",
+    "test-evidence"
+  ]) {
+    const aggregatePath = `./tools/${tool}/tests/run.ts`;
+    const aggregateSource = await fs.readFile(
+      path.join(repositoryRoot, aggregatePath.slice(2)),
+      "utf8"
+    );
+    const aggregateFiles = [
+      ...aggregateSource.matchAll(/await import\("(\.\/[^"\n]+)"\);/gu)
+    ]
+      .map(
+        ([, relativePath]) =>
+          `./${path.posix.normalize(
+            path.posix.join(
+              path.posix.dirname(aggregatePath.slice(2)),
+              relativePath
+            )
+          )}`
+      )
+      .sort();
+    const expectedAggregateFiles = semanticFiles
+      .filter(
+        (file) =>
+          file.startsWith(`./tools/${tool}/tests/`) &&
+          file !== "./tools/task-graph/tests/native-store.test.ts"
+      )
+      .sort();
+    assert.deepEqual(aggregateFiles, expectedAggregateFiles, aggregatePath);
+  }
+  assert.ok(
+    semanticGateChecks
+      .filter(({ command }) => command.command === "bun")
+      .every(
+        ({ command }) => command.args.length === 2 && command.args[0] === "test"
+      )
+  );
+  assert.equal(
+    semanticGateChecks.filter(({ command }) => command.command === "node")
+      .length,
+    1
+  );
+  assert.deepEqual(
+    semanticGateChecks.find(({ command }) => command.command === "node")
+      ?.command.args,
+    ["--test", "./tools/task-graph/tests/native-store.test.ts"]
+  );
 });
 
 test("package script adapter maps terminal results and settles independent Checks", async () => {
   await withTemporaryDirectory("skills-vibe-adapter-", async (directory) => {
-    const calls: GatePackageInvocation[] = [];
+    const calls: GateCommandInvocation[] = [];
     const failedScript = "test:relation-graph";
     const failedResult = await runDefinition(
       createGateDefinition("default", {
         nativeChecks: passingNativeChecks(),
-        runPackageScript: async (invocation) => {
+        runCommand: async (invocation) => {
           calls.push(invocation);
           return {
-            exitCode: invocation.script === failedScript ? 1 : 0,
-            output: `${invocation.script} output`,
+            exitCode: scriptForCommand(invocation) === failedScript ? 1 : 0,
+            output: `${scriptForCommand(invocation)} output`,
             status: "completed"
           };
         }
@@ -417,20 +813,32 @@ test("package script adapter maps terminal results and settles independent Check
     );
     assert.equal(outcomeFor(failedResult, "script:lint").status, "passed");
     assert.ok(
-      calls.every(
-        ({ args, command, script }) =>
-          command === "bun" && args[0] === "run" && args[1] === script
+      calls
+        .filter((invocation) => scriptForCommand(invocation) !== null)
+        .every(
+          (invocation) =>
+            invocation.command === "bun" &&
+            invocation.args[0] === "run" &&
+            invocation.args[1] === scriptForCommand(invocation)
+        )
+    );
+    assert.ok(
+      calls.some(
+        (invocation) =>
+          invocation.command === "bun" &&
+          invocation.args[0] === "test" &&
+          scriptForCommand(invocation) === null
       )
     );
 
     const unavailableResult = await runDefinition(
       createGateDefinition("default", {
         nativeChecks: passingNativeChecks(),
-        runPackageScript: async (invocation) =>
-          invocation.script === failedScript
+        runCommand: async (invocation) =>
+          scriptForCommand(invocation) === failedScript
             ? {
                 output: "Bun is unavailable",
-                reason: "package-script-start-failed",
+                reason: "gate-command-start-failed",
                 status: "unavailable"
               }
             : { exitCode: 0, output: "", status: "completed" }
@@ -470,11 +878,10 @@ test("package script runner waits for a cancelled child to close", async () => {
     );
 
     const controller = new AbortController();
-    const running = runBunPackageScript({
+    const running = runGateCommand({
       args: ["run", scriptPath],
       command: "bun",
       cwd: directory,
-      script: scriptPath,
       signal: controller.signal
     });
     await waitForFile(marker);
@@ -482,7 +889,7 @@ test("package script runner waits for a cancelled child to close", async () => {
 
     assert.deepEqual(await running, {
       output: "",
-      reason: "package-script-cancelled",
+      reason: "gate-command-cancelled",
       status: "unavailable"
     });
     assert.equal(await fs.readFile(marker, "utf8"), "terminated\n");
@@ -623,53 +1030,34 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
   assert.match(diagnostics.at(-1) ?? "", /Vibe Check invocation failed: /u);
 });
 
-test("release terminal Check validates its baseline in preflight and waits for every prerequisite", async () => {
+test("release version Check preflights its baseline and gates packaging", async () => {
   await withTemporaryDirectory(
     "skills-vibe-release-timing-",
     async (directory) => {
-      const unsettledPrerequisites = new Set(releaseRequiredCheckIds);
-      const calls: GatePackageInvocation[] = [];
-      const nativeChecks = vibeNativeCheckIds.map((checkId) =>
-        defineCheck({
-          checkId,
-          displayName: checkId,
-          execution() {
-            assert.ok(
-              unsettledPrerequisites.delete(checkId),
-              `duplicate native settlement for ${checkId}`
-            );
-            return { status: "passed" as const, data: { checkId } };
-          }
-        })
-      );
+      const calls: GateCommandInvocation[] = [];
       const definition = createGateDefinition("full", {
         baselineRef: "origin/release",
-        nativeChecks,
-        runPackageScript: async (invocation) => {
+        nativeChecks: passingNativeChecks(),
+        runCommand: async (invocation) => {
           calls.push(invocation);
-          if (invocation.script === releaseVersionPackageScript) {
-            assert.deepEqual([...unsettledPrerequisites], []);
-          } else if (invocation.script !== "pack:skills") {
-            assert.ok(
-              unsettledPrerequisites.delete(`script:${invocation.script}`),
-              `unexpected prerequisite script ${invocation.script}`
-            );
-          }
           return { exitCode: 0, output: "", status: "completed" };
         }
       });
+      const versionCheck = definition.checks.find(
+        ({ checkId }) => checkId === "release:skill-version"
+      );
       const terminalCheck = releaseTerminalCheck(definition);
-      assert.deepEqual(terminalCheck.dependsOn, releaseRequiredCheckIds);
-      assert.deepEqual(terminalCheck.options, {
+      assert.deepEqual(versionCheck?.dependsOn, releaseRequiredCheckIds);
+      assert.deepEqual(terminalCheck.dependsOn, ["release:skill-version"]);
+      assert.deepEqual(versionCheck?.options, {
         baselineRef: "origin/release"
       });
-      if (terminalCheck.preflight === undefined) {
+      if (versionCheck?.preflight === undefined)
         throw new Error(
-          "release terminal Check must define a baseline preflight"
+          "release version Check must define a baseline preflight"
         );
-      }
       assert.deepEqual(
-        await terminalCheck.preflight(
+        await versionCheck.preflight(
           { baselineRef: "origin/release" },
           new AbortController().signal
         ),
@@ -687,36 +1075,33 @@ test("release terminal Check validates its baseline in preflight and waits for e
         "origin/release\nsuffix",
         "origin/release\rsuffix"
       ]) {
-        const invalidPreflight = await terminalCheck.preflight(
-          { baselineRef: invalidBaseline },
-          new AbortController().signal
+        assert.equal(
+          (
+            await versionCheck.preflight(
+              { baselineRef: invalidBaseline },
+              new AbortController().signal
+            )
+          ).status,
+          "failure"
         );
-        assert.equal(invalidPreflight.status, "failure");
-        if (invalidPreflight.status === "failure") {
-          assert.equal(invalidPreflight.action, "block");
-          assert.deepEqual(invalidPreflight.reason, {
-            code: "release-baseline-invalid"
-          });
-        }
       }
-
       const result = await runDefinition(definition, directory);
       assert.equal(result.aggregate, "passed");
       assert.deepEqual(
         result.snapshot.records.find(
           ({ checkId, id }) =>
-            checkId === "pack:skills" && id === "release-baseline"
+            checkId === "release:skill-version" && id === "release-baseline"
         ),
         {
-          checkId: "pack:skills",
+          checkId: "release:skill-version",
           data: { baselineRef: "origin/release" },
           id: "release-baseline"
         }
       );
-      assert.deepEqual(
-        calls.slice(-2).map(({ script }) => script),
-        [releaseVersionPackageScript, "pack:skills"]
-      );
+      assert.deepEqual(calls.slice(-2).map(scriptForCommand), [
+        releaseVersionPackageScript,
+        "pack:skills"
+      ]);
     }
   );
 });
@@ -725,16 +1110,18 @@ test("release version validation failure blocks package execution", async () => 
   await withTemporaryDirectory(
     "skills-vibe-release-version-failure-",
     async (directory) => {
-      const calls: GatePackageInvocation[] = [];
+      const calls: GateCommandInvocation[] = [];
       const result = await runDefinition(
         createGateDefinition("full", {
           baselineRef: "release-base",
           nativeChecks: passingNativeChecks(),
-          runPackageScript: async (invocation) => {
+          runCommand: async (invocation) => {
             calls.push(invocation);
             return {
               exitCode:
-                invocation.script === releaseVersionPackageScript ? 1 : 0,
+                scriptForCommand(invocation) === releaseVersionPackageScript
+                  ? 1
+                  : 0,
               output: "version increase required",
               status: "completed"
             };
@@ -744,21 +1131,22 @@ test("release version validation failure blocks package execution", async () => 
       );
 
       assert.equal(result.aggregate, "failed");
-      assert.deepEqual(outcomeFor(result, "pack:skills"), {
-        data: {
-          baselineRef: "release-base",
-          exitCode: 1,
-          script: releaseVersionPackageScript
-        },
-        status: "failed"
-      });
       assert.equal(
-        calls.filter(({ script }) => script === releaseVersionPackageScript)
-          .length,
+        outcomeFor(result, "release:skill-version").status,
+        "failed"
+      );
+      assert.equal(outcomeFor(result, "pack:skills").status, "failed");
+      assert.equal(
+        calls.filter(
+          (invocation) =>
+            scriptForCommand(invocation) === releaseVersionPackageScript
+        ).length,
         1
       );
       assert.equal(
-        calls.some(({ script }) => script === "pack:skills"),
+        calls.some(
+          (invocation) => scriptForCommand(invocation) === "pack:skills"
+        ),
         false
       );
     }
@@ -770,14 +1158,16 @@ test("release version validation unavailable or throws blocks package execution"
     "skills-vibe-release-version-unavailable-",
     async (directory) => {
       for (const versionBehavior of ["unavailable", "throws"] as const) {
-        const calls: GatePackageInvocation[] = [];
+        const calls: GateCommandInvocation[] = [];
         const result = await runDefinition(
           createGateDefinition("full", {
             baselineRef: "release-base",
             nativeChecks: passingNativeChecks(),
-            runPackageScript: async (invocation) => {
+            runCommand: async (invocation) => {
               calls.push(invocation);
-              if (invocation.script !== releaseVersionPackageScript) {
+              if (
+                scriptForCommand(invocation) !== releaseVersionPackageScript
+              ) {
                 return { exitCode: 0, output: "", status: "completed" };
               }
               if (versionBehavior === "throws") {
@@ -785,7 +1175,7 @@ test("release version validation unavailable or throws blocks package execution"
               }
               return {
                 output: "Git resolver unavailable",
-                reason: "package-script-start-failed",
+                reason: "gate-command-start-failed",
                 status: "unavailable"
               };
             }
@@ -794,17 +1184,22 @@ test("release version validation unavailable or throws blocks package execution"
         );
 
         assert.equal(result.aggregate, "failed");
-        assert.deepEqual(outcomeFor(result, "pack:skills"), {
-          reason: { code: "package-script-start-failed" },
-          status: "unavailable"
-        });
         assert.equal(
-          calls.filter(({ script }) => script === releaseVersionPackageScript)
-            .length,
+          outcomeFor(result, "release:skill-version").status,
+          "unavailable"
+        );
+        assert.equal(outcomeFor(result, "pack:skills").status, "unavailable");
+        assert.equal(
+          calls.filter(
+            (invocation) =>
+              scriptForCommand(invocation) === releaseVersionPackageScript
+          ).length,
           1
         );
         assert.equal(
-          calls.some(({ script }) => script === "pack:skills"),
+          calls.some(
+            (invocation) => scriptForCommand(invocation) === "pack:skills"
+          ),
           false
         );
       }
@@ -817,14 +1212,14 @@ test("release terminal Check packages exactly once after version validation pass
     "skills-vibe-release-package-",
     async (directory) => {
       const packageOutput = path.join(directory, "dist", "skills.fixture");
-      const calls: GatePackageInvocation[] = [];
+      const calls: GateCommandInvocation[] = [];
       const result = await runDefinition(
         createGateDefinition("full", {
           baselineRef: "release-base",
           nativeChecks: passingNativeChecks(),
-          runPackageScript: async (invocation) => {
+          runCommand: async (invocation) => {
             calls.push(invocation);
-            if (invocation.script === "pack:skills") {
+            if (scriptForCommand(invocation) === "pack:skills") {
               await fs.mkdir(path.dirname(packageOutput), { recursive: true });
               await fs.writeFile(packageOutput, "packaged\n", "utf8");
             }
@@ -836,24 +1231,24 @@ test("release terminal Check packages exactly once after version validation pass
 
       assert.equal(result.aggregate, "passed");
       assert.deepEqual(outcomeFor(result, "pack:skills"), {
-        data: {
-          baselineRef: "release-base",
-          exitCode: 0,
-          script: "pack:skills"
-        },
+        data: { exitCode: 0, script: "pack:skills" },
         status: "passed"
       });
-      assert.deepEqual(
-        calls.slice(-2).map(({ script }) => script),
-        [releaseVersionPackageScript, "pack:skills"]
-      );
+      assert.deepEqual(calls.slice(-2).map(scriptForCommand), [
+        releaseVersionPackageScript,
+        "pack:skills"
+      ]);
       assert.equal(
-        calls.filter(({ script }) => script === releaseVersionPackageScript)
-          .length,
+        calls.filter(
+          (invocation) =>
+            scriptForCommand(invocation) === releaseVersionPackageScript
+        ).length,
         1
       );
       assert.equal(
-        calls.filter(({ script }) => script === "pack:skills").length,
+        calls.filter(
+          (invocation) => scriptForCommand(invocation) === "pack:skills"
+        ).length,
         1
       );
       assert.equal(await fs.readFile(packageOutput, "utf8"), "packaged\n");
@@ -887,9 +1282,9 @@ test("release version validation passes its baseline through Bun argument arrays
         createGateDefinition("full", {
           baselineRef,
           nativeChecks: passingNativeChecks(),
-          runPackageScript: async (invocation) =>
-            invocation.script === releaseVersionPackageScript
-              ? runBunPackageScript(invocation)
+          runCommand: async (invocation) =>
+            scriptForCommand(invocation) === releaseVersionPackageScript
+              ? runGateCommand(invocation)
               : { exitCode: 0, output: "", status: "completed" }
         }),
         directory
@@ -1268,8 +1663,9 @@ test("function metrics requires exact Lizard before scanning or packaging", asyn
                 ? productionFunctionMetrics()
                 : check
             ),
-            runPackageScript: async ({ script }) => {
-              calls.push(script);
+            runCommand: async (invocation) => {
+              const script = scriptForCommand(invocation);
+              calls.push(script ?? "semantic");
               if (script === "pack:skills") {
                 await fs.mkdir(path.dirname(packageOutput), {
                   recursive: true
@@ -1309,12 +1705,12 @@ test("full packaging runs once only after every release prerequisite passes", as
         .then(() => true)
         .catch(() => false);
     const runFull = async (
-      runner: GatePackageRunner
+      runner: GateCommandRunner
     ): Promise<ReturnType<typeof completed>> =>
       runDefinition(
         createGateDefinition("full", {
           nativeChecks: passingNativeChecks(),
-          runPackageScript: runner
+          runCommand: runner
         }),
         directory
       );
@@ -1323,8 +1719,9 @@ test("full packaging runs once only after every release prerequisite passes", as
     const defaultResult = await runDefinition(
       createGateDefinition("default", {
         nativeChecks: passingNativeChecks(),
-        runPackageScript: async ({ script }) => {
-          defaultCalls.push(script);
+        runCommand: async (invocation) => {
+          const script = scriptForCommand(invocation);
+          defaultCalls.push(script ?? "semantic");
           return { exitCode: 0, output: "", status: "completed" };
         }
       }),
@@ -1335,8 +1732,10 @@ test("full packaging runs once only after every release prerequisite passes", as
     assert.equal(await packageOutputExists(), false);
 
     const successfulCalls: string[] = [];
-    const successful = await runFull(async ({ cwd, script }) => {
-      successfulCalls.push(script);
+    const successful = await runFull(async (invocation) => {
+      const { cwd } = invocation;
+      const script = scriptForCommand(invocation);
+      successfulCalls.push(script ?? "semantic");
       if (script === "pack:skills") {
         await fs.mkdir(path.dirname(packageOutput), { recursive: true });
         await fs.writeFile(packageOutput, "packaged\n", "utf8");
@@ -1353,8 +1752,9 @@ test("full packaging runs once only after every release prerequisite passes", as
 
     await clearPackageOutput();
     const failedCalls: string[] = [];
-    const prerequisiteFailed = await runFull(async ({ script }) => {
-      failedCalls.push(script);
+    const prerequisiteFailed = await runFull(async (invocation) => {
+      const script = scriptForCommand(invocation);
+      failedCalls.push(script ?? "semantic");
       return {
         exitCode: script === "test:relation-graph" ? 1 : 0,
         output: "",
@@ -1372,12 +1772,13 @@ test("full packaging runs once only after every release prerequisite passes", as
 
     await clearPackageOutput();
     const unavailableCalls: string[] = [];
-    const prerequisiteUnavailable = await runFull(async ({ script }) => {
-      unavailableCalls.push(script);
+    const prerequisiteUnavailable = await runFull(async (invocation) => {
+      const script = scriptForCommand(invocation);
+      unavailableCalls.push(script ?? "semantic");
       return script === "test:relation-graph"
         ? {
             output: "runner unavailable",
-            reason: "package-script-start-failed",
+            reason: "gate-command-start-failed",
             status: "unavailable"
           }
         : { exitCode: 0, output: "", status: "completed" };
@@ -1402,8 +1803,9 @@ test("full packaging runs once only after every release prerequisite passes", as
       const result = await runDefinition(
         createGateDefinition("full", {
           nativeChecks: nativeChecksWithTerminalOutcome(checkId, status),
-          runPackageScript: async ({ script }) => {
-            calls.push(script);
+          runCommand: async (invocation) => {
+            const script = scriptForCommand(invocation);
+            calls.push(script ?? "semantic");
             if (script === "pack:skills") {
               await fs.mkdir(path.dirname(packageOutput), { recursive: true });
               await fs.writeFile(packageOutput, "unexpected\n", "utf8");
@@ -1428,8 +1830,9 @@ test("full packaging runs once only after every release prerequisite passes", as
     }
 
     const packageFailureCalls: string[] = [];
-    const packageFailure = await runFull(async ({ script }) => {
-      packageFailureCalls.push(script);
+    const packageFailure = await runFull(async (invocation) => {
+      const script = scriptForCommand(invocation);
+      packageFailureCalls.push(script ?? "semantic");
       return {
         exitCode: script === "pack:skills" ? 1 : 0,
         output: "",

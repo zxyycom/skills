@@ -1,8 +1,8 @@
 ### Case TEST-EVIDENCE-REVISION-PARITY-001: 完整与快速读取产生相同逐 Case Revision
 
 Entry:
-- `tools/test-evidence/tests/run.ts > full and fast source reads return the same per-case revision`
-- `bun test --test-name-pattern="^full and fast source reads return the same per-case revision$" ./tools/test-evidence/tests/run.ts`
+- `tools/test-evidence/tests/catalog.test.ts > full and fast source reads return the same per-case revision`
+- `bun test --test-name-pattern="^full and fast source reads return the same per-case revision$" ./tools/test-evidence/tests/catalog.test.ts`
 
 Contract:
 - 完整快照与快速 revision 读取必须对同一合法 catalog 返回相同的 metadata 和逐 case revision record，并共同规范化 LF 与 CRLF。

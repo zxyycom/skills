@@ -80,40 +80,52 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
-| `bun run check` | 运行 Vibe default：日常所需的原生与项目能力；不实例化或调用 `pack:skills` |
-| `bun run check --full [--baseline-ref <ref>]` | 运行 Vibe full：在 default 上加入 release-only 能力；终结 Check 在全部前置 passed 后，从 Git `pending`（index）快照相对显式基线校验 skill 版本并打包。省略基线时使用 `HEAD`；CI 使用事件基线运行这一完整门禁。 |
+| `bun run check` | 运行 Vibe default：选择当前 catalog 标为 default 的工作区正确性 Check；不实例化 release version 或 `pack:skills`。 |
+| `bun run check --full [--baseline-ref <ref>]` | 运行 Vibe full：保留 default 覆盖，并加入 catalog 标为 full 的 Check、release version 和打包终端。版本检查从 Git `pending`（index）快照相对显式基线执行；省略基线时使用 `HEAD`，CI 使用事件基线。 |
 
 ### 权威 Vibe 门禁
 
-`bun run check` 是唯一权威门禁入口。`scripts/vibe-check.ts` 只解析无参数的 default，或带可选 `--baseline-ref <ref>` 的 full；`<ref>` 必须是已 trim 的非空 revision 输入，且不得以 `-` 开头、包含 NUL、CR 或 LF。该 wrapper 级验证不解析 Git ref；实际解析仍由终结 Check execution 中的 `hash:skills` 完成。CLI 将 Vibe 的最终结果映射为进程退出状态；`scripts/lib/vibe-gate.ts` 是能力目录、Definition、最小 package-script adapter 与 full 的 release 终结 Check owner。`--verbose`、`CHECK_CONCURRENCY`、旧摘要 renderer 和候选 `vibe-check` 命令均不是当前契约。
+`bun run check` 是唯一权威门禁入口。`scripts/vibe-check.ts` 只解析无参数的 default，或带可选 `--baseline-ref <ref>` 的 full；`<ref>` 必须是已 trim 的非空 revision 输入，且不得以 `-` 开头、包含 NUL、CR 或 LF。该 wrapper 级验证不解析 Git ref；实际解析仍由 release version Check 内的 `hash:skills` 完成。CLI 将 Vibe 的最终结果映射为进程退出状态；`scripts/lib/vibe-gate.ts` 是语义 Check catalog、Definition、命令 adapter 和 release DAG owner。`--verbose`、`CHECK_CONCURRENCY`、旧摘要 renderer 和候选 `vibe-check` 命令均不是当前契约。
 
 | 术语 | 当前含义 |
 | --- | --- |
-| selected Check | 当前 Definition 实例化的 Check。default 与 full 分别从同一能力目录构造；full 还实例化 `pack:skills` release 终结 Check。`all` aggregate 结算当前选择的全部 Check。 |
+| semantic Check | catalog 中以稳定 ID、显示名、profile 和直接命令定义的最小 Gate 单元。ID 与命名表达可行动的证明边界和失败后的 owner 路由；测试文件与 package script 只是其执行容器。 |
+| selected Check | 当前 Definition 按 profile 从 catalog 展开的 Check；full 还加入两个 release DAG 节点。`all` aggregate 结算当前选择的全部 Check。 |
 | blocking Check | finding、failed、unavailable 或意外 not-applicable 都使当前 aggregate 失败。 |
-| required advisory Check | 可信 finding 仍以 warning + passed 结算，不影响 aggregate 或打包资格；无法执行、结果不可信或意外 N/A 则 fail closed。 |
-| release-required Check | full 的 36 个普通前置：六项原生 Check、24 项 default 项目脚本和六项 release-only 项目脚本。它们必须各自形成可信 passed 结果，才可执行 release 终结 Check；`hash:skills` 不属于这组普通 Check。 |
-| default / full | default 是日常反馈集合，成功不代表发布完整性；full 在 default 上加入 release-only 能力。36 个前置通过、Git `pending` 快照相对基线的版本校验通过且该快照打包成功时，full 才通过。本地 full 缺省基线为 `HEAD`；CI 从 PR base SHA 或 push before 注入事件基线。 |
+| required advisory Check | 可信 finding 仍以 warning + passed 结算，不影响 aggregate 或 release 资格；无法执行、结果不可信或意外 N/A 则 fail closed。 |
+| default / full | default 保持原有日常工作区覆盖；full 保持 default 覆盖，并加入原本属于 full 的领域或 release 能力。profile 表达交付范围，不按预计耗时、并行度或文件数量重分组。 |
+| release-required Check | full 中普通的原生、维护脚本和语义 Check。每项必须形成可信 passed，release version Check 才会开始；该集合由 catalog/Definition 派生，不在本文维护易过期的 ID 清单。 |
 
-两种 Definition 都使用 Vibe 原生 progress、静态 `maxParallel: 4` 和 `all` aggregate，明确令 `unavailable`、`not-applicable` 与空选择失败。普通项目脚本由 `releaseRequiredPackageScripts` 维护唯一的成本感知静态声明顺序，default 与 full-only 都从它按成员资格派生。Vibe 0.0.1 按已就绪 Check 的声明顺序准入，因此该顺序只用于缩短反馈路径；它不表示检查语义、失败优先级或 release 终结依赖。调整顺序前应复核当前 scheduler 与可重复的端到端测量；单次耗时数值不是长期契约。machine publication 默认写入专属且被 Git 忽略的 `.log/vibe-check/publication/`：`run.json` 保存本次运行的完整 Check facts，`records.ndjson` 保存 supplemental Records。它是门禁结果的机器消费边界，不替代 CLI 退出码。面向 invocation 过程排障的 diagnostic log 默认关闭；只有显式启用时才在 `.log/vibe-check/` 写入带时间与 UUID 的独立日志。两类输出共用受控根目录，但不共用文件层级。独立 Check 即使其他 Check 已失败仍继续结算。CLI 只为非 completed RunResult 输出稳定的类别、原因和恢复提示，完成但 aggregate 不通过时退出 `1`。
+Check catalog 以“它证明什么、失败后由谁处理”为分组条件：例如领域记录/索引、生命周期事务、按稳定 ID 的 pending-stage、调用协议和可分发制品可以是不同 Check；共同证明一个契约的多个原生测试文件保留在同一 Check。不得为均衡耗时把 Check 拆成每个测试，也不得把一个工具的全部测试重新合并为单一 Check。package scripts 继续是面向维护者的稳定手动聚合入口，但语义 Check 不再以 package script 身份作为 leaf。失败结果给出的直接命令是重跑该 Check 的权威路径；需要完整领域回归时仍可运行相应 `test:*` 聚合命令。
+
+两种 Definition 都使用 Vibe 原生 progress、静态 `maxParallel: 4` 和 `all` aggregate，明确令 `unavailable`、`not-applicable` 与空选择失败。调度顺序和并发设置不表达 Check 语义、失败优先级或 release 依赖；独立 Check 即使其他 Check 已失败仍继续结算。性能只作防退化观察：维护时确认 catalog 没有无真实共享契约的重复入口选择，不以单次耗时、平均分片或 worker 利用率改变 catalog、profile 或依赖。machine publication 默认写入专属且被 Git 忽略的 `.log/vibe-check/publication/`：`run.json` 保存本次运行的完整 Check facts，`records.ndjson` 保存 supplemental Records。catalog Check ID 是这些事实的稳定机器身份；显示名、声明顺序、调度结果和未来缓存命中都不能改写它。publication 是门禁结果的机器消费边界，不替代 CLI 退出码。面向 invocation 过程排障的 diagnostic log 默认关闭；只有显式启用时才在 `.log/vibe-check/` 写入带时间与 UUID 的独立日志。两类输出共用受控根目录，但不共用文件层级。CLI 只为非 completed RunResult 输出稳定的类别、原因和恢复提示，完成但 aggregate 不通过时退出 `1`。
 
 六项原生 Check 共用当前维护范围：代码类 Check 读取 Git worktree 中 `scripts/`、`tools/` 的 JavaScript/TypeScript，并排除 Vibe 默认排除项、`changes/archive/**` 和 `docs/investigations/_resources/**`；JSON 与 Markdown 也排除这两类历史内容。重复检测只把不少于 150 tokens 的重复片段作为 blocking finding，避免把已知的小型维护片段误作门禁失败。
 
-full 有两类不能互相替代的输入。36 个普通前置在本次项目根 invocation 中结算：六项原生 Check 明确选择 Git worktree，项目脚本由各自命令决定其读取输入。release 终结阶段的 `hash:skills` 与 `pack:skills` 则共同消费 Git `pending` 快照；默认 Git 实现将该快照映射到 index。因此 full 通过同时说明普通前置已通过，并说明当时 index 中的 skill 内容已通过版本校验且可打包；它不说明未暂存的工作树 skill 改动已进入制品。需要核对两者是否一致时，分别检查工作树与 index，而不从 full 结果推断。
+full 同时验证工作区正确性与 release snapshot，但两者输入不能互相替代：普通 Check 在本次项目根 invocation 中结算，原生 Check 明确选择 Git worktree，脚本或直接测试命令由自身契约决定读取输入；release version 与 `pack:skills` 共同消费 Git `pending` 快照，默认 Git 实现将其映射到 index。因此 full 通过不说明未暂存的工作树 skill 改动已进入制品；需要核对两者一致性时，分别检查工作树与 index。
 
-| Check | 语义 |
+| Check 类别 | 语义 |
 | --- | --- |
-| 重复、JSON、Task Graph/Test Evidence Schema、Markdown 链接 | finding、unavailable 或意外 not-applicable 均阻断 aggregate。 |
-| 文件指标（SCC 3.7.0）与函数指标（Lizard 1.23.0） | required advisory：可信 finding 永远保持 passed，progress 显示 warning 摘要；逐项 finding 保存在 `.log/vibe-check/publication/records.ndjson`。unavailable 或 not-applicable 阻断。文件指标明确使用空 `findingWaivers`，不建立其他 waiver。finding 的当前数量是测量输出，不是门禁契约。 |
-| 项目 package script | adapter 以参数数组运行 `bun run <script>`，非零退出为 failed，不能启动、取消或无法形成可信退出结果为 unavailable，并保留受控诊断。收到取消时，adapter 向自己启动的直属 `bun run` 子进程请求终止，且只在该子进程触发 `error` 或 `close` 后才结算 unavailable。Vibe 与 adapter 都不承诺通用的跨平台进程树终止；脚本自行派生的后代进程由该脚本负责协作取消与回收。 |
+| 结构与质量原生 Check | 重复、JSON、Task Graph/Test Evidence Schema、Markdown 链接的 finding、unavailable 或意外 not-applicable 均阻断 aggregate。 |
+| 文件指标与函数指标 | required advisory：可信 finding 保持 passed，progress 显示 warning 摘要；逐项 finding 保存在 `.log/vibe-check/publication/records.ndjson`。unavailable 或 not-applicable 阻断。finding 数量和执行时长是测量输出，不是 catalog 边界。 |
+| 语义 Check | adapter 以 catalog 声明的 `bun test` 或必要的 Node 原生命令运行精确测试入口。非零退出为 failed，不能启动、取消或无法形成可信退出结果为 unavailable；诊断提供同一命令以便直接重跑。 |
+| 维护 package script Check | adapter 以参数数组运行 `bun run <script>`，保留既有稳定维护命令的行为验证；它不替代语义 Check。取消与后代进程回收边界仍由脚本协作处理。 |
 
-`pack:skills` 只存在于 full，且是唯一的 release 终结 Check。其顺序与责任固定如下：
+full 的 release DAG 固定为：
 
-1. CLI 和终结 Check preflight 只验证 authored `baselineRef` 的输入形状：非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR、LF；它们不声称该 Git ref 存在或可解析。
-2. execution 先将该输入作为 `pack:skills/release-baseline` supplemental Record 发布；只有全部 36 个 release-required Check 已可信 passed，才调用 `hash:skills`：由其权威 Git resolver 解析基线，再比较 Git `pending` 快照中的版本。
-3. 任一普通前置不是 passed 时，零调用 `hash:skills`、零调用 `pack:skills` 且零写入本次制品。版本校验 failed 或 unavailable 时也零调用打包；只有版本校验通过才恰好调用一次 `pack:skills`，并从其 Git `pending` 快照生成制品。打包自身失败决定 aggregate。
+```text
+所有 full 普通 Check
+          │ 全部可信 passed
+          ▼
+release:skill-version（运行 hash:skills，相对 baseline 校验 Git pending）
+          │ passed
+          ▼
+pack:skills（恰好一次，从同一 Git pending 生成制品）
+```
 
-终结 Check 的可信 failed/passed data 保留同一基线。`hash:skills` 因而不是 default/full 的普通 package-script Check；pre-commit hook 仍独立以 `HEAD` 校验待提交版本。
+1. CLI 和 release version preflight 只验证 authored `baselineRef` 的输入形状：非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR、LF；它们不声称该 Git ref 存在或可解析。
+2. release version execution 将基线作为 supplemental Record 发布；只有全部 release-required Check 已可信 passed，才调用 `hash:skills`。任一普通前置不是 passed 时，version 与 packaging 均不开始，也不产生本次制品。
+3. version failed 或 unavailable 时，`pack:skills` 不开始；只有 version passed 才恰好调用一次 `pack:skills`。版本节点保留基线，两个节点分别保留可定位的失败结果；`hash:skills` 不作为普通 package-script Check。pre-commit hook 仍独立以 `HEAD` 校验待提交版本。
 
 当前锁文件解析 `@zxyycom/vibe-check@0.0.1`，两个窄 wrapper 只修复该版本实际暴露的兼容边界，不接管文件选择、parser、scheduler、aggregate 或工具安装：
 

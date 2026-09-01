@@ -5,8 +5,8 @@ Entry:
 - `bun test --test-name-pattern="^release version validation failure blocks package execution$" ./scripts/vibe-check.test.ts`
 
 Contract:
-- release 终结 Check 在前置通过后必须先校验 skill 版本；该校验 failed 时 final Check failed，且本次零调用 `pack:skills`。
+- `release:skill-version` 在普通前置通过后校验 skill 版本；该节点 failed 时下游 `pack:skills` 失败且本次零调用打包脚本。
 
 Proves:
-- 注入的 `hash:skills` 非零退出使 `pack:skills` Check 结算为携带基线与版本脚本终态的 failed。
+- 注入的 `hash:skills` 非零退出使 `release:skill-version` 与其下游 `pack:skills` 分别结算为 failed。
 - 版本校验恰好运行一次，打包没有被调用。

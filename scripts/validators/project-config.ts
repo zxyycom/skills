@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
+  compatibilityTestPackageScripts,
   releaseRequiredPackageScripts,
   releaseVersionPackageScript
 } from "../lib/vibe-gate.ts";
@@ -45,6 +46,7 @@ export const authoritativeGatePackageScripts = {
 } as const satisfies Readonly<Record<string, string>>;
 
 export const requiredPackageScripts = [
+  ...compatibilityTestPackageScripts,
   ...releaseRequiredPackageScripts,
   releaseVersionPackageScript,
   "pack:skills",

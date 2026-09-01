@@ -5477,7 +5477,7 @@
     "GATE-DEFINITION-CATALOG-001": {
       "keys": {
         "search": [
-          "GATE-DEFINITION-CATALOG-001 门禁目录构造准确的 default 与 full Definition 同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check。30 项普通项目脚本在单一成本感知静态目录中声明，default 与 full-only 从该目录按成员资格派生。Vibe 0.0.1 的 FIFO 准入使此顺序成为反馈路径优化提示，而非检查语义、失败优先级或 release 终结依赖。full 在全部普通前置后追加唯一的 `pack:skills` release 终结 Check；未显式指定时，它的 authored baseline 为 `HEAD`。 30 项普通项目脚本与 default/full-only 派生顺序均精确匹配目录；default/full 的 Check ID 分别与目录一致，default 不含 `pack:skills` 或普通 `script:hash:skills`。 default 有 24 项日常项目脚本，full 额外有六项 release-only 项目脚本；二者与六项原生 Check 构成 36 个 full 普通前置。full 只在末尾声明终结 Check，且它直接依赖全部普通前置。全部 Definition 使用 Vibe 静态并发 4、progress 与 machine publication 开启、diagnostic log 关闭。 scripts/vibe-check.test.ts > gate catalog builds the exact default and full Definitions bun test --test-name-pattern=\"^gate catalog builds the exact default and full Definitions$\" ./scripts/vibe-check.test.ts"
+          "GATE-DEFINITION-CATALOG-001 语义门禁目录构造准确的 default 与 full Definition 同一 catalog 必须以稳定语义 ID 构造日常 default 与发布 full；原聚合 package script 继续可直接调用，但不再充当领域测试 leaf。语义拆分保持原 profile 覆盖，并将 release 表达为普通 Check、版本校验和打包三个责任层。 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/7/5` 个语义 Check；58 个原聚合测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。 default/full Check ID、profile 和固定命令精确匹配独立期望；full 的 56 个普通前置全部进入 `release:skill-version`，`pack:skills` 只依赖该版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。 scripts/vibe-check.test.ts > gate catalog builds semantic default and full Definitions bun test --test-name-pattern=\"^gate catalog builds semantic default and full Definitions$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5486,15 +5486,15 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "scripts/vibe-check.test.ts > gate catalog builds the exact default and full Definitions",
-          "bun test --test-name-pattern=\"^gate catalog builds the exact default and full Definitions$\" ./scripts/vibe-check.test.ts"
+          "scripts/vibe-check.test.ts > gate catalog builds semantic default and full Definitions",
+          "bun test --test-name-pattern=\"^gate catalog builds semantic default and full Definitions$\" ./scripts/vibe-check.test.ts"
         ],
         "id": "GATE-DEFINITION-CATALOG-001",
         "line": 1,
-        "searchText": "门禁目录构造准确的 default 与 full Definition 同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check。30 项普通项目脚本在单一成本感知静态目录中声明，default 与 full-only 从该目录按成员资格派生。Vibe 0.0.1 的 FIFO 准入使此顺序成为反馈路径优化提示，而非检查语义、失败优先级或 release 终结依赖。full 在全部普通前置后追加唯一的 `pack:skills` release 终结 Check；未显式指定时，它的 authored baseline 为 `HEAD`。 30 项普通项目脚本与 default/full-only 派生顺序均精确匹配目录；default/full 的 Check ID 分别与目录一致，default 不含 `pack:skills` 或普通 `script:hash:skills`。 default 有 24 项日常项目脚本，full 额外有六项 release-only 项目脚本；二者与六项原生 Check 构成 36 个 full 普通前置。full 只在末尾声明终结 Check，且它直接依赖全部普通前置。全部 Definition 使用 Vibe 静态并发 4、progress 与 machine publication 开启、diagnostic log 关闭。 scripts/vibe-check.test.ts > gate catalog builds the exact default and full Definitions bun test --test-name-pattern=\"^gate catalog builds the exact default and full Definitions$\" ./scripts/vibe-check.test.ts",
+        "searchText": "语义门禁目录构造准确的 default 与 full Definition 同一 catalog 必须以稳定语义 ID 构造日常 default 与发布 full；原聚合 package script 继续可直接调用，但不再充当领域测试 leaf。语义拆分保持原 profile 覆盖，并将 release 表达为普通 Check、版本校验和打包三个责任层。 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/7/5` 个语义 Check；58 个原聚合测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。 default/full Check ID、profile 和固定命令精确匹配独立期望；full 的 56 个普通前置全部进入 `release:skill-version`，`pack:skills` 只依赖该版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。 scripts/vibe-check.test.ts > gate catalog builds semantic default and full Definitions bun test --test-name-pattern=\"^gate catalog builds semantic default and full Definitions$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-catalog-builds-default-and-full-definitions.md",
-        "summary": "同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check。30 项普通项目脚本在单一成本感知静态目录中声明，default 与 full-only 从该目录按成员资格派生。Vibe 0.0.1 的 FIFO 准入使此顺序成为反馈路径优化提示，而非检查语义、失败优先级或 release 终结依赖。full 在全部普通前置后追加唯一的 `pack:skills` release 终结 Check；未显式指定时，它的 authored baseline 为 `HEAD`。",
-        "title": "门禁目录构造准确的 default 与 full Definition"
+        "summary": "同一 catalog 必须以稳定语义 ID 构造日常 default 与发布 full；原聚合 package script 继续可直接调用，但不再充当领域测试 leaf。语义拆分保持原 profile 覆盖，并将 release 表达为普通 Check、版本校验和打包三个责任层。",
+        "title": "语义门禁目录构造准确的 default 与 full Definition"
       }
     },
     "GATE-DUPLICATE-DETECTION-001": {
@@ -5546,7 +5546,7 @@
     "GATE-FULL-PACKAGING-001": {
       "keys": {
         "search": [
-          "GATE-FULL-PACKAGING-001 full 打包只在全部发布前置通过后运行一次 `pack:skills` 只属于 full，直接依赖全部 release-required Check；任一普通前置未结算为 passed 都不能进入终结阶段的版本校验或打包，打包失败使 aggregate failed。 default 不声明或调用 `pack:skills`；成功 full 仅调用一次，并在隔离 `dist/` 写入本次 fixture 制品。 项目脚本或 native blocking 前置 failed/unavailable，以及 required advisory 指标 unavailable/not-applicable，都不会调用 `hash:skills`、`pack:skills` 或留下本次隔离制品；`pack:skills` 自身非零退出决定 aggregate failed。 scripts/vibe-check.test.ts > full packaging runs once only after every release prerequisite passes bun test --test-name-pattern=\"^full packaging runs once only after every release prerequisite passes$\" ./scripts/vibe-check.test.ts"
+          "GATE-FULL-PACKAGING-001 full 打包只在全部发布前置通过后运行一次 `release:skill-version` 直接依赖全部普通 release-required Check，`pack:skills` 只依赖版本节点；任一普通前置未结算为 passed 都不能进入版本校验或实际打包，打包失败使 aggregate failed。 default 不声明或调用 `pack:skills`；成功 full 仅调用一次，并在隔离 `dist/` 写入本次 fixture 制品。 项目脚本或 native blocking 前置 failed/unavailable，以及 required advisory 指标 unavailable/not-applicable，都不会调用 `hash:skills`、`pack:skills` 或留下本次隔离制品；`pack:skills` 自身非零退出决定 aggregate failed。 scripts/vibe-check.test.ts > full packaging runs once only after every release prerequisite passes bun test --test-name-pattern=\"^full packaging runs once only after every release prerequisite passes$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5560,9 +5560,9 @@
         ],
         "id": "GATE-FULL-PACKAGING-001",
         "line": 1,
-        "searchText": "full 打包只在全部发布前置通过后运行一次 `pack:skills` 只属于 full，直接依赖全部 release-required Check；任一普通前置未结算为 passed 都不能进入终结阶段的版本校验或打包，打包失败使 aggregate failed。 default 不声明或调用 `pack:skills`；成功 full 仅调用一次，并在隔离 `dist/` 写入本次 fixture 制品。 项目脚本或 native blocking 前置 failed/unavailable，以及 required advisory 指标 unavailable/not-applicable，都不会调用 `hash:skills`、`pack:skills` 或留下本次隔离制品；`pack:skills` 自身非零退出决定 aggregate failed。 scripts/vibe-check.test.ts > full packaging runs once only after every release prerequisite passes bun test --test-name-pattern=\"^full packaging runs once only after every release prerequisite passes$\" ./scripts/vibe-check.test.ts",
+        "searchText": "full 打包只在全部发布前置通过后运行一次 `release:skill-version` 直接依赖全部普通 release-required Check，`pack:skills` 只依赖版本节点；任一普通前置未结算为 passed 都不能进入版本校验或实际打包，打包失败使 aggregate failed。 default 不声明或调用 `pack:skills`；成功 full 仅调用一次，并在隔离 `dist/` 写入本次 fixture 制品。 项目脚本或 native blocking 前置 failed/unavailable，以及 required advisory 指标 unavailable/not-applicable，都不会调用 `hash:skills`、`pack:skills` 或留下本次隔离制品；`pack:skills` 自身非零退出决定 aggregate failed。 scripts/vibe-check.test.ts > full packaging runs once only after every release prerequisite passes bun test --test-name-pattern=\"^full packaging runs once only after every release prerequisite passes$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-packaging-requires-all-release-prerequisites.md",
-        "summary": "`pack:skills` 只属于 full，直接依赖全部 release-required Check；任一普通前置未结算为 passed 都不能进入终结阶段的版本校验或打包，打包失败使 aggregate failed。",
+        "summary": "`release:skill-version` 直接依赖全部普通 release-required Check，`pack:skills` 只依赖版本节点；任一普通前置未结算为 passed 都不能进入版本校验或实际打包，打包失败使 aggregate failed。",
         "title": "full 打包只在全部发布前置通过后运行一次"
       }
     },
@@ -5707,7 +5707,7 @@
     "GATE-RELEASE-FINAL-TIMING-001": {
       "keys": {
         "search": [
-          "GATE-RELEASE-FINAL-TIMING-001 release 终结 Check 在前置结算后才执行版本校验 full 的 `pack:skills` 是 release 终结 Check；它直接依赖全部 36 个 release-required Check。preflight 只验证 authored `baselineRef` 的 wrapper 输入边界，不解析 Git ref；实际版本校验只能在全部前置有可信 passed 结果后执行。 终结 Check 以 `origin/release` 作为 authored baseline，preflight 生成该 invocation-local options；空值、首尾空白、前导连字符及 NUL/CR/LF 均以稳定 code 阻断。 `pack:skills/release-baseline` Record 保留该输入；`hash:skills` 开始时所有原生与项目 release 前置都已结算，之后才执行一次 `pack:skills`。 scripts/vibe-check.test.ts > release terminal Check validates its baseline in preflight and waits for every prerequisite bun test --test-name-pattern=\"^release terminal Check validates its baseline in preflight and waits for every prerequisite$\" ./scripts/vibe-check.test.ts"
+          "GATE-RELEASE-FINAL-TIMING-001 release version Check 在普通前置后许可打包 full 的 `release:skill-version` 直接依赖全部普通 release-required Check，`pack:skills` 只依赖版本节点。version preflight 只验证 authored `baselineRef` 的 wrapper 输入边界，不解析 Git ref；实际版本校验只能在全部普通前置有可信 passed 结果后执行。 version Check 以 `origin/release` 作为 authored baseline，preflight 生成该 invocation-local options；空值、首尾空白、前导连字符及 NUL/CR/LF 均阻断。 `release:skill-version/release-baseline` Record 保留该输入；版本节点依赖全部普通前置，打包节点只在版本结果可信 passed 后执行。 scripts/vibe-check.test.ts > release version Check preflights its baseline and gates packaging bun test --test-name-pattern=\"^release version Check preflights its baseline and gates packaging$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5716,21 +5716,21 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "scripts/vibe-check.test.ts > release terminal Check validates its baseline in preflight and waits for every prerequisite",
-          "bun test --test-name-pattern=\"^release terminal Check validates its baseline in preflight and waits for every prerequisite$\" ./scripts/vibe-check.test.ts"
+          "scripts/vibe-check.test.ts > release version Check preflights its baseline and gates packaging",
+          "bun test --test-name-pattern=\"^release version Check preflights its baseline and gates packaging$\" ./scripts/vibe-check.test.ts"
         ],
         "id": "GATE-RELEASE-FINAL-TIMING-001",
         "line": 1,
-        "searchText": "release 终结 Check 在前置结算后才执行版本校验 full 的 `pack:skills` 是 release 终结 Check；它直接依赖全部 36 个 release-required Check。preflight 只验证 authored `baselineRef` 的 wrapper 输入边界，不解析 Git ref；实际版本校验只能在全部前置有可信 passed 结果后执行。 终结 Check 以 `origin/release` 作为 authored baseline，preflight 生成该 invocation-local options；空值、首尾空白、前导连字符及 NUL/CR/LF 均以稳定 code 阻断。 `pack:skills/release-baseline` Record 保留该输入；`hash:skills` 开始时所有原生与项目 release 前置都已结算，之后才执行一次 `pack:skills`。 scripts/vibe-check.test.ts > release terminal Check validates its baseline in preflight and waits for every prerequisite bun test --test-name-pattern=\"^release terminal Check validates its baseline in preflight and waits for every prerequisite$\" ./scripts/vibe-check.test.ts",
+        "searchText": "release version Check 在普通前置后许可打包 full 的 `release:skill-version` 直接依赖全部普通 release-required Check，`pack:skills` 只依赖版本节点。version preflight 只验证 authored `baselineRef` 的 wrapper 输入边界，不解析 Git ref；实际版本校验只能在全部普通前置有可信 passed 结果后执行。 version Check 以 `origin/release` 作为 authored baseline，preflight 生成该 invocation-local options；空值、首尾空白、前导连字符及 NUL/CR/LF 均阻断。 `release:skill-version/release-baseline` Record 保留该输入；版本节点依赖全部普通前置，打包节点只在版本结果可信 passed 后执行。 scripts/vibe-check.test.ts > release version Check preflights its baseline and gates packaging bun test --test-name-pattern=\"^release version Check preflights its baseline and gates packaging$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-release-terminal-preflights-baseline-and-waits-for-prerequisites.md",
-        "summary": "full 的 `pack:skills` 是 release 终结 Check；它直接依赖全部 36 个 release-required Check。preflight 只验证 authored `baselineRef` 的 wrapper 输入边界，不解析 Git ref；实际版本校验只能在全部前置有可信 passed 结果后执行。",
-        "title": "release 终结 Check 在前置结算后才执行版本校验"
+        "summary": "full 的 `release:skill-version` 直接依赖全部普通 release-required Check，`pack:skills` 只依赖版本节点。version preflight 只验证 authored `baselineRef` 的 wrapper 输入边界，不解析 Git ref；实际版本校验只能在全部普通前置有可信 passed 结果后执行。",
+        "title": "release version Check 在普通前置后许可打包"
       }
     },
     "GATE-RELEASE-PACK-SUCCESS-001": {
       "keys": {
         "search": [
-          "GATE-RELEASE-PACK-SUCCESS-001 版本校验通过后恰好打包一次 release 终结 Check 只有在版本校验通过后才可调用 `pack:skills`；成功的 full invocation 恰好调用一次。 成功时终结阶段顺序为一次 `hash:skills`、一次 `pack:skills`，aggregate passed。 成功终态数据保留基线；隔离 `dist/` 中存在由唯一打包调用写入的 fixture 制品。 scripts/vibe-check.test.ts > release terminal Check packages exactly once after version validation passes bun test --test-name-pattern=\"^release terminal Check packages exactly once after version validation passes$\" ./scripts/vibe-check.test.ts"
+          "GATE-RELEASE-PACK-SUCCESS-001 版本校验通过后恰好打包一次 `pack:skills` 只依赖 `release:skill-version`，只有版本节点通过后才可调用实际打包脚本；成功的 full invocation 恰好调用一次。 成功时 release DAG 顺序为一次 `hash:skills`、一次 `pack:skills`，aggregate passed。 version 结果保留基线；隔离 `dist/` 中存在由唯一打包调用写入的 fixture 制品。 scripts/vibe-check.test.ts > release terminal Check packages exactly once after version validation passes bun test --test-name-pattern=\"^release terminal Check packages exactly once after version validation passes$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5744,16 +5744,16 @@
         ],
         "id": "GATE-RELEASE-PACK-SUCCESS-001",
         "line": 1,
-        "searchText": "版本校验通过后恰好打包一次 release 终结 Check 只有在版本校验通过后才可调用 `pack:skills`；成功的 full invocation 恰好调用一次。 成功时终结阶段顺序为一次 `hash:skills`、一次 `pack:skills`，aggregate passed。 成功终态数据保留基线；隔离 `dist/` 中存在由唯一打包调用写入的 fixture 制品。 scripts/vibe-check.test.ts > release terminal Check packages exactly once after version validation passes bun test --test-name-pattern=\"^release terminal Check packages exactly once after version validation passes$\" ./scripts/vibe-check.test.ts",
+        "searchText": "版本校验通过后恰好打包一次 `pack:skills` 只依赖 `release:skill-version`，只有版本节点通过后才可调用实际打包脚本；成功的 full invocation 恰好调用一次。 成功时 release DAG 顺序为一次 `hash:skills`、一次 `pack:skills`，aggregate passed。 version 结果保留基线；隔离 `dist/` 中存在由唯一打包调用写入的 fixture 制品。 scripts/vibe-check.test.ts > release terminal Check packages exactly once after version validation passes bun test --test-name-pattern=\"^release terminal Check packages exactly once after version validation passes$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-release-packages-after-version-validation.md",
-        "summary": "release 终结 Check 只有在版本校验通过后才可调用 `pack:skills`；成功的 full invocation 恰好调用一次。",
+        "summary": "`pack:skills` 只依赖 `release:skill-version`，只有版本节点通过后才可调用实际打包脚本；成功的 full invocation 恰好调用一次。",
         "title": "版本校验通过后恰好打包一次"
       }
     },
     "GATE-RELEASE-VERSION-ARGS-001": {
       "keys": {
         "search": [
-          "GATE-RELEASE-VERSION-ARGS-001 release 基线通过 Bun 参数数组传递 release 终结 Check 必须将 baseline 作为 `bun run hash:skills` 的单个参数元素传递，不能拼接 shell 命令字符串。 含 shell 元字符的 fixture baseline 原样成为 capture script 的一个 argv 元素，并保留 `--baseline-ref` 与 `--quiet` 顺序。 该字符串没有创建其试图注入的文件，full aggregate 仍可完成。 scripts/vibe-check.test.ts > release version validation passes its baseline through Bun argument arrays bun test --test-name-pattern=\"^release version validation passes its baseline through Bun argument arrays$\" ./scripts/vibe-check.test.ts"
+          "GATE-RELEASE-VERSION-ARGS-001 release 基线通过 Bun 参数数组传递 `release:skill-version` 必须将 baseline 作为 `bun run hash:skills` 的单个参数元素传递，不能拼接 shell 命令字符串。 含 shell 元字符的 fixture baseline 原样成为 capture script 的一个 argv 元素，并保留 `--baseline-ref` 与 `--quiet` 顺序。 该字符串没有创建其试图注入的文件，full aggregate 仍可完成。 scripts/vibe-check.test.ts > release version validation passes its baseline through Bun argument arrays bun test --test-name-pattern=\"^release version validation passes its baseline through Bun argument arrays$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5767,16 +5767,16 @@
         ],
         "id": "GATE-RELEASE-VERSION-ARGS-001",
         "line": 1,
-        "searchText": "release 基线通过 Bun 参数数组传递 release 终结 Check 必须将 baseline 作为 `bun run hash:skills` 的单个参数元素传递，不能拼接 shell 命令字符串。 含 shell 元字符的 fixture baseline 原样成为 capture script 的一个 argv 元素，并保留 `--baseline-ref` 与 `--quiet` 顺序。 该字符串没有创建其试图注入的文件，full aggregate 仍可完成。 scripts/vibe-check.test.ts > release version validation passes its baseline through Bun argument arrays bun test --test-name-pattern=\"^release version validation passes its baseline through Bun argument arrays$\" ./scripts/vibe-check.test.ts",
+        "searchText": "release 基线通过 Bun 参数数组传递 `release:skill-version` 必须将 baseline 作为 `bun run hash:skills` 的单个参数元素传递，不能拼接 shell 命令字符串。 含 shell 元字符的 fixture baseline 原样成为 capture script 的一个 argv 元素，并保留 `--baseline-ref` 与 `--quiet` 顺序。 该字符串没有创建其试图注入的文件，full aggregate 仍可完成。 scripts/vibe-check.test.ts > release version validation passes its baseline through Bun argument arrays bun test --test-name-pattern=\"^release version validation passes its baseline through Bun argument arrays$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-release-version-baseline-uses-argument-array.md",
-        "summary": "release 终结 Check 必须将 baseline 作为 `bun run hash:skills` 的单个参数元素传递，不能拼接 shell 命令字符串。",
+        "summary": "`release:skill-version` 必须将 baseline 作为 `bun run hash:skills` 的单个参数元素传递，不能拼接 shell 命令字符串。",
         "title": "release 基线通过 Bun 参数数组传递"
       }
     },
     "GATE-RELEASE-VERSION-FAILURE-001": {
       "keys": {
         "search": [
-          "GATE-RELEASE-VERSION-FAILURE-001 版本校验失败阻断打包 release 终结 Check 在前置通过后必须先校验 skill 版本；该校验 failed 时 final Check failed，且本次零调用 `pack:skills`。 注入的 `hash:skills` 非零退出使 `pack:skills` Check 结算为携带基线与版本脚本终态的 failed。 版本校验恰好运行一次，打包没有被调用。 scripts/vibe-check.test.ts > release version validation failure blocks package execution bun test --test-name-pattern=\"^release version validation failure blocks package execution$\" ./scripts/vibe-check.test.ts"
+          "GATE-RELEASE-VERSION-FAILURE-001 版本校验失败阻断打包 `release:skill-version` 在普通前置通过后校验 skill 版本；该节点 failed 时下游 `pack:skills` 失败且本次零调用打包脚本。 注入的 `hash:skills` 非零退出使 `release:skill-version` 与其下游 `pack:skills` 分别结算为 failed。 版本校验恰好运行一次，打包没有被调用。 scripts/vibe-check.test.ts > release version validation failure blocks package execution bun test --test-name-pattern=\"^release version validation failure blocks package execution$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5790,16 +5790,16 @@
         ],
         "id": "GATE-RELEASE-VERSION-FAILURE-001",
         "line": 1,
-        "searchText": "版本校验失败阻断打包 release 终结 Check 在前置通过后必须先校验 skill 版本；该校验 failed 时 final Check failed，且本次零调用 `pack:skills`。 注入的 `hash:skills` 非零退出使 `pack:skills` Check 结算为携带基线与版本脚本终态的 failed。 版本校验恰好运行一次，打包没有被调用。 scripts/vibe-check.test.ts > release version validation failure blocks package execution bun test --test-name-pattern=\"^release version validation failure blocks package execution$\" ./scripts/vibe-check.test.ts",
+        "searchText": "版本校验失败阻断打包 `release:skill-version` 在普通前置通过后校验 skill 版本；该节点 failed 时下游 `pack:skills` 失败且本次零调用打包脚本。 注入的 `hash:skills` 非零退出使 `release:skill-version` 与其下游 `pack:skills` 分别结算为 failed。 版本校验恰好运行一次，打包没有被调用。 scripts/vibe-check.test.ts > release version validation failure blocks package execution bun test --test-name-pattern=\"^release version validation failure blocks package execution$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-release-version-failure-blocks-packaging.md",
-        "summary": "release 终结 Check 在前置通过后必须先校验 skill 版本；该校验 failed 时 final Check failed，且本次零调用 `pack:skills`。",
+        "summary": "`release:skill-version` 在普通前置通过后校验 skill 版本；该节点 failed 时下游 `pack:skills` 失败且本次零调用打包脚本。",
         "title": "版本校验失败阻断打包"
       }
     },
     "GATE-RELEASE-VERSION-UNAVAILABLE-001": {
       "keys": {
         "search": [
-          "GATE-RELEASE-VERSION-UNAVAILABLE-001 版本校验不可用阻断打包 release 终结 Check 的 `hash:skills` 无法形成可信结果时必须 unavailable，aggregate 必须失败，且本次零调用 `pack:skills`。 注入的版本 runner 显式返回 unavailable 或抛出异常，都会使终结 `pack:skills` Check 以 `package-script-start-failed` unavailable 结算。 两种不可用路径都恰好尝试一次版本校验而从不调用打包。 scripts/vibe-check.test.ts > release version validation unavailable or throws blocks package execution bun test --test-name-pattern=\"^release version validation unavailable or throws blocks package execution$\" ./scripts/vibe-check.test.ts"
+          "GATE-RELEASE-VERSION-UNAVAILABLE-001 版本校验不可用阻断打包 `release:skill-version` 的 `hash:skills` 无法形成可信结果时必须 unavailable，aggregate 必须失败，且下游实际打包零调用。 注入的版本 runner 显式返回 unavailable 或抛出异常，都会使版本节点 unavailable，并让依赖它的 `pack:skills` 无可信结果可执行。 两种不可用路径都恰好尝试一次版本校验而从不调用打包。 scripts/vibe-check.test.ts > release version validation unavailable or throws blocks package execution bun test --test-name-pattern=\"^release version validation unavailable or throws blocks package execution$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5813,9 +5813,9 @@
         ],
         "id": "GATE-RELEASE-VERSION-UNAVAILABLE-001",
         "line": 1,
-        "searchText": "版本校验不可用阻断打包 release 终结 Check 的 `hash:skills` 无法形成可信结果时必须 unavailable，aggregate 必须失败，且本次零调用 `pack:skills`。 注入的版本 runner 显式返回 unavailable 或抛出异常，都会使终结 `pack:skills` Check 以 `package-script-start-failed` unavailable 结算。 两种不可用路径都恰好尝试一次版本校验而从不调用打包。 scripts/vibe-check.test.ts > release version validation unavailable or throws blocks package execution bun test --test-name-pattern=\"^release version validation unavailable or throws blocks package execution$\" ./scripts/vibe-check.test.ts",
+        "searchText": "版本校验不可用阻断打包 `release:skill-version` 的 `hash:skills` 无法形成可信结果时必须 unavailable，aggregate 必须失败，且下游实际打包零调用。 注入的版本 runner 显式返回 unavailable 或抛出异常，都会使版本节点 unavailable，并让依赖它的 `pack:skills` 无可信结果可执行。 两种不可用路径都恰好尝试一次版本校验而从不调用打包。 scripts/vibe-check.test.ts > release version validation unavailable or throws blocks package execution bun test --test-name-pattern=\"^release version validation unavailable or throws blocks package execution$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-release-version-unavailable-blocks-packaging.md",
-        "summary": "release 终结 Check 的 `hash:skills` 无法形成可信结果时必须 unavailable，aggregate 必须失败，且本次零调用 `pack:skills`。",
+        "summary": "`release:skill-version` 的 `hash:skills` 无法形成可信结果时必须 unavailable，aggregate 必须失败，且下游实际打包零调用。",
         "title": "版本校验不可用阻断打包"
       }
     },
@@ -12630,7 +12630,7 @@
     "TEST-EVIDENCE-CASE-FILE-CARDINALITY-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-CASE-FILE-CARDINALITY-001 单 Case 文件拒绝零个或多个 Case 每个 `<topic>/<slug>.md` 必须且只能包含一个 fenced code block 外的 `### Case` 标题。 没有 case 标题或包含两个 case 标题的文件都被目录校验拒绝。 tools/test-evidence/tests/run.ts > one case file rejects zero or multiple case headings bun test --test-name-pattern=\"^one case file rejects zero or multiple case headings$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-CASE-FILE-CARDINALITY-001 单 Case 文件拒绝零个或多个 Case 每个 `<topic>/<slug>.md` 必须且只能包含一个 fenced code block 外的 `### Case` 标题。 没有 case 标题或包含两个 case 标题的文件都被目录校验拒绝。 tools/test-evidence/tests/catalog.test.ts > one case file rejects zero or multiple case headings bun test --test-name-pattern=\"^one case file rejects zero or multiple case headings$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12639,12 +12639,12 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/test-evidence/tests/run.ts > one case file rejects zero or multiple case headings",
-          "bun test --test-name-pattern=\"^one case file rejects zero or multiple case headings$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > one case file rejects zero or multiple case headings",
+          "bun test --test-name-pattern=\"^one case file rejects zero or multiple case headings$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-CASE-FILE-CARDINALITY-001",
         "line": 1,
-        "searchText": "单 Case 文件拒绝零个或多个 Case 每个 `<topic>/<slug>.md` 必须且只能包含一个 fenced code block 外的 `### Case` 标题。 没有 case 标题或包含两个 case 标题的文件都被目录校验拒绝。 tools/test-evidence/tests/run.ts > one case file rejects zero or multiple case headings bun test --test-name-pattern=\"^one case file rejects zero or multiple case headings$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "单 Case 文件拒绝零个或多个 Case 每个 `<topic>/<slug>.md` 必须且只能包含一个 fenced code block 外的 `### Case` 标题。 没有 case 标题或包含两个 case 标题的文件都被目录校验拒绝。 tools/test-evidence/tests/catalog.test.ts > one case file rejects zero or multiple case headings bun test --test-name-pattern=\"^one case file rejects zero or multiple case headings$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/one-case-file-rejects-zero-or-multiple-case-headings.md",
         "summary": "每个 `<topic>/<slug>.md` 必须且只能包含一个 fenced code block 外的 `### Case` 标题。",
         "title": "单 Case 文件拒绝零个或多个 Case"
@@ -12653,7 +12653,7 @@
     "TEST-EVIDENCE-CASE-FIRST-LINE-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-CASE-FIRST-LINE-001 完整与快速读取要求 Case 标题位于首行 每个 case 源文件的第一行必须是合法 `### Case <CASE-ID>: <title>`；完整 catalog 读取与快速 revision 读取必须执行同一首行身份边界。 标题前存在空行、HTML comment 或 frontmatter 时，完整目录校验返回首行诊断，快速 revision 读取也拒绝该来源。 仅使用孤立 CR 分隔的内容不构成合法逐行 case 源，两条读取路径同样拒绝。 tools/test-evidence/tests/run.ts > full and fast source reads require the case heading on line one bun test --test-name-pattern=\"^full and fast source reads require the case heading on line one$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-CASE-FIRST-LINE-001 完整与快速读取要求 Case 标题位于首行 每个 case 源文件的第一行必须是合法 `### Case <CASE-ID>: <title>`；完整 catalog 读取与快速 revision 读取必须执行同一首行身份边界。 标题前存在空行、HTML comment 或 frontmatter 时，完整目录校验返回首行诊断，快速 revision 读取也拒绝该来源。 仅使用孤立 CR 分隔的内容不构成合法逐行 case 源，两条读取路径同样拒绝。 tools/test-evidence/tests/catalog.test.ts > full and fast source reads require the case heading on line one bun test --test-name-pattern=\"^full and fast source reads require the case heading on line one$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12662,12 +12662,12 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "tools/test-evidence/tests/run.ts > full and fast source reads require the case heading on line one",
-          "bun test --test-name-pattern=\"^full and fast source reads require the case heading on line one$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > full and fast source reads require the case heading on line one",
+          "bun test --test-name-pattern=\"^full and fast source reads require the case heading on line one$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-CASE-FIRST-LINE-001",
         "line": 1,
-        "searchText": "完整与快速读取要求 Case 标题位于首行 每个 case 源文件的第一行必须是合法 `### Case <CASE-ID>: <title>`；完整 catalog 读取与快速 revision 读取必须执行同一首行身份边界。 标题前存在空行、HTML comment 或 frontmatter 时，完整目录校验返回首行诊断，快速 revision 读取也拒绝该来源。 仅使用孤立 CR 分隔的内容不构成合法逐行 case 源，两条读取路径同样拒绝。 tools/test-evidence/tests/run.ts > full and fast source reads require the case heading on line one bun test --test-name-pattern=\"^full and fast source reads require the case heading on line one$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "完整与快速读取要求 Case 标题位于首行 每个 case 源文件的第一行必须是合法 `### Case <CASE-ID>: <title>`；完整 catalog 读取与快速 revision 读取必须执行同一首行身份边界。 标题前存在空行、HTML comment 或 frontmatter 时，完整目录校验返回首行诊断，快速 revision 读取也拒绝该来源。 仅使用孤立 CR 分隔的内容不构成合法逐行 case 源，两条读取路径同样拒绝。 tools/test-evidence/tests/catalog.test.ts > full and fast source reads require the case heading on line one bun test --test-name-pattern=\"^full and fast source reads require the case heading on line one$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/full-and-fast-source-reads-require-the-case-heading-on-line-one.md",
         "summary": "每个 case 源文件的第一行必须是合法 `### Case <CASE-ID>: <title>`；完整 catalog 读取与快速 revision 读取必须执行同一首行身份边界。",
         "title": "完整与快速读取要求 Case 标题位于首行"
@@ -12676,7 +12676,7 @@
     "TEST-EVIDENCE-CASE-ID-PATTERN-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-CASE-ID-PATTERN-001 Case ID 使用固定协议 每个测试账本 case ID 必须符合工具内置且不可配置的统一格式。 不符合固定格式的 case ID 产生阻断目录诊断。 tools/test-evidence/tests/run.ts > catalog enforces the fixed case ID pattern bun test --test-name-pattern=\"^catalog enforces the fixed case ID pattern$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-CASE-ID-PATTERN-001 Case ID 使用固定协议 每个测试账本 case ID 必须符合工具内置且不可配置的统一格式。 不符合固定格式的 case ID 产生阻断目录诊断。 tools/test-evidence/tests/catalog.test.ts > catalog enforces the fixed case ID pattern bun test --test-name-pattern=\"^catalog enforces the fixed case ID pattern$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12685,12 +12685,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > catalog enforces the fixed case ID pattern",
-          "bun test --test-name-pattern=\"^catalog enforces the fixed case ID pattern$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > catalog enforces the fixed case ID pattern",
+          "bun test --test-name-pattern=\"^catalog enforces the fixed case ID pattern$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-CASE-ID-PATTERN-001",
         "line": 1,
-        "searchText": "Case ID 使用固定协议 每个测试账本 case ID 必须符合工具内置且不可配置的统一格式。 不符合固定格式的 case ID 产生阻断目录诊断。 tools/test-evidence/tests/run.ts > catalog enforces the fixed case ID pattern bun test --test-name-pattern=\"^catalog enforces the fixed case ID pattern$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Case ID 使用固定协议 每个测试账本 case ID 必须符合工具内置且不可配置的统一格式。 不符合固定格式的 case ID 产生阻断目录诊断。 tools/test-evidence/tests/catalog.test.ts > catalog enforces the fixed case ID pattern bun test --test-name-pattern=\"^catalog enforces the fixed case ID pattern$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/catalog-enforces-the-fixed-case-id-pattern.md",
         "summary": "每个测试账本 case ID 必须符合工具内置且不可配置的统一格式。",
         "title": "Case ID 使用固定协议"
@@ -12699,7 +12699,7 @@
     "TEST-EVIDENCE-CROSS-TOPIC-ID-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-CROSS-TOPIC-ID-001 Case ID 在全部 Topic 中唯一 完整 catalog 读取与快速 revision 读取都必须在全部受控 topic 中唯一解析每个 Case ID；重复身份不得覆盖先读来源。 两个 topic 声明相同 ID 时返回包含双方 `<topic>/<slug>.md` 源路径的 `catalog.case-id-duplicate` 诊断。 快速 revision 读取也拒绝重复 case ID，不会由后读来源覆盖先读成员。 tools/test-evidence/tests/run.ts > full and fast source reads reject duplicate case IDs across topics bun test --test-name-pattern=\"^full and fast source reads reject duplicate case IDs across topics$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-CROSS-TOPIC-ID-001 Case ID 在全部 Topic 中唯一 完整 catalog 读取与快速 revision 读取都必须在全部受控 topic 中唯一解析每个 Case ID；重复身份不得覆盖先读来源。 两个 topic 声明相同 ID 时返回包含双方 `<topic>/<slug>.md` 源路径的 `catalog.case-id-duplicate` 诊断。 快速 revision 读取也拒绝重复 case ID，不会由后读来源覆盖先读成员。 tools/test-evidence/tests/catalog.test.ts > full and fast source reads reject duplicate case IDs across topics bun test --test-name-pattern=\"^full and fast source reads reject duplicate case IDs across topics$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12708,12 +12708,12 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "tools/test-evidence/tests/run.ts > full and fast source reads reject duplicate case IDs across topics",
-          "bun test --test-name-pattern=\"^full and fast source reads reject duplicate case IDs across topics$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > full and fast source reads reject duplicate case IDs across topics",
+          "bun test --test-name-pattern=\"^full and fast source reads reject duplicate case IDs across topics$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-CROSS-TOPIC-ID-001",
         "line": 1,
-        "searchText": "Case ID 在全部 Topic 中唯一 完整 catalog 读取与快速 revision 读取都必须在全部受控 topic 中唯一解析每个 Case ID；重复身份不得覆盖先读来源。 两个 topic 声明相同 ID 时返回包含双方 `<topic>/<slug>.md` 源路径的 `catalog.case-id-duplicate` 诊断。 快速 revision 读取也拒绝重复 case ID，不会由后读来源覆盖先读成员。 tools/test-evidence/tests/run.ts > full and fast source reads reject duplicate case IDs across topics bun test --test-name-pattern=\"^full and fast source reads reject duplicate case IDs across topics$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Case ID 在全部 Topic 中唯一 完整 catalog 读取与快速 revision 读取都必须在全部受控 topic 中唯一解析每个 Case ID；重复身份不得覆盖先读来源。 两个 topic 声明相同 ID 时返回包含双方 `<topic>/<slug>.md` 源路径的 `catalog.case-id-duplicate` 诊断。 快速 revision 读取也拒绝重复 case ID，不会由后读来源覆盖先读成员。 tools/test-evidence/tests/catalog.test.ts > full and fast source reads reject duplicate case IDs across topics bun test --test-name-pattern=\"^full and fast source reads reject duplicate case IDs across topics$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/catalog-validation-rejects-duplicate-case-ids-across-topics.md",
         "summary": "完整 catalog 读取与快速 revision 读取都必须在全部受控 topic 中唯一解析每个 Case ID；重复身份不得覆盖先读来源。",
         "title": "Case ID 在全部 Topic 中唯一"
@@ -12722,7 +12722,7 @@
     "TEST-EVIDENCE-DAMAGED-INDEX-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-DAMAGED-INDEX-001 损坏索引可回退并重建 JSON 损坏但可恢复的索引不得阻断 catalog 查询，并应允许重建。 查询返回当前 case 与非阻断诊断，写入同步恢复有效索引。 tools/test-evidence/tests/run.ts > damaged indexes fall back to the catalog and can be rebuilt bun test --test-name-pattern=\"^damaged indexes fall back to the catalog and can be rebuilt$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-DAMAGED-INDEX-001 损坏索引可回退并重建 JSON 损坏但可恢复的索引不得阻断 catalog 查询，并应允许重建。 查询返回当前 case 与非阻断诊断，写入同步恢复有效索引。 tools/test-evidence/tests/catalog.test.ts > damaged indexes fall back to the catalog and can be rebuilt bun test --test-name-pattern=\"^damaged indexes fall back to the catalog and can be rebuilt$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12731,12 +12731,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > damaged indexes fall back to the catalog and can be rebuilt",
-          "bun test --test-name-pattern=\"^damaged indexes fall back to the catalog and can be rebuilt$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > damaged indexes fall back to the catalog and can be rebuilt",
+          "bun test --test-name-pattern=\"^damaged indexes fall back to the catalog and can be rebuilt$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-DAMAGED-INDEX-001",
         "line": 1,
-        "searchText": "损坏索引可回退并重建 JSON 损坏但可恢复的索引不得阻断 catalog 查询，并应允许重建。 查询返回当前 case 与非阻断诊断，写入同步恢复有效索引。 tools/test-evidence/tests/run.ts > damaged indexes fall back to the catalog and can be rebuilt bun test --test-name-pattern=\"^damaged indexes fall back to the catalog and can be rebuilt$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "损坏索引可回退并重建 JSON 损坏但可恢复的索引不得阻断 catalog 查询，并应允许重建。 查询返回当前 case 与非阻断诊断，写入同步恢复有效索引。 tools/test-evidence/tests/catalog.test.ts > damaged indexes fall back to the catalog and can be rebuilt bun test --test-name-pattern=\"^damaged indexes fall back to the catalog and can be rebuilt$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/damaged-indexes-fall-back-to-the-catalog-and-can-be-rebuilt.md",
         "summary": "JSON 损坏但可恢复的索引不得阻断 catalog 查询，并应允许重建。",
         "title": "损坏索引可回退并重建"
@@ -12745,7 +12745,7 @@
     "TEST-EVIDENCE-DISTRIBUTED-CLI-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-DISTRIBUTED-CLI-001 分发模块与 CLI 保持 Topic 查询契约 分发模块和 CLI 必须与维护源码共享 topic 表、catalog 查询及不可恢复失败语义。 分发 API 不再暴露配置 Schema，topic 查询与其他 Schema 可用，`topics` 和 `list` 返回 v4 结果，不可读固定索引在 `list` 与 `show` 中都以失败退出。 tools/test-evidence/tests/run.ts > distributed module and CLI preserve catalog query contracts bun test --test-name-pattern=\"^distributed module and CLI preserve catalog query contracts$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-DISTRIBUTED-CLI-001 分发模块与 CLI 保持 Topic 查询契约 分发模块和 CLI 必须与维护源码共享 topic 表、catalog 查询及不可恢复失败语义。 分发 API 不再暴露配置 Schema，topic 查询与其他 Schema 可用，`topics` 和 `list` 返回 v4 结果，不可读固定索引在 `list` 与 `show` 中都以失败退出。 tools/test-evidence/tests/catalog.test.ts > distributed module and CLI preserve catalog query contracts bun test --test-name-pattern=\"^distributed module and CLI preserve catalog query contracts$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12754,12 +12754,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > distributed module and CLI preserve catalog query contracts",
-          "bun test --test-name-pattern=\"^distributed module and CLI preserve catalog query contracts$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > distributed module and CLI preserve catalog query contracts",
+          "bun test --test-name-pattern=\"^distributed module and CLI preserve catalog query contracts$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-DISTRIBUTED-CLI-001",
         "line": 1,
-        "searchText": "分发模块与 CLI 保持 Topic 查询契约 分发模块和 CLI 必须与维护源码共享 topic 表、catalog 查询及不可恢复失败语义。 分发 API 不再暴露配置 Schema，topic 查询与其他 Schema 可用，`topics` 和 `list` 返回 v4 结果，不可读固定索引在 `list` 与 `show` 中都以失败退出。 tools/test-evidence/tests/run.ts > distributed module and CLI preserve catalog query contracts bun test --test-name-pattern=\"^distributed module and CLI preserve catalog query contracts$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "分发模块与 CLI 保持 Topic 查询契约 分发模块和 CLI 必须与维护源码共享 topic 表、catalog 查询及不可恢复失败语义。 分发 API 不再暴露配置 Schema，topic 查询与其他 Schema 可用，`topics` 和 `list` 返回 v4 结果，不可读固定索引在 `list` 与 `show` 中都以失败退出。 tools/test-evidence/tests/catalog.test.ts > distributed module and CLI preserve catalog query contracts bun test --test-name-pattern=\"^distributed module and CLI preserve catalog query contracts$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/distributed-module-and-cli-preserve-catalog-query-contracts.md",
         "summary": "分发模块和 CLI 必须与维护源码共享 topic 表、catalog 查询及不可恢复失败语义。",
         "title": "分发模块与 CLI 保持 Topic 查询契约"
@@ -12768,7 +12768,7 @@
     "TEST-EVIDENCE-ENTRY-LIST-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-ENTRY-LIST-001 Catalog 要求非空且唯一的 Entry 每个 case 必须且只能声明一个非空 Entry 列表，列表项不得重复。 缺失 Entry 和重复 locator 都被目录校验拒绝。 tools/test-evidence/tests/run.ts > catalog validation requires one non-empty unique entry list bun test --test-name-pattern=\"^catalog validation requires one non-empty unique entry list$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-ENTRY-LIST-001 Catalog 要求非空且唯一的 Entry 每个 case 必须且只能声明一个非空 Entry 列表，列表项不得重复。 缺失 Entry 和重复 locator 都被目录校验拒绝。 tools/test-evidence/tests/catalog.test.ts > catalog validation requires one non-empty unique entry list bun test --test-name-pattern=\"^catalog validation requires one non-empty unique entry list$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12777,12 +12777,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > catalog validation requires one non-empty unique entry list",
-          "bun test --test-name-pattern=\"^catalog validation requires one non-empty unique entry list$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > catalog validation requires one non-empty unique entry list",
+          "bun test --test-name-pattern=\"^catalog validation requires one non-empty unique entry list$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-ENTRY-LIST-001",
         "line": 1,
-        "searchText": "Catalog 要求非空且唯一的 Entry 每个 case 必须且只能声明一个非空 Entry 列表，列表项不得重复。 缺失 Entry 和重复 locator 都被目录校验拒绝。 tools/test-evidence/tests/run.ts > catalog validation requires one non-empty unique entry list bun test --test-name-pattern=\"^catalog validation requires one non-empty unique entry list$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Catalog 要求非空且唯一的 Entry 每个 case 必须且只能声明一个非空 Entry 列表，列表项不得重复。 缺失 Entry 和重复 locator 都被目录校验拒绝。 tools/test-evidence/tests/catalog.test.ts > catalog validation requires one non-empty unique entry list bun test --test-name-pattern=\"^catalog validation requires one non-empty unique entry list$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/catalog-validation-requires-one-non-empty-unique-entry-list.md",
         "summary": "每个 case 必须且只能声明一个非空 Entry 列表，列表项不得重复。",
         "title": "Catalog 要求非空且唯一的 Entry"
@@ -12791,7 +12791,7 @@
     "TEST-EVIDENCE-FAST-OPEN-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-FAST-OPEN-001 一次 Open 只读取一次快速来源并由 Reader 复用 打开 test-evidence 索引只执行一次快速 revision 读取；绑定 reader 的后续操作不得重新读取来源或执行完整领域投影。 `open` 的计数为一次 `readRevision`、零 `read`、state parse、key derive 和完整验证。 权威来源在打开后移走，`get`、`query` 与 `all` 仍复用已绑定快照且计数不变。 tools/test-evidence/tests/run.ts > one index open performs one fast source read and reader calls reuse it bun test --test-name-pattern=\"^one index open performs one fast source read and reader calls reuse it$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-FAST-OPEN-001 一次 Open 只读取一次快速来源并由 Reader 复用 打开 test-evidence 索引只执行一次快速 revision 读取；绑定 reader 的后续操作不得重新读取来源或执行完整领域投影。 `open` 的计数为一次 `readRevision`、零 `read`、state parse、key derive 和完整验证。 权威来源在打开后移走，`get`、`query` 与 `all` 仍复用已绑定快照且计数不变。 tools/test-evidence/tests/catalog.test.ts > one index open performs one fast source read and reader calls reuse it bun test --test-name-pattern=\"^one index open performs one fast source read and reader calls reuse it$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12800,12 +12800,12 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "tools/test-evidence/tests/run.ts > one index open performs one fast source read and reader calls reuse it",
-          "bun test --test-name-pattern=\"^one index open performs one fast source read and reader calls reuse it$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > one index open performs one fast source read and reader calls reuse it",
+          "bun test --test-name-pattern=\"^one index open performs one fast source read and reader calls reuse it$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-FAST-OPEN-001",
         "line": 1,
-        "searchText": "一次 Open 只读取一次快速来源并由 Reader 复用 打开 test-evidence 索引只执行一次快速 revision 读取；绑定 reader 的后续操作不得重新读取来源或执行完整领域投影。 `open` 的计数为一次 `readRevision`、零 `read`、state parse、key derive 和完整验证。 权威来源在打开后移走，`get`、`query` 与 `all` 仍复用已绑定快照且计数不变。 tools/test-evidence/tests/run.ts > one index open performs one fast source read and reader calls reuse it bun test --test-name-pattern=\"^one index open performs one fast source read and reader calls reuse it$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "一次 Open 只读取一次快速来源并由 Reader 复用 打开 test-evidence 索引只执行一次快速 revision 读取；绑定 reader 的后续操作不得重新读取来源或执行完整领域投影。 `open` 的计数为一次 `readRevision`、零 `read`、state parse、key derive 和完整验证。 权威来源在打开后移走，`get`、`query` 与 `all` 仍复用已绑定快照且计数不变。 tools/test-evidence/tests/catalog.test.ts > one index open performs one fast source read and reader calls reuse it bun test --test-name-pattern=\"^one index open performs one fast source read and reader calls reuse it$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/one-index-open-performs-one-fast-source-read-and-reader-calls-reuse-it.md",
         "summary": "打开 test-evidence 索引只执行一次快速 revision 读取；绑定 reader 的后续操作不得重新读取来源或执行完整领域投影。",
         "title": "一次 Open 只读取一次快速来源并由 Reader 复用"
@@ -12814,7 +12814,7 @@
     "TEST-EVIDENCE-FIXED-CONTRACT-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-FIXED-CONTRACT-001 项目级配置不参与测试账本接口 测试账本的目录、索引和 case ID 规则由固定协议决定，不接受项目级配置改写。 遗留配置文件不能重定向查询，CLI 对 `--config` 返回未知参数错误。 tools/test-evidence/tests/run.ts > catalog ignores legacy config files and rejects config arguments bun test --test-name-pattern=\"^catalog ignores legacy config files and rejects config arguments$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-FIXED-CONTRACT-001 项目级配置不参与测试账本接口 测试账本的目录、索引和 case ID 规则由固定协议决定，不接受项目级配置改写。 遗留配置文件不能重定向查询，CLI 对 `--config` 返回未知参数错误。 tools/test-evidence/tests/catalog.test.ts > catalog ignores legacy config files and rejects config arguments bun test --test-name-pattern=\"^catalog ignores legacy config files and rejects config arguments$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12823,12 +12823,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > catalog ignores legacy config files and rejects config arguments",
-          "bun test --test-name-pattern=\"^catalog ignores legacy config files and rejects config arguments$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > catalog ignores legacy config files and rejects config arguments",
+          "bun test --test-name-pattern=\"^catalog ignores legacy config files and rejects config arguments$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-FIXED-CONTRACT-001",
         "line": 1,
-        "searchText": "项目级配置不参与测试账本接口 测试账本的目录、索引和 case ID 规则由固定协议决定，不接受项目级配置改写。 遗留配置文件不能重定向查询，CLI 对 `--config` 返回未知参数错误。 tools/test-evidence/tests/run.ts > catalog ignores legacy config files and rejects config arguments bun test --test-name-pattern=\"^catalog ignores legacy config files and rejects config arguments$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "项目级配置不参与测试账本接口 测试账本的目录、索引和 case ID 规则由固定协议决定，不接受项目级配置改写。 遗留配置文件不能重定向查询，CLI 对 `--config` 返回未知参数错误。 tools/test-evidence/tests/catalog.test.ts > catalog ignores legacy config files and rejects config arguments bun test --test-name-pattern=\"^catalog ignores legacy config files and rejects config arguments$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/catalog-ignores-legacy-config-and-rejects-config-arguments.md",
         "summary": "测试账本的目录、索引和 case ID 规则由固定协议决定，不接受项目级配置改写。",
         "title": "项目级配置不参与测试账本接口"
@@ -12837,7 +12837,7 @@
     "TEST-EVIDENCE-INDEX-HARDLINK-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-INDEX-HARDLINK-001 固定索引不能硬链接到权威源 固定索引目标与 topic 表和权威单 case 文件必须保持文件身份隔离。 固定索引指向 topic 表或 case 文件 inode 的硬链接都会阻断同步。 tools/test-evidence/tests/run.ts > fixed index cannot hard-link to authoritative sources bun test --test-name-pattern=\"^fixed index cannot hard-link to authoritative sources$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-INDEX-HARDLINK-001 固定索引不能硬链接到权威源 固定索引目标与 topic 表和权威单 case 文件必须保持文件身份隔离。 固定索引指向 topic 表或 case 文件 inode 的硬链接都会阻断同步。 tools/test-evidence/tests/catalog.test.ts > fixed index cannot hard-link to authoritative sources bun test --test-name-pattern=\"^fixed index cannot hard-link to authoritative sources$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12846,12 +12846,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > fixed index cannot hard-link to authoritative sources",
-          "bun test --test-name-pattern=\"^fixed index cannot hard-link to authoritative sources$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > fixed index cannot hard-link to authoritative sources",
+          "bun test --test-name-pattern=\"^fixed index cannot hard-link to authoritative sources$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-INDEX-HARDLINK-001",
         "line": 1,
-        "searchText": "固定索引不能硬链接到权威源 固定索引目标与 topic 表和权威单 case 文件必须保持文件身份隔离。 固定索引指向 topic 表或 case 文件 inode 的硬链接都会阻断同步。 tools/test-evidence/tests/run.ts > fixed index cannot hard-link to authoritative sources bun test --test-name-pattern=\"^fixed index cannot hard-link to authoritative sources$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "固定索引不能硬链接到权威源 固定索引目标与 topic 表和权威单 case 文件必须保持文件身份隔离。 固定索引指向 topic 表或 case 文件 inode 的硬链接都会阻断同步。 tools/test-evidence/tests/catalog.test.ts > fixed index cannot hard-link to authoritative sources bun test --test-name-pattern=\"^fixed index cannot hard-link to authoritative sources$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/fixed-index-cannot-hard-link-to-authoritative-sources.md",
         "summary": "固定索引目标与 topic 表和权威单 case 文件必须保持文件身份隔离。",
         "title": "固定索引不能硬链接到权威源"
@@ -12860,7 +12860,7 @@
     "TEST-EVIDENCE-INDEX-PROJECTION-VALIDATION-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-INDEX-PROJECTION-VALIDATION-001 严格检查交叉验证持久化源路径与 Topic Key 严格 check 必须重新执行领域投影校验，确认持久化 `sourcePath` 的 topic 段属于 metadata，且与对应 `keys.topic` 表示同一 topic。 将 access entry 的 topic key 改成 `sessions` 后，严格验证返回阻断性 `state-index.*` 诊断。 将该 entry 的 source path 改到未知 topic 后，严格验证返回阻断性 `state-index.*` 诊断。 tools/test-evidence/tests/run.ts > strict checks cross-validate persisted source paths and topic keys bun test --test-name-pattern=\"^strict checks cross-validate persisted source paths and topic keys$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-INDEX-PROJECTION-VALIDATION-001 严格检查交叉验证持久化源路径与 Topic Key 严格 check 必须重新执行领域投影校验，确认持久化 `sourcePath` 的 topic 段属于 metadata，且与对应 `keys.topic` 表示同一 topic。 将 access entry 的 topic key 改成 `sessions` 后，严格验证返回阻断性 `state-index.*` 诊断。 将该 entry 的 source path 改到未知 topic 后，严格验证返回阻断性 `state-index.*` 诊断。 tools/test-evidence/tests/catalog.test.ts > strict checks cross-validate persisted source paths and topic keys bun test --test-name-pattern=\"^strict checks cross-validate persisted source paths and topic keys$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12869,12 +12869,12 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "tools/test-evidence/tests/run.ts > strict checks cross-validate persisted source paths and topic keys",
-          "bun test --test-name-pattern=\"^strict checks cross-validate persisted source paths and topic keys$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > strict checks cross-validate persisted source paths and topic keys",
+          "bun test --test-name-pattern=\"^strict checks cross-validate persisted source paths and topic keys$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-INDEX-PROJECTION-VALIDATION-001",
         "line": 1,
-        "searchText": "严格检查交叉验证持久化源路径与 Topic Key 严格 check 必须重新执行领域投影校验，确认持久化 `sourcePath` 的 topic 段属于 metadata，且与对应 `keys.topic` 表示同一 topic。 将 access entry 的 topic key 改成 `sessions` 后，严格验证返回阻断性 `state-index.*` 诊断。 将该 entry 的 source path 改到未知 topic 后，严格验证返回阻断性 `state-index.*` 诊断。 tools/test-evidence/tests/run.ts > strict checks cross-validate persisted source paths and topic keys bun test --test-name-pattern=\"^strict checks cross-validate persisted source paths and topic keys$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "严格检查交叉验证持久化源路径与 Topic Key 严格 check 必须重新执行领域投影校验，确认持久化 `sourcePath` 的 topic 段属于 metadata，且与对应 `keys.topic` 表示同一 topic。 将 access entry 的 topic key 改成 `sessions` 后，严格验证返回阻断性 `state-index.*` 诊断。 将该 entry 的 source path 改到未知 topic 后，严格验证返回阻断性 `state-index.*` 诊断。 tools/test-evidence/tests/catalog.test.ts > strict checks cross-validate persisted source paths and topic keys bun test --test-name-pattern=\"^strict checks cross-validate persisted source paths and topic keys$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/strict-checks-cross-validate-persisted-source-paths-and-topic-keys.md",
         "summary": "严格 check 必须重新执行领域投影校验，确认持久化 `sourcePath` 的 topic 段属于 metadata，且与对应 `keys.topic` 表示同一 topic。",
         "title": "严格检查交叉验证持久化源路径与 Topic Key"
@@ -12883,7 +12883,7 @@
     "TEST-EVIDENCE-INDEX-SYNC-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-INDEX-SYNC-001 索引同步写入有效可检索快照 写入同步必须从 catalog 生成当前有效的派生索引。 同步返回 written，随后目录和索引校验无诊断。 tools/test-evidence/tests/run.ts > index synchronization writes a valid searchable snapshot bun test --test-name-pattern=\"^index synchronization writes a valid searchable snapshot$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-INDEX-SYNC-001 索引同步写入有效可检索快照 写入同步必须从 catalog 生成当前有效的派生索引。 同步返回 written，随后目录和索引校验无诊断。 tools/test-evidence/tests/catalog.test.ts > index synchronization writes a valid searchable snapshot bun test --test-name-pattern=\"^index synchronization writes a valid searchable snapshot$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12892,12 +12892,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > index synchronization writes a valid searchable snapshot",
-          "bun test --test-name-pattern=\"^index synchronization writes a valid searchable snapshot$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > index synchronization writes a valid searchable snapshot",
+          "bun test --test-name-pattern=\"^index synchronization writes a valid searchable snapshot$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-INDEX-SYNC-001",
         "line": 1,
-        "searchText": "索引同步写入有效可检索快照 写入同步必须从 catalog 生成当前有效的派生索引。 同步返回 written，随后目录和索引校验无诊断。 tools/test-evidence/tests/run.ts > index synchronization writes a valid searchable snapshot bun test --test-name-pattern=\"^index synchronization writes a valid searchable snapshot$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "索引同步写入有效可检索快照 写入同步必须从 catalog 生成当前有效的派生索引。 同步返回 written，随后目录和索引校验无诊断。 tools/test-evidence/tests/catalog.test.ts > index synchronization writes a valid searchable snapshot bun test --test-name-pattern=\"^index synchronization writes a valid searchable snapshot$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/index-synchronization-writes-a-valid-searchable-snapshot.md",
         "summary": "写入同步必须从 catalog 生成当前有效的派生索引。",
         "title": "索引同步写入有效可检索快照"
@@ -12906,7 +12906,7 @@
     "TEST-EVIDENCE-INDEX-TOPIC-PROJECTION-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-INDEX-TOPIC-PROJECTION-001 索引投影 Topic Metadata 与路径派生键 Schema v3 索引必须按 case ID 键控 stored entries，保存已排序 topic metadata，并从每个权威源路径派生唯一精确 topic 键。 索引使用 definition version 3 与 schema version 3，stored entry 不重复保存通用 ID，且 entries 与逐 case revision 拥有相同 ID 集合。 Topic 顺序、每项 topic 键和 `<topic>/<slug>.md` 源路径形成一致投影。 tools/test-evidence/tests/run.ts > indexes project sorted topic metadata and path-derived topic keys bun test --test-name-pattern=\"^indexes project sorted topic metadata and path-derived topic keys$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-INDEX-TOPIC-PROJECTION-001 索引投影 Topic Metadata 与路径派生键 Schema v3 索引必须按 case ID 键控 stored entries，保存已排序 topic metadata，并从每个权威源路径派生唯一精确 topic 键。 索引使用 definition version 3 与 schema version 3，stored entry 不重复保存通用 ID，且 entries 与逐 case revision 拥有相同 ID 集合。 Topic 顺序、每项 topic 键和 `<topic>/<slug>.md` 源路径形成一致投影。 tools/test-evidence/tests/catalog.test.ts > indexes project sorted topic metadata and path-derived topic keys bun test --test-name-pattern=\"^indexes project sorted topic metadata and path-derived topic keys$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12915,12 +12915,12 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "tools/test-evidence/tests/run.ts > indexes project sorted topic metadata and path-derived topic keys",
-          "bun test --test-name-pattern=\"^indexes project sorted topic metadata and path-derived topic keys$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > indexes project sorted topic metadata and path-derived topic keys",
+          "bun test --test-name-pattern=\"^indexes project sorted topic metadata and path-derived topic keys$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-INDEX-TOPIC-PROJECTION-001",
         "line": 1,
-        "searchText": "索引投影 Topic Metadata 与路径派生键 Schema v3 索引必须按 case ID 键控 stored entries，保存已排序 topic metadata，并从每个权威源路径派生唯一精确 topic 键。 索引使用 definition version 3 与 schema version 3，stored entry 不重复保存通用 ID，且 entries 与逐 case revision 拥有相同 ID 集合。 Topic 顺序、每项 topic 键和 `<topic>/<slug>.md` 源路径形成一致投影。 tools/test-evidence/tests/run.ts > indexes project sorted topic metadata and path-derived topic keys bun test --test-name-pattern=\"^indexes project sorted topic metadata and path-derived topic keys$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "索引投影 Topic Metadata 与路径派生键 Schema v3 索引必须按 case ID 键控 stored entries，保存已排序 topic metadata，并从每个权威源路径派生唯一精确 topic 键。 索引使用 definition version 3 与 schema version 3，stored entry 不重复保存通用 ID，且 entries 与逐 case revision 拥有相同 ID 集合。 Topic 顺序、每项 topic 键和 `<topic>/<slug>.md` 源路径形成一致投影。 tools/test-evidence/tests/catalog.test.ts > indexes project sorted topic metadata and path-derived topic keys bun test --test-name-pattern=\"^indexes project sorted topic metadata and path-derived topic keys$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/indexes-project-topic-metadata-and-path-derived-keys.md",
         "summary": "Schema v3 索引必须按 case ID 键控 stored entries，保存已排序 topic metadata，并从每个权威源路径派生唯一精确 topic 键。",
         "title": "索引投影 Topic Metadata 与路径派生键"
@@ -12929,7 +12929,7 @@
     "TEST-EVIDENCE-INVALID-ROOT-INDEX-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-INVALID-ROOT-INDEX-001 查询拒绝信任新近失效的根目录 查询索引前必须确认当前权威根目录仍可合法读取，不能用旧索引掩盖新增目录错误。 新增不受支持的根文件后查询返回阻断 revision 诊断且不返回 case，同步返回具体目录诊断。 tools/test-evidence/tests/run.ts > queries reject newly invalid root layouts instead of trusting a previous index bun test --test-name-pattern=\"^queries reject newly invalid root layouts instead of trusting a previous index$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-INVALID-ROOT-INDEX-001 查询拒绝信任新近失效的根目录 查询索引前必须确认当前权威根目录仍可合法读取，不能用旧索引掩盖新增目录错误。 新增不受支持的根文件后查询返回阻断 revision 诊断且不返回 case，同步返回具体目录诊断。 tools/test-evidence/tests/catalog.test.ts > queries reject newly invalid root layouts instead of trusting a previous index bun test --test-name-pattern=\"^queries reject newly invalid root layouts instead of trusting a previous index$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12938,12 +12938,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > queries reject newly invalid root layouts instead of trusting a previous index",
-          "bun test --test-name-pattern=\"^queries reject newly invalid root layouts instead of trusting a previous index$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > queries reject newly invalid root layouts instead of trusting a previous index",
+          "bun test --test-name-pattern=\"^queries reject newly invalid root layouts instead of trusting a previous index$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-INVALID-ROOT-INDEX-001",
         "line": 1,
-        "searchText": "查询拒绝信任新近失效的根目录 查询索引前必须确认当前权威根目录仍可合法读取，不能用旧索引掩盖新增目录错误。 新增不受支持的根文件后查询返回阻断 revision 诊断且不返回 case，同步返回具体目录诊断。 tools/test-evidence/tests/run.ts > queries reject newly invalid root layouts instead of trusting a previous index bun test --test-name-pattern=\"^queries reject newly invalid root layouts instead of trusting a previous index$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "查询拒绝信任新近失效的根目录 查询索引前必须确认当前权威根目录仍可合法读取，不能用旧索引掩盖新增目录错误。 新增不受支持的根文件后查询返回阻断 revision 诊断且不返回 case，同步返回具体目录诊断。 tools/test-evidence/tests/catalog.test.ts > queries reject newly invalid root layouts instead of trusting a previous index bun test --test-name-pattern=\"^queries reject newly invalid root layouts instead of trusting a previous index$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/queries-reject-newly-invalid-root-layouts.md",
         "summary": "查询索引前必须确认当前权威根目录仍可合法读取，不能用旧索引掩盖新增目录错误。",
         "title": "查询拒绝信任新近失效的根目录"
@@ -12952,7 +12952,7 @@
     "TEST-EVIDENCE-KEYED-ID-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-KEYED-ID-001 领域解析以 Record Key 作为权威 Case ID Test-evidence state parser 必须从 projection context 接收权威 case ID，并拒绝 state 内 ID 与对象键不一致。 匹配的对象键与 state ID 可解析，改成另一个合法 case ID 后返回身份不一致错误。 tools/test-evidence/tests/run.ts > domain parsing treats the record key as the authoritative case id bun test --test-name-pattern=\"^domain parsing treats the record key as the authoritative case id$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-KEYED-ID-001 领域解析以 Record Key 作为权威 Case ID Test-evidence state parser 必须从 projection context 接收权威 case ID，并拒绝 state 内 ID 与对象键不一致。 匹配的对象键与 state ID 可解析，改成另一个合法 case ID 后返回身份不一致错误。 tools/test-evidence/tests/catalog.test.ts > domain parsing treats the record key as the authoritative case id bun test --test-name-pattern=\"^domain parsing treats the record key as the authoritative case id$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -12961,12 +12961,12 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/test-evidence/tests/run.ts > domain parsing treats the record key as the authoritative case id",
-          "bun test --test-name-pattern=\"^domain parsing treats the record key as the authoritative case id$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > domain parsing treats the record key as the authoritative case id",
+          "bun test --test-name-pattern=\"^domain parsing treats the record key as the authoritative case id$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-KEYED-ID-001",
         "line": 1,
-        "searchText": "领域解析以 Record Key 作为权威 Case ID Test-evidence state parser 必须从 projection context 接收权威 case ID，并拒绝 state 内 ID 与对象键不一致。 匹配的对象键与 state ID 可解析，改成另一个合法 case ID 后返回身份不一致错误。 tools/test-evidence/tests/run.ts > domain parsing treats the record key as the authoritative case id bun test --test-name-pattern=\"^domain parsing treats the record key as the authoritative case id$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "领域解析以 Record Key 作为权威 Case ID Test-evidence state parser 必须从 projection context 接收权威 case ID，并拒绝 state 内 ID 与对象键不一致。 匹配的对象键与 state ID 可解析，改成另一个合法 case ID 后返回身份不一致错误。 tools/test-evidence/tests/catalog.test.ts > domain parsing treats the record key as the authoritative case id bun test --test-name-pattern=\"^domain parsing treats the record key as the authoritative case id$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/domain-parsing-treats-the-record-key-as-the-authoritative-case-id.md",
         "summary": "Test-evidence state parser 必须从 projection context 接收权威 case ID，并拒绝 state 内 ID 与对象键不一致。",
         "title": "领域解析以 Record Key 作为权威 Case ID"
@@ -13619,7 +13619,7 @@
     "TEST-EVIDENCE-LEGACY-FIELD-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-LEGACY-FIELD-001 Catalog 拒绝旧 Verification 字段 测试专用 catalog 不接受已经移除的 `Verification` 分类字段。 `test` 与 `check` 两种旧字段值都产生结构诊断。 tools/test-evidence/tests/run.ts > catalog validation rejects legacy verification fields bun test --test-name-pattern=\"^catalog validation rejects legacy verification fields$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-LEGACY-FIELD-001 Catalog 拒绝旧 Verification 字段 测试专用 catalog 不接受已经移除的 `Verification` 分类字段。 `test` 与 `check` 两种旧字段值都产生结构诊断。 tools/test-evidence/tests/catalog.test.ts > catalog validation rejects legacy verification fields bun test --test-name-pattern=\"^catalog validation rejects legacy verification fields$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -13628,12 +13628,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > catalog validation rejects legacy verification fields",
-          "bun test --test-name-pattern=\"^catalog validation rejects legacy verification fields$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > catalog validation rejects legacy verification fields",
+          "bun test --test-name-pattern=\"^catalog validation rejects legacy verification fields$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-LEGACY-FIELD-001",
         "line": 1,
-        "searchText": "Catalog 拒绝旧 Verification 字段 测试专用 catalog 不接受已经移除的 `Verification` 分类字段。 `test` 与 `check` 两种旧字段值都产生结构诊断。 tools/test-evidence/tests/run.ts > catalog validation rejects legacy verification fields bun test --test-name-pattern=\"^catalog validation rejects legacy verification fields$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Catalog 拒绝旧 Verification 字段 测试专用 catalog 不接受已经移除的 `Verification` 分类字段。 `test` 与 `check` 两种旧字段值都产生结构诊断。 tools/test-evidence/tests/catalog.test.ts > catalog validation rejects legacy verification fields bun test --test-name-pattern=\"^catalog validation rejects legacy verification fields$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/catalog-validation-rejects-legacy-verification-fields.md",
         "summary": "测试专用 catalog 不接受已经移除的 `Verification` 分类字段。",
         "title": "Catalog 拒绝旧 Verification 字段"
@@ -13642,7 +13642,7 @@
     "TEST-EVIDENCE-MISSING-INDEX-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-MISSING-INDEX-001 缺失索引时从 catalog 回退 索引缺失时，校验和查询必须读取权威 catalog 并返回非阻断诊断。 两个 case 仍可查询，`state-index.index-missing` 不阻断读取。 tools/test-evidence/tests/run.ts > missing indexes fall back to the catalog for validation and queries bun test --test-name-pattern=\"^missing indexes fall back to the catalog for validation and queries$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-MISSING-INDEX-001 缺失索引时从 catalog 回退 索引缺失时，校验和查询必须读取权威 catalog 并返回非阻断诊断。 两个 case 仍可查询，`state-index.index-missing` 不阻断读取。 tools/test-evidence/tests/catalog.test.ts > missing indexes fall back to the catalog for validation and queries bun test --test-name-pattern=\"^missing indexes fall back to the catalog for validation and queries$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -13651,12 +13651,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > missing indexes fall back to the catalog for validation and queries",
-          "bun test --test-name-pattern=\"^missing indexes fall back to the catalog for validation and queries$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > missing indexes fall back to the catalog for validation and queries",
+          "bun test --test-name-pattern=\"^missing indexes fall back to the catalog for validation and queries$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-MISSING-INDEX-001",
         "line": 1,
-        "searchText": "缺失索引时从 catalog 回退 索引缺失时，校验和查询必须读取权威 catalog 并返回非阻断诊断。 两个 case 仍可查询，`state-index.index-missing` 不阻断读取。 tools/test-evidence/tests/run.ts > missing indexes fall back to the catalog for validation and queries bun test --test-name-pattern=\"^missing indexes fall back to the catalog for validation and queries$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "缺失索引时从 catalog 回退 索引缺失时，校验和查询必须读取权威 catalog 并返回非阻断诊断。 两个 case 仍可查询，`state-index.index-missing` 不阻断读取。 tools/test-evidence/tests/catalog.test.ts > missing indexes fall back to the catalog for validation and queries bun test --test-name-pattern=\"^missing indexes fall back to the catalog for validation and queries$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/missing-indexes-fall-back-to-the-catalog-for-validation-and-queries.md",
         "summary": "索引缺失时，校验和查询必须读取权威 catalog 并返回非阻断诊断。",
         "title": "缺失索引时从 catalog 回退"
@@ -13665,7 +13665,7 @@
     "TEST-EVIDENCE-QUERY-KEYED-ID-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-QUERY-KEYED-ID-001 查询结果以 Record Key 作为权威 Case 身份 普通查询必须从 persisted `entries` 的 record key 附加 Case ID，不得以 stored state 内重复保存的 ID 恢复查询身份。 将 access entry 的 stored state ID 改成另一个合法 Case ID 后，查询不产生诊断，并仍为该源路径返回 record key `AUTH-ROLE-ACCESS-001`。 tools/test-evidence/tests/run.ts > query results use record keys as authoritative case identities bun test --test-name-pattern=\"^query results use record keys as authoritative case identities$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-QUERY-KEYED-ID-001 查询结果以 Record Key 作为权威 Case 身份 普通查询必须从 persisted `entries` 的 record key 附加 Case ID，不得以 stored state 内重复保存的 ID 恢复查询身份。 将 access entry 的 stored state ID 改成另一个合法 Case ID 后，查询不产生诊断，并仍为该源路径返回 record key `AUTH-ROLE-ACCESS-001`。 tools/test-evidence/tests/catalog.test.ts > query results use record keys as authoritative case identities bun test --test-name-pattern=\"^query results use record keys as authoritative case identities$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -13674,12 +13674,12 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/test-evidence/tests/run.ts > query results use record keys as authoritative case identities",
-          "bun test --test-name-pattern=\"^query results use record keys as authoritative case identities$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > query results use record keys as authoritative case identities",
+          "bun test --test-name-pattern=\"^query results use record keys as authoritative case identities$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-QUERY-KEYED-ID-001",
         "line": 1,
-        "searchText": "查询结果以 Record Key 作为权威 Case 身份 普通查询必须从 persisted `entries` 的 record key 附加 Case ID，不得以 stored state 内重复保存的 ID 恢复查询身份。 将 access entry 的 stored state ID 改成另一个合法 Case ID 后，查询不产生诊断，并仍为该源路径返回 record key `AUTH-ROLE-ACCESS-001`。 tools/test-evidence/tests/run.ts > query results use record keys as authoritative case identities bun test --test-name-pattern=\"^query results use record keys as authoritative case identities$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "查询结果以 Record Key 作为权威 Case 身份 普通查询必须从 persisted `entries` 的 record key 附加 Case ID，不得以 stored state 内重复保存的 ID 恢复查询身份。 将 access entry 的 stored state ID 改成另一个合法 Case ID 后，查询不产生诊断，并仍为该源路径返回 record key `AUTH-ROLE-ACCESS-001`。 tools/test-evidence/tests/catalog.test.ts > query results use record keys as authoritative case identities bun test --test-name-pattern=\"^query results use record keys as authoritative case identities$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/query-results-use-record-keys-as-authoritative-case-identities.md",
         "summary": "普通查询必须从 persisted `entries` 的 record key 附加 Case ID，不得以 stored state 内重复保存的 ID 恢复查询身份。",
         "title": "查询结果以 Record Key 作为权威 Case 身份"
@@ -13711,7 +13711,7 @@
     "TEST-EVIDENCE-QUERY-SHOW-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-QUERY-SHOW-001 Topic Catalog 支持精确列出、搜索与展示 List、search 和 show 必须使用对象键提供的统一 case 身份、topic 路径与单 case 权威正文。 ID 顺序、case ID/契约词/证明词搜索、`<topic>/<slug>.md` 源路径及 Markdown 展开均返回精确结果。 tools/test-evidence/tests/run.ts > catalog queries list, search, and show exact cases bun test --test-name-pattern=\"^catalog queries list, search, and show exact cases$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-QUERY-SHOW-001 Topic Catalog 支持精确列出、搜索与展示 List、search 和 show 必须使用对象键提供的统一 case 身份、topic 路径与单 case 权威正文。 ID 顺序、case ID/契约词/证明词搜索、`<topic>/<slug>.md` 源路径及 Markdown 展开均返回精确结果。 tools/test-evidence/tests/catalog.test.ts > catalog queries list, search, and show exact cases bun test --test-name-pattern=\"^catalog queries list, search, and show exact cases$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -13720,12 +13720,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > catalog queries list, search, and show exact cases",
-          "bun test --test-name-pattern=\"^catalog queries list, search, and show exact cases$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > catalog queries list, search, and show exact cases",
+          "bun test --test-name-pattern=\"^catalog queries list, search, and show exact cases$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-QUERY-SHOW-001",
         "line": 1,
-        "searchText": "Topic Catalog 支持精确列出、搜索与展示 List、search 和 show 必须使用对象键提供的统一 case 身份、topic 路径与单 case 权威正文。 ID 顺序、case ID/契约词/证明词搜索、`<topic>/<slug>.md` 源路径及 Markdown 展开均返回精确结果。 tools/test-evidence/tests/run.ts > catalog queries list, search, and show exact cases bun test --test-name-pattern=\"^catalog queries list, search, and show exact cases$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Topic Catalog 支持精确列出、搜索与展示 List、search 和 show 必须使用对象键提供的统一 case 身份、topic 路径与单 case 权威正文。 ID 顺序、case ID/契约词/证明词搜索、`<topic>/<slug>.md` 源路径及 Markdown 展开均返回精确结果。 tools/test-evidence/tests/catalog.test.ts > catalog queries list, search, and show exact cases bun test --test-name-pattern=\"^catalog queries list, search, and show exact cases$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/catalog-queries-list-search-and-show-exact-cases.md",
         "summary": "List、search 和 show 必须使用对象键提供的统一 case 身份、topic 路径与单 case 权威正文。",
         "title": "Topic Catalog 支持精确列出、搜索与展示"
@@ -13734,7 +13734,7 @@
     "TEST-EVIDENCE-RECORD-KEY-SCHEMA-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-RECORD-KEY-SCHEMA-001 State Index Schema 拒绝非法 Case ID Record Key Test-evidence 的 Valibot schema 与生成 JSON Schema 必须在 `entries` 和 `sourceRevision.entries` 的对象键上共同执行 Case ID 格式约束。 生成 JSON Schema 接受当前合法索引。 将 `entries` 或 `sourceRevision.entries` 中一个合法 key 替换为 `not-a-case-id` 后，Valibot 与生成 JSON Schema 都拒绝该索引。 tools/test-evidence/tests/run.ts > state index schemas reject invalid case IDs used as record keys bun test --test-name-pattern=\"^state index schemas reject invalid case IDs used as record keys$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-RECORD-KEY-SCHEMA-001 State Index Schema 拒绝非法 Case ID Record Key Test-evidence 的 Valibot schema 与生成 JSON Schema 必须在 `entries` 和 `sourceRevision.entries` 的对象键上共同执行 Case ID 格式约束。 生成 JSON Schema 接受当前合法索引。 将 `entries` 或 `sourceRevision.entries` 中一个合法 key 替换为 `not-a-case-id` 后，Valibot 与生成 JSON Schema 都拒绝该索引。 tools/test-evidence/tests/catalog.test.ts > state index schemas reject invalid case IDs used as record keys bun test --test-name-pattern=\"^state index schemas reject invalid case IDs used as record keys$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -13743,12 +13743,12 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "tools/test-evidence/tests/run.ts > state index schemas reject invalid case IDs used as record keys",
-          "bun test --test-name-pattern=\"^state index schemas reject invalid case IDs used as record keys$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > state index schemas reject invalid case IDs used as record keys",
+          "bun test --test-name-pattern=\"^state index schemas reject invalid case IDs used as record keys$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-RECORD-KEY-SCHEMA-001",
         "line": 1,
-        "searchText": "State Index Schema 拒绝非法 Case ID Record Key Test-evidence 的 Valibot schema 与生成 JSON Schema 必须在 `entries` 和 `sourceRevision.entries` 的对象键上共同执行 Case ID 格式约束。 生成 JSON Schema 接受当前合法索引。 将 `entries` 或 `sourceRevision.entries` 中一个合法 key 替换为 `not-a-case-id` 后，Valibot 与生成 JSON Schema 都拒绝该索引。 tools/test-evidence/tests/run.ts > state index schemas reject invalid case IDs used as record keys bun test --test-name-pattern=\"^state index schemas reject invalid case IDs used as record keys$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "State Index Schema 拒绝非法 Case ID Record Key Test-evidence 的 Valibot schema 与生成 JSON Schema 必须在 `entries` 和 `sourceRevision.entries` 的对象键上共同执行 Case ID 格式约束。 生成 JSON Schema 接受当前合法索引。 将 `entries` 或 `sourceRevision.entries` 中一个合法 key 替换为 `not-a-case-id` 后，Valibot 与生成 JSON Schema 都拒绝该索引。 tools/test-evidence/tests/catalog.test.ts > state index schemas reject invalid case IDs used as record keys bun test --test-name-pattern=\"^state index schemas reject invalid case IDs used as record keys$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/state-index-schemas-reject-invalid-case-ids-used-as-record-keys.md",
         "summary": "Test-evidence 的 Valibot schema 与生成 JSON Schema 必须在 `entries` 和 `sourceRevision.entries` 的对象键上共同执行 Case ID 格式约束。",
         "title": "State Index Schema 拒绝非法 Case ID Record Key"
@@ -13757,7 +13757,7 @@
     "TEST-EVIDENCE-REVISION-CASE-MOVE-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-REVISION-CASE-MOVE-001 Case 移动只改变自身 Entry Revision 并保留身份 Case revision 必须包含源路径，而 Case ID 作为 record key 不随合法移动改变；topic 表未变时 metadata revision 也不得改变。 将 access case 移入 `sessions` 并同步后，metadata revision 不变，只有该 case 的 entry revision 改变，另一个 case 的 entry revision 保持不变。 `show` 仍以原 Case ID 返回移动后的 `sessions/access-role.md` 与 `sessions` topic。 tools/test-evidence/tests/run.ts > case moves change only their entry revision and preserve identity bun test --test-name-pattern=\"^case moves change only their entry revision and preserve identity$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-REVISION-CASE-MOVE-001 Case 移动只改变自身 Entry Revision 并保留身份 Case revision 必须包含源路径，而 Case ID 作为 record key 不随合法移动改变；topic 表未变时 metadata revision 也不得改变。 将 access case 移入 `sessions` 并同步后，metadata revision 不变，只有该 case 的 entry revision 改变，另一个 case 的 entry revision 保持不变。 `show` 仍以原 Case ID 返回移动后的 `sessions/access-role.md` 与 `sessions` topic。 tools/test-evidence/tests/catalog.test.ts > case moves change only their entry revision and preserve identity bun test --test-name-pattern=\"^case moves change only their entry revision and preserve identity$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -13766,12 +13766,12 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "tools/test-evidence/tests/run.ts > case moves change only their entry revision and preserve identity",
-          "bun test --test-name-pattern=\"^case moves change only their entry revision and preserve identity$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > case moves change only their entry revision and preserve identity",
+          "bun test --test-name-pattern=\"^case moves change only their entry revision and preserve identity$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-REVISION-CASE-MOVE-001",
         "line": 1,
-        "searchText": "Case 移动只改变自身 Entry Revision 并保留身份 Case revision 必须包含源路径，而 Case ID 作为 record key 不随合法移动改变；topic 表未变时 metadata revision 也不得改变。 将 access case 移入 `sessions` 并同步后，metadata revision 不变，只有该 case 的 entry revision 改变，另一个 case 的 entry revision 保持不变。 `show` 仍以原 Case ID 返回移动后的 `sessions/access-role.md` 与 `sessions` topic。 tools/test-evidence/tests/run.ts > case moves change only their entry revision and preserve identity bun test --test-name-pattern=\"^case moves change only their entry revision and preserve identity$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Case 移动只改变自身 Entry Revision 并保留身份 Case revision 必须包含源路径，而 Case ID 作为 record key 不随合法移动改变；topic 表未变时 metadata revision 也不得改变。 将 access case 移入 `sessions` 并同步后，metadata revision 不变，只有该 case 的 entry revision 改变，另一个 case 的 entry revision 保持不变。 `show` 仍以原 Case ID 返回移动后的 `sessions/access-role.md` 与 `sessions` topic。 tools/test-evidence/tests/catalog.test.ts > case moves change only their entry revision and preserve identity bun test --test-name-pattern=\"^case moves change only their entry revision and preserve identity$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/case-moves-change-only-their-entry-revision-and-preserve-identity.md",
         "summary": "Case revision 必须包含源路径，而 Case ID 作为 record key 不随合法移动改变；topic 表未变时 metadata revision 也不得改变。",
         "title": "Case 移动只改变自身 Entry Revision 并保留身份"
@@ -13780,7 +13780,7 @@
     "TEST-EVIDENCE-REVISION-FAST-PARSE-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-REVISION-FAST-PARSE-001 快速 Revision 读取不解析 Case Body 快速新鲜度读取必须直接从已读取来源取得 case ID 并计算指纹，不得调用完整 case body parser。 带合法唯一标题但正文结构无效的 Markdown 仍可产生逐 case 指纹，而完整快照读取稳定拒绝该正文。 tools/test-evidence/tests/run.ts > fast revision reads do not parse case bodies bun test --test-name-pattern=\"^fast revision reads do not parse case bodies$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-REVISION-FAST-PARSE-001 快速 Revision 读取不解析 Case Body 快速新鲜度读取必须直接从已读取来源取得 case ID 并计算指纹，不得调用完整 case body parser。 带合法唯一标题但正文结构无效的 Markdown 仍可产生逐 case 指纹，而完整快照读取稳定拒绝该正文。 tools/test-evidence/tests/catalog.test.ts > fast revision reads do not parse case bodies bun test --test-name-pattern=\"^fast revision reads do not parse case bodies$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -13789,12 +13789,12 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/test-evidence/tests/run.ts > fast revision reads do not parse case bodies",
-          "bun test --test-name-pattern=\"^fast revision reads do not parse case bodies$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > fast revision reads do not parse case bodies",
+          "bun test --test-name-pattern=\"^fast revision reads do not parse case bodies$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-REVISION-FAST-PARSE-001",
         "line": 1,
-        "searchText": "快速 Revision 读取不解析 Case Body 快速新鲜度读取必须直接从已读取来源取得 case ID 并计算指纹，不得调用完整 case body parser。 带合法唯一标题但正文结构无效的 Markdown 仍可产生逐 case 指纹，而完整快照读取稳定拒绝该正文。 tools/test-evidence/tests/run.ts > fast revision reads do not parse case bodies bun test --test-name-pattern=\"^fast revision reads do not parse case bodies$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "快速 Revision 读取不解析 Case Body 快速新鲜度读取必须直接从已读取来源取得 case ID 并计算指纹，不得调用完整 case body parser。 带合法唯一标题但正文结构无效的 Markdown 仍可产生逐 case 指纹，而完整快照读取稳定拒绝该正文。 tools/test-evidence/tests/catalog.test.ts > fast revision reads do not parse case bodies bun test --test-name-pattern=\"^fast revision reads do not parse case bodies$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/fast-revision-reads-do-not-parse-case-bodies.md",
         "summary": "快速新鲜度读取必须直接从已读取来源取得 case ID 并计算指纹，不得调用完整 case body parser。",
         "title": "快速 Revision 读取不解析 Case Body"
@@ -13803,7 +13803,7 @@
     "TEST-EVIDENCE-REVISION-FRAMING-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-REVISION-FRAMING-001 Revision Framing 规范化非语义输入 结构化源 revision 只反映规范化后的 topic 定义、case 源路径与正文，不受非语义载体差异影响。 LF 与 CRLF 产生相同 metadata/entry 指纹，孤立 CR 保持为语义输入并产生不同 entry 指纹。 topic JSON 纯格式变化不改变当前 revision 清单。 tools/test-evidence/tests/run.ts > revision framing normalizes line endings and topic JSON formatting bun test --test-name-pattern=\"^revision framing normalizes line endings and topic JSON formatting$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-REVISION-FRAMING-001 Revision Framing 规范化非语义输入 结构化源 revision 只反映规范化后的 topic 定义、case 源路径与正文，不受非语义载体差异影响。 LF 与 CRLF 产生相同 metadata/entry 指纹，孤立 CR 保持为语义输入并产生不同 entry 指纹。 topic JSON 纯格式变化不改变当前 revision 清单。 tools/test-evidence/tests/catalog.test.ts > revision framing normalizes line endings and topic JSON formatting bun test --test-name-pattern=\"^revision framing normalizes line endings and topic JSON formatting$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -13812,12 +13812,12 @@
       "state": {
         "endLine": 10,
         "entries": [
-          "tools/test-evidence/tests/run.ts > revision framing normalizes line endings and topic JSON formatting",
-          "bun test --test-name-pattern=\"^revision framing normalizes line endings and topic JSON formatting$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > revision framing normalizes line endings and topic JSON formatting",
+          "bun test --test-name-pattern=\"^revision framing normalizes line endings and topic JSON formatting$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-REVISION-FRAMING-001",
         "line": 1,
-        "searchText": "Revision Framing 规范化非语义输入 结构化源 revision 只反映规范化后的 topic 定义、case 源路径与正文，不受非语义载体差异影响。 LF 与 CRLF 产生相同 metadata/entry 指纹，孤立 CR 保持为语义输入并产生不同 entry 指纹。 topic JSON 纯格式变化不改变当前 revision 清单。 tools/test-evidence/tests/run.ts > revision framing normalizes line endings and topic JSON formatting bun test --test-name-pattern=\"^revision framing normalizes line endings and topic JSON formatting$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Revision Framing 规范化非语义输入 结构化源 revision 只反映规范化后的 topic 定义、case 源路径与正文，不受非语义载体差异影响。 LF 与 CRLF 产生相同 metadata/entry 指纹，孤立 CR 保持为语义输入并产生不同 entry 指纹。 topic JSON 纯格式变化不改变当前 revision 清单。 tools/test-evidence/tests/catalog.test.ts > revision framing normalizes line endings and topic JSON formatting bun test --test-name-pattern=\"^revision framing normalizes line endings and topic JSON formatting$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/revision-framing-normalizes-non-semantic-inputs.md",
         "summary": "结构化源 revision 只反映规范化后的 topic 定义、case 源路径与正文，不受非语义载体差异影响。",
         "title": "Revision Framing 规范化非语义输入"
@@ -13826,7 +13826,7 @@
     "TEST-EVIDENCE-REVISION-MEMBERSHIP-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-REVISION-MEMBERSHIP-001 Case 成员变化只增删对应 Revision Entry `sourceRevision.entries` 必须与 case state record 使用相同 ID 集合，成员增删不得改写无关来源指纹。 新增合法 case 只增加对应 ID，删除另一个 case 只移除对应 ID；metadata 与保留 case 指纹均保持不变。 tools/test-evidence/tests/run.ts > case membership changes only add or remove matching revision entries bun test --test-name-pattern=\"^case membership changes only add or remove matching revision entries$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-REVISION-MEMBERSHIP-001 Case 成员变化只增删对应 Revision Entry `sourceRevision.entries` 必须与 case state record 使用相同 ID 集合，成员增删不得改写无关来源指纹。 新增合法 case 只增加对应 ID，删除另一个 case 只移除对应 ID；metadata 与保留 case 指纹均保持不变。 tools/test-evidence/tests/catalog.test.ts > case membership changes only add or remove matching revision entries bun test --test-name-pattern=\"^case membership changes only add or remove matching revision entries$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -13835,12 +13835,12 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/test-evidence/tests/run.ts > case membership changes only add or remove matching revision entries",
-          "bun test --test-name-pattern=\"^case membership changes only add or remove matching revision entries$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > case membership changes only add or remove matching revision entries",
+          "bun test --test-name-pattern=\"^case membership changes only add or remove matching revision entries$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-REVISION-MEMBERSHIP-001",
         "line": 1,
-        "searchText": "Case 成员变化只增删对应 Revision Entry `sourceRevision.entries` 必须与 case state record 使用相同 ID 集合，成员增删不得改写无关来源指纹。 新增合法 case 只增加对应 ID，删除另一个 case 只移除对应 ID；metadata 与保留 case 指纹均保持不变。 tools/test-evidence/tests/run.ts > case membership changes only add or remove matching revision entries bun test --test-name-pattern=\"^case membership changes only add or remove matching revision entries$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Case 成员变化只增删对应 Revision Entry `sourceRevision.entries` 必须与 case state record 使用相同 ID 集合，成员增删不得改写无关来源指纹。 新增合法 case 只增加对应 ID，删除另一个 case 只移除对应 ID；metadata 与保留 case 指纹均保持不变。 tools/test-evidence/tests/catalog.test.ts > case membership changes only add or remove matching revision entries bun test --test-name-pattern=\"^case membership changes only add or remove matching revision entries$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/case-membership-changes-only-add-or-remove-matching-revision-entries.md",
         "summary": "`sourceRevision.entries` 必须与 case state record 使用相同 ID 集合，成员增删不得改写无关来源指纹。",
         "title": "Case 成员变化只增删对应 Revision Entry"
@@ -13849,7 +13849,7 @@
     "TEST-EVIDENCE-REVISION-PARITY-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-REVISION-PARITY-001 完整与快速读取产生相同逐 Case Revision 完整快照与快速 revision 读取必须对同一合法 catalog 返回相同的 metadata 和逐 case revision record，并共同规范化 LF 与 CRLF。 对正文包含 fenced 伪标题的默认 fixture，两条路径返回完全相同的 revision，完整读取只物化两个真实 case ID。 将一个 case 源从 LF 改为 CRLF 后，两条路径仍返回与初始值相同的 revision。 tools/test-evidence/tests/run.ts > full and fast source reads return the same per-case revision bun test --test-name-pattern=\"^full and fast source reads return the same per-case revision$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-REVISION-PARITY-001 完整与快速读取产生相同逐 Case Revision 完整快照与快速 revision 读取必须对同一合法 catalog 返回相同的 metadata 和逐 case revision record，并共同规范化 LF 与 CRLF。 对正文包含 fenced 伪标题的默认 fixture，两条路径返回完全相同的 revision，完整读取只物化两个真实 case ID。 将一个 case 源从 LF 改为 CRLF 后，两条路径仍返回与初始值相同的 revision。 tools/test-evidence/tests/catalog.test.ts > full and fast source reads return the same per-case revision bun test --test-name-pattern=\"^full and fast source reads return the same per-case revision$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -13858,12 +13858,12 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "tools/test-evidence/tests/run.ts > full and fast source reads return the same per-case revision",
-          "bun test --test-name-pattern=\"^full and fast source reads return the same per-case revision$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > full and fast source reads return the same per-case revision",
+          "bun test --test-name-pattern=\"^full and fast source reads return the same per-case revision$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-REVISION-PARITY-001",
         "line": 1,
-        "searchText": "完整与快速读取产生相同逐 Case Revision 完整快照与快速 revision 读取必须对同一合法 catalog 返回相同的 metadata 和逐 case revision record，并共同规范化 LF 与 CRLF。 对正文包含 fenced 伪标题的默认 fixture，两条路径返回完全相同的 revision，完整读取只物化两个真实 case ID。 将一个 case 源从 LF 改为 CRLF 后，两条路径仍返回与初始值相同的 revision。 tools/test-evidence/tests/run.ts > full and fast source reads return the same per-case revision bun test --test-name-pattern=\"^full and fast source reads return the same per-case revision$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "完整与快速读取产生相同逐 Case Revision 完整快照与快速 revision 读取必须对同一合法 catalog 返回相同的 metadata 和逐 case revision record，并共同规范化 LF 与 CRLF。 对正文包含 fenced 伪标题的默认 fixture，两条路径返回完全相同的 revision，完整读取只物化两个真实 case ID。 将一个 case 源从 LF 改为 CRLF 后，两条路径仍返回与初始值相同的 revision。 tools/test-evidence/tests/catalog.test.ts > full and fast source reads return the same per-case revision bun test --test-name-pattern=\"^full and fast source reads return the same per-case revision$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/full-and-fast-source-reads-return-the-same-per-case-revision.md",
         "summary": "完整快照与快速 revision 读取必须对同一合法 catalog 返回相同的 metadata 和逐 case revision record，并共同规范化 LF 与 CRLF。",
         "title": "完整与快速读取产生相同逐 Case Revision"
@@ -13872,7 +13872,7 @@
     "TEST-EVIDENCE-REVISION-TOPIC-MOVE-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-REVISION-TOPIC-MOVE-001 Topic 描述只改变 Metadata Source Revision 结构化 source revision 必须把规范化 topic metadata 与逐 Case 来源分开指纹化。 修改一个 topic 描述并重新同步后，metadata revision 改变，全部逐 Case entry revision 保持不变。 tools/test-evidence/tests/run.ts > topic descriptions change only the metadata source revision bun test --test-name-pattern=\"^topic descriptions change only the metadata source revision$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-REVISION-TOPIC-MOVE-001 Topic 描述只改变 Metadata Source Revision 结构化 source revision 必须把规范化 topic metadata 与逐 Case 来源分开指纹化。 修改一个 topic 描述并重新同步后，metadata revision 改变，全部逐 Case entry revision 保持不变。 tools/test-evidence/tests/catalog.test.ts > topic descriptions change only the metadata source revision bun test --test-name-pattern=\"^topic descriptions change only the metadata source revision$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -13881,12 +13881,12 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/test-evidence/tests/run.ts > topic descriptions change only the metadata source revision",
-          "bun test --test-name-pattern=\"^topic descriptions change only the metadata source revision$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > topic descriptions change only the metadata source revision",
+          "bun test --test-name-pattern=\"^topic descriptions change only the metadata source revision$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-REVISION-TOPIC-MOVE-001",
         "line": 1,
-        "searchText": "Topic 描述只改变 Metadata Source Revision 结构化 source revision 必须把规范化 topic metadata 与逐 Case 来源分开指纹化。 修改一个 topic 描述并重新同步后，metadata revision 改变，全部逐 Case entry revision 保持不变。 tools/test-evidence/tests/run.ts > topic descriptions change only the metadata source revision bun test --test-name-pattern=\"^topic descriptions change only the metadata source revision$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Topic 描述只改变 Metadata Source Revision 结构化 source revision 必须把规范化 topic metadata 与逐 Case 来源分开指纹化。 修改一个 topic 描述并重新同步后，metadata revision 改变，全部逐 Case entry revision 保持不变。 tools/test-evidence/tests/catalog.test.ts > topic descriptions change only the metadata source revision bun test --test-name-pattern=\"^topic descriptions change only the metadata source revision$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/topic-descriptions-change-only-the-metadata-source-revision.md",
         "summary": "结构化 source revision 必须把规范化 topic metadata 与逐 Case 来源分开指纹化。",
         "title": "Topic 描述只改变 Metadata Source Revision"
@@ -13895,7 +13895,7 @@
     "TEST-EVIDENCE-ROOT-MEMBERSHIP-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-ROOT-MEMBERSHIP-001 Catalog 根目录拒绝未知 Topic 与额外文件 Catalog 根目录只能包含受控 topic 目录和明确允许的根文件。 未登记 topic 目录与不受支持的根文件分别返回确定诊断。 tools/test-evidence/tests/run.ts > catalog roots reject unknown topic directories and unsupported root files bun test --test-name-pattern=\"^catalog roots reject unknown topic directories and unsupported root files$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-ROOT-MEMBERSHIP-001 Catalog 根目录拒绝未知 Topic 与额外文件 Catalog 根目录只能包含受控 topic 目录和明确允许的根文件。 未登记 topic 目录与不受支持的根文件分别返回确定诊断。 tools/test-evidence/tests/catalog.test.ts > catalog roots reject unknown topic directories and unsupported root files bun test --test-name-pattern=\"^catalog roots reject unknown topic directories and unsupported root files$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -13904,12 +13904,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > catalog roots reject unknown topic directories and unsupported root files",
-          "bun test --test-name-pattern=\"^catalog roots reject unknown topic directories and unsupported root files$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > catalog roots reject unknown topic directories and unsupported root files",
+          "bun test --test-name-pattern=\"^catalog roots reject unknown topic directories and unsupported root files$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-ROOT-MEMBERSHIP-001",
         "line": 1,
-        "searchText": "Catalog 根目录拒绝未知 Topic 与额外文件 Catalog 根目录只能包含受控 topic 目录和明确允许的根文件。 未登记 topic 目录与不受支持的根文件分别返回确定诊断。 tools/test-evidence/tests/run.ts > catalog roots reject unknown topic directories and unsupported root files bun test --test-name-pattern=\"^catalog roots reject unknown topic directories and unsupported root files$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Catalog 根目录拒绝未知 Topic 与额外文件 Catalog 根目录只能包含受控 topic 目录和明确允许的根文件。 未登记 topic 目录与不受支持的根文件分别返回确定诊断。 tools/test-evidence/tests/catalog.test.ts > catalog roots reject unknown topic directories and unsupported root files bun test --test-name-pattern=\"^catalog roots reject unknown topic directories and unsupported root files$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/catalog-roots-reject-unknown-topics-and-unsupported-files.md",
         "summary": "Catalog 根目录只能包含受控 topic 目录和明确允许的根文件。",
         "title": "Catalog 根目录拒绝未知 Topic 与额外文件"
@@ -13918,7 +13918,7 @@
     "TEST-EVIDENCE-SCHEMA-V3-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-SCHEMA-V3-001 Test Evidence 只读取并重建键控 Schema v3 Test-evidence 派生索引只接受按 case ID 键控的 schema v3；schema v2 由权威目录重建，不保留兼容读取分支。 领域 Schema 拒绝数组型 schema v2，查询返回稳定版本 warning 并使用内存投影，写同步随后产生合法 schema v3。 tools/test-evidence/tests/run.ts > schema v2 indexes are rejected and rebuilt as keyed schema v3 bun test --test-name-pattern=\"^schema v2 indexes are rejected and rebuilt as keyed schema v3$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-SCHEMA-V3-001 Test Evidence 只读取并重建键控 Schema v3 Test-evidence 派生索引只接受按 case ID 键控的 schema v3；schema v2 由权威目录重建，不保留兼容读取分支。 领域 Schema 拒绝数组型 schema v2，查询返回稳定版本 warning 并使用内存投影，写同步随后产生合法 schema v3。 tools/test-evidence/tests/catalog.test.ts > schema v2 indexes are rejected and rebuilt as keyed schema v3 bun test --test-name-pattern=\"^schema v2 indexes are rejected and rebuilt as keyed schema v3$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -13927,12 +13927,12 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/test-evidence/tests/run.ts > schema v2 indexes are rejected and rebuilt as keyed schema v3",
-          "bun test --test-name-pattern=\"^schema v2 indexes are rejected and rebuilt as keyed schema v3$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > schema v2 indexes are rejected and rebuilt as keyed schema v3",
+          "bun test --test-name-pattern=\"^schema v2 indexes are rejected and rebuilt as keyed schema v3$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-SCHEMA-V3-001",
         "line": 1,
-        "searchText": "Test Evidence 只读取并重建键控 Schema v3 Test-evidence 派生索引只接受按 case ID 键控的 schema v3；schema v2 由权威目录重建，不保留兼容读取分支。 领域 Schema 拒绝数组型 schema v2，查询返回稳定版本 warning 并使用内存投影，写同步随后产生合法 schema v3。 tools/test-evidence/tests/run.ts > schema v2 indexes are rejected and rebuilt as keyed schema v3 bun test --test-name-pattern=\"^schema v2 indexes are rejected and rebuilt as keyed schema v3$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Test Evidence 只读取并重建键控 Schema v3 Test-evidence 派生索引只接受按 case ID 键控的 schema v3；schema v2 由权威目录重建，不保留兼容读取分支。 领域 Schema 拒绝数组型 schema v2，查询返回稳定版本 warning 并使用内存投影，写同步随后产生合法 schema v3。 tools/test-evidence/tests/catalog.test.ts > schema v2 indexes are rejected and rebuilt as keyed schema v3 bun test --test-name-pattern=\"^schema v2 indexes are rejected and rebuilt as keyed schema v3$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/schema-v2-indexes-are-rejected-and-rebuilt-as-keyed-schema-v3.md",
         "summary": "Test-evidence 派生索引只接受按 case ID 键控的 schema v3；schema v2 由权威目录重建，不保留兼容读取分支。",
         "title": "Test Evidence 只读取并重建键控 Schema v3"
@@ -14240,7 +14240,7 @@
     "TEST-EVIDENCE-STALE-INDEX-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-STALE-INDEX-001 过期索引回退到当前 catalog 派生索引落后于 catalog 时，查询与展示必须使用当前正文。 Case 仍可读取，同时返回非阻断 `state-index.index-stale` 诊断。 tools/test-evidence/tests/run.ts > stale indexes fall back to current catalog content bun test --test-name-pattern=\"^stale indexes fall back to current catalog content$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-STALE-INDEX-001 过期索引回退到当前 catalog 派生索引落后于 catalog 时，查询与展示必须使用当前正文。 Case 仍可读取，同时返回非阻断 `state-index.index-stale` 诊断。 tools/test-evidence/tests/catalog.test.ts > stale indexes fall back to current catalog content bun test --test-name-pattern=\"^stale indexes fall back to current catalog content$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -14249,12 +14249,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > stale indexes fall back to current catalog content",
-          "bun test --test-name-pattern=\"^stale indexes fall back to current catalog content$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > stale indexes fall back to current catalog content",
+          "bun test --test-name-pattern=\"^stale indexes fall back to current catalog content$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-STALE-INDEX-001",
         "line": 1,
-        "searchText": "过期索引回退到当前 catalog 派生索引落后于 catalog 时，查询与展示必须使用当前正文。 Case 仍可读取，同时返回非阻断 `state-index.index-stale` 诊断。 tools/test-evidence/tests/run.ts > stale indexes fall back to current catalog content bun test --test-name-pattern=\"^stale indexes fall back to current catalog content$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "过期索引回退到当前 catalog 派生索引落后于 catalog 时，查询与展示必须使用当前正文。 Case 仍可读取，同时返回非阻断 `state-index.index-stale` 诊断。 tools/test-evidence/tests/catalog.test.ts > stale indexes fall back to current catalog content bun test --test-name-pattern=\"^stale indexes fall back to current catalog content$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/stale-indexes-fall-back-to-current-catalog-content.md",
         "summary": "派生索引落后于 catalog 时，查询与展示必须使用当前正文。",
         "title": "过期索引回退到当前 catalog"
@@ -14263,7 +14263,7 @@
     "TEST-EVIDENCE-TOPIC-CLI-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-TOPIC-CLI-001 未知与重复 Topic 参数确定失败 Topic 过滤只接受一个已定义 ID，公共 API 与 CLI 必须返回稳定失败语义。 未知 topic 返回 `query.topic-unknown` 与 CLI 退出码 2，重复 `--topic` 参数被确定拒绝。 tools/test-evidence/tests/run.ts > unknown and repeated topic CLI arguments fail deterministically bun test --test-name-pattern=\"^unknown and repeated topic CLI arguments fail deterministically$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-TOPIC-CLI-001 未知与重复 Topic 参数确定失败 Topic 过滤只接受一个已定义 ID，公共 API 与 CLI 必须返回稳定失败语义。 未知 topic 返回 `query.topic-unknown` 与 CLI 退出码 2，重复 `--topic` 参数被确定拒绝。 tools/test-evidence/tests/catalog.test.ts > unknown and repeated topic CLI arguments fail deterministically bun test --test-name-pattern=\"^unknown and repeated topic CLI arguments fail deterministically$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -14272,12 +14272,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > unknown and repeated topic CLI arguments fail deterministically",
-          "bun test --test-name-pattern=\"^unknown and repeated topic CLI arguments fail deterministically$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > unknown and repeated topic CLI arguments fail deterministically",
+          "bun test --test-name-pattern=\"^unknown and repeated topic CLI arguments fail deterministically$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-TOPIC-CLI-001",
         "line": 1,
-        "searchText": "未知与重复 Topic 参数确定失败 Topic 过滤只接受一个已定义 ID，公共 API 与 CLI 必须返回稳定失败语义。 未知 topic 返回 `query.topic-unknown` 与 CLI 退出码 2，重复 `--topic` 参数被确定拒绝。 tools/test-evidence/tests/run.ts > unknown and repeated topic CLI arguments fail deterministically bun test --test-name-pattern=\"^unknown and repeated topic CLI arguments fail deterministically$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "未知与重复 Topic 参数确定失败 Topic 过滤只接受一个已定义 ID，公共 API 与 CLI 必须返回稳定失败语义。 未知 topic 返回 `query.topic-unknown` 与 CLI 退出码 2，重复 `--topic` 参数被确定拒绝。 tools/test-evidence/tests/catalog.test.ts > unknown and repeated topic CLI arguments fail deterministically bun test --test-name-pattern=\"^unknown and repeated topic CLI arguments fail deterministically$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/unknown-and-repeated-topic-cli-arguments-fail.md",
         "summary": "Topic 过滤只接受一个已定义 ID，公共 API 与 CLI 必须返回稳定失败语义。",
         "title": "未知与重复 Topic 参数确定失败"
@@ -14286,7 +14286,7 @@
     "TEST-EVIDENCE-TOPIC-DIRECTORY-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-TOPIC-DIRECTORY-001 Topic 目录拒绝不受支持的成员 Topic 目录只能直接包含使用语义 slug 的普通 Markdown 单 case 文件。 嵌套目录、非 Markdown 文件和符号链接都返回 `catalog.topic-entry-unsupported`。 tools/test-evidence/tests/run.ts > topic directories reject nested, non-Markdown, and symbolic-link members bun test --test-name-pattern=\"^topic directories reject nested, non-Markdown, and symbolic-link members$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-TOPIC-DIRECTORY-001 Topic 目录拒绝不受支持的成员 Topic 目录只能直接包含使用语义 slug 的普通 Markdown 单 case 文件。 嵌套目录、非 Markdown 文件和符号链接都返回 `catalog.topic-entry-unsupported`。 tools/test-evidence/tests/catalog.test.ts > topic directories reject nested, non-Markdown, and symbolic-link members bun test --test-name-pattern=\"^topic directories reject nested, non-Markdown, and symbolic-link members$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -14295,12 +14295,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > topic directories reject nested, non-Markdown, and symbolic-link members",
-          "bun test --test-name-pattern=\"^topic directories reject nested, non-Markdown, and symbolic-link members$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > topic directories reject nested, non-Markdown, and symbolic-link members",
+          "bun test --test-name-pattern=\"^topic directories reject nested, non-Markdown, and symbolic-link members$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-TOPIC-DIRECTORY-001",
         "line": 1,
-        "searchText": "Topic 目录拒绝不受支持的成员 Topic 目录只能直接包含使用语义 slug 的普通 Markdown 单 case 文件。 嵌套目录、非 Markdown 文件和符号链接都返回 `catalog.topic-entry-unsupported`。 tools/test-evidence/tests/run.ts > topic directories reject nested, non-Markdown, and symbolic-link members bun test --test-name-pattern=\"^topic directories reject nested, non-Markdown, and symbolic-link members$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Topic 目录拒绝不受支持的成员 Topic 目录只能直接包含使用语义 slug 的普通 Markdown 单 case 文件。 嵌套目录、非 Markdown 文件和符号链接都返回 `catalog.topic-entry-unsupported`。 tools/test-evidence/tests/catalog.test.ts > topic directories reject nested, non-Markdown, and symbolic-link members bun test --test-name-pattern=\"^topic directories reject nested, non-Markdown, and symbolic-link members$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/topic-directories-reject-unsupported-members.md",
         "summary": "Topic 目录只能直接包含使用语义 slug 的普通 Markdown 单 case 文件。",
         "title": "Topic 目录拒绝不受支持的成员"
@@ -14309,7 +14309,7 @@
     "TEST-EVIDENCE-TOPIC-FILTER-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-TOPIC-FILTER-001 Topic 过滤返回匹配与已定义空结果 精确 topic 查询必须区分有匹配 case、已定义但为空的 topic，并在查询与 show 中返回 topic 定义。 有内容的 topic 只返回自身 case，预留空 topic 返回零项，show 返回 case 所属 topic 的描述。 tools/test-evidence/tests/run.ts > topic filters return matching and defined-empty results with topic definitions bun test --test-name-pattern=\"^topic filters return matching and defined-empty results with topic definitions$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-TOPIC-FILTER-001 Topic 过滤返回匹配与已定义空结果 精确 topic 查询必须区分有匹配 case、已定义但为空的 topic，并在查询与 show 中返回 topic 定义。 有内容的 topic 只返回自身 case，预留空 topic 返回零项，show 返回 case 所属 topic 的描述。 tools/test-evidence/tests/catalog.test.ts > topic filters return matching and defined-empty results with topic definitions bun test --test-name-pattern=\"^topic filters return matching and defined-empty results with topic definitions$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -14318,12 +14318,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > topic filters return matching and defined-empty results with topic definitions",
-          "bun test --test-name-pattern=\"^topic filters return matching and defined-empty results with topic definitions$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > topic filters return matching and defined-empty results with topic definitions",
+          "bun test --test-name-pattern=\"^topic filters return matching and defined-empty results with topic definitions$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-TOPIC-FILTER-001",
         "line": 1,
-        "searchText": "Topic 过滤返回匹配与已定义空结果 精确 topic 查询必须区分有匹配 case、已定义但为空的 topic，并在查询与 show 中返回 topic 定义。 有内容的 topic 只返回自身 case，预留空 topic 返回零项，show 返回 case 所属 topic 的描述。 tools/test-evidence/tests/run.ts > topic filters return matching and defined-empty results with topic definitions bun test --test-name-pattern=\"^topic filters return matching and defined-empty results with topic definitions$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Topic 过滤返回匹配与已定义空结果 精确 topic 查询必须区分有匹配 case、已定义但为空的 topic，并在查询与 show 中返回 topic 定义。 有内容的 topic 只返回自身 case，预留空 topic 返回零项，show 返回 case 所属 topic 的描述。 tools/test-evidence/tests/catalog.test.ts > topic filters return matching and defined-empty results with topic definitions bun test --test-name-pattern=\"^topic filters return matching and defined-empty results with topic definitions$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/topic-filters-return-matching-and-defined-empty-results.md",
         "summary": "精确 topic 查询必须区分有匹配 case、已定义但为空的 topic，并在查询与 show 中返回 topic 定义。",
         "title": "Topic 过滤返回匹配与已定义空结果"
@@ -14332,7 +14332,7 @@
     "TEST-EVIDENCE-TOPIC-MEMBERSHIP-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-TOPIC-MEMBERSHIP-001 受控 Topic 可无 Case，但已存在目录不可为空 受控 topic 表可以预留暂时没有 case 的责任；一旦对应 topic 目录存在，该目录就必须包含单 case 文件。 仅定义空 topic 时目录可同步并通过检查，显式创建空 topic 目录后返回可定位的 `catalog.topic-directory-empty`。 tools/test-evidence/tests/run.ts > defined topics may be empty but existing topic directories may not bun test --test-name-pattern=\"^defined topics may be empty but existing topic directories may not$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-TOPIC-MEMBERSHIP-001 受控 Topic 可无 Case，但已存在目录不可为空 受控 topic 表可以预留暂时没有 case 的责任；一旦对应 topic 目录存在，该目录就必须包含单 case 文件。 仅定义空 topic 时目录可同步并通过检查，显式创建空 topic 目录后返回可定位的 `catalog.topic-directory-empty`。 tools/test-evidence/tests/catalog.test.ts > defined topics may be empty but existing topic directories may not bun test --test-name-pattern=\"^defined topics may be empty but existing topic directories may not$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -14341,12 +14341,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > defined topics may be empty but existing topic directories may not",
-          "bun test --test-name-pattern=\"^defined topics may be empty but existing topic directories may not$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > defined topics may be empty but existing topic directories may not",
+          "bun test --test-name-pattern=\"^defined topics may be empty but existing topic directories may not$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-TOPIC-MEMBERSHIP-001",
         "line": 1,
-        "searchText": "受控 Topic 可无 Case，但已存在目录不可为空 受控 topic 表可以预留暂时没有 case 的责任；一旦对应 topic 目录存在，该目录就必须包含单 case 文件。 仅定义空 topic 时目录可同步并通过检查，显式创建空 topic 目录后返回可定位的 `catalog.topic-directory-empty`。 tools/test-evidence/tests/run.ts > defined topics may be empty but existing topic directories may not bun test --test-name-pattern=\"^defined topics may be empty but existing topic directories may not$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "受控 Topic 可无 Case，但已存在目录不可为空 受控 topic 表可以预留暂时没有 case 的责任；一旦对应 topic 目录存在，该目录就必须包含单 case 文件。 仅定义空 topic 时目录可同步并通过检查，显式创建空 topic 目录后返回可定位的 `catalog.topic-directory-empty`。 tools/test-evidence/tests/catalog.test.ts > defined topics may be empty but existing topic directories may not bun test --test-name-pattern=\"^defined topics may be empty but existing topic directories may not$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/defined-topics-may-be-empty-but-existing-topic-directories-may-not.md",
         "summary": "受控 topic 表可以预留暂时没有 case 的责任；一旦对应 topic 目录存在，该目录就必须包含单 case 文件。",
         "title": "受控 Topic 可无 Case，但已存在目录不可为空"
@@ -14355,7 +14355,7 @@
     "TEST-EVIDENCE-TOPICS-READ-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-TOPICS-READ-001 Topics 直接读取已排序的权威表 Topic 查询必须直接读取权威受控表，不以派生索引存在为前提。 查询按稳定顺序返回全部 topic，且不会为只读操作创建索引。 tools/test-evidence/tests/run.ts > topics read the authoritative sorted table without an index bun test --test-name-pattern=\"^topics read the authoritative sorted table without an index$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-TOPICS-READ-001 Topics 直接读取已排序的权威表 Topic 查询必须直接读取权威受控表，不以派生索引存在为前提。 查询按稳定顺序返回全部 topic，且不会为只读操作创建索引。 tools/test-evidence/tests/catalog.test.ts > topics read the authoritative sorted table without an index bun test --test-name-pattern=\"^topics read the authoritative sorted table without an index$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -14364,12 +14364,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > topics read the authoritative sorted table without an index",
-          "bun test --test-name-pattern=\"^topics read the authoritative sorted table without an index$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > topics read the authoritative sorted table without an index",
+          "bun test --test-name-pattern=\"^topics read the authoritative sorted table without an index$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-TOPICS-READ-001",
         "line": 1,
-        "searchText": "Topics 直接读取已排序的权威表 Topic 查询必须直接读取权威受控表，不以派生索引存在为前提。 查询按稳定顺序返回全部 topic，且不会为只读操作创建索引。 tools/test-evidence/tests/run.ts > topics read the authoritative sorted table without an index bun test --test-name-pattern=\"^topics read the authoritative sorted table without an index$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Topics 直接读取已排序的权威表 Topic 查询必须直接读取权威受控表，不以派生索引存在为前提。 查询按稳定顺序返回全部 topic，且不会为只读操作创建索引。 tools/test-evidence/tests/catalog.test.ts > topics read the authoritative sorted table without an index bun test --test-name-pattern=\"^topics read the authoritative sorted table without an index$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/topics-read-the-authoritative-sorted-table-without-an-index.md",
         "summary": "Topic 查询必须直接读取权威受控表，不以派生索引存在为前提。",
         "title": "Topics 直接读取已排序的权威表"
@@ -14378,7 +14378,7 @@
     "TEST-EVIDENCE-TOPICS-SCHEMA-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-TOPICS-SCHEMA-001 Topic 表拒绝不合法定义 Topic 表必须符合固定 Schema，topic ID 唯一且排序，描述长度按 Unicode code point 计数。 缺失、无效 JSON、未知字段、重复、乱序、非法值及越界描述均被拒绝，200 个 Unicode code point 的描述被接受。 tools/test-evidence/tests/run.ts > topic tables reject missing, malformed, unknown, duplicate, unsorted, and invalid definitions bun test --test-name-pattern=\"^topic tables reject missing, malformed, unknown, duplicate, unsorted, and invalid definitions$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-TOPICS-SCHEMA-001 Topic 表拒绝不合法定义 Topic 表必须符合固定 Schema，topic ID 唯一且排序，描述长度按 Unicode code point 计数。 缺失、无效 JSON、未知字段、重复、乱序、非法值及越界描述均被拒绝，200 个 Unicode code point 的描述被接受。 tools/test-evidence/tests/catalog.test.ts > topic tables reject missing, malformed, unknown, duplicate, unsorted, and invalid definitions bun test --test-name-pattern=\"^topic tables reject missing, malformed, unknown, duplicate, unsorted, and invalid definitions$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -14387,12 +14387,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > topic tables reject missing, malformed, unknown, duplicate, unsorted, and invalid definitions",
-          "bun test --test-name-pattern=\"^topic tables reject missing, malformed, unknown, duplicate, unsorted, and invalid definitions$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > topic tables reject missing, malformed, unknown, duplicate, unsorted, and invalid definitions",
+          "bun test --test-name-pattern=\"^topic tables reject missing, malformed, unknown, duplicate, unsorted, and invalid definitions$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-TOPICS-SCHEMA-001",
         "line": 1,
-        "searchText": "Topic 表拒绝不合法定义 Topic 表必须符合固定 Schema，topic ID 唯一且排序，描述长度按 Unicode code point 计数。 缺失、无效 JSON、未知字段、重复、乱序、非法值及越界描述均被拒绝，200 个 Unicode code point 的描述被接受。 tools/test-evidence/tests/run.ts > topic tables reject missing, malformed, unknown, duplicate, unsorted, and invalid definitions bun test --test-name-pattern=\"^topic tables reject missing, malformed, unknown, duplicate, unsorted, and invalid definitions$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Topic 表拒绝不合法定义 Topic 表必须符合固定 Schema，topic ID 唯一且排序，描述长度按 Unicode code point 计数。 缺失、无效 JSON、未知字段、重复、乱序、非法值及越界描述均被拒绝，200 个 Unicode code point 的描述被接受。 tools/test-evidence/tests/catalog.test.ts > topic tables reject missing, malformed, unknown, duplicate, unsorted, and invalid definitions bun test --test-name-pattern=\"^topic tables reject missing, malformed, unknown, duplicate, unsorted, and invalid definitions$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/topic-tables-reject-invalid-definitions.md",
         "summary": "Topic 表必须符合固定 Schema，topic ID 唯一且排序，描述长度按 Unicode code point 计数。",
         "title": "Topic 表拒绝不合法定义"
@@ -14401,7 +14401,7 @@
     "TEST-EVIDENCE-UNREADABLE-INDEX-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-UNREADABLE-INDEX-001 不可读索引阻断 list 与 show 无法安全读取且不可回退的索引错误必须阻断 list 与 show。 两种操作都不返回 case，并报告 blocking `state-index.index-read-failed`。 tools/test-evidence/tests/run.ts > unreadable indexes remain blocking for list and show operations bun test --test-name-pattern=\"^unreadable indexes remain blocking for list and show operations$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-UNREADABLE-INDEX-001 不可读索引阻断 list 与 show 无法安全读取且不可回退的索引错误必须阻断 list 与 show。 两种操作都不返回 case，并报告 blocking `state-index.index-read-failed`。 tools/test-evidence/tests/catalog.test.ts > unreadable indexes remain blocking for list and show operations bun test --test-name-pattern=\"^unreadable indexes remain blocking for list and show operations$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -14410,12 +14410,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > unreadable indexes remain blocking for list and show operations",
-          "bun test --test-name-pattern=\"^unreadable indexes remain blocking for list and show operations$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > unreadable indexes remain blocking for list and show operations",
+          "bun test --test-name-pattern=\"^unreadable indexes remain blocking for list and show operations$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-UNREADABLE-INDEX-001",
         "line": 1,
-        "searchText": "不可读索引阻断 list 与 show 无法安全读取且不可回退的索引错误必须阻断 list 与 show。 两种操作都不返回 case，并报告 blocking `state-index.index-read-failed`。 tools/test-evidence/tests/run.ts > unreadable indexes remain blocking for list and show operations bun test --test-name-pattern=\"^unreadable indexes remain blocking for list and show operations$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "不可读索引阻断 list 与 show 无法安全读取且不可回退的索引错误必须阻断 list 与 show。 两种操作都不返回 case，并报告 blocking `state-index.index-read-failed`。 tools/test-evidence/tests/catalog.test.ts > unreadable indexes remain blocking for list and show operations bun test --test-name-pattern=\"^unreadable indexes remain blocking for list and show operations$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/unreadable-indexes-remain-blocking-for-list-and-show-operations.md",
         "summary": "无法安全读取且不可回退的索引错误必须阻断 list 与 show。",
         "title": "不可读索引阻断 list 与 show"
@@ -14424,7 +14424,7 @@
     "TEST-EVIDENCE-UPGRADE-V1-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-UPGRADE-V1-001 V1 Consumer 升级到固定 Topic Catalog v1 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。 固定目录缺失时检查失败；显式切换并删除遗留配置后，topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/run.ts > documented v1 consumer upgrade produces the fixed topic catalog bun test --test-name-pattern=\"^documented v1 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-UPGRADE-V1-001 V1 Consumer 升级到固定 Topic Catalog v1 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。 固定目录缺失时检查失败；显式切换并删除遗留配置后，topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/catalog.test.ts > documented v1 consumer upgrade produces the fixed topic catalog bun test --test-name-pattern=\"^documented v1 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -14433,12 +14433,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > documented v1 consumer upgrade produces the fixed topic catalog",
-          "bun test --test-name-pattern=\"^documented v1 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > documented v1 consumer upgrade produces the fixed topic catalog",
+          "bun test --test-name-pattern=\"^documented v1 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-UPGRADE-V1-001",
         "line": 1,
-        "searchText": "V1 Consumer 升级到固定 Topic Catalog v1 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。 固定目录缺失时检查失败；显式切换并删除遗留配置后，topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/run.ts > documented v1 consumer upgrade produces the fixed topic catalog bun test --test-name-pattern=\"^documented v1 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "V1 Consumer 升级到固定 Topic Catalog v1 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。 固定目录缺失时检查失败；显式切换并删除遗留配置后，topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/catalog.test.ts > documented v1 consumer upgrade produces the fixed topic catalog bun test --test-name-pattern=\"^documented v1 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/documented-v1-upgrade-produces-the-fixed-topic-catalog.md",
         "summary": "v1 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。",
         "title": "V1 Consumer 升级到固定 Topic Catalog"
@@ -14447,7 +14447,7 @@
     "TEST-EVIDENCE-UPGRADE-V2-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-UPGRADE-V2-001 V2 Consumer 升级到固定 Topic Catalog v2 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。 旧目录不符合固定契约时检查失败；显式切换并删除遗留配置后，topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/run.ts > documented v2 consumer upgrade produces the fixed topic catalog bun test --test-name-pattern=\"^documented v2 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-UPGRADE-V2-001 V2 Consumer 升级到固定 Topic Catalog v2 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。 旧目录不符合固定契约时检查失败；显式切换并删除遗留配置后，topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/catalog.test.ts > documented v2 consumer upgrade produces the fixed topic catalog bun test --test-name-pattern=\"^documented v2 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "topic": [
           "test-evidence"
@@ -14456,12 +14456,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > documented v2 consumer upgrade produces the fixed topic catalog",
-          "bun test --test-name-pattern=\"^documented v2 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/catalog.test.ts > documented v2 consumer upgrade produces the fixed topic catalog",
+          "bun test --test-name-pattern=\"^documented v2 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/catalog.test.ts"
         ],
         "id": "TEST-EVIDENCE-UPGRADE-V2-001",
         "line": 1,
-        "searchText": "V2 Consumer 升级到固定 Topic Catalog v2 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。 旧目录不符合固定契约时检查失败；显式切换并删除遗留配置后，topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/run.ts > documented v2 consumer upgrade produces the fixed topic catalog bun test --test-name-pattern=\"^documented v2 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "V2 Consumer 升级到固定 Topic Catalog v2 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。 旧目录不符合固定契约时检查失败；显式切换并删除遗留配置后，topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/catalog.test.ts > documented v2 consumer upgrade produces the fixed topic catalog bun test --test-name-pattern=\"^documented v2 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/catalog.test.ts",
         "sourcePath": "test-evidence/documented-v2-upgrade-produces-the-fixed-topic-catalog.md",
         "summary": "v2 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。",
         "title": "V2 Consumer 升级到固定 Topic Catalog"
@@ -15408,21 +15408,21 @@
       "ENV-PERMISSION-RULES-001": "sha256:21a124776a169674569296131b473013b83cd4982ea6a91fde7ec22edc11b45a",
       "ENV-WORKTREE-SETUP-001": "sha256:a232485668782b975b6e416528f415886b669450f36394065848a5027441842f",
       "GATE-CLI-RESULT-001": "sha256:f2e158995ada843cf532592d34817f29864e0745c0d9b479d89b1d5852d79167",
-      "GATE-DEFINITION-CATALOG-001": "sha256:1ce202722d4b01a509260f9cd5b4fa764381c2a7d48c6cfeb7ff39010d0d847e",
+      "GATE-DEFINITION-CATALOG-001": "sha256:a43ab5e3f29ea5402bacace96358a4a808b47ab217fe1264c2118efb105f0d1a",
       "GATE-DUPLICATE-DETECTION-001": "sha256:5ce85e2b84c401f0419a234702195ae2f539a9b19f40d6f0d1370ec50ec185b3",
       "GATE-FILE-SELECTION-001": "sha256:2a611569231721824b35a68e1227f49b52562b76c5b3ca76cba359d04fd51d77",
-      "GATE-FULL-PACKAGING-001": "sha256:18e2773d48fb54d16ae594423dc3a91ce8e8d0470cf52b08987f36bf480d50a9",
+      "GATE-FULL-PACKAGING-001": "sha256:56be80b4b9e102f8d8b3765da3661b4f7d0f14d18f3ab18f24d2cc132c2f0ae7",
       "GATE-JSCPD-CONFIG-001": "sha256:5ccde3f26423316112fb003cb1cc9ea514a4effeb9699b48ece0ee6272fd015f",
       "GATE-JSON-SCHEMA-001": "sha256:3c500d74072c67f0224c13c6b3af07dcdabf8122a8cedc1ca544489a4d23ad0f",
       "GATE-JSON-VALIDATION-001": "sha256:21a30e0896750c479e371dda2c9ed6eecb5a02c089547dc51160ec674eb2dba9",
       "GATE-LIZARD-VERSION-001": "sha256:d1b6867bf1f0ce4875dc41c12483934500e5f3e03fc81dbd976c050320498544",
       "GATE-MARKDOWN-LINK-001": "sha256:9a3b1f847a00e6b8b3d47e3c693900167dc9e4b13b3dd4cc864c3fb17e9c1a3b",
       "GATE-METRICS-ADVISORY-001": "sha256:af0dd4f5521a48efd2bdd98b27a68a29359cc114720224a842188de87b15bfb9",
-      "GATE-RELEASE-FINAL-TIMING-001": "sha256:39543aba49c4a373342664e8f22bf062dafc2f3784204a9e8c09ff8ff6d4678b",
-      "GATE-RELEASE-PACK-SUCCESS-001": "sha256:b2fe086357156fc8be762883610f558e1c0772a784a1683cea281378f5c68bf0",
-      "GATE-RELEASE-VERSION-ARGS-001": "sha256:3cfab82f53149ccb8867a56c26698decd3320b411967d1b2ea08fa59e4bbd43a",
-      "GATE-RELEASE-VERSION-FAILURE-001": "sha256:b4eb538d1fb90c506d61e8bbe373260c59e057cbf2c19d9e9145aa76edba0252",
-      "GATE-RELEASE-VERSION-UNAVAILABLE-001": "sha256:222948631a8c4b9e58171fb8998112880f2af7e8afc91ae05b3f49d11bdb065d",
+      "GATE-RELEASE-FINAL-TIMING-001": "sha256:c5cc7c4bb8b0ae8e26a744f9f17ba4d359c1b47287bfe0b5ee13309f40ed229a",
+      "GATE-RELEASE-PACK-SUCCESS-001": "sha256:674657d548866fcf2ac347fd7d2f63848414065339c7d50c197002c63ee6ca5b",
+      "GATE-RELEASE-VERSION-ARGS-001": "sha256:41018ecd3e54a4d022e1413c1456966432b877051b6fe0d1590e1b4acdb7f824",
+      "GATE-RELEASE-VERSION-FAILURE-001": "sha256:470e18841026c1f3258802d0fcbfde5f3415b9c401a68d92c6931eff07fe0dcd",
+      "GATE-RELEASE-VERSION-UNAVAILABLE-001": "sha256:a2556e2e9ba1f83aa369f46fa95fe40adb4983e35df7d34356860a3da5b2506a",
       "GATE-SCRIPT-ADAPTER-001": "sha256:b461e94ab3f3cd94b2aa2ab437e516d27fb675f9df588a6ae6a07fc83f3644a9",
       "GATE-SCRIPT-CANCELLATION-001": "sha256:af126c6d3e04b6dad1ee6ad63672eb9be5b19245c41d69effc3f20525f456c14",
       "GENERATED-FILE-DECLARATION-001": "sha256:6e1393221dbc7a89eb508e87745a86f801af86a6067ebd39427d34876b660d3a",
@@ -15719,21 +15719,21 @@
       "TASK-GRAPH-STAGE-SELECTION-001": "sha256:bb10fd1220f9507ed254e2ee1e095e458542e17780ce2f2ca342ecbdec47adf3",
       "TASK-GRAPH-STAGE-WATERMARK-CONFLICT-001": "sha256:10ec359e9cde69fe5caeb266af7dab003962de331817c684a5c0bd6bf703e98b",
       "TASK-GRAPH-TOPOLOGY-001": "sha256:d93b538720034c562d0e213bff131accde4d46a71ef03b6f3921354513fe4710",
-      "TEST-EVIDENCE-CASE-FILE-CARDINALITY-001": "sha256:4e56d64ec64bcfb03270d1c7679010a5ca8f975e4d7fe582d844b7e3d88d9265",
-      "TEST-EVIDENCE-CASE-FIRST-LINE-001": "sha256:ce1ee2d700a312b5d7a1d50622c8bbb6d3dbcf412a1ca82a3f65bca1df04a7d7",
-      "TEST-EVIDENCE-CASE-ID-PATTERN-001": "sha256:e89495b2c11bb5917447dd6baf74e5bb4a89cac3a74634676c1ee01097cf671c",
-      "TEST-EVIDENCE-CROSS-TOPIC-ID-001": "sha256:fb7d2cae7f1ac9d7c3c20a2d10a9f6c8f92eec4cb7f5d782208f2f4a77f04c0e",
-      "TEST-EVIDENCE-DAMAGED-INDEX-001": "sha256:2abdb9b80cc10af9857d7103ac68cabf2a0938a706cdf540a2f956e875a067d3",
-      "TEST-EVIDENCE-DISTRIBUTED-CLI-001": "sha256:f74493171691bb98c7f823cc113222912a1671c36267d75d0a3def64db4c60ec",
-      "TEST-EVIDENCE-ENTRY-LIST-001": "sha256:b097f2f813c4c3cfb94bbfa1b5fb5e31616475d884689730900035c958a9c53a",
-      "TEST-EVIDENCE-FAST-OPEN-001": "sha256:f95bf27723bbb2a8b0d90e36c9ef10ee278bcdeefaaa6ab97f6524f45192e9e1",
-      "TEST-EVIDENCE-FIXED-CONTRACT-001": "sha256:b67e628fd7678b92457de2f9508e39655400e69cd8f438ce4965261f96879bf6",
-      "TEST-EVIDENCE-INDEX-HARDLINK-001": "sha256:b484de75c255a9b5951e0b72b21b9667a7da4d2473679952476f7974f78aec4c",
-      "TEST-EVIDENCE-INDEX-PROJECTION-VALIDATION-001": "sha256:a5999a0cd1811ff7cebac10e808f325f995d948d86d0d623989181063378cbc0",
-      "TEST-EVIDENCE-INDEX-SYNC-001": "sha256:5c5bb90b343173977a45967979f215d8663f1aae4acb1bd2bebd8ed58c101242",
-      "TEST-EVIDENCE-INDEX-TOPIC-PROJECTION-001": "sha256:b42834c4c368ab3f20fe6f97f5115ef7164d8665d0051818bf196a35388a0694",
-      "TEST-EVIDENCE-INVALID-ROOT-INDEX-001": "sha256:b533ceb335c3f31c7451d0038b1d7cf93c55baee28ed77b0674a39a1b8ff5519",
-      "TEST-EVIDENCE-KEYED-ID-001": "sha256:abd2251b33677e3c0ba78baa29b52c0315e9dd378043c205b68510befd6c58ed",
+      "TEST-EVIDENCE-CASE-FILE-CARDINALITY-001": "sha256:19141102e3de88bf526c8d9b8c6e0997e5c2f3128e626db44a4b6acec7dfcfbb",
+      "TEST-EVIDENCE-CASE-FIRST-LINE-001": "sha256:055c2985c2cccf263678f0155688a4785409e91a74d510ace10ff354c4474740",
+      "TEST-EVIDENCE-CASE-ID-PATTERN-001": "sha256:bae65a5bb29a75123a02c6f7ab9c76d070497bee5bbf6c11ab51ffa501f2bc07",
+      "TEST-EVIDENCE-CROSS-TOPIC-ID-001": "sha256:f70d749c2162da4140728c7bfd750d965ded4dbd79ad467f454581969f1abe71",
+      "TEST-EVIDENCE-DAMAGED-INDEX-001": "sha256:0aa0913a22c89ca28ee9fcd0b67868cd34f2abf405e2c9c6bec1917d3ff209c2",
+      "TEST-EVIDENCE-DISTRIBUTED-CLI-001": "sha256:95bc3d4acff4cff6bed1f58232b5ff01ef8d69d7e20cef858fc4a1d9ebefaefa",
+      "TEST-EVIDENCE-ENTRY-LIST-001": "sha256:d099986dfef70166f4c7c9163e27535afdcafe8d4c81646c256f75cbb989a378",
+      "TEST-EVIDENCE-FAST-OPEN-001": "sha256:a5505d4a6eefd480b197059b158c5cbfee5aa5737838bd4efe0eb11016c9fe4f",
+      "TEST-EVIDENCE-FIXED-CONTRACT-001": "sha256:15e149b90b35557e930a88166964343a32f18e3ad49169aa030b95f14c8114ea",
+      "TEST-EVIDENCE-INDEX-HARDLINK-001": "sha256:c5cc51fcca71eafdac97d6b306f940e4ca84d4f03cede3bab5ea2cca36fa61c7",
+      "TEST-EVIDENCE-INDEX-PROJECTION-VALIDATION-001": "sha256:c5ef3dc0948e347ad2e8331df9265a551d48a4942f1ee677e0b40edb15d066ff",
+      "TEST-EVIDENCE-INDEX-SYNC-001": "sha256:11ee0d91a5d716dbf4e58f98a88a80833a96525a3464430b86de4f4f76f5e202",
+      "TEST-EVIDENCE-INDEX-TOPIC-PROJECTION-001": "sha256:563f5ddbdf960f80dc1c153bfbcf4487f71b507449f1f0303865805aab7437a4",
+      "TEST-EVIDENCE-INVALID-ROOT-INDEX-001": "sha256:be863d1db1a3829a17a6d57d652c8a0a2cc807e039fa1bc6cd6428ef4e7fd1e5",
+      "TEST-EVIDENCE-KEYED-ID-001": "sha256:e76bf21d140f47f70308c609ccc43a37ca25b69070c8f7922d99d340e08ab631",
       "TEST-EVIDENCE-LEDGER-API-CASE-QUERY-001": "sha256:b5220c4d92c326aba338e0233fd6a8ff019ff727b9da1a52ae7760f08cba4b67",
       "TEST-EVIDENCE-LEDGER-API-OPTIONS-001": "sha256:7bc691edd0cb6d857688de28d285fc61ef4138c76b1a7992ccc1a2f4bf300dde",
       "TEST-EVIDENCE-LEDGER-API-SHOW-001": "sha256:cec2f924b4ba274929222aa0987bba1cb8388a00f94df7487663c236d7fdf1a0",
@@ -15762,20 +15762,20 @@
       "TEST-EVIDENCE-LEDGER-REVISION-FRAMING-001": "sha256:22376b5d110486cd225304000dd059f80f680a6fef37431c2ac1cc96e21a0a0d",
       "TEST-EVIDENCE-LEDGER-SCHEMA-STRICT-001": "sha256:04ef3939a85fecb89718b65dedc6c39760e6dba222000e21dc89793bfb461b75",
       "TEST-EVIDENCE-LEDGER-SOURCE-DRIFT-001": "sha256:202afa9804612088b2cdba53b67db66e4c12ecb0c7c72f5d5a62fe30fb1bb0ea",
-      "TEST-EVIDENCE-LEGACY-FIELD-001": "sha256:14e39059b795a22241a5ef93f68bcf740e8a2f767bcf0da6b84b13dcf217a3f9",
-      "TEST-EVIDENCE-MISSING-INDEX-001": "sha256:a935dccf9c2ad02c923b42ac5567f9cf7503d6a629da750bae110360f3996f53",
-      "TEST-EVIDENCE-QUERY-KEYED-ID-001": "sha256:67207474479aa27b0f0edeae0ef913fcd727bb59be2b103bb291dd230bfb2683",
+      "TEST-EVIDENCE-LEGACY-FIELD-001": "sha256:ae5695b89a74a21eb883568cf6fc301d09fa76eab4864a440dfe5d5246ca3d9e",
+      "TEST-EVIDENCE-MISSING-INDEX-001": "sha256:3d9aef3ff6a678f469125c5a9ea35e6a1ddb8c917d3847990a8cfb5e2b9a99db",
+      "TEST-EVIDENCE-QUERY-KEYED-ID-001": "sha256:35c9b8a9992dc65c482f468e1bc09342ce034c4ccdab4025cd370604db796d01",
       "TEST-EVIDENCE-QUERY-REPOSITORY-001": "sha256:4590cb40b6308749cfc5d426d9ada0cfe596dba9e1a9bfc938cc780baa9f8f07",
-      "TEST-EVIDENCE-QUERY-SHOW-001": "sha256:a7092e7e8ef824d4103b48a6da837091875bb9a15b3425b5f475afbbbcb0ebbd",
-      "TEST-EVIDENCE-RECORD-KEY-SCHEMA-001": "sha256:a14a7559eb6a4583eba3d0d0abba1d543ff057b5d81020804e19dfe19e442fc4",
-      "TEST-EVIDENCE-REVISION-CASE-MOVE-001": "sha256:6292c05e4700c572e5cd5320114f0650f2a7a6dd739689f0a1f830bebaef692e",
-      "TEST-EVIDENCE-REVISION-FAST-PARSE-001": "sha256:cd0d567646d2cd1ec83379a282b16766b47c8a76b49f140960f8d62809983d85",
-      "TEST-EVIDENCE-REVISION-FRAMING-001": "sha256:46289432c2636daf75bf1c9d5add3e602e1e09aed3f047a377755f29f2cc01a5",
-      "TEST-EVIDENCE-REVISION-MEMBERSHIP-001": "sha256:7ccc0f3c1bdde16868f9a8cceee6fd4a525da27d34fb45ddde1b2f81fc1af5b9",
-      "TEST-EVIDENCE-REVISION-PARITY-001": "sha256:4063c858783206efcf8e85c54bc78b62af1cf2501bb3b8c88ffc7b81ec9035c8",
-      "TEST-EVIDENCE-REVISION-TOPIC-MOVE-001": "sha256:7a52ccd6a56623c7507b51834a1ff144b3b0a402e3c650dd03c42943c5bb7482",
-      "TEST-EVIDENCE-ROOT-MEMBERSHIP-001": "sha256:eb0524bc0bee4227f1b04f5afa179eebae4b3e5188a8a64e1002ad69939ac384",
-      "TEST-EVIDENCE-SCHEMA-V3-001": "sha256:41639180c292b38fe2c16537267893772919ab7bdc3850590a623e98b3b2e945",
+      "TEST-EVIDENCE-QUERY-SHOW-001": "sha256:5cbdfe9ff2d13cdc8c13cf016c52a703999babf2cd6b1a9912eb82e1cc47a858",
+      "TEST-EVIDENCE-RECORD-KEY-SCHEMA-001": "sha256:897ba54596c94ba33ac0c1f01218da101bb3ba21fb871e760361b868bf53e248",
+      "TEST-EVIDENCE-REVISION-CASE-MOVE-001": "sha256:f1ce7de1b370bb90215e410e0658d6dcf0a79e3c43c16bf0b8915f411ff108ab",
+      "TEST-EVIDENCE-REVISION-FAST-PARSE-001": "sha256:866a3d8dfdbd12ffa06e451f4d628e4e4dccd71ed11f299f77a5ef93036dc6ab",
+      "TEST-EVIDENCE-REVISION-FRAMING-001": "sha256:3b3e2385c1a995365f710ef88fc4f4e366f07853351e720f5ec407e50325289c",
+      "TEST-EVIDENCE-REVISION-MEMBERSHIP-001": "sha256:d8371ab7d5e0a6a4be002452382e07e2a419bcc201c8d51bb3a536829e882de6",
+      "TEST-EVIDENCE-REVISION-PARITY-001": "sha256:997bd51070b2b66bcd602ef98c6db28086730018026d76b827085e25f4ac190f",
+      "TEST-EVIDENCE-REVISION-TOPIC-MOVE-001": "sha256:a4f314a86aefca16f0ec36c88823ff9daedd5be74de72f5aac168e06708d7e9a",
+      "TEST-EVIDENCE-ROOT-MEMBERSHIP-001": "sha256:038633c1cc3108cbb9e3aee0725b09784d8d690fb85c1d48c80ad985569dadc6",
+      "TEST-EVIDENCE-SCHEMA-V3-001": "sha256:0bdbe37554b59871150b4f2bffd320d92ab40d761d1d5dd12d0ceab24d045c2a",
       "TEST-EVIDENCE-SHOW-REPOSITORY-001": "sha256:06ad49afd0c01bb81322bf25f09a4caca17818c2944285e2037b5d734332ae47",
       "TEST-EVIDENCE-STAGE-BOOTSTRAP-001": "sha256:2e211fb4edd2ba83776d2dbed82c280e640f8a50b33916475138550dae91030f",
       "TEST-EVIDENCE-STAGE-CLI-001": "sha256:19eb883d7659407ee18fd9d77ea38e0532bbb0d9c98041ecf21843a60999f26f",
@@ -15789,16 +15789,16 @@
       "TEST-EVIDENCE-STAGE-REPOSITORY-001": "sha256:e197001413fd925102181963a4c54c380651db89a88b1195904a8569e5bd3529",
       "TEST-EVIDENCE-STAGE-TOPIC-001": "sha256:41395287847c02bca208bc73a02bc39c7771725abf54fb6fc72cd38db103962f",
       "TEST-EVIDENCE-STAGE-UNCHANGED-001": "sha256:10d46e6be6853be4ba3b4ce662f48127ae2afb38f2145ce9ac1a4808a81a8ea3",
-      "TEST-EVIDENCE-STALE-INDEX-001": "sha256:4caa2aca38a3f674b8c67c8a96707a9a05e6d1265147cfe410c2749f0a4c17db",
-      "TEST-EVIDENCE-TOPIC-CLI-001": "sha256:e30b174edf4cadca541a421ef693222d59952f0c0f79b1894c1190ef1a3f2640",
-      "TEST-EVIDENCE-TOPIC-DIRECTORY-001": "sha256:1bb37742092266c447906922c99ad4504302d977c0ea54f2be45f2761e56601a",
-      "TEST-EVIDENCE-TOPIC-FILTER-001": "sha256:37d0613951679ce826c12868c985ffcf1b8fbe0e249e28f943015405a655abce",
-      "TEST-EVIDENCE-TOPIC-MEMBERSHIP-001": "sha256:fc9c9113f013cac32ecd51db5c1d27b79e0b1e01428e29996848ad8ad8aff441",
-      "TEST-EVIDENCE-TOPICS-READ-001": "sha256:936b634b506ebba42db3bd20d83aff0a9792a3f99a84939dc2a5626f9db10c68",
-      "TEST-EVIDENCE-TOPICS-SCHEMA-001": "sha256:492be56e4333076bbf5053c68e3fbca7725a8cb2aac203debb112f189b356eb8",
-      "TEST-EVIDENCE-UNREADABLE-INDEX-001": "sha256:0cec3b3122e3951a86bcca925e2ec9e81603d288db6cbeeb1de2bce0aba15035",
-      "TEST-EVIDENCE-UPGRADE-V1-001": "sha256:a71a494033d1724bb427ad858732e22e688a7ef848aaf0c36410142210ab75f9",
-      "TEST-EVIDENCE-UPGRADE-V2-001": "sha256:1b0578a03fb83d11d0ff53531dc5ddf323a629421ca5988822d4e942b1b39d88",
+      "TEST-EVIDENCE-STALE-INDEX-001": "sha256:b9e12934e5c349355580dd5f7c32ea0f1c25b1fea2dc2fede8abd040c73f662f",
+      "TEST-EVIDENCE-TOPIC-CLI-001": "sha256:a67b6a03e2f99b45294faa3ce3c398695e25f5cf8784f984d5ac70c150fb61a6",
+      "TEST-EVIDENCE-TOPIC-DIRECTORY-001": "sha256:d88fceea65ff49e5a35c46d6fb84a43d3139d8c76023b44aa14946a5f3885a11",
+      "TEST-EVIDENCE-TOPIC-FILTER-001": "sha256:48f7b7760cc903954781670d041c3bd0dc57231ee6795978ef90195003ffa485",
+      "TEST-EVIDENCE-TOPIC-MEMBERSHIP-001": "sha256:907424b5abec1759be1bc4490ccf7621a92005420ffb50d39ef7372f134f4cbe",
+      "TEST-EVIDENCE-TOPICS-READ-001": "sha256:bb8434e96cccefc98559a734feac7f311ed5e3319de991a26bb20c892dc0c3aa",
+      "TEST-EVIDENCE-TOPICS-SCHEMA-001": "sha256:36a00c1b2850c9ff9f6633f689cacc674b5cfadaa785b752af23baf0d13d78cc",
+      "TEST-EVIDENCE-UNREADABLE-INDEX-001": "sha256:61a7f448e6d593d941742477102d74ab1ef9df5483529a9d85a569ee5c089de6",
+      "TEST-EVIDENCE-UPGRADE-V1-001": "sha256:0e8e8f49ec138dd8ff15912750690e59a1c35cac9eb2921d141ed0ead46008ef",
+      "TEST-EVIDENCE-UPGRADE-V2-001": "sha256:7e17a09ebe41e7999152dc7d9cad50f1616dc3cacbd1e0ece2dc2a30001c1eca",
       "VERSION-CONTROL-CHANGES-001": "sha256:31254f830340da6e7056305051c59f67bd1252d9ae94f38d4f5ec4754724ecf5",
       "VERSION-CONTROL-CONFLICT-001": "sha256:224755b16beb3ee84e7a4f625d07fbd822caee95d9c5c8b38d88bfcee729dbc9",
       "VERSION-CONTROL-CORRUPTION-001": "sha256:f04976e6b2b44976c3ccfbee8afa58234b4b02309cccedadfd0a018a57327267",

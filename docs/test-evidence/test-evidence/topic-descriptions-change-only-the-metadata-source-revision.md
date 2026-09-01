@@ -1,8 +1,8 @@
 ### Case TEST-EVIDENCE-REVISION-TOPIC-MOVE-001: Topic 描述只改变 Metadata Source Revision
 
 Entry:
-- `tools/test-evidence/tests/run.ts > topic descriptions change only the metadata source revision`
-- `bun test --test-name-pattern="^topic descriptions change only the metadata source revision$" ./tools/test-evidence/tests/run.ts`
+- `tools/test-evidence/tests/catalog.test.ts > topic descriptions change only the metadata source revision`
+- `bun test --test-name-pattern="^topic descriptions change only the metadata source revision$" ./tools/test-evidence/tests/catalog.test.ts`
 
 Contract:
 - 结构化 source revision 必须把规范化 topic metadata 与逐 Case 来源分开指纹化。
