@@ -77,6 +77,7 @@
       "260720-use-prebuilt-git-test-fixtures.md": "sha256:584a36a52d6ba1509b533057aff7c4e08080334fd0e992d47494ce222b616e42",
       "260720-use-product-and-architecture-lenses.md": "sha256:95dd741e4892a18c1149e53dfa13db283f25aa180630e916d920f7c211c128bc",
       "260721-separate-test-entry-collection-from-ledger.md": "sha256:94cfd66c1d396d610c0959b54c554e41e430fcd6a6aa68365f9683128e16521c",
+      "activate-release-gate-checks-by-tag.md": "sha256:403af9fedd81855c019044a0e6dcb1ec69aac2cec6c9bfbbeee3101e05af891e",
       "aggregate-parent-task-completion.md": "sha256:e193dc4130bf50c0c0fe8e53e5fef0da212c0fd40bf36bb56f60e138b1ea7550",
       "align-agent-lifecycle-with-task-slices.md": "sha256:b6999de08e2338dfd0889a24a2febdfa366cec7eb7ea9dae1608c4a139714407",
       "allocate-agents-and-runtime-by-task-slice.md": "sha256:b3f42138dc93d1c0d5dae604a183ba171c22d44efb52dc8057d943060edf0971",
@@ -2392,6 +2393,38 @@
           {
             "type": "修订",
             "target": "query-ledger-with-structured-inspection.md"
+          }
+        ]
+      }
+    },
+    "activate-release-gate-checks-by-tag.md": {
+      "keys": {
+        "tag": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "activate-release-gate-checks-by-tag.md",
+        "title": "用 release tag 激活可见的 Gate Check",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T13:56:55Z",
+        "purpose": "让日常 Gate 完整显示全部 Check，同时只由显式 release tag 启动发布增量与打包链路。",
+        "background": "按运行范围构造不同 Definition 会把未启动的 Check 从 progress 和 machine snapshot 隐去，调用方无法区分未选择、未启动与已通过。",
+        "decision": "每次运行构造相同完整 Definition；base 只聚合不需要 tag 的 Check，release tag 激活发布增量并传入 Vibe flags。",
+        "tags": [
+          "project-tooling"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-vibe-check-as-authoritative-project-gate.md"
           }
         ]
       }

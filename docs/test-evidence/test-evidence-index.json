@@ -5523,7 +5523,7 @@
     "GATE-CLI-RESULT-001": {
       "keys": {
         "search": [
-          "GATE-CLI-RESULT-001 CLI 解析 profile、基线与诊断日志并映射 Vibe 结果 权威入口接受无参数或一次 `--diagnostic-log` 的 default，及带可选一次 `--baseline-ref <ref>` 和一次 `--diagnostic-log` 的 `--full`；full 缺省基线为 `HEAD`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知、重复或未与 `--full` 组合的参数必须在启动 Check 前失败；diagnostic flag 只覆盖当前 invocation 的 diagnostic 输出，不改变 machine publication。已完成但 aggregate failed 的结果与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断；带非空 diagnostic file 的任一结果都要回显该路径，configuration 因没有 outputs 不回显。 default/full 选择各自 Definition，full 的显式基线原样传入 Definition；`--diagnostic-log` 可单独用于 default，或与 full/基线组合。首尾空白、前导连字符及 NUL/CR/LF 输入、未知参数、重复 diagnostic flag，以及没有 full 的 baseline 都在启动前给出 usage。 每次 CLI invocation 向 Vibe 传入一个 Run AbortSignal；启用 diagnostic flag 时，调用控制只为当前 invocation 启用 `.log/vibe-check` 的 diagnostic logging。completed passed/failed aggregate，以及 cancelled、planning、execution、output 的 invocation failure 在返回非空 diagnostic file 时都回显实际 `run-*.log` 路径。failed aggregate 与 configuration 类 invocation failure 都返回退出码 1、保留 Vibe 状态或类别而不重建 renderer；configuration 因没有 outputs 不回显日志路径。 模拟 CLI 结果时注入测试内 scheduling hints store；三个 completed passed invocation 只记录三次内存写入，不创建或改写仓库根目录的性能提示文件。 scripts/vibe-check.test.ts > CLI parses profiles and full baselines, then maps Vibe results to exit codes bun test --test-name-pattern=\"^CLI parses profiles and full baselines, then maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts"
+          "GATE-CLI-RESULT-001 CLI 解析 release tag、兼容别名与基线并映射 Vibe 结果 权威入口接受无 tag 的 base Gate，或一次 `--tag release` 的 release Gate；`--full` 只作为 release tag 的兼容别名。release 缺省基线为 `HEAD`，可追加一次 `--baseline-ref <ref>` 与一次 `--diagnostic-log`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知 tag、重复 tag、缺失 tag 值、未知参数或未与 release tag 组合的基线必须在启动 Check 前失败；diagnostic flag 只覆盖当前 invocation 的 diagnostic 输出，不改变 machine publication。已完成但 aggregate failed 的结果与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断；带非空 diagnostic file 的任一结果都要回显该路径，configuration 因没有 outputs 不回显。 base/release 使用同一完整 Definition，分别选择 32 个 base Check 或全部 60 个 Check 进入 aggregate；release 的显式基线原样传入 Definition，tag、兼容别名、重复与基线错误在启动前给出 usage。 每次 CLI invocation 向 Vibe 传入一个 Run AbortSignal；启用 diagnostic flag 时，调用控制只为当前 invocation 启用 `.log/vibe-check` 的 diagnostic logging。completed passed/failed aggregate，以及 cancelled、planning、execution、output 的 invocation failure 在返回非空 diagnostic file 时都回显实际 `run-*.log` 路径。failed aggregate 与 configuration 类 invocation failure 都返回退出码 1、保留 Vibe 状态或类别而不重建 renderer；configuration 因没有 outputs 不回显日志路径。 模拟 CLI 结果时注入测试内 scheduling hints store；三个 completed passed invocation 只记录三次内存写入，不创建或改写仓库根目录的性能提示文件。 scripts/vibe-check.test.ts > CLI parses release tags and compatibility alias, then maps Vibe results to exit codes bun test --test-name-pattern=\"^CLI parses release tags and compatibility alias, then maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5532,21 +5532,21 @@
       "state": {
         "endLine": 14,
         "entries": [
-          "scripts/vibe-check.test.ts > CLI parses profiles and full baselines, then maps Vibe results to exit codes",
-          "bun test --test-name-pattern=\"^CLI parses profiles and full baselines, then maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts"
+          "scripts/vibe-check.test.ts > CLI parses release tags and compatibility alias, then maps Vibe results to exit codes",
+          "bun test --test-name-pattern=\"^CLI parses release tags and compatibility alias, then maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts"
         ],
         "id": "GATE-CLI-RESULT-001",
         "line": 1,
-        "searchText": "CLI 解析 profile、基线与诊断日志并映射 Vibe 结果 权威入口接受无参数或一次 `--diagnostic-log` 的 default，及带可选一次 `--baseline-ref <ref>` 和一次 `--diagnostic-log` 的 `--full`；full 缺省基线为 `HEAD`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知、重复或未与 `--full` 组合的参数必须在启动 Check 前失败；diagnostic flag 只覆盖当前 invocation 的 diagnostic 输出，不改变 machine publication。已完成但 aggregate failed 的结果与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断；带非空 diagnostic file 的任一结果都要回显该路径，configuration 因没有 outputs 不回显。 default/full 选择各自 Definition，full 的显式基线原样传入 Definition；`--diagnostic-log` 可单独用于 default，或与 full/基线组合。首尾空白、前导连字符及 NUL/CR/LF 输入、未知参数、重复 diagnostic flag，以及没有 full 的 baseline 都在启动前给出 usage。 每次 CLI invocation 向 Vibe 传入一个 Run AbortSignal；启用 diagnostic flag 时，调用控制只为当前 invocation 启用 `.log/vibe-check` 的 diagnostic logging。completed passed/failed aggregate，以及 cancelled、planning、execution、output 的 invocation failure 在返回非空 diagnostic file 时都回显实际 `run-*.log` 路径。failed aggregate 与 configuration 类 invocation failure 都返回退出码 1、保留 Vibe 状态或类别而不重建 renderer；configuration 因没有 outputs 不回显日志路径。 模拟 CLI 结果时注入测试内 scheduling hints store；三个 completed passed invocation 只记录三次内存写入，不创建或改写仓库根目录的性能提示文件。 scripts/vibe-check.test.ts > CLI parses profiles and full baselines, then maps Vibe results to exit codes bun test --test-name-pattern=\"^CLI parses profiles and full baselines, then maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts",
-        "sourcePath": "repository-tooling/gate-cli-selects-profiles-and-maps-vibe-results.md",
-        "summary": "权威入口接受无参数或一次 `--diagnostic-log` 的 default，及带可选一次 `--baseline-ref <ref>` 和一次 `--diagnostic-log` 的 `--full`；full 缺省基线为 `HEAD`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知、重复或未与 `--full` 组合的参数必须在启动 Check 前失败；diagnostic flag 只覆盖当前 invocation 的 diagnostic 输出，不改变 machine publication。已完成但 aggregate failed 的结果与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断；带非空 diagnostic file 的任一结果都要回显该路径，configuration 因没有 outputs 不回显。",
-        "title": "CLI 解析 profile、基线与诊断日志并映射 Vibe 结果"
+        "searchText": "CLI 解析 release tag、兼容别名与基线并映射 Vibe 结果 权威入口接受无 tag 的 base Gate，或一次 `--tag release` 的 release Gate；`--full` 只作为 release tag 的兼容别名。release 缺省基线为 `HEAD`，可追加一次 `--baseline-ref <ref>` 与一次 `--diagnostic-log`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知 tag、重复 tag、缺失 tag 值、未知参数或未与 release tag 组合的基线必须在启动 Check 前失败；diagnostic flag 只覆盖当前 invocation 的 diagnostic 输出，不改变 machine publication。已完成但 aggregate failed 的结果与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断；带非空 diagnostic file 的任一结果都要回显该路径，configuration 因没有 outputs 不回显。 base/release 使用同一完整 Definition，分别选择 32 个 base Check 或全部 60 个 Check 进入 aggregate；release 的显式基线原样传入 Definition，tag、兼容别名、重复与基线错误在启动前给出 usage。 每次 CLI invocation 向 Vibe 传入一个 Run AbortSignal；启用 diagnostic flag 时，调用控制只为当前 invocation 启用 `.log/vibe-check` 的 diagnostic logging。completed passed/failed aggregate，以及 cancelled、planning、execution、output 的 invocation failure 在返回非空 diagnostic file 时都回显实际 `run-*.log` 路径。failed aggregate 与 configuration 类 invocation failure 都返回退出码 1、保留 Vibe 状态或类别而不重建 renderer；configuration 因没有 outputs 不回显日志路径。 模拟 CLI 结果时注入测试内 scheduling hints store；三个 completed passed invocation 只记录三次内存写入，不创建或改写仓库根目录的性能提示文件。 scripts/vibe-check.test.ts > CLI parses release tags and compatibility alias, then maps Vibe results to exit codes bun test --test-name-pattern=\"^CLI parses release tags and compatibility alias, then maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-cli-selects-tags-and-maps-vibe-results.md",
+        "summary": "权威入口接受无 tag 的 base Gate，或一次 `--tag release` 的 release Gate；`--full` 只作为 release tag 的兼容别名。release 缺省基线为 `HEAD`，可追加一次 `--baseline-ref <ref>` 与一次 `--diagnostic-log`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知 tag、重复 tag、缺失 tag 值、未知参数或未与 release tag 组合的基线必须在启动 Check 前失败；diagnostic flag 只覆盖当前 invocation 的 diagnostic 输出，不改变 machine publication。已完成但 aggregate failed 的结果与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断；带非空 diagnostic file 的任一结果都要回显该路径，configuration 因没有 outputs 不回显。",
+        "title": "CLI 解析 release tag、兼容别名与基线并映射 Vibe 结果"
       }
     },
     "GATE-DEFINITION-CATALOG-001": {
       "keys": {
         "search": [
-          "GATE-DEFINITION-CATALOG-001 语义门禁目录构造包含提前 release snapshot 的 default 与 full Definition 同一 catalog 必须以稳定语义 ID 构造日常 default 与发布 full；原聚合 package script 继续可直接调用，但不再充当领域测试 leaf。语义拆分保持原 profile 覆盖，full 将 release 表达为提前 snapshot prepare、普通 Check、版本授权和打包四层。 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/8/5` 个语义 Check；当前测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。 default/full Check ID、profile 和固定命令精确匹配独立期望；full 的 `release:skill-prepare` 没有普通前置且处于 Definition 首位，`release:skill-version` 依赖由 catalog 派生的全部普通前置和 prepare，`pack:skills` 只依赖版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。 scripts/vibe-check.test.ts > gate catalog builds semantic default and full Definitions bun test --test-name-pattern=\"^gate catalog builds semantic default and full Definitions$\" ./scripts/vibe-check.test.ts"
+          "GATE-DEFINITION-CATALOG-001 Gate 完整 Definition 以 release tag 控制 activation 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；base 只聚合不需要 tag 的 32 个 Check，release tag 激活全部 60 个 Check 与 release DAG。 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/8/5` 个语义 Check；当前测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。 base/release Definition Check ID 完全相同，语义 Check 的 requiredTag 和固定命令精确匹配独立期望；release 的 `release:skill-prepare` 没有普通前置且处于 Definition 首位，`release:skill-version` 依赖由 catalog 派生的全部普通前置和 prepare，`pack:skills` 只依赖版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。 scripts/vibe-check.test.ts > gate catalog keeps one complete Definition for base and release tags bun test --test-name-pattern=\"^gate catalog keeps one complete Definition for base and release tags$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5555,15 +5555,15 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "scripts/vibe-check.test.ts > gate catalog builds semantic default and full Definitions",
-          "bun test --test-name-pattern=\"^gate catalog builds semantic default and full Definitions$\" ./scripts/vibe-check.test.ts"
+          "scripts/vibe-check.test.ts > gate catalog keeps one complete Definition for base and release tags",
+          "bun test --test-name-pattern=\"^gate catalog keeps one complete Definition for base and release tags$\" ./scripts/vibe-check.test.ts"
         ],
         "id": "GATE-DEFINITION-CATALOG-001",
         "line": 1,
-        "searchText": "语义门禁目录构造包含提前 release snapshot 的 default 与 full Definition 同一 catalog 必须以稳定语义 ID 构造日常 default 与发布 full；原聚合 package script 继续可直接调用，但不再充当领域测试 leaf。语义拆分保持原 profile 覆盖，full 将 release 表达为提前 snapshot prepare、普通 Check、版本授权和打包四层。 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/8/5` 个语义 Check；当前测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。 default/full Check ID、profile 和固定命令精确匹配独立期望；full 的 `release:skill-prepare` 没有普通前置且处于 Definition 首位，`release:skill-version` 依赖由 catalog 派生的全部普通前置和 prepare，`pack:skills` 只依赖版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。 scripts/vibe-check.test.ts > gate catalog builds semantic default and full Definitions bun test --test-name-pattern=\"^gate catalog builds semantic default and full Definitions$\" ./scripts/vibe-check.test.ts",
-        "sourcePath": "repository-tooling/gate-catalog-builds-default-and-full-definitions.md",
-        "summary": "同一 catalog 必须以稳定语义 ID 构造日常 default 与发布 full；原聚合 package script 继续可直接调用，但不再充当领域测试 leaf。语义拆分保持原 profile 覆盖，full 将 release 表达为提前 snapshot prepare、普通 Check、版本授权和打包四层。",
-        "title": "语义门禁目录构造包含提前 release snapshot 的 default 与 full Definition"
+        "searchText": "Gate 完整 Definition 以 release tag 控制 activation 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；base 只聚合不需要 tag 的 32 个 Check，release tag 激活全部 60 个 Check 与 release DAG。 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/8/5` 个语义 Check；当前测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。 base/release Definition Check ID 完全相同，语义 Check 的 requiredTag 和固定命令精确匹配独立期望；release 的 `release:skill-prepare` 没有普通前置且处于 Definition 首位，`release:skill-version` 依赖由 catalog 派生的全部普通前置和 prepare，`pack:skills` 只依赖版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。 scripts/vibe-check.test.ts > gate catalog keeps one complete Definition for base and release tags bun test --test-name-pattern=\"^gate catalog keeps one complete Definition for base and release tags$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-catalog-builds-complete-tagged-definition.md",
+        "summary": "每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；base 只聚合不需要 tag 的 32 个 Check，release tag 激活全部 60 个 Check 与 release DAG。",
+        "title": "Gate 完整 Definition 以 release tag 控制 activation"
       }
     },
     "GATE-DISTRIBUTION-DEPENDENCY-001": {
@@ -5776,7 +5776,7 @@
     "GATE-RELEASE-FINAL-TIMING-001": {
       "keys": {
         "search": [
-          "GATE-RELEASE-FINAL-TIMING-001 release prepare 提前运行而 authorization 保持末端 full 的 `release:skill-prepare` 没有普通前置；`release:skill-version` 依赖全部普通 release-required Check 与 prepare；`pack:skills` 只依赖版本节点。 release DAG 保持 prepare 与普通 Check 并行、授权和打包位于末端。 scripts/vibe-check.test.ts > release prepare runs before terminal authorization and package bun test --test-name-pattern=\"^release prepare runs before terminal authorization and package$\" ./scripts/vibe-check.test.ts"
+          "GATE-RELEASE-FINAL-TIMING-001 release prepare 提前运行而 authorization 保持末端 release tag 的 `release:skill-prepare` 没有普通前置；`release:skill-version` 依赖全部普通 release-required Check 与 prepare；`pack:skills` 只依赖版本节点。 release DAG 保持 prepare 与普通 Check 并行、授权和打包位于末端。 scripts/vibe-check.test.ts > release prepare runs before terminal authorization and package bun test --test-name-pattern=\"^release prepare runs before terminal authorization and package$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5790,9 +5790,9 @@
         ],
         "id": "GATE-RELEASE-FINAL-TIMING-001",
         "line": 1,
-        "searchText": "release prepare 提前运行而 authorization 保持末端 full 的 `release:skill-prepare` 没有普通前置；`release:skill-version` 依赖全部普通 release-required Check 与 prepare；`pack:skills` 只依赖版本节点。 release DAG 保持 prepare 与普通 Check 并行、授权和打包位于末端。 scripts/vibe-check.test.ts > release prepare runs before terminal authorization and package bun test --test-name-pattern=\"^release prepare runs before terminal authorization and package$\" ./scripts/vibe-check.test.ts",
+        "searchText": "release prepare 提前运行而 authorization 保持末端 release tag 的 `release:skill-prepare` 没有普通前置；`release:skill-version` 依赖全部普通 release-required Check 与 prepare；`pack:skills` 只依赖版本节点。 release DAG 保持 prepare 与普通 Check 并行、授权和打包位于末端。 scripts/vibe-check.test.ts > release prepare runs before terminal authorization and package bun test --test-name-pattern=\"^release prepare runs before terminal authorization and package$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-release-terminal-preflights-baseline-and-waits-for-prerequisites.md",
-        "summary": "full 的 `release:skill-prepare` 没有普通前置；`release:skill-version` 依赖全部普通 release-required Check 与 prepare；`pack:skills` 只依赖版本节点。",
+        "summary": "release tag 的 `release:skill-prepare` 没有普通前置；`release:skill-version` 依赖全部普通 release-required Check 与 prepare；`pack:skills` 只依赖版本节点。",
         "title": "release prepare 提前运行而 authorization 保持末端"
       }
     },
@@ -5817,6 +5817,29 @@
         "sourcePath": "repository-tooling/gate-release-snapshot-survives-index-change.md",
         "summary": "prepare 一次捕获 Git pending snapshot 并固定版本基线；authorization 与 `pack:skills` 只消费该内存 snapshot。",
         "title": "authorization 与打包使用 prepare 捕获的同一 snapshot"
+      }
+    },
+    "GATE-RELEASE-TAG-ACTIVATION-001": {
+      "keys": {
+        "search": [
+          "GATE-RELEASE-TAG-ACTIVATION-001 未激活 release Check 可见但不执行 完整 Definition 中需要 `release` tag 的 Check 在无 tag 的 base Gate 也必须显示；activation preflight 必须先于原 preflight，且未激活项不执行、以稳定 `gate-tag-not-enabled` unavailable reason、`not run`、null duration 与 `Pass --tag release` 提示结算，不进入 base aggregate。 一个 base 与一个 release Check 的真实 Vibe Run 在只选择 base aggregate 时通过，snapshot 仍包含两个 Check；release Check 的原 preflight 与 execution 调用次数均为零，结果是 `gate-tag-not-enabled` unavailable 且 duration 为 null。 scripts/vibe-check.test.ts > inactive release Checks remain visible without starting their original preflight or execution bun test --test-name-pattern=\"^inactive release Checks remain visible without starting their original preflight or execution$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "scripts/vibe-check.test.ts > inactive release Checks remain visible without starting their original preflight or execution",
+          "bun test --test-name-pattern=\"^inactive release Checks remain visible without starting their original preflight or execution$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-RELEASE-TAG-ACTIVATION-001",
+        "line": 1,
+        "searchText": "未激活 release Check 可见但不执行 完整 Definition 中需要 `release` tag 的 Check 在无 tag 的 base Gate 也必须显示；activation preflight 必须先于原 preflight，且未激活项不执行、以稳定 `gate-tag-not-enabled` unavailable reason、`not run`、null duration 与 `Pass --tag release` 提示结算，不进入 base aggregate。 一个 base 与一个 release Check 的真实 Vibe Run 在只选择 base aggregate 时通过，snapshot 仍包含两个 Check；release Check 的原 preflight 与 execution 调用次数均为零，结果是 `gate-tag-not-enabled` unavailable 且 duration 为 null。 scripts/vibe-check.test.ts > inactive release Checks remain visible without starting their original preflight or execution bun test --test-name-pattern=\"^inactive release Checks remain visible without starting their original preflight or execution$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-release-tag-activation-remains-visible-without-execution.md",
+        "summary": "完整 Definition 中需要 `release` tag 的 Check 在无 tag 的 base Gate 也必须显示；activation preflight 必须先于原 preflight，且未激活项不执行、以稳定 `gate-tag-not-enabled` unavailable reason、`not run`、null duration 与 `Pass --tag release` 提示结算，不进入 base aggregate。",
+        "title": "未激活 release Check 可见但不执行"
       }
     },
     "GATE-RELEASE-VERSION-FAILURE-001": {
@@ -5888,10 +5911,10 @@
         "title": "scheduling-hint I/O 与未完成 Run 不改变门禁真值"
       }
     },
-    "GATE-SCHEDULING-PROFILE-PERSISTENCE-002": {
+    "GATE-SCHEDULING-TAG-PERSISTENCE-002": {
       "keys": {
         "search": [
-          "GATE-SCHEDULING-PROFILE-PERSISTENCE-002 completed 时长提示按 profile 保存并用于后续 Definition default 与 full 独立保存已完成 Check 的有限非负时长；未知 Check、损坏或不完整提示不改变 Gate 结算，并回退声明顺序。 full 写入不会覆盖 default 提示，损坏 default 文件会被忽略。 scripts/vibe-check.test.ts > completed duration hints are profile-local and only alter later admission order bun test --test-name-pattern=\"^completed duration hints are profile-local and only alter later admission order$\" ./scripts/vibe-check.test.ts"
+          "GATE-SCHEDULING-TAG-PERSISTENCE-002 completed 时长提示按 active tag 集合保存并用于后续 Definition base 与 release tag 独立保存当前 active Check 的有限非负时长；关键路径排序只要求 active executable Check 具有完整提示，未激活 Check 保留在完整 Definition 中但不影响 admission。未知 Check、损坏或不完整的 active 提示不改变 Gate 结算，并回退声明顺序。 release 写入不会覆盖 base 提示；base 的完整 active hint 会实际改变 active admission 顺序，release-only catalog Check 仍保留且顺序不变；损坏 base 文件会被忽略。 scripts/vibe-check.test.ts > completed duration hints are isolated by active tag set and only alter later admission order bun test --test-name-pattern=\"^completed duration hints are isolated by active tag set and only alter later admission order$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5900,15 +5923,15 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "scripts/vibe-check.test.ts > completed duration hints are profile-local and only alter later admission order",
-          "bun test --test-name-pattern=\"^completed duration hints are profile-local and only alter later admission order$\" ./scripts/vibe-check.test.ts"
+          "scripts/vibe-check.test.ts > completed duration hints are isolated by active tag set and only alter later admission order",
+          "bun test --test-name-pattern=\"^completed duration hints are isolated by active tag set and only alter later admission order$\" ./scripts/vibe-check.test.ts"
         ],
-        "id": "GATE-SCHEDULING-PROFILE-PERSISTENCE-002",
+        "id": "GATE-SCHEDULING-TAG-PERSISTENCE-002",
         "line": 1,
-        "searchText": "completed 时长提示按 profile 保存并用于后续 Definition default 与 full 独立保存已完成 Check 的有限非负时长；未知 Check、损坏或不完整提示不改变 Gate 结算，并回退声明顺序。 full 写入不会覆盖 default 提示，损坏 default 文件会被忽略。 scripts/vibe-check.test.ts > completed duration hints are profile-local and only alter later admission order bun test --test-name-pattern=\"^completed duration hints are profile-local and only alter later admission order$\" ./scripts/vibe-check.test.ts",
-        "sourcePath": "repository-tooling/gate-scheduling-hint-persistence.md",
-        "summary": "default 与 full 独立保存已完成 Check 的有限非负时长；未知 Check、损坏或不完整提示不改变 Gate 结算，并回退声明顺序。",
-        "title": "completed 时长提示按 profile 保存并用于后续 Definition"
+        "searchText": "completed 时长提示按 active tag 集合保存并用于后续 Definition base 与 release tag 独立保存当前 active Check 的有限非负时长；关键路径排序只要求 active executable Check 具有完整提示，未激活 Check 保留在完整 Definition 中但不影响 admission。未知 Check、损坏或不完整的 active 提示不改变 Gate 结算，并回退声明顺序。 release 写入不会覆盖 base 提示；base 的完整 active hint 会实际改变 active admission 顺序，release-only catalog Check 仍保留且顺序不变；损坏 base 文件会被忽略。 scripts/vibe-check.test.ts > completed duration hints are isolated by active tag set and only alter later admission order bun test --test-name-pattern=\"^completed duration hints are isolated by active tag set and only alter later admission order$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-scheduling-hint-tag-persistence.md",
+        "summary": "base 与 release tag 独立保存当前 active Check 的有限非负时长；关键路径排序只要求 active executable Check 具有完整提示，未激活 Check 保留在完整 Definition 中但不影响 admission。未知 Check、损坏或不完整的 active 提示不改变 Gate 结算，并回退声明顺序。",
+        "title": "completed 时长提示按 active tag 集合保存并用于后续 Definition"
       }
     },
     "GATE-SCRIPT-ADAPTER-001": {
@@ -15594,8 +15617,8 @@
       "ENV-METRICS-PREREQUISITES-001": "sha256:17691c720b0523f69656ea2ebf010cdcc27266d84b92749cacf68807aac2546e",
       "ENV-PERMISSION-RULES-001": "sha256:21a124776a169674569296131b473013b83cd4982ea6a91fde7ec22edc11b45a",
       "ENV-WORKTREE-SETUP-001": "sha256:a232485668782b975b6e416528f415886b669450f36394065848a5027441842f",
-      "GATE-CLI-RESULT-001": "sha256:c98abfc0eea3ca68ffbf5a4f07455d5ca73d2a20f4acdd58ce3610048fd9509a",
-      "GATE-DEFINITION-CATALOG-001": "sha256:7e8516ffc66469a3935157bbe68fd08c41df39a1e7d5e32ac8659c748b1f6afd",
+      "GATE-CLI-RESULT-001": "sha256:ae32a8a554aef5b2379fc0089e1b05a8d2c299adabf0371f4f998d78df541b6f",
+      "GATE-DEFINITION-CATALOG-001": "sha256:c71bb42835a99da0b5d633378704172ccaf66be8b0f8c13f5961ca57f9558352",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:7562eb8f98b853c83356d56a7140b675965d35b78727d7a0e6e650675d7933d7",
       "GATE-DUPLICATE-DETECTION-001": "sha256:5ce85e2b84c401f0419a234702195ae2f539a9b19f40d6f0d1370ec50ec185b3",
       "GATE-FILE-SELECTION-001": "sha256:2a611569231721824b35a68e1227f49b52562b76c5b3ca76cba359d04fd51d77",
@@ -15605,12 +15628,13 @@
       "GATE-LIZARD-VERSION-001": "sha256:d1b6867bf1f0ce4875dc41c12483934500e5f3e03fc81dbd976c050320498544",
       "GATE-MARKDOWN-LINK-001": "sha256:9a3b1f847a00e6b8b3d47e3c693900167dc9e4b13b3dd4cc864c3fb17e9c1a3b",
       "GATE-METRICS-ADVISORY-001": "sha256:af0dd4f5521a48efd2bdd98b27a68a29359cc114720224a842188de87b15bfb9",
-      "GATE-RELEASE-FINAL-TIMING-001": "sha256:c2a797aa49d8c0cf5bc7e764b3476f1393914bf1a8ef0b20a457b497f9d55b94",
+      "GATE-RELEASE-FINAL-TIMING-001": "sha256:838b48359a2a8329b6aa612ea55b691adbaac9d4fe6bf7f724f2ad9b66332600",
       "GATE-RELEASE-SNAPSHOT-TOCTOU-001": "sha256:61326990cae73b78b8e5e2261834caf0faab0d5a1200571c70d5a98877a0ddc6",
+      "GATE-RELEASE-TAG-ACTIVATION-001": "sha256:ba8facba1d6de1aec980e82a57f53a98bbece9bceabe7d3627c8efa14ccf657d",
       "GATE-RELEASE-VERSION-FAILURE-001": "sha256:e3035b13dba0793e7f76ad1145251f5012dd79170910f7a2af43ec98a33f2973",
       "GATE-SCHEDULING-CRITICAL-RANK-001": "sha256:4eed716c0e47254935cae4647c9bd7a835604a2b9c7b03dc7151217e1ff4cc40",
       "GATE-SCHEDULING-NONBLOCKING-FALLBACK-003": "sha256:c69de224a2ff7f0d0e96757d987e106877dee2988ec060a820de1d979008b30c",
-      "GATE-SCHEDULING-PROFILE-PERSISTENCE-002": "sha256:926a7e214118c39bda5117da2b9d88d0534b5cdeeb79b711876f4221e9560106",
+      "GATE-SCHEDULING-TAG-PERSISTENCE-002": "sha256:900ab4e1477b0613e212bbfbbcda54f861c41073ab07e0e6494da2b7f1c65d33",
       "GATE-SCRIPT-ADAPTER-001": "sha256:b461e94ab3f3cd94b2aa2ab437e516d27fb675f9df588a6ae6a07fc83f3644a9",
       "GATE-SCRIPT-CANCELLATION-001": "sha256:af126c6d3e04b6dad1ee6ad63672eb9be5b19245c41d69effc3f20525f456c14",
       "GENERATED-FILE-DECLARATION-001": "sha256:6e1393221dbc7a89eb508e87745a86f801af86a6067ebd39427d34876b660d3a",

@@ -19,7 +19,21 @@ import {
   type PreparedSkillPackageRelease
 } from "./skill-package-release.ts";
 
-export type GateProfile = "default" | "full";
+export const gateTags = ["release"] as const;
+
+export type GateTag = (typeof gateTags)[number];
+
+export type GateTagSet = readonly GateTag[];
+
+export function normalizeGateTags(
+  tags: readonly GateTag[]
+): readonly GateTag[] {
+  return [...new Set(tags)].sort();
+}
+
+export function hasGateTag(tags: GateTagSet, tag: GateTag): boolean {
+  return tags.includes(tag);
+}
 
 const diagnosticOutputLimit = 4_000;
 
@@ -28,18 +42,28 @@ function isEstimatedDuration(value: unknown): value is number {
 }
 
 /**
- * Reorders only root executable Checks for Vibe's canonical-order admission.
- * Invalid declarations deliberately keep their original order so Vibe still owns
- * Definition and DAG validation.
+ * Reorders only active root executable Checks for Vibe's canonical-order admission.
+ * Inactive Checks retain their declaration slots; invalid active declarations keep
+ * the original order so Vibe still owns Definition and DAG validation.
  */
 export function orderRootChecksByCriticalRank(
   checks: readonly Check[],
-  durationHints: ReadonlyMap<string, number> | undefined
+  durationHints: ReadonlyMap<string, number> | undefined,
+  activeCheckIds: readonly string[] = checks.map(({ checkId }) => checkId)
 ): readonly Check[] {
+  const activeIds = new Set(activeCheckIds);
   const executable = checks.flatMap((check, index) =>
-    typeof check.execution === "function" ? [{ check, index }] : []
+    activeIds.has(check.checkId) && typeof check.execution === "function"
+      ? [{ check, index }]
+      : []
   );
-  if (executable.length === 0 || durationHints === undefined) return checks;
+  if (
+    executable.length === 0 ||
+    executable.length !== activeIds.size ||
+    durationHints === undefined
+  ) {
+    return checks;
+  }
 
   const executableById = new Map<string, (typeof executable)[number]>();
   for (const entry of executable) {
@@ -104,7 +128,7 @@ export function orderRootChecksByCriticalRank(
   });
   let executableIndex = 0;
   return checks.map((check) =>
-    typeof check.execution === "function"
+    activeIds.has(check.checkId) && typeof check.execution === "function"
       ? (orderedExecutable[executableIndex++]?.check ?? check)
       : check
   );
@@ -219,20 +243,10 @@ export type GatePackageScript = (typeof releaseRequiredPackageScripts)[number];
 
 export type GatePackageScriptCheckId = `script:${GatePackageScript}`;
 
-const fullOnlyGatePackageScriptSet: ReadonlySet<GatePackageScript> = new Set([
+const releaseOnlyGatePackageScripts: ReadonlySet<GatePackageScript> = new Set([
   "test:version-control",
   "test:skill-package-hash"
 ]);
-
-export const fullOnlyGatePackageScripts: readonly GatePackageScript[] =
-  releaseRequiredPackageScripts.filter((script) =>
-    fullOnlyGatePackageScriptSet.has(script)
-  );
-
-export const defaultGatePackageScripts: readonly GatePackageScript[] =
-  releaseRequiredPackageScripts.filter(
-    (script) => !fullOnlyGatePackageScriptSet.has(script)
-  );
 
 export type GateCommand = Readonly<{
   args: readonly string[];
@@ -244,7 +258,7 @@ export type SemanticGateCheck = Readonly<{
   command: GateCommand;
   dependsOn?: readonly GatePackageScriptCheckId[];
   displayName: string;
-  profile: GateProfile;
+  requiredTag?: GateTag;
 }>;
 
 const bunTest = (file: string): GateCommand => ({
@@ -256,7 +270,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:change-plan:artifact-and-active-plan-gates",
     displayName: "Change Plan artifact and active-plan gates",
-    profile: "default",
+    requiredTag: undefined,
     command: bunTest(
       "./tools/change-plan/tests/checks/artifact-and-active-plan-gates.ts"
     )
@@ -264,20 +278,20 @@ export const semanticGateChecks = [
   {
     checkId: "test:change-plan:lifecycle-archive",
     displayName: "Change Plan lifecycle and archive",
-    profile: "default",
+    requiredTag: undefined,
     command: bunTest("./tools/change-plan/tests/checks/lifecycle-archive.ts")
   },
   {
     checkId: "test:change-plan:public-distribution",
     dependsOn: ["script:check:change-plan-cli"],
     displayName: "Change Plan public distribution",
-    profile: "default",
+    requiredTag: undefined,
     command: bunTest("./tools/change-plan/tests/checks/public-distribution.ts")
   },
   {
     checkId: "test:decision-records:record-and-established-graph",
     displayName: "Decision Records record and established graph",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest(
       "./tools/decision-records/tests/checks/record-and-established-graph.ts"
     )
@@ -285,7 +299,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:decision-records:query-and-index-projection",
     displayName: "Decision Records query and index projection",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest(
       "./tools/decision-records/tests/checks/query-and-index-projection.ts"
     )
@@ -293,7 +307,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:decision-records:lifecycle-and-recovery",
     displayName: "Decision Records lifecycle and recovery",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest(
       "./tools/decision-records/tests/checks/lifecycle-and-recovery.ts"
     )
@@ -301,14 +315,14 @@ export const semanticGateChecks = [
   {
     checkId: "test:decision-records:pending-stage",
     displayName: "Decision Records pending stage",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest("./tools/decision-records/tests/stage.test.ts")
   },
   {
     checkId: "test:decision-records:public-distribution",
     dependsOn: ["script:check:decision-records-cli"],
     displayName: "Decision Records public distribution",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest(
       "./tools/decision-records/tests/checks/public-distribution.ts"
     )
@@ -316,7 +330,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:investigation-report:collection-and-resources",
     displayName: "Investigation Report collection and resources",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest(
       "./tools/investigation-report/tests/checks/collection-and-resources.ts"
     )
@@ -324,7 +338,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:investigation-report:index-and-query",
     displayName: "Investigation Report index and query",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest(
       "./tools/investigation-report/tests/checks/index-and-query.ts"
     )
@@ -332,7 +346,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:investigation-report:transactional-maintenance",
     displayName: "Investigation Report transactional maintenance",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest(
       "./tools/investigation-report/tests/checks/transactional-maintenance.ts"
     )
@@ -340,37 +354,37 @@ export const semanticGateChecks = [
   {
     checkId: "test:investigation-report:pending-stage",
     displayName: "Investigation Report pending stage",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest("./tools/investigation-report/tests/staging.test.ts")
   },
   {
     checkId: "test:investigation-report:cli-contract",
     displayName: "Investigation Report CLI contract",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest("./tools/investigation-report/tests/cli-generated.test.ts")
   },
   {
     checkId: "test:task-graph:index-and-projection",
     displayName: "Task Graph index and projection",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest("./tools/task-graph/tests/checks/index-and-projection.ts")
   },
   {
     checkId: "test:task-graph:task-lifecycle",
     displayName: "Task Graph task lifecycle",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest("./tools/task-graph/tests/checks/task-lifecycle.ts")
   },
   {
     checkId: "test:task-graph:runtime-and-store",
     displayName: "Task Graph runtime and store",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest("./tools/task-graph/tests/checks/runtime-and-store.ts")
   },
   {
     checkId: "test:task-graph:native-store",
     displayName: "Task Graph native store",
-    profile: "full",
+    requiredTag: "release",
     command: {
       command: "node",
       args: ["--test", "./tools/task-graph/tests/native-store.test.ts"]
@@ -379,38 +393,38 @@ export const semanticGateChecks = [
   {
     checkId: "test:task-graph:cli-rendering",
     displayName: "Task Graph CLI rendering",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest("./tools/task-graph/tests/checks/cli-rendering.ts")
   },
   {
     checkId: "test:task-graph:pending-stage",
     displayName: "Task Graph pending stage",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest("./tools/task-graph/tests/staging.test.ts")
   },
   {
     checkId: "test:task-graph:public-distribution",
     dependsOn: ["script:check:task-graph-cli"],
     displayName: "Task Graph public distribution",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest("./tools/task-graph/tests/generated-artifacts.test.ts")
   },
   {
     checkId: "test:task-graph:portable-build",
     displayName: "Task Graph portable build",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest("./tools/task-graph/tests/portable-build.test.ts")
   },
   {
     checkId: "test:test-evidence:catalog-contract",
     displayName: "Test Evidence catalog contract",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest("./tools/test-evidence/tests/catalog.test.ts")
   },
   {
     checkId: "test:test-evidence:ledger-source-and-relations",
     displayName: "Test Evidence ledger source and relations",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest(
       "./tools/test-evidence/tests/checks/ledger-source-and-relations.ts"
     )
@@ -418,7 +432,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:test-evidence:ledger-index-and-query",
     displayName: "Test Evidence ledger index and query",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest(
       "./tools/test-evidence/tests/checks/ledger-index-and-query.ts"
     )
@@ -426,19 +440,21 @@ export const semanticGateChecks = [
   {
     checkId: "test:test-evidence:ledger-cli",
     displayName: "Test Evidence ledger CLI",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest("./tools/test-evidence/tests/ledger-cli.test.ts")
   },
   {
     checkId: "test:test-evidence:pending-stage",
     displayName: "Test Evidence pending stage",
-    profile: "full",
+    requiredTag: "release",
     command: bunTest("./tools/test-evidence/tests/staging.test.ts")
   }
 ] as const satisfies readonly SemanticGateCheck[];
 
 export const releaseVersionPackageScript = "hash:skills";
 export const releaseSnapshotCheckId = "release:skill-prepare";
+const releaseVersionCheckId = "release:skill-version";
+const packSkillsCheckId = "pack:skills";
 
 export function isReleaseBaselineRef(value: unknown): value is string {
   return (
@@ -835,7 +851,7 @@ function releasePrerequisiteFailure(dependencies: ReleaseDependencies) {
           {
             level: "error" as const,
             code: "release-prerequisite-unavailable",
-            message: `Release version validation did not start because ${checkId} has no trusted final result. Fix that prerequisite and rerun bun run check --full.`
+            message: `Release version validation did not start because ${checkId} has no trusted final result. Fix that prerequisite and rerun bun run check --tag release.`
           }
         ]
       };
@@ -848,7 +864,7 @@ function releasePrerequisiteFailure(dependencies: ReleaseDependencies) {
           {
             level: "error" as const,
             code: "release-prerequisite-failed",
-            message: `Release version validation did not start because ${checkId} is ${dependency.status}. Fix that prerequisite and rerun bun run check --full.`
+            message: `Release version validation did not start because ${checkId} is ${dependency.status}. Fix that prerequisite and rerun bun run check --tag release.`
           }
         ]
       };
@@ -894,7 +910,7 @@ function createReleasePrepareCheck(
               level: "error" as const,
               code: "release-baseline-invalid",
               message:
-                "The release baseline must be a trimmed, non-empty revision input without a leading hyphen, NUL, CR, or LF. Pass --baseline-ref <ref> to bun run check --full."
+                "The release baseline must be a trimmed, non-empty revision input without a leading hyphen, NUL, CR, or LF. Pass --baseline-ref <ref> to bun run check --tag release."
             }
           ]
         };
@@ -910,7 +926,7 @@ function createReleasePrepareCheck(
         return { status: "passed" as const, data: {} };
       } catch (error) {
         return releaseSnapshotUnavailable(
-          "Could not prepare the pending skill release snapshot. Fix the Git or skill-package input and rerun bun run check --full.",
+          "Could not prepare the pending skill release snapshot. Fix the Git or skill-package input and rerun bun run check --tag release.",
           error
         );
       }
@@ -920,7 +936,7 @@ function createReleasePrepareCheck(
 
 function createReleaseVersionCheck(state: ReleaseState): Check {
   return defineCheck({
-    checkId: "release:skill-version",
+    checkId: releaseVersionCheckId,
     displayName: "Validate skill release versions",
     dependsOn: [...releaseRequiredCheckIds, releaseSnapshotCheckId],
     async execution({ dependencies }) {
@@ -932,7 +948,7 @@ function createReleaseVersionCheck(state: ReleaseState): Check {
       const prepared = state.prepared;
       if (prepared === undefined) {
         return releaseSnapshotUnavailable(
-          "Release version authorization did not receive a prepared snapshot. Rerun bun run check --full.",
+          "Release version authorization did not receive a prepared snapshot. Rerun bun run check --tag release.",
           ""
         );
       }
@@ -980,14 +996,14 @@ function createPackSkillsCheck(
           status: "unavailable" as const,
           reason: {
             code: "release-version-unavailable",
-            checkIds: ["release:skill-version"]
+            checkIds: [releaseVersionCheckId]
           },
           messages: [
             {
               level: "error" as const,
               code: "release-version-unavailable",
               message:
-                "Packaging did not start because release:skill-version has no trusted final result. Fix the version check and rerun bun run check --full."
+                "Packaging did not start because release:skill-version has no trusted final result. Fix the version check and rerun bun run check --tag release."
             }
           ]
         };
@@ -996,14 +1012,14 @@ function createPackSkillsCheck(
         return {
           status: "failed" as const,
           data: {
-            prerequisite: "release:skill-version",
+            prerequisite: releaseVersionCheckId,
             prerequisiteStatus: version.status
           },
           messages: [
             {
               level: "error" as const,
               code: "release-version-failed",
-              message: `Packaging did not start because release:skill-version is ${version.status}. Fix the version check and rerun bun run check --full.`
+              message: `Packaging did not start because release:skill-version is ${version.status}. Fix the version check and rerun bun run check --tag release.`
             }
           ]
         };
@@ -1011,7 +1027,7 @@ function createPackSkillsCheck(
       const prepared = state.prepared;
       if (prepared === undefined) {
         return releaseSnapshotUnavailable(
-          "Packaging did not receive a prepared snapshot. Rerun bun run check --full.",
+          "Packaging did not receive a prepared snapshot. Rerun bun run check --tag release.",
           ""
         );
       }
@@ -1098,83 +1114,136 @@ export function createVibeNativeChecks(): readonly Check[] {
   ];
 }
 
-function selectedPackageScripts(
-  profile: GateProfile
-): readonly GatePackageScript[] {
-  return profile === "default"
-    ? defaultGatePackageScripts
-    : releaseRequiredPackageScripts;
-}
-
-function selectedSemanticGateChecks(
-  profile: GateProfile
-): readonly SemanticGateCheck[] {
-  return semanticGateChecks.filter(
-    (check) => profile === "full" || check.profile === "default"
-  );
-}
-
 export const releaseRequiredCheckIds = [
   ...vibeNativeCheckIds,
   ...releaseRequiredPackageScripts.map(packageScriptCheckId),
   ...semanticGateChecks.map(({ checkId }) => checkId)
 ] as const;
 
-export function gateCheckIds(profile: GateProfile): readonly string[] {
-  const semanticCheckIds = selectedSemanticGateChecks(profile).map(
-    ({ checkId }) => checkId
-  );
-  const packageCheckIds =
-    selectedPackageScripts(profile).map(packageScriptCheckId);
-  // Ordering is only a scheduler hint: default admits its semantic Checks
-  // before broad maintenance scripts so they do not form a serial tail.
-  const checks =
-    profile === "default"
-      ? [...vibeNativeCheckIds, ...semanticCheckIds, ...packageCheckIds]
-      : [...vibeNativeCheckIds, ...packageCheckIds, ...semanticCheckIds];
-  return profile === "full"
-    ? [
-        releaseSnapshotCheckId,
-        ...checks,
-        "release:skill-version",
-        "pack:skills"
-      ]
-    : checks;
+export function gateCheckIds(): readonly string[] {
+  return [
+    releaseSnapshotCheckId,
+    ...vibeNativeCheckIds,
+    ...releaseRequiredPackageScripts.map(packageScriptCheckId),
+    ...semanticGateChecks.map(({ checkId }) => checkId),
+    releaseVersionCheckId,
+    packSkillsCheckId
+  ];
+}
+
+const releaseOnlyGateCheckIds: ReadonlySet<string> = new Set([
+  releaseSnapshotCheckId,
+  releaseVersionCheckId,
+  packSkillsCheckId,
+  ...Array.from(releaseOnlyGatePackageScripts, packageScriptCheckId),
+  ...semanticGateChecks
+    .filter(({ requiredTag }) => requiredTag === "release")
+    .map(({ checkId }) => checkId)
+]);
+
+export function activeGateCheckIds(tags: GateTagSet): readonly string[] {
+  return hasGateTag(tags, "release")
+    ? gateCheckIds()
+    : gateCheckIds().filter((checkId) => !releaseOnlyGateCheckIds.has(checkId));
+}
+
+function inactiveTagPreflight(requiredTag: GateTag) {
+  return {
+    status: "failure" as const,
+    action: "block" as const,
+    reason: { code: "gate-tag-not-enabled" },
+    messages: [
+      {
+        level: "info" as const,
+        code: "gate-tag-not-enabled",
+        message: `This Check did not start because it requires the ${requiredTag} tag. Pass --tag ${requiredTag} to run it with the base Checks.`
+      }
+    ]
+  };
+}
+
+/** Adds the invocation tag boundary before a Check's own preflight, so inactive
+ * Check definitions remain visible without starting their I/O or original setup. */
+export function activateGateCheck<
+  AuthoredOptions extends object,
+  PreparedOptions extends object
+>(
+  check: Check<AuthoredOptions, PreparedOptions>,
+  requiredTag: GateTag | undefined,
+  activeTags: GateTagSet
+): Check<AuthoredOptions, PreparedOptions> {
+  if (requiredTag === undefined) return check;
+  const originalPreflight = check.preflight;
+  return {
+    ...check,
+    async preflight(options, signal) {
+      if (!hasGateTag(activeTags, requiredTag)) {
+        return inactiveTagPreflight(requiredTag);
+      }
+      return originalPreflight === undefined
+        ? { status: "success" as const, preparedOptions: options }
+        : await originalPreflight(options, signal);
+    }
+  };
 }
 
 export function createGateDefinition(
-  profile: GateProfile,
+  activeTags: GateTagSet = [],
   dependencies: GateDefinitionDependencies = {}
 ): ProjectDefinition {
+  const tags = normalizeGateTags(activeTags);
   const runner = dependencies.runCommand ?? runGateCommand;
   const releaseState: ReleaseState = { prepared: undefined };
   const nativeChecks = dependencies.nativeChecks ?? createVibeNativeChecks();
-  const semanticChecks = selectedSemanticGateChecks(profile).map((check) =>
-    createSemanticGateCheck(check, runner)
+  const semanticChecks = semanticGateChecks.map((check) =>
+    activateGateCheck(
+      createSemanticGateCheck(check, runner),
+      check.requiredTag,
+      tags
+    )
   );
-  const packageChecks = selectedPackageScripts(profile).map((script) =>
-    createPackageScriptCheck(script, runner)
+  const packageChecks = releaseRequiredPackageScripts.map((script) =>
+    activateGateCheck(
+      createPackageScriptCheck(script, runner),
+      releaseOnlyGatePackageScripts.has(script) ? "release" : undefined,
+      tags
+    )
   );
-  // Keep the Definition order aligned with gateCheckIds without changing IDs.
-  const checks: Check[] =
-    profile === "default"
-      ? [...nativeChecks, ...semanticChecks, ...packageChecks]
-      : [...nativeChecks, ...packageChecks, ...semanticChecks];
-  if (profile === "full") {
-    checks.unshift(
-      createReleasePrepareCheck(
-        dependencies.baselineRef ?? "HEAD",
-        dependencies.prepareRelease,
-        releaseState
-      )
-    );
-    checks.push(
-      createReleaseVersionCheck(releaseState),
-      createPackSkillsCheck(dependencies.packRelease, releaseState)
-    );
-  }
+  const releasePrepareCheck = activateGateCheck(
+    createReleasePrepareCheck(
+      dependencies.baselineRef ?? "HEAD",
+      dependencies.prepareRelease,
+      releaseState
+    ),
+    "release",
+    tags
+  );
+  const releaseVersionCheck = activateGateCheck(
+    createReleaseVersionCheck(releaseState),
+    "release",
+    tags
+  );
+  const packSkillsCheck = activateGateCheck(
+    createPackSkillsCheck(dependencies.packRelease, releaseState),
+    "release",
+    tags
+  );
+  // Declaration order is only an admission hint. All Checks always remain in the
+  // Definition; aggregate selection decides which activated Checks settle the Gate.
+  const checks: Check[] = [
+    releasePrepareCheck,
+    ...nativeChecks,
+    ...packageChecks,
+    ...semanticChecks,
+    releaseVersionCheck,
+    packSkillsCheck
+  ];
   return defineConfig({
-    checks: orderRootChecksByCriticalRank(checks, dependencies.durationHints),
+    checks: orderRootChecksByCriticalRank(
+      checks,
+      dependencies.durationHints,
+      activeGateCheckIds(tags)
+    ),
     outputs: {
       diagnosticLogging: { directory: ".log/vibe-check", enabled: false },
       machinePublication: {

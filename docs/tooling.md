@@ -72,7 +72,7 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run lint` | 先按已安装版本的官方 Oxlint schema 和受校验的统一项目基线检查配置，拒绝配置级的路径、继承或规则绕过及基线降级，再使用 Oxlint 的 correctness、type-aware 和已确认插件规则检查 `scripts/` 与 `tools/`；TypeScript 编译诊断仍由 `typecheck` 的 tsgo 承接。未使用的 disable directive 作为 error；基线和唯一局部例外路径由[编码规范的 Oxlint 例外规则](coding-style.md#7-oxlint-例外保持局部且可审计)承接 |
 | `bun run lint:fix` | 使用与 `lint` 相同的配置前置校验，对 `scripts/` 与 `tools/` 应用 Oxlint 安全修复；工具源码变化后必须按对应 `sync:*` 入口同步生成物，并按版本承载边界判断是否提升 skill 版本 |
 | `bun run format` | 使用 Oxfmt 就地格式化 `scripts/` 的维护 TypeScript/JavaScript 与 `tools/` 的 TypeScript 源码（包括维护的 `.d.mts` 声明源）；不格式化 skill 内生成制品、项目文档 |
-| `bun run format:check` | 只读检查 `format` 覆盖的全部维护源码；default 与 full 门禁均执行 |
+| `bun run format:check` | 只读检查 `format` 覆盖的全部维护源码；base 与 release 门禁均执行 |
 | `bun run fix` | 依次运行覆盖 `scripts/` 与 `tools/` 的 `lint:fix` 与 `format`，用于安全地修复维护源码 |
 | `bun run validate` | 校验全部 skill 的结构、frontmatter、正文、资源目录、版本和主仓库配置；不校验链接 |
 | `bun run hash:skills` | 从 Git `pending` 快照临时计算 package hash，并校验内容变化的 skill 已相对 `--baseline-ref` 提升 `SKILL.md` 中的 `metadata.version` |
@@ -80,31 +80,31 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
-| `bun run check [--diagnostic-log]` | 运行 Vibe default：选择当前 catalog 标为 default 的工作区正确性 Check；不实例化 release version 或 `pack:skills`。按次追加 `--diagnostic-log` 可启用本次 invocation 的诊断日志。 |
-| `bun run check --full [--baseline-ref <ref>] [--diagnostic-log]` | 运行 Vibe full：保留 default 覆盖，并加入 catalog 标为 full 的 Check、release version 和打包终端。版本检查从 Git `pending`（index）快照相对显式基线执行；省略基线时使用 `HEAD`，CI 使用事件基线。按次追加 `--diagnostic-log` 可启用本次 invocation 的诊断日志。 |
+| `bun run check [--diagnostic-log]` | 运行 base Gate：完整 Definition 的全部 60 个 Check 都会显示；32 个 base Check 执行并进入 aggregate，28 个未启用的 release Check 以 `unavailable`、`not run` 和专用提示结算。 |
+| `bun run check --tag release [--baseline-ref <ref>] [--diagnostic-log]` | 运行 release Gate：在 base 基础上启用 release tag，执行全部 60 个 Check、版本验证与打包终结。省略基线时使用 `HEAD`，CI 使用事件基线。 |
 
 ### 权威 Vibe 门禁
 
-`bun run check` 是唯一权威门禁入口。default 接受无参数或一次 `--diagnostic-log`；full 接受一次 `--full`、可选的一次 `--baseline-ref <ref>` 和可选的一次 `--diagnostic-log`。`--baseline-ref` 只能与 full 组合，`<ref>` 必须是已 trim 的非空 revision 输入，且不得以 `-` 开头、包含 NUL、CR 或 LF；未知参数和重复 flag 在启动 Check 前失败。该 wrapper 级验证不解析 Git ref；实际解析由 `release:skill-prepare` 完成。CLI 将 Vibe 的最终结果映射为进程退出状态；`scripts/lib/vibe-gate.ts` 是语义 Check catalog、Definition、命令 adapter 和 release DAG owner。`--verbose`、`CHECK_CONCURRENCY`、旧摘要 renderer 和候选 `vibe-check` 命令均不是当前契约。
+`bun run check` 是唯一权威门禁入口。每次运行都构造相同的完整 Check Definition；tag 只控制 activation 与 aggregate selection，不删除任何声明。无 tag 的 base Gate 执行并聚合 32 个 base Check；`--tag release` 激活并聚合全部 60 个 Check。未启用 tag 的 Check 仍显示在 progress 与 machine snapshot 中，但 activation preflight 在其原有 preflight、扫描或命令启动前阻断，结算为 `unavailable`、`not run`、`duration: null` 与 `gate-tag-not-enabled`，并显示 `Pass --tag release`。它们不进入 base aggregate，所以未启动项既不会阻断 base，也不会被误报为通过。被 aggregate 选择的 `unavailable` 或 `not-applicable` 一律 fail closed。`--tag` 是 tag 型 activation 接口；当前仅支持 `release`，因此每次 invocation 最多出现一次 `--tag release`，任何重复 tag 都在启动 Check 前以 usage 拒绝。`--full` 仅保留为等同 `--tag release` 的兼容别名，不能与该 tag 同用。未知 tag、缺失 tag 值、未知参数和重复 `--diagnostic-log` 同样在启动 Check 前以 usage 拒绝。`--baseline-ref` 只可与 release tag 同用，必须是已 trim 的非空 revision 输入，且不得以 `-` 开头、包含 NUL、CR 或 LF。该 wrapper 级验证不解析 Git ref；实际解析由 `release:skill-prepare` 完成。CLI 将规范化 tag 集合同时传给 Vibe run controls 的 `flags`，并映射 Vibe 的最终结果为进程退出状态；`scripts/lib/vibe-gate.ts` 是 Check catalog、Definition、activation、命令 adapter 和 release DAG owner。
 
 | 术语 | 当前含义 |
 | --- | --- |
-| semantic Check | catalog 中以稳定 ID、显示名、profile 和直接命令定义的最小 Gate 单元。ID 与命名表达可行动的证明边界和失败后的 owner 路由；测试文件与 package script 只是其执行容器。 |
-| selected Check | 当前 Definition 按 profile 从 catalog 展开的 Check；full 还加入 release snapshot prepare、version authorization 与 packaging 三个 DAG 节点。`all` aggregate 结算当前选择的全部 Check。 |
-| blocking Check | finding、failed、unavailable 或意外 not-applicable 都使当前 aggregate 失败。 |
-| required advisory Check | 可信 finding 仍以 warning + passed 结算，不影响 aggregate 或 release 资格；无法执行、结果不可信或意外 N/A 则 fail closed。 |
-| default / full | default 保持原有日常工作区覆盖；full 保持 default 覆盖，并加入原本属于 full 的领域或 release 能力。profile 表达交付范围，不按预计耗时、并行度或文件数量重分组。 |
-| release-required Check | full 中普通的原生、维护脚本和语义 Check。每项必须形成可信 passed，release version authorization 才会开始；该集合由 catalog/Definition 派生，不在本文维护易过期的 ID 清单。 |
+| semantic Check | catalog 中以稳定 ID、显示名、`requiredTag`（如需要）和直接命令定义的最小 Gate 单元。 |
+| complete Definition | 每次 invocation 都包含相同的完整 Check ID 集合；tag 只改变 activation 与 aggregate selection，不删除声明。 |
+| active Check | 不需要 tag 的 base Check，或 required tag 已启用的 Check；只有它进入本次 aggregate。被选中的 unavailable 或 not-applicable 仍 fail closed。 |
+| release tag | 显式启用原 release-only 语义 Check、两个维护脚本、release snapshot、version 与 package DAG 的唯一 tag。 |
+| release-required Check | release tag 下必须形成可信 passed 的普通 Check；全部通过后 release version authorization 才会开始。 |
+
+所有 invocation 都使用 Vibe 原生 progress、静态 `maxParallel: 4` 和按 active Check ID 的 `all` aggregate，明确令被选择的 `unavailable`、`not-applicable` 与空选择失败。调度顺序和并发设置不表达 Check 语义、失败优先级或 release 依赖；独立 Check 即使其他 Check 已失败仍继续结算。wrapper 仅从上一轮 aggregate passed 的 completed `RunResult.checkDurations` 保存可选时长提示：无 tag 的 base 集合保存为 `.vibe-check-scheduling-hints-base.json`，release 集合保存为 `.vibe-check-scheduling-hints-release.json`。提示按规范化 active tag 集合隔离；关键路径排序只使用当前 active executable Check 的完整有限时长，未激活 Check 保留在完整 Definition 中而不参与 admission 排序。文件缺失、损坏、读写失败、不完整提示或环均保留 catalog 顺序，且不改变 Gate 真值。machine publication 默认写入专属且被 Git 忽略的 `.log/vibe-check/publication/`，保存本次完整 Check facts；catalog Check ID 是稳定机器身份。
+
+diagnostic log 用于人类排查单次 invocation 的调度与执行过程，不是稳定机器 schema。它默认关闭；base 或 release 追加 `--diagnostic-log` 时仅为该 invocation 启用 diagnostic logging，将日志写入被 Git 忽略的 `.log/vibe-check/run-*.log`，不改变 machine publication。
 
 Check catalog 以“它证明什么、失败后由谁处理”为分组条件：例如领域记录/索引、生命周期事务、按稳定 ID 的 pending-stage、调用协议和可分发制品可以是不同 Check；共同证明一个契约的多个原生测试文件保留在同一 Check。不得为均衡耗时把 Check 拆成每个测试，也不得把一个工具的全部测试重新合并为单一 Check。package scripts 继续是面向维护者的稳定手动聚合入口，但语义 Check 不再以 package script 身份作为 leaf。失败结果给出的直接命令是重跑该 Check 的权威路径；需要完整领域回归时仍可运行相应 `test:*` 聚合命令。
 
-两种 Definition 都使用 Vibe 原生 progress、静态 `maxParallel: 4` 和 `all` aggregate，明确令 `unavailable`、`not-applicable` 与空选择失败。调度顺序和并发设置不表达 Check 语义、失败优先级或 release 依赖；独立 Check 即使其他 Check 已失败仍继续结算。wrapper 仅从上一轮 aggregate passed 的 completed `RunResult.checkDurations` 在被 Git 忽略的 default/full profile 文件中保存可选时长提示。下一轮只有取得全部可执行 Check 的有限非负时长时，才按关键路径 rank 降序稳定重排 Definition 声明顺序；实际 admission 仍由 Vibe 调度器决定。文件缺失、损坏、读写失败、不完整提示或环均保留 catalog 顺序。提示不缓存结果、不跳过 Check，也不改变 Gate 结算或 CLI 退出码。machine publication 默认写入专属且被 Git 忽略的 `.log/vibe-check/publication/`：`run.json` 保存本次运行的完整 Check facts，`records.ndjson` 保存 supplemental Records。catalog Check ID 是这些事实的稳定机器身份；显示名、声明顺序、调度结果和未来缓存命中都不能改写它。publication 是门禁结果的机器消费边界，不替代 CLI 退出码。
-
-diagnostic log 用于人类排查单次 invocation 的调度与执行过程，不是稳定机器 schema。它默认关闭；default 或 full 追加 `--diagnostic-log` 时，wrapper 仅为该 invocation 启用 `diagnosticLogging`，将日志写入被 Git 忽略的 `.log/vibe-check/run-*.log`，不改变 machine publication。只要 Vibe 返回的 RunResult 提供非空 diagnostic file，CLI 就回显实际路径：这包括 completed 的 passed/failed aggregate，以及 cancelled、planning、execution、output 的 invocation failure；configuration 没有 outputs，因此不回显。失败仍同时输出既有失败诊断。两类输出共用受控根目录，但不共用文件层级。
 
 六项原生 Check 共用当前维护范围：代码类 Check 读取 Git worktree 中 `scripts/`、`tools/` 的 JavaScript/TypeScript，并排除 Vibe 默认排除项、`changes/archive/**` 和 `docs/investigations/_resources/**`；JSON 与 Markdown 也排除这两类历史内容。重复检测只把不少于 150 tokens 的重复片段作为 blocking finding，避免把已知的小型维护片段误作门禁失败。
 
-full 同时验证工作区正确性与 release snapshot，但两者输入不能互相替代：普通 Check 在本次项目根 invocation 中结算，原生 Check 明确选择 Git worktree，脚本或直接测试命令由自身契约决定读取输入；`release:skill-prepare` 一次读取 Git `pending` 快照，默认 Git 实现将其映射到 index，随后 version authorization 与 `pack:skills` 只消费该 invocation-local 内存快照。因此 full 通过不说明未暂存的工作树 skill 改动已进入制品；需要核对两者一致性时，分别检查工作树与 index。
+release tag 同时验证工作区正确性与 release snapshot，但两者输入不能互相替代：普通 Check 在本次项目根 invocation 中结算，原生 Check 明确选择 Git worktree，脚本或直接测试命令由自身契约决定读取输入；`release:skill-prepare` 一次读取 Git `pending` 快照，默认 Git 实现将其映射到 index，随后 version authorization 与 `pack:skills` 只消费该 invocation-local 内存快照。因此 release Gate 通过不说明未暂存的工作树 skill 改动已进入制品；需要核对两者一致性时，分别检查工作树与 index。
 
 | Check 类别 | 语义 |
 | --- | --- |
@@ -123,14 +123,14 @@ full 同时验证工作区正确性与 release snapshot，但两者输入不能�
 
 `dependsOn` 只向 Vibe 声明静态调度关系。semantic Check 的包装层还必须读取其**直接**前置的最终 product result：只有可信 `passed` 才启动 consumer 脚本；前置 failed、unavailable 或没有可信最终结果时，consumer 不读取制品、不运行，并把修复与重跑指向该前置。此前置表达当前制品的信任边界，避免失败后的无效 consumer 输出并改善归因；它不减少成功路径中既有的单次生成/漂移检查，也不得据此宣称 happy-path 加速。
 
-full 的 release DAG 固定为：
+release tag 的 release DAG 固定为：
 
 ```text
 release:skill-prepare（无普通前置，捕获 Git pending、pin baseline、分析版本）
           │ passed；保留内存 snapshot
           ├──────────────────────────────────────┐
           │                                      │
-所有 full 普通 Check                              │
+所有 release 普通 Check                              │
           │ 全部可信 passed                       │
           ▼                                      │
 release:skill-version（授权 prepare 的同一快照） ◀┘
@@ -148,7 +148,7 @@ pack:skills（恰好一次，从已授权的内存快照生成制品）
 1. `scripts/lib/vibe-jscpd.js` 保留 Vibe 的 `--version` availability probe；扫描必须携带 Vibe 生成的 `--config <path>`。Vibe 0.0.1 把 config 写在项目根外的临时目录，而 jscpd 从 config 所在目录解析相对 `path`；wrapper 只把该 config 中的相对文件项按项目当前工作目录改为绝对路径，然后转交 Vibe 随包的 jscpd。缺失或无效 config 在转交前失败，不能退回 jscpd 默认扫描范围。
 2. `scripts/lib/vibe-lizard.js` 只在 availability probe 的 `lizard --version` 输出精确为 `1.23.0` 时通过；扫描调用的参数原样转交 PATH 中的 Lizard。Vibe 0.0.1 原生 availability 只要求非空版本输出，因此如 `1.23.1` 必须结算为 unavailable，而不是可信 finding 或 passed。
 
-`fileMetrics` 直接使用 PATH SCC，Vibe 原生 availability 精确检查 `scc version 3.7.0`。两种 wrapper 都不安装、下载或管理工具。`node scripts/environment.js check` 精确报告 SCC/Lizard 缺失或版本不匹配，`setup` 不安装它们；CI 在同一 package job 固定安装并探测 SCC 3.7.0 与 Lizard 1.23.0 后运行 full。若锁文件解析的 Vibe 版本或任一外部工具的调用/输出契约改变，先复核这些 wrapper 的必要性与边界。
+`fileMetrics` 直接使用 PATH SCC，Vibe 原生 availability 精确检查 `scc version 3.7.0`。两种 wrapper 都不安装、下载或管理工具。`node scripts/environment.js check` 精确报告 SCC/Lizard 缺失或版本不匹配，`setup` 不安装它们；CI 在同一 package job 固定安装并探测 SCC 3.7.0 与 Lizard 1.23.0 后运行 release Gate。若锁文件解析的 Vibe 版本或任一外部工具的调用/输出契约改变，先复核这些 wrapper 的必要性与边界。
 
 ### 仓库维护短命令
 
@@ -209,7 +209,7 @@ Vibe 的原生 `markdown-link-validation` Check 是当前维护 Markdown 链接�
 
 ### 工具 CLI 与 Git fixture 测试边界
 
-`test:<tool>` 是工具行为与分发边界的稳定重跑入口；需要验证当前 Gate profile 时使用 `bun run check` 或 `bun run check --full`，不在维护说明中以测试文件路径替代这些 package scripts。
+`test:<tool>` 是工具行为与分发边界的稳定重跑入口；需要验证当前 Gate tag 集合时使用 `bun run check` 或 `bun run check --tag release`，不在维护说明中以测试文件路径替代这些 package scripts。
 
 1. CLI 的参数组合、领域错误、文本/JSON 输出和退出结果在源码入口测试。入口可以接收局部 `argv`、工作目录和 stdout/stderr writer，但这些测试参数不建立新的公开 SDK。
 2. 真实 Node smoke 只证明源码调用不能覆盖的分发边界：已安装/分发制品可启动、真实 argv 解析、stdout/stderr 分流、退出状态和模块解析。它不复制源码入口已经覆盖的参数矩阵。
@@ -270,9 +270,9 @@ Vibe 的原生 `markdown-link-validation` Check 是当前维护 Markdown 链接�
 
 Skill hash 和 zip 使用相同的版本管理 `pending` 快照，只覆盖最终进入 `skills/<skill-name>/` zip 的文件。默认 Git 实现把 `pending` 映射到 index，避免工作区覆盖和跨平台换行改变待提交制品。聚合 hash、zip 和 release 检测始终纳入每个包内文件的原始字节；这保证 source map、声明及其他制品字节改变都能得到不同的制品身份。每个 `SKILL.md` frontmatter 的 `metadata.version` 是手动维护的正整数字符串独立版本；版本门禁只对版本承载变化要求提升：`scripts/` 内由相邻 `.mjs` 的最后一个非空行以完整 `//# sourceMappingURL=<basename>` 指令链接的生成 `.mjs.map` 调试元数据编辑、新增或删除不承载版本，成对存在的 `.d.mts` 声明以根目录 `.oxfmtrc.json` 的配置规范化后比较，纯格式差异不承载版本；运行时 `.mjs`、声明语义、普通包内容以及声明的新增或删除仍承载版本，必须提升版本。
 
-`hash:skills` 只在本次命令运行期间计算全部 skill 的聚合 hash，不把 hash 或 lock 写入仓库。它将 Git `pending` 快照中发生的版本承载变化与指定 Git 基线 `SKILL.md` 中的 `metadata.version` 比较；pre-commit hook 默认使用 `HEAD`。full 将 `--baseline-ref <ref>` 交给 prepare；prepare 在普通 Check 结算期间解析该基线并运行版本分析，authorization 只消费 prepare 保留的结果。本地 full 缺省为 `HEAD`，CI 传入事件基线。hash 用于标识本次制品，既不是 updater 输入，也不是长期状态。
+`hash:skills` 只在本次命令运行期间计算全部 skill 的聚合 hash，不把 hash 或 lock 写入仓库。它将 Git `pending` 快照中发生的版本承载变化与指定 Git 基线 `SKILL.md` 中的 `metadata.version` 比较；pre-commit hook 默认使用 `HEAD`。release Gate 将 `--baseline-ref <ref>` 交给 prepare；prepare 在普通 Check 结算期间解析该基线并运行版本分析，authorization 只消费 prepare 保留的结果。本地 release Gate 缺省基线为 `HEAD`，CI 传入事件基线。hash 用于标识本次制品，既不是 updater 输入，也不是长期状态。
 
-`pack:skills` CLI 每次从自己读取的 pending snapshot 重建 `dist/` 中的 zip 与 manifest。full 的 `pack:skills` Check 则从 prepare 已捕获且经 version authorization 的同一内存 snapshot 走同一打包入口，不重新读取 Git index。项目文档、`tools/`、`scripts/`、CI 和仓库元数据不进入 zip；只有这些内容同步为 skill 内生成产物后，才会改变对应 skill hash。
+`pack:skills` CLI 每次从自己读取的 pending snapshot 重建 `dist/` 中的 zip 与 manifest。release tag 的 `pack:skills` Check 则从 prepare 已捕获且经 version authorization 的同一内存 snapshot 走同一打包入口，不重新读取 Git index。项目文档、`tools/`、`scripts/`、CI 和仓库元数据不进入 zip；只有这些内容同步为 skill 内生成产物后，才会改变对应 skill hash。
 
 ## Git hook
 
@@ -294,7 +294,7 @@ Git 调用 hook 时会注入当前 worktree 的 `GIT_DIR`、`GIT_INDEX_FILE` 等
 
 1. 安装固定 Bun、Node、pnpm、Go 和 Python，执行 `pnpm install --frozen-lockfile`。
 2. 在同一 package job 安装 SCC 3.7.0 与 Lizard 1.23.0，并在运行门禁前精确探测两个版本。
-3. 运行 `bun run check --full --baseline-ref <event-baseline>`，在唯一 Gate aggregate 内完成前置检查、相对事件基线的独立版本校验和全部 skill 打包；workflow 遇空或全零事件基线时省略该参数，full 因而回退 `HEAD`。
+3. 运行 `bun run check --tag release --baseline-ref <event-baseline>`，在唯一 Gate aggregate 内完成前置检查、相对事件基线的独立版本校验和全部 skill 打包；workflow 遇空或全零事件基线时省略该参数，release Gate 因而回退 `HEAD`。
 4. 运行 `bun run hash:skills --github-output --baseline-ref <event-baseline>`，重复廉价版本校验并输出本次聚合 hash；该步骤位于已经通过的 release 终结 Check 之后，不能绕过发布版本门禁。
 5. 上传全部 `dist/*` 作为保留 7 天的 workflow artifact，供当前 workflow 的发布 job 或短期 PR 核对使用。
 

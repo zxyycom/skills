@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { GateProfile } from "./vibe-gate.ts";
+import { normalizeGateTags, type GateTagSet } from "./vibe-gate.ts";
 
-export const schedulingHintsFormatVersion = 1;
+export const schedulingHintsFormatVersion = 2;
 
 export type CheckDurationHint = Readonly<{
   checkId: string;
@@ -11,11 +11,11 @@ export type CheckDurationHint = Readonly<{
 
 export type GateSchedulingHints = Readonly<{
   read(
-    profile: GateProfile,
+    activeTags: GateTagSet,
     knownCheckIds: readonly string[]
   ): Promise<ReadonlyMap<string, number>>;
   write(
-    profile: GateProfile,
+    activeTags: GateTagSet,
     knownCheckIds: readonly string[],
     checkDurations: readonly CheckDurationHint[]
   ): Promise<void>;
@@ -23,18 +23,24 @@ export type GateSchedulingHints = Readonly<{
 
 type StoredHint = Readonly<{ checkId: string; durationMs: number }>;
 
+type SchedulingHintsScope = "base" | "release";
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function hintFileName(
-  profile: GateProfile
-): `.vibe-check-scheduling-hints-${GateProfile}.json` {
-  return `.vibe-check-scheduling-hints-${profile}.json`;
+function schedulingHintsScope(activeTags: GateTagSet): SchedulingHintsScope {
+  return normalizeGateTags(activeTags).includes("release") ? "release" : "base";
 }
 
-export function schedulingHintsRelativePath(profile: GateProfile): string {
-  return hintFileName(profile);
+function hintFileName(
+  activeTags: GateTagSet
+): `.vibe-check-scheduling-hints-${SchedulingHintsScope}.json` {
+  return `.vibe-check-scheduling-hints-${schedulingHintsScope(activeTags)}.json`;
+}
+
+export function schedulingHintsRelativePath(activeTags: GateTagSet): string {
+  return hintFileName(activeTags);
 }
 
 function isDurationHint(value: unknown): value is number {
@@ -43,7 +49,7 @@ function isDurationHint(value: unknown): value is number {
 
 function parseSchedulingHints(
   content: string,
-  expectedProfile: GateProfile,
+  expectedTags: GateTagSet,
   knownCheckIds: readonly string[]
 ): ReadonlyMap<string, number> {
   try {
@@ -51,7 +57,8 @@ function parseSchedulingHints(
     if (
       !isRecord(value) ||
       value.version !== schedulingHintsFormatVersion ||
-      value.profile !== expectedProfile ||
+      JSON.stringify(value.tags) !==
+        JSON.stringify(normalizeGateTags(expectedTags)) ||
       !Array.isArray(value.hints)
     ) {
       return new Map();
@@ -94,20 +101,20 @@ export function createGateSchedulingHints(
   workspaceRoot: string
 ): GateSchedulingHints {
   return {
-    async read(profile, knownCheckIds) {
+    async read(activeTags, knownCheckIds) {
       const content = await fs
-        .readFile(path.join(workspaceRoot, hintFileName(profile)), "utf8")
+        .readFile(path.join(workspaceRoot, hintFileName(activeTags)), "utf8")
         .catch(() => null);
       return content === null
         ? new Map()
-        : parseSchedulingHints(content, profile, knownCheckIds);
+        : parseSchedulingHints(content, activeTags, knownCheckIds);
     },
-    async write(profile, knownCheckIds, checkDurations) {
+    async write(activeTags, knownCheckIds, checkDurations) {
       await fs.writeFile(
-        path.join(workspaceRoot, hintFileName(profile)),
+        path.join(workspaceRoot, hintFileName(activeTags)),
         `${JSON.stringify({
           hints: currentDurationHints(checkDurations, knownCheckIds),
-          profile,
+          tags: normalizeGateTags(activeTags),
           version: schedulingHintsFormatVersion
         })}\n`,
         "utf8"

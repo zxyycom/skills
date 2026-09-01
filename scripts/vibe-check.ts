@@ -4,9 +4,12 @@ import type { ProjectDefinition, RunResult } from "@zxyycom/vibe-check";
 import { isMainModule } from "../tools/shared/src/node/main-module.ts";
 import { rootDir } from "./lib/project.ts";
 import {
+  activeGateCheckIds,
   createGateDefinition,
-  gateCheckIds,
-  isReleaseBaselineRef
+  gateTags,
+  isReleaseBaselineRef,
+  normalizeGateTags,
+  type GateTag
 } from "./lib/vibe-gate.ts";
 import {
   createGateSchedulingHints,
@@ -15,13 +18,11 @@ import {
 
 type GateExitCode = 0 | 1;
 
-export type GateInvocation =
-  | Readonly<{ diagnosticLog: boolean; profile: "default" }>
-  | Readonly<{
-      baselineRef: string;
-      diagnosticLog: boolean;
-      profile: "full";
-    }>;
+export type GateInvocation = Readonly<{
+  baselineRef?: string;
+  diagnosticLog: boolean;
+  tags: readonly GateTag[];
+}>;
 
 export type VibeCheckDependencies = Readonly<{
   createDefinition?: (invocation: GateInvocation) => ProjectDefinition;
@@ -31,20 +32,28 @@ export type VibeCheckDependencies = Readonly<{
   schedulingHints?: GateSchedulingHints;
 }>;
 
+function isGateTag(value: string | undefined): value is GateTag {
+  return gateTags.some((tag) => tag === value);
+}
+
 export function resolveGateInvocation(
   argv: readonly string[]
 ): GateInvocation | null {
-  if (argv.length === 0) {
-    return { diagnosticLog: false, profile: "default" };
-  }
-
   let baselineRef: string | undefined;
   let diagnosticLog = false;
-  let full = false;
+  const tags: GateTag[] = [];
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
-    if (argument === "--full" && !full) {
-      full = true;
+    if (argument === "--tag") {
+      const tag = argv[index + 1];
+      if (!isGateTag(tag) || tags.includes(tag)) return null;
+      tags.push(tag);
+      index += 1;
+      continue;
+    }
+    if (argument === "--full") {
+      if (tags.includes("release")) return null;
+      tags.push("release");
       continue;
     }
     if (argument === "--diagnostic-log" && !diagnosticLog) {
@@ -53,22 +62,24 @@ export function resolveGateInvocation(
     }
     if (argument === "--baseline-ref" && baselineRef === undefined) {
       const candidate = argv[index + 1];
-      if (!isReleaseBaselineRef(candidate)) {
-        return null;
-      }
+      if (!isReleaseBaselineRef(candidate)) return null;
       baselineRef = candidate;
       index += 1;
       continue;
     }
     return null;
   }
-
-  if (!full) {
-    return baselineRef === undefined && diagnosticLog
-      ? { diagnosticLog, profile: "default" }
-      : null;
+  const normalizedTags = normalizeGateTags(tags);
+  if (baselineRef !== undefined && !normalizedTags.includes("release")) {
+    return null;
   }
-  return { baselineRef: baselineRef ?? "HEAD", diagnosticLog, profile: "full" };
+  return {
+    ...(normalizedTags.includes("release")
+      ? { baselineRef: baselineRef ?? "HEAD" }
+      : {}),
+    diagnosticLog,
+    tags: normalizedTags
+  };
 }
 
 function describeInvocationFailure(
@@ -95,33 +106,34 @@ export async function runVibeCheck(
   const invocation = resolveGateInvocation(argv);
   if (invocation === null) {
     reportError(
-      "Usage: bun run check [--full [--baseline-ref <ref>]] [--diagnostic-log]"
+      "Usage: bun run check [--tag release] [--baseline-ref <ref>] [--diagnostic-log] (compatibility: --full is --tag release)"
     );
     return 1;
   }
 
-  const knownCheckIds = gateCheckIds(invocation.profile);
+  const selectedCheckIds = activeGateCheckIds(invocation.tags);
   const schedulingHints =
     dependencies.schedulingHints ?? createGateSchedulingHints(rootDir);
   const durationHints = await schedulingHints
-    .read(invocation.profile, knownCheckIds)
+    .read(invocation.tags, selectedCheckIds)
     .catch(() => new Map<string, number>());
   const definition =
     dependencies.createDefinition?.(invocation) ??
     createGateDefinition(
-      invocation.profile,
-      invocation.profile === "full"
-        ? { baselineRef: invocation.baselineRef, durationHints }
-        : { durationHints }
+      invocation.tags,
+      invocation.baselineRef === undefined
+        ? { durationHints }
+        : { baselineRef: invocation.baselineRef, durationHints }
     );
   const result = await (dependencies.runProject ?? run)(definition, {
     checkAggregation: {
-      checks: "all",
+      checks: selectedCheckIds,
       empty: "failed",
       mode: "all",
       notApplicable: "fail",
       unavailable: "fail"
     },
+    flags: invocation.tags,
     ...(invocation.diagnosticLog
       ? {
           outputs: {
@@ -137,11 +149,7 @@ export async function runVibeCheck(
 
   if (result.kind === "completed" && result.aggregate === "passed") {
     await schedulingHints
-      .write(
-        invocation.profile,
-        definition.checks.map(({ checkId }) => checkId),
-        result.checkDurations
-      )
+      .write(invocation.tags, selectedCheckIds, result.checkDurations)
       .catch(() => undefined);
   }
 

@@ -23,7 +23,8 @@ import type { Check, ProjectDefinition, RunResult } from "@zxyycom/vibe-check";
 import {
   createGateDefinition,
   createVibeNativeChecks,
-  defaultGatePackageScripts,
+  activateGateCheck,
+  activeGateCheckIds,
   gateCheckIds,
   historicalContentExclusions,
   orderRootChecksByCriticalRank,
@@ -339,9 +340,9 @@ async function assertNativeBlockingCheckContract(
   });
 }
 
-const expectedSemanticGateGroups = [
+const expectedSemanticGateChecks = [
   [
-    "default",
+    undefined,
     "test:change-plan:artifact-and-active-plan-gates",
     "bun",
     [
@@ -353,7 +354,7 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "default",
+    undefined,
     "test:change-plan:lifecycle-archive",
     "bun",
     [
@@ -362,7 +363,7 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "default",
+    undefined,
     "test:change-plan:public-distribution",
     "bun",
     [
@@ -371,7 +372,7 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "full",
+    "release",
     "test:decision-records:record-and-established-graph",
     "bun",
     [
@@ -387,7 +388,7 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "full",
+    "release",
     "test:decision-records:query-and-index-projection",
     "bun",
     [
@@ -397,7 +398,7 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "full",
+    "release",
     "test:decision-records:lifecycle-and-recovery",
     "bun",
     [
@@ -410,13 +411,13 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "full",
+    "release",
     "test:decision-records:pending-stage",
     "bun",
     ["./tools/decision-records/tests/stage.test.ts"]
   ],
   [
-    "full",
+    "release",
     "test:decision-records:public-distribution",
     "bun",
     [
@@ -425,7 +426,7 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "full",
+    "release",
     "test:investigation-report:collection-and-resources",
     "bun",
     [
@@ -435,7 +436,7 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "full",
+    "release",
     "test:investigation-report:index-and-query",
     "bun",
     [
@@ -444,7 +445,7 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "full",
+    "release",
     "test:investigation-report:transactional-maintenance",
     "bun",
     [
@@ -453,19 +454,19 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "full",
+    "release",
     "test:investigation-report:pending-stage",
     "bun",
     ["./tools/investigation-report/tests/staging.test.ts"]
   ],
   [
-    "full",
+    "release",
     "test:investigation-report:cli-contract",
     "bun",
     ["./tools/investigation-report/tests/cli-generated.test.ts"]
   ],
   [
-    "full",
+    "release",
     "test:task-graph:index-and-projection",
     "bun",
     [
@@ -474,7 +475,7 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "full",
+    "release",
     "test:task-graph:task-lifecycle",
     "bun",
     [
@@ -483,7 +484,7 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "full",
+    "release",
     "test:task-graph:runtime-and-store",
     "bun",
     [
@@ -492,13 +493,13 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "full",
+    "release",
     "test:task-graph:native-store",
     "node",
     ["./tools/task-graph/tests/native-store.test.ts"]
   ],
   [
-    "full",
+    "release",
     "test:task-graph:cli-rendering",
     "bun",
     [
@@ -507,31 +508,31 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "full",
+    "release",
     "test:task-graph:pending-stage",
     "bun",
     ["./tools/task-graph/tests/staging.test.ts"]
   ],
   [
-    "full",
+    "release",
     "test:task-graph:public-distribution",
     "bun",
     ["./tools/task-graph/tests/generated-artifacts.test.ts"]
   ],
   [
-    "full",
+    "release",
     "test:task-graph:portable-build",
     "bun",
     ["./tools/task-graph/tests/portable-build.test.ts"]
   ],
   [
-    "full",
+    "release",
     "test:test-evidence:catalog-contract",
     "bun",
     ["./tools/test-evidence/tests/catalog.test.ts"]
   ],
   [
-    "full",
+    "release",
     "test:test-evidence:ledger-source-and-relations",
     "bun",
     [
@@ -540,7 +541,7 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "full",
+    "release",
     "test:test-evidence:ledger-index-and-query",
     "bun",
     [
@@ -550,13 +551,13 @@ const expectedSemanticGateGroups = [
     ]
   ],
   [
-    "full",
+    "release",
     "test:test-evidence:ledger-cli",
     "bun",
     ["./tools/test-evidence/tests/ledger-cli.test.ts"]
   ],
   [
-    "full",
+    "release",
     "test:test-evidence:pending-stage",
     "bun",
     ["./tools/test-evidence/tests/staging.test.ts"]
@@ -676,52 +677,43 @@ const expectedSemanticPrerequisites = new Map<string, readonly string[]>([
   ["test:task-graph:public-distribution", ["script:check:task-graph-cli"]]
 ]);
 
-test("gate catalog builds semantic default and full Definitions", async () => {
+test("gate catalog keeps one complete Definition for base and release tags", async () => {
   const runner = completedScript();
   const nativeChecks = passingNativeChecks();
-  const defaultDefinition = createGateDefinition("default", {
+  const baseDefinition = createGateDefinition([], {
     nativeChecks,
     runCommand: runner
   });
-  const fullDefinition = createGateDefinition("full", {
+  const releaseDefinition = createGateDefinition(["release"], {
     nativeChecks,
     runCommand: runner
   });
-  const expectedDefaultSemanticIds = expectedSemanticGateGroups
-    .filter(([profile]) => profile === "default")
-    .map(([, checkId]) => checkId);
-  const expectedFullSemanticIds = expectedSemanticGateGroups.map(
+  const expectedSemanticCheckIds = expectedSemanticGateChecks.map(
     ([, checkId]) => checkId
   );
-  const expectedDefaultCheckIds = [
-    ...vibeNativeCheckIds,
-    ...expectedDefaultSemanticIds,
-    ...defaultGatePackageScripts.map((script) => `script:${script}`)
-  ];
-  const expectedFullCheckIds = [
+  const expectedCheckIds = [
     releaseSnapshotCheckId,
     ...vibeNativeCheckIds,
     ...releaseRequiredPackageScripts.map((script) => `script:${script}`),
-    ...expectedFullSemanticIds,
+    ...expectedSemanticCheckIds,
     "release:skill-version",
     "pack:skills"
   ];
   assert.deepEqual(
-    defaultDefinition.checks.map(({ checkId }) => checkId),
-    expectedDefaultCheckIds
+    baseDefinition.checks.map(({ checkId }) => checkId),
+    expectedCheckIds
   );
   assert.deepEqual(
-    fullDefinition.checks.map(({ checkId }) => checkId),
-    expectedFullCheckIds
+    releaseDefinition.checks.map(({ checkId }) => checkId),
+    expectedCheckIds
   );
-  assert.deepEqual(gateCheckIds("default"), expectedDefaultCheckIds);
-  assert.deepEqual(gateCheckIds("full"), expectedFullCheckIds);
+  assert.deepEqual(gateCheckIds(), expectedCheckIds);
   assert.equal(
-    defaultDefinition.checks.some(({ checkId }) => checkId === "pack:skills"),
-    false
+    baseDefinition.checks.some(({ checkId }) => checkId === "pack:skills"),
+    true
   );
-  assert.equal(defaultDefinition.scheduler.maxParallel, 4);
-  assert.deepEqual(defaultDefinition.outputs, {
+  assert.equal(baseDefinition.scheduler.maxParallel, 4);
+  assert.deepEqual(baseDefinition.outputs, {
     diagnosticLogging: { enabled: false, directory: ".log/vibe-check" },
     machinePublication: {
       enabled: true,
@@ -731,30 +723,30 @@ test("gate catalog builds semantic default and full Definitions", async () => {
   });
   assert.equal(releaseRequiredCheckIds.length, 57);
   assert.deepEqual(
-    fullDefinition.checks.find(
+    releaseDefinition.checks.find(
       ({ checkId }) => checkId === releaseSnapshotCheckId
     )?.dependsOn ?? [],
     []
   );
   assert.deepEqual(
-    fullDefinition.checks.find(
+    releaseDefinition.checks.find(
       ({ checkId }) => checkId === "release:skill-version"
     )?.dependsOn,
     [...releaseRequiredCheckIds, releaseSnapshotCheckId]
   );
-  assert.deepEqual(releaseTerminalCheck(fullDefinition).dependsOn, [
+  assert.deepEqual(releaseTerminalCheck(releaseDefinition).dependsOn, [
     "release:skill-version"
   ]);
   assert.deepEqual(
     semanticGateChecks.map((check) => [
-      check.profile,
+      check.requiredTag,
       check.checkId,
       check.command.command,
       check.command.args.at(-1),
       "dependsOn" in check ? check.dependsOn : []
     ]),
-    expectedSemanticGateGroups.map(([profile, checkId, command]) => [
-      profile,
+    expectedSemanticGateChecks.map(([requiredTag, checkId, command]) => [
+      requiredTag,
       checkId,
       command,
       expectedSemanticCommandPaths.get(checkId),
@@ -762,12 +754,12 @@ test("gate catalog builds semantic default and full Definitions", async () => {
     ])
   );
   assert.deepEqual(
-    fullDefinition.checks
+    releaseDefinition.checks
       .filter(({ checkId }) => expectedSemanticPrerequisites.has(checkId))
       .map(({ checkId, dependsOn }) => [checkId, dependsOn]),
     [...expectedSemanticPrerequisites]
   );
-  for (const [, checkId, , files] of expectedSemanticGateGroups) {
+  for (const [, checkId, , files] of expectedSemanticGateChecks) {
     const commandPath = expectedSemanticCommandPaths.get(checkId);
     assert.ok(commandPath, `missing command path for ${checkId}`);
     if (commandPath?.includes("/checks/")) {
@@ -806,7 +798,7 @@ test("gate catalog builds semantic default and full Definitions", async () => {
     ),
     [3, 5, 5, 8, 5]
   );
-  const semanticFiles = expectedSemanticGateGroups.flatMap(
+  const semanticFiles = expectedSemanticGateChecks.flatMap(
     ([, , , files]) => files
   );
   assert.equal(semanticFiles.length, 59);
@@ -862,6 +854,60 @@ test("gate catalog builds semantic default and full Definitions", async () => {
       ?.command.args,
     ["--test", "./tools/task-graph/tests/native-store.test.ts"]
   );
+});
+
+test("inactive release Checks remain visible without starting their original preflight or execution", async () => {
+  let originalPreflightCalls = 0;
+  let releaseExecutionCalls = 0;
+  const definition = defineConfig({
+    checks: [
+      defineCheck({
+        checkId: "base",
+        displayName: "base",
+        execution: () => ({ status: "passed" as const, data: {} })
+      }),
+      activateGateCheck(
+        defineCheck({
+          checkId: "release",
+          displayName: "release",
+          preflight: () => {
+            originalPreflightCalls += 1;
+            return { status: "success" as const, preparedOptions: {} };
+          },
+          execution: () => {
+            releaseExecutionCalls += 1;
+            return { status: "passed" as const, data: {} };
+          }
+        }),
+        "release",
+        []
+      )
+    ],
+    outputs: noOutput
+  });
+  const result = completed(
+    await run(definition, {
+      checkAggregation: { ...aggregateOptions, checks: ["base"] },
+      flags: [],
+      outputs: noOutput,
+      projectRoot: repositoryRoot
+    })
+  );
+  assert.equal(result.aggregate, "passed");
+  assert.equal(result.snapshot.checks.length, 2);
+  assert.equal(outcomeFor(result, "release").status, "unavailable");
+  assert.equal(
+    result.checkDurations.find(({ checkId }) => checkId === "release")
+      ?.durationMs,
+    null
+  );
+  assert.equal(originalPreflightCalls, 0);
+  assert.equal(releaseExecutionCalls, 0);
+  const releaseOutcome = outcomeFor(result, "release");
+  if (releaseOutcome.status !== "unavailable") {
+    throw new Error("expected inactive release Check to be unavailable");
+  }
+  assert.equal(releaseOutcome.reason.code, "gate-tag-not-enabled");
 });
 
 test("critical-rank scheduling follows the dependency critical path and preserves incomplete-hint order", () => {
@@ -937,64 +983,61 @@ test("critical-rank scheduling follows the dependency critical path and preserve
     cycle
   );
 });
-test("completed duration hints are profile-local and only alter later admission order", async () => {
+test("completed duration hints are isolated by active tag set and only alter later admission order", async () => {
   await withTemporaryDirectory(
     "skills-vibe-scheduling-hints-",
     async (directory) => {
       const schedulingHints = createGateSchedulingHints(directory);
-      const defaultCheckIds = gateCheckIds("default");
-      const fullCheckIds = gateCheckIds("full");
-      await schedulingHints.write("default", defaultCheckIds, [
-        ...defaultCheckIds.map((checkId, index) => ({
+      const baseCheckIds = activeGateCheckIds([]);
+      const releaseCheckIds = activeGateCheckIds(["release"]);
+      await schedulingHints.write([], baseCheckIds, [
+        ...baseCheckIds.map((checkId, index) => ({
           checkId,
           durationMs: index + 1
         })),
         { checkId: "unknown", durationMs: 1 }
       ]);
-      const defaultHints = await schedulingHints.read(
-        "default",
-        defaultCheckIds
-      );
-      assert.equal(defaultHints.size, defaultCheckIds.length);
-      await schedulingHints.write("full", fullCheckIds, [
-        { checkId: fullCheckIds[0] ?? "", durationMs: 1 }
+      const baseHints = await schedulingHints.read([], baseCheckIds);
+      assert.equal(baseHints.size, baseCheckIds.length);
+      await schedulingHints.write(["release"], releaseCheckIds, [
+        { checkId: releaseCheckIds[0] ?? "", durationMs: 1 }
       ]);
       assert.deepEqual(
-        [...(await schedulingHints.read("default", defaultCheckIds))],
-        [...defaultHints]
+        [...(await schedulingHints.read([], baseCheckIds))],
+        [...baseHints]
       );
-      const firstDefinition = createGateDefinition("default", {
+      const firstDefinition = createGateDefinition([], {
         nativeChecks: passingNativeChecks(),
         runCommand: completedScript()
       });
-      const orderedDefinition = createGateDefinition("default", {
-        durationHints: defaultHints,
+      const orderedDefinition = createGateDefinition([], {
+        durationHints: baseHints,
         nativeChecks: passingNativeChecks(),
         runCommand: completedScript()
       });
       assert.notEqual(orderedDefinition.checks, firstDefinition.checks);
+      assert.notDeepEqual(
+        orderedDefinition.checks
+          .filter(({ checkId }) => baseCheckIds.includes(checkId))
+          .map(({ checkId }) => checkId),
+        firstDefinition.checks
+          .filter(({ checkId }) => baseCheckIds.includes(checkId))
+          .map(({ checkId }) => checkId)
+      );
+      assert.deepEqual(
+        orderedDefinition.checks
+          .filter(({ checkId }) => !baseCheckIds.includes(checkId))
+          .map(({ checkId }) => checkId),
+        firstDefinition.checks
+          .filter(({ checkId }) => !baseCheckIds.includes(checkId))
+          .map(({ checkId }) => checkId)
+      );
       await fs.writeFile(
-        path.join(directory, schedulingHintsRelativePath("default")),
+        path.join(directory, schedulingHintsRelativePath([])),
         "{"
       );
-      const corruptHints = await schedulingHints.read(
-        "default",
-        defaultCheckIds
-      );
+      const corruptHints = await schedulingHints.read([], baseCheckIds);
       assert.equal(corruptHints.size, 0);
-      assert.equal(
-        (
-          await runDefinition(
-            createGateDefinition("default", {
-              durationHints: corruptHints,
-              nativeChecks: passingNativeChecks(),
-              runCommand: completedScript()
-            }),
-            directory
-          )
-        ).aggregate,
-        "passed"
-      );
     }
   );
 });
@@ -1093,7 +1136,7 @@ test("package script adapter maps terminal results and settles independent Check
     const calls: GateCommandInvocation[] = [];
     const failedScript = "test:relation-graph";
     const failedResult = await runDefinition(
-      createGateDefinition("default", {
+      createGateDefinition([], {
         nativeChecks: passingNativeChecks(),
         runCommand: async (invocation) => {
           calls.push(invocation);
@@ -1133,7 +1176,7 @@ test("package script adapter maps terminal results and settles independent Check
     );
 
     const unavailableResult = await runDefinition(
-      createGateDefinition("default", {
+      createGateDefinition([], {
         nativeChecks: passingNativeChecks(),
         runCommand: async (invocation) =>
           scriptForCommand(invocation) === failedScript
@@ -1174,7 +1217,7 @@ test("public distribution Checks require successful generation Checks", async ()
         for (const behavior of ["passed", "failed", "unavailable"] as const) {
           const calls: GateCommandInvocation[] = [];
           const result = await runDefinition(
-            createGateDefinition("full", {
+            createGateDefinition(["release"], {
               nativeChecks: passingNativeChecks(),
               runCommand: async (invocation) => {
                 calls.push(invocation);
@@ -1276,7 +1319,7 @@ test("package script runner waits for a cancelled child to close", async () => {
   });
 });
 
-test("CLI parses profiles and full baselines, then maps Vibe results to exit codes", async () => {
+test("CLI parses release tags and compatibility alias, then maps Vibe results to exit codes", async () => {
   const diagnostics: string[] = [];
   const information: string[] = [];
   let selectedInvocation: GateInvocation | null = null;
@@ -1356,21 +1399,32 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
     reportInfo(message: string) {
       information.push(message);
     },
+    async runProject(definition: unknown, controls?: unknown) {
+      return await run(definition, {
+        ...(controls as object),
+        checkAggregation: aggregateOptions
+      });
+    },
     schedulingHints
   };
 
   assert.deepEqual(resolveGateInvocation([]), {
     diagnosticLog: false,
-    profile: "default"
+    tags: []
   });
   assert.deepEqual(resolveGateInvocation(["--diagnostic-log"]), {
     diagnosticLog: true,
-    profile: "default"
+    tags: []
   });
   assert.deepEqual(resolveGateInvocation(["--full"]), {
     baselineRef: "HEAD",
     diagnosticLog: false,
-    profile: "full"
+    tags: ["release"]
+  });
+  assert.deepEqual(resolveGateInvocation(["--tag", "release"]), {
+    baselineRef: "HEAD",
+    diagnosticLog: false,
+    tags: ["release"]
   });
   assert.deepEqual(
     resolveGateInvocation([
@@ -1379,7 +1433,7 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
       "origin/release",
       "--full"
     ]),
-    { baselineRef: "origin/release", diagnosticLog: true, profile: "full" }
+    { baselineRef: "origin/release", diagnosticLog: true, tags: ["release"] }
   );
   assert.equal(
     resolveGateInvocation(["--baseline-ref", "origin/release"]),
@@ -1419,6 +1473,13 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
     resolveGateInvocation(["--full", "--baseline-ref", "--full"]),
     null
   );
+  assert.equal(resolveGateInvocation(["--tag"]), null);
+  assert.equal(resolveGateInvocation(["--tag", "unknown"]), null);
+  assert.equal(
+    resolveGateInvocation(["--tag", "release", "--tag", "release"]),
+    null
+  );
+  assert.equal(resolveGateInvocation(["--tag", "release", "--full"]), null);
   assert.equal(
     resolveGateInvocation(["--diagnostic-log", "--diagnostic-log"]),
     null
@@ -1426,7 +1487,7 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
   assert.equal(await runVibeCheck([], dependencies), 0);
   assert.deepEqual(selectedInvocation, {
     diagnosticLog: false,
-    profile: "default"
+    tags: []
   });
   assert.deepEqual(information, []);
   assert.equal(
@@ -1439,7 +1500,7 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
   assert.deepEqual(selectedInvocation, {
     baselineRef: "origin/release",
     diagnosticLog: false,
-    profile: "full"
+    tags: ["release"]
   });
   let diagnosticControls: unknown;
   await withTemporaryDirectory(
@@ -1468,11 +1529,18 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
   );
   assert.deepEqual(selectedInvocation, {
     diagnosticLog: true,
-    profile: "default"
+    tags: []
   });
   assert.ok(diagnosticControls && typeof diagnosticControls === "object");
   assert.deepEqual(diagnosticControls, {
-    checkAggregation: aggregateOptions,
+    checkAggregation: {
+      checks: activeGateCheckIds([]),
+      empty: "failed",
+      mode: "all",
+      notApplicable: "fail",
+      unavailable: "fail"
+    },
+    flags: [],
     outputs: {
       diagnosticLogging: { directory: ".log/vibe-check", enabled: true }
     },
@@ -1552,7 +1620,7 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
   assert.equal(invalidDefinitionCalls, 0);
   assert.match(
     diagnostics.at(-1) ?? "",
-    /Usage: bun run check \[--full \[--baseline-ref <ref>\]\] \[--diagnostic-log\]/u
+    /Usage: bun run check \[--tag release\]/u
   );
   assert.equal(
     await runVibeCheck(["--diagnostic-log", "--diagnostic-log"], {
@@ -1568,7 +1636,7 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
   assert.equal(invalidDefinitionCalls, 0);
   assert.match(
     diagnostics.at(-1) ?? "",
-    /Usage: bun run check \[--full \[--baseline-ref <ref>\]\] \[--diagnostic-log\]/u
+    /Usage: bun run check \[--tag release\]/u
   );
   assert.equal(
     await runVibeCheck([], {
@@ -1578,7 +1646,7 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
     }),
     1
   );
-  assert.match(diagnostics.at(-1) ?? "", /Vibe Check gate failed: failed/u);
+  assert.match(diagnostics.at(-1) ?? "", /Vibe Check invocation failed: /u);
   assert.equal(
     await runVibeCheck([], {
       createDefinition: () => invalidDefinition,
@@ -1606,7 +1674,7 @@ test("release prepare runs before terminal authorization and package", async () 
     "skills-vibe-release-timing-",
     async (directory) => {
       await createReleaseRepository(directory);
-      const definition = createGateDefinition("full", {
+      const definition = createGateDefinition(["release"], {
         baselineRef: "HEAD",
         nativeChecks: passingNativeChecks(),
         runCommand: completedScript()
@@ -1641,7 +1709,7 @@ test("release authorization and package use the snapshot captured before the ind
       await stageSkillMarkdown(directory, 2, "captured content");
       let packCalls = 0;
       const result = await runDefinition(
-        createGateDefinition("full", {
+        createGateDefinition(["release"], {
           nativeChecks: passingNativeChecks(),
           prepareRelease: async (workspaceRoot, baselineRef) => {
             const prepared = await prepareSkillPackageRelease(
@@ -1687,7 +1755,7 @@ test("release preparation or version failure blocks packaging", async () => {
         "content changed without version bump"
       );
       const versionFailed = await runDefinition(
-        createGateDefinition("full", {
+        createGateDefinition(["release"], {
           nativeChecks: passingNativeChecks(),
           runCommand: completedScript()
         }),
@@ -1704,7 +1772,7 @@ test("release preparation or version failure blocks packaging", async () => {
       assert.equal(await fileExists(path.join(directory, "dist")), false);
 
       const unavailable = await runDefinition(
-        createGateDefinition("full", {
+        createGateDefinition(["release"], {
           nativeChecks: passingNativeChecks(),
           prepareRelease: async () => {
             throw new Error("Git resolver unavailable");
@@ -2078,7 +2146,7 @@ test("function metrics requires exact Lizard before scanning or packaging", asyn
       scanMarker,
       () =>
         runDefinition(
-          createGateDefinition("full", {
+          createGateDefinition(["release"], {
             nativeChecks: passingNativeChecks().map((check) =>
               check.checkId === "function-metrics"
                 ? productionFunctionMetrics()
