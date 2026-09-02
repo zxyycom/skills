@@ -27,6 +27,7 @@ import {
   activeGateCheckIds,
   gateCheckIds,
   historicalContentExclusions,
+  investigationAuthoringDocumentExclusions,
   orderRootChecksByCriticalRank,
   releaseSnapshotCheckId,
   projectJscpdExecutable,
@@ -431,6 +432,7 @@ const expectedSemanticGateChecks = [
     "test:investigation-report:collection-and-resources",
     "bun",
     [
+      "./tools/investigation-report/tests/candidate.test.ts",
       "./tools/investigation-report/tests/parsing-directory.test.ts",
       "./tools/investigation-report/tests/resources.test.ts",
       "./tools/investigation-report/tests/relations.test.ts"
@@ -451,7 +453,8 @@ const expectedSemanticGateChecks = [
     "bun",
     [
       "./tools/investigation-report/tests/transaction.test.ts",
-      "./tools/investigation-report/tests/discard.test.ts"
+      "./tools/investigation-report/tests/discard.test.ts",
+      "./tools/investigation-report/tests/publish.test.ts"
     ]
   ],
   [
@@ -802,7 +805,7 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
   const semanticFiles = expectedSemanticGateChecks.flatMap(
     ([, , , files]) => files
   );
-  assert.equal(semanticFiles.length, 60);
+  assert.equal(semanticFiles.length, 62);
   assert.equal(new Set(semanticFiles).size, semanticFiles.length);
   for (const tool of [
     "change-plan",
@@ -2180,7 +2183,7 @@ test("function metrics requires exact Lizard before scanning or packaging", asyn
   });
 });
 
-test("native file selections exclude archived Changes and investigation resources", () => {
+test("native file selections exclude historical content and authoring candidates", () => {
   const checks = createVibeNativeChecks();
   const optionsById = new Map(
     checks.map((check) => [check.checkId, check.options])
@@ -2236,6 +2239,15 @@ test("native file selections exclude archived Changes and investigation resource
       assert.ok(
         exclusions.includes(historicalExclusion),
         `${checkId} must exclude ${historicalExclusion}`
+      );
+    }
+  }
+  for (const checkId of ["json-validation", "markdown-link-validation"]) {
+    const exclusions = exclusionsFor(checkId);
+    for (const candidateExclusion of investigationAuthoringDocumentExclusions) {
+      assert.ok(
+        exclusions.includes(candidateExclusion),
+        `${checkId} must exclude ${candidateExclusion}`
       );
     }
   }

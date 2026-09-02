@@ -1,6 +1,6 @@
 ---
 title: 以报告级身份维护可重建调查索引
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-28T10:12:51Z
 purpose: 让每份调查报告以稳定 Investigation ID 独立发现、查询和建立演进关系，并使索引继续只作为可重建投影。

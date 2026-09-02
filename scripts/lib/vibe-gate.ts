@@ -147,6 +147,10 @@ export const historicalContentExclusions = [
   "docs/investigations/_resources/**"
 ] as const;
 
+export const investigationAuthoringDocumentExclusions = [
+  "docs/investigations/_candidate.*"
+] as const;
+
 const projectExclusions = [
   ...defaultProjectFileSelection.exclude,
   ...historicalContentExclusions
@@ -165,7 +169,7 @@ export const maintainedCodeFiles = {
 
 export const maintainedDocumentFiles = {
   source: "git-worktree",
-  exclude: projectExclusions
+  exclude: [...projectExclusions, ...investigationAuthoringDocumentExclusions]
 } as const;
 
 const schemas = [

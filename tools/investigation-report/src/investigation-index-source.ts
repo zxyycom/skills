@@ -5,6 +5,11 @@ import type {
   StateSourceRevision
 } from "../../index-runtime/src/index.ts";
 import { sanitizeInvestigationDiagnosticText } from "./diagnostics.ts";
+import {
+  hasCandidateFormalIdentityConflict,
+  investigationCandidateIdFromFileName,
+  isReservedInvestigationCandidateFileName
+} from "./candidate-path.ts";
 import { parseInvestigationReport } from "./markdown.ts";
 import {
   investigationIndexFileName,
@@ -26,6 +31,8 @@ import type {
 const investigationSourceReadConcurrency = 32;
 
 export type InvestigationCollectionLayout = Readonly<{
+  candidateErrors: string[];
+  candidateIds: string[];
   errors: string[];
   reportIds: string[];
 }>;
@@ -45,6 +52,8 @@ export async function discoverInvestigationReportIds(
 export async function inspectInvestigationCollectionLayout(
   investigationsDirectory: string
 ): Promise<InvestigationCollectionLayout> {
+  const candidateErrors: string[] = [];
+  const candidateIds: string[] = [];
   const errors: string[] = [];
   const reportIds: string[] = [];
   let rootEntries: Dirent<string>[];
@@ -77,11 +86,26 @@ export async function inspectInvestigationCollectionLayout(
       continue;
     }
     if (entry.isSymbolicLink()) {
-      errors.push(`${entry.name} must not be a symbolic link`);
+      const error = `${entry.name} must not be a symbolic link`;
+      errors.push(error);
+      if (isReservedInvestigationCandidateFileName(entry.name)) {
+        candidateErrors.push(error);
+      }
       continue;
     }
     if (!entry.isFile()) {
       errors.push(`${entry.name} is not allowed at the investigation root`);
+      continue;
+    }
+    const candidateId = investigationCandidateIdFromFileName(entry.name);
+    if (candidateId !== null) {
+      candidateIds.push(candidateId);
+      continue;
+    }
+    if (isReservedInvestigationCandidateFileName(entry.name)) {
+      const error = `${entry.name} must use the reserved _candidate.<investigation-id> file name`;
+      candidateErrors.push(error);
+      errors.push(error);
       continue;
     }
     if (!isInvestigationId(entry.name)) {
@@ -92,8 +116,14 @@ export async function inspectInvestigationCollectionLayout(
     }
     reportIds.push(entry.name);
   }
+  const identityConflicts = hasCandidateFormalIdentityConflict(
+    reportIds,
+    candidateIds
+  );
   return {
-    errors: uniqueSorted(errors),
+    candidateErrors: uniqueSorted([...candidateErrors, ...identityConflicts]),
+    candidateIds: candidateIds.sort(compareText),
+    errors: uniqueSorted([...errors, ...identityConflicts]),
     reportIds: reportIds.sort(compareText)
   };
 }

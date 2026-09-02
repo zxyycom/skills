@@ -12,3 +12,4 @@ Contract:
 Proves:
 
 - 真实 Node 调用生成 CLI 的 `check` 成功、stderr 为空，并在 stdout 输出当前完整 index 的检查计数。
+- 真实 Node 调用生成 CLI 的 `publish --help` 成功，并输出选择性 candidate publish 的 `--preflight` 用法。

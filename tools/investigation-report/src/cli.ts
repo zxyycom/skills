@@ -3,12 +3,19 @@
 import process from "node:process";
 import { isMainModule } from "../../shared/src/node/main-module.ts";
 import {
+  createInvestigationCandidate,
+  listInvestigationCandidates,
+  showInvestigationCandidate
+} from "./candidate.ts";
+import { discardInvestigationCandidate } from "./candidate-discard.ts";
+import {
   executeInvestigationIndexQuery,
   queryInvestigationIndex,
   showInvestigationReport,
   traceInvestigationReports
 } from "./query.ts";
 import { discardInvestigationReport } from "./discard.ts";
+import { publishInvestigationCandidates } from "./publish.ts";
 import {
   diagnosticFromError,
   diagnosticFromStateIndexDiagnostic,
@@ -52,10 +59,15 @@ function writeLine(writer: (text: string) => void, text: string): void {
 }
 
 type InvestigationCommand =
+  | "new"
+  | "candidates"
   | "check"
   | "discard"
+  | "discard-candidate"
   | "list"
   | "show"
+  | "show-candidate"
+  | "publish"
   | "stage-index"
   | "sync-index"
   | "trace"
@@ -78,6 +90,9 @@ type RawInvestigationRelationReplacement = Readonly<{
 const valueOptions = new Set([
   "root",
   "investigations-dir",
+  "title",
+  "formed-at",
+  "question",
   "id",
   "tag",
   "formed-from",
@@ -95,6 +110,8 @@ const booleanOptions = new Set([
   "clear-relations",
   "delete-owned-resources",
   "delete-recorded-report",
+  "delete-recorded-candidate",
+  "preflight",
   "help"
 ]);
 
@@ -103,6 +120,16 @@ function printHelp(
   io: InvestigationReportCliIo
 ): void {
   const commandHelp: Record<InvestigationCommand, readonly string[]> = {
+    new: [
+      "Usage: investigation-report new <investigation-id> --title <title> --formed-at <rfc3339> --question <question> --tag <tag>... [--relation <type=target-id>...] [options]",
+      "",
+      "Atomically create a non-formal authoring candidate. Creation succeeds independently of body, resource, or publish readiness."
+    ],
+    candidates: [
+      "Usage: investigation-report candidates [options]",
+      "",
+      "List authoring candidates without reading or changing the formal derived index."
+    ],
     check: [
       "Usage: investigation-report [check] [--id <investigation-id> ...] [options]",
       "",
@@ -115,6 +142,11 @@ function printHelp(
       "Delete one established report after a full graph and resource preflight.",
       "Refuses remaining relation references and shared owner resources. Reports or owned resources in Git HEAD require --delete-recorded-report."
     ],
+    "discard-candidate": [
+      "Usage: investigation-report discard-candidate <investigation-id> [--delete-owned-resources] [--delete-recorded-candidate] [options]",
+      "",
+      "Delete one authoring candidate and only its explicitly confirmed owner resources; formal reports and the formal index remain unchanged."
+    ],
     list: [
       "Usage: investigation-report list [--tag <tag> ...] [options]",
       "",
@@ -125,6 +157,16 @@ function printHelp(
       "",
       "Print one report Markdown document from the current derived index."
     ],
+    "show-candidate": [
+      "Usage: investigation-report show-candidate <investigation-id> [options]",
+      "",
+      "Print one authoring candidate and its mechanical readiness; this does not publish it."
+    ],
+    publish: [
+      "Usage: investigation-report publish <investigation-id...> [--preflight] [options]",
+      "",
+      "Validate and establish only explicitly selected candidates. --preflight is read-only and does not create a receipt."
+    ],
     "stage-index": [
       "Usage: investigation-report stage-index <investigation-id...> [options]",
       "",
@@ -133,7 +175,7 @@ function printHelp(
     "sync-index": [
       "Usage: investigation-report sync-index [options]",
       "",
-      "Validate the full collection and rebuild its derived index in the working tree."
+      "Validate the full formal collection and rebuild its derived index in the working tree; this is the explicit recovery and acceptance path for hand-written formal reports and ignores legal candidates."
     ],
     trace: [
       "Usage: investigation-report trace <investigation-id> [options]",
@@ -154,10 +196,24 @@ function printHelp(
   const specificOptions: Partial<
     Record<InvestigationCommand, readonly string[]>
   > = {
+    new: [
+      "  --title <title>               Candidate title",
+      "  --formed-at <rfc3339>         Explicit formation timestamp",
+      "  --question <question>         Candidate investigation question",
+      "  --tag <tag>                   Repeatable candidate tag",
+      "  --relation <type=target-id>   Repeatable direct predecessor relation"
+    ],
     check: ["  --id <investigation-id>       Scoped check ID; repeatable"],
     discard: [
       "  --delete-owned-resources      Confirm deletion of the report's owner-prefix resources",
       "  --delete-recorded-report      Confirm deletion of report or owned resources already in Git HEAD"
+    ],
+    "discard-candidate": [
+      "  --delete-owned-resources      Confirm deletion of the candidate owner-prefix resources",
+      "  --delete-recorded-candidate   Confirm deletion of candidate or owned resources already in Git HEAD"
+    ],
+    publish: [
+      "  --preflight                   Validate the selected final collection without writing candidates, reports, resources, index, or pending"
     ],
     list: [
       "  --tag <tag>                   Repeatable AND tag filter",
@@ -187,7 +243,7 @@ function printHelp(
           "",
           "Check, query, and maintain flat Investigation Report records and their derived index.",
           "",
-          "Commands: check, sync-index, list, show, trace, set-relations, stage-index, discard",
+          "Commands: new, candidates, show-candidate, publish, discard-candidate, check, sync-index, list, show, trace, set-relations, stage-index, discard",
           "Run investigation-report help <command> for command options.",
           "",
           "Exit status: 0 success; 1 check, operation, or deletion-confirmation failure; 2 invalid CLI arguments."
@@ -270,11 +326,16 @@ function parseCli(
 
 function isCommand(value: string): value is InvestigationCommand {
   return [
+    "new",
+    "candidates",
     "check",
     "discard",
+    "discard-candidate",
     "sync-index",
     "list",
     "show",
+    "show-candidate",
+    "publish",
     "trace",
     "stage-index",
     "set-relations"
@@ -330,6 +391,332 @@ function assertAllowedOptions(
   return invalid === undefined
     ? null
     : `${input.command} does not accept --${invalid}`;
+}
+
+async function runNew(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
+  const problem =
+    assertAllowedOptions(input, [
+      "root",
+      "investigations-dir",
+      "title",
+      "formed-at",
+      "question",
+      "tag",
+      "relation"
+    ]) ??
+    (input.positionals.length === 1
+      ? null
+      : "new requires exactly one Investigation ID");
+  if (problem !== null) return cliInvalid(problem, io);
+  const [id] = input.positionals;
+  const title = valueOf(input.values, "title");
+  const formedAt = valueOf(input.values, "formed-at");
+  const question = valueOf(input.values, "question");
+  const tags = valuesOf(input.values, "tag");
+  if (
+    id === undefined ||
+    title === undefined ||
+    formedAt === undefined ||
+    question === undefined ||
+    tags === undefined
+  ) {
+    return cliInvalid(
+      "new requires --title, --formed-at, --question, and at least one --tag",
+      io
+    );
+  }
+  const relations = parseNewRelations(valuesOf(input.values, "relation") ?? []);
+  if (relations.status === "error") return cliInvalid(relations.error, io);
+  const result = await createInvestigationCandidate({
+    ...location(input.values),
+    formedAt,
+    id,
+    question,
+    relations: relations.values,
+    tags,
+    title
+  });
+  if (result.status !== "ok") {
+    return printResultErrors(
+      result.status === "invalid-options"
+        ? "Invalid investigation candidate options:"
+        : "Investigation candidate creation failed:",
+      result.errors,
+      result.status === "invalid-options" ? 2 : 1,
+      result.warnings,
+      io,
+      result.diagnostics
+    );
+  }
+  writeLine(
+    io.stdout,
+    `Investigation candidate created: ${result.candidate.path}`
+  );
+  printWarnings(result.warnings, io);
+  printCandidateReadiness(result.candidate, io);
+  await printNewCandidatePublishPreflight(id, location(input.values), io);
+  return 0;
+}
+
+async function printNewCandidatePublishPreflight(
+  id: string,
+  candidateLocation: { investigationsDir?: string; workspaceRoot: string },
+  io: InvestigationReportCliIo
+): Promise<void> {
+  const preflight = await publishInvestigationCandidates({
+    ...candidateLocation,
+    ids: [id],
+    preflight: true
+  });
+  if (preflight.errors.length === 0) {
+    writeLine(io.stderr, "Candidate publish preflight: ready.");
+    printWarnings(preflight.warnings, io);
+    return;
+  }
+  writeLine(io.stderr, "Candidate publish preflight: needs attention.");
+  for (const error of preflight.errors) writeLine(io.stderr, `- ${error}`);
+  printWarnings(preflight.warnings, io);
+  writeLine(
+    io.stderr,
+    "  next: keep the created candidate, edit it or inspect it with show-candidate, then rerun publish --preflight; do not rerun new"
+  );
+}
+
+async function runPublish(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
+  const problem = assertAllowedOptions(input, [
+    "root",
+    "investigations-dir",
+    "preflight"
+  ]);
+  if (problem !== null || input.positionals.length === 0) {
+    return cliInvalid(
+      problem ?? "publish requires at least one Investigation ID",
+      io
+    );
+  }
+  const invalid = input.positionals.find((id) => !isInvestigationId(id));
+  if (invalid !== undefined) {
+    return cliInvalid(
+      `${invalid || "<empty>"} publish id must use an Investigation ID`,
+      io
+    );
+  }
+  if (new Set(input.positionals).size !== input.positionals.length) {
+    return cliInvalid("publish IDs must not repeat", io);
+  }
+  const published = await publishInvestigationCandidates({
+    ...location(input.values),
+    ids: input.positionals,
+    preflight: has(input.values, "preflight")
+  });
+  if (published.errors.length > 0) {
+    printResultErrors(
+      published.preflight
+        ? "Investigation publish preflight failed:"
+        : "Investigation publish failed:",
+      published.errors,
+      1,
+      published.warnings,
+      io,
+      published.diagnostics
+    );
+    return 1;
+  }
+  printWarnings(published.warnings, io);
+  writeLine(
+    io.stdout,
+    published.preflight
+      ? `Investigation publish preflight passed (${published.ids.join(", ")}); no candidate, formal report, resource, index, or pending state was changed.`
+      : `Investigation candidates published: ${published.ids.join(", ")}.`
+  );
+  return 0;
+}
+
+async function runDiscardCandidate(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
+  const problem = assertAllowedOptions(input, [
+    "root",
+    "investigations-dir",
+    "delete-owned-resources",
+    "delete-recorded-candidate"
+  ]);
+  const [id] = input.positionals;
+  if (problem !== null || id === undefined || input.positionals.length !== 1) {
+    return cliInvalid(
+      problem ?? "discard-candidate requires exactly one Investigation ID",
+      io
+    );
+  }
+  if (!isInvestigationId(id)) {
+    return cliInvalid(
+      `${id || "<empty>"} discard-candidate id must use an Investigation ID`,
+      io
+    );
+  }
+  const discarded = await discardInvestigationCandidate({
+    ...location(input.values),
+    deleteOwnedResources: has(input.values, "delete-owned-resources"),
+    deleteRecordedCandidate: has(input.values, "delete-recorded-candidate"),
+    id
+  });
+  if (discarded.errors.length > 0) {
+    printResultErrors(
+      discarded.changed
+        ? "Investigation candidate discard committed, but cleanup failed:"
+        : "Investigation candidate discard failed:",
+      discarded.errors,
+      1,
+      [],
+      io,
+      discarded.diagnostics
+    );
+    return 1;
+  }
+  writeLine(
+    io.stdout,
+    `Investigation candidate discarded: ${discarded.id}${discarded.deletedResourceIds.length === 0 ? "" : `; deleted ${discarded.deletedResourceIds.length} owned resource(s)`}.`
+  );
+  return 0;
+}
+
+async function runCandidates(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
+  const problem =
+    assertNoPositionals(input) ??
+    assertAllowedOptions(input, ["root", "investigations-dir"]);
+  if (problem !== null) return cliInvalid(problem, io);
+  const result = await listInvestigationCandidates(location(input.values));
+  if (result.status === "error") {
+    return printResultErrors(
+      "Investigation candidate list failed:",
+      result.errors,
+      1,
+      result.warnings,
+      io,
+      result.diagnostics
+    );
+  }
+  if (result.candidates.length === 0) {
+    writeLine(io.stdout, "No investigation candidates found.");
+    return 0;
+  }
+  writeLine(
+    io.stdout,
+    `Investigation candidates (${result.candidates.length}):`
+  );
+  for (const candidate of result.candidates) {
+    writeLine(
+      io.stdout,
+      `${candidate.id} scaffold=${candidate.readiness.scaffoldValid} body=${candidate.readiness.bodyReady} resources=${candidate.readiness.resourceReady}`
+    );
+    printCandidateReadiness(candidate, io);
+  }
+  return 0;
+}
+
+async function runShowCandidate(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
+  const problem = assertAllowedOptions(input, ["root", "investigations-dir"]);
+  const [id] = input.positionals;
+  if (problem !== null || id === undefined || input.positionals.length !== 1) {
+    return cliInvalid(
+      problem ?? "show-candidate requires exactly one Investigation ID",
+      io
+    );
+  }
+  if (!isInvestigationId(id)) {
+    return cliInvalid(
+      `${id || "<empty>"} show-candidate id must use an Investigation ID`,
+      io
+    );
+  }
+  const result = await showInvestigationCandidate({
+    ...location(input.values),
+    id
+  });
+  if (result.status === "error") {
+    return printResultErrors(
+      "Investigation candidate show failed:",
+      result.errors,
+      1,
+      result.warnings,
+      io,
+      result.diagnostics
+    );
+  }
+  io.stdout(result.candidate.markdown ?? "");
+  printCandidateReadiness(result.candidate, io);
+  return 0;
+}
+
+function parseNewRelations(
+  values: readonly string[]
+):
+  | { status: "ok"; values: Array<{ target: string; type: string }> }
+  | { error: string; status: "error" } {
+  const relations: Array<{ target: string; type: string }> = [];
+  for (const value of values) {
+    const separator = value.indexOf("=");
+    if (separator <= 0 || separator === value.length - 1) {
+      return {
+        error: `relation ${JSON.stringify(value)} must use <type=target-id>`,
+        status: "error"
+      };
+    }
+    relations.push({
+      target: value.slice(separator + 1),
+      type: value.slice(0, separator)
+    });
+  }
+  return { status: "ok", values: relations };
+}
+
+function printCandidateReadiness(
+  candidate: Readonly<{
+    errors: readonly string[];
+    id: string;
+    readiness: Readonly<{
+      bodyReady: boolean;
+      resourceReady: boolean;
+      scaffoldValid: boolean;
+    }>;
+  }>,
+  io: InvestigationReportCliIo
+): void {
+  if (
+    candidate.readiness.scaffoldValid &&
+    candidate.readiness.bodyReady &&
+    candidate.readiness.resourceReady
+  ) {
+    return;
+  }
+  writeLine(io.stderr, `Investigation candidate readiness: ${candidate.id}`);
+  if (!candidate.readiness.scaffoldValid) {
+    writeLine(io.stderr, "- scaffold: incomplete or invalid");
+  }
+  if (!candidate.readiness.bodyReady) {
+    writeLine(io.stderr, "- body: incomplete");
+  }
+  if (!candidate.readiness.resourceReady) {
+    writeLine(io.stderr, "- resources: need attention");
+  }
+  for (const error of candidate.errors) writeLine(io.stderr, `- ${error}`);
+  writeLine(
+    io.stderr,
+    "  next: edit the candidate, inspect it with show-candidate, then run publish --preflight before publishing"
+  );
 }
 
 async function runCheck(
@@ -831,16 +1218,26 @@ export async function runInvestigationReportCheckCli(
   if (parsed.status === "invalid") return cliInvalid(parsed.error, io);
   const input = parsed.value;
   switch (input.command) {
+    case "new":
+      return await runNew(input, io);
+    case "candidates":
+      return await runCandidates(input, io);
     case "check":
       return await runCheck(input, io);
     case "discard":
       return await runDiscard(input, io);
+    case "discard-candidate":
+      return await runDiscardCandidate(input, io);
     case "sync-index":
       return await runSync(input, io);
     case "list":
       return await runList(input, io);
     case "show":
       return await runShow(input, io);
+    case "show-candidate":
+      return await runShowCandidate(input, io);
+    case "publish":
+      return await runPublish(input, io);
     case "trace":
       return await runTrace(input, io);
     case "stage-index":
@@ -884,9 +1281,14 @@ function parseCliWithRelationEvents(
 }
 
 export {
+  createInvestigationCandidate,
+  discardInvestigationCandidate,
   discardInvestigationReport,
+  listInvestigationCandidates,
+  publishInvestigationCandidates,
   queryInvestigationIndex,
   setInvestigationRelations,
+  showInvestigationCandidate,
   showInvestigationReport,
   stageInvestigationIndex,
   synchronizeInvestigationIndex,
@@ -894,6 +1296,18 @@ export {
   validateInvestigationReports
 };
 export type {
+  InvestigationCandidate,
+  InvestigationCandidateCreateOptions,
+  InvestigationCandidateCreateResult,
+  InvestigationCandidateDiscardOptions,
+  InvestigationCandidateDiscardResult,
+  InvestigationCandidateListOptions,
+  InvestigationCandidateListResult,
+  InvestigationCandidatePublishOptions,
+  InvestigationCandidatePublishResult,
+  InvestigationCandidateReadiness,
+  InvestigationCandidateShowOptions,
+  InvestigationCandidateShowResult,
   InvestigationIndexQueryOptions,
   InvestigationIndexQueryResult,
   InvestigationIndexStageDiagnostic,

@@ -11,6 +11,97 @@ export type InvestigationRelation = {
   type: InvestigationRelationType;
 };
 
+export type InvestigationCandidateReadiness = {
+  bodyReady: boolean;
+  resourceReady: boolean;
+  scaffoldValid: boolean;
+};
+
+export type InvestigationCandidate = {
+  errors: string[];
+  id: string;
+  markdown: string | null;
+  path: string;
+  readiness: InvestigationCandidateReadiness;
+  warnings: string[];
+};
+
+export type InvestigationCandidateCreateOptions = {
+  formedAt: string;
+  id: string;
+  investigationsDir?: string;
+  question: string;
+  relations: readonly InvestigationRelation[];
+  tags: readonly string[];
+  title: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationCandidateCreateResult = {
+  candidate: InvestigationCandidate | null;
+  changed: boolean;
+  errors: string[];
+  status: "ok" | "invalid-options" | "error";
+  warnings: string[];
+};
+
+export type InvestigationCandidateListOptions = {
+  investigationsDir?: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationCandidateListResult = {
+  candidates: InvestigationCandidate[];
+  errors: string[];
+  status: "ok" | "error";
+  warnings: string[];
+};
+
+export type InvestigationCandidateShowOptions = {
+  id: string;
+  investigationsDir?: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationCandidateShowResult = {
+  candidate: InvestigationCandidate | null;
+  errors: string[];
+  status: "ok" | "error";
+  warnings: string[];
+};
+
+export type InvestigationCandidatePublishOptions = {
+  ids: readonly string[];
+  investigationsDir?: string;
+  preflight?: boolean;
+  workspaceRoot: string;
+};
+
+export type InvestigationCandidatePublishResult = {
+  changed: boolean;
+  errors: string[];
+  ids: string[];
+  indexPath: string;
+  preflight: boolean;
+  warnings: string[];
+};
+
+export type InvestigationCandidateDiscardOptions = {
+  deleteOwnedResources?: boolean;
+  deleteRecordedCandidate?: boolean;
+  id: string;
+  investigationsDir?: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationCandidateDiscardResult = {
+  changed: boolean;
+  deletedResourceIds: string[];
+  errors: string[];
+  id: string;
+  requiresRecordedDeletionConfirmation: boolean;
+};
+
 export type InvestigationReportCheckOptions = {
   ids?: readonly string[];
   investigationsDir?: string;
@@ -210,3 +301,19 @@ export type InvestigationReportDiscardResult = {
 export declare function discardInvestigationReport(
   input: unknown
 ): Promise<InvestigationReportDiscardResult>;
+
+export declare function createInvestigationCandidate(
+  input: unknown
+): Promise<InvestigationCandidateCreateResult>;
+export declare function listInvestigationCandidates(
+  input: unknown
+): Promise<InvestigationCandidateListResult>;
+export declare function showInvestigationCandidate(
+  input: unknown
+): Promise<InvestigationCandidateShowResult>;
+export declare function publishInvestigationCandidates(
+  input: unknown
+): Promise<InvestigationCandidatePublishResult>;
+export declare function discardInvestigationCandidate(
+  input: unknown
+): Promise<InvestigationCandidateDiscardResult>;

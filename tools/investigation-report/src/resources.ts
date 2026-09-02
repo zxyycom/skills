@@ -83,11 +83,34 @@ export async function validateReferencedInvestigationResources(
  * parsed. Referenced resources are errors; visible members absent from every
  * valid reference are warnings.
  */
+export async function validateCandidateInvestigationResources(
+  investigationsDirectory: string,
+  candidateResourceIds: readonly string[],
+  authoringReferencesByReport: InvestigationResourceReferencesByReport,
+  signal?: AbortSignal
+): Promise<string[]> {
+  const directErrors = await validateReferencedInvestigationResources(
+    investigationsDirectory,
+    candidateResourceIds,
+    signal
+  );
+  const ownerErrors = uniqueSorted(candidateResourceIds).flatMap((id) =>
+    ownerIssues(id, authoringReferencesByReport)
+  );
+  return uniqueSorted([...directErrors, ...ownerErrors]);
+}
+
 export async function validateFullInvestigationResources(
   investigationsDirectory: string,
   referencesByReport: InvestigationResourceReferencesByReport,
-  signal?: AbortSignal
+  options: Readonly<{
+    authoringReferencesByReport?: InvestigationResourceReferencesByReport;
+    signal?: AbortSignal;
+  }> = {}
 ): Promise<InvestigationResourceValidationResult> {
+  const signal = options.signal;
+  const authoringReferences =
+    options.authoringReferencesByReport ?? referencesByReport;
   const referencedIds = uniqueSorted(
     [...referencesByReport.values()].flatMap((ids) => [...ids])
   );
@@ -111,7 +134,7 @@ export async function validateFullInvestigationResources(
         if (referenced.has(id)) {
           continue;
         }
-        warnings.push(...ownerIssues(id, referencesByReport));
+        warnings.push(...ownerIssues(id, authoringReferences));
         warnings.push(missingResourceIssue(id));
       }
     }
@@ -139,7 +162,7 @@ export async function validateFullInvestigationResources(
       continue;
     }
     throwIfAborted(signal, "investigation resource validation was aborted");
-    warnings.push(...ownerIssues(id, referencesByReport));
+    warnings.push(...ownerIssues(id, authoringReferences));
     warnings.push(...(await directResourceIssues(prepared, id)));
   }
   return validationResult(errors, warnings);

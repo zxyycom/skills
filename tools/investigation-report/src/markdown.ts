@@ -31,22 +31,33 @@ type ParsedFrontmatter = Readonly<{
 
 export function parseInvestigationReport(
   markdown: string,
-  id: string
+  id: string,
+  options: InvestigationReportParseOptions = {}
 ): ParsedInvestigationReport {
   const text = normalizeNewlines(markdown);
   const lines = text.split("\n");
-  const errors: string[] = [];
+  const frontmatterErrors: string[] = [];
   if (!isInvestigationId(id)) {
-    errors.push(`${id || "<empty>"} must use a valid Investigation ID`);
+    frontmatterErrors.push(
+      `${id || "<empty>"} must use a valid Investigation ID`
+    );
   }
-  const frontmatter = parseFrontmatter(lines, id, errors);
-  validateBody(lines, frontmatter?.endLine ?? 0, id, errors);
+  const frontmatter = parseFrontmatter(lines, id, frontmatterErrors);
+  const bodyErrors: string[] = [];
+  validateBody(lines, frontmatter?.endLine ?? 0, id, bodyErrors, options);
+  const resourceErrors: string[] = [];
   const resourceIds =
     frontmatter === null
       ? []
-      : resourceIdsFromBody(lines, frontmatter.endLine, id, errors);
+      : resourceIdsFromBody(lines, frontmatter.endLine, id, resourceErrors);
   return {
-    errors: uniqueSorted(errors),
+    bodyErrors: uniqueSorted(bodyErrors),
+    errors: uniqueSorted([
+      ...frontmatterErrors,
+      ...bodyErrors,
+      ...resourceErrors
+    ]),
+    frontmatterErrors: uniqueSorted(frontmatterErrors),
     report:
       frontmatter === null
         ? null
@@ -62,7 +73,8 @@ export function parseInvestigationReport(
             resourceIds,
             tags: frontmatter.tags,
             title: frontmatter.title
-          }
+          },
+    resourceErrors: uniqueSorted(resourceErrors)
   };
 }
 
@@ -292,11 +304,16 @@ class FrontmatterCursor {
   }
 }
 
+export type InvestigationReportParseOptions = Readonly<{
+  allowEmptyCoreSections?: boolean;
+}>;
+
 function validateBody(
   lines: readonly string[],
   frontmatterEndLine: number,
   id: string,
-  errors: string[]
+  errors: string[],
+  options: InvestigationReportParseOptions
 ): void {
   const { h1Indexes, headings } = scanBodyHeadings(lines);
   if (h1Indexes.some((index) => index > frontmatterEndLine)) {
@@ -337,10 +354,17 @@ function validateBody(
   }
   for (const [index, heading] of headings.entries()) {
     const end = headings[index + 1]?.index ?? lines.length;
-    if (!hasSemanticContent(lines, heading.index + 1, end)) {
-      errors.push(
-        `${id}:${heading.index + 1} section "${heading.title}" must not be empty`
-      );
+    if (
+      !options.allowEmptyCoreSections ||
+      !requiredSectionTitles.includes(
+        heading.title as (typeof requiredSectionTitles)[number]
+      )
+    ) {
+      if (!hasSemanticContent(lines, heading.index + 1, end)) {
+        errors.push(
+          `${id}:${heading.index + 1} section "${heading.title}" must not be empty`
+        );
+      }
     }
   }
   const firstHeading = headings[0];

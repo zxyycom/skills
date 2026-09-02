@@ -24,6 +24,130 @@ export type InvestigationRelation = Readonly<{
   type: InvestigationRelationType;
 }>;
 
+export type InvestigationCandidateReadiness = Readonly<{
+  bodyReady: boolean;
+  resourceReady: boolean;
+  scaffoldValid: boolean;
+}>;
+
+export type InvestigationCandidate = Readonly<{
+  diagnostics: InvestigationDiagnostic[];
+  errors: string[];
+  id: string;
+  markdown: string | null;
+  path: string;
+  readiness: InvestigationCandidateReadiness;
+  warnings: string[];
+}>;
+
+export type InvestigationCandidateCreateOptions = Readonly<{
+  formedAt: string;
+  id: string;
+  investigationsDir?: string;
+  question: string;
+  relations: readonly InvestigationRelation[];
+  tags: readonly string[];
+  title: string;
+  workspaceRoot: string;
+}>;
+
+export type InvestigationCandidateCreateResult =
+  | Readonly<{
+      candidate: InvestigationCandidate;
+      changed: true;
+      diagnostics: InvestigationDiagnostic[];
+      errors: [];
+      status: "ok";
+      warnings: string[];
+    }>
+  | Readonly<{
+      candidate: null;
+      changed: false;
+      diagnostics: InvestigationDiagnostic[];
+      errors: string[];
+      status: "invalid-options" | "error";
+      warnings: string[];
+    }>;
+
+export type InvestigationCandidateListOptions = Readonly<{
+  investigationsDir?: string;
+  workspaceRoot: string;
+}>;
+
+export type InvestigationCandidateListResult =
+  | Readonly<{
+      candidates: InvestigationCandidate[];
+      diagnostics: InvestigationDiagnostic[];
+      errors: [];
+      status: "ok";
+      warnings: string[];
+    }>
+  | Readonly<{
+      candidates: InvestigationCandidate[];
+      diagnostics: InvestigationDiagnostic[];
+      errors: string[];
+      status: "error";
+      warnings: string[];
+    }>;
+
+export type InvestigationCandidateShowOptions = Readonly<{
+  id: string;
+  investigationsDir?: string;
+  workspaceRoot: string;
+}>;
+
+export type InvestigationCandidateShowResult =
+  | Readonly<{
+      candidate: InvestigationCandidate;
+      diagnostics: InvestigationDiagnostic[];
+      errors: [];
+      status: "ok";
+      warnings: string[];
+    }>
+  | Readonly<{
+      candidate: null;
+      diagnostics: InvestigationDiagnostic[];
+      errors: string[];
+      status: "error";
+      warnings: string[];
+    }>;
+
+export type InvestigationCandidatePublishOptions = Readonly<{
+  ids: readonly string[];
+  investigationsDir?: string;
+  preflight?: boolean;
+  workspaceRoot: string;
+}>;
+
+export type InvestigationCandidatePublishResult = Readonly<{
+  changed: boolean;
+  diagnostics: InvestigationDiagnostic[];
+  errors: string[];
+  ids: string[];
+  indexPath: string;
+  mutation?: InvestigationMutationDiagnostic;
+  preflight: boolean;
+  warnings: string[];
+}>;
+
+export type InvestigationCandidateDiscardOptions = Readonly<{
+  deleteOwnedResources?: boolean;
+  deleteRecordedCandidate?: boolean;
+  id: string;
+  investigationsDir?: string;
+  workspaceRoot: string;
+}>;
+
+export type InvestigationCandidateDiscardResult = Readonly<{
+  changed: boolean;
+  deletedResourceIds: string[];
+  diagnostics: InvestigationDiagnostic[];
+  errors: string[];
+  id: string;
+  mutation?: InvestigationMutationDiagnostic;
+  requiresRecordedDeletionConfirmation: boolean;
+}>;
+
 export type InvestigationReportCheckOptions = {
   ids?: readonly string[];
   investigationsDir?: string;
@@ -213,8 +337,11 @@ export type InvestigationSource = Readonly<{
 }>;
 
 export type ParsedInvestigationReport = Readonly<{
+  bodyErrors: string[];
   errors: string[];
+  frontmatterErrors: string[];
   report: ParsedInvestigationReportDocument | null;
+  resourceErrors: string[];
 }>;
 
 export type ParsedInvestigationReportDocument = Readonly<{

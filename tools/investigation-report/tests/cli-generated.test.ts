@@ -458,6 +458,17 @@ test("generated Investigation Report CLI starts under Node with argv and stdout 
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
     assert.match(result.stdout, /1 of 1 reports checked; full index current/u);
+
+    const publishHelp = runGeneratedInvestigationCliSmoke(root, [
+      "publish",
+      "--help"
+    ]);
+    assert.equal(publishHelp.status, 0);
+    assert.equal(publishHelp.stderr, "");
+    assert.match(
+      publishHelp.stdout,
+      /Usage: investigation-report publish <investigation-id\.\.\.> \[--preflight\]/u
+    );
   });
 });
 

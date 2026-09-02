@@ -2,6 +2,11 @@ import { err, ok, type Result } from "neverthrow";
 import * as v from "valibot";
 import {
   investigationRelationTypes,
+  type InvestigationCandidateCreateOptions,
+  type InvestigationCandidateDiscardOptions,
+  type InvestigationCandidateListOptions,
+  type InvestigationCandidatePublishOptions,
+  type InvestigationCandidateShowOptions,
   type InvestigationIndexQueryOptions,
   type InvestigationIndexStageOptions,
   type InvestigationIndexSyncOptions,
@@ -26,6 +31,39 @@ const locationFields = {
   investigationsDir: optionalStringSchema,
   workspaceRoot: requiredStringSchema
 };
+const investigationCandidateCreateOptionsSchema = v.strictObject({
+  formedAt: requiredStringSchema,
+  id: requiredStringSchema,
+  ...locationFields,
+  question: requiredStringSchema,
+  relations: v.array(
+    v.strictObject({
+      target: requiredStringSchema,
+      type: v.picklist(
+        investigationRelationTypes,
+        "must be a known investigation relation type"
+      )
+    })
+  ),
+  tags: requiredStringArraySchema,
+  title: requiredStringSchema
+});
+const investigationCandidateListOptionsSchema = v.strictObject(locationFields);
+const investigationCandidateShowOptionsSchema = v.strictObject({
+  id: requiredStringSchema,
+  ...locationFields
+});
+const investigationCandidatePublishOptionsSchema = v.strictObject({
+  ids: requiredStringArraySchema,
+  ...locationFields,
+  preflight: v.optional(v.boolean("must be a boolean"))
+});
+const investigationCandidateDiscardOptionsSchema = v.strictObject({
+  deleteOwnedResources: v.optional(v.boolean("must be a boolean")),
+  deleteRecordedCandidate: v.optional(v.boolean("must be a boolean")),
+  id: requiredStringSchema,
+  ...locationFields
+});
 const investigationReportCheckOptionsSchema = v.strictObject({
   ids: optionalStringArraySchema,
   ...locationFields
@@ -88,6 +126,31 @@ const investigationReportDiscardOptionsSchema = v.strictObject({
   ...locationFields
 });
 
+export function parseInvestigationCandidateCreateOptions(
+  input: unknown
+): Result<InvestigationCandidateCreateOptions, string[]> {
+  return parseOptions(investigationCandidateCreateOptionsSchema, input);
+}
+export function parseInvestigationCandidateListOptions(
+  input: unknown
+): Result<InvestigationCandidateListOptions, string[]> {
+  return parseOptions(investigationCandidateListOptionsSchema, input);
+}
+export function parseInvestigationCandidateShowOptions(
+  input: unknown
+): Result<InvestigationCandidateShowOptions, string[]> {
+  return parseOptions(investigationCandidateShowOptionsSchema, input);
+}
+export function parseInvestigationCandidatePublishOptions(
+  input: unknown
+): Result<InvestigationCandidatePublishOptions, string[]> {
+  return parseOptions(investigationCandidatePublishOptionsSchema, input);
+}
+export function parseInvestigationCandidateDiscardOptions(
+  input: unknown
+): Result<InvestigationCandidateDiscardOptions, string[]> {
+  return parseOptions(investigationCandidateDiscardOptionsSchema, input);
+}
 export function parseInvestigationReportCheckOptions(
   input: unknown
 ): Result<InvestigationReportCheckOptions, string[]> {

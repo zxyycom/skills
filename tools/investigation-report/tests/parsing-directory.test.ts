@@ -3,6 +3,8 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import { test } from "node:test";
 import { parseInvestigationReport } from "../src/markdown.ts";
+import { discardInvestigationCandidate } from "../src/candidate-discard.ts";
+import { publishInvestigationCandidates } from "../src/publish.ts";
 import { validateInvestigationReports } from "../src/validation.ts";
 import {
   investigationRoot,
@@ -213,6 +215,14 @@ test("public APIs diagnose malformed runtime options without throwing", async ()
     workspaceRoot: 1
   } as unknown as { workspaceRoot: string });
   assert.ok(result.errors.some((error) => error.includes("must be a string")));
+  const publish = await publishInvestigationCandidates({
+    workspaceRoot: 1
+  });
+  assert.ok(publish.errors.length > 0);
+  const discard = await discardInvestigationCandidate({
+    workspaceRoot: 1
+  });
+  assert.ok(discard.errors.length > 0);
 });
 
 test("full validation warns only for direct predecessors outside Git HEAD", async () => {

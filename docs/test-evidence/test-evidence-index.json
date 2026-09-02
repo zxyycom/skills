@@ -5983,7 +5983,7 @@
     "GATE-DEFINITION-CATALOG-001": {
       "keys": {
         "search": [
-          "GATE-DEFINITION-CATALOG-001 Gate 完整 Definition 以 release tag 控制 activation 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；base 只聚合不需要 tag 的 32 个 Check，release tag 激活全部 60 个 Check 与 release DAG。 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/8/5` 个语义 Check；当前测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。 base/release Definition Check ID 完全相同，语义 Check 的 requiredTag 和固定命令精确匹配独立期望；release 的 `release:skill-prepare` 没有普通前置且处于 Definition 首位，`release:skill-version` 依赖由 catalog 派生的全部普通前置和 prepare，`pack:skills` 只依赖版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。 scripts/vibe-check.test.ts > gate catalog keeps one complete Definition for base and release tags bun test --test-name-pattern=\"^gate catalog keeps one complete Definition for base and release tags$\" ./scripts/vibe-check.test.ts"
+          "GATE-DEFINITION-CATALOG-001 Gate 完整 Definition 以 release tag 控制 activation 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；base 只聚合不需要 tag 的 32 个 Check，release tag 激活全部 60 个 Check 与 release DAG。 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/8/5` 个语义 Check；62 个当前测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。 base/release Definition Check ID 完全相同，语义 Check 的 requiredTag 和固定命令精确匹配独立期望；release 的 `release:skill-prepare` 没有普通前置且处于 Definition 首位，`release:skill-version` 依赖由 catalog 派生的全部普通前置和 prepare，`pack:skills` 只依赖版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。 scripts/vibe-check.test.ts > gate catalog keeps one complete Definition for base and release tags bun test --test-name-pattern=\"^gate catalog keeps one complete Definition for base and release tags$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5997,7 +5997,7 @@
         ],
         "id": "GATE-DEFINITION-CATALOG-001",
         "line": 1,
-        "searchText": "Gate 完整 Definition 以 release tag 控制 activation 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；base 只聚合不需要 tag 的 32 个 Check，release tag 激活全部 60 个 Check 与 release DAG。 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/8/5` 个语义 Check；当前测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。 base/release Definition Check ID 完全相同，语义 Check 的 requiredTag 和固定命令精确匹配独立期望；release 的 `release:skill-prepare` 没有普通前置且处于 Definition 首位，`release:skill-version` 依赖由 catalog 派生的全部普通前置和 prepare，`pack:skills` 只依赖版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。 scripts/vibe-check.test.ts > gate catalog keeps one complete Definition for base and release tags bun test --test-name-pattern=\"^gate catalog keeps one complete Definition for base and release tags$\" ./scripts/vibe-check.test.ts",
+        "searchText": "Gate 完整 Definition 以 release tag 控制 activation 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；base 只聚合不需要 tag 的 32 个 Check，release tag 激活全部 60 个 Check 与 release DAG。 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/8/5` 个语义 Check；62 个当前测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。 base/release Definition Check ID 完全相同，语义 Check 的 requiredTag 和固定命令精确匹配独立期望；release 的 `release:skill-prepare` 没有普通前置且处于 Definition 首位，`release:skill-version` 依赖由 catalog 派生的全部普通前置和 prepare，`pack:skills` 只依赖版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。 scripts/vibe-check.test.ts > gate catalog keeps one complete Definition for base and release tags bun test --test-name-pattern=\"^gate catalog keeps one complete Definition for base and release tags$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-catalog-builds-complete-tagged-definition.md",
         "summary": "每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；base 只聚合不需要 tag 的 32 个 Check，release tag 激活全部 60 个 Check 与 release DAG。",
         "title": "Gate 完整 Definition 以 release tag 控制 activation"
@@ -6052,24 +6052,24 @@
     "GATE-FILE-SELECTION-001": {
       "keys": {
         "search": [
-          "GATE-FILE-SELECTION-001 六项原生 Check 排除历史内容 当前门禁只检查可维护输入；归档 Change 与 Investigation Report 的形成时资源必须同时被六项 Vibe 原生 Check 排除。 每项原生 Check 的文件选择都包含 `changes/archive/**` 与 `docs/investigations/_resources/**` 排除规则。 scripts/vibe-check.test.ts > native file selections exclude archived Changes and investigation resources bun test --test-name-pattern=\"^native file selections exclude archived Changes and investigation resources$\" ./scripts/vibe-check.test.ts"
+          "GATE-FILE-SELECTION-001 原生 Check 排除历史内容和未建立候选 当前门禁只检查可维护输入；归档 Change 与 Investigation Report 的形成时资源必须同时被六项 Vibe 原生 Check 排除，未建立 candidate 不进入通用文档 gate。 每项原生 Check 的文件选择都包含 `changes/archive/**` 与 `docs/investigations/_resources/**` 排除规则。 文档扫描的 `json-validation` 与 blocking `markdown-link-validation` 排除根目录 `docs/investigations/_candidate.*`，因此未就绪 candidate 的资源链接不会伪装为正式维护文档损坏。 scripts/vibe-check.test.ts > native file selections exclude historical content and authoring candidates bun test --test-name-pattern=\"^native file selections exclude historical content and authoring candidates$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 13,
         "entries": [
-          "scripts/vibe-check.test.ts > native file selections exclude archived Changes and investigation resources",
-          "bun test --test-name-pattern=\"^native file selections exclude archived Changes and investigation resources$\" ./scripts/vibe-check.test.ts"
+          "scripts/vibe-check.test.ts > native file selections exclude historical content and authoring candidates",
+          "bun test --test-name-pattern=\"^native file selections exclude historical content and authoring candidates$\" ./scripts/vibe-check.test.ts"
         ],
         "id": "GATE-FILE-SELECTION-001",
         "line": 1,
-        "searchText": "六项原生 Check 排除历史内容 当前门禁只检查可维护输入；归档 Change 与 Investigation Report 的形成时资源必须同时被六项 Vibe 原生 Check 排除。 每项原生 Check 的文件选择都包含 `changes/archive/**` 与 `docs/investigations/_resources/**` 排除规则。 scripts/vibe-check.test.ts > native file selections exclude archived Changes and investigation resources bun test --test-name-pattern=\"^native file selections exclude archived Changes and investigation resources$\" ./scripts/vibe-check.test.ts",
+        "searchText": "原生 Check 排除历史内容和未建立候选 当前门禁只检查可维护输入；归档 Change 与 Investigation Report 的形成时资源必须同时被六项 Vibe 原生 Check 排除，未建立 candidate 不进入通用文档 gate。 每项原生 Check 的文件选择都包含 `changes/archive/**` 与 `docs/investigations/_resources/**` 排除规则。 文档扫描的 `json-validation` 与 blocking `markdown-link-validation` 排除根目录 `docs/investigations/_candidate.*`，因此未就绪 candidate 的资源链接不会伪装为正式维护文档损坏。 scripts/vibe-check.test.ts > native file selections exclude historical content and authoring candidates bun test --test-name-pattern=\"^native file selections exclude historical content and authoring candidates$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-file-selection-excludes-historical-content.md",
-        "summary": "当前门禁只检查可维护输入；归档 Change 与 Investigation Report 的形成时资源必须同时被六项 Vibe 原生 Check 排除。",
-        "title": "六项原生 Check 排除历史内容"
+        "summary": "当前门禁只检查可维护输入；归档 Change 与 Investigation Report 的形成时资源必须同时被六项 Vibe 原生 Check 排除，未建立 candidate 不进入通用文档 gate。",
+        "title": "原生 Check 排除历史内容和未建立候选"
       }
     },
     "GATE-JSCPD-CONFIG-001": {
@@ -7866,6 +7866,305 @@
         "title": "CLI exposes only report-level commands and rejects old topic options"
       }
     },
+    "INVESTIGATION-CANDIDATE-CLI-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CANDIDATE-CLI-001 candidate CLI separates creation success from readiness `new` 成功创建候选后以退出码 0 报告正文 readiness，而保留候选文件名或成员安全错误仍阻断正式集合检查。 CLI 创建空正文 candidate 返回成功、在 stderr 指向编辑和 `publish --preflight`，并可由 `show-candidate` 读取。 不规范保留候选文件仍作为根目录安全错误阻断默认检查。 tools/investigation-report/tests/candidate.test.ts > candidate root safety failures block formal checks and candidate CLI keeps creation success separate from readiness bun test --test-name-pattern=\"^candidate root safety failures block formal checks and candidate CLI keeps creation success separate from readiness$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/candidate.test.ts > candidate root safety failures block formal checks and candidate CLI keeps creation success separate from readiness",
+          "bun test --test-name-pattern=\"^candidate root safety failures block formal checks and candidate CLI keeps creation success separate from readiness$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CANDIDATE-CLI-001",
+        "line": 1,
+        "searchText": "candidate CLI separates creation success from readiness `new` 成功创建候选后以退出码 0 报告正文 readiness，而保留候选文件名或成员安全错误仍阻断正式集合检查。 CLI 创建空正文 candidate 返回成功、在 stderr 指向编辑和 `publish --preflight`，并可由 `show-candidate` 读取。 不规范保留候选文件仍作为根目录安全错误阻断默认检查。 tools/investigation-report/tests/candidate.test.ts > candidate root safety failures block formal checks and candidate CLI keeps creation success separate from readiness bun test --test-name-pattern=\"^candidate root safety failures block formal checks and candidate CLI keeps creation success separate from readiness$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/candidate-cli-separates-creation-success-from-readiness.md",
+        "summary": "`new` 成功创建候选后以退出码 0 报告正文 readiness，而保留候选文件名或成员安全错误仍阻断正式集合检查。",
+        "title": "candidate CLI separates creation success from readiness"
+      }
+    },
+    "INVESTIGATION-CANDIDATE-DISCARD-004": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CANDIDATE-DISCARD-004 destructive discards fail closed on invalid candidate references 删除正式 owner 资源前，正式 `discard` 必须能安全读取全部 candidate 的资源引用；合法 basename 但无效的 candidate 不能被当作无引用而绕过保护。 candidate 资源引用无法解析时，正式 `discard --delete-owned-resources` 以零写入失败。 正式报告和 owner resource 字节保持不变。 tools/investigation-report/tests/publish.test.ts > destructive discards fail closed when candidate resource references cannot be read bun test --test-name-pattern=\"^destructive discards fail closed when candidate resource references cannot be read$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/publish.test.ts > destructive discards fail closed when candidate resource references cannot be read",
+          "bun test --test-name-pattern=\"^destructive discards fail closed when candidate resource references cannot be read$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CANDIDATE-DISCARD-004",
+        "line": 1,
+        "searchText": "destructive discards fail closed on invalid candidate references 删除正式 owner 资源前，正式 `discard` 必须能安全读取全部 candidate 的资源引用；合法 basename 但无效的 candidate 不能被当作无引用而绕过保护。 candidate 资源引用无法解析时，正式 `discard --delete-owned-resources` 以零写入失败。 正式报告和 owner resource 字节保持不变。 tools/investigation-report/tests/publish.test.ts > destructive discards fail closed when candidate resource references cannot be read bun test --test-name-pattern=\"^destructive discards fail closed when candidate resource references cannot be read$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/destructive-discards-fail-closed-on-invalid-candidate-references.md",
+        "summary": "删除正式 owner 资源前，正式 `discard` 必须能安全读取全部 candidate 的资源引用；合法 basename 但无效的 candidate 不能被当作无引用而绕过保护。",
+        "title": "destructive discards fail closed on invalid candidate references"
+      }
+    },
+    "INVESTIGATION-CANDIDATE-DISCARD-005": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CANDIDATE-DISCARD-005 candidate discard fails closed on invalid formal references candidate owner resource 的删除必须可靠排除正式报告引用；正式报告的资源引用无法验证时，`discard-candidate` 必须 fail closed。 具有 candidate owner resource 链接但正文无效的正式 Markdown 会阻断候选删除。 candidate 与其 owner resource 保持原样。 tools/investigation-report/tests/publish.test.ts > candidate discard fails closed when formal resource references are invalid bun test --test-name-pattern=\"^candidate discard fails closed when formal resource references are invalid$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/publish.test.ts > candidate discard fails closed when formal resource references are invalid",
+          "bun test --test-name-pattern=\"^candidate discard fails closed when formal resource references are invalid$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CANDIDATE-DISCARD-005",
+        "line": 1,
+        "searchText": "candidate discard fails closed on invalid formal references candidate owner resource 的删除必须可靠排除正式报告引用；正式报告的资源引用无法验证时，`discard-candidate` 必须 fail closed。 具有 candidate owner resource 链接但正文无效的正式 Markdown 会阻断候选删除。 candidate 与其 owner resource 保持原样。 tools/investigation-report/tests/publish.test.ts > candidate discard fails closed when formal resource references are invalid bun test --test-name-pattern=\"^candidate discard fails closed when formal resource references are invalid$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/candidate-discard-fails-closed-on-invalid-formal-references.md",
+        "summary": "candidate owner resource 的删除必须可靠排除正式报告引用；正式报告的资源引用无法验证时，`discard-candidate` 必须 fail closed。",
+        "title": "candidate discard fails closed on invalid formal references"
+      }
+    },
+    "INVESTIGATION-CANDIDATE-DISCARD-006": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CANDIDATE-DISCARD-006 candidate discard rechecks Git HEAD before deletion `discard-candidate` 在 tombstone 移动前重新核对 candidate 与 owner resource 的 Git HEAD 记录；新进入 HEAD 的内容仍需 `--delete-recorded-candidate` 明确确认。 初次检查后、删除前进入 HEAD 的 candidate 会停止事务并要求确认。 candidate 文件未被移动或删除。 tools/investigation-report/tests/publish.test.ts > candidate discard rechecks Git HEAD immediately before deletion bun test --test-name-pattern=\"^candidate discard rechecks Git HEAD immediately before deletion$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/publish.test.ts > candidate discard rechecks Git HEAD immediately before deletion",
+          "bun test --test-name-pattern=\"^candidate discard rechecks Git HEAD immediately before deletion$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CANDIDATE-DISCARD-006",
+        "line": 1,
+        "searchText": "candidate discard rechecks Git HEAD before deletion `discard-candidate` 在 tombstone 移动前重新核对 candidate 与 owner resource 的 Git HEAD 记录；新进入 HEAD 的内容仍需 `--delete-recorded-candidate` 明确确认。 初次检查后、删除前进入 HEAD 的 candidate 会停止事务并要求确认。 candidate 文件未被移动或删除。 tools/investigation-report/tests/publish.test.ts > candidate discard rechecks Git HEAD immediately before deletion bun test --test-name-pattern=\"^candidate discard rechecks Git HEAD immediately before deletion$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/candidate-discard-rechecks-git-head-before-deletion.md",
+        "summary": "`discard-candidate` 在 tombstone 移动前重新核对 candidate 与 owner resource 的 Git HEAD 记录；新进入 HEAD 的内容仍需 `--delete-recorded-candidate` 明确确认。",
+        "title": "candidate discard rechecks Git HEAD before deletion"
+      }
+    },
+    "INVESTIGATION-CANDIDATE-NEW-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CANDIDATE-NEW-001 new creates an isolated canonical candidate scaffold `new` 在集合锁内以 `_candidate.<investigation-id>` 创建规范 authoring scaffold，候选不进入正式报告集合。 创建结果保留规范 frontmatter 与四个固定正文节，scaffold 有效而空正文只使 body readiness 为 incomplete。 正式报告发现只返回正式成员，候选身份单独可发现。 tools/investigation-report/tests/candidate.test.ts > new atomically creates a canonical candidate scaffold without establishing a formal report bun test --test-name-pattern=\"^new atomically creates a canonical candidate scaffold without establishing a formal report$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/candidate.test.ts > new atomically creates a canonical candidate scaffold without establishing a formal report",
+          "bun test --test-name-pattern=\"^new atomically creates a canonical candidate scaffold without establishing a formal report$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CANDIDATE-NEW-001",
+        "line": 1,
+        "searchText": "new creates an isolated canonical candidate scaffold `new` 在集合锁内以 `_candidate.<investigation-id>` 创建规范 authoring scaffold，候选不进入正式报告集合。 创建结果保留规范 frontmatter 与四个固定正文节，scaffold 有效而空正文只使 body readiness 为 incomplete。 正式报告发现只返回正式成员，候选身份单独可发现。 tools/investigation-report/tests/candidate.test.ts > new atomically creates a canonical candidate scaffold without establishing a formal report bun test --test-name-pattern=\"^new atomically creates a canonical candidate scaffold without establishing a formal report$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/candidate-new-creates-an-isolated-canonical-scaffold.md",
+        "summary": "`new` 在集合锁内以 `_candidate.<investigation-id>` 创建规范 authoring scaffold，候选不进入正式报告集合。",
+        "title": "new creates an isolated canonical candidate scaffold"
+      }
+    },
+    "INVESTIGATION-CANDIDATE-NEW-002": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CANDIDATE-NEW-002 new rejects conflicting or unsafe candidate identities without overwriting `new` 只接受规范 Investigation ID、formedAt、非重复 tags 和直接关系，且不得覆盖已有 candidate、与正式报告共享身份或不安全的候选路径。 非法 ID、正式身份冲突、集合锁占用和候选符号链接在零写入时返回失败；并发同 ID 创建恰好保留一个候选。 重复创建保持既有 candidate 的字节不变。 tools/investigation-report/tests/candidate.test.ts > new rejects invalid, duplicate, and formal-conflicting candidate identities without overwriting files bun test --test-name-pattern=\"^new rejects invalid, duplicate, and formal-conflicting candidate identities without overwriting files$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/candidate.test.ts > new rejects invalid, duplicate, and formal-conflicting candidate identities without overwriting files",
+          "bun test --test-name-pattern=\"^new rejects invalid, duplicate, and formal-conflicting candidate identities without overwriting files$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CANDIDATE-NEW-002",
+        "line": 1,
+        "searchText": "new rejects conflicting or unsafe candidate identities without overwriting `new` 只接受规范 Investigation ID、formedAt、非重复 tags 和直接关系，且不得覆盖已有 candidate、与正式报告共享身份或不安全的候选路径。 非法 ID、正式身份冲突、集合锁占用和候选符号链接在零写入时返回失败；并发同 ID 创建恰好保留一个候选。 重复创建保持既有 candidate 的字节不变。 tools/investigation-report/tests/candidate.test.ts > new rejects invalid, duplicate, and formal-conflicting candidate identities without overwriting files bun test --test-name-pattern=\"^new rejects invalid, duplicate, and formal-conflicting candidate identities without overwriting files$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/candidate-new-rejects-conflicting-identities-without-overwriting.md",
+        "summary": "`new` 只接受规范 Investigation ID、formedAt、非重复 tags 和直接关系，且不得覆盖已有 candidate、与正式报告共享身份或不安全的候选路径。",
+        "title": "new rejects conflicting or unsafe candidate identities without overwriting"
+      }
+    },
+    "INVESTIGATION-CANDIDATE-PUBLISH-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CANDIDATE-PUBLISH-001 publish preflight establishes only explicit candidates `publish --preflight` 只读预演显式 candidate 批次；普通 publish 只建立所选 candidate 并写入完整正式索引。 预检不改 candidate、正式报告或索引。 正常 publish 将所选 candidate 的原字节建立为正式报告，未选择 candidate 保持不变，默认全量检查仍通过。 tools/investigation-report/tests/publish.test.ts > publish preflight leaves candidates untouched and normal publish establishes only its explicit selection bun test --test-name-pattern=\"^publish preflight leaves candidates untouched and normal publish establishes only its explicit selection$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/publish.test.ts > publish preflight leaves candidates untouched and normal publish establishes only its explicit selection",
+          "bun test --test-name-pattern=\"^publish preflight leaves candidates untouched and normal publish establishes only its explicit selection$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CANDIDATE-PUBLISH-001",
+        "line": 1,
+        "searchText": "publish preflight establishes only explicit candidates `publish --preflight` 只读预演显式 candidate 批次；普通 publish 只建立所选 candidate 并写入完整正式索引。 预检不改 candidate、正式报告或索引。 正常 publish 将所选 candidate 的原字节建立为正式报告，未选择 candidate 保持不变，默认全量检查仍通过。 tools/investigation-report/tests/publish.test.ts > publish preflight leaves candidates untouched and normal publish establishes only its explicit selection bun test --test-name-pattern=\"^publish preflight leaves candidates untouched and normal publish establishes only its explicit selection$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/publish-preflight-establishes-only-explicit-candidates.md",
+        "summary": "`publish --preflight` 只读预演显式 candidate 批次；普通 publish 只建立所选 candidate 并写入完整正式索引。",
+        "title": "publish preflight establishes only explicit candidates"
+      }
+    },
+    "INVESTIGATION-CANDIDATE-PUBLISH-002": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CANDIDATE-PUBLISH-002 publish requires current baseline and relation closure publish 只能以新鲜正式索引为基线，且 selected candidates 的关系 target 必须在正式基线或同批 selection 内闭合。 未选择且不存在的 relation target 阻断预检并保留 candidate。 手工正式 Markdown 漂移先要求 `sync-index`；同步后相同候选可完成预检。 tools/investigation-report/tests/publish.test.ts > publish requires selected relation closure and a fresh formal index bun test --test-name-pattern=\"^publish requires selected relation closure and a fresh formal index$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/publish.test.ts > publish requires selected relation closure and a fresh formal index",
+          "bun test --test-name-pattern=\"^publish requires selected relation closure and a fresh formal index$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CANDIDATE-PUBLISH-002",
+        "line": 1,
+        "searchText": "publish requires current baseline and relation closure publish 只能以新鲜正式索引为基线，且 selected candidates 的关系 target 必须在正式基线或同批 selection 内闭合。 未选择且不存在的 relation target 阻断预检并保留 candidate。 手工正式 Markdown 漂移先要求 `sync-index`；同步后相同候选可完成预检。 tools/investigation-report/tests/publish.test.ts > publish requires selected relation closure and a fresh formal index bun test --test-name-pattern=\"^publish requires selected relation closure and a fresh formal index$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/publish-requires-current-baseline-and-relation-closure.md",
+        "summary": "publish 只能以新鲜正式索引为基线，且 selected candidates 的关系 target 必须在正式基线或同批 selection 内闭合。",
+        "title": "publish requires current baseline and relation closure"
+      }
+    },
+    "INVESTIGATION-CANDIDATE-PUBLISH-003": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CANDIDATE-PUBLISH-003 publish preserves resources and rolls back before index commit publish 不移动或改写 candidate resource；索引提交点前写入失败必须恢复 candidate，资源字节本身不构成 publish 漂移。 注入索引写入失败时 candidate 与资源字节保留，且结果为 `rolled-back`。 准备后以新文件替换同一资源路径时，成员 identity 漂移在写入前阻断 publish，candidate 保留。 准备后只改变同一资源文件的字节仍可发布，报告正文链接原样成为正式内容。 tools/investigation-report/tests/publish.test.ts > publish preserves candidate resources and rolls renamed candidates back when index publication fails bun test --test-name-pattern=\"^publish preserves candidate resources and rolls renamed candidates back when index publication fails$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 17,
+        "entries": [
+          "tools/investigation-report/tests/publish.test.ts > publish preserves candidate resources and rolls renamed candidates back when index publication fails",
+          "bun test --test-name-pattern=\"^publish preserves candidate resources and rolls renamed candidates back when index publication fails$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CANDIDATE-PUBLISH-003",
+        "line": 1,
+        "searchText": "publish preserves resources and rolls back before index commit publish 不移动或改写 candidate resource；索引提交点前写入失败必须恢复 candidate，资源字节本身不构成 publish 漂移。 注入索引写入失败时 candidate 与资源字节保留，且结果为 `rolled-back`。 准备后以新文件替换同一资源路径时，成员 identity 漂移在写入前阻断 publish，candidate 保留。 准备后只改变同一资源文件的字节仍可发布，报告正文链接原样成为正式内容。 tools/investigation-report/tests/publish.test.ts > publish preserves candidate resources and rolls renamed candidates back when index publication fails bun test --test-name-pattern=\"^publish preserves candidate resources and rolls renamed candidates back when index publication fails$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/publish-preserves-resources-and-rolls-back-before-index-commit.md",
+        "summary": "publish 不移动或改写 candidate resource；索引提交点前写入失败必须恢复 candidate，资源字节本身不构成 publish 漂移。",
+        "title": "publish preserves resources and rolls back before index commit"
+      }
+    },
+    "INVESTIGATION-CANDIDATE-PUBLISH-004": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CANDIDATE-PUBLISH-004 publish preflight validates complete merge and split batches 首次集合的 `publish --preflight` 只接受由同批 selected candidates 完整闭合的归并或拆分关系图，并保持零写入。 未选择归并的直接前序时，预检拒绝该 candidate。 完整选择归并前序或同一拆分的两个后继时，预检通过且不会建立正式报告。 tools/investigation-report/tests/publish.test.ts > publish preflight validates complete merge and split candidate batches bun test --test-name-pattern=\"^publish preflight validates complete merge and split candidate batches$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/publish.test.ts > publish preflight validates complete merge and split candidate batches",
+          "bun test --test-name-pattern=\"^publish preflight validates complete merge and split candidate batches$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CANDIDATE-PUBLISH-004",
+        "line": 1,
+        "searchText": "publish preflight validates complete merge and split batches 首次集合的 `publish --preflight` 只接受由同批 selected candidates 完整闭合的归并或拆分关系图，并保持零写入。 未选择归并的直接前序时，预检拒绝该 candidate。 完整选择归并前序或同一拆分的两个后继时，预检通过且不会建立正式报告。 tools/investigation-report/tests/publish.test.ts > publish preflight validates complete merge and split candidate batches bun test --test-name-pattern=\"^publish preflight validates complete merge and split candidate batches$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/publish-preflight-validates-complete-merge-and-split-batches.md",
+        "summary": "首次集合的 `publish --preflight` 只接受由同批 selected candidates 完整闭合的归并或拆分关系图，并保持零写入。",
+        "title": "publish preflight validates complete merge and split batches"
+      }
+    },
+    "INVESTIGATION-CANDIDATE-PUBLISH-005": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CANDIDATE-PUBLISH-005 publish rechecks candidate formal source and index drift 普通 publish 在提交前必须重新验证 selected candidate、正式来源与当前索引；任一事实漂移时不改名 candidate 或写入正式报告、索引。 selected candidate、正式 Markdown 或索引在准备后变化时，写入器不会执行，candidate 保持在 authoring workspace。 tools/investigation-report/tests/publish.test.ts > publish rechecks candidate, formal source, and index drift before changing files bun test --test-name-pattern=\"^publish rechecks candidate, formal source, and index drift before changing files$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/publish.test.ts > publish rechecks candidate, formal source, and index drift before changing files",
+          "bun test --test-name-pattern=\"^publish rechecks candidate, formal source, and index drift before changing files$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CANDIDATE-PUBLISH-005",
+        "line": 1,
+        "searchText": "publish rechecks candidate formal source and index drift 普通 publish 在提交前必须重新验证 selected candidate、正式来源与当前索引；任一事实漂移时不改名 candidate 或写入正式报告、索引。 selected candidate、正式 Markdown 或索引在准备后变化时，写入器不会执行，candidate 保持在 authoring workspace。 tools/investigation-report/tests/publish.test.ts > publish rechecks candidate, formal source, and index drift before changing files bun test --test-name-pattern=\"^publish rechecks candidate, formal source, and index drift before changing files$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/publish-rechecks-candidate-formal-source-and-index-drift.md",
+        "summary": "普通 publish 在提交前必须重新验证 selected candidate、正式来源与当前索引；任一事实漂移时不改名 candidate 或写入正式报告、索引。",
+        "title": "publish rechecks candidate formal source and index drift"
+      }
+    },
+    "INVESTIGATION-CANDIDATE-QUERY-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CANDIDATE-QUERY-001 candidate queries report readiness without affecting formal sources 候选查询独立返回 scaffold、body 与 resource readiness；候选及其 authoring resource 不参与正式 source revision、正式查询、正式索引成员或 index-only staging。 完整候选及其自有资源返回三个 ready 状态，并可由 `show-candidate` 读取。 正式 source revision、`sync-index`、`list`、`show` 与 `trace` 只读取正式报告，默认检查不会把候选 owner 当作缺失的正式 owner。 `stage-index` 只暂存正式 index 变化，不会暂存候选文件。 tools/investigation-report/tests/candidate.test.ts > candidate queries report readiness while formal sources and default checks ignore a candidate-owned resource bun test --test-name-pattern=\"^candidate queries report readiness while formal sources and default checks ignore a candidate-owned resource$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 17,
+        "entries": [
+          "tools/investigation-report/tests/candidate.test.ts > candidate queries report readiness while formal sources and default checks ignore a candidate-owned resource",
+          "bun test --test-name-pattern=\"^candidate queries report readiness while formal sources and default checks ignore a candidate-owned resource$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CANDIDATE-QUERY-001",
+        "line": 1,
+        "searchText": "candidate queries report readiness without affecting formal sources 候选查询独立返回 scaffold、body 与 resource readiness；候选及其 authoring resource 不参与正式 source revision、正式查询、正式索引成员或 index-only staging。 完整候选及其自有资源返回三个 ready 状态，并可由 `show-candidate` 读取。 正式 source revision、`sync-index`、`list`、`show` 与 `trace` 只读取正式报告，默认检查不会把候选 owner 当作缺失的正式 owner。 `stage-index` 只暂存正式 index 变化，不会暂存候选文件。 tools/investigation-report/tests/candidate.test.ts > candidate queries report readiness while formal sources and default checks ignore a candidate-owned resource bun test --test-name-pattern=\"^candidate queries report readiness while formal sources and default checks ignore a candidate-owned resource$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/candidate-queries-report-readiness-without-affecting-formal-sources.md",
+        "summary": "候选查询独立返回 scaffold、body 与 resource readiness；候选及其 authoring resource 不参与正式 source revision、正式查询、正式索引成员或 index-only staging。",
+        "title": "candidate queries report readiness without affecting formal sources"
+      }
+    },
+    "INVESTIGATION-CANDIDATE-RESOURCE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CANDIDATE-RESOURCE-001 candidate owner resources require direct reference candidate 自有的版本控制可见资源必须由该 candidate 直接引用；未引用成员使 candidate 的 `resourceReady` 失败，但不阻断无关正式集合检查。 含额外 owner resource 的 candidate 仍有合法 scaffold/body，却报告 resource readiness attention。 默认正式检查不将集合外 candidate 的未就绪资源当作正式集合错误。 tools/investigation-report/tests/candidate.test.ts > candidate readiness requires every visible candidate-owned resource to have a direct owner reference bun test --test-name-pattern=\"^candidate readiness requires every visible candidate-owned resource to have a direct owner reference$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/candidate.test.ts > candidate readiness requires every visible candidate-owned resource to have a direct owner reference",
+          "bun test --test-name-pattern=\"^candidate readiness requires every visible candidate-owned resource to have a direct owner reference$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CANDIDATE-RESOURCE-001",
+        "line": 1,
+        "searchText": "candidate owner resources require direct reference candidate 自有的版本控制可见资源必须由该 candidate 直接引用；未引用成员使 candidate 的 `resourceReady` 失败，但不阻断无关正式集合检查。 含额外 owner resource 的 candidate 仍有合法 scaffold/body，却报告 resource readiness attention。 默认正式检查不将集合外 candidate 的未就绪资源当作正式集合错误。 tools/investigation-report/tests/candidate.test.ts > candidate readiness requires every visible candidate-owned resource to have a direct owner reference bun test --test-name-pattern=\"^candidate readiness requires every visible candidate-owned resource to have a direct owner reference$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/candidate-owner-resources-require-direct-reference.md",
+        "summary": "candidate 自有的版本控制可见资源必须由该 candidate 直接引用；未引用成员使 candidate 的 `resourceReady` 失败，但不阻断无关正式集合检查。",
+        "title": "candidate owner resources require direct reference"
+      }
+    },
     "INVESTIGATION-CLI-CONTRACTS-001": {
       "keys": {
         "search": [
@@ -8326,6 +8625,98 @@
         "title": "validation enforces investigation directory path rules"
       }
     },
+    "INVESTIGATION-DISCARD-CANDIDATE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-CANDIDATE-001 discard-candidate protects shared and recorded resources `discard-candidate` 只删除显式 candidate 及确认的 owner 资源；共享引用和 Git HEAD 记录先阻断，正式报告与索引不属于该事务。 其他 candidate 引用 owner resource 时拒绝删除。 Git 已记录 candidate 需要独立确认；确认后 candidate 与 owner resource 删除，正式报告字节不变。 tools/investigation-report/tests/publish.test.ts > discard-candidate protects shared and recorded authoring resources without changing formal reports bun test --test-name-pattern=\"^discard-candidate protects shared and recorded authoring resources without changing formal reports$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/publish.test.ts > discard-candidate protects shared and recorded authoring resources without changing formal reports",
+          "bun test --test-name-pattern=\"^discard-candidate protects shared and recorded authoring resources without changing formal reports$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-CANDIDATE-001",
+        "line": 1,
+        "searchText": "discard-candidate protects shared and recorded resources `discard-candidate` 只删除显式 candidate 及确认的 owner 资源；共享引用和 Git HEAD 记录先阻断，正式报告与索引不属于该事务。 其他 candidate 引用 owner resource 时拒绝删除。 Git 已记录 candidate 需要独立确认；确认后 candidate 与 owner resource 删除，正式报告字节不变。 tools/investigation-report/tests/publish.test.ts > discard-candidate protects shared and recorded authoring resources without changing formal reports bun test --test-name-pattern=\"^discard-candidate protects shared and recorded authoring resources without changing formal reports$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-candidate-protects-shared-and-recorded-resources.md",
+        "summary": "`discard-candidate` 只删除显式 candidate 及确认的 owner 资源；共享引用和 Git HEAD 记录先阻断，正式报告与索引不属于该事务。",
+        "title": "discard-candidate protects shared and recorded resources"
+      }
+    },
+    "INVESTIGATION-DISCARD-CANDIDATE-002": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-CANDIDATE-002 discard-candidate rechecks source drift candidate discard 在移动 tombstone 前重新读取 candidate 与 owner resource 成员；漂移时零写入失败。 准备后的 candidate Markdown 变化被检测，candidate 保留在 authoring workspace。 tools/investigation-report/tests/publish.test.ts > discard-candidate detects candidate drift before committing its tombstone bun test --test-name-pattern=\"^discard-candidate detects candidate drift before committing its tombstone$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/publish.test.ts > discard-candidate detects candidate drift before committing its tombstone",
+          "bun test --test-name-pattern=\"^discard-candidate detects candidate drift before committing its tombstone$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-CANDIDATE-002",
+        "line": 1,
+        "searchText": "discard-candidate rechecks source drift candidate discard 在移动 tombstone 前重新读取 candidate 与 owner resource 成员；漂移时零写入失败。 准备后的 candidate Markdown 变化被检测，candidate 保留在 authoring workspace。 tools/investigation-report/tests/publish.test.ts > discard-candidate detects candidate drift before committing its tombstone bun test --test-name-pattern=\"^discard-candidate detects candidate drift before committing its tombstone$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-candidate-rechecks-source-drift.md",
+        "summary": "candidate discard 在移动 tombstone 前重新读取 candidate 与 owner resource 成员；漂移时零写入失败。",
+        "title": "discard-candidate rechecks source drift"
+      }
+    },
+    "INVESTIGATION-DISCARD-CANDIDATE-003": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-CANDIDATE-003 formal discard protects candidate resource references 正式 `discard` 不建立、删除或索引 candidate，但删除正式 owner resource 前必须保护 candidate 的共享引用。 authoring candidate 引用正式 owner resource 时，正式 `discard --delete-owned-resources` 被拒绝且资源字节保持不变。 将 candidate ID 传给正式 `discard` 只得到“formal report 不存在”的零写入结果，candidate 不会被该命令删除。 tools/investigation-report/tests/publish.test.ts > formal discard refuses owner resources still referenced by an authoring candidate bun test --test-name-pattern=\"^formal discard refuses owner resources still referenced by an authoring candidate$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/publish.test.ts > formal discard refuses owner resources still referenced by an authoring candidate",
+          "bun test --test-name-pattern=\"^formal discard refuses owner resources still referenced by an authoring candidate$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-CANDIDATE-003",
+        "line": 1,
+        "searchText": "formal discard protects candidate resource references 正式 `discard` 不建立、删除或索引 candidate，但删除正式 owner resource 前必须保护 candidate 的共享引用。 authoring candidate 引用正式 owner resource 时，正式 `discard --delete-owned-resources` 被拒绝且资源字节保持不变。 将 candidate ID 传给正式 `discard` 只得到“formal report 不存在”的零写入结果，candidate 不会被该命令删除。 tools/investigation-report/tests/publish.test.ts > formal discard refuses owner resources still referenced by an authoring candidate bun test --test-name-pattern=\"^formal discard refuses owner resources still referenced by an authoring candidate$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/formal-discard-protects-candidate-resource-references.md",
+        "summary": "正式 `discard` 不建立、删除或索引 candidate，但删除正式 owner resource 前必须保护 candidate 的共享引用。",
+        "title": "formal discard protects candidate resource references"
+      }
+    },
+    "INVESTIGATION-DISCARD-CANDIDATE-004": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-CANDIDATE-004 discard-candidate reports pending cleanup after tombstone commit `discard-candidate` 在 candidate tombstone 已提交但精确清理失败时，保留已提交删除并返回 `committed-cleanup-pending` 供定向恢复。 注入 tombstone cleanup 失败后 candidate 已从 authoring workspace 删除，结果保留 cleanup residue、明确 mutation outcome 与恢复所需诊断。 tools/investigation-report/tests/publish.test.ts > discard-candidate reports pending cleanup after its tombstone commit bun test --test-name-pattern=\"^discard-candidate reports pending cleanup after its tombstone commit$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/publish.test.ts > discard-candidate reports pending cleanup after its tombstone commit",
+          "bun test --test-name-pattern=\"^discard-candidate reports pending cleanup after its tombstone commit$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-CANDIDATE-004",
+        "line": 1,
+        "searchText": "discard-candidate reports pending cleanup after tombstone commit `discard-candidate` 在 candidate tombstone 已提交但精确清理失败时，保留已提交删除并返回 `committed-cleanup-pending` 供定向恢复。 注入 tombstone cleanup 失败后 candidate 已从 authoring workspace 删除，结果保留 cleanup residue、明确 mutation outcome 与恢复所需诊断。 tools/investigation-report/tests/publish.test.ts > discard-candidate reports pending cleanup after its tombstone commit bun test --test-name-pattern=\"^discard-candidate reports pending cleanup after its tombstone commit$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-candidate-reports-pending-cleanup-after-tombstone-commit.md",
+        "summary": "`discard-candidate` 在 candidate tombstone 已提交但精确清理失败时，保留已提交删除并返回 `committed-cleanup-pending` 供定向恢复。",
+        "title": "discard-candidate reports pending cleanup after tombstone commit"
+      }
+    },
     "INVESTIGATION-DISCARD-CLEANUP-FAILURE-001": {
       "keys": {
         "search": [
@@ -8605,21 +8996,21 @@
     "INVESTIGATION-DISTRIBUTION-SMOKE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-DISTRIBUTION-SMOKE-001 generated Investigation Report CLI starts under Node with argv and stdout protocol 已分发的 Investigation Report ESM 必须可由真实 Node 以 argv 启动，并保留成功输出与退出状态。 真实 Node 调用生成 CLI 的 `check` 成功、stderr 为空，并在 stdout 输出当前完整 index 的检查计数。 tools/investigation-report/tests/cli-generated.test.ts > generated Investigation Report CLI starts under Node with argv and stdout protocol bun test --test-name-pattern=\"^generated Investigation Report CLI starts under Node with argv and stdout protocol$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-DISTRIBUTION-SMOKE-001 generated Investigation Report CLI starts under Node with argv and stdout protocol 已分发的 Investigation Report ESM 必须可由真实 Node 以 argv 启动，并保留成功输出与退出状态。 真实 Node 调用生成 CLI 的 `check` 成功、stderr 为空，并在 stdout 输出当前完整 index 的检查计数。 真实 Node 调用生成 CLI 的 `publish --help` 成功，并输出选择性 candidate publish 的 `--preflight` 用法。 tools/investigation-report/tests/cli-generated.test.ts > generated Investigation Report CLI starts under Node with argv and stdout protocol bun test --test-name-pattern=\"^generated Investigation Report CLI starts under Node with argv and stdout protocol$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 15,
+        "endLine": 16,
         "entries": [
           "tools/investigation-report/tests/cli-generated.test.ts > generated Investigation Report CLI starts under Node with argv and stdout protocol",
           "bun test --test-name-pattern=\"^generated Investigation Report CLI starts under Node with argv and stdout protocol$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-DISTRIBUTION-SMOKE-001",
         "line": 1,
-        "searchText": "generated Investigation Report CLI starts under Node with argv and stdout protocol 已分发的 Investigation Report ESM 必须可由真实 Node 以 argv 启动，并保留成功输出与退出状态。 真实 Node 调用生成 CLI 的 `check` 成功、stderr 为空，并在 stdout 输出当前完整 index 的检查计数。 tools/investigation-report/tests/cli-generated.test.ts > generated Investigation Report CLI starts under Node with argv and stdout protocol bun test --test-name-pattern=\"^generated Investigation Report CLI starts under Node with argv and stdout protocol$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "generated Investigation Report CLI starts under Node with argv and stdout protocol 已分发的 Investigation Report ESM 必须可由真实 Node 以 argv 启动，并保留成功输出与退出状态。 真实 Node 调用生成 CLI 的 `check` 成功、stderr 为空，并在 stdout 输出当前完整 index 的检查计数。 真实 Node 调用生成 CLI 的 `publish --help` 成功，并输出选择性 candidate publish 的 `--preflight` 用法。 tools/investigation-report/tests/cli-generated.test.ts > generated Investigation Report CLI starts under Node with argv and stdout protocol bun test --test-name-pattern=\"^generated Investigation Report CLI starts under Node with argv and stdout protocol$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/generated-cli-node-smoke-starts-with-argv-and-stdout.md",
         "summary": "已分发的 Investigation Report ESM 必须可由真实 Node 以 argv 启动，并保留成功输出与退出状态。",
         "title": "generated Investigation Report CLI starts under Node with argv and stdout protocol"
@@ -8835,7 +9226,7 @@
     "INVESTIGATION-PUBLIC-OPTIONS-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-PUBLIC-OPTIONS-001 public APIs diagnose malformed runtime options without throwing 公共验证 API 必须把未经信任的运行时选项转换为诊断，而不抛出异常。 非字符串 workspaceRoot 返回结构化错误。 tools/investigation-report/tests/parsing-directory.test.ts > public APIs diagnose malformed runtime options without throwing bun test --test-name-pattern=\"^public APIs diagnose malformed runtime options without throwing$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-PUBLIC-OPTIONS-001 public APIs diagnose malformed runtime options without throwing 公共验证 API 必须把未经信任的运行时选项转换为诊断，而不抛出异常。 非字符串 workspaceRoot、缺失 publish/discard-candidate 必填参数均返回结构化错误。 tools/investigation-report/tests/parsing-directory.test.ts > public APIs diagnose malformed runtime options without throwing bun test --test-name-pattern=\"^public APIs diagnose malformed runtime options without throwing$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -8849,7 +9240,7 @@
         ],
         "id": "INVESTIGATION-PUBLIC-OPTIONS-001",
         "line": 1,
-        "searchText": "public APIs diagnose malformed runtime options without throwing 公共验证 API 必须把未经信任的运行时选项转换为诊断，而不抛出异常。 非字符串 workspaceRoot 返回结构化错误。 tools/investigation-report/tests/parsing-directory.test.ts > public APIs diagnose malformed runtime options without throwing bun test --test-name-pattern=\"^public APIs diagnose malformed runtime options without throwing$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "public APIs diagnose malformed runtime options without throwing 公共验证 API 必须把未经信任的运行时选项转换为诊断，而不抛出异常。 非字符串 workspaceRoot、缺失 publish/discard-candidate 必填参数均返回结构化错误。 tools/investigation-report/tests/parsing-directory.test.ts > public APIs diagnose malformed runtime options without throwing bun test --test-name-pattern=\"^public APIs diagnose malformed runtime options without throwing$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/public-apis-diagnose-malformed-runtime-options-without-throwing.md",
         "summary": "公共验证 API 必须把未经信任的运行时选项转换为诊断，而不抛出异常。",
         "title": "public APIs diagnose malformed runtime options without throwing"
@@ -16419,10 +16810,10 @@
       "ENV-PERMISSION-RULES-001": "sha256:21a124776a169674569296131b473013b83cd4982ea6a91fde7ec22edc11b45a",
       "ENV-WORKTREE-SETUP-001": "sha256:a232485668782b975b6e416528f415886b669450f36394065848a5027441842f",
       "GATE-CLI-RESULT-001": "sha256:ae32a8a554aef5b2379fc0089e1b05a8d2c299adabf0371f4f998d78df541b6f",
-      "GATE-DEFINITION-CATALOG-001": "sha256:c71bb42835a99da0b5d633378704172ccaf66be8b0f8c13f5961ca57f9558352",
+      "GATE-DEFINITION-CATALOG-001": "sha256:27a8fc3408b37538e4d28ba38068d83f03857153f0e7ac21dac16ee041257d97",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:7562eb8f98b853c83356d56a7140b675965d35b78727d7a0e6e650675d7933d7",
       "GATE-DUPLICATE-DETECTION-001": "sha256:5ce85e2b84c401f0419a234702195ae2f539a9b19f40d6f0d1370ec50ec185b3",
-      "GATE-FILE-SELECTION-001": "sha256:2a611569231721824b35a68e1227f49b52562b76c5b3ca76cba359d04fd51d77",
+      "GATE-FILE-SELECTION-001": "sha256:696ecc2a8db04b48eef7c5637fc0c27c3dab880f5fd4984618411587b0a74636",
       "GATE-JSCPD-CONFIG-001": "sha256:5ccde3f26423316112fb003cb1cc9ea514a4effeb9699b48ece0ee6272fd015f",
       "GATE-JSON-SCHEMA-001": "sha256:3c500d74072c67f0224c13c6b3af07dcdabf8122a8cedc1ca544489a4d23ad0f",
       "GATE-JSON-VALIDATION-001": "sha256:21a30e0896750c479e371dda2c9ed6eecb5a02c089547dc51160ec674eb2dba9",
@@ -16501,6 +16892,19 @@
       "INDEX-RUNTIME-TEMPORAL-SORT-001": "sha256:c171e76cf05b0b6f1505e25b88d903014dc2ecc917585aff424c19e655df3303",
       "INDEX-RUNTIME-TEXT-SEARCH-001": "sha256:025c697be00a2550ec330872fffefa04d9ca342e1dd6ee497e1e8310781ec8f1",
       "INVESTIGATION-BUNDLED-PARITY-001": "sha256:830203a4809c139ce8009e8b0f6cfd4fadc432bc13555fb9d2372da83f9fa3b0",
+      "INVESTIGATION-CANDIDATE-CLI-001": "sha256:be81538b3cfc08ba989ec395147df1f5095ec2b5f430e5ad8051a9d1ba17cacb",
+      "INVESTIGATION-CANDIDATE-DISCARD-004": "sha256:0a0abd8a87b00b5866cd71ecbc6f9590a749af9ccb88651f819762c5716fe4c0",
+      "INVESTIGATION-CANDIDATE-DISCARD-005": "sha256:d59a0dec61c4c87c6ef61c040ad6cf76df261c0bb3d17a4dc868441f2b2ff0ce",
+      "INVESTIGATION-CANDIDATE-DISCARD-006": "sha256:ab29902062383b1393c12927fa11f190c1e036d7e18af18c3ae13e39424a9c3b",
+      "INVESTIGATION-CANDIDATE-NEW-001": "sha256:7f460d42bec5fa9e91002226c5a83c9db9387f1cb9ead90a0e5429e4296cde0d",
+      "INVESTIGATION-CANDIDATE-NEW-002": "sha256:bfc9b5ea22f475f26fd18c068fbc95706a7421ca960a19d84bece82933c570d8",
+      "INVESTIGATION-CANDIDATE-PUBLISH-001": "sha256:0675ed97f24647ed5d61c557163c909414c1a62bdd5cdd914ffc6629ee64dcf9",
+      "INVESTIGATION-CANDIDATE-PUBLISH-002": "sha256:035c2570e4afbf361d21fd8922be8556b54a2f79db331471e2b5c7eb6b469b05",
+      "INVESTIGATION-CANDIDATE-PUBLISH-003": "sha256:c0330b28c237569ee32789ff81c6c53eead5ed128add2fe07a55a5b4c0051512",
+      "INVESTIGATION-CANDIDATE-PUBLISH-004": "sha256:ee8a0410d61a040c7fdd4ca5f14508c71722410907ed0f9519d5ea042515bfe5",
+      "INVESTIGATION-CANDIDATE-PUBLISH-005": "sha256:65d52ab4578587f9d205d97960fcc7eba1eae371b48959a7329c22fc7a7c8a5c",
+      "INVESTIGATION-CANDIDATE-QUERY-001": "sha256:d46ed234378b8c47ff57916a3085e43654452ea519eeb3ed6ae82b2ec4dbb7e5",
+      "INVESTIGATION-CANDIDATE-RESOURCE-001": "sha256:777eedd070590c44a03bdf60a41651b5bf381e77e0efd1f9fb45f1001733520f",
       "INVESTIGATION-CLI-CONTRACTS-001": "sha256:321d92ac50d4e8a0c7f5f745b3c65a643f70529e553e9515af2e737ff16c3b33",
       "INVESTIGATION-CLI-DISCARD-ARGS-001": "sha256:2999a084757bcda5d09b4491e6e85e57d573c0c1cd41d8d7094ad04dd3f6fa8b",
       "INVESTIGATION-CLI-ENUM-001": "sha256:96f85e4a80c0feafd5b891d43139bdd2b5ad1e915e0c5a0e083915a33aad9ba5",
@@ -16521,6 +16925,10 @@
       "INVESTIGATION-COLLECTION-ROOT-001": "sha256:f5d20b2646a9b4f27399a5fc5a022bb5a65e9ab06befc7fdec5d6190beedb372",
       "INVESTIGATION-DIAGNOSTIC-SANITIZATION-001": "sha256:b88721100ec5ac898f93431324e264de441c45c09f8c61780e77d971b3eda1eb",
       "INVESTIGATION-DIRECTORY-PATH-001": "sha256:c232adeaff4f31869a400176d5e354d6ba24073fa128b52bc9abfd5d757de419",
+      "INVESTIGATION-DISCARD-CANDIDATE-001": "sha256:ad7fe4e772ec3afef18a62f87982a8f0aa00a8aa20831794922e51b8c3d85cbd",
+      "INVESTIGATION-DISCARD-CANDIDATE-002": "sha256:ec24a08f3c1bd8818011460b1cdaaae60dca8413975a1afcc4615f9fde6f45ca",
+      "INVESTIGATION-DISCARD-CANDIDATE-003": "sha256:1e0ef24e30ad33e162b6870fcdf038d3ee62ed509517706a9c81eb9377c8ccf2",
+      "INVESTIGATION-DISCARD-CANDIDATE-004": "sha256:c1aaf5442b88e94c013787ee0bac949c3e32d6e40b580082a1a6aaba95be041e",
       "INVESTIGATION-DISCARD-CLEANUP-FAILURE-001": "sha256:ddea6115bfebc972a9ab9e67a73c1b8270e8606dd25fbbd255e51bad6b39d498",
       "INVESTIGATION-DISCARD-FINAL-001": "sha256:1cd2a20ba186c6a8493291bafd68b89058688bd2e9cf5dcdcac1b0d3948a25a9",
       "INVESTIGATION-DISCARD-GIT-001": "sha256:478670bd8ad631df55d33492e3c577cb42e7b800d8496abfc73e56f45ca6236a",
@@ -16533,7 +16941,7 @@
       "INVESTIGATION-DISCARD-RESTORE-001": "sha256:88e147b45003a884c43a826c111a3dfd7a46c0004f45ab128816838ca0b2fa2b",
       "INVESTIGATION-DISCARD-SPLIT-001": "sha256:507f797d445c782363c366c167615e1b1085b3c8c9b81f1e40a4aae4e144c4b3",
       "INVESTIGATION-DISCARD-TOMBSTONE-WINDOW-001": "sha256:432c88d3d37f5c966227cb247a4772c3b4952080cdf87d4d67881e399bd46bd8",
-      "INVESTIGATION-DISTRIBUTION-SMOKE-001": "sha256:da3e5178c73f35d19f093291d6be7f03529929e62f67b9b834c52bd7632942e9",
+      "INVESTIGATION-DISTRIBUTION-SMOKE-001": "sha256:19639f38422a2da1df0e9df4b6c49cd1902fb0a32accc00696931f2f1d80d349",
       "INVESTIGATION-EMPTY-COLLECTION-001": "sha256:5b994a600317858824056701bfa02ad70a7a57d9984d7fe6c05864d5e36a22c6",
       "INVESTIGATION-EMPTY-INDEX-SYNC-001": "sha256:641d885af8aee484c81cb7b0f6ea29bd0d7d860e2209768ae80c7ef559d02efc",
       "INVESTIGATION-GENERATED-METADATA-002": "sha256:a05a1110456941165ecb83b81a9af126e05f142543f2cf3db5fe057f29b09e55",
@@ -16543,7 +16951,7 @@
       "INVESTIGATION-INDEX-QUERY-001": "sha256:9174dcc9fd34aff5f777c490db138274825a96a002ef3d8794b625eae0010daa",
       "INVESTIGATION-INDEX-RELATION-FILTER-001": "sha256:b00de37bf7cf17ffeccca354b30bb855003e126825ebcabf2c55384927395e4e",
       "INVESTIGATION-INDEX-TEXT-FILTER-001": "sha256:3c7ebda378aba9e7e6fc6353adc3579a185fe8282c58560bf8f173efbc639fc0",
-      "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:c296f8686441762f6fc42c7baed4df1d90c506d8349e5a90cd6a79118af81f86",
+      "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:a65a11d47c0fa926d3acb9755ceccd8a1ca112df13f511b284bb79e70d007a7d",
       "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:f06cda59aa8d5cf08fe6e2ce817df58bebadd2df540370e4b2c9190073a6615f",
       "INVESTIGATION-RELATION-GIT-HEAD-001": "sha256:b740f716cf24b71bd291fb8b81f3722901893c2b422e472704948eeba9b2476b",
       "INVESTIGATION-RELATION-GIT-HEAD-002": "sha256:171552df1afa6c92e8e1752e387cb6239e7f53a55fb26eed7ec7d4a86577ec44",

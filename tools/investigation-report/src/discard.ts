@@ -16,6 +16,7 @@ import {
   InvestigationCollectionMutationLockError,
   withInvestigationCollectionMutationLock
 } from "./collection-mutation-lock.ts";
+import { readCandidateAuthoringResourceReferences } from "./candidate.ts";
 import {
   diagnosticFromError,
   genericInvestigationDiagnostic,
@@ -266,7 +267,9 @@ async function discardFromCollection(options: {
   }
   const relationshipErrors = referencesToTarget(collection.states, options.id);
   const resourceErrors = sharedOwnerResourceReferences(
-    collection.states,
+    await readCandidateAuthoringResourceReferences(options.root, {
+      failOnInvalidSources: true
+    }),
     options.id
   );
   const deletionErrors =
@@ -471,16 +474,16 @@ function referencesToTarget(
 }
 
 function sharedOwnerResourceReferences(
-  states: ReadonlyMap<string, InvestigationIndexState>,
+  referencesByReport: ReadonlyMap<string, ReadonlySet<string>>,
   id: string
 ): string[] {
   const ownerPrefix = `${id.slice(0, -".md".length)}/`;
   return uniqueSorted(
-    [...states]
+    [...referencesByReport]
       .filter(
-        ([source, state]) =>
+        ([source, resourceIds]) =>
           source !== id &&
-          state.resourceIds.some((resourceId) =>
+          [...resourceIds].some((resourceId) =>
             resourceId.startsWith(ownerPrefix)
           )
       )

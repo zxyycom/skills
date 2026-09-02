@@ -8,4 +8,4 @@ Contract:
 - 公共验证 API 必须把未经信任的运行时选项转换为诊断，而不抛出异常。
 
 Proves:
-- 非字符串 workspaceRoot 返回结构化错误。
+- 非字符串 workspaceRoot、缺失 publish/discard-candidate 必填参数均返回结构化错误。

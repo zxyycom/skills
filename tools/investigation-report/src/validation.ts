@@ -13,6 +13,7 @@ import {
   inspectInvestigationCollectionLayout,
   readInvestigationSources
 } from "./investigation-index-source.ts";
+import { readCandidateAuthoringResourceReferences } from "./candidate.ts";
 import {
   InvestigationCollectionMutationLockError,
   withInvestigationCollectionMutationLock
@@ -125,7 +126,11 @@ export async function collectValidatedInvestigationCollection(
   );
   const resources = await validateFullInvestigationResources(
     investigationRoot,
-    referencesByReport
+    referencesByReport,
+    {
+      authoringReferencesByReport:
+        await readCandidateAuthoringResourceReferences(investigationRoot)
+    }
   );
   errors.push(...resources.errors);
   const sortedErrors = uniqueSorted(errors);
@@ -410,7 +415,7 @@ async function validateScopedCollection(
   // Scoped checks intentionally do not claim collection-wide layout, graph,
   // resource membership, or index freshness proof. The selected root report
   // and only its direct resource links are the validation boundary.
-  const errors: string[] = [];
+  const errors: string[] = [...layout.candidateErrors];
   const diagnostics: InvestigationDiagnostic[] = [];
   const available = new Set(layout.reportIds);
   const selected = ids.filter((id) => available.has(id));
@@ -728,7 +733,7 @@ function uniqueSorted(values: readonly string[]): string[] {
   return [...new Set(values)].sort(compareText);
 }
 
-async function unrecordedPredecessorWarnings(
+export async function unrecordedPredecessorWarnings(
   investigationsDirectory: string,
   states: ReadonlyMap<string, InvestigationIndexState>
 ): Promise<string[]> {
