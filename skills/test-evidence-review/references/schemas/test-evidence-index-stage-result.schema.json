@@ -12,6 +12,50 @@
                 "type": "string",
                 "minLength": 1
               },
+              "filesystem": {
+                "type": "object",
+                "properties": {
+                  "causeCategory": {
+                    "enum": [
+                      "access-denied",
+                      "not-found",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "detail": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "operation": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "target": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "causeCategory",
+                  "detail",
+                  "operation",
+                  "target"
+                ],
+                "additionalProperties": false
+              },
               "message": {
                 "type": "string",
                 "minLength": 1
@@ -35,6 +79,60 @@
                     "type": "null"
                   }
                 ]
+              },
+              "versionControl": {
+                "type": "object",
+                "properties": {
+                  "causeCategory": {
+                    "enum": [
+                      "access-denied",
+                      "busy",
+                      "command-failed",
+                      "not-repository",
+                      "revision-unavailable",
+                      "tool-unavailable",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "detail": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "operation": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "target": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "causeCategory",
+                  "detail",
+                  "operation",
+                  "target"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
@@ -52,6 +150,27 @@
         },
         "namespace": {
           "const": "test-evidence"
+        },
+        "pending": {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "enum": [
+                "no-change",
+                "partial-or-unknown"
+              ],
+              "type": "string"
+            },
+            "scope": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "outcome",
+            "scope"
+          ],
+          "additionalProperties": false
         },
         "selectedIds": {
           "type": "array",
@@ -94,6 +213,50 @@
                 "type": "string",
                 "minLength": 1
               },
+              "filesystem": {
+                "type": "object",
+                "properties": {
+                  "causeCategory": {
+                    "enum": [
+                      "access-denied",
+                      "not-found",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "detail": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "operation": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "target": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "causeCategory",
+                  "detail",
+                  "operation",
+                  "target"
+                ],
+                "additionalProperties": false
+              },
               "message": {
                 "type": "string",
                 "minLength": 1
@@ -117,6 +280,60 @@
                     "type": "null"
                   }
                 ]
+              },
+              "versionControl": {
+                "type": "object",
+                "properties": {
+                  "causeCategory": {
+                    "enum": [
+                      "access-denied",
+                      "busy",
+                      "command-failed",
+                      "not-repository",
+                      "revision-unavailable",
+                      "tool-unavailable",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "detail": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "operation": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "target": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "causeCategory",
+                  "detail",
+                  "operation",
+                  "target"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
@@ -134,6 +351,27 @@
         },
         "namespace": {
           "const": "test-evidence"
+        },
+        "pending": {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "enum": [
+                "no-change",
+                "partial-or-unknown"
+              ],
+              "type": "string"
+            },
+            "scope": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "outcome",
+            "scope"
+          ],
+          "additionalProperties": false
         },
         "selectedIds": {
           "type": "array",
@@ -176,6 +414,50 @@
                 "type": "string",
                 "minLength": 1
               },
+              "filesystem": {
+                "type": "object",
+                "properties": {
+                  "causeCategory": {
+                    "enum": [
+                      "access-denied",
+                      "not-found",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "detail": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "operation": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "target": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "causeCategory",
+                  "detail",
+                  "operation",
+                  "target"
+                ],
+                "additionalProperties": false
+              },
               "message": {
                 "type": "string",
                 "minLength": 1
@@ -199,6 +481,60 @@
                     "type": "null"
                   }
                 ]
+              },
+              "versionControl": {
+                "type": "object",
+                "properties": {
+                  "causeCategory": {
+                    "enum": [
+                      "access-denied",
+                      "busy",
+                      "command-failed",
+                      "not-repository",
+                      "revision-unavailable",
+                      "tool-unavailable",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "detail": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "operation": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "target": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "causeCategory",
+                  "detail",
+                  "operation",
+                  "target"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
@@ -216,6 +552,27 @@
         },
         "namespace": {
           "const": "test-evidence"
+        },
+        "pending": {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "enum": [
+                "no-change",
+                "partial-or-unknown"
+              ],
+              "type": "string"
+            },
+            "scope": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "outcome",
+            "scope"
+          ],
+          "additionalProperties": false
         },
         "selectedIds": {
           "type": "array",
@@ -271,6 +628,50 @@
                 "type": "string",
                 "minLength": 1
               },
+              "filesystem": {
+                "type": "object",
+                "properties": {
+                  "causeCategory": {
+                    "enum": [
+                      "access-denied",
+                      "not-found",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "detail": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "operation": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "target": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "causeCategory",
+                  "detail",
+                  "operation",
+                  "target"
+                ],
+                "additionalProperties": false
+              },
               "message": {
                 "type": "string",
                 "minLength": 1
@@ -294,6 +695,60 @@
                     "type": "null"
                   }
                 ]
+              },
+              "versionControl": {
+                "type": "object",
+                "properties": {
+                  "causeCategory": {
+                    "enum": [
+                      "access-denied",
+                      "busy",
+                      "command-failed",
+                      "not-repository",
+                      "revision-unavailable",
+                      "tool-unavailable",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "detail": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "operation": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "target": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "causeCategory",
+                  "detail",
+                  "operation",
+                  "target"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
@@ -311,6 +766,27 @@
         },
         "namespace": {
           "const": "test-evidence"
+        },
+        "pending": {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "enum": [
+                "no-change",
+                "partial-or-unknown"
+              ],
+              "type": "string"
+            },
+            "scope": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "outcome",
+            "scope"
+          ],
+          "additionalProperties": false
         },
         "selectedIds": {
           "type": "array",

@@ -6,12 +6,15 @@ import { readDecisionStateSnapshot } from "../src/decision-index-source.ts";
 import { isDecisionId } from "../src/decision-path.ts";
 import { executeDecisionQuery } from "../src/decision-query-service.ts";
 import { scanDecisionRecords } from "../src/scan.ts";
+import { stageDecisionRecords } from "../src/decision-stage-service.ts";
 import { applyDecisionChanges } from "../src/decision-transaction.ts";
 import {
   currentDecisionId,
   currentSourcePath,
   decisionFilePath,
-  withFixtureWorkspace
+  runSourceCli,
+  withFixtureWorkspace,
+  withGitFixtureWorkspace
 } from "./support.ts";
 
 type UnsafeEntry = "directory" | "symlink";
@@ -93,10 +96,10 @@ test("decision show rejects symlink and non-regular bodies without reading outsi
       assert.equal(result.status, "error");
       assert.equal(result.exitCode, 1);
       assert.ok(
-        result.errors.some(
-          (error) =>
-            error.includes("Failed to read decision body") &&
-            error.includes("regular non-symbolic-link file")
+        result.diagnostics.some(
+          (diagnostic) =>
+            diagnostic.code === "decision-records.decision-body-unavailable" &&
+            diagnostic.target === currentSourcePath
         )
       );
       assert.equal(await fs.readFile(outsidePath, "utf8"), outsideText);
@@ -129,7 +132,7 @@ test("decision transactions reject symlink and non-regular sources before writin
           return;
         }
 
-        const errors = await applyDecisionChanges({
+        const result = await applyDecisionChanges({
           changes: [
             {
               decisionPath: sourcePath,
@@ -144,7 +147,7 @@ test("decision transactions reject symlink and non-regular sources before writin
           scanOptions: { workspaceRoot }
         });
         assert.ok(
-          errors.some(
+          result.errors.some(
             (error) =>
               error.includes(
                 "Failed to verify decision source before update"
@@ -258,3 +261,271 @@ test("scan reports root archive index and source read failures with their action
     }
   });
 });
+
+const filesystemDiagnosticSecret = "top-secret-decision-token";
+const filesystemDiagnosticPath = "/tmp/private-decision-records-path";
+
+function accessDeniedFileSystemError(): Error {
+  return Object.assign(
+    new Error(
+      `EACCES password=${filesystemDiagnosticSecret} at ${filesystemDiagnosticPath}`
+    ),
+    { code: "EACCES" }
+  );
+}
+
+function assertRedactedAccessDeniedDiagnostic(options: {
+  detail: string | null | undefined;
+  reason: string;
+  expectedReason: string;
+}): void {
+  assert.equal(options.reason, options.expectedReason);
+  assert.match(options.detail ?? "", /password=\[redacted\]/);
+  assert.doesNotMatch(
+    options.detail ?? "",
+    new RegExp(filesystemDiagnosticSecret)
+  );
+  assert.doesNotMatch(
+    options.detail ?? "",
+    new RegExp(filesystemDiagnosticPath)
+  );
+}
+
+function isTargetPath(value: unknown, targetPath: string): boolean {
+  return typeof value === "string" && path.resolve(value) === targetPath;
+}
+
+test("scan classifies access denial and redacts filesystem error detail", () =>
+  withFixtureWorkspace("filesystem-diagnostic-scan", async (workspaceRoot) => {
+    const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
+    const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
+    assert.ok(descriptor);
+    const readFile = fs.readFile.bind(fs);
+    Object.defineProperty(fs, "readFile", {
+      ...descriptor,
+      value: async (...args: Parameters<typeof fs.readFile>) => {
+        if (isTargetPath(args[0], sourcePath)) {
+          throw accessDeniedFileSystemError();
+        }
+        return await readFile(...args);
+      }
+    });
+    try {
+      const result = await executeDecisionQuery({
+        command: "check",
+        location: { decisionsDir: "docs/decisions", workspaceRoot }
+      });
+      assert.equal(result.status, "error");
+      const diagnostic = result.diagnostics.find(
+        (entry) => entry.causeCategory === "access-denied"
+      );
+      assert.ok(diagnostic);
+      assertRedactedAccessDeniedDiagnostic({
+        detail: diagnostic.detail,
+        expectedReason:
+          "The Decision Records filesystem operation could not complete.",
+        reason: diagnostic.reason
+      });
+    } finally {
+      Object.defineProperty(fs, "readFile", descriptor);
+    }
+  }));
+
+test("transaction classifies access denial and redacts filesystem error detail", () =>
+  withFixtureWorkspace(
+    "filesystem-diagnostic-transaction",
+    async (workspaceRoot) => {
+      const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
+      const sourceText = await fs.readFile(sourcePath, "utf8");
+      const descriptor = Object.getOwnPropertyDescriptor(fs, "lstat");
+      assert.ok(descriptor);
+      const lstat = fs.lstat.bind(fs);
+      Object.defineProperty(fs, "lstat", {
+        ...descriptor,
+        value: async (...args: Parameters<typeof fs.lstat>) => {
+          if (isTargetPath(args[0], sourcePath)) {
+            throw accessDeniedFileSystemError();
+          }
+          return await lstat(...args);
+        }
+      });
+      try {
+        const result = await applyDecisionChanges({
+          changes: [
+            {
+              decisionPath: sourcePath,
+              expectedText: sourceText,
+              nextText: sourceText.replace("使用生成 CLI", "不可读的生成 CLI")
+            }
+          ],
+          originalScan: await scanDecisionRecords({ workspaceRoot }),
+          scanOptions: { workspaceRoot }
+        });
+        assert.equal(result.status, "error");
+        const diagnostic = result.diagnostics.find(
+          (entry) => entry.causeCategory === "access-denied"
+        );
+        assert.ok(diagnostic);
+        assertRedactedAccessDeniedDiagnostic({
+          detail: diagnostic.detail,
+          expectedReason:
+            "Failed to verify decision source before update. No files were written.",
+          reason: diagnostic.reason
+        });
+      } finally {
+        Object.defineProperty(fs, "lstat", descriptor);
+      }
+    }
+  ));
+
+test("stage classifies access denial and redacts filesystem error detail", () =>
+  withGitFixtureWorkspace(
+    "filesystem-diagnostic-stage",
+    async (workspaceRoot) => {
+      const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
+      const descriptor = Object.getOwnPropertyDescriptor(fs, "lstat");
+      assert.ok(descriptor);
+      const lstat = fs.lstat.bind(fs);
+      Object.defineProperty(fs, "lstat", {
+        ...descriptor,
+        value: async (...args: Parameters<typeof fs.lstat>) => {
+          if (isTargetPath(args[0], sourcePath)) {
+            throw accessDeniedFileSystemError();
+          }
+          return await lstat(...args);
+        }
+      });
+      try {
+        const result = await stageDecisionRecords({
+          decisionIds: [currentDecisionId],
+          location: { decisionsDir: "docs/decisions", workspaceRoot }
+        });
+        assert.equal(result.status, "error");
+        const diagnostic = result.diagnostics.find(
+          (entry) => entry.causeCategory === "access-denied"
+        );
+        assert.ok(diagnostic);
+        assertRedactedAccessDeniedDiagnostic({
+          detail: diagnostic.detail,
+          expectedReason: "Failed to construct the selected decision snapshot.",
+          reason: diagnostic.reason
+        });
+      } finally {
+        Object.defineProperty(fs, "lstat", descriptor);
+      }
+    }
+  ));
+
+test("sync-index preserves structured source filesystem access diagnostics", () =>
+  withFixtureWorkspace(
+    "sync-index-structured-filesystem",
+    async (workspaceRoot) => {
+      const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
+      const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
+      assert.ok(descriptor);
+      const readFile = fs.readFile.bind(fs);
+      let sourceReads = 0;
+      Object.defineProperty(fs, "readFile", {
+        ...descriptor,
+        value: async (...args: Parameters<typeof fs.readFile>) => {
+          if (isTargetPath(args[0], sourcePath)) {
+            sourceReads += 1;
+            if (sourceReads === 2) {
+              throw accessDeniedFileSystemError();
+            }
+          }
+          return await readFile(...args);
+        }
+      });
+      try {
+        const result = await runSourceCli([
+          "sync-index",
+          "--root",
+          workspaceRoot
+        ]);
+        assert.equal(result.exitCode, 1);
+        assert.equal(result.stdout, "");
+        assert.match(
+          result.stderr,
+          /code: decision-records\.sync-index-failed/
+        );
+        assert.match(result.stderr, /causeCategory: access-denied/);
+        assert.match(
+          result.stderr,
+          /reason: The derived Decision index filesystem operation could not complete\./
+        );
+        assert.match(result.stderr, /password=\[redacted\]/);
+        assert.doesNotMatch(
+          result.stderr,
+          new RegExp(filesystemDiagnosticSecret)
+        );
+        assert.doesNotMatch(
+          result.stderr,
+          new RegExp(filesystemDiagnosticPath)
+        );
+        assert.equal(sourceReads, 2);
+      } finally {
+        Object.defineProperty(fs, "readFile", descriptor);
+      }
+    }
+  ));
+
+test("transaction preserves structured index filesystem access diagnostics", () =>
+  withFixtureWorkspace(
+    "transaction-structured-filesystem",
+    async (workspaceRoot) => {
+      const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
+      const sourceText = await fs.readFile(sourcePath, "utf8");
+      const originalScan = await scanDecisionRecords({ workspaceRoot });
+      const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
+      assert.ok(descriptor);
+      const readFile = fs.readFile.bind(fs);
+      let sourceReads = 0;
+      Object.defineProperty(fs, "readFile", {
+        ...descriptor,
+        value: async (...args: Parameters<typeof fs.readFile>) => {
+          if (isTargetPath(args[0], sourcePath)) {
+            sourceReads += 1;
+            if (sourceReads === 3) {
+              throw accessDeniedFileSystemError();
+            }
+          }
+          return await readFile(...args);
+        }
+      });
+      try {
+        const result = await applyDecisionChanges({
+          changes: [
+            {
+              decisionPath: sourcePath,
+              expectedText: sourceText,
+              nextText: sourceText.replace(
+                "使用生成 CLI",
+                "索引访问失败后的生成 CLI"
+              )
+            }
+          ],
+          originalScan,
+          scanOptions: { workspaceRoot }
+        });
+        assert.equal(result.status, "error");
+        assert.equal(result.outcome, "rolled-back");
+        const diagnostic = result.diagnostics.find(
+          (entry) =>
+            entry.code === "decision-records.transaction-failed" &&
+            entry.causeCategory === "access-denied"
+        );
+        assert.ok(diagnostic);
+        assertRedactedAccessDeniedDiagnostic({
+          detail: diagnostic.detail,
+          expectedReason:
+            "The derived Decision index filesystem operation could not complete.",
+          reason: diagnostic.reason
+        });
+        assert.equal(sourceReads, 3);
+        assert.equal(await fs.readFile(sourcePath, "utf8"), sourceText);
+      } finally {
+        Object.defineProperty(fs, "readFile", descriptor);
+      }
+    }
+  ));

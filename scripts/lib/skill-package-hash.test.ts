@@ -232,7 +232,9 @@ test(
         (error: unknown) =>
           error instanceof VersionControlError &&
           error.code === "revision-not-found" &&
-          error.message.includes("missing-baseline")
+          error.causeCategory === "revision-unavailable" &&
+          error.operation === "resolve a revision" &&
+          error.target === "requested revision"
       );
     });
 
@@ -558,7 +560,9 @@ test(
         (error: unknown) =>
           error instanceof VersionControlError &&
           error.code === "operation-failed" &&
-          error.message.includes("read skills/alpha/SKILL.md from revision")
+          error.causeCategory === "command-failed" &&
+          error.operation === "read a file from a revision" &&
+          error.target === "skills/alpha/SKILL.md"
       );
     });
   }
@@ -710,10 +714,12 @@ function createBaselineRepository(
     rootDirectory: fixtureRepositoryRoot,
     async resolveRevision(revision: string) {
       if (revision === "missing-baseline") {
-        throw new VersionControlError(
-          "revision-not-found",
-          `Version-control revision could not be resolved: ${revision}`
-        );
+        throw new VersionControlError({
+          causeCategory: "revision-unavailable",
+          code: "revision-not-found",
+          operation: "resolve a revision",
+          target: "missing-baseline"
+        });
       }
       return "baseline-revision";
     },

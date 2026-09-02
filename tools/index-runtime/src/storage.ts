@@ -12,7 +12,12 @@ import {
   sameKeyDefinitions,
   validateStateIndexDefinition
 } from "./definition.ts";
-import { diagnostic, errorText, failure } from "./diagnostics.ts";
+import {
+  diagnostic,
+  filesystemDiagnostic,
+  filesystemFailure,
+  failure
+} from "./diagnostics.ts";
 import { buildStateIndex } from "./snapshot-builder.ts";
 import { parseStateIndex, serializeStateIndex } from "./snapshot-parser.ts";
 import { isStateIndexText } from "./schemas.ts";
@@ -107,14 +112,19 @@ export async function loadStateIndexAtResolvedPath<
   try {
     data = await fs.readFile(options.resolved.targetPath);
   } catch (error) {
-    return failure(
+    return filesystemFailure(
       isFileSystemError(error, "ENOENT")
         ? "state-index.index-missing"
         : "state-index.index-read-failed",
       isFileSystemError(error, "ENOENT")
-        ? `${options.indexPath} does not exist`
-        : `failed to read ${options.indexPath}: ${errorText(error)}`,
-      { path: options.indexPath }
+        ? "the state-index file does not exist"
+        : "failed to read the state-index file; inspect index availability and access, then retry",
+      {
+        error,
+        operation: "read a state-index file",
+        path: options.indexPath,
+        target: options.indexPath
+      }
     );
   }
   let text: string;
@@ -281,7 +291,12 @@ export async function syncStateIndex<
       return failedSync(options, "index-read-failed", [
         diagnostic({
           code: "state-index.index-read-failed",
-          message: `failed to read ${indexPath}: ${errorText(error)}`,
+          filesystem: filesystemDiagnostic(error, {
+            operation: "read a state-index file",
+            target: indexPath
+          }),
+          message:
+            "failed to read the state-index file; inspect index availability and access, then retry",
           path: indexPath
         })
       ]);
@@ -329,8 +344,24 @@ export async function syncStateIndex<
         ]);
   }
 
+  let writtenPath: string;
   try {
-    const writtenPath = await writeTextAtomically(resolved.value, expectedText);
+    writtenPath = await writeTextAtomically(resolved.value, expectedText);
+  } catch (error) {
+    return failedSync(options, "index-write-failed", [
+      diagnostic({
+        code: "state-index.index-write-failed",
+        filesystem: filesystemDiagnostic(error, {
+          operation: "write a state-index file",
+          target: indexPath
+        }),
+        message:
+          "failed to write the state-index file; inspect index availability and access, then retry",
+        path: indexPath
+      })
+    ]);
+  }
+  try {
     await verifyWrittenText(writtenPath, expectedText);
     return {
       changed: true,
@@ -345,7 +376,12 @@ export async function syncStateIndex<
     return failedSync(options, "index-write-failed", [
       diagnostic({
         code: "state-index.index-write-failed",
-        message: `failed to write ${indexPath}: ${errorText(error)}`,
+        filesystem: filesystemDiagnostic(error, {
+          operation: "verify a state-index file",
+          target: indexPath
+        }),
+        message:
+          "failed to verify the written state-index file; inspect index availability and access, then retry",
         path: indexPath
       })
     ]);
@@ -374,11 +410,15 @@ export async function resolveIndexPath(
       throw new Error("the index root is not a directory");
     }
   } catch (error) {
-    return failure(
+    return filesystemFailure(
       "state-index.index-path-invalid",
-      `failed to resolve the index root; check that context.root exists, is a directory, ` +
-        `and is accessible: ${errorText(error)}`,
-      { path: indexPath }
+      "failed to resolve the index root; verify that context.root exists, is a directory, and is accessible, then retry",
+      {
+        error,
+        operation: "resolve a state-index root",
+        path: indexPath,
+        target: "configured root"
+      }
     );
   }
 
@@ -511,11 +551,15 @@ function invalidCanonicalIndexPath(
   indexPath: string,
   error: unknown
 ): StateIndexResult<ResolvedIndexPath> {
-  return failure(
+  return filesystemFailure(
     "state-index.index-path-invalid",
-    `failed to resolve ${indexPath} inside the index root; inspect symbolic links and ` +
-      `path permissions: ${errorText(error)}`,
-    { path: indexPath }
+    "failed to resolve the state-index path inside the configured root; inspect symbolic links and permissions, then retry",
+    {
+      error,
+      operation: "resolve a state-index path",
+      path: indexPath,
+      target: indexPath
+    }
   );
 }
 
@@ -554,9 +598,16 @@ async function readSourceRevision<
   try {
     revision = await definition.readRevision(context);
   } catch (error) {
-    return failure("state-index.revision-read-failed", errorText(error), {
-      path: indexPath
-    });
+    return filesystemFailure(
+      "state-index.revision-read-failed",
+      "failed to read the current state-index source revision; inspect source availability and access, then retry",
+      {
+        error,
+        operation: "read a state-index source revision",
+        path: indexPath,
+        target: "state-index source"
+      }
+    );
   }
   const validated = validateStateSourceRevisionValue(revision, indexPath);
   if (validated.status === "error") {

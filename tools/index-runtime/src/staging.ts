@@ -23,7 +23,9 @@ import type {
   StateIndexDefinition,
   StateIndexDiagnostic,
   StateIndexEntryStageResult,
+  StateIndexPendingMutation,
   StateIndexResult,
+  StateIndexVersionControlDiagnostic,
   StateSnapshot
 } from "./types.ts";
 
@@ -35,6 +37,7 @@ type EntryStageErrorState = Exclude<
 type EntryStageResultContext = Readonly<{
   indexPath: string;
   namespace: string;
+  pendingScope?: string;
 }>;
 
 type SelectedIdValidation =
@@ -156,8 +159,8 @@ export async function stageSelectedIndexEntriesWithRepository<
   let revision: string | null;
   try {
     revision = await repository.getCurrentRevision();
-  } catch {
-    return revisionReadFailure(resultContext, selected.selectedIds);
+  } catch (error) {
+    return revisionReadFailure(resultContext, selected.selectedIds, error);
   }
 
   let revisionFile: VersionControlFile | null = null;
@@ -167,8 +170,8 @@ export async function stageSelectedIndexEntriesWithRepository<
         revision,
         repositoryIndexPath
       );
-    } catch {
-      return revisionReadFailure(resultContext, selected.selectedIds);
+    } catch (error) {
+      return revisionReadFailure(resultContext, selected.selectedIds, error);
     }
   }
 
@@ -298,7 +301,11 @@ export async function stageSelectedIndexEntriesWithRepository<
       pathScope: repositoryIndexPath
     });
   } catch (error) {
-    return pendingFailure(resultContext, error, selected.selectedIds);
+    return pendingFailure(
+      { ...resultContext, pendingScope: repositoryIndexPath },
+      error,
+      selected.selectedIds
+    );
   }
 
   const success = {
@@ -428,24 +435,30 @@ function pendingFailure(
   error: unknown,
   selectedIds: string[]
 ): StateIndexEntryStageResult {
+  const versionControl = versionControlDiagnostic(error);
   if (
     error instanceof VersionControlError &&
     error.code === "pending-conflict"
   ) {
-    return failedStage(
+    const busy = error.causeCategory === "busy";
+    return failedPendingStage(
       context,
       "pending-conflict",
       [
         diagnostic({
           code: "state-index.pending-conflict",
-          message:
-            "the current revision or target pending content may have changed, or the " +
-            "pending write boundary may be busy; reread the current revision and target " +
-            "pending content, resolve any existing pending change for this index, then retry",
-          path: context.indexPath
+          message: busy
+            ? "the pending write boundary is busy; wait for any known concurrent operation " +
+              "to finish, then confirm a remaining lock is not stale before retrying"
+            : "the current revision or target pending content changed; reread the current " +
+              "revision and target pending content, resolve any existing pending change for " +
+              "this index, then retry",
+          path: context.indexPath,
+          versionControl
         })
       ],
-      selectedIds
+      selectedIds,
+      "no-change"
     );
   }
   if (
@@ -461,25 +474,25 @@ function pendingFailure(
             "pending recovery was incomplete; read and reconcile the target range through " +
             "the version-control API before retrying; if it cannot be uniquely read or " +
             "attributed, stop and ask the range owner",
-          path: context.indexPath
+          path: context.indexPath,
+          versionControl
         })
       ],
       selectedIds
     );
   }
-  return failedStage(
+  return failedPendingStage(
     context,
     "pending-write-failed",
     [
       diagnostic({
-        code: "state-index.pending-write-failed",
-        message:
-          "failed to replace the pending index; the previous pending range was preserved; " +
-          "inspect the target pending content and repository access, then retry",
-        path: context.indexPath
+        ...pendingWriteFailureDiagnostic(error),
+        path: context.indexPath,
+        versionControl
       })
     ],
-    selectedIds
+    selectedIds,
+    "no-change"
   );
 }
 
@@ -498,29 +511,29 @@ function repositoryOpenFailure(
           message:
             "the configured root is not inside a version-control repository; choose a " +
             "repository-backed root, then retry",
-          path: context.indexPath
+          path: context.indexPath,
+          versionControl: versionControlDiagnostic(error)
         })
       ],
       selectedIds
     );
   }
-  return revisionReadFailure(context, selectedIds);
+  return revisionReadFailure(context, selectedIds, error);
 }
 
 function revisionReadFailure(
   context: EntryStageResultContext,
-  selectedIds: string[]
+  selectedIds: string[],
+  error?: unknown
 ): StateIndexEntryStageResult {
   return failedStage(
     context,
     "revision-read-failed",
     [
       diagnostic({
-        code: "state-index.revision-read-failed",
-        message:
-          "failed to read the current revision or its index file; check repository " +
-          "access and revision integrity, then retry",
-        path: context.indexPath
+        ...revisionReadFailureDiagnostic(error),
+        path: context.indexPath,
+        versionControl: versionControlDiagnostic(error)
       })
     ],
     selectedIds
@@ -555,8 +568,28 @@ function failedRecoveryStage(
     diagnostics,
     indexPath: context.indexPath,
     namespace: context.namespace,
+    pending: pendingMutation(context, "partial-or-unknown"),
     selectedIds,
     state: "pending-recovery-failed",
+    status: "error"
+  };
+}
+
+function failedPendingStage(
+  context: EntryStageResultContext,
+  state: "pending-conflict" | "pending-write-failed",
+  diagnostics: StateIndexDiagnostic[],
+  selectedIds: string[],
+  outcome: Extract<StateIndexPendingMutation["outcome"], "no-change">
+): StateIndexEntryStageResult {
+  return {
+    changed: false,
+    diagnostics,
+    indexPath: context.indexPath,
+    namespace: context.namespace,
+    pending: pendingMutation(context, outcome),
+    selectedIds,
+    state,
     status: "error"
   };
 }
@@ -575,5 +608,96 @@ function failedStage(
     selectedIds,
     state,
     status: "error"
+  };
+}
+
+function pendingMutation(
+  context: EntryStageResultContext,
+  outcome: StateIndexPendingMutation["outcome"]
+): StateIndexPendingMutation {
+  return {
+    outcome,
+    scope: context.pendingScope ?? context.indexPath
+  };
+}
+
+function versionControlDiagnostic(
+  error: unknown
+): StateIndexVersionControlDiagnostic | undefined {
+  if (!(error instanceof VersionControlError)) {
+    return undefined;
+  }
+  return {
+    causeCategory: error.causeCategory,
+    detail: error.detail,
+    operation: error.operation,
+    target: error.target
+  };
+}
+
+function pendingWriteFailureDiagnostic(error: unknown): {
+  code: string;
+  message: string;
+} {
+  if (error instanceof VersionControlError) {
+    switch (error.causeCategory) {
+      case "access-denied":
+        return {
+          code: "state-index.pending-access-denied",
+          message:
+            "the current process was denied access while replacing the pending index; " +
+            "grant this process the required repository write access, then retry"
+        };
+      case "tool-unavailable":
+        return {
+          code: "state-index.pending-tool-unavailable",
+          message:
+            "the version-control tool was unavailable while replacing the pending index; " +
+            "restore the configured tool, then retry"
+        };
+    }
+  }
+  return {
+    code: "state-index.pending-write-failed",
+    message:
+      "failed to replace the pending index; the previous pending range was preserved; " +
+      "inspect the target pending content and repository access, then retry"
+  };
+}
+
+function revisionReadFailureDiagnostic(error: unknown): {
+  code: string;
+  message: string;
+} {
+  if (error instanceof VersionControlError) {
+    switch (error.causeCategory) {
+      case "access-denied":
+        return {
+          code: "state-index.repository-access-denied",
+          message:
+            "the current process was denied access while reading the repository; grant " +
+            "this process the required repository read access, then retry"
+        };
+      case "tool-unavailable":
+        return {
+          code: "state-index.repository-tool-unavailable",
+          message:
+            "the version-control tool was unavailable while reading the repository; " +
+            "restore the configured tool, then retry"
+        };
+      case "revision-unavailable":
+        return {
+          code: "state-index.revision-unavailable",
+          message:
+            "the current revision is unavailable; restore repository revision integrity, " +
+            "then retry"
+        };
+    }
+  }
+  return {
+    code: "state-index.revision-read-failed",
+    message:
+      "failed to read the current revision or its index file; check repository " +
+      "access and revision integrity, then retry"
   };
 }

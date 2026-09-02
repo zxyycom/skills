@@ -3,8 +3,11 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { simpleGit, type SimpleGit } from "simple-git";
-import { VersionControlError } from "./errors.ts";
-import { operationErrorDetail } from "./error-detail.ts";
+import {
+  classifyVersionControlCause,
+  VersionControlError,
+  type VersionControlErrorCauseCategory
+} from "./errors.ts";
 import { readGitBlobs } from "./git-blob-batch.ts";
 import { parseGitTreeEntries, type GitTreeEntry } from "./git-tree-entry.ts";
 import {
@@ -72,10 +75,7 @@ export async function openGitVersionControl(
       "--show-toplevel"
     ]);
   } catch (error) {
-    throw operationError(
-      `discover a Git worktree from ${resolvedStart}`,
-      error
-    );
+    throw operationError("discover a version-control worktree", error);
   }
 
   if (discoveryState.exitCode !== 0) {
@@ -83,28 +83,29 @@ export async function openGitVersionControl(
     try {
       hasWorktreeMarker = await hasGitWorktreeMarker(resolvedStart);
     } catch (error) {
-      throw operationError(
-        `discover a Git worktree from ${resolvedStart}`,
-        error
-      );
+      throw operationError("discover a version-control worktree", error);
     }
     if (discoveryState.exitCode === 128 && !hasWorktreeMarker) {
-      throw new VersionControlError(
-        "not-repository",
-        `No Git worktree could be opened from ${resolvedStart}`
-      );
+      throw new VersionControlError({
+        causeCategory: "not-repository",
+        code: "not-repository",
+        operation: "discover a version-control worktree",
+        target: "configured root"
+      });
     }
     throw operationError(
-      `discover a Git worktree from ${resolvedStart}`,
-      discoveryState.stderr
+      "discover a version-control worktree",
+      discoveryState.stderr,
+      { causeCategory: "command-failed" }
     );
   }
 
   const discoveredRoot = discoveryState.stdout.trim();
   if (discoveredRoot.length === 0) {
     throw operationError(
-      `discover a Git worktree from ${resolvedStart}`,
-      "Git returned an empty worktree root."
+      "discover a version-control worktree",
+      "The version-control tool returned an empty worktree root.",
+      { causeCategory: "command-failed" }
     );
   }
   const rootDirectory = path.resolve(resolvedStart, discoveredRoot);
@@ -172,13 +173,16 @@ class GitVersionControlRepository implements VersionControlRepository {
           await this.#git.raw(["symbolic-ref", "--quiet", "HEAD"])
         ).trim();
       } catch (error) {
-        throw operationError("resolve the current revision", error);
+        throw operationError("resolve the current revision", error, {
+          causeCategory: "command-failed"
+        });
       }
 
       if (symbolicHead.length === 0) {
         throw operationError(
           "resolve the current revision",
-          "Git returned an empty symbolic HEAD."
+          "The version-control tool returned an empty symbolic HEAD.",
+          { causeCategory: "command-failed" }
         );
       }
       let referenceState: GitCommandExit;
@@ -190,7 +194,9 @@ class GitVersionControlRepository implements VersionControlRepository {
           symbolicHead
         ]);
       } catch (error) {
-        throw operationError("resolve the current revision", error);
+        throw operationError("resolve the current revision", error, {
+          causeCategory: "command-failed"
+        });
       }
       if (
         referenceState.exitCode === 1 &&
@@ -200,7 +206,8 @@ class GitVersionControlRepository implements VersionControlRepository {
       }
       throw operationError(
         "resolve the current revision",
-        referenceState.stderr
+        referenceState.stderr,
+        { causeCategory: "command-failed" }
       );
     }
   }
@@ -217,18 +224,26 @@ class GitVersionControlRepository implements VersionControlRepository {
         `${revision}^{commit}`
       ]);
     } catch (error) {
-      throw operationError(`resolve revision ${revision}`, error);
+      throw operationError("resolve a revision", error, {
+        causeCategory: "command-failed",
+        target: "requested revision"
+      });
     }
     if (result.exitCode === 0) {
       return parseObjectId(result.stdout, `revision ${revision}`);
     }
     if (result.exitCode === 1 && result.stderr.trim().length === 0) {
-      throw new VersionControlError(
-        "revision-not-found",
-        `Version-control revision could not be resolved: ${revision}`
-      );
+      throw new VersionControlError({
+        causeCategory: "revision-unavailable",
+        code: "revision-not-found",
+        operation: "resolve a revision",
+        target: "requested revision"
+      });
     }
-    throw operationError(`resolve revision ${revision}`, result.stderr);
+    throw operationError("resolve a revision", result.stderr, {
+      causeCategory: "command-failed",
+      target: "requested revision"
+    });
   }
 
   async listRevisionFiles(
@@ -254,7 +269,9 @@ class GitVersionControlRepository implements VersionControlRepository {
       if (cause instanceof VersionControlError) {
         throw cause;
       }
-      throw operationError("list files in the revision snapshot");
+      throw operationError("list files in the revision snapshot", cause, {
+        causeCategory: "command-failed"
+      });
     }
   }
 
@@ -275,10 +292,11 @@ class GitVersionControlRepository implements VersionControlRepository {
           `:(literal)${normalizedPath}`
         ])
       );
-    } catch {
-      throw operationError(
-        `locate ${normalizedPath} in revision ${resolvedRevision}`
-      );
+    } catch (error) {
+      throw operationError("locate a file in a revision", error, {
+        causeCategory: "command-failed",
+        target: normalizedPath
+      });
     }
     if (entries.length === 0) {
       return null;
@@ -292,9 +310,9 @@ class GitVersionControlRepository implements VersionControlRepository {
       entry.objectType !== "blob" ||
       !gitBlobModes.has(entry.mode)
     ) {
-      throw operationError(
-        `locate file ${normalizedPath} in revision ${resolvedRevision}`
-      );
+      throw operationError("validate a revision file entry", undefined, {
+        target: normalizedPath
+      });
     }
 
     let data: Buffer | undefined;
@@ -302,15 +320,16 @@ class GitVersionControlRepository implements VersionControlRepository {
       data = (await readGitBlobs(this.rootDirectory, [entry.objectId])).get(
         entry.objectId
       );
-    } catch {
-      throw operationError(
-        `read ${normalizedPath} from revision ${resolvedRevision}`
-      );
+    } catch (error) {
+      throw operationError("read a file from a revision", error, {
+        causeCategory: "command-failed",
+        target: normalizedPath
+      });
     }
     if (data === undefined) {
-      throw operationError(
-        `read ${normalizedPath} from revision ${resolvedRevision}`
-      );
+      throw operationError("read a file from a revision", undefined, {
+        target: normalizedPath
+      });
     }
     return { data, path: normalizedPath };
   }
@@ -334,17 +353,19 @@ class GitVersionControlRepository implements VersionControlRepository {
           ...pathspecs
         ])
       );
-    } catch {
-      throw operationError(`locate files in revision ${resolvedRevision}`);
+    } catch (error) {
+      throw operationError("locate files in a revision", error, {
+        causeCategory: "command-failed"
+      });
     }
 
     const unsupportedEntry = entries.find(
       (entry) => entry.objectType !== "blob" || !gitBlobModes.has(entry.mode)
     );
     if (unsupportedEntry !== undefined) {
-      throw operationError(
-        `locate file ${unsupportedEntry.path} in revision ${resolvedRevision}`
-      );
+      throw operationError("validate a revision file entry", undefined, {
+        target: unsupportedEntry.path
+      });
     }
 
     let blobs: ReadonlyMap<string, Buffer>;
@@ -353,24 +374,24 @@ class GitVersionControlRepository implements VersionControlRepository {
         this.rootDirectory,
         entries.map((entry) => entry.objectId)
       );
-    } catch {
-      throw operationError(`read files from revision ${resolvedRevision}`);
+    } catch (error) {
+      throw operationError("read files from a revision", error, {
+        causeCategory: "command-failed"
+      });
     }
     const files = entries
       .map((entry) => {
         const data = blobs.get(entry.objectId);
         if (data === undefined) {
-          throw operationError(
-            `read ${entry.path} from revision ${resolvedRevision}`
-          );
+          throw operationError("read a file from a revision", undefined, {
+            target: entry.path
+          });
         }
         return { data, path: entry.path };
       })
       .sort((left, right) => left.path.localeCompare(right.path));
     if (files.some((file, index) => file.path === files[index - 1]?.path)) {
-      throw operationError(
-        `locate duplicate files in revision ${resolvedRevision}`
-      );
+      throw operationError("validate revision file entries");
     }
     return files;
   }
@@ -388,23 +409,32 @@ class GitVersionControlRepository implements VersionControlRepository {
     options: ReplacePendingFilesOptions
   ): Promise<ReplacePendingFilesResult> {
     const replacement = normalizePendingReplacement(options);
-    const pendingIndexPath = await this.#resolvePendingIndexPath();
+    let pendingIndexPath: string;
+    try {
+      pendingIndexPath = await this.#resolvePendingIndexPath();
+    } catch (error) {
+      throw pendingReplacementError(replacement.pathScope, error);
+    }
     const pendingIndexLockPath = pendingIndexPath + ".lock";
     let pendingIndexLock: Awaited<ReturnType<typeof fs.open>>;
     try {
       pendingIndexLock = await fs.open(pendingIndexLockPath, "wx");
     } catch (error) {
       if (isFileSystemError(error, "EEXIST")) {
-        throw pendingConflictError(replacement.pathScope);
+        throw pendingConflictError(replacement.pathScope, "busy", error);
       }
-      throw pendingReplacementError(replacement.pathScope);
+      throw pendingReplacementError(replacement.pathScope, error);
     }
 
     let lockIsOpen = true;
     try {
       const currentRevision = await this.getCurrentRevision();
       if (currentRevision !== replacement.expectedRevision) {
-        throw pendingConflictError(replacement.pathScope);
+        throw pendingConflictError(
+          replacement.pathScope,
+          "unknown",
+          "the current revision differs from the expected revision"
+        );
       }
       await initializePendingIndexLock({
         handle: pendingIndexLock,
@@ -423,7 +453,11 @@ class GitVersionControlRepository implements VersionControlRepository {
         replacement.expectedFiles !== null &&
         !sameExpectedPendingEntries(previousEntries, replacement.expectedFiles)
       ) {
-        throw pendingConflictError(replacement.pathScope);
+        throw pendingConflictError(
+          replacement.pathScope,
+          "unknown",
+          "the pending range differs from the expected file set"
+        );
       }
       const previousFiles =
         await this.#readPendingIndexEntries(previousEntries);
@@ -431,7 +465,11 @@ class GitVersionControlRepository implements VersionControlRepository {
         replacement.expectedFiles !== null &&
         !sameVersionControlFiles(previousFiles, replacement.expectedFiles)
       ) {
-        throw pendingConflictError(replacement.pathScope);
+        throw pendingConflictError(
+          replacement.pathScope,
+          "unknown",
+          "the pending range bytes differ from the expected file set"
+        );
       }
       const targetEntries = await this.#createPendingIndexEntries(
         replacement.files,
@@ -458,11 +496,17 @@ class GitVersionControlRepository implements VersionControlRepository {
         { pendingIndexPath: pendingIndexLockPath }
       );
       if (!sameGitIndexEntries(writtenEntries, targetEntries)) {
-        throw pendingReplacementError(replacement.pathScope);
+        throw pendingReplacementError(
+          replacement.pathScope,
+          "the pending range did not match the written target"
+        );
       }
       const writtenFiles = await this.#readPendingIndexEntries(writtenEntries);
       if (!sameVersionControlFiles(writtenFiles, replacement.files)) {
-        throw pendingReplacementError(replacement.pathScope);
+        throw pendingReplacementError(
+          replacement.pathScope,
+          "the pending range bytes did not match the written target"
+        );
       }
 
       await fs.rename(pendingIndexLockPath, pendingIndexPath);
@@ -476,16 +520,16 @@ class GitVersionControlRepository implements VersionControlRepository {
         try {
           await pendingIndexLock.close();
           lockIsOpen = false;
-        } catch {
-          throw pendingRecoveryError(replacement.pathScope);
+        } catch (recoveryError) {
+          throw pendingRecoveryError(replacement.pathScope, recoveryError);
         }
       }
 
       try {
         await this.#hooks.beforePendingRecovery?.();
         await removePendingIndexLock(pendingIndexLockPath);
-      } catch {
-        throw pendingRecoveryError(replacement.pathScope);
+      } catch (recoveryError) {
+        throw pendingRecoveryError(replacement.pathScope, recoveryError);
       }
       if (
         error instanceof VersionControlError &&
@@ -493,7 +537,7 @@ class GitVersionControlRepository implements VersionControlRepository {
       ) {
         throw error;
       }
-      throw pendingReplacementError(replacement.pathScope, true);
+      throw pendingReplacementError(replacement.pathScope, error);
     } finally {
       if (lockIsOpen) {
         await pendingIndexLock.close().catch(() => undefined);
@@ -525,7 +569,9 @@ class GitVersionControlRepository implements VersionControlRepository {
         throw cause;
       }
       throw operationError(
-        `list changed paths from ${from} to the pending snapshot`
+        "list changed paths from a revision to the pending snapshot",
+        cause,
+        { causeCategory: "command-failed" }
       );
     }
   }
@@ -548,14 +594,20 @@ class GitVersionControlRepository implements VersionControlRepository {
         pendingIndexEnvironment(options.pendingIndexPath)
       );
       if (result.exitCode !== 0) {
-        throw operationError("list files in the pending snapshot");
+        throw operationError(
+          "list files in the pending snapshot",
+          result.stderr,
+          { causeCategory: "command-failed" }
+        );
       }
       return parseGitIndexEntries(result.stdout);
     } catch (cause) {
       if (cause instanceof VersionControlError) {
         throw cause;
       }
-      throw operationError("list files in the pending snapshot");
+      throw operationError("list files in the pending snapshot", cause, {
+        causeCategory: "command-failed"
+      });
     }
   }
 
@@ -567,14 +619,18 @@ class GitVersionControlRepository implements VersionControlRepository {
     );
     if (conflictedPaths.length > 0) {
       throw operationError(
-        `resolve pending content conflicts before reading: ${conflictedPaths.join(", ")}`
+        "resolve pending content conflicts before reading",
+        undefined,
+        { target: "pending snapshot" }
       );
     }
 
     const seenPaths = new Set<string>();
     for (const entry of entries) {
       if (seenPaths.has(entry.path)) {
-        throw operationError(`read duplicate pending index path ${entry.path}`);
+        throw operationError("validate pending snapshot paths", undefined, {
+          target: entry.path
+        });
       }
       seenPaths.add(entry.path);
     }
@@ -583,9 +639,9 @@ class GitVersionControlRepository implements VersionControlRepository {
       (entry) => !gitBlobModes.has(entry.mode)
     );
     if (unsupportedEntry !== undefined) {
-      throw operationError(
-        `read non-file pending entry ${unsupportedEntry.path}`
-      );
+      throw operationError("read a non-file pending entry", undefined, {
+        target: unsupportedEntry.path
+      });
     }
 
     let blobs: ReadonlyMap<string, Buffer>;
@@ -598,13 +654,21 @@ class GitVersionControlRepository implements VersionControlRepository {
       if (cause instanceof VersionControlError) {
         throw cause;
       }
-      throw operationError("read files from the pending snapshot");
+      throw operationError("read files from the pending snapshot", cause, {
+        causeCategory: "command-failed"
+      });
     }
 
     return entries.map((entry) => {
       const data = blobs.get(entry.objectId);
       if (data === undefined) {
-        throw operationError(`read ${entry.path} from the pending snapshot`);
+        throw operationError(
+          "read a file from the pending snapshot",
+          undefined,
+          {
+            target: entry.path
+          }
+        );
       }
       return { data, path: entry.path };
     });
@@ -655,11 +719,15 @@ class GitVersionControlRepository implements VersionControlRepository {
         ["hash-object", "-w", "--stdin"],
         data
       );
-    } catch {
-      throw operationError("store a pending file");
+    } catch (error) {
+      throw operationError("store a pending file", error, {
+        causeCategory: "command-failed"
+      });
     }
     if (result.exitCode !== 0) {
-      throw operationError("store a pending file");
+      throw operationError("store a pending file", result.stderr, {
+        causeCategory: "command-failed"
+      });
     }
     return parseObjectId(result.stdout, "pending file");
   }
@@ -701,11 +769,15 @@ class GitVersionControlRepository implements VersionControlRepository {
         Buffer.from(records, "utf8"),
         pendingIndexEnvironment(pendingIndexPath)
       );
-    } catch {
-      throw operationError("replace pending files");
+    } catch (error) {
+      throw operationError("write pending files", error, {
+        causeCategory: "command-failed"
+      });
     }
     if (result.exitCode !== 0) {
-      throw operationError("replace pending files");
+      throw operationError("write pending files", result.stderr, {
+        causeCategory: "command-failed"
+      });
     }
   }
 
@@ -713,12 +785,18 @@ class GitVersionControlRepository implements VersionControlRepository {
     let output: string;
     try {
       output = await this.#git.raw(["rev-parse", "--git-path", "index"]);
-    } catch {
-      throw operationError("locate the pending snapshot");
+    } catch (error) {
+      throw operationError("locate the pending snapshot", error, {
+        causeCategory: "command-failed"
+      });
     }
     const indexPath = output.trim();
     if (indexPath.length === 0 || indexPath.includes("\0")) {
-      throw operationError("locate the pending snapshot");
+      throw operationError(
+        "locate the pending snapshot",
+        "the version-control tool returned an invalid pending snapshot path",
+        { causeCategory: "command-failed" }
+      );
     }
     return path.resolve(this.rootDirectory, indexPath);
   }
@@ -740,8 +818,12 @@ class GitVersionControlRepository implements VersionControlRepository {
           ...pathspecs
         ])
       );
-    } catch {
-      throw operationError("list version-control-visible workspace files");
+    } catch (error) {
+      throw operationError(
+        "list version-control-visible workspace files",
+        error,
+        { causeCategory: "command-failed" }
+      );
     }
   }
 
@@ -752,8 +834,10 @@ class GitVersionControlRepository implements VersionControlRepository {
         "--no-renames"
       ]);
       return normalizeRepositoryPaths(status.files.map((file) => file.path));
-    } catch {
-      throw operationError("list changed workspace paths");
+    } catch (error) {
+      throw operationError("list changed workspace paths", error, {
+        causeCategory: "command-failed"
+      });
     }
   }
 
@@ -764,10 +848,12 @@ class GitVersionControlRepository implements VersionControlRepository {
         ? await this.getCurrentRevision()
         : await this.resolveRevision(options.to);
     if (to === null) {
-      throw new VersionControlError(
-        "revision-not-found",
-        "The current version-control revision does not exist"
-      );
+      throw new VersionControlError({
+        causeCategory: "revision-unavailable",
+        code: "revision-not-found",
+        operation: "read the current revision",
+        target: "current revision"
+      });
     }
     if (from === to) {
       return [];
@@ -785,8 +871,10 @@ class GitVersionControlRepository implements VersionControlRepository {
           "--"
         ])
       );
-    } catch {
-      throw operationError(`list changed paths between ${from} and ${to}`);
+    } catch (error) {
+      throw operationError("list changed paths between revisions", error, {
+        causeCategory: "command-failed"
+      });
     }
   }
 }
@@ -806,17 +894,20 @@ function assertRevisionInput(revision: string): void {
     revision.includes("\0") ||
     /[\r\n]/u.test(revision)
   ) {
-    throw new VersionControlError(
-      "revision-not-found",
-      `Version-control revision is invalid: ${revision}`
-    );
+    throw new VersionControlError({
+      causeCategory: "revision-unavailable",
+      code: "revision-not-found",
+      detail: "the requested revision format is invalid",
+      operation: "validate a revision",
+      target: "requested revision"
+    });
   }
 }
 
 function parseObjectId(output: string, source: string): RevisionId {
   const objectId = output.trim();
   if (!objectIdPattern.test(objectId)) {
-    throw operationError(`parse ${source}`);
+    throw operationError("parse a version-control object identifier", source);
   }
   return objectId;
 }
@@ -841,14 +932,14 @@ function parseGitIndexEntries(output: string): GitIndexEntry[] {
       !objectIdPattern.test(objectId ?? "") ||
       stage === null
     ) {
-      throw operationError("parse pending Git index entries");
+      throw operationError("parse pending snapshot entries");
     }
 
     let entryPath: string;
     try {
       entryPath = normalizeRepositoryPath(record.slice(separatorIndex + 1));
-    } catch {
-      throw operationError("parse pending Git index entries");
+    } catch (error) {
+      throw operationError("parse pending snapshot entries", error);
     }
     return {
       mode,
@@ -1025,7 +1116,11 @@ async function createEmptyPendingIndex(
       pendingIndexEnvironment(temporaryIndexPath)
     );
     if (result.exitCode !== 0) {
-      throw operationError("initialize an empty pending snapshot");
+      throw operationError(
+        "initialize an empty pending snapshot",
+        result.stderr,
+        { causeCategory: "command-failed" }
+      );
     }
     return await fs.readFile(temporaryIndexPath);
   } finally {
@@ -1069,7 +1164,11 @@ function normalizePendingReplacement(
     options.expectedRevision !== null &&
     !objectIdPattern.test(options.expectedRevision)
   ) {
-    throw pendingConflictError(pathScope);
+    throw pendingConflictError(
+      pathScope,
+      "unknown",
+      "the expected revision is not a valid object identifier"
+    );
   }
   const files = normalizePendingReplacementFiles(
     options.files,
@@ -1102,16 +1201,22 @@ function normalizePendingReplacementFiles(
     .map((file) => {
       const filePath = normalizeRepositoryPath(file.path);
       if (!isWithinLiteralScope(filePath, pathScope)) {
-        throw new VersionControlError(
-          "invalid-path",
-          `Pending ${role} file must stay within ${pathScope}: ${file.path}`
-        );
+        throw new VersionControlError({
+          causeCategory: "unknown",
+          code: "invalid-path",
+          detail: `a ${role} file is outside the requested pending range`,
+          operation: "validate pending replacement paths",
+          target: pathScope
+        });
       }
       if (seenPaths.has(filePath)) {
-        throw new VersionControlError(
-          "invalid-path",
-          `Pending ${role} paths must be unique: ${filePath}`
-        );
+        throw new VersionControlError({
+          causeCategory: "unknown",
+          code: "invalid-path",
+          detail: `a ${role} file path is duplicated`,
+          operation: "validate pending replacement paths",
+          target: pathScope
+        });
       }
       seenPaths.add(filePath);
       return { data: Buffer.from(file.data), path: filePath };
@@ -1176,29 +1281,45 @@ function sameGitIndexEntries(
 
 function pendingReplacementError(
   pathScope: string,
-  restored = false
+  cause?: unknown
 ): VersionControlError {
-  return new VersionControlError(
-    "pending-replacement-failed",
-    `Pending snapshot replacement failed for ${pathScope}` +
-      (restored ? "; the original range was restored" : "")
-  );
+  return new VersionControlError({
+    cause: errorCause(cause),
+    causeCategory: classifyVersionControlCause(cause, "command-failed"),
+    code: "pending-replacement-failed",
+    detail: errorDetail(cause),
+    operation: "replace a pending range",
+    target: pathScope
+  });
 }
 
-function pendingConflictError(pathScope: string): VersionControlError {
-  return new VersionControlError(
-    "pending-conflict",
-    `Pending snapshot replacement conflicted for ${pathScope}; ` +
-      "retry from the current revision"
-  );
+function pendingConflictError(
+  pathScope: string,
+  causeCategory: VersionControlErrorCauseCategory = "unknown",
+  cause?: unknown
+): VersionControlError {
+  return new VersionControlError({
+    cause: errorCause(cause),
+    causeCategory,
+    code: "pending-conflict",
+    detail: errorDetail(cause),
+    operation: "verify a pending replacement",
+    target: pathScope
+  });
 }
 
-function pendingRecoveryError(pathScope: string): VersionControlError {
-  return new VersionControlError(
-    "pending-recovery-failed",
-    `Pending snapshot recovery was incomplete for ${pathScope}; ` +
-      "the range may be partially updated"
-  );
+function pendingRecoveryError(
+  pathScope: string,
+  cause?: unknown
+): VersionControlError {
+  return new VersionControlError({
+    cause: errorCause(cause),
+    causeCategory: classifyVersionControlCause(cause, "unknown"),
+    code: "pending-recovery-failed",
+    detail: errorDetail(cause),
+    operation: "recover a pending range",
+    target: pathScope
+  });
 }
 
 function parseNullSeparatedPaths(output: string): string[] {
@@ -1214,12 +1335,31 @@ function parseNullSeparatedPaths(output: string): string[] {
 
 function operationError(
   operation: string,
-  detail?: unknown
+  detail?: unknown,
+  options: Readonly<{
+    causeCategory?: VersionControlErrorCauseCategory;
+    target?: string | null;
+  }> = {}
 ): VersionControlError {
-  const detailText = operationErrorDetail(detail);
-  return new VersionControlError(
-    "operation-failed",
-    `Version-control operation failed: ${operation}` +
-      (detailText === null ? "" : ": " + detailText)
-  );
+  return new VersionControlError({
+    cause: errorCause(detail),
+    causeCategory: classifyVersionControlCause(
+      detail,
+      options.causeCategory ?? "unknown"
+    ),
+    code: "operation-failed",
+    detail: errorDetail(detail),
+    operation,
+    target: options.target ?? null
+  });
+}
+
+function errorCause(detail: unknown): unknown {
+  return detail instanceof VersionControlError
+    ? (detail.cause ?? detail)
+    : detail;
+}
+
+function errorDetail(detail: unknown): unknown {
+  return detail instanceof VersionControlError ? detail.detail : detail;
 }

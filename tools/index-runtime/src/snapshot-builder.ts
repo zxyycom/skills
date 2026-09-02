@@ -1,6 +1,6 @@
 import { expectationOf, validateStateIndexDefinition } from "./definition.ts";
 import { canonicalizeStateIndex } from "./canonicalization.ts";
-import { errorText, failure } from "./diagnostics.ts";
+import { filesystemFailure, failure } from "./diagnostics.ts";
 import { canonicalizeTypedJsonObject } from "./frozen-json.ts";
 import { isJsonObject } from "./json.ts";
 import {
@@ -50,7 +50,15 @@ export async function buildStateIndex<
   try {
     snapshot = await definition.read(context);
   } catch (error) {
-    return failure("state-index.source-read-failed", errorText(error));
+    return filesystemFailure(
+      "state-index.source-read-failed",
+      "failed to read the state-index source; inspect source availability and access, then retry",
+      {
+        error,
+        operation: "read a state-index source",
+        target: "state-index source"
+      }
+    );
   }
   return buildStateIndexFromSnapshot(definition, snapshot);
 }

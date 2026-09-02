@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
@@ -134,6 +135,41 @@ test("CLI check succeeds on a current report collection", async () => {
   });
 });
 
+test("CLI show renders a scrubbed structured report read failure", async () => {
+  await withTempRoot("cli-show-read-failure", async (root) => {
+    await writeCollection(root, [{ id: "report.md" }]);
+    const reportPath = path.join(investigationRoot(root), "report.md");
+    const token = `ghp_${"x".repeat(36)}`;
+    const originalReadFile = fs.readFile;
+    let reportReadCount = 0;
+    fs.readFile = (async (...args) => {
+      if (args[0] === reportPath) {
+        reportReadCount += 1;
+        if (reportReadCount === 2) {
+          throw Object.assign(
+            new Error(`token=${token}\nfailed at /private/report.md`),
+            { code: "EACCES" }
+          );
+        }
+      }
+      return await originalReadFile(...args);
+    }) as typeof fs.readFile;
+    let result;
+    try {
+      result = await runInvestigationCli(root, ["show", "report.md"]);
+    } finally {
+      fs.readFile = originalReadFile;
+    }
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, /investigation-report\.report-read-failed/u);
+    assert.match(result.stderr, /causeCategory: access-denied/u);
+    assert.match(result.stderr, /detail: token=\[redacted\]/u);
+    assert.doesNotMatch(result.stderr, new RegExp(token, "u"));
+    assert.doesNotMatch(result.stderr, /\/private\/report\.md/u);
+  });
+});
+
 test("CLI sync-index writes a missing derived index", async () => {
   await withTempRoot("cli-sync", async (root) => {
     await writeCollection(root, [{ id: "report.md" }], false);
@@ -151,6 +187,73 @@ test("CLI sync-index writes a missing derived index", async () => {
     );
     const index = parseJsonObject(await fs.readFile(indexPath, "utf8"));
     assert.ok(Object.hasOwn(jsonObjectMember(index, "entries"), "report.md"));
+  });
+});
+
+test("CLI sync-index preserves collection lock diagnostics", async () => {
+  await withTempRoot("cli-sync-lock", async (root) => {
+    await writeCollection(root, [{ id: "report.md" }]);
+    const lockPath = path.join(
+      root,
+      "docs",
+      ".investigation-index.json.mutation.lock"
+    );
+    await fs.writeFile(lockPath, "held", "utf8");
+    try {
+      const result = await runInvestigationCli(root, ["sync-index"]);
+      assert.equal(result.status, 1);
+      assert.equal(result.stdout, "");
+      assert.match(
+        result.stderr,
+        /investigation-report\.collection-lock-busy/u
+      );
+      assert.match(result.stderr, /causeCategory: busy/u);
+      assert.match(
+        result.stderr,
+        /scope: investigation report index collection/u
+      );
+      assert.match(result.stderr, /outcome: no-change/u);
+    } finally {
+      await fs.rm(lockPath, { force: true });
+    }
+  });
+});
+
+test("CLI sync-index renders filesystem diagnostics structurally", async () => {
+  await withTempRoot("cli-sync-filesystem", async (root) => {
+    await writeCollection(root, [{ id: "report.md" }]);
+    const indexPath = path.join(
+      investigationRoot(root),
+      "investigation-index.json"
+    );
+    const token = `ghp_${"z".repeat(36)}`;
+    const originalReadFile = fs.readFile;
+    fs.readFile = (async (...args) => {
+      if (args[0] === indexPath) {
+        throw Object.assign(
+          new Error(`token=${token}\nfailed at /private/index.json`),
+          { code: "EACCES" }
+        );
+      }
+      return await originalReadFile(...args);
+    }) as typeof fs.readFile;
+    let result;
+    try {
+      result = await runInvestigationCli(root, ["sync-index"]);
+    } finally {
+      fs.readFile = originalReadFile;
+    }
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, "");
+    assert.match(
+      result.stderr,
+      /\[state-index\.index-read-failed\] investigation-index\.json/u
+    );
+    assert.match(result.stderr, /causeCategory: access-denied/u);
+    assert.match(result.stderr, /operation: read a state-index file/u);
+    assert.match(result.stderr, /detail: token=\[redacted\]/u);
+    assert.doesNotMatch(result.stderr, new RegExp(token, "u"));
+    assert.doesNotMatch(result.stderr, /\/private\/index\.json/u);
   });
 });
 
@@ -202,6 +305,95 @@ test("CLI stage-index uses invalid-option exit status without report IDs", async
       /stage-index requires at least one Investigation ID/u
     );
     assert.equal(await fs.readFile(indexPath, "utf8"), before);
+  });
+});
+
+test("CLI stage-index preserves version-control diagnostic facts", async () => {
+  await withTempRoot("cli-stage-version-control", async (root) => {
+    await writeCollection(root, [{ id: "report.md" }]);
+    const result = await runInvestigationCli(root, [
+      "stage-index",
+      "report.md"
+    ]);
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, /state-index\.repository-unavailable/u);
+    assert.match(result.stderr, /causeCategory: not-repository/u);
+    assert.match(result.stderr, /operation: /u);
+    assert.match(
+      result.stderr,
+      /\[state-index\.repository-unavailable\] configured root/u
+    );
+  });
+});
+
+test("CLI stage-index renders filesystem diagnostics structurally", async () => {
+  await withTempRoot("cli-stage-filesystem", async (root) => {
+    await writeCollection(root, [{ id: "report.md" }]);
+    git(root, ["init", "--quiet"]);
+    git(root, ["config", "user.email", "test@example.invalid"]);
+    git(root, ["config", "user.name", "Test"]);
+    git(root, ["add", "."]);
+    git(root, ["commit", "--quiet", "-m", "initial"]);
+    const indexPath = path.join(
+      investigationRoot(root),
+      "investigation-index.json"
+    );
+    const token = `ghp_${"y".repeat(36)}`;
+    const originalReadFile = fs.readFile;
+    fs.readFile = (async (...args) => {
+      if (args[0] === indexPath) {
+        throw Object.assign(
+          new Error(`token=${token}\nfailed at /private/index.json`),
+          { code: "EACCES" }
+        );
+      }
+      return await originalReadFile(...args);
+    }) as typeof fs.readFile;
+    let result;
+    try {
+      result = await runInvestigationCli(root, ["stage-index", "report.md"]);
+    } finally {
+      fs.readFile = originalReadFile;
+    }
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, "");
+    assert.match(
+      result.stderr,
+      /\[state-index\.index-read-failed\] investigation-index\.json/u
+    );
+    assert.match(result.stderr, /causeCategory: access-denied/u);
+    assert.match(result.stderr, /operation: read a state-index file/u);
+    assert.match(result.stderr, /detail: token=\[redacted\]/u);
+    assert.doesNotMatch(result.stderr, new RegExp(token, "u"));
+    assert.doesNotMatch(result.stderr, /\/private\/index\.json/u);
+  });
+});
+
+test("CLI stage-index preserves pending transaction facts", async () => {
+  await withTempRoot("cli-stage-pending", async (root) => {
+    await writeCollection(root, [{ id: "report.md" }]);
+    git(root, ["init", "--quiet"]);
+    git(root, ["config", "user.email", "test@example.invalid"]);
+    git(root, ["config", "user.name", "Test"]);
+    git(root, ["add", "."]);
+    git(root, ["commit", "--quiet", "-m", "initial"]);
+    const lockPath = path.join(root, ".git", "index.lock");
+    await fs.writeFile(lockPath, "held", "utf8");
+    try {
+      const result = await runInvestigationCli(root, [
+        "stage-index",
+        "report.md"
+      ]);
+      assert.equal(result.status, 1);
+      assert.equal(result.stdout, "");
+      assert.match(result.stderr, /state-index\.pending-conflict/u);
+      assert.match(result.stderr, /causeCategory: busy/u);
+      assert.match(result.stderr, /scope: /u);
+      assert.match(result.stderr, /outcome: no-change/u);
+    } finally {
+      await fs.rm(lockPath, { force: true });
+    }
   });
 });
 
@@ -268,3 +460,10 @@ test("generated Investigation Report CLI starts under Node with argv and stdout 
     assert.match(result.stdout, /1 of 1 reports checked; full index current/u);
   });
 });
+
+function git(root: string, args: readonly string[]): string {
+  return execFileSync("git", ["-C", root, ...args], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+}

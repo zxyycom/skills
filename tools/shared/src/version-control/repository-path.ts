@@ -14,10 +14,12 @@ export function normalizeRepositoryPath(value: string): string {
       (segment) => segment === "" || segment === "." || segment === ".."
     )
   ) {
-    throw new VersionControlError(
-      "invalid-path",
-      `Version-control paths must be normalized repository-relative paths: ${value}`
-    );
+    throw new VersionControlError({
+      causeCategory: "unknown",
+      code: "invalid-path",
+      detail: "a path is not a normalized repository-relative path",
+      operation: "validate a repository path"
+    });
   }
   return normalized;
 }

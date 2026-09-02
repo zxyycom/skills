@@ -2,6 +2,10 @@ import type {
   StateIndexDiagnostic,
   StateIndexEntryStageResult
 } from "../../index-runtime/src/index.ts";
+import type {
+  InvestigationDiagnostic,
+  InvestigationMutationDiagnostic
+} from "./diagnostics.ts";
 
 export const investigationRelationTypes = [
   "补充",
@@ -28,6 +32,7 @@ export type InvestigationReportCheckOptions = {
 
 export type InvestigationReportCheckResult = {
   availableReportCount: number;
+  diagnostics: InvestigationDiagnostic[];
   errors: string[];
   indexChecked: boolean;
   indexPath: string;
@@ -42,8 +47,10 @@ export type InvestigationIndexSyncOptions = {
 
 export type InvestigationIndexSyncResult = {
   changed: boolean;
+  diagnostics: InvestigationDiagnostic[];
   errors: string[];
   indexPath: string;
+  mutation?: InvestigationMutationDiagnostic;
   reportCount: number;
   warnings: string[];
 };
@@ -76,6 +83,7 @@ export type InvestigationIndexQueryEntry = Readonly<{
 }>;
 
 export type InvestigationIndexQueryResult = {
+  diagnostics: InvestigationDiagnostic[];
   entries: InvestigationIndexQueryEntry[];
   errors: string[];
   indexPath: string;
@@ -93,6 +101,7 @@ export type InvestigationReportShowOptions = {
 export type InvestigationReportShowResult =
   | Readonly<{
       errors: string[];
+      diagnostics: InvestigationDiagnostic[];
       id: string;
       indexPath: string;
       markdown: string;
@@ -101,6 +110,7 @@ export type InvestigationReportShowResult =
     }>
   | Readonly<{
       errors: string[];
+      diagnostics: InvestigationDiagnostic[];
       id: string;
       indexPath: string;
       markdown: null;
@@ -130,6 +140,7 @@ export type InvestigationRelationEdge = Readonly<{
 export type InvestigationReportTraceResult =
   | Readonly<{
       edges: InvestigationRelationEdge[];
+      diagnostics: InvestigationDiagnostic[];
       errors: string[];
       id: string;
       indexPath: string;
@@ -138,6 +149,7 @@ export type InvestigationReportTraceResult =
     }>
   | Readonly<{
       edges: InvestigationRelationEdge[];
+      diagnostics: InvestigationDiagnostic[];
       errors: string[];
       id: string;
       indexPath: string;
@@ -158,8 +170,10 @@ export type InvestigationRelationSetOptions = {
 
 export type InvestigationRelationSetResult = Readonly<{
   changed: boolean;
+  diagnostics: InvestigationDiagnostic[];
   errors: string[];
   indexPath: string;
+  mutation?: InvestigationMutationDiagnostic;
   sourceIds: string[];
 }>;
 
@@ -174,9 +188,11 @@ export type InvestigationReportDiscardOptions = {
 export type InvestigationReportDiscardResult = Readonly<{
   changed: boolean;
   deletedResourceIds: string[];
+  diagnostics: InvestigationDiagnostic[];
   errors: string[];
   id: string;
   indexPath: string;
+  mutation?: InvestigationMutationDiagnostic;
   requiresRecordedDeletionConfirmation: boolean;
 }>;
 

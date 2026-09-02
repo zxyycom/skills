@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
+import { decisionFileSystemErrorText } from "./application-result.ts";
 import {
   displayDecisionPath,
   isDecisionId,
@@ -702,5 +703,5 @@ function addCollectionError(
 }
 
 function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+  return decisionFileSystemErrorText(error);
 }

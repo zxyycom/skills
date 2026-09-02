@@ -128,6 +128,24 @@ discard <investigation-id> [--delete-owned-resources] [--delete-recorded-report]
 
 选中的 ID 必须规范且不重复。ID 改名时同时选择旧、新 ID。命令不读取或重建报告与资源；同一索引已有 pending 时失败并保留原内容，目标外 pending 路径不受影响。成功不证明索引新鲜或报告、关系和资源仍有效。
 
+## CLI 诊断与维护恢复
+
+CLI 的成功信息写入 stdout；失败和 warning 立即写入 stderr，只描述本次命令，不保存持久
+日志、遥测或 receipt。最终诊断至少包含 `code`、对象、原因和下一步；有可靠系统证据时才
+附带 `causeCategory`、操作或经过净化的 `detail`。warning 表示检查未完成或需要关注；它不使
+本次命令失败，但在依赖相关集合状态前必须处理。warning 不会自行改写报告、索引、资源或
+pending，也不替代阻断错误。
+
+只有 mutation 失败才报告 `scope` 和 `outcome`。`no-change` 表示声明范围未变，
+`rolled-back` 表示发布前失败后完整恢复，`partial-or-unknown` 表示无法证明完整恢复，
+`committed-cleanup-pending` 表示索引发布已完成但后续清理仍待处理。普通查询、检查和参数
+错误不带这些字段。`stage-index` 的范围仅限目标 pending 索引；关系、同步和 discard 分别
+只声明自己实际拥有的工作区范围。
+
+按诊断先解决权限、竞争、内容归属或残留 cleanup，再显式重新执行命令。不得使用 `sudo`、
+自动删除锁或自动重试。busy 时先等待或确认活动进程；恢复不完整或范围无法唯一对账时，
+停止后按[维护恢复](maintenance-recovery.md)保存来源、核对范围并交给相应 owner。
+
 ## CLI
 
 ```text

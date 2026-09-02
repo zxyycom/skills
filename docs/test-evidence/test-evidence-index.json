@@ -924,7 +924,7 @@
     "CHANGE-PLAN-GIT-FAILURE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-GIT-FAILURE-001 Git 距离传播版本控制访问故障 Git 距离模块把仓库访问故障作为版本控制异常传播，`base-unavailable` 只表达可访问仓库中的 revision 不可用。 对非仓库路径执行检查会拒绝 Promise，并返回可观察的版本控制错误信息。 tools/change-plan/tests/git-distance.test.ts > git-distance propagates version-control access failures bun test --test-name-pattern=\"^git-distance propagates version-control access failures$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-GIT-FAILURE-001 Git 距离传播版本控制访问故障 Git 距离模块把仓库访问故障作为版本控制异常传播，`base-unavailable` 只表达可访问仓库中的 revision 不可用。 对非仓库路径执行检查会拒绝 Promise，并以 `Version-control operation failed`、明确 operation 与 `tool-unavailable` 原因返回当前结构化版本控制错误文本。 tools/change-plan/tests/git-distance.test.ts > git-distance propagates version-control access failures bun test --test-name-pattern=\"^git-distance propagates version-control access failures$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -938,7 +938,7 @@
         ],
         "id": "CHANGE-PLAN-GIT-FAILURE-001",
         "line": 1,
-        "searchText": "Git 距离传播版本控制访问故障 Git 距离模块把仓库访问故障作为版本控制异常传播，`base-unavailable` 只表达可访问仓库中的 revision 不可用。 对非仓库路径执行检查会拒绝 Promise，并返回可观察的版本控制错误信息。 tools/change-plan/tests/git-distance.test.ts > git-distance propagates version-control access failures bun test --test-name-pattern=\"^git-distance propagates version-control access failures$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Git 距离传播版本控制访问故障 Git 距离模块把仓库访问故障作为版本控制异常传播，`base-unavailable` 只表达可访问仓库中的 revision 不可用。 对非仓库路径执行检查会拒绝 Promise，并以 `Version-control operation failed`、明确 operation 与 `tool-unavailable` 原因返回当前结构化版本控制错误文本。 tools/change-plan/tests/git-distance.test.ts > git-distance propagates version-control access failures bun test --test-name-pattern=\"^git-distance propagates version-control access failures$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/git-distance-propagates-version-control-access-failures.md",
         "summary": "Git 距离模块把仓库访问故障作为版本控制异常传播，`base-unavailable` 只表达可访问仓库中的 revision 不可用。",
         "title": "Git 距离传播版本控制访问故障"
@@ -2346,6 +2346,29 @@
         "title": "CLI 拒绝未知选项"
       }
     },
+    "DECISION-COLLECTION-LOCK-DIAGNOSTIC-001": {
+      "keys": {
+        "search": [
+          "DECISION-COLLECTION-LOCK-DIAGNOSTIC-001 集合锁只把已存在的锁报告为 busy Decision Records collection mutation lock 只有 exclusive create 确认 `EEXIST` 时才表示 busy；访问拒绝和未知 I/O 必须保留各自可行动诊断，且未取得锁时不写入。 `EEXIST` 失败输出 `decision-records.collection-lock-busy` 和 `causeCategory: busy`。 `EACCES` 输出 access-denied 诊断，未知 I/O 不伪称 busy，三种情况都保持 stdout 为空并退出失败。 tools/decision-records/tests/transaction-recovery.test.ts > decision collection lock reports busy only for an existing lock bun test --test-name-pattern=\"^decision collection lock reports busy only for an existing lock$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/transaction-recovery.test.ts > decision collection lock reports busy only for an existing lock",
+          "bun test --test-name-pattern=\"^decision collection lock reports busy only for an existing lock$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-COLLECTION-LOCK-DIAGNOSTIC-001",
+        "line": 1,
+        "searchText": "集合锁只把已存在的锁报告为 busy Decision Records collection mutation lock 只有 exclusive create 确认 `EEXIST` 时才表示 busy；访问拒绝和未知 I/O 必须保留各自可行动诊断，且未取得锁时不写入。 `EEXIST` 失败输出 `decision-records.collection-lock-busy` 和 `causeCategory: busy`。 `EACCES` 输出 access-denied 诊断，未知 I/O 不伪称 busy，三种情况都保持 stdout 为空并退出失败。 tools/decision-records/tests/transaction-recovery.test.ts > decision collection lock reports busy only for an existing lock bun test --test-name-pattern=\"^decision collection lock reports busy only for an existing lock$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/collection-lock-classifies-only-existing-lock-as-busy.md",
+        "summary": "Decision Records collection mutation lock 只有 exclusive create 确认 `EEXIST` 时才表示 busy；访问拒绝和未知 I/O 必须保留各自可行动诊断，且未取得锁时不写入。",
+        "title": "集合锁只把已存在的锁报告为 busy"
+      }
+    },
     "DECISION-CONFIGURED-ABSOLUTE-DIRECTORY-001": {
       "keys": {
         "search": [
@@ -3427,6 +3450,29 @@
         "title": "归档与重新激活保持 Markdown 语义"
       }
     },
+    "DECISION-LIFECYCLE-POST-MUTATION-SCAN-001": {
+      "keys": {
+        "search": [
+          "DECISION-LIFECYCLE-POST-MUTATION-SCAN-001 生命周期写后扫描失败不得伪报成功 Decision lifecycle 完成 Markdown 与 index 事务后仍必须验证当前集合；写后扫描或验证失败时，CLI 不能输出成功文本或以 0 退出，并且只报告该事务 owner 可证明的 `partial-or-unknown` 范围。 在 index 写入后的后续 collection scan 注入读取失败时，CLI 退出 1 且 stdout 为空。 stderr 输出 `decision-records.post-mutation-scan-failed` 和 `partial-or-unknown`，而非 lifecycle 成功消息。 tools/decision-records/tests/transaction-recovery.test.ts > lifecycle does not print success when its post-mutation scan fails bun test --test-name-pattern=\"^lifecycle does not print success when its post-mutation scan fails$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/transaction-recovery.test.ts > lifecycle does not print success when its post-mutation scan fails",
+          "bun test --test-name-pattern=\"^lifecycle does not print success when its post-mutation scan fails$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-LIFECYCLE-POST-MUTATION-SCAN-001",
+        "line": 1,
+        "searchText": "生命周期写后扫描失败不得伪报成功 Decision lifecycle 完成 Markdown 与 index 事务后仍必须验证当前集合；写后扫描或验证失败时，CLI 不能输出成功文本或以 0 退出，并且只报告该事务 owner 可证明的 `partial-or-unknown` 范围。 在 index 写入后的后续 collection scan 注入读取失败时，CLI 退出 1 且 stdout 为空。 stderr 输出 `decision-records.post-mutation-scan-failed` 和 `partial-or-unknown`，而非 lifecycle 成功消息。 tools/decision-records/tests/transaction-recovery.test.ts > lifecycle does not print success when its post-mutation scan fails bun test --test-name-pattern=\"^lifecycle does not print success when its post-mutation scan fails$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/lifecycle-post-mutation-scan-failure.md",
+        "summary": "Decision lifecycle 完成 Markdown 与 index 事务后仍必须验证当前集合；写后扫描或验证失败时，CLI 不能输出成功文本或以 0 退出，并且只报告该事务 owner 可证明的 `partial-or-unknown` 范围。",
+        "title": "生命周期写后扫描失败不得伪报成功"
+      }
+    },
     "DECISION-LIFECYCLE-PREFLIGHT-001": {
       "keys": {
         "search": [
@@ -4140,6 +4186,29 @@
         "title": "共享关系图执行有界双向追踪"
       }
     },
+    "DECISION-SCAN-FILESYSTEM-DIAGNOSTIC-001": {
+      "keys": {
+        "search": [
+          "DECISION-SCAN-FILESYSTEM-DIAGNOSTIC-001 扫描访问拒绝按稳定诊断输出并净化 detail Decision scan 遇到直接文件系统访问拒绝时，用户可见诊断必须提供稳定 reason、`access-denied` causeCategory 与受控 detail，不能暴露绝对路径或凭据。 注入 EACCES 来源读取失败后，查询错误诊断使用稳定 filesystem reason 和 `access-denied`。 detail 中的 password 和绝对路径均被净化，不含原始敏感值。 tools/decision-records/tests/filesystem-boundaries.test.ts > scan classifies access denial and redacts filesystem error detail bun test --test-name-pattern=\"^scan classifies access denial and redacts filesystem error detail$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/filesystem-boundaries.test.ts > scan classifies access denial and redacts filesystem error detail",
+          "bun test --test-name-pattern=\"^scan classifies access denial and redacts filesystem error detail$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SCAN-FILESYSTEM-DIAGNOSTIC-001",
+        "line": 1,
+        "searchText": "扫描访问拒绝按稳定诊断输出并净化 detail Decision scan 遇到直接文件系统访问拒绝时，用户可见诊断必须提供稳定 reason、`access-denied` causeCategory 与受控 detail，不能暴露绝对路径或凭据。 注入 EACCES 来源读取失败后，查询错误诊断使用稳定 filesystem reason 和 `access-denied`。 detail 中的 password 和绝对路径均被净化，不含原始敏感值。 tools/decision-records/tests/filesystem-boundaries.test.ts > scan classifies access denial and redacts filesystem error detail bun test --test-name-pattern=\"^scan classifies access denial and redacts filesystem error detail$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/scan-filesystem-access-diagnostic-redaction.md",
+        "summary": "Decision scan 遇到直接文件系统访问拒绝时，用户可见诊断必须提供稳定 reason、`access-denied` causeCategory 与受控 detail，不能暴露绝对路径或凭据。",
+        "title": "扫描访问拒绝按稳定诊断输出并净化 detail"
+      }
+    },
     "DECISION-SHOW-OUTPUT-001": {
       "keys": {
         "search": [
@@ -4414,6 +4483,52 @@
         "sourcePath": "decision-records/stage-selected-deletion.md",
         "summary": "单选 new ID 是 addition，单选 old ID 是 deletion；只有显式 old+new 同选才表达 rename，工具不从内容推断身份。",
         "title": "选择旧 ID 表达删除而非改名"
+      }
+    },
+    "DECISION-STAGE-DOMAIN-DIAGNOSTIC-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-DOMAIN-DIAGNOSTIC-001 Stage 将重复选择来源标识报告为领域错误 Stage 遇到同一 Decision ID 同时出现在 current 与 archive 来源时，这是领域来源冲突而非文件系统故障；诊断必须保留稳定领域 code 与受控 detail，不能伪报 filesystem unknown。 CLI 以失败退出且 stdout 为空，输出 `decision-records.stage-snapshot-invalid` 与重复来源说明。 输出不包含 `causeCategory: unknown`。 tools/decision-records/tests/stage.test.ts > stage keeps duplicate selected source identities as a domain diagnostic bun test --test-name-pattern=\"^stage keeps duplicate selected source identities as a domain diagnostic$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage keeps duplicate selected source identities as a domain diagnostic",
+          "bun test --test-name-pattern=\"^stage keeps duplicate selected source identities as a domain diagnostic$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-DOMAIN-DIAGNOSTIC-001",
+        "line": 1,
+        "searchText": "Stage 将重复选择来源标识报告为领域错误 Stage 遇到同一 Decision ID 同时出现在 current 与 archive 来源时，这是领域来源冲突而非文件系统故障；诊断必须保留稳定领域 code 与受控 detail，不能伪报 filesystem unknown。 CLI 以失败退出且 stdout 为空，输出 `decision-records.stage-snapshot-invalid` 与重复来源说明。 输出不包含 `causeCategory: unknown`。 tools/decision-records/tests/stage.test.ts > stage keeps duplicate selected source identities as a domain diagnostic bun test --test-name-pattern=\"^stage keeps duplicate selected source identities as a domain diagnostic$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-classifies-duplicate-source-identity-as-domain-error.md",
+        "summary": "Stage 遇到同一 Decision ID 同时出现在 current 与 archive 来源时，这是领域来源冲突而非文件系统故障；诊断必须保留稳定领域 code 与受控 detail，不能伪报 filesystem unknown。",
+        "title": "Stage 将重复选择来源标识报告为领域错误"
+      }
+    },
+    "DECISION-STAGE-FILESYSTEM-DIAGNOSTIC-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-FILESYSTEM-DIAGNOSTIC-001 Stage 访问拒绝按稳定诊断输出并净化 detail Decision Stage 读取选中 filesystem 来源遇到访问拒绝时，必须保留 `access-denied` 原因类别并仅输出受控 detail，不能泄露路径或凭据。 注入 EACCES 后 Stage 返回 error 和稳定 filesystem reason。 detail 中的 password 与绝对路径被净化，不保留原始敏感值。 tools/decision-records/tests/filesystem-boundaries.test.ts > stage classifies access denial and redacts filesystem error detail bun test --test-name-pattern=\"^stage classifies access denial and redacts filesystem error detail$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/filesystem-boundaries.test.ts > stage classifies access denial and redacts filesystem error detail",
+          "bun test --test-name-pattern=\"^stage classifies access denial and redacts filesystem error detail$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-FILESYSTEM-DIAGNOSTIC-001",
+        "line": 1,
+        "searchText": "Stage 访问拒绝按稳定诊断输出并净化 detail Decision Stage 读取选中 filesystem 来源遇到访问拒绝时，必须保留 `access-denied` 原因类别并仅输出受控 detail，不能泄露路径或凭据。 注入 EACCES 后 Stage 返回 error 和稳定 filesystem reason。 detail 中的 password 与绝对路径被净化，不保留原始敏感值。 tools/decision-records/tests/filesystem-boundaries.test.ts > stage classifies access denial and redacts filesystem error detail bun test --test-name-pattern=\"^stage classifies access denial and redacts filesystem error detail$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-filesystem-access-diagnostic-redaction.md",
+        "summary": "Decision Stage 读取选中 filesystem 来源遇到访问拒绝时，必须保留 `access-denied` 原因类别并仅输出受控 detail，不能泄露路径或凭据。",
+        "title": "Stage 访问拒绝按稳定诊断输出并净化 detail"
       }
     },
     "DECISION-STAGE-INDEX-ONLY-BASELINE-001": {
@@ -5014,6 +5129,52 @@
         "title": "决策事务在同步索引持锁时快速失败"
       }
     },
+    "DECISION-SYNC-INDEX-CLEANUP-001": {
+      "keys": {
+        "search": [
+          "DECISION-SYNC-INDEX-CLEANUP-001 当前派生索引的锁清理失败报告 no-change `sync-index` 发现派生 index 已 current 后若 collection lock 无法释放，只能报告 `no-change`；成功回调不能单独作为已写入事实。 CLI 退出 1、stdout 保持为空并输出 collection-lock-release-failed。 stderr 包含 `no-change`，不包含 `committed-cleanup-pending`。 tools/decision-records/tests/transaction-recovery.test.ts > sync-index retains no-change when a current index lock release fails bun test --test-name-pattern=\"^sync-index retains no-change when a current index lock release fails$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/transaction-recovery.test.ts > sync-index retains no-change when a current index lock release fails",
+          "bun test --test-name-pattern=\"^sync-index retains no-change when a current index lock release fails$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SYNC-INDEX-CLEANUP-001",
+        "line": 1,
+        "searchText": "当前派生索引的锁清理失败报告 no-change `sync-index` 发现派生 index 已 current 后若 collection lock 无法释放，只能报告 `no-change`；成功回调不能单独作为已写入事实。 CLI 退出 1、stdout 保持为空并输出 collection-lock-release-failed。 stderr 包含 `no-change`，不包含 `committed-cleanup-pending`。 tools/decision-records/tests/transaction-recovery.test.ts > sync-index retains no-change when a current index lock release fails bun test --test-name-pattern=\"^sync-index retains no-change when a current index lock release fails$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/current-sync-index-lock-cleanup-failure.md",
+        "summary": "`sync-index` 发现派生 index 已 current 后若 collection lock 无法释放，只能报告 `no-change`；成功回调不能单独作为已写入事实。",
+        "title": "当前派生索引的锁清理失败报告 no-change"
+      }
+    },
+    "DECISION-SYNC-INDEX-FILESYSTEM-DIAGNOSTIC-001": {
+      "keys": {
+        "search": [
+          "DECISION-SYNC-INDEX-FILESYSTEM-DIAGNOSTIC-001 sync-index 保留结构化来源访问诊断 index-runtime 构建派生 Decision index 时的来源文件系统失败，必须以结构化 filesystem 事实进入 `sync-index`，保留 causeCategory 与受控 detail，不退化为普通未知错误。 第二次来源读取注入 EACCES 后，CLI 失败且 stdout 为空，输出 sync-index failure、`access-denied` 和稳定 derived-index reason。 detail 对 password 和绝对路径做净化，不含原始敏感值。 tools/decision-records/tests/filesystem-boundaries.test.ts > sync-index preserves structured source filesystem access diagnostics bun test --test-name-pattern=\"^sync-index preserves structured source filesystem access diagnostics$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/filesystem-boundaries.test.ts > sync-index preserves structured source filesystem access diagnostics",
+          "bun test --test-name-pattern=\"^sync-index preserves structured source filesystem access diagnostics$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SYNC-INDEX-FILESYSTEM-DIAGNOSTIC-001",
+        "line": 1,
+        "searchText": "sync-index 保留结构化来源访问诊断 index-runtime 构建派生 Decision index 时的来源文件系统失败，必须以结构化 filesystem 事实进入 `sync-index`，保留 causeCategory 与受控 detail，不退化为普通未知错误。 第二次来源读取注入 EACCES 后，CLI 失败且 stdout 为空，输出 sync-index failure、`access-denied` 和稳定 derived-index reason。 detail 对 password 和绝对路径做净化，不含原始敏感值。 tools/decision-records/tests/filesystem-boundaries.test.ts > sync-index preserves structured source filesystem access diagnostics bun test --test-name-pattern=\"^sync-index preserves structured source filesystem access diagnostics$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/sync-index-preserves-structured-source-filesystem-diagnostics.md",
+        "summary": "index-runtime 构建派生 Decision index 时的来源文件系统失败，必须以结构化 filesystem 事实进入 `sync-index`，保留 causeCategory 与受控 detail，不退化为普通未知错误。",
+        "title": "sync-index 保留结构化来源访问诊断"
+      }
+    },
     "DECISION-TAG-METADATA-001": {
       "keys": {
         "search": [
@@ -5129,24 +5290,139 @@
         "title": "Trace 遵循前序与后继方向"
       }
     },
-    "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001": {
+    "DECISION-TRANSACTION-CLEANUP-001": {
       "keys": {
         "search": [
-          "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001 决策事务报告恢复写入失败 恢复步骤再次失败时必须报告原始写入失败和定位的恢复诊断。 模拟更新与恢复写入各失败一次，断言两个诊断及残留状态。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction stops with recovery diagnostics when a restore write also fails bun test --test-name-pattern=\"^decision transaction stops with recovery diagnostics when a restore write also fails$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TRANSACTION-CLEANUP-001 已提交事务在锁清理失败时报告 cleanup pending Decision transaction 已完成 Markdown 与派生 index 写入后，collection lock 释放失败不得被吞掉，也不得谎称完整回滚；事务 owner 必须只为自己的范围声明 `committed-cleanup-pending`。 注入 lock remove 失败后返回 `decision-records.collection-lock-release-failed` 和 `committed-cleanup-pending`。 已写入的 Decision Markdown 保持提交结果，供后续维护者检查并清理遗留锁。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction reports committed cleanup pending when lock release fails bun test --test-name-pattern=\"^decision transaction reports committed cleanup pending when lock release fails$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction reports committed cleanup pending when lock release fails",
+          "bun test --test-name-pattern=\"^decision transaction reports committed cleanup pending when lock release fails$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-TRANSACTION-CLEANUP-001",
+        "line": 1,
+        "searchText": "已提交事务在锁清理失败时报告 cleanup pending Decision transaction 已完成 Markdown 与派生 index 写入后，collection lock 释放失败不得被吞掉，也不得谎称完整回滚；事务 owner 必须只为自己的范围声明 `committed-cleanup-pending`。 注入 lock remove 失败后返回 `decision-records.collection-lock-release-failed` 和 `committed-cleanup-pending`。 已写入的 Decision Markdown 保持提交结果，供后续维护者检查并清理遗留锁。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction reports committed cleanup pending when lock release fails bun test --test-name-pattern=\"^decision transaction reports committed cleanup pending when lock release fails$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/committed-lock-cleanup-pending.md",
+        "summary": "Decision transaction 已完成 Markdown 与派生 index 写入后，collection lock 释放失败不得被吞掉，也不得谎称完整回滚；事务 owner 必须只为自己的范围声明 `committed-cleanup-pending`。",
+        "title": "已提交事务在锁清理失败时报告 cleanup pending"
+      }
+    },
+    "DECISION-TRANSACTION-CLEANUP-002": {
+      "keys": {
+        "search": [
+          "DECISION-TRANSACTION-CLEANUP-002 预检无写入时锁清理失败仍报告 no-change Decision transaction 在预检拒绝且 collection lock 随后释放失败时，事务 owner 只能声明 `no-change`，不得因回调已返回错误结果而伪称提交。 并发来源变更使预检失败后，返回结果保留 transaction failure 和 `decision-records.collection-lock-release-failed`。 lock cleanup 诊断的 outcome 为 `no-change`，且遗留 lock 可在故障注入撤销后清理。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction retains no-change when lock release fails after preflight bun test --test-name-pattern=\"^decision transaction retains no-change when lock release fails after preflight$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction retains no-change when lock release fails after preflight",
+          "bun test --test-name-pattern=\"^decision transaction retains no-change when lock release fails after preflight$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-TRANSACTION-CLEANUP-002",
+        "line": 1,
+        "searchText": "预检无写入时锁清理失败仍报告 no-change Decision transaction 在预检拒绝且 collection lock 随后释放失败时，事务 owner 只能声明 `no-change`，不得因回调已返回错误结果而伪称提交。 并发来源变更使预检失败后，返回结果保留 transaction failure 和 `decision-records.collection-lock-release-failed`。 lock cleanup 诊断的 outcome 为 `no-change`，且遗留 lock 可在故障注入撤销后清理。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction retains no-change when lock release fails after preflight bun test --test-name-pattern=\"^decision transaction retains no-change when lock release fails after preflight$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/no-change-lock-cleanup-failure.md",
+        "summary": "Decision transaction 在预检拒绝且 collection lock 随后释放失败时，事务 owner 只能声明 `no-change`，不得因回调已返回错误结果而伪称提交。",
+        "title": "预检无写入时锁清理失败仍报告 no-change"
+      }
+    },
+    "DECISION-TRANSACTION-CLEANUP-003": {
+      "keys": {
+        "search": [
+          "DECISION-TRANSACTION-CLEANUP-003 已回滚事务在锁清理失败时保留 rolled-back Decision transaction 已完成恢复时，即使 collection lock 释放随后失败，也必须保留 owner 已证明的 `rolled-back`，不得升级为提交或未知写入结果。 注入 index 写入失败触发恢复、再注入 lock remove 失败后，事务结果为 `rolled-back`。 lock cleanup 诊断同样使用 `rolled-back`，且 Markdown 来源已恢复原字节。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction retains rolled-back when lock release fails after recovery bun test --test-name-pattern=\"^decision transaction retains rolled-back when lock release fails after recovery$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction retains rolled-back when lock release fails after recovery",
+          "bun test --test-name-pattern=\"^decision transaction retains rolled-back when lock release fails after recovery$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-TRANSACTION-CLEANUP-003",
+        "line": 1,
+        "searchText": "已回滚事务在锁清理失败时保留 rolled-back Decision transaction 已完成恢复时，即使 collection lock 释放随后失败，也必须保留 owner 已证明的 `rolled-back`，不得升级为提交或未知写入结果。 注入 index 写入失败触发恢复、再注入 lock remove 失败后，事务结果为 `rolled-back`。 lock cleanup 诊断同样使用 `rolled-back`，且 Markdown 来源已恢复原字节。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction retains rolled-back when lock release fails after recovery bun test --test-name-pattern=\"^decision transaction retains rolled-back when lock release fails after recovery$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/rolled-back-lock-cleanup-failure.md",
+        "summary": "Decision transaction 已完成恢复时，即使 collection lock 释放随后失败，也必须保留 owner 已证明的 `rolled-back`，不得升级为提交或未知写入结果。",
+        "title": "已回滚事务在锁清理失败时保留 rolled-back"
+      }
+    },
+    "DECISION-TRANSACTION-FILESYSTEM-DIAGNOSTIC-001": {
+      "keys": {
+        "search": [
+          "DECISION-TRANSACTION-FILESYSTEM-DIAGNOSTIC-001 事务访问拒绝按稳定诊断输出并净化 detail Decision transaction 预检遇到直接文件系统访问拒绝时，必须 fail closed，并以稳定 reason、`access-denied` 和受控 detail 说明失败。 注入 EACCES 来源检查失败后事务返回 error 而不进入写入。 诊断 detail 对 password 与绝对路径做净化，reason 不复述原始异常消息。 tools/decision-records/tests/filesystem-boundaries.test.ts > transaction classifies access denial and redacts filesystem error detail bun test --test-name-pattern=\"^transaction classifies access denial and redacts filesystem error detail$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/filesystem-boundaries.test.ts > transaction classifies access denial and redacts filesystem error detail",
+          "bun test --test-name-pattern=\"^transaction classifies access denial and redacts filesystem error detail$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-TRANSACTION-FILESYSTEM-DIAGNOSTIC-001",
+        "line": 1,
+        "searchText": "事务访问拒绝按稳定诊断输出并净化 detail Decision transaction 预检遇到直接文件系统访问拒绝时，必须 fail closed，并以稳定 reason、`access-denied` 和受控 detail 说明失败。 注入 EACCES 来源检查失败后事务返回 error 而不进入写入。 诊断 detail 对 password 与绝对路径做净化，reason 不复述原始异常消息。 tools/decision-records/tests/filesystem-boundaries.test.ts > transaction classifies access denial and redacts filesystem error detail bun test --test-name-pattern=\"^transaction classifies access denial and redacts filesystem error detail$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/transaction-filesystem-access-diagnostic-redaction.md",
+        "summary": "Decision transaction 预检遇到直接文件系统访问拒绝时，必须 fail closed，并以稳定 reason、`access-denied` 和受控 detail 说明失败。",
+        "title": "事务访问拒绝按稳定诊断输出并净化 detail"
+      }
+    },
+    "DECISION-TRANSACTION-FILESYSTEM-DIAGNOSTIC-002": {
+      "keys": {
+        "search": [
+          "DECISION-TRANSACTION-FILESYSTEM-DIAGNOSTIC-002 事务保留结构化派生索引访问诊断 Decision transaction 在写入 Markdown 后构建派生 index 遇到结构化来源文件系统失败时，必须保留 `access-denied` 与受控 detail，并在恢复完成后只声明 `rolled-back`。 第三次来源读取注入 EACCES 后，事务返回 rolled-back 和带 access-denied 的 transaction diagnostic。 detail 净化 password 与绝对路径，且 Markdown 来源恢复原字节。 tools/decision-records/tests/filesystem-boundaries.test.ts > transaction preserves structured index filesystem access diagnostics bun test --test-name-pattern=\"^transaction preserves structured index filesystem access diagnostics$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/filesystem-boundaries.test.ts > transaction preserves structured index filesystem access diagnostics",
+          "bun test --test-name-pattern=\"^transaction preserves structured index filesystem access diagnostics$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-TRANSACTION-FILESYSTEM-DIAGNOSTIC-002",
+        "line": 1,
+        "searchText": "事务保留结构化派生索引访问诊断 Decision transaction 在写入 Markdown 后构建派生 index 遇到结构化来源文件系统失败时，必须保留 `access-denied` 与受控 detail，并在恢复完成后只声明 `rolled-back`。 第三次来源读取注入 EACCES 后，事务返回 rolled-back 和带 access-denied 的 transaction diagnostic。 detail 净化 password 与绝对路径，且 Markdown 来源恢复原字节。 tools/decision-records/tests/filesystem-boundaries.test.ts > transaction preserves structured index filesystem access diagnostics bun test --test-name-pattern=\"^transaction preserves structured index filesystem access diagnostics$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/transaction-preserves-structured-index-filesystem-diagnostics.md",
+        "summary": "Decision transaction 在写入 Markdown 后构建派生 index 遇到结构化来源文件系统失败时，必须保留 `access-denied` 与受控 detail，并在恢复完成后只声明 `rolled-back`。",
+        "title": "事务保留结构化派生索引访问诊断"
+      }
+    },
+    "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001": {
+      "keys": {
+        "search": [
+          "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001 决策事务报告恢复写入失败 恢复步骤再次失败时必须报告原始写入失败和定位的恢复诊断。 模拟更新与恢复写入各失败一次，断言两个诊断及残留状态。 事务结果声明 `partial-or-unknown`，不伪称已完整恢复。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction stops with recovery diagnostics when a restore write also fails bun test --test-name-pattern=\"^decision transaction stops with recovery diagnostics when a restore write also fails$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
         "entries": [
           "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction stops with recovery diagnostics when a restore write also fails",
           "bun test --test-name-pattern=\"^decision transaction stops with recovery diagnostics when a restore write also fails$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001",
         "line": 1,
-        "searchText": "决策事务报告恢复写入失败 恢复步骤再次失败时必须报告原始写入失败和定位的恢复诊断。 模拟更新与恢复写入各失败一次，断言两个诊断及残留状态。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction stops with recovery diagnostics when a restore write also fails bun test --test-name-pattern=\"^decision transaction stops with recovery diagnostics when a restore write also fails$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "决策事务报告恢复写入失败 恢复步骤再次失败时必须报告原始写入失败和定位的恢复诊断。 模拟更新与恢复写入各失败一次，断言两个诊断及残留状态。 事务结果声明 `partial-or-unknown`，不伪称已完整恢复。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction stops with recovery diagnostics when a restore write also fails bun test --test-name-pattern=\"^decision transaction stops with recovery diagnostics when a restore write also fails$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-transaction-stops-with-recovery-diagnostics-when-a-restore-write-also-fails.md",
         "summary": "恢复步骤再次失败时必须报告原始写入失败和定位的恢复诊断。",
         "title": "决策事务报告恢复写入失败"
@@ -5155,21 +5431,21 @@
     "DECISION-TRANSACTION-INDEX-PREFLIGHT-001": {
       "keys": {
         "search": [
-          "DECISION-TRANSACTION-INDEX-PREFLIGHT-001 决策事务拒绝并发变化的索引 事务预检拒绝验证后变化的索引，保留并发索引文本。 在 scan 后改写 index，断言不写 Markdown 且 index 保持并发版本。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed index before any write bun test --test-name-pattern=\"^decision transaction rejects a changed index before any write$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TRANSACTION-INDEX-PREFLIGHT-001 决策事务拒绝并发变化的索引 事务预检拒绝验证后变化的索引，保留并发索引文本。 在 scan 后改写 index，断言不写 Markdown 且 index 保持并发版本。 事务结果声明 `no-change`，表明预检失败前未进入写入阶段。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed index before any write bun test --test-name-pattern=\"^decision transaction rejects a changed index before any write$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 13,
         "entries": [
           "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed index before any write",
           "bun test --test-name-pattern=\"^decision transaction rejects a changed index before any write$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-TRANSACTION-INDEX-PREFLIGHT-001",
         "line": 1,
-        "searchText": "决策事务拒绝并发变化的索引 事务预检拒绝验证后变化的索引，保留并发索引文本。 在 scan 后改写 index，断言不写 Markdown 且 index 保持并发版本。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed index before any write bun test --test-name-pattern=\"^decision transaction rejects a changed index before any write$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "决策事务拒绝并发变化的索引 事务预检拒绝验证后变化的索引，保留并发索引文本。 在 scan 后改写 index，断言不写 Markdown 且 index 保持并发版本。 事务结果声明 `no-change`，表明预检失败前未进入写入阶段。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed index before any write bun test --test-name-pattern=\"^decision transaction rejects a changed index before any write$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-transaction-rejects-a-changed-index-before-any-write.md",
         "summary": "事务预检拒绝验证后变化的索引，保留并发索引文本。",
         "title": "决策事务拒绝并发变化的索引"
@@ -5178,21 +5454,21 @@
     "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001": {
       "keys": {
         "search": [
-          "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001 决策事务拒绝并发变化的 Markdown 事务预检拒绝验证后变化的 Markdown，不覆盖并发内容或其他文件。 在 scan 后修改源，断言错误和全部文件状态。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed Markdown source before any write bun test --test-name-pattern=\"^decision transaction rejects a changed Markdown source before any write$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001 决策事务拒绝并发变化的 Markdown 事务预检拒绝验证后变化的 Markdown，不覆盖并发内容或其他文件。 在 scan 后修改源，断言错误和全部文件状态。 事务结果声明 `no-change`，表明预检失败前未进入写入阶段。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed Markdown source before any write bun test --test-name-pattern=\"^decision transaction rejects a changed Markdown source before any write$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 13,
         "entries": [
           "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed Markdown source before any write",
           "bun test --test-name-pattern=\"^decision transaction rejects a changed Markdown source before any write$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001",
         "line": 1,
-        "searchText": "决策事务拒绝并发变化的 Markdown 事务预检拒绝验证后变化的 Markdown，不覆盖并发内容或其他文件。 在 scan 后修改源，断言错误和全部文件状态。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed Markdown source before any write bun test --test-name-pattern=\"^decision transaction rejects a changed Markdown source before any write$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "决策事务拒绝并发变化的 Markdown 事务预检拒绝验证后变化的 Markdown，不覆盖并发内容或其他文件。 在 scan 后修改源，断言错误和全部文件状态。 事务结果声明 `no-change`，表明预检失败前未进入写入阶段。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed Markdown source before any write bun test --test-name-pattern=\"^decision transaction rejects a changed Markdown source before any write$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-transaction-rejects-a-changed-markdown-source-before-any-write.md",
         "summary": "事务预检拒绝验证后变化的 Markdown，不覆盖并发内容或其他文件。",
         "title": "决策事务拒绝并发变化的 Markdown"
@@ -5201,21 +5477,21 @@
     "DECISION-TRANSACTION-MOVE-001": {
       "keys": {
         "search": [
-          "DECISION-TRANSACTION-MOVE-001 移动事务在索引替换失败后恢复 移动事务在索引替换后的写入失败中必须恢复源路径、目标路径与原索引。 模拟 index rename 失败后源文件和原 index 恢复，archive 目标不存在。 tools/decision-records/tests/transaction-recovery.test.ts > transaction recovery restores source path target path and index after a post-write failure bun test --test-name-pattern=\"^transaction recovery restores source path target path and index after a post-write failure$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TRANSACTION-MOVE-001 移动事务在索引替换失败后恢复 移动事务在索引替换后的写入失败中必须恢复源路径、目标路径与原索引。 在原子 index rename 已完成后注入 `EIO`，事务报告受控失败详情，并恢复源文件和原 index，archive 目标不存在。 事务结果声明 `rolled-back`，不把恢复后的失败说成未发生写入。 tools/decision-records/tests/transaction-recovery.test.ts > transaction recovery restores source path target path and index after a post-write failure bun test --test-name-pattern=\"^transaction recovery restores source path target path and index after a post-write failure$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 13,
         "entries": [
           "tools/decision-records/tests/transaction-recovery.test.ts > transaction recovery restores source path target path and index after a post-write failure",
           "bun test --test-name-pattern=\"^transaction recovery restores source path target path and index after a post-write failure$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-TRANSACTION-MOVE-001",
         "line": 1,
-        "searchText": "移动事务在索引替换失败后恢复 移动事务在索引替换后的写入失败中必须恢复源路径、目标路径与原索引。 模拟 index rename 失败后源文件和原 index 恢复，archive 目标不存在。 tools/decision-records/tests/transaction-recovery.test.ts > transaction recovery restores source path target path and index after a post-write failure bun test --test-name-pattern=\"^transaction recovery restores source path target path and index after a post-write failure$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "移动事务在索引替换失败后恢复 移动事务在索引替换后的写入失败中必须恢复源路径、目标路径与原索引。 在原子 index rename 已完成后注入 `EIO`，事务报告受控失败详情，并恢复源文件和原 index，archive 目标不存在。 事务结果声明 `rolled-back`，不把恢复后的失败说成未发生写入。 tools/decision-records/tests/transaction-recovery.test.ts > transaction recovery restores source path target path and index after a post-write failure bun test --test-name-pattern=\"^transaction recovery restores source path target path and index after a post-write failure$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/transaction-move-recovery.md",
         "summary": "移动事务在索引替换后的写入失败中必须恢复源路径、目标路径与原索引。",
         "title": "移动事务在索引替换失败后恢复"
@@ -5224,21 +5500,21 @@
     "DECISION-TRANSACTION-WRITE-RECOVERY-001": {
       "keys": {
         "search": [
-          "DECISION-TRANSACTION-WRITE-RECOVERY-001 决策事务在写失败后恢复全部 Markdown 与索引 多文件事务替换索引后失败时恢复全部受影响 Markdown 和索引。 模拟索引替换后失败，两个正文和索引均恢复。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TRANSACTION-WRITE-RECOVERY-001 决策事务在写失败后恢复全部 Markdown 与索引 多文件事务替换索引后失败时恢复全部受影响 Markdown 和索引。 在原子索引替换已完成后注入 `EIO`，两个正文和索引均恢复，且事务保留受控失败详情。 事务结果声明 `rolled-back`，表明该 owner 已验证完整恢复。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 13,
         "entries": [
           "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure",
           "bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-TRANSACTION-WRITE-RECOVERY-001",
         "line": 1,
-        "searchText": "决策事务在写失败后恢复全部 Markdown 与索引 多文件事务替换索引后失败时恢复全部受影响 Markdown 和索引。 模拟索引替换后失败，两个正文和索引均恢复。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "决策事务在写失败后恢复全部 Markdown 与索引 多文件事务替换索引后失败时恢复全部受影响 Markdown 和索引。 在原子索引替换已完成后注入 `EIO`，两个正文和索引均恢复，且事务保留受控失败详情。 事务结果声明 `rolled-back`，表明该 owner 已验证完整恢复。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-transaction-restores-every-changed-markdown-file-and-index-after-a-write-failure.md",
         "summary": "多文件事务替换索引后失败时恢复全部受影响 Markdown 和索引。",
         "title": "决策事务在写失败后恢复全部 Markdown 与索引"
@@ -5431,7 +5707,7 @@
     "ENV-LINKED-HASH-HOOK-001": {
       "keys": {
         "search": [
-          "ENV-LINKED-HASH-HOOK-001 linked worktree 的真实 hash hook 隔离 Git 环境 pre-commit 必须保留真实 `hash:skills` 门禁，同时避免 Git 注入的 repository-local 环境变量改变 hash 内部按目录执行的仓库发现。 临时主仓库与 linked worktree 使用当前 pre-commit、release preparation 与 skill-package hash 源码，并以测试显式提供的固定 commit identity 执行一次真实 `git commit`，不依赖宿主全局 Git 配置。 hook 清理 `GIT_DIR`、`GIT_INDEX_FILE` 等本地变量后，nested Git 重新发现 linked worktree 及其 index，hash 成功且 commit 完成。 scripts/environment.test.ts > real hash pre-commit succeeds in a linked worktree with isolated Git environment bun test --test-name-pattern=\"^real hash pre-commit succeeds in a linked worktree with isolated Git environment$\" ./scripts/environment.test.ts"
+          "ENV-LINKED-HASH-HOOK-001 linked worktree 的真实 hash hook 隔离 Git 环境 pre-commit 必须保留真实 `hash:skills` 门禁，同时避免 Git 注入的 repository-local 环境变量改变 hash 内部按目录执行的仓库发现。 临时主仓库与 linked worktree 使用当前 pre-commit、release preparation、skill-package hash 源码及其 `tools/shared/src/node` 直接依赖，并以测试显式提供的固定 commit identity 执行一次真实 `git commit`，不依赖宿主全局 Git 配置。 hook 清理 `GIT_DIR`、`GIT_INDEX_FILE` 等本地变量后，nested Git 重新发现 linked worktree 及其 index，hash 成功且 commit 完成。 scripts/environment.test.ts > real hash pre-commit succeeds in a linked worktree with isolated Git environment bun test --test-name-pattern=\"^real hash pre-commit succeeds in a linked worktree with isolated Git environment$\" ./scripts/environment.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5445,7 +5721,7 @@
         ],
         "id": "ENV-LINKED-HASH-HOOK-001",
         "line": 1,
-        "searchText": "linked worktree 的真实 hash hook 隔离 Git 环境 pre-commit 必须保留真实 `hash:skills` 门禁，同时避免 Git 注入的 repository-local 环境变量改变 hash 内部按目录执行的仓库发现。 临时主仓库与 linked worktree 使用当前 pre-commit、release preparation 与 skill-package hash 源码，并以测试显式提供的固定 commit identity 执行一次真实 `git commit`，不依赖宿主全局 Git 配置。 hook 清理 `GIT_DIR`、`GIT_INDEX_FILE` 等本地变量后，nested Git 重新发现 linked worktree 及其 index，hash 成功且 commit 完成。 scripts/environment.test.ts > real hash pre-commit succeeds in a linked worktree with isolated Git environment bun test --test-name-pattern=\"^real hash pre-commit succeeds in a linked worktree with isolated Git environment$\" ./scripts/environment.test.ts",
+        "searchText": "linked worktree 的真实 hash hook 隔离 Git 环境 pre-commit 必须保留真实 `hash:skills` 门禁，同时避免 Git 注入的 repository-local 环境变量改变 hash 内部按目录执行的仓库发现。 临时主仓库与 linked worktree 使用当前 pre-commit、release preparation、skill-package hash 源码及其 `tools/shared/src/node` 直接依赖，并以测试显式提供的固定 commit identity 执行一次真实 `git commit`，不依赖宿主全局 Git 配置。 hook 清理 `GIT_DIR`、`GIT_INDEX_FILE` 等本地变量后，nested Git 重新发现 linked worktree 及其 index，hash 成功且 commit 完成。 scripts/environment.test.ts > real hash pre-commit succeeds in a linked worktree with isolated Git environment bun test --test-name-pattern=\"^real hash pre-commit succeeds in a linked worktree with isolated Git environment$\" ./scripts/environment.test.ts",
         "sourcePath": "repository-tooling/linked-worktree-real-hash-hook-isolates-git-environment.md",
         "summary": "pre-commit 必须保留真实 `hash:skills` 门禁，同时避免 Git 注入的 repository-local 环境变量改变 hash 内部按目录执行的仓库发现。",
         "title": "linked worktree 的真实 hash hook 隔离 Git 环境"
@@ -6187,6 +6463,52 @@
         "title": "物化空 State 与 Source Revision Record"
       }
     },
+    "INDEX-RUNTIME-FILESYSTEM-DIAGNOSTIC-001": {
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-FILESYSTEM-DIAGNOSTIC-001 安全报告 source 与 storage 文件系统失败 source 和 storage 的文件系统失败必须使用稳定 message，并在 `filesystem` 中传递受控的原因类别、操作、目标和净化详情；不得把底层错误文本直接写入 message。 注入的 `EACCES` source 错误映射为 `access-denied`，并在 build 与 sync 的结果中保留相同的结构化文件系统事实。 含凭据、绝对路径、换行和超长文本的 source 详情被净化和截断；storage 读取目录时的绝对路径详情也不泄露。 tools/index-runtime/tests/materialization.test.ts > reports safe structured filesystem failures from sources and storage bun test --test-name-pattern=\"^reports safe structured filesystem failures from sources and storage$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/index-runtime/tests/materialization.test.ts > reports safe structured filesystem failures from sources and storage",
+          "bun test --test-name-pattern=\"^reports safe structured filesystem failures from sources and storage$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-FILESYSTEM-DIAGNOSTIC-001",
+        "line": 1,
+        "searchText": "安全报告 source 与 storage 文件系统失败 source 和 storage 的文件系统失败必须使用稳定 message，并在 `filesystem` 中传递受控的原因类别、操作、目标和净化详情；不得把底层错误文本直接写入 message。 注入的 `EACCES` source 错误映射为 `access-denied`，并在 build 与 sync 的结果中保留相同的结构化文件系统事实。 含凭据、绝对路径、换行和超长文本的 source 详情被净化和截断；storage 读取目录时的绝对路径详情也不泄露。 tools/index-runtime/tests/materialization.test.ts > reports safe structured filesystem failures from sources and storage bun test --test-name-pattern=\"^reports safe structured filesystem failures from sources and storage$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/reports-safe-structured-filesystem-failures-from-sources-and-storage.md",
+        "summary": "source 和 storage 的文件系统失败必须使用稳定 message，并在 `filesystem` 中传递受控的原因类别、操作、目标和净化详情；不得把底层错误文本直接写入 message。",
+        "title": "安全报告 source 与 storage 文件系统失败"
+      }
+    },
+    "INDEX-RUNTIME-FILESYSTEM-DIAGNOSTIC-002": {
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-FILESYSTEM-DIAGNOSTIC-002 非文件系统 source 回调失败不虚构文件系统事实 只有已确认的 Node 文件系统错误才可附加 `filesystem`。一般 source 或 revision 回调异常（包括回调内的 abort 错误）保留稳定失败 code/message，不公开原始详情，也不改写为 operation-aborted。 source 与 revision 回调抛出的含凭据、绝对路径和换行的普通错误不进入诊断字段。 带 `ABORT_ERR` 的 source 回调异常仍为 `source-read-failed`，且不伪造 filesystem 或取消结果。 tools/index-runtime/tests/materialization.test.ts > reports non-filesystem source callback failures without filesystem facts bun test --test-name-pattern=\"^reports non-filesystem source callback failures without filesystem facts$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/index-runtime/tests/materialization.test.ts > reports non-filesystem source callback failures without filesystem facts",
+          "bun test --test-name-pattern=\"^reports non-filesystem source callback failures without filesystem facts$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-FILESYSTEM-DIAGNOSTIC-002",
+        "line": 1,
+        "searchText": "非文件系统 source 回调失败不虚构文件系统事实 只有已确认的 Node 文件系统错误才可附加 `filesystem`。一般 source 或 revision 回调异常（包括回调内的 abort 错误）保留稳定失败 code/message，不公开原始详情，也不改写为 operation-aborted。 source 与 revision 回调抛出的含凭据、绝对路径和换行的普通错误不进入诊断字段。 带 `ABORT_ERR` 的 source 回调异常仍为 `source-read-failed`，且不伪造 filesystem 或取消结果。 tools/index-runtime/tests/materialization.test.ts > reports non-filesystem source callback failures without filesystem facts bun test --test-name-pattern=\"^reports non-filesystem source callback failures without filesystem facts$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/reports-non-filesystem-source-callback-failures-without-filesystem-facts.md",
+        "summary": "只有已确认的 Node 文件系统错误才可附加 `filesystem`。一般 source 或 revision 回调异常（包括回调内的 abort 错误）保留稳定失败 code/message，不公开原始详情，也不改写为 operation-aborted。",
+        "title": "非文件系统 source 回调失败不虚构文件系统事实"
+      }
+    },
     "INDEX-RUNTIME-FRESHNESS-001": {
       "keys": {
         "search": [
@@ -6259,7 +6581,7 @@
     "INDEX-RUNTIME-IDENTITY-002": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-IDENTITY-002 领域来源在构造 Record 前拒绝重复身份 领域来源必须在构造 ID record 前发现重复身份，不能先覆盖成员再交给通用 runtime。 测试证据内存来源发现重复 case ID 后使构建返回 `state-index.source-read-failed`，诊断保留领域重复身份原因。 tools/index-runtime/tests/query.test.ts > requires the domain source to reject duplicate identities bun test --test-name-pattern=\"^requires the domain source to reject duplicate identities$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-IDENTITY-002 领域来源在构造 Record 前拒绝重复身份 领域来源必须在构造 ID record 前发现重复身份，不能先覆盖成员再交给通用 runtime。 测试证据内存来源发现重复 case ID 后使构建返回稳定的 `state-index.source-read-failed`；领域回调异常不是文件系统事实，诊断不附加 `filesystem`。 tools/index-runtime/tests/query.test.ts > requires the domain source to reject duplicate identities bun test --test-name-pattern=\"^requires the domain source to reject duplicate identities$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
@@ -6273,7 +6595,7 @@
         ],
         "id": "INDEX-RUNTIME-IDENTITY-002",
         "line": 1,
-        "searchText": "领域来源在构造 Record 前拒绝重复身份 领域来源必须在构造 ID record 前发现重复身份，不能先覆盖成员再交给通用 runtime。 测试证据内存来源发现重复 case ID 后使构建返回 `state-index.source-read-failed`，诊断保留领域重复身份原因。 tools/index-runtime/tests/query.test.ts > requires the domain source to reject duplicate identities bun test --test-name-pattern=\"^requires the domain source to reject duplicate identities$\" ./tools/index-runtime/tests/run.ts",
+        "searchText": "领域来源在构造 Record 前拒绝重复身份 领域来源必须在构造 ID record 前发现重复身份，不能先覆盖成员再交给通用 runtime。 测试证据内存来源发现重复 case ID 后使构建返回稳定的 `state-index.source-read-failed`；领域回调异常不是文件系统事实，诊断不附加 `filesystem`。 tools/index-runtime/tests/query.test.ts > requires the domain source to reject duplicate identities bun test --test-name-pattern=\"^requires the domain source to reject duplicate identities$\" ./tools/index-runtime/tests/run.ts",
         "sourcePath": "index-runtime/requires-the-domain-source-to-reject-duplicate-identities.md",
         "summary": "领域来源必须在构造 ID record 前发现重复身份，不能先覆盖成员再交给通用 runtime。",
         "title": "领域来源在构造 Record 前拒绝重复身份"
@@ -6443,7 +6765,7 @@
     "INDEX-RUNTIME-PATH-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-PATH-001 拒绝配置根目录之外的索引路径 索引读写路径必须限制在配置根目录内。 父目录逃逸路径返回 `index-path-invalid`。 tools/index-runtime/tests/materialization.test.ts > rejects index paths outside the configured root bun test --test-name-pattern=\"^rejects index paths outside the configured root$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-PATH-001 拒绝配置根目录之外的索引路径 索引读写路径必须限制在配置根目录内。 父目录逃逸路径返回 `index-path-invalid`，且主动路径语义失败不虚构 `filesystem` 事实。 tools/index-runtime/tests/materialization.test.ts > rejects index paths outside the configured root bun test --test-name-pattern=\"^rejects index paths outside the configured root$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
@@ -6457,7 +6779,7 @@
         ],
         "id": "INDEX-RUNTIME-PATH-001",
         "line": 1,
-        "searchText": "拒绝配置根目录之外的索引路径 索引读写路径必须限制在配置根目录内。 父目录逃逸路径返回 `index-path-invalid`。 tools/index-runtime/tests/materialization.test.ts > rejects index paths outside the configured root bun test --test-name-pattern=\"^rejects index paths outside the configured root$\" ./tools/index-runtime/tests/run.ts",
+        "searchText": "拒绝配置根目录之外的索引路径 索引读写路径必须限制在配置根目录内。 父目录逃逸路径返回 `index-path-invalid`，且主动路径语义失败不虚构 `filesystem` 事实。 tools/index-runtime/tests/materialization.test.ts > rejects index paths outside the configured root bun test --test-name-pattern=\"^rejects index paths outside the configured root$\" ./tools/index-runtime/tests/run.ts",
         "sourcePath": "index-runtime/rejects-index-paths-outside-the-configured-root.md",
         "summary": "索引读写路径必须限制在配置根目录内。",
         "title": "拒绝配置根目录之外的索引路径"
@@ -6995,7 +7317,7 @@
     "INDEX-RUNTIME-STAGING-CONFLICT-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-STAGING-CONFLICT-001 无变化选择仍拒绝同索引既有 Pending 即使目标条目与 revision 没有实际差异，选择性暂存仍必须在锁内确认目标索引 pending 干净，不能提前报告成功。 同索引已有 pending 内容时返回 `pending-conflict`，既有目标内容不被覆盖。 冲突诊断不猜测具体原因，要求重新读取 current revision 与目标 pending、解决同索引既有变化后重试。 目标外 pending、工作区索引和领域文件不受失败影响。 tools/index-runtime/tests/staging.test.ts > rejects dirty same-index pending content even when selected entries are unchanged bun test --test-name-pattern=\"^rejects dirty same-index pending content even when selected entries are unchanged$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-STAGING-CONFLICT-001 无变化选择仍拒绝同索引既有 Pending 即使目标条目与 revision 没有实际差异，选择性暂存仍必须在锁内确认目标索引 pending 干净，不能提前报告成功。 同索引已有 pending 内容时返回 `pending-conflict` 和该索引 scope 的 `no-change`，既有目标内容不被覆盖。 冲突保留 pending 验证 operation 与 `unknown` 原因，不猜测具体竞争来源，要求重新读取 current revision 与目标 pending 后重试。 目标外 pending、工作区索引和领域文件不受失败影响。 tools/index-runtime/tests/staging.test.ts > rejects dirty same-index pending content even when selected entries are unchanged bun test --test-name-pattern=\"^rejects dirty same-index pending content even when selected entries are unchanged$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
@@ -7009,7 +7331,7 @@
         ],
         "id": "INDEX-RUNTIME-STAGING-CONFLICT-001",
         "line": 1,
-        "searchText": "无变化选择仍拒绝同索引既有 Pending 即使目标条目与 revision 没有实际差异，选择性暂存仍必须在锁内确认目标索引 pending 干净，不能提前报告成功。 同索引已有 pending 内容时返回 `pending-conflict`，既有目标内容不被覆盖。 冲突诊断不猜测具体原因，要求重新读取 current revision 与目标 pending、解决同索引既有变化后重试。 目标外 pending、工作区索引和领域文件不受失败影响。 tools/index-runtime/tests/staging.test.ts > rejects dirty same-index pending content even when selected entries are unchanged bun test --test-name-pattern=\"^rejects dirty same-index pending content even when selected entries are unchanged$\" ./tools/index-runtime/tests/run.ts",
+        "searchText": "无变化选择仍拒绝同索引既有 Pending 即使目标条目与 revision 没有实际差异，选择性暂存仍必须在锁内确认目标索引 pending 干净，不能提前报告成功。 同索引已有 pending 内容时返回 `pending-conflict` 和该索引 scope 的 `no-change`，既有目标内容不被覆盖。 冲突保留 pending 验证 operation 与 `unknown` 原因，不猜测具体竞争来源，要求重新读取 current revision 与目标 pending 后重试。 目标外 pending、工作区索引和领域文件不受失败影响。 tools/index-runtime/tests/staging.test.ts > rejects dirty same-index pending content even when selected entries are unchanged bun test --test-name-pattern=\"^rejects dirty same-index pending content even when selected entries are unchanged$\" ./tools/index-runtime/tests/run.ts",
         "sourcePath": "index-runtime/rejects-dirty-same-index-pending-content-even-when-selected-entries-are-unchanged.md",
         "summary": "即使目标条目与 revision 没有实际差异，选择性暂存仍必须在锁内确认目标索引 pending 干净，不能提前报告成功。",
         "title": "无变化选择仍拒绝同索引既有 Pending"
@@ -7084,27 +7406,50 @@
         "title": "注入仓储前稳定拒绝非法暂存输入"
       }
     },
-    "INDEX-RUNTIME-STAGING-PENDING-WRITE-001": {
+    "INDEX-RUNTIME-STAGING-PENDING-RECOVERY-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-STAGING-PENDING-WRITE-001 注入仓储的 Pending 替换失败时给出下一步并保持工作区 可完整恢复的 pending 替换失败必须报告可执行的失败诊断，且 staging 不得改写工作区索引。 注入 repository 报告可恢复替换失败时，staging 返回 `pending-write-failed` 和 `state-index.pending-write-failed`。 诊断要求检查目标 pending 与仓库访问后重试。 失败替换不被注入仓储记录为成功，工作区索引保持不变。 tools/index-runtime/tests/staging.test.ts > reports an actionable pending replacement failure without changing workspace bun test --test-name-pattern=\"^reports an actionable pending replacement failure without changing workspace$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-STAGING-PENDING-RECOVERY-001 以明确部分结果报告 Pending 恢复不完整 staging 是 pending mutation 的事务 owner；恢复不完整时必须保留确切 scope 与 `partial-or-unknown` outcome，而不能声称范围已恢复。 注入 `pending-recovery-failed` 后结果的 state 为 `pending-recovery-failed`、changed 为 `null`，并报告目标索引 pending scope 的 `partial-or-unknown`。 诊断保留共享 recovery operation、access-denied 原因和受控 target。 tools/index-runtime/tests/staging.test.ts > reports incomplete pending recovery with an explicit partial outcome bun test --test-name-pattern=\"^reports incomplete pending recovery with an explicit partial outcome$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
         ]
       },
       "state": {
-        "endLine": 14,
+        "endLine": 13,
+        "entries": [
+          "tools/index-runtime/tests/staging.test.ts > reports incomplete pending recovery with an explicit partial outcome",
+          "bun test --test-name-pattern=\"^reports incomplete pending recovery with an explicit partial outcome$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-STAGING-PENDING-RECOVERY-001",
+        "line": 1,
+        "searchText": "以明确部分结果报告 Pending 恢复不完整 staging 是 pending mutation 的事务 owner；恢复不完整时必须保留确切 scope 与 `partial-or-unknown` outcome，而不能声称范围已恢复。 注入 `pending-recovery-failed` 后结果的 state 为 `pending-recovery-failed`、changed 为 `null`，并报告目标索引 pending scope 的 `partial-or-unknown`。 诊断保留共享 recovery operation、access-denied 原因和受控 target。 tools/index-runtime/tests/staging.test.ts > reports incomplete pending recovery with an explicit partial outcome bun test --test-name-pattern=\"^reports incomplete pending recovery with an explicit partial outcome$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/reports-incomplete-pending-recovery-with-an-explicit-partial-outcome.md",
+        "summary": "staging 是 pending mutation 的事务 owner；恢复不完整时必须保留确切 scope 与 `partial-or-unknown` outcome，而不能声称范围已恢复。",
+        "title": "以明确部分结果报告 Pending 恢复不完整"
+      }
+    },
+    "INDEX-RUNTIME-STAGING-PENDING-WRITE-001": {
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-STAGING-PENDING-WRITE-001 注入权限拒绝的 Pending 替换失败时保留范围 可完整恢复的 pending 替换失败由 staging 作为事务 owner 报告受控 scope 与 `no-change` outcome，且不得改写工作区索引。 注入 `access-denied` 的 repository 替换失败时，staging 返回 `pending-write-failed`、`state-index.pending-access-denied` 和共享原因事实。 结果声明目标索引 pending scope 的 outcome 为 `no-change`；失败替换不被注入仓储记录为成功，工作区索引保持不变。 tools/index-runtime/tests/staging.test.ts > reports an actionable pending replacement failure without changing workspace bun test --test-name-pattern=\"^reports an actionable pending replacement failure without changing workspace$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
         "entries": [
           "tools/index-runtime/tests/staging.test.ts > reports an actionable pending replacement failure without changing workspace",
           "bun test --test-name-pattern=\"^reports an actionable pending replacement failure without changing workspace$\" ./tools/index-runtime/tests/run.ts"
         ],
         "id": "INDEX-RUNTIME-STAGING-PENDING-WRITE-001",
         "line": 1,
-        "searchText": "注入仓储的 Pending 替换失败时给出下一步并保持工作区 可完整恢复的 pending 替换失败必须报告可执行的失败诊断，且 staging 不得改写工作区索引。 注入 repository 报告可恢复替换失败时，staging 返回 `pending-write-failed` 和 `state-index.pending-write-failed`。 诊断要求检查目标 pending 与仓库访问后重试。 失败替换不被注入仓储记录为成功，工作区索引保持不变。 tools/index-runtime/tests/staging.test.ts > reports an actionable pending replacement failure without changing workspace bun test --test-name-pattern=\"^reports an actionable pending replacement failure without changing workspace$\" ./tools/index-runtime/tests/run.ts",
+        "searchText": "注入权限拒绝的 Pending 替换失败时保留范围 可完整恢复的 pending 替换失败由 staging 作为事务 owner 报告受控 scope 与 `no-change` outcome，且不得改写工作区索引。 注入 `access-denied` 的 repository 替换失败时，staging 返回 `pending-write-failed`、`state-index.pending-access-denied` 和共享原因事实。 结果声明目标索引 pending scope 的 outcome 为 `no-change`；失败替换不被注入仓储记录为成功，工作区索引保持不变。 tools/index-runtime/tests/staging.test.ts > reports an actionable pending replacement failure without changing workspace bun test --test-name-pattern=\"^reports an actionable pending replacement failure without changing workspace$\" ./tools/index-runtime/tests/run.ts",
         "sourcePath": "index-runtime/reports-an-actionable-pending-replacement-failure-without-changing-workspace.md",
-        "summary": "可完整恢复的 pending 替换失败必须报告可执行的失败诊断，且 staging 不得改写工作区索引。",
-        "title": "注入仓储的 Pending 替换失败时给出下一步并保持工作区"
+        "summary": "可完整恢复的 pending 替换失败由 staging 作为事务 owner 报告受控 scope 与 `no-change` outcome，且不得改写工作区索引。",
+        "title": "注入权限拒绝的 Pending 替换失败时保留范围"
       }
     },
     "INDEX-RUNTIME-STAGING-PROJECTION-001": {
@@ -7133,7 +7478,7 @@
     "INDEX-RUNTIME-STAGING-REPOSITORY-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-STAGING-REPOSITORY-001 暂存前报告可执行的仓库发现失败 按 ID 暂存依赖可用的版本管理仓库；仓库发现失败必须与 revision 文件读取失败分开诊断并给出下一步。 非仓库根目录返回 `revision-read-failed` 和 `state-index.repository-unavailable`。 诊断要求选择由仓库承载的根目录后重试。 tools/index-runtime/tests/staging.test.ts > reports an actionable repository discovery failure before staging bun test --test-name-pattern=\"^reports an actionable repository discovery failure before staging$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-STAGING-REPOSITORY-001 暂存前报告可执行的仓库发现失败 按 ID 暂存依赖可用的版本管理仓库；仓库发现失败必须与 revision 文件读取失败分开诊断并给出下一步，但只读失败不得虚构 pending mutation。 非仓库根目录返回 `revision-read-failed` 和 `state-index.repository-unavailable`，并保留 `not-repository` 的共享诊断事实。 诊断要求选择由仓库承载的根目录后重试，结果不包含 pending scope/outcome。 tools/index-runtime/tests/staging.test.ts > reports an actionable repository discovery failure before staging bun test --test-name-pattern=\"^reports an actionable repository discovery failure before staging$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
@@ -7147,16 +7492,16 @@
         ],
         "id": "INDEX-RUNTIME-STAGING-REPOSITORY-001",
         "line": 1,
-        "searchText": "暂存前报告可执行的仓库发现失败 按 ID 暂存依赖可用的版本管理仓库；仓库发现失败必须与 revision 文件读取失败分开诊断并给出下一步。 非仓库根目录返回 `revision-read-failed` 和 `state-index.repository-unavailable`。 诊断要求选择由仓库承载的根目录后重试。 tools/index-runtime/tests/staging.test.ts > reports an actionable repository discovery failure before staging bun test --test-name-pattern=\"^reports an actionable repository discovery failure before staging$\" ./tools/index-runtime/tests/run.ts",
+        "searchText": "暂存前报告可执行的仓库发现失败 按 ID 暂存依赖可用的版本管理仓库；仓库发现失败必须与 revision 文件读取失败分开诊断并给出下一步，但只读失败不得虚构 pending mutation。 非仓库根目录返回 `revision-read-failed` 和 `state-index.repository-unavailable`，并保留 `not-repository` 的共享诊断事实。 诊断要求选择由仓库承载的根目录后重试，结果不包含 pending scope/outcome。 tools/index-runtime/tests/staging.test.ts > reports an actionable repository discovery failure before staging bun test --test-name-pattern=\"^reports an actionable repository discovery failure before staging$\" ./tools/index-runtime/tests/run.ts",
         "sourcePath": "index-runtime/reports-an-actionable-repository-discovery-failure-before-staging.md",
-        "summary": "按 ID 暂存依赖可用的版本管理仓库；仓库发现失败必须与 revision 文件读取失败分开诊断并给出下一步。",
+        "summary": "按 ID 暂存依赖可用的版本管理仓库；仓库发现失败必须与 revision 文件读取失败分开诊断并给出下一步，但只读失败不得虚构 pending mutation。",
         "title": "暂存前报告可执行的仓库发现失败"
       }
     },
     "INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001 锁内拒绝已变化的 Current Revision 选择目标使用的 current revision 必须在 pending 写入锁内仍是当前 revision。 目标完成投影后 revision 发生变化会返回 `pending-conflict`。 pending 仍干净时，冲突诊断不会要求清除或提交，而是要求重新读取 revision 与目标 pending 后从最新状态重试。 冲突不会写入 pending，也不会修改工作区索引。 tools/index-runtime/tests/staging.test.ts > rejects a revision that changes before the locked pending replacement bun test --test-name-pattern=\"^rejects a revision that changes before the locked pending replacement$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001 锁内拒绝已变化的 Current Revision 选择目标使用的 current revision 必须在 pending 写入锁内仍是当前 revision。 目标完成投影后 revision 发生变化会返回 `pending-conflict`、受控 pending scope 的 `no-change` 和 `unknown` 原因。 pending 仍干净时，冲突诊断不会要求清除或提交，而是要求重新读取 revision 与目标 pending 后从最新状态重试。 冲突不会写入 pending，也不会修改工作区索引。 tools/index-runtime/tests/staging.test.ts > rejects a revision that changes before the locked pending replacement bun test --test-name-pattern=\"^rejects a revision that changes before the locked pending replacement$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
@@ -7170,7 +7515,7 @@
         ],
         "id": "INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001",
         "line": 1,
-        "searchText": "锁内拒绝已变化的 Current Revision 选择目标使用的 current revision 必须在 pending 写入锁内仍是当前 revision。 目标完成投影后 revision 发生变化会返回 `pending-conflict`。 pending 仍干净时，冲突诊断不会要求清除或提交，而是要求重新读取 revision 与目标 pending 后从最新状态重试。 冲突不会写入 pending，也不会修改工作区索引。 tools/index-runtime/tests/staging.test.ts > rejects a revision that changes before the locked pending replacement bun test --test-name-pattern=\"^rejects a revision that changes before the locked pending replacement$\" ./tools/index-runtime/tests/run.ts",
+        "searchText": "锁内拒绝已变化的 Current Revision 选择目标使用的 current revision 必须在 pending 写入锁内仍是当前 revision。 目标完成投影后 revision 发生变化会返回 `pending-conflict`、受控 pending scope 的 `no-change` 和 `unknown` 原因。 pending 仍干净时，冲突诊断不会要求清除或提交，而是要求重新读取 revision 与目标 pending 后从最新状态重试。 冲突不会写入 pending，也不会修改工作区索引。 tools/index-runtime/tests/staging.test.ts > rejects a revision that changes before the locked pending replacement bun test --test-name-pattern=\"^rejects a revision that changes before the locked pending replacement$\" ./tools/index-runtime/tests/run.ts",
         "sourcePath": "index-runtime/rejects-a-revision-that-changes-before-the-locked-pending-replacement.md",
         "summary": "选择目标使用的 current revision 必须在 pending 写入锁内仍是当前 revision。",
         "title": "锁内拒绝已变化的 Current Revision"
@@ -7197,6 +7542,29 @@
         "sourcePath": "index-runtime/stages-selected-additions-modifications-deletions-and-renames-while-preserving-workspace-and-outside-pending-files.md",
         "summary": "按 ID 暂存必须以 revision 索引为基线，只把选中条目的工作区 state 与逐条来源 revision 成对写入目标索引。",
         "title": "选择性暂存条目变化与逐条 Revision"
+      }
+    },
+    "INDEX-RUNTIME-STAGING-TOOL-UNAVAILABLE-001": {
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-STAGING-TOOL-UNAVAILABLE-001 暂存前报告不可用的版本控制工具 暂存前的仓库打开属于只读边界；工具不可用必须与仓库不存在和 pending 写入失败分开报告，且不得虚构 mutation。 注入 `tool-unavailable` 的仓库打开错误返回 `revision-read-failed` 和 `state-index.repository-tool-unavailable`，并保留共享 operation、target 和 detail。 失败不调用 pending 替换，也不返回 pending scope/outcome。 tools/index-runtime/tests/staging.test.ts > reports an unavailable version-control tool before staging without a pending outcome bun test --test-name-pattern=\"^reports an unavailable version-control tool before staging without a pending outcome$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/index-runtime/tests/staging.test.ts > reports an unavailable version-control tool before staging without a pending outcome",
+          "bun test --test-name-pattern=\"^reports an unavailable version-control tool before staging without a pending outcome$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-STAGING-TOOL-UNAVAILABLE-001",
+        "line": 1,
+        "searchText": "暂存前报告不可用的版本控制工具 暂存前的仓库打开属于只读边界；工具不可用必须与仓库不存在和 pending 写入失败分开报告，且不得虚构 mutation。 注入 `tool-unavailable` 的仓库打开错误返回 `revision-read-failed` 和 `state-index.repository-tool-unavailable`，并保留共享 operation、target 和 detail。 失败不调用 pending 替换，也不返回 pending scope/outcome。 tools/index-runtime/tests/staging.test.ts > reports an unavailable version-control tool before staging without a pending outcome bun test --test-name-pattern=\"^reports an unavailable version-control tool before staging without a pending outcome$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/reports-an-unavailable-version-control-tool-before-staging.md",
+        "summary": "暂存前的仓库打开属于只读边界；工具不可用必须与仓库不存在和 pending 写入失败分开报告，且不得虚构 mutation。",
+        "title": "暂存前报告不可用的版本控制工具"
       }
     },
     "INDEX-RUNTIME-SYNC-LIFECYCLE-001": {
@@ -7452,6 +7820,75 @@
         "title": "CLI set-relations prints a human-readable result and rejects JSON output"
       }
     },
+    "INVESTIGATION-CLI-SHOW-DIAGNOSTIC-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CLI-SHOW-DIAGNOSTIC-001 CLI show renders a scrubbed structured report read failure `show` 在当前 index 已确认目标报告后读取报告文件失败时，必须保留稳定 code、目标、access cause、受控 detail 与恢复步骤，不能把外部 Error message 直接交给 generic renderer。 注入含 Git token、绝对路径和换行的 EACCES read failure 后，CLI 返回退出码 1、stdout 为空，stderr 含 report-read-failed 与 access-denied，但不含 token 或绝对路径。 tools/investigation-report/tests/cli-generated.test.ts > CLI show renders a scrubbed structured report read failure bun test --test-name-pattern=\"^CLI show renders a scrubbed structured report read failure$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > CLI show renders a scrubbed structured report read failure",
+          "bun test --test-name-pattern=\"^CLI show renders a scrubbed structured report read failure$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CLI-SHOW-DIAGNOSTIC-001",
+        "line": 1,
+        "searchText": "CLI show renders a scrubbed structured report read failure `show` 在当前 index 已确认目标报告后读取报告文件失败时，必须保留稳定 code、目标、access cause、受控 detail 与恢复步骤，不能把外部 Error message 直接交给 generic renderer。 注入含 Git token、绝对路径和换行的 EACCES read failure 后，CLI 返回退出码 1、stdout 为空，stderr 含 report-read-failed 与 access-denied，但不含 token 或绝对路径。 tools/investigation-report/tests/cli-generated.test.ts > CLI show renders a scrubbed structured report read failure bun test --test-name-pattern=\"^CLI show renders a scrubbed structured report read failure$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/cli-show-renders-a-scrubbed-structured-report-read-failure.md",
+        "summary": "`show` 在当前 index 已确认目标报告后读取报告文件失败时，必须保留稳定 code、目标、access cause、受控 detail 与恢复步骤，不能把外部 Error message 直接交给 generic renderer。",
+        "title": "CLI show renders a scrubbed structured report read failure"
+      }
+    },
+    "INVESTIGATION-CLI-STAGE-DIAGNOSTIC-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CLI-STAGE-DIAGNOSTIC-001 CLI stage-index preserves version-control diagnostic facts `stage-index` 的最终 CLI renderer 必须保留 index runtime 给出的版本控制诊断 code、target、cause 和 operation，而不能压缩为普通错误字符串。 非 Git fixture 返回退出码 1、stdout 为空，stderr 显示 repository-unavailable code、configured-root target、not-repository cause 和 operation。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index preserves version-control diagnostic facts bun test --test-name-pattern=\"^CLI stage-index preserves version-control diagnostic facts$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index preserves version-control diagnostic facts",
+          "bun test --test-name-pattern=\"^CLI stage-index preserves version-control diagnostic facts$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CLI-STAGE-DIAGNOSTIC-001",
+        "line": 1,
+        "searchText": "CLI stage-index preserves version-control diagnostic facts `stage-index` 的最终 CLI renderer 必须保留 index runtime 给出的版本控制诊断 code、target、cause 和 operation，而不能压缩为普通错误字符串。 非 Git fixture 返回退出码 1、stdout 为空，stderr 显示 repository-unavailable code、configured-root target、not-repository cause 和 operation。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index preserves version-control diagnostic facts bun test --test-name-pattern=\"^CLI stage-index preserves version-control diagnostic facts$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/cli-stage-index-preserves-version-control-diagnostic-facts.md",
+        "summary": "`stage-index` 的最终 CLI renderer 必须保留 index runtime 给出的版本控制诊断 code、target、cause 和 operation，而不能压缩为普通错误字符串。",
+        "title": "CLI stage-index preserves version-control diagnostic facts"
+      }
+    },
+    "INVESTIGATION-CLI-STAGE-FILESYSTEM-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CLI-STAGE-FILESYSTEM-001 CLI stage-index renders filesystem diagnostics structurally `stage-index` 必须消费没有 version-control 字段的 StateIndex filesystem diagnostic，输出稳定 reason、access-denied filesystem cause、operation、target 和受控 detail，而非压缩为普通错误字符串。 注入含 token、绝对路径和换行的 index EACCES read failure 后，CLI 返回退出码 1、stdout 为空，stderr 保留 index-read-failed 的 access-denied、operation、target 和受控 detail，且不泄露 token 或绝对路径。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index renders filesystem diagnostics structurally bun test --test-name-pattern=\"^CLI stage-index renders filesystem diagnostics structurally$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index renders filesystem diagnostics structurally",
+          "bun test --test-name-pattern=\"^CLI stage-index renders filesystem diagnostics structurally$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CLI-STAGE-FILESYSTEM-001",
+        "line": 1,
+        "searchText": "CLI stage-index renders filesystem diagnostics structurally `stage-index` 必须消费没有 version-control 字段的 StateIndex filesystem diagnostic，输出稳定 reason、access-denied filesystem cause、operation、target 和受控 detail，而非压缩为普通错误字符串。 注入含 token、绝对路径和换行的 index EACCES read failure 后，CLI 返回退出码 1、stdout 为空，stderr 保留 index-read-failed 的 access-denied、operation、target 和受控 detail，且不泄露 token 或绝对路径。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index renders filesystem diagnostics structurally bun test --test-name-pattern=\"^CLI stage-index renders filesystem diagnostics structurally$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/cli-stage-index-renders-filesystem-diagnostics-structurally.md",
+        "summary": "`stage-index` 必须消费没有 version-control 字段的 StateIndex filesystem diagnostic，输出稳定 reason、access-denied filesystem cause、operation、target 和受控 detail，而非压缩为普通错误字符串。",
+        "title": "CLI stage-index renders filesystem diagnostics structurally"
+      }
+    },
     "INVESTIGATION-CLI-STAGE-JSON-001": {
       "keys": {
         "search": [
@@ -7475,6 +7912,29 @@
         "title": "CLI stage-index rejects JSON output"
       }
     },
+    "INVESTIGATION-CLI-STAGE-PENDING-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CLI-STAGE-PENDING-001 CLI stage-index preserves pending transaction facts `stage-index` 的 pending index 失败必须把 runtime 的 cause、scope 和 outcome 作为领域诊断输出。 Git pending index lock 返回退出码 1、stdout 为空，stderr 保留 pending-conflict、busy cause、scope 与 no-change outcome。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index preserves pending transaction facts bun test --test-name-pattern=\"^CLI stage-index preserves pending transaction facts$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index preserves pending transaction facts",
+          "bun test --test-name-pattern=\"^CLI stage-index preserves pending transaction facts$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CLI-STAGE-PENDING-001",
+        "line": 1,
+        "searchText": "CLI stage-index preserves pending transaction facts `stage-index` 的 pending index 失败必须把 runtime 的 cause、scope 和 outcome 作为领域诊断输出。 Git pending index lock 返回退出码 1、stdout 为空，stderr 保留 pending-conflict、busy cause、scope 与 no-change outcome。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index preserves pending transaction facts bun test --test-name-pattern=\"^CLI stage-index preserves pending transaction facts$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/cli-stage-index-preserves-pending-transaction-facts.md",
+        "summary": "`stage-index` 的 pending index 失败必须把 runtime 的 cause、scope 和 outcome 作为领域诊断输出。",
+        "title": "CLI stage-index preserves pending transaction facts"
+      }
+    },
     "INVESTIGATION-CLI-SYNC-001": {
       "keys": {
         "search": [
@@ -7496,6 +7956,52 @@
         "sourcePath": "investigation-report/cli-sync-index-writes-a-missing-derived-index.md",
         "summary": "直接调用的源码 CLI 入口 `sync-index` 能从合法报告源重建缺失的派生 index。",
         "title": "CLI sync-index writes a missing derived index"
+      }
+    },
+    "INVESTIGATION-CLI-SYNC-FILESYSTEM-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CLI-SYNC-FILESYSTEM-001 CLI sync-index renders filesystem diagnostics structurally `sync-index` 必须消费 StateIndex filesystem diagnostic 的 causeCategory、operation、target 和受控 detail，不得回退为 generic/unknown 字符串。 注入含 token、绝对路径和换行的 index EACCES read failure 后，CLI 返回退出码 1、stdout 为空；stderr 明确输出 `access-denied`、`read a state-index file`、`investigation-index.json` 和净化 detail，且不泄露 token 或绝对路径。 tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index renders filesystem diagnostics structurally bun test --test-name-pattern=\"^CLI sync-index renders filesystem diagnostics structurally$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index renders filesystem diagnostics structurally",
+          "bun test --test-name-pattern=\"^CLI sync-index renders filesystem diagnostics structurally$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CLI-SYNC-FILESYSTEM-001",
+        "line": 1,
+        "searchText": "CLI sync-index renders filesystem diagnostics structurally `sync-index` 必须消费 StateIndex filesystem diagnostic 的 causeCategory、operation、target 和受控 detail，不得回退为 generic/unknown 字符串。 注入含 token、绝对路径和换行的 index EACCES read failure 后，CLI 返回退出码 1、stdout 为空；stderr 明确输出 `access-denied`、`read a state-index file`、`investigation-index.json` 和净化 detail，且不泄露 token 或绝对路径。 tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index renders filesystem diagnostics structurally bun test --test-name-pattern=\"^CLI sync-index renders filesystem diagnostics structurally$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/cli-sync-index-renders-filesystem-diagnostics-structurally.md",
+        "summary": "`sync-index` 必须消费 StateIndex filesystem diagnostic 的 causeCategory、operation、target 和受控 detail，不得回退为 generic/unknown 字符串。",
+        "title": "CLI sync-index renders filesystem diagnostics structurally"
+      }
+    },
+    "INVESTIGATION-CLI-SYNC-LOCK-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CLI-SYNC-LOCK-001 CLI sync-index preserves collection lock diagnostics `sync-index` 遇到已有调查集合 mutation lock 时，CLI 必须保留结构化 busy 归因及未写入事务结果。 预置 lock 后命令返回退出码 1、stdout 为空，stderr 包含 collection-lock-busy、busy cause、集合 scope 和 no-change outcome。 tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index preserves collection lock diagnostics bun test --test-name-pattern=\"^CLI sync-index preserves collection lock diagnostics$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index preserves collection lock diagnostics",
+          "bun test --test-name-pattern=\"^CLI sync-index preserves collection lock diagnostics$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CLI-SYNC-LOCK-001",
+        "line": 1,
+        "searchText": "CLI sync-index preserves collection lock diagnostics `sync-index` 遇到已有调查集合 mutation lock 时，CLI 必须保留结构化 busy 归因及未写入事务结果。 预置 lock 后命令返回退出码 1、stdout 为空，stderr 包含 collection-lock-busy、busy cause、集合 scope 和 no-change outcome。 tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index preserves collection lock diagnostics bun test --test-name-pattern=\"^CLI sync-index preserves collection lock diagnostics$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/cli-sync-index-preserves-collection-lock-diagnostics.md",
+        "summary": "`sync-index` 遇到已有调查集合 mutation lock 时，CLI 必须保留结构化 busy 归因及未写入事务结果。",
+        "title": "CLI sync-index preserves collection lock diagnostics"
       }
     },
     "INVESTIGATION-CLI-USAGE-001": {
@@ -7567,6 +8073,29 @@
         "title": "full validation rejects nested report directories"
       }
     },
+    "INVESTIGATION-COLLECTION-LOCK-DIAGNOSTICS-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-COLLECTION-LOCK-DIAGNOSTICS-001 collection mutation lock distinguishes busy access and release failures 调查集合 lock 只有 exclusive create 明确返回 `EEXIST` 时才是 busy；访问和未知 I/O 保持各自诊断，释放失败不得被吞掉。 注入的 `EEXIST`、`EACCES` 和 `EIO` 分别返回 busy、access-denied 和 unavailable code；busy 情况同时标注 busy cause category。 事务完成后的删除 lock 失败返回 release-failed 诊断。 tools/investigation-report/tests/transaction.test.ts > collection mutation lock distinguishes busy access and release failures bun test --test-name-pattern=\"^collection mutation lock distinguishes busy access and release failures$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/transaction.test.ts > collection mutation lock distinguishes busy access and release failures",
+          "bun test --test-name-pattern=\"^collection mutation lock distinguishes busy access and release failures$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-COLLECTION-LOCK-DIAGNOSTICS-001",
+        "line": 1,
+        "searchText": "collection mutation lock distinguishes busy access and release failures 调查集合 lock 只有 exclusive create 明确返回 `EEXIST` 时才是 busy；访问和未知 I/O 保持各自诊断，释放失败不得被吞掉。 注入的 `EEXIST`、`EACCES` 和 `EIO` 分别返回 busy、access-denied 和 unavailable code；busy 情况同时标注 busy cause category。 事务完成后的删除 lock 失败返回 release-failed 诊断。 tools/investigation-report/tests/transaction.test.ts > collection mutation lock distinguishes busy access and release failures bun test --test-name-pattern=\"^collection mutation lock distinguishes busy access and release failures$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/collection-mutation-lock-distinguishes-busy-access-and-release-failures.md",
+        "summary": "调查集合 lock 只有 exclusive create 明确返回 `EEXIST` 时才是 busy；访问和未知 I/O 保持各自诊断，释放失败不得被吞掉。",
+        "title": "collection mutation lock distinguishes busy access and release failures"
+      }
+    },
     "INVESTIGATION-COLLECTION-ROOT-001": {
       "keys": {
         "search": [
@@ -7588,6 +8117,29 @@
         "sourcePath": "investigation-report/full-validation-rejects-unknown-investigation-root-members.md",
         "summary": "平铺 Investigation Report 根目录只允许规范报告、派生 index 和 `_resources/`。",
         "title": "full validation rejects unknown investigation root members"
+      }
+    },
+    "INVESTIGATION-DIAGNOSTIC-SANITIZATION-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DIAGNOSTIC-SANITIZATION-001 investigation diagnostics sanitize external failure details Investigation Report 的系统错误 detail 只输出经净化的受控信息，不泄露 token 或绝对路径，也不传播换行或无限长度文本。 含 Git token、绝对路径、换行和超长内容的外部 Error 经诊断和 renderer 后均不泄露 token，detail 无换行且最多 500 字符；generic reason 也会经同一净化边界。 tools/investigation-report/tests/transaction.test.ts > investigation diagnostics sanitize external failure details bun test --test-name-pattern=\"^investigation diagnostics sanitize external failure details$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/transaction.test.ts > investigation diagnostics sanitize external failure details",
+          "bun test --test-name-pattern=\"^investigation diagnostics sanitize external failure details$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DIAGNOSTIC-SANITIZATION-001",
+        "line": 1,
+        "searchText": "investigation diagnostics sanitize external failure details Investigation Report 的系统错误 detail 只输出经净化的受控信息，不泄露 token 或绝对路径，也不传播换行或无限长度文本。 含 Git token、绝对路径、换行和超长内容的外部 Error 经诊断和 renderer 后均不泄露 token，detail 无换行且最多 500 字符；generic reason 也会经同一净化边界。 tools/investigation-report/tests/transaction.test.ts > investigation diagnostics sanitize external failure details bun test --test-name-pattern=\"^investigation diagnostics sanitize external failure details$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/investigation-diagnostics-sanitize-external-failure-details.md",
+        "summary": "Investigation Report 的系统错误 detail 只输出经净化的受控信息，不泄露 token 或绝对路径，也不传播换行或无限长度文本。",
+        "title": "investigation diagnostics sanitize external failure details"
       }
     },
     "INVESTIGATION-DIRECTORY-PATH-001": {
@@ -7616,7 +8168,7 @@
     "INVESTIGATION-DISCARD-CLEANUP-FAILURE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-DISCARD-CLEANUP-FAILURE-001 discard reports a committed result when safe tombstone cleanup cannot finish 新索引发布是 discard 的领域提交点；提交后的 tombstone 清理不能删除未预演成员，无法安全完成时必须保留残留并明确报告操作已经提交。 索引发布后注入未预演目录会返回 `changed: true` 与 committed cleanup 诊断，报告已退出集合且完整检查通过。 未预演目录保留在诊断指向的 tombstone 中，没有被递归删除。 tools/investigation-report/tests/discard.test.ts > discard reports a committed result when safe tombstone cleanup cannot finish bun test --test-name-pattern=\"^discard reports a committed result when safe tombstone cleanup cannot finish$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-DISCARD-CLEANUP-FAILURE-001 discard reports a committed result when safe tombstone cleanup cannot finish 新索引发布是 discard 的领域提交点；提交后的 tombstone 清理不能删除未预演成员，无法安全完成时必须保留残留并明确报告操作已经提交。 索引发布后注入未预演目录会返回 `changed: true`、`committed-cleanup-pending` outcome 与 cleanup 诊断 code，报告已退出集合且完整检查通过。 未预演目录保留在诊断指向的 tombstone 中，没有被递归删除。 tools/investigation-report/tests/discard.test.ts > discard reports a committed result when safe tombstone cleanup cannot finish bun test --test-name-pattern=\"^discard reports a committed result when safe tombstone cleanup cannot finish$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7630,7 +8182,7 @@
         ],
         "id": "INVESTIGATION-DISCARD-CLEANUP-FAILURE-001",
         "line": 1,
-        "searchText": "discard reports a committed result when safe tombstone cleanup cannot finish 新索引发布是 discard 的领域提交点；提交后的 tombstone 清理不能删除未预演成员，无法安全完成时必须保留残留并明确报告操作已经提交。 索引发布后注入未预演目录会返回 `changed: true` 与 committed cleanup 诊断，报告已退出集合且完整检查通过。 未预演目录保留在诊断指向的 tombstone 中，没有被递归删除。 tools/investigation-report/tests/discard.test.ts > discard reports a committed result when safe tombstone cleanup cannot finish bun test --test-name-pattern=\"^discard reports a committed result when safe tombstone cleanup cannot finish$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "discard reports a committed result when safe tombstone cleanup cannot finish 新索引发布是 discard 的领域提交点；提交后的 tombstone 清理不能删除未预演成员，无法安全完成时必须保留残留并明确报告操作已经提交。 索引发布后注入未预演目录会返回 `changed: true`、`committed-cleanup-pending` outcome 与 cleanup 诊断 code，报告已退出集合且完整检查通过。 未预演目录保留在诊断指向的 tombstone 中，没有被递归删除。 tools/investigation-report/tests/discard.test.ts > discard reports a committed result when safe tombstone cleanup cannot finish bun test --test-name-pattern=\"^discard reports a committed result when safe tombstone cleanup cannot finish$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/discard-reports-committed-cleanup-failure.md",
         "summary": "新索引发布是 discard 的领域提交点；提交后的 tombstone 清理不能删除未预演成员，无法安全完成时必须保留残留并明确报告操作已经提交。",
         "title": "discard reports a committed result when safe tombstone cleanup cannot finish"
@@ -7823,7 +8375,7 @@
     "INVESTIGATION-DISCARD-RESTORE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-DISCARD-RESTORE-001 discard restores report resources and index when index publication fails discard 发布索引失败时必须恢复被 tombstone 的报告、owner 资源和原索引字节。 模拟索引写失败后结果失败，报告、资源和索引均恢复。 tools/investigation-report/tests/discard.test.ts > discard restores report resources and index when index publication fails bun test --test-name-pattern=\"^discard restores report resources and index when index publication fails$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-DISCARD-RESTORE-001 discard restores report resources and index when index publication fails discard 发布索引失败时必须恢复被 tombstone 的报告、owner 资源和原索引字节。 模拟索引写失败后结果以 `rolled-back` outcome 和发布诊断 code 表示恢复，报告、资源和索引均恢复。 tools/investigation-report/tests/discard.test.ts > discard restores report resources and index when index publication fails bun test --test-name-pattern=\"^discard restores report resources and index when index publication fails$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7837,7 +8389,7 @@
         ],
         "id": "INVESTIGATION-DISCARD-RESTORE-001",
         "line": 1,
-        "searchText": "discard restores report resources and index when index publication fails discard 发布索引失败时必须恢复被 tombstone 的报告、owner 资源和原索引字节。 模拟索引写失败后结果失败，报告、资源和索引均恢复。 tools/investigation-report/tests/discard.test.ts > discard restores report resources and index when index publication fails bun test --test-name-pattern=\"^discard restores report resources and index when index publication fails$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "discard restores report resources and index when index publication fails discard 发布索引失败时必须恢复被 tombstone 的报告、owner 资源和原索引字节。 模拟索引写失败后结果以 `rolled-back` outcome 和发布诊断 code 表示恢复，报告、资源和索引均恢复。 tools/investigation-report/tests/discard.test.ts > discard restores report resources and index when index publication fails bun test --test-name-pattern=\"^discard restores report resources and index when index publication fails$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/discard-restores-after-index-publication-failure.md",
         "summary": "discard 发布索引失败时必须恢复被 tombstone 的报告、owner 资源和原索引字节。",
         "title": "discard restores report resources and index when index publication fails"
@@ -8191,24 +8743,24 @@
     "INVESTIGATION-RELATION-GIT-HEAD-002": {
       "keys": {
         "search": [
-          "INVESTIGATION-RELATION-GIT-HEAD-002 无可用 Git HEAD 时全量检查跳过前序提示 不存在可用 Git HEAD 基线时，默认全量检查跳过尚未进入 Git HEAD 的直接前序关系提示。 非 Git、尚未形成 HEAD 及 HEAD 不可读或无效的 Git 工作区中，直接前序关系均不产生 error 或 warning。 tools/investigation-report/tests/parsing-directory.test.ts > full validation skips unrecorded predecessor warnings without Git HEAD bun test --test-name-pattern=\"^full validation skips unrecorded predecessor warnings without Git HEAD$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RELATION-GIT-HEAD-002 无基线时跳过前序提示并报告不可用的历史检查 非 Git 或尚未形成 HEAD 时，默认全量检查跳过尚未进入 Git HEAD 的直接前序关系提示；Git HEAD 检查本身失败时，必须给出 `history-check-unavailable` warning，不能伪装为已跳过。 非 Git 和尚未形成 HEAD 时不产生前序 warning。 损坏的 HEAD 保持 check 成功，但返回包含 `history-check-unavailable` 的可行动 warning，且版本控制 detail 只保留一次，不再嵌入原始 Error message。 tools/investigation-report/tests/parsing-directory.test.ts > full validation skips unrecorded predecessor warnings without Git HEAD bun test --test-name-pattern=\"^full validation skips unrecorded predecessor warnings without Git HEAD$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 15,
+        "endLine": 16,
         "entries": [
           "tools/investigation-report/tests/parsing-directory.test.ts > full validation skips unrecorded predecessor warnings without Git HEAD",
           "bun test --test-name-pattern=\"^full validation skips unrecorded predecessor warnings without Git HEAD$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-RELATION-GIT-HEAD-002",
         "line": 1,
-        "searchText": "无可用 Git HEAD 时全量检查跳过前序提示 不存在可用 Git HEAD 基线时，默认全量检查跳过尚未进入 Git HEAD 的直接前序关系提示。 非 Git、尚未形成 HEAD 及 HEAD 不可读或无效的 Git 工作区中，直接前序关系均不产生 error 或 warning。 tools/investigation-report/tests/parsing-directory.test.ts > full validation skips unrecorded predecessor warnings without Git HEAD bun test --test-name-pattern=\"^full validation skips unrecorded predecessor warnings without Git HEAD$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "无基线时跳过前序提示并报告不可用的历史检查 非 Git 或尚未形成 HEAD 时，默认全量检查跳过尚未进入 Git HEAD 的直接前序关系提示；Git HEAD 检查本身失败时，必须给出 `history-check-unavailable` warning，不能伪装为已跳过。 非 Git 和尚未形成 HEAD 时不产生前序 warning。 损坏的 HEAD 保持 check 成功，但返回包含 `history-check-unavailable` 的可行动 warning，且版本控制 detail 只保留一次，不再嵌入原始 Error message。 tools/investigation-report/tests/parsing-directory.test.ts > full validation skips unrecorded predecessor warnings without Git HEAD bun test --test-name-pattern=\"^full validation skips unrecorded predecessor warnings without Git HEAD$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/full-validation-skips-unrecorded-predecessor-warnings-without-git-head.md",
-        "summary": "不存在可用 Git HEAD 基线时，默认全量检查跳过尚未进入 Git HEAD 的直接前序关系提示。",
-        "title": "无可用 Git HEAD 时全量检查跳过前序提示"
+        "summary": "非 Git 或尚未形成 HEAD 时，默认全量检查跳过尚未进入 Git HEAD 的直接前序关系提示；Git HEAD 检查本身失败时，必须给出 `history-check-unavailable` warning，不能伪装为已跳过。",
+        "title": "无基线时跳过前序提示并报告不可用的历史检查"
       }
     },
     "INVESTIGATION-RELATION-GRAPH-CYCLE-001": {
@@ -8398,7 +8950,7 @@
     "INVESTIGATION-RELATION-TRANSACTION-DRIFT-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RELATION-TRANSACTION-DRIFT-001 set-relations rejects source or index drift before publishing 关系事务在发布前拒绝报告来源或索引漂移。 索引字节漂移时返回 index 诊断。 tools/investigation-report/tests/transaction.test.ts > set-relations rejects source or index drift before publishing bun test --test-name-pattern=\"^set-relations rejects source or index drift before publishing$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RELATION-TRANSACTION-DRIFT-001 set-relations rejects source or index drift before publishing 关系事务在发布前拒绝报告来源或索引漂移。 发布前重新读取发现索引或报告来源字节漂移时返回不含写入的 `no-change` mutation 结果。 tools/investigation-report/tests/transaction.test.ts > set-relations rejects source or index drift before publishing bun test --test-name-pattern=\"^set-relations rejects source or index drift before publishing$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -8412,7 +8964,7 @@
         ],
         "id": "INVESTIGATION-RELATION-TRANSACTION-DRIFT-001",
         "line": 1,
-        "searchText": "set-relations rejects source or index drift before publishing 关系事务在发布前拒绝报告来源或索引漂移。 索引字节漂移时返回 index 诊断。 tools/investigation-report/tests/transaction.test.ts > set-relations rejects source or index drift before publishing bun test --test-name-pattern=\"^set-relations rejects source or index drift before publishing$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "set-relations rejects source or index drift before publishing 关系事务在发布前拒绝报告来源或索引漂移。 发布前重新读取发现索引或报告来源字节漂移时返回不含写入的 `no-change` mutation 结果。 tools/investigation-report/tests/transaction.test.ts > set-relations rejects source or index drift before publishing bun test --test-name-pattern=\"^set-relations rejects source or index drift before publishing$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/set-relations-rejects-source-or-index-drift-before-publishing.md",
         "summary": "关系事务在发布前拒绝报告来源或索引漂移。",
         "title": "set-relations rejects source or index drift before publishing"
@@ -8490,7 +9042,7 @@
     "INVESTIGATION-RELATION-TRANSACTION-RECOVERY-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RELATION-TRANSACTION-RECOVERY-001 set-relations restores all report and index bytes after publish failure 关系事务发布失败时恢复已写报告和索引的旧字节。 模拟第二次写入失败后报告内容与发布前相同。 tools/investigation-report/tests/transaction.test.ts > set-relations restores all report and index bytes after publish failure bun test --test-name-pattern=\"^set-relations restores all report and index bytes after publish failure$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RELATION-TRANSACTION-RECOVERY-001 set-relations restores all report and index bytes after publish failure 关系事务发布失败时恢复已写报告和索引的旧字节。 模拟第二次写入失败后报告内容与发布前相同，并返回 `rolled-back` outcome 和发布诊断 code。 tools/investigation-report/tests/transaction.test.ts > set-relations restores all report and index bytes after publish failure bun test --test-name-pattern=\"^set-relations restores all report and index bytes after publish failure$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -8504,7 +9056,7 @@
         ],
         "id": "INVESTIGATION-RELATION-TRANSACTION-RECOVERY-001",
         "line": 1,
-        "searchText": "set-relations restores all report and index bytes after publish failure 关系事务发布失败时恢复已写报告和索引的旧字节。 模拟第二次写入失败后报告内容与发布前相同。 tools/investigation-report/tests/transaction.test.ts > set-relations restores all report and index bytes after publish failure bun test --test-name-pattern=\"^set-relations restores all report and index bytes after publish failure$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "set-relations restores all report and index bytes after publish failure 关系事务发布失败时恢复已写报告和索引的旧字节。 模拟第二次写入失败后报告内容与发布前相同，并返回 `rolled-back` outcome 和发布诊断 code。 tools/investigation-report/tests/transaction.test.ts > set-relations restores all report and index bytes after publish failure bun test --test-name-pattern=\"^set-relations restores all report and index bytes after publish failure$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/set-relations-restores-all-report-and-index-bytes-after-publish-failure.md",
         "summary": "关系事务发布失败时恢复已写报告和索引的旧字节。",
         "title": "set-relations restores all report and index bytes after publish failure"
@@ -9430,10 +9982,33 @@
         "title": "stage-index reports unavailable version control without working-tree writes"
       }
     },
+    "INVESTIGATION-SYNC-DIAGNOSTIC-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-SYNC-DIAGNOSTIC-001 sync-index preserves post-rename uncertainty when lock cleanup also fails `sync-index` 的 atomic rename 后 verify 失败已不能证明未发布；后续 collection lock cleanup 再失败时，包装结果必须优先保留原有 partial-or-unknown mutation，不能用 `changed: false` 覆盖为 no-change。 注入 target rename 后、verify read 前的并发覆盖及 lock release 失败后，运行时保留 index-write-failed，最终 index 仍为并发写入内容，结果与 release diagnostic 均以集合 scope 和 partial-or-unknown outcome 表达。 tools/investigation-report/tests/transaction.test.ts > sync-index preserves post-rename uncertainty when lock cleanup also fails bun test --test-name-pattern=\"^sync-index preserves post-rename uncertainty when lock cleanup also fails$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/transaction.test.ts > sync-index preserves post-rename uncertainty when lock cleanup also fails",
+          "bun test --test-name-pattern=\"^sync-index preserves post-rename uncertainty when lock cleanup also fails$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-SYNC-DIAGNOSTIC-001",
+        "line": 1,
+        "searchText": "sync-index preserves post-rename uncertainty when lock cleanup also fails `sync-index` 的 atomic rename 后 verify 失败已不能证明未发布；后续 collection lock cleanup 再失败时，包装结果必须优先保留原有 partial-or-unknown mutation，不能用 `changed: false` 覆盖为 no-change。 注入 target rename 后、verify read 前的并发覆盖及 lock release 失败后，运行时保留 index-write-failed，最终 index 仍为并发写入内容，结果与 release diagnostic 均以集合 scope 和 partial-or-unknown outcome 表达。 tools/investigation-report/tests/transaction.test.ts > sync-index preserves post-rename uncertainty when lock cleanup also fails bun test --test-name-pattern=\"^sync-index preserves post-rename uncertainty when lock cleanup also fails$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/sync-index-preserves-post-rename-uncertainty-when-lock-cleanup-also-fails.md",
+        "summary": "`sync-index` 的 atomic rename 后 verify 失败已不能证明未发布；后续 collection lock cleanup 再失败时，包装结果必须优先保留原有 partial-or-unknown mutation，不能用 `changed: false` 覆盖为 no-change。",
+        "title": "sync-index preserves post-rename uncertainty when lock cleanup also fails"
+      }
+    },
     "INVESTIGATION-SYNC-DISCARD-LOCK-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-SYNC-DISCARD-LOCK-001 sync-index rejects a concurrent rebuild while discard owns the collection `sync-index` 与 `discard` 共用调查集合 mutation lock；锁被 `discard` 持有时，同步必须零写入失败，释放后可从最终集合重试。 在 discard 的 index 提交点暂停时，sync-index 返回可行动的 lock 诊断且 index 保持旧字节；discard 完成后重试成功，最终 index 不再包含已删除的报告 ID。 tools/investigation-report/tests/discard.test.ts > sync-index rejects a concurrent rebuild while discard owns the collection bun test --test-name-pattern=\"^sync-index rejects a concurrent rebuild while discard owns the collection$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-SYNC-DISCARD-LOCK-001 sync-index rejects a concurrent rebuild while discard owns the collection `sync-index` 与 `discard` 共用调查集合 mutation lock；锁被 `discard` 持有时，同步必须零写入失败，释放后可从最终集合重试。 在 discard 的 index 提交点暂停时，sync-index 返回包含 busy cause 和 collection no-change outcome 的 `collection-lock-busy` 诊断且 index 保持旧字节；discard 完成后重试成功，最终 index 不再包含已删除的报告 ID。 tools/investigation-report/tests/discard.test.ts > sync-index rejects a concurrent rebuild while discard owns the collection bun test --test-name-pattern=\"^sync-index rejects a concurrent rebuild while discard owns the collection$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -9447,7 +10022,7 @@
         ],
         "id": "INVESTIGATION-SYNC-DISCARD-LOCK-001",
         "line": 1,
-        "searchText": "sync-index rejects a concurrent rebuild while discard owns the collection `sync-index` 与 `discard` 共用调查集合 mutation lock；锁被 `discard` 持有时，同步必须零写入失败，释放后可从最终集合重试。 在 discard 的 index 提交点暂停时，sync-index 返回可行动的 lock 诊断且 index 保持旧字节；discard 完成后重试成功，最终 index 不再包含已删除的报告 ID。 tools/investigation-report/tests/discard.test.ts > sync-index rejects a concurrent rebuild while discard owns the collection bun test --test-name-pattern=\"^sync-index rejects a concurrent rebuild while discard owns the collection$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "sync-index rejects a concurrent rebuild while discard owns the collection `sync-index` 与 `discard` 共用调查集合 mutation lock；锁被 `discard` 持有时，同步必须零写入失败，释放后可从最终集合重试。 在 discard 的 index 提交点暂停时，sync-index 返回包含 busy cause 和 collection no-change outcome 的 `collection-lock-busy` 诊断且 index 保持旧字节；discard 完成后重试成功，最终 index 不再包含已删除的报告 ID。 tools/investigation-report/tests/discard.test.ts > sync-index rejects a concurrent rebuild while discard owns the collection bun test --test-name-pattern=\"^sync-index rejects a concurrent rebuild while discard owns the collection$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/sync-index-rejects-concurrent-rebuild-while-discard-owns-collection.md",
         "summary": "`sync-index` 与 `discard` 共用调查集合 mutation lock；锁被 `discard` 持有时，同步必须零写入失败，释放后可从最终集合重试。",
         "title": "sync-index rejects a concurrent rebuild while discard owns the collection"
@@ -9847,7 +10422,7 @@
     "SKILL-PACKAGE-HASH-002": {
       "keys": {
         "search": [
-          "SKILL-PACKAGE-HASH-002 报告缺失或畸形的 skill 版本基线 版本基线修订必须存在，基线 `metadata.version` 必须为正整数字符串。 缺失修订保留 `revision-not-found`，畸形版本返回明确 frontmatter 约束错误。 scripts/lib/skill-package-hash.test.ts > reports missing or malformed skill version baselines bun test --test-name-pattern=\"^reports missing or malformed skill version baselines$\" ./scripts/lib/skill-package-hash.test.ts"
+          "SKILL-PACKAGE-HASH-002 报告缺失或畸形的 skill 版本基线 版本基线修订必须存在，基线 `metadata.version` 必须为正整数字符串。 缺失修订保留 `revision-not-found`，并公开 `revision-unavailable`、受控操作和目标事实；畸形版本返回明确 frontmatter 约束错误。 scripts/lib/skill-package-hash.test.ts > reports missing or malformed skill version baselines bun test --test-name-pattern=\"^reports missing or malformed skill version baselines$\" ./scripts/lib/skill-package-hash.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -9861,7 +10436,7 @@
         ],
         "id": "SKILL-PACKAGE-HASH-002",
         "line": 1,
-        "searchText": "报告缺失或畸形的 skill 版本基线 版本基线修订必须存在，基线 `metadata.version` 必须为正整数字符串。 缺失修订保留 `revision-not-found`，畸形版本返回明确 frontmatter 约束错误。 scripts/lib/skill-package-hash.test.ts > reports missing or malformed skill version baselines bun test --test-name-pattern=\"^reports missing or malformed skill version baselines$\" ./scripts/lib/skill-package-hash.test.ts",
+        "searchText": "报告缺失或畸形的 skill 版本基线 版本基线修订必须存在，基线 `metadata.version` 必须为正整数字符串。 缺失修订保留 `revision-not-found`，并公开 `revision-unavailable`、受控操作和目标事实；畸形版本返回明确 frontmatter 约束错误。 scripts/lib/skill-package-hash.test.ts > reports missing or malformed skill version baselines bun test --test-name-pattern=\"^reports missing or malformed skill version baselines$\" ./scripts/lib/skill-package-hash.test.ts",
         "sourcePath": "repository-tooling/reports-missing-or-malformed-skill-version-baselines.md",
         "summary": "版本基线修订必须存在，基线 `metadata.version` 必须为正整数字符串。",
         "title": "报告缺失或畸形的 skill 版本基线"
@@ -9916,7 +10491,7 @@
     "SKILL-PACKAGE-HASH-005": {
       "keys": {
         "search": [
-          "SKILL-PACKAGE-HASH-005 将损坏基线 skill blob 报告为操作失败 基线 skill 文件读取失败不得被解释为文件缺失或新 skill。 损坏 Git blob 返回带目标路径上下文的 `operation-failed`。 scripts/lib/skill-package-hash.test.ts > reports corrupt baseline skill blobs as operation failures bun test --test-name-pattern=\"^reports corrupt baseline skill blobs as operation failures$\" ./scripts/lib/skill-package-hash.test.ts"
+          "SKILL-PACKAGE-HASH-005 将损坏基线 skill blob 报告为操作失败 基线 skill 文件读取失败不得被解释为文件缺失或新 skill。 损坏 Git blob 返回带受控读取操作、目标路径和 `command-failed` 原因类别的 `operation-failed`。 scripts/lib/skill-package-hash.test.ts > reports corrupt baseline skill blobs as operation failures bun test --test-name-pattern=\"^reports corrupt baseline skill blobs as operation failures$\" ./scripts/lib/skill-package-hash.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -9930,7 +10505,7 @@
         ],
         "id": "SKILL-PACKAGE-HASH-005",
         "line": 1,
-        "searchText": "将损坏基线 skill blob 报告为操作失败 基线 skill 文件读取失败不得被解释为文件缺失或新 skill。 损坏 Git blob 返回带目标路径上下文的 `operation-failed`。 scripts/lib/skill-package-hash.test.ts > reports corrupt baseline skill blobs as operation failures bun test --test-name-pattern=\"^reports corrupt baseline skill blobs as operation failures$\" ./scripts/lib/skill-package-hash.test.ts",
+        "searchText": "将损坏基线 skill blob 报告为操作失败 基线 skill 文件读取失败不得被解释为文件缺失或新 skill。 损坏 Git blob 返回带受控读取操作、目标路径和 `command-failed` 原因类别的 `operation-failed`。 scripts/lib/skill-package-hash.test.ts > reports corrupt baseline skill blobs as operation failures bun test --test-name-pattern=\"^reports corrupt baseline skill blobs as operation failures$\" ./scripts/lib/skill-package-hash.test.ts",
         "sourcePath": "repository-tooling/reports-corrupt-baseline-skill-blobs-as-operation-failures.md",
         "summary": "基线 skill 文件读取失败不得被解释为文件缺失或新 skill。",
         "title": "将损坏基线 skill blob 报告为操作失败"
@@ -14194,7 +14769,7 @@
     "TEST-EVIDENCE-STAGE-CLI-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-STAGE-CLI-001 暂存 CLI 保留帮助与机器退出契约 分发 CLI 必须展示 `stage-index` 的 Case 选择与领域文件边界，并区分参数失败与操作失败。 help 显示必需的可变 Case ID 参数、领域文件非目标和退出码语义。 缺少必需参数返回 usage 失败；非法或重复 ID 以退出码 `2` 返回符合结果 Schema 的 JSON 失败。 版本仓库操作失败以退出码 `1` 返回符合结果 Schema 的 JSON 失败，且不向 stderr 混入诊断。 tools/test-evidence/tests/staging.test.ts > stage-index CLI exposes help and schema-valid exit contracts bun test --test-name-pattern=\"^stage-index CLI exposes help and schema-valid exit contracts$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-STAGE-CLI-001 暂存 CLI 保留帮助与机器退出契约 分发 CLI 必须展示 `stage-index` 的 Case 选择与领域文件边界，并区分参数失败与操作失败。 help 显示必需的可变 Case ID 参数、领域文件非目标和退出码语义。 缺少必需参数返回 usage 失败；非法或重复 ID 以退出码 `2` 返回符合结果 Schema 的 JSON 失败。 版本仓库操作失败以退出码 `1` 返回符合结果 Schema 的 JSON 失败，保留 `not-repository` 的结构化版本控制事实，且不向 stderr 混入诊断。 tools/test-evidence/tests/staging.test.ts > stage-index CLI exposes help and schema-valid exit contracts bun test --test-name-pattern=\"^stage-index CLI exposes help and schema-valid exit contracts$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -14208,7 +14783,7 @@
         ],
         "id": "TEST-EVIDENCE-STAGE-CLI-001",
         "line": 1,
-        "searchText": "暂存 CLI 保留帮助与机器退出契约 分发 CLI 必须展示 `stage-index` 的 Case 选择与领域文件边界，并区分参数失败与操作失败。 help 显示必需的可变 Case ID 参数、领域文件非目标和退出码语义。 缺少必需参数返回 usage 失败；非法或重复 ID 以退出码 `2` 返回符合结果 Schema 的 JSON 失败。 版本仓库操作失败以退出码 `1` 返回符合结果 Schema 的 JSON 失败，且不向 stderr 混入诊断。 tools/test-evidence/tests/staging.test.ts > stage-index CLI exposes help and schema-valid exit contracts bun test --test-name-pattern=\"^stage-index CLI exposes help and schema-valid exit contracts$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "暂存 CLI 保留帮助与机器退出契约 分发 CLI 必须展示 `stage-index` 的 Case 选择与领域文件边界，并区分参数失败与操作失败。 help 显示必需的可变 Case ID 参数、领域文件非目标和退出码语义。 缺少必需参数返回 usage 失败；非法或重复 ID 以退出码 `2` 返回符合结果 Schema 的 JSON 失败。 版本仓库操作失败以退出码 `1` 返回符合结果 Schema 的 JSON 失败，保留 `not-repository` 的结构化版本控制事实，且不向 stderr 混入诊断。 tools/test-evidence/tests/staging.test.ts > stage-index CLI exposes help and schema-valid exit contracts bun test --test-name-pattern=\"^stage-index CLI exposes help and schema-valid exit contracts$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/stage-index-cli-exposes-help-and-schema-valid-exit-contracts.md",
         "summary": "分发 CLI 必须展示 `stage-index` 的 Case 选择与领域文件边界，并区分参数失败与操作失败。",
         "title": "暂存 CLI 保留帮助与机器退出契约"
@@ -14217,21 +14792,21 @@
     "TEST-EVIDENCE-STAGE-CONFLICT-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-STAGE-CONFLICT-001 同索引既有 Pending 被拒绝并原样保留 目标测试证据索引已有待提交内容时，选择性暂存不得覆盖、累加、清除或绕过该内容。 命令返回 `pending-conflict` 并逐字保留既有 pending 索引。 目标外 pending 路径和工作区索引保持不变。 tools/test-evidence/tests/staging.test.ts > stage-index rejects existing same-index pending content bun test --test-name-pattern=\"^stage-index rejects existing same-index pending content$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-STAGE-CONFLICT-001 同索引既有 Pending 被拒绝并原样保留 目标测试证据索引已有待提交内容时，选择性暂存不得覆盖、累加、清除或绕过该内容。 命令返回 `pending-conflict` 并逐字保留既有 pending 索引。 结果把目标索引范围与 `no-change` outcome 作为 pending mutation 事实保留。 目标外 pending 路径和工作区索引保持不变。 tools/test-evidence/tests/staging.test.ts > stage-index rejects existing same-index pending content bun test --test-name-pattern=\"^stage-index rejects existing same-index pending content$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 14,
         "entries": [
           "tools/test-evidence/tests/staging.test.ts > stage-index rejects existing same-index pending content",
           "bun test --test-name-pattern=\"^stage-index rejects existing same-index pending content$\" ./tools/test-evidence/tests/run.ts"
         ],
         "id": "TEST-EVIDENCE-STAGE-CONFLICT-001",
         "line": 1,
-        "searchText": "同索引既有 Pending 被拒绝并原样保留 目标测试证据索引已有待提交内容时，选择性暂存不得覆盖、累加、清除或绕过该内容。 命令返回 `pending-conflict` 并逐字保留既有 pending 索引。 目标外 pending 路径和工作区索引保持不变。 tools/test-evidence/tests/staging.test.ts > stage-index rejects existing same-index pending content bun test --test-name-pattern=\"^stage-index rejects existing same-index pending content$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "同索引既有 Pending 被拒绝并原样保留 目标测试证据索引已有待提交内容时，选择性暂存不得覆盖、累加、清除或绕过该内容。 命令返回 `pending-conflict` 并逐字保留既有 pending 索引。 结果把目标索引范围与 `no-change` outcome 作为 pending mutation 事实保留。 目标外 pending 路径和工作区索引保持不变。 tools/test-evidence/tests/staging.test.ts > stage-index rejects existing same-index pending content bun test --test-name-pattern=\"^stage-index rejects existing same-index pending content$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/stage-index-rejects-existing-same-index-pending-content.md",
         "summary": "目标测试证据索引已有待提交内容时，选择性暂存不得覆盖、累加、清除或绕过该内容。",
         "title": "同索引既有 Pending 被拒绝并原样保留"
@@ -14378,21 +14953,21 @@
     "TEST-EVIDENCE-STAGE-REPOSITORY-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-STAGE-REPOSITORY-001 无版本仓库时稳定失败且不写工作区 选择性索引暂存依赖可用的版本仓库，仓库不可用不能退化成工作区文件写入。 结果使用 `revision-read-failed` 与 `state-index.repository-unavailable` 诊断。 工作区索引和 Case Markdown 字节保持不变。 tools/test-evidence/tests/staging.test.ts > stage-index reports unavailable version control without workspace writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without workspace writes$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-STAGE-REPOSITORY-001 无版本仓库时稳定失败且不写工作区 选择性索引暂存依赖可用的版本仓库，仓库不可用不能退化成工作区文件写入。 结果使用 `revision-read-failed` 与 `state-index.repository-unavailable` 诊断。 诊断保留 `not-repository`、`discover a version-control worktree` 与 `configured root` 的结构化版本控制事实。 工作区索引和 Case Markdown 字节保持不变。 tools/test-evidence/tests/staging.test.ts > stage-index reports unavailable version control without workspace writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without workspace writes$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 14,
         "entries": [
           "tools/test-evidence/tests/staging.test.ts > stage-index reports unavailable version control without workspace writes",
           "bun test --test-name-pattern=\"^stage-index reports unavailable version control without workspace writes$\" ./tools/test-evidence/tests/run.ts"
         ],
         "id": "TEST-EVIDENCE-STAGE-REPOSITORY-001",
         "line": 1,
-        "searchText": "无版本仓库时稳定失败且不写工作区 选择性索引暂存依赖可用的版本仓库，仓库不可用不能退化成工作区文件写入。 结果使用 `revision-read-failed` 与 `state-index.repository-unavailable` 诊断。 工作区索引和 Case Markdown 字节保持不变。 tools/test-evidence/tests/staging.test.ts > stage-index reports unavailable version control without workspace writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without workspace writes$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "无版本仓库时稳定失败且不写工作区 选择性索引暂存依赖可用的版本仓库，仓库不可用不能退化成工作区文件写入。 结果使用 `revision-read-failed` 与 `state-index.repository-unavailable` 诊断。 诊断保留 `not-repository`、`discover a version-control worktree` 与 `configured root` 的结构化版本控制事实。 工作区索引和 Case Markdown 字节保持不变。 tools/test-evidence/tests/staging.test.ts > stage-index reports unavailable version control without workspace writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without workspace writes$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/stage-index-reports-unavailable-version-control-without-workspace-writes.md",
         "summary": "选择性索引暂存依赖可用的版本仓库，仓库不可用不能退化成工作区文件写入。",
         "title": "无版本仓库时稳定失败且不写工作区"
@@ -14723,23 +15298,23 @@
     "VERSION-CONTROL-CORRUPTION-001": {
       "keys": {
         "search": [
-          "VERSION-CONTROL-CORRUPTION-001 将损坏修订对象报告为操作失败 只有 Git 明确确认 revision 或文件不存在时才能返回对应缺失语义；Git 查询或对象读取失败必须保留为操作错误。 损坏 blob 的单文件与批量 revision 读取，以及损坏 commit 解析都返回带操作上下文的 `operation-failed`；损坏 commit 不会被降级为 `revision-not-found`。 tools/shared/tests/version-control.test.ts > reports corrupt revision objects as operation failures bun test --test-name-pattern=\"^reports corrupt revision objects as operation failures$\" ./tools/shared/tests/version-control.test.ts"
+          "VERSION-CONTROL-CORRUPTION-001 将损坏修订对象报告为操作失败 只有 Git 明确确认 revision 或文件不存在时才能返回对应缺失语义；Git 查询或对象读取失败必须保留为结构化操作错误。 损坏 blob 的单文件与批量 revision 读取，以及损坏 commit 解析都返回带 `command-failed` 原因、受控 operation 和适用 target 的 `operation-failed`。 损坏 commit 不会被降级为 `revision-not-found`。 tools/shared/tests/version-control.test.ts > reports corrupt revision objects as operation failures bun test --test-name-pattern=\"^reports corrupt revision objects as operation failures$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "topic": [
           "version-control"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 13,
         "entries": [
           "tools/shared/tests/version-control.test.ts > reports corrupt revision objects as operation failures",
           "bun test --test-name-pattern=\"^reports corrupt revision objects as operation failures$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "id": "VERSION-CONTROL-CORRUPTION-001",
         "line": 1,
-        "searchText": "将损坏修订对象报告为操作失败 只有 Git 明确确认 revision 或文件不存在时才能返回对应缺失语义；Git 查询或对象读取失败必须保留为操作错误。 损坏 blob 的单文件与批量 revision 读取，以及损坏 commit 解析都返回带操作上下文的 `operation-failed`；损坏 commit 不会被降级为 `revision-not-found`。 tools/shared/tests/version-control.test.ts > reports corrupt revision objects as operation failures bun test --test-name-pattern=\"^reports corrupt revision objects as operation failures$\" ./tools/shared/tests/version-control.test.ts",
+        "searchText": "将损坏修订对象报告为操作失败 只有 Git 明确确认 revision 或文件不存在时才能返回对应缺失语义；Git 查询或对象读取失败必须保留为结构化操作错误。 损坏 blob 的单文件与批量 revision 读取，以及损坏 commit 解析都返回带 `command-failed` 原因、受控 operation 和适用 target 的 `operation-failed`。 损坏 commit 不会被降级为 `revision-not-found`。 tools/shared/tests/version-control.test.ts > reports corrupt revision objects as operation failures bun test --test-name-pattern=\"^reports corrupt revision objects as operation failures$\" ./tools/shared/tests/version-control.test.ts",
         "sourcePath": "version-control/reports-corrupt-revision-objects-as-operation-failures.md",
-        "summary": "只有 Git 明确确认 revision 或文件不存在时才能返回对应缺失语义；Git 查询或对象读取失败必须保留为操作错误。",
+        "summary": "只有 Git 明确确认 revision 或文件不存在时才能返回对应缺失语义；Git 查询或对象读取失败必须保留为结构化操作错误。",
         "title": "将损坏修订对象报告为操作失败"
       }
     },
@@ -14769,24 +15344,24 @@
     "VERSION-CONTROL-ERROR-DETAIL-001": {
       "keys": {
         "search": [
-          "VERSION-CONTROL-ERROR-DETAIL-001 规范化结构化版本控制操作错误详情 版本控制边界必须把底层操作详情规范化为有界、单行且可行动的文本；结构化未知值不能退化为默认的 `[object Object]`。 缺失详情返回空值，带多余空白的字符串被规范化，结构化对象保留字段和值的可读表示。 tools/shared/tests/version-control.test.ts > normalizes structured version-control operation error details bun test --test-name-pattern=\"^normalizes structured version-control operation error details$\" ./tools/shared/tests/version-control.test.ts"
+          "VERSION-CONTROL-ERROR-DETAIL-001 规范化并净化结构化版本控制操作错误详情 版本控制边界必须把底层操作详情规范化为有界、单行、可行动且不泄露凭据或绝对路径的文本；结构化未知值不能退化为默认的 `[object Object]`。 缺失详情返回空值，带多余空白的字符串被规范化，结构化对象保留字段和值的可读表示。 token、带凭据 URL、`Authorization: Bearer/Basic` 形式的凭据，以及包含空格的绝对路径都被完整替换为受控占位符，且不保留换行。 超长详情在净化后仍受长度上限约束，输出中不包含原始凭据片段。 tools/shared/tests/version-control.test.ts > normalizes and redacts structured version-control operation error details bun test --test-name-pattern=\"^normalizes and redacts structured version-control operation error details$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "topic": [
           "version-control"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 14,
         "entries": [
-          "tools/shared/tests/version-control.test.ts > normalizes structured version-control operation error details",
-          "bun test --test-name-pattern=\"^normalizes structured version-control operation error details$\" ./tools/shared/tests/version-control.test.ts"
+          "tools/shared/tests/version-control.test.ts > normalizes and redacts structured version-control operation error details",
+          "bun test --test-name-pattern=\"^normalizes and redacts structured version-control operation error details$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "id": "VERSION-CONTROL-ERROR-DETAIL-001",
         "line": 1,
-        "searchText": "规范化结构化版本控制操作错误详情 版本控制边界必须把底层操作详情规范化为有界、单行且可行动的文本；结构化未知值不能退化为默认的 `[object Object]`。 缺失详情返回空值，带多余空白的字符串被规范化，结构化对象保留字段和值的可读表示。 tools/shared/tests/version-control.test.ts > normalizes structured version-control operation error details bun test --test-name-pattern=\"^normalizes structured version-control operation error details$\" ./tools/shared/tests/version-control.test.ts",
+        "searchText": "规范化并净化结构化版本控制操作错误详情 版本控制边界必须把底层操作详情规范化为有界、单行、可行动且不泄露凭据或绝对路径的文本；结构化未知值不能退化为默认的 `[object Object]`。 缺失详情返回空值，带多余空白的字符串被规范化，结构化对象保留字段和值的可读表示。 token、带凭据 URL、`Authorization: Bearer/Basic` 形式的凭据，以及包含空格的绝对路径都被完整替换为受控占位符，且不保留换行。 超长详情在净化后仍受长度上限约束，输出中不包含原始凭据片段。 tools/shared/tests/version-control.test.ts > normalizes and redacts structured version-control operation error details bun test --test-name-pattern=\"^normalizes and redacts structured version-control operation error details$\" ./tools/shared/tests/version-control.test.ts",
         "sourcePath": "version-control/normalizes-structured-version-control-operation-error-details.md",
-        "summary": "版本控制边界必须把底层操作详情规范化为有界、单行且可行动的文本；结构化未知值不能退化为默认的 `[object Object]`。",
-        "title": "规范化结构化版本控制操作错误详情"
+        "summary": "版本控制边界必须把底层操作详情规范化为有界、单行、可行动且不泄露凭据或绝对路径的文本；结构化未知值不能退化为默认的 `[object Object]`。",
+        "title": "规范化并净化结构化版本控制操作错误详情"
       }
     },
     "VERSION-CONTROL-FIRST-PARENT-001": {
@@ -14930,30 +15505,30 @@
     "VERSION-CONTROL-PENDING-CONFLICT-001": {
       "keys": {
         "search": [
-          "VERSION-CONTROL-PENDING-CONFLICT-001 拒绝陈旧 pending 替换且保持文件 pending 范围替换只接受仍为当前值的 expected revision，并在无法独占当前 pending 更新前提时以稳定冲突语义要求调用方重新读取后重试。 expected revision 已变化或当前 pending 更新前提不可用时均返回 `pending-conflict`，诊断要求从当前 revision 重试且不泄漏底层实现值。 每次冲突后完整 pending 文件集合与调用前一致。 tools/shared/tests/version-control.test.ts > rejects stale pending replacements without changing pending files bun test --test-name-pattern=\"^rejects stale pending replacements without changing pending files$\" ./tools/shared/tests/version-control.test.ts"
+          "VERSION-CONTROL-PENDING-CONFLICT-001 区分陈旧 Pending 与已存在写入边界 pending 范围替换只接受仍为当前值的 expected revision；revision 漂移与独占创建锁返回的资源存在必须保持可区分，且冲突不得改写 pending。 expected revision 已变化返回 `pending-conflict` 与 `unknown` 原因，不猜测更具体的竞争来源。 注入的锁路径 `EEXIST` 返回同一 event code 但原因为 `busy`，并定位到待替换范围；它不声称存在活动事务。 每次冲突后完整 pending 文件集合与调用前一致。 tools/shared/tests/version-control.test.ts > rejects stale pending replacements without changing pending files bun test --test-name-pattern=\"^rejects stale pending replacements without changing pending files$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "topic": [
           "version-control"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 14,
         "entries": [
           "tools/shared/tests/version-control.test.ts > rejects stale pending replacements without changing pending files",
           "bun test --test-name-pattern=\"^rejects stale pending replacements without changing pending files$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "id": "VERSION-CONTROL-PENDING-CONFLICT-001",
         "line": 1,
-        "searchText": "拒绝陈旧 pending 替换且保持文件 pending 范围替换只接受仍为当前值的 expected revision，并在无法独占当前 pending 更新前提时以稳定冲突语义要求调用方重新读取后重试。 expected revision 已变化或当前 pending 更新前提不可用时均返回 `pending-conflict`，诊断要求从当前 revision 重试且不泄漏底层实现值。 每次冲突后完整 pending 文件集合与调用前一致。 tools/shared/tests/version-control.test.ts > rejects stale pending replacements without changing pending files bun test --test-name-pattern=\"^rejects stale pending replacements without changing pending files$\" ./tools/shared/tests/version-control.test.ts",
+        "searchText": "区分陈旧 Pending 与已存在写入边界 pending 范围替换只接受仍为当前值的 expected revision；revision 漂移与独占创建锁返回的资源存在必须保持可区分，且冲突不得改写 pending。 expected revision 已变化返回 `pending-conflict` 与 `unknown` 原因，不猜测更具体的竞争来源。 注入的锁路径 `EEXIST` 返回同一 event code 但原因为 `busy`，并定位到待替换范围；它不声称存在活动事务。 每次冲突后完整 pending 文件集合与调用前一致。 tools/shared/tests/version-control.test.ts > rejects stale pending replacements without changing pending files bun test --test-name-pattern=\"^rejects stale pending replacements without changing pending files$\" ./tools/shared/tests/version-control.test.ts",
         "sourcePath": "version-control/rejects-stale-pending-replacements-without-changing-pending-files.md",
-        "summary": "pending 范围替换只接受仍为当前值的 expected revision，并在无法独占当前 pending 更新前提时以稳定冲突语义要求调用方重新读取后重试。",
-        "title": "拒绝陈旧 pending 替换且保持文件"
+        "summary": "pending 范围替换只接受仍为当前值的 expected revision；revision 漂移与独占创建锁返回的资源存在必须保持可区分，且冲突不得改写 pending。",
+        "title": "区分陈旧 Pending 与已存在写入边界"
       }
     },
     "VERSION-CONTROL-PENDING-EXPECTATION-001": {
       "keys": {
         "search": [
-          "VERSION-CONTROL-PENDING-EXPECTATION-001 锁内核对期望 Pending 普通文件 `replacePendingFiles` 传入 `expectedFiles` 时，必须在写入锁内且在任何目标写入前核对范围内普通文件的完整路径、字节和普通文件表示。 字节不同、可执行文件、符号链接和未解决的同路径内容都返回 `pending-conflict`，不会进入 pending 写入 hook。 目标范围及范围外 pending 内容保持原样。 tools/shared/tests/version-control.test.ts > rejects replacements when expected pending ordinary files differ bun test --test-name-pattern=\"^rejects replacements when expected pending ordinary files differ$\" ./tools/shared/tests/version-control.test.ts"
+          "VERSION-CONTROL-PENDING-EXPECTATION-001 锁内核对期望 Pending 普通文件 `replacePendingFiles` 传入 `expectedFiles` 时，必须在写入锁内且在任何目标写入前核对范围内普通文件的完整路径、字节和普通文件表示。 字节不同、可执行文件、符号链接和未解决的同路径内容都返回 `pending-conflict`，其原因保持为不外推的 `unknown`，不会进入 pending 写入 hook。 冲突保留受控的 pending 验证 operation 与精确 path scope，目标范围及范围外 pending 内容保持原样。 tools/shared/tests/version-control.test.ts > rejects replacements when expected pending ordinary files differ bun test --test-name-pattern=\"^rejects replacements when expected pending ordinary files differ$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "topic": [
           "version-control"
@@ -14967,7 +15542,7 @@
         ],
         "id": "VERSION-CONTROL-PENDING-EXPECTATION-001",
         "line": 1,
-        "searchText": "锁内核对期望 Pending 普通文件 `replacePendingFiles` 传入 `expectedFiles` 时，必须在写入锁内且在任何目标写入前核对范围内普通文件的完整路径、字节和普通文件表示。 字节不同、可执行文件、符号链接和未解决的同路径内容都返回 `pending-conflict`，不会进入 pending 写入 hook。 目标范围及范围外 pending 内容保持原样。 tools/shared/tests/version-control.test.ts > rejects replacements when expected pending ordinary files differ bun test --test-name-pattern=\"^rejects replacements when expected pending ordinary files differ$\" ./tools/shared/tests/version-control.test.ts",
+        "searchText": "锁内核对期望 Pending 普通文件 `replacePendingFiles` 传入 `expectedFiles` 时，必须在写入锁内且在任何目标写入前核对范围内普通文件的完整路径、字节和普通文件表示。 字节不同、可执行文件、符号链接和未解决的同路径内容都返回 `pending-conflict`，其原因保持为不外推的 `unknown`，不会进入 pending 写入 hook。 冲突保留受控的 pending 验证 operation 与精确 path scope，目标范围及范围外 pending 内容保持原样。 tools/shared/tests/version-control.test.ts > rejects replacements when expected pending ordinary files differ bun test --test-name-pattern=\"^rejects replacements when expected pending ordinary files differ$\" ./tools/shared/tests/version-control.test.ts",
         "sourcePath": "version-control/rejects-replacements-when-expected-pending-ordinary-files-differ.md",
         "summary": "`replacePendingFiles` 传入 `expectedFiles` 时，必须在写入锁内且在任何目标写入前核对范围内普通文件的完整路径、字节和普通文件表示。",
         "title": "锁内核对期望 Pending 普通文件"
@@ -15045,23 +15620,23 @@
     "VERSION-CONTROL-PENDING-RECOVERY-FAILURE-001": {
       "keys": {
         "search": [
-          "VERSION-CONTROL-PENDING-RECOVERY-FAILURE-001 以稳定公共语义报告 pending 恢复不完整 pending 范围恢复无法完成或无法核对时必须停止，并与已完整恢复的普通替换失败明确区分。 读回失败后恢复写入也失败时返回 `pending-recovery-failed`，消息说明范围可能部分更新且不泄漏底层实现值。 tools/shared/tests/version-control.test.ts > reports incomplete pending recovery with stable public semantics bun test --test-name-pattern=\"^reports incomplete pending recovery with stable public semantics$\" ./tools/shared/tests/version-control.test.ts"
+          "VERSION-CONTROL-PENDING-RECOVERY-FAILURE-001 以稳定公共语义报告 pending 恢复不完整 pending 范围恢复无法完成或无法核对时必须停止，并与已完整恢复的普通替换失败明确区分；共享层不把范围外或上层 mutation outcome 写入错误。 读回失败后恢复写入也失败时返回 `pending-recovery-failed`，并保留受控 recovery operation 与 path scope。 tools/shared/tests/version-control.test.ts > reports incomplete pending recovery with stable public semantics bun test --test-name-pattern=\"^reports incomplete pending recovery with stable public semantics$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "topic": [
           "version-control"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 12,
         "entries": [
           "tools/shared/tests/version-control.test.ts > reports incomplete pending recovery with stable public semantics",
           "bun test --test-name-pattern=\"^reports incomplete pending recovery with stable public semantics$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "id": "VERSION-CONTROL-PENDING-RECOVERY-FAILURE-001",
         "line": 1,
-        "searchText": "以稳定公共语义报告 pending 恢复不完整 pending 范围恢复无法完成或无法核对时必须停止，并与已完整恢复的普通替换失败明确区分。 读回失败后恢复写入也失败时返回 `pending-recovery-failed`，消息说明范围可能部分更新且不泄漏底层实现值。 tools/shared/tests/version-control.test.ts > reports incomplete pending recovery with stable public semantics bun test --test-name-pattern=\"^reports incomplete pending recovery with stable public semantics$\" ./tools/shared/tests/version-control.test.ts",
+        "searchText": "以稳定公共语义报告 pending 恢复不完整 pending 范围恢复无法完成或无法核对时必须停止，并与已完整恢复的普通替换失败明确区分；共享层不把范围外或上层 mutation outcome 写入错误。 读回失败后恢复写入也失败时返回 `pending-recovery-failed`，并保留受控 recovery operation 与 path scope。 tools/shared/tests/version-control.test.ts > reports incomplete pending recovery with stable public semantics bun test --test-name-pattern=\"^reports incomplete pending recovery with stable public semantics$\" ./tools/shared/tests/version-control.test.ts",
         "sourcePath": "version-control/reports-incomplete-pending-recovery-with-stable-public-semantics.md",
-        "summary": "pending 范围恢复无法完成或无法核对时必须停止，并与已完整恢复的普通替换失败明确区分。",
+        "summary": "pending 范围恢复无法完成或无法核对时必须停止，并与已完整恢复的普通替换失败明确区分；共享层不把范围外或上层 mutation outcome 写入错误。",
         "title": "以稳定公共语义报告 pending 恢复不完整"
       }
     },
@@ -15137,23 +15712,23 @@
     "VERSION-CONTROL-PENDING-WRITE-FAILURE-001": {
       "keys": {
         "search": [
-          "VERSION-CONTROL-PENDING-WRITE-FAILURE-001 pending 写入失败后保留原范围 pending 范围写入失败不能留下部分目标；确认原范围完整后以稳定项目错误报告失败。 写入不可用时返回 `pending-replacement-failed`，错误不泄漏底层实现值且范围内容与写入前一致。 tools/shared/tests/version-control.test.ts > restores the original range after a pending write failure bun test --test-name-pattern=\"^restores the original range after a pending write failure$\" ./tools/shared/tests/version-control.test.ts"
+          "VERSION-CONTROL-PENDING-WRITE-FAILURE-001 pending 写入失败后保留原范围 pending 范围写入失败不能留下部分目标；共享层只报告它能证明的替换 event、系统原因、受控范围和进程内 cause，不推断上层事务 outcome。 注入 `EACCES` 时返回 `pending-replacement-failed`、`access-denied`、受控 replacement operation 和 path scope。 净化后的 detail 不泄露绝对路径或 token，范围内容与写入前一致。 tools/shared/tests/version-control.test.ts > restores the original range after a pending write failure bun test --test-name-pattern=\"^restores the original range after a pending write failure$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "topic": [
           "version-control"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 13,
         "entries": [
           "tools/shared/tests/version-control.test.ts > restores the original range after a pending write failure",
           "bun test --test-name-pattern=\"^restores the original range after a pending write failure$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "id": "VERSION-CONTROL-PENDING-WRITE-FAILURE-001",
         "line": 1,
-        "searchText": "pending 写入失败后保留原范围 pending 范围写入失败不能留下部分目标；确认原范围完整后以稳定项目错误报告失败。 写入不可用时返回 `pending-replacement-failed`，错误不泄漏底层实现值且范围内容与写入前一致。 tools/shared/tests/version-control.test.ts > restores the original range after a pending write failure bun test --test-name-pattern=\"^restores the original range after a pending write failure$\" ./tools/shared/tests/version-control.test.ts",
+        "searchText": "pending 写入失败后保留原范围 pending 范围写入失败不能留下部分目标；共享层只报告它能证明的替换 event、系统原因、受控范围和进程内 cause，不推断上层事务 outcome。 注入 `EACCES` 时返回 `pending-replacement-failed`、`access-denied`、受控 replacement operation 和 path scope。 净化后的 detail 不泄露绝对路径或 token，范围内容与写入前一致。 tools/shared/tests/version-control.test.ts > restores the original range after a pending write failure bun test --test-name-pattern=\"^restores the original range after a pending write failure$\" ./tools/shared/tests/version-control.test.ts",
         "sourcePath": "version-control/restores-the-original-range-after-a-pending-write-failure.md",
-        "summary": "pending 范围写入失败不能留下部分目标；确认原范围完整后以稳定项目错误报告失败。",
+        "summary": "pending 范围写入失败不能留下部分目标；共享层只报告它能证明的替换 event、系统原因、受控范围和进程内 cause，不推断上层事务 outcome。",
         "title": "pending 写入失败后保留原范围"
       }
     },
@@ -15318,6 +15893,29 @@
         "title": "分离读取 pending 索引内容与 workspace 状态"
       }
     },
+    "VERSION-CONTROL-SYSTEM-CAUSE-001": {
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-SYSTEM-CAUSE-001 分类注入的版本控制系统原因 共享版本控制错误必须把稳定 operation event 与系统原因分类分开，并保留受控操作、目标和详情字段。 独立注入的 `EACCES` 与 `EPERM` 均分类为 `access-denied`，`ENOENT` 分类为 `tool-unavailable`。 普通命令失败保持 `command-failed`，并能独立读取 code、operation、target 与 detail。 tools/shared/tests/version-control.test.ts > classifies injected version-control system causes bun test --test-name-pattern=\"^classifies injected version-control system causes$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > classifies injected version-control system causes",
+          "bun test --test-name-pattern=\"^classifies injected version-control system causes$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-SYSTEM-CAUSE-001",
+        "line": 1,
+        "searchText": "分类注入的版本控制系统原因 共享版本控制错误必须把稳定 operation event 与系统原因分类分开，并保留受控操作、目标和详情字段。 独立注入的 `EACCES` 与 `EPERM` 均分类为 `access-denied`，`ENOENT` 分类为 `tool-unavailable`。 普通命令失败保持 `command-failed`，并能独立读取 code、operation、target 与 detail。 tools/shared/tests/version-control.test.ts > classifies injected version-control system causes bun test --test-name-pattern=\"^classifies injected version-control system causes$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/classifies-injected-version-control-system-causes.md",
+        "summary": "共享版本控制错误必须把稳定 operation event 与系统原因分类分开，并保留受控操作、目标和详情字段。",
+        "title": "分类注入的版本控制系统原因"
+      }
+    },
     "VERSION-CONTROL-WORKTREE-001": {
       "keys": {
         "search": [
@@ -15440,7 +16038,7 @@
       "CHANGE-PLAN-GENERATED-ARTIFACTS-001": "sha256:501b7733efac8e3e550b0f056e4adccc8a510c1a8b41be7033ead46c5e79ebeb",
       "CHANGE-PLAN-GIT-BASE-001": "sha256:7d8fa2ee2cbf6b1f641d416906587dac107e66ba88d653bd7f9ecf2234cf43c8",
       "CHANGE-PLAN-GIT-EXCLUDE-001": "sha256:284255391ef42b91a26f880eebac5ecb386e76e50cca43066c91380b063117cf",
-      "CHANGE-PLAN-GIT-FAILURE-001": "sha256:b63a296ebcec3dfb40c471cc4dbf593e1fb58bb4daba0261011877e1a317e188",
+      "CHANGE-PLAN-GIT-FAILURE-001": "sha256:f5e7f9c975421d70abced3439f1fac187568d3c12421d55eac0ebb3c9ce321ac",
       "CHANGE-PLAN-GIT-NUMSTAT-001": "sha256:34c2d39dc544e4a2715427cdec4c7cbeb8b67af0be97e89269ee23affd7bad92",
       "CHANGE-PLAN-GIT-PATHS-001": "sha256:801af2a004699fff02b68d032db4fce7065673e657471f25b5844f100dfee21d",
       "CHANGE-PLAN-GIT-ZERO-001": "sha256:185bc84e21ee80a0b7e53879749b1b60ed3012f732f52b5d5daa47eaa5fc4c5e",
@@ -15502,6 +16100,7 @@
       "DECISION-CLI-TAG-001": "sha256:e47638364fad59b8e6037ceb934cc0ab324a16604bef0e18d244554698be9350",
       "DECISION-CLI-TRACE-DEPTH-001": "sha256:ba8889666c4bfde8ef6f2e52fd67955a280499da542dfdfb979c5bd5e641189a",
       "DECISION-CLI-UNKNOWN-OPTION-001": "sha256:9f868dbf4976035508ddb0e1c8f61b824d108221aaaf8e36a4438816cc4d4254",
+      "DECISION-COLLECTION-LOCK-DIAGNOSTIC-001": "sha256:426ffcce6bfc67cad7cd601c76ad18d3f0ed33ddb20f0ac210f38b2f33caf9bd",
       "DECISION-CONFIGURED-ABSOLUTE-DIRECTORY-001": "sha256:666237bcba499dc5c1abfd183b4671f46284cfcf1f85c2e46850637d156fe048",
       "DECISION-CONFIGURED-RELATIVE-DIRECTORY-001": "sha256:5fb87bdbc2a18d634f362e618dd413aad14aa12865dcccb1b27eb4fb7a409fc4",
       "DECISION-DISCARD-ONLY-ACTIVE-ESTABLISHED-001": "sha256:91b24bf6b6ba244042934333ed6b8e3e4000cc089249e741188d12f9b1e6c572",
@@ -15549,6 +16148,7 @@
       "DECISION-LAYOUT-INVALID-001": "sha256:0188be2e16bd90ff273b1d6ef019c88bdd7069bd3c978c717c36ef21a1dd5610",
       "DECISION-LAYOUT-VALID-001": "sha256:68c531d7af9831e8f7da3752526fb8903870ba9a13076efe5bd30a39a8c57aea",
       "DECISION-LIFECYCLE-MOVE-001": "sha256:601fdaa8bfb471b473d24e0609cdf876bc8d242d2a63da4f3da93cf4be6ff76d",
+      "DECISION-LIFECYCLE-POST-MUTATION-SCAN-001": "sha256:8e98bd1342bc258bd4b167a1803e8c28e0545ecffc92926a3a646ab460ecdd50",
       "DECISION-LIFECYCLE-PREFLIGHT-001": "sha256:4aba1cdeb26b3f4583ef9f59f6386c733310af89754978196a93fb06cb00f483",
       "DECISION-LIST-ALIGNMENT-001": "sha256:c313036ec6fd33236be311f94f547a2f2af46970cd8c9494aba743f8b90440ff",
       "DECISION-LIST-ALL-001": "sha256:5c497820cab1d9b7613750c8b3b1f9cdf0b8f74110691d7896bef0b23b67c4af",
@@ -15580,6 +16180,7 @@
       "DECISION-RELATION-GRAPH-SELF-001": "sha256:d7c07a6984dad2248391afee378aae8f3a0a7d7bb64a118cd041d706c54168d1",
       "DECISION-RELATION-GRAPH-STRUCTURE-001": "sha256:2df4244739b416c6bbc66d86575f4d8b8b9cf4a4f2d47dbc6ba74fc341a756e5",
       "DECISION-RELATION-GRAPH-TRACE-001": "sha256:b8b9a61d8459adba44a12a7b786f7baaa3c6e3f1e43fa517d2a830cff37937c4",
+      "DECISION-SCAN-FILESYSTEM-DIAGNOSTIC-001": "sha256:2c55fc6ef196dbbf0d5faa2e563e5d9927b146b93734101afeef1008a7a64ea4",
       "DECISION-SHOW-OUTPUT-001": "sha256:a6c556c13e2756b76f7019231afd5763ab95cbff56963d914132de0763548fa6",
       "DECISION-SPLIT-CLOSURE-001": "sha256:8eca8efac59196c19a855de11f0d0662e1e5449caa9e62c9b9a4f9ba82f614de",
       "DECISION-SPLIT-EXTENSION-001": "sha256:ea347368f16eca94ab22e1365226982d6b761e6b0f21bb13043991869a6fff08",
@@ -15592,6 +16193,8 @@
       "DECISION-STAGE-BOOTSTRAP-MISSING-001": "sha256:7b15942812b0cc8534fdd2ac56da1ab2530ae03e5daa29b29398eb365f0a8587",
       "DECISION-STAGE-CLI-001": "sha256:a918b118ed2286916963510e2f5978b9a703f66a8c6c72d1598a801caea17488",
       "DECISION-STAGE-DELETION-001": "sha256:00f4686ac156a9ffe345f5f02cb0202c8ba1d5aa07596ac9ce5f2b84ae7282ca",
+      "DECISION-STAGE-DOMAIN-DIAGNOSTIC-001": "sha256:dc02983aeff432ff77a6b4e670171a976e067745386ac1e173bfd598c6b9cb7e",
+      "DECISION-STAGE-FILESYSTEM-DIAGNOSTIC-001": "sha256:35a19152be3df5ec553465866af8e895328b420d1a1388430e5e93d16d66ea58",
       "DECISION-STAGE-INDEX-ONLY-BASELINE-001": "sha256:f7dcb7cfd4e09431595681e1994c8f83ce5a923ec7aa37a3cf3d1d7b2e23c6b1",
       "DECISION-STAGE-INPUT-001": "sha256:3e7ef203aee4646b0cb02886ff7305b87b224858e789a244e204e9124585f9a7",
       "DECISION-STAGE-ISOLATION-001": "sha256:4879eae2934654b4cf960f25a42ce3fbfe138418f6404bdb2416cc8bcf408dfb",
@@ -15618,16 +16221,23 @@
       "DECISION-SYNC-INDEX-001": "sha256:bfc0d219f8258b163ae8463e05828919bb57c6595197db57c635b57fc883e1b0",
       "DECISION-SYNC-INDEX-002": "sha256:25aadb9106f3eafc222aced0f04324dbe0f2012f80bf38ddee98ce46729deffd",
       "DECISION-SYNC-INDEX-003": "sha256:dda5ee31838ab96da33f44fb5d5e76119dee8d07d242b7fdb25b539a3f13c073",
+      "DECISION-SYNC-INDEX-CLEANUP-001": "sha256:3c5c702ec5fad39d4dd334fe4704dd203922c457959e47b03e73c871cdcf1a62",
+      "DECISION-SYNC-INDEX-FILESYSTEM-DIAGNOSTIC-001": "sha256:960fb66814579eccb51e0a3ea3cecc45c8b7c1b487afdc6050e854bbbf76a4de",
       "DECISION-TAG-METADATA-001": "sha256:3254f457575ab9cf789a3aeba69142caa7157e456032981afd309dd318c13f0f",
       "DECISION-TAG-SOURCE-DRIFT-001": "sha256:c9e8323fdb61a79b135948c56dc0a760fafed6217fb3ad118a7e232e1147ef34",
       "DECISION-TAG-VALIDATION-001": "sha256:5c803b887fc0d762909b59a06ce6b858ddf6e0eae2f1a90d8a70ee519fe21500",
       "DECISION-TAGGED-LAYOUT-CHECK-001": "sha256:0b87254d195004fde9d0547fe68ef5e17f5d6efc42cfeea08aee9bec98f091f8",
       "DECISION-TRACE-DIRECTION-001": "sha256:751c43325ab28ab6712d7d347fabfb698c3e5da4703679da748f2806815cfeec",
-      "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001": "sha256:a3a318c3336daee55329c65fb08cc1b16f03de13fde50c33a809c7008f5fe28b",
-      "DECISION-TRANSACTION-INDEX-PREFLIGHT-001": "sha256:640b71cc0c171543152bb472d5b0c441510a87cab0a3f18b5f32df474b5f3f00",
-      "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001": "sha256:38bb7d50179e3deff69aea2ca5b23a5357425a9a567c7a6147b8570637876b28",
-      "DECISION-TRANSACTION-MOVE-001": "sha256:439a70b022f662b28ba2e373ddaf1351a98352e623ca602467680b3d04e69ff7",
-      "DECISION-TRANSACTION-WRITE-RECOVERY-001": "sha256:e4ba39cf8c04ccec3719882f42273fa3bae2acf920fd6e3e2105d16e247b4fde",
+      "DECISION-TRANSACTION-CLEANUP-001": "sha256:3a89cf8e8cec9fd9f2042142b41529eccd204e2fd83a5ca7da1d55cd9198247c",
+      "DECISION-TRANSACTION-CLEANUP-002": "sha256:9c0250e506b89c674d7f94c146b55746dc746477040f02cbb154dab32b2b0778",
+      "DECISION-TRANSACTION-CLEANUP-003": "sha256:7b7a7265f21a2ce8e1dfd09dc54c61d552f371c760d6609e0b5bda72de5e8751",
+      "DECISION-TRANSACTION-FILESYSTEM-DIAGNOSTIC-001": "sha256:7cbd0b4557fd7c46acd1cbc46bad6a8d09ddc7130f26865b39aa4a24b5d1e9b3",
+      "DECISION-TRANSACTION-FILESYSTEM-DIAGNOSTIC-002": "sha256:a924eea097e83dbaf5f8c38da8a5659d8ead40ededeada5076d549380daeee0f",
+      "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001": "sha256:fb406a7b346eee0bbc099165dafc77042a05f8c3c030db99a020da549786d3aa",
+      "DECISION-TRANSACTION-INDEX-PREFLIGHT-001": "sha256:a364ecd7b7873a75aab3cc0c3a6129ba8ab82c154e7757e058b99f0b0cbc5274",
+      "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001": "sha256:d8212a7a7d4d73625c726cde846a4f90d2e612df91e2406ac321f38d146ee524",
+      "DECISION-TRANSACTION-MOVE-001": "sha256:8344bfcb056e2f545cb2e86630d021aa43c47c31a9812be45243e16a2ab316ff",
+      "DECISION-TRANSACTION-WRITE-RECOVERY-001": "sha256:a32ec970059d258cd9becfc1c26f840518ffb7132980bccc2f185c29c440d963",
       "DECISION-TYPE-PATH-001": "sha256:a497c584f58d77b8eba6552fcaff741261cb3776df69d296c4a3931549de51ac",
       "DECISION-UNRECORDED-ARCHIVE-001": "sha256:529730b9e909578cf8e227b61595fbeb7bf2c61e792697f607ff2fdd774dfd9b",
       "DECISION-UNRECORDED-ARCHIVED-PREDECESSOR-001": "sha256:8fa8386271f72753ce6ef1e7185c1141960b01bf40e1cc4daa6359567babc7d7",
@@ -15636,7 +16246,7 @@
       "ENV-BUN-RUNTIME-001": "sha256:fc4d137b45129ca6e0ac5c63e4117591e8ce78b5b5acee71c83c927f1b7ea5f4",
       "ENV-CHECK-READONLY-001": "sha256:1cc8bb79619b0886f6166381c90048049dc07658f88f51ca0bd0901ffebb6731",
       "ENV-CLONE-HOOK-001": "sha256:8ceef40cebeb5559b4eae4eebb6c9d903ded8c629f52abb4ece20145ba657f1d",
-      "ENV-LINKED-HASH-HOOK-001": "sha256:274fac0f57a0e6e9b9aab70cfa54effde043a60317dda1df77e97f98f7a51918",
+      "ENV-LINKED-HASH-HOOK-001": "sha256:201584a9f587d03b67fdb71643608292866fedcf8fd609a1aed937e611bb6beb",
       "ENV-METRICS-PREREQUISITES-001": "sha256:17691c720b0523f69656ea2ebf010cdcc27266d84b92749cacf68807aac2546e",
       "ENV-PERMISSION-RULES-001": "sha256:21a124776a169674569296131b473013b83cd4982ea6a91fde7ec22edc11b45a",
       "ENV-WORKTREE-SETUP-001": "sha256:a232485668782b975b6e416528f415886b669450f36394065848a5027441842f",
@@ -15669,10 +16279,12 @@
       "INDEX-RUNTIME-DEFINITION-001": "sha256:1191cdb039c59ee498624bf269611513701f39ede03cfe0afbe20b91dc773d4f",
       "INDEX-RUNTIME-DEFINITION-002": "sha256:46a432343309882f2863ed425896a29fc91082f7ab594d038c1cc58b24a4b69d",
       "INDEX-RUNTIME-EMPTY-RECORD-001": "sha256:cc33e367f3adfd67889fa3d51bba798fcd97d3e423bb025121341d260cb0b973",
+      "INDEX-RUNTIME-FILESYSTEM-DIAGNOSTIC-001": "sha256:2e94f52bfc574f19fdb786f7008d65e3fa026c4c6008e2a6df86f4897a8454a5",
+      "INDEX-RUNTIME-FILESYSTEM-DIAGNOSTIC-002": "sha256:238008359bcbe1a06a8b46680554ba59c0faaab0c64767c957319ca6316e124d",
       "INDEX-RUNTIME-FRESHNESS-001": "sha256:01b653d6d58cad76b7e6399f8b5a0d38b0212f3445b20bb6aa7eacb4fcf30807",
       "INDEX-RUNTIME-FRESHNESS-002": "sha256:cc4c41d5e552ca67101952997475352490236d49dc7c32552e3566e5d1f50cfb",
       "INDEX-RUNTIME-IDENTITY-001": "sha256:1e46b1519c57b284936e4fd0b49be41c8e4f7a7b0e684e0783fa9fd193b6700a",
-      "INDEX-RUNTIME-IDENTITY-002": "sha256:0518e51feeaa8b9cfb61c0819aec2ac2ad67fcf9b296df3b728bef26fd635f27",
+      "INDEX-RUNTIME-IDENTITY-002": "sha256:d9d5723eed00fba3ab5ead31c06d690e70ec6d9d4a307d08ba453340872a322f",
       "INDEX-RUNTIME-JSON-001": "sha256:7b3dfcbf956b3165babf0979efc4311becd409dc3afc09bf1f71373bef491ed0",
       "INDEX-RUNTIME-KEY-VALUE-001": "sha256:d610ce3fd149405779961a04640d859cd4f44487a1568afe234ff337ad6f3271",
       "INDEX-RUNTIME-MATERIALIZATION-001": "sha256:49b94482330be52aa9d1ab5e93042c14ed55fb6d9b9c75ce76e14165b436e849",
@@ -15680,7 +16292,7 @@
       "INDEX-RUNTIME-METADATA-002": "sha256:b56b88398d9840dbd2278403294a15b2b3fae5715ab0a998ac5dea939da69dad",
       "INDEX-RUNTIME-NAMESPACE-001": "sha256:3d96b5de464293fb9e53d511d6057bfeafef19c5f6598d87d45ebc251399c099",
       "INDEX-RUNTIME-PAGINATION-001": "sha256:f6205ac10b5ccc0cdf9f3c76330c6e3cad75589aa0747b12ff6dcafbdf3437c7",
-      "INDEX-RUNTIME-PATH-001": "sha256:16e9ef3fb34754ddf15edf7bf73dba1ce79e68cf6a74f1a2b0a3d399c5623035",
+      "INDEX-RUNTIME-PATH-001": "sha256:1147bd49a6a31305b5f02284bbd900188984f2f4886a4e3b5d3f0a1a6ffe943d",
       "INDEX-RUNTIME-PATH-SYMLINK-INTERNAL-001": "sha256:eade4f636b6314044f76b7924abe534368fcc8933cd626813059f7b00f074838",
       "INDEX-RUNTIME-PATH-SYMLINK-READ-001": "sha256:dc2aa71ec91b2caeb7fc070ed345aa890662a3a9450a9e4a216b77d0c125e8a4",
       "INDEX-RUNTIME-PATH-SYMLINK-WRITE-001": "sha256:53fafa27607bb6cfe72fb4620e45ad61e07f63df525008b425226aea66ef5137",
@@ -15704,15 +16316,17 @@
       "INDEX-RUNTIME-STAGING-BOUNDARY-001": "sha256:6590922062d1ff1e87070bc7a5593b39a0d7120276e64dd99f977353c6ae44b0",
       "INDEX-RUNTIME-STAGING-COLLECTION-001": "sha256:abb0c6201a0824534b30e6f22ae9fa18964021acc1bb701aaa07cb5a8bc4751e",
       "INDEX-RUNTIME-STAGING-CONCURRENCY-001": "sha256:2493190077c5666ebb525045394340019460faebb604a3614c80e9e39fc97e2d",
-      "INDEX-RUNTIME-STAGING-CONFLICT-001": "sha256:3bd0f852591bda4f14b1bad1fcadc94bd1a70cb949149bb087da296a489e4b3e",
+      "INDEX-RUNTIME-STAGING-CONFLICT-001": "sha256:272acc3c9db372ceecd36fd0ff6da8b80d4ef62a9f4e1c6a5eb90f9136d89527",
       "INDEX-RUNTIME-STAGING-EXISTENCE-001": "sha256:869a98538d3553b76bf918be9897e0e2285a87d29fd62ba5e00d6630e1292db0",
       "INDEX-RUNTIME-STAGING-INDEX-001": "sha256:1e00909598d832274c02d8183f8fcd7649260b864a85c235da302f35f46c942c",
       "INDEX-RUNTIME-STAGING-INPUT-001": "sha256:2cf5bf5b929ffbfb130cb8573a2cd27313953ea02ef492ffa840d19ecad3fcb0",
-      "INDEX-RUNTIME-STAGING-PENDING-WRITE-001": "sha256:c34583dba151d312f06be845a2917ad8aa3e6180a3e5162220a92918e11a84de",
+      "INDEX-RUNTIME-STAGING-PENDING-RECOVERY-001": "sha256:4ade18916b7b596a54359fa73f335dcff62242b55a764ec65d7d7b20ae1d1f2c",
+      "INDEX-RUNTIME-STAGING-PENDING-WRITE-001": "sha256:accd05cd0aaaa00511277c0d57f29c63d05c8afa06cf694c79e091727a20e4b0",
       "INDEX-RUNTIME-STAGING-PROJECTION-001": "sha256:17952f03eb21edc107dc0ba1da0b9644f77300e21738b77208a8a093bda62ac7",
-      "INDEX-RUNTIME-STAGING-REPOSITORY-001": "sha256:1fef20ec4f53dfe3020bbf49e706ca37d7c8e155e4f267aace3e554206ef89e4",
-      "INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001": "sha256:f9aeb2d09539479d87262a154a889016fdfebcb3f53b1f7d73315c083a737912",
+      "INDEX-RUNTIME-STAGING-REPOSITORY-001": "sha256:90fcdd4c0e0606cc5937fa4f7e906bd81b8e9c81bc034ed5c155f9d7b7532af5",
+      "INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001": "sha256:ad22212b9a595811bd920a81ecc68b4af687a5f29086f4554d50e8b4b1cc52c7",
       "INDEX-RUNTIME-STAGING-SELECTION-001": "sha256:1ea7b73399a32db74767bd0e2b7f2897903ecefd55933e87920e79bf4e49a382",
+      "INDEX-RUNTIME-STAGING-TOOL-UNAVAILABLE-001": "sha256:d9742d9af148f8c8a91f48fe454f50e4d074f678b909a58821835646b9a110bc",
       "INDEX-RUNTIME-SYNC-LIFECYCLE-001": "sha256:4d2164bd605863cc0e79f58c5b6b016127e2d4c424982b540b6fefbdfaf8dda0",
       "INDEX-RUNTIME-SYNC-MODE-001": "sha256:d85b8e471c816408d97f61479b10697db530ca0a5b433dcb4442e47e3238d414",
       "INDEX-RUNTIME-SYNC-UTF8-001": "sha256:6bd07e1441ed4e5f861530432e1639c040941a5b1b67fe43d6e48b128112d0c9",
@@ -15724,14 +16338,22 @@
       "INVESTIGATION-CLI-ENUM-001": "sha256:96f85e4a80c0feafd5b891d43139bdd2b5ad1e915e0c5a0e083915a33aad9ba5",
       "INVESTIGATION-CLI-LIST-001": "sha256:2c3b16e5ffb10a25b4cd7d6016a9ad35a67caa3f792b7d9092b8001ca81bcb42",
       "INVESTIGATION-CLI-RELATIONS-001": "sha256:c32a54c3aa56b9210b359e179d9ef40b00d16bd47de4597794724805963548e2",
+      "INVESTIGATION-CLI-SHOW-DIAGNOSTIC-001": "sha256:907426c98b810f106f0b5d5cee115fbca6f179a3186a698890d84ff093eb8827",
+      "INVESTIGATION-CLI-STAGE-DIAGNOSTIC-001": "sha256:2c43faaa9854df1b39caec91f74b3c5820b9ff7320f3058e05f043b4064ba5a3",
+      "INVESTIGATION-CLI-STAGE-FILESYSTEM-001": "sha256:b20e1f1d10a647c9928bfa9a1f7a422f3e752e2d4f5edc9cc0af195d7d17fec5",
       "INVESTIGATION-CLI-STAGE-JSON-001": "sha256:febc641f5f49eb62d9797708974f346af0b96dafddc4b3d63ad9e6a42a861182",
+      "INVESTIGATION-CLI-STAGE-PENDING-001": "sha256:e42bab411c398f1671451279aa8247df1512dec2389ce7377a59c11d10680789",
       "INVESTIGATION-CLI-SYNC-001": "sha256:8bbab341361467ed5015991bd934dc1a082f02f853a8b38877658883bcbd23b4",
+      "INVESTIGATION-CLI-SYNC-FILESYSTEM-001": "sha256:60b2bb7a48733879f0fcce0c18ff7e782cd34efe6413880b0f0c7c73bc23fe81",
+      "INVESTIGATION-CLI-SYNC-LOCK-001": "sha256:f21009e42cc7e6bfb9b82037bd5a8aa37cb16f00ac8e3a2de0d93b5f07c34c3a",
       "INVESTIGATION-CLI-USAGE-001": "sha256:a7a44b1fbc1a2732609c0bf2142ce9da2d81337fd9f9a7b0040141f6c83f34e1",
       "INVESTIGATION-CLI-WARNINGS-001": "sha256:db2b90b6efad611bd0cc9ff1a4e3ac3f0bc955b8bb608a53136e7ee278962564",
       "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:1d73ce585b768cdaf110359fe5253febda7feaf0b5b0fc2a2f49d2c11769768b",
+      "INVESTIGATION-COLLECTION-LOCK-DIAGNOSTICS-001": "sha256:0e0946681344dc5a641bee8c54319bd84fcb2ba6778c69064c234f720a0f1e25",
       "INVESTIGATION-COLLECTION-ROOT-001": "sha256:f5d20b2646a9b4f27399a5fc5a022bb5a65e9ab06befc7fdec5d6190beedb372",
+      "INVESTIGATION-DIAGNOSTIC-SANITIZATION-001": "sha256:b88721100ec5ac898f93431324e264de441c45c09f8c61780e77d971b3eda1eb",
       "INVESTIGATION-DIRECTORY-PATH-001": "sha256:c232adeaff4f31869a400176d5e354d6ba24073fa128b52bc9abfd5d757de419",
-      "INVESTIGATION-DISCARD-CLEANUP-FAILURE-001": "sha256:55de2872c1ae51cb0b40f7872ce5e940ee4222cbbc56761a3041c1e8c17b0e42",
+      "INVESTIGATION-DISCARD-CLEANUP-FAILURE-001": "sha256:ddea6115bfebc972a9ab9e67a73c1b8270e8606dd25fbbd255e51bad6b39d498",
       "INVESTIGATION-DISCARD-FINAL-001": "sha256:1cd2a20ba186c6a8493291bafd68b89058688bd2e9cf5dcdcac1b0d3948a25a9",
       "INVESTIGATION-DISCARD-GIT-001": "sha256:478670bd8ad631df55d33492e3c577cb42e7b800d8496abfc73e56f45ca6236a",
       "INVESTIGATION-DISCARD-GIT-FAILURE-001": "sha256:f97011e662d5b3d09c567055d599c14c359725042e4b3c6382cf5d68515d944d",
@@ -15740,7 +16362,7 @@
       "INVESTIGATION-DISCARD-RESOURCE-DRIFT-001": "sha256:cad065c073c38d28af785d04c68bf5eeeafe0d46c48beecfe4d1365f35e9b377",
       "INVESTIGATION-DISCARD-RESOURCE-ID-001": "sha256:49e498f86ef96da63bc9208a813c15fdafac723e66373fe6ca774270900f8332",
       "INVESTIGATION-DISCARD-RESOURCE-SAFETY-001": "sha256:3f88424294064c7ada1df5f0fae19302c7684537e76326d6213b32a9edd271e0",
-      "INVESTIGATION-DISCARD-RESTORE-001": "sha256:7c6580348467ce262bd7673febc74f0f6a72c12232795cd1bc8a8cdea4845053",
+      "INVESTIGATION-DISCARD-RESTORE-001": "sha256:88e147b45003a884c43a826c111a3dfd7a46c0004f45ab128816838ca0b2fa2b",
       "INVESTIGATION-DISCARD-SPLIT-001": "sha256:507f797d445c782363c366c167615e1b1085b3c8c9b81f1e40a4aae4e144c4b3",
       "INVESTIGATION-DISCARD-TOMBSTONE-WINDOW-001": "sha256:432c88d3d37f5c966227cb247a4772c3b4952080cdf87d4d67881e399bd46bd8",
       "INVESTIGATION-DISTRIBUTION-SMOKE-001": "sha256:da3e5178c73f35d19f093291d6be7f03529929e62f67b9b834c52bd7632942e9",
@@ -15756,7 +16378,7 @@
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:c296f8686441762f6fc42c7baed4df1d90c506d8349e5a90cd6a79118af81f86",
       "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:f06cda59aa8d5cf08fe6e2ce817df58bebadd2df540370e4b2c9190073a6615f",
       "INVESTIGATION-RELATION-GIT-HEAD-001": "sha256:b740f716cf24b71bd291fb8b81f3722901893c2b422e472704948eeba9b2476b",
-      "INVESTIGATION-RELATION-GIT-HEAD-002": "sha256:79d72fff9862a75047f32dc2af9685234ec1d8e4da8ee973830aabfb4b6bf035",
+      "INVESTIGATION-RELATION-GIT-HEAD-002": "sha256:171552df1afa6c92e8e1752e387cb6239e7f53a55fb26eed7ec7d4a86577ec44",
       "INVESTIGATION-RELATION-GRAPH-CYCLE-001": "sha256:c765da2db93e681c3aeee2493d2e16aadb08d39077a5b9af527690865822d170",
       "INVESTIGATION-RELATION-GRAPH-DUPLICATE-001": "sha256:3d2a034adff29f80dcf6a200fb20ed7450f32ed31357e31f4daf3b6f49d3ef77",
       "INVESTIGATION-RELATION-GRAPH-SELF-001": "sha256:770dff101c35f6a9ac7d0ac808dfdd12b9ed9ecc5cb56568488367421cf478ea",
@@ -15765,11 +16387,11 @@
       "INVESTIGATION-RELATION-GRAPH-TRACE-001": "sha256:28ba8ff83dcb868c23cc8c7127f782bcfb250155abb8339e8fadb0c24b6f6b02",
       "INVESTIGATION-RELATION-GRAPH-VALIDATION-001": "sha256:5efc05392ae38b3a32ae84d59353fa3b641fd581a9952e32584650a760a7d7af",
       "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001": "sha256:edef756fa68cafaa0dbca270d2636a7c67097500e703269964742fcb652ccfbf",
-      "INVESTIGATION-RELATION-TRANSACTION-DRIFT-001": "sha256:d2eafdb26073ce3ddd52dfec19d17fc9300f4b8e89da85230f54dea3064bb59e",
+      "INVESTIGATION-RELATION-TRANSACTION-DRIFT-001": "sha256:a54b74486a6ee80d7212ad575a489d5b578066881589fb147e4d055ade2edd59",
       "INVESTIGATION-RELATION-TRANSACTION-IDEMPOTENCE-001": "sha256:e29c341374970add80fd9e97ca748eb31102e7f81ea1f62f23196e40e2fbe0a0",
       "INVESTIGATION-RELATION-TRANSACTION-PARSE-001": "sha256:55fe51a8b775ad482ba032a80fbdb70f4f077c7ca6a20fe325bf8bd9af6f8337",
       "INVESTIGATION-RELATION-TRANSACTION-PENDING-001": "sha256:5aaee9d215f3f416eb66727c9e863c253e51357a509fff505b22740a893c5659",
-      "INVESTIGATION-RELATION-TRANSACTION-RECOVERY-001": "sha256:3348463801d0a972ec5a9a5a65b2c6905fe6492ca4c5bcba3eb162ca62f794c1",
+      "INVESTIGATION-RELATION-TRANSACTION-RECOVERY-001": "sha256:02c2bad3d328f3811e6c628867ab9ae6ad7d3c6f3cd3ce76b787cba58ae48650",
       "INVESTIGATION-REPORT-FRONTMATTER-001": "sha256:275c3a8d7772b92445db9c875eaf3b4ebf5796292fb60b17e6705bd810f8bb3b",
       "INVESTIGATION-REPORT-STRUCTURE-001": "sha256:1192a2c396a0d369c56290ce4a1078abc4066047fc2be8672460358f5f746746",
       "INVESTIGATION-REPORT-VALIDATION-SCOPE-001": "sha256:db1402f134024dfa26d5a1673b8d03a2ac22d4a602c2db863debe518fb3d58d2",
@@ -15810,7 +16432,8 @@
       "INVESTIGATION-STAGE-RESOURCE-DELETE-001": "sha256:64db4707b83b697b85ce4220bb2acb929667447a07079a754800d717ff847cb3",
       "INVESTIGATION-STAGE-RESOURCE-RENAME-001": "sha256:0288febc705e6ceefd3bc4f5a92b8e481e1093d5967796dc536c06a71c98aa64",
       "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:9555e9e4e55d747f55eb3b6653062814f14092477cec780b3a4f46778716546f",
-      "INVESTIGATION-SYNC-DISCARD-LOCK-001": "sha256:a51a3a8e275adea77fd9998a697543254c42fae108327756bde53d90657e339f",
+      "INVESTIGATION-SYNC-DIAGNOSTIC-001": "sha256:fc2e209eee0efb6556af2015f1ef0f851728a078270e855e03106ea9f84b843b",
+      "INVESTIGATION-SYNC-DISCARD-LOCK-001": "sha256:9e4ead81f54d073791372b5d67c6eb2ac5b6eb6f40c403ddf03b36d65ef7c88e",
       "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": "sha256:b972098b86b31893963b01c347b74b36806bf2f3a53f49d64abad277df716cb7",
       "INVESTIGATION-VALIDATION-WARNINGS-001": "sha256:a9b840e98f36ca628e09a7cb26a5244cabfc0e90746064cd5287cbed0b65ddf8",
       "REPO-FORMAT-SCRIPTS-001": "sha256:2f52e8e3653f91fad9f12010ebaee9b5beec800eb99609bd48b28a284618794d",
@@ -15828,10 +16451,10 @@
       "REPO-TASK-TARGET-001": "sha256:0d31dfb2b408a1aede75a8230c2d302d965c3e131109c6fc0808324b1a80f5bd",
       "REPOSITORY-VALIDATION-STRUCTURE-001": "sha256:b2f68ddbee437e7e538b5623de62ae163867590b3373d2295768018c77194c6e",
       "SKILL-PACKAGE-HASH-001": "sha256:cf44553e22b994bf18ecc1269c2a95e1d58c03eaa247bff8abcc4a6bef099732",
-      "SKILL-PACKAGE-HASH-002": "sha256:acd1e290d0b553f438700b71fabd6fab1856c150d9e1d1ad194d3eb1a499f9c3",
+      "SKILL-PACKAGE-HASH-002": "sha256:9c00e3bb0f26d46d72fcb1614984043bbf13bf9f1a3cbb88a22b173718082535",
       "SKILL-PACKAGE-HASH-003": "sha256:5f419523f684074779483e505e2eaab8baf714a1bcd1d378a65371d1424627ac",
       "SKILL-PACKAGE-HASH-004": "sha256:cf26cb29aa27406cfff83b65c138a8907431fc16508665dba3b01fc73b449313",
-      "SKILL-PACKAGE-HASH-005": "sha256:60a60dfd919c85ce28e1eb82719fa87c4b89a0cffbda29cef30b1c654b283f62",
+      "SKILL-PACKAGE-HASH-005": "sha256:ee674945be5cd9c2206d0b393f0586ed0d741f104fc70c339c0cc3a482d4b385",
       "SKILL-PACKAGE-HASH-006": "sha256:a4c82e0ce772f10c55668d528527c306e30ce4139e4a808cd59851b97c91ffdf",
       "SKILL-PACKAGE-HASH-007": "sha256:2bbc8720532390a943ab064bb290496a0f0ac94fb56d807072752ddeb7dcb422",
       "SKILL-RELEASE-PUBLISH-001": "sha256:9652a3afad7e6c4b580af3eb01676084f98787dd4d8b2651cc212bc332b3f874",
@@ -16017,15 +16640,15 @@
       "TEST-EVIDENCE-SCHEMA-V3-001": "sha256:0bdbe37554b59871150b4f2bffd320d92ab40d761d1d5dd12d0ceab24d045c2a",
       "TEST-EVIDENCE-SHOW-REPOSITORY-001": "sha256:06ad49afd0c01bb81322bf25f09a4caca17818c2944285e2037b5d734332ae47",
       "TEST-EVIDENCE-STAGE-BOOTSTRAP-001": "sha256:2e211fb4edd2ba83776d2dbed82c280e640f8a50b33916475138550dae91030f",
-      "TEST-EVIDENCE-STAGE-CLI-001": "sha256:19eb883d7659407ee18fd9d77ea38e0532bbb0d9c98041ecf21843a60999f26f",
-      "TEST-EVIDENCE-STAGE-CONFLICT-001": "sha256:31222503372f3d68e75ff42b59a6ff6beb25d3e90b0249ddfdbd9d807ab6049f",
+      "TEST-EVIDENCE-STAGE-CLI-001": "sha256:7c59e8412183131706f4f696536e6e0c9e7834a0c4bc9e916acd82e0f3a3efaf",
+      "TEST-EVIDENCE-STAGE-CONFLICT-001": "sha256:8479063013829d4e2b3599a3760f8403f8162843b9db902726c23c1f906347aa",
       "TEST-EVIDENCE-STAGE-EMPTY-001": "sha256:585d4943e2f3a64af553bb70adbc923cc97788a70c03e5dc6e0ffd8fd65fad0e",
       "TEST-EVIDENCE-STAGE-INPUT-001": "sha256:70654acff33ddbe1b26c7c4e1674495da3746603a24fe3ca8ea313f6e3da9042",
       "TEST-EVIDENCE-STAGE-ISOLATION-001": "sha256:542945a31ecd4e835283d2b6fef3d1c843384269adde2a98c06d4689116fc2a3",
       "TEST-EVIDENCE-STAGE-METADATA-001": "sha256:a6550296cc03048dfe62e62a0355f6e25178f8b33035010d30d5efcf03542fde",
       "TEST-EVIDENCE-STAGE-MISSING-001": "sha256:afaf9adfcc21b8b605bc0415b0f7d2b2494640024ca76d5ca8b905f64a4a70b0",
       "TEST-EVIDENCE-STAGE-OVERLAY-001": "sha256:cac7f1516de28282af227fc66f51e33ab137e079ebdf3032f574008c7edfdae5",
-      "TEST-EVIDENCE-STAGE-REPOSITORY-001": "sha256:e197001413fd925102181963a4c54c380651db89a88b1195904a8569e5bd3529",
+      "TEST-EVIDENCE-STAGE-REPOSITORY-001": "sha256:e5329e5b79baa6ba7786a2fdef762fa7c4977c2a436c9e061c261eaeabe686c3",
       "TEST-EVIDENCE-STAGE-TOPIC-001": "sha256:41395287847c02bca208bc73a02bc39c7771725abf54fb6fc72cd38db103962f",
       "TEST-EVIDENCE-STAGE-UNCHANGED-001": "sha256:10d46e6be6853be4ba3b4ce662f48127ae2afb38f2145ce9ac1a4808a81a8ea3",
       "TEST-EVIDENCE-STALE-INDEX-001": "sha256:b9e12934e5c349355580dd5f7c32ea0f1c25b1fea2dc2fede8abd040c73f662f",
@@ -16040,25 +16663,25 @@
       "TEST-EVIDENCE-UPGRADE-V2-001": "sha256:7e17a09ebe41e7999152dc7d9cad50f1616dc3cacbd1e0ece2dc2a30001c1eca",
       "VERSION-CONTROL-CHANGES-001": "sha256:31254f830340da6e7056305051c59f67bd1252d9ae94f38d4f5ec4754724ecf5",
       "VERSION-CONTROL-CONFLICT-001": "sha256:224755b16beb3ee84e7a4f625d07fbd822caee95d9c5c8b38d88bfcee729dbc9",
-      "VERSION-CONTROL-CORRUPTION-001": "sha256:f04976e6b2b44976c3ccfbee8afa58234b4b02309cccedadfd0a018a57327267",
+      "VERSION-CONTROL-CORRUPTION-001": "sha256:3eacb5bb68d55709acc3807a18941bc7658098959968474820dccbeecd097bda",
       "VERSION-CONTROL-DISCOVERY-FAILURE-001": "sha256:98962b6a255620d5f70bdc3bdd6c811b1dc2a0eac420e71bccf812bcf429f884",
-      "VERSION-CONTROL-ERROR-DETAIL-001": "sha256:59b19aa8951df33b8aa85cb9e9b4892727c0fb2fb97c0b4e85cfa12671b6e531",
+      "VERSION-CONTROL-ERROR-DETAIL-001": "sha256:5b07fde901bac92903a6465c11b19bc5784f2e55260a550771caf9e6499ca315",
       "VERSION-CONTROL-FIRST-PARENT-001": "sha256:54aa1b954c70c7456be3d9e7418030c8b1810080439ddc4c4ab14f6c213ca3e9",
       "VERSION-CONTROL-FIRST-PARENT-FAILURE-001": "sha256:a932264bbf70968e661a976a9f5a45ae85d4c56349df1404202562640c24cbca",
       "VERSION-CONTROL-FIRST-PARENT-RELATION-001": "sha256:a3ba2e94b62fe1c4aa578ce7568d634d1fdaa3ed8090e482d5f420b4fa00bfa8",
       "VERSION-CONTROL-GIT-FIXTURE-001": "sha256:a60198497157184cbfa11688af7b02da5e76b877a6f9e4ec9c5674df3a11bf97",
       "VERSION-CONTROL-HEAD-001": "sha256:713c4c9d45699e35a3a1dbe413a1cbdf474a6a61620c7e43de611b0505e1bbe6",
       "VERSION-CONTROL-NUMSTAT-001": "sha256:cf0ac87ddcf33d9ac9e04a6d70861e63f24e8a7be833d0c4e9510dd11721617c",
-      "VERSION-CONTROL-PENDING-CONFLICT-001": "sha256:2d76d0482c630b49e1aa3eb484d66b1ca933de3a12184d4f009aad452572c4b8",
-      "VERSION-CONTROL-PENDING-EXPECTATION-001": "sha256:5e558c2a5f2fa2e26e198b42edb374a59d8182815a34f5d29b181a44fcf69a16",
+      "VERSION-CONTROL-PENDING-CONFLICT-001": "sha256:c2be95f1923ae65b546e415666c588da43bc464fdb37331c7a3f3aaa5613e109",
+      "VERSION-CONTROL-PENDING-EXPECTATION-001": "sha256:de7aeb02910f01f8e7009ceafff945748e3e426e288dd788d83cec6bdb6eb6f4",
       "VERSION-CONTROL-PENDING-EXPECTATION-CONCURRENCY-001": "sha256:6deb5d9a74cee019780ebbc8ae1c5f4ea47e7b091f07f3444dadf7b0924a348e",
       "VERSION-CONTROL-PENDING-PATHS-001": "sha256:8fbe0b7d1bd85f639cb0eeb5226433870a3f48164331f3e58a59ad3493ab9bcd",
       "VERSION-CONTROL-PENDING-READBACK-FAILURE-001": "sha256:39ff7fdab5f80df6acdb89cddfc515066de535e79dca68388d36e71adaae3847",
-      "VERSION-CONTROL-PENDING-RECOVERY-FAILURE-001": "sha256:8300ad5e02523c7ec25d8ad57c3f96a2f28a9146f8955b32c6620f0eae1a34ad",
+      "VERSION-CONTROL-PENDING-RECOVERY-FAILURE-001": "sha256:7f3bd54d838e2a26649ca0aadebb2a01fa70e484aeeb22b89dce6fc3dfeef78f",
       "VERSION-CONTROL-PENDING-REPLACE-001": "sha256:695861c6fe53449c4f77e0e284cec6989f0ea97b0ed611b8bf6a786ddf457e27",
       "VERSION-CONTROL-PENDING-REUSE-NOOP-001": "sha256:1bf5866c02280e6ba366a564a0f20dd224d0042486ed11e75823c3e6490df018",
       "VERSION-CONTROL-PENDING-UNRESOLVED-001": "sha256:df74f984ab955c11b8a09a2d741fe4fb4053c318ae5c96dfa95c38a6a89805cd",
-      "VERSION-CONTROL-PENDING-WRITE-FAILURE-001": "sha256:fe2774c98fc1e1757ae7e7b5d845a23ad9f28d43b4083c84c7f546416e0b00bd",
+      "VERSION-CONTROL-PENDING-WRITE-FAILURE-001": "sha256:b5d56fb8ab9a09550e21f85256a2597714b72ad587d9284c47f8e30501276177",
       "VERSION-CONTROL-REPOSITORY-001": "sha256:bd95ed5c9d2cbd25eba21dc495a6d5602854684c9af6723620efed2af814a8f3",
       "VERSION-CONTROL-REPOSITORY-PATH-001": "sha256:47456f3b29a000c855fc212f228c5bd7272cef01d23f6f9810592b7dc39d31a6",
       "VERSION-CONTROL-REVISION-001": "sha256:a03d1dfa9987689debcd3a3140e7ea394eb6d4e015f845e92539bc3c39a81092",
@@ -16066,6 +16689,7 @@
       "VERSION-CONTROL-REVISION-SHA256-001": "sha256:a6137b4863dc17fcada5297d7223ea78abc045df2143f5acf173dec964b400a1",
       "VERSION-CONTROL-REVISION-TREE-001": "sha256:bb4f956b9f985514fc3439cf1379c7234913ecc2f78b8612d8754d79e38b1e12",
       "VERSION-CONTROL-STATES-001": "sha256:5de8e31678bc717f6da89e3590791e55aa6318cfec899c3196498616b346aff0",
+      "VERSION-CONTROL-SYSTEM-CAUSE-001": "sha256:4a1b27d0192024029502ee1e31d72f9bfb2f1da56bb5314297b61cfdd74e0023",
       "VERSION-CONTROL-WORKTREE-001": "sha256:9ac7f9540e8bd3f19b913fb66ba465f99e43b4274299fb9dbb6a8bfbe311b790"
     },
     "metadata": "sha256:ef4cc771acf55ebd5725abb81b441f4a51a12636b4f8f0212831a10fc364ef1e"

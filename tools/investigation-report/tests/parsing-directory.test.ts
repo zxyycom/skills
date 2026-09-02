@@ -291,7 +291,19 @@ test("full validation skips unrecorded predecessor warnings without Git HEAD", a
       workspaceRoot: root
     });
     assert.deepEqual(brokenHeadResult.errors, []);
-    assert.deepEqual(brokenHeadResult.warnings, []);
+    assert.equal(brokenHeadResult.warnings.length, 1);
+    assert.match(
+      brokenHeadResult.warnings[0] ?? "",
+      /investigation-report\.history-check-unavailable/u
+    );
+    assert.doesNotMatch(
+      brokenHeadResult.warnings[0] ?? "",
+      /error: \[operation-failed\]/u
+    );
+    assert.equal(
+      (brokenHeadResult.warnings[0] ?? "").match(/detail: /gu)?.length ?? 0,
+      1
+    );
   });
 });
 

@@ -3,7 +3,12 @@
 import process from "node:process";
 import { CommanderError } from "commander";
 import { isMainModule } from "../../shared/src/node/main-module.ts";
-import { decisionFailure } from "./application-result.ts";
+import {
+  decisionDiagnosticFromReason,
+  decisionFailure,
+  decisionFileSystemErrorText,
+  type DecisionApplicationFailure
+} from "./application-result.ts";
 import { createCliProgram, type CliArgs, type CliArgsFor } from "./cli-args.ts";
 import {
   printCandidateWarnings,
@@ -33,6 +38,7 @@ import { applyDecisionChanges } from "./decision-transaction.ts";
 import { stageDecisionRecords } from "./decision-stage-service.ts";
 import {
   loadDecisionValidationContext,
+  validateDecisionScan,
   validateDecisionRecords,
   type DecisionValidationOptions
 } from "./index.ts";
@@ -170,7 +176,7 @@ async function runStage(
     decisionIds: args.decisionIds
   });
   if (result.status === "error") {
-    printDecisionFailure(result, io);
+    printDecisionFailure(withStageNoChange(result), io);
     return result.exitCode;
   }
   io.stdout(
@@ -183,6 +189,26 @@ async function runStage(
       " files in the pending decision scope).\n"
   );
   return 0;
+}
+
+function withStageNoChange(
+  failure: DecisionApplicationFailure
+): DecisionApplicationFailure {
+  return {
+    ...failure,
+    diagnostics: failure.diagnostics.map((diagnostic) =>
+      diagnostic.scope === undefined
+        ? {
+            ...diagnostic,
+            ...(diagnostic.code === "decision-records.command-failed"
+              ? { code: "decision-records.stage-failed" }
+              : {}),
+            outcome: "no-change" as const,
+            scope: "Pending decision snapshot"
+          }
+        : diagnostic
+    )
+  };
 }
 
 async function runActivate(
@@ -315,7 +341,7 @@ async function loadLifecycleScan(
     validationOptions
   );
   if (result.errors.length > 0) {
-    printDecisionFailure(decisionFailure(result.errors), io);
+    printDecisionFailure(lifecyclePreflightFailure(result.errors), io);
     return null;
   }
   return result.scan;
@@ -331,7 +357,7 @@ async function applyLifecycle(
   if (requiresDecisionHistoryBaseline(scan, request)) {
     const loadedBaseline = await loadDecisionHistoryBaseline(scan);
     if (loadedBaseline.status === "error") {
-      printDecisionFailure(loadedBaseline, io);
+      printDecisionFailure(withLifecycleNoChange(loadedBaseline), io);
       return loadedBaseline.exitCode;
     }
     historyBaseline = loadedBaseline.baseline;
@@ -344,20 +370,46 @@ async function applyLifecycle(
     return prepared.exitCode;
   }
   if (prepared.status === "error") {
-    printDecisionFailure(prepared, io);
+    printDecisionFailure(withLifecycleNoChange(prepared), io);
     return prepared.exitCode;
   }
-  const errors = await applyDecisionChanges({
+  const transaction = await applyDecisionChanges({
     changes: prepared.changes,
     originalScan: scan,
     scanOptions: decisionScanOptions(args)
   });
-  if (errors.length > 0) {
-    printDecisionFailure(decisionFailure(errors), io);
+  if (transaction.status === "error") {
+    printDecisionFailure(decisionFailure(transaction.diagnostics), io);
+    return 1;
+  }
+  const updatedScan = await scanDecisionRecords(decisionScanOptions(args));
+  const updatedValidation = await validateDecisionScan(updatedScan, {
+    allowEmptyDecisionSet: !updatedScan.records.some(
+      (record) => record.source.kind === "established"
+    )
+  });
+  if (updatedValidation.errors.length > 0) {
+    printDecisionFailure(
+      decisionFailure(
+        updatedValidation.errors.map((reason) =>
+          decisionDiagnosticFromReason(
+            {
+              code: "decision-records.post-mutation-scan-failed",
+              outcome: "partial-or-unknown" as const,
+              recovery:
+                "Inspect and reconcile the decision files and derived index before retrying another mutation.",
+              scope: "Decision Markdown files and derived decision index",
+              target: "Post-mutation decision collection validation"
+            },
+            reason
+          )
+        )
+      ),
+      io
+    );
     return 1;
   }
   io.stdout(`${prepared.message}\n`);
-  const updatedScan = await scanDecisionRecords(decisionScanOptions(args));
   printCandidateWarnings(
     updatedScan.records
       .filter((record) => record.activationCandidate)
@@ -366,6 +418,42 @@ async function applyLifecycle(
     io
   );
   return 0;
+}
+
+function lifecyclePreflightFailure(
+  errors: readonly string[]
+): DecisionApplicationFailure {
+  return decisionFailure(
+    errors.map((reason) =>
+      decisionDiagnosticFromReason(
+        {
+          code: "decision-records.lifecycle-preflight-failed",
+          outcome: "no-change",
+          recovery:
+            "Correct the reported decision collection problem, then retry the command.",
+          scope: "Decision Markdown files and derived decision index",
+          target: "Decision lifecycle preflight"
+        },
+        reason
+      )
+    )
+  );
+}
+
+function withLifecycleNoChange(
+  failure: DecisionApplicationFailure
+): DecisionApplicationFailure {
+  return {
+    ...failure,
+    diagnostics: failure.diagnostics.map((diagnostic) => ({
+      ...diagnostic,
+      ...(diagnostic.code === "decision-records.command-failed"
+        ? { code: "decision-records.lifecycle-preflight-failed" }
+        : {}),
+      outcome: "no-change" as const,
+      scope: "Decision Markdown files and derived decision index"
+    }))
+  };
 }
 
 function decisionLocation(args: DecisionLocationArgs): DecisionLocation {
@@ -451,7 +539,7 @@ export async function runDecisionRecordsCli(
 }
 
 function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+  return decisionFileSystemErrorText(error);
 }
 
 export { scanDecisionRecords, validateDecisionRecords };

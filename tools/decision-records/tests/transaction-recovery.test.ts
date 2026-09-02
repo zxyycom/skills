@@ -14,6 +14,7 @@ import {
   findIndexEntry,
   readIndex,
   runSourceCli,
+  runSourceLifecycleCli,
   withFixtureWorkspace
 } from "./support.ts";
 
@@ -35,19 +36,22 @@ test("transaction recovery restores source path target path and index after a po
     const descriptor = Object.getOwnPropertyDescriptor(fs, "rename");
     assert.ok(descriptor);
     const originalRename = fs.rename.bind(fs);
-    let failedAfterIndexWrite = false;
     Object.defineProperty(fs, "rename", {
       ...descriptor,
       value: async (from: string, to: string): Promise<void> => {
         await originalRename(from, to);
-        if (path.resolve(to) === indexPath && !failedAfterIndexWrite) {
-          failedAfterIndexWrite = true;
-          throw new Error("simulated index replacement failure");
+        if (path.resolve(to) === indexPath) {
+          throw Object.assign(
+            new Error("simulated index replacement failure"),
+            {
+              code: "EIO"
+            }
+          );
         }
       }
     });
     try {
-      const errors = await applyDecisionChanges({
+      const result = await applyDecisionChanges({
         changes: [
           {
             decisionPath: sourcePath,
@@ -62,9 +66,18 @@ test("transaction recovery restores source path target path and index after a po
         originalScan: await scanDecisionRecords({ workspaceRoot }),
         scanOptions: { workspaceRoot }
       });
-      assert.equal(failedAfterIndexWrite, true);
+      assert.equal(result.status, "error");
+      assert.equal(result.outcome, "rolled-back");
       assert.ok(
-        errors.some((error) =>
+        result.diagnostics.some(
+          (diagnostic) =>
+            diagnostic.code === "decision-records.transaction-failed" &&
+            diagnostic.causeCategory === "unknown" &&
+            diagnostic.detail === "simulated index replacement failure"
+        )
+      );
+      assert.ok(
+        result.errors.some((error) =>
           error.includes("simulated index replacement failure")
         )
       );
@@ -97,19 +110,20 @@ test("decision transaction restores every changed Markdown file and index after 
     const descriptor = Object.getOwnPropertyDescriptor(fs, "rename");
     assert.ok(descriptor);
     const rename = fs.rename.bind(fs);
-    let failed = false;
     Object.defineProperty(fs, "rename", {
       ...descriptor,
       value: async (from: string, to: string) => {
         await rename(from, to);
-        if (path.resolve(to) === indexPath && !failed) {
-          failed = true;
-          throw new Error("simulated index failure after replacement");
+        if (path.resolve(to) === indexPath) {
+          throw Object.assign(
+            new Error("simulated index failure after replacement"),
+            { code: "EIO" }
+          );
         }
       }
     });
     try {
-      const errors = await applyDecisionChanges({
+      const result = await applyDecisionChanges({
         changes: [
           {
             decisionPath: currentPath,
@@ -131,9 +145,18 @@ test("decision transaction restores every changed Markdown file and index after 
         originalScan: await scanDecisionRecords({ workspaceRoot }),
         scanOptions: { workspaceRoot }
       });
-      assert.equal(failed, true);
+      assert.equal(result.status, "error");
+      assert.equal(result.outcome, "rolled-back");
       assert.ok(
-        errors.some((error) =>
+        result.diagnostics.some(
+          (diagnostic) =>
+            diagnostic.code === "decision-records.transaction-failed" &&
+            diagnostic.causeCategory === "unknown" &&
+            diagnostic.detail === "simulated index failure after replacement"
+        )
+      );
+      assert.ok(
+        result.errors.some((error) =>
           error.includes("simulated index failure after replacement")
         )
       );
@@ -186,9 +209,9 @@ test("decision transaction stops with recovery diagnostics when a restore write 
           await writeFile(file, data, encoding);
         }
       });
-      let errors: string[];
+      let result: Awaited<ReturnType<typeof applyDecisionChanges>>;
       try {
-        errors = await applyDecisionChanges({
+        result = await applyDecisionChanges({
           changes: [
             {
               decisionPath: currentPath,
@@ -210,13 +233,15 @@ test("decision transaction stops with recovery diagnostics when a restore write 
       } finally {
         Object.defineProperty(fs, "writeFile", descriptor);
       }
+      assert.equal(result!.status, "error");
+      assert.equal(result!.outcome, "partial-or-unknown");
       assert.ok(
-        errors!.some((error) =>
+        result!.errors.some((error) =>
           error.includes("simulated transaction write failure")
         )
       );
       assert.ok(
-        errors!.some(
+        result!.errors.some(
           (error) =>
             error.includes("Failed to restore decision body") &&
             error.includes("simulated restore write failure")
@@ -250,7 +275,7 @@ test("decision transaction rejects a changed Markdown source before any write", 
     );
     const scan = await scanDecisionRecords({ workspaceRoot });
     await fs.writeFile(currentPath, concurrent, "utf8");
-    const errors = await applyDecisionChanges({
+    const result = await applyDecisionChanges({
       changes: [
         {
           decisionPath: currentPath,
@@ -266,8 +291,10 @@ test("decision transaction rejects a changed Markdown source before any write", 
       originalScan: scan,
       scanOptions: { workspaceRoot }
     });
+    assert.equal(result.status, "error");
+    assert.equal(result.outcome, "no-change");
     assert.ok(
-      errors.some(
+      result.errors.some(
         (error) =>
           error.includes("changed after validation") &&
           error.includes("re-run the command")
@@ -291,7 +318,7 @@ test("decision transaction rejects a changed index before any write", () =>
     const indexBefore = await fs.readFile(indexPath, "utf8");
     const scan = await scanDecisionRecords({ workspaceRoot });
     await fs.writeFile(indexPath, indexBefore + "\n", "utf8");
-    const errors = await applyDecisionChanges({
+    const result = await applyDecisionChanges({
       changes: [
         {
           decisionPath: currentPath,
@@ -302,8 +329,10 @@ test("decision transaction rejects a changed index before any write", () =>
       originalScan: scan,
       scanOptions: { workspaceRoot }
     });
+    assert.equal(result.status, "error");
+    assert.equal(result.outcome, "no-change");
     assert.ok(
-      errors.some(
+      result.errors.some(
         (error) =>
           error.includes("decision-index.json") &&
           error.includes("changed after validation")
@@ -350,7 +379,9 @@ test("sync-index fails while a decision transaction holds the collection lock", 
         await writeFile(filePath, data, encoding);
       }
     });
-    let transaction: Promise<string[]> | undefined;
+    let transaction:
+      | Promise<Awaited<ReturnType<typeof applyDecisionChanges>>>
+      | undefined;
     try {
       transaction = applyDecisionChanges({
         changes: [
@@ -376,12 +407,12 @@ test("sync-index fails while a decision transaction holds the collection lock", 
       assert.equal(blockedSync.exitCode, 1);
       assert.match(
         blockedSync.stderr,
-        /could not acquire decision collection mutation lock.*retry after the active transaction completes/i
+        /code: decision-records\.collection-lock-busy/
       );
       assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
 
       releaseWrite();
-      assert.deepEqual(await transaction, []);
+      assert.equal((await transaction).status, "ok");
     } finally {
       releaseWrite();
       Object.defineProperty(fs, "writeFile", descriptor);
@@ -448,7 +479,7 @@ test("decision transaction fails while sync-index holds the collection lock", ()
       synchronization = runSourceCli(["sync-index", "--root", workspaceRoot]);
       await renameBlocked;
 
-      const transactionErrors = await applyDecisionChanges({
+      const transactionResult = await applyDecisionChanges({
         changes: [
           {
             decisionPath: currentPath,
@@ -463,11 +494,12 @@ test("decision transaction fails while sync-index holds the collection lock", ()
         scanOptions: { workspaceRoot }
       });
       assert.ok(
-        transactionErrors.some((error) =>
-          /could not acquire decision collection mutation lock.*retry after the active transaction completes/i.test(
-            error
+        transactionResult.status === "error" &&
+          transactionResult.outcome === "no-change" &&
+          transactionResult.diagnostics.some(
+            (diagnostic) =>
+              diagnostic.code === "decision-records.collection-lock-busy"
           )
-        )
       );
       assert.equal(await fs.readFile(currentPath, "utf8"), synchronizedSource);
       assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
@@ -483,4 +515,378 @@ test("decision transaction fails while sync-index holds the collection lock", ()
       (await validateDecisionRecords({ workspaceRoot })).errors,
       []
     );
+  }));
+
+test("decision collection lock reports busy only for an existing lock", () =>
+  withFixtureWorkspace("collection-lock-cause", async (workspaceRoot) => {
+    const descriptor = Object.getOwnPropertyDescriptor(fs, "open");
+    assert.ok(descriptor);
+    const open = fs.open.bind(fs);
+    for (const scenario of [
+      { causeCategory: "busy", code: "EEXIST", suffix: "busy" },
+      {
+        causeCategory: "access-denied",
+        code: "EACCES",
+        suffix: "access-denied"
+      },
+      { causeCategory: null, code: "EIO", suffix: "unavailable" }
+    ] as const) {
+      Object.defineProperty(fs, "open", {
+        ...descriptor,
+        value: async (...args: Parameters<typeof fs.open>) => {
+          if (
+            args[1] === "wx" &&
+            String(args[0]).endsWith(".decision-index.json.mutation.lock")
+          ) {
+            const error = Object.assign(new Error("simulated lock failure"), {
+              code: scenario.code
+            });
+            throw error;
+          }
+          return await open(...args);
+        }
+      });
+      try {
+        const result = await runSourceCli([
+          "sync-index",
+          "--root",
+          workspaceRoot
+        ]);
+        assert.equal(result.exitCode, 1);
+        assert.equal(result.stdout, "");
+        assert.match(
+          result.stderr,
+          new RegExp(
+            "code: decision-records\\.collection-lock-" + scenario.suffix
+          )
+        );
+        if (scenario.causeCategory === null) {
+          assert.doesNotMatch(result.stderr, /causeCategory: busy/);
+        } else {
+          assert.match(
+            result.stderr,
+            new RegExp("causeCategory: " + scenario.causeCategory)
+          );
+        }
+      } finally {
+        Object.defineProperty(fs, "open", descriptor);
+      }
+    }
+  }));
+
+test("decision transaction reports committed cleanup pending when lock release fails", () =>
+  withFixtureWorkspace("collection-lock-release", async (workspaceRoot) => {
+    const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
+    const sourceBefore = await fs.readFile(sourcePath, "utf8");
+    const descriptor = Object.getOwnPropertyDescriptor(fs, "rm");
+    assert.ok(descriptor);
+    const remove = fs.rm.bind(fs);
+    let releaseBlocked = false;
+    Object.defineProperty(fs, "rm", {
+      ...descriptor,
+      value: async (...args: Parameters<typeof fs.rm>) => {
+        if (
+          String(args[0]).endsWith(".decision-index.json.mutation.lock") &&
+          !releaseBlocked
+        ) {
+          releaseBlocked = true;
+          const error = Object.assign(
+            new Error("simulated lock release failure"),
+            {
+              code: "EACCES"
+            }
+          );
+          throw error;
+        }
+        return await remove(...args);
+      }
+    });
+    let result: Awaited<ReturnType<typeof applyDecisionChanges>>;
+    try {
+      result = await applyDecisionChanges({
+        changes: [
+          {
+            decisionPath: sourcePath,
+            expectedText: sourceBefore,
+            nextText: sourceBefore.replace("使用生成 CLI", "释放锁后的生成 CLI")
+          }
+        ],
+        originalScan: await scanDecisionRecords({ workspaceRoot }),
+        scanOptions: { workspaceRoot }
+      });
+    } finally {
+      Object.defineProperty(fs, "rm", descriptor);
+    }
+    assert.equal(releaseBlocked, true);
+    assert.equal(result!.status, "error");
+    assert.equal(result!.outcome, "committed-cleanup-pending");
+    assert.ok(
+      result!.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "decision-records.collection-lock-release-failed"
+      )
+    );
+    assert.match(await fs.readFile(sourcePath, "utf8"), /释放锁后的生成 CLI/);
+    await fs.rm(
+      path.join(workspaceRoot, "docs", ".decision-index.json.mutation.lock"),
+      { force: true }
+    );
+  }));
+
+test("decision transaction retains no-change when lock release fails after preflight", () =>
+  withFixtureWorkspace(
+    "collection-lock-release-no-change",
+    async (workspaceRoot) => {
+      const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
+      const sourceBefore = await fs.readFile(sourcePath, "utf8");
+      const originalScan = await scanDecisionRecords({ workspaceRoot });
+      await fs.writeFile(
+        sourcePath,
+        sourceBefore.replace("使用生成 CLI", "并发修改生成 CLI"),
+        "utf8"
+      );
+      const descriptor = Object.getOwnPropertyDescriptor(fs, "rm");
+      assert.ok(descriptor);
+      const remove = fs.rm.bind(fs);
+      let releaseBlocked = false;
+      Object.defineProperty(fs, "rm", {
+        ...descriptor,
+        value: async (...args: Parameters<typeof fs.rm>) => {
+          if (
+            String(args[0]).endsWith(".decision-index.json.mutation.lock") &&
+            !releaseBlocked
+          ) {
+            releaseBlocked = true;
+            throw Object.assign(new Error("simulated lock release failure"), {
+              code: "EACCES"
+            });
+          }
+          return await remove(...args);
+        }
+      });
+      let result: Awaited<ReturnType<typeof applyDecisionChanges>>;
+      try {
+        result = await applyDecisionChanges({
+          changes: [
+            {
+              decisionPath: sourcePath,
+              expectedText: sourceBefore,
+              nextText: sourceBefore.replace("使用生成 CLI", "完成更新生成 CLI")
+            }
+          ],
+          originalScan,
+          scanOptions: { workspaceRoot }
+        });
+      } finally {
+        Object.defineProperty(fs, "rm", descriptor);
+      }
+      assert.equal(releaseBlocked, true);
+      assert.equal(result!.status, "error");
+      assert.equal(result!.outcome, "no-change");
+      assert.ok(
+        result!.diagnostics.some(
+          (diagnostic) =>
+            diagnostic.code === "decision-records.transaction-failed"
+        )
+      );
+      assert.ok(
+        result!.diagnostics.some(
+          (diagnostic) =>
+            diagnostic.code ===
+              "decision-records.collection-lock-release-failed" &&
+            diagnostic.outcome === "no-change"
+        )
+      );
+      await fs.rm(
+        path.join(workspaceRoot, "docs", ".decision-index.json.mutation.lock"),
+        { force: true }
+      );
+    }
+  ));
+
+test("decision transaction retains rolled-back when lock release fails after recovery", () =>
+  withFixtureWorkspace(
+    "collection-lock-release-rolled-back",
+    async (workspaceRoot) => {
+      const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
+      const indexPath = path.join(
+        workspaceRoot,
+        "docs",
+        "decisions",
+        "decision-index.json"
+      );
+      const sourceBefore = await fs.readFile(sourcePath, "utf8");
+      const renameDescriptor = Object.getOwnPropertyDescriptor(fs, "rename");
+      const removeDescriptor = Object.getOwnPropertyDescriptor(fs, "rm");
+      assert.ok(renameDescriptor);
+      assert.ok(removeDescriptor);
+      const rename = fs.rename.bind(fs);
+      const remove = fs.rm.bind(fs);
+      let indexWriteFailed = false;
+      let releaseBlocked = false;
+      Object.defineProperty(fs, "rename", {
+        ...renameDescriptor,
+        value: async (...args: Parameters<typeof fs.rename>) => {
+          await rename(...args);
+          if (
+            path.resolve(String(args[1])) === indexPath &&
+            !indexWriteFailed
+          ) {
+            indexWriteFailed = true;
+            throw new Error("simulated index write failure");
+          }
+        }
+      });
+      Object.defineProperty(fs, "rm", {
+        ...removeDescriptor,
+        value: async (...args: Parameters<typeof fs.rm>) => {
+          if (
+            String(args[0]).endsWith(".decision-index.json.mutation.lock") &&
+            !releaseBlocked
+          ) {
+            releaseBlocked = true;
+            throw Object.assign(new Error("simulated lock release failure"), {
+              code: "EACCES"
+            });
+          }
+          return await remove(...args);
+        }
+      });
+      let result: Awaited<ReturnType<typeof applyDecisionChanges>>;
+      try {
+        result = await applyDecisionChanges({
+          changes: [
+            {
+              decisionPath: sourcePath,
+              expectedText: sourceBefore,
+              nextText: sourceBefore.replace("使用生成 CLI", "回滚后的生成 CLI")
+            }
+          ],
+          originalScan: await scanDecisionRecords({ workspaceRoot }),
+          scanOptions: { workspaceRoot }
+        });
+      } finally {
+        Object.defineProperty(fs, "rename", renameDescriptor);
+        Object.defineProperty(fs, "rm", removeDescriptor);
+      }
+      assert.equal(indexWriteFailed, true);
+      assert.equal(releaseBlocked, true);
+      assert.equal(result!.status, "error");
+      assert.equal(result!.outcome, "rolled-back");
+      assert.ok(
+        result!.diagnostics.some(
+          (diagnostic) =>
+            diagnostic.code ===
+              "decision-records.collection-lock-release-failed" &&
+            diagnostic.outcome === "rolled-back"
+        )
+      );
+      assert.equal(await fs.readFile(sourcePath, "utf8"), sourceBefore);
+      await fs.rm(
+        path.join(workspaceRoot, "docs", ".decision-index.json.mutation.lock"),
+        { force: true }
+      );
+    }
+  ));
+
+test("sync-index retains no-change when a current index lock release fails", () =>
+  withFixtureWorkspace(
+    "collection-lock-release-current",
+    async (workspaceRoot) => {
+      const descriptor = Object.getOwnPropertyDescriptor(fs, "rm");
+      assert.ok(descriptor);
+      const remove = fs.rm.bind(fs);
+      let releaseBlocked = false;
+      Object.defineProperty(fs, "rm", {
+        ...descriptor,
+        value: async (...args: Parameters<typeof fs.rm>) => {
+          if (
+            String(args[0]).endsWith(".decision-index.json.mutation.lock") &&
+            !releaseBlocked
+          ) {
+            releaseBlocked = true;
+            throw Object.assign(new Error("simulated lock release failure"), {
+              code: "EACCES"
+            });
+          }
+          return await remove(...args);
+        }
+      });
+      let result: Awaited<ReturnType<typeof runSourceCli>>;
+      try {
+        result = await runSourceCli(["sync-index", "--root", workspaceRoot]);
+      } finally {
+        Object.defineProperty(fs, "rm", descriptor);
+      }
+      assert.equal(releaseBlocked, true);
+      assert.equal(result!.exitCode, 1);
+      assert.equal(result!.stdout, "");
+      assert.match(
+        result!.stderr,
+        /code: decision-records\.collection-lock-release-failed/
+      );
+      assert.match(result!.stderr, /outcome: no-change/);
+      assert.doesNotMatch(result!.stderr, /outcome: committed-cleanup-pending/);
+      await fs.rm(
+        path.join(workspaceRoot, "docs", ".decision-index.json.mutation.lock"),
+        { force: true }
+      );
+    }
+  ));
+
+test("lifecycle does not print success when its post-mutation scan fails", () =>
+  withFixtureWorkspace("post-mutation-scan", async (workspaceRoot) => {
+    const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+    const indexPath = path.join(decisionsDirectory, "decision-index.json");
+    const renameDescriptor = Object.getOwnPropertyDescriptor(fs, "rename");
+    const readdirDescriptor = Object.getOwnPropertyDescriptor(fs, "readdir");
+    assert.ok(renameDescriptor);
+    assert.ok(readdirDescriptor);
+    const rename = fs.rename.bind(fs);
+    const readdir = fs.readdir.bind(fs);
+    let indexWritten = false;
+    let rootReadsAfterIndexWrite = 0;
+    Object.defineProperty(fs, "rename", {
+      ...renameDescriptor,
+      value: async (...args: Parameters<typeof fs.rename>) => {
+        await rename(...args);
+        if (path.resolve(String(args[1])) === indexPath) {
+          indexWritten = true;
+        }
+      }
+    });
+    Object.defineProperty(fs, "readdir", {
+      ...readdirDescriptor,
+      value: async (...args: Parameters<typeof fs.readdir>) => {
+        if (
+          indexWritten &&
+          path.resolve(String(args[0])) === decisionsDirectory
+        ) {
+          rootReadsAfterIndexWrite += 1;
+          if (rootReadsAfterIndexWrite === 2) {
+            throw new Error("simulated post-mutation decision scan failure");
+          }
+        }
+        return await readdir(...args);
+      }
+    });
+    try {
+      const result = await runSourceLifecycleCli([
+        "archive",
+        currentDecisionId,
+        "--root",
+        workspaceRoot
+      ]);
+      assert.equal(indexWritten, true);
+      assert.equal(result.exitCode, 1);
+      assert.equal(result.stdout, "");
+      assert.match(
+        result.stderr,
+        /code: decision-records\.post-mutation-scan-failed/
+      );
+      assert.match(result.stderr, /outcome: partial-or-unknown/);
+    } finally {
+      Object.defineProperty(fs, "rename", renameDescriptor);
+      Object.defineProperty(fs, "readdir", readdirDescriptor);
+    }
   }));

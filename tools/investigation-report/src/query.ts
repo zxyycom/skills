@@ -21,6 +21,11 @@ import {
   loadCurrentInvestigationIndex
 } from "./investigation-state-index.ts";
 import {
+  diagnosticFromError,
+  diagnosticFromStateIndexDiagnostic,
+  type InvestigationDiagnostic
+} from "./diagnostics.ts";
+import {
   parseInvestigationIndexQueryOptions,
   parseInvestigationReportShowOptions,
   parseInvestigationReportTraceOptions
@@ -63,6 +68,10 @@ type QueryOptionValidationFailure = Readonly<{
   limit: number;
   offset: number;
 }>;
+type QueryOperationFailure = Readonly<{
+  diagnostics: InvestigationDiagnostic[];
+  errors: string[];
+}>;
 
 export async function queryInvestigationIndex(
   options: InvestigationIndexQueryOptions
@@ -95,16 +104,17 @@ export function executeInvestigationIndexQuery(
       queryValidatedInvestigationIndex(
         canonical.investigationsDirectory,
         prepared.value.validated
-      ).mapErr((errors) =>
+      ).mapErr((failure) =>
         queryFailure(
           "operation",
-          errors,
+          failure.errors,
           path.join(
             canonical.investigationsDirectory,
             investigationIndexFileName
           ),
           prepared.value.validated.limit,
-          prepared.value.validated.offset
+          prepared.value.validated.offset,
+          failure.diagnostics
         )
       )
     );
@@ -152,7 +162,14 @@ export async function showInvestigationReport(
     return showFailure(
       id,
       indexPath,
-      investigationIndexDiagnosticMessages(loaded.diagnostics, indexPath)
+      investigationIndexDiagnosticMessages(loaded.diagnostics, indexPath),
+      loaded.diagnostics.map((diagnostic) =>
+        diagnosticFromStateIndexDiagnostic(diagnostic, {
+          recovery:
+            "correct the reported derived-index problem, then retry showing the report",
+          target: indexPath
+        })
+      )
     );
   }
   const entry = loaded.value.entries[id];
@@ -164,6 +181,7 @@ export async function showInvestigationReport(
   try {
     return {
       errors: [],
+      diagnostics: [],
       id,
       indexPath,
       markdown: await fs.readFile(
@@ -177,9 +195,24 @@ export async function showInvestigationReport(
       status: "ok"
     };
   } catch (error) {
-    return showFailure(id, indexPath, [
-      `${id} could not be read: ${errorText(error)}`
-    ]);
+    const target = reportPathForInvestigationId(
+      canonical.value.investigationsDirectory,
+      id
+    );
+    return showFailure(
+      id,
+      indexPath,
+      [`${id} could not be read`],
+      [
+        diagnosticFromError({
+          code: "investigation-report.report-read-failed",
+          error,
+          reason: "the selected investigation report could not be read",
+          recovery: "restore read access to the report, then retry show",
+          target
+        })
+      ]
+    );
   }
 }
 
@@ -239,7 +272,14 @@ export async function traceInvestigationReports(
     return traceFailure(
       id,
       indexPath,
-      investigationIndexDiagnosticMessages(loaded.diagnostics, indexPath)
+      investigationIndexDiagnosticMessages(loaded.diagnostics, indexPath),
+      loaded.diagnostics.map((diagnostic) =>
+        diagnosticFromStateIndexDiagnostic(diagnostic, {
+          recovery:
+            "correct the reported derived-index problem, then retry tracing reports",
+          target: indexPath
+        })
+      )
     );
   }
   if (loaded.value.entries[id] === undefined) {
@@ -263,6 +303,7 @@ export async function traceInvestigationReports(
       target: edge.target,
       type: edge.type
     })),
+    diagnostics: [],
     errors: [],
     id,
     indexPath,
@@ -325,21 +366,34 @@ function prepareQuery(
 function queryValidatedInvestigationIndex(
   investigationsDirectory: string,
   validated: ValidatedQueryOptions
-): ResultAsync<InvestigationIndexQueryResult, string[]> {
+): ResultAsync<InvestigationIndexQueryResult, QueryOperationFailure> {
   const indexPath = path.join(
     investigationsDirectory,
     investigationIndexFileName
   );
   return ResultAsync.fromPromise(
     loadCurrentInvestigationIndex({ investigationsDirectory }),
-    (error) => [
-      `investigation index query could not be completed: ${errorText(error)}`
-    ]
+    (error) =>
+      queryOperationFailure(
+        error,
+        "the derived index could not be loaded for the query",
+        indexPath
+      )
   ).andThen((loaded) => {
     if (loaded.status === "error") {
-      return err(
-        investigationIndexDiagnosticMessages(loaded.diagnostics, indexPath)
-      );
+      return err({
+        diagnostics: loaded.diagnostics.map((diagnostic) =>
+          diagnosticFromStateIndexDiagnostic(diagnostic, {
+            recovery:
+              "correct the reported derived-index problem, then retry the query",
+            target: indexPath
+          })
+        ),
+        errors: investigationIndexDiagnosticMessages(
+          loaded.diagnostics,
+          indexPath
+        )
+      });
     }
     return fromThrowable(
       () =>
@@ -353,15 +407,29 @@ function queryValidatedInvestigationIndex(
             sort: [{ direction: "asc", key: "id" }]
           }
         }),
-      (error) => [
-        `investigation index query could not be completed: ${errorText(error)}`
-      ]
+      (error) =>
+        queryOperationFailure(
+          error,
+          "the derived index query could not be completed",
+          indexPath
+        )
     )().andThen((queried) =>
       queried.status === "error"
-        ? err(
-            investigationIndexDiagnosticMessages(queried.diagnostics, indexPath)
-          )
+        ? err({
+            diagnostics: queried.diagnostics.map((diagnostic) =>
+              diagnosticFromStateIndexDiagnostic(diagnostic, {
+                recovery:
+                  "correct the reported derived-index problem, then retry the query",
+                target: indexPath
+              })
+            ),
+            errors: investigationIndexDiagnosticMessages(
+              queried.diagnostics,
+              indexPath
+            )
+          })
         : ok({
+            diagnostics: [],
             entries: queried.value.entries.map((entry) => ({
               id: entry.id,
               state: entry.state
@@ -478,12 +546,14 @@ function queryFailure(
   errors: readonly string[],
   indexPath: string,
   limit: number,
-  offset: number
+  offset: number,
+  diagnostics: readonly InvestigationDiagnostic[] = []
 ): InvestigationIndexQueryFailure {
   return {
     kind,
     result: {
       entries: [],
+      diagnostics: [...diagnostics],
       errors: uniqueSorted(errors),
       indexPath,
       limit,
@@ -495,10 +565,12 @@ function queryFailure(
 function showFailure(
   id: string,
   indexPath: string,
-  errors: readonly string[]
+  errors: readonly string[],
+  diagnostics: readonly InvestigationDiagnostic[] = []
 ): InvestigationReportShowResult {
   return {
     errors: uniqueSorted(errors),
+    diagnostics: [...diagnostics],
     id,
     indexPath,
     markdown: null,
@@ -509,10 +581,12 @@ function showFailure(
 function traceFailure(
   id: string,
   indexPath: string,
-  errors: readonly string[]
+  errors: readonly string[],
+  diagnostics: readonly InvestigationDiagnostic[] = []
 ): InvestigationReportTraceResult {
   return {
     edges: [],
+    diagnostics: [...diagnostics],
     errors: uniqueSorted(errors),
     id,
     indexPath,
@@ -545,6 +619,21 @@ function uniqueSorted(values: readonly string[]): string[] {
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+function queryOperationFailure(
+  error: unknown,
+  reason: string,
+  indexPath: string
+): QueryOperationFailure {
+  return {
+    diagnostics: [
+      diagnosticFromError({
+        code: "investigation-report.index-query-unavailable",
+        error,
+        reason,
+        recovery: "correct the reported index problem, then retry the query",
+        target: indexPath
+      })
+    ],
+    errors: ["investigation index query could not be completed"]
+  };
 }

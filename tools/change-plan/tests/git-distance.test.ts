@@ -162,6 +162,6 @@ test("git-distance propagates version-control access failures", async () => {
       "/path/that/is/not/a/repository",
       validBaseCommit
     ),
-    /version control|repository|git/u
+    /^VersionControlError: Version-control operation failed: discover a version-control worktree; cause: tool-unavailable; detail: /u
   );
 });

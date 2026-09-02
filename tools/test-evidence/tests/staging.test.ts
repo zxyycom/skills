@@ -340,6 +340,12 @@ test("stage-index reports unavailable version control without workspace writes",
       result.diagnostics[0]?.code,
       "state-index.repository-unavailable"
     );
+    assert.deepEqual(result.diagnostics[0]?.versionControl, {
+      causeCategory: "not-repository",
+      detail: null,
+      operation: "discover a version-control worktree",
+      target: "configured root"
+    });
     assert.deepEqual(await fs.readFile(indexPath(workspaceRoot)), before.index);
     assert.deepEqual(
       await fs.readFile(caseFilePath(workspaceRoot, caseA)),
@@ -372,6 +378,11 @@ test("stage-index rejects existing same-index pending content", async () => {
       assert.equal(result.status, "error");
       assert.equal(result.state, "pending-conflict");
       assert.equal(result.diagnostics[0]?.code, "state-index.pending-conflict");
+      assert.deepEqual(result.pending, {
+        outcome: "no-change",
+        scope: indexRepositoryPath
+      });
+      assert.ok(result.diagnostics[0]?.versionControl);
       assert.equal(readPendingText(workspaceRoot), pendingBefore);
       assert.deepEqual(
         pendingPaths(workspaceRoot).sort(),
@@ -491,6 +502,12 @@ test("stage-index CLI exposes help and schema-valid exit contracts", async () =>
     );
     assert.equal(operationResult.status, "error");
     assert.equal(operationResult.state, "revision-read-failed");
+    assert.deepEqual(operationResult.diagnostics[0]?.versionControl, {
+      causeCategory: "not-repository",
+      detail: null,
+      operation: "discover a version-control worktree",
+      target: "configured root"
+    });
   });
 });
 

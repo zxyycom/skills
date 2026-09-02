@@ -8,5 +8,5 @@ Contract:
 - `replacePendingFiles` 传入 `expectedFiles` 时，必须在写入锁内且在任何目标写入前核对范围内普通文件的完整路径、字节和普通文件表示。
 
 Proves:
-- 字节不同、可执行文件、符号链接和未解决的同路径内容都返回 `pending-conflict`，不会进入 pending 写入 hook。
-- 目标范围及范围外 pending 内容保持原样。
+- 字节不同、可执行文件、符号链接和未解决的同路径内容都返回 `pending-conflict`，其原因保持为不外推的 `unknown`，不会进入 pending 写入 hook。
+- 冲突保留受控的 pending 验证 operation 与精确 path scope，目标范围及范围外 pending 内容保持原样。

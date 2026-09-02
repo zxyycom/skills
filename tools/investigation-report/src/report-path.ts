@@ -5,6 +5,7 @@ import {
   isFileSystemError,
   isPathWithinDirectory
 } from "../../shared/src/node/filesystem.ts";
+import { operationErrorDetail } from "../../shared/src/version-control/error-detail.ts";
 
 export const defaultInvestigationsDirectory = "docs/investigations";
 export const investigationIndexFileName = "investigation-index.json";
@@ -137,5 +138,5 @@ function displayPath(value: string): string {
 }
 
 function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+  return operationErrorDetail(error) ?? "unavailable error detail";
 }

@@ -246,6 +246,7 @@
       "separate-delivery-and-auxiliary-write-ownership.md": "sha256:e192b6037ac6627d3322a2b1f6ba5307b8891b18178cae01f843358c3dd4fea0",
       "separate-design-discovery-from-lifecycle-maintenance.md": "sha256:78ce0e27ed2a70233b221b1309d6a4cda84076c2e381d1c63bfaa8cad2d06ed6",
       "separate-distributable-tool-source-from-repository-automation.md": "sha256:f749c1b133dd28c2aa30a52056d1ba6e52114ee08412e7b2f559e98eec5560e1",
+      "separate-maintenance-diagnostics-from-mutation-outcomes.md": "sha256:f9c8ffb80dde5f206382f5ff3ff56e010aee1b43314b88d79797f386e3ac1e49",
       "separate-package-byte-identity-from-version-carrying-changes.md": "sha256:9c31ebed683ff6078bc9f80566d4f03e13e7baffece44c9328d66924dfe215b6",
       "separate-raw-results-from-output-functions.md": "sha256:0e1409aa9a37bfa6f171537d294fa7da4caf38da7b3a74e7b6f6a229a2d39393",
       "separate-reviewable-candidates-from-established-decisions.md": "sha256:ed0195107d00707e2176199f8ba6f65427d34cfae376cd5d43c82655663dbd7d",
@@ -7608,6 +7609,39 @@
             "target": "260720-use-prebuilt-git-test-fixtures.md"
           }
         ]
+      }
+    },
+    "separate-maintenance-diagnostics-from-mutation-outcomes.md": {
+      "keys": {
+        "tag": [
+          "decision-records",
+          "index-runtime",
+          "investigation-report",
+          "version-control"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "separate-maintenance-diagnostics-from-mutation-outcomes.md",
+        "title": "将维护诊断与 mutation 结果分层",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T04:18:29Z",
+        "purpose": "让跨工具维护失败可立即定位并保留各领域可证明的恢复范围，而不混淆共享原因与领域提交结果。",
+        "background": "共享版本控制与索引运行时服务多个维护工具；若共享层替领域猜测事务结果，或领域持久化临时诊断，恢复边界会失真且责任扩散。",
+        "decision": "共享层只提供经净化的操作原因，Index Runtime 只拥有 pending 范围，领域工具各自拥有 mutation 结果并即时渲染；禁止持久诊断、自动提权、删锁与重试。",
+        "tags": [
+          "decision-records",
+          "index-runtime",
+          "investigation-report",
+          "version-control"
+        ],
+        "relations": []
       }
     },
     "separate-package-byte-identity-from-version-carrying-changes.md": {

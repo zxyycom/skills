@@ -1,16 +1,25 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { type StateIndexFilter } from "../../index-runtime/src/index.ts";
 import {
+  type StateIndexDiagnostic,
+  type StateIndexFilter
+} from "../../index-runtime/src/index.ts";
+import {
+  decisionDiagnostic,
+  decisionDiagnosticFromReason,
   decisionFailure,
+  decisionFileSystemDiagnostic,
   type DecisionApplicationFailure
 } from "./application-result.ts";
 import {
-  decisionIndexDiagnosticMessages,
+  decisionIndexDiagnostics,
   decisionIndexFileName,
   syncDecisionIndex
 } from "./decision-state-index.ts";
-import { withDecisionCollectionMutationLock } from "./decision-collection-mutation-lock.ts";
+import {
+  DecisionCollectionLockError,
+  withDecisionCollectionMutationLock
+} from "./decision-collection-mutation-lock.ts";
 import { isDecisionId } from "./decision-path.ts";
 import {
   decisionScanOptions,
@@ -248,10 +257,7 @@ async function showDecisionRecord(
   request: Extract<DecisionQueryRequest, { command: "show" }>
 ): Promise<DecisionQueryResult> {
   if (!isDecisionId(request.decisionId)) {
-    return decisionFailure(["Decision ID is invalid: " + request.decisionId], {
-      exitCode: 2,
-      presentation: "plain"
-    });
+    return invalidDecisionIdFailure(request.decisionId);
   }
   const context = await loadDecisionQueryContext(request.location);
   if (context.status === "error") {
@@ -264,7 +270,15 @@ async function showDecisionRecord(
   const record = matched.value === null ? null : indexedRecord(matched.value);
   if (record === null) {
     return decisionFailure(
-      ["Established decision does not exist: " + request.decisionId],
+      [
+        decisionDiagnostic({
+          code: "decision-records.decision-not-found",
+          reason: "Established decision does not exist: " + request.decisionId,
+          recovery:
+            "Use list to choose an established Decision ID, then retry the command.",
+          target: request.decisionId
+        })
+      ],
       { presentation: "plain" }
     );
   }
@@ -284,10 +298,7 @@ async function showDecisionCandidate(
   request: Extract<DecisionQueryRequest, { command: "show-candidate" }>
 ): Promise<DecisionQueryResult> {
   if (!isDecisionId(request.decisionId)) {
-    return decisionFailure(["Decision ID is invalid: " + request.decisionId], {
-      exitCode: 2,
-      presentation: "plain"
-    });
+    return invalidDecisionIdFailure(request.decisionId);
   }
   const context = await loadCandidateQueryContext(request.location);
   if (context.status === "error") {
@@ -310,7 +321,16 @@ async function showDecisionCandidate(
         : sourceWarningsForRecord(context.warnings, sourceRecord);
     return decisionFailure(
       sourceRecord === null
-        ? ["Decision candidate does not exist: " + request.decisionId]
+        ? [
+            decisionDiagnostic({
+              code: "decision-records.candidate-not-found",
+              reason:
+                "Decision candidate does not exist: " + request.decisionId,
+              recovery:
+                "Use candidates to choose a reviewable Decision ID, then retry the command.",
+              target: request.decisionId
+            })
+          ]
         : [
             "Decision source is not a valid reviewable candidate: " +
               request.decisionId,
@@ -335,10 +355,7 @@ async function traceDecisionRecord(
   request: Extract<DecisionQueryRequest, { command: "trace" }>
 ): Promise<DecisionQueryResult> {
   if (!isDecisionId(request.decisionId)) {
-    return decisionFailure(["Decision ID is invalid: " + request.decisionId], {
-      exitCode: 2,
-      presentation: "plain"
-    });
+    return invalidDecisionIdFailure(request.decisionId);
   }
   const context = await loadDecisionQueryContext(request.location);
   if (context.status === "error") {
@@ -350,7 +367,15 @@ async function traceDecisionRecord(
   }
   if (matched.value === null) {
     return decisionFailure(
-      ["Established decision does not exist: " + request.decisionId],
+      [
+        decisionDiagnostic({
+          code: "decision-records.decision-not-found",
+          reason: "Established decision does not exist: " + request.decisionId,
+          recovery:
+            "Use list to choose an established Decision ID, then retry the command.",
+          target: request.decisionId
+        })
+      ],
       { presentation: "plain" }
     );
   }
@@ -395,11 +420,7 @@ async function synchronizeDecisionIndex(
       async () => await synchronizeLockedDecisionIndex(request)
     );
   } catch (error) {
-    return decisionFailure([
-      "Decision index synchronization could not start: " +
-        errorText(error) +
-        ". No files were written."
-    ]);
+    return collectionLockFailure(error);
   }
 }
 
@@ -415,11 +436,11 @@ async function synchronizeLockedDecisionIndex(
     scanErrorPolicy: "source-only"
   });
   if (sourceValidation.errors.length > 0) {
-    return decisionFailure(sourceValidation.errors);
+    return syncIndexNoChange(decisionFailure(sourceValidation.errors));
   }
   const selection = selectEstablishedDecisionIds(result.scan);
   if (selection.errors.length > 0) {
-    return decisionFailure(selection.errors);
+    return syncIndexNoChange(decisionFailure(selection.errors));
   }
   const synchronized = await syncDecisionIndex({
     decisionsDirectory: result.scan.decisionsDirectory,
@@ -427,10 +448,14 @@ async function synchronizeLockedDecisionIndex(
     decisionIds: selection.decisionIds
   });
   if (synchronized.status === "error") {
-    return decisionFailure(
-      decisionIndexDiagnosticMessages(
-        synchronized.diagnostics,
-        result.scan.indexRelativePath
+    return syncIndexNoChange(
+      decisionFailure(
+        decisionIndexDiagnostics(synchronized.diagnostics, {
+          code: "decision-records.sync-index-failed",
+          recovery:
+            "Inspect the decision collection and derived index, then retry the command.",
+          target: result.scan.indexRelativePath
+        })
       )
     );
   }
@@ -443,6 +468,19 @@ async function synchronizeLockedDecisionIndex(
       (record) => record.sourcePath
     ),
     warnings: []
+  };
+}
+
+function syncIndexNoChange(
+  failure: DecisionApplicationFailure
+): DecisionApplicationFailure {
+  return {
+    ...failure,
+    diagnostics: failure.diagnostics.map((diagnostic) => ({
+      ...diagnostic,
+      outcome: "no-change" as const,
+      scope: "Derived decision index"
+    }))
   };
 }
 
@@ -528,10 +566,10 @@ async function loadCandidateQueryContext(location: DecisionLocation): Promise<
 > {
   const scan = await scanDecisionRecords(decisionScanOptions(location));
   if (!scan.decisionsDirectoryAvailable) {
-    return decisionFailure(scan.sourceErrors);
+    return sourceFailure(scan.sourceErrors, "Decision collection");
   }
   if (scan.collectionErrors.length > 0) {
-    return decisionFailure(scan.collectionErrors);
+    return sourceFailure(scan.collectionErrors, "Decision collection");
   }
   const hasEstablishedRecord = scan.records.some(
     (record) => record.source.kind === "established"
@@ -540,10 +578,14 @@ async function loadCandidateQueryContext(location: DecisionLocation): Promise<
     scan.indexErrors.length > 0 &&
     (hasEstablishedRecord || scan.indexExists)
   ) {
-    return decisionFailure(scan.indexErrors);
+    return indexFailure(
+      { diagnostics: [] },
+      scan.indexRelativePath,
+      scan.indexErrors
+    );
   }
   if (!hasEstablishedRecord && scan.indexExists) {
-    return decisionFailure([
+    return indexFailure({ diagnostics: [] }, scan.indexRelativePath, [
       scan.indexRelativePath +
         " must be absent until the first established decision is indexed"
     ]);
@@ -551,7 +593,7 @@ async function loadCandidateQueryContext(location: DecisionLocation): Promise<
   if (hasEstablishedRecord) {
     const selection = selectEstablishedDecisionIds(scan);
     if (selection.errors.length > 0) {
-      return decisionFailure(selection.errors);
+      return sourceFailure(selection.errors, "Established decision selection");
     }
     const checked = await syncDecisionIndex({
       decisionsDirectory: scan.decisionsDirectory,
@@ -562,7 +604,7 @@ async function loadCandidateQueryContext(location: DecisionLocation): Promise<
       return checked.state === "index-invalid" ||
         checked.state === "index-missing" ||
         checked.state === "index-stale"
-        ? decisionFailure([
+        ? indexFailure({ diagnostics: [] }, scan.indexRelativePath, [
             scan.indexRelativePath + " is out of sync; run sync-index"
           ])
         : indexFailure(checked, scan.indexRelativePath);
@@ -593,13 +635,85 @@ function sourceWarningsForRecord(
 
 function indexFailure(
   result: {
-    diagnostics: Parameters<typeof decisionIndexDiagnosticMessages>[0];
+    diagnostics: readonly StateIndexDiagnostic[];
   },
-  indexRelativePath: string
+  indexRelativePath: string,
+  additionalReasons: readonly string[] = []
+): DecisionApplicationFailure {
+  return decisionFailure([
+    ...decisionIndexDiagnostics(result.diagnostics, {
+      code: "decision-records.index-query-failed",
+      recovery:
+        "Run sync-index after correcting the decision Markdown or index problem.",
+      target: indexRelativePath
+    }),
+    ...additionalReasons.map((reason) =>
+      decisionDiagnosticFromReason(
+        {
+          code: "decision-records.index-query-failed",
+          recovery:
+            "Run sync-index after correcting the decision Markdown or index problem.",
+          target: indexRelativePath
+        },
+        reason
+      )
+    )
+  ]);
+}
+
+function sourceFailure(
+  reasons: readonly string[],
+  target: string
 ): DecisionApplicationFailure {
   return decisionFailure(
-    decisionIndexDiagnosticMessages(result.diagnostics, indexRelativePath)
+    reasons.map((reason) =>
+      decisionDiagnosticFromReason(
+        {
+          code: "decision-records.source-scan-failed",
+          recovery:
+            "Restore a readable, valid decision source collection, then retry the command.",
+          target
+        },
+        reason
+      )
+    )
   );
+}
+
+function collectionLockFailure(error: unknown): DecisionApplicationFailure {
+  if (error instanceof DecisionCollectionLockError) {
+    const operationResult = asDecisionQueryResult(error.operationResult);
+    if (
+      error.kind === "release-failed" &&
+      operationResult?.status === "error"
+    ) {
+      const diagnostic = collectionLockDiagnostic(error, "no-change");
+      return {
+        ...operationResult,
+        diagnostics: [...operationResult.diagnostics, diagnostic],
+        errors: [...operationResult.errors, diagnostic.reason]
+      };
+    }
+    const outcome =
+      error.kind === "release-failed" &&
+      operationResult?.status === "ok" &&
+      operationResult.command === "sync-index" &&
+      operationResult.state === "written"
+        ? "committed-cleanup-pending"
+        : "no-change";
+    return decisionFailure([collectionLockDiagnostic(error, outcome)]);
+  }
+  return decisionFailure([
+    decisionDiagnostic({
+      code: "decision-records.sync-index-failed",
+      outcome: "no-change",
+      reason: "Decision index synchronization could not start.",
+      recovery:
+        "Inspect the decision collection and derived index, then retry the command.",
+      scope: "Derived decision index",
+      target: "Decision index synchronization"
+    })
+  ]);
 }
 
 async function readDecisionBody(
@@ -621,14 +735,76 @@ async function readDecisionBody(
     };
   } catch (error) {
     return decisionFailure([
-      "Failed to read decision body " +
-        record.sourcePath +
-        ": " +
-        errorText(error)
+      decisionFileSystemDiagnostic(
+        {
+          code: "decision-records.decision-body-unavailable",
+          reason: "Failed to read decision body " + record.sourcePath + ".",
+          recovery:
+            "Restore a readable regular decision Markdown file, then retry the command.",
+          target: record.sourcePath
+        },
+        error
+      )
     ]);
   }
 }
 
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+function collectionLockDiagnostic(
+  error: DecisionCollectionLockError,
+  outcome: "committed-cleanup-pending" | "no-change"
+) {
+  return decisionDiagnostic({
+    ...(error.kind === "access-denied"
+      ? { causeCategory: "access-denied" as const }
+      : error.kind === "busy"
+        ? { causeCategory: "busy" as const }
+        : {}),
+    code: "decision-records.collection-lock-" + error.kind,
+    outcome,
+    reason:
+      error.kind === "release-failed"
+        ? "Decision index synchronization finished, but its collection lock could not be released."
+        : "Decision index synchronization could not acquire its collection lock.",
+    recovery:
+      error.kind === "busy"
+        ? "Wait for or confirm the active transaction; only if none is active, inspect the remaining lock before retrying."
+        : error.kind === "access-denied"
+          ? "Grant the current process access to the decision collection, then retry the command."
+          : error.kind === "release-failed"
+            ? "Inspect the derived index result and the remaining lock before running another mutation."
+            : "Inspect the decision collection lock and its parent directory, then retry the command.",
+    scope: "Derived decision index",
+    target: "Decision collection mutation lock"
+  });
+}
+
+function asDecisionQueryResult(value: unknown): DecisionQueryResult | null {
+  if (value === null || typeof value !== "object" || !("status" in value)) {
+    return null;
+  }
+  const result = value as Partial<DecisionQueryResult>;
+  if (result.status === "error" && Array.isArray(result.diagnostics)) {
+    return result as DecisionApplicationFailure;
+  }
+  if (result.status === "ok" && typeof result.command === "string") {
+    return result as DecisionQuerySuccess;
+  }
+  return null;
+}
+
+function invalidDecisionIdFailure(
+  decisionId: string
+): DecisionApplicationFailure {
+  return decisionFailure(
+    [
+      decisionDiagnostic({
+        code: "decision-records.decision-id-invalid",
+        reason: "Decision ID is invalid: " + decisionId,
+        recovery:
+          "Provide a Decision ID that is a Markdown basename, then retry the command.",
+        target: "Decision ID argument"
+      })
+    ],
+    { exitCode: 2, presentation: "plain" }
+  );
 }

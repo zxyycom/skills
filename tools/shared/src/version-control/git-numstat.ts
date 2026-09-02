@@ -167,8 +167,9 @@ function parseLineCount(value: string): number {
 }
 
 function parseError(): VersionControlError {
-  return new VersionControlError(
-    "operation-failed",
-    "Version-control operation failed: parse first-parent revision changes"
-  );
+  return new VersionControlError({
+    causeCategory: "unknown",
+    code: "operation-failed",
+    operation: "parse first-parent revision changes"
+  });
 }

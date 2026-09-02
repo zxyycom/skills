@@ -464,6 +464,43 @@ test("stage rejects invalid duplicate and missing paths without changing the pen
     );
   }));
 
+test("stage keeps duplicate selected source identities as a domain diagnostic", () =>
+  withGitFixtureWorkspace(
+    "stage-duplicate-source-identity",
+    async (workspaceRoot) => {
+      const currentPath = decisionFilePath(workspaceRoot, currentSourcePath);
+      const archivePath = decisionFilePath(
+        workspaceRoot,
+        `archive/${currentDecisionId}`
+      );
+      await fs.mkdir(path.dirname(archivePath), { recursive: true });
+      await fs.writeFile(
+        archivePath,
+        await fs.readFile(currentPath, "utf8"),
+        "utf8"
+      );
+
+      const result = await runSourceCli([
+        "stage",
+        currentDecisionId,
+        "--root",
+        workspaceRoot
+      ]);
+
+      assert.equal(result.exitCode, 1);
+      assert.equal(result.stdout, "");
+      assert.match(
+        result.stderr,
+        /code: decision-records\.stage-snapshot-invalid/
+      );
+      assert.match(
+        result.stderr,
+        /Decision ID occurs in more than one filesystem source path/
+      );
+      assert.doesNotMatch(result.stderr, /causeCategory: unknown/);
+    }
+  ));
+
 test("stage rejects invalid candidate relation targets before pending writes", () =>
   withGitFixtureWorkspace("stage-invalid-candidate", async (workspaceRoot) => {
     const invalid = "use-invalid-relation.md";
@@ -560,7 +597,10 @@ test("stage preserves concurrent pending bytes discovered by the replacement CAS
         workspaceRoot
       ]);
       assert.notEqual(staged.exitCode, 0);
-      assert.match(staged.stderr, /Pending snapshot replacement conflicted/);
+      assert.match(
+        staged.stderr,
+        /code: decision-records\.version-control-pending-conflict/
+      );
     } finally {
       Object.defineProperty(fs, "readFile", descriptor);
     }

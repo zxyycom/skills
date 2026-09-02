@@ -10,12 +10,35 @@ export type TestEvidenceIndexStageResult =
   | {
       diagnostics: {
         code: string;
+        filesystem?: {
+          causeCategory: "access-denied" | "not-found" | "unknown";
+          detail: string | null;
+          operation: string;
+          target: string | null;
+        };
         message: string;
         path: string | null;
         stateId: string | null;
+        versionControl?: {
+          causeCategory:
+            | "access-denied"
+            | "busy"
+            | "command-failed"
+            | "not-repository"
+            | "revision-unavailable"
+            | "tool-unavailable"
+            | "unknown";
+          detail: string | null;
+          operation: string | null;
+          target: string | null;
+        };
       }[];
       indexPath: string;
       namespace: "test-evidence";
+      pending?: {
+        outcome: "no-change" | "partial-or-unknown";
+        scope: string;
+      };
       selectedIds: string[];
       changed: true;
       state: "staged";
@@ -24,12 +47,35 @@ export type TestEvidenceIndexStageResult =
   | {
       diagnostics: {
         code: string;
+        filesystem?: {
+          causeCategory: "access-denied" | "not-found" | "unknown";
+          detail: string | null;
+          operation: string;
+          target: string | null;
+        };
         message: string;
         path: string | null;
         stateId: string | null;
+        versionControl?: {
+          causeCategory:
+            | "access-denied"
+            | "busy"
+            | "command-failed"
+            | "not-repository"
+            | "revision-unavailable"
+            | "tool-unavailable"
+            | "unknown";
+          detail: string | null;
+          operation: string | null;
+          target: string | null;
+        };
       }[];
       indexPath: string;
       namespace: "test-evidence";
+      pending?: {
+        outcome: "no-change" | "partial-or-unknown";
+        scope: string;
+      };
       selectedIds: string[];
       changed: false;
       state: "unchanged";
@@ -38,12 +84,35 @@ export type TestEvidenceIndexStageResult =
   | {
       diagnostics: {
         code: string;
+        filesystem?: {
+          causeCategory: "access-denied" | "not-found" | "unknown";
+          detail: string | null;
+          operation: string;
+          target: string | null;
+        };
         message: string;
         path: string | null;
         stateId: string | null;
+        versionControl?: {
+          causeCategory:
+            | "access-denied"
+            | "busy"
+            | "command-failed"
+            | "not-repository"
+            | "revision-unavailable"
+            | "tool-unavailable"
+            | "unknown";
+          detail: string | null;
+          operation: string | null;
+          target: string | null;
+        };
       }[];
       indexPath: string;
       namespace: "test-evidence";
+      pending?: {
+        outcome: "no-change" | "partial-or-unknown";
+        scope: string;
+      };
       selectedIds: string[];
       changed: false;
       state:
@@ -63,12 +132,35 @@ export type TestEvidenceIndexStageResult =
   | {
       diagnostics: {
         code: string;
+        filesystem?: {
+          causeCategory: "access-denied" | "not-found" | "unknown";
+          detail: string | null;
+          operation: string;
+          target: string | null;
+        };
         message: string;
         path: string | null;
         stateId: string | null;
+        versionControl?: {
+          causeCategory:
+            | "access-denied"
+            | "busy"
+            | "command-failed"
+            | "not-repository"
+            | "revision-unavailable"
+            | "tool-unavailable"
+            | "unknown";
+          detail: string | null;
+          operation: string | null;
+          target: string | null;
+        };
       }[];
       indexPath: string;
       namespace: "test-evidence";
+      pending?: {
+        outcome: "no-change" | "partial-or-unknown";
+        scope: string;
+      };
       selectedIds: string[];
       changed: null;
       state: "pending-recovery-failed";

@@ -1,4 +1,5 @@
 import {
+  decisionDiagnostic,
   decisionFailure,
   type DecisionApplicationAttention,
   type DecisionApplicationFailure
@@ -848,5 +849,16 @@ function relationsEqual(
 }
 
 function plainFailure(error: string): DecisionApplicationFailure {
-  return decisionFailure([error], { presentation: "plain" });
+  return decisionFailure(
+    [
+      decisionDiagnostic({
+        code: "decision-records.relation-invalid",
+        reason: error,
+        recovery:
+          "Correct the selected successors and complete relation set, then retry the command.",
+        target: "Decision relation transaction"
+      })
+    ],
+    { presentation: "plain" }
+  );
 }

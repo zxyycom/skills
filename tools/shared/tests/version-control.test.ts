@@ -6,6 +6,7 @@ import path from "node:path";
 import test, { after } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
+  classifyVersionControlCause,
   openVersionControl,
   repositoryRelativePathFromFileSystemPath,
   VersionControlError
@@ -41,7 +42,7 @@ after(async () => {
   }
 });
 
-test("normalizes structured version-control operation error details", () => {
+test("normalizes and redacts structured version-control operation error details", () => {
   assert.equal(operationErrorDetail(undefined), null);
   assert.equal(operationErrorDetail("\n Git\tfailed \n"), "Git failed");
   const structured = operationErrorDetail({
@@ -52,6 +53,77 @@ test("normalizes structured version-control operation error details", () => {
   assert.match(structured, /operation.*read revision/u);
   assert.match(structured, /retries.*2/u);
   assert.doesNotMatch(structured, /\[object Object\]/u);
+  const sensitive = operationErrorDetail(
+    "token=ghp_123456789012345678901234567890 at /private/workspace/secret " +
+      "https://user:password@example.invalid/repository"
+  );
+  assert.ok(sensitive);
+  assert.doesNotMatch(sensitive, /ghp_|private|password/u);
+  assert.match(sensitive, /\[redacted\]/u);
+  const credential = operationErrorDetail(
+    "Authorization: Bearer credential-secret\nBasic another-secret"
+  );
+  assert.ok(credential);
+  assert.doesNotMatch(
+    credential,
+    /Bearer|Basic|credential-secret|another-secret/u
+  );
+  assert.doesNotMatch(credential, /\r|\n/u);
+  const spacedPath = operationErrorDetail(
+    "failed to read /private workspace/credential directory/secret file"
+  );
+  assert.ok(spacedPath);
+  assert.doesNotMatch(
+    spacedPath,
+    /private workspace|credential directory|secret file/u
+  );
+  const longSensitive = operationErrorDetail(
+    "Authorization: Bearer long-secret; " + "x".repeat(600)
+  );
+  assert.ok(longSensitive);
+  assert.ok(longSensitive.length <= 500);
+  assert.doesNotMatch(longSensitive, /Bearer|long-secret/u);
+});
+
+test("classifies injected version-control system causes", () => {
+  const accessError = Object.assign(new Error("permission denied"), {
+    code: "EACCES"
+  });
+  const permissionError = Object.assign(new Error("operation not permitted"), {
+    code: "EPERM"
+  });
+  const unavailableError = Object.assign(new Error("tool missing"), {
+    code: "ENOENT"
+  });
+  assert.equal(classifyVersionControlCause(accessError), "access-denied");
+  assert.equal(classifyVersionControlCause(permissionError), "access-denied");
+  assert.equal(
+    classifyVersionControlCause(unavailableError),
+    "tool-unavailable"
+  );
+  const commandError = new VersionControlError({
+    causeCategory: "command-failed",
+    code: "operation-failed",
+    detail: "command returned non-zero",
+    operation: "read a revision",
+    target: "requested revision"
+  });
+  assert.deepEqual(
+    {
+      causeCategory: commandError.causeCategory,
+      code: commandError.code,
+      detail: commandError.detail,
+      operation: commandError.operation,
+      target: commandError.target
+    },
+    {
+      causeCategory: "command-failed",
+      code: "operation-failed",
+      detail: "command returned non-zero",
+      operation: "read a revision",
+      target: "requested revision"
+    }
+  );
 });
 
 test("materializes an ordinary fixture into isolated Git repositories", async () => {
@@ -1034,7 +1106,7 @@ test(
 
       await writeFile(repositoryRoot, "docs/tracked.md", "other pending\n");
       runGit(repositoryRoot, ["add", "docs/tracked.md"]);
-      await assert.rejects(
+      const expectedPendingConflict = await rejectedVersionControlError(
         repository.replacePendingFiles({
           expectedFiles: [expectedFile],
           expectedRevision: currentRevision,
@@ -1045,9 +1117,14 @@ test(
             }
           ],
           pathScope: "docs/tracked.md"
-        }),
-        isPendingConflict
+        })
       );
+      assert.equal(expectedPendingConflict.causeCategory, "unknown");
+      assert.equal(
+        expectedPendingConflict.operation,
+        "verify a pending replacement"
+      );
+      assert.equal(expectedPendingConflict.target, "docs/tracked.md");
       assert.equal(pendingWrites, 0);
       assert.deepEqual(await readPendingText(repository, "docs/tracked.md"), [
         {
@@ -1090,7 +1167,7 @@ test(
           "docs/tracked.md"
         ]);
         scenario.prepare();
-        await assert.rejects(
+        const conflict = await rejectedVersionControlError(
           repository.replacePendingFiles({
             expectedFiles: [expectedFile],
             expectedRevision: currentRevision,
@@ -1101,9 +1178,11 @@ test(
               }
             ],
             pathScope: "docs/tracked.md"
-          }),
-          isPendingConflict
+          })
         );
+        assert.equal(conflict.causeCategory, "unknown");
+        assert.equal(conflict.operation, "verify a pending replacement");
+        assert.equal(conflict.target, "docs/tracked.md");
         assert.deepEqual(
           readPendingModes(repositoryRoot, ["docs/tracked.md"]),
           [
@@ -1154,7 +1233,7 @@ test(
         "--",
         "docs/tracked.md"
       ]);
-      await assert.rejects(
+      const unmergedConflict = await rejectedVersionControlError(
         repository.replacePendingFiles({
           expectedFiles: [conflictExpected!],
           expectedRevision: conflictRevision,
@@ -1165,9 +1244,11 @@ test(
             }
           ],
           pathScope: "docs/tracked.md"
-        }),
-        isPendingConflict
+        })
       );
+      assert.equal(unmergedConflict.causeCategory, "unknown");
+      assert.equal(unmergedConflict.operation, "verify a pending replacement");
+      assert.equal(unmergedConflict.target, "docs/tracked.md");
       assert.equal(pendingWrites, 0);
       assert.equal(
         runGit(repositoryRoot, [
@@ -1302,27 +1383,31 @@ test(
         }
       ];
 
-      await assert.rejects(
+      const stale = await rejectedVersionControlError(
         repository.replacePendingFiles({
           expectedRevision: staleRevision,
           files: replacement,
           pathScope: "docs"
-        }),
-        isPendingConflict
+        })
       );
+      assert.equal(stale.causeCategory, "unknown");
+      assert.equal(stale.operation, "verify a pending replacement");
+      assert.equal(stale.target, "docs");
       assert.deepEqual(await readPendingText(repository), before);
 
       const lockPath = path.join(repositoryRoot, ".git", "index.lock");
       await fs.writeFile(lockPath, "busy\n", "utf8");
       try {
-        await assert.rejects(
+        const busy = await rejectedVersionControlError(
           repository.replacePendingFiles({
             expectedRevision: currentRevision,
             files: replacement,
             pathScope: "docs"
-          }),
-          isPendingConflict
+          })
         );
+        assert.equal(busy.causeCategory, "busy");
+        assert.equal(busy.operation, "verify a pending replacement");
+        assert.equal(busy.target, "docs");
       } finally {
         await fs.rm(lockPath, { force: true });
       }
@@ -1339,7 +1424,12 @@ test(
       const { repositoryRoot } = await createRepositoryFixture(tempRoot);
       const repository = await openGitVersionControl(repositoryRoot, {
         beforePendingWrite: () => {
-          throw new Error("injected write failure");
+          throw Object.assign(
+            new Error(
+              "permission denied for /private/repository/index with token=ghp_123456789012345678901234567890"
+            ),
+            { code: "EACCES" }
+          );
         }
       });
       const before = await readPendingText(repository, "docs");
@@ -1357,8 +1447,11 @@ test(
         (error: unknown) =>
           error instanceof VersionControlError &&
           error.code === "pending-replacement-failed" &&
-          error.message.includes("the original range was restored") &&
-          !/git|index|object|mode|lock/iu.test(error.message)
+          error.causeCategory === "access-denied" &&
+          error.operation === "replace a pending range" &&
+          error.target === "docs" &&
+          error.detail !== null &&
+          !/private|ghp_/iu.test(error.detail)
       );
       assert.deepEqual(await readPendingText(repository, "docs"), before);
     });
@@ -1425,8 +1518,8 @@ test(
         (error: unknown) =>
           error instanceof VersionControlError &&
           error.code === "pending-recovery-failed" &&
-          error.message.includes("the range may be partially updated") &&
-          !/git|index|object|mode|lock/iu.test(error.message)
+          error.operation === "recover a pending range" &&
+          error.target === "docs"
       );
     });
   }
@@ -1640,14 +1733,17 @@ test(
         (error: unknown) =>
           error instanceof VersionControlError &&
           error.code === "operation-failed" &&
-          error.message.includes("read docs/unreadable.md from revision")
+          error.causeCategory === "command-failed" &&
+          error.operation === "read a file from a revision" &&
+          error.target === "docs/unreadable.md"
       );
       await assert.rejects(
         repository.readRevisionFiles("HEAD"),
         (error: unknown) =>
           error instanceof VersionControlError &&
           error.code === "operation-failed" &&
-          error.message.includes("read files from revision")
+          error.causeCategory === "command-failed" &&
+          error.operation === "read files from a revision"
       );
 
       const commitId = runGit(repositoryRoot, ["rev-parse", "HEAD"]).trim();
@@ -1665,7 +1761,9 @@ test(
         (error: unknown) =>
           error instanceof VersionControlError &&
           error.code === "operation-failed" &&
-          error.message.includes("resolve revision HEAD")
+          error.causeCategory === "command-failed" &&
+          error.operation === "resolve a revision" &&
+          error.target === "requested revision"
       );
     });
   }
@@ -1809,9 +1907,20 @@ function isPendingConflict(error: unknown): boolean {
   return (
     error instanceof VersionControlError &&
     error.code === "pending-conflict" &&
-    error.message.includes("retry from the current revision") &&
-    !/git|index|object|mode|lock/iu.test(error.message)
+    error.operation === "verify a pending replacement"
   );
+}
+
+async function rejectedVersionControlError(
+  promise: Promise<unknown>
+): Promise<VersionControlError> {
+  try {
+    await promise;
+  } catch (error) {
+    assert.ok(error instanceof VersionControlError);
+    return error;
+  }
+  assert.fail("expected a version-control error");
 }
 
 async function readPendingText(

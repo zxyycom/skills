@@ -4,6 +4,7 @@ import type {
   StateSnapshot,
   StateSourceRevision
 } from "../../index-runtime/src/index.ts";
+import { sanitizeInvestigationDiagnosticText } from "./diagnostics.ts";
 import { parseInvestigationReport } from "./markdown.ts";
 import {
   investigationIndexFileName,
@@ -263,5 +264,5 @@ function compareText(left: string, right: string): number {
 }
 
 function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+  return sanitizeInvestigationDiagnosticText(error);
 }

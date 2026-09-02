@@ -1,7 +1,14 @@
 import { openGitVersionControl } from "./git.ts";
 import type { VersionControlRepository } from "./types.ts";
 
-export { VersionControlError, type VersionControlErrorCode } from "./errors.ts";
+export {
+  classifyVersionControlCause,
+  renderVersionControlError,
+  VersionControlError,
+  type VersionControlErrorCauseCategory,
+  type VersionControlErrorCode,
+  type VersionControlErrorDetails
+} from "./errors.ts";
 export { repositoryRelativePathFromFileSystemPath } from "./repository-relative-path.ts";
 export type {
   ListChangedPathsOptions,

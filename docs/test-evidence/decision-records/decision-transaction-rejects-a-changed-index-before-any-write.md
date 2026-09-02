@@ -9,3 +9,4 @@ Contract:
 
 Proves:
 - 在 scan 后改写 index，断言不写 Markdown 且 index 保持并发版本。
+- 事务结果声明 `no-change`，表明预检失败前未进入写入阶段。

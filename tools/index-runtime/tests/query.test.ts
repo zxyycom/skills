@@ -207,7 +207,9 @@ test("requires the domain source to reject duplicate identities", async () => {
     result.diagnostics.some(
       (entry) =>
         entry.code === "state-index.source-read-failed" &&
-        entry.message.includes("duplicate state id")
+        entry.message ===
+          "failed to read the state-index source; inspect source availability and access, then retry" &&
+        entry.filesystem === undefined
     )
   );
 });

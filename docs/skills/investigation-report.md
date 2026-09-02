@@ -51,3 +51,15 @@
 `sync-index` 是集合级低频重建：一批报告编辑可以先共同完成，在查询、关系事务、全量检查或交付需要当前索引前统一同步一次。只读审阅不会为修复索引而写入；索引缺失或过期时应报告这一缺口，而不是把旧投影当作集合事实。
 
 审阅完成时，应能判断每份报告是否仍可独立复核形成时认识，tags 与关系是否各有内容依据，资源是否必要且安全，以及报告、索引和关系图是否没有被误读为当前决策或实施状态。调查如形成长期采用方向、实施任务或稳定测试义务，再交接给对应 owner；没有下游载体不影响报告本身成立。
+
+## 运行时诊断与恢复
+
+CLI 将成功信息写入 stdout，将失败与 warning 即时写入 stderr。诊断说明 code、对象、原因
+和下一步；有可靠系统证据时才附带原因类别、操作和经过净化的 detail。即时诊断不会持久化
+为报告、索引日志、遥测或 receipt。
+
+只有 mutation-capable 命令的失败，才为各自可证明的范围报告 `no-change`、`rolled-back`、
+`partial-or-unknown` 或 `committed-cleanup-pending`；普通读取、检查与参数错误不附带这些
+字段。`sync-index`、`set-relations`、`discard` 和 `stage-index` 分别只声明自己实际拥有的
+mutation 范围。恢复不完整时保留来源并停止对账；权限问题只授予当前进程，busy 时先等待或确认活动进程。工具不会使用或建议
+`sudo`，也不会自动删除锁或重试。精确诊断字段和恢复动作由[固定契约](../../skills/investigation-report/references/investigation-report-contract.md)及[维护恢复](../../skills/investigation-report/references/maintenance-recovery.md)承接。

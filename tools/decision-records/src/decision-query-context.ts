@@ -10,7 +10,7 @@ import {
 import {
   createDecisionStateIndexDefinition,
   decisionIndexFileName,
-  decisionIndexDiagnosticMessages,
+  decisionIndexDiagnostics,
   loadDecisionIndex
 } from "./decision-state-index.ts";
 import { displayDecisionPath } from "./decision-path.ts";
@@ -51,10 +51,12 @@ export async function loadDecisionQueryContext(
   });
   if (currentIndex.status === "error") {
     return decisionFailure(
-      decisionIndexDiagnosticMessages(
-        currentIndex.diagnostics,
-        indexRelativePath
-      )
+      decisionIndexDiagnostics(currentIndex.diagnostics, {
+        code: "decision-records.index-query-failed",
+        recovery:
+          "Run sync-index after correcting the decision Markdown or index problem.",
+        target: indexRelativePath
+      })
     );
   }
   return {

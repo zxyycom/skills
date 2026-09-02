@@ -115,7 +115,7 @@ test("lifecycle rejects a source changed after its prewrite scan before moving e
       originalText.replace("使用生成 CLI", "已漂移的生成 CLI"),
       "utf8"
     );
-    const errors = await applyDecisionChanges({
+    const result = await applyDecisionChanges({
       changes: [
         {
           decisionPath: currentPath,
@@ -130,7 +130,7 @@ test("lifecycle rejects a source changed after its prewrite scan before moving e
       originalScan,
       scanOptions: { workspaceRoot }
     });
-    assert.notEqual(errors.length, 0);
+    assert.equal(result.status, "error");
     assert.equal(await fileExists(currentPath), true);
     assert.equal(
       await fileExists(

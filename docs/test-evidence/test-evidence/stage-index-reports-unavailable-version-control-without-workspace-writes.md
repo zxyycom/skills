@@ -9,4 +9,5 @@ Contract:
 
 Proves:
 - 结果使用 `revision-read-failed` 与 `state-index.repository-unavailable` 诊断。
+- 诊断保留 `not-repository`、`discover a version-control worktree` 与 `configured root` 的结构化版本控制事实。
 - 工作区索引和 Case Markdown 字节保持不变。

@@ -150,7 +150,7 @@ test("decision show returns metadata and reports body read failures", () =>
       assert.equal(failed.stdout, "");
       assert.match(
         failed.stderr,
-        /Failed to read decision body.*simulated decision body read failure/
+        /code: decision-records\.decision-body-unavailable/
       );
       assert.equal(reads, 1);
     } finally {

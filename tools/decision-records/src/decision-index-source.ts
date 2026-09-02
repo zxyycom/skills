@@ -102,18 +102,11 @@ async function readDecisionSource(
   }
   const sourcePath = archivedExists ? archivedSourcePath : currentSourcePath;
   const sourceFilePath = archivedExists ? archivedPath : currentPath;
-  try {
-    return {
-      decisionId,
-      sourcePath,
-      text: await fs.readFile(sourceFilePath, "utf8")
-    };
-  } catch (error) {
-    throw new Error(
-      `failed to read indexed decision ${sourcePath}: ${errorText(error)}`,
-      { cause: error }
-    );
-  }
+  return {
+    decisionId,
+    sourcePath,
+    text: await fs.readFile(sourceFilePath, "utf8")
+  };
 }
 
 async function decisionFileExists(
@@ -138,8 +131,4 @@ async function decisionFileExists(
 
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
-}
-
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }

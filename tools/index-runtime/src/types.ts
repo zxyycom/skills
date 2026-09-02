@@ -1,3 +1,5 @@
+import type { FileSystemErrorCauseCategory } from "../../shared/src/node/filesystem-diagnostic.ts";
+import type { VersionControlErrorCauseCategory } from "../../shared/src/version-control/errors.ts";
 import type { DeepReadonly, JsonObject } from "./json.ts";
 import type {
   StateIndex as StateIndexValue,
@@ -85,10 +87,26 @@ export type ReadonlyStateIndex<
 
 export type StateIndexDiagnostic = {
   code: string;
+  filesystem?: StateIndexFilesystemDiagnostic;
   message: string;
   path: string | null;
   stateId: string | null;
+  versionControl?: StateIndexVersionControlDiagnostic;
 };
+
+export type StateIndexFilesystemDiagnostic = Readonly<{
+  causeCategory: FileSystemErrorCauseCategory;
+  detail: string | null;
+  operation: string;
+  target: string | null;
+}>;
+
+export type StateIndexVersionControlDiagnostic = Readonly<{
+  causeCategory: VersionControlErrorCauseCategory;
+  detail: string | null;
+  operation: string | null;
+  target: string | null;
+}>;
 
 export type StateIndexContext = {
   root: string;
@@ -222,8 +240,14 @@ type StateIndexEntryStageBase = {
   diagnostics: StateIndexDiagnostic[];
   indexPath: string;
   namespace: string;
+  pending?: StateIndexPendingMutation;
   selectedIds: string[];
 };
+
+export type StateIndexPendingMutation = Readonly<{
+  outcome: "no-change" | "partial-or-unknown";
+  scope: string;
+}>;
 
 export type StateIndexEntryStageResult =
   | (StateIndexEntryStageBase & {
@@ -254,6 +278,7 @@ export type StateIndexEntryStageResult =
     })
   | (StateIndexEntryStageBase & {
       changed: null;
+      pending: StateIndexPendingMutation;
       state: "pending-recovery-failed";
       status: "error";
     });

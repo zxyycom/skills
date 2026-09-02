@@ -153,6 +153,7 @@ async function createHashHookRepository(
     "scripts/lib/skill-package-release.ts",
     "scripts/lib/skill-package-versioning.ts",
     "tools/shared/src/markdown/frontmatter.ts",
+    "tools/shared/src/node/error-detail.ts",
     "tools/shared/src/node/filesystem.ts",
     "tools/shared/src/version-control",
     "tools/skill-package/src/release-manifest.ts",

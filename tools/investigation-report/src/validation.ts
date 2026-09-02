@@ -2,16 +2,27 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { err, errAsync, ok, ResultAsync, type Result } from "neverthrow";
 import type { StateSnapshot } from "../../index-runtime/src/index.ts";
+import { operationErrorDetail } from "../../shared/src/version-control/error-detail.ts";
 import {
   openVersionControl,
-  repositoryRelativePathFromFileSystemPath
+  repositoryRelativePathFromFileSystemPath,
+  VersionControlError
 } from "../../shared/src/version-control/index.ts";
 import {
   createInvestigationStateSnapshot,
   inspectInvestigationCollectionLayout,
   readInvestigationSources
 } from "./investigation-index-source.ts";
-import { withInvestigationCollectionMutationLock } from "./collection-mutation-lock.ts";
+import {
+  InvestigationCollectionMutationLockError,
+  withInvestigationCollectionMutationLock
+} from "./collection-mutation-lock.ts";
+import {
+  diagnosticFromError,
+  diagnosticFromStateIndexDiagnostic,
+  type InvestigationDiagnostic,
+  type InvestigationMutationDiagnostic
+} from "./diagnostics.ts";
 import {
   investigationIndexDiagnosticMessages,
   investigationIndexFileName,
@@ -161,10 +172,19 @@ export function executeInvestigationReportCheck(
           checkFailure(
             "operation",
             emptyResult(
+              ["investigation report check could not be completed"],
+              prepared.value.indexPath,
               [
-                `investigation report check could not be completed: ${errorText(error)}`
-              ],
-              prepared.value.indexPath
+                diagnosticFromError({
+                  code: "investigation-report.check-unavailable",
+                  error,
+                  reason:
+                    "the investigation report check could not be completed",
+                  recovery:
+                    "correct the reported collection failure, then retry the check",
+                  target: prepared.value.indexPath
+                })
+              ]
             )
           )
       )
@@ -211,12 +231,7 @@ export function executeInvestigationIndexSync(
         (error) =>
           syncFailure(
             "operation",
-            emptySyncResult(
-              [
-                `investigation index synchronization could not be completed: ${errorText(error)}`
-              ],
-              prepared.value.indexPath
-            )
+            syncFailureResult(error, prepared.value.indexPath)
           )
       )
     )
@@ -359,6 +374,16 @@ async function validateFullCollection(
           collection.indexPath
         )
       : [];
+  const diagnostics =
+    synchronized.status === "error"
+      ? synchronized.diagnostics.map((diagnostic) =>
+          diagnosticFromStateIndexDiagnostic(diagnostic, {
+            recovery:
+              "correct the reported derived-index problem, then retry the check",
+            target: collection.indexPath
+          })
+        )
+      : [];
   const warnings = [
     ...collection.warnings,
     ...(await unrecordedPredecessorWarnings(
@@ -371,7 +396,9 @@ async function validateFullCollection(
     errors,
     synchronized.status === "ok",
     collection.indexPath,
-    warnings
+    warnings,
+    collection.reportCount,
+    diagnostics
   );
 }
 
@@ -384,6 +411,7 @@ async function validateScopedCollection(
   // resource membership, or index freshness proof. The selected root report
   // and only its direct resource links are the validation boundary.
   const errors: string[] = [];
+  const diagnostics: InvestigationDiagnostic[] = [];
   const available = new Set(layout.reportIds);
   const selected = ids.filter((id) => available.has(id));
   if (selected.length === 0) {
@@ -401,7 +429,17 @@ async function validateScopedCollection(
         "utf8"
       );
     } catch (error) {
-      errors.push(`${id} could not be read: ${errorText(error)}`);
+      const target = reportPathForInvestigationId(investigationRoot, id);
+      errors.push(`${id} could not be read`);
+      diagnostics.push(
+        diagnosticFromError({
+          code: "investigation-report.report-read-failed",
+          error,
+          reason: "the selected investigation report could not be read",
+          recovery: "restore read access to the report, then retry the check",
+          target
+        })
+      );
       continue;
     }
     const built = buildInvestigationReportState(
@@ -424,7 +462,8 @@ async function validateScopedCollection(
     false,
     path.join(investigationRoot, investigationIndexFileName),
     [],
-    selected.length
+    selected.length,
+    diagnostics
   );
 }
 
@@ -468,12 +507,27 @@ async function synchronizeFullCollection(
           collection.indexPath
         )
       : [];
+  const diagnostics =
+    synchronized.status === "error"
+      ? stateIndexSyncDiagnostics(synchronized, collection.indexPath)
+      : [];
+  const mutation =
+    diagnostics.length === 0
+      ? undefined
+      : syncMutation(
+          synchronized.status === "error" &&
+            synchronized.state === "index-write-failed"
+            ? "partial-or-unknown"
+            : "no-change"
+        );
   return syncResult(
     collection.reportCount,
     synchronized.changed,
     errors,
     collection.indexPath,
-    collection.warnings
+    collection.warnings,
+    diagnostics,
+    mutation
   );
 }
 
@@ -486,16 +540,116 @@ async function synchronizeFullCollectionWithMutationLock(
   );
 }
 
+function syncFailureResult(
+  error: unknown,
+  indexPath: string
+): InvestigationIndexSyncResult {
+  if (error instanceof InvestigationCollectionMutationLockError) {
+    if (
+      error.operationCompleted &&
+      isInvestigationIndexSyncResult(error.operationResult)
+    ) {
+      const completed = error.operationResult;
+      const mutation =
+        completed.mutation ??
+        syncMutation(
+          completed.changed ? "committed-cleanup-pending" : "no-change"
+        );
+      return {
+        ...completed,
+        diagnostics: [
+          ...completed.diagnostics,
+          { ...error.diagnostic, mutation }
+        ],
+        errors: uniqueSorted([...completed.errors, error.message]),
+        mutation
+      };
+    }
+    const mutation = syncMutation(
+      error.diagnostic.code ===
+        "investigation-report.collection-lock-release-failed"
+        ? "partial-or-unknown"
+        : "no-change"
+    );
+    return emptySyncResult(
+      [error.message],
+      indexPath,
+      [{ ...error.diagnostic, mutation }],
+      mutation
+    );
+  }
+  const mutation = syncMutation("partial-or-unknown");
+  return emptySyncResult(
+    ["investigation index synchronization could not be completed"],
+    indexPath,
+    [
+      diagnosticFromError({
+        code: "investigation-report.sync-transaction-failed",
+        error,
+        mutation,
+        reason: "the index synchronization transaction stopped unexpectedly",
+        recovery:
+          "inspect the reported failure and verify the collection and index before retrying",
+        target: indexPath
+      })
+    ],
+    mutation
+  );
+}
+
+function isInvestigationIndexSyncResult(
+  value: unknown
+): value is InvestigationIndexSyncResult {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof Reflect.get(value, "changed") === "boolean" &&
+    Array.isArray(Reflect.get(value, "diagnostics")) &&
+    Array.isArray(Reflect.get(value, "errors")) &&
+    typeof Reflect.get(value, "indexPath") === "string" &&
+    typeof Reflect.get(value, "reportCount") === "number" &&
+    Array.isArray(Reflect.get(value, "warnings"))
+  );
+}
+
+function stateIndexSyncDiagnostics(
+  result: Extract<
+    Awaited<ReturnType<typeof syncInvestigationStateIndex>>,
+    { status: "error" }
+  >,
+  indexPath: string
+): InvestigationDiagnostic[] {
+  const mutation = syncMutation(
+    result.state === "index-write-failed" ? "partial-or-unknown" : "no-change"
+  );
+  return result.diagnostics.map((diagnostic) => ({
+    ...diagnosticFromStateIndexDiagnostic(diagnostic, {
+      mutation,
+      recovery:
+        "correct the reported derived-index problem, then retry the synchronization",
+      target: indexPath
+    })
+  }));
+}
+
+function syncMutation(
+  outcome: InvestigationMutationDiagnostic["outcome"]
+): InvestigationMutationDiagnostic {
+  return { outcome, scope: "investigation report index collection" };
+}
+
 function checkResult(
   availableReportCount: number,
   errors: readonly string[],
   indexChecked: boolean,
   indexPath: string,
   warnings: readonly string[] = [],
-  selectedReportCount: number = availableReportCount
+  selectedReportCount: number = availableReportCount,
+  diagnostics: readonly InvestigationDiagnostic[] = []
 ): InvestigationReportCheckResult {
   return {
     availableReportCount,
+    diagnostics: [...diagnostics],
     errors: uniqueSorted(errors),
     indexChecked,
     indexPath,
@@ -509,12 +663,16 @@ function syncResult(
   changed: boolean,
   errors: readonly string[],
   indexPath: string,
-  warnings: readonly string[] = []
+  warnings: readonly string[] = [],
+  diagnostics: readonly InvestigationDiagnostic[] = [],
+  mutation?: InvestigationMutationDiagnostic
 ): InvestigationIndexSyncResult {
   return {
     changed,
+    diagnostics: [...diagnostics],
     errors: uniqueSorted(errors),
     indexPath,
+    ...(mutation === undefined ? {} : { mutation }),
     reportCount,
     warnings: uniqueSorted(warnings)
   };
@@ -522,15 +680,18 @@ function syncResult(
 
 function emptyResult(
   errors: readonly string[],
-  indexPath: string
+  indexPath: string,
+  diagnostics: readonly InvestigationDiagnostic[] = []
 ): InvestigationReportCheckResult {
-  return checkResult(0, errors, false, indexPath, [], 0);
+  return checkResult(0, errors, false, indexPath, [], 0, diagnostics);
 }
 function emptySyncResult(
   errors: readonly string[],
-  indexPath: string
+  indexPath: string,
+  diagnostics: readonly InvestigationDiagnostic[] = [],
+  mutation?: InvestigationMutationDiagnostic
 ): InvestigationIndexSyncResult {
-  return syncResult(0, false, errors, indexPath);
+  return syncResult(0, false, errors, indexPath, [], diagnostics, mutation);
 }
 function checkFailure(
   kind: InvestigationReportCheckFailure["kind"],
@@ -574,14 +735,15 @@ async function unrecordedPredecessorWarnings(
   const directPredecessors = [...states].flatMap(([source, state]) =>
     state.relations.map((relation) => ({ relation, source }))
   );
-  const recordedIds = await recordedInvestigationIdsAtHead(
+  const recorded = await recordedInvestigationIdsAtHead(
     investigationsDirectory,
     new Set(directPredecessors.map(({ relation }) => relation.target))
   );
-  if (recordedIds === null) return [];
+  if (recorded.status === "unavailable") return [recorded.warning];
+  if (recorded.status === "no-head") return [];
   return uniqueSorted(
     directPredecessors
-      .filter(({ relation }) => !recordedIds.has(relation.target))
+      .filter(({ relation }) => !recorded.ids.has(relation.target))
       .map(
         ({ relation, source }) =>
           `前序报告 ${relation.target} 尚未进入 Git HEAD，请确认 ${source} 的 ${relation.type} 关系是否应保留为独立调查演进。`
@@ -592,11 +754,15 @@ async function unrecordedPredecessorWarnings(
 async function recordedInvestigationIdsAtHead(
   investigationsDirectory: string,
   ids: Iterable<string>
-): Promise<Set<string> | null> {
+): Promise<
+  | { ids: Set<string>; status: "available" }
+  | { status: "no-head" }
+  | { status: "unavailable"; warning: string }
+> {
   try {
     const repository = await openVersionControl(investigationsDirectory);
     const revision = await repository.getCurrentRevision();
-    if (revision === null) return null;
+    if (revision === null) return { status: "no-head" };
     const directoryScope =
       path.resolve(investigationsDirectory) === repository.rootDirectory
         ? ""
@@ -616,15 +782,52 @@ async function recordedInvestigationIdsAtHead(
         id
       ])
     );
-    return new Set(
-      revisionFiles.flatMap((filePath) => {
-        const id = pathsById.get(filePath);
-        return id === undefined ? [] : [id];
-      })
-    );
-  } catch {
-    return null;
+    return {
+      ids: new Set(
+        revisionFiles.flatMap((filePath) => {
+          const id = pathsById.get(filePath);
+          return id === undefined ? [] : [id];
+        })
+      ),
+      status: "available"
+    };
+  } catch (error) {
+    if (
+      error instanceof VersionControlError &&
+      error.code === "not-repository"
+    ) {
+      return { status: "no-head" };
+    }
+    return {
+      status: "unavailable",
+      warning: historyCheckUnavailableWarning(investigationsDirectory, error)
+    };
   }
+}
+
+function historyCheckUnavailableWarning(
+  investigationsDirectory: string,
+  error: unknown
+): string {
+  const fields =
+    error instanceof VersionControlError
+      ? [
+          `causeCategory: ${error.causeCategory}`,
+          ...(error.operation === null
+            ? []
+            : [`operation: ${error.operation}`]),
+          ...(error.detail === null ? [] : [`detail: ${error.detail}`])
+        ]
+      : operationErrorDetail(error) === null
+        ? []
+        : [`detail: ${operationErrorDetail(error)}`];
+  return [
+    "[investigation-report.history-check-unavailable]",
+    `target: ${investigationsDirectory}`,
+    "reason: the Git HEAD predecessor check could not be completed",
+    "next: restore version-control access, then rerun the full check before relying on predecessor warnings",
+    ...fields
+  ].join("; ");
 }
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -643,7 +846,4 @@ async function lstatOrNull(
       return null;
     throw error;
   }
-}
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }

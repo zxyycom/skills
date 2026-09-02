@@ -24,9 +24,11 @@ export function repositoryRelativePathFromFileSystemPath(
   return normalizeRepositoryPath(relativePath);
 }
 
-function invalidFileSystemPath(fileSystemPath: string): VersionControlError {
-  return new VersionControlError(
-    "invalid-path",
-    `Filesystem path must be an absolute repository descendant: ${fileSystemPath}`
-  );
+function invalidFileSystemPath(_fileSystemPath: string): VersionControlError {
+  return new VersionControlError({
+    causeCategory: "unknown",
+    code: "invalid-path",
+    detail: "the path is not an absolute descendant of the repository root",
+    operation: "convert a filesystem path to a repository path"
+  });
 }

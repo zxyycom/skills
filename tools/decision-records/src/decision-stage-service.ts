@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
+import { operationErrorDetail } from "../../shared/src/version-control/error-detail.ts";
 import {
   openVersionControl,
   type RevisionId,
@@ -10,9 +11,12 @@ import {
   type VersionControlRepository
 } from "../../shared/src/version-control/index.ts";
 import {
+  decisionDiagnostic,
   decisionFailure,
+  decisionVersionControlFailure,
   type DecisionApplicationFailure
 } from "./application-result.ts";
+import { VersionControlError } from "../../shared/src/version-control/index.ts";
 import {
   buildDecisionIndexFromSnapshot,
   buildDecisionStateSnapshotFromSources,
@@ -124,11 +128,26 @@ export async function stageDecisionRecords(options: {
     });
   } catch (error) {
     if (error instanceof DecisionStageInputError) {
-      return decisionFailure([error.message], { exitCode: 2 });
+      return stageInputFailure([error.message], 2);
     }
-    return decisionFailure([
-      "Failed to construct the selected decision snapshot: " + errorText(error)
-    ]);
+    if (error instanceof DecisionStageFileSystemError) {
+      return stageFileSystemFailure(
+        "Failed to construct the selected decision snapshot.",
+        error.cause
+      );
+    }
+    if (error instanceof VersionControlError) {
+      return versionControlFailure(
+        "construct the selected decision snapshot",
+        error
+      );
+    }
+    return stageDomainFailure(
+      "decision-records.stage-snapshot-invalid",
+      "The selected decision snapshot is invalid.",
+      "Decision stage source selection",
+      error
+    );
   }
   if (target.sources.length === 0) {
     return decisionFailure([
@@ -145,9 +164,12 @@ export async function stageDecisionRecords(options: {
   try {
     indexText = await buildDecisionIndexText(target.sources, indexRelativePath);
   } catch (error) {
-    return decisionFailure([
-      "Selected decision snapshot is invalid: " + errorText(error)
-    ]);
+    return stageDomainFailure(
+      "decision-records.stage-index-projection-invalid",
+      "The selected decision snapshot cannot produce a derived index.",
+      indexRelativePath,
+      error
+    );
   }
   const files = [
     ...target.sourceFiles,
@@ -160,10 +182,18 @@ export async function stageDecisionRecords(options: {
       target.selectedSources
     );
   } catch (error) {
-    return decisionFailure([
-      "Selected decision filesystem source changed before staging: " +
-        errorText(error)
-    ]);
+    if (error instanceof DecisionStageFileSystemError) {
+      return stageFileSystemFailure(
+        "Failed to verify selected decision filesystem sources before staging.",
+        error.cause
+      );
+    }
+    return stageDomainFailure(
+      "decision-records.stage-source-changed",
+      "Selected decision filesystem source changed before staging.",
+      "Selected decision filesystem sources",
+      error
+    );
   }
   let pendingFileCount: number;
   try {
@@ -341,7 +371,7 @@ async function readFilesystemDecisionSources(
           decisionId
       );
     }
-    const data = await fs.readFile(
+    const data = await readStageFile(
       path.join(decisionsDirectory, ...sourcePath.split("/"))
     );
     sources.set(
@@ -355,16 +385,13 @@ async function readFilesystemDecisionSources(
       )
     );
   };
-  const rootEntries = await fs.readdir(decisionsDirectory, {
-    withFileTypes: true
-  });
+  const rootEntries = await readStageDirectory(decisionsDirectory);
   for (const entry of rootEntries) {
     if (entry.isFile() && entry.name.endsWith(".md")) {
       await addSource(entry.name);
     } else if (entry.isDirectory() && entry.name === "archive") {
-      const archivedEntries = await fs.readdir(
-        path.join(decisionsDirectory, "archive"),
-        { withFileTypes: true }
+      const archivedEntries = await readStageDirectory(
+        path.join(decisionsDirectory, "archive")
       );
       for (const archivedEntry of archivedEntries) {
         if (!archivedEntry.isFile() || !archivedEntry.name.endsWith(".md")) {
@@ -430,14 +457,14 @@ async function readFilesystemDecisionSource(
       if (isFileSystemError(error, "ENOENT")) {
         continue;
       }
-      throw error;
+      throw new DecisionStageFileSystemError(error);
     }
     if (!entry.isFile() || entry.isSymbolicLink()) {
       throw new Error(
         "Decision source must be a regular non-symlink file: " + sourcePath
       );
     }
-    const data = await fs.readFile(filesystemPath);
+    const data = await readStageFile(filesystemPath);
     sources.push(
       stageSourceFromFile(
         {
@@ -565,7 +592,25 @@ function validateSelectedIds(
   }
   return errors.length === 0
     ? { status: "ok", value: values }
-    : decisionFailure(errors, { exitCode: 2 });
+    : stageInputFailure(errors, 2);
+}
+
+function stageInputFailure(
+  errors: readonly string[],
+  exitCode: 1 | 2 = 1
+): DecisionApplicationFailure {
+  return decisionFailure(
+    errors.map((reason) =>
+      decisionDiagnostic({
+        code: "decision-records.stage-input-invalid",
+        reason,
+        recovery:
+          "Correct the selected Decision IDs or source state, then retry staging.",
+        target: "Decision stage input"
+      })
+    ),
+    { exitCode }
+  );
 }
 
 function decisionRepositoryScope(
@@ -635,11 +680,85 @@ function versionControlFailure(
   action: string,
   error: unknown
 ): DecisionApplicationFailure {
-  return decisionFailure([`Failed to ${action}: ${errorText(error)}`]);
+  return decisionVersionControlFailure(
+    {
+      action,
+      outcome:
+        error instanceof VersionControlError &&
+        error.code === "pending-recovery-failed"
+          ? "partial-or-unknown"
+          : "no-change",
+      scope: "Pending decision snapshot",
+      target: "Pending decision snapshot"
+    },
+    error
+  );
 }
 
 class DecisionStageInputError extends Error {}
 
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+class DecisionStageFileSystemError extends Error {
+  constructor(cause: unknown) {
+    super("Decision Stage filesystem operation failed", { cause });
+    this.name = "DecisionStageFileSystemError";
+  }
+}
+
+async function readStageDirectory(directory: string) {
+  try {
+    return await fs.readdir(directory, { withFileTypes: true });
+  } catch (error) {
+    throw new DecisionStageFileSystemError(error);
+  }
+}
+
+async function readStageFile(filePath: string): Promise<Buffer> {
+  try {
+    return await fs.readFile(filePath);
+  } catch (error) {
+    throw new DecisionStageFileSystemError(error);
+  }
+}
+
+function stageFileSystemFailure(
+  reason: string,
+  error: unknown
+): DecisionApplicationFailure {
+  const detail = operationErrorDetail(error);
+  const causeCategory =
+    isFileSystemError(error, "EACCES") || isFileSystemError(error, "EPERM")
+      ? "access-denied"
+      : "unknown";
+  return decisionFailure([
+    decisionDiagnostic({
+      causeCategory,
+      code: "decision-records.stage-filesystem-unavailable",
+      ...(detail === null ? {} : { detail }),
+      reason,
+      recovery:
+        causeCategory === "access-denied"
+          ? "Grant the current process filesystem access to the decision collection, then retry staging."
+          : "Inspect the selected decision filesystem sources, then retry staging.",
+      target: "Decision stage filesystem sources"
+    })
+  ]);
+}
+
+function stageDomainFailure(
+  code: string,
+  reason: string,
+  target: string,
+  error: unknown
+): DecisionApplicationFailure {
+  const detail = operationErrorDetail(error);
+  return decisionFailure([
+    decisionDiagnostic({
+      code,
+      ...(detail === null ? {} : { detail }),
+      reason,
+      recovery:
+        "Correct the selected Decision IDs or Decision source state, then retry staging.",
+      target
+    })
+  ]);
 }

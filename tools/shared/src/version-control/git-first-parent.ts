@@ -1,6 +1,5 @@
 import { execFile } from "node:child_process";
-import { operationErrorDetail } from "./error-detail.ts";
-import { VersionControlError } from "./errors.ts";
+import { classifyVersionControlCause, VersionControlError } from "./errors.ts";
 import { parseGitFirstParentRevisionChanges } from "./git-numstat.ts";
 import type {
   ListFirstParentRevisionChangesOptions,
@@ -26,10 +25,12 @@ export async function listFirstParentRevisionChanges(
       ? await repository.getCurrentRevision()
       : await repository.resolveRevision(options.to);
   if (to === null) {
-    throw new VersionControlError(
-      "revision-not-found",
-      "The current version-control revision does not exist"
-    );
+    throw new VersionControlError({
+      causeCategory: "revision-unavailable",
+      code: "revision-not-found",
+      operation: "read the current revision",
+      target: "current revision"
+    });
   }
   if (from === to) {
     return [];
@@ -39,10 +40,10 @@ export async function listFirstParentRevisionChanges(
   try {
     result = await runFirstParentGitLog(repository.rootDirectory, from, to);
   } catch (error) {
-    throw firstParentOperationError(from, to, error);
+    throw firstParentOperationError(error);
   }
   if (result.exitCode !== 0) {
-    throw firstParentOperationError(from, to, result.stderr);
+    throw firstParentOperationError(result.stderr);
   }
   return parseGitFirstParentRevisionChanges(result.stdout, from, to);
 }
@@ -91,15 +92,13 @@ function runFirstParentGitLog(
   });
 }
 
-function firstParentOperationError(
-  from: string,
-  to: string,
-  detail?: unknown
-): VersionControlError {
-  const detailText = operationErrorDetail(detail);
-  return new VersionControlError(
-    "operation-failed",
-    `Version-control operation failed: list first-parent revision changes from ${from} to ${to}` +
-      (detailText === null ? "" : ": " + detailText)
-  );
+function firstParentOperationError(detail?: unknown): VersionControlError {
+  return new VersionControlError({
+    cause: detail,
+    causeCategory: classifyVersionControlCause(detail, "command-failed"),
+    code: "operation-failed",
+    detail,
+    operation: "list first-parent revision changes",
+    target: "requested revision range"
+  });
 }

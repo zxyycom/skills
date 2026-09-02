@@ -24,6 +24,17 @@
 
 `discard` 统一删除完整且无剩余引用的 candidate、active 或 archived 决策；`evolve --discard <decision-id>` 将同一删除动作放入关系事务。删除对象已经进入 Git `HEAD` 时，首次调用零写入暂停，并要求在重试中加入 `--delete-recorded-decision`；该参数是明确的机械删除选择，不要求事前自行检查 Git。适用条件和影响由固定规则与 CLI 唯一承接。
 
+## 运行时诊断与恢复
+
+CLI 成功信息写入 stdout；失败、暂停和 warning 在 stderr 即时给出。诊断会指出 code、对象、
+原因和下一步；只有有可靠系统证据时才补充原因类别和经过净化的 detail。它不保存运行日志、
+遥测或 receipt，也不把临时输出写入决策集合。
+
+仅 mutation 失败会说明受影响范围和结果：未改变、已完整回滚、恢复状态未知，或已提交但
+cleanup 待处理。范围未知或恢复不完整时先停止并对账；权限不足只授权当前进程，busy 时先
+等待或确认活动进程。工具不会建议 `sudo`、自动删除锁或自动重试。精确字段和恢复步骤以
+[决策记录规则](../../skills/decision-records/references/decision-record-rules.md)及其[维护恢复](../../skills/decision-records/references/maintenance-recovery.md)为准。
+
 ## 入口
 
 agent 的触发、读取路径、动作选择与验收由 [Skill 入口](../../skills/decision-records/SKILL.md) 承接。写入、生命周期、关系、对齐、历史确认和索引维护的语义规则由 [决策记录规则](../../skills/decision-records/references/decision-record-rules.md) 承接；CLI 的当前参数与输出通过 `bun run decision-records -- --help` 查询，索引或写入异常按 [维护恢复](../../skills/decision-records/references/maintenance-recovery.md) 处理。

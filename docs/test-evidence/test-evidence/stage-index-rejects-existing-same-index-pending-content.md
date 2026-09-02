@@ -9,4 +9,5 @@ Contract:
 
 Proves:
 - 命令返回 `pending-conflict` 并逐字保留既有 pending 索引。
+- 结果把目标索引范围与 `no-change` outcome 作为 pending mutation 事实保留。
 - 目标外 pending 路径和工作区索引保持不变。

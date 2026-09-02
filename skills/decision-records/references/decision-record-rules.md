@@ -122,6 +122,23 @@ relations:
 6. 索引缺失、损坏或陈旧时只能由权威 Markdown 重建，不能反向补造 Markdown 事实。常规查询读取结构有效的持久索引，不在每次查询前重扫整个集合。
 7. `sync-index` 与关系、生命周期和丢弃事务共用集合 mutation lock；完整扫描、验证和索引写入都在锁内完成。锁冲突时命令零写入失败并要求在当前事务结束后重试。`check` 与查询保持只读；`stage` 只写 Git pending，不参与工作树集合锁。
 
+## CLI 诊断与 mutation 恢复
+
+CLI 成功信息写入 stdout；失败、暂停和 warning 立即写入 stderr，只描述本次命令，不写入
+持久日志、遥测或 receipt。每条失败诊断固定给出 `code`、对象、原因和下一步；有可靠系统
+证据时才补充 `causeCategory` 与经过净化的 `detail`。warning 仍应按其提示核对受影响事实，
+但不能替代阻断失败或改变生命周期、关系和索引事实。
+
+只有 mutation-capable 命令的失败诊断才包含 `scope` 与 `outcome`。四种 outcome 的含义固定为：
+`no-change` 表示声明范围未改变；`rolled-back` 表示失败后已恢复完整旧范围；
+`partial-or-unknown` 表示无法证明范围已完整恢复，必须先对账；
+`committed-cleanup-pending` 表示领域提交点已经越过但清理未完成，先检查已提交状态和残留
+再进行下一次 mutation。普通查询、检查和参数错误不得附会这些字段。
+
+诊断要求的“重试”始终由操作者在处理原因并重新观察后显式发起。不得以 `sudo` 提权，
+不得自动删除锁；busy 时先等待或确认活动进程，只有确认没有活动进程后才人工检查残留锁。
+恢复不完整、原因未知或范围无法对账时停止并按[维护恢复](maintenance-recovery.md)处理。
+
 ## 验证
 
 1. `check` 验证 Markdown、ID、tags、位置与状态、关系、索引结构、新鲜度、成员一致性及候选前瞻性结构，并计数合法候选。

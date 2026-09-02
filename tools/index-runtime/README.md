@@ -67,6 +67,24 @@ Valibot Schema 是索引结构和查询输入的真源。通用层固定使用 `
 6. metadata 对象始终递归按字段名字典序规范化；默认模式也按相同规则规范化 state 对象，`fieldOrder: "definition"` 则改用通用外壳语义顺序、key 策略声明顺序和 parser 返回的领域字段顺序。
 7. 序列化固定使用 LF；检查时把 Git checkout 可能产生的 CRLF 视为等价。
 
+## 诊断与 mutation 责任
+
+`StateIndexDiagnostic` 始终给出领域 `code`、可定位的 `path` 与 `stateId`（没有适用值时
+为 `null`）。由文件系统或版本控制引起的失败可分别附带共享层已经净化的
+`causeCategory`、`operation`、`target` 与 `detail`；Index Runtime 只在明确文件系统操作或
+共享版本控制错误的边界保留这些事实，不把领域 parser、验证或 callback 的普通异常猜成
+系统原因，也不持久化命令期日志、遥测或 receipt。
+
+通用同步不拥有领域源的 mutation 结果。按 ID 写入 `pending` 时，只有该操作可证明影响
+的 pending 路径才返回 `pending: { scope, outcome }`：写前失败或冲突是 `no-change`，无法
+确认范围已完整恢复是 `partial-or-unknown`。领域事务若还改写 Markdown、资源或其他来源，
+必须由领域 owner 扩展自己的范围和结果，不能把 Index Runtime 的 pending 事实当作完整
+事务结果。
+
+操作者应按诊断中的对象和下一步先解决权限、竞争或内容归属；运行时不会提权、删除锁或
+自动重试。特别是恢复不完整时，先通过版本管理公共 API 对账目标范围，无法唯一归因则
+停止并交给该范围 owner。
+
 ## 按 ID 选择性写入 Pending
 
 独立入口 `stageSelectedIndexEntries({ context, definition, indexPath, selectedIds })` 接收完整

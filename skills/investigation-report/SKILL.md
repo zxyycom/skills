@@ -5,7 +5,7 @@ description: >-
   每份报告以稳定 Investigation ID 保存一轮形成时的背景、依据、结果和边界；tags 用于分类，显式直接前序关系用于认识演进。
   当前事实、长期方向与实施授权继续由各自 owner 承接。
 metadata:
-  version: "27"
+  version: "28"
 ---
 
 # Investigation Report
@@ -21,8 +21,9 @@ metadata:
 ## 内容 owner 与读取路径
 
 1. 本文件承接报告形成与审阅、关系判断、资源取舍和维护流程；领域调查方法与当前事实由相应任务和 owner 承接。
-2. [固定契约](references/investigation-report-contract.md) 承接报告结构、关系形状、资源、索引、CLI 和事务。创建、更新、调整关系、剔除报告或结构审阅前完整读取。
-3. 先读取工作区指令，再用固定契约定义的 `list`、`show`、`trace` 定位相关报告，并按需读取形成时材料与当前事实 owner。索引不可用时，只读审阅按可读 Markdown 说明可确认范围；获得维护授权后才用 `sync-index` 恢复索引。无法恢复的信息记为未知，确实改变问题或结果解释时再向用户确认。
+2. [固定契约](references/investigation-report-contract.md) 承接报告结构、关系形状、资源、索引、CLI、事务与运行时诊断。创建、更新、调整关系、剔除报告或结构审阅前完整读取。
+3. [维护恢复](references/maintenance-recovery.md) 承接 warning、mutation outcome、锁、权限与中断写入的操作者恢复边界；只在相应诊断或恢复条件出现时读取。
+4. 先读取工作区指令，再用固定契约定义的 `list`、`show`、`trace` 定位相关报告，并按需读取形成时材料与当前事实 owner。索引不可用时，只读审阅按可读 Markdown 说明可确认范围；获得维护授权后才用 `sync-index` 恢复索引。无法恢复的信息记为未知，确实改变问题或结果解释时再向用户确认。
 
 ## 常用 CLI
 

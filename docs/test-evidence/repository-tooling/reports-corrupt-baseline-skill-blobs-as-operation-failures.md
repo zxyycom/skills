@@ -5,4 +5,4 @@ Entry:
 Contract:
 - 基线 skill 文件读取失败不得被解释为文件缺失或新 skill。
 Proves:
-- 损坏 Git blob 返回带目标路径上下文的 `operation-failed`。
+- 损坏 Git blob 返回带受控读取操作、目标路径和 `command-failed` 原因类别的 `operation-failed`。

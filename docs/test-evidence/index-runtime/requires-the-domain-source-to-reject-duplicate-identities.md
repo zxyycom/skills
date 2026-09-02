@@ -5,4 +5,4 @@ Entry:
 Contract:
 - 领域来源必须在构造 ID record 前发现重复身份，不能先覆盖成员再交给通用 runtime。
 Proves:
-- 测试证据内存来源发现重复 case ID 后使构建返回 `state-index.source-read-failed`，诊断保留领域重复身份原因。
+- 测试证据内存来源发现重复 case ID 后使构建返回稳定的 `state-index.source-read-failed`；领域回调异常不是文件系统事实，诊断不附加 `filesystem`。

@@ -1,4 +1,5 @@
 import {
+  decisionDiagnostic,
   decisionFailure,
   type DecisionApplicationFailure
 } from "./application-result.ts";
@@ -20,7 +21,16 @@ export function prepareArchivedDecisionChange(
   const source = record.source;
   if (source.document.alignment === null) {
     return decisionFailure(
-      ["Active decision alignment is unavailable: " + record.sourcePath],
+      [
+        decisionDiagnostic({
+          code: "decision-records.lifecycle-invalid",
+          reason:
+            "Active decision alignment is unavailable: " + record.sourcePath,
+          recovery:
+            "Restore a valid active decision alignment before retrying the lifecycle command.",
+          target: record.sourcePath
+        })
+      ],
       { presentation: "plain" }
     );
   }

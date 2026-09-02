@@ -1,5 +1,6 @@
 import {
   decisionAttention,
+  decisionDiagnostic,
   decisionFailure,
   type DecisionApplicationAttention,
   type DecisionApplicationFailure
@@ -82,5 +83,16 @@ export function discardDecisionChange(
 }
 
 function plainFailure(error: string): DecisionApplicationFailure {
-  return decisionFailure([error], { presentation: "plain" });
+  return decisionFailure(
+    [
+      decisionDiagnostic({
+        code: "decision-records.discard-invalid",
+        reason: error,
+        recovery:
+          "Correct the discard selection or decision state, then retry the command.",
+        target: "Decision discard"
+      })
+    ],
+    { presentation: "plain" }
+  );
 }

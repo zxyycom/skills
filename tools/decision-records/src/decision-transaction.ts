@@ -3,11 +3,21 @@ import path from "node:path";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
 import { selectEstablishedDecisionIds, validateDecisionScan } from "./index.ts";
 import {
-  decisionIndexDiagnosticMessages,
+  decisionIndexDiagnostics,
   decisionIndexFileName,
   syncDecisionIndex
 } from "./decision-state-index.ts";
-import { withDecisionCollectionMutationLock } from "./decision-collection-mutation-lock.ts";
+import {
+  DecisionCollectionLockError,
+  withDecisionCollectionMutationLock
+} from "./decision-collection-mutation-lock.ts";
+import {
+  decisionDiagnostic,
+  decisionDiagnosticFromReason,
+  decisionFileSystemDiagnostic,
+  type DecisionDiagnostic,
+  type DecisionMutationOutcome
+} from "./application-result.ts";
 import { scanDecisionRecords } from "./scan.ts";
 import { displayDecisionPath } from "./decision-path.ts";
 import type { DecisionScan, DecisionScanOptions } from "./types.ts";
@@ -22,26 +32,42 @@ export type DecisionFileChange = {
 
 type DecisionChangePreflight = {
   createdTargetPaths: Set<string>;
-  errors: string[];
+  errors: DecisionTransactionIssue[];
   originalBodies: Map<string, string>;
 };
+
+type DecisionTransactionIssue = string | DecisionDiagnostic;
+
+export type DecisionTransactionResult =
+  | {
+      changed: boolean;
+      diagnostics: [];
+      errors: [];
+      status: "ok";
+    }
+  | {
+      diagnostics: DecisionDiagnostic[];
+      errors: string[];
+      outcome: DecisionMutationOutcome;
+      scope: "Decision Markdown files and derived decision index";
+      status: "error";
+    };
+
+const decisionMutationScope =
+  "Decision Markdown files and derived decision index" as const;
 
 export async function applyDecisionChanges(options: {
   changes: readonly DecisionFileChange[];
   originalScan: DecisionScan;
   scanOptions: DecisionScanOptions;
-}): Promise<string[]> {
+}): Promise<DecisionTransactionResult> {
   try {
     return await withDecisionCollectionMutationLock(
       options.originalScan.indexPath,
       async () => await applyLockedDecisionChanges(options)
     );
   } catch (error) {
-    return [
-      "Decision transaction could not start: " +
-        errorText(error) +
-        ". No files were written."
-    ];
+    return lockFailure(error);
   }
 }
 
@@ -49,16 +75,19 @@ async function applyLockedDecisionChanges(options: {
   changes: readonly DecisionFileChange[];
   originalScan: DecisionScan;
   scanOptions: DecisionScanOptions;
-}): Promise<string[]> {
+}): Promise<DecisionTransactionResult> {
   const { changes, originalScan, scanOptions } = options;
   const preflight = await preflightDecisionChanges(changes, originalScan);
   if (preflight.errors.length > 0) {
-    return preflight.errors;
+    return transactionFailure(preflight.errors, "no-change");
   }
 
   try {
+    let changed = false;
     for (const change of changes) {
-      await applyDecisionChange(change, preflight.createdTargetPaths);
+      changed =
+        (await applyDecisionChange(change, preflight.createdTargetPaths)) ||
+        changed;
     }
     const candidateScan = await scanDecisionRecords(scanOptions);
     const hasEstablishedDecision = candidateScan.records.some(
@@ -70,21 +99,24 @@ async function applyLockedDecisionChanges(options: {
       scanErrorPolicy: "source-only"
     });
     if (sourceValidation.errors.length > 0) {
-      return [
-        ...sourceValidation.errors,
-        ...(await restoreDecisionChanges(originalScan, preflight))
-      ];
+      return await recoveredTransactionFailure(
+        sourceValidation.errors,
+        originalScan,
+        preflight
+      );
     }
 
     if (!hasEstablishedDecision) {
       await fs.rm(candidateScan.indexPath, { force: true });
+      changed = candidateScan.indexExists || changed;
     } else {
       const selection = selectEstablishedDecisionIds(candidateScan);
       if (selection.errors.length > 0) {
-        return [
-          ...selection.errors,
-          ...(await restoreDecisionChanges(originalScan, preflight))
-        ];
+        return await recoveredTransactionFailure(
+          selection.errors,
+          originalScan,
+          preflight
+        );
       }
       const synchronized = await syncDecisionIndex({
         decisionsDirectory: candidateScan.decisionsDirectory,
@@ -93,14 +125,18 @@ async function applyLockedDecisionChanges(options: {
         decisionIds: selection.decisionIds
       });
       if (synchronized.status === "error") {
-        return [
-          ...decisionIndexDiagnosticMessages(
-            synchronized.diagnostics,
-            candidateScan.indexRelativePath
-          ),
-          ...(await restoreDecisionChanges(originalScan, preflight))
-        ];
+        return await recoveredTransactionFailure(
+          decisionIndexDiagnostics(synchronized.diagnostics, {
+            code: "decision-records.transaction-failed",
+            recovery:
+              "Inspect the decision files and derived index, then retry the command.",
+            target: candidateScan.indexRelativePath
+          }),
+          originalScan,
+          preflight
+        );
       }
+      changed = synchronized.state === "written" || changed;
     }
 
     const validationScan = await scanDecisionRecords(scanOptions);
@@ -108,25 +144,133 @@ async function applyLockedDecisionChanges(options: {
       allowEmptyDecisionSet: !hasEstablishedDecision
     });
     if (validation.errors.length > 0) {
-      return [
-        ...validation.errors,
-        ...(await restoreDecisionChanges(originalScan, preflight))
-      ];
+      return await recoveredTransactionFailure(
+        validation.errors,
+        originalScan,
+        preflight
+      );
     }
-    return [];
+    return { changed, diagnostics: [], errors: [], status: "ok" };
   } catch (error) {
-    return [
-      "Failed to update decision files and index: " + errorText(error),
-      ...(await restoreDecisionChanges(originalScan, preflight))
-    ];
+    return await recoveredTransactionFailure(
+      [
+        transactionFileSystemDiagnostic(
+          "Failed to update decision files and index.",
+          "Decision transaction",
+          error
+        )
+      ],
+      originalScan,
+      preflight
+    );
   }
+}
+
+async function recoveredTransactionFailure(
+  errors: readonly DecisionTransactionIssue[],
+  originalScan: DecisionScan,
+  preflight: DecisionChangePreflight
+): Promise<DecisionTransactionResult> {
+  const recoveryErrors = await restoreDecisionChanges(originalScan, preflight);
+  return transactionFailure(
+    [...errors, ...recoveryErrors],
+    recoveryErrors.length === 0 ? "rolled-back" : "partial-or-unknown"
+  );
+}
+
+function lockFailure(error: unknown): DecisionTransactionResult {
+  if (error instanceof DecisionCollectionLockError) {
+    const operationResult = asDecisionTransactionResult(error.operationResult);
+    if (
+      error.kind === "release-failed" &&
+      operationResult?.status === "error"
+    ) {
+      const diagnostic = collectionLockDiagnostic(
+        error,
+        operationResult.outcome
+      );
+      return {
+        diagnostics: [...operationResult.diagnostics, diagnostic],
+        errors: [...operationResult.errors, diagnostic.reason],
+        outcome: operationResult.outcome,
+        scope: decisionMutationScope,
+        status: "error"
+      };
+    }
+    const outcome: DecisionMutationOutcome =
+      error.kind === "release-failed" &&
+      operationResult?.status === "ok" &&
+      operationResult.changed
+        ? "committed-cleanup-pending"
+        : "no-change";
+    const diagnostic = collectionLockDiagnostic(error, outcome);
+    return {
+      diagnostics: [diagnostic],
+      errors: [diagnostic.reason],
+      outcome,
+      scope: decisionMutationScope,
+      status: "error"
+    };
+  }
+  return transactionFailure(
+    [
+      transactionFileSystemDiagnostic(
+        "Decision transaction could not start.",
+        "Decision transaction",
+        error
+      )
+    ],
+    "no-change"
+  );
+}
+
+function transactionFailure(
+  errors: readonly DecisionTransactionIssue[],
+  outcome: DecisionMutationOutcome
+): DecisionTransactionResult {
+  const diagnostics = errors.map((error) =>
+    typeof error === "string"
+      ? decisionDiagnosticFromReason(
+          {
+            code: "decision-records.transaction-failed",
+            outcome,
+            recovery:
+              outcome === "no-change"
+                ? "Correct the reported precondition, then retry the command."
+                : outcome === "rolled-back"
+                  ? "Review the reported failure; the decision files and index were restored before retrying."
+                  : outcome === "committed-cleanup-pending"
+                    ? "Inspect the completed decision files and cleanup state before running another mutation."
+                    : "Inspect and reconcile the decision files and index before retrying.",
+            scope: decisionMutationScope,
+            target: "Decision transaction"
+          },
+          error
+        )
+      : {
+          ...error,
+          outcome,
+          scope: decisionMutationScope
+        }
+  );
+  return {
+    diagnostics,
+    errors: diagnostics.map((diagnostic) =>
+      diagnostic.detail === undefined || diagnostic.detail === null
+        ? diagnostic.reason
+        : diagnostic.reason + ": " + diagnostic.detail
+    ),
+    outcome,
+    scope: decisionMutationScope,
+    status: "error"
+  };
 }
 
 async function preflightDecisionChanges(
   changes: readonly DecisionFileChange[],
   originalScan: DecisionScan
 ): Promise<DecisionChangePreflight> {
-  const errors: string[] = [];
+  const errors: DecisionTransactionIssue[] = [];
   const createdTargetPaths = new Set<string>();
   const moveTargetPaths = new Set<string>();
   const originalBodies = new Map<string, string>();
@@ -151,11 +295,11 @@ async function preflightDecisionChanges(
       }
     } catch (error) {
       errors.push(
-        "Failed to verify decision source before update: " +
-          displayPath +
-          ": " +
-          errorText(error) +
-          ". No files were written; review the current files and re-run the command."
+        transactionFileSystemDiagnostic(
+          "Failed to verify decision source before update. No files were written.",
+          displayPath,
+          error
+        )
       );
     }
     if (
@@ -183,13 +327,14 @@ async function preflightDecisionChanges(
           continue;
         } else {
           errors.push(
-            "Failed to verify decision move target before update: " +
+            transactionFileSystemDiagnostic(
+              "Failed to verify decision move target before update. No files were written.",
               displayDecisionPath(
                 originalScan.workspaceRoot,
                 change.targetPath
-              ) +
-              ": " +
-              errorText(error)
+              ),
+              error
+            )
           );
         }
       }
@@ -211,11 +356,11 @@ async function preflightDecisionChanges(
   } catch (error) {
     if (originalScan.indexExists || !isFileSystemError(error, "ENOENT")) {
       errors.push(
-        "Failed to verify decision index before update: " +
-          originalScan.indexRelativePath +
-          ": " +
-          errorText(error) +
-          ". No files were written; review the current files and re-run the command."
+        transactionFileSystemDiagnostic(
+          "Failed to verify decision index before update. No files were written.",
+          originalScan.indexRelativePath,
+          error
+        )
       );
     }
   }
@@ -225,7 +370,7 @@ async function preflightDecisionChanges(
 async function applyDecisionChange(
   change: DecisionFileChange,
   createdTargetPaths: Set<string>
-): Promise<void> {
+): Promise<boolean> {
   if (
     change.targetPath !== undefined &&
     change.targetPath !== change.decisionPath
@@ -242,14 +387,15 @@ async function applyDecisionChange(
       await target.close();
     }
     await fs.rm(change.decisionPath);
-    return;
+    return true;
   }
   if (change.nextText === null) {
     await fs.rm(change.decisionPath);
-    return;
+    return true;
   }
   await ensureRegularDecisionFile(change.decisionPath);
   await fs.writeFile(change.decisionPath, change.nextText, "utf8");
+  return change.nextText !== change.expectedText;
 }
 
 function concurrentChangeError(
@@ -268,17 +414,18 @@ function concurrentChangeError(
 async function restoreDecisionChanges(
   originalScan: DecisionScan,
   preflight: DecisionChangePreflight
-): Promise<string[]> {
-  const errors: string[] = [];
+): Promise<DecisionTransactionIssue[]> {
+  const errors: DecisionTransactionIssue[] = [];
   for (const targetPath of preflight.createdTargetPaths) {
     try {
       await fs.rm(targetPath, { force: true });
     } catch (error) {
       errors.push(
-        "Failed to restore decision move target " +
-          targetPath +
-          ": " +
-          errorText(error)
+        transactionFileSystemDiagnostic(
+          "Failed to restore decision move target.",
+          displayDecisionPath(originalScan.workspaceRoot, targetPath),
+          error
+        )
       );
     }
   }
@@ -288,10 +435,11 @@ async function restoreDecisionChanges(
       await fs.writeFile(decisionPath, body, "utf8");
     } catch (error) {
       errors.push(
-        "Failed to restore decision body " +
-          decisionPath +
-          ": " +
-          errorText(error)
+        transactionFileSystemDiagnostic(
+          "Failed to restore decision body.",
+          displayDecisionPath(originalScan.workspaceRoot, decisionPath),
+          error
+        )
       );
     }
   }
@@ -307,10 +455,11 @@ async function restoreDecisionChanges(
     }
   } catch (error) {
     errors.push(
-      "Failed to restore decision index " +
-        originalScan.indexRelativePath +
-        ": " +
-        errorText(error)
+      transactionFileSystemDiagnostic(
+        "Failed to restore decision index.",
+        originalScan.indexRelativePath,
+        error
+      )
     );
   }
   return errors;
@@ -328,6 +477,73 @@ async function ensureRegularDecisionFile(filePath: string): Promise<void> {
   }
 }
 
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+function transactionFileSystemDiagnostic(
+  reason: string,
+  target: string,
+  error: unknown
+): DecisionDiagnostic {
+  return decisionFileSystemDiagnostic(
+    {
+      code: "decision-records.transaction-failed",
+      reason,
+      recovery:
+        "Inspect the decision files and derived index, then retry the command.",
+      target
+    },
+    error
+  );
+}
+
+function collectionLockDiagnostic(
+  error: DecisionCollectionLockError,
+  outcome: DecisionMutationOutcome
+): DecisionDiagnostic {
+  return decisionDiagnostic({
+    code:
+      "decision-records.collection-lock-" +
+      (error.kind === "busy" ? "busy" : error.kind),
+    ...(error.kind === "access-denied"
+      ? { causeCategory: "access-denied" as const }
+      : error.kind === "busy"
+        ? { causeCategory: "busy" as const }
+        : {}),
+    outcome,
+    reason:
+      error.kind === "release-failed"
+        ? "The decision transaction finished, but its collection lock could not be released."
+        : "The decision transaction could not acquire its collection lock.",
+    recovery:
+      error.kind === "busy"
+        ? "Wait for or confirm the active transaction; only if none is active, inspect the remaining lock before retrying."
+        : error.kind === "access-denied"
+          ? "Grant the current process access to the decision collection, then retry the command."
+          : error.kind === "release-failed"
+            ? "Inspect the decision transaction result and the remaining lock before running another mutation."
+            : "Inspect the decision collection lock and its parent directory, then retry the command.",
+    scope: decisionMutationScope,
+    target: "Decision collection mutation lock"
+  });
+}
+
+function asDecisionTransactionResult(
+  value: unknown
+): DecisionTransactionResult | null {
+  if (value === null || typeof value !== "object" || !("status" in value)) {
+    return null;
+  }
+  const result = value as Partial<DecisionTransactionResult>;
+  if (result.status === "ok" && typeof result.changed === "boolean") {
+    return result as Extract<DecisionTransactionResult, { status: "ok" }>;
+  }
+  if (
+    result.status === "error" &&
+    (result.outcome === "no-change" ||
+      result.outcome === "rolled-back" ||
+      result.outcome === "partial-or-unknown") &&
+    Array.isArray(result.diagnostics) &&
+    Array.isArray(result.errors)
+  ) {
+    return result as Extract<DecisionTransactionResult, { status: "error" }>;
+  }
+  return null;
 }

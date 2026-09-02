@@ -17,6 +17,7 @@ import {
   investigationIndexDefinitionVersion,
   investigationIndexNamespace
 } from "./investigation-index-definition.ts";
+import { sanitizeInvestigationDiagnosticText } from "./diagnostics.ts";
 import {
   discoverInvestigationReportIds,
   readInvestigationSourceRevision,
@@ -106,7 +107,7 @@ export function investigationIndexDiagnosticMessages(
     return [
       source,
       diagnostic.stateId === null ? "" : `[${diagnostic.stateId}]`,
-      diagnostic.message
+      sanitizeInvestigationDiagnosticText(diagnostic.message)
     ]
       .filter((part) => part.length > 0)
       .join(" ");

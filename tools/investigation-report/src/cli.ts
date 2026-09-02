@@ -9,6 +9,13 @@ import {
   traceInvestigationReports
 } from "./query.ts";
 import { discardInvestigationReport } from "./discard.ts";
+import {
+  diagnosticFromError,
+  diagnosticFromStateIndexDiagnostic,
+  genericInvestigationDiagnostic,
+  renderInvestigationDiagnostic,
+  type InvestigationDiagnostic
+} from "./diagnostics.ts";
 import { isInvestigationId } from "./report-path.ts";
 import { setInvestigationRelations } from "./relation-transaction.ts";
 import {
@@ -347,7 +354,8 @@ async function runCheck(
       execution.error.result.errors,
       execution.error.kind === "invalid-options" ? 2 : 1,
       execution.error.result.warnings,
-      io
+      io,
+      execution.error.result.diagnostics
     );
   const result = execution.value;
   printWarnings(result.warnings, io);
@@ -375,7 +383,8 @@ async function runSync(
       execution.error.result.errors,
       execution.error.kind === "invalid-options" ? 2 : 1,
       execution.error.result.warnings,
-      io
+      io,
+      execution.error.result.diagnostics
     );
   const result = execution.value;
   printWarnings(result.warnings, io);
@@ -423,7 +432,8 @@ async function runDiscard(
       result.errors,
       1,
       [],
-      io
+      io,
+      result.diagnostics
     );
     return 1;
   }
@@ -483,7 +493,8 @@ async function runList(
       execution.error.result.errors,
       execution.error.kind === "invalid-options" ? 2 : 1,
       [],
-      io
+      io,
+      execution.error.result.diagnostics
     );
   const result = execution.value;
   if (result.entries.length === 0) {
@@ -524,7 +535,8 @@ async function runShow(
       result.errors,
       1,
       [],
-      io
+      io,
+      result.diagnostics
     );
   io.stdout(result.markdown);
   return 0;
@@ -561,7 +573,8 @@ async function runTrace(
       result.errors,
       1,
       [],
-      io
+      io,
+      result.diagnostics
     );
   writeLine(io.stdout, `Reports: ${result.reportIds.join(", ")}`);
   for (const edge of result.edges)
@@ -702,22 +715,25 @@ function printStageErrors(
 ): void {
   printResultErrors(
     `Investigation index entry staging failed (state: ${result.state}; changed: ${result.changed}):`,
-    [
-      `selected IDs: ${result.selectedIds.join(", ") || "none"}`,
-      ...result.diagnostics.map((diagnostic) =>
-        [
-          diagnostic.code,
-          diagnostic.path ?? result.indexPath,
-          diagnostic.stateId === null ? "" : `[${diagnostic.stateId}]`,
-          diagnostic.message
-        ]
-          .filter((part) => part.length > 0)
-          .join(" ")
-      )
-    ],
+    [`selected IDs: ${result.selectedIds.join(", ") || "none"}`],
     1,
     [],
-    io
+    io,
+    result.diagnostics.map((diagnostic) =>
+      diagnosticFromStateIndexDiagnostic(diagnostic, {
+        ...(result.pending === undefined
+          ? {}
+          : {
+              mutation: {
+                outcome: result.pending.outcome,
+                scope: result.pending.scope
+              }
+            }),
+        recovery:
+          "correct the reported staging problem, then retry the selected index update",
+        target: result.indexPath
+      })
+    )
   );
 }
 function printRelationResult(
@@ -730,7 +746,8 @@ function printRelationResult(
       result.errors,
       1,
       [],
-      io
+      io,
+      result.diagnostics
     );
     return;
   }
@@ -744,11 +761,29 @@ function printResultErrors(
   errors: readonly string[],
   exitCode: number,
   warnings: readonly string[] = [],
-  io: InvestigationReportCliIo
+  io: InvestigationReportCliIo,
+  diagnostics: readonly InvestigationDiagnostic[] = []
 ): number {
   printWarnings(warnings, io);
   writeLine(io.stderr, title);
-  for (const error of errors) writeLine(io.stderr, `- ${error}`);
+  const finalDiagnostics =
+    diagnostics.length > 0
+      ? diagnostics
+      : errors.length === 0
+        ? []
+        : [
+            genericInvestigationDiagnostic({
+              code: "investigation-report.operation-failed",
+              reason: errors.join("; "),
+              recovery: "correct the reported problem, then rerun the command",
+              target: title.slice(0, -1)
+            })
+          ];
+  for (const diagnostic of finalDiagnostics) {
+    for (const line of renderInvestigationDiagnostic(diagnostic)) {
+      writeLine(io.stderr, `- ${line}`);
+    }
+  }
   return exitCode;
 }
 function printWarnings(
@@ -757,10 +792,29 @@ function printWarnings(
 ): void {
   if (warnings.length === 0) return;
   writeLine(io.stderr, "Investigation report warnings:");
-  for (const warning of warnings) writeLine(io.stderr, `- ${warning}`);
+  for (const warning of warnings) {
+    writeLine(
+      io.stderr,
+      "- [investigation-report.warning] investigation report collection"
+    );
+    writeLine(io.stderr, `  reason: ${warning}`);
+    writeLine(
+      io.stderr,
+      "  next: resolve the warning before relying on the affected collection state"
+    );
+  }
 }
 function cliInvalid(error: string, io: InvestigationReportCliIo): number {
-  writeLine(io.stderr, error);
+  for (const line of renderInvestigationDiagnostic(
+    genericInvestigationDiagnostic({
+      code: "investigation-report.cli-invalid-arguments",
+      reason: error,
+      recovery: "correct the command arguments and retry",
+      target: "command line"
+    })
+  )) {
+    writeLine(io.stderr, line);
+  }
   return 2;
 }
 
@@ -866,7 +920,17 @@ if (isMainModule(import.meta.url)) {
   try {
     process.exitCode = await runInvestigationReportCheckCli();
   } catch (error) {
-    console.error(error instanceof Error ? error.message : String(error));
+    for (const line of renderInvestigationDiagnostic(
+      diagnosticFromError({
+        code: "investigation-report.unhandled-failure",
+        error,
+        reason: "the command stopped unexpectedly",
+        recovery: "inspect the reported failure and retry the command",
+        target: "investigation-report command"
+      })
+    )) {
+      console.error(line);
+    }
     process.exitCode = 1;
   }
 }

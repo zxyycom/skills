@@ -10,4 +10,4 @@ Contract:
 Proves:
 - help 显示必需的可变 Case ID 参数、领域文件非目标和退出码语义。
 - 缺少必需参数返回 usage 失败；非法或重复 ID 以退出码 `2` 返回符合结果 Schema 的 JSON 失败。
-- 版本仓库操作失败以退出码 `1` 返回符合结果 Schema 的 JSON 失败，且不向 stderr 混入诊断。
+- 版本仓库操作失败以退出码 `1` 返回符合结果 Schema 的 JSON 失败，保留 `not-repository` 的结构化版本控制事实，且不向 stderr 混入诊断。

@@ -1,7 +1,9 @@
 import type {
   DecisionApplicationAttention,
-  DecisionApplicationFailure
+  DecisionApplicationFailure,
+  DecisionDiagnostic
 } from "./application-result.ts";
+import { decisionDiagnosticFromReason } from "./application-result.ts";
 import type { DecisionQuerySuccess } from "./decision-query-service.ts";
 
 import {
@@ -19,13 +21,9 @@ export function printDecisionFailure(
 ): void {
   if (failure.presentation === "command") {
     writeLine(io.stderr, "Decision records command failed:");
-    for (const error of failure.errors) {
-      writeLine(io.stderr, "- " + error);
-    }
-    return;
   }
-  for (const error of failure.errors) {
-    writeLine(io.stderr, error);
+  for (const diagnostic of failure.diagnostics) {
+    printDiagnostic(diagnostic, io);
   }
 }
 
@@ -34,9 +32,31 @@ export function printDecisionAttention(
   io: DecisionRecordsCliIo = processDecisionRecordsCliIo
 ): void {
   writeLine(io.stderr, "Decision records command paused with warnings:");
-  for (const warning of attention.warnings) {
-    writeLine(io.stderr, "- " + warning);
+  for (const diagnostic of attention.diagnostics) {
+    printDiagnostic(diagnostic, io);
   }
+}
+
+function printDiagnostic(
+  diagnostic: DecisionDiagnostic,
+  io: DecisionRecordsCliIo
+): void {
+  writeLine(io.stderr, "- code: " + diagnostic.code);
+  writeLine(io.stderr, "  object: " + diagnostic.target);
+  writeLine(io.stderr, "  reason: " + diagnostic.reason);
+  if (diagnostic.causeCategory !== undefined) {
+    writeLine(io.stderr, "  causeCategory: " + diagnostic.causeCategory);
+  }
+  if (diagnostic.detail !== undefined && diagnostic.detail !== null) {
+    writeLine(io.stderr, "  detail: " + diagnostic.detail);
+  }
+  if (diagnostic.scope !== undefined) {
+    writeLine(io.stderr, "  scope: " + diagnostic.scope);
+  }
+  if (diagnostic.outcome !== undefined) {
+    writeLine(io.stderr, "  outcome: " + diagnostic.outcome);
+  }
+  writeLine(io.stderr, "  next: " + diagnostic.recovery);
 }
 
 export function printDecisionQuerySuccess(
@@ -97,16 +117,17 @@ export function printCandidateWarnings(
   }
   writeLine(io.stderr, "Decision records command completed with warnings:");
   for (const sourcePath of sourcePaths) {
-    writeLine(
-      io.stderr,
-      "- Reviewable decision candidate remains: " + sourcePath
+    printDiagnostic(
+      {
+        code: "decision-records.candidate-remains",
+        reason: "Reviewable decision candidate remains: " + sourcePath,
+        recovery:
+          "Use candidates to review it, then activate or discard it explicitly.",
+        target: sourcePath
+      },
+      io
     );
   }
-  writeLine(
-    io.stderr,
-    "- Candidates remain outside the decision index; use candidates to review " +
-      "them, then activate or discard them explicitly."
-  );
 }
 
 function printQueryWarnings(
@@ -118,7 +139,18 @@ function printQueryWarnings(
   }
   writeLine(io.stderr, "Decision records query completed with warnings:");
   for (const warning of warnings) {
-    writeLine(io.stderr, "- " + warning);
+    printDiagnostic(
+      decisionDiagnosticFromReason(
+        {
+          code: "decision-records.query-warning",
+          recovery:
+            "Correct the reported source problem before relying on this query result.",
+          target: "Decision query source"
+        },
+        warning
+      ),
+      io
+    );
   }
 }
 

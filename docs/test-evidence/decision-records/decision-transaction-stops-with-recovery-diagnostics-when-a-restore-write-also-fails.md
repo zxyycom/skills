@@ -9,3 +9,4 @@ Contract:
 
 Proves:
 - 模拟更新与恢复写入各失败一次，断言两个诊断及残留状态。
+- 事务结果声明 `partial-or-unknown`，不伪称已完整恢复。

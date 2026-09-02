@@ -6,7 +6,8 @@ import {
 } from "../../shared/src/version-control/index.ts";
 import {
   decisionAttention,
-  decisionFailure,
+  decisionDiagnostic,
+  decisionVersionControlFailure,
   type DecisionApplicationAttention,
   type DecisionApplicationFailure
 } from "./application-result.ts";
@@ -141,13 +142,22 @@ export function prepareUnrecordedHistoryAttention(
   if (unrecordedTargets.length === 0) {
     return null;
   }
-  return decisionAttention([
-    ...unrecordedTargets.map((target) =>
-      unrecordedHistoryAttentionMessage(historyBaseline.label, target)
-    ),
-    "Re-run with --keep-unrecorded-history only after confirming that the " +
-      "unrecorded history should be preserved; no files were changed."
-  ]);
+  return decisionAttention(
+    unrecordedTargets.map((target) =>
+      decisionDiagnostic({
+        code: "decision-records.unrecorded-history",
+        outcome: "no-change",
+        reason: unrecordedHistoryAttentionMessage(
+          historyBaseline.label,
+          target
+        ),
+        recovery:
+          "Re-run with --keep-unrecorded-history only after confirming that the unrecorded history should be preserved.",
+        scope: "Decision Markdown files and derived decision index",
+        target: "Decision history for " + target.decisionId
+      })
+    )
+  );
 }
 
 function unrecordedHistoryAttentionMessage(
@@ -208,15 +218,13 @@ function toRepositoryPath(filePath: string): string {
 }
 
 function baselineFailure(error: unknown): DecisionApplicationFailure {
-  return decisionFailure(
-    [
-      "Failed to inspect Git HEAD before changing decision history: " +
-        errorText(error)
-    ],
-    { presentation: "plain" }
+  return decisionVersionControlFailure(
+    {
+      action: "inspect Git HEAD before changing decision history",
+      outcome: "no-change",
+      scope: "Decision Markdown files and derived decision index",
+      target: "Decision history baseline"
+    },
+    error
   );
-}
-
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }

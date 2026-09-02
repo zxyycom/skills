@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "37"
+  version: "38"
 ---
 
 # Decision Records
@@ -24,7 +24,7 @@ metadata:
 2. [决策记录规则](references/decision-record-rules.md) 面向写入和结构维护，承接格式、身份、分类、生命周期、关系、索引与事务不变量。
 3. [Decision Index Schema](references/decision-index.schema.json) 承接索引的精确机器结构、字段、版本与序列化约束。
 4. `scripts/decision-records.mjs --help` 承接当前 CLI 参数、输出和退出状态。
-5. [状态与维护恢复](references/maintenance-recovery.md) 承接首次候选集合，以及 CLI、索引或写入恢复的异常路径；只在这些条件触发时读取。
+5. [状态与维护恢复](references/maintenance-recovery.md) 承接首次候选集合，以及 CLI、索引或写入恢复的异常路径；只在这些条件触发时读取。运行时诊断的字段、warning 与 mutation outcome 边界以固定规则为准。
 
 ## 主动读取
 

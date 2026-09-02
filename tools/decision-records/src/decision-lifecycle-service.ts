@@ -1,5 +1,6 @@
 import path from "node:path";
 import {
+  decisionDiagnostic,
   decisionFailure,
   type DecisionApplicationAttention,
   type DecisionApplicationFailure
@@ -452,7 +453,18 @@ function findEstablishedRecord(
 }
 
 function plainFailure(error: string): DecisionApplicationFailure {
-  return decisionFailure([error], { presentation: "plain" });
+  return decisionFailure(
+    [
+      decisionDiagnostic({
+        code: "decision-records.lifecycle-invalid",
+        reason: error,
+        recovery:
+          "Correct the lifecycle request or decision state, then retry the command.",
+        target: "Decision lifecycle"
+      })
+    ],
+    { presentation: "plain" }
+  );
 }
 
 function currentDecisionTimestamp(): string {

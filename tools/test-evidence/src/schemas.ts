@@ -192,17 +192,49 @@ export const testEvidenceIndexSyncResultSchema = v.strictObject({
   topics: v.array(testEvidenceTopicDefinitionSchema)
 });
 
+const testEvidenceIndexStageFileSystemDiagnosticSchema = v.strictObject({
+  causeCategory: v.picklist(["access-denied", "not-found", "unknown"]),
+  detail: v.nullable(v.string()),
+  operation: nonEmptyStringSchema,
+  target: v.nullable(v.string())
+});
+
+const testEvidenceIndexStageVersionControlDiagnosticSchema = v.strictObject({
+  causeCategory: v.picklist([
+    "access-denied",
+    "busy",
+    "command-failed",
+    "not-repository",
+    "revision-unavailable",
+    "tool-unavailable",
+    "unknown"
+  ]),
+  detail: v.nullable(v.string()),
+  operation: v.nullable(v.string()),
+  target: v.nullable(v.string())
+});
+
 export const testEvidenceIndexStageDiagnosticSchema = v.strictObject({
   code: nonEmptyStringSchema,
+  filesystem: v.optional(testEvidenceIndexStageFileSystemDiagnosticSchema),
   message: nonEmptyStringSchema,
   path: v.nullable(v.string()),
-  stateId: v.nullable(v.string())
+  stateId: v.nullable(v.string()),
+  versionControl: v.optional(
+    testEvidenceIndexStageVersionControlDiagnosticSchema
+  )
+});
+
+const testEvidenceIndexStagePendingMutationSchema = v.strictObject({
+  outcome: v.picklist(["no-change", "partial-or-unknown"]),
+  scope: nonEmptyStringSchema
 });
 
 const testEvidenceIndexStageBaseFields = {
   diagnostics: v.array(testEvidenceIndexStageDiagnosticSchema),
   indexPath: nonEmptyStringSchema,
   namespace: v.literal(testEvidenceIndexNamespace),
+  pending: v.optional(testEvidenceIndexStagePendingMutationSchema),
   selectedIds: v.array(testEvidenceCaseIdSchema)
 };
 

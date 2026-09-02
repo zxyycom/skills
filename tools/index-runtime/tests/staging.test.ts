@@ -26,16 +26,6 @@ import { resultValue } from "./support.ts";
 
 const indexPath = "indexes/states.json";
 const testOptions = { timeout: 15_000 };
-const expectedPendingConflictDiagnostic = {
-  code: "state-index.pending-conflict",
-  message:
-    "the current revision or target pending content may have changed, or the pending " +
-    "write boundary may be busy; reread the current revision and target pending content, " +
-    "resolve any existing pending change for this index, then retry",
-  path: indexPath,
-  stateId: null
-} as const;
-
 type TestMetadata = {
   catalog: string;
 };
@@ -654,6 +644,64 @@ test(
         result.diagnostics[0]?.message ?? "",
         /repository-backed root.*retry/u
       );
+      assert.deepEqual(result.diagnostics[0]?.versionControl, {
+        causeCategory: "not-repository",
+        detail: null,
+        operation: "discover a version-control worktree",
+        target: "configured root"
+      });
+      assert.equal(result.pending, undefined);
+    });
+  }
+);
+
+test(
+  "reports an unavailable version-control tool before staging without a pending outcome",
+  testOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const control = createControl();
+      const source: TestSource = { snapshot: snapshot({}, "empty") };
+      const definition = createDefinition(source, control);
+      const fixture = await createStagingFixture({
+        definition,
+        name: "tool-unavailable",
+        revision: snapshot({ A: "A0" }, "revision"),
+        source,
+        tempRoot,
+        workspace: snapshot({ A: "A1" }, "workspace")
+      });
+
+      const result = await stageSelectedIndexEntriesWithRepository(
+        {
+          context: { root: fixture.repositoryRoot },
+          definition,
+          indexPath,
+          selectedIds: ["A"]
+        },
+        async () => {
+          throw new VersionControlError({
+            causeCategory: "tool-unavailable",
+            code: "operation-failed",
+            detail: "the configured executable was not found",
+            operation: "discover a version-control worktree",
+            target: "configured root"
+          });
+        }
+      );
+      assert.equal(result.state, "revision-read-failed");
+      assert.equal(
+        result.diagnostics[0]?.code,
+        "state-index.repository-tool-unavailable"
+      );
+      assert.deepEqual(result.diagnostics[0]?.versionControl, {
+        causeCategory: "tool-unavailable",
+        detail: "the configured executable was not found",
+        operation: "discover a version-control worktree",
+        target: "configured root"
+      });
+      assert.equal(result.pending, undefined);
+      assert.equal(fixture.replacements.length, 0);
     });
   }
 );
@@ -675,7 +723,13 @@ test(
         workspace: snapshot({ A: "A1" }, "workspace")
       });
       fixture.onReplace = () => {
-        throw new VersionControlError("pending-replacement-failed", "broken");
+        throw new VersionControlError({
+          causeCategory: "access-denied",
+          code: "pending-replacement-failed",
+          detail: "permission denied",
+          operation: "replace a pending range",
+          target: indexPath
+        });
       };
       resetControl(control);
 
@@ -683,17 +737,69 @@ test(
       assert.equal(result.state, "pending-write-failed");
       assert.equal(
         result.diagnostics[0]?.code,
-        "state-index.pending-write-failed"
+        "state-index.pending-access-denied"
       );
       assert.match(
         result.diagnostics[0]?.message ?? "",
-        /inspect the target pending content and repository access, then retry/u
+        /grant this process the required repository write access, then retry/u
       );
+      assert.deepEqual(result.pending, {
+        outcome: "no-change",
+        scope: indexPath
+      });
       assert.equal(fixture.replacements.length, 0);
       assert.equal(
         await fs.readFile(path.join(fixture.repositoryRoot, indexPath), "utf8"),
         fixture.workspaceText
       );
+    });
+  }
+);
+
+test(
+  "reports incomplete pending recovery with an explicit partial outcome",
+  testOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const control = createControl();
+      const source: TestSource = { snapshot: snapshot({}, "empty") };
+      const definition = createDefinition(source, control);
+      const fixture = await createStagingFixture({
+        definition,
+        name: "pending-recovery-failure",
+        revision: snapshot({ A: "A0" }, "revision"),
+        source,
+        tempRoot,
+        workspace: snapshot({ A: "A1" }, "workspace")
+      });
+      fixture.onReplace = () => {
+        throw new VersionControlError({
+          causeCategory: "access-denied",
+          code: "pending-recovery-failed",
+          detail: "permission denied while removing the recovery file",
+          operation: "recover a pending range",
+          target: indexPath
+        });
+      };
+
+      const result = await stageFixture(fixture, definition, ["A"]);
+      assert.equal(result.state, "pending-recovery-failed");
+      assert.equal(result.changed, null);
+      assert.deepEqual(result.pending, {
+        outcome: "partial-or-unknown",
+        scope: indexPath
+      });
+      assert.equal(
+        result.diagnostics[0]?.code,
+        "state-index.pending-recovery-failed"
+      );
+      assert.deepEqual(result.diagnostics[0]?.versionControl, {
+        causeCategory: "access-denied",
+        detail: "permission denied while removing the recovery file",
+        operation: "recover a pending range",
+        target: indexPath
+      });
+      assert.equal(fixture.replacements.length, 0);
     });
   }
 );
@@ -905,7 +1011,15 @@ test(
       });
       assert.equal(result.state, "pending-conflict");
       assert.equal(result.changed, false);
-      assert.deepEqual(result.diagnostics, [expectedPendingConflictDiagnostic]);
+      assert.deepEqual(result.pending, {
+        outcome: "no-change",
+        scope: indexPath
+      });
+      assert.deepEqual(result.diagnostics, [
+        pendingConflictDiagnostic(
+          "the pending range bytes differ from the expected file set"
+        )
+      ]);
       assert.equal(await pendingIndexText(fixture.repositoryRoot), dirty);
       assert.deepEqual(
         await readPendingText(fixture.repositoryRoot, "outside/keep.md"),
@@ -946,7 +1060,13 @@ test(
       let replacementCount = 0;
       fixture.onReplace = () => {
         if (replacementCount > 0) {
-          throw new VersionControlError("pending-conflict", "already replaced");
+          throw new VersionControlError({
+            causeCategory: "busy",
+            code: "pending-conflict",
+            detail: "already replaced",
+            operation: "replace pending files",
+            target: indexPath
+          });
         }
         replacementCount += 1;
       };
@@ -1008,7 +1128,15 @@ test(
         selectedIds: ["A"]
       });
       assert.equal(result.state, "pending-conflict");
-      assert.deepEqual(result.diagnostics, [expectedPendingConflictDiagnostic]);
+      assert.deepEqual(result.pending, {
+        outcome: "no-change",
+        scope: indexPath
+      });
+      assert.deepEqual(result.diagnostics, [
+        pendingConflictDiagnostic(
+          "the current revision differs from the expected revision"
+        )
+      ]);
       assert.deepEqual(await pendingChangedPaths(fixture.repositoryRoot), []);
       assert.equal(
         await fs.readFile(path.join(fixture.repositoryRoot, indexPath), "utf8"),
@@ -1023,6 +1151,24 @@ function initializeRepository(repositoryRoot: string): void {
   runGit(repositoryRoot, ["config", "core.autocrlf", "false"]);
   runGit(repositoryRoot, ["config", "user.email", "staging@example.invalid"]);
   runGit(repositoryRoot, ["config", "user.name", "Index Staging Test"]);
+}
+
+function pendingConflictDiagnostic(detail: string) {
+  return {
+    code: "state-index.pending-conflict",
+    message:
+      "the current revision or target pending content changed; reread the current " +
+      "revision and target pending content, resolve any existing pending change for " +
+      "this index, then retry",
+    path: indexPath,
+    stateId: null,
+    versionControl: {
+      causeCategory: "unknown",
+      detail,
+      operation: "verify a pending replacement",
+      target: indexPath
+    }
+  };
 }
 
 function runGit(workingDirectory: string, args: readonly string[]): string {

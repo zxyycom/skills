@@ -418,6 +418,14 @@ test("discard reports a committed result when safe tombstone cleanup cannot fini
       }
     );
     assert.equal(result.changed, true);
+    assert.deepEqual(result.mutation, {
+      outcome: "committed-cleanup-pending",
+      scope: "investigation report discard collection"
+    });
+    assert.equal(
+      result.diagnostics[0]?.code,
+      "investigation-report.discard-cleanup-pending"
+    );
     assert.ok(
       result.errors.some((error) => error.includes("discard committed"))
     );
@@ -466,6 +474,14 @@ test("discard restores report resources and index when index publication fails",
     );
     assert.equal(result.changed, false);
     assert.ok(result.errors.some((error) => error.includes("publish failed")));
+    assert.deepEqual(result.mutation, {
+      outcome: "rolled-back",
+      scope: "investigation report discard collection"
+    });
+    assert.equal(
+      result.diagnostics[0]?.code,
+      "investigation-report.discard-publish-failed"
+    );
     assert.equal(await fs.readFile(indexPath, "utf8"), beforeIndex);
     await fs.access(path.join(investigationRoot(root), "report.md"));
     await fs.access(resource);
@@ -526,11 +542,18 @@ test("sync-index rejects a concurrent rebuild while discard owns the collection"
     assert.equal(blocked.changed, false);
     assert.ok(
       blocked.errors.some((error) =>
-        error.includes(
-          "could not acquire investigation collection mutation lock"
-        )
+        error.includes("investigation-report.collection-lock-busy")
       )
     );
+    assert.equal(
+      blocked.diagnostics[0]?.code,
+      "investigation-report.collection-lock-busy"
+    );
+    assert.equal(blocked.diagnostics[0]?.causeCategory, "busy");
+    assert.deepEqual(blocked.mutation, {
+      outcome: "no-change",
+      scope: "investigation report index collection"
+    });
     assert.equal(await fs.readFile(indexPath, "utf8"), before);
 
     allowDiscardPublish();
