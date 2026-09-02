@@ -9,33 +9,15 @@ const retryableCodes = new Set<TaskGraphErrorCode>([
 ]);
 
 function jsonValue(value: unknown, seen: Set<object>): JsonValue {
-  if (
-    value === null ||
-    typeof value === "string" ||
-    typeof value === "boolean"
-  ) {
-    return value;
-  }
-  if (typeof value === "number") {
-    return Number.isFinite(value) ? value : String(value);
-  }
-  if (
-    typeof value === "bigint" ||
-    typeof value === "symbol" ||
-    typeof value === "function"
-  ) {
-    return String(value);
-  }
-  if (value === undefined) {
-    return null;
-  }
+  const scalar = scalarJsonValue(value);
+  if (scalar.matched) return scalar.value;
   if (value instanceof Date) {
     return Number.isNaN(value.valueOf()) ? "Invalid Date" : value.toISOString();
   }
   if (value instanceof Error) {
     return { name: value.name, message: value.message };
   }
-  if (typeof value !== "object") {
+  if (value === null || typeof value !== "object") {
     return null;
   }
   if (seen.has(value)) {
@@ -53,6 +35,34 @@ function jsonValue(value: unknown, seen: Set<object>): JsonValue {
   }
   seen.delete(value);
   return result;
+}
+
+type JsonScalarResult =
+  | { matched: false }
+  | { matched: true; value: JsonValue };
+
+function scalarJsonValue(value: unknown): JsonScalarResult {
+  if (value === null) return { matched: true, value: null };
+  switch (typeof value) {
+    case "string":
+    case "boolean":
+      return { matched: true, value };
+    case "number":
+      return {
+        matched: true,
+        value: Number.isFinite(value) ? value : String(value)
+      };
+    case "bigint":
+    case "symbol":
+    case "function":
+      return { matched: true, value: String(value) };
+    case "undefined":
+      return { matched: true, value: null };
+    case "object":
+      return { matched: false };
+    default:
+      return { matched: false };
+  }
 }
 
 function jsonObject(value: unknown): JsonObject {

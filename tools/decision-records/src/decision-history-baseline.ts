@@ -77,49 +77,46 @@ export async function loadDecisionHistoryBaseline(
   }
 
   try {
-    const revision = await repository.getCurrentRevision();
-    if (revision === null) {
-      return {
-        baseline: {
-          kind: "git-head",
-          label: "Git HEAD",
-          recordedDecisionIds: new Set<DecisionId>()
-        },
-        status: "ok"
-      };
-    }
+    return await loadRepositoryHeadBaseline(repository, relativeDirectory);
+  } catch (error) {
+    return baselineFailure(error);
+  }
+}
 
-    const directoryScope = toRepositoryPath(relativeDirectory);
-    const revisionFiles =
-      directoryScope.length === 0
-        ? await repository.listRevisionFiles(revision)
-        : await repository.listRevisionFiles(revision, {
-            pathScopes: [directoryScope]
-          });
-    const prefix = directoryScope.length === 0 ? "" : directoryScope + "/";
-    const recordedDecisionIds = new Set<DecisionId>();
-    for (const filePath of revisionFiles) {
-      if (!filePath.startsWith(prefix)) {
-        continue;
-      }
-      const decisionId = decisionIdFromSourcePath(
-        filePath.slice(prefix.length)
-      );
-      if (decisionId !== null) {
-        recordedDecisionIds.add(decisionId);
-      }
-    }
+async function loadRepositoryHeadBaseline(
+  repository: VersionControlRepository,
+  relativeDirectory: string
+): Promise<DecisionHistoryBaselineResult> {
+  const revision = await repository.getCurrentRevision();
+  if (revision === null) {
     return {
       baseline: {
         kind: "git-head",
         label: "Git HEAD",
-        recordedDecisionIds
+        recordedDecisionIds: new Set<DecisionId>()
       },
       status: "ok"
     };
-  } catch (error) {
-    return baselineFailure(error);
   }
+
+  const directoryScope = toRepositoryPath(relativeDirectory);
+  const revisionFiles =
+    directoryScope.length === 0
+      ? await repository.listRevisionFiles(revision)
+      : await repository.listRevisionFiles(revision, {
+          pathScopes: [directoryScope]
+        });
+  const prefix = directoryScope.length === 0 ? "" : directoryScope + "/";
+  const recordedDecisionIds = new Set<DecisionId>();
+  for (const filePath of revisionFiles) {
+    if (!filePath.startsWith(prefix)) continue;
+    const decisionId = decisionIdFromSourcePath(filePath.slice(prefix.length));
+    if (decisionId !== null) recordedDecisionIds.add(decisionId);
+  }
+  return {
+    baseline: { kind: "git-head", label: "Git HEAD", recordedDecisionIds },
+    status: "ok"
+  };
 }
 
 export function prepareUnrecordedHistoryAttention(

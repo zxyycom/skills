@@ -122,6 +122,52 @@ function resolveIndexPath(root: string, configured?: string): string {
   return resolved;
 }
 
+function storePaths(options: TaskGraphStoreOptions): {
+  indexPath: string;
+  lockPath: string;
+  lockRoot: string;
+} {
+  const root = path.resolve(options.root ?? process.cwd());
+  const indexPath = resolveIndexPath(root, options.indexPath);
+  const lockRoot = path.resolve(
+    options.lockRoot ?? path.join(os.tmpdir(), "task-graph-locks")
+  );
+  const normalizedIndexPath =
+    process.platform === "win32" ? indexPath.toLowerCase() : indexPath;
+  const lockName = createHash("sha256")
+    .update(normalizedIndexPath, "utf8")
+    .digest("hex");
+  return {
+    indexPath,
+    lockPath: path.join(lockRoot, `${lockName}.lock`),
+    lockRoot
+  };
+}
+
+function lockTiming(options: TaskGraphStoreOptions): {
+  pollMilliseconds: number;
+  waitMilliseconds: number;
+} {
+  const pollMilliseconds = options.lockPollMilliseconds ?? 50;
+  const waitMilliseconds = options.lockWaitMilliseconds ?? 5_000;
+  if (
+    !Number.isFinite(pollMilliseconds) ||
+    pollMilliseconds <= 0 ||
+    !Number.isFinite(waitMilliseconds) ||
+    waitMilliseconds < 0
+  ) {
+    throw new TaskGraphError(
+      "ARGUMENT_INVALID",
+      "Task graph lock timing values must be finite and non-negative",
+      {
+        lockPollMilliseconds: pollMilliseconds,
+        lockWaitMilliseconds: waitMilliseconds
+      }
+    );
+  }
+  return { pollMilliseconds, waitMilliseconds };
+}
+
 export class TaskGraphStore {
   readonly indexPath: string;
   readonly lockPath: string;
@@ -135,40 +181,17 @@ export class TaskGraphStore {
   private nativeBindingPromise: Promise<NativeLockBinding> | null = null;
 
   constructor(options: TaskGraphStoreOptions = {}) {
-    const root = path.resolve(options.root ?? process.cwd());
-    this.indexPath = resolveIndexPath(root, options.indexPath);
-    this.lockRoot = path.resolve(
-      options.lockRoot ?? path.join(os.tmpdir(), "task-graph-locks")
-    );
-    const normalizedIndexPath =
-      process.platform === "win32"
-        ? this.indexPath.toLowerCase()
-        : this.indexPath;
-    const lockName = createHash("sha256")
-      .update(normalizedIndexPath, "utf8")
-      .digest("hex");
-    this.lockPath = path.join(this.lockRoot, `${lockName}.lock`);
+    const paths = storePaths(options);
+    const timing = lockTiming(options);
+    this.indexPath = paths.indexPath;
+    this.lockRoot = paths.lockRoot;
+    this.lockPath = paths.lockPath;
     this.atomicWrite = options.atomicWrite ?? defaultAtomicWrite;
     this.loadNativeLock = options.loadNativeLock ?? loadNativeLockBinding;
-    this.lockPollMilliseconds = options.lockPollMilliseconds ?? 50;
-    this.lockWaitMilliseconds = options.lockWaitMilliseconds ?? 5_000;
+    this.lockPollMilliseconds = timing.pollMilliseconds;
+    this.lockWaitMilliseconds = timing.waitMilliseconds;
     this.monotonicClock = options.monotonicClock ?? (() => performance.now());
     this.sleep = options.sleep ?? defaultSleep;
-    if (
-      !Number.isFinite(this.lockPollMilliseconds) ||
-      this.lockPollMilliseconds <= 0 ||
-      !Number.isFinite(this.lockWaitMilliseconds) ||
-      this.lockWaitMilliseconds < 0
-    ) {
-      throw new TaskGraphError(
-        "ARGUMENT_INVALID",
-        "Task graph lock timing values must be finite and non-negative",
-        {
-          lockPollMilliseconds: this.lockPollMilliseconds,
-          lockWaitMilliseconds: this.lockWaitMilliseconds
-        }
-      );
-    }
   }
 
   async read(): Promise<TaskIndexRead> {

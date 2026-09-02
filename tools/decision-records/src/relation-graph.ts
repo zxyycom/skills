@@ -15,6 +15,11 @@ import type {
   DecisionTraceDirection
 } from "./types.ts";
 import { isEstablishedDecisionRecord } from "./types.ts";
+import { decisionReallocationComponents } from "./relation-reallocation.ts";
+export {
+  decisionReallocationComponents,
+  type DecisionReallocationComponent
+} from "./relation-reallocation.ts";
 
 export type DecisionRelationEdge = RelationEdge<
   DecisionId,
@@ -29,17 +34,6 @@ export type DecisionRelationTrace = {
 export type DecisionRelationConsistencyIssue = {
   message: string;
   sourceIds: DecisionId[];
-};
-
-/**
- * A connected component in the bipartite graph formed by `重划` relations.
- *
- * A decision ID may appear in both sets. The sets intentionally preserve its
- * relation role instead of flattening source and target identities together.
- */
-export type DecisionReallocationComponent = {
-  predecessorIds: ReadonlySet<DecisionId>;
-  successorIds: ReadonlySet<DecisionId>;
 };
 
 type DecisionRelationGraph = RelationGraph<DecisionId, DecisionRelationType> & {
@@ -120,13 +114,29 @@ export function decisionRelationConsistencyIssues(
 ): DecisionRelationConsistencyIssue[] {
   const graph = buildDecisionRelationGraph(records);
   const structuralIssues = relationGraphStructuralIssues(graph);
+  return [
+    ...relationEdgeConsistencyIssues(graph, structuralIssues),
+    ...structuralConsistencyIssues(graph, structuralIssues),
+    ...sourceRelationShapeIssues(graph),
+    ...splitTargetConsistencyIssues(graph),
+    ...reallocationComponentIssues(graph.edges)
+  ];
+}
+
+type StructuralRelationIssue = ReturnType<
+  typeof relationGraphStructuralIssues<DecisionId, DecisionRelationType>
+>[number];
+
+function relationEdgeConsistencyIssues(
+  graph: DecisionRelationGraph,
+  structuralIssues: readonly StructuralRelationIssue[]
+): DecisionRelationConsistencyIssue[] {
   const missingTargetEdges = new Set(
     structuralIssues.flatMap((issue) =>
       issue.kind === "missing-target" ? [issue.edge] : []
     )
   );
   const issues: DecisionRelationConsistencyIssue[] = [];
-
   for (const edge of graph.edges) {
     const source = graph.recordById.get(edge.source);
     const target = graph.recordById.get(edge.target);
@@ -150,7 +160,14 @@ export function decisionRelationConsistencyIssues(
       });
     }
   }
+  return issues;
+}
 
+function structuralConsistencyIssues(
+  graph: DecisionRelationGraph,
+  structuralIssues: readonly StructuralRelationIssue[]
+): DecisionRelationConsistencyIssue[] {
+  const issues: DecisionRelationConsistencyIssue[] = [];
   for (const issue of structuralIssues) {
     switch (issue.kind) {
       case "missing-target":
@@ -186,7 +203,13 @@ export function decisionRelationConsistencyIssues(
         break;
     }
   }
+  return issues;
+}
 
+function sourceRelationShapeIssues(
+  graph: DecisionRelationGraph
+): DecisionRelationConsistencyIssue[] {
+  const issues: DecisionRelationConsistencyIssue[] = [];
   for (const [sourceId, sourceEdges] of [...graph.edgesBySource.entries()].sort(
     ([left], [right]) => left.localeCompare(right)
   )) {
@@ -229,7 +252,13 @@ export function decisionRelationConsistencyIssues(
       });
     }
   }
+  return issues;
+}
 
+function splitTargetConsistencyIssues(
+  graph: DecisionRelationGraph
+): DecisionRelationConsistencyIssue[] {
+  const issues: DecisionRelationConsistencyIssue[] = [];
   for (const [targetId, targetEdges] of [...graph.edgesByTarget.entries()].sort(
     ([left], [right]) => left.localeCompare(right)
   )) {
@@ -244,9 +273,14 @@ export function decisionRelationConsistencyIssues(
       });
     }
   }
+  return issues;
+}
 
-  const reallocationComponents = decisionReallocationComponents(graph.edges);
-  for (const component of reallocationComponents) {
+function reallocationComponentIssues(
+  edges: readonly DecisionRelationEdge[]
+): DecisionRelationConsistencyIssue[] {
+  const issues: DecisionRelationConsistencyIssue[] = [];
+  for (const component of decisionReallocationComponents(edges)) {
     if (component.successorIds.size < 2) {
       issues.push({
         message:
@@ -277,65 +311,5 @@ export function decisionRelationConsistencyIssues(
       });
     }
   }
-
   return issues;
-}
-
-export function decisionReallocationComponents(
-  edges: readonly DecisionRelationEdge[]
-): DecisionReallocationComponent[] {
-  const successorToPredecessors = new Map<DecisionId, Set<DecisionId>>();
-  const predecessorToSuccessors = new Map<DecisionId, Set<DecisionId>>();
-  for (const edge of edges) {
-    if (edge.type !== "重划") {
-      continue;
-    }
-    addRelationRoleNeighbor(successorToPredecessors, edge.source, edge.target);
-    addRelationRoleNeighbor(predecessorToSuccessors, edge.target, edge.source);
-  }
-
-  const remainingSuccessorIds = new Set(successorToPredecessors.keys());
-  const components: DecisionReallocationComponent[] = [];
-  while (remainingSuccessorIds.size > 0) {
-    const firstSuccessorId = remainingSuccessorIds.values().next().value;
-    if (firstSuccessorId === undefined) {
-      break;
-    }
-    const predecessorIds = new Set<DecisionId>();
-    const successorIds = new Set<DecisionId>();
-    const pendingSuccessorIds = [firstSuccessorId];
-    const pendingPredecessorIds: DecisionId[] = [];
-    while (pendingSuccessorIds.length > 0 || pendingPredecessorIds.length > 0) {
-      const successorId = pendingSuccessorIds.pop();
-      if (successorId !== undefined && !successorIds.has(successorId)) {
-        successorIds.add(successorId);
-        remainingSuccessorIds.delete(successorId);
-        pendingPredecessorIds.push(
-          ...(successorToPredecessors.get(successorId) ?? [])
-        );
-      }
-      const predecessorId = pendingPredecessorIds.pop();
-      if (predecessorId !== undefined && !predecessorIds.has(predecessorId)) {
-        predecessorIds.add(predecessorId);
-        pendingSuccessorIds.push(
-          ...(predecessorToSuccessors.get(predecessorId) ?? [])
-        );
-      }
-    }
-    components.push({ predecessorIds, successorIds });
-  }
-  return components;
-}
-
-function addRelationRoleNeighbor(
-  adjacent: Map<DecisionId, Set<DecisionId>>,
-  from: DecisionId,
-  to: DecisionId
-): void {
-  let neighbors = adjacent.get(from);
-  if (neighbors === undefined) {
-    neighbors = new Set<DecisionId>();
-    adjacent.set(from, neighbors);
-  }
-  neighbors.add(to);
 }

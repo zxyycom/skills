@@ -78,6 +78,14 @@ type ParsedCli = Readonly<{
   relationEvents?: readonly RelationCliEvent[];
   values: Map<string, string[]>;
 }>;
+type CliParseResult =
+  | { command?: InvestigationCommand; status: "help" }
+  | { status: "invalid"; error: string }
+  | { status: "command"; value: ParsedCli };
+type CliTokenContext = Readonly<{
+  positionals: string[];
+  values: Map<string, string[]>;
+}>;
 type RelationCliEvent =
   | Readonly<{ kind: "source"; value: string }>
   | Readonly<{ kind: "relation"; value: string }>
@@ -86,6 +94,14 @@ type RawInvestigationRelationReplacement = Readonly<{
   relations: readonly Readonly<{ target: string; type: string }>[];
   source: string;
 }>;
+type RelationGroupState = {
+  mode: "clear" | "relations" | null;
+  relations: Array<{ target: string; type: string }>;
+  source: string;
+};
+type RelationGroupParseResult =
+  | { status: "ok"; replacements: RawInvestigationRelationReplacement[] }
+  | { status: "error"; error: string };
 
 const valueOptions = new Set([
   "root",
@@ -260,68 +276,113 @@ function printHelp(
   writeLine(io.stdout, lines.join("\n"));
 }
 
-function parseCli(
-  argv: readonly string[]
-):
-  | { command?: InvestigationCommand; status: "help" }
-  | { status: "invalid"; error: string }
-  | { status: "command"; value: ParsedCli } {
+function parseCli(argv: readonly string[]): CliParseResult {
   const [first] = argv;
-  if (first === "-h" || first === "--help") return { status: "help" };
-  if (first === "help") {
-    const requested = argv[1];
-    if (requested === undefined) return { status: "help" };
-    if (!isCommand(requested) || argv.length !== 2)
-      return {
-        error: `unknown command: ${requested ?? ""}`,
-        status: "invalid"
-      };
-    return { command: requested, status: "help" };
-  }
+  const help = parseCliHelp(argv);
+  if (help !== null) return help;
   const commandToken =
     first === undefined || first.startsWith("-") ? "check" : first;
   if (!isCommand(commandToken)) {
     return { error: `unknown command: ${commandToken}`, status: "invalid" };
   }
   const tokens = first === commandToken ? argv.slice(1) : argv;
-  const values = new Map<string, string[]>();
-  const positionals: string[] = [];
+  return parseCommandTokens(commandToken, tokens);
+}
+
+function parseCliHelp(argv: readonly string[]): CliParseResult | null {
+  const [first] = argv;
+  if (first === "-h" || first === "--help") return { status: "help" };
+  if (first !== "help") return null;
+  const requested = argv[1];
+  if (requested === undefined) return { status: "help" };
+  if (!isCommand(requested) || argv.length !== 2) {
+    return {
+      error: `unknown command: ${requested ?? ""}`,
+      status: "invalid"
+    };
+  }
+  return { command: requested, status: "help" };
+}
+
+function parseCommandTokens(
+  command: InvestigationCommand,
+  tokens: readonly string[]
+): CliParseResult {
+  const context: CliTokenContext = { positionals: [], values: new Map() };
   for (let index = 0; index < tokens.length; index += 1) {
     const token = tokens[index]!;
-    if (token === "-h" || token === "--help") {
-      values.set("help", ["true"]);
-      continue;
+    const parsed = parseCommandToken(token, tokens[index + 1], context);
+    if (parsed.error !== null) {
+      return { error: parsed.error, status: "invalid" };
     }
-    if (!token.startsWith("--")) {
-      positionals.push(token);
-      continue;
-    }
-    const [rawName, inlineValue] = token.slice(2).split("=", 2);
-    if (
-      rawName === undefined ||
-      (!valueOptions.has(rawName) && !booleanOptions.has(rawName))
-    ) {
-      return { error: `unknown option: ${token}`, status: "invalid" };
-    }
-    if (booleanOptions.has(rawName)) {
-      if (inlineValue !== undefined)
-        return { error: `${token} does not accept a value`, status: "invalid" };
-      values.set(rawName, [...(values.get(rawName) ?? []), "true"]);
-      continue;
-    }
-    const value = inlineValue ?? tokens[index + 1];
-    if (value === undefined || value.startsWith("--")) {
-      return { error: `${token} requires a value`, status: "invalid" };
-    }
-    if (inlineValue === undefined) index += 1;
-    values.set(rawName, [...(values.get(rawName) ?? []), value]);
+    if (parsed.consumedNext) index += 1;
   }
-  return values.has("help")
-    ? { command: commandToken, status: "help" }
+  return context.values.has("help")
+    ? { command, status: "help" }
     : {
         status: "command",
-        value: { command: commandToken, positionals, values }
+        value: { command, ...context }
       };
+}
+
+function parseCommandToken(
+  token: string,
+  nextToken: string | undefined,
+  context: CliTokenContext
+): { consumedNext: boolean; error: string | null } {
+  if (token === "-h" || token === "--help") {
+    context.values.set("help", ["true"]);
+    return { consumedNext: false, error: null };
+  }
+  if (!token.startsWith("--")) {
+    context.positionals.push(token);
+    return { consumedNext: false, error: null };
+  }
+  const [rawName, inlineValue] = token.slice(2).split("=", 2);
+  if (
+    rawName === undefined ||
+    (!valueOptions.has(rawName) && !booleanOptions.has(rawName))
+  ) {
+    return { consumedNext: false, error: `unknown option: ${token}` };
+  }
+  if (booleanOptions.has(rawName)) {
+    return parseBooleanCommandOption(token, rawName, inlineValue, context);
+  }
+  return parseValueCommandOption(
+    token,
+    rawName,
+    inlineValue,
+    nextToken,
+    context
+  );
+}
+
+function parseBooleanCommandOption(
+  token: string,
+  name: string,
+  inlineValue: string | undefined,
+  context: CliTokenContext
+): { consumedNext: false; error: string | null } {
+  if (inlineValue !== undefined) {
+    return { consumedNext: false, error: `${token} does not accept a value` };
+  }
+  context.values.set(name, [...(context.values.get(name) ?? []), "true"]);
+  return { consumedNext: false, error: null };
+}
+
+function parseValueCommandOption(
+  token: string,
+  name: string,
+  inlineValue: string | undefined,
+  nextToken: string | undefined,
+  context: CliTokenContext
+): { consumedNext: boolean; error: string | null } {
+  const value = inlineValue ?? nextToken;
+  if (value === undefined || value.startsWith("--")) {
+    return { consumedNext: false, error: `${token} requires a value` };
+  }
+  context.values.set(name, [...(context.values.get(name) ?? []), value]);
+  return { consumedNext: inlineValue === undefined, error: null };
 }
 
 function isCommand(value: string): value is InvestigationCommand {
@@ -397,48 +458,9 @@ async function runNew(
   input: ParsedCli,
   io: InvestigationReportCliIo
 ): Promise<number> {
-  const problem =
-    assertAllowedOptions(input, [
-      "root",
-      "investigations-dir",
-      "title",
-      "formed-at",
-      "question",
-      "tag",
-      "relation"
-    ]) ??
-    (input.positionals.length === 1
-      ? null
-      : "new requires exactly one Investigation ID");
-  if (problem !== null) return cliInvalid(problem, io);
-  const [id] = input.positionals;
-  const title = valueOf(input.values, "title");
-  const formedAt = valueOf(input.values, "formed-at");
-  const question = valueOf(input.values, "question");
-  const tags = valuesOf(input.values, "tag");
-  if (
-    id === undefined ||
-    title === undefined ||
-    formedAt === undefined ||
-    question === undefined ||
-    tags === undefined
-  ) {
-    return cliInvalid(
-      "new requires --title, --formed-at, --question, and at least one --tag",
-      io
-    );
-  }
-  const relations = parseNewRelations(valuesOf(input.values, "relation") ?? []);
-  if (relations.status === "error") return cliInvalid(relations.error, io);
-  const result = await createInvestigationCandidate({
-    ...location(input.values),
-    formedAt,
-    id,
-    question,
-    relations: relations.values,
-    tags,
-    title
-  });
+  const prepared = prepareNewCandidateInput(input);
+  if ("error" in prepared) return cliInvalid(prepared.error, io);
+  const result = await createInvestigationCandidate(prepared.value.input);
   if (result.status !== "ok") {
     return printResultErrors(
       result.status === "invalid-options"
@@ -457,8 +479,65 @@ async function runNew(
   );
   printWarnings(result.warnings, io);
   printCandidateReadiness(result.candidate, io);
-  await printNewCandidatePublishPreflight(id, location(input.values), io);
+  await printNewCandidatePublishPreflight(
+    prepared.value.id,
+    location(input.values),
+    io
+  );
   return 0;
+}
+
+function prepareNewCandidateInput(
+  input: ParsedCli
+): { error: string } | { value: { id: string; input: unknown } } {
+  const problem =
+    assertAllowedOptions(input, [
+      "root",
+      "investigations-dir",
+      "title",
+      "formed-at",
+      "question",
+      "tag",
+      "relation"
+    ]) ??
+    (input.positionals.length === 1
+      ? null
+      : "new requires exactly one Investigation ID");
+  if (problem !== null) return { error: problem };
+  const [id] = input.positionals;
+  const title = valueOf(input.values, "title");
+  const formedAt = valueOf(input.values, "formed-at");
+  const question = valueOf(input.values, "question");
+  const tags = valuesOf(input.values, "tag");
+  if (
+    id === undefined ||
+    title === undefined ||
+    formedAt === undefined ||
+    question === undefined ||
+    tags === undefined
+  ) {
+    return {
+      error:
+        "new requires --title, --formed-at, --question, and at least one --tag"
+    };
+  }
+  const relations = parseNewRelations(valuesOf(input.values, "relation") ?? []);
+  return relations.status === "error"
+    ? { error: relations.error }
+    : {
+        value: {
+          id,
+          input: {
+            ...location(input.values),
+            formedAt,
+            id,
+            question,
+            relations: relations.values,
+            tags,
+            title
+          }
+        }
+      };
 }
 
 async function printNewCandidatePublishPreflight(
@@ -582,7 +661,7 @@ async function runDiscardCandidate(
   }
   writeLine(
     io.stdout,
-    `Investigation candidate discarded: ${discarded.id}${discarded.deletedResourceIds.length === 0 ? "" : `; deleted ${discarded.deletedResourceIds.length} owned resource(s)`}.`
+    discardedResourceOwnerMessage("Investigation candidate", discarded)
   );
   return 0;
 }
@@ -826,9 +905,20 @@ async function runDiscard(
   }
   writeLine(
     io.stdout,
-    `Investigation report discarded: ${result.id}${result.deletedResourceIds.length === 0 ? "" : `; deleted ${result.deletedResourceIds.length} owned resource(s)`}.`
+    discardedResourceOwnerMessage("Investigation report", result)
   );
   return 0;
+}
+
+function discardedResourceOwnerMessage(
+  label: string,
+  discarded: { deletedResourceIds: readonly string[]; id: string }
+): string {
+  const deleted =
+    discarded.deletedResourceIds.length === 0
+      ? ""
+      : `; deleted ${discarded.deletedResourceIds.length} owned resource(s)`;
+  return `${label} discarded: ${discarded.id}${deleted}.`;
 }
 
 async function runList(
@@ -1013,70 +1103,70 @@ async function runSetRelations(
 
 function parseRelationGroups(
   events: readonly RelationCliEvent[] | undefined
-):
-  | { status: "ok"; replacements: RawInvestigationRelationReplacement[] }
-  | { status: "error"; error: string } {
+): RelationGroupParseResult {
   if (events === undefined)
     return { error: "set-relations requires --source groups", status: "error" };
   const replacements: RawInvestigationRelationReplacement[] = [];
-  let current: {
-    mode: "clear" | "relations" | null;
-    relations: Array<{ target: string; type: string }>;
-    source: string;
-  } | null = null;
-  function finish(): string | null {
-    if (current === null) return null;
-    if (current.mode === null)
-      return `source ${current.source} must use --relation or --clear-relations`;
-    replacements.push({ relations: current.relations, source: current.source });
-    return null;
-  }
+  let current: RelationGroupState | null = null;
   for (const event of events) {
-    switch (event.kind) {
-      case "source": {
-        const error = finish();
-        if (error !== null) return { error, status: "error" };
-        current = { mode: null, relations: [], source: event.value };
-        break;
-      }
-      case "clear": {
-        if (current === null)
-          return { error: "--clear must follow --source", status: "error" };
-        if (current.mode !== null)
-          return {
-            error: `source ${current.source} must choose either --relation or --clear-relations`,
-            status: "error"
-          };
-        current.mode = "clear";
-        break;
-      }
-      case "relation": {
-        if (current === null)
-          return { error: "--relation must follow --source", status: "error" };
-        if (current.mode === "clear")
-          return {
-            error: `source ${current.source} must choose either --relation or --clear-relations`,
-            status: "error"
-          };
-        const separator = event.value.indexOf("=");
-        if (separator <= 0 || separator === event.value.length - 1)
-          return {
-            error: `relation ${JSON.stringify(event.value)} must use <type=target-id>`,
-            status: "error"
-          };
-        current.mode = "relations";
-        current.relations.push({
-          target: event.value.slice(separator + 1),
-          type: event.value.slice(0, separator)
-        });
-        break;
-      }
-    }
+    const applied = applyRelationGroupEvent(event, current, replacements);
+    if ("error" in applied) return { error: applied.error, status: "error" };
+    current = applied.current;
   }
-  const error = finish();
+  const error = finishRelationGroup(current, replacements);
   return error === null
     ? { replacements, status: "ok" }
     : { error, status: "error" };
+}
+
+function finishRelationGroup(
+  current: RelationGroupState | null,
+  replacements: RawInvestigationRelationReplacement[]
+): string | null {
+  if (current === null) return null;
+  if (current.mode === null) {
+    return `source ${current.source} must use --relation or --clear-relations`;
+  }
+  replacements.push({ relations: current.relations, source: current.source });
+  return null;
+}
+
+function applyRelationGroupEvent(
+  event: RelationCliEvent,
+  current: RelationGroupState | null,
+  replacements: RawInvestigationRelationReplacement[]
+): { current: RelationGroupState | null } | { error: string } {
+  if (event.kind === "source") {
+    const error = finishRelationGroup(current, replacements);
+    return error === null
+      ? { current: { mode: null, relations: [], source: event.value } }
+      : { error };
+  }
+  if (current === null) {
+    return { error: `--${event.kind} must follow --source` };
+  }
+  if (event.kind === "clear") {
+    if (current.mode !== null) return { error: relationModeConflict(current) };
+    current.mode = "clear";
+    return { current };
+  }
+  if (current.mode === "clear") return { error: relationModeConflict(current) };
+  const separator = event.value.indexOf("=");
+  if (separator <= 0 || separator === event.value.length - 1) {
+    return {
+      error: `relation ${JSON.stringify(event.value)} must use <type=target-id>`
+    };
+  }
+  current.mode = "relations";
+  current.relations.push({
+    target: event.value.slice(separator + 1),
+    type: event.value.slice(0, separator)
+  });
+  return { current };
+}
+
+function relationModeConflict(current: RelationGroupState): string {
+  return `source ${current.source} must choose either --relation or --clear-relations`;
 }
 
 function printStageSuccess(

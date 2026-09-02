@@ -5,7 +5,7 @@ description: >-
   每份报告以稳定 Investigation ID 保存一轮形成时的背景、依据、结果和边界；tags 用于分类，显式直接前序关系用于认识演进。
   当前事实、长期方向与实施授权继续由各自 owner 承接。
 metadata:
-  version: "29"
+  version: "30"
 ---
 
 # Investigation Report

@@ -35,6 +35,18 @@ export type InvestigationPublishWriter = (
 ) => Promise<void | InvestigationPublishWriteResult>;
 type InvestigationPublishWriteResult = Readonly<{ warnings: string[] }>;
 type BeforeInvestigationPublish = () => Promise<void>;
+type PublishWithinLockOptions = Readonly<{
+  beforePublish: BeforeInvestigationPublish;
+  ids: readonly string[];
+  indexPath: string;
+  root: string;
+  write: InvestigationPublishWriter;
+}>;
+type InitialPublishPreparation = Readonly<{
+  originalIndexText: string | null;
+  preparation: InvestigationPublishPreparation;
+  status: "ready";
+}>;
 
 export async function publishInvestigationCandidates(
   input: unknown
@@ -95,13 +107,27 @@ export async function publishInvestigationCandidatesWithWriter(
   }
 }
 
-async function publishWithinLock(options: {
-  beforePublish: BeforeInvestigationPublish;
-  ids: readonly string[];
-  indexPath: string;
-  root: string;
-  write: InvestigationPublishWriter;
-}): Promise<InvestigationCandidatePublishResult> {
+async function publishWithinLock(
+  options: PublishWithinLockOptions
+): Promise<InvestigationCandidatePublishResult> {
+  const initial = await initialPublishPreparation(options);
+  if ("errors" in initial) return initial;
+  try {
+    await options.beforePublish();
+  } catch (error) {
+    return publishNoChangeFailure(
+      options,
+      initial.preparation,
+      "investigation-report.publish-before-write-failed",
+      error
+    );
+  }
+  return await publishProtectedPreparation(options, initial);
+}
+
+async function initialPublishPreparation(
+  options: PublishWithinLockOptions
+): Promise<InitialPublishPreparation | InvestigationCandidatePublishResult> {
   const first = await prepareInvestigationPublish(options.root, options.ids);
   if (first.status === "error") {
     return result(
@@ -133,17 +159,17 @@ async function publishWithinLock(options: {
       }
     );
   }
-  try {
-    await options.beforePublish();
-  } catch (error) {
-    return publishNoChangeFailure(
-      options,
-      first.value,
-      "investigation-report.publish-before-write-failed",
-      error
-    );
-  }
+  return {
+    originalIndexText: originalIndex.value,
+    preparation: first.value,
+    status: "ready"
+  };
+}
 
+async function publishProtectedPreparation(
+  options: PublishWithinLockOptions,
+  initial: InitialPublishPreparation
+): Promise<InvestigationCandidatePublishResult> {
   const protectedPreparation = await prepareInvestigationPublish(
     options.root,
     options.ids
@@ -166,9 +192,9 @@ async function publishWithinLock(options: {
   }
   const drift = await preparationDrift(
     options.root,
-    first.value,
+    initial.preparation,
     protectedPreparation.value,
-    originalIndex.value
+    initial.originalIndexText
   );
   if (drift.length > 0) {
     return result(
@@ -185,7 +211,7 @@ async function publishWithinLock(options: {
 
   return await publishPreparedCollection({
     indexText: protectedPreparation.value.nextIndexText,
-    originalIndexText: originalIndex.value,
+    originalIndexText: initial.originalIndexText,
     preparation: protectedPreparation.value,
     root: options.root,
     write: options.write
@@ -407,14 +433,7 @@ async function writeIndexAtomically(
   indexText: string,
   indexExisted: boolean
 ): Promise<InvestigationPublishWriteResult> {
-  if (indexExisted) {
-    const existing = await fs.lstat(indexPath);
-    if (existing.isSymbolicLink() || !existing.isFile()) {
-      throw new Error(
-        "investigation index must be a regular non-symbolic-link file"
-      );
-    }
-  }
+  await validateIndexPublicationTarget(indexPath, indexExisted);
   const investigationDirectory = path.dirname(indexPath);
   const stagingDirectory = path.dirname(investigationDirectory);
   const temporaryPath = path.join(
@@ -423,44 +442,85 @@ async function writeIndexAtomically(
   );
   let published = false;
   try {
-    const [investigationStats, stagingStats] = await Promise.all([
-      fs.stat(investigationDirectory),
-      fs.stat(stagingDirectory)
-    ]);
-    if (investigationStats.dev !== stagingStats.dev) {
-      throw new Error(
-        "index staging directory is not on the investigation collection filesystem"
-      );
-    }
-    const handle = await fs.open(temporaryPath, "wx", 0o600);
-    try {
-      await handle.writeFile(indexText, "utf8");
-      await handle.sync();
-    } finally {
-      await handle.close();
-    }
-    if (indexExisted) {
-      await fs.rename(temporaryPath, indexPath);
-      published = true;
-      return { warnings: [] };
-    } else {
-      await fs.link(temporaryPath, indexPath);
-      published = true;
-      try {
-        await fs.rm(temporaryPath, { force: true });
-        return { warnings: [] };
-      } catch (error) {
-        return {
-          warnings: [
-            `investigation index was published but its temporary publication file could not be removed: ${sanitizeInvestigationDiagnosticText(error)}`
-          ]
-        };
-      }
-    }
+    await validateIndexStagingFilesystem(
+      investigationDirectory,
+      stagingDirectory
+    );
+    await writeTemporaryIndex(temporaryPath, indexText);
+    const result = await publishTemporaryIndex(
+      temporaryPath,
+      indexPath,
+      indexExisted
+    );
+    published = true;
+    return result;
   } finally {
     if (!published) {
       await fs.rm(temporaryPath, { force: true }).catch(() => undefined);
     }
+  }
+}
+
+async function validateIndexPublicationTarget(
+  indexPath: string,
+  indexExisted: boolean
+): Promise<void> {
+  if (!indexExisted) return;
+  const existing = await fs.lstat(indexPath);
+  if (existing.isSymbolicLink() || !existing.isFile()) {
+    throw new Error(
+      "investigation index must be a regular non-symbolic-link file"
+    );
+  }
+}
+
+async function validateIndexStagingFilesystem(
+  investigationDirectory: string,
+  stagingDirectory: string
+): Promise<void> {
+  const [investigationStats, stagingStats] = await Promise.all([
+    fs.stat(investigationDirectory),
+    fs.stat(stagingDirectory)
+  ]);
+  if (investigationStats.dev !== stagingStats.dev) {
+    throw new Error(
+      "index staging directory is not on the investigation collection filesystem"
+    );
+  }
+}
+
+async function writeTemporaryIndex(
+  temporaryPath: string,
+  indexText: string
+): Promise<void> {
+  const handle = await fs.open(temporaryPath, "wx", 0o600);
+  try {
+    await handle.writeFile(indexText, "utf8");
+    await handle.sync();
+  } finally {
+    await handle.close();
+  }
+}
+
+async function publishTemporaryIndex(
+  temporaryPath: string,
+  indexPath: string,
+  indexExisted: boolean
+): Promise<InvestigationPublishWriteResult> {
+  if (indexExisted) {
+    await fs.rename(temporaryPath, indexPath);
+    return { warnings: [] };
+  }
+  await fs.link(temporaryPath, indexPath);
+  try {
+    await fs.rm(temporaryPath, { force: true });
+    return { warnings: [] };
+  } catch (error) {
+    return {
+      warnings: [
+        `investigation index was published but its temporary publication file could not be removed: ${sanitizeInvestigationDiagnosticText(error)}`
+      ]
+    };
   }
 }
 

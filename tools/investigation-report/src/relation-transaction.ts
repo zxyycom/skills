@@ -40,7 +40,10 @@ import {
   parseInvestigationReport,
   replaceInvestigationReportRelations
 } from "./markdown.ts";
-import { collectValidatedInvestigationCollection } from "./validation.ts";
+import {
+  collectValidatedInvestigationCollection,
+  type ValidatedInvestigationCollection
+} from "./validation.ts";
 import type {
   InvestigationIndexState,
   InvestigationRelationReplacement,
@@ -111,75 +114,144 @@ export async function setInvestigationRelationsWithWriter(
         write,
         beforePublish
       })
-  ).catch((error: unknown) => {
-    const releaseFailure =
-      error instanceof InvestigationCollectionMutationLockError &&
-      error.diagnostic.code ===
-        "investigation-report.collection-lock-release-failed";
-    const completedResult =
-      error instanceof InvestigationCollectionMutationLockError &&
-      error.operationCompleted &&
-      isRelationResult(error.operationResult)
-        ? error.operationResult
-        : null;
-    if (completedResult !== null && releaseFailure) {
-      const mutation =
-        completedResult.mutation ??
-        relationMutation(
-          completedResult.changed ? "committed-cleanup-pending" : "no-change"
-        );
-      return {
-        ...completedResult,
-        diagnostics: [
-          ...completedResult.diagnostics,
-          { ...error.diagnostic, mutation }
-        ],
-        errors: uniqueSorted([...completedResult.errors, errorText(error)]),
-        mutation
-      };
-    }
-    return relationResult(
-      false,
-      validated.sourceIds,
-      indexPath,
-      [errorText(error)],
-      {
-        diagnostics:
-          error instanceof InvestigationCollectionMutationLockError
-            ? [
-                {
-                  ...error.diagnostic,
-                  mutation: relationMutation(
-                    releaseFailure ? "partial-or-unknown" : "no-change"
-                  )
-                }
-              ]
-            : [
-                diagnosticFromError({
-                  code: "investigation-report.relation-transaction-failed",
-                  error,
-                  mutation: relationMutation("partial-or-unknown"),
-                  reason: "the relation transaction stopped unexpectedly",
-                  recovery:
-                    "verify the selected reports and index before retrying the relation update",
-                  target: indexPath
-                })
-              ],
-        mutation: relationMutation(
-          releaseFailure ? "partial-or-unknown" : "no-change"
-        )
-      }
-    );
-  });
+  ).catch((error: unknown) =>
+    relationLockFailure(error, validated.sourceIds, indexPath)
+  );
 }
 
-async function applyRelationReplacements(options: {
+function relationLockFailure(
+  error: unknown,
+  sourceIds: readonly string[],
+  indexPath: string
+): InvestigationRelationSetResult {
+  const releaseFailure =
+    error instanceof InvestigationCollectionMutationLockError &&
+    error.diagnostic.code ===
+      "investigation-report.collection-lock-release-failed";
+  const completedResult =
+    error instanceof InvestigationCollectionMutationLockError &&
+    error.operationCompleted &&
+    isRelationResult(error.operationResult)
+      ? error.operationResult
+      : null;
+  if (completedResult !== null && releaseFailure) {
+    return completedRelationLockFailure(error, completedResult);
+  }
+  return incompleteRelationLockFailure(
+    error,
+    sourceIds,
+    indexPath,
+    releaseFailure
+  );
+}
+
+function completedRelationLockFailure(
+  error: InvestigationCollectionMutationLockError,
+  completedResult: InvestigationRelationSetResult
+): InvestigationRelationSetResult {
+  const mutation =
+    completedResult.mutation ??
+    relationMutation(
+      completedResult.changed ? "committed-cleanup-pending" : "no-change"
+    );
+  return {
+    ...completedResult,
+    diagnostics: [
+      ...completedResult.diagnostics,
+      { ...error.diagnostic, mutation }
+    ],
+    errors: uniqueSorted([...completedResult.errors, errorText(error)]),
+    mutation
+  };
+}
+
+function incompleteRelationLockFailure(
+  error: unknown,
+  sourceIds: readonly string[],
+  indexPath: string,
+  releaseFailure: boolean
+): InvestigationRelationSetResult {
+  return relationResult(false, sourceIds, indexPath, [errorText(error)], {
+    diagnostics:
+      error instanceof InvestigationCollectionMutationLockError
+        ? [
+            {
+              ...error.diagnostic,
+              mutation: relationMutation(
+                releaseFailure ? "partial-or-unknown" : "no-change"
+              )
+            }
+          ]
+        : [
+            diagnosticFromError({
+              code: "investigation-report.relation-transaction-failed",
+              error,
+              mutation: relationMutation("partial-or-unknown"),
+              reason: "the relation transaction stopped unexpectedly",
+              recovery:
+                "verify the selected reports and index before retrying the relation update",
+              target: indexPath
+            })
+          ],
+    mutation: relationMutation(
+      releaseFailure ? "partial-or-unknown" : "no-change"
+    )
+  });
+}
+type RelationTransactionOptions = Readonly<{
+  beforePublish: BeforeRelationPublish;
   indexPath: string;
   replacements: readonly InvestigationRelationReplacement[];
   root: string;
   write: InvestigationAtomicWriter;
-  beforePublish: BeforeRelationPublish;
-}): Promise<InvestigationRelationSetResult> {
+}>;
+
+type RelationPhase<T> =
+  | { status: "ready"; value: T }
+  | { result: InvestigationRelationSetResult; status: "result" };
+
+type LoadedRelationContext = Readonly<{
+  collection: ValidatedInvestigationCollection;
+  originalIndexText: string;
+  sourceById: Map<string, InvestigationSource>;
+  sourceIds: string[];
+}>;
+
+type CandidateRelationContext = LoadedRelationContext & {
+  candidateSources: InvestigationSource[];
+  candidateStates: Map<string, InvestigationIndexState>;
+  changedSources: string[];
+  nextIndexText: string;
+};
+
+async function applyRelationReplacements(
+  options: RelationTransactionOptions
+): Promise<InvestigationRelationSetResult> {
+  const loaded = await loadRelationTransaction(options);
+  if (loaded.status === "result") return loaded.result;
+  const candidate = await buildRelationCandidate(options, loaded.value);
+  if (candidate.status === "result") return candidate.result;
+  await options.beforePublish();
+  const protectedCollection = await protectRelationCollection(
+    options,
+    candidate.value
+  );
+  if (protectedCollection.status === "result")
+    return protectedCollection.result;
+  const sourceBytes = await verifyRelationSourceBytes(options, candidate.value);
+  if (sourceBytes.status === "result") return sourceBytes.result;
+  const indexFailure = await verifyRelationIndexBytes(options, candidate.value);
+  if (indexFailure !== null) return indexFailure;
+  return await publishRelationCandidate(
+    options,
+    candidate.value,
+    sourceBytes.value
+  );
+}
+
+async function loadRelationTransaction(
+  options: RelationTransactionOptions
+): Promise<RelationPhase<LoadedRelationContext>> {
   const collection = await collectValidatedInvestigationCollection(
     options.root
   );
@@ -187,45 +259,84 @@ async function applyRelationReplacements(options: {
     .map((replacement) => replacement.source)
     .sort(compareText);
   if (collection.errors.length > 0 || collection.snapshot === null) {
-    return relationResult(
-      false,
-      sourceIds,
-      options.indexPath,
-      collection.errors
+    return relationPhaseResult(
+      relationResult(false, sourceIds, options.indexPath, collection.errors)
     );
   }
-  let originalIndexText: string;
+  const originalIndex = await readOriginalRelationIndex(options, sourceIds);
+  if (originalIndex.status === "result") return originalIndex;
+  const freshnessFailure = await relationFreshnessFailure(
+    options,
+    sourceIds,
+    collection.snapshot
+  );
+  if (freshnessFailure !== null) return relationPhaseResult(freshnessFailure);
+  const sourceById = new Map(
+    collection.sources.map((source) => [source.id, source])
+  );
+  const missingSource = sourceIds.find((source) => !sourceById.has(source));
+  if (missingSource !== undefined) {
+    return relationPhaseResult(
+      relationResult(false, sourceIds, options.indexPath, [
+        `${missingSource} investigation report does not exist`
+      ])
+    );
+  }
+  return {
+    status: "ready",
+    value: {
+      collection,
+      originalIndexText: originalIndex.value,
+      sourceById,
+      sourceIds
+    }
+  };
+}
+
+async function readOriginalRelationIndex(
+  options: RelationTransactionOptions,
+  sourceIds: readonly string[]
+): Promise<RelationPhase<string>> {
   try {
-    originalIndexText = await readRegularText(options.indexPath);
+    return { status: "ready", value: await readRegularText(options.indexPath) };
   } catch (error) {
-    return relationResult(
-      false,
-      sourceIds,
-      options.indexPath,
-      [
-        `failed to read current index before relation transaction: ${errorText(error)}`
-      ],
-      {
-        diagnostics: [
-          diagnosticFromError({
-            code: "investigation-report.relation-index-read-failed",
-            error,
-            mutation: relationMutation("no-change"),
-            reason:
-              "the current investigation index could not be read before the relation transaction",
-            recovery:
-              "restore read access to the current index, then retry the relation update",
-            target: options.indexPath
-          })
+    return relationPhaseResult(
+      relationResult(
+        false,
+        sourceIds,
+        options.indexPath,
+        [
+          `failed to read current index before relation transaction: ${errorText(error)}`
         ],
-        mutation: relationMutation("no-change")
-      }
+        {
+          diagnostics: [
+            diagnosticFromError({
+              code: "investigation-report.relation-index-read-failed",
+              error,
+              mutation: relationMutation("no-change"),
+              reason:
+                "the current investigation index could not be read before the relation transaction",
+              recovery:
+                "restore read access to the current index, then retry the relation update",
+              target: options.indexPath
+            })
+          ],
+          mutation: relationMutation("no-change")
+        }
+      )
     );
   }
+}
+
+async function relationFreshnessFailure(
+  options: RelationTransactionOptions,
+  sourceIds: readonly string[],
+  snapshot: NonNullable<ValidatedInvestigationCollection["snapshot"]>
+): Promise<InvestigationRelationSetResult | null> {
   const freshness = await syncInvestigationStateIndex({
     investigationsDirectory: options.root,
     mode: "check",
-    snapshot: collection.snapshot
+    snapshot
   });
   if (freshness.status === "error") {
     return relationResult(
@@ -238,83 +349,158 @@ async function applyRelationReplacements(options: {
       )
     );
   }
-  const sourceById = new Map(
-    collection.sources.map((source) => [source.id, source])
+  return null;
+}
+
+async function buildRelationCandidate(
+  options: RelationTransactionOptions,
+  loaded: LoadedRelationContext
+): Promise<RelationPhase<CandidateRelationContext>> {
+  const candidateSet = buildCandidateRelationSources(options, loaded);
+  if (candidateSet.status === "result") return candidateSet;
+  const { candidateSources, candidateStates } = candidateSet.value;
+  const relationErrors = validateInvestigationRelationGraph(candidateStates);
+  if (relationErrors.length > 0) {
+    return relationPhaseResult(
+      relationResult(false, loaded.sourceIds, options.indexPath, relationErrors)
+    );
+  }
+  const candidateById = new Map(
+    candidateSources.map((source) => [source.id, source])
   );
+  const changedSources = loaded.sourceIds.filter(
+    (id) => loaded.sourceById.get(id)?.text !== candidateById.get(id)?.text
+  );
+  if (changedSources.length === 0) {
+    return relationPhaseResult(
+      relationResult(false, loaded.sourceIds, options.indexPath, [])
+    );
+  }
+  const nextIndex = await buildRelationIndex(
+    options,
+    candidateSources,
+    candidateStates
+  );
+  if ("errors" in nextIndex) {
+    return relationPhaseResult(
+      relationResult(
+        false,
+        loaded.sourceIds,
+        options.indexPath,
+        nextIndex.errors
+      )
+    );
+  }
+  return {
+    status: "ready",
+    value: {
+      ...loaded,
+      candidateSources,
+      candidateStates,
+      changedSources,
+      nextIndexText: nextIndex.text
+    }
+  };
+}
+
+function buildCandidateRelationSources(
+  options: RelationTransactionOptions,
+  loaded: LoadedRelationContext
+): RelationPhase<{
+  candidateSources: InvestigationSource[];
+  candidateStates: Map<string, InvestigationIndexState>;
+}> {
   const replacementBySource = new Map(
     options.replacements.map((replacement) => [replacement.source, replacement])
   );
-  for (const source of sourceIds) {
-    if (!sourceById.has(source)) {
-      return relationResult(false, sourceIds, options.indexPath, [
-        `${source} investigation report does not exist`
-      ]);
-    }
-  }
   const candidateSources: InvestigationSource[] = [];
   const candidateStates = new Map<string, InvestigationIndexState>();
-  for (const source of collection.sources) {
-    const replacement = replacementBySource.get(source.id);
-    if (replacement === undefined) {
-      candidateSources.push(source);
-      candidateStates.set(source.id, collection.states.get(source.id)!);
-      continue;
-    }
-    const parsed = parseInvestigationReport(source.text, source.id);
-    if (parsed.report === null || parsed.errors.length > 0) {
-      return relationResult(false, sourceIds, options.indexPath, parsed.errors);
-    }
-    const nextText = replaceInvestigationReportRelations(
-      source.text,
-      parsed.report,
-      replacement.relations
+  for (const source of loaded.collection.sources) {
+    const candidate = candidateRelationSource(
+      source,
+      replacementBySource.get(source.id),
+      requiredRelationState(loaded.collection.states, source.id)
     );
-    const built = buildInvestigationReportState(
-      source.id,
-      parseInvestigationReport(nextText, source.id)
-    );
-    if (built.status === "invalid") {
-      return relationResult(false, sourceIds, options.indexPath, built.errors);
+    if ("errors" in candidate) {
+      return relationPhaseResult(
+        relationResult(
+          false,
+          loaded.sourceIds,
+          options.indexPath,
+          candidate.errors
+        )
+      );
     }
-    candidateSources.push({ id: source.id, text: nextText });
-    candidateStates.set(source.id, built.state);
+    candidateSources.push(candidate.source);
+    candidateStates.set(source.id, candidate.state);
   }
-  const relationErrors = validateInvestigationRelationGraph(candidateStates);
-  if (relationErrors.length > 0) {
-    return relationResult(false, sourceIds, options.indexPath, relationErrors);
+  return { status: "ready", value: { candidateSources, candidateStates } };
+}
+
+function requiredRelationState(
+  states: ReadonlyMap<string, InvestigationIndexState>,
+  investigationId: string
+): InvestigationIndexState {
+  const state = states.get(investigationId);
+  if (state === undefined) {
+    throw new Error(
+      `validated relation collection is missing state for ${investigationId}`
+    );
   }
-  const changedSources = sourceIds.filter(
-    (id) =>
-      sourceById.get(id)?.text !==
-      candidateSources.find((source) => source.id === id)?.text
+  return state;
+}
+
+function candidateRelationSource(
+  source: InvestigationSource,
+  replacement: InvestigationRelationReplacement | undefined,
+  currentState: InvestigationIndexState
+):
+  | { errors: string[] }
+  | { source: InvestigationSource; state: InvestigationIndexState } {
+  if (replacement === undefined) return { source, state: currentState };
+  const parsed = parseInvestigationReport(source.text, source.id);
+  if (parsed.report === null || parsed.errors.length > 0) {
+    return { errors: parsed.errors };
+  }
+  const nextText = replaceInvestigationReportRelations(
+    source.text,
+    parsed.report,
+    replacement.relations
   );
-  if (changedSources.length === 0) {
-    return relationResult(false, sourceIds, options.indexPath, []);
-  }
+  const built = buildInvestigationReportState(
+    source.id,
+    parseInvestigationReport(nextText, source.id)
+  );
+  return built.status === "invalid"
+    ? { errors: built.errors }
+    : { source: { id: source.id, text: nextText }, state: built.state };
+}
+
+async function buildRelationIndex(
+  options: RelationTransactionOptions,
+  candidateSources: readonly InvestigationSource[],
+  candidateStates: ReadonlyMap<string, InvestigationIndexState>
+): Promise<{ errors: string[] } | { text: string }> {
   const snapshot = createInvestigationStateSnapshot(
     candidateSources,
     candidateSources.map((source) => candidateStates.get(source.id)!)
   );
-  const builtIndex = await buildStateIndex(
-    createInvestigationStateIndexDefinition({ snapshot }),
-    { root: options.root }
-  );
-  if (builtIndex.status === "error") {
-    return relationResult(
-      false,
-      sourceIds,
-      options.indexPath,
-      investigationIndexDiagnosticMessages(
-        builtIndex.diagnostics,
-        options.indexPath
-      )
-    );
-  }
-  const nextIndexText = serializeStateIndex(
-    builtIndex.value,
-    createInvestigationStateIndexDefinition({ snapshot })
-  );
-  await options.beforePublish();
+  const definition = createInvestigationStateIndexDefinition({ snapshot });
+  const builtIndex = await buildStateIndex(definition, { root: options.root });
+  return builtIndex.status === "error"
+    ? {
+        errors: investigationIndexDiagnosticMessages(
+          builtIndex.diagnostics,
+          options.indexPath
+        )
+      }
+    : { text: serializeStateIndex(builtIndex.value, definition) };
+}
+
+async function protectRelationCollection(
+  options: RelationTransactionOptions,
+  context: CandidateRelationContext
+): Promise<RelationPhase<ValidatedInvestigationCollection>> {
   const protectedCollection = await collectValidatedInvestigationCollection(
     options.root
   );
@@ -322,120 +508,191 @@ async function applyRelationReplacements(options: {
     protectedCollection.errors.length > 0 ||
     protectedCollection.snapshot === null
   ) {
-    return relationResult(
-      false,
-      sourceIds,
-      options.indexPath,
-      [
-        "investigation collection could not be revalidated before relation transaction; no files were written",
-        ...protectedCollection.errors
-      ],
-      {
-        diagnostics: [
-          genericInvestigationDiagnostic({
-            code: "investigation-report.relation-source-recheck-failed",
-            mutation: relationMutation("no-change"),
-            reason:
-              "the investigation collection could not be revalidated before relation publication",
-            recovery:
-              "correct the reported collection problem, then retry from the current collection state",
-            target: options.root
-          })
-        ],
-        mutation: relationMutation("no-change")
-      }
+    return relationPhaseResult(
+      invalidProtectedRelationCollection(options, context, protectedCollection)
     );
   }
   if (
-    !sameInvestigationSources(protectedCollection.sources, collection.sources)
+    !sameInvestigationSources(
+      protectedCollection.sources,
+      context.collection.sources
+    )
   ) {
-    return relationResult(
-      false,
-      sourceIds,
-      options.indexPath,
-      [
-        "investigation collection changed after relation validation; no files were written"
-      ],
-      {
-        diagnostics: [
-          genericInvestigationDiagnostic({
-            code: "investigation-report.relation-source-drift",
-            mutation: relationMutation("no-change"),
-            reason:
-              "the investigation report sources changed after relation validation",
-            recovery:
-              "review the concurrent report change, then retry from the current collection state",
-            target: options.root
-          })
-        ],
-        mutation: relationMutation("no-change")
-      }
+    return relationPhaseResult(
+      driftedProtectedRelationCollection(options, context)
     );
   }
+  return { status: "ready", value: protectedCollection };
+}
+
+function invalidProtectedRelationCollection(
+  options: RelationTransactionOptions,
+  context: CandidateRelationContext,
+  collection: ValidatedInvestigationCollection
+): InvestigationRelationSetResult {
+  return relationResult(
+    false,
+    context.sourceIds,
+    options.indexPath,
+    [
+      "investigation collection could not be revalidated before relation transaction; no files were written",
+      ...collection.errors
+    ],
+    {
+      diagnostics: [
+        genericInvestigationDiagnostic({
+          code: "investigation-report.relation-source-recheck-failed",
+          mutation: relationMutation("no-change"),
+          reason:
+            "the investigation collection could not be revalidated before relation publication",
+          recovery:
+            "correct the reported collection problem, then retry from the current collection state",
+          target: options.root
+        })
+      ],
+      mutation: relationMutation("no-change")
+    }
+  );
+}
+
+function driftedProtectedRelationCollection(
+  options: RelationTransactionOptions,
+  context: CandidateRelationContext
+): InvestigationRelationSetResult {
+  return relationResult(
+    false,
+    context.sourceIds,
+    options.indexPath,
+    [
+      "investigation collection changed after relation validation; no files were written"
+    ],
+    {
+      diagnostics: [
+        genericInvestigationDiagnostic({
+          code: "investigation-report.relation-source-drift",
+          mutation: relationMutation("no-change"),
+          reason:
+            "the investigation report sources changed after relation validation",
+          recovery:
+            "review the concurrent report change, then retry from the current collection state",
+          target: options.root
+        })
+      ],
+      mutation: relationMutation("no-change")
+    }
+  );
+}
+
+async function verifyRelationSourceBytes(
+  options: RelationTransactionOptions,
+  context: CandidateRelationContext
+): Promise<RelationPhase<Map<string, string>>> {
   const originalTextByPath = new Map<string, string>();
-  for (const source of collection.sources) {
-    const reportPath = reportPathForInvestigationId(options.root, source.id);
-    try {
-      const currentText = await readRegularText(reportPath);
-      if (currentText !== source.text) {
-        return relationResult(
-          false,
-          sourceIds,
-          options.indexPath,
-          [
-            `${source.id} changed after relation validation; no files were written`
-          ],
-          {
-            diagnostics: [
-              genericInvestigationDiagnostic({
-                code: "investigation-report.relation-source-drift",
-                mutation: relationMutation("no-change"),
-                reason: `${source.id} changed after relation validation`,
-                recovery:
-                  "review the concurrent report change, then retry from the current collection state",
-                target: source.id
-              })
-            ],
-            mutation: relationMutation("no-change")
-          }
-        );
-      }
-      if (changedSources.includes(source.id)) {
-        originalTextByPath.set(reportPath, currentText);
-      }
-    } catch (error) {
-      return relationResult(
-        false,
-        sourceIds,
-        options.indexPath,
-        [
-          `${source.id} could not be verified before relation transaction: ${errorText(error)}`
-        ],
-        {
-          diagnostics: [
-            diagnosticFromError({
-              code: "investigation-report.relation-source-recheck-failed",
-              error,
-              mutation: relationMutation("no-change"),
-              reason:
-                "a report could not be re-read before the relation transaction",
-              recovery:
-                "restore access to the report and verify its current contents before retrying",
-              target: source.id
-            })
-          ],
-          mutation: relationMutation("no-change")
-        }
-      );
+  for (const source of context.collection.sources) {
+    const verified = await verifyRelationSource(options, context, source);
+    if ("result" in verified) return relationPhaseResult(verified.result);
+    if (verified.changedPath !== null) {
+      originalTextByPath.set(verified.changedPath, verified.text);
     }
   }
+  return { status: "ready", value: originalTextByPath };
+}
+
+async function verifyRelationSource(
+  options: RelationTransactionOptions,
+  context: CandidateRelationContext,
+  source: InvestigationSource
+): Promise<
+  | { changedPath: string | null; text: string }
+  | { result: InvestigationRelationSetResult }
+> {
+  const reportPath = reportPathForInvestigationId(options.root, source.id);
+  try {
+    const currentText = await readRegularText(reportPath);
+    if (currentText !== source.text) {
+      return { result: driftedRelationSource(options, context, source.id) };
+    }
+    return {
+      changedPath: context.changedSources.includes(source.id)
+        ? reportPath
+        : null,
+      text: currentText
+    };
+  } catch (error) {
+    return {
+      result: unreadableRelationSource(options, context, source.id, error)
+    };
+  }
+}
+
+function driftedRelationSource(
+  options: RelationTransactionOptions,
+  context: CandidateRelationContext,
+  sourceId: string
+): InvestigationRelationSetResult {
+  return relationResult(
+    false,
+    context.sourceIds,
+    options.indexPath,
+    [`${sourceId} changed after relation validation; no files were written`],
+    {
+      diagnostics: [
+        genericInvestigationDiagnostic({
+          code: "investigation-report.relation-source-drift",
+          mutation: relationMutation("no-change"),
+          reason: `${sourceId} changed after relation validation`,
+          recovery:
+            "review the concurrent report change, then retry from the current collection state",
+          target: sourceId
+        })
+      ],
+      mutation: relationMutation("no-change")
+    }
+  );
+}
+
+function unreadableRelationSource(
+  options: RelationTransactionOptions,
+  context: CandidateRelationContext,
+  sourceId: string,
+  error: unknown
+): InvestigationRelationSetResult {
+  return relationResult(
+    false,
+    context.sourceIds,
+    options.indexPath,
+    [
+      `${sourceId} could not be verified before relation transaction: ${errorText(error)}`
+    ],
+    {
+      diagnostics: [
+        diagnosticFromError({
+          code: "investigation-report.relation-source-recheck-failed",
+          error,
+          mutation: relationMutation("no-change"),
+          reason:
+            "a report could not be re-read before the relation transaction",
+          recovery:
+            "restore access to the report and verify its current contents before retrying",
+          target: sourceId
+        })
+      ],
+      mutation: relationMutation("no-change")
+    }
+  );
+}
+
+async function verifyRelationIndexBytes(
+  options: RelationTransactionOptions,
+  context: CandidateRelationContext
+): Promise<InvestigationRelationSetResult | null> {
   let currentIndexText: string;
   try {
     currentIndexText = await readRegularText(options.indexPath);
   } catch (error) {
     return relationResult(
       false,
-      sourceIds,
+      context.sourceIds,
       options.indexPath,
       [
         `current investigation index could not be re-read before relation transaction: ${errorText(error)}`
@@ -457,47 +714,52 @@ async function applyRelationReplacements(options: {
       }
     );
   }
-  if (currentIndexText !== originalIndexText) {
-    return relationResult(
-      false,
-      sourceIds,
-      options.indexPath,
-      [
-        "investigation index changed after relation validation; no files were written"
+  if (currentIndexText === context.originalIndexText) return null;
+  return relationResult(
+    false,
+    context.sourceIds,
+    options.indexPath,
+    [
+      "investigation index changed after relation validation; no files were written"
+    ],
+    {
+      diagnostics: [
+        genericInvestigationDiagnostic({
+          code: "investigation-report.relation-index-drift",
+          mutation: relationMutation("no-change"),
+          reason: "the investigation index changed after relation validation",
+          recovery:
+            "review the concurrent index change, then retry from the current collection state",
+          target: options.indexPath
+        })
       ],
-      {
-        diagnostics: [
-          genericInvestigationDiagnostic({
-            code: "investigation-report.relation-index-drift",
-            mutation: relationMutation("no-change"),
-            reason: "the investigation index changed after relation validation",
-            recovery:
-              "review the concurrent index change, then retry from the current collection state",
-            target: options.indexPath
-          })
-        ],
-        mutation: relationMutation("no-change")
-      }
-    );
-  }
+      mutation: relationMutation("no-change")
+    }
+  );
+}
 
+async function publishRelationCandidate(
+  options: RelationTransactionOptions,
+  context: CandidateRelationContext,
+  originalTextByPath: Map<string, string>
+): Promise<InvestigationRelationSetResult> {
   const nextTextById = new Map(
-    candidateSources.map((source) => [source.id, source.text])
+    context.candidateSources.map((source) => [source.id, source.text])
   );
   const writtenPaths: string[] = [];
   try {
-    for (const id of changedSources.sort(compareText)) {
+    for (const id of context.changedSources.sort(compareText)) {
       const reportPath = reportPathForInvestigationId(options.root, id);
       writtenPaths.push(reportPath);
       await options.write(reportPath, nextTextById.get(id)!);
     }
     writtenPaths.push(options.indexPath);
-    await options.write(options.indexPath, nextIndexText);
-    return relationResult(true, sourceIds, options.indexPath, []);
+    await options.write(options.indexPath, context.nextIndexText);
+    return relationResult(true, context.sourceIds, options.indexPath, []);
   } catch (error) {
     const restorationErrors = await restoreOriginalTexts(
       options.indexPath,
-      originalIndexText,
+      context.originalIndexText,
       originalTextByPath,
       writtenPaths,
       options.write
@@ -506,7 +768,7 @@ async function applyRelationReplacements(options: {
       restorationErrors.length === 0 ? "rolled-back" : "partial-or-unknown";
     return relationResult(
       false,
-      sourceIds,
+      context.sourceIds,
       options.indexPath,
       [
         `relation transaction publish failed: ${errorText(error)}`,
@@ -533,6 +795,12 @@ async function applyRelationReplacements(options: {
       }
     );
   }
+}
+
+function relationPhaseResult<T>(
+  result: InvestigationRelationSetResult
+): RelationPhase<T> {
+  return { result, status: "result" };
 }
 
 function validateReplacements(

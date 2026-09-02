@@ -62,9 +62,22 @@ export function validateInvestigationRelationGraph(
 ): string[] {
   const ids = [...states.keys()].sort(compareText);
   const graph = buildInvestigationRelationGraph(states);
-  const edges = graph.edges;
-  const errors: string[] = [];
+  return uniqueSorted([
+    ...structuralRelationErrors(graph),
+    ...chronologicalRelationErrors(states, graph.edges),
+    ...ids.flatMap((id) =>
+      relationShapeIssues(id, graph.edgesBySource.get(id) ?? [])
+    ),
+    ...splitPredecessorErrors(ids, graph)
+  ]);
+}
 
+type InvestigationRelationGraph = ReturnType<
+  typeof buildInvestigationRelationGraph
+>;
+
+function structuralRelationErrors(graph: InvestigationRelationGraph): string[] {
+  const errors: string[] = [];
   for (const issue of relationGraphStructuralIssues(graph)) {
     switch (issue.kind) {
       case "missing-target":
@@ -89,7 +102,14 @@ export function validateInvestigationRelationGraph(
         break;
     }
   }
+  return errors;
+}
 
+function chronologicalRelationErrors(
+  states: ReadonlyMap<string, InvestigationIndexState>,
+  edges: readonly InvestigationRelationEdge[]
+): string[] {
+  const errors: string[] = [];
   for (const edge of edges) {
     if (!isRelationType(edge.type)) {
       errors.push(
@@ -113,11 +133,14 @@ export function validateInvestigationRelationGraph(
       );
     }
   }
+  return errors;
+}
 
-  for (const id of ids) {
-    const sourceEdges = graph.edgesBySource.get(id) ?? [];
-    errors.push(...relationShapeIssues(id, sourceEdges));
-  }
+function splitPredecessorErrors(
+  ids: readonly string[],
+  graph: InvestigationRelationGraph
+): string[] {
+  const errors: string[] = [];
   for (const id of ids) {
     const splitSuccessors = (graph.edgesByTarget.get(id) ?? []).filter(
       (edge) => edge.type === "拆分"
@@ -128,8 +151,7 @@ export function validateInvestigationRelationGraph(
       );
     }
   }
-
-  return uniqueSorted(errors);
+  return errors;
 }
 
 function relationShapeIssues(

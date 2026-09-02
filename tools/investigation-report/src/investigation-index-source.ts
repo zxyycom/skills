@@ -68,53 +68,9 @@ export async function inspectInvestigationCollectionLayout(
     );
   }
   rootEntries.sort((left, right) => compareText(left.name, right.name));
+  const context = { candidateErrors, candidateIds, errors, reportIds };
   for (const entry of rootEntries) {
-    if (entry.name === investigationResourcesDirectoryName) {
-      if (entry.isSymbolicLink() || !entry.isDirectory()) {
-        errors.push(
-          `${investigationResourcesDirectoryName} must be a directory and not a symbolic link`
-        );
-      }
-      continue;
-    }
-    if (entry.name === investigationIndexFileName) {
-      if (entry.isSymbolicLink() || !entry.isFile()) {
-        errors.push(
-          `${investigationIndexFileName} must be a regular non-symbolic-link file`
-        );
-      }
-      continue;
-    }
-    if (entry.isSymbolicLink()) {
-      const error = `${entry.name} must not be a symbolic link`;
-      errors.push(error);
-      if (isReservedInvestigationCandidateFileName(entry.name)) {
-        candidateErrors.push(error);
-      }
-      continue;
-    }
-    if (!entry.isFile()) {
-      errors.push(`${entry.name} is not allowed at the investigation root`);
-      continue;
-    }
-    const candidateId = investigationCandidateIdFromFileName(entry.name);
-    if (candidateId !== null) {
-      candidateIds.push(candidateId);
-      continue;
-    }
-    if (isReservedInvestigationCandidateFileName(entry.name)) {
-      const error = `${entry.name} must use the reserved _candidate.<investigation-id> file name`;
-      candidateErrors.push(error);
-      errors.push(error);
-      continue;
-    }
-    if (!isInvestigationId(entry.name)) {
-      errors.push(
-        `${entry.name} must be a root-level Investigation ID Markdown file`
-      );
-      continue;
-    }
-    reportIds.push(entry.name);
+    inspectInvestigationRootEntry(entry, context);
   }
   const identityConflicts = hasCandidateFormalIdentityConflict(
     reportIds,
@@ -126,6 +82,80 @@ export async function inspectInvestigationCollectionLayout(
     errors: uniqueSorted([...errors, ...identityConflicts]),
     reportIds: reportIds.sort(compareText)
   };
+}
+
+type InvestigationLayoutContext = Pick<
+  InvestigationCollectionLayout,
+  "candidateErrors" | "candidateIds" | "errors" | "reportIds"
+>;
+
+function inspectInvestigationRootEntry(
+  entry: Dirent<string>,
+  context: InvestigationLayoutContext
+): void {
+  if (inspectReservedRootEntry(entry, context.errors)) return;
+  if (entry.isSymbolicLink()) {
+    const error = `${entry.name} must not be a symbolic link`;
+    context.errors.push(error);
+    if (isReservedInvestigationCandidateFileName(entry.name)) {
+      context.candidateErrors.push(error);
+    }
+    return;
+  }
+  inspectInvestigationMarkdownEntry(entry, context);
+}
+
+function inspectReservedRootEntry(
+  entry: Dirent<string>,
+  errors: string[]
+): boolean {
+  if (entry.name === investigationResourcesDirectoryName) {
+    if (entry.isSymbolicLink() || !entry.isDirectory()) {
+      errors.push(
+        `${investigationResourcesDirectoryName} must be a directory and not a symbolic link`
+      );
+    }
+    return true;
+  }
+  if (entry.name === investigationIndexFileName) {
+    if (entry.isSymbolicLink() || !entry.isFile()) {
+      errors.push(
+        `${investigationIndexFileName} must be a regular non-symbolic-link file`
+      );
+    }
+    return true;
+  }
+  return false;
+}
+
+function inspectInvestigationMarkdownEntry(
+  entry: Dirent<string>,
+  context: InvestigationLayoutContext
+): void {
+  if (!entry.isFile()) {
+    context.errors.push(
+      `${entry.name} is not allowed at the investigation root`
+    );
+    return;
+  }
+  const candidateId = investigationCandidateIdFromFileName(entry.name);
+  if (candidateId !== null) {
+    context.candidateIds.push(candidateId);
+    return;
+  }
+  if (isReservedInvestigationCandidateFileName(entry.name)) {
+    const error = `${entry.name} must use the reserved _candidate.<investigation-id> file name`;
+    context.candidateErrors.push(error);
+    context.errors.push(error);
+    return;
+  }
+  if (!isInvestigationId(entry.name)) {
+    context.errors.push(
+      `${entry.name} must be a root-level Investigation ID Markdown file`
+    );
+    return;
+  }
+  context.reportIds.push(entry.name);
 }
 
 export async function readInvestigationSourceRevision(

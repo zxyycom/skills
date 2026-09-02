@@ -57,6 +57,20 @@ type DecisionStageSource = {
   source: DecisionSource;
 };
 
+type StageStep<T> = DecisionApplicationFailure | { status: "ok"; value: T };
+type StageRepositoryContext = Readonly<{
+  decisionScope: string;
+  repository: VersionControlRepository;
+}>;
+type PendingDecisionSnapshot = Readonly<{
+  expectedFiles: VersionControlFile[];
+  revision: RevisionId | null;
+}>;
+type DecisionStageFiles = Readonly<{
+  files: VersionControlFile[];
+  indexRelativePath: string;
+}>;
+
 export async function stageDecisionRecords(options: {
   decisionIds: readonly string[];
   location: DecisionLocation;
@@ -66,9 +80,61 @@ export async function stageDecisionRecords(options: {
     return selectedIds;
   }
   const location = resolveDecisionLocation(options.location);
+  const opened = await openStageRepository(location.decisionsDirectory);
+  if (opened.status === "error") return opened;
+  const { decisionScope, repository } = opened.value;
+
+  const pending = await inspectPendingDecisionSnapshot(
+    repository,
+    decisionScope
+  );
+  if (pending.status === "error") return pending;
+
+  const targetResult = await constructDecisionStageTarget({
+    decisionsDirectory: location.decisionsDirectory,
+    decisionScope,
+    repository,
+    revision: pending.value.revision,
+    selectedIds: selectedIds.value
+  });
+  if (targetResult.status === "error") return targetResult;
+  const target = targetResult.value;
+  if (target.sources.length === 0) {
+    return decisionFailure([
+      "Selected Decision IDs must produce at least one established decision"
+    ]);
+  }
+
+  const stagedFiles = await prepareDecisionStageFiles(
+    location,
+    decisionScope,
+    repository,
+    target
+  );
+  if (stagedFiles.status === "error") return stagedFiles;
+  const replaced = await replacePendingDecisionFiles(
+    repository,
+    decisionScope,
+    pending.value.expectedFiles,
+    target.revision,
+    stagedFiles.value.files
+  );
+  if (replaced.status === "error") return replaced;
+  return {
+    command: "stage",
+    indexRelativePath: stagedFiles.value.indexRelativePath,
+    pendingFileCount: replaced.value,
+    selectedIds: selectedIds.value,
+    status: "ok"
+  };
+}
+
+async function openStageRepository(
+  decisionsDirectory: string
+): Promise<StageStep<StageRepositoryContext>> {
   let repository: VersionControlRepository;
   try {
-    repository = await openVersionControl(location.decisionsDirectory);
+    repository = await openVersionControl(decisionsDirectory);
   } catch (error) {
     return versionControlFailure(
       "open the version-controlled decision workspace",
@@ -77,32 +143,37 @@ export async function stageDecisionRecords(options: {
   }
   const decisionScope = decisionRepositoryScope(
     repository.rootDirectory,
-    location.decisionsDirectory
+    decisionsDirectory
   );
   if (decisionScope === null) {
     return decisionFailure([
       "Decision directory must be inside, and below the root of, its version-controlled " +
         "repository: " +
-        location.decisionsDirectory
+        decisionsDirectory
     ]);
   }
-  let expectedPendingFiles: VersionControlFile[];
-  let pendingRevision: RevisionId | null;
+  return { status: "ok", value: { decisionScope, repository } };
+}
+
+async function inspectPendingDecisionSnapshot(
+  repository: VersionControlRepository,
+  decisionScope: string
+): Promise<StageStep<PendingDecisionSnapshot>> {
   try {
-    pendingRevision = await repository.getCurrentRevision();
-    expectedPendingFiles = await repository.readPendingFiles({
+    const revision = await repository.getCurrentRevision();
+    const expectedFiles = await repository.readPendingFiles({
       pathScopes: [decisionScope]
     });
     const existingPending =
-      pendingRevision === null
+      revision === null
         ? []
         : await repository.listPendingChangedPaths({
-            from: pendingRevision,
+            from: revision,
             pathScopes: [decisionScope]
           });
     if (
       existingPending.length > 0 ||
-      (pendingRevision === null && expectedPendingFiles.length > 0)
+      (revision === null && expectedFiles.length > 0)
     ) {
       return decisionFailure([
         "Decision pending snapshot already contains files in " +
@@ -110,22 +181,20 @@ export async function stageDecisionRecords(options: {
           "; inspect or resolve it before staging another decision set."
       ]);
     }
+    return { status: "ok", value: { expectedFiles, revision } };
   } catch (error) {
     return versionControlFailure(
       "inspect the pending decision snapshot",
       error
     );
   }
+}
 
-  let target: DecisionStageTarget;
+async function constructDecisionStageTarget(
+  options: Parameters<typeof buildDecisionStageTarget>[0]
+): Promise<StageStep<DecisionStageTarget>> {
   try {
-    target = await buildDecisionStageTarget({
-      decisionsDirectory: location.decisionsDirectory,
-      decisionScope,
-      repository,
-      revision: pendingRevision,
-      selectedIds: selectedIds.value
-    });
+    return { status: "ok", value: await buildDecisionStageTarget(options) };
   } catch (error) {
     if (error instanceof DecisionStageInputError) {
       return stageInputFailure([error.message], 2);
@@ -149,12 +218,14 @@ export async function stageDecisionRecords(options: {
       error
     );
   }
-  if (target.sources.length === 0) {
-    return decisionFailure([
-      "Selected Decision IDs must produce at least one established decision"
-    ]);
-  }
+}
 
+async function prepareDecisionStageFiles(
+  location: ReturnType<typeof resolveDecisionLocation>,
+  decisionScope: string,
+  repository: VersionControlRepository,
+  target: DecisionStageTarget
+): Promise<StageStep<DecisionStageFiles>> {
   const indexPath = repositoryPath(decisionScope, decisionIndexFileName);
   const indexRelativePath = displayDecisionPath(
     location.workspaceRoot,
@@ -195,28 +266,30 @@ export async function stageDecisionRecords(options: {
       error
     );
   }
-  let pendingFileCount: number;
+  return { status: "ok", value: { files, indexRelativePath } };
+}
+
+async function replacePendingDecisionFiles(
+  repository: VersionControlRepository,
+  decisionScope: string,
+  expectedFiles: readonly VersionControlFile[],
+  revision: RevisionId | null,
+  files: readonly VersionControlFile[]
+): Promise<StageStep<number>> {
   try {
     const replaced = await repository.replacePendingFiles({
-      expectedFiles: expectedPendingFiles,
-      expectedRevision: target.revision,
+      expectedFiles,
+      expectedRevision: revision,
       files,
       pathScope: decisionScope
     });
-    pendingFileCount = replaced.pendingPaths.length;
+    return { status: "ok", value: replaced.pendingPaths.length };
   } catch (error) {
     return versionControlFailure(
       "replace the pending decision snapshot",
       error
     );
   }
-  return {
-    command: "stage",
-    indexRelativePath,
-    pendingFileCount,
-    selectedIds: selectedIds.value,
-    status: "ok"
-  };
 }
 
 type DecisionStageTarget = {
@@ -231,13 +304,17 @@ type SelectedFilesystemSource = {
   source: DecisionStageSource | null;
 };
 
-async function buildDecisionStageTarget(options: {
+type DecisionStageTargetOptions = Readonly<{
   decisionsDirectory: string;
   decisionScope: string;
   repository: VersionControlRepository;
   revision: RevisionId | null;
   selectedIds: readonly DecisionId[];
-}): Promise<DecisionStageTarget> {
+}>;
+
+async function buildDecisionStageTarget(
+  options: DecisionStageTargetOptions
+): Promise<DecisionStageTarget> {
   const baseline = await readDecisionBaseline({
     decisionsDirectory: options.decisionsDirectory,
     decisionScope: options.decisionScope,
@@ -247,55 +324,10 @@ async function buildDecisionStageTarget(options: {
   const sourceById = new Map(
     baseline.map((source) => [source.source.decisionId, source])
   );
-  let selectedSources: SelectedFilesystemSource[];
-  if (options.revision === null || baseline.length === 0) {
-    const filesystem = await readFilesystemDecisionSources(
-      options.decisionsDirectory,
-      options.decisionScope
-    );
-    selectedSources = options.selectedIds.map((decisionId) => ({
-      decisionId,
-      source: filesystem.get(decisionId) ?? null
-    }));
-    for (const selectedSource of selectedSources) {
-      if (selectedSource.source === null) {
-        throw new DecisionStageInputError(
-          "Selected Decision ID does not exist in the filesystem: " +
-            selectedSource.decisionId
-        );
-      }
-    }
-    for (const source of filesystem.values()) {
-      sourceById.set(source.source.decisionId, source);
-    }
-  } else {
-    selectedSources = await Promise.all(
-      options.selectedIds.map(async (decisionId) => ({
-        decisionId,
-        source: await readFilesystemDecisionSource(
-          options.decisionsDirectory,
-          options.decisionScope,
-          decisionId
-        )
-      }))
-    );
-    for (const selectedSource of selectedSources) {
-      if (
-        selectedSource.source === null &&
-        !sourceById.has(selectedSource.decisionId)
-      ) {
-        throw new DecisionStageInputError(
-          "Selected Decision ID does not exist in the revision or filesystem: " +
-            selectedSource.decisionId
-        );
-      }
-      if (selectedSource.source === null) {
-        sourceById.delete(selectedSource.decisionId);
-      } else {
-        sourceById.set(selectedSource.decisionId, selectedSource.source);
-      }
-    }
-  }
+  const selectedSources =
+    options.revision === null || baseline.length === 0
+      ? await mergeFilesystemDecisionSources(options, sourceById)
+      : await mergeSelectedDecisionSources(options, sourceById);
   const sources = [...sourceById.values()].sort((left, right) =>
     compareText(left.source.decisionId, right.source.decisionId)
   );
@@ -305,6 +337,65 @@ async function buildDecisionStageTarget(options: {
     sourceFiles: sources.map((source) => source.file),
     sources: sources.map((source) => source.source)
   };
+}
+
+async function mergeFilesystemDecisionSources(
+  options: DecisionStageTargetOptions,
+  sourceById: Map<DecisionId, DecisionStageSource>
+): Promise<SelectedFilesystemSource[]> {
+  const filesystem = await readFilesystemDecisionSources(
+    options.decisionsDirectory,
+    options.decisionScope
+  );
+  const selectedSources = options.selectedIds.map((decisionId) => ({
+    decisionId,
+    source: filesystem.get(decisionId) ?? null
+  }));
+  for (const selectedSource of selectedSources) {
+    if (selectedSource.source === null) {
+      throw new DecisionStageInputError(
+        "Selected Decision ID does not exist in the filesystem: " +
+          selectedSource.decisionId
+      );
+    }
+  }
+  for (const source of filesystem.values()) {
+    sourceById.set(source.source.decisionId, source);
+  }
+  return selectedSources;
+}
+
+async function mergeSelectedDecisionSources(
+  options: DecisionStageTargetOptions,
+  sourceById: Map<DecisionId, DecisionStageSource>
+): Promise<SelectedFilesystemSource[]> {
+  const selectedSources = await Promise.all(
+    options.selectedIds.map(async (decisionId) => ({
+      decisionId,
+      source: await readFilesystemDecisionSource(
+        options.decisionsDirectory,
+        options.decisionScope,
+        decisionId
+      )
+    }))
+  );
+  for (const selectedSource of selectedSources) {
+    if (
+      selectedSource.source === null &&
+      !sourceById.has(selectedSource.decisionId)
+    ) {
+      throw new DecisionStageInputError(
+        "Selected Decision ID does not exist in the revision or filesystem: " +
+          selectedSource.decisionId
+      );
+    }
+    if (selectedSource.source === null) {
+      sourceById.delete(selectedSource.decisionId);
+    } else {
+      sourceById.set(selectedSource.decisionId, selectedSource.source);
+    }
+  }
+  return selectedSources;
 }
 
 async function readDecisionBaseline(options: {

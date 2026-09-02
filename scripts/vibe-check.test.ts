@@ -2183,58 +2183,58 @@ test("function metrics requires exact Lizard before scanning or packaging", asyn
   });
 });
 
+function nativeCheckExclusions(
+  optionsById: ReadonlyMap<string, unknown>,
+  checkId: string
+): readonly string[] {
+  const options = optionsRecord(
+    optionsById.get(checkId),
+    `missing options for ${checkId}`
+  );
+  const directExclusions = stringArray(
+    optionsRecordOrNull(options.files)?.exclude
+  );
+  if (directExclusions !== null) return directExclusions;
+  const codeAreas = optionsRecord(
+    options.codeAreas,
+    `missing file selection for ${checkId}`
+  );
+  const maintained = optionsRecord(
+    codeAreas.maintained,
+    `missing maintained code area for ${checkId}`
+  );
+  const maintainedFiles = optionsRecord(
+    maintained.files,
+    `missing maintained file selection for ${checkId}`
+  );
+  return stringArray(maintainedFiles.exclude) ?? [];
+}
+
+function optionsRecord(value: unknown, error: string): Record<string, unknown> {
+  const record = optionsRecordOrNull(value);
+  if (record === null) throw new Error(error);
+  return record;
+}
+
+function optionsRecordOrNull(value: unknown): Record<string, unknown> | null {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function stringArray(value: unknown): string[] | null {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string")
+    : null;
+}
+
 test("native file selections exclude historical content and authoring candidates", () => {
   const checks = createVibeNativeChecks();
   const optionsById = new Map(
     checks.map((check) => [check.checkId, check.options])
   );
-  const exclusionsFor = (checkId: string): readonly string[] => {
-    const options = optionsById.get(checkId);
-    if (!options || typeof options !== "object" || Array.isArray(options)) {
-      throw new Error(`missing options for ${checkId}`);
-    }
-    const record = options as Record<string, unknown>;
-    const files = record.files;
-    if (files && typeof files === "object" && !Array.isArray(files)) {
-      const exclude = (files as Record<string, unknown>).exclude;
-      if (Array.isArray(exclude)) {
-        return exclude.filter(
-          (value): value is string => typeof value === "string"
-        );
-      }
-    }
-    const codeAreas = record.codeAreas;
-    if (
-      !codeAreas ||
-      typeof codeAreas !== "object" ||
-      Array.isArray(codeAreas)
-    ) {
-      throw new Error(`missing file selection for ${checkId}`);
-    }
-    const maintained = (codeAreas as Record<string, unknown>).maintained;
-    if (
-      !maintained ||
-      typeof maintained !== "object" ||
-      Array.isArray(maintained)
-    ) {
-      throw new Error(`missing maintained code area for ${checkId}`);
-    }
-    const maintainedFiles = (maintained as Record<string, unknown>).files;
-    if (
-      !maintainedFiles ||
-      typeof maintainedFiles !== "object" ||
-      Array.isArray(maintainedFiles)
-    ) {
-      throw new Error(`missing maintained file selection for ${checkId}`);
-    }
-    const exclude = (maintainedFiles as Record<string, unknown>).exclude;
-    return Array.isArray(exclude)
-      ? exclude.filter((value): value is string => typeof value === "string")
-      : [];
-  };
-
   for (const checkId of vibeNativeCheckIds) {
-    const exclusions = exclusionsFor(checkId);
+    const exclusions = nativeCheckExclusions(optionsById, checkId);
     for (const historicalExclusion of historicalContentExclusions) {
       assert.ok(
         exclusions.includes(historicalExclusion),
@@ -2243,7 +2243,7 @@ test("native file selections exclude historical content and authoring candidates
     }
   }
   for (const checkId of ["json-validation", "markdown-link-validation"]) {
-    const exclusions = exclusionsFor(checkId);
+    const exclusions = nativeCheckExclusions(optionsById, checkId);
     for (const candidateExclusion of investigationAuthoringDocumentExclusions) {
       assert.ok(
         exclusions.includes(candidateExclusion),

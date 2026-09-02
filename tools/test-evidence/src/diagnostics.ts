@@ -56,14 +56,35 @@ function compareDiagnostics(
   left: TestEvidenceDiagnostic,
   right: TestEvidenceDiagnostic
 ): number {
-  return (
-    compareText(left.path ?? "", right.path ?? "") ||
-    (left.line ?? 0) - (right.line ?? 0) ||
-    (left.column ?? 0) - (right.column ?? 0) ||
-    compareText(left.severity, right.severity) ||
-    compareText(left.code, right.code) ||
-    compareText(left.message, right.message)
-  );
+  const leftKey = diagnosticSortKey(left);
+  const rightKey = diagnosticSortKey(right);
+  const comparisons = [
+    compareText(leftKey.path, rightKey.path),
+    leftKey.line - rightKey.line,
+    leftKey.column - rightKey.column,
+    compareText(leftKey.severity, rightKey.severity),
+    compareText(leftKey.code, rightKey.code),
+    compareText(leftKey.message, rightKey.message)
+  ];
+  return comparisons.find((comparison) => comparison !== 0) ?? 0;
+}
+
+function diagnosticSortKey(diagnostic: TestEvidenceDiagnostic): Readonly<{
+  code: string;
+  column: number;
+  line: number;
+  message: string;
+  path: string;
+  severity: TestEvidenceDiagnosticSeverity;
+}> {
+  return {
+    code: diagnostic.code,
+    column: diagnostic.column ?? 0,
+    line: diagnostic.line ?? 0,
+    message: diagnostic.message,
+    path: diagnostic.path ?? "",
+    severity: diagnostic.severity
+  };
 }
 
 function compareText(left: string, right: string): number {

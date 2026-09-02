@@ -14,7 +14,7 @@ import {
   parseDecisionIndex
 } from "./decision-state-index.ts";
 import { establishedDecisionMetadataFromSource } from "./decision-metadata.ts";
-import { validateDecisionBody } from "./record.ts";
+import { validateDecisionBody, type ValidatedDecisionBody } from "./record.ts";
 import { decisionRelationConsistencyIssues } from "./relation-graph.ts";
 import {
   compareDecisionRecords,
@@ -50,6 +50,19 @@ type LoadedDecisionIndex = {
   indexExists: boolean;
   indexText: string;
 };
+
+type ScannedSourceState = Pick<
+  DecisionRecord,
+  "activationCandidate" | "bodyReady" | "document" | "scaffoldValid" | "source"
+>;
+type CandidateSourceState = Pick<
+  ScannedSourceState,
+  "activationCandidate" | "bodyReady" | "scaffoldValid"
+>;
+type ScannedSourceMetadata = Pick<
+  DecisionRecord,
+  "alignment" | "createdAt" | "projection" | "status" | "tags"
+>;
 
 const allowedRootFiles = new Set([decisionIndexFileName]);
 
@@ -436,7 +449,69 @@ async function scanSourceFile(
     sourcePath: sourceFile.sourcePath,
     targetExists: (targetId) => context.availableDecisionIds.has(targetId)
   });
+  const sourceState = scannedSourceState(
+    sourceFile,
+    sourceText,
+    sourceDocument,
+    indexEntry,
+    recordErrors
+  );
+  validateSourceIndexEntry(
+    sourceFile,
+    sourceState.document,
+    indexEntry,
+    context
+  );
+  context.sourceErrors.push(...recordErrors);
+  return scannedDecisionRecord(
+    sourceFile,
+    sourceDocument,
+    sourceState,
+    indexEntry
+  );
+}
+
+function scannedSourceState(
+  sourceFile: SourceFile,
+  sourceText: string,
+  sourceDocument: ValidatedDecisionBody | null,
+  indexEntry: DecisionStoredIndexEntry | null,
+  recordErrors: string[]
+): ScannedSourceState {
   const validDecisionId = isDecisionId(sourceFile.decisionId);
+  validateSourceLocation(
+    sourceFile,
+    sourceDocument,
+    validDecisionId,
+    recordErrors
+  );
+  const candidate = candidateSourceState(
+    sourceFile,
+    sourceDocument,
+    validDecisionId,
+    indexEntry,
+    recordErrors
+  );
+  const document = establishedSourceDocument(sourceDocument, recordErrors);
+  return {
+    ...candidate,
+    document,
+    source: classifyDecisionSource(
+      sourceText,
+      sourceDocument,
+      document,
+      candidate.scaffoldValid,
+      recordErrors
+    )
+  };
+}
+
+function validateSourceLocation(
+  sourceFile: SourceFile,
+  sourceDocument: ValidatedDecisionBody | null,
+  validDecisionId: boolean,
+  recordErrors: string[]
+): void {
   const expectedSourcePath =
     sourceDocument === null || !validDecisionId
       ? null
@@ -446,6 +521,15 @@ async function scanSourceFile(
       sourceFile.sourcePath + " status must match its physical sourcePath"
     );
   }
+}
+
+function candidateSourceState(
+  sourceFile: SourceFile,
+  sourceDocument: ValidatedDecisionBody | null,
+  validDecisionId: boolean,
+  indexEntry: DecisionStoredIndexEntry | null,
+  recordErrors: string[]
+): CandidateSourceState {
   const scaffoldValid =
     validDecisionId &&
     recordErrors.length === 0 &&
@@ -462,46 +546,69 @@ async function scanSourceFile(
         "current-format Decision scaffold"
     );
   }
+  return { activationCandidate, bodyReady, scaffoldValid };
+}
 
+function establishedSourceDocument(
+  sourceDocument: ValidatedDecisionBody | null,
+  recordErrors: readonly string[]
+): DecisionRecord["document"] {
   const establishedMetadata =
     sourceDocument === null
       ? null
       : establishedDecisionMetadataFromSource(sourceDocument);
-  const document =
-    recordErrors.length === 0 &&
+  return recordErrors.length === 0 &&
     sourceDocument !== null &&
     establishedMetadata !== null
-      ? {
-          ...selectProjection(sourceDocument),
-          tags: [...sourceDocument.tags],
-          ...establishedMetadata
-        }
-      : null;
-  const source =
-    recordErrors.length > 0 || sourceDocument === null
-      ? { kind: "invalid" as const, text: sourceText }
-      : scaffoldValid
-        ? {
-            body: sourceDocument.body,
-            document: {
-              ...selectProjection(sourceDocument),
-              tags: [...sourceDocument.tags],
-              alignment: null,
-              createdAt: null,
-              status: "candidate" as const
-            },
-            kind: "candidate" as const,
-            text: sourceText
-          }
-        : document === null
-          ? { kind: "invalid" as const, text: sourceText }
-          : {
-              body: sourceDocument.body,
-              document,
-              kind: "established" as const,
-              text: sourceText
-            };
+    ? {
+        ...selectProjection(sourceDocument),
+        tags: [...sourceDocument.tags],
+        ...establishedMetadata
+      }
+    : null;
+}
 
+function classifyDecisionSource(
+  sourceText: string,
+  sourceDocument: ValidatedDecisionBody | null,
+  document: DecisionRecord["document"],
+  scaffoldValid: boolean,
+  recordErrors: readonly string[]
+): DecisionRecord["source"] {
+  return recordErrors.length > 0 || sourceDocument === null
+    ? { kind: "invalid" as const, text: sourceText }
+    : scaffoldValid
+      ? {
+          body: sourceDocument.body,
+          document: {
+            ...selectProjection(sourceDocument),
+            tags: [...sourceDocument.tags],
+            alignment: null,
+            createdAt: null,
+            status: "candidate" as const
+          },
+          kind: "candidate" as const,
+          text: sourceText
+        }
+      : document === null
+        ? { kind: "invalid" as const, text: sourceText }
+        : {
+            body: sourceDocument.body,
+            document,
+            kind: "established" as const,
+            text: sourceText
+          };
+}
+
+function validateSourceIndexEntry(
+  sourceFile: SourceFile,
+  document: DecisionRecord["document"],
+  indexEntry: DecisionStoredIndexEntry | null,
+  context: {
+    indexErrors: string[];
+    indexRelativePath: string;
+  }
+): void {
   if (document !== null && indexEntry === null) {
     context.indexErrors.push(
       unindexedDecisionError(context.indexRelativePath, sourceFile.decisionId)
@@ -518,28 +625,56 @@ async function scanSourceFile(
         sourceFile.decisionId
     );
   }
-  context.sourceErrors.push(...recordErrors);
+}
+
+function scannedDecisionRecord(
+  sourceFile: SourceFile,
+  sourceDocument: ValidatedDecisionBody | null,
+  sourceState: ScannedSourceState,
+  indexEntry: DecisionStoredIndexEntry | null
+): DecisionRecord {
+  const metadata = scannedSourceMetadata(sourceDocument, indexEntry);
   return {
-    activationCandidate,
-    bodyReady,
-    scaffoldValid,
-    alignment: sourceDocument?.alignment ?? null,
-    createdAt: sourceDocument?.createdAt ?? null,
+    activationCandidate: sourceState.activationCandidate,
+    bodyReady: sourceState.bodyReady,
+    scaffoldValid: sourceState.scaffoldValid,
+    alignment: metadata.alignment,
+    createdAt: metadata.createdAt,
     decisionId: sourceFile.decisionId,
     decisionPath: sourceFile.decisionPath,
-    document,
+    document: sourceState.document,
     markdownExists: true,
-    projection:
-      sourceDocument === null
-        ? indexEntry === null
-          ? emptyDecisionProjection()
-          : selectProjection(indexEntry.state)
-        : selectProjection(sourceDocument),
+    projection: metadata.projection,
     relationshipErrors: [],
-    source,
+    source: sourceState.source,
     sourcePath: sourceFile.sourcePath,
-    status: sourceDocument?.status ?? null,
-    tags: sourceDocument?.tags ?? indexEntry?.state.tags ?? []
+    status: metadata.status,
+    tags: metadata.tags
+  };
+}
+
+function scannedSourceMetadata(
+  sourceDocument: ValidatedDecisionBody | null,
+  indexEntry: DecisionStoredIndexEntry | null
+): ScannedSourceMetadata {
+  if (sourceDocument !== null) {
+    return {
+      alignment: sourceDocument.alignment,
+      createdAt: sourceDocument.createdAt,
+      projection: selectProjection(sourceDocument),
+      status: sourceDocument.status,
+      tags: sourceDocument.tags
+    };
+  }
+  return {
+    alignment: null,
+    createdAt: null,
+    projection:
+      indexEntry === null
+        ? emptyDecisionProjection()
+        : selectProjection(indexEntry.state),
+    status: null,
+    tags: indexEntry?.state.tags ?? []
   };
 }
 

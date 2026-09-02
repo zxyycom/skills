@@ -80,6 +80,19 @@ async function createLockedDecisionCandidate(
   request: NewDecisionCandidateRequest
 ): Promise<NewDecisionCandidateResult> {
   const scan = await scanDecisionRecords(request);
+  const validationFailure = validateCandidateCreationRequest(scan, request);
+  if (validationFailure !== null) return validationFailure;
+
+  return await publishCandidateCreation(
+    request,
+    path.join(scan.decisionsDirectory, request.decisionId)
+  );
+}
+
+function validateCandidateCreationRequest(
+  scan: Awaited<ReturnType<typeof scanDecisionRecords>>,
+  request: NewDecisionCandidateRequest
+): NewDecisionCandidateResult | null {
   if (
     !scan.decisionsDirectoryAvailable ||
     scan.collectionErrors.length > 0 ||
@@ -115,6 +128,13 @@ async function createLockedDecisionCandidate(
       })
     );
   }
+  return candidateRelationFailure(scan, request);
+}
+
+function candidateRelationFailure(
+  scan: Awaited<ReturnType<typeof scanDecisionRecords>>,
+  request: NewDecisionCandidateRequest
+): NewDecisionCandidateResult | null {
   for (const relation of request.relations) {
     if (relation.target === request.decisionId) {
       return creationFailure(
@@ -144,8 +164,13 @@ async function createLockedDecisionCandidate(
       );
     }
   }
+  return null;
+}
 
-  const decisionPath = path.join(scan.decisionsDirectory, request.decisionId);
+async function publishCandidateCreation(
+  request: NewDecisionCandidateRequest,
+  decisionPath: string
+): Promise<NewDecisionCandidateResult> {
   const markdown = candidateScaffoldMarkdown(request);
   let published: CandidatePublication;
   try {

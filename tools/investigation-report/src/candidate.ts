@@ -50,7 +50,8 @@ import type {
   InvestigationCandidateListResult,
   InvestigationCandidateShowOptions,
   InvestigationCandidateShowResult,
-  InvestigationRelation
+  InvestigationRelation,
+  InvestigationSource
 } from "./types.ts";
 
 type PreparedCandidateCreate = Readonly<{
@@ -211,11 +212,27 @@ async function createCandidateWithinLock(
     investigationsDirectory,
     candidate.id
   );
+  return createdCandidateResult(
+    candidate.id,
+    target,
+    markdown,
+    written.value.warnings,
+    read
+  );
+}
+
+function createdCandidateResult(
+  id: string,
+  target: string,
+  markdown: string,
+  writeWarnings: readonly string[],
+  read: Awaited<ReturnType<typeof readInvestigationCandidate>>
+): InvestigationCandidateCreateResult {
   if (read.status === "error") {
     const unreadableCandidate: InvestigationCandidate = {
       diagnostics: read.diagnostics,
       errors: read.errors,
-      id: candidate.id,
+      id,
       markdown,
       path: target,
       readiness: {
@@ -231,7 +248,7 @@ async function createCandidateWithinLock(
       diagnostics: [],
       errors: [],
       status: "ok",
-      warnings: uniqueSorted([...written.value.warnings, ...read.errors])
+      warnings: uniqueSorted([...writeWarnings, ...read.errors])
     };
   }
   return {
@@ -240,7 +257,7 @@ async function createCandidateWithinLock(
     diagnostics: [],
     errors: [],
     status: "ok",
-    warnings: uniqueSorted([...written.value.warnings, ...read.value.errors])
+    warnings: uniqueSorted([...writeWarnings, ...read.value.errors])
   };
 }
 
@@ -291,29 +308,9 @@ export async function readInvestigationCandidate(
     }>
 > {
   const target = candidatePathForInvestigationId(investigationsDirectory, id);
-  let markdown: string;
-  try {
-    const entry = await fs.lstat(target);
-    if (entry.isSymbolicLink() || !entry.isFile()) {
-      throw new Error("candidate must be a regular non-symbolic-link file");
-    }
-    markdown = await fs.readFile(target, "utf8");
-  } catch (error) {
-    return {
-      diagnostics: [
-        diagnosticFromError({
-          code: "investigation-report.candidate-read-failed",
-          error,
-          reason: "the selected investigation candidate could not be read",
-          recovery:
-            "restore read access to the candidate, then retry the query",
-          target
-        })
-      ],
-      errors: [`${id} investigation candidate could not be read`],
-      status: "error"
-    };
-  }
+  const read = await readCandidateMarkdown(target, id);
+  if (read.status === "error") return read;
+  const markdown = read.markdown;
   const scaffold = parseInvestigationReport(markdown, id, {
     allowEmptyCoreSections: true
   });
@@ -322,42 +319,12 @@ export async function readInvestigationCandidate(
     ...scaffold.frontmatterErrors,
     ...scaffold.bodyErrors
   ]);
-  const resourceErrors = [...scaffold.resourceErrors];
-  if (scaffoldErrors.length === 0 && scaffold.report !== null) {
-    try {
-      const references = await readCandidateAuthoringResourceReferences(
-        investigationsDirectory
-      );
-      resourceErrors.push(
-        ...(await validateCandidateInvestigationResources(
-          investigationsDirectory,
-          scaffold.report.resourceIds,
-          references
-        ))
-      );
-      const ownerPrefix = `${id.slice(0, -".md".length)}/`;
-      const fullResources = await validateFullInvestigationResources(
-        investigationsDirectory,
-        references
-      );
-      resourceErrors.push(
-        ...fullResources.warnings
-          .filter((warning) =>
-            warning.startsWith(
-              `${investigationResourcesDirectoryName}/${ownerPrefix}`
-            )
-          )
-          .map(
-            (warning) =>
-              `candidate owner resources must be directly referenced before publish: ${warning}`
-          )
-      );
-    } catch (error) {
-      resourceErrors.push(
-        `candidate resource ownership could not be inspected: ${errorText(error)}`
-      );
-    }
-  }
+  const resourceErrors = await candidateResourceErrors(
+    investigationsDirectory,
+    id,
+    scaffold,
+    scaffoldErrors
+  );
   const bodyErrors = full.bodyErrors;
   const errors = uniqueSorted([
     ...scaffoldErrors,
@@ -384,6 +351,85 @@ export async function readInvestigationCandidate(
   };
 }
 
+type CandidateReadFailure = Readonly<{
+  diagnostics: InvestigationDiagnostic[];
+  errors: string[];
+  status: "error";
+}>;
+
+async function readCandidateMarkdown(
+  target: string,
+  id: string
+): Promise<CandidateReadFailure | { markdown: string; status: "ok" }> {
+  try {
+    const entry = await fs.lstat(target);
+    if (entry.isSymbolicLink() || !entry.isFile()) {
+      throw new Error("candidate must be a regular non-symbolic-link file");
+    }
+    return { markdown: await fs.readFile(target, "utf8"), status: "ok" };
+  } catch (error) {
+    return {
+      diagnostics: [
+        diagnosticFromError({
+          code: "investigation-report.candidate-read-failed",
+          error,
+          reason: "the selected investigation candidate could not be read",
+          recovery:
+            "restore read access to the candidate, then retry the query",
+          target
+        })
+      ],
+      errors: [`${id} investigation candidate could not be read`],
+      status: "error"
+    };
+  }
+}
+
+async function candidateResourceErrors(
+  investigationsDirectory: string,
+  id: string,
+  scaffold: ReturnType<typeof parseInvestigationReport>,
+  scaffoldErrors: readonly string[]
+): Promise<string[]> {
+  const resourceErrors = [...scaffold.resourceErrors];
+  if (scaffoldErrors.length > 0 || scaffold.report === null)
+    return resourceErrors;
+  try {
+    const references = await readCandidateAuthoringResourceReferences(
+      investigationsDirectory
+    );
+    resourceErrors.push(
+      ...(await validateCandidateInvestigationResources(
+        investigationsDirectory,
+        scaffold.report.resourceIds,
+        references
+      ))
+    );
+    const ownerPrefix = `${id.slice(0, -".md".length)}/`;
+    const fullResources = await validateFullInvestigationResources(
+      investigationsDirectory,
+      references
+    );
+    resourceErrors.push(
+      ...fullResources.warnings
+        .filter((warning) =>
+          warning.startsWith(
+            `${investigationResourcesDirectoryName}/${ownerPrefix}`
+          )
+        )
+        .map(
+          (warning) =>
+            `candidate owner resources must be directly referenced before publish: ${warning}`
+        )
+    );
+  } catch (error) {
+    resourceErrors.push(
+      `candidate resource ownership could not be inspected: ${errorText(error)}`
+    );
+  }
+  return resourceErrors;
+}
+
 export async function readCandidateAuthoringResourceReferences(
   investigationsDirectory: string,
   options: Readonly<{ failOnInvalidSources?: boolean }> = {}
@@ -397,51 +443,77 @@ export async function readCandidateAuthoringResourceReferences(
     investigationsDirectory,
     layout.reportIds
   );
+  recordFormalAuthoringReferences(
+    sources,
+    references,
+    options.failOnInvalidSources === true
+  );
+  for (const id of layout.candidateIds) {
+    await recordCandidateAuthoringReferences(
+      investigationsDirectory,
+      id,
+      references,
+      options.failOnInvalidSources === true
+    );
+  }
+  return references;
+}
+
+function recordFormalAuthoringReferences(
+  sources: readonly InvestigationSource[],
+  references: Map<string, ReadonlySet<string>>,
+  failOnInvalidSources: boolean
+): void {
   for (const source of sources) {
-    const parsed = parseInvestigationReport(source.text, source.id);
-    const built = buildInvestigationReportState(source.id, parsed);
+    const built = buildInvestigationReportState(
+      source.id,
+      parseInvestigationReport(source.text, source.id)
+    );
     if (built.status === "valid") {
       references.set(source.id, new Set(built.state.resourceIds));
-    } else if (options.failOnInvalidSources === true) {
+    } else if (failOnInvalidSources) {
       throw new Error(
         `${source.id} authoring resource references could not be safely read`
       );
     }
   }
-  for (const id of layout.candidateIds) {
-    try {
-      const candidatePath = candidatePathForInvestigationId(
-        investigationsDirectory,
-        id
-      );
-      const entry = await fs.lstat(candidatePath);
-      if (entry.isSymbolicLink() || !entry.isFile()) {
-        throw new Error("candidate must be a regular non-symbolic-link file");
-      }
-      const markdown = await fs.readFile(candidatePath, "utf8");
-      const parsed = parseInvestigationReport(markdown, id, {
-        allowEmptyCoreSections: true
-      });
-      if (parsed.report !== null && parsed.errors.length === 0) {
-        references.set(id, new Set(parsed.report.resourceIds));
-      } else if (options.failOnInvalidSources === true) {
-        throw new Error(
-          "candidate must have a valid scaffold and resource links"
-        );
-      }
-    } catch (error) {
-      if (options.failOnInvalidSources === true) {
-        throw new Error(
-          `${id} authoring resource references could not be safely read`,
-          { cause: error }
-        );
-      }
-      // Default and candidate readiness checks keep a candidate read failure as
-      // a candidate diagnostic; it cannot turn an unrelated formal source into
-      // a valid owner assertion.
+}
+
+async function recordCandidateAuthoringReferences(
+  investigationsDirectory: string,
+  id: string,
+  references: Map<string, ReadonlySet<string>>,
+  failOnInvalidSources: boolean
+): Promise<void> {
+  try {
+    const candidatePath = candidatePathForInvestigationId(
+      investigationsDirectory,
+      id
+    );
+    const entry = await fs.lstat(candidatePath);
+    if (entry.isSymbolicLink() || !entry.isFile()) {
+      throw new Error("candidate must be a regular non-symbolic-link file");
     }
+    const markdown = await fs.readFile(candidatePath, "utf8");
+    const parsed = parseInvestigationReport(markdown, id, {
+      allowEmptyCoreSections: true
+    });
+    if (parsed.report !== null && parsed.errors.length === 0) {
+      references.set(id, new Set(parsed.report.resourceIds));
+    } else if (failOnInvalidSources) {
+      throw new Error(
+        "candidate must have a valid scaffold and resource links"
+      );
+    }
+  } catch (error) {
+    if (failOnInvalidSources) {
+      throw new Error(
+        `${id} authoring resource references could not be safely read`,
+        { cause: error }
+      );
+    }
+    // Read failures remain candidate diagnostics and cannot assert ownership.
   }
-  return references;
 }
 
 export function serializeInvestigationCandidate(

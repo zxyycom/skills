@@ -26,6 +26,18 @@ type ChecklistCandidate = {
   lineIndex: number;
 };
 
+type TaskValidationContext = {
+  completedTaskCount: number;
+  contract: ArtifactStructureContract;
+  diagnostics: ChangePlanDiagnostic[];
+  h2: readonly RootHeading[];
+  seenTaskIds: Map<string, number>;
+  taskCount: number;
+  taskCounts: Map<ChangePlanTaskHeading, number>;
+  taskProgress: ChangePlanTaskProgress;
+  taskSections: ReadonlySet<ChangePlanTaskHeading>;
+};
+
 const taskLinePrefixPattern = /^- \[[^\]]*\]/u;
 const taskLinePattern =
   /^- \[([ xX])\] ([0-9]+\.[0-9]+(?:\.[0-9]+)*) (.+\S|\S)$/u;
@@ -124,8 +136,7 @@ function diagnostic(
   };
 }
 
-function validateHeadings(
-  root: MarkdownRoot,
+function validateH1(
   lines: readonly string[],
   headings: readonly RootHeading[],
   contract: ArtifactStructureContract,
@@ -148,7 +159,14 @@ function validateHeadings(
       )
     );
   }
+  return h1;
+}
 
+function validateRequiredSections(
+  headings: readonly RootHeading[],
+  contract: ArtifactStructureContract,
+  diagnostics: ChangePlanDiagnostic[]
+): RootHeading[] {
   const h2 = headings.filter((heading) => heading.depth === 2);
   for (const [index, title] of contract.requiredSections.entries()) {
     const matches = h2.filter((heading) => heading.title === title);
@@ -187,24 +205,42 @@ function validateHeadings(
       );
     }
   }
+  return h2;
+}
 
-  const firstH2 = h2[0];
+function validateIntroduction(
+  root: MarkdownRoot,
+  h1: readonly RootHeading[],
+  h2: readonly RootHeading[],
+  contract: ArtifactStructureContract,
+  diagnostics: ChangePlanDiagnostic[]
+): void {
   const firstH1 = h1[0];
+  const firstH2 = h2[0];
   if (
-    firstH1 !== undefined &&
-    firstH2 !== undefined &&
-    !hasSemanticContent(root, firstH1.lineIndex + 1, firstH2.lineIndex)
+    firstH1 === undefined ||
+    firstH2 === undefined ||
+    hasSemanticContent(root, firstH1.lineIndex + 1, firstH2.lineIndex)
   ) {
-    diagnostics.push(
-      diagnostic(
-        contract.file,
-        "empty-introduction",
-        "artifact must contain a non-empty change summary between H1 and the first H2",
-        firstH1.lineIndex + 1
-      )
-    );
+    return;
   }
+  diagnostics.push(
+    diagnostic(
+      contract.file,
+      "empty-introduction",
+      "artifact must contain a non-empty change summary between H1 and the first H2",
+      firstH1.lineIndex + 1
+    )
+  );
+}
 
+function validateSectionContents(
+  root: MarkdownRoot,
+  lines: readonly string[],
+  h2: readonly RootHeading[],
+  contract: ArtifactStructureContract,
+  diagnostics: ChangePlanDiagnostic[]
+): void {
   for (const title of contract.requiredSections) {
     const section = h2.find((heading) => heading.title === title);
     if (section === undefined) {
@@ -223,7 +259,19 @@ function validateHeadings(
       );
     }
   }
+}
 
+function validateHeadings(
+  root: MarkdownRoot,
+  lines: readonly string[],
+  headings: readonly RootHeading[],
+  contract: ArtifactStructureContract,
+  diagnostics: ChangePlanDiagnostic[]
+): RootHeading[] {
+  const h1 = validateH1(lines, headings, contract, diagnostics);
+  const h2 = validateRequiredSections(headings, contract, diagnostics);
+  validateIntroduction(root, h1, h2, contract, diagnostics);
+  validateSectionContents(root, lines, h2, contract, diagnostics);
   return h2;
 }
 
@@ -352,6 +400,96 @@ function isTaskHeading(
   );
 }
 
+function recordTaskCandidate(
+  candidate: ChecklistCandidate,
+  context: TaskValidationContext
+): void {
+  const section = context.h2.findLast(
+    (heading) => heading.lineIndex < candidate.lineIndex
+  )?.title;
+  if (section === undefined || !isTaskHeading(section, context.taskSections)) {
+    context.diagnostics.push(
+      diagnostic(
+        context.contract.file,
+        "task-outside-required-section",
+        "checklist tasks must be inside Readiness, Implementation, or Verification",
+        candidate.lineIndex + 1
+      )
+    );
+    return;
+  }
+
+  const match = taskLinePattern.exec(candidate.line);
+  if (match === null) {
+    context.diagnostics.push(
+      diagnostic(
+        context.contract.file,
+        "invalid-task-syntax",
+        "task must use '- [ ] <numeric-id> <description>' or '- [x] <numeric-id> <description>'",
+        candidate.lineIndex + 1
+      )
+    );
+    return;
+  }
+
+  const completedMarker = match[1];
+  const taskId = match[2];
+  if (completedMarker === undefined || taskId === undefined) {
+    return;
+  }
+  recordTaskId(taskId, candidate.lineIndex + 1, context);
+  recordTaskProgress(section, completedMarker, context);
+}
+
+function recordTaskId(
+  taskId: string,
+  line: number,
+  context: TaskValidationContext
+): void {
+  const previousLine = context.seenTaskIds.get(taskId);
+  if (previousLine === undefined) {
+    context.seenTaskIds.set(taskId, line);
+  } else {
+    context.diagnostics.push(
+      diagnostic(
+        context.contract.file,
+        "duplicate-task-id",
+        `task id ${taskId} duplicates line ${previousLine}`,
+        line
+      )
+    );
+  }
+}
+
+function recordTaskProgress(
+  section: ChangePlanTaskHeading,
+  completedMarker: string,
+  context: TaskValidationContext
+): void {
+  context.taskCounts.set(section, (context.taskCounts.get(section) ?? 0) + 1);
+  const progress = context.taskProgress[taskSectionByHeading[section]];
+  progress.taskCount += 1;
+  context.taskCount += 1;
+  if (completedMarker.toLowerCase() === "x") {
+    progress.completedTaskCount += 1;
+    context.completedTaskCount += 1;
+  }
+}
+
+function reportMissingTasks(context: TaskValidationContext): void {
+  for (const section of context.taskSections) {
+    if ((context.taskCounts.get(section) ?? 0) === 0) {
+      context.diagnostics.push(
+        diagnostic(
+          context.contract.file,
+          "missing-task",
+          `"## ${section}" must contain at least one valid checklist task`
+        )
+      );
+    }
+  }
+}
+
 function validateTasks(
   root: MarkdownRoot,
   lines: readonly string[],
@@ -363,84 +501,28 @@ function validateTasks(
   "completedTaskCount" | "taskCount" | "taskProgress"
 > {
   const taskSections = new Set(contract.taskSections ?? []);
-  const taskCounts = new Map<ChangePlanTaskHeading, number>(
-    [...taskSections].map((title) => [title, 0])
-  );
-  const taskProgress = emptyTaskProgress();
-  const seenTaskIds = new Map<string, number>();
-  let completedTaskCount = 0;
-  let taskCount = 0;
+  const context: TaskValidationContext = {
+    completedTaskCount: 0,
+    contract,
+    diagnostics,
+    h2,
+    seenTaskIds: new Map(),
+    taskCount: 0,
+    taskCounts: new Map([...taskSections].map((title) => [title, 0])),
+    taskProgress: emptyTaskProgress(),
+    taskSections
+  };
 
   for (const candidate of checklistCandidates(root, lines)) {
-    const section = h2.findLast(
-      (heading) => heading.lineIndex < candidate.lineIndex
-    )?.title;
-    if (section === undefined || !isTaskHeading(section, taskSections)) {
-      diagnostics.push(
-        diagnostic(
-          contract.file,
-          "task-outside-required-section",
-          "checklist tasks must be inside Readiness, Implementation, or Verification",
-          candidate.lineIndex + 1
-        )
-      );
-      continue;
-    }
-
-    const match = taskLinePattern.exec(candidate.line);
-    if (match === null) {
-      diagnostics.push(
-        diagnostic(
-          contract.file,
-          "invalid-task-syntax",
-          "task must use '- [ ] <numeric-id> <description>' or '- [x] <numeric-id> <description>'",
-          candidate.lineIndex + 1
-        )
-      );
-      continue;
-    }
-
-    const completedMarker = match[1];
-    const taskId = match[2];
-    if (completedMarker === undefined || taskId === undefined) {
-      continue;
-    }
-    const previousLine = seenTaskIds.get(taskId);
-    if (previousLine !== undefined) {
-      diagnostics.push(
-        diagnostic(
-          contract.file,
-          "duplicate-task-id",
-          `task id ${taskId} duplicates line ${previousLine}`,
-          candidate.lineIndex + 1
-        )
-      );
-    } else {
-      seenTaskIds.set(taskId, candidate.lineIndex + 1);
-    }
-    taskCounts.set(section, (taskCounts.get(section) ?? 0) + 1);
-    const progress = taskProgress[taskSectionByHeading[section]];
-    progress.taskCount += 1;
-    taskCount += 1;
-    if (completedMarker.toLowerCase() === "x") {
-      progress.completedTaskCount += 1;
-      completedTaskCount += 1;
-    }
+    recordTaskCandidate(candidate, context);
   }
+  reportMissingTasks(context);
 
-  for (const section of taskSections) {
-    if ((taskCounts.get(section) ?? 0) === 0) {
-      diagnostics.push(
-        diagnostic(
-          contract.file,
-          "missing-task",
-          `"## ${section}" must contain at least one valid checklist task`
-        )
-      );
-    }
-  }
-
-  return { completedTaskCount, taskCount, taskProgress };
+  return {
+    completedTaskCount: context.completedTaskCount,
+    taskCount: context.taskCount,
+    taskProgress: context.taskProgress
+  };
 }
 
 export function validateChangePlanArtifact(

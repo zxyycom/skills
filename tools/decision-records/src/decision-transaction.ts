@@ -81,80 +81,13 @@ export async function applyLockedDecisionChanges(options: {
   originalScan: DecisionScan;
   scanOptions: DecisionScanOptions;
 }): Promise<DecisionTransactionResult> {
-  const { changes, originalScan, scanOptions } = options;
+  const { changes, originalScan } = options;
   const preflight = await preflightDecisionChanges(changes, originalScan);
   if (preflight.errors.length > 0) {
     return transactionFailure(preflight.errors, "no-change");
   }
   try {
-    let changed = false;
-    for (const change of changes) {
-      changed =
-        (await applyDecisionChange(change, preflight.createdTargetPaths)) ||
-        changed;
-    }
-    const candidateScan = await scanDecisionRecords(scanOptions);
-    const hasEstablishedDecision = candidateScan.records.some(
-      (record) => record.markdownExists && record.document !== null
-    );
-    const sourceValidation = await validateDecisionScan(candidateScan, {
-      allowEmptyDecisionSet: !hasEstablishedDecision,
-      checkIndexText: false,
-      scanErrorPolicy: "source-only"
-    });
-    if (sourceValidation.errors.length > 0) {
-      return await recoveredTransactionFailure(
-        sourceValidation.errors,
-        originalScan,
-        preflight
-      );
-    }
-
-    if (!hasEstablishedDecision) {
-      await fs.rm(candidateScan.indexPath, { force: true });
-      changed = candidateScan.indexExists || changed;
-    } else {
-      const selection = selectEstablishedDecisionIds(candidateScan);
-      if (selection.errors.length > 0) {
-        return await recoveredTransactionFailure(
-          selection.errors,
-          originalScan,
-          preflight
-        );
-      }
-      const synchronized = await syncDecisionIndex({
-        decisionsDirectory: candidateScan.decisionsDirectory,
-        indexPath: decisionIndexFileName,
-        mode: "write",
-        decisionIds: selection.decisionIds
-      });
-      if (synchronized.status === "error") {
-        return await recoveredTransactionFailure(
-          decisionIndexDiagnostics(synchronized.diagnostics, {
-            code: "decision-records.transaction-failed",
-            recovery:
-              "Inspect the decision files and derived index, then retry the command.",
-            target: candidateScan.indexRelativePath
-          }),
-          originalScan,
-          preflight
-        );
-      }
-      changed = synchronized.state === "written" || changed;
-    }
-
-    const validationScan = await scanDecisionRecords(scanOptions);
-    const validation = await validateDecisionScan(validationScan, {
-      allowEmptyDecisionSet: !hasEstablishedDecision
-    });
-    if (validation.errors.length > 0) {
-      return await recoveredTransactionFailure(
-        validation.errors,
-        originalScan,
-        preflight
-      );
-    }
-    return { changed, diagnostics: [], errors: [], status: "ok" };
+    return await applyPreflightedDecisionChanges(options, preflight);
   } catch (error) {
     return await recoveredTransactionFailure(
       [
@@ -168,6 +101,128 @@ export async function applyLockedDecisionChanges(options: {
       preflight
     );
   }
+}
+
+async function applyPreflightedDecisionChanges(
+  options: {
+    changes: readonly DecisionFileChange[];
+    originalScan: DecisionScan;
+    scanOptions: DecisionScanOptions;
+  },
+  preflight: DecisionChangePreflight
+): Promise<DecisionTransactionResult> {
+  let changed = await applyPreflightDecisionChanges(
+    options.changes,
+    preflight.createdTargetPaths
+  );
+  const candidateScan = await scanDecisionRecords(options.scanOptions);
+  const hasEstablishedDecision = candidateScan.records.some(
+    (record) => record.markdownExists && record.document !== null
+  );
+  const sourceErrors = await changedDecisionSourceErrors(
+    candidateScan,
+    hasEstablishedDecision
+  );
+  if (sourceErrors.length > 0) {
+    return await recoveredTransactionFailure(
+      sourceErrors,
+      options.originalScan,
+      preflight
+    );
+  }
+  const synchronized = await synchronizeChangedDecisionIndex(
+    candidateScan,
+    hasEstablishedDecision,
+    changed
+  );
+  if (synchronized.errors.length > 0) {
+    return await recoveredTransactionFailure(
+      synchronized.errors,
+      options.originalScan,
+      preflight
+    );
+  }
+  changed = synchronized.changed;
+  const validationErrors = await finalDecisionValidationErrors(
+    options.scanOptions,
+    hasEstablishedDecision
+  );
+  if (validationErrors.length > 0) {
+    return await recoveredTransactionFailure(
+      validationErrors,
+      options.originalScan,
+      preflight
+    );
+  }
+  return { changed, diagnostics: [], errors: [], status: "ok" };
+}
+
+async function applyPreflightDecisionChanges(
+  changes: readonly DecisionFileChange[],
+  createdTargetPaths: Set<string>
+): Promise<boolean> {
+  let changed = false;
+  for (const change of changes) {
+    changed =
+      (await applyDecisionChange(change, createdTargetPaths)) || changed;
+  }
+  return changed;
+}
+
+async function changedDecisionSourceErrors(
+  scan: DecisionScan,
+  hasEstablishedDecision: boolean
+): Promise<DecisionTransactionIssue[]> {
+  const validation = await validateDecisionScan(scan, {
+    allowEmptyDecisionSet: !hasEstablishedDecision,
+    checkIndexText: false,
+    scanErrorPolicy: "source-only"
+  });
+  return validation.errors;
+}
+
+async function synchronizeChangedDecisionIndex(
+  scan: DecisionScan,
+  hasEstablishedDecision: boolean,
+  changed: boolean
+): Promise<{ changed: boolean; errors: DecisionTransactionIssue[] }> {
+  if (!hasEstablishedDecision) {
+    await fs.rm(scan.indexPath, { force: true });
+    return { changed: scan.indexExists || changed, errors: [] };
+  }
+  const selection = selectEstablishedDecisionIds(scan);
+  if (selection.errors.length > 0) {
+    return { changed, errors: selection.errors };
+  }
+  const synchronized = await syncDecisionIndex({
+    decisionsDirectory: scan.decisionsDirectory,
+    indexPath: decisionIndexFileName,
+    mode: "write",
+    decisionIds: selection.decisionIds
+  });
+  if (synchronized.status === "error") {
+    return {
+      changed,
+      errors: decisionIndexDiagnostics(synchronized.diagnostics, {
+        code: "decision-records.transaction-failed",
+        recovery:
+          "Inspect the decision files and derived index, then retry the command.",
+        target: scan.indexRelativePath
+      })
+    };
+  }
+  return { changed: synchronized.state === "written" || changed, errors: [] };
+}
+
+async function finalDecisionValidationErrors(
+  scanOptions: DecisionScanOptions,
+  hasEstablishedDecision: boolean
+): Promise<DecisionTransactionIssue[]> {
+  const validationScan = await scanDecisionRecords(scanOptions);
+  const validation = await validateDecisionScan(validationScan, {
+    allowEmptyDecisionSet: !hasEstablishedDecision
+  });
+  return validation.errors;
 }
 
 async function recoveredTransactionFailure(
@@ -281,72 +336,102 @@ async function preflightDecisionChanges(
   const moveTargetPaths = new Set<string>();
   const originalBodies = new Map<string, string>();
   for (const change of changes) {
-    const displayPath = displayDecisionPath(
-      originalScan.workspaceRoot,
-      change.decisionPath
+    await preflightDecisionChange(change, originalScan.workspaceRoot, {
+      errors,
+      moveTargetPaths,
+      originalBodies
+    });
+  }
+  await preflightDecisionIndex(originalScan, errors);
+  return { createdTargetPaths, errors, originalBodies };
+}
+
+type DecisionChangePreflightContext = Readonly<{
+  errors: DecisionTransactionIssue[];
+  moveTargetPaths: Set<string>;
+  originalBodies: Map<string, string>;
+}>;
+
+async function preflightDecisionChange(
+  change: DecisionFileChange,
+  workspaceRoot: string,
+  context: DecisionChangePreflightContext
+): Promise<void> {
+  const displayPath = displayDecisionPath(workspaceRoot, change.decisionPath);
+  if (context.originalBodies.has(change.decisionPath)) {
+    context.errors.push(
+      "Decision transaction contains the same source more than once: " +
+        displayPath +
+        ". No files were written."
     );
-    if (originalBodies.has(change.decisionPath)) {
-      errors.push(
-        "Decision transaction contains the same source more than once: " +
-          displayPath +
-          ". No files were written."
-      );
-      continue;
+    return;
+  }
+  try {
+    const currentText = await readRegularDecisionFile(change.decisionPath);
+    context.originalBodies.set(change.decisionPath, currentText);
+    if (currentText !== change.expectedText) {
+      context.errors.push(concurrentChangeError("source", displayPath));
     }
-    try {
-      const currentText = await readRegularDecisionFile(change.decisionPath);
-      originalBodies.set(change.decisionPath, currentText);
-      if (currentText !== change.expectedText) {
-        errors.push(concurrentChangeError("source", displayPath));
-      }
-    } catch (error) {
-      errors.push(
+  } catch (error) {
+    context.errors.push(
+      transactionFileSystemDiagnostic(
+        "Failed to verify decision source before update. No files were written.",
+        displayPath,
+        error
+      )
+    );
+  }
+  if (
+    change.targetPath !== undefined &&
+    change.targetPath !== change.decisionPath
+  ) {
+    await preflightDecisionMoveTarget(
+      change.targetPath,
+      workspaceRoot,
+      context
+    );
+  }
+}
+
+async function preflightDecisionMoveTarget(
+  targetPath: string,
+  workspaceRoot: string,
+  context: DecisionChangePreflightContext
+): Promise<void> {
+  const displayPath = displayDecisionPath(workspaceRoot, targetPath);
+  if (context.moveTargetPaths.has(targetPath)) {
+    context.errors.push(
+      "Decision transaction contains the same move target more than once: " +
+        displayPath +
+        ". No files were written."
+    );
+    return;
+  }
+  context.moveTargetPaths.add(targetPath);
+  try {
+    await fs.lstat(targetPath);
+    context.errors.push(
+      "Decision move target already exists: " +
+        displayPath +
+        ". No files were written."
+    );
+  } catch (error) {
+    if (!isFileSystemError(error, "ENOENT")) {
+      context.errors.push(
         transactionFileSystemDiagnostic(
-          "Failed to verify decision source before update. No files were written.",
+          "Failed to verify decision move target before update. No files were written.",
           displayPath,
           error
         )
       );
     }
-    if (
-      change.targetPath !== undefined &&
-      change.targetPath !== change.decisionPath
-    ) {
-      if (moveTargetPaths.has(change.targetPath)) {
-        errors.push(
-          "Decision transaction contains the same move target more than once: " +
-            displayDecisionPath(originalScan.workspaceRoot, change.targetPath) +
-            ". No files were written."
-        );
-        continue;
-      }
-      moveTargetPaths.add(change.targetPath);
-      try {
-        await fs.lstat(change.targetPath);
-        errors.push(
-          "Decision move target already exists: " +
-            displayDecisionPath(originalScan.workspaceRoot, change.targetPath) +
-            ". No files were written."
-        );
-      } catch (error) {
-        if (isFileSystemError(error, "ENOENT")) {
-          continue;
-        } else {
-          errors.push(
-            transactionFileSystemDiagnostic(
-              "Failed to verify decision move target before update. No files were written.",
-              displayDecisionPath(
-                originalScan.workspaceRoot,
-                change.targetPath
-              ),
-              error
-            )
-          );
-        }
-      }
-    }
   }
+}
 
+async function preflightDecisionIndex(
+  originalScan: DecisionScan,
+  errors: DecisionTransactionIssue[]
+): Promise<void> {
   try {
     const currentIndexText = await readRegularDecisionFile(
       originalScan.indexPath
@@ -370,7 +455,6 @@ async function preflightDecisionChanges(
       );
     }
   }
-  return { createdTargetPaths, errors, originalBodies };
 }
 
 async function applyDecisionChange(

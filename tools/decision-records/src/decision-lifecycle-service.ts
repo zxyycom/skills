@@ -65,34 +65,42 @@ export function requiresDecisionHistoryBaseline(
   scan: DecisionScan,
   request: DecisionLifecycleRequest
 ): boolean {
-  if (
-    (request.action === "activate" ||
-      request.action === "archive" ||
-      (request.action === "evolve" &&
-        (request.discardId === null || request.deleteRecordedDecision))) &&
-    request.keepUnrecordedHistory
-  ) {
-    return false;
+  if (keepsUnrecordedLifecycleHistory(request)) return false;
+  switch (request.action) {
+    case "archive":
+      return true;
+    case "discard":
+      return decisionRelationTransactionRequiresHistoryBaseline(
+        scan,
+        discardRelationTransactionRequest(request)
+      );
+    case "activate": {
+      const transaction = activationRelationTransactionRequest(scan, request);
+      return (
+        transaction !== null &&
+        decisionRelationTransactionRequiresHistoryBaseline(scan, transaction)
+      );
+    }
+    case "evolve":
+      return decisionRelationTransactionRequiresHistoryBaseline(scan, {
+        ...request,
+        kind: "evolve"
+      });
+    default:
+      return false;
   }
-  if (request.action === "archive") {
-    return true;
+}
+
+function keepsUnrecordedLifecycleHistory(
+  request: DecisionLifecycleRequest
+): boolean {
+  if (request.action === "activate" || request.action === "archive") {
+    return request.keepUnrecordedHistory;
   }
-  if (request.action === "discard") {
-    return decisionRelationTransactionRequiresHistoryBaseline(
-      scan,
-      discardRelationTransactionRequest(request)
-    );
-  }
-  if (request.action !== "activate" && request.action !== "evolve") {
-    return false;
-  }
-  const transactionRequest =
-    request.action === "activate"
-      ? activationRelationTransactionRequest(scan, request)
-      : { ...request, kind: "evolve" as const };
+  if (request.action !== "evolve") return false;
   return (
-    transactionRequest !== null &&
-    decisionRelationTransactionRequiresHistoryBaseline(scan, transactionRequest)
+    request.keepUnrecordedHistory &&
+    (request.discardId === null || request.deleteRecordedDecision)
   );
 }
 

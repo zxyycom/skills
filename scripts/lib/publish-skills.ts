@@ -269,15 +269,50 @@ function findRelease(tag: string): PublishedRelease | undefined {
   throw new Error(commandFailure(`Inspect GitHub Release ${tag}`, result));
 }
 
-function parseRelease(source: string, expectedTag: string): PublishedRelease {
-  let value: unknown;
+function parseReleaseJson(source: string, expectedTag: string): unknown {
   try {
-    value = JSON.parse(source);
+    return JSON.parse(source);
   } catch (error) {
     throw new Error(
       `GitHub Release ${expectedTag} returned invalid JSON: ${errorMessage(error)}`
     );
   }
+}
+
+function isPublishedAssetRecord(
+  value: unknown
+): value is Record<string, unknown> & { name: string; size: number } {
+  return (
+    isRecord(value) &&
+    typeof value.name === "string" &&
+    value.name.length > 0 &&
+    typeof value.size === "number" &&
+    Number.isSafeInteger(value.size) &&
+    value.size >= 0 &&
+    (value.digest === null ||
+      value.digest === undefined ||
+      typeof value.digest === "string")
+  );
+}
+
+function parsePublishedAsset(
+  value: unknown,
+  expectedTag: string
+): PublishedAsset {
+  if (!isPublishedAssetRecord(value)) {
+    throw new Error(
+      `GitHub Release ${expectedTag} returned an invalid asset record`
+    );
+  }
+  return {
+    digest: typeof value.digest === "string" ? value.digest : null,
+    name: value.name,
+    size: value.size
+  };
+}
+
+function parseRelease(source: string, expectedTag: string): PublishedRelease {
+  const value = parseReleaseJson(source, expectedTag);
   if (
     !isRecord(value) ||
     value.tagName !== expectedTag ||
@@ -290,31 +325,15 @@ function parseRelease(source: string, expectedTag: string): PublishedRelease {
 
   const assets: PublishedAsset[] = [];
   const names = new Set<string>();
-  for (const asset of value.assets) {
-    if (
-      !isRecord(asset) ||
-      typeof asset.name !== "string" ||
-      asset.name.length === 0 ||
-      typeof asset.size !== "number" ||
-      !Number.isSafeInteger(asset.size) ||
-      asset.size < 0 ||
-      !(
-        asset.digest === null ||
-        asset.digest === undefined ||
-        typeof asset.digest === "string"
-      ) ||
-      names.has(asset.name)
-    ) {
+  for (const assetValue of value.assets) {
+    const asset = parsePublishedAsset(assetValue, expectedTag);
+    if (names.has(asset.name)) {
       throw new Error(
         `GitHub Release ${expectedTag} returned an invalid asset record`
       );
     }
     names.add(asset.name);
-    assets.push({
-      digest: typeof asset.digest === "string" ? asset.digest : null,
-      name: asset.name,
-      size: asset.size
-    });
+    assets.push(asset);
   }
   return { assets };
 }

@@ -133,32 +133,41 @@ function compareVersions(left, right) {
   return 0;
 }
 
+function commandExtensions(command) {
+  if (process.platform !== "win32" || path.extname(command) !== "") {
+    return [""];
+  }
+  return [...(process.env.PATHEXT ?? ".COM;.EXE;.BAT;.CMD").split(";"), ""];
+}
+
+function isAccessibleCommand(candidate) {
+  try {
+    accessSync(
+      candidate,
+      process.platform === "win32" ? fsConstants.F_OK : fsConstants.X_OK
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function resolveCommand(command) {
   const hasDirectory = command.includes("/") || command.includes("\\");
   const directories = hasDirectory
     ? [""]
     : (process.env.PATH ?? "").split(path.delimiter);
-  const extensions =
-    process.platform === "win32" && path.extname(command) === ""
-      ? [...(process.env.PATHEXT ?? ".COM;.EXE;.BAT;.CMD").split(";"), ""]
-      : [""];
 
   for (const directory of directories) {
     if (!hasDirectory && directory.length === 0) {
       continue;
     }
-    for (const extension of extensions) {
+    for (const extension of commandExtensions(command)) {
       const candidate = hasDirectory
         ? `${command}${extension}`
         : path.join(directory, `${command}${extension}`);
-      try {
-        accessSync(
-          candidate,
-          process.platform === "win32" ? fsConstants.F_OK : fsConstants.X_OK
-        );
+      if (isAccessibleCommand(candidate)) {
         return candidate;
-      } catch {
-        // Try the next PATH entry.
       }
     }
   }

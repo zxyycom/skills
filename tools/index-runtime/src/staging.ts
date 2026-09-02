@@ -440,46 +440,13 @@ function pendingFailure(
     error instanceof VersionControlError &&
     error.code === "pending-conflict"
   ) {
-    const busy = error.causeCategory === "busy";
-    return failedPendingStage(
-      context,
-      "pending-conflict",
-      [
-        diagnostic({
-          code: "state-index.pending-conflict",
-          message: busy
-            ? "the pending write boundary is busy; wait for any known concurrent operation " +
-              "to finish, then confirm a remaining lock is not stale before retrying"
-            : "the current revision or target pending content changed; reread the current " +
-              "revision and target pending content, resolve any existing pending change for " +
-              "this index, then retry",
-          path: context.indexPath,
-          versionControl
-        })
-      ],
-      selectedIds,
-      "no-change"
-    );
+    return pendingConflictFailure(context, error, selectedIds, versionControl);
   }
   if (
     error instanceof VersionControlError &&
     error.code === "pending-recovery-failed"
   ) {
-    return failedRecoveryStage(
-      context,
-      [
-        diagnostic({
-          code: "state-index.pending-recovery-failed",
-          message:
-            "pending recovery was incomplete; read and reconcile the target range through " +
-            "the version-control API before retrying; if it cannot be uniquely read or " +
-            "attributed, stop and ask the range owner",
-          path: context.indexPath,
-          versionControl
-        })
-      ],
-      selectedIds
-    );
+    return pendingRecoveryFailure(context, selectedIds, versionControl);
   }
   return failedPendingStage(
     context,
@@ -493,6 +460,56 @@ function pendingFailure(
     ],
     selectedIds,
     "no-change"
+  );
+}
+
+function pendingConflictFailure(
+  context: EntryStageResultContext,
+  error: VersionControlError,
+  selectedIds: string[],
+  versionControl: StateIndexVersionControlDiagnostic | undefined
+): StateIndexEntryStageResult {
+  const busy = error.causeCategory === "busy";
+  return failedPendingStage(
+    context,
+    "pending-conflict",
+    [
+      diagnostic({
+        code: "state-index.pending-conflict",
+        message: busy
+          ? "the pending write boundary is busy; wait for any known concurrent operation " +
+            "to finish, then confirm a remaining lock is not stale before retrying"
+          : "the current revision or target pending content changed; reread the current " +
+            "revision and target pending content, resolve any existing pending change for " +
+            "this index, then retry",
+        path: context.indexPath,
+        versionControl
+      })
+    ],
+    selectedIds,
+    "no-change"
+  );
+}
+
+function pendingRecoveryFailure(
+  context: EntryStageResultContext,
+  selectedIds: string[],
+  versionControl: StateIndexVersionControlDiagnostic | undefined
+): StateIndexEntryStageResult {
+  return failedRecoveryStage(
+    context,
+    [
+      diagnostic({
+        code: "state-index.pending-recovery-failed",
+        message:
+          "pending recovery was incomplete; read and reconcile the target range through " +
+          "the version-control API before retrying; if it cannot be uniquely read or " +
+          "attributed, stop and ask the range owner",
+        path: context.indexPath,
+        versionControl
+      })
+    ],
+    selectedIds
   );
 }
 

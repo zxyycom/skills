@@ -95,63 +95,14 @@ export function parseLedgerCaseSource(
   }
 
   const diagnostics: TestEvidenceDiagnostic[] = [];
-  const lines = identified.value.normalizedMarkdown.split("\n");
-  let index = skipBlankLines(lines, 1);
-
-  const tests = parseSection({
-    caseId: identified.value.id,
-    diagnostics,
-    header: "Tests:",
-    itemKind: "test",
-    lines,
-    startIndex: index,
-    sourcePath: source.path
-  });
-  index = skipBlankLines(lines, tests.nextIndex);
-
-  let tags: ParsedSection = { items: [], nextIndex: index };
-  if (lines[index] === "Tags:") {
-    tags = parseSection({
-      caseId: identified.value.id,
-      diagnostics,
-      header: "Tags:",
-      itemKind: "tag",
-      lines,
-      startIndex: index,
-      sourcePath: source.path
-    });
-    index = skipBlankLines(lines, tags.nextIndex);
-  }
-
-  const contract = parseSection({
-    caseId: identified.value.id,
-    diagnostics,
-    header: "Contract:",
-    itemKind: "text",
-    lines,
-    startIndex: index,
-    sourcePath: source.path
-  });
-  index = skipBlankLines(lines, contract.nextIndex);
-
-  const proves = parseSection({
-    caseId: identified.value.id,
-    diagnostics,
-    header: "Proves:",
-    itemKind: "text",
-    lines,
-    startIndex: index,
-    sourcePath: source.path
-  });
-  index = skipBlankLines(lines, proves.nextIndex);
-
-  if (index < lines.length) {
+  const sections = parseCaseSections(identified.value, diagnostics);
+  if (sections.nextIndex < sections.lineCount) {
     diagnostics.push(
       createTestEvidenceDiagnostic({
         caseId: identified.value.id,
         category: "case",
         code: "case.content-unsupported",
-        line: index + 1,
+        line: sections.nextIndex + 1,
         message: `${source.path} contains content outside Tests, optional Tags, Contract, and Proves`,
         path: source.path,
         severity: "error"
@@ -159,23 +110,22 @@ export function parseLedgerCaseSource(
     );
   }
 
-  validateOrderedUniqueTestIds(tests.items, identified.value, diagnostics);
-  validateOrderedUniqueTags(tags.items, identified.value, diagnostics);
+  validateOrderedUniqueTestIds(sections.tests, identified.value, diagnostics);
+  validateOrderedUniqueTags(sections.tags, identified.value, diagnostics);
 
   if (diagnostics.length > 0) {
     return { diagnostics, value: null };
   }
 
-  const candidate = {
+  const validated = v.safeParse(testEvidenceLedgerCaseSchema, {
+    contract: sections.contract,
     id: identified.value.id,
-    title: identified.value.title,
+    proves: sections.proves,
     sourcePath: identified.value.path,
-    testIds: tests.items,
-    tags: tags.items,
-    contract: contract.items,
-    proves: proves.items
-  };
-  const validated = v.safeParse(testEvidenceLedgerCaseSchema, candidate);
+    tags: sections.tags,
+    testIds: sections.tests,
+    title: identified.value.title
+  });
   if (!validated.success) {
     return failedCaseSource({
       caseId: identified.value.id,
@@ -264,6 +214,58 @@ type ParsedSection = {
   nextIndex: number;
 };
 
+type CaseSectionName = "contract" | "proves" | "tags" | "tests";
+
+type ParsedCaseSections = Record<CaseSectionName, string[]> & {
+  lineCount: number;
+  nextIndex: number;
+};
+
+type SectionContract = Readonly<{
+  header: "Tests:" | "Tags:" | "Contract:" | "Proves:";
+  itemKind: "test" | "tag" | "text";
+  name: CaseSectionName;
+  optional?: true;
+}>;
+
+const sectionContracts: readonly SectionContract[] = [
+  { header: "Tests:", itemKind: "test", name: "tests" },
+  { header: "Tags:", itemKind: "tag", name: "tags", optional: true },
+  { header: "Contract:", itemKind: "text", name: "contract" },
+  { header: "Proves:", itemKind: "text", name: "proves" }
+];
+
+function parseCaseSections(
+  source: IdentifiedLedgerCaseSource,
+  diagnostics: TestEvidenceDiagnostic[]
+): ParsedCaseSections {
+  const lines = source.normalizedMarkdown.split("\n");
+  let index = skipBlankLines(lines, 1);
+  const items: Record<CaseSectionName, string[]> = {
+    contract: [],
+    proves: [],
+    tags: [],
+    tests: []
+  };
+  for (const contract of sectionContracts) {
+    if (contract.optional && lines[index] !== contract.header) {
+      continue;
+    }
+    const parsed = parseSection({
+      caseId: source.id,
+      diagnostics,
+      header: contract.header,
+      itemKind: contract.itemKind,
+      lines,
+      sourcePath: source.path,
+      startIndex: index
+    });
+    items[contract.name] = parsed.items;
+    index = skipBlankLines(lines, parsed.nextIndex);
+  }
+  return { ...items, lineCount: lines.length, nextIndex: index };
+}
+
 function parseSection(options: {
   caseId: string;
   diagnostics: TestEvidenceDiagnostic[];
@@ -275,17 +277,7 @@ function parseSection(options: {
 }): ParsedSection {
   let index = options.startIndex;
   if (options.lines[index] !== options.header) {
-    options.diagnostics.push(
-      createTestEvidenceDiagnostic({
-        caseId: options.caseId,
-        category: "case",
-        code: "case.section-invalid",
-        line: index + 1,
-        message: `${options.sourcePath} must declare ${options.header} in the fixed section order`,
-        path: options.sourcePath,
-        severity: "error"
-      })
-    );
+    options.diagnostics.push(missingSectionDiagnostic(options));
     return { items: [], nextIndex: index };
   }
   index += 1;
@@ -298,42 +290,67 @@ function parseSection(options: {
     }
     const parsed = parseSectionItem(line, options.itemKind);
     if (parsed === null) {
-      options.diagnostics.push(
-        createTestEvidenceDiagnostic({
-          caseId: options.caseId,
-          category: options.itemKind === "test" ? "relation" : "case",
-          code:
-            options.itemKind === "test"
-              ? "relation.test-item-invalid"
-              : `case.${options.itemKind}-item-invalid`,
-          line: index + 1,
-          message: `${options.sourcePath}:${index + 1} contains an invalid ${options.header} item`,
-          path: options.sourcePath,
-          severity: "error"
-        })
-      );
+      options.diagnostics.push(invalidSectionItemDiagnostic(options, index));
     } else {
       items.push(parsed);
     }
     index += 1;
   }
   if (items.length === 0) {
-    options.diagnostics.push(
-      createTestEvidenceDiagnostic({
-        caseId: options.caseId,
-        category: options.itemKind === "test" ? "relation" : "case",
-        code:
-          options.itemKind === "test"
-            ? "relation.tests-empty"
-            : `case.${options.itemKind}s-empty`,
-        line: options.startIndex + 1,
-        message: `${options.sourcePath} ${options.header} must include at least one item`,
-        path: options.sourcePath,
-        severity: "error"
-      })
-    );
+    options.diagnostics.push(emptySectionDiagnostic(options));
   }
   return { items, nextIndex: index };
+}
+
+type ParseSectionOptions = Parameters<typeof parseSection>[0];
+
+function missingSectionDiagnostic(
+  options: ParseSectionOptions
+): TestEvidenceDiagnostic {
+  return createTestEvidenceDiagnostic({
+    caseId: options.caseId,
+    category: "case",
+    code: "case.section-invalid",
+    line: options.startIndex + 1,
+    message: `${options.sourcePath} must declare ${options.header} in the fixed section order`,
+    path: options.sourcePath,
+    severity: "error"
+  });
+}
+
+function invalidSectionItemDiagnostic(
+  options: ParseSectionOptions,
+  index: number
+): TestEvidenceDiagnostic {
+  return createTestEvidenceDiagnostic({
+    caseId: options.caseId,
+    category: options.itemKind === "test" ? "relation" : "case",
+    code:
+      options.itemKind === "test"
+        ? "relation.test-item-invalid"
+        : `case.${options.itemKind}-item-invalid`,
+    line: index + 1,
+    message: `${options.sourcePath}:${index + 1} contains an invalid ${options.header} item`,
+    path: options.sourcePath,
+    severity: "error"
+  });
+}
+
+function emptySectionDiagnostic(
+  options: ParseSectionOptions
+): TestEvidenceDiagnostic {
+  return createTestEvidenceDiagnostic({
+    caseId: options.caseId,
+    category: options.itemKind === "test" ? "relation" : "case",
+    code:
+      options.itemKind === "test"
+        ? "relation.tests-empty"
+        : `case.${options.itemKind}s-empty`,
+    line: options.startIndex + 1,
+    message: `${options.sourcePath} ${options.header} must include at least one item`,
+    path: options.sourcePath,
+    severity: "error"
+  });
 }
 
 function parseSectionItem(

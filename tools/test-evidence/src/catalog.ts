@@ -47,40 +47,71 @@ export function collectTestEvidenceCases(
   const entries: ParsedTestEvidenceCase[] = [];
 
   for (const [index, heading] of headings.entries()) {
-    if (heading.depth !== 3) {
+    const entry = caseFromHeading(
+      heading,
+      index,
+      headings,
+      lines,
+      caseIdPattern
+    );
+    if (entry === null) {
       continue;
     }
-    const headingText = toString(heading);
-    if (!/^Case(?:\s|:|$)/u.test(headingText)) {
-      continue;
-    }
-
-    const headingLine = lines[(heading.position?.start.line ?? 1) - 1] ?? "";
-    const match = headingLine.match(testEvidenceCaseHeadingPattern);
-    const candidateId =
-      match?.[1] ?? headingText.split(/\s+/u)[1] ?? "<invalid>";
-    const line = heading.position?.start.line ?? 1;
-    const nextHeading = headings
-      .slice(index + 1)
-      .find(
-        (candidate) =>
-          (candidate.position?.start.line ?? Number.POSITIVE_INFINITY) > line
-      );
-    const endLine = (nextHeading?.position?.start.line ?? lines.length + 1) - 1;
-    const entry = createCase({
-      caseIdIsValid: match !== null && caseIdPattern.test(candidateId),
-      endLine,
-      headingFormatIsValid: match !== null,
-      id: candidateId,
-      line,
-      title: match?.[2] ?? ""
-    });
     const startLine = (heading.position?.end.line ?? entry.line) + 1;
-    parseCaseBody(entry, lines, startLine, endLine, ignoredLines);
+    parseCaseBody(entry, lines, startLine, entry.endLine, ignoredLines);
     entries.push(entry);
   }
 
   return entries;
+}
+
+function caseFromHeading(
+  heading: MarkdownHeading,
+  index: number,
+  headings: readonly MarkdownHeading[],
+  lines: readonly string[],
+  caseIdPattern: RegExp
+): ParsedTestEvidenceCase | null {
+  const headingText = toString(heading);
+  if (!isCaseHeading(heading, headingText)) {
+    return null;
+  }
+  const line = headingStartLine(heading);
+  const headingLine = lines[line - 1] ?? "";
+  const match = headingLine.match(testEvidenceCaseHeadingPattern);
+  const candidateId = candidateCaseId(match?.[1], headingText);
+  const nextHeading = headings
+    .slice(index + 1)
+    .find(
+      (candidate) =>
+        (candidate.position?.start.line ?? Number.POSITIVE_INFINITY) > line
+    );
+  return createCase({
+    caseIdIsValid: match !== null && caseIdPattern.test(candidateId),
+    endLine: (nextHeading?.position?.start.line ?? lines.length + 1) - 1,
+    headingFormatIsValid: match !== null,
+    id: candidateId,
+    line,
+    title: match?.[2] ?? ""
+  });
+}
+
+function isCaseHeading(heading: MarkdownHeading, headingText: string): boolean {
+  return heading.depth === 3 && /^Case(?:\s|:|$)/u.test(headingText);
+}
+
+function headingStartLine(heading: MarkdownHeading): number {
+  return heading.position?.start.line ?? 1;
+}
+
+function candidateCaseId(
+  matchedId: string | undefined,
+  headingText: string
+): string {
+  if (matchedId !== undefined) {
+    return matchedId;
+  }
+  return headingText.split(/\s+/u)[1] ?? "<invalid>";
 }
 
 function parseCaseBody(

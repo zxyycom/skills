@@ -347,30 +347,43 @@ async function validateFullCollection(
     }
   );
   if (collection.errors.length > 0 || collection.snapshot === null) {
-    return checkResult(
-      collection.reportCount,
-      collection.errors,
-      false,
-      collection.indexPath,
-      collection.warnings
-    );
+    return checkResult({
+      availableReportCount: collection.reportCount,
+      errors: collection.errors,
+      indexChecked: false,
+      indexPath: collection.indexPath,
+      warnings: collection.warnings
+    });
   }
+  const snapshot = collection.snapshot;
   if (
     collection.reportCount === 0 &&
     (await lstatOrNull(collection.indexPath)) === null
   ) {
-    return checkResult(
-      0,
-      ["investigation collection must contain at least one report"],
-      false,
-      collection.indexPath,
-      collection.warnings
-    );
+    return checkResult({
+      availableReportCount: 0,
+      errors: ["investigation collection must contain at least one report"],
+      indexChecked: false,
+      indexPath: collection.indexPath,
+      warnings: collection.warnings
+    });
   }
+  return await validateSynchronizedCollection(
+    investigationRoot,
+    collection,
+    snapshot
+  );
+}
+
+async function validateSynchronizedCollection(
+  investigationRoot: string,
+  collection: ValidatedInvestigationCollection,
+  snapshot: InvestigationSnapshot
+): Promise<InvestigationReportCheckResult> {
   const synchronized = await syncInvestigationStateIndex({
     investigationsDirectory: investigationRoot,
     mode: "check",
-    snapshot: collection.snapshot
+    snapshot
   });
   const errors =
     synchronized.status === "error"
@@ -396,15 +409,15 @@ async function validateFullCollection(
       collection.states
     ))
   ];
-  return checkResult(
-    collection.reportCount,
+  return checkResult({
+    availableReportCount: collection.reportCount,
+    diagnostics,
     errors,
-    synchronized.status === "ok",
-    collection.indexPath,
-    warnings,
-    collection.reportCount,
-    diagnostics
-  );
+    indexChecked: synchronized.status === "ok",
+    indexPath: collection.indexPath,
+    selectedReportCount: collection.reportCount,
+    warnings
+  });
 }
 
 async function validateScopedCollection(
@@ -427,49 +440,53 @@ async function validateScopedCollection(
       errors.push(`${id} investigation report does not exist`);
       continue;
     }
-    let text: string;
-    try {
-      text = await fs.readFile(
-        reportPathForInvestigationId(investigationRoot, id),
-        "utf8"
-      );
-    } catch (error) {
-      const target = reportPathForInvestigationId(investigationRoot, id);
-      errors.push(`${id} could not be read`);
-      diagnostics.push(
-        diagnosticFromError({
-          code: "investigation-report.report-read-failed",
-          error,
-          reason: "the selected investigation report could not be read",
-          recovery: "restore read access to the report, then retry the check",
-          target
-        })
-      );
-      continue;
-    }
-    const built = buildInvestigationReportState(
-      id,
-      parseInvestigationReport(text, id)
+    errors.push(
+      ...(await validateScopedReport(investigationRoot, id, diagnostics))
     );
-    errors.push(...built.errors);
-    if (built.status === "valid") {
-      errors.push(
-        ...(await validateReferencedInvestigationResources(
-          investigationRoot,
-          built.state.resourceIds
-        ))
-      );
-    }
   }
-  return checkResult(
-    layout.reportIds.length,
+  return checkResult({
+    availableReportCount: layout.reportIds.length,
+    diagnostics,
     errors,
-    false,
-    path.join(investigationRoot, investigationIndexFileName),
-    [],
-    selected.length,
-    diagnostics
+    indexChecked: false,
+    indexPath: path.join(investigationRoot, investigationIndexFileName),
+    selectedReportCount: selected.length
+  });
+}
+
+async function validateScopedReport(
+  investigationRoot: string,
+  id: string,
+  diagnostics: InvestigationDiagnostic[]
+): Promise<string[]> {
+  const target = reportPathForInvestigationId(investigationRoot, id);
+  let text: string;
+  try {
+    text = await fs.readFile(target, "utf8");
+  } catch (error) {
+    diagnostics.push(
+      diagnosticFromError({
+        code: "investigation-report.report-read-failed",
+        error,
+        reason: "the selected investigation report could not be read",
+        recovery: "restore read access to the report, then retry the check",
+        target
+      })
+    );
+    return [`${id} could not be read`];
+  }
+  const built = buildInvestigationReportState(
+    id,
+    parseInvestigationReport(text, id)
   );
+  if (built.status !== "valid") return built.errors;
+  return [
+    ...built.errors,
+    ...(await validateReferencedInvestigationResources(
+      investigationRoot,
+      built.state.resourceIds
+    ))
+  ];
 }
 
 async function synchronizeFullCollection(
@@ -480,30 +497,43 @@ async function synchronizeFullCollection(
     { allowEmptyCollection: true }
   );
   if (collection.errors.length > 0 || collection.snapshot === null) {
-    return syncResult(
-      collection.reportCount,
-      false,
-      collection.errors,
-      collection.indexPath,
-      collection.warnings
-    );
+    return syncResult({
+      changed: false,
+      errors: collection.errors,
+      indexPath: collection.indexPath,
+      reportCount: collection.reportCount,
+      warnings: collection.warnings
+    });
   }
+  const snapshot = collection.snapshot;
   if (
     collection.reportCount === 0 &&
     (await lstatOrNull(collection.indexPath)) === null
   ) {
-    return syncResult(
-      0,
-      false,
-      ["investigation collection must contain at least one report"],
-      collection.indexPath,
-      collection.warnings
-    );
+    return syncResult({
+      changed: false,
+      errors: ["investigation collection must contain at least one report"],
+      indexPath: collection.indexPath,
+      reportCount: 0,
+      warnings: collection.warnings
+    });
   }
+  return await synchronizeValidatedCollection(
+    investigationRoot,
+    collection,
+    snapshot
+  );
+}
+
+async function synchronizeValidatedCollection(
+  investigationRoot: string,
+  collection: ValidatedInvestigationCollection,
+  snapshot: InvestigationSnapshot
+): Promise<InvestigationIndexSyncResult> {
   const synchronized = await syncInvestigationStateIndex({
     investigationsDirectory: investigationRoot,
     mode: "write",
-    snapshot: collection.snapshot
+    snapshot
   });
   const errors =
     synchronized.status === "error"
@@ -525,15 +555,15 @@ async function synchronizeFullCollection(
             ? "partial-or-unknown"
             : "no-change"
         );
-  return syncResult(
-    collection.reportCount,
-    synchronized.changed,
-    errors,
-    collection.indexPath,
-    collection.warnings,
+  return syncResult({
+    changed: synchronized.changed,
     diagnostics,
-    mutation
-  );
+    errors,
+    indexPath: collection.indexPath,
+    mutation,
+    reportCount: collection.reportCount,
+    warnings: collection.warnings
+  });
 }
 
 async function synchronizeFullCollectionWithMutationLock(
@@ -644,42 +674,47 @@ function syncMutation(
 }
 
 function checkResult(
-  availableReportCount: number,
-  errors: readonly string[],
-  indexChecked: boolean,
-  indexPath: string,
-  warnings: readonly string[] = [],
-  selectedReportCount: number = availableReportCount,
-  diagnostics: readonly InvestigationDiagnostic[] = []
+  options: Readonly<{
+    availableReportCount: number;
+    diagnostics?: readonly InvestigationDiagnostic[];
+    errors: readonly string[];
+    indexChecked: boolean;
+    indexPath: string;
+    selectedReportCount?: number;
+    warnings?: readonly string[];
+  }>
 ): InvestigationReportCheckResult {
   return {
-    availableReportCount,
-    diagnostics: [...diagnostics],
-    errors: uniqueSorted(errors),
-    indexChecked,
-    indexPath,
-    selectedReportCount,
-    warnings: uniqueSorted(warnings)
+    availableReportCount: options.availableReportCount,
+    diagnostics: [...(options.diagnostics ?? [])],
+    errors: uniqueSorted(options.errors),
+    indexChecked: options.indexChecked,
+    indexPath: options.indexPath,
+    selectedReportCount:
+      options.selectedReportCount ?? options.availableReportCount,
+    warnings: uniqueSorted(options.warnings ?? [])
   };
 }
 
 function syncResult(
-  reportCount: number,
-  changed: boolean,
-  errors: readonly string[],
-  indexPath: string,
-  warnings: readonly string[] = [],
-  diagnostics: readonly InvestigationDiagnostic[] = [],
-  mutation?: InvestigationMutationDiagnostic
+  options: Readonly<{
+    changed: boolean;
+    diagnostics?: readonly InvestigationDiagnostic[];
+    errors: readonly string[];
+    indexPath: string;
+    mutation?: InvestigationMutationDiagnostic;
+    reportCount: number;
+    warnings?: readonly string[];
+  }>
 ): InvestigationIndexSyncResult {
   return {
-    changed,
-    diagnostics: [...diagnostics],
-    errors: uniqueSorted(errors),
-    indexPath,
-    ...(mutation === undefined ? {} : { mutation }),
-    reportCount,
-    warnings: uniqueSorted(warnings)
+    changed: options.changed,
+    diagnostics: [...(options.diagnostics ?? [])],
+    errors: uniqueSorted(options.errors),
+    indexPath: options.indexPath,
+    ...(options.mutation === undefined ? {} : { mutation: options.mutation }),
+    reportCount: options.reportCount,
+    warnings: uniqueSorted(options.warnings ?? [])
   };
 }
 
@@ -688,7 +723,14 @@ function emptyResult(
   indexPath: string,
   diagnostics: readonly InvestigationDiagnostic[] = []
 ): InvestigationReportCheckResult {
-  return checkResult(0, errors, false, indexPath, [], 0, diagnostics);
+  return checkResult({
+    availableReportCount: 0,
+    diagnostics,
+    errors,
+    indexChecked: false,
+    indexPath,
+    selectedReportCount: 0
+  });
 }
 function emptySyncResult(
   errors: readonly string[],
@@ -696,7 +738,14 @@ function emptySyncResult(
   diagnostics: readonly InvestigationDiagnostic[] = [],
   mutation?: InvestigationMutationDiagnostic
 ): InvestigationIndexSyncResult {
-  return syncResult(0, false, errors, indexPath, [], diagnostics, mutation);
+  return syncResult({
+    changed: false,
+    diagnostics,
+    errors,
+    indexPath,
+    mutation,
+    reportCount: 0
+  });
 }
 function checkFailure(
   kind: InvestigationReportCheckFailure["kind"],

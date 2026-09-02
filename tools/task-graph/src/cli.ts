@@ -377,53 +377,92 @@ function failArgument(message: string, details: JsonObject = {}): never {
 }
 
 function parseGlobalArguments(argv: readonly string[]): GlobalArguments {
-  const remaining: string[] = [];
-  let root = process.cwd();
-  let indexPath: string | undefined;
-  let help = false;
-  let json = false;
-  let version = false;
+  const state: GlobalParseState = {
+    help: false,
+    indexPath: undefined,
+    json: false,
+    remaining: [],
+    root: process.cwd(),
+    version: false
+  };
   for (let index = 0; index < argv.length; index += 1) {
-    const token = argv[index] ?? "";
-    const [name, inline] = token.split(/=(.*)/su, 2);
-    if (name === "--root" || name === "--index") {
-      const value = inline ?? argv[index + 1];
-      if (
-        value === undefined ||
-        value === "" ||
-        (inline === undefined && value.startsWith("--"))
-      ) {
-        failArgument(`${name} requires a non-empty path`);
-      }
-      if (inline === undefined) index += 1;
-      if (name === "--root") root = value;
-      else indexPath = value;
-      continue;
-    }
-    if (token === "--help" || token === "-h") {
-      help = true;
-      continue;
-    }
-    if (token === "--version" || token === "-v") {
-      version = true;
-      continue;
-    }
-    if (name === "--json") {
-      if (inline !== undefined) failArgument("--json does not accept a value");
-      if (json) failArgument("--json must not be repeated");
-      json = true;
-      continue;
-    }
-    remaining.push(token);
+    index += consumeGlobalToken(argv, index, state);
   }
   return {
-    help,
-    indexPath,
-    json,
-    remaining,
-    root: path.resolve(root),
-    version
+    ...state,
+    root: path.resolve(state.root)
   };
+}
+
+type GlobalParseState = {
+  help: boolean;
+  indexPath: string | undefined;
+  json: boolean;
+  remaining: string[];
+  root: string;
+  version: boolean;
+};
+
+function consumeGlobalToken(
+  argv: readonly string[],
+  index: number,
+  state: GlobalParseState
+): number {
+  const token = argv[index] ?? "";
+  const [name, inline] = token.split(/=(.*)/su, 2);
+  if (name === "--root" || name === "--index") {
+    return consumeGlobalPath(name, inline, argv[index + 1], state);
+  }
+  consumeGlobalFlag(token, name, inline, state);
+  return 0;
+}
+
+function consumeGlobalPath(
+  name: "--index" | "--root",
+  inline: string | undefined,
+  next: string | undefined,
+  state: GlobalParseState
+): number {
+  const value = optionValue(name, inline, next, "path");
+  if (name === "--root") state.root = value;
+  else state.indexPath = value;
+  return inline === undefined ? 1 : 0;
+}
+
+function consumeGlobalFlag(
+  token: string,
+  name: string | undefined,
+  inline: string | undefined,
+  state: GlobalParseState
+): void {
+  if (token === "--help" || token === "-h") {
+    state.help = true;
+  } else if (token === "--version" || token === "-v") {
+    state.version = true;
+  } else if (name === "--json") {
+    if (inline !== undefined) failArgument("--json does not accept a value");
+    if (state.json) failArgument("--json must not be repeated");
+    state.json = true;
+  } else {
+    state.remaining.push(token);
+  }
+}
+
+function optionValue(
+  name: string,
+  inline: string | undefined,
+  next: string | undefined,
+  kind: "path" | "value"
+): string {
+  const value = inline ?? next;
+  if (
+    value === undefined ||
+    value === "" ||
+    (inline === undefined && value.startsWith("--"))
+  ) {
+    failArgument(`${name} requires a non-empty ${kind}`);
+  }
+  return value;
 }
 
 function parseCommandOptions(
@@ -438,8 +477,7 @@ function parseCommandOptions(
   for (let index = 0; index < tokens.length; index += 1) {
     const token = tokens[index] ?? "";
     if (!token.startsWith("--")) {
-      if (token.startsWith("-")) failArgument(`Unknown option ${token}`);
-      positionals.push(token);
+      recordPositional(token, positionals);
       continue;
     }
     const [rawName, inline] = token.slice(2).split(/=(.*)/su, 2);
@@ -448,36 +486,46 @@ function parseCommandOptions(
       ? definitions[optionName]
       : undefined;
     if (definition === undefined) failArgument(`Unknown option --${rawName}`);
-    if (definition.kind === "boolean") {
-      if (inline !== undefined)
-        failArgument(`--${rawName} does not accept a value`);
-      if (values[rawName ?? ""] !== undefined)
-        failArgument(`--${rawName} must not be repeated`);
-      values[rawName ?? ""] = true;
-      continue;
-    }
-    const value = inline ?? tokens[index + 1];
-    if (
-      value === undefined ||
-      value === "" ||
-      (inline === undefined && value.startsWith("--"))
-    ) {
-      failArgument(`--${rawName} requires a non-empty value`);
-    }
-    if (inline === undefined) index += 1;
-    if (definition.multiple === true) {
-      const previous = values[rawName ?? ""];
-      values[rawName ?? ""] = [
-        ...(Array.isArray(previous) ? previous : []),
-        value
-      ];
-    } else {
-      if (values[rawName ?? ""] !== undefined)
-        failArgument(`--${rawName} must not be repeated`);
-      values[rawName ?? ""] = value;
-    }
+    index += recordCommandOption(
+      rawName ?? "",
+      inline,
+      tokens[index + 1],
+      definition,
+      values
+    );
   }
   return { positionals, values };
+}
+
+function recordPositional(token: string, positionals: string[]): void {
+  if (token.startsWith("-")) failArgument(`Unknown option ${token}`);
+  positionals.push(token);
+}
+
+function recordCommandOption(
+  name: string,
+  inline: string | undefined,
+  next: string | undefined,
+  definition: OptionDefinition,
+  values: Record<string, string | string[] | true>
+): number {
+  if (definition.kind === "boolean") {
+    if (inline !== undefined) failArgument(`--${name} does not accept a value`);
+    if (values[name] !== undefined)
+      failArgument(`--${name} must not be repeated`);
+    values[name] = true;
+    return 0;
+  }
+  const value = optionValue(`--${name}`, inline, next, "value");
+  if (definition.multiple === true) {
+    const previous = values[name];
+    values[name] = Array.isArray(previous) ? previous.concat(value) : [value];
+  } else {
+    if (values[name] !== undefined)
+      failArgument(`--${name} must not be repeated`);
+    values[name] = value;
+  }
+  return inline === undefined ? 1 : 0;
 }
 
 function stringValue(
@@ -500,6 +548,16 @@ function booleanValue(parsed: ParsedCommandOptions, name: string): boolean {
   return parsed.values[name] === true;
 }
 
+function integerValue(
+  parsed: ParsedCommandOptions,
+  name: string,
+  options: { required: true; minimum?: number; maximum?: number }
+): number;
+function integerValue(
+  parsed: ParsedCommandOptions,
+  name: string,
+  options?: { required?: false; minimum?: number; maximum?: number }
+): number | undefined;
 function integerValue(
   parsed: ParsedCommandOptions,
   name: string,
@@ -710,416 +768,570 @@ async function dispatchIndexStage(
   return await service.stageTaskIndex(taskIds);
 }
 
+type DispatchResult =
+  | ServiceResult<unknown>
+  | { revision: number | null; data: unknown };
+
 async function dispatch(
   service: TaskGraphService,
   tokens: readonly string[],
   runtimeOptions: RuntimeContextOptions
-): Promise<
-  ServiceResult<unknown> | { revision: number | null; data: unknown }
-> {
-  const first = tokens[0];
-  const second = tokens[1];
-  if (first === "runtime") {
-    const parsed = parseCommandOptions(tokens.slice(2), {});
-    requirePositionals(parsed, 0, `task-graph runtime ${second ?? "<info>"}`);
-    if (second === "info") {
-      return {
-        revision: null,
-        data: await getTaskGraphRuntimeInfo(runtimeOptions)
-      };
-    }
-    failArgument("runtime command must be info");
+): Promise<DispatchResult> {
+  const command = tokens[0];
+  if (command === "runtime") {
+    return await dispatchRuntimeCommand(tokens, runtimeOptions);
   }
-  if (first === "index") {
-    if (second === "stage") return await dispatchIndexStage(service, tokens);
-    const parsed = parseCommandOptions(tokens.slice(2), {});
-    requirePositionals(
-      parsed,
-      0,
-      `task-graph index ${second ?? "<init|info>"}`
-    );
-    if (second === "init") return await service.init();
-    if (second === "info") return await service.info();
-    failArgument("index command must be init, info, or stage");
+  if (command === "index") {
+    return await dispatchIndexCommand(service, tokens);
   }
-
-  if (first === "task") {
-    if (second === "create") {
-      const parsed = parseCommandOptions(tokens.slice(2), {
-        ...contentOptionDefinitions,
-        parent: { kind: "string" },
-        control: { kind: "string" },
-        reason: { kind: "string" },
-        "expected-revision": { kind: "string" }
-      });
-      requirePositionals(parsed, 0, "task-graph task create [options]");
-      const applied = await service.apply({
-        expectedRevision:
-          integerValue(parsed, "expected-revision", { required: true }) ?? 0,
-        operations: [
-          {
-            kind: "create-task",
-            content: contentInput(parsed),
-            parentId: stringValue(parsed, "parent"),
-            control: controlInput(
-              stringValue(parsed, "control"),
-              stringValue(parsed, "reason")
-            )
-          }
-        ]
-      });
-      const taskId = applied.data.createdTaskIds[0];
-      if (taskId === undefined)
-        throw new Error("create-task mutation returned no task id");
-      return { revision: applied.revision, data: { taskId } };
-    }
-    if (second === "list") {
-      return await dispatchTaskList(service, tokens);
-    }
-    if (second === "show") {
-      const parsed = parseCommandOptions(tokens.slice(2), {});
-      const [taskId = ""] = requirePositionals(
-        parsed,
-        1,
-        "task-graph task show <task-id>"
-      );
-      return await service.showTask(taskId);
-    }
-    if (second === "update-content") {
-      const parsed = parseCommandOptions(tokens.slice(2), {
-        ...contentOptionDefinitions,
-        "expected-revision": { kind: "string" }
-      });
-      const [taskId = ""] = requirePositionals(
-        parsed,
-        1,
-        "task-graph task update-content <task-id> [options]"
-      );
-      const applied = await service.apply({
-        expectedRevision:
-          integerValue(parsed, "expected-revision", { required: true }) ?? 0,
-        operations: [
-          {
-            kind: "update-task-content",
-            taskId,
-            content: contentInput(parsed)
-          }
-        ]
-      });
-      return { revision: applied.revision, data: { taskId } };
-    }
-    if (second === "update-control") {
-      const parsed = parseCommandOptions(tokens.slice(2), {
-        control: { kind: "string" },
-        reason: { kind: "string" },
-        "expected-revision": { kind: "string" }
-      });
-      const [taskId = ""] = requirePositionals(
-        parsed,
-        1,
-        "task-graph task update-control <task-id> [options]"
-      );
-      const control = controlInput(
-        stringValue(parsed, "control", { required: true }),
-        stringValue(parsed, "reason")
-      );
-      if (control === undefined) failArgument("--control is required");
-      const applied = await service.apply({
-        expectedRevision:
-          integerValue(parsed, "expected-revision", { required: true }) ?? 0,
-        operations: [{ kind: "update-task-control", taskId, control }]
-      });
-      return { revision: applied.revision, data: { taskId } };
-    }
-    if (second === "remove") {
-      const parsed = parseCommandOptions(tokens.slice(2), {
-        task: { kind: "string", multiple: true },
-        "expected-revision": { kind: "string" },
-        "results-delivered": { kind: "boolean" }
-      });
-      requirePositionals(
-        parsed,
-        0,
-        "task-graph task remove --task <id>... --expected-revision <n> --results-delivered"
-      );
-      const taskIds = stringsValue(parsed, "task");
-      if (taskIds.length === 0)
-        failArgument("--task is required and may be repeated");
-      if (!booleanValue(parsed, "results-delivered")) {
-        failArgument("--results-delivered is required");
-      }
-      return await service.removeTasks({
-        taskIds,
-        expectedRevision:
-          integerValue(parsed, "expected-revision", { required: true }) ?? 0,
-        resultsDelivered: true
-      });
-    }
-    failArgument("Unknown task command", { command: second ?? null });
+  if (command === "task") {
+    return await dispatchTaskCommand(service, tokens);
   }
-
-  if (first === "relation") {
-    const parsed = parseCommandOptions(tokens.slice(2), {
-      "expected-revision": { kind: "string" }
-    });
-    const expectedRevision =
-      integerValue(parsed, "expected-revision", { required: true }) ?? 0;
-    if (second === "parent") {
-      const [taskId = "", parent = ""] = requirePositionals(
-        parsed,
-        2,
-        "task-graph relation parent <task-id> <parent-id|null> --expected-revision <n>"
-      );
-      const applied = await service.apply({
-        expectedRevision,
-        operations: [
-          {
-            kind: "set-parent",
-            taskId,
-            parentId: parent === "null" ? null : parent
-          }
-        ]
-      });
-      return { revision: applied.revision, data: { taskId } };
-    }
-    if (second === "dependency-add" || second === "dependency-remove") {
-      const [taskId = "", dependencyId = ""] = requirePositionals(
-        parsed,
-        2,
-        `task-graph relation ${second} <task-id> <dependency-id> --expected-revision <n>`
-      );
-      const applied = await service.apply({
-        expectedRevision,
-        operations: [
-          {
-            kind: "set-dependency",
-            taskId,
-            dependencyId,
-            present: second === "dependency-add"
-          }
-        ]
-      });
-      return { revision: applied.revision, data: { taskId } };
-    }
-    if (second === "exclusion-add" || second === "exclusion-remove") {
-      const [taskId = "", excludedTaskId = ""] = requirePositionals(
-        parsed,
-        2,
-        `task-graph relation ${second} <task-id> <excluded-id> --expected-revision <n>`
-      );
-      const applied = await service.apply({
-        expectedRevision,
-        operations: [
-          {
-            kind: "set-exclusion",
-            taskId,
-            excludedTaskId,
-            present: second === "exclusion-add"
-          }
-        ]
-      });
-      return { revision: applied.revision, data: { taskId, excludedTaskId } };
-    }
-    failArgument("Unknown relation command", { command: second ?? null });
+  if (command === "relation") {
+    return await dispatchRelationCommand(service, tokens);
   }
-
-  if (first === "actionable") {
+  if (command === "actionable") {
     const parsed = parseCommandOptions(tokens.slice(1), {});
     requirePositionals(parsed, 0, "task-graph actionable");
     return await service.actionable();
   }
-  if (first === "claim") {
-    const parsed = parseCommandOptions(tokens.slice(1), {
-      actor: { kind: "string" },
-      duration: { kind: "string" },
-      "recover-lease": { kind: "string" },
-      "expected-revision": { kind: "string" },
-      reason: { kind: "string" }
-    });
-    const [taskId = ""] = requirePositionals(
-      parsed,
-      1,
-      "task-graph claim <task-id> --actor <actor> [--recover-lease <id> --expected-revision <n> --reason <text>]"
-    );
-    const recoverLeaseId = stringValue(parsed, "recover-lease");
-    const expectedRevision = integerValue(parsed, "expected-revision");
-    const reason = stringValue(parsed, "reason");
-    const recoveryValueCount = [
-      recoverLeaseId,
-      expectedRevision,
-      reason
-    ].filter((value) => value !== undefined).length;
-    if (recoveryValueCount !== 0 && recoveryValueCount !== 3) {
-      failArgument(
-        "--recover-lease, --expected-revision, and --reason must be provided together"
-      );
-    }
-    const common = {
-      taskId,
-      actor: stringValue(parsed, "actor", { required: true }) ?? "",
-      durationSeconds: integerValue(parsed, "duration", {
-        minimum: 60,
-        maximum: 86_400
-      })
-    };
-    return recoverLeaseId === undefined
-      ? await service.claim(common)
-      : await service.claim({
-          ...common,
-          recoverLeaseId,
-          expectedRevision: expectedRevision ?? 0,
-          reason: reason ?? ""
-        });
+  return await dispatchExecutionCommand(service, command, tokens);
+}
+
+async function dispatchRuntimeCommand(
+  tokens: readonly string[],
+  runtimeOptions: RuntimeContextOptions
+): Promise<DispatchResult> {
+  const subcommand = tokens[1];
+  const parsed = parseCommandOptions(tokens.slice(2), {});
+  requirePositionals(parsed, 0, `task-graph runtime ${subcommand ?? "<info>"}`);
+  if (subcommand !== "info") failArgument("runtime command must be info");
+  return {
+    revision: null,
+    data: await getTaskGraphRuntimeInfo(runtimeOptions)
+  };
+}
+
+async function dispatchIndexCommand(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const subcommand = tokens[1];
+  if (subcommand === "stage") return await dispatchIndexStage(service, tokens);
+  const parsed = parseCommandOptions(tokens.slice(2), {});
+  requirePositionals(
+    parsed,
+    0,
+    `task-graph index ${subcommand ?? "<init|info>"}`
+  );
+  if (subcommand === "init") return await service.init();
+  if (subcommand === "info") return await service.info();
+  failArgument("index command must be init, info, or stage");
+}
+
+async function dispatchTaskCommand(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  switch (tokens[1]) {
+    case "create":
+      return await dispatchTaskCreate(service, tokens);
+    case "list":
+      return await dispatchTaskList(service, tokens);
+    case "show":
+      return await dispatchTaskShow(service, tokens);
+    case "update-content":
+      return await dispatchTaskContentUpdate(service, tokens);
+    case "update-control":
+      return await dispatchTaskControlUpdate(service, tokens);
+    case "remove":
+      return await dispatchTaskRemove(service, tokens);
+    default:
+      failArgument("Unknown task command", { command: tokens[1] ?? null });
   }
-  if (first === "renew") {
-    const parsed = parseCommandOptions(tokens.slice(1), {
-      lease: { kind: "string" },
-      duration: { kind: "string" }
-    });
-    const [taskId = ""] = requirePositionals(
-      parsed,
-      1,
-      "task-graph renew <task-id> --lease <id> [--duration <seconds>]"
-    );
-    return await service.renew({
-      taskId,
-      leaseId: stringValue(parsed, "lease", { required: true }) ?? "",
-      durationSeconds: integerValue(parsed, "duration", {
-        minimum: 60,
-        maximum: 86_400
-      })
-    });
-  }
-  if (first === "release") {
-    const parsed = parseCommandOptions(tokens.slice(1), {
-      lease: { kind: "string" },
-      control: { kind: "string" },
-      reason: { kind: "string" }
-    });
-    const [taskId = ""] = requirePositionals(
-      parsed,
-      1,
-      "task-graph release <task-id> --lease <id> --control <mode>"
-    );
-    const control = controlInput(
-      stringValue(parsed, "control", { required: true }),
-      stringValue(parsed, "reason")
-    );
-    if (control === undefined) failArgument("--control is required");
-    return await service.release({
-      taskId,
-      leaseId: stringValue(parsed, "lease", { required: true }) ?? "",
-      control
-    });
-  }
-  if (first === "complete") {
-    const parsed = parseCommandOptions(tokens.slice(1), {
-      lease: { kind: "string" },
-      "expected-revision": { kind: "string" },
-      "result-summary": { kind: "string" },
-      "result-reference": { kind: "string", multiple: true }
-    });
-    const [taskId = ""] = requirePositionals(
-      parsed,
-      1,
-      "task-graph complete <task-id> --result-summary <text> [--lease <id>|--expected-revision <n>]"
-    );
-    const leaseId = stringValue(parsed, "lease");
-    const expectedRevision = integerValue(parsed, "expected-revision");
-    if (leaseId !== undefined && expectedRevision !== undefined) {
-      failArgument("--lease and --expected-revision are mutually exclusive");
-    }
-    if (leaseId === undefined && expectedRevision === undefined) {
-      failArgument("One of --lease or --expected-revision is required");
-    }
-    const common = {
-      taskId,
-      result: {
-        summary:
-          stringValue(parsed, "result-summary", { required: true }) ?? "",
-        references: keyValueDictionary(
-          stringsValue(parsed, "result-reference"),
-          "--result-reference"
+}
+
+async function dispatchTaskCreate(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const parsed = parseCommandOptions(tokens.slice(2), {
+    ...contentOptionDefinitions,
+    parent: { kind: "string" },
+    control: { kind: "string" },
+    reason: { kind: "string" },
+    "expected-revision": { kind: "string" }
+  });
+  requirePositionals(parsed, 0, "task-graph task create [options]");
+  const applied = await service.apply({
+    expectedRevision: requiredRevision(parsed),
+    operations: [
+      {
+        kind: "create-task",
+        content: contentInput(parsed),
+        parentId: stringValue(parsed, "parent"),
+        control: controlInput(
+          stringValue(parsed, "control"),
+          stringValue(parsed, "reason")
         )
       }
-    };
-    return await service.complete(
-      leaseId !== undefined
-        ? { ...common, leaseId }
-        : { ...common, expectedRevision: expectedRevision ?? 0 }
+    ]
+  });
+  const taskId = applied.data.createdTaskIds[0];
+  if (taskId === undefined) {
+    throw new Error("create-task mutation returned no task id");
+  }
+  return taskMutationResult(applied.revision, taskId);
+}
+
+async function dispatchTaskShow(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const parsed = parseCommandOptions(tokens.slice(2), {});
+  const [taskId = ""] = requirePositionals(
+    parsed,
+    1,
+    "task-graph task show <task-id>"
+  );
+  return await service.showTask(taskId);
+}
+
+async function dispatchTaskContentUpdate(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const parsed = parseCommandOptions(tokens.slice(2), {
+    ...contentOptionDefinitions,
+    "expected-revision": { kind: "string" }
+  });
+  const [taskId = ""] = requirePositionals(
+    parsed,
+    1,
+    "task-graph task update-content <task-id> [options]"
+  );
+  const applied = await service.apply({
+    expectedRevision: requiredRevision(parsed),
+    operations: [
+      { kind: "update-task-content", taskId, content: contentInput(parsed) }
+    ]
+  });
+  return taskMutationResult(applied.revision, taskId);
+}
+
+async function dispatchTaskControlUpdate(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const parsed = parseCommandOptions(tokens.slice(2), {
+    control: { kind: "string" },
+    reason: { kind: "string" },
+    "expected-revision": { kind: "string" }
+  });
+  const [taskId = ""] = requirePositionals(
+    parsed,
+    1,
+    "task-graph task update-control <task-id> [options]"
+  );
+  const control = controlInput(
+    stringValue(parsed, "control", { required: true }),
+    stringValue(parsed, "reason")
+  );
+  if (control === undefined) failArgument("--control is required");
+  const applied = await service.apply({
+    expectedRevision: requiredRevision(parsed),
+    operations: [{ kind: "update-task-control", taskId, control }]
+  });
+  return taskMutationResult(applied.revision, taskId);
+}
+
+async function dispatchTaskRemove(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const parsed = parseCommandOptions(tokens.slice(2), {
+    task: { kind: "string", multiple: true },
+    "expected-revision": { kind: "string" },
+    "results-delivered": { kind: "boolean" }
+  });
+  requirePositionals(
+    parsed,
+    0,
+    "task-graph task remove --task <id>... --expected-revision <n> --results-delivered"
+  );
+  const taskIds = stringsValue(parsed, "task");
+  if (taskIds.length === 0)
+    failArgument("--task is required and may be repeated");
+  if (!booleanValue(parsed, "results-delivered")) {
+    failArgument("--results-delivered is required");
+  }
+  return await service.removeTasks({
+    taskIds,
+    expectedRevision: requiredRevision(parsed),
+    resultsDelivered: true
+  });
+}
+
+function requiredRevision(parsed: ParsedCommandOptions): number {
+  return integerValue(parsed, "expected-revision", { required: true });
+}
+
+function taskMutationResult(revision: number, taskId: string): DispatchResult {
+  return { revision, data: { taskId } };
+}
+
+async function dispatchRelationCommand(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const subcommand = tokens[1];
+  const parsed = parseCommandOptions(tokens.slice(2), {
+    "expected-revision": { kind: "string" }
+  });
+  const expectedRevision = requiredRevision(parsed);
+  if (subcommand === "parent") {
+    return await dispatchParentRelation(service, parsed, expectedRevision);
+  }
+  if (subcommand === "dependency-add" || subcommand === "dependency-remove") {
+    return await dispatchDependencyRelation(
+      service,
+      parsed,
+      expectedRevision,
+      subcommand
     );
   }
-  if (first === "fail") {
-    const parsed = parseCommandOptions(tokens.slice(1), {
-      lease: { kind: "string" },
-      reason: { kind: "string" }
-    });
-    const [taskId = ""] = requirePositionals(
+  if (subcommand === "exclusion-add" || subcommand === "exclusion-remove") {
+    return await dispatchExclusionRelation(
+      service,
       parsed,
-      1,
-      "task-graph fail <task-id> --lease <id> --reason <text>"
+      expectedRevision,
+      subcommand
     );
-    return await service.fail({
-      taskId,
-      leaseId: stringValue(parsed, "lease", { required: true }) ?? "",
-      reason: stringValue(parsed, "reason", { required: true }) ?? ""
-    });
   }
-  if (first === "retry") {
-    const parsed = parseCommandOptions(tokens.slice(1), {
-      "expected-revision": { kind: "string" }
-    });
-    const [taskId = ""] = requirePositionals(
-      parsed,
-      1,
-      "task-graph retry <task-id> --expected-revision <n>"
-    );
-    return await service.retry({
-      taskId,
-      expectedRevision:
-        integerValue(parsed, "expected-revision", { required: true }) ?? 0
-    });
+  failArgument("Unknown relation command", { command: subcommand ?? null });
+}
+
+async function dispatchParentRelation(
+  service: TaskGraphService,
+  parsed: ParsedCommandOptions,
+  expectedRevision: number
+): Promise<DispatchResult> {
+  const [taskId = "", parent = ""] = requirePositionals(
+    parsed,
+    2,
+    "task-graph relation parent <task-id> <parent-id|null> --expected-revision <n>"
+  );
+  const applied = await service.apply({
+    expectedRevision,
+    operations: [
+      {
+        kind: "set-parent",
+        taskId,
+        parentId: parent === "null" ? null : parent
+      }
+    ]
+  });
+  return taskMutationResult(applied.revision, taskId);
+}
+
+async function dispatchDependencyRelation(
+  service: TaskGraphService,
+  parsed: ParsedCommandOptions,
+  expectedRevision: number,
+  subcommand: "dependency-add" | "dependency-remove"
+): Promise<DispatchResult> {
+  const [taskId = "", dependencyId = ""] = requirePositionals(
+    parsed,
+    2,
+    `task-graph relation ${subcommand} <task-id> <dependency-id> --expected-revision <n>`
+  );
+  const applied = await service.apply({
+    expectedRevision,
+    operations: [
+      {
+        kind: "set-dependency",
+        taskId,
+        dependencyId,
+        present: subcommand === "dependency-add"
+      }
+    ]
+  });
+  return taskMutationResult(applied.revision, taskId);
+}
+
+async function dispatchExclusionRelation(
+  service: TaskGraphService,
+  parsed: ParsedCommandOptions,
+  expectedRevision: number,
+  subcommand: "exclusion-add" | "exclusion-remove"
+): Promise<DispatchResult> {
+  const [taskId = "", excludedTaskId = ""] = requirePositionals(
+    parsed,
+    2,
+    `task-graph relation ${subcommand} <task-id> <excluded-id> --expected-revision <n>`
+  );
+  const applied = await service.apply({
+    expectedRevision,
+    operations: [
+      {
+        kind: "set-exclusion",
+        taskId,
+        excludedTaskId,
+        present: subcommand === "exclusion-add"
+      }
+    ]
+  });
+  return {
+    revision: applied.revision,
+    data: { taskId, excludedTaskId }
+  };
+}
+
+async function dispatchExecutionCommand(
+  service: TaskGraphService,
+  command: string | undefined,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  switch (command) {
+    case "claim":
+      return await dispatchClaim(service, tokens);
+    case "renew":
+      return await dispatchRenew(service, tokens);
+    case "release":
+      return await dispatchRelease(service, tokens);
+    case "complete":
+      return await dispatchComplete(service, tokens);
+    case "fail":
+      return await dispatchFail(service, tokens);
+    case "retry":
+      return await dispatchRetry(service, tokens);
+    case "cancel":
+      return await dispatchCancel(service, tokens);
+    case "apply":
+      return await dispatchApply(service, tokens);
+    default:
+      failArgument("Unknown task-graph command", { command: command ?? null });
   }
-  if (first === "cancel") {
-    const parsed = parseCommandOptions(tokens.slice(1), {
-      lease: { kind: "string" },
-      "expected-revision": { kind: "string" },
-      reason: { kind: "string" }
-    });
-    const [taskId = ""] = requirePositionals(
-      parsed,
-      1,
-      "task-graph cancel <task-id> --reason <text> [--lease <id>|--expected-revision <n>]"
+}
+
+async function dispatchClaim(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const parsed = parseCommandOptions(tokens.slice(1), {
+    actor: { kind: "string" },
+    duration: { kind: "string" },
+    "recover-lease": { kind: "string" },
+    "expected-revision": { kind: "string" },
+    reason: { kind: "string" }
+  });
+  const [taskId = ""] = requirePositionals(
+    parsed,
+    1,
+    "task-graph claim <task-id> --actor <actor> [--recover-lease <id> --expected-revision <n> --reason <text>]"
+  );
+  const recoverLeaseId = stringValue(parsed, "recover-lease");
+  const expectedRevision = integerValue(parsed, "expected-revision");
+  const reason = stringValue(parsed, "reason");
+  const recoveryValueCount = [recoverLeaseId, expectedRevision, reason].filter(
+    (value) => value !== undefined
+  ).length;
+  if (recoveryValueCount !== 0 && recoveryValueCount !== 3) {
+    failArgument(
+      "--recover-lease, --expected-revision, and --reason must be provided together"
     );
-    const leaseId = stringValue(parsed, "lease");
-    const expectedRevision = integerValue(parsed, "expected-revision");
-    if (leaseId !== undefined && expectedRevision !== undefined) {
-      failArgument("--lease and --expected-revision are mutually exclusive");
+  }
+  const common = {
+    taskId,
+    actor: stringValue(parsed, "actor", { required: true }) ?? "",
+    durationSeconds: integerValue(parsed, "duration", {
+      minimum: 60,
+      maximum: 86_400
+    })
+  };
+  return recoverLeaseId === undefined
+    ? await service.claim(common)
+    : await service.claim({
+        ...common,
+        recoverLeaseId,
+        expectedRevision: expectedRevision ?? 0,
+        reason: reason ?? ""
+      });
+}
+
+async function dispatchRenew(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const parsed = parseCommandOptions(tokens.slice(1), {
+    lease: { kind: "string" },
+    duration: { kind: "string" }
+  });
+  const [taskId = ""] = requirePositionals(
+    parsed,
+    1,
+    "task-graph renew <task-id> --lease <id> [--duration <seconds>]"
+  );
+  return await service.renew({
+    taskId,
+    leaseId: stringValue(parsed, "lease", { required: true }) ?? "",
+    durationSeconds: integerValue(parsed, "duration", {
+      minimum: 60,
+      maximum: 86_400
+    })
+  });
+}
+
+async function dispatchRelease(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const parsed = parseCommandOptions(tokens.slice(1), {
+    lease: { kind: "string" },
+    control: { kind: "string" },
+    reason: { kind: "string" }
+  });
+  const [taskId = ""] = requirePositionals(
+    parsed,
+    1,
+    "task-graph release <task-id> --lease <id> --control <mode>"
+  );
+  const control = controlInput(
+    stringValue(parsed, "control", { required: true }),
+    stringValue(parsed, "reason")
+  );
+  if (control === undefined) failArgument("--control is required");
+  return await service.release({
+    taskId,
+    leaseId: stringValue(parsed, "lease", { required: true }) ?? "",
+    control
+  });
+}
+
+function executionAuthority(parsed: ParsedCommandOptions): {
+  expectedRevision: number | undefined;
+  leaseId: string | undefined;
+} {
+  const leaseId = stringValue(parsed, "lease");
+  const expectedRevision = integerValue(parsed, "expected-revision");
+  if (leaseId !== undefined && expectedRevision !== undefined) {
+    failArgument("--lease and --expected-revision are mutually exclusive");
+  }
+  if (leaseId === undefined && expectedRevision === undefined) {
+    failArgument("One of --lease or --expected-revision is required");
+  }
+  return { expectedRevision, leaseId };
+}
+
+async function dispatchComplete(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const parsed = parseCommandOptions(tokens.slice(1), {
+    lease: { kind: "string" },
+    "expected-revision": { kind: "string" },
+    "result-summary": { kind: "string" },
+    "result-reference": { kind: "string", multiple: true }
+  });
+  const [taskId = ""] = requirePositionals(
+    parsed,
+    1,
+    "task-graph complete <task-id> --result-summary <text> [--lease <id>|--expected-revision <n>]"
+  );
+  const authority = executionAuthority(parsed);
+  const common = {
+    taskId,
+    result: {
+      summary: stringValue(parsed, "result-summary", { required: true }) ?? "",
+      references: keyValueDictionary(
+        stringsValue(parsed, "result-reference"),
+        "--result-reference"
+      )
     }
-    if (leaseId === undefined && expectedRevision === undefined) {
-      failArgument("One of --lease or --expected-revision is required");
-    }
-    const common = {
-      taskId,
-      reason: stringValue(parsed, "reason", { required: true }) ?? ""
-    };
-    return await service.cancel(
-      leaseId !== undefined
-        ? { ...common, leaseId }
-        : { ...common, expectedRevision: expectedRevision ?? 0 }
-    );
-  }
-  if (first === "apply") {
-    const parsed = parseCommandOptions(tokens.slice(1), {
-      file: { kind: "string" }
-    });
-    requirePositionals(parsed, 0, "task-graph apply [--file <path>|stdin]");
-    const request = parseTaskGraphApplyRequest(
-      await readJsonRequest(stringValue(parsed, "file"))
-    );
-    return await service.apply(request);
-  }
-  failArgument("Unknown task-graph command", { command: first ?? null });
+  };
+  return await service.complete(
+    authority.leaseId !== undefined
+      ? { ...common, leaseId: authority.leaseId }
+      : { ...common, expectedRevision: authority.expectedRevision ?? 0 }
+  );
+}
+
+async function dispatchFail(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const parsed = parseCommandOptions(tokens.slice(1), {
+    lease: { kind: "string" },
+    reason: { kind: "string" }
+  });
+  const [taskId = ""] = requirePositionals(
+    parsed,
+    1,
+    "task-graph fail <task-id> --lease <id> --reason <text>"
+  );
+  return await service.fail({
+    taskId,
+    leaseId: stringValue(parsed, "lease", { required: true }) ?? "",
+    reason: stringValue(parsed, "reason", { required: true }) ?? ""
+  });
+}
+
+async function dispatchRetry(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const parsed = parseCommandOptions(tokens.slice(1), {
+    "expected-revision": { kind: "string" }
+  });
+  const [taskId = ""] = requirePositionals(
+    parsed,
+    1,
+    "task-graph retry <task-id> --expected-revision <n>"
+  );
+  return await service.retry({
+    taskId,
+    expectedRevision: requiredRevision(parsed)
+  });
+}
+
+async function dispatchCancel(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const parsed = parseCommandOptions(tokens.slice(1), {
+    lease: { kind: "string" },
+    "expected-revision": { kind: "string" },
+    reason: { kind: "string" }
+  });
+  const [taskId = ""] = requirePositionals(
+    parsed,
+    1,
+    "task-graph cancel <task-id> --reason <text> [--lease <id>|--expected-revision <n>]"
+  );
+  const authority = executionAuthority(parsed);
+  const common = {
+    taskId,
+    reason: stringValue(parsed, "reason", { required: true }) ?? ""
+  };
+  return await service.cancel(
+    authority.leaseId !== undefined
+      ? { ...common, leaseId: authority.leaseId }
+      : { ...common, expectedRevision: authority.expectedRevision ?? 0 }
+  );
+}
+
+async function dispatchApply(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<DispatchResult> {
+  const parsed = parseCommandOptions(tokens.slice(1), {
+    file: { kind: "string" }
+  });
+  requirePositionals(parsed, 0, "task-graph apply [--file <path>|stdin]");
+  const request = parseTaskGraphApplyRequest(
+    await readJsonRequest(stringValue(parsed, "file"))
+  );
+  return await service.apply(request);
 }
 
 function success<TData>(

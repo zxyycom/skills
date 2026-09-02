@@ -10,7 +10,7 @@ import type {
   TaskListItem
 } from "../src/types.ts";
 
-type ItemOptions = {
+type ItemOptions = Readonly<{
   blockers?: TaskBlocker[];
   dependencyTargets?: string[];
   effectiveState?: TaskEffectiveState;
@@ -20,7 +20,7 @@ type ItemOptions = {
   phase?: TaskExecutionPhase;
   reason?: string | null;
   title?: string;
-};
+}>;
 
 function constraint(
   sourceTaskId: string,
@@ -36,28 +36,39 @@ function constraint(
 }
 
 function item(taskId: string, options: ItemOptions = {}): TaskListItem {
+  const {
+    blockers = [],
+    dependencyTargets = [],
+    effectiveState = "waiting",
+    exclusionTargets = [],
+    nextAction = null,
+    parentId = null,
+    phase = "idle",
+    reason = null,
+    title = taskId
+  } = options;
   return {
     taskId,
-    title: options.title ?? taskId,
-    parentId: options.parentId ?? null,
-    phase: options.phase ?? "idle",
-    effectiveState: options.effectiveState ?? "waiting",
+    title,
+    parentId,
+    phase,
+    effectiveState,
     effectiveControl: {
       mode: "queued",
-      reason: options.reason ?? null,
+      reason,
       sourceTaskId: taskId,
       inheritancePath: [taskId]
     },
-    blockers: options.blockers ?? [],
-    dependencies: (options.dependencyTargets ?? []).map((targetTaskId) =>
+    blockers,
+    dependencies: dependencyTargets.map((targetTaskId) =>
       constraint(taskId, targetTaskId)
     ),
-    exclusions: (options.exclusionTargets ?? []).map((targetTaskId) =>
+    exclusions: exclusionTargets.map((targetTaskId) =>
       constraint(taskId, targetTaskId)
     ),
     children: [],
     dependents: [],
-    nextAction: options.nextAction ?? null
+    nextAction
   };
 }
 

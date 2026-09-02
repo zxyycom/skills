@@ -150,6 +150,13 @@ type ParsedOptions = {
   title?: string;
 };
 
+type CommandLocation = Pick<CliArgs, "decisionsDir" | "workspaceRoot">;
+type LifecycleCommand = Extract<
+  Command,
+  "activate" | "archive" | "discard" | "evolve"
+>;
+type SimpleCommand = Extract<Command, "candidates" | "check" | "sync-index">;
+
 type RunCommand = (args: CliArgs) => Promise<number>;
 type SetExitCode = (exitCode: number) => void;
 
@@ -303,38 +310,31 @@ function commandArgs(
   cwd: string
 ): CliArgs {
   const options = commanderCommand.optsWithGlobals<ParsedOptions>();
+  const { decisionsDir = "docs/decisions", root = "." } = options;
   const location = {
-    decisionsDir: options.decisionsDir ?? "docs/decisions",
-    workspaceRoot: path.resolve(cwd, options.root ?? ".")
+    decisionsDir,
+    workspaceRoot: path.resolve(cwd, root)
   };
   switch (command) {
     case "activate":
-      return {
-        ...location,
-        alignment: requiredDecisionAlignment(options.alignment),
-        command,
-        decisionId: requiredDecisionId(decisionIds),
-        keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
-        preflight: options.preflight ?? false,
-        relationOverride: decisionRelationOverride(options)
-      };
     case "archive":
-      return {
-        ...location,
-        command,
-        decisionIds,
-        keepUnrecordedHistory: options.keepUnrecordedHistory ?? false
-      };
-    case "candidates":
-    case "check":
-      return { ...location, command };
     case "discard":
-      return {
-        ...location,
+    case "evolve":
+      return lifecycleCommandArgs(
         command,
-        decisionId: requiredDecisionId(decisionIds),
-        deleteRecordedDecision: options.deleteRecordedDecision ?? false
-      };
+        commanderCommand,
+        decisionIds,
+        location,
+        options
+      );
+    case "new":
+      return newCommandArgs(decisionIds, location, options);
+    case "list":
+      return listCommandArgs(location, options);
+    case "trace":
+      return traceCommandArgs(decisionIds, location, options);
+    case "stage":
+      return { ...location, command, decisionIds };
     case "mark-aligned":
     case "show":
     case "show-candidate":
@@ -343,64 +343,147 @@ function commandArgs(
         command,
         decisionId: requiredDecisionId(decisionIds)
       };
-    case "new":
-      return {
-        ...location,
-        background: requiredProjectionOption(
-          options.background,
-          "--background"
-        ),
-        command,
-        decision: requiredProjectionOption(options.decision, "--decision"),
-        decisionId: requiredDecisionId(decisionIds),
-        preflightAlignment: options.preflightAlignment ?? null,
-        purpose: requiredProjectionOption(options.purpose, "--purpose"),
-        relations: options.relation ?? [],
-        tags: options.tag ?? [],
-        title: requiredProjectionOption(options.title, "--title")
-      };
-    case "stage":
-      return { ...location, command, decisionIds };
-    case "evolve":
-      if (
-        options.deleteRecordedDecision === true &&
-        options.discard === undefined
-      ) {
-        commanderCommand.error(
-          "--delete-recorded-decision requires --discard <decision-id>",
-          { exitCode: 2, code: "decision-records.missing-discard" }
-        );
-      }
-      return {
-        ...location,
-        discardId: options.discard ?? null,
-        command,
-        deleteRecordedDecision: options.deleteRecordedDecision ?? false,
-        keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
-        preflight: options.preflight ?? false,
-        relationOverride: decisionRelationOverride(options),
-        successors: options.successor ?? []
-      };
-    case "list":
-      return {
-        ...location,
-        alignment: options.alignment ?? "all",
-        command,
-        fullTime: options.fullTime ?? false,
-        status: options.status ?? "active",
-        tags: options.tag ?? []
-      };
+    case "candidates":
+    case "check":
     case "sync-index":
-      return { ...location, command };
-    case "trace":
+      return simpleCommandArgs(command, location);
+  }
+}
+
+function simpleCommandArgs(
+  command: SimpleCommand,
+  location: CommandLocation
+): CliArgs {
+  switch (command) {
+    case "candidates":
+      return { ...location, command: "candidates" };
+    case "check":
+      return { ...location, command: "check" };
+    case "sync-index":
+      return { ...location, command: "sync-index" };
+  }
+}
+
+function lifecycleCommandArgs(
+  command: LifecycleCommand,
+  commanderCommand: CommanderCommand,
+  decisionIds: DecisionId[],
+  location: CommandLocation,
+  options: ParsedOptions
+): CliArgs {
+  const {
+    deleteRecordedDecision = false,
+    keepUnrecordedHistory = false,
+    preflight = false
+  } = options;
+  switch (command) {
+    case "activate":
+      return {
+        ...location,
+        alignment: requiredDecisionAlignment(options.alignment),
+        command,
+        decisionId: requiredDecisionId(decisionIds),
+        keepUnrecordedHistory,
+        preflight,
+        relationOverride: decisionRelationOverride(options)
+      };
+    case "archive":
+      return {
+        ...location,
+        command,
+        decisionIds,
+        keepUnrecordedHistory
+      };
+    case "discard":
       return {
         ...location,
         command,
         decisionId: requiredDecisionId(decisionIds),
-        traceDepth: options.depth ?? null,
-        traceDirection: options.direction ?? "both"
+        deleteRecordedDecision
       };
+    case "evolve":
+      return evolveCommandArgs(commanderCommand, location, options);
   }
+}
+
+function evolveCommandArgs(
+  command: CommanderCommand,
+  location: CommandLocation,
+  options: ParsedOptions
+): CliArgsFor<"evolve"> {
+  const {
+    deleteRecordedDecision = false,
+    discard: discardId,
+    keepUnrecordedHistory = false,
+    preflight = false,
+    successor: successors = []
+  } = options;
+  if (deleteRecordedDecision && discardId === undefined) {
+    command.error(
+      "--delete-recorded-decision requires --discard <decision-id>",
+      {
+        exitCode: 2,
+        code: "decision-records.missing-discard"
+      }
+    );
+  }
+  return {
+    ...location,
+    discardId: discardId ?? null,
+    command: "evolve",
+    deleteRecordedDecision,
+    keepUnrecordedHistory,
+    preflight,
+    relationOverride: decisionRelationOverride(options),
+    successors
+  };
+}
+
+function newCommandArgs(
+  decisionIds: DecisionId[],
+  location: CommandLocation,
+  options: ParsedOptions
+): CliArgsFor<"new"> {
+  return {
+    ...location,
+    background: requiredProjectionOption(options.background, "--background"),
+    command: "new",
+    decision: requiredProjectionOption(options.decision, "--decision"),
+    decisionId: requiredDecisionId(decisionIds),
+    preflightAlignment: options.preflightAlignment ?? null,
+    purpose: requiredProjectionOption(options.purpose, "--purpose"),
+    relations: options.relation ?? [],
+    tags: options.tag ?? [],
+    title: requiredProjectionOption(options.title, "--title")
+  };
+}
+
+function listCommandArgs(
+  location: CommandLocation,
+  options: ParsedOptions
+): CliArgsFor<"list"> {
+  return {
+    ...location,
+    alignment: options.alignment ?? "all",
+    command: "list",
+    fullTime: options.fullTime ?? false,
+    status: options.status ?? "active",
+    tags: options.tag ?? []
+  };
+}
+
+function traceCommandArgs(
+  decisionIds: DecisionId[],
+  location: CommandLocation,
+  options: ParsedOptions
+): CliArgsFor<"trace"> {
+  return {
+    ...location,
+    command: "trace",
+    decisionId: requiredDecisionId(decisionIds),
+    traceDepth: options.depth ?? null,
+    traceDirection: options.direction ?? "both"
+  };
 }
 
 function requiredProjectionOption(

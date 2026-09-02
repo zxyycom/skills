@@ -1,10 +1,16 @@
 import * as v from "valibot";
-import { readLedgerCaseSource } from "./case-source.ts";
+import {
+  readLedgerCaseSource,
+  type ParsedLedgerCaseSource
+} from "./case-source.ts";
 import {
   createInvalidTestEvidenceOptionsDiagnostic,
   createTestEvidenceDiagnostic
 } from "./diagnostics.ts";
-import { openTestEvidenceLedgerIndex } from "./index-reader.ts";
+import {
+  openTestEvidenceLedgerIndex,
+  type OpenedTestEvidenceLedgerIndex
+} from "./index-reader.ts";
 import {
   readTestEvidenceLedgerRevision,
   sameTargetTestEvidenceLedgerRevision
@@ -22,6 +28,20 @@ import {
 } from "./schemas.ts";
 import { mapStateIndexDiagnostics } from "./state-index.ts";
 
+type ShowCaseLookup =
+  | {
+      diagnostics: TestEvidenceDiagnostic[];
+      failure: null;
+      opened: OpenedTestEvidenceLedgerIndex;
+      source: ParsedLedgerCaseSource;
+    }
+  | {
+      diagnostics: [];
+      failure: TestEvidenceCaseShowResult;
+      opened: null;
+      source: null;
+    };
+
 export async function showTestEvidenceCase(
   options: ShowTestEvidenceCaseOptions
 ): Promise<TestEvidenceCaseShowResult> {
@@ -32,99 +52,153 @@ export async function showTestEvidenceCase(
     ]);
   }
 
-  const opened = await openTestEvidenceLedgerIndex(
-    parsedOptions.output.workspaceRoot
-  );
-  if (opened.opened === null) {
-    return showFailure(opened.diagnostics);
+  const lookup = await lookupShowCase(parsedOptions.output);
+  if (lookup.failure !== null) {
+    return lookup.failure;
   }
-  const found = opened.opened.reader.get(parsedOptions.output.caseId);
+
+  const resolvedTests = resolveCaseTests({
+    caseId: lookup.source.id,
+    entities: lookup.opened.revisionSource.entityIndex.value.entities,
+    sourcePath: lookup.source.path,
+    testIds: lookup.source.case.testIds
+  });
+  if (resolvedTests.diagnostics.length > 0) {
+    return showFailure([...lookup.diagnostics, ...resolvedTests.diagnostics]);
+  }
+
+  const revisionDiagnostics = await showRevisionDiagnostics({
+    caseId: parsedOptions.output.caseId,
+    opened: lookup.opened,
+    source: lookup.source,
+    workspaceRoot: parsedOptions.output.workspaceRoot
+  });
+  if (revisionDiagnostics !== null) {
+    return showFailure([...lookup.diagnostics, ...revisionDiagnostics]);
+  }
+
+  return v.parse(testEvidenceCaseShowResultSchema, {
+    case: lookup.source.case,
+    diagnostics: lookup.diagnostics,
+    indexPath: testEvidenceLedgerIndexPath,
+    ledgerPath: testEvidenceLedgerPath,
+    markdown: lookup.source.normalizedMarkdown,
+    schemaVersion: testEvidenceLedgerSchemaVersion,
+    tests: resolvedTests.tests
+  });
+}
+
+async function lookupShowCase(
+  options: ShowTestEvidenceCaseOptions
+): Promise<ShowCaseLookup> {
+  const opened = await openTestEvidenceLedgerIndex(options.workspaceRoot);
+  if (opened.opened === null) {
+    return lookupFailure(opened.diagnostics);
+  }
+  const found = opened.opened.reader.get(options.caseId);
   if (found.status === "error") {
-    return showFailure([
+    return lookupFailure([
       ...opened.diagnostics,
       ...mapStateIndexDiagnostics(found.diagnostics)
     ]);
   }
   if (found.value === null) {
-    return showFailure([
+    return lookupFailure([
       ...opened.diagnostics,
-      createTestEvidenceDiagnostic({
-        caseId: parsedOptions.output.caseId,
-        category: "query",
-        code: "query.case-missing",
-        message: `Test evidence Case does not exist: ${parsedOptions.output.caseId}`,
-        severity: "error"
-      })
+      missingCaseDiagnostic(options.caseId)
     ]);
   }
-
   const source = await readLedgerCaseSource(
-    parsedOptions.output.workspaceRoot,
+    options.workspaceRoot,
     found.value.state.sourcePath
   );
   if (source.value === null) {
-    return showFailure([...opened.diagnostics, ...source.diagnostics]);
+    return lookupFailure([...opened.diagnostics, ...source.diagnostics]);
   }
-  if (source.value.id !== parsedOptions.output.caseId) {
-    return showFailure([
+  if (source.value.id !== options.caseId) {
+    return lookupFailure([
       ...opened.diagnostics,
-      createTestEvidenceDiagnostic({
-        caseId: parsedOptions.output.caseId,
-        category: "index",
-        code: "state-index.index-stale",
-        message: `${testEvidenceLedgerIndexPath} no longer locates ${parsedOptions.output.caseId} in ${found.value.state.sourcePath}`,
-        path: testEvidenceLedgerIndexPath,
-        severity: "error"
-      })
+      staleCaseDiagnostic(options.caseId, found.value.state.sourcePath)
     ]);
   }
+  return {
+    diagnostics: opened.diagnostics,
+    failure: null,
+    opened: opened.opened,
+    source: source.value
+  };
+}
 
-  const resolvedTests = resolveCaseTests({
-    caseId: source.value.id,
-    entities: opened.opened.revisionSource.entityIndex.value.entities,
-    sourcePath: source.value.path,
-    testIds: source.value.case.testIds
-  });
-  if (resolvedTests.diagnostics.length > 0) {
-    return showFailure([...opened.diagnostics, ...resolvedTests.diagnostics]);
-  }
+function lookupFailure(
+  diagnostics: readonly TestEvidenceDiagnostic[]
+): ShowCaseLookup {
+  return {
+    diagnostics: [],
+    failure: showFailure(diagnostics),
+    opened: null,
+    source: null
+  };
+}
 
+async function showRevisionDiagnostics(options: {
+  caseId: string;
+  opened: OpenedTestEvidenceLedgerIndex;
+  source: ParsedLedgerCaseSource;
+  workspaceRoot: string;
+}): Promise<TestEvidenceDiagnostic[] | null> {
   const currentRevision = await readTestEvidenceLedgerRevision(
-    parsedOptions.output.workspaceRoot
+    options.workspaceRoot
   );
   if (currentRevision.source === null) {
-    return showFailure([...opened.diagnostics, ...currentRevision.diagnostics]);
+    return currentRevision.diagnostics;
   }
-  if (
-    !sameTargetTestEvidenceLedgerRevision({
-      caseId: parsedOptions.output.caseId,
-      current: currentRevision.source.sourceRevision,
-      observedFingerprint: source.value.fingerprint,
-      opened: opened.opened.revisionSource.sourceRevision
-    })
-  ) {
-    return showFailure([
-      ...opened.diagnostics,
-      createTestEvidenceDiagnostic({
-        caseId: parsedOptions.output.caseId,
-        category: "index",
-        code: "state-index.source-changed",
-        message:
-          "the entity index or target Case changed while composing the show result; retry after the source is stable",
-        path: found.value.state.sourcePath,
-        severity: "error"
-      })
-    ]);
-  }
+  const stable = sameTargetTestEvidenceLedgerRevision({
+    caseId: options.caseId,
+    current: currentRevision.source.sourceRevision,
+    observedFingerprint: options.source.fingerprint,
+    opened: options.opened.revisionSource.sourceRevision
+  });
+  return stable
+    ? null
+    : [sourceChangedDiagnostic(options.caseId, options.source.path)];
+}
 
-  return v.parse(testEvidenceCaseShowResultSchema, {
-    case: source.value.case,
-    diagnostics: opened.diagnostics,
-    indexPath: testEvidenceLedgerIndexPath,
-    ledgerPath: testEvidenceLedgerPath,
-    markdown: source.value.normalizedMarkdown,
-    schemaVersion: testEvidenceLedgerSchemaVersion,
-    tests: resolvedTests.tests
+function missingCaseDiagnostic(caseId: string): TestEvidenceDiagnostic {
+  return createTestEvidenceDiagnostic({
+    caseId,
+    category: "query",
+    code: "query.case-missing",
+    message: `Test evidence Case does not exist: ${caseId}`,
+    severity: "error"
+  });
+}
+
+function staleCaseDiagnostic(
+  caseId: string,
+  sourcePath: string
+): TestEvidenceDiagnostic {
+  return createTestEvidenceDiagnostic({
+    caseId,
+    category: "index",
+    code: "state-index.index-stale",
+    message: `${testEvidenceLedgerIndexPath} no longer locates ${caseId} in ${sourcePath}`,
+    path: testEvidenceLedgerIndexPath,
+    severity: "error"
+  });
+}
+
+function sourceChangedDiagnostic(
+  caseId: string,
+  sourcePath: string
+): TestEvidenceDiagnostic {
+  return createTestEvidenceDiagnostic({
+    caseId,
+    category: "index",
+    code: "state-index.source-changed",
+    message:
+      "the entity index or target Case changed while composing the show result; retry after the source is stable",
+    path: sourcePath,
+    severity: "error"
   });
 }
 

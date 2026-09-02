@@ -26,7 +26,8 @@ import {
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import {
   collectValidatedInvestigationCollection,
-  unrecordedPredecessorWarnings
+  unrecordedPredecessorWarnings,
+  type ValidatedInvestigationCollection
 } from "./validation.ts";
 import type { InvestigationIndexState, InvestigationSource } from "./types.ts";
 import type { InvestigationDiagnostic } from "./diagnostics.ts";
@@ -65,6 +66,24 @@ export type InvestigationPublishPreparationResult =
       warnings: string[];
     }>;
 
+type PublishPreparationFailure = Extract<
+  InvestigationPublishPreparationResult,
+  { status: "error" }
+>;
+type PublishPreparationStep<T> =
+  | PublishPreparationFailure
+  | { status: "ok"; value: T };
+type FormalPublishContext = Readonly<{
+  formal: ValidatedInvestigationCollection;
+  indexExisted: boolean;
+  warnings: string[];
+}>;
+type CandidatePublishContext = FormalPublishContext & {
+  candidatePaths: Map<string, string>;
+  candidateSources: InvestigationSource[];
+  states: Map<string, InvestigationIndexState>;
+};
+
 /**
  * Builds the exact final formal collection for a selected candidate batch.
  * It owns only read-only publication gates; the mutation module re-runs it
@@ -78,7 +97,94 @@ export async function prepareInvestigationPublish(
   if ("errors" in layout) return layout;
   const selectionErrors = selectedCandidateErrors(layout.value, ids);
   if (selectionErrors.length > 0) return preparationFailure(selectionErrors);
+  const formalStep = await prepareFormalPublishContext(investigationsDirectory);
+  if (formalStep.status === "error") return formalStep;
+  const candidateStep = await preparePublishCandidates(
+    investigationsDirectory,
+    ids,
+    formalStep.value
+  );
+  if (candidateStep.status === "error") return candidateStep;
+  const context = candidateStep.value;
+  const validation = await validatePublishCollection(
+    investigationsDirectory,
+    context
+  );
+  if (validation.status === "error") return validation;
+  return await buildPreparedPublication(investigationsDirectory, context);
+}
 
+async function buildPreparedPublication(
+  investigationsDirectory: string,
+  context: CandidatePublishContext
+): Promise<InvestigationPublishPreparationResult> {
+  const sources = [...context.formal.sources, ...context.candidateSources].sort(
+    (left, right) => compareText(left.id, right.id)
+  );
+  const snapshot = createInvestigationStateSnapshot(
+    sources,
+    sources.map((source) => requiredPublishState(context.states, source.id))
+  );
+  const definition = createInvestigationStateIndexDefinition({ snapshot });
+  const builtIndex = await buildStateIndex(definition, {
+    root: investigationsDirectory
+  });
+  if (builtIndex.status === "error") {
+    return preparationFailure(
+      investigationIndexDiagnosticMessages(
+        builtIndex.diagnostics,
+        context.formal.indexPath
+      ),
+      [],
+      context.warnings
+    );
+  }
+
+  const resourceSnapshot = await snapshotReferencedResources(
+    investigationsDirectory,
+    context.candidateSources.flatMap(
+      (source) => requiredPublishState(context.states, source.id).resourceIds
+    )
+  );
+  if (resourceSnapshot.status === "error") {
+    return preparationFailure(resourceSnapshot.errors, [], context.warnings);
+  }
+  return {
+    diagnostics: [],
+    errors: [],
+    status: "ok",
+    value: {
+      candidatePaths: context.candidatePaths,
+      candidateSources: context.candidateSources,
+      formalSources: context.formal.sources,
+      indexExisted: context.indexExisted,
+      indexPath: context.formal.indexPath,
+      nextIndexText: serializeStateIndex(builtIndex.value, definition),
+      resourceSnapshot: resourceSnapshot.value,
+      sources,
+      states: context.states,
+      warnings: uniqueSorted(context.warnings)
+    },
+    warnings: uniqueSorted(context.warnings)
+  };
+}
+
+function requiredPublishState(
+  states: ReadonlyMap<string, InvestigationIndexState>,
+  investigationId: string
+): InvestigationIndexState {
+  const state = states.get(investigationId);
+  if (state === undefined) {
+    throw new Error(
+      `validated publish collection is missing state for ${investigationId}`
+    );
+  }
+  return state;
+}
+
+async function prepareFormalPublishContext(
+  investigationsDirectory: string
+): Promise<PublishPreparationStep<FormalPublishContext>> {
   const formal = await collectValidatedInvestigationCollection(
     investigationsDirectory,
     { allowEmptyCollection: true }
@@ -105,56 +211,95 @@ export async function prepareInvestigationPublish(
       );
     }
   }
+  return {
+    status: "ok",
+    value: {
+      formal,
+      indexExisted: indexExisted.value,
+      warnings: [...formal.warnings]
+    }
+  };
+}
 
+async function preparePublishCandidates(
+  investigationsDirectory: string,
+  ids: readonly string[],
+  formal: FormalPublishContext
+): Promise<PublishPreparationStep<CandidatePublishContext>> {
   const candidateSources: InvestigationSource[] = [];
   const candidatePaths = new Map<string, string>();
-  const states = new Map(formal.states);
-  const warnings = [...formal.warnings];
+  const states = new Map(formal.formal.states);
   for (const id of ids) {
-    const candidate = await readInvestigationCandidate(
-      investigationsDirectory,
-      id
-    );
-    if (candidate.status === "error") {
+    const prepared = await preparePublishCandidate(investigationsDirectory, id);
+    if (prepared.status === "error") {
       return preparationFailure(
-        candidate.errors,
-        candidate.diagnostics,
-        warnings
+        prepared.errors,
+        prepared.diagnostics,
+        formal.warnings
       );
     }
-    if (
-      !candidate.value.readiness.scaffoldValid ||
-      !candidate.value.readiness.bodyReady ||
-      !candidate.value.readiness.resourceReady ||
-      candidate.value.markdown === null
-    ) {
-      return preparationFailure(
-        [
-          `${id} investigation candidate is not ready for publish: ${candidate.value.errors.join("; ")}`
-        ],
-        [],
-        warnings
-      );
-    }
-    const parsed = parseInvestigationReport(candidate.value.markdown, id);
-    const built = buildInvestigationReportState(id, parsed);
-    if (built.status === "invalid") {
-      return preparationFailure(built.errors, [], warnings);
-    }
-    candidatePaths.set(
-      id,
-      candidatePathForInvestigationId(investigationsDirectory, id)
-    );
-    candidateSources.push({ id, text: candidate.value.markdown });
-    states.set(id, built.state);
+    candidatePaths.set(id, prepared.value.path);
+    candidateSources.push(prepared.value.source);
+    states.set(id, prepared.value.state);
   }
+  return {
+    status: "ok",
+    value: { ...formal, candidatePaths, candidateSources, states }
+  };
+}
 
-  const relationErrors = validateInvestigationRelationGraph(states);
-  if (relationErrors.length > 0)
-    return preparationFailure(relationErrors, [], warnings);
+async function preparePublishCandidate(
+  investigationsDirectory: string,
+  id: string
+): Promise<
+  PublishPreparationStep<{
+    path: string;
+    source: InvestigationSource;
+    state: InvestigationIndexState;
+  }>
+> {
+  const candidate = await readInvestigationCandidate(
+    investigationsDirectory,
+    id
+  );
+  if (candidate.status === "error") {
+    return preparationFailure(candidate.errors, candidate.diagnostics);
+  }
+  if (
+    !candidate.value.readiness.scaffoldValid ||
+    !candidate.value.readiness.bodyReady ||
+    !candidate.value.readiness.resourceReady ||
+    candidate.value.markdown === null
+  ) {
+    return preparationFailure([
+      `${id} investigation candidate is not ready for publish: ${candidate.value.errors.join("; ")}`
+    ]);
+  }
+  const built = buildInvestigationReportState(
+    id,
+    parseInvestigationReport(candidate.value.markdown, id)
+  );
+  if (built.status === "invalid") return preparationFailure(built.errors);
+  return {
+    status: "ok",
+    value: {
+      path: candidatePathForInvestigationId(investigationsDirectory, id),
+      source: { id, text: candidate.value.markdown },
+      state: built.state
+    }
+  };
+}
 
+async function validatePublishCollection(
+  investigationsDirectory: string,
+  context: CandidatePublishContext
+): Promise<PublishPreparationStep<undefined>> {
+  const relationErrors = validateInvestigationRelationGraph(context.states);
+  if (relationErrors.length > 0) {
+    return preparationFailure(relationErrors, [], context.warnings);
+  }
   const references: InvestigationResourceReferencesByReport = new Map(
-    [...states].map(([id, state]) => [id, new Set(state.resourceIds)])
+    [...context.states].map(([id, state]) => [id, new Set(state.resourceIds)])
   );
   const resourceValidation = await validateFullInvestigationResources(
     investigationsDirectory,
@@ -164,61 +309,17 @@ export async function prepareInvestigationPublish(
     return preparationFailure(
       resourceValidation.errors,
       [],
-      [...warnings, ...resourceValidation.warnings]
+      [...context.warnings, ...resourceValidation.warnings]
     );
   }
-  warnings.push(...resourceValidation.warnings);
-  warnings.push(
-    ...(await unrecordedPredecessorWarnings(investigationsDirectory, states))
+  context.warnings.push(...resourceValidation.warnings);
+  context.warnings.push(
+    ...(await unrecordedPredecessorWarnings(
+      investigationsDirectory,
+      context.states
+    ))
   );
-
-  const sources = [...formal.sources, ...candidateSources].sort((left, right) =>
-    compareText(left.id, right.id)
-  );
-  const snapshot = createInvestigationStateSnapshot(
-    sources,
-    sources.map((source) => states.get(source.id)!)
-  );
-  const definition = createInvestigationStateIndexDefinition({ snapshot });
-  const builtIndex = await buildStateIndex(definition, {
-    root: investigationsDirectory
-  });
-  if (builtIndex.status === "error") {
-    return preparationFailure(
-      investigationIndexDiagnosticMessages(
-        builtIndex.diagnostics,
-        formal.indexPath
-      ),
-      [],
-      warnings
-    );
-  }
-
-  const resourceSnapshot = await snapshotReferencedResources(
-    investigationsDirectory,
-    candidateSources.flatMap((source) => states.get(source.id)!.resourceIds)
-  );
-  if (resourceSnapshot.status === "error") {
-    return preparationFailure(resourceSnapshot.errors, [], warnings);
-  }
-  return {
-    diagnostics: [],
-    errors: [],
-    status: "ok",
-    value: {
-      candidatePaths,
-      candidateSources,
-      formalSources: formal.sources,
-      indexExisted: indexExisted.value,
-      indexPath: formal.indexPath,
-      nextIndexText: serializeStateIndex(builtIndex.value, definition),
-      resourceSnapshot: resourceSnapshot.value,
-      sources,
-      states,
-      warnings: uniqueSorted(warnings)
-    },
-    warnings: uniqueSorted(warnings)
-  };
+  return { status: "ok", value: undefined };
 }
 
 /** Rechecks only member identity, deliberately not resource bytes. */
@@ -285,10 +386,7 @@ function selectedCandidateErrors(
 
 async function regularIndexExists(
   indexPath: string
-): Promise<
-  | Readonly<{ status: "ok"; value: boolean }>
-  | InvestigationPublishPreparationResult
-> {
+): Promise<PublishPreparationStep<boolean>> {
   try {
     const entry = await fs.lstat(indexPath);
     return entry.isFile() && !entry.isSymbolicLink()
@@ -345,7 +443,7 @@ function preparationFailure(
   errors: readonly string[],
   diagnostics: readonly InvestigationDiagnostic[] = [],
   warnings: readonly string[] = []
-): InvestigationPublishPreparationResult {
+): PublishPreparationFailure {
   return {
     diagnostics: [...diagnostics],
     errors: uniqueSorted(errors),

@@ -239,23 +239,7 @@ async function runCatalogCommand(
   io: CatalogCliIo
 ): Promise<number> {
   if (args.command === "stage-index") {
-    const execution = await executeTestEvidenceIndexStage({
-      caseIds: args.caseIds,
-      workspaceRoot: args.workspaceRoot
-    });
-    return execution.match(
-      (result) => {
-        writeOutput(io, formatTestEvidenceIndexStage(result, args.json));
-        return 0;
-      },
-      (failure) => {
-        writeOutput(
-          io,
-          formatTestEvidenceIndexStage(failure.result, args.json)
-        );
-        return failure.kind === "invalid-arguments" ? 2 : 1;
-      }
-    );
+    return await runStageIndexCommand(args, io);
   }
 
   if (args.command === "sync-index") {
@@ -292,6 +276,13 @@ async function runCatalogCommand(
     return hasBlockingDiagnostics(result.diagnostics) ? 1 : 0;
   }
 
+  return await runQueryCommand(args, io);
+}
+
+async function runQueryCommand(
+  args: Extract<CatalogCliArgs, { command: "list" }>,
+  io: CatalogCliIo
+): Promise<number> {
   const result = await queryTestEvidence({
     limit: args.limit,
     offset: args.offset,
@@ -309,6 +300,26 @@ async function runCatalogCommand(
   }
   writeOutput(io, formatTestEvidenceCaseList(result, args.json));
   return 0;
+}
+
+async function runStageIndexCommand(
+  args: Extract<CatalogCliArgs, { command: "stage-index" }>,
+  io: CatalogCliIo
+): Promise<number> {
+  const execution = await executeTestEvidenceIndexStage({
+    caseIds: args.caseIds,
+    workspaceRoot: args.workspaceRoot
+  });
+  return execution.match(
+    (result) => {
+      writeOutput(io, formatTestEvidenceIndexStage(result, args.json));
+      return 0;
+    },
+    (failure) => {
+      writeOutput(io, formatTestEvidenceIndexStage(failure.result, args.json));
+      return failure.kind === "invalid-arguments" ? 2 : 1;
+    }
+  );
 }
 
 function commandBase(commandNode: Command, cwd: string): CatalogCliBase {

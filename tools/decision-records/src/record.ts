@@ -22,6 +22,11 @@ export type ValidatedDecisionBody = DecisionProjection &
 const sectionOrder = ["## 目的", "## 背景", "## 决策"];
 const requiredSections = new Set(sectionOrder);
 
+type DecisionSectionValidation = Readonly<{
+  bodyReady: boolean;
+  sectionMap: Map<string, MarkdownSection[]>;
+}>;
+
 type DecisionRelationTargetExists = (
   decisionId: DecisionId
 ) => boolean | Promise<boolean>;
@@ -67,8 +72,6 @@ export async function validateDecisionBody(options: {
     relativePath: sourcePath
   });
   const body = parsedMarkdown?.body ?? "";
-  const metadata = parsedMarkdown?.metadata ?? null;
-  const projection = parsedMarkdown?.projection ?? null;
 
   if (!isDecisionId(decisionId)) {
     errors.push(
@@ -79,55 +82,60 @@ export async function validateDecisionBody(options: {
     errors.push(sourcePath + ' body must start with "## 目的"');
   }
 
+  const sections = validateDecisionSections(
+    body,
+    sourcePath,
+    parsedMarkdown?.metadata ?? null,
+    errors
+  );
+
+  if (parsedMarkdown !== null) {
+    await validateDecisionRelations({
+      errors,
+      relations: parsedMarkdown.projection.relations,
+      decisionId,
+      sourcePath,
+      targetExists: options.targetExists
+    });
+  }
+  return validatedDecisionBody(
+    parsedMarkdown,
+    body,
+    sections.bodyReady,
+    errors.length === errorCountBeforeValidation
+  );
+}
+
+function validatedDecisionBody(
+  parsedMarkdown: ReturnType<typeof parseDecisionMarkdown>,
+  body: string,
+  bodyReady: boolean,
+  valid: boolean
+): ValidatedDecisionBody | null {
+  if (parsedMarkdown === null || !valid) return null;
+  return {
+    ...parsedMarkdown.projection,
+    tags: [...parsedMarkdown.tags],
+    ...parsedMarkdown.metadata,
+    body,
+    bodyReady
+  };
+}
+
+function validateDecisionSections(
+  body: string,
+  sourcePath: string,
+  metadata: DecisionSourceMetadata | null,
+  errors: string[]
+): DecisionSectionValidation {
   const sections = parseSections(body);
-  const sectionMap = new Map<string, MarkdownSection[]>();
-  for (const section of sections) {
-    if (!requiredSections.has(section.heading)) {
-      errors.push(sourcePath + " has unsupported section " + section.heading);
-      continue;
-    }
-    sectionMap.set(section.heading, [
-      ...(sectionMap.get(section.heading) ?? []),
-      section
-    ]);
-  }
+  const sectionMap = groupDecisionSections(sections, sourcePath, errors);
+  validateRequiredSections(sectionMap, sourcePath, errors);
+  validateSectionContents(sectionMap, sourcePath, metadata, errors);
+  validateSectionOrder(sections, sourcePath, errors);
 
-  for (const sectionHeading of requiredSections) {
-    if (!sectionMap.has(sectionHeading)) {
-      errors.push(sourcePath + " is missing section " + sectionHeading);
-    }
-  }
-
-  for (const [sectionHeading, entries] of sectionMap) {
-    if (entries.length > 1) {
-      errors.push(
-        sourcePath + " contains section " + sectionHeading + " more than once"
-      );
-    }
-    for (const entry of entries) {
-      if (entry.content.length === 0 && metadata?.status !== "candidate") {
-        errors.push(
-          sourcePath + " section " + sectionHeading + " must not be empty"
-        );
-      }
-    }
-  }
-
-  let previousOrder = -1;
-  for (const section of sections) {
-    const currentOrder = sectionOrder.indexOf(section.heading);
-    if (currentOrder < 0) {
-      continue;
-    }
-    if (currentOrder < previousOrder) {
-      errors.push(sourcePath + " has sections out of order");
-      break;
-    }
-    previousOrder = currentOrder;
-  }
-
-  const decisionSection = sectionMap.get("## 决策")?.[0]?.content;
   const decisionFieldErrors: string[] = [];
+  const decisionSection = sectionMap.get("## 决策")?.[0]?.content;
   if (decisionSection) {
     requireNonEmptyField(
       sourcePath,
@@ -139,36 +147,80 @@ export async function validateDecisionBody(options: {
   if (metadata?.status !== "candidate") {
     errors.push(...decisionFieldErrors);
   }
-  const bodyReady =
-    sectionOrder.every((sectionHeading) => {
-      const entries = sectionMap.get(sectionHeading);
-      return entries?.length === 1 && entries[0]?.content.length > 0;
-    }) && decisionFieldErrors.length === 0;
-
-  if (projection) {
-    await validateDecisionRelations({
-      errors,
-      relations: projection.relations,
-      decisionId,
-      sourcePath,
-      targetExists: options.targetExists
-    });
-  }
-
-  if (
-    parsedMarkdown === null ||
-    metadata === null ||
-    projection === null ||
-    errors.length > errorCountBeforeValidation
-  ) {
-    return null;
-  }
-
   return {
-    ...projection,
-    tags: [...parsedMarkdown.tags],
-    ...metadata,
-    body,
-    bodyReady
+    bodyReady:
+      sectionOrder.every((heading) => {
+        const entries = sectionMap.get(heading);
+        return entries?.length === 1 && entries[0]?.content.length > 0;
+      }) && decisionFieldErrors.length === 0,
+    sectionMap
   };
+}
+
+function groupDecisionSections(
+  sections: readonly MarkdownSection[],
+  sourcePath: string,
+  errors: string[]
+): Map<string, MarkdownSection[]> {
+  const sectionMap = new Map<string, MarkdownSection[]>();
+  for (const section of sections) {
+    if (!requiredSections.has(section.heading)) {
+      errors.push(sourcePath + " has unsupported section " + section.heading);
+      continue;
+    }
+    sectionMap.set(section.heading, [
+      ...(sectionMap.get(section.heading) ?? []),
+      section
+    ]);
+  }
+  return sectionMap;
+}
+
+function validateRequiredSections(
+  sectionMap: ReadonlyMap<string, readonly MarkdownSection[]>,
+  sourcePath: string,
+  errors: string[]
+): void {
+  for (const heading of requiredSections) {
+    if (!sectionMap.has(heading)) {
+      errors.push(sourcePath + " is missing section " + heading);
+    }
+  }
+}
+
+function validateSectionContents(
+  sectionMap: ReadonlyMap<string, readonly MarkdownSection[]>,
+  sourcePath: string,
+  metadata: DecisionSourceMetadata | null,
+  errors: string[]
+): void {
+  for (const [heading, entries] of sectionMap) {
+    if (entries.length > 1) {
+      errors.push(
+        sourcePath + " contains section " + heading + " more than once"
+      );
+    }
+    for (const entry of entries) {
+      if (entry.content.length === 0 && metadata?.status !== "candidate") {
+        errors.push(sourcePath + " section " + heading + " must not be empty");
+      }
+    }
+  }
+}
+
+function validateSectionOrder(
+  sections: readonly MarkdownSection[],
+  sourcePath: string,
+  errors: string[]
+): void {
+  let previousOrder = -1;
+  for (const section of sections) {
+    const currentOrder = sectionOrder.indexOf(section.heading);
+    if (currentOrder < 0) continue;
+    if (currentOrder < previousOrder) {
+      errors.push(sourcePath + " has sections out of order");
+      return;
+    }
+    previousOrder = currentOrder;
+  }
 }

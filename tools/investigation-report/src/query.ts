@@ -45,7 +45,9 @@ import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import type {
   InvestigationIndexQueryOptions,
   InvestigationIndexQueryResult,
+  InvestigationReportShowOptions,
   InvestigationReportShowResult,
+  InvestigationReportTraceOptions,
   InvestigationReportTraceResult
 } from "./types.ts";
 
@@ -132,73 +134,118 @@ export async function showInvestigationReport(
     return showFailure(id, investigationIndexPathForOptions(parsed.value), [
       `${id || "<empty>"} must use an Investigation ID`
     ]);
-  const resolved = resolveInvestigationsDirectory(
-    parsed.value.workspaceRoot,
-    parsed.value.investigationsDir
+  const loaded = await loadIndexedInvestigationContext(
+    parsed.value,
+    "correct the reported derived-index problem, then retry showing the report"
   );
-  if (resolved.isErr()) {
+  if (loaded.isErr()) {
     return showFailure(
       id,
-      investigationIndexPathForOptions(parsed.value),
-      resolved.error
+      loaded.error.indexPath,
+      loaded.error.errors,
+      loaded.error.diagnostics
     );
   }
-  const canonical = await canonicalizeInvestigationsDirectory(resolved.value);
-  if (canonical.isErr()) {
-    return showFailure(
-      id,
-      investigationIndexPathForOptions(parsed.value),
-      canonical.error
-    );
-  }
-  const indexPath = path.join(
-    canonical.value.investigationsDirectory,
-    investigationIndexFileName
-  );
-  const loaded = await loadCurrentInvestigationIndex({
-    investigationsDirectory: canonical.value.investigationsDirectory
-  });
-  if (loaded.status === "error") {
-    return showFailure(
-      id,
-      indexPath,
-      investigationIndexDiagnosticMessages(loaded.diagnostics, indexPath),
-      loaded.diagnostics.map((diagnostic) =>
-        diagnosticFromStateIndexDiagnostic(diagnostic, {
-          recovery:
-            "correct the reported derived-index problem, then retry showing the report",
-          target: indexPath
-        })
-      )
-    );
-  }
-  const entry = loaded.value.entries[id];
+  const { index, indexPath, investigationsDirectory } = loaded.value;
+  const entry = index.entries[id];
   if (entry === undefined) {
     return showFailure(id, indexPath, [
       `${id} investigation report does not exist`
     ]);
   }
+  return await readShownInvestigation(
+    investigationsDirectory,
+    indexPath,
+    id,
+    entry.state
+  );
+}
+
+type CurrentInvestigationIndex = Extract<
+  LoadedInvestigationIndex,
+  { status: "ok" }
+>["value"];
+type IndexedInvestigationContext = Readonly<{
+  index: CurrentInvestigationIndex;
+  indexPath: string;
+  investigationsDirectory: string;
+}>;
+type IndexedInvestigationFailure = QueryOperationFailure & {
+  indexPath: string;
+};
+type InvestigationQueryLocationOptions = Pick<
+  InvestigationReportShowOptions,
+  "investigationsDir" | "workspaceRoot"
+>;
+
+async function loadIndexedInvestigationContext(
+  options: InvestigationQueryLocationOptions,
+  recovery: string
+): Promise<Result<IndexedInvestigationContext, IndexedInvestigationFailure>> {
+  const fallbackIndexPath = investigationIndexPathForOptions(options);
+  const resolved = resolveInvestigationsDirectory(
+    options.workspaceRoot,
+    options.investigationsDir
+  );
+  if (resolved.isErr()) {
+    return err({
+      diagnostics: [],
+      errors: resolved.error,
+      indexPath: fallbackIndexPath
+    });
+  }
+  const canonical = await canonicalizeInvestigationsDirectory(resolved.value);
+  if (canonical.isErr()) {
+    return err({
+      diagnostics: [],
+      errors: canonical.error,
+      indexPath: fallbackIndexPath
+    });
+  }
+  const investigationsDirectory = canonical.value.investigationsDirectory;
+  const indexPath = path.join(
+    investigationsDirectory,
+    investigationIndexFileName
+  );
+  const loaded = await loadCurrentInvestigationIndex({
+    investigationsDirectory
+  });
+  if (loaded.status === "error") {
+    return err({
+      diagnostics: loaded.diagnostics.map((diagnostic) =>
+        diagnosticFromStateIndexDiagnostic(diagnostic, {
+          recovery,
+          target: indexPath
+        })
+      ),
+      errors: investigationIndexDiagnosticMessages(
+        loaded.diagnostics,
+        indexPath
+      ),
+      indexPath
+    });
+  }
+  return ok({ index: loaded.value, indexPath, investigationsDirectory });
+}
+
+async function readShownInvestigation(
+  investigationsDirectory: string,
+  indexPath: string,
+  id: string,
+  state: NonNullable<InvestigationReportShowResult["state"]>
+): Promise<InvestigationReportShowResult> {
+  const target = reportPathForInvestigationId(investigationsDirectory, id);
   try {
     return {
       errors: [],
       diagnostics: [],
       id,
       indexPath,
-      markdown: await fs.readFile(
-        reportPathForInvestigationId(
-          canonical.value.investigationsDirectory,
-          id
-        ),
-        "utf8"
-      ),
-      state: entry.state,
+      markdown: await fs.readFile(target, "utf8"),
+      state,
       status: "ok"
     };
   } catch (error) {
-    const target = reportPathForInvestigationId(
-      canonical.value.investigationsDirectory,
-      id
-    );
     return showFailure(
       id,
       indexPath,
@@ -232,70 +279,39 @@ export async function traceInvestigationReports(
       `${options.id || "<empty>"} must use an Investigation ID`
     ]);
   const { id } = options;
-  const direction = parsed.value.direction ?? "both";
-  const maxDepth = parsed.value.maxDepth ?? null;
-  if (
-    !Number.isSafeInteger(maxDepth ?? 0) ||
-    (maxDepth !== null && maxDepth < 0)
-  ) {
+  const traceOptions = validatedTraceOptions(options);
+  if (traceOptions === null) {
     return traceFailure(id, investigationIndexPathForOptions(parsed.value), [
       "maxDepth must be a non-negative integer"
     ]);
   }
-  const resolved = resolveInvestigationsDirectory(
-    parsed.value.workspaceRoot,
-    parsed.value.investigationsDir
+  const loaded = await loadIndexedInvestigationContext(
+    options,
+    "correct the reported derived-index problem, then retry tracing reports"
   );
-  if (resolved.isErr()) {
+  if (loaded.isErr()) {
     return traceFailure(
       id,
-      investigationIndexPathForOptions(parsed.value),
-      resolved.error
+      loaded.error.indexPath,
+      loaded.error.errors,
+      loaded.error.diagnostics
     );
   }
-  const canonical = await canonicalizeInvestigationsDirectory(resolved.value);
-  if (canonical.isErr()) {
-    return traceFailure(
-      id,
-      investigationIndexPathForOptions(parsed.value),
-      canonical.error
-    );
-  }
-  const indexPath = path.join(
-    canonical.value.investigationsDirectory,
-    investigationIndexFileName
-  );
-  const loaded = await loadCurrentInvestigationIndex({
-    investigationsDirectory: canonical.value.investigationsDirectory
-  });
-  if (loaded.status === "error") {
-    return traceFailure(
-      id,
-      indexPath,
-      investigationIndexDiagnosticMessages(loaded.diagnostics, indexPath),
-      loaded.diagnostics.map((diagnostic) =>
-        diagnosticFromStateIndexDiagnostic(diagnostic, {
-          recovery:
-            "correct the reported derived-index problem, then retry tracing reports",
-          target: indexPath
-        })
-      )
-    );
-  }
-  if (loaded.value.entries[id] === undefined) {
+  const { index, indexPath } = loaded.value;
+  if (index.entries[id] === undefined) {
     return traceFailure(id, indexPath, [
       `${id} investigation report does not exist`
     ]);
   }
   const trace = traceInvestigationRelations(
     new Map(
-      Object.entries(loaded.value.entries).map(([reportId, entry]) => [
+      Object.entries(index.entries).map(([reportId, entry]) => [
         reportId,
         entry.state
       ])
     ),
     id,
-    { direction, maxDepth }
+    traceOptions
   );
   return {
     edges: trace.edges.map((edge) => ({
@@ -310,6 +326,18 @@ export async function traceInvestigationReports(
     reportIds: [...trace.ids].sort(compareText),
     status: "ok"
   };
+}
+
+function validatedTraceOptions(options: InvestigationReportTraceOptions): {
+  direction: NonNullable<InvestigationReportTraceOptions["direction"]>;
+  maxDepth: number | null;
+} | null {
+  const direction = options.direction ?? "both";
+  const maxDepth = options.maxDepth ?? null;
+  return Number.isSafeInteger(maxDepth ?? 0) &&
+    (maxDepth === null || maxDepth >= 0)
+    ? { direction, maxDepth }
+    : null;
 }
 
 function rawStringField(input: unknown, field: string): string | undefined {
@@ -379,69 +407,73 @@ function queryValidatedInvestigationIndex(
         "the derived index could not be loaded for the query",
         indexPath
       )
-  ).andThen((loaded) => {
-    if (loaded.status === "error") {
-      return err({
-        diagnostics: loaded.diagnostics.map((diagnostic) =>
-          diagnosticFromStateIndexDiagnostic(diagnostic, {
-            recovery:
-              "correct the reported derived-index problem, then retry the query",
-            target: indexPath
-          })
-        ),
-        errors: investigationIndexDiagnosticMessages(
-          loaded.diagnostics,
-          indexPath
-        )
-      });
-    }
-    return fromThrowable(
-      () =>
-        queryStateIndex({
-          definition: createInvestigationStateIndexDefinition(),
-          index: loaded.value,
-          query: {
-            filters: validated.filters,
-            limit: validated.limit,
-            offset: validated.offset,
-            sort: [{ direction: "asc", key: "id" }]
-          }
-        }),
-      (error) =>
-        queryOperationFailure(
-          error,
-          "the derived index query could not be completed",
-          indexPath
-        )
-    )().andThen((queried) =>
-      queried.status === "error"
-        ? err({
-            diagnostics: queried.diagnostics.map((diagnostic) =>
-              diagnosticFromStateIndexDiagnostic(diagnostic, {
-                recovery:
-                  "correct the reported derived-index problem, then retry the query",
-                target: indexPath
-              })
-            ),
-            errors: investigationIndexDiagnosticMessages(
-              queried.diagnostics,
-              indexPath
-            )
-          })
-        : ok({
-            diagnostics: [],
-            entries: queried.value.entries.map((entry) => ({
-              id: entry.id,
-              state: entry.state
-            })),
-            errors: [],
-            indexPath,
-            limit: queried.value.limit,
-            offset: queried.value.offset,
-            total: queried.value.total
-          })
-    );
-  });
+  ).andThen((loaded) =>
+    queryLoadedInvestigationIndex(loaded, validated, indexPath)
+  );
+}
+
+type LoadedInvestigationIndex = Awaited<
+  ReturnType<typeof loadCurrentInvestigationIndex>
+>;
+
+function queryLoadedInvestigationIndex(
+  loaded: LoadedInvestigationIndex,
+  validated: ValidatedQueryOptions,
+  indexPath: string
+) {
+  if (loaded.status === "error") {
+    return err(indexQueryDiagnostics(loaded.diagnostics, indexPath));
+  }
+  return fromThrowable(
+    () =>
+      queryStateIndex({
+        definition: createInvestigationStateIndexDefinition(),
+        index: loaded.value,
+        query: {
+          filters: validated.filters,
+          limit: validated.limit,
+          offset: validated.offset,
+          sort: [{ direction: "asc", key: "id" }]
+        }
+      }),
+    (error) =>
+      queryOperationFailure(
+        error,
+        "the derived index query could not be completed",
+        indexPath
+      )
+  )().andThen((queried) =>
+    queried.status === "error"
+      ? err(indexQueryDiagnostics(queried.diagnostics, indexPath))
+      : ok({
+          diagnostics: [],
+          entries: queried.value.entries.map((entry) => ({
+            id: entry.id,
+            state: entry.state
+          })),
+          errors: [],
+          indexPath,
+          limit: queried.value.limit,
+          offset: queried.value.offset,
+          total: queried.value.total
+        })
+  );
+}
+
+function indexQueryDiagnostics(
+  diagnostics: Parameters<typeof investigationIndexDiagnosticMessages>[0],
+  indexPath: string
+): QueryOperationFailure {
+  return {
+    diagnostics: diagnostics.map((diagnostic) =>
+      diagnosticFromStateIndexDiagnostic(diagnostic, {
+        recovery:
+          "correct the reported derived-index problem, then retry the query",
+        target: indexPath
+      })
+    ),
+    errors: investigationIndexDiagnosticMessages(diagnostics, indexPath)
+  };
 }
 
 function validateQueryOptions(
@@ -451,6 +483,22 @@ function validateQueryOptions(
   const filters: StateIndexFilter[] = [];
   const limit = options.limit ?? stateIndexQueryDefaultLimit;
   const offset = options.offset ?? 0;
+  validateQueryPagination(limit, offset, errors);
+  validateTagFilters(options.tags, filters, errors);
+  validateRelationTypeFilter(options.relationType, filters, errors);
+  validateTextFilter(options.text, filters, errors);
+  validateTimestampFilters(options, filters, errors);
+  const uniqueErrors = uniqueSorted(errors);
+  return uniqueErrors.length > 0
+    ? err({ errors: uniqueErrors, limit, offset })
+    : ok({ filters, limit, offset });
+}
+
+function validateQueryPagination(
+  limit: number,
+  offset: number,
+  errors: string[]
+): void {
   if (
     !Number.isSafeInteger(limit) ||
     limit < 1 ||
@@ -463,7 +511,14 @@ function validateQueryOptions(
   if (!Number.isSafeInteger(offset) || offset < 0) {
     errors.push("offset must be a non-negative integer");
   }
-  const tags = uniqueSorted((options.tags ?? []).map((tag) => tag.trim()));
+}
+
+function validateTagFilters(
+  input: readonly string[] | undefined,
+  filters: StateIndexFilter[],
+  errors: string[]
+): void {
+  const tags = uniqueSorted((input ?? []).map((tag) => tag.trim()));
   const invalidTags = tags.filter((tag) => !isInvestigationTag(tag));
   for (const tag of invalidTags) {
     errors.push(`tag filter must use kebab-case: ${tag || "<empty>"}`);
@@ -471,27 +526,46 @@ function validateQueryOptions(
   if (tags.length > 0 && invalidTags.length === 0) {
     filters.push({ key: "tag", kind: "exact", operator: "all", values: tags });
   }
+}
+
+function validateRelationTypeFilter(
+  relationType: InvestigationIndexQueryOptions["relationType"],
+  filters: StateIndexFilter[],
+  errors: string[]
+): void {
   if (
-    options.relationType !== undefined &&
-    !isInvestigationRelationType(options.relationType)
+    relationType !== undefined &&
+    !isInvestigationRelationType(relationType)
   ) {
-    errors.push(
-      `unknown investigation relation type: ${String(options.relationType)}`
-    );
-  } else if (options.relationType !== undefined) {
+    errors.push(`unknown investigation relation type: ${String(relationType)}`);
+  } else if (relationType !== undefined) {
     filters.push({
       key: "relation-type",
       kind: "exact",
       operator: "any",
-      values: [options.relationType]
+      values: [relationType]
     });
   }
-  const text = options.text?.trim();
-  if (options.text !== undefined && text?.length === 0) {
+}
+
+function validateTextFilter(
+  input: string | undefined,
+  filters: StateIndexFilter[],
+  errors: string[]
+): void {
+  const text = input?.trim();
+  if (input !== undefined && text?.length === 0) {
     errors.push("text filter must not be empty");
   } else if (text !== undefined) {
     filters.push({ key: "text", kind: "text", operator: "all", text });
   }
+}
+
+function validateTimestampFilters(
+  options: InvestigationIndexQueryOptions,
+  filters: StateIndexFilter[],
+  errors: string[]
+): void {
   const from = timestampFilter(
     options.formedAtFrom,
     "formedAt lower bound",
@@ -521,10 +595,6 @@ function validateQueryOptions(
       value: to
     });
   }
-  const uniqueErrors = uniqueSorted(errors);
-  return uniqueErrors.length > 0
-    ? err({ errors: uniqueErrors, limit, offset })
-    : ok({ filters, limit, offset });
 }
 
 function timestampFilter(

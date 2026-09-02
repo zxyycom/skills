@@ -1572,178 +1572,229 @@ async function assertDistributedModuleParity(
   }
 }
 
+type LegacyUpgradeFixture = Readonly<{
+  legacyCatalogPath: string;
+  legacyVersion: 1 | 2;
+  retainedLegacyCatalogPath: string;
+  stagedCatalogPath: string;
+  workspaceRoot: string;
+}>;
+
 async function rehearseLegacyConsumerUpgrade(
   legacyVersion: 1 | 2
 ): Promise<void> {
+  const fixture = await createLegacyUpgradeFixture(legacyVersion);
+  try {
+    await assertLegacyCatalogRejected(fixture.workspaceRoot);
+    await stageCurrentCatalog(fixture);
+    await activateCurrentCatalog(fixture);
+    await assertUpgradedCatalog(fixture.workspaceRoot);
+    await assertLegacyCatalogIgnored(fixture);
+  } finally {
+    await fs.rm(fixture.workspaceRoot, { force: true, recursive: true });
+  }
+}
+
+async function createLegacyUpgradeFixture(
+  legacyVersion: 1 | 2
+): Promise<LegacyUpgradeFixture> {
   const workspaceRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), `test-evidence-v${legacyVersion}-upgrade-`)
   );
   const legacyCatalogPath =
     legacyVersion === 1 ? "docs/test-evidence.md" : "docs/test-evidence/cases";
-  const stagedCatalogPath = "docs/test-evidence-next";
-  const retainedLegacyCatalogPath =
-    legacyVersion === 1
-      ? legacyCatalogPath
-      : "docs/legacy-test-evidence-v2/cases";
-
-  try {
-    if (legacyVersion === 1) {
-      await writeWorkspaceFile(
-        workspaceRoot,
-        legacyCatalogPath,
-        `${accessCatalog}\n${sessionCatalog}\n`
-      );
-    } else {
-      await writeWorkspaceFile(
-        workspaceRoot,
-        `${legacyCatalogPath}/access-control.md`,
-        `${accessCatalog}\n`
-      );
-      await writeWorkspaceFile(
-        workspaceRoot,
-        `${legacyCatalogPath}/sessions.md`,
-        `${sessionCatalog}\n`
-      );
-    }
-    await writeWorkspaceFile(
-      workspaceRoot,
-      ".test-evidence.json",
-      `${JSON.stringify(
-        {
-          schemaVersion: legacyVersion,
-          catalogPath: legacyCatalogPath,
-          indexPath: "docs/legacy-test-evidence-index.json"
-        },
-        null,
-        2
-      )}\n`
-    );
-
-    const legacyFailure = await runCatalogCliFailure([
-      "check",
-      "--root",
-      workspaceRoot,
-      "--json"
-    ]);
-    assert.equal(legacyFailure.code, 1);
-    assert.doesNotThrow(() => JSON.parse(legacyFailure.stdout));
-
-    await writeTopicCatalog(workspaceRoot, stagedCatalogPath, [
+  const fixture = {
+    legacyCatalogPath,
+    legacyVersion,
+    retainedLegacyCatalogPath:
+      legacyVersion === 1
+        ? legacyCatalogPath
+        : "docs/legacy-test-evidence-v2/cases",
+    stagedCatalogPath: "docs/test-evidence-next",
+    workspaceRoot
+  } as const;
+  await writeLegacyCatalog(fixture);
+  await writeWorkspaceFile(
+    workspaceRoot,
+    ".test-evidence.json",
+    `${JSON.stringify(
       {
-        id: "access-control",
-        description: "Access-control contract tests."
+        schemaVersion: legacyVersion,
+        catalogPath: legacyCatalogPath,
+        indexPath: "docs/legacy-test-evidence-index.json"
       },
-      {
-        id: "sessions",
-        description: "Session lifecycle contract tests."
-      }
-    ]);
+      null,
+      2
+    )}\n`
+  );
+  return fixture;
+}
+
+async function writeLegacyCatalog(
+  fixture: LegacyUpgradeFixture
+): Promise<void> {
+  if (fixture.legacyVersion === 1) {
     await writeWorkspaceFile(
-      workspaceRoot,
-      `${stagedCatalogPath}/access-control/access-role.md`,
-      `${accessCatalog}\n`
+      fixture.workspaceRoot,
+      fixture.legacyCatalogPath,
+      `${accessCatalog}\n${sessionCatalog}\n`
     );
-    await writeWorkspaceFile(
-      workspaceRoot,
-      `${stagedCatalogPath}/sessions/session-expiry.md`,
-      `${sessionCatalog}\n`
-    );
-    if (legacyVersion === 2) {
-      await fs.rename(
-        path.join(workspaceRoot, "docs", "test-evidence"),
-        path.join(workspaceRoot, "docs", "legacy-test-evidence-v2")
-      );
-    }
-    await fs.rename(
-      path.join(workspaceRoot, "docs", "test-evidence-next"),
-      path.join(workspaceRoot, "docs", "test-evidence")
-    );
-    await fs.rm(path.join(workspaceRoot, ".test-evidence.json"));
-
-    const topics = await runCatalogCliJson<{
-      topics: Array<{ id: string }>;
-    }>(["topics", "--root", workspaceRoot, "--json"]);
-    assert.deepEqual(
-      topics.topics.map((topic) => topic.id),
-      ["access-control", "sessions"]
-    );
-
-    await runCatalogCliJson([
-      "sync-index",
-      "--write",
-      "--root",
-      workspaceRoot,
-      "--json"
-    ]);
-    const checked = await runCatalogCliJson<{
-      diagnostics: Array<{ blocking: boolean }>;
-      summary: { testCases: number };
-    }>(["check", "--root", workspaceRoot, "--json"]);
-    assert.equal(checked.summary.testCases, 2);
-    assert.equal(
-      checked.diagnostics.some((diagnostic) => diagnostic.blocking),
-      false
-    );
-
-    const listed = await runCatalogCliJson<{
-      cases: Array<{ id: string; sourcePath: string }>;
-      total: number;
-    }>([
-      "list",
-      "--topic",
-      "access-control",
-      "--root",
-      workspaceRoot,
-      "--json"
-    ]);
-    assert.equal(listed.total, 1);
-    assert.deepEqual(
-      listed.cases.map(({ id, sourcePath }) => ({
-        id,
-        sourcePath
-      })),
-      [
-        {
-          id: "AUTH-ROLE-ACCESS-001",
-          sourcePath: "access-control/access-role.md"
-        }
-      ]
-    );
-
-    const shown = await runCatalogCliJson<{
-      case: { id: string; sourcePath: string } | null;
-      markdown: string | null;
-      topic: { id: string } | null;
-    }>(["show", "AUTH-SESSION-EXPIRY-001", "--root", workspaceRoot, "--json"]);
-    assert.equal(shown.case?.sourcePath, "sessions/session-expiry.md");
-    assert.equal(shown.topic?.id, "sessions");
-    assert.match(shown.markdown ?? "", /Expired sessions are rejected\./u);
-
-    await writeWorkspaceFile(
-      workspaceRoot,
-      "tests/unregistered.test.ts",
-      "test('not automatically collected', () => {});\n"
-    );
-    if (legacyVersion === 1) {
-      await fs.appendFile(
-        path.join(workspaceRoot, ...retainedLegacyCatalogPath.split("/")),
-        "\n### Case LEGACY-ONLY-CASE-001: Old source is ignored\n",
-        "utf8"
-      );
-    } else {
-      await writeWorkspaceFile(
-        workspaceRoot,
-        `${retainedLegacyCatalogPath}/legacy-only.md`,
-        "### Case LEGACY-ONLY-CASE-001: Old source is ignored\n"
-      );
-    }
-    const afterLegacyChange = await runCatalogCliJson<{
-      total: number;
-    }>(["list", "--root", workspaceRoot, "--json"]);
-    assert.equal(afterLegacyChange.total, 2);
-  } finally {
-    await fs.rm(workspaceRoot, { force: true, recursive: true });
+    return;
   }
+  await writeWorkspaceFile(
+    fixture.workspaceRoot,
+    `${fixture.legacyCatalogPath}/access-control.md`,
+    `${accessCatalog}\n`
+  );
+  await writeWorkspaceFile(
+    fixture.workspaceRoot,
+    `${fixture.legacyCatalogPath}/sessions.md`,
+    `${sessionCatalog}\n`
+  );
+}
+
+async function assertLegacyCatalogRejected(
+  workspaceRoot: string
+): Promise<void> {
+  const legacyFailure = await runCatalogCliFailure([
+    "check",
+    "--root",
+    workspaceRoot,
+    "--json"
+  ]);
+  assert.equal(legacyFailure.code, 1);
+  assert.doesNotThrow(() => JSON.parse(legacyFailure.stdout));
+}
+
+async function stageCurrentCatalog(
+  fixture: LegacyUpgradeFixture
+): Promise<void> {
+  await writeTopicCatalog(fixture.workspaceRoot, fixture.stagedCatalogPath, [
+    { id: "access-control", description: "Access-control contract tests." },
+    { id: "sessions", description: "Session lifecycle contract tests." }
+  ]);
+  await writeWorkspaceFile(
+    fixture.workspaceRoot,
+    `${fixture.stagedCatalogPath}/access-control/access-role.md`,
+    `${accessCatalog}\n`
+  );
+  await writeWorkspaceFile(
+    fixture.workspaceRoot,
+    `${fixture.stagedCatalogPath}/sessions/session-expiry.md`,
+    `${sessionCatalog}\n`
+  );
+}
+
+async function activateCurrentCatalog(
+  fixture: LegacyUpgradeFixture
+): Promise<void> {
+  if (fixture.legacyVersion === 2) {
+    await fs.rename(
+      path.join(fixture.workspaceRoot, "docs", "test-evidence"),
+      path.join(fixture.workspaceRoot, "docs", "legacy-test-evidence-v2")
+    );
+  }
+  await fs.rename(
+    path.join(fixture.workspaceRoot, "docs", "test-evidence-next"),
+    path.join(fixture.workspaceRoot, "docs", "test-evidence")
+  );
+  await fs.rm(path.join(fixture.workspaceRoot, ".test-evidence.json"));
+}
+
+async function assertUpgradedCatalog(workspaceRoot: string): Promise<void> {
+  const topics = await runCatalogCliJson<{ topics: Array<{ id: string }> }>([
+    "topics",
+    "--root",
+    workspaceRoot,
+    "--json"
+  ]);
+  assert.deepEqual(
+    topics.topics.map((topic) => topic.id),
+    ["access-control", "sessions"]
+  );
+  await assertUpgradedCatalogChecks(workspaceRoot);
+  await assertUpgradedCatalogQueries(workspaceRoot);
+}
+
+async function assertUpgradedCatalogChecks(
+  workspaceRoot: string
+): Promise<void> {
+  await runCatalogCliJson([
+    "sync-index",
+    "--write",
+    "--root",
+    workspaceRoot,
+    "--json"
+  ]);
+  const checked = await runCatalogCliJson<{
+    diagnostics: Array<{ blocking: boolean }>;
+    summary: { testCases: number };
+  }>(["check", "--root", workspaceRoot, "--json"]);
+  assert.equal(checked.summary.testCases, 2);
+  assert.equal(
+    checked.diagnostics.some((diagnostic) => diagnostic.blocking),
+    false
+  );
+}
+
+async function assertUpgradedCatalogQueries(
+  workspaceRoot: string
+): Promise<void> {
+  const listed = await runCatalogCliJson<{
+    cases: Array<{ id: string; sourcePath: string }>;
+    total: number;
+  }>(["list", "--topic", "access-control", "--root", workspaceRoot, "--json"]);
+  assert.equal(listed.total, 1);
+  assert.deepEqual(
+    listed.cases.map(({ id, sourcePath }) => ({ id, sourcePath })),
+    [
+      {
+        id: "AUTH-ROLE-ACCESS-001",
+        sourcePath: "access-control/access-role.md"
+      }
+    ]
+  );
+  const shown = await runCatalogCliJson<{
+    case: { id: string; sourcePath: string } | null;
+    markdown: string | null;
+    topic: { id: string } | null;
+  }>(["show", "AUTH-SESSION-EXPIRY-001", "--root", workspaceRoot, "--json"]);
+  assert.equal(shown.case?.sourcePath, "sessions/session-expiry.md");
+  assert.equal(shown.topic?.id, "sessions");
+  assert.match(shown.markdown ?? "", /Expired sessions are rejected\./u);
+}
+
+async function assertLegacyCatalogIgnored(
+  fixture: LegacyUpgradeFixture
+): Promise<void> {
+  await writeWorkspaceFile(
+    fixture.workspaceRoot,
+    "tests/unregistered.test.ts",
+    "test('not automatically collected', () => {});\n"
+  );
+  if (fixture.legacyVersion === 1) {
+    await fs.appendFile(
+      path.join(
+        fixture.workspaceRoot,
+        ...fixture.retainedLegacyCatalogPath.split("/")
+      ),
+      "\n### Case LEGACY-ONLY-CASE-001: Old source is ignored\n",
+      "utf8"
+    );
+  } else {
+    await writeWorkspaceFile(
+      fixture.workspaceRoot,
+      `${fixture.retainedLegacyCatalogPath}/legacy-only.md`,
+      "### Case LEGACY-ONLY-CASE-001: Old source is ignored\n"
+    );
+  }
+  const afterLegacyChange = await runCatalogCliJson<{ total: number }>([
+    "list",
+    "--root",
+    fixture.workspaceRoot,
+    "--json"
+  ]);
+  assert.equal(afterLegacyChange.total, 2);
 }
 
 function parseTopicCatalogFixture(): TestEvidenceTopicCatalog {

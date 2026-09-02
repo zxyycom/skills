@@ -92,6 +92,11 @@ async function testValidPlan(tempRoot: string): Promise<void> {
 }
 
 async function testStageArtifactContracts(tempRoot: string): Promise<void> {
+  await assertDraftArtifactContract(tempRoot);
+  await assertPlanTargetArtifactContract(tempRoot);
+}
+
+async function assertDraftArtifactContract(tempRoot: string): Promise<void> {
   const draftDirectory = await writePlan(tempRoot, "draft-change", {
     design: initialDraftDesign,
     metadata: { stage: "draft" },
@@ -107,16 +112,30 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
     readiness: { completedTaskCount: 0, taskCount: 0 },
     verification: { completedTaskCount: 0, taskCount: 0 }
   });
+  await assertDraftRequiresStructuredScope(draftDirectory);
+  await fs.rm(path.join(draftDirectory, "design.md"));
+  const incompleteDraftResult = await checkChangePlanDirectory(draftDirectory);
+  assert.equal(incompleteDraftResult.valid, false);
+  assert.ok(
+    incompleteDraftResult.diagnostics.some(
+      (diagnostic) =>
+        diagnostic.code === "missing-required-file" &&
+        diagnostic.file === "design.md"
+    )
+  );
+}
 
+async function assertDraftRequiresStructuredScope(
+  draftDirectory: string
+): Promise<void> {
   await fs.writeFile(
     path.join(draftDirectory, "proposal.md"),
     `${minimalDraftProposal}\n## Scope\n\n仍在收敛的范围。\n`,
     "utf8"
   );
-  const unstructuredDraftScopeResult =
-    await checkChangePlanDirectory(draftDirectory);
+  const result = await checkChangePlanDirectory(draftDirectory);
   assert.ok(
-    unstructuredDraftScopeResult.diagnostics.some(
+    result.diagnostics.some(
       (diagnostic) =>
         diagnostic.code === "missing-section" &&
         diagnostic.file === "proposal.md" &&
@@ -128,18 +147,11 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
     minimalDraftProposal,
     "utf8"
   );
+}
 
-  await fs.rm(path.join(draftDirectory, "design.md"));
-  const incompleteDraftResult = await checkChangePlanDirectory(draftDirectory);
-  assert.equal(incompleteDraftResult.valid, false);
-  assert.ok(
-    incompleteDraftResult.diagnostics.some(
-      (diagnostic) =>
-        diagnostic.code === "missing-required-file" &&
-        diagnostic.file === "design.md"
-    )
-  );
-
+async function assertPlanTargetArtifactContract(
+  tempRoot: string
+): Promise<void> {
   const planTargetDirectory = await writePlan(tempRoot, "plan-target", {
     metadata: { stage: "draft" }
   });
@@ -148,7 +160,23 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
   assert.equal(targetResult.valid, true);
   assert.equal(targetResult.stage, "draft");
   assert.equal(targetResult.taskCount, 3);
+  await assertPlanTargetRequiresDecisionSubsections(planTargetDirectory);
+  await fs.rm(path.join(planTargetDirectory, "tasks.md"));
+  const incompleteTargetResult =
+    await checkChangePlanDirectoryForPlan(planTargetDirectory);
+  assert.equal(incompleteTargetResult.valid, false);
+  assert.ok(
+    incompleteTargetResult.diagnostics.some(
+      (diagnostic) =>
+        diagnostic.code === "missing-required-file" &&
+        diagnostic.file === "tasks.md"
+    )
+  );
+}
 
+async function assertPlanTargetRequiresDecisionSubsections(
+  planTargetDirectory: string
+): Promise<void> {
   await fs.writeFile(
     path.join(planTargetDirectory, "design.md"),
     validDesign.replace(
@@ -167,10 +195,9 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
     ),
     "utf8"
   );
-  const missingSubsectionsResult =
-    await checkChangePlanDirectoryForPlan(planTargetDirectory);
+  const result = await checkChangePlanDirectoryForPlan(planTargetDirectory);
   assert.ok(
-    missingSubsectionsResult.diagnostics.some(
+    result.diagnostics.some(
       (diagnostic) =>
         diagnostic.code === "missing-section" && diagnostic.file === "design.md"
     )
@@ -179,18 +206,6 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
     path.join(planTargetDirectory, "design.md"),
     validDesign,
     "utf8"
-  );
-
-  await fs.rm(path.join(planTargetDirectory, "tasks.md"));
-  const incompleteTargetResult =
-    await checkChangePlanDirectoryForPlan(planTargetDirectory);
-  assert.equal(incompleteTargetResult.valid, false);
-  assert.ok(
-    incompleteTargetResult.diagnostics.some(
-      (diagnostic) =>
-        diagnostic.code === "missing-required-file" &&
-        diagnostic.file === "tasks.md"
-    )
   );
 }
 

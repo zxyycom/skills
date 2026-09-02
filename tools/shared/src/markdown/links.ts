@@ -17,6 +17,16 @@ export type MarkdownLinkExtraction = {
 
 export type MarkdownLinkReporter = (error: string) => void;
 
+type HeadingAnchorReader = (filePath: string) => Promise<Set<string>>;
+
+type MarkdownLinkValidationContext = Readonly<{
+  filePath: string;
+  getHeadingAnchors: HeadingAnchorReader;
+  relativeFilePath: string;
+  report: MarkdownLinkReporter;
+  workspaceRoot: string;
+}>;
+
 type NormalizedMarkdownTarget =
   | { kind: "empty"; target: string }
   | { kind: "external"; target: string }
@@ -140,14 +150,9 @@ function decodeMarkdownAnchor(anchor: string): string | null {
   }
 }
 
-export async function validateMarkdownLinks(
-  markdownFiles: readonly string[],
-  report: MarkdownLinkReporter,
-  workspaceRoot: string
-): Promise<void> {
+function createHeadingAnchorReader(): HeadingAnchorReader {
   const headingAnchorsByPath = new Map<string, Set<string>>();
-
-  async function getHeadingAnchors(filePath: string): Promise<Set<string>> {
+  return async (filePath) => {
     const cached = headingAnchorsByPath.get(filePath);
     if (cached) {
       return cached;
@@ -157,7 +162,80 @@ export async function validateMarkdownLinks(
     const anchors = extractMarkdownHeadingAnchors(markdown);
     headingAnchorsByPath.set(filePath, anchors);
     return anchors;
+  };
+}
+
+function reportsOutsideRoot(resolved: string, workspaceRoot: string): boolean {
+  const relativeToRoot = path.relative(workspaceRoot, resolved);
+  return (
+    relativeToRoot === ".." ||
+    relativeToRoot.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relativeToRoot)
+  );
+}
+
+async function validateMarkdownTarget(
+  target: string,
+  context: MarkdownLinkValidationContext
+): Promise<void> {
+  const normalized = normalizeMarkdownTarget(target);
+  if (normalized.kind === "empty") {
+    context.report(
+      `${context.relativeFilePath} has an empty markdown link target`
+    );
+    return;
   }
+  if (normalized.kind === "external") {
+    return;
+  }
+
+  const resolved = normalized.pathTarget
+    ? path.resolve(path.dirname(context.filePath), normalized.pathTarget)
+    : context.filePath;
+  if (reportsOutsideRoot(resolved, context.workspaceRoot)) {
+    context.report(
+      `${context.relativeFilePath} links outside the validation root: ${target}`
+    );
+    return;
+  }
+  if (!(await pathExists(resolved))) {
+    context.report(
+      `${context.relativeFilePath} has a missing link target: ${target}`
+    );
+    return;
+  }
+  if (normalized.anchor === null) {
+    return;
+  }
+
+  const decodedAnchor = decodeMarkdownAnchor(normalized.anchor);
+  if (decodedAnchor === null || decodedAnchor.length === 0) {
+    context.report(
+      `${context.relativeFilePath} has an invalid markdown anchor: ${target}`
+    );
+    return;
+  }
+  if (path.extname(resolved) !== ".md") {
+    context.report(
+      `${context.relativeFilePath} uses an anchor on a non-markdown target: ${target}`
+    );
+    return;
+  }
+
+  const anchors = await context.getHeadingAnchors(resolved);
+  if (!anchors.has(decodedAnchor)) {
+    context.report(
+      `${context.relativeFilePath} links to a missing markdown heading anchor: ${target}`
+    );
+  }
+}
+
+export async function validateMarkdownLinks(
+  markdownFiles: readonly string[],
+  report: MarkdownLinkReporter,
+  workspaceRoot: string
+): Promise<void> {
+  const getHeadingAnchors = createHeadingAnchorReader();
 
   for (const filePath of markdownFiles) {
     const markdown = await fs.readFile(filePath, "utf8");
@@ -171,59 +249,13 @@ export async function validateMarkdownLinks(
     }
 
     for (const { target } of targets) {
-      const normalized = normalizeMarkdownTarget(target);
-      if (normalized.kind === "empty") {
-        report(`${relativeFilePath} has an empty markdown link target`);
-        continue;
-      }
-
-      if (normalized.kind === "external") {
-        continue;
-      }
-
-      const resolved = normalized.pathTarget
-        ? path.resolve(path.dirname(filePath), normalized.pathTarget)
-        : filePath;
-      const relativeToRoot = path.relative(workspaceRoot, resolved);
-      if (
-        relativeToRoot === ".." ||
-        relativeToRoot.startsWith(`..${path.sep}`) ||
-        path.isAbsolute(relativeToRoot)
-      ) {
-        report(
-          `${relativeFilePath} links outside the validation root: ${target}`
-        );
-        continue;
-      }
-
-      if (!(await pathExists(resolved))) {
-        report(`${relativeFilePath} has a missing link target: ${target}`);
-        continue;
-      }
-
-      if (normalized.anchor === null) {
-        continue;
-      }
-
-      const decodedAnchor = decodeMarkdownAnchor(normalized.anchor);
-      if (decodedAnchor === null || decodedAnchor.length === 0) {
-        report(`${relativeFilePath} has an invalid markdown anchor: ${target}`);
-        continue;
-      }
-
-      if (path.extname(resolved) !== ".md") {
-        report(
-          `${relativeFilePath} uses an anchor on a non-markdown target: ${target}`
-        );
-        continue;
-      }
-
-      const anchors = await getHeadingAnchors(resolved);
-      if (!anchors.has(decodedAnchor)) {
-        report(
-          `${relativeFilePath} links to a missing markdown heading anchor: ${target}`
-        );
-      }
+      await validateMarkdownTarget(target, {
+        filePath,
+        getHeadingAnchors,
+        relativeFilePath,
+        report,
+        workspaceRoot
+      });
     }
   }
 }

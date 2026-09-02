@@ -88,63 +88,154 @@ async function discardCandidateWithinLock(options: {
       mutation: discardMutation("no-change")
     });
   }
+  const eligibility = candidateDiscardEligibility(
+    options.input,
+    prepared.value
+  );
+  if (eligibility !== null) return eligibility;
+  const historyGate = await candidateDiscardHistoryGate(
+    options.root,
+    options.input,
+    prepared.value,
+    false
+  );
+  if (historyGate !== null) return historyGate;
+  const beforeCommitFailure =
+    await candidateDiscardBeforeCommitFailure(options);
+  if (beforeCommitFailure !== null) return beforeCommitFailure;
+  return await discardProtectedCandidate(options, prepared.value);
+}
+
+async function discardProtectedCandidate(
+  options: {
+    input: InvestigationCandidateDiscardOptions;
+    root: string;
+  },
+  initialPreparation: CandidateDiscardPreparation
+): Promise<InvestigationCandidateDiscardResult> {
+  const protectedPreparation = await prepareCandidateDiscard(
+    options.root,
+    options.input.id
+  );
   if (
-    prepared.value.resources.resourceIds.length > 0 &&
-    options.input.deleteOwnedResources !== true
+    protectedPreparation.status === "error" ||
+    !sameCandidateDiscardPreparation(
+      initialPreparation,
+      protectedPreparation.value
+    )
   ) {
     return result(
       options.input,
       false,
       [],
       [
-        `${options.input.id} owns ${prepared.value.resources.resourceIds.length} resource(s); re-run with --delete-owned-resources only after confirming their deletion`
+        "candidate or owner resources changed after discard preparation; no files were written",
+        ...(protectedPreparation.status === "error"
+          ? protectedPreparation.errors
+          : [])
+      ],
+      {
+        diagnostics:
+          protectedPreparation.status === "error"
+            ? protectedPreparation.diagnostics
+            : [],
+        mutation: discardMutation("no-change")
+      }
+    );
+  }
+  const protectedHistoryGate = await candidateDiscardHistoryGate(
+    options.root,
+    options.input,
+    protectedPreparation.value,
+    true
+  );
+  if (protectedHistoryGate !== null) return protectedHistoryGate;
+  return await discardPreparedCandidate(
+    options.input,
+    options.root,
+    protectedPreparation.value
+  );
+}
+
+function candidateDiscardEligibility(
+  input: InvestigationCandidateDiscardOptions,
+  preparation: CandidateDiscardPreparation
+): InvestigationCandidateDiscardResult | null {
+  if (
+    preparation.resources.resourceIds.length > 0 &&
+    input.deleteOwnedResources !== true
+  ) {
+    return result(
+      input,
+      false,
+      [],
+      [
+        `${input.id} owns ${preparation.resources.resourceIds.length} resource(s); re-run with --delete-owned-resources only after confirming their deletion`
       ],
       { mutation: discardMutation("no-change") }
     );
   }
-  if (prepared.value.sharedReferences.length > 0) {
-    return result(options.input, false, [], prepared.value.sharedReferences, {
+  if (preparation.sharedReferences.length > 0) {
+    return result(input, false, [], preparation.sharedReferences, {
       mutation: discardMutation("no-change")
     });
   }
+  return null;
+}
+
+async function candidateDiscardHistoryGate(
+  root: string,
+  input: InvestigationCandidateDiscardOptions,
+  preparation: CandidateDiscardPreparation,
+  protectedCheck: boolean
+): Promise<InvestigationCandidateDiscardResult | null> {
   const recorded = await candidateRecordedAtHead(
-    options.root,
-    options.input.id,
-    prepared.value.resources.resourceIds
+    root,
+    input.id,
+    preparation.resources.resourceIds
   );
   if (recorded.status === "error") {
-    return result(options.input, false, [], recorded.errors, {
+    const timing = protectedCheck
+      ? " immediately before candidate discard"
+      : " before candidate discard";
+    return result(input, false, [], recorded.errors, {
       diagnostics: [
         genericInvestigationDiagnostic({
           code: "investigation-report.discard-candidate-history-check-unavailable",
           mutation: discardMutation("no-change"),
-          reason:
-            "the Git history check required before candidate discard could not be completed",
+          reason: `the Git history check required${timing} could not be completed`,
           recovery:
             "restore version-control access, then rerun discard-candidate before deleting the candidate",
-          target: options.input.id
+          target: input.id
         })
       ],
       mutation: discardMutation("no-change")
     });
   }
-  if (recorded.value && options.input.deleteRecordedCandidate !== true) {
-    return {
-      ...result(
-        options.input,
-        false,
-        [],
-        [
-          `Investigation candidate ${options.input.id} has entered Git HEAD; confirm that its recorded history should be deleted.`,
-          "Re-run with --delete-recorded-candidate only after confirming deletion; no files were changed."
-        ],
-        { mutation: discardMutation("no-change") }
-      ),
-      requiresRecordedDeletionConfirmation: true
-    };
-  }
+  if (!recorded.value || input.deleteRecordedCandidate === true) return null;
+  const timing = protectedCheck ? " entered" : " has entered";
+  return {
+    ...result(
+      input,
+      false,
+      [],
+      [
+        `Investigation candidate ${input.id}${timing} Git HEAD${protectedCheck ? " before deletion" : ""}; confirm that its recorded history should be deleted.`,
+        "Re-run with --delete-recorded-candidate only after confirming deletion; no files were changed."
+      ],
+      { mutation: discardMutation("no-change") }
+    ),
+    requiresRecordedDeletionConfirmation: true
+  };
+}
+
+async function candidateDiscardBeforeCommitFailure(options: {
+  beforeCommit: BeforeCandidateDiscard;
+  input: InvestigationCandidateDiscardOptions;
+}): Promise<InvestigationCandidateDiscardResult | null> {
   try {
     await options.beforeCommit();
+    return null;
   } catch (error) {
     return result(
       options.input,
@@ -168,77 +259,6 @@ async function discardCandidateWithinLock(options: {
       }
     );
   }
-  const protectedPreparation = await prepareCandidateDiscard(
-    options.root,
-    options.input.id
-  );
-  if (
-    protectedPreparation.status === "error" ||
-    !sameCandidateDiscardPreparation(prepared.value, protectedPreparation.value)
-  ) {
-    return result(
-      options.input,
-      false,
-      [],
-      [
-        "candidate or owner resources changed after discard preparation; no files were written",
-        ...(protectedPreparation.status === "error"
-          ? protectedPreparation.errors
-          : [])
-      ],
-      {
-        diagnostics:
-          protectedPreparation.status === "error"
-            ? protectedPreparation.diagnostics
-            : [],
-        mutation: discardMutation("no-change")
-      }
-    );
-  }
-  const protectedRecorded = await candidateRecordedAtHead(
-    options.root,
-    options.input.id,
-    protectedPreparation.value.resources.resourceIds
-  );
-  if (protectedRecorded.status === "error") {
-    return result(options.input, false, [], protectedRecorded.errors, {
-      diagnostics: [
-        genericInvestigationDiagnostic({
-          code: "investigation-report.discard-candidate-history-check-unavailable",
-          mutation: discardMutation("no-change"),
-          reason:
-            "the Git history check required immediately before candidate discard could not be completed",
-          recovery:
-            "restore version-control access, then rerun discard-candidate before deleting the candidate",
-          target: options.input.id
-        })
-      ],
-      mutation: discardMutation("no-change")
-    });
-  }
-  if (
-    protectedRecorded.value &&
-    options.input.deleteRecordedCandidate !== true
-  ) {
-    return {
-      ...result(
-        options.input,
-        false,
-        [],
-        [
-          `Investigation candidate ${options.input.id} entered Git HEAD before deletion; confirm that its recorded history should be deleted.`,
-          "Re-run with --delete-recorded-candidate only after confirming deletion; no files were changed."
-        ],
-        { mutation: discardMutation("no-change") }
-      ),
-      requiresRecordedDeletionConfirmation: true
-    };
-  }
-  return await discardPreparedCandidate(
-    options.input,
-    options.root,
-    protectedPreparation.value
-  );
 }
 
 type CandidateDiscardPreparation = Readonly<{
@@ -248,69 +268,20 @@ type CandidateDiscardPreparation = Readonly<{
   sharedReferences: string[];
 }>;
 
-async function prepareCandidateDiscard(
-  root: string,
-  id: string
-): Promise<
+type CandidateDiscardPreparationResult =
   | Readonly<{ status: "ok"; value: CandidateDiscardPreparation }>
   | Readonly<{
       diagnostics: InvestigationDiagnostic[];
       errors: string[];
       status: "error";
-    }>
-> {
+    }>;
+
+async function prepareCandidateDiscard(
+  root: string,
+  id: string
+): Promise<CandidateDiscardPreparationResult> {
   try {
-    const layout = await inspectInvestigationCollectionLayout(root);
-    if (layout.errors.length > 0) {
-      return { diagnostics: [], errors: layout.errors, status: "error" };
-    }
-    if (!layout.candidateIds.includes(id)) {
-      return {
-        diagnostics: [],
-        errors: [`${id} investigation candidate does not exist`],
-        status: "error"
-      };
-    }
-    const candidatePath = candidatePathForInvestigationId(root, id);
-    const candidateEntry = await fs.lstat(candidatePath);
-    if (candidateEntry.isSymbolicLink() || !candidateEntry.isFile()) {
-      return {
-        diagnostics: [],
-        errors: [
-          `${id} investigation candidate must be a regular non-symbolic-link file`
-        ],
-        status: "error"
-      };
-    }
-    const candidateText = await fs.readFile(candidatePath, "utf8");
-    const ownerPath = path.join(
-      root,
-      investigationResourcesDirectoryName,
-      id.slice(0, -".md".length)
-    );
-    const resources = await scanCandidateOwnerResources(root, ownerPath);
-    if (resources.errors.length > 0) {
-      return { diagnostics: [], errors: resources.errors, status: "error" };
-    }
-    const references = await readCandidateAuthoringResourceReferences(root, {
-      failOnInvalidSources: true
-    });
-    const ownerPrefix = `${id.slice(0, -".md".length)}/`;
-    const sharedReferences = [...references]
-      .filter(
-        ([source, ids]) =>
-          source !== id &&
-          [...ids].some((resourceId) => resourceId.startsWith(ownerPrefix))
-      )
-      .map(
-        ([source]) =>
-          `${id} owns resources still referenced by ${source}; remove or replace those resource links before discard-candidate`
-      )
-      .sort(compareText);
-    return {
-      status: "ok",
-      value: { candidatePath, candidateText, resources, sharedReferences }
-    };
+    return await buildCandidateDiscardPreparation(root, id);
   } catch (error) {
     return {
       diagnostics: [
@@ -330,11 +301,89 @@ async function prepareCandidateDiscard(
   }
 }
 
+async function buildCandidateDiscardPreparation(
+  root: string,
+  id: string
+): Promise<CandidateDiscardPreparationResult> {
+  const layout = await inspectInvestigationCollectionLayout(root);
+  if (layout.errors.length > 0) {
+    return { diagnostics: [], errors: layout.errors, status: "error" };
+  }
+  if (!layout.candidateIds.includes(id)) {
+    return {
+      diagnostics: [],
+      errors: [`${id} investigation candidate does not exist`],
+      status: "error"
+    };
+  }
+  const candidatePath = candidatePathForInvestigationId(root, id);
+  const candidateEntry = await fs.lstat(candidatePath);
+  if (candidateEntry.isSymbolicLink() || !candidateEntry.isFile()) {
+    return {
+      diagnostics: [],
+      errors: [
+        `${id} investigation candidate must be a regular non-symbolic-link file`
+      ],
+      status: "error"
+    };
+  }
+  const candidateText = await fs.readFile(candidatePath, "utf8");
+  const ownerPath = path.join(
+    root,
+    investigationResourcesDirectoryName,
+    id.slice(0, -".md".length)
+  );
+  const resources = await scanCandidateOwnerResources(root, ownerPath);
+  if (resources.errors.length > 0) {
+    return { diagnostics: [], errors: resources.errors, status: "error" };
+  }
+  const references = await readCandidateAuthoringResourceReferences(root, {
+    failOnInvalidSources: true
+  });
+  const ownerPrefix = `${id.slice(0, -".md".length)}/`;
+  const sharedReferences = [...references]
+    .filter(
+      ([source, ids]) =>
+        source !== id &&
+        [...ids].some((resourceId) => resourceId.startsWith(ownerPrefix))
+    )
+    .map(
+      ([source]) =>
+        `${id} owns resources still referenced by ${source}; remove or replace those resource links before discard-candidate`
+    )
+    .sort(compareText);
+  return {
+    status: "ok",
+    value: { candidatePath, candidateText, resources, sharedReferences }
+  };
+}
+
 async function discardPreparedCandidate(
   input: InvestigationCandidateDiscardOptions,
   root: string,
   preparation: CandidateDiscardPreparation
 ): Promise<InvestigationCandidateDiscardResult> {
+  const tombstone = candidateDiscardTombstone(input, root, preparation);
+  const moved = await moveCandidateToTombstone(preparation, tombstone);
+  if (moved.status === "error") {
+    return candidateTombstoneMoveFailure(input, moved);
+  }
+  return await finishCandidateTombstoneDiscard(input, preparation, tombstone);
+}
+
+type CandidateDiscardTombstone = Readonly<{
+  candidatePath: string;
+  resourceOwnerPath: string;
+  trash: string;
+  trashCandidate: string;
+  trashResources: string;
+}>;
+
+function candidateDiscardTombstone(
+  input: InvestigationCandidateDiscardOptions,
+  root: string,
+  preparation: CandidateDiscardPreparation
+): CandidateDiscardTombstone {
   const trash = path.join(
     path.dirname(root),
     `.investigation-candidate-discard-${randomUUID()}`
@@ -346,18 +395,39 @@ async function discardPreparedCandidate(
     investigationResourcesDirectoryName,
     input.id.slice(0, -".md".length)
   );
+  return {
+    candidatePath: preparation.candidatePath,
+    resourceOwnerPath,
+    trash,
+    trashCandidate,
+    trashResources
+  };
+}
+
+async function moveCandidateToTombstone(
+  preparation: CandidateDiscardPreparation,
+  tombstone: CandidateDiscardTombstone
+): Promise<
+  | { status: "ok" }
+  | {
+      error: unknown;
+      outcome: "partial-or-unknown" | "rolled-back";
+      restoreErrors: string[];
+      status: "error";
+    }
+> {
   let movedCandidate = false;
   let movedResources = false;
   try {
-    await fs.mkdir(trash, { mode: 0o700 });
-    await fs.rename(preparation.candidatePath, trashCandidate);
+    await fs.mkdir(tombstone.trash, { mode: 0o700 });
+    await fs.rename(preparation.candidatePath, tombstone.trashCandidate);
     movedCandidate = true;
     if (preparation.resources.resourceIds.length > 0) {
-      await fs.rename(resourceOwnerPath, trashResources);
+      await fs.rename(tombstone.resourceOwnerPath, tombstone.trashResources);
       movedResources = true;
       const afterMove = await scanResourceTree(
-        trashResources,
-        path.basename(resourceOwnerPath)
+        tombstone.trashResources,
+        path.basename(tombstone.resourceOwnerPath)
       );
       if (!sameResourceTree(preparation.resources, afterMove)) {
         throw new Error(
@@ -367,45 +437,66 @@ async function discardPreparedCandidate(
     }
   } catch (error) {
     const restoreErrors = await restoreTombstone({
-      candidatePath: preparation.candidatePath,
+      candidatePath: tombstone.candidatePath,
       movedCandidate,
       movedResources,
-      resourceOwnerPath,
-      trash,
-      trashCandidate,
-      trashResources
+      resourceOwnerPath: tombstone.resourceOwnerPath,
+      trash: tombstone.trash,
+      trashCandidate: tombstone.trashCandidate,
+      trashResources: tombstone.trashResources
     });
     const outcome =
       restoreErrors.length === 0 ? "rolled-back" : "partial-or-unknown";
-    return result(
-      input,
-      false,
-      [],
-      ["candidate discard failed before its commit point", ...restoreErrors],
-      {
-        diagnostics: [
-          diagnosticFromError({
-            code: "investigation-report.discard-candidate-publish-failed",
-            error,
-            mutation: discardMutation(outcome),
-            reason:
-              "the candidate and confirmed owner resources could not be moved to their tombstone",
-            recovery:
-              outcome === "rolled-back"
-                ? "correct the reported failure, then retry discard-candidate"
-                : "stop mutations and reconcile the candidate and owner resource paths before retrying",
-            target: input.id
-          })
-        ],
-        mutation: discardMutation(outcome)
-      }
-    );
+    return { error, outcome, restoreErrors, status: "error" };
   }
+  return { status: "ok" };
+}
+
+function candidateTombstoneMoveFailure(
+  input: InvestigationCandidateDiscardOptions,
+  failure: Extract<
+    Awaited<ReturnType<typeof moveCandidateToTombstone>>,
+    { status: "error" }
+  >
+): InvestigationCandidateDiscardResult {
+  return result(
+    input,
+    false,
+    [],
+    [
+      "candidate discard failed before its commit point",
+      ...failure.restoreErrors
+    ],
+    {
+      diagnostics: [
+        diagnosticFromError({
+          code: "investigation-report.discard-candidate-publish-failed",
+          error: failure.error,
+          mutation: discardMutation(failure.outcome),
+          reason:
+            "the candidate and confirmed owner resources could not be moved to their tombstone",
+          recovery:
+            failure.outcome === "rolled-back"
+              ? "correct the reported failure, then retry discard-candidate"
+              : "stop mutations and reconcile the candidate and owner resource paths before retrying",
+          target: input.id
+        })
+      ],
+      mutation: discardMutation(failure.outcome)
+    }
+  );
+}
+
+async function finishCandidateTombstoneDiscard(
+  input: InvestigationCandidateDiscardOptions,
+  preparation: CandidateDiscardPreparation,
+  tombstone: CandidateDiscardTombstone
+): Promise<InvestigationCandidateDiscardResult> {
   const cleanupErrors = await cleanTombstone({
-    candidatePath: trashCandidate,
+    candidatePath: tombstone.trashCandidate,
     resources: preparation.resources,
-    resourcesPath: trashResources,
-    trash
+    resourcesPath: tombstone.trashResources,
+    trash: tombstone.trash
   });
   return result(input, true, preparation.resources.resourceIds, cleanupErrors, {
     diagnostics:
@@ -419,7 +510,7 @@ async function discardPreparedCandidate(
                 "the candidate discard committed, but the exact tombstone cleanup could not finish",
               recovery:
                 "inspect and remove only the reported tombstone residue before another mutation",
-              target: trash
+              target: tombstone.trash
             })
           ],
     mutation:

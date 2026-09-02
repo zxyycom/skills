@@ -96,14 +96,39 @@ function compareDiagnostics(
   left: TestEvidenceDiagnostic,
   right: TestEvidenceDiagnostic
 ): number {
-  return (
-    compareLexicalText(left.path ?? "", right.path ?? "") ||
-    (left.line ?? 0) - (right.line ?? 0) ||
-    (left.column ?? 0) - (right.column ?? 0) ||
-    compareLexicalText(left.severity, right.severity) ||
-    compareLexicalText(left.code, right.code) ||
-    compareLexicalText(left.caseId ?? "", right.caseId ?? "") ||
-    compareLexicalText(left.testId ?? "", right.testId ?? "") ||
-    compareLexicalText(left.message, right.message)
-  );
+  const leftKey = diagnosticSortKey(left);
+  const rightKey = diagnosticSortKey(right);
+  const comparisons = [
+    compareLexicalText(leftKey.path, rightKey.path),
+    leftKey.line - rightKey.line,
+    leftKey.column - rightKey.column,
+    compareLexicalText(leftKey.severity, rightKey.severity),
+    compareLexicalText(leftKey.code, rightKey.code),
+    compareLexicalText(leftKey.caseId, rightKey.caseId),
+    compareLexicalText(leftKey.testId, rightKey.testId),
+    compareLexicalText(leftKey.message, rightKey.message)
+  ];
+  return comparisons.find((comparison) => comparison !== 0) ?? 0;
+}
+
+function diagnosticSortKey(diagnostic: TestEvidenceDiagnostic): Readonly<{
+  caseId: string;
+  code: string;
+  column: number;
+  line: number;
+  message: string;
+  path: string;
+  severity: TestEvidenceDiagnosticSeverity;
+  testId: string;
+}> {
+  return {
+    caseId: diagnostic.caseId ?? "",
+    code: diagnostic.code,
+    column: diagnostic.column ?? 0,
+    line: diagnostic.line ?? 0,
+    message: diagnostic.message,
+    path: diagnostic.path ?? "",
+    severity: diagnostic.severity,
+    testId: diagnostic.testId ?? ""
+  };
 }

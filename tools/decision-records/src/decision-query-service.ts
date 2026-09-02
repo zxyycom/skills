@@ -586,6 +586,24 @@ async function loadCandidateQueryContext(location: DecisionLocation): Promise<
   const hasEstablishedRecord = scan.records.some(
     (record) => record.source.kind === "established"
   );
+  const indexProblem = await candidateQueryIndexFailure(
+    scan,
+    hasEstablishedRecord
+  );
+  if (indexProblem !== null) return indexProblem;
+  return {
+    scan,
+    status: "ok",
+    warnings: scan.sourceErrors.filter(
+      (error) => !scan.collectionErrors.includes(error)
+    )
+  };
+}
+
+async function candidateQueryIndexFailure(
+  scan: DecisionScan,
+  hasEstablishedRecord: boolean
+): Promise<DecisionApplicationFailure | null> {
   if (
     scan.indexErrors.length > 0 &&
     (hasEstablishedRecord || scan.indexExists)
@@ -622,13 +640,7 @@ async function loadCandidateQueryContext(location: DecisionLocation): Promise<
         : indexFailure(checked, scan.indexRelativePath);
     }
   }
-  return {
-    scan,
-    status: "ok",
-    warnings: scan.sourceErrors.filter(
-      (error) => !scan.collectionErrors.includes(error)
-    )
-  };
+  return null;
 }
 
 function sourceWarningsForRecord(

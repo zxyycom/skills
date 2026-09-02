@@ -26,6 +26,7 @@ import type {
   TestEvidenceLedgerIndexMetadata,
   TestEvidenceLedgerSummary
 } from "./schemas.ts";
+import type { LedgerTextSource } from "./text-source.ts";
 import { readLedgerWorkspaceSources } from "./workspace.ts";
 
 export type LoadedTestEvidenceLedgerSource = {
@@ -101,23 +102,11 @@ export async function readTestEvidenceLedgerSource(
   }
   const entityIndex = entityResult?.parsed ?? null;
 
-  const cases: ParsedLedgerCaseSource[] = [];
-  for (const caseSource of workspace.caseSources) {
-    const parsed = parseLedgerCaseSource(caseSource);
-    diagnostics.push(...parsed.diagnostics);
-    if (parsed.value !== null) {
-      cases.push(parsed.value);
-    }
-  }
+  const cases = parseLedgerCases(workspace.caseSources, diagnostics);
   diagnostics.push(...duplicateCaseDiagnostics(cases));
   cases.sort((left, right) => compareLexicalText(left.id, right.id));
 
-  const partialSummary: TestEvidenceLedgerSummary = {
-    tests: entityIndex?.value.entities.length ?? 0,
-    cases: cases.length,
-    relations: 0,
-    tags: new Set(cases.flatMap((entry) => entry.case.tags)).size
-  };
+  const partialSummary = ledgerSummary(entityIndex, cases);
   if (diagnostics.length > 0 || entityIndex === null) {
     return {
       diagnostics,
@@ -143,27 +132,70 @@ export async function readTestEvidenceLedgerSource(
 
   const sourceRevision = ledgerSourceRevision(entityIndex, cases);
   const states = ledgerCaseStates(cases);
-  const summary: TestEvidenceLedgerSummary = {
-    ...partialSummary,
-    relations: relationResult.relations.relationCount
+  return loadedLedgerSourceResult({
+    cases,
+    entityIndex,
+    partialSummary,
+    relations: relationResult.relations,
+    sourceRevision,
+    states
+  });
+}
+
+function loadedLedgerSourceResult(options: {
+  cases: ParsedLedgerCaseSource[];
+  entityIndex: ParsedTestEntityIndex;
+  partialSummary: TestEvidenceLedgerSummary;
+  relations: ClosedTestEvidenceRelations;
+  sourceRevision: StateSourceRevision;
+  states: Record<string, TestEvidenceLedgerCaseIndexState>;
+}): TestEvidenceLedgerSourceResult {
+  const summary = {
+    ...options.partialSummary,
+    relations: options.relations.relationCount
   };
   return {
     diagnostics: [],
-    entityIndex,
+    entityIndex: options.entityIndex,
     source: {
-      cases,
-      entityIndex,
-      relations: relationResult.relations,
+      cases: options.cases,
+      entityIndex: options.entityIndex,
+      relations: options.relations,
       snapshot: {
-        metadata: {
-          entityIndex: { ...entityIndex.identity }
-        },
-        sourceRevision,
-        states
+        metadata: { entityIndex: { ...options.entityIndex.identity } },
+        sourceRevision: options.sourceRevision,
+        states: options.states
       },
       summary
     },
     summary
+  };
+}
+
+function parseLedgerCases(
+  sources: readonly LedgerTextSource[],
+  diagnostics: TestEvidenceDiagnostic[]
+): ParsedLedgerCaseSource[] {
+  const cases: ParsedLedgerCaseSource[] = [];
+  for (const source of sources) {
+    const parsed = parseLedgerCaseSource(source);
+    diagnostics.push(...parsed.diagnostics);
+    if (parsed.value !== null) {
+      cases.push(parsed.value);
+    }
+  }
+  return cases;
+}
+
+function ledgerSummary(
+  entityIndex: ParsedTestEntityIndex | null,
+  cases: readonly ParsedLedgerCaseSource[]
+): TestEvidenceLedgerSummary {
+  return {
+    cases: cases.length,
+    relations: 0,
+    tags: new Set(cases.flatMap((entry) => entry.case.tags)).size,
+    tests: entityIndex?.value.entities.length ?? 0
   };
 }
 
@@ -274,18 +306,28 @@ function ledgerCaseStates(
       title: entry.case.title,
       summary,
       sourcePath: entry.case.sourcePath,
-      testIds: [...entry.case.testIds],
-      tags: [...entry.case.tags],
-      searchText: [
-        entry.case.title,
-        ...entry.case.contract,
-        ...entry.case.proves,
-        ...entry.case.testIds,
-        ...entry.case.tags
-      ].join(" ")
+      testIds: Array.from(entry.case.testIds),
+      tags: Array.from(entry.case.tags),
+      searchText: caseSearchText(entry)
     };
   }
   return states;
+}
+
+function caseSearchText(entry: ParsedLedgerCaseSource): string {
+  const terms = [entry.case.title];
+  const collections = [
+    entry.case.contract,
+    entry.case.proves,
+    entry.case.testIds,
+    entry.case.tags
+  ];
+  for (const collection of collections) {
+    for (const value of collection) {
+      terms.push(value);
+    }
+  }
+  return terms.join(" ");
 }
 
 function duplicateCaseDiagnostics(

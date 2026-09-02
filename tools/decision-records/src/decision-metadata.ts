@@ -50,6 +50,8 @@ export type ParsedDecisionMarkdown = {
   tags: DecisionTag[];
 };
 
+type ParsedDecisionFields = Omit<ParsedDecisionMarkdown, "body">;
+
 export function parseDecisionMarkdown(options: {
   errors: string[];
   markdown: string;
@@ -73,9 +75,24 @@ export function parseDecisionMarkdown(options: {
     return null;
   }
 
-  const unsupportedKeys = frontmatter.keys.filter(
-    (key) => !frontmatterKeySet.has(key)
-  );
+  validateFrontmatterKeys(frontmatter.keys, relativePath, errors);
+  const fields = parseDecisionFields(frontmatter.values, relativePath, errors);
+  if (fields === null) {
+    return null;
+  }
+
+  return {
+    body: markdown.slice(frontmatterMatch[0].length).replace(/^\n+/, ""),
+    ...fields
+  };
+}
+
+function validateFrontmatterKeys(
+  keys: readonly string[],
+  relativePath: string,
+  errors: string[]
+): void {
+  const unsupportedKeys = keys.filter((key) => !frontmatterKeySet.has(key));
   if (unsupportedKeys.length > 0) {
     errors.push(
       relativePath +
@@ -84,54 +101,51 @@ export function parseDecisionMarkdown(options: {
     );
   }
   for (const key of frontmatterKeys) {
-    if (!frontmatter.keys.includes(key)) {
+    if (!keys.includes(key)) {
       errors.push(relativePath + " frontmatter is missing " + key);
     }
   }
-  if (!sameFieldOrder(frontmatter.keys, frontmatterKeys)) {
+  if (!sameFieldOrder(keys, frontmatterKeys)) {
     errors.push(
       relativePath +
         " frontmatter fields must use order: " +
         frontmatterKeys.join(", ")
     );
   }
+}
 
-  const title = projectionField(
-    frontmatter.values.title,
-    "title",
-    relativePath,
-    errors
-  );
+function parseDecisionFields(
+  values: Readonly<Record<string, unknown>>,
+  relativePath: string,
+  errors: string[]
+): ParsedDecisionFields | null {
+  const title = projectionField(values.title, "title", relativePath, errors);
   const purpose = projectionField(
-    frontmatter.values.purpose,
+    values.purpose,
     "purpose",
     relativePath,
     errors
   );
   const background = projectionField(
-    frontmatter.values.background,
+    values.background,
     "background",
     relativePath,
     errors
   );
   const decision = projectionField(
-    frontmatter.values.decision,
+    values.decision,
     "decision",
     relativePath,
     errors
   );
-  const tags = parseTags(frontmatter.values.tags, relativePath, errors);
-  const relations = parseRelations(
-    frontmatter.values.relations,
-    relativePath,
-    errors
-  );
+  const tags = parseTags(values.tags, relativePath, errors);
+  const relations = parseRelations(values.relations, relativePath, errors);
   const metadata = parseLifecycleMetadata({
-    alignment: frontmatter.values.alignment,
-    createdAt: frontmatter.values.createdAt,
+    alignment: values.alignment,
+    createdAt: values.createdAt,
     errors,
     relativePath,
-    status: frontmatter.values.status
+    status: values.status
   });
   if (
     title === null ||
@@ -144,17 +158,9 @@ export function parseDecisionMarkdown(options: {
   ) {
     return null;
   }
-
   return {
-    body: markdown.slice(frontmatterMatch[0].length).replace(/^\n+/, ""),
     metadata,
-    projection: {
-      title,
-      purpose,
-      background,
-      decision,
-      relations
-    },
+    projection: { background, decision, purpose, relations, title },
     tags
   };
 }
@@ -363,90 +369,128 @@ function parseLifecycleMetadata(options: {
   relativePath: string;
   status: unknown;
 }): DecisionSourceMetadata | null {
-  const { alignment, createdAt, errors, relativePath, status } = options;
-  const statusValid = isDecisionStatus(status);
-  const alignmentValid = alignment === null || isDecisionAlignment(alignment);
-  const createdAtValid =
-    createdAt === null ||
-    (typeof createdAt === "string" && isDecisionTimestamp(createdAt));
-  let lifecycleValid = statusValid && alignmentValid && createdAtValid;
+  const { alignment, createdAt, status } = options;
+  const fieldsValid = validateLifecycleFields(options);
+  const statusValid = validateLifecycleStatus(options);
+  if (!fieldsValid || !statusValid) {
+    return null;
+  }
 
-  if (!statusValid) {
-    errors.push(
-      relativePath +
-        " frontmatter status must be candidate, active, or archived"
-    );
+  return decisionSourceMetadata(status, alignment, createdAt);
+}
+
+function validateLifecycleFields(options: {
+  alignment: unknown;
+  createdAt: unknown;
+  errors: string[];
+  relativePath: string;
+  status: unknown;
+}): boolean {
+  const { alignment, createdAt, errors, relativePath, status } = options;
+  const checks = [
+    {
+      issue: "status must be candidate, active, or archived",
+      valid: isDecisionStatus(status)
+    },
+    {
+      issue: "alignment must be aligned, unaligned, or null",
+      valid: alignment === null || isDecisionAlignment(alignment)
+    },
+    {
+      issue:
+        "createdAt must be an RFC 3339 timestamp precise to seconds with an explicit timezone",
+      valid:
+        createdAt === null ||
+        (typeof createdAt === "string" && isDecisionTimestamp(createdAt))
+    }
+  ];
+  for (const check of checks) {
+    if (!check.valid) {
+      errors.push(relativePath + " frontmatter " + check.issue);
+    }
   }
-  if (!alignmentValid) {
-    errors.push(
-      relativePath +
-        " frontmatter alignment must be aligned, unaligned, or null"
-    );
-  }
-  if (!createdAtValid) {
-    errors.push(
-      relativePath +
-        " frontmatter createdAt must be an RFC 3339 timestamp precise to seconds " +
-        "with an explicit timezone"
-    );
-  }
+  return checks.every((check) => check.valid);
+}
+
+function validateLifecycleStatus(options: {
+  alignment: unknown;
+  createdAt: unknown;
+  errors: string[];
+  relativePath: string;
+  status: unknown;
+}): boolean {
+  const { alignment, createdAt, errors, relativePath, status } = options;
+  const issues: string[] = [];
   if (status === "candidate" && alignment !== null) {
-    lifecycleValid = false;
-    errors.push(
-      relativePath + " candidate decision frontmatter alignment must be null"
-    );
+    issues.push("candidate decision frontmatter alignment must be null");
   }
   if (status === "candidate" && createdAt !== null) {
-    lifecycleValid = false;
-    errors.push(
-      relativePath + " candidate decision frontmatter createdAt must be null"
-    );
+    issues.push("candidate decision frontmatter createdAt must be null");
   }
   if (status === "active" && !isDecisionAlignment(alignment)) {
-    lifecycleValid = false;
-    errors.push(
-      relativePath +
-        " active decision frontmatter alignment must be aligned or unaligned"
+    issues.push(
+      "active decision frontmatter alignment must be aligned or unaligned"
     );
   }
   if (status === "active" && createdAt === null) {
-    lifecycleValid = false;
-    errors.push(
-      relativePath +
-        " active decision frontmatter createdAt must not be null; use status: " +
+    issues.push(
+      "active decision frontmatter createdAt must not be null; use status: " +
         "candidate with alignment: null and createdAt: null for a candidate scaffold"
     );
   }
   if (status === "archived" && createdAt === null) {
-    lifecycleValid = false;
-    errors.push(
-      relativePath + " archived decision frontmatter createdAt must not be null"
-    );
+    issues.push("archived decision frontmatter createdAt must not be null");
   }
-  if (!lifecycleValid) {
-    return null;
-  }
+  errors.push(...issues.map((issue) => relativePath + " " + issue));
+  return issues.length === 0;
+}
 
-  if (status === "candidate" && alignment === null && createdAt === null) {
-    return { alignment, createdAt, status };
+function decisionSourceMetadata(
+  status: unknown,
+  alignment: unknown,
+  createdAt: unknown
+): DecisionSourceMetadata | null {
+  switch (status) {
+    case "candidate":
+      return candidateSourceMetadata(alignment, createdAt);
+    case "active":
+      return activeSourceMetadata(alignment, createdAt);
+    case "archived":
+      return archivedSourceMetadata(alignment, createdAt);
+    default:
+      return null;
   }
-  if (
-    status === "active" &&
-    isDecisionAlignment(alignment) &&
+}
+
+function candidateSourceMetadata(
+  alignment: unknown,
+  createdAt: unknown
+): DecisionSourceMetadata | null {
+  return alignment === null && createdAt === null
+    ? { alignment, createdAt, status: "candidate" }
+    : null;
+}
+
+function activeSourceMetadata(
+  alignment: unknown,
+  createdAt: unknown
+): DecisionSourceMetadata | null {
+  return isDecisionAlignment(alignment) &&
     typeof createdAt === "string" &&
     isDecisionTimestamp(createdAt)
-  ) {
-    return { alignment, createdAt, status };
-  }
-  if (
-    status === "archived" &&
-    (alignment === null || isDecisionAlignment(alignment)) &&
+    ? { alignment, createdAt, status: "active" }
+    : null;
+}
+
+function archivedSourceMetadata(
+  alignment: unknown,
+  createdAt: unknown
+): DecisionSourceMetadata | null {
+  return (alignment === null || isDecisionAlignment(alignment)) &&
     typeof createdAt === "string" &&
     isDecisionTimestamp(createdAt)
-  ) {
-    return { alignment, createdAt, status };
-  }
-  return null;
+    ? { alignment, createdAt, status: "archived" }
+    : null;
 }
 
 function isDecisionStatus(value: unknown): value is DecisionStatus {

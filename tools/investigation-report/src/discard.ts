@@ -58,6 +58,16 @@ export type InvestigationDiscardWriter = (
 ) => Promise<void>;
 type BeforeDiscardPublish = () => Promise<void>;
 type AfterDiscardResourceTombstone = () => Promise<void>;
+type DiscardCollectionOptions = Readonly<{
+  afterResourceTombstone: AfterDiscardResourceTombstone;
+  beforePublish: BeforeDiscardPublish;
+  deleteOwnedResources: boolean;
+  deleteRecordedReport: boolean;
+  id: string;
+  indexPath: string;
+  root: string;
+  write: InvestigationDiscardWriter;
+}>;
 
 export async function discardInvestigationReport(
   input: unknown
@@ -120,139 +130,237 @@ export async function discardInvestigationReportWithWriter(
         root,
         write
       })
-  ).catch((error: unknown) => {
-    const releaseFailure =
-      error instanceof InvestigationCollectionMutationLockError &&
-      error.diagnostic.code ===
-        "investigation-report.collection-lock-release-failed";
-    const completedResult =
-      error instanceof InvestigationCollectionMutationLockError &&
-      error.operationCompleted &&
-      isDiscardResult(error.operationResult)
-        ? error.operationResult
-        : null;
-    if (completedResult !== null && releaseFailure) {
-      const mutation =
-        completedResult.mutation ??
-        discardMutation(
-          completedResult.changed ? "committed-cleanup-pending" : "no-change"
-        );
-      return {
-        ...completedResult,
-        diagnostics: [
-          ...completedResult.diagnostics,
-          { ...error.diagnostic, mutation }
-        ],
-        errors: uniqueSorted([...completedResult.errors, errorText(error)]),
-        mutation
-      };
-    }
-    return discardResult(
-      parsed.value,
-      parsed.value.id,
-      false,
-      [],
-      [errorText(error)],
-      {
-        diagnostics:
-          error instanceof InvestigationCollectionMutationLockError
-            ? [
-                {
-                  ...error.diagnostic,
-                  mutation: discardMutation(
-                    releaseFailure ? "partial-or-unknown" : "no-change"
-                  )
-                }
-              ]
-            : [
-                diagnosticFromError({
-                  code: "investigation-report.discard-transaction-failed",
-                  error,
-                  mutation: discardMutation("partial-or-unknown"),
-                  reason: "the discard transaction stopped unexpectedly",
-                  recovery:
-                    "verify the report, owner resources, and index before retrying discard",
-                  target: parsed.value.id
-                })
-              ],
-        mutation: discardMutation(
-          releaseFailure ? "partial-or-unknown" : "no-change"
-        )
-      }
+  ).catch((error: unknown) =>
+    discardLockFailure(error, parsed.value, parsed.value.id)
+  );
+}
+
+function discardLockFailure(
+  error: unknown,
+  input: { investigationsDir?: string; workspaceRoot?: string },
+  id: string
+): InvestigationReportDiscardResult {
+  const releaseFailure =
+    error instanceof InvestigationCollectionMutationLockError &&
+    error.diagnostic.code ===
+      "investigation-report.collection-lock-release-failed";
+  const completedResult = completedDiscardResult(error);
+  if (completedResult !== null && releaseFailure) {
+    return completedDiscardLockFailure(completedResult, error);
+  }
+  return incompleteDiscardLockFailure(error, input, id, releaseFailure);
+}
+
+function completedDiscardResult(
+  error: unknown
+): InvestigationReportDiscardResult | null {
+  return error instanceof InvestigationCollectionMutationLockError &&
+    error.operationCompleted &&
+    isDiscardResult(error.operationResult)
+    ? error.operationResult
+    : null;
+}
+
+function completedDiscardLockFailure(
+  completedResult: InvestigationReportDiscardResult,
+  error: InvestigationCollectionMutationLockError
+): InvestigationReportDiscardResult {
+  const mutation =
+    completedResult.mutation ??
+    discardMutation(
+      completedResult.changed ? "committed-cleanup-pending" : "no-change"
     );
+  return {
+    ...completedResult,
+    diagnostics: [
+      ...completedResult.diagnostics,
+      { ...error.diagnostic, mutation }
+    ],
+    errors: uniqueSorted([...completedResult.errors, errorText(error)]),
+    mutation
+  };
+}
+
+function incompleteDiscardLockFailure(
+  error: unknown,
+  input: { investigationsDir?: string; workspaceRoot?: string },
+  id: string,
+  releaseFailure: boolean
+): InvestigationReportDiscardResult {
+  const mutation = discardMutation(
+    releaseFailure ? "partial-or-unknown" : "no-change"
+  );
+  return discardResult(input, id, false, [], [errorText(error)], {
+    diagnostics:
+      error instanceof InvestigationCollectionMutationLockError
+        ? [{ ...error.diagnostic, mutation }]
+        : [
+            diagnosticFromError({
+              code: "investigation-report.discard-transaction-failed",
+              error,
+              mutation: discardMutation("partial-or-unknown"),
+              reason: "the discard transaction stopped unexpectedly",
+              recovery:
+                "verify the report, owner resources, and index before retrying discard",
+              target: id
+            })
+          ],
+    mutation
   });
 }
 
-async function discardFromCollection(options: {
-  afterResourceTombstone: AfterDiscardResourceTombstone;
-  beforePublish: BeforeDiscardPublish;
-  deleteOwnedResources: boolean;
-  deleteRecordedReport: boolean;
-  id: string;
-  indexPath: string;
-  root: string;
-  write: InvestigationDiscardWriter;
-}): Promise<InvestigationReportDiscardResult> {
+type InvestigationCollectionScan = Awaited<
+  ReturnType<typeof collectValidatedInvestigationCollection>
+>;
+type ValidatedInvestigationCollection = Omit<
+  InvestigationCollectionScan,
+  "snapshot"
+> & {
+  snapshot: NonNullable<InvestigationCollectionScan["snapshot"]>;
+};
+type InvestigationCollectionSource =
+  ValidatedInvestigationCollection["sources"][number];
+type DiscardStep<T> =
+  | Readonly<{ ok: true; value: T }>
+  | Readonly<{ ok: false; result: InvestigationReportDiscardResult }>;
+
+async function discardFromCollection(
+  options: DiscardCollectionOptions
+): Promise<InvestigationReportDiscardResult> {
+  const loaded = await loadDiscardCollection(options);
+  if (!loaded.ok) return loaded.result;
+  const freshnessFailure = await discardFreshnessFailure(
+    options,
+    loaded.value.collection
+  );
+  if (freshnessFailure !== null) return freshnessFailure;
+  const ownership = await prepareDiscardOwnership(
+    options,
+    loaded.value.collection
+  );
+  if (!ownership.ok) return ownership.result;
+  const candidate = prepareDiscardCandidate(options, loaded.value.collection);
+  if (!candidate.ok) return candidate.result;
+  const historyFailure = await discardHistoryFailure(
+    options,
+    ownership.value.ownedResources.resourceIds
+  );
+  if (historyFailure !== null) return historyFailure;
+  const indexText = await buildDiscardIndexText(options, candidate.value);
+  if (!indexText.ok) return indexText.result;
+  await options.beforePublish();
+  const protectionFailure = await discardProtectionFailure(
+    options,
+    loaded.value.collection,
+    loaded.value.originalIndexText
+  );
+  if (protectionFailure !== null) return protectionFailure;
+  return await publishPreparedDiscard(options, {
+    indexText: indexText.value,
+    originalIndexText: loaded.value.originalIndexText,
+    ownedResources: ownership.value.ownedResources,
+    resourceOwnerPath: ownership.value.resourceOwnerPath
+  });
+}
+
+async function loadDiscardCollection(
+  options: DiscardCollectionOptions
+): Promise<
+  DiscardStep<{
+    collection: ValidatedInvestigationCollection;
+    originalIndexText: string;
+  }>
+> {
   const collection = await collectValidatedInvestigationCollection(
     options.root
   );
   if (collection.errors.length > 0 || collection.snapshot === null) {
-    return result(options, false, [], collection.errors);
+    return discardStepFailure(result(options, false, [], collection.errors));
   }
-  const target = collection.sources.find((source) => source.id === options.id);
-  if (target === undefined) {
-    return result(
-      options,
-      false,
-      [],
-      [`${options.id} investigation report does not exist`]
+  if (!collection.sources.some((source) => source.id === options.id)) {
+    return discardStepFailure(
+      result(
+        options,
+        false,
+        [],
+        [`${options.id} investigation report does not exist`]
+      )
     );
   }
-  let originalIndexText: string;
+  const validatedCollection: ValidatedInvestigationCollection = {
+    ...collection,
+    snapshot: collection.snapshot
+  };
   try {
-    originalIndexText = await readRegularText(options.indexPath);
+    return discardStepValue({
+      collection: validatedCollection,
+      originalIndexText: await readRegularText(options.indexPath)
+    });
   } catch (error) {
-    return result(
-      options,
-      false,
-      [],
-      [
-        `failed to read current index before discard transaction: ${errorText(error)}`
-      ],
-      {
-        diagnostics: [
-          diagnosticFromError({
-            code: "investigation-report.discard-index-read-failed",
-            error,
-            mutation: discardMutation("no-change"),
-            reason:
-              "the current investigation index could not be read before discard",
-            recovery:
-              "restore read access to the current index, then retry discard",
-            target: options.indexPath
-          })
-        ],
-        mutation: discardMutation("no-change")
-      }
-    );
+    return discardStepFailure(discardIndexReadFailure(options, error));
   }
+}
+
+function discardIndexReadFailure(
+  options: DiscardCollectionOptions,
+  error: unknown
+): InvestigationReportDiscardResult {
+  return result(
+    options,
+    false,
+    [],
+    [
+      `failed to read current index before discard transaction: ${errorText(error)}`
+    ],
+    {
+      diagnostics: [
+        diagnosticFromError({
+          code: "investigation-report.discard-index-read-failed",
+          error,
+          mutation: discardMutation("no-change"),
+          reason:
+            "the current investigation index could not be read before discard",
+          recovery:
+            "restore read access to the current index, then retry discard",
+          target: options.indexPath
+        })
+      ],
+      mutation: discardMutation("no-change")
+    }
+  );
+}
+
+async function discardFreshnessFailure(
+  options: DiscardCollectionOptions,
+  collection: ValidatedInvestigationCollection
+): Promise<InvestigationReportDiscardResult | null> {
   const freshness = await syncInvestigationStateIndex({
     investigationsDirectory: options.root,
     mode: "check",
     snapshot: collection.snapshot
   });
-  if (freshness.status === "error") {
-    return result(
-      options,
-      false,
-      [],
-      investigationIndexDiagnosticMessages(
-        freshness.diagnostics,
-        options.indexPath
+  return freshness.status === "error"
+    ? result(
+        options,
+        false,
+        [],
+        investigationIndexDiagnosticMessages(
+          freshness.diagnostics,
+          options.indexPath
+        )
       )
-    );
-  }
+    : null;
+}
 
+async function prepareDiscardOwnership(
+  options: DiscardCollectionOptions,
+  collection: ValidatedInvestigationCollection
+): Promise<
+  DiscardStep<{
+    ownedResources: ResourceTreeScan;
+    resourceOwnerPath: string;
+  }>
+> {
   const resourceOwnerPath = path.join(
     options.root,
     investigationResourcesDirectoryName,
@@ -263,8 +371,25 @@ async function discardFromCollection(options: {
     resourceOwnerPath
   );
   if (ownedResources.errors.length > 0) {
-    return result(options, false, [], ownedResources.errors);
+    return discardStepFailure(
+      result(options, false, [], ownedResources.errors)
+    );
   }
+  const errors = await discardOwnershipErrors(
+    options,
+    collection,
+    ownedResources
+  );
+  return errors.length > 0
+    ? discardStepFailure(result(options, false, [], errors))
+    : discardStepValue({ ownedResources, resourceOwnerPath });
+}
+
+async function discardOwnershipErrors(
+  options: DiscardCollectionOptions,
+  collection: ValidatedInvestigationCollection,
+  ownedResources: ResourceTreeScan
+): Promise<string[]> {
   const relationshipErrors = referencesToTarget(collection.states, options.id);
   const resourceErrors = sharedOwnerResourceReferences(
     await readCandidateAuthoringResourceReferences(options.root, {
@@ -278,48 +403,40 @@ async function discardFromCollection(options: {
           `${options.id} owns ${ownedResources.resourceIds.length} resource(s); re-run with --delete-owned-resources only after confirming their deletion`
         ]
       : [];
-  if (
-    relationshipErrors.length > 0 ||
-    resourceErrors.length > 0 ||
-    deletionErrors.length > 0
-  ) {
-    return result(
-      options,
-      false,
-      [],
-      [...relationshipErrors, ...resourceErrors, ...deletionErrors]
-    );
-  }
-  const candidateSources = collection.sources.filter(
+  return [...relationshipErrors, ...resourceErrors, ...deletionErrors];
+}
+
+function prepareDiscardCandidate(
+  options: DiscardCollectionOptions,
+  collection: ValidatedInvestigationCollection
+): DiscardStep<{
+  sources: InvestigationCollectionSource[];
+  states: Map<string, InvestigationIndexState>;
+}> {
+  const sources = collection.sources.filter(
     (source) => source.id !== options.id
   );
-  const candidateStates = new Map(
+  const states = new Map(
     [...collection.states].filter(([id]) => id !== options.id)
   );
-  const relationErrors = validateInvestigationRelationGraph(candidateStates);
-  if (relationErrors.length > 0)
-    return result(options, false, [], relationErrors);
+  const relationErrors = validateInvestigationRelationGraph(states);
+  return relationErrors.length > 0
+    ? discardStepFailure(result(options, false, [], relationErrors))
+    : discardStepValue({ sources, states });
+}
 
+async function discardHistoryFailure(
+  options: DiscardCollectionOptions,
+  ownedResourceIds: readonly string[]
+): Promise<InvestigationReportDiscardResult | null> {
   const recorded = await isRecordedAtHead(
     options.root,
     options.id,
-    ownedResources.resourceIds
+    ownedResourceIds
   );
-  if (recorded.errors.length > 0)
-    return result(options, false, [], recorded.errors, {
-      diagnostics: [
-        genericInvestigationDiagnostic({
-          code: "investigation-report.discard-history-check-unavailable",
-          mutation: discardMutation("no-change"),
-          reason:
-            "the Git history check required before discard could not be completed",
-          recovery:
-            "restore version-control access, then rerun discard before deleting the report",
-          target: options.id
-        })
-      ],
-      mutation: discardMutation("no-change")
-    });
+  if (recorded.errors.length > 0) {
+    return discardHistoryCheckFailure(options, recorded.errors);
+  }
   if (recorded.recorded && !options.deleteRecordedReport) {
     return {
       ...result(
@@ -334,31 +451,77 @@ async function discardFromCollection(options: {
       requiresRecordedDeletionConfirmation: true
     };
   }
+  return null;
+}
 
+function discardHistoryCheckFailure(
+  options: DiscardCollectionOptions,
+  errors: readonly string[]
+): InvestigationReportDiscardResult {
+  return result(options, false, [], errors, {
+    diagnostics: [
+      genericInvestigationDiagnostic({
+        code: "investigation-report.discard-history-check-unavailable",
+        mutation: discardMutation("no-change"),
+        reason:
+          "the Git history check required before discard could not be completed",
+        recovery:
+          "restore version-control access, then rerun discard before deleting the report",
+        target: options.id
+      })
+    ],
+    mutation: discardMutation("no-change")
+  });
+}
+
+async function buildDiscardIndexText(
+  options: DiscardCollectionOptions,
+  candidate: Readonly<{
+    sources: InvestigationCollectionSource[];
+    states: Map<string, InvestigationIndexState>;
+  }>
+): Promise<DiscardStep<string>> {
   const snapshot = createInvestigationStateSnapshot(
-    candidateSources,
-    candidateSources.map((source) => candidateStates.get(source.id)!)
+    candidate.sources,
+    candidate.sources.map((source) =>
+      requiredInvestigationState(candidate.states, source.id)
+    )
   );
-  const builtIndex = await buildStateIndex(
-    createInvestigationStateIndexDefinition({ snapshot }),
-    { root: options.root }
-  );
-  if (builtIndex.status === "error") {
-    return result(
-      options,
-      false,
-      [],
-      investigationIndexDiagnosticMessages(
-        builtIndex.diagnostics,
-        options.indexPath
+  const definition = createInvestigationStateIndexDefinition({ snapshot });
+  const builtIndex = await buildStateIndex(definition, { root: options.root });
+  return builtIndex.status === "error"
+    ? discardStepFailure(
+        result(
+          options,
+          false,
+          [],
+          investigationIndexDiagnosticMessages(
+            builtIndex.diagnostics,
+            options.indexPath
+          )
+        )
       )
+    : discardStepValue(serializeStateIndex(builtIndex.value, definition));
+}
+
+function requiredInvestigationState(
+  states: ReadonlyMap<string, InvestigationIndexState>,
+  investigationId: string
+): InvestigationIndexState {
+  const state = states.get(investigationId);
+  if (state === undefined) {
+    throw new Error(
+      `validated investigation collection is missing state for ${investigationId}`
     );
   }
-  const nextIndexText = serializeStateIndex(
-    builtIndex.value,
-    createInvestigationStateIndexDefinition({ snapshot })
-  );
-  await options.beforePublish();
+  return state;
+}
+
+async function discardProtectionFailure(
+  options: DiscardCollectionOptions,
+  collection: ValidatedInvestigationCollection,
+  originalIndexText: string
+): Promise<InvestigationReportDiscardResult | null> {
   const protectedCollection = await collectValidatedInvestigationCollection(
     options.root
   );
@@ -377,74 +540,103 @@ async function discardFromCollection(options: {
       ]
     );
   }
+  return await discardIndexProtectionFailure(options, originalIndexText);
+}
+
+async function discardIndexProtectionFailure(
+  options: DiscardCollectionOptions,
+  originalIndexText: string
+): Promise<InvestigationReportDiscardResult | null> {
   let currentIndexText: string;
   try {
     currentIndexText = await readRegularText(options.indexPath);
   } catch (error) {
-    return result(
-      options,
-      false,
-      [],
-      [
-        `current investigation index could not be re-read before discard transaction: ${errorText(error)}`
-      ],
-      {
-        diagnostics: [
-          diagnosticFromError({
-            code: "investigation-report.discard-index-recheck-failed",
-            error,
-            mutation: discardMutation("no-change"),
-            reason:
-              "the current investigation index could not be re-read before discard publication",
-            recovery:
-              "restore read access to the index and verify it has not changed before retrying discard",
-            target: options.indexPath
-          })
-        ],
-        mutation: discardMutation("no-change")
-      }
-    );
+    return discardIndexRecheckFailure(options, error);
   }
-  if (currentIndexText !== originalIndexText) {
-    return result(
-      options,
-      false,
-      [],
-      [
-        "investigation index changed after discard validation; no files were written"
-      ],
-      {
-        diagnostics: [
-          genericInvestigationDiagnostic({
-            code: "investigation-report.discard-index-drift",
-            mutation: discardMutation("no-change"),
-            reason: "the investigation index changed after discard validation",
-            recovery:
-              "review the concurrent index change, then retry discard from the current collection state",
-            target: options.indexPath
-          })
-        ],
-        mutation: discardMutation("no-change")
-      }
-    );
-  }
+  return currentIndexText === originalIndexText
+    ? null
+    : discardIndexDriftFailure(options);
+}
 
-  const deletedResourceIds = ownedResources.resourceIds;
+function discardIndexRecheckFailure(
+  options: DiscardCollectionOptions,
+  error: unknown
+): InvestigationReportDiscardResult {
+  return result(
+    options,
+    false,
+    [],
+    [
+      `current investigation index could not be re-read before discard transaction: ${errorText(error)}`
+    ],
+    {
+      diagnostics: [
+        diagnosticFromError({
+          code: "investigation-report.discard-index-recheck-failed",
+          error,
+          mutation: discardMutation("no-change"),
+          reason:
+            "the current investigation index could not be re-read before discard publication",
+          recovery:
+            "restore read access to the index and verify it has not changed before retrying discard",
+          target: options.indexPath
+        })
+      ],
+      mutation: discardMutation("no-change")
+    }
+  );
+}
+
+function discardIndexDriftFailure(
+  options: DiscardCollectionOptions
+): InvestigationReportDiscardResult {
+  return result(
+    options,
+    false,
+    [],
+    [
+      "investigation index changed after discard validation; no files were written"
+    ],
+    {
+      diagnostics: [
+        genericInvestigationDiagnostic({
+          code: "investigation-report.discard-index-drift",
+          mutation: discardMutation("no-change"),
+          reason: "the investigation index changed after discard validation",
+          recovery:
+            "review the concurrent index change, then retry discard from the current collection state",
+          target: options.indexPath
+        })
+      ],
+      mutation: discardMutation("no-change")
+    }
+  );
+}
+
+async function publishPreparedDiscard(
+  options: DiscardCollectionOptions,
+  prepared: Readonly<{
+    indexText: string;
+    originalIndexText: string;
+    ownedResources: ResourceTreeScan;
+    resourceOwnerPath: string;
+  }>
+): Promise<InvestigationReportDiscardResult> {
   const publication = await publishDiscard({
     afterResourceTombstone: options.afterResourceTombstone,
     indexPath: options.indexPath,
-    indexText: nextIndexText,
-    originalIndexText,
+    indexText: prepared.indexText,
+    originalIndexText: prepared.originalIndexText,
     reportPath: reportPathForInvestigationId(options.root, options.id),
-    resourceOwnerPath,
-    resourceSnapshot: ownedResources,
+    resourceOwnerPath: prepared.resourceOwnerPath,
+    resourceSnapshot: prepared.ownedResources,
     root: options.root,
     write: options.write
   });
   return result(
     options,
     publication.changed,
-    deletedResourceIds,
+    prepared.ownedResources.resourceIds,
     publication.errors,
     {
       diagnostics: publication.diagnostics,
@@ -453,6 +645,16 @@ async function discardFromCollection(options: {
         : { mutation: publication.mutation })
     }
   );
+}
+
+function discardStepValue<T>(value: T): DiscardStep<T> {
+  return { ok: true, value };
+}
+
+function discardStepFailure<T>(
+  failure: InvestigationReportDiscardResult
+): DiscardStep<T> {
+  return { ok: false, result: failure };
 }
 
 function referencesToTarget(
@@ -610,6 +812,28 @@ type ResourceTreeScan = Readonly<{
   resourceIds: string[];
 }>;
 
+type DiscardPublicationOptions = Readonly<{
+  afterResourceTombstone: AfterDiscardResourceTombstone;
+  indexPath: string;
+  indexText: string;
+  originalIndexText: string;
+  reportPath: string;
+  resourceOwnerPath: string;
+  resourceSnapshot: ResourceTreeScan;
+  root: string;
+  write: InvestigationDiscardWriter;
+}>;
+type DiscardPublicationResult = Readonly<{
+  changed: boolean;
+  diagnostics: InvestigationDiagnostic[];
+  errors: string[];
+  mutation?: InvestigationMutationDiagnostic;
+}>;
+type DiscardMovement = {
+  movedReport: boolean;
+  movedResources: boolean;
+};
+
 async function scanOwnerResourceTree(
   ownerPath: string,
   ownerPrefix: string
@@ -678,24 +902,35 @@ async function scanOwnerResourceTree(
   };
 }
 
-async function publishDiscard(options: {
-  afterResourceTombstone: AfterDiscardResourceTombstone;
-  indexPath: string;
-  indexText: string;
-  originalIndexText: string;
-  reportPath: string;
-  resourceOwnerPath: string;
-  resourceSnapshot: ResourceTreeScan;
-  root: string;
-  write: InvestigationDiscardWriter;
-}): Promise<{
-  changed: boolean;
-  diagnostics: InvestigationDiagnostic[];
-  errors: string[];
-  mutation?: InvestigationMutationDiagnostic;
-}> {
+async function publishDiscard(
+  options: DiscardPublicationOptions
+): Promise<DiscardPublicationResult> {
+  const verificationFailure = await discardReportVerificationFailure(options);
+  if (verificationFailure !== null) return verificationFailure;
+  const trash = discardTrashPath(options.reportPath);
+  const movement: DiscardMovement = {
+    movedReport: false,
+    movedResources: false
+  };
+  try {
+    await publishDiscardTombstones(options, trash, movement);
+  } catch (error) {
+    return await discardPublishFailure(options, trash, movement, error);
+  }
+  const cleanupFailure = await discardCleanupFailure(
+    options,
+    trash,
+    movement.movedResources
+  );
+  return cleanupFailure ?? { changed: true, diagnostics: [], errors: [] };
+}
+
+async function discardReportVerificationFailure(
+  options: DiscardPublicationOptions
+): Promise<DiscardPublicationResult | null> {
   try {
     await ensureRegularFile(options.reportPath);
+    return null;
   } catch (error) {
     return {
       changed: false,
@@ -716,117 +951,122 @@ async function publishDiscard(options: {
       mutation: discardMutation("no-change")
     };
   }
-  const trash = path.join(
-    path.dirname(path.dirname(options.reportPath)),
+}
+
+function discardTrashPath(reportPath: string): string {
+  return path.join(
+    path.dirname(path.dirname(reportPath)),
     `.investigation-report-discard-${process.pid}-${randomUUID()}`
   );
-  let movedReport = false;
-  let movedResources = false;
-  try {
-    await fs.mkdir(trash, { recursive: false });
-    await fs.rename(options.reportPath, path.join(trash, "report.md"));
-    movedReport = true;
-    const currentResources = await inspectOwnedResources(
-      options.root,
-      options.resourceOwnerPath
+}
+
+async function publishDiscardTombstones(
+  options: DiscardPublicationOptions,
+  trash: string,
+  movement: DiscardMovement
+): Promise<void> {
+  await fs.mkdir(trash, { recursive: false });
+  await fs.rename(options.reportPath, path.join(trash, "report.md"));
+  movement.movedReport = true;
+  await verifyCurrentDiscardResources(options);
+  await tombstoneDiscardResources(options, trash, movement);
+  await options.write(options.indexPath, options.indexText);
+}
+
+async function verifyCurrentDiscardResources(
+  options: DiscardPublicationOptions
+): Promise<void> {
+  const currentResources = await inspectOwnedResources(
+    options.root,
+    options.resourceOwnerPath
+  );
+  if (sameResourceTree(currentResources, options.resourceSnapshot)) return;
+  throw new Error(
+    currentResources.errors.length > 0
+      ? `owned resources changed before discard publication: ${currentResources.errors.join("; ")}`
+      : "owned resources changed before discard publication"
+  );
+}
+
+async function tombstoneDiscardResources(
+  options: DiscardPublicationOptions,
+  trash: string,
+  movement: DiscardMovement
+): Promise<void> {
+  const resourceEntry = await lstatOrNull(options.resourceOwnerPath);
+  if (resourceEntry === null) return;
+  if (resourceEntry.isSymbolicLink() || !resourceEntry.isDirectory()) {
+    throw new Error(
+      "owner resource path must be a non-symbolic-link directory"
     );
-    if (
-      currentResources.errors.length > 0 ||
-      !sameResourceTree(currentResources, options.resourceSnapshot)
-    ) {
-      throw new Error(
-        currentResources.errors.length > 0
-          ? `owned resources changed before discard publication: ${currentResources.errors.join("; ")}`
-          : "owned resources changed before discard publication"
-      );
-    }
-    const resourceEntry = await lstatOrNull(options.resourceOwnerPath);
-    if (resourceEntry !== null) {
-      if (resourceEntry.isSymbolicLink() || !resourceEntry.isDirectory()) {
-        throw new Error(
-          "owner resource path must be a non-symbolic-link directory"
-        );
-      }
-      await fs.rename(options.resourceOwnerPath, path.join(trash, "resources"));
-      movedResources = true;
-      await options.afterResourceTombstone();
-      const tombstonedResources = await scanOwnerResourceTree(
-        path.join(trash, "resources"),
-        path.basename(options.resourceOwnerPath)
-      );
-      if (
-        tombstonedResources.errors.length > 0 ||
-        !sameResourceTree(tombstonedResources, options.resourceSnapshot)
-      ) {
-        throw new Error(
-          tombstonedResources.errors.length > 0
-            ? `tombstoned owner resources changed before discard publication: ${tombstonedResources.errors.join("; ")}`
-            : "tombstoned owner resources changed before discard publication"
-        );
-      }
-    }
-    await options.write(options.indexPath, options.indexText);
-  } catch (error) {
-    const restorationErrors = await restoreDiscard({
-      ...options,
-      movedReport,
-      movedResources,
-      trash,
-      write: options.write
-    });
-    return {
-      changed: false,
-      diagnostics: [
-        diagnosticFromError({
-          code: "investigation-report.discard-publish-failed",
-          error,
-          mutation: discardMutation(
-            restorationErrors.length === 0
-              ? "rolled-back"
-              : "partial-or-unknown"
-          ),
-          reason:
-            restorationErrors.length === 0
-              ? "discard publication failed and the report, resources, and index were restored"
-              : "discard publication failed and restoration could not be fully verified",
-          recovery:
-            restorationErrors.length === 0
-              ? "correct the publication failure, then retry discard"
-              : "inspect the listed report, resource, and index paths before any retry",
-          target: options.reportPath
-        })
-      ],
-      errors: uniqueSorted([
-        `discard transaction publish failed: ${errorText(error)}`,
-        ...restorationErrors
-      ]),
-      mutation: discardMutation(
-        restorationErrors.length === 0 ? "rolled-back" : "partial-or-unknown"
-      )
-    };
   }
+  const tombstonePath = path.join(trash, "resources");
+  await fs.rename(options.resourceOwnerPath, tombstonePath);
+  movement.movedResources = true;
+  await options.afterResourceTombstone();
+  const tombstonedResources = await scanOwnerResourceTree(
+    tombstonePath,
+    path.basename(options.resourceOwnerPath)
+  );
+  if (sameResourceTree(tombstonedResources, options.resourceSnapshot)) return;
+  throw new Error(
+    tombstonedResources.errors.length > 0
+      ? `tombstoned owner resources changed before discard publication: ${tombstonedResources.errors.join("; ")}`
+      : "tombstoned owner resources changed before discard publication"
+  );
+}
+
+async function discardPublishFailure(
+  options: DiscardPublicationOptions,
+  trash: string,
+  movement: DiscardMovement,
+  error: unknown
+): Promise<DiscardPublicationResult> {
+  const restorationErrors = await restoreDiscard({
+    ...options,
+    ...movement,
+    trash,
+    write: options.write
+  });
+  const mutation = discardMutation(
+    restorationErrors.length === 0 ? "rolled-back" : "partial-or-unknown"
+  );
+  return {
+    changed: false,
+    diagnostics: [
+      diagnosticFromError({
+        code: "investigation-report.discard-publish-failed",
+        error,
+        mutation,
+        reason:
+          restorationErrors.length === 0
+            ? "discard publication failed and the report, resources, and index were restored"
+            : "discard publication failed and restoration could not be fully verified",
+        recovery:
+          restorationErrors.length === 0
+            ? "correct the publication failure, then retry discard"
+            : "inspect the listed report, resource, and index paths before any retry",
+        target: options.reportPath
+      })
+    ],
+    errors: uniqueSorted([
+      `discard transaction publish failed: ${errorText(error)}`,
+      ...restorationErrors
+    ]),
+    mutation
+  };
+}
+
+async function discardCleanupFailure(
+  options: DiscardPublicationOptions,
+  trash: string,
+  movedResources: boolean
+): Promise<DiscardPublicationResult | null> {
   try {
     await fs.unlink(path.join(trash, "report.md"));
-    if (movedResources) {
-      const tombstonedResources = await scanOwnerResourceTree(
-        path.join(trash, "resources"),
-        path.basename(options.resourceOwnerPath)
-      );
-      if (
-        tombstonedResources.errors.length > 0 ||
-        !sameResourceTree(tombstonedResources, options.resourceSnapshot)
-      ) {
-        throw new Error(
-          "tombstoned owner resources changed before final deletion"
-        );
-      }
-      await deletePreviewedResourceTree(
-        path.join(trash, "resources"),
-        path.basename(options.resourceOwnerPath),
-        options.resourceSnapshot
-      );
-    }
+    if (movedResources) await deleteDiscardResourceTombstone(options, trash);
     await fs.rmdir(trash);
+    return null;
   } catch (error) {
     return {
       changed: true,
@@ -848,7 +1088,25 @@ async function publishDiscard(options: {
       mutation: discardMutation("committed-cleanup-pending")
     };
   }
-  return { changed: true, diagnostics: [], errors: [] };
+}
+
+async function deleteDiscardResourceTombstone(
+  options: DiscardPublicationOptions,
+  trash: string
+): Promise<void> {
+  const tombstonePath = path.join(trash, "resources");
+  const tombstonedResources = await scanOwnerResourceTree(
+    tombstonePath,
+    path.basename(options.resourceOwnerPath)
+  );
+  if (!sameResourceTree(tombstonedResources, options.resourceSnapshot)) {
+    throw new Error("tombstoned owner resources changed before final deletion");
+  }
+  await deletePreviewedResourceTree(
+    tombstonePath,
+    path.basename(options.resourceOwnerPath),
+    options.resourceSnapshot
+  );
 }
 
 async function deletePreviewedResourceTree(

@@ -14,6 +14,7 @@ import {
   type ChangePlanCollectionOptions,
   type ChangePlanListOptions,
   type ChangePlanListResult,
+  type ChangePlanListSelection,
   type ChangePlanShowResult,
   type ChangePlanStatus
 } from "./types.ts";
@@ -86,6 +87,75 @@ async function listArchivedDirectoryEntries(
   }));
 }
 
+async function inspectChangeRoot(
+  result: ChangePlanListResult
+): Promise<boolean> {
+  let rootStat: Stats | null;
+  try {
+    rootStat = await lstatOrNull(result.changeRoot);
+  } catch (error) {
+    result.errors.push(
+      `cannot access change root ${result.changeRoot}: ${errorMessage(error)}`
+    );
+    return false;
+  }
+  if (rootStat === null) {
+    result.errors.push(`change root does not exist: ${result.changeRoot}`);
+    return false;
+  }
+  if (!rootStat.isDirectory()) {
+    result.errors.push(`change root must be a directory: ${result.changeRoot}`);
+    return false;
+  }
+  return true;
+}
+
+async function appendActiveEntries(
+  result: ChangePlanListResult
+): Promise<void> {
+  try {
+    result.entries.push(
+      ...(await listActiveDirectoryEntries(result.changeRoot))
+    );
+  } catch (error) {
+    result.errors.push(
+      `cannot list active changes in ${result.changeRoot}: ${errorMessage(error)}`
+    );
+  }
+}
+
+async function appendArchivedEntries(
+  result: ChangePlanListResult
+): Promise<void> {
+  const archiveDirectory = path.join(result.changeRoot, "archive");
+  try {
+    const archiveStat = await lstatOrNull(archiveDirectory);
+    if (archiveStat === null) {
+      return;
+    }
+    if (!archiveStat.isDirectory()) {
+      result.errors.push(
+        `change archive must be a directory: ${archiveDirectory}`
+      );
+      return;
+    }
+    result.entries.push(
+      ...(await listArchivedDirectoryEntries(archiveDirectory))
+    );
+  } catch (error) {
+    result.errors.push(
+      `cannot list archived changes in ${archiveDirectory}: ${errorMessage(error)}`
+    );
+  }
+}
+
+function includesStatus(
+  selection: ChangePlanListSelection,
+  status: ChangePlanStatus
+): boolean {
+  return selection === status || selection === "all";
+}
+
 export async function listChangePlans(
   options: ChangePlanListOptions = {}
 ): Promise<ChangePlanListResult> {
@@ -103,54 +173,16 @@ export async function listChangePlans(
     return result;
   }
 
-  let rootStat: Stats | null;
-  try {
-    rootStat = await lstatOrNull(changeRoot);
-  } catch (error) {
-    result.errors.push(
-      `cannot access change root ${changeRoot}: ${errorMessage(error)}`
-    );
-    return result;
-  }
-  if (rootStat === null) {
-    result.errors.push(`change root does not exist: ${changeRoot}`);
-    return result;
-  }
-  if (!rootStat.isDirectory()) {
-    result.errors.push(`change root must be a directory: ${changeRoot}`);
+  if (!(await inspectChangeRoot(result))) {
     return result;
   }
 
-  if (status === "active" || status === "all") {
-    try {
-      result.entries.push(...(await listActiveDirectoryEntries(changeRoot)));
-    } catch (error) {
-      result.errors.push(
-        `cannot list active changes in ${changeRoot}: ${errorMessage(error)}`
-      );
-    }
+  if (includesStatus(status, "active")) {
+    await appendActiveEntries(result);
   }
 
-  if (status === "archived" || status === "all") {
-    const archiveDirectory = path.join(changeRoot, "archive");
-    try {
-      const archiveStat = await lstatOrNull(archiveDirectory);
-      if (archiveStat !== null) {
-        if (!archiveStat.isDirectory()) {
-          result.errors.push(
-            `change archive must be a directory: ${archiveDirectory}`
-          );
-        } else {
-          result.entries.push(
-            ...(await listArchivedDirectoryEntries(archiveDirectory))
-          );
-        }
-      }
-    } catch (error) {
-      result.errors.push(
-        `cannot list archived changes in ${archiveDirectory}: ${errorMessage(error)}`
-      );
-    }
+  if (includesStatus(status, "archived")) {
+    await appendArchivedEntries(result);
   }
 
   result.entries.sort(

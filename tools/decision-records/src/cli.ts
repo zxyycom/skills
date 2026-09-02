@@ -606,17 +606,12 @@ async function applyPreparedLifecycle(
   lockHeld: boolean,
   deferSuccessOutput = false
 ): Promise<LockedLifecycleOperationResult> {
-  const transaction = await (lockHeld
-    ? applyLockedDecisionChanges({
-        changes: prepared.changes,
-        originalScan: scan,
-        scanOptions: decisionScanOptions(args)
-      })
-    : applyDecisionChanges({
-        changes: prepared.changes,
-        originalScan: scan,
-        scanOptions: decisionScanOptions(args)
-      }));
+  const transaction = await applyLifecycleTransaction(
+    args,
+    scan,
+    prepared,
+    lockHeld
+  );
   if (transaction.status === "error") {
     printDecisionFailure(decisionFailure(transaction.diagnostics), io);
     return {
@@ -626,6 +621,43 @@ async function applyPreparedLifecycle(
     };
   }
   const updatedScan = await scanDecisionRecords(decisionScanOptions(args));
+  const validationFailure = await postMutationValidationFailure(
+    updatedScan,
+    transaction.changed,
+    io
+  );
+  if (validationFailure !== null) return validationFailure;
+  if (!deferSuccessOutput) {
+    printLifecycleSuccess(prepared.message, updatedScan, io);
+  }
+  return {
+    committed: transaction.changed,
+    exitCode: 0,
+    outcome: "no-change"
+  };
+}
+
+function applyLifecycleTransaction(
+  args: DecisionLocationArgs,
+  scan: DecisionScan,
+  prepared: Extract<DecisionLifecyclePreparation, { status: "ok" }>,
+  lockHeld: boolean
+) {
+  const options = {
+    changes: prepared.changes,
+    originalScan: scan,
+    scanOptions: decisionScanOptions(args)
+  };
+  return lockHeld
+    ? applyLockedDecisionChanges(options)
+    : applyDecisionChanges(options);
+}
+
+async function postMutationValidationFailure(
+  updatedScan: DecisionScan,
+  changed: boolean,
+  io: DecisionRecordsCliIo
+): Promise<LockedLifecycleOperationResult | null> {
   const updatedValidation = await validateDecisionScan(updatedScan, {
     allowEmptyDecisionSet: !updatedScan.records.some(
       (record) => record.source.kind === "established"
@@ -651,26 +683,27 @@ async function applyPreparedLifecycle(
       io
     );
     return {
-      committed: transaction.changed,
+      committed: changed,
       exitCode: 1,
       outcome: "partial-or-unknown"
     };
   }
-  if (!deferSuccessOutput) {
-    io.stdout(`${prepared.message}\n`);
-    printCandidateWarnings(
-      updatedScan.records
-        .filter((record) => record.activationCandidate)
-        .sort(compareDecisionRecords)
-        .map((record) => record.sourcePath),
-      io
-    );
-  }
-  return {
-    committed: transaction.changed,
-    exitCode: 0,
-    outcome: "no-change"
-  };
+  return null;
+}
+
+function printLifecycleSuccess(
+  message: string,
+  updatedScan: DecisionScan,
+  io: DecisionRecordsCliIo
+): void {
+  io.stdout(`${message}\n`);
+  printCandidateWarnings(
+    updatedScan.records
+      .filter((record) => record.activationCandidate)
+      .sort(compareDecisionRecords)
+      .map((record) => record.sourcePath),
+    io
+  );
 }
 
 function noChangeLifecycleResult(): LockedLifecycleOperationResult {
@@ -773,35 +806,77 @@ async function runCommand(
   args: CliArgs,
   io: DecisionRecordsCliIo
 ): Promise<number> {
+  if (isQueryCliArgs(args)) return await runQueryCommand(args, io);
+  return await runMutationCommand(args, io);
+}
+
+type QueryCliArgs = Extract<
+  CliArgs,
+  {
+    command:
+      | "candidates"
+      | "check"
+      | "list"
+      | "show"
+      | "show-candidate"
+      | "sync-index"
+      | "trace";
+  }
+>;
+
+function isQueryCliArgs(args: CliArgs): args is QueryCliArgs {
+  return new Set([
+    "candidates",
+    "check",
+    "list",
+    "show",
+    "show-candidate",
+    "sync-index",
+    "trace"
+  ]).has(args.command);
+}
+
+async function runQueryCommand(
+  args: QueryCliArgs,
+  io: DecisionRecordsCliIo
+): Promise<number> {
+  switch (args.command) {
+    case "candidates":
+      return await runCandidates(args, io);
+    case "check":
+      return await runCheck(args, io);
+    case "list":
+      return await runList(args, io);
+    case "show":
+      return await runShow(args, io);
+    case "show-candidate":
+      return await runShowCandidate(args, io);
+    case "sync-index":
+      return await runSyncIndex(args, io);
+    case "trace":
+      return await runTrace(args, io);
+  }
+}
+
+async function runMutationCommand(
+  args: Exclude<CliArgs, QueryCliArgs>,
+  io: DecisionRecordsCliIo
+): Promise<number> {
   switch (args.command) {
     case "activate":
       return await runActivate(args, io);
     case "archive":
       return await runArchive(args, io);
-    case "candidates":
-      return await runCandidates(args, io);
-    case "check":
-      return await runCheck(args, io);
     case "discard":
       return await runDiscard(args, io);
     case "evolve":
       return await runEvolve(args, io);
-    case "list":
-      return await runList(args, io);
     case "mark-aligned":
       return await runMarkAligned(args, io);
     case "new":
       return await runNew(args, io);
-    case "show":
-      return await runShow(args, io);
-    case "show-candidate":
-      return await runShowCandidate(args, io);
     case "stage":
       return await runStage(args, io);
-    case "sync-index":
-      return await runSyncIndex(args, io);
-    case "trace":
-      return await runTrace(args, io);
   }
 }
 

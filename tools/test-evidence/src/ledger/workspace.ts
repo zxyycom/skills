@@ -15,17 +15,18 @@ import {
   type TestEvidenceDiagnostic
 } from "./schemas.ts";
 import { decodeLedgerUtf8Text, type LedgerTextSource } from "./text-source.ts";
+import {
+  identityDiagnostics,
+  invalidRequiredFileDiagnostic,
+  invalidRequiredFileEncodingDiagnostic,
+  requiredFileReadDiagnostic,
+  type LedgerFileIdentity
+} from "./workspace-diagnostics.ts";
 
 export type LedgerWorkspaceSources = {
   caseSources: LedgerTextSource[];
   diagnostics: TestEvidenceDiagnostic[];
   entitySource: LedgerTextSource | null;
-};
-
-type LedgerFileIdentity = {
-  device: bigint;
-  inode: bigint;
-  path: string;
 };
 
 const allowedRootMembers = new Set([
@@ -43,58 +44,13 @@ export async function readLedgerWorkspaceSources(
   const diagnostics: TestEvidenceDiagnostic[] = [];
   const identities: LedgerFileIdentity[] = [];
 
-  let rootEntries: string[];
-  try {
-    const rootStats = await fs.lstat(ledgerDirectory);
-    if (rootStats.isSymbolicLink() || !rootStats.isDirectory()) {
-      return invalidWorkspaceResult(
-        createTestEvidenceDiagnostic({
-          category: "case",
-          code: "case.ledger-root-invalid",
-          message: `${testEvidenceLedgerPath} must be a regular directory, not a symbolic link`,
-          path: testEvidenceLedgerPath,
-          severity: "error"
-        })
-      );
-    }
-    rootEntries = await fs.readdir(ledgerDirectory);
-    rootEntries.sort(compareLexicalText);
-  } catch (error) {
-    if (isFileSystemError(error, "ENOENT")) {
-      return invalidWorkspaceResult(
-        createTestEvidenceDiagnostic({
-          category: "entity-index",
-          code: "entity-index.missing",
-          message: `${testEntityIndexPath} does not exist`,
-          path: testEntityIndexPath,
-          severity: "error"
-        })
-      );
-    }
-    return invalidWorkspaceResult(
-      createTestEvidenceDiagnostic({
-        category: "case",
-        code: "case.ledger-root-read-failed",
-        message: `${testEvidenceLedgerPath} could not be read: ${testEvidenceErrorText(error)}`,
-        path: testEvidenceLedgerPath,
-        severity: "error"
-      })
-    );
+  const rootRead = await readLedgerRootEntries(ledgerDirectory);
+  if (rootRead.entries === null) {
+    return invalidWorkspaceResult(rootRead.diagnostic);
   }
+  const rootEntries = rootRead.entries;
 
-  for (const member of rootEntries) {
-    if (!allowedRootMembers.has(member)) {
-      diagnostics.push(
-        createTestEvidenceDiagnostic({
-          category: "case",
-          code: "case.root-member-unsupported",
-          message: `${testEvidenceLedgerPath}/${member} is not part of the fixed ledger layout`,
-          path: `${testEvidenceLedgerPath}/${member}`,
-          severity: "error"
-        })
-      );
-    }
-  }
+  diagnostics.push(...unsupportedRootMemberDiagnostics(rootEntries));
 
   const entitySource = await readRequiredRegularFile({
     category: "entity-index",
@@ -125,6 +81,62 @@ export async function readLedgerWorkspaceSources(
 
   diagnostics.push(...identityDiagnostics(identities));
   return { caseSources, diagnostics, entitySource };
+}
+
+async function readLedgerRootEntries(
+  ledgerDirectory: string
+): Promise<
+  | { diagnostic: null; entries: string[] }
+  | { diagnostic: TestEvidenceDiagnostic; entries: null }
+> {
+  try {
+    const rootStats = await fs.lstat(ledgerDirectory);
+    if (rootStats.isSymbolicLink() || !rootStats.isDirectory()) {
+      return {
+        diagnostic: createTestEvidenceDiagnostic({
+          category: "case",
+          code: "case.ledger-root-invalid",
+          message: `${testEvidenceLedgerPath} must be a regular directory, not a symbolic link`,
+          path: testEvidenceLedgerPath,
+          severity: "error"
+        }),
+        entries: null
+      };
+    }
+    const entries = await fs.readdir(ledgerDirectory);
+    entries.sort(compareLexicalText);
+    return { diagnostic: null, entries };
+  } catch (error) {
+    const missing = isFileSystemError(error, "ENOENT");
+    return {
+      diagnostic: createTestEvidenceDiagnostic({
+        category: missing ? "entity-index" : "case",
+        code: missing ? "entity-index.missing" : "case.ledger-root-read-failed",
+        message: missing
+          ? `${testEntityIndexPath} does not exist`
+          : `${testEvidenceLedgerPath} could not be read: ${testEvidenceErrorText(error)}`,
+        path: missing ? testEntityIndexPath : testEvidenceLedgerPath,
+        severity: "error"
+      }),
+      entries: null
+    };
+  }
+}
+
+function unsupportedRootMemberDiagnostics(
+  rootEntries: readonly string[]
+): TestEvidenceDiagnostic[] {
+  return rootEntries
+    .filter((member) => !allowedRootMembers.has(member))
+    .map((member) =>
+      createTestEvidenceDiagnostic({
+        category: "case",
+        code: "case.root-member-unsupported",
+        message: `${testEvidenceLedgerPath}/${member} is not part of the fixed ledger layout`,
+        path: `${testEvidenceLedgerPath}/${member}`,
+        severity: "error"
+      })
+    );
 }
 
 async function inspectOptionalIndex(options: {
@@ -173,38 +185,14 @@ async function readCaseSources(options: {
     options.workspaceRoot,
     testEvidenceCasesPath
   );
-  let members: string[];
-  try {
-    const stats = await fs.lstat(casesDirectory);
-    if (stats.isSymbolicLink() || !stats.isDirectory()) {
-      options.diagnostics.push(
-        createTestEvidenceDiagnostic({
-          category: "case",
-          code: "case.directory-invalid",
-          message: `${testEvidenceCasesPath} must be a regular directory, not a symbolic link`,
-          path: testEvidenceCasesPath,
-          severity: "error"
-        })
-      );
-      return [];
-    }
-    members = await fs.readdir(casesDirectory);
-    members.sort(compareLexicalText);
-  } catch (error) {
-    options.diagnostics.push(
-      createTestEvidenceDiagnostic({
-        category: "case",
-        code: "case.directory-read-failed",
-        message: `${testEvidenceCasesPath} could not be read: ${testEvidenceErrorText(error)}`,
-        path: testEvidenceCasesPath,
-        severity: "error"
-      })
-    );
+  const directoryRead = await readCaseDirectoryMembers(casesDirectory);
+  if (directoryRead.members === null) {
+    options.diagnostics.push(directoryRead.diagnostic);
     return [];
   }
 
   const sources: LedgerTextSource[] = [];
-  for (const member of members) {
+  for (const member of directoryRead.members) {
     const relativePath = `${testEvidenceCasesPath}/${member}`;
     if (!caseFilePattern.test(member)) {
       options.diagnostics.push(
@@ -236,6 +224,43 @@ async function readCaseSources(options: {
   return sources;
 }
 
+async function readCaseDirectoryMembers(
+  casesDirectory: string
+): Promise<
+  | { diagnostic: null; members: string[] }
+  | { diagnostic: TestEvidenceDiagnostic; members: null }
+> {
+  try {
+    const stats = await fs.lstat(casesDirectory);
+    if (stats.isSymbolicLink() || !stats.isDirectory()) {
+      return {
+        diagnostic: createTestEvidenceDiagnostic({
+          category: "case",
+          code: "case.directory-invalid",
+          message: `${testEvidenceCasesPath} must be a regular directory, not a symbolic link`,
+          path: testEvidenceCasesPath,
+          severity: "error"
+        }),
+        members: null
+      };
+    }
+    const members = await fs.readdir(casesDirectory);
+    members.sort(compareLexicalText);
+    return { diagnostic: null, members };
+  } catch (error) {
+    return {
+      diagnostic: createTestEvidenceDiagnostic({
+        category: "case",
+        code: "case.directory-read-failed",
+        message: `${testEvidenceCasesPath} could not be read: ${testEvidenceErrorText(error)}`,
+        path: testEvidenceCasesPath,
+        severity: "error"
+      }),
+      members: null
+    };
+  }
+}
+
 async function readRequiredRegularFile(options: {
   category: "entity-index" | "case";
   codePrefix: "entity-index" | "case";
@@ -251,15 +276,7 @@ async function readRequiredRegularFile(options: {
   try {
     const stats = await fs.lstat(absolutePath, { bigint: true });
     if (stats.isSymbolicLink() || !stats.isFile()) {
-      options.diagnostics.push(
-        createTestEvidenceDiagnostic({
-          category: options.category,
-          code: `${options.codePrefix}.path-invalid`,
-          message: `${options.relativePath} must be a regular file, not a symbolic link`,
-          path: options.relativePath,
-          severity: "error"
-        })
-      );
+      options.diagnostics.push(invalidRequiredFileDiagnostic(options));
       return null;
     }
     options.identities.push(fileIdentity(options.relativePath, stats));
@@ -268,79 +285,14 @@ async function readRequiredRegularFile(options: {
     try {
       text = decodeLedgerUtf8Text(data);
     } catch {
-      options.diagnostics.push(
-        createTestEvidenceDiagnostic({
-          category: options.category,
-          code: `${options.codePrefix}.encoding-invalid`,
-          message: `${options.relativePath} must contain valid UTF-8 text`,
-          path: options.relativePath,
-          severity: "error"
-        })
-      );
+      options.diagnostics.push(invalidRequiredFileEncodingDiagnostic(options));
       return null;
     }
     return { path: options.relativePath, text };
   } catch (error) {
-    const missing = isFileSystemError(error, "ENOENT");
-    options.diagnostics.push(
-      createTestEvidenceDiagnostic({
-        category: options.category,
-        code: missing
-          ? `${options.codePrefix}.missing`
-          : `${options.codePrefix}.read-failed`,
-        message: missing
-          ? `${options.relativePath} does not exist`
-          : `${options.relativePath} could not be read: ${testEvidenceErrorText(error)}`,
-        path: options.relativePath,
-        severity: "error"
-      })
-    );
+    options.diagnostics.push(requiredFileReadDiagnostic(options, error));
     return null;
   }
-}
-
-function identityDiagnostics(
-  identities: readonly LedgerFileIdentity[]
-): TestEvidenceDiagnostic[] {
-  const firstByIdentity = new Map<string, LedgerFileIdentity>();
-  const diagnostics: TestEvidenceDiagnostic[] = [];
-  for (const identity of identities) {
-    const key = `${identity.device}:${identity.inode}`;
-    const first = firstByIdentity.get(key);
-    if (first === undefined) {
-      firstByIdentity.set(key, identity);
-      continue;
-    }
-    diagnostics.push(identityConflictDiagnostic(first, identity));
-  }
-  return diagnostics;
-}
-
-function identityConflictDiagnostic(
-  first: LedgerFileIdentity,
-  duplicate: LedgerFileIdentity
-): TestEvidenceDiagnostic {
-  const indexInvolved =
-    first.path === testEvidenceLedgerIndexPath ||
-    duplicate.path === testEvidenceLedgerIndexPath;
-  const entityInvolved =
-    first.path === testEntityIndexPath ||
-    duplicate.path === testEntityIndexPath;
-  return createTestEvidenceDiagnostic({
-    category: indexInvolved
-      ? "index"
-      : entityInvolved
-        ? "entity-index"
-        : "case",
-    code: indexInvolved
-      ? "index.identity-conflict"
-      : entityInvolved
-        ? "entity-index.identity-conflict"
-        : "case.identity-conflict",
-    message: `${first.path} and ${duplicate.path} must have distinct file-system identities`,
-    path: duplicate.path,
-    severity: "error"
-  });
 }
 
 function fileIdentity(

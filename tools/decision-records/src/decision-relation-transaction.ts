@@ -255,60 +255,87 @@ function prepareSuccessors(
       );
     }
     selectedIds.add(requestedId);
-
-    if (isActivationCandidateRecord(record)) {
-      const sourceRelations = cloneRelations(record.source.document.relations);
-      records.push({
-        alignment: requested.alignment,
-        candidate: true,
-        finalRelations: resolveEffectiveRelations(
-          sourceRelations,
-          relationOverride
-        ),
-        record,
-        sourceRelations
-      });
-      continue;
-    }
-    if (!isEstablishedDecisionRecord(record)) {
-      return decisionFailure(
-        scan.sourceErrors.length > 0
-          ? scan.sourceErrors
-          : ["Validated successor source is unavailable: " + record.decisionId]
-      );
-    }
-
-    const source = record.source;
-    if (source.document.alignment === null) {
-      return plainFailure(
-        "Established successor must have a non-null alignment: " +
-          record.decisionId
-      );
-    }
-    if (source.document.alignment !== requested.alignment) {
-      return plainFailure(
-        "Established successor alignment confirmation does not match " +
-          record.decisionId +
-          ": expected " +
-          source.document.alignment +
-          "."
-      );
-    }
-
-    const sourceRelations = cloneRelations(source.document.relations);
-    const finalRelations = resolveEffectiveRelations(
-      sourceRelations,
+    const prepared = prepareSuccessorRecord(
+      scan,
+      record,
+      requested,
       relationOverride
     );
-    records.push({
-      alignment: source.document.alignment,
-      candidate: false,
-      finalRelations,
-      record,
-      sourceRelations
-    });
+    if ("status" in prepared) return prepared;
+    records.push(prepared);
   }
   return { establishedAt, records, status: "ok" };
+}
+
+function prepareSuccessorRecord(
+  scan: DecisionScan,
+  record: DecisionRecord,
+  requested: DecisionSuccessor,
+  relationOverride: DecisionRelationOverride
+): PreparedSuccessor | DecisionApplicationFailure {
+  if (isActivationCandidateRecord(record)) {
+    return activationSuccessorRecord(record, requested, relationOverride);
+  }
+  if (!isEstablishedDecisionRecord(record)) {
+    return decisionFailure(
+      scan.sourceErrors.length > 0
+        ? scan.sourceErrors
+        : ["Validated successor source is unavailable: " + record.decisionId]
+    );
+  }
+  return establishedSuccessorRecord(record, requested, relationOverride);
+}
+
+function activationSuccessorRecord(
+  record: DecisionCandidateRecord,
+  requested: DecisionSuccessor,
+  relationOverride: DecisionRelationOverride
+): PreparedSuccessor {
+  const sourceRelations = cloneRelations(record.source.document.relations);
+  return {
+    alignment: requested.alignment,
+    candidate: true,
+    finalRelations: resolveEffectiveRelations(
+      sourceRelations,
+      relationOverride
+    ),
+    record,
+    sourceRelations
+  };
+}
+
+function establishedSuccessorRecord(
+  record: EstablishedDecisionRecord,
+  requested: DecisionSuccessor,
+  relationOverride: DecisionRelationOverride
+): PreparedSuccessor | DecisionApplicationFailure {
+  const source = record.source;
+  if (source.document.alignment === null) {
+    return plainFailure(
+      "Established successor must have a non-null alignment: " +
+        record.decisionId
+    );
+  }
+  if (source.document.alignment !== requested.alignment) {
+    return plainFailure(
+      "Established successor alignment confirmation does not match " +
+        record.decisionId +
+        ": expected " +
+        source.document.alignment +
+        "."
+    );
+  }
+  const sourceRelations = cloneRelations(source.document.relations);
+  return {
+    alignment: source.document.alignment,
+    candidate: false,
+    finalRelations: resolveEffectiveRelations(
+      sourceRelations,
+      relationOverride
+    ),
+    record,
+    sourceRelations
+  };
 }
 
 type RelationStrategy = {
@@ -562,49 +589,12 @@ function directPredecessors(
   for (const successor of successors) {
     const seenTargets = new Set<DecisionId>();
     for (const relation of successor.finalRelations) {
-      const targetId = relation.target;
-      if (targetId === successor.record.decisionId) {
-        errors.push(
-          "Decision relation must not target itself: " +
-            successor.record.decisionId
-        );
-        continue;
-      }
-      if (seenTargets.has(targetId)) {
-        errors.push(
-          "Decision relation target is repeated for " +
-            successor.record.decisionId +
-            ": " +
-            targetId
-        );
-        continue;
-      }
-      seenTargets.add(targetId);
-      const predecessor = findEstablishedRecord(scan, targetId);
-      if (predecessor === null) {
-        errors.push(
-          "Evolution predecessor is not an established decision: " + targetId
-        );
-        continue;
-      }
-      if (predecessor.source.document.status === "active") {
-        activeRecords.set(predecessor.decisionId, predecessor);
-      }
-      let relationTypes = relationTypesByPredecessor.get(
-        predecessor.decisionId
-      );
-      if (relationTypes === undefined) {
-        relationTypes = new Set<DecisionRelationType>();
-        relationTypesByPredecessor.set(predecessor.decisionId, relationTypes);
-      }
-      if (!relationTypes.has(relation.type)) {
-        relationTypes.add(relation.type);
-        historyAttentionTargets.push({
-          decisionId: predecessor.decisionId,
-          kind: "relation",
-          relationType: relation.type
-        });
-      }
+      recordDirectPredecessor(relation, successor, scan, seenTargets, {
+        activeRecords,
+        errors,
+        historyAttentionTargets,
+        relationTypesByPredecessor
+      });
     }
   }
   return {
@@ -612,6 +602,66 @@ function directPredecessors(
     errors,
     historyAttentionTargets
   };
+}
+
+type DirectPredecessorContext = Readonly<{
+  activeRecords: Map<DecisionId, EstablishedDecisionRecord>;
+  errors: string[];
+  historyAttentionTargets: UnrecordedHistoryAttentionTarget[];
+  relationTypesByPredecessor: Map<DecisionId, Set<DecisionRelationType>>;
+}>;
+
+function recordDirectPredecessor(
+  relation: DecisionRelation,
+  successor: PreparedSuccessor,
+  scan: DecisionScan,
+  seenTargets: Set<DecisionId>,
+  context: DirectPredecessorContext
+): void {
+  const targetId = relation.target;
+  if (targetId === successor.record.decisionId) {
+    context.errors.push(
+      "Decision relation must not target itself: " + successor.record.decisionId
+    );
+    return;
+  }
+  if (seenTargets.has(targetId)) {
+    context.errors.push(
+      "Decision relation target is repeated for " +
+        successor.record.decisionId +
+        ": " +
+        targetId
+    );
+    return;
+  }
+  seenTargets.add(targetId);
+  const predecessor = findEstablishedRecord(scan, targetId);
+  if (predecessor === null) {
+    context.errors.push(
+      "Evolution predecessor is not an established decision: " + targetId
+    );
+    return;
+  }
+  if (predecessor.source.document.status === "active") {
+    context.activeRecords.set(predecessor.decisionId, predecessor);
+  }
+  let relationTypes = context.relationTypesByPredecessor.get(
+    predecessor.decisionId
+  );
+  if (relationTypes === undefined) {
+    relationTypes = new Set<DecisionRelationType>();
+    context.relationTypesByPredecessor.set(
+      predecessor.decisionId,
+      relationTypes
+    );
+  }
+  if (relationTypes.has(relation.type)) return;
+  relationTypes.add(relation.type);
+  context.historyAttentionTargets.push({
+    decisionId: predecessor.decisionId,
+    kind: "relation",
+    relationType: relation.type
+  });
 }
 
 function projectDecisionRelationGraph(
@@ -629,57 +679,95 @@ function projectDecisionRelationGraph(
   );
   const preview: DecisionRelationConsistencyRecord[] = [];
   for (const record of scan.records) {
-    const domainRecord =
-      isDecisionCandidateRecord(record) || isEstablishedDecisionRecord(record)
-        ? record
-        : null;
-    const successor =
-      domainRecord === null
-        ? undefined
-        : successorById.get(domainRecord.decisionId);
-    const establishedRecord = isEstablishedDecisionRecord(record)
-      ? record
-      : null;
-    if (
-      record.decisionId === graphPlan.discardedRecord?.decisionId ||
-      (establishedRecord === null && successor === undefined)
-    ) {
-      continue;
-    }
-    const status =
-      successor?.candidate === true
-        ? "active"
-        : domainRecord !== null && archivedIds.has(domainRecord.decisionId)
-          ? "archived"
-          : successor?.candidate === false
-            ? successor.record.source.document.status
-            : establishedRecord?.source.document.status;
-    if (status === undefined) {
-      continue;
-    }
-    const projection =
-      successor === undefined
-        ? establishedRecord?.source.document
-        : {
-            ...successor.record.source.document,
-            relations: successor.finalRelations
-          };
-    if (projection === undefined) {
-      continue;
-    }
-    const decisionId =
-      successor?.record.decisionId ?? establishedRecord?.decisionId;
-    if (decisionId === undefined) {
-      continue;
-    }
-    preview.push({
-      sourcePath: record.sourcePath,
-      projection,
-      decisionId,
-      status
-    });
+    const projected = projectDecisionRelationRecord(
+      record,
+      graphPlan,
+      successorById,
+      archivedIds
+    );
+    if (projected !== null) preview.push(projected);
   }
   return preview;
+}
+
+function projectDecisionRelationRecord(
+  record: DecisionRecord,
+  graphPlan: DecisionRelationGraphPlan,
+  successorById: ReadonlyMap<DecisionId, PreparedSuccessor>,
+  archivedIds: ReadonlySet<DecisionId>
+): DecisionRelationConsistencyRecord | null {
+  const domainRecord =
+    isDecisionCandidateRecord(record) || isEstablishedDecisionRecord(record)
+      ? record
+      : null;
+  const successor =
+    domainRecord === null
+      ? undefined
+      : successorById.get(domainRecord.decisionId);
+  const establishedRecord = isEstablishedDecisionRecord(record) ? record : null;
+  if (
+    record.decisionId === graphPlan.discardedRecord?.decisionId ||
+    (establishedRecord === null && successor === undefined)
+  ) {
+    return null;
+  }
+  const status = projectedRelationStatus(
+    successor,
+    domainRecord,
+    establishedRecord,
+    archivedIds
+  );
+  if (status === undefined) {
+    return null;
+  }
+  const projection = projectedRelationDocument(successor, establishedRecord);
+  if (projection === undefined) {
+    return null;
+  }
+  const decisionId = projectedRelationDecisionId(successor, establishedRecord);
+  if (decisionId === undefined) {
+    return null;
+  }
+  return {
+    sourcePath: record.sourcePath,
+    projection,
+    decisionId,
+    status
+  };
+}
+
+function projectedRelationStatus(
+  successor: PreparedSuccessor | undefined,
+  domainRecord: DecisionCandidateRecord | EstablishedDecisionRecord | null,
+  establishedRecord: EstablishedDecisionRecord | null,
+  archivedIds: ReadonlySet<DecisionId>
+): "active" | "archived" | undefined {
+  if (successor?.candidate === true) return "active";
+  if (domainRecord !== null && archivedIds.has(domainRecord.decisionId)) {
+    return "archived";
+  }
+  if (successor?.candidate === false) {
+    return successor.record.source.document.status;
+  }
+  return establishedRecord?.source.document.status;
+}
+
+function projectedRelationDocument(
+  successor: PreparedSuccessor | undefined,
+  establishedRecord: EstablishedDecisionRecord | null
+): DecisionRelationConsistencyRecord["projection"] | undefined {
+  if (successor === undefined) return establishedRecord?.source.document;
+  return {
+    ...successor.record.source.document,
+    relations: successor.finalRelations
+  };
+}
+
+function projectedRelationDecisionId(
+  successor: PreparedSuccessor | undefined,
+  establishedRecord: EstablishedDecisionRecord | null
+): DecisionId | undefined {
+  return successor?.record.decisionId ?? establishedRecord?.decisionId;
 }
 
 function discardedDecisionReferenceErrors(

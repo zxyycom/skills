@@ -77,39 +77,55 @@ export async function validateDecisionScan(
       ? { decisionIds: [], errors: [] }
       : selectEstablishedDecisionIds(scan);
   errors.push(...selection.errors);
-
-  if (
-    options.checkIndexText !== false &&
-    selection.decisionIds.length > 0 &&
-    scan.sourceErrors.length === 0
-  ) {
-    const checked = await syncDecisionIndex({
-      decisionsDirectory: scan.decisionsDirectory,
-      mode: "check",
-      decisionIds: selection.decisionIds
-    });
-    if (checked.status === "error") {
-      if (
-        checked.state === "index-invalid" ||
-        checked.state === "index-missing" ||
-        checked.state === "index-stale"
-      ) {
-        errors.push(scan.indexRelativePath + " is out of sync; run sync-index");
-      } else {
-        errors.push(
-          ...decisionIndexDiagnosticMessages(
-            checked.diagnostics,
-            scan.indexRelativePath
-          )
-        );
-      }
-    }
-  }
+  await validateDecisionIndexText(scan, selection.decisionIds, options, errors);
 
   const establishedRecords = scan.records.filter(
     (record) => record.document !== null
   );
 
+  return decisionValidationSummary(scan, establishedRecords, errors);
+}
+
+async function validateDecisionIndexText(
+  scan: DecisionScan,
+  decisionIds: readonly DecisionId[],
+  options: DecisionValidationOptions,
+  errors: string[]
+): Promise<void> {
+  if (
+    options.checkIndexText === false ||
+    decisionIds.length === 0 ||
+    scan.sourceErrors.length > 0
+  ) {
+    return;
+  }
+  const checked = await syncDecisionIndex({
+    decisionsDirectory: scan.decisionsDirectory,
+    mode: "check",
+    decisionIds
+  });
+  if (checked.status !== "error") return;
+  if (
+    checked.state === "index-invalid" ||
+    checked.state === "index-missing" ||
+    checked.state === "index-stale"
+  ) {
+    errors.push(scan.indexRelativePath + " is out of sync; run sync-index");
+    return;
+  }
+  errors.push(
+    ...decisionIndexDiagnosticMessages(
+      checked.diagnostics,
+      scan.indexRelativePath
+    )
+  );
+}
+
+function decisionValidationSummary(
+  scan: DecisionScan,
+  establishedRecords: readonly DecisionScan["records"][number][],
+  errors: string[]
+): DecisionValidationResult {
   return {
     activationCandidateCount: scan.records.filter(
       (record) => record.activationCandidate

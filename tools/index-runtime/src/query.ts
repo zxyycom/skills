@@ -254,6 +254,49 @@ export function stateIndexEntryOf<State extends object>(
   return Object.freeze({ id, keys: entry.keys, state: entry.state });
 }
 
+type StateIndexQueryFilter = StateIndexQueryValue["filters"][number];
+
+function validateIdFilter(
+  filter: StateIndexQueryFilter
+): StateIndexDiagnostic | null {
+  if (filter.kind !== "exact" && filter.kind !== "exists") {
+    return diagnostic({
+      code: "state-index.query-key-mode-mismatch",
+      message: `reserved id key does not support ${filter.kind} filters`
+    });
+  }
+  if (
+    filter.kind === "exact" &&
+    filter.values.some((value) => typeof value !== "string")
+  ) {
+    return diagnostic({
+      code: "state-index.query-key-value-invalid",
+      message: "reserved id key only accepts string values"
+    });
+  }
+  return null;
+}
+
+function validateDeclaredFilter(
+  filter: StateIndexQueryFilter,
+  definitions: ReadonlyMap<string, StateIndexKeyDefinition>
+): StateIndexDiagnostic | null {
+  const definition = definitions.get(filter.key);
+  if (definition === undefined) {
+    return diagnostic({
+      code: "state-index.query-key-unknown",
+      message: `query references undeclared key ${filter.key}`
+    });
+  }
+  if (filter.kind !== "exists" && filter.kind !== definition.mode) {
+    return diagnostic({
+      code: "state-index.query-key-mode-mismatch",
+      message: `key ${filter.key} uses ${definition.mode} mode, not ${filter.kind}`
+    });
+  }
+  return null;
+}
+
 function validateQuerySemantics(
   query: StateIndexQueryValue,
   definitions: readonly StateIndexKeyDefinition[]
@@ -261,48 +304,13 @@ function validateQuerySemantics(
   const byName = new Map(
     definitions.map((definition) => [definition.name, definition])
   );
-  const diagnostics: StateIndexDiagnostic[] = [];
-  for (const filter of query.filters) {
-    if (filter.key === "id") {
-      if (filter.kind !== "exact" && filter.kind !== "exists") {
-        diagnostics.push(
-          diagnostic({
-            code: "state-index.query-key-mode-mismatch",
-            message: `reserved id key does not support ${filter.kind} filters`
-          })
-        );
-      } else if (
-        filter.kind === "exact" &&
-        filter.values.some((value) => typeof value !== "string")
-      ) {
-        diagnostics.push(
-          diagnostic({
-            code: "state-index.query-key-value-invalid",
-            message: "reserved id key only accepts string values"
-          })
-        );
-      }
-      continue;
-    }
-    const definition = byName.get(filter.key);
-    if (definition === undefined) {
-      diagnostics.push(
-        diagnostic({
-          code: "state-index.query-key-unknown",
-          message: `query references undeclared key ${filter.key}`
-        })
-      );
-      continue;
-    }
-    if (filter.kind !== "exists" && filter.kind !== definition.mode) {
-      diagnostics.push(
-        diagnostic({
-          code: "state-index.query-key-mode-mismatch",
-          message: `key ${filter.key} uses ${definition.mode} mode, not ${filter.kind}`
-        })
-      );
-    }
-  }
+  const diagnostics = query.filters.flatMap((filter) => {
+    const issue =
+      filter.key === "id"
+        ? validateIdFilter(filter)
+        : validateDeclaredFilter(filter, byName);
+    return issue === null ? [] : [issue];
+  });
   for (const sort of query.sort ?? []) {
     if (sort.key !== "id" && !byName.has(sort.key)) {
       diagnostics.push(
@@ -412,30 +420,39 @@ function matchesFilter(
       );
 }
 
+function compareRangeScalar(
+  actual: StateIndexKeyScalar,
+  expected: number | string
+): number | null {
+  if (typeof actual !== typeof expected || typeof actual === "boolean") {
+    return null;
+  }
+  return typeof actual === "number" && typeof expected === "number"
+    ? actual - expected
+    : compareIndexText(String(actual), String(expected));
+}
+
+function matchesComparison(
+  comparison: number,
+  operator: "eq" | "gt" | "gte" | "lt" | "lte"
+): boolean {
+  const predicates = {
+    eq: (value: number) => value === 0,
+    gt: (value: number) => value > 0,
+    gte: (value: number) => value >= 0,
+    lt: (value: number) => value < 0,
+    lte: (value: number) => value <= 0
+  };
+  return predicates[operator](comparison);
+}
+
 function matchesRange(
   actual: StateIndexKeyScalar,
   operator: "eq" | "gt" | "gte" | "lt" | "lte",
   expected: number | string
 ): boolean {
-  if (typeof actual !== typeof expected || typeof actual === "boolean") {
-    return false;
-  }
-  const comparison =
-    typeof actual === "number" && typeof expected === "number"
-      ? actual - expected
-      : compareIndexText(String(actual), String(expected));
-  switch (operator) {
-    case "eq":
-      return comparison === 0;
-    case "gt":
-      return comparison > 0;
-    case "gte":
-      return comparison >= 0;
-    case "lt":
-      return comparison < 0;
-    case "lte":
-      return comparison <= 0;
-  }
+  const comparison = compareRangeScalar(actual, expected);
+  return comparison !== null && matchesComparison(comparison, operator);
 }
 
 function effectiveSort(query: StateIndexQueryValue): StateIndexSort[] {

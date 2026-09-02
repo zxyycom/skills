@@ -82,15 +82,7 @@ export async function openTestEvidenceLedgerIndex(
         }
       };
     }
-    persistentDiagnostics = [
-      {
-        code: "state-index.index-stale",
-        message:
-          "index source revision does not match the current ledger source revision",
-        path: testEvidenceLedgerIndexPath,
-        stateId: null
-      }
-    ];
+    persistentDiagnostics = [staleIndexDiagnostic()];
   } else {
     persistentDiagnostics = loaded.diagnostics;
   }
@@ -105,6 +97,23 @@ export async function openTestEvidenceLedgerIndex(
     };
   }
 
+  return await openFallbackLedgerIndex(root, persistentDiagnostics);
+}
+
+function staleIndexDiagnostic(): StateIndexDiagnostic {
+  return {
+    code: "state-index.index-stale",
+    message:
+      "index source revision does not match the current ledger source revision",
+    path: testEvidenceLedgerIndexPath,
+    stateId: null
+  };
+}
+
+async function openFallbackLedgerIndex(
+  root: string,
+  persistentDiagnostics: readonly StateIndexDiagnostic[]
+): Promise<OpenTestEvidenceLedgerIndexResult> {
   const source = await readTestEvidenceLedgerSource(root);
   if (source.source === null) {
     return { diagnostics: source.diagnostics, opened: null };

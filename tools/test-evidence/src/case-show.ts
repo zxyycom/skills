@@ -32,35 +32,12 @@ export async function showTestEvidenceCase(
     });
   }
 
-  let text: string;
-  try {
-    text = await fs.readFile(
-      path.join(
-        workspaceRoot,
-        ...found.catalogPath.split("/"),
-        ...entry.sourcePath.split("/")
-      ),
-      "utf8"
-    );
-  } catch (error) {
-    return createShowFailureResult(
-      [
-        createDiagnostic({
-          caseId: entry.id,
-          category: "catalog",
-          code: "catalog.read-failed",
-          message: `${entry.sourcePath} could not be read: ${errorText(error)}`,
-          path: entry.sourcePath,
-          severity: "error"
-        })
-      ],
-      {
-        topic: found.topic
-      }
-    );
+  const read = await readCaseText(workspaceRoot, found.catalogPath, entry);
+  if (read.text === null) {
+    return createShowFailureResult([read.diagnostic], { topic: found.topic });
   }
 
-  const lines = text.split(/\r\n?|\n/u);
+  const lines = read.text.split(/\r\n?|\n/u);
   const markdown = lines
     .slice(entry.line - 1, entry.endLine)
     .join("\n")
@@ -68,19 +45,7 @@ export async function showTestEvidenceCase(
   const expectedHeading = `### Case ${entry.id}: ${entry.title}`;
   if (markdown.split("\n", 1)[0] !== expectedHeading) {
     return createShowFailureResult(
-      [
-        createDiagnostic({
-          caseId: entry.id,
-          category: "index",
-          code: "state-index.index-stale",
-          line: entry.line,
-          message:
-            `${found.indexPath} no longer locates ${entry.id} in ` +
-            `${entry.sourcePath}. Run sync-index --write to rebuild the index`,
-          path: found.indexPath,
-          severity: "error"
-        })
-      ],
+      [staleCaseDiagnostic(found.indexPath, entry)],
       {
         topic: found.topic
       }
@@ -96,6 +61,60 @@ export async function showTestEvidenceCase(
     schemaVersion: testEvidenceReportSchemaVersion,
     topic: found.topic
   };
+}
+
+type CatalogCaseEntry = NonNullable<
+  Awaited<ReturnType<typeof getTestEvidenceCaseState>>["case"]
+>;
+
+async function readCaseText(
+  workspaceRoot: string,
+  catalogPath: string,
+  entry: CatalogCaseEntry
+): Promise<
+  | { diagnostic: null; text: string }
+  | { diagnostic: TestEvidenceDiagnostic; text: null }
+> {
+  try {
+    const text = await fs.readFile(
+      path.join(
+        workspaceRoot,
+        ...catalogPath.split("/"),
+        ...entry.sourcePath.split("/")
+      ),
+      "utf8"
+    );
+    return { diagnostic: null, text };
+  } catch (error) {
+    return {
+      diagnostic: createDiagnostic({
+        caseId: entry.id,
+        category: "catalog",
+        code: "catalog.read-failed",
+        message: `${entry.sourcePath} could not be read: ${errorText(error)}`,
+        path: entry.sourcePath,
+        severity: "error"
+      }),
+      text: null
+    };
+  }
+}
+
+function staleCaseDiagnostic(
+  indexPath: string,
+  entry: CatalogCaseEntry
+): TestEvidenceDiagnostic {
+  return createDiagnostic({
+    caseId: entry.id,
+    category: "index",
+    code: "state-index.index-stale",
+    line: entry.line,
+    message:
+      `${indexPath} no longer locates ${entry.id} in ` +
+      `${entry.sourcePath}. Run sync-index --write to rebuild the index`,
+    path: indexPath,
+    severity: "error"
+  });
 }
 
 function createShowFailureResult(

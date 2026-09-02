@@ -33,53 +33,20 @@ export async function stageSelectedTaskIndex(
 ): Promise<{ revision: number; data: TaskIndexStageResult }> {
   const selection = validateTaskSelection(options.selectedTaskIds);
   const workspace = await readWorkspaceIndex(options.indexPath);
-
-  let repository: VersionControlRepository;
-  try {
-    repository = await openVersionControl(path.dirname(options.indexPath));
-  } catch (error) {
-    throw versionControlFailure(
-      error,
-      "discover-repository",
-      selection.selectedTaskIds
-    );
-  }
-
-  let repositoryIndexPath: string;
-  try {
-    repositoryIndexPath = repositoryRelativePathFromFileSystemPath(
-      repository.rootDirectory,
-      options.indexPath
-    );
-  } catch (error) {
-    throw new TaskGraphError(
-      "ARGUMENT_INVALID",
-      "The task index must be a file in the discovered version-control repository",
-      {
-        indexPath: options.indexPath,
-        selectedTaskIds: selection.selectedTaskIds,
-        cause: error
-      },
-      error instanceof Error ? { cause: error } : undefined
-    );
-  }
-
-  let headRevision: string | null;
-  let headIndexFile: VersionControlFile | null;
-  try {
-    headRevision = await repository.getCurrentRevision();
-    headIndexFile =
-      headRevision === null
-        ? null
-        : await repository.readRevisionFile(headRevision, repositoryIndexPath);
-  } catch (error) {
-    throw versionControlFailure(error, "read-head", selection.selectedTaskIds);
-  }
+  const opened = await openStagingRepository(
+    options.indexPath,
+    selection.selectedTaskIds
+  );
+  const head = await readHeadIndex(
+    opened.repository,
+    opened.repositoryIndexPath,
+    selection.selectedTaskIds
+  );
 
   const baseline =
-    headIndexFile === null
+    head.indexFile === null
       ? emptyTaskIndex()
-      : parseSnapshot(headIndexFile.data, options.indexPath, "HEAD");
+      : parseSnapshot(head.indexFile.data, options.indexPath, "HEAD");
   assertRootWatermarksDoNotRegress(
     baseline,
     workspace,
@@ -89,23 +56,14 @@ export async function stageSelectedTaskIndex(
   const target = buildTargetIndex(baseline, workspace, selection);
   const targetData = Buffer.from(serializeTaskIndex(target), "utf8");
   const differsFromHead =
-    headIndexFile === null ||
-    !targetData.equals(Buffer.from(headIndexFile.data));
-
-  try {
-    await repository.replacePendingFiles({
-      expectedFiles: headIndexFile === null ? [] : [headIndexFile],
-      expectedRevision: headRevision,
-      files: [{ data: targetData, path: repositoryIndexPath }],
-      pathScope: repositoryIndexPath
-    });
-  } catch (error) {
-    throw versionControlFailure(
-      error,
-      "replace-pending",
-      selection.selectedTaskIds
-    );
-  }
+    head.indexFile === null ||
+    !targetData.equals(Buffer.from(head.indexFile.data));
+  await replacePendingIndex({
+    data: targetData,
+    head,
+    opened,
+    selectedTaskIds: selection.selectedTaskIds
+  });
 
   const commonResult = {
     nextTaskId: target.nextTaskId,
@@ -118,6 +76,77 @@ export async function stageSelectedTaskIndex(
       ? { ...commonResult, changed: true, state: "staged" }
       : { ...commonResult, changed: false, state: "unchanged" }
   };
+}
+
+async function openStagingRepository(
+  indexPath: string,
+  selectedTaskIds: readonly string[]
+): Promise<{
+  repository: VersionControlRepository;
+  repositoryIndexPath: string;
+}> {
+  let repository: VersionControlRepository;
+  try {
+    repository = await openVersionControl(path.dirname(indexPath));
+  } catch (error) {
+    throw versionControlFailure(error, "discover-repository", selectedTaskIds);
+  }
+  try {
+    return {
+      repository,
+      repositoryIndexPath: repositoryRelativePathFromFileSystemPath(
+        repository.rootDirectory,
+        indexPath
+      )
+    };
+  } catch (error) {
+    throw new TaskGraphError(
+      "ARGUMENT_INVALID",
+      "The task index must be a file in the discovered version-control repository",
+      { cause: error, indexPath, selectedTaskIds },
+      error instanceof Error ? { cause: error } : undefined
+    );
+  }
+}
+
+async function readHeadIndex(
+  repository: VersionControlRepository,
+  repositoryIndexPath: string,
+  selectedTaskIds: readonly string[]
+): Promise<{ indexFile: VersionControlFile | null; revision: string | null }> {
+  try {
+    const revision = await repository.getCurrentRevision();
+    const indexFile =
+      revision === null
+        ? null
+        : await repository.readRevisionFile(revision, repositoryIndexPath);
+    return { indexFile, revision };
+  } catch (error) {
+    throw versionControlFailure(error, "read-head", selectedTaskIds);
+  }
+}
+
+async function replacePendingIndex(options: {
+  data: Buffer;
+  head: Awaited<ReturnType<typeof readHeadIndex>>;
+  opened: Awaited<ReturnType<typeof openStagingRepository>>;
+  selectedTaskIds: readonly string[];
+}): Promise<void> {
+  try {
+    await options.opened.repository.replacePendingFiles({
+      expectedFiles:
+        options.head.indexFile === null ? [] : [options.head.indexFile],
+      expectedRevision: options.head.revision,
+      files: [{ data: options.data, path: options.opened.repositoryIndexPath }],
+      pathScope: options.opened.repositoryIndexPath
+    });
+  } catch (error) {
+    throw versionControlFailure(
+      error,
+      "replace-pending",
+      options.selectedTaskIds
+    );
+  }
 }
 
 function validateTaskSelection(input: unknown): TaskSelection {
@@ -178,9 +207,31 @@ function parseSnapshot(
   indexPath: string,
   source: "HEAD" | "workspace"
 ): TaskIndex {
-  let text: string;
+  const text = decodeSnapshot(input, indexPath, source);
+  const raw = parseSnapshotJson(text, indexPath, source);
+  const index = parseSnapshotIndex(raw, indexPath, source);
+  if (serializeTaskIndex(index) !== text) {
+    throw new TaskGraphError(
+      "INDEX_INVALID",
+      `The ${source} task index is not canonical`,
+      {
+        indexPath,
+        source,
+        requirement:
+          "canonical field order, two-space JSON, LF, and one trailing newline"
+      }
+    );
+  }
+  return index;
+}
+
+function decodeSnapshot(
+  input: Uint8Array,
+  indexPath: string,
+  source: "HEAD" | "workspace"
+): string {
   try {
-    text = new TextDecoder("utf-8", { fatal: true }).decode(input);
+    return new TextDecoder("utf-8", { fatal: true }).decode(input);
   } catch (error) {
     throw new TaskGraphError(
       "INDEX_INVALID",
@@ -189,9 +240,15 @@ function parseSnapshot(
       error instanceof Error ? { cause: error } : undefined
     );
   }
-  let raw: unknown;
+}
+
+function parseSnapshotJson(
+  text: string,
+  indexPath: string,
+  source: "HEAD" | "workspace"
+): unknown {
   try {
-    raw = JSON.parse(text) as unknown;
+    return JSON.parse(text) as unknown;
   } catch (error) {
     throw new TaskGraphError(
       "INDEX_INVALID",
@@ -200,9 +257,15 @@ function parseSnapshot(
       error instanceof Error ? { cause: error } : undefined
     );
   }
-  let index: TaskIndex;
+}
+
+function parseSnapshotIndex(
+  raw: unknown,
+  indexPath: string,
+  source: "HEAD" | "workspace"
+): TaskIndex {
   try {
-    index = parseTaskIndex(raw);
+    return parseTaskIndex(raw);
   } catch (error) {
     if (error instanceof TaskGraphError) {
       throw new TaskGraphError(
@@ -219,19 +282,6 @@ function parseSnapshot(
     }
     throw error;
   }
-  if (serializeTaskIndex(index) !== text) {
-    throw new TaskGraphError(
-      "INDEX_INVALID",
-      `The ${source} task index is not canonical`,
-      {
-        indexPath,
-        source,
-        requirement:
-          "canonical field order, two-space JSON, LF, and one trailing newline"
-      }
-    );
-  }
-  return index;
 }
 
 function assertRootWatermarksDoNotRegress(

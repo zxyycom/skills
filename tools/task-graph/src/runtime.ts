@@ -74,16 +74,13 @@ function isSupportedNodeVersion(nodeVersion: string): boolean {
 function createRuntimeContext(
   options: RuntimeContextOptions = {}
 ): RuntimeContext {
-  const environment = options.environment ?? process.env;
+  const environment = options.environment || process.env;
   const configuredHome = environment.TASK_GRAPH_TOOL_HOME;
-  const toolHomeSource =
-    configuredHome === undefined || configuredHome.length === 0
-      ? "default"
-      : "environment";
-  const toolHome =
-    toolHomeSource === "environment"
-      ? path.resolve(configuredHome ?? "")
-      : path.join((options.homedir ?? os.homedir)(), ".tools", "task-graph");
+  const configured = configuredHome !== undefined && configuredHome.length > 0;
+  const toolHomeSource = configured ? "environment" : "default";
+  const toolHome = configured
+    ? path.resolve(configuredHome)
+    : path.join((options.homedir ?? os.homedir)(), ".tools", "task-graph");
   return {
     arch: options.arch ?? process.arch,
     nodeVersion: currentNodeVersion(options),

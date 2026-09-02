@@ -24,6 +24,12 @@ export type GateInvocation = Readonly<{
   tags: readonly GateTag[];
 }>;
 
+type GateInvocationParserState = {
+  baselineRef: string | undefined;
+  diagnosticLog: boolean;
+  tags: GateTag[];
+};
+
 export type VibeCheckDependencies = Readonly<{
   createDefinition?: (invocation: GateInvocation) => ProjectDefinition;
   reportError?: (message: string) => void;
@@ -36,48 +42,76 @@ function isGateTag(value: string | undefined): value is GateTag {
   return gateTags.some((tag) => tag === value);
 }
 
+function appendGateTag(tags: GateTag[], value: string | undefined): boolean {
+  if (!isGateTag(value) || tags.includes(value)) {
+    return false;
+  }
+  tags.push(value);
+  return true;
+}
+
+function enableDiagnosticLog(state: GateInvocationParserState): 0 | null {
+  if (state.diagnosticLog) {
+    return null;
+  }
+  state.diagnosticLog = true;
+  return 0;
+}
+
+function setBaselineRef(
+  state: GateInvocationParserState,
+  value: string | undefined
+): 1 | null {
+  if (state.baselineRef !== undefined || !isReleaseBaselineRef(value)) {
+    return null;
+  }
+  state.baselineRef = value;
+  return 1;
+}
+
+function applyGateArgument(
+  state: GateInvocationParserState,
+  argument: string | undefined,
+  value: string | undefined
+): 0 | 1 | null {
+  switch (argument) {
+    case "--tag":
+      return appendGateTag(state.tags, value) ? 1 : null;
+    case "--full":
+      return appendGateTag(state.tags, "release") ? 0 : null;
+    case "--diagnostic-log":
+      return enableDiagnosticLog(state);
+    case "--baseline-ref":
+      return setBaselineRef(state, value);
+    default:
+      return null;
+  }
+}
+
 export function resolveGateInvocation(
   argv: readonly string[]
 ): GateInvocation | null {
-  let baselineRef: string | undefined;
-  let diagnosticLog = false;
-  const tags: GateTag[] = [];
+  const state: GateInvocationParserState = {
+    baselineRef: undefined,
+    diagnosticLog: false,
+    tags: []
+  };
   for (let index = 0; index < argv.length; index += 1) {
-    const argument = argv[index];
-    if (argument === "--tag") {
-      const tag = argv[index + 1];
-      if (!isGateTag(tag) || tags.includes(tag)) return null;
-      tags.push(tag);
-      index += 1;
-      continue;
+    const consumed = applyGateArgument(state, argv[index], argv[index + 1]);
+    if (consumed === null) {
+      return null;
     }
-    if (argument === "--full") {
-      if (tags.includes("release")) return null;
-      tags.push("release");
-      continue;
-    }
-    if (argument === "--diagnostic-log" && !diagnosticLog) {
-      diagnosticLog = true;
-      continue;
-    }
-    if (argument === "--baseline-ref" && baselineRef === undefined) {
-      const candidate = argv[index + 1];
-      if (!isReleaseBaselineRef(candidate)) return null;
-      baselineRef = candidate;
-      index += 1;
-      continue;
-    }
-    return null;
+    index += consumed;
   }
-  const normalizedTags = normalizeGateTags(tags);
-  if (baselineRef !== undefined && !normalizedTags.includes("release")) {
+  const normalizedTags = normalizeGateTags(state.tags);
+  if (state.baselineRef !== undefined && !normalizedTags.includes("release")) {
     return null;
   }
   return {
     ...(normalizedTags.includes("release")
-      ? { baselineRef: baselineRef ?? "HEAD" }
+      ? { baselineRef: state.baselineRef ?? "HEAD" }
       : {}),
-    diagnosticLog,
+    diagnosticLog: state.diagnosticLog,
     tags: normalizedTags
   };
 }

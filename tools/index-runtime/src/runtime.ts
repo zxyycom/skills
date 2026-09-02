@@ -194,6 +194,20 @@ function createStateIndexReaderFromSnapshot<
   index: StateIndex<State, Metadata>;
   indexPath: string;
 }): StateIndexReader<State, Metadata> {
+  function getError(
+    code: "state-index.query-invalid" | "state-index.runtime-states-invalid",
+    message: string
+  ): StateIndexResult<StateIndexEntry<State> | null> {
+    return withIndexPath(
+      {
+        diagnostics: [diagnostic({ code, message })],
+        status: "error",
+        value: null
+      },
+      options.indexPath
+    );
+  }
+
   function query(
     input: StateIndexQuery = {},
     queryOptions: StateIndexQueryOptions<State> = {}
@@ -220,36 +234,17 @@ function createStateIndexReaderFromSnapshot<
     getOptions: StateIndexQueryOptions<State> = {}
   ): StateIndexResult<StateIndexEntry<State> | null> {
     if (!isStateIndexText(stateId)) {
-      return withIndexPath(
-        {
-          diagnostics: [
-            diagnostic({
-              code: "state-index.query-invalid",
-              message:
-                "state id must be non-empty text without surrounding whitespace or " +
-                "control characters"
-            })
-          ],
-          status: "error",
-          value: null
-        },
-        options.indexPath
+      return getError(
+        "state-index.query-invalid",
+        "state id must be non-empty text without surrounding whitespace or " +
+          "control characters"
       );
     }
     const runtimeStates = getOptions.runtimeStates;
     if (runtimeStates !== undefined && !isPlainRecord(runtimeStates)) {
-      return withIndexPath(
-        {
-          diagnostics: [
-            diagnostic({
-              code: "state-index.runtime-states-invalid",
-              message: "runtimeStates must be an object keyed by state id"
-            })
-          ],
-          status: "error",
-          value: null
-        },
-        options.indexPath
+      return getError(
+        "state-index.runtime-states-invalid",
+        "runtimeStates must be an object keyed by state id"
       );
     }
     if (runtimeStates !== undefined && Object.hasOwn(runtimeStates, stateId)) {

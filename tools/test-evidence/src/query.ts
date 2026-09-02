@@ -58,21 +58,7 @@ export async function queryTestEvidence(
   options: QueryTestEvidenceOptions
 ): Promise<TestEvidenceQueryResult> {
   if (options.query !== undefined && options.query.trim().length === 0) {
-    return createQueryFailureResult(
-      [
-        createDiagnostic({
-          category: "index",
-          code: "query.text-invalid",
-          message:
-            "query text must contain at least one non-whitespace character",
-          severity: "error"
-        })
-      ],
-      {
-        limit: options.limit,
-        offset: options.offset
-      }
-    );
+    return invalidQueryTextResult(options);
   }
   const opened = await openTestEvidenceIndex(options);
   if (opened.status === "error") {
@@ -85,22 +71,7 @@ export async function queryTestEvidence(
     options.topic !== undefined &&
     !opened.reader.metadata.topics.some((topic) => topic.id === options.topic)
   ) {
-    return createQueryFailureResult(
-      [
-        ...opened.diagnostics,
-        createDiagnostic({
-          category: "catalog",
-          code: "query.topic-unknown",
-          message: `Unknown test evidence topic: ${options.topic}`,
-          severity: "error"
-        })
-      ],
-      {
-        limit: options.limit,
-        offset: options.offset,
-        topics: opened.reader.metadata.topics
-      }
-    );
+    return unknownTopicResult(options, opened);
   }
 
   const queried = opened.reader.query({
@@ -134,6 +105,48 @@ export async function queryTestEvidence(
     topics: cloneTopicDefinitions(opened.reader.metadata.topics),
     total: queried.value.total
   };
+}
+
+function invalidQueryTextResult(
+  options: QueryTestEvidenceOptions
+): TestEvidenceQueryResult {
+  return createQueryFailureResult(
+    [
+      createDiagnostic({
+        category: "index",
+        code: "query.text-invalid",
+        message:
+          "query text must contain at least one non-whitespace character",
+        severity: "error"
+      })
+    ],
+    { limit: options.limit, offset: options.offset }
+  );
+}
+
+function unknownTopicResult(
+  options: QueryTestEvidenceOptions,
+  opened: Extract<
+    Awaited<ReturnType<typeof openTestEvidenceIndex>>,
+    { status: "ok" }
+  >
+): TestEvidenceQueryResult {
+  return createQueryFailureResult(
+    [
+      ...opened.diagnostics,
+      createDiagnostic({
+        category: "catalog",
+        code: "query.topic-unknown",
+        message: `Unknown test evidence topic: ${options.topic}`,
+        severity: "error"
+      })
+    ],
+    {
+      limit: options.limit,
+      offset: options.offset,
+      topics: opened.reader.metadata.topics
+    }
+  );
 }
 
 export async function getTestEvidenceCaseState(options: {
@@ -193,9 +206,7 @@ export async function getTestEvidenceCaseState(options: {
   };
 }
 
-async function openTestEvidenceIndex(options: {
-  workspaceRoot: string;
-}): Promise<
+type OpenTestEvidenceIndexResult =
   | {
       catalogPath: string;
       diagnostics: TestEvidenceDiagnostic[];
@@ -206,8 +217,11 @@ async function openTestEvidenceIndex(options: {
       diagnostics: TestEvidenceDiagnostic[];
       reader: TestEvidenceReader;
       status: "ok";
-    }
-> {
+    };
+
+async function openTestEvidenceIndex(options: {
+  workspaceRoot: string;
+}): Promise<OpenTestEvidenceIndexResult> {
   const workspaceRoot = path.resolve(options.workspaceRoot);
   const definition = createTestEvidenceStateIndexDefinition();
   const runtime = createStateIndexRuntime({
@@ -217,56 +231,62 @@ async function openTestEvidenceIndex(options: {
   });
   const opened = await runtime.open();
   if (opened.status === "error") {
-    if (
-      opened.diagnostics.length === 0 ||
-      !opened.diagnostics.every((entry) => indexCanBeRebuilt(entry.code))
-    ) {
-      return {
-        catalogPath: testEvidenceCatalogPath,
-        diagnostics: mapStateIndexDiagnostics(
-          opened.diagnostics,
-          testEvidenceIndexPath
-        ),
-        indexPath: testEvidenceIndexPath,
-        status: "error"
-      };
-    }
-    const built = await buildStateIndex(definition, { root: workspaceRoot });
-    if (built.status === "ok") {
-      return {
-        diagnostics: [
-          ...mapIndexFallbackDiagnostics(
-            opened.diagnostics,
-            testEvidenceCatalogPath,
-            testEvidenceIndexPath
-          )
-        ],
-        reader: createStateIndexReader({
-          definition,
-          index: built.value,
-          indexPath: testEvidenceIndexPath
-        }),
-        status: "ok"
-      };
-    }
-    return {
-      catalogPath: testEvidenceCatalogPath,
-      diagnostics: [
-        ...mapStateIndexDiagnostics(opened.diagnostics, testEvidenceIndexPath),
-        ...mapStateIndexDiagnostics(
-          built.diagnostics,
-          testEvidenceIndexPath,
-          false
-        )
-      ],
-      indexPath: testEvidenceIndexPath,
-      status: "error"
-    };
+    return await rebuildTestEvidenceIndex(
+      workspaceRoot,
+      definition,
+      opened.diagnostics
+    );
   }
   return {
     diagnostics: [],
     reader: opened.value,
     status: "ok"
+  };
+}
+
+async function rebuildTestEvidenceIndex(
+  workspaceRoot: string,
+  definition: ReturnType<typeof createTestEvidenceStateIndexDefinition>,
+  persistentDiagnostics: readonly StateIndexDiagnostic[]
+): Promise<OpenTestEvidenceIndexResult> {
+  if (
+    persistentDiagnostics.length === 0 ||
+    !persistentDiagnostics.every((entry) => indexCanBeRebuilt(entry.code))
+  ) {
+    return failedOpenResult(
+      mapStateIndexDiagnostics(persistentDiagnostics, testEvidenceIndexPath)
+    );
+  }
+  const built = await buildStateIndex(definition, { root: workspaceRoot });
+  if (built.status === "ok") {
+    return {
+      diagnostics: mapIndexFallbackDiagnostics(
+        persistentDiagnostics,
+        testEvidenceCatalogPath,
+        testEvidenceIndexPath
+      ),
+      reader: createStateIndexReader({
+        definition,
+        index: built.value,
+        indexPath: testEvidenceIndexPath
+      }),
+      status: "ok"
+    };
+  }
+  return failedOpenResult([
+    ...mapStateIndexDiagnostics(persistentDiagnostics, testEvidenceIndexPath),
+    ...mapStateIndexDiagnostics(built.diagnostics, testEvidenceIndexPath, false)
+  ]);
+}
+
+function failedOpenResult(
+  diagnostics: TestEvidenceDiagnostic[]
+): OpenTestEvidenceIndexResult {
+  return {
+    catalogPath: testEvidenceCatalogPath,
+    diagnostics,
+    indexPath: testEvidenceIndexPath,
+    status: "error"
   };
 }
 

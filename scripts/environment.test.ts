@@ -151,6 +151,8 @@ async function createHashHookRepository(
     "scripts/lib/project.ts",
     "scripts/lib/skill-package-hash.ts",
     "scripts/lib/skill-package-release.ts",
+    "scripts/lib/skill-package-tree.ts",
+    "scripts/lib/skill-package-version-baseline.ts",
     "scripts/lib/skill-package-versioning.ts",
     "tools/shared/src/markdown/frontmatter.ts",
     "tools/shared/src/node/error-detail.ts",
@@ -239,77 +241,117 @@ async function createFakeToolPath(
     lizard: options.lizard ?? "ready",
     scc: options.scc ?? "ready"
   };
+  const tools = availableFakeTools(metricTools);
   const bunVersion = options.bunVersion ?? "1.3.14";
+  if (process.platform === "win32") {
+    await createWindowsFakeTools(bin, tools, metricTools, bunVersion);
+  } else {
+    await createPosixFakeTools(bin, tools, metricTools, bunVersion);
+  }
+  return bin;
+}
 
-  const tools = [
+function availableFakeTools(metricTools: {
+  lizard: MetricToolMode;
+  scc: MetricToolMode;
+}): string[] {
+  return [
     "bun",
     "pnpm",
     "codegraph",
     ...(metricTools.scc === "missing" ? [] : ["scc"]),
     ...(metricTools.lizard === "missing" ? [] : ["lizard"])
   ];
-  if (process.platform === "win32") {
-    const dispatcherPath = path.join(bin, "fake-tool.mjs");
+}
+
+async function createWindowsFakeTools(
+  bin: string,
+  tools: readonly string[],
+  metricTools: { lizard: MetricToolMode; scc: MetricToolMode },
+  bunVersion: string
+): Promise<void> {
+  const dispatcherPath = path.join(bin, "fake-tool.mjs");
+  await fs.writeFile(
+    dispatcherPath,
+    windowsFakeToolDispatcher(metricTools, bunVersion),
+    "utf8"
+  );
+  for (const tool of tools) {
     await fs.writeFile(
-      dispatcherPath,
-      [
-        "const [tool, command] = process.argv.slice(2);",
-        `if (tool === 'bun' && command === '--version') console.log(${JSON.stringify(bunVersion)});`,
-        "else if (tool === 'pnpm' && command === '--version') console.log('11.7.0');",
-        "else if (tool === 'pnpm' && command === 'list') console.log('[{}]');",
-        "else if (tool === 'pnpm' && command === 'install') process.exit(0);",
-        "else if (tool === 'codegraph' && command === '--version') console.log('codegraph 1.2.3');",
-        "else if (tool === 'codegraph' && command === 'status') console.log(JSON.stringify({ initialized: true, lastIndexed: 'fixture' }));",
-        "else if (tool === 'codegraph' && (command === 'init' || command === 'sync')) process.exit(0);",
-        `else if (tool === 'scc' && command === '--version') { const mode = ${JSON.stringify(metricTools.scc)}; if (mode === 'mismatch') console.log('scc version 3.7.1'); else if (mode === 'probe-failure') { console.error('scc probe failed'); process.exit(2); } else console.log('scc version 3.7.0'); }`,
-        `else if (tool === 'lizard' && command === '--version') { const mode = ${JSON.stringify(metricTools.lizard)}; if (mode === 'mismatch') console.log('1.23.1'); else if (mode === 'probe-failure') { console.error('lizard probe failed'); process.exit(2); } else console.log('1.23.0'); }`,
-        "else { console.error(`unexpected ${tool} command: ${process.argv.slice(3).join(' ')}`); process.exit(2); }",
-        ""
-      ].join("\n"),
+      path.join(bin, `${tool}.cmd`),
+      `@${quoteBatch(process.execPath)} ${quoteBatch(dispatcherPath)} ${tool} %*\r\n`,
       "utf8"
     );
-    for (const tool of tools) {
-      const quoteBatch = (value: string): string =>
-        `"${value.replaceAll("%", "%%").replaceAll('"', '""')}"`;
-      await fs.writeFile(
-        path.join(bin, `${tool}.cmd`),
-        `@${quoteBatch(process.execPath)} ${quoteBatch(dispatcherPath)} ${tool} %*\r\n`,
-        "utf8"
-      );
-    }
-  } else {
-    const dispatcherPath = path.join(bin, "fake-tool");
-    await writeExecutable(
-      dispatcherPath,
-      [
-        "#!/bin/sh",
-        "tool=${0##*/}",
-        "command=$1",
-        "shift",
-        'case "$tool:$command" in',
-        `  bun:--version) printf '%s\\n' ${JSON.stringify(bunVersion)} ;;`,
-        "  pnpm:--version) printf '%s\\n' '11.7.0' ;;",
-        "  pnpm:list) printf '%s\\n' '[{}]' ;;",
-        "  pnpm:install) ;;",
-        "  codegraph:--version) printf '%s\\n' 'codegraph 1.2.3' ;;",
-        `  codegraph:status) printf '%s\\n' '${JSON.stringify({ initialized: true, lastIndexed: "fixture" })}' ;;`,
-        "  codegraph:init|codegraph:sync) ;;",
-        metricTools.scc === "probe-failure"
-          ? "  scc:--version) printf '%s\\n' 'scc probe failed' >&2; exit 2 ;;"
-          : `  scc:--version) printf '%s\\n' ${JSON.stringify(metricTools.scc === "mismatch" ? "scc version 3.7.1" : "scc version 3.7.0")} ;;`,
-        metricTools.lizard === "probe-failure"
-          ? "  lizard:--version) printf '%s\\n' 'lizard probe failed' >&2; exit 2 ;;"
-          : `  lizard:--version) printf '%s\\n' ${JSON.stringify(metricTools.lizard === "mismatch" ? "1.23.1" : "1.23.0")} ;;`,
-        '  *) printf \'unexpected %s command: %s\\n\' "$tool" "$*" >&2; exit 2 ;;',
-        "esac",
-        ""
-      ].join("\n")
-    );
-    for (const tool of tools) {
-      await fs.link(dispatcherPath, path.join(bin, tool));
-    }
   }
-  return bin;
+}
+
+function windowsFakeToolDispatcher(
+  metricTools: { lizard: MetricToolMode; scc: MetricToolMode },
+  bunVersion: string
+): string {
+  return [
+    "const [tool, command] = process.argv.slice(2);",
+    `if (tool === 'bun' && command === '--version') console.log(${JSON.stringify(bunVersion)});`,
+    "else if (tool === 'pnpm' && command === '--version') console.log('11.7.0');",
+    "else if (tool === 'pnpm' && command === 'list') console.log('[{}]');",
+    "else if (tool === 'pnpm' && command === 'install') process.exit(0);",
+    "else if (tool === 'codegraph' && command === '--version') console.log('codegraph 1.2.3');",
+    "else if (tool === 'codegraph' && command === 'status') console.log(JSON.stringify({ initialized: true, lastIndexed: 'fixture' }));",
+    "else if (tool === 'codegraph' && (command === 'init' || command === 'sync')) process.exit(0);",
+    `else if (tool === 'scc' && command === '--version') { const mode = ${JSON.stringify(metricTools.scc)}; if (mode === 'mismatch') console.log('scc version 3.7.1'); else if (mode === 'probe-failure') { console.error('scc probe failed'); process.exit(2); } else console.log('scc version 3.7.0'); }`,
+    `else if (tool === 'lizard' && command === '--version') { const mode = ${JSON.stringify(metricTools.lizard)}; if (mode === 'mismatch') console.log('1.23.1'); else if (mode === 'probe-failure') { console.error('lizard probe failed'); process.exit(2); } else console.log('1.23.0'); }`,
+    "else { console.error(`unexpected ${tool} command: ${process.argv.slice(3).join(' ')}`); process.exit(2); }",
+    ""
+  ].join("\n");
+}
+
+function quoteBatch(value: string): string {
+  return `"${value.replaceAll("%", "%%").replaceAll('"', '""')}"`;
+}
+
+async function createPosixFakeTools(
+  bin: string,
+  tools: readonly string[],
+  metricTools: { lizard: MetricToolMode; scc: MetricToolMode },
+  bunVersion: string
+): Promise<void> {
+  const dispatcherPath = path.join(bin, "fake-tool");
+  await writeExecutable(
+    dispatcherPath,
+    posixFakeToolDispatcher(metricTools, bunVersion)
+  );
+  for (const tool of tools) {
+    await fs.link(dispatcherPath, path.join(bin, tool));
+  }
+}
+
+function posixFakeToolDispatcher(
+  metricTools: { lizard: MetricToolMode; scc: MetricToolMode },
+  bunVersion: string
+): string {
+  return [
+    "#!/bin/sh",
+    "tool=${0##*/}",
+    "command=$1",
+    "shift",
+    'case "$tool:$command" in',
+    `  bun:--version) printf '%s\\n' ${JSON.stringify(bunVersion)} ;;`,
+    "  pnpm:--version) printf '%s\\n' '11.7.0' ;;",
+    "  pnpm:list) printf '%s\\n' '[{}]' ;;",
+    "  pnpm:install) ;;",
+    "  codegraph:--version) printf '%s\\n' 'codegraph 1.2.3' ;;",
+    `  codegraph:status) printf '%s\\n' '${JSON.stringify({ initialized: true, lastIndexed: "fixture" })}' ;;`,
+    "  codegraph:init|codegraph:sync) ;;",
+    metricTools.scc === "probe-failure"
+      ? "  scc:--version) printf '%s\\n' 'scc probe failed' >&2; exit 2 ;;"
+      : `  scc:--version) printf '%s\\n' ${JSON.stringify(metricTools.scc === "mismatch" ? "scc version 3.7.1" : "scc version 3.7.0")} ;;`,
+    metricTools.lizard === "probe-failure"
+      ? "  lizard:--version) printf '%s\\n' 'lizard probe failed' >&2; exit 2 ;;"
+      : `  lizard:--version) printf '%s\\n' ${JSON.stringify(metricTools.lizard === "mismatch" ? "1.23.1" : "1.23.0")} ;;`,
+    '  *) printf \'unexpected %s command: %s\\n\' "$tool" "$*" >&2; exit 2 ;;',
+    "esac",
+    ""
+  ].join("\n");
 }
 
 function environmentWith(

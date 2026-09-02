@@ -45,6 +45,42 @@ export const authoritativeGatePackageScripts = {
   "test:check": "bun test ./scripts/vibe-check.test.ts"
 } as const satisfies Readonly<Record<string, string>>;
 
+type ExactPackageScriptRequirement = Readonly<{
+  commands: Readonly<Record<string, string>>;
+  diagnostic(scriptName: string, expectedCommand: string): string;
+}>;
+
+const commandPackageScriptRequirements: readonly ExactPackageScriptRequirement[] =
+  [
+    {
+      commands: maintenanceCliPackageScripts,
+      diagnostic: (scriptName, expectedCommand) =>
+        `package.json script ${scriptName} must delegate to ${expectedCommand}`
+    },
+    {
+      commands: authoritativeGatePackageScripts,
+      diagnostic: (scriptName, expectedCommand) =>
+        `package.json script ${scriptName} must be ${expectedCommand}; ` +
+        "restore the authoritative Vibe Check entry"
+    }
+  ];
+
+const qualityPackageScriptRequirements: readonly ExactPackageScriptRequirement[] =
+  [
+    {
+      commands: formatPackageScripts,
+      diagnostic: (scriptName, expectedCommand) =>
+        `package.json script ${scriptName} must be ${expectedCommand}; ` +
+        "restore the repository Oxfmt command"
+    },
+    {
+      commands: lintPackageScripts,
+      diagnostic: (scriptName, expectedCommand) =>
+        `package.json script ${scriptName} must be ${expectedCommand}; ` +
+        "restore the repository Oxlint preflight command"
+    }
+  ];
+
 export const requiredPackageScripts = [
   ...compatibilityTestPackageScripts,
   ...releaseRequiredPackageScripts,
@@ -119,16 +155,15 @@ const forbiddenPackageStateFiles = [
   "skill-package-lock.json"
 ] as const;
 
-export async function validatePackageScripts(
-  report: ReportValidationError,
-  workspaceRoot: string = rootDir
-): Promise<void> {
-  const packageJsonPath = path.join(workspaceRoot, "package.json");
+async function readPackageScripts(
+  packageJsonPath: string,
+  report: ReportValidationError
+): Promise<Record<string, unknown> | null> {
   if (!(await pathExists(packageJsonPath))) {
     report(
       "package.json is required for local validation and packaging scripts"
     );
-    return;
+    return null;
   }
 
   let packageJson: unknown;
@@ -138,62 +173,68 @@ export async function validatePackageScripts(
     report(
       `package.json is not valid JSON: ${error instanceof Error ? error.message : String(error)}`
     );
-    return;
+    return null;
   }
   if (!isRecord(packageJson) || !isRecord(packageJson.scripts)) {
     report("package.json scripts must be an object");
-    return;
+    return null;
   }
+  return packageJson.scripts;
+}
 
+function validateRequiredPackageScripts(
+  scripts: Readonly<Record<string, unknown>>,
+  report: ReportValidationError
+): void {
   for (const scriptName of requiredPackageScripts) {
-    if (typeof packageJson.scripts[scriptName] !== "string") {
+    if (typeof scripts[scriptName] !== "string") {
       report(`package.json is missing script ${scriptName}`);
     }
   }
-  for (const [scriptName, expectedCommand] of Object.entries(
-    maintenanceCliPackageScripts
-  )) {
-    if (packageJson.scripts[scriptName] !== expectedCommand) {
-      report(
-        `package.json script ${scriptName} must delegate to ${expectedCommand}`
-      );
+}
+
+function validateExactPackageScripts(
+  scripts: Readonly<Record<string, unknown>>,
+  requirements: readonly ExactPackageScriptRequirement[],
+  report: ReportValidationError
+): void {
+  for (const requirement of requirements) {
+    for (const [scriptName, expectedCommand] of Object.entries(
+      requirement.commands
+    )) {
+      if (scripts[scriptName] !== expectedCommand) {
+        report(requirement.diagnostic(scriptName, expectedCommand));
+      }
     }
   }
-  for (const [scriptName, expectedCommand] of Object.entries(
-    authoritativeGatePackageScripts
-  )) {
-    if (packageJson.scripts[scriptName] !== expectedCommand) {
-      report(
-        `package.json script ${scriptName} must be ${expectedCommand}; ` +
-          "restore the authoritative Vibe Check entry"
-      );
-    }
+}
+
+export async function validatePackageScripts(
+  report: ReportValidationError,
+  workspaceRoot: string = rootDir
+): Promise<void> {
+  const packageJsonPath = path.join(workspaceRoot, "package.json");
+  const scripts = await readPackageScripts(packageJsonPath, report);
+  if (scripts === null) {
+    return;
   }
-  if (Object.hasOwn(packageJson.scripts, "vibe-check")) {
+
+  validateRequiredPackageScripts(scripts, report);
+  validateExactPackageScripts(
+    scripts,
+    commandPackageScriptRequirements,
+    report
+  );
+  if (Object.hasOwn(scripts, "vibe-check")) {
     report(
       "package.json must not define the retired vibe-check candidate; use check"
     );
   }
-  for (const [scriptName, expectedCommand] of Object.entries(
-    formatPackageScripts
-  )) {
-    if (packageJson.scripts[scriptName] !== expectedCommand) {
-      report(
-        `package.json script ${scriptName} must be ${expectedCommand}; ` +
-          "restore the repository Oxfmt command"
-      );
-    }
-  }
-  for (const [scriptName, expectedCommand] of Object.entries(
-    lintPackageScripts
-  )) {
-    if (packageJson.scripts[scriptName] !== expectedCommand) {
-      report(
-        `package.json script ${scriptName} must be ${expectedCommand}; ` +
-          "restore the repository Oxlint preflight command"
-      );
-    }
-  }
+  validateExactPackageScripts(
+    scripts,
+    qualityPackageScriptRequirements,
+    report
+  );
 }
 
 export async function validateRequiredProjectFiles(

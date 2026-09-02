@@ -19,6 +19,8 @@ import {
 } from "./metadata.ts";
 import {
   changePlanArtifactNames,
+  type ChangePlanActiveShowResult,
+  type ChangePlanArchivedShowResult,
   type ChangePlanCheckResult,
   type ChangePlanCollectionCheckResult,
   type ChangePlanDiagnostic,
@@ -106,6 +108,70 @@ function printDistance(
   if (distance !== null) {
     writeLine(io.stdout, formatGitDistance(distance));
   }
+}
+
+function printShowArtifacts(
+  artifacts: ChangePlanActiveShowResult["artifacts"],
+  io: ChangePlanCliIo
+): void {
+  for (const artifact of changePlanArtifactNames) {
+    writeLine(io.stdout, "");
+    writeLine(io.stdout, `--- ${artifact} ---`);
+    const contents = artifacts[artifact];
+    writeLine(
+      io.stdout,
+      contents === null ? "[missing or unreadable]" : contents.trimEnd()
+    );
+  }
+}
+
+function printArchivedShow(
+  result: ChangePlanArchivedShowResult,
+  io: ChangePlanCliIo
+): number {
+  writeLine(io.stdout, `Change: ${result.changeName}`);
+  writeLine(io.stdout, "Status: archived");
+  writeLine(io.stdout, `Directory: ${result.changeDirectory}`);
+  writeLine(io.stdout, "Check: not applicable (archived)");
+  printShowArtifacts(result.artifacts, io);
+  if (result.errors.length === 0) {
+    return 0;
+  }
+  writeLine(io.stderr, "Archived change show failed:");
+  for (const error of result.errors) {
+    writeLine(io.stderr, `- ${error}`);
+  }
+  return 1;
+}
+
+function printActiveShow(
+  result: ChangePlanActiveShowResult,
+  io: ChangePlanCliIo
+): number {
+  writeLine(io.stdout, `Change: ${result.check.changeName}`);
+  writeLine(io.stdout, `Status: ${result.status}`);
+  writeLine(io.stdout, `Stage: ${result.check.stage ?? "none"}`);
+  if (result.check.distance !== null) {
+    writeLine(io.stdout, `Base commit: ${result.check.distance.baseCommit}`);
+    writeLine(io.stdout, `Head commit: ${result.check.distance.headCommit}`);
+    writeLine(io.stdout, formatGitDistance(result.check.distance));
+  }
+  writeLine(io.stdout, `Directory: ${result.check.changeDirectory}`);
+  writeLine(
+    io.stdout,
+    `Tasks: ${result.check.completedTaskCount}/${result.check.taskCount}`
+  );
+  writeLine(io.stdout, `Check: ${result.check.valid ? "valid" : "invalid"}`);
+  printShowArtifacts(result.artifacts, io);
+  if (result.check.valid) {
+    return 0;
+  }
+  printCheckDiagnostics(
+    "Change plan show completed with diagnostics",
+    result.check,
+    io
+  );
+  return 1;
 }
 
 async function runCheckCommand(
@@ -231,61 +297,9 @@ async function runShowCommand(
         : result.errors.length === 0;
     return showSucceeded ? 0 : 1;
   }
-  if (result.status === "archived") {
-    writeLine(io.stdout, `Change: ${result.changeName}`);
-    writeLine(io.stdout, "Status: archived");
-    writeLine(io.stdout, `Directory: ${result.changeDirectory}`);
-    writeLine(io.stdout, "Check: not applicable (archived)");
-    for (const artifact of changePlanArtifactNames) {
-      writeLine(io.stdout, "");
-      writeLine(io.stdout, `--- ${artifact} ---`);
-      const contents = result.artifacts[artifact];
-      writeLine(
-        io.stdout,
-        contents === null ? "[missing or unreadable]" : contents.trimEnd()
-      );
-    }
-    if (result.errors.length > 0) {
-      writeLine(io.stderr, "Archived change show failed:");
-      for (const error of result.errors) {
-        writeLine(io.stderr, `- ${error}`);
-      }
-      return 1;
-    }
-    return 0;
-  }
-  writeLine(io.stdout, `Change: ${result.check.changeName}`);
-  writeLine(io.stdout, `Status: ${result.status}`);
-  writeLine(io.stdout, `Stage: ${result.check.stage ?? "none"}`);
-  if (result.check.distance !== null) {
-    writeLine(io.stdout, `Base commit: ${result.check.distance.baseCommit}`);
-    writeLine(io.stdout, `Head commit: ${result.check.distance.headCommit}`);
-    writeLine(io.stdout, formatGitDistance(result.check.distance));
-  }
-  writeLine(io.stdout, `Directory: ${result.check.changeDirectory}`);
-  writeLine(
-    io.stdout,
-    `Tasks: ${result.check.completedTaskCount}/${result.check.taskCount}`
-  );
-  writeLine(io.stdout, `Check: ${result.check.valid ? "valid" : "invalid"}`);
-  for (const artifact of changePlanArtifactNames) {
-    writeLine(io.stdout, "");
-    writeLine(io.stdout, `--- ${artifact} ---`);
-    const contents = result.artifacts[artifact];
-    writeLine(
-      io.stdout,
-      contents === null ? "[missing or unreadable]" : contents.trimEnd()
-    );
-  }
-  if (!result.check.valid) {
-    printCheckDiagnostics(
-      "Change plan show completed with diagnostics",
-      result.check,
-      io
-    );
-    return 1;
-  }
-  return 0;
+  return result.status === "archived"
+    ? printArchivedShow(result, io)
+    : printActiveShow(result, io);
 }
 
 async function runPlanCommand(

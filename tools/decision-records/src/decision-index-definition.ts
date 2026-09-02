@@ -70,6 +70,7 @@ const decisionIndexStateSchema = v.strictObject({
   relations: v.array(decisionRelationSchema)
 });
 const decisionIndexMetadataSchema = v.strictObject({});
+type ParsedDecisionIndexState = v.InferOutput<typeof decisionIndexStateSchema>;
 const sourceFingerprintSchema = v.pipe(
   v.string("must be a string"),
   v.regex(
@@ -181,13 +182,35 @@ function parseDecisionIndexState(
   }
 
   const state = parsed.output;
-  if (!isDecisionId(context.id)) {
+  const sourcePath = validateDecisionIndexIdentity(context.id, state);
+  const metadata = decisionMetadataFromIndexState(state);
+  validateDecisionProjection(state);
+  const tags = validatedDecisionTags(state.tags);
+  const relations = validatedDecisionRelations(state.relations);
+
+  const document: DecisionDocument = {
+    title: state.title,
+    ...metadata,
+    purpose: state.purpose,
+    background: state.background,
+    decision: state.decision,
+    tags,
+    relations
+  };
+  return decisionIndexState(sourcePath, document);
+}
+
+function validateDecisionIndexIdentity(
+  decisionId: string,
+  state: ParsedDecisionIndexState
+): DecisionSourcePath {
+  if (!isDecisionId(decisionId)) {
     throw new TypeError("entry id must be a stable Decision ID basename");
   }
   if (!isDecisionSourcePath(state.sourcePath)) {
     throw new TypeError("state.sourcePath must be a decision source path");
   }
-  if (state.sourcePath !== sourcePathForDecision(context.id, state.status)) {
+  if (state.sourcePath !== sourcePathForDecision(decisionId, state.status)) {
     throw new TypeError(
       "state.sourcePath must match the Decision ID and lifecycle status"
     );
@@ -198,27 +221,37 @@ function parseDecisionIndexState(
         "with an explicit timezone"
     );
   }
-  const metadata: DecisionMetadata =
-    state.status === "active"
-      ? {
-          status: "active",
-          alignment: activeAlignment(state.alignment),
-          createdAt: state.createdAt
-        }
-      : {
-          status: "archived",
-          alignment: state.alignment,
-          createdAt: state.createdAt
-        };
+  return state.sourcePath;
+}
 
+function decisionMetadataFromIndexState(
+  state: ParsedDecisionIndexState
+): DecisionMetadata {
+  return state.status === "active"
+    ? {
+        status: "active",
+        alignment: activeAlignment(state.alignment),
+        createdAt: state.createdAt
+      }
+    : {
+        status: "archived",
+        alignment: state.alignment,
+        createdAt: state.createdAt
+      };
+}
+
+function validateDecisionProjection(state: ParsedDecisionIndexState): void {
   for (const field of ["title", "purpose", "background", "decision"] as const) {
     const issue = projectionTextIssue(state[field]);
     if (issue !== null) {
       throw new TypeError(`${field} ${issue}`);
     }
   }
+}
+
+function validatedDecisionTags(tagsInput: readonly string[]): DecisionTag[] {
   const tags: DecisionTag[] = [];
-  for (const tag of state.tags) {
+  for (const tag of tagsInput) {
     if (!isDecisionTag(tag)) {
       throw new TypeError("tags must contain only kebab-case decision tags");
     }
@@ -227,10 +260,15 @@ function parseDecisionIndexState(
   if (!strictlyAscendingUnique(tags)) {
     throw new TypeError("tags must be unique and lexical ascending");
   }
+  return tags;
+}
 
+function validatedDecisionRelations(
+  relationInput: ParsedDecisionIndexState["relations"]
+): DecisionDocument["relations"] {
   const relations: DecisionDocument["relations"] = [];
   const relationTargets = new Set<DecisionId>();
-  for (const relation of state.relations) {
+  for (const relation of relationInput) {
     if (!isDecisionId(relation.target)) {
       throw new TypeError(
         "relation target must be a stable Decision ID basename"
@@ -242,17 +280,7 @@ function parseDecisionIndexState(
     relationTargets.add(relation.target);
     relations.push({ target: relation.target, type: relation.type });
   }
-
-  const document: DecisionDocument = {
-    title: state.title,
-    ...metadata,
-    purpose: state.purpose,
-    background: state.background,
-    decision: state.decision,
-    tags,
-    relations
-  };
-  return decisionIndexState(state.sourcePath, document);
+  return relations;
 }
 
 function formatDecisionIndexIssue(issue: v.BaseIssue<unknown>): string {

@@ -117,55 +117,98 @@ export async function validateFullInvestigationResources(
   const errors: string[] = [];
   const warnings: string[] = [];
   const prepared = await prepareResourceRoot(investigationsDirectory);
-
-  for (const id of referencedIds) {
-    errors.push(...ownerIssues(id, referencesByReport));
-  }
+  errors.push(
+    ...referencedIds.flatMap((id) => ownerIssues(id, referencesByReport))
+  );
 
   if (prepared.status === "invalid") {
     errors.push(...prepared.errors);
     return validationResult(errors, warnings);
   }
   if (prepared.status === "missing") {
-    errors.push(...referencedIds.map(missingResourceIssue));
-    if (prepared.membership.mode === "version-control") {
-      const referenced = new Set(referencedIds);
-      for (const id of prepared.membership.files) {
-        if (referenced.has(id)) {
-          continue;
-        }
-        warnings.push(...ownerIssues(id, authoringReferences));
-        warnings.push(missingResourceIssue(id));
-      }
-    }
+    validateMissingResourceRoot(
+      prepared,
+      referencedIds,
+      authoringReferences,
+      errors,
+      warnings
+    );
     return validationResult(errors, warnings);
   }
+  const visibleIds = await visibleResourceIds(prepared, signal, errors);
+  errors.push(...(await validateResourceIds(prepared, referencedIds, signal)));
+  warnings.push(
+    ...(await validateUnreferencedResourceIds(
+      prepared,
+      visibleIds,
+      new Set(referencedIds),
+      authoringReferences,
+      signal
+    ))
+  );
+  return validationResult(errors, warnings);
+}
 
-  let visibleIds: string[];
+function validateMissingResourceRoot(
+  prepared: Extract<ResourceRootPreparation, { status: "missing" }>,
+  referencedIds: readonly string[],
+  authoringReferences: InvestigationResourceReferencesByReport,
+  errors: string[],
+  warnings: string[]
+): void {
+  errors.push(...referencedIds.map(missingResourceIssue));
+  if (prepared.membership.mode !== "version-control") return;
+  const referenced = new Set(referencedIds);
+  for (const id of prepared.membership.files) {
+    if (referenced.has(id)) continue;
+    warnings.push(...ownerIssues(id, authoringReferences));
+    warnings.push(missingResourceIssue(id));
+  }
+}
+
+async function visibleResourceIds(
+  prepared: Extract<ResourceRootPreparation, { status: "ready" }>,
+  signal: AbortSignal | undefined,
+  errors: string[]
+): Promise<string[]> {
   try {
-    visibleIds = await discoverVisibleResourceIds(prepared, signal);
+    return await discoverVisibleResourceIds(prepared, signal);
   } catch (error) {
     errors.push(
       `${investigationResourcesDirectoryName} membership could not be fully inspected: ${errorText(error)}`
     );
-    visibleIds = [];
+    return [];
   }
+}
 
-  for (const id of referencedIds) {
+async function validateResourceIds(
+  prepared: Extract<ResourceRootPreparation, { status: "ready" }>,
+  ids: readonly string[],
+  signal: AbortSignal | undefined
+): Promise<string[]> {
+  const errors: string[] = [];
+  for (const id of ids) {
     throwIfAborted(signal, "investigation resource validation was aborted");
     errors.push(...(await directResourceIssues(prepared, id)));
   }
+  return errors;
+}
 
-  const referenced = new Set(referencedIds);
+async function validateUnreferencedResourceIds(
+  prepared: Extract<ResourceRootPreparation, { status: "ready" }>,
+  visibleIds: readonly string[],
+  referencedIds: ReadonlySet<string>,
+  authoringReferences: InvestigationResourceReferencesByReport,
+  signal: AbortSignal | undefined
+): Promise<string[]> {
+  const warnings: string[] = [];
   for (const id of visibleIds) {
-    if (referenced.has(id)) {
-      continue;
-    }
+    if (referencedIds.has(id)) continue;
     throwIfAborted(signal, "investigation resource validation was aborted");
     warnings.push(...ownerIssues(id, authoringReferences));
     warnings.push(...(await directResourceIssues(prepared, id)));
   }
-  return validationResult(errors, warnings);
+  return warnings;
 }
 
 async function prepareResourceRoot(
@@ -187,22 +230,10 @@ async function prepareResourceRoot(
     };
   }
   if (rootStat === null) {
-    try {
-      return {
-        membership: await readManagedResourceMembership(
-          investigationsDirectory,
-          resourcesRoot
-        ),
-        status: "missing"
-      };
-    } catch (error) {
-      return {
-        errors: [
-          `${investigationResourcesDirectoryName} membership could not be determined: ${errorText(error)}`
-        ],
-        status: "invalid"
-      };
-    }
+    return await prepareMissingResourceRoot(
+      investigationsDirectory,
+      resourcesRoot
+    );
   }
   if (rootStat.isSymbolicLink()) {
     return {
@@ -219,6 +250,35 @@ async function prepareResourceRoot(
     };
   }
 
+  return await prepareReadyResourceRoot(investigationsDirectory, resourcesRoot);
+}
+
+async function prepareMissingResourceRoot(
+  investigationsDirectory: string,
+  resourcesRoot: string
+): Promise<ResourceRootPreparation> {
+  try {
+    return {
+      membership: await readManagedResourceMembership(
+        investigationsDirectory,
+        resourcesRoot
+      ),
+      status: "missing"
+    };
+  } catch (error) {
+    return {
+      errors: [
+        `${investigationResourcesDirectoryName} membership could not be determined: ${errorText(error)}`
+      ],
+      status: "invalid"
+    };
+  }
+}
+
+async function prepareReadyResourceRoot(
+  investigationsDirectory: string,
+  resourcesRoot: string
+): Promise<ResourceRootPreparation> {
   let canonicalResourcesRoot: string;
   try {
     canonicalResourcesRoot = await verifiedCanonicalResourcesRoot(
@@ -233,7 +293,6 @@ async function prepareResourceRoot(
       status: "invalid"
     };
   }
-
   try {
     return {
       canonicalResourcesRoot,
@@ -288,49 +347,62 @@ async function walkFileSystemResourceIds(
 
   const ids: string[] = [];
   for (const entry of entries) {
-    const id =
-      relativeDirectory.length === 0
-        ? entry.name
-        : `${relativeDirectory}/${entry.name}`;
-    const absolutePath = path.join(absoluteDirectory, entry.name);
-    let stat: Awaited<ReturnType<typeof fs.lstat>>;
-    try {
-      stat = await fs.lstat(absolutePath);
-    } catch (error) {
-      throw new Error(
-        `${resourcePath(id)} could not be inspected: ${errorText(error)}`,
-        { cause: error }
-      );
-    }
-    if (stat.isDirectory() && !stat.isSymbolicLink()) {
-      let canonicalDirectory: string;
-      try {
-        canonicalDirectory = await verifiedCanonicalResourceDirectory(
-          absolutePath,
-          canonicalResourcesRoot
-        );
-      } catch (error) {
-        throw new Error(
-          `${resourcePath(id)} could not be safely traversed: ${errorText(error)}`,
-          { cause: error }
-        );
-      }
-      const nestedIds = await walkFileSystemResourceIds(
-        canonicalDirectory,
-        id,
+    ids.push(
+      ...(await fileSystemResourceEntryIds(
+        absoluteDirectory,
+        relativeDirectory,
         canonicalResourcesRoot,
+        entry,
         signal
-      );
-      if (nestedIds.length === 0 && id.split("/").length >= 2) {
-        ids.push(id);
-      } else {
-        ids.push(...nestedIds);
-      }
-      continue;
-    }
-    ids.push(id);
+      ))
+    );
   }
   return ids.sort(compareText);
+}
+
+async function fileSystemResourceEntryIds(
+  absoluteDirectory: string,
+  relativeDirectory: string,
+  canonicalResourcesRoot: string,
+  entry: Dirent<string>,
+  signal: AbortSignal | undefined
+): Promise<string[]> {
+  const id =
+    relativeDirectory.length === 0
+      ? entry.name
+      : `${relativeDirectory}/${entry.name}`;
+  const absolutePath = path.join(absoluteDirectory, entry.name);
+  let stat: Awaited<ReturnType<typeof fs.lstat>>;
+  try {
+    stat = await fs.lstat(absolutePath);
+  } catch (error) {
+    throw new Error(
+      `${resourcePath(id)} could not be inspected: ${errorText(error)}`,
+      {
+        cause: error
+      }
+    );
+  }
+  if (!stat.isDirectory() || stat.isSymbolicLink()) return [id];
+  let canonicalDirectory: string;
+  try {
+    canonicalDirectory = await verifiedCanonicalResourceDirectory(
+      absolutePath,
+      canonicalResourcesRoot
+    );
+  } catch (error) {
+    throw new Error(
+      `${resourcePath(id)} could not be safely traversed: ${errorText(error)}`,
+      { cause: error }
+    );
+  }
+  const nestedIds = await walkFileSystemResourceIds(
+    canonicalDirectory,
+    id,
+    canonicalResourcesRoot,
+    signal
+  );
+  return nestedIds.length === 0 && id.split("/").length >= 2 ? [id] : nestedIds;
 }
 
 async function directResourceIssues(
@@ -435,18 +507,8 @@ async function validateReferencedResource(
   const segments = id.split("/");
   for (const [index, segment] of segments.entries()) {
     const entries = await fs.readdir(currentDirectory, { withFileTypes: true });
-    const exact = entries.find((entry) => entry.name === segment);
-    if (exact === undefined) {
-      const caseMismatch = entries.find(
-        (entry) => entry.name.toLowerCase() === segment.toLowerCase()
-      );
-      errors.push(
-        caseMismatch === undefined
-          ? `${resourcePath(id)} does not exist`
-          : `${resourcePath(id)} must match actual path casing; found ${JSON.stringify(caseMismatch.name)}`
-      );
-      return errors;
-    }
+    const exact = exactResourceEntry(entries, segment, id, errors);
+    if (exact === null) return errors;
 
     const absolutePath = path.join(currentDirectory, exact.name);
     const stat = await fs.lstat(absolutePath);
@@ -458,23 +520,16 @@ async function validateReferencedResource(
     }
     const isLast = index === segments.length - 1;
     if (!isLast) {
-      if (!stat.isDirectory()) {
-        errors.push(
-          `${resourcePath(id)} has a non-directory path component ${JSON.stringify(segment)}`
-        );
-        return errors;
-      }
-      try {
-        currentDirectory = await verifiedCanonicalResourceDirectory(
-          absolutePath,
-          canonicalResourcesRoot
-        );
-      } catch (error) {
-        errors.push(
-          `${resourcePath(id)} could not be safely traversed: ${errorText(error)}`
-        );
-        return errors;
-      }
+      const nextDirectory = await validatedResourceDirectory(
+        absolutePath,
+        canonicalResourcesRoot,
+        id,
+        segment,
+        stat,
+        errors
+      );
+      if (nextDirectory === null) return errors;
+      currentDirectory = nextDirectory;
       continue;
     }
     if (!stat.isFile()) {
@@ -490,6 +545,52 @@ async function validateReferencedResource(
     }
   }
   return errors;
+}
+
+function exactResourceEntry(
+  entries: readonly Dirent<string>[],
+  segment: string,
+  id: string,
+  errors: string[]
+): Dirent<string> | null {
+  const exact = entries.find((entry) => entry.name === segment);
+  if (exact !== undefined) return exact;
+  const caseMismatch = entries.find(
+    (entry) => entry.name.toLowerCase() === segment.toLowerCase()
+  );
+  errors.push(
+    caseMismatch === undefined
+      ? `${resourcePath(id)} does not exist`
+      : `${resourcePath(id)} must match actual path casing; found ${JSON.stringify(caseMismatch.name)}`
+  );
+  return null;
+}
+
+async function validatedResourceDirectory(
+  absolutePath: string,
+  canonicalResourcesRoot: string,
+  id: string,
+  segment: string,
+  stat: Awaited<ReturnType<typeof fs.lstat>>,
+  errors: string[]
+): Promise<string | null> {
+  if (!stat.isDirectory()) {
+    errors.push(
+      `${resourcePath(id)} has a non-directory path component ${JSON.stringify(segment)}`
+    );
+    return null;
+  }
+  try {
+    return await verifiedCanonicalResourceDirectory(
+      absolutePath,
+      canonicalResourcesRoot
+    );
+  } catch (error) {
+    errors.push(
+      `${resourcePath(id)} could not be safely traversed: ${errorText(error)}`
+    );
+    return null;
+  }
 }
 
 async function verifyRegularFile(

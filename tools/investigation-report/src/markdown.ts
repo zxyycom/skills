@@ -17,6 +17,7 @@ const requiredSectionTitles = [
 const relationTypeOrder = new Map(
   investigationRelationTypes.map((type, index) => [type, index])
 );
+const markdownFencePattern = new RegExp("^[ \\t]{0,3}(`{3,}|~{3,})", "u");
 
 type ParsedFrontmatter = Readonly<{
   endLine: number;
@@ -319,6 +320,28 @@ function validateBody(
   if (h1Indexes.some((index) => index > frontmatterEndLine)) {
     errors.push(`${id} body must not repeat an H1`);
   }
+  validateCoreHeadings(headings, frontmatterEndLine, id, errors);
+  validateResourceHeadings(headings, id, errors);
+  validateSectionContent(lines, headings, id, errors, options);
+  const firstHeading = headings[0];
+  if (
+    firstHeading !== undefined &&
+    hasSemanticContent(lines, frontmatterEndLine + 1, firstHeading.index)
+  ) {
+    errors.push(
+      `${id} body must start with the fixed H2 sections after frontmatter`
+    );
+  }
+}
+
+type BodyHeading = Readonly<{ index: number; title: string }>;
+
+function validateCoreHeadings(
+  headings: readonly BodyHeading[],
+  frontmatterEndLine: number,
+  id: string,
+  errors: string[]
+): void {
   if (headings.length < requiredSectionTitles.length) {
     errors.push(`${id} body must begin with the four fixed H2 sections`);
     return;
@@ -334,6 +357,13 @@ function validateBody(
       errors.push(`${id} must contain exactly one "## ${title}" section`);
     }
   }
+}
+
+function validateResourceHeadings(
+  headings: readonly BodyHeading[],
+  id: string,
+  errors: string[]
+): void {
   const resources = headings.filter((heading) => heading.title === "随附资源");
   const nonCanonicalResourceHeadings = headings.filter(
     (heading) =>
@@ -352,6 +382,15 @@ function validateBody(
       `${id} "## 随附资源" must immediately follow the four fixed core sections`
     );
   }
+}
+
+function validateSectionContent(
+  lines: readonly string[],
+  headings: readonly BodyHeading[],
+  id: string,
+  errors: string[],
+  options: InvestigationReportParseOptions
+): void {
   for (const [index, heading] of headings.entries()) {
     const end = headings[index + 1]?.index ?? lines.length;
     if (
@@ -366,15 +405,6 @@ function validateBody(
         );
       }
     }
-  }
-  const firstHeading = headings[0];
-  if (
-    firstHeading !== undefined &&
-    hasSemanticContent(lines, frontmatterEndLine + 1, firstHeading.index)
-  ) {
-    errors.push(
-      `${id} body must start with the fixed H2 sections after frontmatter`
-    );
   }
 }
 
@@ -465,21 +495,9 @@ function scanBodyHeadings(lines: readonly string[]): {
   const headings: Array<{ index: number; title: string }> = [];
   let fence: string | null = null;
   for (const [index, line] of lines.entries()) {
-    const fenceMatch = line.match(/^[ \t]{0,3}(`{3,}|~{3,})/u);
-    if (fence !== null) {
-      if (
-        fenceMatch !== null &&
-        fenceMatch[1]![0] === fence[0] &&
-        fenceMatch[1]!.length >= fence.length
-      ) {
-        fence = null;
-      }
-      continue;
-    }
-    if (fenceMatch !== null) {
-      fence = fenceMatch[1]!;
-      continue;
-    }
+    const fenceState = scanFenceBoundary(line, fence);
+    fence = fenceState.fence;
+    if (fenceState.skip) continue;
     if (/^#(?: |$)/u.test(line)) {
       h1Indexes.push(index);
       continue;
@@ -488,6 +506,23 @@ function scanBodyHeadings(lines: readonly string[]): {
     if (heading !== null) headings.push({ index, title: heading[1]! });
   }
   return { h1Indexes, headings };
+}
+
+function scanFenceBoundary(
+  line: string,
+  fence: string | null
+): { fence: string | null; skip: boolean } {
+  const fenceMatch = line.match(markdownFencePattern);
+  if (fence !== null) {
+    const closesFence =
+      fenceMatch !== null &&
+      fenceMatch[1]![0] === fence[0] &&
+      fenceMatch[1]!.length >= fence.length;
+    return { fence: closesFence ? null : fence, skip: true };
+  }
+  return fenceMatch === null
+    ? { fence: null, skip: false }
+    : { fence: fenceMatch[1]!, skip: true };
 }
 
 function quoteScalar(value: string): string {

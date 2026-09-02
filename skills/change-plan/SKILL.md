@@ -5,7 +5,7 @@ description: >-
   design.md、tasks.md 和 .change-plan.json 维护明确 Change 的目标、设计、任务、
   验证、draft/plan active stage 与 archived 目录状态。
 metadata:
-  version: "21"
+  version: "22"
 ---
 
 # Change Plan

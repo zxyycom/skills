@@ -24,43 +24,14 @@ export async function loadTestEvidenceTopicCatalog(
     testEvidenceTopicCatalogFileName
   );
   const absolutePath = path.join(workspaceRoot, ...relativePath.split("/"));
-
-  let stats: Awaited<ReturnType<typeof fs.lstat>>;
-  try {
-    stats = await fs.lstat(absolutePath);
-  } catch (error) {
-    return failedTopicCatalog(
-      relativePath,
-      isMissingFileError(error)
-        ? "catalog.topics-missing"
-        : "catalog.topics-read-failed",
-      isMissingFileError(error)
-        ? `${relativePath} is required`
-        : `${relativePath} could not be inspected: ${errorText(error)}`
-    );
-  }
-  if (!stats.isFile() || stats.isSymbolicLink()) {
-    return failedTopicCatalog(
-      relativePath,
-      "catalog.topics-not-file",
-      `${relativePath} must be a regular JSON file`
-    );
-  }
-
-  let text: string;
-  try {
-    text = await fs.readFile(absolutePath, "utf8");
-  } catch (error) {
-    return failedTopicCatalog(
-      relativePath,
-      "catalog.topics-read-failed",
-      `${relativePath} could not be read: ${errorText(error)}`
-    );
+  const loaded = await readTopicCatalogText(absolutePath, relativePath);
+  if (loaded.text === null) {
+    return loaded.failure;
   }
 
   let input: unknown;
   try {
-    input = JSON.parse(text) as unknown;
+    input = JSON.parse(loaded.text) as unknown;
   } catch (error) {
     return failedTopicCatalog(
       relativePath,
@@ -90,6 +61,53 @@ export async function loadTestEvidenceTopicCatalog(
     diagnostics: [],
     path: relativePath
   };
+}
+
+async function readTopicCatalogText(
+  absolutePath: string,
+  relativePath: string
+): Promise<
+  | { failure: LoadedTestEvidenceTopicCatalog; text: null }
+  | { failure: null; text: string }
+> {
+  let stats: Awaited<ReturnType<typeof fs.lstat>>;
+  try {
+    stats = await fs.lstat(absolutePath);
+  } catch (error) {
+    const missing = isMissingFileError(error);
+    return {
+      failure: failedTopicCatalog(
+        relativePath,
+        missing ? "catalog.topics-missing" : "catalog.topics-read-failed",
+        missing
+          ? `${relativePath} is required`
+          : `${relativePath} could not be inspected: ${errorText(error)}`
+      ),
+      text: null
+    };
+  }
+  if (!stats.isFile() || stats.isSymbolicLink()) {
+    return {
+      failure: failedTopicCatalog(
+        relativePath,
+        "catalog.topics-not-file",
+        `${relativePath} must be a regular JSON file`
+      ),
+      text: null
+    };
+  }
+  try {
+    return { failure: null, text: await fs.readFile(absolutePath, "utf8") };
+  } catch (error) {
+    return {
+      failure: failedTopicCatalog(
+        relativePath,
+        "catalog.topics-read-failed",
+        `${relativePath} could not be read: ${errorText(error)}`
+      ),
+      text: null
+    };
+  }
 }
 
 export function normalizeTestEvidenceTopicCatalog(

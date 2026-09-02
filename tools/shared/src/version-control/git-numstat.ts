@@ -14,6 +14,13 @@ type RevisionHeader = {
   revision: RevisionId;
 };
 
+type RevisionParseResult = {
+  expectedParent: RevisionId;
+  expectingChangeSeparator: boolean;
+  expectingHeader: boolean;
+  revisions: VersionControlRevisionChange[];
+};
+
 export function parseGitFirstParentRevisionChanges(
   output: string,
   from: RevisionId,
@@ -37,6 +44,19 @@ export function parseGitFirstParentRevisionChanges(
     throw parseError();
   }
 
+  const parsed = parseRevisionTokens(tokens, from);
+  if (parsed === null || parsed.expectedParent !== to) {
+    return null;
+  }
+  validateRevisionParseResult(parsed);
+  normalizeRevisionChanges(parsed.revisions);
+  return parsed.revisions;
+}
+
+function parseRevisionTokens(
+  tokens: readonly string[],
+  from: RevisionId
+): RevisionParseResult | null {
   const revisions: VersionControlRevisionChange[] = [];
   let current: VersionControlRevisionChange | null = null;
   let expectingHeader = true;
@@ -82,12 +102,27 @@ export function parseGitFirstParentRevisionChanges(
     current.changes.push(parseNumstatRecord(record));
   }
 
-  if (expectingHeader || expectingChangeSeparator || revisions.length === 0) {
+  return {
+    expectedParent,
+    expectingChangeSeparator,
+    expectingHeader,
+    revisions
+  };
+}
+
+function validateRevisionParseResult(result: RevisionParseResult): void {
+  if (
+    result.expectingHeader ||
+    result.expectingChangeSeparator ||
+    result.revisions.length === 0
+  ) {
     throw parseError();
   }
-  if (expectedParent !== to) {
-    return null;
-  }
+}
+
+function normalizeRevisionChanges(
+  revisions: VersionControlRevisionChange[]
+): void {
   for (const revision of revisions) {
     const seenPaths = new Set<string>();
     revision.changes.sort((left, right) => left.path.localeCompare(right.path));
@@ -98,7 +133,6 @@ export function parseGitFirstParentRevisionChanges(
       seenPaths.add(change.path);
     }
   }
-  return revisions;
 }
 
 function parseRevisionHeader(token: string): RevisionHeader {
