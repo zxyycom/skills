@@ -5431,7 +5431,7 @@
     "ENV-LINKED-HASH-HOOK-001": {
       "keys": {
         "search": [
-          "ENV-LINKED-HASH-HOOK-001 linked worktree 的真实 hash hook 隔离 Git 环境 pre-commit 必须保留真实 `hash:skills` 门禁，同时避免 Git 注入的 repository-local 环境变量改变 hash 内部按目录执行的仓库发现。 临时主仓库与 linked worktree 使用当前 pre-commit、release preparation 与 skill-package hash 源码执行一次真实 `git commit`。 hook 清理 `GIT_DIR`、`GIT_INDEX_FILE` 等本地变量后，nested Git 重新发现 linked worktree 及其 index，hash 成功且 commit 完成。 scripts/environment.test.ts > real hash pre-commit succeeds in a linked worktree with isolated Git environment bun test --test-name-pattern=\"^real hash pre-commit succeeds in a linked worktree with isolated Git environment$\" ./scripts/environment.test.ts"
+          "ENV-LINKED-HASH-HOOK-001 linked worktree 的真实 hash hook 隔离 Git 环境 pre-commit 必须保留真实 `hash:skills` 门禁，同时避免 Git 注入的 repository-local 环境变量改变 hash 内部按目录执行的仓库发现。 临时主仓库与 linked worktree 使用当前 pre-commit、release preparation 与 skill-package hash 源码，并以测试显式提供的固定 commit identity 执行一次真实 `git commit`，不依赖宿主全局 Git 配置。 hook 清理 `GIT_DIR`、`GIT_INDEX_FILE` 等本地变量后，nested Git 重新发现 linked worktree 及其 index，hash 成功且 commit 完成。 scripts/environment.test.ts > real hash pre-commit succeeds in a linked worktree with isolated Git environment bun test --test-name-pattern=\"^real hash pre-commit succeeds in a linked worktree with isolated Git environment$\" ./scripts/environment.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5445,7 +5445,7 @@
         ],
         "id": "ENV-LINKED-HASH-HOOK-001",
         "line": 1,
-        "searchText": "linked worktree 的真实 hash hook 隔离 Git 环境 pre-commit 必须保留真实 `hash:skills` 门禁，同时避免 Git 注入的 repository-local 环境变量改变 hash 内部按目录执行的仓库发现。 临时主仓库与 linked worktree 使用当前 pre-commit、release preparation 与 skill-package hash 源码执行一次真实 `git commit`。 hook 清理 `GIT_DIR`、`GIT_INDEX_FILE` 等本地变量后，nested Git 重新发现 linked worktree 及其 index，hash 成功且 commit 完成。 scripts/environment.test.ts > real hash pre-commit succeeds in a linked worktree with isolated Git environment bun test --test-name-pattern=\"^real hash pre-commit succeeds in a linked worktree with isolated Git environment$\" ./scripts/environment.test.ts",
+        "searchText": "linked worktree 的真实 hash hook 隔离 Git 环境 pre-commit 必须保留真实 `hash:skills` 门禁，同时避免 Git 注入的 repository-local 环境变量改变 hash 内部按目录执行的仓库发现。 临时主仓库与 linked worktree 使用当前 pre-commit、release preparation 与 skill-package hash 源码，并以测试显式提供的固定 commit identity 执行一次真实 `git commit`，不依赖宿主全局 Git 配置。 hook 清理 `GIT_DIR`、`GIT_INDEX_FILE` 等本地变量后，nested Git 重新发现 linked worktree 及其 index，hash 成功且 commit 完成。 scripts/environment.test.ts > real hash pre-commit succeeds in a linked worktree with isolated Git environment bun test --test-name-pattern=\"^real hash pre-commit succeeds in a linked worktree with isolated Git environment$\" ./scripts/environment.test.ts",
         "sourcePath": "repository-tooling/linked-worktree-real-hash-hook-isolates-git-environment.md",
         "summary": "pre-commit 必须保留真实 `hash:skills` 门禁，同时避免 Git 注入的 repository-local 环境变量改变 hash 内部按目录执行的仓库发现。",
         "title": "linked worktree 的真实 hash hook 隔离 Git 环境"
@@ -14861,21 +14861,21 @@
     "VERSION-CONTROL-GIT-FIXTURE-001": {
       "keys": {
         "search": [
-          "VERSION-CONTROL-GIT-FIXTURE-001 普通 fixture 物化为隔离 Git 仓库 Git 测试 fixture 只提交普通原始文件；启动 helper 必须复制原始树，在 case 私有目录初始化真实 `main` Git 仓库、固定本地配置与基线提交元数据并提交基线。 原始 fixture 不含 `.git` 或 workspace 绝对路径，物化后的仓库使用 `main` 与 `core.autocrlf=false`，并具有相同基线 revision。 两次物化的可变 Git 状态相互隔离：暂存一份仓库的文件不会改变另一份工作区。 tools/shared/tests/version-control.test.ts > materializes an ordinary fixture into isolated Git repositories bun test --test-name-pattern=\"^materializes an ordinary fixture into isolated Git repositories$\" ./tools/shared/tests/version-control.test.ts"
+          "VERSION-CONTROL-GIT-FIXTURE-001 普通 fixture 物化为隔离 Git 仓库 Git 测试 fixture 只提交普通原始文件；启动 helper 必须复制原始树，在 case 私有目录初始化真实 `main` Git 仓库、固定本地配置与基线提交元数据并提交基线。 原始 fixture 不含 `.git` 或 workspace 绝对路径，物化后的仓库使用 `main`、`core.autocrlf=false` 与调用方给定的本地 Git identity，并具有相同基线 revision。 屏蔽 system/global Git 配置及进程 identity 后，物化仓库仍可依靠自身本地配置完成后续 commit。 两次物化的可变 Git 状态相互隔离：暂存一份仓库的文件不会改变另一份工作区。 tools/shared/tests/version-control.test.ts > materializes an ordinary fixture into isolated Git repositories bun test --test-name-pattern=\"^materializes an ordinary fixture into isolated Git repositories$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "topic": [
           "version-control"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 14,
         "entries": [
           "tools/shared/tests/version-control.test.ts > materializes an ordinary fixture into isolated Git repositories",
           "bun test --test-name-pattern=\"^materializes an ordinary fixture into isolated Git repositories$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "id": "VERSION-CONTROL-GIT-FIXTURE-001",
         "line": 1,
-        "searchText": "普通 fixture 物化为隔离 Git 仓库 Git 测试 fixture 只提交普通原始文件；启动 helper 必须复制原始树，在 case 私有目录初始化真实 `main` Git 仓库、固定本地配置与基线提交元数据并提交基线。 原始 fixture 不含 `.git` 或 workspace 绝对路径，物化后的仓库使用 `main` 与 `core.autocrlf=false`，并具有相同基线 revision。 两次物化的可变 Git 状态相互隔离：暂存一份仓库的文件不会改变另一份工作区。 tools/shared/tests/version-control.test.ts > materializes an ordinary fixture into isolated Git repositories bun test --test-name-pattern=\"^materializes an ordinary fixture into isolated Git repositories$\" ./tools/shared/tests/version-control.test.ts",
+        "searchText": "普通 fixture 物化为隔离 Git 仓库 Git 测试 fixture 只提交普通原始文件；启动 helper 必须复制原始树，在 case 私有目录初始化真实 `main` Git 仓库、固定本地配置与基线提交元数据并提交基线。 原始 fixture 不含 `.git` 或 workspace 绝对路径，物化后的仓库使用 `main`、`core.autocrlf=false` 与调用方给定的本地 Git identity，并具有相同基线 revision。 屏蔽 system/global Git 配置及进程 identity 后，物化仓库仍可依靠自身本地配置完成后续 commit。 两次物化的可变 Git 状态相互隔离：暂存一份仓库的文件不会改变另一份工作区。 tools/shared/tests/version-control.test.ts > materializes an ordinary fixture into isolated Git repositories bun test --test-name-pattern=\"^materializes an ordinary fixture into isolated Git repositories$\" ./tools/shared/tests/version-control.test.ts",
         "sourcePath": "version-control/materializes-ordinary-fixtures-into-isolated-git-repositories.md",
         "summary": "Git 测试 fixture 只提交普通原始文件；启动 helper 必须复制原始树，在 case 私有目录初始化真实 `main` Git 仓库、固定本地配置与基线提交元数据并提交基线。",
         "title": "普通 fixture 物化为隔离 Git 仓库"
@@ -15636,7 +15636,7 @@
       "ENV-BUN-RUNTIME-001": "sha256:fc4d137b45129ca6e0ac5c63e4117591e8ce78b5b5acee71c83c927f1b7ea5f4",
       "ENV-CHECK-READONLY-001": "sha256:1cc8bb79619b0886f6166381c90048049dc07658f88f51ca0bd0901ffebb6731",
       "ENV-CLONE-HOOK-001": "sha256:8ceef40cebeb5559b4eae4eebb6c9d903ded8c629f52abb4ece20145ba657f1d",
-      "ENV-LINKED-HASH-HOOK-001": "sha256:b46f230ab7b7aeed70a92c3b2a82360c5445d0215ad8390c244c1068d7bae76a",
+      "ENV-LINKED-HASH-HOOK-001": "sha256:274fac0f57a0e6e9b9aab70cfa54effde043a60317dda1df77e97f98f7a51918",
       "ENV-METRICS-PREREQUISITES-001": "sha256:17691c720b0523f69656ea2ebf010cdcc27266d84b92749cacf68807aac2546e",
       "ENV-PERMISSION-RULES-001": "sha256:21a124776a169674569296131b473013b83cd4982ea6a91fde7ec22edc11b45a",
       "ENV-WORKTREE-SETUP-001": "sha256:a232485668782b975b6e416528f415886b669450f36394065848a5027441842f",
@@ -16046,7 +16046,7 @@
       "VERSION-CONTROL-FIRST-PARENT-001": "sha256:54aa1b954c70c7456be3d9e7418030c8b1810080439ddc4c4ab14f6c213ca3e9",
       "VERSION-CONTROL-FIRST-PARENT-FAILURE-001": "sha256:a932264bbf70968e661a976a9f5a45ae85d4c56349df1404202562640c24cbca",
       "VERSION-CONTROL-FIRST-PARENT-RELATION-001": "sha256:a3ba2e94b62fe1c4aa578ce7568d634d1fdaa3ed8090e482d5f420b4fa00bfa8",
-      "VERSION-CONTROL-GIT-FIXTURE-001": "sha256:43ff32cb94399155cf396f6de397cef187e2613516b7bea50818ca68bddbc982",
+      "VERSION-CONTROL-GIT-FIXTURE-001": "sha256:a60198497157184cbfa11688af7b02da5e76b877a6f9e4ec9c5674df3a11bf97",
       "VERSION-CONTROL-HEAD-001": "sha256:713c4c9d45699e35a3a1dbe413a1cbdf474a6a61620c7e43de611b0505e1bbe6",
       "VERSION-CONTROL-NUMSTAT-001": "sha256:cf0ac87ddcf33d9ac9e04a6d70861e63f24e8a7be833d0c4e9510dd11721617c",
       "VERSION-CONTROL-PENDING-CONFLICT-001": "sha256:2d76d0482c630b49e1aa3eb484d66b1ca933de3a12184d4f009aad452572c4b8",

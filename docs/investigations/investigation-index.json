@@ -153,6 +153,36 @@
         "title": "深层目标只有局部且不可靠的可识别性"
       }
     },
+    "ci-clean-runner-environment-regressions.md": {
+      "keys": {
+        "formed-at": [
+          1788316884000
+        ],
+        "tag": [
+          "ci",
+          "git-fixture",
+          "repository-tooling",
+          "vibe-check"
+        ],
+        "text": [
+          "CI clean runner 暴露 wrapper 权限与 Git fixture identity 缺口",
+          "为什么 main 的 Package Skills 在 43f2faf 的 clean runner 上失败，而本地门禁通过？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-02T02:41:24+00:00",
+        "question": "为什么 main 的 Package Skills 在 43f2faf 的 clean runner 上失败，而本地门禁通过？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "ci",
+          "git-fixture",
+          "repository-tooling",
+          "vibe-check"
+        ],
+        "title": "CI clean runner 暴露 wrapper 权限与 Git fixture identity 缺口"
+      }
+    },
     "compare-human-and-ai-abstraction-defaults.md": {
       "keys": {
         "formed-at": [
@@ -1025,6 +1055,7 @@
       "align-prompt-optimize-name-and-trigger.md": "sha256:d6e211f49e5bc58fba23c430d294054269f287a0602fc732cca758bcfbb26bdb",
       "bind-mentioned-objects-to-negative-roles.md": "sha256:0a4c03fe8c4153e4ed13b18dca58fd173e38552387ef5eac581d5142a3e8db2a",
       "bound-identifiability-of-deep-goals.md": "sha256:1335f0ec90540d6604861a814d0c4d276c2034adf31abd09ed93f1362cbfe6c2",
+      "ci-clean-runner-environment-regressions.md": "sha256:27724aceb6e9d0ecb3c2e1eb24a587b7c502718aff5d2f1d7975a45859b78bb5",
       "compare-human-and-ai-abstraction-defaults.md": "sha256:63cd5425618e90209d4a07a5d5d9fc86711e41573d860de6b9fa3dac4afff2f6",
       "compress-negative-revision-history-into-positive-goals.md": "sha256:45ce575b6a07ff566b97fc0e0b42960749c1a9b614dd31fe75d031c417aad72b",
       "defer-standard-test-result-blocking.md": "sha256:3ef4ebd646d3f6c0d32e69db5808009488b15b12bce01d64f65a24f62228f023",

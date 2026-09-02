@@ -92,9 +92,48 @@ test("materializes an ordinary fixture into isolated Git repositories", async ()
       runGit(first.repositoryRoot, ["config", "core.autocrlf"]).trim(),
       "false"
     );
+    assert.equal(
+      runGit(first.repositoryRoot, ["config", "--local", "user.email"]).trim(),
+      "version-control@example.invalid"
+    );
+    assert.equal(
+      runGit(first.repositoryRoot, ["config", "--local", "user.name"]).trim(),
+      "Version Control Test"
+    );
     assert.equal(first.baselineRevision, second.baselineRevision);
     await writeFile(first.repositoryRoot, "docs/tracked.md", "changed\n");
     runGit(first.repositoryRoot, ["add", "docs/tracked.md"]);
+    const emptyGlobalConfig = path.join(tempRoot, "empty-global-gitconfig");
+    await fs.writeFile(emptyGlobalConfig, "", "utf8");
+    const isolatedGitEnvironment: NodeJS.ProcessEnv = {
+      ...process.env,
+      GIT_CONFIG_GLOBAL: emptyGlobalConfig,
+      GIT_CONFIG_NOSYSTEM: "1"
+    };
+    for (const variable of [
+      "GIT_AUTHOR_EMAIL",
+      "GIT_AUTHOR_NAME",
+      "GIT_COMMITTER_EMAIL",
+      "GIT_COMMITTER_NAME"
+    ]) {
+      delete isolatedGitEnvironment[variable];
+    }
+    execFileSync(
+      "git",
+      [
+        "-C",
+        first.repositoryRoot,
+        "commit",
+        "--quiet",
+        "--message",
+        "isolated follow-up"
+      ],
+      {
+        encoding: "utf8",
+        env: isolatedGitEnvironment,
+        windowsHide: true
+      }
+    );
     assert.equal(
       await fs.readFile(
         path.join(second.repositoryRoot, "docs", "tracked.md"),

@@ -474,7 +474,7 @@ test("real hash pre-commit succeeds in a linked worktree with isolated Git envir
 
     const commit = run(
       "git",
-      ["commit", "--allow-empty", "-m", "hook regression"],
+      [...gitCommitConfig, "commit", "--allow-empty", "-m", "hook regression"],
       linked
     );
     requireSuccess(commit, "linked worktree commit with real hash hook");

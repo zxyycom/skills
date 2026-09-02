@@ -40,6 +40,8 @@ export async function createGitRepositoryFixture(
   await options.prepareRepository?.(repositoryRoot);
   runGit(repositoryRoot, ["init", "--quiet", "--initial-branch=main"]);
   runGit(repositoryRoot, ["config", "core.autocrlf", "false"]);
+  runGit(repositoryRoot, ["config", "user.email", options.userEmail]);
+  runGit(repositoryRoot, ["config", "user.name", options.userName]);
   runGit(repositoryRoot, ["add", "."]);
   runGit(
     repositoryRoot,
