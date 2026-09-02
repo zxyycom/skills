@@ -414,7 +414,7 @@ function parseLifecycleMetadata(options: {
     errors.push(
       relativePath +
         " active decision frontmatter createdAt must not be null; use status: " +
-        "candidate with alignment: null for a reviewable candidate"
+        "candidate with alignment: null and createdAt: null for a candidate scaffold"
     );
   }
   if (status === "archived" && createdAt === null) {

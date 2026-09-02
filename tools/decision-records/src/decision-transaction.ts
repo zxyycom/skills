@@ -67,11 +67,16 @@ export async function applyDecisionChanges(options: {
       async () => await applyLockedDecisionChanges(options)
     );
   } catch (error) {
-    return lockFailure(error);
+    return decisionTransactionLockFailure(error);
   }
 }
 
-async function applyLockedDecisionChanges(options: {
+/**
+ * Applies already prepared changes while the caller holds the collection lock.
+ * Lifecycle commands use this after re-reading their scan and Git baseline in
+ * that same lock; direct transaction callers should use applyDecisionChanges.
+ */
+export async function applyLockedDecisionChanges(options: {
   changes: readonly DecisionFileChange[];
   originalScan: DecisionScan;
   scanOptions: DecisionScanOptions;
@@ -81,7 +86,6 @@ async function applyLockedDecisionChanges(options: {
   if (preflight.errors.length > 0) {
     return transactionFailure(preflight.errors, "no-change");
   }
-
   try {
     let changed = false;
     for (const change of changes) {
@@ -178,7 +182,9 @@ async function recoveredTransactionFailure(
   );
 }
 
-function lockFailure(error: unknown): DecisionTransactionResult {
+export function decisionTransactionLockFailure(
+  error: unknown
+): DecisionTransactionResult {
   if (error instanceof DecisionCollectionLockError) {
     const operationResult = asDecisionTransactionResult(error.operationResult);
     if (

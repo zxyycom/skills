@@ -177,8 +177,12 @@ export type DecisionIndex = {
 };
 
 export type DecisionRecord = {
-  /** Whether the source is a complete candidate eligible for activation. */
+  /** Whether the source is a body-ready candidate eligible for activation. */
   activationCandidate: boolean;
+  /** Whether this source has a valid candidate scaffold shape. */
+  scaffoldValid: boolean;
+  /** Whether the fixed candidate body passes mechanical readiness checks. */
+  bodyReady: boolean;
   alignment: DecisionAlignment | null;
   createdAt: string | null;
   /** Raw basename for invalid sources; validated on candidate/established records. */
@@ -209,13 +213,18 @@ export type EstablishedDecisionRecord = DecisionRecordWithSource<"established">;
 export function isActivationCandidateRecord(
   record: DecisionRecord
 ): record is DecisionCandidateRecord {
-  return record.activationCandidate && isDecisionCandidateRecord(record);
+  return (
+    record.activationCandidate &&
+    record.bodyReady &&
+    isDecisionCandidateRecord(record)
+  );
 }
 
 export function isDecisionCandidateRecord(
   record: DecisionRecord
 ): record is DecisionCandidateRecord {
   return (
+    record.scaffoldValid &&
     record.source.kind === "candidate" &&
     isDecisionId(record.decisionId) &&
     isDecisionSourcePath(record.sourcePath)
@@ -262,14 +271,18 @@ export type DecisionScan = {
 };
 
 export type DecisionValidationResult = {
-  /** Number of complete candidates eligible for activation. */
+  /** Compatibility count of body-ready candidates eligible for activation. */
   activationCandidateCount: number;
+  /** Number of mechanically body-ready candidate scaffolds. */
+  bodyReadyCandidateCount: number;
   activeCount: number;
   alignedCount: number;
   archivedCount: number;
   decisionCount: number;
   errors: string[];
   scan: DecisionScan;
+  /** Number of structurally valid candidate scaffolds. */
+  scaffoldCandidateCount: number;
   unalignedCount: number;
 };
 

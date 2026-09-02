@@ -14,7 +14,10 @@ import {
 
 export type ValidatedDecisionBody = DecisionProjection &
   DecisionTags &
-  DecisionSourceMetadata & { body: string };
+  DecisionSourceMetadata & {
+    body: string;
+    bodyReady: boolean;
+  };
 
 const sectionOrder = ["## 目的", "## 背景", "## 决策"];
 const requiredSections = new Set(sectionOrder);
@@ -102,7 +105,7 @@ export async function validateDecisionBody(options: {
       );
     }
     for (const entry of entries) {
-      if (entry.content.length === 0) {
+      if (entry.content.length === 0 && metadata?.status !== "candidate") {
         errors.push(
           sourcePath + " section " + sectionHeading + " must not be empty"
         );
@@ -124,9 +127,23 @@ export async function validateDecisionBody(options: {
   }
 
   const decisionSection = sectionMap.get("## 决策")?.[0]?.content;
+  const decisionFieldErrors: string[] = [];
   if (decisionSection) {
-    requireNonEmptyField(sourcePath, decisionSection, "采用", errors);
+    requireNonEmptyField(
+      sourcePath,
+      decisionSection,
+      "采用",
+      decisionFieldErrors
+    );
   }
+  if (metadata?.status !== "candidate") {
+    errors.push(...decisionFieldErrors);
+  }
+  const bodyReady =
+    sectionOrder.every((sectionHeading) => {
+      const entries = sectionMap.get(sectionHeading);
+      return entries?.length === 1 && entries[0]?.content.length > 0;
+    }) && decisionFieldErrors.length === 0;
 
   if (projection) {
     await validateDecisionRelations({
@@ -147,5 +164,11 @@ export async function validateDecisionBody(options: {
     return null;
   }
 
-  return { ...projection, tags: [...parsedMarkdown.tags], ...metadata, body };
+  return {
+    ...projection,
+    tags: [...parsedMarkdown.tags],
+    ...metadata,
+    body,
+    bodyReady
+  };
 }

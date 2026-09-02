@@ -19,7 +19,7 @@ import {
 } from "./decision-relation-transaction.ts";
 import type { DecisionFileChange } from "./decision-transaction.ts";
 import {
-  isDecisionCandidateRecord,
+  isActivationCandidateRecord,
   isEstablishedDecisionRecord,
   type DecisionAlignment,
   type DecisionId,
@@ -101,7 +101,7 @@ function activationRelationTransactionRequest(
   request: Extract<DecisionLifecycleRequest, { action: "activate" }>
 ): DecisionRelationTransactionRequest | null {
   const record = findRecord(scan, request.decisionId);
-  if (record === null || !isDecisionCandidateRecord(record)) {
+  if (record === null || !isActivationCandidateRecord(record)) {
     return null;
   }
   return {

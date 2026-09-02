@@ -72,21 +72,57 @@ test("decision CLI top-level help exposes the current command set", async () => 
   );
   assert.match(
     help.stdout,
-    /candidates remain outside the index and are queried from source/i
+    /candidates remain outside the index, are queried from source, and report scaffold and body readiness separately/i
   );
-  assert.match(
-    help.stdout,
-    /candidates\s+Discover complete reviewable candidates/i
-  );
+  assert.match(help.stdout, /candidates\s+Discover candidate scaffolds/i);
   assert.match(
     help.stdout,
     /show-candidate <decision-id>\s+Show one source-discovered candidate/i
   );
   assert.match(
     help.stdout,
+    /new \[options\] <decision-id>\s+Create one non-overwriting candidate\s+scaffold/i
+  );
+  assert.match(
+    help.stdout,
     /evolve \[options\]\s+Replace complete successor relations/i
   );
   assert.doesNotMatch(help.stdout, /^\s*split(?:\s|$)/m);
+});
+
+test("new help fixes explicit scaffold inputs without accepting lifecycle alignment", async () => {
+  const help = await runCli(["new", "--help"]);
+  assert.equal(help.exitCode, 0);
+  for (const option of [
+    "--title <text>",
+    "--purpose <text>",
+    "--background <text>",
+    "--decision <text>",
+    "--tag <tag>",
+    "--relation <type=decision-id>",
+    "--preflight-alignment <value>"
+  ]) {
+    assert.ok(help.stdout.includes(option), option);
+  }
+  assert.match(
+    help.stdout,
+    /Declare one direct predecessor relation for\s+this candidate/
+  );
+  assert.doesNotMatch(help.stdout, /selected successor/);
+  assert.doesNotMatch(help.stdout, /--alignment <value>/);
+  assert.match(
+    help.stdout,
+    /Scaffold readiness validates candidate structure; body readiness validates required nonempty sections and the 采用 field/
+  );
+});
+
+test("activate and evolve preflight retain their real lifecycle selection options", async () => {
+  for (const command of ["activate", "evolve"] as const) {
+    const help = await runCli([command, "--help"]);
+    assert.equal(help.exitCode, 0);
+    assert.match(help.stdout, /--preflight/);
+    assert.match(help.stdout, /or pending\s+state/);
+  }
 });
 
 test("sync-index rebuilds without an option and rejects the former write flag", async () => {

@@ -26,6 +26,7 @@ import {
 } from "./relation-graph.ts";
 import type { DecisionFileChange } from "./decision-transaction.ts";
 import {
+  isActivationCandidateRecord,
   isDecisionCandidateRecord,
   isEstablishedDecisionRecord,
   type DecisionAlignment,
@@ -255,7 +256,7 @@ function prepareSuccessors(
     }
     selectedIds.add(requestedId);
 
-    if (isDecisionCandidateRecord(record)) {
+    if (isActivationCandidateRecord(record)) {
       const sourceRelations = cloneRelations(record.source.document.relations);
       records.push({
         alignment: requested.alignment,

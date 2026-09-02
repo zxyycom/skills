@@ -144,8 +144,12 @@ export type DecisionIndex = {
     entries: Record<DecisionId, DecisionIndexStoredEntry>;
 };
 export type DecisionRecord = {
-    /** Whether the source is a complete candidate eligible for activation. */
+    /** Whether the source is a body-ready candidate eligible for activation. */
     activationCandidate: boolean;
+    /** Whether this source has a valid candidate scaffold shape. */
+    scaffoldValid: boolean;
+    /** Whether the fixed candidate body passes mechanical readiness checks. */
+    bodyReady: boolean;
     alignment: DecisionAlignment | null;
     createdAt: string | null;
     /** Raw basename for invalid sources; validated on candidate/established records. */
@@ -194,14 +198,18 @@ export type DecisionScan = {
     workspaceRoot: string;
 };
 export type DecisionValidationResult = {
-    /** Number of complete candidates eligible for activation. */
+    /** Compatibility count of body-ready candidates eligible for activation. */
     activationCandidateCount: number;
+    /** Number of mechanically body-ready candidate scaffolds. */
+    bodyReadyCandidateCount: number;
     activeCount: number;
     alignedCount: number;
     archivedCount: number;
     decisionCount: number;
     errors: string[];
     scan: DecisionScan;
+    /** Number of structurally valid candidate scaffolds. */
+    scaffoldCandidateCount: number;
     unalignedCount: number;
 };
 export type MarkdownSection = {

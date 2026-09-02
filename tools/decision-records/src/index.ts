@@ -44,7 +44,11 @@ export function selectEstablishedDecisionIds(
 export async function validateDecisionRecords(
   options: DecisionScanOptions = {}
 ): Promise<DecisionValidationResult> {
-  return (await loadDecisionValidationContext(options)).result;
+  return (
+    await loadDecisionValidationContext(options, {
+      allowEmptyDecisionSet: true
+    })
+  ).result;
 }
 
 export async function loadDecisionValidationContext(
@@ -110,6 +114,9 @@ export async function validateDecisionScan(
     activationCandidateCount: scan.records.filter(
       (record) => record.activationCandidate
     ).length,
+    bodyReadyCandidateCount: scan.records.filter(
+      (record) => record.scaffoldValid && record.bodyReady
+    ).length,
     activeCount: establishedRecords.filter(
       (record) => record.status === "active"
     ).length,
@@ -122,6 +129,9 @@ export async function validateDecisionScan(
     decisionCount: establishedRecords.length,
     errors,
     scan,
+    scaffoldCandidateCount: scan.records.filter(
+      (record) => record.scaffoldValid
+    ).length,
     unalignedCount: establishedRecords.filter(
       (record) => record.status === "active" && record.alignment === "unaligned"
     ).length

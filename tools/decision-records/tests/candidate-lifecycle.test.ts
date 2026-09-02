@@ -423,7 +423,7 @@ test("discard pauses before deleting a candidate recorded in Git HEAD", () =>
         discardedRelativePath
       );
       await fs.writeFile(discardedPath, candidateDecisionBody(), "utf8");
-      commitWorkspace(workspaceRoot, "record reviewable candidates");
+      commitWorkspace(workspaceRoot, "record candidate scaffolds");
       const candidateCheck = await runSourceCli([
         "check",
         "--root",
@@ -431,7 +431,7 @@ test("discard pauses before deleting a candidate recorded in Git HEAD", () =>
       ]);
       assert.equal(candidateCheck.exitCode, 0, candidateCheck.stderr);
       assert.equal(candidateCheck.stderr, "");
-      assert.match(candidateCheck.stdout, /2 candidates/);
+      assert.match(candidateCheck.stdout, /2 candidate scaffolds/);
       const paused = await runSourceCli([
         "discard",
         discardedRelativePath,
@@ -582,7 +582,7 @@ test("candidate queries discover source records while activation indexes only re
       assert.equal(invalidCandidate.exitCode, 1);
       assert.match(
         invalidCandidate.stderr,
-        /not a valid reviewable candidate.*use-invalid-source-candidate\.md/i
+        /not a valid candidate scaffold.*use-invalid-source-candidate\.md/i
       );
       assert.match(
         invalidCandidate.stderr,
@@ -599,7 +599,10 @@ test("candidate queries discover source records while activation indexes only re
         0,
         candidateCheckBeforeActivation.stderr
       );
-      assert.match(candidateCheckBeforeActivation.stdout, /2 candidates/);
+      assert.match(
+        candidateCheckBeforeActivation.stdout,
+        /2 candidate scaffolds/
+      );
       const multipleUnindexedActivation = await runSourceCli([
         "activate",
         firstUnindexedRelativePath,
@@ -615,11 +618,11 @@ test("candidate queries discover source records while activation indexes only re
       );
       assert.match(
         multipleUnindexedActivation.stderr,
-        /Reviewable decision candidate remains: use-second-unindexed\.md/
+        /Decision candidate scaffold remains: use-second-unindexed\.md/
       );
       assert.doesNotMatch(
         multipleUnindexedActivation.stderr,
-        /Reviewable decision candidate remains: use-first-unindexed\.md/
+        /Decision candidate scaffold remains: use-first-unindexed\.md/
       );
       const firstActivationIndex = await readIndex(indexPath);
       findIndexEntry(firstActivationIndex, firstUnindexedRelativePath);
@@ -638,7 +641,7 @@ test("candidate queries discover source records while activation indexes only re
       ]);
       assert.equal(remainingCandidateCheck.exitCode, 0);
       assert.equal(remainingCandidateCheck.stderr, "");
-      assert.match(remainingCandidateCheck.stdout, /1 candidates/);
+      assert.match(remainingCandidateCheck.stdout, /1 candidate scaffolds/);
       const candidateValidation = await validateDecisionRecords({
         workspaceRoot
       });

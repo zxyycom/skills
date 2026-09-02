@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "38"
+  version: "39"
 ---
 
 # Decision Records
@@ -16,7 +16,7 @@ metadata:
 
 每条记录以含 `.md` 的 basename 作为稳定 **Decision ID**；移动位置不改变 ID，改 basename 才是身份变化。格式、位置、分类、关系与索引契约由决策记录规则和 Schema 承接。
 
-`active + aligned` 是已核对的当前基线；`active + unaligned` 是已经确认、但尚未成为当前事实的未来方向，是正常的长期状态而非失败、待办或实施授权。`candidate` 结构与内容完整、可供审核，但未建立到正式集合。`alignment` 不创建实施授权、任务或优先级。
+`active + aligned` 是已核对的当前基线；`active + unaligned` 是已经确认、但尚未成为当前事实的未来方向，是正常的长期状态而非失败、待办或实施授权。`candidate` 可以是结构合法 scaffold，也可以已经机械满足正文要求；两者都不进入正式集合。CLI 的 `scaffoldValid` 与 `bodyReady` 只表达机械事实，不证明语义审核、建立授权或 alignment 判断。`alignment` 不创建实施授权、任务或优先级。
 
 ## 内容 owner
 
@@ -41,7 +41,7 @@ metadata:
 ### 1. 确定任务出口
 
 1. 恢复、解释、检查或审阅已有决策时，只交付查询或审阅结果；没有维护授权时不扩大为写入。
-2. 当前指令明确要求起草候选，且给出维护对象和影响范围时，可以写入完整 `candidate`，但不得据此推断方向已经确认。只有当前指令也确认完整方向及其对齐状态时才建立。
+2. 当前指令明确要求起草候选，且给出维护对象和影响范围时，可以用 `new` 写入规范 candidate scaffold，或继续编辑既有 candidate；不得据此推断方向已经确认。只有当前指令也确认完整方向及其对齐状态时才建立。
 3. 普通工作形成重要取舍时，在自然更新或交付阶段提出候选；只有继续任务必须先确定取舍时才即时提出。
 4. 长期含义、适用范围或被改变的责任边界不清楚时，只询问会改变记录结果的最小问题。
 
@@ -61,12 +61,12 @@ metadata:
 3. 是判断或取舍，而不是事实、任务、进度或执行结果。
 4. 能作为整体独立修订、替代、归档和判断对齐。
 
-使用新的 Decision ID 写入完整 `candidate`；格式、分类、正文和前序关系按决策记录规则检查。半成品留在对话、Change 或其他草稿 owner，不能写入决策根目录。
+在当前授权包含长期判断与维护范围时，使用 `new <decision-id>` 和 title、三项摘要、至少一个 tag 及可选直接关系创建 scaffold。创建成功后编辑固定的“目的、背景、决策”正文；`candidates` / `show-candidate` 显示 `scaffoldValid` 与 `bodyReady`。`new` 成功即退出 0，即使正文未完成或辅助预检无法完整选择；应继续编辑、查询或运行显式 preflight，不得对同一 ID 重跑 `new`。CLI 不替代语义审核。
 
 ### 4. 维护记录
 
 1. 查询、关系和生命周期命令一律接收 Decision ID；`sourcePath` 只用于定位和展示。
-2. `activate` 建立候选或重新激活 archived 记录；`evolve` 维护完整的演进关系；`mark-aligned`、`archive` 与 `discard` 只用于各自维护动作。`拆分` 和 `重划` 都通过重复 `--successor` 选择完整后继集合；重划通常由每个候选在自身 `relations` 中声明各自的来源边。`--relation` 是对所有所选后继的完整统一覆盖，不是逐后继参数；不新增重划专用命令。精确输入优先级、拓扑和闭合规则以 `--help` 和决策记录规则为准。
+2. `activate` 只建立 body-ready candidate 或重新激活 archived 记录；`evolve` 只建立 body-ready selected candidates 并维护完整演进关系；`mark-aligned`、`archive` 与 `discard` 只用于各自维护动作。`activate --preflight` 与 `evolve --preflight` 使用当前完整参数只读预演关系、最终图、索引和 Git 历史门禁；结果不保存 receipt，正式命令必须重新显式提供参数并重新验证。`拆分` 和 `重划` 都通过重复 `--successor` 选择完整后继集合；重划通常由每个候选在自身 `relations` 中声明各自的来源边。`--relation` 是对所有所选后继的完整统一覆盖，不是逐后继参数；不新增重划专用命令。精确输入优先级、拓扑和闭合规则以 `--help` 和决策记录规则为准。
 3. 已建立记录的判断语义变化通过新记录和真实关系表达；编辑性文字修正可直接改权威 Markdown。不得直接编辑派生索引制造状态。
 4. 生命周期和关系写入使用 CLI 事务，尽可能保证 Markdown 与索引组合的原子性；普通诊断无法恢复的失败按恢复手册处理。不要在运行前自行推演 Git 历史边界；正常执行领域命令即可。CLI 实际暂停时，向调用方完整转达受检 Decision ID、操作和零写入状态；等待本次明确确认后，才按 CLI 给出的额外参数重试，不自动重试，也不把这个确认代替原有维护授权。
 5. `discard` 删除完整且无剩余引用的 candidate、active 或 archived 决策；`evolve --discard <decision-id>` 将同一删除动作与关系事务原子组合。参数显式选择删除对象，适用条件和失败边界交给决策记录规则与 CLI 判定；成功时报告删除而非归档。
@@ -77,7 +77,7 @@ metadata:
 
 ### 6. 验证与交付
 
-1. 候选任务确认候选具有长期回放价值、内容完整且通过 `candidates` / `show-candidate` 审核；active 记录只保存已确认判断。
+1. 候选任务确认候选具有长期回放价值，并报告 scaffold/body readiness；建立前先完成正文、语义审核与当前授权判断，active 记录只保存已确认判断。
 2. 建立或对齐任务在操作前按规则核对完整方向与当前事实来源；只有完整方向成为当前事实后才能标记 aligned。
 3. 已建立集合的维护任务在结束时运行严格 `check`；首次候选集合或故障恢复按恢复手册验证。
 4. 写入时说明新增、修订、归档或对齐变化和实际验证结果；只读恢复时说明适用决策、分类和结果边界。
@@ -94,11 +94,12 @@ node scripts/decision-records.mjs <command> [options] --root <resolution-root>
 
 | 命令 | 用途 |
 | --- | --- |
-| `candidates` / `show-candidate <decision-id>` | 发现或审核候选。 |
+| `new <decision-id>` | 从显式 metadata 创建不覆盖的 candidate scaffold。 |
+| `candidates` / `show-candidate <decision-id>` | 发现 candidate scaffold、机械 readiness 或审核正文。 |
 | `list` / `show <decision-id>` / `trace <decision-id>` | 恢复当前判断、完整理由或演进关系。 |
 | `check` / `sync-index` | 严格只读验证或从权威 Markdown 重建索引。 |
 | `stage <decision-id...>` | 构造待提交决策快照。 |
-| `activate` / `evolve` / `mark-aligned` / `archive` / `discard` | 维护生命周期、关系和候选；`evolve --discard <decision-id>` 可在关系事务中删除一个决策。 |
+| `activate` / `evolve` / `mark-aligned` / `archive` / `discard` | 维护生命周期、关系和候选；`activate/evolve --preflight` 只读预演，`evolve --discard <decision-id>` 可在关系事务中删除一个决策。 |
 
 精确参数、输出和退出状态以 `--help` 为准；索引的精确字段、版本和格式由相邻 JSON Schema 承接。
 

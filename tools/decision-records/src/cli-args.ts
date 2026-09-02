@@ -20,6 +20,7 @@ import {
   type DecisionTraceDirection
 } from "./types.ts";
 import { isDecisionId, isDecisionTag } from "./decision-path.ts";
+import { projectionTextIssue } from "./projection.ts";
 import {
   processDecisionRecordsCliIo,
   type DecisionRecordsCliIo
@@ -34,6 +35,7 @@ export type Command =
   | "evolve"
   | "list"
   | "mark-aligned"
+  | "new"
   | "show"
   | "show-candidate"
   | "stage"
@@ -56,6 +58,7 @@ export type CliArgs =
         alignment: DecisionAlignment;
         decisionId: DecisionId;
         keepUnrecordedHistory: boolean;
+        preflight: boolean;
         relationOverride: DecisionRelationOverride;
       }
     >
@@ -78,6 +81,7 @@ export type CliArgs =
         discardId: DecisionId | null;
         deleteRecordedDecision: boolean;
         keepUnrecordedHistory: boolean;
+        preflight: boolean;
         relationOverride: DecisionRelationOverride;
         successors: DecisionSuccessor[];
       }
@@ -92,6 +96,19 @@ export type CliArgs =
       }
     >
   | LocatedCommand<"mark-aligned", { decisionId: DecisionId }>
+  | LocatedCommand<
+      "new",
+      {
+        background: string;
+        decision: string;
+        decisionId: DecisionId;
+        preflightAlignment: DecisionAlignment | null;
+        purpose: string;
+        relations: DecisionRelation[];
+        tags: DecisionTag[];
+        title: string;
+      }
+    >
   | LocatedCommand<"show", { decisionId: DecisionId }>
   | LocatedCommand<"show-candidate", { decisionId: DecisionId }>
   | LocatedCommand<"stage", { decisionIds: DecisionId[] }>
@@ -112,19 +129,25 @@ export type CliArgsFor<TCommand extends Command> = Extract<
 
 type ParsedOptions = {
   alignment?: DecisionListAlignment;
+  background?: string;
   clearRelations?: boolean;
   discard?: DecisionId;
   deleteRecordedDecision?: boolean;
   decisionsDir?: string;
   depth?: number;
+  decision?: string;
   direction?: DecisionTraceDirection;
   fullTime?: boolean;
   keepUnrecordedHistory?: boolean;
+  preflight?: boolean;
+  preflightAlignment?: DecisionAlignment;
+  purpose?: string;
   relation?: DecisionRelation[];
   root?: string;
   status?: DecisionListStatus;
   successor?: DecisionSuccessor[];
   tag?: DecisionTag[];
+  title?: string;
 };
 
 type RunCommand = (args: CliArgs) => Promise<number>;
@@ -244,6 +267,15 @@ function parseDecisionTag(
   return [...previous, value];
 }
 
+function parseProjectionText(value: string): string {
+  const normalized = value.trim();
+  const issue = projectionTextIssue(normalized);
+  if (issue !== null) {
+    throw new InvalidArgumentError(issue);
+  }
+  return normalized;
+}
+
 function decisionRelationOverride(
   options: Pick<ParsedOptions, "clearRelations" | "relation">
 ): DecisionRelationOverride {
@@ -283,6 +315,7 @@ function commandArgs(
         command,
         decisionId: requiredDecisionId(decisionIds),
         keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
+        preflight: options.preflight ?? false,
         relationOverride: decisionRelationOverride(options)
       };
     case "archive":
@@ -310,6 +343,22 @@ function commandArgs(
         command,
         decisionId: requiredDecisionId(decisionIds)
       };
+    case "new":
+      return {
+        ...location,
+        background: requiredProjectionOption(
+          options.background,
+          "--background"
+        ),
+        command,
+        decision: requiredProjectionOption(options.decision, "--decision"),
+        decisionId: requiredDecisionId(decisionIds),
+        preflightAlignment: options.preflightAlignment ?? null,
+        purpose: requiredProjectionOption(options.purpose, "--purpose"),
+        relations: options.relation ?? [],
+        tags: options.tag ?? [],
+        title: requiredProjectionOption(options.title, "--title")
+      };
     case "stage":
       return { ...location, command, decisionIds };
     case "evolve":
@@ -328,6 +377,7 @@ function commandArgs(
         command,
         deleteRecordedDecision: options.deleteRecordedDecision ?? false,
         keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
+        preflight: options.preflight ?? false,
         relationOverride: decisionRelationOverride(options),
         successors: options.successor ?? []
       };
@@ -353,6 +403,16 @@ function commandArgs(
   }
 }
 
+function requiredProjectionOption(
+  value: string | undefined,
+  name: string
+): string {
+  if (value === undefined) {
+    throw new InvalidArgumentError(name + " is required");
+  }
+  return value;
+}
+
 function requiredDecisionId(decisionIds: readonly DecisionId[]): DecisionId {
   const decisionId = decisionIds[0];
   if (decisionId === undefined) {
@@ -374,12 +434,8 @@ function createSubcommand(
     .exitOverride();
 }
 
-function createDecisionRelationOption(): Option {
-  return new Option(
-    "--relation <type=decision-id>",
-    "Replace every selected successor's complete relation list with one final " +
-      "direct predecessor relation. Repeat for the complete replacement."
-  )
+function createDecisionRelationOption(description: string): Option {
+  return new Option("--relation <type=decision-id>", description)
     .argParser(parseDecisionRelation)
     .conflicts("clearRelations");
 }
@@ -395,6 +451,13 @@ function createKeepUnrecordedHistoryOption(): Option {
   return new Option(
     "--keep-unrecorded-history",
     "Explicitly preserve decisions that have not entered Git HEAD."
+  );
+}
+
+function createPreflightOption(): Option {
+  return new Option(
+    "--preflight",
+    "Read and validate the current lifecycle selection without writing Decision Markdown, the derived index, or pending state."
   );
 }
 
@@ -422,8 +485,9 @@ export function createCliProgram(
     .addHelpText(
       "afterAll",
       "\nDecision IDs are stable Markdown basenames, for example use-semantic-title.md.\n" +
-        "Reviewable candidates remain outside the index and are queried from source.\n" +
-        "Exit codes: 0 success (queries and scoped maintenance may report warnings), " +
+        "Candidates remain outside the index, are queried from source, and report scaffold and body readiness separately.\n" +
+        "Scaffold readiness validates candidate structure; body readiness validates required nonempty sections and the 采用 field. Neither grants semantic review or lifecycle establishment.\n" +
+        "Exit codes: 0 success (including a created scaffold with readiness findings), " +
         "1 paused lifecycle choice, blocking validation, or index failure, " +
         "2 invalid arguments."
     )
@@ -443,7 +507,7 @@ export function createCliProgram(
     program,
     "check",
     "Strictly validate Markdown metadata, tags, source locations, alignment, relations, " +
-      "reviewable candidates, and the JSON index. This is the default command.",
+      "candidate scaffold/body readiness, and the JSON index. This is the default command.",
     { isDefault: true }
   );
   check.action(() => execute("check", check));
@@ -451,7 +515,7 @@ export function createCliProgram(
   const candidates = createSubcommand(
     program,
     "candidates",
-    "Discover complete reviewable candidates directly from decision Markdown " +
+    "Discover candidate scaffolds directly from decision Markdown " +
       "without adding them to the persisted decision index."
   );
   candidates.action(() => execute("candidates", candidates));
@@ -500,7 +564,7 @@ export function createCliProgram(
   const showCandidate = createSubcommand(
     program,
     "show-candidate",
-    "Show one source-discovered candidate for semantic review before activation."
+    "Show one source-discovered candidate and its mechanical readiness before activation."
   ).argument(
     "<decision-id>",
     "Stable Decision ID basename.",
@@ -541,6 +605,56 @@ export function createCliProgram(
   );
   syncIndex.action(() => execute("sync-index", syncIndex));
 
+  const create = createSubcommand(
+    program,
+    "new",
+    "Create one non-overwriting candidate scaffold. Edit its body and complete semantic review before lifecycle establishment."
+  )
+    .argument(
+      "<decision-id>",
+      "Stable Decision ID basename.",
+      parseSingleDecisionId
+    )
+    .addOption(
+      new Option("--title <text>", "Candidate title.")
+        .argParser(parseProjectionText)
+        .makeOptionMandatory()
+    )
+    .addOption(
+      new Option("--purpose <text>", "Candidate purpose summary.")
+        .argParser(parseProjectionText)
+        .makeOptionMandatory()
+    )
+    .addOption(
+      new Option("--background <text>", "Candidate background summary.")
+        .argParser(parseProjectionText)
+        .makeOptionMandatory()
+    )
+    .addOption(
+      new Option("--decision <text>", "Candidate decision summary.")
+        .argParser(parseProjectionText)
+        .makeOptionMandatory()
+    )
+    .addOption(
+      new Option("--tag <tag>", "Candidate tag. Repeat for each tag.")
+        .argParser(parseDecisionTag)
+        .makeOptionMandatory()
+    )
+    .addOption(
+      createDecisionRelationOption(
+        "Declare one direct predecessor relation for this candidate. Repeat for its complete relation list."
+      )
+    )
+    .addOption(
+      new Option(
+        "--preflight-alignment <value>",
+        "Optionally provide one alignment only for auxiliary readiness; it is not written to the candidate."
+      ).choices(decisionAlignments)
+    );
+  create.action((decisionId: DecisionId) =>
+    execute("new", create, [decisionId])
+  );
+
   const stage = createSubcommand(
     program,
     "stage",
@@ -575,8 +689,13 @@ export function createCliProgram(
         .choices(decisionAlignments)
         .makeOptionMandatory()
     )
-    .addOption(createDecisionRelationOption())
+    .addOption(
+      createDecisionRelationOption(
+        "Replace every selected successor's complete relation list with one final direct predecessor relation. Repeat for the complete replacement."
+      )
+    )
     .addOption(createClearRelationsOption())
+    .addOption(createPreflightOption())
     .addOption(createKeepUnrecordedHistoryOption());
   activate.action((decisionId: DecisionId) =>
     execute("activate", activate, [decisionId])
@@ -598,9 +717,14 @@ export function createCliProgram(
         .argParser(parseDecisionSuccessor)
         .makeOptionMandatory()
     )
-    .addOption(createDecisionRelationOption())
+    .addOption(
+      createDecisionRelationOption(
+        "Replace every selected successor's complete relation list with one final direct predecessor relation. Repeat for the complete replacement."
+      )
+    )
     .addOption(createClearRelationsOption())
     .addOption(createKeepUnrecordedHistoryOption())
+    .addOption(createPreflightOption())
     .addOption(
       new Option(
         "--discard <decision-id>",

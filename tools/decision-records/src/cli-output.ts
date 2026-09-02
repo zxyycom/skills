@@ -105,6 +105,8 @@ function printCandidates(
     );
     writeLine(io.stdout, "  title: " + record.projection.title);
     writeLine(io.stdout, "  purpose: " + record.projection.purpose);
+    writeLine(io.stdout, "  scaffoldValid: " + record.scaffoldValid);
+    writeLine(io.stdout, "  bodyReady: " + record.bodyReady);
   }
 }
 
@@ -120,9 +122,9 @@ export function printCandidateWarnings(
     printDiagnostic(
       {
         code: "decision-records.candidate-remains",
-        reason: "Reviewable decision candidate remains: " + sourcePath,
+        reason: "Decision candidate scaffold remains: " + sourcePath,
         recovery:
-          "Use candidates to review it, then activate or discard it explicitly.",
+          "Use candidates to inspect readiness, then edit, activate, or discard it explicitly.",
         target: sourcePath
       },
       io
@@ -171,8 +173,10 @@ function printCheck(
       " unaligned, " +
       summary.archivedCount +
       " archived, " +
-      summary.activationCandidateCount +
-      " candidates)."
+      summary.scaffoldCandidateCount +
+      " candidate scaffolds, " +
+      summary.bodyReadyCandidateCount +
+      " body-ready candidates)."
   );
 }
 
@@ -216,6 +220,10 @@ function printShow(
   writeLine(io.stdout, "status: " + result.record.status);
   writeLine(io.stdout, "alignment: " + result.record.alignment);
   writeLine(io.stdout, "createdAt: " + result.record.createdAt);
+  if (result.command === "show-candidate") {
+    writeLine(io.stdout, "scaffoldValid: " + result.record.scaffoldValid);
+    writeLine(io.stdout, "bodyReady: " + result.record.bodyReady);
+  }
   writeLine(io.stdout, "");
   writeLine(io.stdout, result.body.trimEnd());
 }

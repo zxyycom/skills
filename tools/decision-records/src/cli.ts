@@ -7,9 +7,11 @@ import {
   decisionDiagnosticFromReason,
   decisionFailure,
   decisionFileSystemErrorText,
-  type DecisionApplicationFailure
+  type DecisionApplicationFailure,
+  type DecisionMutationOutcome
 } from "./application-result.ts";
 import { createCliProgram, type CliArgs, type CliArgsFor } from "./cli-args.ts";
+import { createDecisionCandidate } from "./decision-candidate-service.ts";
 import {
   printCandidateWarnings,
   printDecisionAttention,
@@ -27,6 +29,7 @@ import {
 import {
   requiresDecisionHistoryBaseline,
   prepareDecisionLifecycle,
+  type DecisionLifecyclePreparation,
   type DecisionLifecycleRequest
 } from "./decision-lifecycle-service.ts";
 import {
@@ -34,7 +37,15 @@ import {
   type DecisionLocation,
   type DecisionQueryRequest
 } from "./decision-query-service.ts";
-import { applyDecisionChanges } from "./decision-transaction.ts";
+import {
+  applyDecisionChanges,
+  applyLockedDecisionChanges,
+  decisionTransactionLockFailure
+} from "./decision-transaction.ts";
+import {
+  DecisionCollectionLockError,
+  withDecisionCollectionMutationLock
+} from "./decision-collection-mutation-lock.ts";
 import { stageDecisionRecords } from "./decision-stage-service.ts";
 import {
   loadDecisionValidationContext,
@@ -52,6 +63,12 @@ import {
 type DecisionLocationArgs = {
   decisionsDir: string;
   workspaceRoot: string;
+};
+
+type LockedLifecycleOperationResult = {
+  committed: boolean;
+  exitCode: number;
+  outcome: DecisionMutationOutcome;
 };
 
 async function runQuery(
@@ -164,6 +181,124 @@ async function runSyncIndex(
       location: decisionLocation(args)
     },
     io
+  );
+}
+
+async function runNew(
+  args: CliArgsFor<"new">,
+  io: DecisionRecordsCliIo
+): Promise<number> {
+  const created = await createDecisionCandidate(args);
+  if (created.status === "error") {
+    if ("sourcePath" in created) {
+      io.stdout(
+        "Created decision candidate scaffold: " + created.sourcePath + "\n"
+      );
+      io.stdout("No lifecycle state or derived decision index was changed.\n");
+    }
+    printDecisionFailure(created, io);
+    return created.exitCode;
+  }
+  io.stdout(
+    "Created decision candidate scaffold: " + created.sourcePath + "\n"
+  );
+  io.stdout("No lifecycle state or derived decision index was changed.\n");
+  await printNewCandidateReadiness(args, io);
+  return 0;
+}
+
+async function printNewCandidateReadiness(
+  args: CliArgsFor<"new">,
+  io: DecisionRecordsCliIo
+): Promise<void> {
+  io.stderr("Decision candidate readiness after creation:\n");
+  try {
+    const { result } = await loadDecisionValidationContext(
+      decisionScanOptions(args),
+      { allowEmptyDecisionSet: true }
+    );
+    const candidate = result.scan.records.find(
+      (record) => record.decisionId === args.decisionId
+    );
+    printNewCandidateReadinessResult(
+      args,
+      candidate,
+      result.errors,
+      result.scan,
+      io
+    );
+  } catch (error) {
+    io.stderr("- scaffoldValid: unavailable\n");
+    io.stderr("- bodyReady: unavailable\n");
+    io.stderr(
+      "- preflight: unavailable (" + decisionFileSystemErrorText(error) + ")\n"
+    );
+    printNewCandidateNextStep(args, io);
+  }
+}
+
+function printNewCandidateReadinessResult(
+  args: CliArgsFor<"new">,
+  candidate: DecisionScan["records"][number] | undefined,
+  errors: readonly string[],
+  scan: DecisionScan,
+  io: DecisionRecordsCliIo
+): void {
+  io.stderr("- scaffoldValid: " + (candidate?.scaffoldValid === true) + "\n");
+  io.stderr(
+    "- bodyReady: " +
+      (candidate?.bodyReady === true) +
+      " (edit the fixed sections before lifecycle establishment)\n"
+  );
+  if (errors.length > 0 || candidate === undefined) {
+    io.stderr(
+      "- preflight: unavailable (" +
+        (errors[0] ?? "created candidate could not be re-read") +
+        ")\n"
+    );
+  } else {
+    const preparation = prepareDecisionLifecycle(
+      scan,
+      {
+        action: "activate",
+        alignment: args.preflightAlignment ?? "unaligned",
+        decisionId: args.decisionId,
+        keepUnrecordedHistory: false,
+        relationOverride: { kind: "source" }
+      },
+      { historyBaseline: null }
+    );
+    io.stderr(
+      "- preflight: selection-incomplete (" +
+        readinessReason(preparation) +
+        ")\n"
+    );
+  }
+  printNewCandidateNextStep(args, io);
+}
+
+function printNewCandidateNextStep(
+  args: CliArgsFor<"new">,
+  io: DecisionRecordsCliIo
+): void {
+  io.stderr(
+    args.preflightAlignment === null
+      ? "- alignment: unresolved (no alignment projection was prepared)\n"
+      : "- alignment preview: " +
+          args.preflightAlignment +
+          " (provided to auxiliary preparation; full projection waits for body readiness and is not written)\n"
+  );
+  io.stderr(
+    "- next: edit the candidate, review it semantically, then run activate --preflight or evolve --preflight with the complete current selection; do not rerun new for this ID.\n"
+  );
+}
+
+function readinessReason(preparation: DecisionLifecyclePreparation): string {
+  if (preparation.status === "ok") {
+    return "the candidate body unexpectedly became ready during inspection";
+  }
+  return (
+    preparation.diagnostics[0]?.reason ?? "lifecycle selection is incomplete"
   );
 }
 
@@ -348,17 +483,93 @@ async function loadLifecycleScan(
 }
 
 async function applyLifecycle(
-  args: DecisionLocationArgs,
+  args: DecisionLocationArgs & { preflight?: boolean },
   scan: DecisionScan,
   request: DecisionLifecycleRequest,
   io: DecisionRecordsCliIo
 ): Promise<number> {
+  if (request.action === "activate" || request.action === "evolve") {
+    if (args.preflight === true) {
+      const prepared = await prepareLifecycleWithCurrentHistory(
+        scan,
+        request,
+        io
+      );
+      if (prepared === null) return 1;
+      return printLifecyclePreflight(prepared, io);
+    }
+    return await applyLockedCandidateLifecycle(args, scan, request, io);
+  }
+  const prepared = await prepareLifecycleWithCurrentHistory(scan, request, io);
+  if (prepared === null) return 1;
+  return (await applyPreparedLifecycle(args, scan, prepared, io, false))
+    .exitCode;
+}
+
+async function applyLockedCandidateLifecycle(
+  args: DecisionLocationArgs,
+  initialScan: DecisionScan,
+  request: Extract<DecisionLifecycleRequest, { action: "activate" | "evolve" }>,
+  io: DecisionRecordsCliIo
+): Promise<number> {
+  let completedMessage: string | null = null;
+  try {
+    const result = await withDecisionCollectionMutationLock(
+      initialScan.indexPath,
+      async () => {
+        const lockedScan = await loadLifecycleScan(
+          args,
+          { allowEmptyDecisionSet: true },
+          io
+        );
+        if (lockedScan === null) return noChangeLifecycleResult();
+        const prepared = await prepareLifecycleWithCurrentHistory(
+          lockedScan,
+          request,
+          io
+        );
+        if (prepared === null) return noChangeLifecycleResult();
+        completedMessage = prepared.message;
+        return await applyPreparedLifecycle(
+          args,
+          lockedScan,
+          prepared,
+          io,
+          true,
+          true
+        );
+      }
+    );
+    if (result.exitCode === 0 && completedMessage !== null) {
+      io.stdout(completedMessage + "\n");
+      const updatedScan = await scanDecisionRecords(decisionScanOptions(args));
+      printCandidateWarnings(
+        updatedScan.records
+          .filter((record) => record.activationCandidate)
+          .sort(compareDecisionRecords)
+          .map((record) => record.sourcePath),
+        io
+      );
+    }
+    return result.exitCode;
+  } catch (error) {
+    const transaction = lifecycleLockFailure(error);
+    printDecisionFailure(decisionFailure(transaction.diagnostics), io);
+    return 1;
+  }
+}
+
+async function prepareLifecycleWithCurrentHistory(
+  scan: DecisionScan,
+  request: DecisionLifecycleRequest,
+  io: DecisionRecordsCliIo
+): Promise<Extract<DecisionLifecyclePreparation, { status: "ok" }> | null> {
   let historyBaseline: DecisionHistoryBaseline | null = null;
   if (requiresDecisionHistoryBaseline(scan, request)) {
     const loadedBaseline = await loadDecisionHistoryBaseline(scan);
     if (loadedBaseline.status === "error") {
       printDecisionFailure(withLifecycleNoChange(loadedBaseline), io);
-      return loadedBaseline.exitCode;
+      return null;
     }
     historyBaseline = loadedBaseline.baseline;
   }
@@ -367,20 +578,52 @@ async function applyLifecycle(
   });
   if (prepared.status === "attention") {
     printDecisionAttention(prepared, io);
-    return prepared.exitCode;
+    return null;
   }
   if (prepared.status === "error") {
     printDecisionFailure(withLifecycleNoChange(prepared), io);
-    return prepared.exitCode;
+    return null;
   }
-  const transaction = await applyDecisionChanges({
-    changes: prepared.changes,
-    originalScan: scan,
-    scanOptions: decisionScanOptions(args)
-  });
+  return prepared;
+}
+
+function printLifecyclePreflight(
+  prepared: Extract<DecisionLifecyclePreparation, { status: "ok" }>,
+  io: DecisionRecordsCliIo
+): number {
+  io.stdout("Decision lifecycle preflight passed: " + prepared.message + "\n");
+  io.stdout(
+    "No Decision Markdown, derived index, or pending state was changed. Re-run the lifecycle command with the complete current parameters to establish it.\n"
+  );
+  return 0;
+}
+
+async function applyPreparedLifecycle(
+  args: DecisionLocationArgs,
+  scan: DecisionScan,
+  prepared: Extract<DecisionLifecyclePreparation, { status: "ok" }>,
+  io: DecisionRecordsCliIo,
+  lockHeld: boolean,
+  deferSuccessOutput = false
+): Promise<LockedLifecycleOperationResult> {
+  const transaction = await (lockHeld
+    ? applyLockedDecisionChanges({
+        changes: prepared.changes,
+        originalScan: scan,
+        scanOptions: decisionScanOptions(args)
+      })
+    : applyDecisionChanges({
+        changes: prepared.changes,
+        originalScan: scan,
+        scanOptions: decisionScanOptions(args)
+      }));
   if (transaction.status === "error") {
     printDecisionFailure(decisionFailure(transaction.diagnostics), io);
-    return 1;
+    return {
+      committed: false,
+      exitCode: 1,
+      outcome: transaction.outcome
+    };
   }
   const updatedScan = await scanDecisionRecords(decisionScanOptions(args));
   const updatedValidation = await validateDecisionScan(updatedScan, {
@@ -407,17 +650,76 @@ async function applyLifecycle(
       ),
       io
     );
-    return 1;
+    return {
+      committed: transaction.changed,
+      exitCode: 1,
+      outcome: "partial-or-unknown"
+    };
   }
-  io.stdout(`${prepared.message}\n`);
-  printCandidateWarnings(
-    updatedScan.records
-      .filter((record) => record.activationCandidate)
-      .sort(compareDecisionRecords)
-      .map((record) => record.sourcePath),
-    io
+  if (!deferSuccessOutput) {
+    io.stdout(`${prepared.message}\n`);
+    printCandidateWarnings(
+      updatedScan.records
+        .filter((record) => record.activationCandidate)
+        .sort(compareDecisionRecords)
+        .map((record) => record.sourcePath),
+      io
+    );
+  }
+  return {
+    committed: transaction.changed,
+    exitCode: 0,
+    outcome: "no-change"
+  };
+}
+
+function noChangeLifecycleResult(): LockedLifecycleOperationResult {
+  return { committed: false, exitCode: 1, outcome: "no-change" };
+}
+
+function lifecycleLockFailure(error: unknown) {
+  const transaction = decisionTransactionLockFailure(error);
+  const operation = lockedLifecycleOperationResult(
+    error instanceof DecisionCollectionLockError ? error.operationResult : null
   );
-  return 0;
+  if (
+    error instanceof DecisionCollectionLockError &&
+    error.kind === "release-failed" &&
+    operation !== null
+  ) {
+    const outcome = operation.committed
+      ? "committed-cleanup-pending"
+      : operation.outcome;
+    const diagnostics = transaction.diagnostics.map((diagnostic) => ({
+      ...diagnostic,
+      outcome
+    }));
+    return {
+      ...transaction,
+      diagnostics,
+      errors: diagnostics.map((diagnostic) => diagnostic.reason),
+      outcome
+    };
+  }
+  return transaction;
+}
+
+function lockedLifecycleOperationResult(
+  value: unknown
+): LockedLifecycleOperationResult | null {
+  if (value === null || typeof value !== "object") return null;
+  const result = value as Partial<LockedLifecycleOperationResult>;
+  if (
+    typeof result.committed !== "boolean" ||
+    typeof result.exitCode !== "number" ||
+    (result.outcome !== "committed-cleanup-pending" &&
+      result.outcome !== "no-change" &&
+      result.outcome !== "partial-or-unknown" &&
+      result.outcome !== "rolled-back")
+  ) {
+    return null;
+  }
+  return result as LockedLifecycleOperationResult;
 }
 
 function lifecyclePreflightFailure(
@@ -488,6 +790,8 @@ async function runCommand(
       return await runList(args, io);
     case "mark-aligned":
       return await runMarkAligned(args, io);
+    case "new":
+      return await runNew(args, io);
     case "show":
       return await runShow(args, io);
     case "show-candidate":

@@ -62,19 +62,19 @@ relations: []
 2. 标题和三项摘要是 4 至 100 个 Unicode 码点的单行文本；摘要不得引入正文没有表达的独立含义。
 3. 正文只使用依次排列的“目的”“背景”“决策”二级章节，不重复一级标题、摘要或关系。决策至少包含一个非空“采用”。
 4. 已建立记录只能直接进行不改变目的、范围、关键背景、采用方向或核心理由的编辑性修正。语义变化通过新记录和真实演进关系表达。
-5. 候选必须已完整到可审核；半成品不写入决策根目录。候选可在审核前原地修改，合法候选关系同正文一起审核。
+5. candidate scaffold 必须具有合法身份、位置、frontmatter、tags、关系语法和依次排列的三个固定章节；三个章节内容可以暂为空。`bodyReady` 仅在三个章节均有非空内容且“决策”含非空“采用”时成立。CLI 不保存“已审核”或“可建立”状态，也不以机械正文条件替代语义审核与建立授权。
 
 ## 生命周期与对齐
 
 | 状态 | 含义 |
 | --- | --- |
-| `candidate + alignment: null + createdAt: null` | 结构和内容完整、可审核，尚未建立；不进入正式索引。 |
+| `candidate + alignment: null + createdAt: null` | 结构合法 scaffold 或 body-ready candidate，尚未建立；不进入正式索引。 |
 | `active + aligned` | 已确认并进入当前集合，完整方向已成为当前事实并通过核对。 |
 | `active + unaligned` | 已确认并进入当前集合，作为未来方向约束相关选择；这是正常状态，不表示失败、待办或实施授权。 |
 | `archived + aligned/unaligned` | 不再作为当前依据，保留最后对齐状态与演进历史。 |
 | 历史 `archived + alignment: null` | 只表示归档前事实关系未知。 |
 
-1. `activate` 是审核与建立边界：首次建立把完整候选改为 active，选择非空 alignment 并写入不可变 createdAt。Git 提交、暂存或历史不参与建立状态。
+1. `activate` 是审核与建立边界：首次建立只接受 body-ready candidate，把它改为 active，选择非空 alignment 并写入不可变 createdAt。建立前 agent 仍须完成语义审核和当前授权判断。Git 提交、暂存或历史不参与建立状态。
 2. alignment 始终作用于整条决策。只有完整方向成为当前事实并完成核对后才能从 unaligned 标记为 aligned；不得添加部分对齐状态。
 3. 可分别修订、归档或对齐的部分说明原记录过粗，必须以闭合拆分建立自包含后继。不可独立演进的局部落地不改变整条记录的 unaligned 状态。
 4. 已对齐记录后来与当前事实偏离时报告一致性问题，不改回 unaligned。新的未来目标使用新记录。
@@ -93,7 +93,7 @@ relations:
 
 1. `修订` 保留主体方向并改变一部分；`替代` 以完整新判断取代前序；`判定无效` 表明前序依据不成立；`归并` 整合多个前序；`拆分` 把过粗前序重建为多个可独立使用的后继；`重划` 把多个直接前序的长期含义按新的 owner 边界重新分配给多个自包含后继。
 2. 每个 target 是合法 Decision ID，只出现一次，不自环、不成环。关系只保存语义演进，不作为分类、引用列表、任务依赖或实施映射。
-3. 候选关系做类型、ID、重复、自环和目标可解析性前瞻检查，但在建立前不进入正式图，也不要求活动前序提前归档。
+3. 候选关系做类型、ID、重复、自环和目标可解析性前瞻检查，但在建立前不进入正式图，也不要求活动前序提前归档。scaffold 可以继续编辑或 discard；只有 body-ready candidate 能成为 activate/evolve 的后继。
 4. `evolve` 通过重复 `--successor <alignment=decision-id>` 显式选择完整后继集合。推荐由每个候选在自身 `relations` 中声明来源边，尤其适用于后继来源不同的稀疏重划。调用方也可用重复 `--relation <type=decision-id>` 完整替换每个所选后继的关系，或以 `--clear-relations` 表达显式空集合；三种意图不追加、不合并、不互相推断。`--relation` 不因选择重划自动无效，但它对所有所选后继给出同一完整关系集合，最终图仍必须满足本节的策略规则。
 5. CLI 对最终关系图执行以下形状与集合闭合检查：
    - 非拆分、非重划的有效最终关系只允许一个所选后继；全部为归并时至少含两个不同前序。
@@ -106,7 +106,7 @@ relations:
 ## 维护不变量
 
 1. 当前指令明确授权起草候选，或足以确认长期判断和维护范围时，才在相应边界内写入；新增记录或改变状态前告知用户将改变的判断和集合。
-2. 候选、编辑性正文修正和 tags 可直接修改权威 Markdown；生命周期、对齐、归档和丢弃使用 CLI。已建立 Markdown 的手工修改后同步索引，并在维护或验收前运行严格 check。
+2. 新候选优先使用 `new` 的显式 metadata 创建；它在集合锁内以原子不覆盖方式发布，不改变正式索引或生命周期。candidate 正文和 tags 可直接修改权威 Markdown；生命周期、对齐、归档和丢弃使用 CLI。已建立 Markdown 的手工修改后同步索引，并在维护或验收前运行严格 check。
 3. Git `HEAD` 只用于在保留独立决策历史前要求再次确认，以及删除已记录决策的机械门禁；不参与候选、建立、生效、对齐或索引成员判断。在 Git 工作树中，尚无首次提交的 unborn `HEAD` 按空 Git `HEAD` 基线处理。可用 Git `HEAD` 基线中，单独 `archive` 的目标，以及本次关系事务中所选后继完整最终关系集里的每个已建立直接前序（relation target），只要尚未进入 Git `HEAD`，CLI 就暂停且不写入；无论前序是 active 还是 archived，调用方都必须以 `--keep-unrecorded-history` 显式确认后才可继续。该判断不使用形成时间。在 Git 工作树外没有这个确认门；但 stage 仍需要其自身的版本控制前提。
 4. `discard` 删除完整、结构有效且在删除后的最终集合中无剩余引用的 candidate、active 或 archived 决策。它既可直接运行，也可通过 `evolve --discard <decision-id>` 与后继建立、最终关系修改和索引重建处于同一事务；被删除 ID 不能同时作为后继，所选后继的最终关系也不得保留该 ID。`evolve` 仍遵循普通演进的关系形状、闭包和最终图验证，不增加只适用于删除的后继数量、状态、前序或显式空关系限制。删除的 Decision ID 已进入 Git `HEAD` 时，未带 `--delete-recorded-decision` 的调用在其余删除条件和演进最终图都已通过后 attention 且零写入；带该参数即为明确的机械删除选择，不会为 discard 自身重复读取 Git `HEAD`，但不绕过同次 `evolve` 最终关系的独立 `--keep-unrecorded-history` 预检。非 Git 工作树、unborn `HEAD` 或 ID 未进入 `HEAD` 时正常删除；无参数且 `HEAD` 不可读取时 fail closed。调用方不主动预检 Git，只响应 CLI 实际提示。
 5. `stage` 只是 Git pending 状态转换，不改变决策生命周期。`sourcePath` 变化是位置变化，stage 选择一次对应 ID 即可。stage 不从差异推断 basename 改名意图：只选新 ID 表示新增，只选旧 ID 表示删除，同时选旧、新 ID 才表达改名。生命周期移动、关系维护和 stage 都应在写前拒绝 revision、pending 或所选来源漂移。
@@ -118,9 +118,9 @@ relations:
 2. entry 与 source revision 以 Decision ID 为键。state 保存 sourcePath、tags、status、alignment、createdAt、摘要和关系；source revision 覆盖规范 ID、sourcePath 与规范 Markdown 内容。
 3. 索引 keys 为多值 exact `tag`、exact `status` 和 exact `alignment`。`list` 默认 active；重复 `--tag` 的 AND 过滤要求每个 tag 都匹配。当前查询不推断分类，也不提供 OR、NOT、层级、别名或权重。
 4. `show` 从索引按 ID 定位，只读取目标 Markdown 正文。`trace`、关系、生命周期和 stage 使用 ID；输出显示 ID、sourcePath 与 tags。
-5. candidates 与 show-candidate 直接扫描根目录源码：单条非法 Markdown 产生 warning 并跳过，显式目标自身非法则失败；根目录、成员边界或已建立集合的索引前提错误属于集合级错误。候选始终排除于正式索引。
+5. candidates 与 show-candidate 直接扫描根目录源码，显示 `scaffoldValid` 与 `bodyReady`：单条非法 Markdown 产生 warning 并跳过，显式目标自身非法则失败；根目录、成员边界或已建立集合的索引前提错误属于集合级错误。合法 scaffold 与 body-ready candidate 都排除于正式索引。
 6. 索引缺失、损坏或陈旧时只能由权威 Markdown 重建，不能反向补造 Markdown 事实。常规查询读取结构有效的持久索引，不在每次查询前重扫整个集合。
-7. `sync-index` 与关系、生命周期和丢弃事务共用集合 mutation lock；完整扫描、验证和索引写入都在锁内完成。锁冲突时命令零写入失败并要求在当前事务结束后重试。`check` 与查询保持只读；`stage` 只写 Git pending，不参与工作树集合锁。
+7. `new`、`sync-index` 与关系、生命周期和丢弃事务共用集合 mutation lock；`new` 在锁内重读身份并原子、不覆盖地发布完整 scaffold。锁冲突时命令零写入失败并要求在当前事务结束后重试。`check`、查询与 `activate/evolve --preflight` 保持只读；preflight 不保存 receipt 或确认，正式命令必须独立重新扫描、读取 Git 和验证参数。`stage` 只写 Git pending，不参与工作树集合锁。
 
 ## CLI 诊断与 mutation 恢复
 
@@ -141,6 +141,6 @@ CLI 成功信息写入 stdout；失败、暂停和 warning 立即写入 stderr�
 
 ## 验证
 
-1. `check` 验证 Markdown、ID、tags、位置与状态、关系、索引结构、新鲜度、成员一致性及候选前瞻性结构，并计数合法候选。
+1. `check` 验证 Markdown、ID、tags、位置与状态、关系、索引结构、新鲜度、成员一致性及候选前瞻性结构，并分别计数合法 scaffold 与 body-ready candidate；合法 scaffold 留在索引外不构成错误。
 2. Agent 另行检查记录门槛、tags 是否有正文依据、摘要与正文一致性、关系是否确属直接前序、拆分或重划后继是否覆盖前序继续有效的长期含义，以及对齐是否有完整当前事实证据。
 3. 工具、索引或写入恢复出现普通诊断无法解释的故障时，停止猜测并读取 [维护恢复](maintenance-recovery.md)。

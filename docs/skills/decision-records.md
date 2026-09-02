@@ -10,7 +10,7 @@
 
 最小模型如下：
 
-1. `candidate` 是内容完整、等待审核的候选判断，尚未进入正式集合。
+1. `candidate` 是尚未进入正式集合的判断；它可以先是结构合法 scaffold，正文完成后才成为 mechanically body-ready candidate。CLI readiness 不替代语义审核或建立授权。
 2. `active + aligned` 是已核对并成为当前事实的基线。
 3. `active + unaligned` 是已确认但尚未成为当前事实的未来方向。这是正常状态，不表示失败、待办或实施授权；只有当前任务明确纳入相应交付时才实施。
 4. `archived` 退出当前依据，但保留最后对齐状态和演进历史。
@@ -25,6 +25,8 @@
 `discard` 统一删除完整且无剩余引用的 candidate、active 或 archived 决策；`evolve --discard <decision-id>` 将同一删除动作放入关系事务。删除对象已经进入 Git `HEAD` 时，首次调用零写入暂停，并要求在重试中加入 `--delete-recorded-decision`；该参数是明确的机械删除选择，不要求事前自行检查 Git。适用条件和影响由固定规则与 CLI 唯一承接。
 
 ## 运行时诊断与恢复
+
+`new` 只从显式 metadata 创建一个不覆盖的 scaffold；创建路径写 stdout，结构 readiness 与后续编辑动作写 stderr，正文未完成或未提供 alignment 预演不会把已创建结果伪装成失败。`activate --preflight` 与 `evolve --preflight` 只读取当前选择并不保存确认；正式命令始终重新验证当前参数、来源和 Git 状态。
 
 CLI 成功信息写入 stdout；失败、暂停和 warning 在 stderr 即时给出。诊断会指出 code、对象、
 原因和下一步；只有有可靠系统证据时才补充原因类别和经过净化的 detail。它不保存运行日志、

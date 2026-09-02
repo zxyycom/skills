@@ -446,18 +446,20 @@ async function scanSourceFile(
       sourceFile.sourcePath + " status must match its physical sourcePath"
     );
   }
-  const activationCandidate =
+  const scaffoldValid =
     validDecisionId &&
     recordErrors.length === 0 &&
     indexEntry === null &&
     sourceDocument?.status === "candidate" &&
     sourceDocument.alignment === null &&
     sourceDocument.createdAt === null;
-  if (sourceDocument?.status === "candidate" && !activationCandidate) {
+  const bodyReady = scaffoldValid && sourceDocument?.bodyReady === true;
+  const activationCandidate = bodyReady;
+  if (sourceDocument?.status === "candidate" && !scaffoldValid) {
     recordErrors.push(
       sourceFile.sourcePath +
-        " candidate status is allowed only for a complete, " +
-        "unindexed, current-format new Decision ID"
+        " candidate status is allowed only for an unindexed, " +
+        "current-format Decision scaffold"
     );
   }
 
@@ -478,7 +480,7 @@ async function scanSourceFile(
   const source =
     recordErrors.length > 0 || sourceDocument === null
       ? { kind: "invalid" as const, text: sourceText }
-      : activationCandidate
+      : scaffoldValid
         ? {
             body: sourceDocument.body,
             document: {
@@ -519,6 +521,8 @@ async function scanSourceFile(
   context.sourceErrors.push(...recordErrors);
   return {
     activationCandidate,
+    bodyReady,
+    scaffoldValid,
     alignment: sourceDocument?.alignment ?? null,
     createdAt: sourceDocument?.createdAt ?? null,
     decisionId: sourceFile.decisionId,
@@ -546,6 +550,8 @@ function invalidDecisionRecord(
 ): DecisionRecord {
   return {
     activationCandidate: false,
+    bodyReady: false,
+    scaffoldValid: false,
     alignment: null,
     createdAt: null,
     decisionId: sourceFile.decisionId,
@@ -608,6 +614,8 @@ function recordFromIndexEntry(options: {
   const state = entry.state;
   return {
     activationCandidate: false,
+    bodyReady: false,
+    scaffoldValid: false,
     alignment: state.alignment,
     createdAt: state.createdAt,
     decisionId,

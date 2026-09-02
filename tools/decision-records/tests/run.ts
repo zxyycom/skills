@@ -10,6 +10,7 @@ await import("./configured-decision-directory.test.ts");
 await import("./cli-args.test.ts");
 await import("./index-maintenance.test.ts");
 await import("./candidate-lifecycle.test.ts");
+await import("./candidate-scaffold.test.ts");
 await import("./activation-archive.test.ts");
 await import("./relation-validation.test.ts");
 await import("./evolution.test.ts");

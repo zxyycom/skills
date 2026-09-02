@@ -1,6 +1,6 @@
 ---
 title: 将可审核候选与已建立决策分离
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-29T15:42:46Z
 purpose: 让完整决策方向在正式建立前可收敛和等待审核，而不冒充当前决策。

@@ -40,6 +40,7 @@ import { scanDecisionRecords } from "./scan.ts";
 import {
   compareDecisionRecords,
   isActivationCandidateRecord,
+  isDecisionCandidateRecord,
   type DecisionAlignment,
   type DecisionCandidateRecord,
   type DecisionId,
@@ -110,10 +111,12 @@ export type IndexedDecisionRecord = {
 
 export type CandidateDecisionRecord = {
   alignment: null;
+  bodyReady: boolean;
   createdAt: null;
   decisionId: DecisionId;
   projection: DecisionProjection;
   sourcePath: DecisionSourcePath;
+  scaffoldValid: true;
   status: "candidate";
   tags: DecisionTag[];
 };
@@ -129,9 +132,11 @@ export type DecisionQuerySuccess =
         DecisionValidationResult,
         | "activeCount"
         | "activationCandidateCount"
+        | "bodyReadyCandidateCount"
         | "alignedCount"
         | "archivedCount"
         | "decisionCount"
+        | "scaffoldCandidateCount"
         | "unalignedCount"
       >;
     })
@@ -210,7 +215,8 @@ async function checkDecisionRecords(
   location: DecisionLocation
 ): Promise<DecisionQueryResult> {
   const { result } = await loadDecisionValidationContext(
-    decisionScanOptions(location)
+    decisionScanOptions(location),
+    { allowEmptyDecisionSet: true }
   );
   if (result.errors.length > 0) {
     return decisionFailure(result.errors);
@@ -221,9 +227,11 @@ async function checkDecisionRecords(
     summary: {
       activeCount: result.activeCount,
       activationCandidateCount: result.activationCandidateCount,
+      bodyReadyCandidateCount: result.bodyReadyCandidateCount,
       alignedCount: result.alignedCount,
       archivedCount: result.archivedCount,
       decisionCount: result.decisionCount,
+      scaffoldCandidateCount: result.scaffoldCandidateCount,
       unalignedCount: result.unalignedCount
     },
     warnings: []
@@ -327,12 +335,12 @@ async function showDecisionCandidate(
               reason:
                 "Decision candidate does not exist: " + request.decisionId,
               recovery:
-                "Use candidates to choose a reviewable Decision ID, then retry the command.",
+                "Use candidates to choose a valid candidate Decision ID, then retry the command.",
               target: request.decisionId
             })
           ]
         : [
-            "Decision source is not a valid reviewable candidate: " +
+            "Decision source is not a valid candidate scaffold: " +
               request.decisionId,
             ...targetWarnings
           ],
@@ -543,14 +551,18 @@ function activationCandidates(scan: DecisionScan): DecisionCandidateRecord[] {
 }
 
 function candidateRecords(scan: DecisionScan): CandidateDecisionRecord[] {
-  return activationCandidates(scan)
+  return scan.records
+    .filter(isDecisionCandidateRecord)
+    .sort(compareDecisionRecords)
     .filter((record) => record.relationshipErrors.length === 0)
     .map((record) => ({
       alignment: null,
+      bodyReady: record.bodyReady,
       createdAt: null,
       decisionId: record.decisionId,
       projection: record.projection,
       sourcePath: record.sourcePath,
+      scaffoldValid: true,
       status: "candidate",
       tags: [...record.tags]
     }));

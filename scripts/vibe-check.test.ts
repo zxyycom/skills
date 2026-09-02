@@ -404,6 +404,7 @@ const expectedSemanticGateChecks = [
     [
       "./tools/decision-records/tests/activation-archive.test.ts",
       "./tools/decision-records/tests/candidate-lifecycle.test.ts",
+      "./tools/decision-records/tests/candidate-scaffold.test.ts",
       "./tools/decision-records/tests/evolution.test.ts",
       "./tools/decision-records/tests/lifecycle-relations.test.ts",
       "./tools/decision-records/tests/transaction-recovery.test.ts",
@@ -801,7 +802,7 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
   const semanticFiles = expectedSemanticGateChecks.flatMap(
     ([, , , files]) => files
   );
-  assert.equal(semanticFiles.length, 59);
+  assert.equal(semanticFiles.length, 60);
   assert.equal(new Set(semanticFiles).size, semanticFiles.length);
   for (const tool of [
     "change-plan",

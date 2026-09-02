@@ -1568,7 +1568,7 @@
     "DECISION-CANDIDATE-ACTIVATION-SELECTION-001": {
       "keys": {
         "search": [
-          "DECISION-CANDIDATE-ACTIVATION-SELECTION-001 源码查询发现候选且激活只索引审核目标 多个结构完整的显式候选可以等待审核，并由源码查询发现；单条非法源码只被跳过并产生 warning，显式查看该非法目标时失败。Activate 只建立显式审核目标，正式索引始终排除其余候选。 存在一条结构非法的同级源码时，`candidates` 仍成功发现两个合法候选并报告带路径的 warning；`show-candidate` 仍能展示合法目标的 `candidate + null alignment + null createdAt`，显式查看非法目标时返回目标路径和具体结构诊断。 移除非法源码后，严格检查成功并计数合法候选。 第一次激活只索引目标并提醒剩余候选；普通 list 仍只读正式索引，sync-index 继续排除并提醒候选。 第二次激活后两个审核目标都进入正式索引，严格检查保持通过。 tools/decision-records/tests/candidate-lifecycle.test.ts > candidate queries discover source records while activation indexes only reviewed targets bun test --test-name-pattern=\"^candidate queries discover source records while activation indexes only reviewed targets$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CANDIDATE-ACTIVATION-SELECTION-001 源码查询发现候选且激活只索引审核目标 多个合法 candidate scaffold 可以等待正文与审核，并由源码查询发现；单条非法源码只被跳过并产生 warning，显式查看该非法目标时失败。Activate 只建立显式选择的 body-ready 目标，正式索引始终排除其余候选。 存在一条结构非法的同级源码时，`candidates` 仍成功发现两个合法候选并报告带路径的 warning；`show-candidate` 仍能展示合法目标的 `candidate + null alignment + null createdAt`，显式查看非法目标时返回目标路径和具体结构诊断。 移除非法源码后，严格检查成功并分别计数合法 scaffold 与 body-ready candidate。 第一次激活只索引目标并提醒剩余 candidate scaffold；普通 list 仍只读正式索引，sync-index 继续排除并提醒候选。 第二次激活后两个审核目标都进入正式索引，严格检查保持通过。 tools/decision-records/tests/candidate-lifecycle.test.ts > candidate queries discover source records while activation indexes only reviewed targets bun test --test-name-pattern=\"^candidate queries discover source records while activation indexes only reviewed targets$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1582,9 +1582,9 @@
         ],
         "id": "DECISION-CANDIDATE-ACTIVATION-SELECTION-001",
         "line": 1,
-        "searchText": "源码查询发现候选且激活只索引审核目标 多个结构完整的显式候选可以等待审核，并由源码查询发现；单条非法源码只被跳过并产生 warning，显式查看该非法目标时失败。Activate 只建立显式审核目标，正式索引始终排除其余候选。 存在一条结构非法的同级源码时，`candidates` 仍成功发现两个合法候选并报告带路径的 warning；`show-candidate` 仍能展示合法目标的 `candidate + null alignment + null createdAt`，显式查看非法目标时返回目标路径和具体结构诊断。 移除非法源码后，严格检查成功并计数合法候选。 第一次激活只索引目标并提醒剩余候选；普通 list 仍只读正式索引，sync-index 继续排除并提醒候选。 第二次激活后两个审核目标都进入正式索引，严格检查保持通过。 tools/decision-records/tests/candidate-lifecycle.test.ts > candidate queries discover source records while activation indexes only reviewed targets bun test --test-name-pattern=\"^candidate queries discover source records while activation indexes only reviewed targets$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "源码查询发现候选且激活只索引审核目标 多个合法 candidate scaffold 可以等待正文与审核，并由源码查询发现；单条非法源码只被跳过并产生 warning，显式查看该非法目标时失败。Activate 只建立显式选择的 body-ready 目标，正式索引始终排除其余候选。 存在一条结构非法的同级源码时，`candidates` 仍成功发现两个合法候选并报告带路径的 warning；`show-candidate` 仍能展示合法目标的 `candidate + null alignment + null createdAt`，显式查看非法目标时返回目标路径和具体结构诊断。 移除非法源码后，严格检查成功并分别计数合法 scaffold 与 body-ready candidate。 第一次激活只索引目标并提醒剩余 candidate scaffold；普通 list 仍只读正式索引，sync-index 继续排除并提醒候选。 第二次激活后两个审核目标都进入正式索引，严格检查保持通过。 tools/decision-records/tests/candidate-lifecycle.test.ts > candidate queries discover source records while activation indexes only reviewed targets bun test --test-name-pattern=\"^candidate queries discover source records while activation indexes only reviewed targets$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/candidate-queries-discover-source-records-while-activation-indexes-only-reviewed-targets.md",
-        "summary": "多个结构完整的显式候选可以等待审核，并由源码查询发现；单条非法源码只被跳过并产生 warning，显式查看该非法目标时失败。Activate 只建立显式审核目标，正式索引始终排除其余候选。",
+        "summary": "多个合法 candidate scaffold 可以等待正文与审核，并由源码查询发现；单条非法源码只被跳过并产生 warning，显式查看该非法目标时失败。Activate 只建立显式选择的 body-ready 目标，正式索引始终排除其余候选。",
         "title": "源码查询发现候选且激活只索引审核目标"
       }
     },
@@ -1798,7 +1798,7 @@
     "DECISION-CANDIDATE-FIRST-DISCOVERY-001": {
       "keys": {
         "search": [
-          "DECISION-CANDIDATE-FIRST-DISCOVERY-001 首个候选无需既有索引即可发现 真正没有 established records 且没有 index 时，首个完整 candidate 仍可从来源发现。 仅有一条 candidate 的 workspace 返回该候选。 tools/decision-records/tests/candidate-lifecycle.test.ts > first candidate discovery succeeds with no established records and no index bun test --test-name-pattern=\"^first candidate discovery succeeds with no established records and no index$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CANDIDATE-FIRST-DISCOVERY-001 首个候选无需既有索引即可发现 真正没有 established records 且没有 index 时，首个合法 candidate scaffold 仍可从来源发现。 仅有一条 candidate 的 workspace 返回该候选。 tools/decision-records/tests/candidate-lifecycle.test.ts > first candidate discovery succeeds with no established records and no index bun test --test-name-pattern=\"^first candidate discovery succeeds with no established records and no index$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1812,9 +1812,9 @@
         ],
         "id": "DECISION-CANDIDATE-FIRST-DISCOVERY-001",
         "line": 1,
-        "searchText": "首个候选无需既有索引即可发现 真正没有 established records 且没有 index 时，首个完整 candidate 仍可从来源发现。 仅有一条 candidate 的 workspace 返回该候选。 tools/decision-records/tests/candidate-lifecycle.test.ts > first candidate discovery succeeds with no established records and no index bun test --test-name-pattern=\"^first candidate discovery succeeds with no established records and no index$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "首个候选无需既有索引即可发现 真正没有 established records 且没有 index 时，首个合法 candidate scaffold 仍可从来源发现。 仅有一条 candidate 的 workspace 返回该候选。 tools/decision-records/tests/candidate-lifecycle.test.ts > first candidate discovery succeeds with no established records and no index bun test --test-name-pattern=\"^first candidate discovery succeeds with no established records and no index$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/first-candidate-no-index.md",
-        "summary": "真正没有 established records 且没有 index 时，首个完整 candidate 仍可从来源发现。",
+        "summary": "真正没有 established records 且没有 index 时，首个合法 candidate scaffold 仍可从来源发现。",
         "title": "首个候选无需既有索引即可发现"
       }
     },
@@ -1862,6 +1862,121 @@
         "sourcePath": "decision-records/candidates-require-current-index.md",
         "summary": "已存在 established records 时，candidates collection 必须拒绝缺失、无效或来源漂移的 index。",
         "title": "已建立记录要求当前有效索引"
+      }
+    },
+    "DECISION-CANDIDATE-LOCKED-READINESS-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-LOCKED-READINESS-001 正式生命周期在集合锁内重读候选 readiness 非 preflight 的候选建立在取得集合锁后必须重扫并重新准备，不能沿用锁前的 body readiness。 测试在锁已取得后将 body-ready candidate 变回空固定章节。 正式 activate 拒绝该 candidate，且不生成正式索引。 tools/decision-records/tests/candidate-scaffold.test.ts > formal lifecycle re-reads candidate readiness after acquiring the collection lock bun test --test-name-pattern=\"^formal lifecycle re-reads candidate readiness after acquiring the collection lock$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/candidate-scaffold.test.ts > formal lifecycle re-reads candidate readiness after acquiring the collection lock",
+          "bun test --test-name-pattern=\"^formal lifecycle re-reads candidate readiness after acquiring the collection lock$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-LOCKED-READINESS-001",
+        "line": 1,
+        "searchText": "正式生命周期在集合锁内重读候选 readiness 非 preflight 的候选建立在取得集合锁后必须重扫并重新准备，不能沿用锁前的 body readiness。 测试在锁已取得后将 body-ready candidate 变回空固定章节。 正式 activate 拒绝该 candidate，且不生成正式索引。 tools/decision-records/tests/candidate-scaffold.test.ts > formal lifecycle re-reads candidate readiness after acquiring the collection lock bun test --test-name-pattern=\"^formal lifecycle re-reads candidate readiness after acquiring the collection lock$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/formal-lifecycle-re-reads-candidate-readiness-after-acquiring-the-collection-lock.md",
+        "summary": "非 preflight 的候选建立在取得集合锁后必须重扫并重新准备，不能沿用锁前的 body readiness。",
+        "title": "正式生命周期在集合锁内重读候选 readiness"
+      }
+    },
+    "DECISION-CANDIDATE-LOCKED-RELEASE-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-LOCKED-RELEASE-001 正式生命周期在锁释放失败时报告已提交待清理 正式候选建立已写入后，集合锁释放失败不能输出成功；诊断必须如实说明提交已发生但清理待处理。 activate 退出 1、stdout 不含成功消息，stderr 报告 `committed-cleanup-pending` 与 lock release 诊断。 正式索引仍存在，证明诊断没有错误宣称零写入。 tools/decision-records/tests/candidate-scaffold.test.ts > formal lifecycle reports committed cleanup instead of success when lock release fails bun test --test-name-pattern=\"^formal lifecycle reports committed cleanup instead of success when lock release fails$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/candidate-scaffold.test.ts > formal lifecycle reports committed cleanup instead of success when lock release fails",
+          "bun test --test-name-pattern=\"^formal lifecycle reports committed cleanup instead of success when lock release fails$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-LOCKED-RELEASE-001",
+        "line": 1,
+        "searchText": "正式生命周期在锁释放失败时报告已提交待清理 正式候选建立已写入后，集合锁释放失败不能输出成功；诊断必须如实说明提交已发生但清理待处理。 activate 退出 1、stdout 不含成功消息，stderr 报告 `committed-cleanup-pending` 与 lock release 诊断。 正式索引仍存在，证明诊断没有错误宣称零写入。 tools/decision-records/tests/candidate-scaffold.test.ts > formal lifecycle reports committed cleanup instead of success when lock release fails bun test --test-name-pattern=\"^formal lifecycle reports committed cleanup instead of success when lock release fails$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/formal-lifecycle-reports-committed-cleanup-instead-of-success-when-lock-release-fails.md",
+        "summary": "正式候选建立已写入后，集合锁释放失败不能输出成功；诊断必须如实说明提交已发生但清理待处理。",
+        "title": "正式生命周期在锁释放失败时报告已提交待清理"
+      }
+    },
+    "DECISION-CANDIDATE-NEW-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-NEW-001 New 创建规范未完成 scaffold 且不建立记录 `new` 从显式规范输入以稳定 field/tag 顺序创建不覆盖 scaffold；创建成功、正文 readiness 与正式建立必须分开报告。 创建退出 0，stdout 报告路径与未发生的 lifecycle/index 变化，stderr 报告 scaffold/body readiness、后续动作且不附会 mutation outcome。 新 Markdown 具有 candidate lifecycle、空固定正文和排序 tags；没有正式索引。 candidates 与严格 check 分别显示 scaffold/body readiness 计数。 重复 identity 退出 1 且保留原字节；非法 ID 退出 2 且不创建路径。 tools/decision-records/tests/candidate-scaffold.test.ts > new creates a canonical incomplete scaffold without entering the established collection bun test --test-name-pattern=\"^new creates a canonical incomplete scaffold without entering the established collection$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/decision-records/tests/candidate-scaffold.test.ts > new creates a canonical incomplete scaffold without entering the established collection",
+          "bun test --test-name-pattern=\"^new creates a canonical incomplete scaffold without entering the established collection$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-NEW-001",
+        "line": 1,
+        "searchText": "New 创建规范未完成 scaffold 且不建立记录 `new` 从显式规范输入以稳定 field/tag 顺序创建不覆盖 scaffold；创建成功、正文 readiness 与正式建立必须分开报告。 创建退出 0，stdout 报告路径与未发生的 lifecycle/index 变化，stderr 报告 scaffold/body readiness、后续动作且不附会 mutation outcome。 新 Markdown 具有 candidate lifecycle、空固定正文和排序 tags；没有正式索引。 candidates 与严格 check 分别显示 scaffold/body readiness 计数。 重复 identity 退出 1 且保留原字节；非法 ID 退出 2 且不创建路径。 tools/decision-records/tests/candidate-scaffold.test.ts > new creates a canonical incomplete scaffold without entering the established collection bun test --test-name-pattern=\"^new creates a canonical incomplete scaffold without entering the established collection$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/new-creates-a-canonical-incomplete-scaffold-without-entering-the-established-collection.md",
+        "summary": "`new` 从显式规范输入以稳定 field/tag 顺序创建不覆盖 scaffold；创建成功、正文 readiness 与正式建立必须分开报告。",
+        "title": "New 创建规范未完成 scaffold 且不建立记录"
+      }
+    },
+    "DECISION-CANDIDATE-NEW-LOCK-RELEASE-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-NEW-LOCK-RELEASE-001 New 在锁清理失败后保留已创建 scaffold `new` 已原子发布 scaffold 后若集合锁释放失败，必须报告已提交但待清理，不能误报零写入或覆盖该身份。 CLI 退出 1 并保留已创建 scaffold 的 stdout 路径。 stderr 使用 collection lock release 的结构化诊断及 `committed-cleanup-pending` outcome。 tools/decision-records/tests/candidate-scaffold.test.ts > new preserves its created scaffold when collection lock cleanup fails bun test --test-name-pattern=\"^new preserves its created scaffold when collection lock cleanup fails$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/candidate-scaffold.test.ts > new preserves its created scaffold when collection lock cleanup fails",
+          "bun test --test-name-pattern=\"^new preserves its created scaffold when collection lock cleanup fails$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-NEW-LOCK-RELEASE-001",
+        "line": 1,
+        "searchText": "New 在锁清理失败后保留已创建 scaffold `new` 已原子发布 scaffold 后若集合锁释放失败，必须报告已提交但待清理，不能误报零写入或覆盖该身份。 CLI 退出 1 并保留已创建 scaffold 的 stdout 路径。 stderr 使用 collection lock release 的结构化诊断及 `committed-cleanup-pending` outcome。 tools/decision-records/tests/candidate-scaffold.test.ts > new preserves its created scaffold when collection lock cleanup fails bun test --test-name-pattern=\"^new preserves its created scaffold when collection lock cleanup fails$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/new-preserves-its-created-scaffold-when-collection-lock-cleanup-fails.md",
+        "summary": "`new` 已原子发布 scaffold 后若集合锁释放失败，必须报告已提交但待清理，不能误报零写入或覆盖该身份。",
+        "title": "New 在锁清理失败后保留已创建 scaffold"
+      }
+    },
+    "DECISION-CANDIDATE-PREFLIGHT-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-PREFLIGHT-001 Lifecycle preflight 只读且要求 body-ready candidate scaffold 不能通过 lifecycle 建立；body-ready candidate 的 preflight 必须零写入，正式 activate 必须独立执行建立。 未完成 scaffold 的 activate preflight 失败且 Markdown 不变。 body-ready candidate 的 activate preflight 成功、不写 Markdown 或索引，并明确指出没有写入。 随后非 preflight activate 才创建正式索引。 tools/decision-records/tests/candidate-scaffold.test.ts > lifecycle preflight is read-only and still requires a body-ready candidate bun test --test-name-pattern=\"^lifecycle preflight is read-only and still requires a body-ready candidate$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/decision-records/tests/candidate-scaffold.test.ts > lifecycle preflight is read-only and still requires a body-ready candidate",
+          "bun test --test-name-pattern=\"^lifecycle preflight is read-only and still requires a body-ready candidate$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-PREFLIGHT-001",
+        "line": 1,
+        "searchText": "Lifecycle preflight 只读且要求 body-ready candidate scaffold 不能通过 lifecycle 建立；body-ready candidate 的 preflight 必须零写入，正式 activate 必须独立执行建立。 未完成 scaffold 的 activate preflight 失败且 Markdown 不变。 body-ready candidate 的 activate preflight 成功、不写 Markdown 或索引，并明确指出没有写入。 随后非 preflight activate 才创建正式索引。 tools/decision-records/tests/candidate-scaffold.test.ts > lifecycle preflight is read-only and still requires a body-ready candidate bun test --test-name-pattern=\"^lifecycle preflight is read-only and still requires a body-ready candidate$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/lifecycle-preflight-is-read-only-and-still-requires-a-body-ready-candidate.md",
+        "summary": "scaffold 不能通过 lifecycle 建立；body-ready candidate 的 preflight 必须零写入，正式 activate 必须独立执行建立。",
+        "title": "Lifecycle preflight 只读且要求 body-ready candidate"
       }
     },
     "DECISION-CANDIDATE-RELATION-MISSING-001": {
@@ -2005,7 +2120,7 @@
     "DECISION-CLI-ARGS-001": {
       "keys": {
         "search": [
-          "DECISION-CLI-ARGS-001 CLI 顶层帮助公开当前命令集合 顶层帮助必须准确公开默认 check、候选源码查询、直接重建正式索引和统一 evolve 协议，且不再公开独立 split 命令。 顶层帮助包含 agent-oriented 入口、默认严格检查、候选源码发现、直接重建索引、show-candidate 与 evolve 说明。 顶层命令列表不包含独立 split 命令。 tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CLI-ARGS-001 CLI 顶层帮助公开当前命令集合 顶层帮助必须准确公开默认 check、candidate scaffold 源码查询、显式 new、直接重建正式索引和统一 evolve 协议，且不再公开独立 split 命令。 顶层帮助包含 agent-oriented 入口、默认严格检查、候选 scaffold/body readiness、直接重建索引、new、show-candidate 与 evolve 说明。 顶层命令列表不包含独立 split 命令。 tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2019,9 +2134,9 @@
         ],
         "id": "DECISION-CLI-ARGS-001",
         "line": 1,
-        "searchText": "CLI 顶层帮助公开当前命令集合 顶层帮助必须准确公开默认 check、候选源码查询、直接重建正式索引和统一 evolve 协议，且不再公开独立 split 命令。 顶层帮助包含 agent-oriented 入口、默认严格检查、候选源码发现、直接重建索引、show-candidate 与 evolve 说明。 顶层命令列表不包含独立 split 命令。 tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "CLI 顶层帮助公开当前命令集合 顶层帮助必须准确公开默认 check、candidate scaffold 源码查询、显式 new、直接重建正式索引和统一 evolve 协议，且不再公开独立 split 命令。 顶层帮助包含 agent-oriented 入口、默认严格检查、候选 scaffold/body readiness、直接重建索引、new、show-candidate 与 evolve 说明。 顶层命令列表不包含独立 split 命令。 tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-cli-top-level-help-exposes-the-current-command-set.md",
-        "summary": "顶层帮助必须准确公开默认 check、候选源码查询、直接重建正式索引和统一 evolve 协议，且不再公开独立 split 命令。",
+        "summary": "顶层帮助必须准确公开默认 check、candidate scaffold 源码查询、显式 new、直接重建正式索引和统一 evolve 协议，且不再公开独立 split 命令。",
         "title": "CLI 顶层帮助公开当前命令集合"
       }
     },
@@ -2117,6 +2232,29 @@
         "title": "Evolve 要求至少一个后继参数"
       }
     },
+    "DECISION-CLI-LIFECYCLE-PREFLIGHT-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-LIFECYCLE-PREFLIGHT-001 Lifecycle preflight 保留真实选择参数 `activate` 与 `evolve` 的 preflight 必须是各自真实生命周期选择的只读模式，而不是另一套命令协议。 两个命令的帮助都公开 `--preflight`，并说明预检不写入 Markdown、派生索引或 Git pending。 tools/decision-records/tests/cli-args.test.ts > activate and evolve preflight retain their real lifecycle selection options bun test --test-name-pattern=\"^activate and evolve preflight retain their real lifecycle selection options$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > activate and evolve preflight retain their real lifecycle selection options",
+          "bun test --test-name-pattern=\"^activate and evolve preflight retain their real lifecycle selection options$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-LIFECYCLE-PREFLIGHT-001",
+        "line": 1,
+        "searchText": "Lifecycle preflight 保留真实选择参数 `activate` 与 `evolve` 的 preflight 必须是各自真实生命周期选择的只读模式，而不是另一套命令协议。 两个命令的帮助都公开 `--preflight`，并说明预检不写入 Markdown、派生索引或 Git pending。 tools/decision-records/tests/cli-args.test.ts > activate and evolve preflight retain their real lifecycle selection options bun test --test-name-pattern=\"^activate and evolve preflight retain their real lifecycle selection options$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/lifecycle-preflight-help-retains-real-selection-options.md",
+        "summary": "`activate` 与 `evolve` 的 preflight 必须是各自真实生命周期选择的只读模式，而不是另一套命令协议。",
+        "title": "Lifecycle preflight 保留真实选择参数"
+      }
+    },
     "DECISION-CLI-MARK-ALIGNED-HELP-001": {
       "keys": {
         "search": [
@@ -2138,6 +2276,29 @@
         "sourcePath": "decision-records/mark-aligned-help-requires-verified-current-facts.md",
         "summary": "Mark-aligned 的公开帮助必须把对齐建立在完整方向已成为当前事实并完成相关事实源核验之后。",
         "title": "Mark-aligned 帮助要求核验当前事实"
+      }
+    },
+    "DECISION-CLI-NEW-HELP-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-NEW-HELP-001 New 帮助固定显式 scaffold 输入 `new` 只接收创建 scaffold 所需的显式 metadata、可选直接关系和可选预演 alignment；它不得接收建立用的 `--alignment`。 帮助公开 title、purpose、background、decision、重复 tag、重复 relation 与 preflight alignment。 relation 明确声明当前 candidate 的完整直接前序集合，而不误称为已选后继的覆盖。 帮助区分 scaffold/body readiness 的机械含义，并且不公开生命周期 alignment 选项。 tools/decision-records/tests/cli-args.test.ts > new help fixes explicit scaffold inputs without accepting lifecycle alignment bun test --test-name-pattern=\"^new help fixes explicit scaffold inputs without accepting lifecycle alignment$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > new help fixes explicit scaffold inputs without accepting lifecycle alignment",
+          "bun test --test-name-pattern=\"^new help fixes explicit scaffold inputs without accepting lifecycle alignment$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-NEW-HELP-001",
+        "line": 1,
+        "searchText": "New 帮助固定显式 scaffold 输入 `new` 只接收创建 scaffold 所需的显式 metadata、可选直接关系和可选预演 alignment；它不得接收建立用的 `--alignment`。 帮助公开 title、purpose、background、decision、重复 tag、重复 relation 与 preflight alignment。 relation 明确声明当前 candidate 的完整直接前序集合，而不误称为已选后继的覆盖。 帮助区分 scaffold/body readiness 的机械含义，并且不公开生命周期 alignment 选项。 tools/decision-records/tests/cli-args.test.ts > new help fixes explicit scaffold inputs without accepting lifecycle alignment bun test --test-name-pattern=\"^new help fixes explicit scaffold inputs without accepting lifecycle alignment$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/new-help-fixes-explicit-scaffold-inputs-without-accepting-lifecycle-alignment.md",
+        "summary": "`new` 只接收创建 scaffold 所需的显式 metadata、可选直接关系和可选预演 alignment；它不得接收建立用的 `--alignment`。",
+        "title": "New 帮助固定显式 scaffold 输入"
       }
     },
     "DECISION-CLI-NODE-SMOKE-001": {
@@ -3982,7 +4143,7 @@
     "DECISION-RECORD-GUARD-IDENTITY-001": {
       "keys": {
         "search": [
-          "DECISION-RECORD-GUARD-IDENTITY-001 Record 类型守卫拒绝无效身份字段 公开的 candidate、established 和 activation record 类型守卫除 source kind 外，必须验证 Decision ID 与 sourcePath 的格式。 从真实 scan 获得的 candidate/established record 在身份字段有效时分别通过相应守卫；伪造的非法 ID 或非法 sourcePath 均被拒绝，activation 守卫也不会接受该 candidate。 tools/decision-records/tests/record-guards.test.ts > record type guards reject invalid identity fields from real candidate and established scans bun test --test-name-pattern=\"^record\\ type\\ guards\\ reject\\ invalid\\ identity\\ fields\\ from\\ real\\ candidate\\ and\\ established\\ scans$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-RECORD-GUARD-IDENTITY-001 Record 类型守卫拒绝无效身份字段 公开的 candidate、established 和 activation record 类型守卫除 source kind 外，必须验证 Decision ID 与 sourcePath 的格式；candidate 守卫接纳结构合法 scaffold，activation 守卫额外要求 body-ready。 从真实 scan 获得的 scaffold candidate/established record 在身份字段有效时分别通过相应守卫；scaffold 不通过 activation 守卫，伪造的非法 ID 或非法 sourcePath 均被拒绝。 tools/decision-records/tests/record-guards.test.ts > record type guards reject invalid identity fields from real candidate and established scans bun test --test-name-pattern=\"^record\\ type\\ guards\\ reject\\ invalid\\ identity\\ fields\\ from\\ real\\ candidate\\ and\\ established\\ scans$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -3996,9 +4157,9 @@
         ],
         "id": "DECISION-RECORD-GUARD-IDENTITY-001",
         "line": 1,
-        "searchText": "Record 类型守卫拒绝无效身份字段 公开的 candidate、established 和 activation record 类型守卫除 source kind 外，必须验证 Decision ID 与 sourcePath 的格式。 从真实 scan 获得的 candidate/established record 在身份字段有效时分别通过相应守卫；伪造的非法 ID 或非法 sourcePath 均被拒绝，activation 守卫也不会接受该 candidate。 tools/decision-records/tests/record-guards.test.ts > record type guards reject invalid identity fields from real candidate and established scans bun test --test-name-pattern=\"^record\\ type\\ guards\\ reject\\ invalid\\ identity\\ fields\\ from\\ real\\ candidate\\ and\\ established\\ scans$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Record 类型守卫拒绝无效身份字段 公开的 candidate、established 和 activation record 类型守卫除 source kind 外，必须验证 Decision ID 与 sourcePath 的格式；candidate 守卫接纳结构合法 scaffold，activation 守卫额外要求 body-ready。 从真实 scan 获得的 scaffold candidate/established record 在身份字段有效时分别通过相应守卫；scaffold 不通过 activation 守卫，伪造的非法 ID 或非法 sourcePath 均被拒绝。 tools/decision-records/tests/record-guards.test.ts > record type guards reject invalid identity fields from real candidate and established scans bun test --test-name-pattern=\"^record\\ type\\ guards\\ reject\\ invalid\\ identity\\ fields\\ from\\ real\\ candidate\\ and\\ established\\ scans$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/record-type-guards-reject-invalid-identities.md",
-        "summary": "公开的 candidate、established 和 activation record 类型守卫除 source kind 外，必须验证 Decision ID 与 sourcePath 的格式。",
+        "summary": "公开的 candidate、established 和 activation record 类型守卫除 source kind 外，必须验证 Decision ID 与 sourcePath 的格式；candidate 守卫接纳结构合法 scaffold，activation 守卫额外要求 body-ready。",
         "title": "Record 类型守卫拒绝无效身份字段"
       }
     },
@@ -16066,7 +16227,7 @@
       "DECISION-BODY-PUNCTUATION-001": "sha256:a4f2d60849a569ee98261c718de1bd11d60ea482d25cd4653992c8a443d4a1c4",
       "DECISION-BODY-UNSUPPORTED-001": "sha256:c182ee56911a0fa3b3a545ee8124e38587b2e3bb641fb424790aad15c8fc82e9",
       "DECISION-CANDIDATE-ACTIVATION-INDEX-001": "sha256:67b85883a46fd611452188dba3e21b631e13614461e1e82dfb2962aed74335ee",
-      "DECISION-CANDIDATE-ACTIVATION-SELECTION-001": "sha256:59b6351778c79925596849bc82b33bdbb8ab846d0a92572e1564f2a9ee40d335",
+      "DECISION-CANDIDATE-ACTIVATION-SELECTION-001": "sha256:78bfda1ebcb8400df39127804047ef3681ebdbf1357686bf31cb9fb552217998",
       "DECISION-CANDIDATE-DATE-IDENTITY-001": "sha256:62d4093cd5a9e3b0b60c9b8fb15a64b246aa4622c566f8162de77b0a60fc6aed",
       "DECISION-CANDIDATE-DISCARD-ACTIVE-TARGET-001": "sha256:c0b69beeb225427f4d7a3ff5457f60d26d6effb288dbd06ee93b140662057d28",
       "DECISION-CANDIDATE-DISCARD-INVALID-001": "sha256:23a58829f2e0b8246e3e79e8e68f671cc2ccbe50b7331c84bc1920df9421967a",
@@ -16076,21 +16237,28 @@
       "DECISION-CANDIDATE-DISCARD-UNREADABLE-HEAD-001": "sha256:33d43c44e9b3001c5a584355a61507f668d2c1ea14d9bc2f6cce531091866e94",
       "DECISION-CANDIDATE-DISCARD-UNRECORDED-001": "sha256:f402aa1cd4bf1f179bec1d74faa6bbc658d08b5ed2ea9001d9f0e0ba4abd9e3c",
       "DECISION-CANDIDATE-EMPTY-INDEX-001": "sha256:84c4b3cb3bda36a50545a7c9ab8ef785acd5645b915f3fa4e7307a2fc82ee94a",
-      "DECISION-CANDIDATE-FIRST-DISCOVERY-001": "sha256:1a1b6b17ab6deb4ceb50044e561283b8d610358d2635007f9a6bbf44991db51d",
+      "DECISION-CANDIDATE-FIRST-DISCOVERY-001": "sha256:66df506a3caf2d5ec243bc5da23a511bd7dc06ba9047ec3b70c307e23fe3f7a6",
       "DECISION-CANDIDATE-INDEX-001": "sha256:5f0a539542009ad43aa2a2a7721f6bd4024b90699276353a8162e94de926535c",
       "DECISION-CANDIDATE-INDEX-CONTEXT-001": "sha256:988cbcb9df5e998cff8bc053dcb08e76bc55754c884d53c509dec47d069b4078",
+      "DECISION-CANDIDATE-LOCKED-READINESS-001": "sha256:17b423ea7491173c62ed798521292dce5632af1bf49c27f434b66fec1a8519fd",
+      "DECISION-CANDIDATE-LOCKED-RELEASE-001": "sha256:acc401179f364ae0a1a2cdd8bd0dac1fceabb8a5b48f21ca11ca5b5a96c7f5bf",
+      "DECISION-CANDIDATE-NEW-001": "sha256:7047c8dd28860726997fd862769d753f6014ee43e4d40468c6715d3648150c49",
+      "DECISION-CANDIDATE-NEW-LOCK-RELEASE-001": "sha256:8926584d09ca5bb7bf53532cc237edd2af56a79c0148bf48a84cf4f2e5443715",
+      "DECISION-CANDIDATE-PREFLIGHT-001": "sha256:69aaec61ec722d67dc99826322edff75e719489cdf495a31dc2add39883af0f4",
       "DECISION-CANDIDATE-RELATION-MISSING-001": "sha256:0b349aff6f2c4278b4f6381c7b9fbe2826de066f0ead377f4bccdd9d8d3be7ae",
       "DECISION-CANDIDATE-RELATION-REPEATED-TARGET-001": "sha256:18d6d35addf862508e59bb1eb8957c99929edaaefe00849663cdf700c297cbfe",
       "DECISION-CANDIDATE-RELATION-SELF-001": "sha256:95aafde9200958904ac719082d39af5de6efce181349a72bbf327ce093f06dc2",
       "DECISION-CHECK-PARITY-001": "sha256:a2c6a0d773920c1492abb6064a51004b9c7eca20ab9c928278ad28dfc3223388",
       "DECISION-CLI-ACTIVATE-ALIGNMENT-001": "sha256:2b60ad9b6a2a8b5bb19aebde19a7887f42927685db108b29b69b44ecb350af68",
       "DECISION-CLI-ARCHIVE-HELP-001": "sha256:195ae3be4014bc4097234bb838f5bc5ed4bb58660d72175fcee30a42edeb62e0",
-      "DECISION-CLI-ARGS-001": "sha256:7ff24ab43ad087d3e547acf9c9a5532b2f39bf3cd047890b7800881f02e8dd0c",
+      "DECISION-CLI-ARGS-001": "sha256:046e5a492ca0f82373f7acaded3f24ee7fbe997896f4c98b76cfe8cd24eca860",
       "DECISION-CLI-DISCARD-RECORDED-FLAG-001": "sha256:350f0c4c5fc50de7af397621c955d41e1a504802d334d8e41023cdce8a03f82e",
       "DECISION-CLI-EVOLVE-HELP-001": "sha256:569d1990171808e0187aeec62808eb78cc68548f3e34d88f38ec4d41109a8970",
       "DECISION-CLI-EVOLVE-RECORDED-FLAG-001": "sha256:a895239ab211475f195ece28e66be2c34f0c6129ef50f5eb3022da5c9755cc1a",
       "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001": "sha256:2ea7b5860f9f3be890ef6a9ce208404f03cc99eb8681c750527d66e138fa5b28",
+      "DECISION-CLI-LIFECYCLE-PREFLIGHT-001": "sha256:cc7d8a24be1a80ef80c94d7afc6b6121579e5aed17f6fb4a888e1d014647fed5",
       "DECISION-CLI-MARK-ALIGNED-HELP-001": "sha256:a0f31da74c2dd5ec39de558a6696137da5d0f3666003ae2c6291864050cfcb97",
+      "DECISION-CLI-NEW-HELP-001": "sha256:fe00072830baca149abef83b00102404371ac57675ac3764d05e974d77802472",
       "DECISION-CLI-NODE-SMOKE-001": "sha256:62017bded5501e5fb0d6fe2d51da9a1491d2df7a27d2084650d0158c1fcf2643",
       "DECISION-CLI-POSITIONAL-ID-001": "sha256:e7098c9b0e0c70ca4619896b6257301a6f7909b731c91a9bf5fb7e48690d9f3a",
       "DECISION-CLI-RELATION-SELECTION-001": "sha256:9fdc9deed74a62b3578886105bcd61fd5a541edf47ee75587711499632cf1c3d",
@@ -16171,7 +16339,7 @@
       "DECISION-REALLOCATION-STATIC-MINIMUM-001": "sha256:c4e842364279c35a5a3163152394fe0089963a7df13171af653aa69bac9edfb8",
       "DECISION-REALLOCATION-SUCCESSOR-MINIMUM-001": "sha256:77735b71d23b12ca591053ffdc9834856f6678b055a1e6c5b83a673673aeb826",
       "DECISION-REALLOCATION-TRANSACTION-001": "sha256:46cc71abded28ef789d6c3e0f031db6fb31c6b863bfc3e278b13d11a778dd375",
-      "DECISION-RECORD-GUARD-IDENTITY-001": "sha256:c456fb7f6e3c6c6f4d64bdcb14bdd77ee338aff8cd1e0ffb783a78ca1c181175",
+      "DECISION-RECORD-GUARD-IDENTITY-001": "sha256:a31f4bf5ce32305a2660177f4311e9a66d3366ce0c80415f45be7945ef907db9",
       "DECISION-RELATION-GRAPH-CYCLE-001": "sha256:94fe79d8d3f1e27fbb6a09140004bddc4b74d2f184f39f428dacb7169ae58d6d",
       "DECISION-RELATION-GRAPH-DUPLICATE-001": "sha256:846f0c6032c2d9586f38552b52109a841c4d64f9db4fed0f09cfbff664398d9e",
       "DECISION-RELATION-GRAPH-INDEX-001": "sha256:7ea892c2954286809fbdf6c2e0b3b8bd5f52296c990b7c3d1ef9ee796b711305",
