@@ -46,7 +46,7 @@
 
 [Codex Shell Permissions](docs/skills/codex-shell-permissions.md) 关注 Codex shell 失败后的下一步执行选择。它让 agent 判断应改用简单命令、申请必要提权、确认高风险范围，还是回到真实程序错误处理；当用户主动要求时，再进入 `execpolicy` 和 `allow/prompt/block` 的权限规则维护流程。实际 skill 位于 [`skills/codex-shell-permissions/`](skills/codex-shell-permissions/)。
 
-[MCPShell Workspace Tools](docs/skills/mcpshell-workspace-tools.md) 在 AI 的内建工具与目标项目处于不同执行边界时，为固定项目根提供 `workspace_shell`、`workspace_apply_patch`、`workspace_put_file` 和 `workspace_get_file`。文件查看与命令优先用 shell，文档和其他文本修改优先用 patch，put/get 只承接文件实体传输；这些是便捷入口，不是排他性路由。实际 skill 位于 [`skills/mcpshell-workspace-tools/`](skills/mcpshell-workspace-tools/)。
+[MCPShell Workspace Tools](docs/skills/mcpshell-workspace-tools.md) 让保存个人规则和 skills 的 agent 项目，经 MCPShell 操作另一个隔离的固定项目根。它提供 `workspace_shell`、`workspace_apply_patch`、`workspace_put_file` 和 `workspace_get_file`：查看与命令用 shell，文本修改用 patch，文件实体跨边界才用 put/get。skill 随包分发 Node initializer、runtime helper 与 MCPShell definitions；这些 tools 是便捷入口，不排斥已验证指向同一 root 的其他工具。实际 skill 位于 [`skills/mcpshell-workspace-tools/`](skills/mcpshell-workspace-tools/)。
 
 [ast-grep](docs/skills/ast-grep.md) 让 agent 使用 ast-grep CLI 按语法树结构查看、搜索、检查和受控迁移代码。它在 `outline`、`run`、`scan` 和 `test` 之间选择最小入口，先用正反例证明 matcher，再限制真实扫描或 rewrite 范围；文本、语义、符号引用和调用图查询继续交给各自工具。实际 skill 位于 [`skills/ast-grep/`](skills/ast-grep/)。
 

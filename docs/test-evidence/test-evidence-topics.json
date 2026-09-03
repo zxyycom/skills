@@ -18,6 +18,10 @@
       "description": "调查报告的目录、结构、时间顺序、随附资源、范围校验、派生索引，以及 CLI 和分发 API 契约。"
     },
     {
+      "id": "mcpshell-workspace-bridge",
+      "description": "MCPShell workspace bridge 的项目内初始化、固定根 SSH runtime、patch、字节文件传输、生成 Node 模块与 YAML definitions。"
+    },
+    {
       "id": "repository-tooling",
       "description": "主仓库根目录与 scripts 所有的 Vibe 项目门禁（含 jscpd 配置与精确 Lizard 的兼容 wrapper）、环境前置条件、生成文件规范化与漂移判断、待提交 skill package hash 和独立版本门禁。"
     },

@@ -1,0 +1,79 @@
+# Generated file. Do not edit directly.
+# Source: tools/mcpshell-workspace-bridge/references/mcpshell-tools.yaml; rebuild: bun run sync:mcpshell-workspace-bridge.
+mcp:
+  description: "固定项目根的 MCPShell workspace tools；日常参数不接受 backend 或 root。"
+  run:
+    shell: "/bin/sh"
+  tools:
+    - name: "workspace_shell"
+      description: "在固定 project root 中执行完整 shell command。用于查看文件、运行命令、构建、测试和 Git 检查。"
+      params:
+        command:
+          type: string
+          description: "完整 UTF-8 shell command；在目标 POSIX shell 中只解释一次。"
+          required: true
+      constraints:
+        - "command.size() <= 65536"
+      run:
+        command: "node skills/mcpshell-workspace-tools/scripts/mcpshell-workspace.mjs shell"
+        env:
+          - "MCPSHELL_WORKSPACE_COMMAND={{ .command }}"
+        timeout: "2m"
+    - name: "workspace_apply_patch"
+      description: "在固定 project root 中整体应用 unified Git patch。用于文档和其他文本修改。"
+      params:
+        patch:
+          type: string
+          description: "完整 unified diff；绝对路径、.. 与 .git 路径会被拒绝。"
+          required: true
+      constraints:
+        - "patch.size() <= 65536"
+      run:
+        command: "node skills/mcpshell-workspace-tools/scripts/mcpshell-workspace.mjs apply-patch"
+        env:
+          - "MCPSHELL_WORKSPACE_PATCH={{ .patch }}"
+        timeout: "2m"
+    - name: "workspace_put_file"
+      description: "把 agent staging root 中的一个常规文件按原始字节传到固定 project root。"
+      params:
+        source_path:
+          type: string
+          description: "agent staging root 下的相对常规文件路径。"
+          required: true
+        destination_path:
+          type: string
+          description: "fixed project root 下的相对目标文件路径。"
+          required: true
+        replace:
+          type: boolean
+          description: "是否原子替换已存在的 destination；默认 false。"
+          default: false
+      run:
+        command: "node skills/mcpshell-workspace-tools/scripts/mcpshell-workspace.mjs put-file"
+        env:
+          - "MCPSHELL_WORKSPACE_SOURCE_PATH={{ .source_path }}"
+          - "MCPSHELL_WORKSPACE_DESTINATION_PATH={{ .destination_path }}"
+          - "MCPSHELL_WORKSPACE_REPLACE={{ .replace }}"
+        timeout: "5m"
+    - name: "workspace_get_file"
+      description: "把固定 project root 中的一个常规文件按原始字节传到 agent staging root。"
+      params:
+        source_path:
+          type: string
+          description: "fixed project root 下的相对常规文件路径。"
+          required: true
+        destination_path:
+          type: string
+          description: "agent staging root 下的相对目标文件路径。"
+          required: true
+        replace:
+          type: boolean
+          description: "是否原子替换已存在的 destination；默认 false。"
+          default: false
+      run:
+        command: "node skills/mcpshell-workspace-tools/scripts/mcpshell-workspace.mjs get-file"
+        env:
+          - "MCPSHELL_WORKSPACE_SOURCE_PATH={{ .source_path }}"
+          - "MCPSHELL_WORKSPACE_DESTINATION_PATH={{ .destination_path }}"
+          - "MCPSHELL_WORKSPACE_REPLACE={{ .replace }}"
+        timeout: "5m"

@@ -60,7 +60,10 @@
     "check:skill-updaters": "bun scripts/build/skill-updaters.ts --check",
     "check": "bun scripts/vibe-check.ts",
     "lint:fix": "bun scripts/lint.ts --fix",
-    "fix": "bun run lint:fix && bun run format"
+    "fix": "bun run lint:fix && bun run format",
+    "test:mcpshell-workspace-bridge": "bun test ./tools/mcpshell-workspace-bridge/tests/run.ts",
+    "sync:mcpshell-workspace-bridge": "bun scripts/build/mcpshell-workspace-bridge.ts --write",
+    "check:mcpshell-workspace-bridge": "bun scripts/build/mcpshell-workspace-bridge.ts --check"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",

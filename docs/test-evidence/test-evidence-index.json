@@ -10626,6 +10626,604 @@
         "title": "CLI trace accepts report-level direction options"
       }
     },
+    "MCPSHELL-BRIDGE-DIST-001": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-DIST-001 generated bridge modules import without configuration side effects 分发 `.mjs` 可被 Node import，不读 env、不执行 CLI 且不产生写入副作用。 initializer 与 runtime module 都在独立 Node import 进程中以 status 0 结束。 tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated bridge modules import without configuration side effects bun test --test-name-pattern=\"^generated bridge modules import without configuration side effects$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated bridge modules import without configuration side effects",
+          "bun test --test-name-pattern=\"^generated bridge modules import without configuration side effects$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-DIST-001",
+        "line": 1,
+        "searchText": "generated bridge modules import without configuration side effects 分发 `.mjs` 可被 Node import，不读 env、不执行 CLI 且不产生写入副作用。 initializer 与 runtime module 都在独立 Node import 进程中以 status 0 结束。 tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated bridge modules import without configuration side effects bun test --test-name-pattern=\"^generated bridge modules import without configuration side effects$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/generated-import.md",
+        "summary": "分发 `.mjs` 可被 Node import，不读 env、不执行 CLI 且不产生写入副作用。",
+        "title": "generated bridge modules import without configuration side effects"
+      }
+    },
+    "MCPSHELL-BRIDGE-DIST-002": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-DIST-002 generated MCPShell definitions expose the four fixed-root operations 分发 YAML 必须定义四项固定根 operation，不暴露 backend 或 project root 日常参数。 YAML 的 tool names 精确为 shell、apply-patch、put、get，file replace 默认 false。 tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated MCPShell definitions expose the four fixed-root operations bun test --test-name-pattern=\"^generated MCPShell definitions expose the four fixed-root operations$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated MCPShell definitions expose the four fixed-root operations",
+          "bun test --test-name-pattern=\"^generated MCPShell definitions expose the four fixed-root operations$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-DIST-002",
+        "line": 1,
+        "searchText": "generated MCPShell definitions expose the four fixed-root operations 分发 YAML 必须定义四项固定根 operation，不暴露 backend 或 project root 日常参数。 YAML 的 tool names 精确为 shell、apply-patch、put、get，file replace 默认 false。 tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated MCPShell definitions expose the four fixed-root operations bun test --test-name-pattern=\"^generated MCPShell definitions expose the four fixed-root operations$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/generated-definitions.md",
+        "summary": "分发 YAML 必须定义四项固定根 operation，不暴露 backend 或 project root 日常参数。",
+        "title": "generated MCPShell definitions expose the four fixed-root operations"
+      }
+    },
+    "MCPSHELL-BRIDGE-DIST-003": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-DIST-003 generated Node initializer and runtime execute from an installed skill layout 从 `<agent-project>/skills/<skill>/scripts` 布局执行的 Node artifacts 必须自定位 env、完成初始化并运行 runtime。 generated initializer apply 成功；PATH 中隔离 ssh fixture 时 generated runtime shell 返回目标 stdout。 tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated Node initializer and runtime execute from an installed skill layout bun test --test-name-pattern=\"^generated Node initializer and runtime execute from an installed skill layout$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated Node initializer and runtime execute from an installed skill layout",
+          "bun test --test-name-pattern=\"^generated Node initializer and runtime execute from an installed skill layout$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-DIST-003",
+        "line": 1,
+        "searchText": "generated Node initializer and runtime execute from an installed skill layout 从 `<agent-project>/skills/<skill>/scripts` 布局执行的 Node artifacts 必须自定位 env、完成初始化并运行 runtime。 generated initializer apply 成功；PATH 中隔离 ssh fixture 时 generated runtime shell 返回目标 stdout。 tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated Node initializer and runtime execute from an installed skill layout bun test --test-name-pattern=\"^generated Node initializer and runtime execute from an installed skill layout$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/generated-node-cli.md",
+        "summary": "从 `<agent-project>/skills/<skill>/scripts` 布局执行的 Node artifacts 必须自定位 env、完成初始化并运行 runtime。",
+        "title": "generated Node initializer and runtime execute from an installed skill layout"
+      }
+    },
+    "MCPSHELL-BRIDGE-DIST-004": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-DIST-004 generated runtime renders missing and malformed configuration as JSON envelopes 分发 runtime 的每一项 operation 在缺失或无效 `.env.mcpshell` 时都必须 stdout JSON envelope、外层 status 0，并给出稳定 `config_invalid`。 对 shell、apply-patch、put-file、get-file 分别以缺失和空 backend 的 env 运行 Node CLI；每次 status 为 0，JSON 为非成功的 `config_invalid`。 tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated runtime renders missing and malformed configuration as JSON envelopes bun test --test-name-pattern=\"^generated runtime renders missing and malformed configuration as JSON envelopes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated runtime renders missing and malformed configuration as JSON envelopes",
+          "bun test --test-name-pattern=\"^generated runtime renders missing and malformed configuration as JSON envelopes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-DIST-004",
+        "line": 1,
+        "searchText": "generated runtime renders missing and malformed configuration as JSON envelopes 分发 runtime 的每一项 operation 在缺失或无效 `.env.mcpshell` 时都必须 stdout JSON envelope、外层 status 0，并给出稳定 `config_invalid`。 对 shell、apply-patch、put-file、get-file 分别以缺失和空 backend 的 env 运行 Node CLI；每次 status 为 0，JSON 为非成功的 `config_invalid`。 tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated runtime renders missing and malformed configuration as JSON envelopes bun test --test-name-pattern=\"^generated runtime renders missing and malformed configuration as JSON envelopes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/generated-config-envelope.md",
+        "summary": "分发 runtime 的每一项 operation 在缺失或无效 `.env.mcpshell` 时都必须 stdout JSON envelope、外层 status 0，并给出稳定 `config_invalid`。",
+        "title": "generated runtime renders missing and malformed configuration as JSON envelopes"
+      }
+    },
+    "MCPSHELL-BRIDGE-FILE-001": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-FILE-001 workspace put and get preserve binary and empty-file bytes with both endpoint hashes put/get 只传输单个常规文件的原始字节，并以 byte count 与 SHA-256 证明两个端点一致。 binary 与 empty file 的 put 成功；get 回到 staging 后 bytes 一致，两个 operation 的 SHA-256 evidence 相同。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put and get preserve binary and empty-file bytes with both endpoint hashes bun test --test-name-pattern=\"^workspace put and get preserve binary and empty-file bytes with both endpoint hashes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put and get preserve binary and empty-file bytes with both endpoint hashes",
+          "bun test --test-name-pattern=\"^workspace put and get preserve binary and empty-file bytes with both endpoint hashes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-FILE-001",
+        "line": 1,
+        "searchText": "workspace put and get preserve binary and empty-file bytes with both endpoint hashes put/get 只传输单个常规文件的原始字节，并以 byte count 与 SHA-256 证明两个端点一致。 binary 与 empty file 的 put 成功；get 回到 staging 后 bytes 一致，两个 operation 的 SHA-256 evidence 相同。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put and get preserve binary and empty-file bytes with both endpoint hashes bun test --test-name-pattern=\"^workspace put and get preserve binary and empty-file bytes with both endpoint hashes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/file-byte-integrity.md",
+        "summary": "put/get 只传输单个常规文件的原始字节，并以 byte count 与 SHA-256 证明两个端点一致。",
+        "title": "workspace put and get preserve binary and empty-file bytes with both endpoint hashes"
+      }
+    },
+    "MCPSHELL-BRIDGE-FILE-002": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-FILE-002 workspace file transfer respects replace, rejects escapes, and cleans failed receives file 接收默认不覆盖，replace 在校验后原子落盘；逃逸输入和失败 receive 不得留下临时文件。 已存在 destination 返回 `destination_exists`；replace 写入新内容；`..` 返回 path rejection，staging 中没有 helper temporary。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace file transfer respects replace, rejects escapes, and cleans failed receives bun test --test-name-pattern=\"^workspace file transfer respects replace, rejects escapes, and cleans failed receives$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace file transfer respects replace, rejects escapes, and cleans failed receives",
+          "bun test --test-name-pattern=\"^workspace file transfer respects replace, rejects escapes, and cleans failed receives$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-FILE-002",
+        "line": 1,
+        "searchText": "workspace file transfer respects replace, rejects escapes, and cleans failed receives file 接收默认不覆盖，replace 在校验后原子落盘；逃逸输入和失败 receive 不得留下临时文件。 已存在 destination 返回 `destination_exists`；replace 写入新内容；`..` 返回 path rejection，staging 中没有 helper temporary。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace file transfer respects replace, rejects escapes, and cleans failed receives bun test --test-name-pattern=\"^workspace file transfer respects replace, rejects escapes, and cleans failed receives$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/file-atomic-boundaries.md",
+        "summary": "file 接收默认不覆盖，replace 在校验后原子落盘；逃逸输入和失败 receive 不得留下临时文件。",
+        "title": "workspace file transfer respects replace, rejects escapes, and cleans failed receives"
+      }
+    },
+    "MCPSHELL-BRIDGE-FILE-003": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-FILE-003 workspace put binds its final commit to the verified parent during a symlink swap put 在验证 destination parent 的 physical path 后，temporary 与最终 basename commit 必须都绑定到该已验证目录，不能被随后替换的 lexical symlink 重定向到 project root 外。 fixture 在 remote temporary 出现后把 project 内 symlink 换到 project 外目录；传输仍只写入原已验证 parent，外部目录没有 destination。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put binds its final commit to the verified parent during a symlink swap bun test --test-name-pattern=\"^workspace put binds its final commit to the verified parent during a symlink swap$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put binds its final commit to the verified parent during a symlink swap",
+          "bun test --test-name-pattern=\"^workspace put binds its final commit to the verified parent during a symlink swap$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-FILE-003",
+        "line": 1,
+        "searchText": "workspace put binds its final commit to the verified parent during a symlink swap put 在验证 destination parent 的 physical path 后，temporary 与最终 basename commit 必须都绑定到该已验证目录，不能被随后替换的 lexical symlink 重定向到 project root 外。 fixture 在 remote temporary 出现后把 project 内 symlink 换到 project 外目录；传输仍只写入原已验证 parent，外部目录没有 destination。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put binds its final commit to the verified parent during a symlink swap bun test --test-name-pattern=\"^workspace put binds its final commit to the verified parent during a symlink swap$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/file-verified-parent-commit.md",
+        "summary": "put 在验证 destination parent 的 physical path 后，temporary 与最终 basename commit 必须都绑定到该已验证目录，不能被随后替换的 lexical symlink 重定向到 project root 外。",
+        "title": "workspace put binds its final commit to the verified parent during a symlink swap"
+      }
+    },
+    "MCPSHELL-BRIDGE-FILE-004": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-FILE-004 workspace put reports a failed no-replace link without calling it an existing destination no-replace 的同目录 hard-link commit 失败时，只有已存在 destination 才能归类为 `destination_exists`；其他 link 失败必须保留 target failure，不能误报冲突。 隔离 SSH fixture 令 `ln` 在 destination 缺失时失败；result 为 `target_exit` 且含稳定 link-failure diagnostic，目标文件仍不存在。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put reports a failed no-replace link without calling it an existing destination bun test --test-name-pattern=\"^workspace put reports a failed no-replace link without calling it an existing destination$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put reports a failed no-replace link without calling it an existing destination",
+          "bun test --test-name-pattern=\"^workspace put reports a failed no-replace link without calling it an existing destination$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-FILE-004",
+        "line": 1,
+        "searchText": "workspace put reports a failed no-replace link without calling it an existing destination no-replace 的同目录 hard-link commit 失败时，只有已存在 destination 才能归类为 `destination_exists`；其他 link 失败必须保留 target failure，不能误报冲突。 隔离 SSH fixture 令 `ln` 在 destination 缺失时失败；result 为 `target_exit` 且含稳定 link-failure diagnostic，目标文件仍不存在。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put reports a failed no-replace link without calling it an existing destination bun test --test-name-pattern=\"^workspace put reports a failed no-replace link without calling it an existing destination$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/file-link-failure.md",
+        "summary": "no-replace 的同目录 hard-link commit 失败时，只有已存在 destination 才能归类为 `destination_exists`；其他 link 失败必须保留 target failure，不能误报冲突。",
+        "title": "workspace put reports a failed no-replace link without calling it an existing destination"
+      }
+    },
+    "MCPSHELL-BRIDGE-FILE-005": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-FILE-005 workspace put rejects a verified parent moved outside the project and cleans its transfer put 在 physical parent 验证后仍必须在提交前和提交后重新确认 cwd 位于 project root；发现 parent 被移出 root 时必须清理 temporary 或已提交 basename，并返回稳定 `path_rejected`。 fixture 在 remote temporary 出现后把 parent 移到 project 外并在原位置重建目录；result 为 `path_rejected`，移出的 parent 没有 destination，重建的项目目录为空，agent staging source 保持不变。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put rejects a verified parent moved outside the project and cleans its transfer bun test --test-name-pattern=\"^workspace put rejects a verified parent moved outside the project and cleans its transfer$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put rejects a verified parent moved outside the project and cleans its transfer",
+          "bun test --test-name-pattern=\"^workspace put rejects a verified parent moved outside the project and cleans its transfer$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-FILE-005",
+        "line": 1,
+        "searchText": "workspace put rejects a verified parent moved outside the project and cleans its transfer put 在 physical parent 验证后仍必须在提交前和提交后重新确认 cwd 位于 project root；发现 parent 被移出 root 时必须清理 temporary 或已提交 basename，并返回稳定 `path_rejected`。 fixture 在 remote temporary 出现后把 parent 移到 project 外并在原位置重建目录；result 为 `path_rejected`，移出的 parent 没有 destination，重建的项目目录为空，agent staging source 保持不变。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put rejects a verified parent moved outside the project and cleans its transfer bun test --test-name-pattern=\"^workspace put rejects a verified parent moved outside the project and cleans its transfer$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/file-moved-parent-cleanup.md",
+        "summary": "put 在 physical parent 验证后仍必须在提交前和提交后重新确认 cwd 位于 project root；发现 parent 被移出 root 时必须清理 temporary 或已提交 basename，并返回稳定 `path_rejected`。",
+        "title": "workspace put rejects a verified parent moved outside the project and cleans its transfer"
+      }
+    },
+    "MCPSHELL-BRIDGE-FILE-006": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-FILE-006 workspace get reads a fixed physical source snapshot after its lexical parent swaps get 在验证 source parent 后必须在该 physical directory 内以 basename 建立 regular-file hard-link snapshot；后续 metadata 与传输不能重新解析 lexical source path，并在结束前复核 containment。 fixture 在 remote `wc` 时把 lexical parent symlink 换到 project 外同长度 secret；staging 接收原 physical source bytes，而不是外部 secret。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace get reads a fixed physical source snapshot after its lexical parent swaps bun test --test-name-pattern=\"^workspace get reads a fixed physical source snapshot after its lexical parent swaps$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace get reads a fixed physical source snapshot after its lexical parent swaps",
+          "bun test --test-name-pattern=\"^workspace get reads a fixed physical source snapshot after its lexical parent swaps$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-FILE-006",
+        "line": 1,
+        "searchText": "workspace get reads a fixed physical source snapshot after its lexical parent swaps get 在验证 source parent 后必须在该 physical directory 内以 basename 建立 regular-file hard-link snapshot；后续 metadata 与传输不能重新解析 lexical source path，并在结束前复核 containment。 fixture 在 remote `wc` 时把 lexical parent symlink 换到 project 外同长度 secret；staging 接收原 physical source bytes，而不是外部 secret。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace get reads a fixed physical source snapshot after its lexical parent swaps bun test --test-name-pattern=\"^workspace get reads a fixed physical source snapshot after its lexical parent swaps$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/file-fixed-source-snapshot.md",
+        "summary": "get 在验证 source parent 后必须在该 physical directory 内以 basename 建立 regular-file hard-link snapshot；后续 metadata 与传输不能重新解析 lexical source path，并在结束前复核 containment。",
+        "title": "workspace get reads a fixed physical source snapshot after its lexical parent swaps"
+      }
+    },
+    "MCPSHELL-BRIDGE-FILE-007": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-FILE-007 workspace get commits to its canonical staging parent after a lexical destination swap get 必须在 staging destination parent 的 realpath 验证后，用该 canonical physical parent 与 basename 创建 temporary 和最终 commit，不能在传输期间重新解析 lexical symlink parent。 fixture 在 remote 传输期间把 staging lexical destination symlink 换到外部目录；接收文件仍只落到原 canonical staging parent，外部目录没有文件。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace get commits to its canonical staging parent after a lexical destination swap bun test --test-name-pattern=\"^workspace get commits to its canonical staging parent after a lexical destination swap$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace get commits to its canonical staging parent after a lexical destination swap",
+          "bun test --test-name-pattern=\"^workspace get commits to its canonical staging parent after a lexical destination swap$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-FILE-007",
+        "line": 1,
+        "searchText": "workspace get commits to its canonical staging parent after a lexical destination swap get 必须在 staging destination parent 的 realpath 验证后，用该 canonical physical parent 与 basename 创建 temporary 和最终 commit，不能在传输期间重新解析 lexical symlink parent。 fixture 在 remote 传输期间把 staging lexical destination symlink 换到外部目录；接收文件仍只落到原 canonical staging parent，外部目录没有文件。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace get commits to its canonical staging parent after a lexical destination swap bun test --test-name-pattern=\"^workspace get commits to its canonical staging parent after a lexical destination swap$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/file-canonical-local-destination.md",
+        "summary": "get 必须在 staging destination parent 的 realpath 验证后，用该 canonical physical parent 与 basename 创建 temporary 和最终 commit，不能在传输期间重新解析 lexical symlink parent。",
+        "title": "workspace get commits to its canonical staging parent after a lexical destination swap"
+      }
+    },
+    "MCPSHELL-BRIDGE-FILE-008": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-FILE-008 workspace put reports outcome unknown when final acknowledgment is lost put 的 final link/mv 后若 SSH transport 或 metadata marker 丢失，结果必须是 `outcome_unknown`，并携带 destination、预期 byte count 和 SHA-256；不得把可能已提交写入说成普通 protocol failure 或未写入。 fixture 在完整 remote commit 后删除 metadata marker 并返回 transport 255；result 为 `outcome_unknown`，evidence 完整，project destination 确实保留完整 source 内容。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put reports outcome unknown when final acknowledgment is lost bun test --test-name-pattern=\"^workspace put reports outcome unknown when final acknowledgment is lost$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put reports outcome unknown when final acknowledgment is lost",
+          "bun test --test-name-pattern=\"^workspace put reports outcome unknown when final acknowledgment is lost$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-FILE-008",
+        "line": 1,
+        "searchText": "workspace put reports outcome unknown when final acknowledgment is lost put 的 final link/mv 后若 SSH transport 或 metadata marker 丢失，结果必须是 `outcome_unknown`，并携带 destination、预期 byte count 和 SHA-256；不得把可能已提交写入说成普通 protocol failure 或未写入。 fixture 在完整 remote commit 后删除 metadata marker 并返回 transport 255；result 为 `outcome_unknown`，evidence 完整，project destination 确实保留完整 source 内容。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put reports outcome unknown when final acknowledgment is lost bun test --test-name-pattern=\"^workspace put reports outcome unknown when final acknowledgment is lost$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/file-outcome-unknown.md",
+        "summary": "put 的 final link/mv 后若 SSH transport 或 metadata marker 丢失，结果必须是 `outcome_unknown`，并携带 destination、预期 byte count 和 SHA-256；不得把可能已提交写入说成普通 protocol failure 或未写入。",
+        "title": "workspace put reports outcome unknown when final acknowledgment is lost"
+      }
+    },
+    "MCPSHELL-BRIDGE-FILE-009": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-FILE-009 workspace put does not delete a replacement when final containment is unknown put trap 只能清理明确拥有的 temporary；final commit 后 containment 无法确认时必须返回 `outcome_unknown`，不得按 basename rollback 并误删并发 replacement。 fixture 令 no-replace link 成功后移动 parent 并写入 replacement；result 为 `outcome_unknown`，移动目录中的 replacement 仍存在。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put does not delete a replacement when final containment is unknown bun test --test-name-pattern=\"^workspace put does not delete a replacement when final containment is unknown$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put does not delete a replacement when final containment is unknown",
+          "bun test --test-name-pattern=\"^workspace put does not delete a replacement when final containment is unknown$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-FILE-009",
+        "line": 1,
+        "searchText": "workspace put does not delete a replacement when final containment is unknown put trap 只能清理明确拥有的 temporary；final commit 后 containment 无法确认时必须返回 `outcome_unknown`，不得按 basename rollback 并误删并发 replacement。 fixture 令 no-replace link 成功后移动 parent 并写入 replacement；result 为 `outcome_unknown`，移动目录中的 replacement 仍存在。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put does not delete a replacement when final containment is unknown bun test --test-name-pattern=\"^workspace put does not delete a replacement when final containment is unknown$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/file-no-misdelete.md",
+        "summary": "put trap 只能清理明确拥有的 temporary；final commit 后 containment 无法确认时必须返回 `outcome_unknown`，不得按 basename rollback 并误删并发 replacement。",
+        "title": "workspace put does not delete a replacement when final containment is unknown"
+      }
+    },
+    "MCPSHELL-BRIDGE-FILE-010": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-FILE-010 workspace put reports an SSH spawn failure as transport failure put 在本地 SSH child 无法启动时尚未发起远端提交，必须保留确定的 `transport_failure`，不能误报可能提交的 `outcome_unknown`。 将 `sshExecutable` 指向不存在的绝对命令；result 为 `transport_failure`，project destination 不存在。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put reports an SSH spawn failure as transport failure bun test --test-name-pattern=\"^workspace put reports an SSH spawn failure as transport failure$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put reports an SSH spawn failure as transport failure",
+          "bun test --test-name-pattern=\"^workspace put reports an SSH spawn failure as transport failure$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-FILE-010",
+        "line": 1,
+        "searchText": "workspace put reports an SSH spawn failure as transport failure put 在本地 SSH child 无法启动时尚未发起远端提交，必须保留确定的 `transport_failure`，不能误报可能提交的 `outcome_unknown`。 将 `sshExecutable` 指向不存在的绝对命令；result 为 `transport_failure`，project destination 不存在。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put reports an SSH spawn failure as transport failure bun test --test-name-pattern=\"^workspace put reports an SSH spawn failure as transport failure$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/file-spawn-transport.md",
+        "summary": "put 在本地 SSH child 无法启动时尚未发起远端提交，必须保留确定的 `transport_failure`，不能误报可能提交的 `outcome_unknown`。",
+        "title": "workspace put reports an SSH spawn failure as transport failure"
+      }
+    },
+    "MCPSHELL-BRIDGE-FILE-011": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-FILE-011 workspace put rejects an initial physical parent outside the project put 在 remote physical destination parent 的初始 containment 检查失败时，尚未创建或提交 temporary，必须返回确定的 `path_rejected`，不能落入 commit-ack 的 `outcome_unknown`。 fixture 将 project 内 `link` 指向 `../outside`；`link/escaped.txt` 返回 `path_rejected` 和稳定 diagnostic，outside 不出现 destination。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put rejects an initial physical parent outside the project bun test --test-name-pattern=\"^workspace put rejects an initial physical parent outside the project$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put rejects an initial physical parent outside the project",
+          "bun test --test-name-pattern=\"^workspace put rejects an initial physical parent outside the project$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-FILE-011",
+        "line": 1,
+        "searchText": "workspace put rejects an initial physical parent outside the project put 在 remote physical destination parent 的初始 containment 检查失败时，尚未创建或提交 temporary，必须返回确定的 `path_rejected`，不能落入 commit-ack 的 `outcome_unknown`。 fixture 将 project 内 `link` 指向 `../outside`；`link/escaped.txt` 返回 `path_rejected` 和稳定 diagnostic，outside 不出现 destination。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put rejects an initial physical parent outside the project bun test --test-name-pattern=\"^workspace put rejects an initial physical parent outside the project$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/file-initial-parent-escape.md",
+        "summary": "put 在 remote physical destination parent 的初始 containment 检查失败时，尚未创建或提交 temporary，必须返回确定的 `path_rejected`，不能落入 commit-ack 的 `outcome_unknown`。",
+        "title": "workspace put rejects an initial physical parent outside the project"
+      }
+    },
+    "MCPSHELL-BRIDGE-INIT-001": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-INIT-001 initializer previews without writing machine configuration initializer 默认 preview 只报告稳定的 agent-project-relative resource labels，不能写入本机 env 或 MCP 配置，也不得在结果中泄漏绝对路径或配置值。 预览返回 config、env 与 definitions 的相对 labels，结果不含 fixture 的 agent/project absolute root，并保持 `.env.mcpshell` 不存在。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer previews without writing machine configuration bun test --test-name-pattern=\"^initializer previews without writing machine configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer previews without writing machine configuration",
+          "bun test --test-name-pattern=\"^initializer previews without writing machine configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-INIT-001",
+        "line": 1,
+        "searchText": "initializer previews without writing machine configuration initializer 默认 preview 只报告稳定的 agent-project-relative resource labels，不能写入本机 env 或 MCP 配置，也不得在结果中泄漏绝对路径或配置值。 预览返回 config、env 与 definitions 的相对 labels，结果不含 fixture 的 agent/project absolute root，并保持 `.env.mcpshell` 不存在。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer previews without writing machine configuration bun test --test-name-pattern=\"^initializer previews without writing machine configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/initializer-preview.md",
+        "summary": "initializer 默认 preview 只报告稳定的 agent-project-relative resource labels，不能写入本机 env 或 MCP 配置，也不得在结果中泄漏绝对路径或配置值。",
+        "title": "initializer previews without writing machine configuration"
+      }
+    },
+    "MCPSHELL-BRIDGE-INIT-002": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-INIT-002 initializer applies idempotently and preserves unrelated TOML bytes initializer 只维护带拥有标记的 MCP table；跟踪 TOML 不包含 backend 或绝对 roots，重复 apply 不复制 table。 首次 apply 写入受管 table 和本机 env；无关 TOML 保留且第二次 apply 的 TOML 字节不变。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer applies idempotently and preserves unrelated TOML bytes bun test --test-name-pattern=\"^initializer applies idempotently and preserves unrelated TOML bytes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer applies idempotently and preserves unrelated TOML bytes",
+          "bun test --test-name-pattern=\"^initializer applies idempotently and preserves unrelated TOML bytes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-INIT-002",
+        "line": 1,
+        "searchText": "initializer applies idempotently and preserves unrelated TOML bytes initializer 只维护带拥有标记的 MCP table；跟踪 TOML 不包含 backend 或绝对 roots，重复 apply 不复制 table。 首次 apply 写入受管 table 和本机 env；无关 TOML 保留且第二次 apply 的 TOML 字节不变。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer applies idempotently and preserves unrelated TOML bytes bun test --test-name-pattern=\"^initializer applies idempotently and preserves unrelated TOML bytes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/initializer-idempotent.md",
+        "summary": "initializer 只维护带拥有标记的 MCP table；跟踪 TOML 不包含 backend 或绝对 roots，重复 apply 不复制 table。",
+        "title": "initializer applies idempotently and preserves unrelated TOML bytes"
+      }
+    },
+    "MCPSHELL-BRIDGE-INIT-003": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-INIT-003 initializer stops on an unowned identity and removes only owned configuration 同名但未带 bridge 拥有标记的 table 必须冲突停止；remove 只能删除已拥有 identity 和显式要求的 env。 冲突保留原 TOML；受管 table 与 `--remove-env` 的 env 被移除，而无关字节保留。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer stops on an unowned identity and removes only owned configuration bun test --test-name-pattern=\"^initializer stops on an unowned identity and removes only owned configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer stops on an unowned identity and removes only owned configuration",
+          "bun test --test-name-pattern=\"^initializer stops on an unowned identity and removes only owned configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-INIT-003",
+        "line": 1,
+        "searchText": "initializer stops on an unowned identity and removes only owned configuration 同名但未带 bridge 拥有标记的 table 必须冲突停止；remove 只能删除已拥有 identity 和显式要求的 env。 冲突保留原 TOML；受管 table 与 `--remove-env` 的 env 被移除，而无关字节保留。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer stops on an unowned identity and removes only owned configuration bun test --test-name-pattern=\"^initializer stops on an unowned identity and removes only owned configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/initializer-owned-removal.md",
+        "summary": "同名但未带 bridge 拥有标记的 table 必须冲突停止；remove 只能删除已拥有 identity 和显式要求的 env。",
+        "title": "initializer stops on an unowned identity and removes only owned configuration"
+      }
+    },
+    "MCPSHELL-BRIDGE-INIT-004": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-INIT-004 initializer rejects non-exact ignore rules and line-breaking configuration 本机 env 只有在 skill 同目录存在精确 ignore rule 时才能写入，配置值不能用换行或 NUL 改写 dotenv 结构。 带前导空格的 ignore rule 返回 `config_invalid`。 包含换行的 backend handle 返回 `config_invalid`，且不创建 `.env.mcpshell`。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer rejects non-exact ignore rules and line-breaking configuration bun test --test-name-pattern=\"^initializer rejects non-exact ignore rules and line-breaking configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer rejects non-exact ignore rules and line-breaking configuration",
+          "bun test --test-name-pattern=\"^initializer rejects non-exact ignore rules and line-breaking configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-INIT-004",
+        "line": 1,
+        "searchText": "initializer rejects non-exact ignore rules and line-breaking configuration 本机 env 只有在 skill 同目录存在精确 ignore rule 时才能写入，配置值不能用换行或 NUL 改写 dotenv 结构。 带前导空格的 ignore rule 返回 `config_invalid`。 包含换行的 backend handle 返回 `config_invalid`，且不创建 `.env.mcpshell`。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer rejects non-exact ignore rules and line-breaking configuration bun test --test-name-pattern=\"^initializer rejects non-exact ignore rules and line-breaking configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/initializer-boundaries.md",
+        "summary": "本机 env 只有在 skill 同目录存在精确 ignore rule 时才能写入，配置值不能用换行或 NUL 改写 dotenv 结构。",
+        "title": "initializer rejects non-exact ignore rules and line-breaking configuration"
+      }
+    },
+    "MCPSHELL-BRIDGE-INIT-005": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-INIT-005 initializer rejects an inline-comment table header without changing TOML 合法 TOML table header 后带 inline `#` comment 仍是同名 registration；无 bridge 拥有标记时 initializer 必须冲突停止并保持原 TOML bytes。 `[mcp_servers.workspace_bridge] # existing registration` 返回 `config_conflict`，测试逐字节比较写入前后的 TOML。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer rejects an inline-comment table header without changing TOML bun test --test-name-pattern=\"^initializer rejects an inline-comment table header without changing TOML$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer rejects an inline-comment table header without changing TOML",
+          "bun test --test-name-pattern=\"^initializer rejects an inline-comment table header without changing TOML$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-INIT-005",
+        "line": 1,
+        "searchText": "initializer rejects an inline-comment table header without changing TOML 合法 TOML table header 后带 inline `#` comment 仍是同名 registration；无 bridge 拥有标记时 initializer 必须冲突停止并保持原 TOML bytes。 `[mcp_servers.workspace_bridge] # existing registration` 返回 `config_conflict`，测试逐字节比较写入前后的 TOML。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer rejects an inline-comment table header without changing TOML bun test --test-name-pattern=\"^initializer rejects an inline-comment table header without changing TOML$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/initializer-inline-comment-conflict.md",
+        "summary": "合法 TOML table header 后带 inline `#` comment 仍是同名 registration；无 bridge 拥有标记时 initializer 必须冲突停止并保持原 TOML bytes。",
+        "title": "initializer rejects an inline-comment table header without changing TOML"
+      }
+    },
+    "MCPSHELL-BRIDGE-INIT-006": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-INIT-006 initializer preserves an indented following TOML table on apply and remove initializer 查找受管区间的后续 TOML table header 必须与同名 table 查找同样接受 `\\n[\\t ]*\\[`，使 apply 与 remove 都不会吞掉合法缩进的无关 table。 Python `tomllib` 确认 fixture 合法；重复 apply 和 remove 后缩进的 `[mcp_servers.other]` 保留且结果仍可解析。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer preserves an indented following TOML table on apply and remove bun test --test-name-pattern=\"^initializer preserves an indented following TOML table on apply and remove$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer preserves an indented following TOML table on apply and remove",
+          "bun test --test-name-pattern=\"^initializer preserves an indented following TOML table on apply and remove$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-INIT-006",
+        "line": 1,
+        "searchText": "initializer preserves an indented following TOML table on apply and remove initializer 查找受管区间的后续 TOML table header 必须与同名 table 查找同样接受 `\\n[\\t ]*\\[`，使 apply 与 remove 都不会吞掉合法缩进的无关 table。 Python `tomllib` 确认 fixture 合法；重复 apply 和 remove 后缩进的 `[mcp_servers.other]` 保留且结果仍可解析。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer preserves an indented following TOML table on apply and remove bun test --test-name-pattern=\"^initializer preserves an indented following TOML table on apply and remove$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/initializer-indented-following-table.md",
+        "summary": "initializer 查找受管区间的后续 TOML table header 必须与同名 table 查找同样接受 `\\n[\\t ]*\\[`，使 apply 与 remove 都不会吞掉合法缩进的无关 table。",
+        "title": "initializer preserves an indented following TOML table on apply and remove"
+      }
+    },
+    "MCPSHELL-BRIDGE-INIT-007": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-INIT-007 initializer keeps a prelude newline before an indented following table on remove 删除受管 table 时，若其前有无关 prelude、其后有合法缩进 TOML table，splice 必须保留两者之间独立的 newline，不能把 table header 拼到 prelude 行。 `# prelude`、owned table 与缩进 `[mcp_servers.other]` 的 fixture 在 remove 后逐字节为两行独立结构，Python `tomllib` 仍可解析。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer keeps a prelude newline before an indented following table on remove bun test --test-name-pattern=\"^initializer keeps a prelude newline before an indented following table on remove$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer keeps a prelude newline before an indented following table on remove",
+          "bun test --test-name-pattern=\"^initializer keeps a prelude newline before an indented following table on remove$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-INIT-007",
+        "line": 1,
+        "searchText": "initializer keeps a prelude newline before an indented following table on remove 删除受管 table 时，若其前有无关 prelude、其后有合法缩进 TOML table，splice 必须保留两者之间独立的 newline，不能把 table header 拼到 prelude 行。 `# prelude`、owned table 与缩进 `[mcp_servers.other]` 的 fixture 在 remove 后逐字节为两行独立结构，Python `tomllib` 仍可解析。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer keeps a prelude newline before an indented following table on remove bun test --test-name-pattern=\"^initializer keeps a prelude newline before an indented following table on remove$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/initializer-prelude-newline-splice.md",
+        "summary": "删除受管 table 时，若其前有无关 prelude、其后有合法缩进 TOML table，splice 必须保留两者之间独立的 newline，不能把 table header 拼到 prelude 行。",
+        "title": "initializer keeps a prelude newline before an indented following table on remove"
+      }
+    },
+    "MCPSHELL-BRIDGE-PATCH-001": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-PATCH-001 workspace apply patch creates, updates, deletes, and atomically rejects a later invalid hunk apply-patch 在固定 project root 用单次 Git apply 支持创建、更新、删除，并在多文件失败时不留先前 hunk。 create/update/delete 成功；含后续缺失文件 hunk 的 patch 返回 target failure，已修改文件保持失败前内容。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace apply patch creates, updates, deletes, and atomically rejects a later invalid hunk bun test --test-name-pattern=\"^workspace apply patch creates, updates, deletes, and atomically rejects a later invalid hunk$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace apply patch creates, updates, deletes, and atomically rejects a later invalid hunk",
+          "bun test --test-name-pattern=\"^workspace apply patch creates, updates, deletes, and atomically rejects a later invalid hunk$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-PATCH-001",
+        "line": 1,
+        "searchText": "workspace apply patch creates, updates, deletes, and atomically rejects a later invalid hunk apply-patch 在固定 project root 用单次 Git apply 支持创建、更新、删除，并在多文件失败时不留先前 hunk。 create/update/delete 成功；含后续缺失文件 hunk 的 patch 返回 target failure，已修改文件保持失败前内容。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace apply patch creates, updates, deletes, and atomically rejects a later invalid hunk bun test --test-name-pattern=\"^workspace apply patch creates, updates, deletes, and atomically rejects a later invalid hunk$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/patch-atomic.md",
+        "summary": "apply-patch 在固定 project root 用单次 Git apply 支持创建、更新、删除，并在多文件失败时不留先前 hunk。",
+        "title": "workspace apply patch creates, updates, deletes, and atomically rejects a later invalid hunk"
+      }
+    },
+    "MCPSHELL-BRIDGE-PATCH-002": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-PATCH-002 workspace apply patch rejects escape paths and oversized text before SSH patch 的路径与 64 KiB 文本上限必须在启动 SSH 前拒绝。 `..` patch path 返回 `path_rejected`；超限 patch 返回 `text_too_large`。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace apply patch rejects escape paths and oversized text before SSH bun test --test-name-pattern=\"^workspace apply patch rejects escape paths and oversized text before SSH$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace apply patch rejects escape paths and oversized text before SSH",
+          "bun test --test-name-pattern=\"^workspace apply patch rejects escape paths and oversized text before SSH$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-PATCH-002",
+        "line": 1,
+        "searchText": "workspace apply patch rejects escape paths and oversized text before SSH patch 的路径与 64 KiB 文本上限必须在启动 SSH 前拒绝。 `..` patch path 返回 `path_rejected`；超限 patch 返回 `text_too_large`。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace apply patch rejects escape paths and oversized text before SSH bun test --test-name-pattern=\"^workspace apply patch rejects escape paths and oversized text before SSH$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/patch-preflight.md",
+        "summary": "patch 的路径与 64 KiB 文本上限必须在启动 SSH 前拒绝。",
+        "title": "workspace apply patch rejects escape paths and oversized text before SSH"
+      }
+    },
+    "MCPSHELL-BRIDGE-SHELL-001": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-SHELL-001 workspace shell preserves multiline data until the fixed target shell consumes it 完整 command 只能经 SSH stdin 在固定目标 shell 消费一次。 quotes、newline、here-doc、dollar 和 backticks 产生预期 stdout，不经本地或 remote command 字符串二次解释。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace shell preserves multiline data until the fixed target shell consumes it bun test --test-name-pattern=\"^workspace shell preserves multiline data until the fixed target shell consumes it$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace shell preserves multiline data until the fixed target shell consumes it",
+          "bun test --test-name-pattern=\"^workspace shell preserves multiline data until the fixed target shell consumes it$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-SHELL-001",
+        "line": 1,
+        "searchText": "workspace shell preserves multiline data until the fixed target shell consumes it 完整 command 只能经 SSH stdin 在固定目标 shell 消费一次。 quotes、newline、here-doc、dollar 和 backticks 产生预期 stdout，不经本地或 remote command 字符串二次解释。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace shell preserves multiline data until the fixed target shell consumes it bun test --test-name-pattern=\"^workspace shell preserves multiline data until the fixed target shell consumes it$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/shell-stdin-fidelity.md",
+        "summary": "完整 command 只能经 SSH stdin 在固定目标 shell 消费一次。",
+        "title": "workspace shell preserves multiline data until the fixed target shell consumes it"
+      }
+    },
+    "MCPSHELL-BRIDGE-SHELL-002": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-SHELL-002 workspace shell distinguishes target exit, timeout, and SSH transport failure shell envelope 必须借远端 status marker 区分包括 exit 255 在内的目标非零、helper bounded timeout 和缺 marker 的 SSH transport failure，并保留可行动证据。 target exit 7 与 255 都返回 `target_exit` 和原 exit code；sleep 1 在 10 ms timeout 加有界 TERM/KILL grace 内返回 `timeout`；fixture SSH 255 且无 marker 返回 `transport_failure`。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace shell distinguishes target exit, timeout, and SSH transport failure bun test --test-name-pattern=\"^workspace shell distinguishes target exit, timeout, and SSH transport failure$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace shell distinguishes target exit, timeout, and SSH transport failure",
+          "bun test --test-name-pattern=\"^workspace shell distinguishes target exit, timeout, and SSH transport failure$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-SHELL-002",
+        "line": 1,
+        "searchText": "workspace shell distinguishes target exit, timeout, and SSH transport failure shell envelope 必须借远端 status marker 区分包括 exit 255 在内的目标非零、helper bounded timeout 和缺 marker 的 SSH transport failure，并保留可行动证据。 target exit 7 与 255 都返回 `target_exit` 和原 exit code；sleep 1 在 10 ms timeout 加有界 TERM/KILL grace 内返回 `timeout`；fixture SSH 255 且无 marker 返回 `transport_failure`。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace shell distinguishes target exit, timeout, and SSH transport failure bun test --test-name-pattern=\"^workspace shell distinguishes target exit, timeout, and SSH transport failure$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/shell-failures.md",
+        "summary": "shell envelope 必须借远端 status marker 区分包括 exit 255 在内的目标非零、helper bounded timeout 和缺 marker 的 SSH transport failure，并保留可行动证据。",
+        "title": "workspace shell distinguishes target exit, timeout, and SSH transport failure"
+      }
+    },
     "REPO-FORMAT-SCRIPTS-001": {
       "keys": {
         "search": [
@@ -16521,6 +17119,10 @@
         "id": "investigation-report"
       },
       {
+        "description": "MCPShell workspace bridge 的项目内初始化、固定根 SSH runtime、patch、字节文件传输、生成 Node 模块与 YAML definitions。",
+        "id": "mcpshell-workspace-bridge"
+      },
+      {
         "description": "主仓库根目录与 scripts 所有的 Vibe 项目门禁（含 jscpd 配置与精确 Lizard 的兼容 wrapper）、环境前置条件、生成文件规范化与漂移判断、待提交 skill package hash 和独立版本门禁。",
         "id": "repository-tooling"
       },
@@ -17012,6 +17614,32 @@
       "INVESTIGATION-SYNC-DISCARD-LOCK-001": "sha256:9e4ead81f54d073791372b5d67c6eb2ac5b6eb6f40c403ddf03b36d65ef7c88e",
       "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": "sha256:b972098b86b31893963b01c347b74b36806bf2f3a53f49d64abad277df716cb7",
       "INVESTIGATION-VALIDATION-WARNINGS-001": "sha256:a9b840e98f36ca628e09a7cb26a5244cabfc0e90746064cd5287cbed0b65ddf8",
+      "MCPSHELL-BRIDGE-DIST-001": "sha256:774f994de5c9eaafc8b837d445c34c93b5c258085b1d2876a2050e92ac046987",
+      "MCPSHELL-BRIDGE-DIST-002": "sha256:2fb5db74e159f535932621d1534149a0f3f922a35c55546a3df750a6ca1f3457",
+      "MCPSHELL-BRIDGE-DIST-003": "sha256:2f6fa35e8e08fd768b6b23e4f2a5cca890711fd3572e1e13db5cb67424dc6cd6",
+      "MCPSHELL-BRIDGE-DIST-004": "sha256:dbf04f0cd3e88ca706fbde3d64c3093cfc14f0c8001f56116b30bf993405e9ca",
+      "MCPSHELL-BRIDGE-FILE-001": "sha256:1c52f66628798e2b5dcedf8fa1d744f659750c347d4508d8f874740e437163ba",
+      "MCPSHELL-BRIDGE-FILE-002": "sha256:1370eaff2254b914f231b673abbde8b4689b6f82c72ba10e318d5f45f03ab363",
+      "MCPSHELL-BRIDGE-FILE-003": "sha256:c31e074a3503f6deafaede7eb2fb4dbc72e48a2e269f059641ad9736d83c9b01",
+      "MCPSHELL-BRIDGE-FILE-004": "sha256:b0c7fd4e4e321a7051377eb1955ed21999aa7d20180c7d6cccf22316560c84fd",
+      "MCPSHELL-BRIDGE-FILE-005": "sha256:60c36d8e308fc9276972f12c18c417071075b8fbdecd360f7d13bfe8d3f59fc9",
+      "MCPSHELL-BRIDGE-FILE-006": "sha256:8f00387f3633facc1b5e00e4b143c35325eec068820f4a55b62214fd9cc50207",
+      "MCPSHELL-BRIDGE-FILE-007": "sha256:6d445694c2f9508359c5fe9b1d47a7fe7984fa1eb07edb96ad64db2d89a6fc6c",
+      "MCPSHELL-BRIDGE-FILE-008": "sha256:796e91c0ab7ab61d2a0bee47e2cc0bc2a924501bf7860124cc078aaffa7655fd",
+      "MCPSHELL-BRIDGE-FILE-009": "sha256:63e6cc4c307900bd985ff0d57589d85fe73c7e1b8a940e09bbc6aaf3cfc63dd4",
+      "MCPSHELL-BRIDGE-FILE-010": "sha256:cc02310f1491b718db6b8d4f9027d2d2e149df24be70ed4b84865ddc47eaeae0",
+      "MCPSHELL-BRIDGE-FILE-011": "sha256:a17278c70b614fc220672affd1242faa6e348a0b4025993929a295c72ec302dc",
+      "MCPSHELL-BRIDGE-INIT-001": "sha256:89e6ae8925e422e94c107b9a27952de4dc3ea4fe9d22d0c0f91dcd370f5f9e3d",
+      "MCPSHELL-BRIDGE-INIT-002": "sha256:42063243e0ed6efc4b43d3af30343bba19e7dbbbbaecec9d851b7d59bcc59113",
+      "MCPSHELL-BRIDGE-INIT-003": "sha256:e577506a11dd07747b24fe28de95c9cf43e29afe7df48f8c3d724ec7e71ac10d",
+      "MCPSHELL-BRIDGE-INIT-004": "sha256:b44914b0d3f01fb9b1cf4fb28ba6d9abae26f83477a94c746003e8f56779086c",
+      "MCPSHELL-BRIDGE-INIT-005": "sha256:e28144b2b7d4351e52bfd8055fd9550d341c6384aafb912a71b1c404ef549e4a",
+      "MCPSHELL-BRIDGE-INIT-006": "sha256:727fc94611ee2052a98ca35cfede89875d35d40d3992365e98e0328c08199ac8",
+      "MCPSHELL-BRIDGE-INIT-007": "sha256:66c3df96f0e33c4e2ad01e44669422e36791bda61a5ad3bb1ee82b5aaf9c43af",
+      "MCPSHELL-BRIDGE-PATCH-001": "sha256:6f2990c2018db9b6402bc6bacd7d3e952e6d297a0233c8809ee74eba5108d745",
+      "MCPSHELL-BRIDGE-PATCH-002": "sha256:e62c8a069c0214b8aad27ec517c23d81358693e9d57f021376983e60bb53e956",
+      "MCPSHELL-BRIDGE-SHELL-001": "sha256:98105be5b85cbab88e6f08c3e6a5398936cd1500904c5e923d04260bdb535446",
+      "MCPSHELL-BRIDGE-SHELL-002": "sha256:2feaa8b38c01735720fbce83a73ad9bae4a9ba779000737ec781aced09a96f85",
       "REPO-FORMAT-SCRIPTS-001": "sha256:2f52e8e3653f91fad9f12010ebaee9b5beec800eb99609bd48b28a284618794d",
       "REPO-LINT-PREFLIGHT-001": "sha256:028ff20768861e327bd9a7a43cd90b6eeaeea2de6490982ebb7ee8269b68b2c4",
       "REPO-OXC-CONFIG-001": "sha256:f704f1d4d178c8c92be699f3614311f94bac169d9afe363c27f0fcff0f989d52",
@@ -17268,6 +17896,6 @@
       "VERSION-CONTROL-SYSTEM-CAUSE-001": "sha256:4a1b27d0192024029502ee1e31d72f9bfb2f1da56bb5314297b61cfdd74e0023",
       "VERSION-CONTROL-WORKTREE-001": "sha256:9ac7f9540e8bd3f19b913fb66ba465f99e43b4274299fb9dbb6a8bfbe311b790"
     },
-    "metadata": "sha256:ef4cc771acf55ebd5725abb81b441f4a51a12636b4f8f0212831a10fc364ef1e"
+    "metadata": "sha256:49fe1fe0e6aeff2e84239643a6b2ac15fb143508ef469f36ba4d3e65e75316c2"
   }
 }
