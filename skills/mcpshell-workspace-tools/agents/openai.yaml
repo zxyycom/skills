@@ -1,0 +1,4 @@
+interface:
+  display_name: "MCPShell Workspace Tools"
+  short_description: "让 AI 取得隔离项目的 shell、patch 与双向文件 tools"
+  default_prompt: "使用 $mcpshell-workspace-tools 为目标项目取得 workspace_shell、workspace_apply_patch、workspace_put_file 和 workspace_get_file；验证后按任务选择便捷 tool，并继续我的原任务。"

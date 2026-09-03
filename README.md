@@ -46,6 +46,8 @@
 
 [Codex Shell Permissions](docs/skills/codex-shell-permissions.md) 关注 Codex shell 失败后的下一步执行选择。它让 agent 判断应改用简单命令、申请必要提权、确认高风险范围，还是回到真实程序错误处理；当用户主动要求时，再进入 `execpolicy` 和 `allow/prompt/block` 的权限规则维护流程。实际 skill 位于 [`skills/codex-shell-permissions/`](skills/codex-shell-permissions/)。
 
+[MCPShell Workspace Tools](docs/skills/mcpshell-workspace-tools.md) 在 AI 的内建工具与目标项目处于不同执行边界时，为固定项目根提供 `workspace_shell`、`workspace_apply_patch`、`workspace_put_file` 和 `workspace_get_file`。文件查看与命令优先用 shell，文档和其他文本修改优先用 patch，put/get 只承接文件实体传输；这些是便捷入口，不是排他性路由。实际 skill 位于 [`skills/mcpshell-workspace-tools/`](skills/mcpshell-workspace-tools/)。
+
 [ast-grep](docs/skills/ast-grep.md) 让 agent 使用 ast-grep CLI 按语法树结构查看、搜索、检查和受控迁移代码。它在 `outline`、`run`、`scan` 和 `test` 之间选择最小入口，先用正反例证明 matcher，再限制真实扫描或 rewrite 范围；文本、语义、符号引用和调用图查询继续交给各自工具。实际 skill 位于 [`skills/ast-grep/`](skills/ast-grep/)。
 
 [Investigation Report](docs/skills/investigation-report.md) 在用户明确要求沉淀调查时，用稳定 Investigation ID 保存每轮形成时背景、调查目的、实际依据以及结果与边界。每份报告独立成立，以 tags 分类，并通过指向直接前序的关系表达认识演进；所有报告留在同一正式集合，报告级派生索引负责发现、筛选和关系查询。实际 skill 位于 [`skills/investigation-report/`](skills/investigation-report/)。

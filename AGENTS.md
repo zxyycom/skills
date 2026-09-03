@@ -30,6 +30,7 @@
    - `task-graph`: 用权威 JSON 索引维护当前工作中可恢复的候选、父子、依赖、排斥和执行租约。
    - `openspec-explore`、`openspec-propose`、`openspec-apply-change`、`openspec-archive-change`: 分别维护 OpenSpec change 的探索、提案、实施和归档阶段。
    - `codex-shell-permissions`: 指导 shell 失败后的下一步命令选择, 并在用户要求时维护 Codex 权限 rules。
+   - `mcpshell-workspace-tools`: 当 AI 与目标项目处于不同执行边界时提供 shell、apply-patch 与双向单文件便捷 tools，按操作选择后继续原任务。
    - `ast-grep`: 使用 ast-grep CLI 按 AST 结构概览、搜索、规则扫描和受控重写代码。
    - `decision-records`: 以可回放记录与索引维护长期决策及其演进关系。
    - `subagent-orchestration`: 维护复杂任务的子代理拆分、上下文控制、写入所有权和结果审计。
