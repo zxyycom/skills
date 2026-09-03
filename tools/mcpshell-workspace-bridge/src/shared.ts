@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 export const textPayloadLimit = 64 * 1024;
+export const capturedTextLimit = 1024 * 1024;
 
 export type BridgeConfig = Readonly<{
   backendHandle: string;
@@ -15,6 +16,7 @@ export type FailureKind =
   | "destination_exists"
   | "invalid_input"
   | "outcome_unknown"
+  | "output_limit"
   | "path_rejected"
   | "protocol_error"
   | "target_exit"

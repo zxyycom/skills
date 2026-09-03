@@ -10652,7 +10652,7 @@
     "MCPSHELL-BRIDGE-DIST-002": {
       "keys": {
         "search": [
-          "MCPSHELL-BRIDGE-DIST-002 generated MCPShell definitions expose the four fixed-root operations 分发 YAML 必须定义四项固定根 operation，不暴露 backend 或 project root 日常参数。 YAML 的 tool names 精确为 shell、apply-patch、put、get，file replace 默认 false。 tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated MCPShell definitions expose the four fixed-root operations bun test --test-name-pattern=\"^generated MCPShell definitions expose the four fixed-root operations$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+          "MCPSHELL-BRIDGE-DIST-002 generated MCPShell definitions expose the four fixed-root operations 分发 YAML 必须定义四项固定根 operation，不暴露 backend 或 project root 日常参数，并为内部 deadline 保留 shell/patch 2 分钟、put/get 5 分钟的外层预算。 YAML 的 tool names 精确为 shell、apply-patch、put、get，file replace 默认 false，run timeout 顺序为 2m、2m、5m、5m。 tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated MCPShell definitions expose the four fixed-root operations bun test --test-name-pattern=\"^generated MCPShell definitions expose the four fixed-root operations$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
         ],
         "topic": [
           "mcpshell-workspace-bridge"
@@ -10666,9 +10666,9 @@
         ],
         "id": "MCPSHELL-BRIDGE-DIST-002",
         "line": 1,
-        "searchText": "generated MCPShell definitions expose the four fixed-root operations 分发 YAML 必须定义四项固定根 operation，不暴露 backend 或 project root 日常参数。 YAML 的 tool names 精确为 shell、apply-patch、put、get，file replace 默认 false。 tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated MCPShell definitions expose the four fixed-root operations bun test --test-name-pattern=\"^generated MCPShell definitions expose the four fixed-root operations$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "searchText": "generated MCPShell definitions expose the four fixed-root operations 分发 YAML 必须定义四项固定根 operation，不暴露 backend 或 project root 日常参数，并为内部 deadline 保留 shell/patch 2 分钟、put/get 5 分钟的外层预算。 YAML 的 tool names 精确为 shell、apply-patch、put、get，file replace 默认 false，run timeout 顺序为 2m、2m、5m、5m。 tools/mcpshell-workspace-bridge/tests/generated.test.ts > generated MCPShell definitions expose the four fixed-root operations bun test --test-name-pattern=\"^generated MCPShell definitions expose the four fixed-root operations$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
         "sourcePath": "mcpshell-workspace-bridge/generated-definitions.md",
-        "summary": "分发 YAML 必须定义四项固定根 operation，不暴露 backend 或 project root 日常参数。",
+        "summary": "分发 YAML 必须定义四项固定根 operation，不暴露 backend 或 project root 日常参数，并为内部 deadline 保留 shell/patch 2 分钟、put/get 5 分钟的外层预算。",
         "title": "generated MCPShell definitions expose the four fixed-root operations"
       }
     },
@@ -10721,7 +10721,7 @@
     "MCPSHELL-BRIDGE-FILE-001": {
       "keys": {
         "search": [
-          "MCPSHELL-BRIDGE-FILE-001 workspace put and get preserve binary and empty-file bytes with both endpoint hashes put/get 只传输单个常规文件的原始字节，并以 byte count 与 SHA-256 证明两个端点一致。 binary 与 empty file 的 put 成功；get 回到 staging 后 bytes 一致，两个 operation 的 SHA-256 evidence 相同。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put and get preserve binary and empty-file bytes with both endpoint hashes bun test --test-name-pattern=\"^workspace put and get preserve binary and empty-file bytes with both endpoint hashes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+          "MCPSHELL-BRIDGE-FILE-001 workspace put and get preserve binary and empty-file bytes with both endpoint hashes put/get 只传输单个常规文件的原始字节，并以 byte count 与 SHA-256 证明两个端点一致；get 的文件 stdout 不是 JSON 文本 capture，不能受其 1 MiB 上限截断。 大于 1 MiB 的 binary 与 empty file 的 put 成功；get 回到 staging 后 bytes 一致，两个 operation 的 SHA-256 evidence 相同。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put and get preserve binary and empty-file bytes with both endpoint hashes bun test --test-name-pattern=\"^workspace put and get preserve binary and empty-file bytes with both endpoint hashes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
         ],
         "topic": [
           "mcpshell-workspace-bridge"
@@ -10735,9 +10735,9 @@
         ],
         "id": "MCPSHELL-BRIDGE-FILE-001",
         "line": 1,
-        "searchText": "workspace put and get preserve binary and empty-file bytes with both endpoint hashes put/get 只传输单个常规文件的原始字节，并以 byte count 与 SHA-256 证明两个端点一致。 binary 与 empty file 的 put 成功；get 回到 staging 后 bytes 一致，两个 operation 的 SHA-256 evidence 相同。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put and get preserve binary and empty-file bytes with both endpoint hashes bun test --test-name-pattern=\"^workspace put and get preserve binary and empty-file bytes with both endpoint hashes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "searchText": "workspace put and get preserve binary and empty-file bytes with both endpoint hashes put/get 只传输单个常规文件的原始字节，并以 byte count 与 SHA-256 证明两个端点一致；get 的文件 stdout 不是 JSON 文本 capture，不能受其 1 MiB 上限截断。 大于 1 MiB 的 binary 与 empty file 的 put 成功；get 回到 staging 后 bytes 一致，两个 operation 的 SHA-256 evidence 相同。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put and get preserve binary and empty-file bytes with both endpoint hashes bun test --test-name-pattern=\"^workspace put and get preserve binary and empty-file bytes with both endpoint hashes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
         "sourcePath": "mcpshell-workspace-bridge/file-byte-integrity.md",
-        "summary": "put/get 只传输单个常规文件的原始字节，并以 byte count 与 SHA-256 证明两个端点一致。",
+        "summary": "put/get 只传输单个常规文件的原始字节，并以 byte count 与 SHA-256 证明两个端点一致；get 的文件 stdout 不是 JSON 文本 capture，不能受其 1 MiB 上限截断。",
         "title": "workspace put and get preserve binary and empty-file bytes with both endpoint hashes"
       }
     },
@@ -10974,67 +10974,67 @@
     "MCPSHELL-BRIDGE-INIT-001": {
       "keys": {
         "search": [
-          "MCPSHELL-BRIDGE-INIT-001 initializer previews without writing machine configuration initializer 默认 preview 只报告稳定的 agent-project-relative resource labels，不能写入本机 env 或 MCP 配置，也不得在结果中泄漏绝对路径或配置值。 预览返回 config、env 与 definitions 的相对 labels，结果不含 fixture 的 agent/project absolute root，并保持 `.env.mcpshell` 不存在。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer previews without writing machine configuration bun test --test-name-pattern=\"^initializer previews without writing machine configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+          "MCPSHELL-BRIDGE-INIT-001 initializer previews without writing machine configuration initializer 默认 preview 必须为 env 与受管 registration 分别给出无敏感值的 `create`、`update` 或 `unchanged` action，且不能写入本机 env 或 MCP 配置，也不得在结果中泄漏绝对路径或配置值。 初始预览为 env 与 registration 返回各自的 `create` action，并保留 config、env 与 definitions 的相对 labels。 结果不含 fixture 的 agent/project absolute root，并保持 `.env.mcpshell` 不存在。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer previews without writing machine configuration bun test --test-name-pattern=\"^initializer previews without writing machine configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
         ],
         "topic": [
           "mcpshell-workspace-bridge"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 13,
         "entries": [
           "tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer previews without writing machine configuration",
           "bun test --test-name-pattern=\"^initializer previews without writing machine configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
         ],
         "id": "MCPSHELL-BRIDGE-INIT-001",
         "line": 1,
-        "searchText": "initializer previews without writing machine configuration initializer 默认 preview 只报告稳定的 agent-project-relative resource labels，不能写入本机 env 或 MCP 配置，也不得在结果中泄漏绝对路径或配置值。 预览返回 config、env 与 definitions 的相对 labels，结果不含 fixture 的 agent/project absolute root，并保持 `.env.mcpshell` 不存在。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer previews without writing machine configuration bun test --test-name-pattern=\"^initializer previews without writing machine configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "searchText": "initializer previews without writing machine configuration initializer 默认 preview 必须为 env 与受管 registration 分别给出无敏感值的 `create`、`update` 或 `unchanged` action，且不能写入本机 env 或 MCP 配置，也不得在结果中泄漏绝对路径或配置值。 初始预览为 env 与 registration 返回各自的 `create` action，并保留 config、env 与 definitions 的相对 labels。 结果不含 fixture 的 agent/project absolute root，并保持 `.env.mcpshell` 不存在。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer previews without writing machine configuration bun test --test-name-pattern=\"^initializer previews without writing machine configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
         "sourcePath": "mcpshell-workspace-bridge/initializer-preview.md",
-        "summary": "initializer 默认 preview 只报告稳定的 agent-project-relative resource labels，不能写入本机 env 或 MCP 配置，也不得在结果中泄漏绝对路径或配置值。",
+        "summary": "initializer 默认 preview 必须为 env 与受管 registration 分别给出无敏感值的 `create`、`update` 或 `unchanged` action，且不能写入本机 env 或 MCP 配置，也不得在结果中泄漏绝对路径或配置值。",
         "title": "initializer previews without writing machine configuration"
       }
     },
     "MCPSHELL-BRIDGE-INIT-002": {
       "keys": {
         "search": [
-          "MCPSHELL-BRIDGE-INIT-002 initializer applies idempotently and preserves unrelated TOML bytes initializer 只维护带拥有标记的 MCP table；跟踪 TOML 不包含 backend 或绝对 roots，重复 apply 不复制 table。 首次 apply 写入受管 table 和本机 env；无关 TOML 保留且第二次 apply 的 TOML 字节不变。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer applies idempotently and preserves unrelated TOML bytes bun test --test-name-pattern=\"^initializer applies idempotently and preserves unrelated TOML bytes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+          "MCPSHELL-BRIDGE-INIT-002 initializer applies idempotently and preserves unrelated TOML bytes initializer 只维护带拥有标记的 MCP table；跟踪 TOML 不包含 backend 或绝对 roots，apply 只写 action plan 中实际变化的 resource。 首次 apply 为 env 和受管 registration 报告 `create` 并写入它们；无关 TOML 保留。 第二次 apply 为两个 resource 报告 `unchanged`、`wrote` 为 false，且 TOML 字节不变。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer applies idempotently and preserves unrelated TOML bytes bun test --test-name-pattern=\"^initializer applies idempotently and preserves unrelated TOML bytes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
         ],
         "topic": [
           "mcpshell-workspace-bridge"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 13,
         "entries": [
           "tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer applies idempotently and preserves unrelated TOML bytes",
           "bun test --test-name-pattern=\"^initializer applies idempotently and preserves unrelated TOML bytes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
         ],
         "id": "MCPSHELL-BRIDGE-INIT-002",
         "line": 1,
-        "searchText": "initializer applies idempotently and preserves unrelated TOML bytes initializer 只维护带拥有标记的 MCP table；跟踪 TOML 不包含 backend 或绝对 roots，重复 apply 不复制 table。 首次 apply 写入受管 table 和本机 env；无关 TOML 保留且第二次 apply 的 TOML 字节不变。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer applies idempotently and preserves unrelated TOML bytes bun test --test-name-pattern=\"^initializer applies idempotently and preserves unrelated TOML bytes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "searchText": "initializer applies idempotently and preserves unrelated TOML bytes initializer 只维护带拥有标记的 MCP table；跟踪 TOML 不包含 backend 或绝对 roots，apply 只写 action plan 中实际变化的 resource。 首次 apply 为 env 和受管 registration 报告 `create` 并写入它们；无关 TOML 保留。 第二次 apply 为两个 resource 报告 `unchanged`、`wrote` 为 false，且 TOML 字节不变。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer applies idempotently and preserves unrelated TOML bytes bun test --test-name-pattern=\"^initializer applies idempotently and preserves unrelated TOML bytes$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
         "sourcePath": "mcpshell-workspace-bridge/initializer-idempotent.md",
-        "summary": "initializer 只维护带拥有标记的 MCP table；跟踪 TOML 不包含 backend 或绝对 roots，重复 apply 不复制 table。",
+        "summary": "initializer 只维护带拥有标记的 MCP table；跟踪 TOML 不包含 backend 或绝对 roots，apply 只写 action plan 中实际变化的 resource。",
         "title": "initializer applies idempotently and preserves unrelated TOML bytes"
       }
     },
     "MCPSHELL-BRIDGE-INIT-003": {
       "keys": {
         "search": [
-          "MCPSHELL-BRIDGE-INIT-003 initializer stops on an unowned identity and removes only owned configuration 同名但未带 bridge 拥有标记的 table 必须冲突停止；remove 只能删除已拥有 identity 和显式要求的 env。 冲突保留原 TOML；受管 table 与 `--remove-env` 的 env 被移除，而无关字节保留。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer stops on an unowned identity and removes only owned configuration bun test --test-name-pattern=\"^initializer stops on an unowned identity and removes only owned configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+          "MCPSHELL-BRIDGE-INIT-003 initializer stops on an unowned identity and removes only owned configuration 同名但未带 bridge 拥有标记的 table 必须冲突停止；remove 只能删除已拥有 identity 和显式要求的 env。 同名未受管 table 的冲突在 env 与 TOML 写入前停止，并保留原 TOML。 受管 table 与 `--remove-env` 的 env 被移除，而无关字节保留。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer stops on an unowned identity and removes only owned configuration bun test --test-name-pattern=\"^initializer stops on an unowned identity and removes only owned configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
         ],
         "topic": [
           "mcpshell-workspace-bridge"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 13,
         "entries": [
           "tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer stops on an unowned identity and removes only owned configuration",
           "bun test --test-name-pattern=\"^initializer stops on an unowned identity and removes only owned configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
         ],
         "id": "MCPSHELL-BRIDGE-INIT-003",
         "line": 1,
-        "searchText": "initializer stops on an unowned identity and removes only owned configuration 同名但未带 bridge 拥有标记的 table 必须冲突停止；remove 只能删除已拥有 identity 和显式要求的 env。 冲突保留原 TOML；受管 table 与 `--remove-env` 的 env 被移除，而无关字节保留。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer stops on an unowned identity and removes only owned configuration bun test --test-name-pattern=\"^initializer stops on an unowned identity and removes only owned configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "searchText": "initializer stops on an unowned identity and removes only owned configuration 同名但未带 bridge 拥有标记的 table 必须冲突停止；remove 只能删除已拥有 identity 和显式要求的 env。 同名未受管 table 的冲突在 env 与 TOML 写入前停止，并保留原 TOML。 受管 table 与 `--remove-env` 的 env 被移除，而无关字节保留。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer stops on an unowned identity and removes only owned configuration bun test --test-name-pattern=\"^initializer stops on an unowned identity and removes only owned configuration$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
         "sourcePath": "mcpshell-workspace-bridge/initializer-owned-removal.md",
         "summary": "同名但未带 bridge 拥有标记的 table 必须冲突停止；remove 只能删除已拥有 identity 和显式要求的 env。",
         "title": "initializer stops on an unowned identity and removes only owned configuration"
@@ -11132,6 +11132,121 @@
         "title": "initializer keeps a prelude newline before an indented following table on remove"
       }
     },
+    "MCPSHELL-BRIDGE-INIT-008": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-INIT-008 initializer recovers registration from a complete existing environment preview/apply 省略全部 config flags 时只能复用完整且有效的本机 env；env action 保持 `unchanged`，并可恢复缺失的受管 registration。 缺失或不完整的 env 返回 `config_invalid`，不创建 registration，也不改写已有无效 env。 有效 env 的 preview 只计划创建 registration，结果不回显 project root。 apply 保留 env 字节并写入受管 registration。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer recovers registration from a complete existing environment bun test --test-name-pattern=\"^initializer recovers registration from a complete existing environment$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer recovers registration from a complete existing environment",
+          "bun test --test-name-pattern=\"^initializer recovers registration from a complete existing environment$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-INIT-008",
+        "line": 1,
+        "searchText": "initializer recovers registration from a complete existing environment preview/apply 省略全部 config flags 时只能复用完整且有效的本机 env；env action 保持 `unchanged`，并可恢复缺失的受管 registration。 缺失或不完整的 env 返回 `config_invalid`，不创建 registration，也不改写已有无效 env。 有效 env 的 preview 只计划创建 registration，结果不回显 project root。 apply 保留 env 字节并写入受管 registration。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer recovers registration from a complete existing environment bun test --test-name-pattern=\"^initializer recovers registration from a complete existing environment$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/initializer-env-recovery.md",
+        "summary": "preview/apply 省略全部 config flags 时只能复用完整且有效的本机 env；env action 保持 `unchanged`，并可恢复缺失的受管 registration。",
+        "title": "initializer recovers registration from a complete existing environment"
+      }
+    },
+    "MCPSHELL-BRIDGE-INIT-009": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-INIT-009 initializer requires complete CLI configuration flags preview/apply 的 CLI config flags 只能全部提供或全部省略；全省略交由已有 env 恢复，部分 flags 在进入写入流程前被拒绝。 全部省略时 CLI request 的 config 为 undefined。 仅提供 backend 时 parser 返回可行动的 complete-group 错误。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer requires complete CLI configuration flags bun test --test-name-pattern=\"^initializer requires complete CLI configuration flags$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer requires complete CLI configuration flags",
+          "bun test --test-name-pattern=\"^initializer requires complete CLI configuration flags$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-INIT-009",
+        "line": 1,
+        "searchText": "initializer requires complete CLI configuration flags preview/apply 的 CLI config flags 只能全部提供或全部省略；全省略交由已有 env 恢复，部分 flags 在进入写入流程前被拒绝。 全部省略时 CLI request 的 config 为 undefined。 仅提供 backend 时 parser 返回可行动的 complete-group 错误。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer requires complete CLI configuration flags bun test --test-name-pattern=\"^initializer requires complete CLI configuration flags$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/initializer-cli-config-group.md",
+        "summary": "preview/apply 的 CLI config flags 只能全部提供或全部省略；全省略交由已有 env 恢复，部分 flags 在进入写入流程前被拒绝。",
+        "title": "initializer requires complete CLI configuration flags"
+      }
+    },
+    "MCPSHELL-BRIDGE-INIT-010": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-INIT-010 initializer rejects another owned identity until it is removed 单例 `.env.mcpshell` 只能服务一个 active bridge-owned identity；另一 owned identity 存在时 preview/apply 必须冲突停止，操作者精确 remove 旧 identity 后才能切换。 preview 和 apply 都返回 `config_conflict`，并保持旧 registration 与 env 字节不变。 remove 旧 identity 后，新 identity 的 apply 可以创建其 registration。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer rejects another owned identity until it is removed bun test --test-name-pattern=\"^initializer rejects another owned identity until it is removed$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer rejects another owned identity until it is removed",
+          "bun test --test-name-pattern=\"^initializer rejects another owned identity until it is removed$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-INIT-010",
+        "line": 1,
+        "searchText": "initializer rejects another owned identity until it is removed 单例 `.env.mcpshell` 只能服务一个 active bridge-owned identity；另一 owned identity 存在时 preview/apply 必须冲突停止，操作者精确 remove 旧 identity 后才能切换。 preview 和 apply 都返回 `config_conflict`，并保持旧 registration 与 env 字节不变。 remove 旧 identity 后，新 identity 的 apply 可以创建其 registration。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer rejects another owned identity until it is removed bun test --test-name-pattern=\"^initializer rejects another owned identity until it is removed$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/initializer-single-owned-identity.md",
+        "summary": "单例 `.env.mcpshell` 只能服务一个 active bridge-owned identity；另一 owned identity 存在时 preview/apply 必须冲突停止，操作者精确 remove 旧 identity 后才能切换。",
+        "title": "initializer rejects another owned identity until it is removed"
+      }
+    },
+    "MCPSHELL-BRIDGE-INIT-011": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-INIT-011 initializer previews and applies the same update actions 对已有但过时的 env 与受管 registration，preview 和 apply 必须共享同一无敏感值 `update` plan；preview 不写入，apply 才执行该 plan。 两次结果均为 env 与 registration 的 `update` actions，且 preview 不回显旧配置或 root。 preview 保留旧 env/TOML 字节；apply 写入新的 env 与受管 registration。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer previews and applies the same update actions bun test --test-name-pattern=\"^initializer previews and applies the same update actions$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer previews and applies the same update actions",
+          "bun test --test-name-pattern=\"^initializer previews and applies the same update actions$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-INIT-011",
+        "line": 1,
+        "searchText": "initializer previews and applies the same update actions 对已有但过时的 env 与受管 registration，preview 和 apply 必须共享同一无敏感值 `update` plan；preview 不写入，apply 才执行该 plan。 两次结果均为 env 与 registration 的 `update` actions，且 preview 不回显旧配置或 root。 preview 保留旧 env/TOML 字节；apply 写入新的 env 与受管 registration。 tools/mcpshell-workspace-bridge/tests/initializer.test.ts > initializer previews and applies the same update actions bun test --test-name-pattern=\"^initializer previews and applies the same update actions$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/initializer-update-actions.md",
+        "summary": "对已有但过时的 env 与受管 registration，preview 和 apply 必须共享同一无敏感值 `update` plan；preview 不写入，apply 才执行该 plan。",
+        "title": "initializer previews and applies the same update actions"
+      }
+    },
+    "MCPSHELL-BRIDGE-INTEGRATION-001": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-INTEGRATION-001 MCPShell stdio exposes the generated fixed-root tools and one read-only shell call 真实 MCPShell binary 必须能 validate 分发 YAML，以 stdio MCP 完成 initialize/initialized 和 tools/list，并只用隔离 SSH fixture 在固定 target root 调用一次只读 `workspace_shell`；缺少显式 binary 时该原生入口跳过，测试不下载或安装依赖。 tools/list 的准确四项名称集合和参数 schema 与生成 YAML 的 shell、patch、put/get 契约一致，且没有暴露 backend 或 project root。 一次 shell call 返回成功 JSON envelope 和 target root 中的预期 stdout，随后 server 因 stdin 正常关闭而退出，临时 agent/target/staging root 被清理。 tools/mcpshell-workspace-bridge/tests/mcpshell-integration.test.ts > MCPShell stdio exposes the generated fixed-root tools and one read-only shell call MCPSHELL_BIN=<existing-mcpshell-binary> bun test --test-name-pattern=\"^MCPShell stdio exposes the generated fixed-root tools and one read-only shell call$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/mcpshell-integration.test.ts > MCPShell stdio exposes the generated fixed-root tools and one read-only shell call",
+          "MCPSHELL_BIN=<existing-mcpshell-binary> bun test --test-name-pattern=\"^MCPShell stdio exposes the generated fixed-root tools and one read-only shell call$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-INTEGRATION-001",
+        "line": 1,
+        "searchText": "MCPShell stdio exposes the generated fixed-root tools and one read-only shell call 真实 MCPShell binary 必须能 validate 分发 YAML，以 stdio MCP 完成 initialize/initialized 和 tools/list，并只用隔离 SSH fixture 在固定 target root 调用一次只读 `workspace_shell`；缺少显式 binary 时该原生入口跳过，测试不下载或安装依赖。 tools/list 的准确四项名称集合和参数 schema 与生成 YAML 的 shell、patch、put/get 契约一致，且没有暴露 backend 或 project root。 一次 shell call 返回成功 JSON envelope 和 target root 中的预期 stdout，随后 server 因 stdin 正常关闭而退出，临时 agent/target/staging root 被清理。 tools/mcpshell-workspace-bridge/tests/mcpshell-integration.test.ts > MCPShell stdio exposes the generated fixed-root tools and one read-only shell call MCPSHELL_BIN=<existing-mcpshell-binary> bun test --test-name-pattern=\"^MCPShell stdio exposes the generated fixed-root tools and one read-only shell call$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/mcpshell-stdio-integration-smoke.md",
+        "summary": "真实 MCPShell binary 必须能 validate 分发 YAML，以 stdio MCP 完成 initialize/initialized 和 tools/list，并只用隔离 SSH fixture 在固定 target root 调用一次只读 `workspace_shell`；缺少显式 binary 时该原生入口跳过，测试不下载或安装依赖。",
+        "title": "MCPShell stdio exposes the generated fixed-root tools and one read-only shell call"
+      }
+    },
     "MCPSHELL-BRIDGE-PATCH-001": {
       "keys": {
         "search": [
@@ -11176,6 +11291,75 @@
         "sourcePath": "mcpshell-workspace-bridge/patch-preflight.md",
         "summary": "patch 的路径与 64 KiB 文本上限必须在启动 SSH 前拒绝。",
         "title": "workspace apply patch rejects escape paths and oversized text before SSH"
+      }
+    },
+    "MCPSHELL-BRIDGE-RUNTIME-001": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-RUNTIME-001 workspace selects operation-specific runtime deadlines 未显式提供 `RuntimeOptions.timeoutMs` 时，shell/apply-patch 的 SSH helper deadline 为 110 秒，put/get 为 290 秒。 记录四种 operation 实际注册的 SSH timeout，顺序为 110000、110000、290000、290000。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace selects operation-specific runtime deadlines bun test --test-name-pattern=\"^workspace selects operation-specific runtime deadlines$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace selects operation-specific runtime deadlines",
+          "bun test --test-name-pattern=\"^workspace selects operation-specific runtime deadlines$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-RUNTIME-001",
+        "line": 1,
+        "searchText": "workspace selects operation-specific runtime deadlines 未显式提供 `RuntimeOptions.timeoutMs` 时，shell/apply-patch 的 SSH helper deadline 为 110 秒，put/get 为 290 秒。 记录四种 operation 实际注册的 SSH timeout，顺序为 110000、110000、290000、290000。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace selects operation-specific runtime deadlines bun test --test-name-pattern=\"^workspace selects operation-specific runtime deadlines$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/runtime-deadlines.md",
+        "summary": "未显式提供 `RuntimeOptions.timeoutMs` 时，shell/apply-patch 的 SSH helper deadline 为 110 秒，put/get 为 290 秒。",
+        "title": "workspace selects operation-specific runtime deadlines"
+      }
+    },
+    "MCPSHELL-BRIDGE-RUNTIME-002": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-RUNTIME-002 workspace caps captured output and cleans an output-limited get receive 嵌入 JSON envelope 的 stdout/stderr 各最多 capture 1 MiB；任一 stream 超限必须终止 SSH process group、以 `output_limit` 优先返回有界前缀和 stream/limit evidence。get 的 stderr 超限时必须删除 local receive temporary。 shell 的 stdout 与 stderr 分别超限时均返回 `output_limit`、null target exit、false timed_out 和对应 stream/limit evidence，文本前缀不超过 1 MiB；隔离 SSH 的 get stderr 超限后 destination 与 temporary 都不存在。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace caps captured output and cleans an output-limited get receive bun test --test-name-pattern=\"^workspace caps captured output and cleans an output-limited get receive$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace caps captured output and cleans an output-limited get receive",
+          "bun test --test-name-pattern=\"^workspace caps captured output and cleans an output-limited get receive$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-RUNTIME-002",
+        "line": 1,
+        "searchText": "workspace caps captured output and cleans an output-limited get receive 嵌入 JSON envelope 的 stdout/stderr 各最多 capture 1 MiB；任一 stream 超限必须终止 SSH process group、以 `output_limit` 优先返回有界前缀和 stream/limit evidence。get 的 stderr 超限时必须删除 local receive temporary。 shell 的 stdout 与 stderr 分别超限时均返回 `output_limit`、null target exit、false timed_out 和对应 stream/limit evidence，文本前缀不超过 1 MiB；隔离 SSH 的 get stderr 超限后 destination 与 temporary 都不存在。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace caps captured output and cleans an output-limited get receive bun test --test-name-pattern=\"^workspace caps captured output and cleans an output-limited get receive$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/runtime-output-limit.md",
+        "summary": "嵌入 JSON envelope 的 stdout/stderr 各最多 capture 1 MiB；任一 stream 超限必须终止 SSH process group、以 `output_limit` 优先返回有界前缀和 stream/limit evidence。get 的 stderr 超限时必须删除 local receive temporary。",
+        "title": "workspace caps captured output and cleans an output-limited get receive"
+      }
+    },
+    "MCPSHELL-BRIDGE-RUNTIME-003": {
+      "keys": {
+        "search": [
+          "MCPSHELL-BRIDGE-RUNTIME-003 workspace put preserves verification evidence after a post-commit output limit put 在 remote final commit 后发生文本输出超限时，不能把实际写入误报为普通 `output_limit`；必须返回 `outcome_unknown`，并提供 destination、预期 bytes、SHA-256 与 output-limit cause，使调用方能先在目标核验而非盲目 replace 重传。 隔离 SSH 先执行完整 remote put，再向 stderr 写入超过 1 MiB 的内容；result 为 `outcome_unknown`，evidence 含预期 destination、bytes、SHA-256、cause、stream 和 limit，目标文件仍等于 source bytes。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put preserves verification evidence after a post-commit output limit bun test --test-name-pattern=\"^workspace put preserves verification evidence after a post-commit output limit$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "topic": [
+          "mcpshell-workspace-bridge"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put preserves verification evidence after a post-commit output limit",
+          "bun test --test-name-pattern=\"^workspace put preserves verification evidence after a post-commit output limit$\" ./tools/mcpshell-workspace-bridge/tests/run.ts"
+        ],
+        "id": "MCPSHELL-BRIDGE-RUNTIME-003",
+        "line": 1,
+        "searchText": "workspace put preserves verification evidence after a post-commit output limit put 在 remote final commit 后发生文本输出超限时，不能把实际写入误报为普通 `output_limit`；必须返回 `outcome_unknown`，并提供 destination、预期 bytes、SHA-256 与 output-limit cause，使调用方能先在目标核验而非盲目 replace 重传。 隔离 SSH 先执行完整 remote put，再向 stderr 写入超过 1 MiB 的内容；result 为 `outcome_unknown`，evidence 含预期 destination、bytes、SHA-256、cause、stream 和 limit，目标文件仍等于 source bytes。 tools/mcpshell-workspace-bridge/tests/runtime.test.ts > workspace put preserves verification evidence after a post-commit output limit bun test --test-name-pattern=\"^workspace put preserves verification evidence after a post-commit output limit$\" ./tools/mcpshell-workspace-bridge/tests/run.ts",
+        "sourcePath": "mcpshell-workspace-bridge/put-output-limit-outcome-unknown.md",
+        "summary": "put 在 remote final commit 后发生文本输出超限时，不能把实际写入误报为普通 `output_limit`；必须返回 `outcome_unknown`，并提供 destination、预期 bytes、SHA-256 与 output-limit cause，使调用方能先在目标核验而非盲目 replace 重传。",
+        "title": "workspace put preserves verification evidence after a post-commit output limit"
       }
     },
     "MCPSHELL-BRIDGE-SHELL-001": {
@@ -17615,10 +17799,10 @@
       "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": "sha256:b972098b86b31893963b01c347b74b36806bf2f3a53f49d64abad277df716cb7",
       "INVESTIGATION-VALIDATION-WARNINGS-001": "sha256:a9b840e98f36ca628e09a7cb26a5244cabfc0e90746064cd5287cbed0b65ddf8",
       "MCPSHELL-BRIDGE-DIST-001": "sha256:774f994de5c9eaafc8b837d445c34c93b5c258085b1d2876a2050e92ac046987",
-      "MCPSHELL-BRIDGE-DIST-002": "sha256:2fb5db74e159f535932621d1534149a0f3f922a35c55546a3df750a6ca1f3457",
+      "MCPSHELL-BRIDGE-DIST-002": "sha256:fd3f3f48aec2b5c58743cb41cbe9a647c22456303fdd23ae9744ff8a50a30dd1",
       "MCPSHELL-BRIDGE-DIST-003": "sha256:2f6fa35e8e08fd768b6b23e4f2a5cca890711fd3572e1e13db5cb67424dc6cd6",
       "MCPSHELL-BRIDGE-DIST-004": "sha256:dbf04f0cd3e88ca706fbde3d64c3093cfc14f0c8001f56116b30bf993405e9ca",
-      "MCPSHELL-BRIDGE-FILE-001": "sha256:1c52f66628798e2b5dcedf8fa1d744f659750c347d4508d8f874740e437163ba",
+      "MCPSHELL-BRIDGE-FILE-001": "sha256:865ce6dca3ca0baa5d7c7ecbd196207bf0d26b985c4e30f69695bba368dbe458",
       "MCPSHELL-BRIDGE-FILE-002": "sha256:1370eaff2254b914f231b673abbde8b4689b6f82c72ba10e318d5f45f03ab363",
       "MCPSHELL-BRIDGE-FILE-003": "sha256:c31e074a3503f6deafaede7eb2fb4dbc72e48a2e269f059641ad9736d83c9b01",
       "MCPSHELL-BRIDGE-FILE-004": "sha256:b0c7fd4e4e321a7051377eb1955ed21999aa7d20180c7d6cccf22316560c84fd",
@@ -17629,15 +17813,23 @@
       "MCPSHELL-BRIDGE-FILE-009": "sha256:63e6cc4c307900bd985ff0d57589d85fe73c7e1b8a940e09bbc6aaf3cfc63dd4",
       "MCPSHELL-BRIDGE-FILE-010": "sha256:cc02310f1491b718db6b8d4f9027d2d2e149df24be70ed4b84865ddc47eaeae0",
       "MCPSHELL-BRIDGE-FILE-011": "sha256:a17278c70b614fc220672affd1242faa6e348a0b4025993929a295c72ec302dc",
-      "MCPSHELL-BRIDGE-INIT-001": "sha256:89e6ae8925e422e94c107b9a27952de4dc3ea4fe9d22d0c0f91dcd370f5f9e3d",
-      "MCPSHELL-BRIDGE-INIT-002": "sha256:42063243e0ed6efc4b43d3af30343bba19e7dbbbbaecec9d851b7d59bcc59113",
-      "MCPSHELL-BRIDGE-INIT-003": "sha256:e577506a11dd07747b24fe28de95c9cf43e29afe7df48f8c3d724ec7e71ac10d",
+      "MCPSHELL-BRIDGE-INIT-001": "sha256:729212fd31853eaca835df09b89c8354c6718530ef791b50e2ad15445553f403",
+      "MCPSHELL-BRIDGE-INIT-002": "sha256:8227dff90fdfcee7dec7456d2d32f2ac360f8981d0486d3b0aa152ab56bcb170",
+      "MCPSHELL-BRIDGE-INIT-003": "sha256:1fe84aa6e165f43d80932851af451537712b34a9ad55c2dcf370a39345a4d1d8",
       "MCPSHELL-BRIDGE-INIT-004": "sha256:b44914b0d3f01fb9b1cf4fb28ba6d9abae26f83477a94c746003e8f56779086c",
       "MCPSHELL-BRIDGE-INIT-005": "sha256:e28144b2b7d4351e52bfd8055fd9550d341c6384aafb912a71b1c404ef549e4a",
       "MCPSHELL-BRIDGE-INIT-006": "sha256:727fc94611ee2052a98ca35cfede89875d35d40d3992365e98e0328c08199ac8",
       "MCPSHELL-BRIDGE-INIT-007": "sha256:66c3df96f0e33c4e2ad01e44669422e36791bda61a5ad3bb1ee82b5aaf9c43af",
+      "MCPSHELL-BRIDGE-INIT-008": "sha256:e7ed54014bc19d8e470aae7791ca2d890c7f162d08974eaaf27b8e61fdf45c07",
+      "MCPSHELL-BRIDGE-INIT-009": "sha256:5d86d21875baffb2f80bca9a5a737dfb185084fa4160151370ffdc4e9eb1fcf1",
+      "MCPSHELL-BRIDGE-INIT-010": "sha256:b33e02da39a3fb6c592bbad1719527d3eedaed177c20166c44292cd9721f0da9",
+      "MCPSHELL-BRIDGE-INIT-011": "sha256:d7191615ae4f9f33f156d8034bd52b8bf29d44dc5f67fffaa65d66d47ccfc270",
+      "MCPSHELL-BRIDGE-INTEGRATION-001": "sha256:ea4fea6ec915342149d7011d228cc8df4fef4587017ec253e9e836a995d8cca6",
       "MCPSHELL-BRIDGE-PATCH-001": "sha256:6f2990c2018db9b6402bc6bacd7d3e952e6d297a0233c8809ee74eba5108d745",
       "MCPSHELL-BRIDGE-PATCH-002": "sha256:e62c8a069c0214b8aad27ec517c23d81358693e9d57f021376983e60bb53e956",
+      "MCPSHELL-BRIDGE-RUNTIME-001": "sha256:aa22ba9679734bb5ab1a1a7cabdf89cb16d15c401b8ca97de40bd9930c9cec62",
+      "MCPSHELL-BRIDGE-RUNTIME-002": "sha256:13b6beef23438207435464b52fb4b40b876d5f40108ba8df53619c9d965ba007",
+      "MCPSHELL-BRIDGE-RUNTIME-003": "sha256:e6ec7a47a01fdfee0542864dd684f9a9c241f9dab4acfc3cbe57a2d0db646858",
       "MCPSHELL-BRIDGE-SHELL-001": "sha256:98105be5b85cbab88e6f08c3e6a5398936cd1500904c5e923d04260bdb535446",
       "MCPSHELL-BRIDGE-SHELL-002": "sha256:2feaa8b38c01735720fbce83a73ad9bae4a9ba779000737ec781aced09a96f85",
       "REPO-FORMAT-SCRIPTS-001": "sha256:2f52e8e3653f91fad9f12010ebaee9b5beec800eb99609bd48b28a284618794d",

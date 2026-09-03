@@ -5,6 +5,7 @@ import {
   BridgeError,
   agentProjectDirectoryFromSkillDirectory,
   isMainModule,
+  readBridgeConfig,
   skillDirectoryFromScriptUrl,
   validateBridgeConfig,
   type BridgeConfig,
@@ -30,7 +31,13 @@ export type InitializerRequest = Readonly<{
   removeEnv?: boolean;
 }>;
 
+export type InitializerAction = Readonly<{
+  action: "create" | "unchanged" | "update";
+  resource: string;
+}>;
+
 export type InitializerResult = Readonly<{
+  actions?: readonly InitializerAction[];
   command: InitializerCommand;
   error?: string;
   failure_kind: FailureKind | "config_conflict" | null;
@@ -38,6 +45,19 @@ export type InitializerResult = Readonly<{
   identity: string;
   ok: boolean;
   wrote: boolean;
+}>;
+
+type PlannedWrite = Readonly<{
+  action: InitializerAction["action"];
+  content: string;
+  filePath: string;
+  resource: string;
+}>;
+
+type InitializationPlan = Readonly<{
+  actions: readonly InitializerAction[];
+  environment: PlannedWrite;
+  registration: PlannedWrite;
 }>;
 
 function validateIdentity(identity: string): string {
@@ -109,7 +129,7 @@ function managedRange(
 function mergeTable(
   source: string,
   identity: string
-): Readonly<{ changed: boolean; source: string }> {
+): Readonly<{ action: InitializerAction["action"]; source: string }> {
   const owned = managedRange(source, identity);
   const table = findTableRange(source, identity);
   if (table !== null && owned === null) {
@@ -121,11 +141,11 @@ function mergeTable(
   const rendered = renderedTable(identity);
   if (owned !== null) {
     const next = `${source.slice(0, owned.start)}${rendered}${source.slice(owned.end)}`;
-    return { changed: next !== source, source: next };
+    return { action: next === source ? "unchanged" : "update", source: next };
   }
   const separator = source.length === 0 || source.endsWith("\n") ? "" : "\n";
   return {
-    changed: true,
+    action: "create",
     source: `${source}${separator}${source.length === 0 ? "" : "\n"}${rendered}`
   };
 }
@@ -153,15 +173,19 @@ function removeTable(
   };
 }
 
-async function readTextIfPresent(filePath: string): Promise<string> {
+async function readOptionalText(filePath: string): Promise<string | null> {
   try {
     return await fs.readFile(filePath, "utf8");
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      return "";
+      return null;
     }
     throw error;
   }
+}
+
+async function readTextIfPresent(filePath: string): Promise<string> {
+  return (await readOptionalText(filePath)) ?? "";
 }
 
 async function assertEnvironmentIgnore(skillDirectory: string): Promise<void> {
@@ -185,6 +209,95 @@ function renderEnvironment(config: BridgeConfig): string {
     `MCPSHELL_STAGING_ROOT=${config.stagingRoot}`,
     ""
   ].join("\n");
+}
+
+function environmentAction(
+  source: string | null,
+  content: string
+): InitializerAction["action"] {
+  if (source === null) {
+    return "create";
+  }
+  return source === content ? "unchanged" : "update";
+}
+
+function assertNoOtherOwnedIdentity(source: string, identity: string): void {
+  const owned =
+    /^# Managed by mcpshell-workspace-bridge: ([A-Za-z0-9_-]+)\n\[mcp_servers\.([A-Za-z0-9_-]+)\]\n/gmu;
+  for (const match of source.matchAll(owned)) {
+    const markerIdentity = match[1];
+    const tableIdentity = match[2];
+    if (
+      markerIdentity !== undefined &&
+      markerIdentity === tableIdentity &&
+      markerIdentity !== identity
+    ) {
+      throw new BridgeError(
+        "config_invalid",
+        `config_conflict: ${tableHeader(markerIdentity)} is already managed by this bridge`
+      );
+    }
+  }
+}
+
+async function initializationPlan(
+  request: InitializerRequest,
+  paths: InitializerPaths,
+  identity: string
+): Promise<InitializationPlan> {
+  const configPath = path.join(
+    paths.agentProjectDirectory,
+    ".codex",
+    "config.toml"
+  );
+  const envPath = path.join(paths.skillDirectory, ".env.mcpshell");
+  const toolsPath = path.join(
+    paths.skillDirectory,
+    "references",
+    "mcpshell-tools.yaml"
+  );
+  const configSource = await readTextIfPresent(configPath);
+  assertNoOtherOwnedIdentity(configSource, identity);
+  const config =
+    request.config === undefined
+      ? await readBridgeConfig(paths.skillDirectory)
+      : validateBridgeConfig(request.config);
+  await assertEnvironmentIgnore(paths.skillDirectory);
+  try {
+    await fs.access(toolsPath);
+  } catch {
+    throw new BridgeError(
+      "config_invalid",
+      "MCPShell tool definitions are unavailable"
+    );
+  }
+  const environmentSource =
+    request.config === undefined ? null : await readOptionalText(envPath);
+  const environmentContent = renderEnvironment(config);
+  const merged = mergeTable(configSource, identity);
+  const environment: PlannedWrite = {
+    action:
+      request.config === undefined
+        ? "unchanged"
+        : environmentAction(environmentSource, environmentContent),
+    content: environmentContent,
+    filePath: envPath,
+    resource: environmentResource
+  };
+  const registration: PlannedWrite = {
+    action: merged.action,
+    content: merged.source,
+    filePath: configPath,
+    resource: agentConfigResource
+  };
+  return {
+    actions: [
+      { action: environment.action, resource: environment.resource },
+      { action: registration.action, resource: registration.resource }
+    ],
+    environment,
+    registration
+  };
 }
 
 async function atomicWrite(filePath: string, content: string): Promise<void> {
@@ -231,15 +344,13 @@ export async function runInitializer(
       "config.toml"
     );
     const envPath = path.join(paths.skillDirectory, ".env.mcpshell");
-    const toolsPath = path.join(
-      paths.skillDirectory,
-      "references",
-      "mcpshell-tools.yaml"
-    );
     const configSource = await readTextIfPresent(configPath);
     if (request.command === "remove") {
       const merged = removeTable(configSource, identity);
-      if (request.removeEnv) {
+      const envSource = request.removeEnv
+        ? await readOptionalText(envPath)
+        : null;
+      if (envSource !== null) {
         await fs.rm(envPath, { force: true });
       }
       if (merged.changed) {
@@ -253,29 +364,14 @@ export async function runInitializer(
           : [agentConfigResource],
         identity,
         ok: true,
-        wrote: merged.changed || request.removeEnv === true
+        wrote: merged.changed || envSource !== null
       };
     }
 
-    if (request.config === undefined) {
-      throw new BridgeError(
-        "invalid_input",
-        "backend, project root, and staging root are required"
-      );
-    }
-    const config = validateBridgeConfig(request.config);
-    await assertEnvironmentIgnore(paths.skillDirectory);
-    try {
-      await fs.access(toolsPath);
-    } catch {
-      throw new BridgeError(
-        "config_invalid",
-        "MCPShell tool definitions are unavailable"
-      );
-    }
-    const merged = mergeTable(configSource, identity);
+    const plan = await initializationPlan(request, paths, identity);
     if (request.command === "preview") {
       return {
+        actions: plan.actions,
         command: request.command,
         failure_kind: null,
         files: [agentConfigResource, environmentResource, generatedToolsPath],
@@ -284,32 +380,37 @@ export async function runInitializer(
         wrote: false
       };
     }
-    await atomicWrite(envPath, renderEnvironment(config));
-    if (merged.changed) {
-      await atomicWrite(configPath, merged.source);
+    if (plan.environment.action !== "unchanged") {
+      await atomicWrite(plan.environment.filePath, plan.environment.content);
+    }
+    if (plan.registration.action !== "unchanged") {
+      await atomicWrite(plan.registration.filePath, plan.registration.content);
     }
     return {
+      actions: plan.actions,
       command: request.command,
       failure_kind: null,
       files: [agentConfigResource, environmentResource, generatedToolsPath],
       identity,
       ok: true,
-      wrote: true
+      wrote: plan.actions.some((action) => action.action !== "unchanged")
     };
   } catch (error) {
     return failureResult(request.command, request.identity, error);
   }
 }
 
-function readCliRequest(): InitializerRequest {
-  const command = (process.argv[2] ?? "preview") as InitializerCommand;
+export function readCliRequest(
+  argv: readonly string[] = process.argv
+): InitializerRequest {
+  const command = (argv[2] ?? "preview") as InitializerCommand;
   if (command !== "preview" && command !== "apply" && command !== "remove") {
     throw new Error(
       "usage: init-mcpshell-workspace.mjs [preview|apply|remove] --identity <name> [...]"
     );
   }
   const { values } = parseArgs({
-    args: process.argv.slice(3),
+    args: argv.slice(3),
     options: {
       backend: { type: "string" },
       identity: { type: "string" },
@@ -322,16 +423,36 @@ function readCliRequest(): InitializerRequest {
   if (values.identity === undefined) {
     throw new BridgeError("invalid_input", "--identity is required");
   }
+  const providedConfigValues = [
+    values.backend,
+    values["project-root"],
+    values["staging-root"]
+  ];
+  const providedConfigCount = providedConfigValues.filter(
+    (value) => value !== undefined
+  ).length;
+  if (
+    command !== "remove" &&
+    providedConfigCount !== 0 &&
+    providedConfigCount !== 3
+  ) {
+    throw new BridgeError(
+      "invalid_input",
+      "--backend, --project-root, and --staging-root must be provided together"
+    );
+  }
   return {
     command,
     config:
       command === "remove"
         ? undefined
-        : {
-            backendHandle: values.backend ?? "",
-            projectRoot: values["project-root"] ?? "",
-            stagingRoot: values["staging-root"] ?? ""
-          },
+        : providedConfigCount === 0
+          ? undefined
+          : {
+              backendHandle: values.backend ?? "",
+              projectRoot: values["project-root"] ?? "",
+              stagingRoot: values["staging-root"] ?? ""
+            },
     identity: values.identity,
     removeEnv: values["remove-env"] ?? false
   };

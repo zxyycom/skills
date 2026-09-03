@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, test } from "node:test";
-import { runInitializer } from "../src/initializer.ts";
+import { readCliRequest, runInitializer } from "../src/initializer.ts";
 import { createBridgeFixture, type BridgeFixture } from "./support.ts";
 
 const fixtures: BridgeFixture[] = [];
@@ -37,6 +37,13 @@ test("initializer previews without writing machine configuration", async () => {
     paths(value)
   );
   assert.deepEqual(result, {
+    actions: [
+      {
+        action: "create",
+        resource: "skills/mcpshell-workspace-tools/.env.mcpshell"
+      },
+      { action: "create", resource: ".codex/config.toml" }
+    ],
     command: "preview",
     failure_kind: null,
     files: [
@@ -68,12 +75,28 @@ test("initializer applies idempotently and preserves unrelated TOML bytes", asyn
     config: value.bridgeConfig,
     identity: "workspace_bridge"
   };
-  assert.equal((await runInitializer(request, paths(value))).ok, true);
+  const first = await runInitializer(request, paths(value));
+  assert.equal(first.ok, true);
+  assert.deepEqual(first.actions, [
+    {
+      action: "create",
+      resource: "skills/mcpshell-workspace-tools/.env.mcpshell"
+    },
+    { action: "create", resource: ".codex/config.toml" }
+  ]);
   const once = await fs.readFile(configPath, "utf8");
   assert.match(once, /^# personal note/m);
   assert.match(once, /\[mcp_servers\.workspace_bridge\]/u);
   assert.doesNotMatch(once, new RegExp(value.bridgeConfig.projectRoot, "u"));
-  assert.equal((await runInitializer(request, paths(value))).wrote, true);
+  const repeated = await runInitializer(request, paths(value));
+  assert.equal(repeated.wrote, false);
+  assert.deepEqual(repeated.actions, [
+    {
+      action: "unchanged",
+      resource: "skills/mcpshell-workspace-tools/.env.mcpshell"
+    },
+    { action: "unchanged", resource: ".codex/config.toml" }
+  ]);
   assert.equal(await fs.readFile(configPath, "utf8"), once);
   assert.equal(
     await fs.readFile(path.join(value.skill, ".env.mcpshell"), "utf8"),
@@ -97,6 +120,7 @@ test("initializer stops on an unowned identity and removes only owned configurat
   );
   assert.equal(conflict.failure_kind, "config_conflict");
   assert.equal(await fs.readFile(configPath, "utf8"), unowned);
+  await assert.rejects(fs.access(path.join(value.skill, ".env.mcpshell")));
 
   await fs.writeFile(configPath, "# keep\n");
   await runInitializer(
@@ -236,4 +260,180 @@ test("initializer rejects an inline-comment table header without changing TOML",
   );
   assert.equal(result.failure_kind, "config_conflict");
   assert.equal(await fs.readFile(configPath, "utf8"), source);
+});
+
+test("initializer recovers registration from a complete existing environment", async () => {
+  const value = await fixture();
+  const configPath = path.join(value.agentProject, ".codex", "config.toml");
+  const envPath = path.join(value.skill, ".env.mcpshell");
+  const missing = await runInitializer(
+    { command: "apply", identity: "workspace_bridge" },
+    paths(value)
+  );
+  assert.equal(missing.failure_kind, "config_invalid");
+  await assert.rejects(fs.access(configPath));
+
+  const invalidEnvironment = "MCPSHELL_BACKEND_HANDLE=fixture\n";
+  await fs.writeFile(envPath, invalidEnvironment);
+  const invalid = await runInitializer(
+    { command: "apply", identity: "workspace_bridge" },
+    paths(value)
+  );
+  assert.equal(invalid.failure_kind, "config_invalid");
+  assert.equal(await fs.readFile(envPath, "utf8"), invalidEnvironment);
+  await assert.rejects(fs.access(configPath));
+
+  const environment =
+    `MCPSHELL_BACKEND_HANDLE=${value.bridgeConfig.backendHandle}\n` +
+    `MCPSHELL_PROJECT_ROOT=${value.bridgeConfig.projectRoot}\n` +
+    `MCPSHELL_STAGING_ROOT=${value.bridgeConfig.stagingRoot}\n`;
+  await fs.writeFile(envPath, environment);
+  const request = { command: "preview" as const, identity: "workspace_bridge" };
+
+  const preview = await runInitializer(request, paths(value));
+  assert.equal(preview.ok, true);
+  assert.deepEqual(preview.actions, [
+    {
+      action: "unchanged",
+      resource: "skills/mcpshell-workspace-tools/.env.mcpshell"
+    },
+    { action: "create", resource: ".codex/config.toml" }
+  ]);
+  assert.doesNotMatch(JSON.stringify(preview), new RegExp(value.project, "u"));
+  await assert.rejects(fs.access(configPath));
+
+  const applied = await runInitializer(
+    { command: "apply", identity: "workspace_bridge" },
+    paths(value)
+  );
+  assert.equal(applied.wrote, true);
+  assert.equal(await fs.readFile(envPath, "utf8"), environment);
+  assert.match(
+    await fs.readFile(configPath, "utf8"),
+    /\[mcp_servers\.workspace_bridge\]/u
+  );
+});
+
+test("initializer previews and applies the same update actions", async () => {
+  const value = await fixture();
+  const configPath = path.join(value.agentProject, ".codex", "config.toml");
+  const envPath = path.join(value.skill, ".env.mcpshell");
+  const oldEnvironment =
+    "MCPSHELL_BACKEND_HANDLE=old\n" +
+    "MCPSHELL_PROJECT_ROOT=/old/project\n" +
+    "MCPSHELL_STAGING_ROOT=/old/staging\n";
+  const oldRegistration =
+    "# Managed by mcpshell-workspace-bridge: workspace_bridge\n" +
+    "[mcp_servers.workspace_bridge]\n" +
+    'command = "old"\n';
+  await fs.mkdir(path.dirname(configPath), { recursive: true });
+  await fs.writeFile(configPath, oldRegistration);
+  await fs.writeFile(envPath, oldEnvironment);
+  const request = {
+    command: "preview" as const,
+    config: value.bridgeConfig,
+    identity: "workspace_bridge"
+  };
+
+  const preview = await runInitializer(request, paths(value));
+  const expectedActions = [
+    {
+      action: "update" as const,
+      resource: "skills/mcpshell-workspace-tools/.env.mcpshell"
+    },
+    { action: "update" as const, resource: ".codex/config.toml" }
+  ];
+  assert.deepEqual(preview.actions, expectedActions);
+  assert.doesNotMatch(JSON.stringify(preview), /old|\/old\/project/u);
+  assert.equal(await fs.readFile(envPath, "utf8"), oldEnvironment);
+  assert.equal(await fs.readFile(configPath, "utf8"), oldRegistration);
+
+  const applied = await runInitializer(
+    { ...request, command: "apply" },
+    paths(value)
+  );
+  assert.deepEqual(applied.actions, expectedActions);
+  assert.equal(applied.wrote, true);
+  assert.equal(
+    await fs.readFile(envPath, "utf8"),
+    `MCPSHELL_BACKEND_HANDLE=fixture\nMCPSHELL_PROJECT_ROOT=${value.project}\nMCPSHELL_STAGING_ROOT=${value.staging}\n`
+  );
+  assert.match(await fs.readFile(configPath, "utf8"), /command = "mcpshell"/u);
+});
+
+test("initializer requires complete CLI configuration flags", () => {
+  const omitted = readCliRequest([
+    "node",
+    "init-mcpshell-workspace.mjs",
+    "preview",
+    "--identity",
+    "workspace_bridge"
+  ]);
+  assert.equal(omitted.config, undefined);
+  assert.throws(
+    () =>
+      readCliRequest([
+        "node",
+        "init-mcpshell-workspace.mjs",
+        "apply",
+        "--identity",
+        "workspace_bridge",
+        "--backend",
+        "fixture"
+      ]),
+    /must be provided together/u
+  );
+});
+
+test("initializer rejects another owned identity until it is removed", async () => {
+  const value = await fixture();
+  const configPath = path.join(value.agentProject, ".codex", "config.toml");
+  const envPath = path.join(value.skill, ".env.mcpshell");
+  const oldEnvironment =
+    "MCPSHELL_BACKEND_HANDLE=old\n" +
+    "MCPSHELL_PROJECT_ROOT=/old/project\n" +
+    "MCPSHELL_STAGING_ROOT=/old/staging\n";
+  const oldRegistration =
+    "# Managed by mcpshell-workspace-bridge: old_workspace\n" +
+    "[mcp_servers.old_workspace]\n" +
+    'command = "mcpshell"\n' +
+    'args = ["mcp", "--tools", "skills/mcpshell-workspace-tools/references/mcpshell-tools.yaml"]\n';
+  await fs.mkdir(path.dirname(configPath), { recursive: true });
+  await fs.writeFile(configPath, oldRegistration);
+  await fs.writeFile(envPath, oldEnvironment);
+
+  for (const command of ["preview", "apply"] as const) {
+    const result = await runInitializer(
+      {
+        command,
+        config: value.bridgeConfig,
+        identity: "workspace_bridge"
+      },
+      paths(value)
+    );
+    assert.equal(result.failure_kind, "config_conflict");
+    assert.equal(await fs.readFile(configPath, "utf8"), oldRegistration);
+    assert.equal(await fs.readFile(envPath, "utf8"), oldEnvironment);
+  }
+
+  const removal = await runInitializer(
+    { command: "remove", identity: "old_workspace" },
+    paths(value)
+  );
+  assert.equal(removal.ok, true);
+  assert.equal(await fs.readFile(configPath, "utf8"), "");
+
+  const switched = await runInitializer(
+    {
+      command: "apply",
+      config: value.bridgeConfig,
+      identity: "workspace_bridge"
+    },
+    paths(value)
+  );
+  assert.equal(switched.ok, true);
+  assert.match(
+    await fs.readFile(configPath, "utf8"),
+    /\[mcp_servers\.workspace_bridge\]/u
+  );
 });

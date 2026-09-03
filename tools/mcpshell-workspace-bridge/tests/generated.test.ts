@@ -52,6 +52,7 @@ test("generated MCPShell definitions expose the four fixed-root operations", asy
       tools: Array<{
         name: string;
         params: Record<string, { default?: unknown }>;
+        run: { timeout: string };
       }>;
     };
   };
@@ -69,6 +70,10 @@ test("generated MCPShell definitions expose the four fixed-root operations", asy
     assert.equal("project_root" in tool.params, false);
   }
   assert.equal(definition.mcp.tools[2].params.replace.default, false);
+  assert.deepEqual(
+    definition.mcp.tools.map((tool) => tool.run.timeout),
+    ["2m", "2m", "5m", "5m"]
+  );
 });
 
 test("generated Node initializer and runtime execute from an installed skill layout", async () => {

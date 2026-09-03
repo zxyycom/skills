@@ -12,6 +12,7 @@ import {
   readBridgeConfig,
   shellQuote,
   skillDirectoryFromScriptUrl,
+  capturedTextLimit,
   textPayloadLimit,
   validateBridgeConfig,
   validateRelativePath,
@@ -37,13 +38,19 @@ export type RuntimeOptions = Readonly<{
 
 type SshResult = Readonly<{
   exitCode: number | null;
+  outputLimit: "stderr" | "stdout" | null;
   spawnError: string | null;
   stderr: Buffer;
   stdout: Buffer;
   timedOut: boolean;
 }>;
 
-const defaultTimeoutMs = 60_000;
+const defaultTimeoutMs: Readonly<Record<RuntimeMode, number>> = {
+  "apply-patch": 110_000,
+  "get-file": 290_000,
+  "put-file": 290_000,
+  shell: 110_000
+};
 const metadataPrefix = "MCPSHELL_META ";
 
 const remotePutScript = String.raw`
@@ -190,6 +197,13 @@ function operationName(mode: RuntimeMode): BridgeResult["operation"] {
   }
 }
 
+function operationTimeoutMs(
+  mode: RuntimeMode,
+  runtime: RuntimeOptions
+): number {
+  return runtime.timeoutMs ?? defaultTimeoutMs[mode];
+}
+
 function remoteCommand(script: string, args: readonly string[]): string {
   return `/bin/sh -c ${shellQuote(script)} sh ${args.map(shellQuote).join(" ")}`;
 }
@@ -200,16 +214,20 @@ async function runSsh(
     input?: Buffer | ReturnType<typeof createReadStream>;
     output?: ReturnType<typeof createWriteStream>;
     remoteCommand: string;
-    runtime: RuntimeOptions;
+    sshExecutable?: string;
+    timeoutMs: number;
   }>
 ): Promise<SshResult> {
   const child = spawn(
-    options.runtime.sshExecutable ?? "ssh",
+    options.sshExecutable ?? "ssh",
     ["-T", options.config.backendHandle, options.remoteCommand],
     { detached: process.platform !== "win32" }
   );
   const stdoutChunks: Buffer[] = [];
   const stderrChunks: Buffer[] = [];
+  let stdoutBytes = 0;
+  let stderrBytes = 0;
+  let outputLimit: "stderr" | "stdout" | null = null;
   let spawnError: string | null = null;
   let timedOut = false;
   const timeoutGraceMs = 50;
@@ -230,11 +248,40 @@ async function runSsh(
   };
 
   let killTimer: ReturnType<typeof setTimeout> | undefined;
+  const terminateProcessGroup = (): void => {
+    signalProcessGroup("SIGTERM");
+    if (killTimer === undefined) {
+      killTimer = setTimeout(
+        () => signalProcessGroup("SIGKILL"),
+        timeoutGraceMs
+      );
+    }
+  };
   const timeout = setTimeout(() => {
     timedOut = true;
-    signalProcessGroup("SIGTERM");
-    killTimer = setTimeout(() => signalProcessGroup("SIGKILL"), timeoutGraceMs);
-  }, options.runtime.timeoutMs ?? defaultTimeoutMs);
+    terminateProcessGroup();
+  }, options.timeoutMs);
+
+  const capture = (
+    stream: "stderr" | "stdout",
+    chunks: Buffer[],
+    chunk: Buffer
+  ): void => {
+    const captured = stream === "stdout" ? stdoutBytes : stderrBytes;
+    const remaining = capturedTextLimit - captured;
+    if (remaining > 0) {
+      chunks.push(Buffer.from(chunk.subarray(0, remaining)));
+      if (stream === "stdout") {
+        stdoutBytes += Math.min(chunk.length, remaining);
+      } else {
+        stderrBytes += Math.min(chunk.length, remaining);
+      }
+    }
+    if (chunk.length > remaining && outputLimit === null) {
+      outputLimit = stream;
+      terminateProcessGroup();
+    }
+  };
 
   let resolveClose: (code: number | null) => void = () => undefined;
   const closed = new Promise<number | null>((resolve) => {
@@ -248,11 +295,11 @@ async function runSsh(
   });
   child.stdin.on("error", () => undefined);
   child.stderr.on("data", (chunk: Buffer) =>
-    stderrChunks.push(Buffer.from(chunk))
+    capture("stderr", stderrChunks, Buffer.from(chunk))
   );
   if (options.output === undefined) {
     child.stdout.on("data", (chunk: Buffer) =>
-      stdoutChunks.push(Buffer.from(chunk))
+      capture("stdout", stdoutChunks, Buffer.from(chunk))
     );
   } else {
     child.stdout.pipe(options.output);
@@ -275,6 +322,7 @@ async function runSsh(
   }
   return {
     exitCode,
+    outputLimit,
     spawnError,
     stderr: Buffer.concat(stderrChunks),
     stdout: Buffer.concat(stdoutChunks),
@@ -286,6 +334,9 @@ function sshFailureKind(
   result: SshResult,
   targetExitCode: number | null = null
 ): FailureKind | null {
+  if (result.outputLimit !== null) {
+    return "output_limit";
+  }
   if (targetExitCode !== null) {
     return targetExitCode === 0 ? null : "target_exit";
   }
@@ -308,7 +359,16 @@ function resultFromSsh(
   targetExitCode: number | null = null,
   evidence?: Readonly<Record<string, boolean | number | string>>
 ): BridgeResult {
-  return bridgeResult(operation, sshFailureKind(result, targetExitCode), {
+  const failureKind = sshFailureKind(result, targetExitCode);
+  if (failureKind === "output_limit") {
+    return bridgeResult(operation, failureKind, {
+      evidence: { stream: result.outputLimit!, limit: capturedTextLimit },
+      stderr: result.stderr.toString("utf8"),
+      stdout: result.stdout.toString("utf8"),
+      target: { exit_code: null, timed_out: false }
+    });
+  }
+  return bridgeResult(operation, failureKind, {
     evidence,
     stderr: result.stderr.toString("utf8"),
     stdout: result.stdout.toString("utf8"),
@@ -362,6 +422,9 @@ function resultFromTargetStatus(
   ssh: SshResult,
   marker: string
 ): BridgeResult {
+  if (ssh.outputLimit !== null) {
+    return resultFromSsh(operation, ssh);
+  }
   const parsed = statusMarkerFromStderr(ssh.stderr, marker);
   if (
     parsed.invalid ||
@@ -599,7 +662,8 @@ async function runShell(
     config,
     input: Buffer.from(command, "utf8"),
     remoteCommand: invocation.remoteCommand,
-    runtime
+    sshExecutable: runtime.sshExecutable,
+    timeoutMs: operationTimeoutMs("shell", runtime)
   });
   return resultFromTargetStatus(operationName("shell"), ssh, invocation.marker);
 }
@@ -619,7 +683,8 @@ async function runPatch(
     config,
     input: Buffer.from(patch, "utf8"),
     remoteCommand: invocation.remoteCommand,
-    runtime
+    sshExecutable: runtime.sshExecutable,
+    timeoutMs: operationTimeoutMs("apply-patch", runtime)
   });
   return resultFromTargetStatus(
     operationName("apply-patch"),
@@ -660,7 +725,8 @@ async function runPut(
       String(metadata.bytes),
       metadata.sha256
     ]),
-    runtime
+    sshExecutable: runtime.sshExecutable,
+    timeoutMs: operationTimeoutMs("put-file", runtime)
   });
   const parsed = metadataFromStderr(ssh.stderr);
   const result = resultFromSsh(operationName("put-file"), {
@@ -682,6 +748,33 @@ async function runPut(
       evidence,
       stderr: detail
     });
+  const confirmedPreCommitFailure = [
+    "destination exists",
+    "destination path rejected",
+    "destination escaped project root",
+    "project root unavailable",
+    "destination parent unavailable",
+    "destination symlink rejected",
+    "remote temporary file unavailable",
+    "remote byte count mismatch",
+    "remote SHA-256 tool is unavailable",
+    "remote SHA-256 mismatch",
+    "atomic no-replace link failed"
+  ].some((detail) => result.stderr.includes(detail));
+  if (result.failure_kind === "output_limit") {
+    if (confirmedPreCommitFailure && !confirmed) {
+      return result;
+    }
+    return bridgeResult(result.operation, "outcome_unknown", {
+      ...result,
+      evidence: {
+        ...evidence,
+        cause: "output_limit",
+        stream: ssh.outputLimit!,
+        limit: capturedTextLimit
+      }
+    });
+  }
   if (confirmed) {
     return bridgeResult(result.operation, null, { ...result, evidence });
   }
@@ -695,17 +788,6 @@ async function runPut(
     if (result.stderr.includes("destination escaped project root")) {
       return bridgeResult(result.operation, "path_rejected", result);
     }
-    const confirmedPreCommitFailure = [
-      "destination path rejected",
-      "project root unavailable",
-      "destination parent unavailable",
-      "destination symlink rejected",
-      "remote temporary file unavailable",
-      "remote byte count mismatch",
-      "remote SHA-256 tool is unavailable",
-      "remote SHA-256 mismatch",
-      "atomic no-replace link failed"
-    ].some((detail) => result.stderr.includes(detail));
     if (confirmedPreCommitFailure) {
       return result;
     }
@@ -754,7 +836,8 @@ async function runGet(
         config.projectRoot,
         sourceRelative.replaceAll(path.sep, "/")
       ]),
-      runtime
+      sshExecutable: runtime.sshExecutable,
+      timeoutMs: operationTimeoutMs("get-file", runtime)
     });
   } catch (error) {
     await fs.rm(temporary, { force: true });

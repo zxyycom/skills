@@ -8,4 +8,5 @@ Contract:
 - 同名但未带 bridge 拥有标记的 table 必须冲突停止；remove 只能删除已拥有 identity 和显式要求的 env。
 
 Proves:
-- 冲突保留原 TOML；受管 table 与 `--remove-env` 的 env 被移除，而无关字节保留。
+- 同名未受管 table 的冲突在 env 与 TOML 写入前停止，并保留原 TOML。
+- 受管 table 与 `--remove-env` 的 env 被移除，而无关字节保留。

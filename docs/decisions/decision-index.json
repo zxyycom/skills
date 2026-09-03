@@ -326,6 +326,7 @@
       "use-versioned-overlay-skill-updates.md": "sha256:45c50941a04dc9aff4f2e305ec83fd14cb12d3df86e554cd23f6c4974d35f192",
       "use-versioned-runner-result-protocol.md": "sha256:48cde8d9a3cd54768d144286b55ddccec9f52272a234fe75764562d7e7fdcf9c",
       "use-vibe-check-as-authoritative-project-gate.md": "sha256:a0bc3bc9d5cb3c7fec8e38d671c7c325a1f87c83844a419cf1485d52c453ac5c",
+      "validate-mcpshell-ai-behavior-with-luna.md": "sha256:b33a66173a33efb6e0daa6e826f2c3383f1bb487d34502ea31ecd6adb0837cef",
       "validate-only-active-change-plans.md": "sha256:14d148173e7fbc11d4a3c13ccb4ccecc8c9b459516ba79072388da911bdfe860",
       "version-index-definition-compatibility.md": "sha256:94002fd6642a327388347c00f5963519a2b44eafa9eab41fd031ecdd48007d32",
       "warn-on-unreferenced-investigation-resources.md": "sha256:c80123faec33a3d0e728a009dee7eae4c0d68984de137dac3b1b934af8bedba0",
@@ -10080,6 +10081,35 @@
             "target": "settle-all-selected-checks-under-bounded-concurrency.md"
           }
         ]
+      }
+    },
+    "validate-mcpshell-ai-behavior-with-luna.md": {
+      "keys": {
+        "tag": [
+          "mcpshell-workspace-tools",
+          "skill-maintainer"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "validate-mcpshell-ai-behavior-with-luna.md",
+        "title": "用少量 Luna 调用验证 MCPShell skill 的 AI 行为",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-03T13:31:23Z",
+        "purpose": "允许对 MCPShell skill 进行低频 AI 行为验证，同时让可机械证明的 MCP 集成继续由确定性入口承担。",
+        "background": "工具注册、列举和协议调用无需消耗模型调用；只有触发、工具选择和任务延续等 AI 判断需要真实模型证据。",
+        "decision": "仅为不能机械证明的 AI 行为少量调用 Luna；MCP 结构与调用优先机械验证，不建立重复真实测试矩阵。",
+        "tags": [
+          "mcpshell-workspace-tools",
+          "skill-maintainer"
+        ],
+        "relations": []
       }
     },
     "validate-only-active-change-plans.md": {

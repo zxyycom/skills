@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, test } from "node:test";
 import { runWorkspaceOperation } from "../src/runtime.ts";
+import { capturedTextLimit } from "../src/shared.ts";
 import {
   createBridgeFixture,
   fixtureSsh,
@@ -22,9 +24,12 @@ async function fixture(): Promise<BridgeFixture> {
 
 function runtime(
   value: BridgeFixture,
-  timeoutMs = 1_000
-): Readonly<{ sshExecutable: string; timeoutMs: number }> {
-  return { sshExecutable: fixtureSsh(value), timeoutMs };
+  timeoutMs?: number
+): Readonly<{ sshExecutable: string; timeoutMs?: number }> {
+  return {
+    sshExecutable: fixtureSsh(value),
+    ...(timeoutMs === undefined ? {} : { timeoutMs })
+  };
 }
 
 test("workspace shell preserves multiline data until the fixed target shell consumes it", async () => {
@@ -84,6 +89,158 @@ test("workspace shell distinguishes target exit, timeout, and SSH transport fail
   );
   assert.equal(disconnected.failure_kind, "transport_failure");
   assert.match(disconnected.stderr, /fixture disconnect/u);
+});
+
+test("workspace selects operation-specific runtime deadlines", async () => {
+  const value = await fixture();
+  await fs.writeFile(path.join(value.staging, "source.txt"), "source\n");
+  const originalSetTimeout = globalThis.setTimeout;
+  const deadlines: number[] = [];
+  globalThis.setTimeout = ((callback: () => void, delay?: number) => {
+    deadlines.push(delay ?? 0);
+    return originalSetTimeout(callback, delay);
+  }) as typeof setTimeout;
+  try {
+    assert.equal(
+      (
+        await runWorkspaceOperation(
+          "shell",
+          { command: "true" },
+          value.bridgeConfig,
+          runtime(value)
+        )
+      ).ok,
+      true
+    );
+    assert.equal(
+      (
+        await runWorkspaceOperation(
+          "apply-patch",
+          {
+            patch:
+              "diff --git a/tracked.txt b/tracked.txt\n--- a/tracked.txt\n+++ b/tracked.txt\n@@ -1 +1 @@\n-before\n+after\n"
+          },
+          value.bridgeConfig,
+          runtime(value)
+        )
+      ).ok,
+      true
+    );
+    assert.equal(
+      (
+        await runWorkspaceOperation(
+          "put-file",
+          { destinationPath: "source.txt", sourcePath: "source.txt" },
+          value.bridgeConfig,
+          runtime(value)
+        )
+      ).ok,
+      true
+    );
+    assert.equal(
+      (
+        await runWorkspaceOperation(
+          "get-file",
+          { destinationPath: "received.txt", sourcePath: "tracked.txt" },
+          value.bridgeConfig,
+          runtime(value)
+        )
+      ).ok,
+      true
+    );
+  } finally {
+    globalThis.setTimeout = originalSetTimeout;
+  }
+  assert.deepEqual(deadlines, [110_000, 110_000, 290_000, 290_000]);
+});
+
+test("workspace caps captured output and cleans an output-limited get receive", async () => {
+  const value = await fixture();
+  for (const [stream, command] of [
+    ["stdout", `yes x | head -c ${capturedTextLimit + 1}`],
+    ["stderr", `yes x | head -c ${capturedTextLimit + 1} >&2`]
+  ] as const) {
+    const result = await runWorkspaceOperation(
+      "shell",
+      { command },
+      value.bridgeConfig,
+      runtime(value)
+    );
+    assert.equal(result.failure_kind, "output_limit");
+    assert.equal(result.target.exit_code, null);
+    assert.equal(result.target.timed_out, false);
+    assert.equal(result.evidence?.stream, stream);
+    assert.equal(result.evidence?.limit, capturedTextLimit);
+    assert.ok(Buffer.byteLength(result[stream], "utf8") <= capturedTextLimit);
+  }
+
+  const overflowSsh = path.join(
+    path.dirname(value.project),
+    "stderr-overflow-ssh"
+  );
+  await fs.writeFile(
+    overflowSsh,
+    `#!/bin/sh\nyes x | head -c ${capturedTextLimit + 1} >&2\n`
+  );
+  await fs.chmod(overflowSsh, 0o755);
+  const get = await runWorkspaceOperation(
+    "get-file",
+    { destinationPath: "not-received.txt", sourcePath: "tracked.txt" },
+    value.bridgeConfig,
+    { sshExecutable: overflowSsh }
+  );
+  assert.equal(get.failure_kind, "output_limit");
+  assert.equal(get.target.exit_code, null);
+  assert.equal(get.target.timed_out, false);
+  assert.equal(get.evidence?.stream, "stderr");
+  assert.equal(get.evidence?.limit, capturedTextLimit);
+  await assert.rejects(fs.access(path.join(value.staging, "not-received.txt")));
+  const temporaryEntries = (await fs.readdir(value.staging)).filter((name) =>
+    name.includes(".mcpshell-")
+  );
+  assert.deepEqual(temporaryEntries, []);
+});
+
+test("workspace put preserves verification evidence after a post-commit output limit", async () => {
+  const value = await fixture();
+  const source = Buffer.from("committed before output overflow\n");
+  await fs.writeFile(path.join(value.staging, "source.txt"), source);
+  const overflowSsh = path.join(
+    path.dirname(value.project),
+    "post-commit-overflow-ssh"
+  );
+  await fs.writeFile(
+    overflowSsh,
+    `#!/bin/sh
+[ "$1" = "-T" ] && shift
+shift
+/bin/sh -c "$1"
+status=$?
+yes x | head -c ${capturedTextLimit + 1} >&2
+exit "$status"
+`
+  );
+  await fs.chmod(overflowSsh, 0o755);
+  const result = await runWorkspaceOperation(
+    "put-file",
+    { destinationPath: "possibly-committed.txt", sourcePath: "source.txt" },
+    value.bridgeConfig,
+    { sshExecutable: overflowSsh }
+  );
+  assert.equal(result.failure_kind, "outcome_unknown");
+  assert.equal(result.evidence?.destination, "possibly-committed.txt");
+  assert.equal(result.evidence?.bytes, source.length);
+  assert.equal(
+    result.evidence?.sha256,
+    createHash("sha256").update(source).digest("hex")
+  );
+  assert.equal(result.evidence?.cause, "output_limit");
+  assert.equal(result.evidence?.stream, "stderr");
+  assert.equal(result.evidence?.limit, capturedTextLimit);
+  assert.deepEqual(
+    await fs.readFile(path.join(value.project, "possibly-committed.txt")),
+    source
+  );
 });
 
 test("workspace apply patch creates, updates, deletes, and atomically rejects a later invalid hunk", async () => {
@@ -158,10 +315,10 @@ test("workspace apply patch rejects escape paths and oversized text before SSH",
 
 test("workspace put and get preserve binary and empty-file bytes with both endpoint hashes", async () => {
   const value = await fixture();
-  await fs.writeFile(
-    path.join(value.staging, "binary.bin"),
-    Buffer.from([0, 255, 1, 2, 3])
-  );
+  const binary = Buffer.alloc(capturedTextLimit + 1, 0x62);
+  binary[0] = 0;
+  binary[1] = 255;
+  await fs.writeFile(path.join(value.staging, "binary.bin"), binary);
   await fs.writeFile(path.join(value.staging, "empty.bin"), Buffer.alloc(0));
   const binaryPut = await runWorkspaceOperation(
     "put-file",
@@ -170,7 +327,7 @@ test("workspace put and get preserve binary and empty-file bytes with both endpo
     runtime(value)
   );
   assert.equal(binaryPut.ok, true);
-  assert.equal(binaryPut.evidence?.bytes, 5);
+  assert.equal(binaryPut.evidence?.bytes, binary.length);
   const emptyPut = await runWorkspaceOperation(
     "put-file",
     { sourcePath: "empty.bin", destinationPath: "empty.bin" },
@@ -187,7 +344,7 @@ test("workspace put and get preserve binary and empty-file bytes with both endpo
   assert.equal(get.ok, true);
   assert.deepEqual(
     await fs.readFile(path.join(value.staging, "roundtrip.bin")),
-    Buffer.from([0, 255, 1, 2, 3])
+    binary
   );
   assert.equal(get.evidence?.sha256, binaryPut.evidence?.sha256);
 });
