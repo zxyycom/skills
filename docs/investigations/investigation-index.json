@@ -387,6 +387,36 @@
         "title": "正负描述表达能力等价但构造成本不对称"
       }
     },
+    "evaluate-mcpshell-as-user-scoped-workspace-bridge.md": {
+      "keys": {
+        "formed-at": [
+          1788418029000
+        ],
+        "tag": [
+          "agent-workspace-isolation",
+          "mcpshell",
+          "preliminary-research",
+          "workspace-bridge"
+        ],
+        "text": [
+          "MCPShell 工作区桥接前期调查：通过 SSH 暴露 shell 与 diff",
+          "是否值得继续验证一个初始化型 skill，使带个人配置的 agent 能通过 MCPShell 操作隔离工作区，并获得预实现的 shell 与 diff？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T06:47:09+00:00",
+        "question": "是否值得继续验证一个初始化型 skill，使带个人配置的 agent 能通过 MCPShell 操作隔离工作区，并获得预实现的 shell 与 diff？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "agent-workspace-isolation",
+          "mcpshell",
+          "preliminary-research",
+          "workspace-bridge"
+        ],
+        "title": "MCPShell 工作区桥接前期调查：通过 SSH 暴露 shell 与 diff"
+      }
+    },
     "ground-positive-negative-asymmetry-in-reference-structure.md": {
       "keys": {
         "formed-at": [
@@ -1063,6 +1093,7 @@
       "detect-uncommitted-decision-evolution-from-git-baselines.md": "sha256:fb694f1521249788cc78eb9ce411b05ace40cfa86654c0b2a97ba9e8df191f81",
       "distinguish-activation-neighborhoods-from-valid-solution-space.md": "sha256:36b92506235a6c9d485d876506c0ddbd7958137a0c19ae56e99b249d844eb944",
       "distinguish-expressive-equivalence-from-construction-cost.md": "sha256:a29f9f6e2543ef87429dff09a56e078bb5704639e8ca29b22db63a7bbb91d7db",
+      "evaluate-mcpshell-as-user-scoped-workspace-bridge.md": "sha256:5a3e995e3c5ec546a393bb840245372a8e83d14170681be9d520a1a96f19ef41",
       "ground-positive-negative-asymmetry-in-reference-structure.md": "sha256:b8832dbdc9c7293b14e69800fc11e13623e10102368b5e616455b7fc40c62331",
       "identify-operation-time-skill-rerouting-gap.md": "sha256:cf86eff84a6cc500ef40d435cfef153d8b41d37f3b85f95e4fa2408798cdcc97",
       "identify-routing-and-coordination-gaps-in-context-management.md": "sha256:80b476d70dfc61a5cd0463c7ca5dee3bf0f09cb1bbe7b46e1eeb7204786386fe",
