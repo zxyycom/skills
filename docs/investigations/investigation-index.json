@@ -1112,7 +1112,7 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
-      "260903-explore-name-collisions-in-retained-artifacts.md": "sha256:37e3aa0e10332174a36dab0e4298d2276953b9be9a2663df11cb940ba37cd74b",
+      "260903-explore-name-collisions-in-retained-artifacts.md": "sha256:ab557c44ecf09e3b0f49c15b9e91cac7a36a88ff80176d45a854b04c3c48fd74",
       "adopt-native-lock-and-atomic-write-libraries.md": "sha256:87332977146e80cc0f45db9956ab0b72b54211153e97c290acbf3988d2fb2326",
       "adopt-preflight-warning-and-single-predecessor-collapse.md": "sha256:8b7a09662f8f323c868e2f0c10a421125a2c213a5ae29f37a58c0985926452ad",
       "align-prompt-optimize-name-and-trigger.md": "sha256:d6e211f49e5bc58fba23c430d294054269f287a0602fc732cca758bcfbb26bdb",
