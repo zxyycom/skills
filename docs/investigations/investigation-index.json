@@ -1,6 +1,38 @@
 {
   "definitionVersion": 6,
   "entries": {
+    "260903-explore-name-collisions-in-retained-artifacts.md": {
+      "keys": {
+        "formed-at": [
+          1788420622000
+        ],
+        "tag": [
+          "artifact-identity",
+          "change-plan",
+          "decision-records",
+          "investigation-report",
+          "naming"
+        ],
+        "text": [
+          "Change、Decision 与 Investigation 的历史名称占用何时构成真实冲突，时间、短码或改名分别应承担什么责任？",
+          "保留型工件的重名需要区分语义复现与身份冲突"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T07:30:22+00:00",
+        "question": "Change、Decision 与 Investigation 的历史名称占用何时构成真实冲突，时间、短码或改名分别应承担什么责任？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "artifact-identity",
+          "change-plan",
+          "decision-records",
+          "investigation-report",
+          "naming"
+        ],
+        "title": "保留型工件的重名需要区分语义复现与身份冲突"
+      }
+    },
     "adopt-native-lock-and-atomic-write-libraries.md": {
       "keys": {
         "formed-at": [
@@ -1080,6 +1112,7 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
+      "260903-explore-name-collisions-in-retained-artifacts.md": "sha256:37e3aa0e10332174a36dab0e4298d2276953b9be9a2663df11cb940ba37cd74b",
       "adopt-native-lock-and-atomic-write-libraries.md": "sha256:87332977146e80cc0f45db9956ab0b72b54211153e97c290acbf3988d2fb2326",
       "adopt-preflight-warning-and-single-predecessor-collapse.md": "sha256:8b7a09662f8f323c868e2f0c10a421125a2c213a5ae29f37a58c0985926452ad",
       "align-prompt-optimize-name-and-trigger.md": "sha256:d6e211f49e5bc58fba23c430d294054269f287a0602fc732cca758bcfbb26bdb",
