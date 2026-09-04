@@ -78,6 +78,8 @@
       "260720-use-product-and-architecture-lenses": "sha256:1925f6d9f14713f939e8650ceaeae73650dbe8bce18539b7f91873b6b791786e",
       "260721-separate-test-entry-collection-from-ledger": "sha256:c5f8ff8c11936c6b20cb4714471a9e791e99dafe992c745bd3b234b85efb94e8",
       "260904-adopt-date-prefixed-record-identities": "sha256:1c6fe42c7eab92f319c1db57ab37ce92ab86b97a9f306f5702ab4484807fc441",
+      "260904-complete-change-plans-by-deletion": "sha256:f6937dcf430b83672ff94c5c60bed62de6ff4725a9285653e45d1aa123d1b3f7",
+      "260904-current-change-plan-completion": "sha256:40957798161dd713bd1b8068f277f7f23de907c5617901cbf697d8eed586ef71",
       "activate-release-gate-checks-by-tag": "sha256:9a4fa7a38e4c87103e295df956469814bfdd926557340399f2c798d8bbf55c4f",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -143,7 +145,7 @@
       "establish-document-main-promise-for-ai-ready-docs": "sha256:153983ae5af28f146d4192535951c36712df41530cd4fda53cdf5ab76c650c3e",
       "evaluate-reorganization-from-task-graph-case": "sha256:4e58ae6285d89c569ad1d6ad6808b7da9b15e4d8a46787af040c1ec244493edb",
       "exclude-archived-changes-from-link-validation": "sha256:a92dc5cd511bc563442ca09afaeb7da736d17154e751d292e4b7f17153190c5b",
-      "exclude-formation-time-link-bytes-from-validation": "sha256:f7faae0daa535909e7bd5455c8be7a7a91a5b9c67d5038606159d310aea05c8b",
+      "exclude-formation-time-link-bytes-from-validation": "sha256:f8750c1e3eee714f50b9f00c49e1ddc19ef4663d6a740ee807b55f8b29f3932e",
       "exclude-investigation-resources-from-index-revision": "sha256:b673eda22dcd7f14e1751f37d9628a33f429020f92681f8153fb3beccddba6ca",
       "exclude-investigation-resources-from-report-index-revision": "sha256:7ce95a1b9c5c708cba94d20773fb2d6463ba43a046ecfa896705d7766756badc",
       "express-alignment-as-field-relation": "sha256:435a97f712eeee0d9046d5b4c3cd07eef2fb48583fb81b150fd5235eefddab2a",
@@ -232,10 +234,10 @@
       "replace-decision-relations-as-complete-sets": "sha256:053ede773f81bae719cba52d2f7459ad111e30aa28c2b650af639b7f125752dd",
       "report-check-results-concisely": "sha256:bf9cd4aa0d392a4258845195a416c1b3baee678611baf3bb4c7aa3a63e4c0cd7",
       "report-plan-git-distance-as-context": "sha256:355393db59b4ea63a5765e0152dfadb29e6e782f3d840e1ad1d3ccd717dd0b10",
-      "require-canonical-active-change-metadata": "sha256:663af24d080dbaa2cb58686b2316d9e958d4d6c6fbe7278cd9ad186d9f88cd10",
+      "require-canonical-active-change-metadata": "sha256:4a89c651f7efdd25af27e95e1b6d922dcc6976ccbbe6e7ee8ccc7762eecad1b9",
       "retain-tasks-by-coordination-value": "sha256:0021c9965b47ffd480d4256463db05eb46cbe03e4cc53c875ed1903d6e35c200",
       "review-verification-implementations-with-explicit-indexed-cases": "sha256:49965b7001d83f73847b2e4396e974f868a74705d6305cff6af574f35ecd4705",
-      "route-future-work-by-minimal-carrier": "sha256:b567c39f2167f4d9977446127a9f30fa138503e4fb79f0cad7953221d11de9be",
+      "route-future-work-by-minimal-carrier": "sha256:ff9e614a2aec27c24756ea1c5eb6de8a855fb91caf07581c74c30d8d08ea67c4",
       "run-packaging-after-prerequisite-checks": "sha256:d424dedc7840a0b01e564bf575f1052862c5e690eabd31f72c2aa684255c1a83",
       "schedule-selected-checks-conservatively": "sha256:1dd0e5c81f27dbb3810e7c380e5968a6927cde76c270a7ac0503a33aa3305cde",
       "select-check-tasks-by-profile": "sha256:093ade6d3ccb729efed6176eeab527248085765649f561ece9a5d8de38d0067e",
@@ -305,7 +307,7 @@
       "use-monorepo-versioned-skill-packages": "sha256:a5cb61f0d7bc3add77361a537bb169f6e93c0a313e7841df895ecf3063ed6275",
       "use-monotonic-alignment-baseline": "sha256:8a682e8578398d379e0ac44033bb3997e6219ef433c535fd6b62c39a3e59c221",
       "use-native-locks-for-json-transactions": "sha256:cc5b87466274d9492d5e3950b333c684270c29c6575037395a28c15c56515986",
-      "use-one-change-artifact-structure": "sha256:ad743d06f177edcffcd0b3eae3ef406ced93d70ab75a42e81fe4417c4f17d38f",
+      "use-one-change-artifact-structure": "sha256:e7b72c31dae5f7af66a070f4610a1313b08be0623e2769d22b01272f69701b3d",
       "use-persisted-index-for-routine-queries": "sha256:6b055fc5dfe23d71e4f1f1ec9a982ab8cdf9be189e3e8b44fa2cddf513d44947",
       "use-physical-archive-boundary-for-decision-search": "sha256:32b236d1f16a0b5b3e4def51cd5247626cd029d1ebbf8cf8117e3a0bfd04393f",
       "use-plan-base-only-for-git-distance": "sha256:6e11706b072e4617967ee02ec7def88d2098a3765494c6681a3fb178f87f5647",
@@ -329,7 +331,7 @@
       "use-versioned-runner-result-protocol": "sha256:66c8880e404c21826d37b2fd1c8d27d959f3d45c9f552bf0b142f1f10e1ee93a",
       "use-vibe-check-as-authoritative-project-gate": "sha256:ec214ed70a966e7a9a812398ee6e4183c6a60ec11a538370fb14716dd626a81c",
       "validate-mcpshell-ai-behavior-with-luna": "sha256:9fc85db8588adee01eecec6302b0ff27893d46accf4b75e088658b82cd3433cc",
-      "validate-only-active-change-plans": "sha256:a6775c824081addcc32c4d2b099182724111c1004abf9d845e44e1866322c392",
+      "validate-only-active-change-plans": "sha256:3e9f68eaca847378a039037e77182003618516ecc41ec56272c767b9071cdbe0",
       "version-index-definition-compatibility": "sha256:65d4072d35fefef7197f0c6f987a96ad854c2dc0b6ff625f4399784251aa93e7",
       "warn-on-unreferenced-investigation-resources": "sha256:42d5cba3ebcf0b8e6ca8691c01f9a5d08d11ffeb29da017d12dcfb8566344fe6",
       "warn-on-unreferenced-report-resources": "sha256:b81892b445d51a09b4c13b2b21f4ea5d83042b95224892da32f4946277b2885f"
@@ -2732,6 +2734,90 @@
         "relations": []
       }
     },
+    "260904-complete-change-plans-by-deletion": {
+      "keys": {
+        "name": [
+          "complete-change-plans-by-deletion"
+        ],
+        "tag": [
+          "change-plan"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "name": "complete-change-plans-by-deletion",
+        "sourcePath": "archive/complete-change-plans-by-deletion.md",
+        "title": "完成 Change Plan 后删除目录",
+        "status": "archived",
+        "alignment": "unaligned",
+        "createdAt": "2026-09-04T20:24:06Z",
+        "purpose": "让 Change Plan 只承担实施期规划，并在完成后由 Git 保留可恢复历史。",
+        "background": "archive 只保留不再受检查的计划快照，却持续扩大名称空间、查询和维护责任。",
+        "decision": "以完整 Plan、任务与 Git tree 门禁的 complete-and-delete 替代 archive 和 archived raw reader。",
+        "tags": [
+          "change-plan"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "validate-only-active-change-plans"
+          }
+        ]
+      }
+    },
+    "260904-current-change-plan-completion": {
+      "keys": {
+        "name": [
+          "current-change-plan-completion"
+        ],
+        "tag": [
+          "change-plan"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "name": "current-change-plan-completion",
+        "sourcePath": "current-change-plan-completion.md",
+        "title": "以删除完成当前 Change Plan",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-04T20:50:14Z",
+        "purpose": "让公开 Change Plan 只承接当前实施计划并安全退出名称空间。",
+        "background": "archive 与 tombstone 的历史或恢复内容不能成为公开 Change 目标或长期读取表面。",
+        "decision": "以直接 active member、Git 可恢复删除与受控 tombstone 恢复收敛当前 Change Plan 生命周期。",
+        "tags": [
+          "change-plan"
+        ],
+        "relations": [
+          {
+            "type": "归并",
+            "target": "require-canonical-active-change-metadata"
+          },
+          {
+            "type": "归并",
+            "target": "exclude-formation-time-link-bytes-from-validation"
+          },
+          {
+            "type": "归并",
+            "target": "route-future-work-by-minimal-carrier"
+          },
+          {
+            "type": "归并",
+            "target": "260904-complete-change-plans-by-deletion"
+          }
+        ]
+      }
+    },
     "activate-release-gate-checks-by-tag": {
       "keys": {
         "name": [
@@ -4983,7 +5069,7 @@
           "project-tooling"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -4991,9 +5077,9 @@
       },
       "state": {
         "name": "exclude-formation-time-link-bytes-from-validation",
-        "sourcePath": "exclude-formation-time-link-bytes-from-validation.md",
+        "sourcePath": "archive/exclude-formation-time-link-bytes-from-validation.md",
         "title": "排除形成时链接字节的持续校验",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-15T04:14:19Z",
         "purpose": "让当前链接门禁覆盖可维护文档，同时保留历史形成时材料各自的 owner 边界。",
@@ -8082,7 +8168,7 @@
           "change-plan"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -8090,9 +8176,9 @@
       },
       "state": {
         "name": "require-canonical-active-change-metadata",
-        "sourcePath": "require-canonical-active-change-metadata.md",
+        "sourcePath": "archive/require-canonical-active-change-metadata.md",
         "title": "仅接受规范的 Active Change Metadata",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-14T02:39:17Z",
         "purpose": "让 Active Change 的磁盘 metadata、运行时类型和查询 stage 只有同一套 Draft 与 Plan 事实。",
@@ -8203,7 +8289,7 @@
           "task-graph"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -8211,9 +8297,9 @@
       },
       "state": {
         "name": "route-future-work-by-minimal-carrier",
-        "sourcePath": "route-future-work-by-minimal-carrier.md",
+        "sourcePath": "archive/route-future-work-by-minimal-carrier.md",
         "title": "按事项状态选择最小持久载体",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-11T03:08:21Z",
         "purpose": "让维护者按事项当前需要保存的结果唯一选择 Decision、Change、Task 或调查载体，避免未来方向被重复保存为长期等待任务或活动草稿。",
@@ -11488,7 +11574,7 @@
           "change-plan"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -11496,9 +11582,9 @@
       },
       "state": {
         "name": "validate-only-active-change-plans",
-        "sourcePath": "validate-only-active-change-plans.md",
+        "sourcePath": "archive/validate-only-active-change-plans.md",
         "title": "只对 Active Change 执行机械校验",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-23T12:48:09Z",
         "purpose": "让 Change 的归档动作终止当前契约门禁，同时保留历史记录的发现和原始读取能力。",

@@ -356,11 +356,11 @@ const expectedSemanticGateChecks = [
   ],
   [
     undefined,
-    "test:change-plan:lifecycle-archive",
+    "test:change-plan:lifecycle-complete",
     "bun",
     [
       "./tools/change-plan/tests/lifecycle.test.ts",
-      "./tools/change-plan/tests/archive.test.ts"
+      "./tools/change-plan/tests/complete.test.ts"
     ]
   ],
   [
@@ -576,8 +576,8 @@ const expectedSemanticCommandPaths = new Map<string, string>([
     "./tools/change-plan/tests/checks/artifact-and-active-plan-gates.ts"
   ],
   [
-    "test:change-plan:lifecycle-archive",
-    "./tools/change-plan/tests/checks/lifecycle-archive.ts"
+    "test:change-plan:lifecycle-complete",
+    "./tools/change-plan/tests/checks/lifecycle-complete.ts"
   ],
   [
     "test:change-plan:public-distribution",

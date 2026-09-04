@@ -26,7 +26,7 @@ relations:
 
 ## 调查范围与依据
 
-依赖判断继续以 [`fs-native-extensions@1.5.0`](https://github.com/holepunchto/fs-native-extensions/tree/v1.5.0) 和 [`write-file-atomic@8.0.0`](https://github.com/npm/write-file-atomic/tree/v8.0.0) 的正式源码、包元数据与许可证为依据。实施事实来自 [`simplify-task-graph-json-transactions` design](../../changes/archive/simplify-task-graph-json-transactions/design.md)、当时分发的精确 runtime manifest 与 npm lockfile、[`runtime.ts`](../../tools/task-graph/src/runtime.ts)、[`store.ts`](../../tools/task-graph/src/store.ts) 及对应 runtime、store、CLI 和生成产物测试。
+依赖判断继续以 [`fs-native-extensions@1.5.0`](https://github.com/holepunchto/fs-native-extensions/tree/v1.5.0) 和 [`write-file-atomic@8.0.0`](https://github.com/npm/write-file-atomic/tree/v8.0.0) 的正式源码、包元数据与许可证为依据。实施事实来自 Git 历史中的 `simplify-task-graph-json-transactions` design、当时分发的精确 runtime manifest 与 npm lockfile、[`runtime.ts`](../../tools/task-graph/src/runtime.ts)、[`store.ts`](../../tools/task-graph/src/store.ts) 及对应 runtime、store、CLI 和生成产物测试。
 
 当前验证覆盖 Windows 上的真实 addon 探针、独立描述符互斥、进程级 claim 竞争、持锁子进程退出、安装并发收敛、安装后离线 mutation、atomic writer 故障分类和分发树无 `.node`。POSIX 进程组终止与符号链接相关 case 在 Windows 上保守跳过，交给受支持的 POSIX CI 运行；没有验证网络文件系统、恶意本机路径竞争或断电后的目录元数据持久性。
 

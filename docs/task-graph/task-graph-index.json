@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "revision": 352,
+  "revision": 356,
   "nextTaskId": 70,
   "tasks": {
     "task-000001": {
@@ -389,443 +389,6 @@
         }
       }
     },
-    "task-000013": {
-      "content": {
-        "title": "审阅并归档 create-task-graph change",
-        "goal": "对已经完成 27/27 项任务的 active change 做语义归档审计，核对成功标准、稳定 owner、验证与长期决策状态；取得明确归档授权后通过 change-plan 归档。",
-        "acceptance": [
-          "proposal 成功标准已逐项与当前事实和验证证据核对。",
-          "稳定 owner 与相关长期决策处于正确状态，change 结构检查有效。",
-          "取得明确归档授权并由 change-plan CLI 成功归档。"
-        ],
-        "context": "资源面：change-plan 语义审阅与归档；实现任务已全部完成，当前不应重新实施原计划。",
-        "references": {
-          "change": "changes/create-task-graph/"
-        },
-        "result": {
-          "summary": "已完成 create-task-graph 的语义审阅并归档；任务 27/27，仓库统一检查通过。",
-          "references": {
-            "archive": "changes/archive/create-task-graph/"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 1
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {},
-          "excludes": {}
-        },
-        "timestamps": {
-          "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T09:45:54.147Z"
-        }
-      }
-    },
-    "task-000014": {
-      "content": {
-        "title": "审阅并归档 reduce-task-graph-infrastructure change",
-        "goal": "对已经完成 14/14 项任务的 active change 做语义归档审计，核对删除矩阵、当前 task-graph 事实、验证与长期决策状态；取得明确归档授权后归档。",
-        "acceptance": [
-          "proposal 成功标准与当前 task-graph 实现、分发和验证证据一致。",
-          "change 结构有效且稳定 owner 已同步。",
-          "取得明确归档授权并由 change-plan CLI 成功归档。"
-        ],
-        "context": "资源面：change-plan 语义审阅与归档；实现任务已全部完成。",
-        "references": {
-          "change": "changes/reduce-task-graph-infrastructure/"
-        },
-        "result": {
-          "summary": "已完成 reduce-task-graph-infrastructure 的语义审阅并归档；任务 14/14，仓库统一检查通过。",
-          "references": {
-            "archive": "changes/archive/reduce-task-graph-infrastructure/"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 1
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {},
-          "excludes": {}
-        },
-        "timestamps": {
-          "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T09:45:54.272Z"
-        }
-      }
-    },
-    "task-000015": {
-      "content": {
-        "title": "审阅并归档 simplify-task-graph-json-transactions change",
-        "goal": "对已经完成 38/38 项任务的 active change 做语义归档审计，核对 runtime、存储事务、生成产物、验证与长期决策状态；取得明确归档授权后归档。",
-        "acceptance": [
-          "proposal 成功标准与当前事实及记录的验证证据一致。",
-          "change 结构有效且稳定 owner、调查与决策状态已同步。",
-          "取得明确归档授权并由 change-plan CLI 成功归档。"
-        ],
-        "context": "资源面：change-plan 语义审阅与归档；实现任务已全部完成。",
-        "references": {
-          "change": "changes/simplify-task-graph-json-transactions/"
-        },
-        "result": {
-          "summary": "已完成 simplify-task-graph-json-transactions 的语义审阅并归档；任务 38/38，仓库统一检查通过。",
-          "references": {
-            "archive": "changes/archive/simplify-task-graph-json-transactions/"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 1
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {},
-          "excludes": {}
-        },
-        "timestamps": {
-          "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T09:45:54.392Z"
-        }
-      }
-    },
-    "task-000016": {
-      "content": {
-        "title": "推进 use-id-keyed-state-index change",
-        "goal": "完成 schema v3、ID 键控 state index、结构化来源 revision、三个消费者迁移与全部验证，在事实完整落地后对齐对应长期决策并使 change 达到可归档状态。",
-        "acceptance": [
-          "change tasks 中全部实施与验证项有实际证据并完成。",
-          "index-runtime/use-id-keyed-state-index.md 仅在完整事实核对后标记为 aligned。",
-          "change 通过结构和语义审阅并完成获授权的归档。"
-        ],
-        "context": "资源面：index-runtime 以及 decision-records、investigation-report、test-evidence 三个消费者；这是后续选择性索引暂存流水线的公共前置，并与修改同一消费者实现的工作流排斥。",
-        "references": {
-          "change": "changes/use-id-keyed-state-index/",
-          "decision": "docs/decisions/index-runtime/use-id-keyed-state-index.md"
-        },
-        "result": {
-          "summary": "完成 schema v3 ID 键控索引、三个消费者与生成产物/派生索引/测试证据迁移；change 22/22、full 27/27、长期决策 aligned，独立审查无剩余 findings，已达到可归档状态。change 尚未归档，工作树尚未提交。",
-          "references": {
-            "change": "changes/use-id-keyed-state-index/",
-            "decision": "docs/decisions/index-runtime/use-id-keyed-state-index.md"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 1
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {},
-          "excludes": {
-            "task-000020": true,
-            "task-000021": true,
-            "task-000026": true
-          }
-        },
-        "timestamps": {
-          "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-08T03:08:18.933Z"
-        }
-      }
-    },
-    "task-000017": {
-      "content": {
-        "title": "推进 stage-selected-index-entries change",
-        "goal": "在 ID 键控索引前置已经对齐后，实现按选中 ID 从 revision 与工作区索引构造完整 pending 索引、受锁冲突保护和全部验证，对齐长期决策并使 change 达到可归档状态。",
-        "acceptance": [
-          "前置 use-id-keyed-state-index 已完成并对齐。",
-          "change tasks 中全部实施与验证项有实际证据并完成。",
-          "index-runtime/stage-selected-index-entries-by-id.md 完整核对后 aligned，change 完成获授权的归档。"
-        ],
-        "context": "资源面：index-runtime + shared version-control；是 investigation-report 与 test-evidence 两个领域接入 change 的公共前置。",
-        "references": {
-          "change": "changes/stage-selected-index-entries/",
-          "decision": "docs/decisions/index-runtime/stage-selected-index-entries-by-id.md"
-        },
-        "result": {
-          "summary": "已实现按稳定 ID 选择性暂存完整索引，加入锁内 pending 期望核对与冲突恢复语义；目标测试、证据、生成物、版本和全量 28 项门禁通过，长期决策已对齐，change 已归档并提交。",
-          "references": {
-            "change": "changes/archive/stage-selected-index-entries/",
-            "commit": "d1ff283e5a654e97ec4fbf6ff8f78bb6b888ae2d",
-            "decision": "docs/decisions/index-runtime/stage-selected-index-entries-by-id.md"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 1
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {
-            "task-000016": true
-          },
-          "excludes": {}
-        },
-        "timestamps": {
-          "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-09T10:49:12.730Z"
-        }
-      }
-    },
-    "task-000018": {
-      "content": {
-        "title": "推进 stage-selected-investigations change",
-        "goal": "在公共按条目暂存能力完成后，为 investigation-report 建立选择性索引暂存决策与 stage-index 入口，完成领域接入、分发、验证、决策对齐和 change 收敛。",
-        "acceptance": [
-          "公共 stage-selected-index-entries 前置已完成。",
-          "调查主题 ID 接入、生成产物、测试与证据按 change tasks 完成。",
-          "新增长期决策与最终事实一致并 aligned，change 完成获授权的归档。"
-        ],
-        "context": "资源面：investigation-report；与随附资源 change 修改相同实现与行为 owner，不能在同一共享工作区同时执行。",
-        "references": {
-          "change": "changes/stage-selected-investigations/"
-        },
-        "result": {
-          "summary": "已为 investigation-report 接入按主题 ID 的 stage-index，保持主题文件独立暂存与随附资源集合级门禁；领域/公共测试、生成物、证据和全仓门禁通过，长期决策已对齐，change 已归档并提交。",
-          "references": {
-            "change": "changes/archive/stage-selected-investigations/",
-            "commit": "f5a555427cd7c9b1f58dc0f2e9b454f441da6415",
-            "decision": "docs/decisions/investigation-report/stage-selected-investigation-index-entries.md"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 1
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {
-            "task-000017": true
-          },
-          "excludes": {
-            "task-000020": true
-          }
-        },
-        "timestamps": {
-          "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-10T04:15:30.219Z"
-        }
-      }
-    },
-    "task-000019": {
-      "content": {
-        "title": "推进 stage-selected-test-evidence change",
-        "goal": "在公共按条目暂存能力完成后，为 test-evidence 建立选择性索引暂存决策与 stage-index 入口，完成领域接入、分发、验证、决策对齐和 change 收敛。",
-        "acceptance": [
-          "公共 stage-selected-index-entries 前置已完成。",
-          "case ID 接入、生成产物、测试与证据按 change tasks 完成。",
-          "新增长期决策与最终事实一致并 aligned，change 完成获授权的归档。"
-        ],
-        "context": "资源面：test-evidence；与测试实体—语义 Case 多对多工作修改相同实现与行为 owner，不能在同一共享工作区同时执行。",
-        "references": {
-          "change": "changes/stage-selected-test-evidence/"
-        },
-        "result": {
-          "summary": "已建立按 Case ID 选择性暂存 test-evidence 索引的领域契约与入口，补齐分发产物、测试证据和长期决策，并归档对应 Change；主线全量检查通过。",
-          "references": {
-            "change": "changes/archive/stage-selected-test-evidence/",
-            "decision": "docs/decisions/test-evidence-review/stage-selected-test-evidence-index-entries.md",
-            "skill": "skills/test-evidence-review/SKILL.md"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 2
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {
-            "task-000017": true
-          },
-          "excludes": {
-            "task-000026": true
-          }
-        },
-        "timestamps": {
-          "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-10T09:04:20.473Z"
-        }
-      }
-    },
-    "task-000020": {
-      "content": {
-        "title": "推进 support-investigation-resources change",
-        "goal": "允许 investigation-report 的 H3 报告按需通过固定本地链接引用随附资源，并管理已声明的引用及其文件，包括资源池、安全校验、索引关系、SHA-256、新鲜度和验证；完整落地后对齐资源决策并使 change 达到可归档状态。",
-        "acceptance": [
-          "change tasks 中契约、实现、生成、证据和验证项全部完成。",
-          "investigation-report/attach-verifiable-resources-to-investigation-reports.md 完整核对后 aligned。",
-          "change 通过语义审阅并完成获授权的归档。"
-        ],
-        "context": "核心：允许报告按需引用资源，并管理已声明的引用及其文件；与选择性 investigation index 暂存 change 修改相同 implementation 和 behavior owner。",
-        "references": {
-          "change": "changes/support-investigation-resources/",
-          "decision": "docs/decisions/investigation-report/attach-verifiable-resources-to-investigation-reports.md"
-        },
-        "result": {
-          "summary": "已实现调查报告可选随附资源引用及已声明关系与资源完整性管理；25/25 领域测试和 full profile 28/28 通过，长期决策已对齐，change 已归档。",
-          "references": {
-            "change": "changes/archive/support-investigation-resources",
-            "commit": "feece5c",
-            "decision": "docs/decisions/investigation-report/attach-verifiable-resources-to-investigation-reports.md"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 3
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {},
-          "excludes": {
-            "task-000016": true,
-            "task-000018": true
-          }
-        },
-        "timestamps": {
-          "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-09T11:13:46.346Z"
-        }
-      }
-    },
-    "task-000021": {
-      "content": {
-        "title": "推进 unify-decision-relation-evolution change",
-        "goal": "把决策关系维护收口到统一闭合 evolve 事务，完成完整关系集合替换、拓扑策略、恢复、破坏性 CLI 更新、测试证据和分发，并在事实落地后对齐两条长期决策与收敛 change。",
-        "acceptance": [
-          "change tasks 中 readiness、实现与验证项全部以实际证据完成。",
-          "统一关系事务与完整集合替换两条决策均逐项核对后 aligned。",
-          "change 通过语义审阅并完成获授权的归档。"
-        ],
-        "context": "资源面：decision-records；与 use-id-keyed-state-index 对 decision-records 消费者的迁移修改相同实现与生成 owner。",
-        "references": {
-          "change": "changes/unify-decision-relation-evolution/",
-          "decision-evolve": "docs/decisions/decision-records/unify-closed-decision-relation-evolution.md",
-          "decision-relations": "docs/decisions/decision-records/replace-decision-relations-as-complete-sets.md"
-        },
-        "result": {
-          "summary": "统一关系事务与完整集合替换已落地；Decision Records 68/68、仓库 full 28/28 通过，两条长期决策已 aligned，Change 25/25 并归档。",
-          "references": {
-            "change": "changes/archive/unify-decision-relation-evolution/",
-            "closure-commit": "7df3cd4",
-            "evidence-commit": "b3603ad",
-            "implementation-commit": "0d4f14e"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 2
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {},
-          "excludes": {
-            "task-000016": true
-          }
-        },
-        "timestamps": {
-          "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-09T11:25:14.345Z"
-        }
-      }
-    },
-    "task-000022": {
-      "content": {
-        "title": "为 Change 生命周期阶段建立并推进实施 change",
-        "goal": "围绕起草、计划、实施与搁置恢复方向核对当前 change-plan 事实，建立可执行的 active change，确定持久状态、CLI 与门禁，实施验证后对齐长期决策并完成 change 生命周期。",
-        "acceptance": [
-          "实施 change 明确阶段结构、迁移或兼容边界、CLI 和验证门禁。",
-          "完整方向成为当前事实并通过验证后，change-plan/manage-change-lifecycle-stages.md 标记为 aligned。",
-          "实施 change 完成语义审阅并在获得授权后归档。"
-        ],
-        "context": "资源面：change-plan；当前没有承接该决策的 active change，因此先完成设计与资源估算，再进入实施。",
-        "references": {
-          "decision": "docs/decisions/change-plan/manage-change-lifecycle-stages.md"
-        },
-        "result": {
-          "summary": "完成 Change 生命周期阶段实施、第一波集成与授权归档；完整门禁通过，change 已移入 archive。",
-          "references": {
-            "archive": "changes/archive/manage-change-lifecycle-stages/",
-            "integrated-commit": "9a04c8d2b8e1d862d1c13988763b8d7039efae5d"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 4
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {},
-          "excludes": {}
-        },
-        "timestamps": {
-          "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-08T11:38:45.801Z"
-        }
-      }
-    },
     "task-000023": {
       "content": {
         "title": "让独立决策暂存能力进入发现入口",
@@ -940,56 +503,6 @@
         }
       }
     },
-    "task-000026": {
-      "content": {
-        "title": "建立测试实体与语义 Case 的多对多账本机制",
-        "goal": "建立项目维护固定测试实体索引、Case Markdown 维护唯一 Test 关系、ledger 维护可重建 Case 元数据索引的闭合多对多机制；本任务交付仓库内部源码 API/CLI、Schema 与 fixture，并按现行规则维护本任务触及测试的旧格式 Case，但不执行真实新账本迁移或形成发布候选。",
-        "acceptance": [
-          "固定读取 docs/test-evidence/test-entity-index.json；严格 Schema 包含版本、项目 sourceRevision 及按固定词法顺序排列的实体 name/locators，并允许 entities 为空；共享层只校验和计算指纹，不发现、赋 ID、去重或证明新鲜度。",
-          "新模型的 cases/*.md 以非空唯一 Tests 保存唯一关系事实并支持可选多值 Tags；每个 Case 引用已知 Test，每个实体 Test 至少被一个 Case 引用；零 Test/零 Case 是合法默认状态，cases/ 缺失或为空均表示零 Case，添加首个 Case 时再创建目录。",
-          "新模型的 docs/test-evidence/test-evidence-index.json 按 Case ID 保存标题、首条 Proves 摘要、源路径、Test ID、Tag 与 search/test/tag keys，绑定实体指纹和 Case revision，可删除重建且不回写真源；读取和写入按 revision 复核。",
-          "在 tools/test-evidence/src/ledger/ 建立 options-object API、内部 argv CLI、Valibot Schema 和 fixture，覆盖空账本、合法多对多、双方悬空、重复或未知端点、Tag 查询、来源漂移、索引 sync 与双向查询；不修改构建适配、skill 公共面或版本，不生成新 ledger 分发制品。",
-          "本任务新增或修改的每个最小原生测试入口按现行 Topic/Entry 契约维护旧格式 Case，并同步当前 test-evidence-index.json；该维护只满足当前仓库门禁，不作为新 Case 的设计、迁移或完成证据。",
-          "本任务完成后的仓库状态不是发布候选；task-000035 暂存包括本任务新增旧格式 Case 在内的整个旧账本，从真实测试零开始重建和审计全部新 Case，再一次性切换 skill 契约、构建链、生成物、版本和升级路径。最终切换前被迫打包允许失败；下一次正式分发直接使用新机制。"
-        ],
-        "context": "Change 已按 AI-ready-docs 重构并以提交 1252191c302e841d4df1186a32f58e668449b490 保存于分支 codex/task-000026-test-case-relations。proposal 区分目标产品、本任务交付与后续激活，design 固定两阶段和允许写入范围，tasks 将 8 项实施与 8 项验证逐项映射。两个权威源、闭合多对多、合法空账本、schemaVersion 5 机器结果、现行测试 Case 责任、无中间分发和 updater 升级门禁均可独立恢复；机制尚未实施。",
-        "references": {
-          "change": "changes/establish-many-to-many-test-case-relations/",
-          "decision": "docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md",
-          "migration-task": "task-000035"
-        },
-        "result": {
-          "summary": "已在内部完成测试实体与语义 Case 多对多账本 API/CLI、严格 Schema、fixture、双来源 revision 与 UTF-8/原子同步保护，并为 29 个触及的最小原生测试入口维护现行旧格式 Case；公共 skill、构建切换、真实新账本迁移与发布候选均留给 task-000035。",
-          "references": {
-            "branch": "codex/task-000026-test-case-ledger",
-            "change": "changes/establish-many-to-many-test-case-relations/",
-            "commit": "5b1284a0971309e7c0f8617274c1b6ac217b9bc7"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 18
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {},
-          "excludes": {
-            "task-000016": true,
-            "task-000019": true
-          }
-        },
-        "timestamps": {
-          "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-10T04:40:25.229Z"
-        }
-      }
-    },
     "task-000027": {
       "content": {
         "title": "让 task list 默认使用低冗余的分层 DAG renderer",
@@ -1052,7 +565,7 @@
           "在版本控制锁内核对既有 pending，保留索引外路径，不覆盖另一批已暂存任务，不修改工作区索引；并发或基线变化返回稳定诊断。",
           "提供稳定文本与 JSON 结果、原生测试、测试证据、skill 与生成制品说明，并用真实并发任务变化证明可分别形成提交。"
         ],
-        "context": "这是 task-graph 自己的领域接入，不预设它可直接复用 StateIndexRuntime：task index 具有 revision、nextTaskId 和关系闭合规则。先比较复用 task-000017 公共能力、共享 version-control 原语或专用组合器的最小正确实现。所有 mutation 仍显式指向中央 root；命令只改变 Git pending，不改变任务状态。",
+        "context": "这是 task-graph 自己的领域接入，不预设它可直接复用 StateIndexRuntime：task index 具有 revision、nextTaskId 和关系闭合规则。先直接比较现有 shared version-control 原语与 StateIndexRuntime 边界，再选择专用组合器的最小正确实现。所有 mutation 仍显式指向中央 root；命令只改变 Git pending，不改变任务状态。",
         "references": {
           "index": "docs/task-graph/task-graph-index.json",
           "related-decision": "docs/decisions/index-runtime/stage-selected-index-entries-by-id.md",
@@ -1090,7 +603,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-08T12:01:37.160Z",
-          "updatedAt": "2026-08-10T04:09:34.568Z"
+          "updatedAt": "2026-09-04T21:43:57.414Z"
         }
       }
     },
@@ -1267,58 +780,6 @@
         }
       }
     },
-    "task-000033": {
-      "content": {
-        "title": "探索以 Case ID 约束测试阻断资格",
-        "goal": "比较并定义一种仓库级机制：只有能追溯到已登记语义 Case ID 的测试结果才有资格作为行为测试阻断；缺少关联的测试应被诊断为非法测试而不是普通测试失败，同时不预设最终由 skill、测试框架适配、runner wrapper、manifest 或 CI 协议承载。",
-        "acceptance": [
-          "恢复现有 test-evidence 的 Case、最小测试入口、package test:* 与完整门禁边界，明确测试失败、非法测试和门禁失败三者的语义及诊断 owner。",
-          "比较 skill 与 agent 初始化约定、测试代码元数据或伪代码、runner/wrapper、显式 manifest/注册表和 CI 校验等现实候选，选择不建立第二事实源的最小通用方案。",
-          "定义 Case ID 关联的声明位置、可验证性、迁移路径、例外与失败行为，并明确非法测试是否仍阻断整体门禁以及如何防止通过删除关联逃避测试。",
-          "形成可单独审阅和试点的 change 边界与验证计划；本候选任务本身不预先授权实现。"
-        ],
-        "context": "事实恢复、候选比较和试点验证边界已保存为 draft change 并提交。建议 Case Markdown Tests: 保持唯一关系 owner，执行侧只绑定 Test ID 并派生 Case ID。当前唯一用户语义问题是非法测试是否以 test-integrity 类别硬阻断整体门禁；精确 Test ID/runner 绑定需在 task-000026 最终模型及 task-000035 发现方案上复核。本线未实施测试、runner、manifest、CI 或 test-evidence 行为变更。",
-        "references": {
-          "change": "changes/qualify-behavior-test-blocking-by-case-id/",
-          "coding-style": "docs/coding-style.md",
-          "commit": "9fe71f45ccb1e55e89173478d2b2564e4a1cb9b6",
-          "migration-task": "task-000035",
-          "related-task": "task-000026",
-          "test-evidence-owner": "skills/test-evidence-review/SKILL.md"
-        },
-        "result": {
-          "summary": "已完成 Case ID 测试阻断资格探索：用户确认无可描述、可审计 Case 意义的非法测试必须以 test-integrity 硬阻断，但不得归类为行为回归；已形成可审阅 draft change，恢复 task-000026 内部账本结论，并将真实 Test ID、发现与 runner 绑定保留给 task-000035。未实施测试框架、runner、manifest、CI 或 test-evidence 行为变更。",
-          "references": {
-            "branch": "codex/task-000033-case-id-test-blocking",
-            "change": "changes/qualify-behavior-test-blocking-by-case-id/",
-            "decision-commit": "e4ed298469a98a2809a147d661b49c935b50e3b6",
-            "dependency-commit": "5b1284a0971309e7c0f8617274c1b6ac217b9bc7",
-            "initial-commit": "9fe71f45ccb1e55e89173478d2b2564e4a1cb9b6"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 2
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {
-            "task-000026": true
-          },
-          "excludes": {}
-        },
-        "timestamps": {
-          "createdAt": "2026-08-09T11:15:04.910Z",
-          "updatedAt": "2026-08-10T05:42:26.597Z"
-        }
-      }
-    },
     "task-000034": {
       "content": {
         "title": "探索分层 Skill 发现与聚合包入口",
@@ -1360,19 +821,18 @@
     "task-000035": {
       "content": {
         "title": "全量重建、审计并一次性切换测试证据账本",
-        "goal": "在多对多机制完成后，暂存整个旧账本并从真实测试实体零开始重建、审计全部语义 Case；通过旧 Case 遗漏对照后一次性激活新 skill 契约和构建产物，使机制建设后的下一次正式分发直接使用新办法。",
+        "goal": "在长期账本方向重新获得实施授权后，从真实测试实体零开始重建并审计全部语义 Case；完成遗漏对照后一次性切换 test-evidence 契约、构建产物、版本与升级路径。",
         "acceptance": [
           "项目生成并维护真实 test-entity-index.json；新 Case 与测试实体关系闭合，任何 Test 或 Case 都不悬空，实体索引新鲜度满足项目门禁。",
-          "全部 Case 从真实测试与语义 owner 零开始建立并逐一审查，不把旧 Case 或 task-000026 为当前测试门禁新增的旧格式 Case 当作迁移输入；审计发现的问题按事实建立在本任务下的子任务。",
-          "开始真实新账本前，把包括 task-000026 所维护 Case 在内的整个旧账本移入固定根外、受 Git 管理的临时暂存目录；新账本独立通过结构、语义和查询验收后，再用暂存旧 Case 做遗漏对照，确认无遗漏后删除整个暂存目录。",
-          "遗漏对照通过后，在同一次最终切换中改写 SKILL、行为契约与项目文档，切换 scripts/build/test-evidence.ts 和最终生成物，提升 skill 版本，删除旧 catalog 实现及引用，并对齐长期决策；不发布旧、新入口并存的候选版或过渡版。",
-          "同时验证全新安装和从当前已发布版本升级。鉴于 updater 会保留新包未包含的旧本地文件，旧可执行入口和旧行为契约必须由新包覆盖或明确失效；升级后不能继续执行旧 catalog 行为。只有真实账本、最终制品、升级路径和统一检查全部通过，才允许下一次正式分发。"
+          "全部 Case 从真实测试与语义 owner 零开始建立并逐一审查；审计发现的问题按事实建立子任务，不把旧 Case 当作迁移输入。",
+          "开始真实新账本前，将旧账本暂存为受 Git 管理的临时迁移输入；新账本独立通过结构、语义和查询验收后完成遗漏对照并删除暂存目录。",
+          "遗漏对照通过后，在同一次最终切换中改写 skill、契约、项目文档、构建链和生成物，提升版本并删除旧 catalog 实现及引用。",
+          "同时验证全新安装和从当前已发布版本升级；只有真实账本、最终制品、升级路径和统一检查全部通过，才允许下一次正式分发。"
         ],
-        "context": "这是依赖 task-000026 的独立迁移与最终激活主任务，不是机制任务的子任务。两项任务之间没有受支持的分发阶段：若最终切换前被迫打包，失败属于预期，不建立兼容层。新旧账本共用固定 docs/test-evidence 根和 test-evidence-index.json，故暂存整个旧账本是确定的迁移前置；暂存只用于遗漏对照，具体路径在执行前固定并最终彻底删除。具体问题子任务只在真实审计发现后创建。",
+        "context": "这是当前长期账本方向的最终迁移候选，不是已授权工作；具体子任务只在真实审计发现后创建。当前协调前置已处于 succeeded，真正开始前仍须重审稳定决策、现行 test-evidence owner 与迁移边界。",
         "references": {
           "decision": "docs/decisions/maintain-closed-many-to-many-test-case-relations.md",
-          "mechanism-change": "changes/archive/establish-many-to-many-test-case-relations/",
-          "mechanism-task": "task-000026"
+          "test-evidence-owner": "skills/test-evidence-review/SKILL.md"
         },
         "result": null
       },
@@ -1387,62 +847,12 @@
         },
         "relations": {
           "parentId": null,
-          "dependsOn": {
-            "task-000026": true
-          },
+          "dependsOn": {},
           "excludes": {}
         },
         "timestamps": {
           "createdAt": "2026-08-09T15:29:30.697Z",
-          "updatedAt": "2026-08-15T03:34:52.146Z"
-        }
-      }
-    },
-    "task-000036": {
-      "content": {
-        "title": "补充全量测试阻断捕获与 Test ID 默认拒绝边界",
-        "goal": "在 task-000033 的 draft 中明确：所有进入项目门禁并可能以测试结果阻断交付的来源都必须经过资格协议；门禁对未携带可解析 Test ID、绕过账本 wrapper 或只暴露裸退出码的测试结果默认拒绝并分类为 test-integrity，同时保留行为回归与 runner 基础设施失败的区别。",
-        "acceptance": [
-          "定义全量阻断来源的封闭边界、结构化输出契约和默认拒绝语义，不把检查限制在已登记测试。",
-          "比较稳定入口收口、runner/reporter 捕获、日志解析和进程级拦截的能力边界，不假装能从任意输出可靠识别测试。",
-          "同步 proposal、design、tasks 与验证矩阵，保持 Test ID 由执行侧携带、Case ID 从账本派生且不建立第二事实源。",
-          "只提交可审阅规划更新，不实施 runner、CI、manifest、测试框架或 test-evidence 行为变更。"
-        ],
-        "context": "用户在 task-000033 完成后补充：目标不只是让既有账本测试合规，还要捕获其他测试阻断；任何测试必须提供 ID，否则视为非法测试。task-000033 成功态不能 retry，因此以独立后续协调任务记录同一 draft 的补充澄清。",
-        "references": {
-          "branch": "codex/task-000033-case-id-test-blocking",
-          "change": "changes/qualify-behavior-test-blocking-by-case-id/",
-          "source-task": "task-000033"
-        },
-        "result": {
-          "summary": "已将用户补充的全量捕获语义写入 task-000033 的 draft change：正式门禁对测试阻断权默认拒绝，所有项目拥有的测试步骤必须经过资格 adapter 并为每个原生结果提供 Test ID；Case ID 仅从账本派生。已明确已知测试旁路或缺 ID 属于 test-integrity，授权 adapter 的运行/报告通道故障属于 runner 基础设施失败，并补齐结构化输出、人类诊断、候选比较、迁移和验证边界。未实施 runner、CI、manifest、测试框架或 test-evidence 行为变更。",
-          "references": {
-            "branch": "codex/task-000033-case-id-test-blocking",
-            "change": "changes/qualify-behavior-test-blocking-by-case-id/",
-            "commit": "20e03df29d827ad3d9f34600efd0edf72d304471",
-            "source-task": "task-000033"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 1
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {
-            "task-000033": true
-          },
-          "excludes": {}
-        },
-        "timestamps": {
-          "createdAt": "2026-08-10T05:48:48.972Z",
-          "updatedAt": "2026-08-10T05:54:09.421Z"
+          "updatedAt": "2026-09-04T21:36:48.432Z"
         }
       }
     },
@@ -1461,9 +871,7 @@
         "references": {
           "engine": "tools/task-graph/src/engine.ts#retryTask",
           "result-contract": "docs/decisions/task-graph/anchor-semantic-task-results-in-index-history.md",
-          "skill": "skills/task-graph/SKILL.md",
-          "trigger-task": "task-000033",
-          "workaround-task": "task-000036"
+          "skill": "skills/task-graph/SKILL.md"
         },
         "result": {
           "summary": "已盘点 mutation 生命周期并形成 current Change：未终态复用现有细粒度 mutation，running 先按 lease 释放；错误 succeeded/cancelled 通过 expected revision 与非空原因约束的 correct 转为 paused idle 并保存 terminal evidence；正确完成后的新需求创建后继 task。实施已拆为 task-000044，本任务未修改运行时代码。",
@@ -1492,106 +900,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-10T05:52:08.728Z",
-          "updatedAt": "2026-08-10T10:35:00.573Z"
-        }
-      }
-    },
-    "task-000038": {
-      "content": {
-        "title": "确定统一测试结果 JSON 协议边界",
-        "goal": "将 Case ID 测试阻断方案收口为统一生产者协议：各测试入口结束时输出同一版本化标准 JSON，test-evidence 资格框架只校验和消费该协议、解析 Test ID 并派生 Case ID，不直接适配各 runner。",
-        "acceptance": [
-          "明确 JSON 生产者、消费者、Schema/version、stdout 与诊断通道、逐项 Test ID 和预期/实际集合核对责任。",
-          "明确非 JSON、混杂输出、Schema 非法、缺 Test ID 与生产者无法启动等失败语义，不从日志猜测测试结果。",
-          "更新同一 draft 的 proposal、design、tasks 和验证矩阵，不实施协议、runner、CI 或 test-evidence 行为。"
-        ],
-        "context": "用户明确选择统一协议：测试结束直接输出标准 JSON，skill 框架只支持该 JSON，避免核心逐 runner 接入。精确 Test ID/locator 仍依赖 task-000035。",
-        "references": {
-          "branch": "codex/task-000033-case-id-test-blocking",
-          "change": "changes/qualify-behavior-test-blocking-by-case-id/",
-          "identity-task": "task-000035",
-          "source-task": "task-000036"
-        },
-        "result": {
-          "summary": "已按用户选择把 Case ID 测试阻断 draft 收口为统一版本化 JSON 协议：正式测试 producer 在协议模式下向 stdout 输出一个 JSON 文档，逐项携带 Test ID；test-evidence 能力只拥有 Schema、严格 consumer、Test→Case 派生和资格分类，不直接适配 Bun、Node、JUnit 或其他 runner。已明确 invocation、版本拒绝、stdout/stderr、协议非法、producer 基础设施失败、owner 分层、迁移与验证边界。task-000035 仍为 candidate，最终 Test ID 与闭合状态枚举继续等待其真实模型。未实施协议、runner、CI 或 test-evidence 行为变更。",
-          "references": {
-            "branch": "codex/task-000033-case-id-test-blocking",
-            "change": "changes/qualify-behavior-test-blocking-by-case-id/",
-            "commit": "dbf06c2ef8788692dbf92cb6ea95c4c538bef03b",
-            "identity-task": "task-000035",
-            "source-task": "task-000036"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 1
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {
-            "task-000036": true
-          },
-          "excludes": {}
-        },
-        "timestamps": {
-          "createdAt": "2026-08-10T06:00:56.021Z",
-          "updatedAt": "2026-08-10T06:06:22.216Z"
-        }
-      }
-    },
-    "task-000039": {
-      "content": {
-        "title": "AI-ready 重构统一 JSON 测试阻断 change",
-        "goal": "重构 qualify-behavior-test-blocking-by-case-id 的 proposal、design 与 tasks，使 AI 能从文档直接恢复已确认产品语义、统一 JSON 协议、owner 分层、失败分类、依赖和后续实施边界，删除逐轮讨论残留与重复而不改变领域决定。",
-        "acceptance": [
-          "三份 artifact 各自兑现 proposal、design、tasks 用途，开头明确当前结论与未授权范围。",
-          "统一术语、关系和 owner；历史候选只保留影响当前判断的必要比较，重复规则收敛到单一位置。",
-          "AI 能回答正式阻断资格、JSON producer/consumer、Test/Case ID、失败分类、task-000035 依赖和实施顺序，不依赖对话背景。",
-          "change 结构和仓库检查通过，只提交当前 change 文档，不实施协议或 test-evidence 行为。"
-        ],
-        "context": "用户显式调用 ai-ready-docs 整理当前 change。前序 task-000038 已固定统一版本化 JSON 方向；本任务只做语义保真的文档重构。",
-        "references": {
-          "branch": "codex/task-000033-case-id-test-blocking",
-          "change": "changes/qualify-behavior-test-blocking-by-case-id/",
-          "skill": "/home/dev/.codex/skills/ai-ready-docs/SKILL.md",
-          "source-task": "task-000038"
-        },
-        "result": {
-          "summary": "已按 ai-ready-docs 重构统一 JSON 测试阻断 draft：proposal 只承接结果、范围和成功标准，design 成为术语、协议、失败分类、owner、执行闭环与迁移的唯一完整说明，tasks 只保存就绪条件、实施顺序和验证出口。删除逐轮讨论残留与重复候选，将三份 artifact 从 379 行收敛到 293 行，并明确 task-000026 机制尚未激活、task-000035 仍是进入 plan 的技术依赖。代表性 AI 恢复问题、change-plan、链接、diff 和仓库 quick check 均通过；未实施协议或 test-evidence 行为变更。",
-          "references": {
-            "branch": "codex/task-000033-case-id-test-blocking",
-            "change": "changes/qualify-behavior-test-blocking-by-case-id/",
-            "commit": "fe63386df9fae458d497113886473e38e8dd59f0",
-            "skill": "ai-ready-docs",
-            "source-task": "task-000038"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 1
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {
-            "task-000038": true
-          },
-          "excludes": {}
-        },
-        "timestamps": {
-          "createdAt": "2026-08-10T06:08:37.051Z",
-          "updatedAt": "2026-08-10T06:14:55.812Z"
+          "updatedAt": "2026-09-04T21:43:57.414Z"
         }
       }
     },
@@ -1606,9 +915,8 @@
           "Goal 包含主线集成时不在分支提交后提前 complete；不新增 succeeded result 校正命令，不回溯清理历史 hash，成功事实撤销与 failed retry 保持独立。",
           "同步两个 skill、人类说明、长期决策和版本；未改变 CLI、SDK、schema 或原生测试时不制造测试改动，并通过仓库检查。"
         ],
-        "context": "task-000018 与 task-000028 曾把 rebase 前分支 SHA 保存进 result，暴露了临时 Git 身份在集成后悬空的根因。复盘后决定由 task result 保存语义结果、由 task index 的 Git 历史提供版本锚点。本任务不清理既有历史 result；成功事实撤销仍由 task-000037 承接。",
+        "context": "早期 selected-index 集成曾把 rebase 前分支 SHA 保存进 result，暴露了临时 Git 身份在集成后悬空的根因。复盘后决定由 task result 保存语义结果、由 task index 的 Git 历史提供版本锚点。本任务不清理既有历史 result；成功事实撤销仍由 task-000037 承接。",
         "references": {
-          "affected-task-1": "task-000018",
           "affected-task-2": "task-000028",
           "decision": "docs/decisions/task-graph/anchor-semantic-task-results-in-index-history.md",
           "related-reopen-task": "task-000037",
@@ -1642,152 +950,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-10T06:16:43.441Z",
-          "updatedAt": "2026-08-10T09:04:40.974Z"
-        }
-      }
-    },
-    "task-000041": {
-      "content": {
-        "title": "区分 Test 实体报告与 Case 派生诊断",
-        "goal": "在统一 JSON 测试阻断 draft 中明确 Test ID 是测试实体身份：producer 报告本次全部原生 Test 实体结果且不输出 Case ID，consumer 先按 Test 实体识别问题，再通过 ledger 自动派生关联 Case；同时移除容易被误解为 Test/Case 持久状态的 skip/todo 预设。",
-        "acceptance": [
-          "文档明确 Test 实体、单次运行结果与 Case 语义记录三者不共享执行状态。",
-          "协议要求完整报告全部实际 Test 实体结果；人类诊断以问题 Test 实体为中心并附派生 Case ID。",
-          "缺 Test ID 的非法结果只能报告可用 locator/显示名，不能伪造 Case 关联。",
-          "只调整同一 draft 并验证提交，不实施协议或 test-evidence 行为。"
-        ],
-        "context": "用户确认 producer 不必输出 Case ID；输出测试实体 ID 即可，由 consumer 先汇报问题 Test 实体，再自动关联 Case。",
-        "references": {
-          "branch": "codex/task-000033-case-id-test-blocking",
-          "change": "changes/qualify-behavior-test-blocking-by-case-id/",
-          "source-task": "task-000039"
-        },
-        "result": {
-          "summary": "已按用户澄清区分 Test 实体、单次 Test 运行结果和 Case：Test 实体与 Case 均不保存执行状态；producer JSON 完整列出本次全部实际原生结果且每项只携带 Test ID，不输出 Case ID；consumer 先按 Test ID 定位问题实体，再从 ledger 自动派生关联 Case ID。无 Test ID 结果仅报告 locator/显示名/诊断，不推断 Case；同时移除 skip/todo 等可能被误读为实体状态的预设。未实施协议或 test-evidence 行为。",
-          "references": {
-            "branch": "codex/task-000033-case-id-test-blocking",
-            "change": "changes/qualify-behavior-test-blocking-by-case-id/",
-            "commit": "e5d363b6bdf5c88a2557c3ad0e4baa19b154cfcf",
-            "source-task": "task-000039"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 1
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {
-            "task-000039": true
-          },
-          "excludes": {}
-        },
-        "timestamps": {
-          "createdAt": "2026-08-10T07:39:24.097Z",
-          "updatedAt": "2026-08-10T07:41:00.377Z"
-        }
-      }
-    },
-    "task-000042": {
-      "content": {
-        "title": "记录并长期延期统一测试阻断协议方向",
-        "goal": "将统一 JSON 测试阻断与 Test→Case 派生方向提炼为长期决策，明确当前不排期、不冻结详细 Schema 或 runner 映射，并把现有 change 标记为仅供未来恢复的 deferred draft。",
-        "acceptance": [
-          "决策只保存长期稳定方向、当前延期判断、未来重启触发条件和明确未决定项。",
-          "现有 change 清楚表明不进入 plan/implementation，详细内容是未来重审输入而非当前承诺。",
-          "按 decision-records 契约同步派生索引并通过相关检查。",
-          "提交规划/决策文档，不实施协议、runner、CI 或 test-evidence 行为。"
-        ],
-        "context": "用户表示不准备近期实施，要求不必过度严谨并考虑添加长期决策记录。",
-        "references": {
-          "branch": "codex/task-000033-case-id-test-blocking",
-          "change": "changes/qualify-behavior-test-blocking-by-case-id/",
-          "source-task": "task-000041"
-        },
-        "result": {
-          "summary": "建立 active+unaligned 长期决策，明确统一 JSON/Test ID→Case/非法结果硬阻断方向长期延期；现有 change 保持参考 draft，未实施任何行为。",
-          "references": {
-            "change": "changes/qualify-behavior-test-blocking-by-case-id/",
-            "commit": "45bb79e4a2f664997df18dffe94ed4ff44118161",
-            "decision": "docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 1
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {
-            "task-000041": true
-          },
-          "excludes": {}
-        },
-        "timestamps": {
-          "createdAt": "2026-08-10T07:44:13.796Z",
-          "updatedAt": "2026-08-10T07:50:05.677Z"
-        }
-      }
-    },
-    "task-000043": {
-      "content": {
-        "title": "收敛测试阻断规划文本与提交历史",
-        "goal": "审计 task-000033 分支上的细粒度规划提交，按 AI-ready 文档契约收敛多轮文本残留，并将历史整理为少量可独立审阅和回滚的语义提交，不改变实现行为。",
-        "acceptance": [
-          "识别同一 change 的连续措辞提交并按最终语义合并，保留可恢复的改写前锚点。",
-          "proposal、design、tasks 与长期决策明确区分权威方向、探索细节、当前事实和未来重启条件，删除伪待办与重复真源。",
-          "决策索引、change-plan 和项目统一检查通过，工作区不包含 task-graph 索引或行为实现改动。",
-          "仅重写当前未推送任务分支，不合并、不推送。"
-        ],
-        "context": "用户要求检查过往提交是否过细并稍作合并，同时对近期文本调整使用 ai-ready-docs 收敛。",
-        "references": {
-          "branch": "codex/task-000033-case-id-test-blocking",
-          "change": "changes/qualify-behavior-test-blocking-by-case-id/",
-          "decision": "docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md",
-          "old-head": "45bb79e4a2f664997df18dffe94ed4ff44118161"
-        },
-        "result": {
-          "summary": "已将 7 个连续规划提交收敛为探索稿与长期延期两个语义提交，并按 AI-ready 契约明确决策 owner、调查快照、候选设计、无当前任务和重启门槛；保留旧 HEAD 恢复 ref，未实施、合并或推送。",
-          "references": {
-            "backup-ref": "refs/codex-backups/task-000033-before-squash",
-            "change": "changes/qualify-behavior-test-blocking-by-case-id/",
-            "deferral-commit": "668322a961d7b8a73e923402001e9421c947d501",
-            "exploration-commit": "44a5dc2aba968b8a29345dc79db67d5df2954971",
-            "old-head": "45bb79e4a2f664997df18dffe94ed4ff44118161"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 1
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {
-            "task-000042": true
-          },
-          "excludes": {}
-        },
-        "timestamps": {
-          "createdAt": "2026-08-10T07:53:58.196Z",
-          "updatedAt": "2026-08-10T08:01:57.815Z"
+          "updatedAt": "2026-09-04T21:43:57.414Z"
         }
       }
     },

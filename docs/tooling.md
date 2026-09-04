@@ -102,7 +102,7 @@ diagnostic log 用于人类排查单次 invocation 的调度与执行过程，�
 Check catalog 以“它证明什么、失败后由谁处理”为分组条件：例如领域记录/索引、生命周期事务、按稳定 ID 的 pending-stage、调用协议和可分发制品可以是不同 Check；共同证明一个契约的多个原生测试文件保留在同一 Check。不得为均衡耗时把 Check 拆成每个测试，也不得把一个工具的全部测试重新合并为单一 Check。package scripts 继续是面向维护者的稳定手动聚合入口，但语义 Check 不再以 package script 身份作为 leaf。失败结果给出的直接命令是重跑该 Check 的权威路径；需要完整领域回归时仍可运行相应 `test:*` 聚合命令。
 
 
-六项原生 Check 共用当前维护范围：代码类 Check 读取 Git worktree 中 `scripts/`、`tools/` 的 JavaScript/TypeScript，并排除 Vibe 默认排除项、`changes/archive/**` 和 `docs/investigations/_resources/**`；JSON 与 Markdown 也排除这两类历史内容。重复检测只把不少于 150 tokens 的重复片段作为 blocking finding，避免把已知的小型维护片段误作门禁失败。
+六项原生 Check 共用当前维护范围：代码类 Check 读取 Git worktree 中 `scripts/`、`tools/` 的 JavaScript/TypeScript，并排除 Vibe 默认排除项和 `docs/investigations/_resources/**`；JSON 与 Markdown 也排除后者这类非当前维护内容。重复检测只把不少于 150 tokens 的重复片段作为 blocking finding，避免把已知的小型维护片段误作门禁失败。
 
 release tag 同时验证工作区正确性与 release snapshot，但两者输入不能互相替代：普通 Check 在本次项目根 invocation 中结算，原生 Check 明确选择 Git worktree，脚本或直接测试命令由自身契约决定读取输入；`release:skill-prepare` 一次读取 Git `pending` 快照，默认 Git 实现将其映射到 index，随后 version authorization 与 `pack:skills` 只消费该 invocation-local 内存快照。因此 release Gate 通过不说明未暂存的工作树 skill 改动已进入制品；需要核对两者一致性时，分别检查工作树与 index。
 
@@ -198,7 +198,7 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 | MCPShell Workspace Bridge | `test:mcpshell-workspace-bridge` | `sync:mcpshell-workspace-bridge` | `check:mcpshell-workspace-bridge` |
 | 共享基础设施 | `test:check`、`test:environment`、`test:generated-file`、`test:index-runtime`、`test:relation-graph`、`test:skill-package-hash`、`test:version-control` | — | — |
 
-Vibe 的原生 `markdown-link-validation` Check 是当前维护 Markdown 链接的唯一全仓 owner；它沿用 blocking、fail-closed 和文件选择：排除 `changes/archive/**` 与 `docs/investigations/_resources/**`。前者只作为 Change Plan 历史参考；active Change 在移动前由 `archive` 完成结构、基线、任务和目标路径门禁，归档后不再进入链接校验或 Change Plan checker。后者是 Investigation Report 保存的形成时字节，仍由资源引用与完整性门禁维护。根 `bun run validate` 校验全部 skill 的结构和主仓库配置，不扫描链接。只有显式 `bun run validate-skill -- <skill-directory>` 才校验所指单个 skill 的内部链接。
+Vibe 的原生 `markdown-link-validation` Check 是当前维护 Markdown 链接的唯一全仓 owner；它沿用 blocking、fail-closed 和文件选择，并排除 `docs/investigations/_resources/**`。该目录是 Investigation Report 保存的形成时字节，仍由资源引用与完整性门禁维护。根 `bun run validate` 校验全部 skill 的结构和主仓库配置，不扫描链接。只有显式 `bun run validate-skill -- <skill-directory>` 才校验所指单个 skill 的内部链接。
 
 三类前缀表达不同义务：
 

@@ -61,7 +61,10 @@ const initialDraftDesign = `# Design
 `;
 
 async function testValidPlan(tempRoot: string): Promise<void> {
-  const validDirectory = await writePlan(tempRoot, "add-change-plan");
+  const validDirectory = await writePlan(
+    path.join(tempRoot, "changes"),
+    "add-change-plan"
+  );
   const validResult = await checkChangePlanDirectory(validDirectory);
   assert.equal(validResult.valid, true);
   assert.deepEqual(validResult.diagnostics, []);
@@ -97,11 +100,15 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
 }
 
 async function assertDraftArtifactContract(tempRoot: string): Promise<void> {
-  const draftDirectory = await writePlan(tempRoot, "draft-change", {
-    design: initialDraftDesign,
-    metadata: { stage: "draft" },
-    proposal: minimalDraftProposal
-  });
+  const draftDirectory = await writePlan(
+    path.join(tempRoot, "changes"),
+    "draft-change",
+    {
+      design: initialDraftDesign,
+      metadata: { stage: "draft" },
+      proposal: minimalDraftProposal
+    }
+  );
   await fs.rm(path.join(draftDirectory, "tasks.md"));
   const draftResult = await checkChangePlanDirectory(draftDirectory);
   assert.equal(draftResult.valid, true);
@@ -152,9 +159,13 @@ async function assertDraftRequiresStructuredScope(
 async function assertPlanTargetArtifactContract(
   tempRoot: string
 ): Promise<void> {
-  const planTargetDirectory = await writePlan(tempRoot, "plan-target", {
-    metadata: { stage: "draft" }
-  });
+  const planTargetDirectory = await writePlan(
+    path.join(tempRoot, "changes"),
+    "plan-target",
+    {
+      metadata: { stage: "draft" }
+    }
+  );
   const targetResult =
     await checkChangePlanDirectoryForPlan(planTargetDirectory);
   assert.equal(targetResult.valid, true);
@@ -235,7 +246,9 @@ async function testActiveMetadataBoundaries(tempRoot: string): Promise<void> {
     ["extra-field", { extra: true, stage: "draft" }]
   ] as const;
   for (const [name, metadata] of invalidCases) {
-    const directory = await writePlan(tempRoot, name, { metadata });
+    const directory = await writePlan(path.join(tempRoot, "changes"), name, {
+      metadata
+    });
     const result = await checkChangePlanDirectory(directory);
     assert.equal(result.valid, false);
     assert.equal(result.stage, null);
@@ -251,7 +264,7 @@ async function testActiveMetadataBoundaries(tempRoot: string): Promise<void> {
   }
 
   const missingMetadataDirectory = await writePlan(
-    tempRoot,
+    path.join(tempRoot, "changes"),
     "missing-metadata",
     { metadata: null }
   );
@@ -267,41 +280,17 @@ async function testActiveMetadataBoundaries(tempRoot: string): Promise<void> {
   );
 }
 
-async function testArchivedCheckBoundary(tempRoot: string): Promise<void> {
-  const archivedDirectory = await writePlan(
-    path.join(tempRoot, "archive"),
-    "historical-change",
-    { metadata: null }
-  );
-  await fs.rm(path.join(archivedDirectory, "design.md"));
-  await fs.writeFile(
-    path.join(archivedDirectory, changePlanMetadataName),
-    "{",
-    "utf8"
-  );
-  const result = await checkChangePlanDirectory(archivedDirectory);
-  assert.equal(result.valid, false);
-  assert.equal(result.metadata, null);
-  assert.equal(result.stage, null);
-  assert.equal(result.distance, null);
-  assert.equal(result.taskCount, 0);
-  assert.deepEqual(result.diagnostics, [
-    {
-      code: "archived-change-not-checkable",
-      file: null,
-      message:
-        "archived changes are historical records and cannot be checked; use show to read the archived artifacts"
-    }
-  ]);
-}
-
 async function testVersionControlFailure(tempRoot: string): Promise<void> {
   const nestedRepository = path.join(tempRoot, "broken-repository");
   await fs.mkdir(nestedRepository);
   await fs.writeFile(path.join(nestedRepository, ".git"), "gitdir: missing\n");
-  const planDirectory = await writePlan(nestedRepository, "unassessable-plan", {
-    metadata: { baseCommit: validBaseCommit, stage: "plan" }
-  });
+  const planDirectory = await writePlan(
+    path.join(nestedRepository, "changes"),
+    "unassessable-plan",
+    {
+      metadata: { baseCommit: validBaseCommit, stage: "plan" }
+    }
+  );
   const result = await checkChangePlanDirectory(planDirectory);
   assert.equal(result.distance, null);
   assert.equal(result.valid, false);
@@ -321,9 +310,13 @@ async function testVersionControlFailure(tempRoot: string): Promise<void> {
 }
 
 async function testDirectoryDiagnostics(tempRoot: string): Promise<void> {
-  const invalidNameDirectory = await writePlan(tempRoot, "Invalid_Name", {
-    metadata: { stage: "draft" }
-  });
+  const invalidNameDirectory = await writePlan(
+    path.join(tempRoot, "changes"),
+    "Invalid_Name",
+    {
+      metadata: { stage: "draft" }
+    }
+  );
   const invalidNameResult =
     await checkChangePlanDirectory(invalidNameDirectory);
   assert.equal(invalidNameResult.valid, false);
@@ -333,9 +326,13 @@ async function testDirectoryDiagnostics(tempRoot: string): Promise<void> {
     )
   );
 
-  const missingFileDirectory = await writePlan(tempRoot, "missing-design", {
-    metadata: { stage: "draft" }
-  });
+  const missingFileDirectory = await writePlan(
+    path.join(tempRoot, "changes"),
+    "missing-design",
+    {
+      metadata: { stage: "draft" }
+    }
+  );
   await fs.rm(path.join(missingFileDirectory, "design.md"));
   const missingFileResult =
     await checkChangePlanDirectory(missingFileDirectory);
@@ -348,7 +345,7 @@ async function testDirectoryDiagnostics(tempRoot: string): Promise<void> {
   );
 
   const missingDirectoryResult = await checkChangePlanDirectory(
-    path.join(tempRoot, "not-created")
+    path.join(tempRoot, "changes", "not-created")
   );
   assert.ok(
     missingDirectoryResult.diagnostics.some(
@@ -356,7 +353,7 @@ async function testDirectoryDiagnostics(tempRoot: string): Promise<void> {
     )
   );
   const inaccessibleDirectoryResult = await checkChangePlanDirectory(
-    `${tempRoot}\0inaccessible-change`
+    path.join(tempRoot, "changes", "inaccessible\0change")
   );
   assert.ok(
     inaccessibleDirectoryResult.diagnostics.some(
@@ -364,7 +361,7 @@ async function testDirectoryDiagnostics(tempRoot: string): Promise<void> {
     )
   );
 
-  const filePath = path.join(tempRoot, "not-a-directory");
+  const filePath = path.join(tempRoot, "changes", "not-a-directory");
   await fs.writeFile(filePath, "file", "utf8");
   const filePathResult = await checkChangePlanDirectory(filePath);
   assert.ok(
@@ -376,7 +373,7 @@ async function testDirectoryDiagnostics(tempRoot: string): Promise<void> {
 
 async function testArtifactDiagnostics(tempRoot: string): Promise<void> {
   const invalidProposalDirectory = await writePlan(
-    tempRoot,
+    path.join(tempRoot, "changes"),
     "invalid-proposal",
     {
       metadata: { stage: "draft" },
@@ -419,9 +416,12 @@ async function testArtifactDiagnostics(tempRoot: string): Promise<void> {
     )
   );
 
-  const invalidTasksDirectory = await writePlan(tempRoot, "invalid-tasks", {
-    metadata: { stage: "draft" },
-    tasks: `# Tasks
+  const invalidTasksDirectory = await writePlan(
+    path.join(tempRoot, "changes"),
+    "invalid-tasks",
+    {
+      metadata: { stage: "draft" },
+      tasks: `# Tasks
 
 本 change 的任务结构无效。
 
@@ -442,7 +442,8 @@ async function testArtifactDiagnostics(tempRoot: string): Promise<void> {
 
 - [ ] 3.1 任务不能放在额外章节。
 `
-  });
+    }
+  );
   const invalidTasksResult = await checkChangePlanDirectoryForPlan(
     invalidTasksDirectory
   );
@@ -469,10 +470,14 @@ async function testArtifactDiagnostics(tempRoot: string): Promise<void> {
 }
 
 async function testSymbolicLinkDiagnostics(tempRoot: string): Promise<void> {
-  const targetDirectory = await writePlan(tempRoot, "linked-target", {
-    metadata: { stage: "draft" }
-  });
-  const linkedDirectory = path.join(tempRoot, "linked-change");
+  const targetDirectory = await writePlan(
+    path.join(tempRoot, "changes"),
+    "linked-target",
+    {
+      metadata: { stage: "draft" }
+    }
+  );
+  const linkedDirectory = path.join(tempRoot, "changes", "linked-change");
   await fs.symlink(
     targetDirectory,
     linkedDirectory,
@@ -486,9 +491,13 @@ async function testSymbolicLinkDiagnostics(tempRoot: string): Promise<void> {
     )
   );
 
-  const linkedArtifactDirectory = await writePlan(tempRoot, "linked-artifact", {
-    metadata: { stage: "draft" }
-  });
+  const linkedArtifactDirectory = await writePlan(
+    path.join(tempRoot, "changes"),
+    "linked-artifact",
+    {
+      metadata: { stage: "draft" }
+    }
+  );
   const designTarget = path.join(tempRoot, "design-target.md");
   await fs.writeFile(designTarget, validDesign, "utf8");
   await fs.rm(path.join(linkedArtifactDirectory, "design.md"));
@@ -508,9 +517,13 @@ async function testSymbolicLinkDiagnostics(tempRoot: string): Promise<void> {
     )
   );
 
-  const linkedMetadataDirectory = await writePlan(tempRoot, "linked-metadata", {
-    metadata: { stage: "draft" }
-  });
+  const linkedMetadataDirectory = await writePlan(
+    path.join(tempRoot, "changes"),
+    "linked-metadata",
+    {
+      metadata: { stage: "draft" }
+    }
+  );
   const metadataPath = path.join(
     linkedMetadataDirectory,
     changePlanMetadataName
@@ -538,9 +551,6 @@ test("check applies stage-specific artifact contracts", () =>
 
 test("check validates active metadata", () =>
   withFileSystemRoot("check-metadata", testActiveMetadataBoundaries));
-
-test("check rejects archived changes without validating historical content", () =>
-  withFileSystemRoot("check-archived", testArchivedCheckBoundary));
 
 test("check reports change directory path diagnostics", () =>
   withFileSystemRoot("check-paths", testDirectoryDiagnostics));

@@ -22,6 +22,7 @@ test("generated runtime stays directly importable with portable source metadata"
   assert.match(cliSource, /Rebuild: bun run sync:change-plan-cli/u);
   assert.match(cliSource, /sourceMappingURL=change-plan\.mjs\.map/u);
   assert.equal(cliSource.includes(repositoryRoot), false);
+  assert.doesNotMatch(cliSource, /archiveChangePlanDirectory/u);
   assert.equal(
     cliSource.includes(repositoryRoot.replaceAll("\\", "\\\\")),
     false
@@ -30,7 +31,7 @@ test("generated runtime stays directly importable with portable source metadata"
   const runtime: unknown = await import(pathToFileURL(generatedCliPath).href);
   assert.ok(isRecord(runtime));
   for (const runtimeExport of [
-    "archiveChangePlanDirectory",
+    "completeChangePlanDirectory",
     "checkChangePlanCollection",
     "checkChangePlanDirectory",
     "listChangePlans",

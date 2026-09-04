@@ -10,7 +10,7 @@ relations: []
 
 ## 形成时背景
 
-[`create-task-graph` design](../../changes/archive/create-task-graph/design.md) 要求索引存储在本地文件系统，由同一主机上的多个进程短时并发修改。锁等待上限是 5 秒；锁龄达到 60 秒只产生陈旧候选，只有记录的同主机进程已确认死亡时才能自动回收。锁还必须携带 owner token，并通过原子隔离与再次校验阻止旧持有者、释放者或两个回收者删除后来创建的新锁。
+Git 历史中的 `create-task-graph` design 要求索引存储在本地文件系统，由同一主机上的多个进程短时并发修改。锁等待上限是 5 秒；锁龄达到 60 秒只产生陈旧候选，只有记录的同主机进程已确认死亡时才能自动回收。锁还必须携带 owner token，并通过原子隔离与再次校验阻止旧持有者、释放者或两个回收者删除后来创建的新锁。
 
 同一设计对提交路径另有硬约束：拒绝符号链接路径；在目标目录以 `wx` 创建临时文件；写入、文件 `fsync`、单次原子替换、尽力执行目录 `fsync`，再回读并按旧 revision、新候选 revision 或其他/不可读状态分类。替换调用一旦抛错，不得盲目重试，因为系统必须区分“尚未提交”和“提交结果未知”。这些语义共同构成 task-graph 的事务协议，不能只用“有 lock API”或“先写临时文件再 rename”替代。
 
@@ -22,7 +22,7 @@ relations: []
 
 ## 调查范围与依据
 
-需求依据是 2026-08-06 工作区中的 [`proposal`](../../changes/archive/create-task-graph/proposal.md)、[`design`](../../changes/archive/create-task-graph/design.md)、[`tasks`](../../changes/archive/create-task-graph/tasks.md) 和当时尚在实施中的 [`store.ts`](../../tools/task-graph/src/store.ts)。候选覆盖纯 JavaScript 锁库 `proper-lockfile`、旧式锁库 `lockfile`、原生系统锁库 `fs-ext`，以及原子写库 `write-file-atomic`、`atomically`。
+需求依据是 2026-08-06 Git 历史中的 `create-task-graph` proposal、design、tasks 和当时尚在实施中的 [`store.ts`](../../tools/task-graph/src/store.ts)。候选覆盖纯 JavaScript 锁库 `proper-lockfile`、旧式锁库 `lockfile`、原生系统锁库 `fs-ext`，以及原子写库 `write-file-atomic`、`atomically`。
 
 生态数据取自 2026-08-06 观察到的官方 npm 包页面和注册表元数据；npm 页面提供的是滚动周下载量，本报告用它作为采用规模的粗略代理，不将下载量等同于质量或安全性。活跃度、实现行为与已知限制取自各项目的官方 GitHub 仓库、对应版本源码和 README。没有安装候选、运行本仓库适配器、执行 Windows 故障注入或完成依赖供应链安全审计。
 

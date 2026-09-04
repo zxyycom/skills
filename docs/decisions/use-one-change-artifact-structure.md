@@ -20,12 +20,12 @@ relations: []
 ## 背景
 
 - Proposal 已用 `Outcome` 和 `Scope` 表达结果与范围，design 和 tasks 承接决定、工作和验证；只有 H2 与非空内容的结构无法保存预期调整与衍生影响的因果方向。
-- 预期调整与衍生影响属于同一 Change，共同使用 proposal、design、tasks、stage、进度和归档结果。
+- 预期调整与衍生影响属于同一 Change，共同使用 proposal、design、tasks、stage、进度和完成删除前的交接结果。
 - Metadata 的责任是表达 Draft/Plan stage 与 Plan Git 基线，artifact 内容关系由 Markdown 固定结构承接。
 
 ## 决策
 
 - 采用: 受检 proposal 的 `Scope` 与 design 的 `Decisions` 依次要求 `Intended Change` 和 `Resulting Impacts`；stage 只确定必需 artifacts 与 H2，不改变这两个 H2 的内部结构。
 - 采用: CLI 验证必需 H3 的存在性、唯一性、顺序和非空内容，skill 审阅实际因果关系。
-- 采用: `Resulting Impacts` 继续通过同一 `tasks.md` 的 Readiness、Implementation 与 Verification 推进，并共享 Change 的 stage、进度和归档结果。
-- 采用: `.change-plan.json` 继续只包含 Draft/Plan stage 与 Plan 的 `baseCommit`；archived metadata 只作为历史文件保留。
+- 采用: `Resulting Impacts` 继续通过同一 `tasks.md` 的 Readiness、Implementation 与 Verification 推进，并共享 Change 的 stage、进度和完成删除前的交接结果。
+- 采用: `.change-plan.json` 继续只包含 Draft/Plan stage 与 Plan 的 `baseCommit`；完成不写入 archived metadata，历史由 Git 保留。

@@ -1,8 +1,8 @@
 # Change Plan
 
-`change-plan` 为明确 Change 保存可版本化、可审阅和可交接的临时实施上下文。Active Change
-只使用 `draft` 与 `plan` 两种 stage；完成后的 Change 进入 `archive/` 并以 archived 目录
-status 保存历史；归档前由 `archive` 完成最后一次 active Plan 门禁，归档后不再按后续契约重新校验。
+`change-plan` 为明确 Change 保存可版本化、可审阅和可交接的临时实施上下文。当前 Change
+只使用 `draft` 与 `plan` 两种 stage；完成后的 Change 由 `complete` 删除，历史只经普通 Git 恢复。
+完成前由 `complete` 执行最后一次 Plan、任务和 Git-tree 门禁。
 
 ## 为什么需要它
 
@@ -12,7 +12,7 @@ proposal、design 和 tasks 把这些内容组织成一个可恢复的实施单�
 
 固定 artifact 结构在 proposal 的 `Scope` 与 design 的 `Decisions` 中使用
 `Intended Change` 记录预期调整，使用 `Resulting Impacts` 记录由该调整产生且实现 `Outcome`
-必须处理的影响。两部分继续共享同一套 tasks、stage、进度和归档结果。
+必须处理的影响。两部分继续共享同一套 tasks、stage 与进度。
 
 Draft 保存最小 proposal 与初始 design；Plan 保存完整 proposal、design 与 tasks。
 Readiness、Implementation 和 Verification 都在 Plan 内推进，其 checkbox 表达实际任务进度，
@@ -20,18 +20,18 @@ Readiness、Implementation 和 Verification 都在 Plan 内推进，其 checkbox
 
 ## 主要能力
 
-1. `list` 发现 active 与 archived Change；`show` 展开 active 状态或读取 archived 历史；`check` 与 `check-all` 只门禁 active Change。
-2. `plan` 确认 Draft，或在重新审阅现有 Plan 后刷新 Git 基线；`archive` 归档已经完成的 Plan。
+1. `list` 发现当前 Change；`show` 展开当前状态；`check` 与 `check-all` 门禁当前 Change。
+2. `plan` 确认 Draft，或在重新审阅现有 Plan 后刷新 Git 基线；`complete` 删除已经完成且可由 Git 恢复的 Plan。
 3. Plan 查询直接提供基线后的 first-parent 提交数和 Change 目录外累计变化行数，帮助操作者决定需要怎样复核当前计划；可用距离只提供上下文，不驱动生命周期。
 4. Active metadata 只接受规范 Draft 或具有非空 Git 基线的规范 Plan；无效 metadata 所在目录仍可发现，但不能投影为合法 stage 或由写入命令自动迁移。
-5. Archived status 只由目录决定且没有 stage；历史 metadata 与 artifacts 不进入 checker。`list` 的 archived entry 只返回身份和路径，`show` 只读取原始 artifacts。
+5. 完成不是持久 status；成功后的目录不再进入 catalog、checker 或历史 reader。稳定事实、长期方向和独立调查材料在完成前交接给各自 owner。
 6. 随包 MJS 同时提供 CLI 和随当前实现变化的直接 import 表面；需要稳定交互时使用固定 CLI 契约与 JSON 结果。
 
 ## 能力边界
 
 项目 owner 继续拥有稳定事实、接口和验证语义，长期判断进入项目已有决策 owner。Change
-artifacts、机械检查、语义审阅与当前任务授权提供不同证据：`plan` 记录基线，`archive` 移动目录，
-两者都不代替实施或归档授权。不再实施的 active Change 只在明确授权后按项目的文件系统与版本控制
+artifacts、机械检查、语义审阅与当前任务授权提供不同证据：`plan` 记录基线，`complete` 删除可恢复目录，
+两者都不代替实施或删除授权。不再实施的 active Change 只在明确授权后按项目的文件系统与版本控制
 流程移除整个目录，并以 `list` 不再发现该 active member 作为退出结果。
 
 实际 skill 位于 [`skills/change-plan/`](../../skills/change-plan/)。Agent 行为从

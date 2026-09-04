@@ -1302,7 +1302,7 @@
   "sourceRevision": {
     "entries": {
       "260903-explore-name-collisions-in-retained-artifacts": "sha256:4aa2ab77d625a548920dd74b5ace539cfcf90b15b90130def4963da25078ca6f",
-      "adopt-native-lock-and-atomic-write-libraries": "sha256:b2e4d269868f633ecc0b80ec818ac57dcdfcf89c5230babdcb75f6e2183186cc",
+      "adopt-native-lock-and-atomic-write-libraries": "sha256:4861ec08242f0007c24f5b6d7e8e0a0c5fc1ccaaf6898eb1f64420645a2f0c21",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:886e1ade798bfe48802e32c5296dc03c07d9b192dde3519b52ec5b8583778bdd",
       "align-prompt-optimize-name-and-trigger": "sha256:24700cda424786bc07531f84b6c139f1de6fae7b050ad69811bdddca35734cb6",
       "bind-mentioned-objects-to-negative-roles": "sha256:6bbeafb899760c64de769224bc73312f2cd91b0f296518c5206afe6786c8759f",
@@ -1324,8 +1324,8 @@
       "preserve-redacted-conversations-in-two-derived-forms": "sha256:2aadc89228eb560dc88ab70aed571a700b2b290b663bf3bcd1d3f5524ed17fd2",
       "recognize-document-projections-as-part-of-goal-formation": "sha256:c91fef6a95326b9cb8a3aaf47eb3a2a2da14221d52c126b5e7504aae0de602e8",
       "recover-candidate-model-from-negative-description-dispute": "sha256:6c88757af0cf7f2148e9d58c76f7a5eb5dc0b519f243593a59b21333724d3671",
-      "reject-lock-and-atomic-write-library-dependencies": "sha256:989b466e6beadc79f30a161e69b2c434f0e29af96d754c8f9ff5b5f6571ce6e0",
-      "remove-supervision-around-lock-and-atomic-write-libraries": "sha256:c31866741e9195471f649180991c1707922f7130d84aa7da2fa281708ce2a759",
+      "reject-lock-and-atomic-write-library-dependencies": "sha256:f362a04ed1f9ef9b5e12dec561d676d1dab91e5a150934dcee02d15832443f1a",
+      "remove-supervision-around-lock-and-atomic-write-libraries": "sha256:ac9db8913f7630df00164600707dea6bc06a54ae2c21f1670be1951f524a6a90",
       "return-from-framework-strategy-to-description-polarity": "sha256:4b26444c14ecb49eb510f34b34f4fbec9f6180a2129042bcecd053a78b0836f5",
       "select-functional-utilities-and-data-structures": "sha256:a7193052016b591df6397e27a5827aefc0a579583391e8a5cd617309562e730a",
       "select-neverthrow-and-project-option": "sha256:466e5189496e5ebaf817f12c5b1e6850b7b0b91c0d9618f8325999c0b4f9031e",

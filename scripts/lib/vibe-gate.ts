@@ -143,7 +143,6 @@ export const projectLizardExecutable = fileURLToPath(
 );
 
 export const historicalContentExclusions = [
-  "changes/archive/**",
   "docs/investigations/_resources/**"
 ] as const;
 
@@ -280,10 +279,10 @@ export const semanticGateChecks = [
     )
   },
   {
-    checkId: "test:change-plan:lifecycle-archive",
-    displayName: "Change Plan lifecycle and archive",
+    checkId: "test:change-plan:lifecycle-complete",
+    displayName: "Change Plan lifecycle and complete",
     requiredTag: undefined,
-    command: bunTest("./tools/change-plan/tests/checks/lifecycle-archive.ts")
+    command: bunTest("./tools/change-plan/tests/checks/lifecycle-complete.ts")
   },
   {
     checkId: "test:change-plan:public-distribution",

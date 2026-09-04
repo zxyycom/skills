@@ -14,7 +14,7 @@ relations:
 
 实现复盘表明，实际占用最多代码和测试的并不是 task graph 的任务、关系或 lease 语义，而是 native runtime 的 npm 子进程监督、安装 marker、精确传递闭包验证，以及 atomic reject 后的回读分类。这些外围协议没有改善用户可感知的任务编排能力，也没有改变两个库已经承担的核心责任。
 
-[`reduce-task-graph-infrastructure` design](../../changes/archive/reduce-task-graph-infrastructure/design.md)进一步收窄边界：调用方可以接受显式 npm argv；锁文件可以离开工作区；atomic reject 可以保守地统一视为结果未知；平台兼容性继续由真实 addon 探针确认。
+Git 历史中的 `reduce-task-graph-infrastructure` design 进一步收窄边界：调用方可以接受显式 npm argv；锁文件可以离开工作区；atomic reject 可以保守地统一视为结果未知；平台兼容性继续由真实 addon 探针确认。
 
 ## 调查目的
 
@@ -22,7 +22,7 @@ relations:
 
 ## 调查范围与依据
 
-本轮不重新比较 npm 生态候选，也不改变两个固定依赖版本。判断依据是 [`reduce-task-graph-infrastructure` design](../../changes/archive/reduce-task-graph-infrastructure/design.md)、[`runtime.ts`](../../tools/task-graph/src/runtime.ts)、[`store.ts`](../../tools/task-graph/src/store.ts)，以及对应 runtime、store、CLI、跨进程和生成产物测试。验证环境是当前 Windows 与受支持 Node；网络文件系统、断电目录持久性、恶意路径替换和不遵守 CLI 的写入者不在范围内。
+本轮不重新比较 npm 生态候选，也不改变两个固定依赖版本。判断依据是 Git 历史中的 `reduce-task-graph-infrastructure` design、[`runtime.ts`](../../tools/task-graph/src/runtime.ts)、[`store.ts`](../../tools/task-graph/src/store.ts)，以及对应 runtime、store、CLI、跨进程和生成产物测试。验证环境是当前 Windows 与受支持 Node；网络文件系统、断电目录持久性、恶意路径替换和不遵守 CLI 的写入者不在范围内。
 
 ## 调查结果与边界
 

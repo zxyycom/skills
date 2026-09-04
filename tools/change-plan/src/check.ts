@@ -1,7 +1,10 @@
 import type { Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { changePlanStatusFromDirectory } from "./change-directory.ts";
+import {
+  activeChangeDirectoryError,
+  directChangeDirectoryError
+} from "./active-directory.ts";
 import { inspectPlanVersionControl } from "./git-distance.ts";
 import { validateChangePlanArtifact } from "./markdown.ts";
 import { ChangePlanMetadataError, readChangePlanMetadata } from "./metadata.ts";
@@ -413,17 +416,21 @@ function checkResult(
 
 async function checkChangePlanDirectoryWithOptions(
   changeDirectoryInput: string,
-  options: ChangePlanCheckOptions
+  options: ChangePlanCheckOptions,
+  requiredChangeRoot?: string
 ): Promise<ChangePlanCheckResult> {
   const changeDirectory = path.resolve(changeDirectoryInput);
   const diagnostics: ChangePlanDiagnostic[] = [];
-  if (changePlanStatusFromDirectory(changeDirectory) === "archived") {
-    diagnostics.push(
-      directoryDiagnostic(
-        "archived-change-not-checkable",
-        "archived changes are historical records and cannot be checked; use show to read the archived artifacts"
-      )
-    );
+  const scopeError =
+    requiredChangeRoot === undefined
+      ? await activeChangeDirectoryError(changeDirectory)
+      : directChangeDirectoryError(changeDirectory, requiredChangeRoot);
+  if (scopeError !== null) {
+    diagnostics.push({
+      code: "change-directory-not-active-member",
+      file: null,
+      message: scopeError
+    });
     return checkResult(
       changeDirectory,
       diagnostics,
@@ -488,4 +495,16 @@ export async function checkChangePlanDirectoryForPlan(
     artifactStage: "plan",
     inspectGitDistance: false
   });
+}
+
+/** @internal Catalog checker for a caller-selected current Change root. */
+export async function checkChangePlanDirectoryInRoot(
+  changeDirectoryInput: string,
+  changeRootInput: string
+): Promise<ChangePlanCheckResult> {
+  return await checkChangePlanDirectoryWithOptions(
+    changeDirectoryInput,
+    { inspectGitDistance: true },
+    changeRootInput
+  );
 }

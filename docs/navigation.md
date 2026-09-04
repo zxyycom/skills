@@ -31,9 +31,9 @@
 | --- | --- | --- |
 | 只在当前任务中形成的想法、比较或临时步骤 | 当前任务上下文 | 当前任务结束后不另行持久化；需要独立复核时才按调查报告契约建立报告 |
 | 跨 change 持续影响后续选择的方向、理由和长期约束 | Decision record | 决策按自身生命周期修订、拆分或归档；`active + unaligned` 只表示未来方向，不自动产生实施 task 或等待状态 |
-| 已经明确、需要跨文件或 owner 持久规划和交接的实施 change | Change plan | 完成后归档；不再实施的 draft 不作为未来资料柜，只有具备独立复核价值的调查材料才迁入调查 owner |
+| 已经明确、需要跨文件或 owner 持久规划和交接的实施 change | Change plan | 完成后删除；不再实施的 draft 不作为未来资料柜，只有具备独立复核价值的调查材料才迁入调查 owner |
 | 已选择的当前工作所需的非线性协调，或具有明确外部条件的等待 | Task Graph task | 目标达成后完成；目标放弃或不再具有当前协调价值时取消；`waiting` 必须写明能够被观察的外部条件 |
-| 单个 Change 内的 readiness、implementation 和 verification 分解 | 该 Change 的 `tasks.md` | 随 Change 一同归档；不复制为 Task Graph 子任务，除非其中一项已经成为需要独立租约、关系或跨 Change 协调的当前工作 |
+| 单个 Change 内的 readiness、implementation 和 verification 分解 | 该 Change 的 `tasks.md` | complete 后随 Change 目录删除，历史由 Git 恢复；不复制为 Task Graph 子任务，除非其中一项已经成为需要独立租约、关系或跨 Change 协调的当前工作 |
 
 确需组合载体时使用单向引用，不复制状态、任务分解、理由或长期结论：Change 和 Task 可以引用适用的 Decision，Task Graph task 可以引用它正在协调的 Change，Change 的 `tasks.md` 继续拥有 Change 内进度。下游载体退出时只回写自己拥有的结果；稳定事实、长期方向和历史调查分别归位到对应 owner。
 
