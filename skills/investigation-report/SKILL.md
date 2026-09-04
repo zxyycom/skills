@@ -5,7 +5,7 @@ description: >-
   每份报告以稳定 Investigation ID 保存一轮形成时的背景、依据、结果和边界；tags 用于分类，显式直接前序关系用于认识演进。
   当前事实、长期方向与实施授权继续由各自 owner 承接。
 metadata:
-  version: "32"
+  version: "33"
 ---
 
 # Investigation Report
@@ -45,9 +45,9 @@ node scripts/check-investigations.mjs <command> [options] --root <workspace-root
 | 追溯正式关系 | `trace <selector>` | 查询当前正式索引中的关系图。 |
 | 编辑期间检查所选正式报告 | `check --id <investigation-id>` | 只检查所选正式报告及其直接资源，不检查索引新鲜度。 |
 | 验证完整正式集合与当前索引 | `check` | 只读检查完整正式集合；合法 candidates 只产生候选诊断。 |
-| 全量恢复或接纳正式来源 | `sync-index` | 低频重建完整正式工作区索引，忽略合法 candidates。 |
+| 恢复或受限接纳正式来源 | `sync-index [--select <name-or-id> ...] [--write]` | 全量重建，或完整验证后只接纳所选 ID 的正式来源变化；忽略合法 candidates。 |
 
-普通 selector 统一先解析标准 ID，再以 name 查索引；`stage-index` 在自己的双索引 staging 快照内按同一规则将 selector 收敛为完整 ID。`set-relations`、`discard` 和其他参数通过 `help <command>` 与固定契约取得。
+普通 selector 统一先解析标准 ID，再以 name 查索引。`sync-index --select` 从 baseline 与完整 current candidate 的 name 映射并集收敛 ID，标准 ID 不存在不回退 name；它默认 check，添加 `--write` 后才发布完整索引。`stage-index` 在自己的双索引 staging 快照内按同一规则将 selector 收敛为完整 ID，不能替代同步。`set-relations`、`discard` 和其他参数通过 `help <command>` 与固定契约取得。
 
 ## 工作流程
 
@@ -59,7 +59,7 @@ node scripts/check-investigations.mjs <command> [options] --root <workspace-root
 4. 正常 authoring 时先用 `new` 创建 candidate，再编辑正文、资源与关系。candidate 不属于正式集合、不是 lifecycle 状态，也不进入正式索引或查询。
 5. `scaffoldValid`、`bodyReady`、`resourceReady` 和 preflight 只表达机械准备事实，不证明正文可信、关系真实、资源值得保存、语义审核完成或已经获得 publish 授权。
 6. candidate 创建成功后不因正文未完成、资源 attention 或辅助预检不可用而重跑 `new`；继续编辑、查询候选或运行显式 `publish --preflight`。只有获当前任务授权且完整内容经过人工审阅后才 publish。
-7. 正式根目录的完整报告一旦写入即已建立。`publish` 是 candidate 的正常建立入口，但不是形式上的唯一建立动作；手工正式来源变化只能由显式 `sync-index` 全量验证并接纳。剔除正式报告需要明确授权并使用 `discard`。
+7. 正式根目录的完整报告一旦写入即已建立。`publish` 是 candidate 的正常建立入口，但不是形式上的唯一建立动作；手工正式来源变化可由显式全量 `sync-index` 接纳，或在完整集合验证后由 `sync-index --select ... --write` 仅接纳所选 ID 变化。剔除正式报告需要明确授权并使用 `discard`。
 
 ### 2. 形成可独立复核的报告
 
@@ -90,7 +90,7 @@ node scripts/check-investigations.mjs <command> [options] --root <workspace-root
 
 1. 写入操作需要当前任务授权；只读审阅运行适用的 `check` 或 `publish --preflight` 并保持集合状态不变。
 2. `publish --preflight` 不保存 receipt 或确认；普通 publish 必须在集合 mutation lock 内重新读取正式基线、候选和资源并完整验证。预检通过不替代 publish 授权。
-3. `sync-index` 是正式集合的低频全量恢复与接纳入口。编辑一批手工正式报告期间允许索引暂时陈旧，并用 scoped check 获取局部反馈；在索引查询、已有关系事务、正式 `discard`、默认全量检查、`stage-index` 或交付需要当前集合前统一同步一次。合法 candidates 不被同步或接纳。
+3. `sync-index` 是正式集合的低频全量恢复与接纳入口。`--select` 仍读取并验证完整正式集合，只在可信 baseline、集合 metadata 不变且全部变化都被选择时才可发布完整 projection；新增、删除和 ID rename 分别选择新 ID、旧 ID、或同时选择旧/新 ID。编辑一批手工正式报告期间允许索引暂时陈旧，并用 scoped check 获取局部反馈；在索引查询、已有关系事务、正式 `discard`、默认全量检查、`stage-index` 或交付需要当前集合前统一同步一次。合法 candidates 不被同步或接纳。
 4. `set-relations` 与正式 `discard` 要求当前索引，并在成功事务中同步索引；它们不修改 candidate。只改资源字节时保留当前索引。暂停、失败或 cleanup 诊断按固定契约处理和报告。
 5. publish、同步或事务完成后运行默认全量 `check`，再人工审阅正文证据质量、敏感信息、历史修正正当性和关系语义。
 6. 需要 Git pending 快照时，在同步和全量检查后用 `stage-index` 的标准 ID 或唯一 name 选择对应正式 Investigation；正式报告与资源按实际交付范围另行选择，candidate 不由它暂存。

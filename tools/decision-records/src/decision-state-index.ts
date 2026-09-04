@@ -13,6 +13,7 @@ import {
   type StateIndexResult,
   type StateSnapshot,
   type StateIndexSyncMode,
+  type StateIndexSyncScope,
   type StateIndexSyncResult
 } from "../../index-runtime/src/index.ts";
 import {
@@ -132,12 +133,10 @@ export async function syncDecisionIndex(options: {
   decisionsDirectory: string;
   indexPath?: string;
   mode: StateIndexSyncMode;
-  decisionIds: readonly string[];
+  scope?: StateIndexSyncScope;
   signal?: AbortSignal;
 }): Promise<StateIndexSyncResult> {
-  const definition = createDecisionStateIndexDefinition({
-    decisionIds: options.decisionIds
-  });
+  const definition = createDecisionStateIndexDefinition();
   return await syncStateIndex({
     context: {
       root: options.decisionsDirectory,
@@ -145,7 +144,8 @@ export async function syncDecisionIndex(options: {
     },
     definition,
     indexPath: options.indexPath ?? decisionIndexFileName,
-    mode: options.mode
+    mode: options.mode,
+    ...(options.scope === undefined ? {} : { scope: options.scope })
   });
 }
 

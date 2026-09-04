@@ -168,6 +168,7 @@ export const testEvidenceTopicsResultSchema = v.strictObject({
 });
 
 const testEvidenceIndexSyncStates = [
+  "collection-changed",
   "current",
   "unchanged",
   "written",
@@ -177,16 +178,25 @@ const testEvidenceIndexSyncStates = [
   "index-read-failed",
   "index-stale",
   "index-write-failed",
+  "scoped-stale",
+  "selected-baseline-invalid",
+  "selected-id-missing",
+  "selection-invalid",
+  "unselected-changes",
   "source-invalid"
 ] as const;
 
 export const testEvidenceIndexSyncResultSchema = v.strictObject({
   catalogPath: nonEmptyStringSchema,
   changed: v.boolean(),
+  changedIds: v.array(testEvidenceCaseIdSchema),
   diagnostics: v.array(testEvidenceDiagnosticSchema),
   indexPath: nonEmptyStringSchema,
   mode: v.picklist(["check", "write"]),
   schemaVersion: v.literal(testEvidenceReportSchemaVersion),
+  scope: v.picklist(["all", "selected"]),
+  selectedIds: v.array(testEvidenceCaseIdSchema),
+  selectors: v.array(v.string()),
   state: v.picklist(testEvidenceIndexSyncStates),
   status: v.picklist(["ok", "error"]),
   topics: v.array(testEvidenceTopicDefinitionSchema)

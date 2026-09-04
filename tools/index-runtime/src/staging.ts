@@ -12,7 +12,10 @@ import {
 } from "./definition.ts";
 import { diagnostic } from "./diagnostics.ts";
 import { compareIndexText } from "./ordering.ts";
-import { isStateIndexText } from "./schemas.ts";
+import {
+  sameStateIndexCollectionMetadata,
+  validateStateIndexSelectedIds
+} from "./selection.ts";
 import { buildStateIndexFromSnapshot } from "./snapshot-builder.ts";
 import { parseStateIndex, serializeStateIndex } from "./snapshot-parser.ts";
 import { loadStateIndexAtResolvedPath, resolveIndexPath } from "./storage.ts";
@@ -39,10 +42,6 @@ type EntryStageResultContext = Readonly<{
   namespace: string;
   pendingScope?: string;
 }>;
-
-type SelectedIdValidation =
-  | { diagnostics: StateIndexDiagnostic[]; status: "error" }
-  | { selectedIds: string[]; status: "ok" };
 
 /**
  * Resolves caller-facing selectors only after both index snapshots have passed
@@ -118,7 +117,10 @@ export async function stageSelectedIndexEntriesWithRepository<
   }
   const definition = defineStateIndexDefinition(options.definition);
   const expectation = expectationOf(definition);
-  const selected = validateSelectedIds(options.selectedIds, options.indexPath);
+  const selected = validateStateIndexSelectedIds(
+    options.selectedIds,
+    options.indexPath
+  );
   if (selected.status === "error") {
     return failedStage(
       resultContext,
@@ -247,7 +249,7 @@ export async function stageSelectedIndexEntriesWithRepository<
   }
   if (
     baseline !== null &&
-    !sameCollectionContract(baseline, workspaceIndex.value)
+    !sameStateIndexCollectionMetadata(baseline, workspaceIndex.value)
   ) {
     return failedStage(
       resultContext,
@@ -280,7 +282,7 @@ export async function stageSelectedIndexEntriesWithRepository<
       selected.selectedIds
     );
   }
-  const resolvedSelectedIds = validateSelectedIds(
+  const resolvedSelectedIds = validateStateIndexSelectedIds(
     resolved.value,
     options.indexPath
   );
@@ -364,72 +366,6 @@ export async function stageSelectedIndexEntriesWithRepository<
   return changed
     ? { ...success, changed: true, state: "staged" }
     : { ...success, changed: false, state: "unchanged" };
-}
-
-function validateSelectedIds(
-  input: readonly string[],
-  indexPath: string
-): SelectedIdValidation {
-  if (!Array.isArray(input) || input.length === 0) {
-    return {
-      diagnostics: [
-        diagnostic({
-          code: "state-index.selected-ids-invalid",
-          message: "selectedIds must be a non-empty array of unique state ids",
-          path: indexPath
-        })
-      ],
-      status: "error"
-    };
-  }
-  const ids: string[] = [];
-  const seen = new Set<string>();
-  for (const id of input) {
-    if (typeof id !== "string" || !isStateIndexText(id)) {
-      return {
-        diagnostics: [
-          diagnostic({
-            code: "state-index.selected-id-invalid",
-            message:
-              "selected state ids must be non-empty text without surrounding " +
-              "whitespace or control characters",
-            path: indexPath,
-            stateId: typeof id === "string" ? id : null
-          })
-        ],
-        status: "error"
-      };
-    }
-    if (seen.has(id)) {
-      return {
-        diagnostics: [
-          diagnostic({
-            code: "state-index.selected-id-duplicate",
-            message: `selected state id ${JSON.stringify(id)} appears more than once`,
-            path: indexPath,
-            stateId: id
-          })
-        ],
-        status: "error"
-      };
-    }
-    seen.add(id);
-    ids.push(id);
-  }
-  return { selectedIds: ids.sort(compareIndexText), status: "ok" };
-}
-
-function sameCollectionContract<
-  State extends object,
-  Metadata extends JsonObject
->(
-  revision: StateIndex<State, Metadata>,
-  workspace: StateIndex<State, Metadata>
-): boolean {
-  return (
-    JSON.stringify(revision.metadata) === JSON.stringify(workspace.metadata) &&
-    revision.sourceRevision.metadata === workspace.sourceRevision.metadata
-  );
 }
 
 function selectTargetSnapshot<

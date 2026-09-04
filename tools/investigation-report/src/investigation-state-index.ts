@@ -1,6 +1,7 @@
 import {
   expectationOf,
   loadCurrentStateIndex,
+  loadStateIndex,
   parseStateIndex,
   serializeStateIndex,
   syncStateIndex,
@@ -9,6 +10,7 @@ import {
   type StateIndexDiagnostic,
   type StateIndexResult,
   type StateIndexSyncMode,
+  type StateIndexSyncScope,
   type StateIndexSyncResult,
   type StateSnapshot
 } from "../../index-runtime/src/index.ts";
@@ -72,10 +74,29 @@ export async function loadCurrentInvestigationIndex(options: {
   });
 }
 
+export async function loadInvestigationIndex(options: {
+  investigationsDirectory: string;
+  indexPath?: string;
+  signal?: AbortSignal;
+}): Promise<
+  StateIndexResult<
+    StateIndex<InvestigationIndexState, InvestigationIndexMetadata>
+  >
+> {
+  const definition = createInvestigationStateIndexDefinition();
+  return await loadStateIndex({
+    context: stateIndexContext(options.investigationsDirectory, options.signal),
+    definition,
+    expectation: expectationOf(definition),
+    indexPath: options.indexPath ?? investigationIndexFileName
+  });
+}
+
 export async function syncInvestigationStateIndex(options: {
   investigationsDirectory: string;
   indexPath?: string;
   mode: StateIndexSyncMode;
+  scope?: StateIndexSyncScope;
   signal?: AbortSignal;
   snapshot: StateSnapshot<InvestigationIndexState, InvestigationIndexMetadata>;
 }): Promise<StateIndexSyncResult> {
@@ -89,7 +110,8 @@ export async function syncInvestigationStateIndex(options: {
       snapshot: options.snapshot
     }),
     indexPath: options.indexPath ?? investigationIndexFileName,
-    mode: options.mode
+    mode: options.mode,
+    ...(options.scope === undefined ? {} : { scope: options.scope })
   });
 }
 

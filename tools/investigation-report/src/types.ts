@@ -166,16 +166,23 @@ export type InvestigationReportCheckResult = {
 
 export type InvestigationIndexSyncOptions = {
   investigationsDir?: string;
+  mode?: "check" | "write";
+  selectors?: readonly string[];
   workspaceRoot: string;
 };
 
 export type InvestigationIndexSyncResult = {
   changed: boolean;
+  changedIds: string[];
   diagnostics: InvestigationDiagnostic[];
   errors: string[];
   indexPath: string;
   mutation?: InvestigationMutationDiagnostic;
   reportCount: number;
+  scope: "all" | "selected";
+  selectedIds: string[];
+  selectors: string[];
+  state: string;
   warnings: string[];
 };
 

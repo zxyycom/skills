@@ -3,9 +3,7 @@ import {
   createStateSourceRevisionSchema,
   defineStateIndexDefinition,
   type ReadonlyStateIndex,
-  type StateIndexDefinition,
-  type StateSnapshot,
-  type StateSourceRevision
+  type StateIndexDefinition
 } from "../../index-runtime/src/index.ts";
 import {
   decisionNameFromId,
@@ -134,24 +132,18 @@ export function createDecisionStateIndexDefinition(
     namespace: decisionIndexNamespace,
     parseMetadata: parseDecisionIndexMetadata,
     parseState: parseDecisionIndexState,
-    read:
-      decisionIds === undefined
-        ? unavailableRead
-        : async (context) =>
-            await readDecisionStateSnapshot(
-              context.root,
-              decisionIds,
-              context.signal
-            ),
-    readRevision:
-      decisionIds === undefined
-        ? unavailableRevisionRead
-        : async (context) =>
-            await readDecisionSourceRevision(
-              context.root,
-              decisionIds,
-              context.signal
-            ),
+    read: async (context) =>
+      await readDecisionStateSnapshot(
+        context.root,
+        decisionIds,
+        context.signal
+      ),
+    readRevision: async (context) =>
+      await readDecisionSourceRevision(
+        context.root,
+        decisionIds,
+        context.signal
+      ),
     validateIndex: validateDecisionSourceRevision
   });
 }
@@ -334,14 +326,4 @@ function strictlyAscendingUnique(values: readonly string[]): boolean {
   return values.every(
     (value, index) => index === 0 || values[index - 1]! < value
   );
-}
-
-async function unavailableRead(): Promise<
-  StateSnapshot<DecisionIndexState, DecisionIndexMetadata>
-> {
-  throw new Error("decision state reader is unavailable in this operation");
-}
-
-async function unavailableRevisionRead(): Promise<StateSourceRevision> {
-  throw new Error("decision revision reader is unavailable in this operation");
 }

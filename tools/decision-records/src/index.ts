@@ -101,8 +101,7 @@ async function validateDecisionIndexText(
   }
   const checked = await syncDecisionIndex({
     decisionsDirectory: scan.decisionsDirectory,
-    mode: "check",
-    decisionIds
+    mode: "check"
   });
   if (checked.status !== "error") return;
   if (

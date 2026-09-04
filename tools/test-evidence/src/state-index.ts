@@ -5,6 +5,7 @@ import {
   defineStateIndexDefinition,
   type StateIndexDefinition,
   type StateIndexDiagnostic,
+  type StateIndexSyncScope,
   type StateIndexSyncMode,
   type StateSnapshot
 } from "../../index-runtime/src/index.ts";
@@ -13,6 +14,8 @@ import {
   testEvidenceCatalogPath,
   testEvidenceIndexPath,
   testEvidenceCaseIndexStateSchema,
+  testEvidenceCaseIdPatternSource,
+  testEvidenceCaseIdSchema,
   testEvidenceIndexDefinitionVersion,
   testEvidenceIndexMetadataSchema,
   testEvidenceIndexNamespace,
@@ -33,6 +36,7 @@ import type {
 
 export type SyncTestEvidenceIndexOptions = {
   mode: StateIndexSyncMode;
+  selectedCaseIds?: readonly string[];
   workspaceRoot: string;
 };
 
@@ -115,11 +119,31 @@ export async function syncTestEvidenceIndex(
   options: SyncTestEvidenceIndexOptions
 ): Promise<TestEvidenceIndexSyncResult> {
   const workspaceRoot = path.resolve(options.workspaceRoot);
+  const selectors =
+    options.selectedCaseIds === undefined ? [] : [...options.selectedCaseIds];
+  const selection = selectedCaseIds(options.selectedCaseIds);
+  if (selection.status === "error") {
+    return failedSyncResult({
+      changedIds: [],
+      diagnostics: selection.diagnostics,
+      mode: options.mode,
+      scope: "selected",
+      selectedIds: [],
+      selectors,
+      state: "selection-invalid"
+    });
+  }
   const source = await readTestEvidenceIndexSource({ root: workspaceRoot });
   if (source.snapshot === null) {
     return failedSyncResult({
+      changedIds: [],
       diagnostics: source.diagnostics,
       mode: options.mode,
+      scope: selection.scope.kind,
+      selectedIds:
+        selection.scope.kind === "selected" ? selection.scope.selectedIds : [],
+      selectors,
+      state: "source-invalid",
       topics: source.topics
     });
   }
@@ -131,10 +155,11 @@ export async function syncTestEvidenceIndex(
     indexPath: testEvidenceIndexPath,
     root: workspaceRoot
   });
-  const synchronized = await runtime.sync(options.mode);
+  const synchronized = await runtime.sync(options.mode, selection.scope);
   return {
     catalogPath: testEvidenceCatalogPath,
     changed: synchronized.changed,
+    changedIds: synchronized.changedIds,
     diagnostics: mapStateIndexDiagnostics(
       synchronized.diagnostics,
       testEvidenceIndexPath,
@@ -143,6 +168,9 @@ export async function syncTestEvidenceIndex(
     indexPath: testEvidenceIndexPath,
     mode: options.mode,
     schemaVersion: testEvidenceReportSchemaVersion,
+    scope: synchronized.scope,
+    selectedIds: synchronized.selectedIds,
+    selectors,
     state:
       synchronized.state === "mode-invalid"
         ? "source-invalid"
@@ -173,21 +201,79 @@ export function mapStateIndexDiagnostics(
 }
 
 function failedSyncResult(options: {
+  changedIds: readonly string[];
   diagnostics: readonly TestEvidenceDiagnostic[];
   mode: StateIndexSyncMode;
+  scope: "all" | "selected";
+  selectedIds: readonly string[];
+  selectors: readonly string[];
+  state: TestEvidenceIndexSyncResult["state"];
   topics?: TestEvidenceIndexMetadata["topics"];
 }): TestEvidenceIndexSyncResult {
   return {
     catalogPath: testEvidenceCatalogPath,
     changed: false,
+    changedIds: [...options.changedIds],
     diagnostics: [...options.diagnostics],
     indexPath: testEvidenceIndexPath,
     mode: options.mode,
     schemaVersion: testEvidenceReportSchemaVersion,
-    state: "source-invalid",
+    scope: options.scope,
+    selectedIds: [...options.selectedIds],
+    selectors: [...options.selectors],
+    state: options.state,
     status: "error",
     topics: cloneTopicDefinitions(options.topics ?? [])
   };
+}
+
+function selectedCaseIds(
+  caseIds: readonly string[] | undefined
+):
+  | Readonly<{ scope: StateIndexSyncScope; status: "ok" }>
+  | Readonly<{ diagnostics: TestEvidenceDiagnostic[]; status: "error" }> {
+  if (caseIds === undefined) return { scope: { kind: "all" }, status: "ok" };
+  const diagnostics: TestEvidenceDiagnostic[] = [];
+  const seen = new Set<string>();
+  for (const caseId of caseIds) {
+    if (!v.safeParse(testEvidenceCaseIdSchema, caseId).success) {
+      diagnostics.push(
+        createDiagnostic({
+          caseId,
+          category: "index",
+          code: "test-evidence.sync-case-id-invalid",
+          message: `case ID ${JSON.stringify(caseId)} must match ${testEvidenceCaseIdPatternSource}`,
+          path: testEvidenceIndexPath,
+          severity: "error"
+        })
+      );
+      continue;
+    }
+    if (seen.has(caseId)) {
+      diagnostics.push(
+        createDiagnostic({
+          caseId,
+          category: "index",
+          code: "test-evidence.sync-case-id-duplicate",
+          message: `case ID ${JSON.stringify(caseId)} appears more than once`,
+          path: testEvidenceIndexPath,
+          severity: "error"
+        })
+      );
+      continue;
+    }
+    seen.add(caseId);
+  }
+  return diagnostics.length > 0
+    ? { diagnostics, status: "error" }
+    : {
+        scope: { kind: "selected", selectedIds: [...seen].sort(compareText) },
+        status: "ok"
+      };
+}
+
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 const rebuildableIndexCodes: ReadonlySet<string> = new Set([

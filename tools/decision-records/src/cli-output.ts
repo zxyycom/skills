@@ -232,6 +232,24 @@ function printSyncIndex(
   result: Extract<DecisionQuerySuccess, { command: "sync-index" }>,
   io: DecisionRecordsCliIo
 ): void {
+  if (result.scope === "selected") {
+    writeLine(
+      io.stdout,
+      "Selected Decision selectors: " + result.selectors.join(", ") + "."
+    );
+    writeLine(
+      io.stdout,
+      result.state === "written"
+        ? "Published the complete Decision index projection for resolved IDs: " +
+            result.selectedIds.join(", ") +
+            "."
+        : "Resolved Decision IDs are already current: " +
+            result.selectedIds.join(", ") +
+            "."
+    );
+    printCandidateWarnings(result.unactivatedPaths, io);
+    return;
+  }
   writeLine(
     io.stdout,
     result.state === "written"

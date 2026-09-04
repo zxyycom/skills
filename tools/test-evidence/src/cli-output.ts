@@ -104,6 +104,18 @@ export function formatTestEvidenceIndexSync(
   if (json) {
     return jsonOutput(result);
   }
+  if (result.scope === "selected" && result.status === "ok") {
+    const selectedIds = result.selectedIds.join(", ");
+    const selectors = result.selectors.join(", ");
+    return {
+      stderr: formatDiagnostics(result.diagnostics),
+      stdout:
+        `Selected Case selectors: ${selectors}.\n` +
+        (result.state === "written"
+          ? `Rebuilt ${result.indexPath} from ${result.catalogPath} for resolved Case IDs: ${selectedIds}.\n`
+          : `Resolved Case IDs are already current: ${selectedIds}.\n`)
+    };
+  }
   return {
     stderr: formatDiagnostics(result.diagnostics),
     stdout:

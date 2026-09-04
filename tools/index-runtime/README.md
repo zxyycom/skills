@@ -67,6 +67,25 @@ Valibot Schema 是索引结构和查询输入的真源。通用层固定使用 `
 6. metadata 对象始终递归按字段名字典序规范化；默认模式也按相同规则规范化 state 对象，`fieldOrder: "definition"` 则改用通用外壳语义顺序、key 策略声明顺序和 parser 返回的领域字段顺序。
 7. 序列化固定使用 LF；检查时把 Git checkout 可能产生的 CRLF 视为等价。
 
+### 全量与 selected sync
+
+`syncStateIndex` 与 `StateIndexRuntime.sync` 接受显式 scope：省略或
+`{ kind: "all" }` 是全量同步；`{ kind: "selected", selectedIds }` 只限制本次允许
+接纳变化的稳定 ID。selected 不减少任何来源读取、解析、关系/集合校验或最终写入范围。
+领域入口必须先把用户 selector 收敛为唯一 ID；共享层只接收非空、去重且排序后的 ID。
+
+selected sync 严格读取当前持久化索引作为 baseline，再完整构建 candidate 并重读来源
+revision。它对 baseline/candidate 的 `entries` 和 `sourceRevision.entries` 的 ID 并集计算
+`changedIds`；新增、删除和 ID rename 分别选择新 ID、旧 ID、或同时选择旧/新 ID。任何
+selected ID 在两侧都不存在、集合 metadata 或其 revision 改变、baseline 不可用，或存在
+未选择的 changed ID，都会在写入前失败。成功的 write 原子发布完整 candidate，因此字节
+等同同一来源的全量重建，不会产生半新鲜索引。selected check 对允许范围内的变化返回
+`scoped-stale`，不写文件；未变化时返回 current/unchanged。
+
+全量 sync 保留既有恢复语义：它可以首次创建、修复或重建 selected sync 拒绝的 baseline。
+`stageSelectedIndexEntries` 仍是另一个 Git pending 操作：它不读取领域来源，也不会被
+selected sync 调用或替代。
+
 ## 诊断与 mutation 责任
 
 `StateIndexDiagnostic` 始终给出领域 `code`、可定位的 `path` 与 `stateId`（没有适用值时

@@ -101,6 +101,18 @@ export function decisionIdFromMarkdown(markdown: string): DecisionId | null {
       : null;
 }
 
+/** Identifies a legal candidate's lifecycle without validating its body. */
+export function isCandidateDecisionMarkdown(markdown: string): boolean {
+  const frontmatter = parseYamlFrontmatter(
+    markdown.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n")
+  );
+  return (
+    frontmatter !== null &&
+    frontmatter.error === null &&
+    frontmatter.values.status === "candidate"
+  );
+}
+
 function validateFrontmatterKeys(
   keys: readonly string[],
   relativePath: string,

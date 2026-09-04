@@ -50,6 +50,7 @@ type ParsedOptions = {
   offset?: number;
   query?: string;
   root?: string;
+  select?: string[];
   topic?: string;
   write?: boolean;
 };
@@ -77,6 +78,7 @@ type CatalogCliArgs = CatalogCliBase &
       }>
     | Readonly<{
         command: "sync-index";
+        selectedCaseIds?: readonly string[];
         write: boolean;
       }>
     | Readonly<{ command: "topics" }>
@@ -219,7 +221,17 @@ export async function runTestEvidenceCatalogCli(
     program,
     "sync-index",
     "Check or rebuild the derived test-evidence index."
-  ).option("--write", "Atomically rebuild the index from the current catalog.");
+  )
+    .option(
+      "--select <case-id>",
+      "Allow only this Case ID's source change; repeat for multiple cases.",
+      (value: string, previous: string[]) => [...previous, value],
+      []
+    )
+    .option(
+      "--write",
+      "Atomically rebuild the index from the current catalog."
+    );
   syncIndex.action(() => execute(syncCommandArgs(syncIndex, cwd)));
 
   try {
@@ -245,6 +257,9 @@ async function runCatalogCommand(
   if (args.command === "sync-index") {
     const result = await syncTestEvidenceIndex({
       mode: args.write ? "write" : "check",
+      ...(args.selectedCaseIds === undefined
+        ? {}
+        : { selectedCaseIds: args.selectedCaseIds }),
       workspaceRoot: args.workspaceRoot
     });
     writeOutput(io, formatTestEvidenceIndexSync(result, args.json));
@@ -353,6 +368,9 @@ function syncCommandArgs(
   return {
     ...commandBase(commandNode, cwd),
     command: "sync-index",
+    ...(options.select === undefined || options.select.length === 0
+      ? {}
+      : { selectedCaseIds: options.select }),
     write: options.write ?? false
   };
 }

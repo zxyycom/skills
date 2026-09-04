@@ -1,8 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
+  isStateIndexText,
   type StateIndexDiagnostic,
-  type StateIndexFilter
+  type StateIndexFilter,
+  type StateIndexSyncScope
 } from "../../index-runtime/src/index.ts";
 import {
   decisionDiagnostic,
@@ -14,6 +16,7 @@ import {
 import {
   decisionIndexDiagnostics,
   decisionIndexFileName,
+  loadDecisionIndex,
   syncDecisionIndex
 } from "./decision-state-index.ts";
 import { decisionIdFromMarkdown } from "./decision-metadata.ts";
@@ -91,6 +94,8 @@ export type DecisionQueryRequest =
   | {
       command: "sync-index";
       location: DecisionLocation;
+      selectors?: readonly string[];
+      write: boolean;
     }
   | {
       command: "trace";
@@ -162,9 +167,13 @@ export type DecisionQuerySuccess =
       record: IndexedDecisionRecord;
     })
   | (QuerySuccessBase & {
+      changedIds: string[];
       command: "sync-index";
       indexRelativePath: string;
-      state: "current" | "written";
+      scope: "all" | "selected";
+      selectedIds: string[];
+      selectors: string[];
+      state: "current" | "unchanged" | "written";
       unactivatedPaths: string[];
     })
   | (QuerySuccessBase & {
@@ -427,10 +436,18 @@ async function synchronizeLockedDecisionIndex(
   if (selection.errors.length > 0) {
     return syncIndexNoChange(decisionFailure(selection.errors));
   }
+  const scope = await selectedDecisionSyncScope({
+    candidateIds: selection.decisionIds,
+    decisionsDirectory: result.scan.decisionsDirectory,
+    indexPath: result.scan.indexRelativePath,
+    selectors: request.selectors
+  });
+  if (scope.status === "error") return syncIndexNoChange(scope.failure);
+  const selected = request.selectors !== undefined;
   const synchronized = await syncDecisionIndex({
     decisionsDirectory: result.scan.decisionsDirectory,
-    mode: "write",
-    decisionIds: selection.decisionIds
+    mode: selected && !request.write ? "check" : "write",
+    ...(scope.value === undefined ? {} : { scope: scope.value })
   });
   if (synchronized.status === "error") {
     return syncIndexNoChange(
@@ -446,14 +463,165 @@ async function synchronizeLockedDecisionIndex(
   }
   return {
     command: "sync-index",
+    changedIds: synchronized.changedIds,
     indexRelativePath: result.scan.indexRelativePath,
-    state: synchronized.state === "written" ? "written" : "current",
+    scope: synchronized.scope,
+    selectedIds: synchronized.selectedIds,
+    selectors: request.selectors === undefined ? [] : [...request.selectors],
+    state: synchronized.state,
     status: "ok",
     unactivatedPaths: activationCandidates(result.scan).map(
       (record) => record.sourcePath
     ),
     warnings: []
   };
+}
+
+async function selectedDecisionSyncScope(options: {
+  candidateIds: readonly string[];
+  decisionsDirectory: string;
+  indexPath: string;
+  selectors: readonly string[] | undefined;
+}): Promise<
+  | Readonly<{ status: "ok"; value: StateIndexSyncScope | undefined }>
+  | Readonly<{ failure: DecisionApplicationFailure; status: "error" }>
+> {
+  if (options.selectors === undefined)
+    return { status: "ok", value: undefined };
+  const rawValidation = validateDecisionSyncSelectors(options.selectors);
+  if (rawValidation.status === "error") return rawValidation;
+  const baseline = await loadDecisionIndex({
+    decisionsDirectory: options.decisionsDirectory,
+    indexPath: decisionIndexFileName
+  });
+  if (baseline.status === "error") {
+    // Let the runtime report its strict selected-baseline diagnostic before a
+    // name can be resolved. Standard IDs and names are both valid opaque IDs
+    // at this shared boundary, and no candidate can be accepted on this path.
+    return {
+      status: "ok",
+      value: { kind: "selected", selectedIds: rawValidation.selectors }
+    };
+  }
+  const ids = new Set([
+    ...Object.keys(baseline.value.entries),
+    ...options.candidateIds
+  ]);
+  const selectedIds: string[] = [];
+  const failures: DecisionApplicationFailure[] = [];
+  for (const selector of rawValidation.selectors) {
+    const normalized = normalizeDecisionSelectorInput(selector);
+    const dated = parseDatedDecisionId(normalized);
+    const matches =
+      dated === null
+        ? [...ids]
+            .filter(
+              (id) => isDecisionId(id) && decisionNameFromId(id) === normalized
+            )
+            .sort(compareText)
+        : ids.has(dated.id)
+          ? [dated.id]
+          : [];
+    if (matches.length === 1) {
+      selectedIds.push(matches[0]!);
+      continue;
+    }
+    failures.push(
+      decisionFailure([
+        decisionDiagnostic({
+          code:
+            matches.length === 0
+              ? "decision-records.selector-not-found"
+              : "decision-records.selector-ambiguous",
+          reason:
+            matches.length === 0
+              ? `Decision selector does not resolve in the baseline or current collection: ${normalized}`
+              : `Decision name is ambiguous: ${normalized}; choose one standard ID: ${matches.join(", ")}`,
+          recovery:
+            matches.length === 0
+              ? "Use an existing Decision ID or a unique name, then retry the selected sync."
+              : "Retry with one listed calendar-valid YYMMDD-name Decision ID.",
+          target: normalized
+        })
+      ])
+    );
+  }
+  if (failures.length > 0) {
+    return { failure: mergeDecisionFailures(failures), status: "error" };
+  }
+  if (new Set(selectedIds).size !== selectedIds.length) {
+    return {
+      failure: decisionFailure([
+        decisionDiagnostic({
+          code: "decision-records.selector-duplicate",
+          reason:
+            "Selected Decision selectors resolve to the same Decision ID.",
+          recovery:
+            "Select every Decision ID at most once, then retry the selected sync.",
+          target: options.indexPath
+        })
+      ]),
+      status: "error"
+    };
+  }
+  return {
+    status: "ok",
+    value: { kind: "selected", selectedIds: selectedIds.sort(compareText) }
+  };
+}
+
+function validateDecisionSyncSelectors(
+  selectors: readonly string[]
+):
+  | Readonly<{ selectors: string[]; status: "ok" }>
+  | Readonly<{ failure: DecisionApplicationFailure; status: "error" }> {
+  const seen = new Set<string>();
+  const failures: DecisionApplicationFailure[] = [];
+  for (const selector of selectors) {
+    if (typeof selector !== "string" || !isStateIndexText(selector)) {
+      failures.push(
+        decisionFailure([
+          decisionDiagnostic({
+            code: "decision-records.selector-invalid",
+            reason:
+              "Selected Decision selectors must be non-empty text without surrounding whitespace or control characters.",
+            recovery:
+              "Provide a standard Decision ID or unique name, then retry.",
+            target:
+              typeof selector === "string" ? selector : "<invalid-selector>"
+          })
+        ])
+      );
+      continue;
+    }
+    if (seen.has(selector)) {
+      failures.push(
+        decisionFailure([
+          decisionDiagnostic({
+            code: "decision-records.selector-duplicate",
+            reason: `Selected Decision selector appears more than once: ${selector}`,
+            recovery: "Select every raw selector at most once, then retry.",
+            target: selector
+          })
+        ])
+      );
+      continue;
+    }
+    seen.add(selector);
+  }
+  return failures.length === 0
+    ? { selectors: [...selectors], status: "ok" }
+    : { failure: mergeDecisionFailures(failures), status: "error" };
+}
+
+function mergeDecisionFailures(
+  failures: readonly DecisionApplicationFailure[]
+): DecisionApplicationFailure {
+  return decisionFailure(failures.flatMap((failure) => failure.diagnostics));
+}
+
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function syncIndexNoChange(
@@ -604,7 +772,6 @@ async function candidateQueryIndexFailure(
     }
     const checked = await syncDecisionIndex({
       decisionsDirectory: scan.decisionsDirectory,
-      decisionIds: selection.decisionIds,
       mode: "check"
     });
     if (checked.status === "error") {

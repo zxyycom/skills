@@ -8,6 +8,14 @@
     "changed": {
       "type": "boolean"
     },
+    "changedIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+      }
+    },
     "diagnostics": {
       "type": "array",
       "items": {
@@ -79,8 +87,30 @@
     "schemaVersion": {
       "const": 4
     },
+    "scope": {
+      "enum": [
+        "all",
+        "selected"
+      ],
+      "type": "string"
+    },
+    "selectedIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+      }
+    },
+    "selectors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "state": {
       "enum": [
+        "collection-changed",
         "current",
         "unchanged",
         "written",
@@ -90,6 +120,11 @@
         "index-read-failed",
         "index-stale",
         "index-write-failed",
+        "scoped-stale",
+        "selected-baseline-invalid",
+        "selected-id-missing",
+        "selection-invalid",
+        "unselected-changes",
         "source-invalid"
       ],
       "type": "string"
@@ -126,10 +161,14 @@
   "required": [
     "catalogPath",
     "changed",
+    "changedIds",
     "diagnostics",
     "indexPath",
     "mode",
     "schemaVersion",
+    "scope",
+    "selectedIds",
+    "selectors",
     "state",
     "status",
     "topics"

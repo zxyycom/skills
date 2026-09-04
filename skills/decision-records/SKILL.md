@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "42"
+  version: "43"
 ---
 
 # Decision Records
@@ -34,7 +34,7 @@ metadata:
 4. 恢复当前判断时运行 `list`，再按需用 `show <decision-id>` 读取完整理由或用 `trace <decision-id>` 读取演进关系；筛选与输出参数以 `--help` 为准。
 5. 摘要足够时停止扩大读取。只有任务需要历史时才查询 archived 记录或完整关系图。
 6. 任何候选写入、已建立记录维护、暂存快照或结构审阅前，完整读取决策记录规则，并按相应命令的 `--help` 执行；规则和 CLI 负责判定具体前置条件。任务需要在演进事务中删除一个决策时，以 `evolve --discard <decision-id>` 显式选择该动作。首次候选集合、索引异常或写入中断时，读取恢复手册，不把缺失索引直接当作需要重建的错误。
-7. 手工修改已建立 Markdown、怀疑索引陈旧或准备维护时，先运行严格 `check`；需要接受合法来源变化时运行 `sync-index`。`check` 始终只读，`sync-index` 明确表示从已建立 Markdown 重建工作区索引。常规查询不逐次重扫全部 Markdown，也不能用陈旧索引断言来源不存在记录。
+7. 手工修改已建立 Markdown、怀疑索引陈旧或准备维护时，先运行严格 `check`；需要接受合法来源变化时运行 `sync-index`。`sync-index --select <name-or-id>` 仍完整验证集合，只允许所选完整 ID 的变化进入工作区索引；先以 check 结果确认范围，再加 `--write` 发布完整投影。无 `--select` 保留全量重建。`stage` 是 Git pending 操作，不能替代同步。常规查询不逐次重扫全部 Markdown，也不能用陈旧索引断言来源不存在记录。
 
 ## 执行流程
 
@@ -66,10 +66,11 @@ metadata:
 ### 4. 维护记录
 
 1. 查询、关系和生命周期命令接收普通 selector：先移除一次末尾 `.md`、精确解析 calendar-valid 标准 ID，失败时才按 name 收敛为完整 Decision ID；`sourcePath` 只用于定位和展示，绝不参与身份解析。
-2. `activate` 只建立 body-ready candidate 或重新激活 archived 记录；`evolve` 只建立 body-ready selected candidates 并维护完整演进关系；`mark-aligned`、`archive` 与 `discard` 只用于各自维护动作。`activate --preflight` 与 `evolve --preflight` 使用当前完整参数只读预演关系、最终图、索引和 Git 历史门禁；结果不保存 receipt，正式命令必须重新显式提供参数并重新验证。`拆分` 和 `重划` 都通过重复 `--successor` 选择完整后继集合；重划通常由每个候选在自身 `relations` 中声明各自的来源边。`--relation` 是对所有所选后继的完整统一覆盖，不是逐后继参数；不新增重划专用命令。精确输入优先级、拓扑和闭合规则以 `--help` 和决策记录规则为准。
-3. 已建立记录的判断语义变化通过新记录和真实关系表达；编辑性文字修正可直接改权威 Markdown。不得直接编辑派生索引制造状态。
-4. 生命周期和关系写入使用 CLI 事务，尽可能保证 Markdown 与索引组合的原子性；普通诊断无法恢复的失败按恢复手册处理。不要在运行前自行推演 Git 历史边界；正常执行领域命令即可。CLI 实际暂停时，向调用方完整转达受检 Decision ID、操作和零写入状态；等待本次明确确认后，才按 CLI 给出的额外参数重试，不自动重试，也不把这个确认代替原有维护授权。
-5. `discard` 删除完整且无剩余引用的 candidate、active 或 archived 决策；`evolve --discard <decision-id>` 将同一删除动作与关系事务原子组合。参数显式选择删除对象，适用条件和失败边界交给决策记录规则与 CLI 判定；成功时报告删除而非归档。
+2. `sync-index --select` 使用相同 ID-first selector，但从持久 baseline 与完整 current candidate 的 name 映射并集解析；标准 ID 不存在不得退回 name。新增、删除和 ID rename 分别选择新 ID、旧 ID、或同时选择旧/新 ID。baseline 不可信、集合 metadata 改变或出现未选择变化时零写入并改用全量同步或补充选择。
+3. `activate` 只建立 body-ready candidate 或重新激活 archived 记录；`evolve` 只建立 body-ready selected candidates 并维护完整演进关系；`mark-aligned`、`archive` 与 `discard` 只用于各自维护动作。`activate --preflight` 与 `evolve --preflight` 使用当前完整参数只读预演关系、最终图、索引和 Git 历史门禁；结果不保存 receipt，正式命令必须重新显式提供参数并重新验证。`拆分` 和 `重划` 都通过重复 `--successor` 选择完整后继集合；重划通常由每个候选在自身 `relations` 中声明各自的来源边。`--relation` 是对所有所选后继的完整统一覆盖，不是逐后继参数；不新增重划专用命令。精确输入优先级、拓扑和闭合规则以 `--help` 和决策记录规则为准。
+4. 已建立记录的判断语义变化通过新记录和真实关系表达；编辑性文字修正可直接改权威 Markdown。不得直接编辑派生索引制造状态。
+5. 生命周期和关系写入使用 CLI 事务，尽可能保证 Markdown 与索引组合的原子性；普通诊断无法恢复的失败按恢复手册处理。不要在运行前自行推演 Git 历史边界；正常执行领域命令即可。CLI 实际暂停时，向调用方完整转达受检 Decision ID、操作和零写入状态；等待本次明确确认后，才按 CLI 给出的额外参数重试，不自动重试，也不把这个确认代替原有维护授权。
+6. `discard` 删除完整且无剩余引用的 candidate、active 或 archived 决策；`evolve --discard <decision-id>` 将同一删除动作与关系事务原子组合。参数显式选择删除对象，适用条件和失败边界交给决策记录规则与 CLI 判定；成功时报告删除而非归档。
 
 ### 5. 构造待提交决策快照
 
@@ -97,7 +98,7 @@ node scripts/decision-records.mjs <command> [options] --root <resolution-root>
 | `new <decision-id>` | 从显式 metadata 创建不覆盖的 candidate scaffold。 |
 | `candidates` / `show-candidate <decision-id>` | 发现 candidate scaffold、机械 readiness 或审核正文。 |
 | `list` / `show <decision-id>` / `trace <decision-id>` | 恢复当前判断、完整理由或演进关系。 |
-| `check` / `sync-index` | 严格只读验证或从权威 Markdown 重建索引。 |
+| `check` / `sync-index [--select <name-or-id> ...] [--write]` | 严格只读验证；全量重建，或完整验证后仅接纳所选 ID 变化的索引同步。 |
 | `stage <selector...>` | 在 staging 快照中解析标准 ID 或唯一 name，并构造待提交决策快照。 |
 | `activate` / `evolve` / `mark-aligned` / `archive` / `discard` | 维护生命周期、关系和候选；`activate/evolve --preflight` 只读预演，`evolve --discard <decision-id>` 可在关系事务中删除一个决策。 |
 

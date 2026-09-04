@@ -187,7 +187,9 @@ async function runSyncIndex(
   return await runQuery(
     {
       command: "sync-index",
-      location: decisionLocation(args)
+      location: decisionLocation(args),
+      ...(args.selectors === undefined ? {} : { selectors: args.selectors }),
+      write: args.write
     },
     io
   );

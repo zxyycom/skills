@@ -69,7 +69,11 @@ const investigationReportCheckOptionsSchema = v.strictObject({
   ids: optionalStringArraySchema,
   ...locationFields
 });
-const investigationIndexSyncOptionsSchema = v.strictObject(locationFields);
+const investigationIndexSyncOptionsSchema = v.strictObject({
+  ...locationFields,
+  mode: v.optional(v.picklist(["check", "write"])),
+  selectors: optionalStringArraySchema
+});
 const investigationIndexStageOptionsSchema = v.strictObject({
   ...locationFields,
   reportIds: requiredStringArraySchema

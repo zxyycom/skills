@@ -127,14 +127,26 @@ export type InvestigationReportCheckResult = {
 
 export type InvestigationIndexSyncOptions = {
   investigationsDir?: string;
+  mode?: "check" | "write";
+  selectors?: readonly string[];
   workspaceRoot: string;
 };
 
 export type InvestigationIndexSyncResult = {
   changed: boolean;
+  changedIds: string[];
+  diagnostics: Array<{
+    code: string;
+    reason: string;
+    recovery: string;
+    target: string;
+  }>;
   errors: string[];
   indexPath: string;
   reportCount: number;
+  scope: "all" | "selected";
+  selectedIds: string[];
+  state: string;
   warnings: string[];
 };
 

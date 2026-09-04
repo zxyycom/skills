@@ -197,8 +197,7 @@ async function synchronizeChangedDecisionIndex(
   const synchronized = await syncDecisionIndex({
     decisionsDirectory: scan.decisionsDirectory,
     indexPath: decisionIndexFileName,
-    mode: "write",
-    decisionIds: selection.decisionIds
+    mode: "write"
   });
   if (synchronized.status === "error") {
     return {

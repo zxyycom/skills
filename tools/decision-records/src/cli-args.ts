@@ -112,7 +112,10 @@ export type CliArgs =
   | LocatedCommand<"show", { decisionId: DecisionId }>
   | LocatedCommand<"show-candidate", { decisionId: DecisionId }>
   | LocatedCommand<"stage", { decisionIds: DecisionId[] }>
-  | LocatedCommand<"sync-index">
+  | LocatedCommand<
+      "sync-index",
+      { selectors?: readonly string[]; write: boolean }
+    >
   | LocatedCommand<
       "trace",
       {
@@ -146,8 +149,10 @@ type ParsedOptions = {
   root?: string;
   status?: DecisionListStatus;
   successor?: DecisionSuccessor[];
+  select?: string[];
   tag?: DecisionTag[];
   title?: string;
+  write?: boolean;
 };
 
 type CommandLocation = Pick<CliArgs, "decisionsDir" | "workspaceRoot">;
@@ -155,7 +160,7 @@ type LifecycleCommand = Extract<
   Command,
   "activate" | "archive" | "discard" | "evolve"
 >;
-type SimpleCommand = Extract<Command, "candidates" | "check" | "sync-index">;
+type SimpleCommand = Extract<Command, "candidates" | "check">;
 
 type RunCommand = (args: CliArgs) => Promise<number>;
 type SetExitCode = (exitCode: number) => void;
@@ -349,8 +354,16 @@ function commandArgs(
       };
     case "candidates":
     case "check":
-    case "sync-index":
       return simpleCommandArgs(command, location);
+    case "sync-index":
+      return {
+        ...location,
+        command,
+        ...(options.select === undefined || options.select.length === 0
+          ? {}
+          : { selectors: options.select }),
+        write: options.write ?? false
+      };
   }
 }
 
@@ -363,8 +376,6 @@ function simpleCommandArgs(
       return { ...location, command: "candidates" };
     case "check":
       return { ...location, command: "check" };
-    case "sync-index":
-      return { ...location, command: "sync-index" };
   }
 }
 
@@ -688,8 +699,15 @@ export function createCliProgram(
   const syncIndex = createSubcommand(
     program,
     "sync-index",
-    "Rebuild the JSON index from established Markdown."
-  );
+    "Check or rebuild the JSON index from established Markdown."
+  )
+    .option(
+      "--select <name-or-id>",
+      "Allow only this Decision's source change; repeat for multiple Decisions.",
+      (value: string, previous: string[]) => [...previous, value],
+      []
+    )
+    .option("--write", "Publish the complete validated index projection.");
   syncIndex.action(() => execute("sync-index", syncIndex));
 
   const create = createSubcommand(

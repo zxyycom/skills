@@ -124,8 +124,9 @@ discard-candidate <selector> [--delete-owned-resources] [--delete-recorded-candi
 3. source revision 以正式 Investigation ID 为键，指纹化 ID、sourcePath 和完整正式报告 Markdown UTF-8 内容，计算前只把 CRLF 规范为 LF。正式报告成员、位置或可投影内容变化会更新对应 revision；candidate、资源成员和资源字节不参与 revision。
 4. `list` 默认查询全部正式报告，按 Investigation ID 的 locale 无关词法顺序排序；支持可重复 `--tag` 的 AND、包含端点的 formedAt 范围、一个精确关系类型和 title/question 文本查询。`show` 与 `trace` 先把普通 selector 收敛为 ID，再由当前索引取得 sourcePath 或关系图；`trace` 支持 predecessors、successors、both 与非负 `--depth`。`stage-index` 在自己的 HEAD/工作区索引快照中以相同规则收敛 selector；这些命令均完全忽略 candidates。
 5. 默认全量 `check` 验证正式报告、完整关系图、资源与索引；合法 candidate 只进行成员安全、身份冲突和候选诊断，不被接纳为正式来源。scoped check 只验证命中正式报告及其直接引用，不证明完整图、拆分闭合、未引用资源集合或索引新鲜度。
-6. `sync-index` 不要求旧索引新鲜；它在集合 mutation lock 内验证完整**正式**报告、关系图和资源，再从同一正式 Markdown snapshot 重建索引。它忽略合法 candidates，只因 candidate 路径或身份不安全而阻断。锁冲突时命令零写入失败并要求在当前事务结束后重试。已建立空集合只有在当前有效索引存在时成立。
-7. `sync-index` 是完整正式集合的低频重建、恢复与显式接纳入口。一批手工正式创建、修正、改名或资源引用调整可以先共同完成；在 `list`、`show`、`trace`、已有关系事务、正式 `discard`、默认全量 `check`、`stage-index` 或交付需要当前索引前运行一次。批量编辑期间索引可以暂时陈旧，此时使用 scoped check 或直接读取 Markdown；陈旧索引不提供当前集合事实。
+6. `sync-index` 不要求旧索引新鲜；无 `--select` 时它在集合 mutation lock 内验证完整**正式**报告、关系图和资源，再从同一正式 Markdown snapshot 重建索引。它忽略合法 candidates，只因 candidate 路径或身份不安全而阻断。锁冲突时命令零写入失败并要求在当前事务结束后重试。已建立空集合只有在当前有效索引存在时成立。
+7. `sync-index --select <name-or-id> ... [--write]` 仍在同一 lock 内完整读取并验证正式集合，不是局部读取。每个 selector 只移除一个末尾 `.md`，先按 calendar-valid ID exact 解析，失败才在持久 baseline 与 current candidate 的 name 映射并集按 unique name 解析；标准 ID 未命中不得回退 name。结果保留输入顺序的原始 `selectors`，并分别按规范顺序报告解析后的 `selectedIds` 与 `changedIds`。selected scope 需要可信 baseline，拒绝集合 metadata 或 metadata revision 改变，并对两边 entry/revision ID 并集计算全部变化。只有所有变化均已选择时 `--write` 原子发布完整 candidate；默认 check 对允许变化返回 stale，任何未选择变化、未知 ID 或坏 baseline 都零写入。新增、删除和显式 ID rename 分别选择新 ID、旧 ID、或同时选择旧/新 ID。它不写 Git pending，不能代替 `stage-index` 或领域 rename 事务。
+8. `sync-index` 是完整正式集合的低频重建、恢复与显式接纳入口。一批手工正式创建、修正、改名或资源引用调整可以先共同完成；在 `list`、`show`、`trace`、已有关系事务、正式 `discard`、默认全量 `check`、`stage-index` 或交付需要当前索引前运行一次。批量编辑期间索引可以暂时陈旧，此时使用 scoped check 或直接读取 Markdown；陈旧索引不提供当前集合事实。
 
 ### `publish`
 

@@ -36,6 +36,7 @@ import type {
   StateIndexResult,
   StateIndexSort,
   StateIndexSyncMode,
+  StateIndexSyncScope,
   StateIndexSyncResult,
   StateRecord
 } from "./types.ts";
@@ -85,7 +86,10 @@ export type StateIndexRuntime<
   stageSelectedEntries: (
     selectedIds: readonly string[]
   ) => Promise<StateIndexEntryStageResult>;
-  sync: (mode: StateIndexSyncMode) => Promise<StateIndexSyncResult>;
+  sync: (
+    mode: StateIndexSyncMode,
+    scope?: StateIndexSyncScope
+  ) => Promise<StateIndexSyncResult>;
 };
 
 export function createStateIndexRuntime<
@@ -160,12 +164,13 @@ export function createStateIndexRuntime<
         resolveSelectedIds: options.resolveSelectedIds,
         selectedIds
       }),
-    sync: (mode) =>
+    sync: (mode, scope) =>
       syncStateIndex({
         context,
         definition,
         indexPath: options.indexPath,
-        mode
+        mode,
+        ...(scope === undefined ? {} : { scope })
       })
   });
 }

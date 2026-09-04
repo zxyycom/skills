@@ -26,6 +26,11 @@ export {
   stageSelectedIndexEntries,
   type StateIndexEntrySelectionResolver
 } from "./staging.ts";
+export {
+  sameStateIndexCollectionMetadata,
+  validateStateIndexSelectedIds,
+  type StateIndexSelectedIdsResult
+} from "./selection.ts";
 export type {
   JsonObject,
   JsonPrimitive,
@@ -58,6 +63,7 @@ export type {
   StateIndexStoredEntry,
   StateIndexSort,
   StateIndexSyncMode,
+  StateIndexSyncScope,
   StateIndexSyncResult,
   StateIndexVersionControlDiagnostic,
   StateKeyInput,

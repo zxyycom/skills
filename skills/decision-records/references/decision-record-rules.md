@@ -125,6 +125,7 @@ relations:
 5. candidates 与 show-candidate 直接扫描根目录源码，显示 `scaffoldValid` 与 `bodyReady`：单条非法 Markdown 产生 warning 并跳过，显式目标自身非法则失败；根目录、成员边界或已建立集合的索引前提错误属于集合级错误。合法 scaffold 与 body-ready candidate 都排除于正式索引。
 6. 索引缺失、损坏或陈旧时只能由权威 Markdown 重建，不能反向补造 Markdown 事实。常规查询读取结构有效的持久索引，不在每次查询前重扫整个集合。
 7. `new` 接收标准 ID 或 name：标准 ID 日期必须等于本次 UTC 形成日，name 自动加该日期。同日同名 ID 已存在时零写入失败，不追加随机码或序号。writer 在 candidate、active 与 archive 三个目标位置均确认 name basename 可用时优先使用 name，否则使用完整 ID basename。若会与同名 legacy ID 冲突，`new` 零写入返回 `migration-required`、legacy ID、建议 dated ID 和 rename/preflight 指引；它不隐式 rename。`new`、`sync-index` 与关系、生命周期和丢弃事务共用集合 mutation lock；其余事务边界不变。
+8. `sync-index [--select <name-or-id> ...] [--write]` 无 selector 时保留全量重建；selected scope 先严格读取持久索引 baseline，再完整建立和验证当前 candidate。selector 先移除一个末尾 `.md`、按 calendar-valid ID exact 或 baseline/current name 并集唯一解析为 ID；标准 ID 不存在不得退回 name。结果保留输入顺序的原始 `selectors`，并分别按规范顺序报告解析后的 `selectedIds` 与 `changedIds`。只有 metadata 与其 revision 不变，且全部 entry/revision 变化的 ID 都被选择时，`--write` 才原子发布完整 candidate；否则零写入并要求补充选择或运行 full sync。selected check 不写入且将允许的待发布变化报告为 stale。新增、删除和显式 ID rename 必须分别选择新 ID、旧 ID、或同时选择旧/新 ID。该同步不改变 Markdown、关系或 pending，也不能代替 `stage` 或领域 rename 事务。
 
 ## CLI 诊断与 mutation 恢复
 

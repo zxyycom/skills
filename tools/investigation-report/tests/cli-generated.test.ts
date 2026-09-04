@@ -187,6 +187,66 @@ test("CLI sync-index writes a missing derived index", async () => {
   });
 });
 
+test("CLI selected sync proves the full investigation collection before writing", async () => {
+  await withTempRoot("cli-selected-sync", async (root) => {
+    await writeCollection(root, [
+      { id: "260828-alpha" },
+      { id: "260828-beta" }
+    ]);
+    const indexPath = path.join(
+      investigationRoot(root),
+      "investigation-index.json"
+    );
+    const alphaPath = path.join(investigationRoot(root), "260828-alpha.md");
+    const baseline = await fs.readFile(indexPath, "utf8");
+    const alpha = await fs.readFile(alphaPath, "utf8");
+    await fs.writeFile(
+      alphaPath,
+      alpha.replace('title: "260828-alpha"', 'title: "Alpha changed"'),
+      "utf8"
+    );
+
+    const unselected = await runInvestigationCli(root, [
+      "sync-index",
+      "--select",
+      "260828-beta",
+      "--write"
+    ]);
+    assert.equal(unselected.status, 1);
+    assert.match(unselected.stderr, /outside the selected sync scope/u);
+    assert.equal(await fs.readFile(indexPath, "utf8"), baseline);
+
+    const checked = await runInvestigationCli(root, [
+      "sync-index",
+      "--select",
+      "alpha.md"
+    ]);
+    assert.equal(checked.status, 1);
+    assert.match(checked.stderr, /selected source change is not present/u);
+    assert.equal(await fs.readFile(indexPath, "utf8"), baseline);
+
+    const written = await runInvestigationCli(root, [
+      "sync-index",
+      "--select",
+      "alpha.md",
+      "--write"
+    ]);
+    assert.equal(written.status, 0, written.stderr);
+    assert.match(
+      written.stdout,
+      /Selected Investigation selectors: alpha\.md\./u
+    );
+    assert.match(written.stdout, /resolved IDs: 260828-alpha\./u);
+    const selectedText = await fs.readFile(indexPath, "utf8");
+    assert.notEqual(selectedText, baseline);
+
+    await fs.writeFile(indexPath, baseline, "utf8");
+    const full = await runInvestigationCli(root, ["sync-index"]);
+    assert.equal(full.status, 0, full.stderr);
+    assert.equal(await fs.readFile(indexPath, "utf8"), selectedText);
+  });
+});
+
 test("CLI sync-index preserves collection lock diagnostics", async () => {
   await withTempRoot("cli-sync-lock", async (root) => {
     await writeCollection(root, [{ id: "report" }]);

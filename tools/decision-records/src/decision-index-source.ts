@@ -5,7 +5,10 @@ import type {
   StateSourceRevision
 } from "../../index-runtime/src/index.ts";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
-import { decisionIdFromMarkdown } from "./decision-metadata.ts";
+import {
+  decisionIdFromMarkdown,
+  isCandidateDecisionMarkdown
+} from "./decision-metadata.ts";
 import { isDecisionId, isDecisionSourcePath } from "./decision-path.ts";
 import { decisionSourceRevision } from "./decision-source-revision.ts";
 import { buildDecisionStateSnapshotFromSources } from "./decision-state-snapshot.ts";
@@ -19,7 +22,7 @@ import type {
 
 export async function readDecisionSourceRevision(
   decisionsDirectory: string,
-  decisionIds: readonly string[],
+  decisionIds: readonly string[] | undefined,
   signal?: AbortSignal
 ): Promise<StateSourceRevision> {
   return decisionSourceRevision(
@@ -29,7 +32,7 @@ export async function readDecisionSourceRevision(
 
 export async function readDecisionStateSnapshot(
   decisionsDirectory: string,
-  decisionIds: readonly string[],
+  decisionIds: readonly string[] | undefined,
   signal?: AbortSignal
 ): Promise<StateSnapshot<DecisionIndexState, DecisionIndexMetadata>> {
   return await buildDecisionStateSnapshotFromSources(
@@ -40,11 +43,16 @@ export async function readDecisionStateSnapshot(
 
 async function readDecisionSources(
   decisionsDirectory: string,
-  decisionIds: readonly string[],
+  decisionIds: readonly string[] | undefined,
   signal?: AbortSignal
 ): Promise<DecisionSource[]> {
-  const requestedIds = validatedUniqueDecisionIds(decisionIds);
   const discovered = await discoverDecisionSources(decisionsDirectory, signal);
+  if (decisionIds === undefined) {
+    return discovered.filter(
+      (source) => !isCandidateDecisionMarkdown(source.text)
+    );
+  }
+  const requestedIds = validatedUniqueDecisionIds(decisionIds);
   const sourceById = new Map(
     discovered.map((source) => [source.decisionId, source])
   );

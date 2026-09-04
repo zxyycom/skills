@@ -197,7 +197,7 @@ source revision 成员不一致或通用结构无效
 ```text
 node scripts/test-evidence-catalog.mjs topics --root <workspace-root> [--json]
 node scripts/test-evidence-catalog.mjs check --root <workspace-root> [--json]
-node scripts/test-evidence-catalog.mjs sync-index [--write] --root <workspace-root> [--json]
+node scripts/test-evidence-catalog.mjs sync-index [--select <case-id> ...] [--write] --root <workspace-root> [--json]
 node scripts/test-evidence-catalog.mjs stage-index <case-id...> --root <workspace-root> [--json]
 node scripts/test-evidence-catalog.mjs list --root <workspace-root> [--topic <topic>] [--query <text>] [--limit <n>] [--offset <n>] [--json]
 node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root> [--json]
@@ -208,7 +208,7 @@ node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root> [-
 重复 `--topic` 属于参数错误并退出 `2`。
 
 `check` 严格校验 topic 表、全部 case、跨 topic case ID 唯一性和索引新鲜度；
-`sync-index --write` 从完整合法目录原子重建统一索引。CLI 不执行 Entry。
+无 selector 的 `sync-index --write` 从完整合法目录原子重建统一索引。`sync-index --select <case-id> ...` 仍完整读取和验证目录，Case ID 必须符合固定协议且不重复；结果保留输入顺序的原始 `selectors`，并分别按规范顺序报告 `selectedIds` 与 `changedIds`。它严格读取当前索引 baseline、完整构建 candidate，并仅在 topic metadata 与 metadata revision 未变且全部 entry/revision 变化均已选择时允许 `--write` 原子发布完整 candidate。默认 selected sync 是 check，允许范围内的未发布变化返回 stale；未知 Case、坏 baseline、topic metadata 变化或未选择变化零写入失败。新增、删除和 Case ID rename 分别选择新 ID、旧 ID、或同时选择旧/新 ID。selected sync 不执行 Entry，也不读取或修改 Git pending，不能替代 `stage-index`。
 
 ### `stage-index`
 

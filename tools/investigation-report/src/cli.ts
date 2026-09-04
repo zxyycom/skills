@@ -120,13 +120,15 @@ const valueOptions = new Set([
   "direction",
   "depth",
   "source",
-  "relation"
+  "relation",
+  "select"
 ]);
 const booleanOptions = new Set([
   "clear-relations",
   "delete-owned-resources",
   "delete-recorded-report",
   "delete-recorded-candidate",
+  "write",
   "preflight",
   "help"
 ]);
@@ -189,7 +191,7 @@ function printHelp(
       "Write only selected report entries to the pending index; report Markdown and resources remain outside this operation."
     ],
     "sync-index": [
-      "Usage: investigation-report sync-index [options]",
+      "Usage: investigation-report sync-index [--select <name-or-id> ...] [--write] [options]",
       "",
       "Validate the full formal collection and rebuild its derived index in the working tree; this is the explicit recovery and acceptance path for hand-written formal reports and ignores legal candidates."
     ],
@@ -220,6 +222,10 @@ function printHelp(
       "  --relation <type=target-id>   Repeatable direct predecessor relation"
     ],
     check: ["  --id <investigation-id>       Scoped check ID; repeatable"],
+    "sync-index": [
+      "  --select <name-or-id>          Allow only this report's source change; repeatable",
+      "  --write                        Publish the complete validated index projection"
+    ],
     discard: [
       "  --delete-owned-resources      Confirm deletion of the report's owner-prefix resources",
       "  --delete-recorded-report      Confirm deletion of report or owned resources already in Git HEAD"
@@ -713,7 +719,12 @@ async function runCandidates(
 ): Promise<number> {
   const problem =
     assertNoPositionals(input) ??
-    assertAllowedOptions(input, ["root", "investigations-dir"]);
+    assertAllowedOptions(input, [
+      "root",
+      "investigations-dir",
+      "select",
+      "write"
+    ]);
   if (problem !== null) return cliInvalid(problem, io);
   const result = await listInvestigationCandidates(location(input.values));
   if (result.status === "error") {
@@ -873,9 +884,24 @@ async function runSync(
 ): Promise<number> {
   const problem =
     assertNoPositionals(input) ??
-    assertAllowedOptions(input, ["root", "investigations-dir"]);
+    assertAllowedOptions(input, [
+      "root",
+      "investigations-dir",
+      "select",
+      "write"
+    ]);
   if (problem !== null) return cliInvalid(problem, io);
-  const execution = await executeInvestigationIndexSync(location(input.values));
+  const selectors = valuesOf(input.values, "select");
+  const execution = await executeInvestigationIndexSync({
+    ...location(input.values),
+    ...(selectors === undefined ? {} : { selectors }),
+    mode:
+      selectors === undefined
+        ? "write"
+        : has(input.values, "write")
+          ? "write"
+          : "check"
+  });
   if (execution.isErr())
     return printResultErrors(
       execution.error.kind === "invalid-options"
@@ -889,6 +915,19 @@ async function runSync(
     );
   const result = execution.value;
   printWarnings(result.warnings, io);
+  if (result.scope === "selected") {
+    writeLine(
+      io.stdout,
+      `Selected Investigation selectors: ${result.selectors.join(", ")}.`
+    );
+    writeLine(
+      io.stdout,
+      result.changed
+        ? `Published the complete Investigation index projection for resolved IDs: ${result.selectedIds.join(", ")}.`
+        : `Resolved Investigation IDs are already current: ${result.selectedIds.join(", ")}.`
+    );
+    return 0;
+  }
   writeLine(
     io.stdout,
     result.changed

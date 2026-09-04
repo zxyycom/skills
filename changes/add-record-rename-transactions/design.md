@@ -7,7 +7,7 @@
 - [`显式纯 ID Plan`](../archive/separate-domain-ids-from-storage-details/)让 Markdown frontmatter 拥有 ID、索引保存独立 sourcePath；这表示路径不定义身份，但合法 basename 只有 name 或 ID，因此 name 改变时 rename 仍需要重新分配并移动文件。
 - [`日期前缀身份 Draft`](../archive/adopt-date-prefixed-record-identities/)定义标准 `YYMMDD-<name>`、ID-first selector 和“name 路径可用则 name，否则 ID”的 locator。Legacy ID 在 name 唯一时可由 name lookup 使用，但与 dated ID 重名后无法作为标准 ID 精确选择。
 - 为避免不可选状态，创建同名 dated 记录前需要先迁移 legacy ID。`new` 固定零写入返回 migration-required 和默认指引，用户显式 rename 后再重试；不能先创建冲突再补救。
-- [`指定 ID 索引刷新 Plan`](../add-selected-id-index-sync/)控制允许接纳哪些 ID 的来源变化。它不是 rename 的第二阶段；rename 必须在一个领域事务中共同提交来源、关系、资源和索引。
+- [`指定 ID 索引刷新 Plan`](../archive/add-selected-id-index-sync/)控制允许接纳哪些 ID 的来源变化。它不是 rename 的第二阶段；rename 必须在一个领域事务中共同提交来源、关系、资源和索引。
 - Decision 的已建立记录有 `createdAt`，candidate 没有形成时间字段；Investigation 有 `formedAt`。这些事实决定 legacy 迁移能否证明历史日期。
 - Decision candidate/active/archive、Investigation candidate/formal、关系和资源 owner 的 mutation lock、revision、tombstone 与恢复结果不同，不能抽象成只会移动文件的共享 runtime。
 - Change Plan 不属于本 Change；其完成后删除不需要历史 rename。

@@ -15,6 +15,7 @@ import {
   runTestEvidenceCatalogCli,
   showTestEvidenceCase,
   syncTestEvidenceIndex,
+  testEvidenceIndexSyncResultSchema,
   testEvidenceStateIndexSchema,
   testEvidenceTopicCatalogSchema,
   type TestEvidenceStateIndex,
@@ -199,6 +200,136 @@ test("index synchronization writes a valid searchable snapshot", async () => {
 
     const checked = await validateTestEvidence({ workspaceRoot: tempRoot });
     assert.deepEqual(checked.diagnostics, []);
+  });
+});
+
+test("selected sync accepts one Case change only after proving the full catalog", async () => {
+  await withWorkspace(async (tempRoot) => {
+    const baselineSync = await syncTestEvidenceIndex({
+      mode: "write",
+      workspaceRoot: tempRoot
+    });
+    assert.deepEqual(baselineSync.selectors, []);
+    const indexPath = path.join(
+      tempRoot,
+      "docs",
+      "test-evidence",
+      "test-evidence-index.json"
+    );
+    const before = await fs.readFile(indexPath, "utf8");
+    await writeWorkspaceFile(
+      tempRoot,
+      "docs/test-evidence/access-control/access-role.md",
+      `${accessCatalog}\n<!-- selected sync change -->\n`
+    );
+
+    const unselected = await syncTestEvidenceIndex({
+      mode: "write",
+      selectedCaseIds: ["AUTH-SESSION-EXPIRY-001"],
+      workspaceRoot: tempRoot
+    });
+    assert.equal(unselected.status, "error");
+    assert.equal(unselected.state, "unselected-changes");
+    assert.deepEqual(unselected.changedIds, ["AUTH-ROLE-ACCESS-001"]);
+    assert.equal(await fs.readFile(indexPath, "utf8"), before);
+
+    const checked = await runCatalogCliFailure([
+      "sync-index",
+      "--select",
+      "AUTH-ROLE-ACCESS-001",
+      "--root",
+      tempRoot,
+      "--json"
+    ]);
+    const checkedResult = JSON.parse(checked.stdout) as {
+      selectedIds: string[];
+      selectors: string[];
+      state: string;
+    };
+    assert.equal(checkedResult.state, "scoped-stale");
+    assert.deepEqual(checkedResult.selectedIds, ["AUTH-ROLE-ACCESS-001"]);
+    assert.deepEqual(checkedResult.selectors, ["AUTH-ROLE-ACCESS-001"]);
+
+    const written = await runCatalogCliJson<{
+      selectedIds: string[];
+      selectors: string[];
+      state: string;
+    }>([
+      "sync-index",
+      "--select",
+      "AUTH-ROLE-ACCESS-001",
+      "--write",
+      "--root",
+      tempRoot,
+      "--json"
+    ]);
+    assert.equal(written.state, "written");
+    assert.deepEqual(written.selectedIds, ["AUTH-ROLE-ACCESS-001"]);
+    assert.deepEqual(written.selectors, ["AUTH-ROLE-ACCESS-001"]);
+    const currentText = await runCatalogCli([
+      "sync-index",
+      "--select",
+      "AUTH-ROLE-ACCESS-001",
+      "--root",
+      tempRoot
+    ]);
+    assert.equal(currentText.code, 0, currentText.stderr);
+    assert.match(
+      currentText.stdout,
+      /Selected Case selectors: AUTH-ROLE-ACCESS-001\./u
+    );
+    assert.match(currentText.stdout, /Resolved Case IDs are already current/u);
+
+    const topicsPath = path.join(
+      tempRoot,
+      "docs",
+      "test-evidence",
+      "test-evidence-topics.json"
+    );
+    const topics = await fs.readFile(topicsPath, "utf8");
+    await fs.writeFile(topicsPath, topics.replace("Access", "Access revised"));
+    const collectionChanged = await syncTestEvidenceIndex({
+      mode: "write",
+      selectedCaseIds: ["AUTH-ROLE-ACCESS-001"],
+      workspaceRoot: tempRoot
+    });
+    assert.equal(collectionChanged.status, "error");
+    assert.equal(collectionChanged.state, "collection-changed");
+  });
+});
+
+test("selected sync preserves invalid raw Case selectors in schema-valid failures", async () => {
+  await withWorkspace(async (tempRoot) => {
+    const apiResult = await syncTestEvidenceIndex({
+      mode: "write",
+      selectedCaseIds: ["bad id"],
+      workspaceRoot: tempRoot
+    });
+    assert.equal(apiResult.status, "error");
+    assert.equal(apiResult.state, "selection-invalid");
+    assert.deepEqual(apiResult.selectors, ["bad id"]);
+    assert.equal(
+      v.safeParse(testEvidenceIndexSyncResultSchema, apiResult).success,
+      true
+    );
+
+    const cli = await runCatalogCliFailure([
+      "sync-index",
+      "--select",
+      "bad id",
+      "--root",
+      tempRoot,
+      "--json"
+    ]);
+    assert.equal(cli.code, 1);
+    const cliResult = JSON.parse(cli.stdout) as unknown;
+    assert.equal(
+      v.safeParse(testEvidenceIndexSyncResultSchema, cliResult).success,
+      true
+    );
+    assert.deepEqual((cliResult as { selectors: string[] }).selectors, [
+      "bad id"
+    ]);
   });
 });
 

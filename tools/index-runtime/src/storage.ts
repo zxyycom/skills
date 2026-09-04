@@ -21,15 +21,21 @@ import {
 import { buildStateIndex } from "./snapshot-builder.ts";
 import { parseStateIndex, serializeStateIndex } from "./snapshot-parser.ts";
 import { isStateIndexText } from "./schemas.ts";
+import {
+  sameStateIndexCollectionMetadata,
+  validateStateIndexSelectedIds
+} from "./selection.ts";
 import type {
   JsonObject,
   StateIndex,
   StateIndexContext,
   StateIndexDefinition,
+  StateIndexDiagnostic,
   StateIndexExpectation,
   StateIndexResult,
   StateSourceRevision,
   StateIndexSyncMode,
+  StateIndexSyncScope,
   StateIndexSyncResult
 } from "./types.ts";
 import { validateStateSourceRevisionValue } from "./validation.ts";
@@ -220,6 +226,7 @@ export async function syncStateIndex<
   definition: StateIndexDefinition<State, Metadata>;
   indexPath: string;
   mode: StateIndexSyncMode;
+  scope?: StateIndexSyncScope;
 }): Promise<StateIndexSyncResult> {
   const { context, definition, indexPath, mode } = options;
   if (!isStateIndexSyncMode(mode)) {
@@ -232,21 +239,48 @@ export async function syncStateIndex<
           path: indexPath
         })
       ],
+      changedIds: [],
       indexPath,
       mode: null,
       namespace: definition.namespace,
+      scope: "all",
+      selectedIds: [],
       state: "mode-invalid",
       status: "error"
     };
   }
+  const scope = resolveSyncScope(options.scope, indexPath);
+  if (scope.status === "error") {
+    return failedSync(
+      options,
+      "selection-invalid",
+      scope.diagnostics,
+      "selected",
+      []
+    );
+  }
   const resolved = await resolveIndexPath(indexPath, context.root);
   if (resolved.status === "error") {
-    return failedSync(options, "index-path-invalid", resolved.diagnostics);
+    return failedSync(
+      options,
+      "index-path-invalid",
+      resolved.diagnostics,
+      scope.value.kind,
+      scope.value.kind === "selected" ? scope.value.selectedIds : []
+    );
+  }
+
+  if (scope.value.kind === "selected") {
+    return await syncSelectedStateIndex({
+      ...options,
+      resolved: resolved.value,
+      selectedIds: scope.value.selectedIds
+    });
   }
 
   const built = await buildStateIndex(definition, context);
   if (built.status === "error") {
-    return failedSync(options, "source-invalid", built.diagnostics);
+    return failedSync(options, "source-invalid", built.diagnostics, "all", []);
   }
   const currentRevision = await readSourceRevision(
     definition,
@@ -254,20 +288,32 @@ export async function syncStateIndex<
     indexPath
   );
   if (currentRevision.status === "error") {
-    return failedSync(options, "source-invalid", currentRevision.diagnostics);
+    return failedSync(
+      options,
+      "source-invalid",
+      currentRevision.diagnostics,
+      "all",
+      []
+    );
   }
   if (
     !sameStateSourceRevision(currentRevision.value, built.value.sourceRevision)
   ) {
-    return failedSync(options, "source-invalid", [
-      diagnostic({
-        code: "state-index.source-changed",
-        message:
-          "source revision changed while building the state projection; retry after " +
-          "the source is stable",
-        path: indexPath
-      })
-    ]);
+    return failedSync(
+      options,
+      "source-invalid",
+      [
+        diagnostic({
+          code: "state-index.source-changed",
+          message:
+            "source revision changed while building the state projection; retry after " +
+            "the source is stable",
+          path: indexPath
+        })
+      ],
+      "all",
+      []
+    );
   }
   const expectedText = serializeStateIndex(built.value, definition);
   let currentText: string | null = null;
@@ -277,29 +323,41 @@ export async function syncStateIndex<
       currentText = decodeUtf8Text(currentData);
     } catch {
       if (mode === "check") {
-        return failedSync(options, "index-invalid", [
-          diagnostic({
-            code: "state-index.index-encoding-invalid",
-            message: `${indexPath} must contain valid UTF-8 text`,
-            path: indexPath
-          })
-        ]);
+        return failedSync(
+          options,
+          "index-invalid",
+          [
+            diagnostic({
+              code: "state-index.index-encoding-invalid",
+              message: `${indexPath} must contain valid UTF-8 text`,
+              path: indexPath
+            })
+          ],
+          "all",
+          []
+        );
       }
     }
   } catch (error) {
     if (!isFileSystemError(error, "ENOENT")) {
-      return failedSync(options, "index-read-failed", [
-        diagnostic({
-          code: "state-index.index-read-failed",
-          filesystem: filesystemDiagnostic(error, {
-            operation: "read a state-index file",
-            target: indexPath
-          }),
-          message:
-            "failed to read the state-index file; inspect index availability and access, then retry",
-          path: indexPath
-        })
-      ]);
+      return failedSync(
+        options,
+        "index-read-failed",
+        [
+          diagnostic({
+            code: "state-index.index-read-failed",
+            filesystem: filesystemDiagnostic(error, {
+              operation: "read a state-index file",
+              target: indexPath
+            }),
+            message:
+              "failed to read the state-index file; inspect index availability and access, then retry",
+            path: indexPath
+          })
+        ],
+        "all",
+        []
+      );
     }
   }
 
@@ -309,23 +367,32 @@ export async function syncStateIndex<
   ) {
     return {
       changed: false,
+      changedIds: [],
       diagnostics: [],
       indexPath,
       mode,
       namespace: definition.namespace,
+      scope: "all",
+      selectedIds: [],
       state: mode === "check" ? "current" : "unchanged",
       status: "ok"
     };
   }
   if (mode === "check") {
     if (currentText === null) {
-      return failedSync(options, "index-missing", [
-        diagnostic({
-          code: "state-index.index-missing",
-          message: `${indexPath} does not exist`,
-          path: indexPath
-        })
-      ]);
+      return failedSync(
+        options,
+        "index-missing",
+        [
+          diagnostic({
+            code: "state-index.index-missing",
+            message: `${indexPath} does not exist`,
+            path: indexPath
+          })
+        ],
+        "all",
+        []
+      );
     }
     const parsed = parseStateIndex({
       definition,
@@ -334,62 +401,438 @@ export async function syncStateIndex<
       text: currentText
     });
     return parsed.status === "error"
-      ? failedSync(options, "index-invalid", parsed.diagnostics)
-      : failedSync(options, "index-stale", [
-          diagnostic({
-            code: "state-index.index-stale",
-            message: `${indexPath} does not match the current state projection`,
-            path: indexPath
-          })
-        ]);
+      ? failedSync(options, "index-invalid", parsed.diagnostics, "all", [])
+      : failedSync(
+          options,
+          "index-stale",
+          [
+            diagnostic({
+              code: "state-index.index-stale",
+              message: `${indexPath} does not match the current state projection`,
+              path: indexPath
+            })
+          ],
+          "all",
+          []
+        );
   }
 
   let writtenPath: string;
   try {
     writtenPath = await writeTextAtomically(resolved.value, expectedText);
   } catch (error) {
-    return failedSync(options, "index-write-failed", [
-      diagnostic({
-        code: "state-index.index-write-failed",
-        filesystem: filesystemDiagnostic(error, {
-          operation: "write a state-index file",
-          target: indexPath
-        }),
-        message:
-          "failed to write the state-index file; inspect index availability and access, then retry",
-        path: indexPath
-      })
-    ]);
+    return failedSync(
+      options,
+      "index-write-failed",
+      [
+        diagnostic({
+          code: "state-index.index-write-failed",
+          filesystem: filesystemDiagnostic(error, {
+            operation: "write a state-index file",
+            target: indexPath
+          }),
+          message:
+            "failed to write the state-index file; inspect index availability and access, then retry",
+          path: indexPath
+        })
+      ],
+      "all",
+      []
+    );
   }
   try {
     await verifyWrittenText(writtenPath, expectedText);
     return {
       changed: true,
+      changedIds: [],
       diagnostics: [],
       indexPath,
       mode,
       namespace: definition.namespace,
+      scope: "all",
+      selectedIds: [],
       state: "written",
       status: "ok"
     };
   } catch (error) {
-    return failedSync(options, "index-write-failed", [
-      diagnostic({
-        code: "state-index.index-write-failed",
-        filesystem: filesystemDiagnostic(error, {
-          operation: "verify a state-index file",
-          target: indexPath
-        }),
-        message:
-          "failed to verify the written state-index file; inspect index availability and access, then retry",
-        path: indexPath
-      })
-    ]);
+    return failedSync(
+      options,
+      "index-write-failed",
+      [
+        diagnostic({
+          code: "state-index.index-write-failed",
+          filesystem: filesystemDiagnostic(error, {
+            operation: "verify a state-index file",
+            target: indexPath
+          }),
+          message:
+            "failed to verify the written state-index file; inspect index availability and access, then retry",
+          path: indexPath
+        })
+      ],
+      "all",
+      []
+    );
   }
 }
 
 function normalizeIndexLineEndings(value: string): string {
   return value.replace(/\r\n/g, "\n");
+}
+
+type ResolvedSyncScope =
+  | Readonly<{ kind: "all" }>
+  | Readonly<{ kind: "selected"; selectedIds: string[] }>;
+
+function resolveSyncScope(
+  input: StateIndexSyncScope | undefined,
+  indexPath: string
+): StateIndexResult<ResolvedSyncScope> {
+  if (
+    input === undefined ||
+    (typeof input === "object" && input !== null && input.kind === "all")
+  ) {
+    return { diagnostics: [], status: "ok", value: { kind: "all" } };
+  }
+  if (
+    typeof input !== "object" ||
+    input === null ||
+    input.kind !== "selected"
+  ) {
+    return failure(
+      "state-index.selection-invalid",
+      "sync scope must be all or a non-empty selected ID set",
+      { path: indexPath }
+    );
+  }
+  const selected = validateStateIndexSelectedIds(input.selectedIds, indexPath);
+  return selected.status === "error"
+    ? { ...selected, value: null }
+    : {
+        diagnostics: [],
+        status: "ok",
+        value: { kind: "selected", selectedIds: selected.selectedIds }
+      };
+}
+
+async function syncSelectedStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  context: StateIndexContext;
+  definition: StateIndexDefinition<State, Metadata>;
+  indexPath: string;
+  mode: StateIndexSyncMode;
+  resolved: ResolvedIndexPath;
+  selectedIds: string[];
+}): Promise<StateIndexSyncResult> {
+  const baseline = await readSelectedBaseline({
+    definition: options.definition,
+    indexPath: options.indexPath,
+    resolved: options.resolved
+  });
+  if (baseline.status === "error") {
+    return failedSync(
+      options,
+      "selected-baseline-invalid",
+      selectedBaselineDiagnostics(baseline.diagnostics, options.indexPath),
+      "selected",
+      options.selectedIds
+    );
+  }
+
+  const candidate = await buildStateIndex(options.definition, options.context);
+  if (candidate.status === "error") {
+    return failedSync(
+      options,
+      "source-invalid",
+      candidate.diagnostics,
+      "selected",
+      options.selectedIds
+    );
+  }
+  const currentRevision = await readSourceRevision(
+    options.definition,
+    options.context,
+    options.indexPath
+  );
+  if (currentRevision.status === "error") {
+    return failedSync(
+      options,
+      "source-invalid",
+      currentRevision.diagnostics,
+      "selected",
+      options.selectedIds
+    );
+  }
+  if (
+    !sameStateSourceRevision(
+      currentRevision.value,
+      candidate.value.sourceRevision
+    )
+  ) {
+    return failedSync(
+      options,
+      "source-invalid",
+      [
+        diagnostic({
+          code: "state-index.source-changed",
+          message:
+            "source revision changed while building the state projection; retry after " +
+            "the source is stable",
+          path: options.indexPath
+        })
+      ],
+      "selected",
+      options.selectedIds
+    );
+  }
+  if (!sameStateIndexCollectionMetadata(baseline.value, candidate.value)) {
+    return failedSync(
+      options,
+      "collection-changed",
+      [
+        diagnostic({
+          code: "state-index.collection-changed",
+          message:
+            "collection metadata or its source revision changed; run a full sync instead",
+          path: options.indexPath
+        })
+      ],
+      "selected",
+      options.selectedIds
+    );
+  }
+
+  const missingId = options.selectedIds.find(
+    (id) =>
+      !Object.hasOwn(baseline.value.entries, id) &&
+      !Object.hasOwn(candidate.value.entries, id)
+  );
+  if (missingId !== undefined) {
+    return failedSync(
+      options,
+      "selected-id-missing",
+      [
+        diagnostic({
+          code: "state-index.selected-id-missing",
+          message: `selected state id ${JSON.stringify(missingId)} is absent from both indexes`,
+          path: options.indexPath,
+          stateId: missingId
+        })
+      ],
+      "selected",
+      options.selectedIds
+    );
+  }
+
+  const changedIds = changedStateIds(baseline.value, candidate.value);
+  const selectedIdSet = new Set(options.selectedIds);
+  const unselectedChangedIds = changedIds.filter(
+    (id) => !selectedIdSet.has(id)
+  );
+  if (unselectedChangedIds.length > 0) {
+    return failedSync(
+      options,
+      "unselected-changes",
+      unselectedChangedIds.map((stateId) =>
+        diagnostic({
+          code: "state-index.unselected-changes",
+          message:
+            "this source change is outside the selected sync scope; add the ID " +
+            "to --select or run a full sync",
+          path: options.indexPath,
+          stateId
+        })
+      ),
+      "selected",
+      options.selectedIds,
+      changedIds
+    );
+  }
+  if (changedIds.length === 0) {
+    return {
+      changed: false,
+      changedIds,
+      diagnostics: [],
+      indexPath: options.indexPath,
+      mode: options.mode,
+      namespace: options.definition.namespace,
+      scope: "selected",
+      selectedIds: options.selectedIds,
+      state: options.mode === "check" ? "current" : "unchanged",
+      status: "ok"
+    };
+  }
+  if (options.mode === "check") {
+    return failedSync(
+      options,
+      "scoped-stale",
+      changedIds.map((stateId) =>
+        diagnostic({
+          code: "state-index.scoped-stale",
+          message:
+            "the selected source change is not present in the current index; rerun " +
+            "the selected sync in write mode to publish the complete projection",
+          path: options.indexPath,
+          stateId
+        })
+      ),
+      "selected",
+      options.selectedIds,
+      changedIds
+    );
+  }
+
+  const expectedText = serializeStateIndex(candidate.value, options.definition);
+  let writtenPath: string;
+  try {
+    writtenPath = await writeTextAtomically(options.resolved, expectedText);
+  } catch (error) {
+    return failedSync(
+      options,
+      "index-write-failed",
+      [
+        diagnostic({
+          code: "state-index.index-write-failed",
+          filesystem: filesystemDiagnostic(error, {
+            operation: "write a state-index file",
+            target: options.indexPath
+          }),
+          message:
+            "failed to write the state-index file; inspect index availability and access, then retry",
+          path: options.indexPath
+        })
+      ],
+      "selected",
+      options.selectedIds,
+      changedIds
+    );
+  }
+  try {
+    await verifyWrittenText(writtenPath, expectedText);
+    return {
+      changed: true,
+      changedIds,
+      diagnostics: [],
+      indexPath: options.indexPath,
+      mode: options.mode,
+      namespace: options.definition.namespace,
+      scope: "selected",
+      selectedIds: options.selectedIds,
+      state: "written",
+      status: "ok"
+    };
+  } catch (error) {
+    return failedSync(
+      options,
+      "index-write-failed",
+      [
+        diagnostic({
+          code: "state-index.index-write-failed",
+          filesystem: filesystemDiagnostic(error, {
+            operation: "verify a state-index file",
+            target: options.indexPath
+          }),
+          message:
+            "failed to verify the written state-index file; inspect index availability and access, then retry",
+          path: options.indexPath
+        })
+      ],
+      "selected",
+      options.selectedIds,
+      changedIds
+    );
+  }
+}
+
+async function readSelectedBaseline<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  definition: StateIndexDefinition<State, Metadata>;
+  indexPath: string;
+  resolved: ResolvedIndexPath;
+}): Promise<StateIndexResult<StateIndex<State, Metadata>>> {
+  let data: Buffer;
+  try {
+    data = await fs.readFile(options.resolved.targetPath);
+  } catch (error) {
+    return filesystemFailure(
+      isFileSystemError(error, "ENOENT")
+        ? "state-index.index-missing"
+        : "state-index.index-read-failed",
+      isFileSystemError(error, "ENOENT")
+        ? "the state-index file does not exist"
+        : "failed to read the state-index file; inspect index availability and access, then retry",
+      {
+        error,
+        operation: "read a state-index file",
+        path: options.indexPath,
+        target: options.indexPath
+      }
+    );
+  }
+  let text: string;
+  try {
+    text = decodeUtf8Text(data);
+  } catch {
+    return failure(
+      "state-index.index-encoding-invalid",
+      `${options.indexPath} must contain valid UTF-8 text`,
+      { path: options.indexPath }
+    );
+  }
+  const parsed = parseStateIndex({
+    definition: options.definition,
+    expectation: expectationOf(options.definition),
+    sourcePath: options.indexPath,
+    text
+  });
+  if (parsed.status === "error") return parsed;
+  return normalizeIndexLineEndings(text) ===
+    serializeStateIndex(parsed.value, options.definition)
+    ? parsed
+    : failure(
+        "state-index.index-noncanonical",
+        "selected sync requires a canonical persisted index; run a full sync instead",
+        { path: options.indexPath }
+      );
+}
+
+function selectedBaselineDiagnostics(
+  diagnostics: readonly StateIndexDiagnostic[],
+  indexPath: string
+): StateIndexDiagnostic[] {
+  return diagnostics.map((entry) =>
+    diagnostic({
+      ...entry,
+      code: "state-index.selected-baseline-invalid",
+      message: `selected sync requires a valid baseline; ${entry.message}`,
+      path: entry.path ?? indexPath
+    })
+  );
+}
+
+function changedStateIds<State extends object, Metadata extends JsonObject>(
+  baseline: StateIndex<State, Metadata>,
+  candidate: StateIndex<State, Metadata>
+): string[] {
+  const ids = new Set([
+    ...Object.keys(baseline.entries),
+    ...Object.keys(candidate.entries),
+    ...Object.keys(baseline.sourceRevision.entries),
+    ...Object.keys(candidate.sourceRevision.entries)
+  ]);
+  return [...ids]
+    .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0))
+    .filter(
+      (id) =>
+        JSON.stringify(baseline.entries[id]) !==
+          JSON.stringify(candidate.entries[id]) ||
+        baseline.sourceRevision.entries[id] !==
+          candidate.sourceRevision.entries[id]
+    );
 }
 
 export async function resolveIndexPath(
@@ -656,15 +1099,27 @@ function failedSync<State extends object, Metadata extends JsonObject>(
     | "index-read-failed"
     | "index-stale"
     | "index-write-failed"
+    | "selected-baseline-invalid"
+    | "selected-id-missing"
+    | "selection-invalid"
+    | "collection-changed"
+    | "scoped-stale"
+    | "unselected-changes"
     | "source-invalid",
-  diagnostics: StateIndexSyncResult["diagnostics"]
+  diagnostics: StateIndexSyncResult["diagnostics"],
+  scope: "all" | "selected",
+  selectedIds: readonly string[],
+  changedIds: readonly string[] = []
 ): StateIndexSyncResult {
   return {
     changed: false,
+    changedIds: [...changedIds],
     diagnostics,
     indexPath: options.indexPath,
     mode: options.mode,
     namespace: options.definition.namespace,
+    scope,
+    selectedIds: [...selectedIds],
     state,
     status: "error"
   };

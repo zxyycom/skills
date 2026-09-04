@@ -6,7 +6,7 @@ description: >-
   再审查契约、证明信号和可靠性，并维护一入口一 case 的可检索账本。
   工程校验、仅运行既有测试或只修改被测对象不使用。
 metadata:
-  version: "22"
+  version: "23"
 ---
 
 # Test Evidence Review
@@ -133,7 +133,7 @@ Case ID 暂存派生索引条目。它不扫描源码、不执行 `Entry:`、不
    - 新增或保留的最小入口新建或更新唯一 case。
    - 删除测试入口时删除对应 case；只改变定位时更新原 case。
    - 容器和内部环节只在有定位价值时写入所属 case，不独立登记。
-6. **同步索引**：case 正文变化后运行 `sync-index --write`；索引不手工编辑。
+6. **同步索引**：case 正文变化后运行 `sync-index --write`；若本次只允许接纳指定 Case 的变化，使用 `sync-index --select <case-id> ... --write`。selected sync 仍完整读取和验证目录，并只在可信 baseline、topic metadata 不变且全部变化均已选择时发布完整索引；索引不手工编辑。
 7. **按需隔离索引暂存**：同一工作区有多项 Case 变化、当前提交只选择其中一部分时，
    在第 6 步同步完整工作区索引后先通过目录 `check`，再用
    `stage-index <case-id...>` 只暂存所选 Case 的索引条目；topic 表、Case Markdown、
@@ -167,6 +167,7 @@ node scripts/test-evidence-catalog.mjs list --topic <topic> --root <workspace-ro
 node scripts/test-evidence-catalog.mjs list --query "<contract or entry>" --root <workspace-root>
 node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root>
 node scripts/test-evidence-catalog.mjs sync-index --write --root <workspace-root>
+node scripts/test-evidence-catalog.mjs sync-index --select <case-id> --write --root <workspace-root>
 node scripts/test-evidence-catalog.mjs stage-index <case-id...> --root <workspace-root>
 node scripts/test-evidence-catalog.mjs check --root <workspace-root>
 ```

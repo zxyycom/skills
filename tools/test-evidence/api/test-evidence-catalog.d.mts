@@ -37,6 +37,7 @@ export type ShowTestEvidenceCaseOptions = {
 
 export type SyncTestEvidenceIndexOptions = {
   mode: "check" | "write";
+  selectedCaseIds?: readonly string[];
   workspaceRoot: string;
 };
 

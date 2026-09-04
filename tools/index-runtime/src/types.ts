@@ -196,11 +196,22 @@ export type StateIndexQueryOutput<
 
 export type StateIndexSyncMode = "check" | "write";
 
+/**
+ * `selected` limits only the source changes that a sync may accept. It never
+ * limits source loading, validation, or the index text eventually published.
+ */
+export type StateIndexSyncScope =
+  | Readonly<{ kind: "all" }>
+  | Readonly<{ kind: "selected"; selectedIds: readonly string[] }>;
+
 type StateIndexSyncBase = {
+  changedIds: string[];
   changed: boolean;
   diagnostics: StateIndexDiagnostic[];
   indexPath: string;
   namespace: string;
+  scope: "all" | "selected";
+  selectedIds: string[];
 };
 
 export type StateIndexSyncResult =
@@ -226,6 +237,12 @@ export type StateIndexSyncResult =
         | "index-read-failed"
         | "index-stale"
         | "index-write-failed"
+        | "selected-baseline-invalid"
+        | "selected-id-missing"
+        | "selection-invalid"
+        | "collection-changed"
+        | "scoped-stale"
+        | "unselected-changes"
         | "source-invalid";
       status: "error";
     })

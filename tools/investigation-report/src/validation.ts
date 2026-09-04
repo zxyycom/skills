@@ -1,7 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { err, errAsync, ok, ResultAsync, type Result } from "neverthrow";
-import type { StateSnapshot } from "../../index-runtime/src/index.ts";
+import {
+  isStateIndexText,
+  type StateIndexSyncScope,
+  type StateSnapshot
+} from "../../index-runtime/src/index.ts";
 import { operationErrorDetail } from "../../shared/src/version-control/error-detail.ts";
 import {
   openVersionControl,
@@ -21,12 +25,14 @@ import {
 import {
   diagnosticFromError,
   diagnosticFromStateIndexDiagnostic,
+  genericInvestigationDiagnostic,
   type InvestigationDiagnostic,
   type InvestigationMutationDiagnostic
 } from "./diagnostics.ts";
 import {
   investigationIndexDiagnosticMessages,
   investigationIndexFileName,
+  loadInvestigationIndex,
   syncInvestigationStateIndex
 } from "./investigation-state-index.ts";
 import {
@@ -42,6 +48,8 @@ import {
   defaultInvestigationsDirectory,
   isInvestigationId,
   isInvestigationSourcePath,
+  normalizeInvestigationSelectorInput,
+  parseDatedInvestigationId,
   resolveInvestigationsDirectory,
   type ResolvedInvestigationsDirectory
 } from "./report-path.ts";
@@ -92,7 +100,9 @@ type PreparedCheck = Readonly<{
 }>;
 type PreparedSync = Readonly<{
   indexPath: string;
+  mode: "check" | "write";
   resolved: ResolvedInvestigationsDirectory;
+  selectors?: readonly string[];
 }>;
 
 export async function collectValidatedInvestigationCollection(
@@ -226,7 +236,13 @@ export function executeInvestigationIndexSync(
     .mapErr((errors) =>
       syncFailure(
         "operation",
-        emptySyncResult(errors, prepared.value.indexPath)
+        emptySyncResult(
+          errors,
+          prepared.value.indexPath,
+          [],
+          undefined,
+          prepared.value.selectors ?? []
+        )
       )
     )
     .andThen((canonical) =>
@@ -235,12 +251,18 @@ export function executeInvestigationIndexSync(
         InvestigationIndexSyncFailure
       >(
         synchronizeFullCollectionWithMutationLock(
-          canonical.investigationsDirectory
+          canonical.investigationsDirectory,
+          prepared.value.mode,
+          prepared.value.selectors
         ),
         (error) =>
           syncFailure(
             "operation",
-            syncFailureResult(error, prepared.value.indexPath)
+            syncFailureResult(
+              error,
+              prepared.value.indexPath,
+              prepared.value.selectors ?? []
+            )
           )
       )
     )
@@ -327,7 +349,10 @@ function prepareSync(
         "invalid-options",
         emptySyncResult(
           resolved.error,
-          investigationIndexPathForOptions(parsed.value)
+          investigationIndexPathForOptions(parsed.value),
+          [],
+          undefined,
+          parsed.value.selectors ?? []
         )
       )
     );
@@ -337,7 +362,13 @@ function prepareSync(
       resolved.value.investigationsDirectory,
       investigationIndexFileName
     ),
-    resolved: resolved.value
+    mode:
+      parsed.value.mode ??
+      (parsed.value.selectors === undefined ? "write" : "check"),
+    resolved: resolved.value,
+    ...(parsed.value.selectors === undefined
+      ? {}
+      : { selectors: parsed.value.selectors })
   });
 }
 
@@ -505,7 +536,9 @@ async function validateScopedReport(
 }
 
 async function synchronizeFullCollection(
-  investigationRoot: string
+  investigationRoot: string,
+  mode: "check" | "write",
+  selectors: readonly string[] | undefined
 ): Promise<InvestigationIndexSyncResult> {
   const collection = await collectValidatedInvestigationCollection(
     investigationRoot,
@@ -517,6 +550,7 @@ async function synchronizeFullCollection(
       errors: collection.errors,
       indexPath: collection.indexPath,
       reportCount: collection.reportCount,
+      selectors: selectors ?? [],
       warnings: collection.warnings
     });
   }
@@ -530,25 +564,51 @@ async function synchronizeFullCollection(
       errors: ["investigation collection must contain at least one report"],
       indexPath: collection.indexPath,
       reportCount: 0,
+      selectors: selectors ?? [],
       warnings: collection.warnings
     });
   }
   return await synchronizeValidatedCollection(
     investigationRoot,
     collection,
-    snapshot
+    snapshot,
+    mode,
+    selectors
   );
 }
 
 async function synchronizeValidatedCollection(
   investigationRoot: string,
   collection: ValidatedInvestigationCollection,
-  snapshot: InvestigationSnapshot
+  snapshot: InvestigationSnapshot,
+  mode: "check" | "write",
+  selectors: readonly string[] | undefined
 ): Promise<InvestigationIndexSyncResult> {
+  const scope = await selectedInvestigationSyncScope({
+    indexPath: collection.indexPath,
+    investigationsDirectory: investigationRoot,
+    selectors,
+    snapshot
+  });
+  if (scope.status === "error") {
+    return syncResult({
+      changed: false,
+      diagnostics: scope.diagnostics,
+      errors: scope.errors,
+      indexPath: collection.indexPath,
+      reportCount: collection.reportCount,
+      scope: "selected",
+      selectedIds: [],
+      selectors: selectors ?? [],
+      state: "selection-invalid",
+      warnings: collection.warnings
+    });
+  }
   const synchronized = await syncInvestigationStateIndex({
     investigationsDirectory: investigationRoot,
-    mode: "write",
-    snapshot
+    mode,
+    snapshot,
+    ...(scope.value === undefined ? {} : { scope: scope.value })
   });
   const errors =
     synchronized.status === "error"
@@ -572,27 +632,191 @@ async function synchronizeValidatedCollection(
         );
   return syncResult({
     changed: synchronized.changed,
+    changedIds: synchronized.changedIds,
     diagnostics,
     errors,
     indexPath: collection.indexPath,
     mutation,
     reportCount: collection.reportCount,
+    scope: synchronized.scope,
+    selectedIds: synchronized.selectedIds,
+    selectors: selectors ?? [],
+    state: synchronized.state,
     warnings: collection.warnings
   });
 }
 
 async function synchronizeFullCollectionWithMutationLock(
-  investigationRoot: string
+  investigationRoot: string,
+  mode: "check" | "write",
+  selectors: readonly string[] | undefined
 ): Promise<InvestigationIndexSyncResult> {
   return await withInvestigationCollectionMutationLock(
     path.join(investigationRoot, investigationIndexFileName),
-    async () => await synchronizeFullCollection(investigationRoot)
+    async () =>
+      await synchronizeFullCollection(investigationRoot, mode, selectors)
   );
+}
+
+async function selectedInvestigationSyncScope(options: {
+  indexPath: string;
+  investigationsDirectory: string;
+  selectors: readonly string[] | undefined;
+  snapshot: InvestigationSnapshot;
+}): Promise<
+  | Readonly<{ status: "ok"; value: StateIndexSyncScope | undefined }>
+  | Readonly<{
+      diagnostics: InvestigationDiagnostic[];
+      errors: string[];
+      status: "error";
+    }>
+> {
+  if (options.selectors === undefined)
+    return { status: "ok", value: undefined };
+  const raw = validateInvestigationSyncSelectors(
+    options.selectors,
+    options.indexPath
+  );
+  if (raw.status === "error") return raw;
+  const baseline = await loadInvestigationIndex({
+    investigationsDirectory: options.investigationsDirectory
+  });
+  if (baseline.status === "error") {
+    return {
+      status: "ok",
+      value: { kind: "selected", selectedIds: raw.selectors }
+    };
+  }
+  const idsByName = new Map<string, Set<string>>();
+  for (const [id, entry] of Object.entries(baseline.value.entries)) {
+    addIdForInvestigationName(idsByName, entry.state.name, id);
+  }
+  for (const [id, state] of Object.entries(options.snapshot.states)) {
+    addIdForInvestigationName(idsByName, state.name, id);
+  }
+  const knownIds = new Set([
+    ...Object.keys(baseline.value.entries),
+    ...Object.keys(options.snapshot.states)
+  ]);
+  const selectedIds: string[] = [];
+  const diagnostics: InvestigationDiagnostic[] = [];
+  for (const selector of raw.selectors) {
+    const normalized = normalizeInvestigationSelectorInput(selector);
+    const dated = parseDatedInvestigationId(normalized);
+    const matches =
+      dated === null
+        ? [...(idsByName.get(normalized) ?? [])].sort(compareText)
+        : knownIds.has(dated.id)
+          ? [dated.id]
+          : [];
+    if (matches.length === 1) {
+      selectedIds.push(matches[0]!);
+      continue;
+    }
+    diagnostics.push(
+      genericInvestigationDiagnostic({
+        code:
+          matches.length === 0
+            ? "investigation-report.selector-not-found"
+            : "investigation-report.selector-ambiguous",
+        reason:
+          matches.length === 0
+            ? `Investigation selector does not resolve in the baseline or current collection: ${normalized}`
+            : `Investigation name is ambiguous: ${normalized}; choose one standard ID: ${matches.join(", ")}`,
+        recovery:
+          matches.length === 0
+            ? "Use an existing Investigation ID or unique name, then retry the selected sync."
+            : "Retry with one listed calendar-valid YYMMDD-name Investigation ID.",
+        target: normalized
+      })
+    );
+  }
+  if (new Set(selectedIds).size !== selectedIds.length) {
+    diagnostics.push(
+      genericInvestigationDiagnostic({
+        code: "investigation-report.selector-duplicate",
+        reason:
+          "Selected Investigation selectors resolve to the same Investigation ID.",
+        recovery:
+          "Select every Investigation ID at most once, then retry the selected sync.",
+        target: options.indexPath
+      })
+    );
+  }
+  return diagnostics.length > 0
+    ? {
+        diagnostics,
+        errors: diagnostics.map((diagnostic) => diagnostic.reason),
+        status: "error"
+      }
+    : {
+        status: "ok",
+        value: { kind: "selected", selectedIds: selectedIds.sort(compareText) }
+      };
+}
+
+function addIdForInvestigationName(
+  idsByName: Map<string, Set<string>>,
+  name: string,
+  id: string
+): void {
+  const ids = idsByName.get(name) ?? new Set<string>();
+  ids.add(id);
+  idsByName.set(name, ids);
+}
+
+function validateInvestigationSyncSelectors(
+  selectors: readonly string[],
+  indexPath: string
+):
+  | Readonly<{ selectors: string[]; status: "ok" }>
+  | Readonly<{
+      diagnostics: InvestigationDiagnostic[];
+      errors: string[];
+      status: "error";
+    }> {
+  const diagnostics: InvestigationDiagnostic[] = [];
+  const seen = new Set<string>();
+  for (const selector of selectors) {
+    if (typeof selector !== "string" || !isStateIndexText(selector)) {
+      diagnostics.push(
+        genericInvestigationDiagnostic({
+          code: "investigation-report.selector-invalid",
+          reason:
+            "Selected Investigation selectors must be non-empty text without surrounding whitespace or control characters.",
+          recovery:
+            "Provide a standard Investigation ID or unique name, then retry.",
+          target: typeof selector === "string" ? selector : indexPath
+        })
+      );
+      continue;
+    }
+    if (seen.has(selector)) {
+      diagnostics.push(
+        genericInvestigationDiagnostic({
+          code: "investigation-report.selector-duplicate",
+          reason: `Selected Investigation selector appears more than once: ${selector}`,
+          recovery: "Select every raw selector at most once, then retry.",
+          target: selector
+        })
+      );
+      continue;
+    }
+    seen.add(selector);
+  }
+  return diagnostics.length === 0
+    ? { selectors: [...selectors], status: "ok" }
+    : {
+        diagnostics,
+        errors: diagnostics.map((diagnostic) => diagnostic.reason),
+        status: "error"
+      };
 }
 
 function syncFailureResult(
   error: unknown,
-  indexPath: string
+  indexPath: string,
+  selectors: readonly string[] = []
 ): InvestigationIndexSyncResult {
   if (error instanceof InvestigationCollectionMutationLockError) {
     if (
@@ -625,7 +849,8 @@ function syncFailureResult(
       [error.message],
       indexPath,
       [{ ...error.diagnostic, mutation }],
-      mutation
+      mutation,
+      selectors
     );
   }
   const mutation = syncMutation("partial-or-unknown");
@@ -643,7 +868,8 @@ function syncFailureResult(
         target: indexPath
       })
     ],
-    mutation
+    mutation,
+    selectors
   );
 }
 
@@ -654,10 +880,16 @@ function isInvestigationIndexSyncResult(
     typeof value === "object" &&
     value !== null &&
     typeof Reflect.get(value, "changed") === "boolean" &&
+    Array.isArray(Reflect.get(value, "changedIds")) &&
     Array.isArray(Reflect.get(value, "diagnostics")) &&
     Array.isArray(Reflect.get(value, "errors")) &&
     typeof Reflect.get(value, "indexPath") === "string" &&
     typeof Reflect.get(value, "reportCount") === "number" &&
+    (Reflect.get(value, "scope") === "all" ||
+      Reflect.get(value, "scope") === "selected") &&
+    Array.isArray(Reflect.get(value, "selectedIds")) &&
+    Array.isArray(Reflect.get(value, "selectors")) &&
+    typeof Reflect.get(value, "state") === "string" &&
     Array.isArray(Reflect.get(value, "warnings"))
   );
 }
@@ -714,21 +946,31 @@ function checkResult(
 function syncResult(
   options: Readonly<{
     changed: boolean;
+    changedIds?: readonly string[];
     diagnostics?: readonly InvestigationDiagnostic[];
     errors: readonly string[];
     indexPath: string;
     mutation?: InvestigationMutationDiagnostic;
     reportCount: number;
+    scope?: "all" | "selected";
+    selectedIds?: readonly string[];
+    selectors?: readonly string[];
+    state?: string;
     warnings?: readonly string[];
   }>
 ): InvestigationIndexSyncResult {
   return {
     changed: options.changed,
+    changedIds: [...(options.changedIds ?? [])],
     diagnostics: [...(options.diagnostics ?? [])],
     errors: uniqueSorted(options.errors),
     indexPath: options.indexPath,
     ...(options.mutation === undefined ? {} : { mutation: options.mutation }),
     reportCount: options.reportCount,
+    scope: options.scope ?? "all",
+    selectedIds: [...(options.selectedIds ?? [])],
+    selectors: [...(options.selectors ?? [])],
+    state: options.state ?? "source-invalid",
     warnings: uniqueSorted(options.warnings ?? [])
   };
 }
@@ -751,7 +993,8 @@ function emptySyncResult(
   errors: readonly string[],
   indexPath: string,
   diagnostics: readonly InvestigationDiagnostic[] = [],
-  mutation?: InvestigationMutationDiagnostic
+  mutation?: InvestigationMutationDiagnostic,
+  selectors: readonly string[] = []
 ): InvestigationIndexSyncResult {
   return syncResult({
     changed: false,
@@ -759,7 +1002,8 @@ function emptySyncResult(
     errors,
     indexPath,
     mutation,
-    reportCount: 0
+    reportCount: 0,
+    selectors
   });
 }
 function checkFailure(

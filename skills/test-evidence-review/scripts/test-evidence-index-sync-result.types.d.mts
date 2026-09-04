@@ -9,6 +9,7 @@
 export interface TestEvidenceIndexSyncResult {
   catalogPath: string;
   changed: boolean;
+  changedIds: string[];
   diagnostics: {
     blocking: boolean;
     caseId?: string;
@@ -23,7 +24,11 @@ export interface TestEvidenceIndexSyncResult {
   indexPath: string;
   mode: "check" | "write";
   schemaVersion: 4;
+  scope: "all" | "selected";
+  selectedIds: string[];
+  selectors: string[];
   state:
+    | "collection-changed"
     | "current"
     | "unchanged"
     | "written"
@@ -33,6 +38,11 @@ export interface TestEvidenceIndexSyncResult {
     | "index-read-failed"
     | "index-stale"
     | "index-write-failed"
+    | "scoped-stale"
+    | "selected-baseline-invalid"
+    | "selected-id-missing"
+    | "selection-invalid"
+    | "unselected-changes"
     | "source-invalid";
   status: "ok" | "error";
   topics: {

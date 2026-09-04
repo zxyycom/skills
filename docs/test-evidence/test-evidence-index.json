@@ -4397,6 +4397,52 @@
         "title": "扫描访问拒绝按稳定诊断输出并净化 detail"
       }
     },
+    "DECISION-SELECTED-SYNC-001": {
+      "keys": {
+        "search": [
+          "DECISION-SELECTED-SYNC-001 selected sync accepts one Decision change only after proving the complete collection Decision `sync-index --select` 先按 ID-first 解析 selector 并验证完整 established 集合；只有所选 ID 覆盖全部变化时才可用 `--write` 发布完整投影。 未选择的 Decision 变化零写入失败；唯一 name 加 `.md` 的 selected check 返回 stale。 selected 文本结果同时保留原始 `.md` selector 与解析后的 ID，且其完整索引字节与同一来源的 full sync 相同。 tools/decision-records/tests/index-maintenance.test.ts > selected sync accepts one Decision change only after proving the complete collection bun test --test-name-pattern=\"^selected sync accepts one Decision change only after proving the complete collection$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/index-maintenance.test.ts > selected sync accepts one Decision change only after proving the complete collection",
+          "bun test --test-name-pattern=\"^selected sync accepts one Decision change only after proving the complete collection$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SELECTED-SYNC-001",
+        "line": 1,
+        "searchText": "selected sync accepts one Decision change only after proving the complete collection Decision `sync-index --select` 先按 ID-first 解析 selector 并验证完整 established 集合；只有所选 ID 覆盖全部变化时才可用 `--write` 发布完整投影。 未选择的 Decision 变化零写入失败；唯一 name 加 `.md` 的 selected check 返回 stale。 selected 文本结果同时保留原始 `.md` selector 与解析后的 ID，且其完整索引字节与同一来源的 full sync 相同。 tools/decision-records/tests/index-maintenance.test.ts > selected sync accepts one Decision change only after proving the complete collection bun test --test-name-pattern=\"^selected sync accepts one Decision change only after proving the complete collection$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/selected-sync-accepts-one-decision-change-only-after-proving-the-complete-collection.md",
+        "summary": "Decision `sync-index --select` 先按 ID-first 解析 selector 并验证完整 established 集合；只有所选 ID 覆盖全部变化时才可用 `--write` 发布完整投影。",
+        "title": "selected sync accepts one Decision change only after proving the complete collection"
+      }
+    },
+    "DECISION-SELECTED-SYNC-MEMBERSHIP-001": {
+      "keys": {
+        "search": [
+          "DECISION-SELECTED-SYNC-MEMBERSHIP-001 Decision sync re-discovers complete established membership after an earlier scan Decision sync 的 candidate 与 source revision 必须在 runtime read/readRevision 时重新发现完整 established 集合，不能固定使用较早 scan 的成员集合。 scan 后新增或删除未选择的 established ID 时，selected write 返回完整 changed ID 集合、零写入失败。 full sync 先发布完整新增成员后，再删除该成员仍会作为未选择变化被发现。 tools/decision-records/tests/index-maintenance.test.ts > Decision sync re-discovers complete established membership after an earlier scan bun test --test-name-pattern=\"^Decision sync re-discovers complete established membership after an earlier scan$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/index-maintenance.test.ts > Decision sync re-discovers complete established membership after an earlier scan",
+          "bun test --test-name-pattern=\"^Decision sync re-discovers complete established membership after an earlier scan$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SELECTED-SYNC-MEMBERSHIP-001",
+        "line": 1,
+        "searchText": "Decision sync re-discovers complete established membership after an earlier scan Decision sync 的 candidate 与 source revision 必须在 runtime read/readRevision 时重新发现完整 established 集合，不能固定使用较早 scan 的成员集合。 scan 后新增或删除未选择的 established ID 时，selected write 返回完整 changed ID 集合、零写入失败。 full sync 先发布完整新增成员后，再删除该成员仍会作为未选择变化被发现。 tools/decision-records/tests/index-maintenance.test.ts > Decision sync re-discovers complete established membership after an earlier scan bun test --test-name-pattern=\"^Decision sync re-discovers complete established membership after an earlier scan$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-sync-re-discovers-complete-established-membership-after-an-earlier-scan.md",
+        "summary": "Decision sync 的 candidate 与 source revision 必须在 runtime read/readRevision 时重新发现完整 established 集合，不能固定使用较早 scan 的成员集合。",
+        "title": "Decision sync re-discovers complete established membership after an earlier scan"
+      }
+    },
     "DECISION-SHOW-OUTPUT-001": {
       "keys": {
         "search": [
@@ -7341,6 +7387,29 @@
         "title": "暴露可组合的状态索引 schema"
       }
     },
+    "INDEX-RUNTIME-SELECTED-SYNC-001": {
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-SELECTED-SYNC-001 selected sync proves the complete projection before publishing it selected sync 始终构建完整 candidate，只在全部变更 ID 已被选择且集合 metadata 未变时发布完整索引。 未选择的来源变化返回完整 changed ID 集合且不改写 baseline 字节。 selected check 只报告 scoped stale；selected write 发布的字节等于完整 candidate 的规范序列化。 collection metadata 变化阻断 selected write 并保持当前索引不变。 新增、删除与 ID rename 分别要求覆盖对应的新、旧或旧+新 ID；额外未变化的选择合法，未知或重复 ID 失败。 tools/index-runtime/tests/runtime.test.ts > selected sync proves the complete projection before publishing it bun test --test-name-pattern=\"^selected sync proves the complete projection before publishing it$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/index-runtime/tests/runtime.test.ts > selected sync proves the complete projection before publishing it",
+          "bun test --test-name-pattern=\"^selected sync proves the complete projection before publishing it$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-SELECTED-SYNC-001",
+        "line": 1,
+        "searchText": "selected sync proves the complete projection before publishing it selected sync 始终构建完整 candidate，只在全部变更 ID 已被选择且集合 metadata 未变时发布完整索引。 未选择的来源变化返回完整 changed ID 集合且不改写 baseline 字节。 selected check 只报告 scoped stale；selected write 发布的字节等于完整 candidate 的规范序列化。 collection metadata 变化阻断 selected write 并保持当前索引不变。 新增、删除与 ID rename 分别要求覆盖对应的新、旧或旧+新 ID；额外未变化的选择合法，未知或重复 ID 失败。 tools/index-runtime/tests/runtime.test.ts > selected sync proves the complete projection before publishing it bun test --test-name-pattern=\"^selected sync proves the complete projection before publishing it$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/selected-sync-proves-the-complete-projection-before-publishing-it.md",
+        "summary": "selected sync 始终构建完整 candidate，只在全部变更 ID 已被选择且集合 metadata 未变时发布完整索引。",
+        "title": "selected sync proves the complete projection before publishing it"
+      }
+    },
     "INDEX-RUNTIME-SERIALIZATION-001": {
       "keys": {
         "search": [
@@ -8351,6 +8420,29 @@
         "sourcePath": "investigation-report/cli-set-relations-prints-human-readable-result-and-rejects-json-output.md",
         "summary": "直接调用的源码 CLI 入口 `set-relations` 以完整 source 组接收替换，并输出人类可读结果；不提供 JSON 输出契约。",
         "title": "CLI set-relations prints a human-readable result and rejects JSON output"
+      }
+    },
+    "INVESTIGATION-CLI-SELECTED-SYNC-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CLI-SELECTED-SYNC-001 CLI selected sync proves the full investigation collection before writing Investigation `sync-index --select` 在 collection lock 内完整验证正式报告集合，并以 ID-first selector 限制本次可接纳变化。 未选择来源变化的 write 保持 index 原字节；name selector 的 check 返回 stale。 原始 `.md` name selector 与解析后的标准日期 ID 同时出现在文本结果；完整 projection 字节等于 full sync。 tools/investigation-report/tests/cli-generated.test.ts > CLI selected sync proves the full investigation collection before writing bun test --test-name-pattern=\"^CLI selected sync proves the full investigation collection before writing$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > CLI selected sync proves the full investigation collection before writing",
+          "bun test --test-name-pattern=\"^CLI selected sync proves the full investigation collection before writing$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CLI-SELECTED-SYNC-001",
+        "line": 1,
+        "searchText": "CLI selected sync proves the full investigation collection before writing Investigation `sync-index --select` 在 collection lock 内完整验证正式报告集合，并以 ID-first selector 限制本次可接纳变化。 未选择来源变化的 write 保持 index 原字节；name selector 的 check 返回 stale。 原始 `.md` name selector 与解析后的标准日期 ID 同时出现在文本结果；完整 projection 字节等于 full sync。 tools/investigation-report/tests/cli-generated.test.ts > CLI selected sync proves the full investigation collection before writing bun test --test-name-pattern=\"^CLI selected sync proves the full investigation collection before writing$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/cli-selected-sync-proves-the-full-investigation-collection-before-writing.md",
+        "summary": "Investigation `sync-index --select` 在 collection lock 内完整验证正式报告集合，并以 ID-first selector 限制本次可接纳变化。",
+        "title": "CLI selected sync proves the full investigation collection before writing"
       }
     },
     "INVESTIGATION-CLI-SHOW-DIAGNOSTIC-001": {
@@ -16201,6 +16293,29 @@
         "title": "Test Evidence 只读取并重建键控 Schema v3"
       }
     },
+    "TEST-EVIDENCE-SELECTED-SYNC-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-SELECTED-SYNC-001 selected sync accepts one Case change only after proving the full catalog Test Evidence selected sync 只接受精确 Case ID，仍完整验证 catalog，且 topic metadata 变化必须使用 full sync。 未选择 Case 变化零写入失败；selected JSON check/write 返回按输入顺序的 selectors、scope 与 selected IDs，文本输出同时说明 selector 和 resolved ID。 topic metadata 变化返回 collection-changed，不能按 Case selected scope 发布。 tools/test-evidence/tests/catalog.test.ts > selected sync accepts one Case change only after proving the full catalog bun test --test-name-pattern=\"^selected sync accepts one Case change only after proving the full catalog$\" ./tools/test-evidence/tests/catalog.test.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/test-evidence/tests/catalog.test.ts > selected sync accepts one Case change only after proving the full catalog",
+          "bun test --test-name-pattern=\"^selected sync accepts one Case change only after proving the full catalog$\" ./tools/test-evidence/tests/catalog.test.ts"
+        ],
+        "id": "TEST-EVIDENCE-SELECTED-SYNC-001",
+        "line": 1,
+        "searchText": "selected sync accepts one Case change only after proving the full catalog Test Evidence selected sync 只接受精确 Case ID，仍完整验证 catalog，且 topic metadata 变化必须使用 full sync。 未选择 Case 变化零写入失败；selected JSON check/write 返回按输入顺序的 selectors、scope 与 selected IDs，文本输出同时说明 selector 和 resolved ID。 topic metadata 变化返回 collection-changed，不能按 Case selected scope 发布。 tools/test-evidence/tests/catalog.test.ts > selected sync accepts one Case change only after proving the full catalog bun test --test-name-pattern=\"^selected sync accepts one Case change only after proving the full catalog$\" ./tools/test-evidence/tests/catalog.test.ts",
+        "sourcePath": "test-evidence/selected-sync-accepts-one-case-change-only-after-proving-the-full-catalog.md",
+        "summary": "Test Evidence selected sync 只接受精确 Case ID，仍完整验证 catalog，且 topic metadata 变化必须使用 full sync。",
+        "title": "selected sync accepts one Case change only after proving the full catalog"
+      }
+    },
     "TEST-EVIDENCE-SHOW-REPOSITORY-001": {
       "keys": {
         "search": [
@@ -16521,6 +16636,29 @@
         "sourcePath": "test-evidence/stale-indexes-fall-back-to-current-catalog-content.md",
         "summary": "派生索引落后于 catalog 时，查询与展示必须使用当前正文。",
         "title": "过期索引回退到当前 catalog"
+      }
+    },
+    "TEST-EVIDENCE-SYNC-SELECTOR-RAW-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-SYNC-SELECTOR-RAW-001 selected sync preserves invalid raw Case selectors in schema-valid failures Test Evidence sync 的结果须保留原始 selector；即使 selector 不能解析为 Case ID，失败 JSON 仍须符合公开 schema。 API 与 CLI `--select` 对非法原始 selector 返回 selection-invalid，保留输入文本，并能由 `testEvidenceIndexSyncResultSchema` 验证。 tools/test-evidence/tests/catalog.test.ts > selected sync preserves invalid raw Case selectors in schema-valid failures bun test --test-name-pattern=\"^selected sync preserves invalid raw Case selectors in schema-valid failures$\" ./tools/test-evidence/tests/catalog.test.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/test-evidence/tests/catalog.test.ts > selected sync preserves invalid raw Case selectors in schema-valid failures",
+          "bun test --test-name-pattern=\"^selected sync preserves invalid raw Case selectors in schema-valid failures$\" ./tools/test-evidence/tests/catalog.test.ts"
+        ],
+        "id": "TEST-EVIDENCE-SYNC-SELECTOR-RAW-001",
+        "line": 1,
+        "searchText": "selected sync preserves invalid raw Case selectors in schema-valid failures Test Evidence sync 的结果须保留原始 selector；即使 selector 不能解析为 Case ID，失败 JSON 仍须符合公开 schema。 API 与 CLI `--select` 对非法原始 selector 返回 selection-invalid，保留输入文本，并能由 `testEvidenceIndexSyncResultSchema` 验证。 tools/test-evidence/tests/catalog.test.ts > selected sync preserves invalid raw Case selectors in schema-valid failures bun test --test-name-pattern=\"^selected sync preserves invalid raw Case selectors in schema-valid failures$\" ./tools/test-evidence/tests/catalog.test.ts",
+        "sourcePath": "test-evidence/selected-sync-preserves-invalid-raw-case-selectors-in-schema-valid-failures.md",
+        "summary": "Test Evidence sync 的结果须保留原始 selector；即使 selector 不能解析为 Case ID，失败 JSON 仍须符合公开 schema。",
+        "title": "selected sync preserves invalid raw Case selectors in schema-valid failures"
       }
     },
     "TEST-EVIDENCE-TOPIC-CLI-001": {
@@ -17674,6 +17812,8 @@
       "DECISION-RELATION-GRAPH-STRUCTURE-001": "sha256:2df4244739b416c6bbc66d86575f4d8b8b9cf4a4f2d47dbc6ba74fc341a756e5",
       "DECISION-RELATION-GRAPH-TRACE-001": "sha256:b8b9a61d8459adba44a12a7b786f7baaa3c6e3f1e43fa517d2a830cff37937c4",
       "DECISION-SCAN-FILESYSTEM-DIAGNOSTIC-001": "sha256:2c55fc6ef196dbbf0d5faa2e563e5d9927b146b93734101afeef1008a7a64ea4",
+      "DECISION-SELECTED-SYNC-001": "sha256:7c9a813540c06875ae0607c0d3f9fd455102bd9f3d63c880040e08f8726ee615",
+      "DECISION-SELECTED-SYNC-MEMBERSHIP-001": "sha256:70bb63041c7f1cc9fb0d313e4bb41535eac80124ddc7151f161dd6ddd50a2b3d",
       "DECISION-SHOW-OUTPUT-001": "sha256:a6c556c13e2756b76f7019231afd5763ab95cbff56963d914132de0763548fa6",
       "DECISION-SPLIT-CLOSURE-001": "sha256:8eca8efac59196c19a855de11f0d0662e1e5449caa9e62c9b9a4f9ba82f614de",
       "DECISION-SPLIT-EXTENSION-001": "sha256:ea347368f16eca94ab22e1365226982d6b761e6b0f21bb13043991869a6fff08",
@@ -17802,6 +17942,7 @@
       "INDEX-RUNTIME-RUNTIME-001": "sha256:26e9585930b7fc8b446d77cea5dcfb5fc99104e7502a078f4e19124e8b5989f0",
       "INDEX-RUNTIME-RUNTIME-OVERLAY-001": "sha256:a90b4401c35bbe36aa72f01553627ab0abd547e964ace9e99fc60f9ec2784b3d",
       "INDEX-RUNTIME-SCHEMA-001": "sha256:a2e44231eca5f7f904f43cdf3226c0a75bcfb331bdd1cf94a588fa0bd1c86c27",
+      "INDEX-RUNTIME-SELECTED-SYNC-001": "sha256:c8a984b797eea1e856d1318e4e813dde8a55d9fedf9bcc0d81c3c500869721d6",
       "INDEX-RUNTIME-SERIALIZATION-001": "sha256:d75cf74c578791e5b74814f323ee5f154e84cb67d95c9659d6881e666e4cecf4",
       "INDEX-RUNTIME-SOURCE-REVISION-001": "sha256:147d4b016199e74cea1b5e74fc1d68f7b11a3f7d46464974b2aa1d7cee56823b",
       "INDEX-RUNTIME-SOURCE-REVISION-INTEGRITY-001": "sha256:5933ff322dcbef91f5fe0d3050109b11bed356dd861f784c9d6807c2f23f16f8",
@@ -17846,6 +17987,7 @@
       "INVESTIGATION-CLI-ENUM-001": "sha256:96f85e4a80c0feafd5b891d43139bdd2b5ad1e915e0c5a0e083915a33aad9ba5",
       "INVESTIGATION-CLI-LIST-001": "sha256:2c3b16e5ffb10a25b4cd7d6016a9ad35a67caa3f792b7d9092b8001ca81bcb42",
       "INVESTIGATION-CLI-RELATIONS-001": "sha256:c32a54c3aa56b9210b359e179d9ef40b00d16bd47de4597794724805963548e2",
+      "INVESTIGATION-CLI-SELECTED-SYNC-001": "sha256:5a8a9210a177ce326b540071d6261004c37bc026d3329972caac7f646ab61b2d",
       "INVESTIGATION-CLI-SHOW-DIAGNOSTIC-001": "sha256:907426c98b810f106f0b5d5cee115fbca6f179a3186a698890d84ff093eb8827",
       "INVESTIGATION-CLI-STAGE-DIAGNOSTIC-001": "sha256:2c43faaa9854df1b39caec91f74b3c5820b9ff7320f3058e05f043b4064ba5a3",
       "INVESTIGATION-CLI-STAGE-FILESYSTEM-001": "sha256:b20e1f1d10a647c9928bfa9a1f7a422f3e752e2d4f5edc9cc0af195d7d17fec5",
@@ -18187,6 +18329,7 @@
       "TEST-EVIDENCE-REVISION-TOPIC-MOVE-001": "sha256:a4f314a86aefca16f0ec36c88823ff9daedd5be74de72f5aac168e06708d7e9a",
       "TEST-EVIDENCE-ROOT-MEMBERSHIP-001": "sha256:038633c1cc3108cbb9e3aee0725b09784d8d690fb85c1d48c80ad985569dadc6",
       "TEST-EVIDENCE-SCHEMA-V3-001": "sha256:0bdbe37554b59871150b4f2bffd320d92ab40d761d1d5dd12d0ceab24d045c2a",
+      "TEST-EVIDENCE-SELECTED-SYNC-001": "sha256:367686074a5f79167c0a586faaae62dc7f7d09d4fdb3659af5ffa144699de503",
       "TEST-EVIDENCE-SHOW-REPOSITORY-001": "sha256:06ad49afd0c01bb81322bf25f09a4caca17818c2944285e2037b5d734332ae47",
       "TEST-EVIDENCE-STAGE-BOOTSTRAP-001": "sha256:2e211fb4edd2ba83776d2dbed82c280e640f8a50b33916475138550dae91030f",
       "TEST-EVIDENCE-STAGE-CLI-001": "sha256:7c59e8412183131706f4f696536e6e0c9e7834a0c4bc9e916acd82e0f3a3efaf",
@@ -18201,6 +18344,7 @@
       "TEST-EVIDENCE-STAGE-TOPIC-001": "sha256:41395287847c02bca208bc73a02bc39c7771725abf54fb6fc72cd38db103962f",
       "TEST-EVIDENCE-STAGE-UNCHANGED-001": "sha256:10d46e6be6853be4ba3b4ce662f48127ae2afb38f2145ce9ac1a4808a81a8ea3",
       "TEST-EVIDENCE-STALE-INDEX-001": "sha256:b9e12934e5c349355580dd5f7c32ea0f1c25b1fea2dc2fede8abd040c73f662f",
+      "TEST-EVIDENCE-SYNC-SELECTOR-RAW-001": "sha256:61490e8ad9904c46e32e8fc30849bcee784facade6acb23fe6bf5349eebddaf6",
       "TEST-EVIDENCE-TOPIC-CLI-001": "sha256:a67b6a03e2f99b45294faa3ce3c398695e25f5cf8784f984d5ac70c150fb61a6",
       "TEST-EVIDENCE-TOPIC-DIRECTORY-001": "sha256:d88fceea65ff49e5a35c46d6fb84a43d3139d8c76023b44aa14946a5f3885a11",
       "TEST-EVIDENCE-TOPIC-FILTER-001": "sha256:48f7b7760cc903954781670d041c3bd0dc57231ee6795978ef90195003ffa485",
