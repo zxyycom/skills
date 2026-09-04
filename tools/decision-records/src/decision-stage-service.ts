@@ -26,9 +26,12 @@ import {
   serializeDecisionIndex
 } from "./decision-state-index.ts";
 import {
+  decisionNameFromId,
   displayDecisionPath,
   isDecisionId,
-  isDecisionSourcePath
+  isDecisionSourcePath,
+  normalizeDecisionSelectorInput,
+  parseDatedDecisionId
 } from "./decision-path.ts";
 import { decisionIdFromMarkdown } from "./decision-metadata.ts";
 import { validateDecisionBody } from "./record.ts";
@@ -56,6 +59,10 @@ type DecisionStageSource = {
   file: VersionControlFile;
   source: DecisionSource;
 };
+type FilesystemDecisionCandidates = Readonly<{
+  duplicateIds: ReadonlySet<DecisionId>;
+  sources: ReadonlyMap<DecisionId, DecisionStageSource>;
+}>;
 
 type StageStep<T> = DecisionApplicationFailure | { status: "ok"; value: T };
 type StageRepositoryContext = Readonly<{
@@ -75,9 +82,9 @@ export async function stageDecisionRecords(options: {
   decisionIds: readonly string[];
   location: DecisionLocation;
 }): Promise<DecisionStageResult> {
-  const selectedIds = validateSelectedIds(options.decisionIds);
-  if (selectedIds.status === "error") {
-    return selectedIds;
+  const selectedSelectors = validateSelectedSelectors(options.decisionIds);
+  if (selectedSelectors.status === "error") {
+    return selectedSelectors;
   }
   const location = resolveDecisionLocation(options.location);
   const opened = await openStageRepository(location.decisionsDirectory);
@@ -95,7 +102,7 @@ export async function stageDecisionRecords(options: {
     decisionScope,
     repository,
     revision: pending.value.revision,
-    selectedIds: selectedIds.value
+    selectedSelectors: selectedSelectors.value
   });
   if (targetResult.status === "error") return targetResult;
   const target = targetResult.value;
@@ -124,7 +131,7 @@ export async function stageDecisionRecords(options: {
     command: "stage",
     indexRelativePath: stagedFiles.value.indexRelativePath,
     pendingFileCount: replaced.value,
-    selectedIds: selectedIds.value,
+    selectedIds: target.selectedIds,
     status: "ok"
   };
 }
@@ -231,21 +238,6 @@ async function prepareDecisionStageFiles(
     location.workspaceRoot,
     path.join(location.decisionsDirectory, decisionIndexFileName)
   );
-  let indexText: string;
-  try {
-    indexText = await buildDecisionIndexText(target.sources, indexRelativePath);
-  } catch (error) {
-    return stageDomainFailure(
-      "decision-records.stage-index-projection-invalid",
-      "The selected decision snapshot cannot produce a derived index.",
-      indexRelativePath,
-      error
-    );
-  }
-  const files = [
-    ...target.sourceFiles,
-    { data: Buffer.from(indexText, "utf8"), path: indexPath }
-  ].sort(compareVersionControlFiles);
   try {
     await verifySelectedFilesystemSources(
       location.decisionsDirectory,
@@ -266,6 +258,21 @@ async function prepareDecisionStageFiles(
       error
     );
   }
+  let indexText: string;
+  try {
+    indexText = await buildDecisionIndexText(target.sources, indexRelativePath);
+  } catch (error) {
+    return stageDomainFailure(
+      "decision-records.stage-index-projection-invalid",
+      "The selected decision snapshot cannot produce a derived index.",
+      indexRelativePath,
+      error
+    );
+  }
+  const files = [
+    ...target.sourceFiles,
+    { data: Buffer.from(indexText, "utf8"), path: indexPath }
+  ].sort(compareVersionControlFiles);
   return { status: "ok", value: { files, indexRelativePath } };
 }
 
@@ -294,6 +301,7 @@ async function replacePendingDecisionFiles(
 
 type DecisionStageTarget = {
   revision: RevisionId | null;
+  selectedIds: DecisionId[];
   selectedSources: SelectedFilesystemSource[];
   sourceFiles: VersionControlFile[];
   sources: DecisionSource[];
@@ -309,7 +317,7 @@ type DecisionStageTargetOptions = Readonly<{
   decisionScope: string;
   repository: VersionControlRepository;
   revision: RevisionId | null;
-  selectedIds: readonly DecisionId[];
+  selectedSelectors: readonly string[];
 }>;
 
 async function buildDecisionStageTarget(
@@ -321,18 +329,37 @@ async function buildDecisionStageTarget(
     repository: options.repository,
     revision: options.revision
   });
+  const filesystemCandidates = await readFilesystemDecisionCandidates(
+    options.decisionsDirectory,
+    options.decisionScope
+  );
+  const selectedIds = resolveSelectedDecisionIds(
+    options.selectedSelectors,
+    baseline,
+    filesystemCandidates
+  );
+  const selectedOptions = { ...options, selectedIds };
   const sourceById = new Map(
     baseline.map((source) => [source.source.decisionId, source])
   );
   const selectedSources =
     options.revision === null || baseline.length === 0
-      ? await mergeFilesystemDecisionSources(options, sourceById)
-      : await mergeSelectedDecisionSources(options, sourceById);
+      ? await mergeFilesystemDecisionSources(
+          selectedOptions,
+          sourceById,
+          filesystemCandidates
+        )
+      : await mergeSelectedDecisionSources(
+          selectedOptions,
+          sourceById,
+          filesystemCandidates
+        );
   const sources = [...sourceById.values()].sort((left, right) =>
     compareText(left.source.decisionId, right.source.decisionId)
   );
   return {
     revision: options.revision,
+    selectedIds,
     selectedSources,
     sourceFiles: sources.map((source) => source.file),
     sources: sources.map((source) => source.source)
@@ -340,18 +367,20 @@ async function buildDecisionStageTarget(
 }
 
 async function mergeFilesystemDecisionSources(
-  options: DecisionStageTargetOptions,
-  sourceById: Map<DecisionId, DecisionStageSource>
+  options: Omit<DecisionStageTargetOptions, "selectedSelectors"> & {
+    selectedIds: readonly DecisionId[];
+  },
+  sourceById: Map<DecisionId, DecisionStageSource>,
+  filesystem: FilesystemDecisionCandidates
 ): Promise<SelectedFilesystemSource[]> {
-  const filesystem = await readFilesystemDecisionSources(
-    options.decisionsDirectory,
-    options.decisionScope
-  );
   const selectedSources = options.selectedIds.map((decisionId) => ({
     decisionId,
-    source: filesystem.get(decisionId) ?? null
+    source: filesystem.sources.get(decisionId) ?? null
   }));
   for (const selectedSource of selectedSources) {
+    if (filesystem.duplicateIds.has(selectedSource.decisionId)) {
+      throw duplicateFilesystemDecisionIdError(selectedSource.decisionId);
+    }
     if (selectedSource.source === null) {
       throw new DecisionStageInputError(
         "Selected Decision ID does not exist in the filesystem: " +
@@ -359,27 +388,43 @@ async function mergeFilesystemDecisionSources(
       );
     }
   }
-  for (const source of filesystem.values()) {
-    sourceById.set(source.source.decisionId, source);
+  for (const selectedSource of selectedSources) {
+    if (selectedSource.source !== null) {
+      sourceById.set(
+        selectedSource.source.source.decisionId,
+        selectedSource.source
+      );
+    }
   }
   return selectedSources;
 }
 
 async function mergeSelectedDecisionSources(
-  options: DecisionStageTargetOptions,
-  sourceById: Map<DecisionId, DecisionStageSource>
+  options: Omit<DecisionStageTargetOptions, "selectedSelectors"> & {
+    selectedIds: readonly DecisionId[];
+  },
+  sourceById: Map<DecisionId, DecisionStageSource>,
+  filesystem: FilesystemDecisionCandidates
 ): Promise<SelectedFilesystemSource[]> {
   const selectedSources = await Promise.all(
     options.selectedIds.map(async (decisionId) => {
+      if (filesystem.duplicateIds.has(decisionId)) {
+        throw duplicateFilesystemDecisionIdError(decisionId);
+      }
+      const current = filesystem.sources.get(decisionId);
+      if (current !== undefined) return { decisionId, source: current };
       const baselineSource = sourceById.get(decisionId);
       return {
         decisionId,
-        source: await readFilesystemDecisionSource(
-          options.decisionsDirectory,
-          options.decisionScope,
-          decisionId,
-          baselineSource?.source.sourcePath
-        )
+        source:
+          baselineSource === undefined
+            ? null
+            : await readFilesystemDecisionSource(
+                options.decisionsDirectory,
+                options.decisionScope,
+                decisionId,
+                baselineSource.source.sourcePath
+              )
       };
     })
   );
@@ -448,34 +493,37 @@ async function readDecisionBaseline(options: {
   );
 }
 
-async function readFilesystemDecisionSources(
+/**
+ * Discovers only recognizable current Decision identities for selector
+ * resolution. It deliberately ignores unrelated or malformed files: selected
+ * sources are read and verified again by the staging transaction below.
+ */
+async function readFilesystemDecisionCandidates(
   decisionsDirectory: string,
   decisionScope: string
-): Promise<Map<DecisionId, DecisionStageSource>> {
+): Promise<FilesystemDecisionCandidates> {
   const sources = new Map<DecisionId, DecisionStageSource>();
+  const duplicateIds = new Set<DecisionId>();
   const addSource = async (sourcePath: string): Promise<void> => {
-    if (!isDecisionSourcePath(sourcePath)) {
-      throw new Error(
-        "filesystem decision scope contains unsupported file: " + sourcePath
+    try {
+      const data = await readStageFile(
+        path.join(decisionsDirectory, ...sourcePath.split("/"))
       );
-    }
-    const data = await readStageFile(
-      path.join(decisionsDirectory, ...sourcePath.split("/"))
-    );
-    const source = stageSourceFromFile(
-      {
-        data,
-        path: repositoryPath(decisionScope, sourcePath)
-      },
-      sourcePath
-    );
-    if (sources.has(source.source.decisionId)) {
-      throw new Error(
-        "Decision ID occurs in more than one filesystem source path: " +
-          source.source.decisionId
+      const source = stageSourceFromFile(
+        {
+          data,
+          path: repositoryPath(decisionScope, sourcePath)
+        },
+        sourcePath
       );
+      if (sources.has(source.source.decisionId)) {
+        duplicateIds.add(source.source.decisionId);
+      } else {
+        sources.set(source.source.decisionId, source);
+      }
+    } catch {
+      // A malformed unselected file is not part of this stage transaction.
     }
-    sources.set(source.source.decisionId, source);
   };
   const rootEntries = await readStageDirectory(decisionsDirectory);
   for (const entry of rootEntries) {
@@ -486,21 +534,73 @@ async function readFilesystemDecisionSources(
         path.join(decisionsDirectory, "archive")
       );
       for (const archivedEntry of archivedEntries) {
-        if (!archivedEntry.isFile() || !archivedEntry.name.endsWith(".md")) {
-          throw new Error(
-            "filesystem archive contains unsupported entry: " +
-              archivedEntry.name
-          );
+        if (archivedEntry.isFile() && archivedEntry.name.endsWith(".md")) {
+          await addSource("archive/" + archivedEntry.name);
         }
-        await addSource("archive/" + archivedEntry.name);
       }
-    } else if (entry.name !== decisionIndexFileName) {
-      throw new Error(
-        "filesystem decision scope contains unsupported entry: " + entry.name
-      );
     }
   }
-  return sources;
+  return { duplicateIds, sources };
+}
+
+function resolveSelectedDecisionIds(
+  selectors: readonly string[],
+  baseline: readonly DecisionStageSource[],
+  filesystem: FilesystemDecisionCandidates
+): DecisionId[] {
+  const candidateIds = new Set<DecisionId>([
+    ...baseline.map((source) => source.source.decisionId),
+    ...filesystem.sources.keys()
+  ]);
+  const resolved: DecisionId[] = [];
+  const seen = new Set<DecisionId>();
+  for (const selector of selectors) {
+    const parsed = parseDatedDecisionId(selector);
+    const decisionId =
+      parsed === null
+        ? resolveDecisionNameSelector(selector, candidateIds)
+        : parsed.id;
+    if (seen.has(decisionId)) {
+      throw new DecisionStageInputError(
+        "Selected Decision selector resolves to a repeated Decision ID: " +
+          decisionId
+      );
+    }
+    seen.add(decisionId);
+    resolved.push(decisionId);
+  }
+  return resolved;
+}
+
+function duplicateFilesystemDecisionIdError(decisionId: DecisionId): Error {
+  return new Error(
+    "Decision ID occurs in more than one filesystem source path: " + decisionId
+  );
+}
+
+function resolveDecisionNameSelector(
+  name: string,
+  candidateIds: ReadonlySet<DecisionId>
+): DecisionId {
+  const matches = [...candidateIds]
+    .filter((decisionId) => decisionNameFromId(decisionId) === name)
+    .sort(compareText);
+  if (matches.length === 0) {
+    throw new DecisionStageInputError(
+      "Selected Decision name does not exist in the revision or filesystem: " +
+        name
+    );
+  }
+  if (matches.length > 1) {
+    throw new DecisionStageInputError(
+      "Selected Decision name is ambiguous: " +
+        name +
+        " (" +
+        matches.join(", ") +
+        ")"
+    );
+  }
+  return matches[0]!;
 }
 
 async function verifySelectedFilesystemSources(
@@ -700,7 +800,7 @@ async function selectEstablishedSources(
   return established;
 }
 
-function validateSelectedIds(
+function validateSelectedSelectors(
   decisionIds: readonly string[]
 ): DecisionApplicationFailure | { status: "ok"; value: DecisionId[] } {
   const errors: string[] = [];
@@ -709,15 +809,16 @@ function validateSelectedIds(
   if (decisionIds.length === 0) {
     errors.push("stage requires at least one Decision ID");
   }
-  for (const decisionId of decisionIds) {
+  for (const value of decisionIds) {
+    const decisionId = normalizeDecisionSelectorInput(value);
     if (!isDecisionId(decisionId)) {
       errors.push(
-        "Decision ID must be extensionless kebab-case text: " + decisionId
+        "Decision selector must be extensionless kebab-case text: " + value
       );
       continue;
     }
     if (seen.has(decisionId)) {
-      errors.push("Decision ID must not be repeated: " + decisionId);
+      errors.push("Decision selector must not be repeated: " + decisionId);
       continue;
     }
     seen.add(decisionId);

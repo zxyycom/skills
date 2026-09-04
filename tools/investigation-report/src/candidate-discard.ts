@@ -8,7 +8,7 @@ import {
   VersionControlError,
   type VersionControlRepository
 } from "../../shared/src/version-control/index.ts";
-import { candidatePathForInvestigationId } from "./candidate-path.ts";
+import { findCandidatePathForInvestigationId } from "./candidate-path.ts";
 import {
   InvestigationCollectionMutationLockError,
   withInvestigationCollectionMutationLock
@@ -22,8 +22,11 @@ import {
 } from "./diagnostics.ts";
 import { inspectInvestigationCollectionLayout } from "./investigation-index-source.ts";
 import {
+  investigationSelectorEntries,
+  resolveInvestigationSelector
+} from "./investigation-selector.ts";
+import {
   investigationIndexFileName,
-  isInvestigationId,
   resolveInvestigationsDirectory,
   canonicalizeInvestigationsDirectory
 } from "./report-path.ts";
@@ -78,6 +81,23 @@ async function discardCandidateWithinLock(options: {
   input: InvestigationCandidateDiscardOptions;
   root: string;
 }): Promise<InvestigationCandidateDiscardResult> {
+  const layout = await inspectInvestigationCollectionLayout(options.root);
+  if (layout.errors.length > 0) {
+    return result(options.input, false, [], layout.errors, {
+      mutation: discardMutation("no-change")
+    });
+  }
+  const selected = resolveInvestigationSelector(
+    investigationSelectorEntries(layout.candidateIds),
+    options.input.id,
+    "investigation candidate"
+  );
+  if (selected.status === "error") {
+    return result(options.input, false, [], selected.errors, {
+      mutation: discardMutation("no-change")
+    });
+  }
+  options = { ...options, input: { ...options.input, id: selected.id } };
   const prepared = await prepareCandidateDiscard(
     options.root,
     options.input.id
@@ -316,7 +336,14 @@ async function buildCandidateDiscardPreparation(
       status: "error"
     };
   }
-  const candidatePath = candidatePathForInvestigationId(root, id);
+  const candidatePath = await findCandidatePathForInvestigationId(root, id);
+  if (candidatePath === null) {
+    return {
+      diagnostics: [],
+      errors: [`${id} investigation candidate does not exist`],
+      status: "error"
+    };
+  }
   const candidateEntry = await fs.lstat(candidatePath);
   if (candidateEntry.isSymbolicLink() || !candidateEntry.isFile()) {
     return {
@@ -642,7 +669,9 @@ async function candidateRecordedAtHead(
     const revision = await repository.value.getCurrentRevision();
     if (revision === null) return { status: "ok", value: false };
     const scope = repositoryScope(repository.value, root);
-    const candidate = path.basename(candidatePathForInvestigationId(root, id));
+    const candidatePath = await findCandidatePathForInvestigationId(root, id);
+    if (candidatePath === null) return { status: "ok", value: false };
+    const candidate = path.basename(candidatePath);
     const paths = [
       scope.length === 0 ? candidate : `${scope}/${candidate}`,
       ...resourceIds.map((resource) =>
@@ -790,13 +819,9 @@ function sameTextList(
 function validateOptions(
   input: InvestigationCandidateDiscardOptions
 ): string[] {
-  return uniqueSorted(
-    !isInvestigationId(input.id)
-      ? [
-          `${input.id || "<empty>"} discard-candidate id must use an Investigation ID`
-        ]
-      : []
-  );
+  return input.id.length === 0
+    ? ["discard-candidate requires an Investigation selector"]
+    : [];
 }
 
 function invalidResult(

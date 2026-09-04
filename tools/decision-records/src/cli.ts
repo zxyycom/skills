@@ -55,6 +55,15 @@ import {
 } from "./index.ts";
 import { scanDecisionRecords } from "./scan.ts";
 import {
+  decisionNameFromId,
+  normalizeDecisionSelectorInput,
+  parseDatedDecisionId
+} from "./decision-path.ts";
+import {
+  type DecisionId,
+  type DecisionRelation,
+  type DecisionRelationOverride,
+  type DecisionSuccessor,
   compareDecisionRecords,
   type DecisionScan,
   type DecisionScanOptions
@@ -203,7 +212,10 @@ async function runNew(
     "Created decision candidate scaffold: " + created.sourcePath + "\n"
   );
   io.stdout("No lifecycle state or derived decision index was changed.\n");
-  await printNewCandidateReadiness(args, io);
+  await printNewCandidateReadiness(
+    { ...args, decisionId: created.decisionId },
+    io
+  );
   return 0;
 }
 
@@ -488,6 +500,12 @@ async function applyLifecycle(
   request: DecisionLifecycleRequest,
   io: DecisionRecordsCliIo
 ): Promise<number> {
+  const resolved = resolveDecisionLifecycleRequest(scan, request);
+  if (resolved.status === "error") {
+    printDecisionFailure(resolved.failure, io);
+    return 1;
+  }
+  request = resolved.request;
   if (request.action === "activate" || request.action === "evolve") {
     if (args.preflight === true) {
       const prepared = await prepareLifecycleWithCurrentHistory(
@@ -504,6 +522,149 @@ async function applyLifecycle(
   if (prepared === null) return 1;
   return (await applyPreparedLifecycle(args, scan, prepared, io, false))
     .exitCode;
+}
+
+function resolveDecisionLifecycleRequest(
+  scan: DecisionScan,
+  request: DecisionLifecycleRequest
+):
+  | { request: DecisionLifecycleRequest; status: "ok" }
+  | { failure: DecisionApplicationFailure; status: "error" } {
+  const resolve = (selector: string): DecisionId | DecisionApplicationFailure =>
+    resolveDecisionSelector(scan, selector);
+  const failures: DecisionApplicationFailure[] = [];
+  const one = (selector: string): DecisionId | null => {
+    const value = resolve(selector);
+    if (typeof value === "object") failures.push(value);
+    return typeof value === "object" ? null : value;
+  };
+  if (request.action === "activate") {
+    const relationOverride = resolveRelationOverride(
+      request.relationOverride,
+      one
+    );
+    const decisionId = one(request.decisionId);
+    if (failures.length > 0 || decisionId === null || relationOverride === null)
+      return { failure: mergeSelectorFailures(failures), status: "error" };
+    return {
+      request: { ...request, decisionId, relationOverride },
+      status: "ok"
+    };
+  }
+  if (request.action === "evolve") {
+    const relationOverride = resolveRelationOverride(
+      request.relationOverride,
+      one
+    );
+    const discardId =
+      request.discardId === null ? null : one(request.discardId);
+    const successors = resolveSuccessors(request.successors, one);
+    if (
+      failures.length > 0 ||
+      relationOverride === null ||
+      successors === null ||
+      (request.discardId !== null && discardId === null)
+    )
+      return { failure: mergeSelectorFailures(failures), status: "error" };
+    return {
+      request: { ...request, discardId, relationOverride, successors },
+      status: "ok"
+    };
+  }
+  if (request.action === "archive") {
+    const decisionIds = request.decisionIds.map(one);
+    if (failures.length > 0 || decisionIds.some((id) => id === null))
+      return { failure: mergeSelectorFailures(failures), status: "error" };
+    return {
+      request: { ...request, decisionIds: decisionIds as DecisionId[] },
+      status: "ok"
+    };
+  }
+  const decisionId = one(request.decisionId);
+  if (failures.length > 0 || decisionId === null)
+    return { failure: mergeSelectorFailures(failures), status: "error" };
+  return { request: { ...request, decisionId }, status: "ok" };
+}
+
+function resolveRelationOverride(
+  override: DecisionRelationOverride,
+  resolve: (selector: string) => DecisionId | null
+): DecisionRelationOverride | null {
+  if (override.kind === "source") return override;
+  const relations: DecisionRelation[] = [];
+  for (const relation of override.relations) {
+    const target = resolve(relation.target);
+    if (target === null) return null;
+    relations.push({ ...relation, target });
+  }
+  return { kind: "replace", relations };
+}
+
+function resolveSuccessors(
+  successors: readonly DecisionSuccessor[],
+  resolve: (selector: string) => DecisionId | null
+): DecisionSuccessor[] | null {
+  const resolved: DecisionSuccessor[] = [];
+  for (const successor of successors) {
+    const decisionId = resolve(successor.decisionId);
+    if (decisionId === null) return null;
+    resolved.push({ ...successor, decisionId });
+  }
+  return resolved;
+}
+
+function resolveDecisionSelector(
+  scan: DecisionScan,
+  selector: string
+): DecisionId | DecisionApplicationFailure {
+  const normalized = normalizeDecisionSelectorInput(selector);
+  const dated = parseDatedDecisionId(normalized);
+  const matches =
+    dated === null
+      ? scan.records
+          .filter(
+            (record) =>
+              typeof record.decisionId === "string" &&
+              decisionNameFromId(record.decisionId as DecisionId) === normalized
+          )
+          .map((record) => record.decisionId as DecisionId)
+          .sort()
+      : scan.records
+          .filter((record) => record.decisionId === dated.id)
+          .map((record) => record.decisionId as DecisionId);
+  if (matches.length === 1) return matches[0]!;
+  return decisionFailure(
+    [
+      decisionDiagnosticFromReason(
+        {
+          code:
+            matches.length === 0
+              ? "decision-records.decision-not-found"
+              : "decision-records.decision-ambiguous",
+          recovery:
+            matches.length === 0
+              ? "Use an existing Decision ID or unique name, then retry the command."
+              : "Retry with one listed calendar-valid YYMMDD-name Decision ID.",
+          target: normalized
+        },
+        matches.length === 0
+          ? `Decision does not exist: ${normalized}`
+          : `Decision name is ambiguous: ${normalized}; choose one standard ID: ${matches.join(", ")}`
+      )
+    ],
+    { presentation: "plain" }
+  );
+}
+
+function mergeSelectorFailures(
+  failures: readonly DecisionApplicationFailure[]
+): DecisionApplicationFailure {
+  return decisionFailure(
+    failures.flatMap((failure) => failure.diagnostics),
+    {
+      presentation: "plain"
+    }
+  );
 }
 
 async function applyLockedCandidateLifecycle(

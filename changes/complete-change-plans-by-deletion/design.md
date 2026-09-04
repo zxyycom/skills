@@ -10,7 +10,7 @@
 - 当前 active Decision [`validate-only-active-change-plans.md`](../../docs/decisions/validate-only-active-change-plans.md)和 archived predecessor [`simplify-change-lifecycle-to-draft-plan-and-archive.md`](../../docs/decisions/archive/simplify-change-lifecycle-to-draft-plan-and-archive.md)都把 archive 作为完成结果。本 Change 实施前必须以新 Decision 显式演进该方向。
 - Change Plan 工具源码位于 `tools/change-plan/`，由 `scripts/build/change-plan.ts` 生成 skill 内 CLI。项目导航、AGENTS、工具链和相关测试目前都可能描述 archive。
 - 当前仓库存在既有 `changes/archive/` 成员。删除它们是一次性迁移，不等同于日常 `complete`，但服从相同的 Git 可恢复和未知成员保护边界。
-- Decision 与 Investigation 的日期身份和 rename 由 [`adopt-date-prefixed-record-identities`](../adopt-date-prefixed-record-identities/)及 [`add-record-rename-transactions`](../add-record-rename-transactions/)负责；本 Change 与两者没有实施依赖。
+- Decision 与 Investigation 的日期身份和 rename 由 [`adopt-date-prefixed-record-identities`](../archive/adopt-date-prefixed-record-identities/)及 [`add-record-rename-transactions`](../add-record-rename-transactions/)负责；本 Change 与两者没有实施依赖。
 
 ## Goals / Non-Goals
 

@@ -3,6 +3,8 @@ import { toPosix } from "../../shared/src/node/filesystem.ts";
 import type { DecisionId, DecisionSourcePath, DecisionTag } from "./types.ts";
 
 const decisionIdPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const datedDecisionIdPattern =
+  /^(\d{2})(\d{2})(\d{2})-([a-z0-9]+(?:-[a-z0-9]+)*)$/;
 const tagPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export const decisionKebabCaseIdPatternSource = "^[a-z0-9]+(?:-[a-z0-9]+)*$";
@@ -17,9 +19,66 @@ export function isDecisionId(value: unknown): value is DecisionId {
   return typeof value === "string" && decisionIdPattern.test(value);
 }
 
+/**
+ * The ID syntax introduced for new records. Legacy pure IDs stay valid as
+ * stored identities so existing records can still be located and migrated
+ * explicitly, but they are never manufactured by new.
+ */
+export type ParsedDatedDecisionId = Readonly<{
+  date: string;
+  id: DecisionId;
+  name: string;
+}>;
+
+export function parseDatedDecisionId(
+  value: string
+): ParsedDatedDecisionId | null {
+  const match = datedDecisionIdPattern.exec(value);
+  if (match === null || !isDecisionId(value)) return null;
+  const [, yearText, monthText, dayText, name] = match;
+  const year = 2000 + Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+  return { date: `${yearText}${monthText}${dayText}`, id: value, name };
+}
+
+/** Removes exactly one case-insensitive Markdown suffix for a user selector. */
+export function normalizeDecisionSelectorInput(value: string): string {
+  return value.replace(/\.md$/iu, "");
+}
+
+/** The name index projects the dated suffix, or the whole legacy ID. */
+export function decisionNameFromId(decisionId: DecisionId): string {
+  return parseDatedDecisionId(decisionId)?.name ?? decisionId;
+}
+
+export function utcDecisionDate(date: Date = new Date()): string {
+  return [
+    String(date.getUTCFullYear() % 100).padStart(2, "0"),
+    String(date.getUTCMonth() + 1).padStart(2, "0"),
+    String(date.getUTCDate()).padStart(2, "0")
+  ].join("");
+}
+
+export function datedDecisionIdForName(
+  name: string,
+  date: string = utcDecisionDate()
+): DecisionId | null {
+  const id = `${date}-${name}`;
+  return parseDatedDecisionId(id)?.id ?? null;
+}
+
 /** Normalizes one former Markdown-suffixed selector at an input boundary. */
 export function normalizeDecisionIdInput(value: string): DecisionId | null {
-  const normalized = value.replace(/\.md$/iu, "");
+  const normalized = normalizeDecisionSelectorInput(value);
   return isDecisionId(normalized) ? normalized : null;
 }
 

@@ -5,6 +5,11 @@ import path from "node:path";
 import test from "node:test";
 import { validateDecisionRecords } from "../src/index.ts";
 import {
+  normalizeDecisionSelectorInput,
+  parseDatedDecisionId,
+  utcDecisionDate
+} from "../src/decision-path.ts";
+import {
   archivedDecisionId,
   candidateDecisionBody,
   currentDecisionId,
@@ -13,6 +18,7 @@ import {
   runSourceCli,
   runSuccessfulSourceCli,
   withFixtureWorkspace,
+  withTemporaryWorkspace,
   writeDecision
 } from "./support.ts";
 
@@ -34,6 +40,130 @@ test("decision show returns tagged Markdown by stable ID", () =>
       workspaceRoot
     ]);
     assert.match(shown, /tags:/);
+  }));
+
+test("ordinary selectors use dated IDs first and name fallback without reading paths", () =>
+  withTemporaryWorkspace("dated-selectors", async (workspaceRoot) => {
+    const firstId = "260901-shared-topic";
+    const secondId = "260902-shared-topic";
+    const legacyDateLikeName = "991332-invalid-date";
+    for (const [sourcePath, id] of [
+      ["first-semantic-name", firstId],
+      ["second-semantic-name", secondId],
+      ["invalid-date-name", legacyDateLikeName]
+    ] as const) {
+      await fs.mkdir(
+        path.dirname(decisionFilePath(workspaceRoot, sourcePath)),
+        { recursive: true }
+      );
+      await fs.writeFile(
+        decisionFilePath(workspaceRoot, sourcePath),
+        candidateDecisionBody({ id }),
+        "utf8"
+      );
+    }
+
+    const exact = await runSourceCli([
+      "show-candidate",
+      `${firstId}.MD`,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(exact.exitCode, 0, exact.stderr);
+    assert.match(exact.stdout, new RegExp(`id: ${firstId}`));
+
+    const ambiguous = await runSourceCli([
+      "show-candidate",
+      "shared-topic",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(ambiguous.exitCode, 1);
+    assert.match(ambiguous.stderr, new RegExp(`${firstId}, ${secondId}`));
+    const invalidDateName = await runSourceCli([
+      "show-candidate",
+      legacyDateLikeName,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(invalidDateName.exitCode, 0, invalidDateName.stderr);
+    const missingExact = await runSourceCli([
+      "show-candidate",
+      "260903-shared-topic",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(missingExact.exitCode, 1);
+    assert.match(missingExact.stderr, /does not exist/);
+
+    const created = await runSourceCli([
+      "new",
+      "fresh-topic",
+      "--title",
+      "日期身份候选",
+      "--purpose",
+      "创建时固定 UTC 日期。",
+      "--background",
+      "名称不会承担唯一身份。",
+      "--decision",
+      "采用日期前缀身份。",
+      "--tag",
+      "decision-records",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(created.exitCode, 0, created.stderr);
+    assert.match(
+      await fs.readFile(decisionFilePath(workspaceRoot, "fresh-topic"), "utf8"),
+      new RegExp(`id: ${utcDecisionDate()}-fresh-topic`)
+    );
+    const mismatch = await runSourceCli([
+      "new",
+      "250101-wrong-date",
+      "--title",
+      "日期不一致",
+      "--purpose",
+      "直接 ID 必须匹配形成日。",
+      "--background",
+      "日期自动形成不可关闭。",
+      "--decision",
+      "拒绝日期不一致输入。",
+      "--tag",
+      "decision-records",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(mismatch.exitCode, 1);
+    assert.match(mismatch.stderr, /new-formation-date-mismatch/);
+
+    await fs.writeFile(
+      decisionFilePath(workspaceRoot, "legacy-date-conflict"),
+      candidateDecisionBody({ id: "legacy-date-conflict" }),
+      "utf8"
+    );
+    const conflicted = await runSourceCli([
+      "new",
+      "legacy-date-conflict",
+      "--title",
+      "Legacy 冲突重试",
+      "--purpose",
+      "同名 legacy 应先迁移。",
+      "--background",
+      "新建不得隐式改名。",
+      "--decision",
+      "零写入返回迁移要求。",
+      "--tag",
+      "decision-records",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(conflicted.exitCode, 1);
+    assert.match(conflicted.stderr, /migration-required/);
+
+    assert.equal(normalizeDecisionSelectorInput("topic.MD"), "topic");
+    assert.equal(normalizeDecisionSelectorInput("topic.md.md"), "topic.md");
+    assert.equal(parseDatedDecisionId("991332-topic"), null);
+    assert.equal(parseDatedDecisionId("nested/topic"), null);
   }));
 
 test("decision trace follows stable ID relations", () =>

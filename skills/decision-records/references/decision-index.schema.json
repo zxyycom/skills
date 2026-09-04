@@ -16,6 +16,15 @@
     "keyValues": {
       "additionalProperties": false,
       "properties": {
+        "name": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
         "tag": {
           "items": {
             "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
@@ -53,6 +62,7 @@
         }
       },
       "required": [
+        "name",
         "tag",
         "status"
       ],
@@ -61,6 +71,9 @@
     "relation": {
       "additionalProperties": false,
       "properties": {
+        "name": {
+          "type": "string"
+        },
         "type": {
           "enum": [
             "修订",
@@ -177,6 +190,7 @@
       },
       "required": [
         "sourcePath",
+        "name",
         "title",
         "status",
         "alignment",
@@ -201,7 +215,7 @@
       "const": "decisions"
     },
     "definitionVersion": {
-      "const": 7
+      "const": 8
     },
     "metadata": {
       "additionalProperties": false,
@@ -232,6 +246,10 @@
     },
     "keyDefinitions": {
       "const": [
+        {
+          "name": "name",
+          "mode": "exact"
+        },
         {
           "name": "tag",
           "mode": "exact"

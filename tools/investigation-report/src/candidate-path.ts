@@ -1,4 +1,6 @@
+import fs from "node:fs/promises";
 import path from "node:path";
+import { investigationIdFromMarkdown } from "./markdown.ts";
 import { isInvestigationId } from "./report-path.ts";
 
 export const investigationCandidateFilePrefix = "_candidate.";
@@ -15,6 +17,40 @@ export function candidatePathForInvestigationId(
     investigationsDirectory,
     candidateFileNameForInvestigationId(id)
   );
+}
+
+export function candidatePathForInvestigationLocator(
+  investigationsDirectory: string,
+  locator: string
+): string {
+  if (!isInvestigationId(locator)) {
+    throw new Error("candidate locator must use kebab-case text");
+  }
+  return path.join(
+    investigationsDirectory,
+    candidateFileNameForInvestigationId(locator)
+  );
+}
+
+/**
+ * Candidate filenames are storage locators. Read the declared frontmatter ID
+ * rather than reconstructing identity from that locator.
+ */
+export async function findCandidatePathForInvestigationId(
+  investigationsDirectory: string,
+  id: string
+): Promise<string | null> {
+  const entries = await fs.readdir(investigationsDirectory, {
+    withFileTypes: true
+  });
+  for (const entry of entries) {
+    if (!entry.isFile() || entry.isSymbolicLink()) continue;
+    if (investigationCandidateIdFromFileName(entry.name) === null) continue;
+    const candidatePath = path.join(investigationsDirectory, entry.name);
+    const markdown = await fs.readFile(candidatePath, "utf8");
+    if (investigationIdFromMarkdown(markdown) === id) return candidatePath;
+  }
+  return null;
 }
 
 export function investigationCandidateIdFromFileName(

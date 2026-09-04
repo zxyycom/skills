@@ -12,7 +12,13 @@ import {
   withDecisionCollectionMutationLock
 } from "./decision-collection-mutation-lock.ts";
 import { serializeDecisionFrontmatter } from "./decision-metadata.ts";
-import { sourcePathForDecision } from "./decision-path.ts";
+import {
+  datedDecisionIdForName,
+  decisionNameFromId,
+  parseDatedDecisionId,
+  sourcePathForDecision,
+  utcDecisionDate
+} from "./decision-path.ts";
 import { decisionIndexFileName } from "./decision-state-index.ts";
 import { scanDecisionRecords } from "./scan.ts";
 import type {
@@ -34,7 +40,7 @@ export type NewDecisionCandidateRequest = DecisionScanOptions & {
 
 export type NewDecisionCandidateResult =
   | DecisionApplicationFailure
-  | { created: true; sourcePath: string; status: "ok" }
+  | { created: true; decisionId: DecisionId; sourcePath: string; status: "ok" }
   | (DecisionApplicationFailure & { created: true; sourcePath: string });
 
 export async function createDecisionCandidate(
@@ -81,16 +87,175 @@ async function createLockedDecisionCandidate(
   request: NewDecisionCandidateRequest
 ): Promise<NewDecisionCandidateResult> {
   const scan = await scanDecisionRecords(request);
-  const validationFailure = validateCandidateCreationRequest(scan, request);
+  const prepared = prepareNewDecisionIdentity(request);
+  if (prepared.status === "error") return creationFailure(prepared.diagnostic);
+  const resolved = resolveCandidateRelationSelectors(scan, prepared.request);
+  if (resolved.status === "error") return creationFailure(resolved.diagnostic);
+  const validationFailure = validateCandidateCreationRequest(
+    scan,
+    resolved.request
+  );
   if (validationFailure !== null) return validationFailure;
 
+  const migration = legacyNameConflict(scan, resolved.request);
+  if (migration !== null) return creationFailure(migration);
+
+  const sourcePath = allocateCandidateSourcePath(scan, resolved.request);
+
   return await publishCandidateCreation(
-    request,
-    path.join(
-      scan.decisionsDirectory,
-      sourcePathForDecision(request.decisionId, "candidate")
-    )
+    resolved.request,
+    path.join(scan.decisionsDirectory, sourcePath),
+    sourcePath
   );
+}
+
+function resolveCandidateRelationSelectors(
+  scan: Awaited<ReturnType<typeof scanDecisionRecords>>,
+  request: NewDecisionCandidateRequest
+):
+  | { request: NewDecisionCandidateRequest; status: "ok" }
+  | { diagnostic: ReturnType<typeof decisionDiagnostic>; status: "error" } {
+  const relations: DecisionRelation[] = [];
+  for (const relation of request.relations) {
+    const target = resolveDecisionRelationSelector(scan, relation.target);
+    if (target.status === "error") return target;
+    relations.push({ ...relation, target: target.decisionId });
+  }
+  return { request: { ...request, relations }, status: "ok" };
+}
+
+function resolveDecisionRelationSelector(
+  scan: Awaited<ReturnType<typeof scanDecisionRecords>>,
+  selector: DecisionId
+):
+  | { decisionId: DecisionId; status: "ok" }
+  | { diagnostic: ReturnType<typeof decisionDiagnostic>; status: "error" } {
+  const dated = parseDatedDecisionId(selector);
+  const matches =
+    dated === null
+      ? scan.records
+          .filter(
+            (record) =>
+              typeof record.decisionId === "string" &&
+              decisionNameFromId(record.decisionId as DecisionId) === selector
+          )
+          .map((record) => record.decisionId as DecisionId)
+          .sort()
+      : scan.records
+          .filter((record) => record.decisionId === dated.id)
+          .map((record) => record.decisionId as DecisionId);
+  if (matches.length === 1) return { decisionId: matches[0]!, status: "ok" };
+  return {
+    diagnostic: decisionDiagnostic({
+      code:
+        matches.length === 0
+          ? "decision-records.new-relation-target-missing"
+          : "decision-records.new-relation-target-ambiguous",
+      outcome: "no-change",
+      reason:
+        matches.length === 0
+          ? "Candidate relation target does not exist: " + selector
+          : "Candidate relation target is ambiguous: " +
+            selector +
+            "; choose one standard ID: " +
+            matches.join(", "),
+      recovery:
+        matches.length === 0
+          ? "Choose an existing direct predecessor Decision ID or unique name, then retry the command."
+          : "Retry with one listed calendar-valid YYMMDD-name Decision ID.",
+      scope: "Decision candidate scaffold",
+      target: selector
+    }),
+    status: "error"
+  };
+}
+
+function prepareNewDecisionIdentity(
+  request: NewDecisionCandidateRequest
+):
+  | { request: NewDecisionCandidateRequest; status: "ok" }
+  | { diagnostic: ReturnType<typeof decisionDiagnostic>; status: "error" } {
+  const dated = parseDatedDecisionId(request.decisionId);
+  const today = utcDecisionDate();
+  if (dated !== null) {
+    if (dated.date !== today) {
+      return {
+        diagnostic: decisionDiagnostic({
+          code: "decision-records.new-formation-date-mismatch",
+          outcome: "no-change",
+          reason:
+            "Decision ID date must match the authoritative UTC candidate formation date: " +
+            today,
+          recovery:
+            "Provide the semantic name only, or provide the standard ID for today's UTC date.",
+          scope: "Decision candidate scaffold",
+          target: request.decisionId
+        }),
+        status: "error"
+      };
+    }
+    return { request, status: "ok" };
+  }
+  const decisionId = datedDecisionIdForName(request.decisionId, today);
+  if (decisionId === null) {
+    return {
+      diagnostic: decisionDiagnostic({
+        code: "decision-records.new-name-invalid",
+        outcome: "no-change",
+        reason: "Decision name is invalid: " + request.decisionId,
+        recovery:
+          "Provide lowercase kebab-case semantic text or a calendar-valid YYMMDD-name Decision ID.",
+        scope: "Decision candidate scaffold",
+        target: request.decisionId
+      }),
+      status: "error"
+    };
+  }
+  return { request: { ...request, decisionId }, status: "ok" };
+}
+
+function legacyNameConflict(
+  scan: Awaited<ReturnType<typeof scanDecisionRecords>>,
+  request: NewDecisionCandidateRequest
+): ReturnType<typeof decisionDiagnostic> | null {
+  const name = decisionNameFromId(request.decisionId);
+  const legacy = scan.records.find(
+    (record) =>
+      parseDatedDecisionId(record.decisionId) === null &&
+      decisionNameFromId(record.decisionId as DecisionId) === name
+  );
+  if (legacy === undefined) return null;
+  return decisionDiagnostic({
+    code: "decision-records.migration-required",
+    outcome: "no-change",
+    reason:
+      "Creating " +
+      request.decisionId +
+      " would make legacy Decision " +
+      legacy.decisionId +
+      " ambiguous by name.",
+    recovery:
+      "First run the rename preflight for " +
+      legacy.decisionId +
+      " and rename it to a dated ID, then retry new for " +
+      request.decisionId +
+      ".",
+    scope: "Decision candidate scaffold",
+    target: legacy.decisionId
+  });
+}
+
+function allocateCandidateSourcePath(
+  scan: Awaited<ReturnType<typeof scanDecisionRecords>>,
+  request: NewDecisionCandidateRequest
+): ReturnType<typeof sourcePathForDecision> {
+  const name = decisionNameFromId(request.decisionId);
+  const nameCandidate = sourcePathForDecision(name, "candidate");
+  const nameArchive = sourcePathForDecision(name, "archived");
+  const occupied = new Set(scan.records.map((record) => record.sourcePath));
+  return occupied.has(nameCandidate) || occupied.has(nameArchive)
+    ? sourcePathForDecision(request.decisionId, "candidate")
+    : nameCandidate;
 }
 
 function validateCandidateCreationRequest(
@@ -173,7 +338,8 @@ function candidateRelationFailure(
 
 async function publishCandidateCreation(
   request: NewDecisionCandidateRequest,
-  decisionPath: string
+  decisionPath: string,
+  sourcePath: ReturnType<typeof sourcePathForDecision>
 ): Promise<NewDecisionCandidateResult> {
   const markdown = candidateScaffoldMarkdown(request);
   let published: CandidatePublication;
@@ -216,7 +382,8 @@ async function publishCandidateCreation(
   }
   return {
     created: true,
-    sourcePath: sourcePathForDecision(request.decisionId, "candidate"),
+    decisionId: request.decisionId,
+    sourcePath,
     status: "ok"
   };
 }

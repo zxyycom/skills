@@ -76,17 +76,16 @@ test("decision CLI top-level help exposes the current command set", async () => 
   );
   assert.match(
     help.stdout,
-    /Decision IDs are stable extensionless kebab-case values, for example use-semantic-title\./
+    /Decision selectors remove one terminal \.md suffix, then resolve a calendar-valid YYMMDD-name ID exactly or a unique semantic name\./
   );
-  assert.match(help.stdout, /A single terminal \.md suffix remains accepted/);
   assert.match(help.stdout, /candidates\s+Discover candidate scaffolds/i);
   assert.match(
     help.stdout,
-    /show-candidate <decision-id>\s+Show one source-discovered candidate/i
+    /show-candidate <selector>\s+Show one source-discovered candidate/i
   );
   assert.match(
     help.stdout,
-    /new \[options\] <decision-id>\s+Create one non-overwriting candidate\s+scaffold/i
+    /new \[options\] <selector>\s+Create one non-overwriting candidate\s+scaffold/i
   );
   assert.match(
     help.stdout,
@@ -104,14 +103,14 @@ test("new help fixes explicit scaffold inputs without accepting lifecycle alignm
     "--background <text>",
     "--decision <text>",
     "--tag <tag>",
-    "--relation <type=decision-id>",
+    "--relation <type=decision-selector>",
     "--preflight-alignment <value>"
   ]) {
     assert.ok(help.stdout.includes(option), option);
   }
   assert.match(
     help.stdout,
-    /Declare one direct predecessor relation for\s+this candidate/
+    /Declare one direct predecessor relation\s+for this candidate/
   );
   assert.doesNotMatch(help.stdout, /selected successor/);
   assert.doesNotMatch(help.stdout, /--alignment <value>/);
@@ -182,9 +181,9 @@ test("mark-aligned help requires verified current facts", async () => {
 test("evolve help exposes successor and complete relation selection", async () => {
   const help = await runCli(["evolve", "--help"]);
   assert.equal(help.exitCode, 0);
-  assert.match(help.stdout, /--successor <alignment=decision-id>/);
+  assert.match(help.stdout, /--successor <alignment=decision-selector>/);
   assert.match(help.stdout, /--clear-relations/);
-  assert.match(help.stdout, /--discard <decision-id>/);
+  assert.match(help.stdout, /--discard <selector>/);
   assert.doesNotMatch(help.stdout, /--alignment <value>/);
 });
 
@@ -268,7 +267,7 @@ test("evolve rejects duplicate successor members at the CLI boundary", async () 
     "aligned=" + successorRelativePath
   ]);
   assert.equal(result.exitCode, 2);
-  assert.match(result.stderr, /must not repeat a successor Decision ID/);
+  assert.match(result.stderr, /must not repeat a successor Decision selector/);
 });
 
 test("evolve rejects repeated relation override targets at the CLI boundary", async () => {
@@ -297,7 +296,7 @@ test("decision CLI rejects removed domain and path query protocols", async () =>
     },
     {
       args: ["show", "archive/use-generated-cli.md"],
-      stderr: /Decision ID is invalid/
+      stderr: /Decision selector is invalid/
     },
     {
       args: [
@@ -343,7 +342,7 @@ test("positional Decision IDs are validated at every CLI command boundary", asyn
     assert.equal(result.stdout, "", args.join(" "));
     assert.match(
       result.stderr,
-      /Decision ID is invalid; must be extensionless kebab-case text/,
+      /Decision selector is invalid; must be extensionless kebab-case text/,
       args.join(" ")
     );
   }

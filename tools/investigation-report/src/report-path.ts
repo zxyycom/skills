@@ -18,6 +18,8 @@ const kebabCasePattern = new RegExp(
   "u"
 );
 const investigationIdPattern = new RegExp(investigationIdPatternSource, "u");
+const datedInvestigationIdPattern =
+  /^(\d{2})(\d{2})(\d{2})-([a-z0-9]+(?:-[a-z0-9]+)*)$/;
 const investigationSourcePathPattern = new RegExp(
   investigationSourcePathPatternSource,
   "u"
@@ -95,9 +97,64 @@ export function isInvestigationId(value: string): boolean {
   return !value.includes("/") && investigationIdPattern.test(value);
 }
 
+export type ParsedDatedInvestigationId = Readonly<{
+  date: string;
+  id: string;
+  name: string;
+}>;
+
+export function parseDatedInvestigationId(
+  value: string
+): ParsedDatedInvestigationId | null {
+  const match = datedInvestigationIdPattern.exec(value);
+  if (match === null || !isInvestigationId(value)) return null;
+  const [, yearText, monthText, dayText, name] = match;
+  const year = 2000 + Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+  return { date: `${yearText}${monthText}${dayText}`, id: value, name };
+}
+
+export function normalizeInvestigationSelectorInput(value: string): string {
+  return value.replace(/\.md$/iu, "");
+}
+
+export function investigationNameFromId(id: string): string {
+  return parseDatedInvestigationId(id)?.name ?? id;
+}
+
+export function utcInvestigationDate(timestamp: string): string | null {
+  const milliseconds = Date.parse(timestamp);
+  if (!Number.isFinite(milliseconds)) return null;
+  const date = new Date(milliseconds);
+  return [
+    String(date.getUTCFullYear() % 100).padStart(2, "0"),
+    String(date.getUTCMonth() + 1).padStart(2, "0"),
+    String(date.getUTCDate()).padStart(2, "0")
+  ].join("");
+}
+
+export function datedInvestigationIdForName(
+  name: string,
+  formedAt: string
+): string | null {
+  const date = utcInvestigationDate(formedAt);
+  if (date === null) return null;
+  const id = `${date}-${name}`;
+  return parseDatedInvestigationId(id)?.id ?? null;
+}
+
 /** Normalizes one former Markdown-suffixed selector at an input boundary. */
 export function normalizeInvestigationIdInput(value: string): string | null {
-  const normalized = value.replace(/\.md$/iu, "");
+  const normalized = normalizeInvestigationSelectorInput(value);
   return isInvestigationId(normalized) ? normalized : null;
 }
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 3,
   "namespace": "decisions",
-  "definitionVersion": 7,
+  "definitionVersion": 8,
   "metadata": {},
   "sourceRevision": {
     "entries": {
@@ -77,6 +77,7 @@
       "260720-use-prebuilt-git-test-fixtures": "sha256:5d1feb8ece5d4d03c820ac0b50b14dfaf11acafa81018ca3408e7f44a605919b",
       "260720-use-product-and-architecture-lenses": "sha256:1925f6d9f14713f939e8650ceaeae73650dbe8bce18539b7f91873b6b791786e",
       "260721-separate-test-entry-collection-from-ledger": "sha256:c5f8ff8c11936c6b20cb4714471a9e791e99dafe992c745bd3b234b85efb94e8",
+      "260904-adopt-date-prefixed-record-identities": "sha256:1c6fe42c7eab92f319c1db57ab37ce92ab86b97a9f306f5702ab4484807fc441",
       "activate-release-gate-checks-by-tag": "sha256:9a4fa7a38e4c87103e295df956469814bfdd926557340399f2c798d8bbf55c4f",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -337,6 +338,10 @@
   },
   "keyDefinitions": [
     {
+      "name": "name",
+      "mode": "exact"
+    },
+    {
       "name": "tag",
       "mode": "exact"
     },
@@ -352,6 +357,9 @@
   "entries": {
     "260627-establish-decision-record-policy": {
       "keys": {
+        "name": [
+          "establish-decision-record-policy"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -360,6 +368,7 @@
         ]
       },
       "state": {
+        "name": "establish-decision-record-policy",
         "sourcePath": "archive/260627-establish-decision-record-policy.md",
         "title": "建立决策记录策略",
         "status": "archived",
@@ -376,6 +385,9 @@
     },
     "260630-merge-prompt-optimize-core-flow-into-entry": {
       "keys": {
+        "name": [
+          "merge-prompt-optimize-core-flow-into-entry"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -384,6 +396,7 @@
         ]
       },
       "state": {
+        "name": "merge-prompt-optimize-core-flow-into-entry",
         "sourcePath": "archive/260630-merge-prompt-optimize-core-flow-into-entry.md",
         "title": "将 prompt-optimize 核心流程合并回入口",
         "status": "archived",
@@ -405,6 +418,9 @@
     },
     "260630-name-decision-root-docs-by-owner": {
       "keys": {
+        "name": [
+          "name-decision-root-docs-by-owner"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -413,6 +429,7 @@
         ]
       },
       "state": {
+        "name": "name-decision-root-docs-by-owner",
         "sourcePath": "archive/260630-name-decision-root-docs-by-owner.md",
         "title": "用 owner 命名决策记录根文档",
         "status": "archived",
@@ -434,6 +451,9 @@
     },
     "260630-publish-skill-package-as-latest-release": {
       "keys": {
+        "name": [
+          "publish-skill-package-as-latest-release"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -442,6 +462,7 @@
         ]
       },
       "state": {
+        "name": "publish-skill-package-as-latest-release",
         "sourcePath": "archive/260630-publish-skill-package-as-latest-release.md",
         "title": "使用 latest release 自动发布 skill 制品",
         "status": "archived",
@@ -458,6 +479,9 @@
     },
     "260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline": {
       "keys": {
+        "name": [
+          "reorganize-prompt-optimize-rewrite-rules-as-pipeline"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -466,6 +490,7 @@
         ]
       },
       "state": {
+        "name": "reorganize-prompt-optimize-rewrite-rules-as-pipeline",
         "sourcePath": "archive/260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md",
         "title": "将 prompt-optimize 改写规则重组为管线",
         "status": "archived",
@@ -482,6 +507,9 @@
     },
     "260630-track-decision-status-and-relations": {
       "keys": {
+        "name": [
+          "track-decision-status-and-relations"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -490,6 +518,7 @@
         ]
       },
       "state": {
+        "name": "track-decision-status-and-relations",
         "sourcePath": "archive/260630-track-decision-status-and-relations.md",
         "title": "给决策记录增加状态和关系",
         "status": "archived",
@@ -511,6 +540,9 @@
     },
     "260630-use-compact-decision-records": {
       "keys": {
+        "name": [
+          "use-compact-decision-records"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -519,6 +551,7 @@
         ]
       },
       "state": {
+        "name": "use-compact-decision-records",
         "sourcePath": "archive/260630-use-compact-decision-records.md",
         "title": "使用短日期命名并允许短决策结构",
         "status": "archived",
@@ -540,6 +573,9 @@
     },
     "260701-add-document-main-promise-check": {
       "keys": {
+        "name": [
+          "add-document-main-promise-check"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -551,6 +587,7 @@
         ]
       },
       "state": {
+        "name": "add-document-main-promise-check",
         "sourcePath": "archive/260701-add-document-main-promise-check.md",
         "title": "给 prompt-optimize 增加文档主承诺检查",
         "status": "archived",
@@ -567,6 +604,9 @@
     },
     "260701-add-submodule-release-workflows": {
       "keys": {
+        "name": [
+          "add-submodule-release-workflows"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -575,6 +615,7 @@
         ]
       },
       "state": {
+        "name": "add-submodule-release-workflows",
         "sourcePath": "archive/260701-add-submodule-release-workflows.md",
         "title": "给子仓库增加独立 release workflow",
         "status": "archived",
@@ -596,6 +637,9 @@
     },
     "260701-avoid-workflow-structure-validation": {
       "keys": {
+        "name": [
+          "avoid-workflow-structure-validation"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -607,6 +651,7 @@
         ]
       },
       "state": {
+        "name": "avoid-workflow-structure-validation",
         "sourcePath": "260701-avoid-workflow-structure-validation.md",
         "title": "不用脚本校验 workflow 结构",
         "status": "active",
@@ -632,6 +677,9 @@
     },
     "260701-compact-entry-and-archive-migration-copies": {
       "keys": {
+        "name": [
+          "compact-entry-and-archive-migration-copies"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -640,6 +688,7 @@
         ]
       },
       "state": {
+        "name": "compact-entry-and-archive-migration-copies",
         "sourcePath": "archive/260701-compact-entry-and-archive-migration-copies.md",
         "title": "压缩 prompt-optimize 入口并归档迁移副本",
         "status": "archived",
@@ -661,6 +710,9 @@
     },
     "260701-embed-self-update-script-in-skill-packages": {
       "keys": {
+        "name": [
+          "embed-self-update-script-in-skill-packages"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -669,6 +721,7 @@
         ]
       },
       "state": {
+        "name": "embed-self-update-script-in-skill-packages",
         "sourcePath": "archive/260701-embed-self-update-script-in-skill-packages.md",
         "title": "在 skill 包内分发自更新脚本",
         "status": "archived",
@@ -685,6 +738,9 @@
     },
     "260701-gate-latest-release-by-skill-hash": {
       "keys": {
+        "name": [
+          "gate-latest-release-by-skill-hash"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -693,6 +749,7 @@
         ]
       },
       "state": {
+        "name": "gate-latest-release-by-skill-hash",
         "sourcePath": "archive/260701-gate-latest-release-by-skill-hash.md",
         "title": "使用 skill hash 门禁 latest release 发布",
         "status": "archived",
@@ -714,6 +771,9 @@
     },
     "260701-publish-versioned-skill-releases": {
       "keys": {
+        "name": [
+          "publish-versioned-skill-releases"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -722,6 +782,7 @@
         ]
       },
       "state": {
+        "name": "publish-versioned-skill-releases",
         "sourcePath": "archive/260701-publish-versioned-skill-releases.md",
         "title": "使用版本化 release 发布 skill 制品",
         "status": "archived",
@@ -747,6 +808,9 @@
     },
     "260701-update-package-hash-with-git-hooks": {
       "keys": {
+        "name": [
+          "update-package-hash-with-git-hooks"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -755,6 +819,7 @@
         ]
       },
       "state": {
+        "name": "update-package-hash-with-git-hooks",
         "sourcePath": "archive/260701-update-package-hash-with-git-hooks.md",
         "title": "用 Git hook 更新 package hash",
         "status": "archived",
@@ -780,6 +845,9 @@
     },
     "260701-use-libraries-for-common-script-behavior": {
       "keys": {
+        "name": [
+          "use-libraries-for-common-script-behavior"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -791,6 +859,7 @@
         ]
       },
       "state": {
+        "name": "use-libraries-for-common-script-behavior",
         "sourcePath": "archive/260701-use-libraries-for-common-script-behavior.md",
         "title": "本地脚本的常见行为优先使用成熟库",
         "status": "archived",
@@ -807,6 +876,9 @@
     },
     "260701-use-tsgo-for-typecheck": {
       "keys": {
+        "name": [
+          "use-tsgo-for-typecheck"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -818,6 +890,7 @@
         ]
       },
       "state": {
+        "name": "use-tsgo-for-typecheck",
         "sourcePath": "260701-use-tsgo-for-typecheck.md",
         "title": "使用 tsgo 作为默认类型检查入口",
         "status": "active",
@@ -834,6 +907,9 @@
     },
     "260702-refine-commit-granularity-types-and-command": {
       "keys": {
+        "name": [
+          "refine-commit-granularity-types-and-command"
+        ],
         "tag": [
           "git-commit-organizer"
         ],
@@ -845,6 +921,7 @@
         ]
       },
       "state": {
+        "name": "refine-commit-granularity-types-and-command",
         "sourcePath": "archive/260702-refine-commit-granularity-types-and-command.md",
         "title": "调整 git-commit-organizer 的提交粒度、类型和创建命令",
         "status": "archived",
@@ -861,6 +938,9 @@
     },
     "260702-use-monorepo-skills-directory": {
       "keys": {
+        "name": [
+          "use-monorepo-skills-directory"
+        ],
         "tag": [
           "repository-model"
         ],
@@ -869,6 +949,7 @@
         ]
       },
       "state": {
+        "name": "use-monorepo-skills-directory",
         "sourcePath": "archive/260702-use-monorepo-skills-directory.md",
         "title": "迁移为 skills 单仓库布局",
         "status": "archived",
@@ -910,6 +991,9 @@
     },
     "260703-follow-latest-release-for-skill-updater": {
       "keys": {
+        "name": [
+          "follow-latest-release-for-skill-updater"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -918,6 +1002,7 @@
         ]
       },
       "state": {
+        "name": "follow-latest-release-for-skill-updater",
         "sourcePath": "archive/260703-follow-latest-release-for-skill-updater.md",
         "title": "自更新脚本跟随 latest release 制品",
         "status": "archived",
@@ -939,6 +1024,9 @@
     },
     "260703-use-per-skill-hash-lock-for-updater": {
       "keys": {
+        "name": [
+          "use-per-skill-hash-lock-for-updater"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -947,6 +1035,7 @@
         ]
       },
       "state": {
+        "name": "use-per-skill-hash-lock-for-updater",
         "sourcePath": "archive/260703-use-per-skill-hash-lock-for-updater.md",
         "title": "用 skill package lock 承接发布和自更新",
         "status": "archived",
@@ -976,6 +1065,9 @@
     },
     "260706-gate-temporary-change-plans": {
       "keys": {
+        "name": [
+          "gate-temporary-change-plans"
+        ],
         "tag": [
           "openspec"
         ],
@@ -987,6 +1079,7 @@
         ]
       },
       "state": {
+        "name": "gate-temporary-change-plans",
         "sourcePath": "archive/260706-gate-temporary-change-plans.md",
         "title": "将 OpenSpec change 作为临时计划并设置实现门禁",
         "status": "archived",
@@ -1003,6 +1096,9 @@
     },
     "260706-move-subagent-guidance-to-dedicated-skill": {
       "keys": {
+        "name": [
+          "move-subagent-guidance-to-dedicated-skill"
+        ],
         "tag": [
           "ai-ready-docs",
           "subagent-orchestration"
@@ -1015,6 +1111,7 @@
         ]
       },
       "state": {
+        "name": "move-subagent-guidance-to-dedicated-skill",
         "sourcePath": "260706-move-subagent-guidance-to-dedicated-skill.md",
         "title": "将子代理任务说明移出 prompt-optimize",
         "status": "active",
@@ -1037,6 +1134,9 @@
     },
     "260710-use-cli-active-index-and-invalidated-archive": {
       "keys": {
+        "name": [
+          "use-cli-active-index-and-invalidated-archive"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1045,6 +1145,7 @@
         ]
       },
       "state": {
+        "name": "use-cli-active-index-and-invalidated-archive",
         "sourcePath": "archive/260710-use-cli-active-index-and-invalidated-archive.md",
         "title": "使用 CLI 维护活动索引并归档失效决策",
         "status": "archived",
@@ -1074,6 +1175,9 @@
     },
     "260710-use-explicit-portable-decision-memory": {
       "keys": {
+        "name": [
+          "use-explicit-portable-decision-memory"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1082,6 +1186,7 @@
         ]
       },
       "state": {
+        "name": "use-explicit-portable-decision-memory",
         "sourcePath": "archive/260710-use-explicit-portable-decision-memory.md",
         "title": "使用显式可移植的决策记录形成长期记忆",
         "status": "archived",
@@ -1098,6 +1203,9 @@
     },
     "260711-bound-history-with-direct-relations": {
       "keys": {
+        "name": [
+          "bound-history-with-direct-relations"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1106,6 +1214,7 @@
         ]
       },
       "state": {
+        "name": "bound-history-with-direct-relations",
         "sourcePath": "archive/260711-bound-history-with-direct-relations.md",
         "title": "用直接关系和归并决策限制历史读取",
         "status": "archived",
@@ -1122,6 +1231,9 @@
     },
     "260711-repair-noncanonical-decision-formats": {
       "keys": {
+        "name": [
+          "repair-noncanonical-decision-formats"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1130,6 +1242,7 @@
         ]
       },
       "state": {
+        "name": "repair-noncanonical-decision-formats",
         "sourcePath": "archive/260711-repair-noncanonical-decision-formats.md",
         "title": "将非标准决策材料修复为唯一契约",
         "status": "archived",
@@ -1146,6 +1259,9 @@
     },
     "260711-require-confirmed-decision-writes": {
       "keys": {
+        "name": [
+          "require-confirmed-decision-writes"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1154,6 +1270,7 @@
         ]
       },
       "state": {
+        "name": "require-confirmed-decision-writes",
         "sourcePath": "archive/260711-require-confirmed-decision-writes.md",
         "title": "使用显式确认控制决策写入",
         "status": "archived",
@@ -1175,6 +1292,9 @@
     },
     "260711-separate-skill-script-source-and-generated-artifacts": {
       "keys": {
+        "name": [
+          "separate-skill-script-source-and-generated-artifacts"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -1183,6 +1303,7 @@
         ]
       },
       "state": {
+        "name": "separate-skill-script-source-and-generated-artifacts",
         "sourcePath": "archive/260711-separate-skill-script-source-and-generated-artifacts.md",
         "title": "分离 skill 分发脚本源码与生成产物",
         "status": "archived",
@@ -1204,6 +1325,9 @@
     },
     "260711-use-bundled-contract-owner": {
       "keys": {
+        "name": [
+          "use-bundled-contract-owner"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1212,6 +1336,7 @@
         ]
       },
       "state": {
+        "name": "use-bundled-contract-owner",
         "sourcePath": "archive/260711-use-bundled-contract-owner.md",
         "title": "使用随包 reference 作为唯一固定契约",
         "status": "archived",
@@ -1233,6 +1358,9 @@
     },
     "260712-separate-write-ownership-from-read-scope": {
       "keys": {
+        "name": [
+          "separate-write-ownership-from-read-scope"
+        ],
         "tag": [
           "subagent-orchestration"
         ],
@@ -1244,6 +1372,7 @@
         ]
       },
       "state": {
+        "name": "separate-write-ownership-from-read-scope",
         "sourcePath": "archive/260712-separate-write-ownership-from-read-scope.md",
         "title": "区分并行写入所有权与只读调查范围",
         "status": "archived",
@@ -1260,6 +1389,9 @@
     },
     "260713-recall-before-long-lived-changes": {
       "keys": {
+        "name": [
+          "recall-before-long-lived-changes"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1268,6 +1400,7 @@
         ]
       },
       "state": {
+        "name": "recall-before-long-lived-changes",
         "sourcePath": "archive/260713-recall-before-long-lived-changes.md",
         "title": "在长期行为变更前恢复决策并显式处理偏离",
         "status": "archived",
@@ -1284,6 +1417,9 @@
     },
     "260713-use-json-current-index-and-stable-paths": {
       "keys": {
+        "name": [
+          "use-json-current-index-and-stable-paths"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1292,6 +1428,7 @@
         ]
       },
       "state": {
+        "name": "use-json-current-index-and-stable-paths",
         "sourcePath": "archive/260713-use-json-current-index-and-stable-paths.md",
         "title": "使用 JSON 当前索引和稳定决策路径",
         "status": "archived",
@@ -1321,6 +1458,9 @@
     },
     "260718-add-direction-and-depth-to-trace": {
       "keys": {
+        "name": [
+          "add-direction-and-depth-to-trace"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1329,6 +1469,7 @@
         ]
       },
       "state": {
+        "name": "add-direction-and-depth-to-trace",
         "sourcePath": "archive/260718-add-direction-and-depth-to-trace.md",
         "title": "为 trace 增加定向和限深查询",
         "status": "archived",
@@ -1345,6 +1486,9 @@
     },
     "260718-default-to-minimal-subagent-history": {
       "keys": {
+        "name": [
+          "default-to-minimal-subagent-history"
+        ],
         "tag": [
           "subagent-orchestration"
         ],
@@ -1356,6 +1500,7 @@
         ]
       },
       "state": {
+        "name": "default-to-minimal-subagent-history",
         "sourcePath": "260718-default-to-minimal-subagent-history.md",
         "title": "默认以最小历史派发子代理",
         "status": "active",
@@ -1372,6 +1517,9 @@
     },
     "260718-focus-description-on-trigger-context": {
       "keys": {
+        "name": [
+          "focus-description-on-trigger-context"
+        ],
         "tag": [
           "subagent-orchestration"
         ],
@@ -1383,6 +1531,7 @@
         ]
       },
       "state": {
+        "name": "focus-description-on-trigger-context",
         "sourcePath": "260718-focus-description-on-trigger-context.md",
         "title": "让子代理 skill 描述聚焦触发条件",
         "status": "active",
@@ -1399,6 +1548,9 @@
     },
     "260718-notify-before-decision-writes": {
       "keys": {
+        "name": [
+          "notify-before-decision-writes"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1407,6 +1559,7 @@
         ]
       },
       "state": {
+        "name": "notify-before-decision-writes",
         "sourcePath": "archive/260718-notify-before-decision-writes.md",
         "title": "在决策写入前明确通知用户",
         "status": "archived",
@@ -1428,6 +1581,9 @@
     },
     "260718-separate-behavior-entry-from-storage-contract": {
       "keys": {
+        "name": [
+          "separate-behavior-entry-from-storage-contract"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1436,6 +1592,7 @@
         ]
       },
       "state": {
+        "name": "separate-behavior-entry-from-storage-contract",
         "sourcePath": "archive/260718-separate-behavior-entry-from-storage-contract.md",
         "title": "分离行为入口与精确存储契约",
         "status": "archived",
@@ -1457,6 +1614,9 @@
     },
     "260718-separate-logical-archive-from-relations": {
       "keys": {
+        "name": [
+          "separate-logical-archive-from-relations"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1465,6 +1625,7 @@
         ]
       },
       "state": {
+        "name": "separate-logical-archive-from-relations",
         "sourcePath": "archive/260718-separate-logical-archive-from-relations.md",
         "title": "分离逻辑归档与决策关系",
         "status": "archived",
@@ -1486,6 +1647,9 @@
     },
     "260718-trigger-on-long-term-decision-points": {
       "keys": {
+        "name": [
+          "trigger-on-long-term-decision-points"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1497,6 +1661,7 @@
         ]
       },
       "state": {
+        "name": "trigger-on-long-term-decision-points",
         "sourcePath": "260718-trigger-on-long-term-decision-points.md",
         "title": "让长期决策形成和冲突成为核心触发",
         "status": "active",
@@ -1518,6 +1683,9 @@
     },
     "260718-use-project-coding-style-owner": {
       "keys": {
+        "name": [
+          "use-project-coding-style-owner"
+        ],
         "tag": [
           "project-documentation"
         ],
@@ -1529,6 +1697,7 @@
         ]
       },
       "state": {
+        "name": "use-project-coding-style-owner",
         "sourcePath": "260718-use-project-coding-style-owner.md",
         "title": "采用项目级编码规范 owner",
         "status": "active",
@@ -1545,6 +1714,9 @@
     },
     "260718-use-purpose-background-decision-structure": {
       "keys": {
+        "name": [
+          "use-purpose-background-decision-structure"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1553,6 +1725,7 @@
         ]
       },
       "state": {
+        "name": "use-purpose-background-decision-structure",
         "sourcePath": "archive/260718-use-purpose-background-decision-structure.md",
         "title": "使用目的、背景和决策的三层投影",
         "status": "archived",
@@ -1574,6 +1747,9 @@
     },
     "260719-model-verification-obligations-and-source-roles": {
       "keys": {
+        "name": [
+          "model-verification-obligations-and-source-roles"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -1582,6 +1758,7 @@
         ]
       },
       "state": {
+        "name": "model-verification-obligations-and-source-roles",
         "sourcePath": "archive/260719-model-verification-obligations-and-source-roles.md",
         "title": "将账本扩展为验证义务并统一源码角色",
         "status": "archived",
@@ -1603,6 +1780,9 @@
     },
     "260719-organize-multi-branch-proofs-by-shared-base": {
       "keys": {
+        "name": [
+          "organize-multi-branch-proofs-by-shared-base"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -1611,6 +1791,7 @@
         ]
       },
       "state": {
+        "name": "organize-multi-branch-proofs-by-shared-base",
         "sourcePath": "archive/260719-organize-multi-branch-proofs-by-shared-base.md",
         "title": "按共享测试基座组织多分支证明点",
         "status": "archived",
@@ -1627,6 +1808,9 @@
     },
     "260719-own-project-aware-skill-lifecycle": {
       "keys": {
+        "name": [
+          "own-project-aware-skill-lifecycle"
+        ],
         "tag": [
           "skill-maintainer"
         ],
@@ -1635,6 +1819,7 @@
         ]
       },
       "state": {
+        "name": "own-project-aware-skill-lifecycle",
         "sourcePath": "archive/260719-own-project-aware-skill-lifecycle.md",
         "title": "让 skill-maintainer 承接环境自适应的 skill 生命周期",
         "status": "archived",
@@ -1651,6 +1836,9 @@
     },
     "260719-separate-test-value-from-ledger-validation": {
       "keys": {
+        "name": [
+          "separate-test-value-from-ledger-validation"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -1659,6 +1847,7 @@
         ]
       },
       "state": {
+        "name": "separate-test-value-from-ledger-validation",
         "sourcePath": "archive/260719-separate-test-value-from-ledger-validation.md",
         "title": "分离测试价值审查与账本机械校验",
         "status": "archived",
@@ -1675,6 +1864,9 @@
     },
     "260720-auto-initialize-index-on-first-activation": {
       "keys": {
+        "name": [
+          "auto-initialize-index-on-first-activation"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1683,6 +1875,7 @@
         ]
       },
       "state": {
+        "name": "auto-initialize-index-on-first-activation",
         "sourcePath": "archive/260720-auto-initialize-index-on-first-activation.md",
         "title": "在首次激活时自动初始化当前索引",
         "status": "archived",
@@ -1699,6 +1892,9 @@
     },
     "260720-bound-index-projection-lengths": {
       "keys": {
+        "name": [
+          "bound-index-projection-lengths"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1710,6 +1906,7 @@
         ]
       },
       "state": {
+        "name": "bound-index-projection-lengths",
         "sourcePath": "260720-bound-index-projection-lengths.md",
         "title": "限制索引投影字段长度",
         "status": "active",
@@ -1731,6 +1928,9 @@
     },
     "260720-complete-by-task-outcome": {
       "keys": {
+        "name": [
+          "complete-by-task-outcome"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1739,6 +1939,7 @@
         ]
       },
       "state": {
+        "name": "complete-by-task-outcome",
         "sourcePath": "archive/260720-complete-by-task-outcome.md",
         "title": "按任务出口验收决策记录工作",
         "status": "archived",
@@ -1760,6 +1961,9 @@
     },
     "260720-define-skills-by-self-contained-contracts": {
       "keys": {
+        "name": [
+          "define-skills-by-self-contained-contracts"
+        ],
         "tag": [
           "skill-maintainer"
         ],
@@ -1768,6 +1972,7 @@
         ]
       },
       "state": {
+        "name": "define-skills-by-self-contained-contracts",
         "sourcePath": "archive/260720-define-skills-by-self-contained-contracts.md",
         "title": "让分发 skill 以自身契约定义边界",
         "status": "archived",
@@ -1784,6 +1989,9 @@
     },
     "260720-expose-importable-skill-modules": {
       "keys": {
+        "name": [
+          "expose-importable-skill-modules"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -1792,6 +2000,7 @@
         ]
       },
       "state": {
+        "name": "expose-importable-skill-modules",
         "sourcePath": "archive/260720-expose-importable-skill-modules.md",
         "title": "让 skill 分发脚本同时提供可导入模块",
         "status": "archived",
@@ -1813,6 +2022,9 @@
     },
     "260720-focus-entry-on-behavior-routing": {
       "keys": {
+        "name": [
+          "focus-entry-on-behavior-routing"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1821,6 +2033,7 @@
         ]
       },
       "state": {
+        "name": "focus-entry-on-behavior-routing",
         "sourcePath": "archive/260720-focus-entry-on-behavior-routing.md",
         "title": "让行为入口聚焦任务路由",
         "status": "archived",
@@ -1842,6 +2055,9 @@
     },
     "260720-keep-problem-reframing-self-contained": {
       "keys": {
+        "name": [
+          "keep-problem-reframing-self-contained"
+        ],
         "tag": [
           "product-architecture-judgment"
         ],
@@ -1850,6 +2066,7 @@
         ]
       },
       "state": {
+        "name": "keep-problem-reframing-self-contained",
         "sourcePath": "archive/260720-keep-problem-reframing-self-contained.md",
         "title": "让问题重构保持自包含",
         "status": "archived",
@@ -1866,6 +2083,9 @@
     },
     "260720-map-test-entries-and-trigger-scoped-reviews": {
       "keys": {
+        "name": [
+          "map-test-entries-and-trigger-scoped-reviews"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -1874,6 +2094,7 @@
         ]
       },
       "state": {
+        "name": "map-test-entries-and-trigger-scoped-reviews",
         "sourcePath": "archive/260720-map-test-entries-and-trigger-scoped-reviews.md",
         "title": "按测试入口映射证据并触发范围审查",
         "status": "archived",
@@ -1895,6 +2116,9 @@
     },
     "260720-orchestrate-checks-with-conservative-concurrency": {
       "keys": {
+        "name": [
+          "orchestrate-checks-with-conservative-concurrency"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -1903,6 +2127,7 @@
         ]
       },
       "state": {
+        "name": "orchestrate-checks-with-conservative-concurrency",
         "sourcePath": "archive/260720-orchestrate-checks-with-conservative-concurrency.md",
         "title": "用保守顶层并发编排完整检查",
         "status": "archived",
@@ -1919,6 +2144,9 @@
     },
     "260720-organize-proofs-by-shared-execution-chain": {
       "keys": {
+        "name": [
+          "organize-proofs-by-shared-execution-chain"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -1927,6 +2155,7 @@
         ]
       },
       "state": {
+        "name": "organize-proofs-by-shared-execution-chain",
         "sourcePath": "archive/260720-organize-proofs-by-shared-execution-chain.md",
         "title": "按共享执行链路组织分支与线性证明点",
         "status": "archived",
@@ -1948,6 +2177,9 @@
     },
     "260720-remove-migration-copies": {
       "keys": {
+        "name": [
+          "remove-migration-copies"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -1959,6 +2191,7 @@
         ]
       },
       "state": {
+        "name": "remove-migration-copies",
         "sourcePath": "260720-remove-migration-copies.md",
         "title": "删除 prompt-optimize 迁移副本",
         "status": "active",
@@ -1980,6 +2213,9 @@
     },
     "260720-return-query-results-with-warnings": {
       "keys": {
+        "name": [
+          "return-query-results-with-warnings"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -1988,6 +2224,7 @@
         ]
       },
       "state": {
+        "name": "return-query-results-with-warnings",
         "sourcePath": "archive/260720-return-query-results-with-warnings.md",
         "title": "让决策查询带警告返回可用结果",
         "status": "archived",
@@ -2004,6 +2241,9 @@
     },
     "260720-separate-editorial-edits-from-evolution": {
       "keys": {
+        "name": [
+          "separate-editorial-edits-from-evolution"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -2012,6 +2252,7 @@
         ]
       },
       "state": {
+        "name": "separate-editorial-edits-from-evolution",
         "sourcePath": "archive/260720-separate-editorial-edits-from-evolution.md",
         "title": "区分编辑性修正与决策演进",
         "status": "archived",
@@ -2028,6 +2269,9 @@
     },
     "260720-separate-framing-from-engineering-landing": {
       "keys": {
+        "name": [
+          "separate-framing-from-engineering-landing"
+        ],
         "tag": [
           "product-architecture-judgment"
         ],
@@ -2036,6 +2280,7 @@
         ]
       },
       "state": {
+        "name": "separate-framing-from-engineering-landing",
         "sourcePath": "archive/260720-separate-framing-from-engineering-landing.md",
         "title": "区分问题重构与工程落地",
         "status": "archived",
@@ -2057,6 +2302,9 @@
     },
     "260720-separate-status-commands-from-relations": {
       "keys": {
+        "name": [
+          "separate-status-commands-from-relations"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -2065,6 +2313,7 @@
         ]
       },
       "state": {
+        "name": "separate-status-commands-from-relations",
         "sourcePath": "archive/260720-separate-status-commands-from-relations.md",
         "title": "分离生命周期命令与演进关系",
         "status": "archived",
@@ -2086,6 +2335,9 @@
     },
     "260720-treat-commit-format-as-project-style": {
       "keys": {
+        "name": [
+          "treat-commit-format-as-project-style"
+        ],
         "tag": [
           "git-commit-organizer"
         ],
@@ -2097,6 +2349,7 @@
         ]
       },
       "state": {
+        "name": "treat-commit-format-as-project-style",
         "sourcePath": "260720-treat-commit-format-as-project-style.md",
         "title": "将提交格式定位为项目级风格",
         "status": "active",
@@ -2113,6 +2366,9 @@
     },
     "260720-treat-negative-options-as-solution-anchors": {
       "keys": {
+        "name": [
+          "treat-negative-options-as-solution-anchors"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -2124,6 +2380,7 @@
         ]
       },
       "state": {
+        "name": "treat-negative-options-as-solution-anchors",
         "sourcePath": "archive/260720-treat-negative-options-as-solution-anchors.md",
         "title": "将负向方案视为解空间锚点",
         "status": "archived",
@@ -2140,6 +2397,9 @@
     },
     "260720-unify-product-and-architecture-judgment": {
       "keys": {
+        "name": [
+          "unify-product-and-architecture-judgment"
+        ],
         "tag": [
           "product-architecture-judgment"
         ],
@@ -2151,6 +2411,7 @@
         ]
       },
       "state": {
+        "name": "unify-product-and-architecture-judgment",
         "sourcePath": "260720-unify-product-and-architecture-judgment.md",
         "title": "归并为产品与架构判断",
         "status": "active",
@@ -2176,6 +2437,9 @@
     },
     "260720-use-configurable-decision-root": {
       "keys": {
+        "name": [
+          "use-configurable-decision-root"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -2184,6 +2448,7 @@
         ]
       },
       "state": {
+        "name": "use-configurable-decision-root",
         "sourcePath": "archive/260720-use-configurable-decision-root.md",
         "title": "使用可配置的决策根目录",
         "status": "archived",
@@ -2200,6 +2465,9 @@
     },
     "260720-use-controlled-mermaid-flowcharts": {
       "keys": {
+        "name": [
+          "use-controlled-mermaid-flowcharts"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -2211,6 +2479,7 @@
         ]
       },
       "state": {
+        "name": "use-controlled-mermaid-flowcharts",
         "sourcePath": "archive/260720-use-controlled-mermaid-flowcharts.md",
         "title": "使用受控 Mermaid flowchart 表达复杂关系",
         "status": "archived",
@@ -2227,6 +2496,9 @@
     },
     "260720-use-distribution-unit-boundaries": {
       "keys": {
+        "name": [
+          "use-distribution-unit-boundaries"
+        ],
         "tag": [
           "skill-maintainer"
         ],
@@ -2238,6 +2510,7 @@
         ]
       },
       "state": {
+        "name": "use-distribution-unit-boundaries",
         "sourcePath": "archive/260720-use-distribution-unit-boundaries.md",
         "title": "以分发单元定义 skill 的独立交付边界",
         "status": "archived",
@@ -2263,6 +2536,9 @@
     },
     "260720-use-filtered-decision-queries": {
       "keys": {
+        "name": [
+          "use-filtered-decision-queries"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -2271,6 +2547,7 @@
         ]
       },
       "state": {
+        "name": "use-filtered-decision-queries",
         "sourcePath": "archive/260720-use-filtered-decision-queries.md",
         "title": "使用筛选式决策查询",
         "status": "archived",
@@ -2296,6 +2573,9 @@
     },
     "260720-use-lifecycle-index-and-semantic-paths": {
       "keys": {
+        "name": [
+          "use-lifecycle-index-and-semantic-paths"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -2304,6 +2584,7 @@
         ]
       },
       "state": {
+        "name": "use-lifecycle-index-and-semantic-paths",
         "sourcePath": "archive/260720-use-lifecycle-index-and-semantic-paths.md",
         "title": "采用全生命周期索引与语义路径",
         "status": "archived",
@@ -2325,6 +2606,9 @@
     },
     "260720-use-prebuilt-git-test-fixtures": {
       "keys": {
+        "name": [
+          "use-prebuilt-git-test-fixtures"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -2333,6 +2617,7 @@
         ]
       },
       "state": {
+        "name": "use-prebuilt-git-test-fixtures",
         "sourcePath": "archive/260720-use-prebuilt-git-test-fixtures.md",
         "title": "用预构建 Git fixture 加速 test-evidence 测试",
         "status": "archived",
@@ -2349,6 +2634,9 @@
     },
     "260720-use-product-and-architecture-lenses": {
       "keys": {
+        "name": [
+          "use-product-and-architecture-lenses"
+        ],
         "tag": [
           "product-architecture-judgment"
         ],
@@ -2357,6 +2645,7 @@
         ]
       },
       "state": {
+        "name": "use-product-and-architecture-lenses",
         "sourcePath": "archive/260720-use-product-and-architecture-lenses.md",
         "title": "以产品与架构视角校准技术判断",
         "status": "archived",
@@ -2373,6 +2662,9 @@
     },
     "260721-separate-test-entry-collection-from-ledger": {
       "keys": {
+        "name": [
+          "separate-test-entry-collection-from-ledger"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -2381,6 +2673,7 @@
         ]
       },
       "state": {
+        "name": "separate-test-entry-collection-from-ledger",
         "sourcePath": "archive/260721-separate-test-entry-collection-from-ledger.md",
         "title": "分离测试入口采集与账本维护",
         "status": "archived",
@@ -2404,8 +2697,46 @@
         ]
       }
     },
+    "260904-adopt-date-prefixed-record-identities": {
+      "keys": {
+        "name": [
+          "adopt-date-prefixed-record-identities"
+        ],
+        "tag": [
+          "artifact-identity",
+          "decision-records",
+          "investigation-report"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "name": "adopt-date-prefixed-record-identities",
+        "sourcePath": "adopt-date-prefixed-record-identities.md",
+        "title": "采用日期前缀记录身份",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-04T15:51:50Z",
+        "purpose": "让保留记录在语义同名时仍可稳定选择并保留形成日。",
+        "background": "纯 ID 与 sourcePath 分离后，长期 Decision 和 Investigation 仍需要可解释的重名身份与无猜测 selector。",
+        "decision": "采用: 使用 UTC 日期前缀标准 ID、ID-first/name-fallback 解析和显式 legacy 迁移。",
+        "tags": [
+          "artifact-identity",
+          "decision-records",
+          "investigation-report"
+        ],
+        "relations": []
+      }
+    },
     "activate-release-gate-checks-by-tag": {
       "keys": {
+        "name": [
+          "activate-release-gate-checks-by-tag"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -2417,6 +2748,7 @@
         ]
       },
       "state": {
+        "name": "activate-release-gate-checks-by-tag",
         "sourcePath": "activate-release-gate-checks-by-tag.md",
         "title": "用 release tag 激活可见的 Gate Check",
         "status": "active",
@@ -2438,6 +2770,9 @@
     },
     "aggregate-parent-task-completion": {
       "keys": {
+        "name": [
+          "aggregate-parent-task-completion"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -2449,6 +2784,7 @@
         ]
       },
       "state": {
+        "name": "aggregate-parent-task-completion",
         "sourcePath": "aggregate-parent-task-completion.md",
         "title": "由子 task 结果聚合父 task 完成",
         "status": "active",
@@ -2470,6 +2806,9 @@
     },
     "align-agent-lifecycle-with-task-slices": {
       "keys": {
+        "name": [
+          "align-agent-lifecycle-with-task-slices"
+        ],
         "tag": [
           "subagent-orchestration"
         ],
@@ -2481,6 +2820,7 @@
         ]
       },
       "state": {
+        "name": "align-agent-lifecycle-with-task-slices",
         "sourcePath": "align-agent-lifecycle-with-task-slices.md",
         "title": "让子代理生命周期跟随可验收任务切面",
         "status": "active",
@@ -2502,6 +2842,9 @@
     },
     "allocate-agents-and-runtime-by-task-slice": {
       "keys": {
+        "name": [
+          "allocate-agents-and-runtime-by-task-slice"
+        ],
         "tag": [
           "subagent-orchestration"
         ],
@@ -2513,6 +2856,7 @@
         ]
       },
       "state": {
+        "name": "allocate-agents-and-runtime-by-task-slice",
         "sourcePath": "archive/allocate-agents-and-runtime-by-task-slice.md",
         "title": "按任务切面分配代理与运行能力",
         "status": "archived",
@@ -2534,6 +2878,9 @@
     },
     "allow-listed-investigation-resource-names": {
       "keys": {
+        "name": [
+          "allow-listed-investigation-resource-names"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -2545,6 +2892,7 @@
         ]
       },
       "state": {
+        "name": "allow-listed-investigation-resource-names",
         "sourcePath": "allow-listed-investigation-resource-names.md",
         "title": "用逐项白名单约束调查资源名称",
         "status": "active",
@@ -2566,6 +2914,9 @@
     },
     "allow-sequential-activation-of-prewritten-candidates": {
       "keys": {
+        "name": [
+          "allow-sequential-activation-of-prewritten-candidates"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -2574,6 +2925,7 @@
         ]
       },
       "state": {
+        "name": "allow-sequential-activation-of-prewritten-candidates",
         "sourcePath": "archive/allow-sequential-activation-of-prewritten-candidates.md",
         "title": "允许逐条激活预写决策候选",
         "status": "archived",
@@ -2590,6 +2942,9 @@
     },
     "anchor-investigation-resources-to-report-owners": {
       "keys": {
+        "name": [
+          "anchor-investigation-resources-to-report-owners"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -2601,6 +2956,7 @@
         ]
       },
       "state": {
+        "name": "anchor-investigation-resources-to-report-owners",
         "sourcePath": "anchor-investigation-resources-to-report-owners.md",
         "title": "以报告归属锚定调查资源",
         "status": "active",
@@ -2622,6 +2978,9 @@
     },
     "anchor-investigation-resources-to-topic-owners": {
       "keys": {
+        "name": [
+          "anchor-investigation-resources-to-topic-owners"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -2633,6 +2992,7 @@
         ]
       },
       "state": {
+        "name": "anchor-investigation-resources-to-topic-owners",
         "sourcePath": "archive/anchor-investigation-resources-to-topic-owners.md",
         "title": "以主题归属锚定调查资源",
         "status": "archived",
@@ -2654,6 +3014,9 @@
     },
     "anchor-semantic-task-results-in-index-history": {
       "keys": {
+        "name": [
+          "anchor-semantic-task-results-in-index-history"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -2665,6 +3028,7 @@
         ]
       },
       "state": {
+        "name": "anchor-semantic-task-results-in-index-history",
         "sourcePath": "archive/anchor-semantic-task-results-in-index-history.md",
         "title": "以索引历史锚定 task 语义结果",
         "status": "archived",
@@ -2681,6 +3045,9 @@
     },
     "anchor-task-results-in-index-history": {
       "keys": {
+        "name": [
+          "anchor-task-results-in-index-history"
+        ],
         "tag": [
           "task-graph",
           "version-control"
@@ -2693,6 +3060,7 @@
         ]
       },
       "state": {
+        "name": "anchor-task-results-in-index-history",
         "sourcePath": "anchor-task-results-in-index-history.md",
         "title": "以 task index 历史锚定终态结果版本",
         "status": "active",
@@ -2715,6 +3083,9 @@
     },
     "append-self-contained-investigation-reports": {
       "keys": {
+        "name": [
+          "append-self-contained-investigation-reports"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -2723,6 +3094,7 @@
         ]
       },
       "state": {
+        "name": "append-self-contained-investigation-reports",
         "sourcePath": "archive/append-self-contained-investigation-reports.md",
         "title": "以完整独立报告演进调查主题",
         "status": "archived",
@@ -2744,6 +3116,9 @@
     },
     "assign-tool-and-automation-source-owners": {
       "keys": {
+        "name": [
+          "assign-tool-and-automation-source-owners"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -2755,6 +3130,7 @@
         ]
       },
       "state": {
+        "name": "assign-tool-and-automation-source-owners",
         "sourcePath": "assign-tool-and-automation-source-owners.md",
         "title": "分配可分发工具与仓库自动化的源码 owner",
         "status": "active",
@@ -2776,6 +3152,9 @@
     },
     "attach-verifiable-resources-to-investigation-reports": {
       "keys": {
+        "name": [
+          "attach-verifiable-resources-to-investigation-reports"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -2787,6 +3166,7 @@
         ]
       },
       "state": {
+        "name": "attach-verifiable-resources-to-investigation-reports",
         "sourcePath": "archive/attach-verifiable-resources-to-investigation-reports.md",
         "title": "以报告引用和索引哈希维护调查资源",
         "status": "archived",
@@ -2803,6 +3183,9 @@
     },
     "automatically-record-complex-bug-investigations": {
       "keys": {
+        "name": [
+          "automatically-record-complex-bug-investigations"
+        ],
         "tag": [
           "complex-bug",
           "investigation-report",
@@ -2816,6 +3199,7 @@
         ]
       },
       "state": {
+        "name": "automatically-record-complex-bug-investigations",
         "sourcePath": "automatically-record-complex-bug-investigations.md",
         "title": "自动沉淀复杂 Bug 调查",
         "status": "active",
@@ -2834,6 +3218,9 @@
     },
     "bootstrap-hooks-and-select-project-roots": {
       "keys": {
+        "name": [
+          "bootstrap-hooks-and-select-project-roots"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -2845,6 +3232,7 @@
         ]
       },
       "state": {
+        "name": "bootstrap-hooks-and-select-project-roots",
         "sourcePath": "archive/bootstrap-hooks-and-select-project-roots.md",
         "title": "按平台建立 Hook 并允许短入口显式切换项目",
         "status": "archived",
@@ -2866,6 +3254,9 @@
     },
     "bootstrap-hooks-and-use-project-short-commands": {
       "keys": {
+        "name": [
+          "bootstrap-hooks-and-use-project-short-commands"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -2877,6 +3268,7 @@
         ]
       },
       "state": {
+        "name": "bootstrap-hooks-and-use-project-short-commands",
         "sourcePath": "archive/bootstrap-hooks-and-use-project-short-commands.md",
         "title": "按平台建立 Hook 并统一仓库维护短入口",
         "status": "archived",
@@ -2898,6 +3290,9 @@
     },
     "bootstrap-platform-git-hooks": {
       "keys": {
+        "name": [
+          "bootstrap-platform-git-hooks"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -2909,6 +3304,7 @@
         ]
       },
       "state": {
+        "name": "bootstrap-platform-git-hooks",
         "sourcePath": "bootstrap-platform-git-hooks.md",
         "title": "按 Git 平台建立仓库 Hook",
         "status": "active",
@@ -2930,6 +3326,9 @@
     },
     "bootstrap-repository-coordination-with-owned-launchers": {
       "keys": {
+        "name": [
+          "bootstrap-repository-coordination-with-owned-launchers"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -2941,6 +3340,7 @@
         ]
       },
       "state": {
+        "name": "bootstrap-repository-coordination-with-owned-launchers",
         "sourcePath": "archive/bootstrap-repository-coordination-with-owned-launchers.md",
         "title": "由环境自举建立仓库本地协调入口",
         "status": "archived",
@@ -2957,6 +3357,9 @@
     },
     "bound-review-and-handoff-by-delivery-impact": {
       "keys": {
+        "name": [
+          "bound-review-and-handoff-by-delivery-impact"
+        ],
         "tag": [
           "subagent-orchestration"
         ],
@@ -2968,6 +3371,7 @@
         ]
       },
       "state": {
+        "name": "bound-review-and-handoff-by-delivery-impact",
         "sourcePath": "archive/bound-review-and-handoff-by-delivery-impact.md",
         "title": "以交付影响收敛审查与交接",
         "status": "archived",
@@ -2984,6 +3388,9 @@
     },
     "bound-top-level-check-concurrency": {
       "keys": {
+        "name": [
+          "bound-top-level-check-concurrency"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -2995,6 +3402,7 @@
         ]
       },
       "state": {
+        "name": "bound-top-level-check-concurrency",
         "sourcePath": "archive/bound-top-level-check-concurrency.md",
         "title": "保守限制顶层检查任务并发",
         "status": "archived",
@@ -3016,6 +3424,9 @@
     },
     "build-deterministic-skill-zip-archives": {
       "keys": {
+        "name": [
+          "build-deterministic-skill-zip-archives"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -3027,6 +3438,7 @@
         ]
       },
       "state": {
+        "name": "build-deterministic-skill-zip-archives",
         "sourcePath": "archive/build-deterministic-skill-zip-archives.md",
         "title": "生成确定性的 skill ZIP 归档",
         "status": "archived",
@@ -3048,6 +3460,9 @@
     },
     "carry-typed-collection-metadata": {
       "keys": {
+        "name": [
+          "carry-typed-collection-metadata"
+        ],
         "tag": [
           "index-runtime"
         ],
@@ -3059,6 +3474,7 @@
         ]
       },
       "state": {
+        "name": "carry-typed-collection-metadata",
         "sourcePath": "archive/carry-typed-collection-metadata.md",
         "title": "随索引快照携带类型化集合元数据",
         "status": "archived",
@@ -3080,6 +3496,9 @@
     },
     "catalog-minimal-native-test-entries": {
       "keys": {
+        "name": [
+          "catalog-minimal-native-test-entries"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -3088,6 +3507,7 @@
         ]
       },
       "state": {
+        "name": "catalog-minimal-native-test-entries",
         "sourcePath": "archive/catalog-minimal-native-test-entries.md",
         "title": "只按最小原生测试入口维护证据目录",
         "status": "archived",
@@ -3109,6 +3529,9 @@
     },
     "centralize-maintenance-and-keep-distribution-lightweight": {
       "keys": {
+        "name": [
+          "centralize-maintenance-and-keep-distribution-lightweight"
+        ],
         "tag": [
           "repository-model"
         ],
@@ -3120,6 +3543,7 @@
         ]
       },
       "state": {
+        "name": "centralize-maintenance-and-keep-distribution-lightweight",
         "sourcePath": "centralize-maintenance-and-keep-distribution-lightweight.md",
         "title": "集中维护 skill 并保持轻量分发",
         "status": "active",
@@ -3136,6 +3560,9 @@
     },
     "centralize-version-control-responsibility": {
       "keys": {
+        "name": [
+          "centralize-version-control-responsibility"
+        ],
         "tag": [
           "version-control"
         ],
@@ -3147,6 +3574,7 @@
         ]
       },
       "state": {
+        "name": "centralize-version-control-responsibility",
         "sourcePath": "archive/centralize-version-control-responsibility.md",
         "title": "集中版本管理责任但不承诺跨系统兼容",
         "status": "archived",
@@ -3163,6 +3591,9 @@
     },
     "check-change-plan-collections-as-a-gate": {
       "keys": {
+        "name": [
+          "check-change-plan-collections-as-a-gate"
+        ],
         "tag": [
           "change-plan"
         ],
@@ -3174,6 +3605,7 @@
         ]
       },
       "state": {
+        "name": "check-change-plan-collections-as-a-gate",
         "sourcePath": "archive/check-change-plan-collections-as-a-gate.md",
         "title": "把 Change 集合检查作为独立门禁",
         "status": "archived",
@@ -3190,6 +3622,9 @@
     },
     "check-contextual-associations-of-mentioned-objects": {
       "keys": {
+        "name": [
+          "check-contextual-associations-of-mentioned-objects"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -3201,6 +3636,7 @@
         ]
       },
       "state": {
+        "name": "check-contextual-associations-of-mentioned-objects",
         "sourcePath": "check-contextual-associations-of-mentioned-objects.md",
         "title": "检查被点名对象的上下文关联",
         "status": "active",
@@ -3222,6 +3658,9 @@
     },
     "choose-smallest-correct-maintenance-surface": {
       "keys": {
+        "name": [
+          "choose-smallest-correct-maintenance-surface"
+        ],
         "tag": [
           "minimal-implementation"
         ],
@@ -3233,6 +3672,7 @@
         ]
       },
       "state": {
+        "name": "choose-smallest-correct-maintenance-surface",
         "sourcePath": "archive/choose-smallest-correct-maintenance-surface.md",
         "title": "以有界候选比较选择最小实现维护面",
         "status": "archived",
@@ -3249,6 +3689,9 @@
     },
     "classify-ai-configuration-commits": {
       "keys": {
+        "name": [
+          "classify-ai-configuration-commits"
+        ],
         "tag": [
           "git-commit-organizer"
         ],
@@ -3260,6 +3703,7 @@
         ]
       },
       "state": {
+        "name": "classify-ai-configuration-commits",
         "sourcePath": "classify-ai-configuration-commits.md",
         "title": "只将 AI 配置变化归入 ai 提交类型",
         "status": "active",
@@ -3281,6 +3725,9 @@
     },
     "classify-decisions-by-controlled-domain-path": {
       "keys": {
+        "name": [
+          "classify-decisions-by-controlled-domain-path"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -3292,6 +3739,7 @@
         ]
       },
       "state": {
+        "name": "classify-decisions-by-controlled-domain-path",
         "sourcePath": "archive/classify-decisions-by-controlled-domain-path.md",
         "title": "以受控领域路径确定决策身份与归属",
         "status": "archived",
@@ -3313,6 +3761,9 @@
     },
     "classify-decisions-with-record-level-tags": {
       "keys": {
+        "name": [
+          "classify-decisions-with-record-level-tags"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -3324,6 +3775,7 @@
         ]
       },
       "state": {
+        "name": "classify-decisions-with-record-level-tags",
         "sourcePath": "classify-decisions-with-record-level-tags.md",
         "title": "用记录级 tags 分类决策",
         "status": "active",
@@ -3345,6 +3797,9 @@
     },
     "classify-task-index-transaction-outcomes-conservatively": {
       "keys": {
+        "name": [
+          "classify-task-index-transaction-outcomes-conservatively"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -3356,6 +3811,7 @@
         ]
       },
       "state": {
+        "name": "classify-task-index-transaction-outcomes-conservatively",
         "sourcePath": "classify-task-index-transaction-outcomes-conservatively.md",
         "title": "保守判定 task index 写事务结果",
         "status": "active",
@@ -3377,6 +3833,9 @@
     },
     "compare-correct-options-by-total-maintenance-surface": {
       "keys": {
+        "name": [
+          "compare-correct-options-by-total-maintenance-surface"
+        ],
         "tag": [
           "minimal-implementation"
         ],
@@ -3388,6 +3847,7 @@
         ]
       },
       "state": {
+        "name": "compare-correct-options-by-total-maintenance-surface",
         "sourcePath": "compare-correct-options-by-total-maintenance-surface.md",
         "title": "在正确候选之间比较整体维护面",
         "status": "active",
@@ -3409,6 +3869,9 @@
     },
     "complete-current-decision-work-by-task-outcome": {
       "keys": {
+        "name": [
+          "complete-current-decision-work-by-task-outcome"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -3417,6 +3880,7 @@
         ]
       },
       "state": {
+        "name": "complete-current-decision-work-by-task-outcome",
         "sourcePath": "archive/complete-current-decision-work-by-task-outcome.md",
         "title": "按当前任务出口验收决策记录工作",
         "status": "archived",
@@ -3438,6 +3902,9 @@
     },
     "complete-tasks-after-goal-integration": {
       "keys": {
+        "name": [
+          "complete-tasks-after-goal-integration"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -3449,6 +3916,7 @@
         ]
       },
       "state": {
+        "name": "complete-tasks-after-goal-integration",
         "sourcePath": "complete-tasks-after-goal-integration.md",
         "title": "只在目标集成完成后收敛 task",
         "status": "active",
@@ -3470,6 +3938,9 @@
     },
     "concentrate-before-generalizing": {
       "keys": {
+        "name": [
+          "concentrate-before-generalizing"
+        ],
         "tag": [
           "dependency-boundary-design"
         ],
@@ -3481,6 +3952,7 @@
         ]
       },
       "state": {
+        "name": "concentrate-before-generalizing",
         "sourcePath": "concentrate-before-generalizing.md",
         "title": "用诚实的依赖边界先收口再演进",
         "status": "active",
@@ -3497,6 +3969,9 @@
     },
     "converge-records-before-stable-baseline": {
       "keys": {
+        "name": [
+          "converge-records-before-stable-baseline"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -3505,6 +3980,7 @@
         ]
       },
       "state": {
+        "name": "converge-records-before-stable-baseline",
         "sourcePath": "archive/converge-records-before-stable-baseline.md",
         "title": "在稳定基线前原地收敛决策记录",
         "status": "archived",
@@ -3526,6 +4002,9 @@
     },
     "coordinate-task-execution-with-transactional-claims": {
       "keys": {
+        "name": [
+          "coordinate-task-execution-with-transactional-claims"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -3537,6 +4016,7 @@
         ]
       },
       "state": {
+        "name": "coordinate-task-execution-with-transactional-claims",
         "sourcePath": "archive/coordinate-task-execution-with-transactional-claims.md",
         "title": "通过事务领取协调任务执行",
         "status": "archived",
@@ -3553,6 +4033,9 @@
     },
     "declare-generated-artifact-prerequisites-for-vibe-consumers": {
       "keys": {
+        "name": [
+          "declare-generated-artifact-prerequisites-for-vibe-consumers"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -3564,6 +4047,7 @@
         ]
       },
       "state": {
+        "name": "declare-generated-artifact-prerequisites-for-vibe-consumers",
         "sourcePath": "declare-generated-artifact-prerequisites-for-vibe-consumers.md",
         "title": "为 Vibe 分发 consumer 声明生成前置",
         "status": "active",
@@ -3585,6 +4069,9 @@
     },
     "default-checks-to-warnings": {
       "keys": {
+        "name": [
+          "default-checks-to-warnings"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -3596,6 +4083,7 @@
         ]
       },
       "state": {
+        "name": "default-checks-to-warnings",
         "sourcePath": "archive/default-checks-to-warnings.md",
         "title": "让完整检查默认报告警告并显式启用阻断",
         "status": "archived",
@@ -3617,6 +4105,9 @@
     },
     "default-to-current-task-changes": {
       "keys": {
+        "name": [
+          "default-to-current-task-changes"
+        ],
         "tag": [
           "git-commit-organizer"
         ],
@@ -3628,6 +4119,7 @@
         ]
       },
       "state": {
+        "name": "default-to-current-task-changes",
         "sourcePath": "default-to-current-task-changes.md",
         "title": "默认只提交可归因于当前任务的改动",
         "status": "active",
@@ -3644,6 +4136,9 @@
     },
     "defer-openspec-maintenance-during-removal-review": {
       "keys": {
+        "name": [
+          "defer-openspec-maintenance-during-removal-review"
+        ],
         "tag": [
           "openspec",
           "skill-maintainer"
@@ -3656,6 +4151,7 @@
         ]
       },
       "state": {
+        "name": "defer-openspec-maintenance-during-removal-review",
         "sourcePath": "defer-openspec-maintenance-during-removal-review.md",
         "title": "在删除观察期延期 OpenSpec 维护",
         "status": "active",
@@ -3673,6 +4169,9 @@
     },
     "defer-standard-test-result-blocking": {
       "keys": {
+        "name": [
+          "defer-standard-test-result-blocking"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -3684,6 +4183,7 @@
         ]
       },
       "state": {
+        "name": "defer-standard-test-result-blocking",
         "sourcePath": "archive/defer-standard-test-result-blocking.md",
         "title": "长期延期统一测试结果协议与阻断资格",
         "status": "archived",
@@ -3700,6 +4200,9 @@
     },
     "defer-terminal-correction-until-confirmed-recovery-need": {
       "keys": {
+        "name": [
+          "defer-terminal-correction-until-confirmed-recovery-need"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -3711,6 +4214,7 @@
         ]
       },
       "state": {
+        "name": "defer-terminal-correction-until-confirmed-recovery-need",
         "sourcePath": "defer-terminal-correction-until-confirmed-recovery-need.md",
         "title": "等待真实恢复需要后再设计 Task 终态纠正",
         "status": "active",
@@ -3732,6 +4236,9 @@
     },
     "define-decision-alignment-semantics": {
       "keys": {
+        "name": [
+          "define-decision-alignment-semantics"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -3740,6 +4247,7 @@
         ]
       },
       "state": {
+        "name": "define-decision-alignment-semantics",
         "sourcePath": "archive/define-decision-alignment-semantics.md",
         "title": "定义决策对齐状态与未对齐语义",
         "status": "archived",
@@ -3761,6 +4269,9 @@
     },
     "define-version-control-visible-investigation-resources": {
       "keys": {
+        "name": [
+          "define-version-control-visible-investigation-resources"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -3772,6 +4283,7 @@
         ]
       },
       "state": {
+        "name": "define-version-control-visible-investigation-resources",
         "sourcePath": "archive/define-version-control-visible-investigation-resources.md",
         "title": "以明确名称白名单和版本控制可见性界定受管调查资源",
         "status": "archived",
@@ -3788,6 +4300,9 @@
     },
     "delegate-native-runtime-installation-to-caller": {
       "keys": {
+        "name": [
+          "delegate-native-runtime-installation-to-caller"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -3799,6 +4314,7 @@
         ]
       },
       "state": {
+        "name": "delegate-native-runtime-installation-to-caller",
         "sourcePath": "delegate-native-runtime-installation-to-caller.md",
         "title": "将 task-graph 原生运行时安装委托给调用方",
         "status": "active",
@@ -3820,6 +4336,9 @@
     },
     "derive-check-exit-status-from-step-results": {
       "keys": {
+        "name": [
+          "derive-check-exit-status-from-step-results"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -3831,6 +4350,7 @@
         ]
       },
       "state": {
+        "name": "derive-check-exit-status-from-step-results",
         "sourcePath": "archive/derive-check-exit-status-from-step-results.md",
         "title": "从检查步骤结果派生退出状态",
         "status": "archived",
@@ -3852,6 +4372,9 @@
     },
     "derive-decision-records-declarations-from-runtime-source": {
       "keys": {
+        "name": [
+          "derive-decision-records-declarations-from-runtime-source"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -3863,6 +4386,7 @@
         ]
       },
       "state": {
+        "name": "derive-decision-records-declarations-from-runtime-source",
         "sourcePath": "derive-decision-records-declarations-from-runtime-source.md",
         "title": "从 Decision Records 源码派生声明",
         "status": "active",
@@ -3879,6 +4403,9 @@
     },
     "derive-establishment-from-markdown-lifecycle": {
       "keys": {
+        "name": [
+          "derive-establishment-from-markdown-lifecycle"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -3887,6 +4414,7 @@
         ]
       },
       "state": {
+        "name": "derive-establishment-from-markdown-lifecycle",
         "sourcePath": "archive/derive-establishment-from-markdown-lifecycle.md",
         "title": "从 Markdown 生命周期派生决策建立状态",
         "status": "archived",
@@ -3924,6 +4452,9 @@
     },
     "derive-pending-from-head-path": {
       "keys": {
+        "name": [
+          "derive-pending-from-head-path"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -3932,6 +4463,7 @@
         ]
       },
       "state": {
+        "name": "derive-pending-from-head-path",
         "sourcePath": "archive/derive-pending-from-head-path.md",
         "title": "从 HEAD 路径临时识别待提交决策",
         "status": "archived",
@@ -3953,6 +4485,9 @@
     },
     "derive-sdk-declarations-from-runtime-source": {
       "keys": {
+        "name": [
+          "derive-sdk-declarations-from-runtime-source"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -3964,6 +4499,7 @@
         ]
       },
       "state": {
+        "name": "derive-sdk-declarations-from-runtime-source",
         "sourcePath": "derive-sdk-declarations-from-runtime-source.md",
         "title": "从 task-graph 运行时源码派生 SDK 声明",
         "status": "active",
@@ -3980,6 +4516,9 @@
     },
     "design-by-scenario-denominators": {
       "keys": {
+        "name": [
+          "design-by-scenario-denominators"
+        ],
         "tag": [
           "common-denominator-design"
         ],
@@ -3991,6 +4530,7 @@
         ]
       },
       "state": {
+        "name": "design-by-scenario-denominators",
         "sourcePath": "design-by-scenario-denominators.md",
         "title": "以场景公约数设计跨场景统一契约",
         "status": "active",
@@ -4007,6 +4547,9 @@
     },
     "detect-shelved-plans-by-git-distance": {
       "keys": {
+        "name": [
+          "detect-shelved-plans-by-git-distance"
+        ],
         "tag": [
           "change-plan"
         ],
@@ -4018,6 +4561,7 @@
         ]
       },
       "state": {
+        "name": "detect-shelved-plans-by-git-distance",
         "sourcePath": "archive/detect-shelved-plans-by-git-distance.md",
         "title": "按 Git 演进距离识别搁置计划",
         "status": "archived",
@@ -4034,6 +4578,9 @@
     },
     "discard-complete-unreferenced-decisions": {
       "keys": {
+        "name": [
+          "discard-complete-unreferenced-decisions"
+        ],
         "tag": [
           "decision-records",
           "version-control"
@@ -4046,6 +4593,7 @@
         ]
       },
       "state": {
+        "name": "discard-complete-unreferenced-decisions",
         "sourcePath": "discard-complete-unreferenced-decisions.md",
         "title": "显式剔除完整且无引用的决策",
         "status": "active",
@@ -4068,6 +4616,9 @@
     },
     "discard-complete-unreferenced-investigation-reports": {
       "keys": {
+        "name": [
+          "discard-complete-unreferenced-investigation-reports"
+        ],
         "tag": [
           "investigation-report",
           "version-control"
@@ -4080,6 +4631,7 @@
         ]
       },
       "state": {
+        "name": "discard-complete-unreferenced-investigation-reports",
         "sourcePath": "discard-complete-unreferenced-investigation-reports.md",
         "title": "显式剔除完整且无引用的调查报告",
         "status": "active",
@@ -4102,6 +4654,9 @@
     },
     "discover-skill-behavior-before-lifecycle-implementation": {
       "keys": {
+        "name": [
+          "discover-skill-behavior-before-lifecycle-implementation"
+        ],
         "tag": [
           "skill-design-discovery"
         ],
@@ -4113,6 +4668,7 @@
         ]
       },
       "state": {
+        "name": "discover-skill-behavior-before-lifecycle-implementation",
         "sourcePath": "discover-skill-behavior-before-lifecycle-implementation.md",
         "title": "在生命周期实现前独立发现 Skill 行为契约",
         "status": "active",
@@ -4134,6 +4690,9 @@
     },
     "distinguish-skill-and-distribution-unit-boundaries": {
       "keys": {
+        "name": [
+          "distinguish-skill-and-distribution-unit-boundaries"
+        ],
         "tag": [
           "skill-maintainer"
         ],
@@ -4145,6 +4704,7 @@
         ]
       },
       "state": {
+        "name": "distinguish-skill-and-distribution-unit-boundaries",
         "sourcePath": "distinguish-skill-and-distribution-unit-boundaries.md",
         "title": "区分 Skill 行为单元与分发单元",
         "status": "active",
@@ -4166,6 +4726,9 @@
     },
     "distribute-openspec-as-an-aggregate-unit": {
       "keys": {
+        "name": [
+          "distribute-openspec-as-an-aggregate-unit"
+        ],
         "tag": [
           "openspec",
           "skill-maintainer"
@@ -4178,6 +4741,7 @@
         ]
       },
       "state": {
+        "name": "distribute-openspec-as-an-aggregate-unit",
         "sourcePath": "distribute-openspec-as-an-aggregate-unit.md",
         "title": "将 OpenSpec 四阶段组成聚合分发单元",
         "status": "active",
@@ -4200,6 +4764,9 @@
     },
     "distribute-openspec-skills-independently": {
       "keys": {
+        "name": [
+          "distribute-openspec-skills-independently"
+        ],
         "tag": [
           "skill-maintainer"
         ],
@@ -4211,6 +4778,7 @@
         ]
       },
       "state": {
+        "name": "distribute-openspec-skills-independently",
         "sourcePath": "archive/distribute-openspec-skills-independently.md",
         "title": "将四个 OpenSpec Skill 作为独立分发单元",
         "status": "archived",
@@ -4232,6 +4800,9 @@
     },
     "enforce-one-oxlint-quality-baseline": {
       "keys": {
+        "name": [
+          "enforce-one-oxlint-quality-baseline"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -4243,6 +4814,7 @@
         ]
       },
       "state": {
+        "name": "enforce-one-oxlint-quality-baseline",
         "sourcePath": "enforce-one-oxlint-quality-baseline.md",
         "title": "以受校验的统一基线约束 Oxlint 配置",
         "status": "active",
@@ -4264,6 +4836,9 @@
     },
     "establish-decisions-with-atomic-evolution": {
       "keys": {
+        "name": [
+          "establish-decisions-with-atomic-evolution"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -4272,6 +4847,7 @@
         ]
       },
       "state": {
+        "name": "establish-decisions-with-atomic-evolution",
         "sourcePath": "archive/establish-decisions-with-atomic-evolution.md",
         "title": "使用 Markdown 生命周期与原子演进建立决策",
         "status": "archived",
@@ -4293,6 +4869,9 @@
     },
     "establish-document-main-promise-for-ai-ready-docs": {
       "keys": {
+        "name": [
+          "establish-document-main-promise-for-ai-ready-docs"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -4304,6 +4883,7 @@
         ]
       },
       "state": {
+        "name": "establish-document-main-promise-for-ai-ready-docs",
         "sourcePath": "establish-document-main-promise-for-ai-ready-docs.md",
         "title": "为 AI-ready 文档建立主承诺检查",
         "status": "active",
@@ -4329,6 +4909,9 @@
     },
     "evaluate-reorganization-from-task-graph-case": {
       "keys": {
+        "name": [
+          "evaluate-reorganization-from-task-graph-case"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -4340,6 +4923,7 @@
         ]
       },
       "state": {
+        "name": "evaluate-reorganization-from-task-graph-case",
         "sourcePath": "archive/evaluate-reorganization-from-task-graph-case.md",
         "title": "以 Task Graph 重划案例评估决策重组",
         "status": "archived",
@@ -4361,6 +4945,9 @@
     },
     "exclude-archived-changes-from-link-validation": {
       "keys": {
+        "name": [
+          "exclude-archived-changes-from-link-validation"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -4372,6 +4959,7 @@
         ]
       },
       "state": {
+        "name": "exclude-archived-changes-from-link-validation",
         "sourcePath": "archive/exclude-archived-changes-from-link-validation.md",
         "title": "归档 change 不参与持续链接校验",
         "status": "archived",
@@ -4388,6 +4976,9 @@
     },
     "exclude-formation-time-link-bytes-from-validation": {
       "keys": {
+        "name": [
+          "exclude-formation-time-link-bytes-from-validation"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -4399,6 +4990,7 @@
         ]
       },
       "state": {
+        "name": "exclude-formation-time-link-bytes-from-validation",
         "sourcePath": "exclude-formation-time-link-bytes-from-validation.md",
         "title": "排除形成时链接字节的持续校验",
         "status": "active",
@@ -4420,6 +5012,9 @@
     },
     "exclude-investigation-resources-from-index-revision": {
       "keys": {
+        "name": [
+          "exclude-investigation-resources-from-index-revision"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -4431,6 +5026,7 @@
         ]
       },
       "state": {
+        "name": "exclude-investigation-resources-from-index-revision",
         "sourcePath": "archive/exclude-investigation-resources-from-index-revision.md",
         "title": "让调查资源退出主题索引来源版本",
         "status": "archived",
@@ -4452,6 +5048,9 @@
     },
     "exclude-investigation-resources-from-report-index-revision": {
       "keys": {
+        "name": [
+          "exclude-investigation-resources-from-report-index-revision"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -4463,6 +5062,7 @@
         ]
       },
       "state": {
+        "name": "exclude-investigation-resources-from-report-index-revision",
         "sourcePath": "exclude-investigation-resources-from-report-index-revision.md",
         "title": "让调查资源退出报告索引来源版本",
         "status": "active",
@@ -4484,6 +5084,9 @@
     },
     "express-alignment-as-field-relation": {
       "keys": {
+        "name": [
+          "express-alignment-as-field-relation"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -4492,6 +5095,7 @@
         ]
       },
       "state": {
+        "name": "express-alignment-as-field-relation",
         "sourcePath": "archive/express-alignment-as-field-relation.md",
         "title": "仅用字段表达决策对齐关系",
         "status": "archived",
@@ -4513,6 +5117,9 @@
     },
     "express-decision-alignment-state": {
       "keys": {
+        "name": [
+          "express-decision-alignment-state"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -4521,6 +5128,7 @@
         ]
       },
       "state": {
+        "name": "express-decision-alignment-state",
         "sourcePath": "archive/express-decision-alignment-state.md",
         "title": "为决策表达对齐状态",
         "status": "archived",
@@ -4537,6 +5145,9 @@
     },
     "fix-test-evidence-workspace-contract": {
       "keys": {
+        "name": [
+          "fix-test-evidence-workspace-contract"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -4548,6 +5159,7 @@
         ]
       },
       "state": {
+        "name": "fix-test-evidence-workspace-contract",
         "sourcePath": "fix-test-evidence-workspace-contract.md",
         "title": "固定测试账本的工作区协议",
         "status": "active",
@@ -4569,6 +5181,9 @@
     },
     "form-proposal-and-initial-design-in-draft": {
       "keys": {
+        "name": [
+          "form-proposal-and-initial-design-in-draft"
+        ],
         "tag": [
           "change-plan"
         ],
@@ -4580,6 +5195,7 @@
         ]
       },
       "state": {
+        "name": "form-proposal-and-initial-design-in-draft",
         "sourcePath": "archive/form-proposal-and-initial-design-in-draft.md",
         "title": "在 Draft 中形成初始提案与设计",
         "status": "archived",
@@ -4601,6 +5217,9 @@
     },
     "gate-change-implementation-by-review": {
       "keys": {
+        "name": [
+          "gate-change-implementation-by-review"
+        ],
         "tag": [
           "openspec"
         ],
@@ -4612,6 +5231,7 @@
         ]
       },
       "state": {
+        "name": "gate-change-implementation-by-review",
         "sourcePath": "gate-change-implementation-by-review.md",
         "title": "将 Change 结构完成与实施许可分离",
         "status": "active",
@@ -4633,6 +5253,9 @@
     },
     "gate-packaging-on-selected-checks": {
       "keys": {
+        "name": [
+          "gate-packaging-on-selected-checks"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -4644,6 +5267,7 @@
         ]
       },
       "state": {
+        "name": "gate-packaging-on-selected-checks",
         "sourcePath": "archive/gate-packaging-on-selected-checks.md",
         "title": "只在所选检查通过后执行 skill 打包",
         "status": "archived",
@@ -4665,6 +5289,9 @@
     },
     "generate-and-check-import-safe-tool-artifacts": {
       "keys": {
+        "name": [
+          "generate-and-check-import-safe-tool-artifacts"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -4676,6 +5303,7 @@
         ]
       },
       "state": {
+        "name": "generate-and-check-import-safe-tool-artifacts",
         "sourcePath": "generate-and-check-import-safe-tool-artifacts.md",
         "title": "生成并核对可独立导入的工具产物",
         "status": "active",
@@ -4697,6 +5325,9 @@
     },
     "generate-import-safe-self-contained-tool-artifacts": {
       "keys": {
+        "name": [
+          "generate-import-safe-self-contained-tool-artifacts"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -4708,6 +5339,7 @@
         ]
       },
       "state": {
+        "name": "generate-import-safe-self-contained-tool-artifacts",
         "sourcePath": "archive/generate-import-safe-self-contained-tool-artifacts.md",
         "title": "生成可独立导入的自包含工具产物",
         "status": "archived",
@@ -4729,6 +5361,9 @@
     },
     "generate-index-from-self-contained-decisions": {
       "keys": {
+        "name": [
+          "generate-index-from-self-contained-decisions"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -4737,6 +5372,7 @@
         ]
       },
       "state": {
+        "name": "generate-index-from-self-contained-decisions",
         "sourcePath": "archive/generate-index-from-self-contained-decisions.md",
         "title": "从自包含决策文件生成完整索引",
         "status": "archived",
@@ -4758,6 +5394,9 @@
     },
     "generate-query-index-from-topic-files": {
       "keys": {
+        "name": [
+          "generate-query-index-from-topic-files"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -4769,6 +5408,7 @@
         ]
       },
       "state": {
+        "name": "generate-query-index-from-topic-files",
         "sourcePath": "archive/generate-query-index-from-topic-files.md",
         "title": "以调查主题作为通用索引单位",
         "status": "archived",
@@ -4785,6 +5425,9 @@
     },
     "generate-self-contained-tool-distributions": {
       "keys": {
+        "name": [
+          "generate-self-contained-tool-distributions"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -4796,6 +5439,7 @@
         ]
       },
       "state": {
+        "name": "generate-self-contained-tool-distributions",
         "sourcePath": "archive/generate-self-contained-tool-distributions.md",
         "title": "从工具源码生成自包含分发产物",
         "status": "archived",
@@ -4817,6 +5461,9 @@
     },
     "guard-unrecorded-decision-evolution": {
       "keys": {
+        "name": [
+          "guard-unrecorded-decision-evolution"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -4828,6 +5475,7 @@
         ]
       },
       "state": {
+        "name": "guard-unrecorded-decision-evolution",
         "sourcePath": "archive/guard-unrecorded-decision-evolution.md",
         "title": "显式处理未进入版本基线的决策演进",
         "status": "archived",
@@ -4844,6 +5492,9 @@
     },
     "guard-unrecorded-decision-history-during-evolution": {
       "keys": {
+        "name": [
+          "guard-unrecorded-decision-history-during-evolution"
+        ],
         "tag": [
           "decision-records",
           "version-control"
@@ -4856,6 +5507,7 @@
         ]
       },
       "state": {
+        "name": "guard-unrecorded-decision-history-during-evolution",
         "sourcePath": "guard-unrecorded-decision-history-during-evolution.md",
         "title": "在决策演进中保护未进入版本基线的历史",
         "status": "active",
@@ -4878,6 +5530,9 @@
     },
     "handoff-minimum-results-and-evidence": {
       "keys": {
+        "name": [
+          "handoff-minimum-results-and-evidence"
+        ],
         "tag": [
           "subagent-orchestration"
         ],
@@ -4889,6 +5544,7 @@
         ]
       },
       "state": {
+        "name": "handoff-minimum-results-and-evidence",
         "sourcePath": "handoff-minimum-results-and-evidence.md",
         "title": "以最小结果和证据完成子代理交接",
         "status": "active",
@@ -4910,6 +5566,9 @@
     },
     "index-independent-proof-cases-from-current-catalog": {
       "keys": {
+        "name": [
+          "index-independent-proof-cases-from-current-catalog"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -4918,6 +5577,7 @@
         ]
       },
       "state": {
+        "name": "index-independent-proof-cases-from-current-catalog",
         "sourcePath": "archive/index-independent-proof-cases-from-current-catalog.md",
         "title": "以独立证明单元登记 case 并从当前目录提供只读查询",
         "status": "archived",
@@ -4943,6 +5603,9 @@
     },
     "index-ledger-by-stable-case-state": {
       "keys": {
+        "name": [
+          "index-ledger-by-stable-case-state"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -4951,6 +5614,7 @@
         ]
       },
       "state": {
+        "name": "index-ledger-by-stable-case-state",
         "sourcePath": "archive/index-ledger-by-stable-case-state.md",
         "title": "测试账本以领域适配接入通用状态索引",
         "status": "archived",
@@ -4967,6 +5631,9 @@
     },
     "inherit-ancestor-task-constraints": {
       "keys": {
+        "name": [
+          "inherit-ancestor-task-constraints"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -4978,6 +5645,7 @@
         ]
       },
       "state": {
+        "name": "inherit-ancestor-task-constraints",
         "sourcePath": "inherit-ancestor-task-constraints.md",
         "title": "向下继承祖先 task 的控制与约束",
         "status": "active",
@@ -4999,6 +5667,9 @@
     },
     "install-native-runtime-in-user-tool-home": {
       "keys": {
+        "name": [
+          "install-native-runtime-in-user-tool-home"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -5010,6 +5681,7 @@
         ]
       },
       "state": {
+        "name": "install-native-runtime-in-user-tool-home",
         "sourcePath": "archive/install-native-runtime-in-user-tool-home.md",
         "title": "在用户工具目录安装 task-graph 原生运行时",
         "status": "archived",
@@ -5026,6 +5698,9 @@
     },
     "keep-ai-ready-entry-complete-and-calibrate-principles-on-demand": {
       "keys": {
+        "name": [
+          "keep-ai-ready-entry-complete-and-calibrate-principles-on-demand"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -5037,6 +5712,7 @@
         ]
       },
       "state": {
+        "name": "keep-ai-ready-entry-complete-and-calibrate-principles-on-demand",
         "sourcePath": "keep-ai-ready-entry-complete-and-calibrate-principles-on-demand.md",
         "title": "保留 AI-ready 完整执行契约并按需校准复杂原则",
         "status": "active",
@@ -5058,6 +5734,9 @@
     },
     "keep-task-execution-mechanism-neutral": {
       "keys": {
+        "name": [
+          "keep-task-execution-mechanism-neutral"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -5069,6 +5748,7 @@
         ]
       },
       "state": {
+        "name": "keep-task-execution-mechanism-neutral",
         "sourcePath": "keep-task-execution-mechanism-neutral.md",
         "title": "保持 task 协调的执行机制中立",
         "status": "active",
@@ -5090,6 +5770,9 @@
     },
     "keep-task-graph-locks-outside-workspace": {
       "keys": {
+        "name": [
+          "keep-task-graph-locks-outside-workspace"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -5101,6 +5784,7 @@
         ]
       },
       "state": {
+        "name": "keep-task-graph-locks-outside-workspace",
         "sourcePath": "archive/keep-task-graph-locks-outside-workspace.md",
         "title": "将 task-graph 短事务锁保留在工作区外",
         "status": "archived",
@@ -5122,6 +5806,9 @@
     },
     "keep-task-results-semantic": {
       "keys": {
+        "name": [
+          "keep-task-results-semantic"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -5133,6 +5820,7 @@
         ]
       },
       "state": {
+        "name": "keep-task-results-semantic",
         "sourcePath": "keep-task-results-semantic.md",
         "title": "只在 task result 中保存语义结果",
         "status": "active",
@@ -5154,6 +5842,9 @@
     },
     "key-task-identity-and-separate-content-state-projection": {
       "keys": {
+        "name": [
+          "key-task-identity-and-separate-content-state-projection"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -5165,6 +5856,7 @@
         ]
       },
       "state": {
+        "name": "key-task-identity-and-separate-content-state-projection",
         "sourcePath": "archive/key-task-identity-and-separate-content-state-projection.md",
         "title": "由嵌套字典键承接任务身份并分离内容与状态",
         "status": "archived",
@@ -5186,6 +5878,9 @@
     },
     "limit-investigation-resources-to-version-control-visible-members": {
       "keys": {
+        "name": [
+          "limit-investigation-resources-to-version-control-visible-members"
+        ],
         "tag": [
           "investigation-report",
           "version-control"
@@ -5198,6 +5893,7 @@
         ]
       },
       "state": {
+        "name": "limit-investigation-resources-to-version-control-visible-members",
         "sourcePath": "limit-investigation-resources-to-version-control-visible-members.md",
         "title": "将受管调查资源限制为版本控制可见成员",
         "status": "active",
@@ -5220,6 +5916,9 @@
     },
     "locate-decisions-through-id-keyed-index": {
       "keys": {
+        "name": [
+          "locate-decisions-through-id-keyed-index"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -5231,6 +5930,7 @@
         ]
       },
       "state": {
+        "name": "locate-decisions-through-id-keyed-index",
         "sourcePath": "locate-decisions-through-id-keyed-index.md",
         "title": "通过 ID 键控索引定位决策",
         "status": "active",
@@ -5252,6 +5952,9 @@
     },
     "locate-locks-by-task-index-identity": {
       "keys": {
+        "name": [
+          "locate-locks-by-task-index-identity"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -5263,6 +5966,7 @@
         ]
       },
       "state": {
+        "name": "locate-locks-by-task-index-identity",
         "sourcePath": "locate-locks-by-task-index-identity.md",
         "title": "按 task index 身份定位工作区外短锁",
         "status": "active",
@@ -5284,6 +5988,9 @@
     },
     "maintain-change-artifact-and-authorization-boundaries": {
       "keys": {
+        "name": [
+          "maintain-change-artifact-and-authorization-boundaries"
+        ],
         "tag": [
           "change-plan"
         ],
@@ -5295,6 +6002,7 @@
         ]
       },
       "state": {
+        "name": "maintain-change-artifact-and-authorization-boundaries",
         "sourcePath": "maintain-change-artifact-and-authorization-boundaries.md",
         "title": "维护 Change Plan 的制品与授权边界",
         "status": "active",
@@ -5316,6 +6024,9 @@
     },
     "maintain-closed-many-to-many-test-case-relations": {
       "keys": {
+        "name": [
+          "maintain-closed-many-to-many-test-case-relations"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -5327,6 +6038,7 @@
         ]
       },
       "state": {
+        "name": "maintain-closed-many-to-many-test-case-relations",
         "sourcePath": "maintain-closed-many-to-many-test-case-relations.md",
         "title": "维护测试实体与语义 Case 的闭合多对多关系",
         "status": "active",
@@ -5343,6 +6055,9 @@
     },
     "maintain-physical-archive-boundary-as-lifecycle-projection": {
       "keys": {
+        "name": [
+          "maintain-physical-archive-boundary-as-lifecycle-projection"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -5354,6 +6069,7 @@
         ]
       },
       "state": {
+        "name": "maintain-physical-archive-boundary-as-lifecycle-projection",
         "sourcePath": "maintain-physical-archive-boundary-as-lifecycle-projection.md",
         "title": "将物理归档边界维护为生命周期投影",
         "status": "active",
@@ -5379,6 +6095,9 @@
     },
     "maintain-rebuildable-read-side-index-boundary": {
       "keys": {
+        "name": [
+          "maintain-rebuildable-read-side-index-boundary"
+        ],
         "tag": [
           "index-runtime"
         ],
@@ -5390,6 +6109,7 @@
         ]
       },
       "state": {
+        "name": "maintain-rebuildable-read-side-index-boundary",
         "sourcePath": "maintain-rebuildable-read-side-index-boundary.md",
         "title": "维护可重建的共享读侧索引边界",
         "status": "active",
@@ -5411,6 +6131,9 @@
     },
     "maintain-report-level-investigation-index": {
       "keys": {
+        "name": [
+          "maintain-report-level-investigation-index"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -5422,6 +6145,7 @@
         ]
       },
       "state": {
+        "name": "maintain-report-level-investigation-index",
         "sourcePath": "archive/maintain-report-level-investigation-index.md",
         "title": "以报告级身份维护可重建调查索引",
         "status": "archived",
@@ -5443,6 +6167,9 @@
     },
     "maintain-topic-level-investigation-index": {
       "keys": {
+        "name": [
+          "maintain-topic-level-investigation-index"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -5454,6 +6181,7 @@
         ]
       },
       "state": {
+        "name": "maintain-topic-level-investigation-index",
         "sourcePath": "archive/maintain-topic-level-investigation-index.md",
         "title": "以调查主题维护可重建查询索引",
         "status": "archived",
@@ -5475,6 +6203,9 @@
     },
     "make-independent-decision-staging-discoverable": {
       "keys": {
+        "name": [
+          "make-independent-decision-staging-discoverable"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -5486,6 +6217,7 @@
         ]
       },
       "state": {
+        "name": "make-independent-decision-staging-discoverable",
         "sourcePath": "make-independent-decision-staging-discoverable.md",
         "title": "让独立决策暂存能够被发现",
         "status": "active",
@@ -5502,6 +6234,9 @@
     },
     "make-skill-zip-bytes-deterministic": {
       "keys": {
+        "name": [
+          "make-skill-zip-bytes-deterministic"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -5513,6 +6248,7 @@
         ]
       },
       "state": {
+        "name": "make-skill-zip-bytes-deterministic",
         "sourcePath": "make-skill-zip-bytes-deterministic.md",
         "title": "让 skill ZIP 字节具有确定性",
         "status": "active",
@@ -5534,6 +6270,9 @@
     },
     "manage-basic-change-lifecycle": {
       "keys": {
+        "name": [
+          "manage-basic-change-lifecycle"
+        ],
         "tag": [
           "change-plan"
         ],
@@ -5545,6 +6284,7 @@
         ]
       },
       "state": {
+        "name": "manage-basic-change-lifecycle",
         "sourcePath": "archive/manage-basic-change-lifecycle.md",
         "title": "为 Change Plan 提供基础生命周期 CLI",
         "status": "archived",
@@ -5566,6 +6306,9 @@
     },
     "manage-change-lifecycle-stages": {
       "keys": {
+        "name": [
+          "manage-change-lifecycle-stages"
+        ],
         "tag": [
           "change-plan"
         ],
@@ -5577,6 +6320,7 @@
         ]
       },
       "state": {
+        "name": "manage-change-lifecycle-stages",
         "sourcePath": "archive/manage-change-lifecycle-stages.md",
         "title": "按生命周期阶段维护 Change",
         "status": "archived",
@@ -5598,6 +6342,9 @@
     },
     "manage-pending-snapshot-writes": {
       "keys": {
+        "name": [
+          "manage-pending-snapshot-writes"
+        ],
         "tag": [
           "version-control"
         ],
@@ -5609,6 +6356,7 @@
         ]
       },
       "state": {
+        "name": "manage-pending-snapshot-writes",
         "sourcePath": "manage-pending-snapshot-writes.md",
         "title": "由共享版本管理层承接待提交快照写入",
         "status": "active",
@@ -5630,6 +6378,9 @@
     },
     "mask-non-code-test-syntax": {
       "keys": {
+        "name": [
+          "mask-non-code-test-syntax"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -5638,6 +6389,7 @@
         ]
       },
       "state": {
+        "name": "mask-non-code-test-syntax",
         "sourcePath": "archive/mask-non-code-test-syntax.md",
         "title": "在测试入口发现前屏蔽明显非代码上下文",
         "status": "archived",
@@ -5654,6 +6406,9 @@
     },
     "model-investigation-evolution-and-explicit-removal": {
       "keys": {
+        "name": [
+          "model-investigation-evolution-and-explicit-removal"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -5665,6 +6420,7 @@
         ]
       },
       "state": {
+        "name": "model-investigation-evolution-and-explicit-removal",
         "sourcePath": "archive/model-investigation-evolution-and-explicit-removal.md",
         "title": "以报告关系建模调查演进并显式剔除报告",
         "status": "archived",
@@ -5686,6 +6442,9 @@
     },
     "model-investigation-evolution-as-direct-relations": {
       "keys": {
+        "name": [
+          "model-investigation-evolution-as-direct-relations"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -5697,6 +6456,7 @@
         ]
       },
       "state": {
+        "name": "model-investigation-evolution-as-direct-relations",
         "sourcePath": "model-investigation-evolution-as-direct-relations.md",
         "title": "用直接关系表达调查认识演进",
         "status": "active",
@@ -5718,6 +6478,9 @@
     },
     "model-investigation-evolution-as-report-relations": {
       "keys": {
+        "name": [
+          "model-investigation-evolution-as-report-relations"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -5729,6 +6492,7 @@
         ]
       },
       "state": {
+        "name": "model-investigation-evolution-as-report-relations",
         "sourcePath": "archive/model-investigation-evolution-as-report-relations.md",
         "title": "以报告关系建模调查认识演进",
         "status": "archived",
@@ -5750,6 +6514,9 @@
     },
     "model-task-relations-with-distinct-invariants": {
       "keys": {
+        "name": [
+          "model-task-relations-with-distinct-invariants"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -5761,6 +6528,7 @@
         ]
       },
       "state": {
+        "name": "model-task-relations-with-distinct-invariants",
         "sourcePath": "model-task-relations-with-distinct-invariants.md",
         "title": "以不同不变量维护 task 拓扑关系",
         "status": "active",
@@ -5782,6 +6550,9 @@
     },
     "model-task-topology-and-inheritance-explicitly": {
       "keys": {
+        "name": [
+          "model-task-topology-and-inheritance-explicitly"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -5793,6 +6564,7 @@
         ]
       },
       "state": {
+        "name": "model-task-topology-and-inheritance-explicitly",
         "sourcePath": "archive/model-task-topology-and-inheritance-explicitly.md",
         "title": "显式维护任务层级、依赖与排斥",
         "status": "archived",
@@ -5809,6 +6581,9 @@
     },
     "notify-before-current-decision-writes": {
       "keys": {
+        "name": [
+          "notify-before-current-decision-writes"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -5820,6 +6595,7 @@
         ]
       },
       "state": {
+        "name": "notify-before-current-decision-writes",
         "sourcePath": "notify-before-current-decision-writes.md",
         "title": "在当前决策写入前明确通知用户",
         "status": "active",
@@ -5841,6 +6617,9 @@
     },
     "organize-ai-ready-docs-around-main-promise": {
       "keys": {
+        "name": [
+          "organize-ai-ready-docs-around-main-promise"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -5852,6 +6631,7 @@
         ]
       },
       "state": {
+        "name": "organize-ai-ready-docs-around-main-promise",
         "sourcePath": "archive/organize-ai-ready-docs-around-main-promise.md",
         "title": "围绕文档主承诺组织 AI-ready 内容",
         "status": "archived",
@@ -5873,6 +6653,9 @@
     },
     "organize-by-main-promise-and-manage-context-association": {
       "keys": {
+        "name": [
+          "organize-by-main-promise-and-manage-context-association"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -5884,6 +6667,7 @@
         ]
       },
       "state": {
+        "name": "organize-by-main-promise-and-manage-context-association",
         "sourcePath": "archive/organize-by-main-promise-and-manage-context-association.md",
         "title": "按主承诺组织内容并管理上下文关联",
         "status": "archived",
@@ -5905,6 +6689,9 @@
     },
     "organize-native-test-cases-by-responsibility-topic": {
       "keys": {
+        "name": [
+          "organize-native-test-cases-by-responsibility-topic"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -5913,6 +6700,7 @@
         ]
       },
       "state": {
+        "name": "organize-native-test-cases-by-responsibility-topic",
         "sourcePath": "archive/organize-native-test-cases-by-responsibility-topic.md",
         "title": "按原生入口与责任主题维护测试证据",
         "status": "archived",
@@ -5934,6 +6722,9 @@
     },
     "organize-test-cases-by-controlled-topic-path": {
       "keys": {
+        "name": [
+          "organize-test-cases-by-controlled-topic-path"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -5942,6 +6733,7 @@
         ]
       },
       "state": {
+        "name": "organize-test-cases-by-controlled-topic-path",
         "sourcePath": "archive/organize-test-cases-by-controlled-topic-path.md",
         "title": "按受控主题路径维护单文件测试证据",
         "status": "archived",
@@ -5963,6 +6755,9 @@
     },
     "organize-vibe-checks-by-semantic-identity": {
       "keys": {
+        "name": [
+          "organize-vibe-checks-by-semantic-identity"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -5974,6 +6769,7 @@
         ]
       },
       "state": {
+        "name": "organize-vibe-checks-by-semantic-identity",
         "sourcePath": "archive/organize-vibe-checks-by-semantic-identity.md",
         "title": "按语义身份组织 Vibe Check",
         "status": "archived",
@@ -5995,6 +6791,9 @@
     },
     "own-recoverable-task-coordination": {
       "keys": {
+        "name": [
+          "own-recoverable-task-coordination"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -6006,6 +6805,7 @@
         ]
       },
       "state": {
+        "name": "own-recoverable-task-coordination",
         "sourcePath": "archive/own-recoverable-task-coordination.md",
         "title": "由 task-graph 承接可恢复的任务协调",
         "status": "archived",
@@ -6027,6 +6827,9 @@
     },
     "own-short-lived-task-orchestration": {
       "keys": {
+        "name": [
+          "own-short-lived-task-orchestration"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -6038,6 +6841,7 @@
         ]
       },
       "state": {
+        "name": "own-short-lived-task-orchestration",
         "sourcePath": "archive/own-short-lived-task-orchestration.md",
         "title": "由 task-graph 承接短期任务编排",
         "status": "archived",
@@ -6054,6 +6858,9 @@
     },
     "package-current-index-json-schema": {
       "keys": {
+        "name": [
+          "package-current-index-json-schema"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -6065,6 +6872,7 @@
         ]
       },
       "state": {
+        "name": "package-current-index-json-schema",
         "sourcePath": "package-current-index-json-schema.md",
         "title": "随包分发当前索引 JSON Schema",
         "status": "active",
@@ -6086,6 +6894,9 @@
     },
     "package-index-json-schema": {
       "keys": {
+        "name": [
+          "package-index-json-schema"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -6094,6 +6905,7 @@
         ]
       },
       "state": {
+        "name": "package-index-json-schema",
         "sourcePath": "archive/package-index-json-schema.md",
         "title": "随包分发索引 JSON Schema",
         "status": "archived",
@@ -6110,6 +6922,9 @@
     },
     "package-skills-from-versioned-pending-snapshot": {
       "keys": {
+        "name": [
+          "package-skills-from-versioned-pending-snapshot"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -6121,6 +6936,7 @@
         ]
       },
       "state": {
+        "name": "package-skills-from-versioned-pending-snapshot",
         "sourcePath": "archive/package-skills-from-versioned-pending-snapshot.md",
         "title": "从版本管理 pending 快照打包 skill",
         "status": "archived",
@@ -6137,6 +6953,9 @@
     },
     "pass-commit-messages-with-arguments-or-files": {
       "keys": {
+        "name": [
+          "pass-commit-messages-with-arguments-or-files"
+        ],
         "tag": [
           "git-commit-organizer"
         ],
@@ -6148,6 +6967,7 @@
         ]
       },
       "state": {
+        "name": "pass-commit-messages-with-arguments-or-files",
         "sourcePath": "pass-commit-messages-with-arguments-or-files.md",
         "title": "以命令参数或临时文件传递提交信息",
         "status": "active",
@@ -6169,6 +6989,9 @@
     },
     "pass-id-and-metadata-to-projection-strategies": {
       "keys": {
+        "name": [
+          "pass-id-and-metadata-to-projection-strategies"
+        ],
         "tag": [
           "index-runtime"
         ],
@@ -6180,6 +7003,7 @@
         ]
       },
       "state": {
+        "name": "pass-id-and-metadata-to-projection-strategies",
         "sourcePath": "archive/pass-id-and-metadata-to-projection-strategies.md",
         "title": "向状态投影传递 ID 与类型化元数据",
         "status": "archived",
@@ -6201,6 +7025,9 @@
     },
     "prefer-cli-for-change-state-and-artifact-routing": {
       "keys": {
+        "name": [
+          "prefer-cli-for-change-state-and-artifact-routing"
+        ],
         "tag": [
           "openspec"
         ],
@@ -6212,6 +7039,7 @@
         ]
       },
       "state": {
+        "name": "prefer-cli-for-change-state-and-artifact-routing",
         "sourcePath": "prefer-cli-for-change-state-and-artifact-routing.md",
         "title": "优先用 OpenSpec CLI 恢复 Change 状态与材料路径",
         "status": "active",
@@ -6233,6 +7061,9 @@
     },
     "prefer-mature-libraries-for-common-automation": {
       "keys": {
+        "name": [
+          "prefer-mature-libraries-for-common-automation"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -6244,6 +7075,7 @@
         ]
       },
       "state": {
+        "name": "prefer-mature-libraries-for-common-automation",
         "sourcePath": "prefer-mature-libraries-for-common-automation.md",
         "title": "为仓库自动化的常见行为优先选择成熟库",
         "status": "active",
@@ -6265,6 +7097,9 @@
     },
     "preserve-comparable-investigation-inputs": {
       "keys": {
+        "name": [
+          "preserve-comparable-investigation-inputs"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -6273,6 +7108,7 @@
         ]
       },
       "state": {
+        "name": "preserve-comparable-investigation-inputs",
         "sourcePath": "archive/preserve-comparable-investigation-inputs.md",
         "title": "以形成时调查输入保存可比较的认识快照",
         "status": "archived",
@@ -6294,6 +7130,9 @@
     },
     "preserve-pinned-upstream-snapshots-for-traceability": {
       "keys": {
+        "name": [
+          "preserve-pinned-upstream-snapshots-for-traceability"
+        ],
         "tag": [
           "minimal-implementation"
         ],
@@ -6305,6 +7144,7 @@
         ]
       },
       "state": {
+        "name": "preserve-pinned-upstream-snapshots-for-traceability",
         "sourcePath": "preserve-pinned-upstream-snapshots-for-traceability.md",
         "title": "随 Skill 保留固定上游快照与许可证",
         "status": "active",
@@ -6326,6 +7166,9 @@
     },
     "project-decision-lifecycle-into-physical-archive-boundary": {
       "keys": {
+        "name": [
+          "project-decision-lifecycle-into-physical-archive-boundary"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -6337,6 +7180,7 @@
         ]
       },
       "state": {
+        "name": "project-decision-lifecycle-into-physical-archive-boundary",
         "sourcePath": "archive/project-decision-lifecycle-into-physical-archive-boundary.md",
         "title": "将决策生命周期投影到物理归档边界",
         "status": "archived",
@@ -6358,6 +7202,9 @@
     },
     "project-domains-into-decision-queries": {
       "keys": {
+        "name": [
+          "project-domains-into-decision-queries"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -6369,6 +7216,7 @@
         ]
       },
       "state": {
+        "name": "project-domains-into-decision-queries",
         "sourcePath": "archive/project-domains-into-decision-queries.md",
         "title": "将决策领域定义投影到查询结果",
         "status": "archived",
@@ -6390,6 +7238,9 @@
     },
     "propagate-validated-collection-metadata": {
       "keys": {
+        "name": [
+          "propagate-validated-collection-metadata"
+        ],
         "tag": [
           "index-runtime"
         ],
@@ -6401,6 +7252,7 @@
         ]
       },
       "state": {
+        "name": "propagate-validated-collection-metadata",
         "sourcePath": "propagate-validated-collection-metadata.md",
         "title": "在索引快照中传播已校验集合元数据",
         "status": "active",
@@ -6422,6 +7274,9 @@
     },
     "publish-investigation-candidates-selectively": {
       "keys": {
+        "name": [
+          "publish-investigation-candidates-selectively"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -6433,6 +7288,7 @@
         ]
       },
       "state": {
+        "name": "publish-investigation-candidates-selectively",
         "sourcePath": "publish-investigation-candidates-selectively.md",
         "title": "选择性发布调查 candidates，并保留全量正式同步",
         "status": "active",
@@ -6454,6 +7310,9 @@
     },
     "publish-only-layered-test-evidence-interfaces": {
       "keys": {
+        "name": [
+          "publish-only-layered-test-evidence-interfaces"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -6462,6 +7321,7 @@
         ]
       },
       "state": {
+        "name": "publish-only-layered-test-evidence-interfaces",
         "sourcePath": "archive/publish-only-layered-test-evidence-interfaces.md",
         "title": "仅发布分层测试证据接口",
         "status": "archived",
@@ -6483,6 +7343,9 @@
     },
     "publish-rolling-latest-with-explicit-snapshots": {
       "keys": {
+        "name": [
+          "publish-rolling-latest-with-explicit-snapshots"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -6494,6 +7357,7 @@
         ]
       },
       "state": {
+        "name": "publish-rolling-latest-with-explicit-snapshots",
         "sourcePath": "publish-rolling-latest-with-explicit-snapshots.md",
         "title": "滚动发布 latest 并显式创建不可变快照",
         "status": "active",
@@ -6515,6 +7379,9 @@
     },
     "qualify-formal-results-by-evidence-integrity": {
       "keys": {
+        "name": [
+          "qualify-formal-results-by-evidence-integrity"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -6526,6 +7393,7 @@
         ]
       },
       "state": {
+        "name": "qualify-formal-results-by-evidence-integrity",
         "sourcePath": "qualify-formal-results-by-evidence-integrity.md",
         "title": "按证据完整性判定正式测试结果资格",
         "status": "active",
@@ -6547,6 +7415,9 @@
     },
     "qualify-formal-test-results-before-behavior-blocking": {
       "keys": {
+        "name": [
+          "qualify-formal-test-results-before-behavior-blocking"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -6558,6 +7429,7 @@
         ]
       },
       "state": {
+        "name": "qualify-formal-test-results-before-behavior-blocking",
         "sourcePath": "archive/qualify-formal-test-results-before-behavior-blocking.md",
         "title": "先确认测试结果资格再形成行为阻断",
         "status": "archived",
@@ -6579,6 +7451,9 @@
     },
     "query-candidates-directly-from-source": {
       "keys": {
+        "name": [
+          "query-candidates-directly-from-source"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -6590,6 +7465,7 @@
         ]
       },
       "state": {
+        "name": "query-candidates-directly-from-source",
         "sourcePath": "archive/query-candidates-directly-from-source.md",
         "title": "从源码容错查询决策候选",
         "status": "archived",
@@ -6611,6 +7487,9 @@
     },
     "query-candidates-resiliently-from-source": {
       "keys": {
+        "name": [
+          "query-candidates-resiliently-from-source"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -6622,6 +7501,7 @@
         ]
       },
       "state": {
+        "name": "query-candidates-resiliently-from-source",
         "sourcePath": "archive/query-candidates-resiliently-from-source.md",
         "title": "从源码逐文件容错查询决策候选",
         "status": "archived",
@@ -6643,6 +7523,9 @@
     },
     "query-established-records-through-persistent-index": {
       "keys": {
+        "name": [
+          "query-established-records-through-persistent-index"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -6654,6 +7537,7 @@
         ]
       },
       "state": {
+        "name": "query-established-records-through-persistent-index",
         "sourcePath": "archive/query-established-records-through-persistent-index.md",
         "title": "区分已建立决策与候选的查询来源",
         "status": "archived",
@@ -6675,6 +7559,9 @@
     },
     "query-ledger-with-structured-inspection": {
       "keys": {
+        "name": [
+          "query-ledger-with-structured-inspection"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -6683,6 +7570,7 @@
         ]
       },
       "state": {
+        "name": "query-ledger-with-structured-inspection",
         "sourcePath": "archive/query-ledger-with-structured-inspection.md",
         "title": "为测试账本提供可恢复查询与结构化诊断",
         "status": "archived",
@@ -6699,6 +7587,9 @@
     },
     "query-projected-decision-metadata": {
       "keys": {
+        "name": [
+          "query-projected-decision-metadata"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -6707,6 +7598,7 @@
         ]
       },
       "state": {
+        "name": "query-projected-decision-metadata",
         "sourcePath": "archive/query-projected-decision-metadata.md",
         "title": "查询 Markdown 投影的决策元数据",
         "status": "archived",
@@ -6728,6 +7620,9 @@
     },
     "read-ledger-contract-on-demand": {
       "keys": {
+        "name": [
+          "read-ledger-contract-on-demand"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -6736,6 +7631,7 @@
         ]
       },
       "state": {
+        "name": "read-ledger-contract-on-demand",
         "sourcePath": "archive/read-ledger-contract-on-demand.md",
         "title": "按任务出口渐进读取测试账本契约",
         "status": "archived",
@@ -6752,6 +7648,9 @@
     },
     "read-skill-package-inputs-from-versioned-pending-snapshot": {
       "keys": {
+        "name": [
+          "read-skill-package-inputs-from-versioned-pending-snapshot"
+        ],
         "tag": [
           "project-tooling",
           "version-control"
@@ -6764,6 +7663,7 @@
         ]
       },
       "state": {
+        "name": "read-skill-package-inputs-from-versioned-pending-snapshot",
         "sourcePath": "read-skill-package-inputs-from-versioned-pending-snapshot.md",
         "title": "从版本管理 pending 快照读取 skill 制品输入",
         "status": "active",
@@ -6786,6 +7686,9 @@
     },
     "rebuild-index-only-with-current-tools": {
       "keys": {
+        "name": [
+          "rebuild-index-only-with-current-tools"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -6797,6 +7700,7 @@
         ]
       },
       "state": {
+        "name": "rebuild-index-only-with-current-tools",
         "sourcePath": "rebuild-index-only-with-current-tools.md",
         "title": "只通过当前工具维护派生索引",
         "status": "active",
@@ -6818,6 +7722,9 @@
     },
     "reclaim-expired-task-leases-through-claim": {
       "keys": {
+        "name": [
+          "reclaim-expired-task-leases-through-claim"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -6829,6 +7736,7 @@
         ]
       },
       "state": {
+        "name": "reclaim-expired-task-leases-through-claim",
         "sourcePath": "reclaim-expired-task-leases-through-claim.md",
         "title": "通过 claim 直接接管过期 task lease",
         "status": "active",
@@ -6850,6 +7758,9 @@
     },
     "recover-current-format-tools-and-index": {
       "keys": {
+        "name": [
+          "recover-current-format-tools-and-index"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -6858,6 +7769,7 @@
         ]
       },
       "state": {
+        "name": "recover-current-format-tools-and-index",
         "sourcePath": "archive/recover-current-format-tools-and-index.md",
         "title": "只恢复当前格式工具与派生索引",
         "status": "archived",
@@ -6879,6 +7791,9 @@
     },
     "register-one-case-per-independent-verification-entry": {
       "keys": {
+        "name": [
+          "register-one-case-per-independent-verification-entry"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -6887,6 +7802,7 @@
         ]
       },
       "state": {
+        "name": "register-one-case-per-independent-verification-entry",
         "sourcePath": "archive/register-one-case-per-independent-verification-entry.md",
         "title": "以独立验证入口作为 case 的唯一登记单元",
         "status": "archived",
@@ -6908,6 +7824,9 @@
     },
     "render-check-results-and-exit-status": {
       "keys": {
+        "name": [
+          "render-check-results-and-exit-status"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -6919,6 +7838,7 @@
         ]
       },
       "state": {
+        "name": "render-check-results-and-exit-status",
         "sourcePath": "archive/render-check-results-and-exit-status.md",
         "title": "渲染检查结果并映射最终退出状态",
         "status": "archived",
@@ -6940,6 +7860,9 @@
     },
     "render-check-step-results-concisely": {
       "keys": {
+        "name": [
+          "render-check-step-results-concisely"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -6951,6 +7874,7 @@
         ]
       },
       "state": {
+        "name": "render-check-step-results-concisely",
         "sourcePath": "archive/render-check-step-results-concisely.md",
         "title": "简洁渲染检查步骤结果",
         "status": "archived",
@@ -6972,6 +7896,9 @@
     },
     "render-full-task-list-as-layered-dag": {
       "keys": {
+        "name": [
+          "render-full-task-list-as-layered-dag"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -6983,6 +7910,7 @@
         ]
       },
       "state": {
+        "name": "render-full-task-list-as-layered-dag",
         "sourcePath": "render-full-task-list-as-layered-dag.md",
         "title": "将默认 task list 渲染为全量分层 DAG",
         "status": "active",
@@ -6999,6 +7927,9 @@
     },
     "repair-only-delivery-blocking-review-findings": {
       "keys": {
+        "name": [
+          "repair-only-delivery-blocking-review-findings"
+        ],
         "tag": [
           "subagent-orchestration"
         ],
@@ -7010,6 +7941,7 @@
         ]
       },
       "state": {
+        "name": "repair-only-delivery-blocking-review-findings",
         "sourcePath": "repair-only-delivery-blocking-review-findings.md",
         "title": "只让阻断交付的审查问题进入修复循环",
         "status": "active",
@@ -7031,6 +7963,9 @@
     },
     "replace-decision-relations-as-complete-sets": {
       "keys": {
+        "name": [
+          "replace-decision-relations-as-complete-sets"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -7042,6 +7977,7 @@
         ]
       },
       "state": {
+        "name": "replace-decision-relations-as-complete-sets",
         "sourcePath": "replace-decision-relations-as-complete-sets.md",
         "title": "以完整集合审核和替换决策关系",
         "status": "active",
@@ -7063,6 +7999,9 @@
     },
     "report-check-results-concisely": {
       "keys": {
+        "name": [
+          "report-check-results-concisely"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -7074,6 +8013,7 @@
         ]
       },
       "state": {
+        "name": "report-check-results-concisely",
         "sourcePath": "archive/report-check-results-concisely.md",
         "title": "按检查结果展开日志并汇总状态",
         "status": "archived",
@@ -7095,6 +8035,9 @@
     },
     "report-plan-git-distance-as-context": {
       "keys": {
+        "name": [
+          "report-plan-git-distance-as-context"
+        ],
         "tag": [
           "change-plan"
         ],
@@ -7106,6 +8049,7 @@
         ]
       },
       "state": {
+        "name": "report-plan-git-distance-as-context",
         "sourcePath": "report-plan-git-distance-as-context.md",
         "title": "直接提示 Plan 的 Git 演进距离",
         "status": "active",
@@ -7131,6 +8075,9 @@
     },
     "require-canonical-active-change-metadata": {
       "keys": {
+        "name": [
+          "require-canonical-active-change-metadata"
+        ],
         "tag": [
           "change-plan"
         ],
@@ -7142,6 +8089,7 @@
         ]
       },
       "state": {
+        "name": "require-canonical-active-change-metadata",
         "sourcePath": "require-canonical-active-change-metadata.md",
         "title": "仅接受规范的 Active Change Metadata",
         "status": "active",
@@ -7163,6 +8111,9 @@
     },
     "retain-tasks-by-coordination-value": {
       "keys": {
+        "name": [
+          "retain-tasks-by-coordination-value"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -7174,6 +8125,7 @@
         ]
       },
       "state": {
+        "name": "retain-tasks-by-coordination-value",
         "sourcePath": "retain-tasks-by-coordination-value.md",
         "title": "按协调价值保留和清理 task",
         "status": "active",
@@ -7195,6 +8147,9 @@
     },
     "review-verification-implementations-with-explicit-indexed-cases": {
       "keys": {
+        "name": [
+          "review-verification-implementations-with-explicit-indexed-cases"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -7203,6 +8158,7 @@
         ]
       },
       "state": {
+        "name": "review-verification-implementations-with-explicit-indexed-cases",
         "sourcePath": "archive/review-verification-implementations-with-explicit-indexed-cases.md",
         "title": "以验证实现为触发边界并显式索引 test/check case",
         "status": "archived",
@@ -7236,6 +8192,9 @@
     },
     "route-future-work-by-minimal-carrier": {
       "keys": {
+        "name": [
+          "route-future-work-by-minimal-carrier"
+        ],
         "tag": [
           "change-plan",
           "decision-records",
@@ -7251,6 +8210,7 @@
         ]
       },
       "state": {
+        "name": "route-future-work-by-minimal-carrier",
         "sourcePath": "route-future-work-by-minimal-carrier.md",
         "title": "按事项状态选择最小持久载体",
         "status": "active",
@@ -7271,6 +8231,9 @@
     },
     "run-packaging-after-prerequisite-checks": {
       "keys": {
+        "name": [
+          "run-packaging-after-prerequisite-checks"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -7282,6 +8245,7 @@
         ]
       },
       "state": {
+        "name": "run-packaging-after-prerequisite-checks",
         "sourcePath": "archive/run-packaging-after-prerequisite-checks.md",
         "title": "在前置检查收敛后运行 skill 打包",
         "status": "archived",
@@ -7303,6 +8267,9 @@
     },
     "schedule-selected-checks-conservatively": {
       "keys": {
+        "name": [
+          "schedule-selected-checks-conservatively"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -7314,6 +8281,7 @@
         ]
       },
       "state": {
+        "name": "schedule-selected-checks-conservatively",
         "sourcePath": "archive/schedule-selected-checks-conservatively.md",
         "title": "保守调度已选择的前置检查",
         "status": "archived",
@@ -7335,6 +8303,9 @@
     },
     "select-check-tasks-by-profile": {
       "keys": {
+        "name": [
+          "select-check-tasks-by-profile"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -7346,6 +8317,7 @@
         ]
       },
       "state": {
+        "name": "select-check-tasks-by-profile",
         "sourcePath": "archive/select-check-tasks-by-profile.md",
         "title": "按 quick 和 full 档位选择检查任务",
         "status": "archived",
@@ -7367,6 +8339,9 @@
     },
     "select-model-before-reasoning-effort": {
       "keys": {
+        "name": [
+          "select-model-before-reasoning-effort"
+        ],
         "tag": [
           "subagent-orchestration"
         ],
@@ -7378,6 +8353,7 @@
         ]
       },
       "state": {
+        "name": "select-model-before-reasoning-effort",
         "sourcePath": "select-model-before-reasoning-effort.md",
         "title": "先按能力选择子代理模型再配置思考强度",
         "status": "active",
@@ -7399,6 +8375,9 @@
     },
     "select-prerequisite-checks-by-profile": {
       "keys": {
+        "name": [
+          "select-prerequisite-checks-by-profile"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -7410,6 +8389,7 @@
         ]
       },
       "state": {
+        "name": "select-prerequisite-checks-by-profile",
         "sourcePath": "archive/select-prerequisite-checks-by-profile.md",
         "title": "按 quick 与 full 档位选择前置检查",
         "status": "archived",
@@ -7431,6 +8411,9 @@
     },
     "select-task-graph-project-roots": {
       "keys": {
+        "name": [
+          "select-task-graph-project-roots"
+        ],
         "tag": [
           "project-tooling",
           "task-graph"
@@ -7443,6 +8426,7 @@
         ]
       },
       "state": {
+        "name": "select-task-graph-project-roots",
         "sourcePath": "select-task-graph-project-roots.md",
         "title": "为 task-graph 短命令选择项目 Root",
         "status": "active",
@@ -7465,6 +8449,9 @@
     },
     "separate-activation-effect-from-head-pending": {
       "keys": {
+        "name": [
+          "separate-activation-effect-from-head-pending"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -7473,6 +8460,7 @@
         ]
       },
       "state": {
+        "name": "separate-activation-effect-from-head-pending",
         "sourcePath": "archive/separate-activation-effect-from-head-pending.md",
         "title": "分离决策激活生效与 HEAD pending 标记",
         "status": "archived",
@@ -7494,6 +8482,9 @@
     },
     "separate-agent-contract-from-tool-protocol": {
       "keys": {
+        "name": [
+          "separate-agent-contract-from-tool-protocol"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -7505,6 +8496,7 @@
         ]
       },
       "state": {
+        "name": "separate-agent-contract-from-tool-protocol",
         "sourcePath": "separate-agent-contract-from-tool-protocol.md",
         "title": "分离 Agent 决策契约与工具协议",
         "status": "active",
@@ -7526,6 +8518,9 @@
     },
     "separate-candidate-scaffold-from-body-readiness": {
       "keys": {
+        "name": [
+          "separate-candidate-scaffold-from-body-readiness"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -7537,6 +8532,7 @@
         ]
       },
       "state": {
+        "name": "separate-candidate-scaffold-from-body-readiness",
         "sourcePath": "separate-candidate-scaffold-from-body-readiness.md",
         "title": "将候选脚手架与正文 readiness 分离",
         "status": "active",
@@ -7558,6 +8554,9 @@
     },
     "separate-candidates-from-established-decisions": {
       "keys": {
+        "name": [
+          "separate-candidates-from-established-decisions"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -7569,6 +8568,7 @@
         ]
       },
       "state": {
+        "name": "separate-candidates-from-established-decisions",
         "sourcePath": "archive/separate-candidates-from-established-decisions.md",
         "title": "将可审核候选与已建立决策分离",
         "status": "archived",
@@ -7590,6 +8590,9 @@
     },
     "separate-delivery-and-auxiliary-write-ownership": {
       "keys": {
+        "name": [
+          "separate-delivery-and-auxiliary-write-ownership"
+        ],
         "tag": [
           "subagent-orchestration"
         ],
@@ -7601,6 +8604,7 @@
         ]
       },
       "state": {
+        "name": "separate-delivery-and-auxiliary-write-ownership",
         "sourcePath": "separate-delivery-and-auxiliary-write-ownership.md",
         "title": "区分子代理的交付写入与隔离辅助写入",
         "status": "active",
@@ -7622,6 +8626,9 @@
     },
     "separate-design-discovery-from-lifecycle-maintenance": {
       "keys": {
+        "name": [
+          "separate-design-discovery-from-lifecycle-maintenance"
+        ],
         "tag": [
           "skill-design-discovery"
         ],
@@ -7633,6 +8640,7 @@
         ]
       },
       "state": {
+        "name": "separate-design-discovery-from-lifecycle-maintenance",
         "sourcePath": "archive/separate-design-discovery-from-lifecycle-maintenance.md",
         "title": "将 Skill 深度设计发现设为独立行为",
         "status": "archived",
@@ -7649,6 +8657,9 @@
     },
     "separate-distributable-tool-source-from-repository-automation": {
       "keys": {
+        "name": [
+          "separate-distributable-tool-source-from-repository-automation"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -7657,6 +8668,7 @@
         ]
       },
       "state": {
+        "name": "separate-distributable-tool-source-from-repository-automation",
         "sourcePath": "archive/separate-distributable-tool-source-from-repository-automation.md",
         "title": "分离可分发工具源码与仓库自动化",
         "status": "archived",
@@ -7682,6 +8694,9 @@
     },
     "separate-domain-ids-from-storage-details": {
       "keys": {
+        "name": [
+          "separate-domain-ids-from-storage-details"
+        ],
         "tag": [
           "decision-records",
           "repository-model"
@@ -7694,6 +8709,7 @@
         ]
       },
       "state": {
+        "name": "separate-domain-ids-from-storage-details",
         "sourcePath": "separate-domain-ids-from-storage-details.md",
         "title": "分离领域 ID 与存储位置",
         "status": "active",
@@ -7716,6 +8732,9 @@
     },
     "separate-investigation-authoring-candidates-from-established-reports": {
       "keys": {
+        "name": [
+          "separate-investigation-authoring-candidates-from-established-reports"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -7727,6 +8746,7 @@
         ]
       },
       "state": {
+        "name": "separate-investigation-authoring-candidates-from-established-reports",
         "sourcePath": "separate-investigation-authoring-candidates-from-established-reports.md",
         "title": "将调查 authoring candidate 与已建立报告分离",
         "status": "active",
@@ -7743,6 +8763,9 @@
     },
     "separate-maintenance-diagnostics-from-mutation-outcomes": {
       "keys": {
+        "name": [
+          "separate-maintenance-diagnostics-from-mutation-outcomes"
+        ],
         "tag": [
           "decision-records",
           "index-runtime",
@@ -7757,6 +8780,7 @@
         ]
       },
       "state": {
+        "name": "separate-maintenance-diagnostics-from-mutation-outcomes",
         "sourcePath": "separate-maintenance-diagnostics-from-mutation-outcomes.md",
         "title": "将维护诊断与 mutation 结果分层",
         "status": "active",
@@ -7776,6 +8800,9 @@
     },
     "separate-package-byte-identity-from-version-carrying-changes": {
       "keys": {
+        "name": [
+          "separate-package-byte-identity-from-version-carrying-changes"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -7787,6 +8814,7 @@
         ]
       },
       "state": {
+        "name": "separate-package-byte-identity-from-version-carrying-changes",
         "sourcePath": "separate-package-byte-identity-from-version-carrying-changes.md",
         "title": "将包字节身份与版本承载变化分离",
         "status": "active",
@@ -7803,6 +8831,9 @@
     },
     "separate-raw-results-from-output-functions": {
       "keys": {
+        "name": [
+          "separate-raw-results-from-output-functions"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -7814,6 +8845,7 @@
         ]
       },
       "state": {
+        "name": "separate-raw-results-from-output-functions",
         "sourcePath": "separate-raw-results-from-output-functions.md",
         "title": "分离 task-graph raw result 与输出函数",
         "status": "active",
@@ -7830,6 +8862,9 @@
     },
     "separate-reviewable-candidates-from-established-decisions": {
       "keys": {
+        "name": [
+          "separate-reviewable-candidates-from-established-decisions"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -7841,6 +8876,7 @@
         ]
       },
       "state": {
+        "name": "separate-reviewable-candidates-from-established-decisions",
         "sourcePath": "archive/separate-reviewable-candidates-from-established-decisions.md",
         "title": "将可审核候选与已建立决策分离",
         "status": "archived",
@@ -7862,6 +8898,9 @@
     },
     "separate-task-content-state-and-effective-projection": {
       "keys": {
+        "name": [
+          "separate-task-content-state-and-effective-projection"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -7873,6 +8912,7 @@
         ]
       },
       "state": {
+        "name": "separate-task-content-state-and-effective-projection",
         "sourcePath": "archive/separate-task-content-state-and-effective-projection.md",
         "title": "分离任务内容、显式状态与有效投影",
         "status": "archived",
@@ -7889,6 +8929,9 @@
     },
     "separate-task-coordination-from-execution-mechanism": {
       "keys": {
+        "name": [
+          "separate-task-coordination-from-execution-mechanism"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -7900,6 +8943,7 @@
         ]
       },
       "state": {
+        "name": "separate-task-coordination-from-execution-mechanism",
         "sourcePath": "archive/separate-task-coordination-from-execution-mechanism.md",
         "title": "将任务协调与执行机制分离",
         "status": "archived",
@@ -7921,6 +8965,9 @@
     },
     "separate-tool-source-and-repository-automation": {
       "keys": {
+        "name": [
+          "separate-tool-source-and-repository-automation"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -7932,6 +8979,7 @@
         ]
       },
       "state": {
+        "name": "separate-tool-source-and-repository-automation",
         "sourcePath": "archive/separate-tool-source-and-repository-automation.md",
         "title": "分离工具源码与仓库自动化",
         "status": "archived",
@@ -7953,6 +9001,9 @@
     },
     "settle-all-selected-checks-under-bounded-concurrency": {
       "keys": {
+        "name": [
+          "settle-all-selected-checks-under-bounded-concurrency"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -7964,6 +9015,7 @@
         ]
       },
       "state": {
+        "name": "settle-all-selected-checks-under-bounded-concurrency",
         "sourcePath": "archive/settle-all-selected-checks-under-bounded-concurrency.md",
         "title": "在有界并发下收敛全部已选检查",
         "status": "archived",
@@ -7985,6 +9037,9 @@
     },
     "simplify-change-lifecycle-to-draft-plan-and-archive": {
       "keys": {
+        "name": [
+          "simplify-change-lifecycle-to-draft-plan-and-archive"
+        ],
         "tag": [
           "change-plan"
         ],
@@ -7996,6 +9051,7 @@
         ]
       },
       "state": {
+        "name": "simplify-change-lifecycle-to-draft-plan-and-archive",
         "sourcePath": "archive/simplify-change-lifecycle-to-draft-plan-and-archive.md",
         "title": "用 Draft、Plan 与 Archive 维护 Change",
         "status": "archived",
@@ -8021,6 +9077,9 @@
     },
     "split-commits-by-semantic-unit": {
       "keys": {
+        "name": [
+          "split-commits-by-semantic-unit"
+        ],
         "tag": [
           "git-commit-organizer"
         ],
@@ -8032,6 +9091,7 @@
         ]
       },
       "state": {
+        "name": "split-commits-by-semantic-unit",
         "sourcePath": "split-commits-by-semantic-unit.md",
         "title": "按可独立回滚的语义单元拆分提交",
         "status": "active",
@@ -8053,6 +9113,9 @@
     },
     "stage-investigation-index-entries-across-resource-changes": {
       "keys": {
+        "name": [
+          "stage-investigation-index-entries-across-resource-changes"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -8064,6 +9127,7 @@
         ]
       },
       "state": {
+        "name": "stage-investigation-index-entries-across-resource-changes",
         "sourcePath": "archive/stage-investigation-index-entries-across-resource-changes.md",
         "title": "让调查索引条目暂存不受资源变化阻塞",
         "status": "archived",
@@ -8085,6 +9149,9 @@
     },
     "stage-investigation-index-entries-by-report-id": {
       "keys": {
+        "name": [
+          "stage-investigation-index-entries-by-report-id"
+        ],
         "tag": [
           "index-runtime",
           "investigation-report",
@@ -8098,6 +9165,7 @@
         ]
       },
       "state": {
+        "name": "stage-investigation-index-entries-by-report-id",
         "sourcePath": "stage-investigation-index-entries-by-report-id.md",
         "title": "按报告 ID 独立暂存调查索引条目",
         "status": "active",
@@ -8121,6 +9189,9 @@
     },
     "stage-selected-decisions": {
       "keys": {
+        "name": [
+          "stage-selected-decisions"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -8132,6 +9203,7 @@
         ]
       },
       "state": {
+        "name": "stage-selected-decisions",
         "sourcePath": "archive/stage-selected-decisions.md",
         "title": "按指定决策构造待提交快照",
         "status": "archived",
@@ -8148,6 +9220,9 @@
     },
     "stage-selected-decisions-by-stable-id": {
       "keys": {
+        "name": [
+          "stage-selected-decisions-by-stable-id"
+        ],
         "tag": [
           "decision-records",
           "version-control"
@@ -8160,6 +9235,7 @@
         ]
       },
       "state": {
+        "name": "stage-selected-decisions-by-stable-id",
         "sourcePath": "stage-selected-decisions-by-stable-id.md",
         "title": "按稳定 Decision ID 构造待提交快照",
         "status": "active",
@@ -8182,6 +9258,9 @@
     },
     "stage-selected-index-entries": {
       "keys": {
+        "name": [
+          "stage-selected-index-entries"
+        ],
         "tag": [
           "index-runtime"
         ],
@@ -8193,6 +9272,7 @@
         ]
       },
       "state": {
+        "name": "stage-selected-index-entries",
         "sourcePath": "archive/stage-selected-index-entries.md",
         "title": "让单文件状态索引按条目独立暂存",
         "status": "archived",
@@ -8209,6 +9289,9 @@
     },
     "stage-selected-index-entries-by-id": {
       "keys": {
+        "name": [
+          "stage-selected-index-entries-by-id"
+        ],
         "tag": [
           "index-runtime",
           "version-control"
@@ -8221,6 +9304,7 @@
         ]
       },
       "state": {
+        "name": "stage-selected-index-entries-by-id",
         "sourcePath": "stage-selected-index-entries-by-id.md",
         "title": "按 ID 键控条目独立暂存状态索引",
         "status": "active",
@@ -8243,6 +9327,9 @@
     },
     "stage-selected-investigation-index-entries": {
       "keys": {
+        "name": [
+          "stage-selected-investigation-index-entries"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -8254,6 +9341,7 @@
         ]
       },
       "state": {
+        "name": "stage-selected-investigation-index-entries",
         "sourcePath": "archive/stage-selected-investigation-index-entries.md",
         "title": "按调查主题 ID 独立暂存派生索引条目",
         "status": "archived",
@@ -8270,6 +9358,9 @@
     },
     "stage-selected-test-evidence-index-entries": {
       "keys": {
+        "name": [
+          "stage-selected-test-evidence-index-entries"
+        ],
         "tag": [
           "index-runtime",
           "test-evidence-review",
@@ -8283,6 +9374,7 @@
         ]
       },
       "state": {
+        "name": "stage-selected-test-evidence-index-entries",
         "sourcePath": "stage-selected-test-evidence-index-entries.md",
         "title": "按测试证据 Case ID 独立暂存派生索引条目",
         "status": "active",
@@ -8301,6 +9393,9 @@
     },
     "standardize-runner-results-at-producer-boundaries": {
       "keys": {
+        "name": [
+          "standardize-runner-results-at-producer-boundaries"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -8312,6 +9407,7 @@
         ]
       },
       "state": {
+        "name": "standardize-runner-results-at-producer-boundaries",
         "sourcePath": "standardize-runner-results-at-producer-boundaries.md",
         "title": "在 Runner 生产边界标准化 Test 结果",
         "status": "active",
@@ -8333,6 +9429,9 @@
     },
     "support-closed-reallocation-of-decision-owners": {
       "keys": {
+        "name": [
+          "support-closed-reallocation-of-decision-owners"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -8344,6 +9443,7 @@
         ]
       },
       "state": {
+        "name": "support-closed-reallocation-of-decision-owners",
         "sourcePath": "support-closed-reallocation-of-decision-owners.md",
         "title": "用闭合重划重建决策 owner 边界",
         "status": "active",
@@ -8365,6 +9465,9 @@
     },
     "support-degraded-decision-maintenance": {
       "keys": {
+        "name": [
+          "support-degraded-decision-maintenance"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -8373,6 +9476,7 @@
         ]
       },
       "state": {
+        "name": "support-degraded-decision-maintenance",
         "sourcePath": "archive/support-degraded-decision-maintenance.md",
         "title": "支持故障时的降级决策维护",
         "status": "archived",
@@ -8394,6 +9498,9 @@
     },
     "support-reorganization-after-real-evidence": {
       "keys": {
+        "name": [
+          "support-reorganization-after-real-evidence"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -8405,6 +9512,7 @@
         ]
       },
       "state": {
+        "name": "support-reorganization-after-real-evidence",
         "sourcePath": "archive/support-reorganization-after-real-evidence.md",
         "title": "在真实案例出现后支持决策重组",
         "status": "archived",
@@ -8421,6 +9529,9 @@
     },
     "track-decision-execution-state": {
       "keys": {
+        "name": [
+          "track-decision-execution-state"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -8432,6 +9543,7 @@
         ]
       },
       "state": {
+        "name": "track-decision-execution-state",
         "sourcePath": "archive/track-decision-execution-state.md",
         "title": "用对齐状态记录决策是否已经执行",
         "status": "archived",
@@ -8453,6 +9565,9 @@
     },
     "track-per-id-source-revisions": {
       "keys": {
+        "name": [
+          "track-per-id-source-revisions"
+        ],
         "tag": [
           "index-runtime"
         ],
@@ -8464,6 +9579,7 @@
         ]
       },
       "state": {
+        "name": "track-per-id-source-revisions",
         "sourcePath": "track-per-id-source-revisions.md",
         "title": "按集合元数据与条目 ID 跟踪来源 Revision",
         "status": "active",
@@ -8485,6 +9601,9 @@
     },
     "treat-unaligned-as-future-direction": {
       "keys": {
+        "name": [
+          "treat-unaligned-as-future-direction"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -8496,6 +9615,7 @@
         ]
       },
       "state": {
+        "name": "treat-unaligned-as-future-direction",
         "sourcePath": "treat-unaligned-as-future-direction.md",
         "title": "将未对齐决策作为未来方向输入",
         "status": "active",
@@ -8517,6 +9637,9 @@
     },
     "unify-closed-decision-relation-evolution": {
       "keys": {
+        "name": [
+          "unify-closed-decision-relation-evolution"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -8528,6 +9651,7 @@
         ]
       },
       "state": {
+        "name": "unify-closed-decision-relation-evolution",
         "sourcePath": "archive/unify-closed-decision-relation-evolution.md",
         "title": "用 evolve 统一闭合决策关系事务",
         "status": "archived",
@@ -8549,6 +9673,9 @@
     },
     "upgrade-decision-domains-after-real-pressure": {
       "keys": {
+        "name": [
+          "upgrade-decision-domains-after-real-pressure"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -8560,6 +9687,7 @@
         ]
       },
       "state": {
+        "name": "upgrade-decision-domains-after-real-pressure",
         "sourcePath": "archive/upgrade-decision-domains-after-real-pressure.md",
         "title": "由现实维护压力触发决策领域谱系升级",
         "status": "archived",
@@ -8576,6 +9704,9 @@
     },
     "use-ai-ready-docs-identity": {
       "keys": {
+        "name": [
+          "use-ai-ready-docs-identity"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -8587,6 +9718,7 @@
         ]
       },
       "state": {
+        "name": "use-ai-ready-docs-identity",
         "sourcePath": "use-ai-ready-docs-identity.md",
         "title": "使用 ai-ready-docs 作为文档 AI 阅读优化能力的稳定身份",
         "status": "active",
@@ -8603,6 +9735,9 @@
     },
     "use-alignment-aware-decision-commands": {
       "keys": {
+        "name": [
+          "use-alignment-aware-decision-commands"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -8611,6 +9746,7 @@
         ]
       },
       "state": {
+        "name": "use-alignment-aware-decision-commands",
         "sourcePath": "archive/use-alignment-aware-decision-commands.md",
         "title": "使用对齐感知的决策命令",
         "status": "archived",
@@ -8632,6 +9768,9 @@
     },
     "use-ascii-for-simple-relations-and-mindmaps-for-complex-structures": {
       "keys": {
+        "name": [
+          "use-ascii-for-simple-relations-and-mindmaps-for-complex-structures"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -8643,6 +9782,7 @@
         ]
       },
       "state": {
+        "name": "use-ascii-for-simple-relations-and-mindmaps-for-complex-structures",
         "sourcePath": "use-ascii-for-simple-relations-and-mindmaps-for-complex-structures.md",
         "title": "简单关系使用 ASCII 并为复杂层次使用思维导图",
         "status": "active",
@@ -8664,6 +9804,9 @@
     },
     "use-authoritative-json-index-for-short-lived-tasks": {
       "keys": {
+        "name": [
+          "use-authoritative-json-index-for-short-lived-tasks"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -8675,6 +9818,7 @@
         ]
       },
       "state": {
+        "name": "use-authoritative-json-index-for-short-lived-tasks",
         "sourcePath": "archive/use-authoritative-json-index-for-short-lived-tasks.md",
         "title": "使用权威 JSON 索引保存短期任务",
         "status": "archived",
@@ -8691,6 +9835,9 @@
     },
     "use-authoritative-json-index-for-task-coordination": {
       "keys": {
+        "name": [
+          "use-authoritative-json-index-for-task-coordination"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -8702,6 +9849,7 @@
         ]
       },
       "state": {
+        "name": "use-authoritative-json-index-for-task-coordination",
         "sourcePath": "archive/use-authoritative-json-index-for-task-coordination.md",
         "title": "使用权威 JSON 索引保存任务协调事实",
         "status": "archived",
@@ -8723,6 +9871,9 @@
     },
     "use-closed-splits-for-coarse-decisions": {
       "keys": {
+        "name": [
+          "use-closed-splits-for-coarse-decisions"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -8734,6 +9885,7 @@
         ]
       },
       "state": {
+        "name": "use-closed-splits-for-coarse-decisions",
         "sourcePath": "archive/use-closed-splits-for-coarse-decisions.md",
         "title": "用闭合拆分处理过粗决策",
         "status": "archived",
@@ -8750,6 +9902,9 @@
     },
     "use-closed-splits-for-single-predecessor-decisions": {
       "keys": {
+        "name": [
+          "use-closed-splits-for-single-predecessor-decisions"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -8761,6 +9916,7 @@
         ]
       },
       "state": {
+        "name": "use-closed-splits-for-single-predecessor-decisions",
         "sourcePath": "use-closed-splits-for-single-predecessor-decisions.md",
         "title": "用闭合拆分处理单前序过粗决策",
         "status": "active",
@@ -8782,6 +9938,9 @@
     },
     "use-configurable-self-contained-decision-root": {
       "keys": {
+        "name": [
+          "use-configurable-self-contained-decision-root"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -8790,6 +9949,7 @@
         ]
       },
       "state": {
+        "name": "use-configurable-self-contained-decision-root",
         "sourcePath": "archive/use-configurable-self-contained-decision-root.md",
         "title": "使用可配置且自包含的决策根目录",
         "status": "archived",
@@ -8811,6 +9971,9 @@
     },
     "use-conservative-atomic-write-outcomes": {
       "keys": {
+        "name": [
+          "use-conservative-atomic-write-outcomes"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -8822,6 +9985,7 @@
         ]
       },
       "state": {
+        "name": "use-conservative-atomic-write-outcomes",
         "sourcePath": "archive/use-conservative-atomic-write-outcomes.md",
         "title": "对 task index 原子写入采用保守结果语义",
         "status": "archived",
@@ -8843,6 +10007,9 @@
     },
     "use-conservative-task-index-write-outcomes": {
       "keys": {
+        "name": [
+          "use-conservative-task-index-write-outcomes"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -8854,6 +10021,7 @@
         ]
       },
       "state": {
+        "name": "use-conservative-task-index-write-outcomes",
         "sourcePath": "archive/use-conservative-task-index-write-outcomes.md",
         "title": "对 task index 写入采用保守结果语义",
         "status": "archived",
@@ -8875,6 +10043,9 @@
     },
     "use-document-navigation-owner": {
       "keys": {
+        "name": [
+          "use-document-navigation-owner"
+        ],
         "tag": [
           "project-documentation"
         ],
@@ -8886,6 +10057,7 @@
         ]
       },
       "state": {
+        "name": "use-document-navigation-owner",
         "sourcePath": "use-document-navigation-owner.md",
         "title": "使用仓库导航统一任务路由与内容 owner",
         "status": "active",
@@ -8902,6 +10074,9 @@
     },
     "use-domain-paths-as-primary-classification": {
       "keys": {
+        "name": [
+          "use-domain-paths-as-primary-classification"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -8913,6 +10088,7 @@
         ]
       },
       "state": {
+        "name": "use-domain-paths-as-primary-classification",
         "sourcePath": "archive/use-domain-paths-as-primary-classification.md",
         "title": "使用领域路径作为唯一一级分类",
         "status": "archived",
@@ -8938,6 +10114,9 @@
     },
     "use-error-recovery-reference": {
       "keys": {
+        "name": [
+          "use-error-recovery-reference"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -8946,6 +10125,7 @@
         ]
       },
       "state": {
+        "name": "use-error-recovery-reference",
         "sourcePath": "archive/use-error-recovery-reference.md",
         "title": "使用按需维护恢复手册",
         "status": "archived",
@@ -8962,6 +10142,9 @@
     },
     "use-explicit-environment-supported-diagrams": {
       "keys": {
+        "name": [
+          "use-explicit-environment-supported-diagrams"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -8973,6 +10156,7 @@
         ]
       },
       "state": {
+        "name": "use-explicit-environment-supported-diagrams",
         "sourcePath": "archive/use-explicit-environment-supported-diagrams.md",
         "title": "使用环境支持的显式关系图示",
         "status": "archived",
@@ -8994,6 +10178,9 @@
     },
     "use-explicit-reviewable-candidates": {
       "keys": {
+        "name": [
+          "use-explicit-reviewable-candidates"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -9005,6 +10192,7 @@
         ]
       },
       "state": {
+        "name": "use-explicit-reviewable-candidates",
         "sourcePath": "archive/use-explicit-reviewable-candidates.md",
         "title": "使用显式完整候选分离创建与审核",
         "status": "archived",
@@ -9026,6 +10214,9 @@
     },
     "use-field-alignment-commands": {
       "keys": {
+        "name": [
+          "use-field-alignment-commands"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -9034,6 +10225,7 @@
         ]
       },
       "state": {
+        "name": "use-field-alignment-commands",
         "sourcePath": "archive/use-field-alignment-commands.md",
         "title": "使用字段化对齐状态命令",
         "status": "archived",
@@ -9055,6 +10247,9 @@
     },
     "use-fixed-index-query-modes": {
       "keys": {
+        "name": [
+          "use-fixed-index-query-modes"
+        ],
         "tag": [
           "index-runtime"
         ],
@@ -9066,6 +10261,7 @@
         ]
       },
       "state": {
+        "name": "use-fixed-index-query-modes",
         "sourcePath": "use-fixed-index-query-modes.md",
         "title": "使用固定索引查询模式",
         "status": "active",
@@ -9087,6 +10283,9 @@
     },
     "use-fixed-investigation-record-core": {
       "keys": {
+        "name": [
+          "use-fixed-investigation-record-core"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -9098,6 +10297,7 @@
         ]
       },
       "state": {
+        "name": "use-fixed-investigation-record-core",
         "sourcePath": "archive/use-fixed-investigation-record-core.md",
         "title": "使用固定调查记录核心并按场景补充正文",
         "status": "archived",
@@ -9119,6 +10319,9 @@
     },
     "use-frontmatter-projection-and-semantic-field-order": {
       "keys": {
+        "name": [
+          "use-frontmatter-projection-and-semantic-field-order"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -9127,6 +10330,7 @@
         ]
       },
       "state": {
+        "name": "use-frontmatter-projection-and-semantic-field-order",
         "sourcePath": "archive/use-frontmatter-projection-and-semantic-field-order.md",
         "title": "使用 Frontmatter 投影与语义字段顺序",
         "status": "archived",
@@ -9148,6 +10352,9 @@
     },
     "use-id-keyed-state-index": {
       "keys": {
+        "name": [
+          "use-id-keyed-state-index"
+        ],
         "tag": [
           "index-runtime"
         ],
@@ -9159,6 +10366,7 @@
         ]
       },
       "state": {
+        "name": "use-id-keyed-state-index",
         "sourcePath": "archive/use-id-keyed-state-index.md",
         "title": "以稳定 ID 键控状态索引",
         "status": "archived",
@@ -9180,6 +10388,9 @@
     },
     "use-independent-change-plans": {
       "keys": {
+        "name": [
+          "use-independent-change-plans"
+        ],
         "tag": [
           "change-plan"
         ],
@@ -9188,6 +10399,7 @@
         ]
       },
       "state": {
+        "name": "use-independent-change-plans",
         "sourcePath": "archive/use-independent-change-plans.md",
         "title": "使用独立 Change Plan 承接临时变更计划",
         "status": "archived",
@@ -9204,6 +10416,9 @@
     },
     "use-independent-read-side-index-runtime": {
       "keys": {
+        "name": [
+          "use-independent-read-side-index-runtime"
+        ],
         "tag": [
           "index-runtime"
         ],
@@ -9212,6 +10427,7 @@
         ]
       },
       "state": {
+        "name": "use-independent-read-side-index-runtime",
         "sourcePath": "archive/use-independent-read-side-index-runtime.md",
         "title": "采用领域状态驱动的极简通用索引",
         "status": "archived",
@@ -9228,6 +10444,9 @@
     },
     "use-json-task-index-as-single-fact-source": {
       "keys": {
+        "name": [
+          "use-json-task-index-as-single-fact-source"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -9239,6 +10458,7 @@
         ]
       },
       "state": {
+        "name": "use-json-task-index-as-single-fact-source",
         "sourcePath": "use-json-task-index-as-single-fact-source.md",
         "title": "以 JSON task index 作为唯一协调事实源",
         "status": "active",
@@ -9260,6 +10480,9 @@
     },
     "use-local-reasoned-oxlint-exceptions": {
       "keys": {
+        "name": [
+          "use-local-reasoned-oxlint-exceptions"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -9271,6 +10494,7 @@
         ]
       },
       "state": {
+        "name": "use-local-reasoned-oxlint-exceptions",
         "sourcePath": "archive/use-local-reasoned-oxlint-exceptions.md",
         "title": "以局部且有理由的注释承接 Oxlint 例外",
         "status": "archived",
@@ -9287,6 +10511,9 @@
     },
     "use-monorepo-versioned-skill-packages": {
       "keys": {
+        "name": [
+          "use-monorepo-versioned-skill-packages"
+        ],
         "tag": [
           "repository-model"
         ],
@@ -9298,6 +10525,7 @@
         ]
       },
       "state": {
+        "name": "use-monorepo-versioned-skill-packages",
         "sourcePath": "use-monorepo-versioned-skill-packages.md",
         "title": "用单仓库维护带独立版本的 skill 包",
         "status": "active",
@@ -9319,6 +10547,9 @@
     },
     "use-monotonic-alignment-baseline": {
       "keys": {
+        "name": [
+          "use-monotonic-alignment-baseline"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -9330,6 +10561,7 @@
         ]
       },
       "state": {
+        "name": "use-monotonic-alignment-baseline",
         "sourcePath": "archive/use-monotonic-alignment-baseline.md",
         "title": "将对齐状态定义为单向基线",
         "status": "archived",
@@ -9351,6 +10583,9 @@
     },
     "use-native-locks-for-json-transactions": {
       "keys": {
+        "name": [
+          "use-native-locks-for-json-transactions"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -9362,6 +10597,7 @@
         ]
       },
       "state": {
+        "name": "use-native-locks-for-json-transactions",
         "sourcePath": "archive/use-native-locks-for-json-transactions.md",
         "title": "使用原生文件锁简化 JSON 事务",
         "status": "archived",
@@ -9378,6 +10614,9 @@
     },
     "use-one-change-artifact-structure": {
       "keys": {
+        "name": [
+          "use-one-change-artifact-structure"
+        ],
         "tag": [
           "change-plan"
         ],
@@ -9389,6 +10628,7 @@
         ]
       },
       "state": {
+        "name": "use-one-change-artifact-structure",
         "sourcePath": "use-one-change-artifact-structure.md",
         "title": "统一使用 Change 预期调整与衍生影响结构",
         "status": "active",
@@ -9405,6 +10645,9 @@
     },
     "use-persisted-index-for-routine-queries": {
       "keys": {
+        "name": [
+          "use-persisted-index-for-routine-queries"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -9416,6 +10659,7 @@
         ]
       },
       "state": {
+        "name": "use-persisted-index-for-routine-queries",
         "sourcePath": "archive/use-persisted-index-for-routine-queries.md",
         "title": "使用持久索引承接常规决策查询",
         "status": "archived",
@@ -9432,6 +10676,9 @@
     },
     "use-physical-archive-boundary-for-decision-search": {
       "keys": {
+        "name": [
+          "use-physical-archive-boundary-for-decision-search"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -9443,6 +10690,7 @@
         ]
       },
       "state": {
+        "name": "use-physical-archive-boundary-for-decision-search",
         "sourcePath": "archive/use-physical-archive-boundary-for-decision-search.md",
         "title": "用统一物理归档边界降低决策搜索干扰",
         "status": "archived",
@@ -9459,6 +10707,9 @@
     },
     "use-plan-base-only-for-git-distance": {
       "keys": {
+        "name": [
+          "use-plan-base-only-for-git-distance"
+        ],
         "tag": [
           "change-plan"
         ],
@@ -9470,6 +10721,7 @@
         ]
       },
       "state": {
+        "name": "use-plan-base-only-for-git-distance",
         "sourcePath": "archive/use-plan-base-only-for-git-distance.md",
         "title": "让 Plan 基线只承担 Git 距离定位",
         "status": "archived",
@@ -9486,6 +10738,9 @@
     },
     "use-profiled-concise-checks": {
       "keys": {
+        "name": [
+          "use-profiled-concise-checks"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -9497,6 +10752,7 @@
         ]
       },
       "state": {
+        "name": "use-profiled-concise-checks",
         "sourcePath": "archive/use-profiled-concise-checks.md",
         "title": "按档位运行检查并按结果展开日志",
         "status": "archived",
@@ -9518,6 +10774,9 @@
     },
     "use-project-short-commands-for-maintenance-clis": {
       "keys": {
+        "name": [
+          "use-project-short-commands-for-maintenance-clis"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -9529,6 +10788,7 @@
         ]
       },
       "state": {
+        "name": "use-project-short-commands-for-maintenance-clis",
         "sourcePath": "use-project-short-commands-for-maintenance-clis.md",
         "title": "仓库内使用维护 CLI 短命令",
         "status": "active",
@@ -9550,6 +10810,9 @@
     },
     "use-recoverable-decision-lifecycle-transactions": {
       "keys": {
+        "name": [
+          "use-recoverable-decision-lifecycle-transactions"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -9561,6 +10824,7 @@
         ]
       },
       "state": {
+        "name": "use-recoverable-decision-lifecycle-transactions",
         "sourcePath": "archive/use-recoverable-decision-lifecycle-transactions.md",
         "title": "使用可恢复事务维护决策生命周期",
         "status": "archived",
@@ -9582,6 +10846,9 @@
     },
     "use-recoverable-evolution-transactions": {
       "keys": {
+        "name": [
+          "use-recoverable-evolution-transactions"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -9593,6 +10860,7 @@
         ]
       },
       "state": {
+        "name": "use-recoverable-evolution-transactions",
         "sourcePath": "archive/use-recoverable-evolution-transactions.md",
         "title": "使用可恢复事务维护决策演进",
         "status": "archived",
@@ -9614,6 +10882,9 @@
     },
     "use-report-oriented-investigation-rounds": {
       "keys": {
+        "name": [
+          "use-report-oriented-investigation-rounds"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -9622,6 +10893,7 @@
         ]
       },
       "state": {
+        "name": "use-report-oriented-investigation-rounds",
         "sourcePath": "archive/use-report-oriented-investigation-rounds.md",
         "title": "以可接续调查段形成调查报告",
         "status": "archived",
@@ -9638,6 +10910,9 @@
     },
     "use-root-task-dictionary": {
       "keys": {
+        "name": [
+          "use-root-task-dictionary"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -9649,6 +10924,7 @@
         ]
       },
       "state": {
+        "name": "use-root-task-dictionary",
         "sourcePath": "archive/use-root-task-dictionary.md",
         "title": "使用根级任务字典承接唯一身份",
         "status": "archived",
@@ -9670,6 +10946,9 @@
     },
     "use-root-task-dictionary-for-collection-identity": {
       "keys": {
+        "name": [
+          "use-root-task-dictionary-for-collection-identity"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -9681,6 +10960,7 @@
         ]
       },
       "state": {
+        "name": "use-root-task-dictionary-for-collection-identity",
         "sourcePath": "use-root-task-dictionary-for-collection-identity.md",
         "title": "用根级任务字典承接集合身份",
         "status": "active",
@@ -9702,6 +10982,9 @@
     },
     "use-second-precision-lifecycle-index": {
       "keys": {
+        "name": [
+          "use-second-precision-lifecycle-index"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -9710,6 +10993,7 @@
         ]
       },
       "state": {
+        "name": "use-second-precision-lifecycle-index",
         "sourcePath": "archive/use-second-precision-lifecycle-index.md",
         "title": "使用秒级全生命周期索引",
         "status": "archived",
@@ -9735,6 +11019,9 @@
     },
     "use-single-investigation-report-core": {
       "keys": {
+        "name": [
+          "use-single-investigation-report-core"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -9746,6 +11033,7 @@
         ]
       },
       "state": {
+        "name": "use-single-investigation-report-core",
         "sourcePath": "use-single-investigation-report-core.md",
         "title": "使用单报告固定调查核心",
         "status": "active",
@@ -9767,6 +11055,9 @@
     },
     "use-source-resilient-reviewable-candidates": {
       "keys": {
+        "name": [
+          "use-source-resilient-reviewable-candidates"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -9778,6 +11069,7 @@
         ]
       },
       "state": {
+        "name": "use-source-resilient-reviewable-candidates",
         "sourcePath": "archive/use-source-resilient-reviewable-candidates.md",
         "title": "使用可逐文件容错的显式完整候选",
         "status": "archived",
@@ -9799,6 +11091,9 @@
     },
     "use-stable-decision-id-for-relations-and-lifecycle": {
       "keys": {
+        "name": [
+          "use-stable-decision-id-for-relations-and-lifecycle"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -9810,6 +11105,7 @@
         ]
       },
       "state": {
+        "name": "use-stable-decision-id-for-relations-and-lifecycle",
         "sourcePath": "archive/use-stable-decision-id-for-relations-and-lifecycle.md",
         "title": "使用稳定 Decision ID 选择关系与生命周期",
         "status": "archived",
@@ -9831,6 +11127,9 @@
     },
     "use-stable-decision-ids-tags-and-location-index": {
       "keys": {
+        "name": [
+          "use-stable-decision-ids-tags-and-location-index"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -9842,6 +11141,7 @@
         ]
       },
       "state": {
+        "name": "use-stable-decision-ids-tags-and-location-index",
         "sourcePath": "archive/use-stable-decision-ids-tags-and-location-index.md",
         "title": "使用稳定 Decision ID、tags 与定位索引",
         "status": "archived",
@@ -9879,6 +11179,9 @@
     },
     "use-stable-id-keyed-index-identity": {
       "keys": {
+        "name": [
+          "use-stable-id-keyed-index-identity"
+        ],
         "tag": [
           "index-runtime"
         ],
@@ -9890,6 +11193,7 @@
         ]
       },
       "state": {
+        "name": "use-stable-id-keyed-index-identity",
         "sourcePath": "use-stable-id-keyed-index-identity.md",
         "title": "使用稳定 ID 键控索引身份",
         "status": "active",
@@ -9911,6 +11215,9 @@
     },
     "use-strategy-driven-closed-decision-relation-evolution": {
       "keys": {
+        "name": [
+          "use-strategy-driven-closed-decision-relation-evolution"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -9922,6 +11229,7 @@
         ]
       },
       "state": {
+        "name": "use-strategy-driven-closed-decision-relation-evolution",
         "sourcePath": "use-strategy-driven-closed-decision-relation-evolution.md",
         "title": "用策略驱动的闭合事务演进决策关系",
         "status": "active",
@@ -9943,6 +11251,9 @@
     },
     "use-topic-filtered-decision-queries": {
       "keys": {
+        "name": [
+          "use-topic-filtered-decision-queries"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -9951,6 +11262,7 @@
         ]
       },
       "state": {
+        "name": "use-topic-filtered-decision-queries",
         "sourcePath": "archive/use-topic-filtered-decision-queries.md",
         "title": "使用主题与状态筛选决策查询",
         "status": "archived",
@@ -9972,6 +11284,9 @@
     },
     "use-typed-collection-metadata": {
       "keys": {
+        "name": [
+          "use-typed-collection-metadata"
+        ],
         "tag": [
           "index-runtime"
         ],
@@ -9983,6 +11298,7 @@
         ]
       },
       "state": {
+        "name": "use-typed-collection-metadata",
         "sourcePath": "archive/use-typed-collection-metadata.md",
         "title": "为通用索引提供类型化集合元数据",
         "status": "archived",
@@ -10004,6 +11320,9 @@
     },
     "use-versioned-overlay-skill-updates": {
       "keys": {
+        "name": [
+          "use-versioned-overlay-skill-updates"
+        ],
         "tag": [
           "repository-model"
         ],
@@ -10015,6 +11334,7 @@
         ]
       },
       "state": {
+        "name": "use-versioned-overlay-skill-updates",
         "sourcePath": "use-versioned-overlay-skill-updates.md",
         "title": "用独立版本和文件覆盖更新 skill",
         "status": "active",
@@ -10040,6 +11360,9 @@
     },
     "use-versioned-runner-result-protocol": {
       "keys": {
+        "name": [
+          "use-versioned-runner-result-protocol"
+        ],
         "tag": [
           "test-evidence-review"
         ],
@@ -10051,6 +11374,7 @@
         ]
       },
       "state": {
+        "name": "use-versioned-runner-result-protocol",
         "sourcePath": "archive/use-versioned-runner-result-protocol.md",
         "title": "使用版本化的测试结果生产者协议",
         "status": "archived",
@@ -10072,6 +11396,9 @@
     },
     "use-vibe-check-as-authoritative-project-gate": {
       "keys": {
+        "name": [
+          "use-vibe-check-as-authoritative-project-gate"
+        ],
         "tag": [
           "project-tooling"
         ],
@@ -10083,6 +11410,7 @@
         ]
       },
       "state": {
+        "name": "use-vibe-check-as-authoritative-project-gate",
         "sourcePath": "archive/use-vibe-check-as-authoritative-project-gate.md",
         "title": "以 Vibe Check 作为权威项目门禁",
         "status": "archived",
@@ -10120,6 +11448,9 @@
     },
     "validate-mcpshell-ai-behavior-with-luna": {
       "keys": {
+        "name": [
+          "validate-mcpshell-ai-behavior-with-luna"
+        ],
         "tag": [
           "mcpshell-workspace-tools",
           "skill-maintainer"
@@ -10132,6 +11463,7 @@
         ]
       },
       "state": {
+        "name": "validate-mcpshell-ai-behavior-with-luna",
         "sourcePath": "validate-mcpshell-ai-behavior-with-luna.md",
         "title": "用少量 Luna 调用验证 MCPShell skill 的 AI 行为",
         "status": "active",
@@ -10149,6 +11481,9 @@
     },
     "validate-only-active-change-plans": {
       "keys": {
+        "name": [
+          "validate-only-active-change-plans"
+        ],
         "tag": [
           "change-plan"
         ],
@@ -10160,6 +11495,7 @@
         ]
       },
       "state": {
+        "name": "validate-only-active-change-plans",
         "sourcePath": "validate-only-active-change-plans.md",
         "title": "只对 Active Change 执行机械校验",
         "status": "active",
@@ -10181,6 +11517,9 @@
     },
     "version-index-definition-compatibility": {
       "keys": {
+        "name": [
+          "version-index-definition-compatibility"
+        ],
         "tag": [
           "index-runtime"
         ],
@@ -10192,6 +11531,7 @@
         ]
       },
       "state": {
+        "name": "version-index-definition-compatibility",
         "sourcePath": "version-index-definition-compatibility.md",
         "title": "以 definitionVersion 标识索引定义兼容性",
         "status": "active",
@@ -10213,6 +11553,9 @@
     },
     "warn-on-unreferenced-investigation-resources": {
       "keys": {
+        "name": [
+          "warn-on-unreferenced-investigation-resources"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -10224,6 +11567,7 @@
         ]
       },
       "state": {
+        "name": "warn-on-unreferenced-investigation-resources",
         "sourcePath": "archive/warn-on-unreferenced-investigation-resources.md",
         "title": "只提醒未引用的调查资源",
         "status": "archived",
@@ -10245,6 +11589,9 @@
     },
     "warn-on-unreferenced-report-resources": {
       "keys": {
+        "name": [
+          "warn-on-unreferenced-report-resources"
+        ],
         "tag": [
           "investigation-report"
         ],
@@ -10256,6 +11603,7 @@
         ]
       },
       "state": {
+        "name": "warn-on-unreferenced-report-resources",
         "sourcePath": "warn-on-unreferenced-report-resources.md",
         "title": "只提醒未引用的报告资源",
         "status": "active",

@@ -23,10 +23,7 @@ import {
   renderInvestigationDiagnostic,
   type InvestigationDiagnostic
 } from "./diagnostics.ts";
-import {
-  isInvestigationId,
-  normalizeInvestigationIdInput
-} from "./report-path.ts";
+import { normalizeInvestigationIdInput } from "./report-path.ts";
 import { setInvestigationRelations } from "./relation-transaction.ts";
 import {
   executeInvestigationIndexStage,
@@ -631,14 +628,7 @@ async function runPublish(
   ]);
   if (problem !== null || input.positionals.length === 0) {
     return cliInvalid(
-      problem ?? "publish requires at least one Investigation ID",
-      io
-    );
-  }
-  const invalid = input.positionals.find((id) => !isInvestigationId(id));
-  if (invalid !== undefined) {
-    return cliInvalid(
-      `${invalid || "<empty>"} publish id must use an Investigation ID`,
+      problem ?? "publish requires at least one Investigation selector",
       io
     );
   }
@@ -686,13 +676,8 @@ async function runDiscardCandidate(
   const [id] = input.positionals;
   if (problem !== null || id === undefined || input.positionals.length !== 1) {
     return cliInvalid(
-      problem ?? "discard-candidate requires exactly one Investigation ID",
-      io
-    );
-  }
-  if (!isInvestigationId(id)) {
-    return cliInvalid(
-      `${id || "<empty>"} discard-candidate id must use an Investigation ID`,
+      problem ??
+        "discard-candidate requires exactly one Investigation selector",
       io
     );
   }
@@ -767,13 +752,7 @@ async function runShowCandidate(
   const [id] = input.positionals;
   if (problem !== null || id === undefined || input.positionals.length !== 1) {
     return cliInvalid(
-      problem ?? "show-candidate requires exactly one Investigation ID",
-      io
-    );
-  }
-  if (!isInvestigationId(id)) {
-    return cliInvalid(
-      `${id || "<empty>"} show-candidate id must use an Investigation ID`,
+      problem ?? "show-candidate requires exactly one Investigation selector",
       io
     );
   }
@@ -932,14 +911,15 @@ async function runDiscard(
   const [id] = input.positionals;
   if (problem !== null || id === undefined || input.positionals.length !== 1)
     return cliInvalid(
-      problem ?? "discard requires exactly one Investigation ID",
+      problem ?? "discard requires exactly one Investigation selector",
       io
     );
-  if (!isInvestigationId(id))
+  if (normalizeInvestigationIdInput(id) === null) {
     return cliInvalid(
       `${id || "<empty>"} discard id must use an Investigation ID`,
       io
     );
+  }
   const result = await discardInvestigationReport({
     ...location(input.values),
     deleteOwnedResources: has(input.values, "delete-owned-resources"),

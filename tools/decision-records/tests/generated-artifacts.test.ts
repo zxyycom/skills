@@ -123,6 +123,7 @@ test("generated decision declarations expose a portable CLI API", async () => {
         "const entries: Record<DecisionId, DecisionIndexStoredEntry> = index.entries;",
         "const revisions: Record<DecisionId, string> = revision.entries;",
         "const keyDefinitions: [",
+        '  { name: "name"; mode: "exact" },',
         '  { name: "tag"; mode: "exact" },',
         '  { name: "status"; mode: "exact" },',
         '  { name: "alignment"; mode: "exact" }',
@@ -180,8 +181,9 @@ test("generated decision schema matches the runtime index schema", async () => {
     await fs.readFile(generatedSchemaPath, "utf8")
   );
   assert.deepEqual(distributedSchema, decisionIndexJsonSchema);
-  assert.equal(decisionIndexJsonSchema.properties.definitionVersion.const, 7);
+  assert.equal(decisionIndexJsonSchema.properties.definitionVersion.const, 8);
   assert.deepEqual(decisionIndexJsonSchema.properties.keyDefinitions.const, [
+    { name: "name", mode: "exact" },
     { name: "tag", mode: "exact" },
     { name: "status", mode: "exact" },
     { name: "alignment", mode: "exact" }

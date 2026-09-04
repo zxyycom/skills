@@ -5,14 +5,14 @@ description: >-
   每份报告以稳定 Investigation ID 保存一轮形成时的背景、依据、结果和边界；tags 用于分类，显式直接前序关系用于认识演进。
   当前事实、长期方向与实施授权继续由各自 owner 承接。
 metadata:
-  version: "31"
+  version: "32"
 ---
 
 # Investigation Report
 
 ## 目标与适用范围
 
-用一份报告保存**一轮形成时认识**，使未参与原对话的读者仍能复核调查背景、问题、实际依据、结果和适用边界。正式报告 Markdown 是该轮认识的语义 owner；可选资源保存复核材料，索引从正式报告重建并提供查询。文件 basename 可以使用语义文件名，但当前不定义 `name` frontmatter、索引 key 或 selector。
+用一份报告保存**一轮形成时认识**，使未参与原对话的读者仍能复核调查背景、问题、实际依据、结果和适用边界。正式报告 Markdown 是该轮认识的语义 owner；可选资源保存复核材料，索引从正式报告重建并提供查询。新记录 ID 使用 `YYMMDD-<name>`；name 不写入 frontmatter，但由 ID 投影为索引 key 和普通 selector。文件 basename 可以使用语义文件名而不改变身份。
 
 直接前序关系描述认识如何演进。所有已建立报告留在同一正式集合；需要当前口径时，以当前事实 owner 为准并按需综合相关报告。明确要求剔除正式报告时使用 `discard`。
 
@@ -36,18 +36,18 @@ node scripts/check-investigations.mjs <command> [options] --root <workspace-root
 | 目的 | command | 前置与作用域 |
 | --- | --- | --- |
 | 创建集合外 authoring scaffold | `new <investigation-id> ...` | 原子、不覆盖地创建一个 candidate；创建成功即退出 `0`。 |
-| 审阅候选 | `candidates` / `show-candidate <investigation-id>` | 读取候选及机械 readiness，不构成语义审核或 publish 授权。 |
-| 预演候选发布 | `publish <investigation-id...> --preflight` | 只读验证当前正式基线与显式选择的最终集合。 |
-| 正常建立选中候选 | `publish <investigation-id...>` | 重新检查后，只把显式选择的 candidates 事务化建立为正式报告。 |
-| 丢弃候选 | `discard-candidate <investigation-id>` | 只删除显式候选及经确认的候选 owner 资源。 |
+| 审阅候选 | `candidates` / `show-candidate <selector>` | 读取候选及机械 readiness，不构成语义审核或 publish 授权。 |
+| 预演候选发布 | `publish <selector...> --preflight` | 只读验证当前正式基线与显式选择的最终集合。 |
+| 正常建立选中候选 | `publish <selector...>` | 重新检查后，只把显式选择的 candidates 事务化建立为正式报告。 |
+| 丢弃候选 | `discard-candidate <selector>` | 只删除显式候选及经确认的候选 owner 资源。 |
 | 发现与筛选正式报告 | `list` | 读取当前正式索引，忽略 candidates。 |
-| 读取完整正式报告 | `show <investigation-id>` | 通过当前正式索引定位报告。 |
-| 追溯正式关系 | `trace <investigation-id>` | 查询当前正式索引中的关系图。 |
+| 读取完整正式报告 | `show <selector>` | 通过当前正式索引定位报告。 |
+| 追溯正式关系 | `trace <selector>` | 查询当前正式索引中的关系图。 |
 | 编辑期间检查所选正式报告 | `check --id <investigation-id>` | 只检查所选正式报告及其直接资源，不检查索引新鲜度。 |
 | 验证完整正式集合与当前索引 | `check` | 只读检查完整正式集合；合法 candidates 只产生候选诊断。 |
 | 全量恢复或接纳正式来源 | `sync-index` | 低频重建完整正式工作区索引，忽略合法 candidates。 |
 
-精确参数以及 `set-relations`、`discard`、`stage-index` 等操作通过 `help <command>` 和固定契约取得。
+普通 selector 统一先解析标准 ID，再以 name 查索引；`stage-index` 在自己的双索引 staging 快照内按同一规则将 selector 收敛为完整 ID。`set-relations`、`discard` 和其他参数通过 `help <command>` 与固定契约取得。
 
 ## 工作流程
 
@@ -93,7 +93,7 @@ node scripts/check-investigations.mjs <command> [options] --root <workspace-root
 3. `sync-index` 是正式集合的低频全量恢复与接纳入口。编辑一批手工正式报告期间允许索引暂时陈旧，并用 scoped check 获取局部反馈；在索引查询、已有关系事务、正式 `discard`、默认全量检查、`stage-index` 或交付需要当前集合前统一同步一次。合法 candidates 不被同步或接纳。
 4. `set-relations` 与正式 `discard` 要求当前索引，并在成功事务中同步索引；它们不修改 candidate。只改资源字节时保留当前索引。暂停、失败或 cleanup 诊断按固定契约处理和报告。
 5. publish、同步或事务完成后运行默认全量 `check`，再人工审阅正文证据质量、敏感信息、历史修正正当性和关系语义。
-6. 需要 Git pending 快照时，在同步和全量检查后用 `stage-index` 选择对应正式 Investigation ID；正式报告与资源按实际交付范围另行选择，candidate 不由它暂存。
+6. 需要 Git pending 快照时，在同步和全量检查后用 `stage-index` 的标准 ID 或唯一 name 选择对应正式 Investigation；正式报告与资源按实际交付范围另行选择，candidate 不由它暂存。
 
 ## 完成标准
 

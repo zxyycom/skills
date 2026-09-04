@@ -37,9 +37,9 @@ import {
 import { parseInvestigationReportDiscardOptions } from "./options.ts";
 import {
   canonicalizeInvestigationsDirectory,
-  isInvestigationId,
   resolveInvestigationsDirectory
 } from "./report-path.ts";
+import { resolveInvestigationSelector } from "./investigation-selector.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
 import {
   investigationResourcesDirectoryName,
@@ -82,15 +82,13 @@ export async function discardInvestigationReportWithWriter(
 ): Promise<InvestigationReportDiscardResult> {
   const parsed = parseInvestigationReportDiscardOptions(input);
   if (parsed.isErr()) return discardResult({}, "", false, [], parsed.error);
-  if (!isInvestigationId(parsed.value.id)) {
+  if (parsed.value.id.length === 0) {
     return discardResult(
       parsed.value,
       parsed.value.id,
       false,
       [],
-      [
-        `${parsed.value.id || "<empty>"} discard id must use an Investigation ID`
-      ]
+      ["discard requires an Investigation selector"]
     );
   }
   const resolved = resolveInvestigationsDirectory(
@@ -237,6 +235,21 @@ function requiredReportSourcePath(
 async function discardFromCollection(
   options: DiscardCollectionOptions
 ): Promise<InvestigationReportDiscardResult> {
+  const current = await collectValidatedInvestigationCollection(options.root);
+  if (current.errors.length > 0 || current.snapshot === null) {
+    return result(options, false, [], current.errors);
+  }
+  const selected = resolveInvestigationSelector(
+    [...current.states.entries()].map(([id, state]) => ({
+      id,
+      name: state.name
+    })),
+    options.id
+  );
+  if (selected.status === "error") {
+    return result(options, false, [], selected.errors);
+  }
+  options = { ...options, id: selected.id };
   const loaded = await loadDiscardCollection(options);
   if (!loaded.ok) return loaded.result;
   const freshnessFailure = await discardFreshnessFailure(

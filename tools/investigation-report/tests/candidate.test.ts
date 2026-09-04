@@ -19,7 +19,10 @@ import {
   inspectInvestigationCollectionLayout,
   readInvestigationSourceRevision
 } from "../src/investigation-index-source.ts";
-import { validateInvestigationReports } from "../src/validation.ts";
+import {
+  synchronizeInvestigationIndex,
+  validateInvestigationReports
+} from "../src/validation.ts";
 
 const candidateInput = {
   formedAt: "2026-09-02T12:00:00+00:00",
@@ -29,6 +32,7 @@ const candidateInput = {
   tags: ["candidate", "investigation-report"],
   title: "候选调查"
 } as const;
+const candidateId = "260902-candidate-topic";
 
 test("new atomically creates a canonical candidate scaffold without establishing a formal report", async () => {
   await withTempRoot("candidate-new", async (root) => {
@@ -48,7 +52,7 @@ test("new atomically creates a canonical candidate scaffold without establishing
     assert.equal(result.errors.length, 0);
     assert.match(
       await fs.readFile(result.candidate.path, "utf8"),
-      /^---\ntitle: "候选调查"\nid: "candidate-topic"\nformedAt: "2026-09-02T12:00:00\+00:00"/u
+      /^---\ntitle: "候选调查"\nid: "260902-candidate-topic"\nformedAt: "2026-09-02T12:00:00\+00:00"/u
     );
 
     const layout = await inspectInvestigationCollectionLayout(
@@ -56,7 +60,7 @@ test("new atomically creates a canonical candidate scaffold without establishing
     );
     assert.deepEqual(layout.errors, []);
     assert.deepEqual(layout.reportIds, []);
-    assert.deepEqual(layout.candidateIds, [candidateInput.id]);
+    assert.deepEqual(layout.candidateIds, [candidateId]);
   });
 });
 
@@ -198,6 +202,67 @@ test("new rejects invalid, duplicate, and formal-conflicting candidate identitie
   });
 });
 
+test("new blocks a legacy name collision until an explicit dated migration is complete", async () => {
+  await withTempRoot("candidate-legacy-migration", async (root) => {
+    const migratedCandidateId = "260902-legacy-topic";
+    await writeCollection(root, [
+      {
+        formedAt: "2026-09-01T12:00:00+00:00",
+        id: "legacy-topic"
+      }
+    ]);
+    const blocked = await createInvestigationCandidate({
+      ...candidateInput,
+      id: "legacy-topic",
+      workspaceRoot: root
+    });
+    assert.equal(blocked.status, "error");
+    assert.equal(blocked.changed, false);
+    assert.match(blocked.errors.join("\n"), /migration-required/);
+    assert.ok(
+      blocked.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "investigation-report.migration-required"
+      )
+    );
+    await assert.rejects(
+      fs.access(
+        candidatePathForInvestigationId(
+          path.join(root, "docs", "investigations"),
+          migratedCandidateId
+        )
+      )
+    );
+
+    const legacyPath = path.join(
+      root,
+      "docs",
+      "investigations",
+      "legacy-topic.md"
+    );
+    await fs.writeFile(
+      legacyPath,
+      (await fs.readFile(legacyPath, "utf8")).replace(
+        'id: "legacy-topic"',
+        'id: "260901-legacy-topic"'
+      ),
+      "utf8"
+    );
+    assert.deepEqual(
+      (await synchronizeInvestigationIndex({ workspaceRoot: root })).errors,
+      []
+    );
+    const retried = await createInvestigationCandidate({
+      ...candidateInput,
+      id: "legacy-topic",
+      workspaceRoot: root
+    });
+    assert.equal(retried.status, "ok");
+    assert.equal(retried.candidate.id, migratedCandidateId);
+    assert.match(retried.candidate.path, /_candidate\.260902-legacy-topic$/);
+  });
+});
+
 test("candidate queries report readiness while formal sources and default checks ignore a candidate-owned resource", async () => {
   await withTempRoot("candidate-readiness", async (root) => {
     await writeCollection(root, [{ id: "formal" }]);
@@ -218,18 +283,12 @@ test("candidate queries report readiness while formal sources and default checks
         .replace("## 调查范围与依据\n", "## 调查范围与依据\n候选依据。\n")
         .replace(
           "## 调查结果与边界\n",
-          "## 调查结果与边界\n候选边界。\n\n## 随附资源\n- [证据](./_resources/candidate-topic/evidence.txt)\n"
+          "## 调查结果与边界\n候选边界。\n\n## 随附资源\n- [证据](./_resources/260902-candidate-topic/evidence.txt)\n"
         ),
       "utf8"
     );
     await fs.mkdir(
-      path.join(
-        root,
-        "docs",
-        "investigations",
-        "_resources",
-        "candidate-topic"
-      ),
+      path.join(root, "docs", "investigations", "_resources", candidateId),
       { recursive: true }
     );
     await fs.writeFile(
@@ -238,7 +297,7 @@ test("candidate queries report readiness while formal sources and default checks
         "docs",
         "investigations",
         "_resources",
-        "candidate-topic",
+        candidateId,
         "evidence.txt"
       ),
       "evidence\n",

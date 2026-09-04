@@ -6,14 +6,15 @@
 
 | 对象 | 含义 | 权威来源 |
 | --- | --- | --- |
-| Decision ID | 不含扩展名的稳定领域身份；目录或 basename 移动不自动改变它 | Markdown frontmatter `id` |
+| Decision ID | 不含扩展名的稳定领域身份；新记录为 `YYMMDD-<name>`，目录或 basename 移动不自动改变它 | Markdown frontmatter `id` |
+| name | 标准 ID 的日期后缀；legacy ID 的完整值 | 由 frontmatter `id` 投影 |
 | tags | 非空、唯一、有序的记录级分类 token 集合 | Markdown frontmatter |
 | status | `candidate`、`active` 或 `archived` 的生命周期事实 | Markdown frontmatter |
 | sourcePath | 相对决策根的当前 POSIX 路径，只负责定位 | 文件系统；已建立记录由索引投影 |
 | relation target | 指向直接前序的 Decision ID | 后继 Markdown frontmatter |
 | decision index | 以 Decision ID 为键，投影已建立记录的 sourcePath、状态、tags、摘要和关系 | 从完整合法 Markdown 派生 |
 
-Decision ID 必须符合 `^[a-z0-9]+(?:-[a-z0-9]+)*$`；tag 必须符合 `^[a-z0-9]+(?:-[a-z0-9]+)*$`。同一集合内 ID 与 `sourcePath` 分别唯一，且每份受管 Markdown 的 frontmatter `id` 必须与其关系、索引 key 和单项回读一致。索引和 `sourcePath` 不能反向补造或改写身份、生命周期、tags、正文或关系。
+新建 Decision ID 必须为 calendar-valid `YYMMDD-<name>`，其中 `name` 与 ID 的 kebab-case grammar 相同；日期来自 candidate 创建时的 UTC 日且不可关闭。无日期的旧 ID 继续是可读、可迁移的 legacy identity，其 name 是完整旧 ID。tag 必须符合 `^[a-z0-9]+(?:-[a-z0-9]+)*$`。同一集合内 ID 与 `sourcePath` 分别唯一，且每份受管 Markdown 的 frontmatter `id` 必须与其关系、索引 key 和单项回读一致。索引和 `sourcePath` 不能反向补造或改写身份、生命周期、tags、正文或关系。
 
 ## 布局、状态与 frontmatter
 
@@ -27,7 +28,7 @@ docs/decisions/
     └── <name-or-decision-id>.md # archived
 ```
 
-这里的 `name` 仅表示由 writer 选择的语义文件 basename，不是 frontmatter 字段、索引 key 或 selector；同一位置仍以完整 `sourcePath` 独占。
+这里的 basename 是由 writer 选择的 ID 或语义 name；name 不写入 frontmatter，但会由 ID 投影为索引 key，并可作为普通 selector。文件位置仍以完整 `sourcePath` 独占。
 
 1. 根目录直属 Markdown 只能是 `candidate` 或 `active`；`archive/` 直属 Markdown 只能是 `archived`。状态和位置不一致、嵌套目录或跨位置同 ID 都是集合错误。
 2. candidate 不进入正式索引；active 与 archived 由一个统一索引覆盖。archive 不建立第二索引。
@@ -113,17 +114,17 @@ relations:
 3. Git `HEAD` 只用于在保留独立决策历史前要求再次确认，以及删除已记录决策的机械门禁；不参与候选、建立、生效、对齐或索引成员判断。在 Git 工作树中，尚无首次提交的 unborn `HEAD` 按空 Git `HEAD` 基线处理。可用 Git `HEAD` 基线中，单独 `archive` 的目标，以及本次关系事务中所选后继完整最终关系集里的每个已建立直接前序（relation target），只要尚未进入 Git `HEAD`，CLI 就暂停且不写入；无论前序是 active 还是 archived，调用方都必须以 `--keep-unrecorded-history` 显式确认后才可继续。该判断不使用形成时间。在 Git 工作树外没有这个确认门；但 stage 仍需要其自身的版本控制前提。
 4. `discard` 删除完整、结构有效且在删除后的最终集合中无剩余引用的 candidate、active 或 archived 决策。它既可直接运行，也可通过 `evolve --discard <decision-id>` 与后继建立、最终关系修改和索引重建处于同一事务；被删除 ID 不能同时作为后继，所选后继的最终关系也不得保留该 ID。`evolve` 仍遵循普通演进的关系形状、闭包和最终图验证，不增加只适用于删除的后继数量、状态、前序或显式空关系限制。删除的 Decision ID 已进入 Git `HEAD` 时，未带 `--delete-recorded-decision` 的调用在其余删除条件和演进最终图都已通过后 attention 且零写入；带该参数即为明确的机械删除选择，不会为 discard 自身重复读取 Git `HEAD`，但不绕过同次 `evolve` 最终关系的独立 `--keep-unrecorded-history` 预检。非 Git 工作树、unborn `HEAD` 或 ID 未进入 `HEAD` 时正常删除；无参数且 `HEAD` 不可读取时 fail closed。调用方不主动预检 Git，只响应 CLI 实际提示。
 5. `stage` 只是 Git pending 状态转换，不改变决策生命周期。`sourcePath` 变化是位置变化，stage 选择一次对应 ID 即可；显式改变 frontmatter ID 才是身份变更，必须同时维护关系与索引。生命周期移动、关系维护和 stage 都应在写前拒绝 revision、pending 或所选来源漂移。
-6. 公开 ID 输入一律是纯 ID；为兼容旧调用，边界可大小写不敏感地移除一次末尾 `.md` 后再验证，持久 Markdown、关系、索引和输出不得保存该后缀。真实路径只能进入明确的 path/locator 参数。
+6. 普通单对象 selector 先只移除一个大小写不敏感的末尾 `.md`，再尝试 calendar-valid 标准 ID。标准 ID 解析成功时只精确查该 ID，未命中不得退回 name；解析失败时将完整剩余文本按 exact name 查询。零项是 not-found，一项收敛为完整 ID，多项按 ID 排序报 ambiguous，不按状态、日期或路径猜测。持久 Markdown、关系、索引 entry key、资源 owner 和结构化输出只保存完整 ID；真实路径只能进入明确的 path/locator 参数。
 
 ## 派生索引与查询
 
 1. 索引从全部已建立 Markdown 完整生成，definition、metadata 与字段精确结构以 Schema 为准。metadata 是严格空对象，不保存分类注册表。
-2. entry 与 source revision 以 Decision ID 为键。state 保存 sourcePath、tags、status、alignment、createdAt、摘要和关系；source revision 覆盖规范 ID、sourcePath 与规范 Markdown 内容。
-3. 索引 keys 为多值 exact `tag`、exact `status` 和 exact `alignment`。`list` 默认 active；重复 `--tag` 的 AND 过滤要求每个 tag 都匹配。当前查询不推断分类，也不提供 OR、NOT、层级、别名或权重。
-4. `show` 从索引按 ID 定位，只读取目标 Markdown 正文。`trace`、关系、生命周期和 stage 使用 ID；输出显示 ID、sourcePath 与 tags。
+2. entry 与 source revision 以 Decision ID 为键。state 保存由 ID 投影的 name、sourcePath、tags、status、alignment、createdAt、摘要和关系；source revision 覆盖规范 ID、sourcePath 与规范 Markdown 内容。
+3. 索引 keys 为 exact `name`、多值 exact `tag`、exact `status` 和 exact `alignment`。`list` 默认 active；重复 `--tag` 的 AND 过滤要求每个 tag 都匹配。当前查询不推断分类，也不提供 OR、NOT、层级、别名或权重。
+4. `show` 先把普通 selector 收敛为 ID，再由索引定位并只读取目标 Markdown 正文。`trace`、关系、生命周期和 stage 的普通输入也先解析为 ID；输出显示完整 ID、sourcePath 与 tags。
 5. candidates 与 show-candidate 直接扫描根目录源码，显示 `scaffoldValid` 与 `bodyReady`：单条非法 Markdown 产生 warning 并跳过，显式目标自身非法则失败；根目录、成员边界或已建立集合的索引前提错误属于集合级错误。合法 scaffold 与 body-ready candidate 都排除于正式索引。
 6. 索引缺失、损坏或陈旧时只能由权威 Markdown 重建，不能反向补造 Markdown 事实。常规查询读取结构有效的持久索引，不在每次查询前重扫整个集合。
-7. `new`、`sync-index` 与关系、生命周期和丢弃事务共用集合 mutation lock；`new` 在锁内重读身份并原子、不覆盖地发布完整 scaffold。锁冲突时命令零写入失败并要求在当前事务结束后重试。`check`、查询与 `activate/evolve --preflight` 保持只读；preflight 不保存 receipt 或确认，正式命令必须独立重新扫描、读取 Git 和验证参数。`stage` 只写 Git pending，不参与工作树集合锁。
+7. `new` 接收标准 ID 或 name：标准 ID 日期必须等于本次 UTC 形成日，name 自动加该日期。同日同名 ID 已存在时零写入失败，不追加随机码或序号。writer 在 candidate、active 与 archive 三个目标位置均确认 name basename 可用时优先使用 name，否则使用完整 ID basename。若会与同名 legacy ID 冲突，`new` 零写入返回 `migration-required`、legacy ID、建议 dated ID 和 rename/preflight 指引；它不隐式 rename。`new`、`sync-index` 与关系、生命周期和丢弃事务共用集合 mutation lock；其余事务边界不变。
 
 ## CLI 诊断与 mutation 恢复
 

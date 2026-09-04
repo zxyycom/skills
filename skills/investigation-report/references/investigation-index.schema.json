@@ -16,6 +16,17 @@
     "relation": {
       "additionalProperties": false,
       "properties": {
+        "name": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!\\s)(?:[^\\u0000-\\u001f\\u007f]*\\S)?$",
+            "type": "string"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
         "target": {
           "$ref": "#/$defs/investigationId"
         },
@@ -90,6 +101,7 @@
         }
       },
       "required": [
+        "name",
         "tag",
         "formed-at",
         "relation-type",
@@ -102,6 +114,11 @@
       "properties": {
         "formedAt": {
           "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(Z|[+-]\\d{2}:\\d{2})$",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "pattern": "^(?!\\s)(?:[^\\u0000-\\u001f\\u007f]*\\S)?$",
           "type": "string"
         },
         "question": {
@@ -143,6 +160,7 @@
       "required": [
         "title",
         "formedAt",
+        "name",
         "question",
         "tags",
         "relations",
@@ -157,7 +175,7 @@
   "description": "由单份调查报告 Markdown 生成的领域状态通用索引。",
   "properties": {
     "definitionVersion": {
-      "const": 7
+      "const": 8
     },
     "entries": {
       "additionalProperties": {
@@ -183,6 +201,10 @@
     },
     "keyDefinitions": {
       "const": [
+        {
+          "mode": "exact",
+          "name": "name"
+        },
         {
           "mode": "exact",
           "name": "tag"

@@ -44,6 +44,21 @@ type SelectedIdValidation =
   | { diagnostics: StateIndexDiagnostic[]; status: "error" }
   | { selectedIds: string[]; status: "ok" };
 
+/**
+ * Resolves caller-facing selectors only after both index snapshots have passed
+ * the staging transaction's collection-contract checks.
+ */
+export type StateIndexEntrySelectionResolver<
+  State extends object,
+  Metadata extends JsonObject
+> = (
+  options: Readonly<{
+    baseline: StateIndex<State, Metadata> | null;
+    selectedIds: readonly string[];
+    workspace: StateIndex<State, Metadata>;
+  }>
+) => StateIndexResult<string[]>;
+
 type StagingRepository = Pick<
   VersionControlRepository,
   | "getCurrentRevision"
@@ -60,6 +75,7 @@ export async function stageSelectedIndexEntries<
     context: StateIndexContext;
     definition: StateIndexDefinition<State, Metadata>;
     indexPath: string;
+    resolveSelectedIds?: StateIndexEntrySelectionResolver<State, Metadata>;
     selectedIds: readonly string[];
   }>
 ): Promise<StateIndexEntryStageResult> {
@@ -81,6 +97,7 @@ export async function stageSelectedIndexEntriesWithRepository<
     context: StateIndexContext;
     definition: StateIndexDefinition<State, Metadata>;
     indexPath: string;
+    resolveSelectedIds?: StateIndexEntrySelectionResolver<State, Metadata>;
     selectedIds: readonly string[];
   }>,
   openRepository: (rootDirectory: string) => Promise<StagingRepository>
@@ -247,8 +264,37 @@ export async function stageSelectedIndexEntriesWithRepository<
     );
   }
 
-  const selectedIds = new Set(selected.selectedIds);
-  const missingId = selected.selectedIds.find(
+  const resolved: StateIndexResult<string[]> =
+    options.resolveSelectedIds === undefined
+      ? { diagnostics: [], status: "ok", value: selected.selectedIds }
+      : options.resolveSelectedIds({
+          baseline,
+          selectedIds: selected.selectedIds,
+          workspace: workspaceIndex.value
+        });
+  if (resolved.status === "error") {
+    return failedStage(
+      resultContext,
+      "selection-invalid",
+      resolved.diagnostics,
+      selected.selectedIds
+    );
+  }
+  const resolvedSelectedIds = validateSelectedIds(
+    resolved.value,
+    options.indexPath
+  );
+  if (resolvedSelectedIds.status === "error") {
+    return failedStage(
+      resultContext,
+      "selection-invalid",
+      resolvedSelectedIds.diagnostics,
+      selected.selectedIds
+    );
+  }
+
+  const selectedIds = new Set(resolvedSelectedIds.selectedIds);
+  const missingId = resolvedSelectedIds.selectedIds.find(
     (id) => !hasEntry(baseline, id) && !hasEntry(workspaceIndex.value, id)
   );
   if (missingId !== undefined) {
@@ -263,7 +309,7 @@ export async function stageSelectedIndexEntriesWithRepository<
           stateId: missingId
         })
       ],
-      selected.selectedIds
+      resolvedSelectedIds.selectedIds
     );
   }
 
@@ -282,11 +328,11 @@ export async function stageSelectedIndexEntriesWithRepository<
       resultContext,
       "target-invalid",
       target.diagnostics,
-      selected.selectedIds
+      resolvedSelectedIds.selectedIds
     );
   }
   if (isOperationAborted(options.context)) {
-    return abortedStage(resultContext, selected.selectedIds);
+    return abortedStage(resultContext, resolvedSelectedIds.selectedIds);
   }
 
   const targetText = serializeStateIndex(target.value, definition);
@@ -304,7 +350,7 @@ export async function stageSelectedIndexEntriesWithRepository<
     return pendingFailure(
       { ...resultContext, pendingScope: repositoryIndexPath },
       error,
-      selected.selectedIds
+      resolvedSelectedIds.selectedIds
     );
   }
 
@@ -312,7 +358,7 @@ export async function stageSelectedIndexEntriesWithRepository<
     diagnostics: [],
     indexPath: options.indexPath,
     namespace: definition.namespace,
-    selectedIds: selected.selectedIds,
+    selectedIds: resolvedSelectedIds.selectedIds,
     status: "ok" as const
   };
   return changed

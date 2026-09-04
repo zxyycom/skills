@@ -8,6 +8,7 @@ import {
   type StateSourceRevision
 } from "../../index-runtime/src/index.ts";
 import {
+  decisionNameFromId,
   isDecisionId,
   isDecisionSourcePath,
   isDecisionTag
@@ -34,7 +35,7 @@ import {
 } from "./types.ts";
 
 export const decisionIndexNamespace = "decisions";
-export const decisionIndexDefinitionVersion = 7;
+export const decisionIndexDefinitionVersion = 8;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -57,6 +58,7 @@ const decisionRelationSchema = v.strictObject({
   target: decisionIdSchema
 });
 const decisionIndexStateSchema = v.strictObject({
+  name: nonEmptyStringSchema,
   sourcePath: sourcePathSchema,
   title: nonEmptyStringSchema,
   status: v.picklist(establishedDecisionStatuses),
@@ -108,6 +110,11 @@ export function createDecisionStateIndexDefinition(
     definitionVersion: decisionIndexDefinitionVersion,
     fieldOrder: "definition",
     keyStrategies: [
+      {
+        derive: (state) => state.name,
+        mode: "exact",
+        name: "name"
+      },
       {
         derive: (state) => state.tags,
         mode: "exact",
@@ -204,7 +211,7 @@ function parseDecisionIndexState(
     tags,
     relations
   };
-  return decisionIndexState(sourcePath, document);
+  return decisionIndexState(sourcePath, document, context.id as DecisionId);
 }
 
 function validateDecisionIndexIdentity(
@@ -213,6 +220,11 @@ function validateDecisionIndexIdentity(
 ): DecisionSourcePath {
   if (!isDecisionId(decisionId)) {
     throw new TypeError("entry id must be a stable extensionless Decision ID");
+  }
+  if (state.name !== decisionNameFromId(decisionId)) {
+    throw new TypeError(
+      "state.name must be derived from the entry Decision ID"
+    );
   }
   if (!isDecisionSourcePath(state.sourcePath)) {
     throw new TypeError("state.sourcePath must be a decision source path");

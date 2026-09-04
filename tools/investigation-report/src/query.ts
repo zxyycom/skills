@@ -34,11 +34,11 @@ import {
 import {
   canonicalizeInvestigationsDirectory,
   defaultInvestigationsDirectory,
-  isInvestigationId,
   isInvestigationTag,
   resolveInvestigationsDirectory,
   type ResolvedInvestigationsDirectory
 } from "./report-path.ts";
+import { resolveInvestigationSelector } from "./investigation-selector.ts";
 import { isInvestigationRelationType } from "./report-validation.ts";
 import { traceInvestigationRelations } from "./relation-validation.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
@@ -129,30 +129,31 @@ export async function showInvestigationReport(
   const rawId = rawStringField(input, "id") ?? "";
   if (parsed.isErr())
     return showFailure(rawId, defaultInvestigationIndexPath(), parsed.error);
-  const { id } = parsed.value;
-  if (!isInvestigationId(id))
-    return showFailure(id, investigationIndexPathForOptions(parsed.value), [
-      `${id || "<empty>"} must use an Investigation ID`
-    ]);
+  const { id: selector } = parsed.value;
   const loaded = await loadIndexedInvestigationContext(
     parsed.value,
     "correct the reported derived-index problem, then retry showing the report"
   );
   if (loaded.isErr()) {
     return showFailure(
-      id,
+      selector,
       loaded.error.indexPath,
       loaded.error.errors,
       loaded.error.diagnostics
     );
   }
   const { index, indexPath, investigationsDirectory } = loaded.value;
-  const entry = index.entries[id];
-  if (entry === undefined) {
-    return showFailure(id, indexPath, [
-      `${id} investigation report does not exist`
-    ]);
-  }
+  const resolved = resolveInvestigationSelector(
+    Object.entries(index.entries).map(([id, entry]) => ({
+      id,
+      name: entry.state.name
+    })),
+    selector
+  );
+  if (resolved.status === "error")
+    return showFailure(selector, indexPath, resolved.errors);
+  const { id } = resolved;
+  const entry = index.entries[id]!;
   return await readShownInvestigation(
     investigationsDirectory,
     indexPath,
@@ -280,16 +281,14 @@ export async function traceInvestigationReports(
     ]);
   }
   const options = parsed.value;
-  if (!isInvestigationId(options.id))
-    return traceFailure(options.id, investigationIndexPathForOptions(options), [
-      `${options.id || "<empty>"} must use an Investigation ID`
-    ]);
-  const { id } = options;
+  const selector = options.id;
   const traceOptions = validatedTraceOptions(options);
   if (traceOptions === null) {
-    return traceFailure(id, investigationIndexPathForOptions(parsed.value), [
-      "maxDepth must be a non-negative integer"
-    ]);
+    return traceFailure(
+      selector,
+      investigationIndexPathForOptions(parsed.value),
+      ["maxDepth must be a non-negative integer"]
+    );
   }
   const loaded = await loadIndexedInvestigationContext(
     options,
@@ -297,18 +296,23 @@ export async function traceInvestigationReports(
   );
   if (loaded.isErr()) {
     return traceFailure(
-      id,
+      selector,
       loaded.error.indexPath,
       loaded.error.errors,
       loaded.error.diagnostics
     );
   }
   const { index, indexPath } = loaded.value;
-  if (index.entries[id] === undefined) {
-    return traceFailure(id, indexPath, [
-      `${id} investigation report does not exist`
-    ]);
-  }
+  const resolved = resolveInvestigationSelector(
+    Object.entries(index.entries).map(([id, entry]) => ({
+      id,
+      name: entry.state.name
+    })),
+    selector
+  );
+  if (resolved.status === "error")
+    return traceFailure(selector, indexPath, resolved.errors);
+  const { id } = resolved;
   const trace = traceInvestigationRelations(
     new Map(
       Object.entries(index.entries).map(([reportId, entry]) => [

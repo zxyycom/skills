@@ -17,7 +17,10 @@ import { queryStateIndex, stateIndexEntryOf } from "./query.ts";
 import { isPlainRecord } from "./record.ts";
 import { isStateIndexText, stateIndexQueryMaximumLimit } from "./schemas.ts";
 import { loadCurrentStateIndex, syncStateIndex } from "./storage.ts";
-import { stageSelectedIndexEntries } from "./staging.ts";
+import {
+  stageSelectedIndexEntries,
+  type StateIndexEntrySelectionResolver
+} from "./staging.ts";
 import type {
   JsonObject,
   StateIndexContext,
@@ -91,6 +94,7 @@ export function createStateIndexRuntime<
 >(options: {
   definition: StateIndexDefinition<State, Metadata>;
   indexPath: string;
+  resolveSelectedIds?: StateIndexEntrySelectionResolver<State, Metadata>;
   root: string;
   signal?: AbortSignal;
 }): StateIndexRuntime<State, Metadata> {
@@ -153,6 +157,7 @@ export function createStateIndexRuntime<
         context,
         definition,
         indexPath: options.indexPath,
+        resolveSelectedIds: options.resolveSelectedIds,
         selectedIds
       }),
     sync: (mode) =>

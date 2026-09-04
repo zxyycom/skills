@@ -183,7 +183,7 @@ function parseSingleDecisionId(
   const decisionId = normalizeDecisionIdInput(value);
   if (decisionId === null) {
     throw new InvalidArgumentError(
-      "Decision ID is invalid; must be extensionless kebab-case text"
+      "Decision selector is invalid; must be extensionless kebab-case text"
     );
   }
   if (previous !== undefined) {
@@ -199,11 +199,11 @@ function parseDecisionIdList(
   const decisionId = normalizeDecisionIdInput(value);
   if (decisionId === null) {
     throw new InvalidArgumentError(
-      "Decision ID is invalid; must be extensionless kebab-case text"
+      "Decision selector is invalid; must be extensionless kebab-case text"
     );
   }
   if (previous.includes(decisionId)) {
-    throw new InvalidArgumentError("must not repeat a Decision ID");
+    throw new InvalidArgumentError("must not repeat a Decision selector");
   }
   return [...previous, decisionId];
 }
@@ -214,7 +214,7 @@ function parseDecisionRelation(
 ): DecisionRelation[] {
   const separatorIndex = value.indexOf("=");
   if (separatorIndex <= 0 || separatorIndex === value.length - 1) {
-    throw new InvalidArgumentError("must use <type>=<decision-id>");
+    throw new InvalidArgumentError("must use <type>=<decision-selector>");
   }
   const relationTypeValue = value.slice(0, separatorIndex);
   const relationType = decisionRelationTypes.find(
@@ -228,7 +228,7 @@ function parseDecisionRelation(
   const target = normalizeDecisionIdInput(value.slice(separatorIndex + 1));
   if (target === null) {
     throw new InvalidArgumentError(
-      "target must be an extensionless Decision ID"
+      "target must be an extensionless Decision selector"
     );
   }
   if (previous.some((relation) => relation.target === target)) {
@@ -245,7 +245,7 @@ function parseDecisionSuccessor(
 ): DecisionSuccessor[] {
   const separatorIndex = value.indexOf("=");
   if (separatorIndex <= 0 || separatorIndex === value.length - 1) {
-    throw new InvalidArgumentError("must use <alignment>=<decision-id>");
+    throw new InvalidArgumentError("must use <alignment>=<decision-selector>");
   }
   const alignmentValue = value.slice(0, separatorIndex);
   if (alignmentValue !== "aligned" && alignmentValue !== "unaligned") {
@@ -258,7 +258,9 @@ function parseDecisionSuccessor(
     );
   }
   if (previous.some((successor) => successor.decisionId === decisionId)) {
-    throw new InvalidArgumentError("must not repeat a successor Decision ID");
+    throw new InvalidArgumentError(
+      "must not repeat a successor Decision selector"
+    );
   }
   return [...previous, { alignment: alignmentValue, decisionId }];
 }
@@ -520,7 +522,7 @@ function createSubcommand(
 }
 
 function createDecisionRelationOption(description: string): Option {
-  return new Option("--relation <type=decision-id>", description)
+  return new Option("--relation <type=decision-selector>", description)
     .argParser(parseDecisionRelation)
     .conflicts("clearRelations");
 }
@@ -569,7 +571,7 @@ export function createCliProgram(
     .showHelpAfterError()
     .addHelpText(
       "afterAll",
-      "\nDecision IDs are stable extensionless kebab-case values, for example use-semantic-title. A single terminal .md suffix remains accepted for compatibility.\n" +
+      "\nDecision selectors remove one terminal .md suffix, then resolve a calendar-valid YYMMDD-name ID exactly or a unique semantic name. Stable identities remain extensionless IDs.\n" +
         "Candidates remain outside the index, are queried from source, and report scaffold and body readiness separately.\n" +
         "Scaffold readiness validates candidate structure; body readiness validates required nonempty sections and the 采用 field. Neither grants semantic review or lifecycle establishment.\n" +
         "Exit codes: 0 success (including a created scaffold with readiness findings), " +
@@ -640,8 +642,8 @@ export function createCliProgram(
     "show",
     "Show decision metadata followed by the original Markdown body."
   ).argument(
-    "<decision-id>",
-    "Stable extensionless Decision ID.",
+    "<selector>",
+    "Standard Decision ID or unique semantic name.",
     parseSingleDecisionId
   );
   show.action((decisionId: DecisionId) => execute("show", show, [decisionId]));
@@ -651,8 +653,8 @@ export function createCliProgram(
     "show-candidate",
     "Show one source-discovered candidate and its mechanical readiness before activation."
   ).argument(
-    "<decision-id>",
-    "Stable extensionless Decision ID.",
+    "<selector>",
+    "Standard Decision ID or unique semantic name.",
     parseSingleDecisionId
   );
   showCandidate.action((decisionId: DecisionId) =>
@@ -665,8 +667,8 @@ export function createCliProgram(
     "Trace available predecessors, successors, or both."
   )
     .argument(
-      "<decision-id>",
-      "Stable extensionless Decision ID.",
+      "<selector>",
+      "Standard Decision ID or unique semantic name.",
       parseSingleDecisionId
     )
     .addOption(
@@ -696,8 +698,8 @@ export function createCliProgram(
     "Create one non-overwriting candidate scaffold. Edit its body and complete semantic review before lifecycle establishment."
   )
     .argument(
-      "<decision-id>",
-      "Stable extensionless Decision ID.",
+      "<selector>",
+      "Standard Decision ID or semantic name for a new candidate.",
       parseSingleDecisionId
     )
     .addOption(
@@ -744,10 +746,10 @@ export function createCliProgram(
     program,
     "stage",
     "Build a complete pending decision snapshot from the current revision and " +
-      "the explicitly selected filesystem Decision IDs."
+      "the explicitly selected Decision selectors."
   ).argument(
-    "<decision-id...>",
-    "Stable extensionless Decision IDs.",
+    "<selector...>",
+    "Standard Decision IDs or unique semantic names.",
     parseDecisionIdList
   );
   stage.action((decisionIds: DecisionId[]) =>
@@ -762,8 +764,8 @@ export function createCliProgram(
       "predecessors in the same transaction."
   )
     .argument(
-      "<decision-id>",
-      "Stable extensionless Decision ID.",
+      "<selector>",
+      "Standard Decision ID or unique semantic name.",
       parseSingleDecisionId
     )
     .addOption(
@@ -795,7 +797,7 @@ export function createCliProgram(
   )
     .addOption(
       new Option(
-        "--successor <alignment=decision-id>",
+        "--successor <alignment=decision-selector>",
         "Select one successor and confirm its whole-decision alignment. " +
           "Repeat for the complete successor set."
       )
@@ -812,8 +814,8 @@ export function createCliProgram(
     .addOption(createPreflightOption())
     .addOption(
       new Option(
-        "--discard <decision-id>",
-        "Discard one Decision ID in the same recoverable relation transaction."
+        "--discard <selector>",
+        "Discard one Decision selected by standard ID or unique name in the same recoverable relation transaction."
       ).argParser(parseSingleDecisionId)
     )
     .option(
@@ -829,8 +831,8 @@ export function createCliProgram(
       "direction has become current fact and been verified against the relevant " +
       "fact sources."
   ).argument(
-    "<decision-id>",
-    "Stable extensionless Decision ID.",
+    "<selector>",
+    "Standard Decision ID or unique semantic name.",
     parseSingleDecisionId
   );
   markAligned.action((decisionId: DecisionId) =>
@@ -843,8 +845,8 @@ export function createCliProgram(
     "Archive active decisions while preserving their last alignment and relations."
   )
     .argument(
-      "<decision-id...>",
-      "Stable extensionless Decision IDs.",
+      "<selector...>",
+      "Standard Decision IDs or unique semantic names.",
       parseDecisionIdList
     )
     .addOption(createKeepUnrecordedHistoryOption());
@@ -859,8 +861,8 @@ export function createCliProgram(
       "recorded in Git HEAD require --delete-recorded-decision."
   )
     .argument(
-      "<decision-id>",
-      "Stable extensionless Decision ID.",
+      "<selector>",
+      "Standard Decision ID or unique semantic name.",
       parseSingleDecisionId
     )
     .option(

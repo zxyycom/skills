@@ -1,8 +1,11 @@
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import {
+  investigationNameFromId,
   isInvestigationId,
   isInvestigationSourcePath,
-  isInvestigationTag
+  isInvestigationTag,
+  parseDatedInvestigationId,
+  utcInvestigationDate
 } from "./report-path.ts";
 import { compareInvestigationRelations } from "./markdown.ts";
 import {
@@ -45,6 +48,13 @@ export function buildInvestigationReportState(
       `${id} formedAt must use an RFC 3339 timestamp with timezone and second precision`
     );
   }
+  const dated = parseDatedInvestigationId(id);
+  if (
+    dated !== null &&
+    dated.date !== utcInvestigationDate(document.formedAt)
+  ) {
+    errors.push(`${id} standard ID date must match formedAt UTC date`);
+  }
   if (
     document.tags.length === 0 ||
     document.tags.some((tag) => !isInvestigationTag(tag))
@@ -77,6 +87,7 @@ export function buildInvestigationReportState(
     errors: [],
     state: {
       formedAt: document.formedAt,
+      name: investigationNameFromId(id),
       question: document.question,
       relations: [...document.relations],
       resourceIds: [...document.resourceIds],

@@ -12,6 +12,7 @@ import {
 } from "./investigation-index-source.ts";
 import { investigationSourceFingerprintPatternSource } from "./investigation-source-revision.ts";
 import {
+  investigationNameFromId,
   isInvestigationId,
   isInvestigationSourcePath,
   isInvestigationTag
@@ -26,7 +27,7 @@ import {
 } from "./types.ts";
 
 export const investigationIndexNamespace = "investigations";
-export const investigationIndexDefinitionVersion = 7;
+export const investigationIndexDefinitionVersion = 8;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -66,6 +67,7 @@ const investigationIndexStateSchema = v.strictObject({
       "must be an RFC 3339 timestamp with timezone and second precision"
     )
   ),
+  name: nonEmptyStringSchema,
   question: nonEmptyStringSchema,
   relations: v.pipe(
     v.array(relationSchema, "must be an array"),
@@ -127,6 +129,11 @@ export function createInvestigationStateIndexDefinition(
   return defineStateIndexDefinition({
     definitionVersion: investigationIndexDefinitionVersion,
     keyStrategies: [
+      {
+        derive: (state) => state.name,
+        mode: "exact",
+        name: "name"
+      },
       {
         derive: (state) => state.tags,
         mode: "exact",
@@ -224,6 +231,11 @@ function parseInvestigationIndexState(
   }
   if (!isInvestigationId(context.id)) {
     throw new TypeError("state id must use a valid Investigation ID");
+  }
+  if (parsed.output.name !== investigationNameFromId(context.id)) {
+    throw new TypeError(
+      "state.name must be derived from the entry Investigation ID"
+    );
   }
   return parsed.output;
 }

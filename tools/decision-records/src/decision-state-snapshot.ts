@@ -1,5 +1,6 @@
 import type { StateSnapshot } from "../../index-runtime/src/index.ts";
 import { establishedDecisionMetadataFromSource } from "./decision-metadata.ts";
+import { decisionNameFromId } from "./decision-path.ts";
 import { validateDecisionBody } from "./record.ts";
 import { decisionRelationConsistencyIssues } from "./relation-graph.ts";
 import { prepareDecisionSources } from "./decision-source-revision.ts";
@@ -18,7 +19,8 @@ const decisionSourceParseConcurrency = 32;
 
 export function decisionIndexState(
   sourcePath: DecisionSourcePath,
-  document: DecisionDocument
+  document: DecisionDocument,
+  decisionId: DecisionId
 ): DecisionIndexState {
   const metadata: DecisionMetadata =
     document.status === "active"
@@ -33,6 +35,7 @@ export function decisionIndexState(
           createdAt: document.createdAt
         };
   return {
+    name: decisionNameFromId(decisionId),
     sourcePath,
     title: document.title,
     ...metadata,
@@ -118,13 +121,17 @@ async function parseDecisionSource(
     );
   }
 
-  return decisionIndexState(source.sourcePath, {
-    title: candidate.title,
-    purpose: candidate.purpose,
-    background: candidate.background,
-    decision: candidate.decision,
-    tags: candidate.tags,
-    relations: candidate.relations,
-    ...metadata
-  });
+  return decisionIndexState(
+    source.sourcePath,
+    {
+      title: candidate.title,
+      purpose: candidate.purpose,
+      background: candidate.background,
+      decision: candidate.decision,
+      tags: candidate.tags,
+      relations: candidate.relations,
+      ...metadata
+    },
+    source.decisionId
+  );
 }

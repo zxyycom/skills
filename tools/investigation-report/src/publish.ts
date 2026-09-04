@@ -20,9 +20,13 @@ import {
 import {
   canonicalizeInvestigationsDirectory,
   investigationIndexFileName,
-  isInvestigationId,
   resolveInvestigationsDirectory
 } from "./report-path.ts";
+import { inspectInvestigationCollectionLayout } from "./investigation-index-source.ts";
+import {
+  investigationSelectorEntries,
+  resolveInvestigationSelector
+} from "./investigation-selector.ts";
 import type {
   InvestigationCandidatePublishOptions,
   InvestigationCandidatePublishResult
@@ -79,13 +83,20 @@ export async function publishInvestigationCandidatesWithWriter(
   const indexPath = path.join(root, investigationIndexFileName);
 
   if (options.preflight === true) {
-    const prepared = await prepareInvestigationPublish(root, options.ids);
+    const selected = await resolvePublishCandidateSelectors(root, options.ids);
+    if (selected.status === "error")
+      return result(options, false, selected.errors, { indexPath });
+    const selectedOptions = { ...options, ids: selected.ids };
+    const prepared = await prepareInvestigationPublish(
+      root,
+      selectedOptions.ids
+    );
     return prepared.status === "ok"
-      ? result(options, false, [], {
+      ? result(selectedOptions, false, [], {
           indexPath,
           warnings: prepared.warnings
         })
-      : result(options, false, prepared.errors, {
+      : result(selectedOptions, false, prepared.errors, {
           diagnostics: prepared.diagnostics,
           indexPath,
           warnings: prepared.warnings
@@ -110,19 +121,64 @@ export async function publishInvestigationCandidatesWithWriter(
 async function publishWithinLock(
   options: PublishWithinLockOptions
 ): Promise<InvestigationCandidatePublishResult> {
-  const initial = await initialPublishPreparation(options);
+  const selected = await resolvePublishCandidateSelectors(
+    options.root,
+    options.ids
+  );
+  if (selected.status === "error") {
+    return result(
+      { ids: options.ids, workspaceRoot: options.root },
+      false,
+      selected.errors,
+      { indexPath: options.indexPath, mutation: publishMutation("no-change") }
+    );
+  }
+  const selectedOptions = { ...options, ids: selected.ids };
+  const initial = await initialPublishPreparation(selectedOptions);
   if ("errors" in initial) return initial;
   try {
-    await options.beforePublish();
+    await selectedOptions.beforePublish();
   } catch (error) {
     return publishNoChangeFailure(
-      options,
+      selectedOptions,
       initial.preparation,
       "investigation-report.publish-before-write-failed",
       error
     );
   }
-  return await publishProtectedPreparation(options, initial);
+  return await publishProtectedPreparation(selectedOptions, initial);
+}
+
+async function resolvePublishCandidateSelectors(
+  root: string,
+  selectors: readonly string[]
+): Promise<
+  { ids: string[]; status: "ok" } | { errors: string[]; status: "error" }
+> {
+  const layout = await inspectInvestigationCollectionLayout(root);
+  if (layout.errors.length > 0)
+    return { errors: layout.errors, status: "error" };
+  const entries = investigationSelectorEntries(layout.candidateIds);
+  const ids: string[] = [];
+  const errors: string[] = [];
+  for (const selector of selectors) {
+    const resolved = resolveInvestigationSelector(
+      entries,
+      selector,
+      "investigation candidate"
+    );
+    if (resolved.status === "error") errors.push(...resolved.errors);
+    else ids.push(resolved.id);
+  }
+  if (errors.length > 0)
+    return { errors: uniqueSorted(errors), status: "error" };
+  if (new Set(ids).size !== ids.length) {
+    return {
+      errors: ["publish selectors must resolve to distinct Investigation IDs"],
+      status: "error"
+    };
+  }
+  return { ids, status: "ok" };
 }
 
 async function initialPublishPreparation(
@@ -617,11 +673,8 @@ function validateOptions(input: InvestigationCandidatePublishOptions): {
 } {
   const errors: string[] = [];
   if (!Array.isArray(input.ids)) errors.push("publish ids must be an array");
-  if (!input.ids.every((id) => isInvestigationId(id))) {
-    errors.push("publish IDs must use Investigation IDs");
-  }
   if (input.ids.length === 0)
-    errors.push("publish requires at least one Investigation ID");
+    errors.push("publish requires at least one Investigation selector");
   if (new Set(input.ids).size !== input.ids.length)
     errors.push("publish IDs must not repeat");
   return { errors: uniqueSorted(errors) };

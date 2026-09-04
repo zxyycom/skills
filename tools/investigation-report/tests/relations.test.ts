@@ -12,6 +12,7 @@ function state(
 ): InvestigationIndexState {
   return {
     formedAt,
+    name: "state",
     question: "问题",
     relations: [...relations],
     resourceIds: [],

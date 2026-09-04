@@ -1,13 +1,18 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { err, ok, type Result } from "neverthrow";
-import { candidatePathForInvestigationId } from "./candidate-path.ts";
+import {
+  candidatePathForInvestigationId,
+  candidatePathForInvestigationLocator,
+  findCandidatePathForInvestigationId
+} from "./candidate-path.ts";
 import {
   InvestigationCollectionMutationLockError,
   withInvestigationCollectionMutationLock
 } from "./collection-mutation-lock.ts";
 import {
   diagnosticFromError,
+  genericInvestigationDiagnostic,
   type InvestigationDiagnostic
 } from "./diagnostics.ts";
 import {
@@ -25,12 +30,19 @@ import {
 } from "./options.ts";
 import {
   canonicalizeInvestigationsDirectory,
+  datedInvestigationIdForName,
+  investigationNameFromId,
   investigationIndexFileName,
   isInvestigationId,
   isInvestigationTag,
+  parseDatedInvestigationId,
   resolveInvestigationsDirectory,
   type ResolvedInvestigationsDirectory
 } from "./report-path.ts";
+import {
+  investigationSelectorEntries,
+  resolveInvestigationSelector
+} from "./investigation-selector.ts";
 import {
   buildInvestigationReportState,
   isInvestigationRelationType
@@ -137,12 +149,7 @@ export async function showInvestigationCandidate(
 ): Promise<InvestigationCandidateShowResult> {
   const prepared = prepareCandidateLocation(input, true);
   if (prepared.isErr()) return showFailure(prepared.error);
-  const id = prepared.value.id!;
-  if (!isInvestigationId(id)) {
-    return showFailure([
-      `${id || "<empty>"} show-candidate id must use an Investigation ID`
-    ]);
-  }
+  const selector = prepared.value.id!;
   const canonical = await canonicalizeInvestigationsDirectory(
     prepared.value.resolved
   );
@@ -150,9 +157,13 @@ export async function showInvestigationCandidate(
   const layout = await safeLayout(canonical.value.investigationsDirectory);
   if (layout.status === "error")
     return showFailure(layout.errors, layout.diagnostics);
-  if (!layout.value.candidateIds.includes(id)) {
-    return showFailure([`${id} investigation candidate does not exist`]);
-  }
+  const resolved = resolveInvestigationSelector(
+    investigationSelectorEntries(layout.value.candidateIds),
+    selector,
+    "investigation candidate"
+  );
+  if (resolved.status === "error") return showFailure(resolved.errors);
+  const { id } = resolved;
   const candidate = await readInvestigationCandidate(
     canonical.value.investigationsDirectory,
     id
@@ -176,6 +187,14 @@ async function createCandidateWithinLock(
   if (layout.status === "error") {
     return createFailure("error", layout.errors, layout.diagnostics);
   }
+  const relationResolution = resolveCandidateRelationSelectors(candidate, [
+    ...layout.value.reportIds,
+    ...layout.value.candidateIds
+  ]);
+  if (relationResolution.status === "error") {
+    return createFailure("error", relationResolution.errors);
+  }
+  candidate = relationResolution.candidate;
   if (layout.value.reportIds.includes(candidate.id)) {
     return createFailure("error", [
       `${candidate.id} already exists as a formal investigation report`
@@ -186,7 +205,29 @@ async function createCandidateWithinLock(
       `${candidate.id} investigation candidate already exists`
     ]);
   }
-  const target = candidatePathForInvestigationId(
+  const legacy = [...layout.value.reportIds, ...layout.value.candidateIds].find(
+    (id) =>
+      parseDatedInvestigationId(id) === null &&
+      investigationNameFromId(id) === investigationNameFromId(candidate.id)
+  );
+  if (legacy !== undefined) {
+    return createFailure(
+      "error",
+      [
+        `migration-required: creating ${candidate.id} would make legacy Investigation ${legacy} ambiguous by name; run rename/preflight for ${legacy}, then retry new`
+      ],
+      [
+        genericInvestigationDiagnostic({
+          code: "investigation-report.migration-required",
+          reason:
+            "a legacy Investigation must be explicitly renamed before creating a same-name dated record",
+          recovery: `run rename/preflight for ${legacy}, complete the dated rename, then retry new for ${candidate.id}`,
+          target: legacy
+        })
+      ]
+    );
+  }
+  const target = await allocateCandidatePath(
     investigationsDirectory,
     candidate.id
   );
@@ -219,6 +260,41 @@ async function createCandidateWithinLock(
     written.value.warnings,
     read
   );
+}
+
+function resolveCandidateRelationSelectors(
+  candidate: InvestigationCandidateCreateOptions,
+  availableIds: readonly string[]
+):
+  | { candidate: InvestigationCandidateCreateOptions; status: "ok" }
+  | { errors: string[]; status: "error" } {
+  const relations: InvestigationRelation[] = [];
+  for (const relation of candidate.relations) {
+    const dated = parseDatedInvestigationId(relation.target);
+    const matches = (
+      dated === null
+        ? availableIds.filter(
+            (id) => investigationNameFromId(id) === relation.target
+          )
+        : availableIds.filter((id) => id === dated.id)
+    ).sort(compareText);
+    if (matches.length !== 1) {
+      return {
+        errors: [
+          matches.length === 0
+            ? `candidate relation target does not exist: ${relation.target}`
+            : `candidate relation target is ambiguous: ${relation.target}; choose one standard ID: ${matches.join(", ")}`
+        ],
+        status: "error"
+      };
+    }
+    relations.push({ ...relation, target: matches[0]! });
+  }
+  const resolved = { ...candidate, relations };
+  const errors = validateCandidateCreateOptions(resolved);
+  return errors.length === 0
+    ? { candidate: resolved, status: "ok" }
+    : { errors, status: "error" };
 }
 
 function createdCandidateResult(
@@ -307,7 +383,11 @@ export async function readInvestigationCandidate(
       status: "error";
     }>
 > {
-  const target = candidatePathForInvestigationId(investigationsDirectory, id);
+  const target = await findCandidatePathForInvestigationId(
+    investigationsDirectory,
+    id
+  );
+  if (target === null) return candidateReadMissing(id);
   const read = await readCandidateMarkdown(target, id);
   if (read.status === "error") return read;
   const markdown = read.markdown;
@@ -487,10 +567,11 @@ async function recordCandidateAuthoringReferences(
   failOnInvalidSources: boolean
 ): Promise<void> {
   try {
-    const candidatePath = candidatePathForInvestigationId(
+    const candidatePath = await findCandidatePathForInvestigationId(
       investigationsDirectory,
       id
     );
+    if (candidatePath === null) throw new Error("candidate does not exist");
     const entry = await fs.lstat(candidatePath);
     if (entry.isSymbolicLink() || !entry.isFile()) {
       throw new Error("candidate must be a regular non-symbolic-link file");
@@ -542,7 +623,8 @@ function prepareCandidateCreate(
 ): Result<PreparedCandidateCreate, string[]> {
   const parsed = parseInvestigationCandidateCreateOptions(input);
   if (parsed.isErr()) return err(parsed.error);
-  const candidateErrors = validateCandidateCreateOptions(parsed.value);
+  const normalized = normalizeNewCandidateIdentity(parsed.value);
+  const candidateErrors = normalized.errors;
   const resolved = resolveInvestigationsDirectory(
     parsed.value.workspaceRoot,
     parsed.value.investigationsDir
@@ -556,9 +638,85 @@ function prepareCandidateCreate(
     );
   }
   return ok({
-    candidate: canonicalCandidateCreateOptions(parsed.value),
+    candidate: canonicalCandidateCreateOptions(normalized.candidate),
     resolved: resolved.value
   });
+}
+
+function normalizeNewCandidateIdentity(
+  candidate: InvestigationCandidateCreateOptions
+): { candidate: InvestigationCandidateCreateOptions; errors: string[] } {
+  const dated = parseDatedInvestigationId(candidate.id);
+  const generated = datedInvestigationIdForName(
+    candidate.id,
+    candidate.formedAt
+  );
+  if (dated !== null) {
+    const expected = datedInvestigationIdForName(
+      dated.name,
+      candidate.formedAt
+    );
+    return expected === candidate.id
+      ? { candidate, errors: validateCandidateCreateOptions(candidate) }
+      : {
+          candidate,
+          errors: [
+            "standard Investigation ID date must match formedAt UTC date"
+          ]
+        };
+  }
+  if (generated === null) {
+    return { candidate, errors: validateCandidateCreateOptions(candidate) };
+  }
+  const normalized = {
+    ...candidate,
+    id: generated,
+    relations: candidate.relations.map((relation) =>
+      relation.target === candidate.id
+        ? { ...relation, target: generated }
+        : relation
+    )
+  };
+  return {
+    candidate: normalized,
+    errors: validateCandidateCreateOptions(normalized)
+  };
+}
+
+async function allocateCandidatePath(
+  investigationsDirectory: string,
+  id: string
+): Promise<string> {
+  const name = investigationNameFromId(id);
+  const candidateNamePath = candidatePathForInvestigationLocator(
+    investigationsDirectory,
+    name
+  );
+  const formalNamePath = path.join(investigationsDirectory, `${name}.md`);
+  const [candidateExists, formalExists] = await Promise.all([
+    pathExists(candidateNamePath),
+    pathExists(formalNamePath)
+  ]);
+  return candidateExists || formalExists
+    ? candidatePathForInvestigationId(investigationsDirectory, id)
+    : candidateNamePath;
+}
+
+function candidateReadMissing(id: string): CandidateReadFailure {
+  return {
+    diagnostics: [],
+    errors: [`${id} investigation candidate could not be read`],
+    status: "error"
+  };
+}
+
+async function pathExists(target: string): Promise<boolean> {
+  try {
+    await fs.lstat(target);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function prepareCandidateLocation(

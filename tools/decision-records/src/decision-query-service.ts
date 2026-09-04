@@ -21,7 +21,12 @@ import {
   DecisionCollectionLockError,
   withDecisionCollectionMutationLock
 } from "./decision-collection-mutation-lock.ts";
-import { isDecisionId } from "./decision-path.ts";
+import {
+  decisionNameFromId,
+  isDecisionId,
+  normalizeDecisionSelectorInput,
+  parseDatedDecisionId
+} from "./decision-path.ts";
 import {
   decisionScanOptions,
   loadDecisionQueryContext,
@@ -75,12 +80,12 @@ export type DecisionQueryRequest =
     }
   | {
       command: "show-candidate";
-      decisionId: DecisionId;
+      decisionId: string;
       location: DecisionLocation;
     }
   | {
       command: "show";
-      decisionId: DecisionId;
+      decisionId: string;
       location: DecisionLocation;
     }
   | {
@@ -89,7 +94,7 @@ export type DecisionQueryRequest =
     }
   | {
       command: "trace";
-      decisionId: DecisionId;
+      decisionId: string;
       direction: DecisionTraceDirection;
       location: DecisionLocation;
       maxDepth: number | null;
@@ -265,32 +270,17 @@ async function listDecisionRecords(
 async function showDecisionRecord(
   request: Extract<DecisionQueryRequest, { command: "show" }>
 ): Promise<DecisionQueryResult> {
-  if (!isDecisionId(request.decisionId)) {
-    return invalidDecisionIdFailure(request.decisionId);
-  }
   const context = await loadDecisionQueryContext(request.location);
   if (context.status === "error") {
     return context;
   }
-  const matched = context.reader.get(request.decisionId);
-  if (matched.status === "error") {
-    return indexFailure(matched, context.indexRelativePath);
-  }
-  const record = matched.value === null ? null : indexedRecord(matched.value);
-  if (record === null) {
-    return decisionFailure(
-      [
-        decisionDiagnostic({
-          code: "decision-records.decision-not-found",
-          reason: "Established decision does not exist: " + request.decisionId,
-          recovery:
-            "Use list to choose an established Decision ID, then retry the command.",
-          target: request.decisionId
-        })
-      ],
-      { presentation: "plain" }
-    );
-  }
+  const resolved = resolveIndexedDecisionSelector(
+    context,
+    request.decisionId,
+    "Established decision"
+  );
+  if (resolved.status === "error") return resolved.failure;
+  const record = resolved.record;
   const body = await readDecisionBody(context.decisionsDirectory, record);
   return body.status === "error"
     ? body
@@ -306,45 +296,46 @@ async function showDecisionRecord(
 async function showDecisionCandidate(
   request: Extract<DecisionQueryRequest, { command: "show-candidate" }>
 ): Promise<DecisionQueryResult> {
-  if (!isDecisionId(request.decisionId)) {
-    return invalidDecisionIdFailure(request.decisionId);
-  }
   const context = await loadCandidateQueryContext(request.location);
   if (context.status === "error") {
     return context;
   }
-  const record =
-    candidateRecords(context.scan).find(
-      (candidate) => candidate.decisionId === request.decisionId
-    ) ?? null;
+  const resolved = resolveCandidateDecisionSelector(
+    context.scan,
+    request.decisionId
+  );
+  if (resolved.status === "error") return resolved.failure;
+  const record = resolved.record;
   if (record === null) {
-    const sourceRecord =
-      context.scan.records.find(
-        (candidate) =>
-          candidate.decisionId === request.decisionId &&
-          candidate.markdownExists
-      ) ?? null;
-    const targetWarnings =
-      sourceRecord === null
-        ? []
-        : sourceWarningsForRecord(context.warnings, sourceRecord);
+    const normalized = normalizeDecisionSelectorInput(request.decisionId);
+    const sourceRecord = context.scan.records.find(
+      (candidate) =>
+        candidate.markdownExists &&
+        (parseDatedDecisionId(normalized)?.id === candidate.decisionId ||
+          (parseDatedDecisionId(normalized) === null &&
+            isDecisionId(candidate.decisionId) &&
+            decisionNameFromId(candidate.decisionId) === normalized))
+    );
+    if (sourceRecord !== undefined) {
+      return decisionFailure(
+        [
+          "Decision source is not a valid candidate scaffold: " +
+            sourceRecord.decisionId,
+          ...sourceWarningsForRecord(context.warnings, sourceRecord)
+        ],
+        { presentation: "plain" }
+      );
+    }
     return decisionFailure(
-      sourceRecord === null
-        ? [
-            decisionDiagnostic({
-              code: "decision-records.candidate-not-found",
-              reason:
-                "Decision candidate does not exist: " + request.decisionId,
-              recovery:
-                "Use candidates to choose a valid candidate Decision ID, then retry the command.",
-              target: request.decisionId
-            })
-          ]
-        : [
-            "Decision source is not a valid candidate scaffold: " +
-              request.decisionId,
-            ...targetWarnings
-          ],
+      [
+        decisionDiagnostic({
+          code: "decision-records.candidate-not-found",
+          reason: "Decision candidate does not exist: " + request.decisionId,
+          recovery:
+            "Use candidates to choose a valid candidate Decision ID or unique name, then retry the command.",
+          target: request.decisionId
+        })
+      ],
       { presentation: "plain" }
     );
   }
@@ -363,31 +354,16 @@ async function showDecisionCandidate(
 async function traceDecisionRecord(
   request: Extract<DecisionQueryRequest, { command: "trace" }>
 ): Promise<DecisionQueryResult> {
-  if (!isDecisionId(request.decisionId)) {
-    return invalidDecisionIdFailure(request.decisionId);
-  }
   const context = await loadDecisionQueryContext(request.location);
   if (context.status === "error") {
     return context;
   }
-  const matched = context.reader.get(request.decisionId);
-  if (matched.status === "error") {
-    return indexFailure(matched, context.indexRelativePath);
-  }
-  if (matched.value === null) {
-    return decisionFailure(
-      [
-        decisionDiagnostic({
-          code: "decision-records.decision-not-found",
-          reason: "Established decision does not exist: " + request.decisionId,
-          recovery:
-            "Use list to choose an established Decision ID, then retry the command.",
-          target: request.decisionId
-        })
-      ],
-      { presentation: "plain" }
-    );
-  }
+  const resolved = resolveIndexedDecisionSelector(
+    context,
+    request.decisionId,
+    "Established decision"
+  );
+  if (resolved.status === "error") return resolved.failure;
   const queried = context.reader.all({
     sort: [{ direction: "asc", key: "id" }]
   });
@@ -402,7 +378,7 @@ async function traceDecisionRecord(
       sourcePath: record.sourcePath,
       status: record.status
     })),
-    request.decisionId,
+    resolved.record.decisionId,
     {
       direction: request.direction,
       maxDepth: request.maxDepth
@@ -823,19 +799,120 @@ function asDecisionQueryResult(value: unknown): DecisionQueryResult | null {
   return null;
 }
 
-function invalidDecisionIdFailure(
-  decisionId: string
+function resolveIndexedDecisionSelector(
+  context: Extract<
+    Awaited<ReturnType<typeof loadDecisionQueryContext>>,
+    { status: "ok" }
+  >,
+  selector: string,
+  label: string
+):
+  | { record: IndexedDecisionRecord; status: "ok" }
+  | { failure: DecisionApplicationFailure; status: "error" } {
+  const normalized = normalizeDecisionSelectorInput(selector);
+  const dated = parseDatedDecisionId(normalized);
+  if (dated !== null) {
+    const matched = context.reader.get(dated.id);
+    if (matched.status === "error") {
+      return {
+        failure: indexFailure(matched, context.indexRelativePath),
+        status: "error"
+      };
+    }
+    return matched.value === null
+      ? { failure: selectorNotFound(label, normalized), status: "error" }
+      : { record: indexedRecord(matched.value), status: "ok" };
+  }
+  const matched = context.reader.all({
+    filters: [
+      { key: "name", kind: "exact", operator: "all", values: [normalized] }
+    ],
+    sort: [{ direction: "asc", key: "id" }]
+  });
+  if (matched.status === "error") {
+    return {
+      failure: indexFailure(matched, context.indexRelativePath),
+      status: "error"
+    };
+  }
+  if (matched.value.length === 0) {
+    return { failure: selectorNotFound(label, normalized), status: "error" };
+  }
+  if (matched.value.length > 1) {
+    return {
+      failure: decisionFailure(
+        [
+          decisionDiagnostic({
+            code: "decision-records.decision-ambiguous",
+            reason:
+              `${label} name is ambiguous: ${normalized}; choose one standard ID: ` +
+              matched.value.map((entry) => entry.id).join(", "),
+            recovery:
+              "Retry with one listed calendar-valid YYMMDD-name Decision ID.",
+            target: normalized
+          })
+        ],
+        { presentation: "plain" }
+      ),
+      status: "error"
+    };
+  }
+  return { record: indexedRecord(matched.value[0]!), status: "ok" };
+}
+
+function resolveCandidateDecisionSelector(
+  scan: DecisionScan,
+  selector: string
+):
+  | { record: CandidateDecisionRecord | null; status: "ok" }
+  | { failure: DecisionApplicationFailure; status: "error" } {
+  const normalized = normalizeDecisionSelectorInput(selector);
+  const dated = parseDatedDecisionId(normalized);
+  const candidates = candidateRecords(scan);
+  const matches =
+    dated === null
+      ? candidates.filter(
+          (candidate) => decisionNameFromId(candidate.decisionId) === normalized
+        )
+      : candidates.filter((candidate) => candidate.decisionId === dated.id);
+  if (matches.length === 0) return { record: null, status: "ok" };
+  if (matches.length === 1) return { record: matches[0]!, status: "ok" };
+  return {
+    failure: decisionFailure(
+      [
+        decisionDiagnostic({
+          code: "decision-records.candidate-ambiguous",
+          reason:
+            `Decision candidate name is ambiguous: ${normalized}; choose one standard ID: ` +
+            matches
+              .map((candidate) => candidate.decisionId)
+              .sort()
+              .join(", "),
+          recovery:
+            "Retry with one listed calendar-valid YYMMDD-name Decision ID.",
+          target: normalized
+        })
+      ],
+      { presentation: "plain" }
+    ),
+    status: "error"
+  };
+}
+
+function selectorNotFound(
+  label: string,
+  selector: string
 ): DecisionApplicationFailure {
   return decisionFailure(
     [
       decisionDiagnostic({
-        code: "decision-records.decision-id-invalid",
-        reason: "Decision ID is invalid: " + decisionId,
+        code: "decision-records.decision-not-found",
+        reason: `${label} does not exist: ${selector}`,
         recovery:
-          "Provide an extensionless Decision ID, then retry the command.",
-        target: "Decision ID argument"
+          "Use list to choose a Decision ID or unique name, then retry the command.",
+        target: selector
       })
     ],
-    { exitCode: 2, presentation: "plain" }
+    { presentation: "plain" }
   );
 }

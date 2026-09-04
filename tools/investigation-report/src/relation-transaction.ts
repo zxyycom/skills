@@ -29,9 +29,10 @@ import {
 import { parseInvestigationRelationSetOptions } from "./options.ts";
 import {
   canonicalizeInvestigationsDirectory,
-  isInvestigationId,
+  normalizeInvestigationIdInput,
   resolveInvestigationsDirectory
 } from "./report-path.ts";
+import { resolveInvestigationSelector } from "./investigation-selector.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
 import { buildInvestigationReportState } from "./report-validation.ts";
 import {
@@ -212,6 +213,7 @@ type RelationPhase<T> =
 type LoadedRelationContext = Readonly<{
   collection: ValidatedInvestigationCollection;
   originalIndexText: string;
+  replacements: readonly InvestigationRelationReplacement[];
   sourceById: Map<string, InvestigationSource>;
   sourceIds: string[];
 }>;
@@ -254,14 +256,23 @@ async function loadRelationTransaction(
   const collection = await collectValidatedInvestigationCollection(
     options.root
   );
-  const sourceIds = options.replacements
-    .map((replacement) => replacement.source)
-    .sort(compareText);
   if (collection.errors.length > 0 || collection.snapshot === null) {
     return relationPhaseResult(
-      relationResult(false, sourceIds, options.indexPath, collection.errors)
+      relationResult(false, [], options.indexPath, collection.errors)
     );
   }
+  const selected = resolveRelationSelectors(
+    options.replacements,
+    collection.states
+  );
+  if (selected.status === "error") {
+    return relationPhaseResult(
+      relationResult(false, [], options.indexPath, selected.errors)
+    );
+  }
+  const sourceIds = selected.replacements.map(
+    (replacement) => replacement.source
+  );
   const originalIndex = await readOriginalRelationIndex(options, sourceIds);
   if (originalIndex.status === "result") return originalIndex;
   const freshnessFailure = await relationFreshnessFailure(
@@ -286,6 +297,7 @@ async function loadRelationTransaction(
     value: {
       collection,
       originalIndexText: originalIndex.value,
+      replacements: selected.replacements,
       sourceById,
       sourceIds
     }
@@ -410,7 +422,7 @@ function buildCandidateRelationSources(
   candidateStates: Map<string, InvestigationIndexState>;
 }> {
   const replacementBySource = new Map(
-    options.replacements.map((replacement) => [replacement.source, replacement])
+    loaded.replacements.map((replacement) => [replacement.source, replacement])
   );
   const candidateSources: InvestigationSource[] = [];
   const candidateStates = new Map<string, InvestigationIndexState>();
@@ -825,10 +837,10 @@ function validateReplacements(
   }
   const normalized: InvestigationRelationReplacement[] = [];
   for (const replacement of replacements) {
-    const source = replacement.source;
-    if (!isInvestigationId(source)) {
+    const source = normalizeInvestigationIdInput(replacement.source);
+    if (source === null) {
       errors.push(
-        `${replacement.source || "<empty>"} source must use an Investigation ID`
+        `${replacement.source || "<empty>"} source must use an Investigation selector`
       );
       continue;
     }
@@ -838,21 +850,25 @@ function validateReplacements(
     }
     seen.add(source);
     const targets = new Set<string>();
+    const relations: Array<
+      InvestigationRelationReplacement["relations"][number]
+    > = [];
     for (const relation of replacement.relations) {
-      if (!isInvestigationId(relation.target)) {
+      const target = normalizeInvestigationIdInput(relation.target);
+      if (target === null) {
         errors.push(
-          `${source} relation target ${relation.target || "<empty>"} must use an Investigation ID`
+          `${source} relation target ${relation.target || "<empty>"} must use an Investigation selector`
         );
+        continue;
       }
-      if (targets.has(relation.target)) {
-        errors.push(
-          `${source} relations must not repeat target ${relation.target}`
-        );
+      if (targets.has(target)) {
+        errors.push(`${source} relations must not repeat target ${target}`);
       }
-      targets.add(relation.target);
+      targets.add(target);
+      relations.push({ ...relation, target });
     }
     normalized.push({
-      relations: [...replacement.relations].sort(compareInvestigationRelations),
+      relations: [...relations].sort(compareInvestigationRelations),
       source
     });
   }
@@ -864,6 +880,45 @@ function validateReplacements(
     replacements: sorted,
     sourceIds: sorted.map((replacement) => replacement.source)
   };
+}
+
+function resolveRelationSelectors(
+  replacements: readonly InvestigationRelationReplacement[],
+  states: ReadonlyMap<string, InvestigationIndexState>
+):
+  | { replacements: InvestigationRelationReplacement[]; status: "ok" }
+  | { errors: string[]; status: "error" } {
+  const entries = [...states.entries()].map(([id, state]) => ({
+    id,
+    name: state.name
+  }));
+  const errors: string[] = [];
+  const resolved: InvestigationRelationReplacement[] = [];
+  for (const replacement of replacements) {
+    const source = resolveInvestigationSelector(entries, replacement.source);
+    if (source.status === "error") {
+      errors.push(...source.errors);
+      continue;
+    }
+    const relations = [];
+    for (const relation of replacement.relations) {
+      const target = resolveInvestigationSelector(entries, relation.target);
+      if (target.status === "error") {
+        errors.push(...target.errors);
+      } else {
+        relations.push({ ...relation, target: target.id });
+      }
+    }
+    if (relations.length === replacement.relations.length) {
+      resolved.push({ source: source.id, relations });
+    }
+  }
+  if (errors.length > 0)
+    return { errors: uniqueSorted(errors), status: "error" };
+  const validated = validateReplacements(resolved);
+  return validated.errors.length === 0
+    ? { replacements: validated.replacements, status: "ok" }
+    : { errors: validated.errors, status: "error" };
 }
 
 async function writeTextAtomically(

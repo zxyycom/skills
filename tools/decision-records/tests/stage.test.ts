@@ -86,6 +86,78 @@ test("stage treats a selected new ID as an addition and preserves an unselected 
     assert.ok(pending.entries[addedId]);
   }));
 
+test("stage resolves a unique Decision name after one Markdown suffix", () =>
+  withGitFixtureWorkspace("stage-name-selector", async (workspaceRoot) => {
+    const staged = await runSourceCli([
+      "stage",
+      "use-source-cli.MD",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(staged.exitCode, 0, staged.stderr);
+  }));
+
+test("stage treats a standard Decision ID as exact instead of falling back to a name", () =>
+  withGitFixtureWorkspace("stage-exact-selector", async (workspaceRoot) => {
+    const staged = await runSourceCli([
+      "stage",
+      "260801-stage-not-present",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(staged.exitCode, 2);
+    assert.match(
+      staged.stderr,
+      /Selected Decision ID does not exist in the revision or filesystem: 260801-stage-not-present/
+    );
+  }));
+
+test("stage reports ambiguous Decision names before writing pending files", () =>
+  withGitFixtureWorkspace("stage-ambiguous-name", async (workspaceRoot) => {
+    const duplicateId = "260711-use-source-cli";
+    await writeDecision(
+      workspaceRoot,
+      duplicateId,
+      candidateDecisionBody({ id: duplicateId, title: "同名候选" })
+    );
+    const staged = await runSourceCli([
+      "stage",
+      "use-source-cli",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(staged.exitCode, 2);
+    assert.match(staged.stderr, /Selected Decision name is ambiguous/);
+    assert.equal(
+      runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
+      ""
+    );
+  }));
+
+test("stage resolves a filesystem-only Decision addition by name", () =>
+  withGitFixtureWorkspace("stage-filesystem-name", async (workspaceRoot) => {
+    const addedId = "260801-stage-filesystem-only";
+    await writeDecision(
+      workspaceRoot,
+      addedId,
+      candidateDecisionBody({ id: addedId, title: "工作树名称选择" })
+        .replace("status: candidate", "status: active")
+        .replace("alignment: null", "alignment: aligned")
+        .replace("createdAt: null", "createdAt: 2026-08-01T00:00:00Z")
+    );
+    const staged = await runSourceCli([
+      "stage",
+      "stage-filesystem-only",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(staged.exitCode, 0, staged.stderr);
+    const pending = JSON.parse(
+      runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"])
+    );
+    assert.ok(pending.entries[addedId]);
+  }));
+
 test("stage preserves one Decision ID when its semantic sourcePath is renamed", () =>
   withGitFixtureWorkspace("stage-rename", async (workspaceRoot) => {
     const renamedId = "use-renamed-cli";
@@ -481,17 +553,17 @@ test("stage rejects invalid duplicate and missing paths without changing the pen
     const indexBefore = await fs.readFile(indexPath, "utf8");
     for (const { ids, expectedError } of [
       {
-        expectedError: /must not repeat a Decision ID/,
+        expectedError: /must not repeat a Decision selector/,
         ids: [currentDecisionId, currentDecisionId]
       },
       {
         expectedError:
-          /Selected Decision ID does not exist in the revision or filesystem: use-missing-stage/,
+          /Selected Decision name does not exist in the revision or filesystem: use-missing-stage/,
         ids: ["use-missing-stage.md"]
       },
       {
         expectedError:
-          /Decision ID is invalid; must be extensionless kebab-case text/,
+          /Decision selector is invalid; must be extensionless kebab-case text/,
         ids: ["../outside.md"]
       }
     ]) {
@@ -596,7 +668,7 @@ test("help exposes stage independently without adding lifecycle stage options", 
     async () => 0,
     () => undefined
   );
-  assert.match(program.helpInformation(), /stage <decision-id\.\.\.>/);
+  assert.match(program.helpInformation(), /stage <selector\.\.\.>/);
   for (const command of [
     "activate",
     "evolve",

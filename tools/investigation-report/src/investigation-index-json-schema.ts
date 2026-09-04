@@ -38,6 +38,13 @@ export const investigationIndexJsonSchema = {
     relation: {
       additionalProperties: false,
       properties: {
+        name: {
+          items: nonEmptyText,
+          maxItems: 1,
+          minItems: 1,
+          type: "array",
+          uniqueItems: true
+        },
         target: { $ref: "#/$defs/investigationId" },
         type: { enum: investigationRelationTypes, type: "string" }
       },
@@ -81,7 +88,7 @@ export const investigationIndexJsonSchema = {
           uniqueItems: true
         }
       },
-      required: ["tag", "formed-at", "relation-type", "text"],
+      required: ["name", "tag", "formed-at", "relation-type", "text"],
       type: "object"
     },
     state: {
@@ -91,6 +98,7 @@ export const investigationIndexJsonSchema = {
           pattern: investigationTimestampPatternSource,
           type: "string"
         },
+        name: nonEmptyText,
         question: nonEmptyText,
         relations: { items: { $ref: "#/$defs/relation" }, type: "array" },
         resourceIds: {
@@ -113,6 +121,7 @@ export const investigationIndexJsonSchema = {
       required: [
         "title",
         "formedAt",
+        "name",
         "question",
         "tags",
         "relations",
@@ -142,6 +151,7 @@ export const investigationIndexJsonSchema = {
     },
     keyDefinitions: {
       const: [
+        { mode: "exact", name: "name" },
         { mode: "exact", name: "tag" },
         { mode: "range", name: "formed-at" },
         { mode: "exact", name: "relation-type" },

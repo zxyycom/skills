@@ -1,10 +1,13 @@
 {
-  "definitionVersion": 7,
+  "definitionVersion": 8,
   "entries": {
     "260903-explore-name-collisions-in-retained-artifacts": {
       "keys": {
         "formed-at": [
           1788420622000
+        ],
+        "name": [
+          "explore-name-collisions-in-retained-artifacts"
         ],
         "tag": [
           "artifact-identity",
@@ -20,6 +23,7 @@
       },
       "state": {
         "formedAt": "2026-09-03T07:30:22+00:00",
+        "name": "explore-name-collisions-in-retained-artifacts",
         "question": "Change、Decision 与 Investigation 的历史名称占用何时构成真实冲突，时间、短码或改名分别应承担什么责任？",
         "relations": [],
         "resourceIds": [],
@@ -39,6 +43,9 @@
         "formed-at": [
           1786038330000
         ],
+        "name": [
+          "adopt-native-lock-and-atomic-write-libraries"
+        ],
         "relation-type": [
           "复查"
         ],
@@ -52,6 +59,7 @@
       },
       "state": {
         "formedAt": "2026-08-07T01:45:30+08:00",
+        "name": "adopt-native-lock-and-atomic-write-libraries",
         "question": "约束收窄后，原生锁和原子写库能否分别完整承接 task-graph 的窄责任？",
         "relations": [
           {
@@ -72,6 +80,9 @@
         "formed-at": [
           1785725121000
         ],
+        "name": [
+          "adopt-preflight-warning-and-single-predecessor-collapse"
+        ],
         "relation-type": [
           "补充"
         ],
@@ -85,6 +96,7 @@
       },
       "state": {
         "formedAt": "2026-08-03T10:45:21+08:00",
+        "name": "adopt-preflight-warning-and-single-predecessor-collapse",
         "question": "如何用事前警告和显式单前序折叠处理尚未进入版本基线的决策演进？",
         "relations": [
           {
@@ -105,6 +117,9 @@
         "formed-at": [
           1784628632000
         ],
+        "name": [
+          "align-prompt-optimize-name-and-trigger"
+        ],
         "tag": [
           "prompt-optimize"
         ],
@@ -115,6 +130,7 @@
       },
       "state": {
         "formedAt": "2026-07-21T18:10:32+08:00",
+        "name": "align-prompt-optimize-name-and-trigger",
         "question": "prompt-optimize 的名称怎样同时表达真实能力、人类发现入口与 agent 主动触发边界？",
         "relations": [],
         "resourceIds": [],
@@ -130,6 +146,9 @@
         "formed-at": [
           1786616028000
         ],
+        "name": [
+          "bind-mentioned-objects-to-negative-roles"
+        ],
         "relation-type": [
           "补充"
         ],
@@ -143,6 +162,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T10:13:48+00:00",
+        "name": "bind-mentioned-objects-to-negative-roles",
         "question": "负向描述为什么需要同时准确表示对象并把它绑定到排除角色？",
         "relations": [
           {
@@ -163,6 +183,9 @@
         "formed-at": [
           1786613845000
         ],
+        "name": [
+          "bound-identifiability-of-deep-goals"
+        ],
         "relation-type": [
           "修正"
         ],
@@ -176,6 +199,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T09:37:25+00:00",
+        "name": "bound-identifiability-of-deep-goals",
         "question": "拥有者在多大程度上能够从歧义、候选和冲突中识别深层目标？",
         "relations": [
           {
@@ -196,6 +220,9 @@
         "formed-at": [
           1788316884000
         ],
+        "name": [
+          "ci-clean-runner-environment-regressions"
+        ],
         "tag": [
           "ci",
           "git-fixture",
@@ -209,6 +236,7 @@
       },
       "state": {
         "formedAt": "2026-09-02T02:41:24+00:00",
+        "name": "ci-clean-runner-environment-regressions",
         "question": "为什么 main 的 Package Skills 在 43f2faf 的 clean runner 上失败，而本地门禁通过？",
         "relations": [],
         "resourceIds": [],
@@ -227,6 +255,9 @@
         "formed-at": [
           1786619147000
         ],
+        "name": [
+          "compare-human-and-ai-abstraction-defaults"
+        ],
         "relation-type": [
           "修正"
         ],
@@ -240,6 +271,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T11:05:47+00:00",
+        "name": "compare-human-and-ai-abstraction-defaults",
         "question": "人和 AI 在何种机制下会把有限规则过度抽象为具有外推权威的框架？",
         "relations": [
           {
@@ -260,6 +292,9 @@
         "formed-at": [
           1786617146000
         ],
+        "name": [
+          "compress-negative-revision-history-into-positive-goals"
+        ],
         "relation-type": [
           "补充"
         ],
@@ -273,6 +308,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T10:32:26+00:00",
+        "name": "compress-negative-revision-history-into-positive-goals",
         "question": "正向目标怎样压缩候选反馈与负向修正历史，而不丢失仍需独立保留的边界？",
         "relations": [
           {
@@ -293,6 +329,9 @@
         "formed-at": [
           1786417716000
         ],
+        "name": [
+          "defer-standard-test-result-blocking"
+        ],
         "tag": [
           "test-evidence"
         ],
@@ -303,6 +342,7 @@
       },
       "state": {
         "formedAt": "2026-08-11T03:08:36Z",
+        "name": "defer-standard-test-result-blocking",
         "question": "标准测试结果协议与阻断资格在没有实施授权时应由哪些长期载体承接？",
         "relations": [],
         "resourceIds": [
@@ -322,6 +362,9 @@
         "formed-at": [
           1784622685000
         ],
+        "name": [
+          "define-git-library-selection-evidence"
+        ],
         "tag": [
           "git-integration"
         ],
@@ -332,6 +375,7 @@
       },
       "state": {
         "formedAt": "2026-07-21T16:31:25+08:00",
+        "name": "define-git-library-selection-evidence",
         "question": "TypeScript Git 库选型需要哪些 API、正确性、真实性能与维护证据？",
         "relations": [],
         "resourceIds": [],
@@ -347,6 +391,9 @@
         "formed-at": [
           1785227943000
         ],
+        "name": [
+          "detect-uncommitted-decision-evolution-from-git-baselines"
+        ],
         "tag": [
           "decision-records"
         ],
@@ -357,6 +404,7 @@
       },
       "state": {
         "formedAt": "2026-07-28T16:39:03+08:00",
+        "name": "detect-uncommitted-decision-evolution-from-git-baselines",
         "question": "Git 版本基线能否安全识别同一 Change 内尚未提交的中间决策演进候选？",
         "relations": [],
         "resourceIds": [],
@@ -372,6 +420,9 @@
         "formed-at": [
           1786615149000
         ],
+        "name": [
+          "distinguish-activation-neighborhoods-from-valid-solution-space"
+        ],
         "relation-type": [
           "修正"
         ],
@@ -385,6 +436,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T09:59:09+00:00",
+        "name": "distinguish-activation-neighborhoods-from-valid-solution-space",
         "question": "Transformer 中被上下文激活的关联邻域为何不能等同于任务有效解集合？",
         "relations": [
           {
@@ -405,6 +457,9 @@
         "formed-at": [
           1786616874000
         ],
+        "name": [
+          "distinguish-expressive-equivalence-from-construction-cost"
+        ],
         "relation-type": [
           "修正"
         ],
@@ -418,6 +473,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T10:27:54+00:00",
+        "name": "distinguish-expressive-equivalence-from-construction-cost",
         "question": "正负描述在形式表达能力等价时，为什么仍可能具有不对称的自然语言构造成本？",
         "relations": [
           {
@@ -438,6 +494,9 @@
         "formed-at": [
           1788418029000
         ],
+        "name": [
+          "evaluate-mcpshell-as-user-scoped-workspace-bridge"
+        ],
         "tag": [
           "agent-workspace-isolation",
           "mcpshell",
@@ -451,6 +510,7 @@
       },
       "state": {
         "formedAt": "2026-09-03T06:47:09+00:00",
+        "name": "evaluate-mcpshell-as-user-scoped-workspace-bridge",
         "question": "是否值得继续验证一个初始化型 skill，使带个人配置的 agent 能通过 MCPShell 操作隔离工作区，并获得预实现的 shell 与 diff？",
         "relations": [],
         "resourceIds": [],
@@ -469,6 +529,9 @@
         "formed-at": [
           1786614419000
         ],
+        "name": [
+          "ground-positive-negative-asymmetry-in-reference-structure"
+        ],
         "relation-type": [
           "修正"
         ],
@@ -482,6 +545,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T09:46:59+00:00",
+        "name": "ground-positive-negative-asymmetry-in-reference-structure",
         "question": "正向与负向描述的使用差异是否主要来自参照结构，而不是肯定或否定句式？",
         "relations": [
           {
@@ -502,6 +566,9 @@
         "formed-at": [
           1786513181000
         ],
+        "name": [
+          "identify-operation-time-skill-rerouting-gap"
+        ],
         "tag": [
           "skill-orchestration"
         ],
@@ -512,6 +579,7 @@
       },
       "state": {
         "formedAt": "2026-08-12T05:39:41+00:00",
+        "name": "identify-operation-time-skill-rerouting-gap",
         "question": "长任务进入具体副作用动作时，现有 Skill 发现机制为什么没有可靠触发领域重路由？",
         "relations": [],
         "resourceIds": [],
@@ -527,6 +595,9 @@
         "formed-at": [
           1784627415000
         ],
+        "name": [
+          "identify-routing-and-coordination-gaps-in-context-management"
+        ],
         "tag": [
           "context-management"
         ],
@@ -537,6 +608,7 @@
       },
       "state": {
         "formedAt": "2026-07-21T17:50:15+08:00",
+        "name": "identify-routing-and-coordination-gaps-in-context-management",
         "question": "现有上下文管理 skills 距离统一上下文管理系统还缺少哪些路由与协作能力？",
         "relations": [],
         "resourceIds": [],
@@ -552,6 +624,9 @@
         "formed-at": [
           1788170700000
         ],
+        "name": [
+          "identify-vibe-001-jscpd-path-and-lizard-version-gaps"
+        ],
         "tag": [
           "duplicate-detection",
           "function-metrics",
@@ -564,6 +639,7 @@
       },
       "state": {
         "formedAt": "2026-08-31T10:05:00+00:00",
+        "name": "identify-vibe-001-jscpd-path-and-lizard-version-gaps",
         "question": "锁定 @zxyycom/vibe-check 0.0.1 时，重复检测的临时配置相对路径和函数指标的 Lizard 可用性是否足以形成可信门禁？",
         "relations": [],
         "resourceIds": [],
@@ -581,6 +657,9 @@
         "formed-at": [
           1786611677000
         ],
+        "name": [
+          "model-goals-as-layered-partially-expressible-intentions"
+        ],
         "relation-type": [
           "修正"
         ],
@@ -594,6 +673,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T09:01:17+00:00",
+        "name": "model-goals-as-layered-partially-expressible-intentions",
         "question": "目标应怎样同时表达深层意向、当前代理、偏好、现实约束与允许偏离的理由？",
         "relations": [
           {
@@ -614,6 +694,9 @@
         "formed-at": [
           1786676231000
         ],
+        "name": [
+          "preserve-redacted-conversations-in-two-derived-forms"
+        ],
         "tag": [
           "codex"
         ],
@@ -624,6 +707,7 @@
       },
       "state": {
         "formedAt": "2026-08-14T02:57:11+00:00",
+        "name": "preserve-redacted-conversations-in-two-derived-forms",
         "question": "怎样从含敏感运行时数据的 Codex JSONL 形成可审计近全量档案和可阅读对话初稿？",
         "relations": [],
         "resourceIds": [
@@ -642,6 +726,9 @@
         "formed-at": [
           1786612070000
         ],
+        "name": [
+          "recognize-document-projections-as-part-of-goal-formation"
+        ],
         "relation-type": [
           "修正"
         ],
@@ -655,6 +742,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T09:07:50+00:00",
+        "name": "recognize-document-projections-as-part-of-goal-formation",
         "question": "文档作为目标的时点投影时，怎样通过反馈反过来参与目标形成？",
         "relations": [
           {
@@ -675,6 +763,9 @@
         "formed-at": [
           1786610110000
         ],
+        "name": [
+          "recover-candidate-model-from-negative-description-dispute"
+        ],
         "tag": [
           "ai-ready-docs"
         ],
@@ -685,6 +776,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T08:35:10+00:00",
+        "name": "recover-candidate-model-from-negative-description-dispute",
         "question": "负向描述争议暴露了怎样的候选概念层次与后续调查边界？",
         "relations": [],
         "resourceIds": [],
@@ -700,6 +792,9 @@
         "formed-at": [
           1786024415000
         ],
+        "name": [
+          "reject-lock-and-atomic-write-library-dependencies"
+        ],
         "tag": [
           "task-graph"
         ],
@@ -710,6 +805,7 @@
       },
       "state": {
         "formedAt": "2026-08-06T21:53:35+08:00",
+        "name": "reject-lock-and-atomic-write-library-dependencies",
         "question": "现有 npm 候选能否实质缩减 task-graph 的锁、恢复与原子写事务协议？",
         "relations": [],
         "resourceIds": [],
@@ -725,6 +821,9 @@
         "formed-at": [
           1786069723000
         ],
+        "name": [
+          "remove-supervision-around-lock-and-atomic-write-libraries"
+        ],
         "relation-type": [
           "修正"
         ],
@@ -738,6 +837,7 @@
       },
       "state": {
         "formedAt": "2026-08-07T10:28:43+08:00",
+        "name": "remove-supervision-around-lock-and-atomic-write-libraries",
         "question": "删除外围监督协议后，已选锁与原子写库应继续承接哪些责任？",
         "relations": [
           {
@@ -758,6 +858,9 @@
         "formed-at": [
           1786620049000
         ],
+        "name": [
+          "return-from-framework-strategy-to-description-polarity"
+        ],
         "relation-type": [
           "修正"
         ],
@@ -771,6 +874,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T11:20:49+00:00",
+        "name": "return-from-framework-strategy-to-description-polarity",
         "question": "哪些框架策略认识仍服务正负描述主线，哪些已经构成应退出本主题的旁支？",
         "relations": [
           {
@@ -791,6 +895,9 @@
         "formed-at": [
           1786074200000
         ],
+        "name": [
+          "select-functional-utilities-and-data-structures"
+        ],
         "tag": [
           "implementation-libraries"
         ],
@@ -801,6 +908,7 @@
       },
       "state": {
         "formedAt": "2026-08-07T11:43:20+08:00",
+        "name": "select-functional-utilities-and-data-structures",
         "question": "哪些函数式工具与专用数据结构库值得预装，它们的适用边界是什么？",
         "relations": [],
         "resourceIds": [],
@@ -816,6 +924,9 @@
         "formed-at": [
           1786074253000
         ],
+        "name": [
+          "select-neverthrow-and-project-option"
+        ],
         "tag": [
           "implementation-libraries"
         ],
@@ -826,6 +937,7 @@
       },
       "state": {
         "formedAt": "2026-08-07T11:44:13+08:00",
+        "name": "select-neverthrow-and-project-option",
         "question": "本项目应预装哪个轻量 Result 库，并怎样与项目自有 Option 形成稳定边界？",
         "relations": [],
         "resourceIds": [],
@@ -841,6 +953,9 @@
         "formed-at": [
           1786074236000
         ],
+        "name": [
+          "select-pattern-matching-and-state-modeling-libraries"
+        ],
         "tag": [
           "implementation-libraries"
         ],
@@ -851,6 +966,7 @@
       },
       "state": {
         "formedAt": "2026-08-07T11:43:56+08:00",
+        "name": "select-pattern-matching-and-state-modeling-libraries",
         "question": "哪些库适合预装以承接穷尽匹配、判别联合与轻量有限状态机？",
         "relations": [],
         "resourceIds": [],
@@ -866,6 +982,9 @@
         "formed-at": [
           1786619604000
         ],
+        "name": [
+          "separate-framework-reconstruction-from-local-repair"
+        ],
         "relation-type": [
           "修正"
         ],
@@ -879,6 +998,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T11:13:24+00:00",
+        "name": "separate-framework-reconstruction-from-local-repair",
         "question": "框架重构与框架内修补两种策略的触发条件、价值和失败模式有何不同？",
         "relations": [
           {
@@ -899,6 +1019,9 @@
         "formed-at": [
           1786612371000
         ],
+        "name": [
+          "separate-logical-pruning-search-bias-and-path-dependence"
+        ],
         "relation-type": [
           "修正"
         ],
@@ -912,6 +1035,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T09:12:51+00:00",
+        "name": "separate-logical-pruning-search-bias-and-path-dependence",
         "question": "逻辑剪枝、搜索偏置与跨时间路径依赖应怎样区分？",
         "relations": [
           {
@@ -932,6 +1056,9 @@
         "formed-at": [
           1786613388000
         ],
+        "name": [
+          "separate-semantic-fidelity-goal-fit-and-goal-explication"
+        ],
         "relation-type": [
           "补充"
         ],
@@ -945,6 +1072,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T09:29:48+00:00",
+        "name": "separate-semantic-fidelity-goal-fit-and-goal-explication",
         "question": "内容语义保真、结果符合深层目标与目标通过反馈显化有何不同？",
         "relations": [
           {
@@ -965,6 +1093,9 @@
         "formed-at": [
           1786610531000
         ],
+        "name": [
+          "separate-semantic-responsibility-from-solution-space-analysis"
+        ],
         "relation-type": [
           "修正"
         ],
@@ -978,6 +1109,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T08:42:11+00:00",
+        "name": "separate-semantic-responsibility-from-solution-space-analysis",
         "question": "语义责任与解空间分析分别承担什么层次的判断，它们如何衔接？",
         "relations": [
           {
@@ -998,6 +1130,9 @@
         "formed-at": [
           1786614728000
         ],
+        "name": [
+          "separate-solution-space-positioning-from-contextual-anchoring"
+        ],
         "relation-type": [
           "修正"
         ],
@@ -1011,6 +1146,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T09:52:08+00:00",
+        "name": "separate-solution-space-positioning-from-contextual-anchoring",
         "question": "任务契约对解空间的正常定位与对象被提及时产生的上下文搜索锚定有何不同？",
         "relations": [
           {
@@ -1031,6 +1167,9 @@
         "formed-at": [
           1786630078000
         ],
+        "name": [
+          "specify-safety-goals-with-negative-rules"
+        ],
         "relation-type": [
           "补充"
         ],
@@ -1044,6 +1183,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T14:07:58+00:00",
+        "name": "specify-safety-goals-with-negative-rules",
         "question": "安全目标在什么条件下应由可判断的负向规则具体化，而不能只保留正向概括？",
         "relations": [
           {
@@ -1064,6 +1204,9 @@
         "formed-at": [
           1786628592000
         ],
+        "name": [
+          "treat-description-polarity-as-reference-relative"
+        ],
         "relation-type": [
           "补充"
         ],
@@ -1077,6 +1220,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T13:43:12+00:00",
+        "name": "treat-description-polarity-as-reference-relative",
         "question": "正负极性应怎样相对于具体命题、参照对象和描述层级判断？",
         "relations": [
           {
@@ -1097,6 +1241,9 @@
         "formed-at": [
           1786610916000
         ],
+        "name": [
+          "treat-goals-as-complete-in-abstraction-and-incremental-in-practice"
+        ],
         "relation-type": [
           "补充"
         ],
@@ -1110,6 +1257,7 @@
       },
       "state": {
         "formedAt": "2026-08-13T08:48:36+00:00",
+        "name": "treat-goals-as-complete-in-abstraction-and-incremental-in-practice",
         "question": "为什么目标在理想抽象中可以包含边界，而在实际文档中仍需逐步收敛？",
         "relations": [
           {
@@ -1130,6 +1278,10 @@
     {
       "name": "formed-at",
       "mode": "range"
+    },
+    {
+      "name": "name",
+      "mode": "exact"
     },
     {
       "name": "relation-type",

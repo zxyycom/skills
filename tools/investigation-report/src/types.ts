@@ -324,6 +324,7 @@ export type InvestigationIndexMetadata = Record<string, never>;
 
 export type InvestigationIndexState = Readonly<{
   formedAt: string;
+  name: string;
   question: string;
   relations: InvestigationRelation[];
   resourceIds: string[];

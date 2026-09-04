@@ -126,6 +126,7 @@ export type DecisionRecordSource =
     };
 
 export type DecisionIndexState = DecisionDocument & {
+  name: string;
   sourcePath: DecisionSourcePath;
 };
 
@@ -144,6 +145,7 @@ export type DecisionSourceInput = Readonly<{
 
 export type DecisionIndexStoredEntry = {
   keys: {
+    name: [string];
     tag: DecisionTag[];
     status: [EstablishedDecisionStatus];
     alignment?: [DecisionAlignment];
@@ -165,10 +167,11 @@ export type DecisionSourceRevision = {
 export type DecisionIndex = {
   schemaVersion: 3;
   namespace: "decisions";
-  definitionVersion: 7;
+  definitionVersion: 8;
   metadata: DecisionIndexMetadata;
   sourceRevision: DecisionSourceRevision;
   keyDefinitions: [
+    { name: "name"; mode: "exact" },
     { name: "tag"; mode: "exact" },
     { name: "status"; mode: "exact" },
     { name: "alignment"; mode: "exact" }

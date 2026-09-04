@@ -42,6 +42,105 @@ test("stage-index selects entries by Investigation ID without staging reports", 
   });
 });
 
+test("stage-index resolves a unique Investigation name after one Markdown suffix", async () => {
+  await withTempRoot("stage-name-selector", async (root) => {
+    const id = "260828-stage-name";
+    await writeCollection(root, [{ id }]);
+    initializeGit(root);
+    const result = await stageInvestigationIndex({
+      reportIds: ["stage-name.MD"],
+      workspaceRoot: root
+    });
+    assert.equal(result.status, "ok");
+    assert.deepEqual(result.selectedIds, [id]);
+  });
+});
+
+test("stage-index treats a standard Investigation ID as exact", async () => {
+  await withTempRoot("stage-exact-selector", async (root) => {
+    await writeCollection(root, [{ id: "260828-stage-name" }]);
+    initializeGit(root);
+    const result = await stageInvestigationIndex({
+      reportIds: ["260829-stage-not-present"],
+      workspaceRoot: root
+    });
+    assert.equal(result.status, "error");
+    assert.ok(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "state-index.selected-id-missing" &&
+          diagnostic.stateId === "260829-stage-not-present"
+      )
+    );
+  });
+});
+
+test("stage-index rejects an ambiguous Investigation name", async () => {
+  await withTempRoot("stage-ambiguous-name", async (root) => {
+    await writeCollection(root, [
+      { id: "260828-stage-name" },
+      { id: "260829-stage-name", formedAt: "2026-08-29T12:00:00+00:00" }
+    ]);
+    initializeGit(root);
+    const result = await stageInvestigationIndex({
+      reportIds: ["stage-name"],
+      workspaceRoot: root
+    });
+    assert.equal(result.status, "error");
+    assert.ok(
+      result.diagnostics.some((diagnostic) =>
+        diagnostic.message.includes('report name "stage-name" is ambiguous')
+      )
+    );
+    assert.equal(git(root, ["diff", "--cached", "--name-only"]), "");
+  });
+});
+
+test("stage-index resolves a baseline-only Investigation name as a deletion", async () => {
+  await withTempRoot("stage-baseline-name", async (root) => {
+    const deletedId = "260828-baseline-only";
+    const retainedId = "260828-retained";
+    await writeCollection(root, [{ id: deletedId }, { id: retainedId }]);
+    initializeGit(root);
+    await fs.rm(path.join(investigationRoot(root), `${deletedId}.md`));
+    await writeCollection(root, [{ id: retainedId }]);
+    const result = await stageInvestigationIndex({
+      reportIds: ["baseline-only"],
+      workspaceRoot: root
+    });
+    assert.equal(result.status, "ok");
+    const pending = parseJsonObject(
+      git(root, ["show", `:${indexRelativePath}`])
+    );
+    assert.equal(
+      Object.hasOwn(jsonObjectMember(pending, "entries"), deletedId),
+      false
+    );
+  });
+});
+
+test("stage-index resolves a workspace-only Investigation name as an addition", async () => {
+  await withTempRoot("stage-workspace-name", async (root) => {
+    const baselineId = "260828-baseline";
+    const addedId = "260829-workspace-only";
+    await writeCollection(root, [{ id: baselineId }]);
+    initializeGit(root);
+    await writeCollection(root, [
+      { id: baselineId },
+      { id: addedId, formedAt: "2026-08-29T12:00:00+00:00" }
+    ]);
+    const result = await stageInvestigationIndex({
+      reportIds: ["workspace-only"],
+      workspaceRoot: root
+    });
+    assert.equal(result.status, "ok");
+    const pending = parseJsonObject(
+      git(root, ["show", `:${indexRelativePath}`])
+    );
+    assert.ok(Object.hasOwn(jsonObjectMember(pending, "entries"), addedId));
+  });
+});
+
 test("stage-index rejects invalid or duplicate Investigation IDs", async () => {
   await withTempRoot("stage-invalid", async (root) => {
     await writeCollection(root, [{ id: "stage-report" }]);
@@ -72,7 +171,7 @@ test("stage-index rejects invalid or duplicate Investigation IDs", async () => {
       result.diagnostics.some(
         (diagnostic) =>
           diagnostic.code === "investigation-report.stage-report-id-invalid" &&
-          diagnostic.message.includes("extensionless Investigation ID")
+          diagnostic.message.includes("extensionless kebab-case text")
       )
     );
   });

@@ -5,7 +5,7 @@ import {
   serializeStateIndex
 } from "../../index-runtime/src/index.ts";
 import { readInvestigationCandidate } from "./candidate.ts";
-import { candidatePathForInvestigationId } from "./candidate-path.ts";
+import { investigationCandidateFilePrefix } from "./candidate-path.ts";
 import {
   createInvestigationStateSnapshot,
   inspectInvestigationCollectionLayout,
@@ -278,17 +278,29 @@ async function preparePublishCandidate(
   const built = buildInvestigationReportState(
     id,
     parseInvestigationReport(candidate.value.markdown, id),
-    `${id}.md`
+    `${candidateLocatorFromPath(candidate.value.path)}.md`
   );
   if (built.status === "invalid") return preparationFailure(built.errors);
   return {
     status: "ok",
     value: {
-      path: candidatePathForInvestigationId(investigationsDirectory, id),
-      source: { id, sourcePath: `${id}.md`, text: candidate.value.markdown },
+      path: candidate.value.path,
+      source: {
+        id,
+        sourcePath: `${candidateLocatorFromPath(candidate.value.path)}.md`,
+        text: candidate.value.markdown
+      },
       state: built.state
     }
   };
+}
+
+function candidateLocatorFromPath(candidatePath: string): string {
+  const basename = path.basename(candidatePath);
+  if (!basename.startsWith(investigationCandidateFilePrefix)) {
+    throw new Error("candidate path must use the reserved candidate filename");
+  }
+  return basename.slice(investigationCandidateFilePrefix.length);
 }
 
 async function validatePublishCollection(

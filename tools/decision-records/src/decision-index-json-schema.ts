@@ -51,6 +51,13 @@ export const decisionIndexJsonSchema = {
     keyValues: {
       additionalProperties: false,
       properties: {
+        name: {
+          items: { type: "string" },
+          maxItems: 1,
+          minItems: 1,
+          type: "array",
+          uniqueItems: true
+        },
         tag: {
           items: tag,
           minItems: 1,
@@ -72,12 +79,13 @@ export const decisionIndexJsonSchema = {
           uniqueItems: true
         }
       },
-      required: ["tag", "status"],
+      required: ["name", "tag", "status"],
       type: "object"
     },
     relation: {
       additionalProperties: false,
       properties: {
+        name: { type: "string" },
         type: { enum: decisionRelationTypes, type: "string" },
         target: { $ref: "#/$defs/decisionId" }
       },
@@ -127,6 +135,7 @@ export const decisionIndexJsonSchema = {
       },
       required: [
         "sourcePath",
+        "name",
         "title",
         "status",
         "alignment",
@@ -167,6 +176,7 @@ export const decisionIndexJsonSchema = {
     },
     keyDefinitions: {
       const: [
+        { name: "name", mode: "exact" },
         { name: "tag", mode: "exact" },
         { name: "status", mode: "exact" },
         { name: "alignment", mode: "exact" }

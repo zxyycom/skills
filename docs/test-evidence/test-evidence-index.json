@@ -2576,6 +2576,33 @@
         "title": "相对决策目录从 workspace 根解析"
       }
     },
+    "DECISION-DATED-IDENTITY-001": {
+      "keys": {
+        "search": [
+          "DECISION-DATED-IDENTITY-001 普通 selector 先解析日期 ID 再回退名称 Decision 普通输入只移除一个 `.md` 后先精确解析 calendar-valid `YYMMDD-name`；仅解析失败才按 name 查找，文件 basename 不参与身份。 `new` 自动加入当前 UTC 形成日，日期不匹配或将与 legacy 同名冲突时必须零写入失败。 精确日期 ID（含 `.MD`）可读取；重复 name 的错误按 ID 顺序列出，非法日期前缀仍按完整 name 解析，而不存在的标准 ID 不会回退。 `stage` 在读取 pending 边界后，于 HEAD 基线和当前工作区可识别来源的并集内解析唯一 name；工作区单侧新增可选择，标准 ID 不会回退，歧义不会写入 pending。 name 创建的候选保留 UTC 日期 ID 但使用 name 路径；日期不一致与 legacy 同名创建返回对应诊断。 tools/decision-records/tests/queries.test.ts > ordinary selectors use dated IDs first and name fallback without reading paths bun test --test-name-pattern=\"^ordinary selectors use dated IDs first and name fallback without reading paths$\" ./tools/decision-records/tests/run.ts tools/decision-records/tests/stage.test.ts > stage resolves a unique Decision name after one Markdown suffix tools/decision-records/tests/stage.test.ts > stage treats a standard Decision ID as exact instead of falling back to a name tools/decision-records/tests/stage.test.ts > stage reports ambiguous Decision names before writing pending files tools/decision-records/tests/stage.test.ts > stage resolves a filesystem-only Decision addition by name"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 19,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > ordinary selectors use dated IDs first and name fallback without reading paths",
+          "bun test --test-name-pattern=\"^ordinary selectors use dated IDs first and name fallback without reading paths$\" ./tools/decision-records/tests/run.ts",
+          "tools/decision-records/tests/stage.test.ts > stage resolves a unique Decision name after one Markdown suffix",
+          "tools/decision-records/tests/stage.test.ts > stage treats a standard Decision ID as exact instead of falling back to a name",
+          "tools/decision-records/tests/stage.test.ts > stage reports ambiguous Decision names before writing pending files",
+          "tools/decision-records/tests/stage.test.ts > stage resolves a filesystem-only Decision addition by name"
+        ],
+        "id": "DECISION-DATED-IDENTITY-001",
+        "line": 1,
+        "searchText": "普通 selector 先解析日期 ID 再回退名称 Decision 普通输入只移除一个 `.md` 后先精确解析 calendar-valid `YYMMDD-name`；仅解析失败才按 name 查找，文件 basename 不参与身份。 `new` 自动加入当前 UTC 形成日，日期不匹配或将与 legacy 同名冲突时必须零写入失败。 精确日期 ID（含 `.MD`）可读取；重复 name 的错误按 ID 顺序列出，非法日期前缀仍按完整 name 解析，而不存在的标准 ID 不会回退。 `stage` 在读取 pending 边界后，于 HEAD 基线和当前工作区可识别来源的并集内解析唯一 name；工作区单侧新增可选择，标准 ID 不会回退，歧义不会写入 pending。 name 创建的候选保留 UTC 日期 ID 但使用 name 路径；日期不一致与 legacy 同名创建返回对应诊断。 tools/decision-records/tests/queries.test.ts > ordinary selectors use dated IDs first and name fallback without reading paths bun test --test-name-pattern=\"^ordinary selectors use dated IDs first and name fallback without reading paths$\" ./tools/decision-records/tests/run.ts tools/decision-records/tests/stage.test.ts > stage resolves a unique Decision name after one Markdown suffix tools/decision-records/tests/stage.test.ts > stage treats a standard Decision ID as exact instead of falling back to a name tools/decision-records/tests/stage.test.ts > stage reports ambiguous Decision names before writing pending files tools/decision-records/tests/stage.test.ts > stage resolves a filesystem-only Decision addition by name",
+        "sourcePath": "decision-records/dated-identity-selectors.md",
+        "summary": "Decision 普通输入只移除一个 `.md` 后先精确解析 calendar-valid `YYMMDD-name`；仅解析失败才按 name 查找，文件 basename 不参与身份。",
+        "title": "普通 selector 先解析日期 ID 再回退名称"
+      }
+    },
     "DECISION-DISCARD-ONLY-ACTIVE-ESTABLISHED-001": {
       "keys": {
         "search": [
@@ -7981,6 +8008,29 @@
         "title": "candidate discard rechecks Git HEAD before deletion"
       }
     },
+    "INVESTIGATION-CANDIDATE-MIGRATION-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CANDIDATE-MIGRATION-001 new 在 legacy 同名冲突前要求显式迁移 新 Investigation 将造成无日期 legacy ID 同名冲突时，`new` 返回 `migration-required` 且不写入；显式迁移 legacy ID 后才允许重试。 阻断结果保留稳定 migration-required 诊断并没有 candidate 文件。 将 legacy frontmatter ID 显式改为日期 ID 并同步索引后，同一 name 重试会创建完整日期 ID candidate，且在 name 路径被占用时回退到 ID locator。 tools/investigation-report/tests/candidate.test.ts > new blocks a legacy name collision until an explicit dated migration is complete bun test --test-name-pattern=\"^new blocks a legacy name collision until an explicit dated migration is complete$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/candidate.test.ts > new blocks a legacy name collision until an explicit dated migration is complete",
+          "bun test --test-name-pattern=\"^new blocks a legacy name collision until an explicit dated migration is complete$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CANDIDATE-MIGRATION-001",
+        "line": 1,
+        "searchText": "new 在 legacy 同名冲突前要求显式迁移 新 Investigation 将造成无日期 legacy ID 同名冲突时，`new` 返回 `migration-required` 且不写入；显式迁移 legacy ID 后才允许重试。 阻断结果保留稳定 migration-required 诊断并没有 candidate 文件。 将 legacy frontmatter ID 显式改为日期 ID 并同步索引后，同一 name 重试会创建完整日期 ID candidate，且在 name 路径被占用时回退到 ID locator。 tools/investigation-report/tests/candidate.test.ts > new blocks a legacy name collision until an explicit dated migration is complete bun test --test-name-pattern=\"^new blocks a legacy name collision until an explicit dated migration is complete$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/candidate-new-requires-legacy-migration.md",
+        "summary": "新 Investigation 将造成无日期 legacy ID 同名冲突时，`new` 返回 `migration-required` 且不写入；显式迁移 legacy ID 后才允许重试。",
+        "title": "new 在 legacy 同名冲突前要求显式迁移"
+      }
+    },
     "INVESTIGATION-CANDIDATE-NEW-001": {
       "keys": {
         "search": [
@@ -8600,6 +8650,34 @@
         "sourcePath": "investigation-report/full-validation-rejects-unknown-investigation-root-members.md",
         "summary": "平铺 Investigation Report 根目录只允许规范报告、派生 index 和 `_resources/`。",
         "title": "full validation rejects unknown investigation root members"
+      }
+    },
+    "INVESTIGATION-DATED-SELECTOR-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DATED-SELECTOR-001 普通 Investigation selector 先解析日期 ID 再查询名称 `show` 等普通 Investigation selector 只去除一个大小写不敏感 `.md`，随后精确识别 calendar-valid `YYMMDD-name`；仅失败时使用索引中的 exact name key。 语义 name、标准 ID 和 `.md` 输入均收敛到完整 ID，且读取不依赖语义 sourcePath basename。 重复 name 的候选以二进制 ID 顺序返回，非法日期前缀按 name 成功解析，不存在的标准 ID 不回退。 `stage-index` 在同一严格 HEAD/工作区索引事务且集合契约一致后，用两侧 state.name 并集解析 selector；它支持单侧删除和单侧新增，并在歧义或精确 ID 缺失时不写 pending。 tools/investigation-report/tests/index-query.test.ts > ordinary Investigation selectors use the standard ID parser before name lookup bun test --test-name-pattern=\"^ordinary Investigation selectors use the standard ID parser before name lookup$\" ./tools/investigation-report/tests/run.ts tools/investigation-report/tests/staging.test.ts > stage-index resolves a unique Investigation name after one Markdown suffix tools/investigation-report/tests/staging.test.ts > stage-index treats a standard Investigation ID as exact tools/investigation-report/tests/staging.test.ts > stage-index rejects an ambiguous Investigation name tools/investigation-report/tests/staging.test.ts > stage-index resolves a baseline-only Investigation name as a deletion tools/investigation-report/tests/staging.test.ts > stage-index resolves a workspace-only Investigation name as an addition"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 19,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > ordinary Investigation selectors use the standard ID parser before name lookup",
+          "bun test --test-name-pattern=\"^ordinary Investigation selectors use the standard ID parser before name lookup$\" ./tools/investigation-report/tests/run.ts",
+          "tools/investigation-report/tests/staging.test.ts > stage-index resolves a unique Investigation name after one Markdown suffix",
+          "tools/investigation-report/tests/staging.test.ts > stage-index treats a standard Investigation ID as exact",
+          "tools/investigation-report/tests/staging.test.ts > stage-index rejects an ambiguous Investigation name",
+          "tools/investigation-report/tests/staging.test.ts > stage-index resolves a baseline-only Investigation name as a deletion",
+          "tools/investigation-report/tests/staging.test.ts > stage-index resolves a workspace-only Investigation name as an addition"
+        ],
+        "id": "INVESTIGATION-DATED-SELECTOR-001",
+        "line": 1,
+        "searchText": "普通 Investigation selector 先解析日期 ID 再查询名称 `show` 等普通 Investigation selector 只去除一个大小写不敏感 `.md`，随后精确识别 calendar-valid `YYMMDD-name`；仅失败时使用索引中的 exact name key。 语义 name、标准 ID 和 `.md` 输入均收敛到完整 ID，且读取不依赖语义 sourcePath basename。 重复 name 的候选以二进制 ID 顺序返回，非法日期前缀按 name 成功解析，不存在的标准 ID 不回退。 `stage-index` 在同一严格 HEAD/工作区索引事务且集合契约一致后，用两侧 state.name 并集解析 selector；它支持单侧删除和单侧新增，并在歧义或精确 ID 缺失时不写 pending。 tools/investigation-report/tests/index-query.test.ts > ordinary Investigation selectors use the standard ID parser before name lookup bun test --test-name-pattern=\"^ordinary Investigation selectors use the standard ID parser before name lookup$\" ./tools/investigation-report/tests/run.ts tools/investigation-report/tests/staging.test.ts > stage-index resolves a unique Investigation name after one Markdown suffix tools/investigation-report/tests/staging.test.ts > stage-index treats a standard Investigation ID as exact tools/investigation-report/tests/staging.test.ts > stage-index rejects an ambiguous Investigation name tools/investigation-report/tests/staging.test.ts > stage-index resolves a baseline-only Investigation name as a deletion tools/investigation-report/tests/staging.test.ts > stage-index resolves a workspace-only Investigation name as an addition",
+        "sourcePath": "investigation-report/dated-selector-resolution.md",
+        "summary": "`show` 等普通 Investigation selector 只去除一个大小写不敏感 `.md`，随后精确识别 calendar-valid `YYMMDD-name`；仅失败时使用索引中的 exact name key。",
+        "title": "普通 Investigation selector 先解析日期 ID 再查询名称"
       }
     },
     "INVESTIGATION-DIAGNOSTIC-SANITIZATION-001": {
@@ -17517,6 +17595,7 @@
       "DECISION-COLLECTION-LOCK-DIAGNOSTIC-001": "sha256:426ffcce6bfc67cad7cd601c76ad18d3f0ed33ddb20f0ac210f38b2f33caf9bd",
       "DECISION-CONFIGURED-ABSOLUTE-DIRECTORY-001": "sha256:666237bcba499dc5c1abfd183b4671f46284cfcf1f85c2e46850637d156fe048",
       "DECISION-CONFIGURED-RELATIVE-DIRECTORY-001": "sha256:5fb87bdbc2a18d634f362e618dd413aad14aa12865dcccb1b27eb4fb7a409fc4",
+      "DECISION-DATED-IDENTITY-001": "sha256:b5f5f5d493c00b6050ad1263f77ce063eec9e68f431f89bdeb5568f3686db1d3",
       "DECISION-DISCARD-ONLY-ACTIVE-ESTABLISHED-001": "sha256:91b24bf6b6ba244042934333ed6b8e3e4000cc089249e741188d12f9b1e6c572",
       "DECISION-DISCARD-ONLY-ARCHIVED-ESTABLISHED-001": "sha256:6405840791082d95980bc5f117b32a76b1e4b28a2fcc78413807b44ea1e443f3",
       "DECISION-DISCARD-RECORDED-ATTENTION-001": "sha256:85c882402c6a4330fdd46bfa44041eab410bba3668ba974df0029e5d02748dbd",
@@ -17752,6 +17831,7 @@
       "INVESTIGATION-CANDIDATE-DISCARD-004": "sha256:0a0abd8a87b00b5866cd71ecbc6f9590a749af9ccb88651f819762c5716fe4c0",
       "INVESTIGATION-CANDIDATE-DISCARD-005": "sha256:d59a0dec61c4c87c6ef61c040ad6cf76df261c0bb3d17a4dc868441f2b2ff0ce",
       "INVESTIGATION-CANDIDATE-DISCARD-006": "sha256:ab29902062383b1393c12927fa11f190c1e036d7e18af18c3ae13e39424a9c3b",
+      "INVESTIGATION-CANDIDATE-MIGRATION-001": "sha256:e1e65bd8fd04032bf31a3d869768c4e72c3c01078e09b2417251618489af2da2",
       "INVESTIGATION-CANDIDATE-NEW-001": "sha256:7f460d42bec5fa9e91002226c5a83c9db9387f1cb9ead90a0e5429e4296cde0d",
       "INVESTIGATION-CANDIDATE-NEW-002": "sha256:bfc9b5ea22f475f26fd18c068fbc95706a7421ca960a19d84bece82933c570d8",
       "INVESTIGATION-CANDIDATE-PUBLISH-001": "sha256:0675ed97f24647ed5d61c557163c909414c1a62bdd5cdd914ffc6629ee64dcf9",
@@ -17779,6 +17859,7 @@
       "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:1d73ce585b768cdaf110359fe5253febda7feaf0b5b0fc2a2f49d2c11769768b",
       "INVESTIGATION-COLLECTION-LOCK-DIAGNOSTICS-001": "sha256:0e0946681344dc5a641bee8c54319bd84fcb2ba6778c69064c234f720a0f1e25",
       "INVESTIGATION-COLLECTION-ROOT-001": "sha256:f5d20b2646a9b4f27399a5fc5a022bb5a65e9ab06befc7fdec5d6190beedb372",
+      "INVESTIGATION-DATED-SELECTOR-001": "sha256:4f435bdcd1b1d9a5b69f7e17497bb253bd84558e16afbe2626691cffd7388a21",
       "INVESTIGATION-DIAGNOSTIC-SANITIZATION-001": "sha256:b88721100ec5ac898f93431324e264de441c45c09f8c61780e77d971b3eda1eb",
       "INVESTIGATION-DIRECTORY-PATH-001": "sha256:c232adeaff4f31869a400176d5e354d6ba24073fa128b52bc9abfd5d757de419",
       "INVESTIGATION-DISCARD-CANDIDATE-001": "sha256:ad7fe4e772ec3afef18a62f87982a8f0aa00a8aa20831794922e51b8c3d85cbd",

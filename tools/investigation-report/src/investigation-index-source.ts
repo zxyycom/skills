@@ -117,7 +117,22 @@ async function inspectInvestigationRootEntry(
   }
   const candidateId = investigationCandidateIdFromFileName(entry.name);
   if (candidateId !== null) {
-    candidateIds.push(candidateId);
+    try {
+      const candidatePath = path.join(investigationsDirectory, entry.name);
+      const candidateText = await fs.readFile(candidatePath, "utf8");
+      const declaredId = investigationIdFromMarkdown(candidateText);
+      if (declaredId === null) {
+        const error = `${entry.name} must declare a valid frontmatter Investigation ID`;
+        candidateErrors.push(error);
+        errors.push(error);
+      } else {
+        candidateIds.push(declaredId);
+      }
+    } catch (error) {
+      const message = `${entry.name} could not be read: ${errorText(error)}`;
+      candidateErrors.push(message);
+      errors.push(message);
+    }
     return;
   }
   if (isReservedInvestigationCandidateFileName(entry.name)) {

@@ -2,8 +2,10 @@ import path from "node:path";
 import { err, errAsync, ok, ResultAsync, type Result } from "neverthrow";
 import {
   createStateIndexRuntime,
+  type StateIndex,
   type StateIndexDiagnostic,
-  type StateIndexEntryStageResult
+  type StateIndexEntryStageResult,
+  type StateIndexResult
 } from "../../index-runtime/src/index.ts";
 import {
   createInvestigationStateIndexDefinition,
@@ -15,10 +17,13 @@ import {
   canonicalizeInvestigationsDirectory,
   defaultInvestigationsDirectory,
   isInvestigationId,
+  parseDatedInvestigationId,
   resolveInvestigationsDirectory,
   type ResolvedInvestigationsDirectory
 } from "./report-path.ts";
 import type {
+  InvestigationIndexMetadata,
+  InvestigationIndexState,
   InvestigationIndexStageOptions,
   InvestigationIndexStageResult
 } from "./types.ts";
@@ -167,7 +172,7 @@ function validateReportIds(
       diagnostics.push(
         stageDiagnostic(
           investigationStageDiagnosticCodes.reportIdInvalid,
-          `report id ${JSON.stringify(value)} must use an extensionless Investigation ID`,
+          `report selector ${JSON.stringify(value)} must use extensionless kebab-case text`,
           value
         )
       );
@@ -177,7 +182,7 @@ function validateReportIds(
       diagnostics.push(
         stageDiagnostic(
           investigationStageDiagnosticCodes.reportIdDuplicate,
-          `report id ${JSON.stringify(id)} appears more than once`,
+          `report selector ${JSON.stringify(id)} appears more than once`,
           id
         )
       );
@@ -201,6 +206,7 @@ function stageValidatedInvestigationIndex(
   const runtime = createStateIndexRuntime({
     definition: createInvestigationStateIndexDefinition(),
     indexPath: investigationIndexFileName,
+    resolveSelectedIds: resolveInvestigationStageSelectors,
     root: investigationsDirectory
   });
   return ResultAsync.fromSafePromise(
@@ -211,6 +217,60 @@ function stageValidatedInvestigationIndex(
       ? err(stageFailure("operation", mapped))
       : ok(mapped);
   });
+}
+
+function resolveInvestigationStageSelectors(
+  options: Readonly<{
+    baseline: StateIndex<
+      InvestigationIndexState,
+      InvestigationIndexMetadata
+    > | null;
+    selectedIds: readonly string[];
+    workspace: StateIndex<InvestigationIndexState, InvestigationIndexMetadata>;
+  }>
+): StateIndexResult<string[]> {
+  const entries = new Map<string, string>();
+  for (const index of [options.baseline, options.workspace]) {
+    if (index === null) continue;
+    for (const [id, entry] of Object.entries(index.entries)) {
+      entries.set(id, entry.state.name);
+    }
+  }
+  const resolved: string[] = [];
+  const diagnostics: StateIndexDiagnostic[] = [];
+  for (const selector of options.selectedIds) {
+    const dated = parseDatedInvestigationId(selector);
+    if (dated !== null) {
+      resolved.push(dated.id);
+      continue;
+    }
+    const matches = [...entries]
+      .filter(([, name]) => name === selector)
+      .map(([id]) => id)
+      .sort(compareText);
+    if (matches.length === 0) {
+      diagnostics.push(
+        stageDiagnostic(
+          investigationStageDiagnosticCodes.reportIdInvalid,
+          `report name ${JSON.stringify(selector)} is absent from both indexes`,
+          selector
+        )
+      );
+    } else if (matches.length > 1) {
+      diagnostics.push(
+        stageDiagnostic(
+          investigationStageDiagnosticCodes.reportIdInvalid,
+          `report name ${JSON.stringify(selector)} is ambiguous; choose one standard ID: ${matches.join(", ")}`,
+          selector
+        )
+      );
+    } else {
+      resolved.push(matches[0]!);
+    }
+  }
+  return diagnostics.length === 0
+    ? { diagnostics: [], status: "ok", value: resolved }
+    : { diagnostics, status: "error", value: null };
 }
 
 function withDisplayIndexPath(
