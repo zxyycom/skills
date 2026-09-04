@@ -6,7 +6,7 @@ description: >-
   双向单文件 tools。查看文件和执行命令优先用 shell，修改文本优先用 patch，
   put/get 只传输文件实体；已有等价 workspace tools 时直接使用。
 metadata:
-  version: "5"
+  version: "6"
 ---
 
 # MCPShell Workspace Tools
@@ -85,19 +85,14 @@ node scripts/init-mcpshell-workspace.mjs preview --identity <server-identity>
 
 runtime deadline 为 shell/patch 110 秒、put/get 290 秒；对应 YAML outer timeout 为 2m、5m，为终止处理和 envelope 返回留出余量。它们约束 helper 的运行时间，不承诺目标操作已经完成。
 
-## 支持 profile 与真实验证
+## 运行前提
 
-| 边界 | 当前支持条件 |
+| 对象 | AI 使用前必须满足的条件 |
 | --- | --- |
-| Agent host | POSIX host，存在 `/bin/sh`、`node`、`mcpshell` 和系统 `ssh`；agent project 从 `skills/...` 相对 command 解析。 |
-| Backend | host 的 `ssh -T` 可访问 backend，且 backend 有 POSIX `sh`、`git apply`、`mktemp`、`wc` 和 SHA-256 工具。 |
-| MCPShell | 使用已有 binary；以 `mcpshell --version`、`validate --tools` 和下述 stdio smoke 验证当前环境。 |
+| Agent host | POSIX host，存在 `/bin/sh`、`node`、已有 `mcpshell` executable 和系统 `ssh`。 |
+| Backend | agent host 的 `ssh -T` 可访问 backend，且 backend 有 POSIX `sh`、`git apply`、`mktemp`、`wc` 和 SHA-256 工具。 |
 
-Windows host、缺少必要 executable 或依赖 shell alias 的配置不在支持 profile 内。skill 不安装或降级 MCPShell，也不管理 SSH config、credential、账号、daemon 或生产连接。
-
-仓库 fixture 验证 bridge 的 argv、stdin、失败和字节协议；真实 MCP 使用环境另验。已有 MCPShell v0.2.0 binary 已通过最小 stdio smoke：validate 生成 YAML、stdio initialize、tools/list 和一次只读 `workspace_shell`。其他 binary 必须显式运行同一 smoke，不能由 fixture 或该结果代替证明。
-
-机械 MCP 事实优先由 smoke 和 `codex mcp` 验证。只在 smoke 已通过、Codex auth 可用、非交互 client 的 approval policy **允许 MCP `tools/call`**，且维护者明确选择时，才可在隔离 agent/target/staging roots 中运行一次 `codex exec --ephemeral --model gpt-5.6-luna` 自然任务。任务按原操作选择 tool 并核验调用记录和任务收尾；只读任务足够时优先用 shell。approval policy 阻止调用时，工具选择只能作为信号，不能证明任务完成；本次验证不重试、不切换模型，也不替代机械 smoke。
+当前支持 POSIX host；缺少表中 executable、backend 依赖或依赖 shell alias 的环境不适用。skill 使用已有 MCPShell 和 SSH 连接，不安装、降级或管理 MCPShell、SSH config、credential、账号、daemon 或生产连接；这些对象需要由当前环境和用户授权另行处理。
 
 ## 操作边界
 
@@ -111,4 +106,4 @@ Windows host、缺少必要 executable 或依赖 shell alias 的配置不在支�
 1. AI 能区分 agent 项目、目标 project root 与 agent staging root，并从正确位置恢复注册和本机配置。
 2. 四项 tools 的实际名称和固定 roots 已恢复；shell 的 root 与失败结果已验证。
 3. 后续查看、修改与传输按“选择 tool”执行，目标项目只收到原任务要求的内容。
-4. 原任务已继续；真实 MCP smoke 和可选 Luna 行为验证按实际使用环境结果交付。
+4. 原任务所需的可观察结果已按所用 tool 的完成证据核验：shell 看 stdout、stderr、退出状态和 root，patch 看内容与 Git diff，file 看两端路径、byte count 和 SHA-256。
