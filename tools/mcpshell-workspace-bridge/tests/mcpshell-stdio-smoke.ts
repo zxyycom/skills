@@ -88,10 +88,11 @@ export class McpShellStdioSmokeClient {
   }
 
   async callReadOnlyShell(command: string): Promise<unknown> {
-    return this.#request("tools/call", {
-      arguments: { command },
-      name: "workspace_shell"
-    });
+    return this.callTool("workspace_shell", { command });
+  }
+
+  async callTool(name: string, args: JsonObject): Promise<unknown> {
+    return this.#request("tools/call", { arguments: args, name });
   }
 
   async close(): Promise<void> {
