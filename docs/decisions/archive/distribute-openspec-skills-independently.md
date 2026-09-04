@@ -1,5 +1,6 @@
 ---
 title: 将四个 OpenSpec Skill 作为独立分发单元
+id: distribute-openspec-skills-independently
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T03:24:20Z
@@ -10,7 +11,7 @@ tags:
   - skill-maintainer
 relations:
   - type: 拆分
-    target: 260720-use-distribution-unit-boundaries.md
+    target: 260720-use-distribution-unit-boundaries
 ---
 
 ## 目的

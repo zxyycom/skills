@@ -4,7 +4,7 @@ import {
   type DecisionApplicationFailure
 } from "./application-result.ts";
 import { serializeDecisionFrontmatter } from "./decision-metadata.ts";
-import { sourcePathForDecision } from "./decision-path.ts";
+import { sourcePathForDecisionStatus } from "./decision-path.ts";
 import type { DecisionFileChange } from "./decision-transaction.ts";
 import type { EstablishedDecisionRecord } from "./types.ts";
 
@@ -35,21 +35,42 @@ export function prepareArchivedDecisionChange(
     );
   }
   const nextText =
-    serializeDecisionFrontmatter(source.document, source.document.tags, {
-      alignment: source.document.alignment,
-      createdAt: source.document.createdAt,
-      status: "archived"
-    }) + source.body;
+    serializeDecisionFrontmatter(
+      record.decisionId,
+      source.document,
+      source.document.tags,
+      {
+        alignment: source.document.alignment,
+        createdAt: source.document.createdAt,
+        status: "archived"
+      }
+    ) + source.body;
   return {
     change: {
       decisionPath: record.decisionPath,
       expectedText: source.text,
       nextText,
-      targetPath: record.decisionPath.replace(
-        /[^/\\]+$/u,
-        sourcePathForDecision(record.decisionId, "archived")
+      targetPath: pathFromSourcePath(
+        record.decisionPath,
+        record.sourcePath,
+        sourcePathForDecisionStatus(record.sourcePath, "archived")
       )
     },
     status: "ok"
   };
 }
+
+function pathFromSourcePath(
+  decisionPath: string,
+  sourcePath: string,
+  nextSourcePath: string | null
+): string {
+  if (nextSourcePath === null) {
+    throw new Error("cannot archive an invalid Decision source path");
+  }
+  const root = sourcePath.startsWith("archive/")
+    ? path.dirname(path.dirname(decisionPath))
+    : path.dirname(decisionPath);
+  return path.join(root, ...nextSourcePath.split("/"));
+}
+import path from "node:path";

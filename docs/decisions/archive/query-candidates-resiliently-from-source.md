@@ -1,5 +1,6 @@
 ---
 title: 从源码逐文件容错查询决策候选
+id: query-candidates-resiliently-from-source
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T03:25:27Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 拆分
-    target: use-source-resilient-reviewable-candidates.md
+    target: use-source-resilient-reviewable-candidates
 ---
 
 ## 目的

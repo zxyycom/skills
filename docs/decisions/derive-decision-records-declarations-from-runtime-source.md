@@ -1,5 +1,6 @@
 ---
 title: 从 Decision Records 源码派生声明
+id: derive-decision-records-declarations-from-runtime-source
 status: active
 alignment: aligned
 createdAt: 2026-08-15T06:11:01Z

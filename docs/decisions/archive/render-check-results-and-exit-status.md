@@ -1,5 +1,6 @@
 ---
 title: 渲染检查结果并映射最终退出状态
+id: render-check-results-and-exit-status
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:03:03Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: report-check-results-concisely.md
+    target: report-check-results-concisely
 ---
 
 ## 目的

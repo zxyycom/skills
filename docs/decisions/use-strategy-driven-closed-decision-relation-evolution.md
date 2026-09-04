@@ -1,5 +1,6 @@
 ---
 title: 用策略驱动的闭合事务演进决策关系
+id: use-strategy-driven-closed-decision-relation-evolution
 status: active
 alignment: aligned
 createdAt: 2026-08-30T04:18:53Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: unify-closed-decision-relation-evolution.md
+    target: unify-closed-decision-relation-evolution
 ---
 
 ## 目的

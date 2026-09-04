@@ -29,7 +29,10 @@ import {
   investigationIndexFileName,
   syncInvestigationStateIndex
 } from "./investigation-state-index.ts";
-import { parseInvestigationReport } from "./markdown.ts";
+import {
+  investigationIdFromMarkdown,
+  parseInvestigationReport
+} from "./markdown.ts";
 import {
   parseInvestigationIndexSyncOptions,
   parseInvestigationReportCheckOptions
@@ -38,7 +41,7 @@ import {
   canonicalizeInvestigationsDirectory,
   defaultInvestigationsDirectory,
   isInvestigationId,
-  reportPathForInvestigationId,
+  isInvestigationSourcePath,
   resolveInvestigationsDirectory,
   type ResolvedInvestigationsDirectory
 } from "./report-path.ts";
@@ -110,7 +113,8 @@ export async function collectValidatedInvestigationCollection(
   for (const source of sources) {
     const built = buildInvestigationReportState(
       source.id,
-      parseInvestigationReport(source.text, source.id)
+      parseInvestigationReport(source.text, source.id),
+      source.sourcePath
     );
     if (built.status === "invalid") {
       errors.push(...built.errors);
@@ -430,7 +434,12 @@ async function validateScopedCollection(
   // and only its direct resource links are the validation boundary.
   const errors: string[] = [...layout.candidateErrors];
   const diagnostics: InvestigationDiagnostic[] = [];
-  const available = new Set(layout.reportIds);
+  const sources = await readInvestigationSources(
+    investigationRoot,
+    layout.reportIds
+  );
+  const sourceById = new Map(sources.map((source) => [source.id, source]));
+  const available = new Set(sourceById.keys());
   const selected = ids.filter((id) => available.has(id));
   if (selected.length === 0) {
     errors.push("no investigation reports matched the requested IDs");
@@ -441,7 +450,11 @@ async function validateScopedCollection(
       continue;
     }
     errors.push(
-      ...(await validateScopedReport(investigationRoot, id, diagnostics))
+      ...(await validateScopedReport(
+        investigationRoot,
+        sourceById.get(id)!,
+        diagnostics
+      ))
     );
   }
   return checkResult({
@@ -456,10 +469,11 @@ async function validateScopedCollection(
 
 async function validateScopedReport(
   investigationRoot: string,
-  id: string,
+  source: InvestigationSource,
   diagnostics: InvestigationDiagnostic[]
 ): Promise<string[]> {
-  const target = reportPathForInvestigationId(investigationRoot, id);
+  const { id } = source;
+  const target = path.join(investigationRoot, source.sourcePath);
   let text: string;
   try {
     text = await fs.readFile(target, "utf8");
@@ -477,7 +491,8 @@ async function validateScopedReport(
   }
   const built = buildInvestigationReportState(
     id,
-    parseInvestigationReport(text, id)
+    parseInvestigationReport(text, id),
+    source.sourcePath
   );
   if (built.status !== "valid") return built.errors;
   return [
@@ -830,17 +845,29 @@ async function recordedInvestigationIdsAtHead(
         : await repository.listRevisionFiles(revision, {
             pathScopes: [directoryScope]
           });
-    const pathsById = new Map(
-      [...ids].map((id) => [
-        directoryScope.length === 0 ? id : `${directoryScope}/${id}`,
-        id
-      ])
-    );
+    const sourcePaths = revisionFiles.filter((filePath) => {
+      const sourcePath =
+        directoryScope.length === 0
+          ? filePath
+          : filePath.slice(directoryScope.length + 1);
+      return isInvestigationSourcePath(sourcePath);
+    });
+    const files = await repository.readRevisionFiles(revision, {
+      pathScopes: sourcePaths
+    });
+    const requested = new Set(ids);
     return {
       ids: new Set(
-        revisionFiles.flatMap((filePath) => {
-          const id = pathsById.get(filePath);
-          return id === undefined ? [] : [id];
+        files.flatMap((file) => {
+          const sourcePath =
+            directoryScope.length === 0
+              ? file.path
+              : file.path.slice(directoryScope.length + 1);
+          const id =
+            investigationIdFromMarkdown(
+              Buffer.from(file.data).toString("utf8")
+            ) ?? sourcePath.slice(0, -".md".length);
+          return requested.has(id) ? [id] : [];
         })
       ),
       status: "available"

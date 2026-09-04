@@ -1,5 +1,6 @@
 ---
 title: 以完整独立报告演进调查主题
+id: append-self-contained-investigation-reports
 status: archived
 alignment: null
 createdAt: 2026-07-21T09:00:15Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 替代
-    target: use-report-oriented-investigation-rounds.md
+    target: use-report-oriented-investigation-rounds
 ---
 
 ## 目的

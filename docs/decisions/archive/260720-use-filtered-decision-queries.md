@@ -1,5 +1,6 @@
 ---
 title: 使用筛选式决策查询
+id: 260720-use-filtered-decision-queries
 status: archived
 alignment: null
 createdAt: 2026-07-20T19:47:38+08:00
@@ -10,9 +11,9 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260718-use-purpose-background-decision-structure.md
+    target: 260718-use-purpose-background-decision-structure
   - type: 替代
-    target: 260718-add-direction-and-depth-to-trace.md
+    target: 260718-add-direction-and-depth-to-trace
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 从 HEAD 路径临时识别待提交决策
+id: derive-pending-from-head-path
 status: archived
 alignment: null
 createdAt: 2026-07-22T06:03:46Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: converge-records-before-stable-baseline.md
+    target: converge-records-before-stable-baseline
 ---
 
 ## 目的

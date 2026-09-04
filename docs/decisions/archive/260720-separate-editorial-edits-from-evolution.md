@@ -1,5 +1,6 @@
 ---
 title: 区分编辑性修正与决策演进
+id: 260720-separate-editorial-edits-from-evolution
 status: archived
 alignment: null
 createdAt: 2026-07-20T09:40:51+08:00

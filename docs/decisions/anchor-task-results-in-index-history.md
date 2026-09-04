@@ -1,5 +1,6 @@
 ---
 title: 以 task index 历史锚定终态结果版本
+id: anchor-task-results-in-index-history
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:21:49Z
@@ -11,7 +12,7 @@ tags:
   - version-control
 relations:
   - type: 拆分
-    target: anchor-semantic-task-results-in-index-history.md
+    target: anchor-semantic-task-results-in-index-history
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 分配可分发工具与仓库自动化的源码 owner
+id: assign-tool-and-automation-source-owners
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:25:49Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 拆分
-    target: separate-tool-source-and-repository-automation.md
+    target: separate-tool-source-and-repository-automation
 ---
 
 ## 目的

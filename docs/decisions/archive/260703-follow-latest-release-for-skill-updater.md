@@ -1,5 +1,6 @@
 ---
 title: 自更新脚本跟随 latest release 制品
+id: 260703-follow-latest-release-for-skill-updater
 status: archived
 alignment: null
 createdAt: 2026-07-03T10:31:47+08:00
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: 260701-embed-self-update-script-in-skill-packages.md
+    target: 260701-embed-self-update-script-in-skill-packages
 ---
 
 ## 目的

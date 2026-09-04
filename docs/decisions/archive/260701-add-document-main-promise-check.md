@@ -1,5 +1,6 @@
 ---
 title: 给 prompt-optimize 增加文档主承诺检查
+id: 260701-add-document-main-promise-check
 status: archived
 alignment: aligned
 createdAt: 2026-07-01T14:55:35+08:00

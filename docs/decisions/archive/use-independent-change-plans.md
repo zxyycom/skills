@@ -1,5 +1,6 @@
 ---
 title: 使用独立 Change Plan 承接临时变更计划
+id: use-independent-change-plans
 status: archived
 alignment: null
 createdAt: 2026-07-23T03:24:48Z

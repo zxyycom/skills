@@ -11,7 +11,11 @@ import {
   type DecisionApplicationAttention,
   type DecisionApplicationFailure
 } from "./application-result.ts";
-import { decisionIdFromSourcePath } from "./decision-path.ts";
+import { decisionIdFromMarkdown } from "./decision-metadata.ts";
+import {
+  decisionIdFromSourcePath,
+  isDecisionSourcePath
+} from "./decision-path.ts";
 import type {
   DecisionId,
   DecisionRelationType,
@@ -107,11 +111,25 @@ async function loadRepositoryHeadBaseline(
           pathScopes: [directoryScope]
         });
   const prefix = directoryScope.length === 0 ? "" : directoryScope + "/";
-  const recordedDecisionIds = new Set<DecisionId>();
+  const sourcePaths: string[] = [];
   for (const filePath of revisionFiles) {
     if (!filePath.startsWith(prefix)) continue;
-    const decisionId = decisionIdFromSourcePath(filePath.slice(prefix.length));
-    if (decisionId !== null) recordedDecisionIds.add(decisionId);
+    const sourcePath = filePath.slice(prefix.length);
+    if (isDecisionSourcePath(sourcePath)) sourcePaths.push(filePath);
+  }
+  const recordedDecisionIds = new Set<DecisionId>();
+  if (sourcePaths.length > 0) {
+    const files = await repository.readRevisionFiles(revision, {
+      pathScopes: sourcePaths
+    });
+    const decoder = new TextDecoder("utf-8", { fatal: true });
+    for (const file of files) {
+      const sourcePath = file.path.slice(prefix.length);
+      const decisionId =
+        decisionIdFromMarkdown(decoder.decode(file.data)) ??
+        decisionIdFromSourcePath(sourcePath);
+      if (decisionId !== null) recordedDecisionIds.add(decisionId);
+    }
   }
   return {
     baseline: { kind: "git-head", label: "Git HEAD", recordedDecisionIds },

@@ -1,5 +1,6 @@
 ---
 title: 围绕文档主承诺组织 AI-ready 内容
+id: organize-ai-ready-docs-around-main-promise
 status: archived
 alignment: aligned
 createdAt: 2026-08-29T16:07:13Z
@@ -10,7 +11,7 @@ tags:
   - ai-ready-docs
 relations:
   - type: 拆分
-    target: organize-by-main-promise-and-manage-context-association.md
+    target: organize-by-main-promise-and-manage-context-association
 ---
 
 ## 目的

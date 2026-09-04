@@ -5,7 +5,7 @@
 ## Context
 
 - [`保留型工件重名调查`](../../docs/investigations/260903-explore-name-collisions-in-retained-artifacts.md)说明日期比随机码更能解释不同形成事件；它不是已经生效的长期契约。
-- [`显式纯 ID Plan`](../separate-domain-ids-from-storage-details/)先让 Decision/Investigation Markdown 声明 extensionless ID，并让索引独立保存 sourcePath。本 Change 不再从 basename 推导 ID。
+- [`显式纯 ID Plan`](../archive/separate-domain-ids-from-storage-details/)先让 Decision/Investigation Markdown 声明 extensionless ID，并让索引独立保存 sourcePath。本 Change 不再从 basename 推导 ID。
 - Decision candidate 在 `new` 时形成，但正式 `createdAt` 只在建立时写入；Investigation candidate 已有必填 `formedAt`。两者的日期事实来源不同。
 - 当前派生索引以 ID 为 entry key，但没有 name exact key。要支持 name-to-ID 回退，index state 需要保存从 ID 规范得到的 name，并增加可返回多项的 name 查询。
 - [`记录 rename Draft`](../add-record-rename-transactions/)负责显式身份和路径迁移。Legacy ID 与 dated ID 同名后，非标准 legacy ID 无法通过标准 ID parser 精确选择，因此创建必须先要求独立 rename，再由用户重试。

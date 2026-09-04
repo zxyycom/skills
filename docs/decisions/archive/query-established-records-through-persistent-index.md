@@ -1,5 +1,6 @@
 ---
 title: 区分已建立决策与候选的查询来源
+id: query-established-records-through-persistent-index
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:02:39Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: query-candidates-resiliently-from-source.md
+    target: query-candidates-resiliently-from-source
 ---
 
 ## 目的

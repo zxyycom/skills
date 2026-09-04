@@ -1,5 +1,6 @@
 ---
 title: 分离决策激活生效与 HEAD pending 标记
+id: separate-activation-effect-from-head-pending
 status: archived
 alignment: null
 createdAt: 2026-07-22T08:48:05Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: derive-pending-from-head-path.md
+    target: derive-pending-from-head-path
 ---
 
 ## 目的

@@ -17,6 +17,7 @@ import {
   prepareDecisionRelationTransaction,
   type DecisionRelationTransactionRequest
 } from "./decision-relation-transaction.ts";
+import { sourcePathForDecisionStatus } from "./decision-path.ts";
 import type { DecisionFileChange } from "./decision-transaction.ts";
 import {
   isActivationCandidateRecord,
@@ -266,11 +267,26 @@ function prepareActivation(
     };
   }
   const nextText =
-    serializeDecisionFrontmatter(source.document, source.document.tags, {
-      alignment: request.alignment,
-      createdAt: source.document.createdAt,
-      status: "active"
-    }) + source.body;
+    serializeDecisionFrontmatter(
+      request.decisionId,
+      source.document,
+      source.document.tags,
+      {
+        alignment: request.alignment,
+        createdAt: source.document.createdAt,
+        status: "active"
+      }
+    ) + source.body;
+  const targetSourcePath = sourcePathForDecisionStatus(
+    record.sourcePath,
+    "active"
+  );
+  if (targetSourcePath === null) {
+    return plainFailure(
+      "Decision source path cannot move to active lifecycle location: " +
+        record.sourcePath
+    );
+  }
   return {
     changes: [
       {
@@ -280,7 +296,7 @@ function prepareActivation(
         targetPath: path.resolve(
           path.dirname(record.decisionPath),
           "..",
-          record.decisionId
+          ...targetSourcePath.split("/")
         )
       }
     ],
@@ -339,11 +355,16 @@ function prepareMarkAligned(
     );
   }
   const nextText =
-    serializeDecisionFrontmatter(source.document, source.document.tags, {
-      alignment: "aligned",
-      createdAt: source.document.createdAt,
-      status: "active"
-    }) + source.body;
+    serializeDecisionFrontmatter(
+      record.decisionId,
+      source.document,
+      source.document.tags,
+      {
+        alignment: "aligned",
+        createdAt: source.document.createdAt,
+        status: "active"
+      }
+    ) + source.body;
   return {
     changes: [
       {

@@ -1,5 +1,6 @@
 ---
 title: 按平台建立 Hook 并允许短入口显式切换项目
+id: bootstrap-hooks-and-select-project-roots
 status: archived
 alignment: aligned
 createdAt: 2026-08-09T04:47:47Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: bootstrap-repository-coordination-with-owned-launchers.md
+    target: bootstrap-repository-coordination-with-owned-launchers
 ---
 
 ## 目的

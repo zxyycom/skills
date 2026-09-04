@@ -1,5 +1,6 @@
 ---
 title: "形成脱敏近全量档案与机械对话初稿"
+id: "preserve-redacted-conversations-in-two-derived-forms"
 formedAt: "2026-08-14T02:57:11+00:00"
 question: "怎样从含敏感运行时数据的 Codex JSONL 形成可审计近全量档案和可阅读对话初稿？"
 tags:

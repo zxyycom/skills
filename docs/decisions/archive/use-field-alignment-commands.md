@@ -1,5 +1,6 @@
 ---
 title: 使用字段化对齐状态命令
+id: use-field-alignment-commands
 status: archived
 alignment: null
 createdAt: 2026-07-22T09:44:09Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: use-alignment-aware-decision-commands.md
+    target: use-alignment-aware-decision-commands
 ---
 
 ## 目的

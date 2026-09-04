@@ -1,5 +1,6 @@
 ---
 title: 支持故障时的降级决策维护
+id: support-degraded-decision-maintenance
 status: archived
 alignment: null
 createdAt: 2026-07-21T01:04:44Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: use-error-recovery-reference.md
+    target: use-error-recovery-reference
 ---
 
 ## 目的

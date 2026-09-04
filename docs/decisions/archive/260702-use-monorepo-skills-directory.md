@@ -1,5 +1,6 @@
 ---
 title: 迁移为 skills 单仓库布局
+id: 260702-use-monorepo-skills-directory
 status: archived
 alignment: null
 createdAt: 2026-07-03T10:58:54+08:00
@@ -10,17 +11,17 @@ tags:
   - repository-model
 relations:
   - type: 修订
-    target: 260630-publish-skill-package-as-latest-release.md
+    target: 260630-publish-skill-package-as-latest-release
   - type: 修订
-    target: 260701-gate-latest-release-by-skill-hash.md
+    target: 260701-gate-latest-release-by-skill-hash
   - type: 修订
-    target: 260701-publish-versioned-skill-releases.md
+    target: 260701-publish-versioned-skill-releases
   - type: 修订
-    target: 260701-embed-self-update-script-in-skill-packages.md
+    target: 260701-embed-self-update-script-in-skill-packages
   - type: 修订
-    target: 260701-update-package-hash-with-git-hooks.md
+    target: 260701-update-package-hash-with-git-hooks
   - type: 替代
-    target: 260701-add-submodule-release-workflows.md
+    target: 260701-add-submodule-release-workflows
 ---
 
 ## 目的

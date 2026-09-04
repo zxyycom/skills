@@ -1,5 +1,6 @@
 ---
 title: 按协调价值保留和清理 task
+id: retain-tasks-by-coordination-value
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:22:00Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 拆分
-    target: use-authoritative-json-index-for-task-coordination.md
+    target: use-authoritative-json-index-for-task-coordination
 ---
 
 ## 目的

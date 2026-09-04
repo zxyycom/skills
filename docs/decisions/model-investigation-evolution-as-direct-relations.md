@@ -1,5 +1,6 @@
 ---
 title: 用直接关系表达调查认识演进
+id: model-investigation-evolution-as-direct-relations
 status: active
 alignment: aligned
 createdAt: 2026-08-29T15:42:49Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 拆分
-    target: model-investigation-evolution-and-explicit-removal.md
+    target: model-investigation-evolution-and-explicit-removal
 ---
 
 ## 目的

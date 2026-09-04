@@ -1,5 +1,6 @@
 ---
 title: 按 quick 和 full 档位选择检查任务
+id: select-check-tasks-by-profile
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T03:25:48Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 拆分
-    target: use-profiled-concise-checks.md
+    target: use-profiled-concise-checks
 ---
 
 ## 目的

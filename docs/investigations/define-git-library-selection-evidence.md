@@ -1,5 +1,6 @@
 ---
 title: "统一选型需要正确性、性能与维护证据"
+id: "define-git-library-selection-evidence"
 formedAt: "2026-07-21T16:31:25+08:00"
 question: "TypeScript Git 库选型需要哪些 API、正确性、真实性能与维护证据？"
 tags:

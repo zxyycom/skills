@@ -1,5 +1,6 @@
 ---
 title: 以稳定 ID 键控状态索引
+id: use-id-keyed-state-index
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T09:23:47Z
@@ -10,7 +11,7 @@ tags:
   - index-runtime
 relations:
   - type: 拆分
-    target: stage-selected-index-entries.md
+    target: stage-selected-index-entries
 ---
 
 ## 目的

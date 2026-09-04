@@ -1,5 +1,6 @@
 ---
 title: 在 Runner 生产边界标准化 Test 结果
+id: standardize-runner-results-at-producer-boundaries
 status: active
 alignment: unaligned
 createdAt: 2026-08-11T04:03:18Z
@@ -10,7 +11,7 @@ tags:
   - test-evidence-review
 relations:
   - type: 修订
-    target: use-versioned-runner-result-protocol.md
+    target: use-versioned-runner-result-protocol
 ---
 
 ## 目的

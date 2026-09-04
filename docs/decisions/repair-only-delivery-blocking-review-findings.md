@@ -1,5 +1,6 @@
 ---
 title: 只让阻断交付的审查问题进入修复循环
+id: repair-only-delivery-blocking-review-findings
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:26:57Z
@@ -10,7 +11,7 @@ tags:
   - subagent-orchestration
 relations:
   - type: 拆分
-    target: bound-review-and-handoff-by-delivery-impact.md
+    target: bound-review-and-handoff-by-delivery-impact
 ---
 
 ## 目的

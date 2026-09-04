@@ -1,5 +1,6 @@
 ---
 title: "现有候选无法缩减 task-graph 的关键事务协议"
+id: "reject-lock-and-atomic-write-library-dependencies"
 formedAt: "2026-08-06T21:53:35+08:00"
 question: "现有 npm 候选能否实质缩减 task-graph 的锁、恢复与原子写事务协议？"
 tags:

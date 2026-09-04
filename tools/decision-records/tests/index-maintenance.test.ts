@@ -273,7 +273,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
       currentDecision.replace(
         "relations:\n" +
           "  - type: 修订\n" +
-          "    target: 260710-use-source-cli.md\n",
+          "    target: 260710-use-source-cli\n",
         "relations: []\n"
       ),
       "utf8"
@@ -291,7 +291,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
     );
     assert.match(
       traceWithRelationDrift.stdout,
-      /use-generated-cli\.md --修订--> 260710-use-source-cli\.md/
+      /use-generated-cli --修订--> 260710-use-source-cli/
     );
     assert.ok(
       (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>

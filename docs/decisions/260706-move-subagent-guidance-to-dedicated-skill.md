@@ -1,5 +1,6 @@
 ---
 title: 将子代理任务说明移出 prompt-optimize
+id: 260706-move-subagent-guidance-to-dedicated-skill
 status: active
 alignment: aligned
 createdAt: 2026-07-18T11:43:07+08:00
@@ -11,7 +12,7 @@ tags:
   - subagent-orchestration
 relations:
   - type: 修订
-    target: 260630-merge-prompt-optimize-core-flow-into-entry.md
+    target: 260630-merge-prompt-optimize-core-flow-into-entry
 ---
 
 ## 目的

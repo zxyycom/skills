@@ -1,5 +1,6 @@
 ---
 title: 使用持久索引承接常规决策查询
+id: use-persisted-index-for-routine-queries
 status: archived
 alignment: aligned
 createdAt: 2026-08-03T07:35:13Z

@@ -1,5 +1,6 @@
 ---
 title: 给子仓库增加独立 release workflow
+id: 260701-add-submodule-release-workflows
 status: archived
 alignment: null
 createdAt: 2026-07-18T11:43:07+08:00
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: 260630-publish-skill-package-as-latest-release.md
+    target: 260630-publish-skill-package-as-latest-release
 ---
 
 ## 目的

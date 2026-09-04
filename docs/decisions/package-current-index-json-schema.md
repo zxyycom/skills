@@ -1,5 +1,6 @@
 ---
 title: 随包分发当前索引 JSON Schema
+id: package-current-index-json-schema
 status: active
 alignment: aligned
 createdAt: 2026-07-22T09:44:48Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: package-index-json-schema.md
+    target: package-index-json-schema
 ---
 
 ## 目的

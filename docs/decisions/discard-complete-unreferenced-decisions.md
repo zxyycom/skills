@@ -1,5 +1,6 @@
 ---
 title: 显式剔除完整且无引用的决策
+id: discard-complete-unreferenced-decisions
 status: active
 alignment: aligned
 createdAt: 2026-08-29T15:42:44Z
@@ -11,7 +12,7 @@ tags:
   - version-control
 relations:
   - type: 拆分
-    target: guard-unrecorded-decision-evolution.md
+    target: guard-unrecorded-decision-evolution
 ---
 
 ## 目的

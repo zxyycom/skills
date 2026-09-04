@@ -1,5 +1,6 @@
 ---
 title: 保守限制顶层检查任务并发
+id: bound-top-level-check-concurrency
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T03:25:48Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 拆分
-    target: use-profiled-concise-checks.md
+    target: use-profiled-concise-checks
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 按集合元数据与条目 ID 跟踪来源 Revision
+id: track-per-id-source-revisions
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:24:19Z
@@ -10,7 +11,7 @@ tags:
   - index-runtime
 relations:
   - type: 拆分
-    target: use-id-keyed-state-index.md
+    target: use-id-keyed-state-index
 ---
 
 ## 目的

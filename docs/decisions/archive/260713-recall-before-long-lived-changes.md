@@ -1,5 +1,6 @@
 ---
 title: 在长期行为变更前恢复决策并显式处理偏离
+id: 260713-recall-before-long-lived-changes
 status: archived
 alignment: null
 createdAt: 2026-07-18T11:43:07+08:00

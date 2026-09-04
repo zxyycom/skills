@@ -1568,7 +1568,7 @@
     "DECISION-CANDIDATE-ACTIVATION-SELECTION-001": {
       "keys": {
         "search": [
-          "DECISION-CANDIDATE-ACTIVATION-SELECTION-001 源码查询发现候选且激活只索引审核目标 多个合法 candidate scaffold 可以等待正文与审核，并由源码查询发现；单条非法源码只被跳过并产生 warning，显式查看该非法目标时失败。Activate 只建立显式选择的 body-ready 目标，正式索引始终排除其余候选。 存在一条结构非法的同级源码时，`candidates` 仍成功发现两个合法候选并报告带路径的 warning；`show-candidate` 仍能展示合法目标的 `candidate + null alignment + null createdAt`，显式查看非法目标时返回目标路径和具体结构诊断。 移除非法源码后，严格检查成功并分别计数合法 scaffold 与 body-ready candidate。 第一次激活只索引目标并提醒剩余 candidate scaffold；普通 list 仍只读正式索引，sync-index 继续排除并提醒候选。 第二次激活后两个审核目标都进入正式索引，严格检查保持通过。 tools/decision-records/tests/candidate-lifecycle.test.ts > candidate queries discover source records while activation indexes only reviewed targets bun test --test-name-pattern=\"^candidate queries discover source records while activation indexes only reviewed targets$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CANDIDATE-ACTIVATION-SELECTION-001 源码查询发现候选且激活只索引审核目标 多个合法 candidate scaffold 可以等待正文与审核，并由源码查询发现；单条非法源码只被跳过并产生 warning，显式查看该非法目标时失败。Activate 只建立显式选择的 body-ready 目标，正式索引始终排除其余候选。 存在一条结构非法但声明目标纯 ID 的同级源码时，`candidates` 仍成功发现两个合法候选并报告带路径的 warning；`show-candidate` 仍能展示合法目标的 `candidate + null alignment + null createdAt`，显式查看非法目标时按该 ID 返回具体结构诊断。 移除非法源码后，严格检查成功并分别计数合法 scaffold 与 body-ready candidate。 第一次激活只索引目标并提醒剩余 candidate scaffold；普通 list 仍只读正式索引，sync-index 继续排除并提醒候选。 第二次激活后两个审核目标都进入正式索引，严格检查保持通过。 tools/decision-records/tests/candidate-lifecycle.test.ts > candidate queries discover source records while activation indexes only reviewed targets bun test --test-name-pattern=\"^candidate queries discover source records while activation indexes only reviewed targets$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1582,7 +1582,7 @@
         ],
         "id": "DECISION-CANDIDATE-ACTIVATION-SELECTION-001",
         "line": 1,
-        "searchText": "源码查询发现候选且激活只索引审核目标 多个合法 candidate scaffold 可以等待正文与审核，并由源码查询发现；单条非法源码只被跳过并产生 warning，显式查看该非法目标时失败。Activate 只建立显式选择的 body-ready 目标，正式索引始终排除其余候选。 存在一条结构非法的同级源码时，`candidates` 仍成功发现两个合法候选并报告带路径的 warning；`show-candidate` 仍能展示合法目标的 `candidate + null alignment + null createdAt`，显式查看非法目标时返回目标路径和具体结构诊断。 移除非法源码后，严格检查成功并分别计数合法 scaffold 与 body-ready candidate。 第一次激活只索引目标并提醒剩余 candidate scaffold；普通 list 仍只读正式索引，sync-index 继续排除并提醒候选。 第二次激活后两个审核目标都进入正式索引，严格检查保持通过。 tools/decision-records/tests/candidate-lifecycle.test.ts > candidate queries discover source records while activation indexes only reviewed targets bun test --test-name-pattern=\"^candidate queries discover source records while activation indexes only reviewed targets$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "源码查询发现候选且激活只索引审核目标 多个合法 candidate scaffold 可以等待正文与审核，并由源码查询发现；单条非法源码只被跳过并产生 warning，显式查看该非法目标时失败。Activate 只建立显式选择的 body-ready 目标，正式索引始终排除其余候选。 存在一条结构非法但声明目标纯 ID 的同级源码时，`candidates` 仍成功发现两个合法候选并报告带路径的 warning；`show-candidate` 仍能展示合法目标的 `candidate + null alignment + null createdAt`，显式查看非法目标时按该 ID 返回具体结构诊断。 移除非法源码后，严格检查成功并分别计数合法 scaffold 与 body-ready candidate。 第一次激活只索引目标并提醒剩余 candidate scaffold；普通 list 仍只读正式索引，sync-index 继续排除并提醒候选。 第二次激活后两个审核目标都进入正式索引，严格检查保持通过。 tools/decision-records/tests/candidate-lifecycle.test.ts > candidate queries discover source records while activation indexes only reviewed targets bun test --test-name-pattern=\"^candidate queries discover source records while activation indexes only reviewed targets$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/candidate-queries-discover-source-records-while-activation-indexes-only-reviewed-targets.md",
         "summary": "多个合法 candidate scaffold 可以等待正文与审核，并由源码查询发现；单条非法源码只被跳过并产生 warning，显式查看该非法目标时失败。Activate 只建立显式选择的 body-ready 目标，正式索引始终排除其余候选。",
         "title": "源码查询发现候选且激活只索引审核目标"
@@ -1591,7 +1591,7 @@
     "DECISION-CANDIDATE-DATE-IDENTITY-001": {
       "keys": {
         "search": [
-          "DECISION-CANDIDATE-DATE-IDENTITY-001 日期样式 ID 与标题可建立 仅满足当前 ID token 语法的年份/日期样式 basename 与标题不受旧身份禁令影响，可发现并激活为 candidate。 `2026-choice.md` 和日期样式标题出现在 candidates 查询中，并可激活写入索引。 tools/decision-records/tests/first-establishment.test.ts > date-shaped IDs and titles remain valid candidates and can be activated bun test --test-name-pattern=\"^date-shaped IDs and titles remain valid candidates and can be activated$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CANDIDATE-DATE-IDENTITY-001 日期样式 ID 与标题可建立 仅满足当前 ID token 语法的年份/日期样式 ID 与标题不受旧身份禁令影响，可发现并激活为 candidate。 `2026-choice.md` 和日期样式标题出现在 candidates 查询中，并可激活写入索引。 tools/decision-records/tests/first-establishment.test.ts > date-shaped IDs and titles remain valid candidates and can be activated bun test --test-name-pattern=\"^date-shaped IDs and titles remain valid candidates and can be activated$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1605,9 +1605,9 @@
         ],
         "id": "DECISION-CANDIDATE-DATE-IDENTITY-001",
         "line": 1,
-        "searchText": "日期样式 ID 与标题可建立 仅满足当前 ID token 语法的年份/日期样式 basename 与标题不受旧身份禁令影响，可发现并激活为 candidate。 `2026-choice.md` 和日期样式标题出现在 candidates 查询中，并可激活写入索引。 tools/decision-records/tests/first-establishment.test.ts > date-shaped IDs and titles remain valid candidates and can be activated bun test --test-name-pattern=\"^date-shaped IDs and titles remain valid candidates and can be activated$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "日期样式 ID 与标题可建立 仅满足当前 ID token 语法的年份/日期样式 ID 与标题不受旧身份禁令影响，可发现并激活为 candidate。 `2026-choice.md` 和日期样式标题出现在 candidates 查询中，并可激活写入索引。 tools/decision-records/tests/first-establishment.test.ts > date-shaped IDs and titles remain valid candidates and can be activated bun test --test-name-pattern=\"^date-shaped IDs and titles remain valid candidates and can be activated$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/date-shaped-candidate-identity.md",
-        "summary": "仅满足当前 ID token 语法的年份/日期样式 basename 与标题不受旧身份禁令影响，可发现并激活为 candidate。",
+        "summary": "仅满足当前 ID token 语法的年份/日期样式 ID 与标题不受旧身份禁令影响，可发现并激活为 candidate。",
         "title": "日期样式 ID 与标题可建立"
       }
     },
@@ -2120,7 +2120,7 @@
     "DECISION-CLI-ARGS-001": {
       "keys": {
         "search": [
-          "DECISION-CLI-ARGS-001 CLI 顶层帮助公开当前命令集合 顶层帮助必须准确公开默认 check、candidate scaffold 源码查询、显式 new、直接重建正式索引和统一 evolve 协议，且不再公开独立 split 命令。 顶层帮助包含 agent-oriented 入口、默认严格检查、候选 scaffold/body readiness、直接重建索引、new、show-candidate 与 evolve 说明。 顶层命令列表不包含独立 split 命令。 tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CLI-ARGS-001 CLI 顶层帮助公开当前命令集合 顶层帮助必须准确公开默认 check、candidate scaffold 源码查询、显式 new、直接重建正式索引、统一 evolve 协议和 extensionless Decision ID 契约，且不再公开独立 split 命令。 顶层帮助包含 agent-oriented 入口、默认严格检查、候选 scaffold/body readiness、直接重建索引、new、show-candidate、evolve 以及单个终止 `.md` 兼容输入说明。 顶层命令列表不包含独立 split 命令。 tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2134,9 +2134,9 @@
         ],
         "id": "DECISION-CLI-ARGS-001",
         "line": 1,
-        "searchText": "CLI 顶层帮助公开当前命令集合 顶层帮助必须准确公开默认 check、candidate scaffold 源码查询、显式 new、直接重建正式索引和统一 evolve 协议，且不再公开独立 split 命令。 顶层帮助包含 agent-oriented 入口、默认严格检查、候选 scaffold/body readiness、直接重建索引、new、show-candidate 与 evolve 说明。 顶层命令列表不包含独立 split 命令。 tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "CLI 顶层帮助公开当前命令集合 顶层帮助必须准确公开默认 check、candidate scaffold 源码查询、显式 new、直接重建正式索引、统一 evolve 协议和 extensionless Decision ID 契约，且不再公开独立 split 命令。 顶层帮助包含 agent-oriented 入口、默认严格检查、候选 scaffold/body readiness、直接重建索引、new、show-candidate、evolve 以及单个终止 `.md` 兼容输入说明。 顶层命令列表不包含独立 split 命令。 tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-cli-top-level-help-exposes-the-current-command-set.md",
-        "summary": "顶层帮助必须准确公开默认 check、candidate scaffold 源码查询、显式 new、直接重建正式索引和统一 evolve 协议，且不再公开独立 split 命令。",
+        "summary": "顶层帮助必须准确公开默认 check、candidate scaffold 源码查询、显式 new、直接重建正式索引、统一 evolve 协议和 extensionless Decision ID 契约，且不再公开独立 split 命令。",
         "title": "CLI 顶层帮助公开当前命令集合"
       }
     },
@@ -2327,7 +2327,7 @@
     "DECISION-CLI-POSITIONAL-ID-001": {
       "keys": {
         "search": [
-          "DECISION-CLI-POSITIONAL-ID-001 CLI 在位置参数边界验证 Decision ID 所有接受位置式 Decision ID 的 CLI 命令必须在 Commander 参数边界拒绝非法 basename。 `activate`、`archive`、`discard`、`mark-aligned`、`show`、`show-candidate`、`stage` 和 `trace` 对非法 ID 均以退出码 `2` 结束、不写 stdout，并在 stderr 说明 ID 无效。 tools/decision-records/tests/cli-args.test.ts > positional Decision IDs are validated at every CLI command boundary bun test --test-name-pattern=\"^positional\\ Decision\\ IDs\\ are\\ validated\\ at\\ every\\ CLI\\ command\\ boundary$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CLI-POSITIONAL-ID-001 CLI 在位置参数边界验证 Decision ID 所有接受位置式 Decision ID 的 CLI 命令必须在 Commander 参数边界拒绝非法 extensionless ID。 `activate`、`archive`、`discard`、`mark-aligned`、`show`、`show-candidate`、`stage` 和 `trace` 对非法 ID 均以退出码 `2` 结束、不写 stdout，并在 stderr 说明 ID 无效。 tools/decision-records/tests/cli-args.test.ts > positional Decision IDs are validated at every CLI command boundary bun test --test-name-pattern=\"^positional\\ Decision\\ IDs\\ are\\ validated\\ at\\ every\\ CLI\\ command\\ boundary$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2341,9 +2341,9 @@
         ],
         "id": "DECISION-CLI-POSITIONAL-ID-001",
         "line": 1,
-        "searchText": "CLI 在位置参数边界验证 Decision ID 所有接受位置式 Decision ID 的 CLI 命令必须在 Commander 参数边界拒绝非法 basename。 `activate`、`archive`、`discard`、`mark-aligned`、`show`、`show-candidate`、`stage` 和 `trace` 对非法 ID 均以退出码 `2` 结束、不写 stdout，并在 stderr 说明 ID 无效。 tools/decision-records/tests/cli-args.test.ts > positional Decision IDs are validated at every CLI command boundary bun test --test-name-pattern=\"^positional\\ Decision\\ IDs\\ are\\ validated\\ at\\ every\\ CLI\\ command\\ boundary$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "CLI 在位置参数边界验证 Decision ID 所有接受位置式 Decision ID 的 CLI 命令必须在 Commander 参数边界拒绝非法 extensionless ID。 `activate`、`archive`、`discard`、`mark-aligned`、`show`、`show-candidate`、`stage` 和 `trace` 对非法 ID 均以退出码 `2` 结束、不写 stdout，并在 stderr 说明 ID 无效。 tools/decision-records/tests/cli-args.test.ts > positional Decision IDs are validated at every CLI command boundary bun test --test-name-pattern=\"^positional\\ Decision\\ IDs\\ are\\ validated\\ at\\ every\\ CLI\\ command\\ boundary$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/cli-positional-decision-id-validation.md",
-        "summary": "所有接受位置式 Decision ID 的 CLI 命令必须在 Commander 参数边界拒绝非法 basename。",
+        "summary": "所有接受位置式 Decision ID 的 CLI 命令必须在 Commander 参数边界拒绝非法 extensionless ID。",
         "title": "CLI 在位置参数边界验证 Decision ID"
       }
     },
@@ -3430,7 +3430,7 @@
     "DECISION-ID-RELATION-001": {
       "keys": {
         "search": [
-          "DECISION-ID-RELATION-001 关系跨根目录和归档解析 关系 target 使用稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析。 激活 candidate 后原 active 归档，索引保留 candidate 到该 ID 的 relation。 tools/decision-records/tests/lifecycle-relations.test.ts > relations resolve stable IDs across active and archived locations bun test --test-name-pattern=\"^relations resolve stable IDs across active and archived locations$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-ID-RELATION-001 关系跨根目录和归档解析 关系 target 使用 extensionless 稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析。 激活 candidate 后原 active 归档，索引保留 candidate 到该 ID 的 relation。 tools/decision-records/tests/lifecycle-relations.test.ts > relations resolve stable IDs across active and archived locations bun test --test-name-pattern=\"^relations resolve stable IDs across active and archived locations$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -3444,9 +3444,9 @@
         ],
         "id": "DECISION-ID-RELATION-001",
         "line": 1,
-        "searchText": "关系跨根目录和归档解析 关系 target 使用稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析。 激活 candidate 后原 active 归档，索引保留 candidate 到该 ID 的 relation。 tools/decision-records/tests/lifecycle-relations.test.ts > relations resolve stable IDs across active and archived locations bun test --test-name-pattern=\"^relations resolve stable IDs across active and archived locations$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "关系跨根目录和归档解析 关系 target 使用 extensionless 稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析。 激活 candidate 后原 active 归档，索引保留 candidate 到该 ID 的 relation。 tools/decision-records/tests/lifecycle-relations.test.ts > relations resolve stable IDs across active and archived locations bun test --test-name-pattern=\"^relations resolve stable IDs across active and archived locations$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/relations-across-layouts.md",
-        "summary": "关系 target 使用稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析。",
+        "summary": "关系 target 使用 extensionless 稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析。",
         "title": "关系跨根目录和归档解析"
       }
     },
@@ -3499,7 +3499,7 @@
     "DECISION-INDEX-MAINTENANCE-001": {
       "keys": {
         "search": [
-          "DECISION-INDEX-MAINTENANCE-001 索引维护识别漂移并同步规范状态 常规查询必须稳定读取 schema v3 持久快照，严格检查必须识别 ID-keyed state、结构化 revision 与标签投影漂移，同步必须从规范源重建状态。 Schema v2、非法 entry fingerprint、state/path 身份不一致及标签字段篡改均被严格验证拒绝。 Markdown 结构、关系或投影漂移时 list 与 trace 继续返回旧快照；写入同步后 schema v3 索引采用规范来源并再次检查通过。 tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-INDEX-MAINTENANCE-001 索引维护识别漂移并同步规范状态 常规查询必须稳定读取当前持久快照，严格检查必须识别 ID-keyed state、独立 sourcePath、结构化 revision 与标签投影漂移，同步必须从规范 Markdown 重建状态。 旧 definition、非法 entry fingerprint、state/sourcePath 与 Markdown 声明不一致及标签字段篡改均被严格验证拒绝。 Markdown 结构、关系或投影漂移时 list 与 trace 继续返回旧快照；写入同步后 schema v3 索引采用规范来源并再次检查通过。 tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -3513,9 +3513,9 @@
         ],
         "id": "DECISION-INDEX-MAINTENANCE-001",
         "line": 1,
-        "searchText": "索引维护识别漂移并同步规范状态 常规查询必须稳定读取 schema v3 持久快照，严格检查必须识别 ID-keyed state、结构化 revision 与标签投影漂移，同步必须从规范源重建状态。 Schema v2、非法 entry fingerprint、state/path 身份不一致及标签字段篡改均被严格验证拒绝。 Markdown 结构、关系或投影漂移时 list 与 trace 继续返回旧快照；写入同步后 schema v3 索引采用规范来源并再次检查通过。 tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "索引维护识别漂移并同步规范状态 常规查询必须稳定读取当前持久快照，严格检查必须识别 ID-keyed state、独立 sourcePath、结构化 revision 与标签投影漂移，同步必须从规范 Markdown 重建状态。 旧 definition、非法 entry fingerprint、state/sourcePath 与 Markdown 声明不一致及标签字段篡改均被严格验证拒绝。 Markdown 结构、关系或投影漂移时 list 与 trace 继续返回旧快照；写入同步后 schema v3 索引采用规范来源并再次检查通过。 tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/index-maintenance-detects-drift-and-synchronizes-canonical-decision-states.md",
-        "summary": "常规查询必须稳定读取 schema v3 持久快照，严格检查必须识别 ID-keyed state、结构化 revision 与标签投影漂移，同步必须从规范源重建状态。",
+        "summary": "常规查询必须稳定读取当前持久快照，严格检查必须识别 ID-keyed state、独立 sourcePath、结构化 revision 与标签投影漂移，同步必须从规范 Markdown 重建状态。",
         "title": "索引维护识别漂移并同步规范状态"
       }
     },
@@ -3568,7 +3568,7 @@
     "DECISION-LAYOUT-VALID-001": {
       "keys": {
         "search": [
-          "DECISION-LAYOUT-VALID-001 扫描器接受根目录和归档布局 根目录仅承载 active、archive 仅承载 archived，且两处 basename 全局唯一。 fixture 扫描为一个 active、一个 archived，并返回确定的 ID/sourcePath 对。 tools/decision-records/tests/layout-index.test.ts > scanner accepts root active records and archive archived records with unique IDs bun test --test-name-pattern=\"^scanner accepts root active records and archive archived records with unique IDs$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-LAYOUT-VALID-001 扫描器接受根目录和归档布局 根目录仅承载 active、archive 仅承载 archived，且两处 frontmatter ID 全局唯一、sourcePath 独占。 fixture 扫描为一个 active、一个 archived，并返回确定的 ID/sourcePath 对。 tools/decision-records/tests/layout-index.test.ts > scanner accepts root active records and archive archived records with unique IDs bun test --test-name-pattern=\"^scanner accepts root active records and archive archived records with unique IDs$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -3582,16 +3582,16 @@
         ],
         "id": "DECISION-LAYOUT-VALID-001",
         "line": 1,
-        "searchText": "扫描器接受根目录和归档布局 根目录仅承载 active、archive 仅承载 archived，且两处 basename 全局唯一。 fixture 扫描为一个 active、一个 archived，并返回确定的 ID/sourcePath 对。 tools/decision-records/tests/layout-index.test.ts > scanner accepts root active records and archive archived records with unique IDs bun test --test-name-pattern=\"^scanner accepts root active records and archive archived records with unique IDs$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "扫描器接受根目录和归档布局 根目录仅承载 active、archive 仅承载 archived，且两处 frontmatter ID 全局唯一、sourcePath 独占。 fixture 扫描为一个 active、一个 archived，并返回确定的 ID/sourcePath 对。 tools/decision-records/tests/layout-index.test.ts > scanner accepts root active records and archive archived records with unique IDs bun test --test-name-pattern=\"^scanner accepts root active records and archive archived records with unique IDs$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/layout-valid-records.md",
-        "summary": "根目录仅承载 active、archive 仅承载 archived，且两处 basename 全局唯一。",
+        "summary": "根目录仅承载 active、archive 仅承载 archived，且两处 frontmatter ID 全局唯一、sourcePath 独占。",
         "title": "扫描器接受根目录和归档布局"
       }
     },
     "DECISION-LIFECYCLE-MOVE-001": {
       "keys": {
         "search": [
-          "DECISION-LIFECYCLE-MOVE-001 归档与重新激活保持 Markdown 语义 archive/reactivate 只能移动同一 ID 的 root/archive sourcePath，并保留 Markdown 语义和索引投影。 归档后 root 消失且 index 指向 archive；重新激活后正文和 sourcePath 恢复。 tools/decision-records/tests/lifecycle-relations.test.ts > archive and reactivate move one Decision ID while preserving its Markdown semantics bun test --test-name-pattern=\"^archive and reactivate move one Decision ID while preserving its Markdown semantics$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-LIFECYCLE-MOVE-001 归档与重新激活保持 Markdown 语义 archive/reactivate 只能移动同一纯 ID 的 root/archive sourcePath，并保留包含显式 `id` 的 Markdown 语义和索引投影。 归档后 root 消失且 index 指向 archive；重新激活后正文和 sourcePath 恢复。 tools/decision-records/tests/lifecycle-relations.test.ts > archive and reactivate move one Decision ID while preserving its Markdown semantics bun test --test-name-pattern=\"^archive and reactivate move one Decision ID while preserving its Markdown semantics$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -3605,16 +3605,16 @@
         ],
         "id": "DECISION-LIFECYCLE-MOVE-001",
         "line": 1,
-        "searchText": "归档与重新激活保持 Markdown 语义 archive/reactivate 只能移动同一 ID 的 root/archive sourcePath，并保留 Markdown 语义和索引投影。 归档后 root 消失且 index 指向 archive；重新激活后正文和 sourcePath 恢复。 tools/decision-records/tests/lifecycle-relations.test.ts > archive and reactivate move one Decision ID while preserving its Markdown semantics bun test --test-name-pattern=\"^archive and reactivate move one Decision ID while preserving its Markdown semantics$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "归档与重新激活保持 Markdown 语义 archive/reactivate 只能移动同一纯 ID 的 root/archive sourcePath，并保留包含显式 `id` 的 Markdown 语义和索引投影。 归档后 root 消失且 index 指向 archive；重新激活后正文和 sourcePath 恢复。 tools/decision-records/tests/lifecycle-relations.test.ts > archive and reactivate move one Decision ID while preserving its Markdown semantics bun test --test-name-pattern=\"^archive and reactivate move one Decision ID while preserving its Markdown semantics$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/lifecycle-move-semantics.md",
-        "summary": "archive/reactivate 只能移动同一 ID 的 root/archive sourcePath，并保留 Markdown 语义和索引投影。",
+        "summary": "archive/reactivate 只能移动同一纯 ID 的 root/archive sourcePath，并保留包含显式 `id` 的 Markdown 语义和索引投影。",
         "title": "归档与重新激活保持 Markdown 语义"
       }
     },
     "DECISION-LIFECYCLE-POST-MUTATION-SCAN-001": {
       "keys": {
         "search": [
-          "DECISION-LIFECYCLE-POST-MUTATION-SCAN-001 生命周期写后扫描失败不得伪报成功 Decision lifecycle 完成 Markdown 与 index 事务后仍必须验证当前集合；写后扫描或验证失败时，CLI 不能输出成功文本或以 0 退出，并且只报告该事务 owner 可证明的 `partial-or-unknown` 范围。 在 index 写入后的后续 collection scan 注入读取失败时，CLI 退出 1 且 stdout 为空。 stderr 输出 `decision-records.post-mutation-scan-failed` 和 `partial-or-unknown`，而非 lifecycle 成功消息。 tools/decision-records/tests/transaction-recovery.test.ts > lifecycle does not print success when its post-mutation scan fails bun test --test-name-pattern=\"^lifecycle does not print success when its post-mutation scan fails$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-LIFECYCLE-POST-MUTATION-SCAN-001 生命周期写后索引检查失败不得伪报成功 Decision lifecycle 的写后 index 检查失败时必须恢复事务；CLI 不能输出成功文本或以 0 退出，并且只报告该事务 owner 可证明的 `rolled-back` 范围。 在 index 写入后的来源检查注入读取失败时，CLI 退出 1 且 stdout 为空。 stderr 输出 `decision-records.transaction-failed` 和 `rolled-back`，而非 lifecycle 成功消息。 tools/decision-records/tests/transaction-recovery.test.ts > lifecycle rolls back and does not print success when its post-write index check fails bun test --test-name-pattern=\"^lifecycle rolls back and does not print success when its post-write index check fails$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -3623,15 +3623,15 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "tools/decision-records/tests/transaction-recovery.test.ts > lifecycle does not print success when its post-mutation scan fails",
-          "bun test --test-name-pattern=\"^lifecycle does not print success when its post-mutation scan fails$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/transaction-recovery.test.ts > lifecycle rolls back and does not print success when its post-write index check fails",
+          "bun test --test-name-pattern=\"^lifecycle rolls back and does not print success when its post-write index check fails$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-LIFECYCLE-POST-MUTATION-SCAN-001",
         "line": 1,
-        "searchText": "生命周期写后扫描失败不得伪报成功 Decision lifecycle 完成 Markdown 与 index 事务后仍必须验证当前集合；写后扫描或验证失败时，CLI 不能输出成功文本或以 0 退出，并且只报告该事务 owner 可证明的 `partial-or-unknown` 范围。 在 index 写入后的后续 collection scan 注入读取失败时，CLI 退出 1 且 stdout 为空。 stderr 输出 `decision-records.post-mutation-scan-failed` 和 `partial-or-unknown`，而非 lifecycle 成功消息。 tools/decision-records/tests/transaction-recovery.test.ts > lifecycle does not print success when its post-mutation scan fails bun test --test-name-pattern=\"^lifecycle does not print success when its post-mutation scan fails$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "生命周期写后索引检查失败不得伪报成功 Decision lifecycle 的写后 index 检查失败时必须恢复事务；CLI 不能输出成功文本或以 0 退出，并且只报告该事务 owner 可证明的 `rolled-back` 范围。 在 index 写入后的来源检查注入读取失败时，CLI 退出 1 且 stdout 为空。 stderr 输出 `decision-records.transaction-failed` 和 `rolled-back`，而非 lifecycle 成功消息。 tools/decision-records/tests/transaction-recovery.test.ts > lifecycle rolls back and does not print success when its post-write index check fails bun test --test-name-pattern=\"^lifecycle rolls back and does not print success when its post-write index check fails$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/lifecycle-post-mutation-scan-failure.md",
-        "summary": "Decision lifecycle 完成 Markdown 与 index 事务后仍必须验证当前集合；写后扫描或验证失败时，CLI 不能输出成功文本或以 0 退出，并且只报告该事务 owner 可证明的 `partial-or-unknown` 范围。",
-        "title": "生命周期写后扫描失败不得伪报成功"
+        "summary": "Decision lifecycle 的写后 index 检查失败时必须恢复事务；CLI 不能输出成功文本或以 0 退出，并且只报告该事务 owner 可证明的 `rolled-back` 范围。",
+        "title": "生命周期写后索引检查失败不得伪报成功"
       }
     },
     "DECISION-LIFECYCLE-PREFLIGHT-001": {
@@ -4718,7 +4718,7 @@
     "DECISION-STAGE-INPUT-001": {
       "keys": {
         "search": [
-          "DECISION-STAGE-INPUT-001 Stage 拒绝无效、重复和缺失 ID 且不改变 pending stage 拒绝重复、缺失和越界 ID，并保留既有 Git pending 快照。 三类非法输入均给出对应的参数或 selected-ID 诊断，选择来源、正式索引与 Git pending index 保持不变。 tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing the pending snapshot bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing the pending snapshot$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-STAGE-INPUT-001 Stage 拒绝无效、重复和缺失 ID 且不改变 pending stage 拒绝重复、缺失和越界的纯 ID，并保留既有 Git pending 快照。 三类非法输入均给出对应的参数或 selected-ID 诊断，选择来源、正式索引与 Git pending index 保持不变。 tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing the pending snapshot bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing the pending snapshot$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -4732,9 +4732,9 @@
         ],
         "id": "DECISION-STAGE-INPUT-001",
         "line": 1,
-        "searchText": "Stage 拒绝无效、重复和缺失 ID 且不改变 pending stage 拒绝重复、缺失和越界 ID，并保留既有 Git pending 快照。 三类非法输入均给出对应的参数或 selected-ID 诊断，选择来源、正式索引与 Git pending index 保持不变。 tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing the pending snapshot bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing the pending snapshot$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Stage 拒绝无效、重复和缺失 ID 且不改变 pending stage 拒绝重复、缺失和越界的纯 ID，并保留既有 Git pending 快照。 三类非法输入均给出对应的参数或 selected-ID 诊断，选择来源、正式索引与 Git pending index 保持不变。 tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing the pending snapshot bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing the pending snapshot$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/stage-rejects-invalid-duplicate-and-missing-paths-without-changing-pending.md",
-        "summary": "stage 拒绝重复、缺失和越界 ID，并保留既有 Git pending 快照。",
+        "summary": "stage 拒绝重复、缺失和越界的纯 ID，并保留既有 Git pending 快照。",
         "title": "Stage 拒绝无效、重复和缺失 ID 且不改变 pending"
       }
     },
@@ -4833,7 +4833,7 @@
     "DECISION-STAGE-OVERLAY-001": {
       "keys": {
         "search": [
-          "DECISION-STAGE-OVERLAY-001 Stage 应用选择的新增、修改与删除 stage 将选择的新增、修改、删除和派生索引作为完整 pending 快照暂存；改名只由显式选择表达。 修改、删除和新增记录后，断言对应路径及 index 暂存。 tools/decision-records/tests/stage.test.ts > stage applies selected additions modifications deletions and explicit renames bun test --test-name-pattern=\"^stage applies selected additions modifications deletions and explicit renames$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-STAGE-OVERLAY-001 Stage 应用选择的新增、修改与删除 stage 将选择的新增、修改、删除和派生索引作为完整 pending 快照暂存；关系 target 与选择均使用纯 ID。 修改、删除和新增记录后，断言对应路径及 index 暂存。 tools/decision-records/tests/stage.test.ts > stage applies selected additions modifications deletions and explicit renames bun test --test-name-pattern=\"^stage applies selected additions modifications deletions and explicit renames$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -4847,16 +4847,16 @@
         ],
         "id": "DECISION-STAGE-OVERLAY-001",
         "line": 1,
-        "searchText": "Stage 应用选择的新增、修改与删除 stage 将选择的新增、修改、删除和派生索引作为完整 pending 快照暂存；改名只由显式选择表达。 修改、删除和新增记录后，断言对应路径及 index 暂存。 tools/decision-records/tests/stage.test.ts > stage applies selected additions modifications deletions and explicit renames bun test --test-name-pattern=\"^stage applies selected additions modifications deletions and explicit renames$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Stage 应用选择的新增、修改与删除 stage 将选择的新增、修改、删除和派生索引作为完整 pending 快照暂存；关系 target 与选择均使用纯 ID。 修改、删除和新增记录后，断言对应路径及 index 暂存。 tools/decision-records/tests/stage.test.ts > stage applies selected additions modifications deletions and explicit renames bun test --test-name-pattern=\"^stage applies selected additions modifications deletions and explicit renames$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/stage-applies-selected-additions-modifications-deletions-and-explicit-renames.md",
-        "summary": "stage 将选择的新增、修改、删除和派生索引作为完整 pending 快照暂存；改名只由显式选择表达。",
+        "summary": "stage 将选择的新增、修改、删除和派生索引作为完整 pending 快照暂存；关系 target 与选择均使用纯 ID。",
         "title": "Stage 应用选择的新增、修改与删除"
       }
     },
     "DECISION-STAGE-PENDING-CAS-001": {
       "keys": {
         "search": [
-          "DECISION-STAGE-PENDING-CAS-001 Stage 保留并发 pending 内容 Stage 的预检与 pending 替换之间若出现并发 pending 文件，锁内 CAS 必须拒绝替换，不能覆盖他人的暂存字节。 在构造目标后注入并暂存另一份决策，stage 报告冲突，且该暂存文件字节保持不变。 tools/decision-records/tests/stage.test.ts > stage preserves concurrent pending bytes discovered by the replacement CAS bun test --test-name-pattern=\"^stage preserves concurrent pending bytes discovered by the replacement CAS$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-STAGE-PENDING-CAS-001 Stage 保留并发 pending 内容 Stage 的预检与 pending 替换之间若出现并发 pending 文件，锁内 CAS 必须拒绝替换，不能覆盖他人的暂存字节。 在构造目标后注入并暂存另一份声明其自身纯 ID 的决策，stage 报告冲突，且该暂存文件字节保持不变。 tools/decision-records/tests/stage.test.ts > stage preserves concurrent pending bytes discovered by the replacement CAS bun test --test-name-pattern=\"^stage preserves concurrent pending bytes discovered by the replacement CAS$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -4870,7 +4870,7 @@
         ],
         "id": "DECISION-STAGE-PENDING-CAS-001",
         "line": 1,
-        "searchText": "Stage 保留并发 pending 内容 Stage 的预检与 pending 替换之间若出现并发 pending 文件，锁内 CAS 必须拒绝替换，不能覆盖他人的暂存字节。 在构造目标后注入并暂存另一份决策，stage 报告冲突，且该暂存文件字节保持不变。 tools/decision-records/tests/stage.test.ts > stage preserves concurrent pending bytes discovered by the replacement CAS bun test --test-name-pattern=\"^stage preserves concurrent pending bytes discovered by the replacement CAS$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Stage 保留并发 pending 内容 Stage 的预检与 pending 替换之间若出现并发 pending 文件，锁内 CAS 必须拒绝替换，不能覆盖他人的暂存字节。 在构造目标后注入并暂存另一份声明其自身纯 ID 的决策，stage 报告冲突，且该暂存文件字节保持不变。 tools/decision-records/tests/stage.test.ts > stage preserves concurrent pending bytes discovered by the replacement CAS bun test --test-name-pattern=\"^stage preserves concurrent pending bytes discovered by the replacement CAS$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/stage-pending-cas-race.md",
         "summary": "Stage 的预检与 pending 替换之间若出现并发 pending 文件，锁内 CAS 必须拒绝替换，不能覆盖他人的暂存字节。",
         "title": "Stage 保留并发 pending 内容"
@@ -4902,7 +4902,7 @@
     "DECISION-STAGE-RENAME-001": {
       "keys": {
         "search": [
-          "DECISION-STAGE-RENAME-001 Stage 仅以显式 old+new ID 表达 basename 改名 只有显式同时选择 old+new ID 才表达 basename rename；新正文编辑与 identity 变更一同进入 pending index，工具不猜测。 暂存后旧 ID 消失，新 ID 具有编辑后的标题。 tools/decision-records/tests/stage.test.ts > stage expresses a basename identity rename by selecting both IDs bun test --test-name-pattern=\"^stage expresses a basename identity rename by selecting both IDs$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-STAGE-RENAME-001 Stage 以一个 ID 表达语义 sourcePath 改名 basename 是存储位置而非身份；选择一个显式 ID 时，语义 sourcePath 改名与正文编辑一同进入 pending index，工具不伪造新 ID。 暂存后同一 ID 保留编辑后的标题，并投影新的语义 sourcePath。 tools/decision-records/tests/stage.test.ts > stage preserves one Decision ID when its semantic sourcePath is renamed bun test --test-name-pattern=\"^stage preserves one Decision ID when its semantic sourcePath is renamed$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -4911,15 +4911,15 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/decision-records/tests/stage.test.ts > stage expresses a basename identity rename by selecting both IDs",
-          "bun test --test-name-pattern=\"^stage expresses a basename identity rename by selecting both IDs$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/stage.test.ts > stage preserves one Decision ID when its semantic sourcePath is renamed",
+          "bun test --test-name-pattern=\"^stage preserves one Decision ID when its semantic sourcePath is renamed$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-STAGE-RENAME-001",
         "line": 1,
-        "searchText": "Stage 仅以显式 old+new ID 表达 basename 改名 只有显式同时选择 old+new ID 才表达 basename rename；新正文编辑与 identity 变更一同进入 pending index，工具不猜测。 暂存后旧 ID 消失，新 ID 具有编辑后的标题。 tools/decision-records/tests/stage.test.ts > stage expresses a basename identity rename by selecting both IDs bun test --test-name-pattern=\"^stage expresses a basename identity rename by selecting both IDs$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Stage 以一个 ID 表达语义 sourcePath 改名 basename 是存储位置而非身份；选择一个显式 ID 时，语义 sourcePath 改名与正文编辑一同进入 pending index，工具不伪造新 ID。 暂存后同一 ID 保留编辑后的标题，并投影新的语义 sourcePath。 tools/decision-records/tests/stage.test.ts > stage preserves one Decision ID when its semantic sourcePath is renamed bun test --test-name-pattern=\"^stage preserves one Decision ID when its semantic sourcePath is renamed$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/stage-explicit-rename.md",
-        "summary": "只有显式同时选择 old+new ID 才表达 basename rename；新正文编辑与 identity 变更一同进入 pending index，工具不猜测。",
-        "title": "Stage 仅以显式 old+new ID 表达 basename 改名"
+        "summary": "basename 是存储位置而非身份；选择一个显式 ID 时，语义 sourcePath 改名与正文编辑一同进入 pending index，工具不伪造新 ID。",
+        "title": "Stage 以一个 ID 表达语义 sourcePath 改名"
       }
     },
     "DECISION-STAGE-REVISION-BATCH-001": {
@@ -4966,6 +4966,29 @@
         "sourcePath": "decision-records/stage-selected-symlink.md",
         "summary": "stage 选择的 ID 必须对应决策根内的普通 Markdown 文件；symlink 等非普通来源不得读取其外部字节或写入 pending。",
         "title": "Stage 拒绝指向决策根外的选择 symlink 且不写入 pending"
+      }
+    },
+    "DECISION-STAGE-SEMANTIC-SOURCE-PATH-002": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-SEMANTIC-SOURCE-PATH-002 stage ignores an invalid former ID basename after an ID keeps a semantic sourcePath 已索引的 Decision ID 按独立 sourcePath 选择；同名旧 ID basename 的未选择非法文件不参与身份匹配或阻断暂存。 语义 sourcePath 的正文修改与索引进入 pending，未选择的旧 ID basename 不进入 pending。 tools/decision-records/tests/stage.test.ts > stage ignores an invalid former ID basename after an ID keeps a semantic sourcePath bun test --test-name-pattern=\"^stage ignores an invalid former ID basename after an ID keeps a semantic sourcePath$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage ignores an invalid former ID basename after an ID keeps a semantic sourcePath",
+          "bun test --test-name-pattern=\"^stage ignores an invalid former ID basename after an ID keeps a semantic sourcePath$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-SEMANTIC-SOURCE-PATH-002",
+        "line": 1,
+        "searchText": "stage ignores an invalid former ID basename after an ID keeps a semantic sourcePath 已索引的 Decision ID 按独立 sourcePath 选择；同名旧 ID basename 的未选择非法文件不参与身份匹配或阻断暂存。 语义 sourcePath 的正文修改与索引进入 pending，未选择的旧 ID basename 不进入 pending。 tools/decision-records/tests/stage.test.ts > stage ignores an invalid former ID basename after an ID keeps a semantic sourcePath bun test --test-name-pattern=\"^stage ignores an invalid former ID basename after an ID keeps a semantic sourcePath$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-ignores-an-invalid-former-id-basename-after-an-id-keeps-a-semantic-sourcepath.md",
+        "summary": "已索引的 Decision ID 按独立 sourcePath 选择；同名旧 ID basename 的未选择非法文件不参与身份匹配或阻断暂存。",
+        "title": "stage ignores an invalid former ID basename after an ID keeps a semantic sourcePath"
       }
     },
     "DECISION-STAGE-SOURCE-PREFLIGHT-001": {
@@ -5684,7 +5707,7 @@
     "DECISION-TYPE-PATH-001": {
       "keys": {
         "search": [
-          "DECISION-TYPE-PATH-001 稳定 ID、标签与来源路径不变量 决策类型与路径必须以 Markdown basename 作为稳定 ID，并使标签、`sourcePath` 与生命周期位置保持一致。 类型和路径辅助函数拒绝不符合稳定 ID 或物理布局的值，并保留可序列化的标签和来源路径。 tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve stable ID tag and sourcePath invariants bun test --test-name-pattern=\"^decision\\ types\\ and\\ paths\\ preserve\\ stable\\ ID\\ tag\\ and\\ sourcePath\\ invariants$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TYPE-PATH-001 稳定 ID、标签与来源路径不变量 决策类型以 extensionless Decision ID 承担稳定身份；`sourcePath` 独立承载 Markdown 位置并与生命周期位置保持一致。 类型和路径辅助函数拒绝不符合稳定 ID 或物理布局的值，并保留可序列化的标签和来源路径。 tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve stable ID tag and sourcePath invariants bun test --test-name-pattern=\"^decision\\ types\\ and\\ paths\\ preserve\\ stable\\ ID\\ tag\\ and\\ sourcePath\\ invariants$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -5698,9 +5721,9 @@
         ],
         "id": "DECISION-TYPE-PATH-001",
         "line": 1,
-        "searchText": "稳定 ID、标签与来源路径不变量 决策类型与路径必须以 Markdown basename 作为稳定 ID，并使标签、`sourcePath` 与生命周期位置保持一致。 类型和路径辅助函数拒绝不符合稳定 ID 或物理布局的值，并保留可序列化的标签和来源路径。 tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve stable ID tag and sourcePath invariants bun test --test-name-pattern=\"^decision\\ types\\ and\\ paths\\ preserve\\ stable\\ ID\\ tag\\ and\\ sourcePath\\ invariants$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "稳定 ID、标签与来源路径不变量 决策类型以 extensionless Decision ID 承担稳定身份；`sourcePath` 独立承载 Markdown 位置并与生命周期位置保持一致。 类型和路径辅助函数拒绝不符合稳定 ID 或物理布局的值，并保留可序列化的标签和来源路径。 tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve stable ID tag and sourcePath invariants bun test --test-name-pattern=\"^decision\\ types\\ and\\ paths\\ preserve\\ stable\\ ID\\ tag\\ and\\ sourcePath\\ invariants$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-types-and-paths-preserve-identity-and-alignment-invariants.md",
-        "summary": "决策类型与路径必须以 Markdown basename 作为稳定 ID，并使标签、`sourcePath` 与生命周期位置保持一致。",
+        "summary": "决策类型以 extensionless Decision ID 承担稳定身份；`sourcePath` 独立承载 Markdown 位置并与生命周期位置保持一致。",
         "title": "稳定 ID、标签与来源路径不变量"
       }
     },
@@ -9269,6 +9292,29 @@
         "title": "show and trace resolve reports by investigation id"
       }
     },
+    "INVESTIGATION-QUERY-SOURCE-PATH-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-QUERY-SOURCE-PATH-001 index and show resolve a report id independently from its semantic sourcePath 正式 Investigation ID 由 frontmatter 声明，索引以该 ID 为 key 保存独立 sourcePath；`show` 必须通过新鲜索引定位语义 filename 后回读同一 ID。 basename 为 `semantic-finding.md` 且 frontmatter ID 为 `stable-report` 的正式 Markdown 可同步为唯一的 `stable-report` entry。 该 entry 投影 `semantic-finding.md` sourcePath，`show stable-report` 返回仍声明同一纯 ID 的 Markdown。 同 ID 改用 `renamed-finding.md` 后旧索引的 sourcePath 不再可供 `show` 解析；同步重建只更新该 entry 的 sourcePath。 tools/investigation-report/tests/index-query.test.ts > index and show resolve a report ID independently from its semantic sourcePath bun test --test-name-pattern=\"^index and show resolve a report ID independently from its semantic sourcePath$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > index and show resolve a report ID independently from its semantic sourcePath",
+          "bun test --test-name-pattern=\"^index and show resolve a report ID independently from its semantic sourcePath$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-QUERY-SOURCE-PATH-001",
+        "line": 1,
+        "searchText": "index and show resolve a report id independently from its semantic sourcePath 正式 Investigation ID 由 frontmatter 声明，索引以该 ID 为 key 保存独立 sourcePath；`show` 必须通过新鲜索引定位语义 filename 后回读同一 ID。 basename 为 `semantic-finding.md` 且 frontmatter ID 为 `stable-report` 的正式 Markdown 可同步为唯一的 `stable-report` entry。 该 entry 投影 `semantic-finding.md` sourcePath，`show stable-report` 返回仍声明同一纯 ID 的 Markdown。 同 ID 改用 `renamed-finding.md` 后旧索引的 sourcePath 不再可供 `show` 解析；同步重建只更新该 entry 的 sourcePath。 tools/investigation-report/tests/index-query.test.ts > index and show resolve a report ID independently from its semantic sourcePath bun test --test-name-pattern=\"^index and show resolve a report ID independently from its semantic sourcePath$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/index-and-show-resolve-a-report-id-independently-from-its-semantic-sourcepath.md",
+        "summary": "正式 Investigation ID 由 frontmatter 声明，索引以该 ID 为 key 保存独立 sourcePath；`show` 必须通过新鲜索引定位语义 filename 后回读同一 ID。",
+        "title": "index and show resolve a report id independently from its semantic sourcePath"
+      }
+    },
     "INVESTIGATION-RELATION-GIT-HEAD-001": {
       "keys": {
         "search": [
@@ -9479,7 +9525,7 @@
     "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001 set-relations atomically applies multi-source replacements and explicit clears 多 source 关系替换和显式清空在同一图预演后原子应用。 双拆分关系建立成功，随后可在同一调用中清空。 tools/investigation-report/tests/transaction.test.ts > set-relations atomically applies multi-source replacements and explicit clears bun test --test-name-pattern=\"^set-relations atomically applies multi-source replacements and explicit clears$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001 set-relations atomically applies multi-source replacements and explicit clears 多 source 关系替换和显式清空在同一图预演后原子应用，且不会把独立 sourcePath 重投影为 ID basename。 双拆分关系建立成功，语义 sourcePath 的报告在索引中保持原路径，随后可在同一调用中清空。 tools/investigation-report/tests/transaction.test.ts > set-relations atomically applies multi-source replacements and explicit clears bun test --test-name-pattern=\"^set-relations atomically applies multi-source replacements and explicit clears$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -9493,9 +9539,9 @@
         ],
         "id": "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001",
         "line": 1,
-        "searchText": "set-relations atomically applies multi-source replacements and explicit clears 多 source 关系替换和显式清空在同一图预演后原子应用。 双拆分关系建立成功，随后可在同一调用中清空。 tools/investigation-report/tests/transaction.test.ts > set-relations atomically applies multi-source replacements and explicit clears bun test --test-name-pattern=\"^set-relations atomically applies multi-source replacements and explicit clears$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "set-relations atomically applies multi-source replacements and explicit clears 多 source 关系替换和显式清空在同一图预演后原子应用，且不会把独立 sourcePath 重投影为 ID basename。 双拆分关系建立成功，语义 sourcePath 的报告在索引中保持原路径，随后可在同一调用中清空。 tools/investigation-report/tests/transaction.test.ts > set-relations atomically applies multi-source replacements and explicit clears bun test --test-name-pattern=\"^set-relations atomically applies multi-source replacements and explicit clears$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/set-relations-atomically-applies-multi-source-replacements-and-explicit-clears.md",
-        "summary": "多 source 关系替换和显式清空在同一图预演后原子应用。",
+        "summary": "多 source 关系替换和显式清空在同一图预演后原子应用，且不会把独立 sourcePath 重投影为 ID basename。",
         "title": "set-relations atomically applies multi-source replacements and explicit clears"
       }
     },
@@ -9824,7 +9870,7 @@
     "INVESTIGATION-RESOURCE-NAME-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RESOURCE-NAME-001 resource ID whitelist accepts report-owned names and rejects structural hazards 资源 ID 使用 owner report stem 前缀，并拒绝路径穿越等结构风险。 合法 owner 资源 ID 通过，穿越目标无效。 tools/investigation-report/tests/resources.test.ts > resource ID whitelist accepts report-owned names and rejects structural hazards bun test --test-name-pattern=\"^resource ID whitelist accepts report-owned names and rejects structural hazards$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RESOURCE-NAME-001 resource ID whitelist accepts report-owned names and rejects structural hazards 资源 ID 使用 extensionless Investigation ID 前缀，并拒绝路径穿越等结构风险。 合法 owner 资源 ID 通过，穿越目标无效。 tools/investigation-report/tests/resources.test.ts > resource ID whitelist accepts report-owned names and rejects structural hazards bun test --test-name-pattern=\"^resource ID whitelist accepts report-owned names and rejects structural hazards$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -9838,9 +9884,9 @@
         ],
         "id": "INVESTIGATION-RESOURCE-NAME-001",
         "line": 1,
-        "searchText": "resource ID whitelist accepts report-owned names and rejects structural hazards 资源 ID 使用 owner report stem 前缀，并拒绝路径穿越等结构风险。 合法 owner 资源 ID 通过，穿越目标无效。 tools/investigation-report/tests/resources.test.ts > resource ID whitelist accepts report-owned names and rejects structural hazards bun test --test-name-pattern=\"^resource ID whitelist accepts report-owned names and rejects structural hazards$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "resource ID whitelist accepts report-owned names and rejects structural hazards 资源 ID 使用 extensionless Investigation ID 前缀，并拒绝路径穿越等结构风险。 合法 owner 资源 ID 通过，穿越目标无效。 tools/investigation-report/tests/resources.test.ts > resource ID whitelist accepts report-owned names and rejects structural hazards bun test --test-name-pattern=\"^resource ID whitelist accepts report-owned names and rejects structural hazards$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/resource-id-whitelist-accepts-report-owned-names-and-rejects-structural-hazards.md",
-        "summary": "资源 ID 使用 owner report stem 前缀，并拒绝路径穿越等结构风险。",
+        "summary": "资源 ID 使用 extensionless Investigation ID 前缀，并拒绝路径穿越等结构风险。",
         "title": "resource ID whitelist accepts report-owned names and rejects structural hazards"
       }
     },
@@ -9893,7 +9939,7 @@
     "INVESTIGATION-RESOURCE-OWNER-PREFIX-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RESOURCE-OWNER-PREFIX-001 resource references use report IDs rather than topic paths or report indexes 资源 ID 使用 Investigation ID stem，不使用已取消的路径或索引位置。 资源 owner ID 可反推为带 `.md` 的报告 ID。 tools/investigation-report/tests/resources.test.ts > resource references use report IDs rather than topic paths or report indexes bun test --test-name-pattern=\"^resource references use report IDs rather than topic paths or report indexes$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RESOURCE-OWNER-PREFIX-001 resource references use report IDs rather than topic paths or report indexes 资源 ID 使用 extensionless Investigation ID 作为 owner 前缀，不使用路径或索引位置。 资源 owner ID 可反推为 extensionless 的报告 ID。 tools/investigation-report/tests/resources.test.ts > resource references use report IDs rather than topic paths or report indexes bun test --test-name-pattern=\"^resource references use report IDs rather than topic paths or report indexes$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -9907,9 +9953,9 @@
         ],
         "id": "INVESTIGATION-RESOURCE-OWNER-PREFIX-001",
         "line": 1,
-        "searchText": "resource references use report IDs rather than topic paths or report indexes 资源 ID 使用 Investigation ID stem，不使用已取消的路径或索引位置。 资源 owner ID 可反推为带 `.md` 的报告 ID。 tools/investigation-report/tests/resources.test.ts > resource references use report IDs rather than topic paths or report indexes bun test --test-name-pattern=\"^resource references use report IDs rather than topic paths or report indexes$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "resource references use report IDs rather than topic paths or report indexes 资源 ID 使用 extensionless Investigation ID 作为 owner 前缀，不使用路径或索引位置。 资源 owner ID 可反推为 extensionless 的报告 ID。 tools/investigation-report/tests/resources.test.ts > resource references use report IDs rather than topic paths or report indexes bun test --test-name-pattern=\"^resource references use report IDs rather than topic paths or report indexes$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/resource-references-use-report-ids-rather-than-topic-paths-or-report-indexes.md",
-        "summary": "资源 ID 使用 Investigation ID stem，不使用已取消的路径或索引位置。",
+        "summary": "资源 ID 使用 extensionless Investigation ID 作为 owner 前缀，不使用路径或索引位置。",
         "title": "resource references use report IDs rather than topic paths or report indexes"
       }
     },
@@ -10169,7 +10215,7 @@
     "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001 index state projects strict empty metadata and no sourcePath 报告索引 metadata 必须严格为空，entry state 不重复保存可由 ID 推导的 sourcePath。 持久化索引的 metadata 为 `{}`，报告 state 不含 sourcePath。 tools/investigation-report/tests/index-query.test.ts > index state projects strict empty metadata and no sourcePath bun test --test-name-pattern=\"^index state projects strict empty metadata and no sourcePath$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001 index state projects strict empty metadata and sourcePath 报告索引 metadata 必须严格为空，entry state 保存独立且可回读的 sourcePath。 持久化索引的 metadata 为 `{}`，报告 state 保存 `report.md` sourcePath，公开 schema 也声明并要求该字段。 tools/investigation-report/tests/index-query.test.ts > index state projects strict empty metadata and sourcePath bun test --test-name-pattern=\"^index state projects strict empty metadata and sourcePath$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -10178,15 +10224,15 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/investigation-report/tests/index-query.test.ts > index state projects strict empty metadata and no sourcePath",
-          "bun test --test-name-pattern=\"^index state projects strict empty metadata and no sourcePath$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/index-query.test.ts > index state projects strict empty metadata and sourcePath",
+          "bun test --test-name-pattern=\"^index state projects strict empty metadata and sourcePath$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001",
         "line": 1,
-        "searchText": "index state projects strict empty metadata and no sourcePath 报告索引 metadata 必须严格为空，entry state 不重复保存可由 ID 推导的 sourcePath。 持久化索引的 metadata 为 `{}`，报告 state 不含 sourcePath。 tools/investigation-report/tests/index-query.test.ts > index state projects strict empty metadata and no sourcePath bun test --test-name-pattern=\"^index state projects strict empty metadata and no sourcePath$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/index-state-projects-strict-empty-metadata-and-no-sourcepath.md",
-        "summary": "报告索引 metadata 必须严格为空，entry state 不重复保存可由 ID 推导的 sourcePath。",
-        "title": "index state projects strict empty metadata and no sourcePath"
+        "searchText": "index state projects strict empty metadata and sourcePath 报告索引 metadata 必须严格为空，entry state 保存独立且可回读的 sourcePath。 持久化索引的 metadata 为 `{}`，报告 state 保存 `report.md` sourcePath，公开 schema 也声明并要求该字段。 tools/investigation-report/tests/index-query.test.ts > index state projects strict empty metadata and sourcePath bun test --test-name-pattern=\"^index state projects strict empty metadata and sourcePath$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/index-state-projects-strict-empty-metadata-and-sourcepath.md",
+        "summary": "报告索引 metadata 必须严格为空，entry state 保存独立且可回读的 sourcePath。",
+        "title": "index state projects strict empty metadata and sourcePath"
       }
     },
     "INVESTIGATION-SNAPSHOT-REVISION-001": {
@@ -10215,7 +10261,7 @@
     "INVESTIGATION-SOURCE-REVISION-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-SOURCE-REVISION-001 source revisions fingerprint report Markdown source revision 指纹化报告 Markdown；重新同步后产生新 revision。 改写报告 Markdown 后当前 index 变为过期；公共 synchronize 成功重建并更新 revision。 tools/investigation-report/tests/index-query.test.ts > source revisions fingerprint report Markdown bun test --test-name-pattern=\"^source revisions fingerprint report Markdown$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-SOURCE-REVISION-001 source revisions fingerprint report Markdown source revision 指纹化报告 ID、sourcePath 与 Markdown；任一来源变化后重新同步产生新 revision。 改写报告 Markdown 后当前 index 变为过期；公共 synchronize 成功重建并更新 revision。 tools/investigation-report/tests/index-query.test.ts > source revisions fingerprint report Markdown bun test --test-name-pattern=\"^source revisions fingerprint report Markdown$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -10229,9 +10275,9 @@
         ],
         "id": "INVESTIGATION-SOURCE-REVISION-001",
         "line": 1,
-        "searchText": "source revisions fingerprint report Markdown source revision 指纹化报告 Markdown；重新同步后产生新 revision。 改写报告 Markdown 后当前 index 变为过期；公共 synchronize 成功重建并更新 revision。 tools/investigation-report/tests/index-query.test.ts > source revisions fingerprint report Markdown bun test --test-name-pattern=\"^source revisions fingerprint report Markdown$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "source revisions fingerprint report Markdown source revision 指纹化报告 ID、sourcePath 与 Markdown；任一来源变化后重新同步产生新 revision。 改写报告 Markdown 后当前 index 变为过期；公共 synchronize 成功重建并更新 revision。 tools/investigation-report/tests/index-query.test.ts > source revisions fingerprint report Markdown bun test --test-name-pattern=\"^source revisions fingerprint report Markdown$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/source-revisions-fingerprint-report-markdown.md",
-        "summary": "source revision 指纹化报告 Markdown；重新同步后产生新 revision。",
+        "summary": "source revision 指纹化报告 ID、sourcePath 与 Markdown；任一来源变化后重新同步产生新 revision。",
         "title": "source revisions fingerprint report Markdown"
       }
     },
@@ -10330,7 +10376,7 @@
     "INVESTIGATION-STAGE-INPUT-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-INPUT-001 stage-index rejects invalid or duplicate Investigation IDs `stage-index` 拒绝重复或非规范 Investigation ID。 重复 ID 返回 duplicate 诊断；路径、`./` 和首尾空白 ID 各返回 invalid 诊断。 tools/investigation-report/tests/staging.test.ts > stage-index rejects invalid or duplicate Investigation IDs bun test --test-name-pattern=\"^stage-index rejects invalid or duplicate Investigation IDs$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-INPUT-001 stage-index rejects invalid or duplicate Investigation IDs `stage-index` 拒绝重复或非 extensionless Investigation ID。 重复 ID 返回 duplicate 诊断；路径、`./` 和首尾空白 ID 各返回明确 extensionless 契约的 invalid 诊断。 tools/investigation-report/tests/staging.test.ts > stage-index rejects invalid or duplicate Investigation IDs bun test --test-name-pattern=\"^stage-index rejects invalid or duplicate Investigation IDs$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -10344,9 +10390,9 @@
         ],
         "id": "INVESTIGATION-STAGE-INPUT-001",
         "line": 1,
-        "searchText": "stage-index rejects invalid or duplicate Investigation IDs `stage-index` 拒绝重复或非规范 Investigation ID。 重复 ID 返回 duplicate 诊断；路径、`./` 和首尾空白 ID 各返回 invalid 诊断。 tools/investigation-report/tests/staging.test.ts > stage-index rejects invalid or duplicate Investigation IDs bun test --test-name-pattern=\"^stage-index rejects invalid or duplicate Investigation IDs$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "stage-index rejects invalid or duplicate Investigation IDs `stage-index` 拒绝重复或非 extensionless Investigation ID。 重复 ID 返回 duplicate 诊断；路径、`./` 和首尾空白 ID 各返回明确 extensionless 契约的 invalid 诊断。 tools/investigation-report/tests/staging.test.ts > stage-index rejects invalid or duplicate Investigation IDs bun test --test-name-pattern=\"^stage-index rejects invalid or duplicate Investigation IDs$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/stage-index-rejects-invalid-or-duplicate-investigation-ids.md",
-        "summary": "`stage-index` 拒绝重复或非规范 Investigation ID。",
+        "summary": "`stage-index` 拒绝重复或非 extensionless Investigation ID。",
         "title": "stage-index rejects invalid or duplicate Investigation IDs"
       }
     },
@@ -17427,8 +17473,8 @@
       "DECISION-BODY-PUNCTUATION-001": "sha256:a4f2d60849a569ee98261c718de1bd11d60ea482d25cd4653992c8a443d4a1c4",
       "DECISION-BODY-UNSUPPORTED-001": "sha256:c182ee56911a0fa3b3a545ee8124e38587b2e3bb641fb424790aad15c8fc82e9",
       "DECISION-CANDIDATE-ACTIVATION-INDEX-001": "sha256:67b85883a46fd611452188dba3e21b631e13614461e1e82dfb2962aed74335ee",
-      "DECISION-CANDIDATE-ACTIVATION-SELECTION-001": "sha256:78bfda1ebcb8400df39127804047ef3681ebdbf1357686bf31cb9fb552217998",
-      "DECISION-CANDIDATE-DATE-IDENTITY-001": "sha256:62d4093cd5a9e3b0b60c9b8fb15a64b246aa4622c566f8162de77b0a60fc6aed",
+      "DECISION-CANDIDATE-ACTIVATION-SELECTION-001": "sha256:517a1f97030144a615ab06b036ae8a0f1cc07467103a22b1179f9c37f22b4b7b",
+      "DECISION-CANDIDATE-DATE-IDENTITY-001": "sha256:88afe70e4022cb19d8d509cc6d8ecb94903e44169abdf0d8b86d235dfa3df7c8",
       "DECISION-CANDIDATE-DISCARD-ACTIVE-TARGET-001": "sha256:c0b69beeb225427f4d7a3ff5457f60d26d6effb288dbd06ee93b140662057d28",
       "DECISION-CANDIDATE-DISCARD-INVALID-001": "sha256:23a58829f2e0b8246e3e79e8e68f671cc2ccbe50b7331c84bc1920df9421967a",
       "DECISION-CANDIDATE-DISCARD-INVALID-RELATION-001": "sha256:a5f14897991236a565d839550e955709b8d274c17d72a917b61e36a2c0d15c2a",
@@ -17451,7 +17497,7 @@
       "DECISION-CHECK-PARITY-001": "sha256:a2c6a0d773920c1492abb6064a51004b9c7eca20ab9c928278ad28dfc3223388",
       "DECISION-CLI-ACTIVATE-ALIGNMENT-001": "sha256:2b60ad9b6a2a8b5bb19aebde19a7887f42927685db108b29b69b44ecb350af68",
       "DECISION-CLI-ARCHIVE-HELP-001": "sha256:195ae3be4014bc4097234bb838f5bc5ed4bb58660d72175fcee30a42edeb62e0",
-      "DECISION-CLI-ARGS-001": "sha256:046e5a492ca0f82373f7acaded3f24ee7fbe997896f4c98b76cfe8cd24eca860",
+      "DECISION-CLI-ARGS-001": "sha256:b0117299f1a636ad061b586c1b6b24606194d069ea96168d4de06d1b9a51f22c",
       "DECISION-CLI-DISCARD-RECORDED-FLAG-001": "sha256:350f0c4c5fc50de7af397621c955d41e1a504802d334d8e41023cdce8a03f82e",
       "DECISION-CLI-EVOLVE-HELP-001": "sha256:569d1990171808e0187aeec62808eb78cc68548f3e34d88f38ec4d41109a8970",
       "DECISION-CLI-EVOLVE-RECORDED-FLAG-001": "sha256:a895239ab211475f195ece28e66be2c34f0c6129ef50f5eb3022da5c9755cc1a",
@@ -17460,7 +17506,7 @@
       "DECISION-CLI-MARK-ALIGNED-HELP-001": "sha256:a0f31da74c2dd5ec39de558a6696137da5d0f3666003ae2c6291864050cfcb97",
       "DECISION-CLI-NEW-HELP-001": "sha256:fe00072830baca149abef83b00102404371ac57675ac3764d05e974d77802472",
       "DECISION-CLI-NODE-SMOKE-001": "sha256:62017bded5501e5fb0d6fe2d51da9a1491d2df7a27d2084650d0158c1fcf2643",
-      "DECISION-CLI-POSITIONAL-ID-001": "sha256:e7098c9b0e0c70ca4619896b6257301a6f7909b731c91a9bf5fb7e48690d9f3a",
+      "DECISION-CLI-POSITIONAL-ID-001": "sha256:ce4acb942cbef2ee65ca914f92780252008d300ff4e542d7c35fa5c61853eeeb",
       "DECISION-CLI-RELATION-SELECTION-001": "sha256:9fdc9deed74a62b3578886105bcd61fd5a541edf47ee75587711499632cf1c3d",
       "DECISION-CLI-RELATIVE-ROOT-001": "sha256:ca20002841a8ca2480ec5649e83b5d89a9299a7c42625997300ab14cd7a19c1c",
       "DECISION-CLI-REMOVED-PROTOCOL-001": "sha256:aff69d9c99943524e2b6addccb9fe92465e8b3f5cfe35ee0d0761b8cf97b775b",
@@ -17508,15 +17554,15 @@
       "DECISION-GENERATED-SCHEMA-001": "sha256:4e76bae4e51d59b2f883167716e2bfa4d2a57ee0dbe96dfe6a59aef8140016a0",
       "DECISION-ID-INDEX-001": "sha256:d27fbe7fe4843bbbc7747c7630f73463493509ce4892c269866da86c92ab6272",
       "DECISION-ID-QUERY-001": "sha256:7d33b8e779d42a2de8343d0d71662dafa53690d3698f9a407b75ab190727488c",
-      "DECISION-ID-RELATION-001": "sha256:3c5293a5dbc1b290b8bc4a4ffa08422901878a0ab6285193d3c44e1a1155bf9e",
+      "DECISION-ID-RELATION-001": "sha256:9eb674c84301a714e20b42a98c882f9e79c2efdfa64d1a68e37cee02f88f927c",
       "DECISION-ID-TRACE-001": "sha256:2d09053c5525cd28f43a40a702734acf9b8afa6472ae614affe77f3f70226b22",
       "DECISION-INDEX-DEFINITION-001": "sha256:8ba8775387ffa6b612ac51b9e1237b3a4ab0773a11d3d4408705a3ae2ea8971a",
-      "DECISION-INDEX-MAINTENANCE-001": "sha256:fdc33103d941d66b6e4440495c74a5bc00891b933ea194d2a94221e3395b31ee",
+      "DECISION-INDEX-MAINTENANCE-001": "sha256:5a8d5e9607bdb9a7480a8f47323bcf625995da6f197e12c56087b21a0cfc8205",
       "DECISION-INDEX-REVISION-001": "sha256:e8e07b1c678fe6c4e0fccf7212983c20c3d0bb025f5faf5a6ed64f23c48b54f0",
       "DECISION-LAYOUT-INVALID-001": "sha256:0188be2e16bd90ff273b1d6ef019c88bdd7069bd3c978c717c36ef21a1dd5610",
-      "DECISION-LAYOUT-VALID-001": "sha256:68c531d7af9831e8f7da3752526fb8903870ba9a13076efe5bd30a39a8c57aea",
-      "DECISION-LIFECYCLE-MOVE-001": "sha256:601fdaa8bfb471b473d24e0609cdf876bc8d242d2a63da4f3da93cf4be6ff76d",
-      "DECISION-LIFECYCLE-POST-MUTATION-SCAN-001": "sha256:8e98bd1342bc258bd4b167a1803e8c28e0545ecffc92926a3a646ab460ecdd50",
+      "DECISION-LAYOUT-VALID-001": "sha256:503eeba1dee3da49f073d4aa1c53131de2b3f276f39006a26ec149cc3ac82111",
+      "DECISION-LIFECYCLE-MOVE-001": "sha256:d2d3413832e9f85992042b450b495889751ffe8b8f5bdd7bf23a01ac74cf7aa4",
+      "DECISION-LIFECYCLE-POST-MUTATION-SCAN-001": "sha256:caa749fa2821d2993ccb7af99edfdf00e5e0e9e83146be23252c06122b440315",
       "DECISION-LIFECYCLE-PREFLIGHT-001": "sha256:4aba1cdeb26b3f4583ef9f59f6386c733310af89754978196a93fb06cb00f483",
       "DECISION-LIST-ALIGNMENT-001": "sha256:c313036ec6fd33236be311f94f547a2f2af46970cd8c9494aba743f8b90440ff",
       "DECISION-LIST-ALL-001": "sha256:5c497820cab1d9b7613750c8b3b1f9cdf0b8f74110691d7896bef0b23b67c4af",
@@ -17564,17 +17610,18 @@
       "DECISION-STAGE-DOMAIN-DIAGNOSTIC-001": "sha256:dc02983aeff432ff77a6b4e670171a976e067745386ac1e173bfd598c6b9cb7e",
       "DECISION-STAGE-FILESYSTEM-DIAGNOSTIC-001": "sha256:35a19152be3df5ec553465866af8e895328b420d1a1388430e5e93d16d66ea58",
       "DECISION-STAGE-INDEX-ONLY-BASELINE-001": "sha256:f7dcb7cfd4e09431595681e1994c8f83ce5a923ec7aa37a3cf3d1d7b2e23c6b1",
-      "DECISION-STAGE-INPUT-001": "sha256:3e7ef203aee4646b0cb02886ff7305b87b224858e789a244e204e9124585f9a7",
+      "DECISION-STAGE-INPUT-001": "sha256:ffe2db23b5b6c4cc0969f9878281c1096519be9b67c35fcc99503bf562c633e7",
       "DECISION-STAGE-ISOLATION-001": "sha256:4879eae2934654b4cf960f25a42ce3fbfe138418f6404bdb2416cc8bcf408dfb",
       "DECISION-STAGE-LEGACY-001": "sha256:f18acc06b062f0ae7ba5e472b780cb6728535697800c4957f4df271633b779f6",
       "DECISION-STAGE-MOVE-001": "sha256:b436a41eac14a96e782508da470865bd7531f868710952ff80d36ba9d71e8a48",
       "DECISION-STAGE-NO-INFERENCE-001": "sha256:5a31e34092e649813a967815c01c7c45c22d78014623fd2c86d2171b3d27c62d",
-      "DECISION-STAGE-OVERLAY-001": "sha256:2a7a3daee0059a774e9584a01440ba8850a6839e828a2848efd2bfc5f6e178b8",
-      "DECISION-STAGE-PENDING-CAS-001": "sha256:6f30e94c914e11a3817a094c6fc14370ef1453c6448df11ea7ab8808c01823ae",
+      "DECISION-STAGE-OVERLAY-001": "sha256:2095a72e8f273df0f3212f4aae2b93c6fb9bc25fd245b9ad48458ed9cff48703",
+      "DECISION-STAGE-PENDING-CAS-001": "sha256:70159f00e89e1961b811d2077d63fbdd65be9f68a1fcb49da0cc97a11273dff2",
       "DECISION-STAGE-PENDING-EXISTING-001": "sha256:ec5eb9988d241d4f15d1151e8cc53e0ca739b7e24efe531e524286a65d82179a",
-      "DECISION-STAGE-RENAME-001": "sha256:8b820084e3961d6814f77d7b474c19ef3a5aae9f5e497591793ff640a93a09b8",
+      "DECISION-STAGE-RENAME-001": "sha256:a46f873998c8e1e79a86f959b146f2167a7db53526437a491187436afa1ef997",
       "DECISION-STAGE-REVISION-BATCH-001": "sha256:4688dda0dde32fdc1abbc566752d7a39e499384ef495eb23d106f88d989dd589",
       "DECISION-STAGE-SELECTED-MEMBER-TYPE-001": "sha256:824dbb3fdad07c26d4d0bb6298a341ca3504f5cbc98cc0784f7293ef02fd89f7",
+      "DECISION-STAGE-SEMANTIC-SOURCE-PATH-002": "sha256:d150a1894be9d5510f046dc19c3ab0934f34f5b2b190dc7131cb274c61cd38a7",
       "DECISION-STAGE-SOURCE-PREFLIGHT-001": "sha256:85d5dcd06ec8c394c451539ab8a46a82813c90294e3661fe29f452cc2d5bf958",
       "DECISION-STAGE-TARGET-VALIDATION-001": "sha256:ec88ff03f358d539016789064cf30b9673d8a4851575e9c757d5b43c51ccdb2b",
       "DECISION-STAGE-UNSELECTED-INVALID-001": "sha256:16e5ce0aaca519dcf73c7b9a1012a6452b54cc409ded653d1fbfa1561aa78ece",
@@ -17606,7 +17653,7 @@
       "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001": "sha256:d8212a7a7d4d73625c726cde846a4f90d2e612df91e2406ac321f38d146ee524",
       "DECISION-TRANSACTION-MOVE-001": "sha256:8344bfcb056e2f545cb2e86630d021aa43c47c31a9812be45243e16a2ab316ff",
       "DECISION-TRANSACTION-WRITE-RECOVERY-001": "sha256:a32ec970059d258cd9becfc1c26f840518ffb7132980bccc2f185c29c440d963",
-      "DECISION-TYPE-PATH-001": "sha256:a497c584f58d77b8eba6552fcaff741261cb3776df69d296c4a3931549de51ac",
+      "DECISION-TYPE-PATH-001": "sha256:a4328533838fc2a99da498e5f4e32d99a4a33e9fd530737f3d85e35b6cd11956",
       "DECISION-UNRECORDED-ARCHIVE-001": "sha256:529730b9e909578cf8e227b61595fbeb7bf2c61e792697f607ff2fdd774dfd9b",
       "DECISION-UNRECORDED-ARCHIVED-PREDECESSOR-001": "sha256:8fa8386271f72753ce6ef1e7185c1141960b01bf40e1cc4daa6359567babc7d7",
       "DECISION-UNRECORDED-EVOLUTION-001": "sha256:789f1a98d3fbd16a010fb515dd5e2f33788aeb39bf4d97b363ff78b70001496d",
@@ -17762,6 +17809,7 @@
       "INVESTIGATION-INDEX-TEXT-FILTER-001": "sha256:3c7ebda378aba9e7e6fc6353adc3579a185fe8282c58560bf8f173efbc639fc0",
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:a65a11d47c0fa926d3acb9755ceccd8a1ca112df13f511b284bb79e70d007a7d",
       "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:f06cda59aa8d5cf08fe6e2ce817df58bebadd2df540370e4b2c9190073a6615f",
+      "INVESTIGATION-QUERY-SOURCE-PATH-001": "sha256:d16d7b57baa97deb67f730e3c1f8a4d43ee6249aa90c11415c98058f5929d979",
       "INVESTIGATION-RELATION-GIT-HEAD-001": "sha256:b740f716cf24b71bd291fb8b81f3722901893c2b422e472704948eeba9b2476b",
       "INVESTIGATION-RELATION-GIT-HEAD-002": "sha256:171552df1afa6c92e8e1752e387cb6239e7f53a55fb26eed7ec7d4a86577ec44",
       "INVESTIGATION-RELATION-GRAPH-CYCLE-001": "sha256:c765da2db93e681c3aeee2493d2e16aadb08d39077a5b9af527690865822d170",
@@ -17771,7 +17819,7 @@
       "INVESTIGATION-RELATION-GRAPH-TIME-001": "sha256:6f5f6011a8022d3316dadbf285b27b237a057ad11fd8c8bc2d7bab1ae990f252",
       "INVESTIGATION-RELATION-GRAPH-TRACE-001": "sha256:28ba8ff83dcb868c23cc8c7127f782bcfb250155abb8339e8fadb0c24b6f6b02",
       "INVESTIGATION-RELATION-GRAPH-VALIDATION-001": "sha256:5efc05392ae38b3a32ae84d59353fa3b641fd581a9952e32584650a760a7d7af",
-      "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001": "sha256:edef756fa68cafaa0dbca270d2636a7c67097500e703269964742fcb652ccfbf",
+      "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001": "sha256:b9e6273716489ae3df2f3b62af70f607daf03b0ba0b6895e4d65112b7d021c33",
       "INVESTIGATION-RELATION-TRANSACTION-DRIFT-001": "sha256:a54b74486a6ee80d7212ad575a489d5b578066881589fb147e4d055ade2edd59",
       "INVESTIGATION-RELATION-TRANSACTION-IDEMPOTENCE-001": "sha256:e29c341374970add80fd9e97ca748eb31102e7f81ea1f62f23196e40e2fbe0a0",
       "INVESTIGATION-RELATION-TRANSACTION-PARSE-001": "sha256:55fe51a8b775ad482ba032a80fbdb70f4f077c7ca6a20fe325bf8bd9af6f8337",
@@ -17786,10 +17834,10 @@
       "INVESTIGATION-RESOURCE-INVALID-OWNER-WARNING-001": "sha256:82e62e40f238d303436e405a5d2224167ba6853a7c2ffa33c7576a0e1015f722",
       "INVESTIGATION-RESOURCE-MEMBERSHIP-001": "sha256:f1071af740f7f3a0346efd84125bfc71cbc07f761ce9b4bfb437cc404714469c",
       "INVESTIGATION-RESOURCE-MISSING-001": "sha256:075c1142c9cfaaf8f08fbf033a9c44b94c617bd341b4a602b5fa3c2780195247",
-      "INVESTIGATION-RESOURCE-NAME-001": "sha256:7d3996e78d36628e181c8c4bfa749ad480a3a6f8e1334093b2d2120a4b231aba",
+      "INVESTIGATION-RESOURCE-NAME-001": "sha256:4105edbd6d6189d4d3daec8215be73181495d42eca6ed999041152c531630ce6",
       "INVESTIGATION-RESOURCE-OPTIONAL-001": "sha256:739f0a61f27f8747e44b40eaf4f122f5bcfc2c63cab16be38c18ed692ecc3476",
       "INVESTIGATION-RESOURCE-OWNER-001": "sha256:4736921e3d01b8fb29080f1f22bbf2e814c13abc2c21908aec97b6dddefff7be",
-      "INVESTIGATION-RESOURCE-OWNER-PREFIX-001": "sha256:5ad90b70796d04bcad09a6b94bb7843d22d80458879a8caa75e5619db6dc1f14",
+      "INVESTIGATION-RESOURCE-OWNER-PREFIX-001": "sha256:3cedc407a79e5e0b0f037322ec04905c3f5df6647ce63fb1e8987996bcf3fdc7",
       "INVESTIGATION-RESOURCE-PATH-001": "sha256:1b7d718a944064c6c28aba2a4acea51565561e49d9a04b3dda419e19004c83c3",
       "INVESTIGATION-RESOURCE-PROJECTION-001": "sha256:b70f4a63794a9ed81efea0847559e4bf53bfb24c470a3b67c164b104bdc0ac1c",
       "INVESTIGATION-RESOURCE-REFERENCE-001": "sha256:eb1cff25c8448b3caa7039aeb1dc9bc71ed158635170b03878ae623317c02bb1",
@@ -17801,14 +17849,14 @@
       "INVESTIGATION-RESOURCE-TYPE-001": "sha256:136efbc83e2cff8a2a8354dc99819168ebb89c5cf70a268ee466e1ffab2a4a63",
       "INVESTIGATION-ROOT-CONFINEMENT-001": "sha256:6cfebc15ed121b4633e6278486565a97c892b8ed39f7a253b59d3d2c62f3c45b",
       "INVESTIGATION-SCALE-INDEX-001": "sha256:a0a230f55169ec69d236d9166c1211e849df1cc89b1bcd5decf70c507133c675",
-      "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001": "sha256:254d4824b981d0cce7d9e1dc079887436c59a58d90835916b29fa70047ba8f06",
+      "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001": "sha256:e5d12ac91489c69c70d97324e056f64336d29072c176d68e6afeaf068425ca05",
       "INVESTIGATION-SNAPSHOT-REVISION-001": "sha256:14496f1c0c6948df244d3c4a845ecca44a488636ee104a3d14e30a61b36ede2b",
-      "INVESTIGATION-SOURCE-REVISION-001": "sha256:11a9746b2ed741ab64c90bce5547e3a6c186afb366d12240da25ca5b7fa1aa6d",
+      "INVESTIGATION-SOURCE-REVISION-001": "sha256:fa173e236b6b834b8af97cb0880e394b86011f45339c74fea0f103119b4d2b06",
       "INVESTIGATION-STAGE-BOOTSTRAP-001": "sha256:b6307f01921a3aa9b33c0b5bb692b7b7918f366021658b8c6ad10f136cec8e1e",
       "INVESTIGATION-STAGE-CLI-USAGE-001": "sha256:2bfa3cbf73bf83f53ebe5fb21a4af8b5649ac604ee41853e2f9434777034b59b",
       "INVESTIGATION-STAGE-CONFLICT-001": "sha256:abe617dbc0f4900e9c93477acf4115882823c32b9061abe83bda46ad5b2d1b57",
       "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001": "sha256:88ff64bb31221493ac7013f2c6e5e73a554fc1e7d041fcca5bdc936fbb6219f3",
-      "INVESTIGATION-STAGE-INPUT-001": "sha256:fa53885a795d5631b866e224097be0e752c76506faf897841f82035e0ae3125f",
+      "INVESTIGATION-STAGE-INPUT-001": "sha256:4a63446b504fb12c960c428a76bf1435c32901734cd0b6c618eb7441f5f7e574",
       "INVESTIGATION-STAGE-ISOLATION-001": "sha256:96725596ff5d08a0881b011bced66c9ea88e51ee4701c885ed2124c9935b2283",
       "INVESTIGATION-STAGE-MISSING-001": "sha256:384766c64d0232948396cf63059a4f733a226f096cd312a73e1b54b5c5b1b1e5",
       "INVESTIGATION-STAGE-OVERLAY-001": "sha256:5a8c7e63f4ead7ecd6b417546544077fc6ca156072ee7f300b7dd671d4092d80",

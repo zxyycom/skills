@@ -1,5 +1,6 @@
 ---
 title: 用 owner 命名决策记录根文档
+id: 260630-name-decision-root-docs-by-owner
 status: archived
 alignment: null
 createdAt: 2026-06-30T16:44:06+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260627-establish-decision-record-policy.md
+    target: 260627-establish-decision-record-policy
 ---
 
 ## 目的

@@ -5,7 +5,7 @@ Entry:
 - `bun test --test-name-pattern="^archive and reactivate move one Decision ID while preserving its Markdown semantics$" ./tools/decision-records/tests/run.ts`
 
 Contract:
-- archive/reactivate 只能移动同一 ID 的 root/archive sourcePath，并保留 Markdown 语义和索引投影。
+- archive/reactivate 只能移动同一纯 ID 的 root/archive sourcePath，并保留包含显式 `id` 的 Markdown 语义和索引投影。
 
 Proves:
 - 归档后 root 消失且 index 指向 archive；重新激活后正文和 sourcePath 恢复。

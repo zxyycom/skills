@@ -1,10 +1,6 @@
 import { createHash } from "node:crypto";
 import type { StateSourceRevision } from "../../index-runtime/src/index.ts";
-import {
-  decisionIdFromSourcePath,
-  isDecisionId,
-  isDecisionSourcePath
-} from "./decision-path.ts";
+import { isDecisionId, isDecisionSourcePath } from "./decision-path.ts";
 import type {
   DecisionId,
   DecisionSource,
@@ -72,14 +68,6 @@ function parseDecisionSourceInput(source: DecisionSourceInput): DecisionSource {
   if (!isDecisionSourcePath(source.sourcePath)) {
     throw new TypeError(
       "decision source uses an invalid source path: " + source.sourcePath
-    );
-  }
-  if (decisionIdFromSourcePath(source.sourcePath) !== source.decisionId) {
-    throw new TypeError(
-      "decision source path does not match Decision ID " +
-        source.decisionId +
-        ": " +
-        source.sourcePath
     );
   }
   return {

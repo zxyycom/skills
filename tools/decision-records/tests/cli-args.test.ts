@@ -74,6 +74,11 @@ test("decision CLI top-level help exposes the current command set", async () => 
     help.stdout,
     /candidates remain outside the index, are queried from source, and report scaffold and body readiness separately/i
   );
+  assert.match(
+    help.stdout,
+    /Decision IDs are stable extensionless kebab-case values, for example use-semantic-title\./
+  );
+  assert.match(help.stdout, /A single terminal \.md suffix remains accepted/);
   assert.match(help.stdout, /candidates\s+Discover candidate scaffolds/i);
   assert.match(
     help.stdout,
@@ -338,7 +343,7 @@ test("positional Decision IDs are validated at every CLI command boundary", asyn
     assert.equal(result.stdout, "", args.join(" "));
     assert.match(
       result.stderr,
-      /Decision ID is invalid; must be a basename ending in \.md/,
+      /Decision ID is invalid; must be extensionless kebab-case text/,
       args.join(" ")
     );
   }

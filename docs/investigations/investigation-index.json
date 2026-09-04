@@ -1,7 +1,7 @@
 {
-  "definitionVersion": 6,
+  "definitionVersion": 7,
   "entries": {
-    "260903-explore-name-collisions-in-retained-artifacts.md": {
+    "260903-explore-name-collisions-in-retained-artifacts": {
       "keys": {
         "formed-at": [
           1788420622000
@@ -23,6 +23,7 @@
         "question": "Change、Decision 与 Investigation 的历史名称占用何时构成真实冲突，时间、短码或改名分别应承担什么责任？",
         "relations": [],
         "resourceIds": [],
+        "sourcePath": "260903-explore-name-collisions-in-retained-artifacts.md",
         "tags": [
           "artifact-identity",
           "change-plan",
@@ -33,7 +34,7 @@
         "title": "保留型工件的重名需要区分语义复现与身份冲突"
       }
     },
-    "adopt-native-lock-and-atomic-write-libraries.md": {
+    "adopt-native-lock-and-atomic-write-libraries": {
       "keys": {
         "formed-at": [
           1786038330000
@@ -54,18 +55,19 @@
         "question": "约束收窄后，原生锁和原子写库能否分别完整承接 task-graph 的窄责任？",
         "relations": [
           {
-            "target": "reject-lock-and-atomic-write-library-dependencies.md",
+            "target": "reject-lock-and-atomic-write-library-dependencies",
             "type": "复查"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "adopt-native-lock-and-atomic-write-libraries.md",
         "tags": [
           "task-graph"
         ],
         "title": "约束收窄后采用原生锁与原子写库"
       }
     },
-    "adopt-preflight-warning-and-single-predecessor-collapse.md": {
+    "adopt-preflight-warning-and-single-predecessor-collapse": {
       "keys": {
         "formed-at": [
           1785725121000
@@ -86,18 +88,19 @@
         "question": "如何用事前警告和显式单前序折叠处理尚未进入版本基线的决策演进？",
         "relations": [
           {
-            "target": "detect-uncommitted-decision-evolution-from-git-baselines.md",
+            "target": "detect-uncommitted-decision-evolution-from-git-baselines",
             "type": "补充"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "adopt-preflight-warning-and-single-predecessor-collapse.md",
         "tags": [
           "decision-records"
         ],
         "title": "采用事前警告与显式单前序折叠"
       }
     },
-    "align-prompt-optimize-name-and-trigger.md": {
+    "align-prompt-optimize-name-and-trigger": {
       "keys": {
         "formed-at": [
           1784628632000
@@ -115,13 +118,14 @@
         "question": "prompt-optimize 的名称怎样同时表达真实能力、人类发现入口与 agent 主动触发边界？",
         "relations": [],
         "resourceIds": [],
+        "sourcePath": "align-prompt-optimize-name-and-trigger.md",
         "tags": [
           "prompt-optimize"
         ],
         "title": "现名未完整表达能力，并暴露双向触发约束"
       }
     },
-    "bind-mentioned-objects-to-negative-roles.md": {
+    "bind-mentioned-objects-to-negative-roles": {
       "keys": {
         "formed-at": [
           1786616028000
@@ -142,18 +146,19 @@
         "question": "负向描述为什么需要同时准确表示对象并把它绑定到排除角色？",
         "relations": [
           {
-            "target": "distinguish-activation-neighborhoods-from-valid-solution-space.md",
+            "target": "distinguish-activation-neighborhoods-from-valid-solution-space",
             "type": "补充"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "bind-mentioned-objects-to-negative-roles.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "负向描述需要额外完成对象角色绑定"
       }
     },
-    "bound-identifiability-of-deep-goals.md": {
+    "bound-identifiability-of-deep-goals": {
       "keys": {
         "formed-at": [
           1786613845000
@@ -174,18 +179,19 @@
         "question": "拥有者在多大程度上能够从歧义、候选和冲突中识别深层目标？",
         "relations": [
           {
-            "target": "separate-semantic-fidelity-goal-fit-and-goal-explication.md",
+            "target": "separate-semantic-fidelity-goal-fit-and-goal-explication",
             "type": "修正"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "bound-identifiability-of-deep-goals.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "深层目标只有局部且不可靠的可识别性"
       }
     },
-    "ci-clean-runner-environment-regressions.md": {
+    "ci-clean-runner-environment-regressions": {
       "keys": {
         "formed-at": [
           1788316884000
@@ -206,6 +212,7 @@
         "question": "为什么 main 的 Package Skills 在 43f2faf 的 clean runner 上失败，而本地门禁通过？",
         "relations": [],
         "resourceIds": [],
+        "sourcePath": "ci-clean-runner-environment-regressions.md",
         "tags": [
           "ci",
           "git-fixture",
@@ -215,7 +222,7 @@
         "title": "CI clean runner 暴露 wrapper 权限与 Git fixture identity 缺口"
       }
     },
-    "compare-human-and-ai-abstraction-defaults.md": {
+    "compare-human-and-ai-abstraction-defaults": {
       "keys": {
         "formed-at": [
           1786619147000
@@ -236,18 +243,19 @@
         "question": "人和 AI 在何种机制下会把有限规则过度抽象为具有外推权威的框架？",
         "relations": [
           {
-            "target": "compress-negative-revision-history-into-positive-goals.md",
+            "target": "compress-negative-revision-history-into-positive-goals",
             "type": "修正"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "compare-human-and-ai-abstraction-defaults.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "人与 AI 具有不同的抽象默认偏差"
       }
     },
-    "compress-negative-revision-history-into-positive-goals.md": {
+    "compress-negative-revision-history-into-positive-goals": {
       "keys": {
         "formed-at": [
           1786617146000
@@ -268,18 +276,19 @@
         "question": "正向目标怎样压缩候选反馈与负向修正历史，而不丢失仍需独立保留的边界？",
         "relations": [
           {
-            "target": "distinguish-expressive-equivalence-from-construction-cost.md",
+            "target": "distinguish-expressive-equivalence-from-construction-cost",
             "type": "补充"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "compress-negative-revision-history-into-positive-goals.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "正向目标是对负向修正历史的认知压缩"
       }
     },
-    "defer-standard-test-result-blocking.md": {
+    "defer-standard-test-result-blocking": {
       "keys": {
         "formed-at": [
           1786417716000
@@ -301,13 +310,14 @@
           "defer-standard-test-result-blocking/proposal.md",
           "defer-standard-test-result-blocking/tasks.md"
         ],
+        "sourcePath": "defer-standard-test-result-blocking.md",
         "tags": [
           "test-evidence"
         ],
         "title": "确认延期方向并退出活动 Change"
       }
     },
-    "define-git-library-selection-evidence.md": {
+    "define-git-library-selection-evidence": {
       "keys": {
         "formed-at": [
           1784622685000
@@ -325,13 +335,14 @@
         "question": "TypeScript Git 库选型需要哪些 API、正确性、真实性能与维护证据？",
         "relations": [],
         "resourceIds": [],
+        "sourcePath": "define-git-library-selection-evidence.md",
         "tags": [
           "git-integration"
         ],
         "title": "统一选型需要正确性、性能与维护证据"
       }
     },
-    "detect-uncommitted-decision-evolution-from-git-baselines.md": {
+    "detect-uncommitted-decision-evolution-from-git-baselines": {
       "keys": {
         "formed-at": [
           1785227943000
@@ -349,13 +360,14 @@
         "question": "Git 版本基线能否安全识别同一 Change 内尚未提交的中间决策演进候选？",
         "relations": [],
         "resourceIds": [],
+        "sourcePath": "detect-uncommitted-decision-evolution-from-git-baselines.md",
         "tags": [
           "decision-records"
         ],
         "title": "版本基线可发现同一变更内的决策演进候选"
       }
     },
-    "distinguish-activation-neighborhoods-from-valid-solution-space.md": {
+    "distinguish-activation-neighborhoods-from-valid-solution-space": {
       "keys": {
         "formed-at": [
           1786615149000
@@ -376,18 +388,19 @@
         "question": "Transformer 中被上下文激活的关联邻域为何不能等同于任务有效解集合？",
         "relations": [
           {
-            "target": "separate-solution-space-positioning-from-contextual-anchoring.md",
+            "target": "separate-solution-space-positioning-from-contextual-anchoring",
             "type": "修正"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "distinguish-activation-neighborhoods-from-valid-solution-space.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "关联激活邻域不等于任务有效解集合"
       }
     },
-    "distinguish-expressive-equivalence-from-construction-cost.md": {
+    "distinguish-expressive-equivalence-from-construction-cost": {
       "keys": {
         "formed-at": [
           1786616874000
@@ -408,18 +421,19 @@
         "question": "正负描述在形式表达能力等价时，为什么仍可能具有不对称的自然语言构造成本？",
         "relations": [
           {
-            "target": "ground-positive-negative-asymmetry-in-reference-structure.md",
+            "target": "ground-positive-negative-asymmetry-in-reference-structure",
             "type": "修正"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "distinguish-expressive-equivalence-from-construction-cost.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "正负描述表达能力等价但构造成本不对称"
       }
     },
-    "evaluate-mcpshell-as-user-scoped-workspace-bridge.md": {
+    "evaluate-mcpshell-as-user-scoped-workspace-bridge": {
       "keys": {
         "formed-at": [
           1788418029000
@@ -440,6 +454,7 @@
         "question": "是否值得继续验证一个初始化型 skill，使带个人配置的 agent 能通过 MCPShell 操作隔离工作区，并获得预实现的 shell 与 diff？",
         "relations": [],
         "resourceIds": [],
+        "sourcePath": "evaluate-mcpshell-as-user-scoped-workspace-bridge.md",
         "tags": [
           "agent-workspace-isolation",
           "mcpshell",
@@ -449,7 +464,7 @@
         "title": "MCPShell 工作区桥接前期调查：通过 SSH 暴露 shell 与 diff"
       }
     },
-    "ground-positive-negative-asymmetry-in-reference-structure.md": {
+    "ground-positive-negative-asymmetry-in-reference-structure": {
       "keys": {
         "formed-at": [
           1786614419000
@@ -470,18 +485,19 @@
         "question": "正向与负向描述的使用差异是否主要来自参照结构，而不是肯定或否定句式？",
         "relations": [
           {
-            "target": "recover-candidate-model-from-negative-description-dispute.md",
+            "target": "recover-candidate-model-from-negative-description-dispute",
             "type": "修正"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "ground-positive-negative-asymmetry-in-reference-structure.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "正负描述的不对称来自参照结构而非句式"
       }
     },
-    "identify-operation-time-skill-rerouting-gap.md": {
+    "identify-operation-time-skill-rerouting-gap": {
       "keys": {
         "formed-at": [
           1786513181000
@@ -499,13 +515,14 @@
         "question": "长任务进入具体副作用动作时，现有 Skill 发现机制为什么没有可靠触发领域重路由？",
         "relations": [],
         "resourceIds": [],
+        "sourcePath": "identify-operation-time-skill-rerouting-gap.md",
         "tags": [
           "skill-orchestration"
         ],
         "title": "首次发现改进没有覆盖动作时重路由"
       }
     },
-    "identify-routing-and-coordination-gaps-in-context-management.md": {
+    "identify-routing-and-coordination-gaps-in-context-management": {
       "keys": {
         "formed-at": [
           1784627415000
@@ -523,13 +540,14 @@
         "question": "现有上下文管理 skills 距离统一上下文管理系统还缺少哪些路由与协作能力？",
         "relations": [],
         "resourceIds": [],
+        "sourcePath": "identify-routing-and-coordination-gaps-in-context-management.md",
         "tags": [
           "context-management"
         ],
         "title": "现有组合的主要差距位于路由与协作层"
       }
     },
-    "identify-vibe-001-jscpd-path-and-lizard-version-gaps.md": {
+    "identify-vibe-001-jscpd-path-and-lizard-version-gaps": {
       "keys": {
         "formed-at": [
           1788170700000
@@ -549,6 +567,7 @@
         "question": "锁定 @zxyycom/vibe-check 0.0.1 时，重复检测的临时配置相对路径和函数指标的 Lizard 可用性是否足以形成可信门禁？",
         "relations": [],
         "resourceIds": [],
+        "sourcePath": "identify-vibe-001-jscpd-path-and-lizard-version-gaps.md",
         "tags": [
           "duplicate-detection",
           "function-metrics",
@@ -557,7 +576,7 @@
         "title": "识别 Vibe 0.0.1 的 jscpd 路径与 Lizard 版本缺口"
       }
     },
-    "model-goals-as-layered-partially-expressible-intentions.md": {
+    "model-goals-as-layered-partially-expressible-intentions": {
       "keys": {
         "formed-at": [
           1786611677000
@@ -578,18 +597,19 @@
         "question": "目标应怎样同时表达深层意向、当前代理、偏好、现实约束与允许偏离的理由？",
         "relations": [
           {
-            "target": "treat-goals-as-complete-in-abstraction-and-incremental-in-practice.md",
+            "target": "treat-goals-as-complete-in-abstraction-and-incremental-in-practice",
             "type": "修正"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "model-goals-as-layered-partially-expressible-intentions.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "目标是层级化且部分可表达的动态意向"
       }
     },
-    "preserve-redacted-conversations-in-two-derived-forms.md": {
+    "preserve-redacted-conversations-in-two-derived-forms": {
       "keys": {
         "formed-at": [
           1786676231000
@@ -610,13 +630,14 @@
           "preserve-redacted-conversations-in-two-derived-forms/conversation-final-dialogue.initial.md",
           "preserve-redacted-conversations-in-two-derived-forms/conversation-near-full.redacted.jsonl"
         ],
+        "sourcePath": "preserve-redacted-conversations-in-two-derived-forms.md",
         "tags": [
           "codex"
         ],
         "title": "形成脱敏近全量档案与机械对话初稿"
       }
     },
-    "recognize-document-projections-as-part-of-goal-formation.md": {
+    "recognize-document-projections-as-part-of-goal-formation": {
       "keys": {
         "formed-at": [
           1786612070000
@@ -637,18 +658,19 @@
         "question": "文档作为目标的时点投影时，怎样通过反馈反过来参与目标形成？",
         "relations": [
           {
-            "target": "model-goals-as-layered-partially-expressible-intentions.md",
+            "target": "model-goals-as-layered-partially-expressible-intentions",
             "type": "修正"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "recognize-document-projections-as-part-of-goal-formation.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "文档投影会反过来参与目标形成"
       }
     },
-    "recover-candidate-model-from-negative-description-dispute.md": {
+    "recover-candidate-model-from-negative-description-dispute": {
       "keys": {
         "formed-at": [
           1786610110000
@@ -666,13 +688,14 @@
         "question": "负向描述争议暴露了怎样的候选概念层次与后续调查边界？",
         "relations": [],
         "resourceIds": [],
+        "sourcePath": "recover-candidate-model-from-negative-description-dispute.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "从负向描述争议恢复候选概念模型"
       }
     },
-    "reject-lock-and-atomic-write-library-dependencies.md": {
+    "reject-lock-and-atomic-write-library-dependencies": {
       "keys": {
         "formed-at": [
           1786024415000
@@ -690,13 +713,14 @@
         "question": "现有 npm 候选能否实质缩减 task-graph 的锁、恢复与原子写事务协议？",
         "relations": [],
         "resourceIds": [],
+        "sourcePath": "reject-lock-and-atomic-write-library-dependencies.md",
         "tags": [
           "task-graph"
         ],
         "title": "现有候选无法缩减 task-graph 的关键事务协议"
       }
     },
-    "remove-supervision-around-lock-and-atomic-write-libraries.md": {
+    "remove-supervision-around-lock-and-atomic-write-libraries": {
       "keys": {
         "formed-at": [
           1786069723000
@@ -717,18 +741,19 @@
         "question": "删除外围监督协议后，已选锁与原子写库应继续承接哪些责任？",
         "relations": [
           {
-            "target": "adopt-native-lock-and-atomic-write-libraries.md",
+            "target": "adopt-native-lock-and-atomic-write-libraries",
             "type": "修正"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "remove-supervision-around-lock-and-atomic-write-libraries.md",
         "tags": [
           "task-graph"
         ],
         "title": "保留成熟库并删除外围监督协议"
       }
     },
-    "return-from-framework-strategy-to-description-polarity.md": {
+    "return-from-framework-strategy-to-description-polarity": {
       "keys": {
         "formed-at": [
           1786620049000
@@ -749,18 +774,19 @@
         "question": "哪些框架策略认识仍服务正负描述主线，哪些已经构成应退出本主题的旁支？",
         "relations": [
           {
-            "target": "separate-framework-reconstruction-from-local-repair.md",
+            "target": "separate-framework-reconstruction-from-local-repair",
             "type": "修正"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "return-from-framework-strategy-to-description-polarity.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "收回框架重构旁支并恢复正负描述主线"
       }
     },
-    "select-functional-utilities-and-data-structures.md": {
+    "select-functional-utilities-and-data-structures": {
       "keys": {
         "formed-at": [
           1786074200000
@@ -778,13 +804,14 @@
         "question": "哪些函数式工具与专用数据结构库值得预装，它们的适用边界是什么？",
         "relations": [],
         "resourceIds": [],
+        "sourcePath": "select-functional-utilities-and-data-structures.md",
         "tags": [
           "implementation-libraries"
         ],
         "title": "预装候选的适用价值与依赖边界"
       }
     },
-    "select-neverthrow-and-project-option.md": {
+    "select-neverthrow-and-project-option": {
       "keys": {
         "formed-at": [
           1786074253000
@@ -802,13 +829,14 @@
         "question": "本项目应预装哪个轻量 Result 库，并怎样与项目自有 Option 形成稳定边界？",
         "relations": [],
         "resourceIds": [],
+        "sourcePath": "select-neverthrow-and-project-option.md",
         "tags": [
           "implementation-libraries"
         ],
         "title": "采用 neverthrow 并由项目源码承接 Option"
       }
     },
-    "select-pattern-matching-and-state-modeling-libraries.md": {
+    "select-pattern-matching-and-state-modeling-libraries": {
       "keys": {
         "formed-at": [
           1786074236000
@@ -826,13 +854,14 @@
         "question": "哪些库适合预装以承接穷尽匹配、判别联合与轻量有限状态机？",
         "relations": [],
         "resourceIds": [],
+        "sourcePath": "select-pattern-matching-and-state-modeling-libraries.md",
         "tags": [
           "implementation-libraries"
         ],
         "title": "确定穷尽匹配与轻量状态机的预装候选"
       }
     },
-    "separate-framework-reconstruction-from-local-repair.md": {
+    "separate-framework-reconstruction-from-local-repair": {
       "keys": {
         "formed-at": [
           1786619604000
@@ -853,18 +882,19 @@
         "question": "框架重构与框架内修补两种策略的触发条件、价值和失败模式有何不同？",
         "relations": [
           {
-            "target": "compare-human-and-ai-abstraction-defaults.md",
+            "target": "compare-human-and-ai-abstraction-defaults",
             "type": "修正"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "separate-framework-reconstruction-from-local-repair.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "区分框架重构与框架内修补两种策略"
       }
     },
-    "separate-logical-pruning-search-bias-and-path-dependence.md": {
+    "separate-logical-pruning-search-bias-and-path-dependence": {
       "keys": {
         "formed-at": [
           1786612371000
@@ -885,18 +915,19 @@
         "question": "逻辑剪枝、搜索偏置与跨时间路径依赖应怎样区分？",
         "relations": [
           {
-            "target": "recognize-document-projections-as-part-of-goal-formation.md",
+            "target": "recognize-document-projections-as-part-of-goal-formation",
             "type": "修正"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "separate-logical-pruning-search-bias-and-path-dependence.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "区分逻辑剪枝、搜索偏置与路径依赖"
       }
     },
-    "separate-semantic-fidelity-goal-fit-and-goal-explication.md": {
+    "separate-semantic-fidelity-goal-fit-and-goal-explication": {
       "keys": {
         "formed-at": [
           1786613388000
@@ -917,18 +948,19 @@
         "question": "内容语义保真、结果符合深层目标与目标通过反馈显化有何不同？",
         "relations": [
           {
-            "target": "recognize-document-projections-as-part-of-goal-formation.md",
+            "target": "recognize-document-projections-as-part-of-goal-formation",
             "type": "补充"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "separate-semantic-fidelity-goal-fit-and-goal-explication.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "区分内容保真、目标符合与目标显化"
       }
     },
-    "separate-semantic-responsibility-from-solution-space-analysis.md": {
+    "separate-semantic-responsibility-from-solution-space-analysis": {
       "keys": {
         "formed-at": [
           1786610531000
@@ -949,18 +981,19 @@
         "question": "语义责任与解空间分析分别承担什么层次的判断，它们如何衔接？",
         "relations": [
           {
-            "target": "recover-candidate-model-from-negative-description-dispute.md",
+            "target": "recover-candidate-model-from-negative-description-dispute",
             "type": "修正"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "separate-semantic-responsibility-from-solution-space-analysis.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "区分语义责任与解空间分析层"
       }
     },
-    "separate-solution-space-positioning-from-contextual-anchoring.md": {
+    "separate-solution-space-positioning-from-contextual-anchoring": {
       "keys": {
         "formed-at": [
           1786614728000
@@ -981,18 +1014,19 @@
         "question": "任务契约对解空间的正常定位与对象被提及时产生的上下文搜索锚定有何不同？",
         "relations": [
           {
-            "target": "separate-logical-pruning-search-bias-and-path-dependence.md",
+            "target": "separate-logical-pruning-search-bias-and-path-dependence",
             "type": "修正"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "separate-solution-space-positioning-from-contextual-anchoring.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "分离解空间定位与上下文搜索锚定"
       }
     },
-    "specify-safety-goals-with-negative-rules.md": {
+    "specify-safety-goals-with-negative-rules": {
       "keys": {
         "formed-at": [
           1786630078000
@@ -1013,18 +1047,19 @@
         "question": "安全目标在什么条件下应由可判断的负向规则具体化，而不能只保留正向概括？",
         "relations": [
           {
-            "target": "treat-description-polarity-as-reference-relative.md",
+            "target": "treat-description-polarity-as-reference-relative",
             "type": "补充"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "specify-safety-goals-with-negative-rules.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "安全主线可以由负向规则具体化"
       }
     },
-    "treat-description-polarity-as-reference-relative.md": {
+    "treat-description-polarity-as-reference-relative": {
       "keys": {
         "formed-at": [
           1786628592000
@@ -1045,18 +1080,19 @@
         "question": "正负极性应怎样相对于具体命题、参照对象和描述层级判断？",
         "relations": [
           {
-            "target": "distinguish-expressive-equivalence-from-construction-cost.md",
+            "target": "distinguish-expressive-equivalence-from-construction-cost",
             "type": "补充"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "treat-description-polarity-as-reference-relative.md",
         "tags": [
           "ai-ready-docs"
         ],
         "title": "正负极性依赖描述层级与参照对象"
       }
     },
-    "treat-goals-as-complete-in-abstraction-and-incremental-in-practice.md": {
+    "treat-goals-as-complete-in-abstraction-and-incremental-in-practice": {
       "keys": {
         "formed-at": [
           1786610916000
@@ -1077,11 +1113,12 @@
         "question": "为什么目标在理想抽象中可以包含边界，而在实际文档中仍需逐步收敛？",
         "relations": [
           {
-            "target": "separate-semantic-responsibility-from-solution-space-analysis.md",
+            "target": "separate-semantic-responsibility-from-solution-space-analysis",
             "type": "补充"
           }
         ],
         "resourceIds": [],
+        "sourcePath": "treat-goals-as-complete-in-abstraction-and-incremental-in-practice.md",
         "tags": [
           "ai-ready-docs"
         ],
@@ -1112,43 +1149,43 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
-      "260903-explore-name-collisions-in-retained-artifacts.md": "sha256:ab557c44ecf09e3b0f49c15b9e91cac7a36a88ff80176d45a854b04c3c48fd74",
-      "adopt-native-lock-and-atomic-write-libraries.md": "sha256:87332977146e80cc0f45db9956ab0b72b54211153e97c290acbf3988d2fb2326",
-      "adopt-preflight-warning-and-single-predecessor-collapse.md": "sha256:8b7a09662f8f323c868e2f0c10a421125a2c213a5ae29f37a58c0985926452ad",
-      "align-prompt-optimize-name-and-trigger.md": "sha256:d6e211f49e5bc58fba23c430d294054269f287a0602fc732cca758bcfbb26bdb",
-      "bind-mentioned-objects-to-negative-roles.md": "sha256:0a4c03fe8c4153e4ed13b18dca58fd173e38552387ef5eac581d5142a3e8db2a",
-      "bound-identifiability-of-deep-goals.md": "sha256:1335f0ec90540d6604861a814d0c4d276c2034adf31abd09ed93f1362cbfe6c2",
-      "ci-clean-runner-environment-regressions.md": "sha256:27724aceb6e9d0ecb3c2e1eb24a587b7c502718aff5d2f1d7975a45859b78bb5",
-      "compare-human-and-ai-abstraction-defaults.md": "sha256:63cd5425618e90209d4a07a5d5d9fc86711e41573d860de6b9fa3dac4afff2f6",
-      "compress-negative-revision-history-into-positive-goals.md": "sha256:45ce575b6a07ff566b97fc0e0b42960749c1a9b614dd31fe75d031c417aad72b",
-      "defer-standard-test-result-blocking.md": "sha256:3ef4ebd646d3f6c0d32e69db5808009488b15b12bce01d64f65a24f62228f023",
-      "define-git-library-selection-evidence.md": "sha256:8cb8679b7f5e75187234e51e9c5b23475f347ddfda97bd10b26c9ddc480faa19",
-      "detect-uncommitted-decision-evolution-from-git-baselines.md": "sha256:fb694f1521249788cc78eb9ce411b05ace40cfa86654c0b2a97ba9e8df191f81",
-      "distinguish-activation-neighborhoods-from-valid-solution-space.md": "sha256:36b92506235a6c9d485d876506c0ddbd7958137a0c19ae56e99b249d844eb944",
-      "distinguish-expressive-equivalence-from-construction-cost.md": "sha256:a29f9f6e2543ef87429dff09a56e078bb5704639e8ca29b22db63a7bbb91d7db",
-      "evaluate-mcpshell-as-user-scoped-workspace-bridge.md": "sha256:5a3e995e3c5ec546a393bb840245372a8e83d14170681be9d520a1a96f19ef41",
-      "ground-positive-negative-asymmetry-in-reference-structure.md": "sha256:b8832dbdc9c7293b14e69800fc11e13623e10102368b5e616455b7fc40c62331",
-      "identify-operation-time-skill-rerouting-gap.md": "sha256:cf86eff84a6cc500ef40d435cfef153d8b41d37f3b85f95e4fa2408798cdcc97",
-      "identify-routing-and-coordination-gaps-in-context-management.md": "sha256:80b476d70dfc61a5cd0463c7ca5dee3bf0f09cb1bbe7b46e1eeb7204786386fe",
-      "identify-vibe-001-jscpd-path-and-lizard-version-gaps.md": "sha256:d9a4f2ec04f694e4bcf55d7dce88cb68f91fade0490bc0d8e07afa175db455f6",
-      "model-goals-as-layered-partially-expressible-intentions.md": "sha256:1632232ac3998575f0befc5b9804c8ef0e31ce6f49bd4648b1a619d705cc1e80",
-      "preserve-redacted-conversations-in-two-derived-forms.md": "sha256:4c41850dacce295516c74f70f6db3b268a106cebeef2c2ad72bdf1771a48cb96",
-      "recognize-document-projections-as-part-of-goal-formation.md": "sha256:aad57f9a803036955fe3cff8cf365059f5f7ff6e92e5946d91acd0e3c7465051",
-      "recover-candidate-model-from-negative-description-dispute.md": "sha256:01ece35a3730d57418c73dbdb6918ead2767eda44b4270b47931285d46521958",
-      "reject-lock-and-atomic-write-library-dependencies.md": "sha256:8795de7741eec4ab4161c2333fb76e176c95426621c9a45dc998e3c641962a2d",
-      "remove-supervision-around-lock-and-atomic-write-libraries.md": "sha256:4da54d7da3d49f2d0c223ef456ad036a0126609a378fd31701bf8d276497edaf",
-      "return-from-framework-strategy-to-description-polarity.md": "sha256:7580f2e64e17ba50d5fe9d76e94b854df4cc0880d6687eacca172fb1caa0cfc6",
-      "select-functional-utilities-and-data-structures.md": "sha256:cec3ad89a1e8defdd65be977407ab60b07c6701128e3ce71b2e69ad41708182c",
-      "select-neverthrow-and-project-option.md": "sha256:e27ebfa2f39eb6d665f0c5ab29f0a78adee951fadcdf378900ddfba9da4e3a6e",
-      "select-pattern-matching-and-state-modeling-libraries.md": "sha256:19eee6ea30e75fd292e7460488e8eeab47f5e591ed2b396b2a00f43d7c3b7925",
-      "separate-framework-reconstruction-from-local-repair.md": "sha256:87c7cc79d3f4bd1a9120402b78fd0a130816fa63daa272e1ee9abcab17731290",
-      "separate-logical-pruning-search-bias-and-path-dependence.md": "sha256:a22725825998207257a19800c5c1b1aeae180b74ed163468954f08e24772b5d3",
-      "separate-semantic-fidelity-goal-fit-and-goal-explication.md": "sha256:3c1e55fb52b9ba1f3143d4b907c2e7359efe2fb06c8804a48ca256ee403dfe11",
-      "separate-semantic-responsibility-from-solution-space-analysis.md": "sha256:f6b9a171597333b2d4ad0c9a45935c377eac6818a603a98500078da6e1c8e046",
-      "separate-solution-space-positioning-from-contextual-anchoring.md": "sha256:7bd7d5e3079ed71c301b14d24a44bc6037afa6be880f45b03238c31dc35720f9",
-      "specify-safety-goals-with-negative-rules.md": "sha256:dd53ec9ff5a4df5c4be78367f41cfbf4a9dbc33547883b4fb539a34b9a63458e",
-      "treat-description-polarity-as-reference-relative.md": "sha256:63e1eca57c73c14775cef1e1ff80801a46dd2be8e109b94c676aee8f2dbed209",
-      "treat-goals-as-complete-in-abstraction-and-incremental-in-practice.md": "sha256:83084477ff1749454e291154e0c3222051416d2b73ce14191043e06dcb6a00bf"
+      "260903-explore-name-collisions-in-retained-artifacts": "sha256:4aa2ab77d625a548920dd74b5ace539cfcf90b15b90130def4963da25078ca6f",
+      "adopt-native-lock-and-atomic-write-libraries": "sha256:b2e4d269868f633ecc0b80ec818ac57dcdfcf89c5230babdcb75f6e2183186cc",
+      "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:886e1ade798bfe48802e32c5296dc03c07d9b192dde3519b52ec5b8583778bdd",
+      "align-prompt-optimize-name-and-trigger": "sha256:24700cda424786bc07531f84b6c139f1de6fae7b050ad69811bdddca35734cb6",
+      "bind-mentioned-objects-to-negative-roles": "sha256:6bbeafb899760c64de769224bc73312f2cd91b0f296518c5206afe6786c8759f",
+      "bound-identifiability-of-deep-goals": "sha256:403ec87904a43d27109f8ea9907e60de2639d2cf87f28cd51e83ef7a3e76885b",
+      "ci-clean-runner-environment-regressions": "sha256:d073612bdbe327c02b87315b8bb98f0cbaac13a310b8c48902e48442677e1e34",
+      "compare-human-and-ai-abstraction-defaults": "sha256:06933f39b2e749da063484854693b831a260f1a4961c898b1b070da874cdd075",
+      "compress-negative-revision-history-into-positive-goals": "sha256:eb1c72935cffae759db02fe81871903e9cd5cd0cd85564669623a513b316d492",
+      "defer-standard-test-result-blocking": "sha256:9198e4aad55419b4987508b90e21f03e8bb3be07f461e5017d87013e804381de",
+      "define-git-library-selection-evidence": "sha256:4abddd154bdd819f86ef1b798105bc7e634aa8c644304798e115f10e8fefa2db",
+      "detect-uncommitted-decision-evolution-from-git-baselines": "sha256:1e6ddb4edf8b265b14095407f16c1fe90abac3b03ca628691735c5743437c138",
+      "distinguish-activation-neighborhoods-from-valid-solution-space": "sha256:35b5b81f21a74f1b35dc5fa2368ab1adff797d71091a745193bcde3a57b7dc7a",
+      "distinguish-expressive-equivalence-from-construction-cost": "sha256:a7ea90047ec8f89d1cb83e62ff35b8a21d27f7ad526b12db08622b112a21e1e5",
+      "evaluate-mcpshell-as-user-scoped-workspace-bridge": "sha256:8603077f52c0dd5e6d0f424c43a537e4ee7d20097c06b2bbf776c1e91b63f008",
+      "ground-positive-negative-asymmetry-in-reference-structure": "sha256:989e701325766ded31e2c4b0c90d191804b2e21aacf5fa716c0fbde54dc6fff7",
+      "identify-operation-time-skill-rerouting-gap": "sha256:1688c3e6111ec48fbff0110c1fd22212adc6921f41cafd9b7287481b516a568a",
+      "identify-routing-and-coordination-gaps-in-context-management": "sha256:6b953106a0ffadb738b662b90244c5f68d811b736203dd6b7872ebd63264d36b",
+      "identify-vibe-001-jscpd-path-and-lizard-version-gaps": "sha256:7410924c90cc5ee980888347383ebc37103ffa3d05505a032ce2ab84886e8a8c",
+      "model-goals-as-layered-partially-expressible-intentions": "sha256:b14b5a503256f0e912861823ea2f6889d169a9ff821c5b614356ece061b114eb",
+      "preserve-redacted-conversations-in-two-derived-forms": "sha256:2aadc89228eb560dc88ab70aed571a700b2b290b663bf3bcd1d3f5524ed17fd2",
+      "recognize-document-projections-as-part-of-goal-formation": "sha256:c91fef6a95326b9cb8a3aaf47eb3a2a2da14221d52c126b5e7504aae0de602e8",
+      "recover-candidate-model-from-negative-description-dispute": "sha256:6c88757af0cf7f2148e9d58c76f7a5eb5dc0b519f243593a59b21333724d3671",
+      "reject-lock-and-atomic-write-library-dependencies": "sha256:989b466e6beadc79f30a161e69b2c434f0e29af96d754c8f9ff5b5f6571ce6e0",
+      "remove-supervision-around-lock-and-atomic-write-libraries": "sha256:c31866741e9195471f649180991c1707922f7130d84aa7da2fa281708ce2a759",
+      "return-from-framework-strategy-to-description-polarity": "sha256:4b26444c14ecb49eb510f34b34f4fbec9f6180a2129042bcecd053a78b0836f5",
+      "select-functional-utilities-and-data-structures": "sha256:a7193052016b591df6397e27a5827aefc0a579583391e8a5cd617309562e730a",
+      "select-neverthrow-and-project-option": "sha256:466e5189496e5ebaf817f12c5b1e6850b7b0b91c0d9618f8325999c0b4f9031e",
+      "select-pattern-matching-and-state-modeling-libraries": "sha256:6279342faab250029cae72f94818366201284c215e73ff06ef9dfa5bf36b5d51",
+      "separate-framework-reconstruction-from-local-repair": "sha256:0fb2921f95b7d017f26dc931044d992ccb0d6481697ba18113f0337571b22ea2",
+      "separate-logical-pruning-search-bias-and-path-dependence": "sha256:497610f8a7cd5f2fd63c509cc594318786ef9df9ba9be2a574707c9d3f808dcf",
+      "separate-semantic-fidelity-goal-fit-and-goal-explication": "sha256:f6061362f42e27943136f0ce7d383883ecd8dba2931844a8ea191c60fa4528aa",
+      "separate-semantic-responsibility-from-solution-space-analysis": "sha256:0ae286ea9e90f4c0be5ad8f454a1cb3e84275ef14718a2da5464affa211289b8",
+      "separate-solution-space-positioning-from-contextual-anchoring": "sha256:0990425b9e3b2e6506b1f8ce908898a727c4195bf55c792698f76312b70693c4",
+      "specify-safety-goals-with-negative-rules": "sha256:4abffe3bd73bc3c0ace0f8db56f894b5938f5a7cc4dce8f5022cb564be79858a",
+      "treat-description-polarity-as-reference-relative": "sha256:ebab7eb180d3f07439b3e745ac9dfd33ecd889e68305848356a74dfe5f9094ac",
+      "treat-goals-as-complete-in-abstraction-and-incremental-in-practice": "sha256:50edde0abcd22a621f4b383217496a0b0cd5ca2bc2506048e8a5290e87c10f4e"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

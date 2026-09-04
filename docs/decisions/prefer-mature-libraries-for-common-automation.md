@@ -1,5 +1,6 @@
 ---
 title: 为仓库自动化的常见行为优先选择成熟库
+id: prefer-mature-libraries-for-common-automation
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:25:50Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 拆分
-    target: 260701-use-libraries-for-common-script-behavior.md
+    target: 260701-use-libraries-for-common-script-behavior
 ---
 
 ## 目的

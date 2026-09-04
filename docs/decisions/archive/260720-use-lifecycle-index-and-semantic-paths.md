@@ -1,5 +1,6 @@
 ---
 title: 采用全生命周期索引与语义路径
+id: 260720-use-lifecycle-index-and-semantic-paths
 status: archived
 alignment: null
 createdAt: 2026-07-20T19:47:38+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260718-use-purpose-background-decision-structure.md
+    target: 260718-use-purpose-background-decision-structure
 ---
 
 ## 目的

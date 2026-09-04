@@ -1,9 +1,10 @@
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
-import { isInvestigationId, isInvestigationTag } from "./report-path.ts";
 import {
-  compareInvestigationRelations,
-  parseInvestigationReport
-} from "./markdown.ts";
+  isInvestigationId,
+  isInvestigationSourcePath,
+  isInvestigationTag
+} from "./report-path.ts";
+import { compareInvestigationRelations } from "./markdown.ts";
 import {
   investigationRelationTypes,
   type InvestigationIndexState,
@@ -18,16 +19,27 @@ export type InvestigationReportStateBuildResult =
 
 export function buildInvestigationReportState(
   id: string,
-  report: ParsedInvestigationReport
+  report: ParsedInvestigationReport,
+  sourcePath: string
 ): InvestigationReportStateBuildResult {
   const errors = [...report.errors];
   if (!isInvestigationId(id)) {
     errors.push(`${id || "<empty>"} must use a valid Investigation ID`);
   }
+  if (!isInvestigationSourcePath(sourcePath)) {
+    errors.push(
+      `${sourcePath || "<empty>"} must use a valid Investigation sourcePath`
+    );
+  }
   if (report.report === null) {
     return { errors: uniqueSorted(errors), state: null, status: "invalid" };
   }
   const document = report.report;
+  if (document.id !== id) {
+    errors.push(
+      `${id} frontmatter id does not match the expected Investigation ID`
+    );
+  }
   if (investigationTimestampMilliseconds(document.formedAt) === null) {
     errors.push(
       `${id} formedAt must use an RFC 3339 timestamp with timezone and second precision`
@@ -68,6 +80,7 @@ export function buildInvestigationReportState(
       question: document.question,
       relations: [...document.relations],
       resourceIds: [...document.resourceIds],
+      sourcePath,
       tags: [...document.tags],
       title: document.title
     },
@@ -91,13 +104,6 @@ export function areCanonicalRelations(
       compareInvestigationRelations(previous, relation) < 0
     );
   });
-}
-
-export function parseAndBuildInvestigationReportState(
-  id: string,
-  text: string
-): InvestigationReportStateBuildResult {
-  return buildInvestigationReportState(id, parseInvestigationReport(text, id));
 }
 
 function isStrictlySorted(values: readonly string[]): boolean {

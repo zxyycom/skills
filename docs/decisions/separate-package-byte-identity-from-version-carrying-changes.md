@@ -1,5 +1,6 @@
 ---
 title: 将包字节身份与版本承载变化分离
+id: separate-package-byte-identity-from-version-carrying-changes
 status: active
 alignment: aligned
 createdAt: 2026-08-15T08:34:08Z

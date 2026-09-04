@@ -1,5 +1,6 @@
 ---
 title: 让 Plan 基线只承担 Git 距离定位
+id: use-plan-base-only-for-git-distance
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T06:09:13Z

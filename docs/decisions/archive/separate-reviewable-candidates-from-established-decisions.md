@@ -1,5 +1,6 @@
 ---
 title: 将可审核候选与已建立决策分离
+id: separate-reviewable-candidates-from-established-decisions
 status: archived
 alignment: aligned
 createdAt: 2026-08-29T15:42:46Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: separate-candidates-from-established-decisions.md
+    target: separate-candidates-from-established-decisions
 ---
 
 ## 目的

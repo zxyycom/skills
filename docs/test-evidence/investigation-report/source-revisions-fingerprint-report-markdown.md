@@ -7,7 +7,7 @@ Entry:
 
 Contract:
 
-- source revision 指纹化报告 Markdown；重新同步后产生新 revision。
+- source revision 指纹化报告 ID、sourcePath 与 Markdown；任一来源变化后重新同步产生新 revision。
 
 Proves:
 

@@ -1,5 +1,6 @@
 ---
 title: 按语义身份组织 Vibe Check
+id: organize-vibe-checks-by-semantic-identity
 status: archived
 alignment: aligned
 createdAt: 2026-09-01T05:11:30Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: use-vibe-check-as-authoritative-project-gate.md
+    target: use-vibe-check-as-authoritative-project-gate
 ---
 
 ## 目的

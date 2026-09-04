@@ -1,5 +1,6 @@
 ---
 title: 以索引历史锚定 task 语义结果
+id: anchor-semantic-task-results-in-index-history
 status: archived
 alignment: aligned
 createdAt: 2026-08-10T07:20:56Z

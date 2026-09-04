@@ -167,7 +167,7 @@ function validateReportIds(
       diagnostics.push(
         stageDiagnostic(
           investigationStageDiagnosticCodes.reportIdInvalid,
-          `report id ${JSON.stringify(value)} must use an Investigation ID with .md`,
+          `report id ${JSON.stringify(value)} must use an extensionless Investigation ID`,
           value
         )
       );

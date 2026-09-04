@@ -1,5 +1,6 @@
 ---
 title: 用保守顶层并发编排完整检查
+id: 260720-orchestrate-checks-with-conservative-concurrency
 status: archived
 alignment: null
 createdAt: 2026-07-20T18:59:56+08:00

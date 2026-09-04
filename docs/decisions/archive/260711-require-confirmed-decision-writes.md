@@ -1,5 +1,6 @@
 ---
 title: 使用显式确认控制决策写入
+id: 260711-require-confirmed-decision-writes
 status: archived
 alignment: null
 createdAt: 2026-07-11T14:55:56+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260711-repair-noncanonical-decision-formats.md
+    target: 260711-repair-noncanonical-decision-formats
 ---
 
 ## 目的

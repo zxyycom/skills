@@ -1,5 +1,6 @@
 ---
 title: 只提醒未引用的调查资源
+id: warn-on-unreferenced-investigation-resources
 status: archived
 alignment: aligned
 createdAt: 2026-08-17T08:03:12Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 拆分
-    target: attach-verifiable-resources-to-investigation-reports.md
+    target: attach-verifiable-resources-to-investigation-reports
 ---
 
 ## 目的

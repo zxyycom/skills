@@ -1,5 +1,6 @@
 ---
 title: 使用按需维护恢复手册
+id: use-error-recovery-reference
 status: archived
 alignment: null
 createdAt: 2026-07-20T13:18:28Z

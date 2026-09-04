@@ -5,17 +5,17 @@ import type {
   StateSourceRevision
 } from "../../index-runtime/src/index.ts";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
-import { isDecisionId, sourcePathForDecision } from "./decision-path.ts";
+import { decisionIdFromMarkdown } from "./decision-metadata.ts";
+import { isDecisionId, isDecisionSourcePath } from "./decision-path.ts";
 import { decisionSourceRevision } from "./decision-source-revision.ts";
 import { buildDecisionStateSnapshotFromSources } from "./decision-state-snapshot.ts";
 import type {
   DecisionIndexMetadata,
   DecisionIndexState,
   DecisionId,
-  DecisionSource
+  DecisionSource,
+  DecisionSourcePath
 } from "./types.ts";
-
-const decisionSourceReadConcurrency = 32;
 
 export async function readDecisionSourceRevision(
   decisionsDirectory: string,
@@ -43,87 +43,123 @@ async function readDecisionSources(
   decisionIds: readonly string[],
   signal?: AbortSignal
 ): Promise<DecisionSource[]> {
-  const sortedInputs = [...decisionIds].sort(compareText);
-  if (new Set(sortedInputs).size !== sortedInputs.length) {
+  const requestedIds = validatedUniqueDecisionIds(decisionIds);
+  const discovered = await discoverDecisionSources(decisionsDirectory, signal);
+  const sourceById = new Map(
+    discovered.map((source) => [source.decisionId, source])
+  );
+  return requestedIds.map((decisionId) => {
+    const source = sourceById.get(decisionId);
+    if (source === undefined) {
+      throw new Error(
+        `Decision ID does not resolve to a source path: ${decisionId}`
+      );
+    }
+    return source;
+  });
+}
+
+function validatedUniqueDecisionIds(
+  decisionIds: readonly string[]
+): DecisionId[] {
+  const values = [...decisionIds].sort(compareText);
+  if (new Set(values).size !== values.length) {
     throw new Error("decision sources must use unique Decision IDs");
   }
   const ids: DecisionId[] = [];
-  for (const decisionId of sortedInputs) {
-    if (!isDecisionId(decisionId)) {
-      throw new Error(`invalid indexed Decision ID ${decisionId}`);
+  for (const value of values) {
+    if (!isDecisionId(value)) {
+      throw new Error(`invalid indexed Decision ID ${value}`);
     }
-    ids.push(decisionId);
+    ids.push(value);
   }
+  return ids;
+}
 
+async function discoverDecisionSources(
+  decisionsDirectory: string,
+  signal?: AbortSignal
+): Promise<DecisionSource[]> {
+  const sourcePaths = await collectDecisionSourcePaths(decisionsDirectory);
   const sources: DecisionSource[] = [];
-  for (
-    let offset = 0;
-    offset < ids.length;
-    offset += decisionSourceReadConcurrency
-  ) {
+  const seenIds = new Set<DecisionId>();
+  for (const sourcePath of sourcePaths) {
     if (signal?.aborted === true) {
       throw new Error("decision source read was aborted");
     }
-    const batch = ids.slice(offset, offset + decisionSourceReadConcurrency);
-    sources.push(
-      ...(await Promise.all(
-        batch.map(
-          async (decisionId) =>
-            await readDecisionSource(decisionsDirectory, decisionId, signal)
-        )
-      ))
-    );
+    const sourceFile = path.join(decisionsDirectory, ...sourcePath.split("/"));
+    await requireRegularSourceFile(sourceFile, sourcePath);
+    const text = await fs.readFile(sourceFile, "utf8");
+    const decisionId = decisionIdFromMarkdown(text);
+    if (decisionId === null) {
+      throw new Error(
+        `${sourcePath} must declare a valid frontmatter Decision ID`
+      );
+    }
+    if (seenIds.has(decisionId)) {
+      throw new Error(
+        `Decision ID resolves to more than one source path: ${decisionId}`
+      );
+    }
+    seenIds.add(decisionId);
+    sources.push({
+      decisionId,
+      sourcePath: sourcePath as DecisionSourcePath,
+      text
+    });
   }
   return sources;
 }
 
-async function readDecisionSource(
-  decisionsDirectory: string,
-  decisionId: DecisionId,
-  signal?: AbortSignal
-): Promise<DecisionSource> {
-  if (signal?.aborted === true) {
-    throw new Error("decision source read was aborted");
+async function collectDecisionSourcePaths(
+  decisionsDirectory: string
+): Promise<string[]> {
+  const rootEntries = await fs.readdir(decisionsDirectory, {
+    withFileTypes: true
+  });
+  const sourcePaths: string[] = [];
+  for (const entry of rootEntries) {
+    if (entry.name.endsWith(".md")) {
+      sourcePaths.push(entry.name);
+      continue;
+    }
+    if (entry.isDirectory() && entry.name === "archive") {
+      const archiveEntries = await fs.readdir(
+        path.join(decisionsDirectory, entry.name),
+        { withFileTypes: true }
+      );
+      for (const archiveEntry of archiveEntries) {
+        if (archiveEntry.name.endsWith(".md")) {
+          sourcePaths.push(`archive/${archiveEntry.name}`);
+        }
+      }
+    }
   }
-  const currentPath = path.join(decisionsDirectory, decisionId);
-  const archivedPath = path.join(decisionsDirectory, "archive", decisionId);
-  const currentSourcePath = sourcePathForDecision(decisionId, "active");
-  const archivedSourcePath = sourcePathForDecision(decisionId, "archived");
-  const [currentExists, archivedExists] = await Promise.all([
-    decisionFileExists(currentPath, currentSourcePath),
-    decisionFileExists(archivedPath, archivedSourcePath)
-  ]);
-  if (currentExists === archivedExists) {
-    throw new Error(
-      currentExists
-        ? `Decision ID resolves to more than one source path: ${decisionId}`
-        : `Decision ID does not resolve to a source path: ${decisionId}`
-    );
+  const invalid = sourcePaths.find(
+    (sourcePath) => !isDecisionSourcePath(sourcePath)
+  );
+  if (invalid !== undefined) {
+    throw new Error(`invalid Decision source path: ${invalid}`);
   }
-  const sourcePath = archivedExists ? archivedSourcePath : currentSourcePath;
-  const sourceFilePath = archivedExists ? archivedPath : currentPath;
-  return {
-    decisionId,
-    sourcePath,
-    text: await fs.readFile(sourceFilePath, "utf8")
-  };
+  return sourcePaths.sort(compareText);
 }
 
-async function decisionFileExists(
-  filePath: string,
+async function requireRegularSourceFile(
+  sourceFile: string,
   sourcePath: string
-): Promise<boolean> {
+): Promise<void> {
   try {
-    const entry = await fs.lstat(filePath);
+    const entry = await fs.lstat(sourceFile);
     if (entry.isSymbolicLink() || !entry.isFile()) {
       throw new Error(
         `decision source must be a regular non-symbolic-link file: ${sourcePath}`
       );
     }
-    return true;
   } catch (error) {
     if (isFileSystemError(error, "ENOENT")) {
-      return false;
+      throw new Error(`Decision source does not exist: ${sourcePath}`, {
+        cause: error
+      });
     }
     throw error;
   }

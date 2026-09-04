@@ -1,5 +1,6 @@
 ---
 title: 按任务切面分配代理与运行能力
+id: allocate-agents-and-runtime-by-task-slice
 status: archived
 alignment: aligned
 createdAt: 2026-08-04T08:06:42Z
@@ -10,7 +11,7 @@ tags:
   - subagent-orchestration
 relations:
   - type: 修订
-    target: 260712-separate-write-ownership-from-read-scope.md
+    target: 260712-separate-write-ownership-from-read-scope
 ---
 
 ## 目的

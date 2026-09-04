@@ -1,5 +1,6 @@
 ---
 title: 让单文件状态索引按条目独立暂存
+id: stage-selected-index-entries
 status: archived
 alignment: unaligned
 createdAt: 2026-08-05T15:46:39Z

@@ -1,5 +1,6 @@
 ---
 title: 让 skill ZIP 字节具有确定性
+id: make-skill-zip-bytes-deterministic
 status: active
 alignment: aligned
 createdAt: 2026-08-11T04:03:06Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: build-deterministic-skill-zip-archives.md
+    target: build-deterministic-skill-zip-archives
 ---
 
 ## 目的

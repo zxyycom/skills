@@ -1,5 +1,6 @@
 ---
 title: 只按最小原生测试入口维护证据目录
+id: catalog-minimal-native-test-entries
 status: archived
 alignment: null
 createdAt: 2026-07-25T08:36:12Z
@@ -10,7 +11,7 @@ tags:
   - test-evidence-review
 relations:
   - type: 替代
-    target: register-one-case-per-independent-verification-entry.md
+    target: register-one-case-per-independent-verification-entry
 ---
 
 ## 目的

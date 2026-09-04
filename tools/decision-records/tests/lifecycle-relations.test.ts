@@ -33,7 +33,7 @@ test("archive and reactivate move one Decision ID while preserving its Markdown 
     assert.equal(archived.exitCode, 0, archived.stderr);
     const archivedPath = decisionFilePath(
       workspaceRoot,
-      `archive/${currentDecisionId}`
+      `archive/${currentDecisionId}.md`
     );
     assert.equal(
       await fileExists(decisionFilePath(workspaceRoot, currentSourcePath)),
@@ -46,7 +46,7 @@ test("archive and reactivate move one Decision ID while preserving its Markdown 
     assert.equal(
       findIndexEntry(await readIndex(workspaceRoot), currentDecisionId)
         .sourcePath,
-      `archive/${currentDecisionId}`
+      `archive/${currentDecisionId}.md`
     );
 
     const reactivated = await runSourceLifecycleCli([
@@ -74,7 +74,7 @@ test("archive and reactivate move one Decision ID while preserving its Markdown 
 
 test("relations resolve stable IDs across active and archived locations", () =>
   withFixtureWorkspace("relations-id", async (workspaceRoot) => {
-    const candidateId = "use-id-relations.md";
+    const candidateId = "use-id-relations";
     await writeDecision(
       workspaceRoot,
       candidateId,
@@ -95,7 +95,7 @@ test("relations resolve stable IDs across active and archived locations", () =>
     assert.equal(findIndexEntry(index, currentDecisionId).status, "archived");
     assert.equal(
       findIndexEntry(index, currentDecisionId).sourcePath,
-      `archive/${currentDecisionId}`
+      `archive/${currentDecisionId}.md`
     );
     assert.deepEqual(findIndexEntry(index, candidateId).relations, [
       {
@@ -123,7 +123,7 @@ test("lifecycle rejects a source changed after its prewrite scan before moving e
           nextText: originalText.replace("status: active", "status: archived"),
           targetPath: decisionFilePath(
             workspaceRoot,
-            `archive/${currentDecisionId}`
+            `archive/${currentDecisionId}.md`
           )
         }
       ],
@@ -134,7 +134,7 @@ test("lifecycle rejects a source changed after its prewrite scan before moving e
     assert.equal(await fileExists(currentPath), true);
     assert.equal(
       await fileExists(
-        decisionFilePath(workspaceRoot, `archive/${currentDecisionId}`)
+        decisionFilePath(workspaceRoot, `archive/${currentDecisionId}.md`)
       ),
       false
     );

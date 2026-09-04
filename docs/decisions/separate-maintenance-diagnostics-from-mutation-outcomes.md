@@ -1,5 +1,6 @@
 ---
 title: 将维护诊断与 mutation 结果分层
+id: separate-maintenance-diagnostics-from-mutation-outcomes
 status: active
 alignment: aligned
 createdAt: 2026-09-02T04:18:29Z

@@ -1,5 +1,6 @@
 ---
 title: 仅发布分层测试证据接口
+id: publish-only-layered-test-evidence-interfaces
 status: archived
 alignment: null
 createdAt: 2026-07-21T03:26:09Z
@@ -10,7 +11,7 @@ tags:
   - test-evidence-review
 relations:
   - type: 修订
-    target: 260721-separate-test-entry-collection-from-ledger.md
+    target: 260721-separate-test-entry-collection-from-ledger
 ---
 
 ## 目的

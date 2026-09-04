@@ -23,7 +23,7 @@ import { validateInvestigationReports } from "../src/validation.ts";
 
 const candidateInput = {
   formedAt: "2026-09-02T12:00:00+00:00",
-  id: "candidate-topic.md",
+  id: "candidate-topic",
   question: "候选是否在建立前保持集合外？",
   relations: [],
   tags: ["candidate", "investigation-report"],
@@ -48,7 +48,7 @@ test("new atomically creates a canonical candidate scaffold without establishing
     assert.equal(result.errors.length, 0);
     assert.match(
       await fs.readFile(result.candidate.path, "utf8"),
-      /^---\ntitle: "候选调查"\nformedAt: "2026-09-02T12:00:00\+00:00"/u
+      /^---\ntitle: "候选调查"\nid: "candidate-topic"\nformedAt: "2026-09-02T12:00:00\+00:00"/u
     );
 
     const layout = await inspectInvestigationCollectionLayout(
@@ -62,7 +62,7 @@ test("new atomically creates a canonical candidate scaffold without establishing
 
 test("new rejects invalid, duplicate, and formal-conflicting candidate identities without overwriting files", async () => {
   await withTempRoot("candidate-identities", async (root) => {
-    await writeCollection(root, [{ id: "formal-topic.md" }], false);
+    await writeCollection(root, [{ id: "formal-topic" }], false);
     const invalid = await createInvestigationCandidate({
       ...candidateInput,
       id: "not a report",
@@ -79,8 +79,8 @@ test("new rejects invalid, duplicate, and formal-conflicting candidate identitie
     const duplicateRelations = await createInvestigationCandidate({
       ...candidateInput,
       relations: [
-        { target: "formal-topic.md", type: "补充" },
-        { target: "formal-topic.md", type: "修正" }
+        { target: "formal-topic", type: "补充" },
+        { target: "formal-topic", type: "修正" }
       ],
       workspaceRoot: root
     });
@@ -100,7 +100,7 @@ test("new rejects invalid, duplicate, and formal-conflicting candidate identitie
 
     const conflict = await createInvestigationCandidate({
       ...candidateInput,
-      id: "formal-topic.md",
+      id: "formal-topic",
       workspaceRoot: root
     });
     assert.equal(conflict.status, "error");
@@ -130,7 +130,7 @@ test("new rejects invalid, duplicate, and formal-conflicting candidate identitie
     try {
       const locked = await createInvestigationCandidate({
         ...candidateInput,
-        id: "locked.md",
+        id: "locked",
         workspaceRoot: root
       });
       assert.equal(locked.status, "error");
@@ -145,7 +145,7 @@ test("new rejects invalid, duplicate, and formal-conflicting candidate identitie
         fs.access(
           candidatePathForInvestigationId(
             path.join(root, "docs", "investigations"),
-            "locked.md"
+            "locked"
           )
         )
       );
@@ -153,7 +153,7 @@ test("new rejects invalid, duplicate, and formal-conflicting candidate identitie
       await fs.rm(lockPath, { force: true });
     }
 
-    const linkedId = "linked.md";
+    const linkedId = "linked";
     const linkedPath = candidatePathForInvestigationId(
       path.join(root, "docs", "investigations"),
       linkedId
@@ -170,7 +170,7 @@ test("new rejects invalid, duplicate, and formal-conflicting candidate identitie
     assert.equal((await fs.lstat(linkedPath)).isSymbolicLink(), true);
     await fs.rm(linkedPath, { force: true });
 
-    const concurrentId = "concurrent.md";
+    const concurrentId = "concurrent";
     const concurrent = await Promise.all(
       [0, 1].map(
         async () =>
@@ -200,7 +200,7 @@ test("new rejects invalid, duplicate, and formal-conflicting candidate identitie
 
 test("candidate queries report readiness while formal sources and default checks ignore a candidate-owned resource", async () => {
   await withTempRoot("candidate-readiness", async (root) => {
-    await writeCollection(root, [{ id: "formal.md" }]);
+    await writeCollection(root, [{ id: "formal" }]);
     const created = await createInvestigationCandidate({
       ...candidateInput,
       workspaceRoot: root
@@ -265,31 +265,31 @@ test("candidate queries report readiness while formal sources and default checks
     const indexRevision = await readInvestigationSourceRevision(
       path.join(root, "docs", "investigations")
     );
-    assert.deepEqual(Object.keys(indexRevision.entries), ["formal.md"]);
+    assert.deepEqual(Object.keys(indexRevision.entries), ["formal"]);
     const synchronized = await runInvestigationCli(root, ["sync-index"]);
     assert.equal(synchronized.status, 0, synchronized.stderr);
     const listed = await runInvestigationCli(root, ["list"]);
     assert.equal(listed.status, 0, listed.stderr);
-    assert.match(listed.stdout, /formal\.md/u);
-    assert.doesNotMatch(listed.stdout, /candidate-topic\.md/u);
+    assert.match(listed.stdout, /formal/u);
+    assert.doesNotMatch(listed.stdout, /candidate-topic/u);
     const formal = await runInvestigationCli(root, ["show", "formal.md"]);
     assert.equal(formal.status, 0, formal.stderr);
     assert.doesNotMatch(formal.stdout, /候选边界/u);
     const traced = await runInvestigationCli(root, ["trace", "formal.md"]);
     assert.equal(traced.status, 0, traced.stderr);
-    assert.match(traced.stdout, /Reports: formal\.md/u);
+    assert.match(traced.stdout, /Reports: formal/u);
     const checked = await validateInvestigationReports({ workspaceRoot: root });
     assert.deepEqual(checked.errors, []);
     assert.ok(
       !checked.warnings.some((warning) =>
-        warning.includes("candidate-topic.md does not exist")
+        warning.includes("candidate-topic does not exist")
       )
     );
 
     initializeGit(root);
     await fs.writeFile(
       path.join(root, "docs", "investigations", "formal.md"),
-      reportMarkdown({ id: "formal.md", title: "更新后的正式报告" }),
+      reportMarkdown({ id: "formal", title: "更新后的正式报告" }),
       "utf8"
     );
     const resynchronized = await runInvestigationCli(root, ["sync-index"]);
@@ -317,7 +317,7 @@ test("candidate queries report readiness while formal sources and default checks
 
 test("candidate readiness requires every visible candidate-owned resource to have a direct owner reference", async () => {
   await withTempRoot("candidate-owner-resources", async (root) => {
-    await writeCollection(root, [{ id: "formal.md" }]);
+    await writeCollection(root, [{ id: "formal" }]);
     const created = await createInvestigationCandidate({
       ...candidateInput,
       workspaceRoot: root
@@ -365,7 +365,7 @@ test("candidate readiness requires every visible candidate-owned resource to hav
 
 test("candidate root safety failures block formal checks and candidate CLI keeps creation success separate from readiness", async () => {
   await withTempRoot("candidate-cli-and-safety", async (root) => {
-    await writeCollection(root, [{ id: "formal.md" }], false);
+    await writeCollection(root, [{ id: "formal" }], false);
     const created = await runInvestigationCli(root, [
       "new",
       candidateInput.id,
@@ -393,7 +393,7 @@ test("candidate root safety failures block formal checks and candidate CLI keeps
     assert.match(show.stdout, /## 调查目的/u);
 
     await fs.writeFile(
-      path.join(root, "docs", "investigations", "_candidate.bad-id"),
+      path.join(root, "docs", "investigations", "_candidate.bad-id.md"),
       "bad\n",
       "utf8"
     );

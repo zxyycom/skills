@@ -1,5 +1,6 @@
 ---
 title: 允许逐条激活预写决策候选
+id: allow-sequential-activation-of-prewritten-candidates
 status: archived
 alignment: null
 createdAt: 2026-07-23T01:52:08Z

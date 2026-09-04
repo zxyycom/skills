@@ -1,5 +1,6 @@
 ---
 title: 使用 CLI 维护活动索引并归档失效决策
+id: 260710-use-cli-active-index-and-invalidated-archive
 status: archived
 alignment: null
 createdAt: 2026-07-11T10:26:44+08:00
@@ -10,11 +11,11 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260710-use-explicit-portable-decision-memory.md
+    target: 260710-use-explicit-portable-decision-memory
   - type: 修订
-    target: 260627-establish-decision-record-policy.md
+    target: 260627-establish-decision-record-policy
   - type: 修订
-    target: 260630-track-decision-status-and-relations.md
+    target: 260630-track-decision-status-and-relations
 ---
 
 ## 目的

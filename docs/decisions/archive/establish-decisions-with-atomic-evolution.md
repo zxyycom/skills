@@ -1,5 +1,6 @@
 ---
 title: 使用 Markdown 生命周期与原子演进建立决策
+id: establish-decisions-with-atomic-evolution
 status: archived
 alignment: null
 createdAt: 2026-07-25T02:26:03Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: derive-establishment-from-markdown-lifecycle.md
+    target: derive-establishment-from-markdown-lifecycle
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 在决策演进中保护未进入版本基线的历史
+id: guard-unrecorded-decision-history-during-evolution
 status: active
 alignment: aligned
 createdAt: 2026-08-29T15:42:44Z
@@ -11,7 +12,7 @@ tags:
   - version-control
 relations:
   - type: 拆分
-    target: guard-unrecorded-decision-evolution.md
+    target: guard-unrecorded-decision-evolution
 ---
 
 ## 目的

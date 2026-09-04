@@ -1,5 +1,6 @@
 ---
 title: 按 Git 平台建立仓库 Hook
+id: bootstrap-platform-git-hooks
 status: active
 alignment: aligned
 createdAt: 2026-08-09T05:40:36Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 拆分
-    target: bootstrap-hooks-and-use-project-short-commands.md
+    target: bootstrap-hooks-and-use-project-short-commands
 ---
 
 ## 目的

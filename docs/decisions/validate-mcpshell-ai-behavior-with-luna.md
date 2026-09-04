@@ -1,5 +1,6 @@
 ---
 title: 用少量 Luna 调用验证 MCPShell skill 的 AI 行为
+id: validate-mcpshell-ai-behavior-with-luna
 status: active
 alignment: aligned
 createdAt: 2026-09-03T13:31:23Z

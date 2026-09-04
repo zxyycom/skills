@@ -1,5 +1,6 @@
 ---
 title: 保留 AI-ready 完整执行契约并按需校准复杂原则
+id: keep-ai-ready-entry-complete-and-calibrate-principles-on-demand
 status: active
 alignment: aligned
 createdAt: 2026-08-21T05:38:33Z
@@ -10,7 +11,7 @@ tags:
   - ai-ready-docs
 relations:
   - type: 修订
-    target: 260701-compact-entry-and-archive-migration-copies.md
+    target: 260701-compact-entry-and-archive-migration-copies
 ---
 
 ## 目的

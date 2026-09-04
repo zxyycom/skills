@@ -1,12 +1,13 @@
 ---
 title: "约束收窄后采用原生锁与原子写库"
+id: "adopt-native-lock-and-atomic-write-libraries"
 formedAt: "2026-08-07T01:45:30+08:00"
 question: "约束收窄后，原生锁和原子写库能否分别完整承接 task-graph 的窄责任？"
 tags:
   - "task-graph"
 relations:
   - type: "复查"
-    target: "reject-lock-and-atomic-write-library-dependencies.md"
+    target: "reject-lock-and-atomic-write-library-dependencies"
 ---
 
 ## 形成时背景

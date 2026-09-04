@@ -1,5 +1,6 @@
 ---
 title: 按当前任务出口验收决策记录工作
+id: complete-current-decision-work-by-task-outcome
 status: archived
 alignment: null
 createdAt: 2026-07-22T08:41:48Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260720-complete-by-task-outcome.md
+    target: 260720-complete-by-task-outcome
 ---
 
 ## 目的

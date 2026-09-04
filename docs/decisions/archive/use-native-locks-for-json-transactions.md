@@ -1,5 +1,6 @@
 ---
 title: 使用原生文件锁简化 JSON 事务
+id: use-native-locks-for-json-transactions
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T16:23:21Z

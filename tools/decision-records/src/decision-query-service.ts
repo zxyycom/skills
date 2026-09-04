@@ -16,6 +16,7 @@ import {
   decisionIndexFileName,
   syncDecisionIndex
 } from "./decision-state-index.ts";
+import { decisionIdFromMarkdown } from "./decision-metadata.ts";
 import {
   DecisionCollectionLockError,
   withDecisionCollectionMutationLock
@@ -753,9 +754,15 @@ async function readDecisionBody(
     if (entry.isSymbolicLink() || !entry.isFile()) {
       throw new Error("must be a regular non-symbolic-link file");
     }
+    const markdown = await fs.readFile(sourceFilePath, "utf8");
+    if (decisionIdFromMarkdown(markdown) !== record.decisionId) {
+      throw new Error(
+        "frontmatter Decision ID does not match the requested ID"
+      );
+    }
     return {
       status: "ok",
-      value: await fs.readFile(sourceFilePath, "utf8")
+      value: markdown
     };
   } catch (error) {
     return decisionFailure([
@@ -825,7 +832,7 @@ function invalidDecisionIdFailure(
         code: "decision-records.decision-id-invalid",
         reason: "Decision ID is invalid: " + decisionId,
         recovery:
-          "Provide a Decision ID that is a Markdown basename, then retry the command.",
+          "Provide an extensionless Decision ID, then retry the command.",
         target: "Decision ID argument"
       })
     ],

@@ -25,6 +25,7 @@ import {
   diagnosticFromStateIndexDiagnostic,
   type InvestigationDiagnostic
 } from "./diagnostics.ts";
+import { investigationIdFromMarkdown } from "./markdown.ts";
 import {
   parseInvestigationIndexQueryOptions,
   parseInvestigationReportShowOptions,
@@ -35,7 +36,6 @@ import {
   defaultInvestigationsDirectory,
   isInvestigationId,
   isInvestigationTag,
-  reportPathForInvestigationId,
   resolveInvestigationsDirectory,
   type ResolvedInvestigationsDirectory
 } from "./report-path.ts";
@@ -234,14 +234,20 @@ async function readShownInvestigation(
   id: string,
   state: NonNullable<InvestigationReportShowResult["state"]>
 ): Promise<InvestigationReportShowResult> {
-  const target = reportPathForInvestigationId(investigationsDirectory, id);
+  const target = path.join(investigationsDirectory, state.sourcePath);
   try {
+    const markdown = await fs.readFile(target, "utf8");
+    if (investigationIdFromMarkdown(markdown) !== id) {
+      throw new Error(
+        "frontmatter Investigation ID does not match the requested ID"
+      );
+    }
     return {
       errors: [],
       diagnostics: [],
       id,
       indexPath,
-      markdown: await fs.readFile(target, "utf8"),
+      markdown,
       state,
       status: "ok"
     };

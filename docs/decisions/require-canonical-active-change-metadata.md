@@ -1,5 +1,6 @@
 ---
 title: 仅接受规范的 Active Change Metadata
+id: require-canonical-active-change-metadata
 status: active
 alignment: aligned
 createdAt: 2026-08-14T02:39:17Z
@@ -10,7 +11,7 @@ tags:
   - change-plan
 relations:
   - type: 修订
-    target: simplify-change-lifecycle-to-draft-plan-and-archive.md
+    target: simplify-change-lifecycle-to-draft-plan-and-archive
 ---
 
 ## 目的

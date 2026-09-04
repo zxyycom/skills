@@ -1,5 +1,6 @@
 ---
 title: 让调查资源退出报告索引来源版本
+id: exclude-investigation-resources-from-report-index-revision
 status: active
 alignment: aligned
 createdAt: 2026-08-28T10:12:54Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 修订
-    target: exclude-investigation-resources-from-index-revision.md
+    target: exclude-investigation-resources-from-index-revision
 ---
 
 ## 目的

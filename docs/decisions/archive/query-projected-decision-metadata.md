@@ -1,5 +1,6 @@
 ---
 title: 查询 Markdown 投影的决策元数据
+id: query-projected-decision-metadata
 status: archived
 alignment: null
 createdAt: 2026-07-22T09:44:30Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: use-topic-filtered-decision-queries.md
+    target: use-topic-filtered-decision-queries
 ---
 
 ## 目的

@@ -1,6 +1,7 @@
 ---
 title: 使用稳定 Decision ID 选择关系与生命周期
-status: active
+id: use-stable-decision-id-for-relations-and-lifecycle
+status: archived
 alignment: aligned
 createdAt: 2026-08-29T16:11:33Z
 purpose: 让关系、查询、生命周期和选择性暂存以不随目录移动变化的决策身份为输入。
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 拆分
-    target: use-stable-decision-ids-tags-and-location-index.md
+    target: use-stable-decision-ids-tags-and-location-index
 ---
 
 ## 目的

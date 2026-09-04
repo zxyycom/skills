@@ -1,5 +1,6 @@
 ---
 title: 将调查 authoring candidate 与已建立报告分离
+id: separate-investigation-authoring-candidates-from-established-reports
 status: active
 alignment: aligned
 createdAt: 2026-09-02T07:21:10Z

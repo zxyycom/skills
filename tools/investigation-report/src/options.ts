@@ -16,6 +16,7 @@ import {
   type InvestigationReportShowOptions,
   type InvestigationReportTraceOptions
 } from "./types.ts";
+import { normalizeInvestigationIdInput } from "./report-path.ts";
 
 const requiredStringSchema = v.string("must be a string");
 const optionalStringSchema = v.optional(v.string("must be a string"));
@@ -129,7 +130,13 @@ const investigationReportDiscardOptionsSchema = v.strictObject({
 export function parseInvestigationCandidateCreateOptions(
   input: unknown
 ): Result<InvestigationCandidateCreateOptions, string[]> {
-  return parseOptions(investigationCandidateCreateOptionsSchema, input);
+  return parseOptions(investigationCandidateCreateOptionsSchema, input).map(
+    (options) => ({
+      ...options,
+      id: normalizeCompatibleId(options.id),
+      relations: normalizeCompatibleRelations(options.relations)
+    })
+  );
 }
 export function parseInvestigationCandidateListOptions(
   input: unknown
@@ -139,22 +146,35 @@ export function parseInvestigationCandidateListOptions(
 export function parseInvestigationCandidateShowOptions(
   input: unknown
 ): Result<InvestigationCandidateShowOptions, string[]> {
-  return parseOptions(investigationCandidateShowOptionsSchema, input);
+  return parseOptions(investigationCandidateShowOptionsSchema, input).map(
+    (options) => ({ ...options, id: normalizeCompatibleId(options.id) })
+  );
 }
 export function parseInvestigationCandidatePublishOptions(
   input: unknown
 ): Result<InvestigationCandidatePublishOptions, string[]> {
-  return parseOptions(investigationCandidatePublishOptionsSchema, input);
+  return parseOptions(investigationCandidatePublishOptionsSchema, input).map(
+    (options) => ({ ...options, ids: options.ids.map(normalizeCompatibleId) })
+  );
 }
 export function parseInvestigationCandidateDiscardOptions(
   input: unknown
 ): Result<InvestigationCandidateDiscardOptions, string[]> {
-  return parseOptions(investigationCandidateDiscardOptionsSchema, input);
+  return parseOptions(investigationCandidateDiscardOptionsSchema, input).map(
+    (options) => ({ ...options, id: normalizeCompatibleId(options.id) })
+  );
 }
 export function parseInvestigationReportCheckOptions(
   input: unknown
 ): Result<InvestigationReportCheckOptions, string[]> {
-  return parseOptions(investigationReportCheckOptionsSchema, input);
+  return parseOptions(investigationReportCheckOptionsSchema, input).map(
+    (options) => ({
+      ...options,
+      ...(options.ids === undefined
+        ? {}
+        : { ids: options.ids.map(normalizeCompatibleId) })
+    })
+  );
 }
 export function parseInvestigationIndexSyncOptions(
   input: unknown
@@ -164,7 +184,12 @@ export function parseInvestigationIndexSyncOptions(
 export function parseInvestigationIndexStageOptions(
   input: unknown
 ): Result<InvestigationIndexStageOptions, string[]> {
-  return parseOptions(investigationIndexStageOptionsSchema, input);
+  return parseOptions(investigationIndexStageOptionsSchema, input).map(
+    (options) => ({
+      ...options,
+      reportIds: options.reportIds.map(normalizeCompatibleId)
+    })
+  );
 }
 export function parseInvestigationIndexQueryOptions(
   input: unknown
@@ -174,22 +199,50 @@ export function parseInvestigationIndexQueryOptions(
 export function parseInvestigationReportShowOptions(
   input: unknown
 ): Result<InvestigationReportShowOptions, string[]> {
-  return parseOptions(investigationReportShowOptionsSchema, input);
+  return parseOptions(investigationReportShowOptionsSchema, input).map(
+    (options) => ({ ...options, id: normalizeCompatibleId(options.id) })
+  );
 }
 export function parseInvestigationReportTraceOptions(
   input: unknown
 ): Result<InvestigationReportTraceOptions, string[]> {
-  return parseOptions(investigationReportTraceOptionsSchema, input);
+  return parseOptions(investigationReportTraceOptionsSchema, input).map(
+    (options) => ({ ...options, id: normalizeCompatibleId(options.id) })
+  );
 }
 export function parseInvestigationRelationSetOptions(
   input: unknown
 ): Result<InvestigationRelationSetOptions, string[]> {
-  return parseOptions(investigationRelationSetOptionsSchema, input);
+  return parseOptions(investigationRelationSetOptionsSchema, input).map(
+    (options) => ({
+      ...options,
+      replacements: options.replacements.map((replacement) => ({
+        ...replacement,
+        relations: normalizeCompatibleRelations(replacement.relations),
+        source: normalizeCompatibleId(replacement.source)
+      }))
+    })
+  );
 }
 export function parseInvestigationReportDiscardOptions(
   input: unknown
 ): Result<InvestigationReportDiscardOptions, string[]> {
-  return parseOptions(investigationReportDiscardOptionsSchema, input);
+  return parseOptions(investigationReportDiscardOptionsSchema, input).map(
+    (options) => ({ ...options, id: normalizeCompatibleId(options.id) })
+  );
+}
+
+function normalizeCompatibleId(value: string): string {
+  return normalizeInvestigationIdInput(value) ?? value;
+}
+
+function normalizeCompatibleRelations<
+  Relation extends Readonly<{ target: string; type: string }>
+>(relations: readonly Relation[]): Relation[] {
+  return relations.map((relation) => ({
+    ...relation,
+    target: normalizeCompatibleId(relation.target)
+  }));
 }
 
 function parseOptions<Schema extends v.GenericSchema>(

@@ -189,12 +189,18 @@ export function prepareDecisionRelationTransaction(
       relations: successor.finalRelations
     };
     const nextText = successor.candidate
-      ? serializeDecisionFrontmatter(nextProjection, nextProjection.tags, {
-          alignment: successor.alignment,
-          createdAt: successors.establishedAt,
-          status: "active"
-        }) + source.body
+      ? serializeDecisionFrontmatter(
+          successor.record.decisionId,
+          nextProjection,
+          nextProjection.tags,
+          {
+            alignment: successor.alignment,
+            createdAt: successors.establishedAt,
+            status: "active"
+          }
+        ) + source.body
       : serializeDecisionFrontmatter(
+          successor.record.decisionId,
           nextProjection,
           nextProjection.tags,
           source.document

@@ -1,5 +1,6 @@
 ---
 title: 由共享版本管理层承接待提交快照写入
+id: manage-pending-snapshot-writes
 status: active
 alignment: aligned
 createdAt: 2026-08-03T10:35:28Z
@@ -10,7 +11,7 @@ tags:
   - version-control
 relations:
   - type: 修订
-    target: centralize-version-control-responsibility.md
+    target: centralize-version-control-responsibility
 ---
 
 ## 目的

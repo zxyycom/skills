@@ -1,5 +1,6 @@
 ---
 title: 为 trace 增加定向和限深查询
+id: 260718-add-direction-and-depth-to-trace
 status: archived
 alignment: null
 createdAt: 2026-07-18T14:44:37+08:00

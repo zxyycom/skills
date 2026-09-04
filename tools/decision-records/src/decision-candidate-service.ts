@@ -12,6 +12,7 @@ import {
   withDecisionCollectionMutationLock
 } from "./decision-collection-mutation-lock.ts";
 import { serializeDecisionFrontmatter } from "./decision-metadata.ts";
+import { sourcePathForDecision } from "./decision-path.ts";
 import { decisionIndexFileName } from "./decision-state-index.ts";
 import { scanDecisionRecords } from "./scan.ts";
 import type {
@@ -85,7 +86,10 @@ async function createLockedDecisionCandidate(
 
   return await publishCandidateCreation(
     request,
-    path.join(scan.decisionsDirectory, request.decisionId)
+    path.join(
+      scan.decisionsDirectory,
+      sourcePathForDecision(request.decisionId, "candidate")
+    )
   );
 }
 
@@ -210,7 +214,11 @@ async function publishCandidateCreation(
       )
     );
   }
-  return { created: true, sourcePath: request.decisionId, status: "ok" };
+  return {
+    created: true,
+    sourcePath: sourcePathForDecision(request.decisionId, "candidate"),
+    status: "ok"
+  };
 }
 
 function candidateScaffoldMarkdown(
@@ -218,6 +226,7 @@ function candidateScaffoldMarkdown(
 ): string {
   return (
     serializeDecisionFrontmatter(
+      request.decisionId,
       {
         background: request.background,
         decision: request.decision,

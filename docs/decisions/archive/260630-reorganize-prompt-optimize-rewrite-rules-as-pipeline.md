@@ -1,5 +1,6 @@
 ---
 title: 将 prompt-optimize 改写规则重组为管线
+id: 260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline
 status: archived
 alignment: null
 createdAt: 2026-06-30T15:02:20+08:00

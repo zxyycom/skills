@@ -1,5 +1,6 @@
 ---
 title: 将负向方案视为解空间锚点
+id: 260720-treat-negative-options-as-solution-anchors
 status: archived
 alignment: aligned
 createdAt: 2026-07-20T10:15:36+08:00

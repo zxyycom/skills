@@ -5,7 +5,7 @@ Entry:
 - `bun test --test-name-pattern="^stage applies selected additions modifications deletions and explicit renames$" ./tools/decision-records/tests/run.ts`
 
 Contract:
-- stage 将选择的新增、修改、删除和派生索引作为完整 pending 快照暂存；改名只由显式选择表达。
+- stage 将选择的新增、修改、删除和派生索引作为完整 pending 快照暂存；关系 target 与选择均使用纯 ID。
 
 Proves:
 - 修改、删除和新增记录后，断言对应路径及 index 暂存。

@@ -1,5 +1,6 @@
 ---
 title: 使用可恢复事务维护决策演进
+id: use-recoverable-evolution-transactions
 status: archived
 alignment: aligned
 createdAt: 2026-07-25T02:52:10Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: establish-decisions-with-atomic-evolution.md
+    target: establish-decisions-with-atomic-evolution
 ---
 
 ## 目的

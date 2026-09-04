@@ -1,5 +1,6 @@
 ---
 title: 从版本管理 pending 快照读取 skill 制品输入
+id: read-skill-package-inputs-from-versioned-pending-snapshot
 status: active
 alignment: aligned
 createdAt: 2026-08-11T04:19:41Z
@@ -11,7 +12,7 @@ tags:
   - version-control
 relations:
   - type: 修订
-    target: package-skills-from-versioned-pending-snapshot.md
+    target: package-skills-from-versioned-pending-snapshot
 ---
 
 ## 目的

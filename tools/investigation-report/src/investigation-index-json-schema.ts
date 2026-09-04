@@ -4,7 +4,8 @@ import {
 } from "./investigation-index-definition.ts";
 import {
   investigationIdPatternSource,
-  investigationKebabCasePatternSource
+  investigationKebabCasePatternSource,
+  investigationSourcePathPatternSource
 } from "./report-path.ts";
 import { investigationResourceIdLexicalPatternSource } from "./resource-reference.ts";
 import { investigationSourceFingerprintPatternSource } from "./investigation-source-revision.ts";
@@ -30,6 +31,10 @@ export const investigationIndexJsonSchema = {
       type: "string"
     },
     investigationId,
+    sourcePath: {
+      pattern: investigationSourcePathPatternSource,
+      type: "string"
+    },
     relation: {
       additionalProperties: false,
       properties: {
@@ -93,6 +98,7 @@ export const investigationIndexJsonSchema = {
           type: "array",
           uniqueItems: true
         },
+        sourcePath: { $ref: "#/$defs/sourcePath" },
         tags: {
           items: {
             pattern: `^${investigationKebabCasePatternSource}$`,
@@ -110,7 +116,8 @@ export const investigationIndexJsonSchema = {
         "question",
         "tags",
         "relations",
-        "resourceIds"
+        "resourceIds",
+        "sourcePath"
       ],
       type: "object"
     }

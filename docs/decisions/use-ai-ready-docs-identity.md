@@ -1,5 +1,6 @@
 ---
 title: 使用 ai-ready-docs 作为文档 AI 阅读优化能力的稳定身份
+id: use-ai-ready-docs-identity
 status: active
 alignment: aligned
 createdAt: 2026-07-23T07:37:02Z

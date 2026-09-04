@@ -1,5 +1,6 @@
 ---
 title: 归档 change 不参与持续链接校验
+id: exclude-archived-changes-from-link-validation
 status: archived
 alignment: aligned
 createdAt: 2026-08-04T06:30:59Z

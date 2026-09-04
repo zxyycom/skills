@@ -1,5 +1,6 @@
 ---
 title: 按任务出口验收决策记录工作
+id: 260720-complete-by-task-outcome
 status: archived
 alignment: null
 createdAt: 2026-07-20T10:34:37+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260720-return-query-results-with-warnings.md
+    target: 260720-return-query-results-with-warnings
 ---
 
 ## 目的

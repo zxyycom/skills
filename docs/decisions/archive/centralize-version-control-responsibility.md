@@ -1,5 +1,6 @@
 ---
 title: 集中版本管理责任但不承诺跨系统兼容
+id: centralize-version-control-responsibility
 status: archived
 alignment: aligned
 createdAt: 2026-07-22T15:01:02Z

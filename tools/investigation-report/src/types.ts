@@ -327,12 +327,14 @@ export type InvestigationIndexState = Readonly<{
   question: string;
   relations: InvestigationRelation[];
   resourceIds: string[];
+  sourcePath: string;
   tags: string[];
   title: string;
 }>;
 
 export type InvestigationSource = Readonly<{
   id: string;
+  sourcePath: string;
   text: string;
 }>;
 
@@ -352,6 +354,7 @@ export type ParsedInvestigationReportDocument = Readonly<{
     relationsStartLine: number;
   }>;
   question: string;
+  id: string;
   relations: InvestigationRelation[];
   resourceIds: string[];
   tags: string[];

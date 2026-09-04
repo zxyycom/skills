@@ -1,5 +1,6 @@
 ---
 title: 将默认 task list 渲染为全量分层 DAG
+id: render-full-task-list-as-layered-dag
 status: active
 alignment: aligned
 createdAt: 2026-08-08T02:15:19Z

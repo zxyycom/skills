@@ -1,5 +1,6 @@
 ---
 title: 用 Git hook 更新 package hash
+id: 260701-update-package-hash-with-git-hooks
 status: archived
 alignment: null
 createdAt: 2026-07-03T10:58:54+08:00
@@ -10,9 +11,9 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: 260630-publish-skill-package-as-latest-release.md
+    target: 260630-publish-skill-package-as-latest-release
   - type: 修订
-    target: 260701-gate-latest-release-by-skill-hash.md
+    target: 260701-gate-latest-release-by-skill-hash
 ---
 
 ## 目的

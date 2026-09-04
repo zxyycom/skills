@@ -21,18 +21,19 @@ import {
 } from "./v6-support.ts";
 
 const candidatePath = (root: string, id: string): string =>
-  path.join(investigationRoot(root), `_candidate.${id}`);
+  path.join(investigationRoot(root), `_candidate.${id.replace(/\.md$/iu, "")}`);
 
 async function createReadyCandidate(
   root: string,
   id: string,
   options: Parameters<typeof reportMarkdown>[0] = { id }
 ): Promise<void> {
+  const investigationId = id.replace(/\.md$/iu, "");
   const created = await runInvestigationCli(root, [
     "new",
-    id,
+    investigationId,
     "--title",
-    options.title ?? id.slice(0, -".md".length),
+    options.title ?? investigationId,
     "--formed-at",
     options.formedAt ?? "2026-08-28T12:00:00+00:00",
     "--question",
@@ -42,8 +43,8 @@ async function createReadyCandidate(
   ]);
   assert.equal(created.status, 0, created.stderr);
   await fs.writeFile(
-    candidatePath(root, id),
-    reportMarkdown({ ...options, id }),
+    candidatePath(root, investigationId),
+    reportMarkdown({ ...options, id: investigationId }),
     "utf8"
   );
 }
@@ -99,19 +100,17 @@ test("publish preflight leaves candidates untouched and normal publish establish
 
 test("publish requires selected relation closure and a fresh formal index", async () => {
   await withTempRoot("publish-baseline", async (root) => {
-    await writeCollection(root, [{ id: "base.md" }]);
+    await writeCollection(root, [{ id: "base" }]);
     await createReadyCandidate(root, "successor.md", {
-      id: "successor.md",
-      relations: [{ target: "missing.md", type: "补充" }]
+      id: "successor",
+      relations: [{ target: "missing", type: "补充" }]
     });
     const missingTarget = await publishInvestigationCandidates({
       ids: ["successor.md"],
       preflight: true,
       workspaceRoot: root
     });
-    assert.ok(
-      missingTarget.errors.some((error) => error.includes("missing.md"))
-    );
+    assert.ok(missingTarget.errors.some((error) => error.includes("missing")));
     assert.equal(
       await fs.stat(candidatePath(root, "successor.md")).then(() => true),
       true
@@ -120,8 +119,8 @@ test("publish requires selected relation closure and a fresh formal index", asyn
     await fs.writeFile(
       candidatePath(root, "successor.md"),
       reportMarkdown({
-        id: "successor.md",
-        relations: [{ target: "base.md", type: "补充" }]
+        id: "successor",
+        relations: [{ target: "base", type: "补充" }]
       }),
       "utf8"
     );
@@ -138,7 +137,7 @@ test("publish requires selected relation closure and a fresh formal index", asyn
     assert.ok(stale.errors.some((error) => error.includes("index")));
     await fs.writeFile(
       path.join(investigationRoot(root), "base.md"),
-      reportMarkdown({ id: "base.md" }),
+      reportMarkdown({ id: "base" }),
       "utf8"
     );
     const synchronized = await runInvestigationCli(root, ["sync-index"]);
@@ -157,10 +156,10 @@ test("publish preflight validates complete merge and split candidate batches", a
     await createReadyCandidate(root, "left.md");
     await createReadyCandidate(root, "right.md");
     await createReadyCandidate(root, "merged.md", {
-      id: "merged.md",
+      id: "merged",
       relations: [
-        { target: "left.md", type: "归并" },
-        { target: "right.md", type: "归并" }
+        { target: "left", type: "归并" },
+        { target: "right", type: "归并" }
       ]
     });
     const incomplete = await publishInvestigationCandidates({
@@ -168,7 +167,7 @@ test("publish preflight validates complete merge and split candidate batches", a
       preflight: true,
       workspaceRoot: root
     });
-    assert.ok(incomplete.errors.some((error) => error.includes("left.md")));
+    assert.ok(incomplete.errors.some((error) => error.includes("left")));
     const complete = await publishInvestigationCandidates({
       ids: ["merged.md", "left.md", "right.md"],
       preflight: true,
@@ -183,12 +182,12 @@ test("publish preflight validates complete merge and split candidate batches", a
   await withTempRoot("publish-split-batch", async (root) => {
     await createReadyCandidate(root, "base.md");
     await createReadyCandidate(root, "split-left.md", {
-      id: "split-left.md",
-      relations: [{ target: "base.md", type: "拆分" }]
+      id: "split-left",
+      relations: [{ target: "base", type: "拆分" }]
     });
     await createReadyCandidate(root, "split-right.md", {
-      id: "split-right.md",
-      relations: [{ target: "base.md", type: "拆分" }]
+      id: "split-right",
+      relations: [{ target: "base", type: "拆分" }]
     });
     const complete = await publishInvestigationCandidates({
       ids: ["base.md", "split-left.md", "split-right.md"],
@@ -205,7 +204,7 @@ test("publish preflight validates complete merge and split candidate batches", a
 test("publish preserves candidate resources and rolls renamed candidates back when index publication fails", async () => {
   await withTempRoot("publish-resource-rollback", async (root) => {
     await createReadyCandidate(root, "resource-owner.md", {
-      id: "resource-owner.md",
+      id: "resource-owner",
       resources: ["resource-owner/evidence.txt"]
     });
     const resource = path.join(
@@ -281,7 +280,7 @@ test("publish preserves candidate resources and rolls renamed candidates back wh
 
 test("publish rechecks candidate, formal source, and index drift before changing files", async () => {
   await withTempRoot("publish-candidate-drift", async (root) => {
-    await writeCollection(root, [{ id: "formal.md" }]);
+    await writeCollection(root, [{ id: "formal" }]);
     await createReadyCandidate(root, "candidate.md");
     const candidate = candidatePath(root, "candidate.md");
     const beforeFormal = await fs.readFile(
@@ -309,7 +308,7 @@ test("publish rechecks candidate, formal source, and index drift before changing
   });
 
   await withTempRoot("publish-formal-index-drift", async (root) => {
-    await writeCollection(root, [{ id: "formal.md" }]);
+    await writeCollection(root, [{ id: "formal" }]);
     await createReadyCandidate(root, "candidate.md");
     const candidate = candidatePath(root, "candidate.md");
     const formal = path.join(investigationRoot(root), "formal.md");
@@ -327,7 +326,7 @@ test("publish rechecks candidate, formal source, and index drift before changing
     assert.equal(formalDrift.changed, false);
     assert.ok(formalDrift.errors.length > 0);
     assert.equal(await fs.readFile(candidate, "utf8"), beforeCandidate);
-    await fs.writeFile(formal, reportMarkdown({ id: "formal.md" }), "utf8");
+    await fs.writeFile(formal, reportMarkdown({ id: "formal" }), "utf8");
 
     const beforeIndex = await fs.readFile(index, "utf8");
     const indexDrift = await publishInvestigationCandidatesWithWriter(
@@ -344,13 +343,13 @@ test("publish rechecks candidate, formal source, and index drift before changing
 
 test("discard-candidate protects shared and recorded authoring resources without changing formal reports", async () => {
   await withTempRoot("discard-candidate", async (root) => {
-    await writeCollection(root, [{ id: "formal.md" }]);
+    await writeCollection(root, [{ id: "formal" }]);
     await createReadyCandidate(root, "candidate.md", {
-      id: "candidate.md",
+      id: "candidate",
       resources: ["candidate/evidence.txt"]
     });
     await createReadyCandidate(root, "consumer.md", {
-      id: "consumer.md",
+      id: "consumer",
       resources: ["candidate/evidence.txt"]
     });
     const resource = path.join(
@@ -363,30 +362,30 @@ test("discard-candidate protects shared and recorded authoring resources without
     await fs.writeFile(resource, "evidence", "utf8");
     const shared = await discardInvestigationCandidate({
       deleteOwnedResources: true,
-      id: "candidate.md",
+      id: "candidate",
       workspaceRoot: root
     });
-    assert.ok(shared.errors.some((error) => error.includes("consumer.md")));
+    assert.ok(shared.errors.some((error) => error.includes("consumer")));
     assert.equal(
       await fs.readFile(
         path.join(investigationRoot(root), "formal.md"),
         "utf8"
       ),
-      reportMarkdown({ id: "formal.md" })
+      reportMarkdown({ id: "formal" })
     );
 
     await fs.rm(candidatePath(root, "consumer.md"));
     initializeGit(root);
     const recorded = await discardInvestigationCandidate({
       deleteOwnedResources: true,
-      id: "candidate.md",
+      id: "candidate",
       workspaceRoot: root
     });
     assert.equal(recorded.requiresRecordedDeletionConfirmation, true);
     const discarded = await discardInvestigationCandidate({
       deleteOwnedResources: true,
       deleteRecordedCandidate: true,
-      id: "candidate.md",
+      id: "candidate",
       workspaceRoot: root
     });
     assert.deepEqual(discarded.errors, []);
@@ -397,7 +396,7 @@ test("discard-candidate protects shared and recorded authoring resources without
         path.join(investigationRoot(root), "formal.md"),
         "utf8"
       ),
-      reportMarkdown({ id: "formal.md" })
+      reportMarkdown({ id: "formal" })
     );
   });
 });
@@ -410,7 +409,7 @@ test("discard-candidate detects candidate drift before committing its tombstone"
       "utf8"
     );
     const discarded = await discardInvestigationCandidateWithHook(
-      { id: "candidate.md", workspaceRoot: root },
+      { id: "candidate", workspaceRoot: root },
       async () =>
         await fs.appendFile(candidatePath(root, "candidate.md"), "\n", "utf8")
     );
@@ -439,7 +438,7 @@ test("discard-candidate reports pending cleanup after its tombstone commit", asy
     let discarded;
     try {
       discarded = await discardInvestigationCandidate({
-        id: "candidate.md",
+        id: "candidate",
         workspaceRoot: root
       });
     } finally {
@@ -469,7 +468,7 @@ test("formal discard refuses owner resources still referenced by an authoring ca
   await withTempRoot("formal-discard-candidate-reference", async (root) => {
     await writeCollection(
       root,
-      [{ id: "formal.md", resources: ["formal/evidence.txt"] }],
+      [{ id: "formal", resources: ["formal/evidence.txt"] }],
       false
     );
     const resource = path.join(
@@ -483,11 +482,11 @@ test("formal discard refuses owner resources still referenced by an authoring ca
     const synchronized = await runInvestigationCli(root, ["sync-index"]);
     assert.equal(synchronized.status, 0, synchronized.stderr);
     await createReadyCandidate(root, "candidate.md", {
-      id: "candidate.md",
+      id: "candidate",
       resources: ["formal/evidence.txt"]
     });
     const candidateDiscard = await discardInvestigationReport({
-      id: "candidate.md",
+      id: "candidate",
       workspaceRoot: root
     });
     assert.equal(candidateDiscard.changed, false);
@@ -497,10 +496,10 @@ test("formal discard refuses owner resources still referenced by an authoring ca
     await fs.access(candidatePath(root, "candidate.md"));
     const discarded = await discardInvestigationReport({
       deleteOwnedResources: true,
-      id: "formal.md",
+      id: "formal",
       workspaceRoot: root
     });
-    assert.ok(discarded.errors.some((error) => error.includes("candidate.md")));
+    assert.ok(discarded.errors.some((error) => error.includes("candidate")));
     assert.equal(await fs.readFile(resource, "utf8"), "evidence");
   });
 });
@@ -509,7 +508,7 @@ test("destructive discards fail closed when candidate resource references cannot
   await withTempRoot("candidate-reference-read-failure", async (root) => {
     await writeCollection(
       root,
-      [{ id: "formal.md", resources: ["formal/evidence.txt"] }],
+      [{ id: "formal", resources: ["formal/evidence.txt"] }],
       false
     );
     const resource = path.join(
@@ -531,11 +530,11 @@ test("destructive discards fail closed when candidate resource references cannot
 
     const discarded = await discardInvestigationReport({
       deleteOwnedResources: true,
-      id: "formal.md",
+      id: "formal",
       workspaceRoot: root
     });
     assert.equal(discarded.changed, false);
-    assert.ok(discarded.errors.some((error) => error.includes("candidate.md")));
+    assert.ok(discarded.errors.some((error) => error.includes("candidate")));
     assert.equal(await fs.readFile(resource, "utf8"), "evidence");
     await fs.access(path.join(investigationRoot(root), "formal.md"));
   });
@@ -545,9 +544,9 @@ test("candidate discard fails closed when formal resource references are invalid
   await withTempRoot(
     "candidate-discard-invalid-formal-reference",
     async (root) => {
-      await writeCollection(root, [{ id: "formal.md" }]);
+      await writeCollection(root, [{ id: "formal" }]);
       await createReadyCandidate(root, "candidate.md", {
-        id: "candidate.md",
+        id: "candidate",
         resources: ["candidate/evidence.txt"]
       });
       const resource = path.join(
@@ -561,7 +560,7 @@ test("candidate discard fails closed when formal resource references are invalid
       await fs.writeFile(
         path.join(investigationRoot(root), "formal.md"),
         reportMarkdown({
-          id: "formal.md",
+          id: "formal",
           resources: ["candidate/evidence.txt"]
         }).replace("## 调查目的", "## 非法章节"),
         "utf8"
@@ -569,7 +568,7 @@ test("candidate discard fails closed when formal resource references are invalid
 
       const discarded = await discardInvestigationCandidate({
         deleteOwnedResources: true,
-        id: "candidate.md",
+        id: "candidate",
         workspaceRoot: root
       });
       assert.equal(discarded.changed, false);
@@ -588,7 +587,7 @@ test("candidate discard rechecks Git HEAD immediately before deletion", async ()
     await createReadyCandidate(root, "candidate.md");
 
     const discarded = await discardInvestigationCandidateWithHook(
-      { id: "candidate.md", workspaceRoot: root },
+      { id: "candidate", workspaceRoot: root },
       async () => {
         execFileSync(
           "git",
@@ -596,7 +595,7 @@ test("candidate discard rechecks Git HEAD immediately before deletion", async ()
             "-C",
             root,
             "add",
-            path.join("docs", "investigations", "_candidate.candidate.md")
+            path.join("docs", "investigations", "_candidate.candidate")
           ],
           { stdio: "ignore" }
         );

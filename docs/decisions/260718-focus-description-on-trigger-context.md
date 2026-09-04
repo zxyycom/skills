@@ -1,5 +1,6 @@
 ---
 title: 让子代理 skill 描述聚焦触发条件
+id: 260718-focus-description-on-trigger-context
 status: active
 alignment: aligned
 createdAt: 2026-07-18T12:27:40+08:00

@@ -30,7 +30,6 @@ import { parseInvestigationRelationSetOptions } from "./options.ts";
 import {
   canonicalizeInvestigationsDirectory,
   isInvestigationId,
-  reportPathForInvestigationId,
   resolveInvestigationsDirectory
 } from "./report-path.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
@@ -469,11 +468,19 @@ function candidateRelationSource(
   );
   const built = buildInvestigationReportState(
     source.id,
-    parseInvestigationReport(nextText, source.id)
+    parseInvestigationReport(nextText, source.id),
+    source.sourcePath
   );
   return built.status === "invalid"
     ? { errors: built.errors }
-    : { source: { id: source.id, text: nextText }, state: built.state };
+    : {
+        source: {
+          id: source.id,
+          sourcePath: source.sourcePath,
+          text: nextText
+        },
+        state: built.state
+      };
 }
 
 async function buildRelationIndex(
@@ -606,7 +613,7 @@ async function verifyRelationSource(
   | { changedPath: string | null; text: string }
   | { result: InvestigationRelationSetResult }
 > {
-  const reportPath = reportPathForInvestigationId(options.root, source.id);
+  const reportPath = path.join(options.root, source.sourcePath);
   try {
     const currentText = await readRegularText(reportPath);
     if (currentText !== source.text) {
@@ -743,15 +750,16 @@ async function publishRelationCandidate(
   context: CandidateRelationContext,
   originalTextByPath: Map<string, string>
 ): Promise<InvestigationRelationSetResult> {
-  const nextTextById = new Map(
-    context.candidateSources.map((source) => [source.id, source.text])
+  const nextSourceById = new Map(
+    context.candidateSources.map((source) => [source.id, source])
   );
   const writtenPaths: string[] = [];
   try {
     for (const id of context.changedSources.sort(compareText)) {
-      const reportPath = reportPathForInvestigationId(options.root, id);
+      const source = nextSourceById.get(id)!;
+      const reportPath = path.join(options.root, source.sourcePath);
       writtenPaths.push(reportPath);
-      await options.write(reportPath, nextTextById.get(id)!);
+      await options.write(reportPath, source.text);
     }
     writtenPaths.push(options.indexPath);
     await options.write(options.indexPath, context.nextIndexText);

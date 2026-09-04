@@ -1,5 +1,6 @@
 ---
 title: 让行为入口聚焦任务路由
+id: 260720-focus-entry-on-behavior-routing
 status: archived
 alignment: null
 createdAt: 2026-07-20T10:34:37+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260718-separate-behavior-entry-from-storage-contract.md
+    target: 260718-separate-behavior-entry-from-storage-contract
 ---
 
 ## 目的

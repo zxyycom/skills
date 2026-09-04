@@ -10,8 +10,7 @@ import {
 import {
   isDecisionId,
   isDecisionSourcePath,
-  isDecisionTag,
-  sourcePathForDecision
+  isDecisionTag
 } from "./decision-path.ts";
 import {
   readDecisionSourceRevision,
@@ -35,7 +34,7 @@ import {
 } from "./types.ts";
 
 export const decisionIndexNamespace = "decisions";
-export const decisionIndexDefinitionVersion = 6;
+export const decisionIndexDefinitionVersion = 7;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -43,7 +42,7 @@ const nonEmptyStringSchema = v.pipe(
 );
 const decisionIdSchema = v.pipe(
   nonEmptyStringSchema,
-  v.check(isDecisionIdString, "must be a stable Decision ID basename")
+  v.check(isDecisionIdString, "must be a stable extensionless Decision ID")
 );
 const sourcePathSchema = v.pipe(
   nonEmptyStringSchema,
@@ -160,6 +159,14 @@ function validateDecisionSourceRevision(
   if (!parsed.success) {
     throw new TypeError(parsed.issues.map(formatDecisionIndexIssue).join("; "));
   }
+  const sourcePaths = Object.values(index.entries).map(
+    (entry) => entry.state.sourcePath
+  );
+  if (new Set(sourcePaths).size !== sourcePaths.length) {
+    throw new TypeError(
+      "entry states must use unique decision sourcePath values"
+    );
+  }
 }
 
 function parseDecisionIndexState(
@@ -205,14 +212,15 @@ function validateDecisionIndexIdentity(
   state: ParsedDecisionIndexState
 ): DecisionSourcePath {
   if (!isDecisionId(decisionId)) {
-    throw new TypeError("entry id must be a stable Decision ID basename");
+    throw new TypeError("entry id must be a stable extensionless Decision ID");
   }
   if (!isDecisionSourcePath(state.sourcePath)) {
     throw new TypeError("state.sourcePath must be a decision source path");
   }
-  if (state.sourcePath !== sourcePathForDecision(decisionId, state.status)) {
+  const archived = state.sourcePath.startsWith("archive/");
+  if ((state.status === "archived") !== archived) {
     throw new TypeError(
-      "state.sourcePath must match the Decision ID and lifecycle status"
+      "state.sourcePath must use the lifecycle directory for its status"
     );
   }
   if (!isDecisionTimestamp(state.createdAt)) {
@@ -271,7 +279,7 @@ function validatedDecisionRelations(
   for (const relation of relationInput) {
     if (!isDecisionId(relation.target)) {
       throw new TypeError(
-        "relation target must be a stable Decision ID basename"
+        "relation target must be a stable extensionless Decision ID"
       );
     }
     if (relationTargets.has(relation.target)) {

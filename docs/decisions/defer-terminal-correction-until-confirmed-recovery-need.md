@@ -1,5 +1,6 @@
 ---
 title: 等待真实恢复需要后再设计 Task 终态纠正
+id: defer-terminal-correction-until-confirmed-recovery-need
 status: active
 alignment: aligned
 createdAt: 2026-08-10T15:13:23Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 拆分
-    target: anchor-semantic-task-results-in-index-history.md
+    target: anchor-semantic-task-results-in-index-history
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 用直接关系和归并决策限制历史读取
+id: 260711-bound-history-with-direct-relations
 status: archived
 alignment: null
 createdAt: 2026-07-11T13:40:17+08:00

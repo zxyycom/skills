@@ -1,5 +1,6 @@
 ---
 title: 用逐项白名单约束调查资源名称
+id: allow-listed-investigation-resource-names
 status: active
 alignment: aligned
 createdAt: 2026-08-29T15:42:48Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 拆分
-    target: define-version-control-visible-investigation-resources.md
+    target: define-version-control-visible-investigation-resources
 ---
 
 ## 目的

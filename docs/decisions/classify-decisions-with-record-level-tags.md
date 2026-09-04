@@ -1,5 +1,6 @@
 ---
 title: 用记录级 tags 分类决策
+id: classify-decisions-with-record-level-tags
 status: active
 alignment: aligned
 createdAt: 2026-08-29T16:11:33Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 拆分
-    target: use-stable-decision-ids-tags-and-location-index.md
+    target: use-stable-decision-ids-tags-and-location-index
 ---
 
 ## 目的

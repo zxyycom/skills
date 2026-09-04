@@ -1,5 +1,6 @@
 ---
 title: "预装候选的适用价值与依赖边界"
+id: "select-functional-utilities-and-data-structures"
 formedAt: "2026-08-07T11:43:20+08:00"
 question: "哪些函数式工具与专用数据结构库值得预装，它们的适用边界是什么？"
 tags:

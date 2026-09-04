@@ -1,5 +1,6 @@
 ---
 title: 使用固定调查记录核心并按场景补充正文
+id: use-fixed-investigation-record-core
 status: archived
 alignment: aligned
 createdAt: 2026-07-21T15:15:57Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 修订
-    target: preserve-comparable-investigation-inputs.md
+    target: preserve-comparable-investigation-inputs
 ---
 
 ## 目的

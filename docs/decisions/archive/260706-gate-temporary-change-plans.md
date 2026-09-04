@@ -1,5 +1,6 @@
 ---
 title: 将 OpenSpec change 作为临时计划并设置实现门禁
+id: 260706-gate-temporary-change-plans
 status: archived
 alignment: aligned
 createdAt: 2026-07-06T16:51:26+08:00

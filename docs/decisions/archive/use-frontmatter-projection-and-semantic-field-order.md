@@ -1,5 +1,6 @@
 ---
 title: 使用 Frontmatter 投影与语义字段顺序
+id: use-frontmatter-projection-and-semantic-field-order
 status: archived
 alignment: null
 createdAt: 2026-07-24T06:30:20Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: generate-index-from-self-contained-decisions.md
+    target: generate-index-from-self-contained-decisions
 ---
 
 ## 目的

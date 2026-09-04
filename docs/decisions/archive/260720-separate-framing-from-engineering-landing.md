@@ -1,5 +1,6 @@
 ---
 title: 区分问题重构与工程落地
+id: 260720-separate-framing-from-engineering-landing
 status: archived
 alignment: null
 createdAt: 2026-07-20T15:59:38+08:00
@@ -10,7 +11,7 @@ tags:
   - product-architecture-judgment
 relations:
   - type: 修订
-    target: 260720-use-product-and-architecture-lenses.md
+    target: 260720-use-product-and-architecture-lenses
 ---
 
 ## 目的

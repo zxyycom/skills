@@ -24,7 +24,7 @@ test("archive pauses before preserving an unrecorded established decision", () =
     initializeGitRepository(workspaceRoot);
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
     const indexPath = path.join(decisionsDirectory, "decision-index.json");
-    const unrecordedRelativePath = "use-unrecorded-archive-target.md";
+    const unrecordedRelativePath = "use-unrecorded-archive-target";
     const unrecordedPath = decisionFilePath(
       workspaceRoot,
       unrecordedRelativePath
@@ -80,7 +80,7 @@ test("archive pauses before preserving an unrecorded established decision", () =
     assert.equal(archivedState.status, "archived");
     assert.equal(archivedState.alignment, "aligned");
   }));
-const unrecordedIntermediateRelativePath = "use-unrecorded-intermediate.md";
+const unrecordedIntermediateRelativePath = "use-unrecorded-intermediate";
 
 async function establishUnrecordedIntermediate(
   workspaceRoot: string
@@ -112,7 +112,7 @@ test("unrecorded decision evolution pauses until history is explicitly preserved
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
         await establishUnrecordedIntermediate(workspaceRoot);
-      const successorRelativePath = "use-preserved-unrecorded-history.md";
+      const successorRelativePath = "use-preserved-unrecorded-history";
       const successorPath = decisionFilePath(
         workspaceRoot,
         successorRelativePath
@@ -187,7 +187,7 @@ test("evolve pauses for an unrecorded archived direct predecessor", () =>
     async (workspaceRoot) => {
       const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
       const indexPath = path.join(decisionsDirectory, "decision-index.json");
-      const predecessorRelativePath = "use-unrecorded-archived-target.md";
+      const predecessorRelativePath = "use-unrecorded-archived-target";
       await fs.writeFile(
         decisionFilePath(workspaceRoot, predecessorRelativePath),
         candidateDecisionBody(),
@@ -208,7 +208,7 @@ test("evolve pauses for an unrecorded archived direct predecessor", () =>
         "--root",
         workspaceRoot
       ]);
-      const successorRelativePath = "evolve-from-unrecorded-archived-target.md";
+      const successorRelativePath = "evolve-from-unrecorded-archived-target";
       const successorPath = decisionFilePath(
         workspaceRoot,
         successorRelativePath
@@ -298,7 +298,7 @@ test("evolve lists unrecorded predecessor warnings in Decision ID order", () =>
           workspaceRoot
         ]);
       }
-      const successorId = "merge-unrecorded-predecessors.md";
+      const successorId = "merge-unrecorded-predecessors";
       await fs.writeFile(
         decisionFilePath(workspaceRoot, successorId),
         candidateDecisionBody({
@@ -320,10 +320,10 @@ test("evolve lists unrecorded predecessor warnings in Decision ID order", () =>
 
       assert.equal(paused.exitCode, 1);
       const firstWarning = paused.stderr.indexOf(
-        "Predecessor decision a-unrecorded-predecessor.md"
+        "Predecessor decision a-unrecorded-predecessor"
       );
       const secondWarning = paused.stderr.indexOf(
-        "Predecessor decision z-unrecorded-predecessor.md"
+        "Predecessor decision z-unrecorded-predecessor"
       );
       assert.ok(firstWarning >= 0);
       assert.ok(secondWarning > firstWarning);
@@ -346,7 +346,7 @@ test("evolve discards an intermediate with explicit final relations", () =>
           .relations,
         [{ type: "修订", target: currentRelativePath }]
       );
-      const successorRelativePath = "use-discard-unrecorded-history.md";
+      const successorRelativePath = "use-discard-unrecorded-history";
       const successorPath = decisionFilePath(
         workspaceRoot,
         successorRelativePath
@@ -367,7 +367,7 @@ test("evolve discards an intermediate with explicit final relations", () =>
       assert.equal(discarded.exitCode, 0, discarded.stderr);
       assert.match(
         discarded.stdout,
-        /discarded decision use-unrecorded-intermediate\.md/
+        /discarded decision use-unrecorded-intermediate/
       );
       assert.equal(await fileExists(intermediatePath), false);
       const discardedIndex = await readIndex(indexPath);
@@ -395,7 +395,7 @@ test("evolve discard accepts source-empty final relations", () =>
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
         await establishUnrecordedIntermediate(workspaceRoot);
-      const successorRelativePath = "accept-source-empty-discard.md";
+      const successorRelativePath = "accept-source-empty-discard";
       const successorPath = decisionFilePath(
         workspaceRoot,
         successorRelativePath
@@ -428,7 +428,7 @@ test("evolve discard accepts an explicitly empty final relation set", () =>
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
         await establishUnrecordedIntermediate(workspaceRoot);
-      const successorRelativePath = "drop-discard-upstream-history.md";
+      const successorRelativePath = "drop-discard-upstream-history";
       const successorPath = decisionFilePath(
         workspaceRoot,
         successorRelativePath
@@ -461,7 +461,7 @@ test("evolve discard accepts an unrelated archived final relation", () =>
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
         await establishUnrecordedIntermediate(workspaceRoot);
-      const successorRelativePath = "accept-unrelated-discard-upstream.md";
+      const successorRelativePath = "accept-unrelated-discard-upstream";
       const successorPath = decisionFilePath(
         workspaceRoot,
         successorRelativePath
@@ -496,7 +496,7 @@ test("evolve discard pauses before deleting a recorded decision", () =>
       const { indexPath, intermediatePath } =
         await establishUnrecordedIntermediate(workspaceRoot);
       commitWorkspace(workspaceRoot, "record intermediate decision");
-      const successorRelativePath = "reject-recorded-discard.md";
+      const successorRelativePath = "reject-recorded-discard";
       const successorPath = decisionFilePath(
         workspaceRoot,
         successorRelativePath
@@ -537,7 +537,7 @@ test("evolve discard flag deletes a recorded decision without reading Git HEAD",
       const { indexPath, intermediatePath } =
         await establishUnrecordedIntermediate(workspaceRoot);
       commitWorkspace(workspaceRoot, "record intermediate decision");
-      const successorRelativePath = "use-flagged-recorded-discard.md";
+      const successorRelativePath = "use-flagged-recorded-discard";
       const successorPath = decisionFilePath(
         workspaceRoot,
         successorRelativePath
@@ -576,7 +576,7 @@ test("evolve discard flag still pauses for an unrecorded final predecessor", () 
       const { indexPath, intermediatePath } =
         await establishUnrecordedIntermediate(workspaceRoot);
       commitWorkspace(workspaceRoot, "record intermediate decision");
-      const unrecordedPredecessorId = "use-unrecorded-final-predecessor.md";
+      const unrecordedPredecessorId = "use-unrecorded-final-predecessor";
       const unrecordedPredecessorPath = decisionFilePath(
         workspaceRoot,
         unrecordedPredecessorId
@@ -594,7 +594,7 @@ test("evolve discard flag still pauses for an unrecorded final predecessor", () 
         "--root",
         workspaceRoot
       ]);
-      const successorRelativePath = "use-flagged-unrecorded-relation.md";
+      const successorRelativePath = "use-flagged-unrecorded-relation";
       const successorPath = decisionFilePath(
         workspaceRoot,
         successorRelativePath
@@ -652,7 +652,7 @@ test("evolve discard rejects a predecessor referenced by another candidate", () 
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
         await establishUnrecordedIntermediate(workspaceRoot);
-      const referencingRelativePath = "reference-unrecorded-intermediate.md";
+      const referencingRelativePath = "reference-unrecorded-intermediate";
       const referencingPath = decisionFilePath(
         workspaceRoot,
         referencingRelativePath
@@ -663,7 +663,7 @@ test("evolve discard rejects a predecessor referenced by another candidate", () 
         ]
       });
       await fs.writeFile(referencingPath, referencingCandidate, "utf8");
-      const successorRelativePath = "reject-referenced-discard.md";
+      const successorRelativePath = "reject-referenced-discard";
       const successorPath = decisionFilePath(
         workspaceRoot,
         successorRelativePath

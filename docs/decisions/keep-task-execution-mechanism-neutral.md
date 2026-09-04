@@ -1,5 +1,6 @@
 ---
 title: 保持 task 协调的执行机制中立
+id: keep-task-execution-mechanism-neutral
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:22:01Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 修订
-    target: separate-task-coordination-from-execution-mechanism.md
+    target: separate-task-coordination-from-execution-mechanism
 ---
 
 ## 目的

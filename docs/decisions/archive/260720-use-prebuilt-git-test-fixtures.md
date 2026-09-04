@@ -1,5 +1,6 @@
 ---
 title: 用预构建 Git fixture 加速 test-evidence 测试
+id: 260720-use-prebuilt-git-test-fixtures
 status: archived
 alignment: null
 createdAt: 2026-07-20T16:49:56+08:00

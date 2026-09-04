@@ -1,5 +1,6 @@
 ---
 title: 按任务出口渐进读取测试账本契约
+id: read-ledger-contract-on-demand
 status: archived
 alignment: null
 createdAt: 2026-07-21T01:52:41Z

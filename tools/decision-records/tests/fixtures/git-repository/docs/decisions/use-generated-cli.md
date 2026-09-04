@@ -1,5 +1,6 @@
 ---
 title: 使用生成 CLI
+id: use-generated-cli
 status: active
 alignment: aligned
 createdAt: 2026-07-11T14:15:16+08:00
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: 260710-use-source-cli.md
+    target: 260710-use-source-cli
 ---
 
 ## 目的

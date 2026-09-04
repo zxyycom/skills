@@ -1,5 +1,6 @@
 ---
 title: 以 Vibe Check 作为权威项目门禁
+id: use-vibe-check-as-authoritative-project-gate
 status: archived
 alignment: aligned
 createdAt: 2026-08-31T09:19:20Z
@@ -10,15 +11,15 @@ tags:
   - project-tooling
 relations:
   - type: 归并
-    target: derive-check-exit-status-from-step-results.md
+    target: derive-check-exit-status-from-step-results
   - type: 归并
-    target: render-check-step-results-concisely.md
+    target: render-check-step-results-concisely
   - type: 归并
-    target: run-packaging-after-prerequisite-checks.md
+    target: run-packaging-after-prerequisite-checks
   - type: 归并
-    target: select-prerequisite-checks-by-profile.md
+    target: select-prerequisite-checks-by-profile
   - type: 归并
-    target: settle-all-selected-checks-under-bounded-concurrency.md
+    target: settle-all-selected-checks-under-bounded-concurrency
 ---
 
 ## 目的

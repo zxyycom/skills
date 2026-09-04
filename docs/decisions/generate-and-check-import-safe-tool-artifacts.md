@@ -1,5 +1,6 @@
 ---
 title: 生成并核对可独立导入的工具产物
+id: generate-and-check-import-safe-tool-artifacts
 status: active
 alignment: aligned
 createdAt: 2026-08-11T04:14:54Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: generate-import-safe-self-contained-tool-artifacts.md
+    target: generate-import-safe-self-contained-tool-artifacts
 ---
 
 ## 目的

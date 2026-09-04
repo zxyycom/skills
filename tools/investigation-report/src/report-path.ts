@@ -10,13 +10,18 @@ import { operationErrorDetail } from "../../shared/src/version-control/error-det
 export const defaultInvestigationsDirectory = "docs/investigations";
 export const investigationIndexFileName = "investigation-index.json";
 export const investigationKebabCasePatternSource = "[a-z0-9]+(?:-[a-z0-9]+)*";
-export const investigationIdPatternSource = `^${investigationKebabCasePatternSource}\\.md$`;
+export const investigationIdPatternSource = `^${investigationKebabCasePatternSource}$`;
+export const investigationSourcePathPatternSource = `^${investigationKebabCasePatternSource}\\.md$`;
 
 const kebabCasePattern = new RegExp(
   `^${investigationKebabCasePatternSource}$`,
   "u"
 );
 const investigationIdPattern = new RegExp(investigationIdPatternSource, "u");
+const investigationSourcePathPattern = new RegExp(
+  investigationSourcePathPatternSource,
+  "u"
+);
 
 export type ResolvedInvestigationsDirectory = {
   investigationsDirectory: string;
@@ -90,23 +95,26 @@ export function isInvestigationId(value: string): boolean {
   return !value.includes("/") && investigationIdPattern.test(value);
 }
 
+/** Normalizes one former Markdown-suffixed selector at an input boundary. */
+export function normalizeInvestigationIdInput(value: string): string | null {
+  const normalized = value.replace(/\.md$/iu, "");
+  return isInvestigationId(normalized) ? normalized : null;
+}
+
+export function isInvestigationSourcePath(value: string): boolean {
+  return !value.includes("/") && investigationSourcePathPattern.test(value);
+}
+
 export function validateInvestigationId(value: string): string[] {
   return isInvestigationId(value)
     ? []
     : [
-        `${value || "<empty>"} must use a kebab-case semantic Investigation ID with .md`
+        `${value || "<empty>"} must use an extensionless kebab-case semantic Investigation ID`
       ];
 }
 
 export function isInvestigationTag(value: string): boolean {
   return kebabCasePattern.test(value);
-}
-
-export function reportPathForInvestigationId(
-  investigationsDirectory: string,
-  id: string
-): string {
-  return path.join(investigationsDirectory, id);
 }
 
 function canonicalDirectory(

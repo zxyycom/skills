@@ -1,5 +1,6 @@
 ---
 title: 为 Change Plan 提供基础生命周期 CLI
+id: manage-basic-change-lifecycle
 status: archived
 alignment: aligned
 createdAt: 2026-07-25T02:15:47Z
@@ -10,7 +11,7 @@ tags:
   - change-plan
 relations:
   - type: 拆分
-    target: use-independent-change-plans.md
+    target: use-independent-change-plans
 ---
 
 ## 目的

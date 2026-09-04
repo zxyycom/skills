@@ -1,5 +1,6 @@
 ---
 title: 将 task-graph 短事务锁保留在工作区外
+id: keep-task-graph-locks-outside-workspace
 status: archived
 alignment: aligned
 createdAt: 2026-08-07T02:31:25Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 修订
-    target: use-native-locks-for-json-transactions.md
+    target: use-native-locks-for-json-transactions
 ---
 
 ## 目的

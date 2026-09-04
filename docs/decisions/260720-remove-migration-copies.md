@@ -1,5 +1,6 @@
 ---
 title: 删除 prompt-optimize 迁移副本
+id: 260720-remove-migration-copies
 status: active
 alignment: aligned
 createdAt: 2026-07-20T10:15:36+08:00
@@ -10,7 +11,7 @@ tags:
   - ai-ready-docs
 relations:
   - type: 修订
-    target: 260701-compact-entry-and-archive-migration-copies.md
+    target: 260701-compact-entry-and-archive-migration-copies
 ---
 
 ## 目的

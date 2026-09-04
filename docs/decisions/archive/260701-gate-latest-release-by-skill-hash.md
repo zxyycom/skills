@@ -1,5 +1,6 @@
 ---
 title: 使用 skill hash 门禁 latest release 发布
+id: 260701-gate-latest-release-by-skill-hash
 status: archived
 alignment: null
 createdAt: 2026-07-18T11:43:07+08:00
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: 260630-publish-skill-package-as-latest-release.md
+    target: 260630-publish-skill-package-as-latest-release
 ---
 
 ## 目的

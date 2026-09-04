@@ -1,5 +1,6 @@
 ---
 title: 测试账本以领域适配接入通用状态索引
+id: index-ledger-by-stable-case-state
 status: archived
 alignment: null
 createdAt: 2026-07-23T08:04:36Z

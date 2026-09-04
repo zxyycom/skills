@@ -1,5 +1,6 @@
 ---
 title: 在 skill 包内分发自更新脚本
+id: 260701-embed-self-update-script-in-skill-packages
 status: archived
 alignment: null
 createdAt: 2026-07-03T10:31:47+08:00

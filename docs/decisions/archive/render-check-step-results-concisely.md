@@ -1,5 +1,6 @@
 ---
 title: 简洁渲染检查步骤结果
+id: render-check-step-results-concisely
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:14:59Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 拆分
-    target: render-check-results-and-exit-status.md
+    target: render-check-results-and-exit-status
 ---
 
 ## 目的

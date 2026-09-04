@@ -1,12 +1,13 @@
 ---
 title: "正负描述的不对称来自参照结构而非句式"
+id: "ground-positive-negative-asymmetry-in-reference-structure"
 formedAt: "2026-08-13T09:46:59+00:00"
 question: "正向与负向描述的使用差异是否主要来自参照结构，而不是肯定或否定句式？"
 tags:
   - "ai-ready-docs"
 relations:
   - type: "修正"
-    target: "recover-candidate-model-from-negative-description-dispute.md"
+    target: "recover-candidate-model-from-negative-description-dispute"
 ---
 
 ## 形成时背景

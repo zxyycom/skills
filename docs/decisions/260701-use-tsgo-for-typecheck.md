@@ -1,5 +1,6 @@
 ---
 title: 使用 tsgo 作为默认类型检查入口
+id: 260701-use-tsgo-for-typecheck
 status: active
 alignment: aligned
 createdAt: 2026-07-18T11:43:07+08:00

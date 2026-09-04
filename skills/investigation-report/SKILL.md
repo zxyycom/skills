@@ -5,14 +5,14 @@ description: >-
   每份报告以稳定 Investigation ID 保存一轮形成时的背景、依据、结果和边界；tags 用于分类，显式直接前序关系用于认识演进。
   当前事实、长期方向与实施授权继续由各自 owner 承接。
 metadata:
-  version: "30"
+  version: "31"
 ---
 
 # Investigation Report
 
 ## 目标与适用范围
 
-用一份报告保存**一轮形成时认识**，使未参与原对话的读者仍能复核调查背景、问题、实际依据、结果和适用边界。正式报告 Markdown 是该轮认识的语义 owner；可选资源保存复核材料，索引从正式报告重建并提供查询。
+用一份报告保存**一轮形成时认识**，使未参与原对话的读者仍能复核调查背景、问题、实际依据、结果和适用边界。正式报告 Markdown 是该轮认识的语义 owner；可选资源保存复核材料，索引从正式报告重建并提供查询。文件 basename 可以使用语义文件名，但当前不定义 `name` frontmatter、索引 key 或 selector。
 
 直接前序关系描述认识如何演进。所有已建立报告留在同一正式集合；需要当前口径时，以当前事实 owner 为准并按需综合相关报告。明确要求剔除正式报告时使用 `discard`。
 
@@ -55,7 +55,7 @@ node scripts/check-investigations.mjs <command> [options] --root <workspace-root
 
 1. 判断既有正式报告时执行只读审阅；判断未建立内容时先审阅 candidate。
 2. 新证据、不同条件下的复查或实质认识变化形成新的完整报告。
-3. 原报告未准确保存当时认识，或存在格式、链接等记录错误时，才原地修正；改 basename 表示身份变化。
+3. 原报告未准确保存当时认识，或存在格式、链接等记录错误时，才原地修正；frontmatter `id` 是稳定身份，basename 和 `sourcePath` 只表达存储位置，移动或改 basename 不自动改变身份。
 4. 正常 authoring 时先用 `new` 创建 candidate，再编辑正文、资源与关系。candidate 不属于正式集合、不是 lifecycle 状态，也不进入正式索引或查询。
 5. `scaffoldValid`、`bodyReady`、`resourceReady` 和 preflight 只表达机械准备事实，不证明正文可信、关系真实、资源值得保存、语义审核完成或已经获得 publish 授权。
 6. candidate 创建成功后不因正文未完成、资源 attention 或辅助预检不可用而重跑 `new`；继续编辑、查询候选或运行显式 `publish --preflight`。只有获当前任务授权且完整内容经过人工审阅后才 publish。

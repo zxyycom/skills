@@ -1,5 +1,6 @@
 ---
 title: 按共享执行链路组织分支与线性证明点
+id: 260720-organize-proofs-by-shared-execution-chain
 status: archived
 alignment: null
 createdAt: 2026-07-20T13:48:52+08:00
@@ -10,7 +11,7 @@ tags:
   - test-evidence-review
 relations:
   - type: 修订
-    target: 260719-organize-multi-branch-proofs-by-shared-base.md
+    target: 260719-organize-multi-branch-proofs-by-shared-base
 ---
 
 ## 目的

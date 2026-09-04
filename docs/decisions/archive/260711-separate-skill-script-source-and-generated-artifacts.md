@@ -1,5 +1,6 @@
 ---
 title: 分离 skill 分发脚本源码与生成产物
+id: 260711-separate-skill-script-source-and-generated-artifacts
 status: archived
 alignment: null
 createdAt: 2026-07-11T11:04:33+08:00
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: 260701-embed-self-update-script-in-skill-packages.md
+    target: 260701-embed-self-update-script-in-skill-packages
 ---
 
 ## 目的

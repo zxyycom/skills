@@ -8,7 +8,7 @@ test("indexes and queries one thousand independent reports by Investigation ID",
     await writeCollection(
       root,
       Array.from({ length: 1000 }, (_, index) => ({
-        id: `report-${String(index).padStart(4, "0")}.md`,
+        id: `report-${String(index).padStart(4, "0")}`,
         tags: ["scale"]
       }))
     );
@@ -18,7 +18,7 @@ test("indexes and queries one thousand independent reports by Investigation ID",
       workspaceRoot: root
     });
     assert.equal(result.total, 1000);
-    assert.equal(result.entries[0]?.id, "report-0000.md");
-    assert.equal(result.entries.at(-1)?.id, "report-0999.md");
+    assert.equal(result.entries[0]?.id, "report-0000");
+    assert.equal(result.entries.at(-1)?.id, "report-0999");
   });
 });

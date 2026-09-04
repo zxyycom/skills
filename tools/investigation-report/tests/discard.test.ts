@@ -29,10 +29,10 @@ test("discard rejects reports still used as relation targets or resource owners"
     await fs.mkdir(path.dirname(resource), { recursive: true });
     await fs.writeFile(resource, "evidence", "utf8");
     await writeCollection(root, [
-      { id: "base.md", resources: ["base/evidence.txt"] },
+      { id: "base", resources: ["base/evidence.txt"] },
       {
-        id: "next.md",
-        relations: [{ target: "base.md", type: "补充" }],
+        id: "next",
+        relations: [{ target: "base", type: "补充" }],
         resources: ["base/evidence.txt"]
       }
     ]);
@@ -41,7 +41,7 @@ test("discard rejects reports still used as relation targets or resource owners"
       "utf8"
     );
     const result = await discardInvestigationReport({
-      id: "base.md",
+      id: "base",
       workspaceRoot: root
     });
     assert.equal(result.changed, false);
@@ -73,10 +73,10 @@ test("discard requires resource confirmation then removes a final report and its
     await fs.mkdir(path.dirname(resource), { recursive: true });
     await fs.writeFile(resource, "evidence", "utf8");
     await writeCollection(root, [
-      { id: "report.md", resources: ["report/evidence.txt"] }
+      { id: "report", resources: ["report/evidence.txt"] }
     ]);
     const attention = await discardInvestigationReport({
-      id: "report.md",
+      id: "report",
       workspaceRoot: root
     });
     assert.equal(attention.changed, false);
@@ -87,7 +87,7 @@ test("discard requires resource confirmation then removes a final report and its
     );
     const result = await discardInvestigationReport({
       deleteOwnedResources: true,
-      id: "report.md",
+      id: "report",
       workspaceRoot: root
     });
     assert.equal(result.changed, true);
@@ -117,14 +117,14 @@ test("discard requires resource confirmation then removes a final report and its
 
 test("discard pauses recorded reports until recorded deletion is explicitly confirmed", async () => {
   await withTempRoot("discard-recorded", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     git(root, ["init", "--quiet"]);
     git(root, ["config", "user.email", "test@example.invalid"]);
     git(root, ["config", "user.name", "Test"]);
     git(root, ["add", "."]);
     git(root, ["commit", "--quiet", "-m", "initial"]);
     const paused = await discardInvestigationReport({
-      id: "report.md",
+      id: "report",
       workspaceRoot: root
     });
     assert.equal(paused.changed, false);
@@ -132,7 +132,7 @@ test("discard pauses recorded reports until recorded deletion is explicitly conf
     await fs.access(path.join(investigationRoot(root), "report.md"));
     const discarded = await discardInvestigationReport({
       deleteRecordedReport: true,
-      id: "report.md",
+      id: "report",
       workspaceRoot: root
     });
     assert.equal(discarded.changed, true);
@@ -161,11 +161,11 @@ test("discard rejects illegal owner resource IDs without deleting the report", a
       "utf8"
     );
     await writeCollection(root, [
-      { id: "report.md", resources: ["report/evidence.txt"] }
+      { id: "report", resources: ["report/evidence.txt"] }
     ]);
     const result = await discardInvestigationReport({
       deleteOwnedResources: true,
-      id: "report.md",
+      id: "report",
       workspaceRoot: root
     });
     assert.equal(result.changed, false);
@@ -180,11 +180,11 @@ test("discard rejects illegal owner resource IDs without deleting the report", a
 
 test("sync-index accepts an existing empty index but not a new empty collection", async () => {
   await withTempRoot("discard-empty-sync", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     assert.equal(
       (
         await discardInvestigationReport({
-          id: "report.md",
+          id: "report",
           workspaceRoot: root
         })
       ).changed,
@@ -216,20 +216,20 @@ function git(root: string, args: readonly string[]): string {
 test("discard rejects a removal that breaks split relation closure", async () => {
   await withTempRoot("discard-split", async (root) => {
     await writeCollection(root, [
-      { id: "base.md", formedAt: "2026-08-28T10:00:00+00:00" },
+      { id: "base", formedAt: "2026-08-28T10:00:00+00:00" },
       {
-        id: "first.md",
+        id: "first",
         formedAt: "2026-08-28T11:00:00+00:00",
-        relations: [{ target: "base.md", type: "拆分" }]
+        relations: [{ target: "base", type: "拆分" }]
       },
       {
-        id: "second.md",
+        id: "second",
         formedAt: "2026-08-28T12:00:00+00:00",
-        relations: [{ target: "base.md", type: "拆分" }]
+        relations: [{ target: "base", type: "拆分" }]
       }
     ]);
     const result = await discardInvestigationReport({
-      id: "second.md",
+      id: "second",
       workspaceRoot: root
     });
     assert.equal(result.changed, false);
@@ -240,10 +240,10 @@ test("discard rejects a removal that breaks split relation closure", async () =>
 
 test("discard fails closed when a Git worktree cannot be inspected", async () => {
   await withTempRoot("discard-git-failure", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     await fs.mkdir(path.join(root, ".git"));
     const result = await discardInvestigationReport({
-      id: "report.md",
+      id: "report",
       workspaceRoot: root
     });
     assert.equal(result.changed, false);
@@ -265,7 +265,7 @@ test("discard rechecks ignored owner resource drift before publishing", async ()
     await fs.mkdir(path.dirname(resource), { recursive: true });
     await fs.writeFile(resource, "evidence", "utf8");
     await writeCollection(root, [
-      { id: "report.md", resources: ["report/evidence.txt"] }
+      { id: "report", resources: ["report/evidence.txt"] }
     ]);
     git(root, ["init", "--quiet"]);
     git(root, ["config", "user.email", "test@example.invalid"]);
@@ -281,7 +281,7 @@ test("discard rechecks ignored owner resource drift before publishing", async ()
       {
         deleteOwnedResources: true,
         deleteRecordedReport: true,
-        id: "report.md",
+        id: "report",
         workspaceRoot: root
       },
       async (target, text) => await fs.writeFile(target, text, "utf8"),
@@ -322,11 +322,11 @@ test("discard rejects unsafe owner resource members without deleting the report"
       path.join(resourceDirectory, "linked.txt")
     );
     await writeCollection(root, [
-      { id: "report.md", resources: ["report/evidence.txt"] }
+      { id: "report", resources: ["report/evidence.txt"] }
     ]);
     const result = await discardInvestigationReport({
       deleteOwnedResources: true,
-      id: "report.md",
+      id: "report",
       workspaceRoot: root
     });
     assert.equal(result.changed, false);
@@ -346,7 +346,7 @@ test("discard restores tombstoned resources when a rename-window member appears"
     await fs.mkdir(path.dirname(resource), { recursive: true });
     await fs.writeFile(resource, "evidence", "utf8");
     await writeCollection(root, [
-      { id: "report.md", resources: ["report/evidence.txt"] }
+      { id: "report", resources: ["report/evidence.txt"] }
     ]);
     const indexPath = path.join(
       investigationRoot(root),
@@ -354,7 +354,7 @@ test("discard restores tombstoned resources when a rename-window member appears"
     );
     const beforeIndex = await fs.readFile(indexPath, "utf8");
     const result = await discardInvestigationReportWithWriter(
-      { deleteOwnedResources: true, id: "report.md", workspaceRoot: root },
+      { deleteOwnedResources: true, id: "report", workspaceRoot: root },
       async (target, text) => await fs.writeFile(target, text, "utf8"),
       undefined,
       async () => {
@@ -396,7 +396,7 @@ test("discard reports a committed result when safe tombstone cleanup cannot fini
     await fs.mkdir(path.dirname(resource), { recursive: true });
     await fs.writeFile(resource, "evidence", "utf8");
     await writeCollection(root, [
-      { id: "report.md", resources: ["report/evidence.txt"] }
+      { id: "report", resources: ["report/evidence.txt"] }
     ]);
     const indexPath = path.join(
       investigationRoot(root),
@@ -404,7 +404,7 @@ test("discard reports a committed result when safe tombstone cleanup cannot fini
     );
     const docsDirectory = path.dirname(investigationRoot(root));
     const result = await discardInvestigationReportWithWriter(
-      { deleteOwnedResources: true, id: "report.md", workspaceRoot: root },
+      { deleteOwnedResources: true, id: "report", workspaceRoot: root },
       async (target, text) => {
         await fs.writeFile(target, text, "utf8");
         if (target !== indexPath) return;
@@ -456,7 +456,7 @@ test("discard restores report resources and index when index publication fails",
     await fs.mkdir(path.dirname(resource), { recursive: true });
     await fs.writeFile(resource, "evidence", "utf8");
     await writeCollection(root, [
-      { id: "report.md", resources: ["report/evidence.txt"] }
+      { id: "report", resources: ["report/evidence.txt"] }
     ]);
     const indexPath = path.join(
       investigationRoot(root),
@@ -465,7 +465,7 @@ test("discard restores report resources and index when index publication fails",
     const beforeIndex = await fs.readFile(indexPath, "utf8");
     let writes = 0;
     const result = await discardInvestigationReportWithWriter(
-      { deleteOwnedResources: true, id: "report.md", workspaceRoot: root },
+      { deleteOwnedResources: true, id: "report", workspaceRoot: root },
       async (target, text) => {
         writes += 1;
         if (writes === 1) throw new Error("simulated index failure");
@@ -490,7 +490,7 @@ test("discard restores report resources and index when index publication fails",
 
 test("discard preserves existing Git pending content", async () => {
   await withTempRoot("discard-pending", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     git(root, ["init", "--quiet"]);
     git(root, ["config", "user.email", "test@example.invalid"]);
     git(root, ["config", "user.name", "Test"]);
@@ -501,7 +501,7 @@ test("discard preserves existing Git pending content", async () => {
     const pendingBefore = git(root, ["diff", "--cached", "--binary"]);
     const result = await discardInvestigationReport({
       deleteRecordedReport: true,
-      id: "report.md",
+      id: "report",
       workspaceRoot: root
     });
     assert.equal(result.changed, true);
@@ -511,7 +511,7 @@ test("discard preserves existing Git pending content", async () => {
 
 test("sync-index rejects a concurrent rebuild while discard owns the collection", async () => {
   await withTempRoot("discard-sync-lock", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const indexPath = path.join(
       investigationRoot(root),
       "investigation-index.json"
@@ -526,7 +526,7 @@ test("sync-index rejects a concurrent rebuild while discard owns the collection"
       discardAtCommit = resolve;
     });
     const discard = discardInvestigationReportWithWriter(
-      { id: "report.md", workspaceRoot: root },
+      { id: "report", workspaceRoot: root },
       async (target, text) => {
         assert.equal(target, indexPath);
         discardAtCommit();

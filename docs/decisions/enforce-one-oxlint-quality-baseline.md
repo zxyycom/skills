@@ -1,5 +1,6 @@
 ---
 title: 以受校验的统一基线约束 Oxlint 配置
+id: enforce-one-oxlint-quality-baseline
 status: active
 alignment: aligned
 createdAt: 2026-08-15T12:05:52Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: use-local-reasoned-oxlint-exceptions.md
+    target: use-local-reasoned-oxlint-exceptions
 ---
 
 ## 目的

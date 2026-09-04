@@ -1,5 +1,6 @@
 ---
 title: 从版本管理 pending 快照打包 skill
+id: package-skills-from-versioned-pending-snapshot
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:14:58Z

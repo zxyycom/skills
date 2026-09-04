@@ -230,7 +230,7 @@ async function publishPreparedCollection(options: {
   try {
     for (const source of options.preparation.candidateSources) {
       const candidatePath = options.preparation.candidatePaths.get(source.id)!;
-      const formalPath = path.join(options.root, source.id);
+      const formalPath = path.join(options.root, source.sourcePath);
       await fs.link(candidatePath, formalPath);
       moved.push({ candidatePath, formalPath });
       await fs.unlink(candidatePath);

@@ -1,5 +1,6 @@
 ---
 title: 以受控领域路径确定决策身份与归属
+id: classify-decisions-by-controlled-domain-path
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T03:25:28Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 拆分
-    target: use-domain-paths-as-primary-classification.md
+    target: use-domain-paths-as-primary-classification
 ---
 
 ## 目的

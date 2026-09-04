@@ -1,5 +1,6 @@
 ---
 title: 用独立版本和文件覆盖更新 skill
+id: use-versioned-overlay-skill-updates
 status: active
 alignment: aligned
 createdAt: 2026-07-24T04:13:51Z
@@ -10,9 +11,9 @@ tags:
   - repository-model
 relations:
   - type: 修订
-    target: 260703-use-per-skill-hash-lock-for-updater.md
+    target: 260703-use-per-skill-hash-lock-for-updater
   - type: 修订
-    target: 260703-follow-latest-release-for-skill-updater.md
+    target: 260703-follow-latest-release-for-skill-updater
 ---
 
 ## 目的

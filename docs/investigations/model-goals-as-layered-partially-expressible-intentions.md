@@ -1,12 +1,13 @@
 ---
 title: "目标是层级化且部分可表达的动态意向"
+id: "model-goals-as-layered-partially-expressible-intentions"
 formedAt: "2026-08-13T09:01:17+00:00"
 question: "目标应怎样同时表达深层意向、当前代理、偏好、现实约束与允许偏离的理由？"
 tags:
   - "ai-ready-docs"
 relations:
   - type: "修正"
-    target: "treat-goals-as-complete-in-abstraction-and-incremental-in-practice.md"
+    target: "treat-goals-as-complete-in-abstraction-and-incremental-in-practice"
 ---
 
 ## 形成时背景

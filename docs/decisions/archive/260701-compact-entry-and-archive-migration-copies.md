@@ -1,5 +1,6 @@
 ---
 title: 压缩 prompt-optimize 入口并归档迁移副本
+id: 260701-compact-entry-and-archive-migration-copies
 status: archived
 alignment: null
 createdAt: 2026-07-18T11:43:07+08:00
@@ -10,7 +11,7 @@ tags:
   - ai-ready-docs
 relations:
   - type: 修订
-    target: 260630-merge-prompt-optimize-core-flow-into-entry.md
+    target: 260630-merge-prompt-optimize-core-flow-into-entry
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 使用目的、背景和决策的三层投影
+id: 260718-use-purpose-background-decision-structure
 status: archived
 alignment: null
 createdAt: 2026-07-18T20:24:02+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260718-separate-logical-archive-from-relations.md
+    target: 260718-separate-logical-archive-from-relations
 ---
 
 ## 目的

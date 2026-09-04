@@ -1,5 +1,6 @@
 ---
 title: 从源码容错查询决策候选
+id: query-candidates-directly-from-source
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:11:05Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: query-established-records-through-persistent-index.md
+    target: query-established-records-through-persistent-index
 ---
 
 ## 目的

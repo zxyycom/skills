@@ -1,5 +1,6 @@
 ---
 title: 按调查主题 ID 独立暂存派生索引条目
+id: stage-selected-investigation-index-entries
 status: archived
 alignment: aligned
 createdAt: 2026-08-10T03:58:30Z

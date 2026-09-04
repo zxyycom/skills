@@ -1,12 +1,13 @@
 ---
 title: "区分内容保真、目标符合与目标显化"
+id: "separate-semantic-fidelity-goal-fit-and-goal-explication"
 formedAt: "2026-08-13T09:29:48+00:00"
 question: "内容语义保真、结果符合深层目标与目标通过反馈显化有何不同？"
 tags:
   - "ai-ready-docs"
 relations:
   - type: "补充"
-    target: "recognize-document-projections-as-part-of-goal-formation.md"
+    target: "recognize-document-projections-as-part-of-goal-formation"
 ---
 
 ## 形成时背景

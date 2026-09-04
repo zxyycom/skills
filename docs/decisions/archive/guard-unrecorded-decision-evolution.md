@@ -1,5 +1,6 @@
 ---
 title: 显式处理未进入版本基线的决策演进
+id: guard-unrecorded-decision-evolution
 status: archived
 alignment: aligned
 createdAt: 2026-08-03T02:36:35Z

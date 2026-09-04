@@ -1,5 +1,6 @@
 ---
 title: 从工具源码生成自包含分发产物
+id: generate-self-contained-tool-distributions
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T03:25:49Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 拆分
-    target: separate-tool-source-and-repository-automation.md
+    target: separate-tool-source-and-repository-automation
 ---
 
 ## 目的

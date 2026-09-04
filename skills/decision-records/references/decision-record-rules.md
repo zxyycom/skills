@@ -6,14 +6,14 @@
 
 | 对象 | 含义 | 权威来源 |
 | --- | --- | --- |
-| Decision ID | 含 `.md` 的合法 basename；移动目录不改变 ID，改 basename 是身份变化 | Markdown 文件名 |
+| Decision ID | 不含扩展名的稳定领域身份；目录或 basename 移动不自动改变它 | Markdown frontmatter `id` |
 | tags | 非空、唯一、有序的记录级分类 token 集合 | Markdown frontmatter |
 | status | `candidate`、`active` 或 `archived` 的生命周期事实 | Markdown frontmatter |
 | sourcePath | 相对决策根的当前 POSIX 路径，只负责定位 | 文件系统；已建立记录由索引投影 |
 | relation target | 指向直接前序的 Decision ID | 后继 Markdown frontmatter |
 | decision index | 以 Decision ID 为键，投影已建立记录的 sourcePath、状态、tags、摘要和关系 | 从完整合法 Markdown 派生 |
 
-Decision ID 必须符合 `^[a-z0-9]+(?:-[a-z0-9]+)*\.md$`；tag 必须符合 `^[a-z0-9]+(?:-[a-z0-9]+)*$`。同一集合内每个 Decision ID 只能解析到一个 Markdown。索引和 `sourcePath` 不能反向补造或改写身份、生命周期、tags、正文或关系。
+Decision ID 必须符合 `^[a-z0-9]+(?:-[a-z0-9]+)*$`；tag 必须符合 `^[a-z0-9]+(?:-[a-z0-9]+)*$`。同一集合内 ID 与 `sourcePath` 分别唯一，且每份受管 Markdown 的 frontmatter `id` 必须与其关系、索引 key 和单项回读一致。索引和 `sourcePath` 不能反向补造或改写身份、生命周期、tags、正文或关系。
 
 ## 布局、状态与 frontmatter
 
@@ -22,14 +22,16 @@ Decision ID 必须符合 `^[a-z0-9]+(?:-[a-z0-9]+)*\.md$`；tag 必须符合 `^[
 ```text
 docs/decisions/
 ├── decision-index.json
-├── <decision-id>            # candidate 或 active
+├── <name-or-decision-id>.md # candidate 或 active
 └── archive/
-    └── <decision-id>        # archived
+    └── <name-or-decision-id>.md # archived
 ```
+
+这里的 `name` 仅表示由 writer 选择的语义文件 basename，不是 frontmatter 字段、索引 key 或 selector；同一位置仍以完整 `sourcePath` 独占。
 
 1. 根目录直属 Markdown 只能是 `candidate` 或 `active`；`archive/` 直属 Markdown 只能是 `archived`。状态和位置不一致、嵌套目录或跨位置同 ID 都是集合错误。
 2. candidate 不进入正式索引；active 与 archived 由一个统一索引覆盖。archive 不建立第二索引。
-3. `sourcePath` 对根目录记录等于 Decision ID，对 archived 记录等于 `archive/<decision-id>`。它不是身份，也不能用作关系、查询、生命周期或 stage 的输入。
+3. `sourcePath` 是相对决策根的实际 Markdown 位置；根目录使用 `<name-or-decision-id>.md`，archive 使用 `archive/<name-or-decision-id>.md`。basename 可等于 ID 或使用语义文件名，但不定义身份。生命周期只改变目录位置并保留 basename；它不是关系或查询身份输入。
 4. `tags` 是当前分类提示，不表示 status、alignment、关系类型、当前事实或历史演进。分类维护不代替语义审阅。
 
 新候选使用下列顺序；`tags` 位于 `decision` 之后、`relations` 之前：
@@ -37,6 +39,7 @@ docs/decisions/
 ```markdown
 ---
 title: <标题>
+id: <decision-id>
 status: candidate
 alignment: null
 createdAt: null
@@ -88,7 +91,7 @@ relations: []
 ```yaml
 relations:
   - type: 修订
-    target: direct-predecessor.md
+    target: direct-predecessor
 ```
 
 1. `修订` 保留主体方向并改变一部分；`替代` 以完整新判断取代前序；`判定无效` 表明前序依据不成立；`归并` 整合多个前序；`拆分` 把过粗前序重建为多个可独立使用的后继；`重划` 把多个直接前序的长期含义按新的 owner 边界重新分配给多个自包含后继。
@@ -109,8 +112,8 @@ relations:
 2. 新候选优先使用 `new` 的显式 metadata 创建；它在集合锁内以原子不覆盖方式发布，不改变正式索引或生命周期。candidate 正文和 tags 可直接修改权威 Markdown；生命周期、对齐、归档和丢弃使用 CLI。已建立 Markdown 的手工修改后同步索引，并在维护或验收前运行严格 check。
 3. Git `HEAD` 只用于在保留独立决策历史前要求再次确认，以及删除已记录决策的机械门禁；不参与候选、建立、生效、对齐或索引成员判断。在 Git 工作树中，尚无首次提交的 unborn `HEAD` 按空 Git `HEAD` 基线处理。可用 Git `HEAD` 基线中，单独 `archive` 的目标，以及本次关系事务中所选后继完整最终关系集里的每个已建立直接前序（relation target），只要尚未进入 Git `HEAD`，CLI 就暂停且不写入；无论前序是 active 还是 archived，调用方都必须以 `--keep-unrecorded-history` 显式确认后才可继续。该判断不使用形成时间。在 Git 工作树外没有这个确认门；但 stage 仍需要其自身的版本控制前提。
 4. `discard` 删除完整、结构有效且在删除后的最终集合中无剩余引用的 candidate、active 或 archived 决策。它既可直接运行，也可通过 `evolve --discard <decision-id>` 与后继建立、最终关系修改和索引重建处于同一事务；被删除 ID 不能同时作为后继，所选后继的最终关系也不得保留该 ID。`evolve` 仍遵循普通演进的关系形状、闭包和最终图验证，不增加只适用于删除的后继数量、状态、前序或显式空关系限制。删除的 Decision ID 已进入 Git `HEAD` 时，未带 `--delete-recorded-decision` 的调用在其余删除条件和演进最终图都已通过后 attention 且零写入；带该参数即为明确的机械删除选择，不会为 discard 自身重复读取 Git `HEAD`，但不绕过同次 `evolve` 最终关系的独立 `--keep-unrecorded-history` 预检。非 Git 工作树、unborn `HEAD` 或 ID 未进入 `HEAD` 时正常删除；无参数且 `HEAD` 不可读取时 fail closed。调用方不主动预检 Git，只响应 CLI 实际提示。
-5. `stage` 只是 Git pending 状态转换，不改变决策生命周期。`sourcePath` 变化是位置变化，stage 选择一次对应 ID 即可。stage 不从差异推断 basename 改名意图：只选新 ID 表示新增，只选旧 ID 表示删除，同时选旧、新 ID 才表达改名。生命周期移动、关系维护和 stage 都应在写前拒绝 revision、pending 或所选来源漂移。
-6. 当前契约不提供其他格式、身份或位置模型的兼容读取、转换、双写、迁移或升级入口。
+5. `stage` 只是 Git pending 状态转换，不改变决策生命周期。`sourcePath` 变化是位置变化，stage 选择一次对应 ID 即可；显式改变 frontmatter ID 才是身份变更，必须同时维护关系与索引。生命周期移动、关系维护和 stage 都应在写前拒绝 revision、pending 或所选来源漂移。
+6. 公开 ID 输入一律是纯 ID；为兼容旧调用，边界可大小写不敏感地移除一次末尾 `.md` 后再验证，持久 Markdown、关系、索引和输出不得保存该后缀。真实路径只能进入明确的 path/locator 参数。
 
 ## 派生索引与查询
 

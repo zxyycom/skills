@@ -1,5 +1,6 @@
 ---
 title: 滚动发布 latest 并显式创建不可变快照
+id: publish-rolling-latest-with-explicit-snapshots
 status: active
 alignment: aligned
 createdAt: 2026-08-14T09:20:04Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: 260701-publish-versioned-skill-releases.md
+    target: 260701-publish-versioned-skill-releases
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 按受控主题路径维护单文件测试证据
+id: organize-test-cases-by-controlled-topic-path
 status: archived
 alignment: null
 createdAt: 2026-07-26T15:20:07Z
@@ -10,7 +11,7 @@ tags:
   - test-evidence-review
 relations:
   - type: 修订
-    target: organize-native-test-cases-by-responsibility-topic.md
+    target: organize-native-test-cases-by-responsibility-topic
 ---
 
 ## 目的

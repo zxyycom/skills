@@ -1,5 +1,6 @@
 ---
 title: 给决策记录增加状态和关系
+id: 260630-track-decision-status-and-relations
 status: archived
 alignment: null
 createdAt: 2026-06-30T16:11:49+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260627-establish-decision-record-policy.md
+    target: 260627-establish-decision-record-policy
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 维护可重建的共享读侧索引边界
+id: maintain-rebuildable-read-side-index-boundary
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:23:51Z
@@ -10,7 +11,7 @@ tags:
   - index-runtime
 relations:
   - type: 拆分
-    target: use-independent-read-side-index-runtime.md
+    target: use-independent-read-side-index-runtime
 ---
 
 ## 目的

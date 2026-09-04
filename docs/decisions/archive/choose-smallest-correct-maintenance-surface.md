@@ -1,5 +1,6 @@
 ---
 title: 以有界候选比较选择最小实现维护面
+id: choose-smallest-correct-maintenance-surface
 status: archived
 alignment: aligned
 createdAt: 2026-07-23T07:45:41Z

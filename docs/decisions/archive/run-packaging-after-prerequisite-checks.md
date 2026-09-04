@@ -1,5 +1,6 @@
 ---
 title: 在前置检查收敛后运行 skill 打包
+id: run-packaging-after-prerequisite-checks
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:03:05Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: gate-packaging-on-selected-checks.md
+    target: gate-packaging-on-selected-checks
 ---
 
 ## 目的

@@ -28,11 +28,11 @@ test("report-owned resources validate exact links and permit shared references",
     await fs.writeFile(resource, "evidence", "utf8");
     await writeCollection(root, [
       {
-        id: "owner-report.md",
+        id: "owner-report",
         resources: ["owner-report/evidence(1).txt"]
       },
       {
-        id: "shared-report.md",
+        id: "shared-report",
         resources: ["owner-report/evidence(1).txt"]
       }
     ]);
@@ -45,7 +45,7 @@ test("referenced missing resources are errors and unreferenced visible resources
   await withTempRoot("resource-diagnostics", async (root) => {
     await writeCollection(
       root,
-      [{ id: "owner-report.md", resources: ["owner-report/missing.txt"] }],
+      [{ id: "owner-report", resources: ["owner-report/missing.txt"] }],
       false
     );
     const result = await validateInvestigationReports({ workspaceRoot: root });
@@ -80,7 +80,7 @@ test("resource byte changes do not change the report index source revision", asy
     await fs.mkdir(path.dirname(resource), { recursive: true });
     await fs.writeFile(resource, "one", "utf8");
     await writeCollection(root, [
-      { id: "owner-report.md", resources: ["owner-report/evidence.txt"] }
+      { id: "owner-report", resources: ["owner-report/evidence.txt"] }
     ]);
     const indexPath = path.join(
       investigationRoot(root),
@@ -113,7 +113,7 @@ test("attached resource section rejects unsafe local targets", async () => {
   await withTempRoot("unsafe-resource", async (root) => {
     await writeCollection(
       root,
-      [{ id: "report.md", resources: ["report/../escape.txt"] }],
+      [{ id: "report", resources: ["report/../escape.txt"] }],
       false
     );
     const result = await validateInvestigationReports({ workspaceRoot: root });
@@ -132,7 +132,7 @@ test("attached resource links reject path casing mismatches", async () => {
     await fs.writeFile(path.join(directory, "Evidence.txt"), "x");
     await writeCollection(
       root,
-      [{ id: "report.md", resources: ["report/evidence.txt"] }],
+      [{ id: "report", resources: ["report/evidence.txt"] }],
       false
     );
     const result = await validateInvestigationReports({ workspaceRoot: root });
@@ -151,7 +151,7 @@ test("attached resources reject symbolic link targets", async () => {
     await fs.symlink("/tmp", path.join(directory, "link.txt"));
     await writeCollection(
       root,
-      [{ id: "report.md", resources: ["report/link.txt"] }],
+      [{ id: "report", resources: ["report/link.txt"] }],
       false
     );
     const result = await validateInvestigationReports({ workspaceRoot: root });
@@ -167,7 +167,7 @@ test("attached resource targets must be regular files", async () => {
     );
     await writeCollection(
       root,
-      [{ id: "report.md", resources: ["report/directory"] }],
+      [{ id: "report", resources: ["report/directory"] }],
       false
     );
     const result = await validateInvestigationReports({ workspaceRoot: root });
@@ -187,7 +187,7 @@ test("owner report must exist for a report-owned resource", async () => {
     await fs.writeFile(resource, "x");
     await writeCollection(
       root,
-      [{ id: "consumer.md", resources: ["owner/evidence.txt"] }],
+      [{ id: "consumer", resources: ["owner/evidence.txt"] }],
       false
     );
     const result = await validateInvestigationReports({ workspaceRoot: root });
@@ -207,10 +207,7 @@ test("owner report must directly reference its own resource", async () => {
     await fs.writeFile(resource, "x");
     await writeCollection(
       root,
-      [
-        { id: "owner.md" },
-        { id: "consumer.md", resources: ["owner/evidence.txt"] }
-      ],
+      [{ id: "owner" }, { id: "consumer", resources: ["owner/evidence.txt"] }],
       false
     );
     const result = await validateInvestigationReports({ workspaceRoot: root });
@@ -222,7 +219,7 @@ test("owner report must directly reference its own resource", async () => {
 
 test("reports without attached resources remain valid", async () => {
   await withTempRoot("no-resources", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     assert.deepEqual(
       (await validateInvestigationReports({ workspaceRoot: root })).errors,
       []
@@ -235,7 +232,7 @@ test("resource references use report IDs rather than topic paths or report index
   assert.equal(isInvestigationResourceId("report/evidence.txt"), true);
   assert.equal(
     investigationResourceOwnerReportId("report/evidence.txt"),
-    "report.md"
+    "report"
   );
 });
 
@@ -260,7 +257,7 @@ test("resource links require literal current relative targets", () => {
 
 test("unreferenced resource members produce warnings without blocking report checks", async () => {
   await withTempRoot("unreferenced", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const resource = path.join(
       investigationRoot(root),
       "_resources",
@@ -277,7 +274,7 @@ test("unreferenced resource members produce warnings without blocking report che
 
 test("scoped resource checks do not claim global unreferenced resource proof", async () => {
   await withTempRoot("scoped-resource", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const result = await validateInvestigationReports({
       ids: ["report.md"],
       workspaceRoot: root
@@ -292,7 +289,7 @@ test("resource root must be a directory when reports declare resources", async (
     await fs.writeFile(path.join(investigationRoot(root), "_resources"), "x");
     await writeCollection(
       root,
-      [{ id: "report.md", resources: ["report/evidence.txt"] }],
+      [{ id: "report", resources: ["report/evidence.txt"] }],
       false
     );
     const result = await validateInvestigationReports({ workspaceRoot: root });
@@ -313,7 +310,7 @@ test("report resource link changes stale the current index", async () => {
     await fs.writeFile(path.join(resourceDirectory, "evidence.txt"), "x");
     await fs.writeFile(path.join(resourceDirectory, "replacement.txt"), "y");
     await writeCollection(root, [
-      { id: "report.md", resources: ["report/evidence.txt"] }
+      { id: "report", resources: ["report/evidence.txt"] }
     ]);
     const reportPath = path.join(investigationRoot(root), "report.md");
     await fs.writeFile(
@@ -335,7 +332,7 @@ test("report resource link changes stale the current index", async () => {
 
 test("visible resource discovery rejects unsafe owner directory names", async () => {
   await withTempRoot("unsafe-owner", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }], false);
+    await writeCollection(root, [{ id: "report" }], false);
     const resource = path.join(
       investigationRoot(root),
       "_resources",
@@ -351,7 +348,7 @@ test("visible resource discovery rejects unsafe owner directory names", async ()
 
 test("resource resources are never projected as index source bytes", async () => {
   await withTempRoot("source-boundary", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const index = parseJsonObject(
       await fs.readFile(
         `${investigationRoot(root)}/investigation-index.json`,
@@ -359,7 +356,7 @@ test("resource resources are never projected as index source bytes", async () =>
       )
     );
     const entries = jsonObjectMember(index, "entries");
-    const report = jsonObjectMember(entries, "report.md");
+    const report = jsonObjectMember(entries, "report");
     assert.equal("resourceBytes" in jsonObjectMember(report, "state"), false);
   });
 });

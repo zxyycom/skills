@@ -1,5 +1,6 @@
 ---
 title: 用对齐状态记录决策是否已经执行
+id: track-decision-execution-state
 status: archived
 alignment: aligned
 createdAt: 2026-08-03T07:35:02Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: use-monotonic-alignment-baseline.md
+    target: use-monotonic-alignment-baseline
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 选择性发布调查 candidates，并保留全量正式同步
+id: publish-investigation-candidates-selectively
 status: active
 alignment: aligned
 createdAt: 2026-09-02T07:21:12Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 修订
-    target: maintain-report-level-investigation-index.md
+    target: maintain-report-level-investigation-index
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 只恢复当前格式工具与派生索引
+id: recover-current-format-tools-and-index
 status: archived
 alignment: null
 createdAt: 2026-07-22T08:42:44Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 替代
-    target: support-degraded-decision-maintenance.md
+    target: support-degraded-decision-maintenance
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 定义决策对齐状态与未对齐语义
+id: define-decision-alignment-semantics
 status: archived
 alignment: null
 createdAt: 2026-07-22T07:37:13Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: express-decision-alignment-state.md
+    target: express-decision-alignment-state
 ---
 
 ## 目的

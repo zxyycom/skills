@@ -1,5 +1,6 @@
 ---
 title: 由现实维护压力触发决策领域谱系升级
+id: upgrade-decision-domains-after-real-pressure
 status: archived
 alignment: unaligned
 createdAt: 2026-08-06T09:28:54Z

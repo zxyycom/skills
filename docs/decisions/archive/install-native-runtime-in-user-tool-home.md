@@ -1,5 +1,6 @@
 ---
 title: 在用户工具目录安装 task-graph 原生运行时
+id: install-native-runtime-in-user-tool-home
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T16:23:22Z

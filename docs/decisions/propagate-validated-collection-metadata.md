@@ -1,5 +1,6 @@
 ---
 title: 在索引快照中传播已校验集合元数据
+id: propagate-validated-collection-metadata
 status: active
 alignment: aligned
 createdAt: 2026-08-11T04:11:06Z
@@ -10,7 +11,7 @@ tags:
   - index-runtime
 relations:
   - type: 修订
-    target: pass-id-and-metadata-to-projection-strategies.md
+    target: pass-id-and-metadata-to-projection-strategies
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 以分发单元定义 skill 的独立交付边界
+id: 260720-use-distribution-unit-boundaries
 status: archived
 alignment: aligned
 createdAt: 2026-07-20T10:15:58+08:00
@@ -10,9 +11,9 @@ tags:
   - skill-maintainer
 relations:
   - type: 修订
-    target: 260719-own-project-aware-skill-lifecycle.md
+    target: 260719-own-project-aware-skill-lifecycle
   - type: 判定无效
-    target: 260720-define-skills-by-self-contained-contracts.md
+    target: 260720-define-skills-by-self-contained-contracts
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 向状态投影传递 ID 与类型化元数据
+id: pass-id-and-metadata-to-projection-strategies
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:02:46Z
@@ -10,7 +11,7 @@ tags:
   - index-runtime
 relations:
   - type: 修订
-    target: carry-typed-collection-metadata.md
+    target: carry-typed-collection-metadata
 ---
 
 ## 目的

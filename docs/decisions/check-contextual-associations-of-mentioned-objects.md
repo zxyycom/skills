@@ -1,5 +1,6 @@
 ---
 title: 检查被点名对象的上下文关联
+id: check-contextual-associations-of-mentioned-objects
 status: active
 alignment: aligned
 createdAt: 2026-08-29T16:07:13Z
@@ -10,7 +11,7 @@ tags:
   - ai-ready-docs
 relations:
   - type: 拆分
-    target: organize-by-main-promise-and-manage-context-association.md
+    target: organize-by-main-promise-and-manage-context-association
 ---
 
 ## 目的

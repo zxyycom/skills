@@ -1,5 +1,6 @@
 ---
 title: 长期延期统一测试结果协议与阻断资格
+id: defer-standard-test-result-blocking
 status: archived
 alignment: unaligned
 createdAt: 2026-08-10T07:48:30Z

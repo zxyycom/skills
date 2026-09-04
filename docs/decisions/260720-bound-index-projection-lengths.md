@@ -1,5 +1,6 @@
 ---
 title: 限制索引投影字段长度
+id: 260720-bound-index-projection-lengths
 status: active
 alignment: aligned
 createdAt: 2026-07-20T19:47:38+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260718-use-purpose-background-decision-structure.md
+    target: 260718-use-purpose-background-decision-structure
 ---
 
 ## 目的

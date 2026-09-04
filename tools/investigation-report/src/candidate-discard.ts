@@ -328,11 +328,7 @@ async function buildCandidateDiscardPreparation(
     };
   }
   const candidateText = await fs.readFile(candidatePath, "utf8");
-  const ownerPath = path.join(
-    root,
-    investigationResourcesDirectoryName,
-    id.slice(0, -".md".length)
-  );
+  const ownerPath = path.join(root, investigationResourcesDirectoryName, id);
   const resources = await scanCandidateOwnerResources(root, ownerPath);
   if (resources.errors.length > 0) {
     return { diagnostics: [], errors: resources.errors, status: "error" };
@@ -340,7 +336,7 @@ async function buildCandidateDiscardPreparation(
   const references = await readCandidateAuthoringResourceReferences(root, {
     failOnInvalidSources: true
   });
-  const ownerPrefix = `${id.slice(0, -".md".length)}/`;
+  const ownerPrefix = `${id}/`;
   const sharedReferences = [...references]
     .filter(
       ([source, ids]) =>
@@ -393,7 +389,7 @@ function candidateDiscardTombstone(
   const resourceOwnerPath = path.join(
     root,
     investigationResourcesDirectoryName,
-    input.id.slice(0, -".md".length)
+    input.id
   );
   return {
     candidatePath: preparation.candidatePath,

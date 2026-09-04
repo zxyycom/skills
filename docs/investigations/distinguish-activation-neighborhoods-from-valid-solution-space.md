@@ -1,12 +1,13 @@
 ---
 title: "关联激活邻域不等于任务有效解集合"
+id: "distinguish-activation-neighborhoods-from-valid-solution-space"
 formedAt: "2026-08-13T09:59:09+00:00"
 question: "Transformer 中被上下文激活的关联邻域为何不能等同于任务有效解集合？"
 tags:
   - "ai-ready-docs"
 relations:
   - type: "修正"
-    target: "separate-solution-space-positioning-from-contextual-anchoring.md"
+    target: "separate-solution-space-positioning-from-contextual-anchoring"
 ---
 
 ## 形成时背景

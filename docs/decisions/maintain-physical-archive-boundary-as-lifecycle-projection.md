@@ -1,5 +1,6 @@
 ---
 title: 将物理归档边界维护为生命周期投影
+id: maintain-physical-archive-boundary-as-lifecycle-projection
 status: active
 alignment: aligned
 createdAt: 2026-08-29T16:13:11Z
@@ -10,9 +11,9 @@ tags:
   - decision-records
 relations:
   - type: 归并
-    target: project-decision-lifecycle-into-physical-archive-boundary.md
+    target: project-decision-lifecycle-into-physical-archive-boundary
   - type: 归并
-    target: use-physical-archive-boundary-for-decision-search.md
+    target: use-physical-archive-boundary-for-decision-search
 ---
 
 ## 目的

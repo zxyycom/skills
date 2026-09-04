@@ -1,5 +1,6 @@
 ---
 title: 用闭合重划重建决策 owner 边界
+id: support-closed-reallocation-of-decision-owners
 status: active
 alignment: aligned
 createdAt: 2026-08-30T04:10:13Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: evaluate-reorganization-from-task-graph-case.md
+    target: evaluate-reorganization-from-task-graph-case
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 以报告关系建模调查认识演进
+id: model-investigation-evolution-as-report-relations
 status: archived
 alignment: aligned
 createdAt: 2026-08-28T10:12:50Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 拆分
-    target: use-fixed-investigation-record-core.md
+    target: use-fixed-investigation-record-core
 ---
 
 ## 目的

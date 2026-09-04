@@ -1,5 +1,6 @@
 ---
 title: 按事项状态选择最小持久载体
+id: route-future-work-by-minimal-carrier
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:08:21Z

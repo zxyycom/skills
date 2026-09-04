@@ -1,5 +1,6 @@
 ---
 title: 由 task-graph 承接可恢复的任务协调
+id: own-recoverable-task-coordination
 status: archived
 alignment: aligned
 createdAt: 2026-08-07T07:19:01Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 修订
-    target: own-short-lived-task-orchestration.md
+    target: own-short-lived-task-orchestration
 ---
 
 ## 目的

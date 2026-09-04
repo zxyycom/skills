@@ -1,5 +1,6 @@
 ---
 title: 按原生入口与责任主题维护测试证据
+id: organize-native-test-cases-by-responsibility-topic
 status: archived
 alignment: null
 createdAt: 2026-07-26T08:49:33Z
@@ -10,7 +11,7 @@ tags:
   - test-evidence-review
 relations:
   - type: 修订
-    target: catalog-minimal-native-test-entries.md
+    target: catalog-minimal-native-test-entries
 ---
 
 ## 目的

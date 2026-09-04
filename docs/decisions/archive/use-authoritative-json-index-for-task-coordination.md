@@ -1,5 +1,6 @@
 ---
 title: 使用权威 JSON 索引保存任务协调事实
+id: use-authoritative-json-index-for-task-coordination
 status: archived
 alignment: aligned
 createdAt: 2026-08-07T07:19:06Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 修订
-    target: use-authoritative-json-index-for-short-lived-tasks.md
+    target: use-authoritative-json-index-for-short-lived-tasks
 ---
 
 ## 目的

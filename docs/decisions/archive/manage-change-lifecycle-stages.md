@@ -1,5 +1,6 @@
 ---
 title: 按生命周期阶段维护 Change
+id: manage-change-lifecycle-stages
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T02:22:22Z
@@ -10,7 +11,7 @@ tags:
   - change-plan
 relations:
   - type: 拆分
-    target: use-independent-change-plans.md
+    target: use-independent-change-plans
 ---
 
 ## 目的

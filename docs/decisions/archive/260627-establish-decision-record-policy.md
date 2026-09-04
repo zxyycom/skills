@@ -1,5 +1,6 @@
 ---
 title: 建立决策记录策略
+id: 260627-establish-decision-record-policy
 status: archived
 alignment: null
 createdAt: 2026-06-27T22:56:30+08:00

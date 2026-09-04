@@ -23,7 +23,10 @@ import {
   renderInvestigationDiagnostic,
   type InvestigationDiagnostic
 } from "./diagnostics.ts";
-import { isInvestigationId } from "./report-path.ts";
+import {
+  isInvestigationId,
+  normalizeInvestigationIdInput
+} from "./report-path.ts";
 import { setInvestigationRelations } from "./relation-transaction.ts";
 import {
   executeInvestigationIndexStage,
@@ -317,12 +320,65 @@ function parseCommandTokens(
     }
     if (parsed.consumedNext) index += 1;
   }
-  return context.values.has("help")
-    ? { command, status: "help" }
-    : {
-        status: "command",
-        value: { command, ...context }
-      };
+  if (context.values.has("help")) {
+    return { command, status: "help" };
+  }
+  normalizeIdentitySelectorsAtCliBoundary(command, context);
+  return {
+    status: "command",
+    value: { command, ...context }
+  };
+}
+
+function normalizeIdentitySelectorsAtCliBoundary(
+  command: InvestigationCommand,
+  context: CliTokenContext
+): void {
+  if (
+    [
+      "new",
+      "discard",
+      "discard-candidate",
+      "show",
+      "show-candidate",
+      "publish",
+      "stage-index",
+      "trace"
+    ].includes(command)
+  ) {
+    context.positionals.splice(
+      0,
+      context.positionals.length,
+      ...context.positionals.map(normalizeCompatibleInvestigationId)
+    );
+  }
+  for (const option of ["id", "source"] as const) {
+    const values = context.values.get(option);
+    if (values !== undefined) {
+      context.values.set(
+        option,
+        values.map(normalizeCompatibleInvestigationId)
+      );
+    }
+  }
+  const relations = context.values.get("relation");
+  if (relations !== undefined) {
+    context.values.set(
+      "relation",
+      relations.map(normalizeCompatibleRelationTarget)
+    );
+  }
+}
+
+function normalizeCompatibleInvestigationId(value: string): string {
+  return normalizeInvestigationIdInput(value) ?? value;
+}
+
+function normalizeCompatibleRelationTarget(value: string): string {
+  const separator = value.indexOf("=");
+  if (separator < 0) return value;
+  const target = normalizeInvestigationIdInput(value.slice(separator + 1));
+  return target === null ? value : value.slice(0, separator + 1) + target;
 }
 
 function parseCommandToken(

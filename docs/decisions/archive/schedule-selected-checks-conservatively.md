@@ -1,5 +1,6 @@
 ---
 title: 保守调度已选择的前置检查
+id: schedule-selected-checks-conservatively
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:03:04Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: bound-top-level-check-concurrency.md
+    target: bound-top-level-check-concurrency
 ---
 
 ## 目的

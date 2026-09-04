@@ -38,7 +38,6 @@ import { parseInvestigationReportDiscardOptions } from "./options.ts";
 import {
   canonicalizeInvestigationsDirectory,
   isInvestigationId,
-  reportPathForInvestigationId,
   resolveInvestigationsDirectory
 } from "./report-path.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
@@ -224,6 +223,17 @@ type DiscardStep<T> =
   | Readonly<{ ok: true; value: T }>
   | Readonly<{ ok: false; result: InvestigationReportDiscardResult }>;
 
+function requiredReportSourcePath(
+  collection: ValidatedInvestigationCollection,
+  id: string
+): string {
+  const source = collection.sources.find((entry) => entry.id === id);
+  if (source === undefined) {
+    throw new Error(`validated investigation collection is missing ${id}`);
+  }
+  return source.sourcePath;
+}
+
 async function discardFromCollection(
   options: DiscardCollectionOptions
 ): Promise<InvestigationReportDiscardResult> {
@@ -243,6 +253,7 @@ async function discardFromCollection(
   if (!candidate.ok) return candidate.result;
   const historyFailure = await discardHistoryFailure(
     options,
+    requiredReportSourcePath(loaded.value.collection, options.id),
     ownership.value.ownedResources.resourceIds
   );
   if (historyFailure !== null) return historyFailure;
@@ -259,6 +270,10 @@ async function discardFromCollection(
     indexText: indexText.value,
     originalIndexText: loaded.value.originalIndexText,
     ownedResources: ownership.value.ownedResources,
+    reportPath: path.join(
+      options.root,
+      requiredReportSourcePath(loaded.value.collection, options.id)
+    ),
     resourceOwnerPath: ownership.value.resourceOwnerPath
   });
 }
@@ -358,13 +373,14 @@ async function prepareDiscardOwnership(
 ): Promise<
   DiscardStep<{
     ownedResources: ResourceTreeScan;
+    reportPath: string;
     resourceOwnerPath: string;
   }>
 > {
   const resourceOwnerPath = path.join(
     options.root,
     investigationResourcesDirectoryName,
-    options.id.slice(0, -".md".length)
+    options.id
   );
   const ownedResources = await inspectOwnedResources(
     options.root,
@@ -382,7 +398,14 @@ async function prepareDiscardOwnership(
   );
   return errors.length > 0
     ? discardStepFailure(result(options, false, [], errors))
-    : discardStepValue({ ownedResources, resourceOwnerPath });
+    : discardStepValue({
+        ownedResources,
+        reportPath: path.join(
+          options.root,
+          requiredReportSourcePath(collection, options.id)
+        ),
+        resourceOwnerPath
+      });
 }
 
 async function discardOwnershipErrors(
@@ -427,11 +450,12 @@ function prepareDiscardCandidate(
 
 async function discardHistoryFailure(
   options: DiscardCollectionOptions,
+  reportSourcePath: string,
   ownedResourceIds: readonly string[]
 ): Promise<InvestigationReportDiscardResult | null> {
   const recorded = await isRecordedAtHead(
     options.root,
-    options.id,
+    reportSourcePath,
     ownedResourceIds
   );
   if (recorded.errors.length > 0) {
@@ -619,6 +643,7 @@ async function publishPreparedDiscard(
     indexText: string;
     originalIndexText: string;
     ownedResources: ResourceTreeScan;
+    reportPath: string;
     resourceOwnerPath: string;
   }>
 ): Promise<InvestigationReportDiscardResult> {
@@ -627,7 +652,7 @@ async function publishPreparedDiscard(
     indexPath: options.indexPath,
     indexText: prepared.indexText,
     originalIndexText: prepared.originalIndexText,
-    reportPath: reportPathForInvestigationId(options.root, options.id),
+    reportPath: prepared.reportPath,
     resourceOwnerPath: prepared.resourceOwnerPath,
     resourceSnapshot: prepared.ownedResources,
     root: options.root,
@@ -679,7 +704,7 @@ function sharedOwnerResourceReferences(
   referencesByReport: ReadonlyMap<string, ReadonlySet<string>>,
   id: string
 ): string[] {
-  const ownerPrefix = `${id.slice(0, -".md".length)}/`;
+  const ownerPrefix = `${id}/`;
   return uniqueSorted(
     [...referencesByReport]
       .filter(
@@ -698,7 +723,7 @@ function sharedOwnerResourceReferences(
 
 async function isRecordedAtHead(
   root: string,
-  id: string,
+  reportSourcePath: string,
   ownedResourceIds: readonly string[]
 ): Promise<{ errors: string[]; recorded: boolean }> {
   const opened = await openRepositoryOrFilesystem(root);
@@ -710,7 +735,7 @@ async function isRecordedAtHead(
     if (revision === null) return { errors: [], recorded: false };
     const scope = repositoryScope(opened.repository, root);
     const paths = [
-      scope.length === 0 ? id : `${scope}/${id}`,
+      scope.length === 0 ? reportSourcePath : `${scope}/${reportSourcePath}`,
       ...ownedResourceIds.map((resourceId) =>
         scope.length === 0
           ? `${investigationResourcesDirectoryName}/${resourceId}`

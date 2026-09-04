@@ -6,6 +6,10 @@
       "type": "string"
     },
     "investigationId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "sourcePath": {
       "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
       "type": "string"
     },
@@ -118,6 +122,9 @@
           "type": "array",
           "uniqueItems": true
         },
+        "sourcePath": {
+          "$ref": "#/$defs/sourcePath"
+        },
         "tags": {
           "items": {
             "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
@@ -139,7 +146,8 @@
         "question",
         "tags",
         "relations",
-        "resourceIds"
+        "resourceIds",
+        "sourcePath"
       ],
       "type": "object"
     }
@@ -149,7 +157,7 @@
   "description": "由单份调查报告 Markdown 生成的领域状态通用索引。",
   "properties": {
     "definitionVersion": {
-      "const": 6
+      "const": 7
     },
     "entries": {
       "additionalProperties": {

@@ -1,5 +1,6 @@
 ---
 title: 自动沉淀复杂 Bug 调查
+id: automatically-record-complex-bug-investigations
 status: active
 alignment: aligned
 createdAt: 2026-09-01T15:46:40Z

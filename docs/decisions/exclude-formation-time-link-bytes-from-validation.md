@@ -1,5 +1,6 @@
 ---
 title: 排除形成时链接字节的持续校验
+id: exclude-formation-time-link-bytes-from-validation
 status: active
 alignment: aligned
 createdAt: 2026-08-15T04:14:19Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: exclude-archived-changes-from-link-validation.md
+    target: exclude-archived-changes-from-link-validation
 ---
 
 ## 目的

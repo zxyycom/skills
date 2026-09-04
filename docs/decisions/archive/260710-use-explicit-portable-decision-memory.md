@@ -1,5 +1,6 @@
 ---
 title: 使用显式可移植的决策记录形成长期记忆
+id: 260710-use-explicit-portable-decision-memory
 status: archived
 alignment: null
 createdAt: 2026-07-11T10:26:44+08:00

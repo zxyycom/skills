@@ -1,5 +1,6 @@
 ---
 title: 将 OpenSpec 四阶段组成聚合分发单元
+id: distribute-openspec-as-an-aggregate-unit
 status: active
 alignment: aligned
 createdAt: 2026-08-11T04:03:15Z
@@ -11,7 +12,7 @@ tags:
   - skill-maintainer
 relations:
   - type: 修订
-    target: distribute-openspec-skills-independently.md
+    target: distribute-openspec-skills-independently
 ---
 
 ## 目的

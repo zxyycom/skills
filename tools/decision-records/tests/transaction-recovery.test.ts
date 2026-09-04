@@ -834,7 +834,7 @@ test("sync-index retains no-change when a current index lock release fails", () 
     }
   ));
 
-test("lifecycle does not print success when its post-mutation scan fails", () =>
+test("lifecycle rolls back and does not print success when its post-write index check fails", () =>
   withFixtureWorkspace("post-mutation-scan", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
     const indexPath = path.join(decisionsDirectory, "decision-index.json");
@@ -880,11 +880,8 @@ test("lifecycle does not print success when its post-mutation scan fails", () =>
       assert.equal(indexWritten, true);
       assert.equal(result.exitCode, 1);
       assert.equal(result.stdout, "");
-      assert.match(
-        result.stderr,
-        /code: decision-records\.post-mutation-scan-failed/
-      );
-      assert.match(result.stderr, /outcome: partial-or-unknown/);
+      assert.match(result.stderr, /code: decision-records\.transaction-failed/);
+      assert.match(result.stderr, /outcome: rolled-back/);
     } finally {
       Object.defineProperty(fs, "rename", renameDescriptor);
       Object.defineProperty(fs, "readdir", readdirDescriptor);

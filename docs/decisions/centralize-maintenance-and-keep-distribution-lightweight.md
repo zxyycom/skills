@@ -1,5 +1,6 @@
 ---
 title: 集中维护 skill 并保持轻量分发
+id: centralize-maintenance-and-keep-distribution-lightweight
 status: active
 alignment: aligned
 createdAt: 2026-07-21T06:39:06Z

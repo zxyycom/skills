@@ -1,5 +1,6 @@
 ---
 title: 不用脚本校验 workflow 结构
+id: 260701-avoid-workflow-structure-validation
 status: active
 alignment: aligned
 createdAt: 2026-07-18T11:43:07+08:00
@@ -10,9 +11,9 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: 260630-publish-skill-package-as-latest-release.md
+    target: 260630-publish-skill-package-as-latest-release
   - type: 修订
-    target: 260701-gate-latest-release-by-skill-hash.md
+    target: 260701-gate-latest-release-by-skill-hash
 ---
 
 ## 目的

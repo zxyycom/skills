@@ -1,5 +1,6 @@
 ---
 title: 使用稳定 ID 键控索引身份
+id: use-stable-id-keyed-index-identity
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:24:19Z
@@ -10,7 +11,7 @@ tags:
   - index-runtime
 relations:
   - type: 拆分
-    target: use-id-keyed-state-index.md
+    target: use-id-keyed-state-index
 ---
 
 ## 目的

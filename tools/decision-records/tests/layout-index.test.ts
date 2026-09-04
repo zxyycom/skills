@@ -49,13 +49,13 @@ test("scanner rejects status-position mismatches nested paths and duplicate deci
     );
     await writeDecision(
       workspaceRoot,
-      `nested/${currentDecisionId}`,
-      candidateDecisionBody()
+      `nested/${currentDecisionId}.md`,
+      candidateDecisionBody({ id: currentDecisionId })
     );
     await writeDecision(
       workspaceRoot,
-      archivedDecisionId,
-      candidateDecisionBody()
+      `${archivedDecisionId}.md`,
+      candidateDecisionBody({ id: archivedDecisionId })
     );
     const validation = await validateDecisionRecords({ workspaceRoot });
     assert.ok(
@@ -80,7 +80,7 @@ test("decision index is ID-keyed with empty metadata and deterministic tag keys"
     const index = await readIndex(workspaceRoot);
     assert.equal(index.schemaVersion, 3);
     assert.equal(index.namespace, "decisions");
-    assert.equal(index.definitionVersion, 6);
+    assert.equal(index.definitionVersion, 7);
     assert.deepEqual(index.metadata, {});
     assert.deepEqual(index.keyDefinitions, [
       { name: "tag", mode: "exact" },

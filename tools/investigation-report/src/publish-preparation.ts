@@ -277,14 +277,15 @@ async function preparePublishCandidate(
   }
   const built = buildInvestigationReportState(
     id,
-    parseInvestigationReport(candidate.value.markdown, id)
+    parseInvestigationReport(candidate.value.markdown, id),
+    `${id}.md`
   );
   if (built.status === "invalid") return preparationFailure(built.errors);
   return {
     status: "ok",
     value: {
       path: candidatePathForInvestigationId(investigationsDirectory, id),
-      source: { id, text: candidate.value.markdown },
+      source: { id, sourcePath: `${id}.md`, text: candidate.value.markdown },
       state: built.state
     }
   };

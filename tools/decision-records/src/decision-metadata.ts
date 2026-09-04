@@ -20,6 +20,7 @@ import {
 const frontmatterPattern = /^---\n([\s\S]*?)\n---(?:\n|$)/;
 const frontmatterKeys = [
   "title",
+  "id",
   "status",
   "alignment",
   "createdAt",
@@ -45,6 +46,7 @@ export type DecisionSourceMetadata =
 
 export type ParsedDecisionMarkdown = {
   body: string;
+  id: DecisionId;
   metadata: DecisionSourceMetadata;
   projection: DecisionProjection;
   tags: DecisionTag[];
@@ -87,6 +89,18 @@ export function parseDecisionMarkdown(options: {
   };
 }
 
+/** Reads only the declared identity for source discovery before full validation. */
+export function decisionIdFromMarkdown(markdown: string): DecisionId | null {
+  const frontmatter = parseYamlFrontmatter(
+    markdown.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n")
+  );
+  return frontmatter === null || frontmatter.error !== null
+    ? null
+    : isDecisionId(frontmatter.values.id)
+      ? frontmatter.values.id
+      : null;
+}
+
 function validateFrontmatterKeys(
   keys: readonly string[],
   relativePath: string,
@@ -119,6 +133,7 @@ function parseDecisionFields(
   relativePath: string,
   errors: string[]
 ): ParsedDecisionFields | null {
+  const id = decisionIdField(values.id, relativePath, errors);
   const title = projectionField(values.title, "title", relativePath, errors);
   const purpose = projectionField(
     values.purpose,
@@ -148,6 +163,7 @@ function parseDecisionFields(
     status: values.status
   });
   if (
+    id === null ||
     title === null ||
     purpose === null ||
     background === null ||
@@ -159,6 +175,7 @@ function parseDecisionFields(
     return null;
   }
   return {
+    id,
     metadata,
     projection: { background, decision, purpose, relations, title },
     tags
@@ -201,18 +218,24 @@ export function replaceDecisionFrontmatter(
           }))
         };
   return (
-    serializeDecisionFrontmatter(projection, parsed.tags, options.metadata) +
-    parsed.body
+    serializeDecisionFrontmatter(
+      parsed.id,
+      projection,
+      parsed.tags,
+      options.metadata
+    ) + parsed.body
   );
 }
 
 export function serializeDecisionFrontmatter(
+  decisionId: DecisionId,
   projection: DecisionProjection,
   tags: readonly DecisionTag[],
   metadata: DecisionSourceMetadata
 ): string {
   const frontmatter = {
     title: projection.title,
+    id: decisionId,
     status: metadata.status,
     alignment: metadata.alignment,
     createdAt: metadata.createdAt,
@@ -232,6 +255,18 @@ export function serializeDecisionFrontmatter(
     "",
     ""
   ].join("\n");
+}
+
+function decisionIdField(
+  value: unknown,
+  relativePath: string,
+  errors: string[]
+): DecisionId | null {
+  if (!isDecisionId(value)) {
+    errors.push(relativePath + " frontmatter id must be a pure Decision ID");
+    return null;
+  }
+  return value;
 }
 
 function projectionField(

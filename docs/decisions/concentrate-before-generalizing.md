@@ -1,5 +1,6 @@
 ---
 title: 用诚实的依赖边界先收口再演进
+id: concentrate-before-generalizing
 status: active
 alignment: aligned
 createdAt: 2026-07-23T07:34:02Z

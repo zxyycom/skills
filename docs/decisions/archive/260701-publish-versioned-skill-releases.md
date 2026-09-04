@@ -1,5 +1,6 @@
 ---
 title: 使用版本化 release 发布 skill 制品
+id: 260701-publish-versioned-skill-releases
 status: archived
 alignment: null
 createdAt: 2026-07-18T11:43:07+08:00
@@ -10,9 +11,9 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: 260630-publish-skill-package-as-latest-release.md
+    target: 260630-publish-skill-package-as-latest-release
   - type: 修订
-    target: 260701-gate-latest-release-by-skill-hash.md
+    target: 260701-gate-latest-release-by-skill-hash
 ---
 
 ## 目的

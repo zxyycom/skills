@@ -1,5 +1,6 @@
 ---
 title: 使用单报告固定调查核心
+id: use-single-investigation-report-core
 status: active
 alignment: aligned
 createdAt: 2026-08-28T10:12:50Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 拆分
-    target: use-fixed-investigation-record-core.md
+    target: use-fixed-investigation-record-core
 ---
 
 ## 目的

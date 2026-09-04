@@ -1,5 +1,6 @@
 ---
 title: 在删除观察期延期 OpenSpec 维护
+id: defer-openspec-maintenance-during-removal-review
 status: active
 alignment: aligned
 createdAt: 2026-08-11T06:09:16Z

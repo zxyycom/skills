@@ -1,5 +1,6 @@
 ---
 title: 使用权威 JSON 索引保存短期任务
+id: use-authoritative-json-index-for-short-lived-tasks
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T06:13:41Z

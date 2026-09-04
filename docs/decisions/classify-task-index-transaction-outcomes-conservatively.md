@@ -1,5 +1,6 @@
 ---
 title: 保守判定 task index 写事务结果
+id: classify-task-index-transaction-outcomes-conservatively
 status: active
 alignment: aligned
 createdAt: 2026-08-11T04:14:55Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 修订
-    target: use-conservative-task-index-write-outcomes.md
+    target: use-conservative-task-index-write-outcomes
 ---
 
 ## 目的

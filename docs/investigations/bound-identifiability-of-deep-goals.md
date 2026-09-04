@@ -1,12 +1,13 @@
 ---
 title: "深层目标只有局部且不可靠的可识别性"
+id: "bound-identifiability-of-deep-goals"
 formedAt: "2026-08-13T09:37:25+00:00"
 question: "拥有者在多大程度上能够从歧义、候选和冲突中识别深层目标？"
 tags:
   - "ai-ready-docs"
 relations:
   - type: "修正"
-    target: "separate-semantic-fidelity-goal-fit-and-goal-explication.md"
+    target: "separate-semantic-fidelity-goal-fit-and-goal-explication"
 ---
 
 ## 形成时背景

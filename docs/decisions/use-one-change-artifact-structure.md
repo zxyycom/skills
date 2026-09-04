@@ -1,5 +1,6 @@
 ---
 title: 统一使用 Change 预期调整与衍生影响结构
+id: use-one-change-artifact-structure
 status: active
 alignment: aligned
 createdAt: 2026-08-22T10:09:08Z

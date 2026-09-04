@@ -11,7 +11,11 @@ import {
   readInvestigationStateSnapshot
 } from "./investigation-index-source.ts";
 import { investigationSourceFingerprintPatternSource } from "./investigation-source-revision.ts";
-import { isInvestigationId, isInvestigationTag } from "./report-path.ts";
+import {
+  isInvestigationId,
+  isInvestigationSourcePath,
+  isInvestigationTag
+} from "./report-path.ts";
 import { isInvestigationResourceId } from "./resource-reference.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import {
@@ -22,7 +26,7 @@ import {
 } from "./types.ts";
 
 export const investigationIndexNamespace = "investigations";
-export const investigationIndexDefinitionVersion = 6;
+export const investigationIndexDefinitionVersion = 7;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -34,7 +38,10 @@ const nonEmptyStringSchema = v.pipe(
 );
 const investigationIdSchema = v.pipe(
   nonEmptyStringSchema,
-  v.check(isInvestigationId, "must use a kebab-case Investigation ID with .md")
+  v.check(
+    isInvestigationId,
+    "must use an extensionless kebab-case Investigation ID"
+  )
 );
 const investigationTagSchema = v.pipe(
   nonEmptyStringSchema,
@@ -79,6 +86,13 @@ const investigationIndexStateSchema = v.strictObject({
     v.check(
       isStrictlySortedText,
       "must contain unique resource ids in sorted order"
+    )
+  ),
+  sourcePath: v.pipe(
+    nonEmptyStringSchema,
+    v.check(
+      isInvestigationSourcePath,
+      "must be a valid investigation source path"
     )
   ),
   tags: v.pipe(
@@ -159,6 +173,14 @@ function validateInvestigationIndex(
   if (!parsed.success) {
     throw new TypeError(
       parsed.issues.map(formatInvestigationIndexIssue).join("; ")
+    );
+  }
+  const sourcePaths = Object.values(index.entries).map(
+    (entry) => entry.state.sourcePath
+  );
+  if (new Set(sourcePaths).size !== sourcePaths.length) {
+    throw new TypeError(
+      "entry states must use unique investigation sourcePath values"
     );
   }
 }

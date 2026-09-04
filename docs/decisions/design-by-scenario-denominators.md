@@ -1,5 +1,6 @@
 ---
 title: 以场景公约数设计跨场景统一契约
+id: design-by-scenario-denominators
 status: active
 alignment: aligned
 createdAt: 2026-07-22T02:06:52Z

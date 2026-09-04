@@ -19,7 +19,7 @@ import {
 
 test("activate establishes candidate source relations and archives their active targets", () =>
   withFixtureWorkspace("activate-source-relations", async (workspaceRoot) => {
-    const successorRelativePath = "use-candidate-source-relation.md";
+    const successorRelativePath = "use-candidate-source-relation";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, successorRelativePath),
       candidateDecisionBody({
@@ -54,7 +54,7 @@ test("activate establishes candidate source relations and archives their active 
 
 test("activate relation replacement overrides rather than merges candidate relations", () =>
   withFixtureWorkspace("activate-relation-replace", async (workspaceRoot) => {
-    const parallelRelativePath = "use-replacement-predecessor.md";
+    const parallelRelativePath = "use-replacement-predecessor";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, parallelRelativePath),
       candidateDecisionBody(),
@@ -68,7 +68,7 @@ test("activate relation replacement overrides rather than merges candidate relat
       "--root",
       workspaceRoot
     ]);
-    const successorRelativePath = "use-replaced-candidate-relations.md";
+    const successorRelativePath = "use-replaced-candidate-relations";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, successorRelativePath),
       candidateDecisionBody({
@@ -105,7 +105,7 @@ test("activate relation replacement overrides rather than merges candidate relat
 
 test("activate clear-relations explicitly replaces candidate relations with an empty set", () =>
   withFixtureWorkspace("activate-relation-clear", async (workspaceRoot) => {
-    const successorRelativePath = "use-cleared-candidate-relations.md";
+    const successorRelativePath = "use-cleared-candidate-relations";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, successorRelativePath),
       candidateDecisionBody({
@@ -135,7 +135,7 @@ test("activate clear-relations explicitly replaces candidate relations with an e
 
 test("evolve establishes one successor while preserving archived predecessors", () =>
   withFixtureWorkspace("evolve-archived-predecessor", async (workspaceRoot) => {
-    const successorRelativePath = "use-active-and-archived-predecessors.md";
+    const successorRelativePath = "use-active-and-archived-predecessors";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, successorRelativePath),
       candidateDecisionBody(),
@@ -169,7 +169,7 @@ test("evolve establishes one successor while preserving archived predecessors", 
 
 test("evolve replaces established relations while preserving body and lifecycle fields", () =>
   withFixtureWorkspace("evolve-established-replace", async (workspaceRoot) => {
-    const successorRelativePath = "replace-established-relations.md";
+    const successorRelativePath = "replace-established-relations";
     const successorPath = decisionFilePath(
       workspaceRoot,
       successorRelativePath
@@ -189,7 +189,7 @@ test("evolve replaces established relations while preserving body and lifecycle 
       "--root",
       workspaceRoot
     ]);
-    const activeTargetRelativePath = "use-active-replacement-target.md";
+    const activeTargetRelativePath = "use-active-replacement-target";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, activeTargetRelativePath),
       candidateDecisionBody(),
@@ -264,7 +264,7 @@ test("evolve replaces established relations while preserving body and lifecycle 
 
 test("evolve keeps an archived established successor archived during relation replacement", () =>
   withFixtureWorkspace("evolve-archived-successor", async (workspaceRoot) => {
-    const successorRelativePath = "keep-archived-successor-state.md";
+    const successorRelativePath = "keep-archived-successor-state";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, successorRelativePath),
       candidateDecisionBody(),
@@ -472,7 +472,7 @@ test("evolve rejects a one-successor reallocation", () =>
     async (workspaceRoot) => {
       const predecessor =
         await establishAdditionalActivePredecessor(workspaceRoot);
-      const successorRelativePath = "use-one-reallocation-successor.md";
+      const successorRelativePath = "use-one-reallocation-successor";
       await fs.writeFile(
         decisionFilePath(workspaceRoot, successorRelativePath),
         candidateDecisionBody({
@@ -502,8 +502,8 @@ test("evolve rejects a one-predecessor reallocation", () =>
   withFixtureWorkspace(
     "evolve-one-predecessor-reallocation",
     async (workspaceRoot) => {
-      const firstSuccessor = "use-first-one-predecessor-reallocation.md";
-      const secondSuccessor = "use-second-one-predecessor-reallocation.md";
+      const firstSuccessor = "use-first-one-predecessor-reallocation";
+      const secondSuccessor = "use-second-one-predecessor-reallocation";
       for (const successor of [firstSuccessor, secondSuccessor]) {
         await fs.writeFile(
           decisionFilePath(workspaceRoot, successor),
@@ -534,8 +534,8 @@ test("evolve rejects mixed reallocation and other successor relations", () =>
   withFixtureWorkspace("evolve-mixed-reallocation", async (workspaceRoot) => {
     const predecessor =
       await establishAdditionalActivePredecessor(workspaceRoot);
-    const mixedSuccessor = "use-mixed-reallocation.md";
-    const reallocationSuccessor = "use-pure-reallocation.md";
+    const mixedSuccessor = "use-mixed-reallocation";
+    const reallocationSuccessor = "use-pure-reallocation";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, mixedSuccessor),
       candidateDecisionBody({
@@ -575,8 +575,8 @@ test("evolve rejects a disconnected reallocation graph", () =>
     async (workspaceRoot) => {
       const predecessor =
         await establishAdditionalActivePredecessor(workspaceRoot);
-      const firstSuccessor = "use-first-disconnected-reallocation.md";
-      const secondSuccessor = "use-second-disconnected-reallocation.md";
+      const firstSuccessor = "use-first-disconnected-reallocation";
+      const secondSuccessor = "use-second-disconnected-reallocation";
       await fs.writeFile(
         decisionFilePath(workspaceRoot, firstSuccessor),
         candidateDecisionBody({
@@ -613,7 +613,7 @@ test("evolve rejects a reallocation that overlaps successor and predecessor role
     "evolve-overlapping-reallocation-roles",
     async (workspaceRoot) => {
       const established = await establishClosedReallocation(workspaceRoot);
-      const overlappingSuccessor = "use-overlapping-reallocation-owner.md";
+      const overlappingSuccessor = "use-overlapping-reallocation-owner";
       await fs.writeFile(
         decisionFilePath(workspaceRoot, overlappingSuccessor),
         candidateDecisionBody({
@@ -641,7 +641,7 @@ test("evolve rejects a reallocation that overlaps successor and predecessor role
 test("evolve requires every established successor in a reallocation component", () =>
   withFixtureWorkspace("evolve-open-reallocation", async (workspaceRoot) => {
     const established = await establishClosedReallocation(workspaceRoot);
-    const thirdSuccessor = "use-third-reallocation-successor.md";
+    const thirdSuccessor = "use-third-reallocation-successor";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, thirdSuccessor),
       candidateDecisionBody({
@@ -688,7 +688,7 @@ test("evolve keeps a later reallocation separate from its archived predecessor e
         "--root",
         workspaceRoot
       ]);
-      const additionalPredecessor = "use-later-reallocation-predecessor.md";
+      const additionalPredecessor = "use-later-reallocation-predecessor";
       await fs.writeFile(
         decisionFilePath(workspaceRoot, additionalPredecessor),
         candidateDecisionBody(),
@@ -708,8 +708,8 @@ test("evolve keeps a later reallocation separate from its archived predecessor e
         "--root",
         workspaceRoot
       ]);
-      const firstSuccessor = "use-later-combined-reallocation-owner.md";
-      const secondSuccessor = "use-later-narrow-reallocation-owner.md";
+      const firstSuccessor = "use-later-combined-reallocation-owner";
+      const secondSuccessor = "use-later-narrow-reallocation-owner";
       await fs.writeFile(
         decisionFilePath(workspaceRoot, firstSuccessor),
         candidateDecisionBody({
@@ -777,7 +777,7 @@ test("evolve discards one split successor when it replaces the complete closure"
     "evolve-replace-split-successor",
     async (workspaceRoot) => {
       const established = await establishClosedSplit(workspaceRoot);
-      const replacementRelativePath = "replace-current-split-slice.md";
+      const replacementRelativePath = "replace-current-split-slice";
       await fs.writeFile(
         decisionFilePath(workspaceRoot, replacementRelativePath),
         candidateDecisionBody(),
@@ -818,7 +818,7 @@ test("evolve discards one split successor when it replaces the complete closure"
 test("evolve adds a split successor only when every existing successor is selected", () =>
   withFixtureWorkspace("evolve-extend-split", async (workspaceRoot) => {
     const established = await establishClosedSplit(workspaceRoot);
-    const thirdRelativePath = "add-third-split-slice.md";
+    const thirdRelativePath = "add-third-split-slice";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, thirdRelativePath),
       candidateDecisionBody(),
@@ -888,7 +888,7 @@ test("evolve rejects a discarded Decision ID selected as a successor without mut
 test("evolve rejects a split extension that omits an existing successor before writing", () =>
   withFixtureWorkspace("evolve-omit-split", async (workspaceRoot) => {
     const established = await establishClosedSplit(workspaceRoot);
-    const thirdRelativePath = "omit-existing-split-slice.md";
+    const thirdRelativePath = "omit-existing-split-slice";
     const thirdPath = decisionFilePath(workspaceRoot, thirdRelativePath);
     const thirdCandidate = candidateDecisionBody();
     await fs.writeFile(thirdPath, thirdCandidate, "utf8");
@@ -913,7 +913,7 @@ test("evolve rejects a split extension that omits an existing successor before w
 
 test("evolve rejects one selected split successor", () =>
   withFixtureWorkspace("evolve-single-split", async (workspaceRoot) => {
-    const successorRelativePath = "use-single-split.md";
+    const successorRelativePath = "use-single-split";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, successorRelativePath),
       candidateDecisionBody({
@@ -934,8 +934,8 @@ test("evolve rejects one selected split successor", () =>
 
 test("evolve rejects mixed split and non-split successor relations", () =>
   withFixtureWorkspace("evolve-mixed-split", async (workspaceRoot) => {
-    const splitRelativePath = "use-mixed-split.md";
-    const revisionRelativePath = "use-mixed-revision.md";
+    const splitRelativePath = "use-mixed-split";
+    const revisionRelativePath = "use-mixed-revision";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, splitRelativePath),
       candidateDecisionBody({
@@ -965,8 +965,8 @@ test("evolve rejects mixed split and non-split successor relations", () =>
 
 test("evolve rejects unsupported multi-successor shapes without split relations", () =>
   withFixtureWorkspace("evolve-unsupported-multiple", async (workspaceRoot) => {
-    const firstRelativePath = "use-first-multiple.md";
-    const secondRelativePath = "use-second-multiple.md";
+    const firstRelativePath = "use-first-multiple";
+    const secondRelativePath = "use-second-multiple";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, firstRelativePath),
       candidateDecisionBody(),
@@ -992,7 +992,7 @@ test("evolve rejects unsupported multi-successor shapes without split relations"
 
 test("evolve rejects a pure merge with fewer than two predecessors", () =>
   withFixtureWorkspace("evolve-undersized-merge", async (workspaceRoot) => {
-    const successorRelativePath = "use-undersized-merge.md";
+    const successorRelativePath = "use-undersized-merge";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, successorRelativePath),
       candidateDecisionBody(),
@@ -1030,8 +1030,8 @@ async function establishClosedReallocation(
 ): Promise<ClosedReallocation> {
   const secondPredecessorRelativePath =
     await establishAdditionalActivePredecessor(workspaceRoot);
-  const firstSuccessorRelativePath = "use-combined-reallocation-owner.md";
-  const secondSuccessorRelativePath = "use-narrow-reallocation-owner.md";
+  const firstSuccessorRelativePath = "use-combined-reallocation-owner";
+  const secondSuccessorRelativePath = "use-narrow-reallocation-owner";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, firstSuccessorRelativePath),
     candidateDecisionBody({
@@ -1074,7 +1074,7 @@ async function establishClosedReallocation(
 async function establishAdditionalActivePredecessor(
   workspaceRoot: string
 ): Promise<string> {
-  const decisionId = "use-second-reallocation-predecessor.md";
+  const decisionId = "use-second-reallocation-predecessor";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, decisionId),
     candidateDecisionBody(),
@@ -1094,7 +1094,7 @@ async function establishAdditionalActivePredecessor(
 async function establishClosedSplit(
   workspaceRoot: string
 ): Promise<ClosedSplit> {
-  const coarseRelativePath = "use-coarse-future-direction.md";
+  const coarseRelativePath = "use-coarse-future-direction";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, coarseRelativePath),
     candidateDecisionBody(),
@@ -1108,8 +1108,8 @@ async function establishClosedSplit(
     "--root",
     workspaceRoot
   ]);
-  const alignedRelativePath = "keep-current-split-slice.md";
-  const unalignedRelativePath = "keep-future-split-slice.md";
+  const alignedRelativePath = "keep-current-split-slice";
+  const unalignedRelativePath = "keep-future-split-slice";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, alignedRelativePath),
     candidateDecisionBody({

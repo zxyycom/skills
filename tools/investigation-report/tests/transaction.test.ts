@@ -27,7 +27,7 @@ import {
 
 test("set-relations parses complete source groups and rejects ambiguous grouping", async () => {
   await withTempRoot("groups", async (root) => {
-    await writeCollection(root, [{ id: "base.md" }, { id: "next.md" }]);
+    await writeCollection(root, [{ id: "base" }, { id: "next" }]);
     const invalid = await runInvestigationReportCheckCli([
       "set-relations",
       "--root",
@@ -39,7 +39,7 @@ test("set-relations parses complete source groups and rejects ambiguous grouping
     const nonCanonicalSource = await setInvestigationRelations({
       replacements: [
         {
-          relations: [{ target: "base.md", type: "补充" }],
+          relations: [{ target: "base", type: "补充" }],
           source: "./next.md"
         }
       ],
@@ -57,7 +57,7 @@ test("set-relations parses complete source groups and rejects ambiguous grouping
             { target: "./base.md", type: "补充" },
             { target: " base.md ", type: "复查" }
           ],
-          source: "next.md"
+          source: "next"
         }
       ],
       workspaceRoot: root
@@ -70,7 +70,7 @@ test("set-relations parses complete source groups and rejects ambiguous grouping
 
 test("collection mutation lock distinguishes busy access and release failures", async () => {
   await withTempRoot("collection-lock-diagnostics", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const indexPath = `${investigationRoot(root)}/investigation-index.json`;
     for (const [fileSystemCode, expectedCode, expectedCause] of [
       ["EEXIST", "investigation-report.collection-lock-busy", "busy"],
@@ -163,7 +163,7 @@ test("investigation diagnostics sanitize external failure details", () => {
 
 test("sync-index preserves post-rename uncertainty when lock cleanup also fails", async () => {
   await withTempRoot("sync-post-rename-release-failure", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     await fs.appendFile(`${investigationRoot(root)}/report.md`, "\n", "utf8");
     const indexPath = `${investigationRoot(root)}/investigation-index.json`;
     const lockPath = `${root}/docs/.investigation-index.json.mutation.lock`;
@@ -229,33 +229,36 @@ test("sync-index preserves post-rename uncertainty when lock cleanup also fails"
 test("set-relations atomically applies multi-source replacements and explicit clears", async () => {
   await withTempRoot("replace", async (root) => {
     await writeCollection(root, [
-      { id: "base.md" },
-      { id: "split-a.md" },
-      { id: "split-b.md" }
+      { id: "base" },
+      { id: "split-a" },
+      { id: "split-b", sourcePath: "semantic-split.md" }
     ]);
     const applied = await setInvestigationRelations({
       replacements: [
         {
-          relations: [{ target: "base.md", type: "拆分" }],
-          source: "split-b.md"
+          relations: [{ target: "base", type: "拆分" }],
+          source: "split-b"
         },
         {
-          relations: [{ target: "base.md", type: "拆分" }],
-          source: "split-a.md"
+          relations: [{ target: "base", type: "拆分" }],
+          source: "split-a"
         }
       ],
       workspaceRoot: root
     });
     assert.deepEqual(applied.errors, []);
     assert.equal(applied.changed, true);
-    for (const id of ["split-a.md", "split-b.md"]) {
+    for (const [id, sourcePath] of [
+      ["split-a", "split-a.md"],
+      ["split-b", "semantic-split.md"]
+    ] as const) {
       const parsed = parseInvestigationReport(
-        await fs.readFile(`${investigationRoot(root)}/${id}`, "utf8"),
+        await fs.readFile(`${investigationRoot(root)}/${sourcePath}`, "utf8"),
         id
       );
       assert.deepEqual(parsed.errors, []);
       assert.deepEqual(parsed.report?.relations, [
-        { target: "base.md", type: "拆分" }
+        { target: "base", type: "拆分" }
       ]);
     }
     const appliedIndex = JSON.parse(
@@ -264,25 +267,35 @@ test("set-relations atomically applies multi-source replacements and explicit cl
         "utf8"
       )
     ) as {
-      entries: Record<string, { state: { relations: unknown } }>;
+      entries: Record<
+        string,
+        { state: { relations: unknown; sourcePath: string } }
+      >;
     };
-    assert.deepEqual(appliedIndex.entries["split-a.md"]?.state.relations, [
-      { target: "base.md", type: "拆分" }
+    assert.deepEqual(appliedIndex.entries["split-a"]?.state.relations, [
+      { target: "base", type: "拆分" }
     ]);
-    assert.deepEqual(appliedIndex.entries["split-b.md"]?.state.relations, [
-      { target: "base.md", type: "拆分" }
+    assert.deepEqual(appliedIndex.entries["split-b"]?.state.relations, [
+      { target: "base", type: "拆分" }
     ]);
+    assert.equal(
+      appliedIndex.entries["split-b"]?.state.sourcePath,
+      "semantic-split.md"
+    );
     const cleared = await setInvestigationRelations({
       replacements: [
-        { relations: [], source: "split-a.md" },
-        { relations: [], source: "split-b.md" }
+        { relations: [], source: "split-a" },
+        { relations: [], source: "split-b" }
       ],
       workspaceRoot: root
     });
     assert.deepEqual(cleared.errors, []);
-    for (const id of ["split-a.md", "split-b.md"]) {
+    for (const [id, sourcePath] of [
+      ["split-a", "split-a.md"],
+      ["split-b", "semantic-split.md"]
+    ] as const) {
       const parsed = parseInvestigationReport(
-        await fs.readFile(`${investigationRoot(root)}/${id}`, "utf8"),
+        await fs.readFile(`${investigationRoot(root)}/${sourcePath}`, "utf8"),
         id
       );
       assert.deepEqual(parsed.errors, []);
@@ -296,27 +309,27 @@ test("set-relations atomically applies multi-source replacements and explicit cl
     ) as {
       entries: Record<string, { state: { relations: unknown } }>;
     };
-    assert.deepEqual(clearedIndex.entries["split-a.md"]?.state.relations, []);
-    assert.deepEqual(clearedIndex.entries["split-b.md"]?.state.relations, []);
+    assert.deepEqual(clearedIndex.entries["split-a"]?.state.relations, []);
+    assert.deepEqual(clearedIndex.entries["split-b"]?.state.relations, []);
   });
 });
 
 test("set-relations rejects source or index drift before publishing", async () => {
   await withTempRoot("drift", async (root) => {
-    await writeCollection(root, [{ id: "base.md" }, { id: "next.md" }]);
+    await writeCollection(root, [{ id: "base" }, { id: "next" }]);
     const indexPath = `${investigationRoot(root)}/investigation-index.json`;
     await fs.appendFile(indexPath, "\n", "utf8");
     const indexDrift = await setInvestigationRelations({
       replacements: [
         {
-          relations: [{ target: "base.md", type: "补充" }],
-          source: "next.md"
+          relations: [{ target: "base", type: "补充" }],
+          source: "next"
         }
       ],
       workspaceRoot: root
     });
     assert.ok(indexDrift.errors.some((error) => error.includes("index")));
-    await writeCollection(root, [{ id: "base.md" }, { id: "next.md" }]);
+    await writeCollection(root, [{ id: "base" }, { id: "next" }]);
     const basePath = `${investigationRoot(root)}/base.md`;
     const nextPath = `${investigationRoot(root)}/next.md`;
     const beforeBase = await fs.readFile(basePath, "utf8");
@@ -328,8 +341,8 @@ test("set-relations rejects source or index drift before publishing", async () =
       {
         replacements: [
           {
-            relations: [{ target: "base.md", type: "补充" }],
-            source: "next.md"
+            relations: [{ target: "base", type: "补充" }],
+            source: "next"
           }
         ],
         workspaceRoot: root
@@ -338,7 +351,7 @@ test("set-relations rejects source or index drift before publishing", async () =
       async () => {
         await fs.writeFile(
           addedPath,
-          reportMarkdown({ id: "newly-added.md" }),
+          reportMarkdown({ id: "newly-added" }),
           "utf8"
         );
         await fs.writeFile(indexPath, externallyChangedIndex, "utf8");
@@ -354,19 +367,19 @@ test("set-relations rejects source or index drift before publishing", async () =
     assert.equal(await fs.readFile(indexPath, "utf8"), externallyChangedIndex);
     assert.equal(
       await fs.readFile(addedPath, "utf8"),
-      reportMarkdown({ id: "newly-added.md" })
+      reportMarkdown({ id: "newly-added" })
     );
 
     await fs.rm(addedPath);
-    await writeCollection(root, [{ id: "base.md" }, { id: "next.md" }]);
+    await writeCollection(root, [{ id: "base" }, { id: "next" }]);
     const indexBeforeHook = await fs.readFile(indexPath, "utf8");
     const sourceBeforeHook = await fs.readFile(nextPath, "utf8");
     const indexDriftDuringPublish = await setInvestigationRelationsWithWriter(
       {
         replacements: [
           {
-            relations: [{ target: "base.md", type: "补充" }],
-            source: "next.md"
+            relations: [{ target: "base", type: "补充" }],
+            source: "next"
           }
         ],
         workspaceRoot: root
@@ -391,9 +404,9 @@ test("set-relations rejects source or index drift before publishing", async () =
 test("set-relations restores all report and index bytes after publish failure", async () => {
   await withTempRoot("restore", async (root) => {
     await writeCollection(root, [
-      { id: "base.md" },
-      { id: "first.md" },
-      { id: "second.md" }
+      { id: "base" },
+      { id: "first" },
+      { id: "second" }
     ]);
     const paths = [
       `${investigationRoot(root)}/first.md`,
@@ -408,12 +421,12 @@ test("set-relations restores all report and index bytes after publish failure", 
       {
         replacements: [
           {
-            relations: [{ target: "base.md", type: "补充" }],
-            source: "first.md"
+            relations: [{ target: "base", type: "补充" }],
+            source: "first"
           },
           {
-            relations: [{ target: "base.md", type: "补充" }],
-            source: "second.md"
+            relations: [{ target: "base", type: "补充" }],
+            source: "second"
           }
         ],
         workspaceRoot: root
@@ -445,14 +458,14 @@ test("set-relations restores all report and index bytes after publish failure", 
 test("set-relations is idempotent and leaves unrelated report fields unchanged", async () => {
   await withTempRoot("idempotent", async (root) => {
     await writeCollection(root, [
-      { id: "base.md", title: "Base" },
-      { id: "next.md", title: "Next" }
+      { id: "base", title: "Base" },
+      { id: "next", title: "Next" }
     ]);
     const options = {
       replacements: [
         {
-          relations: [{ target: "base.md", type: "补充" as const }],
-          source: "next.md"
+          relations: [{ target: "base", type: "补充" as const }],
+          source: "next"
         }
       ],
       workspaceRoot: root
@@ -468,7 +481,7 @@ test("set-relations is idempotent and leaves unrelated report fields unchanged",
 
 test("set-relations leaves Git pending unchanged", async () => {
   await withTempRoot("pending", async (root) => {
-    await writeCollection(root, [{ id: "base.md" }, { id: "next.md" }]);
+    await writeCollection(root, [{ id: "base" }, { id: "next" }]);
     git(root, ["init", "--quiet"]);
     git(root, ["config", "user.email", "test@example.invalid"]);
     git(root, ["config", "user.name", "Test"]);
@@ -497,8 +510,8 @@ test("set-relations leaves Git pending unchanged", async () => {
     const result = await setInvestigationRelations({
       replacements: [
         {
-          relations: [{ target: "base.md", type: "补充" }],
-          source: "next.md"
+          relations: [{ target: "base", type: "补充" }],
+          source: "next"
         }
       ],
       workspaceRoot: root

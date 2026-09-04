@@ -15,7 +15,7 @@ import {
 
 test("CLI exposes only report-level commands and rejects old topic options", async () => {
   await withTempRoot("cli", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const help = await runInvestigationCli(root, ["--help"]);
     assert.equal(help.status, 0);
     assert.equal(help.stderr, "");
@@ -43,7 +43,7 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
 
 test("CLI set-relations prints a human-readable result and rejects JSON output", async () => {
   await withTempRoot("cli-relations", async (root) => {
-    await writeCollection(root, [{ id: "base.md" }, { id: "next.md" }]);
+    await writeCollection(root, [{ id: "base" }, { id: "next" }]);
     const result = await runInvestigationCli(root, [
       "set-relations",
       "--source",
@@ -53,10 +53,7 @@ test("CLI set-relations prints a human-readable result and rejects JSON output",
     ]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
-    assert.match(
-      result.stdout,
-      /Investigation relations updated for: next\.md/u
-    );
+    assert.match(result.stdout, /Investigation relations updated for: next/u);
     const json = await runInvestigationCli(root, [
       "set-relations",
       "--source",
@@ -70,13 +67,13 @@ test("CLI set-relations prints a human-readable result and rejects JSON output",
       path.join(investigationRoot(root), "next.md"),
       "utf8"
     );
-    assert.match(markdown, /type: "补充"\n    target: "base\.md"/u);
+    assert.match(markdown, /type: "补充"\n    target: "base"/u);
   });
 });
 
 test("CLI set-relations rejects relations that do not follow a source", async () => {
   await withTempRoot("cli-relations-invalid", async (root) => {
-    await writeCollection(root, [{ id: "base.md" }, { id: "next.md" }]);
+    await writeCollection(root, [{ id: "base" }, { id: "next" }]);
     const malformed = await runInvestigationCli(root, [
       "set-relations",
       "--relation",
@@ -90,7 +87,7 @@ test("CLI set-relations rejects relations that do not follow a source", async ()
 
 test("CLI leaves relation and trace enum values for API validation", async () => {
   await withTempRoot("cli-raw-enums", async (root) => {
-    await writeCollection(root, [{ id: "base.md" }, { id: "next.md" }]);
+    await writeCollection(root, [{ id: "base" }, { id: "next" }]);
     const relation = await runInvestigationCli(root, [
       "set-relations",
       "--source",
@@ -116,7 +113,7 @@ test("CLI leaves relation and trace enum values for API validation", async () =>
 
 test("CLI discard rejects malformed investigation IDs as argument errors", async () => {
   await withTempRoot("cli-discard-invalid", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const result = await runInvestigationCli(root, ["discard", "./report.md"]);
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
@@ -127,7 +124,7 @@ test("CLI discard rejects malformed investigation IDs as argument errors", async
 
 test("CLI check succeeds on a current report collection", async () => {
   await withTempRoot("cli-check", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const result = await runInvestigationCli(root, ["check"]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
@@ -137,7 +134,7 @@ test("CLI check succeeds on a current report collection", async () => {
 
 test("CLI show renders a scrubbed structured report read failure", async () => {
   await withTempRoot("cli-show-read-failure", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const reportPath = path.join(investigationRoot(root), "report.md");
     const token = `ghp_${"x".repeat(36)}`;
     const originalReadFile = fs.readFile;
@@ -145,7 +142,7 @@ test("CLI show renders a scrubbed structured report read failure", async () => {
     fs.readFile = (async (...args) => {
       if (args[0] === reportPath) {
         reportReadCount += 1;
-        if (reportReadCount === 2) {
+        if (reportReadCount === 3) {
           throw Object.assign(
             new Error(`token=${token}\nfailed at /private/report.md`),
             { code: "EACCES" }
@@ -172,7 +169,7 @@ test("CLI show renders a scrubbed structured report read failure", async () => {
 
 test("CLI sync-index writes a missing derived index", async () => {
   await withTempRoot("cli-sync", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }], false);
+    await writeCollection(root, [{ id: "report" }], false);
     const indexPath = path.join(
       investigationRoot(root),
       "investigation-index.json"
@@ -186,13 +183,13 @@ test("CLI sync-index writes a missing derived index", async () => {
       /Investigation index synchronized \(1 reports\)\./u
     );
     const index = parseJsonObject(await fs.readFile(indexPath, "utf8"));
-    assert.ok(Object.hasOwn(jsonObjectMember(index, "entries"), "report.md"));
+    assert.ok(Object.hasOwn(jsonObjectMember(index, "entries"), "report"));
   });
 });
 
 test("CLI sync-index preserves collection lock diagnostics", async () => {
   await withTempRoot("cli-sync-lock", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const lockPath = path.join(
       root,
       "docs",
@@ -221,7 +218,7 @@ test("CLI sync-index preserves collection lock diagnostics", async () => {
 
 test("CLI sync-index renders filesystem diagnostics structurally", async () => {
   await withTempRoot("cli-sync-filesystem", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const indexPath = path.join(
       investigationRoot(root),
       "investigation-index.json"
@@ -268,20 +265,20 @@ test("CLI list returns a current report after resource byte changes", async () =
     await fs.mkdir(path.dirname(resource), { recursive: true });
     await fs.writeFile(resource, "before", "utf8");
     await writeCollection(root, [
-      { id: "report.md", resources: ["report/evidence.txt"] }
+      { id: "report", resources: ["report/evidence.txt"] }
     ]);
     await fs.writeFile(resource, "after", "utf8");
 
     const result = await runInvestigationCli(root, ["list"]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
-    assert.match(result.stdout, /^report\.md /mu);
+    assert.match(result.stdout, /^report /mu);
   });
 });
 
 test("CLI uses invalid-option exit status for malformed list input", async () => {
   await withTempRoot("cli-invalid", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const result = await runInvestigationCli(root, ["list", "--limit", "zero"]);
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
@@ -291,7 +288,7 @@ test("CLI uses invalid-option exit status for malformed list input", async () =>
 
 test("CLI stage-index uses invalid-option exit status without report IDs", async () => {
   await withTempRoot("cli-stage-invalid", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const indexPath = path.join(
       investigationRoot(root),
       "investigation-index.json"
@@ -310,7 +307,7 @@ test("CLI stage-index uses invalid-option exit status without report IDs", async
 
 test("CLI stage-index preserves version-control diagnostic facts", async () => {
   await withTempRoot("cli-stage-version-control", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const result = await runInvestigationCli(root, [
       "stage-index",
       "report.md"
@@ -329,7 +326,7 @@ test("CLI stage-index preserves version-control diagnostic facts", async () => {
 
 test("CLI stage-index renders filesystem diagnostics structurally", async () => {
   await withTempRoot("cli-stage-filesystem", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     git(root, ["init", "--quiet"]);
     git(root, ["config", "user.email", "test@example.invalid"]);
     git(root, ["config", "user.name", "Test"]);
@@ -372,7 +369,7 @@ test("CLI stage-index renders filesystem diagnostics structurally", async () => 
 
 test("CLI stage-index preserves pending transaction facts", async () => {
   await withTempRoot("cli-stage-pending", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     git(root, ["init", "--quiet"]);
     git(root, ["config", "user.email", "test@example.invalid"]);
     git(root, ["config", "user.name", "Test"]);
@@ -399,7 +396,7 @@ test("CLI stage-index preserves pending transaction facts", async () => {
 
 test("CLI stage-index rejects JSON output", async () => {
   await withTempRoot("cli-stage-json", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const indexPath = path.join(
       investigationRoot(root),
       "investigation-index.json"
@@ -419,7 +416,7 @@ test("CLI stage-index rejects JSON output", async () => {
 
 test("CLI show requires one Investigation ID", async () => {
   await withTempRoot("cli-show", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const result = await runInvestigationCli(root, ["show"]);
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
@@ -430,10 +427,10 @@ test("CLI show requires one Investigation ID", async () => {
 test("CLI trace accepts report-level direction options", async () => {
   await withTempRoot("cli-trace", async (root) => {
     await writeCollection(root, [
-      { id: "first.md" },
+      { id: "first" },
       {
-        id: "second.md",
-        relations: [{ target: "first.md", type: "补充" }]
+        id: "second",
+        relations: [{ target: "first", type: "补充" }]
       }
     ]);
     const result = await runInvestigationCli(root, [
@@ -446,14 +443,14 @@ test("CLI trace accepts report-level direction options", async () => {
     ]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
-    assert.match(result.stdout, /Reports: first\.md, second\.md/u);
-    assert.match(result.stdout, /second\.md --补充--> first\.md/u);
+    assert.match(result.stdout, /Reports: first, second/u);
+    assert.match(result.stdout, /second --补充--> first/u);
   });
 });
 
 test("generated Investigation Report CLI starts under Node with argv and stdout protocol", async () => {
   await withTempRoot("cli-node-smoke", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const result = runGeneratedInvestigationCliSmoke(root, ["check"]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");

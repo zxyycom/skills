@@ -1,5 +1,6 @@
 ---
 title: 将账本扩展为验证义务并统一源码角色
+id: 260719-model-verification-obligations-and-source-roles
 status: archived
 alignment: null
 createdAt: 2026-07-19T18:44:38+08:00
@@ -10,7 +11,7 @@ tags:
   - test-evidence-review
 relations:
   - type: 修订
-    target: 260719-separate-test-value-from-ledger-validation.md
+    target: 260719-separate-test-value-from-ledger-validation
 ---
 
 ## 目的

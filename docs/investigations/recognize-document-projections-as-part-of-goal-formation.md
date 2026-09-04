@@ -1,12 +1,13 @@
 ---
 title: "文档投影会反过来参与目标形成"
+id: "recognize-document-projections-as-part-of-goal-formation"
 formedAt: "2026-08-13T09:07:50+00:00"
 question: "文档作为目标的时点投影时，怎样通过反馈反过来参与目标形成？"
 tags:
   - "ai-ready-docs"
 relations:
   - type: "修正"
-    target: "model-goals-as-layered-partially-expressible-intentions.md"
+    target: "model-goals-as-layered-partially-expressible-intentions"
 ---
 
 ## 形成时背景

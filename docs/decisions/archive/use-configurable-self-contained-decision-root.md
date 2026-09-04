@@ -1,5 +1,6 @@
 ---
 title: 使用可配置且自包含的决策根目录
+id: use-configurable-self-contained-decision-root
 status: archived
 alignment: null
 createdAt: 2026-07-22T08:42:12Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260720-use-configurable-decision-root.md
+    target: 260720-use-configurable-decision-root
 ---
 
 ## 目的

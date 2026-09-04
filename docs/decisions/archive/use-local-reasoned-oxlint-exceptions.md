@@ -1,5 +1,6 @@
 ---
 title: 以局部且有理由的注释承接 Oxlint 例外
+id: use-local-reasoned-oxlint-exceptions
 status: archived
 alignment: aligned
 createdAt: 2026-08-15T10:27:13Z

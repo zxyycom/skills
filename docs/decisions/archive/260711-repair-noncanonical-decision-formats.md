@@ -1,5 +1,6 @@
 ---
 title: 将非标准决策材料修复为唯一契约
+id: 260711-repair-noncanonical-decision-formats
 status: archived
 alignment: null
 createdAt: 2026-07-11T13:40:17+08:00

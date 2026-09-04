@@ -1,5 +1,6 @@
 ---
 title: 将 Change 结构完成与实施许可分离
+id: gate-change-implementation-by-review
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:26:59Z
@@ -10,7 +11,7 @@ tags:
   - openspec
 relations:
   - type: 拆分
-    target: 260706-gate-temporary-change-plans.md
+    target: 260706-gate-temporary-change-plans
 ---
 
 ## 目的

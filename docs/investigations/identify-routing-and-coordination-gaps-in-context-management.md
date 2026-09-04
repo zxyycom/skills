@@ -1,5 +1,6 @@
 ---
 title: "现有组合的主要差距位于路由与协作层"
+id: "identify-routing-and-coordination-gaps-in-context-management"
 formedAt: "2026-07-21T17:50:15+08:00"
 question: "现有上下文管理 skills 距离统一上下文管理系统还缺少哪些路由与协作能力？"
 tags:

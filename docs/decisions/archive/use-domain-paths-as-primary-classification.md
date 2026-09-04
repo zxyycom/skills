@@ -1,5 +1,6 @@
 ---
 title: 使用领域路径作为唯一一级分类
+id: use-domain-paths-as-primary-classification
 status: archived
 alignment: aligned
 createdAt: 2026-07-24T17:06:26Z
@@ -10,9 +11,9 @@ tags:
   - decision-records
 relations:
   - type: 归并
-    target: query-projected-decision-metadata.md
+    target: query-projected-decision-metadata
   - type: 归并
-    target: use-frontmatter-projection-and-semantic-field-order.md
+    target: use-frontmatter-projection-and-semantic-field-order
 ---
 
 ## 目的

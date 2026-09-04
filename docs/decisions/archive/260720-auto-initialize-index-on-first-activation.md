@@ -1,5 +1,6 @@
 ---
 title: 在首次激活时自动初始化当前索引
+id: 260720-auto-initialize-index-on-first-activation
 status: archived
 alignment: null
 createdAt: 2026-07-20T09:40:51+08:00

@@ -1,5 +1,6 @@
 ---
 title: 分离逻辑归档与决策关系
+id: 260718-separate-logical-archive-from-relations
 status: archived
 alignment: null
 createdAt: 2026-07-18T14:11:24+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 替代
-    target: 260713-use-json-current-index-and-stable-paths.md
+    target: 260713-use-json-current-index-and-stable-paths
 ---
 
 ## 目的

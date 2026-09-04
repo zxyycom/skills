@@ -1,5 +1,6 @@
 ---
 title: 按 Git 演进距离识别搁置计划
+id: detect-shelved-plans-by-git-distance
 status: archived
 alignment: aligned
 createdAt: 2026-08-08T02:29:49Z

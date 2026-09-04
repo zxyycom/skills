@@ -1,5 +1,6 @@
 ---
 title: 分离 Agent 决策契约与工具协议
+id: separate-agent-contract-from-tool-protocol
 status: active
 alignment: aligned
 createdAt: 2026-07-25T02:10:02Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260720-focus-entry-on-behavior-routing.md
+    target: 260720-focus-entry-on-behavior-routing
 ---
 
 ## 目的

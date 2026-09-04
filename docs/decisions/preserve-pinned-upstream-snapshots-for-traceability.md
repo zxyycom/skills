@@ -1,5 +1,6 @@
 ---
 title: 随 Skill 保留固定上游快照与许可证
+id: preserve-pinned-upstream-snapshots-for-traceability
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:27:00Z
@@ -10,7 +11,7 @@ tags:
   - minimal-implementation
 relations:
   - type: 拆分
-    target: choose-smallest-correct-maintenance-surface.md
+    target: choose-smallest-correct-maintenance-surface
 ---
 
 ## 目的

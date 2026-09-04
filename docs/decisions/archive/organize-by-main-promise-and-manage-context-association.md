@@ -1,5 +1,6 @@
 ---
 title: 按主承诺组织内容并管理上下文关联
+id: organize-by-main-promise-and-manage-context-association
 status: archived
 alignment: aligned
 createdAt: 2026-08-21T03:39:50Z
@@ -10,7 +11,7 @@ tags:
   - ai-ready-docs
 relations:
   - type: 修订
-    target: 260720-treat-negative-options-as-solution-anchors.md
+    target: 260720-treat-negative-options-as-solution-anchors
 ---
 
 ## 目的

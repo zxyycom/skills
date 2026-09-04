@@ -1,5 +1,6 @@
 ---
 title: 以主题归属锚定调查资源
+id: anchor-investigation-resources-to-topic-owners
 status: archived
 alignment: aligned
 createdAt: 2026-08-17T08:03:12Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 拆分
-    target: attach-verifiable-resources-to-investigation-reports.md
+    target: attach-verifiable-resources-to-investigation-reports
 ---
 
 ## 目的

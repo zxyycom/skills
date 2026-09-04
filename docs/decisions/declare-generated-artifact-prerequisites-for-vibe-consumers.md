@@ -1,5 +1,6 @@
 ---
 title: 为 Vibe 分发 consumer 声明生成前置
+id: declare-generated-artifact-prerequisites-for-vibe-consumers
 status: active
 alignment: aligned
 createdAt: 2026-09-01T06:31:41Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: organize-vibe-checks-by-semantic-identity.md
+    target: organize-vibe-checks-by-semantic-identity
 ---
 
 ## 目的

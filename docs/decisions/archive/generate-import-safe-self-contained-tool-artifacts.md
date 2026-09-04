@@ -1,5 +1,6 @@
 ---
 title: 生成可独立导入的自包含工具产物
+id: generate-import-safe-self-contained-tool-artifacts
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:03:07Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: generate-self-contained-tool-distributions.md
+    target: generate-self-contained-tool-distributions
 ---
 
 ## 目的

@@ -22,6 +22,7 @@ const markdownFencePattern = new RegExp("^[ \\t]{0,3}(`{3,}|~{3,})", "u");
 type ParsedFrontmatter = Readonly<{
   endLine: number;
   formedAt: string;
+  id: string;
   question: string;
   relations: InvestigationRelation[];
   relationsEndLine: number;
@@ -64,6 +65,7 @@ export function parseInvestigationReport(
         ? null
         : {
             formedAt: frontmatter.formedAt,
+            id: frontmatter.id,
             frontmatter: {
               endLine: frontmatter.endLine,
               relationsEndLine: frontmatter.relationsEndLine,
@@ -77,6 +79,16 @@ export function parseInvestigationReport(
           },
     resourceErrors: uniqueSorted(resourceErrors)
   };
+}
+
+/** Reads the declared identity before full report validation during scanning. */
+export function investigationIdFromMarkdown(markdown: string): string | null {
+  const lines = normalizeNewlines(markdown).split("\n");
+  if (lines[0] !== "---" || !lines[1]?.startsWith("title: ")) return null;
+  const idLine = lines[2];
+  if (idLine === undefined || !idLine.startsWith("id: ")) return null;
+  const id = parseQuotedScalar(idLine.slice("id: ".length));
+  return id !== null && isInvestigationId(id) ? id : null;
 }
 
 export function replaceInvestigationReportRelations(
@@ -99,6 +111,7 @@ export function replaceInvestigationReportRelations(
 
 export function serializeInvestigationReportFrontmatter(input: {
   formedAt: string;
+  id: string;
   question: string;
   relations: readonly InvestigationRelation[];
   tags: readonly string[];
@@ -107,6 +120,7 @@ export function serializeInvestigationReportFrontmatter(input: {
   return [
     "---",
     `title: ${quoteScalar(input.title)}`,
+    `id: ${quoteScalar(input.id)}`,
     `formedAt: ${quoteScalar(input.formedAt)}`,
     `question: ${quoteScalar(input.question)}`,
     "tags:",
@@ -136,6 +150,7 @@ function parseFrontmatter(
   }
   const cursor = new FrontmatterCursor(lines, 1, endLine, id, errors);
   const title = cursor.requiredScalar("title");
+  const declaredId = cursor.requiredScalar("id");
   const formedAt = cursor.requiredScalar("formedAt");
   const question = cursor.requiredScalar("question");
   const tags = cursor.tags();
@@ -149,6 +164,7 @@ function parseFrontmatter(
   }
   if (
     title === null ||
+    declaredId === null ||
     formedAt === null ||
     question === null ||
     tags === null ||
@@ -156,9 +172,18 @@ function parseFrontmatter(
   ) {
     return null;
   }
+  if (!isInvestigationId(declaredId)) {
+    errors.push(`${id} frontmatter id must use a valid Investigation ID`);
+  }
+  if (declaredId !== id) {
+    errors.push(
+      `${id} frontmatter id does not match the expected Investigation ID`
+    );
+  }
   return {
     endLine,
     formedAt,
+    id: declaredId,
     question,
     relations: relations.values,
     relationsEndLine: relations.endLine,
@@ -181,7 +206,9 @@ class FrontmatterCursor {
     this.index = start;
   }
 
-  public requiredScalar(key: "title" | "formedAt" | "question"): string | null {
+  public requiredScalar(
+    key: "title" | "id" | "formedAt" | "question"
+  ): string | null {
     const line = this.lines[this.index];
     const prefix = `${key}: `;
     if (line === undefined || !line.startsWith(prefix)) {

@@ -1,5 +1,6 @@
 ---
 title: 按 quick 与 full 档位选择前置检查
+id: select-prerequisite-checks-by-profile
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:03:02Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: select-check-tasks-by-profile.md
+    target: select-check-tasks-by-profile
 ---
 
 ## 目的

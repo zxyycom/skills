@@ -1,5 +1,6 @@
 ---
 title: 按测试证据 Case ID 独立暂存派生索引条目
+id: stage-selected-test-evidence-index-entries
 status: active
 alignment: aligned
 createdAt: 2026-08-10T06:42:57Z

@@ -1,5 +1,6 @@
 ---
 title: 用单仓库维护带独立版本的 skill 包
+id: use-monorepo-versioned-skill-packages
 status: active
 alignment: aligned
 createdAt: 2026-07-24T05:56:25Z
@@ -10,7 +11,7 @@ tags:
   - repository-model
 relations:
   - type: 修订
-    target: 260702-use-monorepo-skills-directory.md
+    target: 260702-use-monorepo-skills-directory
 ---
 
 ## 目的

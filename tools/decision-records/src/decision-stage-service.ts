@@ -26,11 +26,11 @@ import {
   serializeDecisionIndex
 } from "./decision-state-index.ts";
 import {
-  decisionIdFromSourcePath,
   displayDecisionPath,
   isDecisionId,
   isDecisionSourcePath
 } from "./decision-path.ts";
+import { decisionIdFromMarkdown } from "./decision-metadata.ts";
 import { validateDecisionBody } from "./record.ts";
 import {
   resolveDecisionLocation,
@@ -370,14 +370,18 @@ async function mergeSelectedDecisionSources(
   sourceById: Map<DecisionId, DecisionStageSource>
 ): Promise<SelectedFilesystemSource[]> {
   const selectedSources = await Promise.all(
-    options.selectedIds.map(async (decisionId) => ({
-      decisionId,
-      source: await readFilesystemDecisionSource(
-        options.decisionsDirectory,
-        options.decisionScope,
-        decisionId
-      )
-    }))
+    options.selectedIds.map(async (decisionId) => {
+      const baselineSource = sourceById.get(decisionId);
+      return {
+        decisionId,
+        source: await readFilesystemDecisionSource(
+          options.decisionsDirectory,
+          options.decisionScope,
+          decisionId,
+          baselineSource?.source.sourcePath
+        )
+      };
+    })
   );
   for (const selectedSource of selectedSources) {
     if (
@@ -423,7 +427,7 @@ async function readDecisionBaseline(options: {
     if (sourcePath === decisionIndexFileName) {
       continue;
     }
-    if (decisionIdFromSourcePath(sourcePath) === null) {
+    if (!isDecisionSourcePath(sourcePath)) {
       throw new Error(
         "revision decision scope contains unsupported file: " + sourcePath
       );
@@ -450,31 +454,28 @@ async function readFilesystemDecisionSources(
 ): Promise<Map<DecisionId, DecisionStageSource>> {
   const sources = new Map<DecisionId, DecisionStageSource>();
   const addSource = async (sourcePath: string): Promise<void> => {
-    const decisionId = decisionIdFromSourcePath(sourcePath);
-    if (decisionId === null) {
+    if (!isDecisionSourcePath(sourcePath)) {
       throw new Error(
         "filesystem decision scope contains unsupported file: " + sourcePath
-      );
-    }
-    if (sources.has(decisionId)) {
-      throw new Error(
-        "Decision ID occurs in more than one filesystem source path: " +
-          decisionId
       );
     }
     const data = await readStageFile(
       path.join(decisionsDirectory, ...sourcePath.split("/"))
     );
-    sources.set(
-      decisionId,
-      stageSourceFromFile(
-        {
-          data,
-          path: repositoryPath(decisionScope, sourcePath)
-        },
-        sourcePath
-      )
+    const source = stageSourceFromFile(
+      {
+        data,
+        path: repositoryPath(decisionScope, sourcePath)
+      },
+      sourcePath
     );
+    if (sources.has(source.source.decisionId)) {
+      throw new Error(
+        "Decision ID occurs in more than one filesystem source path: " +
+          source.source.decisionId
+      );
+    }
+    sources.set(source.source.decisionId, source);
   };
   const rootEntries = await readStageDirectory(decisionsDirectory);
   for (const entry of rootEntries) {
@@ -511,7 +512,8 @@ async function verifySelectedFilesystemSources(
     const current = await readFilesystemDecisionSource(
       decisionsDirectory,
       decisionScope,
-      selectedSource.decisionId
+      selectedSource.decisionId,
+      selectedSource.source?.source.sourcePath
     );
     if (selectedSource.source === null && current === null) {
       continue;
@@ -532,63 +534,101 @@ async function verifySelectedFilesystemSources(
 async function readFilesystemDecisionSource(
   decisionsDirectory: string,
   decisionScope: string,
-  decisionId: DecisionId
+  decisionId: DecisionId,
+  expectedSourcePath?: string
 ): Promise<DecisionStageSource | null> {
-  const sourcePaths = [decisionId, "archive/" + decisionId];
-  const sources: DecisionStageSource[] = [];
-  for (const sourcePath of sourcePaths) {
-    const filesystemPath = path.join(
-      decisionsDirectory,
-      ...sourcePath.split("/")
-    );
-    let entry;
-    try {
-      entry = await fs.lstat(filesystemPath);
-    } catch (error) {
-      if (isFileSystemError(error, "ENOENT")) {
-        continue;
+  const matches: DecisionStageSource[] = [];
+  const inspect = async (
+    sourcePath: string,
+    entry: { isFile(): boolean; name: string }
+  ): Promise<void> => {
+    if (!isDecisionSourcePath(sourcePath)) return;
+    const isKnownPath = sourcePath === expectedSourcePath;
+    if (!entry.isFile()) {
+      if (isKnownPath) {
+        await readStageFile(
+          path.join(decisionsDirectory, ...sourcePath.split("/"))
+        );
       }
-      throw new DecisionStageFileSystemError(error);
+      return;
     }
-    if (!entry.isFile() || entry.isSymbolicLink()) {
-      throw new Error(
-        "Decision source must be a regular non-symlink file: " + sourcePath
+
+    let data: Buffer;
+    try {
+      data = await readStageFile(
+        path.join(decisionsDirectory, ...sourcePath.split("/"))
       );
+    } catch (error) {
+      if (isKnownPath) throw error;
+      return;
     }
-    const data = await readStageFile(filesystemPath);
-    sources.push(
+    let text: string;
+    try {
+      text = decodeUtf8(data, sourcePath);
+    } catch (error) {
+      if (isKnownPath) throw error;
+      return;
+    }
+    const declaredId = decisionIdFromMarkdown(text);
+    if (declaredId !== decisionId) {
+      if (isKnownPath)
+        throw new Error(
+          `${sourcePath} no longer declares the selected Decision ID ${decisionId}`
+        );
+      return;
+    }
+    matches.push(
       stageSourceFromFile(
-        {
-          data,
-          path: repositoryPath(decisionScope, sourcePath)
-        },
+        { data, path: repositoryPath(decisionScope, sourcePath) },
         sourcePath
       )
     );
+  };
+
+  const rootEntries = await readStageDirectory(decisionsDirectory);
+  for (const entry of rootEntries) {
+    if (entry.name === decisionIndexFileName) continue;
+    if (entry.name === "archive" && entry.isDirectory()) {
+      const archiveEntries = await readStageDirectory(
+        path.join(decisionsDirectory, "archive")
+      );
+      for (const archiveEntry of archiveEntries) {
+        await inspect("archive/" + archiveEntry.name, archiveEntry);
+      }
+      continue;
+    }
+    await inspect(entry.name, entry);
   }
-  if (sources.length > 1) {
+  if (matches.length > 1) {
     throw new Error(
       "Decision ID occurs in more than one filesystem source path: " +
         decisionId
     );
   }
-  return sources[0] ?? null;
+  return matches[0] ?? null;
 }
 
 function stageSourceFromFile(
   file: VersionControlFile,
   sourcePath: string
 ): DecisionStageSource {
-  const decisionId = decisionIdFromSourcePath(sourcePath);
-  if (decisionId === null || !isDecisionSourcePath(sourcePath)) {
+  if (!isDecisionSourcePath(sourcePath)) {
     throw new Error("invalid decision source path: " + sourcePath);
+  }
+  const text = decodeUtf8(file.data, sourcePath);
+  const decisionId = decisionIdFromMarkdown(text);
+  if (decisionId === null) {
+    throw new Error(
+      "decision source must declare a valid frontmatter Decision ID: " +
+        sourcePath
+    );
   }
   return {
     file,
     source: {
       decisionId,
       sourcePath,
-      text: decodeUtf8(file.data, sourcePath)
+      text
     }
   };
 }
@@ -671,7 +711,9 @@ function validateSelectedIds(
   }
   for (const decisionId of decisionIds) {
     if (!isDecisionId(decisionId)) {
-      errors.push("Decision ID must be a Markdown basename: " + decisionId);
+      errors.push(
+        "Decision ID must be extensionless kebab-case text: " + decisionId
+      );
       continue;
     }
     if (seen.has(decisionId)) {
@@ -805,8 +847,18 @@ async function readStageDirectory(directory: string) {
 
 async function readStageFile(filePath: string): Promise<Buffer> {
   try {
+    const entry = await fs.lstat(filePath);
+    if (entry.isSymbolicLink() || !entry.isFile()) {
+      throw new Error(
+        "Decision source must be a regular non-symlink file: " +
+          path.basename(filePath)
+      );
+    }
     return await fs.readFile(filePath);
   } catch (error) {
+    if (error instanceof Error && error.message.startsWith("Decision source")) {
+      throw error;
+    }
     throw new DecisionStageFileSystemError(error);
   }
 }

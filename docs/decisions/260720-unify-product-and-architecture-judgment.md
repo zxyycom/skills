@@ -1,5 +1,6 @@
 ---
 title: 归并为产品与架构判断
+id: 260720-unify-product-and-architecture-judgment
 status: active
 alignment: aligned
 createdAt: 2026-07-20T15:59:38+08:00
@@ -10,9 +11,9 @@ tags:
   - product-architecture-judgment
 relations:
   - type: 归并
-    target: 260720-keep-problem-reframing-self-contained.md
+    target: 260720-keep-problem-reframing-self-contained
   - type: 归并
-    target: 260720-separate-framing-from-engineering-landing.md
+    target: 260720-separate-framing-from-engineering-landing
 ---
 
 ## 目的

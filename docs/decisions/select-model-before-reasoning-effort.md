@@ -1,5 +1,6 @@
 ---
 title: 先按能力选择子代理模型再配置思考强度
+id: select-model-before-reasoning-effort
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:26:56Z
@@ -10,7 +11,7 @@ tags:
   - subagent-orchestration
 relations:
   - type: 拆分
-    target: allocate-agents-and-runtime-by-task-slice.md
+    target: allocate-agents-and-runtime-by-task-slice
 ---
 
 ## 目的

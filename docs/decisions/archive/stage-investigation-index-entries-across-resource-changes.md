@@ -1,5 +1,6 @@
 ---
 title: 让调查索引条目暂存不受资源变化阻塞
+id: stage-investigation-index-entries-across-resource-changes
 status: archived
 alignment: aligned
 createdAt: 2026-08-17T08:03:17Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 修订
-    target: stage-selected-investigation-index-entries.md
+    target: stage-selected-investigation-index-entries
 ---
 
 ## 目的

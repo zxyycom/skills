@@ -15,8 +15,8 @@ import {
   fixtureRoot
 } from "./support.ts";
 
-function establishedMarkdown(tags = ["decision-records"]): string {
-  return candidateDecisionBody({ tags })
+function establishedMarkdown(id: string, tags = ["decision-records"]): string {
+  return candidateDecisionBody({ id, tags })
     .replace("status: candidate", "status: active")
     .replace("alignment: null", "alignment: aligned")
     .replace("createdAt: null", "createdAt: 2026-08-03T10:20:30Z");
@@ -24,28 +24,26 @@ function establishedMarkdown(tags = ["decision-records"]): string {
 
 test("state snapshots are isolated from later source mutations", async () => {
   const source = {
-    decisionId: "use-snapshot.md",
+    decisionId: "use-snapshot",
     sourcePath: "use-snapshot.md",
-    text: establishedMarkdown()
+    text: establishedMarkdown("use-snapshot")
   };
   const snapshot = await buildDecisionStateSnapshotFromSources([source]);
-  source.text = establishedMarkdown(["project-tooling"]);
-  assert.deepEqual(snapshot.states["use-snapshot.md"].tags, [
-    "decision-records"
-  ]);
+  source.text = establishedMarkdown("use-snapshot", ["project-tooling"]);
+  assert.deepEqual(snapshot.states["use-snapshot"].tags, ["decision-records"]);
 });
 
 test("memory sources share deterministic ID-keyed index construction", async () => {
   const sources = [
     {
-      decisionId: "use-a.md",
+      decisionId: "use-a",
       sourcePath: "use-a.md",
-      text: establishedMarkdown()
+      text: establishedMarkdown("use-a")
     },
     {
-      decisionId: "use-b.md",
+      decisionId: "use-b",
       sourcePath: "archive/use-b.md",
-      text: establishedMarkdown()
+      text: establishedMarkdown("use-b")
     }
   ];
   assert.deepEqual(
@@ -57,21 +55,21 @@ test("memory sources share deterministic ID-keyed index construction", async () 
 test("source revisions fingerprint invalid Markdown and sourcePath without parsing it", () => {
   const original = decisionSourceRevision([
     {
-      decisionId: "use-invalid.md",
+      decisionId: "use-invalid",
       sourcePath: "use-invalid.md",
       text: "not Markdown\n"
     }
   ]);
   const moved = decisionSourceRevision([
     {
-      decisionId: "use-invalid.md",
+      decisionId: "use-invalid",
       sourcePath: "archive/use-invalid.md",
       text: "not Markdown\n"
     }
   ]);
   assert.notEqual(
-    moved.entries["use-invalid.md"],
-    original.entries["use-invalid.md"]
+    moved.entries["use-invalid"],
+    original.entries["use-invalid"]
   );
 });
 
@@ -87,19 +85,11 @@ test("in-memory decision sources reject invalid IDs and source paths before deri
     },
     {
       source: {
-        decisionId: "use-valid.md",
+        decisionId: "use-valid",
         sourcePath: "nested/use-valid.md",
         text: "source\n"
       },
       expected: /invalid source path/
-    },
-    {
-      source: {
-        decisionId: "use-valid.md",
-        sourcePath: "archive/use-other.md",
-        text: "source\n"
-      },
-      expected: /path does not match Decision ID/
     }
   ]) {
     assert.throws(() => decisionSourceRevision([source]), expected);
@@ -141,7 +131,7 @@ test("memory source snapshots reject active relationship targets", async () => {
       ? source
       : {
           ...source,
-          sourcePath: archivedDecisionId,
+          sourcePath: archivedSourcePath,
           text: source.text
             .replace("status: archived", "status: active")
             .replace("alignment: null", "alignment: aligned")
@@ -159,7 +149,7 @@ test("memory source snapshots reject relationship cycles", async () => {
     source.decisionId !== archivedDecisionId
       ? {
           ...source,
-          sourcePath: `archive/${currentDecisionId}`,
+          sourcePath: `archive/${currentDecisionId}.md`,
           text: source.text
             .replace("status: active", "status: archived")
             .replace("alignment: aligned", "alignment: null")

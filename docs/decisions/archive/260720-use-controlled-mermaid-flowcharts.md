@@ -1,5 +1,6 @@
 ---
 title: 使用受控 Mermaid flowchart 表达复杂关系
+id: 260720-use-controlled-mermaid-flowcharts
 status: archived
 alignment: aligned
 createdAt: 2026-07-20T10:15:36+08:00

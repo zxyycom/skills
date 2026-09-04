@@ -1,5 +1,6 @@
 ---
 title: 在生命周期实现前独立发现 Skill 行为契约
+id: discover-skill-behavior-before-lifecycle-implementation
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:27:01Z
@@ -10,7 +11,7 @@ tags:
   - skill-design-discovery
 relations:
   - type: 修订
-    target: separate-design-discovery-from-lifecycle-maintenance.md
+    target: separate-design-discovery-from-lifecycle-maintenance
 ---
 
 ## 目的

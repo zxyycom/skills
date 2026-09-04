@@ -1,5 +1,6 @@
 ---
 title: 本地脚本的常见行为优先使用成熟库
+id: 260701-use-libraries-for-common-script-behavior
 status: archived
 alignment: aligned
 createdAt: 2026-07-01T10:02:50+08:00

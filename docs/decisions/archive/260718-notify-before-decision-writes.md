@@ -1,5 +1,6 @@
 ---
 title: 在决策写入前明确通知用户
+id: 260718-notify-before-decision-writes
 status: archived
 alignment: null
 createdAt: 2026-07-18T14:44:37+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260711-require-confirmed-decision-writes.md
+    target: 260711-require-confirmed-decision-writes
 ---
 
 ## 目的

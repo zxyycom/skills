@@ -1,5 +1,6 @@
 ---
 title: 按档位运行检查并按结果展开日志
+id: use-profiled-concise-checks
 status: archived
 alignment: aligned
 createdAt: 2026-08-05T07:12:40Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 替代
-    target: default-checks-to-warnings.md
+    target: default-checks-to-warnings
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 按稳定 Decision ID 构造待提交快照
+id: stage-selected-decisions-by-stable-id
 status: active
 alignment: aligned
 createdAt: 2026-08-15T03:14:04Z
@@ -11,7 +12,7 @@ tags:
   - version-control
 relations:
   - type: 修订
-    target: stage-selected-decisions.md
+    target: stage-selected-decisions
 ---
 
 ## 目的

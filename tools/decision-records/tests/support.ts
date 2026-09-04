@@ -49,14 +49,15 @@ export const generatedSchemaPath = path.join(
   "references",
   "decision-index.schema.json"
 );
-export const currentDecisionId = decisionIdForTest("use-generated-cli.md");
-export const archivedDecisionId = decisionIdForTest("260710-use-source-cli.md");
-export const currentSourcePath = currentDecisionId;
-export const archivedSourcePath = `archive/${archivedDecisionId}`;
-// Compatibility aliases keep still-being-migrated test files type-checkable while
-// their test intents are rewritten around stable IDs.
+export const currentDecisionId = decisionIdForTest("use-generated-cli");
+export const archivedDecisionId = decisionIdForTest("260710-use-source-cli");
+export const currentSourcePath = "use-generated-cli.md";
+export const archivedSourcePath = "archive/260710-use-source-cli.md";
+// Historical test names refer to the collection identity, never its sourcePath.
 export const currentRelativePath = currentDecisionId;
 export const archivedRelativePath = archivedDecisionId;
+
+let implicitCandidateId: string | null = null;
 
 let fixtureTemplate: Promise<string> | null = null;
 let fixtureTemplatePath: string | null = null;
@@ -84,16 +85,21 @@ export function decisionFilePath(
   workspaceRoot: string,
   sourcePath: string
 ): string {
+  const normalizedSourcePath = sourcePathForTest(sourcePath);
+  implicitCandidateId = normalizedSourcePath
+    .replace(/^archive\//u, "")
+    .replace(/\.md$/iu, "");
   return path.join(
     workspaceRoot,
     "docs",
     "decisions",
-    ...sourcePath.split("/")
+    ...normalizedSourcePath.split("/")
   );
 }
 
 export function candidateDecisionBody(
   options: {
+    id?: string;
     relations?: readonly { target: string; type: string }[];
     tags?: readonly string[];
     title?: string;
@@ -103,6 +109,7 @@ export function candidateDecisionBody(
   return [
     "---",
     `title: ${options.title ?? "使用 Markdown 建立状态"}`,
+    `id: ${options.id ?? implicitCandidateId ?? "candidate"}`,
     "status: candidate",
     "alignment: null",
     "createdAt: null",
@@ -114,7 +121,7 @@ export function candidateDecisionBody(
     relations.length === 0 ? "relations: []" : "relations:",
     ...relations.flatMap((relation) => [
       `  - type: ${relation.type}`,
-      `    target: ${relation.target}`
+      `    target: ${relation.target.replace(/\.md$/iu, "")}`
     ]),
     "---",
     "",
@@ -347,9 +354,23 @@ export async function writeDecision(
   sourcePath: string,
   markdown: string
 ): Promise<void> {
-  const targetPath = decisionFilePath(workspaceRoot, sourcePath);
+  const normalizedSourcePath = sourcePathForTest(sourcePath);
+  const targetPath = decisionFilePath(workspaceRoot, normalizedSourcePath);
   await fs.mkdir(path.dirname(targetPath), { recursive: true });
-  await fs.writeFile(targetPath, markdown, "utf8");
+  const id = normalizedSourcePath
+    .replace(/^archive\//u, "")
+    .replace(/\.md$/iu, "");
+  const normalized = markdown.includes("\nid: ")
+    ? markdown.replace(/^id: .+$/mu, `id: ${id}`)
+    : markdown.replace(/^title: .+$/mu, (title) => `${title}\nid: ${id}`);
+  await fs.writeFile(targetPath, normalized, "utf8");
+}
+
+function sourcePathForTest(value: string): string {
+  const archived = value.startsWith("archive/");
+  const basename = archived ? value.slice("archive/".length) : value;
+  if (!isDecisionId(basename)) return value;
+  return (archived ? "archive/" : "") + basename + ".md";
 }
 
 export async function fileExists(filePath: string): Promise<boolean> {
@@ -403,8 +424,9 @@ export function findIndexEntry(
 }
 
 export function decisionIdForTest(value: string): DecisionId {
-  assert.ok(isDecisionId(value), `Expected Decision ID ${value}`);
-  return value;
+  const normalized = value.replace(/\.md$/iu, "");
+  assert.ok(isDecisionId(normalized), `Expected Decision ID ${value}`);
+  return normalized;
 }
 
 export function initializeGitRepository(workspaceRoot: string): void {

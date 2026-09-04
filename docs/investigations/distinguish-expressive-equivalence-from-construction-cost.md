@@ -1,12 +1,13 @@
 ---
 title: "正负描述表达能力等价但构造成本不对称"
+id: "distinguish-expressive-equivalence-from-construction-cost"
 formedAt: "2026-08-13T10:27:54+00:00"
 question: "正负描述在形式表达能力等价时，为什么仍可能具有不对称的自然语言构造成本？"
 tags:
   - "ai-ready-docs"
 relations:
   - type: "修正"
-    target: "ground-positive-negative-asymmetry-in-reference-structure.md"
+    target: "ground-positive-negative-asymmetry-in-reference-structure"
 ---
 
 ## 形成时背景

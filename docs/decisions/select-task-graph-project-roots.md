@@ -1,5 +1,6 @@
 ---
 title: 为 task-graph 短命令选择项目 Root
+id: select-task-graph-project-roots
 status: active
 alignment: aligned
 createdAt: 2026-08-09T05:40:36Z
@@ -11,7 +12,7 @@ tags:
   - task-graph
 relations:
   - type: 拆分
-    target: bootstrap-hooks-and-use-project-short-commands.md
+    target: bootstrap-hooks-and-use-project-short-commands
 ---
 
 ## 目的

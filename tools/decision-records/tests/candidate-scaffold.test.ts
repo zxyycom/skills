@@ -11,7 +11,7 @@ import {
   writeDecision
 } from "./support.ts";
 
-const candidateId = "create-decision-scaffold.md";
+const candidateId = "create-decision-scaffold";
 
 const newCandidateArguments = [
   "new",

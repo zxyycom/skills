@@ -1,5 +1,6 @@
 ---
 title: 以明确名称白名单和版本控制可见性界定受管调查资源
+id: define-version-control-visible-investigation-resources
 status: archived
 alignment: aligned
 createdAt: 2026-08-14T08:04:04Z

@@ -12,6 +12,7 @@ function decisionBody(fieldLine: string): string {
   return [
     "---",
     "title: 接受等价正文符号",
+    "id: accept-equivalent-punctuation",
     "status: active",
     "alignment: aligned",
     "createdAt: 2026-08-03T10:20:30+08:00",
@@ -39,7 +40,7 @@ async function validateFieldLine(fieldLine: string) {
   const errors: string[] = [];
   const document = await validateDecisionBody({
     body: decisionBody(fieldLine),
-    decisionId: "accept-equivalent-punctuation.md",
+    decisionId: "accept-equivalent-punctuation",
     errors,
     sourcePath,
     targetExists: () => false

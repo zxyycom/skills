@@ -1,5 +1,6 @@
 ---
 title: 用 skill package lock 承接发布和自更新
+id: 260703-use-per-skill-hash-lock-for-updater
 status: archived
 alignment: null
 createdAt: 2026-07-03T10:58:54+08:00
@@ -10,11 +11,11 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: 260701-gate-latest-release-by-skill-hash.md
+    target: 260701-gate-latest-release-by-skill-hash
   - type: 修订
-    target: 260701-publish-versioned-skill-releases.md
+    target: 260701-publish-versioned-skill-releases
   - type: 修订
-    target: 260701-update-package-hash-with-git-hooks.md
+    target: 260701-update-package-hash-with-git-hooks
 ---
 
 ## 目的

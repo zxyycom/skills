@@ -1,5 +1,6 @@
 ---
 title: 将 prompt-optimize 核心流程合并回入口
+id: 260630-merge-prompt-optimize-core-flow-into-entry
 status: archived
 alignment: null
 createdAt: 2026-06-30T17:17:43+08:00
@@ -10,7 +11,7 @@ tags:
   - ai-ready-docs
 relations:
   - type: 替代
-    target: 260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md
+    target: 260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 import type { Dirent } from "node:fs";
 import fs from "node:fs/promises";
+import path from "node:path";
 import type {
   StateSnapshot,
   StateSourceRevision
@@ -10,11 +11,13 @@ import {
   investigationCandidateIdFromFileName,
   isReservedInvestigationCandidateFileName
 } from "./candidate-path.ts";
-import { parseInvestigationReport } from "./markdown.ts";
+import {
+  investigationIdFromMarkdown,
+  parseInvestigationReport
+} from "./markdown.ts";
 import {
   investigationIndexFileName,
-  isInvestigationId,
-  reportPathForInvestigationId
+  isInvestigationSourcePath
 } from "./report-path.ts";
 import { buildInvestigationReportState } from "./report-validation.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
@@ -27,8 +30,6 @@ import type {
   InvestigationIndexState,
   InvestigationSource
 } from "./types.ts";
-
-const investigationSourceReadConcurrency = 32;
 
 export type InvestigationCollectionLayout = Readonly<{
   candidateErrors: string[];
@@ -43,9 +44,7 @@ export async function discoverInvestigationReportIds(
   const layout = await inspectInvestigationCollectionLayout(
     investigationsDirectory
   );
-  if (layout.errors.length > 0) {
-    throw new Error(layout.errors.join("; "));
-  }
+  if (layout.errors.length > 0) throw new Error(layout.errors.join("; "));
   return layout.reportIds;
 }
 
@@ -55,7 +54,7 @@ export async function inspectInvestigationCollectionLayout(
   const candidateErrors: string[] = [];
   const candidateIds: string[] = [];
   const errors: string[] = [];
-  const reportIds: string[] = [];
+  const formalSources: InvestigationSource[] = [];
   let rootEntries: Dirent<string>[];
   try {
     rootEntries = await fs.readdir(investigationsDirectory, {
@@ -68,9 +67,20 @@ export async function inspectInvestigationCollectionLayout(
     );
   }
   rootEntries.sort((left, right) => compareText(left.name, right.name));
-  const context = { candidateErrors, candidateIds, errors, reportIds };
   for (const entry of rootEntries) {
-    inspectInvestigationRootEntry(entry, context);
+    await inspectInvestigationRootEntry(
+      entry,
+      investigationsDirectory,
+      candidateIds,
+      candidateErrors,
+      errors,
+      formalSources
+    );
+  }
+  const reportIds = formalSources.map((source) => source.id);
+  const duplicateIds = duplicateValues(reportIds);
+  for (const id of duplicateIds) {
+    errors.push(`Investigation ID occurs in more than one source path: ${id}`);
   }
   const identityConflicts = hasCandidateFormalIdentityConflict(
     reportIds,
@@ -78,31 +88,67 @@ export async function inspectInvestigationCollectionLayout(
   );
   return {
     candidateErrors: uniqueSorted([...candidateErrors, ...identityConflicts]),
-    candidateIds: candidateIds.sort(compareText),
+    candidateIds: uniqueSorted(candidateIds),
     errors: uniqueSorted([...errors, ...identityConflicts]),
-    reportIds: reportIds.sort(compareText)
+    reportIds: uniqueSorted(reportIds)
   };
 }
 
-type InvestigationLayoutContext = Pick<
-  InvestigationCollectionLayout,
-  "candidateErrors" | "candidateIds" | "errors" | "reportIds"
->;
-
-function inspectInvestigationRootEntry(
+async function inspectInvestigationRootEntry(
   entry: Dirent<string>,
-  context: InvestigationLayoutContext
-): void {
-  if (inspectReservedRootEntry(entry, context.errors)) return;
+  investigationsDirectory: string,
+  candidateIds: string[],
+  candidateErrors: string[],
+  errors: string[],
+  formalSources: InvestigationSource[]
+): Promise<void> {
+  if (inspectReservedRootEntry(entry, errors)) return;
   if (entry.isSymbolicLink()) {
     const error = `${entry.name} must not be a symbolic link`;
-    context.errors.push(error);
+    errors.push(error);
     if (isReservedInvestigationCandidateFileName(entry.name)) {
-      context.candidateErrors.push(error);
+      candidateErrors.push(error);
     }
     return;
   }
-  inspectInvestigationMarkdownEntry(entry, context);
+  if (!entry.isFile()) {
+    errors.push(`${entry.name} is not allowed at the investigation root`);
+    return;
+  }
+  const candidateId = investigationCandidateIdFromFileName(entry.name);
+  if (candidateId !== null) {
+    candidateIds.push(candidateId);
+    return;
+  }
+  if (isReservedInvestigationCandidateFileName(entry.name)) {
+    const error = `${entry.name} must use the reserved _candidate.<investigation-id> file name`;
+    candidateErrors.push(error);
+    errors.push(error);
+    return;
+  }
+  if (!isInvestigationSourcePath(entry.name)) {
+    errors.push(
+      `${entry.name} must be a root-level Investigation Markdown source path`
+    );
+    return;
+  }
+  const sourcePath = entry.name;
+  try {
+    const text = await fs.readFile(
+      path.join(investigationsDirectory, sourcePath),
+      "utf8"
+    );
+    const id = investigationIdFromMarkdown(text);
+    if (id === null) {
+      errors.push(
+        `${sourcePath} must declare a valid frontmatter Investigation ID`
+      );
+      return;
+    }
+    formalSources.push({ id, sourcePath, text });
+  } catch (error) {
+    errors.push(`${sourcePath} could not be read: ${errorText(error)}`);
+  }
 }
 
 function inspectReservedRootEntry(
@@ -126,36 +172,6 @@ function inspectReservedRootEntry(
     return true;
   }
   return false;
-}
-
-function inspectInvestigationMarkdownEntry(
-  entry: Dirent<string>,
-  context: InvestigationLayoutContext
-): void {
-  if (!entry.isFile()) {
-    context.errors.push(
-      `${entry.name} is not allowed at the investigation root`
-    );
-    return;
-  }
-  const candidateId = investigationCandidateIdFromFileName(entry.name);
-  if (candidateId !== null) {
-    context.candidateIds.push(candidateId);
-    return;
-  }
-  if (isReservedInvestigationCandidateFileName(entry.name)) {
-    const error = `${entry.name} must use the reserved _candidate.<investigation-id> file name`;
-    context.candidateErrors.push(error);
-    context.errors.push(error);
-    return;
-  }
-  if (!isInvestigationId(entry.name)) {
-    context.errors.push(
-      `${entry.name} must be a root-level Investigation ID Markdown file`
-    );
-    return;
-  }
-  context.reportIds.push(entry.name);
 }
 
 export async function readInvestigationSourceRevision(
@@ -184,17 +200,13 @@ export function buildInvestigationStateSnapshot(
   for (const source of sources) {
     const built = buildInvestigationReportState(
       source.id,
-      parseInvestigationReport(source.text, source.id)
+      parseInvestigationReport(source.text, source.id),
+      source.sourcePath
     );
-    if (built.status === "invalid") {
-      errors.push(...built.errors);
-    } else {
-      states.push(built.state);
-    }
+    if (built.status === "invalid") errors.push(...built.errors);
+    else states.push(built.state);
   }
-  if (errors.length > 0) {
-    throw new Error(uniqueSorted(errors).join("; "));
-  }
+  if (errors.length > 0) throw new Error(uniqueSorted(errors).join("; "));
   return createInvestigationStateSnapshot(sources, states);
 }
 
@@ -203,22 +215,22 @@ export function createInvestigationStateSnapshot(
   states: readonly InvestigationIndexState[]
 ): StateSnapshot<InvestigationIndexState, InvestigationIndexMetadata> {
   const prepared = prepareInvestigationSources(sources);
-  const sourceIds = new Set(prepared.sources.map((source) => source.id));
   const statesById = new Map<string, InvestigationIndexState>();
   for (const [index, state] of states.entries()) {
-    const id = sources[index]?.id;
-    if (id === undefined) {
+    const source = sources[index];
+    if (source === undefined)
       throw new Error("investigation state has no matching source");
-    }
-    if (statesById.has(id)) {
+    if (statesById.has(source.id)) {
       throw new Error(
-        `investigation state ${id} has a duplicate state projection`
+        `investigation state ${source.id} has a duplicate state projection`
       );
     }
-    if (!sourceIds.has(id)) {
-      throw new Error(`investigation state ${id} has no matching source`);
+    if (state.sourcePath !== source.sourcePath) {
+      throw new Error(
+        `investigation state ${source.id} source path does not match its source`
+      );
     }
-    statesById.set(id, state);
+    statesById.set(source.id, state);
   }
   if (statesById.size !== prepared.sources.length) {
     throw new Error("every investigation source must have a state projection");
@@ -240,7 +252,9 @@ export function sameInvestigationSources(
     left.length === right.length &&
     left.every(
       (source, index) =>
-        source.id === right[index]?.id && source.text === right[index]?.text
+        source.id === right[index]?.id &&
+        source.sourcePath === right[index]?.sourcePath &&
+        source.text === right[index]?.text
     )
   );
 }
@@ -250,29 +264,23 @@ export async function readInvestigationSources(
   reportIds: readonly string[],
   signal?: AbortSignal
 ): Promise<InvestigationSource[]> {
-  const sources: InvestigationSource[] = [];
-  for (
-    let offset = 0;
-    offset < reportIds.length;
-    offset += investigationSourceReadConcurrency
-  ) {
-    if (signal?.aborted === true) {
-      throw new Error("investigation source read was aborted");
-    }
-    const batch = reportIds.slice(
-      offset,
-      offset + investigationSourceReadConcurrency
-    );
-    sources.push(
-      ...(await Promise.all(
-        batch.map(
-          async (id) =>
-            await readInvestigationSource(investigationsDirectory, id)
-        )
-      ))
-    );
+  const requested = [...reportIds].sort(compareText);
+  if (new Set(requested).size !== requested.length) {
+    throw new Error("investigation sources must use unique Investigation IDs");
   }
-  return sources;
+  const sources = await formalInvestigationSources(
+    investigationsDirectory,
+    signal
+  );
+  const sourceById = new Map(sources.map((source) => [source.id, source]));
+  return requested.map((id) => {
+    const source = sourceById.get(id);
+    if (source === undefined)
+      throw new Error(
+        `Investigation ID does not resolve to a source path: ${id}`
+      );
+    return source;
+  });
 }
 
 async function readInvestigationCollection(
@@ -282,9 +290,7 @@ async function readInvestigationCollection(
   const layout = await inspectInvestigationCollectionLayout(
     investigationsDirectory
   );
-  if (layout.errors.length > 0) {
-    throw new Error(layout.errors.join("; "));
-  }
+  if (layout.errors.length > 0) throw new Error(layout.errors.join("; "));
   return await readInvestigationSources(
     investigationsDirectory,
     layout.reportIds,
@@ -292,27 +298,44 @@ async function readInvestigationCollection(
   );
 }
 
-async function readInvestigationSource(
+async function formalInvestigationSources(
   investigationsDirectory: string,
-  id: string
-): Promise<InvestigationSource> {
-  if (!isInvestigationId(id)) {
-    throw new Error(`invalid Investigation ID ${id}`);
+  signal?: AbortSignal
+): Promise<InvestigationSource[]> {
+  const entries = await fs.readdir(investigationsDirectory, {
+    withFileTypes: true
+  });
+  const sources: InvestigationSource[] = [];
+  for (const entry of entries.sort((left, right) =>
+    compareText(left.name, right.name)
+  )) {
+    if (!entry.isFile() || !isInvestigationSourcePath(entry.name)) continue;
+    if (signal?.aborted === true)
+      throw new Error("investigation source read was aborted");
+    const sourcePath = entry.name;
+    const text = await fs.readFile(
+      path.join(investigationsDirectory, sourcePath),
+      "utf8"
+    );
+    const id = investigationIdFromMarkdown(text);
+    if (id === null)
+      throw new Error(
+        `${sourcePath} must declare a valid frontmatter Investigation ID`
+      );
+    sources.push({ id, sourcePath, text });
   }
-  try {
-    return {
-      id,
-      text: await fs.readFile(
-        reportPathForInvestigationId(investigationsDirectory, id),
-        "utf8"
-      )
-    };
-  } catch (error) {
+  if (new Set(sources.map((source) => source.id)).size !== sources.length) {
     throw new Error(
-      `failed to read investigation report ${id}: ${errorText(error)}`,
-      { cause: error }
+      "Investigation IDs must be unique across formal source paths"
     );
   }
+  return sources;
+}
+
+function duplicateValues(values: readonly string[]): string[] {
+  const counts = new Map<string, number>();
+  for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
+  return [...counts].filter(([, count]) => count > 1).map(([value]) => value);
 }
 
 function uniqueSorted(values: readonly string[]): string[] {

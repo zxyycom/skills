@@ -1,5 +1,6 @@
 ---
 title: 在稳定基线前原地收敛决策记录
+id: converge-records-before-stable-baseline
 status: archived
 alignment: null
 createdAt: 2026-07-21T07:33:17Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260720-separate-editorial-edits-from-evolution.md
+    target: 260720-separate-editorial-edits-from-evolution
 ---
 
 ## 目的

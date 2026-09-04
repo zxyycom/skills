@@ -1,5 +1,6 @@
 ---
 title: 以 Task Graph 重划案例评估决策重组
+id: evaluate-reorganization-from-task-graph-case
 status: archived
 alignment: unaligned
 createdAt: 2026-08-11T04:02:33Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: support-reorganization-after-real-evidence.md
+    target: support-reorganization-after-real-evidence
 ---
 
 ## 目的

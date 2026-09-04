@@ -1,5 +1,6 @@
 ---
 title: 分离 task-graph raw result 与输出函数
+id: separate-raw-results-from-output-functions
 status: active
 alignment: aligned
 createdAt: 2026-08-08T02:15:18Z

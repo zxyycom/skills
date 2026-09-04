@@ -1,5 +1,6 @@
 ---
 title: 使用短日期命名并允许短决策结构
+id: 260630-use-compact-decision-records
 status: archived
 alignment: null
 createdAt: 2026-07-18T11:43:07+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260630-track-decision-status-and-relations.md
+    target: 260630-track-decision-status-and-relations
 ---
 
 ## 目的

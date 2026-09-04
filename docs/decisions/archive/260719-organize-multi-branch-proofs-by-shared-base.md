@@ -1,5 +1,6 @@
 ---
 title: 按共享测试基座组织多分支证明点
+id: 260719-organize-multi-branch-proofs-by-shared-base
 status: archived
 alignment: null
 createdAt: 2026-07-19T19:50:10+08:00

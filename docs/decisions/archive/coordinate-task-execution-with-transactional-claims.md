@@ -1,5 +1,6 @@
 ---
 title: 通过事务领取协调任务执行
+id: coordinate-task-execution-with-transactional-claims
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T06:13:52Z

@@ -1,5 +1,6 @@
 ---
 title: 以独立验证入口作为 case 的唯一登记单元
+id: register-one-case-per-independent-verification-entry
 status: archived
 alignment: null
 createdAt: 2026-07-25T05:45:35Z
@@ -10,7 +11,7 @@ tags:
   - test-evidence-review
 relations:
   - type: 修订
-    target: index-independent-proof-cases-from-current-catalog.md
+    target: index-independent-proof-cases-from-current-catalog
 ---
 
 ## 目的

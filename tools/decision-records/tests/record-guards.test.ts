@@ -19,7 +19,7 @@ test("a valid candidate scaffold remains discoverable until its body is ready", 
   withFixtureWorkspace(
     "candidate-scaffold-readiness",
     async (workspaceRoot) => {
-      const candidateId = "use-candidate-scaffold.md";
+      const candidateId = "use-candidate-scaffold";
       await writeDecision(
         workspaceRoot,
         candidateId,
@@ -43,7 +43,7 @@ test("a valid candidate scaffold remains discoverable until its body is ready", 
 
 test("record type guards reject invalid identity fields from real candidate and established scans", () =>
   withFixtureWorkspace("record-guard-identities", async (workspaceRoot) => {
-    const candidateId = "use-record-guard-candidate.md";
+    const candidateId = "use-record-guard-candidate";
     await writeDecision(workspaceRoot, candidateId, candidateDecisionBody());
     const scan = await scanDecisionRecords({ workspaceRoot });
     const candidate = scan.records.find(

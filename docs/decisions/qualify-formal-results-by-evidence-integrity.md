@@ -1,5 +1,6 @@
 ---
 title: 按证据完整性判定正式测试结果资格
+id: qualify-formal-results-by-evidence-integrity
 status: active
 alignment: unaligned
 createdAt: 2026-08-11T04:05:43Z
@@ -10,7 +11,7 @@ tags:
   - test-evidence-review
 relations:
   - type: 修订
-    target: qualify-formal-test-results-before-behavior-blocking.md
+    target: qualify-formal-test-results-before-behavior-blocking
 ---
 
 ## 目的

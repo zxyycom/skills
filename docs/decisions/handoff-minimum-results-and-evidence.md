@@ -1,5 +1,6 @@
 ---
 title: 以最小结果和证据完成子代理交接
+id: handoff-minimum-results-and-evidence
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:26:57Z
@@ -10,7 +11,7 @@ tags:
   - subagent-orchestration
 relations:
   - type: 拆分
-    target: bound-review-and-handoff-by-delivery-impact.md
+    target: bound-review-and-handoff-by-delivery-impact
 ---
 
 ## 目的

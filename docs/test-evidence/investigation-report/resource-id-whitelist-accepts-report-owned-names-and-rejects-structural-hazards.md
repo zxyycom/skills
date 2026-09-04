@@ -5,7 +5,7 @@ Entry:
 - `bun test --test-name-pattern="^resource ID whitelist accepts report-owned names and rejects structural hazards$" ./tools/investigation-report/tests/run.ts`
 
 Contract:
-- 资源 ID 使用 owner report stem 前缀，并拒绝路径穿越等结构风险。
+- 资源 ID 使用 extensionless Investigation ID 前缀，并拒绝路径穿越等结构风险。
 
 Proves:
 - 合法 owner 资源 ID 通过，穿越目标无效。

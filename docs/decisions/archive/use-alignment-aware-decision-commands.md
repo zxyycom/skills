@@ -1,5 +1,6 @@
 ---
 title: 使用对齐感知的决策命令
+id: use-alignment-aware-decision-commands
 status: archived
 alignment: null
 createdAt: 2026-07-22T07:38:16Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260720-separate-status-commands-from-relations.md
+    target: 260720-separate-status-commands-from-relations
 ---
 
 ## 目的

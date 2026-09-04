@@ -1,5 +1,6 @@
 ---
 title: 让决策查询带警告返回可用结果
+id: 260720-return-query-results-with-warnings
 status: archived
 alignment: null
 createdAt: 2026-07-20T09:40:51+08:00

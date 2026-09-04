@@ -1,12 +1,13 @@
 ---
 title: "正负极性依赖描述层级与参照对象"
+id: "treat-description-polarity-as-reference-relative"
 formedAt: "2026-08-13T13:43:12+00:00"
 question: "正负极性应怎样相对于具体命题、参照对象和描述层级判断？"
 tags:
   - "ai-ready-docs"
 relations:
   - type: "补充"
-    target: "distinguish-expressive-equivalence-from-construction-cost.md"
+    target: "distinguish-expressive-equivalence-from-construction-cost"
 ---
 
 ## 形成时背景

@@ -1,5 +1,6 @@
 ---
 title: 以调查主题维护可重建查询索引
+id: maintain-topic-level-investigation-index
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T09:20:46Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 修订
-    target: generate-query-index-from-topic-files.md
+    target: generate-query-index-from-topic-files
 ---
 
 ## 目的

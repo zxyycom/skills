@@ -1,5 +1,6 @@
 ---
 title: 以验证实现为触发边界并显式索引 test/check case
+id: review-verification-implementations-with-explicit-indexed-cases
 status: archived
 alignment: null
 createdAt: 2026-07-25T03:32:33Z
@@ -10,13 +11,13 @@ tags:
   - test-evidence-review
 relations:
   - type: 替代
-    target: 260720-map-test-entries-and-trigger-scoped-reviews.md
+    target: 260720-map-test-entries-and-trigger-scoped-reviews
   - type: 修订
-    target: index-ledger-by-stable-case-state.md
+    target: index-ledger-by-stable-case-state
   - type: 替代
-    target: publish-only-layered-test-evidence-interfaces.md
+    target: publish-only-layered-test-evidence-interfaces
   - type: 修订
-    target: read-ledger-contract-on-demand.md
+    target: read-ledger-contract-on-demand
 ---
 
 ## 目的

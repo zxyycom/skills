@@ -1,5 +1,6 @@
 ---
 title: 分离任务内容、显式状态与有效投影
+id: separate-task-content-state-and-effective-projection
 status: archived
 alignment: unaligned
 createdAt: 2026-08-06T06:13:45Z

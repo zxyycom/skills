@@ -1,5 +1,6 @@
 ---
 title: 随包分发索引 JSON Schema
+id: package-index-json-schema
 status: archived
 alignment: null
 createdAt: 2026-07-21T01:29:45Z

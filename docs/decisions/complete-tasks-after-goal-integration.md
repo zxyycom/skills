@@ -1,5 +1,6 @@
 ---
 title: 只在目标集成完成后收敛 task
+id: complete-tasks-after-goal-integration
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:21:49Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 拆分
-    target: anchor-semantic-task-results-in-index-history.md
+    target: anchor-semantic-task-results-in-index-history
 ---
 
 ## 目的

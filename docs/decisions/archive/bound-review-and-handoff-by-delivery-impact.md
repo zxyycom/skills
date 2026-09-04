@@ -1,5 +1,6 @@
 ---
 title: 以交付影响收敛审查与交接
+id: bound-review-and-handoff-by-delivery-impact
 status: archived
 alignment: aligned
 createdAt: 2026-08-04T08:16:33Z

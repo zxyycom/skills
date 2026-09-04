@@ -1,5 +1,6 @@
 ---
 title: 只将 AI 配置变化归入 ai 提交类型
+id: classify-ai-configuration-commits
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:26:55Z
@@ -10,7 +11,7 @@ tags:
   - git-commit-organizer
 relations:
   - type: 拆分
-    target: 260702-refine-commit-granularity-types-and-command.md
+    target: 260702-refine-commit-granularity-types-and-command
 ---
 
 ## 目的

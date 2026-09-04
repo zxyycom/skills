@@ -1,5 +1,6 @@
 ---
 title: 区分 Skill 行为单元与分发单元
+id: distinguish-skill-and-distribution-unit-boundaries
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:24:20Z
@@ -10,7 +11,7 @@ tags:
   - skill-maintainer
 relations:
   - type: 拆分
-    target: 260720-use-distribution-unit-boundaries.md
+    target: 260720-use-distribution-unit-boundaries
 ---
 
 ## 目的

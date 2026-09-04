@@ -180,7 +180,7 @@ test("generated decision schema matches the runtime index schema", async () => {
     await fs.readFile(generatedSchemaPath, "utf8")
   );
   assert.deepEqual(distributedSchema, decisionIndexJsonSchema);
-  assert.equal(decisionIndexJsonSchema.properties.definitionVersion.const, 6);
+  assert.equal(decisionIndexJsonSchema.properties.definitionVersion.const, 7);
   assert.deepEqual(decisionIndexJsonSchema.properties.keyDefinitions.const, [
     { name: "tag", mode: "exact" },
     { name: "status", mode: "exact" },

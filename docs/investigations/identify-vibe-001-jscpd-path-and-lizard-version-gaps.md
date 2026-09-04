@@ -1,5 +1,6 @@
 ---
 title: "识别 Vibe 0.0.1 的 jscpd 路径与 Lizard 版本缺口"
+id: "identify-vibe-001-jscpd-path-and-lizard-version-gaps"
 formedAt: "2026-08-31T10:05:00+00:00"
 question: "锁定 @zxyycom/vibe-check 0.0.1 时，重复检测的临时配置相对路径和函数指标的 Lizard 可用性是否足以形成可信门禁？"
 tags:

@@ -1,5 +1,6 @@
 ---
 title: 按指定决策构造待提交快照
+id: stage-selected-decisions
 status: archived
 alignment: aligned
 createdAt: 2026-08-03T10:35:38Z

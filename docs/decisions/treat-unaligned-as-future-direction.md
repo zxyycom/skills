@@ -1,5 +1,6 @@
 ---
 title: 将未对齐决策作为未来方向输入
+id: treat-unaligned-as-future-direction
 status: active
 alignment: aligned
 createdAt: 2026-08-06T02:22:18Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: track-decision-execution-state.md
+    target: track-decision-execution-state
 ---
 
 ## 目的

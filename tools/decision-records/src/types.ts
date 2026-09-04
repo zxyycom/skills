@@ -32,7 +32,7 @@ declare const decisionIdBrand: unique symbol;
 declare const decisionSourcePathBrand: unique symbol;
 declare const decisionTagBrand: unique symbol;
 
-/** A validated stable Markdown basename such as `use-stable-ids.md`. */
+/** A validated stable extensionless identity such as `use-stable-ids`. */
 export type DecisionId = string & {
   readonly [decisionIdBrand]: "DecisionId";
 };
@@ -165,7 +165,7 @@ export type DecisionSourceRevision = {
 export type DecisionIndex = {
   schemaVersion: 3;
   namespace: "decisions";
-  definitionVersion: 6;
+  definitionVersion: 7;
   metadata: DecisionIndexMetadata;
   sourceRevision: DecisionSourceRevision;
   keyDefinitions: [

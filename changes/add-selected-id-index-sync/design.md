@@ -9,7 +9,7 @@
 - Index Runtime v3 的 `entries` 和 `sourceRevision.entries` 都以领域 ID 为键，`sourceRevision.metadata` 单独表达集合级来源版本，具备计算 ID 级变化和识别全局变化的结构基础。
 - Decision Records、Investigation Report 与 Test Evidence 都通过 shared runtime 维护可重建派生索引；Task Graph 索引是权威写模型，Change Plan 当前按目录实时发现，不属于本能力。
 - Investigation 的 `sync-index` 已在领域 collection mutation lock 内执行；其他消费者需要保持各自当前并发保证。shared runtime 的 source-revision reread 继续提供构建漂移检测，但不声称能锁住工具外的手工文件修改。
-- 本 Change 依赖 [`显式纯 ID 与 sourcePath 分离`](../separate-domain-ids-from-storage-details/)和[`日期前缀身份`](../adopt-date-prefixed-record-identities/)的 selector/name-index 契约完成。Decision/Investigation CLI 接受标准 ID 或 name，shared runtime 的最终 `selectedIds` 仍只接受解析后的精确 ID；文件路径和目录不是 selector。
+- 本 Change 依赖 [`显式纯 ID 与 sourcePath 分离`](../archive/separate-domain-ids-from-storage-details/)和[`日期前缀身份`](../adopt-date-prefixed-record-identities/)的 selector/name-index 契约完成。Decision/Investigation CLI 接受标准 ID 或 name，shared runtime 的最终 `selectedIds` 仍只接受解析后的精确 ID；文件路径和目录不是 selector。
 - [`记录 rename Draft`](../add-record-rename-transactions/)规划的是来源、路径、关系、资源和索引共同提交的领域事务。它可以复用最终 shared runtime 原语，但不能把公开 selected sync 当成文件移动后的补写步骤；两者没有语义前置依赖。
 
 ## Goals / Non-Goals

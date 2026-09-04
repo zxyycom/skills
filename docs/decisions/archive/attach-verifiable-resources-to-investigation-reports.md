@@ -1,5 +1,6 @@
 ---
 title: 以报告引用和索引哈希维护调查资源
+id: attach-verifiable-resources-to-investigation-reports
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T09:20:30Z

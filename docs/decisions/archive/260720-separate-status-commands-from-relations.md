@@ -1,5 +1,6 @@
 ---
 title: 分离生命周期命令与演进关系
+id: 260720-separate-status-commands-from-relations
 status: archived
 alignment: null
 createdAt: 2026-07-20T19:47:38+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260718-use-purpose-background-decision-structure.md
+    target: 260718-use-purpose-background-decision-structure
 ---
 
 ## 目的

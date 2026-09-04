@@ -1,5 +1,6 @@
 ---
 title: 让 skill 分发脚本同时提供可导入模块
+id: 260720-expose-importable-skill-modules
 status: archived
 alignment: null
 createdAt: 2026-07-20T17:04:27+08:00
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: 260711-separate-skill-script-source-and-generated-artifacts.md
+    target: 260711-separate-skill-script-source-and-generated-artifacts
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 在有界并发下收敛全部已选检查
+id: settle-all-selected-checks-under-bounded-concurrency
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:14:56Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: schedule-selected-checks-conservatively.md
+    target: schedule-selected-checks-conservatively
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 让完整检查默认报告警告并显式启用阻断
+id: default-checks-to-warnings
 status: archived
 alignment: aligned
 createdAt: 2026-07-22T13:49:32Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: 260720-orchestrate-checks-with-conservative-concurrency.md
+    target: 260720-orchestrate-checks-with-conservative-concurrency
 ---
 
 ## 目的

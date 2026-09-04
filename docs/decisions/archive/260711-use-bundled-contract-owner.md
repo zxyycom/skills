@@ -1,5 +1,6 @@
 ---
 title: 使用随包 reference 作为唯一固定契约
+id: 260711-use-bundled-contract-owner
 status: archived
 alignment: null
 createdAt: 2026-07-18T11:43:07+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260630-name-decision-root-docs-by-owner.md
+    target: 260630-name-decision-root-docs-by-owner
 ---
 
 ## 目的

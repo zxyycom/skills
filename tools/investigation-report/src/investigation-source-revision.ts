@@ -24,11 +24,17 @@ export function prepareInvestigationSources(
   sources: readonly InvestigationSource[]
 ): PreparedInvestigationSources {
   const orderedSources = sources
-    .map(({ id, text }) => ({ id, text }))
+    .map(({ id, sourcePath, text }) => ({ id, sourcePath, text }))
     .sort((left, right) => compareText(left.id, right.id));
   const sourceIds = new Set(orderedSources.map((source) => source.id));
   if (sourceIds.size !== orderedSources.length) {
     throw new Error("investigation sources must use unique Investigation IDs");
+  }
+  const sourcePaths = new Set(
+    orderedSources.map((source) => source.sourcePath)
+  );
+  if (sourcePaths.size !== orderedSources.length) {
+    throw new Error("investigation sources must use unique source paths");
   }
   return {
     metadata: {},
@@ -40,6 +46,7 @@ export function prepareInvestigationSources(
           sourceFingerprint(
             "investigation-index-entry-v2",
             source.id,
+            source.sourcePath,
             normalizeSourceText(source.text)
           )
         ])

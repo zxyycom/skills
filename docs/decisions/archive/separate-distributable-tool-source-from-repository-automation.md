@@ -1,5 +1,6 @@
 ---
 title: 分离可分发工具源码与仓库自动化
+id: separate-distributable-tool-source-from-repository-automation
 status: archived
 alignment: null
 createdAt: 2026-07-22T10:50:45Z
@@ -10,9 +11,9 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: 260720-expose-importable-skill-modules.md
+    target: 260720-expose-importable-skill-modules
   - type: 修订
-    target: 260720-use-prebuilt-git-test-fixtures.md
+    target: 260720-use-prebuilt-git-test-fixtures
 ---
 
 ## 目的

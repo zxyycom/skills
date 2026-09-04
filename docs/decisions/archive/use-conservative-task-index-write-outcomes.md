@@ -1,5 +1,6 @@
 ---
 title: 对 task index 写入采用保守结果语义
+id: use-conservative-task-index-write-outcomes
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:03:16Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 修订
-    target: use-conservative-atomic-write-outcomes.md
+    target: use-conservative-atomic-write-outcomes
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 将决策领域定义投影到查询结果
+id: project-domains-into-decision-queries
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T03:25:28Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 拆分
-    target: use-domain-paths-as-primary-classification.md
+    target: use-domain-paths-as-primary-classification
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 显式剔除完整且无引用的调查报告
+id: discard-complete-unreferenced-investigation-reports
 status: active
 alignment: aligned
 createdAt: 2026-08-29T15:42:49Z
@@ -11,7 +12,7 @@ tags:
   - version-control
 relations:
   - type: 拆分
-    target: model-investigation-evolution-and-explicit-removal.md
+    target: model-investigation-evolution-and-explicit-removal
 ---
 
 ## 目的

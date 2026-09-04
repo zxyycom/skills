@@ -1,5 +1,6 @@
 ---
 title: 使用固定索引查询模式
+id: use-fixed-index-query-modes
 status: active
 alignment: aligned
 createdAt: 2026-08-11T04:02:53Z
@@ -10,7 +11,7 @@ tags:
   - index-runtime
 relations:
   - type: 拆分
-    target: use-independent-read-side-index-runtime.md
+    target: use-independent-read-side-index-runtime
 ---
 
 ## 目的

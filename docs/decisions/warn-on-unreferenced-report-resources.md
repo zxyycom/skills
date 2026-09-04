@@ -1,5 +1,6 @@
 ---
 title: 只提醒未引用的报告资源
+id: warn-on-unreferenced-report-resources
 status: active
 alignment: aligned
 createdAt: 2026-08-28T10:12:57Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 修订
-    target: warn-on-unreferenced-investigation-resources.md
+    target: warn-on-unreferenced-investigation-resources
 ---
 
 ## 目的

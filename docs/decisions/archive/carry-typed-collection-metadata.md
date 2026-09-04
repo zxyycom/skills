@@ -1,5 +1,6 @@
 ---
 title: 随索引快照携带类型化集合元数据
+id: carry-typed-collection-metadata
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T03:23:53Z
@@ -10,7 +11,7 @@ tags:
   - index-runtime
 relations:
   - type: 修订
-    target: use-typed-collection-metadata.md
+    target: use-typed-collection-metadata
 ---
 
 ## 目的

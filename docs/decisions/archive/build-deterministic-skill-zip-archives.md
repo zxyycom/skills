@@ -1,5 +1,6 @@
 ---
 title: 生成确定性的 skill ZIP 归档
+id: build-deterministic-skill-zip-archives
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T03:25:50Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 拆分
-    target: 260701-use-libraries-for-common-script-behavior.md
+    target: 260701-use-libraries-for-common-script-behavior
 ---
 
 ## 目的

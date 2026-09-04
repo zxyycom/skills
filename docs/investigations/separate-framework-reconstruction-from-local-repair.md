@@ -1,12 +1,13 @@
 ---
 title: "区分框架重构与框架内修补两种策略"
+id: "separate-framework-reconstruction-from-local-repair"
 formedAt: "2026-08-13T11:13:24+00:00"
 question: "框架重构与框架内修补两种策略的触发条件、价值和失败模式有何不同？"
 tags:
   - "ai-ready-docs"
 relations:
   - type: "修正"
-    target: "compare-human-and-ai-abstraction-defaults.md"
+    target: "compare-human-and-ai-abstraction-defaults"
 ---
 
 ## 形成时背景

@@ -1,5 +1,6 @@
 ---
 title: 用 Draft、Plan 与 Archive 维护 Change
+id: simplify-change-lifecycle-to-draft-plan-and-archive
 status: archived
 alignment: aligned
 createdAt: 2026-08-13T05:35:50Z
@@ -10,9 +11,9 @@ tags:
   - change-plan
 relations:
   - type: 归并
-    target: form-proposal-and-initial-design-in-draft.md
+    target: form-proposal-and-initial-design-in-draft
   - type: 归并
-    target: manage-basic-change-lifecycle.md
+    target: manage-basic-change-lifecycle
 ---
 
 ## 目的

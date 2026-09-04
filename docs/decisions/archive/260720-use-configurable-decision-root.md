@@ -1,5 +1,6 @@
 ---
 title: 使用可配置的决策根目录
+id: 260720-use-configurable-decision-root
 status: archived
 alignment: null
 createdAt: 2026-07-20T10:34:37+08:00

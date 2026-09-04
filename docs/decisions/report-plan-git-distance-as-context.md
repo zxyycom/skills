@@ -1,5 +1,6 @@
 ---
 title: 直接提示 Plan 的 Git 演进距离
+id: report-plan-git-distance-as-context
 status: active
 alignment: aligned
 createdAt: 2026-08-13T05:35:51Z
@@ -10,9 +11,9 @@ tags:
   - change-plan
 relations:
   - type: 归并
-    target: detect-shelved-plans-by-git-distance.md
+    target: detect-shelved-plans-by-git-distance
   - type: 归并
-    target: use-plan-base-only-for-git-distance.md
+    target: use-plan-base-only-for-git-distance
 ---
 
 ## 目的

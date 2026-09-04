@@ -1,5 +1,6 @@
 ---
 title: 按报告 ID 独立暂存调查索引条目
+id: stage-investigation-index-entries-by-report-id
 status: active
 alignment: aligned
 createdAt: 2026-08-28T10:12:56Z
@@ -12,7 +13,7 @@ tags:
   - version-control
 relations:
   - type: 修订
-    target: stage-investigation-index-entries-across-resource-changes.md
+    target: stage-investigation-index-entries-across-resource-changes
 ---
 
 ## 目的

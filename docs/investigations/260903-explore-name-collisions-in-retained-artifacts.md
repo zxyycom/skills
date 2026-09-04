@@ -1,5 +1,6 @@
 ---
 title: "保留型工件的重名需要区分语义复现与身份冲突"
+id: "260903-explore-name-collisions-in-retained-artifacts"
 formedAt: "2026-09-03T07:30:22+00:00"
 question: "Change、Decision 与 Investigation 的历史名称占用何时构成真实冲突，时间、短码或改名分别应承担什么责任？"
 tags:

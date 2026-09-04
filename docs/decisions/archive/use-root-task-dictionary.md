@@ -1,5 +1,6 @@
 ---
 title: 使用根级任务字典承接唯一身份
+id: use-root-task-dictionary
 status: archived
 alignment: aligned
 createdAt: 2026-08-07T06:40:32Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 修订
-    target: key-task-identity-and-separate-content-state-projection.md
+    target: key-task-identity-and-separate-content-state-projection
 ---
 
 ## 目的

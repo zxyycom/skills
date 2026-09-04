@@ -1,5 +1,6 @@
 ---
 title: 从 task-graph 运行时源码派生 SDK 声明
+id: derive-sdk-declarations-from-runtime-source
 status: active
 alignment: aligned
 createdAt: 2026-08-07T04:59:10Z

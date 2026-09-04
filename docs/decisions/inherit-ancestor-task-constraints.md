@@ -1,5 +1,6 @@
 ---
 title: 向下继承祖先 task 的控制与约束
+id: inherit-ancestor-task-constraints
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:21:57Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 拆分
-    target: model-task-topology-and-inheritance-explicitly.md
+    target: model-task-topology-and-inheritance-explicitly
 ---
 
 ## 目的

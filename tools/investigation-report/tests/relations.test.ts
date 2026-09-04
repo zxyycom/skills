@@ -15,6 +15,7 @@ function state(
     question: "问题",
     relations: [...relations],
     resourceIds: [],
+    sourcePath: "state.md",
     tags: ["test"],
     title: "标题"
   };
@@ -22,30 +23,26 @@ function state(
 
 test("relation graph accepts independent ordinary merge and split shapes", () => {
   const states = new Map<string, InvestigationIndexState>([
-    ["base.md", state("2026-08-28T10:00:00+00:00")],
+    ["base", state("2026-08-28T10:00:00+00:00")],
     [
-      "ordinary.md",
-      state("2026-08-28T11:00:00+00:00", [{ target: "base.md", type: "补充" }])
+      "ordinary",
+      state("2026-08-28T11:00:00+00:00", [{ target: "base", type: "补充" }])
     ],
-    ["other.md", state("2026-08-28T10:30:00+00:00")],
+    ["other", state("2026-08-28T10:30:00+00:00")],
     [
-      "merge.md",
+      "merge",
       state("2026-08-28T12:00:00+00:00", [
-        { target: "base.md", type: "归并" },
-        { target: "other.md", type: "归并" }
+        { target: "base", type: "归并" },
+        { target: "other", type: "归并" }
       ])
     ],
     [
-      "split-a.md",
-      state("2026-08-28T13:00:00+00:00", [
-        { target: "ordinary.md", type: "拆分" }
-      ])
+      "split-a",
+      state("2026-08-28T13:00:00+00:00", [{ target: "ordinary", type: "拆分" }])
     ],
     [
-      "split-b.md",
-      state("2026-08-28T13:00:00+00:00", [
-        { target: "ordinary.md", type: "拆分" }
-      ])
+      "split-b",
+      state("2026-08-28T13:00:00+00:00", [{ target: "ordinary", type: "拆分" }])
     ]
   ]);
   assert.deepEqual(validateInvestigationRelationGraph(states), []);
@@ -55,10 +52,8 @@ test("relation graph rejects a missing target", () => {
   const errors = validateInvestigationRelationGraph(
     new Map([
       [
-        "missing.md",
-        state("2026-08-28T14:00:00+00:00", [
-          { target: "none.md", type: "补充" }
-        ])
+        "missing",
+        state("2026-08-28T14:00:00+00:00", [{ target: "none", type: "补充" }])
       ]
     ])
   );
@@ -69,10 +64,8 @@ test("relation graph rejects a self target", () => {
   const errors = validateInvestigationRelationGraph(
     new Map([
       [
-        "self.md",
-        state("2026-08-28T14:00:00+00:00", [
-          { target: "self.md", type: "补充" }
-        ])
+        "self",
+        state("2026-08-28T14:00:00+00:00", [{ target: "self", type: "补充" }])
       ]
     ])
   );
@@ -82,19 +75,19 @@ test("relation graph rejects a self target", () => {
 test("relation graph rejects a repeated target", () => {
   const errors = validateInvestigationRelationGraph(
     new Map([
-      ["base.md", state("2026-08-28T12:00:00+00:00")],
+      ["base", state("2026-08-28T12:00:00+00:00")],
       [
-        "duplicate.md",
+        "duplicate",
         state("2026-08-28T14:00:00+00:00", [
-          { target: "base.md", type: "补充" },
-          { target: "base.md", type: "复查" }
+          { target: "base", type: "补充" },
+          { target: "base", type: "复查" }
         ])
       ]
     ])
   );
   assert.deepEqual(
     errors.filter((error) => error.includes("repeat target")),
-    ["duplicate.md relations must not repeat target base.md"]
+    ["duplicate relations must not repeat target base"]
   );
 });
 
@@ -102,12 +95,10 @@ test("relation graph rejects a target formed later", () => {
   const errors = validateInvestigationRelationGraph(
     new Map([
       [
-        "base.md",
-        state("2026-08-28T12:00:00+00:00", [
-          { target: "later.md", type: "补充" }
-        ])
+        "base",
+        state("2026-08-28T12:00:00+00:00", [{ target: "later", type: "补充" }])
       ],
-      ["later.md", state("2026-08-28T13:00:00+00:00")]
+      ["later", state("2026-08-28T13:00:00+00:00")]
     ])
   );
   assert.ok(errors.some((error) => error.includes("formed later")));
@@ -117,16 +108,12 @@ test("relation graph rejects a cycle", () => {
   const errors = validateInvestigationRelationGraph(
     new Map([
       [
-        "first.md",
-        state("2026-08-28T12:00:00+00:00", [
-          { target: "second.md", type: "补充" }
-        ])
+        "first",
+        state("2026-08-28T12:00:00+00:00", [{ target: "second", type: "补充" }])
       ],
       [
-        "second.md",
-        state("2026-08-28T13:00:00+00:00", [
-          { target: "first.md", type: "补充" }
-        ])
+        "second",
+        state("2026-08-28T13:00:00+00:00", [{ target: "first", type: "补充" }])
       ]
     ])
   );
@@ -135,60 +122,54 @@ test("relation graph rejects a cycle", () => {
 
 test("relation trace returns deterministic predecessor successor and bidirectional subgraphs", () => {
   const states = new Map<string, InvestigationIndexState>([
-    [
-      "c.md",
-      state("2026-08-28T12:00:00+00:00", [{ target: "b.md", type: "修正" }])
-    ],
-    [
-      "b.md",
-      state("2026-08-28T11:00:00+00:00", [{ target: "a.md", type: "补充" }])
-    ],
-    ["a.md", state("2026-08-28T10:00:00+00:00")]
+    ["c", state("2026-08-28T12:00:00+00:00", [{ target: "b", type: "修正" }])],
+    ["b", state("2026-08-28T11:00:00+00:00", [{ target: "a", type: "补充" }])],
+    ["a", state("2026-08-28T10:00:00+00:00")]
   ]);
   assert.deepEqual(
     [
-      ...traceInvestigationRelations(states, "b.md", {
+      ...traceInvestigationRelations(states, "b", {
         direction: "predecessors",
         maxDepth: null
       }).ids
     ],
-    ["b.md", "a.md"]
+    ["b", "a"]
   );
   assert.deepEqual(
     [
-      ...traceInvestigationRelations(states, "b.md", {
+      ...traceInvestigationRelations(states, "b", {
         direction: "successors",
         maxDepth: null
       }).ids
     ],
-    ["b.md", "c.md"]
+    ["b", "c"]
   );
   assert.deepEqual(
     [
-      ...traceInvestigationRelations(states, "b.md", {
+      ...traceInvestigationRelations(states, "b", {
         direction: "both",
         maxDepth: null
       }).ids
     ],
-    ["b.md", "a.md", "c.md"]
+    ["b", "a", "c"]
   );
   assert.deepEqual(
-    traceInvestigationRelations(states, "b.md", {
+    traceInvestigationRelations(states, "b", {
       direction: "both",
       maxDepth: null
     }).edges,
     [
-      { source: "b.md", target: "a.md", type: "补充" },
-      { source: "c.md", target: "b.md", type: "修正" }
+      { source: "b", target: "a", type: "补充" },
+      { source: "c", target: "b", type: "修正" }
     ]
   );
   assert.deepEqual(
     [
-      ...traceInvestigationRelations(states, "b.md", {
+      ...traceInvestigationRelations(states, "b", {
         direction: "both",
         maxDepth: 0
       }).ids
     ],
-    ["b.md"]
+    ["b"]
   );
 });

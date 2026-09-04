@@ -1,5 +1,6 @@
 ---
 title: 以独立证明单元登记 case 并从当前目录提供只读查询
+id: index-independent-proof-cases-from-current-catalog
 status: archived
 alignment: null
 createdAt: 2026-07-25T04:02:05Z
@@ -10,9 +11,9 @@ tags:
   - test-evidence-review
 relations:
   - type: 修订
-    target: review-verification-implementations-with-explicit-indexed-cases.md
+    target: review-verification-implementations-with-explicit-indexed-cases
   - type: 归并
-    target: 260720-organize-proofs-by-shared-execution-chain.md
+    target: 260720-organize-proofs-by-shared-execution-chain
 ---
 
 ## 目的

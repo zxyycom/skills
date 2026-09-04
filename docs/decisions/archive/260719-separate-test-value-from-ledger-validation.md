@@ -1,5 +1,6 @@
 ---
 title: 分离测试价值审查与账本机械校验
+id: 260719-separate-test-value-from-ledger-validation
 status: archived
 alignment: null
 createdAt: 2026-07-19T17:05:10+08:00

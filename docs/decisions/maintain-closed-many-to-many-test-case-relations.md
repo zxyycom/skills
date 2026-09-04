@@ -1,5 +1,6 @@
 ---
 title: 维护测试实体与语义 Case 的闭合多对多关系
+id: maintain-closed-many-to-many-test-case-relations
 status: active
 alignment: unaligned
 createdAt: 2026-08-06T02:22:26Z

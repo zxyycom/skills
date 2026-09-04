@@ -1,5 +1,6 @@
 ---
 title: 以可接续调查段形成调查报告
+id: use-report-oriented-investigation-rounds
 status: archived
 alignment: null
 createdAt: 2026-07-21T07:30:35Z

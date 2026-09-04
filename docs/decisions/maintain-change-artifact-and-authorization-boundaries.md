@@ -1,5 +1,6 @@
 ---
 title: 维护 Change Plan 的制品与授权边界
+id: maintain-change-artifact-and-authorization-boundaries
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:23:12Z
@@ -10,7 +11,7 @@ tags:
   - change-plan
 relations:
   - type: 拆分
-    target: use-independent-change-plans.md
+    target: use-independent-change-plans
 ---
 
 ## 目的

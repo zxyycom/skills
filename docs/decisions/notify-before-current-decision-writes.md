@@ -1,5 +1,6 @@
 ---
 title: 在当前决策写入前明确通知用户
+id: notify-before-current-decision-writes
 status: active
 alignment: aligned
 createdAt: 2026-07-22T08:41:27Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260718-notify-before-decision-writes.md
+    target: 260718-notify-before-decision-writes
 ---
 
 ## 目的

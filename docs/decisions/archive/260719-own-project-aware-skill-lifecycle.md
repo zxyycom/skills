@@ -1,5 +1,6 @@
 ---
 title: 让 skill-maintainer 承接环境自适应的 skill 生命周期
+id: 260719-own-project-aware-skill-lifecycle
 status: archived
 alignment: null
 createdAt: 2026-07-20T08:35:03+08:00

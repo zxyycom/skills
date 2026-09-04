@@ -1,5 +1,6 @@
 ---
 title: 在真实案例出现后支持决策重组
+id: support-reorganization-after-real-evidence
 status: archived
 alignment: unaligned
 createdAt: 2026-08-06T04:01:44Z

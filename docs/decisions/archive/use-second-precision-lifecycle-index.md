@@ -1,5 +1,6 @@
 ---
 title: 使用秒级全生命周期索引
+id: use-second-precision-lifecycle-index
 status: archived
 alignment: null
 createdAt: 2026-07-20T13:18:05Z
@@ -10,9 +11,9 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260720-use-lifecycle-index-and-semantic-paths.md
+    target: 260720-use-lifecycle-index-and-semantic-paths
   - type: 修订
-    target: 260720-auto-initialize-index-on-first-activation.md
+    target: 260720-auto-initialize-index-on-first-activation
 ---
 
 ## 目的

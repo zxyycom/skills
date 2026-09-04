@@ -1,5 +1,6 @@
 ---
 title: 在正确候选之间比较整体维护面
+id: compare-correct-options-by-total-maintenance-surface
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:27:00Z
@@ -10,7 +11,7 @@ tags:
   - minimal-implementation
 relations:
   - type: 拆分
-    target: choose-smallest-correct-maintenance-surface.md
+    target: choose-smallest-correct-maintenance-surface
 ---
 
 ## 目的

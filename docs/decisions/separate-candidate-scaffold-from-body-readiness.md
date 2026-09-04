@@ -1,5 +1,6 @@
 ---
 title: 将候选脚手架与正文 readiness 分离
+id: separate-candidate-scaffold-from-body-readiness
 status: active
 alignment: aligned
 createdAt: 2026-09-02T06:13:35Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: separate-reviewable-candidates-from-established-decisions.md
+    target: separate-reviewable-candidates-from-established-decisions
 ---
 
 ## 目的

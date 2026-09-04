@@ -1,5 +1,6 @@
 ---
 title: 从检查步骤结果派生退出状态
+id: derive-check-exit-status-from-step-results
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:14:59Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 拆分
-    target: render-check-results-and-exit-status.md
+    target: render-check-results-and-exit-status
 ---
 
 ## 目的

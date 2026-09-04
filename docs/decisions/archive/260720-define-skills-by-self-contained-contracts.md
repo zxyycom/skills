@@ -1,5 +1,6 @@
 ---
 title: 让分发 skill 以自身契约定义边界
+id: 260720-define-skills-by-self-contained-contracts
 status: archived
 alignment: null
 createdAt: 2026-07-20T10:15:58+08:00

@@ -1,5 +1,6 @@
 ---
 title: 使用源码 CLI
+id: 260710-use-source-cli
 status: archived
 alignment: null
 createdAt: 2026-07-10T09:10:11+08:00

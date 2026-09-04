@@ -1,5 +1,6 @@
 ---
 title: 为通用索引提供类型化集合元数据
+id: use-typed-collection-metadata
 status: archived
 alignment: aligned
 createdAt: 2026-07-24T14:34:00Z
@@ -10,7 +11,7 @@ tags:
   - index-runtime
 relations:
   - type: 拆分
-    target: use-independent-read-side-index-runtime.md
+    target: use-independent-read-side-index-runtime
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 让独立决策暂存能够被发现
+id: make-independent-decision-staging-discoverable
 status: active
 alignment: aligned
 createdAt: 2026-08-06T11:26:45Z

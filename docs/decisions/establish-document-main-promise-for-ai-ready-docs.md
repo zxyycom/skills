@@ -1,5 +1,6 @@
 ---
 title: 为 AI-ready 文档建立主承诺检查
+id: establish-document-main-promise-for-ai-ready-docs
 status: active
 alignment: aligned
 createdAt: 2026-08-29T16:09:38Z
@@ -10,9 +11,9 @@ tags:
   - ai-ready-docs
 relations:
   - type: 归并
-    target: 260701-add-document-main-promise-check.md
+    target: 260701-add-document-main-promise-check
   - type: 归并
-    target: organize-ai-ready-docs-around-main-promise.md
+    target: organize-ai-ready-docs-around-main-promise
 ---
 
 ## 目的

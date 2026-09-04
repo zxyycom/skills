@@ -1,5 +1,6 @@
 ---
 title: 优先用 OpenSpec CLI 恢复 Change 状态与材料路径
+id: prefer-cli-for-change-state-and-artifact-routing
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:26:59Z
@@ -10,7 +11,7 @@ tags:
   - openspec
 relations:
   - type: 拆分
-    target: 260706-gate-temporary-change-plans.md
+    target: 260706-gate-temporary-change-plans
 ---
 
 ## 目的

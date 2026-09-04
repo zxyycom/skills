@@ -1,5 +1,6 @@
 ---
 title: 将决策生命周期投影到物理归档边界
+id: project-decision-lifecycle-into-physical-archive-boundary
 status: archived
 alignment: aligned
 createdAt: 2026-08-29T16:11:33Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 拆分
-    target: use-stable-decision-ids-tags-and-location-index.md
+    target: use-stable-decision-ids-tags-and-location-index
 ---
 
 ## 目的

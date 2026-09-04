@@ -23,6 +23,13 @@
 3. 通用分发的目标是简化 skill 的获取和更新，不管理使用者的完整安装集合。依赖解析、组合安装和兼容迁移等能力，只有在出现已确认的现实需求并建立独立 owner 后才进入实现范围。
 4. 特定 skills 可以声明共同工作流或更强的分发关系；这类局部契约不改变主仓库通用分发能力的范围。
 
+## 受管记录身份与位置
+
+1. 需要长期关系、索引或精确选择的受管领域记录，在自身 Markdown frontmatter 声明 extensionless 领域 ID；ID 只表达对象身份，不包含仓库根、生命周期目录或文件扩展名。
+2. `name` 只在相应领域另行声明时表达可读语义，可以重复；本模型不为当前 Decision 或 Investigation 增加 `name` frontmatter、索引 key 或 selector。`sourcePath`、locator、URL 和其他明确路径字段只表达当前位置或引用。领域允许时，文件 basename 可以使用语义名称或 ID，但不能反向定义领域身份。
+3. 派生索引以领域 ID 为 key，并保存独立 sourcePath；它可由 Markdown 重建。按 ID 单项读取时，索引定位文件后必须确认该文件仍声明同一 ID。
+4. Test Evidence Case ID、Task ID 与明确 path/locator/reference 字段沿用各自 owner，不因文本外形相似而迁移为记录 ID。短期 Change Plan 目录不属于长期记录身份模型。
+
 ## 验证职责
 
 1. 主仓库验证负责证明源文件结构、共享工具、生成状态和可分发制品符合当前项目契约。

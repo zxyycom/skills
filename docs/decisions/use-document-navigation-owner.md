@@ -1,5 +1,6 @@
 ---
 title: 使用仓库导航统一任务路由与内容 owner
+id: use-document-navigation-owner
 status: active
 alignment: aligned
 createdAt: 2026-07-21T07:48:36Z

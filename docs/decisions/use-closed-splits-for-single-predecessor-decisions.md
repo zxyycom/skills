@@ -1,5 +1,6 @@
 ---
 title: 用闭合拆分处理单前序过粗决策
+id: use-closed-splits-for-single-predecessor-decisions
 status: active
 alignment: aligned
 createdAt: 2026-08-30T04:18:54Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: use-closed-splits-for-coarse-decisions.md
+    target: use-closed-splits-for-coarse-decisions
 ---
 
 ## 目的

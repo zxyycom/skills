@@ -19,7 +19,7 @@ import {
   type DecisionTag,
   type DecisionTraceDirection
 } from "./types.ts";
-import { isDecisionId, isDecisionTag } from "./decision-path.ts";
+import { isDecisionTag, normalizeDecisionIdInput } from "./decision-path.ts";
 import { projectionTextIssue } from "./projection.ts";
 import {
   processDecisionRecordsCliIo,
@@ -180,30 +180,32 @@ function parseSingleDecisionId(
   value: string,
   previous?: DecisionId
 ): DecisionId {
-  if (!isDecisionId(value)) {
+  const decisionId = normalizeDecisionIdInput(value);
+  if (decisionId === null) {
     throw new InvalidArgumentError(
-      "Decision ID is invalid; must be a basename ending in .md"
+      "Decision ID is invalid; must be extensionless kebab-case text"
     );
   }
   if (previous !== undefined) {
     throw new InvalidArgumentError("must not be repeated");
   }
-  return value;
+  return decisionId;
 }
 
 function parseDecisionIdList(
   value: string,
   previous: DecisionId[] = []
 ): DecisionId[] {
-  if (!isDecisionId(value)) {
+  const decisionId = normalizeDecisionIdInput(value);
+  if (decisionId === null) {
     throw new InvalidArgumentError(
-      "Decision ID is invalid; must be a basename ending in .md"
+      "Decision ID is invalid; must be extensionless kebab-case text"
     );
   }
-  if (previous.includes(value)) {
+  if (previous.includes(decisionId)) {
     throw new InvalidArgumentError("must not repeat a Decision ID");
   }
-  return [...previous, value];
+  return [...previous, decisionId];
 }
 
 function parseDecisionRelation(
@@ -223,10 +225,10 @@ function parseDecisionRelation(
       "type must be " + decisionRelationTypes.join(", ")
     );
   }
-  const target = value.slice(separatorIndex + 1);
-  if (!isDecisionId(target)) {
+  const target = normalizeDecisionIdInput(value.slice(separatorIndex + 1));
+  if (target === null) {
     throw new InvalidArgumentError(
-      "target must be a Decision ID basename ending in .md"
+      "target must be an extensionless Decision ID"
     );
   }
   if (previous.some((relation) => relation.target === target)) {
@@ -249,10 +251,10 @@ function parseDecisionSuccessor(
   if (alignmentValue !== "aligned" && alignmentValue !== "unaligned") {
     throw new InvalidArgumentError("alignment must be aligned or unaligned");
   }
-  const decisionId = value.slice(separatorIndex + 1);
-  if (!isDecisionId(decisionId)) {
+  const decisionId = normalizeDecisionIdInput(value.slice(separatorIndex + 1));
+  if (decisionId === null) {
     throw new InvalidArgumentError(
-      "decision ID must be a basename ending in .md"
+      "decision ID must be extensionless kebab-case text"
     );
   }
   if (previous.some((successor) => successor.decisionId === decisionId)) {
@@ -567,7 +569,7 @@ export function createCliProgram(
     .showHelpAfterError()
     .addHelpText(
       "afterAll",
-      "\nDecision IDs are stable Markdown basenames, for example use-semantic-title.md.\n" +
+      "\nDecision IDs are stable extensionless kebab-case values, for example use-semantic-title. A single terminal .md suffix remains accepted for compatibility.\n" +
         "Candidates remain outside the index, are queried from source, and report scaffold and body readiness separately.\n" +
         "Scaffold readiness validates candidate structure; body readiness validates required nonempty sections and the 采用 field. Neither grants semantic review or lifecycle establishment.\n" +
         "Exit codes: 0 success (including a created scaffold with readiness findings), " +
@@ -639,7 +641,7 @@ export function createCliProgram(
     "Show decision metadata followed by the original Markdown body."
   ).argument(
     "<decision-id>",
-    "Stable Decision ID basename.",
+    "Stable extensionless Decision ID.",
     parseSingleDecisionId
   );
   show.action((decisionId: DecisionId) => execute("show", show, [decisionId]));
@@ -650,7 +652,7 @@ export function createCliProgram(
     "Show one source-discovered candidate and its mechanical readiness before activation."
   ).argument(
     "<decision-id>",
-    "Stable Decision ID basename.",
+    "Stable extensionless Decision ID.",
     parseSingleDecisionId
   );
   showCandidate.action((decisionId: DecisionId) =>
@@ -664,7 +666,7 @@ export function createCliProgram(
   )
     .argument(
       "<decision-id>",
-      "Stable Decision ID basename.",
+      "Stable extensionless Decision ID.",
       parseSingleDecisionId
     )
     .addOption(
@@ -695,7 +697,7 @@ export function createCliProgram(
   )
     .argument(
       "<decision-id>",
-      "Stable Decision ID basename.",
+      "Stable extensionless Decision ID.",
       parseSingleDecisionId
     )
     .addOption(
@@ -745,7 +747,7 @@ export function createCliProgram(
       "the explicitly selected filesystem Decision IDs."
   ).argument(
     "<decision-id...>",
-    "Stable Decision ID basenames.",
+    "Stable extensionless Decision IDs.",
     parseDecisionIdList
   );
   stage.action((decisionIds: DecisionId[]) =>
@@ -761,7 +763,7 @@ export function createCliProgram(
   )
     .argument(
       "<decision-id>",
-      "Stable Decision ID basename.",
+      "Stable extensionless Decision ID.",
       parseSingleDecisionId
     )
     .addOption(
@@ -828,7 +830,7 @@ export function createCliProgram(
       "fact sources."
   ).argument(
     "<decision-id>",
-    "Stable Decision ID basename.",
+    "Stable extensionless Decision ID.",
     parseSingleDecisionId
   );
   markAligned.action((decisionId: DecisionId) =>
@@ -842,7 +844,7 @@ export function createCliProgram(
   )
     .argument(
       "<decision-id...>",
-      "Stable Decision ID basenames.",
+      "Stable extensionless Decision IDs.",
       parseDecisionIdList
     )
     .addOption(createKeepUnrecordedHistoryOption());
@@ -858,7 +860,7 @@ export function createCliProgram(
   )
     .argument(
       "<decision-id>",
-      "Stable Decision ID basename.",
+      "Stable extensionless Decision ID.",
       parseSingleDecisionId
     )
     .option(

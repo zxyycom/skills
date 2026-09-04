@@ -1,5 +1,6 @@
 ---
 title: 从 Markdown 生命周期派生决策建立状态
+id: derive-establishment-from-markdown-lifecycle
 status: archived
 alignment: null
 createdAt: 2026-07-24T15:35:32Z
@@ -10,15 +11,15 @@ tags:
   - decision-records
 relations:
   - type: 归并
-    target: allow-sequential-activation-of-prewritten-candidates.md
+    target: allow-sequential-activation-of-prewritten-candidates
   - type: 归并
-    target: separate-activation-effect-from-head-pending.md
+    target: separate-activation-effect-from-head-pending
   - type: 归并
-    target: use-configurable-self-contained-decision-root.md
+    target: use-configurable-self-contained-decision-root
   - type: 归并
-    target: use-field-alignment-commands.md
+    target: use-field-alignment-commands
   - type: 归并
-    target: complete-current-decision-work-by-task-outcome.md
+    target: complete-current-decision-work-by-task-outcome
 ---
 
 ## 目的

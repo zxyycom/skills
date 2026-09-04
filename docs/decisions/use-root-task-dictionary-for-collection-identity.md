@@ -1,5 +1,6 @@
 ---
 title: 用根级任务字典承接集合身份
+id: use-root-task-dictionary-for-collection-identity
 status: active
 alignment: aligned
 createdAt: 2026-08-11T04:03:17Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 修订
-    target: use-root-task-dictionary.md
+    target: use-root-task-dictionary
 ---
 
 ## 目的

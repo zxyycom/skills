@@ -1,5 +1,6 @@
 ---
 title: 由嵌套字典键承接任务身份并分离内容与状态
+id: key-task-identity-and-separate-content-state-projection
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T12:11:25Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 修订
-    target: separate-task-content-state-and-effective-projection.md
+    target: separate-task-content-state-and-effective-projection
 ---
 
 ## 目的

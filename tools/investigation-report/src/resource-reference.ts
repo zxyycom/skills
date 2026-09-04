@@ -36,7 +36,7 @@ export function isInvestigationResourceId(value: string): boolean {
   return (
     isLexicallySafeInvestigationResourcePath(value) &&
     segments.length >= 2 &&
-    isInvestigationId(`${segments[0]}.md`)
+    isInvestigationId(segments[0]!)
   );
 }
 
@@ -46,7 +46,7 @@ export function investigationResourceOwnerReportId(
   if (!isInvestigationResourceId(value)) {
     return null;
   }
-  return `${value.split("/")[0]}.md`;
+  return value.split("/")[0]!;
 }
 
 export function investigationResourceIdFromLinkTarget(

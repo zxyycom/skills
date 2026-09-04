@@ -1,5 +1,6 @@
 ---
 title: 只通过当前工具维护派生索引
+id: rebuild-index-only-with-current-tools
 status: active
 alignment: aligned
 createdAt: 2026-07-23T05:48:17Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 替代
-    target: recover-current-format-tools-and-index.md
+    target: recover-current-format-tools-and-index
 ---
 
 ## 目的

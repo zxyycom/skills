@@ -1,5 +1,6 @@
 ---
 title: 从自包含决策文件生成完整索引
+id: generate-index-from-self-contained-decisions
 status: archived
 alignment: null
 createdAt: 2026-07-22T07:37:46Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: use-second-precision-lifecycle-index.md
+    target: use-second-precision-lifecycle-index
 ---
 
 ## 目的

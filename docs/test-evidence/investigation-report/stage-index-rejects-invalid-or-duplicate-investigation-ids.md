@@ -7,8 +7,8 @@ Entry:
 
 Contract:
 
-- `stage-index` 拒绝重复或非规范 Investigation ID。
+- `stage-index` 拒绝重复或非 extensionless Investigation ID。
 
 Proves:
 
-- 重复 ID 返回 duplicate 诊断；路径、`./` 和首尾空白 ID 各返回 invalid 诊断。
+- 重复 ID 返回 duplicate 诊断；路径、`./` 和首尾空白 ID 各返回明确 extensionless 契约的 invalid 诊断。

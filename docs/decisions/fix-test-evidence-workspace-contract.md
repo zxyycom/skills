@@ -1,5 +1,6 @@
 ---
 title: 固定测试账本的工作区协议
+id: fix-test-evidence-workspace-contract
 status: active
 alignment: aligned
 createdAt: 2026-07-27T02:22:31Z
@@ -10,7 +11,7 @@ tags:
   - test-evidence-review
 relations:
   - type: 修订
-    target: organize-test-cases-by-controlled-topic-path.md
+    target: organize-test-cases-by-controlled-topic-path
 ---
 
 ## 目的

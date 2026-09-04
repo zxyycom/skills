@@ -1,5 +1,6 @@
 ---
 title: 将提交格式定位为项目级风格
+id: 260720-treat-commit-format-as-project-style
 status: active
 alignment: aligned
 createdAt: 2026-07-20T11:01:45+08:00

@@ -1,5 +1,6 @@
 ---
 title: 以报告级身份维护可重建调查索引
+id: maintain-report-level-investigation-index
 status: archived
 alignment: aligned
 createdAt: 2026-08-28T10:12:51Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 修订
-    target: maintain-topic-level-investigation-index.md
+    target: maintain-topic-level-investigation-index
 ---
 
 ## 目的

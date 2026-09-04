@@ -1,5 +1,6 @@
 ---
 title: 以 definitionVersion 标识索引定义兼容性
+id: version-index-definition-compatibility
 status: active
 alignment: aligned
 createdAt: 2026-08-11T04:02:53Z
@@ -10,7 +11,7 @@ tags:
   - index-runtime
 relations:
   - type: 拆分
-    target: use-independent-read-side-index-runtime.md
+    target: use-independent-read-side-index-runtime
 ---
 
 ## 目的

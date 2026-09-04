@@ -1,5 +1,6 @@
 ---
 title: 分离测试入口采集与账本维护
+id: 260721-separate-test-entry-collection-from-ledger
 status: archived
 alignment: null
 createdAt: 2026-07-21T02:59:31Z
@@ -10,9 +11,9 @@ tags:
   - test-evidence-review
 relations:
   - type: 替代
-    target: mask-non-code-test-syntax.md
+    target: mask-non-code-test-syntax
   - type: 修订
-    target: query-ledger-with-structured-inspection.md
+    target: query-ledger-with-structured-inspection
 ---
 
 ## 目的

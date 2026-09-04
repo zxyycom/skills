@@ -1,5 +1,6 @@
 ---
 title: 使用 JSON 当前索引和稳定决策路径
+id: 260713-use-json-current-index-and-stable-paths
 status: archived
 alignment: null
 createdAt: 2026-07-18T11:43:07+08:00
@@ -10,11 +11,11 @@ tags:
   - decision-records
 relations:
   - type: 归并
-    target: 260630-use-compact-decision-records.md
+    target: 260630-use-compact-decision-records
   - type: 归并
-    target: 260710-use-cli-active-index-and-invalidated-archive.md
+    target: 260710-use-cli-active-index-and-invalidated-archive
   - type: 归并
-    target: 260711-bound-history-with-direct-relations.md
+    target: 260711-bound-history-with-direct-relations
 ---
 
 ## 目的

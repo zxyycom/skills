@@ -1,5 +1,6 @@
 ---
 title: 先确认测试结果资格再形成行为阻断
+id: qualify-formal-test-results-before-behavior-blocking
 status: archived
 alignment: unaligned
 createdAt: 2026-08-11T03:24:23Z
@@ -10,7 +11,7 @@ tags:
   - test-evidence-review
 relations:
   - type: 拆分
-    target: defer-standard-test-result-blocking.md
+    target: defer-standard-test-result-blocking
 ---
 
 ## 目的

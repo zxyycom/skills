@@ -1,5 +1,6 @@
 ---
 title: 以产品与架构视角校准技术判断
+id: 260720-use-product-and-architecture-lenses
 status: archived
 alignment: null
 createdAt: 2026-07-20T14:13:42+08:00

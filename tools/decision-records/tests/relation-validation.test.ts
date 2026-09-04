@@ -73,13 +73,13 @@ test("candidate relations are checked prospectively without entering the establi
       "decisions",
       "decision-index.json"
     );
-    const targetCandidateRelativePath = "use-candidate-relation-target.md";
+    const targetCandidateRelativePath = "use-candidate-relation-target";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, targetCandidateRelativePath),
       candidateDecisionBody(),
       "utf8"
     );
-    const candidateRelativePath = "use-forward-looking-relation.md";
+    const candidateRelativePath = "use-forward-looking-relation";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, candidateRelativePath),
       candidateDecisionBody({
@@ -104,7 +104,7 @@ test("candidate reallocation relations remain prospective until a complete trans
   withFixtureWorkspace(
     "candidate-reallocation-preview",
     async (workspaceRoot) => {
-      const candidateRelativePath = "use-forward-looking-reallocation.md";
+      const candidateRelativePath = "use-forward-looking-reallocation";
       await fs.writeFile(
         decisionFilePath(workspaceRoot, candidateRelativePath),
         candidateDecisionBody({
@@ -123,14 +123,14 @@ test("candidate relation validation rejects missing targets", () =>
   withFixtureWorkspace(
     "candidate-relation-missing-target",
     async (workspaceRoot) => {
-      const invalidRelativePath = "use-missing-relation-target.md";
+      const invalidRelativePath = "use-missing-relation-target";
       await fs.writeFile(
         decisionFilePath(workspaceRoot, invalidRelativePath),
         candidateDecisionBody({
           relations: [
             {
               type: "修订",
-              target: "missing-target.md"
+              target: "missing-target"
             }
           ]
         }),
@@ -149,7 +149,7 @@ test("candidate relation validation rejects self references", () =>
   withFixtureWorkspace(
     "candidate-relation-self-reference",
     async (workspaceRoot) => {
-      const invalidRelativePath = "use-self-relation.md";
+      const invalidRelativePath = "use-self-relation";
       await fs.writeFile(
         decisionFilePath(workspaceRoot, invalidRelativePath),
         candidateDecisionBody({
@@ -170,7 +170,7 @@ test("candidate relation validation rejects repeated targets", () =>
   withFixtureWorkspace(
     "candidate-relation-repeated-target",
     async (workspaceRoot) => {
-      const invalidRelativePath = "use-repeated-relation-target.md";
+      const invalidRelativePath = "use-repeated-relation-target";
       await fs.writeFile(
         decisionFilePath(workspaceRoot, invalidRelativePath),
         candidateDecisionBody({
@@ -242,7 +242,7 @@ test("strict relation checks reject impure split successors", () =>
     async (workspaceRoot) => {
       const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
       const currentText = await fs.readFile(currentPath, "utf8");
-      const secondArchivedRelativePath = "use-second-archived-predecessor.md";
+      const secondArchivedRelativePath = "use-second-archived-predecessor";
       await fs.writeFile(
         decisionFilePath(workspaceRoot, secondArchivedRelativePath),
         candidateDecisionBody(),

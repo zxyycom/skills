@@ -405,7 +405,7 @@ async function candidateResourceErrors(
         references
       ))
     );
-    const ownerPrefix = `${id.slice(0, -".md".length)}/`;
+    const ownerPrefix = `${id}/`;
     const fullResources = await validateFullInvestigationResources(
       investigationsDirectory,
       references
@@ -467,7 +467,8 @@ function recordFormalAuthoringReferences(
   for (const source of sources) {
     const built = buildInvestigationReportState(
       source.id,
-      parseInvestigationReport(source.text, source.id)
+      parseInvestigationReport(source.text, source.id),
+      source.sourcePath
     );
     if (built.status === "valid") {
       references.set(source.id, new Set(built.state.resourceIds));
@@ -519,7 +520,7 @@ async function recordCandidateAuthoringReferences(
 export function serializeInvestigationCandidate(
   input: Pick<
     InvestigationCandidateCreateOptions,
-    "formedAt" | "question" | "relations" | "tags" | "title"
+    "formedAt" | "id" | "question" | "relations" | "tags" | "title"
   >
 ): string {
   return [

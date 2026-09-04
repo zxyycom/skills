@@ -1,5 +1,6 @@
 ---
 title: 将对齐状态定义为单向基线
+id: use-monotonic-alignment-baseline
 status: archived
 alignment: aligned
 createdAt: 2026-07-22T10:07:23Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: express-alignment-as-field-relation.md
+    target: express-alignment-as-field-relation
 ---
 
 ## 目的

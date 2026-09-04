@@ -1,5 +1,6 @@
 ---
 title: 由子 task 结果聚合父 task 完成
+id: aggregate-parent-task-completion
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:21:57Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 拆分
-    target: model-task-topology-and-inheritance-explicitly.md
+    target: model-task-topology-and-inheritance-explicitly
 ---
 
 ## 目的

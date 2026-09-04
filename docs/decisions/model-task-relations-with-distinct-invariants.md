@@ -1,5 +1,6 @@
 ---
 title: 以不同不变量维护 task 拓扑关系
+id: model-task-relations-with-distinct-invariants
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:21:57Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 拆分
-    target: model-task-topology-and-inheritance-explicitly.md
+    target: model-task-topology-and-inheritance-explicitly
 ---
 
 ## 目的

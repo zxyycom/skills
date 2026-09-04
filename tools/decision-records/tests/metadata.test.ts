@@ -22,7 +22,7 @@ test("decision Markdown requires sorted unique tag tokens", async () => {
         replacement
       ),
       errors,
-      decisionId: "use-tags.md",
+      decisionId: "use-tags",
       sourcePath: "use-tags.md",
       targetExists: () => false
     });
@@ -74,7 +74,7 @@ test("decision Markdown rejects removed domain fields and unknown frontmatter", 
     await validateDecisionBody({
       body: candidateDecisionBody().replace("tags:", `${line}\ntags:`),
       errors,
-      decisionId: "use-tags.md",
+      decisionId: "use-tags",
       sourcePath: "use-tags.md",
       targetExists: () => false
     });

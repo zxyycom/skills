@@ -1,5 +1,6 @@
 ---
 title: 将任务协调与执行机制分离
+id: separate-task-coordination-from-execution-mechanism
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T02:12:47Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 修订
-    target: own-recoverable-task-coordination.md
+    target: own-recoverable-task-coordination
 ---
 
 ## 目的

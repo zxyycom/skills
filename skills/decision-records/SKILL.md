@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "40"
+  version: "41"
 ---
 
 # Decision Records
@@ -14,7 +14,7 @@ metadata:
 
 维护可回放、可验证、可演进的长期判断。决策记录保存采用方向、理由、生命周期和演进关系；它不保存任务进度、执行日志或当前实现快照。代码、配置、规范和项目文档仍是当前事实来源。
 
-每条记录以含 `.md` 的 basename 作为稳定 **Decision ID**；移动位置不改变 ID，改 basename 才是身份变化。格式、位置、分类、关系与索引契约由决策记录规则和 Schema 承接。
+每条记录在 Markdown frontmatter `id` 中声明 extensionless 稳定 **Decision ID**；`sourcePath` 单独定位当前文件，basename 可以等于 ID 或使用语义文件名（不是 `name` frontmatter 字段或 selector），移动或改 basename 不自动改变身份。格式、位置、分类、关系与索引契约由决策记录规则和 Schema 承接。
 
 `active + aligned` 是已核对的当前基线；`active + unaligned` 是已经确认、但尚未成为当前事实的未来方向，是正常的长期状态而非失败、待办或实施授权。`candidate` 可以是结构合法 scaffold，也可以已经机械满足正文要求；两者都不进入正式集合。CLI 的 `scaffoldValid` 与 `bodyReady` 只表达机械事实，不证明语义审核、建立授权或 alignment 判断。`alignment` 不创建实施授权、任务或优先级。
 
@@ -65,7 +65,7 @@ metadata:
 
 ### 4. 维护记录
 
-1. 查询、关系和生命周期命令一律接收 Decision ID；`sourcePath` 只用于定位和展示。
+1. 查询、关系和生命周期命令一律接收纯 Decision ID；`sourcePath` 只用于定位和展示。兼容旧调用时，CLI 只会在输入边界移除一次末尾 `.md`，不会把后缀保存为身份。
 2. `activate` 只建立 body-ready candidate 或重新激活 archived 记录；`evolve` 只建立 body-ready selected candidates 并维护完整演进关系；`mark-aligned`、`archive` 与 `discard` 只用于各自维护动作。`activate --preflight` 与 `evolve --preflight` 使用当前完整参数只读预演关系、最终图、索引和 Git 历史门禁；结果不保存 receipt，正式命令必须重新显式提供参数并重新验证。`拆分` 和 `重划` 都通过重复 `--successor` 选择完整后继集合；重划通常由每个候选在自身 `relations` 中声明各自的来源边。`--relation` 是对所有所选后继的完整统一覆盖，不是逐后继参数；不新增重划专用命令。精确输入优先级、拓扑和闭合规则以 `--help` 和决策记录规则为准。
 3. 已建立记录的判断语义变化通过新记录和真实关系表达；编辑性文字修正可直接改权威 Markdown。不得直接编辑派生索引制造状态。
 4. 生命周期和关系写入使用 CLI 事务，尽可能保证 Markdown 与索引组合的原子性；普通诊断无法恢复的失败按恢复手册处理。不要在运行前自行推演 Git 历史边界；正常执行领域命令即可。CLI 实际暂停时，向调用方完整转达受检 Decision ID、操作和零写入状态；等待本次明确确认后，才按 CLI 给出的额外参数重试，不自动重试，也不把这个确认代替原有维护授权。

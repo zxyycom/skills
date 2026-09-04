@@ -1,5 +1,6 @@
 ---
 title: 由 task-graph 承接短期任务编排
+id: own-short-lived-task-orchestration
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T06:13:37Z

@@ -1,5 +1,6 @@
 ---
 title: 通过 claim 直接接管过期 task lease
+id: reclaim-expired-task-leases-through-claim
 status: active
 alignment: aligned
 createdAt: 2026-08-07T02:31:28Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 修订
-    target: coordinate-task-execution-with-transactional-claims.md
+    target: coordinate-task-execution-with-transactional-claims
 ---
 
 ## 目的

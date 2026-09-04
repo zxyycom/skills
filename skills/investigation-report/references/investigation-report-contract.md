@@ -4,11 +4,11 @@
 
 ## Owner 与目录
 
-1. Investigation ID 是符合 `^[a-z0-9]+(?:-[a-z0-9]+)*\.md$` 的稳定 Markdown basename，在正式集合内唯一。正式报告以该 ID 作为相对调查根目录的唯一位置；改 basename 是身份变化。
-2. candidate 的唯一文件名是 `_candidate.<investigation-id>`。candidate ID 由移除该保留前缀后恢复；它不是正式 Investigation ID、正式报告或索引成员。未知保留文件、符号链接、非普通文件、同一 ID 的多个 candidate，或 candidate 与正式报告同 ID 都是集合成员安全错误。
+1. Investigation ID 是符合 `^[a-z0-9]+(?:-[a-z0-9]+)*$` 的 extensionless 稳定领域身份，由报告或 candidate Markdown frontmatter `id` 声明，在正式集合内唯一。正式 `sourcePath` 是独立的相对调查根目录位置；移动或改 basename 不自动改变 ID。
+2. candidate 的唯一文件名是 `_candidate.<investigation-id>`，但其 Markdown 仍必须声明同一纯 ID；它不是正式 Investigation ID、正式报告或索引成员。未知保留文件、符号链接、非普通文件、同一 ID 的多个 candidate，或 candidate 与正式报告同 ID 都是集合成员安全错误。
 3. 每个根目录直属正式报告 Markdown 是自身 title、formedAt、question、tags、relations、正文和资源引用的唯一事实源。一份文件只保存一份正式报告。candidate 保存同形的未建立报告内容，但不成为正式集合事实。
-4. `investigation-index.json` 从全部合法**正式**报告确定性生成，只用于发现、过滤、排序、关系 trace 和资源引用投影，不拥有独立事实。candidate、资源成员、路径与字节不进入索引来源版本或新鲜度。
-5. 可选 `_resources/` 是统一资源池。资源 ID 固定为 `<investigation-id-stem>/<resource-subpath>`，首段映射 resource owner。正式 owner 是 `<investigation-id-stem>.md`；同 ID candidate 存在而正式 owner 未建立时，它可以在 authoring 中暂时承担该 owner。路径是唯一 owner 的事实来源，不限制其他候选或正式报告引用。
+4. `investigation-index.json` 从全部合法**正式**报告确定性生成，只用于发现、过滤、排序、关系 trace 和资源引用投影，不拥有独立事实。每项 state 保存该 ID 的 `sourcePath`；candidate、资源成员和资源字节不进入索引来源版本或新鲜度。
+5. 可选 `_resources/` 是统一资源池。资源 ID 固定为 `<investigation-id>/<resource-subpath>`，首段映射 resource owner，而不是报告 filename。正式 owner 是同 ID 的正式报告；同 ID candidate 存在而正式 owner 未建立时，它可以在 authoring 中暂时承担该 owner。路径是唯一 owner 的事实来源，不限制其他候选或正式报告引用。
 6. `scripts/check-investigations.mjs` 提供 `new`、`candidates`、`show-candidate`、`publish`、`discard-candidate`、`check`、`sync-index`、`list`、`show`、`trace`、`set-relations`、`discard` 和 `stage-index`。`new`、`publish`、`discard-candidate`、`sync-index`、`set-relations` 与正式 `discard` 写工作区领域状态，且共用集合 mutation lock；`stage-index` 只写 Git pending。其余操作只读。
 7. [investigation-index.schema.json](investigation-index.schema.json) 是随包分发的当前索引 JSON Schema；CLI 继续负责 Schema 无法证明的 Markdown、candidate、关系、资源安全、source revision、state 和 keys 一致性。
 
@@ -18,33 +18,36 @@
 docs/investigations/
 ├── investigation-index.json
 ├── _resources/                         # 可选；没有资源引用时不需要创建
-│   └── <investigation-id-stem>/...
+│   └── <investigation-id>/...
 ├── _candidate.<investigation-id>       # 集合外 authoring candidate
-└── <investigation-id>                  # 每份正式报告根目录直属
+└── <name-or-investigation-id>.md       # 每份正式报告根目录直属
 ```
 
 调查根目录只接受派生索引、可选 `_resources/`、根目录直属正式报告与规范 candidate；不建立其他报告目录或生命周期目录。`_resources/` 中的 Markdown 是资源，不参与报告发现。
+
+正式报告的 `sourcePath` 必须是根目录直属的 `<name-or-investigation-id>.md`，同一集合内独占；这里的 `name` 仅表示语义文件 basename，不是 frontmatter 字段、索引 key 或 selector。basename 可以等于 ID 或使用该语义文件名，但不得反向决定 frontmatter `id`。全量扫描同时验证 ID、sourcePath 与声明 ID 的对应关系；单项读取先由新鲜索引定位 sourcePath，再拒绝缺失、陈旧路径或内容 ID 不匹配。
 
 可以用 `--investigations-dir` 选择工作区内的其他调查根目录，但同一集合始终使用同一根目录。正式根目录的完整报告一旦写入即建立：`publish` 是 candidate 的正常事务入口，但不是形式上的唯一建立动作。`sync-index` 从正式报告全量验证并显式接纳手工来源变化。正式集合为空且索引不存在时，首次 publish 可以建立首批报告和索引；空索引不能代替首份有效报告。已建立集合通过正式 `discard` 删除最后一份报告时保留结构和来源版本均有效的空索引；该空索引可继续 `check`、`list` 和 `sync-index`，但不能让全新无索引空目录成为已建立集合。
 
 ## 报告与 candidate Markdown
 
-正式报告从首行开始使用以下 YAML frontmatter，且 key 固定按 `title`、`formedAt`、`question`、`tags`、`relations` 排列。所有 scalar 是 string，禁止重复或未知 key；规范 writer 对 scalar 使用 JSON 兼容的双引号与转义。
+正式报告从首行开始使用以下 YAML frontmatter，且 key 固定按 `title`、`id`、`formedAt`、`question`、`tags`、`relations` 排列。所有 scalar 是 string，禁止重复或未知 key；规范 writer 对 scalar 使用 JSON 兼容的双引号与转义。
 
 ```yaml
 ---
 title: "重新检查索引来源"
+id: "exclude-resources-from-index-revision"
 formedAt: "2026-08-28T12:00:00+00:00"
 question: "资源字节是否应影响报告索引来源版本？"
 tags:
   - "investigation-report"
 relations:
   - type: "复查"
-    target: "exclude-resources-from-index-revision.md"
+    target: "exclude-resources-from-index-revision"
 ---
 ```
 
-1. `title` 与 `question` 是非空单行语义文本。`formedAt` 使用带显式时区、无小数秒的 RFC 3339 时间戳。
+1. `id` 是规范纯 Investigation ID，不含路径或扩展名；`title` 与 `question` 是非空单行语义文本。`formedAt` 使用带显式时区、无小数秒的 RFC 3339 时间戳。
 2. `tags` 是至少一个 kebab-case token 的 YAML sequence；每项符合 `^[a-z0-9]+(?:-[a-z0-9]+)*$`，同一报告内唯一并按 locale 无关词法升序排列。tags 只表达分类，不表达状态、有效性、关系、当前事实或历史演进。
 3. `relations` 是完整直接前序集合。空集合固定写为 `relations: []`；非空项的 key 顺序固定为 `type`、`target`，并按关系类型表顺序、再按 target 的 locale 无关词法顺序排列。
 4. frontmatter 后没有 H1。正式报告的前四个 H2 依次且唯一为非空的 `形成时背景`、`调查目的`、`调查范围与依据` 与 `调查结果与边界`。candidate 使用相同顺序与章节形状，但这四节可暂时为空。
@@ -76,7 +79,7 @@ candidate 的机械状态彼此独立：`scaffoldValid` 表示身份、普通文
 
 ## 资源池与 resource owner
 
-1. 相对 `_resources/` 的规范化 POSIX 文件路径是资源 ID，固定为 `<investigation-id-stem>/<resource-subpath>`。resource-subpath 至少包含一个文件名，之后可以任意合法嵌套。
+1. 相对 `_resources/` 的规范化 POSIX 文件路径是资源 ID，固定为 `<investigation-id>/<resource-subpath>`。resource-subpath 至少包含一个文件名，之后可以任意合法嵌套。
 2. 资源 ID 不能是绝对路径，不能包含空段、`.`、`..`、反斜杠、查询、片段或百分号编码。每个路径段只允许常用汉字 `U+4E00..U+9FFF`、`〇`、大小写 ASCII 英文、ASCII 数字，以及固定契约允许的点、连接符、括号、方括号、书名号和中英文常用标点。
 3. 路径段不能以 `.` 开头或结尾，至少包含一个汉字、英文字母或数字；拒绝 Windows 保留设备名及带扩展名形式。ASCII 圆括号必须成对，允许空内容与最多 32 层嵌套。
 4. 被引用资源必须满足路径安全、精确大小写、存在性、普通文件身份和版本控制可见性。资源根、任一路径分量或文件本身为符号链接，目录目标、其他非普通文件、缺失目标和越过调查根目录的路径都被拒绝。
@@ -113,10 +116,10 @@ discard-candidate <investigation-id> [--delete-owned-resources] [--delete-record
 
 ## 索引、查询、publish 与相邻维护
 
-1. 每个正式 Investigation ID 产生一个索引 entry。state 投影 `title`、`formedAt`、`question`、`tags`、`relations` 和按规范 ID 排序的 `resourceIds`；不保存 sourcePath、正文、candidate、反向关系副本、当前结论或资源内容摘要。
+1. 每个正式 Investigation ID 产生一个索引 entry。state 投影 `sourcePath`、`title`、`formedAt`、`question`、`tags`、`relations` 和按规范 ID 排序的 `resourceIds`；不保存正文、candidate、反向关系副本、当前结论或资源内容摘要。
 2. keys 是 exact `tag`、range `formed-at`、exact `relation-type` 与 text `text`；text 只聚合 title 与 question。metadata 是拒绝额外字段的严格空对象。
-3. source revision 以正式 Investigation ID 为键，只指纹化 ID 和完整正式报告 Markdown UTF-8 内容，计算前只把 CRLF 规范为 LF。正式报告成员或可投影内容变化会更新对应 revision；candidate、资源成员、名称和字节不参与 revision。
-4. `list` 默认查询全部正式报告，按 Investigation ID 的 locale 无关词法顺序排序；支持可重复 `--tag` 的 AND、包含端点的 formedAt 范围、一个精确关系类型和 title/question 文本查询。`show <investigation-id>` 读取完整正式报告；`trace <investigation-id>` 支持 predecessors、successors、both 与非负 `--depth`。这些命令与 `stage-index` 完全忽略 candidates。
+3. source revision 以正式 Investigation ID 为键，指纹化 ID、sourcePath 和完整正式报告 Markdown UTF-8 内容，计算前只把 CRLF 规范为 LF。正式报告成员、位置或可投影内容变化会更新对应 revision；candidate、资源成员和资源字节不参与 revision。
+4. `list` 默认查询全部正式报告，按 Investigation ID 的 locale 无关词法顺序排序；支持可重复 `--tag` 的 AND、包含端点的 formedAt 范围、一个精确关系类型和 title/question 文本查询。`show <investigation-id>` 先通过当前索引取得 sourcePath，再回读确认 Markdown `id`；`trace <investigation-id>` 支持 predecessors、successors、both 与非负 `--depth`。这些命令与 `stage-index` 完全忽略 candidates。
 5. 默认全量 `check` 验证正式报告、完整关系图、资源与索引；合法 candidate 只进行成员安全、身份冲突和候选诊断，不被接纳为正式来源。scoped check 只验证命中正式报告及其直接引用，不证明完整图、拆分闭合、未引用资源集合或索引新鲜度。
 6. `sync-index` 不要求旧索引新鲜；它在集合 mutation lock 内验证完整**正式**报告、关系图和资源，再从同一正式 Markdown snapshot 重建索引。它忽略合法 candidates，只因 candidate 路径或身份不安全而阻断。锁冲突时命令零写入失败并要求在当前事务结束后重试。已建立空集合只有在当前有效索引存在时成立。
 7. `sync-index` 是完整正式集合的低频重建、恢复与显式接纳入口。一批手工正式创建、修正、改名或资源引用调整可以先共同完成；在 `list`、`show`、`trace`、已有关系事务、正式 `discard`、默认全量 `check`、`stage-index` 或交付需要当前索引前运行一次。批量编辑期间索引可以暂时陈旧，此时使用 scoped check 或直接读取 Markdown；陈旧索引不提供当前集合事实。
@@ -130,7 +133,7 @@ publish <investigation-id...> [--preflight]
 1. `publish` 至少选择一个规范且不重复的 candidate ID。`--preflight` 与普通 publish 接受相同选择，完成相同最终集合准备但零写入；它不获取 mutation lock，不改名 candidate、不写正式报告、索引、资源或 pending，也不保存 receipt。
 2. 准备使用的正式基线必须明确：正式报告非空时，持久索引必须结构有效且对全部正式 Markdown 新鲜；正式报告为空而索引存在时，索引必须是当前合法空基线；正式报告为空且索引不存在时，允许首次建立。其他缺失、损坏或陈旧基线，以及未索引、已删除或已修改的手工正式来源，都要求先 `sync-index`，不得由 publish 混合接纳。
 3. 准备把显式 selected candidates 的完整 report view 加入正式基线，验证正式 body、formedAt、tags、完整直接关系、时间方向、归并/拆分闭包、无环图、资源和最终规范索引。关系 target 只能来自正式基线或同一选择；未选择 candidate 不能补齐闭包。Git `HEAD` 中未记录前序和 history unavailable 保留当前非阻断 warning 语义。
-4. 普通 publish 在集合 mutation lock 内重新读取正式来源、索引、selected candidates 与相关资源并重做准备。全部通过后，以不覆盖改名把每个 `_candidate.<id>` 发布为 `<id>`，再原子发布包含全部正式报告的索引；索引发布是领域提交点。普通 publish 只建立 selected IDs，未选择 candidate、资源与其他工作保持不变。
+4. 普通 publish 在集合 mutation lock 内重新读取正式来源、索引、selected candidates 与相关资源并重做准备。全部通过后，以不覆盖改名把每个 `_candidate.<id>` 发布为默认 `<id>.md` sourcePath，再原子发布包含全部正式报告的索引；索引发布是领域提交点。普通 publish 只建立 selected IDs，未选择 candidate、资源与其他工作保持不变。
 5. 索引发布前失败恢复全部已改名 candidate 和旧索引；无法完整恢复时返回 `partial-or-unknown`。索引发布成功后正式报告和索引已经提交，后续 cleanup 失败返回 `committed-cleanup-pending`。资源字节变化本身不阻断 publish，也不使索引陈旧。
 
 ### 已建立报告的相邻维护
@@ -172,7 +175,7 @@ discard <investigation-id> [--delete-owned-resources] [--delete-recorded-report]
 
 `stage-index <investigation-id...>` 只在工作区索引已由 `sync-index` 从当前正式报告集合重建并通过默认全量 `check` 后使用。它只组合选中正式报告的索引结果进入 pending，不自动暂存报告 Markdown、candidate、资源或其他领域文件；这些文件由调用方按实际提交范围选择。
 
-选中的 ID 必须规范且不重复。ID 改名时同时选择旧、新 ID。命令不读取或重建报告与资源；同一索引已有 pending 时失败并保留原内容，目标外 pending 路径不受影响。成功不证明工作区索引新鲜或正式报告、关系和资源仍有效。
+选中的 ID 必须规范且不重复。sourcePath 变化仍选择同一 ID；显式 ID 变更需要由相应关系与索引维护事务完整处理。命令不读取或重建报告与资源；同一索引已有 pending 时失败并保留原内容，目标外 pending 路径不受影响。成功不证明工作区索引新鲜或正式报告、关系和资源仍有效。
 
 ## CLI 诊断与维护恢复
 
@@ -200,4 +203,4 @@ node <investigation-report-skill>/scripts/check-investigations.mjs discard <inve
 node <investigation-report-skill>/scripts/check-investigations.mjs stage-index <investigation-id...> --root <workspace-root>
 ```
 
-无显式 command 时默认执行 `check`；公开 help 的 usage 使用 `investigation-report`，并按子命令展示合法参数。CLI 只提供人类可读文本，不提供 JSON 输出协议。退出码 `0` 表示成功，`1` 表示检查、领域操作或删除确认未通过，`2` 表示 CLI 参数无效。`new` 的成功只表示 candidate 已创建，即使其辅助 readiness/preflight 有 warning 仍退出 `0`；`publish --preflight` 按发布门禁退出。CLI 返回确定性去重排序的 errors 与 warnings；只有 errors 决定失败。它不判断章节语义、证据质量、资源是否值得保存、资源来源可信度、敏感信息、历史修改正当性或关系语义是否真实直接；这些由 `SKILL.md` 的形成与审阅流程承接。
+无显式 command 时默认执行 `check`；公开 help 的 usage 使用 `investigation-report`，并按子命令展示合法参数。CLI 只提供人类可读文本，不提供 JSON 输出协议。退出码 `0` 表示成功，`1` 表示检查、领域操作或删除确认未通过，`2` 表示 CLI 参数无效。`new` 的成功只表示 candidate 已创建，即使其辅助 readiness/preflight 有 warning 仍退出 `0`；`publish --preflight` 按发布门禁退出。CLI 返回确定性去重排序的 errors 与 warnings；只有 errors 决定失败。公开 ID 输入一律为纯 ID；兼容边界可大小写不敏感地移除一次末尾 `.md`，但持久 Markdown、关系、索引和输出不得保存该后缀。它不判断章节语义、证据质量、资源是否值得保存、资源来源可信度、敏感信息、历史修改正当性或关系语义是否真实直接；这些由 `SKILL.md` 的形成与审阅流程承接。

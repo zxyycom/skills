@@ -1,12 +1,13 @@
 ---
 title: "收回框架重构旁支并恢复正负描述主线"
+id: "return-from-framework-strategy-to-description-polarity"
 formedAt: "2026-08-13T11:20:49+00:00"
 question: "哪些框架策略认识仍服务正负描述主线，哪些已经构成应退出本主题的旁支？"
 tags:
   - "ai-ready-docs"
 relations:
   - type: "修正"
-    target: "separate-framework-reconstruction-from-local-repair.md"
+    target: "separate-framework-reconstruction-from-local-repair"
 ---
 
 ## 形成时背景

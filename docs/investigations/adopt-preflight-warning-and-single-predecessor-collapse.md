@@ -1,12 +1,13 @@
 ---
 title: "采用事前警告与显式单前序折叠"
+id: "adopt-preflight-warning-and-single-predecessor-collapse"
 formedAt: "2026-08-03T10:45:21+08:00"
 question: "如何用事前警告和显式单前序折叠处理尚未进入版本基线的决策演进？"
 tags:
   - "decision-records"
 relations:
   - type: "补充"
-    target: "detect-uncommitted-decision-evolution-from-git-baselines.md"
+    target: "detect-uncommitted-decision-evolution-from-git-baselines"
 ---
 
 ## 形成时背景

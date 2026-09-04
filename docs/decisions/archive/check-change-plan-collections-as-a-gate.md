@@ -1,5 +1,6 @@
 ---
 title: 把 Change 集合检查作为独立门禁
+id: check-change-plan-collections-as-a-gate
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T07:14:17Z

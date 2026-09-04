@@ -1,5 +1,6 @@
 ---
 title: 用统一物理归档边界降低决策搜索干扰
+id: use-physical-archive-boundary-for-decision-search
 status: archived
 alignment: aligned
 createdAt: 2026-08-12T07:53:46Z

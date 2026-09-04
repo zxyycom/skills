@@ -1,5 +1,6 @@
 ---
 title: 按测试入口映射证据并触发范围审查
+id: 260720-map-test-entries-and-trigger-scoped-reviews
 status: archived
 alignment: null
 createdAt: 2026-07-20T13:48:52+08:00
@@ -10,7 +11,7 @@ tags:
   - test-evidence-review
 relations:
   - type: 修订
-    target: 260719-model-verification-obligations-and-source-roles.md
+    target: 260719-model-verification-obligations-and-source-roles
 ---
 
 ## 目的

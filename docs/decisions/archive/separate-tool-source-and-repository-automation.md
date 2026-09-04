@@ -1,5 +1,6 @@
 ---
 title: 分离工具源码与仓库自动化
+id: separate-tool-source-and-repository-automation
 status: archived
 alignment: aligned
 createdAt: 2026-07-24T05:56:33Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: separate-distributable-tool-source-from-repository-automation.md
+    target: separate-distributable-tool-source-from-repository-automation
 ---
 
 ## 目的

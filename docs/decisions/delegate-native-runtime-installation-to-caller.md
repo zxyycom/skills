@@ -1,5 +1,6 @@
 ---
 title: 将 task-graph 原生运行时安装委托给调用方
+id: delegate-native-runtime-installation-to-caller
 status: active
 alignment: aligned
 createdAt: 2026-08-07T02:31:24Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 修订
-    target: install-native-runtime-in-user-tool-home.md
+    target: install-native-runtime-in-user-tool-home
 ---
 
 ## 目的

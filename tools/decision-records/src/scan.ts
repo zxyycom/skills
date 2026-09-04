@@ -6,14 +6,17 @@ import { decisionFileSystemErrorText } from "./application-result.ts";
 import {
   displayDecisionPath,
   isDecisionId,
-  sourcePathForDecision
+  isDecisionSourcePath
 } from "./decision-path.ts";
 import {
   decisionIndexDiagnosticMessages,
   decisionIndexFileName,
   parseDecisionIndex
 } from "./decision-state-index.ts";
-import { establishedDecisionMetadataFromSource } from "./decision-metadata.ts";
+import {
+  decisionIdFromMarkdown,
+  establishedDecisionMetadataFromSource
+} from "./decision-metadata.ts";
 import { validateDecisionBody, type ValidatedDecisionBody } from "./record.ts";
 import { decisionRelationConsistencyIssues } from "./relation-graph.ts";
 import {
@@ -30,9 +33,9 @@ import {
 type DecisionStoredIndexEntry = DecisionIndex["entries"][DecisionId];
 
 type SourceFile = {
-  decisionId: string;
   decisionPath: string;
   sourcePath: string;
+  sourceText?: string;
 };
 
 type SourceFileMembers = [SourceFile, ...SourceFile[]];
@@ -113,7 +116,7 @@ export async function scanDecisionRecords(
     );
   }
 
-  const availableDecisionIds = validateSourceMembership(
+  const availableDecisionIds = await validateSourceMembership(
     sourceFiles,
     collectionErrors,
     sourceErrors
@@ -278,7 +281,6 @@ async function collectSourceFiles(options: {
     if (entry.isFile()) {
       if (entry.name.endsWith(".md")) {
         sources.push({
-          decisionId: entry.name,
           decisionPath: entryPath,
           sourcePath: entry.name
         });
@@ -348,23 +350,33 @@ async function collectArchivedSourceFiles(options: {
       continue;
     }
     options.sources.push({
-      decisionId: archivedEntry.name,
       decisionPath: path.join(options.archiveDirectory, archivedEntry.name),
       sourcePath
     });
   }
 }
 
-function validateSourceMembership(
+async function validateSourceMembership(
   sourceFiles: readonly SourceFile[],
   collectionErrors: string[],
   sourceErrors: string[]
-): ReadonlySet<DecisionId> {
+): Promise<ReadonlySet<DecisionId>> {
   const sourceFilesById = new Map<string, SourceFileMembers>();
   for (const sourceFile of sourceFiles) {
-    const members = sourceFilesById.get(sourceFile.decisionId);
+    let decisionId: DecisionId | null = null;
+    try {
+      sourceFile.sourceText = await fs.readFile(
+        sourceFile.decisionPath,
+        "utf8"
+      );
+      decisionId = decisionIdFromMarkdown(sourceFile.sourceText);
+    } catch {
+      // Full source scanning reports the filesystem failure with its path.
+    }
+    if (decisionId === null) continue;
+    const members = sourceFilesById.get(decisionId);
     if (members === undefined) {
-      sourceFilesById.set(sourceFile.decisionId, [sourceFile]);
+      sourceFilesById.set(decisionId, [sourceFile]);
     } else {
       members.push(sourceFile);
     }
@@ -372,15 +384,8 @@ function validateSourceMembership(
 
   const availableDecisionIds = new Set<DecisionId>();
   for (const [decisionId, members] of sourceFilesById) {
-    if (!isDecisionId(decisionId)) {
-      addCollectionError(
-        collectionErrors,
-        sourceErrors,
-        "Decision source must use a stable kebab-case Decision ID basename: " +
-          members[0].sourcePath
-      );
-    } else if (members.length === 1) {
-      availableDecisionIds.add(decisionId);
+    if (members.length === 1) {
+      availableDecisionIds.add(decisionId as DecisionId);
     }
     if (members.length > 1) {
       addCollectionError(
@@ -422,29 +427,27 @@ async function scanSourceFile(
     sourceErrors: string[];
   }
 ): Promise<DecisionRecord> {
-  const decisionId = isDecisionId(sourceFile.decisionId)
-    ? sourceFile.decisionId
-    : null;
+  let sourceText = sourceFile.sourceText;
+  try {
+    sourceText ??= await fs.readFile(sourceFile.decisionPath, "utf8");
+  } catch (error) {
+    const readError =
+      sourceFile.sourcePath + " could not be read: " + errorText(error);
+    context.sourceErrors.push(readError);
+    return invalidDecisionRecord(sourceFile, null, "");
+  }
+
+  const decisionId = decisionIdFromMarkdown(sourceText);
   const indexEntry =
     context.index !== null &&
     decisionId !== null &&
     Object.hasOwn(context.index.entries, decisionId)
       ? context.index.entries[decisionId]
       : null;
-  let sourceText: string;
-  try {
-    sourceText = await fs.readFile(sourceFile.decisionPath, "utf8");
-  } catch (error) {
-    const readError =
-      sourceFile.sourcePath + " could not be read: " + errorText(error);
-    context.sourceErrors.push(readError);
-    return invalidDecisionRecord(sourceFile, indexEntry, "");
-  }
 
   const recordErrors: string[] = [];
   const sourceDocument = await validateDecisionBody({
     body: sourceText,
-    decisionId: sourceFile.decisionId,
     errors: recordErrors,
     sourcePath: sourceFile.sourcePath,
     targetExists: (targetId) => context.availableDecisionIds.has(targetId)
@@ -458,6 +461,7 @@ async function scanSourceFile(
   );
   validateSourceIndexEntry(
     sourceFile,
+    sourceDocument?.decisionId ?? null,
     sourceState.document,
     indexEntry,
     context
@@ -465,6 +469,7 @@ async function scanSourceFile(
   context.sourceErrors.push(...recordErrors);
   return scannedDecisionRecord(
     sourceFile,
+    decisionId,
     sourceDocument,
     sourceState,
     indexEntry
@@ -478,7 +483,7 @@ function scannedSourceState(
   indexEntry: DecisionStoredIndexEntry | null,
   recordErrors: string[]
 ): ScannedSourceState {
-  const validDecisionId = isDecisionId(sourceFile.decisionId);
+  const validDecisionId = sourceDocument !== null;
   validateSourceLocation(
     sourceFile,
     sourceDocument,
@@ -512,11 +517,13 @@ function validateSourceLocation(
   validDecisionId: boolean,
   recordErrors: string[]
 ): void {
-  const expectedSourcePath =
-    sourceDocument === null || !validDecisionId
-      ? null
-      : sourcePathForDecision(sourceFile.decisionId, sourceDocument.status);
-  if (expectedSourcePath !== sourceFile.sourcePath) {
+  const hasValidPath = isDecisionSourcePath(sourceFile.sourcePath);
+  const archived = sourceFile.sourcePath.startsWith("archive/");
+  const statusMatchesPath =
+    sourceDocument !== null &&
+    ((sourceDocument.status === "archived" && archived) ||
+      (sourceDocument.status !== "archived" && !archived));
+  if (!hasValidPath || !validDecisionId || !statusMatchesPath) {
     recordErrors.push(
       sourceFile.sourcePath + " status must match its physical sourcePath"
     );
@@ -602,6 +609,7 @@ function classifyDecisionSource(
 
 function validateSourceIndexEntry(
   sourceFile: SourceFile,
+  decisionId: DecisionId | null,
   document: DecisionRecord["document"],
   indexEntry: DecisionStoredIndexEntry | null,
   context: {
@@ -609,9 +617,9 @@ function validateSourceIndexEntry(
     indexRelativePath: string;
   }
 ): void {
-  if (document !== null && indexEntry === null) {
+  if (document !== null && decisionId !== null && indexEntry === null) {
     context.indexErrors.push(
-      unindexedDecisionError(context.indexRelativePath, sourceFile.decisionId)
+      unindexedDecisionError(context.indexRelativePath, decisionId)
     );
   }
   if (
@@ -622,13 +630,14 @@ function validateSourceIndexEntry(
     context.indexErrors.push(
       context.indexRelativePath +
         " sourcePath does not match Decision ID " +
-        sourceFile.decisionId
+        (decisionId ?? sourceFile.sourcePath)
     );
   }
 }
 
 function scannedDecisionRecord(
   sourceFile: SourceFile,
+  declaredDecisionId: DecisionId | null,
   sourceDocument: ValidatedDecisionBody | null,
   sourceState: ScannedSourceState,
   indexEntry: DecisionStoredIndexEntry | null
@@ -640,7 +649,8 @@ function scannedDecisionRecord(
     scaffoldValid: sourceState.scaffoldValid,
     alignment: metadata.alignment,
     createdAt: metadata.createdAt,
-    decisionId: sourceFile.decisionId,
+    decisionId:
+      sourceDocument?.decisionId ?? declaredDecisionId ?? sourceFile.sourcePath,
     decisionPath: sourceFile.decisionPath,
     document: sourceState.document,
     markdownExists: true,
@@ -689,7 +699,7 @@ function invalidDecisionRecord(
     scaffoldValid: false,
     alignment: null,
     createdAt: null,
-    decisionId: sourceFile.decisionId,
+    decisionId: sourceFile.sourcePath,
     decisionPath: sourceFile.decisionPath,
     document: null,
     markdownExists: true,

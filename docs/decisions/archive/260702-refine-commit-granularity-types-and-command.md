@@ -1,5 +1,6 @@
 ---
 title: 调整 git-commit-organizer 的提交粒度、类型和创建命令
+id: 260702-refine-commit-granularity-types-and-command
 status: archived
 alignment: aligned
 createdAt: 2026-07-02T17:35:51+08:00

@@ -1,5 +1,6 @@
 ---
 title: 使用版本化的测试结果生产者协议
+id: use-versioned-runner-result-protocol
 status: archived
 alignment: unaligned
 createdAt: 2026-08-11T03:24:23Z
@@ -10,7 +11,7 @@ tags:
   - test-evidence-review
 relations:
   - type: 拆分
-    target: defer-standard-test-result-blocking.md
+    target: defer-standard-test-result-blocking
 ---
 
 ## 目的

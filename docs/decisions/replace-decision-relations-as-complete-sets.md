@@ -1,5 +1,6 @@
 ---
 title: 以完整集合审核和替换决策关系
+id: replace-decision-relations-as-complete-sets
 status: active
 alignment: aligned
 createdAt: 2026-08-06T11:12:10Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 拆分
-    target: use-recoverable-decision-lifecycle-transactions.md
+    target: use-recoverable-decision-lifecycle-transactions
 ---
 
 ## 目的

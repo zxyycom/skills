@@ -1,5 +1,6 @@
 ---
 title: 仅用字段表达决策对齐关系
+id: express-alignment-as-field-relation
 status: archived
 alignment: null
 createdAt: 2026-07-22T09:43:47Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: define-decision-alignment-semantics.md
+    target: define-decision-alignment-semantics
 ---
 
 ## 目的

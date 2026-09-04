@@ -1,5 +1,6 @@
 ---
 title: 以形成时调查输入保存可比较的认识快照
+id: preserve-comparable-investigation-inputs
 status: archived
 alignment: null
 createdAt: 2026-07-21T11:20:39Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 修订
-    target: append-self-contained-investigation-reports.md
+    target: append-self-contained-investigation-reports
 ---
 
 ## 目的

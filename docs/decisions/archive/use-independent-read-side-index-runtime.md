@@ -1,5 +1,6 @@
 ---
 title: 采用领域状态驱动的极简通用索引
+id: use-independent-read-side-index-runtime
 status: archived
 alignment: null
 createdAt: 2026-07-22T15:09:24Z

@@ -1,5 +1,6 @@
 ---
 title: 让长期决策形成和冲突成为核心触发
+id: 260718-trigger-on-long-term-decision-points
 status: active
 alignment: aligned
 createdAt: 2026-07-18T14:11:24+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260713-recall-before-long-lived-changes.md
+    target: 260713-recall-before-long-lived-changes
 ---
 
 ## 目的

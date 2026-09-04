@@ -1,5 +1,6 @@
 ---
 title: 默认只提交可归因于当前任务的改动
+id: default-to-current-task-changes
 status: active
 alignment: aligned
 createdAt: 2026-08-04T06:53:13Z

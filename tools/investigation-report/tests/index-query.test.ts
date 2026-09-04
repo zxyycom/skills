@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { test } from "node:test";
+import { investigationIndexJsonSchema } from "../src/investigation-index-json-schema.ts";
 import {
   queryInvestigationIndex,
   showInvestigationReport,
@@ -17,9 +18,9 @@ import {
 test("list uses Investigation ID ordering and repeated tag filters use AND", async () => {
   await withTempRoot("tags", async (root) => {
     await writeCollection(root, [
-      { id: "zulu-report.md", tags: ["alpha", "shared"] },
-      { id: "alpha-report.md", tags: ["alpha", "shared"] },
-      { id: "shared-report.md", tags: ["shared"] }
+      { id: "zulu-report", tags: ["alpha", "shared"] },
+      { id: "alpha-report", tags: ["alpha", "shared"] },
+      { id: "shared-report", tags: ["shared"] }
     ]);
     const result = await queryInvestigationIndex({
       tags: ["shared", "alpha"],
@@ -27,7 +28,7 @@ test("list uses Investigation ID ordering and repeated tag filters use AND", asy
     });
     assert.deepEqual(
       result.entries.map((entry) => entry.id),
-      ["alpha-report.md", "zulu-report.md"]
+      ["alpha-report", "zulu-report"]
     );
   });
 });
@@ -35,10 +36,10 @@ test("list uses Investigation ID ordering and repeated tag filters use AND", asy
 test("list filters reports at an inclusive formedAt range", async () => {
   await withTempRoot("formed-at", async (root) => {
     await writeCollection(root, [
-      { formedAt: "2026-08-28T09:59:59+00:00", id: "before.md" },
-      { formedAt: "2026-08-28T10:00:00+00:00", id: "start.md" },
-      { formedAt: "2026-08-28T11:00:00+00:00", id: "end.md" },
-      { formedAt: "2026-08-28T11:00:01+00:00", id: "after.md" }
+      { formedAt: "2026-08-28T09:59:59+00:00", id: "before" },
+      { formedAt: "2026-08-28T10:00:00+00:00", id: "start" },
+      { formedAt: "2026-08-28T11:00:00+00:00", id: "end" },
+      { formedAt: "2026-08-28T11:00:01+00:00", id: "after" }
     ]);
     const result = await queryInvestigationIndex({
       formedAtFrom: "2026-08-28T10:00:00+00:00",
@@ -47,7 +48,7 @@ test("list filters reports at an inclusive formedAt range", async () => {
     });
     assert.deepEqual(
       result.entries.map((entry) => entry.id),
-      ["end.md", "start.md"]
+      ["end", "start"]
     );
   });
 });
@@ -55,12 +56,12 @@ test("list filters reports at an inclusive formedAt range", async () => {
 test("list filters reports by direct relation type", async () => {
   await withTempRoot("relation-type", async (root) => {
     await writeCollection(root, [
-      { id: "base.md" },
+      { id: "base" },
       {
-        id: "supplement.md",
-        relations: [{ target: "base.md", type: "补充" }]
+        id: "supplement",
+        relations: [{ target: "base", type: "补充" }]
       },
-      { id: "independent.md" }
+      { id: "independent" }
     ]);
     const result = await queryInvestigationIndex({
       relationType: "补充",
@@ -68,7 +69,7 @@ test("list filters reports by direct relation type", async () => {
     });
     assert.deepEqual(
       result.entries.map((entry) => entry.id),
-      ["supplement.md"]
+      ["supplement"]
     );
   });
 });
@@ -76,9 +77,9 @@ test("list filters reports by direct relation type", async () => {
 test("list filters report title and question text", async () => {
   await withTempRoot("text", async (root) => {
     await writeCollection(root, [
-      { id: "title.md", question: "unrelated", title: "Alpha subject" },
-      { id: "question.md", question: "Alpha question", title: "Other" },
-      { id: "other.md", question: "Other question", title: "Other" }
+      { id: "title", question: "unrelated", title: "Alpha subject" },
+      { id: "question", question: "Alpha question", title: "Other" },
+      { id: "other", question: "Other question", title: "Other" }
     ]);
     const result = await queryInvestigationIndex({
       text: "alpha",
@@ -86,7 +87,7 @@ test("list filters report title and question text", async () => {
     });
     assert.deepEqual(
       result.entries.map((entry) => entry.id),
-      ["question.md", "title.md"]
+      ["question", "title"]
     );
   });
 });
@@ -94,25 +95,25 @@ test("list filters report title and question text", async () => {
 test("show and trace resolve reports by investigation id", async () => {
   await withTempRoot("show-trace", async (root) => {
     await writeCollection(root, [
-      { id: "first-report.md" },
+      { id: "first-report" },
       {
-        id: "second-report.md",
-        relations: [{ target: "first-report.md", type: "补充" }]
+        id: "second-report",
+        relations: [{ target: "first-report", type: "补充" }]
       }
     ]);
     const shown = await showInvestigationReport({
-      id: "second-report.md",
+      id: "second-report",
       workspaceRoot: root
     });
     assert.equal(shown.status, "ok");
     assert.match(shown.markdown ?? "", /^---/u);
     const trace = await traceInvestigationReports({
       direction: "successors",
-      id: "first-report.md",
+      id: "first-report",
       workspaceRoot: root
     });
     assert.equal(trace.status, "ok");
-    assert.deepEqual(trace.reportIds, ["first-report.md", "second-report.md"]);
+    assert.deepEqual(trace.reportIds, ["first-report", "second-report"]);
     assert.equal(
       (
         await showInvestigationReport({
@@ -134,9 +135,44 @@ test("show and trace resolve reports by investigation id", async () => {
   });
 });
 
-test("index state projects strict empty metadata and no sourcePath", async () => {
+test("index and show resolve a report ID independently from its semantic sourcePath", async () => {
+  await withTempRoot("semantic-source-path", async (root) => {
+    await writeCollection(root, [
+      { id: "stable-report", sourcePath: "semantic-finding.md" }
+    ]);
+    const result = await queryInvestigationIndex({ workspaceRoot: root });
+    assert.deepEqual(
+      result.entries.map((entry) => entry.id),
+      ["stable-report"]
+    );
+    assert.equal(result.entries[0]?.state.sourcePath, "semantic-finding.md");
+    const shown = await showInvestigationReport({
+      id: "stable-report",
+      workspaceRoot: root
+    });
+    assert.equal(shown.status, "ok");
+    assert.match(shown.markdown ?? "", /^id: "stable-report"$/mu);
+    await fs.rename(
+      `${root}/docs/investigations/semantic-finding.md`,
+      `${root}/docs/investigations/renamed-finding.md`
+    );
+    const stale = await showInvestigationReport({
+      id: "stable-report",
+      workspaceRoot: root
+    });
+    assert.equal(stale.status, "error");
+    assert.deepEqual(
+      (await synchronizeInvestigationIndex({ workspaceRoot: root })).errors,
+      []
+    );
+    const refreshed = await queryInvestigationIndex({ workspaceRoot: root });
+    assert.equal(refreshed.entries[0]?.state.sourcePath, "renamed-finding.md");
+  });
+});
+
+test("index state projects strict empty metadata and sourcePath", async () => {
   await withTempRoot("metadata", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const index = parseJsonObject(
       await fs.readFile(
         `${root}/docs/investigations/investigation-index.json`,
@@ -145,14 +181,25 @@ test("index state projects strict empty metadata and no sourcePath", async () =>
     );
     assert.deepEqual(index["metadata"], {});
     const entries = jsonObjectMember(index, "entries");
-    const report = jsonObjectMember(entries, "report.md");
-    assert.equal("sourcePath" in jsonObjectMember(report, "state"), false);
+    const report = jsonObjectMember(entries, "report");
+    assert.equal(jsonObjectMember(report, "state")["sourcePath"], "report.md");
+    assert.deepEqual(investigationIndexJsonSchema.$defs.sourcePath, {
+      pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
+      type: "string"
+    });
+    assert.equal(
+      investigationIndexJsonSchema.$defs.state.properties.sourcePath.$ref,
+      "#/$defs/sourcePath"
+    );
+    assert.ok(
+      investigationIndexJsonSchema.$defs.state.required.includes("sourcePath")
+    );
   });
 });
 
 test("index rejects legacy definitions", async () => {
   await withTempRoot("legacy-definition", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const file = `${root}/docs/investigations/investigation-index.json`;
     const index = parseJsonObject(await fs.readFile(file, "utf8"));
     index["definitionVersion"] = 5;
@@ -164,7 +211,7 @@ test("index rejects legacy definitions", async () => {
 
 test("index rejects additional metadata", async () => {
   await withTempRoot("additional-metadata", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const file = `${root}/docs/investigations/investigation-index.json`;
     const index = parseJsonObject(await fs.readFile(file, "utf8"));
     jsonObjectMember(index, "metadata")["legacy"] = true;
@@ -176,7 +223,7 @@ test("index rejects additional metadata", async () => {
 
 test("index loading rejects stale report projections", async () => {
   await withTempRoot("stale", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     await fs.writeFile(
       `${root}/docs/investigations/report.md`,
       "changed",
@@ -193,7 +240,7 @@ test("index loading rejects stale report projections", async () => {
 
 test("source revisions fingerprint report Markdown", async () => {
   await withTempRoot("revision", async (root) => {
-    await writeCollection(root, [{ id: "report.md" }]);
+    await writeCollection(root, [{ id: "report" }]);
     const indexPath = `${root}/docs/investigations/investigation-index.json`;
     const before = parseJsonObject(await fs.readFile(indexPath, "utf8"));
     await fs.appendFile(`${root}/docs/investigations/report.md`, "\n", "utf8");

@@ -17,7 +17,8 @@ void emptyDecisionIndexMetadata;
 void nonEmptyDecisionIndexMetadata;
 
 test("decision types and paths preserve stable ID tag and sourcePath invariants", () => {
-  assert.equal(isDecisionId("use-semantic-paths.md"), true);
+  assert.equal(isDecisionId("use-semantic-paths"), true);
+  assert.equal(isDecisionId("use-semantic-paths.md"), false);
   assert.equal(isDecisionId("archive/use-semantic-paths.md"), false);
   assert.equal(isDecisionId("invalid_name.md"), false);
   assert.equal(isDecisionTag("decision-records"), true);
@@ -27,26 +28,23 @@ test("decision types and paths preserve stable ID tag and sourcePath invariants"
   assert.equal(isDecisionSourcePath("legacy/use-semantic-paths.md"), false);
   assert.equal(
     decisionIdFromSourcePath("archive/use-semantic-paths.md"),
-    "use-semantic-paths.md"
+    "use-semantic-paths"
   );
   assert.equal(
-    sourcePathForDecision("use-semantic-paths.md", "archived"),
+    sourcePathForDecision("use-semantic-paths", "archived"),
     "archive/use-semantic-paths.md"
   );
 
   const sourceRevision = decisionSourceRevision([
-    { decisionId: "use-a.md", sourcePath: "use-a.md", text: "a\n" },
-    { decisionId: "use-b.md", sourcePath: "archive/use-b.md", text: "b\n" }
+    { decisionId: "use-a", sourcePath: "use-a.md", text: "a\n" },
+    { decisionId: "use-b", sourcePath: "archive/use-b.md", text: "b\n" }
   ]);
-  assert.deepEqual(Object.keys(sourceRevision.entries), [
-    "use-a.md",
-    "use-b.md"
-  ]);
+  assert.deepEqual(Object.keys(sourceRevision.entries), ["use-a", "use-b"]);
   assert.notEqual(
     decisionSourceRevision([
-      { decisionId: "use-a.md", sourcePath: "archive/use-a.md", text: "a\n" },
-      { decisionId: "use-b.md", sourcePath: "archive/use-b.md", text: "b\n" }
-    ]).entries["use-a.md"],
-    sourceRevision.entries["use-a.md"]
+      { decisionId: "use-a", sourcePath: "archive/use-a.md", text: "a\n" },
+      { decisionId: "use-b", sourcePath: "archive/use-b.md", text: "b\n" }
+    ]).entries["use-a"],
+    sourceRevision.entries["use-a"]
   );
 });

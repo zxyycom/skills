@@ -1,5 +1,6 @@
 ---
 title: 简单关系使用 ASCII 并为复杂层次使用思维导图
+id: use-ascii-for-simple-relations-and-mindmaps-for-complex-structures
 status: active
 alignment: aligned
 createdAt: 2026-08-21T05:58:32Z
@@ -10,7 +11,7 @@ tags:
   - ai-ready-docs
 relations:
   - type: 修订
-    target: use-explicit-environment-supported-diagrams.md
+    target: use-explicit-environment-supported-diagrams
 ---
 
 ## 目的

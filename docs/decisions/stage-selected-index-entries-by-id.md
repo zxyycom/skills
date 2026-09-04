@@ -1,5 +1,6 @@
 ---
 title: 按 ID 键控条目独立暂存状态索引
+id: stage-selected-index-entries-by-id
 status: active
 alignment: aligned
 createdAt: 2026-08-06T09:23:47Z
@@ -11,7 +12,7 @@ tags:
   - version-control
 relations:
   - type: 拆分
-    target: stage-selected-index-entries.md
+    target: stage-selected-index-entries
 ---
 
 ## 目的

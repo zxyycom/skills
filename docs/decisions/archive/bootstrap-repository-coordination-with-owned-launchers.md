@@ -1,5 +1,6 @@
 ---
 title: 由环境自举建立仓库本地协调入口
+id: bootstrap-repository-coordination-with-owned-launchers
 status: archived
 alignment: aligned
 createdAt: 2026-08-08T12:37:26Z

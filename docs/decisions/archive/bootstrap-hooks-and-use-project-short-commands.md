@@ -1,5 +1,6 @@
 ---
 title: 按平台建立 Hook 并统一仓库维护短入口
+id: bootstrap-hooks-and-use-project-short-commands
 status: archived
 alignment: aligned
 createdAt: 2026-08-09T05:09:37Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: bootstrap-hooks-and-select-project-roots.md
+    target: bootstrap-hooks-and-select-project-roots
 ---
 
 ## 目的

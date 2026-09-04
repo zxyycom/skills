@@ -1,5 +1,6 @@
 ---
 title: 使用可恢复事务维护决策生命周期
+id: use-recoverable-decision-lifecycle-transactions
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T07:26:10Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 拆分
-    target: use-recoverable-evolution-transactions.md
+    target: use-recoverable-evolution-transactions
 ---
 
 ## 目的

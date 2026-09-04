@@ -1,5 +1,6 @@
 ---
 title: 使用显式完整候选分离创建与审核
+id: use-explicit-reviewable-candidates
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T07:26:10Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 拆分
-    target: use-recoverable-evolution-transactions.md
+    target: use-recoverable-evolution-transactions
 ---
 
 ## 目的

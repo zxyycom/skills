@@ -17,7 +17,7 @@ Decision Records、Investigation Report 与 Test Evidence 的 `sync-index` 当�
 - 新增、修改和删除通过选择相应 ID 精确同步；ID rename 需要同时选择旧、新 ID。选择存在于旧索引或当前来源任一侧即可，额外选择未变化 ID 合法。
 - 持久索引缺失、损坏、definition 不匹配、集合级 metadata 变化或出现未选择 ID 变化时，selected sync 零写入失败并给出应全量同步或补充选择的诊断。
 - 成功时仍原子发布完整当前投影，不把未选择条目保留为故意陈旧状态；精确同步与选择性 Git staging 保持两个独立概念。
-- selected sync 的内部变化门禁只使用 [`纯 ID Plan`](../separate-domain-ids-from-storage-details/) 建立的显式领域 ID；name 只存在于领域 CLI 的输入解析层，sourcePath 不作为 selector。
+- selected sync 的内部变化门禁只使用 [`纯 ID Plan`](../archive/separate-domain-ids-from-storage-details/) 建立的显式领域 ID；name 只存在于领域 CLI 的输入解析层，sourcePath 不作为 selector。
 - selected sync 不充当正式 record rename 的第二阶段；未来 rename 命令仍由领域事务原子改写来源、关系、资源和索引，不能先留下半迁移来源再靠 scoped sync 补救。
 
 ## Scope
@@ -50,4 +50,4 @@ Decision Records、Investigation Report 与 Test Evidence 的 `sync-index` 当�
 - `tools/investigation-report/`、`skills/investigation-report/`、`scripts/build/investigation-report.ts` 及生成 CLI/声明。
 - `tools/test-evidence/`、`skills/test-evidence-review/`、`scripts/build/test-evidence.ts` 及生成 CLI/声明。
 - `docs/test-evidence/` 的最小原生测试 case 与统一派生索引。
-- `changes/separate-domain-ids-from-storage-details/` 的前置纯 ID 契约。
+- `changes/archive/separate-domain-ids-from-storage-details/` 的前置纯 ID 契约。

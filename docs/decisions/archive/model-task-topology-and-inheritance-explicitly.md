@@ -1,5 +1,6 @@
 ---
 title: 显式维护任务层级、依赖与排斥
+id: model-task-topology-and-inheritance-explicitly
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T06:13:48Z

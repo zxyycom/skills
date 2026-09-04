@@ -1,5 +1,6 @@
 ---
 title: 只对 Active Change 执行机械校验
+id: validate-only-active-change-plans
 status: active
 alignment: aligned
 createdAt: 2026-08-23T12:48:09Z
@@ -10,7 +11,7 @@ tags:
   - change-plan
 relations:
   - type: 修订
-    target: check-change-plan-collections-as-a-gate.md
+    target: check-change-plan-collections-as-a-gate
 ---
 
 ## 目的

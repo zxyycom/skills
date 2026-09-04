@@ -1,5 +1,6 @@
 ---
 title: 让问题重构保持自包含
+id: 260720-keep-problem-reframing-self-contained
 status: archived
 alignment: null
 createdAt: 2026-07-20T14:55:55+08:00

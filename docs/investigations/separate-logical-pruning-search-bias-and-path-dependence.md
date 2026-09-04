@@ -1,12 +1,13 @@
 ---
 title: "区分逻辑剪枝、搜索偏置与路径依赖"
+id: "separate-logical-pruning-search-bias-and-path-dependence"
 formedAt: "2026-08-13T09:12:51+00:00"
 question: "逻辑剪枝、搜索偏置与跨时间路径依赖应怎样区分？"
 tags:
   - "ai-ready-docs"
 relations:
   - type: "修正"
-    target: "recognize-document-projections-as-part-of-goal-formation.md"
+    target: "recognize-document-projections-as-part-of-goal-formation"
 ---
 
 ## 形成时背景

@@ -1,5 +1,6 @@
 ---
 title: 使用可逐文件容错的显式完整候选
+id: use-source-resilient-reviewable-candidates
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T08:16:27Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: use-explicit-reviewable-candidates.md
+    target: use-explicit-reviewable-candidates
 ---
 
 ## 目的

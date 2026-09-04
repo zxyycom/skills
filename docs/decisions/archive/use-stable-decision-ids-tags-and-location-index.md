@@ -1,5 +1,6 @@
 ---
 title: 使用稳定 Decision ID、tags 与定位索引
+id: use-stable-decision-ids-tags-and-location-index
 status: archived
 alignment: aligned
 createdAt: 2026-08-15T03:14:02Z
@@ -10,15 +11,15 @@ tags:
   - decision-records
 relations:
   - type: 归并
-    target: classify-decisions-by-controlled-domain-path.md
+    target: classify-decisions-by-controlled-domain-path
   - type: 归并
-    target: project-domains-into-decision-queries.md
+    target: project-domains-into-decision-queries
   - type: 修订
-    target: use-persisted-index-for-routine-queries.md
+    target: use-persisted-index-for-routine-queries
   - type: 修订
-    target: query-candidates-directly-from-source.md
+    target: query-candidates-directly-from-source
   - type: 替代
-    target: upgrade-decision-domains-after-real-pressure.md
+    target: upgrade-decision-domains-after-real-pressure
 ---
 
 ## 目的

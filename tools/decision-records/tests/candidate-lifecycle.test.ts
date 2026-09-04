@@ -24,36 +24,39 @@ import {
   writeIndex
 } from "./support.ts";
 
-const unindexedBody = [
-  "---",
-  "title: 验证未登记成员",
-  "status: candidate",
-  "alignment: null",
-  "createdAt: null",
-  "purpose: 验证多条预写候选可以按显式目标逐条激活。",
-  "background: 其他完整候选需要明确提醒，但不应阻断当前目标。",
-  "decision: 单次只激活目标，索引排除其他候选并允许等待审核。",
-  "tags:",
-  "  - decision-records",
-  "relations: []",
-  "---",
-  "",
-  "## 目的",
-  "- 验证多条预写候选可以按显式目标逐条激活。",
-  "",
-  "## 背景",
-  "- 其他完整候选需要明确提醒，但不应阻断当前目标。",
-  "",
-  "## 决策",
-  "- 采用: 单次只激活目标，索引排除其他候选并允许等待审核。",
-  ""
-].join("\n");
+function unindexedBody(id: string): string {
+  return [
+    "---",
+    "title: 验证未登记成员",
+    `id: ${id}`,
+    "status: candidate",
+    "alignment: null",
+    "createdAt: null",
+    "purpose: 验证多条预写候选可以按显式目标逐条激活。",
+    "background: 其他完整候选需要明确提醒，但不应阻断当前目标。",
+    "decision: 单次只激活目标，索引排除其他候选并允许等待审核。",
+    "tags:",
+    "  - decision-records",
+    "relations: []",
+    "---",
+    "",
+    "## 目的",
+    "- 验证多条预写候选可以按显式目标逐条激活。",
+    "",
+    "## 背景",
+    "- 其他完整候选需要明确提醒，但不应阻断当前目标。",
+    "",
+    "## 决策",
+    "- 采用: 单次只激活目标，索引排除其他候选并允许等待审核。",
+    ""
+  ].join("\n");
+}
 
 test("discarding the only active established decision removes the derived index", () =>
   withTemporaryWorkspace("only-active-established", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
     const indexPath = path.join(decisionsDirectory, "decision-index.json");
-    const decisionId = "use-only-active-established.md";
+    const decisionId = "use-only-active-established";
     const decisionPath = decisionFilePath(workspaceRoot, decisionId);
     await fs.mkdir(path.dirname(decisionPath), { recursive: true });
     await fs.writeFile(decisionPath, candidateDecisionBody(), "utf8");
@@ -83,7 +86,7 @@ test("discarding the only archived established decision removes its archive path
   withTemporaryWorkspace("only-archived-established", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
     const indexPath = path.join(decisionsDirectory, "decision-index.json");
-    const decisionId = "use-only-archived-established.md";
+    const decisionId = "use-only-archived-established";
     const decisionPath = decisionFilePath(workspaceRoot, decisionId);
     await fs.mkdir(path.dirname(decisionPath), { recursive: true });
     await fs.writeFile(decisionPath, candidateDecisionBody(), "utf8");
@@ -101,7 +104,11 @@ test("discarding the only archived established decision removes its archive path
       "--root",
       workspaceRoot
     ]);
-    const archivedPath = path.join(decisionsDirectory, "archive", decisionId);
+    const archivedPath = path.join(
+      decisionsDirectory,
+      "archive",
+      decisionId + ".md"
+    );
     assert.equal(await fileExists(archivedPath), true);
 
     const discarded = await runSourceCli([
@@ -123,7 +130,7 @@ test("discard rejects invalid candidate lifecycle or body without mutation", () 
       const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
       const indexPath = path.join(decisionsDirectory, "decision-index.json");
       const originalIndexText = await fs.readFile(indexPath, "utf8");
-      const invalidLifecycleRelativePath = "use-invalid-candidate-lifecycle.md";
+      const invalidLifecycleRelativePath = "use-invalid-candidate-lifecycle";
       const invalidLifecyclePath = decisionFilePath(
         workspaceRoot,
         invalidLifecycleRelativePath
@@ -150,7 +157,7 @@ test("discard rejects invalid candidate lifecycle or body without mutation", () 
       }
       await fs.rm(invalidLifecyclePath);
 
-      const invalidRelativePath = "use-invalid-candidate.md";
+      const invalidRelativePath = "use-invalid-candidate";
       const invalidPath = decisionFilePath(workspaceRoot, invalidRelativePath);
       const invalidBody = candidateDecisionBody().replace(
         "\n## 目的\n- 验证 Markdown 生命周期独立定义候选和已建立状态。\n",
@@ -178,8 +185,7 @@ test("discard rejects candidates with invalid relation targets without mutation"
         "decisions",
         "decision-index.json"
       );
-      const invalidTargetRelativePath =
-        "use-invalid-existing-discard-target.md";
+      const invalidTargetRelativePath = "use-invalid-existing-discard-target";
       const invalidTargetPath = decisionFilePath(
         workspaceRoot,
         invalidTargetRelativePath
@@ -190,7 +196,7 @@ test("discard rejects candidates with invalid relation targets without mutation"
       );
       await fs.writeFile(invalidTargetPath, invalidTargetText, "utf8");
 
-      const sourceRelativePath = "use-invalid-target-discard-source.md";
+      const sourceRelativePath = "use-invalid-target-discard-source";
       const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
       await fs.writeFile(
         sourcePath,
@@ -224,12 +230,12 @@ test("discard rejects a candidate that is still referenced without mutation", ()
         "decisions",
         "decision-index.json"
       );
-      const targetRelativePath = "use-discard-candidate-target.md";
+      const targetRelativePath = "use-discard-candidate-target";
       const targetPath = decisionFilePath(workspaceRoot, targetRelativePath);
       const targetText = candidateDecisionBody();
       await fs.writeFile(targetPath, targetText, "utf8");
 
-      const sourceRelativePath = "use-candidate-target-discard-source.md";
+      const sourceRelativePath = "use-candidate-target-discard-source";
       const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
       const sourceText = candidateDecisionBody({
         relations: [{ type: "修订", target: targetRelativePath }]
@@ -257,7 +263,7 @@ test("discard rejects an established decision that is still referenced without m
         "decisions",
         "decision-index.json"
       );
-      const successorRelativePath = "use-established-discard-source.md";
+      const successorRelativePath = "use-established-discard-source";
       const successorPath = decisionFilePath(
         workspaceRoot,
         successorRelativePath
@@ -308,7 +314,7 @@ test("discard fails closed when Git HEAD cannot be read", () =>
       const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
       const indexPath = path.join(decisionsDirectory, "decision-index.json");
       const originalIndexText = await fs.readFile(indexPath, "utf8");
-      const sourceRelativePath = "use-corrupt-head-discard-candidate.md";
+      const sourceRelativePath = "use-corrupt-head-discard-candidate";
       const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
       const sourceText = candidateDecisionBody();
       await fs.writeFile(sourcePath, sourceText, "utf8");
@@ -342,7 +348,7 @@ test("discard flag deletes a recorded decision without reading Git HEAD", () =>
   withGitFixtureWorkspace(
     "candidate-discard-flag-corrupt-head",
     async (workspaceRoot) => {
-      const sourceRelativePath = "use-flagged-discard-candidate.md";
+      const sourceRelativePath = "use-flagged-discard-candidate";
       const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
       await fs.writeFile(sourcePath, candidateDecisionBody(), "utf8");
       commitWorkspace(workspaceRoot, "record flagged discard candidate");
@@ -381,7 +387,7 @@ test("discard accepts a candidate with a valid active-target relation", () =>
         "decision-index.json"
       );
       const originalIndexText = await fs.readFile(indexPath, "utf8");
-      const sourceRelativePath = "use-active-target-discard-source.md";
+      const sourceRelativePath = "use-active-target-discard-source";
       const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
       await fs.writeFile(
         sourcePath,
@@ -410,14 +416,14 @@ test("discard pauses before deleting a candidate recorded in Git HEAD", () =>
       const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
       const indexPath = path.join(decisionsDirectory, "decision-index.json");
       const originalIndexText = await fs.readFile(indexPath, "utf8");
-      const otherCandidateRelativePath = "use-other-valid-candidate.md";
+      const otherCandidateRelativePath = "use-other-valid-candidate";
       const otherCandidatePath = decisionFilePath(
         workspaceRoot,
         otherCandidateRelativePath
       );
       const otherCandidateText = candidateDecisionBody();
       await fs.writeFile(otherCandidatePath, otherCandidateText, "utf8");
-      const discardedRelativePath = "use-discarded-candidate.md";
+      const discardedRelativePath = "use-discarded-candidate";
       const discardedPath = decisionFilePath(
         workspaceRoot,
         discardedRelativePath
@@ -474,7 +480,7 @@ test("discard deletes candidates absent from Git HEAD", () =>
       const indexPath = path.join(decisionsDirectory, "decision-index.json");
       const originalIndexText = await fs.readFile(indexPath, "utf8");
 
-      const sourceRelativePath = "use-unrecorded-discard-candidate.md";
+      const sourceRelativePath = "use-unrecorded-discard-candidate";
       const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
       await fs.writeFile(sourcePath, candidateDecisionBody(), "utf8");
       const discarded = await runSourceCli([
@@ -495,7 +501,7 @@ test("discard deletes candidates in a Git worktree with unborn HEAD", () =>
     "candidate-discard-unborn-head",
     async (workspaceRoot) => {
       initializeGitRepository(workspaceRoot);
-      const sourceRelativePath = "use-unborn-head-discard-candidate.md";
+      const sourceRelativePath = "use-unborn-head-discard-candidate";
       const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
       await fs.writeFile(sourcePath, candidateDecisionBody(), "utf8");
 
@@ -518,8 +524,8 @@ test("candidate queries discover source records while activation indexes only re
       const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
       const indexPath = path.join(decisionsDirectory, "decision-index.json");
       const originalIndexText = await fs.readFile(indexPath, "utf8");
-      const firstUnindexedRelativePath = "use-first-unindexed.md";
-      const secondUnindexedRelativePath = "use-second-unindexed.md";
+      const firstUnindexedRelativePath = "use-first-unindexed";
+      const secondUnindexedRelativePath = "use-second-unindexed";
       const firstUnindexedPath = decisionFilePath(
         workspaceRoot,
         firstUnindexedRelativePath
@@ -528,13 +534,24 @@ test("candidate queries discover source records while activation indexes only re
         workspaceRoot,
         secondUnindexedRelativePath
       );
-      await fs.writeFile(firstUnindexedPath, unindexedBody, "utf8");
-      await fs.writeFile(secondUnindexedPath, unindexedBody, "utf8");
-      const invalidRelativePath = "use-invalid-source-candidate.md";
+      await fs.writeFile(
+        firstUnindexedPath,
+        unindexedBody(firstUnindexedRelativePath),
+        "utf8"
+      );
+      await fs.writeFile(
+        secondUnindexedPath,
+        unindexedBody(secondUnindexedRelativePath),
+        "utf8"
+      );
+      const invalidRelativePath = "use-invalid-source-candidate";
       const invalidPath = decisionFilePath(workspaceRoot, invalidRelativePath);
       await fs.writeFile(
         invalidPath,
-        candidateDecisionBody().replace("\n## 决策\n", "\n## 非法章节\n"),
+        candidateDecisionBody({ id: invalidRelativePath }).replace(
+          "\n## 决策\n",
+          "\n## 非法章节\n"
+        ),
         "utf8"
       );
       const discoveredCandidates = await runSourceCli([
@@ -582,7 +599,7 @@ test("candidate queries discover source records while activation indexes only re
       assert.equal(invalidCandidate.exitCode, 1);
       assert.match(
         invalidCandidate.stderr,
-        /not a valid candidate scaffold.*use-invalid-source-candidate\.md/i
+        /not a valid candidate scaffold.*use-invalid-source-candidate/i
       );
       assert.match(
         invalidCandidate.stderr,
@@ -689,17 +706,21 @@ test("activation reconciles unindexed established records before committing a ca
   withFixtureWorkspace("candidate-activation-index", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
     const indexPath = path.join(decisionsDirectory, "decision-index.json");
-    const targetCandidateRelativePath = "use-target-candidate.md";
-    const orphanRelativePath = "use-orphan-established.md";
+    const targetCandidateRelativePath = "use-target-candidate";
+    const orphanRelativePath = "use-orphan-established";
     const targetCandidatePath = decisionFilePath(
       workspaceRoot,
       targetCandidateRelativePath
     );
     const orphanPath = decisionFilePath(workspaceRoot, orphanRelativePath);
-    await fs.writeFile(targetCandidatePath, unindexedBody, "utf8");
+    await fs.writeFile(
+      targetCandidatePath,
+      unindexedBody(targetCandidateRelativePath),
+      "utf8"
+    );
     await fs.writeFile(
       orphanPath,
-      unindexedBody
+      unindexedBody(orphanRelativePath)
         .replace("status: candidate", "status: active")
         .replace("alignment: null", "alignment: aligned")
         .replace("createdAt: null", "createdAt: 2026-07-22T10:20:30+08:00"),
@@ -752,7 +773,7 @@ test("activation reconciles unindexed established records before committing a ca
 test("discarding the only candidate leaves no established decision index", () =>
   withTemporaryWorkspace("only-candidate", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
-    const relativePath = "use-only-candidate.md";
+    const relativePath = "use-only-candidate";
     const decisionPath = decisionFilePath(workspaceRoot, relativePath);
     await fs.mkdir(path.dirname(decisionPath), { recursive: true });
     await fs.writeFile(decisionPath, candidateDecisionBody(), "utf8");
@@ -835,7 +856,7 @@ test("candidate collection requires a current valid index when established recor
 
 test("first candidate discovery succeeds with no established records and no index", () =>
   withTemporaryWorkspace("candidate-first-discovery", async (workspaceRoot) => {
-    const candidateId = "use-first-candidate.md";
+    const candidateId = "use-first-candidate";
     await writeDecision(workspaceRoot, candidateId, candidateDecisionBody());
     const candidates = await runSourceCli([
       "candidates",
@@ -849,7 +870,7 @@ test("first candidate discovery succeeds with no established records and no inde
 test("candidate collection rejects an empty index when only candidates remain", () =>
   withFixtureWorkspace("candidate-empty-index", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
-    const candidateId = "use-only-candidate.md";
+    const candidateId = "use-only-candidate";
     await fs.rm(decisionFilePath(workspaceRoot, currentRelativePath));
     await fs.rm(decisionFilePath(workspaceRoot, archivedSourcePath));
     await writeDecision(workspaceRoot, candidateId, candidateDecisionBody());

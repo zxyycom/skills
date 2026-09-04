@@ -1,5 +1,6 @@
 ---
 title: 采用项目级编码规范 owner
+id: 260718-use-project-coding-style-owner
 status: active
 alignment: aligned
 createdAt: 2026-07-18T16:23:28+08:00

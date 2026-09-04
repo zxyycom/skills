@@ -1,5 +1,6 @@
 ---
 title: 使用环境支持的显式关系图示
+id: use-explicit-environment-supported-diagrams
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T03:24:22Z
@@ -10,7 +11,7 @@ tags:
   - ai-ready-docs
 relations:
   - type: 修订
-    target: 260720-use-controlled-mermaid-flowcharts.md
+    target: 260720-use-controlled-mermaid-flowcharts
 ---
 
 ## 目的

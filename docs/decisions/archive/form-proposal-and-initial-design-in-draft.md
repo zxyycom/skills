@@ -1,5 +1,6 @@
 ---
 title: 在 Draft 中形成初始提案与设计
+id: form-proposal-and-initial-design-in-draft
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T06:44:15Z
@@ -10,7 +11,7 @@ tags:
   - change-plan
 relations:
   - type: 修订
-    target: manage-change-lifecycle-stages.md
+    target: manage-change-lifecycle-stages
 ---
 
 ## 目的

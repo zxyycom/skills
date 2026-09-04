@@ -1,5 +1,6 @@
 ---
 title: "首次发现改进没有覆盖动作时重路由"
+id: "identify-operation-time-skill-rerouting-gap"
 formedAt: "2026-08-12T05:39:41+00:00"
 question: "长任务进入具体副作用动作时，现有 Skill 发现机制为什么没有可靠触发领域重路由？"
 tags:

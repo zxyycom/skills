@@ -1,5 +1,6 @@
 ---
 title: 以报告归属锚定调查资源
+id: anchor-investigation-resources-to-report-owners
 status: active
 alignment: aligned
 createdAt: 2026-08-28T10:12:53Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 修订
-    target: anchor-investigation-resources-to-topic-owners.md
+    target: anchor-investigation-resources-to-topic-owners
 ---
 
 ## 目的

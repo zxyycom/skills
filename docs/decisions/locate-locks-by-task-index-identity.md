@@ -1,5 +1,6 @@
 ---
 title: 按 task index 身份定位工作区外短锁
+id: locate-locks-by-task-index-identity
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:21:59Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 拆分
-    target: keep-task-graph-locks-outside-workspace.md
+    target: keep-task-graph-locks-outside-workspace
 ---
 
 ## 目的

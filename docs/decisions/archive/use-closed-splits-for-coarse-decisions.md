@@ -1,5 +1,6 @@
 ---
 title: 用闭合拆分处理过粗决策
+id: use-closed-splits-for-coarse-decisions
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T03:35:42Z

@@ -1,5 +1,6 @@
 ---
 title: 用 release tag 激活可见的 Gate Check
+id: activate-release-gate-checks-by-tag
 status: active
 alignment: aligned
 createdAt: 2026-09-01T13:56:55Z
@@ -10,7 +11,7 @@ tags:
   - project-tooling
 relations:
   - type: 修订
-    target: use-vibe-check-as-authoritative-project-gate.md
+    target: use-vibe-check-as-authoritative-project-gate
 ---
 
 ## 目的

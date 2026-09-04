@@ -1,5 +1,6 @@
 ---
 title: "确认延期方向并退出活动 Change"
+id: "defer-standard-test-result-blocking"
 formedAt: "2026-08-11T03:08:36Z"
 question: "标准测试结果协议与阻断资格在没有实施授权时应由哪些长期载体承接？"
 tags:

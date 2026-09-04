@@ -1,5 +1,6 @@
 ---
 title: 将受管调查资源限制为版本控制可见成员
+id: limit-investigation-resources-to-version-control-visible-members
 status: active
 alignment: aligned
 createdAt: 2026-08-29T15:42:48Z
@@ -11,7 +12,7 @@ tags:
   - version-control
 relations:
   - type: 拆分
-    target: define-version-control-visible-investigation-resources.md
+    target: define-version-control-visible-investigation-resources
 ---
 
 ## 目的

@@ -17,6 +17,7 @@ export type ReportFixture = Readonly<{
   question?: string;
   relations?: readonly InvestigationRelation[];
   resources?: readonly string[];
+  sourcePath?: string;
   tags?: readonly string[];
   title?: string;
 }>;
@@ -41,7 +42,8 @@ export function reportMarkdown(input: ReportFixture): string {
   });
   return [
     "---",
-    `title: ${JSON.stringify(input.title ?? input.id.slice(0, -3))}`,
+    `title: ${JSON.stringify(input.title ?? input.id)}`,
+    `id: ${JSON.stringify(input.id)}`,
     `formedAt: ${JSON.stringify(input.formedAt ?? "2026-08-28T12:00:00+00:00")}`,
     `question: ${JSON.stringify(input.question ?? "当前问题是什么？")}`,
     "tags:",
@@ -55,7 +57,7 @@ export function reportMarkdown(input: ReportFixture): string {
           "relations:",
           ...relations.flatMap((relation) => [
             `  - type: ${JSON.stringify(relation.type)}`,
-            `    target: ${JSON.stringify(relation.target)}`
+            `    target: ${JSON.stringify(relation.target.replace(/\.md$/iu, ""))}`
           ])
         ]),
     "---",
@@ -148,7 +150,7 @@ export async function writeCollection(
   await fs.mkdir(root, { recursive: true });
   for (const report of reports) {
     await fs.writeFile(
-      path.join(root, report.id),
+      path.join(root, report.sourcePath ?? `${report.id}.md`),
       reportMarkdown(report),
       "utf8"
     );

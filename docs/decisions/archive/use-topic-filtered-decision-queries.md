@@ -1,5 +1,6 @@
 ---
 title: 使用主题与状态筛选决策查询
+id: use-topic-filtered-decision-queries
 status: archived
 alignment: null
 createdAt: 2026-07-20T13:17:47Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260720-use-filtered-decision-queries.md
+    target: 260720-use-filtered-decision-queries
 ---
 
 ## 目的

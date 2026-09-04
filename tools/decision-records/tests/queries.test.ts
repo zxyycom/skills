@@ -122,7 +122,7 @@ test("decision show returns metadata and reports body read failures", () =>
       "--root",
       workspaceRoot
     ]);
-    assert.match(shown, /^id: use-generated-cli\.md$/m);
+    assert.match(shown, /^id: use-generated-cli$/m);
     assert.match(shown, /^sourcePath: use-generated-cli\.md$/m);
     const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
     const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");

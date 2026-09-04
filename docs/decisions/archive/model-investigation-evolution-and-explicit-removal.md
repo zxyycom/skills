@@ -1,5 +1,6 @@
 ---
 title: 以报告关系建模调查演进并显式剔除报告
+id: model-investigation-evolution-and-explicit-removal
 status: archived
 alignment: aligned
 createdAt: 2026-08-29T06:15:41Z
@@ -10,7 +11,7 @@ tags:
   - investigation-report
 relations:
   - type: 修订
-    target: model-investigation-evolution-as-report-relations.md
+    target: model-investigation-evolution-as-report-relations
 ---
 
 ## 目的

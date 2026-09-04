@@ -3,7 +3,6 @@ import {
   parseDecisionMarkdown,
   type DecisionSourceMetadata
 } from "./decision-metadata.ts";
-import { isDecisionId } from "./decision-path.ts";
 import {
   type DecisionProjection,
   type DecisionId,
@@ -17,6 +16,7 @@ export type ValidatedDecisionBody = DecisionProjection &
   DecisionSourceMetadata & {
     body: string;
     bodyReady: boolean;
+    decisionId: DecisionId;
   };
 
 const sectionOrder = ["## 目的", "## 背景", "## 决策"];
@@ -59,12 +59,14 @@ async function validateDecisionRelations(options: {
 
 export async function validateDecisionBody(options: {
   body: string;
-  decisionId: string;
+  /** @deprecated Compatibility input; retained while callers migrate. */
+  decisionId?: string;
+  expectedDecisionId?: string;
   errors: string[];
   sourcePath: string;
   targetExists: DecisionRelationTargetExists;
 }): Promise<ValidatedDecisionBody | null> {
-  const { body: rawBody, decisionId, sourcePath, errors } = options;
+  const { body: rawBody, sourcePath, errors } = options;
   const errorCountBeforeValidation = errors.length;
   const parsedMarkdown = parseDecisionMarkdown({
     errors,
@@ -73,9 +75,15 @@ export async function validateDecisionBody(options: {
   });
   const body = parsedMarkdown?.body ?? "";
 
-  if (!isDecisionId(decisionId)) {
+  if (
+    (options.expectedDecisionId ?? options.decisionId) !== undefined &&
+    parsedMarkdown !== null &&
+    parsedMarkdown.id !== (options.expectedDecisionId ?? options.decisionId)
+  ) {
     errors.push(
-      sourcePath + " must use a stable kebab-case Decision ID basename"
+      sourcePath +
+        " frontmatter id does not match the expected Decision ID " +
+        (options.expectedDecisionId ?? options.decisionId)
     );
   }
   if (!body.startsWith("## 目的\n")) {
@@ -93,7 +101,7 @@ export async function validateDecisionBody(options: {
     await validateDecisionRelations({
       errors,
       relations: parsedMarkdown.projection.relations,
-      decisionId,
+      decisionId: parsedMarkdown.id,
       sourcePath,
       targetExists: options.targetExists
     });
@@ -114,6 +122,7 @@ function validatedDecisionBody(
 ): ValidatedDecisionBody | null {
   if (parsedMarkdown === null || !valid) return null;
   return {
+    decisionId: parsedMarkdown.id,
     ...parsedMarkdown.projection,
     tags: [...parsedMarkdown.tags],
     ...parsedMarkdown.metadata,

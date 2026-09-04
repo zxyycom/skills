@@ -1,12 +1,12 @@
 {
   "schemaVersion": 3,
   "namespace": "decisions",
-  "definitionVersion": 6,
+  "definitionVersion": 7,
   "metadata": {},
   "sourceRevision": {
     "entries": {
-      "260710-use-source-cli.md": "sha256:f20489a497ec0335ca075e4d92bb90c215ef1652fe132a50be337a70e788222d",
-      "use-generated-cli.md": "sha256:c3ddad4b616e644dffb6e1851c3eac49a9797537bd5ffc9a01b15e39818436bc"
+      "260710-use-source-cli": "sha256:88a1e7a47e56adb3f7402943d298277212b79e67794e194f36ee9981e7f6c088",
+      "use-generated-cli": "sha256:34fd83f44dea643dcdce873d17f55312f7c6ab2fe2800eb274e93e4136cf7258"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -25,7 +25,7 @@
     }
   ],
   "entries": {
-    "260710-use-source-cli.md": {
+    "260710-use-source-cli": {
       "keys": {
         "tag": [
           "decision-records"
@@ -49,7 +49,7 @@
         "relations": []
       }
     },
-    "use-generated-cli.md": {
+    "use-generated-cli": {
       "keys": {
         "tag": [
           "project-tooling"
@@ -76,7 +76,7 @@
         "relations": [
           {
             "type": "修订",
-            "target": "260710-use-source-cli.md"
+            "target": "260710-use-source-cli"
           }
         ]
       }

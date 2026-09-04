@@ -1,5 +1,6 @@
 ---
 title: "采用 neverthrow 并由项目源码承接 Option"
+id: "select-neverthrow-and-project-option"
 formedAt: "2026-08-07T11:44:13+08:00"
 question: "本项目应预装哪个轻量 Result 库，并怎样与项目自有 Option 形成稳定边界？"
 tags:

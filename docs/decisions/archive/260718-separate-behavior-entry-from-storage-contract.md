@@ -1,5 +1,6 @@
 ---
 title: 分离行为入口与精确存储契约
+id: 260718-separate-behavior-entry-from-storage-contract
 status: archived
 alignment: null
 createdAt: 2026-07-18T20:57:58+08:00
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 修订
-    target: 260711-use-bundled-contract-owner.md
+    target: 260711-use-bundled-contract-owner
 ---
 
 ## 目的

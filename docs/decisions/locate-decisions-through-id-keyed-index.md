@@ -1,5 +1,6 @@
 ---
 title: 通过 ID 键控索引定位决策
+id: locate-decisions-through-id-keyed-index
 status: active
 alignment: aligned
 createdAt: 2026-08-29T16:11:33Z
@@ -10,7 +11,7 @@ tags:
   - decision-records
 relations:
   - type: 拆分
-    target: use-stable-decision-ids-tags-and-location-index.md
+    target: use-stable-decision-ids-tags-and-location-index
 ---
 
 ## 目的

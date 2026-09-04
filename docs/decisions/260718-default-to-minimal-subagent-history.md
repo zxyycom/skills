@@ -1,5 +1,6 @@
 ---
 title: 默认以最小历史派发子代理
+id: 260718-default-to-minimal-subagent-history
 status: active
 alignment: aligned
 createdAt: 2026-07-18T12:20:25+08:00

@@ -1,5 +1,6 @@
 ---
 title: "MCPShell 工作区桥接前期调查：通过 SSH 暴露 shell 与 diff"
+id: "evaluate-mcpshell-as-user-scoped-workspace-bridge"
 formedAt: "2026-09-03T06:47:09+00:00"
 question: "是否值得继续验证一个初始化型 skill，使带个人配置的 agent 能通过 MCPShell 操作隔离工作区，并获得预实现的 shell 与 diff？"
 tags:

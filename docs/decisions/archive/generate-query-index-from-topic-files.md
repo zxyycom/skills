@@ -1,5 +1,6 @@
 ---
 title: 以调查主题作为通用索引单位
+id: generate-query-index-from-topic-files
 status: archived
 alignment: aligned
 createdAt: 2026-07-23T07:43:07Z

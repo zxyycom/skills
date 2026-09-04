@@ -1,5 +1,6 @@
 ---
 title: 以 JSON task index 作为唯一协调事实源
+id: use-json-task-index-as-single-fact-source
 status: active
 alignment: aligned
 createdAt: 2026-08-11T03:22:00Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 拆分
-    target: use-authoritative-json-index-for-task-coordination.md
+    target: use-authoritative-json-index-for-task-coordination
 ---
 
 ## 目的

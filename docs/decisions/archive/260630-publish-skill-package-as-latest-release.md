@@ -1,5 +1,6 @@
 ---
 title: 使用 latest release 自动发布 skill 制品
+id: 260630-publish-skill-package-as-latest-release
 status: archived
 alignment: null
 createdAt: 2026-07-18T11:43:07+08:00

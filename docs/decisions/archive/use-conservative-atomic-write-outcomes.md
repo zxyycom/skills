@@ -1,5 +1,6 @@
 ---
 title: 对 task index 原子写入采用保守结果语义
+id: use-conservative-atomic-write-outcomes
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T03:21:59Z
@@ -10,7 +11,7 @@ tags:
   - task-graph
 relations:
   - type: 拆分
-    target: keep-task-graph-locks-outside-workspace.md
+    target: keep-task-graph-locks-outside-workspace
 ---
 
 ## 目的
