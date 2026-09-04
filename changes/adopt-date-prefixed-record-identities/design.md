@@ -1,15 +1,16 @@
 # Design
 
-本设计把 `YYMMDD-<name>.md` 固定为 Decision 和 Investigation 新实例的可读完整 ID，并让每个领域在自己的集合和事务边界内解析唯一名称；本文仍处于 Draft，开放问题收敛后再派生任务并进入 Plan。
+本设计把 `YYMMDD-<name>` 固定为 Decision 和 Investigation 新实例的可读完整 ID，并让每个领域在自己的集合和事务边界内解析唯一名称；`.md` 只属于物理文件映射。本文仍处于 Draft，开放问题收敛后再派生任务并进入 Plan。
 
 ## Context
 
 - [`保留型工件重名调查`](../../docs/investigations/260903-explore-name-collisions-in-retained-artifacts.md)是本 Change 的问题与方案证据；它不是已经生效的长期契约。
+- [`存储无关纯 ID Plan`](../separate-domain-ids-from-storage-details/)先把 Decision/Investigation 的规范 ID 从 Markdown basename 收敛为 extensionless stem。本 Change 依赖该基线，只增加日期前缀和唯一名称解析，不重新引入 `.md`。
 - Decision Records 当前以全集合唯一的 Markdown basename 作为稳定 ID，active 与 archived 共用 ID-keyed 索引，查询、关系、生命周期和 stage 都要求完整 ID。候选在 `new` 时已有 ID，但正式 `createdAt` 只在建立时写入。
 - Investigation Report 当前以正式集合唯一的 Markdown basename 作为 ID，每份报告已有精确 `formedAt`；索引按 ID 键控，关系和资源 owner 都依赖该 ID stem。
 - 当前长期决策要求 Decision ID 稳定并用于关系、查询和生命周期。日期成为 ID 的组成不会削弱稳定性，但允许名称简写会演进当前“完整 ID 作为操作输入”和 ID-keyed 查询契约，实施前必须建立后继 Decision。
 - 两个可分发 CLI 的维护源码分别位于 `tools/decision-records/` 和 `tools/investigation-report/`，由 `scripts/build/` 下对应入口生成 skill 内脚本、声明与索引 Schema。
-- Change Plan 不属于本 Change。[`complete-change-plans-by-deletion`](../complete-change-plans-by-deletion/)单独负责取消 archive 并让完成历史通过 Git 恢复；因此 Change 不需要日期身份或名称 resolver。
+- Change Plan 的纯 `changeId` 由前置纯 ID Plan 负责；本 Change 不为 Change 增加日期身份或名称 resolver。[`complete-change-plans-by-deletion`](../complete-change-plans-by-deletion/)仍单独负责取消 archive 并让完成历史通过 Git 恢复。
 
 ## Goals / Non-Goals
 
@@ -39,11 +40,11 @@
 新实例使用以下规范外形：
 
 ```text
-Decision:      260903-adopt-date-prefixed-record-identities.md
-Investigation: 260903-explore-name-collisions-in-retained-artifacts.md
+Decision:      260903-adopt-date-prefixed-record-identities
+Investigation: 260903-explore-name-collisions-in-retained-artifacts
 ```
 
-`YYMMDD` 是记录形成日期的 UTC 投影，固定放在语义名称前。解析器移除首个日期前缀和连字符后取得语义名称；legacy ID 没有日期前缀时，其现有 stem 整体作为语义名称。日期只是 ID 的可读组成，不替代精确时间字段，也不从 ID 反向改写生命周期事实。
+`YYMMDD` 是记录形成日期的 UTC 投影，固定放在语义名称前。解析器移除首个日期前缀和连字符后取得语义名称；legacy 纯 ID 没有日期前缀时，其现有文本整体作为语义名称。日期只是 ID 的可读组成，不替代精确时间字段，也不从 ID 反向改写生命周期事实。
 
 各领域日期来源为：
 
@@ -83,6 +84,7 @@ Decision 和 Investigation 的现有 `new` 接口增加语义名称输入并由�
 - **索引与性能：** 当前集合规模允许在已加载索引上做确定性 O(N) exact-name 扫描；不新增名称索引、缓存、registry 或可写映射。未来规模证据否定该选择时，再建立独立性能 Change。
 - **长期决策：** 实施前需要演进 Decision 的稳定 ID/ID-keyed 查询契约，并为 Investigation 的日期身份和唯一名称解析建立当前长期判断。
 - **分发与验证：** 两个 skill 的行为入口、固定契约、版本、工具源码、生成产物、公开声明和测试必须一致；新增或修改的最小原生测试入口按 Test Evidence owner 逐项登记并同步派生索引。
+- **实施依赖：** 存储无关纯 ID Plan 先完成 extensionless ID、关系和索引迁移；本 Change 再增加日期前缀和名称 resolver，避免经历一次带 `.md` 的临时新格式。
 
 ## Risks / Trade-offs
 

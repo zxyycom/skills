@@ -5,7 +5,7 @@
 ## Context
 
 - [`保留型工件重名调查`](../../docs/investigations/260903-explore-name-collisions-in-retained-artifacts.md)确认 rename 适用于错误名称和格式迁移，不适用于为了创建合法同名实例而改写正确历史。
-- [`日期前缀身份 Change`](../adopt-date-prefixed-record-identities/)负责 `YYMMDD-<name>.md`、唯一名称解析和 legacy 共存。本 Change 不复制其创建或 selector 规则；实现顺序上应先固定该契约。
+- [`存储无关纯 ID Plan`](../separate-domain-ids-from-storage-details/)先移除 ID 中的 `.md` 等文件细节，[`日期前缀身份 Change`](../adopt-date-prefixed-record-identities/)再负责 `YYMMDD-<name>`、唯一名称解析和 legacy 共存。本 Change 不复制其创建或 selector 规则；实现顺序上应先固定这两个契约。
 - Decision basename 是稳定 ID。已建立记录可能被其他 Decision relation 引用，索引以 ID 为键并保存 sourcePath/source revision，candidate 也可能在同批 publish/evolve 关系中互相引用；stage 明确要求旧、新 ID 共同表达改名。
 - Investigation basename 同时决定正式或 candidate 路径、索引键、关系 target 和 `_resources/<investigation-id-stem>/...` owner 前缀；其他正式报告与 candidates 都可能引用该 owner 的资源。
 - 两个领域现有 mutation 的锁、revision、tombstone、原子发布和恢复结果不完全相同。Rename 需要复用各自机制，而不是抽象成只会调用 `rename(2)` 的共享实现。
@@ -80,7 +80,7 @@ Investigation 事务至少拥有：
 - **Investigation Report：** rename 必须与 publish、set-relations、discard、resource owner 和 stage-index 共用集合锁及 revision 语义，并覆盖 candidate/formal、关系、资源和索引组合恢复。
 - **长期决策：** 分别为 Decision 与 Investigation 建立或演进身份迁移判断；跨领域只记录公共意图，不把不同领域的原子范围误写成统一事务。
 - **分发与验证：** 修改两个工具源码、对应 build 产物、skill 契约、版本和公开声明；所有新增或修改的最小原生测试入口维护独立 Test Evidence case 并同步索引。
-- **实施依赖：** 日期前缀身份 Change 先固定完整 ID、名称 selector 和 legacy 语法；本 Change 再以该稳定输入实现 rename，避免重复修改 CLI 参数和 parser。
+- **实施依赖：** 存储无关纯 ID Plan 先固定 extensionless ID，日期前缀身份 Change 再固定完整 ID、名称 selector 和 legacy 语法；本 Change 最后以该稳定输入实现 rename，避免重复修改 CLI 参数、parser 和关系迁移。
 
 ## Risks / Trade-offs
 
@@ -91,7 +91,7 @@ Investigation 事务至少拥有：
 | Decision candidate 与正式关系可能交叉引用 | 扫描正式集合与全部合法 candidates，按最终 ID 图统一验证 |
 | 已记录文件改名会在 Git 中表现为删除与新增 | 要求显式 recorded-history 确认，并让 Git 自身保存历史；不实现历史重写 |
 | 普通 rename 与 legacy 迁移混用会误改日期 | 默认只接受新语义名称并保留日期；改变完整 ID 必须使用独立参数和确认 |
-| 两个 Change 并行实现会重复改 CLI parser | 本 Change 明确依赖日期身份 Change，先固定 selector 再实现 rename |
+| 三个 Change 并行实现会重复改 CLI parser 和持久关系 | 本 Change 依次依赖纯 ID 与日期身份 Change，先固定 selector 和 canonical ID 再实现 rename |
 
 ## Open Questions
 
