@@ -1,33 +1,35 @@
 # Design
 
-本设计把领域实体身份、物理映射和任意路径引用拆成三个明确概念，并以一次受检迁移把 Change、Decision 与 Investigation 的公开身份收敛为纯 ID。
+本设计让记录内容声明稳定 ID，让派生索引维护 ID 与当前 sourcePath 的映射，并把语义 name 和物理 basename 从身份中解耦。
 
 ## Context
 
-- [`Decision Records 固定规则`](../../skills/decision-records/references/decision-record-rules.md)当前把含 `.md` 的 basename 定义为稳定 Decision ID；`sourcePath` 已经单独保存 root 或 `archive/` 下的位置。
-- [`Investigation Report 固定契约`](../../skills/investigation-report/references/investigation-report-contract.md)当前同样把含 `.md` 的 basename 定义为 Investigation ID；candidate 文件、正式报告与资源 owner 都由该 basename 或 stem 映射。
-- [`Change Plan 固定契约`](../../skills/change-plan/references/change-plan-contract.md)当前公开 `changeName` 与绝对 `changeDirectory`，单项 CLI 直接接收 Change 目录；调用者因此常把 `changes/<name>` 当成“ID”。
-- Test Evidence Case ID 与 Task ID 已经是领域语义身份。Case 的 `sourcePath` 和 Task 的各种引用字段不等于 ID，证明仓库不需要把所有可定位信息压进一个字符串。
-- [`日期前缀身份 Draft`](../adopt-date-prefixed-record-identities/)和 [`记录 rename Draft`](../add-record-rename-transactions/)仍在设计期，可以改为消费纯 ID 基线，而不需要维护已实现的第二套格式。
-- ID 纯化会改变长期身份契约、索引键和关系 target，达到 Decision 记录门槛；Change artifacts 只保存实施上下文，不能代替对应长期 owner。
+- [`Decision Records 固定规则`](../../skills/decision-records/references/decision-record-rules.md)当前把含 `.md` 的 basename 定义为 Decision ID；`sourcePathForDecision` 由 ID 和 lifecycle status 直接计算路径，索引校验要求二者匹配。
+- [`Investigation Report 固定契约`](../../skills/investigation-report/references/investigation-report-contract.md)当前也从 basename 得到 Investigation ID；candidate、正式报告和资源 owner 都沿用该文本。
+- 两个领域的 Markdown frontmatter 当前没有独立 ID 字段。Decision index state 已保存 `sourcePath`，Investigation index entry 则默认以 ID 直接映射文件；两者都需要升级才能支持 basename 与 ID 不同。
+- Test Evidence Case ID 与 Task ID 已与路径分离，证明仓库不需要把所有定位信息压进 ID。
+- [`日期前缀身份 Draft`](../adopt-date-prefixed-record-identities/)在本 Plan 之后定义标准 dated ID、name 提取与 ID-first selector；[`指定 ID 索引刷新 Plan`](../add-selected-id-index-sync/)和[`记录 rename Draft`](../add-record-rename-transactions/)消费稳定 ID/sourcePath 基线。
+- [`完成后删除 Change Draft`](../complete-change-plans-by-deletion/)把 Change 保持为短期计划目录并移除 archive；本 Plan 不为 Change 增加长期记录 ID 或修改其 CLI。
+- ID owner、索引键和关系 target 的变化达到长期 Decision 门槛；Change artifacts 只保存实施上下文。
 
 ## Goals / Non-Goals
 
 目标：
 
-- 让所有领域实体 ID 遵循“只表达领域身份，不表达存储位置或文件类型”的共同原则。
-- 保持每个领域自己的 namespace、语法、唯一性范围和 resolver，不建立全仓库 ID registry。
-- 让 ID、path 和自由引用在类型、字段名、CLI 参数与诊断中可区分。
-- 以确定性迁移闭合当前关系、索引、生成契约和测试，而不是让新旧规范长期混写。
-- 为后续按 ID 精确同步提供稳定、无存储细节的 selector 契约。
+- 明确区分稳定领域 ID、可重复语义 name、当前 sourcePath 和任意开放 reference。
+- 让 Decision/Investigation 的 ID 由记录内容声明，文件 basename 或 lifecycle 目录变化不自动改变 ID。
+- 让索引成为从 ID 定位 sourcePath 的派生查询入口，同时保持 Markdown 是可重建的权威来源。
+- 以一次受检迁移闭合当前 Markdown、关系、索引、生成契约和测试，不让新旧 ID 长期混写。
+- 为日期 ID、name fallback、指定 ID 索引刷新和正式 rename 提供稳定基础。
 
 非目标：
 
-- 不要求 ID 与文件 basename 完全无关；Decision/Investigation 仍可用 `<id>.md` 作为确定性物理映射。
-- 不移除日期前缀语义、Case ID 前缀或 Task ID 前缀；这些是领域身份的一部分，不是存储根或扩展名。
-- 不把 Investigation Resource ID、测试 locator、Git branch/commit、URL 或明确的 path/reference 字段统一改造成实体 ID；Resource ID 当前是受管资源池内的复合 locator，本 Change 不改变其 owner。
-- 不建立跨领域全局唯一性、通用 allocator、UUID 或中央 resolver。
-- 不在本 Change 实现 record rename 或按 ID 精确同步；它们各自使用纯 ID 作为前置契约。
+- 不在本 Change 定义 `YYMMDD-<name>`、name 查询或重名行为；这些由日期身份 Change 承接。
+- 不在本 Change 固定新记录优先使用 name 还是 ID 作为文件 basename；只把两者固定为合法选择，并要求存储 owner 安全且不覆盖地分配 sourcePath。
+- 不允许索引成为无法从 Markdown 重建的权威写模型；显式 ID 必须存在于记录内容。
+- 不建立跨领域全局 ID registry、通用 allocator、UUID 或中央 resolver。
+- 不改变 Investigation Resource ID、测试 locator、Git branch/commit、URL 或明确 path/reference 字段的 owner。
+- 不在本 Change 实现 rename、指定 ID 索引刷新或 Change Plan selector。
 - 不重写 Git 历史、仓库外引用或无法证明属于受管结构字段的正文文本。
 
 ## Decisions
@@ -36,96 +38,94 @@
 
 #### 目标模型与实施依赖
 
-| 领域实体 | 规范 ID 示例 | 物理位置示例 | 本 Change 的处理 |
-| --- | --- | --- | --- |
-| Change | `add-selected-id-index-sync` | `changes/add-selected-id-index-sync/` | 新增 `changeId`，根和 status 单独选择 |
-| Decision | `260904-some-decision` | `docs/decisions/260904-some-decision.md` | 从 ID、关系和索引键移除 `.md` |
-| Investigation | `260904-some-investigation` | `docs/investigations/260904-some-investigation.md` | 从 ID、关系和索引键移除 `.md` |
-| Test Evidence Case | 现有 Case ID | `docs/test-evidence/<topic>/<slug>.md` | ID 已与 `sourcePath` 分离，保持不变 |
-| Task | 现有 Task ID | 无固定文件映射 | 保持不变 |
+```text
+Markdown frontmatter.id ──> 稳定领域 ID ──> relations / index key
+                                      │
+                                      └─> index state.sourcePath ──> 当前文件
 
-实施依赖固定为：
+文件 basename ──> sourcePath 的一部分；可以等于 name 或 ID，但不定义 ID
+```
+
+| 领域实体 | ID owner | 位置 owner | 本 Change 的处理 |
+| --- | --- | --- | --- |
+| Decision | candidate/正式 Markdown 的 `id` | index state `sourcePath` + lifecycle 目录 | 增加显式 ID，移除 basename 推导和固定路径等式 |
+| Investigation | candidate/正式 Markdown 的 `id` | index state `sourcePath` | 增加显式 ID，移除 basename 推导；资源 owner 继续绑定 ID |
+| Test Evidence Case | 现有 Case ID | 现有 `sourcePath` | 已分离，保持不变 |
+| Task | 现有 Task ID | 无固定文件映射 | 保持不变 |
+| Change | 不在本 Plan 定义长期记录 ID | Change 目录 | 由完成后删除 Draft 独立承接 |
+
+记录领域的实施依赖为：
 
 ```text
 separate-domain-ids-from-storage-details（本 Plan）
-├── add-selected-id-index-sync
 └── adopt-date-prefixed-record-identities
+    ├── add-selected-id-index-sync
     └── add-record-rename-transactions
+
+adopt-date-prefixed-record-identities ──migration-required/rename──> add-record-rename-transactions
+
+complete-change-plans-by-deletion（短期 Change 生命周期；与记录身份链并行）
 ```
 
-下游 Change 只有在本 Plan 完成并归档后才能实施；它们可以继续完善方案，但不得先形成带 `.md` 或目录前缀的新公开 ID。
+日期身份只有在本 Plan 完成且显式 ID/sourcePath 契约生效后才能实施；指定刷新和 rename 再消费日期身份的 parser、name index 与 locator。日期 `new` 遇到 legacy 冲突时返回 migration-required，rename 完成后再重试创建。Change Plan 生命周期与该记录链没有实施依赖。
 
-#### 共同身份边界
+#### 共同身份与位置边界
 
-公开字段或参数只有在表示领域身份时才命名为 `id` 或 `<domain>Id`，并满足：
+公开字段只有在表示领域身份时才命名为 `id` 或 `<domain>Id`，并满足：
 
-1. 不包含领域根，例如 `changes/`、`docs/decisions/` 或 `docs/investigations/`。
-2. 不包含生命周期位置，例如 `archive/`。
-3. 不包含 `.md` 等文件扩展名。
-4. 唯一性由领域集合定义；领域类型由调用的命令、API 或结构化 `{ kind, id }` 上下文提供，不拼进 ID。
-5. 位置单独由 `sourcePath`、`changeDirectory`、`changeRoot` 或其他明确 path 字段表达。
+1. 不包含领域根、lifecycle 目录或 `.md` 等文件扩展名。
+2. 唯一性由领域集合定义；领域类型由命令/API 上下文提供，不拼进 ID。
+3. name 是从领域 ID 规则取得或由领域内容声明的语义查询键，可以重复，不承担精确身份。
+4. 位置由 `sourcePath` 或其他明确 path 字段表达。
+5. 文件 basename 与 ID 相同只是一种存储选择，不形成校验不变量。
 
-本 Change 不抽取共享语法 parser。Change、Decision、Investigation、Case 与 Task 的合法字符和生命周期规则不同；只共享可观察原则，各 owner 继续验证自己的 ID。
+本 Change 不抽取共享语法 parser。各领域继续验证自己的 ID、path 和生命周期规则，只共享可观察概念。
 
-#### Decision 与 Investigation
+#### Decision 与 Investigation 的显式 ID
 
-Decision/Investigation 的规范 ID 从现有合法 Markdown basename 确定性移除最后的 `.md`：
+两个领域的 candidate 和正式 Markdown frontmatter 增加必填 `id`。Reader 在解析内容后取得 ID，scanner 同时记录独立 sourcePath；同一集合中重复 ID、重复 sourcePath、内容 ID 与调用方预期 ID 不一致或越出受管根都失败。
 
-```text
-260904-some-record.md  ->  260904-some-record
-```
+派生索引以文档 ID 为 key，并在每项 state 中保存规范 sourcePath。读取单项时先由新鲜索引取得 sourcePath，再读取文件并验证 frontmatter ID 与请求 ID 相同；全量重建则扫描受管文件、解析显式 ID 后构造完整投影。索引仍可删除重建，不能成为 ID 的唯一事实源。
 
-正式文件继续映射为 `<id>.md`；Decision archive 映射为 `archive/<id>.md`；Investigation candidate 映射为 `_candidate.<id>.md`。去除后缀不移动现有文件，Investigation 的 `_resources/<id>/...` owner 物理形状也无需变化。
+Decision 的 active/archive 位置和 Investigation 的 candidate/formal 标记继续存在，但只参与 sourcePath 和 lifecycle 判断。工具不得再用 `sourcePathForDecision(id, status)` 或 `reportPathForInvestigationId(id)` 一类固定等式验证身份；资源 owner 仍可使用 Investigation ID，因为它表达资源所属对象，不是报告文件路径。
 
-全部规范 selector、关系 source/target、索引 entry key、source revision key、SDK 类型和结构化结果只使用纯 ID。当前受管 Markdown 关系和派生索引通过领域 checker 先完整预演、再按现有事务边界迁移；任何歧义、悬空引用、无效集合或写入漂移都零写入失败。
+文件 basename 只能是 `<name>.md` 或 `<id>.md`。两个不同文件不能占用同一个 sourcePath；创建、rename、移动和 publish 的具体选择由使用该能力的下游 Change 固定，所有写入继续 no-overwrite。
 
-旧的 `<id>.md` 形状不再作为规范 ID 写入长期契约。为避免无必要地破坏已分发调用，现有入口可以在边界层把可无歧义识别的旧值作为 legacy selector 接收并立即规范化，也可以为真实路径提供明确的 path 参数；两者都不得让旧形状进入结构化输出、关系或索引。新入口（包括后续 `sync-index --id`）只接受纯 ID。兼容 parser 必须先按固定语法分类，不能依靠目标恰好存在或搜索顺序猜测。
+#### 输入兼容与迁移
 
-#### Change Plan
+纯 ID 是 extensionless。现有边界若收到一个以 `.md` 结尾的兼容输入，可以大小写不敏感地移除一个末尾后缀后再交给领域 selector；该行为不表示文件路径仍是 ID。真实路径输入必须进入明确的 path/locator 参数。
 
-Change Plan 将直接子目录 basename 定义为相对 `changeRoot` 唯一的 `changeId`。规范命令表面按下列信息解析：
+当前受管记录按以下 cutover 迁移：
 
-- `list` 仍按显式或默认 `changeRoot` 发现集合。
-- `show <change-id>` 默认选择 active；读取历史时使用显式 archived status 选择。
-- `check <change-id>`、`plan <change-id>` 与 `archive <change-id>` 只选择 active Change。
-- 所有单项命令用显式 `--change-root <path>` 覆盖默认根；不把根路径和 ID 拼成一个位置参数。
+1. 从每个现有合法 basename 确定性去掉最后的 `.md`，把结果写入该 Markdown 的新 `id` 字段；文件本身不移动。
+2. Reader/scanner 先支持显式 ID，writer 从切换点开始总是写入 ID；旧无字段内容只允许迁移工具读取，不能成为长期双格式。
+3. 按领域事务预演 extensionless 关系、ID 唯一性、sourcePath 唯一性和最终图，再改写受管 Markdown 并从同一最终集合重建索引。
+4. 更新仓库内调用点、CLI help、skill 契约、Schema/声明和生成产物，并审计当前受管内容。
 
-结构化输出增加 `changeId`，保留 `changeDirectory` 作为解析后的绝对位置。现有 `changeName` 若没有独立语义则由 `changeId` 取代，而不是长期保留两个同值身份字段。内部文件系统事务仍接收已解析且经过安全检查的目录，不把纯 ID 直接当作任意路径。
-
-现有单项命令的位置参数采用一条确定性兼容规则：不含路径分隔符且符合 Change ID grammar 的值按 `changeId` 解析；绝对路径或含路径分隔符的值按 legacy change-directory 解析。解析不查询“哪个目标恰好存在”来决定参数类型。CLI help 和新调用统一使用 `changeId + --change-root + status`；legacy directory 成功结果仍只输出规范 `changeId` 和独立 `changeDirectory`。
-
-#### 数据与契约迁移
-
-实施采用单次规范数据 cutover：
-
-1. reader 和 selector 先能区分纯 ID、旧 `<id>.md` selector 与受管路径，并在内存中只产生纯 ID；writer 从这一步开始只生成纯 ID。
-2. 在完整集合预检通过后，按领域事务边界改写受管 Markdown 关系，再从同一最终集合重建派生索引；任何一步失败都不得留下新旧关系混合的已承诺集合。
-3. 更新仓库内调用点、CLI help、skill 契约、Schema/声明和生成产物，并运行受管内容审计。
-4. 切换完成后，长期 owner 只把纯 ID 描述为规范身份；旧格式只保留在明确标注的输入兼容边界、Git 历史、历史调查上下文或迁移测试 fixture 中。
-
-自由文本只在它承担当前受管结构契约且可由 parser 精确定位时改写。Task Graph `references` 等开放字符串不会仅因内容像路径就自动转换；如果某个字段实际承诺领域 ID，应先把字段类型和 owner 说清，再纳入迁移。
+Task Graph 的开放 references 等字符串不会仅因外形像路径就转换；字段实际承诺领域 ID 时，先由其 owner 明确类型再纳入迁移。
 
 ### Resulting Impacts
 
-- **长期决策：** 需要以 successor Decision 演进当前“含 `.md` basename 是 Decision ID”的判断，并在仓库模型中固定 ID/path 分离原则；旧 Decision 保留历史，不原地伪装成一直采用纯 ID。
-- **Decision Records：** ID grammar、Markdown parser、关系图、candidate/active/archive resolver、query/lifecycle/stage、index definition、JSON Schema/声明和全部输出发生协同变化；现有文件无需移动。
-- **Investigation Report：** ID grammar、candidate/formal resolver、关系图、资源 owner 绑定、query/publish/discard/stage、index definition、Schema/声明和输出协同变化；资源 ID 的 owner 首段继续等于纯 Investigation ID。
-- **Change Plan：** 六个固定命令的单项选择语法、active/archived status 选择、结果字段、源码与生成脚本需要升级；目录安全、Plan 基线和 archive 事务本身不改变。
-- **相关 Draft：** 日期前缀身份使用 `YYMMDD-<name>`，rename 使用 source/target 纯 ID；二者明确依赖本 Change，避免实现顺序重复迁移。
-- **后续精确同步：** [`按 ID 精确同步 Plan`](../add-selected-id-index-sync/)只接受本 Change 定义的纯 ID，不能把 `.md` 或 `changes/` 重新带回 shared runtime/CLI。
-- **测试证据：** 修改或新增的最小原生测试入口逐项更新 Test Evidence case；Case ID 本身不改变，catalog 索引按既有流程同步。
+- **长期决策：** 以 successor Decision 演进“basename 是 Decision ID”的判断，并在仓库模型中固定 ID/name/path 分离原则；旧 Decision 保留历史。
+- **Decision Records：** frontmatter、ID grammar、Markdown parser、source scan、candidate/active/archive resolver、关系、query/lifecycle/stage、index definition、Schema/声明和输出协同变化。
+- **Investigation Report：** frontmatter、ID grammar、candidate/formal scan、关系、publish/discard/stage、index definition、Schema/声明和输出协同变化；resource owner 仍按稳定 ID。
+- **日期身份：** 后续 Plan 在显式 ID 上定义 dated ID 和 name key，不得重新从 sourcePath 猜身份。
+- **指定 ID 索引刷新：** ID 不变但内容或 sourcePath 改变时都属于该 ID 的变化；刷新仍发布完整新鲜投影。
+- **Rename：** 身份 rename 与 sourcePath rename 不再天然等价，事务必须分别说明是否改 ID、name、path、relations、index 和资源 owner。
+- **Change Plan：** lifecycle Draft 独立移除 archive 并完成后删除目录；本 Plan 不为其建立日期 ID、name resolver 或长期身份契约。
+- **测试证据：** 修改或新增的最小原生测试入口逐项更新 Test Evidence case；Case ID 本身不改变。
 
 ## Risks / Trade-offs
 
 | 风险或取舍 | 控制 |
 | --- | --- |
-| 改变已有 CLI 与持久 ID 形状会影响脚本和分发使用者 | 更新全部仓库调用点和生成产物；旧输入只在确定性边界规范化，输出与持久状态保持单一纯 ID |
-| 关系与索引迁移不完整会制造悬空引用或双重身份 | 迁移前构造完整最终集合并用领域图/Schema 校验，按领域事务发布，失败零写入或返回既有恢复结果 |
-| Change ID 只在 `changeRoot` 内唯一 | 所有脱离默认根的操作同时携带显式 `changeRoot`；不虚构跨根全局 ID |
-| 去除 `.md` 后仍由 filename stem 推导 ID | 这是确定性存储映射而非公开身份包含文件细节；真正需要解耦 basename 的证据另立 Change |
-| 开放 reference 字符串可能仍含路径 | 只保证命名和类型声明为 ID 的表面；任意引用保留其 owner 语义，避免误迁移 |
-| 与日期身份、rename、精确同步并行会重复修改 parser | 本 Change 先实施；三个下游 Change 在 Readiness 中检查其完成和契约版本 |
+| 显式 ID 增加 Markdown 字段和迁移成本 | 一次 cutover 写入可重建身份事实，避免长期依赖文件名；迁移前完整预演且不移动文件 |
+| 两个文件可能声明同一 ID | 全量 scan 在建立投影前检查 ID/sourcePath 双重唯一，任何重复使集合失败 |
+| 索引陈旧时 ID 可能指向旧路径 | 单项读取要求索引新鲜并回读验证 frontmatter ID；全量 sync 从 Markdown 重建 |
+| 文件路径可变扩大 mutation 面 | sourcePath 变化按同一 ID 的来源变化处理，继续使用领域 lock、revision、no-overwrite 和恢复结果 |
+| 开放 reference 字符串可能仍含路径 | 只保证类型声明为 ID 的表面；任意 reference 保留其 owner 语义 |
+| 与日期身份、rename、指定刷新并行会重复修改 parser/index | 本 Change 先实施；三个下游 Change 在 readiness 中检查显式 ID/sourcePath 契约版本 |
 
 ## Open Questions
 
-无。共同原则、领域范围、cutover 方式和下游依赖已经确定；实施中若发现某字段究竟是 ID 还是 path 无法由当前 owner 判断，应暂停该字段迁移并先修订本设计，而不是按字符串外形猜测。
+无。本 Plan 固定显式 ID 与 sourcePath 解耦、当前数据迁移和下游责任；新记录和 rename 在 name/ID 两种 basename 间如何选择，由首次使用独立路径能力的日期身份与 rename Change 决定。

@@ -1,101 +1,123 @@
 # Design
 
-本设计将 rename 作为 Decision 和 Investigation 各自拥有的显式身份迁移事务，并把日期 ID、名称解析和 legacy 兼容视为前置契约；本文仍处于 Draft，必须先固定引用范围和 recorded-history 门禁再进入 Plan。
+本设计让身份/name 迁移同时闭合由 name 或 ID 组成的记录文件路径，并为 legacy ID 在首次名称冲突前升级为标准 dated ID 提供闭合路径；本文仍为 Draft。
 
 ## Context
 
-- [`保留型工件重名调查`](../../docs/investigations/260903-explore-name-collisions-in-retained-artifacts.md)确认 rename 适用于错误名称和格式迁移，不适用于为了创建合法同名实例而改写正确历史。
-- [`存储无关纯 ID Plan`](../separate-domain-ids-from-storage-details/)先移除 ID 中的 `.md` 等文件细节，[`日期前缀身份 Change`](../adopt-date-prefixed-record-identities/)再负责 `YYMMDD-<name>`、唯一名称解析和 legacy 共存。本 Change 不复制其创建或 selector 规则；实现顺序上应先固定这两个契约。
-- Decision basename 是稳定 ID。已建立记录可能被其他 Decision relation 引用，索引以 ID 为键并保存 sourcePath/source revision，candidate 也可能在同批 publish/evolve 关系中互相引用；stage 明确要求旧、新 ID 共同表达改名。
-- Investigation basename 同时决定正式或 candidate 路径、索引键、关系 target 和 `_resources/<investigation-id-stem>/...` owner 前缀；其他正式报告与 candidates 都可能引用该 owner 的资源。
-- 两个领域现有 mutation 的锁、revision、tombstone、原子发布和恢复结果不完全相同。Rename 需要复用各自机制，而不是抽象成只会调用 `rename(2)` 的共享实现。
-- Change Plan 不属于本 Change。[`complete-change-plans-by-deletion`](../complete-change-plans-by-deletion/)单独负责取消 archive 并在完成后删除 active 目录，不为 Change 建设历史身份迁移机制。
+- [`显式纯 ID Plan`](../separate-domain-ids-from-storage-details/)让 Markdown frontmatter 拥有 ID、索引保存独立 sourcePath；这表示路径不定义身份，但合法 basename 只有 name 或 ID，因此 name 改变时 rename 仍需要重新分配并移动文件。
+- [`日期前缀身份 Draft`](../adopt-date-prefixed-record-identities/)定义标准 `YYMMDD-<name>`、ID-first selector 和“name 路径可用则 name，否则 ID”的 locator。Legacy ID 在 name 唯一时可由 name lookup 使用，但与 dated ID 重名后无法作为标准 ID 精确选择。
+- 为避免不可选状态，创建同名 dated 记录前需要先迁移 legacy ID。`new` 固定零写入返回 migration-required 和默认指引，用户显式 rename 后再重试；不能先创建冲突再补救。
+- [`指定 ID 索引刷新 Plan`](../add-selected-id-index-sync/)控制允许接纳哪些 ID 的来源变化。它不是 rename 的第二阶段；rename 必须在一个领域事务中共同提交来源、关系、资源和索引。
+- Decision 的已建立记录有 `createdAt`，candidate 没有形成时间字段；Investigation 有 `formedAt`。这些事实决定 legacy 迁移能否证明历史日期。
+- Decision candidate/active/archive、Investigation candidate/formal、关系和资源 owner 的 mutation lock、revision、tombstone 与恢复结果不同，不能抽象成只会移动文件的共享 runtime。
+- Change Plan 不属于本 Change；其完成后删除不需要历史 rename。
 
 ## Goals / Non-Goals
 
 目标：
 
-- 为单个记录的身份纠错和显式格式迁移提供一条可审阅、可预演且不覆盖的正式路径。
+- 为单个记录的 name 纠错、标准 ID 调整和 legacy 格式迁移提供可审阅、可预演且不覆盖的正式路径。
+- 让日期身份创建流程能在写入同名 dated 记录前要求并完成 legacy ID 标准化。
 - 在一次领域事务中同步全部由该领域拥有的 ID、关系、索引和资源事实。
-- 对已进入 Git HEAD 的身份迁移提供与破坏性影响相称的显式确认，并保留普通 Git 历史。
-- 让失败诊断说明冲突对象、未闭合引用、写入范围和下一步，不留下半改名状态。
-- 让两个 skill、CLI、公开声明、分发产物和测试分别与其 rename 契约一致。
+- 按目标 name/ID 重新分配并移动记录 sourcePath，同时保持“路径不定义身份”的边界。
+- 对已进入 Git HEAD 的身份迁移提供相称确认并保留普通 Git 历史。
 
 非目标：
 
-- 不为 Change Plan 增加 rename；完成后的 Change 由独立 Change 删除并通过 Git 恢复。
-- 不用 rename 自动解决合法重名或同日同名创建冲突。
-- 不提供批量迁移、自动重命名全部 legacy 记录、正则替换或通用路径重构平台。
-- 不修改正文的历史语义、formedAt、createdAt、status、alignment 或 relations type。
-- 不扫描或改写仓库外系统、远端链接、Git 历史提交或无法证明归属的自由文本。
-- 不把两个领域的事务源码合并为共享 rename runtime；只有已经存在且语义相同的文件系统原语可以继续复用。
+- 不为 Change Plan 增加 rename。
+- 不因采用 dated ID 批量迁移全部 legacy 记录。
+- 不自动解决合法重名、同日同名 ID 冲突或替用户选择历史日期。
+- 不提供正则批量替换、通用路径重构平台或仓库外引用改写。
+- 不接受任意目标路径或提供通用路径整理；rename 只在 name/ID 两种合法 basename 中分配目标路径。
+- 不修改正文判断、formedAt、createdAt、status、alignment 或 relation type。
+- 不把两个领域的事务源码合并为共享 rename runtime。
+- 不把 rename 实现为“先改来源，再调用 selected sync 补索引”的两阶段操作。
 
 ## Decisions
 
 ### Intended Change
 
-#### 公共命令意图
+#### 输入与目标分类
 
-每个领域增加语义等价但参数可按既有 CLI 适配的入口：
+每个领域提供一条普通入口；最终 CLI 名称按现有命令形状适配：
 
 ```text
-rename <source-selector> --name <new-semantic-name> [--preflight]
-rename <source-selector> --to-id <new-complete-id> --migrate-id [--preflight]
+rename <source-selector> <target-name-or-id> [--preflight]
 ```
 
-普通 `--name` 保留已有日期前缀，只替换语义名称；它是日常纠错入口。`--to-id --migrate-id` 用于 legacy 格式迁移或确需改变完整身份的维护场景，必须显式给出完整目标，不从 Git 时间、文件时间或当前时间猜测历史日期。两个目标模式互斥。
+Source 普通输入遵循 ID-first selector：后缀规范化后能解析为标准 ID 就 exact lookup，否则按 name key 查询。Name 多项命中仍报 ambiguous。
 
-Source 按日期前缀身份 Change 的完整 ID/唯一名称 resolver 解析。目标必须符合领域 ID 语法，在完整适用集合中未占用，并且不能与 source 相同。`--preflight` 完成与正式执行相同的集合、引用、revision、目标和恢复准备，但不获取 mutation 提交点、不写文件、不保存 receipt。
+Target 复用相同的后缀规范化和标准 ID parser，但它定义新身份，不用 name 索引选择既有对象：
 
-#### Decision rename
+1. 解析为标准 ID 时，直接把它作为目标 ID，再验证其日期/name 与 source 的权威身份事实一致；目标不存在才可继续。
+2. 解析失败时，完整文本是目标 name。标准 dated source 保留原日期并形成 `<old-date>-<target-name>`；legacy source 用权威形成日期形成 `<formed-date>-<target-name>`。
+3. 不用不同 flag 要求用户预先声明 target 是 ID 还是 name，也不在标准 ID 目标冲突时回退为 name。
+4. 根据最终 target name/ID 重新计算 sourcePath：完整生命周期目标中的 name 路径可用就选择 name，否则选择完整 ID；新旧路径不同时执行移动，目标被占用时遵守 no-overwrite，不能覆盖。
 
-Decision 事务至少拥有：
+Legacy 冲突迁移必须在创建同名 dated 记录前、name 尚唯一时执行。`new` 返回的默认指引带出已识别 legacy ID 和建议目标 ID，但 rename 自身仍通过普通 ID-first selector 重读并确认 source；不存在创建与迁移的一体化隐式路径。
 
-1. source candidate、active 或 archived Markdown 的最终路径；
+`--preflight` 完成与正式执行相同的集合、引用、revision、目标、路径和恢复准备，但不获取 mutation 提交点、不写文件、不保存 receipt。
+
+#### 日期与 name 一致性
+
+标准 ID 的 name 是日期前缀后的文本。Rename 改 name 就必须同步改变标准 ID；改变标准 ID 的 name 也必须在索引中产生同一 name，不能形成 ID 与 name 不一致的第二份事实。
+
+Legacy ID 的 name 是完整 ID。升级日期来源优先为：Investigation 使用 `formedAt` UTC 日期，已建立 Decision 使用 `createdAt` UTC 日期。Decision candidate 没有权威形成时间时不能自动猜测，必须先解决开放问题中的日期来源。
+
+#### Decision 事务
+
+Decision 身份迁移至少拥有：
+
+1. source candidate、active 或 archived Markdown 的 frontmatter ID；
 2. 全部 candidate 与已建立 Decision 中指向旧 ID 的 relation targets；
-3. 已建立集合的 index key、state `sourcePath` 和 source revision；
-4. 同一操作需要形成的 Git pending 选择说明，但不自动 stage。
+3. 已建立集合的 index key、name key、state sourcePath 和 source revision；
+4. 同一操作需要形成的 Git pending 选择说明，但不自动 stage；
+5. old sourcePath 与按目标 name/ID 分配的 new sourcePath；两者不同时执行移动。
 
-事务在锁内重读完整集合和索引，预演替换后的关系图、位置与索引，再以不覆盖移动 source、改写关系来源并原子发布索引。Rename 不改变 status、alignment、createdAt、正文判断或 relation type。任何引用无法解析、最终图无效、索引陈旧或 source/target 漂移都在提交点前失败。
+事务在锁内重读集合和索引，预演最终关系图、ID/name 唯一性与 sourcePath，再在目标路径变化时以 no-overwrite 移动来源，并原子改写文档 ID、关系和完整索引。Rename 不改变 status、alignment、createdAt、正文判断或 relation type。
 
-#### Investigation rename
+#### Investigation 事务
 
-Investigation 事务至少拥有：
+Investigation 身份迁移至少拥有：
 
-1. source candidate 或正式报告的最终路径；
+1. source candidate 或正式报告的 frontmatter ID；
 2. 全部正式报告和 candidates 中指向旧 ID 的 relation targets；
-3. 正式 index key、state 和 source revision；
-4. `_resources/<old-id-stem>/` owner 树到新 stem 的不覆盖移动；
-5. 全部正式报告和 candidates 中引用旧 resource IDs 的受管引用。
+3. 正式 index key、name key、state sourcePath 和 source revision；
+4. `_resources/<old-id>/` owner 树到新 ID 的不覆盖移动；
+5. 全部正式报告和 candidates 中引用旧 resource IDs 的受管引用；
+6. old report sourcePath 与按目标 name/ID 分配的 new report sourcePath；两者不同时执行移动。
 
-事务预演最终报告图、资源 owner 唯一性、资源引用闭合和完整索引。存在目标 report、candidate、resource owner 或无法迁移的受管引用时失败；成功后旧 ID 和旧 owner 前缀不再出现在当前正式集合或 candidates 中。Rename 不改变 `formedAt`，因此变更日期前缀的显式迁移还必须满足 dated ID 与 `formedAt` UTC 日期的一致性。
+事务预演最终报告图、资源 owner 唯一性、资源引用闭合、新报告路径和完整索引。标准目标日期必须与 `formedAt` UTC 日期一致；成功后旧 ID、旧报告 sourcePath 和旧资源 owner 前缀不再出现在当前受管内容中。
 
 #### 提交、恢复与版本控制
 
-两个 rename 命令复用对应领域 mutation lock、revision 与恢复结果表达。目标已经进入 Git HEAD 时，正式执行要求领域专属的显式 recorded-history 确认；该确认只授权当前工作树身份迁移，不改写历史提交。成功输出至少包含 source ID、target ID、更新的关系/资源数量和 mutation outcome。
+两个命令复用对应领域 mutation lock、revision 和恢复结果。目标身份已经进入 Git HEAD 时，正式执行要求领域专属的 recorded-history 确认；该确认只授权当前工作树迁移，不改写历史提交。
+
+成功输出至少包含 source/target ID、source/target name、old/new sourcePath、关系/资源更新数量和 mutation outcome。按指定 ID 刷新索引可以复用无领域含义的 projection/diff 原语，但 rename 成功后不需要再运行公开 scoped sync。
 
 ### Resulting Impacts
 
-- **Decision Records：** 新增 CLI/SDK rename surface、集合级 relation rewrite、ID-keyed index 重建和事务恢复测试；现有 stage 仍要求调用方显式选择旧、新 ID，本命令不写 pending。
-- **Investigation Report：** rename 必须与 publish、set-relations、discard、resource owner 和 stage-index 共用集合锁及 revision 语义，并覆盖 candidate/formal、关系、资源和索引组合恢复。
-- **长期决策：** 分别为 Decision 与 Investigation 建立或演进身份迁移判断；跨领域只记录公共意图，不把不同领域的原子范围误写成统一事务。
-- **分发与验证：** 修改两个工具源码、对应 build 产物、skill 契约、版本和公开声明；所有新增或修改的最小原生测试入口维护独立 Test Evidence case 并同步索引。
-- **实施依赖：** 存储无关纯 ID Plan 先固定 extensionless ID，日期前缀身份 Change 再固定完整 ID、名称 selector 和 legacy 语法；本 Change 最后以该稳定输入实现 rename，避免重复修改 CLI 参数、parser 和关系迁移。
+- **Decision Records：** 新增 CLI/SDK rename surface、frontmatter ID rewrite、集合级 relation rewrite、name/ID-keyed index 重建和事务恢复测试。
+- **Investigation Report：** rename 与 publish、set-relations、discard、resource owner 和 stage-index 共用集合锁及 revision，覆盖 candidate/formal、报告路径、关系、资源和索引组合恢复。
+- **日期身份：** 创建同名 dated 记录前必须检查 legacy name；需要迁移时返回 migration-required 和默认 rename 指引，不能提交不可精确选择的状态。
+- **路径：** ID/name rename 同时移动记录文件；目标 basename 只允许 name 或 ID，资源 owner 则继续随 Investigation ID 迁移。
+- **Index Runtime：** 可以复用完整 projection/diff，但提交与恢复 envelope 仍由领域 mutation 拥有。
+- **长期决策和分发：** 分别演进两个领域的身份迁移判断，更新工具、build 产物、skill 契约、版本、声明和测试证据。
+- **实施依赖：** 显式纯 ID/sourcePath Plan 和日期身份的 parser、name index、locator 先完成；本 Draft 再实现 migration-required 指向的 rename 路径。
 
 ## Risks / Trade-offs
 
 | 风险或取舍 | 控制 |
 | --- | --- |
-| 全集合引用改写比单文件移动昂贵 | Rename 是低频维护事务，优先闭合正确性；使用当前集合索引/扫描并在锁内保护 revision |
-| Investigation 资源 owner 扩大事务范围 | 把 owner 目录和全部受管引用纳入同一预演与恢复，不能只移动报告文件 |
-| Decision candidate 与正式关系可能交叉引用 | 扫描正式集合与全部合法 candidates，按最终 ID 图统一验证 |
-| 已记录文件改名会在 Git 中表现为删除与新增 | 要求显式 recorded-history 确认，并让 Git 自身保存历史；不实现历史重写 |
-| 普通 rename 与 legacy 迁移混用会误改日期 | 默认只接受新语义名称并保留日期；改变完整 ID 必须使用独立参数和确认 |
-| 三个 Change 并行实现会重复改 CLI parser 和持久关系 | 本 Change 依次依赖纯 ID 与日期身份 Change，先固定 selector 和 canonical ID 再实现 rename |
+| Legacy 冲突迁移与日期创建互相依赖 | `new` 先零写入返回指引，用户在 name 唯一时显式 rename，再重试创建 |
+| 全集合引用改写比单文档 ID 更新昂贵 | Rename 是低频维护事务，优先闭合正确性；锁内扫描并验证最终图 |
+| Investigation 资源 owner 扩大事务范围 | 把 owner 目录和全部受管引用纳入同一预演与恢复 |
+| 目标 name 路径已被其他记录占用 | 退回完整 target ID basename；若完整 ID 路径也冲突则 no-overwrite 失败 |
+| 已记录身份迁移在 Git 中产生正文和关系变化 | 要求 recorded-history 确认并保留 Git 历史，不实现历史重写 |
+| 相邻身份和索引 Change 同时修改 parser/index | 纯 ID 先实施；日期、rename、指定刷新在 readiness 中复核最终接口和集成顺序 |
 
 ## Open Questions
 
-1. Candidate rename 是否允许其他未选择 candidate 同时引用 source；若允许，是否把这些 candidate 纳入同一事务，还是要求调用方先用现有编辑流程解除引用？
-2. 已进入 Git HEAD 的 rename 确认参数应按两个领域统一命名，还是沿用各自现有 discard/history 术语？
-3. `--preflight` 是否复用现有 mutation 结果 envelope，还是建立两个领域共同的 rename preview 最小字段；不得为统一输出而丢失资源或关系范围。
-4. Legacy `--to-id` 迁移是否允许改变日期前缀，还是只允许从无日期 ID 补入由权威时间字段证明的日期？
+1. Decision candidate 没有 `createdAt` 时，legacy 标准化日期由新增 candidate 形成时间字段、显式用户输入还是其他权威事实提供？
+2. Candidate rename 是否把引用 source 的其他未选择 candidates 一并纳入事务，还是要求先解除引用？
+3. Recorded-history 确认参数和 preflight 结果 envelope 是否按两个领域共享最小字段，还是沿用各自现有术语？

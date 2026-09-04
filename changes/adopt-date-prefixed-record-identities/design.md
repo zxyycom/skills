@@ -1,102 +1,140 @@
 # Design
 
-本设计把 `YYMMDD-<name>` 固定为 Decision 和 Investigation 新实例的可读完整 ID，并让每个领域在自己的集合和事务边界内解析唯一名称；`.md` 只属于物理文件映射。本文仍处于 Draft，开放问题收敛后再派生任务并进入 Plan。
+本设计以标准 ID parser 为第一入口，以索引中的 name key 为回退，并让创建事务在 name 输入上自动生成日期 ID；本文仍为 Draft。
 
 ## Context
 
-- [`保留型工件重名调查`](../../docs/investigations/260903-explore-name-collisions-in-retained-artifacts.md)是本 Change 的问题与方案证据；它不是已经生效的长期契约。
-- [`存储无关纯 ID Plan`](../separate-domain-ids-from-storage-details/)先把 Decision/Investigation 的规范 ID 从 Markdown basename 收敛为 extensionless stem。本 Change 依赖该基线，只增加日期前缀和唯一名称解析，不重新引入 `.md`。
-- Decision Records 当前以全集合唯一的 Markdown basename 作为稳定 ID，active 与 archived 共用 ID-keyed 索引，查询、关系、生命周期和 stage 都要求完整 ID。候选在 `new` 时已有 ID，但正式 `createdAt` 只在建立时写入。
-- Investigation Report 当前以正式集合唯一的 Markdown basename 作为 ID，每份报告已有精确 `formedAt`；索引按 ID 键控，关系和资源 owner 都依赖该 ID stem。
-- 当前长期决策要求 Decision ID 稳定并用于关系、查询和生命周期。日期成为 ID 的组成不会削弱稳定性，但允许名称简写会演进当前“完整 ID 作为操作输入”和 ID-keyed 查询契约，实施前必须建立后继 Decision。
-- 两个可分发 CLI 的维护源码分别位于 `tools/decision-records/` 和 `tools/investigation-report/`，由 `scripts/build/` 下对应入口生成 skill 内脚本、声明与索引 Schema。
-- Change Plan 的纯 `changeId` 由前置纯 ID Plan 负责；本 Change 不为 Change 增加日期身份或名称 resolver。[`complete-change-plans-by-deletion`](../complete-change-plans-by-deletion/)仍单独负责取消 archive 并让完成历史通过 Git 恢复。
+- [`保留型工件重名调查`](../../docs/investigations/260903-explore-name-collisions-in-retained-artifacts.md)说明日期比随机码更能解释不同形成事件；它不是已经生效的长期契约。
+- [`显式纯 ID Plan`](../separate-domain-ids-from-storage-details/)先让 Decision/Investigation Markdown 声明 extensionless ID，并让索引独立保存 sourcePath。本 Change 不再从 basename 推导 ID。
+- Decision candidate 在 `new` 时形成，但正式 `createdAt` 只在建立时写入；Investigation candidate 已有必填 `formedAt`。两者的日期事实来源不同。
+- 当前派生索引以 ID 为 entry key，但没有 name exact key。要支持 name-to-ID 回退，index state 需要保存从 ID 规范得到的 name，并增加可返回多项的 name 查询。
+- [`记录 rename Draft`](../add-record-rename-transactions/)负责显式身份和路径迁移。Legacy ID 与 dated ID 同名后，非标准 legacy ID 无法通过标准 ID parser 精确选择，因此创建必须先要求独立 rename，再由用户重试。
+- [`指定 ID 索引刷新 Plan`](../add-selected-id-index-sync/)只接收精确 ID scope，不使用 name fallback；它与普通对象 selector 的责任不同。
+- Change Plan 不属于本 Change；其 ID 和生命周期由 [`complete-change-plans-by-deletion`](../complete-change-plans-by-deletion/)负责。
 
 ## Goals / Non-Goals
 
 目标：
 
-- 让完整 ID 兼具日期顺序、语义可读性和当前规模所需的防碰撞能力。
-- 让使用者在名称唯一时不必记忆日期，并在名称重名时被强制转为精确选择。
-- 让关系与其他持久引用始终保存完整 ID，不因后来的名称重复而漂移。
-- 保持 Decision 与 Investigation 各自的权威源、索引、关系、资源、生命周期和 mutation 边界。
-- 兼容现有无日期 ID，并为新格式提供可验证的创建和查询行为。
+- 固定“去除存储后缀 → 尝试标准 ID → 失败才按 name 查索引”的唯一输入顺序。
+- 强制新实例使用真实形成日期和语义 name 组成标准 ID，同时允许调用方直接给出同一标准 ID。
+- 让 name 唯一时自动得到 ID，name 重复时强制使用标准 ID。
+- 让索引显式承接 ID/name/sourcePath 映射，持久关系只承接 ID。
+- 保持 legacy 记录可用，并只在真实名称冲突前要求迁移。
 
 非目标：
 
-- 不改造 Change Plan 的目录名、查询、生命周期或完成行为。
-- 不保证无限规模或数学意义上的全局唯一，不引入 UUID、随机短码、时分秒或自动序号。
-- 不建立跨项目或跨领域共享的 ID namespace、名称服务或分配器。
-- 不在本 Change 中批量重命名 legacy 记录；单对象 rename 由独立 Change 承接。
-- 不改变 Decision 或 Investigation 的关系类型、图形状和生命周期语义。
-- 不让集合过滤、全文搜索或 `list` 因单对象解析规则而只能返回一项。
+- 不把任意数字前缀、非法日期或带路径文本猜成标准 ID。
+- 不提供 `--name`/`--id` 两套日常输入模式；普通输入由 parser 确定走 ID 还是 name。
+- 不允许 exact ID 查询在标准 ID 不存在时静默回退为 name。
+- 不让 name 成为唯一键，不建立跨领域 name registry 或自动选择最新记录。
+- 不在本 Change 批量改写全部 legacy ID；冲突迁移由 rename 事务执行。
+- 不规定 sourcePath 必须等于 ID，也不把文件移动当成身份变化。
+- 不改变 Decision/Investigation 的关系类型、图形状或 lifecycle 语义。
 
 ## Decisions
 
 ### Intended Change
 
-#### 完整 ID
+#### 标准 ID
 
-新实例使用以下规范外形：
+标准 ID 使用 extensionless `YYMMDD-<name>`：前六位必须构成 calendar-valid 日期，第七位是连字符，后续 name 满足领域语义名称 grammar。示例：
 
 ```text
-Decision:      260903-adopt-date-prefixed-record-identities
-Investigation: 260903-explore-name-collisions-in-retained-artifacts
+260903-adopt-date-prefixed-record-identities
+260903-explore-name-collisions-in-retained-artifacts
 ```
 
-`YYMMDD` 是记录形成日期的 UTC 投影，固定放在语义名称前。解析器移除首个日期前缀和连字符后取得语义名称；legacy 纯 ID 没有日期前缀时，其现有文本整体作为语义名称。日期只是 ID 的可读组成，不替代精确时间字段，也不从 ID 反向改写生命周期事实。
+看似日期但无法通过日期校验的前缀不是标准 ID，例如 `991332-example` 整体作为 name。标准 ID 的日期只投影形成日，不替代精确时间字段。
 
-各领域日期来源为：
-
-| 领域 | 新实例日期来源 | 精确时间 owner |
+| 领域 | 本次形成日期 | 精确时间 owner |
 | --- | --- | --- |
-| Investigation | `formedAt` 转为 UTC 后的日期 | 报告 frontmatter `formedAt` |
-| Decision | `new` 成功创建 candidate 时的 UTC 日期 | 建立后的 `createdAt`；ID 日期不声称是激活时间 |
+| Investigation | `formedAt` 的 UTC 日期 | 报告 frontmatter `formedAt` |
+| Decision | `new` 创建 candidate 时读取的 UTC 日期 | 建立后的 `createdAt` |
 
-Investigation checker 验证日期前缀与 `formedAt` 的 UTC 日期一致。Decision candidate 在建立后保留原 ID，`createdAt` 继续表示正式建立时间；重新激活 archived Decision 不改变 ID 日期。
+Investigation checker 验证标准 ID 日期与 `formedAt` UTC 日期一致。Decision ID 日期表示 candidate 形成日；后续建立、归档或重新激活都不改变 ID 日期。
 
-#### 名称解析
+#### ID-first 普通输入
 
-需要选择一个或多个具体记录的公开入口复用同一领域 resolver，但调用语法可以按既有 CLI 形状适配：
+需要选择具体 Decision/Investigation 的普通入口复用以下管线：
 
-1. 显式完整 ID 只做 exact match，不从日期、状态或顺序猜测替代目标。
-2. 显式名称在该操作适用的完整集合中按解析后的语义名称 exact match。
-3. 零项命中返回 not-found；一项命中解析为其完整 ID；两项及以上命中返回 ambiguous，按完整 ID 排序列出全部候选并零写入失败。
-4. 不使用“最新一项”、active 优先、目录顺序或首项命中消除歧义。
-5. 关系 source/target、批量选择和 mutation 输入先逐项解析，再以完整 ID 完成最终图或事务预演；权威 Markdown 与索引只保存完整 ID。
+```text
+input
+  └─ remove one trailing .md (ASCII case-insensitive)
+       └─ parse standard YYMMDD-name ID
+            ├─ success -> exact ID lookup
+            └─ failure -> exact name lookup in index -> ID
+```
 
-集合型 `list`、filter 和全文查询继续允许返回多个结果。名称简写是精确对象选择的便利入口，不是模糊搜索或新的持久身份。
+固定规则为：
 
-#### 创建与冲突
+1. 后缀规范化只移除一个末尾 `.md`，大小写不敏感；路径分隔符或其他扩展名不在这里处理。
+2. 标准 ID 解析成功后只按完整 ID 查索引。不存在就返回 not-found，不再把同一文本当 name 搜索。
+3. 标准 ID 解析失败后，整个规范化文本作为 name，通过 index 的 exact `name` key 查询。
+4. name 零项命中返回 not-found；一项命中把结果 ID 作为后续操作输入；多项命中返回 ambiguous，并按 ID 排序列出全部候选。
+5. 不用 active 优先、最新日期、文件顺序或首项结果消除歧义。
+6. 关系 source/target、lifecycle、publish/discard、trace、stage 和其他单对象 mutation 都先解析到 ID，再执行完整图或事务预演；持久 Markdown 关系和结果引用只保存 ID。
 
-Decision 和 Investigation 的现有 `new` 接口增加语义名称输入并由工具分配日期前缀 ID。两个入口都必须在各自集合 mutation lock 内重读最终目标并执行原子 no-overwrite。
+例如集合包含 `260901-review-cache` 和 `260903-review-cache`：输入 `review-cache` 报 ambiguous，输入 `260901-review-cache.md` 去除后缀后按标准 ID 精确命中。输入 `991332-review-cache` 因日期无效，整体按 name 查询。
 
-同日期、同语义名称会产生同一个完整 ID。若目标已存在，创建失败并要求调用方判断是继续使用既有记录，还是提供能够表达差异的更具体名称；工具不得改变真实日期来绕过冲突。
+指定索引刷新也使用这条普通 selector 管线：CLI 可接收标准 ID 或 name，解析完成后才把精确 ID 交给内部 selected scope。只有不直接面向普通用户选择对象的内部 `selectedIds` 类型保持纯 ID。
 
-#### Legacy 兼容
+#### 新建输入
 
-现有无日期 ID、索引键、关系 target 和资源 owner 保持合法，不自动移动或重写。完整 legacy ID 与语义名称可能具有相同文本时，公开 CLI 必须提供可显式区分 exact ID 与 name 的语法；该语法不得靠“目标恰好存在”建立隐含优先级。
+`new` 使用同一个后缀规范化和标准 ID parser，但不会用 name 查询结果替代“形成新实例”的意图：
+
+1. 输入解析为标准 ID 时，提取其中 date 和 name；date 必须等于本次权威形成日期，否则零写入失败，不能借输入 ID 回填或关闭自动日期。
+2. 输入未解析为标准 ID 时，完整规范化文本是 name；工具用本次权威形成日期生成 `YYMMDD-<name>`。
+3. 最终 ID 已存在时零写入失败；其他日期存在同名 ID 不阻止形成新实例，但会让后续纯 name 输入变成 ambiguous。
+4. 所有创建都在领域 mutation lock 内重读最终 ID、name 和目标 sourcePath，并执行 no-overwrite。
+
+#### Name 索引
+
+Decision/Investigation index state 增加规范 `name`，并新增 exact name key。标准 ID 的 name 是日期前缀之后的部分；legacy ID 的 name 是其完整 ID。ID 仍是 entry key，name key 可以返回零项、一项或多项，sourcePath 只定位文件。
+
+索引必须从 Markdown 的显式 ID 重建 name，不从 basename 推断。关系和资源 owner 不保存 name；以后增加同名记录不会改变已有关系 target。
+
+#### SourcePath 分离
+
+新建记录的文件 basename 不参与 ID parser。默认 locator 使用以下惰性分配：如果 name 对应的 candidate、formal 或 lifecycle 目标路径均不会占用既有成员，就使用 name；否则使用完整 ID。工具必须在事务内检查该领域完成创建或 publish 所需的最终路径，而不是只检查眼前 candidate 路径。
+
+例如 name 为 `review-cache` 且没有同名路径时，报告可以保存为 `review-cache.md`，其 frontmatter ID 仍是 `260903-review-cache`；以后形成同名实例时，旧文件不移动，新实例使用 `260904-review-cache.md` 一类 ID locator。两种文件都通过索引的 ID/sourcePath 映射读取，basename 不产生身份优先级。
+
+#### Legacy 冲突
+
+无日期 legacy ID 不符合标准 ID parser，因此普通输入会把它当 name 处理。name 唯一时可以通过索引正常取得该 legacy ID，无需立即迁移。
+
+如果准备创建同名 dated 记录，创建事务必须在写入前识别 legacy name 冲突。因为写入后普通 name 会返回多项，而 legacy 文本仍无法作为标准 ID 精确选择，所以工具不能先制造冲突再补救。
+
+命令固定采用两步 CLI，不把历史迁移隐含进 `new`：
+
+1. `new` 零写入返回稳定的 `migration-required`，报告 legacy ID、建议目标 dated ID，并给出 rename/preflight 的默认操作指引。
+2. 用户显式执行并确认 rename；rename 仍按唯一 name 或标准 ID 定位 source。
+3. 用户重新执行 `new`，此时再创建新的同名 dated 记录。
+
+该情况预期少见；分步流程比原子“迁移并创建”更容易实现和恢复，也让历史身份变化保持显式。
 
 ### Resulting Impacts
 
-- **Decision Records：** ID parser、candidate 创建、查询 context、生命周期、关系、stage、CLI 参数与诊断需要接受完整 ID/名称选择并规范化为完整 ID；现有 ID-keyed 索引结构继续派生，不因名称增加第二索引。公开 SDK、声明和 skill 契约同步更新。
-- **Investigation Report：** candidate 创建、publish、show、trace、关系、discard、stage-index、资源 owner 与诊断需要共享名称解析；dated 正式报告须校验 ID 日期与 `formedAt` UTC 日期，legacy 报告不追溯施加该门禁。
-- **索引与性能：** 当前集合规模允许在已加载索引上做确定性 O(N) exact-name 扫描；不新增名称索引、缓存、registry 或可写映射。未来规模证据否定该选择时，再建立独立性能 Change。
-- **长期决策：** 实施前需要演进 Decision 的稳定 ID/ID-keyed 查询契约，并为 Investigation 的日期身份和唯一名称解析建立当前长期判断。
-- **分发与验证：** 两个 skill 的行为入口、固定契约、版本、工具源码、生成产物、公开声明和测试必须一致；新增或修改的最小原生测试入口按 Test Evidence owner 逐项登记并同步派生索引。
-- **实施依赖：** 存储无关纯 ID Plan 先完成 extensionless ID、关系和索引迁移；本 Change 再增加日期前缀和名称 resolver，避免经历一次带 `.md` 的临时新格式。
+- **Decision Records：** 增加标准 ID parser、ID-first selector、candidate 日期生成、index state/name key、查询/lifecycle/关系/stage 接入和稳定诊断；`createdAt` 继续只表示建立时间。
+- **Investigation Report：** 增加同一 parser/selector、由 `formedAt` 生成或验证 ID、index state/name key 及 candidate/publish/show/trace/关系/discard/stage 接入。
+- **索引：** ID、name、sourcePath 三者明确分离；name 查询可以返回多项，单项 mutation 必须先把结果收敛为 ID。
+- **路径：** candidate/formal writer 和 publish 使用“name 路径可用则 name，否则 ID”的确定性 locator；sourcePath 分配、完整 lifecycle 冲突和回读进入事务与测试。
+- **Rename：** legacy 同名迁移成为本 Change 避免不可选状态的显式前置步骤；`new` 只返回指引，不调用或隐式执行 rename。
+- **指定刷新：** 用户 selector 复用本 Change 的 ID-first/name-fallback 管线，解析后的 selected scope 只包含 ID；sourcePath 或 name state 变化都属于该 ID 的索引变化。
+- **长期决策和分发：** 两个领域的身份/selector Decision、skill 契约、源码、生成产物、类型/Schema 和测试同步更新。
 
 ## Risks / Trade-offs
 
 | 风险或取舍 | 控制 |
 | --- | --- |
-| 六位年份在跨世纪时不自解释 | 当前目标是短、可读且满足现实规模；世纪边界出现真实需求时另行演进，不为远期边界扩大当前 ID |
-| 同日同名仍会冲突 | 明确失败并要求更具体名称；该冲突本身是需要人判断是否为同一记录的有效信号 |
-| 名称今天唯一、以后可能重名 | 只把名称当输入简写，所有持久关系和索引继续保存完整 ID |
-| Legacy ID 与名称简写可能同形 | CLI 提供显式 exact-ID/name 选择，不建立存在优先或 active 优先规则 |
-| 两个领域同时修改会扩大实施面 | 只共享可观察契约；代码、事务与测试按领域分组实施和验证，可以分批集成但必须保持同一最终规则 |
+| 非法日期样式可能是合法 name | 只有完整通过 calendar-valid 标准 grammar 才走 ID；失败整体走 name，不做部分剥离 |
+| 输入恰好是标准 ID 外形但使用者想表达 name | 标准前缀属于 ID 保留语法；exact ID 不存在时不回退，避免同一输入随数据变化改变含义 |
+| name 后来重名 | 持久引用只保存 ID；普通 name 查询转为 ambiguous 并列出标准 ID |
+| Legacy name 与新 dated 记录冲突后旧记录不可精确选择 | `new` 在写入前返回 migration-required 和默认 rename 指引，不提交不可选状态 |
+| sourcePath 与 ID 分离扩大扫描和事务范围 | 使用显式 ID、索引 sourcePath、回读验证、mutation lock 和 no-overwrite 共同闭合 |
+| 两个领域同时修改会扩大实施面 | 共享可观察解析规则，代码、事务和测试按领域实现，不建设跨领域记录平台 |
 
 ## Open Questions
 
-1. 两个 CLI 使用统一的 `--id` / `--name` 显式选择，还是在保留既有位置参数时仅为 legacy 同形场景增加显式选项？进入 Plan 前必须给出每个命令的无歧义语法表。
-2. Decision 与 Investigation 的 `new` 是否保留直接传入完整 ID 的兼容入口，还是只允许 name + 日期生成；若保留，如何限制新调用绕过日期格式？
+无。Legacy name 即将冲突时采用显式两步 CLI：`new` 零写入返回 migration-required 和默认 rename 指引，用户完成 rename 后再重试创建。
