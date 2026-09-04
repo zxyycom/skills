@@ -114,6 +114,12 @@ relations:
 3. Git `HEAD` 只用于在保留独立决策历史前要求再次确认，以及删除已记录决策的机械门禁；不参与候选、建立、生效、对齐或索引成员判断。在 Git 工作树中，尚无首次提交的 unborn `HEAD` 按空 Git `HEAD` 基线处理。可用 Git `HEAD` 基线中，单独 `archive` 的目标，以及本次关系事务中所选后继完整最终关系集里的每个已建立直接前序（relation target），只要尚未进入 Git `HEAD`，CLI 就暂停且不写入；无论前序是 active 还是 archived，调用方都必须以 `--keep-unrecorded-history` 显式确认后才可继续。该判断不使用形成时间。在 Git 工作树外没有这个确认门；但 stage 仍需要其自身的版本控制前提。
 4. `discard` 删除完整、结构有效且在删除后的最终集合中无剩余引用的 candidate、active 或 archived 决策。它既可直接运行，也可通过 `evolve --discard <decision-id>` 与后继建立、最终关系修改和索引重建处于同一事务；被删除 ID 不能同时作为后继，所选后继的最终关系也不得保留该 ID。`evolve` 仍遵循普通演进的关系形状、闭包和最终图验证，不增加只适用于删除的后继数量、状态、前序或显式空关系限制。删除的 Decision ID 已进入 Git `HEAD` 时，未带 `--delete-recorded-decision` 的调用在其余删除条件和演进最终图都已通过后 attention 且零写入；带该参数即为明确的机械删除选择，不会为 discard 自身重复读取 Git `HEAD`，但不绕过同次 `evolve` 最终关系的独立 `--keep-unrecorded-history` 预检。非 Git 工作树、unborn `HEAD` 或 ID 未进入 `HEAD` 时正常删除；无参数且 `HEAD` 不可读取时 fail closed。调用方不主动预检 Git，只响应 CLI 实际提示。
 5. `stage` 只是 Git pending 状态转换，不改变决策生命周期。`sourcePath` 变化是位置变化，stage 选择一次对应 ID 即可；显式改变 frontmatter ID 才是身份变更，必须同时维护关系与索引。生命周期移动、关系维护和 stage 都应在写前拒绝 revision、pending 或所选来源漂移。
+
+### `rename`
+
+`rename <source-selector> <target-name-or-id> [--preflight] [--rename-recorded-decision]` 是唯一的单条身份迁移入口。source 先按标准 dated ID exact 解析，失败才按 unique name；target 标准 ID 直接定义目标，其他合法 kebab-case 值作为 name。标准 source 保留原 ID 日期，legacy established 记录使用 `createdAt` UTC 日，legacy candidate 的 name target 返回 `date-required`，但允许调用方明确提供完整 dated target ID。目标 ID、name 与新路径均须在完整集合内无冲突；同生命周期 `<name>.md` 可用时优先，否则使用 `<id>.md`，两者都冲突时零写入。
+
+事务在 collection lock 内重读来源与索引，改写 source frontmatter ID、所有 candidate/established 结构化 relation target、sourcePath 与完整派生索引；它不改变状态、alignment、createdAt、正文或 relation type，也不自动 stage。`--preflight` 完成相同扫描、日期、关系、路径、索引与 Git HEAD 检查但绝不写入。目标已进入 Git HEAD 时，正式执行必须显式使用 `--rename-recorded-decision`；该确认只授权当前工作树 rename，不重写历史。移动、写入、索引发布或回读失败按领域事务恢复，结果只能报告 no-change、rolled-back、partial-or-unknown 或 committed-cleanup-pending。
 6. 普通单对象 selector 先只移除一个大小写不敏感的末尾 `.md`，再尝试 calendar-valid 标准 ID。标准 ID 解析成功时只精确查该 ID，未命中不得退回 name；解析失败时将完整剩余文本按 exact name 查询。零项是 not-found，一项收敛为完整 ID，多项按 ID 排序报 ambiguous，不按状态、日期或路径猜测。持久 Markdown、关系、索引 entry key、资源 owner 和结构化输出只保存完整 ID；真实路径只能进入明确的 path/locator 参数。
 
 ## 派生索引与查询

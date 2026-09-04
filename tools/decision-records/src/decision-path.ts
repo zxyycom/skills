@@ -127,6 +127,23 @@ export function sourcePathForDecision(
 }
 
 /**
+ * Allocates a legal storage path for a renamed record. The basename is the
+ * semantic name when that location is free; otherwise the complete ID keeps
+ * the record addressable without overwriting another source.
+ */
+export function sourcePathForDecisionRename(
+  decisionId: DecisionId,
+  name: string,
+  status: "active" | "archived" | "candidate",
+  occupiedSourcePaths: ReadonlySet<string>
+): DecisionSourcePath | null {
+  const namePath = sourcePathForDecision(name, status);
+  if (!occupiedSourcePaths.has(namePath)) return namePath;
+  const idPath = sourcePathForDecision(decisionId, status);
+  return occupiedSourcePaths.has(idPath) ? null : idPath;
+}
+
+/**
  * Applies the lifecycle storage location while preserving the chosen
  * Markdown basename. A source path is storage, not an identity encoding.
  */

@@ -45,6 +45,7 @@ test("generated decision declarations expose a portable CLI API", async () => {
   assert.deepEqual(declarationFiles, [
     "cli-io.d.mts",
     "cli.d.mts",
+    "decision-rename.d.mts",
     "index.d.mts",
     "scan.d.mts",
     "types.d.mts"
@@ -74,12 +75,16 @@ test("generated decision declarations expose a portable CLI API", async () => {
     "DecisionIndexStoredEntry",
     "DecisionSourceRevision",
     "DecisionScanOptions",
-    "DecisionValidationResult"
+    "DecisionValidationResult",
+    "DecisionRenameOptions",
+    "DecisionRenamePlan",
+    "DecisionRenameResult"
   ]) {
     assert.match(declarationTree, new RegExp(`export type ${publicType}\\b`));
   }
   for (const publicExport of [
     "runDecisionRecordsCli",
+    "renameDecisionRecord",
     "scanDecisionRecords",
     "validateDecisionRecords"
   ]) {
@@ -108,10 +113,10 @@ test("generated decision declarations expose a portable CLI API", async () => {
     await fs.writeFile(
       consumerPath,
       [
-        'import { runDecisionRecordsCli, scanDecisionRecords, validateDecisionRecords } from "./decision-records.mjs";',
+        'import { renameDecisionRecord, runDecisionRecordsCli, scanDecisionRecords, validateDecisionRecords } from "./decision-records.mjs";',
         "import type {",
         "  DecisionId, DecisionIndex, DecisionIndexEntry, DecisionIndexStoredEntry, DecisionTag,",
-        "  DecisionScan, DecisionScanOptions, DecisionSourceRevision, DecisionValidationResult",
+        "  DecisionRenameOptions, DecisionRenamePlan, DecisionRenameResult, DecisionScan, DecisionScanOptions, DecisionSourceRevision, DecisionValidationResult",
         '} from "./decision-records.mjs";',
         "declare const decisionId: DecisionId;",
         "declare const index: DecisionIndex;",
@@ -131,7 +136,12 @@ test("generated decision declarations expose a portable CLI API", async () => {
         "const options: DecisionScanOptions = {};",
         "const scan: Promise<DecisionScan> = scanDecisionRecords(options);",
         "const validation: Promise<DecisionValidationResult> = validateDecisionRecords(options);",
+        'const renameOptions: DecisionRenameOptions = { source: "legacy", target: "260101-renamed" };',
+        "const renamed: Promise<DecisionRenameResult> = renameDecisionRecord(renameOptions);",
+        "declare const renamePlan: DecisionRenamePlan;",
         "void runDecisionRecordsCli([]);",
+        "void renamePlan;",
+        "void renamed;",
         "void decisionId;",
         "void index;",
         "void indexEntry;",

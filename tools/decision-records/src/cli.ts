@@ -42,6 +42,7 @@ import {
   applyLockedDecisionChanges,
   decisionTransactionLockFailure
 } from "./decision-transaction.ts";
+import { renameDecisionRecord } from "./decision-rename.ts";
 import {
   DecisionCollectionLockError,
   withDecisionCollectionMutationLock
@@ -336,6 +337,45 @@ async function runStage(
       " (" +
       result.pendingFileCount +
       " files in the pending decision scope).\n"
+  );
+  return 0;
+}
+
+async function runRename(
+  args: CliArgsFor<"rename">,
+  io: DecisionRecordsCliIo
+): Promise<number> {
+  const result = await renameDecisionRecord({
+    ...decisionLocation(args),
+    preflight: args.preflight,
+    renameRecordedDecision: args.renameRecordedDecision,
+    source: args.source,
+    target: args.target
+  });
+  if (result.status === "error") {
+    printDecisionFailure(result, io);
+    return result.exitCode;
+  }
+  if (result.status === "attention") {
+    printDecisionAttention(result, io);
+    return result.exitCode;
+  }
+  io.stdout("Decision rename " + result.outcome + ":\n");
+  io.stdout("- old ID: " + result.plan.oldId + "\n");
+  io.stdout("- new ID: " + result.plan.newId + "\n");
+  io.stdout("- old name: " + result.plan.oldName + "\n");
+  io.stdout("- new name: " + result.plan.newName + "\n");
+  io.stdout("- old sourcePath: " + result.plan.oldSourcePath + "\n");
+  io.stdout("- new sourcePath: " + result.plan.newSourcePath + "\n");
+  io.stdout(
+    "- affected relations: " +
+      (result.plan.affectedCandidateRelationCount +
+        result.plan.affectedEstablishedRelationCount) +
+      " (candidate " +
+      result.plan.affectedCandidateRelationCount +
+      ", established " +
+      result.plan.affectedEstablishedRelationCount +
+      ")\n"
   );
   return 0;
 }
@@ -1038,6 +1078,8 @@ async function runMutationCommand(
       return await runMarkAligned(args, io);
     case "new":
       return await runNew(args, io);
+    case "rename":
+      return await runRename(args, io);
     case "stage":
       return await runStage(args, io);
   }
@@ -1084,7 +1126,7 @@ function errorText(error: unknown): string {
   return decisionFileSystemErrorText(error);
 }
 
-export { scanDecisionRecords, validateDecisionRecords };
+export { renameDecisionRecord, scanDecisionRecords, validateDecisionRecords };
 export type {
   DecisionAlignment,
   DecisionCandidateDocument,
@@ -1115,6 +1157,11 @@ export type {
   EstablishedDecisionStatus,
   DecisionValidationResult
 } from "./types.ts";
+export type {
+  DecisionRenameOptions,
+  DecisionRenamePlan,
+  DecisionRenameResult
+} from "./decision-rename.ts";
 
 if (isMainModule(import.meta.url)) {
   process.exitCode = await runDecisionRecordsCli();

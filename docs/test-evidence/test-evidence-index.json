@@ -3342,7 +3342,7 @@
     "DECISION-GENERATED-ARTIFACTS-001": {
       "keys": {
         "search": [
-          "DECISION-GENERATED-ARTIFACTS-001 生成决策声明提供可移植 CLI API 分发声明必须从 CLI 运行时导出机械生成，保留既有决策类型并携带可由隔离 TypeScript 消费者解析的最小可达闭包。 根声明与五个可达声明文件保持同步；其中 CLI I/O 声明与 CLI API 一同分发，且整个声明树不引用 TypeScript 源文件或 index-runtime。 隔离消费者可以导入运行时函数和既有公开决策类型，并通过严格 TypeScript 编译。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision declarations expose a portable CLI API bun test --test-name-pattern=\"^generated\\ decision\\ declarations\\ expose\\ a\\ portable\\ CLI\\ API$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-GENERATED-ARTIFACTS-001 生成决策声明提供可移植 CLI API 分发声明必须从 CLI 运行时导出机械生成，保留既有决策类型和 rename SDK，并携带可由隔离 TypeScript 消费者解析的最小可达闭包。 根声明与六个可达声明文件保持同步；其中 CLI I/O、rename 和 CLI API 声明一同分发，且整个声明树不引用 TypeScript 源文件或 index-runtime。 隔离消费者可以导入运行时函数、既有公开决策类型和 rename SDK，并通过严格 TypeScript 编译。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision declarations expose a portable CLI API bun test --test-name-pattern=\"^generated\\ decision\\ declarations\\ expose\\ a\\ portable\\ CLI\\ API$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -3356,9 +3356,9 @@
         ],
         "id": "DECISION-GENERATED-ARTIFACTS-001",
         "line": 1,
-        "searchText": "生成决策声明提供可移植 CLI API 分发声明必须从 CLI 运行时导出机械生成，保留既有决策类型并携带可由隔离 TypeScript 消费者解析的最小可达闭包。 根声明与五个可达声明文件保持同步；其中 CLI I/O 声明与 CLI API 一同分发，且整个声明树不引用 TypeScript 源文件或 index-runtime。 隔离消费者可以导入运行时函数和既有公开决策类型，并通过严格 TypeScript 编译。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision declarations expose a portable CLI API bun test --test-name-pattern=\"^generated\\ decision\\ declarations\\ expose\\ a\\ portable\\ CLI\\ API$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "生成决策声明提供可移植 CLI API 分发声明必须从 CLI 运行时导出机械生成，保留既有决策类型和 rename SDK，并携带可由隔离 TypeScript 消费者解析的最小可达闭包。 根声明与六个可达声明文件保持同步；其中 CLI I/O、rename 和 CLI API 声明一同分发，且整个声明树不引用 TypeScript 源文件或 index-runtime。 隔离消费者可以导入运行时函数、既有公开决策类型和 rename SDK，并通过严格 TypeScript 编译。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision declarations expose a portable CLI API bun test --test-name-pattern=\"^generated\\ decision\\ declarations\\ expose\\ a\\ portable\\ CLI\\ API$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/generated-decision-declarations-expose-portable-cli-api.md",
-        "summary": "分发声明必须从 CLI 运行时导出机械生成，保留既有决策类型并携带可由隔离 TypeScript 消费者解析的最小可达闭包。",
+        "summary": "分发声明必须从 CLI 运行时导出机械生成，保留既有决策类型和 rename SDK，并携带可由隔离 TypeScript 消费者解析的最小可达闭包。",
         "title": "生成决策声明提供可移植 CLI API"
       }
     },
@@ -4372,6 +4372,190 @@
         "sourcePath": "decision-records/shared-relation-graph-traces-bounded-bidirectional-subgraphs.md",
         "summary": "共享关系图按方向和最大深度返回确定的内部子图。",
         "title": "共享关系图执行有界双向追踪"
+      }
+    },
+    "DECISION-RENAME-ESTABLISHED-001": {
+      "keys": {
+        "search": [
+          "DECISION-RENAME-ESTABLISHED-001 建立记录 rename 保留日期并重建索引 已建立 legacy Decision rename 使用 `createdAt` 的 UTC 日期形成新 ID，并在同一事务移动 sourcePath 和重建完整索引。 rename 后新文件使用目标 name basename，旧 sourcePath 不再存在。 索引仅以新 ID 及新 sourcePath 投影该建立记录，严格检查通过。 tools/decision-records/tests/rename.test.ts > Decision rename keeps the established date, moves its source, and rebuilds the complete index bun test --test-name-pattern=\"^Decision rename keeps the established date, moves its source, and rebuilds the complete index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/rename.test.ts > Decision rename keeps the established date, moves its source, and rebuilds the complete index",
+          "bun test --test-name-pattern=\"^Decision rename keeps the established date, moves its source, and rebuilds the complete index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-RENAME-ESTABLISHED-001",
+        "line": 1,
+        "searchText": "建立记录 rename 保留日期并重建索引 已建立 legacy Decision rename 使用 `createdAt` 的 UTC 日期形成新 ID，并在同一事务移动 sourcePath 和重建完整索引。 rename 后新文件使用目标 name basename，旧 sourcePath 不再存在。 索引仅以新 ID 及新 sourcePath 投影该建立记录，严格检查通过。 tools/decision-records/tests/rename.test.ts > Decision rename keeps the established date, moves its source, and rebuilds the complete index bun test --test-name-pattern=\"^Decision rename keeps the established date, moves its source, and rebuilds the complete index$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/rename-established-index.md",
+        "summary": "已建立 legacy Decision rename 使用 `createdAt` 的 UTC 日期形成新 ID，并在同一事务移动 sourcePath 和重建完整索引。",
+        "title": "建立记录 rename 保留日期并重建索引"
+      }
+    },
+    "DECISION-RENAME-HISTORY-001": {
+      "keys": {
+        "search": [
+          "DECISION-RENAME-HISTORY-001 已记录 Decision 需要 rename 专属确认 进入 Git HEAD 的 Decision identity 仅可由 `--rename-recorded-decision` 明确确认当前工作树 rename，且不重写历史。 缺少确认时 CLI 返回 rename 专属 flag 提示且 source 不变。 带确认 flag 的同一 rename 成功。 tools/decision-records/tests/rename.test.ts > Decision rename requires recorded-history confirmation without changing the source bun test --test-name-pattern=\"^Decision rename requires recorded-history confirmation without changing the source$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/rename.test.ts > Decision rename requires recorded-history confirmation without changing the source",
+          "bun test --test-name-pattern=\"^Decision rename requires recorded-history confirmation without changing the source$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-RENAME-HISTORY-001",
+        "line": 1,
+        "searchText": "已记录 Decision 需要 rename 专属确认 进入 Git HEAD 的 Decision identity 仅可由 `--rename-recorded-decision` 明确确认当前工作树 rename，且不重写历史。 缺少确认时 CLI 返回 rename 专属 flag 提示且 source 不变。 带确认 flag 的同一 rename 成功。 tools/decision-records/tests/rename.test.ts > Decision rename requires recorded-history confirmation without changing the source bun test --test-name-pattern=\"^Decision rename requires recorded-history confirmation without changing the source$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/rename-recorded-history.md",
+        "summary": "进入 Git HEAD 的 Decision identity 仅可由 `--rename-recorded-decision` 明确确认当前工作树 rename，且不重写历史。",
+        "title": "已记录 Decision 需要 rename 专属确认"
+      }
+    },
+    "DECISION-RENAME-LOCK-CLEANUP-001": {
+      "keys": {
+        "search": [
+          "DECISION-RENAME-LOCK-CLEANUP-001 rename 提交后锁清理失败保留提交事实 Decision rename 的文件和索引已提交后，collection lock 清理失败必须报告 `committed-cleanup-pending` 与锁诊断，不能退化为 `no-change`。 CLI 返回非零注意状态并包含锁清理 diagnostic 和 committed outcome。 新 sourcePath 与新 ID 索引项仍存在，证明提交结果未被掩盖。 tools/decision-records/tests/rename.test.ts > Decision rename reports committed cleanup when its lock release fails after publication bun test --test-name-pattern=\"^Decision rename reports committed cleanup when its lock release fails after publication$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/rename.test.ts > Decision rename reports committed cleanup when its lock release fails after publication",
+          "bun test --test-name-pattern=\"^Decision rename reports committed cleanup when its lock release fails after publication$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-RENAME-LOCK-CLEANUP-001",
+        "line": 1,
+        "searchText": "rename 提交后锁清理失败保留提交事实 Decision rename 的文件和索引已提交后，collection lock 清理失败必须报告 `committed-cleanup-pending` 与锁诊断，不能退化为 `no-change`。 CLI 返回非零注意状态并包含锁清理 diagnostic 和 committed outcome。 新 sourcePath 与新 ID 索引项仍存在，证明提交结果未被掩盖。 tools/decision-records/tests/rename.test.ts > Decision rename reports committed cleanup when its lock release fails after publication bun test --test-name-pattern=\"^Decision rename reports committed cleanup when its lock release fails after publication$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/rename-lock-cleanup.md",
+        "summary": "Decision rename 的文件和索引已提交后，collection lock 清理失败必须报告 `committed-cleanup-pending` 与锁诊断，不能退化为 `no-change`。",
+        "title": "rename 提交后锁清理失败保留提交事实"
+      }
+    },
+    "DECISION-RENAME-PATH-001": {
+      "keys": {
+        "search": [
+          "DECISION-RENAME-PATH-001 冲突 name 路径回退完整 ID basename 目标 name basename 已被其他合法 sourcePath 占用时，Decision rename 只能回退完整 target ID basename，且不得覆盖占用来源。 rename 在完整 ID basename 建立目标文件。 已占用 name path 的原 Markdown 保持原字节和 identity。 tools/decision-records/tests/rename.test.ts > Decision rename falls back to its dated basename without overwriting an occupied name path bun test --test-name-pattern=\"^Decision rename falls back to its dated basename without overwriting an occupied name path$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/rename.test.ts > Decision rename falls back to its dated basename without overwriting an occupied name path",
+          "bun test --test-name-pattern=\"^Decision rename falls back to its dated basename without overwriting an occupied name path$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-RENAME-PATH-001",
+        "line": 1,
+        "searchText": "冲突 name 路径回退完整 ID basename 目标 name basename 已被其他合法 sourcePath 占用时，Decision rename 只能回退完整 target ID basename，且不得覆盖占用来源。 rename 在完整 ID basename 建立目标文件。 已占用 name path 的原 Markdown 保持原字节和 identity。 tools/decision-records/tests/rename.test.ts > Decision rename falls back to its dated basename without overwriting an occupied name path bun test --test-name-pattern=\"^Decision rename falls back to its dated basename without overwriting an occupied name path$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/rename-path-fallback.md",
+        "summary": "目标 name basename 已被其他合法 sourcePath 占用时，Decision rename 只能回退完整 target ID basename，且不得覆盖占用来源。",
+        "title": "冲突 name 路径回退完整 ID basename"
+      }
+    },
+    "DECISION-RENAME-PENDING-001": {
+      "keys": {
+        "search": [
+          "DECISION-RENAME-PENDING-001 rename 不遗留旧 ID 的 pending stage 快照 rename 不自动 stage；Decision collection 已有 pending snapshot 时必须拒绝 rename，以免 staged view 保存旧 identity。 已建立 pending stage snapshot 后 rename 返回 `rename-pending-stage-conflict`。 冲突拒绝后 source Markdown 未被改写。 tools/decision-records/tests/rename.test.ts > Decision rename leaves an existing pending stage untouched by rejecting the rename bun test --test-name-pattern=\"^Decision rename leaves an existing pending stage untouched by rejecting the rename$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/rename.test.ts > Decision rename leaves an existing pending stage untouched by rejecting the rename",
+          "bun test --test-name-pattern=\"^Decision rename leaves an existing pending stage untouched by rejecting the rename$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-RENAME-PENDING-001",
+        "line": 1,
+        "searchText": "rename 不遗留旧 ID 的 pending stage 快照 rename 不自动 stage；Decision collection 已有 pending snapshot 时必须拒绝 rename，以免 staged view 保存旧 identity。 已建立 pending stage snapshot 后 rename 返回 `rename-pending-stage-conflict`。 冲突拒绝后 source Markdown 未被改写。 tools/decision-records/tests/rename.test.ts > Decision rename leaves an existing pending stage untouched by rejecting the rename bun test --test-name-pattern=\"^Decision rename leaves an existing pending stage untouched by rejecting the rename$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/rename-pending-stage.md",
+        "summary": "rename 不自动 stage；Decision collection 已有 pending snapshot 时必须拒绝 rename，以免 staged view 保存旧 identity。",
+        "title": "rename 不遗留旧 ID 的 pending stage 快照"
+      }
+    },
+    "DECISION-RENAME-PREFLIGHT-001": {
+      "keys": {
+        "search": [
+          "DECISION-RENAME-PREFLIGHT-001 preflight 零写入且 legacy candidate 显式选日期 rename preflight 不得写入；legacy Decision candidate 的 name target 必须失败为 `date-required`，完整 dated target 才能明确迁移日期。 preflight 和日期不匹配 target 后原 Markdown 字节保持不变。 legacy candidate 的 name target 返回 `rename-date-required`，完整 dated target 成功。 tools/decision-records/tests/rename.test.ts > Decision rename preflight is read-only and legacy candidates require an explicit dated target bun test --test-name-pattern=\"^Decision rename preflight is read-only and legacy candidates require an explicit dated target$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/rename.test.ts > Decision rename preflight is read-only and legacy candidates require an explicit dated target",
+          "bun test --test-name-pattern=\"^Decision rename preflight is read-only and legacy candidates require an explicit dated target$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-RENAME-PREFLIGHT-001",
+        "line": 1,
+        "searchText": "preflight 零写入且 legacy candidate 显式选日期 rename preflight 不得写入；legacy Decision candidate 的 name target 必须失败为 `date-required`，完整 dated target 才能明确迁移日期。 preflight 和日期不匹配 target 后原 Markdown 字节保持不变。 legacy candidate 的 name target 返回 `rename-date-required`，完整 dated target 成功。 tools/decision-records/tests/rename.test.ts > Decision rename preflight is read-only and legacy candidates require an explicit dated target bun test --test-name-pattern=\"^Decision rename preflight is read-only and legacy candidates require an explicit dated target$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/rename-preflight-legacy.md",
+        "summary": "rename preflight 不得写入；legacy Decision candidate 的 name target 必须失败为 `date-required`，完整 dated target 才能明确迁移日期。",
+        "title": "preflight 零写入且 legacy candidate 显式选日期"
+      }
+    },
+    "DECISION-RENAME-RELATIONS-001": {
+      "keys": {
+        "search": [
+          "DECISION-RENAME-RELATIONS-001 Decision rename 改写受管关系目标 Decision rename 必须把 candidate 与 established 记录中指向旧 ID 的结构化 relation target 改为新完整 ID。 candidate Markdown relation 保存新 ID。 建立索引中的 relation state 保存新 ID，集合检查通过。 tools/decision-records/tests/rename.test.ts > Decision rename rewrites candidate and established structured relation targets bun test --test-name-pattern=\"^Decision rename rewrites candidate and established structured relation targets$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/rename.test.ts > Decision rename rewrites candidate and established structured relation targets",
+          "bun test --test-name-pattern=\"^Decision rename rewrites candidate and established structured relation targets$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-RENAME-RELATIONS-001",
+        "line": 1,
+        "searchText": "Decision rename 改写受管关系目标 Decision rename 必须把 candidate 与 established 记录中指向旧 ID 的结构化 relation target 改为新完整 ID。 candidate Markdown relation 保存新 ID。 建立索引中的 relation state 保存新 ID，集合检查通过。 tools/decision-records/tests/rename.test.ts > Decision rename rewrites candidate and established structured relation targets bun test --test-name-pattern=\"^Decision rename rewrites candidate and established structured relation targets$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/rename-relations.md",
+        "summary": "Decision rename 必须把 candidate 与 established 记录中指向旧 ID 的结构化 relation target 改为新完整 ID。",
+        "title": "Decision rename 改写受管关系目标"
+      }
+    },
+    "DECISION-RENAME-SELECTOR-001": {
+      "keys": {
+        "search": [
+          "DECISION-RENAME-SELECTOR-001 dated source 精确选择且 name 歧义拒绝猜测 source 先按 calendar-valid dated ID 精确匹配，失败后才按 unique name 匹配；archive rename 保持 archive 生命周期位置。 重名 name source 返回 `rename-source-ambiguous`。 同名 dated source 仍被精确 rename，旧 archive path 被新 archive path 替代。 tools/decision-records/tests/rename.test.ts > Decision rename uses a dated source exactly, reports ambiguous names, and preserves archive placement bun test --test-name-pattern=\"^Decision rename uses a dated source exactly, reports ambiguous names, and preserves archive placement$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/rename.test.ts > Decision rename uses a dated source exactly, reports ambiguous names, and preserves archive placement",
+          "bun test --test-name-pattern=\"^Decision rename uses a dated source exactly, reports ambiguous names, and preserves archive placement$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-RENAME-SELECTOR-001",
+        "line": 1,
+        "searchText": "dated source 精确选择且 name 歧义拒绝猜测 source 先按 calendar-valid dated ID 精确匹配，失败后才按 unique name 匹配；archive rename 保持 archive 生命周期位置。 重名 name source 返回 `rename-source-ambiguous`。 同名 dated source 仍被精确 rename，旧 archive path 被新 archive path 替代。 tools/decision-records/tests/rename.test.ts > Decision rename uses a dated source exactly, reports ambiguous names, and preserves archive placement bun test --test-name-pattern=\"^Decision rename uses a dated source exactly, reports ambiguous names, and preserves archive placement$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/rename-dated-source.md",
+        "summary": "source 先按 calendar-valid dated ID 精确匹配，失败后才按 unique name 匹配；archive rename 保持 archive 生命周期位置。",
+        "title": "dated source 精确选择且 name 歧义拒绝猜测"
       }
     },
     "DECISION-SCAN-FILESYSTEM-DIAGNOSTIC-001": {
@@ -6079,7 +6263,7 @@
     "GATE-DEFINITION-CATALOG-001": {
       "keys": {
         "search": [
-          "GATE-DEFINITION-CATALOG-001 Gate 完整 Definition 以 release tag 控制 activation 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；base 只聚合不需要 tag 的 32 个 Check，release tag 激活全部 60 个 Check 与 release DAG。 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/8/5` 个语义 Check；62 个当前测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。 base/release Definition Check ID 完全相同，语义 Check 的 requiredTag 和固定命令精确匹配独立期望；release 的 `release:skill-prepare` 没有普通前置且处于 Definition 首位，`release:skill-version` 依赖由 catalog 派生的全部普通前置和 prepare，`pack:skills` 只依赖版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。 scripts/vibe-check.test.ts > gate catalog keeps one complete Definition for base and release tags bun test --test-name-pattern=\"^gate catalog keeps one complete Definition for base and release tags$\" ./scripts/vibe-check.test.ts"
+          "GATE-DEFINITION-CATALOG-001 Gate 完整 Definition 以 release tag 控制 activation 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；base 只聚合不需要 tag 的 32 个 Check，release tag 激活全部 60 个 Check 与 release DAG。 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/8/5` 个语义 Check；64 个当前测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。 base/release Definition Check ID 完全相同，语义 Check 的 requiredTag 和固定命令精确匹配独立期望；release 的 `release:skill-prepare` 没有普通前置且处于 Definition 首位，`release:skill-version` 依赖由 catalog 派生的全部普通前置和 prepare，`pack:skills` 只依赖版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。 scripts/vibe-check.test.ts > gate catalog keeps one complete Definition for base and release tags bun test --test-name-pattern=\"^gate catalog keeps one complete Definition for base and release tags$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -6093,7 +6277,7 @@
         ],
         "id": "GATE-DEFINITION-CATALOG-001",
         "line": 1,
-        "searchText": "Gate 完整 Definition 以 release tag 控制 activation 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；base 只聚合不需要 tag 的 32 个 Check，release tag 激活全部 60 个 Check 与 release DAG。 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/8/5` 个语义 Check；62 个当前测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。 base/release Definition Check ID 完全相同，语义 Check 的 requiredTag 和固定命令精确匹配独立期望；release 的 `release:skill-prepare` 没有普通前置且处于 Definition 首位，`release:skill-version` 依赖由 catalog 派生的全部普通前置和 prepare，`pack:skills` 只依赖版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。 scripts/vibe-check.test.ts > gate catalog keeps one complete Definition for base and release tags bun test --test-name-pattern=\"^gate catalog keeps one complete Definition for base and release tags$\" ./scripts/vibe-check.test.ts",
+        "searchText": "Gate 完整 Definition 以 release tag 控制 activation 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；base 只聚合不需要 tag 的 32 个 Check，release tag 激活全部 60 个 Check 与 release DAG。 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/8/5` 个语义 Check；64 个当前测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。 base/release Definition Check ID 完全相同，语义 Check 的 requiredTag 和固定命令精确匹配独立期望；release 的 `release:skill-prepare` 没有普通前置且处于 Definition 首位，`release:skill-version` 依赖由 catalog 派生的全部普通前置和 prepare，`pack:skills` 只依赖版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。 scripts/vibe-check.test.ts > gate catalog keeps one complete Definition for base and release tags bun test --test-name-pattern=\"^gate catalog keeps one complete Definition for base and release tags$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-catalog-builds-complete-tagged-definition.md",
         "summary": "每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；base 只聚合不需要 tag 的 32 个 Check，release tag 激活全部 60 个 Check 与 release DAG。",
         "title": "Gate 完整 Definition 以 release tag 控制 activation"
@@ -9828,6 +10012,351 @@
         "sourcePath": "investigation-report/set-relations-restores-all-report-and-index-bytes-after-publish-failure.md",
         "summary": "关系事务发布失败时恢复已写报告和索引的旧字节。",
         "title": "set-relations restores all report and index bytes after publish failure"
+      }
+    },
+    "INVESTIGATION-RENAME-CANDIDATE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-CANDIDATE-001 candidate rename preflight 保持零写入 candidate rename 使用 formedAt UTC 日期形成 target ID；preflight 使用同一计划但不写入 candidate。 preflight 后 candidate 原字节保持不变。 执行后 candidate locator 和 frontmatter ID 都迁移为 formedAt 同日的新 identity。 tools/investigation-report/tests/rename.test.ts > Investigation candidate rename has a read-only preflight and retains formedAt date bun test --test-name-pattern=\"^Investigation candidate rename has a read-only preflight and retains formedAt date$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation candidate rename has a read-only preflight and retains formedAt date",
+          "bun test --test-name-pattern=\"^Investigation candidate rename has a read-only preflight and retains formedAt date$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-CANDIDATE-001",
+        "line": 1,
+        "searchText": "candidate rename preflight 保持零写入 candidate rename 使用 formedAt UTC 日期形成 target ID；preflight 使用同一计划但不写入 candidate。 preflight 后 candidate 原字节保持不变。 执行后 candidate locator 和 frontmatter ID 都迁移为 formedAt 同日的新 identity。 tools/investigation-report/tests/rename.test.ts > Investigation candidate rename has a read-only preflight and retains formedAt date bun test --test-name-pattern=\"^Investigation candidate rename has a read-only preflight and retains formedAt date$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-candidate-preflight.md",
+        "summary": "candidate rename 使用 formedAt UTC 日期形成 target ID；preflight 使用同一计划但不写入 candidate。",
+        "title": "candidate rename preflight 保持零写入"
+      }
+    },
+    "INVESTIGATION-RENAME-FORMAL-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-FORMAL-001 formal rename 闭合关系资源和索引 formal Investigation rename 必须在同一事务更新 formal/candidate relation、受管 resource link、owner tree、report sourcePath 与正式索引。 旧 report 和 owner 路径消失，新 owner 文件、candidate/formal relation 与资源链接都使用新 ID。 正式索引只投影新 ID/sourcePath，严格同步检查通过。 tools/investigation-report/tests/rename.test.ts > Investigation rename moves the report and owner resources while rewriting managed relations and links bun test --test-name-pattern=\"^Investigation rename moves the report and owner resources while rewriting managed relations and links$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation rename moves the report and owner resources while rewriting managed relations and links",
+          "bun test --test-name-pattern=\"^Investigation rename moves the report and owner resources while rewriting managed relations and links$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-FORMAL-001",
+        "line": 1,
+        "searchText": "formal rename 闭合关系资源和索引 formal Investigation rename 必须在同一事务更新 formal/candidate relation、受管 resource link、owner tree、report sourcePath 与正式索引。 旧 report 和 owner 路径消失，新 owner 文件、candidate/formal relation 与资源链接都使用新 ID。 正式索引只投影新 ID/sourcePath，严格同步检查通过。 tools/investigation-report/tests/rename.test.ts > Investigation rename moves the report and owner resources while rewriting managed relations and links bun test --test-name-pattern=\"^Investigation rename moves the report and owner resources while rewriting managed relations and links$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-formal-resources.md",
+        "summary": "formal Investigation rename 必须在同一事务更新 formal/candidate relation、受管 resource link、owner tree、report sourcePath 与正式索引。",
+        "title": "formal rename 闭合关系资源和索引"
+      }
+    },
+    "INVESTIGATION-RENAME-HISTORY-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-HISTORY-001 recorded report 与 candidate 使用各自确认 flag 已进入 Git HEAD 的 formal report 与 candidate rename 分别要求 `--rename-recorded-report` 或 `--rename-recorded-candidate`，确认只适用于当前工作树。 无 flag 的 formal 和 candidate rename 分别返回对应 attention。 使用对应 flag 后两种 rename 都成功。 tools/investigation-report/tests/rename.test.ts > Investigation rename requires its recorded report or candidate confirmation without rewriting Git history bun test --test-name-pattern=\"^Investigation rename requires its recorded report or candidate confirmation without rewriting Git history$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation rename requires its recorded report or candidate confirmation without rewriting Git history",
+          "bun test --test-name-pattern=\"^Investigation rename requires its recorded report or candidate confirmation without rewriting Git history$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-HISTORY-001",
+        "line": 1,
+        "searchText": "recorded report 与 candidate 使用各自确认 flag 已进入 Git HEAD 的 formal report 与 candidate rename 分别要求 `--rename-recorded-report` 或 `--rename-recorded-candidate`，确认只适用于当前工作树。 无 flag 的 formal 和 candidate rename 分别返回对应 attention。 使用对应 flag 后两种 rename 都成功。 tools/investigation-report/tests/rename.test.ts > Investigation rename requires its recorded report or candidate confirmation without rewriting Git history bun test --test-name-pattern=\"^Investigation rename requires its recorded report or candidate confirmation without rewriting Git history$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-recorded-history.md",
+        "summary": "已进入 Git HEAD 的 formal report 与 candidate rename 分别要求 `--rename-recorded-report` 或 `--rename-recorded-candidate`，确认只适用于当前工作树。",
+        "title": "recorded report 与 candidate 使用各自确认 flag"
+      }
+    },
+    "INVESTIGATION-RENAME-LEGACY-PATH-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-LEGACY-PATH-001 legacy ID 迁移可保留既有 sourcePath legacy Investigation 以同名 target 迁移为 dated ID 时，即使 name/sourcePath 保持不变，也必须更新 ID、关系、owner 和正式索引；不得把同路径误判为旧身份残留。 report 仍位于原 sourcePath，但 frontmatter、dependent relation 和索引全部使用新 dated ID。 旧 owner 消失，新 ID owner 存在。 tools/investigation-report/tests/rename.test.ts > Investigation rename migrates a legacy ID while retaining an unchanged source path bun test --test-name-pattern=\"^Investigation rename migrates a legacy ID while retaining an unchanged source path$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation rename migrates a legacy ID while retaining an unchanged source path",
+          "bun test --test-name-pattern=\"^Investigation rename migrates a legacy ID while retaining an unchanged source path$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-LEGACY-PATH-001",
+        "line": 1,
+        "searchText": "legacy ID 迁移可保留既有 sourcePath legacy Investigation 以同名 target 迁移为 dated ID 时，即使 name/sourcePath 保持不变，也必须更新 ID、关系、owner 和正式索引；不得把同路径误判为旧身份残留。 report 仍位于原 sourcePath，但 frontmatter、dependent relation 和索引全部使用新 dated ID。 旧 owner 消失，新 ID owner 存在。 tools/investigation-report/tests/rename.test.ts > Investigation rename migrates a legacy ID while retaining an unchanged source path bun test --test-name-pattern=\"^Investigation rename migrates a legacy ID while retaining an unchanged source path$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-legacy-same-path.md",
+        "summary": "legacy Investigation 以同名 target 迁移为 dated ID 时，即使 name/sourcePath 保持不变，也必须更新 ID、关系、owner 和正式索引；不得把同路径误判为旧身份残留。",
+        "title": "legacy ID 迁移可保留既有 sourcePath"
+      }
+    },
+    "INVESTIGATION-RENAME-NO-CHANGE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-NO-CHANGE-001 已规范 identity 的 rename 零写入 source 与 target 解析到同一 ID、name、sourcePath 和 resource owner 时，Investigation rename 是零写入 no-op，不需要 recorded-history 确认，也不移动 owner。 结果 `changed: false`，计划中的关系、资源引用和 owner 移动计数均为零。 report、index 和 owner 文件字节保持不变，发布、资源移动和写入 hook 均未执行。 tools/investigation-report/tests/rename.test.ts > Investigation rename is a zero-write no-op when ID name path and owner already match bun test --test-name-pattern=\"^Investigation rename is a zero-write no-op when ID name path and owner already match$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation rename is a zero-write no-op when ID name path and owner already match",
+          "bun test --test-name-pattern=\"^Investigation rename is a zero-write no-op when ID name path and owner already match$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-NO-CHANGE-001",
+        "line": 1,
+        "searchText": "已规范 identity 的 rename 零写入 source 与 target 解析到同一 ID、name、sourcePath 和 resource owner 时，Investigation rename 是零写入 no-op，不需要 recorded-history 确认，也不移动 owner。 结果 `changed: false`，计划中的关系、资源引用和 owner 移动计数均为零。 report、index 和 owner 文件字节保持不变，发布、资源移动和写入 hook 均未执行。 tools/investigation-report/tests/rename.test.ts > Investigation rename is a zero-write no-op when ID name path and owner already match bun test --test-name-pattern=\"^Investigation rename is a zero-write no-op when ID name path and owner already match$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-no-change.md",
+        "summary": "source 与 target 解析到同一 ID、name、sourcePath 和 resource owner 时，Investigation rename 是零写入 no-op，不需要 recorded-history 确认，也不移动 owner。",
+        "title": "已规范 identity 的 rename 零写入"
+      }
+    },
+    "INVESTIGATION-RENAME-OWNER-CONTENT-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-OWNER-CONTENT-001 恢复前 target owner 内容漂移保留外部字节 rename 对 owner tree 的预演必须包含目录/文件类型、权限、文件大小和内容摘要。索引发布失败后的恢复先证明 target owner 仍等于本事务复制的快照；任何同名文件内容漂移都不得回拷、删除或报告完整 rollback。 index writer 在资源迁移后改写 target 同名文件并失败时，结果是 `partial-or-unknown`。 外部替换字节保留，旧 owner 不被伪造恢复，report/index 的独立恢复仍完成。 tools/investigation-report/tests/rename.test.ts > Investigation rename preserves a changed target owner when index publication then fails bun test --test-name-pattern=\"^Investigation rename preserves a changed target owner when index publication then fails$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation rename preserves a changed target owner when index publication then fails",
+          "bun test --test-name-pattern=\"^Investigation rename preserves a changed target owner when index publication then fails$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-OWNER-CONTENT-001",
+        "line": 1,
+        "searchText": "恢复前 target owner 内容漂移保留外部字节 rename 对 owner tree 的预演必须包含目录/文件类型、权限、文件大小和内容摘要。索引发布失败后的恢复先证明 target owner 仍等于本事务复制的快照；任何同名文件内容漂移都不得回拷、删除或报告完整 rollback。 index writer 在资源迁移后改写 target 同名文件并失败时，结果是 `partial-or-unknown`。 外部替换字节保留，旧 owner 不被伪造恢复，report/index 的独立恢复仍完成。 tools/investigation-report/tests/rename.test.ts > Investigation rename preserves a changed target owner when index publication then fails bun test --test-name-pattern=\"^Investigation rename preserves a changed target owner when index publication then fails$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-owner-content-drift.md",
+        "summary": "rename 对 owner tree 的预演必须包含目录/文件类型、权限、文件大小和内容摘要。索引发布失败后的恢复先证明 target owner 仍等于本事务复制的快照；任何同名文件内容漂移都不得回拷、删除或报告完整 rollback。",
+        "title": "恢复前 target owner 内容漂移保留外部字节"
+      }
+    },
+    "INVESTIGATION-RENAME-OWNER-RACE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-OWNER-RACE-001 rename 不覆盖并发出现的 resource owner target owner target 在最终预检后出现时，rename 必须以 exclusive owner claim 拒绝迁移并回滚自身 report/index 写入；不得用目录 rename 覆盖空或非空目标，也不得清理并发创建的内容。 结果为 `rolled-back`，旧 report、index 和旧 owner 内容恢复。 并发 target 的 `external.txt` 保留，rename 不留下新 report 路径。 tools/investigation-report/tests/rename.test.ts > Investigation rename never overwrites an owner target that appears after final validation bun test --test-name-pattern=\"^Investigation rename never overwrites an owner target that appears after final validation$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation rename never overwrites an owner target that appears after final validation",
+          "bun test --test-name-pattern=\"^Investigation rename never overwrites an owner target that appears after final validation$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-OWNER-RACE-001",
+        "line": 1,
+        "searchText": "rename 不覆盖并发出现的 resource owner target owner target 在最终预检后出现时，rename 必须以 exclusive owner claim 拒绝迁移并回滚自身 report/index 写入；不得用目录 rename 覆盖空或非空目标，也不得清理并发创建的内容。 结果为 `rolled-back`，旧 report、index 和旧 owner 内容恢复。 并发 target 的 `external.txt` 保留，rename 不留下新 report 路径。 tools/investigation-report/tests/rename.test.ts > Investigation rename never overwrites an owner target that appears after final validation bun test --test-name-pattern=\"^Investigation rename never overwrites an owner target that appears after final validation$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-owner-target-race.md",
+        "summary": "owner target 在最终预检后出现时，rename 必须以 exclusive owner claim 拒绝迁移并回滚自身 report/index 写入；不得用目录 rename 覆盖空或非空目标，也不得清理并发创建的内容。",
+        "title": "rename 不覆盖并发出现的 resource owner target"
+      }
+    },
+    "INVESTIGATION-RENAME-OWNER-SOURCE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-OWNER-SOURCE-001 source owner 终检后的新成员不被递归删除 rename 删除旧 owner 只能逐个删除仍匹配预演内容的文件，并从内向外 `rmdir` 空目录；终检后出现的新成员必须停止事务，不得递归删除或伪报完整恢复。 hook 在旧 owner 最后验证后加入成员时，结果是 `partial-or-unknown`。 原 owner 文件、新成员与 target 复制均被保留，report/index 回到旧内容且不留下新 report 路径。 tools/investigation-report/tests/rename.test.ts > Investigation rename preserves an old owner member that appears after its final validation bun test --test-name-pattern=\"^Investigation rename preserves an old owner member that appears after its final validation$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation rename preserves an old owner member that appears after its final validation",
+          "bun test --test-name-pattern=\"^Investigation rename preserves an old owner member that appears after its final validation$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-OWNER-SOURCE-001",
+        "line": 1,
+        "searchText": "source owner 终检后的新成员不被递归删除 rename 删除旧 owner 只能逐个删除仍匹配预演内容的文件，并从内向外 `rmdir` 空目录；终检后出现的新成员必须停止事务，不得递归删除或伪报完整恢复。 hook 在旧 owner 最后验证后加入成员时，结果是 `partial-or-unknown`。 原 owner 文件、新成员与 target 复制均被保留，report/index 回到旧内容且不留下新 report 路径。 tools/investigation-report/tests/rename.test.ts > Investigation rename preserves an old owner member that appears after its final validation bun test --test-name-pattern=\"^Investigation rename preserves an old owner member that appears after its final validation$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-source-owner-drift.md",
+        "summary": "rename 删除旧 owner 只能逐个删除仍匹配预演内容的文件，并从内向外 `rmdir` 空目录；终检后出现的新成员必须停止事务，不得递归删除或伪报完整恢复。",
+        "title": "source owner 终检后的新成员不被递归删除"
+      }
+    },
+    "INVESTIGATION-RENAME-PATH-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-PATH-001 被占用 name 路径回退完整 ID basename formal target name path 已被独立 sourcePath 占用时，rename 只能回退完整 target ID basename，且不能覆盖该来源。 rename 选择完整 ID sourcePath。 已占用 name path 的报告字节保持不变。 tools/investigation-report/tests/rename.test.ts > Investigation rename falls back to an ID basename without overwriting another report path bun test --test-name-pattern=\"^Investigation rename falls back to an ID basename without overwriting another report path$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation rename falls back to an ID basename without overwriting another report path",
+          "bun test --test-name-pattern=\"^Investigation rename falls back to an ID basename without overwriting another report path$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-PATH-001",
+        "line": 1,
+        "searchText": "被占用 name 路径回退完整 ID basename formal target name path 已被独立 sourcePath 占用时，rename 只能回退完整 target ID basename，且不能覆盖该来源。 rename 选择完整 ID sourcePath。 已占用 name path 的报告字节保持不变。 tools/investigation-report/tests/rename.test.ts > Investigation rename falls back to an ID basename without overwriting another report path bun test --test-name-pattern=\"^Investigation rename falls back to an ID basename without overwriting another report path$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-path-fallback.md",
+        "summary": "formal target name path 已被独立 sourcePath 占用时，rename 只能回退完整 target ID basename，且不能覆盖该来源。",
+        "title": "被占用 name 路径回退完整 ID basename"
+      }
+    },
+    "INVESTIGATION-RENAME-RECOVERY-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-RECOVERY-001 rename 拒绝来源漂移并在索引失败后恢复 Investigation rename 在提交前必须回读来源；索引发布失败时必须恢复旧 report/sourcePath 和旧索引，且不保留新路径。 准备后的 source 漂移返回 `no-change`，不会创建 target report。 注入索引写失败后结果为 `rolled-back`，旧 report、owner resource 与 index 字节恢复且 target report/owner 不存在。 tools/investigation-report/tests/rename.test.ts > Investigation rename rejects source drift before writing and restores its report and index after index publication failure bun test --test-name-pattern=\"^Investigation rename rejects source drift before writing and restores its report and index after index publication failure$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation rename rejects source drift before writing and restores its report and index after index publication failure",
+          "bun test --test-name-pattern=\"^Investigation rename rejects source drift before writing and restores its report and index after index publication failure$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-RECOVERY-001",
+        "line": 1,
+        "searchText": "rename 拒绝来源漂移并在索引失败后恢复 Investigation rename 在提交前必须回读来源；索引发布失败时必须恢复旧 report/sourcePath 和旧索引，且不保留新路径。 准备后的 source 漂移返回 `no-change`，不会创建 target report。 注入索引写失败后结果为 `rolled-back`，旧 report、owner resource 与 index 字节恢复且 target report/owner 不存在。 tools/investigation-report/tests/rename.test.ts > Investigation rename rejects source drift before writing and restores its report and index after index publication failure bun test --test-name-pattern=\"^Investigation rename rejects source drift before writing and restores its report and index after index publication failure$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-recovery.md",
+        "summary": "Investigation rename 在提交前必须回读来源；索引发布失败时必须恢复旧 report/sourcePath 和旧索引，且不保留新路径。",
+        "title": "rename 拒绝来源漂移并在索引失败后恢复"
+      }
+    },
+    "INVESTIGATION-RENAME-REPORT-SOURCE-DRIFT-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-REPORT-SOURCE-DRIFT-001 回滚不覆盖外部重建的旧报告路径 rename 回滚只可在旧路径缺失时使用 exclusive create 恢复原始字节和权限；旧路径在移动后被外部重建时不得覆盖。新路径也只能在仍等于本事务写入快照时删除。 index writer 在报告移动后重建旧路径并失败时，外部旧报告字节保持不变。 本事务新路径安全删除，但事务报告 `partial-or-unknown`，提示后续对账而非伪报完整 rollback。 tools/investigation-report/tests/rename.test.ts > Investigation rename preserves an old report rebuilt after its move bun test --test-name-pattern=\"^Investigation rename preserves an old report rebuilt after its move$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation rename preserves an old report rebuilt after its move",
+          "bun test --test-name-pattern=\"^Investigation rename preserves an old report rebuilt after its move$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-REPORT-SOURCE-DRIFT-001",
+        "line": 1,
+        "searchText": "回滚不覆盖外部重建的旧报告路径 rename 回滚只可在旧路径缺失时使用 exclusive create 恢复原始字节和权限；旧路径在移动后被外部重建时不得覆盖。新路径也只能在仍等于本事务写入快照时删除。 index writer 在报告移动后重建旧路径并失败时，外部旧报告字节保持不变。 本事务新路径安全删除，但事务报告 `partial-or-unknown`，提示后续对账而非伪报完整 rollback。 tools/investigation-report/tests/rename.test.ts > Investigation rename preserves an old report rebuilt after its move bun test --test-name-pattern=\"^Investigation rename preserves an old report rebuilt after its move$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-report-source-drift.md",
+        "summary": "rename 回滚只可在旧路径缺失时使用 exclusive create 恢复原始字节和权限；旧路径在移动后被外部重建时不得覆盖。新路径也只能在仍等于本事务写入快照时删除。",
+        "title": "回滚不覆盖外部重建的旧报告路径"
+      }
+    },
+    "INVESTIGATION-RENAME-REPORT-TARGET-DRIFT-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-REPORT-TARGET-DRIFT-001 回滚不删除外部改写的新报告路径 rename 在写入报告前记录旧路径原始字节和权限、写入后记录本事务的新路径字节和权限。索引发布失败时，只有新路径仍完全等于本事务快照才可删除；外部内容漂移必须保留并返回 `partial-or-unknown`。 index writer 在报告移动后改写新路径并失败时，外部报告字节不被删除。 缺失的旧路径以 exclusive create 恢复，旧索引也恢复，但结果不会伪报完整 rollback。 tools/investigation-report/tests/rename.test.ts > Investigation rename preserves a changed target report when index publication then fails bun test --test-name-pattern=\"^Investigation rename preserves a changed target report when index publication then fails$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation rename preserves a changed target report when index publication then fails",
+          "bun test --test-name-pattern=\"^Investigation rename preserves a changed target report when index publication then fails$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-REPORT-TARGET-DRIFT-001",
+        "line": 1,
+        "searchText": "回滚不删除外部改写的新报告路径 rename 在写入报告前记录旧路径原始字节和权限、写入后记录本事务的新路径字节和权限。索引发布失败时，只有新路径仍完全等于本事务快照才可删除；外部内容漂移必须保留并返回 `partial-or-unknown`。 index writer 在报告移动后改写新路径并失败时，外部报告字节不被删除。 缺失的旧路径以 exclusive create 恢复，旧索引也恢复，但结果不会伪报完整 rollback。 tools/investigation-report/tests/rename.test.ts > Investigation rename preserves a changed target report when index publication then fails bun test --test-name-pattern=\"^Investigation rename preserves a changed target report when index publication then fails$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-report-target-drift.md",
+        "summary": "rename 在写入报告前记录旧路径原始字节和权限、写入后记录本事务的新路径字节和权限。索引发布失败时，只有新路径仍完全等于本事务快照才可删除；外部内容漂移必须保留并返回 `partial-or-unknown`。",
+        "title": "回滚不删除外部改写的新报告路径"
+      }
+    },
+    "INVESTIGATION-RENAME-RESOURCE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-RESOURCE-001 不安全 owner tree 阻断 rename Investigation rename 预演 owner tree 时必须拒绝符号链接等非安全成员，不能移动报告或 owner。 含符号链接 owner 的 preflight 返回安全诊断。 拒绝后旧 report 和 owner 路径仍存在。 tools/investigation-report/tests/rename.test.ts > Investigation rename rejects an unsafe owner tree before moving its report or resources bun test --test-name-pattern=\"^Investigation rename rejects an unsafe owner tree before moving its report or resources$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation rename rejects an unsafe owner tree before moving its report or resources",
+          "bun test --test-name-pattern=\"^Investigation rename rejects an unsafe owner tree before moving its report or resources$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-RESOURCE-001",
+        "line": 1,
+        "searchText": "不安全 owner tree 阻断 rename Investigation rename 预演 owner tree 时必须拒绝符号链接等非安全成员，不能移动报告或 owner。 含符号链接 owner 的 preflight 返回安全诊断。 拒绝后旧 report 和 owner 路径仍存在。 tools/investigation-report/tests/rename.test.ts > Investigation rename rejects an unsafe owner tree before moving its report or resources bun test --test-name-pattern=\"^Investigation rename rejects an unsafe owner tree before moving its report or resources$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-unsafe-owner.md",
+        "summary": "Investigation rename 预演 owner tree 时必须拒绝符号链接等非安全成员，不能移动报告或 owner。",
+        "title": "不安全 owner tree 阻断 rename"
+      }
+    },
+    "INVESTIGATION-RENAME-SELECTOR-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-SELECTOR-001 dated source 精确匹配且 name 歧义报错 Investigation source selector 先精确匹配 calendar-valid dated ID，其他输入仅作为 exact name；重名不得按日期猜测。 重名 name source preflight 报 ambiguous。 带 `.md` 的 dated source 通过 CLI 精确 rename，并输出 old/new ID。 tools/investigation-report/tests/rename.test.ts > Investigation rename uses dated source IDs exactly and reports ambiguous name selectors bun test --test-name-pattern=\"^Investigation rename uses dated source IDs exactly and reports ambiguous name selectors$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation rename uses dated source IDs exactly and reports ambiguous name selectors",
+          "bun test --test-name-pattern=\"^Investigation rename uses dated source IDs exactly and reports ambiguous name selectors$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-SELECTOR-001",
+        "line": 1,
+        "searchText": "dated source 精确匹配且 name 歧义报错 Investigation source selector 先精确匹配 calendar-valid dated ID，其他输入仅作为 exact name；重名不得按日期猜测。 重名 name source preflight 报 ambiguous。 带 `.md` 的 dated source 通过 CLI 精确 rename，并输出 old/new ID。 tools/investigation-report/tests/rename.test.ts > Investigation rename uses dated source IDs exactly and reports ambiguous name selectors bun test --test-name-pattern=\"^Investigation rename uses dated source IDs exactly and reports ambiguous name selectors$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-selectors.md",
+        "summary": "Investigation source selector 先精确匹配 calendar-valid dated ID，其他输入仅作为 exact name；重名不得按日期猜测。",
+        "title": "dated source 精确匹配且 name 歧义报错"
+      }
+    },
+    "INVESTIGATION-RENAME-TARGET-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RENAME-TARGET-001 不一致或冲突 target 零写入失败 显式 dated target 必须与 formedAt UTC 日期一致且 target ID 不得已存在；失败不得写入 source。 日期不一致和已存在 target ID 都返回错误。 两类拒绝后 source Markdown 保持原字节。 tools/investigation-report/tests/rename.test.ts > Investigation rename rejects target date conflicts without writes bun test --test-name-pattern=\"^Investigation rename rejects target date conflicts without writes$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/rename.test.ts > Investigation rename rejects target date conflicts without writes",
+          "bun test --test-name-pattern=\"^Investigation rename rejects target date conflicts without writes$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RENAME-TARGET-001",
+        "line": 1,
+        "searchText": "不一致或冲突 target 零写入失败 显式 dated target 必须与 formedAt UTC 日期一致且 target ID 不得已存在；失败不得写入 source。 日期不一致和已存在 target ID 都返回错误。 两类拒绝后 source Markdown 保持原字节。 tools/investigation-report/tests/rename.test.ts > Investigation rename rejects target date conflicts without writes bun test --test-name-pattern=\"^Investigation rename rejects target date conflicts without writes$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/rename-target-conflicts.md",
+        "summary": "显式 dated target 必须与 formedAt UTC 日期一致且 target ID 不得已存在；失败不得写入 source。",
+        "title": "不一致或冲突 target 零写入失败"
       }
     },
     "INVESTIGATION-REPORT-FRONTMATTER-001": {
@@ -17766,7 +18295,7 @@
       "DECISION-FILESYSTEM-SCAN-READ-FAILURES-001": "sha256:899de702d15ae0a7ed87168ac45d6308fd544c4ca01b38bd9ad8a3a0835a0d9f",
       "DECISION-FILESYSTEM-TRANSACTION-001": "sha256:78c796f1837a3a0c4dc5b7e1b7b38e868fe053af1bfdfbcebf98d490a52cb2c4",
       "DECISION-FIRST-ESTABLISHMENT-001": "sha256:d5cfabda96a99227ba2f641624dd4a20b9a6f5342bad0b8c7cb5f1ae734b1fc3",
-      "DECISION-GENERATED-ARTIFACTS-001": "sha256:3a54c099646d4fbdcbac0ef52025c551b2c0e7bf0e95a6ccdb25cb20c4e7d6ac",
+      "DECISION-GENERATED-ARTIFACTS-001": "sha256:5929832cdd66e5722f922e95a2a16ac2771c5d1ef9aca6f75abdfc3a0269a5c0",
       "DECISION-GENERATED-METADATA-001": "sha256:66294a46153bc12ad45d3ecd1b22116ab4e02f9aa8b8b847639303c9435f2002",
       "DECISION-GENERATED-SCHEMA-001": "sha256:4e76bae4e51d59b2f883167716e2bfa4d2a57ee0dbe96dfe6a59aef8140016a0",
       "DECISION-ID-INDEX-001": "sha256:d27fbe7fe4843bbbc7747c7630f73463493509ce4892c269866da86c92ab6272",
@@ -17811,6 +18340,14 @@
       "DECISION-RELATION-GRAPH-SELF-001": "sha256:d7c07a6984dad2248391afee378aae8f3a0a7d7bb64a118cd041d706c54168d1",
       "DECISION-RELATION-GRAPH-STRUCTURE-001": "sha256:2df4244739b416c6bbc66d86575f4d8b8b9cf4a4f2d47dbc6ba74fc341a756e5",
       "DECISION-RELATION-GRAPH-TRACE-001": "sha256:b8b9a61d8459adba44a12a7b786f7baaa3c6e3f1e43fa517d2a830cff37937c4",
+      "DECISION-RENAME-ESTABLISHED-001": "sha256:ca7ddf394e968a242110fd6ae9b1c58f2a23e12cdd3e0a2c9c85f7219b27de0b",
+      "DECISION-RENAME-HISTORY-001": "sha256:487845624456f2c221e16f3d7370d9ff2aa6f0b29a5456d00801ccd64a229df2",
+      "DECISION-RENAME-LOCK-CLEANUP-001": "sha256:78ab8f2d5e8449d6f3a44b5889241335a8575e8cbdfbdc67980a3ce45d010e39",
+      "DECISION-RENAME-PATH-001": "sha256:cc9d9dcae2c7705b62c5b4b98f31a567ecacaeca1de8b5e6ecf87925b48d35f1",
+      "DECISION-RENAME-PENDING-001": "sha256:2d81b4e36d9c777d0409f20dfee132ae45b7aa8e764984ac64a602b45270e614",
+      "DECISION-RENAME-PREFLIGHT-001": "sha256:ff4a8738c082d246e45edfa7da435b5545cb5a94df7d072741cfe9df8de4e9a2",
+      "DECISION-RENAME-RELATIONS-001": "sha256:fc99508dfed927207479633865559806c510f51b66344b26ae3ab3442587cd25",
+      "DECISION-RENAME-SELECTOR-001": "sha256:124dcdffcc6825fc13b74d63a5fbad52b7b78d99c33dc79ad6cbd057d2408213",
       "DECISION-SCAN-FILESYSTEM-DIAGNOSTIC-001": "sha256:2c55fc6ef196dbbf0d5faa2e563e5d9927b146b93734101afeef1008a7a64ea4",
       "DECISION-SELECTED-SYNC-001": "sha256:7c9a813540c06875ae0607c0d3f9fd455102bd9f3d63c880040e08f8726ee615",
       "DECISION-SELECTED-SYNC-MEMBERSHIP-001": "sha256:70bb63041c7f1cc9fb0d313e4bb41535eac80124ddc7151f161dd6ddd50a2b3d",
@@ -17885,7 +18422,7 @@
       "ENV-PERMISSION-RULES-001": "sha256:21a124776a169674569296131b473013b83cd4982ea6a91fde7ec22edc11b45a",
       "ENV-WORKTREE-SETUP-001": "sha256:a232485668782b975b6e416528f415886b669450f36394065848a5027441842f",
       "GATE-CLI-RESULT-001": "sha256:ae32a8a554aef5b2379fc0089e1b05a8d2c299adabf0371f4f998d78df541b6f",
-      "GATE-DEFINITION-CATALOG-001": "sha256:27a8fc3408b37538e4d28ba38068d83f03857153f0e7ac21dac16ee041257d97",
+      "GATE-DEFINITION-CATALOG-001": "sha256:5228223bf5f46787a923550298e19d52fabd6535a7b643483e91666e84e9cf7b",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:7562eb8f98b853c83356d56a7140b675965d35b78727d7a0e6e650675d7933d7",
       "GATE-DUPLICATE-DETECTION-001": "sha256:5ce85e2b84c401f0419a234702195ae2f539a9b19f40d6f0d1370ec50ec185b3",
       "GATE-FILE-SELECTION-001": "sha256:696ecc2a8db04b48eef7c5637fc0c27c3dab880f5fd4984618411587b0a74636",
@@ -18048,6 +18585,21 @@
       "INVESTIGATION-RELATION-TRANSACTION-PARSE-001": "sha256:55fe51a8b775ad482ba032a80fbdb70f4f077c7ca6a20fe325bf8bd9af6f8337",
       "INVESTIGATION-RELATION-TRANSACTION-PENDING-001": "sha256:5aaee9d215f3f416eb66727c9e863c253e51357a509fff505b22740a893c5659",
       "INVESTIGATION-RELATION-TRANSACTION-RECOVERY-001": "sha256:02c2bad3d328f3811e6c628867ab9ae6ad7d3c6f3cd3ce76b787cba58ae48650",
+      "INVESTIGATION-RENAME-CANDIDATE-001": "sha256:2d61f0741b8cc9108464c133afb632ba1ac6360c9691255c4bc00d37419b6342",
+      "INVESTIGATION-RENAME-FORMAL-001": "sha256:d8b746eb455ab9e82444efb9e9491050ce195298eefeac2dc0106f2ee0ee9e2d",
+      "INVESTIGATION-RENAME-HISTORY-001": "sha256:eaae4adc9ca9dc62bc4b5d2242e236a4c6620688f6d3ce2ac33dcbcbb71fcbf6",
+      "INVESTIGATION-RENAME-LEGACY-PATH-001": "sha256:9ae6fb7336621e8b19a10692046df07edf0deb8e9e11ec738b24b608adf8e922",
+      "INVESTIGATION-RENAME-NO-CHANGE-001": "sha256:06936a4b1ccaa83917f76421f3a1011b4626488365c2022528706ed15d20b8e4",
+      "INVESTIGATION-RENAME-OWNER-CONTENT-001": "sha256:d2f2df733744c19fc8d53b2bae7273ad39a6f40c82f1ee2c23ceabadf3edf51c",
+      "INVESTIGATION-RENAME-OWNER-RACE-001": "sha256:0dd3865fb21d9b01de1bd7e843b53bc2b955946218ecf700aff3896d32d717ab",
+      "INVESTIGATION-RENAME-OWNER-SOURCE-001": "sha256:8390dd435f4e3c387eff9276ea919e563d1070b49bbf152e4111520e86531b2e",
+      "INVESTIGATION-RENAME-PATH-001": "sha256:5e92cd0dafdf9fa881c36c7c70ee544bdd19fdf51991e2b8cad98efa354f5e63",
+      "INVESTIGATION-RENAME-RECOVERY-001": "sha256:221739ea3bf816e61631c835c804a2da03ecede4fb7dd7bc67b55f262b72fc13",
+      "INVESTIGATION-RENAME-REPORT-SOURCE-DRIFT-001": "sha256:d5058f55c6170e35cbb1c67ac1bdcf1a519aedfae38c96c34644fbbd2300037f",
+      "INVESTIGATION-RENAME-REPORT-TARGET-DRIFT-001": "sha256:1a814259636fad5ffd2048011b77b32c177f125e42fadb27670d655b5d7c4e5e",
+      "INVESTIGATION-RENAME-RESOURCE-001": "sha256:6a9e99117c2d232eef37d1e455bd33b180cf01d488b57c2bc6c54adf22d5b2bc",
+      "INVESTIGATION-RENAME-SELECTOR-001": "sha256:4f7afc2546be416e0ac03869d86e0eec0a8b3a696a1258e93f9197f05e1ac427",
+      "INVESTIGATION-RENAME-TARGET-001": "sha256:79ad95018790b517aea93150d02df597e1225c617ad7747f4a41469816a6816d",
       "INVESTIGATION-REPORT-FRONTMATTER-001": "sha256:275c3a8d7772b92445db9c875eaf3b4ebf5796292fb60b17e6705bd810f8bb3b",
       "INVESTIGATION-REPORT-STRUCTURE-001": "sha256:1192a2c396a0d369c56290ce4a1078abc4066047fc2be8672460358f5f746746",
       "INVESTIGATION-REPORT-VALIDATION-SCOPE-001": "sha256:db1402f134024dfa26d5a1673b8d03a2ac22d4a602c2db863debe518fb3d58d2",

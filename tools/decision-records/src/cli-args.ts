@@ -36,6 +36,7 @@ export type Command =
   | "list"
   | "mark-aligned"
   | "new"
+  | "rename"
   | "show"
   | "show-candidate"
   | "stage"
@@ -109,6 +110,15 @@ export type CliArgs =
         title: string;
       }
     >
+  | LocatedCommand<
+      "rename",
+      {
+        preflight: boolean;
+        renameRecordedDecision: boolean;
+        source: string;
+        target: string;
+      }
+    >
   | LocatedCommand<"show", { decisionId: DecisionId }>
   | LocatedCommand<"show-candidate", { decisionId: DecisionId }>
   | LocatedCommand<"stage", { decisionIds: DecisionId[] }>
@@ -143,6 +153,7 @@ type ParsedOptions = {
   fullTime?: boolean;
   keepUnrecordedHistory?: boolean;
   preflight?: boolean;
+  renameRecordedDecision?: boolean;
   preflightAlignment?: DecisionAlignment;
   purpose?: string;
   relation?: DecisionRelation[];
@@ -338,6 +349,15 @@ function commandArgs(
       );
     case "new":
       return newCommandArgs(decisionIds, location, options);
+    case "rename":
+      return {
+        ...location,
+        command,
+        preflight: options.preflight ?? false,
+        renameRecordedDecision: options.renameRecordedDecision ?? false,
+        source: requiredDecisionId(decisionIds) as string,
+        target: decisionIds[1] ?? ""
+      };
     case "list":
       return listCommandArgs(location, options);
     case "trace":
@@ -758,6 +778,35 @@ export function createCliProgram(
     );
   create.action((decisionId: DecisionId) =>
     execute("new", create, [decisionId])
+  );
+
+  const rename = createSubcommand(
+    program,
+    "rename",
+    "Rename one Decision ID and semantic name, then update all managed relation targets and the complete derived index."
+  )
+    .argument(
+      "<source-selector>",
+      "Standard Decision ID or unique semantic name.",
+      (value: string) => value
+    )
+    .argument(
+      "<target-name-or-id>",
+      "Semantic name or complete calendar-valid YYMMDD-name Decision ID.",
+      (value: string) => value
+    )
+    .addOption(
+      new Option(
+        "--preflight",
+        "Read and validate the complete rename plan without writing Decision Markdown or the derived index."
+      )
+    )
+    .option(
+      "--rename-recorded-decision",
+      "Confirm renaming a Decision identity that has entered Git HEAD; Git history is not rewritten."
+    );
+  rename.action((source: string, target: string) =>
+    execute("rename", rename, [source as DecisionId, target as DecisionId])
   );
 
   const stage = createSubcommand(

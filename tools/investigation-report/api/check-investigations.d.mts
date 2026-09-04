@@ -102,6 +102,38 @@ export type InvestigationCandidateDiscardResult = {
   requiresRecordedDeletionConfirmation: boolean;
 };
 
+export type InvestigationRenameOptions = {
+  investigationsDir?: string;
+  preflight?: boolean;
+  renameRecordedCandidate?: boolean;
+  renameRecordedReport?: boolean;
+  source: string;
+  target: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationRenamePlan = {
+  affectedCandidateRelationCount: number;
+  affectedEstablishedRelationCount: number;
+  affectedResourceReferenceCount: number;
+  newId: string;
+  newName: string;
+  newSourcePath: string;
+  oldId: string;
+  oldName: string;
+  oldSourcePath: string;
+  outcome: "preflight" | "ready";
+  resourceOwnerMoved: boolean;
+};
+
+export type InvestigationRenameResult = {
+  changed: boolean;
+  errors: string[];
+  indexPath: string;
+  plan: InvestigationRenamePlan | null;
+  status: "attention" | "error" | "ok";
+};
+
 export type InvestigationReportCheckOptions = {
   ids?: readonly string[];
   investigationsDir?: string;
@@ -329,3 +361,6 @@ export declare function publishInvestigationCandidates(
 export declare function discardInvestigationCandidate(
   input: unknown
 ): Promise<InvestigationCandidateDiscardResult>;
+export declare function renameInvestigationRecord(
+  options: InvestigationRenameOptions
+): Promise<InvestigationRenameResult>;

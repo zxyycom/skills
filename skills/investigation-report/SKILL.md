@@ -5,7 +5,7 @@ description: >-
   每份报告以稳定 Investigation ID 保存一轮形成时的背景、依据、结果和边界；tags 用于分类，显式直接前序关系用于认识演进。
   当前事实、长期方向与实施授权继续由各自 owner 承接。
 metadata:
-  version: "33"
+  version: "34"
 ---
 
 # Investigation Report
@@ -37,6 +37,7 @@ node scripts/check-investigations.mjs <command> [options] --root <workspace-root
 | --- | --- | --- |
 | 创建集合外 authoring scaffold | `new <investigation-id> ...` | 原子、不覆盖地创建一个 candidate；创建成功即退出 `0`。 |
 | 审阅候选 | `candidates` / `show-candidate <selector>` | 读取候选及机械 readiness，不构成语义审核或 publish 授权。 |
+| 迁移或更正身份 | `rename <source-selector> <target-name-or-id>` | 预演或事务化改写 ID/name、关系、路径、资源 owner/reference 与正式索引。 |
 | 预演候选发布 | `publish <selector...> --preflight` | 只读验证当前正式基线与显式选择的最终集合。 |
 | 正常建立选中候选 | `publish <selector...>` | 重新检查后，只把显式选择的 candidates 事务化建立为正式报告。 |
 | 丢弃候选 | `discard-candidate <selector>` | 只删除显式候选及经确认的候选 owner 资源。 |

@@ -24,6 +24,7 @@ import {
   type InvestigationDiagnostic
 } from "./diagnostics.ts";
 import { normalizeInvestigationIdInput } from "./report-path.ts";
+import { renameInvestigationRecord } from "./rename.ts";
 import { setInvestigationRelations } from "./relation-transaction.ts";
 import {
   executeInvestigationIndexStage,
@@ -68,6 +69,7 @@ type InvestigationCommand =
   | "show"
   | "show-candidate"
   | "publish"
+  | "rename"
   | "stage-index"
   | "sync-index"
   | "trace"
@@ -130,6 +132,8 @@ const booleanOptions = new Set([
   "delete-recorded-candidate",
   "write",
   "preflight",
+  "rename-recorded-candidate",
+  "rename-recorded-report",
   "help"
 ]);
 
@@ -142,6 +146,11 @@ function printHelp(
       "Usage: investigation-report new <investigation-id> --title <title> --formed-at <rfc3339> --question <question> --tag <tag>... [--relation <type=target-id>...] [options]",
       "",
       "Atomically create a non-formal authoring candidate. Creation succeeds independently of body, resource, or publish readiness."
+    ],
+    rename: [
+      "Usage: investigation-report rename <source-selector> <target-name-or-id> [--preflight] [options]",
+      "",
+      "Rename one candidate or formal report identity, all managed relations and resource references, its owner directory, and the complete formal index."
     ],
     candidates: [
       "Usage: investigation-report candidates [options]",
@@ -237,6 +246,11 @@ function printHelp(
     publish: [
       "  --preflight                   Validate the selected final collection without writing candidates, reports, resources, index, or pending"
     ],
+    rename: [
+      "  --preflight                   Validate the complete rename plan without writing reports, candidates, resources, or index",
+      "  --rename-recorded-report      Confirm a formal report identity that has entered Git HEAD",
+      "  --rename-recorded-candidate   Confirm a candidate identity that has entered Git HEAD"
+    ],
     list: [
       "  --tag <tag>                   Repeatable AND tag filter",
       "  --formed-from <timestamp>     Inclusive formedAt lower bound",
@@ -265,7 +279,7 @@ function printHelp(
           "",
           "Check, query, and maintain flat Investigation Report records and their derived index.",
           "",
-          "Commands: new, candidates, show-candidate, publish, discard-candidate, check, sync-index, list, show, trace, set-relations, stage-index, discard",
+          "Commands: new, candidates, show-candidate, publish, rename, discard-candidate, check, sync-index, list, show, trace, set-relations, stage-index, discard",
           "Run investigation-report help <command> for command options.",
           "",
           "Exit status: 0 success; 1 check, operation, or deletion-confirmation failure; 2 invalid CLI arguments."
@@ -345,6 +359,7 @@ function normalizeIdentitySelectorsAtCliBoundary(
       "show",
       "show-candidate",
       "publish",
+      "rename",
       "stage-index",
       "trace"
     ].includes(command)
@@ -456,6 +471,7 @@ function isCommand(value: string): value is InvestigationCommand {
     "show",
     "show-candidate",
     "publish",
+    "rename",
     "trace",
     "stage-index",
     "set-relations"
@@ -665,6 +681,72 @@ async function runPublish(
     published.preflight
       ? `Investigation publish preflight passed (${published.ids.join(", ")}); no candidate, formal report, resource, index, or pending state was changed.`
       : `Investigation candidates published: ${published.ids.join(", ")}.`
+  );
+  return 0;
+}
+
+async function runRename(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
+  const problem = assertAllowedOptions(input, [
+    "root",
+    "investigations-dir",
+    "preflight",
+    "rename-recorded-report",
+    "rename-recorded-candidate"
+  ]);
+  const [source, target] = input.positionals;
+  if (
+    problem !== null ||
+    source === undefined ||
+    target === undefined ||
+    input.positionals.length !== 2
+  ) {
+    return cliInvalid(
+      problem ??
+        "rename requires one source selector and one target name or ID",
+      io
+    );
+  }
+  const result = await renameInvestigationRecord({
+    ...location(input.values),
+    preflight: has(input.values, "preflight"),
+    renameRecordedCandidate: has(input.values, "rename-recorded-candidate"),
+    renameRecordedReport: has(input.values, "rename-recorded-report"),
+    source,
+    target
+  });
+  if (result.status !== "ok") {
+    return printResultErrors(
+      result.status === "attention"
+        ? "Investigation rename needs confirmation:"
+        : "Investigation rename failed:",
+      result.errors,
+      1,
+      [],
+      io,
+      result.diagnostics
+    );
+  }
+  const plan = result.plan!;
+  const outcome = result.changed
+    ? plan.outcome
+    : plan.outcome === "preflight"
+      ? "preflight"
+      : "no-change";
+  writeLine(
+    io.stdout,
+    `Investigation rename ${outcome}: ${plan.oldId} -> ${plan.newId}`
+  );
+  writeLine(io.stdout, `old name: ${plan.oldName}; new name: ${plan.newName}`);
+  writeLine(
+    io.stdout,
+    `old sourcePath: ${plan.oldSourcePath}; new sourcePath: ${plan.newSourcePath}`
+  );
+  writeLine(
+    io.stdout,
+    `affected relations: candidate ${plan.affectedCandidateRelationCount}, formal ${plan.affectedEstablishedRelationCount}; resource references: ${plan.affectedResourceReferenceCount}; owner moved: ${plan.resourceOwnerMoved}`
   );
   return 0;
 }
@@ -1403,6 +1485,8 @@ export async function runInvestigationReportCheckCli(
       return await runShowCandidate(input, io);
     case "publish":
       return await runPublish(input, io);
+    case "rename":
+      return await runRename(input, io);
     case "trace":
       return await runTrace(input, io);
     case "stage-index":
@@ -1451,6 +1535,7 @@ export {
   discardInvestigationReport,
   listInvestigationCandidates,
   publishInvestigationCandidates,
+  renameInvestigationRecord,
   queryInvestigationIndex,
   setInvestigationRelations,
   showInvestigationCandidate,
@@ -1494,6 +1579,11 @@ export type {
   InvestigationReportTraceOptions,
   InvestigationReportTraceResult
 } from "./types.ts";
+export type {
+  InvestigationRenameOptions,
+  InvestigationRenamePlan,
+  InvestigationRenameResult
+} from "./rename.ts";
 
 if (isMainModule(import.meta.url)) {
   try {

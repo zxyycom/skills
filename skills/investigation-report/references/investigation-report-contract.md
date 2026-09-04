@@ -117,6 +117,12 @@ discard-candidate <selector> [--delete-owned-resources] [--delete-recorded-candi
 2. 目标 owner 前缀下存在受管资源时，调用方必须用 `--delete-owned-resources` 显式选择删除全部这些资源。任一正式报告或其他 candidate 仍引用这些资源时拒绝，调用方须先显式迁移资源 owner 或更新引用；命令不猜测或自动转移 owner。
 3. Owner 资源树、Git `HEAD` 确认、集合锁、精确 tombstone、成员漂移、发布前恢复与提交后 cleanup 的安全规则与正式 `discard` 相同，但该事务只拥有 candidate 及其经确认资源范围。已记录 candidate 或资源第一次调用零写入要求 `--delete-recorded-candidate`；发布后 cleanup 残留仍使用 `committed-cleanup-pending`。
 
+### `rename`
+
+`rename <source-selector> <target-name-or-id> [--preflight] [--rename-recorded-report|--rename-recorded-candidate]` 迁移一个 candidate 或正式报告的 ID/name。source 先按标准 dated ID exact 解析、失败才按 unique name；target 标准 ID 直接定义目标，其他合法 kebab-case 值使用该报告 `formedAt` UTC 日生成目标 ID。显式 target 日期必须等于 `formedAt` UTC 日，ID/name/sourcePath 冲突一律零写入。正式报告优先 `<name>.md`、candidate 优先 `_candidate.<name>`，不可用才回退完整 ID locator。
+
+rename 对 ID、name、sourcePath 和 owner 都不变的规范 identity 返回 `changed: false` 的零写入 no-op，不进入 Git 确认或 lock 写入；但仅 sourcePath 相同不代表 no-op，ID 变化时仍必须更新 source、关系、资源链接、owner 与索引。其余事务在集合 lock 内重新扫描 formal/candidate 源、关系、资源、索引和 Git HEAD，再在同一恢复范围改写 source ID、全部受管 formal/candidate relation target、所有受管 `./_resources/<old-id>/...` 链接、正式 index key/state/source revision，并 no-overwrite 移动报告或 candidate 与 `_resources/<old-id>/` owner 树。报告移动在写前记录原路径字节和权限，并记录新路径的本事务字节和权限；回滚只删除仍完全相同的新路径，只以 exclusive create 恢复仍缺失的旧路径。任一路径随后出现、消失、改型、改权限或改字节时均保留现场并返回 `partial-or-unknown`。owner transfer 必须先 exclusive claim 新目录，再复制并校验预演的类型、权限、大小和内容摘要；旧 owner 只逐个删除再次证明相同的文件、再从内向外移除空目录，绝不递归删除。并发出现或随后漂移的 target/source owner 均不覆盖、不清理或伪恢复；恢复只能在 target 仍完全等于本事务复制快照时进行，否则返回 `partial-or-unknown` 留待对账。它不改变 title、formedAt、question、tags、正文判断或 relation type，也不调用 `sync-index` 或 `stage-index` 作为第二阶段。`--preflight` 完成同一计划但零写入；Git HEAD 已记录 formal/candidate 或其 owner tree 时，正式执行分别要求对应 recorded rename flag，且绝不重写历史。任何来源漂移、移动、写入或索引发布前失败都恢复旧组合或报告 partial-or-unknown；成功后不允许当前受管内容继续使用旧 ID、sourcePath 或 owner prefix。
+
 ## 索引、查询、publish 与相邻维护
 
 1. 每个正式 Investigation ID 产生一个索引 entry。state 投影由 ID 导出的 `name`、`sourcePath`、`title`、`formedAt`、`question`、`tags`、`relations` 和按规范 ID 排序的 `resourceIds`；不保存正文、candidate、反向关系副本、当前结论或资源内容摘要。

@@ -17,6 +17,7 @@ await import("./evolution.test.ts");
 await import("./unrecorded-history.test.ts");
 await import("./lifecycle-relations.test.ts");
 await import("./transaction-recovery.test.ts");
+await import("./rename.test.ts");
 await import("./filesystem-boundaries.test.ts");
 await import("./stage.test.ts");
 await import("./generated-artifacts.test.ts");

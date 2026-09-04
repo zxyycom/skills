@@ -9,3 +9,4 @@ await import("./scale.test.ts");
 await import("./staging.test.ts");
 await import("./relations.test.ts");
 await import("./transaction.test.ts");
+await import("./rename.test.ts");

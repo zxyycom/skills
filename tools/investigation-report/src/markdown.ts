@@ -109,6 +109,34 @@ export function replaceInvestigationReportRelations(
   return lines.join("\n");
 }
 
+/**
+ * Rewrites only persisted identity fields: the frontmatter ID, structured
+ * relation targets, and Markdown resource links owned by the renamed report.
+ * It intentionally leaves titles, timestamps, and ordinary body prose alone.
+ */
+export function replaceInvestigationReportIdentity(
+  markdown: string,
+  parsed: ParsedInvestigationReportDocument,
+  oldId: string,
+  nextId: string
+): string {
+  const relations = parsed.relations.map((relation) => ({
+    ...relation,
+    target: relation.target === oldId ? nextId : relation.target
+  }));
+  const withRelations = replaceInvestigationReportRelations(
+    markdown,
+    parsed,
+    relations
+  );
+  const lines = normalizeNewlines(withRelations).split("\n");
+  if (parsed.id === oldId) lines[2] = `id: ${quoteScalar(nextId)}`;
+  const ownerPrefix = `./_resources/${oldId}/`;
+  return lines
+    .join("\n")
+    .replaceAll(`](${ownerPrefix}`, `](./_resources/${nextId}/`);
+}
+
 export function serializeInvestigationReportFrontmatter(input: {
   formedAt: string;
   id: string;
