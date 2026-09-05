@@ -1,1152 +1,578 @@
 {
-  "definitionVersion": 10,
+  "definitionVersion": 11,
   "entries": {
     "260903-explore-name-collisions-in-retained-artifacts": {
-      "keys": {
-        "formed-at": [
-          1788420622000
-        ],
-        "name": [
-          "explore-name-collisions-in-retained-artifacts"
-        ],
-        "tag": [
-          "artifact-identity",
-          "change-plan",
-          "decision-records",
-          "investigation-report",
-          "naming"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T07:30:22+00:00",
-        "name": "explore-name-collisions-in-retained-artifacts",
-        "question": "Change、Decision 与 Investigation 的历史名称占用何时构成真实冲突，时间、短码或改名分别应承担什么责任？",
-        "relations": [],
-        "resourceIds": [],
-        "sourcePath": "260903-explore-name-collisions-in-retained-artifacts.md",
-        "tags": [
-          "artifact-identity",
-          "change-plan",
-          "decision-records",
-          "investigation-report",
-          "naming"
-        ],
-        "title": "保留型工件的重名需要区分语义复现与身份冲突"
-      }
+      "formedAt": "2026-09-03T07:30:22+00:00",
+      "name": "explore-name-collisions-in-retained-artifacts",
+      "question": "Change、Decision 与 Investigation 的历史名称占用何时构成真实冲突，时间、短码或改名分别应承担什么责任？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "260903-explore-name-collisions-in-retained-artifacts.md",
+      "tags": [
+        "artifact-identity",
+        "change-plan",
+        "decision-records",
+        "investigation-report",
+        "naming"
+      ],
+      "title": "保留型工件的重名需要区分语义复现与身份冲突"
     },
     "adopt-native-lock-and-atomic-write-libraries": {
-      "keys": {
-        "formed-at": [
-          1786038330000
-        ],
-        "name": [
-          "adopt-native-lock-and-atomic-write-libraries"
-        ],
-        "relation-type": [
-          "复查"
-        ],
-        "tag": [
-          "task-graph"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-07T01:45:30+08:00",
-        "name": "adopt-native-lock-and-atomic-write-libraries",
-        "question": "约束收窄后，原生锁和原子写库能否分别完整承接 task-graph 的窄责任？",
-        "relations": [
-          {
-            "target": "reject-lock-and-atomic-write-library-dependencies",
-            "type": "复查"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "adopt-native-lock-and-atomic-write-libraries.md",
-        "tags": [
-          "task-graph"
-        ],
-        "title": "约束收窄后采用原生锁与原子写库"
-      }
+      "formedAt": "2026-08-07T01:45:30+08:00",
+      "name": "adopt-native-lock-and-atomic-write-libraries",
+      "question": "约束收窄后，原生锁和原子写库能否分别完整承接 task-graph 的窄责任？",
+      "relations": [
+        {
+          "target": "reject-lock-and-atomic-write-library-dependencies",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "adopt-native-lock-and-atomic-write-libraries.md",
+      "tags": [
+        "task-graph"
+      ],
+      "title": "约束收窄后采用原生锁与原子写库"
     },
     "adopt-preflight-warning-and-single-predecessor-collapse": {
-      "keys": {
-        "formed-at": [
-          1785725121000
-        ],
-        "name": [
-          "adopt-preflight-warning-and-single-predecessor-collapse"
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "decision-records"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-03T10:45:21+08:00",
-        "name": "adopt-preflight-warning-and-single-predecessor-collapse",
-        "question": "如何用事前警告和显式单前序折叠处理尚未进入版本基线的决策演进？",
-        "relations": [
-          {
-            "target": "detect-uncommitted-decision-evolution-from-git-baselines",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "adopt-preflight-warning-and-single-predecessor-collapse.md",
-        "tags": [
-          "decision-records"
-        ],
-        "title": "采用事前警告与显式单前序折叠"
-      }
+      "formedAt": "2026-08-03T10:45:21+08:00",
+      "name": "adopt-preflight-warning-and-single-predecessor-collapse",
+      "question": "如何用事前警告和显式单前序折叠处理尚未进入版本基线的决策演进？",
+      "relations": [
+        {
+          "target": "detect-uncommitted-decision-evolution-from-git-baselines",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "adopt-preflight-warning-and-single-predecessor-collapse.md",
+      "tags": [
+        "decision-records"
+      ],
+      "title": "采用事前警告与显式单前序折叠"
     },
     "align-prompt-optimize-name-and-trigger": {
-      "keys": {
-        "formed-at": [
-          1784628632000
-        ],
-        "name": [
-          "align-prompt-optimize-name-and-trigger"
-        ],
-        "tag": [
-          "prompt-optimize"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-07-21T18:10:32+08:00",
-        "name": "align-prompt-optimize-name-and-trigger",
-        "question": "prompt-optimize 的名称怎样同时表达真实能力、人类发现入口与 agent 主动触发边界？",
-        "relations": [],
-        "resourceIds": [],
-        "sourcePath": "align-prompt-optimize-name-and-trigger.md",
-        "tags": [
-          "prompt-optimize"
-        ],
-        "title": "现名未完整表达能力，并暴露双向触发约束"
-      }
+      "formedAt": "2026-07-21T18:10:32+08:00",
+      "name": "align-prompt-optimize-name-and-trigger",
+      "question": "prompt-optimize 的名称怎样同时表达真实能力、人类发现入口与 agent 主动触发边界？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "align-prompt-optimize-name-and-trigger.md",
+      "tags": [
+        "prompt-optimize"
+      ],
+      "title": "现名未完整表达能力，并暴露双向触发约束"
     },
     "bind-mentioned-objects-to-negative-roles": {
-      "keys": {
-        "formed-at": [
-          1786616028000
-        ],
-        "name": [
-          "bind-mentioned-objects-to-negative-roles"
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T10:13:48+00:00",
-        "name": "bind-mentioned-objects-to-negative-roles",
-        "question": "负向描述为什么需要同时准确表示对象并把它绑定到排除角色？",
-        "relations": [
-          {
-            "target": "distinguish-activation-neighborhoods-from-valid-solution-space",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "bind-mentioned-objects-to-negative-roles.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "负向描述需要额外完成对象角色绑定"
-      }
+      "formedAt": "2026-08-13T10:13:48+00:00",
+      "name": "bind-mentioned-objects-to-negative-roles",
+      "question": "负向描述为什么需要同时准确表示对象并把它绑定到排除角色？",
+      "relations": [
+        {
+          "target": "distinguish-activation-neighborhoods-from-valid-solution-space",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "bind-mentioned-objects-to-negative-roles.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "负向描述需要额外完成对象角色绑定"
     },
     "bound-identifiability-of-deep-goals": {
-      "keys": {
-        "formed-at": [
-          1786613845000
-        ],
-        "name": [
-          "bound-identifiability-of-deep-goals"
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T09:37:25+00:00",
-        "name": "bound-identifiability-of-deep-goals",
-        "question": "拥有者在多大程度上能够从歧义、候选和冲突中识别深层目标？",
-        "relations": [
-          {
-            "target": "separate-semantic-fidelity-goal-fit-and-goal-explication",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "bound-identifiability-of-deep-goals.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "深层目标只有局部且不可靠的可识别性"
-      }
+      "formedAt": "2026-08-13T09:37:25+00:00",
+      "name": "bound-identifiability-of-deep-goals",
+      "question": "拥有者在多大程度上能够从歧义、候选和冲突中识别深层目标？",
+      "relations": [
+        {
+          "target": "separate-semantic-fidelity-goal-fit-and-goal-explication",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "bound-identifiability-of-deep-goals.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "深层目标只有局部且不可靠的可识别性"
     },
     "ci-clean-runner-environment-regressions": {
-      "keys": {
-        "formed-at": [
-          1788316884000
-        ],
-        "name": [
-          "ci-clean-runner-environment-regressions"
-        ],
-        "tag": [
-          "ci",
-          "git-fixture",
-          "repository-tooling",
-          "vibe-check"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-02T02:41:24+00:00",
-        "name": "ci-clean-runner-environment-regressions",
-        "question": "为什么 main 的 Package Skills 在 43f2faf 的 clean runner 上失败，而本地门禁通过？",
-        "relations": [],
-        "resourceIds": [],
-        "sourcePath": "ci-clean-runner-environment-regressions.md",
-        "tags": [
-          "ci",
-          "git-fixture",
-          "repository-tooling",
-          "vibe-check"
-        ],
-        "title": "CI clean runner 暴露 wrapper 权限与 Git fixture identity 缺口"
-      }
+      "formedAt": "2026-09-02T02:41:24+00:00",
+      "name": "ci-clean-runner-environment-regressions",
+      "question": "为什么 main 的 Package Skills 在 43f2faf 的 clean runner 上失败，而本地门禁通过？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "ci-clean-runner-environment-regressions.md",
+      "tags": [
+        "ci",
+        "git-fixture",
+        "repository-tooling",
+        "vibe-check"
+      ],
+      "title": "CI clean runner 暴露 wrapper 权限与 Git fixture identity 缺口"
     },
     "compare-human-and-ai-abstraction-defaults": {
-      "keys": {
-        "formed-at": [
-          1786619147000
-        ],
-        "name": [
-          "compare-human-and-ai-abstraction-defaults"
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T11:05:47+00:00",
-        "name": "compare-human-and-ai-abstraction-defaults",
-        "question": "人和 AI 在何种机制下会把有限规则过度抽象为具有外推权威的框架？",
-        "relations": [
-          {
-            "target": "compress-negative-revision-history-into-positive-goals",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "compare-human-and-ai-abstraction-defaults.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "人与 AI 具有不同的抽象默认偏差"
-      }
+      "formedAt": "2026-08-13T11:05:47+00:00",
+      "name": "compare-human-and-ai-abstraction-defaults",
+      "question": "人和 AI 在何种机制下会把有限规则过度抽象为具有外推权威的框架？",
+      "relations": [
+        {
+          "target": "compress-negative-revision-history-into-positive-goals",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "compare-human-and-ai-abstraction-defaults.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "人与 AI 具有不同的抽象默认偏差"
     },
     "compress-negative-revision-history-into-positive-goals": {
-      "keys": {
-        "formed-at": [
-          1786617146000
-        ],
-        "name": [
-          "compress-negative-revision-history-into-positive-goals"
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T10:32:26+00:00",
-        "name": "compress-negative-revision-history-into-positive-goals",
-        "question": "正向目标怎样压缩候选反馈与负向修正历史，而不丢失仍需独立保留的边界？",
-        "relations": [
-          {
-            "target": "distinguish-expressive-equivalence-from-construction-cost",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "compress-negative-revision-history-into-positive-goals.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "正向目标是对负向修正历史的认知压缩"
-      }
+      "formedAt": "2026-08-13T10:32:26+00:00",
+      "name": "compress-negative-revision-history-into-positive-goals",
+      "question": "正向目标怎样压缩候选反馈与负向修正历史，而不丢失仍需独立保留的边界？",
+      "relations": [
+        {
+          "target": "distinguish-expressive-equivalence-from-construction-cost",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "compress-negative-revision-history-into-positive-goals.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "正向目标是对负向修正历史的认知压缩"
     },
     "defer-standard-test-result-blocking": {
-      "keys": {
-        "formed-at": [
-          1786417716000
-        ],
-        "name": [
-          "defer-standard-test-result-blocking"
-        ],
-        "tag": [
-          "test-evidence"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-11T03:08:36Z",
-        "name": "defer-standard-test-result-blocking",
-        "question": "标准测试结果协议与阻断资格在没有实施授权时应由哪些长期载体承接？",
-        "relations": [],
-        "resourceIds": [
-          "defer-standard-test-result-blocking/design.md",
-          "defer-standard-test-result-blocking/proposal.md",
-          "defer-standard-test-result-blocking/tasks.md"
-        ],
-        "sourcePath": "defer-standard-test-result-blocking.md",
-        "tags": [
-          "test-evidence"
-        ],
-        "title": "确认延期方向并退出活动 Change"
-      }
+      "formedAt": "2026-08-11T03:08:36Z",
+      "name": "defer-standard-test-result-blocking",
+      "question": "标准测试结果协议与阻断资格在没有实施授权时应由哪些长期载体承接？",
+      "relations": [],
+      "resourceIds": [
+        "defer-standard-test-result-blocking/design.md",
+        "defer-standard-test-result-blocking/proposal.md",
+        "defer-standard-test-result-blocking/tasks.md"
+      ],
+      "sourcePath": "defer-standard-test-result-blocking.md",
+      "tags": [
+        "test-evidence"
+      ],
+      "title": "确认延期方向并退出活动 Change"
     },
     "define-git-library-selection-evidence": {
-      "keys": {
-        "formed-at": [
-          1784622685000
-        ],
-        "name": [
-          "define-git-library-selection-evidence"
-        ],
-        "tag": [
-          "git-integration"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-07-21T16:31:25+08:00",
-        "name": "define-git-library-selection-evidence",
-        "question": "TypeScript Git 库选型需要哪些 API、正确性、真实性能与维护证据？",
-        "relations": [],
-        "resourceIds": [],
-        "sourcePath": "define-git-library-selection-evidence.md",
-        "tags": [
-          "git-integration"
-        ],
-        "title": "统一选型需要正确性、性能与维护证据"
-      }
+      "formedAt": "2026-07-21T16:31:25+08:00",
+      "name": "define-git-library-selection-evidence",
+      "question": "TypeScript Git 库选型需要哪些 API、正确性、真实性能与维护证据？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "define-git-library-selection-evidence.md",
+      "tags": [
+        "git-integration"
+      ],
+      "title": "统一选型需要正确性、性能与维护证据"
     },
     "detect-uncommitted-decision-evolution-from-git-baselines": {
-      "keys": {
-        "formed-at": [
-          1785227943000
-        ],
-        "name": [
-          "detect-uncommitted-decision-evolution-from-git-baselines"
-        ],
-        "tag": [
-          "decision-records"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-07-28T16:39:03+08:00",
-        "name": "detect-uncommitted-decision-evolution-from-git-baselines",
-        "question": "Git 版本基线能否安全识别同一 Change 内尚未提交的中间决策演进候选？",
-        "relations": [],
-        "resourceIds": [],
-        "sourcePath": "detect-uncommitted-decision-evolution-from-git-baselines.md",
-        "tags": [
-          "decision-records"
-        ],
-        "title": "版本基线可发现同一变更内的决策演进候选"
-      }
+      "formedAt": "2026-07-28T16:39:03+08:00",
+      "name": "detect-uncommitted-decision-evolution-from-git-baselines",
+      "question": "Git 版本基线能否安全识别同一 Change 内尚未提交的中间决策演进候选？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "detect-uncommitted-decision-evolution-from-git-baselines.md",
+      "tags": [
+        "decision-records"
+      ],
+      "title": "版本基线可发现同一变更内的决策演进候选"
     },
     "distinguish-activation-neighborhoods-from-valid-solution-space": {
-      "keys": {
-        "formed-at": [
-          1786615149000
-        ],
-        "name": [
-          "distinguish-activation-neighborhoods-from-valid-solution-space"
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T09:59:09+00:00",
-        "name": "distinguish-activation-neighborhoods-from-valid-solution-space",
-        "question": "Transformer 中被上下文激活的关联邻域为何不能等同于任务有效解集合？",
-        "relations": [
-          {
-            "target": "separate-solution-space-positioning-from-contextual-anchoring",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "distinguish-activation-neighborhoods-from-valid-solution-space.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "关联激活邻域不等于任务有效解集合"
-      }
+      "formedAt": "2026-08-13T09:59:09+00:00",
+      "name": "distinguish-activation-neighborhoods-from-valid-solution-space",
+      "question": "Transformer 中被上下文激活的关联邻域为何不能等同于任务有效解集合？",
+      "relations": [
+        {
+          "target": "separate-solution-space-positioning-from-contextual-anchoring",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "distinguish-activation-neighborhoods-from-valid-solution-space.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "关联激活邻域不等于任务有效解集合"
     },
     "distinguish-expressive-equivalence-from-construction-cost": {
-      "keys": {
-        "formed-at": [
-          1786616874000
-        ],
-        "name": [
-          "distinguish-expressive-equivalence-from-construction-cost"
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T10:27:54+00:00",
-        "name": "distinguish-expressive-equivalence-from-construction-cost",
-        "question": "正负描述在形式表达能力等价时，为什么仍可能具有不对称的自然语言构造成本？",
-        "relations": [
-          {
-            "target": "ground-positive-negative-asymmetry-in-reference-structure",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "distinguish-expressive-equivalence-from-construction-cost.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "正负描述表达能力等价但构造成本不对称"
-      }
+      "formedAt": "2026-08-13T10:27:54+00:00",
+      "name": "distinguish-expressive-equivalence-from-construction-cost",
+      "question": "正负描述在形式表达能力等价时，为什么仍可能具有不对称的自然语言构造成本？",
+      "relations": [
+        {
+          "target": "ground-positive-negative-asymmetry-in-reference-structure",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "distinguish-expressive-equivalence-from-construction-cost.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "正负描述表达能力等价但构造成本不对称"
     },
     "evaluate-mcpshell-as-user-scoped-workspace-bridge": {
-      "keys": {
-        "formed-at": [
-          1788418029000
-        ],
-        "name": [
-          "evaluate-mcpshell-as-user-scoped-workspace-bridge"
-        ],
-        "tag": [
-          "agent-workspace-isolation",
-          "mcpshell",
-          "preliminary-research",
-          "workspace-bridge"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T06:47:09+00:00",
-        "name": "evaluate-mcpshell-as-user-scoped-workspace-bridge",
-        "question": "是否值得继续验证一个初始化型 skill，使带个人配置的 agent 能通过 MCPShell 操作隔离工作区，并获得预实现的 shell 与 diff？",
-        "relations": [],
-        "resourceIds": [],
-        "sourcePath": "evaluate-mcpshell-as-user-scoped-workspace-bridge.md",
-        "tags": [
-          "agent-workspace-isolation",
-          "mcpshell",
-          "preliminary-research",
-          "workspace-bridge"
-        ],
-        "title": "MCPShell 工作区桥接前期调查：通过 SSH 暴露 shell 与 diff"
-      }
+      "formedAt": "2026-09-03T06:47:09+00:00",
+      "name": "evaluate-mcpshell-as-user-scoped-workspace-bridge",
+      "question": "是否值得继续验证一个初始化型 skill，使带个人配置的 agent 能通过 MCPShell 操作隔离工作区，并获得预实现的 shell 与 diff？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "evaluate-mcpshell-as-user-scoped-workspace-bridge.md",
+      "tags": [
+        "agent-workspace-isolation",
+        "mcpshell",
+        "preliminary-research",
+        "workspace-bridge"
+      ],
+      "title": "MCPShell 工作区桥接前期调查：通过 SSH 暴露 shell 与 diff"
     },
     "ground-positive-negative-asymmetry-in-reference-structure": {
-      "keys": {
-        "formed-at": [
-          1786614419000
-        ],
-        "name": [
-          "ground-positive-negative-asymmetry-in-reference-structure"
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T09:46:59+00:00",
-        "name": "ground-positive-negative-asymmetry-in-reference-structure",
-        "question": "正向与负向描述的使用差异是否主要来自参照结构，而不是肯定或否定句式？",
-        "relations": [
-          {
-            "target": "recover-candidate-model-from-negative-description-dispute",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "ground-positive-negative-asymmetry-in-reference-structure.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "正负描述的不对称来自参照结构而非句式"
-      }
+      "formedAt": "2026-08-13T09:46:59+00:00",
+      "name": "ground-positive-negative-asymmetry-in-reference-structure",
+      "question": "正向与负向描述的使用差异是否主要来自参照结构，而不是肯定或否定句式？",
+      "relations": [
+        {
+          "target": "recover-candidate-model-from-negative-description-dispute",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "ground-positive-negative-asymmetry-in-reference-structure.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "正负描述的不对称来自参照结构而非句式"
     },
     "identify-operation-time-skill-rerouting-gap": {
-      "keys": {
-        "formed-at": [
-          1786513181000
-        ],
-        "name": [
-          "identify-operation-time-skill-rerouting-gap"
-        ],
-        "tag": [
-          "skill-orchestration"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-12T05:39:41+00:00",
-        "name": "identify-operation-time-skill-rerouting-gap",
-        "question": "长任务进入具体副作用动作时，现有 Skill 发现机制为什么没有可靠触发领域重路由？",
-        "relations": [],
-        "resourceIds": [],
-        "sourcePath": "identify-operation-time-skill-rerouting-gap.md",
-        "tags": [
-          "skill-orchestration"
-        ],
-        "title": "首次发现改进没有覆盖动作时重路由"
-      }
+      "formedAt": "2026-08-12T05:39:41+00:00",
+      "name": "identify-operation-time-skill-rerouting-gap",
+      "question": "长任务进入具体副作用动作时，现有 Skill 发现机制为什么没有可靠触发领域重路由？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "identify-operation-time-skill-rerouting-gap.md",
+      "tags": [
+        "skill-orchestration"
+      ],
+      "title": "首次发现改进没有覆盖动作时重路由"
     },
     "identify-routing-and-coordination-gaps-in-context-management": {
-      "keys": {
-        "formed-at": [
-          1784627415000
-        ],
-        "name": [
-          "identify-routing-and-coordination-gaps-in-context-management"
-        ],
-        "tag": [
-          "context-management"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-07-21T17:50:15+08:00",
-        "name": "identify-routing-and-coordination-gaps-in-context-management",
-        "question": "现有上下文管理 skills 距离统一上下文管理系统还缺少哪些路由与协作能力？",
-        "relations": [],
-        "resourceIds": [],
-        "sourcePath": "identify-routing-and-coordination-gaps-in-context-management.md",
-        "tags": [
-          "context-management"
-        ],
-        "title": "现有组合的主要差距位于路由与协作层"
-      }
+      "formedAt": "2026-07-21T17:50:15+08:00",
+      "name": "identify-routing-and-coordination-gaps-in-context-management",
+      "question": "现有上下文管理 skills 距离统一上下文管理系统还缺少哪些路由与协作能力？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "identify-routing-and-coordination-gaps-in-context-management.md",
+      "tags": [
+        "context-management"
+      ],
+      "title": "现有组合的主要差距位于路由与协作层"
     },
     "identify-vibe-001-jscpd-path-and-lizard-version-gaps": {
-      "keys": {
-        "formed-at": [
-          1788170700000
-        ],
-        "name": [
-          "identify-vibe-001-jscpd-path-and-lizard-version-gaps"
-        ],
-        "tag": [
-          "duplicate-detection",
-          "function-metrics",
-          "vibe-check"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-31T10:05:00+00:00",
-        "name": "identify-vibe-001-jscpd-path-and-lizard-version-gaps",
-        "question": "锁定 @zxyycom/vibe-check 0.0.1 时，重复检测的临时配置相对路径和函数指标的 Lizard 可用性是否足以形成可信门禁？",
-        "relations": [],
-        "resourceIds": [],
-        "sourcePath": "identify-vibe-001-jscpd-path-and-lizard-version-gaps.md",
-        "tags": [
-          "duplicate-detection",
-          "function-metrics",
-          "vibe-check"
-        ],
-        "title": "识别 Vibe 0.0.1 的 jscpd 路径与 Lizard 版本缺口"
-      }
+      "formedAt": "2026-08-31T10:05:00+00:00",
+      "name": "identify-vibe-001-jscpd-path-and-lizard-version-gaps",
+      "question": "锁定 @zxyycom/vibe-check 0.0.1 时，重复检测的临时配置相对路径和函数指标的 Lizard 可用性是否足以形成可信门禁？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "identify-vibe-001-jscpd-path-and-lizard-version-gaps.md",
+      "tags": [
+        "duplicate-detection",
+        "function-metrics",
+        "vibe-check"
+      ],
+      "title": "识别 Vibe 0.0.1 的 jscpd 路径与 Lizard 版本缺口"
     },
     "model-goals-as-layered-partially-expressible-intentions": {
-      "keys": {
-        "formed-at": [
-          1786611677000
-        ],
-        "name": [
-          "model-goals-as-layered-partially-expressible-intentions"
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T09:01:17+00:00",
-        "name": "model-goals-as-layered-partially-expressible-intentions",
-        "question": "目标应怎样同时表达深层意向、当前代理、偏好、现实约束与允许偏离的理由？",
-        "relations": [
-          {
-            "target": "treat-goals-as-complete-in-abstraction-and-incremental-in-practice",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "model-goals-as-layered-partially-expressible-intentions.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "目标是层级化且部分可表达的动态意向"
-      }
+      "formedAt": "2026-08-13T09:01:17+00:00",
+      "name": "model-goals-as-layered-partially-expressible-intentions",
+      "question": "目标应怎样同时表达深层意向、当前代理、偏好、现实约束与允许偏离的理由？",
+      "relations": [
+        {
+          "target": "treat-goals-as-complete-in-abstraction-and-incremental-in-practice",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "model-goals-as-layered-partially-expressible-intentions.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "目标是层级化且部分可表达的动态意向"
     },
     "preserve-redacted-conversations-in-two-derived-forms": {
-      "keys": {
-        "formed-at": [
-          1786676231000
-        ],
-        "name": [
-          "preserve-redacted-conversations-in-two-derived-forms"
-        ],
-        "tag": [
-          "codex"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-14T02:57:11+00:00",
-        "name": "preserve-redacted-conversations-in-two-derived-forms",
-        "question": "怎样从含敏感运行时数据的 Codex JSONL 形成可审计近全量档案和可阅读对话初稿？",
-        "relations": [],
-        "resourceIds": [
-          "preserve-redacted-conversations-in-two-derived-forms/conversation-final-dialogue.initial.md",
-          "preserve-redacted-conversations-in-two-derived-forms/conversation-near-full.redacted.jsonl"
-        ],
-        "sourcePath": "preserve-redacted-conversations-in-two-derived-forms.md",
-        "tags": [
-          "codex"
-        ],
-        "title": "形成脱敏近全量档案与机械对话初稿"
-      }
+      "formedAt": "2026-08-14T02:57:11+00:00",
+      "name": "preserve-redacted-conversations-in-two-derived-forms",
+      "question": "怎样从含敏感运行时数据的 Codex JSONL 形成可审计近全量档案和可阅读对话初稿？",
+      "relations": [],
+      "resourceIds": [
+        "preserve-redacted-conversations-in-two-derived-forms/conversation-final-dialogue.initial.md",
+        "preserve-redacted-conversations-in-two-derived-forms/conversation-near-full.redacted.jsonl"
+      ],
+      "sourcePath": "preserve-redacted-conversations-in-two-derived-forms.md",
+      "tags": [
+        "codex"
+      ],
+      "title": "形成脱敏近全量档案与机械对话初稿"
     },
     "recognize-document-projections-as-part-of-goal-formation": {
-      "keys": {
-        "formed-at": [
-          1786612070000
-        ],
-        "name": [
-          "recognize-document-projections-as-part-of-goal-formation"
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T09:07:50+00:00",
-        "name": "recognize-document-projections-as-part-of-goal-formation",
-        "question": "文档作为目标的时点投影时，怎样通过反馈反过来参与目标形成？",
-        "relations": [
-          {
-            "target": "model-goals-as-layered-partially-expressible-intentions",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "recognize-document-projections-as-part-of-goal-formation.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "文档投影会反过来参与目标形成"
-      }
+      "formedAt": "2026-08-13T09:07:50+00:00",
+      "name": "recognize-document-projections-as-part-of-goal-formation",
+      "question": "文档作为目标的时点投影时，怎样通过反馈反过来参与目标形成？",
+      "relations": [
+        {
+          "target": "model-goals-as-layered-partially-expressible-intentions",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "recognize-document-projections-as-part-of-goal-formation.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "文档投影会反过来参与目标形成"
     },
     "recover-candidate-model-from-negative-description-dispute": {
-      "keys": {
-        "formed-at": [
-          1786610110000
-        ],
-        "name": [
-          "recover-candidate-model-from-negative-description-dispute"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T08:35:10+00:00",
-        "name": "recover-candidate-model-from-negative-description-dispute",
-        "question": "负向描述争议暴露了怎样的候选概念层次与后续调查边界？",
-        "relations": [],
-        "resourceIds": [],
-        "sourcePath": "recover-candidate-model-from-negative-description-dispute.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "从负向描述争议恢复候选概念模型"
-      }
+      "formedAt": "2026-08-13T08:35:10+00:00",
+      "name": "recover-candidate-model-from-negative-description-dispute",
+      "question": "负向描述争议暴露了怎样的候选概念层次与后续调查边界？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "recover-candidate-model-from-negative-description-dispute.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "从负向描述争议恢复候选概念模型"
     },
     "reject-lock-and-atomic-write-library-dependencies": {
-      "keys": {
-        "formed-at": [
-          1786024415000
-        ],
-        "name": [
-          "reject-lock-and-atomic-write-library-dependencies"
-        ],
-        "tag": [
-          "task-graph"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-06T21:53:35+08:00",
-        "name": "reject-lock-and-atomic-write-library-dependencies",
-        "question": "现有 npm 候选能否实质缩减 task-graph 的锁、恢复与原子写事务协议？",
-        "relations": [],
-        "resourceIds": [],
-        "sourcePath": "reject-lock-and-atomic-write-library-dependencies.md",
-        "tags": [
-          "task-graph"
-        ],
-        "title": "现有候选无法缩减 task-graph 的关键事务协议"
-      }
+      "formedAt": "2026-08-06T21:53:35+08:00",
+      "name": "reject-lock-and-atomic-write-library-dependencies",
+      "question": "现有 npm 候选能否实质缩减 task-graph 的锁、恢复与原子写事务协议？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "reject-lock-and-atomic-write-library-dependencies.md",
+      "tags": [
+        "task-graph"
+      ],
+      "title": "现有候选无法缩减 task-graph 的关键事务协议"
     },
     "remove-supervision-around-lock-and-atomic-write-libraries": {
-      "keys": {
-        "formed-at": [
-          1786069723000
-        ],
-        "name": [
-          "remove-supervision-around-lock-and-atomic-write-libraries"
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "task-graph"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-07T10:28:43+08:00",
-        "name": "remove-supervision-around-lock-and-atomic-write-libraries",
-        "question": "删除外围监督协议后，已选锁与原子写库应继续承接哪些责任？",
-        "relations": [
-          {
-            "target": "adopt-native-lock-and-atomic-write-libraries",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "remove-supervision-around-lock-and-atomic-write-libraries.md",
-        "tags": [
-          "task-graph"
-        ],
-        "title": "保留成熟库并删除外围监督协议"
-      }
+      "formedAt": "2026-08-07T10:28:43+08:00",
+      "name": "remove-supervision-around-lock-and-atomic-write-libraries",
+      "question": "删除外围监督协议后，已选锁与原子写库应继续承接哪些责任？",
+      "relations": [
+        {
+          "target": "adopt-native-lock-and-atomic-write-libraries",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "remove-supervision-around-lock-and-atomic-write-libraries.md",
+      "tags": [
+        "task-graph"
+      ],
+      "title": "保留成熟库并删除外围监督协议"
     },
     "return-from-framework-strategy-to-description-polarity": {
-      "keys": {
-        "formed-at": [
-          1786620049000
-        ],
-        "name": [
-          "return-from-framework-strategy-to-description-polarity"
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T11:20:49+00:00",
-        "name": "return-from-framework-strategy-to-description-polarity",
-        "question": "哪些框架策略认识仍服务正负描述主线，哪些已经构成应退出本主题的旁支？",
-        "relations": [
-          {
-            "target": "separate-framework-reconstruction-from-local-repair",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "return-from-framework-strategy-to-description-polarity.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "收回框架重构旁支并恢复正负描述主线"
-      }
+      "formedAt": "2026-08-13T11:20:49+00:00",
+      "name": "return-from-framework-strategy-to-description-polarity",
+      "question": "哪些框架策略认识仍服务正负描述主线，哪些已经构成应退出本主题的旁支？",
+      "relations": [
+        {
+          "target": "separate-framework-reconstruction-from-local-repair",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "return-from-framework-strategy-to-description-polarity.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "收回框架重构旁支并恢复正负描述主线"
     },
     "select-functional-utilities-and-data-structures": {
-      "keys": {
-        "formed-at": [
-          1786074200000
-        ],
-        "name": [
-          "select-functional-utilities-and-data-structures"
-        ],
-        "tag": [
-          "implementation-libraries"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-07T11:43:20+08:00",
-        "name": "select-functional-utilities-and-data-structures",
-        "question": "哪些函数式工具与专用数据结构库值得预装，它们的适用边界是什么？",
-        "relations": [],
-        "resourceIds": [],
-        "sourcePath": "select-functional-utilities-and-data-structures.md",
-        "tags": [
-          "implementation-libraries"
-        ],
-        "title": "预装候选的适用价值与依赖边界"
-      }
+      "formedAt": "2026-08-07T11:43:20+08:00",
+      "name": "select-functional-utilities-and-data-structures",
+      "question": "哪些函数式工具与专用数据结构库值得预装，它们的适用边界是什么？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "select-functional-utilities-and-data-structures.md",
+      "tags": [
+        "implementation-libraries"
+      ],
+      "title": "预装候选的适用价值与依赖边界"
     },
     "select-neverthrow-and-project-option": {
-      "keys": {
-        "formed-at": [
-          1786074253000
-        ],
-        "name": [
-          "select-neverthrow-and-project-option"
-        ],
-        "tag": [
-          "implementation-libraries"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-07T11:44:13+08:00",
-        "name": "select-neverthrow-and-project-option",
-        "question": "本项目应预装哪个轻量 Result 库，并怎样与项目自有 Option 形成稳定边界？",
-        "relations": [],
-        "resourceIds": [],
-        "sourcePath": "select-neverthrow-and-project-option.md",
-        "tags": [
-          "implementation-libraries"
-        ],
-        "title": "采用 neverthrow 并由项目源码承接 Option"
-      }
+      "formedAt": "2026-08-07T11:44:13+08:00",
+      "name": "select-neverthrow-and-project-option",
+      "question": "本项目应预装哪个轻量 Result 库，并怎样与项目自有 Option 形成稳定边界？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "select-neverthrow-and-project-option.md",
+      "tags": [
+        "implementation-libraries"
+      ],
+      "title": "采用 neverthrow 并由项目源码承接 Option"
     },
     "select-pattern-matching-and-state-modeling-libraries": {
-      "keys": {
-        "formed-at": [
-          1786074236000
-        ],
-        "name": [
-          "select-pattern-matching-and-state-modeling-libraries"
-        ],
-        "tag": [
-          "implementation-libraries"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-07T11:43:56+08:00",
-        "name": "select-pattern-matching-and-state-modeling-libraries",
-        "question": "哪些库适合预装以承接穷尽匹配、判别联合与轻量有限状态机？",
-        "relations": [],
-        "resourceIds": [],
-        "sourcePath": "select-pattern-matching-and-state-modeling-libraries.md",
-        "tags": [
-          "implementation-libraries"
-        ],
-        "title": "确定穷尽匹配与轻量状态机的预装候选"
-      }
+      "formedAt": "2026-08-07T11:43:56+08:00",
+      "name": "select-pattern-matching-and-state-modeling-libraries",
+      "question": "哪些库适合预装以承接穷尽匹配、判别联合与轻量有限状态机？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "select-pattern-matching-and-state-modeling-libraries.md",
+      "tags": [
+        "implementation-libraries"
+      ],
+      "title": "确定穷尽匹配与轻量状态机的预装候选"
     },
     "separate-framework-reconstruction-from-local-repair": {
-      "keys": {
-        "formed-at": [
-          1786619604000
-        ],
-        "name": [
-          "separate-framework-reconstruction-from-local-repair"
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T11:13:24+00:00",
-        "name": "separate-framework-reconstruction-from-local-repair",
-        "question": "框架重构与框架内修补两种策略的触发条件、价值和失败模式有何不同？",
-        "relations": [
-          {
-            "target": "compare-human-and-ai-abstraction-defaults",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "separate-framework-reconstruction-from-local-repair.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "区分框架重构与框架内修补两种策略"
-      }
+      "formedAt": "2026-08-13T11:13:24+00:00",
+      "name": "separate-framework-reconstruction-from-local-repair",
+      "question": "框架重构与框架内修补两种策略的触发条件、价值和失败模式有何不同？",
+      "relations": [
+        {
+          "target": "compare-human-and-ai-abstraction-defaults",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "separate-framework-reconstruction-from-local-repair.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "区分框架重构与框架内修补两种策略"
     },
     "separate-logical-pruning-search-bias-and-path-dependence": {
-      "keys": {
-        "formed-at": [
-          1786612371000
-        ],
-        "name": [
-          "separate-logical-pruning-search-bias-and-path-dependence"
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T09:12:51+00:00",
-        "name": "separate-logical-pruning-search-bias-and-path-dependence",
-        "question": "逻辑剪枝、搜索偏置与跨时间路径依赖应怎样区分？",
-        "relations": [
-          {
-            "target": "recognize-document-projections-as-part-of-goal-formation",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "separate-logical-pruning-search-bias-and-path-dependence.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "区分逻辑剪枝、搜索偏置与路径依赖"
-      }
+      "formedAt": "2026-08-13T09:12:51+00:00",
+      "name": "separate-logical-pruning-search-bias-and-path-dependence",
+      "question": "逻辑剪枝、搜索偏置与跨时间路径依赖应怎样区分？",
+      "relations": [
+        {
+          "target": "recognize-document-projections-as-part-of-goal-formation",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "separate-logical-pruning-search-bias-and-path-dependence.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "区分逻辑剪枝、搜索偏置与路径依赖"
     },
     "separate-semantic-fidelity-goal-fit-and-goal-explication": {
-      "keys": {
-        "formed-at": [
-          1786613388000
-        ],
-        "name": [
-          "separate-semantic-fidelity-goal-fit-and-goal-explication"
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T09:29:48+00:00",
-        "name": "separate-semantic-fidelity-goal-fit-and-goal-explication",
-        "question": "内容语义保真、结果符合深层目标与目标通过反馈显化有何不同？",
-        "relations": [
-          {
-            "target": "recognize-document-projections-as-part-of-goal-formation",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "separate-semantic-fidelity-goal-fit-and-goal-explication.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "区分内容保真、目标符合与目标显化"
-      }
+      "formedAt": "2026-08-13T09:29:48+00:00",
+      "name": "separate-semantic-fidelity-goal-fit-and-goal-explication",
+      "question": "内容语义保真、结果符合深层目标与目标通过反馈显化有何不同？",
+      "relations": [
+        {
+          "target": "recognize-document-projections-as-part-of-goal-formation",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "separate-semantic-fidelity-goal-fit-and-goal-explication.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "区分内容保真、目标符合与目标显化"
     },
     "separate-semantic-responsibility-from-solution-space-analysis": {
-      "keys": {
-        "formed-at": [
-          1786610531000
-        ],
-        "name": [
-          "separate-semantic-responsibility-from-solution-space-analysis"
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T08:42:11+00:00",
-        "name": "separate-semantic-responsibility-from-solution-space-analysis",
-        "question": "语义责任与解空间分析分别承担什么层次的判断，它们如何衔接？",
-        "relations": [
-          {
-            "target": "recover-candidate-model-from-negative-description-dispute",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "separate-semantic-responsibility-from-solution-space-analysis.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "区分语义责任与解空间分析层"
-      }
+      "formedAt": "2026-08-13T08:42:11+00:00",
+      "name": "separate-semantic-responsibility-from-solution-space-analysis",
+      "question": "语义责任与解空间分析分别承担什么层次的判断，它们如何衔接？",
+      "relations": [
+        {
+          "target": "recover-candidate-model-from-negative-description-dispute",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "separate-semantic-responsibility-from-solution-space-analysis.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "区分语义责任与解空间分析层"
     },
     "separate-solution-space-positioning-from-contextual-anchoring": {
-      "keys": {
-        "formed-at": [
-          1786614728000
-        ],
-        "name": [
-          "separate-solution-space-positioning-from-contextual-anchoring"
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T09:52:08+00:00",
-        "name": "separate-solution-space-positioning-from-contextual-anchoring",
-        "question": "任务契约对解空间的正常定位与对象被提及时产生的上下文搜索锚定有何不同？",
-        "relations": [
-          {
-            "target": "separate-logical-pruning-search-bias-and-path-dependence",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "separate-solution-space-positioning-from-contextual-anchoring.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "分离解空间定位与上下文搜索锚定"
-      }
+      "formedAt": "2026-08-13T09:52:08+00:00",
+      "name": "separate-solution-space-positioning-from-contextual-anchoring",
+      "question": "任务契约对解空间的正常定位与对象被提及时产生的上下文搜索锚定有何不同？",
+      "relations": [
+        {
+          "target": "separate-logical-pruning-search-bias-and-path-dependence",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "separate-solution-space-positioning-from-contextual-anchoring.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "分离解空间定位与上下文搜索锚定"
     },
     "specify-safety-goals-with-negative-rules": {
-      "keys": {
-        "formed-at": [
-          1786630078000
-        ],
-        "name": [
-          "specify-safety-goals-with-negative-rules"
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T14:07:58+00:00",
-        "name": "specify-safety-goals-with-negative-rules",
-        "question": "安全目标在什么条件下应由可判断的负向规则具体化，而不能只保留正向概括？",
-        "relations": [
-          {
-            "target": "treat-description-polarity-as-reference-relative",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "specify-safety-goals-with-negative-rules.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "安全主线可以由负向规则具体化"
-      }
+      "formedAt": "2026-08-13T14:07:58+00:00",
+      "name": "specify-safety-goals-with-negative-rules",
+      "question": "安全目标在什么条件下应由可判断的负向规则具体化，而不能只保留正向概括？",
+      "relations": [
+        {
+          "target": "treat-description-polarity-as-reference-relative",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "specify-safety-goals-with-negative-rules.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "安全主线可以由负向规则具体化"
     },
     "treat-description-polarity-as-reference-relative": {
-      "keys": {
-        "formed-at": [
-          1786628592000
-        ],
-        "name": [
-          "treat-description-polarity-as-reference-relative"
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T13:43:12+00:00",
-        "name": "treat-description-polarity-as-reference-relative",
-        "question": "正负极性应怎样相对于具体命题、参照对象和描述层级判断？",
-        "relations": [
-          {
-            "target": "distinguish-expressive-equivalence-from-construction-cost",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "treat-description-polarity-as-reference-relative.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "正负极性依赖描述层级与参照对象"
-      }
+      "formedAt": "2026-08-13T13:43:12+00:00",
+      "name": "treat-description-polarity-as-reference-relative",
+      "question": "正负极性应怎样相对于具体命题、参照对象和描述层级判断？",
+      "relations": [
+        {
+          "target": "distinguish-expressive-equivalence-from-construction-cost",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "treat-description-polarity-as-reference-relative.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "正负极性依赖描述层级与参照对象"
     },
     "treat-goals-as-complete-in-abstraction-and-incremental-in-practice": {
-      "keys": {
-        "formed-at": [
-          1786610916000
-        ],
-        "name": [
-          "treat-goals-as-complete-in-abstraction-and-incremental-in-practice"
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "ai-ready-docs"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-13T08:48:36+00:00",
-        "name": "treat-goals-as-complete-in-abstraction-and-incremental-in-practice",
-        "question": "为什么目标在理想抽象中可以包含边界，而在实际文档中仍需逐步收敛？",
-        "relations": [
-          {
-            "target": "separate-semantic-responsibility-from-solution-space-analysis",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [],
-        "sourcePath": "treat-goals-as-complete-in-abstraction-and-incremental-in-practice.md",
-        "tags": [
-          "ai-ready-docs"
-        ],
-        "title": "目标在抽象层完整而在实践层逐步收敛"
-      }
+      "formedAt": "2026-08-13T08:48:36+00:00",
+      "name": "treat-goals-as-complete-in-abstraction-and-incremental-in-practice",
+      "question": "为什么目标在理想抽象中可以包含边界，而在实际文档中仍需逐步收敛？",
+      "relations": [
+        {
+          "target": "separate-semantic-responsibility-from-solution-space-analysis",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "treat-goals-as-complete-in-abstraction-and-incremental-in-practice.md",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "title": "目标在抽象层完整而在实践层逐步收敛"
     }
   },
-  "keyDefinitions": [
-    {
-      "name": "formed-at",
-      "mode": "range"
-    },
-    {
-      "name": "name",
-      "mode": "exact"
-    },
-    {
-      "name": "relation-type",
-      "mode": "exact"
-    },
-    {
-      "name": "tag",
-      "mode": "exact"
-    }
-  ],
   "metadata": {},
   "namespace": "investigations",
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "sourceRevision": {
     "entries": {
       "260903-explore-name-collisions-in-retained-artifacts": "sha256:4aa2ab77d625a548920dd74b5ace539cfcf90b15b90130def4963da25078ca6f",

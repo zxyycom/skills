@@ -387,7 +387,7 @@ function selectTargetSnapshot<
     if (source === null || !hasEntry(source, id)) {
       continue;
     }
-    states.push([id, source.entries[id].state]);
+    states.push([id, source.entries[id]]);
     revisions.push([id, source.sourceRevision.entries[id]]);
   }
   return {

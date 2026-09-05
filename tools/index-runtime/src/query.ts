@@ -1,21 +1,25 @@
 import * as v from "valibot";
 import {
   expectationOf,
-  keyDefinitionsOf,
-  sameKeyDefinitions,
+  queryFieldDefinitionsOf,
   validateStateIndexDefinition
 } from "./definition.ts";
-import { canonicalizeStateIndex } from "./canonicalization.ts";
 import { diagnostic, failure, formatValibotIssue } from "./diagnostics.ts";
 import {
   createProjectionContext,
-  projectStateIndexEntry,
-  readonlyStateIndexMetadata
+  normalizeStateIndex,
+  projectStateIndexState,
+  readonlyStateIndexMetadata,
+  validateCompleteStateIndex
 } from "./projection.ts";
 import { compareIndexText, compareStateIndexKeyScalars } from "./ordering.ts";
 import { isPlainRecord } from "./record.ts";
 import { isStateIndexText, stateIndexQuerySchema } from "./schemas.ts";
 import { scalarIdentity } from "./key-values.ts";
+import {
+  materializeStateIndexEntry,
+  type MaterializedStateIndexEntry
+} from "./query-fields.ts";
 import type {
   JsonObject,
   StateIndex,
@@ -23,9 +27,9 @@ import type {
   StateIndexDiagnostic,
   StateIndexEntry,
   StateIndexFilter,
-  StateIndexKeyDefinition,
   StateIndexKeyScalar,
   StateIndexQuery,
+  StateIndexQueryFieldDefinition,
   StateIndexQueryOutput,
   StateIndexQueryValue,
   StateIndexResult,
@@ -42,36 +46,67 @@ export function queryStateIndex<
   index: StateIndex<State, Metadata>;
   query?: StateIndexQuery;
   runtimeStates?: StateRecord<State>;
-}): StateIndexResult<StateIndexQueryOutput<State, Metadata>>;
-export function queryStateIndex(options: {
-  definition?: undefined;
-  index: StateIndex;
-  query?: StateIndexQuery;
-  runtimeStates?: undefined;
-}): StateIndexResult<StateIndexQueryOutput>;
-export function queryStateIndex<
+}): StateIndexResult<StateIndexQueryOutput<State, Metadata>> {
+  const prepared = prepareStrictIndex(
+    options.definition,
+    options.index,
+    "<memory>"
+  );
+  if (prepared.status === "error") return prepared;
+  const materialized = materializeEffectiveEntries({
+    definition: options.definition,
+    index: prepared.value,
+    runtimeStates: options.runtimeStates
+  });
+  if (materialized.status === "error") return materialized;
+  return queryMaterializedStateIndex({
+    definition: options.definition,
+    entries: materialized.value,
+    index: prepared.value,
+    query: options.query
+  });
+}
+
+export function findStateIndexEntry<
   State extends object,
   Metadata extends JsonObject
 >(options: {
-  definition?: StateIndexDefinition<State, Metadata>;
+  definition: StateIndexDefinition<State, Metadata>;
   index: StateIndex<State, Metadata>;
-  query?: StateIndexQuery;
-  runtimeStates?: StateRecord<State>;
-}): StateIndexResult<
-  StateIndexQueryOutput | StateIndexQueryOutput<State, Metadata>
-> {
-  const validatedIndex = validateStateIndexValue(
+  stateId: string;
+}): StateIndexResult<StateIndexEntry<State> | null> {
+  if (!isStateIndexText(options.stateId)) {
+    return failure(
+      "state-index.query-invalid",
+      "state id must be non-empty text without surrounding whitespace or control characters"
+    );
+  }
+  const prepared = prepareStrictIndex(
+    options.definition,
     options.index,
-    null,
     "<memory>"
   );
-  if (validatedIndex.index === null) {
-    return {
-      diagnostics: validatedIndex.diagnostics,
-      status: "error",
-      value: null
-    };
-  }
+  if (prepared.status === "error") return prepared;
+  const state = Object.hasOwn(prepared.value.entries, options.stateId)
+    ? prepared.value.entries[options.stateId]
+    : undefined;
+  return {
+    diagnostics: [],
+    status: "ok",
+    value:
+      state === undefined ? null : stateIndexEntryOf(options.stateId, state)
+  };
+}
+
+export function queryMaterializedStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  definition: StateIndexDefinition<State, Metadata>;
+  entries: MaterializedStateIndexEntry<State>[];
+  index: StateIndex<State, Metadata>;
+  query?: StateIndexQuery;
+}): StateIndexResult<StateIndexQueryOutput<State, Metadata>> {
   const parsedQuery = validateStateIndexQueryValue(options.query ?? {});
   if (parsedQuery.query === null) {
     return {
@@ -80,75 +115,15 @@ export function queryStateIndex<
       value: null
     };
   }
-
   const query = normalizeQuery(parsedQuery.query);
-  if (options.definition === undefined) {
-    const normalizedIndex = canonicalizeStateIndex(validatedIndex.index);
-    return queryValidatedStateIndex(
-      normalizedIndex,
-      query,
-      rawEntries(normalizedIndex)
-    );
-  }
-  const normalized = canonicalizeStateIndex<State, Metadata>(
-    options.index,
-    options.definition
-  );
-  return queryValidatedStateIndex(
-    normalized,
-    query,
-    effectiveEntries({
-      definition: options.definition,
-      index: normalized,
-      runtimeStates: options.runtimeStates
-    })
-  );
-}
-
-export function findStateIndexEntry(
-  index: StateIndex,
-  stateId: string
-): StateIndexResult<StateIndexEntry | null> {
-  if (!isStateIndexText(stateId)) {
-    return failure(
-      "state-index.query-invalid",
-      "state id must be non-empty text without surrounding whitespace or control characters"
-    );
-  }
-  const validated = validateStateIndexValue(index, null, "<memory>");
-  if (validated.index === null) {
-    return { diagnostics: validated.diagnostics, status: "error", value: null };
-  }
-  const entry = Object.hasOwn(validated.index.entries, stateId)
-    ? validated.index.entries[stateId]
-    : undefined;
-  return {
-    diagnostics: [],
-    status: "ok",
-    value: entry === undefined ? null : stateIndexEntryOf(stateId, entry)
-  };
-}
-
-function queryValidatedStateIndex<
-  State extends object,
-  Metadata extends JsonObject
->(
-  index: StateIndex<State, Metadata>,
-  query: StateIndexQueryValue,
-  entriesResult: StateIndexResult<StateIndexEntry<State>[]>
-): StateIndexResult<StateIndexQueryOutput<State, Metadata>> {
-  if (entriesResult.status === "error") {
-    return entriesResult;
-  }
   const semanticDiagnostics = validateQuerySemantics(
     query,
-    index.keyDefinitions
+    queryFieldDefinitionsOf(options.definition)
   );
   if (semanticDiagnostics.length > 0) {
     return { diagnostics: semanticDiagnostics, status: "error", value: null };
   }
-
-  const entries = entriesResult.value.filter((entry) =>
+  const entries = options.entries.filter((entry) =>
     query.filters.every((filter) => matchesFilter(entry, filter))
   );
   const sort = effectiveSort(query);
@@ -162,68 +137,26 @@ function queryValidatedStateIndex<
     diagnostics: [],
     status: "ok",
     value: {
-      entries: entries.slice(query.offset, query.offset + query.limit),
+      entries: entries
+        .slice(query.offset, query.offset + query.limit)
+        .map((entry) => stateIndexEntryOf(entry.id, entry.state)),
       limit: query.limit,
-      metadata: readonlyStateIndexMetadata(index),
+      metadata: readonlyStateIndexMetadata(options.index),
       offset: query.offset,
       total
     }
   };
 }
 
-function rawEntries(index: StateIndex): StateIndexResult<StateIndexEntry[]> {
-  return {
-    diagnostics: [],
-    status: "ok",
-    value: Object.entries(index.entries).map(([id, entry]) =>
-      stateIndexEntryOf(id, entry)
-    )
-  };
-}
-
-function effectiveEntries<
+export function materializeEffectiveEntries<
   State extends object,
   Metadata extends JsonObject
 >(options: {
   definition: StateIndexDefinition<State, Metadata>;
   index: StateIndex<State, Metadata>;
-  runtimeStates: StateRecord<State> | undefined;
-}): StateIndexResult<StateIndexEntry<State>[]> {
-  const definitionErrors = validateStateIndexDefinition(options.definition);
-  if (definitionErrors.length > 0) {
-    return failure(
-      "state-index.definition-invalid",
-      definitionErrors.join("; ")
-    );
-  }
-  if (
-    options.index.namespace !== options.definition.namespace ||
-    options.index.definitionVersion !== options.definition.definitionVersion
-  ) {
-    const expectation = expectationOf(options.definition);
-    return failure(
-      "state-index.definition-mismatch",
-      `index ${options.index.namespace}@${options.index.definitionVersion} does not match ` +
-        `${expectation.namespace}@${expectation.definitionVersion}`
-    );
-  }
-  if (
-    !sameKeyDefinitions(
-      options.index.keyDefinitions,
-      keyDefinitionsOf(options.definition)
-    )
-  ) {
-    return failure(
-      "state-index.definition-mismatch",
-      "index key definitions do not match the runtime definition"
-    );
-  }
-
-  const byId = new Map<string, StateIndexEntry<State>>();
-  for (const [id, entry] of Object.entries(options.index.entries)) {
-    byId.set(id, stateIndexEntryOf(id, entry));
-  }
-
+  runtimeStates?: StateRecord<State>;
+  staticEntries?: readonly MaterializedStateIndexEntry<State>[];
+}): StateIndexResult<MaterializedStateIndexEntry<State>[]> {
   if (
     options.runtimeStates !== undefined &&
     !isPlainRecord(options.runtimeStates)
@@ -233,25 +166,72 @@ function effectiveEntries<
       "runtimeStates must be an object keyed by state id"
     );
   }
-  for (const [id, state] of Object.entries(options.runtimeStates ?? {})) {
-    const projected = projectStateIndexEntry(
+  const byId = new Map<string, MaterializedStateIndexEntry<State>>();
+  if (options.staticEntries === undefined) {
+    for (const [id, state] of Object.entries(options.index.entries)) {
+      const materialized = materializeStateIndexEntry(
+        options.definition,
+        id,
+        state
+      );
+      if (materialized.status === "error") return materialized;
+      byId.set(id, materialized.value);
+    }
+  } else {
+    for (const entry of options.staticEntries) byId.set(entry.id, entry);
+  }
+  for (const [id, input] of Object.entries(options.runtimeStates ?? {})) {
+    const projected = projectStateIndexState(
       options.definition,
-      state,
+      input,
       createProjectionContext(id, options.index.metadata)
     );
-    if (projected.status === "error") {
-      return projected;
-    }
-    byId.set(id, stateIndexEntryOf(id, projected.value));
+    if (projected.status === "error") return projected;
+    const materialized = materializeStateIndexEntry(
+      options.definition,
+      id,
+      projected.value
+    );
+    if (materialized.status === "error") return materialized;
+    byId.set(id, materialized.value);
   }
   return { diagnostics: [], status: "ok", value: [...byId.values()] };
 }
 
 export function stateIndexEntryOf<State extends object>(
   id: string,
-  entry: Omit<StateIndexEntry<State>, "id">
+  state: State
 ): StateIndexEntry<State> {
-  return Object.freeze({ id, keys: entry.keys, state: entry.state });
+  return Object.freeze({ id, state });
+}
+
+function prepareStrictIndex<State extends object, Metadata extends JsonObject>(
+  definition: StateIndexDefinition<State, Metadata>,
+  index: StateIndex<State, Metadata>,
+  sourcePath: string
+): StateIndexResult<StateIndex<State, Metadata>> {
+  const definitionErrors = validateStateIndexDefinition(definition);
+  if (definitionErrors.length > 0) {
+    return failure(
+      "state-index.definition-invalid",
+      definitionErrors.join("; ")
+    );
+  }
+  const validated = validateStateIndexValue(
+    index,
+    expectationOf(definition),
+    sourcePath
+  );
+  if (validated.index === null) {
+    return { diagnostics: validated.diagnostics, status: "error", value: null };
+  }
+  const normalized = normalizeStateIndex(
+    validated.index,
+    definition,
+    sourcePath
+  );
+  if (normalized.status === "error") return normalized;
+  return validateCompleteStateIndex(definition, normalized.value, sourcePath);
 }
 
 type StateIndexQueryFilter = StateIndexQueryValue["filters"][number];
@@ -279,7 +259,7 @@ function validateIdFilter(
 
 function validateDeclaredFilter(
   filter: StateIndexQueryFilter,
-  definitions: ReadonlyMap<string, StateIndexKeyDefinition>
+  definitions: ReadonlyMap<string, StateIndexQueryFieldDefinition>
 ): StateIndexDiagnostic | null {
   const definition = definitions.get(filter.key);
   if (definition === undefined) {
@@ -299,8 +279,8 @@ function validateDeclaredFilter(
 
 function validateQuerySemantics(
   query: StateIndexQueryValue,
-  definitions: readonly StateIndexKeyDefinition[]
-): ReturnType<typeof diagnostic>[] {
+  definitions: readonly StateIndexQueryFieldDefinition[]
+): StateIndexDiagnostic[] {
   const byName = new Map(
     definitions.map((definition) => [definition.name, definition])
   );
@@ -375,14 +355,12 @@ function validateStateIndexQueryValue(input: unknown): {
 }
 
 function matchesFilter(
-  entry: StateIndexEntry<object>,
+  entry: MaterializedStateIndexEntry<object>,
   filter: StateIndexFilter
 ): boolean {
   const actual =
-    filter.key === "id" ? [entry.id] : (entry.keys[filter.key] ?? []);
-  if (filter.kind === "exists") {
-    return actual.length > 0 === filter.value;
-  }
+    filter.key === "id" ? [entry.id] : (entry.queryValues[filter.key] ?? []);
+  if (filter.kind === "exists") return actual.length > 0 === filter.value;
   if (filter.kind === "exact") {
     const identities = new Set(actual.map(scalarIdentity));
     switch (filter.operator) {
@@ -424,53 +402,45 @@ function compareRangeScalar(
   actual: StateIndexKeyScalar,
   expected: number | string
 ): number | null {
-  if (typeof actual !== typeof expected || typeof actual === "boolean") {
+  if (typeof actual !== typeof expected || typeof actual === "boolean")
     return null;
-  }
   return typeof actual === "number" && typeof expected === "number"
     ? actual - expected
     : compareIndexText(String(actual), String(expected));
 }
-
-function matchesComparison(
-  comparison: number,
-  operator: "eq" | "gt" | "gte" | "lt" | "lte"
-): boolean {
-  const predicates = {
-    eq: (value: number) => value === 0,
-    gt: (value: number) => value > 0,
-    gte: (value: number) => value >= 0,
-    lt: (value: number) => value < 0,
-    lte: (value: number) => value <= 0
-  };
-  return predicates[operator](comparison);
-}
-
 function matchesRange(
   actual: StateIndexKeyScalar,
   operator: "eq" | "gt" | "gte" | "lt" | "lte",
   expected: number | string
 ): boolean {
   const comparison = compareRangeScalar(actual, expected);
-  return comparison !== null && matchesComparison(comparison, operator);
+  if (comparison === null) return false;
+  switch (operator) {
+    case "eq":
+      return comparison === 0;
+    case "gt":
+      return comparison > 0;
+    case "gte":
+      return comparison >= 0;
+    case "lt":
+      return comparison < 0;
+    case "lte":
+      return comparison <= 0;
+  }
 }
-
 function effectiveSort(query: StateIndexQueryValue): StateIndexSort[] {
   return query.sort === undefined
     ? [{ direction: "asc", key: "id" }]
     : [...query.sort];
 }
-
 function validateSortCardinality(
-  entries: readonly StateIndexEntry<object>[],
+  entries: readonly MaterializedStateIndexEntry<object>[],
   sorts: readonly StateIndexSort[]
-): ReturnType<typeof diagnostic>[] {
+): StateIndexDiagnostic[] {
   for (const sort of sorts) {
-    if (sort.key === "id") {
-      continue;
-    }
+    if (sort.key === "id") continue;
     const multivalued = entries.find(
-      (entry) => (entry.keys[sort.key]?.length ?? 0) > 1
+      (entry) => (entry.queryValues[sort.key]?.length ?? 0) > 1
     );
     if (multivalued !== undefined) {
       return [
@@ -484,46 +454,38 @@ function validateSortCardinality(
   }
   return [];
 }
-
 function compareEntries(
-  left: StateIndexEntry<object>,
-  right: StateIndexEntry<object>,
+  left: MaterializedStateIndexEntry<object>,
+  right: MaterializedStateIndexEntry<object>,
   sorts: readonly StateIndexSort[]
 ): number {
   for (const sort of sorts) {
-    const leftValue = sort.key === "id" ? left.id : left.keys[sort.key]?.[0];
-    const rightValue = sort.key === "id" ? right.id : right.keys[sort.key]?.[0];
+    const leftValue =
+      sort.key === "id" ? left.id : left.queryValues[sort.key]?.[0];
+    const rightValue =
+      sort.key === "id" ? right.id : right.queryValues[sort.key]?.[0];
     const comparison = compareOptionalScalars(
       leftValue,
       rightValue,
       sort.direction
     );
-    if (comparison !== 0) {
-      return comparison;
-    }
+    if (comparison !== 0) return comparison;
   }
   return compareIndexText(left.id, right.id);
 }
-
 function compareOptionalScalars(
   left: StateIndexKeyScalar | undefined,
   right: StateIndexKeyScalar | undefined,
   direction: "asc" | "desc"
 ): number {
-  if (left === undefined) {
-    return right === undefined ? 0 : 1;
-  }
-  if (right === undefined) {
-    return -1;
-  }
+  if (left === undefined) return right === undefined ? 0 : 1;
+  if (right === undefined) return -1;
   const comparison = compareStateIndexKeyScalars(left, right);
   return direction === "desc" ? -comparison : comparison;
 }
-
 function normalizeText(value: string): string {
   return value.normalize("NFKC").toLowerCase();
 }
-
 function unique<Value>(values: readonly Value[]): Value[] {
   return [...new Set(values)];
 }

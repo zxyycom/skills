@@ -518,7 +518,11 @@ test("index state projects strict empty metadata and sourcePath", async () => {
     assert.deepEqual(index["metadata"], {});
     const entries = jsonObjectMember(index, "entries");
     const report = jsonObjectMember(entries, "report");
-    assert.equal(jsonObjectMember(report, "state")["sourcePath"], "report.md");
+    assert.equal(report["sourcePath"], "report.md");
+    assert.equal("state" in report, false);
+    assert.equal("keys" in report, false);
+    assert.equal("keyDefinitions" in index, false);
+    assert.equal(index["schemaVersion"], 4);
     assert.deepEqual(investigationIndexJsonSchema.$defs.sourcePath, {
       pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
       type: "string"

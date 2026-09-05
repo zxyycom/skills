@@ -625,7 +625,7 @@ function validateSourceIndexEntry(
   if (
     document !== null &&
     indexEntry !== null &&
-    indexEntry.state.sourcePath !== sourceFile.sourcePath
+    indexEntry.sourcePath !== sourceFile.sourcePath
   ) {
     context.indexErrors.push(
       context.indexRelativePath +
@@ -682,9 +682,9 @@ function scannedSourceMetadata(
     projection:
       indexEntry === null
         ? emptyDecisionProjection()
-        : selectProjection(indexEntry.state),
+        : selectProjection(indexEntry),
     status: null,
-    tags: indexEntry?.state.tags ?? []
+    tags: indexEntry?.tags ?? []
   };
 }
 
@@ -706,12 +706,12 @@ function invalidDecisionRecord(
     projection:
       indexEntry === null
         ? emptyDecisionProjection()
-        : selectProjection(indexEntry.state),
+        : selectProjection(indexEntry),
     relationshipErrors: [],
     source: { kind: "invalid", text: sourceText },
     sourcePath: sourceFile.sourcePath,
     status: null,
-    tags: indexEntry?.state.tags ?? []
+    tags: indexEntry?.tags ?? []
   };
 }
 
@@ -756,12 +756,12 @@ function recordFromIndexEntry(options: {
   entry: DecisionStoredIndexEntry;
 }): DecisionRecord {
   const { decisionsDirectory, decisionId, entry } = options;
-  const state = entry.state;
+  const state = entry;
   return {
     activationCandidate: false,
     bodyReady: false,
     scaffoldValid: false,
-    alignment: state.alignment,
+    alignment: state.alignment ?? null,
     createdAt: state.createdAt,
     decisionId,
     decisionPath: path.join(decisionsDirectory, ...state.sourcePath.split("/")),

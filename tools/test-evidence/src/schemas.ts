@@ -2,8 +2,7 @@ import * as v from "valibot";
 import {
   createStateIndexSchema,
   createStateSourceRevisionSchema,
-  stateIndexSchemaVersion,
-  stateIndexTextSchema
+  stateIndexSchemaVersion
 } from "../../index-runtime/src/index.ts";
 import { testEvidenceTopicIdPatternSource } from "./topic.ts";
 
@@ -12,7 +11,7 @@ export const testEvidenceDiagnosticSeverities = ["error", "warning"] as const;
 
 export const testEvidenceReportSchemaVersion = 4 as const;
 export const testEvidenceIndexSchemaVersion = stateIndexSchemaVersion;
-export const testEvidenceIndexDefinitionVersion = 3 as const;
+export const testEvidenceIndexDefinitionVersion = 4 as const;
 export const testEvidenceIndexNamespace = "test-evidence" as const;
 export const testEvidenceTopicCatalogSchemaVersion = 1 as const;
 
@@ -287,10 +286,6 @@ export const testEvidenceIndexStageResultSchema = v.union([
   })
 ]);
 
-const testEvidenceIndexKeysSchema = v.strictObject({
-  search: v.tuple([stateIndexTextSchema]),
-  topic: v.tuple([stateIndexTextSchema])
-});
 const testEvidenceSourceFingerprintSchema = v.pipe(
   v.string("must be a string"),
   v.regex(
@@ -302,17 +297,6 @@ const testEvidenceSourceFingerprintSchema = v.pipe(
 export const testEvidenceStateIndexSchema = createStateIndexSchema({
   definitionVersion: testEvidenceIndexDefinitionVersion,
   id: testEvidenceCaseIdSchema,
-  keys: testEvidenceIndexKeysSchema,
-  keyDefinitions: v.tuple([
-    v.strictObject({
-      mode: v.literal("text"),
-      name: v.literal("search")
-    }),
-    v.strictObject({
-      mode: v.literal("exact"),
-      name: v.literal("topic")
-    })
-  ]),
   metadata: testEvidenceIndexMetadataSchema,
   namespace: testEvidenceIndexNamespace,
   sourceRevision: createStateSourceRevisionSchema({

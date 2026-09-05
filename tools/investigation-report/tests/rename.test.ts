@@ -116,17 +116,11 @@ test("Investigation rename moves the report and owner resources while rewriting 
     const index = JSON.parse(
       await fs.readFile(path.join(root, "investigation-index.json"), "utf8")
     ) as {
-      entries: Record<
-        string,
-        { state: { relations: unknown; sourcePath: string } }
-      >;
+      entries: Record<string, { relations: unknown; sourcePath: string }>;
     };
-    assert.equal(
-      index.entries["260828-migrated"]?.state.sourcePath,
-      "migrated.md"
-    );
+    assert.equal(index.entries["260828-migrated"]?.sourcePath, "migrated.md");
     assert.ok(!Object.hasOwn(index.entries, "legacy"));
-    assert.deepEqual(index.entries.dependent?.state.relations, [
+    assert.deepEqual(index.entries.dependent?.relations, [
       {
         type: "补充",
         target: "260828-migrated",
@@ -250,9 +244,9 @@ test("Investigation rename migrates a legacy ID while retaining an unchanged sou
     );
     const index = JSON.parse(
       await fs.readFile(path.join(root, "investigation-index.json"), "utf8")
-    ) as { entries: Record<string, { state: { sourcePath: string } }> };
+    ) as { entries: Record<string, { sourcePath: string }> };
     assert.ok(!Object.hasOwn(index.entries, "legacy"));
-    assert.equal(index.entries["260828-legacy"]?.state.sourcePath, "legacy.md");
+    assert.equal(index.entries["260828-legacy"]?.sourcePath, "legacy.md");
   });
 });
 

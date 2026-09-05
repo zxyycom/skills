@@ -74,7 +74,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
     });
     assert.ok(
       withUnsupportedSchemaVersion.errors.some((error) =>
-        error.includes("schema version 2 is unsupported; expected 3")
+        error.includes("schema version 2 is unsupported; expected 4")
       )
     );
     const listWithInvalidIndex = await runSourceCli([
@@ -89,7 +89,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
     );
 
     const invalidTimestampIndex = structuredClone(originalIndex);
-    invalidTimestampIndex.entries[firstEntryId]!.state.createdAt = "2026-07-10";
+    invalidTimestampIndex.entries[firstEntryId]!.createdAt = "2026-07-10";
     await writeIndex(indexPath, invalidTimestampIndex);
     assert.ok(
       (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>
@@ -103,10 +103,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
         ...originalIndex.entries,
         [firstEntryId]: {
           ...originalIndex.entries[firstEntryId]!,
-          state: {
-            ...originalIndex.entries[firstEntryId]!.state,
-            sourcePath: "mismatched-id.md"
-          }
+          sourcePath: "mismatched-id.md"
         }
       }
     };
@@ -133,7 +130,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
     );
 
     const fractionalTimestampIndex = structuredClone(originalIndex);
-    fractionalTimestampIndex.entries[firstEntryId]!.state.createdAt =
+    fractionalTimestampIndex.entries[firstEntryId]!.createdAt =
       "2026-07-10T09:10:11.123+08:00";
     await writeIndex(indexPath, fractionalTimestampIndex);
     assert.ok(
@@ -143,7 +140,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
     );
 
     const invalidAlignmentIndex = structuredClone(originalIndex);
-    findIndexEntry(invalidAlignmentIndex, currentRelativePath).alignment = null;
+    delete findIndexEntry(invalidAlignmentIndex, currentRelativePath).alignment;
     await writeIndex(indexPath, invalidAlignmentIndex);
     assert.ok(
       (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>
@@ -154,7 +151,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
     );
 
     const shortProjectionIndex = structuredClone(originalIndex);
-    shortProjectionIndex.entries[firstEntryId]!.state.title = "短";
+    shortProjectionIndex.entries[firstEntryId]!.title = "短";
     await writeIndex(indexPath, shortProjectionIndex);
     assert.ok(
       (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>
@@ -163,7 +160,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
     );
 
     const longProjectionIndex = structuredClone(originalIndex);
-    longProjectionIndex.entries[firstEntryId]!.state.purpose = "长".repeat(101);
+    longProjectionIndex.entries[firstEntryId]!.purpose = "长".repeat(101);
     await writeIndex(indexPath, longProjectionIndex);
     assert.ok(
       (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>
@@ -178,7 +175,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
       /Rebuilt .*decision-index\.json from decision Markdown files/
     );
     assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
-    assert.equal((await readIndex(indexPath)).schemaVersion, 3);
+    assert.equal((await readIndex(indexPath)).schemaVersion, 4);
     assert.deepEqual(
       (await readIndex(indexPath)).metadata,
       originalIndex.metadata

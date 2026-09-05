@@ -277,19 +277,16 @@ test("set-relations atomically applies multi-source replacements and explicit cl
       "utf8"
     );
     const appliedIndex = JSON.parse(appliedIndexText) as {
-      entries: Record<
-        string,
-        { state: { relations: unknown; sourcePath: string } }
-      >;
+      entries: Record<string, { relations: unknown; sourcePath: string }>;
     };
-    assert.deepEqual(appliedIndex.entries["split-a"]?.state.relations, [
+    assert.deepEqual(appliedIndex.entries["split-a"]?.relations, [
       { type: "拆分", target: "base", summary: "第一条拆分" }
     ]);
-    assert.deepEqual(appliedIndex.entries["split-b"]?.state.relations, [
+    assert.deepEqual(appliedIndex.entries["split-b"]?.relations, [
       { type: "拆分", target: "base", summary: "第二条拆分" }
     ]);
     assert.equal(
-      appliedIndex.entries["split-b"]?.state.sourcePath,
+      appliedIndex.entries["split-b"]?.sourcePath,
       "semantic-split.md"
     );
     const cleared = await setInvestigationRelations({
@@ -317,10 +314,10 @@ test("set-relations atomically applies multi-source replacements and explicit cl
         "utf8"
       )
     ) as {
-      entries: Record<string, { state: { relations: unknown } }>;
+      entries: Record<string, { relations: unknown }>;
     };
-    assert.deepEqual(clearedIndex.entries["split-a"]?.state.relations, []);
-    assert.deepEqual(clearedIndex.entries["split-b"]?.state.relations, []);
+    assert.deepEqual(clearedIndex.entries["split-a"]?.relations, []);
+    assert.deepEqual(clearedIndex.entries["split-b"]?.relations, []);
   });
 });
 

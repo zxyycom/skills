@@ -24,7 +24,7 @@ const investigationId = {
 
 export const investigationIndexJsonSchema = {
   $comment:
-    "entry 对象键、派生 keys、资源排序、关系图、sourceRevision 与报告 Markdown 的一致性由调查报告 CLI 检查。",
+    "entry 对象键、资源排序、关系图、sourceRevision 与报告 Markdown 的一致性由调查报告 CLI 检查。",
   $defs: {
     fingerprint: {
       pattern: investigationSourceFingerprintPatternSource,
@@ -38,13 +38,6 @@ export const investigationIndexJsonSchema = {
     relation: {
       additionalProperties: false,
       properties: {
-        name: {
-          items: nonEmptyText,
-          maxItems: 1,
-          minItems: 1,
-          type: "array",
-          uniqueItems: true
-        },
         target: { $ref: "#/$defs/investigationId" },
         type: { enum: investigationRelationTypes, type: "string" },
         summary: {
@@ -62,34 +55,6 @@ export const investigationIndexJsonSchema = {
         "pattern 表达路径段字符白名单、非空路径段和正斜杠分隔；owner Investigation ID、路径段首尾点、至少一个身份字符、Windows 保留设备名和 Markdown 括号平衡由调查报告 CLI 补充校验。",
       pattern: investigationResourceIdLexicalPatternSource,
       type: "string"
-    },
-    keyValues: {
-      additionalProperties: false,
-      properties: {
-        "formed-at": {
-          items: { type: "integer" },
-          maxItems: 1,
-          minItems: 1,
-          type: "array",
-          uniqueItems: true
-        },
-        "relation-type": {
-          items: { enum: investigationRelationTypes, type: "string" },
-          type: "array",
-          uniqueItems: true
-        },
-        tag: {
-          items: {
-            pattern: `^${investigationKebabCasePatternSource}$`,
-            type: "string"
-          },
-          minItems: 1,
-          type: "array",
-          uniqueItems: true
-        }
-      },
-      required: ["name", "tag", "formed-at", "relation-type"],
-      type: "object"
     },
     state: {
       additionalProperties: false,
@@ -137,29 +102,13 @@ export const investigationIndexJsonSchema = {
   properties: {
     definitionVersion: { const: investigationIndexDefinitionVersion },
     entries: {
-      additionalProperties: {
-        additionalProperties: false,
-        properties: {
-          keys: { $ref: "#/$defs/keyValues" },
-          state: { $ref: "#/$defs/state" }
-        },
-        required: ["keys", "state"],
-        type: "object"
-      },
+      additionalProperties: { $ref: "#/$defs/state" },
       propertyNames: { $ref: "#/$defs/investigationId" },
       type: "object"
     },
-    keyDefinitions: {
-      const: [
-        { mode: "exact", name: "name" },
-        { mode: "exact", name: "tag" },
-        { mode: "range", name: "formed-at" },
-        { mode: "exact", name: "relation-type" }
-      ]
-    },
     metadata: { additionalProperties: false, type: "object" },
     namespace: { const: investigationIndexNamespace },
-    schemaVersion: { const: 3 },
+    schemaVersion: { const: 4 },
     sourceRevision: {
       additionalProperties: false,
       properties: {
@@ -177,7 +126,6 @@ export const investigationIndexJsonSchema = {
   required: [
     "definitionVersion",
     "entries",
-    "keyDefinitions",
     "metadata",
     "namespace",
     "schemaVersion",

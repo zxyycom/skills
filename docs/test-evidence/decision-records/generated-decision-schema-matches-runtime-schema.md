@@ -8,4 +8,4 @@ Contract:
 - 分发的决策索引 JSON Schema 必须与维护源码中的运行时 Schema 保持完全一致。
 
 Proves:
-- 分发 Schema 与运行时 Schema 逐结构相同，并保留定义版本、三项 key 定义和必需状态字段。
+- 分发 Schema 与运行时 Schema 逐结构相同，并保留 schema/definition version 和必需状态字段。

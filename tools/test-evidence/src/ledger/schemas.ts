@@ -3,13 +3,12 @@ import {
   createStateIndexSchema,
   createStateSourceRevisionSchema,
   stateIndexQueryMaximumLimit,
-  stateIndexSchemaVersion,
-  stateIndexTextSchema
+  stateIndexSchemaVersion
 } from "../../../index-runtime/src/index.ts";
 import { isStrictlyAscendingLexical } from "./canonicalization.ts";
 
 export const testEvidenceLedgerSchemaVersion = 5 as const;
-export const testEvidenceLedgerDefinitionVersion = 4 as const;
+export const testEvidenceLedgerDefinitionVersion = 5 as const;
 export const testEvidenceLedgerNamespace = "test-evidence" as const;
 export const testEntityIndexSchemaVersion = 1 as const;
 
@@ -17,7 +16,7 @@ export const testEvidenceLedgerPath = "docs/test-evidence";
 export const testEvidenceCasesPath = "docs/test-evidence/cases";
 export const testEntityIndexPath = "docs/test-evidence/test-entity-index.json";
 export const testEvidenceLedgerIndexPath =
-  "docs/test-evidence/test-evidence-index.json";
+  "docs/test-evidence/test-evidence-ledger-index.json";
 
 export const testEvidenceCaseIdPatternSource =
   "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$";
@@ -209,40 +208,9 @@ export const testEvidenceLedgerIndexMetadataSchema = v.strictObject({
   entityIndex: testEntityIndexIdentitySchema
 });
 
-const testEvidenceLedgerIndexKeysSchema = v.strictObject({
-  search: v.tuple([stateIndexTextSchema]),
-  tag: v.optional(
-    v.pipe(
-      v.array(testEvidenceTagSchema),
-      v.minLength(1),
-      v.check((values) => isStrictlyAscendingLexical(values))
-    )
-  ),
-  test: v.pipe(
-    v.array(testEntityIdSchema),
-    v.minLength(1),
-    v.check((values) => isStrictlyAscendingLexical(values))
-  )
-});
-
 const baseTestEvidenceLedgerStateIndexSchema = createStateIndexSchema({
   definitionVersion: testEvidenceLedgerDefinitionVersion,
   id: testEvidenceCaseIdSchema,
-  keys: testEvidenceLedgerIndexKeysSchema,
-  keyDefinitions: v.tuple([
-    v.strictObject({
-      mode: v.literal("text"),
-      name: v.literal("search")
-    }),
-    v.strictObject({
-      mode: v.literal("exact"),
-      name: v.literal("tag")
-    }),
-    v.strictObject({
-      mode: v.literal("exact"),
-      name: v.literal("test")
-    })
-  ]),
   metadata: testEvidenceLedgerIndexMetadataSchema,
   namespace: testEvidenceLedgerNamespace,
   sourceRevision: createStateSourceRevisionSchema({

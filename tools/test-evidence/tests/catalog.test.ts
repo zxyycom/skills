@@ -886,12 +886,12 @@ test("fixed index cannot hard-link to authoritative sources", async () => {
   }
 });
 
-test("indexes project sorted topic metadata and path-derived topic keys", async () => {
+test("indexes project sorted topic metadata and state-only catalog entries", async () => {
   await withWorkspace(async (tempRoot) => {
     await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
     const index = await readTestEvidenceStateIndex(tempRoot);
-    assert.equal(index.definitionVersion, 3);
-    assert.equal(index.schemaVersion, 3);
+    assert.equal(index.definitionVersion, 4);
+    assert.equal(index.schemaVersion, 4);
     assert.deepEqual(
       index.metadata.topics.map((topic) => topic.id),
       ["access-control", "future-work", "sessions"]
@@ -901,14 +901,10 @@ test("indexes project sorted topic metadata and path-derived topic keys", async 
     assert.deepEqual(Object.keys(index.sourceRevision.entries), ids);
     assert.match(index.sourceRevision.metadata, /^sha256:[0-9a-f]{64}$/u);
     assert.deepEqual(
-      ids.map((id) => index.entries[id]?.keys.topic),
-      [["access-control"], ["sessions"]]
-    );
-    assert.deepEqual(
-      ids.map((id) => index.entries[id]?.state.sourcePath),
+      ids.map((id) => index.entries[id]?.sourcePath),
       ["access-control/access-role.md", "sessions/session-expiry.md"]
     );
-    assert.equal("id" in (index.entries[ids[0] ?? ""] ?? {}), false);
+    assert.equal(index.entries[ids[0] ?? ""]?.id, ids[0]);
   });
 });
 
@@ -975,10 +971,7 @@ test("schema v2 indexes are rejected and rebuilt as keyed schema v3", async () =
     const current = await readTestEvidenceStateIndex(tempRoot);
     const schemaV2 = {
       ...current,
-      entries: Object.entries(current.entries).map(([id, entry]) => ({
-        id,
-        ...entry
-      })),
+      entries: Object.values(current.entries),
       schemaVersion: 2,
       sourceRevision: current.sourceRevision.metadata
     };
@@ -1202,11 +1195,15 @@ test("query results use record keys as authoritative case identities", async () 
     const index = await readTestEvidenceStateIndex(tempRoot);
     const accessEntry = index.entries["AUTH-ROLE-ACCESS-001"];
     assert.ok(accessEntry);
-    accessEntry.state.id = "AUTH-SESSION-EXPIRY-001";
+    accessEntry.id = "AUTH-SESSION-EXPIRY-001";
     await writeTestEvidenceStateIndex(tempRoot, index);
 
     const queried = await queryTestEvidence({ workspaceRoot: tempRoot });
-    assert.deepEqual(queried.diagnostics, []);
+    assert.ok(
+      queried.diagnostics.some(
+        (entry) => entry.code === "state-index.state-parse-failed"
+      )
+    );
     const accessCase = queried.cases.find(
       (entry) => entry.sourcePath === "access-control/access-role.md"
     );
@@ -1310,7 +1307,6 @@ test("one index open performs one fast source read and reader calls reuse it", a
     await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
     const base = createTestEvidenceStateIndexDefinition();
     const calls = {
-      derive: 0,
       parseState: 0,
       read: 0,
       readRevision: 0,
@@ -1319,13 +1315,6 @@ test("one index open performs one fast source read and reader calls reuse it", a
     const sourceBackup = path.join(tempRoot, "test-evidence-source-backup");
     const definition = {
       ...base,
-      keyStrategies: base.keyStrategies.map((strategy) => ({
-        ...strategy,
-        derive: (...args: Parameters<typeof strategy.derive>) => {
-          calls.derive += 1;
-          return strategy.derive(...args);
-        }
-      })),
       parseState: (...args: Parameters<typeof base.parseState>) => {
         calls.parseState += 1;
         return base.parseState(...args);
@@ -1366,47 +1355,32 @@ test("one index open performs one fast source read and reader calls reuse it", a
       assert.fail(`index open failed: ${JSON.stringify(opened.diagnostics)}`);
     }
     assert.deepEqual(calls, {
-      derive: 0,
-      parseState: 0,
+      parseState: 2,
       read: 0,
       readRevision: 1,
-      validateIndex: 0
+      validateIndex: 1
     });
 
     assert.equal(opened.value.get("AUTH-ROLE-ACCESS-001").status, "ok");
     assert.equal(opened.value.query().status, "ok");
     assert.equal(opened.value.all().status, "ok");
     assert.deepEqual(calls, {
-      derive: 0,
-      parseState: 0,
+      parseState: 2,
       read: 0,
       readRevision: 1,
-      validateIndex: 0
+      validateIndex: 1
     });
   });
 });
 
-test("strict checks cross-validate persisted source paths and topic keys", async () => {
+test("strict checks validate persisted source paths against topic metadata", async () => {
   await withWorkspace(async (tempRoot) => {
     await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
     const index = await readTestEvidenceStateIndex(tempRoot);
     const accessEntry = index.entries["AUTH-ROLE-ACCESS-001"];
     assert.ok(accessEntry);
-    accessEntry.keys.topic = ["sessions"];
+    accessEntry.sourcePath = "unknown-topic/access-role.md";
     await writeTestEvidenceStateIndex(tempRoot, index);
-    const keyMismatch = await validateTestEvidence({ workspaceRoot: tempRoot });
-    assert.ok(
-      keyMismatch.diagnostics.some(
-        (entry) => entry.blocking && entry.code.startsWith("state-index.")
-      )
-    );
-
-    await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
-    const rebuilt = await readTestEvidenceStateIndex(tempRoot);
-    const rebuiltAccessEntry = rebuilt.entries["AUTH-ROLE-ACCESS-001"];
-    assert.ok(rebuiltAccessEntry);
-    rebuiltAccessEntry.state.sourcePath = "unknown-topic/access-role.md";
-    await writeTestEvidenceStateIndex(tempRoot, rebuilt);
     const pathMismatch = await validateTestEvidence({
       workspaceRoot: tempRoot
     });

@@ -142,9 +142,9 @@ export async function searchInvestigationReports(
   });
   if (loaded.status === "ok") {
     return await searchSnapshot({
-      entries: Object.entries(loaded.value.entries).map(([id, entry]) => ({
+      entries: Object.entries(loaded.value.entries).map(([id, state]) => ({
         id,
-        state: entry.state
+        state
       })),
       indexPath,
       investigationsDirectory,
@@ -230,7 +230,7 @@ async function searchInvestigationMetadata(
 
   const entries: InvestigationMetadataSearchEntry[] = [];
   const selected = Object.entries(loaded.value.entries)
-    .map(([id, entry]) => ({ id, state: entry.state }))
+    .map(([id, state]) => ({ id, state }))
     .filter(({ state }) => prepared.validated.states(state))
     .sort((left, right) =>
       compareText(left.state.sourcePath, right.state.sourcePath)
@@ -499,9 +499,9 @@ export async function showInvestigationReport(
   }
   const { index, indexPath, investigationsDirectory } = loaded.value;
   const resolved = resolveInvestigationSelector(
-    Object.entries(index.entries).map(([id, entry]) => ({
+    Object.entries(index.entries).map(([id, state]) => ({
       id,
-      name: entry.state.name
+      name: state.name
     })),
     selector
   );
@@ -513,7 +513,7 @@ export async function showInvestigationReport(
     investigationsDirectory,
     indexPath,
     id,
-    entry.state
+    entry
   );
 }
 
@@ -659,9 +659,9 @@ export async function traceInvestigationReports(
   }
   const { index, indexPath } = loaded.value;
   const resolved = resolveInvestigationSelector(
-    Object.entries(index.entries).map(([id, entry]) => ({
+    Object.entries(index.entries).map(([id, state]) => ({
       id,
-      name: entry.state.name
+      name: state.name
     })),
     selector
   );
@@ -670,9 +670,9 @@ export async function traceInvestigationReports(
   const { id } = resolved;
   const trace = traceInvestigationRelations(
     new Map(
-      Object.entries(index.entries).map(([reportId, entry]) => [
+      Object.entries(index.entries).map(([reportId, state]) => [
         reportId,
-        entry.state
+        state
       ])
     ),
     id,

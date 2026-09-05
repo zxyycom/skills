@@ -7,10 +7,10 @@
 1. Investigation ID 是 extensionless 稳定领域身份，由报告或 candidate Markdown frontmatter `id` 声明，在正式集合内唯一。新记录必须为 calendar-valid `YYMMDD-<name>`，日期等于 `formedAt` 的 UTC 日；无日期旧 ID 仍是可读、可显式迁移的 legacy identity。正式 `sourcePath` 是独立的相对调查根目录位置；移动或改 basename 不自动改变 ID。
 2. candidate 文件使用 `_candidate.<name-or-investigation-id>` locator，但其 Markdown 仍声明完整 ID；它不是正式 Investigation ID、正式报告或索引成员。未知保留文件、符号链接、非普通文件、同一 ID 的多个 candidate，或 candidate 与正式报告同 ID 都是集合成员安全错误。
 3. 每个根目录直属正式报告 Markdown 是自身 title、formedAt、question、tags、relations、正文和资源引用的唯一事实源。一份文件只保存一份正式报告。candidate 保存同形的未建立报告内容，但不成为正式集合事实。
-4. `investigation-index.json` 从全部合法**正式**报告确定性生成，只用于发现、过滤、排序、关系 trace 和资源引用投影，不拥有独立事实。每项 state 保存该 ID 的 `sourcePath`；candidate、资源成员和资源字节不进入索引来源版本或新鲜度。
+4. `investigation-index.json` 从全部合法**正式**报告确定性生成，只用于发现、过滤、排序、关系 trace 和资源引用投影，不拥有独立事实。每个 entry 以 Investigation ID 为 key，值直接保存该 ID 的 state（包括 `sourcePath`）；不保存 entry wrapper、持久 query values 或字段定义。candidate、资源成员和资源字节不进入索引来源版本或新鲜度。
 5. 可选 `_resources/` 是统一资源池。资源 ID 固定为 `<investigation-id>/<resource-subpath>`，首段映射 resource owner，而不是报告 filename。正式 owner 是同 ID 的正式报告；同 ID candidate 存在而正式 owner 未建立时，它可以在 authoring 中暂时承担该 owner。路径是唯一 owner 的事实来源，不限制其他候选或正式报告引用。
 6. `scripts/check-investigations.mjs` 提供 `new`、`candidates`、`show-candidate`、`publish`、`discard-candidate`、`check`、`sync-index`、`list`、`search`、`show`、`trace`、`set-relations`、`discard` 和 `stage-index`。`new`、`publish`、`discard-candidate`、`sync-index`、`set-relations` 与正式 `discard` 写工作区领域状态，且共用集合 mutation lock；`stage-index` 只写 Git pending。其余操作只读。
-7. [investigation-index.schema.json](investigation-index.schema.json) 是随包分发的当前索引 JSON Schema；CLI 继续负责 Schema 无法证明的 Markdown、candidate、关系、资源安全、source revision、state 和 keys 一致性。
+7. [investigation-index.schema.json](investigation-index.schema.json) 是随包分发的当前索引 JSON Schema；CLI 继续负责 Schema 无法证明的 Markdown、candidate、关系、资源安全、source revision 与 state 一致性。
 
 本文中的“工作区索引”指工作树内当前的 `investigation-index.json`；`pending` 指版本管理暂存区中的待提交内容。两者是同一路径在不同版本管理状态下的内容，不能互相替代。
 
@@ -124,12 +124,12 @@ discard-candidate <selector> [--delete-owned-resources] [--delete-recorded-candi
 
 `rename <source-selector> <target-name-or-id> [--preflight] [--rename-recorded-report|--rename-recorded-candidate]` 迁移一个 candidate 或正式报告的 ID/name。source 先按标准 dated ID exact 解析、失败才按 unique name；target 标准 ID 直接定义目标，其他合法 kebab-case 值使用该报告 `formedAt` UTC 日生成目标 ID。显式 target 日期必须等于 `formedAt` UTC 日，ID/name/sourcePath 冲突一律零写入。正式报告优先 `<name>.md`、candidate 优先 `_candidate.<name>`，不可用才回退完整 ID locator。
 
-rename 对 ID、name、sourcePath 和 owner 都不变的规范 identity 返回 `changed: false` 的零写入 no-op，不进入 Git 确认或 lock 写入；但仅 sourcePath 相同不代表 no-op，ID 变化时仍必须更新 source、关系、资源链接、owner 与索引。其余事务在集合 lock 内重新扫描 formal/candidate 源、关系、资源、索引和 Git HEAD，再在同一恢复范围改写 source ID、全部受管 formal/candidate relation target、所有受管 `./_resources/<old-id>/...` 链接、正式 index key/state/source revision，并 no-overwrite 移动报告或 candidate 与 `_resources/<old-id>/` owner 树。报告移动在写前记录原路径字节和权限，并记录新路径的本事务字节和权限；回滚只删除仍完全相同的新路径，只以 exclusive create 恢复仍缺失的旧路径。任一路径随后出现、消失、改型、改权限或改字节时均保留现场并返回 `partial-or-unknown`。owner transfer 必须先 exclusive claim 新目录，再复制并校验预演的类型、权限、大小和内容摘要；旧 owner 只逐个删除再次证明相同的文件、再从内向外移除空目录，绝不递归删除。并发出现或随后漂移的 target/source owner 均不覆盖、不清理或伪恢复；恢复只能在 target 仍完全等于本事务复制快照时进行，否则返回 `partial-or-unknown` 留待对账。它不改变 title、formedAt、question、tags、正文判断、relation type 或 relation summary，也不调用 `sync-index` 或 `stage-index` 作为第二阶段。`--preflight` 完成同一计划但零写入；Git HEAD 已记录 formal/candidate 或其 owner tree 时，正式执行分别要求对应 recorded rename flag，且绝不重写历史。任何来源漂移、移动、写入或索引发布前失败都恢复旧组合或报告 partial-or-unknown；成功后不允许当前受管内容继续使用旧 ID、sourcePath 或 owner prefix。
+rename 对 ID、name、sourcePath 和 owner 都不变的规范 identity 返回 `changed: false` 的零写入 no-op，不进入 Git 确认或 lock 写入；但仅 sourcePath 相同不代表 no-op，ID 变化时仍必须更新 source、关系、资源链接、owner 与索引。其余事务在集合 lock 内重新扫描 formal/candidate 源、关系、资源、索引和 Git HEAD，再在同一恢复范围改写 source ID、全部受管 formal/candidate relation target、所有受管 `./_resources/<old-id>/...` 链接、正式 index key、direct state 与 source revision，并 no-overwrite 移动报告或 candidate 与 `_resources/<old-id>/` owner 树。报告移动在写前记录原路径字节和权限，并记录新路径的本事务字节和权限；回滚只删除仍完全相同的新路径，只以 exclusive create 恢复仍缺失的旧路径。任一路径随后出现、消失、改型、改权限或改字节时均保留现场并返回 `partial-or-unknown`。owner transfer 必须先 exclusive claim 新目录，再复制并校验预演的类型、权限、大小和内容摘要；旧 owner 只逐个删除再次证明相同的文件、再从内向外移除空目录，绝不递归删除。并发出现或随后漂移的 target/source owner 均不覆盖、不清理或伪恢复；恢复只能在 target 仍完全等于本事务复制快照时进行，否则返回 `partial-or-unknown` 留待对账。它不改变 title、formedAt、question、tags、正文判断、relation type 或 relation summary，也不调用 `sync-index` 或 `stage-index` 作为第二阶段。`--preflight` 完成同一计划但零写入；Git HEAD 已记录 formal/candidate 或其 owner tree 时，正式执行分别要求对应 recorded rename flag，且绝不重写历史。任何来源漂移、移动、写入或索引发布前失败都恢复旧组合或报告 partial-or-unknown；成功后不允许当前受管内容继续使用旧 ID、sourcePath 或 owner prefix。
 
 ## 索引、查询、publish 与相邻维护
 
-1. 每个正式 Investigation ID 产生一个索引 entry。state 投影由 ID 导出的 `name`、`sourcePath`、`title`、`formedAt`、`question`、`tags`、带可选 summary 的 `relations` 和按规范 ID 排序的 `resourceIds`；不保存正文、candidate、反向关系副本、当前结论或资源内容摘要。
-2. keys 是 exact `name`、exact `tag`、range `formed-at` 与 exact `relation-type`。metadata 是拒绝额外字段的严格空对象；完整正文不复制进派生索引。
+1. 每个正式 Investigation ID 产生一个索引 entry，entry 值直接是 state。state 投影由 ID 导出的 `name`、`sourcePath`、`title`、`formedAt`、`question`、`tags`、带可选 summary 的 `relations` 和按规范 ID 排序的 `resourceIds`；不保存正文、candidate、反向关系副本、当前结论或资源内容摘要。
+2. 查询字段由当前 definition 运行时物化而不持久化：exact `state.name`、exact `state.tags`、以 instant 归一化的 range `state.formedAt`，及 each relation 的 exact `state.relations/*/type`。metadata 是拒绝额外字段的严格空对象；完整正文不复制进派生索引。
 3. source revision 以正式 Investigation ID 为键，指纹化 ID、sourcePath 和完整正式报告 Markdown UTF-8 内容，计算前只把 CRLF 规范为 LF。正式报告成员、位置或可投影内容变化会更新对应 revision；candidate、资源成员和资源字节不参与 revision。
 4. `list` 默认查询全部正式报告，按 Investigation ID 的 locale 无关词法顺序排序；支持可重复 `--tag` 的 AND、包含端点的 formedAt 范围和一个精确关系类型。
 

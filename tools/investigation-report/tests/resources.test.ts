@@ -357,6 +357,6 @@ test("resource resources are never projected as index source bytes", async () =>
     );
     const entries = jsonObjectMember(index, "entries");
     const report = jsonObjectMember(entries, "report");
-    assert.equal("resourceBytes" in jsonObjectMember(report, "state"), false);
+    assert.equal("resourceBytes" in report, false);
   });
 });

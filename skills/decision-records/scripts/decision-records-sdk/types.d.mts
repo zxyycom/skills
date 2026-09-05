@@ -98,7 +98,9 @@ export type DecisionRecordSource = {
 } | {
     kind: "missing";
 };
-export type DecisionIndexState = DecisionDocument & {
+export type DecisionIndexState = Omit<DecisionDocument, "alignment"> & {
+    /** Absent for archived records so the optional query field has no value. */
+    alignment?: DecisionAlignment;
     name: string;
     sourcePath: DecisionSourcePath;
 };
@@ -113,17 +115,9 @@ export type DecisionSourceInput = Readonly<{
     sourcePath: string;
     text: string;
 }>;
-export type DecisionIndexStoredEntry = {
-    keys: {
-        name: [string];
-        tag: DecisionTag[];
-        status: [EstablishedDecisionStatus];
-        alignment?: [DecisionAlignment];
-    };
-    state: DecisionIndexState;
-};
-export type DecisionIndexEntry = DecisionIndexStoredEntry & {
+export type DecisionIndexEntry = {
     id: DecisionId;
+    state: DecisionIndexState;
 };
 export type DecisionIndexMetadata = Record<string, never>;
 export type DecisionSourceRevision = {
@@ -131,30 +125,12 @@ export type DecisionSourceRevision = {
     entries: Record<DecisionId, string>;
 };
 export type DecisionIndex = {
-    schemaVersion: 3;
+    schemaVersion: 4;
     namespace: "decisions";
-    definitionVersion: 9;
+    definitionVersion: 10;
     metadata: DecisionIndexMetadata;
     sourceRevision: DecisionSourceRevision;
-    keyDefinitions: [
-        {
-            name: "name";
-            mode: "exact";
-        },
-        {
-            name: "tag";
-            mode: "exact";
-        },
-        {
-            name: "status";
-            mode: "exact";
-        },
-        {
-            name: "alignment";
-            mode: "exact";
-        }
-    ];
-    entries: Record<DecisionId, DecisionIndexStoredEntry>;
+    entries: Record<DecisionId, DecisionIndexState>;
 };
 export type DecisionRecord = {
     /** Whether the source is a body-ready candidate eligible for activation. */

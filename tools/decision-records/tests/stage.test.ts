@@ -184,12 +184,9 @@ test("stage preserves one Decision ID when its semantic sourcePath is renamed", 
     const pending = JSON.parse(
       runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"])
     );
+    assert.equal(pending.entries[currentDecisionId].title, "重命名后编辑 CLI");
     assert.equal(
-      pending.entries[currentDecisionId].state.title,
-      "重命名后编辑 CLI"
-    );
-    assert.equal(
-      pending.entries[currentDecisionId].state.sourcePath,
+      pending.entries[currentDecisionId].sourcePath,
       `${renamedId}.md`
     );
   }));
@@ -371,7 +368,7 @@ test(
             ])
           );
           assert.equal(
-            pendingIndex.entries[decisionIds[0]!].state.title,
+            pendingIndex.entries[decisionIds[0]!].title,
             "修改后的规模化决策"
           );
         }

@@ -6,38 +6,22 @@
  * Rebuild: bun run sync:test-evidence-cli
  */
 export interface TestEvidenceStateIndex {
-  definitionVersion: 3;
+  definitionVersion: 4;
   entries: {
     [k: string]: {
-      keys: {
-        /**
-         * @minItems 1
-         */
-        search: [unknown, ...unknown[]];
-        /**
-         * @minItems 1
-         */
-        topic: [unknown, ...unknown[]];
-      };
-      state: {
-        endLine: number;
-        /**
-         * @minItems 1
-         */
-        entries: [string, ...string[]];
-        id: string;
-        line: number;
-        sourcePath: string;
-        summary: string;
-        title: string;
-        searchText: string;
-      };
+      endLine: number;
+      /**
+       * @minItems 1
+       */
+      entries: [string, ...string[]];
+      id: string;
+      line: number;
+      sourcePath: string;
+      summary: string;
+      title: string;
+      searchText: string;
     };
   };
-  /**
-   * @minItems 2
-   */
-  keyDefinitions: [unknown, unknown, ...unknown[]];
   metadata: {
     /**
      * @minItems 1
@@ -54,7 +38,7 @@ export interface TestEvidenceStateIndex {
     ];
   };
   namespace: "test-evidence";
-  schemaVersion: 3;
+  schemaVersion: 4;
   sourceRevision: {
     entries: {
       [k: string]: string;

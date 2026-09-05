@@ -232,8 +232,8 @@ function resolveInvestigationStageSelectors(
   const entries = new Map<string, string>();
   for (const index of [options.baseline, options.workspace]) {
     if (index === null) continue;
-    for (const [id, entry] of Object.entries(index.entries)) {
-      entries.set(id, entry.state.name);
+    for (const [id, state] of Object.entries(index.entries)) {
+      entries.set(id, state.name);
     }
   }
   const resolved: string[] = [];

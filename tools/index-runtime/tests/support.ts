@@ -51,6 +51,7 @@ const testEvidenceStateSchema = v.strictObject({
   status: v.picklist(["active", "planned"]),
   title: v.string(),
   trigger: v.nullable(jsonObjectSchema),
+  triggerCaseId: v.optional(v.string()),
   verification: v.picklist(["automated", "exempt", "review"])
 });
 
@@ -119,6 +120,7 @@ export async function testEvidenceStates(): Promise<TestEvidenceState[]> {
     status: entry.status,
     title: entry.title,
     trigger: entry.trigger,
+    ...(entry.trigger === null ? {} : { triggerCaseId: entry.id }),
     verification: entry.verification
   }));
 }
@@ -128,28 +130,36 @@ export function decisionDefinition(
 ): StateIndexDefinition<DecisionState> {
   return defineStateIndexDefinition({
     definitionVersion: 1,
-    keyStrategies: [
-      { derive: (state) => state.status, mode: "exact", name: "status" },
+    queryFields: [
       {
-        derive: (state) => state.alignment ?? undefined,
         mode: "exact",
-        name: "alignment"
+        name: "status",
+        sources: [{ kind: "state-path", path: ["status"] }]
       },
       {
-        derive: (state) => timestampRangeKey(state.createdAt),
+        mode: "exact",
+        name: "alignment",
+        sources: [{ kind: "state-path", path: ["alignment"] }]
+      },
+      {
         mode: "range",
-        name: "created-at"
+        name: "created-at",
+        sources: [
+          { kind: "state-path", normalization: "instant", path: ["createdAt"] }
+        ]
       },
-      { derive: (state) => state.path, mode: "exact", name: "path" },
       {
-        derive: (state) => [
-          state.title,
-          state.purpose,
-          state.background,
-          state.decision
-        ],
+        mode: "exact",
+        name: "path",
+        sources: [{ kind: "state-path", path: ["path"] }]
+      },
+      {
         mode: "text",
-        name: "text"
+        name: "text",
+        sources: ["title", "purpose", "background", "decision"].map((name) => ({
+          kind: "state-path" as const,
+          path: [name]
+        }))
       }
     ],
     namespace: "decisions",
@@ -165,22 +175,31 @@ export function investigationDefinition(
 ): StateIndexDefinition<InvestigationState> {
   return defineStateIndexDefinition({
     definitionVersion: 2,
-    keyStrategies: [
+    queryFields: [
       {
-        derive: (state) => state.path.split("/", 1)[0],
         mode: "exact",
-        name: "category"
+        name: "status",
+        sources: [{ kind: "state-path", path: ["status"] }]
       },
-      { derive: (state) => state.status, mode: "exact", name: "status" },
       {
-        derive: (state) => timestampRangeKey(state.latestReportAt),
         mode: "range",
-        name: "latest-report-at"
+        name: "latest-report-at",
+        sources: [
+          {
+            kind: "state-path",
+            normalization: "instant",
+            path: ["latestReportAt"]
+          }
+        ]
       },
       {
-        derive: (state) => [state.title, state.question, ...state.reportTitles],
         mode: "text",
-        name: "text"
+        name: "text",
+        sources: [
+          { kind: "state-path", path: ["title"] },
+          { kind: "state-path", path: ["question"] },
+          { kind: "state-path", path: ["reportTitles"] }
+        ]
       }
     ],
     namespace: "investigations",
@@ -196,25 +215,31 @@ export function testEvidenceDefinition(
 ): StateIndexDefinition<TestEvidenceState> {
   return defineStateIndexDefinition({
     definitionVersion: 2,
-    keyStrategies: [
+    queryFields: [
       {
-        derive: (state) => (state.trigger === null ? undefined : true),
         mode: "exact",
-        name: "review-triggered"
+        name: "review-triggered",
+        sources: [{ kind: "state-path", path: ["triggerCaseId"] }]
       },
       {
-        derive: (state) =>
-          [state.caseId, state.title, ...state.contract, state.codePath].join(
-            " "
-          ),
         mode: "text",
-        name: "search"
+        name: "search",
+        sources: [
+          { kind: "entry-id" },
+          { kind: "state-path", path: ["title"] },
+          { kind: "state-path", path: ["contract"] },
+          { kind: "state-path", path: ["codePath"] }
+        ]
       },
-      { derive: (state) => state.status, mode: "exact", name: "status" },
       {
-        derive: (state) => state.verification,
         mode: "exact",
-        name: "verification"
+        name: "status",
+        sources: [{ kind: "state-path", path: ["status"] }]
+      },
+      {
+        mode: "exact",
+        name: "verification",
+        sources: [{ kind: "state-path", path: ["verification"] }]
       }
     ],
     namespace: "test-evidence",
@@ -263,14 +288,6 @@ function sourceRevisionFromIds(revision: string, ids: readonly string[]) {
     entries: Object.fromEntries(ids.map((id) => [id, `${revision}:${id}`])),
     metadata: revision
   };
-}
-
-function timestampRangeKey(value: string): number {
-  const timestamp = Date.parse(value);
-  if (!Number.isFinite(timestamp)) {
-    throw new TypeError(`invalid RFC 3339 timestamp ${value}`);
-  }
-  return timestamp;
 }
 
 export function resultValue<Value>(result: StateIndexResult<Value>): Value {

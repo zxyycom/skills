@@ -688,8 +688,8 @@ async function selectedInvestigationSyncScope(options: {
     };
   }
   const idsByName = new Map<string, Set<string>>();
-  for (const [id, entry] of Object.entries(baseline.value.entries)) {
-    addIdForInvestigationName(idsByName, entry.state.name, id);
+  for (const [id, state] of Object.entries(baseline.value.entries)) {
+    addIdForInvestigationName(idsByName, state.name, id);
   }
   for (const [id, state] of Object.entries(options.snapshot.states)) {
     addIdForInvestigationName(idsByName, state.name, id);

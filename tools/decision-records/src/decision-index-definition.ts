@@ -34,7 +34,7 @@ import {
 } from "./types.ts";
 
 export const decisionIndexNamespace = "decisions";
-export const decisionIndexDefinitionVersion = 9;
+export const decisionIndexDefinitionVersion = 10;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -62,7 +62,7 @@ const decisionIndexStateSchema = v.strictObject({
   sourcePath: sourcePathSchema,
   title: nonEmptyStringSchema,
   status: v.picklist(establishedDecisionStatuses),
-  alignment: v.union([v.picklist(decisionAlignments), v.null()]),
+  alignment: v.optional(v.picklist(decisionAlignments)),
   createdAt: nonEmptyStringSchema,
   purpose: nonEmptyStringSchema,
   background: nonEmptyStringSchema,
@@ -109,26 +109,26 @@ export function createDecisionStateIndexDefinition(
   return defineStateIndexDefinition({
     definitionVersion: decisionIndexDefinitionVersion,
     fieldOrder: "definition",
-    keyStrategies: [
+    queryFields: [
       {
-        derive: (state) => state.name,
         mode: "exact",
-        name: "name"
+        name: "name",
+        sources: [{ kind: "state-path", path: ["name"] }]
       },
       {
-        derive: (state) => state.tags,
         mode: "exact",
-        name: "tag"
+        name: "tag",
+        sources: [{ kind: "state-path", path: ["tags"] }]
       },
       {
-        derive: (state) => state.status,
         mode: "exact",
-        name: "status"
+        name: "status",
+        sources: [{ kind: "state-path", path: ["status"] }]
       },
       {
-        derive: (state) => state.alignment ?? undefined,
         mode: "exact",
-        name: "alignment"
+        name: "alignment",
+        sources: [{ kind: "state-path", path: ["alignment"] }]
       }
     ],
     namespace: decisionIndexNamespace,
@@ -161,7 +161,7 @@ function validateDecisionSourceRevision(
     throw new TypeError(parsed.issues.map(formatDecisionIndexIssue).join("; "));
   }
   const sourcePaths = Object.values(index.entries).map(
-    (entry) => entry.state.sourcePath
+    (state) => state.sourcePath
   );
   if (new Set(sourcePaths).size !== sourcePaths.length) {
     throw new TypeError(
@@ -249,7 +249,7 @@ function decisionMetadataFromIndexState(
       }
     : {
         status: "archived",
-        alignment: state.alignment,
+        alignment: state.alignment ?? null,
         createdAt: state.createdAt
       };
 }
@@ -321,7 +321,7 @@ function formatDecisionIndexIssue(issue: v.BaseIssue<unknown>): string {
 function activeAlignment(
   alignment: DecisionIndexState["alignment"]
 ): "aligned" | "unaligned" {
-  if (alignment === null) {
+  if (alignment === undefined) {
     throw new TypeError(
       "alignment must be aligned or unaligned when status is active"
     );

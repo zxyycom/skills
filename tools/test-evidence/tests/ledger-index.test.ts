@@ -40,8 +40,20 @@ test("ledger indexes project definition metadata summaries revisions and query k
       testEvidenceLedgerStateIndexSchema,
       await readJsonFile(ledgerIndexPath(workspaceRoot))
     );
-    assert.equal(index.schemaVersion, 3);
-    assert.equal(index.definitionVersion, 4);
+    await assert.rejects(
+      fs.stat(
+        path.join(
+          workspaceRoot,
+          "docs",
+          "test-evidence",
+          "test-evidence-index.json"
+        )
+      ),
+      (error: unknown) =>
+        error instanceof Error && "code" in error && error.code === "ENOENT"
+    );
+    assert.equal(index.schemaVersion, 4);
+    assert.equal(index.definitionVersion, 5);
     assert.equal(index.namespace, "test-evidence");
     assert.equal(
       index.metadata.entityIndex.fingerprint,
@@ -49,16 +61,14 @@ test("ledger indexes project definition metadata summaries revisions and query k
     );
     const entry = index.entries["LEDGER-ALPHA-BETA-001"];
     assert.notEqual(entry, undefined);
+    assert.equal(entry?.summary, "The shared alpha-beta result is observable.");
+    assert.deepEqual(entry?.testIds, ["test.alpha", "test.beta"]);
+    assert.deepEqual(entry?.tags, ["shared"]);
     assert.equal(
-      entry?.state.summary,
-      "The shared alpha-beta result is observable."
+      entry?.searchText,
+      "Alpha and beta establish a shared result Alpha and beta jointly support one semantic conclusion. The shared alpha-beta result is observable. test.alpha test.beta shared"
     );
-    assert.deepEqual(entry?.keys.test, ["test.alpha", "test.beta"]);
-    assert.deepEqual(entry?.keys.tag, ["shared"]);
-    assert.deepEqual(entry?.keys.search, [
-      "LEDGER-ALPHA-BETA-001 Alpha and beta establish a shared result Alpha and beta jointly support one semantic conclusion. The shared alpha-beta result is observable. test.alpha test.beta shared"
-    ]);
-    assert.equal("id" in (entry?.state ?? {}), false);
+    assert.equal("id" in (entry ?? {}), false);
     assert.equal("caseIds" in index.metadata, false);
   });
 });
@@ -227,9 +237,7 @@ test("ledger queries fall back from recoverable index failures with warnings", a
     assert.ok(
       queried.diagnostics.some(
         (diagnostic) =>
-          diagnostic.code === "state-index.definition-mismatch" &&
-          diagnostic.severity === "warning" &&
-          diagnostic.caseId === undefined
+          diagnostic.severity === "warning" && diagnostic.caseId === undefined
       )
     );
 
@@ -237,7 +245,7 @@ test("ledger queries fall back from recoverable index failures with warnings", a
     const oldDefinition = (await readJsonFile(
       ledgerIndexPath(workspaceRoot)
     )) as Record<string, unknown>;
-    oldDefinition.definitionVersion = 3;
+    oldDefinition.definitionVersion = 4;
     await fs.writeFile(
       ledgerIndexPath(workspaceRoot),
       `${JSON.stringify(oldDefinition, null, 2)}\n`,

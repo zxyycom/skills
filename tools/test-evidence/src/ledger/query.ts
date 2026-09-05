@@ -145,10 +145,7 @@ export async function queryTestEntities(
   }
   const caseIdsByTest = new Map<string, string[]>();
   for (const entry of allCases.value) {
-    for (const testId of entry.keys.test ?? []) {
-      if (typeof testId !== "string") {
-        continue;
-      }
+    for (const testId of entry.state.testIds) {
       const caseIds = caseIdsByTest.get(testId) ?? [];
       caseIds.push(entry.id);
       caseIdsByTest.set(testId, caseIds);

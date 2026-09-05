@@ -28,7 +28,7 @@ import {
 } from "./types.ts";
 
 export const investigationIndexNamespace = "investigations";
-export const investigationIndexDefinitionVersion = 10;
+export const investigationIndexDefinitionVersion = 11;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -138,27 +138,37 @@ export function createInvestigationStateIndexDefinition(
   const snapshot = options.snapshot;
   return defineStateIndexDefinition({
     definitionVersion: investigationIndexDefinitionVersion,
-    keyStrategies: [
+    queryFields: [
       {
-        derive: (state) => state.name,
         mode: "exact",
-        name: "name"
+        name: "name",
+        sources: [{ kind: "state-path", path: ["name"] }]
       },
       {
-        derive: (state) => state.tags,
         mode: "exact",
-        name: "tag"
+        name: "tag",
+        sources: [{ kind: "state-path", path: ["tags"] }]
       },
       {
-        derive: (state) =>
-          investigationTimestampMilliseconds(state.formedAt) ?? undefined,
         mode: "range",
-        name: "formed-at"
+        name: "formed-at",
+        sources: [
+          {
+            kind: "state-path",
+            normalization: "instant",
+            path: ["formedAt"]
+          }
+        ]
       },
       {
-        derive: (state) => state.relations.map((relation) => relation.type),
         mode: "exact",
-        name: "relation-type"
+        name: "relation-type",
+        sources: [
+          {
+            kind: "state-path",
+            path: ["relations", { kind: "each" }, "type"]
+          }
+        ]
       }
     ],
     namespace: investigationIndexNamespace,
@@ -188,7 +198,7 @@ function validateInvestigationIndex(
     );
   }
   const sourcePaths = Object.values(index.entries).map(
-    (entry) => entry.state.sourcePath
+    (state) => state.sourcePath
   );
   if (new Set(sourcePaths).size !== sourcePaths.length) {
     throw new TypeError(

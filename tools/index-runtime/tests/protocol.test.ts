@@ -4,13 +4,14 @@ import {
   buildStateIndex,
   defineStateIndexDefinition,
   type JsonObject,
+  queryStateIndex,
   type StateSourceRevision
 } from "../src/index.ts";
-import { sameKeyDefinitions } from "../src/definition.ts";
+import { sameQueryFieldDefinitions } from "../src/definition.ts";
 import { compareStateIndexKeyScalars } from "../src/ordering.ts";
 import type { StateIndexKeyScalar } from "../src/types.ts";
 
-test("orders key scalars and compares ordered key definitions", () => {
+test("orders query scalars and compares ordered field definitions", () => {
   const scalars: StateIndexKeyScalar[] = ["alpha", 10, true, 2, false, "beta"];
   assert.deepEqual(scalars.sort(compareStateIndexKeyScalars), [
     false,
@@ -25,13 +26,13 @@ test("orders key scalars and compares ordered key definitions", () => {
     { mode: "exact" as const, name: "status" },
     { mode: "range" as const, name: "created-at" }
   ];
-  assert.equal(sameKeyDefinitions(definitions, [...definitions]), true);
+  assert.equal(sameQueryFieldDefinitions(definitions, [...definitions]), true);
   assert.equal(
-    sameKeyDefinitions(definitions, [...definitions].reverse()),
+    sameQueryFieldDefinitions(definitions, [...definitions].reverse()),
     false
   );
   assert.equal(
-    sameKeyDefinitions(definitions, [
+    sameQueryFieldDefinitions(definitions, [
       definitions[0]!,
       { mode: "text", name: "created-at" }
     ]),
@@ -39,14 +40,14 @@ test("orders key scalars and compares ordered key definitions", () => {
   );
 });
 
-test("rejects duplicate, reserved, or missing key definition inputs", () => {
+test("rejects invalid closed query field descriptors", () => {
   assert.throws(
     () =>
       defineStateIndexDefinition({
         definitionVersion: 1,
-        keyStrategies: [
-          { derive: () => "a", mode: "exact", name: "status" },
-          { derive: () => "b", mode: "exact", name: "status" }
+        queryFields: [
+          { mode: "exact", name: "status", sources: [{ kind: "entry-id" }] },
+          { mode: "exact", name: "status", sources: [{ kind: "entry-id" }] }
         ],
         namespace: "duplicate-keys",
         parseMetadata: (metadata) => metadata,
@@ -60,7 +61,9 @@ test("rejects duplicate, reserved, or missing key definition inputs", () => {
     () =>
       defineStateIndexDefinition({
         definitionVersion: 1,
-        keyStrategies: [{ derive: () => "state", mode: "exact", name: "id" }],
+        queryFields: [
+          { mode: "exact", name: "id", sources: [{ kind: "entry-id" }] }
+        ],
         namespace: "reserved-key",
         parseMetadata: (metadata) => metadata,
         parseState: (state) => state,
@@ -73,8 +76,12 @@ test("rejects duplicate, reserved, or missing key definition inputs", () => {
     () =>
       defineStateIndexDefinition({
         definitionVersion: 1,
-        keyStrategies: [
-          { derive: () => "active", mode: "exact", name: "status" }
+        queryFields: [
+          {
+            mode: "exact",
+            name: "status",
+            sources: [{ kind: "state-path", path: ["status"] }]
+          }
         ],
         namespace: "missing-parser",
         parseMetadata: (metadata) => metadata,
@@ -84,13 +91,110 @@ test("rejects duplicate, reserved, or missing key definition inputs", () => {
       }),
     /parseState/u
   );
+  assert.throws(
+    () =>
+      defineStateIndexDefinition({
+        ...baseDefinition("invalid-each"),
+        queryFields: [
+          {
+            mode: "exact",
+            name: "relation",
+            sources: [
+              {
+                kind: "state-path",
+                path: [{ kind: "each" }, "type"]
+              }
+            ]
+          }
+        ]
+      }),
+    /must not start or end with each/u
+  );
+  assert.throws(
+    () =>
+      defineStateIndexDefinition({
+        ...baseDefinition("invalid-instant"),
+        queryFields: [
+          {
+            mode: "text",
+            name: "formed-at",
+            sources: [
+              {
+                kind: "state-path",
+                normalization: "instant",
+                path: ["formedAt"]
+              }
+            ]
+          }
+        ]
+      }),
+    /instant normalization requires range mode/u
+  );
+  assert.throws(
+    () =>
+      defineStateIndexDefinition({
+        ...baseDefinition("arbitrary-transform"),
+        queryFields: [
+          {
+            mode: "exact",
+            name: "status",
+            sources: [
+              {
+                kind: "state-path",
+                path: ["status"],
+                transform: () => "active"
+              } as never
+            ]
+          }
+        ]
+      }),
+    /unsupported properties: transform/u
+  );
+});
+
+test("rejects query field and source properties inherited through prototypes", () => {
+  const inheritedField = Object.create({
+    mode: "exact",
+    name: "status",
+    sources: [{ kind: "entry-id" }]
+  }) as never;
+  assert.throws(
+    () =>
+      defineStateIndexDefinition({
+        ...baseDefinition("inherited-field"),
+        queryFields: [inheritedField]
+      }),
+    /queryFields\[0\] must define own properties: mode, name, sources/u
+  );
+
+  const inheritedSource = Object.create({ kind: "entry-id" }) as never;
+  assert.throws(
+    () =>
+      defineStateIndexDefinition({
+        ...baseDefinition("inherited-source"),
+        queryFields: [
+          {
+            mode: "exact",
+            name: "status",
+            sources: [inheritedSource]
+          }
+        ]
+      }),
+    /queryFields\[0\]\.sources\[0\] must define own properties: kind/u
+  );
 });
 
 test("rejects invalid ids and revision membership before parsing states", async () => {
   let parseCount = 0;
   const invalidId = defineStateIndexDefinition<JsonObject>({
     definitionVersion: 1,
-    keyStrategies: [{ derive: () => "active", mode: "exact", name: "status" }],
+    queryFields: [
+      {
+        mode: "exact",
+        name: "status",
+        sources: [{ kind: "state-path", path: ["status"] }]
+      }
+    ],
     namespace: "invalid-id",
     parseMetadata: (metadata) => metadata,
     parseState: (state) => {
@@ -142,6 +246,152 @@ test("rejects non-JSON states and parser outputs", async () => {
     )
   );
 
+  const closedDefinition = defineStateIndexDefinition<JsonObject>({
+    ...baseDefinition("closed-sources"),
+    queryFields: [
+      {
+        mode: "text",
+        name: "search",
+        sources: [{ kind: "entry-id" }, { kind: "state-path", path: ["title"] }]
+      },
+      {
+        mode: "exact",
+        name: "alias",
+        sources: [{ kind: "state-path", path: ["aliases"] }]
+      },
+      {
+        mode: "exact",
+        name: "relation-type",
+        sources: [
+          {
+            kind: "state-path",
+            path: ["relations", { kind: "each" }, "type"]
+          }
+        ]
+      },
+      {
+        mode: "range",
+        name: "formed-at",
+        sources: [
+          {
+            kind: "state-path",
+            normalization: "instant",
+            path: ["formedAt"]
+          }
+        ]
+      },
+      {
+        mode: "exact",
+        name: "topic",
+        sources: [{ kind: "source-path-first-segment" }]
+      },
+      {
+        mode: "exact",
+        name: "optional",
+        sources: [{ kind: "state-path", path: ["optional"] }]
+      }
+    ],
+    read: async () =>
+      snapshot("case-one", {
+        aliases: ["beta", "alpha", "alpha"],
+        formedAt: "2026-07-22T10:00:00+08:00",
+        relations: [{ type: "test" }, { type: "build" }, { type: "test" }],
+        sourcePath: "index-runtime/case-one.md",
+        title: "Case One"
+      })
+  });
+  const closedIndex = await buildStateIndex(closedDefinition, { root: "." });
+  assert.equal(closedIndex.status, "ok");
+  assert.equal(Object.hasOwn(closedIndex.value, "keyDefinitions"), false);
+  assert.deepEqual(
+    Object.keys(closedIndex.value.entries["case-one"] ?? {}).sort(),
+    ["aliases", "formedAt", "relations", "sourcePath", "title"]
+  );
+  const queried = queryStateIndex({
+    definition: closedDefinition,
+    index: closedIndex.value,
+    query: {
+      filters: [
+        { key: "search", kind: "text", operator: "all", text: "case-one Case" },
+        {
+          key: "alias",
+          kind: "exact",
+          operator: "all",
+          values: ["alpha", "beta"]
+        },
+        {
+          key: "relation-type",
+          kind: "exact",
+          operator: "all",
+          values: ["build", "test"]
+        },
+        {
+          key: "formed-at",
+          kind: "range",
+          operator: "eq",
+          value: Date.parse("2026-07-22T02:00:00Z")
+        },
+        {
+          key: "topic",
+          kind: "exact",
+          operator: "all",
+          values: ["index-runtime"]
+        },
+        { key: "optional", kind: "exists", value: false }
+      ]
+    }
+  });
+  assert.equal(queried.status, "ok");
+  assert.equal(queried.status === "ok" ? queried.value.total : null, 1);
+
+  for (const [state, expectedSource] of [
+    [
+      {
+        aliases: ["alpha"],
+        formedAt: "2026-07-22T02:00:00Z",
+        relations: {},
+        sourcePath: "index-runtime/case.md",
+        title: "Case"
+      },
+      "state-path(relations.[each].type)"
+    ],
+    [
+      {
+        aliases: ["alpha"],
+        formedAt: "2026-07-22T02:00:00Z",
+        relations: [],
+        sourcePath: "../outside.md",
+        title: "Case"
+      },
+      "source-path-first-segment(state.sourcePath)"
+    ],
+    [
+      {
+        aliases: ["alpha"],
+        formedAt: ["2026-07-22T02:00:00Z"],
+        relations: [],
+        sourcePath: "index-runtime/case.md",
+        title: "Case"
+      },
+      "state-path(formedAt, instant)"
+    ]
+  ] satisfies Array<[JsonObject, string]>) {
+    const invalidDefinition = defineStateIndexDefinition<JsonObject>({
+      ...closedDefinition,
+      read: async () => snapshot("invalid-source", state)
+    });
+    const invalid = await buildStateIndex(invalidDefinition, { root: "." });
+    assert.equal(invalid.status, "error");
+    assert.ok(
+      invalid.diagnostics.some(
+        (entry) =>
+          entry.code === "state-index.query-field-source-invalid" &&
+          entry.stateId === "invalid-source" &&
+          entry.message.includes(expectedSource)
+      )
+    );
+  }
+
   const invalidParserOutput = defineStateIndexDefinition<JsonObject>({
     ...baseDefinition("invalid-parser-output"),
     parseState: () => new Date() as never
@@ -172,16 +422,26 @@ test("rejects non-JSON states and parser outputs", async () => {
   );
 });
 
-test("rejects key values incompatible with the declared mode", async () => {
+test("extracts closed query sources and rejects invalid source values", async () => {
   const definition = defineStateIndexDefinition<JsonObject>({
     ...baseDefinition("invalid-text-key"),
-    keyStrategies: [{ derive: () => true, mode: "text", name: "text" }]
+    queryFields: [
+      {
+        mode: "text",
+        name: "text",
+        sources: [{ kind: "state-path", path: ["value"] }]
+      }
+    ],
+    read: async () => snapshot("state", { value: true })
   });
   const result = await buildStateIndex(definition, { root: "." });
   assert.equal(result.status, "error");
   assert.ok(
     result.diagnostics.some(
-      (entry) => entry.code === "state-index.key-value-invalid"
+      (entry) =>
+        entry.code === "state-index.query-field-source-invalid" &&
+        entry.stateId === "state" &&
+        entry.message.includes("query field text source state-path(value)")
     )
   );
 });
@@ -230,8 +490,12 @@ test("honors an already-aborted build signal", async () => {
 function baseDefinition(namespace: string) {
   return {
     definitionVersion: 1,
-    keyStrategies: [
-      { derive: () => "active", mode: "exact" as const, name: "status" }
+    queryFields: [
+      {
+        mode: "exact" as const,
+        name: "status",
+        sources: [{ kind: "state-path" as const, path: ["status"] }]
+      }
     ],
     namespace,
     parseMetadata: (metadata: JsonObject) => metadata,

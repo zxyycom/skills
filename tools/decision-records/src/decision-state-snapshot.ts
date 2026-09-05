@@ -9,7 +9,6 @@ import type {
   DecisionId,
   DecisionIndexMetadata,
   DecisionIndexState,
-  DecisionMetadata,
   DecisionSource,
   DecisionSourceInput,
   DecisionSourcePath
@@ -22,23 +21,13 @@ export function decisionIndexState(
   document: DecisionDocument,
   decisionId: DecisionId
 ): DecisionIndexState {
-  const metadata: DecisionMetadata =
-    document.status === "active"
-      ? {
-          status: "active",
-          alignment: document.alignment,
-          createdAt: document.createdAt
-        }
-      : {
-          status: "archived",
-          alignment: document.alignment,
-          createdAt: document.createdAt
-        };
   return {
     name: decisionNameFromId(decisionId),
     sourcePath,
     title: document.title,
-    ...metadata,
+    status: document.status,
+    ...(document.alignment === null ? {} : { alignment: document.alignment }),
+    createdAt: document.createdAt,
     purpose: document.purpose,
     background: document.background,
     decision: document.decision,

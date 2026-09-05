@@ -41,47 +41,13 @@ const tag = {
 
 export const decisionIndexJsonSchema = {
   $comment:
-    "entry Decision ID、state.sourcePath、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
+    "entry Decision ID、state.sourcePath、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
   $defs: {
     decisionId,
     decisionSourcePath,
     fingerprint: {
       pattern: decisionSourceFingerprintPatternSource,
       type: "string"
-    },
-    keyValues: {
-      additionalProperties: false,
-      properties: {
-        name: {
-          items: { type: "string" },
-          maxItems: 1,
-          minItems: 1,
-          type: "array",
-          uniqueItems: true
-        },
-        tag: {
-          items: tag,
-          minItems: 1,
-          type: "array",
-          uniqueItems: true
-        },
-        status: {
-          items: { enum: establishedDecisionStatuses, type: "string" },
-          maxItems: 1,
-          minItems: 1,
-          type: "array",
-          uniqueItems: true
-        },
-        alignment: {
-          items: { enum: decisionAlignments, type: "string" },
-          maxItems: 1,
-          minItems: 1,
-          type: "array",
-          uniqueItems: true
-        }
-      },
-      required: ["name", "tag", "status"],
-      type: "object"
     },
     relation: {
       additionalProperties: false,
@@ -108,7 +74,8 @@ export const decisionIndexJsonSchema = {
           },
           // oxlint-disable-next-line unicorn/no-thenable -- JSON Schema's required "then" keyword holds a schema object, not a callable thenable.
           then: {
-            properties: { alignment: { enum: decisionAlignments } }
+            properties: { alignment: { enum: decisionAlignments } },
+            required: ["alignment"]
           }
         }
       ],
@@ -116,10 +83,7 @@ export const decisionIndexJsonSchema = {
         sourcePath: { $ref: "#/$defs/decisionSourcePath" },
         title: projectionText,
         status: { enum: establishedDecisionStatuses, type: "string" },
-        alignment: {
-          enum: [...decisionAlignments, null],
-          type: ["string", "null"]
-        },
+        alignment: { enum: decisionAlignments, type: "string" },
         createdAt: {
           pattern: decisionTimestampPatternSource,
           type: "string"
@@ -144,7 +108,6 @@ export const decisionIndexJsonSchema = {
         "name",
         "title",
         "status",
-        "alignment",
         "createdAt",
         "purpose",
         "background",
@@ -159,7 +122,7 @@ export const decisionIndexJsonSchema = {
   additionalProperties: false,
   description: "由决策 Markdown 生成的决策状态通用索引。",
   properties: {
-    schemaVersion: { const: 3 },
+    schemaVersion: { const: 4 },
     namespace: { const: decisionIndexNamespace },
     definitionVersion: { const: decisionIndexDefinitionVersion },
     metadata: {
@@ -180,24 +143,8 @@ export const decisionIndexJsonSchema = {
       required: ["metadata", "entries"],
       type: "object"
     },
-    keyDefinitions: {
-      const: [
-        { name: "name", mode: "exact" },
-        { name: "tag", mode: "exact" },
-        { name: "status", mode: "exact" },
-        { name: "alignment", mode: "exact" }
-      ]
-    },
     entries: {
-      additionalProperties: {
-        additionalProperties: false,
-        properties: {
-          keys: { $ref: "#/$defs/keyValues" },
-          state: { $ref: "#/$defs/state" }
-        },
-        required: ["keys", "state"],
-        type: "object"
-      },
+      additionalProperties: { $ref: "#/$defs/state" },
       propertyNames: { $ref: "#/$defs/decisionId" },
       type: "object"
     }
@@ -208,7 +155,6 @@ export const decisionIndexJsonSchema = {
     "definitionVersion",
     "metadata",
     "sourceRevision",
-    "keyDefinitions",
     "entries"
   ],
   title: "Decision Records State Index",

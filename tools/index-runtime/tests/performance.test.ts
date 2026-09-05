@@ -75,14 +75,29 @@ async function benchmark(count: number): Promise<BenchmarkResult> {
   };
   const definition = defineStateIndexDefinition<ScaleState>({
     definitionVersion: 1,
-    keyStrategies: [
-      { derive: (state) => state.status, mode: "exact", name: "status" },
-      { derive: (state) => state.tags, mode: "exact", name: "tag" },
-      { derive: (state) => state.createdAt, mode: "range", name: "created-at" },
+    queryFields: [
       {
-        derive: (state) => [state.title, state.body],
+        mode: "exact",
+        name: "status",
+        sources: [{ kind: "state-path", path: ["status"] }]
+      },
+      {
+        mode: "exact",
+        name: "tag",
+        sources: [{ kind: "state-path", path: ["tags"] }]
+      },
+      {
+        mode: "range",
+        name: "created-at",
+        sources: [{ kind: "state-path", path: ["createdAt"] }]
+      },
+      {
         mode: "text",
-        name: "text"
+        name: "text",
+        sources: [
+          { kind: "state-path", path: ["title"] },
+          { kind: "state-path", path: ["body"] }
+        ]
       }
     ],
     namespace: "scale",

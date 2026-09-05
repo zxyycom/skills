@@ -1,7 +1,7 @@
 ---
 title: 维护可重建的共享读侧索引边界
 id: maintain-rebuildable-read-side-index-boundary
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T03:23:51Z
 purpose: 让多个领域复用派生索引的读取、查询、校验与同步，而不把领域事实、写入和语义移入共享运行时。

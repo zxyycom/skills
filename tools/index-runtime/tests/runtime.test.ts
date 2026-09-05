@@ -84,11 +84,11 @@ function createMetadataFixture() {
     RuntimeMetadata
   >({
     definitionVersion: 1,
-    keyStrategies: [
+    queryFields: [
       {
-        derive: (state, { metadata }) => [state.label, ...metadata.groups],
         mode: "text",
-        name: "text"
+        name: "text",
+        sources: [{ kind: "state-path", path: ["label"] }]
       }
     ],
     namespace: "typed-metadata",
@@ -128,9 +128,7 @@ function createMetadataFixture() {
         // @ts-expect-error Complete index entries are recursively readonly.
         index.entries["tenant-a:two"] = index.entries["tenant-a:one"]!;
         // @ts-expect-error Complete index state is recursively readonly.
-        index.entries["tenant-a:one"]!.state.label = "Mutated";
-        // @ts-expect-error Complete index key arrays are recursively readonly.
-        index.entries["tenant-a:one"]!.keys.text!.push("mutated");
+        index.entries["tenant-a:one"]!.label = "Mutated";
         // @ts-expect-error Complete index metadata objects are recursively readonly.
         index.metadata.nested.a = 3;
         // @ts-expect-error Complete index metadata arrays are recursively readonly.
@@ -139,8 +137,7 @@ function createMetadataFixture() {
       assert.ok(Object.isFrozen(index));
       assert.ok(Object.isFrozen(index.entries));
       assert.ok(Object.isFrozen(index.entries["tenant-a:one"]));
-      assert.ok(Object.isFrozen(index.entries["tenant-a:one"]!.state));
-      assert.ok(Object.isFrozen(index.entries["tenant-a:one"]!.keys.text));
+      assert.ok(Object.isFrozen(index.entries["tenant-a:one"]));
       assert.ok(Object.isFrozen(index.metadata));
       assert.ok(Object.isFrozen(index.metadata.nested));
       assert.ok(Object.isFrozen(index.metadata.groups));
@@ -148,15 +145,14 @@ function createMetadataFixture() {
         (index.entries as Record<string, unknown>)["tenant-a:two"] = {};
       }, TypeError);
       assert.throws(() => {
-        (
-          index.entries["tenant-a:one"]!.state as unknown as { label: string }
-        ).label = "Mutated";
+        (index.entries["tenant-a:one"] as unknown as { label: string }).label =
+          "Mutated";
       }, TypeError);
       assert.throws(
         () => (index.metadata.groups as unknown as string[]).push("mutated"),
         TypeError
       );
-      assert.equal(index.entries["tenant-a:one"]!.state.label, "First");
+      assert.equal(index.entries["tenant-a:one"]!.label, "First");
       assert.deepEqual(index.metadata.groups, ["second", "first"]);
       if (control.rejectCompleteIndex) {
         throw new TypeError("complete index rejected");
@@ -172,7 +168,6 @@ async function createDecisionRuntimeFixture(tempRoot: string) {
     states: await decisionStates()
   };
   const calls = {
-    derives: 0,
     parses: 0,
     reads: 0,
     revisionReads: 0,
@@ -181,13 +176,7 @@ async function createDecisionRuntimeFixture(tempRoot: string) {
   const baseDefinition = decisionDefinition(source);
   const definition = defineStateIndexDefinition({
     ...baseDefinition,
-    keyStrategies: baseDefinition.keyStrategies.map((strategy) => ({
-      ...strategy,
-      derive: (...args: Parameters<typeof strategy.derive>) => {
-        calls.derives += 1;
-        return strategy.derive(...args);
-      }
-    })),
+    queryFields: baseDefinition.queryFields,
     parseState: (...args: Parameters<typeof baseDefinition.parseState>) => {
       calls.parses += 1;
       return baseDefinition.parseState(...args);
@@ -228,12 +217,8 @@ async function createSpecialIdFixture() {
   const seenContexts: string[] = [];
   const definition = defineStateIndexDefinition<SpecialState>({
     definitionVersion: 1,
-    keyStrategies: [
-      {
-        derive: (_state, { id }) => id,
-        mode: "exact",
-        name: "source-id"
-      }
+    queryFields: [
+      { mode: "exact", name: "source-id", sources: [{ kind: "entry-id" }] }
     ],
     namespace: "special-ids",
     parseMetadata: (metadata) => metadata,
@@ -273,15 +258,6 @@ test("exposes a composable state-index schema", async () => {
   const schema = createStateIndexSchema({
     definitionVersion: 1,
     id: idSchema,
-    keys: v.strictObject({
-      status: v.tuple([stateIndexTextSchema])
-    }),
-    keyDefinitions: v.tuple([
-      v.strictObject({
-        mode: v.literal("exact"),
-        name: v.literal("status")
-      })
-    ]),
     metadata: v.strictObject({}),
     namespace: "runtime-test",
     sourceRevision: sourceRevisionSchema,
@@ -309,10 +285,7 @@ test("exposes a composable state-index schema", async () => {
   );
 
   const entriesInput = JSON.parse(
-    '{"__proto__":{"keys":{"status":["active"]},' +
-      '"state":{"id":"__proto__"}},' +
-      '"constructor":{"keys":{"status":["active"]},' +
-      '"state":{"id":"constructor"}}}'
+    '{"__proto__":{"id":"__proto__"},' + '"constructor":{"id":"constructor"}}'
   );
   const expectedEntries = v.parse(schema.entries.entries, entriesInput);
   const standardEntries =
@@ -333,9 +306,7 @@ test("exposes a composable state-index schema", async () => {
     false
   );
   const invalidEntriesInput = recordMember(
-    JSON.parse(
-      '{"__proto__":{"keys":{"status":["active"]},' + '"state":{"id":0}}}'
-    ),
+    JSON.parse('{"__proto__":{"id":0}}'),
     "invalid entries input"
   );
   const invalidPrototypeEntry = v.safeParse(
@@ -346,10 +317,7 @@ test("exposes a composable state-index schema", async () => {
   if (invalidPrototypeEntry.success) {
     assert.fail("prototype-sensitive entry should fail state validation");
   }
-  assert.equal(
-    v.getDotPath(invalidPrototypeEntry.issues[0]),
-    "__proto__.state.id"
-  );
+  assert.equal(v.getDotPath(invalidPrototypeEntry.issues[0]), "__proto__.id");
   assertOriginalRecordPathItem(
     invalidPrototypeEntry.issues[0]?.path?.[0],
     invalidEntriesInput
@@ -364,7 +332,7 @@ test("exposes a composable state-index schema", async () => {
     standardIssue?.path
       ?.map((item) => (typeof item === "object" ? item.key : item))
       .join("."),
-    "__proto__.state.id"
+    "__proto__.id"
   );
   assertOriginalRecordPathItem(standardIssue?.path?.[0], invalidEntriesInput);
   assert.equal(
@@ -383,7 +351,10 @@ test("round-trips prototype-sensitive ids through schemas and runtime", async ()
     Object.prototype.hasOwnProperty.call(index.entries, "__proto__"),
     true
   );
-  assert.deepEqual(Object.keys(index.entries.__proto__!), ["keys", "state"]);
+  assert.deepEqual(Object.keys(index.entries.__proto__!), [
+    "domainId",
+    "label"
+  ]);
 
   const parsed = resultValue(
     parseStateIndex({
@@ -436,15 +407,6 @@ test("round-trips prototype-sensitive ids through schemas and runtime", async ()
   const publicIndexSchema = createStateIndexSchema({
     definitionVersion: 1,
     id: stateIndexTextSchema,
-    keys: v.strictObject({
-      "source-id": v.tuple([stateIndexTextSchema])
-    }),
-    keyDefinitions: v.tuple([
-      v.strictObject({
-        mode: v.literal("exact"),
-        name: v.literal("source-id")
-      })
-    ]),
     metadata: v.strictObject({}),
     namespace: "special-ids",
     sourceRevision: publicSourceRevisionSchema,
@@ -455,12 +417,12 @@ test("round-trips prototype-sensitive ids through schemas and runtime", async ()
   });
   const publicIndex = v.parse(publicIndexSchema, JSON.parse(text));
   assert.equal(Object.hasOwn(publicIndex.entries, "__proto__"), true);
-  assert.equal(publicIndex.entries["__proto__"]?.state.label, "__proto__");
+  assert.equal(publicIndex.entries["__proto__"]?.label, "__proto__");
   assert.equal(Object.hasOwn(publicIndex.entries, "constructor"), true);
   const invalidPublicIndex = JSON.parse(text) as {
-    entries: Record<string, { state: { label: unknown } }>;
+    entries: Record<string, { label: unknown }>;
   };
-  invalidPublicIndex.entries["__proto__"]!.state.label = 0;
+  invalidPublicIndex.entries["__proto__"]!.label = 0;
   assert.equal(
     v.safeParse(publicIndexSchema, invalidPublicIndex).success,
     false
@@ -490,13 +452,14 @@ test("round-trips prototype-sensitive ids through schemas and runtime", async ()
 });
 
 test("rejects incompatible persisted schema versions", async () => {
-  const { text } = await createSpecialIdFixture();
-  const schemaV2 = JSON.parse(text) as Record<string, unknown>;
-  schemaV2.schemaVersion = 2;
+  const { definition, text } = await createSpecialIdFixture();
+  const schemaV3 = JSON.parse(text) as Record<string, unknown>;
+  schemaV3.schemaVersion = 3;
   const unsupported = parseStateIndex({
+    definition,
     expectation: { definitionVersion: 1, namespace: "special-ids" },
     sourcePath: "special-ids.json",
-    text: JSON.stringify(schemaV2)
+    text: JSON.stringify(schemaV3)
   });
   assert.equal(unsupported.status, "error");
   assert.equal(
@@ -506,12 +469,13 @@ test("rejects incompatible persisted schema versions", async () => {
 });
 
 test("rejects invalid or incomplete source revisions", async () => {
-  const { text } = await createSpecialIdFixture();
+  const { definition, text } = await createSpecialIdFixture();
   const mismatched = JSON.parse(text) as {
     sourceRevision: { entries: Record<string, string> };
   };
   Reflect.deleteProperty(mismatched.sourceRevision.entries, "constructor");
   const mismatchResult = parseStateIndex({
+    definition,
     expectation: { definitionVersion: 1, namespace: "special-ids" },
     sourcePath: "special-ids.json",
     text: JSON.stringify(mismatched)
@@ -542,6 +506,7 @@ test("rejects invalid or incomplete source revisions", async () => {
   };
   invalidRevision.sourceRevision.metadata = "";
   const invalidRevisionResult = parseStateIndex({
+    definition,
     expectation: { definitionVersion: 1, namespace: "special-ids" },
     sourcePath: "special-ids.json",
     text: JSON.stringify(invalidRevision)
@@ -577,16 +542,17 @@ test("creates an immutable in-memory reader snapshot and validates its input", a
   });
   readerInput.metadata.tenant = "tenant-b";
   readerInput.metadata.groups.push("mutated");
-  readerInput.entries["tenant-a:one"]!.state.label = "Mutated";
+  readerInput.entries["tenant-a:one"]!.label = "Mutated";
   Reflect.deleteProperty(readerInput.entries, "tenant-a:one");
-  readerInput.keyDefinitions.splice(0);
   assert.equal(reader.metadata.tenant, "tenant-a");
-  assert.equal(resultValue(reader.get("tenant-a:one"))?.state.label, "First");
+  const entry = resultValue(reader.get("tenant-a:one"));
+  assert.deepEqual(Object.keys(entry ?? {}), ["id", "state"]);
+  assert.equal(entry?.state.label, "First");
   assert.equal(resultValue(reader.query()).total, 1);
   assert.equal(resultValue(reader.all()).length, 1);
 
   const mismatchedIndex = structuredClone(index);
-  mismatchedIndex.keyDefinitions[0]!.mode = "range";
+  mismatchedIndex.definitionVersion += 1;
   assert.throws(
     () =>
       createStateIndexReader({
@@ -594,7 +560,7 @@ test("creates an immutable in-memory reader snapshot and validates its input", a
         index: mismatchedIndex,
         indexPath: "typed-metadata.json"
       }),
-    /state-index\.definition-mismatch/u
+    /state-index\.definition-version-mismatch/u
   );
   assert.throws(
     () =>
@@ -646,6 +612,7 @@ test("serializes, parses, and domain-validates typed metadata", async () => {
     const invalid = JSON.parse(text) as Record<string, unknown>;
     mutate(invalid);
     const rejected = parseStateIndex({
+      definition,
       expectation: { definitionVersion: 1, namespace: "typed-metadata" },
       sourcePath: "typed-metadata.json",
       text: JSON.stringify(invalid)
@@ -740,11 +707,10 @@ test("opens a bound reader with one revision check for all operations", async ()
       await createDecisionRuntimeFixture(tempRoot);
     const reader = resultValue(await runtime.open());
     assert.deepEqual(calls, {
-      derives: 0,
-      parses: 0,
+      parses: 2,
       reads: 0,
       revisionReads: 1,
-      validations: 0
+      validations: 1
     });
     assert.equal(resultValue(reader.all()).length, source.states.length);
     assert.equal(
@@ -770,11 +736,10 @@ test("opens a bound reader with one revision check for all operations", async ()
       2
     );
     assert.deepEqual(calls, {
-      derives: 0,
-      parses: 0,
+      parses: 2,
       reads: 0,
       revisionReads: 1,
-      validations: 0
+      validations: 1
     });
   });
 });
@@ -827,10 +792,9 @@ test("rejects incompatible indexes and fully parses corrupt projections", async 
       await createDecisionRuntimeFixture(tempRoot);
     const incompatibleDefinition = defineStateIndexDefinition({
       ...definition,
-      keyStrategies: definition.keyStrategies.map((strategy) =>
-        strategy.name === "status"
-          ? { ...strategy, name: "lifecycle" }
-          : strategy
+      definitionVersion: definition.definitionVersion + 1,
+      queryFields: definition.queryFields.map((field) =>
+        field.name === "status" ? { ...field, name: "lifecycle" } : field
       )
     });
     const incompatibleRuntime = createStateIndexRuntime({
@@ -842,15 +806,15 @@ test("rejects incompatible indexes and fully parses corrupt projections", async 
     assert.equal(incompatible.status, "error");
     assert.ok(
       incompatible.diagnostics.some(
-        (entry) => entry.code === "state-index.definition-mismatch"
+        (entry) => entry.code === "state-index.definition-version-mismatch"
       )
     );
 
     const persistedPath = path.join(tempRoot, "indexes", "decisions.json");
     const persisted = JSON.parse(await fs.readFile(persistedPath, "utf8")) as {
-      entries: Record<string, { state: { title: unknown } }>;
+      entries: Record<string, { title: unknown }>;
     };
-    persisted.entries["architecture/use-shared-cache.md"]!.state.title = 42;
+    persisted.entries["architecture/use-shared-cache.md"]!.title = 42;
     await fs.writeFile(
       persistedPath,
       `${JSON.stringify(persisted, null, 2)}\n`
@@ -908,8 +872,12 @@ test("selected sync proves the complete projection before publishing it", async 
     };
     const definition = defineStateIndexDefinition<{ label: string }>({
       definitionVersion: 1,
-      keyStrategies: [
-        { derive: (state) => state.label, mode: "text", name: "search" }
+      queryFields: [
+        {
+          mode: "text",
+          name: "search",
+          sources: [{ kind: "state-path", path: ["label"] }]
+        }
       ],
       namespace: "selected-runtime",
       parseMetadata: (metadata) => metadata,
@@ -1043,8 +1011,12 @@ test("selected sync requires a valid baseline while full sync repairs it", async
     };
     const definition = defineStateIndexDefinition<{ label: string }>({
       definitionVersion: 1,
-      keyStrategies: [
-        { derive: (state) => state.label, mode: "text", name: "search" }
+      queryFields: [
+        {
+          mode: "text",
+          name: "search",
+          sources: [{ kind: "state-path", path: ["label"] }]
+        }
       ],
       namespace: "selected-baseline",
       parseMetadata: (metadata) => metadata,

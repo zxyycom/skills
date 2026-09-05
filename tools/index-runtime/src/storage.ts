@@ -6,12 +6,7 @@ import {
   isPathWithinDirectory
 } from "../../shared/src/node/filesystem.ts";
 import { sameStateSourceRevision } from "./canonicalization.ts";
-import {
-  expectationOf,
-  keyDefinitionsOf,
-  sameKeyDefinitions,
-  validateStateIndexDefinition
-} from "./definition.ts";
+import { expectationOf, validateStateIndexDefinition } from "./definition.ts";
 import {
   diagnostic,
   filesystemDiagnostic,
@@ -19,7 +14,15 @@ import {
   failure
 } from "./diagnostics.ts";
 import { buildStateIndex } from "./snapshot-builder.ts";
-import { parseStateIndex, serializeStateIndex } from "./snapshot-parser.ts";
+import {
+  parseStateIndex,
+  parseStateIndexEnvelope,
+  serializeStateIndex
+} from "./snapshot-parser.ts";
+import {
+  normalizeStateIndex,
+  validateCompleteStateIndex
+} from "./projection.ts";
 import { isStateIndexText } from "./schemas.ts";
 import {
   sameStateIndexCollectionMetadata,
@@ -51,43 +54,20 @@ export async function loadStateIndex<
 >(options: {
   context: StateIndexContext;
   definition: StateIndexDefinition<State, Metadata>;
-  expectation: StateIndexExpectation;
+  expectation?: StateIndexExpectation;
   indexPath: string;
-}): Promise<StateIndexResult<StateIndex<State, Metadata>>>;
-export async function loadStateIndex(options: {
-  context: StateIndexContext;
-  definition?: undefined;
-  expectation: StateIndexExpectation;
-  indexPath: string;
-}): Promise<StateIndexResult<StateIndex>>;
-export async function loadStateIndex<
-  State extends object,
-  Metadata extends JsonObject
->(options: {
-  context: StateIndexContext;
-  definition?: StateIndexDefinition<State, Metadata>;
-  expectation: StateIndexExpectation;
-  indexPath: string;
-}): Promise<StateIndexResult<StateIndex | StateIndex<State, Metadata>>> {
+}): Promise<StateIndexResult<StateIndex<State, Metadata>>> {
   const resolved = await resolveIndexPath(
     options.indexPath,
     options.context.root
   );
-  if (resolved.status === "error") {
-    return resolved;
-  }
-  return options.definition === undefined
-    ? await loadStateIndexAtResolvedPath({
-        expectation: options.expectation,
-        indexPath: options.indexPath,
-        resolved: resolved.value
-      })
-    : await loadStateIndexAtResolvedPath({
-        definition: options.definition,
-        expectation: options.expectation,
-        indexPath: options.indexPath,
-        resolved: resolved.value
-      });
+  if (resolved.status === "error") return resolved;
+  return await loadStateIndexAtResolvedPath({
+    definition: options.definition,
+    expectation: options.expectation ?? expectationOf(options.definition),
+    indexPath: options.indexPath,
+    resolved: resolved.value
+  });
 }
 
 export async function loadStateIndexAtResolvedPath<
@@ -98,22 +78,43 @@ export async function loadStateIndexAtResolvedPath<
   expectation: StateIndexExpectation;
   indexPath: string;
   resolved: ResolvedIndexPath;
-}): Promise<StateIndexResult<StateIndex<State, Metadata>>>;
-export async function loadStateIndexAtResolvedPath(options: {
-  definition?: undefined;
+}): Promise<StateIndexResult<StateIndex<State, Metadata>>> {
+  const text = await readIndexTextAtResolvedPath(options);
+  if (text.status === "error") return text;
+  return parseStateIndex({
+    definition: options.definition,
+    expectation: options.expectation,
+    sourcePath: options.indexPath,
+    text: text.value
+  });
+}
+
+async function loadStateIndexEnvelope(options: {
+  context: StateIndexContext;
   expectation: StateIndexExpectation;
   indexPath: string;
-  resolved: ResolvedIndexPath;
-}): Promise<StateIndexResult<StateIndex>>;
-export async function loadStateIndexAtResolvedPath<
-  State extends object,
-  Metadata extends JsonObject
->(options: {
-  definition?: StateIndexDefinition<State, Metadata>;
-  expectation: StateIndexExpectation;
+}): Promise<StateIndexResult<StateIndex>> {
+  const resolved = await resolveIndexPath(
+    options.indexPath,
+    options.context.root
+  );
+  if (resolved.status === "error") return resolved;
+  const text = await readIndexTextAtResolvedPath({
+    indexPath: options.indexPath,
+    resolved: resolved.value
+  });
+  if (text.status === "error") return text;
+  return parseStateIndexEnvelope({
+    expectation: options.expectation,
+    sourcePath: options.indexPath,
+    text: text.value
+  });
+}
+
+async function readIndexTextAtResolvedPath(options: {
   indexPath: string;
   resolved: ResolvedIndexPath;
-}): Promise<StateIndexResult<StateIndex | StateIndex<State, Metadata>>> {
+}): Promise<StateIndexResult<string>> {
   let data: Buffer;
   try {
     data = await fs.readFile(options.resolved.targetPath);
@@ -133,9 +134,8 @@ export async function loadStateIndexAtResolvedPath<
       }
     );
   }
-  let text: string;
   try {
-    text = decodeUtf8Text(data);
+    return { diagnostics: [], status: "ok", value: decodeUtf8Text(data) };
   } catch {
     return failure(
       "state-index.index-encoding-invalid",
@@ -143,18 +143,6 @@ export async function loadStateIndexAtResolvedPath<
       { path: options.indexPath }
     );
   }
-  return options.definition === undefined
-    ? parseStateIndex({
-        expectation: options.expectation,
-        sourcePath: options.indexPath,
-        text
-      })
-    : parseStateIndex({
-        definition: options.definition,
-        expectation: options.expectation,
-        sourcePath: options.indexPath,
-        text
-      });
 }
 
 export async function loadCurrentStateIndex<
@@ -170,38 +158,23 @@ export async function loadCurrentStateIndex<
     return failure(
       "state-index.definition-invalid",
       definitionErrors.join("; "),
-      { path: options.indexPath }
+      {
+        path: options.indexPath
+      }
     );
   }
-  const loaded = await loadStateIndex({
+  const loaded = await loadStateIndexEnvelope({
     context: options.context,
     expectation: expectationOf(options.definition),
     indexPath: options.indexPath
   });
-  if (loaded.status === "error") {
-    return loaded;
-  }
-  if (
-    !sameKeyDefinitions(
-      loaded.value.keyDefinitions,
-      keyDefinitionsOf(options.definition)
-    )
-  ) {
-    return failure(
-      "state-index.definition-mismatch",
-      "index key definitions do not match the runtime definition",
-      { path: options.indexPath }
-    );
-  }
-
+  if (loaded.status === "error") return loaded;
   const currentRevision = await readSourceRevision(
     options.definition,
     options.context,
     options.indexPath
   );
-  if (currentRevision.status === "error") {
-    return currentRevision;
-  }
+  if (currentRevision.status === "error") return currentRevision;
   if (
     !sameStateSourceRevision(loaded.value.sourceRevision, currentRevision.value)
   ) {
@@ -211,11 +184,17 @@ export async function loadCurrentStateIndex<
       { path: options.indexPath }
     );
   }
-  return {
-    diagnostics: [],
-    status: "ok",
-    value: bindCurrentIndexToDefinition(loaded.value, options.definition)
-  };
+  const normalized = normalizeStateIndex(
+    loaded.value,
+    options.definition,
+    options.indexPath
+  );
+  if (normalized.status === "error") return normalized;
+  return validateCompleteStateIndex(
+    options.definition,
+    normalized.value,
+    options.indexPath
+  );
 }
 
 export async function syncStateIndex<
@@ -1069,21 +1048,6 @@ async function readSourceRevision<
 
 function isStateIndexSyncMode(value: unknown): value is StateIndexSyncMode {
   return value === "check" || value === "write";
-}
-
-function bindCurrentIndexToDefinition<
-  State extends object,
-  Metadata extends JsonObject
->(
-  index: StateIndex,
-  _definition: StateIndexDefinition<State, Metadata>
-): StateIndex<State, Metadata> {
-  // This is the one deliberate fast-open type binding. The caller has already
-  // checked the definition identity, key definitions, common JSON schema and
-  // current source revision. Re-running parseMetadata/parseState here would
-  // violate the fast-open contract; persisted domain-shape validation remains
-  // the consumer schema/check responsibility documented by Index Runtime.
-  return index as StateIndex<State, Metadata>;
 }
 
 function failedSync<State extends object, Metadata extends JsonObject>(

@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "namespace": "decisions",
-  "definitionVersion": 9,
+  "definitionVersion": 10,
   "metadata": {},
   "sourceRevision": {
     "entries": {
@@ -10,88 +10,40 @@
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
-  "keyDefinitions": [
-    {
-      "name": "name",
-      "mode": "exact"
-    },
-    {
-      "name": "tag",
-      "mode": "exact"
-    },
-    {
-      "name": "status",
-      "mode": "exact"
-    },
-    {
-      "name": "alignment",
-      "mode": "exact"
-    }
-  ],
   "entries": {
     "260710-use-source-cli": {
-      "keys": {
-        "name": [
-          "use-source-cli"
-        ],
-        "tag": [
-          "decision-records"
-        ],
-        "status": [
-          "archived"
-        ]
-      },
-      "state": {
-        "name": "use-source-cli",
-        "sourcePath": "archive/260710-use-source-cli.md",
-        "title": "使用源码 CLI",
-        "status": "archived",
-        "alignment": null,
-        "createdAt": "2026-07-10T09:10:11+08:00",
-        "purpose": "为 CLI 关系和生命周期测试保留可追溯的前序判断。",
-        "background": "需要为直接关系校验提供一条可追溯的前序决定。",
-        "decision": "使用源码 CLI 作为测试夹具的初始做法。",
-        "tags": [
-          "decision-records"
-        ],
-        "relations": []
-      }
+      "name": "use-source-cli",
+      "sourcePath": "archive/260710-use-source-cli.md",
+      "title": "使用源码 CLI",
+      "status": "archived",
+      "createdAt": "2026-07-10T09:10:11+08:00",
+      "purpose": "为 CLI 关系和生命周期测试保留可追溯的前序判断。",
+      "background": "需要为直接关系校验提供一条可追溯的前序决定。",
+      "decision": "使用源码 CLI 作为测试夹具的初始做法。",
+      "tags": [
+        "decision-records"
+      ],
+      "relations": []
     },
     "use-generated-cli": {
-      "keys": {
-        "name": [
-          "use-generated-cli"
-        ],
-        "tag": [
-          "project-tooling"
-        ],
-        "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
-        ]
-      },
-      "state": {
-        "name": "use-generated-cli",
-        "sourcePath": "use-generated-cli.md",
-        "title": "使用生成 CLI",
-        "status": "active",
-        "alignment": "aligned",
-        "createdAt": "2026-07-11T14:15:16+08:00",
-        "purpose": "确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。",
-        "background": "需要验证生成后的 CLI 能读取一套最小决策目录。",
-        "decision": "使用固定结构的测试夹具。",
-        "tags": [
-          "project-tooling"
-        ],
-        "relations": [
-          {
-            "type": "修订",
-            "target": "260710-use-source-cli"
-          }
-        ]
-      }
+      "name": "use-generated-cli",
+      "sourcePath": "use-generated-cli.md",
+      "title": "使用生成 CLI",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-07-11T14:15:16+08:00",
+      "purpose": "确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。",
+      "background": "需要验证生成后的 CLI 能读取一套最小决策目录。",
+      "decision": "使用固定结构的测试夹具。",
+      "tags": [
+        "project-tooling"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260710-use-source-cli"
+        }
+      ]
     }
   }
 }

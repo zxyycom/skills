@@ -430,8 +430,7 @@ test("stage-index rejects workspace cases projected to an unknown topic", async 
       const index = structuredClone(await readWorkspaceIndex(workspaceRoot));
       const entry = index.entries[caseA.id];
       assert.ok(entry);
-      entry.state.sourcePath = "unknown/stage-a.md";
-      entry.keys.topic = ["unknown"];
+      entry.sourcePath = "unknown/stage-a.md";
       await fs.writeFile(
         indexPath(workspaceRoot),
         `${JSON.stringify(index, null, 2)}\n`

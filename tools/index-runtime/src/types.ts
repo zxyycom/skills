@@ -3,10 +3,7 @@ import type { VersionControlErrorCauseCategory } from "../../shared/src/version-
 import type { DeepReadonly, JsonObject } from "./json.ts";
 import type {
   StateIndex as StateIndexValue,
-  StateIndexStoredEntry as StateIndexStoredEntryValue,
-  StateIndexKeyDefinition,
-  StateIndexKeyMode,
-  StateIndexKeyScalar
+  StateIndexKeyMode
 } from "./schemas.ts";
 
 export type {
@@ -19,7 +16,6 @@ export type {
 } from "./json.ts";
 export type {
   StateIndexFilter,
-  StateIndexKeyDefinition,
   StateIndexKeyMode,
   StateIndexKeyScalar,
   StateIndexQuery,
@@ -28,15 +24,8 @@ export type {
   StateIndexSort
 } from "./schemas.ts";
 
-export type StateIndexEntry<State extends object = JsonObject> =
-  StateIndexStoredEntry<State> & {
-    id: string;
-  };
-
-export type StateIndexStoredEntry<State extends object = JsonObject> = Omit<
-  StateIndexStoredEntryValue,
-  "state"
-> & {
+export type StateIndexEntry<State extends object = JsonObject> = {
+  id: string;
   state: State;
 };
 
@@ -53,32 +42,17 @@ export type StateIndex<
   State extends object = JsonObject,
   Metadata extends JsonObject = JsonObject
 > = Omit<StateIndexValue, "entries" | "metadata" | "sourceRevision"> & {
-  entries: StateRecord<StateIndexStoredEntry<State>>;
+  entries: StateRecord<State>;
   metadata: Metadata;
   sourceRevision: StateSourceRevision;
 };
-
-export type ReadonlyStateIndexStoredEntry<State extends object> = {
-  readonly keys: {
-    readonly [name: string]: readonly StateIndexKeyScalar[];
-  };
-  readonly state: DeepReadonly<State>;
-};
-
-export type ReadonlyStateIndexEntry<State extends object> =
-  ReadonlyStateIndexStoredEntry<State> & {
-    readonly id: string;
-  };
 
 export type ReadonlyStateIndex<
   State extends object = JsonObject,
   Metadata extends JsonObject = JsonObject
 > = {
   readonly definitionVersion: number;
-  readonly entries: Readonly<{
-    [id: string]: ReadonlyStateIndexStoredEntry<State>;
-  }>;
-  readonly keyDefinitions: readonly DeepReadonly<StateIndexKeyDefinition>[];
+  readonly entries: Readonly<{ [id: string]: DeepReadonly<State> }>;
   readonly metadata: DeepReadonly<Metadata>;
   readonly namespace: string;
   readonly schemaVersion: StateIndexValue["schemaVersion"];
@@ -124,10 +98,28 @@ export type StateSnapshot<
 
 export type StateIndexFieldOrder = "definition" | "lexicographic";
 
-export type StateKeyInput =
-  | StateIndexKeyScalar
-  | readonly StateIndexKeyScalar[]
-  | undefined;
+export type StateIndexEachPathSegment = Readonly<{ kind: "each" }>;
+export type StateIndexStatePathSegment = string | StateIndexEachPathSegment;
+
+export type StateIndexQuerySource =
+  | Readonly<{ kind: "entry-id" }>
+  | Readonly<{
+      kind: "state-path";
+      normalization?: "instant";
+      path: readonly StateIndexStatePathSegment[];
+    }>
+  | Readonly<{ kind: "source-path-first-segment" }>;
+
+export type StateIndexQueryField = Readonly<{
+  mode: StateIndexKeyMode;
+  name: string;
+  sources: readonly StateIndexQuerySource[];
+}>;
+
+export type StateIndexQueryFieldDefinition = Readonly<{
+  mode: StateIndexKeyMode;
+  name: string;
+}>;
 
 export type StateIndexProjectionContext<
   Metadata extends JsonObject = JsonObject
@@ -136,31 +128,19 @@ export type StateIndexProjectionContext<
   metadata: DeepReadonly<Metadata>;
 }>;
 
-export type StateKeyStrategy<
-  State extends object,
-  Metadata extends JsonObject = JsonObject
-> = {
-  derive: (
-    state: State,
-    context: StateIndexProjectionContext<Metadata>
-  ) => StateKeyInput;
-  mode: StateIndexKeyMode;
-  name: string;
-};
-
 export type StateIndexDefinition<
   State extends object = JsonObject,
   Metadata extends JsonObject = JsonObject
 > = {
   definitionVersion: number;
   fieldOrder?: StateIndexFieldOrder;
-  keyStrategies: readonly StateKeyStrategy<State, Metadata>[];
   namespace: string;
   parseMetadata: (metadata: JsonObject) => Metadata;
   parseState: (
     state: JsonObject,
     context: StateIndexProjectionContext<Metadata>
   ) => State;
+  queryFields: readonly StateIndexQueryField[];
   read: (context: StateIndexContext) => Promise<StateSnapshot<State, Metadata>>;
   readRevision: (context: StateIndexContext) => Promise<StateSourceRevision>;
   validateIndex?: (index: ReadonlyStateIndex<State, Metadata>) => void;
@@ -172,16 +152,8 @@ export type StateIndexExpectation = {
 };
 
 export type StateIndexResult<Value> =
-  | {
-      diagnostics: StateIndexDiagnostic[];
-      status: "ok";
-      value: Value;
-    }
-  | {
-      diagnostics: StateIndexDiagnostic[];
-      status: "error";
-      value: null;
-    };
+  | { diagnostics: StateIndexDiagnostic[]; status: "ok"; value: Value }
+  | { diagnostics: StateIndexDiagnostic[]; status: "error"; value: null };
 
 export type StateIndexQueryOutput<
   State extends object = JsonObject,
@@ -196,10 +168,7 @@ export type StateIndexQueryOutput<
 
 export type StateIndexSyncMode = "check" | "write";
 
-/**
- * `selected` limits only the source changes that a sync may accept. It never
- * limits source loading, validation, or the index text eventually published.
- */
+/** `selected` limits accepted source changes, never validation or output scope. */
 export type StateIndexSyncScope =
   | Readonly<{ kind: "all" }>
   | Readonly<{ kind: "selected"; selectedIds: readonly string[] }>;

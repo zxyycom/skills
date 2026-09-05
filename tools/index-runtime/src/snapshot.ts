@@ -1,12 +1,12 @@
 export {
   defineStateIndexDefinition,
   expectationOf,
-  keyDefinitionsOf
+  queryFieldDefinitionsOf
 } from "./definition.ts";
 export { canonicalizeStateIndex } from "./canonicalization.ts";
 export {
   normalizeStateIndex,
-  projectStateIndexEntry,
+  projectStateIndexState,
   readonlyStateIndexMetadata
 } from "./projection.ts";
 export { buildStateIndex } from "./snapshot-builder.ts";

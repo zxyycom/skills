@@ -8,5 +8,5 @@ Contract:
 - 打开 test-evidence 索引只执行一次快速 revision 读取；绑定 reader 的后续操作不得重新读取来源或执行完整领域投影。
 
 Proves:
-- `open` 的计数为一次 `readRevision`、零 `read`、state parse、key derive 和完整验证。
+- `open` 的计数为一次 `readRevision`、零 `read`，并在加载 state-only snapshot 时完成一次 state parse 与完整验证。
 - 权威来源在打开后移走，`get`、`query` 与 `all` 仍复用已绑定快照且计数不变。

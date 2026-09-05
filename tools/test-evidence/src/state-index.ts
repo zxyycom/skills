@@ -50,17 +50,19 @@ export function createTestEvidenceStateIndexDefinition(
 ): StateIndexDefinition<TestEvidenceCaseIndexState, TestEvidenceIndexMetadata> {
   return defineStateIndexDefinition({
     definitionVersion: testEvidenceIndexDefinitionVersion,
-    keyStrategies: [
+    queryFields: [
       {
-        derive: (state, context) => caseSearchText(state, context.id),
         mode: "text",
-        name: "search"
+        name: "search",
+        sources: [
+          { kind: "entry-id" },
+          { kind: "state-path", path: ["searchText"] }
+        ]
       },
       {
-        derive: (state, context) =>
-          topicFromIndexState(state, context.metadata),
         mode: "exact",
-        name: "topic"
+        name: "topic",
+        sources: [{ kind: "source-path-first-segment" }]
       }
     ],
     namespace: testEvidenceIndexNamespace,
@@ -87,10 +89,6 @@ export function createTestEvidenceStateIndexDefinition(
     },
     readRevision: readCurrentTestEvidenceSourceRevision
   });
-}
-
-function caseSearchText(state: TestEvidenceCaseIndexState, id: string): string {
-  return `${id} ${state.searchText}`;
 }
 
 function topicFromIndexState(
@@ -283,17 +281,13 @@ const rebuildableIndexCodes: ReadonlySet<string> = new Set([
   "state-index.index-missing",
   "state-index.index-stale",
   "state-index.index-validation-failed",
+  "state-index.index-encoding-invalid",
   "state-index.json-invalid",
-  "state-index.key-definition-duplicate",
-  "state-index.key-derive-failed",
-  "state-index.key-reserved",
-  "state-index.key-unknown",
-  "state-index.key-value-duplicate",
-  "state-index.key-value-invalid",
   "state-index.metadata-invalid",
   "state-index.metadata-parse-failed",
   "state-index.metadata-parse-invalid",
   "state-index.namespace-mismatch",
+  "state-index.query-field-source-invalid",
   "state-index.schema-invalid",
   "state-index.schema-version-unsupported",
   "state-index.source-revision-invalid",

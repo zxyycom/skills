@@ -565,7 +565,7 @@ test("ledger schemas reject unknown fields and incompatible versions", async () 
     assert.equal(
       v.safeParse(testEvidenceLedgerStateIndexSchema, {
         ...(index as Record<string, unknown>),
-        definitionVersion: 3
+        definitionVersion: 4
       }).success,
       false
     );

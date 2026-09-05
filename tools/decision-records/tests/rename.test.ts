@@ -39,10 +39,7 @@ test("Decision rename keeps the established date, moves its source, and rebuilds
     const index = await readIndex(workspaceRoot);
     assert.ok(Object.hasOwn(index.entries, renamedCliId));
     assert.ok(!Object.hasOwn(index.entries, currentDecisionId));
-    assert.equal(
-      index.entries[renamedCliId]?.state.sourcePath,
-      "renamed-cli.md"
-    );
+    assert.equal(index.entries[renamedCliId]?.sourcePath, "renamed-cli.md");
     assert.equal(
       (await runSourceCli(["check", "--root", workspaceRoot])).exitCode,
       0
@@ -79,7 +76,7 @@ test("Decision rename rewrites candidate and established structured relation tar
     assert.match(candidate, /summary: 保留前序的理由/u);
     const index = await readIndex(workspaceRoot);
     assert.equal(
-      index.entries[renamedCliId]?.state.relations[0]?.target,
+      index.entries[renamedCliId]?.relations[0]?.target,
       "260710-use-source-cli"
     );
     assert.equal(

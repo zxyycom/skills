@@ -58,21 +58,24 @@ export function createTestEvidenceLedgerStateIndexDefinition(
   return defineStateIndexDefinition({
     definitionVersion: testEvidenceLedgerDefinitionVersion,
     fieldOrder: "definition",
-    keyStrategies: [
+    queryFields: [
       {
-        derive: (state, context) => `${context.id} ${state.searchText}`,
         mode: "text",
-        name: "search"
+        name: "search",
+        sources: [
+          { kind: "entry-id" },
+          { kind: "state-path", path: ["searchText"] }
+        ]
       },
       {
-        derive: (state) => state.tags,
         mode: "exact",
-        name: "tag"
+        name: "tag",
+        sources: [{ kind: "state-path", path: ["tags"] }]
       },
       {
-        derive: (state) => state.testIds,
         mode: "exact",
-        name: "test"
+        name: "test",
+        sources: [{ kind: "state-path", path: ["testIds"] }]
       }
     ],
     namespace: testEvidenceLedgerNamespace,
@@ -205,16 +208,11 @@ const rebuildableIndexCodes: ReadonlySet<string> = new Set([
   "state-index.index-stale",
   "state-index.index-validation-failed",
   "state-index.json-invalid",
-  "state-index.key-definition-duplicate",
-  "state-index.key-derive-failed",
-  "state-index.key-reserved",
-  "state-index.key-unknown",
-  "state-index.key-value-duplicate",
-  "state-index.key-value-invalid",
   "state-index.metadata-invalid",
   "state-index.metadata-parse-failed",
   "state-index.metadata-parse-invalid",
   "state-index.namespace-mismatch",
+  "state-index.query-field-source-invalid",
   "state-index.schema-invalid",
   "state-index.schema-version-unsupported",
   "state-index.source-revision-invalid",

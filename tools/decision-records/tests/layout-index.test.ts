@@ -75,19 +75,13 @@ test("scanner rejects status-position mismatches nested paths and duplicate deci
     );
   }));
 
-test("decision index is ID-keyed with empty metadata and deterministic tag keys", () =>
+test("decision index is state-only and ID-keyed with empty metadata", () =>
   withFixtureWorkspace("index-shape", async (workspaceRoot) => {
     const index = await readIndex(workspaceRoot);
-    assert.equal(index.schemaVersion, 3);
+    assert.equal(index.schemaVersion, 4);
     assert.equal(index.namespace, "decisions");
-    assert.equal(index.definitionVersion, 9);
+    assert.equal(index.definitionVersion, 10);
     assert.deepEqual(index.metadata, {});
-    assert.deepEqual(index.keyDefinitions, [
-      { name: "name", mode: "exact" },
-      { name: "tag", mode: "exact" },
-      { name: "status", mode: "exact" },
-      { name: "alignment", mode: "exact" }
-    ]);
     assert.deepEqual(Object.keys(index.entries), [
       archivedDecisionId,
       currentDecisionId

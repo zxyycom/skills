@@ -1,5 +1,5 @@
 {
-  "$comment": "entry Decision ID、state.sourcePath、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
+  "$comment": "entry Decision ID、state.sourcePath、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
   "$defs": {
     "decisionId": {
       "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
@@ -12,61 +12,6 @@
     "fingerprint": {
       "pattern": "^sha256:[0-9a-f]{64}$",
       "type": "string"
-    },
-    "keyValues": {
-      "additionalProperties": false,
-      "properties": {
-        "name": {
-          "items": {
-            "type": "string"
-          },
-          "maxItems": 1,
-          "minItems": 1,
-          "type": "array",
-          "uniqueItems": true
-        },
-        "tag": {
-          "items": {
-            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-            "type": "string"
-          },
-          "minItems": 1,
-          "type": "array",
-          "uniqueItems": true
-        },
-        "status": {
-          "items": {
-            "enum": [
-              "active",
-              "archived"
-            ],
-            "type": "string"
-          },
-          "maxItems": 1,
-          "minItems": 1,
-          "type": "array",
-          "uniqueItems": true
-        },
-        "alignment": {
-          "items": {
-            "enum": [
-              "aligned",
-              "unaligned"
-            ],
-            "type": "string"
-          },
-          "maxItems": 1,
-          "minItems": 1,
-          "type": "array",
-          "uniqueItems": true
-        }
-      },
-      "required": [
-        "name",
-        "tag",
-        "status"
-      ],
-      "type": "object"
     },
     "relation": {
       "additionalProperties": false,
@@ -122,7 +67,10 @@
                   "unaligned"
                 ]
               }
-            }
+            },
+            "required": [
+              "alignment"
+            ]
           }
         }
       ],
@@ -146,13 +94,9 @@
         "alignment": {
           "enum": [
             "aligned",
-            "unaligned",
-            null
+            "unaligned"
           ],
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "createdAt": {
           "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(Z|[+-](\\d{2}):(\\d{2}))$",
@@ -198,7 +142,6 @@
         "name",
         "title",
         "status",
-        "alignment",
         "createdAt",
         "purpose",
         "background",
@@ -214,13 +157,13 @@
   "description": "由决策 Markdown 生成的决策状态通用索引。",
   "properties": {
     "schemaVersion": {
-      "const": 3
+      "const": 4
     },
     "namespace": {
       "const": "decisions"
     },
     "definitionVersion": {
-      "const": 9
+      "const": 10
     },
     "metadata": {
       "additionalProperties": false,
@@ -249,42 +192,9 @@
       ],
       "type": "object"
     },
-    "keyDefinitions": {
-      "const": [
-        {
-          "name": "name",
-          "mode": "exact"
-        },
-        {
-          "name": "tag",
-          "mode": "exact"
-        },
-        {
-          "name": "status",
-          "mode": "exact"
-        },
-        {
-          "name": "alignment",
-          "mode": "exact"
-        }
-      ]
-    },
     "entries": {
       "additionalProperties": {
-        "additionalProperties": false,
-        "properties": {
-          "keys": {
-            "$ref": "#/$defs/keyValues"
-          },
-          "state": {
-            "$ref": "#/$defs/state"
-          }
-        },
-        "required": [
-          "keys",
-          "state"
-        ],
-        "type": "object"
+        "$ref": "#/$defs/state"
       },
       "propertyNames": {
         "$ref": "#/$defs/decisionId"
@@ -298,7 +208,6 @@
     "definitionVersion",
     "metadata",
     "sourceRevision",
-    "keyDefinitions",
     "entries"
   ],
   "title": "Decision Records State Index",

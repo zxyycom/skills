@@ -1,14 +1,12 @@
 import * as v from "valibot";
 import { diagnostic, formatValibotIssue } from "./diagnostics.ts";
-import { keyValueMatchesMode, scalarIdentity } from "./key-values.ts";
 import { isPlainRecord, sameRecordMembers } from "./record.ts";
 import {
   isStateIndexText,
   stateIndexSchema,
   stateIndexSchemaVersion,
   stateSourceRevisionSchema,
-  type StateIndex,
-  type StateIndexKeyDefinition
+  type StateIndex
 } from "./schemas.ts";
 import type {
   StateIndexDiagnostic,
@@ -23,28 +21,24 @@ export function validateStateIndexValue(
   sourcePath: string
 ): { diagnostics: StateIndexDiagnostic[]; index: StateIndex | null } {
   const versionDiagnostic = unsupportedVersionDiagnostic(input, sourcePath);
-  if (versionDiagnostic !== null) {
+  if (versionDiagnostic !== null)
     return { diagnostics: [versionDiagnostic], index: null };
-  }
-
   const idDiagnostics = validateIndexRecordIds(input, sourcePath);
-  if (idDiagnostics.length > 0) {
+  if (idDiagnostics.length > 0)
     return { diagnostics: idDiagnostics, index: null };
-  }
   const parsed = parseStateIndex(input, sourcePath);
-  if (parsed.index === null) {
-    return parsed;
-  }
-
-  const index = parsed.index;
-  const diagnostics = validateExpectation(index, expectation, sourcePath);
-
-  const definitions = validateKeyDefinitions(
-    index.keyDefinitions,
-    sourcePath,
-    diagnostics
+  if (parsed.index === null) return parsed;
+  const diagnostics = validateExpectation(
+    parsed.index,
+    expectation,
+    sourcePath
   );
-  if (!sameRecordMembers(index.entries, index.sourceRevision.entries)) {
+  if (
+    !sameRecordMembers(
+      parsed.index.entries,
+      parsed.index.sourceRevision.entries
+    )
+  ) {
     diagnostics.push(
       diagnostic({
         code: "state-index.source-revision-members-mismatch",
@@ -54,12 +48,7 @@ export function validateStateIndexValue(
       })
     );
   }
-  validateEntryKeys(index, definitions, sourcePath, diagnostics);
-
-  return {
-    diagnostics,
-    index: diagnostics.length === 0 ? index : null
-  };
+  return { diagnostics, index: diagnostics.length === 0 ? parsed.index : null };
 }
 
 function unsupportedVersionDiagnostic(
@@ -75,9 +64,7 @@ function unsupportedVersionDiagnostic(
   }
   return diagnostic({
     code: "state-index.schema-version-unsupported",
-    message:
-      `schema version ${String(input.schemaVersion)} is unsupported; expected ` +
-      stateIndexSchemaVersion,
+    message: `schema version ${String(input.schemaVersion)} is unsupported; expected ${stateIndexSchemaVersion}`,
     path: sourcePath
   });
 }
@@ -85,11 +72,12 @@ function unsupportedVersionDiagnostic(
 function parseStateIndex(
   input: unknown,
   sourcePath: string
-): { diagnostics: StateIndexDiagnostic[]; index: StateIndex | null } {
+): {
+  diagnostics: StateIndexDiagnostic[];
+  index: StateIndex | null;
+} {
   const parsed = v.safeParse(stateIndexSchema, input);
-  if (parsed.success) {
-    return { diagnostics: [], index: parsed.output };
-  }
+  if (parsed.success) return { diagnostics: [], index: parsed.output };
   return {
     diagnostics: parsed.issues.map((issue) =>
       diagnostic({
@@ -109,9 +97,7 @@ function validateExpectation(
   expectation: StateIndexExpectation | null,
   sourcePath: string
 ): StateIndexDiagnostic[] {
-  if (expectation === null) {
-    return [];
-  }
+  if (expectation === null) return [];
   const diagnostics: StateIndexDiagnostic[] = [];
   if (index.namespace !== expectation.namespace) {
     diagnostics.push(
@@ -126,77 +112,12 @@ function validateExpectation(
     diagnostics.push(
       diagnostic({
         code: "state-index.definition-version-mismatch",
-        message:
-          "expected definition version " +
-          `${expectation.definitionVersion}, found ${index.definitionVersion}`,
+        message: `expected definition version ${expectation.definitionVersion}, found ${index.definitionVersion}`,
         path: sourcePath
       })
     );
   }
   return diagnostics;
-}
-
-function validateEntryKeys(
-  index: StateIndex,
-  definitions: ReadonlyMap<string, StateIndexKeyDefinition>,
-  sourcePath: string,
-  diagnostics: StateIndexDiagnostic[]
-): void {
-  for (const [id, entry] of Object.entries(index.entries)) {
-    for (const [key, values] of Object.entries(entry.keys)) {
-      const definition = definitions.get(key);
-      if (definition === undefined) {
-        diagnostics.push(unknownKeyDiagnostic(id, key, sourcePath));
-        continue;
-      }
-      validateKeyValues(id, key, values, definition, sourcePath, diagnostics);
-    }
-  }
-}
-
-function unknownKeyDiagnostic(
-  id: string,
-  key: string,
-  sourcePath: string
-): StateIndexDiagnostic {
-  return diagnostic({
-    code: "state-index.key-unknown",
-    message: `state ${id} contains undeclared key ${key}`,
-    path: sourcePath,
-    stateId: id
-  });
-}
-
-function validateKeyValues(
-  id: string,
-  key: string,
-  values: readonly (boolean | number | string)[],
-  definition: StateIndexKeyDefinition,
-  sourcePath: string,
-  diagnostics: StateIndexDiagnostic[]
-): void {
-  if (new Set(values.map(scalarIdentity)).size !== values.length) {
-    diagnostics.push(
-      diagnostic({
-        code: "state-index.key-value-duplicate",
-        message: `state ${id} repeats a value for key ${key}`,
-        path: sourcePath,
-        stateId: id
-      })
-    );
-  }
-  for (const value of values) {
-    if (!keyValueMatchesMode(value, definition.mode)) {
-      diagnostics.push(
-        diagnostic({
-          code: "state-index.key-value-invalid",
-          message: `key ${key} with mode ${definition.mode} cannot contain ${typeof value}`,
-          path: sourcePath,
-          stateId: id
-        })
-      );
-    }
-  }
 }
 
 export function validateStateSourceRevisionValue(
@@ -224,43 +145,11 @@ export function validateStateSourceRevisionValue(
   return { diagnostics: [], status: "ok", value: parsed.output };
 }
 
-function validateKeyDefinitions(
-  definitions: readonly StateIndexKeyDefinition[],
-  sourcePath: string,
-  diagnostics: StateIndexDiagnostic[]
-): Map<string, StateIndexKeyDefinition> {
-  const byName = new Map<string, StateIndexKeyDefinition>();
-  for (const definition of definitions) {
-    if (definition.name === "id") {
-      diagnostics.push(
-        diagnostic({
-          code: "state-index.key-reserved",
-          message: "key definitions must not redefine the reserved id key",
-          path: sourcePath
-        })
-      );
-    }
-    if (byName.has(definition.name)) {
-      diagnostics.push(
-        diagnostic({
-          code: "state-index.key-definition-duplicate",
-          message: `key definition ${definition.name} appears more than once`,
-          path: sourcePath
-        })
-      );
-    }
-    byName.set(definition.name, definition);
-  }
-  return byName;
-}
-
 function validateIndexRecordIds(
   input: unknown,
   sourcePath: string
 ): StateIndexDiagnostic[] {
-  if (!isPlainRecord(input)) {
-    return [];
-  }
+  if (!isPlainRecord(input)) return [];
   return [
     ...validateRecordIds(input, "entries", sourcePath),
     ...(isPlainRecord(input.sourceRevision)
@@ -274,21 +163,16 @@ function validateRecordIds(
   member: string,
   sourcePath: string | null
 ): StateIndexDiagnostic[] {
-  if (!isPlainRecord(container)) {
-    return [];
-  }
+  if (!isPlainRecord(container)) return [];
   const record = container[member];
-  if (!isPlainRecord(record)) {
-    return [];
-  }
+  if (!isPlainRecord(record)) return [];
   return Object.keys(record)
     .filter((id) => !isStateIndexText(id))
     .map((id) =>
       diagnostic({
         code: "state-index.id-invalid",
         message:
-          "state id must be non-empty text without surrounding whitespace or " +
-          "control characters",
+          "state id must be non-empty text without surrounding whitespace or control characters",
         path: sourcePath,
         stateId: id
       })

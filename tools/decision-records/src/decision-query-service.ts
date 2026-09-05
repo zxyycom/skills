@@ -442,7 +442,7 @@ async function searchDecisionMetadata(
 
   const records: DecisionMetadataSearchRecord[] = [];
   const selected = Object.entries(persisted.value.entries)
-    .map(([id, entry]) => indexedRecord({ id, state: entry.state }))
+    .map(([id, state]) => indexedRecord({ id, state }))
     .sort((left, right) => left.sourcePath.localeCompare(right.sourcePath));
   for (const record of filterSearchRecords(selected, request)) {
     const segments = metadataSegments(record);
@@ -570,7 +570,7 @@ async function loadDecisionSearchSnapshot(
       });
       if (checked.status === "ok") {
         const records = Object.entries(current.value.entries)
-          .map(([id, entry]) => indexedRecord({ id, state: entry.state }))
+          .map(([id, state]) => indexedRecord({ id, state }))
           .sort((left, right) =>
             left.sourcePath.localeCompare(right.sourcePath)
           );
@@ -1122,7 +1122,7 @@ function indexedRecord(entry: IndexedDecisionState): IndexedDecisionRecord {
     relations: state.relations.map((relation) => ({ ...relation }))
   };
   return {
-    alignment: state.alignment,
+    alignment: state.alignment ?? null,
     createdAt: state.createdAt,
     decisionId: entry.id,
     projection,

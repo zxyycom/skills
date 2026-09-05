@@ -106,11 +106,11 @@ function createDefinition(
 ): StateIndexDefinition<TestState, TestMetadata> {
   return defineStateIndexDefinition<TestState, TestMetadata>({
     definitionVersion: 1,
-    keyStrategies: [
+    queryFields: [
       {
-        derive: (state) => state.label,
         mode: "exact",
-        name: "label"
+        name: "label",
+        sources: [{ kind: "state-path", path: ["label"] }]
       }
     ],
     namespace: "staging-test",
@@ -170,10 +170,7 @@ function snapshot(
 function isSelectedMixedTarget(
   index: ReadonlyStateIndex<TestState, TestMetadata>
 ): boolean {
-  return (
-    index.entries.A?.state.label === "A1" &&
-    index.entries.B?.state.label === "B0"
-  );
+  return index.entries.A?.label === "A1" && index.entries.B?.label === "B0";
 }
 
 async function buildText(
@@ -1238,6 +1235,6 @@ function entryLabels(
   index: ReadonlyStateIndex<TestState, TestMetadata>
 ): Record<string, string> {
   return Object.fromEntries(
-    Object.entries(index.entries).map(([id, entry]) => [id, entry.state.label])
+    Object.entries(index.entries).map(([id, entry]) => [id, entry.label])
   );
 }

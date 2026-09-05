@@ -241,7 +241,7 @@ export function ledgerIndexPath(workspaceRoot: string): string {
     workspaceRoot,
     "docs",
     "test-evidence",
-    "test-evidence-index.json"
+    "test-evidence-ledger-index.json"
   );
 }
 

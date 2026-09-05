@@ -22,20 +22,22 @@ async function buildDecisionFixture() {
     revision: "decision-revision-1",
     states: await decisionStates()
   };
+  const definition = decisionDefinition(source);
   return {
-    index: resultValue(
-      await buildStateIndex(decisionDefinition(source), { root: "." })
-    ),
+    definition,
+    index: resultValue(await buildStateIndex(definition, { root: "." })),
     source
   };
 }
 
 async function buildTestEvidenceFixture() {
   const originalStates = await testEvidenceStates();
-  const staticStates = originalStates.map((state) => ({
-    ...state,
-    trigger: null
-  }));
+  const staticStates = originalStates.map(
+    ({ triggerCaseId: _triggerCaseId, ...state }) => ({
+      ...state,
+      trigger: null
+    })
+  );
   const source: MemoryStateSource<TestEvidenceState> = {
     revision: "test-revision-1",
     states: staticStates
@@ -50,8 +52,9 @@ async function buildTestEvidenceFixture() {
 }
 
 test("filters decision states and finds entries by stable identity", async () => {
-  const { index } = await buildDecisionFixture();
+  const { definition, index } = await buildDecisionFixture();
   const text = queryStateIndex({
+    definition,
     index,
     query: {
       filters: [
@@ -70,6 +73,7 @@ test("filters decision states and finds entries by stable identity", async () =>
   );
 
   const range = queryStateIndex({
+    definition,
     index,
     query: {
       filters: [
@@ -88,6 +92,7 @@ test("filters decision states and finds entries by stable identity", async () =>
   );
 
   const exact = queryStateIndex({
+    definition,
     index,
     query: {
       filters: [
@@ -105,8 +110,13 @@ test("filters decision states and finds entries by stable identity", async () =>
     ["architecture/shared-id.md"]
   );
   assert.equal(
-    resultValue(findStateIndexEntry(index, "architecture/shared-id.md"))?.state
-      .title,
+    resultValue(
+      findStateIndexEntry({
+        definition,
+        index,
+        stateId: "architecture/shared-id.md"
+      })
+    )?.state.title,
     "共享身份决策"
   );
 });
@@ -128,10 +138,10 @@ test("sorts temporal keys by instants across timezone offsets", async () => {
       }
     ]
   };
-  const index = resultValue(
-    await buildStateIndex(decisionDefinition(temporalSource), { root: "." })
-  );
+  const definition = decisionDefinition(temporalSource);
+  const index = resultValue(await buildStateIndex(definition, { root: "." }));
   const result = queryStateIndex({
+    definition,
     index,
     query: { sort: [{ direction: "asc", key: "created-at" }] }
   });
@@ -152,6 +162,7 @@ test("searches text keys across investigation and test-evidence states", async (
     })
   );
   const investigation = queryStateIndex({
+    definition: investigationDefinition(investigationSource),
     index: investigationIndex,
     query: {
       filters: [
@@ -169,9 +180,10 @@ test("searches text keys across investigation and test-evidence states", async (
     ["index-cost/lookup-cost.md"]
   );
 
-  const { index } = await buildTestEvidenceFixture();
+  const { definition, index } = await buildTestEvidenceFixture();
   assert.deepEqual(Object.keys(index.entries), ["read-error", "state-query"]);
   const searched = queryStateIndex({
+    definition,
     index,
     query: {
       filters: [
@@ -219,7 +231,8 @@ test("merges runtime states without mutating persisted index entries", async () 
     await buildTestEvidenceFixture();
   const runtimeState: TestEvidenceState = {
     ...staticStates[0]!,
-    trigger: originalStates[0]!.trigger
+    trigger: originalStates[0]!.trigger,
+    triggerCaseId: originalStates[0]!.triggerCaseId
   };
   const result = queryStateIndex({
     definition,
@@ -230,7 +243,7 @@ test("merges runtime states without mutating persisted index entries", async () 
           key: "review-triggered",
           kind: "exact",
           operator: "all",
-          values: [true]
+          values: ["state-query"]
         }
       ]
     },
@@ -240,10 +253,7 @@ test("merges runtime states without mutating persisted index entries", async () 
     resultValue(result).entries.map((entry) => entry.id),
     ["state-query"]
   );
-  assert.equal(
-    index.entries["state-query"]?.keys["review-triggered"],
-    undefined
-  );
+  assert.equal(index.entries["state-query"]?.trigger, null);
 
   const invalidOverlay = queryStateIndex({
     definition,
@@ -255,11 +265,20 @@ test("merges runtime states without mutating persisted index entries", async () 
     invalidOverlay.diagnostics[0]?.code,
     "state-index.runtime-states-invalid"
   );
+
+  const invalidIdOverlay = queryStateIndex({
+    definition,
+    index,
+    runtimeStates: { " state-query ": runtimeState }
+  });
+  assert.equal(invalidIdOverlay.status, "error");
+  assert.equal(invalidIdOverlay.diagnostics[0]?.code, "state-index.id-invalid");
 });
 
 test("paginates sorted results while preserving the total count", async () => {
-  const { index } = await buildTestEvidenceFixture();
+  const { definition, index } = await buildTestEvidenceFixture();
   const result = queryStateIndex({
+    definition,
     index,
     query: {
       limit: 1,
@@ -272,8 +291,9 @@ test("paginates sorted results while preserving the total count", async () => {
 });
 
 test("rejects unknown, mode-mismatched, and multivalued sort keys", async () => {
-  const { index } = await buildDecisionFixture();
+  const { definition, index } = await buildDecisionFixture();
   const wrongMode = queryStateIndex({
+    definition,
     index,
     query: {
       filters: [
@@ -294,6 +314,7 @@ test("rejects unknown, mode-mismatched, and multivalued sort keys", async () => 
   );
 
   const unknownKey = queryStateIndex({
+    definition,
     index,
     query: {
       filters: [{ key: "missing", kind: "exists", value: true }]
@@ -302,6 +323,7 @@ test("rejects unknown, mode-mismatched, and multivalued sort keys", async () => 
   assert.equal(unknownKey.status, "error");
 
   const multivaluedSort = queryStateIndex({
+    definition,
     index,
     query: { sort: [{ direction: "asc", key: "text" }] }
   });

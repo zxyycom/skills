@@ -1194,7 +1194,6 @@ export type {
   DecisionIndex,
   DecisionIndexEntry,
   DecisionIndexMetadata,
-  DecisionIndexStoredEntry,
   DecisionIndexState,
   DecisionListAlignment,
   DecisionListStatus,

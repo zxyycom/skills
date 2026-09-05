@@ -7,7 +7,6 @@ import {
   buildStateIndex,
   createStateIndexRuntime,
   defineStateIndexDefinition,
-  keyDefinitionsOf,
   loadCurrentStateIndex,
   loadStateIndex,
   parseStateIndex,
@@ -52,7 +51,7 @@ test("serializes deterministic indexes independent of source order", async () =>
         root: tempRoot
       })
     );
-    assert.deepEqual(firstIndex.keyDefinitions, keyDefinitionsOf(definition));
+    assert.equal(Object.hasOwn(firstIndex, "keyDefinitions"), false);
     const firstText = serializeStateIndex(firstIndex, definition);
 
     source.states.reverse();
@@ -68,39 +67,32 @@ test("serializes deterministic indexes independent of source order", async () =>
   });
 });
 
-test("preserves definition field and key order through serialization", async () => {
+test("preserves definition-owned state field order through serialization", async () => {
   await withTempRoot(async (tempRoot) => {
     const calls = {
-      derives: 0,
       metadataParses: 0,
       parses: 0,
       revisionReads: 0,
       validations: 0
     };
     const definition = defineStateIndexDefinition<{
-      path: string;
+      sourcePath: string;
       title: string;
       status: string;
       summary: { purpose: string; background: string };
     }>({
       definitionVersion: 1,
       fieldOrder: "definition",
-      keyStrategies: [
+      queryFields: [
         {
-          derive: (state) => {
-            calls.derives += 1;
-            return state.path.split("/", 1)[0];
-          },
           mode: "exact",
-          name: "topic"
+          name: "topic",
+          sources: [{ kind: "source-path-first-segment" }]
         },
         {
-          derive: (state) => {
-            calls.derives += 1;
-            return state.status;
-          },
           mode: "exact",
-          name: "status"
+          name: "status",
+          sources: [{ kind: "state-path", path: ["status"] }]
         }
       ],
       namespace: "semantic-order",
@@ -112,7 +104,7 @@ test("preserves definition field and key order through serialization", async () 
         calls.parses += 1;
         const summary = input.summary;
         if (
-          typeof input.path !== "string" ||
+          typeof input.sourcePath !== "string" ||
           typeof input.title !== "string" ||
           typeof input.status !== "string" ||
           summary === null ||
@@ -124,7 +116,7 @@ test("preserves definition field and key order through serialization", async () 
           throw new TypeError("invalid semantic state");
         }
         return {
-          path: input.path,
+          sourcePath: input.sourcePath,
           title: input.title,
           status: input.status,
           summary: {
@@ -144,13 +136,13 @@ test("preserves definition field and key order through serialization", async () 
         },
         states: {
           "topic/z.md": {
-            path: "topic/z.md",
+            sourcePath: "topic/z.md",
             status: "active",
             summary: { background: "B", purpose: "P" },
             title: "Z"
           },
           "topic/a.md": {
-            path: "topic/a.md",
+            sourcePath: "topic/a.md",
             status: "active",
             summary: { background: "B", purpose: "P" },
             title: "A"
@@ -176,17 +168,10 @@ test("preserves definition field and key order through serialization", async () 
         root: tempRoot
       })
     );
-    assert.deepEqual(index.keyDefinitions, keyDefinitionsOf(definition));
+    assert.equal(Object.hasOwn(index, "keyDefinitions"), false);
     const text = serializeStateIndex(index, definition);
     const value = JSON.parse(text) as {
-      entries: Record<
-        string,
-        {
-          keys: Record<string, unknown>;
-          state: { summary: Record<string, unknown> };
-        }
-      >;
-      keyDefinitions: Array<Record<string, unknown>>;
+      entries: Record<string, { summary: Record<string, unknown> }>;
     };
     assert.deepEqual(Object.keys(value), [
       "schemaVersion",
@@ -194,28 +179,16 @@ test("preserves definition field and key order through serialization", async () 
       "definitionVersion",
       "metadata",
       "sourceRevision",
-      "keyDefinitions",
       "entries"
     ]);
-    assert.deepEqual(
-      value.keyDefinitions.map((entry) => Object.values(entry)),
-      [
-        ["topic", "exact"],
-        ["status", "exact"]
-      ]
-    );
     assert.deepEqual(Object.keys(value.entries), ["topic/a.md", "topic/z.md"]);
-    assert.deepEqual(Object.keys(value.entries["topic/a.md"]!.keys), [
-      "topic",
-      "status"
-    ]);
-    assert.deepEqual(Object.keys(value.entries["topic/a.md"]!.state), [
-      "path",
+    assert.deepEqual(Object.keys(value.entries["topic/a.md"]!), [
+      "sourcePath",
       "title",
       "status",
       "summary"
     ]);
-    assert.deepEqual(Object.keys(value.entries["topic/a.md"]!.state.summary), [
+    assert.deepEqual(Object.keys(value.entries["topic/a.md"]!.summary), [
       "purpose",
       "background"
     ]);
@@ -223,7 +196,6 @@ test("preserves definition field and key order through serialization", async () 
     const indexPath = "indexes/semantic-order.json";
     await fs.mkdir(path.join(tempRoot, "indexes"), { recursive: true });
     await fs.writeFile(path.join(tempRoot, indexPath), text, "utf8");
-    calls.derives = 0;
     calls.metadataParses = 0;
     calls.parses = 0;
     calls.revisionReads = 0;
@@ -235,23 +207,21 @@ test("preserves definition field and key order through serialization", async () 
         indexPath
       })
     );
-    assert.deepEqual(current.keyDefinitions, keyDefinitionsOf(definition));
-    assert.deepEqual(Object.keys(current.entries["topic/a.md"]!.state), [
-      "path",
+    assert.deepEqual(Object.keys(current.entries["topic/a.md"]!), [
+      "sourcePath",
       "title",
       "status",
       "summary"
     ]);
-    assert.deepEqual(
-      Object.keys(current.entries["topic/a.md"]!.state.summary),
-      ["purpose", "background"]
-    );
+    assert.deepEqual(Object.keys(current.entries["topic/a.md"]!.summary), [
+      "purpose",
+      "background"
+    ]);
     assert.deepEqual(calls, {
-      derives: 0,
-      metadataParses: 0,
-      parses: 0,
+      metadataParses: 1,
+      parses: 2,
       revisionReads: 1,
-      validations: 0
+      validations: 1
     });
 
     const runtime = createStateIndexRuntime({
@@ -263,7 +233,7 @@ test("preserves definition field and key order through serialization", async () 
     const stored = resultValue(reader.get("topic/a.md"));
     assert.ok(stored);
     assert.deepEqual(Object.keys(stored.state), [
-      "path",
+      "sourcePath",
       "title",
       "status",
       "summary"
@@ -273,11 +243,10 @@ test("preserves definition field and key order through serialization", async () 
       "background"
     ]);
     assert.deepEqual(calls, {
-      derives: 0,
-      metadataParses: 0,
-      parses: 0,
+      metadataParses: 2,
+      parses: 4,
       revisionReads: 2,
-      validations: 0
+      validations: 2
     });
 
     const parsed = parseStateIndex({
@@ -287,27 +256,25 @@ test("preserves definition field and key order through serialization", async () 
       text
     });
     assert.equal(parsed.status, "ok");
-    assert.deepEqual(
-      resultValue(parsed).keyDefinitions,
-      keyDefinitionsOf(definition)
-    );
-    assert.deepEqual(
-      Object.keys(resultValue(parsed).entries["topic/a.md"]!.state),
-      ["path", "title", "status", "summary"]
-    );
+    assert.deepEqual(Object.keys(resultValue(parsed).entries["topic/a.md"]!), [
+      "sourcePath",
+      "title",
+      "status",
+      "summary"
+    ]);
 
-    const reordered = JSON.parse(text) as { keyDefinitions: unknown[] };
-    reordered.keyDefinitions.reverse();
+    const legacy = JSON.parse(text) as Record<string, unknown>;
+    legacy.keyDefinitions = [];
     const rejected = parseStateIndex({
       definition,
       expectation: { definitionVersion: 1, namespace: "semantic-order" },
       sourcePath: "indexes/semantic-order.json",
-      text: JSON.stringify(reordered)
+      text: JSON.stringify(legacy)
     });
     assert.equal(rejected.status, "error");
     assert.ok(
       rejected.diagnostics.some(
-        (entry) => entry.code === "state-index.definition-mismatch"
+        (entry) => entry.code === "state-index.schema-invalid"
       )
     );
   });
@@ -322,6 +289,7 @@ test("rejects persisted indexes from another namespace", async () => {
     );
     assert.equal(
       parseStateIndex({
+        definition,
         expectation: { definitionVersion: 1, namespace: "decisions" },
         sourcePath: "indexes/decisions.json",
         text
@@ -330,6 +298,7 @@ test("rejects persisted indexes from another namespace", async () => {
     );
 
     const mismatched = parseStateIndex({
+      definition,
       expectation: { definitionVersion: 1, namespace: "investigations" },
       sourcePath: "indexes/decisions.json",
       text
@@ -337,7 +306,7 @@ test("rejects persisted indexes from another namespace", async () => {
     assert.equal(mismatched.status, "error");
     assert.ok(
       mismatched.diagnostics.some(
-        (entry) => entry.code === "state-index.namespace-mismatch"
+        (entry) => entry.code === "state-index.definition-mismatch"
       )
     );
   });
@@ -692,7 +661,7 @@ test("sync checks reject invalid UTF-8 indexes and writes repair them", async ()
   });
 });
 
-test("rejects persisted indexes with changed key definitions", async () => {
+test("rejects persisted indexes with changed definition versions", async () => {
   await withTempRoot(async (tempRoot) => {
     const { definition } = await createDecisionFixture();
     const indexPath = "indexes/decisions.json";
@@ -706,10 +675,9 @@ test("rejects persisted indexes with changed key definitions", async () => {
       context: { root: tempRoot },
       definition: {
         ...definition,
-        keyStrategies: definition.keyStrategies.map((strategy) =>
-          strategy.name === "status"
-            ? { ...strategy, name: "lifecycle" }
-            : strategy
+        definitionVersion: definition.definitionVersion + 1,
+        queryFields: definition.queryFields.map((field) =>
+          field.name === "status" ? { ...field, name: "lifecycle" } : field
         )
       },
       indexPath
@@ -717,7 +685,7 @@ test("rejects persisted indexes with changed key definitions", async () => {
     assert.equal(result.status, "error");
     assert.ok(
       result.diagnostics.some(
-        (entry) => entry.code === "state-index.definition-mismatch"
+        (entry) => entry.code === "state-index.definition-version-mismatch"
       )
     );
   });
@@ -780,7 +748,7 @@ test("detects stale sources and refreshes changed or removed states", async () =
       })
     );
     assert.equal(
-      refreshed.entries[source.states[0]!.path]?.state.title,
+      refreshed.entries[source.states[0]!.path]?.title,
       "Changed decision title"
     );
 

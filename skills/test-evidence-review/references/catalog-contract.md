@@ -130,14 +130,14 @@ Proves:
 
 ## 派生状态索引
 
-目录通过领域适配接入通用状态索引。索引固定使用通用 `schemaVersion: 3`、
-`namespace: test-evidence` 和 `definitionVersion: 3`。`metadata.topics` 保存
+目录通过领域适配接入通用状态索引。索引固定使用通用 `schemaVersion: 4`、
+`namespace: test-evidence` 和 `definitionVersion: 4`。`metadata.topics` 保存
 规范化后的完整 topic 表。
 
-索引的 `entries` 使用 case ID 键控对象。每个 `entries[case-id]` 只保存 `keys`
-和 `state`；查询结果在读取边界从对象键附加 ID。state 继续保存领域 case ID，严格
-解析时必须与对象键一致，但通用索引不从 state 恢复身份。schema v2 不兼容读取，
-由 `sync-index --write` 从权威目录重建。
+索引的 `entries` 使用 case ID 键控对象，每个 `entries[case-id]` 直接保存 state。
+state 继续保存领域 case ID，严格解析时必须与对象键一致，但通用索引不从 state
+恢复身份。旧的 wrapper/key 持久格式不兼容读取，由 `sync-index --write` 从权威目录
+重建。
 
 每个合法 case 产生一个查询 state：
 
@@ -146,13 +146,13 @@ Proves:
 3. `entries`，来自规范化后的 `Entry:` 列表。
 4. `summary`，确定性取第一条 `Contract:`。
 5. `searchText`，按标题、全部 Contract、全部 Proves 和全部 Entry 拼接，仅用于
-   生成搜索 key；case ID 由 key projection context 提供。
+   生成搜索查询值；case ID 由查询字段的 entry-ID source 提供。
 
-索引声明 `search` 和 `topic` 两个领域 key。`topic` 必须从 `sourcePath` 的第一段
-派生，并同时存在于 `metadata.topics`；state 中不另存重复 topic 字段。解析持久化
-索引的严格检查必须交叉校验 `sourcePath`、`keys.topic` 和 metadata，不能信任其中
-任一份孤立数据。普通查询打开索引时只验证通用结构、definition 身份与来源 revision，
-不重复执行领域 state parser、key projection 或完整校验。
+索引声明 `search` 和 `topic` 两个查询字段。`search` 组合 entry ID 与
+`state.searchText`；`topic` 必须从 `sourcePath` 的第一段派生，并同时存在于
+`metadata.topics`；state 中不另存重复 topic 字段。严格解析以同一字段 source 校验
+`sourcePath` 与 metadata。普通查询打开索引时验证持久结构、definition 身份、来源
+revision 与领域 state，查询值只在内存 reader 中物化。
 
 结构化的完整 Contract、Proves 和其他正文不进入 `list` 结果；`show` 从 Markdown
 展开原文。保留的通用 `id` 查询直接使用 case ID。非空文本查询按空白拆词，所有词
@@ -171,7 +171,7 @@ topic 描述变化只改变 metadata 指纹；case 新增、删除、移动或�
 
 完整读取在一次目录与文件读取后先校验首行权威标题，再解析全文唯一 case、构造 state
 record，并从同一批原文产生 revision。快速 `readRevision` 只从已经读取的 Markdown
-首行取得 case ID，不扫描或解析 case body、构造 keys 或建立完整索引；正文全文仍参与
+首行取得 case ID，不扫描或解析 case body、构造查询值或建立完整索引；正文全文仍参与
 该 case 的 fingerprint。一次成功打开的 reader 后续执行 `get`、`query` 或 `all` 不
 重复读取 revision。
 

@@ -1,7 +1,7 @@
 import { freezeObject } from "./frozen-json.ts";
 import { compareStateIndexKeyScalars } from "./ordering.ts";
 import { isStateIndexText } from "./schemas.ts";
-import type { StateIndexKeyDefinition, StateIndexKeyScalar } from "./types.ts";
+import type { StateIndexKeyMode, StateIndexKeyScalar } from "./types.ts";
 
 export type StateIndexKeyValuesResult =
   | {
@@ -15,7 +15,7 @@ export type StateIndexKeyValuesResult =
 
 export function normalizeStateIndexKeyValues(
   input: unknown,
-  mode: StateIndexKeyDefinition["mode"]
+  mode: StateIndexKeyMode
 ): StateIndexKeyValuesResult {
   if (input === undefined) {
     return { status: "ok", values: [] };
@@ -26,7 +26,7 @@ export function normalizeStateIndexKeyValues(
     if (!isStateIndexKeyScalar(value)) {
       return {
         message:
-          "derive must return a boolean, finite number, non-empty string, " +
+          "query field sources must produce a boolean, finite number, non-empty string, " +
           "or an array of them",
         status: "error"
       };
@@ -59,7 +59,7 @@ export function isStateIndexKeyScalar(
 
 export function keyValueMatchesMode(
   value: StateIndexKeyScalar,
-  mode: StateIndexKeyDefinition["mode"]
+  mode: StateIndexKeyMode
 ): boolean {
   switch (mode) {
     case "exact":

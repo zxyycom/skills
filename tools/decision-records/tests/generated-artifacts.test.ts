@@ -72,7 +72,6 @@ test("generated decision declarations expose a portable CLI API", async () => {
     "DecisionTag",
     "DecisionIndex",
     "DecisionIndexEntry",
-    "DecisionIndexStoredEntry",
     "DecisionSourceRevision",
     "DecisionScanOptions",
     "DecisionValidationResult",
@@ -115,24 +114,18 @@ test("generated decision declarations expose a portable CLI API", async () => {
       [
         'import { renameDecisionRecord, runDecisionRecordsCli, scanDecisionRecords, validateDecisionRecords } from "./decision-records.mjs";',
         "import type {",
-        "  DecisionId, DecisionIndex, DecisionIndexEntry, DecisionIndexStoredEntry, DecisionTag,",
+        "  DecisionId, DecisionIndex, DecisionIndexEntry, DecisionIndexState, DecisionTag,",
         "  DecisionRenameOptions, DecisionRenamePlan, DecisionRenameResult, DecisionScan, DecisionScanOptions, DecisionSourceRevision, DecisionValidationResult",
         '} from "./decision-records.mjs";',
         "declare const decisionId: DecisionId;",
         "declare const index: DecisionIndex;",
         "declare const indexEntry: DecisionIndexEntry;",
-        "declare const storedEntry: DecisionIndexStoredEntry;",
+        "declare const state: DecisionIndexState;",
         "declare const revision: DecisionSourceRevision;",
-        "const tags: DecisionTag[] = storedEntry.keys.tag;",
-        'const statuses: ["active" | "archived"] = storedEntry.keys.status;',
-        "const entries: Record<DecisionId, DecisionIndexStoredEntry> = index.entries;",
+        "const tags: DecisionTag[] = state.tags;",
+        'const status: "active" | "archived" = state.status;',
+        "const entries: Record<DecisionId, DecisionIndexState> = index.entries;",
         "const revisions: Record<DecisionId, string> = revision.entries;",
-        "const keyDefinitions: [",
-        '  { name: "name"; mode: "exact" },',
-        '  { name: "tag"; mode: "exact" },',
-        '  { name: "status"; mode: "exact" },',
-        '  { name: "alignment"; mode: "exact" }',
-        "] = index.keyDefinitions;",
         "const options: DecisionScanOptions = {};",
         "const scan: Promise<DecisionScan> = scanDecisionRecords(options);",
         "const validation: Promise<DecisionValidationResult> = validateDecisionRecords(options);",
@@ -145,13 +138,12 @@ test("generated decision declarations expose a portable CLI API", async () => {
         "void decisionId;",
         "void index;",
         "void indexEntry;",
-        "void storedEntry;",
+        "void state;",
         "void revision;",
         "void tags;",
-        "void statuses;",
+        "void status;",
         "void entries;",
         "void revisions;",
-        "void keyDefinitions;",
         "void scan;",
         "void validation;",
         ""
@@ -191,13 +183,8 @@ test("generated decision schema matches the runtime index schema", async () => {
     await fs.readFile(generatedSchemaPath, "utf8")
   );
   assert.deepEqual(distributedSchema, decisionIndexJsonSchema);
-  assert.equal(decisionIndexJsonSchema.properties.definitionVersion.const, 9);
-  assert.deepEqual(decisionIndexJsonSchema.properties.keyDefinitions.const, [
-    { name: "name", mode: "exact" },
-    { name: "tag", mode: "exact" },
-    { name: "status", mode: "exact" },
-    { name: "alignment", mode: "exact" }
-  ]);
+  assert.equal(decisionIndexJsonSchema.properties.definitionVersion.const, 10);
+  assert.equal(decisionIndexJsonSchema.properties.schemaVersion.const, 4);
   assert.ok(
     decisionIndexJsonSchema.$defs.state.required.includes("sourcePath")
   );

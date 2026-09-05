@@ -423,7 +423,7 @@ export function findIndexEntry(
 ): DecisionIndexState {
   const entry = index.entries[decisionIdForTest(decisionId)];
   assert.ok(entry, `Expected indexed decision ${decisionId}`);
-  return entry.state;
+  return entry;
 }
 
 export function decisionIdForTest(value: string): DecisionId {

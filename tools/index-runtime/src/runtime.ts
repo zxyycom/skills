@@ -1,19 +1,19 @@
 import path from "node:path";
-import {
-  defineStateIndexDefinition,
-  expectationOf,
-  keyDefinitionsOf,
-  sameKeyDefinitions
-} from "./definition.ts";
+import { defineStateIndexDefinition, expectationOf } from "./definition.ts";
 import { diagnostic } from "./diagnostics.ts";
 import {
-  normalizeStateIndex,
   createProjectionContext,
-  projectStateIndexEntry,
+  normalizeStateIndex,
+  projectStateIndexState,
   readonlyStateIndexMetadata,
   validateCompleteStateIndex
 } from "./projection.ts";
-import { queryStateIndex, stateIndexEntryOf } from "./query.ts";
+import {
+  materializeEffectiveEntries,
+  queryMaterializedStateIndex,
+  stateIndexEntryOf
+} from "./query.ts";
+import { type MaterializedStateIndexEntry } from "./query-fields.ts";
 import { isPlainRecord } from "./record.ts";
 import { isStateIndexText, stateIndexQueryMaximumLimit } from "./schemas.ts";
 import { loadCurrentStateIndex, syncStateIndex } from "./storage.ts";
@@ -45,12 +45,10 @@ import { validateStateIndexValue } from "./validation.ts";
 export type StateIndexQueryOptions<State extends object> = {
   runtimeStates?: StateRecord<State>;
 };
-
 export type StateIndexAllQuery = {
   filters?: readonly StateIndexFilter[];
   sort?: readonly StateIndexSort[];
 };
-
 export type StateIndexReader<
   State extends object,
   Metadata extends JsonObject = JsonObject
@@ -69,7 +67,6 @@ export type StateIndexReader<
   ) => StateIndexResult<StateIndexQueryOutput<State, Metadata>>;
   readonly metadata: DeepReadonly<Metadata>;
 };
-
 export type StateIndexRuntime<
   State extends object,
   Metadata extends JsonObject = JsonObject
@@ -116,42 +113,31 @@ export function createStateIndexRuntime<
       definition,
       indexPath: options.indexPath
     });
-    if (loaded.status === "error") {
-      return loaded;
-    }
-    return {
-      diagnostics: [],
-      status: "ok",
-      value: createStateIndexReaderFromSnapshot({
-        definition,
-        index: loaded.value,
-        indexPath: options.indexPath
-      })
-    };
+    if (loaded.status === "error") return loaded;
+    return createStateIndexReaderFromSnapshot({
+      definition,
+      index: loaded.value,
+      indexPath: options.indexPath
+    });
   }
-
   async function query(
     input: StateIndexQuery = {},
     queryOptions: StateIndexQueryOptions<State> = {}
   ): Promise<StateIndexResult<StateIndexQueryOutput<State, Metadata>>> {
     const opened = await open();
-    if (opened.status === "error") {
-      return opened;
-    }
-    return opened.value.query(input, queryOptions);
+    return opened.status === "error"
+      ? opened
+      : opened.value.query(input, queryOptions);
   }
-
   async function get(
     stateId: string,
     getOptions: StateIndexQueryOptions<State> = {}
   ): Promise<StateIndexResult<StateIndexEntry<State> | null>> {
     const opened = await open();
-    if (opened.status === "error") {
-      return opened;
-    }
-    return opened.value.get(stateId, getOptions);
+    return opened.status === "error"
+      ? opened
+      : opened.value.get(stateId, getOptions);
   }
-
   return Object.freeze({
     get,
     open,
@@ -189,11 +175,13 @@ export function createStateIndexReader<
     index: options.index,
     indexPath: options.indexPath
   });
-  return createStateIndexReaderFromSnapshot({
+  const created = createStateIndexReaderFromSnapshot({
     definition,
     index,
     indexPath: options.indexPath
   });
+  if (created.status === "error") throw invalidReaderError(created.diagnostics);
+  return created.value;
 }
 
 function createStateIndexReaderFromSnapshot<
@@ -203,7 +191,23 @@ function createStateIndexReaderFromSnapshot<
   definition: StateIndexDefinition<State, Metadata>;
   index: StateIndex<State, Metadata>;
   indexPath: string;
-}): StateIndexReader<State, Metadata> {
+}): StateIndexResult<StateIndexReader<State, Metadata>> {
+  const staticEntries = materializeEffectiveEntries({
+    definition: options.definition,
+    index: options.index
+  });
+  if (staticEntries.status === "error") {
+    return {
+      diagnostics: staticEntries.diagnostics.map((entry) => ({
+        ...entry,
+        path: entry.path ?? options.indexPath
+      })),
+      status: "error",
+      value: null
+    };
+  }
+  const cachedEntries = staticEntries.value;
+
   function getError(
     code: "state-index.query-invalid" | "state-index.runtime-states-invalid",
     message: string
@@ -217,28 +221,39 @@ function createStateIndexReaderFromSnapshot<
       options.indexPath
     );
   }
-
+  function effectiveEntries(
+    runtimeStates?: StateRecord<State>
+  ): StateIndexResult<MaterializedStateIndexEntry<State>[]> {
+    return materializeEffectiveEntries({
+      definition: options.definition,
+      index: options.index,
+      runtimeStates,
+      staticEntries: cachedEntries
+    });
+  }
   function query(
     input: StateIndexQuery = {},
     queryOptions: StateIndexQueryOptions<State> = {}
   ): StateIndexResult<StateIndexQueryOutput<State, Metadata>> {
-    const queried = queryStateIndex({
+    const entries = effectiveEntries(queryOptions.runtimeStates);
+    if (entries.status === "error") {
+      return {
+        diagnostics: entries.diagnostics.map((entry) => ({
+          ...entry,
+          path: entry.path ?? options.indexPath
+        })),
+        status: "error",
+        value: null
+      };
+    }
+    const queried = queryMaterializedStateIndex({
       definition: options.definition,
+      entries: entries.value,
       index: options.index,
-      query: input,
-      runtimeStates: queryOptions.runtimeStates
+      query: input
     });
-    return queried.status === "ok"
-      ? queried
-      : {
-          ...queried,
-          diagnostics: queried.diagnostics.map((entry) => ({
-            ...entry,
-            path: entry.path ?? options.indexPath
-          }))
-        };
+    return withIndexPath(queried, options.indexPath);
   }
-
   function get(
     stateId: string,
     getOptions: StateIndexQueryOptions<State> = {}
@@ -246,8 +261,7 @@ function createStateIndexReaderFromSnapshot<
     if (!isStateIndexText(stateId)) {
       return getError(
         "state-index.query-invalid",
-        "state id must be non-empty text without surrounding whitespace or " +
-          "control characters"
+        "state id must be non-empty text without surrounding whitespace or control characters"
       );
     }
     const runtimeStates = getOptions.runtimeStates;
@@ -258,30 +272,28 @@ function createStateIndexReaderFromSnapshot<
       );
     }
     if (runtimeStates !== undefined && Object.hasOwn(runtimeStates, stateId)) {
-      const projected = projectStateIndexEntry(
+      const projected = projectStateIndexState(
         options.definition,
         runtimeStates[stateId],
         createProjectionContext(stateId, options.index.metadata)
       );
-      if (projected.status === "error") {
+      if (projected.status === "error")
         return withIndexPath(projected, options.indexPath);
-      }
       return {
         diagnostics: [],
         status: "ok",
         value: stateIndexEntryOf(stateId, projected.value)
       };
     }
-    const stored = Object.hasOwn(options.index.entries, stateId)
+    const state = Object.hasOwn(options.index.entries, stateId)
       ? options.index.entries[stateId]
       : undefined;
     return {
       diagnostics: [],
       status: "ok",
-      value: stored === undefined ? null : stateIndexEntryOf(stateId, stored)
+      value: state === undefined ? null : stateIndexEntryOf(stateId, state)
     };
   }
-
   function all(
     input: StateIndexAllQuery = {},
     queryOptions: StateIndexQueryOptions<State> = {}
@@ -298,9 +310,7 @@ function createStateIndexReaderFromSnapshot<
         },
         queryOptions
       );
-      if (queried.status === "error") {
-        return queried;
-      }
+      if (queried.status === "error") return queried;
       entries.push(...queried.value.entries);
       offset += queried.value.entries.length;
       if (offset >= queried.value.total || queried.value.entries.length === 0) {
@@ -308,13 +318,16 @@ function createStateIndexReaderFromSnapshot<
       }
     }
   }
-
-  return Object.freeze({
-    all,
-    get,
-    metadata: readonlyStateIndexMetadata(options.index),
-    query
-  });
+  return {
+    diagnostics: [],
+    status: "ok",
+    value: Object.freeze({
+      all,
+      get,
+      metadata: readonlyStateIndexMetadata(options.index),
+      query
+    })
+  };
 }
 
 function withIndexPath<Value>(
@@ -345,39 +358,21 @@ function createReaderSnapshot<
     expectationOf(options.definition),
     options.indexPath
   );
-  if (validated.index === null) {
-    throw invalidReaderError(validated.diagnostics);
-  }
-  if (
-    !sameKeyDefinitions(
-      validated.index.keyDefinitions,
-      keyDefinitionsOf(options.definition)
-    )
-  ) {
-    throw invalidReaderError([
-      diagnostic({
-        code: "state-index.definition-mismatch",
-        message: "index key definitions do not match the runtime definition",
-        path: options.indexPath
-      })
-    ]);
-  }
+  if (validated.index === null) throw invalidReaderError(validated.diagnostics);
   const normalized = normalizeStateIndex(
     validated.index,
     options.definition,
     options.indexPath
   );
-  if (normalized.status === "error") {
+  if (normalized.status === "error")
     throw invalidReaderError(normalized.diagnostics);
-  }
   const complete = validateCompleteStateIndex(
     options.definition,
     normalized.value,
     options.indexPath
   );
-  if (complete.status === "error") {
+  if (complete.status === "error")
     throw invalidReaderError(complete.diagnostics);
-  }
   return complete.value;
 }
 
