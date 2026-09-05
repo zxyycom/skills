@@ -80,7 +80,7 @@
       "260904-adopt-date-prefixed-record-identities": "sha256:1c6fe42c7eab92f319c1db57ab37ce92ab86b97a9f306f5702ab4484807fc441",
       "260904-complete-change-plans-by-deletion": "sha256:f6937dcf430b83672ff94c5c60bed62de6ff4725a9285653e45d1aa123d1b3f7",
       "260904-current-change-plan-completion": "sha256:40957798161dd713bd1b8068f277f7f23de907c5617901cbf697d8eed586ef71",
-      "260905-add-optional-relation-summaries": "sha256:59e8d97e676a0663995371fcb5f8d3b7638e66e96e822cc5d510de8553d31a82",
+      "260905-add-optional-relation-summaries": "sha256:3c07e21510610ff14508e7f7a52269062f8b8eebc0fbcd1ecf254c4eec79cd7b",
       "260905-search-authoritative-files-with-index-identity": "sha256:34240d591900ff1d798fe204e9bb5490dabbc432399336b3c7a5ffa8534d2b6a",
       "activate-release-gate-checks-by-tag": "sha256:9a4fa7a38e4c87103e295df956469814bfdd926557340399f2c798d8bbf55c4f",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
@@ -2833,7 +2833,7 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
@@ -2841,7 +2841,7 @@
         "sourcePath": "add-optional-relation-summaries.md",
         "title": "让关系边携带可检索的简短说明",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-09-05T06:27:30Z",
         "purpose": "让直接演进关系可以快速说明具体承载的变化，并能从索引中检索。",
         "background": "现有关系只有类型和目标，图与追踪可以恢复拓扑，却不能直接解释每条边具体表达什么。",
