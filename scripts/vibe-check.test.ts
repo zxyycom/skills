@@ -727,7 +727,7 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
     },
     progressRendering: { enabled: true }
   });
-  assert.equal(releaseRequiredCheckIds.length, 57);
+  assert.equal(releaseRequiredCheckIds.length, 58);
   assert.deepEqual(
     releaseDefinition.checks.find(
       ({ checkId }) => checkId === releaseSnapshotCheckId

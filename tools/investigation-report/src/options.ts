@@ -8,6 +8,7 @@ import {
   type InvestigationCandidatePublishOptions,
   type InvestigationCandidateShowOptions,
   type InvestigationIndexQueryOptions,
+  type InvestigationSearchOptions,
   type InvestigationIndexStageOptions,
   type InvestigationIndexSyncOptions,
   type InvestigationRelationSetOptions,
@@ -90,8 +91,17 @@ const investigationIndexQueryOptionsSchema = v.strictObject({
       "must be a known investigation relation type"
     )
   ),
-  tags: optionalStringArraySchema,
-  text: optionalStringSchema
+  tags: optionalStringArraySchema
+});
+const investigationSearchOptionsSchema = v.strictObject({
+  formedAtFrom: optionalStringSchema,
+  formedAtTo: optionalStringSchema,
+  ...locationFields,
+  limit: optionalNumberSchema,
+  match: v.optional(v.picklist(["all", "any", "phrase"])),
+  query: requiredStringSchema,
+  relationType: v.optional(v.picklist(investigationRelationTypes)),
+  tags: optionalStringArraySchema
 });
 const investigationReportShowOptionsSchema = v.strictObject({
   id: requiredStringSchema,
@@ -199,6 +209,11 @@ export function parseInvestigationIndexQueryOptions(
   input: unknown
 ): Result<InvestigationIndexQueryOptions, string[]> {
   return parseOptions(investigationIndexQueryOptionsSchema, input);
+}
+export function parseInvestigationSearchOptions(
+  input: unknown
+): Result<InvestigationSearchOptions, string[]> {
+  return parseOptions(investigationSearchOptionsSchema, input);
 }
 export function parseInvestigationReportShowOptions(
   input: unknown

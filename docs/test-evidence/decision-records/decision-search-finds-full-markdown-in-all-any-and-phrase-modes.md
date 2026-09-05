@@ -1,0 +1,12 @@
+### Case DECISION-SEARCH-MODES-001: Decision search 以三种模式检索完整 Markdown
+
+Entry:
+- `tools/decision-records/tests/queries.test.ts > decision search finds full Markdown text with all, any, and phrase modes`
+- `bun test --test-name-pattern="^decision search finds full Markdown text with all, any, and phrase modes$" ./tools/decision-records/tests/run.ts`
+
+Contract:
+- Decision search 必须在已建立决策的完整 Markdown 中支持 all、any、phrase 三种文本匹配，并将命中 sourcePath 和预览与稳定 ID 一并输出。
+
+Proves:
+- 位于正文的稀有词组在默认 all、any 和 phrase 查询中都返回对应 Decision ID。
+- 输出含语义 sourcePath、previews 标记和正文命中片段。

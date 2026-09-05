@@ -15,6 +15,10 @@ import {
   type StateIndexFilter
 } from "../../index-runtime/src/index.ts";
 import {
+  FileTextSearchError,
+  searchFileText
+} from "../../shared/src/file-text-search/index.ts";
+import {
   createInvestigationStateIndexDefinition,
   investigationIndexDiagnosticMessages,
   investigationIndexFileName,
@@ -28,6 +32,7 @@ import {
 import { investigationIdFromMarkdown } from "./markdown.ts";
 import {
   parseInvestigationIndexQueryOptions,
+  parseInvestigationSearchOptions,
   parseInvestigationReportShowOptions,
   parseInvestigationReportTraceOptions
 } from "./options.ts";
@@ -42,13 +47,17 @@ import { resolveInvestigationSelector } from "./investigation-selector.ts";
 import { isInvestigationRelationType } from "./report-validation.ts";
 import { traceInvestigationRelations } from "./relation-validation.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
+import { collectValidatedInvestigationCollection } from "./validation.ts";
 import type {
   InvestigationIndexQueryOptions,
   InvestigationIndexQueryResult,
+  InvestigationIndexState,
   InvestigationReportShowOptions,
   InvestigationReportShowResult,
   InvestigationReportTraceOptions,
-  InvestigationReportTraceResult
+  InvestigationReportTraceResult,
+  InvestigationSearchEntry,
+  InvestigationSearchResult
 } from "./types.ts";
 
 type InvestigationIndexQueryFailure = Readonly<{
@@ -74,6 +83,16 @@ type QueryOperationFailure = Readonly<{
   diagnostics: InvestigationDiagnostic[];
   errors: string[];
 }>;
+type PreparedSearch = Readonly<{
+  indexPath: string;
+  query: string;
+  resolved: ResolvedInvestigationsDirectory;
+  validated: Readonly<{
+    limit: number;
+    match: "all" | "any" | "phrase";
+    states: (state: InvestigationIndexState) => boolean;
+  }>;
+}>;
 
 export async function queryInvestigationIndex(
   options: InvestigationIndexQueryOptions
@@ -83,6 +102,173 @@ export async function queryInvestigationIndex(
     (result) => result,
     (failure) => failure.result
   );
+}
+
+export async function searchInvestigationReports(
+  input: unknown
+): Promise<InvestigationSearchResult> {
+  const prepared = prepareSearch(input);
+  if (prepared.isErr())
+    return searchFailure(prepared.error, defaultInvestigationIndexPath());
+  const canonical = await canonicalizeInvestigationsDirectory(
+    prepared.value.resolved
+  );
+  if (canonical.isErr()) {
+    return searchFailure(canonical.error, prepared.value.indexPath);
+  }
+  const investigationsDirectory = canonical.value.investigationsDirectory;
+  const indexPath = path.join(
+    investigationsDirectory,
+    investigationIndexFileName
+  );
+  const loaded = await loadCurrentInvestigationIndex({
+    investigationsDirectory
+  });
+  if (loaded.status === "ok") {
+    return await searchSnapshot({
+      entries: Object.entries(loaded.value.entries).map(([id, entry]) => ({
+        id,
+        state: entry.state
+      })),
+      indexPath,
+      investigationsDirectory,
+      prepared: prepared.value,
+      warnings: []
+    });
+  }
+
+  const collection = await collectValidatedInvestigationCollection(
+    investigationsDirectory,
+    { allowEmptyCollection: true }
+  );
+  if (collection.errors.length > 0 || collection.snapshot === null) {
+    return searchFailure(
+      collection.errors.length > 0
+        ? collection.errors
+        : ["the formal investigation collection could not be validated"],
+      indexPath,
+      loaded.diagnostics.map((diagnostic) =>
+        diagnosticFromStateIndexDiagnostic(diagnostic, {
+          recovery:
+            "restore the derived index or correct the formal collection before retrying search",
+          target: indexPath
+        })
+      )
+    );
+  }
+  return await searchSnapshot({
+    entries: Object.entries(collection.snapshot.states).map(([id, state]) => ({
+      id,
+      state
+    })),
+    indexPath,
+    investigationsDirectory,
+    prepared: prepared.value,
+    warnings: [
+      "The derived investigation index is unavailable; search used a validated in-memory source projection. Run sync-index before relying on index-backed operations."
+    ]
+  });
+}
+
+type SearchSnapshot = Readonly<{
+  entries: readonly Readonly<{ id: string; state: InvestigationIndexState }>[];
+  indexPath: string;
+  investigationsDirectory: string;
+  prepared: PreparedSearch;
+  warnings: readonly string[];
+}>;
+
+async function searchSnapshot(
+  snapshot: SearchSnapshot
+): Promise<InvestigationSearchResult> {
+  const selected = snapshot.entries.filter(({ state }) =>
+    snapshot.prepared.validated.states(state)
+  );
+  const entryBySourcePath = new Map<string, (typeof selected)[number]>();
+  for (const entry of selected) {
+    if (entryBySourcePath.has(entry.state.sourcePath)) {
+      return searchFailure(
+        ["investigation sourcePath mapping is not unique"],
+        snapshot.indexPath
+      );
+    }
+    entryBySourcePath.set(entry.state.sourcePath, entry);
+  }
+  try {
+    const searched = await searchFileText({
+      limits: {
+        maxCandidateFiles: 2_000,
+        maxFileBytes: 2 * 1024 * 1024,
+        maxTotalBytes: 20 * 1024 * 1024
+      },
+      preview: {
+        contextLines: 1,
+        maxFiles: snapshot.prepared.validated.limit,
+        maxMatchesPerFile: 3,
+        maxPreviewCharacters: 24_000
+      },
+      query: {
+        mode: snapshot.prepared.validated.match,
+        text: snapshot.prepared.query
+      },
+      root: snapshot.investigationsDirectory,
+      selection: {
+        kind: "files",
+        sourcePaths: selected.map((entry) => entry.state.sourcePath)
+      }
+    });
+    const entries: InvestigationSearchEntry[] = [];
+    for (const hit of searched.hits) {
+      const entry = entryBySourcePath.get(hit.sourcePath);
+      if (entry === undefined) {
+        return searchFailure(
+          [
+            "investigation search returned a source path outside its index snapshot"
+          ],
+          snapshot.indexPath
+        );
+      }
+      entries.push({
+        formedAt: entry.state.formedAt,
+        id: entry.id,
+        previews: hit.previews,
+        question: entry.state.question,
+        sourcePath: hit.sourcePath,
+        tags: entry.state.tags,
+        title: entry.state.title
+      });
+    }
+    return {
+      diagnostics: [],
+      entries,
+      errors: [],
+      indexPath: snapshot.indexPath,
+      status: "ok",
+      truncation: searched.truncation,
+      warnings: [...snapshot.warnings]
+    };
+  } catch (error) {
+    return searchFailure(
+      ["investigation file search could not be completed"],
+      snapshot.indexPath,
+      [
+        diagnosticFromError({
+          code:
+            error instanceof FileTextSearchError
+              ? `investigation-report.file-search-${error.code}`
+              : "investigation-report.file-search-unavailable",
+          error,
+          reason: "the selected investigation Markdown could not be searched",
+          recovery: "restore the selected formal report and retry the search",
+          target:
+            error instanceof FileTextSearchError && error.sourcePath !== null
+              ? error.sourcePath
+              : snapshot.indexPath
+        })
+      ],
+      snapshot.warnings
+    );
+  }
 }
 
 export function executeInvestigationIndexQuery(
@@ -486,6 +672,65 @@ function indexQueryDiagnostics(
   };
 }
 
+function prepareSearch(input: unknown): Result<PreparedSearch, string[]> {
+  const parsed = parseInvestigationSearchOptions(input);
+  if (parsed.isErr()) return err(parsed.error);
+  const resolved = resolveInvestigationsDirectory(
+    parsed.value.workspaceRoot,
+    parsed.value.investigationsDir
+  );
+  if (resolved.isErr()) return err(resolved.error);
+  const errors: string[] = [];
+  const query = parsed.value.query.trim();
+  if (query.length === 0) errors.push("search query must not be empty");
+  const limit = parsed.value.limit ?? stateIndexQueryDefaultLimit;
+  validateQueryPagination(limit, 0, errors);
+  const tags = uniqueSorted((parsed.value.tags ?? []).map((tag) => tag.trim()));
+  for (const tag of tags)
+    if (!isInvestigationTag(tag))
+      errors.push(`tag filter must use kebab-case: ${tag || "<empty>"}`);
+  const relationType = parsed.value.relationType;
+  const from = timestampFilter(
+    parsed.value.formedAtFrom,
+    "formedAt lower bound",
+    errors
+  );
+  const to = timestampFilter(
+    parsed.value.formedAtTo,
+    "formedAt upper bound",
+    errors
+  );
+  if (from !== null && to !== null && from > to)
+    errors.push("formedAt lower bound must not be after the upper bound");
+  return errors.length > 0
+    ? err(uniqueSorted(errors))
+    : ok({
+        indexPath: path.join(
+          resolved.value.investigationsDirectory,
+          investigationIndexFileName
+        ),
+        query,
+        resolved: resolved.value,
+        validated: {
+          limit,
+          match: parsed.value.match ?? "all",
+          states: (state) => {
+            const formedAt = investigationTimestampMilliseconds(state.formedAt);
+            return (
+              tags.every((tag) => state.tags.includes(tag)) &&
+              (relationType === undefined ||
+                state.relations.some(
+                  (relation) => relation.type === relationType
+                )) &&
+              formedAt !== null &&
+              (from === null || formedAt >= from) &&
+              (to === null || formedAt <= to)
+            );
+          }
+        }
+      });
+}
+
 function validateQueryOptions(
   options: InvestigationIndexQueryOptions
 ): Result<ValidatedQueryOptions, QueryOptionValidationFailure> {
@@ -496,7 +741,6 @@ function validateQueryOptions(
   validateQueryPagination(limit, offset, errors);
   validateTagFilters(options.tags, filters, errors);
   validateRelationTypeFilter(options.relationType, filters, errors);
-  validateTextFilter(options.text, filters, errors);
   validateTimestampFilters(options, filters, errors);
   const uniqueErrors = uniqueSorted(errors);
   return uniqueErrors.length > 0
@@ -555,19 +799,6 @@ function validateRelationTypeFilter(
       operator: "any",
       values: [relationType]
     });
-  }
-}
-
-function validateTextFilter(
-  input: string | undefined,
-  filters: StateIndexFilter[],
-  errors: string[]
-): void {
-  const text = input?.trim();
-  if (input !== undefined && text?.length === 0) {
-    errors.push("text filter must not be empty");
-  } else if (text !== undefined) {
-    filters.push({ key: "text", kind: "text", operator: "all", text });
   }
 }
 
@@ -640,6 +871,22 @@ function queryFailure(
       offset,
       total: 0
     }
+  };
+}
+function searchFailure(
+  errors: readonly string[],
+  indexPath: string,
+  diagnostics: readonly InvestigationDiagnostic[] = [],
+  warnings: readonly string[] = []
+): InvestigationSearchResult {
+  return {
+    diagnostics: [...diagnostics],
+    entries: [],
+    errors: uniqueSorted(errors),
+    indexPath,
+    status: "error",
+    truncation: { files: false, matches: false, previewCharacters: false },
+    warnings: [...warnings]
   };
 }
 function showFailure(

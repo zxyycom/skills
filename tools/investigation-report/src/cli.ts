@@ -11,6 +11,7 @@ import { discardInvestigationCandidate } from "./candidate-discard.ts";
 import {
   executeInvestigationIndexQuery,
   queryInvestigationIndex,
+  searchInvestigationReports,
   showInvestigationReport,
   traceInvestigationReports
 } from "./query.ts";
@@ -66,6 +67,7 @@ type InvestigationCommand =
   | "discard"
   | "discard-candidate"
   | "list"
+  | "search"
   | "show"
   | "show-candidate"
   | "publish"
@@ -116,7 +118,7 @@ const valueOptions = new Set([
   "formed-from",
   "formed-to",
   "relation-type",
-  "text",
+  "match",
   "limit",
   "offset",
   "direction",
@@ -178,6 +180,11 @@ function printHelp(
       "Usage: investigation-report list [--tag <tag> ...] [options]",
       "",
       "List reports from the current derived index."
+    ],
+    search: [
+      "Usage: investigation-report search <text> [--match all|any|phrase] [options]",
+      "",
+      "Search complete formal report Markdown, then return matching report IDs and previews."
     ],
     show: [
       "Usage: investigation-report show <investigation-id> [options]",
@@ -256,9 +263,16 @@ function printHelp(
       "  --formed-from <timestamp>     Inclusive formedAt lower bound",
       "  --formed-to <timestamp>       Inclusive formedAt upper bound",
       "  --relation-type <type>        Direct relation type",
-      "  --text <terms>                Title and question terms",
       "  --limit <count>               Page size (default: 50, maximum: 1000)",
       "  --offset <count>              Page offset (default: 0)"
+    ],
+    search: [
+      "  --match <mode>                all, any, or phrase (default: all)",
+      "  --tag <tag>                   Repeatable AND tag filter",
+      "  --formed-from <timestamp>     Inclusive formedAt lower bound",
+      "  --formed-to <timestamp>       Inclusive formedAt upper bound",
+      "  --relation-type <type>        Direct relation type",
+      "  --limit <count>               Maximum matched reports (default: 50, maximum: 1000)"
     ],
     trace: [
       "  --direction <direction>       predecessors, successors, or both (default: both)",
@@ -279,7 +293,7 @@ function printHelp(
           "",
           "Check, query, and maintain flat Investigation Report records and their derived index.",
           "",
-          "Commands: new, candidates, show-candidate, publish, rename, discard-candidate, check, sync-index, list, show, trace, set-relations, stage-index, discard",
+          "Commands: new, candidates, show-candidate, publish, rename, discard-candidate, check, sync-index, list, search, show, trace, set-relations, stage-index, discard",
           "Run investigation-report help <command> for command options.",
           "",
           "Exit status: 0 success; 1 check, operation, or deletion-confirmation failure; 2 invalid CLI arguments."
@@ -468,6 +482,7 @@ function isCommand(value: string): value is InvestigationCommand {
     "discard-candidate",
     "sync-index",
     "list",
+    "search",
     "show",
     "show-candidate",
     "publish",
@@ -1091,7 +1106,6 @@ async function runList(
       "formed-from",
       "formed-to",
       "relation-type",
-      "text",
       "limit",
       "offset"
     ]);
@@ -1109,9 +1123,6 @@ async function runList(
       ? {}
       : { formedAtTo: valueOf(input.values, "formed-to") }),
     ...(relationType === undefined ? {} : { relationType }),
-    ...(valueOf(input.values, "text") === undefined
-      ? {}
-      : { text: valueOf(input.values, "text") }),
     ...(numberValue(input.values, "limit") === undefined
       ? {}
       : { limit: numberValue(input.values, "limit") }),
@@ -1145,6 +1156,78 @@ async function runList(
     writeLine(io.stdout, `  question: ${entry.state.question}`);
     writeLine(io.stdout, `  tags: ${entry.state.tags.join(", ")}`);
   }
+  return 0;
+}
+
+async function runSearch(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
+  const problem = assertAllowedOptions(input, [
+    "root",
+    "investigations-dir",
+    "match",
+    "tag",
+    "formed-from",
+    "formed-to",
+    "relation-type",
+    "limit"
+  ]);
+  if (problem !== null || input.positionals.length !== 1)
+    return cliInvalid(problem ?? "search requires exactly one text query", io);
+  const relationType = valueOf(input.values, "relation-type");
+  const result = await searchInvestigationReports({
+    ...location(input.values),
+    ...(valueOf(input.values, "match") === undefined
+      ? {}
+      : { match: valueOf(input.values, "match") }),
+    ...(valuesOf(input.values, "tag") === undefined
+      ? {}
+      : { tags: valuesOf(input.values, "tag") }),
+    ...(valueOf(input.values, "formed-from") === undefined
+      ? {}
+      : { formedAtFrom: valueOf(input.values, "formed-from") }),
+    ...(valueOf(input.values, "formed-to") === undefined
+      ? {}
+      : { formedAtTo: valueOf(input.values, "formed-to") }),
+    ...(relationType === undefined ? {} : { relationType }),
+    ...(numberValue(input.values, "limit") === undefined
+      ? {}
+      : { limit: numberValue(input.values, "limit") }),
+    query: input.positionals[0]!
+  });
+  if (result.status === "error")
+    return printResultErrors(
+      "Investigation report search failed:",
+      result.errors,
+      1,
+      result.warnings,
+      io,
+      result.diagnostics
+    );
+  printWarnings(result.warnings, io);
+  if (result.entries.length === 0) {
+    writeLine(io.stdout, "No investigation reports matched.");
+    return 0;
+  }
+  for (const entry of result.entries) {
+    writeLine(io.stdout, `${entry.id} ${entry.formedAt}`);
+    writeLine(io.stdout, `  title: ${entry.title}`);
+    writeLine(io.stdout, `  question: ${entry.question}`);
+    writeLine(io.stdout, `  tags: ${entry.tags.join(", ")}`);
+    writeLine(io.stdout, `  sourcePath: ${entry.sourcePath}`);
+    for (const preview of entry.previews)
+      writeLine(io.stdout, `  ${preview.line}: ${preview.preview}`);
+  }
+  if (
+    result.truncation.files ||
+    result.truncation.matches ||
+    result.truncation.previewCharacters
+  )
+    writeLine(
+      io.stderr,
+      "[investigation-report.warning] search previews were truncated by configured limits"
+    );
   return 0;
 }
 
@@ -1479,6 +1562,8 @@ export async function runInvestigationReportCheckCli(
       return await runSync(input, io);
     case "list":
       return await runList(input, io);
+    case "search":
+      return await runSearch(input, io);
     case "show":
       return await runShow(input, io);
     case "show-candidate":

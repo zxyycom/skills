@@ -4,6 +4,7 @@ import { test } from "node:test";
 import { investigationIndexJsonSchema } from "../src/investigation-index-json-schema.ts";
 import {
   queryInvestigationIndex,
+  searchInvestigationReports,
   showInvestigationReport,
   traceInvestigationReports
 } from "../src/query.ts";
@@ -15,6 +16,7 @@ import { synchronizeInvestigationIndex } from "../src/validation.ts";
 import {
   jsonObjectMember,
   parseJsonObject,
+  reportMarkdown,
   withTempRoot,
   writeCollection
 } from "./v6-support.ts";
@@ -78,21 +80,103 @@ test("list filters reports by direct relation type", async () => {
   });
 });
 
-test("list filters report title and question text", async () => {
-  await withTempRoot("text", async (root) => {
+test("search finds formal Markdown with all, any, phrase, and structural filters", async () => {
+  await withTempRoot("search", async (root) => {
     await writeCollection(root, [
-      { id: "title", question: "unrelated", title: "Alpha subject" },
-      { id: "question", question: "Alpha question", title: "Other" },
-      { id: "other", question: "Other question", title: "Other" }
+      { id: "base", formedAt: "2026-08-28T10:00:00+00:00" },
+      {
+        id: "supplement",
+        formedAt: "2026-08-28T12:00:00+00:00",
+        relations: [{ target: "base", type: "补充" }],
+        tags: ["alpha", "investigation-report"],
+        title: "Alpha phrase title"
+      },
+      { id: "other", tags: ["other"] }
     ]);
-    const result = await queryInvestigationIndex({
-      text: "alpha",
+    const all = await searchInvestigationReports({
+      query: "Alpha 当前",
       workspaceRoot: root
     });
     assert.deepEqual(
-      result.entries.map((entry) => entry.id),
-      ["question", "title"]
+      all.entries.map((entry) => entry.id),
+      ["supplement"]
     );
+    assert.equal(all.entries[0]?.sourcePath, "supplement.md");
+    assert.ok((all.entries[0]?.previews.length ?? 0) > 0);
+    const phrase = await searchInvestigationReports({
+      match: "phrase",
+      query: "Alpha phrase title",
+      workspaceRoot: root
+    });
+    assert.deepEqual(
+      phrase.entries.map((entry) => entry.id),
+      ["supplement"]
+    );
+    const any = await searchInvestigationReports({
+      match: "any",
+      query: "absent Alpha",
+      tags: ["alpha"],
+      formedAtFrom: "2026-08-28T11:00:00+00:00",
+      formedAtTo: "2026-08-28T12:00:00+00:00",
+      relationType: "补充",
+      workspaceRoot: root
+    });
+    assert.deepEqual(
+      any.entries.map((entry) => entry.id),
+      ["supplement"]
+    );
+  });
+});
+
+test("search excludes candidates, resources, and index bytes and falls back read-only", async () => {
+  await withTempRoot("search-fallback", async (root) => {
+    await writeCollection(root, [{ id: "formal" }]);
+    const directory = `${root}/docs/investigations`;
+    await fs.writeFile(
+      `${directory}/_candidate.candidate`,
+      reportMarkdown({ id: "candidate" }).replace(
+        "已形成结果，仍保留适用条件和未知。",
+        "candidate-only-term"
+      ),
+      "utf8"
+    );
+    await fs.mkdir(`${directory}/_resources/formal`, { recursive: true });
+    await fs.writeFile(
+      `${directory}/_resources/formal/evidence.txt`,
+      "resource-only-term",
+      "utf8"
+    );
+    assert.deepEqual(
+      (
+        await searchInvestigationReports({
+          query: "candidate-only-term",
+          workspaceRoot: root
+        })
+      ).entries,
+      []
+    );
+    assert.deepEqual(
+      (
+        await searchInvestigationReports({
+          query: "resource-only-term",
+          workspaceRoot: root
+        })
+      ).entries,
+      []
+    );
+    const indexPath = `${directory}/investigation-index.json`;
+    await fs.rm(indexPath);
+    const fallback = await searchInvestigationReports({
+      query: "当前",
+      workspaceRoot: root
+    });
+    assert.equal(fallback.status, "ok");
+    assert.deepEqual(
+      fallback.entries.map((entry) => entry.id),
+      ["formal"]
+    );
+    assert.equal(fallback.warnings.length, 1);
+    await assert.rejects(fs.access(indexPath));
   });
 });
 

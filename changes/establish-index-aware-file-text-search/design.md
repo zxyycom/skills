@@ -31,8 +31,8 @@
 2. **文件安全与选择。** `patterns` 只在 root 内做确定性 glob 发现并支持明确 exclude；`files` 只接受 root-relative POSIX path，规范化、去重和排序后逐一验证。拒绝绝对路径、`..` 逃逸、符号链接、非普通文件、越界解析、无效 UTF-8 与不受支持的选择组合；不把 glob 引擎或本机 `rg` 作为公开语义。
 3. **三种匹配。** 默认 `--match all` 将规范化查询按空白拆为去重词，要求每个词至少命中一次，允许词分布在不同物理行；`any` 要求任一词，也允许跨行候选；`phrase` 要求完整规范化查询在同一物理行连续匹配，绝不跨换行。统一 NFKC、默认忽略大小写和查询空白语义；空查询与未知 mode 是参数错误。实现保留规范化文本到原文行/列范围的映射，使预览与行号永远定位权威原文，而不是规范化副本。
 4. **rg 风格预览。** 每一命中文件返回受 policy 限制的命中行、列、原文片段和高亮范围；合并重叠的上下文窗口，限制每文件命中数、总文件数、总预览字符和 context 行数。输出按 root-relative sourcePath、行、列确定排序，显式报告截断而不伪装为完整。
-5. **索引协作。** 领域适配器优先打开当前结构化索引，从同一 reader snapshot 的 entries 得到正式记录的 canonical `sourcePath → entry` 唯一 Map 和显式 `files` 列表；有结构条件时先过滤 entries 再缩小 files。搜索不得在无条件时转而传 pattern。仅当索引缺失、陈旧、损坏或不可打开时，领域才完整读取并验证权威集合，构建等价只读内存投影、Map 与 files，附 warning 且绝不写盘。每个命中必须恰好映射到一个 entry；异常、零映射或多映射使整个请求失败。Index Runtime 不新增通用 sourcePath key。
-6. **领域 CLI。** Decision 增加 `search <text> [--match all|any|phrase]` 并复用现有 status/alignment/tag/limit 等结构条件，默认 active；Investigation 增加等价 `search` 并复用 tag、formedAt、relation type 等条件，仅查正式根目录报告。各自将共享 file result 与同快照 index entry 合成为完整 ID、当前领域摘要字段、sourcePath 和 preview；不抽象统一 CLI 或统一展示 DTO。
+5. **索引协作。** 领域适配器优先打开当前结构化索引，从同一 reader snapshot 的 entries 得到正式记录的 canonical `sourcePath → entry` 唯一 Map 和显式 `files` 列表；有结构条件时先过滤 entries 再缩小 files。搜索不得在无条件时转而传 pattern。仅当当前索引缺失、陈旧、损坏或不可打开时，领域才完整读取并验证权威集合，构建等价只读内存投影、Map 与 files，附 warning 且绝不写盘。每个命中必须恰好映射到一个 entry；异常、零映射或多映射使整个请求失败。Index Runtime 不新增通用 sourcePath key。
+6. **领域 CLI。** Decision 增加 `search <text> [--match all|any|phrase]` 并复用 status/alignment/tag 条件，默认 active；它没有 caller `--limit` selector，固定预览上限触发 warning。Investigation 增加等价 `search` 并复用 tag、formedAt、relation type 条件和已有的 `--limit`（限制命中报告，默认 50、最大 1000），仅查正式根目录报告。各自将共享 file result 与同快照 index entry 合成为完整 ID、当前领域摘要字段、sourcePath 和 preview；不抽象统一 CLI 或统一展示 DTO。
 7. **旧 Investigation 窄搜索退出。** 删除 Investigation `text` key、`list --text` 及其 text projection，升级该领域 definition version 与 index Schema/fixtures/测试，并把用户指导改为：已知 ID 用 show，已知结构字段用 list，主题/正文措辞用 search，再以 ID show/trace。
 
 ### Resulting Impacts

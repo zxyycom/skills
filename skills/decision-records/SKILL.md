@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "44"
+  version: "45"
 ---
 
 # Decision Records
@@ -31,10 +31,12 @@ metadata:
 1. 先读目标工作区指令和当前任务直接相关的事实来源。
 2. 按 `--root` 和可选 `--decisions-dir` 定位集合；集合整体不存在时视为尚未初始化，不从 Git 状态推断决策是否存在或生效。
 3. 审核尚未建立的记录时，先运行 `candidates`，再按需用 `show-candidate <decision-id>` 审核正文。
-4. 恢复当前判断时运行 `list`，再按需用 `show <decision-id>` 读取完整理由或用 `trace <decision-id>` 读取演进关系；筛选与输出参数以 `--help` 为准。
-5. 摘要足够时停止扩大读取。只有任务需要历史时才查询 archived 记录或完整关系图。
-6. 任何候选写入、已建立记录维护、identity rename、暂存快照或结构审阅前，完整读取决策记录规则，并按相应命令的 `--help` 执行；规则和 CLI 负责判定具体前置条件。任务需要在演进事务中删除一个决策时，以 `evolve --discard <decision-id>` 显式选择该动作。首次候选集合、索引异常或写入中断时，读取恢复手册，不把缺失索引直接当作需要重建的错误。
-7. 手工修改已建立 Markdown、怀疑索引陈旧或准备维护时，先运行严格 `check`；需要接受合法来源变化时运行 `sync-index`。`sync-index --select <name-or-id>` 仍完整验证集合，只允许所选完整 ID 的变化进入工作区索引；先以 check 结果确认范围，再加 `--write` 发布完整投影。无 `--select` 保留全量重建。`stage` 是 Git pending 操作，不能替代同步。常规查询不逐次重扫全部 Markdown，也不能用陈旧索引断言来源不存在记录。
+4. 已知准确 Decision ID 或可靠 name 时用 `show <decision-id>`；已知 status、alignment 或 tag 时用 `list` 做结构化浏览；需要已知记录的前序或后继时用 `trace <decision-id>`。不要由 basename、`sourcePath` 或 `trace` 之外的引用猜身份。
+5. 只知道主题、概念、理由或正文措辞而不知道 ID 时，先用 `search <text>`；它默认只搜索 active 已建立记录，可用 `--match all|any|phrase` 与 status、alignment、tag 条件缩小范围。`all` 和 `any` 的词可分布在不同物理行，`phrase` 只匹配同一物理行连续短语；三种模式统一 NFKC、忽略大小写并按空白处理查询。由结果中的完整 ID 再调用 `show` 或 `trace`。
+6. `search` 先从同一当前索引快照筛选已建立记录、取得显式 `sourcePath` 文件列表与唯一 `sourcePath → ID` 映射；索引缺失、损坏或不新鲜时，只有完整验证权威 Markdown 成功才会只读降级并 warning，绝不写索引。候选与索引 JSON 不在搜索范围。固定资源上限导致的截断同样会 warning；此时不得由未显示或无结果断言不存在，应缩小结构条件或读取已返回 ID。
+7. 摘要足够时停止扩大读取。只有任务需要历史时才查询 archived 记录或完整关系图。
+8. 任何候选写入、已建立记录维护、identity rename、暂存快照或结构审阅前，完整读取决策记录规则，并按相应命令的 `--help` 执行；规则和 CLI 负责判定具体前置条件。任务需要在演进事务中删除一个决策时，以 `evolve --discard <decision-id>` 显式选择该动作。首次候选集合、索引异常或写入中断时，读取恢复手册，不把缺失索引直接当作需要重建的错误。
+9. 手工修改已建立 Markdown、怀疑索引陈旧或准备维护时，先运行严格 `check`；需要接受合法来源变化时运行 `sync-index`。`sync-index --select <name-or-id>` 仍完整验证集合，只允许所选完整 ID 的变化进入工作区索引；先以 check 结果确认范围，再加 `--write` 发布完整投影。无 `--select` 保留全量重建。`stage` 是 Git pending 操作，不能替代同步。常规查询不逐次重扫全部 Markdown，也不能用陈旧索引断言来源不存在记录。
 
 ## 执行流程
 
@@ -99,7 +101,7 @@ node scripts/decision-records.mjs <command> [options] --root <resolution-root>
 | `new <decision-id>` | 从显式 metadata 创建不覆盖的 candidate scaffold。 |
 | `rename <source-selector> <target-name-or-id>` | 预演或事务化迁移单条身份、关系、路径和索引。 |
 | `candidates` / `show-candidate <decision-id>` | 发现 candidate scaffold、机械 readiness 或审核正文。 |
-| `list` / `show <decision-id>` / `trace <decision-id>` | 恢复当前判断、完整理由或演进关系。 |
+| `list` / `search <text>` / `show <decision-id>` / `trace <decision-id>` | 结构化浏览、从全文主题发现记录、恢复完整理由或演进关系。 |
 | `check` / `sync-index [--select <name-or-id> ...] [--write]` | 严格只读验证；全量重建，或完整验证后仅接纳所选 ID 变化的索引同步。 |
 | `stage <selector...>` | 在 staging 快照中解析标准 ID 或唯一 name，并构造待提交决策快照。 |
 | `activate` / `evolve` / `mark-aligned` / `archive` / `discard` | 维护生命周期、关系和候选；`activate/evolve --preflight` 只读预演，`evolve --discard <decision-id>` 可在关系事务中删除一个决策。 |

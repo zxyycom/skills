@@ -8,7 +8,7 @@ Decision Records 的 `list` 只做结构化筛选，Investigation Report 的现�
 
 ## Outcome
 
-Decision Records 和 Investigation Report 各提供同一套 `search` 发现能力：先在索引已列出的受管权威 Markdown 中以 all、any 或 phrase 搜索，再由同一索引快照的 `sourcePath` 映射回完整领域 ID，并由领域输出摘要与 rg 风格命中预览；没有持久全文索引、正则查询或跨领域统一 CLI。
+Decision Records 和 Investigation Report 各提供 `search` 发现能力：先在当前索引已列出的受管权威 Markdown 中以 all、any 或 phrase 搜索，再由同一索引快照的 `sourcePath` 映射回完整领域 ID，并由领域输出摘要与 rg 风格命中预览；当前索引不能使用时，完整验证权威来源后只读降级。没有持久全文索引、正则查询或跨领域统一 CLI。
 
 ## Scope
 
@@ -23,7 +23,7 @@ Decision Records 和 Investigation Report 各提供同一套 `search` 发现能�
 ### Resulting Impacts
 
 - 共享搜索的 `root` 是调用领域的受管集合根，输入与输出 `sourcePath` 均为相对此 root 的规范 POSIX 路径，并直接与领域索引 state 的 `sourcePath` 同形；不得做 workspace-relative 转换。
-- 领域正式搜索无论是否含 status、tag、alignment、formedAt 或 relation-type 条件，都优先从当前索引得到受管显式 file list；结构条件只进一步缩小该列表。只有索引不可用时，才完整验证权威来源并建立只读内存投影/列表。共享模块的 pattern 选择能力保留给受管调用者和独立测试，不得因此把 candidate、resource、索引或其他文件混入领域搜索。
+- 领域正式搜索无论是否含 status、tag、alignment、formedAt 或 relation-type 条件，都优先从当前索引得到受管显式 file list；结构条件只进一步缩小该列表。只有当前索引缺失、损坏、不可读取或不新鲜时，才完整验证权威来源并建立只读内存投影/列表。共享模块的 pattern 选择能力保留给受管调用者和独立测试，不得因此把 candidate、resource、索引或其他文件混入领域搜索。
 - `sourcePath → ID` 只由同一 index snapshot entries 建立唯一 Map；不为 Index Runtime 增加通用 sourcePath key，且映射不完整或不唯一时不得猜 ID 或把部分结果称为完整。
 - `search` 是新公开 CLI 形状；现有 `list` 继续是结构化浏览，`show`/`trace` 继续接受 ID 或现有 selector。
 - Decision 默认范围仍为 active；Investigation 仍只含正式报告并排除 candidate 与 `_resources`。本阶段不迁移 Test Evidence，也不删除 Index Runtime 的 `text` 协议。
@@ -32,7 +32,7 @@ Decision Records 和 Investigation Report 各提供同一套 `search` 发现能�
 
 - 共享模块对同一受管 root 中的 pattern 与等价显式文件列表产生确定、受限的 root-relative `sourcePath`、行号与原文预览；领域结果额外含来自同一快照的完整 ID。
 - `all`、`any`、`phrase` 的空白、NFKC、大小写、重复词、无结果、非法输入、UTF-8/路径越界和上下文合并语义都有直接测试；phrase 仅在单一物理行连续命中，all/any 可由不同物理行的词共同满足。
-- Decision 正文独有词和 Investigation 正文独有词可分别由新 CLI 找到，索引显式文件选择与 sourcePath/ID 映射一致，且 fallback 只在索引不可用时发生。
+- Decision 正文独有词和 Investigation 正文独有词可分别由新 CLI 找到，索引显式文件选择与 sourcePath/ID 映射一致，且 fallback 只在当前索引缺失、损坏、不可读取或不新鲜时发生。
 - Investigation 不再声明或查询 `text` key，其他 consumers 不受本 Change 破坏；所有受影响分发 artifacts、schemas、领域检查与仓库检查通过。
 
 ## Affected Owners

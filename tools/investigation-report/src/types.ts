@@ -204,7 +204,6 @@ export type InvestigationIndexQueryOptions = {
   offset?: number;
   relationType?: InvestigationRelationType;
   tags?: readonly string[];
-  text?: string;
   workspaceRoot: string;
 };
 
@@ -222,6 +221,44 @@ export type InvestigationIndexQueryResult = {
   offset: number;
   total: number;
 };
+
+export type InvestigationSearchOptions = Readonly<{
+  formedAtFrom?: string;
+  formedAtTo?: string;
+  investigationsDir?: string;
+  limit?: number;
+  match?: "all" | "any" | "phrase";
+  query: string;
+  relationType?: InvestigationRelationType;
+  tags?: readonly string[];
+  workspaceRoot: string;
+}>;
+export type InvestigationSearchEntry = Readonly<{
+  formedAt: string;
+  id: string;
+  previews: readonly Readonly<{
+    column: number | null;
+    line: number;
+    preview: string;
+  }>[];
+  question: string;
+  sourcePath: string;
+  tags: readonly string[];
+  title: string;
+}>;
+export type InvestigationSearchResult = Readonly<{
+  diagnostics: readonly InvestigationDiagnostic[];
+  entries: readonly InvestigationSearchEntry[];
+  errors: readonly string[];
+  indexPath: string;
+  status: "error" | "ok";
+  truncation: Readonly<{
+    files: boolean;
+    matches: boolean;
+    previewCharacters: boolean;
+  }>;
+  warnings: readonly string[];
+}>;
 
 export type InvestigationReportShowOptions = {
   id: string;

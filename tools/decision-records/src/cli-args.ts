@@ -37,6 +37,7 @@ export type Command =
   | "mark-aligned"
   | "new"
   | "rename"
+  | "search"
   | "show"
   | "show-candidate"
   | "stage"
@@ -119,6 +120,16 @@ export type CliArgs =
         target: string;
       }
     >
+  | LocatedCommand<
+      "search",
+      {
+        alignment: DecisionListAlignment;
+        match: "all" | "any" | "phrase";
+        status: DecisionListStatus;
+        tags: DecisionTag[];
+        text: string;
+      }
+    >
   | LocatedCommand<"show", { decisionId: DecisionId }>
   | LocatedCommand<"show-candidate", { decisionId: DecisionId }>
   | LocatedCommand<"stage", { decisionIds: DecisionId[] }>
@@ -155,6 +166,7 @@ type ParsedOptions = {
   preflight?: boolean;
   renameRecordedDecision?: boolean;
   preflightAlignment?: DecisionAlignment;
+  match?: "all" | "any" | "phrase";
   purpose?: string;
   relation?: DecisionRelation[];
   root?: string;
@@ -360,6 +372,8 @@ function commandArgs(
       };
     case "list":
       return listCommandArgs(location, options);
+    case "search":
+      return searchCommandArgs(location, options, commanderCommand.args[0]);
     case "trace":
       return traceCommandArgs(decisionIds, location, options);
     case "stage":
@@ -504,6 +518,25 @@ function listCommandArgs(
     fullTime: options.fullTime ?? false,
     status: options.status ?? "active",
     tags: options.tag ?? []
+  };
+}
+
+function searchCommandArgs(
+  location: CommandLocation,
+  options: ParsedOptions,
+  text: unknown
+): CliArgsFor<"search"> {
+  if (typeof text !== "string") {
+    throw new InvalidArgumentError("Search text is required");
+  }
+  return {
+    ...location,
+    alignment: options.alignment ?? "all",
+    command: "search",
+    match: options.match ?? "all",
+    status: options.status ?? "active",
+    tags: options.tag ?? [],
+    text
   };
 }
 
@@ -667,6 +700,38 @@ export function createCliProgram(
       "Show the full createdAt timestamp instead of its date."
     );
   list.action(() => execute("list", list));
+
+  const search = createSubcommand(
+    program,
+    "search",
+    "Search full text in indexed established Decision sources and return matching previews."
+  )
+    .argument("<text>", "Text to find in the selected Decision Markdown files.")
+    .addOption(
+      new Option("--match <mode>", "Text matching mode.")
+        .choices(["all", "any", "phrase"])
+        .default("all")
+    )
+    .addOption(
+      new Option(
+        "--alignment <value>",
+        "Alignment filter for indexed decisions."
+      )
+        .choices([...decisionAlignments, "all"])
+        .default("all")
+    )
+    .addOption(
+      new Option("--status <value>", "Lifecycle status filter.")
+        .choices([...establishedDecisionStatuses, "all"])
+        .default("active")
+    )
+    .addOption(
+      new Option(
+        "--tag <tag>",
+        "Require one tag. Repeat for AND filtering."
+      ).argParser(parseDecisionTag)
+    );
+  search.action(() => execute("search", search));
 
   const show = createSubcommand(
     program,

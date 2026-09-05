@@ -80,6 +80,7 @@
       "260904-adopt-date-prefixed-record-identities": "sha256:1c6fe42c7eab92f319c1db57ab37ce92ab86b97a9f306f5702ab4484807fc441",
       "260904-complete-change-plans-by-deletion": "sha256:f6937dcf430b83672ff94c5c60bed62de6ff4725a9285653e45d1aa123d1b3f7",
       "260904-current-change-plan-completion": "sha256:40957798161dd713bd1b8068f277f7f23de907c5617901cbf697d8eed586ef71",
+      "260905-search-authoritative-files-with-index-identity": "sha256:34240d591900ff1d798fe204e9bb5490dabbc432399336b3c7a5ffa8534d2b6a",
       "activate-release-gate-checks-by-tag": "sha256:9a4fa7a38e4c87103e295df956469814bfdd926557340399f2c798d8bbf55c4f",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -2816,6 +2817,41 @@
             "target": "260904-complete-change-plans-by-deletion"
           }
         ]
+      }
+    },
+    "260905-search-authoritative-files-with-index-identity": {
+      "keys": {
+        "name": [
+          "search-authoritative-files-with-index-identity"
+        ],
+        "tag": [
+          "decision-records",
+          "index-runtime",
+          "investigation-report"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "name": "search-authoritative-files-with-index-identity",
+        "sourcePath": "search-authoritative-files-with-index-identity.md",
+        "title": "以权威文件搜索协同索引身份",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-05T03:24:00Z",
+        "purpose": "让未知领域身份时的全文发现直接读取受管权威文件，同时保持结构筛选与稳定身份由领域索引承接。",
+        "background": "将正文复制进派生索引会扩大同步和差异负担，而仅查摘要字段又无法发现正文主题。",
+        "decision": "共享文件搜索只返回受管路径与预览；领域以同一索引快照按 sourcePath 反查 ID 并补充领域摘要。",
+        "tags": [
+          "decision-records",
+          "index-runtime",
+          "investigation-report"
+        ],
+        "relations": []
       }
     },
     "activate-release-gate-checks-by-tag": {

@@ -74,6 +74,9 @@ export function printDecisionQuerySuccess(
     case "list":
       printList(result.records, result.fullTime, io);
       return;
+    case "search":
+      printSearch(result, io);
+      return;
     case "show":
     case "show-candidate":
       printShow(result, io);
@@ -207,6 +210,45 @@ function printList(
     writeLine(io.stdout, "  tags: " + record.tags.join(", "));
     writeLine(io.stdout, "  title: " + record.projection.title);
     writeLine(io.stdout, "  purpose: " + record.projection.purpose);
+  }
+}
+
+function printSearch(
+  result: Extract<DecisionQuerySuccess, { command: "search" }>,
+  io: DecisionRecordsCliIo
+): void {
+  writeLine(io.stdout, "Decision search results:");
+  if (result.records.length === 0) {
+    writeLine(io.stdout, "- none");
+    return;
+  }
+  for (const record of result.records) {
+    writeLine(
+      io.stdout,
+      "- " +
+        record.status +
+        " " +
+        (record.alignment ?? "null") +
+        " " +
+        record.createdAt.slice(0, 10) +
+        " " +
+        record.decisionId
+    );
+    writeLine(io.stdout, "  sourcePath: " + record.sourcePath);
+    writeLine(io.stdout, "  tags: " + record.tags.join(", "));
+    writeLine(io.stdout, "  title: " + record.projection.title);
+    writeLine(io.stdout, "  purpose: " + record.projection.purpose);
+    writeLine(io.stdout, "  previews:");
+    for (const preview of record.previews) {
+      writeLine(
+        io.stdout,
+        "    " +
+          preview.line +
+          (preview.column === null ? ":" : ":" + preview.column + ":") +
+          " " +
+          preview.preview
+      );
+    }
   }
 }
 

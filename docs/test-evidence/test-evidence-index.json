@@ -4236,6 +4236,121 @@
         "title": "扫描访问拒绝按稳定诊断输出并净化 detail"
       }
     },
+    "DECISION-SEARCH-FALLBACK-001": {
+      "keys": {
+        "search": [
+          "DECISION-SEARCH-FALLBACK-001 Decision search 以只读来源投影处理陈旧索引 搜索遇到陈旧 Decision 索引时，必须从已验证来源建立只读投影完成 sourcePath 到 ID 的反查，而不写回索引。 索引未收录的新正文词仍返回现有 Decision ID。 stderr 报告只读来源投影，且持久索引字节保持不变。 tools/decision-records/tests/queries.test.ts > decision search falls back to a read-only validated source projection bun test --test-name-pattern=\"^decision search falls back to a read-only validated source projection$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision search falls back to a read-only validated source projection",
+          "bun test --test-name-pattern=\"^decision search falls back to a read-only validated source projection$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SEARCH-FALLBACK-001",
+        "line": 1,
+        "searchText": "Decision search 以只读来源投影处理陈旧索引 搜索遇到陈旧 Decision 索引时，必须从已验证来源建立只读投影完成 sourcePath 到 ID 的反查，而不写回索引。 索引未收录的新正文词仍返回现有 Decision ID。 stderr 报告只读来源投影，且持久索引字节保持不变。 tools/decision-records/tests/queries.test.ts > decision search falls back to a read-only validated source projection bun test --test-name-pattern=\"^decision search falls back to a read-only validated source projection$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-search-falls-back-to-read-only-source-projection.md",
+        "summary": "搜索遇到陈旧 Decision 索引时，必须从已验证来源建立只读投影完成 sourcePath 到 ID 的反查，而不写回索引。",
+        "title": "Decision search 以只读来源投影处理陈旧索引"
+      }
+    },
+    "DECISION-SEARCH-HELP-001": {
+      "keys": {
+        "search": [
+          "DECISION-SEARCH-HELP-001 Decision search 帮助公开匹配模式与结构筛选 Decision search 的帮助必须公开 all、any、phrase 匹配模式以及 alignment、status、tag 结构化筛选。 search 帮助列出 match、alignment、status 和 tag 选项。 帮助明确列出三种允许的匹配模式。 tools/decision-records/tests/cli-args.test.ts > decision search help exposes full-text modes and structural filters bun test --test-name-pattern=\"^decision search help exposes full-text modes and structural filters$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > decision search help exposes full-text modes and structural filters",
+          "bun test --test-name-pattern=\"^decision search help exposes full-text modes and structural filters$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SEARCH-HELP-001",
+        "line": 1,
+        "searchText": "Decision search 帮助公开匹配模式与结构筛选 Decision search 的帮助必须公开 all、any、phrase 匹配模式以及 alignment、status、tag 结构化筛选。 search 帮助列出 match、alignment、status 和 tag 选项。 帮助明确列出三种允许的匹配模式。 tools/decision-records/tests/cli-args.test.ts > decision search help exposes full-text modes and structural filters bun test --test-name-pattern=\"^decision search help exposes full-text modes and structural filters$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-search-help-exposes-modes-and-filters.md",
+        "summary": "Decision search 的帮助必须公开 all、any、phrase 匹配模式以及 alignment、status、tag 结构化筛选。",
+        "title": "Decision search 帮助公开匹配模式与结构筛选"
+      }
+    },
+    "DECISION-SEARCH-MODES-001": {
+      "keys": {
+        "search": [
+          "DECISION-SEARCH-MODES-001 Decision search 以三种模式检索完整 Markdown Decision search 必须在已建立决策的完整 Markdown 中支持 all、any、phrase 三种文本匹配，并将命中 sourcePath 和预览与稳定 ID 一并输出。 位于正文的稀有词组在默认 all、any 和 phrase 查询中都返回对应 Decision ID。 输出含语义 sourcePath、previews 标记和正文命中片段。 tools/decision-records/tests/queries.test.ts > decision search finds full Markdown text with all, any, and phrase modes bun test --test-name-pattern=\"^decision search finds full Markdown text with all, any, and phrase modes$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision search finds full Markdown text with all, any, and phrase modes",
+          "bun test --test-name-pattern=\"^decision search finds full Markdown text with all, any, and phrase modes$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SEARCH-MODES-001",
+        "line": 1,
+        "searchText": "Decision search 以三种模式检索完整 Markdown Decision search 必须在已建立决策的完整 Markdown 中支持 all、any、phrase 三种文本匹配，并将命中 sourcePath 和预览与稳定 ID 一并输出。 位于正文的稀有词组在默认 all、any 和 phrase 查询中都返回对应 Decision ID。 输出含语义 sourcePath、previews 标记和正文命中片段。 tools/decision-records/tests/queries.test.ts > decision search finds full Markdown text with all, any, and phrase modes bun test --test-name-pattern=\"^decision search finds full Markdown text with all, any, and phrase modes$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-search-finds-full-markdown-in-all-any-and-phrase-modes.md",
+        "summary": "Decision search 必须在已建立决策的完整 Markdown 中支持 all、any、phrase 三种文本匹配，并将命中 sourcePath 和预览与稳定 ID 一并输出。",
+        "title": "Decision search 以三种模式检索完整 Markdown"
+      }
+    },
+    "DECISION-SEARCH-STATUS-001": {
+      "keys": {
+        "search": [
+          "DECISION-SEARCH-STATUS-001 Decision search 默认活动记录并可选择归档记录 Decision search 默认只搜索 active 决策，显式 status=archived 时搜索归档决策及其 archive sourcePath。 默认查询不返回匹配的归档 Decision ID。 archived 查询返回该 ID 和 archive 下的 sourcePath。 tools/decision-records/tests/queries.test.ts > decision search defaults to active and permits archived selection bun test --test-name-pattern=\"^decision search defaults to active and permits archived selection$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision search defaults to active and permits archived selection",
+          "bun test --test-name-pattern=\"^decision search defaults to active and permits archived selection$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SEARCH-STATUS-001",
+        "line": 1,
+        "searchText": "Decision search 默认活动记录并可选择归档记录 Decision search 默认只搜索 active 决策，显式 status=archived 时搜索归档决策及其 archive sourcePath。 默认查询不返回匹配的归档 Decision ID。 archived 查询返回该 ID 和 archive 下的 sourcePath。 tools/decision-records/tests/queries.test.ts > decision search defaults to active and permits archived selection bun test --test-name-pattern=\"^decision search defaults to active and permits archived selection$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-search-defaults-to-active-and-selects-archived.md",
+        "summary": "Decision search 默认只搜索 active 决策，显式 status=archived 时搜索归档决策及其 archive sourcePath。",
+        "title": "Decision search 默认活动记录并可选择归档记录"
+      }
+    },
+    "DECISION-SEARCH-UNINDEXED-001": {
+      "keys": {
+        "search": [
+          "DECISION-SEARCH-UNINDEXED-001 Decision search 不信任漏掉正式来源的索引 发现新的已建立 Decision 来源但持久索引未收录时，搜索必须回退到已验证只读来源投影，而非把遗漏来源视为没有结果。 新正式 Markdown 中的稀有正文词返回其语义 Decision ID。 stderr 说明使用只读验证来源投影。 tools/decision-records/tests/queries.test.ts > decision search does not trust an index that omits a new established source bun test --test-name-pattern=\"^decision search does not trust an index that omits a new established source$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision search does not trust an index that omits a new established source",
+          "bun test --test-name-pattern=\"^decision search does not trust an index that omits a new established source$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SEARCH-UNINDEXED-001",
+        "line": 1,
+        "searchText": "Decision search 不信任漏掉正式来源的索引 发现新的已建立 Decision 来源但持久索引未收录时，搜索必须回退到已验证只读来源投影，而非把遗漏来源视为没有结果。 新正式 Markdown 中的稀有正文词返回其语义 Decision ID。 stderr 说明使用只读验证来源投影。 tools/decision-records/tests/queries.test.ts > decision search does not trust an index that omits a new established source bun test --test-name-pattern=\"^decision search does not trust an index that omits a new established source$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-search-falls-back-when-index-omits-established-source.md",
+        "summary": "发现新的已建立 Decision 来源但持久索引未收录时，搜索必须回退到已验证只读来源投影，而非把遗漏来源视为没有结果。",
+        "title": "Decision search 不信任漏掉正式来源的索引"
+      }
+    },
     "DECISION-SELECTED-SYNC-001": {
       "keys": {
         "search": [
@@ -5890,6 +6005,282 @@
         "sourcePath": "repository-tooling/environment-setup-keeps-main-root-in-linked-worktree.md",
         "summary": "linked worktree 的标准环境 setup 必须可重复执行；当前项目默认 task root 必须能从 Git 结构稳定发现为同仓主 worktree，而不是写入或使用执行 worktree。",
         "title": "linked worktree 重复 setup 保持当前项目中央 root"
+      }
+    },
+    "FILE-TEXT-SEARCH-ABORT-001": {
+      "keys": {
+        "search": [
+          "FILE-TEXT-SEARCH-ABORT-001 文件搜索遵守已取消的信号 文件文本搜索在开始前发现 AbortSignal 已取消时必须停止并报告取消。 已取消请求拒绝为 code 为 aborted 的 FileTextSearchError。 tools/shared/tests/file-text-search.test.ts > honors an already aborted search bun test --test-name-pattern=\"^honors an already aborted search$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/shared/tests/file-text-search.test.ts > honors an already aborted search",
+          "bun test --test-name-pattern=\"^honors an already aborted search$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "id": "FILE-TEXT-SEARCH-ABORT-001",
+        "line": 1,
+        "searchText": "文件搜索遵守已取消的信号 文件文本搜索在开始前发现 AbortSignal 已取消时必须停止并报告取消。 已取消请求拒绝为 code 为 aborted 的 FileTextSearchError。 tools/shared/tests/file-text-search.test.ts > honors an already aborted search bun test --test-name-pattern=\"^honors an already aborted search$\" ./tools/shared/tests/file-text-search.test.ts",
+        "sourcePath": "index-runtime/file-text-search-honors-abort.md",
+        "summary": "文件文本搜索在开始前发现 AbortSignal 已取消时必须停止并报告取消。",
+        "title": "文件搜索遵守已取消的信号"
+      }
+    },
+    "FILE-TEXT-SEARCH-LIMITS-001": {
+      "keys": {
+        "search": [
+          "FILE-TEXT-SEARCH-LIMITS-001 文件搜索报告每类输出截断 文件数、每文件命中数和预览字符数的输出限制必须分别暴露截断事实，不能把不完整结果表述为完整。 文件数和每文件命中数受限时，结果分别标记 files 与 matches 截断。 预览字符预算不足时，保留可输出的命中预览并标记 previewCharacters 截断。 tools/shared/tests/file-text-search.test.ts > reports every output limit instead of presenting an incomplete result as complete bun test --test-name-pattern=\"^reports every output limit instead of presenting an incomplete result as complete$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/file-text-search.test.ts > reports every output limit instead of presenting an incomplete result as complete",
+          "bun test --test-name-pattern=\"^reports every output limit instead of presenting an incomplete result as complete$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "id": "FILE-TEXT-SEARCH-LIMITS-001",
+        "line": 1,
+        "searchText": "文件搜索报告每类输出截断 文件数、每文件命中数和预览字符数的输出限制必须分别暴露截断事实，不能把不完整结果表述为完整。 文件数和每文件命中数受限时，结果分别标记 files 与 matches 截断。 预览字符预算不足时，保留可输出的命中预览并标记 previewCharacters 截断。 tools/shared/tests/file-text-search.test.ts > reports every output limit instead of presenting an incomplete result as complete bun test --test-name-pattern=\"^reports every output limit instead of presenting an incomplete result as complete$\" ./tools/shared/tests/file-text-search.test.ts",
+        "sourcePath": "index-runtime/file-text-search-reports-output-truncation.md",
+        "summary": "文件数、每文件命中数和预览字符数的输出限制必须分别暴露截断事实，不能把不完整结果表述为完整。",
+        "title": "文件搜索报告每类输出截断"
+      }
+    },
+    "FILE-TEXT-SEARCH-MODES-001": {
+      "keys": {
+        "search": [
+          "FILE-TEXT-SEARCH-MODES-001 文件搜索支持 all、any 与 phrase 匹配 all 和 any 按规范化词项跨行匹配，phrase 只匹配连续规范化短语。 all 返回分别包含两个词项的行，any 返回包含任一查询词的行。 phrase 不把跨行词项当作短语，且只标记连续短语所在行。 tools/shared/tests/file-text-search.test.ts > all and any can match terms on different physical lines, while phrase cannot bun test --test-name-pattern=\"^all and any can match terms on different physical lines, while phrase cannot$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/file-text-search.test.ts > all and any can match terms on different physical lines, while phrase cannot",
+          "bun test --test-name-pattern=\"^all and any can match terms on different physical lines, while phrase cannot$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "id": "FILE-TEXT-SEARCH-MODES-001",
+        "line": 1,
+        "searchText": "文件搜索支持 all、any 与 phrase 匹配 all 和 any 按规范化词项跨行匹配，phrase 只匹配连续规范化短语。 all 返回分别包含两个词项的行，any 返回包含任一查询词的行。 phrase 不把跨行词项当作短语，且只标记连续短语所在行。 tools/shared/tests/file-text-search.test.ts > all and any can match terms on different physical lines, while phrase cannot bun test --test-name-pattern=\"^all and any can match terms on different physical lines, while phrase cannot$\" ./tools/shared/tests/file-text-search.test.ts",
+        "sourcePath": "index-runtime/file-text-search-supports-all-any-and-phrase.md",
+        "summary": "all 和 any 按规范化词项跨行匹配，phrase 只匹配连续规范化短语。",
+        "title": "文件搜索支持 all、any 与 phrase 匹配"
+      }
+    },
+    "FILE-TEXT-SEARCH-PREVIEW-001": {
+      "keys": {
+        "search": [
+          "FILE-TEXT-SEARCH-PREVIEW-001 文件搜索合并上下文窗口并区分命中行 相邻或重叠的命中上下文窗口必须合并；上下文行保留行号与预览但不伪造命中范围。 连续命中的两个窗口以一个连续行序列输出。 只有实际命中行带列号和 ranges，首尾上下文行的 ranges 为空。 tools/shared/tests/file-text-search.test.ts > merges overlapping context windows and marks context lines without match ranges bun test --test-name-pattern=\"^merges overlapping context windows and marks context lines without match ranges$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/file-text-search.test.ts > merges overlapping context windows and marks context lines without match ranges",
+          "bun test --test-name-pattern=\"^merges overlapping context windows and marks context lines without match ranges$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "id": "FILE-TEXT-SEARCH-PREVIEW-001",
+        "line": 1,
+        "searchText": "文件搜索合并上下文窗口并区分命中行 相邻或重叠的命中上下文窗口必须合并；上下文行保留行号与预览但不伪造命中范围。 连续命中的两个窗口以一个连续行序列输出。 只有实际命中行带列号和 ranges，首尾上下文行的 ranges 为空。 tools/shared/tests/file-text-search.test.ts > merges overlapping context windows and marks context lines without match ranges bun test --test-name-pattern=\"^merges overlapping context windows and marks context lines without match ranges$\" ./tools/shared/tests/file-text-search.test.ts",
+        "sourcePath": "index-runtime/file-text-search-merges-context-windows.md",
+        "summary": "相邻或重叠的命中上下文窗口必须合并；上下文行保留行号与预览但不伪造命中范围。",
+        "title": "文件搜索合并上下文窗口并区分命中行"
+      }
+    },
+    "FILE-TEXT-SEARCH-PREVIEW-BUDGET-001": {
+      "keys": {
+        "search": [
+          "FILE-TEXT-SEARCH-PREVIEW-BUDGET-001 文件搜索先保留命中预览再消耗上下文预算 预览字符预算不足时，文件文本搜索必须优先保留命中行，而不是由上下文耗尽预算。 上下文行超过预算时仍输出完整可容纳的命中行及其范围。 省略上下文后结果标记 previewCharacters 截断。 tools/shared/tests/file-text-search.test.ts > preserves a clipped matching preview before spending budget on context bun test --test-name-pattern=\"^preserves a clipped matching preview before spending budget on context$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/file-text-search.test.ts > preserves a clipped matching preview before spending budget on context",
+          "bun test --test-name-pattern=\"^preserves a clipped matching preview before spending budget on context$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "id": "FILE-TEXT-SEARCH-PREVIEW-BUDGET-001",
+        "line": 1,
+        "searchText": "文件搜索先保留命中预览再消耗上下文预算 预览字符预算不足时，文件文本搜索必须优先保留命中行，而不是由上下文耗尽预算。 上下文行超过预算时仍输出完整可容纳的命中行及其范围。 省略上下文后结果标记 previewCharacters 截断。 tools/shared/tests/file-text-search.test.ts > preserves a clipped matching preview before spending budget on context bun test --test-name-pattern=\"^preserves a clipped matching preview before spending budget on context$\" ./tools/shared/tests/file-text-search.test.ts",
+        "sourcePath": "index-runtime/file-text-search-prioritizes-matching-preview.md",
+        "summary": "预览字符预算不足时，文件文本搜索必须优先保留命中行，而不是由上下文耗尽预算。",
+        "title": "文件搜索先保留命中预览再消耗上下文预算"
+      }
+    },
+    "FILE-TEXT-SEARCH-RANGE-LIMIT-001": {
+      "keys": {
+        "search": [
+          "FILE-TEXT-SEARCH-RANGE-LIMIT-001 文件搜索按实际范围限制命中 每文件命中上限按实际命中范围而非按匹配行计数。 同一行有两个匹配范围时，上限为一仅返回第一个范围。 被省略的后续范围使 matches 截断标志为 true。 tools/shared/tests/file-text-search.test.ts > limits actual ranges rather than matching lines bun test --test-name-pattern=\"^limits actual ranges rather than matching lines$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/file-text-search.test.ts > limits actual ranges rather than matching lines",
+          "bun test --test-name-pattern=\"^limits actual ranges rather than matching lines$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "id": "FILE-TEXT-SEARCH-RANGE-LIMIT-001",
+        "line": 1,
+        "searchText": "文件搜索按实际范围限制命中 每文件命中上限按实际命中范围而非按匹配行计数。 同一行有两个匹配范围时，上限为一仅返回第一个范围。 被省略的后续范围使 matches 截断标志为 true。 tools/shared/tests/file-text-search.test.ts > limits actual ranges rather than matching lines bun test --test-name-pattern=\"^limits actual ranges rather than matching lines$\" ./tools/shared/tests/file-text-search.test.ts",
+        "sourcePath": "index-runtime/file-text-search-limits-ranges.md",
+        "summary": "每文件命中上限按实际命中范围而非按匹配行计数。",
+        "title": "文件搜索按实际范围限制命中"
+      }
+    },
+    "FILE-TEXT-SEARCH-RESOURCE-LIMIT-001": {
+      "keys": {
+        "search": [
+          "FILE-TEXT-SEARCH-RESOURCE-LIMIT-001 文件搜索在候选和字节扫描前执行资源限制 文件文本搜索必须在无界候选枚举、单文件读取和累计读取前执行配置的资源限制。 超过候选文件数、单文件字节数或累计字节数上限时均拒绝为 resource-limit 错误。 tools/shared/tests/file-text-search.test.ts > fails before unbounded candidate or byte scanning bun test --test-name-pattern=\"^fails before unbounded candidate or byte scanning$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/shared/tests/file-text-search.test.ts > fails before unbounded candidate or byte scanning",
+          "bun test --test-name-pattern=\"^fails before unbounded candidate or byte scanning$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "id": "FILE-TEXT-SEARCH-RESOURCE-LIMIT-001",
+        "line": 1,
+        "searchText": "文件搜索在候选和字节扫描前执行资源限制 文件文本搜索必须在无界候选枚举、单文件读取和累计读取前执行配置的资源限制。 超过候选文件数、单文件字节数或累计字节数上限时均拒绝为 resource-limit 错误。 tools/shared/tests/file-text-search.test.ts > fails before unbounded candidate or byte scanning bun test --test-name-pattern=\"^fails before unbounded candidate or byte scanning$\" ./tools/shared/tests/file-text-search.test.ts",
+        "sourcePath": "index-runtime/file-text-search-bounds-candidate-and-byte-scans.md",
+        "summary": "文件文本搜索必须在无界候选枚举、单文件读取和累计读取前执行配置的资源限制。",
+        "title": "文件搜索在候选和字节扫描前执行资源限制"
+      }
+    },
+    "FILE-TEXT-SEARCH-SAFETY-001": {
+      "keys": {
+        "search": [
+          "FILE-TEXT-SEARCH-SAFETY-001 文件搜索拒绝不安全路径、链接和无效 UTF-8 文件文本搜索拒绝越出 root 的路径、符号链接和无效 UTF-8，且错误信息不暴露绝对搜索根。 父目录路径、符号链接和损坏编码分别返回对应的结构化搜索错误。 符号链接错误文本不包含临时搜索根路径。 tools/shared/tests/file-text-search.test.ts > rejects unsafe paths, symbolic links, and invalid UTF-8 without exposing root paths bun test --test-name-pattern=\"^rejects unsafe paths, symbolic links, and invalid UTF-8 without exposing root paths$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/file-text-search.test.ts > rejects unsafe paths, symbolic links, and invalid UTF-8 without exposing root paths",
+          "bun test --test-name-pattern=\"^rejects unsafe paths, symbolic links, and invalid UTF-8 without exposing root paths$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "id": "FILE-TEXT-SEARCH-SAFETY-001",
+        "line": 1,
+        "searchText": "文件搜索拒绝不安全路径、链接和无效 UTF-8 文件文本搜索拒绝越出 root 的路径、符号链接和无效 UTF-8，且错误信息不暴露绝对搜索根。 父目录路径、符号链接和损坏编码分别返回对应的结构化搜索错误。 符号链接错误文本不包含临时搜索根路径。 tools/shared/tests/file-text-search.test.ts > rejects unsafe paths, symbolic links, and invalid UTF-8 without exposing root paths bun test --test-name-pattern=\"^rejects unsafe paths, symbolic links, and invalid UTF-8 without exposing root paths$\" ./tools/shared/tests/file-text-search.test.ts",
+        "sourcePath": "index-runtime/file-text-search-rejects-unsafe-or-invalid-files.md",
+        "summary": "文件文本搜索拒绝越出 root 的路径、符号链接和无效 UTF-8，且错误信息不暴露绝对搜索根。",
+        "title": "文件搜索拒绝不安全路径、链接和无效 UTF-8"
+      }
+    },
+    "FILE-TEXT-SEARCH-SELECTION-001": {
+      "keys": {
+        "search": [
+          "FILE-TEXT-SEARCH-SELECTION-001 文件搜索统一选择模式与显式根内文件 文件文本搜索必须仅选择 root 内的普通文件；pattern 和显式 sourcePath 列表对同一集合产生确定性的相同文件选择。 排除 txt 的 pattern 与去重后的显式 Markdown 文件列表都按 sourcePath 顺序返回同一命中集合。 未触发任何输出截断时，结果明确报告所有截断标志为 false。 tools/shared/tests/file-text-search.test.ts > selects root-relative regular files equivalently from patterns and explicit files bun test --test-name-pattern=\"^selects root-relative regular files equivalently from patterns and explicit files$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/file-text-search.test.ts > selects root-relative regular files equivalently from patterns and explicit files",
+          "bun test --test-name-pattern=\"^selects root-relative regular files equivalently from patterns and explicit files$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "id": "FILE-TEXT-SEARCH-SELECTION-001",
+        "line": 1,
+        "searchText": "文件搜索统一选择模式与显式根内文件 文件文本搜索必须仅选择 root 内的普通文件；pattern 和显式 sourcePath 列表对同一集合产生确定性的相同文件选择。 排除 txt 的 pattern 与去重后的显式 Markdown 文件列表都按 sourcePath 顺序返回同一命中集合。 未触发任何输出截断时，结果明确报告所有截断标志为 false。 tools/shared/tests/file-text-search.test.ts > selects root-relative regular files equivalently from patterns and explicit files bun test --test-name-pattern=\"^selects root-relative regular files equivalently from patterns and explicit files$\" ./tools/shared/tests/file-text-search.test.ts",
+        "sourcePath": "index-runtime/file-text-search-selects-root-relative-files.md",
+        "summary": "文件文本搜索必须仅选择 root 内的普通文件；pattern 和显式 sourcePath 列表对同一集合产生确定性的相同文件选择。",
+        "title": "文件搜索统一选择模式与显式根内文件"
+      }
+    },
+    "FILE-TEXT-SEARCH-UNICODE-001": {
+      "keys": {
+        "search": [
+          "FILE-TEXT-SEARCH-UNICODE-001 文件搜索规范化 Unicode 并保留原始坐标 文件文本搜索以 NFKC、无大小写差异和 Unicode 空白规范化进行匹配，同时以原始文本的 UTF-16 坐标输出预览范围。 全角字母和不换行空格组成的短语能被 ASCII 查询匹配。 返回的列、预览文本和范围仍对应未规范化的原始行。 tools/shared/tests/file-text-search.test.ts > normalizes NFKC, case, and Unicode whitespace while retaining original UTF-16 coordinates bun test --test-name-pattern=\"^normalizes NFKC, case, and Unicode whitespace while retaining original UTF-16 coordinates$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/file-text-search.test.ts > normalizes NFKC, case, and Unicode whitespace while retaining original UTF-16 coordinates",
+          "bun test --test-name-pattern=\"^normalizes NFKC, case, and Unicode whitespace while retaining original UTF-16 coordinates$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "id": "FILE-TEXT-SEARCH-UNICODE-001",
+        "line": 1,
+        "searchText": "文件搜索规范化 Unicode 并保留原始坐标 文件文本搜索以 NFKC、无大小写差异和 Unicode 空白规范化进行匹配，同时以原始文本的 UTF-16 坐标输出预览范围。 全角字母和不换行空格组成的短语能被 ASCII 查询匹配。 返回的列、预览文本和范围仍对应未规范化的原始行。 tools/shared/tests/file-text-search.test.ts > normalizes NFKC, case, and Unicode whitespace while retaining original UTF-16 coordinates bun test --test-name-pattern=\"^normalizes NFKC, case, and Unicode whitespace while retaining original UTF-16 coordinates$\" ./tools/shared/tests/file-text-search.test.ts",
+        "sourcePath": "index-runtime/file-text-search-normalizes-unicode-and-preserves-coordinates.md",
+        "summary": "文件文本搜索以 NFKC、无大小写差异和 Unicode 空白规范化进行匹配，同时以原始文本的 UTF-16 坐标输出预览范围。",
+        "title": "文件搜索规范化 Unicode 并保留原始坐标"
+      }
+    },
+    "FILE-TEXT-SEARCH-UNICODE-CASE-001": {
+      "keys": {
+        "search": [
+          "FILE-TEXT-SEARCH-UNICODE-CASE-001 文件搜索按整行处理希腊 sigma 小写 无大小写差异的文件文本匹配必须按整行小写语义处理有上下文形式的 Unicode 字符。 全大写希腊词可由带词尾 sigma 的小写短语查询匹配。 返回原始行和覆盖整词的原始范围。 tools/shared/tests/file-text-search.test.ts > uses whole-line lowercase semantics for contextual Greek sigma bun test --test-name-pattern=\"^uses whole-line lowercase semantics for contextual Greek sigma$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/file-text-search.test.ts > uses whole-line lowercase semantics for contextual Greek sigma",
+          "bun test --test-name-pattern=\"^uses whole-line lowercase semantics for contextual Greek sigma$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "id": "FILE-TEXT-SEARCH-UNICODE-CASE-001",
+        "line": 1,
+        "searchText": "文件搜索按整行处理希腊 sigma 小写 无大小写差异的文件文本匹配必须按整行小写语义处理有上下文形式的 Unicode 字符。 全大写希腊词可由带词尾 sigma 的小写短语查询匹配。 返回原始行和覆盖整词的原始范围。 tools/shared/tests/file-text-search.test.ts > uses whole-line lowercase semantics for contextual Greek sigma bun test --test-name-pattern=\"^uses whole-line lowercase semantics for contextual Greek sigma$\" ./tools/shared/tests/file-text-search.test.ts",
+        "sourcePath": "index-runtime/file-text-search-lowercases-contextual-sigma.md",
+        "summary": "无大小写差异的文件文本匹配必须按整行小写语义处理有上下文形式的 Unicode 字符。",
+        "title": "文件搜索按整行处理希腊 sigma 小写"
+      }
+    },
+    "FILE-TEXT-SEARCH-UNICODE-RANGE-001": {
+      "keys": {
+        "search": [
+          "FILE-TEXT-SEARCH-UNICODE-RANGE-001 文件搜索将组合字符命中映射回原始范围 规范化后命中的组合字符必须映射为覆盖原始基字符与组合标记的范围。 由分解重音字符构成的原文可被预组合、忽略大小写的短语查询匹配。 输出范围覆盖原始的两个 UTF-16 code unit，而非规范化后的单个字符。 tools/shared/tests/file-text-search.test.ts > maps a normalized grapheme match back to its original combining-character range bun test --test-name-pattern=\"^maps a normalized grapheme match back to its original combining-character range$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/file-text-search.test.ts > maps a normalized grapheme match back to its original combining-character range",
+          "bun test --test-name-pattern=\"^maps a normalized grapheme match back to its original combining-character range$\" ./tools/shared/tests/file-text-search.test.ts"
+        ],
+        "id": "FILE-TEXT-SEARCH-UNICODE-RANGE-001",
+        "line": 1,
+        "searchText": "文件搜索将组合字符命中映射回原始范围 规范化后命中的组合字符必须映射为覆盖原始基字符与组合标记的范围。 由分解重音字符构成的原文可被预组合、忽略大小写的短语查询匹配。 输出范围覆盖原始的两个 UTF-16 code unit，而非规范化后的单个字符。 tools/shared/tests/file-text-search.test.ts > maps a normalized grapheme match back to its original combining-character range bun test --test-name-pattern=\"^maps a normalized grapheme match back to its original combining-character range$\" ./tools/shared/tests/file-text-search.test.ts",
+        "sourcePath": "index-runtime/file-text-search-maps-combining-ranges.md",
+        "summary": "规范化后命中的组合字符必须映射为覆盖原始基字符与组合标记的范围。",
+        "title": "文件搜索将组合字符命中映射回原始范围"
       }
     },
     "GATE-CLI-RESULT-001": {
@@ -7804,23 +8195,23 @@
     "INVESTIGATION-BUNDLED-PARITY-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-BUNDLED-PARITY-001 CLI exposes only report-level commands and rejects old topic options 直接调用的源码 CLI 入口的帮助仅公开报告级命令；旧主题筛选参数不属于当前接口。 `--help` 成功且只写 stdout，并列出 `set-relations` 而不列出 `--category`；旧 `--category` 以用法错误退出、stdout 为空并向 stderr 给出诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI exposes only report-level commands and rejects old topic options bun test --test-name-pattern=\"^CLI exposes only report-level commands and rejects old topic options$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-BUNDLED-PARITY-001 CLI exposes only report-level commands and rejects old topic options 直接调用的源码 CLI 入口的帮助仅公开当前报告级命令；search 公开文本与匹配模式入口，旧 topic 筛选和 list 的 retired text 参数不属于当前接口。 顶层帮助成功且只写 stdout，列出报告级命令而不列出 `--category`。 search 帮助公开 `<text>` 和 `--match <mode>`。 `list --category` 与 `list --text` 都以用法错误退出，且前者 stdout 为空、错误输出包含对应未知选项诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI exposes only report-level commands and rejects old topic options bun test --test-name-pattern=\"^CLI exposes only report-level commands and rejects old topic options$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 15,
+        "endLine": 14,
         "entries": [
           "tools/investigation-report/tests/cli-generated.test.ts > CLI exposes only report-level commands and rejects old topic options",
           "bun test --test-name-pattern=\"^CLI exposes only report-level commands and rejects old topic options$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-BUNDLED-PARITY-001",
         "line": 1,
-        "searchText": "CLI exposes only report-level commands and rejects old topic options 直接调用的源码 CLI 入口的帮助仅公开报告级命令；旧主题筛选参数不属于当前接口。 `--help` 成功且只写 stdout，并列出 `set-relations` 而不列出 `--category`；旧 `--category` 以用法错误退出、stdout 为空并向 stderr 给出诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI exposes only report-level commands and rejects old topic options bun test --test-name-pattern=\"^CLI exposes only report-level commands and rejects old topic options$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI exposes only report-level commands and rejects old topic options 直接调用的源码 CLI 入口的帮助仅公开当前报告级命令；search 公开文本与匹配模式入口，旧 topic 筛选和 list 的 retired text 参数不属于当前接口。 顶层帮助成功且只写 stdout，列出报告级命令而不列出 `--category`。 search 帮助公开 `<text>` 和 `--match <mode>`。 `list --category` 与 `list --text` 都以用法错误退出，且前者 stdout 为空、错误输出包含对应未知选项诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI exposes only report-level commands and rejects old topic options bun test --test-name-pattern=\"^CLI exposes only report-level commands and rejects old topic options$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-exposes-only-report-level-commands-and-rejects-old-topic-options.md",
-        "summary": "直接调用的源码 CLI 入口的帮助仅公开报告级命令；旧主题筛选参数不属于当前接口。",
+        "summary": "直接调用的源码 CLI 入口的帮助仅公开当前报告级命令；search 公开文本与匹配模式入口，旧 topic 筛选和 list 的 retired text 参数不属于当前接口。",
         "title": "CLI exposes only report-level commands and rejects old topic options"
       }
     },
@@ -9232,29 +9623,6 @@
         "title": "list filters reports by direct relation type"
       }
     },
-    "INVESTIGATION-INDEX-TEXT-FILTER-001": {
-      "keys": {
-        "search": [
-          "INVESTIGATION-INDEX-TEXT-FILTER-001 list filters report title and question text list 的 text 条件同时检索报告 title 与 question。 title 或 question 命中的报告被返回，不命中的报告被排除。 tools/investigation-report/tests/index-query.test.ts > list filters report title and question text bun test --test-name-pattern=\"^list filters report title and question text$\" ./tools/investigation-report/tests/run.ts"
-        ],
-        "topic": [
-          "investigation-report"
-        ]
-      },
-      "state": {
-        "endLine": 15,
-        "entries": [
-          "tools/investigation-report/tests/index-query.test.ts > list filters report title and question text",
-          "bun test --test-name-pattern=\"^list filters report title and question text$\" ./tools/investigation-report/tests/run.ts"
-        ],
-        "id": "INVESTIGATION-INDEX-TEXT-FILTER-001",
-        "line": 1,
-        "searchText": "list filters report title and question text list 的 text 条件同时检索报告 title 与 question。 title 或 question 命中的报告被返回，不命中的报告被排除。 tools/investigation-report/tests/index-query.test.ts > list filters report title and question text bun test --test-name-pattern=\"^list filters report title and question text$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/list-filters-report-title-and-question-text.md",
-        "summary": "list 的 text 条件同时检索报告 title 与 question。",
-        "title": "list filters report title and question text"
-      }
-    },
     "INVESTIGATION-PUBLIC-OPTIONS-001": {
       "keys": {
         "search": [
@@ -10564,6 +10932,52 @@
         "sourcePath": "investigation-report/indexes-and-queries-one-thousand-independent-reports-by-investigation-id.md",
         "summary": "报告索引与查询可处理一千份独立 Investigation ID 报告并保持 ID 排序。",
         "title": "indexes and queries one thousand independent reports by Investigation ID"
+      }
+    },
+    "INVESTIGATION-SEARCH-MODES-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-SEARCH-MODES-001 search 以匹配模式和结构筛选检索正式 Markdown Investigation search 只在正式报告 Markdown 中提供 all、any、phrase 文本匹配，并能与 tag、formedAt 范围和直接 relation type 结构筛选组合；结果保持 Investigation ID 与 sourcePath 身份分离。 默认 all、phrase 与带结构筛选的 any 查询均返回匹配的正式 Investigation ID。 匹配结果投影语义 sourcePath 并附带至少一个正文预览。 tools/investigation-report/tests/index-query.test.ts > search finds formal Markdown with all, any, phrase, and structural filters bun test --test-name-pattern=\"^search finds formal Markdown with all, any, phrase, and structural filters$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > search finds formal Markdown with all, any, phrase, and structural filters",
+          "bun test --test-name-pattern=\"^search finds formal Markdown with all, any, phrase, and structural filters$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-SEARCH-MODES-001",
+        "line": 1,
+        "searchText": "search 以匹配模式和结构筛选检索正式 Markdown Investigation search 只在正式报告 Markdown 中提供 all、any、phrase 文本匹配，并能与 tag、formedAt 范围和直接 relation type 结构筛选组合；结果保持 Investigation ID 与 sourcePath 身份分离。 默认 all、phrase 与带结构筛选的 any 查询均返回匹配的正式 Investigation ID。 匹配结果投影语义 sourcePath 并附带至少一个正文预览。 tools/investigation-report/tests/index-query.test.ts > search finds formal Markdown with all, any, phrase, and structural filters bun test --test-name-pattern=\"^search finds formal Markdown with all, any, phrase, and structural filters$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/search-finds-formal-markdown-with-modes-and-structural-filters.md",
+        "summary": "Investigation search 只在正式报告 Markdown 中提供 all、any、phrase 文本匹配，并能与 tag、formedAt 范围和直接 relation type 结构筛选组合；结果保持 Investigation ID 与 sourcePath 身份分离。",
+        "title": "search 以匹配模式和结构筛选检索正式 Markdown"
+      }
+    },
+    "INVESTIGATION-SEARCH-SCOPE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-SEARCH-SCOPE-001 search 排除非正式文件并只读回退 Investigation search 只搜索正式报告 Markdown，排除 candidate、随附资源和派生索引；索引缺失时从合法正式来源构建只读投影而不写回索引。 只存在于 candidate 或资源文件的词不返回任何报告。 删除派生索引后，正式 Markdown 的命中仍返回正式 Investigation ID、附带一个 warning，且不创建索引文件。 tools/investigation-report/tests/index-query.test.ts > search excludes candidates, resources, and index bytes and falls back read-only bun test --test-name-pattern=\"^search excludes candidates, resources, and index bytes and falls back read-only$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > search excludes candidates, resources, and index bytes and falls back read-only",
+          "bun test --test-name-pattern=\"^search excludes candidates, resources, and index bytes and falls back read-only$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-SEARCH-SCOPE-001",
+        "line": 1,
+        "searchText": "search 排除非正式文件并只读回退 Investigation search 只搜索正式报告 Markdown，排除 candidate、随附资源和派生索引；索引缺失时从合法正式来源构建只读投影而不写回索引。 只存在于 candidate 或资源文件的词不返回任何报告。 删除派生索引后，正式 Markdown 的命中仍返回正式 Investigation ID、附带一个 warning，且不创建索引文件。 tools/investigation-report/tests/index-query.test.ts > search excludes candidates, resources, and index bytes and falls back read-only bun test --test-name-pattern=\"^search excludes candidates, resources, and index bytes and falls back read-only$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/search-excludes-nonformal-files-and-falls-back-read-only.md",
+        "summary": "Investigation search 只搜索正式报告 Markdown，排除 candidate、随附资源和派生索引；索引缺失时从合法正式来源构建只读投影而不写回索引。",
+        "title": "search 排除非正式文件并只读回退"
       }
     },
     "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001": {
@@ -17989,6 +18403,11 @@
       "DECISION-RENAME-RELATIONS-001": "sha256:fc99508dfed927207479633865559806c510f51b66344b26ae3ab3442587cd25",
       "DECISION-RENAME-SELECTOR-001": "sha256:124dcdffcc6825fc13b74d63a5fbad52b7b78d99c33dc79ad6cbd057d2408213",
       "DECISION-SCAN-FILESYSTEM-DIAGNOSTIC-001": "sha256:2c55fc6ef196dbbf0d5faa2e563e5d9927b146b93734101afeef1008a7a64ea4",
+      "DECISION-SEARCH-FALLBACK-001": "sha256:e4ab6db960a4b9addc4749df09e70d48b09f03a66589977c48eb632d42f372a5",
+      "DECISION-SEARCH-HELP-001": "sha256:591dd8dd41c6d1f3835be919993985f22f3138f43918baf457bc3fdfeec7b7a2",
+      "DECISION-SEARCH-MODES-001": "sha256:6da86777947093a736e44ae10630fc0e1af5872c28cf0650fe2a293705480016",
+      "DECISION-SEARCH-STATUS-001": "sha256:e0cec11a12009f272ca361c0b1e037d57fabf0da23b15fd2737d95a9d612c5de",
+      "DECISION-SEARCH-UNINDEXED-001": "sha256:69f19d4ad3dc8d0e9162cf79c590d71c095a71b6badea75b017d135d96eacc9e",
       "DECISION-SELECTED-SYNC-001": "sha256:7c9a813540c06875ae0607c0d3f9fd455102bd9f3d63c880040e08f8726ee615",
       "DECISION-SELECTED-SYNC-MEMBERSHIP-001": "sha256:70bb63041c7f1cc9fb0d313e4bb41535eac80124ddc7151f161dd6ddd50a2b3d",
       "DECISION-SHOW-OUTPUT-001": "sha256:a6c556c13e2756b76f7019231afd5763ab95cbff56963d914132de0763548fa6",
@@ -18061,6 +18480,18 @@
       "ENV-METRICS-PREREQUISITES-001": "sha256:17691c720b0523f69656ea2ebf010cdcc27266d84b92749cacf68807aac2546e",
       "ENV-PERMISSION-RULES-001": "sha256:21a124776a169674569296131b473013b83cd4982ea6a91fde7ec22edc11b45a",
       "ENV-WORKTREE-SETUP-001": "sha256:a232485668782b975b6e416528f415886b669450f36394065848a5027441842f",
+      "FILE-TEXT-SEARCH-ABORT-001": "sha256:fdb7e11aba0783ebb646c0797ea1e0e7ee2c85c8f59b51c7013f8c86f1a253e4",
+      "FILE-TEXT-SEARCH-LIMITS-001": "sha256:7a8d2b194fdad99db3c852e23a4f9ceddad039d4882778df868599d5b19446df",
+      "FILE-TEXT-SEARCH-MODES-001": "sha256:452c46bc38c5b5b58bbc8d4a688e0841406b5a7623f1908c02dbbbd1030759ec",
+      "FILE-TEXT-SEARCH-PREVIEW-001": "sha256:7a4551ebcca2abe976c8d578a766ce400c8beacb050a78793e7ed160892809a7",
+      "FILE-TEXT-SEARCH-PREVIEW-BUDGET-001": "sha256:c57dbb4d9a7da4799df8523fbb36f527e92d53b990b551d805d1e767bb11b241",
+      "FILE-TEXT-SEARCH-RANGE-LIMIT-001": "sha256:518e74d77cd4f7f88718cd1946255f78c9bb49af1899b542349f535e3546c5c9",
+      "FILE-TEXT-SEARCH-RESOURCE-LIMIT-001": "sha256:ac101b643cb70d74bdfb0f9d2509ae6cf330e4b7eba93d8559b6faeea9c7760f",
+      "FILE-TEXT-SEARCH-SAFETY-001": "sha256:abf80ddc6e3b6ec57f7dc9cfbe4c65c29102cbd89b8523c1b81abb9a30e3b0d9",
+      "FILE-TEXT-SEARCH-SELECTION-001": "sha256:ab5a85bee72d29cbc95fca8d5ca959a30941da503adf23555753e383890b7c0e",
+      "FILE-TEXT-SEARCH-UNICODE-001": "sha256:cbd043adde9335b2fd02a7b41bc29a755fba0af7d0ccef79b7764386801ba414",
+      "FILE-TEXT-SEARCH-UNICODE-CASE-001": "sha256:3519449b1c6c619b76e7ef1410e46269ce16b01d928d2d5911c202220ce9e174",
+      "FILE-TEXT-SEARCH-UNICODE-RANGE-001": "sha256:d5aa8e9208c7afe623299efe87ae881b260e9e7b2ccdb475d3c8bfdb2ec8c982",
       "GATE-CLI-RESULT-001": "sha256:ae32a8a554aef5b2379fc0089e1b05a8d2c299adabf0371f4f998d78df541b6f",
       "GATE-DEFINITION-CATALOG-001": "sha256:5228223bf5f46787a923550298e19d52fabd6535a7b643483e91666e84e9cf7b",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:7562eb8f98b853c83356d56a7140b675965d35b78727d7a0e6e650675d7933d7",
@@ -18144,7 +18575,7 @@
       "INDEX-RUNTIME-SYNC-UTF8-001": "sha256:6bd07e1441ed4e5f861530432e1639c040941a5b1b67fe43d6e48b128112d0c9",
       "INDEX-RUNTIME-TEMPORAL-SORT-001": "sha256:c171e76cf05b0b6f1505e25b88d903014dc2ecc917585aff424c19e655df3303",
       "INDEX-RUNTIME-TEXT-SEARCH-001": "sha256:025c697be00a2550ec330872fffefa04d9ca342e1dd6ee497e1e8310781ec8f1",
-      "INVESTIGATION-BUNDLED-PARITY-001": "sha256:830203a4809c139ce8009e8b0f6cfd4fadc432bc13555fb9d2372da83f9fa3b0",
+      "INVESTIGATION-BUNDLED-PARITY-001": "sha256:6e99685cded7c7d2a3d4b4215b6db573b31d83ede7314795a605501da3747f91",
       "INVESTIGATION-CANDIDATE-CLI-001": "sha256:be81538b3cfc08ba989ec395147df1f5095ec2b5f430e5ad8051a9d1ba17cacb",
       "INVESTIGATION-CANDIDATE-DISCARD-004": "sha256:0a0abd8a87b00b5866cd71ecbc6f9590a749af9ccb88651f819762c5716fe4c0",
       "INVESTIGATION-CANDIDATE-DISCARD-005": "sha256:d59a0dec61c4c87c6ef61c040ad6cf76df261c0bb3d17a4dc868441f2b2ff0ce",
@@ -18206,7 +18637,6 @@
       "INVESTIGATION-INDEX-METADATA-001": "sha256:6b8709067fcaed6ea8f4c70bf05f7877b8cd4556d133a6e188435dd51de8800e",
       "INVESTIGATION-INDEX-QUERY-001": "sha256:9174dcc9fd34aff5f777c490db138274825a96a002ef3d8794b625eae0010daa",
       "INVESTIGATION-INDEX-RELATION-FILTER-001": "sha256:b00de37bf7cf17ffeccca354b30bb855003e126825ebcabf2c55384927395e4e",
-      "INVESTIGATION-INDEX-TEXT-FILTER-001": "sha256:3c7ebda378aba9e7e6fc6353adc3579a185fe8282c58560bf8f173efbc639fc0",
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:a65a11d47c0fa926d3acb9755ceccd8a1ca112df13f511b284bb79e70d007a7d",
       "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:f06cda59aa8d5cf08fe6e2ce817df58bebadd2df540370e4b2c9190073a6615f",
       "INVESTIGATION-QUERY-SOURCE-PATH-001": "sha256:d16d7b57baa97deb67f730e3c1f8a4d43ee6249aa90c11415c98058f5929d979",
@@ -18264,6 +18694,8 @@
       "INVESTIGATION-RESOURCE-TYPE-001": "sha256:136efbc83e2cff8a2a8354dc99819168ebb89c5cf70a268ee466e1ffab2a4a63",
       "INVESTIGATION-ROOT-CONFINEMENT-001": "sha256:6cfebc15ed121b4633e6278486565a97c892b8ed39f7a253b59d3d2c62f3c45b",
       "INVESTIGATION-SCALE-INDEX-001": "sha256:a0a230f55169ec69d236d9166c1211e849df1cc89b1bcd5decf70c507133c675",
+      "INVESTIGATION-SEARCH-MODES-001": "sha256:c52ed037f3d5fec9f802d4bf8c7afcd48bf309d2c7336811b3ce7e5a16ba3ab9",
+      "INVESTIGATION-SEARCH-SCOPE-001": "sha256:bc522fcbab3750f50bce4c7b68a1ebad432c9ab32db63d4bb96b16c5a1dcdc07",
       "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001": "sha256:e5d12ac91489c69c70d97324e056f64336d29072c176d68e6afeaf068425ca05",
       "INVESTIGATION-SNAPSHOT-REVISION-001": "sha256:14496f1c0c6948df244d3c4a845ecca44a488636ee104a3d14e30a61b36ede2b",
       "INVESTIGATION-SOURCE-REVISION-001": "sha256:fa173e236b6b834b8af97cb0880e394b86011f45339c74fea0f103119b4d2b06",

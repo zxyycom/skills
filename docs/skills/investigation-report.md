@@ -54,7 +54,9 @@ _candidate.<investigation-id>  ── publish（显式选择）──>  <investi
 
 常规创建先以 `new` 得到 candidate。创建成功即使正文尚未完成或辅助检查有 warning，也不应重跑 `new`；继续编辑、用 `show-candidate` 查看，或以 `publish --preflight` 只读预演最终集合。预检不保存 receipt，普通 publish 会重新读取所有相关事实；只有当前授权与人工语义审核都完成后才执行 publish。
 
-`sync-index` 是正式集合级的低频重建和显式接纳入口：一批手工正式报告编辑可以先共同完成，在查询、关系事务、全量检查或交付需要当前索引前统一同步一次。只读审阅不会为修复索引而写入；索引缺失或过期时应报告这一缺口，而不是把旧投影当作集合事实。合法 candidates 不会被 `sync-index` 接纳，也不进入正式 `list`、`show`、`trace` 或 `stage-index`；`candidates`、`show-candidate` 和显式选择它们的 `publish` 才会读取候选。
+按已知信息选择入口：已知 ID 或 name 用 `show`；已知 tags、形成时间或关系类型用 `list`；只知道主题、原因或正文措辞用 `search <text>`；需要认识演进时再把完整 ID 交给 `trace`。`search` 仅扫描索引选出的正式 Markdown，返回完整 ID、摘要、sourcePath 与命中预览；candidate、资源和索引文件不在范围内。`all`、`any`、`phrase` 分别要求全部词、任一词、同一物理行连续短语：统一 NFKC、忽略大小写并按空白处理查询，前两者可跨物理行，`phrase` 不跨行。它可复用 tags、形成时间和关系类型筛选；`--limit` 只限制返回的命中报告（默认 50、最大 1000）。
+
+搜索先从同一当前索引快照取得筛选后的 `sourcePath` 列表及唯一 `sourcePath → ID` 映射。索引缺失、损坏或不新鲜时，只有完整正式来源与资源验证成功才会以内存投影只读降级并 warning；不会写入、也不会让其他 index-backed 查询把旧投影当作集合事实。预览和返回报告都受资源上限约束；出现截断 warning 时，不能把未显示结果或无结果表述为集合中不存在，应收紧结构条件、调整 Investigation 的 `--limit`，或继续 `show`/`trace` 已返回的 ID。`sync-index` 是正式集合级的低频重建和显式接纳入口：一批手工正式报告编辑可以先共同完成，在查询、关系事务、全量检查或交付需要当前索引前统一同步一次。合法 candidates 不会被 `sync-index` 接纳，也不进入正式 `list`、`search`、`show`、`trace` 或 `stage-index`；`candidates`、`show-candidate` 和显式选择它们的 `publish` 才会读取候选。
 
 审阅完成时，应能判断正式报告是否仍可独立复核形成时认识，tags 与关系是否各有内容依据，资源是否必要且安全，以及正式报告、索引和关系图是否没有被误读为当前决策或实施状态。调查如形成长期采用方向、实施任务或稳定测试义务，再交接给对应 owner；没有下游载体不影响报告本身成立。
 

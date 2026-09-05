@@ -137,6 +137,24 @@ async function runList(
   );
 }
 
+async function runSearch(
+  args: CliArgsFor<"search">,
+  io: DecisionRecordsCliIo
+): Promise<number> {
+  return await runQuery(
+    {
+      alignment: args.alignment,
+      command: "search",
+      location: decisionLocation(args),
+      match: args.match,
+      status: args.status,
+      tags: args.tags,
+      text: args.text
+    },
+    io
+  );
+}
+
 async function runShow(
   args: CliArgsFor<"show">,
   io: DecisionRecordsCliIo
@@ -1020,6 +1038,7 @@ type QueryCliArgs = Extract<
       | "candidates"
       | "check"
       | "list"
+      | "search"
       | "show"
       | "show-candidate"
       | "sync-index"
@@ -1032,6 +1051,7 @@ function isQueryCliArgs(args: CliArgs): args is QueryCliArgs {
     "candidates",
     "check",
     "list",
+    "search",
     "show",
     "show-candidate",
     "sync-index",
@@ -1050,6 +1070,8 @@ async function runQueryCommand(
       return await runCheck(args, io);
     case "list":
       return await runList(args, io);
+    case "search":
+      return await runSearch(args, io);
     case "show":
       return await runShow(args, io);
     case "show-candidate":

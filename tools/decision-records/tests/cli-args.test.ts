@@ -94,6 +94,20 @@ test("decision CLI top-level help exposes the current command set", async () => 
   assert.doesNotMatch(help.stdout, /^\s*split(?:\s|$)/m);
 });
 
+test("decision search help exposes full-text modes and structural filters", async () => {
+  const help = await runCli(["search", "--help"]);
+  assert.equal(help.exitCode, 0);
+  for (const option of [
+    "--match <mode>",
+    "--alignment <value>",
+    "--status <value>",
+    "--tag <tag>"
+  ]) {
+    assert.ok(help.stdout.includes(option), option);
+  }
+  assert.match(help.stdout, /"all", "any", "phrase"/);
+});
+
 test("new help fixes explicit scaffold inputs without accepting lifecycle alignment", async () => {
   const help = await runCli(["new", "--help"]);
   assert.equal(help.exitCode, 0);

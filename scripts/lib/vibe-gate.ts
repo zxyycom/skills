@@ -221,6 +221,7 @@ export const releaseRequiredPackageScripts = [
   "test:skill-updater",
   "test:skill-validator",
   "test:relation-graph",
+  "test:file-text-search",
   "test:version-control",
   "test:skill-package-hash",
   "test:skill-release-publisher",

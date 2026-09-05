@@ -27,7 +27,7 @@ import {
 } from "./types.ts";
 
 export const investigationIndexNamespace = "investigations";
-export const investigationIndexDefinitionVersion = 8;
+export const investigationIndexDefinitionVersion = 9;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -149,11 +149,6 @@ export function createInvestigationStateIndexDefinition(
         derive: (state) => state.relations.map((relation) => relation.type),
         mode: "exact",
         name: "relation-type"
-      },
-      {
-        derive: (state) => [state.title, state.question],
-        mode: "text",
-        name: "text"
       }
     ],
     namespace: investigationIndexNamespace,

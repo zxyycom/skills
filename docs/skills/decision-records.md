@@ -37,6 +37,17 @@ cleanup 待处理。范围未知或恢复不完整时先停止并对账；权限
 等待或确认活动进程。工具不会建议 `sudo`、自动删除锁或自动重试。精确字段和恢复步骤以
 [决策记录规则](../../skills/decision-records/references/decision-record-rules.md)及其[维护恢复](../../skills/decision-records/references/maintenance-recovery.md)为准。
 
+## 查找既有判断
+
+按已知信息选择入口，而不是先手工 grep：
+
+1. 已知稳定 ID 或可靠语义 name 时用 `show` 读取该条完整理由。
+2. 已知 lifecycle、alignment 或 tag 时用 `list` 结构化浏览。
+3. 只知道主题、概念、理由或正文措辞时用 `search <text>`；它默认查 active 的已建立 Markdown，并返回完整 Decision ID、结构摘要、`sourcePath` 与带行号预览。
+4. 需要前序或后继关系时，把 `search` 或 `list` 得到的完整 ID 交给 `trace`；不要由文件名或路径推断身份。
+
+`search` 的 `all`、`any`、`phrase` 分别要求全部词、任一词、同一物理行连续短语。匹配会统一 NFKC、忽略大小写并按空白处理查询；`all` 和 `any` 的词可分布在不同物理行，`phrase` 不跨行。它先用同一当前索引快照筛选并定位权威文件；该索引缺失、损坏或不新鲜时，只有完整验证来源成功才会只读降级并 warning，绝不写索引。候选和索引 JSON 不在范围内。预览与结果文件受固定资源上限约束；出现截断 warning 时，不能把未显示的结果或无结果当作集合中不存在，应缩小结构条件或继续用返回 ID 的 `show`/`trace` 阅读。
+
 ## 入口
 
 agent 的触发、读取路径、动作选择与验收由 [Skill 入口](../../skills/decision-records/SKILL.md) 承接。写入、生命周期、关系、对齐、历史确认和索引维护的语义规则由 [决策记录规则](../../skills/decision-records/references/decision-record-rules.md) 承接；CLI 的当前参数与输出通过 `bun run decision-records -- --help` 查询，索引或写入异常按 [维护恢复](../../skills/decision-records/references/maintenance-recovery.md) 处理。

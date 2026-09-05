@@ -372,3 +372,37 @@ export declare function discardInvestigationCandidate(
 export declare function renameInvestigationRecord(
   options: InvestigationRenameOptions
 ): Promise<InvestigationRenameResult>;
+
+export type InvestigationSearchOptions = {
+  formedAtFrom?: string;
+  formedAtTo?: string;
+  investigationsDir?: string;
+  limit?: number;
+  match?: "all" | "any" | "phrase";
+  query: string;
+  relationType?: InvestigationRelationType;
+  tags?: readonly string[];
+  workspaceRoot: string;
+};
+export type InvestigationSearchResult = {
+  entries: ReadonlyArray<{
+    id: string;
+    formedAt: string;
+    title: string;
+    question: string;
+    tags: readonly string[];
+    sourcePath: string;
+    previews: ReadonlyArray<{
+      line: number;
+      column: number | null;
+      preview: string;
+    }>;
+  }>;
+  errors: readonly string[];
+  indexPath: string;
+  status: "error" | "ok";
+  warnings: readonly string[];
+};
+export declare function searchInvestigationReports(
+  input: unknown
+): Promise<InvestigationSearchResult>;

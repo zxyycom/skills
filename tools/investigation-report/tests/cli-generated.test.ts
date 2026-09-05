@@ -30,6 +30,11 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
     assert.match(commandHelp.stdout, /--depth <count>/u);
     assert.doesNotMatch(commandHelp.stdout, /set-relations/u);
 
+    const searchHelp = await runInvestigationCli(root, ["search", "--help"]);
+    assert.equal(searchHelp.status, 0);
+    assert.match(searchHelp.stdout, /search <text>/u);
+    assert.match(searchHelp.stdout, /--match <mode>/u);
+
     const oldOption = await runInvestigationCli(root, [
       "list",
       "--category",
@@ -38,6 +43,14 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
     assert.equal(oldOption.status, 2);
     assert.equal(oldOption.stdout, "");
     assert.match(oldOption.stderr, /unknown option: --category/u);
+
+    const retiredText = await runInvestigationCli(root, [
+      "list",
+      "--text",
+      "legacy"
+    ]);
+    assert.equal(retiredText.status, 2);
+    assert.match(retiredText.stderr, /unknown option: --text/u);
   });
 });
 

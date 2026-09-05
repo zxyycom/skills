@@ -5,7 +5,7 @@
 ## 先判断范围
 
 1. 成功信息在 stdout，失败和 warning 在 stderr。先按诊断中的 `code`、对象、原因和下一步定位；有 `scope` 与 `outcome` 时，只对该声明范围作恢复判断。
-2. warning 不改变 candidate、正式报告、资源、工作区索引或 pending。处理 warning 后再依赖相应集合状态；它不能替代错误、publish 授权或写入授权。
+2. warning 不改变 candidate、正式报告、资源、工作区索引或 pending。`search` 的内存投影 warning 只说明当前索引缺失、损坏或不新鲜，而完整权威来源与资源已被只读验证；可使用该次搜索结果，但在依赖 index-backed 操作前先显式 `sync-index`。它不能替代错误、publish 授权或写入授权。搜索的截断 warning 只说明受限输出，不能据未显示结果或无结果推断不存在匹配。
 3. `new` 创建成功即使 body/resource readiness 或辅助 preflight 有 warning 也已经建立 candidate；不要重跑 `new`。改为 `show-candidate`、编辑内容或运行 `publish --preflight`。
 4. `publish --preflight`、`candidates`、`show-candidate`、查询与检查只读，不产生 mutation outcome 或 receipt。预检结果只对应本次读取，普通 publish 必须重新准备。
 5. `stage-index` 只拥有目标正式索引的 pending 路径；`sync-index`、`set-relations`、正式 `discard`、`publish` 与 `discard-candidate` 各自拥有固定契约声明的工作区范围。不得从其中一个结果推断另一个范围已经提交、恢复或安全重试。

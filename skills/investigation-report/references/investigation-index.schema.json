@@ -88,24 +88,13 @@
           "minItems": 1,
           "type": "array",
           "uniqueItems": true
-        },
-        "text": {
-          "items": {
-            "minLength": 1,
-            "pattern": "^(?!\\s)(?:[^\\u0000-\\u001f\\u007f]*\\S)?$",
-            "type": "string"
-          },
-          "minItems": 1,
-          "type": "array",
-          "uniqueItems": true
         }
       },
       "required": [
         "name",
         "tag",
         "formed-at",
-        "relation-type",
-        "text"
+        "relation-type"
       ],
       "type": "object"
     },
@@ -175,7 +164,7 @@
   "description": "由单份调查报告 Markdown 生成的领域状态通用索引。",
   "properties": {
     "definitionVersion": {
-      "const": 8
+      "const": 9
     },
     "entries": {
       "additionalProperties": {
@@ -216,10 +205,6 @@
         {
           "mode": "exact",
           "name": "relation-type"
-        },
-        {
-          "mode": "text",
-          "name": "text"
         }
       ]
     },

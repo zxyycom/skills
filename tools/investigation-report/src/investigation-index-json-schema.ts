@@ -80,15 +80,9 @@ export const investigationIndexJsonSchema = {
           minItems: 1,
           type: "array",
           uniqueItems: true
-        },
-        text: {
-          items: nonEmptyText,
-          minItems: 1,
-          type: "array",
-          uniqueItems: true
         }
       },
-      required: ["name", "tag", "formed-at", "relation-type", "text"],
+      required: ["name", "tag", "formed-at", "relation-type"],
       type: "object"
     },
     state: {
@@ -154,8 +148,7 @@ export const investigationIndexJsonSchema = {
         { mode: "exact", name: "name" },
         { mode: "exact", name: "tag" },
         { mode: "range", name: "formed-at" },
-        { mode: "exact", name: "relation-type" },
-        { mode: "text", name: "text" }
+        { mode: "exact", name: "relation-type" }
       ]
     },
     metadata: { additionalProperties: false, type: "object" },
