@@ -3,6 +3,7 @@ import { parseYamlFrontmatter } from "../../shared/src/markdown/frontmatter.ts";
 import { isDecisionId, isDecisionTag } from "./decision-path.ts";
 import { isDecisionTimestamp } from "./decision-timestamp.ts";
 import { projectionTextIssue } from "./projection.ts";
+import { normalizeRelationSummary } from "./relation-summary.ts";
 import {
   decisionAlignments,
   decisionRelationTypes,
@@ -30,7 +31,7 @@ const frontmatterKeys = [
   "tags",
   "relations"
 ] as const;
-const relationKeys = ["type", "target"] as const;
+const relationKeys = ["type", "target", "summary"] as const;
 const frontmatterKeySet: ReadonlySet<string> = new Set(frontmatterKeys);
 const statusSet: ReadonlySet<unknown> = new Set(decisionStatuses);
 const alignmentSet: ReadonlySet<unknown> = new Set(decisionAlignments);
@@ -224,10 +225,7 @@ export function replaceDecisionFrontmatter(
       ? parsed.projection
       : {
           ...parsed.projection,
-          relations: options.relations.map(({ type, target }) => ({
-            type,
-            target
-          }))
+          relations: options.relations.map((relation) => ({ ...relation }))
         };
   return (
     serializeDecisionFrontmatter(
@@ -255,10 +253,7 @@ export function serializeDecisionFrontmatter(
     background: projection.background,
     decision: projection.decision,
     tags: [...tags],
-    relations: projection.relations.map(({ type, target }) => ({
-      type,
-      target
-    }))
+    relations: projection.relations.map((relation) => ({ ...relation }))
   };
   return [
     "---",
@@ -357,11 +352,13 @@ function parseRelations(
       continue;
     }
     const keys = Object.keys(candidate);
-    if (!sameFieldOrder(keys, relationKeys)) {
+    const expectedKeys =
+      "summary" in candidate ? relationKeys : relationKeys.slice(0, 2);
+    if (!sameFieldOrder(keys, expectedKeys)) {
       errors.push(
         relativePath +
           ` frontmatter relations[${index}] fields must use order: ` +
-          relationKeys.join(", ")
+          expectedKeys.join(", ")
       );
       valid = false;
     }
@@ -389,10 +386,45 @@ function parseRelations(
       valid = false;
       continue;
     }
+    const parsedSummary = parseRelationSummary(
+      candidate.summary,
+      index,
+      relativePath,
+      errors
+    );
+    if (parsedSummary === null) {
+      valid = false;
+      continue;
+    }
     seenTargets.add(target);
-    relations.push({ type, target });
+    relations.push({ type, target, ...parsedSummary });
   }
   return valid ? relations : null;
+}
+
+function parseRelationSummary(
+  value: unknown,
+  index: number,
+  relativePath: string,
+  errors: string[]
+): { summary?: string } | null {
+  if (value === undefined) return {};
+  if (typeof value !== "string") {
+    errors.push(
+      relativePath + ` frontmatter relations[${index}].summary must be a string`
+    );
+    return null;
+  }
+  const normalized = normalizeRelationSummary(value);
+  if ("issue" in normalized) {
+    errors.push(
+      relativePath +
+        ` frontmatter relations[${index}].summary ` +
+        normalized.issue
+    );
+    return null;
+  }
+  return normalized;
 }
 
 function sameFieldOrder(

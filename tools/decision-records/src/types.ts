@@ -50,6 +50,13 @@ export type DecisionTag = string & {
 export type DecisionRelation = {
   type: DecisionRelationType;
   target: DecisionId;
+  summary?: string;
+};
+
+/** A CLI relation-summary input before its target selector is resolved. */
+export type DecisionRelationSummary = {
+  target: DecisionId;
+  summary?: string;
 };
 
 export type DecisionSuccessor = {
@@ -62,6 +69,7 @@ export type DecisionRelationOverride =
   | {
       kind: "replace";
       relations: DecisionRelation[];
+      relationSummaries?: DecisionRelationSummary[];
     };
 
 export type DecisionProjection = {
@@ -167,7 +175,7 @@ export type DecisionSourceRevision = {
 export type DecisionIndex = {
   schemaVersion: 3;
   namespace: "decisions";
-  definitionVersion: 8;
+  definitionVersion: 9;
   metadata: DecisionIndexMetadata;
   sourceRevision: DecisionSourceRevision;
   keyDefinitions: [

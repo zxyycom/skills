@@ -40,6 +40,12 @@
             "拆分"
           ],
           "type": "string"
+        },
+        "summary": {
+          "maxLength": 40,
+          "minLength": 1,
+          "pattern": "^(?!\\s)(?!.*[\\r\\n])[\\s\\S]*\\S$",
+          "type": "string"
         }
       },
       "required": [
@@ -164,7 +170,7 @@
   "description": "由单份调查报告 Markdown 生成的领域状态通用索引。",
   "properties": {
     "definitionVersion": {
-      "const": 9
+      "const": 10
     },
     "entries": {
       "additionalProperties": {

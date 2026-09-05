@@ -35,6 +35,13 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
     assert.match(searchHelp.stdout, /search <text>/u);
     assert.match(searchHelp.stdout, /--match <mode>/u);
 
+    const relationHelp = await runInvestigationCli(root, [
+      "set-relations",
+      "--help"
+    ]);
+    assert.equal(relationHelp.status, 0);
+    assert.match(relationHelp.stdout, /--relation-summary/u);
+
     const oldOption = await runInvestigationCli(root, [
       "list",
       "--category",
@@ -95,6 +102,147 @@ test("CLI set-relations rejects relations that do not follow a source", async ()
     assert.equal(malformed.status, 2);
     assert.equal(malformed.stdout, "");
     assert.match(malformed.stderr, /--relation must follow --source/u);
+  });
+});
+
+test("CLI new binds relation summaries after selector resolution and preserves equals", async () => {
+  await withTempRoot("cli-new-relation-summary", async (root) => {
+    await writeCollection(root, [{ id: "260828-base" }]);
+    const created = await runInvestigationCli(root, [
+      "new",
+      "next-summary",
+      "--title",
+      "摘要候选",
+      "--formed-at",
+      "2026-09-02T12:00:00+00:00",
+      "--question",
+      "关系摘要如何绑定？",
+      "--tag",
+      "investigation-report",
+      "--relation",
+      "补充=base",
+      "--relation-summary=260828-base=reason=a=b"
+    ]);
+    assert.equal(created.status, 0, created.stderr);
+    const shown = await runInvestigationCli(root, [
+      "show-candidate",
+      "next-summary"
+    ]);
+    assert.equal(shown.status, 0, shown.stderr);
+    assert.match(
+      shown.stdout,
+      /type: "补充"\n    target: "260828-base"\n    summary: "reason=a=b"/u
+    );
+
+    const summaryOnly = await runInvestigationCli(root, [
+      "new",
+      "summary-only",
+      "--title",
+      "无关系摘要",
+      "--formed-at",
+      "2026-09-02T12:00:00+00:00",
+      "--question",
+      "摘要能否独立存在？",
+      "--tag",
+      "investigation-report",
+      "--relation-summary",
+      "260828-base=invalid"
+    ]);
+    assert.equal(summaryOnly.status, 2);
+    assert.match(summaryOnly.stderr, /requires at least one --relation/u);
+  });
+});
+
+test("CLI set-relations scopes summaries to complete source groups", async () => {
+  await withTempRoot("cli-set-relation-summaries", async (root) => {
+    await writeCollection(root, [
+      { id: "260828-base" },
+      { id: "260828-first" },
+      { id: "260828-second" }
+    ]);
+    const applied = await runInvestigationCli(root, [
+      "set-relations",
+      "--source",
+      "second",
+      "--relation-summary",
+      "260828-base=second=reason",
+      "--relation",
+      "补充=base",
+      "--source",
+      "260828-first",
+      "--relation",
+      "补充=260828-base",
+      "--relation-summary",
+      "base=first reason"
+    ]);
+    assert.equal(applied.status, 0, applied.stderr);
+    assert.match(
+      await fs.readFile(`${root}/docs/investigations/260828-second.md`, "utf8"),
+      /summary: "second=reason"/u
+    );
+    assert.match(
+      await fs.readFile(`${root}/docs/investigations/260828-first.md`, "utf8"),
+      /summary: "first reason"/u
+    );
+    const traced = await runInvestigationCli(root, [
+      "trace",
+      "base",
+      "--direction",
+      "successors"
+    ]);
+    assert.equal(traced.status, 0, traced.stderr);
+    assert.match(
+      traced.stdout,
+      /260828-first --补充 \(first reason\)--> 260828-base/u
+    );
+
+    const clearedSummary = await runInvestigationCli(root, [
+      "set-relations",
+      "--source",
+      "first",
+      "--relation",
+      "补充=base"
+    ]);
+    assert.equal(clearedSummary.status, 0, clearedSummary.stderr);
+    assert.doesNotMatch(
+      await fs.readFile(`${root}/docs/investigations/260828-first.md`, "utf8"),
+      /summary:/u
+    );
+
+    for (const args of [
+      ["--source", "first", "--relation-summary", "base=summary only"],
+      [
+        "--source",
+        "first",
+        "--clear-relations",
+        "--relation-summary",
+        "base=conflict"
+      ],
+      [
+        "--source",
+        "first",
+        "--relation",
+        "补充=base",
+        "--relation-summary",
+        "base=one",
+        "--relation-summary",
+        "260828-base=two"
+      ],
+      [
+        "--source",
+        "first",
+        "--relation",
+        "补充=base",
+        "--relation-summary",
+        "second=missing"
+      ]
+    ]) {
+      const rejected = await runInvestigationCli(root, [
+        "set-relations",
+        ...args
+      ]);
+      assert.notEqual(rejected.status, 0);
+    }
   });
 });
 

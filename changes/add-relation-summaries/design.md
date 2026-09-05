@@ -1,6 +1,6 @@
 # Design
 
-本设计将 relation summary 定义为与 type、target 并列但不参与边语义的可选说明字段，并要求 Decision 与 Investigation 在同一 Change 内交付相同的核心契约。
+本设计将 relation summary 定义为与 type、target 并列、但不参与边语义的可选说明字段；Decision 与 Investigation 必须在同一 Change 内交付这一核心契约。
 
 ## Context
 
@@ -29,7 +29,7 @@ Decision 与 Investigation 都从后继记录指向直接前序，以 relation t
    - **Investigation `set-relations`：** summary 归最近 `--source` group，可在该 group 内任意顺序出现，并在下一个 `--source` 或命令结束时按解析后的 target 绑定该 group 的完整 relation set。summary 必须同时有 relation；summary-only、`--clear-relations` 加 summary、未命中 target 和重复 target 都拒绝。未提供某 relation 的 summary 即在该完整替换中省略并清除旧摘要。
 5. **已建立关系的维护。** 已建立 Decision 或 Investigation 若要新增、删除或替换摘要，必须通过上表适用的既有完整 relation replacement 入口重新提交完整 set；不新增按已建立 relation 单边 patch 的命令、selector 或 API。
 6. **读取、投影与 rename。** Markdown parser/renderer、领域 API、show、关系图和 trace 都保留并显示存在的摘要。每领域 index state 的 relation projection 与 Schema 带该可选字段，source revision 因 Markdown 变化自然更新；`sync-index` 读取无摘要旧来源时不制造字段。rename 只更新 target 身份或相关定位，必须逐字保留 relation summary。
-7. **搜索边界。** index relation projection 允许 summary 作为 metadata；`add-index-only-metadata-search` 独自决定 metadata search 是否匹配它及其字段/结果语义。本 Change 不依赖其完成，也不改 `search`、`list` 或 Index Runtime 的任何搜索协议。
+7. **搜索边界。** index relation projection 只提供可选 summary；`add-index-only-metadata-search` 独自决定 metadata search 是否匹配它及其字段/结果语义。本 Change 不依赖其完成，也不改 `search`、`list` 或 Index Runtime 的任何搜索协议。
 
 ### Resulting Impacts
 

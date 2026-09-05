@@ -19,6 +19,7 @@ import {
 } from "./report-path.ts";
 import { isInvestigationResourceId } from "./resource-reference.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
+import { isInvestigationRelationSummary } from "./relation-summary.ts";
 import {
   investigationRelationTypes,
   type InvestigationIndexMetadata,
@@ -27,7 +28,7 @@ import {
 } from "./types.ts";
 
 export const investigationIndexNamespace = "investigations";
-export const investigationIndexDefinitionVersion = 9;
+export const investigationIndexDefinitionVersion = 10;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -53,10 +54,19 @@ const investigationResourceIdSchema = v.pipe(
   v.check(isInvestigationResourceId, "must be a safe report-owned resource id")
 );
 const relationSchema = v.strictObject({
-  target: investigationIdSchema,
   type: v.picklist(
     investigationRelationTypes,
     "must be a supported investigation relation type"
+  ),
+  target: investigationIdSchema,
+  summary: v.optional(
+    v.pipe(
+      nonEmptyStringSchema,
+      v.check(
+        isInvestigationRelationSummary,
+        "must be a normalized single-line summary of at most 40 Unicode code points"
+      )
+    )
   )
 });
 const investigationIndexStateSchema = v.strictObject({

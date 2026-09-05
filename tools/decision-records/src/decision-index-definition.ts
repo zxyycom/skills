@@ -19,6 +19,7 @@ import { decisionSourceFingerprintPatternSource } from "./decision-source-revisi
 import { decisionIndexState } from "./decision-state-snapshot.ts";
 import { isDecisionTimestamp } from "./decision-timestamp.ts";
 import { projectionTextIssue } from "./projection.ts";
+import { normalizeRelationSummary } from "./relation-summary.ts";
 import {
   decisionAlignments,
   decisionRelationTypes,
@@ -33,7 +34,7 @@ import {
 } from "./types.ts";
 
 export const decisionIndexNamespace = "decisions";
-export const decisionIndexDefinitionVersion = 8;
+export const decisionIndexDefinitionVersion = 9;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -53,7 +54,8 @@ const tagSchema = v.pipe(
 );
 const decisionRelationSchema = v.strictObject({
   type: v.picklist(decisionRelationTypes),
-  target: decisionIdSchema
+  target: decisionIdSchema,
+  summary: v.optional(v.string("must be a string"))
 });
 const decisionIndexStateSchema = v.strictObject({
   name: nonEmptyStringSchema,
@@ -290,9 +292,25 @@ function validatedDecisionRelations(
       throw new TypeError(`repeats relationship target ${relation.target}`);
     }
     relationTargets.add(relation.target);
-    relations.push({ target: relation.target, type: relation.type });
+    const normalizedSummary =
+      relation.summary === undefined
+        ? {}
+        : normalizeIndexRelationSummary(relation.summary);
+    relations.push({
+      type: relation.type,
+      target: relation.target,
+      ...normalizedSummary
+    });
   }
   return relations;
+}
+
+function normalizeIndexRelationSummary(value: string): { summary?: string } {
+  const normalized = normalizeRelationSummary(value);
+  if ("issue" in normalized) {
+    throw new TypeError("relation summary " + normalized.issue);
+  }
+  return normalized;
 }
 
 function formatDecisionIndexIssue(issue: v.BaseIssue<unknown>): string {

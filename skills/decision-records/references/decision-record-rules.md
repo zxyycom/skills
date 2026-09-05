@@ -93,12 +93,19 @@ relations: []
 relations:
   - type: 修订
     target: direct-predecessor
+    summary: 保留前序方向并调整索引边界
 ```
+
+每条 relation 还可有可选 `summary`，从 source 记录视角说明这条直接边。输入先 trim；空白规范化为省略，非空值必须是单行且最多 40 个 Unicode 码点，绝不截断。它只说明已有边，不参与 target 身份、去重、排序、时间方向、关系形状或环验证；相同 target 不能因摘要不同而重复。旧关系可继续省略，不要求回填或迁移。
 
 1. `修订` 保留主体方向并改变一部分；`替代` 以完整新判断取代前序；`判定无效` 表明前序依据不成立；`归并` 整合多个前序；`拆分` 把过粗前序重建为多个可独立使用的后继；`重划` 把多个直接前序的长期含义按新的 owner 边界重新分配给多个自包含后继。
 2. 每个 target 是合法 Decision ID，只出现一次，不自环、不成环。关系只保存语义演进，不作为分类、引用列表、任务依赖或实施映射。
 3. 候选关系做类型、ID、重复、自环和目标可解析性前瞻检查，但在建立前不进入正式图，也不要求活动前序提前归档。scaffold 可以继续编辑或 discard；只有 body-ready candidate 能成为 activate/evolve 的后继。
-4. `evolve` 通过重复 `--successor <alignment=decision-id>` 显式选择完整后继集合。推荐由每个候选在自身 `relations` 中声明来源边，尤其适用于后继来源不同的稀疏重划。调用方也可用重复 `--relation <type=decision-id>` 完整替换每个所选后继的关系，或以 `--clear-relations` 表达显式空集合；三种意图不追加、不合并、不互相推断。`--relation` 不因选择重划自动无效，但它对所有所选后继给出同一完整关系集合，最终图仍必须满足本节的策略规则。
+4. **CLI summary 绑定矩阵：** `--relation-summary <decision-selector=summary>` 只按第一个 `=` 分隔，后续 `=` 属于 summary；selector 收敛后必须唯一绑定同次完整 `--relation` set 中的 target。它不是单边 patch，summary-only、重复、未命中 target 及与 `--clear-relations` 的组合均无效。
+   - `new`：summary 必须与同次至少一个 `--relation` 同现，并绑定该 candidate 的完整 relation set。
+   - 首次 `activate` candidate：未传 relation 或 summary 时保留 candidate 的完整 relation 与 summary；传入 `--relation` 时完整替换，未提供 summary 的边省略该字段。重新激活 archived 记录拒绝 relation 与 summary override。
+   - `evolve`：未传 relation 或 summary 时，每个 successor 保留自身 relation 与 summary；传入 `--relation` 时，同一个完整 set 及其 summary override 复制给全部 selected successors。需要不同 successor summary 时，先写入各 candidate，再省略统一 override。
+   `evolve` 通过重复 `--successor <alignment=decision-id>` 显式选择完整后继集合。推荐由每个候选在自身 `relations` 中声明来源边，尤其适用于后继来源不同的稀疏重划。调用方也可用重复 `--relation <type=decision-id>` 完整替换每个所选后继的关系，或以 `--clear-relations` 表达显式空集合；三种意图不追加、不合并、不互相推断。`--relation` 不因选择重划自动无效，但它对所有所选后继给出同一完整关系集合，最终图仍必须满足本节的策略规则。
 5. CLI 对最终关系图执行以下形状与集合闭合检查：
    - 非拆分、非重划的有效最终关系只允许一个所选后继；全部为归并时至少含两个不同前序。
    - 拆分必须显式选择至少两个后继。每个后继恰有一条指向同一前序的拆分关系，且选择集等于该前序的完整直接拆分后继集合。
@@ -119,14 +126,14 @@ relations:
 
 `rename <source-selector> <target-name-or-id> [--preflight] [--rename-recorded-decision]` 是唯一的单条身份迁移入口。source 先按标准 dated ID exact 解析，失败才按 unique name；target 标准 ID 直接定义目标，其他合法 kebab-case 值作为 name。标准 source 保留原 ID 日期，legacy established 记录使用 `createdAt` UTC 日，legacy candidate 的 name target 返回 `date-required`，但允许调用方明确提供完整 dated target ID。目标 ID、name 与新路径均须在完整集合内无冲突；同生命周期 `<name>.md` 可用时优先，否则使用 `<id>.md`，两者都冲突时零写入。
 
-事务在 collection lock 内重读来源与索引，改写 source frontmatter ID、所有 candidate/established 结构化 relation target、sourcePath 与完整派生索引；它不改变状态、alignment、createdAt、正文或 relation type，也不自动 stage。`--preflight` 完成相同扫描、日期、关系、路径、索引与 Git HEAD 检查但绝不写入。目标已进入 Git HEAD 时，正式执行必须显式使用 `--rename-recorded-decision`；该确认只授权当前工作树 rename，不重写历史。移动、写入、索引发布或回读失败按领域事务恢复，结果只能报告 no-change、rolled-back、partial-or-unknown 或 committed-cleanup-pending。
+事务在 collection lock 内重读来源与索引，改写 source frontmatter ID、所有 candidate/established 结构化 relation target、sourcePath 与完整派生索引；它不改变状态、alignment、createdAt、正文、relation type 或 relation summary，也不自动 stage。`--preflight` 完成相同扫描、日期、关系、路径、索引与 Git HEAD 检查但绝不写入。目标已进入 Git HEAD 时，正式执行必须显式使用 `--rename-recorded-decision`；该确认只授权当前工作树 rename，不重写历史。移动、写入、索引发布或回读失败按领域事务恢复，结果只能报告 no-change、rolled-back、partial-or-unknown 或 committed-cleanup-pending。
 6. 普通单对象 selector 先只移除一个大小写不敏感的末尾 `.md`，再尝试 calendar-valid 标准 ID。标准 ID 解析成功时只精确查该 ID，未命中不得退回 name；解析失败时将完整剩余文本按 exact name 查询。零项是 not-found，一项收敛为完整 ID，多项按 ID 排序报 ambiguous，不按状态、日期或路径猜测。持久 Markdown、关系、索引 entry key、资源 owner 和结构化输出只保存完整 ID；真实路径只能进入明确的 path/locator 参数。
 
 ## 派生索引与查询
 
 1. 索引从全部已建立 Markdown 完整生成，definition、metadata 与字段精确结构以 Schema 为准。metadata 是严格空对象，不保存分类注册表。
 2. entry 与 source revision 以 Decision ID 为键。state 保存由 ID 投影的 name、sourcePath、tags、status、alignment、createdAt、摘要和关系；source revision 覆盖规范 ID、sourcePath 与规范 Markdown 内容。
-3. 索引 keys 为 exact `name`、多值 exact `tag`、exact `status` 和 exact `alignment`。`list` 默认 active；重复 `--tag` 的 AND 过滤要求每个 tag 都匹配。当前查询不推断分类，也不提供 OR、NOT、层级、别名或权重。
+3. 索引 keys 为 exact `name`、多值 exact `tag`、exact `status` 和 exact `alignment`；relation projection 保留存在的可选 summary，供 show、trace 和后续结构化消费者读取，但不改变图或 key 语义。`list` 默认 active；重复 `--tag` 的 AND 过滤要求每个 tag 都匹配。当前查询不推断分类，也不提供 OR、NOT、层级、别名或权重。
 4. `show` 先把普通 selector 收敛为 ID，再由索引定位并只读取目标 Markdown 正文。`trace`、关系、生命周期和 stage 的普通输入也先解析为 ID；输出显示完整 ID、sourcePath 与 tags。
 5. `search <text>` 只查询已建立记录：优先从同一当前可信索引快照按 status、alignment、tags 预筛选，取得显式 `sourcePath` 列表和唯一 `sourcePath → ID` 映射，再在这些权威 Markdown 中全文匹配。`all` 要求规范化查询中的每个去重词至少命中一次，`any` 要求任一词，二者的词可分布在不同物理行；`phrase` 只匹配同一物理行连续短语。三种模式统一 NFKC、默认忽略大小写并按空白处理查询。命中 `sourcePath` 只可由该快照反查完整 Decision ID；不得从 basename 推断身份。索引缺失、损坏或不新鲜时，只有完整验证权威 Markdown 后才可建立只读内存投影并给出 warning，且不得写入索引。候选和索引 JSON 永不进入正式搜索范围。结果文件、每文件命中和预览字符受固定资源上限约束；截断必须 warning，不得将未显示的内容或无结果称为完整集合结论。
 6. candidates 与 show-candidate 直接扫描根目录源码，显示 `scaffoldValid` 与 `bodyReady`：单条非法 Markdown 产生 warning 并跳过，显式目标自身非法则失败；根目录、成员边界或已建立集合的索引前提错误属于集合级错误。合法 scaffold 与 body-ready candidate 都排除于正式索引。

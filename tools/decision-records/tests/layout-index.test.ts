@@ -80,7 +80,7 @@ test("decision index is ID-keyed with empty metadata and deterministic tag keys"
     const index = await readIndex(workspaceRoot);
     assert.equal(index.schemaVersion, 3);
     assert.equal(index.namespace, "decisions");
-    assert.equal(index.definitionVersion, 8);
+    assert.equal(index.definitionVersion, 9);
     assert.deepEqual(index.metadata, {});
     assert.deepEqual(index.keyDefinitions, [
       { name: "name", mode: "exact" },

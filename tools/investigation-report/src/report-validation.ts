@@ -8,6 +8,7 @@ import {
   utcInvestigationDate
 } from "./report-path.ts";
 import { compareInvestigationRelations } from "./markdown.ts";
+import { isInvestigationRelationSummary } from "./relation-summary.ts";
 import {
   investigationRelationTypes,
   type InvestigationIndexState,
@@ -72,10 +73,12 @@ export function buildInvestigationReportState(
   for (const relation of document.relations) {
     if (
       !isInvestigationRelationType(relation.type) ||
-      !isInvestigationId(relation.target)
+      !isInvestigationId(relation.target) ||
+      (relation.summary !== undefined &&
+        !isInvestigationRelationSummary(relation.summary))
     ) {
       errors.push(
-        `${id} relations must use known types and valid Investigation ID targets`
+        `${id} relations must use known types, valid Investigation ID targets, and optional normalized summaries`
       );
     }
   }

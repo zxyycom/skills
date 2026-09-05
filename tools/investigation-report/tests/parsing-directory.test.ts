@@ -46,6 +46,37 @@ test("validation enforces report frontmatter fields and canonical ordering", () 
   );
 });
 
+test("relation summary Markdown accepts only normalized optional short text", () => {
+  const boundary = "😀".repeat(40);
+  const source = reportMarkdown({
+    id: "summary-report",
+    relations: [{ type: "补充", target: "base-report", summary: boundary }]
+  });
+  assert.deepEqual(
+    parseInvestigationReport(source, "summary-report").report?.relations,
+    [{ type: "补充", target: "base-report", summary: boundary }]
+  );
+  for (const invalid of [
+    source.replace(boundary, "😀".repeat(41)),
+    source.replace(JSON.stringify(boundary), '"first\\nsecond"'),
+    source.replace(JSON.stringify(boundary), '" whitespace "')
+  ]) {
+    assert.ok(
+      parseInvestigationReport(invalid, "summary-report").errors.some((error) =>
+        error.includes("optional normalized single-line summary")
+      )
+    );
+  }
+  const legacy = source.replace(
+    `\n    summary: ${JSON.stringify(boundary)}`,
+    ""
+  );
+  assert.deepEqual(
+    parseInvestigationReport(legacy, "summary-report").report?.relations,
+    [{ type: "补充", target: "base-report" }]
+  );
+});
+
 test("validation enforces one report with fixed core and optional resource section", async () => {
   await withTempRoot("structure", async (root) => {
     await writeCollection(root, [{ id: "valid-report" }], false);

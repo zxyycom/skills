@@ -100,7 +100,7 @@ export function decisionFilePath(
 export function candidateDecisionBody(
   options: {
     id?: string;
-    relations?: readonly { target: string; type: string }[];
+    relations?: readonly { summary?: string; target: string; type: string }[];
     tags?: readonly string[];
     title?: string;
   } = {}
@@ -121,7 +121,10 @@ export function candidateDecisionBody(
     relations.length === 0 ? "relations: []" : "relations:",
     ...relations.flatMap((relation) => [
       `  - type: ${relation.type}`,
-      `    target: ${relation.target.replace(/\.md$/iu, "")}`
+      `    target: ${relation.target.replace(/\.md$/iu, "")}`,
+      ...(relation.summary === undefined
+        ? []
+        : [`    summary: ${relation.summary}`])
     ]),
     "---",
     "",

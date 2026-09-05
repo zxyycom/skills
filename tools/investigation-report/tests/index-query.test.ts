@@ -186,7 +186,9 @@ test("show and trace resolve reports by investigation id", async () => {
       { id: "first-report" },
       {
         id: "second-report",
-        relations: [{ target: "first-report", type: "补充" }]
+        relations: [
+          { type: "补充", target: "first-report", summary: "补充可见依据" }
+        ]
       }
     ]);
     const shown = await showInvestigationReport({
@@ -195,6 +197,10 @@ test("show and trace resolve reports by investigation id", async () => {
     });
     assert.equal(shown.status, "ok");
     assert.match(shown.markdown ?? "", /^---/u);
+    assert.match(shown.markdown ?? "", /summary: "补充可见依据"/u);
+    assert.deepEqual(shown.state?.relations, [
+      { type: "补充", target: "first-report", summary: "补充可见依据" }
+    ]);
     const trace = await traceInvestigationReports({
       direction: "successors",
       id: "first-report",
@@ -202,6 +208,14 @@ test("show and trace resolve reports by investigation id", async () => {
     });
     assert.equal(trace.status, "ok");
     assert.deepEqual(trace.reportIds, ["first-report", "second-report"]);
+    assert.deepEqual(trace.edges, [
+      {
+        source: "second-report",
+        target: "first-report",
+        type: "补充",
+        summary: "补充可见依据"
+      }
+    ]);
     assert.equal(
       (
         await showInvestigationReport({
@@ -348,6 +362,19 @@ test("index state projects strict empty metadata and sourcePath", async () => {
     assert.ok(
       investigationIndexJsonSchema.$defs.state.required.includes("sourcePath")
     );
+    assert.deepEqual(
+      investigationIndexJsonSchema.$defs.relation.properties.summary,
+      {
+        maxLength: 40,
+        minLength: 1,
+        pattern: "^(?!\\s)(?!.*[\\r\\n])[\\s\\S]*\\S$",
+        type: "string"
+      }
+    );
+    assert.deepEqual(investigationIndexJsonSchema.$defs.relation.required, [
+      "type",
+      "target"
+    ]);
   });
 });
 

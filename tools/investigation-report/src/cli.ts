@@ -4,6 +4,7 @@ import process from "node:process";
 import { isMainModule } from "../../shared/src/node/main-module.ts";
 import {
   createInvestigationCandidate,
+  createInvestigationCandidateFromCli,
   listInvestigationCandidates,
   showInvestigationCandidate
 } from "./candidate.ts";
@@ -26,7 +27,14 @@ import {
 } from "./diagnostics.ts";
 import { normalizeInvestigationIdInput } from "./report-path.ts";
 import { renameInvestigationRecord } from "./rename.ts";
-import { setInvestigationRelations } from "./relation-transaction.ts";
+import {
+  setInvestigationRelations,
+  setInvestigationRelationsFromCli
+} from "./relation-transaction.ts";
+import {
+  normalizeInvestigationRelationSummary,
+  type InvestigationRelationSummaryInput
+} from "./relation-summary.ts";
 import {
   executeInvestigationIndexStage,
   stageInvestigationIndex
@@ -93,14 +101,17 @@ type CliTokenContext = Readonly<{
 type RelationCliEvent =
   | Readonly<{ kind: "source"; value: string }>
   | Readonly<{ kind: "relation"; value: string }>
+  | Readonly<{ kind: "relation-summary"; value: string }>
   | Readonly<{ kind: "clear" }>;
 type RawInvestigationRelationReplacement = Readonly<{
   relations: readonly Readonly<{ target: string; type: string }>[];
+  relationSummaries: readonly InvestigationRelationSummaryInput[];
   source: string;
 }>;
 type RelationGroupState = {
   mode: "clear" | "relations" | null;
   relations: Array<{ target: string; type: string }>;
+  relationSummaries: InvestigationRelationSummaryInput[];
   source: string;
 };
 type RelationGroupParseResult =
@@ -125,6 +136,7 @@ const valueOptions = new Set([
   "depth",
   "source",
   "relation",
+  "relation-summary",
   "select"
 ]);
 const booleanOptions = new Set([
@@ -145,7 +157,7 @@ function printHelp(
 ): void {
   const commandHelp: Record<InvestigationCommand, readonly string[]> = {
     new: [
-      "Usage: investigation-report new <investigation-id> --title <title> --formed-at <rfc3339> --question <question> --tag <tag>... [--relation <type=target-id>...] [options]",
+      "Usage: investigation-report new <investigation-id> --title <title> --formed-at <rfc3339> --question <question> --tag <tag>... [--relation <type=target-selector>...] [--relation-summary <target-selector=summary>...] [options]",
       "",
       "Atomically create a non-formal authoring candidate. Creation succeeds independently of body, resource, or publish readiness."
     ],
@@ -217,7 +229,7 @@ function printHelp(
       "Trace predecessor and successor report relationships from the current derived index."
     ],
     "set-relations": [
-      "Usage: investigation-report set-relations --source <investigation-id> (--relation <type=target-id>... | --clear-relations) [--source ...] [options]",
+      "Usage: investigation-report set-relations --source <selector> (--relation <type=target-selector>... [--relation-summary <target-selector=summary>...] | --clear-relations) [--source ...] [options]",
       "",
       "Atomically replace every selected source relation set and rebuild the workspace index; does not stage files."
     ]
@@ -235,7 +247,8 @@ function printHelp(
       "  --formed-at <rfc3339>         Explicit formation timestamp",
       "  --question <question>         Candidate investigation question",
       "  --tag <tag>                   Repeatable candidate tag",
-      "  --relation <type=target-id>   Repeatable direct predecessor relation"
+      "  --relation <type=target-selector> Repeatable complete direct predecessor relation",
+      "  --relation-summary <target-selector=summary> Optional summary for one target in that complete relation set"
     ],
     check: ["  --id <investigation-id>       Scoped check ID; repeatable"],
     "sync-index": [
@@ -281,6 +294,7 @@ function printHelp(
     "set-relations": [
       "  --source <investigation-id>   Start one complete replacement source group",
       "  --relation <type=target-id>   Add one relation to the active source group",
+      "  --relation-summary <target-selector=summary> Add one optional summary to the active source group",
       "  --clear-relations             Explicitly clear the active source group"
     ]
   };
@@ -400,6 +414,13 @@ function normalizeIdentitySelectorsAtCliBoundary(
       relations.map(normalizeCompatibleRelationTarget)
     );
   }
+  const relationSummaries = context.values.get("relation-summary");
+  if (relationSummaries !== undefined) {
+    context.values.set(
+      "relation-summary",
+      relationSummaries.map(normalizeCompatibleRelationSummaryTarget)
+    );
+  }
 }
 
 function normalizeCompatibleInvestigationId(value: string): string {
@@ -411,6 +432,13 @@ function normalizeCompatibleRelationTarget(value: string): string {
   if (separator < 0) return value;
   const target = normalizeInvestigationIdInput(value.slice(separator + 1));
   return target === null ? value : value.slice(0, separator + 1) + target;
+}
+
+function normalizeCompatibleRelationSummaryTarget(value: string): string {
+  const separator = value.indexOf("=");
+  if (separator < 0) return value;
+  const target = normalizeInvestigationIdInput(value.slice(0, separator));
+  return target === null ? value : target + value.slice(separator);
 }
 
 function parseCommandToken(
@@ -426,11 +454,11 @@ function parseCommandToken(
     context.positionals.push(token);
     return { consumedNext: false, error: null };
   }
-  const [rawName, inlineValue] = token.slice(2).split("=", 2);
-  if (
-    rawName === undefined ||
-    (!valueOptions.has(rawName) && !booleanOptions.has(rawName))
-  ) {
+  const option = token.slice(2);
+  const separator = option.indexOf("=");
+  const rawName = separator < 0 ? option : option.slice(0, separator);
+  const inlineValue = separator < 0 ? undefined : option.slice(separator + 1);
+  if (!valueOptions.has(rawName) && !booleanOptions.has(rawName)) {
     return { consumedNext: false, error: `unknown option: ${token}` };
   }
   if (booleanOptions.has(rawName)) {
@@ -550,7 +578,10 @@ async function runNew(
 ): Promise<number> {
   const prepared = prepareNewCandidateInput(input);
   if ("error" in prepared) return cliInvalid(prepared.error, io);
-  const result = await createInvestigationCandidate(prepared.value.input);
+  const result = await createInvestigationCandidateFromCli(
+    prepared.value.input,
+    prepared.value.relationSummaries
+  );
   if (result.status !== "ok") {
     return printResultErrors(
       result.status === "invalid-options"
@@ -577,9 +608,15 @@ async function runNew(
   return 0;
 }
 
-function prepareNewCandidateInput(
-  input: ParsedCli
-): { error: string } | { value: { id: string; input: unknown } } {
+function prepareNewCandidateInput(input: ParsedCli):
+  | { error: string }
+  | {
+      value: {
+        id: string;
+        input: unknown;
+        relationSummaries: InvestigationRelationSummaryInput[];
+      };
+    } {
   const problem =
     assertAllowedOptions(input, [
       "root",
@@ -588,7 +625,8 @@ function prepareNewCandidateInput(
       "formed-at",
       "question",
       "tag",
-      "relation"
+      "relation",
+      "relation-summary"
     ]) ??
     (input.positionals.length === 1
       ? null
@@ -612,22 +650,29 @@ function prepareNewCandidateInput(
     };
   }
   const relations = parseNewRelations(valuesOf(input.values, "relation") ?? []);
-  return relations.status === "error"
-    ? { error: relations.error }
-    : {
-        value: {
-          id,
-          input: {
-            ...location(input.values),
-            formedAt,
+  if (relations.status === "error") return { error: relations.error };
+  const relationSummaries = parseRelationSummaries(
+    valuesOf(input.values, "relation-summary") ?? []
+  );
+  return relationSummaries.status === "error"
+    ? { error: relationSummaries.error }
+    : relationSummaries.values.length > 0 && relations.values.length === 0
+      ? { error: "--relation-summary requires at least one --relation" }
+      : {
+          value: {
             id,
-            question,
-            relations: relations.values,
-            tags,
-            title
+            input: {
+              ...location(input.values),
+              formedAt,
+              id,
+              question,
+              relations: relations.values,
+              tags,
+              title
+            },
+            relationSummaries: relationSummaries.values
           }
-        }
-      };
+        };
 }
 
 async function printNewCandidatePublishPreflight(
@@ -903,6 +948,39 @@ function parseNewRelations(
     });
   }
   return { status: "ok", values: relations };
+}
+
+function parseRelationSummaries(
+  values: readonly string[]
+):
+  | { status: "ok"; values: InvestigationRelationSummaryInput[] }
+  | { error: string; status: "error" } {
+  const summaries: InvestigationRelationSummaryInput[] = [];
+  for (const value of values) {
+    const separator = value.indexOf("=");
+    if (separator <= 0) {
+      return {
+        error: `relation-summary ${JSON.stringify(value)} must use <target-selector=summary>`,
+        status: "error"
+      };
+    }
+    try {
+      const summary = normalizeInvestigationRelationSummary(
+        value.slice(separator + 1)
+      );
+      summaries.push({
+        target: value.slice(0, separator),
+        ...(summary === null ? {} : { summary })
+      });
+    } catch (error) {
+      return {
+        error:
+          error instanceof Error ? error.message : "invalid relation summary",
+        status: "error"
+      };
+    }
+  }
+  return { status: "ok", values: summaries };
 }
 
 function printCandidateReadiness(
@@ -1295,7 +1373,10 @@ async function runTrace(
     );
   writeLine(io.stdout, `Reports: ${result.reportIds.join(", ")}`);
   for (const edge of result.edges)
-    writeLine(io.stdout, `${edge.source} --${edge.type}--> ${edge.target}`);
+    writeLine(
+      io.stdout,
+      `${edge.source} --${edge.type}${edge.summary === undefined ? "" : ` (${edge.summary})`}--> ${edge.target}`
+    );
   return 0;
 }
 
@@ -1328,15 +1409,22 @@ async function runSetRelations(
       "investigations-dir",
       "source",
       "relation",
+      "relation-summary",
       "clear-relations"
     ]);
   if (problem !== null) return cliInvalid(problem, io);
   const parsed = parseRelationGroups(input.relationEvents);
   if (parsed.status === "error") return cliInvalid(parsed.error, io);
-  const result = await setInvestigationRelations({
-    ...location(input.values),
-    replacements: parsed.replacements
-  });
+  const result = await setInvestigationRelationsFromCli(
+    {
+      ...location(input.values),
+      replacements: parsed.replacements.map((replacement) => ({
+        relations: replacement.relations,
+        source: replacement.source
+      }))
+    },
+    parsed.replacements.map((replacement) => replacement.relationSummaries)
+  );
   printRelationResult(result, io);
   return result.errors.length === 0 ? 0 : 1;
 }
@@ -1367,7 +1455,14 @@ function finishRelationGroup(
   if (current.mode === null) {
     return `source ${current.source} must use --relation or --clear-relations`;
   }
-  replacements.push({ relations: current.relations, source: current.source });
+  if (current.mode === "relations" && current.relations.length === 0) {
+    return `source ${current.source} --relation-summary requires at least one --relation`;
+  }
+  replacements.push({
+    relations: current.relations,
+    relationSummaries: current.relationSummaries,
+    source: current.source
+  });
   return null;
 }
 
@@ -1379,7 +1474,14 @@ function applyRelationGroupEvent(
   if (event.kind === "source") {
     const error = finishRelationGroup(current, replacements);
     return error === null
-      ? { current: { mode: null, relations: [], source: event.value } }
+      ? {
+          current: {
+            mode: null,
+            relations: [],
+            relationSummaries: [],
+            source: event.value
+          }
+        }
       : { error };
   }
   if (current === null) {
@@ -1391,6 +1493,13 @@ function applyRelationGroupEvent(
     return { current };
   }
   if (current.mode === "clear") return { error: relationModeConflict(current) };
+  if (event.kind === "relation-summary") {
+    const parsed = parseRelationSummaries([event.value]);
+    if (parsed.status === "error") return { error: parsed.error };
+    current.mode = "relations";
+    current.relationSummaries.push(parsed.values[0]!);
+    return { current };
+  }
   const separator = event.value.indexOf("=");
   if (separator <= 0 || separator === event.value.length - 1) {
     return {
@@ -1599,6 +1708,10 @@ function parseCliWithRelationEvents(
       const value = argv[index + 1];
       if (value !== undefined) events.push({ kind: "relation", value });
       index += 1;
+    } else if (token === "--relation-summary") {
+      const value = argv[index + 1];
+      if (value !== undefined) events.push({ kind: "relation-summary", value });
+      index += 1;
     } else if (token === "--clear-relations") events.push({ kind: "clear" });
     else if (token.startsWith("--source="))
       events.push({ kind: "source", value: token.slice("--source=".length) });
@@ -1606,6 +1719,11 @@ function parseCliWithRelationEvents(
       events.push({
         kind: "relation",
         value: token.slice("--relation=".length)
+      });
+    else if (token.startsWith("--relation-summary="))
+      events.push({
+        kind: "relation-summary",
+        value: token.slice("--relation-summary=".length)
       });
   }
   return {

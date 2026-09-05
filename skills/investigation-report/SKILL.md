@@ -5,7 +5,7 @@ description: >-
   每份报告以稳定 Investigation ID 保存一轮形成时的背景、依据、结果和边界；tags 用于分类，显式直接前序关系用于认识演进。
   当前事实、长期方向与实施授权继续由各自 owner 承接。
 metadata:
-  version: "35"
+  version: "36"
 ---
 
 # Investigation Report
@@ -38,7 +38,7 @@ node scripts/check-investigations.mjs <command> [options] --root <workspace-root
 | --- | --- | --- |
 | 创建集合外 authoring scaffold | `new <investigation-id> ...` | 原子、不覆盖地创建一个 candidate；创建成功即退出 `0`。 |
 | 审阅候选 | `candidates` / `show-candidate <selector>` | 读取候选及机械 readiness，不构成语义审核或 publish 授权。 |
-| 迁移或更正身份 | `rename <source-selector> <target-name-or-id>` | 预演或事务化改写 ID/name、关系、路径、资源 owner/reference 与正式索引。 |
+| 迁移或更正身份 | `rename <source-selector> <target-name-or-id>` | 预演或事务化改写 ID/name、relation target、路径、资源 owner/reference 与正式索引，并保留 relation summary。 |
 | 预演候选发布 | `publish <selector...> --preflight` | 只读验证当前正式基线与显式选择的最终集合。 |
 | 正常建立选中候选 | `publish <selector...>` | 重新检查后，只把显式选择的 candidates 事务化建立为正式报告。 |
 | 丢弃候选 | `discard-candidate <selector>` | 只删除显式候选及经确认的候选 owner 资源。 |
@@ -84,7 +84,7 @@ node scripts/check-investigations.mjs <command> [options] --root <workspace-root
 
 1. tags 表达有正文依据的可检索分类。
 2. 独立认识使用空关系；有直接前序时，根据认识变化选择 `补充`、`复查`、`修正`、`推翻`、`归并` 或 `拆分`，合法语义与图形以固定契约为准。
-3. candidate 在 `new` 时声明完整直接关系；已建立报告通过 `set-relations` 事务调整完整关系集合。publish 只接受能由正式基线和同批 selected candidates 闭合的最终关系图。
+3. candidate 在 `new` 时声明完整直接关系；已建立报告通过 `set-relations` 事务调整完整关系集合。每条边可带从 source 报告视角说明该边的可选短摘要：trim 后为空即省略，非空必须单行且不超过 40 个 Unicode 码点，不参与图语义，也不要求为旧边迁移。CLI 的 `--relation-summary <target-selector=summary>` 只绑定本次完整关系集中的唯一 target；`set-relations` 时它属于最近的 `--source` group。程序化 API 直接在 relation 对象上提供 `summary`；命令矩阵、拒绝条件、rename/index/trace 投影以固定契约为准。publish 只接受能由正式基线和同批 selected candidates 闭合的最终关系图。
 4. 正文和稳定事实 owner 足以复核时直接使用它们；需要保留额外形成时材料时，保存最小必要资源，并在正文说明来源、条件、关键事实与支撑作用。
 5. candidate 与正式报告都使用 `./_resources/<resource-id>` 链接。candidate 的自有资源预置在最终 owner 路径；它也可共享既有正式 owner 资源。publish 不改写链接、不移动资源或自动暂存资源。
 6. 新取得的实质材料随新报告使用新资源；原地修改资源只用于准确恢复当时材料、格式修复或移除敏感信息。秘密与认证材料不进入报告或资源。

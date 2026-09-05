@@ -11,6 +11,7 @@ import {
   type InvestigationSearchOptions,
   type InvestigationIndexStageOptions,
   type InvestigationIndexSyncOptions,
+  type InvestigationRelation,
   type InvestigationRelationSetOptions,
   type InvestigationReportDiscardOptions,
   type InvestigationReportCheckOptions,
@@ -18,6 +19,7 @@ import {
   type InvestigationReportTraceOptions
 } from "./types.ts";
 import { normalizeInvestigationIdInput } from "./report-path.ts";
+import { normalizeInvestigationRelationSummary } from "./relation-summary.ts";
 
 const requiredStringSchema = v.string("must be a string");
 const optionalStringSchema = v.optional(v.string("must be a string"));
@@ -40,6 +42,7 @@ const investigationCandidateCreateOptionsSchema = v.strictObject({
   question: requiredStringSchema,
   relations: v.array(
     v.strictObject({
+      summary: v.optional(requiredStringSchema),
       target: requiredStringSchema,
       type: v.picklist(
         investigationRelationTypes,
@@ -119,6 +122,7 @@ const investigationReportTraceOptionsSchema = v.strictObject({
   maxDepth: optionalNumberSchema
 });
 const relationSchema = v.strictObject({
+  summary: v.optional(requiredStringSchema),
   target: requiredStringSchema,
   type: v.picklist(
     investigationRelationTypes,
@@ -144,12 +148,8 @@ const investigationReportDiscardOptionsSchema = v.strictObject({
 export function parseInvestigationCandidateCreateOptions(
   input: unknown
 ): Result<InvestigationCandidateCreateOptions, string[]> {
-  return parseOptions(investigationCandidateCreateOptionsSchema, input).map(
-    (options) => ({
-      ...options,
-      id: normalizeCompatibleId(options.id),
-      relations: normalizeCompatibleRelations(options.relations)
-    })
+  return parseOptions(investigationCandidateCreateOptionsSchema, input).andThen(
+    normalizeCandidateCreateOptions
   );
 }
 export function parseInvestigationCandidateListOptions(
@@ -232,15 +232,8 @@ export function parseInvestigationReportTraceOptions(
 export function parseInvestigationRelationSetOptions(
   input: unknown
 ): Result<InvestigationRelationSetOptions, string[]> {
-  return parseOptions(investigationRelationSetOptionsSchema, input).map(
-    (options) => ({
-      ...options,
-      replacements: options.replacements.map((replacement) => ({
-        ...replacement,
-        relations: normalizeCompatibleRelations(replacement.relations),
-        source: normalizeCompatibleId(replacement.source)
-      }))
-    })
+  return parseOptions(investigationRelationSetOptionsSchema, input).andThen(
+    normalizeRelationSetOptions
   );
 }
 export function parseInvestigationReportDiscardOptions(
@@ -255,13 +248,55 @@ function normalizeCompatibleId(value: string): string {
   return normalizeInvestigationIdInput(value) ?? value;
 }
 
-function normalizeCompatibleRelations<
-  Relation extends Readonly<{ target: string; type: string }>
->(relations: readonly Relation[]): Relation[] {
-  return relations.map((relation) => ({
-    ...relation,
-    target: normalizeCompatibleId(relation.target)
-  }));
+function normalizeRelationSetOptions(
+  options: v.InferOutput<typeof investigationRelationSetOptionsSchema>
+): Result<InvestigationRelationSetOptions, string[]> {
+  try {
+    return ok({
+      ...options,
+      replacements: options.replacements.map((replacement) => ({
+        ...replacement,
+        relations: normalizeCompatibleRelations(replacement.relations),
+        source: normalizeCompatibleId(replacement.source)
+      }))
+    });
+  } catch (error) {
+    return err([
+      error instanceof Error ? error.message : "invalid relation summary"
+    ]);
+  }
+}
+
+function normalizeCandidateCreateOptions(
+  options: v.InferOutput<typeof investigationCandidateCreateOptionsSchema>
+): Result<InvestigationCandidateCreateOptions, string[]> {
+  try {
+    return ok({
+      ...options,
+      id: normalizeCompatibleId(options.id),
+      relations: normalizeCompatibleRelations(options.relations)
+    });
+  } catch (error) {
+    return err([
+      error instanceof Error ? error.message : "invalid relation summary"
+    ]);
+  }
+}
+
+function normalizeCompatibleRelations(
+  relations: readonly InvestigationRelation[]
+): InvestigationRelation[] {
+  return relations.map((relation) => {
+    const summary =
+      relation.summary === undefined
+        ? undefined
+        : normalizeInvestigationRelationSummary(relation.summary);
+    return {
+      type: relation.type,
+      target: normalizeCompatibleId(relation.target),
+      ...(summary === null || summary === undefined ? {} : { summary })
+    };
+  });
 }
 
 function parseOptions<Schema extends v.GenericSchema>(

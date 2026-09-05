@@ -5,6 +5,7 @@ import test from "node:test";
 import { validateDecisionRecords } from "../src/index.ts";
 import { decisionIdFromSourcePath } from "../src/decision-path.ts";
 import { decisionReallocationComponents } from "../src/relation-graph.ts";
+import { normalizeRelationSummary } from "../src/relation-summary.ts";
 import {
   archivedRelativePath,
   candidateDecisionBody,
@@ -325,4 +326,30 @@ function decisionId(value: string) {
     throw new Error("Expected a valid Decision ID: " + value);
   }
   return decisionId;
+}
+
+test("relation summaries normalize blank input and enforce the Unicode single-line boundary", () => {
+  assert.deepEqual(normalizeRelationSummary(" \t "), {});
+  assert.deepEqual(normalizeRelationSummary(" \n "), {});
+  assert.deepEqual(normalizeRelationSummary("  保留=原因  "), {
+    summary: "保留=原因"
+  });
+  assert.deepEqual(normalizeRelationSummary("😀".repeat(40)), {
+    summary: "😀".repeat(40)
+  });
+  assert.match(
+    relationSummaryIssue(normalizeRelationSummary("😀".repeat(41))),
+    /at most 40 Unicode code points/u
+  );
+  assert.match(
+    relationSummaryIssue(normalizeRelationSummary("first\nsecond")),
+    /single-line/u
+  );
+});
+
+function relationSummaryIssue(
+  result: ReturnType<typeof normalizeRelationSummary>
+): string {
+  assert.ok("issue" in result);
+  return result.issue;
 }

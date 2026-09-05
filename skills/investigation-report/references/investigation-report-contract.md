@@ -46,12 +46,13 @@ tags:
 relations:
   - type: "复查"
     target: "exclude-resources-from-index-revision"
+    summary: "在新索引边界下复核来源版本"
 ---
 ```
 
 1. `id` 是纯 Investigation ID，不含路径或扩展名；新标准 ID 的日期必须等于 `formedAt` UTC 日期。`title` 与 `question` 是非空单行语义文本。`formedAt` 使用带显式时区、无小数秒的 RFC 3339 时间戳。
 2. `tags` 是至少一个 kebab-case token 的 YAML sequence；每项符合 `^[a-z0-9]+(?:-[a-z0-9]+)*$`，同一报告内唯一并按 locale 无关词法升序排列。tags 只表达分类，不表达状态、有效性、关系、当前事实或历史演进。
-3. `relations` 是完整直接前序集合。空集合固定写为 `relations: []`；非空项的 key 顺序固定为 `type`、`target`，并按关系类型表顺序、再按 target 的 locale 无关词法顺序排列。
+3. `relations` 是完整直接前序集合。空集合固定写为 `relations: []`；非空项的 key 顺序固定为 `type`、`target`、可选 `summary`，并按关系类型表顺序、再按 target 的 locale 无关词法顺序排列。summary 从 source 报告视角说明已有边：输入先 trim，纯空白规范化为省略，保留值必须为单行且最多 40 个 Unicode 码点，多行或超长直接拒绝而不截断。
 4. frontmatter 后没有 H1。正式报告的前四个 H2 依次且唯一为非空的 `形成时背景`、`调查目的`、`调查范围与依据` 与 `调查结果与边界`。candidate 使用相同顺序与章节形状，但这四节可暂时为空。
 5. 报告或 candidate 声明资源时，第五个 H2 必须且只能为非空的 `随附资源`；章节内容是至少一个无序列表项，每项只含一个无 title 的本地 Markdown inline link。没有资源时不得创建该章节。
 6. 其他可选语义 H2 只能位于四项固定核心之后；声明资源时，只能位于第五个 H2 `随附资源` 之后。
@@ -78,6 +79,7 @@ candidate 的机械状态彼此独立：`scaffoldValid` 表示身份、普通文
 4. 关系只表达认识演进。不从相同 tags、时间先后、普通链接、资源共享或目录位置推断边；间接关系通过 trace 恢复。
 5. 后继关系不写回前序、不改变前序位置或默认可见性。所有未被正式 `discard` 的已建立报告都留在同一正式集合，任何关系都不产生隐藏、归档或自动删除行为。candidate 也不具有 lifecycle。
 6. 默认全量 `check` 仅在可用 Git `HEAD` 基线中检查每条正式直接关系的 target（直接前序）。target 尚未进入 Git `HEAD` 时，返回包含 source、target 和 relation type 的确定性 warning，要求复核该关系是否应保留为独立调查演进；warning 不产生 error，也不阻断 `set-relations` 或其他写入。不比较 `formedAt` 或其他时间间隔。target 已进入 Git `HEAD` 时不提示；非 Git 工作区、尚未形成 `HEAD` 或无法建立可用 `HEAD` 基线时跳过此提示。
+7. summary 只说明该边为何存在，不属于边身份，也不参与重复判断、规范排序、时间方向、关系形状、直接前序、环检测或其他拓扑判断。同一 source 的相同 type/target 不会因 summary 不同而成为两条边。Markdown parser/renderer、领域 API、索引 relation projection、`show`、关系图与 `trace` 保留并显示已存在的 summary；rename 只改写 target 时逐字保留它。历史无 summary 关系继续合法、按字段省略读取，且无需回填或迁移。
 
 ## 资源池与 resource owner
 
@@ -95,13 +97,14 @@ candidate 的机械状态彼此独立：`scaffoldValid` 表示身份、普通文
 ### `new`
 
 ```text
-new <investigation-id> --title <title> --formed-at <rfc3339> --question <question> --tag <tag>... [--relation <type=target-id>...]
+new <investigation-id> --title <title> --formed-at <rfc3339> --question <question> --tag <tag>... [--relation <type=target-selector>... --relation-summary <target-selector=summary>...]
 ```
 
 1. `new` 接收标准 ID 或 name、非空 title、formedAt、question、至少一个 tag 和零个或多个完整直接 relation；重复 tag、relation 或不规范 metadata 是参数错误。formedAt 必须由调用方显式提供，不能用创建时间、文件时间、Git 或正文猜测。name 输入自动使用 formedAt 的 UTC 日期形成标准 ID；直接标准 ID 必须同日。
 2. 命令在集合 mutation lock 内重读正式/candidate 身份。name locator 在 candidate 与正式两种目标路径均可用时优先，已占用时退回完整 ID locator；发布以同一 locator 形成正式 `sourcePath`。输入、锁、身份、安全或发布失败不产生或覆盖目标。同日同名 ID 已存在时失败，不追加随机码或序号。
 3. 即将与同 name legacy ID 冲突时，`new` 零写入返回 `migration-required`、legacy ID、建议 dated ID 和 rename/preflight 指引；不隐式执行 rename。
 4. 创建成功即退出 `0` 并输出 candidate 路径。随后分别渲染 body/resource readiness 与单候选辅助 preflight；incomplete、attention、selection-incomplete 或 unavailable 是 stderr warning，不改变创建成功，不生成 receipt，也不要求重跑 `new`。下一步是编辑、`show-candidate` 或 `publish --preflight`。
+5. `--relation-summary` 只能与至少一个 `--relation` 同现；relation 与 summary target 分别按普通 ID-first/name selector 解析后，summary 必须唯一绑定本次完整 relation set 中一个 target。重复或未命中 target 拒绝；未提供摘要的 relation 省略字段。summary 只按首个 `=` 分隔，其余 `=` 保留为正文。程序化 `createInvestigationCandidate` API 直接接收带可选 `summary` 的 relation 对象，不采用 CLI 编码。
 
 ### `candidates` 与 `show-candidate`
 
@@ -121,11 +124,11 @@ discard-candidate <selector> [--delete-owned-resources] [--delete-recorded-candi
 
 `rename <source-selector> <target-name-or-id> [--preflight] [--rename-recorded-report|--rename-recorded-candidate]` 迁移一个 candidate 或正式报告的 ID/name。source 先按标准 dated ID exact 解析、失败才按 unique name；target 标准 ID 直接定义目标，其他合法 kebab-case 值使用该报告 `formedAt` UTC 日生成目标 ID。显式 target 日期必须等于 `formedAt` UTC 日，ID/name/sourcePath 冲突一律零写入。正式报告优先 `<name>.md`、candidate 优先 `_candidate.<name>`，不可用才回退完整 ID locator。
 
-rename 对 ID、name、sourcePath 和 owner 都不变的规范 identity 返回 `changed: false` 的零写入 no-op，不进入 Git 确认或 lock 写入；但仅 sourcePath 相同不代表 no-op，ID 变化时仍必须更新 source、关系、资源链接、owner 与索引。其余事务在集合 lock 内重新扫描 formal/candidate 源、关系、资源、索引和 Git HEAD，再在同一恢复范围改写 source ID、全部受管 formal/candidate relation target、所有受管 `./_resources/<old-id>/...` 链接、正式 index key/state/source revision，并 no-overwrite 移动报告或 candidate 与 `_resources/<old-id>/` owner 树。报告移动在写前记录原路径字节和权限，并记录新路径的本事务字节和权限；回滚只删除仍完全相同的新路径，只以 exclusive create 恢复仍缺失的旧路径。任一路径随后出现、消失、改型、改权限或改字节时均保留现场并返回 `partial-or-unknown`。owner transfer 必须先 exclusive claim 新目录，再复制并校验预演的类型、权限、大小和内容摘要；旧 owner 只逐个删除再次证明相同的文件、再从内向外移除空目录，绝不递归删除。并发出现或随后漂移的 target/source owner 均不覆盖、不清理或伪恢复；恢复只能在 target 仍完全等于本事务复制快照时进行，否则返回 `partial-or-unknown` 留待对账。它不改变 title、formedAt、question、tags、正文判断或 relation type，也不调用 `sync-index` 或 `stage-index` 作为第二阶段。`--preflight` 完成同一计划但零写入；Git HEAD 已记录 formal/candidate 或其 owner tree 时，正式执行分别要求对应 recorded rename flag，且绝不重写历史。任何来源漂移、移动、写入或索引发布前失败都恢复旧组合或报告 partial-or-unknown；成功后不允许当前受管内容继续使用旧 ID、sourcePath 或 owner prefix。
+rename 对 ID、name、sourcePath 和 owner 都不变的规范 identity 返回 `changed: false` 的零写入 no-op，不进入 Git 确认或 lock 写入；但仅 sourcePath 相同不代表 no-op，ID 变化时仍必须更新 source、关系、资源链接、owner 与索引。其余事务在集合 lock 内重新扫描 formal/candidate 源、关系、资源、索引和 Git HEAD，再在同一恢复范围改写 source ID、全部受管 formal/candidate relation target、所有受管 `./_resources/<old-id>/...` 链接、正式 index key/state/source revision，并 no-overwrite 移动报告或 candidate 与 `_resources/<old-id>/` owner 树。报告移动在写前记录原路径字节和权限，并记录新路径的本事务字节和权限；回滚只删除仍完全相同的新路径，只以 exclusive create 恢复仍缺失的旧路径。任一路径随后出现、消失、改型、改权限或改字节时均保留现场并返回 `partial-or-unknown`。owner transfer 必须先 exclusive claim 新目录，再复制并校验预演的类型、权限、大小和内容摘要；旧 owner 只逐个删除再次证明相同的文件、再从内向外移除空目录，绝不递归删除。并发出现或随后漂移的 target/source owner 均不覆盖、不清理或伪恢复；恢复只能在 target 仍完全等于本事务复制快照时进行，否则返回 `partial-or-unknown` 留待对账。它不改变 title、formedAt、question、tags、正文判断、relation type 或 relation summary，也不调用 `sync-index` 或 `stage-index` 作为第二阶段。`--preflight` 完成同一计划但零写入；Git HEAD 已记录 formal/candidate 或其 owner tree 时，正式执行分别要求对应 recorded rename flag，且绝不重写历史。任何来源漂移、移动、写入或索引发布前失败都恢复旧组合或报告 partial-or-unknown；成功后不允许当前受管内容继续使用旧 ID、sourcePath 或 owner prefix。
 
 ## 索引、查询、publish 与相邻维护
 
-1. 每个正式 Investigation ID 产生一个索引 entry。state 投影由 ID 导出的 `name`、`sourcePath`、`title`、`formedAt`、`question`、`tags`、`relations` 和按规范 ID 排序的 `resourceIds`；不保存正文、candidate、反向关系副本、当前结论或资源内容摘要。
+1. 每个正式 Investigation ID 产生一个索引 entry。state 投影由 ID 导出的 `name`、`sourcePath`、`title`、`formedAt`、`question`、`tags`、带可选 summary 的 `relations` 和按规范 ID 排序的 `resourceIds`；不保存正文、candidate、反向关系副本、当前结论或资源内容摘要。
 2. keys 是 exact `name`、exact `tag`、range `formed-at` 与 exact `relation-type`。metadata 是拒绝额外字段的严格空对象；完整正文不复制进派生索引。
 3. source revision 以正式 Investigation ID 为键，指纹化 ID、sourcePath 和完整正式报告 Markdown UTF-8 内容，计算前只把 CRLF 规范为 LF。正式报告成员、位置或可投影内容变化会更新对应 revision；candidate、资源成员和资源字节不参与 revision。
 4. `list` 默认查询全部正式报告，按 Investigation ID 的 locale 无关词法顺序排序；支持可重复 `--tag` 的 AND、包含端点的 formedAt 范围和一个精确关系类型。`search <text>` 支持相同结构筛选及 `--match all|any|phrase`（默认 `all`）和仅限制命中报告的 `--limit`（默认 50、最大 1000）：`all` 要求规范化查询中的每个去重词至少命中一次，`any` 要求任一词，二者的词可分布在不同物理行；`phrase` 只匹配同一物理行连续短语。三种模式统一 NFKC、默认忽略大小写并按空白处理查询。搜索在同一当前索引 snapshot 的 selected `sourcePath` 文件列表中读取完整正式 Markdown，再以该 snapshot 的唯一 `sourcePath → ID` 映射输出完整 ID、state 摘要和命中预览；它严格排除 candidate、资源与索引文件。索引缺失、损坏或不新鲜时，只有完整正式集合及资源验证成功才构建只读内存投影并 warning，绝不写回索引或将部分搜索称作完整。结果文件、每文件命中和预览字符受资源上限约束；截断必须 warning，不得据未显示结果或无结果断言不存在匹配。`show` 与 `trace` 使用当前索引；这些命令均完全忽略 candidates。
@@ -157,15 +160,16 @@ publish <selector...> [--preflight]
 ```text
 set-relations \
   --source <selector> \
-    (--relation <type=target-selector>... | --clear-relations) \
+    (--relation <type=target-selector>... [--relation-summary <target-selector=summary>...] | --clear-relations) \
   [--source <selector> ...]
 ```
 
-1. 每个 `--source` 开始一个完整替换组，直到下一个 `--source`；组内重复 `--relation` 构成该报告的全部最终关系，`--clear-relations` 表示显式空集合。每组必须二选一，同一 source 不能重复出现。
+1. 每个 `--source` 开始一个完整替换组，直到下一个 `--source`；组内重复 `--relation` 构成该报告的全部最终关系，`--clear-relations` 表示显式空集合。`--relation-summary` 归属最近的 source group，可与该组 relation 任意排序；每个 summary 只按首个 `=` 分隔，后续 `=` 属于正文。每组必须二选一，同一 source 不能重复出现。
 2. 所有 source 与 relation target 都用普通 selector 收敛为已建立 Investigation ID。一次调用中的全部组共同组成最终图预演，因此多个拆分后继可以同一事务建立，不产生非法中间状态。
 3. 命令要求工作区索引结构有效且对正式报告源新鲜，验证关系类型、目标、时间方向、归并/拆分形状和无环性；预演无效不写入。
 4. 成功路径保护全部目标报告、索引和完整图预览的 revision，事务化改写选中 Markdown frontmatter 与工作区索引。写前漂移失败；中断或发布失败恢复完整旧组合或返回明确恢复诊断。
 5. 命令不改 title、formedAt、question、tags、正文、资源或 Git pending。全部最终关系与现值相同时返回 `changed: false` 且不改写字节；至少一组改变时返回 `changed: true` 和规范 source ID 列表。
+6. **summary 绑定：** `--relation-summary` 归最近的 `--source` group，并在 selector 收敛后唯一绑定该 group 完整 relation set 的 target；可在 group 内任意顺序出现。重复、未命中、summary-only 或与 `--clear-relations` 同组均拒绝。完整替换中未提供 summary 的边省略字段并清除旧摘要。程序化 `setInvestigationRelations` API 不接受 CLI 编码或单边 patch，直接接收完整 `{ type, target, summary? }` relation 对象集合。
 
 ### `discard`
 
@@ -198,7 +202,7 @@ CLI 的成功信息写入 stdout；失败和 warning 立即写入 stderr，只�
 ## CLI
 
 ```text
-node <investigation-report-skill>/scripts/check-investigations.mjs new <investigation-id> --root <workspace-root> ...
+node <investigation-report-skill>/scripts/check-investigations.mjs new <investigation-id> [--relation <type=target-selector>... --relation-summary <target-selector=summary>...] --root <workspace-root> ...
 node <investigation-report-skill>/scripts/check-investigations.mjs candidates --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs show-candidate <selector> --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs publish <selector...> [--preflight] --root <workspace-root>
@@ -209,7 +213,7 @@ node <investigation-report-skill>/scripts/check-investigations.mjs list --root <
 node <investigation-report-skill>/scripts/check-investigations.mjs search <text> [--match all|any|phrase] --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs show <selector> --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs trace <selector> --root <workspace-root>
-node <investigation-report-skill>/scripts/check-investigations.mjs set-relations --source <selector> --clear-relations --root <workspace-root>
+node <investigation-report-skill>/scripts/check-investigations.mjs set-relations --source <selector> (--relation <type=target-selector>... [--relation-summary <target-selector=summary>...] | --clear-relations) --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs discard <selector> --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs stage-index <selector...> --root <workspace-root>
 ```

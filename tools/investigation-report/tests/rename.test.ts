@@ -30,7 +30,9 @@ test("Investigation rename moves the report and owner resources while rewriting 
         {
           formedAt: "2026-08-29T12:00:00+00:00",
           id: "dependent",
-          relations: [{ target: "legacy", type: "补充" }],
+          relations: [
+            { type: "补充", target: "legacy", summary: "保留迁移缘由" }
+          ],
           resources: ["legacy/evidence.txt", "legacy/nested/evidence.txt"]
         }
       ],
@@ -58,7 +60,7 @@ test("Investigation rename moves the report and owner resources while rewriting 
       formedAt: "2026-08-30T12:00:00+00:00",
       id: "candidate-dependent",
       question: "候选调查如何引用旧身份？",
-      relations: [{ target: "legacy", type: "补充" }],
+      relations: [{ type: "补充", target: "legacy", summary: "保留候选缘由" }],
       tags: ["investigation-report"],
       title: "候选依赖",
       workspaceRoot
@@ -99,23 +101,38 @@ test("Investigation rename moves the report and owner resources while rewriting 
       "utf8"
     );
     assert.match(dependent, /target: "260828-migrated"/u);
+    assert.match(dependent, /summary: "保留迁移缘由"/u);
     assert.match(dependent, /\.\/_resources\/260828-migrated\/evidence\.txt/u);
     assert.match(
       dependent,
       /\.\/_resources\/260828-migrated\/nested\/evidence\.txt/u
     );
-    assert.match(
-      await fs.readFile(candidate.candidate.path, "utf8"),
-      /target: "260828-migrated"/u
+    const renamedCandidate = await fs.readFile(
+      candidate.candidate.path,
+      "utf8"
     );
+    assert.match(renamedCandidate, /target: "260828-migrated"/u);
+    assert.match(renamedCandidate, /summary: "保留候选缘由"/u);
     const index = JSON.parse(
       await fs.readFile(path.join(root, "investigation-index.json"), "utf8")
-    ) as { entries: Record<string, { state: { sourcePath: string } }> };
+    ) as {
+      entries: Record<
+        string,
+        { state: { relations: unknown; sourcePath: string } }
+      >;
+    };
     assert.equal(
       index.entries["260828-migrated"]?.state.sourcePath,
       "migrated.md"
     );
     assert.ok(!Object.hasOwn(index.entries, "legacy"));
+    assert.deepEqual(index.entries.dependent?.state.relations, [
+      {
+        type: "补充",
+        target: "260828-migrated",
+        summary: "保留迁移缘由"
+      }
+    ]);
     assert.deepEqual(
       (await synchronizeInvestigationIndex({ mode: "check", workspaceRoot }))
         .errors,

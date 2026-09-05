@@ -123,7 +123,12 @@ test("relation graph rejects a cycle", () => {
 
 test("relation trace returns deterministic predecessor successor and bidirectional subgraphs", () => {
   const states = new Map<string, InvestigationIndexState>([
-    ["c", state("2026-08-28T12:00:00+00:00", [{ target: "b", type: "修正" }])],
+    [
+      "c",
+      state("2026-08-28T12:00:00+00:00", [
+        { type: "修正", target: "b", summary: "修正边界" }
+      ])
+    ],
     ["b", state("2026-08-28T11:00:00+00:00", [{ target: "a", type: "补充" }])],
     ["a", state("2026-08-28T10:00:00+00:00")]
   ]);
@@ -161,7 +166,7 @@ test("relation trace returns deterministic predecessor successor and bidirection
     }).edges,
     [
       { source: "b", target: "a", type: "补充" },
-      { source: "c", target: "b", type: "修正" }
+      { source: "c", target: "b", type: "修正", summary: "修正边界" }
     ]
   );
   assert.deepEqual(
@@ -173,4 +178,35 @@ test("relation trace returns deterministic predecessor successor and bidirection
     ],
     ["b"]
   );
+});
+
+test("relation summaries do not change graph identity or validation", () => {
+  const withoutSummary = new Map<string, InvestigationIndexState>([
+    ["base", state("2026-08-28T10:00:00+00:00")],
+    [
+      "next",
+      state("2026-08-28T11:00:00+00:00", [
+        { type: "补充", target: "base" },
+        { type: "复查", target: "base" }
+      ])
+    ]
+  ]);
+  const withSummary = new Map<string, InvestigationIndexState>([
+    ["base", state("2026-08-28T10:00:00+00:00")],
+    [
+      "next",
+      state("2026-08-28T11:00:00+00:00", [
+        { type: "补充", target: "base", summary: "说明一" },
+        { type: "复查", target: "base", summary: "说明二" }
+      ])
+    ]
+  ]);
+  assert.deepEqual(
+    validateInvestigationRelationGraph(withSummary),
+    validateInvestigationRelationGraph(withoutSummary)
+  );
+  assert.deepEqual(validateInvestigationRelationGraph(withSummary), [
+    "next ordinary relation report must have exactly one 补充、复查、修正 or 推翻 predecessor",
+    "next relations must not repeat target base"
+  ]);
 });

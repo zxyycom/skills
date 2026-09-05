@@ -263,6 +263,53 @@ test("new blocks a legacy name collision until an explicit dated migration is co
   });
 });
 
+test("candidate API normalizes optional relation summaries and rejects invalid values", async () => {
+  await withTempRoot("candidate-relation-summary", async (root) => {
+    await writeCollection(root, [{ id: "260828-base" }]);
+    const boundarySummary = "😀".repeat(40);
+    const accepted = await createInvestigationCandidate({
+      ...candidateInput,
+      id: "summary-boundary",
+      relations: [
+        {
+          type: "补充",
+          target: "260828-base",
+          summary: `  ${boundarySummary}  `
+        }
+      ],
+      workspaceRoot: root
+    });
+    assert.equal(accepted.status, "ok");
+    assert.match(
+      accepted.candidate?.markdown ?? "",
+      new RegExp(`summary: ${JSON.stringify(boundarySummary)}`, "u")
+    );
+
+    const omitted = await createInvestigationCandidate({
+      ...candidateInput,
+      id: "summary-omitted",
+      relations: [{ type: "补充", target: "260828-base", summary: "   " }],
+      workspaceRoot: root
+    });
+    assert.equal(omitted.status, "ok");
+    assert.doesNotMatch(omitted.candidate?.markdown ?? "", /summary:/u);
+
+    for (const [id, summary] of [
+      ["summary-multiline", "first\nsecond"],
+      ["summary-too-long", "😀".repeat(41)]
+    ] as const) {
+      const rejected = await createInvestigationCandidate({
+        ...candidateInput,
+        id,
+        relations: [{ type: "补充", target: "260828-base", summary }],
+        workspaceRoot: root
+      });
+      assert.equal(rejected.status, "invalid-options");
+      assert.equal(rejected.changed, false);
+    }
+  });
+});
+
 test("candidate queries report readiness while formal sources and default checks ignore a candidate-owned resource", async () => {
   await withTempRoot("candidate-readiness", async (root) => {
     await writeCollection(root, [{ id: "formal" }]);

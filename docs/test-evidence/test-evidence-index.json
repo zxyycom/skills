@@ -3112,7 +3112,7 @@
     "DECISION-ID-RELATION-001": {
       "keys": {
         "search": [
-          "DECISION-ID-RELATION-001 关系跨根目录和归档解析 关系 target 使用 extensionless 稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析。 激活 candidate 后原 active 归档，索引保留 candidate 到该 ID 的 relation。 tools/decision-records/tests/lifecycle-relations.test.ts > relations resolve stable IDs across active and archived locations bun test --test-name-pattern=\"^relations resolve stable IDs across active and archived locations$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-ID-RELATION-001 关系跨根目录和归档解析 关系 target 使用 extensionless 稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析；可选 summary 仅描述该边。 激活 candidate 后原 active 归档，索引保留 candidate 到该 ID 的 relation summary，trace 显示摘要。 tools/decision-records/tests/lifecycle-relations.test.ts > relations resolve stable IDs across active and archived locations bun test --test-name-pattern=\"^relations resolve stable IDs across active and archived locations$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -3126,9 +3126,9 @@
         ],
         "id": "DECISION-ID-RELATION-001",
         "line": 1,
-        "searchText": "关系跨根目录和归档解析 关系 target 使用 extensionless 稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析。 激活 candidate 后原 active 归档，索引保留 candidate 到该 ID 的 relation。 tools/decision-records/tests/lifecycle-relations.test.ts > relations resolve stable IDs across active and archived locations bun test --test-name-pattern=\"^relations resolve stable IDs across active and archived locations$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "关系跨根目录和归档解析 关系 target 使用 extensionless 稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析；可选 summary 仅描述该边。 激活 candidate 后原 active 归档，索引保留 candidate 到该 ID 的 relation summary，trace 显示摘要。 tools/decision-records/tests/lifecycle-relations.test.ts > relations resolve stable IDs across active and archived locations bun test --test-name-pattern=\"^relations resolve stable IDs across active and archived locations$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/relations-across-layouts.md",
-        "summary": "关系 target 使用 extensionless 稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析。",
+        "summary": "关系 target 使用 extensionless 稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析；可选 summary 仅描述该边。",
         "title": "关系跨根目录和归档解析"
       }
     },
@@ -4027,6 +4027,98 @@
         "sourcePath": "decision-records/shared-relation-graph-traces-bounded-bidirectional-subgraphs.md",
         "summary": "共享关系图按方向和最大深度返回确定的内部子图。",
         "title": "共享关系图执行有界双向追踪"
+      }
+    },
+    "DECISION-RELATION-SUMMARY-001": {
+      "keys": {
+        "search": [
+          "DECISION-RELATION-SUMMARY-001 Relation summary normalization preserves the Unicode boundary Relation summary input trims whitespace, omits blank values, permits at most 40 Unicode code points, and rejects physical line breaks without truncation. Blank input, including whitespace around a physical line break, is omitted before line validation; a trimmed value retains text after the first CLI separator. Forty astral Unicode code points pass, while forty-one and multiline input fail. tools/decision-records/tests/relation-validation.test.ts > relation summaries normalize blank input and enforce the Unicode single-line boundary bun test --test-name-pattern=\"^relation summaries normalize blank input and enforce the Unicode single-line boundary$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/relation-validation.test.ts > relation summaries normalize blank input and enforce the Unicode single-line boundary",
+          "bun test --test-name-pattern=\"^relation summaries normalize blank input and enforce the Unicode single-line boundary$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-RELATION-SUMMARY-001",
+        "line": 1,
+        "searchText": "Relation summary normalization preserves the Unicode boundary Relation summary input trims whitespace, omits blank values, permits at most 40 Unicode code points, and rejects physical line breaks without truncation. Blank input, including whitespace around a physical line break, is omitted before line validation; a trimmed value retains text after the first CLI separator. Forty astral Unicode code points pass, while forty-one and multiline input fail. tools/decision-records/tests/relation-validation.test.ts > relation summaries normalize blank input and enforce the Unicode single-line boundary bun test --test-name-pattern=\"^relation summaries normalize blank input and enforce the Unicode single-line boundary$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/relation-summary-normalization.md",
+        "summary": "Relation summary input trims whitespace, omits blank values, permits at most 40 Unicode code points, and rejects physical line breaks without truncation.",
+        "title": "Relation summary normalization preserves the Unicode boundary"
+      }
+    },
+    "DECISION-RELATION-SUMMARY-002": {
+      "keys": {
+        "search": [
+          "DECISION-RELATION-SUMMARY-002 Activate binds a CLI summary to its complete relation set `activate --relation-summary <target-selector=summary>` binds only to a target in the same complete relation replacement after ID-first selector resolution; the summary is trimmed and is shown by the index and trace. A target selector resolves to the established Decision ID, retains content after the first `=`, and writes the canonical relation summary to the index. Trace displays the stored summary with the existing relation edge. tools/decision-records/tests/lifecycle-relations.test.ts > activate binds a CLI relation summary after resolving its target selector bun test --test-name-pattern=\"^activate binds a CLI relation summary after resolving its target selector$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/lifecycle-relations.test.ts > activate binds a CLI relation summary after resolving its target selector",
+          "bun test --test-name-pattern=\"^activate binds a CLI relation summary after resolving its target selector$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-RELATION-SUMMARY-002",
+        "line": 1,
+        "searchText": "Activate binds a CLI summary to its complete relation set `activate --relation-summary <target-selector=summary>` binds only to a target in the same complete relation replacement after ID-first selector resolution; the summary is trimmed and is shown by the index and trace. A target selector resolves to the established Decision ID, retains content after the first `=`, and writes the canonical relation summary to the index. Trace displays the stored summary with the existing relation edge. tools/decision-records/tests/lifecycle-relations.test.ts > activate binds a CLI relation summary after resolving its target selector bun test --test-name-pattern=\"^activate binds a CLI relation summary after resolving its target selector$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/activate-cli-relation-summary.md",
+        "summary": "`activate --relation-summary <target-selector=summary>` binds only to a target in the same complete relation replacement after ID-first selector resolution; the summary is trimmed and is shown by the index and trace.",
+        "title": "Activate binds a CLI summary to its complete relation set"
+      }
+    },
+    "DECISION-RELATION-SUMMARY-003": {
+      "keys": {
+        "search": [
+          "DECISION-RELATION-SUMMARY-003 New binds a summary after selector resolution `new --relation-summary <target-selector=summary>` uses the same ID-first target resolution as `--relation`, then writes only the trimmed summary on that relation. A candidate created from a direct predecessor selector persists `type`, `target`, and the text after the first `=` in canonical relation field order. tools/decision-records/tests/candidate-scaffold.test.ts > new binds a relation summary after resolving a direct predecessor selector bun test --test-name-pattern=\"^new binds a relation summary after resolving a direct predecessor selector$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/candidate-scaffold.test.ts > new binds a relation summary after resolving a direct predecessor selector",
+          "bun test --test-name-pattern=\"^new binds a relation summary after resolving a direct predecessor selector$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-RELATION-SUMMARY-003",
+        "line": 1,
+        "searchText": "New binds a summary after selector resolution `new --relation-summary <target-selector=summary>` uses the same ID-first target resolution as `--relation`, then writes only the trimmed summary on that relation. A candidate created from a direct predecessor selector persists `type`, `target`, and the text after the first `=` in canonical relation field order. tools/decision-records/tests/candidate-scaffold.test.ts > new binds a relation summary after resolving a direct predecessor selector bun test --test-name-pattern=\"^new binds a relation summary after resolving a direct predecessor selector$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/new-cli-relation-summary.md",
+        "summary": "`new --relation-summary <target-selector=summary>` uses the same ID-first target resolution as `--relation`, then writes only the trimmed summary on that relation.",
+        "title": "New binds a summary after selector resolution"
+      }
+    },
+    "DECISION-RELATION-SUMMARY-004": {
+      "keys": {
+        "search": [
+          "DECISION-RELATION-SUMMARY-004 Candidate API normalizes direct relation summaries The programmatic candidate API accepts direct `{ type, target, summary? }` relation objects without CLI parser fields, persists normalized summaries, and rejects invalid summary values at its boundary. A direct API relation summary is trimmed before Markdown serialization. An over-limit direct API summary returns a validation failure rather than a truncated candidate. tools/decision-records/tests/candidate-scaffold.test.ts > candidate API normalizes direct relation summaries without CLI-only inputs bun test --test-name-pattern=\"^candidate API normalizes direct relation summaries without CLI-only inputs$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/candidate-scaffold.test.ts > candidate API normalizes direct relation summaries without CLI-only inputs",
+          "bun test --test-name-pattern=\"^candidate API normalizes direct relation summaries without CLI-only inputs$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-RELATION-SUMMARY-004",
+        "line": 1,
+        "searchText": "Candidate API normalizes direct relation summaries The programmatic candidate API accepts direct `{ type, target, summary? }` relation objects without CLI parser fields, persists normalized summaries, and rejects invalid summary values at its boundary. A direct API relation summary is trimmed before Markdown serialization. An over-limit direct API summary returns a validation failure rather than a truncated candidate. tools/decision-records/tests/candidate-scaffold.test.ts > candidate API normalizes direct relation summaries without CLI-only inputs bun test --test-name-pattern=\"^candidate API normalizes direct relation summaries without CLI-only inputs$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/candidate-api-relation-summary.md",
+        "summary": "The programmatic candidate API accepts direct `{ type, target, summary? }` relation objects without CLI parser fields, persists normalized summaries, and rejects invalid summary values at its boundary.",
+        "title": "Candidate API normalizes direct relation summaries"
       }
     },
     "DECISION-RENAME-ESTABLISHED-001": {
@@ -9649,7 +9741,7 @@
     "INVESTIGATION-QUERY-REPORT-ID-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-QUERY-REPORT-ID-001 show and trace resolve reports by investigation id `show` 与 `trace` 只接受规范 Investigation ID，并按报告 ID 查询。 `show` 返回对应 Markdown，successors trace 返回确定报告集合；`./` 和首尾空白输入被拒绝。 tools/investigation-report/tests/index-query.test.ts > show and trace resolve reports by investigation id bun test --test-name-pattern=\"^show and trace resolve reports by investigation id$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-QUERY-REPORT-ID-001 show and trace resolve reports by investigation id `show` 与 `trace` 只接受规范 Investigation ID，并按报告 ID 查询。 `show` 返回对应 Markdown/state，successors trace 返回确定报告集合，并在三个输出边界透传存在的 relation summary；`./` 和首尾空白输入被拒绝。 tools/investigation-report/tests/index-query.test.ts > show and trace resolve reports by investigation id bun test --test-name-pattern=\"^show and trace resolve reports by investigation id$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -9663,7 +9755,7 @@
         ],
         "id": "INVESTIGATION-QUERY-REPORT-ID-001",
         "line": 1,
-        "searchText": "show and trace resolve reports by investigation id `show` 与 `trace` 只接受规范 Investigation ID，并按报告 ID 查询。 `show` 返回对应 Markdown，successors trace 返回确定报告集合；`./` 和首尾空白输入被拒绝。 tools/investigation-report/tests/index-query.test.ts > show and trace resolve reports by investigation id bun test --test-name-pattern=\"^show and trace resolve reports by investigation id$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "show and trace resolve reports by investigation id `show` 与 `trace` 只接受规范 Investigation ID，并按报告 ID 查询。 `show` 返回对应 Markdown/state，successors trace 返回确定报告集合，并在三个输出边界透传存在的 relation summary；`./` 和首尾空白输入被拒绝。 tools/investigation-report/tests/index-query.test.ts > show and trace resolve reports by investigation id bun test --test-name-pattern=\"^show and trace resolve reports by investigation id$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/show-and-trace-resolve-reports-by-investigation-id.md",
         "summary": "`show` 与 `trace` 只接受规范 Investigation ID，并按报告 ID 查询。",
         "title": "show and trace resolve reports by investigation id"
@@ -9856,7 +9948,7 @@
     "INVESTIGATION-RELATION-GRAPH-TRACE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RELATION-GRAPH-TRACE-001 relation trace returns deterministic predecessor successor and bidirectional subgraphs Investigation 关系 trace 从报告 state 出发，按方向返回 predecessor、successor 或双向子图；`maxDepth` 限制可达节点深度。 从中间报告分别获得前序、后继和双向 ID 集合。 双向 trace 返回预期顺序的关系边。 `maxDepth: 0` 时只返回起始报告 ID。 tools/investigation-report/tests/relations.test.ts > relation trace returns deterministic predecessor successor and bidirectional subgraphs bun test --test-name-pattern=\"^relation trace returns deterministic predecessor successor and bidirectional subgraphs$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RELATION-GRAPH-TRACE-001 relation trace returns deterministic predecessor successor and bidirectional subgraphs Investigation 关系 trace 从报告 state 出发，按方向返回 predecessor、successor 或双向子图；`maxDepth` 限制可达节点深度。 从中间报告分别获得前序、后继和双向 ID 集合。 双向 trace 返回预期顺序的关系边，并透传存在的可选 summary。 `maxDepth: 0` 时只返回起始报告 ID。 tools/investigation-report/tests/relations.test.ts > relation trace returns deterministic predecessor successor and bidirectional subgraphs bun test --test-name-pattern=\"^relation trace returns deterministic predecessor successor and bidirectional subgraphs$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -9870,7 +9962,7 @@
         ],
         "id": "INVESTIGATION-RELATION-GRAPH-TRACE-001",
         "line": 1,
-        "searchText": "relation trace returns deterministic predecessor successor and bidirectional subgraphs Investigation 关系 trace 从报告 state 出发，按方向返回 predecessor、successor 或双向子图；`maxDepth` 限制可达节点深度。 从中间报告分别获得前序、后继和双向 ID 集合。 双向 trace 返回预期顺序的关系边。 `maxDepth: 0` 时只返回起始报告 ID。 tools/investigation-report/tests/relations.test.ts > relation trace returns deterministic predecessor successor and bidirectional subgraphs bun test --test-name-pattern=\"^relation trace returns deterministic predecessor successor and bidirectional subgraphs$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "relation trace returns deterministic predecessor successor and bidirectional subgraphs Investigation 关系 trace 从报告 state 出发，按方向返回 predecessor、successor 或双向子图；`maxDepth` 限制可达节点深度。 从中间报告分别获得前序、后继和双向 ID 集合。 双向 trace 返回预期顺序的关系边，并透传存在的可选 summary。 `maxDepth: 0` 时只返回起始报告 ID。 tools/investigation-report/tests/relations.test.ts > relation trace returns deterministic predecessor successor and bidirectional subgraphs bun test --test-name-pattern=\"^relation trace returns deterministic predecessor successor and bidirectional subgraphs$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/relation-trace-returns-deterministic-predecessor-successor-and-bidirectional-subgraphs.md",
         "summary": "Investigation 关系 trace 从报告 state 出发，按方向返回 predecessor、successor 或双向子图；`maxDepth` 限制可达节点深度。",
         "title": "relation trace returns deterministic predecessor successor and bidirectional subgraphs"
@@ -9899,10 +9991,125 @@
         "title": "relation graph rejects a missing target"
       }
     },
+    "INVESTIGATION-RELATION-SUMMARY-API-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RELATION-SUMMARY-API-001 candidate API normalizes optional relation summaries and rejects invalid values 程序化 candidate API 直接接收 `{ type, target, summary? }`；summary trim 后为空则省略，保留值必须为单行且最多 40 个 Unicode 码点。 40 个非 BMP Unicode 码点在 trim 后逐字持久化，证明长度不是按 UTF-16 code unit 计算。 纯空白不形成持久字段；物理换行和 41 个码点在写入前拒绝且不创建 candidate。 tools/investigation-report/tests/candidate.test.ts > candidate API normalizes optional relation summaries and rejects invalid values bun test --test-name-pattern=\"^candidate API normalizes optional relation summaries and rejects invalid values$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/candidate.test.ts > candidate API normalizes optional relation summaries and rejects invalid values",
+          "bun test --test-name-pattern=\"^candidate API normalizes optional relation summaries and rejects invalid values$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RELATION-SUMMARY-API-001",
+        "line": 1,
+        "searchText": "candidate API normalizes optional relation summaries and rejects invalid values 程序化 candidate API 直接接收 `{ type, target, summary? }`；summary trim 后为空则省略，保留值必须为单行且最多 40 个 Unicode 码点。 40 个非 BMP Unicode 码点在 trim 后逐字持久化，证明长度不是按 UTF-16 code unit 计算。 纯空白不形成持久字段；物理换行和 41 个码点在写入前拒绝且不创建 candidate。 tools/investigation-report/tests/candidate.test.ts > candidate API normalizes optional relation summaries and rejects invalid values bun test --test-name-pattern=\"^candidate API normalizes optional relation summaries and rejects invalid values$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/candidate-api-normalizes-optional-relation-summaries.md",
+        "summary": "程序化 candidate API 直接接收 `{ type, target, summary? }`；summary trim 后为空则省略，保留值必须为单行且最多 40 个 Unicode 码点。",
+        "title": "candidate API normalizes optional relation summaries and rejects invalid values"
+      }
+    },
+    "INVESTIGATION-RELATION-SUMMARY-CLI-NEW-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RELATION-SUMMARY-CLI-NEW-001 CLI new binds relation summaries after selector resolution and preserves equals `new` 的 relation 与 relation-summary target 分别按 ID-first/name selector 解析，再将 summary 绑定完整 relation set 中唯一 target；summary-only 无效，summary 只按首个 `=` 分隔。 relation 使用 name、summary 使用标准 ID 时仍绑定同一 target，并保留正文中的后续 `=`。 没有 `--relation` 的 summary-only 调用以 CLI 参数错误退出且不创建 candidate。 tools/investigation-report/tests/cli-generated.test.ts > CLI new binds relation summaries after selector resolution and preserves equals bun test --test-name-pattern=\"^CLI new binds relation summaries after selector resolution and preserves equals$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > CLI new binds relation summaries after selector resolution and preserves equals",
+          "bun test --test-name-pattern=\"^CLI new binds relation summaries after selector resolution and preserves equals$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RELATION-SUMMARY-CLI-NEW-001",
+        "line": 1,
+        "searchText": "CLI new binds relation summaries after selector resolution and preserves equals `new` 的 relation 与 relation-summary target 分别按 ID-first/name selector 解析，再将 summary 绑定完整 relation set 中唯一 target；summary-only 无效，summary 只按首个 `=` 分隔。 relation 使用 name、summary 使用标准 ID 时仍绑定同一 target，并保留正文中的后续 `=`。 没有 `--relation` 的 summary-only 调用以 CLI 参数错误退出且不创建 candidate。 tools/investigation-report/tests/cli-generated.test.ts > CLI new binds relation summaries after selector resolution and preserves equals bun test --test-name-pattern=\"^CLI new binds relation summaries after selector resolution and preserves equals$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/cli-new-binds-relation-summaries-after-selector-resolution.md",
+        "summary": "`new` 的 relation 与 relation-summary target 分别按 ID-first/name selector 解析，再将 summary 绑定完整 relation set 中唯一 target；summary-only 无效，summary 只按首个 `=` 分隔。",
+        "title": "CLI new binds relation summaries after selector resolution and preserves equals"
+      }
+    },
+    "INVESTIGATION-RELATION-SUMMARY-CLI-SET-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RELATION-SUMMARY-CLI-SET-001 CLI set-relations scopes summaries to complete source groups `set-relations` 将 relation-summary 归属最近 source group，允许组内任意顺序；解析 target 后只绑定该组完整 relation set，未提供摘要的完整替换清除旧值。 多 source group 分别绑定 ID/name 形式的 target，summary 可位于 relation 前后并保留正文 `=`。 后续无 summary 的完整替换清除旧摘要；summary-only、clear 冲突、解析后重复 target 和组内未命中 target 均拒绝。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations scopes summaries to complete source groups bun test --test-name-pattern=\"^CLI set-relations scopes summaries to complete source groups$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations scopes summaries to complete source groups",
+          "bun test --test-name-pattern=\"^CLI set-relations scopes summaries to complete source groups$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RELATION-SUMMARY-CLI-SET-001",
+        "line": 1,
+        "searchText": "CLI set-relations scopes summaries to complete source groups `set-relations` 将 relation-summary 归属最近 source group，允许组内任意顺序；解析 target 后只绑定该组完整 relation set，未提供摘要的完整替换清除旧值。 多 source group 分别绑定 ID/name 形式的 target，summary 可位于 relation 前后并保留正文 `=`。 后续无 summary 的完整替换清除旧摘要；summary-only、clear 冲突、解析后重复 target 和组内未命中 target 均拒绝。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations scopes summaries to complete source groups bun test --test-name-pattern=\"^CLI set-relations scopes summaries to complete source groups$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/cli-set-relations-scopes-summaries-to-complete-source-groups.md",
+        "summary": "`set-relations` 将 relation-summary 归属最近 source group，允许组内任意顺序；解析 target 后只绑定该组完整 relation set，未提供摘要的完整替换清除旧值。",
+        "title": "CLI set-relations scopes summaries to complete source groups"
+      }
+    },
+    "INVESTIGATION-RELATION-SUMMARY-GRAPH-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RELATION-SUMMARY-GRAPH-001 relation summaries do not change graph identity or validation summary 只是边显示信息，不参与 type/target 身份、重复判断、关系形状或其他拓扑验证。 仅增添不同 summary 的相同关系集合与无摘要集合产生完全相同的图验证结果。 相同 target 仍被判为重复，摘要不能制造可共存的新边。 tools/investigation-report/tests/relations.test.ts > relation summaries do not change graph identity or validation bun test --test-name-pattern=\"^relation summaries do not change graph identity or validation$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/relations.test.ts > relation summaries do not change graph identity or validation",
+          "bun test --test-name-pattern=\"^relation summaries do not change graph identity or validation$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RELATION-SUMMARY-GRAPH-001",
+        "line": 1,
+        "searchText": "relation summaries do not change graph identity or validation summary 只是边显示信息，不参与 type/target 身份、重复判断、关系形状或其他拓扑验证。 仅增添不同 summary 的相同关系集合与无摘要集合产生完全相同的图验证结果。 相同 target 仍被判为重复，摘要不能制造可共存的新边。 tools/investigation-report/tests/relations.test.ts > relation summaries do not change graph identity or validation bun test --test-name-pattern=\"^relation summaries do not change graph identity or validation$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/relation-summaries-do-not-change-graph-identity.md",
+        "summary": "summary 只是边显示信息，不参与 type/target 身份、重复判断、关系形状或其他拓扑验证。",
+        "title": "relation summaries do not change graph identity or validation"
+      }
+    },
+    "INVESTIGATION-RELATION-SUMMARY-MARKDOWN-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RELATION-SUMMARY-MARKDOWN-001 relation summary Markdown accepts only normalized optional short text Markdown relation 的 key 顺序为 `type`、`target`、可选 `summary`；持久 summary 必须已规范化、单行且最多 40 个 Unicode 码点，旧无摘要 relation 保持合法。 40 个非 BMP 码点可解析并保持 relation 对象投影；41 个码点、转义换行和首尾空白持久值被拒绝。 删除 summary 行后的历史关系仍按原 type/target 读取。 tools/investigation-report/tests/parsing-directory.test.ts > relation summary Markdown accepts only normalized optional short text bun test --test-name-pattern=\"^relation summary Markdown accepts only normalized optional short text$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/parsing-directory.test.ts > relation summary Markdown accepts only normalized optional short text",
+          "bun test --test-name-pattern=\"^relation summary Markdown accepts only normalized optional short text$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RELATION-SUMMARY-MARKDOWN-001",
+        "line": 1,
+        "searchText": "relation summary Markdown accepts only normalized optional short text Markdown relation 的 key 顺序为 `type`、`target`、可选 `summary`；持久 summary 必须已规范化、单行且最多 40 个 Unicode 码点，旧无摘要 relation 保持合法。 40 个非 BMP 码点可解析并保持 relation 对象投影；41 个码点、转义换行和首尾空白持久值被拒绝。 删除 summary 行后的历史关系仍按原 type/target 读取。 tools/investigation-report/tests/parsing-directory.test.ts > relation summary Markdown accepts only normalized optional short text bun test --test-name-pattern=\"^relation summary Markdown accepts only normalized optional short text$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/relation-summary-markdown-validates-normalized-short-text.md",
+        "summary": "Markdown relation 的 key 顺序为 `type`、`target`、可选 `summary`；持久 summary 必须已规范化、单行且最多 40 个 Unicode 码点，旧无摘要 relation 保持合法。",
+        "title": "relation summary Markdown accepts only normalized optional short text"
+      }
+    },
     "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001 set-relations atomically applies multi-source replacements and explicit clears 多 source 关系替换和显式清空在同一图预演后原子应用，且不会把独立 sourcePath 重投影为 ID basename。 双拆分关系建立成功，语义 sourcePath 的报告在索引中保持原路径，随后可在同一调用中清空。 tools/investigation-report/tests/transaction.test.ts > set-relations atomically applies multi-source replacements and explicit clears bun test --test-name-pattern=\"^set-relations atomically applies multi-source replacements and explicit clears$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001 set-relations atomically applies multi-source replacements and explicit clears 多 source 关系替换和显式清空在同一图预演后原子应用，且不会把独立 sourcePath 重投影为 ID basename。 双拆分关系及各自 API relation summary 建立成功，输入摘要先 trim，Markdown 与索引保持规范投影；语义 sourcePath 保持原路径，随后可在同一调用中清空。 tools/investigation-report/tests/transaction.test.ts > set-relations atomically applies multi-source replacements and explicit clears bun test --test-name-pattern=\"^set-relations atomically applies multi-source replacements and explicit clears$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -9916,7 +10123,7 @@
         ],
         "id": "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001",
         "line": 1,
-        "searchText": "set-relations atomically applies multi-source replacements and explicit clears 多 source 关系替换和显式清空在同一图预演后原子应用，且不会把独立 sourcePath 重投影为 ID basename。 双拆分关系建立成功，语义 sourcePath 的报告在索引中保持原路径，随后可在同一调用中清空。 tools/investigation-report/tests/transaction.test.ts > set-relations atomically applies multi-source replacements and explicit clears bun test --test-name-pattern=\"^set-relations atomically applies multi-source replacements and explicit clears$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "set-relations atomically applies multi-source replacements and explicit clears 多 source 关系替换和显式清空在同一图预演后原子应用，且不会把独立 sourcePath 重投影为 ID basename。 双拆分关系及各自 API relation summary 建立成功，输入摘要先 trim，Markdown 与索引保持规范投影；语义 sourcePath 保持原路径，随后可在同一调用中清空。 tools/investigation-report/tests/transaction.test.ts > set-relations atomically applies multi-source replacements and explicit clears bun test --test-name-pattern=\"^set-relations atomically applies multi-source replacements and explicit clears$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/set-relations-atomically-applies-multi-source-replacements-and-explicit-clears.md",
         "summary": "多 source 关系替换和显式清空在同一图预演后原子应用，且不会把独立 sourcePath 重投影为 ID basename。",
         "title": "set-relations atomically applies multi-source replacements and explicit clears"
@@ -10063,21 +10270,21 @@
     "INVESTIGATION-RENAME-FORMAL-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RENAME-FORMAL-001 formal rename 闭合关系资源和索引 formal Investigation rename 必须在同一事务更新 formal/candidate relation、受管 resource link、owner tree、report sourcePath 与正式索引。 旧 report 和 owner 路径消失，新 owner 文件、candidate/formal relation 与资源链接都使用新 ID。 正式索引只投影新 ID/sourcePath，严格同步检查通过。 tools/investigation-report/tests/rename.test.ts > Investigation rename moves the report and owner resources while rewriting managed relations and links bun test --test-name-pattern=\"^Investigation rename moves the report and owner resources while rewriting managed relations and links$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RENAME-FORMAL-001 formal rename 闭合关系资源和索引 formal Investigation rename 必须在同一事务更新 formal/candidate relation、受管 resource link、owner tree、report sourcePath 与正式索引。 旧 report 和 owner 路径消失，新 owner 文件、candidate/formal relation 与资源链接都使用新 ID。 formal、candidate 与索引 relation 在改写 target 时逐字保留各自 summary。 正式索引只投影新 ID/sourcePath，严格同步检查通过。 tools/investigation-report/tests/rename.test.ts > Investigation rename moves the report and owner resources while rewriting managed relations and links bun test --test-name-pattern=\"^Investigation rename moves the report and owner resources while rewriting managed relations and links$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 14,
         "entries": [
           "tools/investigation-report/tests/rename.test.ts > Investigation rename moves the report and owner resources while rewriting managed relations and links",
           "bun test --test-name-pattern=\"^Investigation rename moves the report and owner resources while rewriting managed relations and links$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-RENAME-FORMAL-001",
         "line": 1,
-        "searchText": "formal rename 闭合关系资源和索引 formal Investigation rename 必须在同一事务更新 formal/candidate relation、受管 resource link、owner tree、report sourcePath 与正式索引。 旧 report 和 owner 路径消失，新 owner 文件、candidate/formal relation 与资源链接都使用新 ID。 正式索引只投影新 ID/sourcePath，严格同步检查通过。 tools/investigation-report/tests/rename.test.ts > Investigation rename moves the report and owner resources while rewriting managed relations and links bun test --test-name-pattern=\"^Investigation rename moves the report and owner resources while rewriting managed relations and links$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "formal rename 闭合关系资源和索引 formal Investigation rename 必须在同一事务更新 formal/candidate relation、受管 resource link、owner tree、report sourcePath 与正式索引。 旧 report 和 owner 路径消失，新 owner 文件、candidate/formal relation 与资源链接都使用新 ID。 formal、candidate 与索引 relation 在改写 target 时逐字保留各自 summary。 正式索引只投影新 ID/sourcePath，严格同步检查通过。 tools/investigation-report/tests/rename.test.ts > Investigation rename moves the report and owner resources while rewriting managed relations and links bun test --test-name-pattern=\"^Investigation rename moves the report and owner resources while rewriting managed relations and links$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/rename-formal-resources.md",
         "summary": "formal Investigation rename 必须在同一事务更新 formal/candidate relation、受管 resource link、owner tree、report sourcePath 与正式索引。",
         "title": "formal rename 闭合关系资源和索引"
@@ -18354,7 +18561,7 @@
       "DECISION-GENERATED-SCHEMA-001": "sha256:4e76bae4e51d59b2f883167716e2bfa4d2a57ee0dbe96dfe6a59aef8140016a0",
       "DECISION-ID-INDEX-001": "sha256:d27fbe7fe4843bbbc7747c7630f73463493509ce4892c269866da86c92ab6272",
       "DECISION-ID-QUERY-001": "sha256:7d33b8e779d42a2de8343d0d71662dafa53690d3698f9a407b75ab190727488c",
-      "DECISION-ID-RELATION-001": "sha256:9eb674c84301a714e20b42a98c882f9e79c2efdfa64d1a68e37cee02f88f927c",
+      "DECISION-ID-RELATION-001": "sha256:6200074e8c1aac34688872396784de32fd1b916221367212ada98e845fb19856",
       "DECISION-ID-TRACE-001": "sha256:2d09053c5525cd28f43a40a702734acf9b8afa6472ae614affe77f3f70226b22",
       "DECISION-INDEX-DEFINITION-001": "sha256:8ba8775387ffa6b612ac51b9e1237b3a4ab0773a11d3d4408705a3ae2ea8971a",
       "DECISION-INDEX-MAINTENANCE-001": "sha256:5a8d5e9607bdb9a7480a8f47323bcf625995da6f197e12c56087b21a0cfc8205",
@@ -18394,6 +18601,10 @@
       "DECISION-RELATION-GRAPH-SELF-001": "sha256:d7c07a6984dad2248391afee378aae8f3a0a7d7bb64a118cd041d706c54168d1",
       "DECISION-RELATION-GRAPH-STRUCTURE-001": "sha256:2df4244739b416c6bbc66d86575f4d8b8b9cf4a4f2d47dbc6ba74fc341a756e5",
       "DECISION-RELATION-GRAPH-TRACE-001": "sha256:b8b9a61d8459adba44a12a7b786f7baaa3c6e3f1e43fa517d2a830cff37937c4",
+      "DECISION-RELATION-SUMMARY-001": "sha256:35e2044be3f5afb35732fb3f2c1624f87b79b7f1a57d30f53b133fcf1bcbe185",
+      "DECISION-RELATION-SUMMARY-002": "sha256:970600214060b8d88712a46d0a538382157f0f51aee8df537ea401755091de43",
+      "DECISION-RELATION-SUMMARY-003": "sha256:c8771e2e5e8acae41d0bf30d31ba3d6bd98a53683b887ad89a5754a8245f545b",
+      "DECISION-RELATION-SUMMARY-004": "sha256:e714d1c3864aa5301431e973c359769a76b5572b7919df9b58a9756e36315dac",
       "DECISION-RENAME-ESTABLISHED-001": "sha256:ca7ddf394e968a242110fd6ae9b1c58f2a23e12cdd3e0a2c9c85f7219b27de0b",
       "DECISION-RENAME-HISTORY-001": "sha256:487845624456f2c221e16f3d7370d9ff2aa6f0b29a5456d00801ccd64a229df2",
       "DECISION-RENAME-LOCK-CLEANUP-001": "sha256:78ab8f2d5e8449d6f3a44b5889241335a8575e8cbdfbdc67980a3ce45d010e39",
@@ -18638,7 +18849,7 @@
       "INVESTIGATION-INDEX-QUERY-001": "sha256:9174dcc9fd34aff5f777c490db138274825a96a002ef3d8794b625eae0010daa",
       "INVESTIGATION-INDEX-RELATION-FILTER-001": "sha256:b00de37bf7cf17ffeccca354b30bb855003e126825ebcabf2c55384927395e4e",
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:a65a11d47c0fa926d3acb9755ceccd8a1ca112df13f511b284bb79e70d007a7d",
-      "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:f06cda59aa8d5cf08fe6e2ce817df58bebadd2df540370e4b2c9190073a6615f",
+      "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:a080f249b66bd5b07446e32b807f25ab9f6f86e34a85eb066e1f5b6fefd47ef0",
       "INVESTIGATION-QUERY-SOURCE-PATH-001": "sha256:d16d7b57baa97deb67f730e3c1f8a4d43ee6249aa90c11415c98058f5929d979",
       "INVESTIGATION-RELATION-GIT-HEAD-001": "sha256:b740f716cf24b71bd291fb8b81f3722901893c2b422e472704948eeba9b2476b",
       "INVESTIGATION-RELATION-GIT-HEAD-002": "sha256:171552df1afa6c92e8e1752e387cb6239e7f53a55fb26eed7ec7d4a86577ec44",
@@ -18647,16 +18858,21 @@
       "INVESTIGATION-RELATION-GRAPH-SELF-001": "sha256:770dff101c35f6a9ac7d0ac808dfdd12b9ed9ecc5cb56568488367421cf478ea",
       "INVESTIGATION-RELATION-GRAPH-SHAPES-001": "sha256:12db84349c0d482d1a24942c7e1a46b10d4e40f5109100f4794bcad55ce73115",
       "INVESTIGATION-RELATION-GRAPH-TIME-001": "sha256:6f5f6011a8022d3316dadbf285b27b237a057ad11fd8c8bc2d7bab1ae990f252",
-      "INVESTIGATION-RELATION-GRAPH-TRACE-001": "sha256:28ba8ff83dcb868c23cc8c7127f782bcfb250155abb8339e8fadb0c24b6f6b02",
+      "INVESTIGATION-RELATION-GRAPH-TRACE-001": "sha256:a56f097688e24b072e6e91117fda2a159833a98796ae1fb710119c8fa24a7b78",
       "INVESTIGATION-RELATION-GRAPH-VALIDATION-001": "sha256:5efc05392ae38b3a32ae84d59353fa3b641fd581a9952e32584650a760a7d7af",
-      "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001": "sha256:b9e6273716489ae3df2f3b62af70f607daf03b0ba0b6895e4d65112b7d021c33",
+      "INVESTIGATION-RELATION-SUMMARY-API-001": "sha256:99803b17adb5180825a46a58cd43865711dc7965de6c8023f412eea92389bfe3",
+      "INVESTIGATION-RELATION-SUMMARY-CLI-NEW-001": "sha256:400e38185f269fadec9be3b8b8770ff336a865909f188c8f216d093a1abcf7c5",
+      "INVESTIGATION-RELATION-SUMMARY-CLI-SET-001": "sha256:2cb9a14ea283f00d397b13522e35560f936f52d32d564a371a0bde8b9d8c0678",
+      "INVESTIGATION-RELATION-SUMMARY-GRAPH-001": "sha256:c9410290f81973cf0ca3d50b913f9793bab52ee9a537f25d847ab84375da795c",
+      "INVESTIGATION-RELATION-SUMMARY-MARKDOWN-001": "sha256:9561196cb28117cd9e809366421e00f4e080cf3db36c0524ff1d8f90b2d775dc",
+      "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001": "sha256:322ba27f310fe70bc57c837eca3f1f64b60d95a736761cca29c499e732d2bed6",
       "INVESTIGATION-RELATION-TRANSACTION-DRIFT-001": "sha256:a54b74486a6ee80d7212ad575a489d5b578066881589fb147e4d055ade2edd59",
       "INVESTIGATION-RELATION-TRANSACTION-IDEMPOTENCE-001": "sha256:e29c341374970add80fd9e97ca748eb31102e7f81ea1f62f23196e40e2fbe0a0",
       "INVESTIGATION-RELATION-TRANSACTION-PARSE-001": "sha256:55fe51a8b775ad482ba032a80fbdb70f4f077c7ca6a20fe325bf8bd9af6f8337",
       "INVESTIGATION-RELATION-TRANSACTION-PENDING-001": "sha256:5aaee9d215f3f416eb66727c9e863c253e51357a509fff505b22740a893c5659",
       "INVESTIGATION-RELATION-TRANSACTION-RECOVERY-001": "sha256:02c2bad3d328f3811e6c628867ab9ae6ad7d3c6f3cd3ce76b787cba58ae48650",
       "INVESTIGATION-RENAME-CANDIDATE-001": "sha256:2d61f0741b8cc9108464c133afb632ba1ac6360c9691255c4bc00d37419b6342",
-      "INVESTIGATION-RENAME-FORMAL-001": "sha256:d8b746eb455ab9e82444efb9e9491050ce195298eefeac2dc0106f2ee0ee9e2d",
+      "INVESTIGATION-RENAME-FORMAL-001": "sha256:61a5716756fc01e9f37afb5e7deea0769abaa85e1a993fc927c5279baf10763c",
       "INVESTIGATION-RENAME-HISTORY-001": "sha256:eaae4adc9ca9dc62bc4b5d2242e236a4c6620688f6d3ce2ac33dcbcbb71fcbf6",
       "INVESTIGATION-RENAME-LEGACY-PATH-001": "sha256:9ae6fb7336621e8b19a10692046df07edf0deb8e9e11ec738b24b608adf8e922",
       "INVESTIGATION-RENAME-NO-CHANGE-001": "sha256:06936a4b1ccaa83917f76421f3a1011b4626488365c2022528706ed15d20b8e4",

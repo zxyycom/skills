@@ -11,6 +11,7 @@ import {
   projectionMaximumLength,
   projectionMinimumLength
 } from "./projection.ts";
+import { relationSummaryMaximumLength } from "./relation-summary.ts";
 import {
   decisionAlignments,
   decisionRelationTypes,
@@ -87,7 +88,12 @@ export const decisionIndexJsonSchema = {
       properties: {
         name: { type: "string" },
         type: { enum: decisionRelationTypes, type: "string" },
-        target: { $ref: "#/$defs/decisionId" }
+        target: { $ref: "#/$defs/decisionId" },
+        summary: {
+          maxLength: relationSummaryMaximumLength,
+          pattern: "^[^\\r\\n]+$",
+          type: "string"
+        }
       },
       required: ["type", "target"],
       type: "object"

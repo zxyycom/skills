@@ -57,7 +57,10 @@ export function reportMarkdown(input: ReportFixture): string {
           "relations:",
           ...relations.flatMap((relation) => [
             `  - type: ${JSON.stringify(relation.type)}`,
-            `    target: ${JSON.stringify(relation.target.replace(/\.md$/iu, ""))}`
+            `    target: ${JSON.stringify(relation.target.replace(/\.md$/iu, ""))}`,
+            ...(relation.summary === undefined
+              ? []
+              : [`    summary: ${JSON.stringify(relation.summary)}`])
           ])
         ]),
     "---",

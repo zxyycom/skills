@@ -56,7 +56,13 @@ test("Decision rename rewrites candidate and established structured relation tar
       candidatePath,
       candidateDecisionBody({
         id: "260712-dependent",
-        relations: [{ target: currentDecisionId, type: "修订" }]
+        relations: [
+          {
+            summary: "保留前序的理由",
+            target: currentDecisionId,
+            type: "修订"
+          }
+        ]
       }),
       "utf8"
     );
@@ -70,6 +76,7 @@ test("Decision rename rewrites candidate and established structured relation tar
     assert.equal(result.exitCode, 0, result.stderr);
     const candidate = await fs.readFile(candidatePath, "utf8");
     assert.match(candidate, /target: 260711-renamed-cli/u);
+    assert.match(candidate, /summary: 保留前序的理由/u);
     const index = await readIndex(workspaceRoot);
     assert.equal(
       index.entries[renamedCliId]?.state.relations[0]?.target,

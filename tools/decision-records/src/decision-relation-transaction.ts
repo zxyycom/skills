@@ -572,7 +572,8 @@ function reallocationEdgesFor(
     successor.finalRelations.map((relation) => ({
       source: successor.record.decisionId,
       target: relation.target,
-      type: relation.type
+      type: relation.type,
+      ...(relation.summary === undefined ? {} : { summary: relation.summary })
     }))
   );
 }
@@ -912,10 +913,7 @@ function findEstablishedRecord(
 function cloneRelations(
   relations: readonly DecisionRelation[]
 ): DecisionRelation[] {
-  return relations.map(({ type, target }) => ({
-    type,
-    target: target
-  }));
+  return relations.map((relation) => ({ ...relation }));
 }
 
 function resolveEffectiveRelations(
@@ -938,7 +936,8 @@ function relationsEqual(
     left.every(
       (relation, index) =>
         relation.type === right[index]?.type &&
-        relation.target === right[index]?.target
+        relation.target === right[index]?.target &&
+        relation.summary === right[index]?.summary
     )
   );
 }

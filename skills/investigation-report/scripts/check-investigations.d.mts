@@ -15,8 +15,9 @@ export type InvestigationRelationType =
   | "拆分";
 
 export type InvestigationRelation = {
-  target: string;
   type: InvestigationRelationType;
+  target: string;
+  summary?: string;
 };
 
 export type InvestigationCandidateReadiness = {
@@ -300,6 +301,7 @@ export type InvestigationReportTraceResult = {
     source: string;
     target: string;
     type: InvestigationRelationType;
+    summary?: string;
   }>;
   errors: string[];
   id: string;

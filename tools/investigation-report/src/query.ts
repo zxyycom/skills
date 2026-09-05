@@ -513,7 +513,8 @@ export async function traceInvestigationReports(
     edges: trace.edges.map((edge) => ({
       source: edge.source,
       target: edge.target,
-      type: edge.type
+      type: edge.type,
+      ...(edge.summary === undefined ? {} : { summary: edge.summary })
     })),
     diagnostics: [],
     errors: [],

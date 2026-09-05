@@ -1,6 +1,8 @@
 /** A directed, typed relationship from a successor to a direct predecessor. */
 export type RelationEdge<Id extends string, Type extends string> = {
   source: Id;
+  /** Optional descriptive text that does not participate in graph identity. */
+  summary?: string;
   target: Id;
   type: Type;
 };
@@ -70,8 +72,9 @@ export function buildRelationGraph<Id extends string, Type extends string>(
   edges: Iterable<RelationEdge<Id, Type>>
 ): RelationGraph<Id, Type> {
   const graphIds = new Set(ids);
-  const graphEdges = [...edges].map(({ source, target, type }) => ({
+  const graphEdges = [...edges].map(({ source, summary, target, type }) => ({
     source,
+    ...(summary === undefined ? {} : { summary }),
     target,
     type
   }));

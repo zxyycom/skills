@@ -15,12 +15,14 @@ import {
   type DecisionListStatus,
   type DecisionRelation,
   type DecisionRelationOverride,
+  type DecisionRelationSummary,
   type DecisionSuccessor,
   type DecisionTag,
   type DecisionTraceDirection
 } from "./types.ts";
 import { isDecisionTag, normalizeDecisionIdInput } from "./decision-path.ts";
 import { projectionTextIssue } from "./projection.ts";
+import { normalizeRelationSummary } from "./relation-summary.ts";
 import {
   processDecisionRecordsCliIo,
   type DecisionRecordsCliIo
@@ -107,6 +109,7 @@ export type CliArgs =
         preflightAlignment: DecisionAlignment | null;
         purpose: string;
         relations: DecisionRelation[];
+        relationSummaries: DecisionRelationSummary[];
         tags: DecisionTag[];
         title: string;
       }
@@ -169,6 +172,7 @@ type ParsedOptions = {
   match?: "all" | "any" | "phrase";
   purpose?: string;
   relation?: DecisionRelation[];
+  relationSummary?: DecisionRelationSummary[];
   root?: string;
   status?: DecisionListStatus;
   successor?: DecisionSuccessor[];
@@ -267,6 +271,30 @@ function parseDecisionRelation(
   return [...previous, { type: relationType, target }];
 }
 
+function parseDecisionRelationSummary(
+  value: string,
+  previous: DecisionRelationSummary[] = []
+): DecisionRelationSummary[] {
+  const separatorIndex = value.indexOf("=");
+  if (separatorIndex <= 0) {
+    throw new InvalidArgumentError("must use <decision-selector>=<summary>");
+  }
+  const target = normalizeDecisionIdInput(value.slice(0, separatorIndex));
+  if (target === null) {
+    throw new InvalidArgumentError(
+      "target must be an extensionless Decision selector"
+    );
+  }
+  if (previous.some((relation) => relation.target === target)) {
+    throw new InvalidArgumentError("must not repeat a relation-summary target");
+  }
+  const normalized = normalizeRelationSummary(value.slice(separatorIndex + 1));
+  if ("issue" in normalized) {
+    throw new InvalidArgumentError(normalized.issue);
+  }
+  return [...previous, { target, ...normalized }];
+}
+
 function parseDecisionSuccessor(
   value: string,
   previous: DecisionSuccessor[] = []
@@ -316,14 +344,34 @@ function parseProjectionText(value: string): string {
 }
 
 function decisionRelationOverride(
-  options: Pick<ParsedOptions, "clearRelations" | "relation">
+  options: Pick<
+    ParsedOptions,
+    "clearRelations" | "relation" | "relationSummary"
+  >
 ): DecisionRelationOverride {
   if (options.clearRelations === true) {
+    if (options.relationSummary !== undefined) {
+      throw new InvalidArgumentError(
+        "--relation-summary cannot be used with --clear-relations"
+      );
+    }
     return { kind: "replace", relations: [] };
   }
-  return options.relation === undefined
-    ? { kind: "source" }
-    : { kind: "replace", relations: options.relation };
+  if (options.relation === undefined) {
+    if (options.relationSummary !== undefined) {
+      throw new InvalidArgumentError(
+        "--relation-summary requires at least one --relation"
+      );
+    }
+    return { kind: "source" };
+  }
+  return {
+    kind: "replace",
+    relations: options.relation,
+    ...(options.relationSummary === undefined
+      ? {}
+      : { relationSummaries: options.relationSummary })
+  };
 }
 
 function requiredDecisionAlignment(
@@ -493,6 +541,11 @@ function newCommandArgs(
   location: CommandLocation,
   options: ParsedOptions
 ): CliArgsFor<"new"> {
+  if (options.relation === undefined && options.relationSummary !== undefined) {
+    throw new InvalidArgumentError(
+      "--relation-summary requires at least one --relation"
+    );
+  }
   return {
     ...location,
     background: requiredProjectionOption(options.background, "--background"),
@@ -502,6 +555,7 @@ function newCommandArgs(
     preflightAlignment: options.preflightAlignment ?? null,
     purpose: requiredProjectionOption(options.purpose, "--purpose"),
     relations: options.relation ?? [],
+    relationSummaries: options.relationSummary ?? [],
     tags: options.tag ?? [],
     title: requiredProjectionOption(options.title, "--title")
   };
@@ -588,6 +642,15 @@ function createSubcommand(
 function createDecisionRelationOption(description: string): Option {
   return new Option("--relation <type=decision-selector>", description)
     .argParser(parseDecisionRelation)
+    .conflicts("clearRelations");
+}
+
+function createDecisionRelationSummaryOption(): Option {
+  return new Option(
+    "--relation-summary <decision-selector=summary>",
+    "Attach one optional short summary to a target in this command's complete relation set. Repeat for multiple targets."
+  )
+    .argParser(parseDecisionRelationSummary)
     .conflicts("clearRelations");
 }
 
@@ -835,6 +898,7 @@ export function createCliProgram(
         "Declare one direct predecessor relation for this candidate. Repeat for its complete relation list."
       )
     )
+    .addOption(createDecisionRelationSummaryOption())
     .addOption(
       new Option(
         "--preflight-alignment <value>",
@@ -913,6 +977,7 @@ export function createCliProgram(
         "Replace every selected successor's complete relation list with one final direct predecessor relation. Repeat for the complete replacement."
       )
     )
+    .addOption(createDecisionRelationSummaryOption())
     .addOption(createClearRelationsOption())
     .addOption(createPreflightOption())
     .addOption(createKeepUnrecordedHistoryOption());
@@ -941,6 +1006,7 @@ export function createCliProgram(
         "Replace every selected successor's complete relation list with one final direct predecessor relation. Repeat for the complete replacement."
       )
     )
+    .addOption(createDecisionRelationSummaryOption())
     .addOption(createClearRelationsOption())
     .addOption(createKeepUnrecordedHistoryOption())
     .addOption(createPreflightOption())

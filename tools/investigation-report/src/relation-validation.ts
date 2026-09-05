@@ -30,7 +30,8 @@ function investigationRelationEdges(
     state.relations.map((relation) => ({
       source,
       target: relation.target,
-      type: relation.type
+      type: relation.type,
+      ...(relation.summary === undefined ? {} : { summary: relation.summary })
     }))
   );
 }

@@ -54,7 +54,8 @@ export function collectDecisionRelationEdges(
     record.projection.relations.map((relation) => ({
       source: record.decisionId,
       target: relation.target,
-      type: relation.type
+      type: relation.type,
+      ...(relation.summary === undefined ? {} : { summary: relation.summary })
     }))
   );
 }

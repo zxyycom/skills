@@ -87,6 +87,11 @@
         },
         "target": {
           "$ref": "#/$defs/decisionId"
+        },
+        "summary": {
+          "maxLength": 40,
+          "pattern": "^[^\\r\\n]+$",
+          "type": "string"
         }
       },
       "required": [
@@ -215,7 +220,7 @@
       "const": "decisions"
     },
     "definitionVersion": {
-      "const": 8
+      "const": 9
     },
     "metadata": {
       "additionalProperties": false,

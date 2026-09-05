@@ -14,6 +14,8 @@ import {
   findIndexEntry,
   readIndex,
   runSourceLifecycleCli,
+  runSuccessfulSourceLifecycleCli,
+  traceDecision,
   withFixtureWorkspace,
   writeDecision
 } from "./support.ts";
@@ -79,7 +81,13 @@ test("relations resolve stable IDs across active and archived locations", () =>
       workspaceRoot,
       candidateId,
       candidateDecisionBody({
-        relations: [{ type: "修订", target: currentDecisionId }]
+        relations: [
+          {
+            type: "修订",
+            target: currentDecisionId,
+            summary: "保留稳定 CLI 基线"
+          }
+        ]
       })
     );
     const activated = await runSourceLifecycleCli([
@@ -100,9 +108,14 @@ test("relations resolve stable IDs across active and archived locations", () =>
     assert.deepEqual(findIndexEntry(index, candidateId).relations, [
       {
         type: "修订",
-        target: currentDecisionId
+        target: currentDecisionId,
+        summary: "保留稳定 CLI 基线"
       }
     ]);
+    assert.match(
+      await traceDecision(candidateId, [], workspaceRoot),
+      /\[保留稳定 CLI 基线\]/u
+    );
   }));
 
 test("lifecycle rejects a source changed after its prewrite scan before moving either path", () =>
@@ -142,5 +155,36 @@ test("lifecycle rejects a source changed after its prewrite scan before moving e
       findIndexEntry(await readIndex(workspaceRoot), archivedDecisionId)
         .sourcePath,
       archivedSourcePath
+    );
+  }));
+
+test("activate binds a CLI relation summary after resolving its target selector", () =>
+  withFixtureWorkspace("activate-relation-summary", async (workspaceRoot) => {
+    const candidateId = "use-cli-relation-summary";
+    await writeDecision(workspaceRoot, candidateId, candidateDecisionBody());
+    await runSuccessfulSourceLifecycleCli([
+      "activate",
+      candidateId,
+      "--alignment",
+      "aligned",
+      "--relation",
+      "修订=" + currentDecisionId,
+      "--relation-summary",
+      currentDecisionId + "=  保留=稳定基线  ",
+      "--root",
+      workspaceRoot
+    ]);
+
+    const index = await readIndex(workspaceRoot);
+    assert.deepEqual(findIndexEntry(index, candidateId).relations, [
+      {
+        type: "修订",
+        target: currentDecisionId,
+        summary: "保留=稳定基线"
+      }
+    ]);
+    assert.match(
+      await traceDecision(candidateId, [], workspaceRoot),
+      /\[保留=稳定基线\]/u
     );
   }));

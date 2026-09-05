@@ -33,6 +33,10 @@ import {
   resolveInvestigationsDirectory
 } from "./report-path.ts";
 import { resolveInvestigationSelector } from "./investigation-selector.ts";
+import {
+  bindInvestigationRelationSummaries,
+  type InvestigationRelationSummaryInput
+} from "./relation-summary.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
 import { buildInvestigationReportState } from "./report-validation.ts";
 import {
@@ -63,15 +67,55 @@ export async function setInvestigationRelations(
   return await setInvestigationRelationsWithWriter(input, writeTextAtomically);
 }
 
+export async function setInvestigationRelationsFromCli(
+  input: unknown,
+  relationSummaryGroups: readonly (readonly InvestigationRelationSummaryInput[])[]
+): Promise<InvestigationRelationSetResult> {
+  return await setInvestigationRelationsWithWriterAndSummaries(
+    input,
+    writeTextAtomically,
+    async () => {},
+    relationSummaryGroups
+  );
+}
+
 export async function setInvestigationRelationsWithWriter(
   input: unknown,
   write: InvestigationAtomicWriter,
   beforePublish: BeforeRelationPublish = async () => {}
 ): Promise<InvestigationRelationSetResult> {
+  return await setInvestigationRelationsWithWriterAndSummaries(
+    input,
+    write,
+    beforePublish,
+    []
+  );
+}
+
+async function setInvestigationRelationsWithWriterAndSummaries(
+  input: unknown,
+  write: InvestigationAtomicWriter,
+  beforePublish: BeforeRelationPublish,
+  relationSummaryGroups: readonly (readonly InvestigationRelationSummaryInput[])[]
+): Promise<InvestigationRelationSetResult> {
   const parsed = parseInvestigationRelationSetOptions(input);
   if (parsed.isErr()) {
     return relationResult(false, [], defaultIndexPath(input), parsed.error);
   }
+  if (
+    relationSummaryGroups.length > 0 &&
+    relationSummaryGroups.length !== parsed.value.replacements.length
+  ) {
+    return relationResult(false, [], indexPathForOptions(parsed.value), [
+      "relation-summary groups must match the complete source groups"
+    ]);
+  }
+  const summaryGroupsBySource = new Map(
+    parsed.value.replacements.map((replacement, index) => [
+      replacement.source,
+      relationSummaryGroups[index] ?? []
+    ])
+  );
   const validated = validateReplacements(parsed.value.replacements);
   if (validated.errors.length > 0) {
     return relationResult(
@@ -110,6 +154,9 @@ export async function setInvestigationRelationsWithWriter(
       await applyRelationReplacements({
         indexPath,
         replacements: validated.replacements,
+        relationSummaryGroups: validated.replacements.map(
+          (replacement) => summaryGroupsBySource.get(replacement.source) ?? []
+        ),
         root,
         write,
         beforePublish
@@ -202,6 +249,7 @@ type RelationTransactionOptions = Readonly<{
   beforePublish: BeforeRelationPublish;
   indexPath: string;
   replacements: readonly InvestigationRelationReplacement[];
+  relationSummaryGroups: readonly (readonly InvestigationRelationSummaryInput[])[];
   root: string;
   write: InvestigationAtomicWriter;
 }>;
@@ -263,7 +311,8 @@ async function loadRelationTransaction(
   }
   const selected = resolveRelationSelectors(
     options.replacements,
-    collection.states
+    collection.states,
+    options.relationSummaryGroups
   );
   if (selected.status === "error") {
     return relationPhaseResult(
@@ -884,7 +933,8 @@ function validateReplacements(
 
 function resolveRelationSelectors(
   replacements: readonly InvestigationRelationReplacement[],
-  states: ReadonlyMap<string, InvestigationIndexState>
+  states: ReadonlyMap<string, InvestigationIndexState>,
+  relationSummaryGroups: readonly (readonly InvestigationRelationSummaryInput[])[]
 ):
   | { replacements: InvestigationRelationReplacement[]; status: "ok" }
   | { errors: string[]; status: "error" } {
@@ -894,7 +944,7 @@ function resolveRelationSelectors(
   }));
   const errors: string[] = [];
   const resolved: InvestigationRelationReplacement[] = [];
-  for (const replacement of replacements) {
+  for (const [replacementIndex, replacement] of replacements.entries()) {
     const source = resolveInvestigationSelector(entries, replacement.source);
     if (source.status === "error") {
       errors.push(...source.errors);
@@ -909,8 +959,26 @@ function resolveRelationSelectors(
         relations.push({ ...relation, target: target.id });
       }
     }
-    if (relations.length === replacement.relations.length) {
-      resolved.push({ source: source.id, relations });
+    const summaries: InvestigationRelationSummaryInput[] = [];
+    for (const summary of relationSummaryGroups[replacementIndex] ?? []) {
+      const target = resolveInvestigationSelector(entries, summary.target);
+      if (target.status === "error") {
+        errors.push(...target.errors);
+      } else {
+        summaries.push({ ...summary, target: target.id });
+      }
+    }
+    if (
+      relations.length === replacement.relations.length &&
+      summaries.length ===
+        (relationSummaryGroups[replacementIndex]?.length ?? 0)
+    ) {
+      const bound = bindInvestigationRelationSummaries(relations, summaries);
+      if ("error" in bound) {
+        errors.push(bound.error);
+      } else {
+        resolved.push({ source: source.id, relations: bound.relations });
+      }
     }
   }
   if (errors.length > 0)

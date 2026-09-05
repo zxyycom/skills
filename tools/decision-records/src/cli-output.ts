@@ -334,7 +334,13 @@ function printTrace(
     for (const edge of edges) {
       writeLine(
         io.stdout,
-        "- " + edge.source + " --" + edge.type + "--> " + edge.target
+        "- " +
+          edge.source +
+          " --" +
+          edge.type +
+          "--> " +
+          edge.target +
+          (edge.summary === undefined ? "" : " [" + edge.summary + "]")
       );
     }
   }

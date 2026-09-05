@@ -33,6 +33,38 @@ test("relation graph builds source and target indexes in supplied edge order", (
   ]);
 });
 
+test("relation graph preserves optional summaries without using them as identity", () => {
+  const graph = buildRelationGraph(
+    ["a", "b"],
+    [
+      { source: "a", summary: "first explanation", target: "b", type: "x" },
+      { source: "a", summary: "second explanation", target: "b", type: "y" }
+    ]
+  );
+
+  assert.deepEqual(graph.edges, [
+    { source: "a", summary: "first explanation", target: "b", type: "x" },
+    { source: "a", summary: "second explanation", target: "b", type: "y" }
+  ]);
+  assert.deepEqual(relationGraphStructuralIssues(graph), [
+    {
+      edge: {
+        source: "a",
+        summary: "second explanation",
+        target: "b",
+        type: "y"
+      },
+      kind: "duplicate-edge",
+      repeatedEdge: {
+        source: "a",
+        summary: "first explanation",
+        target: "b",
+        type: "x"
+      }
+    }
+  ]);
+});
+
 test("relation graph traces bounded bidirectional subgraphs", () => {
   const graph = buildRelationGraph(
     ["a", "b", "c", "d"],

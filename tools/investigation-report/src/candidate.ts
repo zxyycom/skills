@@ -54,6 +54,10 @@ import {
 } from "./resources.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
+import {
+  bindInvestigationRelationSummaries,
+  type InvestigationRelationSummaryInput
+} from "./relation-summary.ts";
 import { investigationRelationTypes } from "./types.ts";
 import type {
   InvestigationCandidate,
@@ -78,6 +82,23 @@ type PreparedCandidateLocation = Readonly<{
 
 export async function createInvestigationCandidate(
   input: unknown
+): Promise<InvestigationCandidateCreateResult> {
+  return await createInvestigationCandidateWithSummaries(input, []);
+}
+
+export async function createInvestigationCandidateFromCli(
+  input: unknown,
+  relationSummaries: readonly InvestigationRelationSummaryInput[]
+): Promise<InvestigationCandidateCreateResult> {
+  return await createInvestigationCandidateWithSummaries(
+    input,
+    relationSummaries
+  );
+}
+
+async function createInvestigationCandidateWithSummaries(
+  input: unknown,
+  relationSummaries: readonly InvestigationRelationSummaryInput[]
 ): Promise<InvestigationCandidateCreateResult> {
   const prepared = prepareCandidateCreate(input);
   if (prepared.isErr()) return createFailure("invalid-options", prepared.error);
@@ -115,7 +136,8 @@ export async function createInvestigationCandidate(
       async () =>
         await createCandidateWithinLock(
           canonical.value.investigationsDirectory,
-          prepared.value.candidate
+          prepared.value.candidate,
+          relationSummaries
         )
     );
   } catch (error) {
@@ -181,16 +203,18 @@ export async function showInvestigationCandidate(
 
 async function createCandidateWithinLock(
   investigationsDirectory: string,
-  candidate: InvestigationCandidateCreateOptions
+  candidate: InvestigationCandidateCreateOptions,
+  relationSummaries: readonly InvestigationRelationSummaryInput[]
 ): Promise<InvestigationCandidateCreateResult> {
   const layout = await safeLayout(investigationsDirectory);
   if (layout.status === "error") {
     return createFailure("error", layout.errors, layout.diagnostics);
   }
-  const relationResolution = resolveCandidateRelationSelectors(candidate, [
-    ...layout.value.reportIds,
-    ...layout.value.candidateIds
-  ]);
+  const relationResolution = resolveCandidateRelationSelectors(
+    candidate,
+    [...layout.value.reportIds, ...layout.value.candidateIds],
+    relationSummaries
+  );
   if (relationResolution.status === "error") {
     return createFailure("error", relationResolution.errors);
   }
@@ -264,37 +288,61 @@ async function createCandidateWithinLock(
 
 function resolveCandidateRelationSelectors(
   candidate: InvestigationCandidateCreateOptions,
-  availableIds: readonly string[]
+  availableIds: readonly string[],
+  summaryInputs: readonly InvestigationRelationSummaryInput[]
 ):
   | { candidate: InvestigationCandidateCreateOptions; status: "ok" }
   | { errors: string[]; status: "error" } {
   const relations: InvestigationRelation[] = [];
   for (const relation of candidate.relations) {
-    const dated = parseDatedInvestigationId(relation.target);
-    const matches = (
-      dated === null
-        ? availableIds.filter(
-            (id) => investigationNameFromId(id) === relation.target
-          )
-        : availableIds.filter((id) => id === dated.id)
-    ).sort(compareText);
-    if (matches.length !== 1) {
-      return {
-        errors: [
-          matches.length === 0
-            ? `candidate relation target does not exist: ${relation.target}`
-            : `candidate relation target is ambiguous: ${relation.target}; choose one standard ID: ${matches.join(", ")}`
-        ],
-        status: "error"
-      };
-    }
-    relations.push({ ...relation, target: matches[0]! });
+    const target = resolveCandidateRelationSelector(
+      availableIds,
+      relation.target,
+      "relation"
+    );
+    if ("error" in target) return { errors: [target.error], status: "error" };
+    relations.push({ ...relation, target: target.id });
   }
-  const resolved = { ...candidate, relations };
+  const summaries: InvestigationRelationSummaryInput[] = [];
+  for (const summary of summaryInputs) {
+    const target = resolveCandidateRelationSelector(
+      availableIds,
+      summary.target,
+      "relation-summary"
+    );
+    if ("error" in target) return { errors: [target.error], status: "error" };
+    summaries.push({ ...summary, target: target.id });
+  }
+  const bound = bindInvestigationRelationSummaries(relations, summaries);
+  if ("error" in bound) {
+    return { errors: [bound.error], status: "error" };
+  }
+  const resolved = { ...candidate, relations: bound.relations };
   const errors = validateCandidateCreateOptions(resolved);
   return errors.length === 0
     ? { candidate: resolved, status: "ok" }
     : { errors, status: "error" };
+}
+
+function resolveCandidateRelationSelector(
+  availableIds: readonly string[],
+  selector: string,
+  label: "relation" | "relation-summary"
+): { id: string } | { error: string } {
+  const dated = parseDatedInvestigationId(selector);
+  const matches = (
+    dated === null
+      ? availableIds.filter((id) => investigationNameFromId(id) === selector)
+      : availableIds.filter((id) => id === dated.id)
+  ).sort(compareText);
+  return matches.length === 1
+    ? { id: matches[0]! }
+    : {
+        error:
+          matches.length === 0
+            ? `candidate ${label} target does not exist: ${selector}`
+            : `candidate ${label} target is ambiguous: ${selector}; choose one standard ID: ${matches.join(", ")}`
+      };
 }
 
 function createdCandidateResult(

@@ -9,4 +9,5 @@ Contract:
 
 Proves:
 - 旧 report 和 owner 路径消失，新 owner 文件、candidate/formal relation 与资源链接都使用新 ID。
+- formal、candidate 与索引 relation 在改写 target 时逐字保留各自 summary。
 - 正式索引只投影新 ID/sourcePath，严格同步检查通过。

@@ -60,10 +60,12 @@ import {
   normalizeDecisionSelectorInput,
   parseDatedDecisionId
 } from "./decision-path.ts";
+import { bindRelationSummaries } from "./relation-summary.ts";
 import {
   type DecisionId,
   type DecisionRelation,
   type DecisionRelationOverride,
+  type DecisionRelationSummary,
   type DecisionSuccessor,
   compareDecisionRecords,
   type DecisionScan,
@@ -603,8 +605,14 @@ function resolveDecisionLifecycleRequest(
       request.relationOverride,
       one
     );
+    if (relationOverride === null) {
+      return { failure: mergeSelectorFailures(failures), status: "error" };
+    }
+    if ("status" in relationOverride) {
+      return { failure: relationOverride, status: "error" };
+    }
     const decisionId = one(request.decisionId);
-    if (failures.length > 0 || decisionId === null || relationOverride === null)
+    if (failures.length > 0 || decisionId === null)
       return { failure: mergeSelectorFailures(failures), status: "error" };
     return {
       request: { ...request, decisionId, relationOverride },
@@ -616,12 +624,17 @@ function resolveDecisionLifecycleRequest(
       request.relationOverride,
       one
     );
+    if (relationOverride === null) {
+      return { failure: mergeSelectorFailures(failures), status: "error" };
+    }
+    if ("status" in relationOverride) {
+      return { failure: relationOverride, status: "error" };
+    }
     const discardId =
       request.discardId === null ? null : one(request.discardId);
     const successors = resolveSuccessors(request.successors, one);
     if (
       failures.length > 0 ||
-      relationOverride === null ||
       successors === null ||
       (request.discardId !== null && discardId === null)
     )
@@ -649,7 +662,7 @@ function resolveDecisionLifecycleRequest(
 function resolveRelationOverride(
   override: DecisionRelationOverride,
   resolve: (selector: string) => DecisionId | null
-): DecisionRelationOverride | null {
+): DecisionRelationOverride | DecisionApplicationFailure | null {
   if (override.kind === "source") return override;
   const relations: DecisionRelation[] = [];
   for (const relation of override.relations) {
@@ -657,7 +670,30 @@ function resolveRelationOverride(
     if (target === null) return null;
     relations.push({ ...relation, target });
   }
-  return { kind: "replace", relations };
+  const summaries: DecisionRelationSummary[] = [];
+  for (const summary of override.relationSummaries ?? []) {
+    const target = resolve(summary.target);
+    if (target === null) return null;
+    summaries.push({ ...summary, target });
+  }
+  const bound = bindRelationSummaries(relations, summaries);
+  if ("error" in bound) {
+    return decisionFailure(
+      [
+        decisionDiagnosticFromReason(
+          {
+            code: "decision-records.relation-summary-invalid",
+            recovery:
+              "Provide each --relation-summary target once in the complete relation set, then retry.",
+            target: "--relation-summary"
+          },
+          bound.error
+        )
+      ],
+      { presentation: "plain" }
+    );
+  }
+  return { kind: "replace", relations: bound.relations };
 }
 
 function resolveSuccessors(

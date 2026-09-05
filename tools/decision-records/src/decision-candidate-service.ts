@@ -13,6 +13,10 @@ import {
 } from "./decision-collection-mutation-lock.ts";
 import { serializeDecisionFrontmatter } from "./decision-metadata.ts";
 import {
+  bindRelationSummaries,
+  normalizeRelationSummary
+} from "./relation-summary.ts";
+import {
   datedDecisionIdForName,
   decisionNameFromId,
   parseDatedDecisionId,
@@ -24,6 +28,7 @@ import { scanDecisionRecords } from "./scan.ts";
 import type {
   DecisionId,
   DecisionRelation,
+  DecisionRelationSummary,
   DecisionScanOptions,
   DecisionTag
 } from "./types.ts";
@@ -34,6 +39,7 @@ export type NewDecisionCandidateRequest = DecisionScanOptions & {
   decisionId: DecisionId;
   purpose: string;
   relations: readonly DecisionRelation[];
+  relationSummaries?: readonly DecisionRelationSummary[];
   tags: readonly DecisionTag[];
   title: string;
 };
@@ -117,11 +123,57 @@ function resolveCandidateRelationSelectors(
   | { diagnostic: ReturnType<typeof decisionDiagnostic>; status: "error" } {
   const relations: DecisionRelation[] = [];
   for (const relation of request.relations) {
+    const normalized = normalizeCandidateRelationSummary(relation.summary);
+    if ("error" in normalized)
+      return { diagnostic: normalized.error, status: "error" };
     const target = resolveDecisionRelationSelector(scan, relation.target);
     if (target.status === "error") return target;
-    relations.push({ ...relation, target: target.decisionId });
+    relations.push({ ...relation, ...normalized, target: target.decisionId });
   }
-  return { request: { ...request, relations }, status: "ok" };
+  const relationSummaries: DecisionRelationSummary[] = [];
+  for (const summary of request.relationSummaries ?? []) {
+    const target = resolveDecisionRelationSelector(scan, summary.target);
+    if (target.status === "error") return target;
+    relationSummaries.push({ ...summary, target: target.decisionId });
+  }
+  const bound = bindRelationSummaries(relations, relationSummaries);
+  if ("error" in bound) {
+    return {
+      diagnostic: decisionDiagnostic({
+        code: "decision-records.new-relation-summary-invalid",
+        outcome: "no-change",
+        reason: bound.error,
+        recovery:
+          "Provide each --relation-summary target once in this command's complete relation set, then retry.",
+        scope: "Decision candidate scaffold",
+        target: "--relation-summary"
+      }),
+      status: "error"
+    };
+  }
+  return {
+    request: { ...request, relations: bound.relations, relationSummaries: [] },
+    status: "ok"
+  };
+}
+
+function normalizeCandidateRelationSummary(
+  summary: unknown
+): { summary?: string } | { error: ReturnType<typeof decisionDiagnostic> } {
+  if (summary === undefined) return {};
+  const normalized = normalizeRelationSummary(summary);
+  if (!("issue" in normalized)) return normalized;
+  return {
+    error: decisionDiagnostic({
+      code: "decision-records.new-relation-summary-invalid",
+      outcome: "no-change",
+      reason: "Candidate relation summary " + normalized.issue,
+      recovery:
+        "Use a blank or trimmed single-line summary of at most 40 Unicode code points, then retry.",
+      scope: "Decision candidate scaffold",
+      target: "relation.summary"
+    })
+  };
 }
 
 function resolveDecisionRelationSelector(
@@ -398,10 +450,7 @@ function candidateScaffoldMarkdown(
         background: request.background,
         decision: request.decision,
         purpose: request.purpose,
-        relations: request.relations.map(({ target, type }) => ({
-          target,
-          type
-        })),
+        relations: request.relations.map((relation) => ({ ...relation })),
         title: request.title
       },
       [...request.tags].sort((left, right) => left.localeCompare(right)),

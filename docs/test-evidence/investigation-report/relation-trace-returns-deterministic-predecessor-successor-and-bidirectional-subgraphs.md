@@ -9,5 +9,5 @@ Contract:
 
 Proves:
 - 从中间报告分别获得前序、后继和双向 ID 集合。
-- 双向 trace 返回预期顺序的关系边。
+- 双向 trace 返回预期顺序的关系边，并透传存在的可选 summary。
 - `maxDepth: 0` 时只返回起始报告 ID。

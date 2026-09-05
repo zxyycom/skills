@@ -17,7 +17,7 @@ Decision 与 Investigation 的每条直接关系都可以保留一个可选短�
 - 为 Decision 与 Investigation 的 relation 持久化、内存模型、公开 API 和索引 relation projection 同步增加可选 `summary`。
 - 两领域对输入采用同一值契约：先 trim；纯空白规范化为省略；保留值必须为单行且最多 40 个 Unicode 码点；多行或超长均为错误，绝不截断。既有无摘要 relation 输入和 Markdown 继续合法。
 - 两领域 CLI 保留重复 `--relation <type=target-selector>`，并新增重复 `--relation-summary <target-selector=summary>`；后者不是单边 patch，只能绑定到同次命令完整 relation set 中唯一已有的 target。它只按第一个 `=` 分隔，其余 `=` 属于 summary；target 按领域既有 ID-first/name selector 解析，程序化 API 直接使用 `{ type, target, summary? }`。各既有 relation 命令的完整替换、保留、排斥与 Investigation source group 绑定矩阵由 design 固定；`show`、关系图、`trace` 与领域 API 显示已存在的摘要。
-- 让 `sync-index`、Schema、source revision 和生成制品投影或验证摘要；rename 改写关系 target 时必须保留摘要。为两个领域更新行为说明、测试和 Test Evidence。
+- 让 `sync-index`、Schema、source revision 和生成制品投影或验证摘要；rename 改写 relation target 时必须逐字保留摘要。为两个领域更新行为说明、测试和 Test Evidence。
 
 ### Resulting Impacts
 
@@ -32,7 +32,7 @@ Decision 与 Investigation 的每条直接关系都可以保留一个可选短�
 - 两领域都对纯空白省略、trim 后的单行值、40 个 Unicode 码点边界、多行输入和超长拒绝给出一致证据；超长值从不被截断后保存。
 - 两领域 CLI help 与 design 的命令级绑定矩阵均有 CLI/API 证据：首个 `=` 分隔、ID-first/name target 解析、完整 set 唯一 target、summary-only/clear 排斥、缺省 summary 的保留或清除语义，以及 Investigation source group 归属；程序化 API 不采用 CLI 编码而直接接收 `{ type, target, summary? }`。
 - 关系图、`trace`、领域 API 和索引 relation projection 显示摘要；摘要不改变 type/target 去重、排序、时间方向、关系形状或无环校验结果。
-- Decision 与 Investigation 的 rename 均在改写 relation target 后保留摘要；无摘要与有摘要关系的同步、读取和生成 Schema 都通过兼容验证。
+- Decision 与 Investigation 的 rename 均在改写 relation target 后逐字保留摘要；无摘要与有摘要关系的同步、读取和生成 Schema 都通过兼容验证。
 - metadata search 没有被本 Change 改写；其现有/后续实现能够从索引 relation projection 获取摘要的边界由 `add-index-only-metadata-search` 继续拥有。
 - 受影响领域测试、生成制品和 Test Evidence 检查，以及 `bun run check` 通过。
 

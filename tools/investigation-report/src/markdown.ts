@@ -1,5 +1,6 @@
 import { investigationResourceIdFromLinkTarget } from "./resource-reference.ts";
 import { isInvestigationId, isInvestigationTag } from "./report-path.ts";
+import { isInvestigationRelationSummary } from "./relation-summary.ts";
 import {
   investigationRelationTypes,
   type InvestigationRelation,
@@ -327,18 +328,30 @@ class FrontmatterCursor {
         continue;
       }
       const target = parseQuotedScalar(targetLine.slice(targetPrefix.length));
+      const summaryLine = this.lines[this.index + 2];
+      const summaryPrefix = "    summary: ";
+      const hasSummary = summaryLine?.startsWith(summaryPrefix) === true;
+      const summary = hasSummary
+        ? parseQuotedScalar(summaryLine!.slice(summaryPrefix.length))
+        : undefined;
       if (
         !isRelationType(type) ||
         target === null ||
-        !isInvestigationId(target)
+        !isInvestigationId(target) ||
+        (summary !== undefined &&
+          (summary === null || !isInvestigationRelationSummary(summary)))
       ) {
         this.errors.push(
-          `${this.id}:${this.index + 1} relation must use a known type and a valid Investigation ID target`
+          `${this.id}:${this.index + 1} relation must use a known type, a valid Investigation ID target, and an optional normalized single-line summary of at most 40 Unicode code points`
         );
       } else {
-        relations.push({ target, type });
+        relations.push({
+          type,
+          target,
+          ...(summary === undefined || summary === null ? {} : { summary })
+        });
       }
-      this.index += 2;
+      this.index += hasSummary ? 3 : 2;
     }
     if (!isCanonicalRelations(relations)) {
       this.errors.push(
@@ -519,7 +532,10 @@ function serializeRelations(
 ): string[] {
   return relations.flatMap((relation) => [
     `  - type: ${quoteScalar(relation.type)}`,
-    `    target: ${quoteScalar(relation.target)}`
+    `    target: ${quoteScalar(relation.target)}`,
+    ...(relation.summary === undefined
+      ? []
+      : [`    summary: ${quoteScalar(relation.summary)}`])
   ]);
 }
 

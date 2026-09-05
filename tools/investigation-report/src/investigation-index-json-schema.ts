@@ -46,7 +46,13 @@ export const investigationIndexJsonSchema = {
           uniqueItems: true
         },
         target: { $ref: "#/$defs/investigationId" },
-        type: { enum: investigationRelationTypes, type: "string" }
+        type: { enum: investigationRelationTypes, type: "string" },
+        summary: {
+          maxLength: 40,
+          minLength: 1,
+          pattern: "^(?!\\s)(?!.*[\\r\\n])[\\s\\S]*\\S$",
+          type: "string"
+        }
       },
       required: ["type", "target"],
       type: "object"

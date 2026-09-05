@@ -20,8 +20,9 @@ export type InvestigationRelationType =
   (typeof investigationRelationTypes)[number];
 
 export type InvestigationRelation = Readonly<{
-  target: string;
   type: InvestigationRelationType;
+  target: string;
+  summary?: string;
 }>;
 
 export type InvestigationCandidateReadiness = Readonly<{
@@ -303,6 +304,7 @@ export type InvestigationRelationEdge = Readonly<{
   source: string;
   target: string;
   type: InvestigationRelationType;
+  summary?: string;
 }>;
 
 export type InvestigationReportTraceResult =

@@ -43,7 +43,7 @@ export function decisionIndexState(
     background: document.background,
     decision: document.decision,
     tags: [...document.tags],
-    relations: document.relations.map(({ type, target }) => ({ type, target }))
+    relations: document.relations.map((relation) => ({ ...relation }))
   };
 }
 

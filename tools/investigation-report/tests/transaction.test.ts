@@ -236,11 +236,13 @@ test("set-relations atomically applies multi-source replacements and explicit cl
     const applied = await setInvestigationRelations({
       replacements: [
         {
-          relations: [{ target: "base", type: "拆分" }],
+          relations: [
+            { type: "拆分", target: "base", summary: "  第二条拆分  " }
+          ],
           source: "split-b"
         },
         {
-          relations: [{ target: "base", type: "拆分" }],
+          relations: [{ type: "拆分", target: "base", summary: "第一条拆分" }],
           source: "split-a"
         }
       ],
@@ -258,25 +260,33 @@ test("set-relations atomically applies multi-source replacements and explicit cl
       );
       assert.deepEqual(parsed.errors, []);
       assert.deepEqual(parsed.report?.relations, [
-        { target: "base", type: "拆分" }
+        {
+          type: "拆分",
+          target: "base",
+          summary: id === "split-a" ? "第一条拆分" : "第二条拆分"
+        }
+      ]);
+      assert.deepEqual(Object.keys(parsed.report?.relations[0] ?? {}), [
+        "type",
+        "target",
+        "summary"
       ]);
     }
-    const appliedIndex = JSON.parse(
-      await fs.readFile(
-        `${investigationRoot(root)}/investigation-index.json`,
-        "utf8"
-      )
-    ) as {
+    const appliedIndexText = await fs.readFile(
+      `${investigationRoot(root)}/investigation-index.json`,
+      "utf8"
+    );
+    const appliedIndex = JSON.parse(appliedIndexText) as {
       entries: Record<
         string,
         { state: { relations: unknown; sourcePath: string } }
       >;
     };
     assert.deepEqual(appliedIndex.entries["split-a"]?.state.relations, [
-      { target: "base", type: "拆分" }
+      { type: "拆分", target: "base", summary: "第一条拆分" }
     ]);
     assert.deepEqual(appliedIndex.entries["split-b"]?.state.relations, [
-      { target: "base", type: "拆分" }
+      { type: "拆分", target: "base", summary: "第二条拆分" }
     ]);
     assert.equal(
       appliedIndex.entries["split-b"]?.state.sourcePath,

@@ -938,7 +938,7 @@ function indexedRecord(entry: IndexedDecisionState): IndexedDecisionRecord {
     purpose: state.purpose,
     background: state.background,
     decision: state.decision,
-    relations: state.relations.map(({ type, target }) => ({ type, target }))
+    relations: state.relations.map((relation) => ({ ...relation }))
   };
   return {
     alignment: state.alignment,

@@ -10,7 +10,7 @@ import {
   writeDecision
 } from "./support.ts";
 
-test("first establishment creates a root Decision ID and definition-eight index", () =>
+test("first establishment creates a root Decision ID and definition-nine index", () =>
   withTemporaryWorkspace("first-establishment", async (workspaceRoot) => {
     const decisionId = "use-first-index.md";
     await writeDecision(workspaceRoot, decisionId, candidateDecisionBody());
@@ -24,7 +24,7 @@ test("first establishment creates a root Decision ID and definition-eight index"
     ]);
     assert.equal(activated.exitCode, 0, activated.stderr);
     const index = await readIndex(workspaceRoot);
-    assert.equal(index.definitionVersion, 8);
+    assert.equal(index.definitionVersion, 9);
     assert.deepEqual(index.metadata, {});
     assert.equal(findIndexEntry(index, decisionId).sourcePath, decisionId);
     assert.equal(findIndexEntry(index, decisionId).status, "active");
