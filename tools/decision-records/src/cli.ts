@@ -147,6 +147,7 @@ async function runSearch(
     {
       alignment: args.alignment,
       command: "search",
+      in: args.in,
       location: decisionLocation(args),
       match: args.match,
       status: args.status,

@@ -3,6 +3,9 @@ import path from "node:path";
 import {
   FileTextSearchError,
   searchFileText,
+  createTextSearchMatcher,
+  matchTextSegments,
+  TextSearchMatcherError,
   type FileTextSearchMode,
   type FileTextSearchPreview,
   type FileTextSearchTruncation
@@ -34,6 +37,7 @@ import {
 } from "./decision-collection-mutation-lock.ts";
 import {
   decisionNameFromId,
+  displayDecisionPath,
   isDecisionId,
   normalizeDecisionSelectorInput,
   parseDatedDecisionId
@@ -93,6 +97,7 @@ export type DecisionQueryRequest =
   | {
       alignment: DecisionListAlignment;
       command: "search";
+      in?: "content" | "metadata";
       location: DecisionLocation;
       match: FileTextSearchMode;
       status: DecisionListStatus;
@@ -176,8 +181,14 @@ export type DecisionQuerySuccess =
     })
   | (QuerySuccessBase & {
       command: "search";
-      records: DecisionSearchRecord[];
+      in: "content";
+      records: DecisionContentSearchRecord[];
       truncation: FileTextSearchTruncation;
+    })
+  | (QuerySuccessBase & {
+      command: "search";
+      in: "metadata";
+      records: DecisionMetadataSearchRecord[];
     })
   | (QuerySuccessBase & {
       body: string;
@@ -301,9 +312,40 @@ async function listDecisionRecords(
   };
 }
 
-export type DecisionSearchRecord = IndexedDecisionRecord & {
+export type DecisionContentSearchRecord = IndexedDecisionRecord & {
   previews: readonly FileTextSearchPreview[];
 };
+
+export const decisionMetadataSearchFields = [
+  "id",
+  "name",
+  "title",
+  "purpose",
+  "background",
+  "decision",
+  "tags"
+] as const;
+
+export type DecisionMetadataSearchField =
+  (typeof decisionMetadataSearchFields)[number];
+
+export type DecisionMetadataMatchedRelation = Readonly<{
+  summary: string;
+  target: DecisionId;
+  type: DecisionRelationEdge["type"];
+}>;
+
+export type DecisionMetadataSearchRecord = IndexedDecisionRecord & {
+  matchedFields: readonly DecisionMetadataSearchField[];
+  matchedRelations: readonly DecisionMetadataMatchedRelation[];
+};
+
+type DecisionMetadataSegment =
+  | Readonly<{ field: DecisionMetadataSearchField; kind: "field" }>
+  | Readonly<{
+      kind: "relation";
+      relation: DecisionMetadataMatchedRelation;
+    }>;
 
 type DecisionSearchSnapshot = {
   entries: readonly IndexedDecisionRecord[];
@@ -321,6 +363,9 @@ const decisionSearchPreviewPolicy = {
 async function searchDecisionRecords(
   request: Extract<DecisionQueryRequest, { command: "search" }>
 ): Promise<DecisionQueryResult> {
+  if (request.in === "metadata") {
+    return await searchDecisionMetadata(request);
+  }
   const snapshot = await loadDecisionSearchSnapshot(request.location);
   if (snapshot.status === "error") return snapshot.failure;
   const selected = filterSearchRecords(snapshot.value.entries, request);
@@ -334,7 +379,7 @@ async function searchDecisionRecords(
         sourcePaths: selected.map((record) => record.sourcePath)
       }
     });
-    const records: DecisionSearchRecord[] = [];
+    const records: DecisionContentSearchRecord[] = [];
     for (const hit of searched.hits) {
       const record = snapshot.value.sourcePathToRecord.get(
         hit.sourcePath as DecisionSourcePath
@@ -356,6 +401,7 @@ async function searchDecisionRecords(
     }
     return {
       command: "search",
+      in: "content",
       records,
       status: "ok",
       truncation: searched.truncation,
@@ -367,6 +413,141 @@ async function searchDecisionRecords(
   } catch (error) {
     return searchFileFailure(error);
   }
+}
+
+async function searchDecisionMetadata(
+  request: Extract<DecisionQueryRequest, { command: "search" }>
+): Promise<DecisionQueryResult> {
+  const { decisionsDirectory, workspaceRoot } = resolveDecisionLocation(
+    request.location
+  );
+  const indexRelativePath = displayDecisionPath(
+    workspaceRoot,
+    path.join(decisionsDirectory, decisionIndexFileName)
+  );
+  const persisted = await loadDecisionIndex({ decisionsDirectory });
+  if (persisted.status === "error") {
+    return metadataIndexFailure(persisted, indexRelativePath);
+  }
+
+  let matcher: ReturnType<typeof createTextSearchMatcher>;
+  try {
+    matcher = createTextSearchMatcher({
+      mode: request.match,
+      text: request.text
+    });
+  } catch (error) {
+    return metadataMatcherFailure(error);
+  }
+
+  const records: DecisionMetadataSearchRecord[] = [];
+  const selected = Object.entries(persisted.value.entries)
+    .map(([id, entry]) => indexedRecord({ id, state: entry.state }))
+    .sort((left, right) => left.sourcePath.localeCompare(right.sourcePath));
+  for (const record of filterSearchRecords(selected, request)) {
+    const segments = metadataSegments(record);
+    let matches: ReturnType<typeof matchTextSegments<DecisionMetadataSegment>>;
+    try {
+      matches = matchTextSegments(matcher, segments);
+    } catch (error) {
+      return metadataMatcherFailure(error);
+    }
+    if (matches.length === 0) continue;
+    const matchedFields = new Set<DecisionMetadataSearchField>();
+    const matchedRelations: DecisionMetadataMatchedRelation[] = [];
+    for (const { identifier } of matches) {
+      if (identifier.kind === "field") {
+        matchedFields.add(identifier.field);
+      } else {
+        matchedRelations.push(identifier.relation);
+      }
+    }
+    records.push({
+      ...record,
+      matchedFields: decisionMetadataSearchFields.filter((field) =>
+        matchedFields.has(field)
+      ),
+      matchedRelations
+    });
+  }
+  return {
+    command: "search",
+    in: "metadata",
+    records,
+    status: "ok",
+    warnings: []
+  };
+}
+
+function metadataSegments(
+  record: IndexedDecisionRecord
+): ReadonlyArray<
+  Readonly<{ identifier: DecisionMetadataSegment; text: string }>
+> {
+  const fields: ReadonlyArray<readonly [DecisionMetadataSearchField, string]> =
+    [
+      ["id", record.decisionId],
+      ["name", decisionNameFromId(record.decisionId)],
+      ["title", record.projection.title],
+      ["purpose", record.projection.purpose],
+      ["background", record.projection.background],
+      ["decision", record.projection.decision],
+      ...record.tags.map((tag) => ["tags", tag] as const)
+    ];
+  return [
+    ...fields.map(([field, text]) => ({
+      identifier: { field, kind: "field" } as const,
+      text
+    })),
+    ...record.projection.relations.flatMap((relation) => {
+      const summary = relation.summary;
+      return summary === undefined || summary.trim().length === 0
+        ? []
+        : [
+            {
+              identifier: {
+                kind: "relation" as const,
+                relation: {
+                  summary,
+                  target: relation.target,
+                  type: relation.type
+                }
+              },
+              text: summary
+            }
+          ];
+    })
+  ];
+}
+
+function metadataIndexFailure(
+  result: { diagnostics: readonly StateIndexDiagnostic[] },
+  indexRelativePath: string
+): DecisionApplicationFailure {
+  const recovery =
+    "Run check to diagnose the Decision collection, then run sync-index after correcting the problem.";
+  return decisionFailure(
+    decisionIndexDiagnostics(result.diagnostics, {
+      code: "decision-records.metadata-index-unavailable",
+      recovery,
+      target: indexRelativePath
+    }).map((diagnostic) => ({ ...diagnostic, recovery }))
+  );
+}
+
+function metadataMatcherFailure(error: unknown): DecisionApplicationFailure {
+  const reason =
+    error instanceof TextSearchMatcherError
+      ? error.message
+      : "The Decision metadata search operation failed.";
+  return decisionFailure([
+    decisionDiagnostic({
+      code: "decision-records.metadata-search-failed",
+      reason,
+      recovery: "Correct the metadata search query, then retry.",
+      target: "Decision metadata search"
+    })
+  ]);
 }
 
 async function loadDecisionSearchSnapshot(

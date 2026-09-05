@@ -16,12 +16,16 @@ import {
 } from "../../index-runtime/src/index.ts";
 import {
   FileTextSearchError,
-  searchFileText
+  searchFileText,
+  createTextSearchMatcher,
+  matchTextSegments,
+  TextSearchMatcherError
 } from "../../shared/src/file-text-search/index.ts";
 import {
   createInvestigationStateIndexDefinition,
   investigationIndexDiagnosticMessages,
   investigationIndexFileName,
+  loadInvestigationIndex,
   loadCurrentInvestigationIndex
 } from "./investigation-state-index.ts";
 import {
@@ -48,6 +52,7 @@ import { isInvestigationRelationType } from "./report-validation.ts";
 import { traceInvestigationRelations } from "./relation-validation.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import { collectValidatedInvestigationCollection } from "./validation.ts";
+import { investigationMetadataSearchFields } from "./types.ts";
 import type {
   InvestigationIndexQueryOptions,
   InvestigationIndexQueryResult,
@@ -56,6 +61,9 @@ import type {
   InvestigationReportShowResult,
   InvestigationReportTraceOptions,
   InvestigationReportTraceResult,
+  InvestigationMetadataMatchedRelation,
+  InvestigationMetadataSearchEntry,
+  InvestigationMetadataSearchField,
   InvestigationSearchEntry,
   InvestigationSearchResult
 } from "./types.ts";
@@ -85,6 +93,7 @@ type QueryOperationFailure = Readonly<{
 }>;
 type PreparedSearch = Readonly<{
   indexPath: string;
+  in: "content" | "metadata";
   query: string;
   resolved: ResolvedInvestigationsDirectory;
   validated: Readonly<{
@@ -121,6 +130,13 @@ export async function searchInvestigationReports(
     investigationsDirectory,
     investigationIndexFileName
   );
+  if (prepared.value.in === "metadata") {
+    return await searchInvestigationMetadata(
+      investigationsDirectory,
+      indexPath,
+      prepared.value
+    );
+  }
   const loaded = await loadCurrentInvestigationIndex({
     investigationsDirectory
   });
@@ -168,6 +184,159 @@ export async function searchInvestigationReports(
       "The derived investigation index is unavailable; search used a validated in-memory source projection. Run sync-index before relying on index-backed operations."
     ]
   });
+}
+
+type InvestigationMetadataSegment =
+  | Readonly<{ field: InvestigationMetadataSearchField; kind: "field" }>
+  | Readonly<{
+      kind: "relation";
+      relation: InvestigationMetadataMatchedRelation;
+    }>;
+
+async function searchInvestigationMetadata(
+  investigationsDirectory: string,
+  indexPath: string,
+  prepared: PreparedSearch
+): Promise<InvestigationSearchResult> {
+  const loaded = await loadInvestigationIndex({
+    investigationsDirectory
+  });
+  if (loaded.status === "error") {
+    const recovery =
+      "Run investigation-report check to diagnose the collection, then run sync-index after correcting the problem.";
+    return searchFailure(
+      [
+        "the published investigation index could not be loaded for metadata search"
+      ],
+      indexPath,
+      loaded.diagnostics.map((diagnostic) =>
+        diagnosticFromStateIndexDiagnostic(diagnostic, {
+          recovery,
+          target: indexPath
+        })
+      )
+    );
+  }
+
+  let matcher: ReturnType<typeof createTextSearchMatcher>;
+  try {
+    matcher = createTextSearchMatcher({
+      mode: prepared.validated.match,
+      text: prepared.query
+    });
+  } catch (error) {
+    return metadataMatcherFailure(error, indexPath);
+  }
+
+  const entries: InvestigationMetadataSearchEntry[] = [];
+  const selected = Object.entries(loaded.value.entries)
+    .map(([id, entry]) => ({ id, state: entry.state }))
+    .filter(({ state }) => prepared.validated.states(state))
+    .sort((left, right) =>
+      compareText(left.state.sourcePath, right.state.sourcePath)
+    );
+  for (const entry of selected) {
+    let matches: ReturnType<
+      typeof matchTextSegments<InvestigationMetadataSegment>
+    >;
+    try {
+      matches = matchTextSegments(matcher, metadataSegments(entry));
+    } catch (error) {
+      return metadataMatcherFailure(error, indexPath);
+    }
+    if (matches.length === 0) continue;
+    const matchedFields = new Set<InvestigationMetadataSearchField>();
+    const matchedRelations: InvestigationMetadataMatchedRelation[] = [];
+    for (const { identifier } of matches) {
+      if (identifier.kind === "field") matchedFields.add(identifier.field);
+      else matchedRelations.push(identifier.relation);
+    }
+    entries.push({
+      formedAt: entry.state.formedAt,
+      id: entry.id,
+      matchedFields: investigationMetadataSearchFields.filter((field) =>
+        matchedFields.has(field)
+      ),
+      matchedRelations,
+      question: entry.state.question,
+      sourcePath: entry.state.sourcePath,
+      tags: entry.state.tags,
+      title: entry.state.title
+    });
+  }
+  return {
+    diagnostics: [],
+    entries: entries.slice(0, prepared.validated.limit),
+    errors: [],
+    indexPath,
+    status: "ok",
+    truncation: { files: false, matches: false, previewCharacters: false },
+    warnings: []
+  };
+}
+
+function metadataSegments(
+  entry: Readonly<{ id: string; state: InvestigationIndexState }>
+): readonly Readonly<{
+  identifier: InvestigationMetadataSegment;
+  text: string;
+}>[] {
+  const fields: readonly (readonly [
+    InvestigationMetadataSearchField,
+    string
+  ])[] = [
+    ["id", entry.id],
+    ["name", entry.state.name],
+    ["title", entry.state.title],
+    ["question", entry.state.question],
+    ...entry.state.tags.map((tag) => ["tags", tag] as const)
+  ];
+  return [
+    ...fields.map(([field, text]) => ({
+      identifier: { field, kind: "field" } as const,
+      text
+    })),
+    ...entry.state.relations.flatMap((relation) => {
+      const summary = relation.summary;
+      return summary === undefined || summary.trim().length === 0
+        ? []
+        : [
+            {
+              identifier: {
+                kind: "relation" as const,
+                relation: {
+                  summary,
+                  target: relation.target,
+                  type: relation.type
+                }
+              },
+              text: summary
+            }
+          ];
+    })
+  ];
+}
+
+function metadataMatcherFailure(
+  error: unknown,
+  indexPath: string
+): InvestigationSearchResult {
+  return searchFailure(
+    ["investigation metadata search could not be completed"],
+    indexPath,
+    [
+      diagnosticFromError({
+        code: "investigation-report.metadata-search-failed",
+        error,
+        reason:
+          error instanceof TextSearchMatcherError
+            ? error.message
+            : "the investigation metadata search operation failed",
+        recovery: "correct the metadata search query, then retry",
+        target: indexPath
+      })
+    ]
+  );
 }
 
 type SearchSnapshot = Readonly<{
@@ -710,6 +879,7 @@ function prepareSearch(input: unknown): Result<PreparedSearch, string[]> {
           resolved.value.investigationsDirectory,
           investigationIndexFileName
         ),
+        in: parsed.value.in ?? "content",
         query,
         resolved: resolved.value,
         validated: {

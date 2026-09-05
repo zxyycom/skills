@@ -370,6 +370,7 @@ export declare function renameInvestigationRecord(
 export type InvestigationSearchOptions = {
   formedAtFrom?: string;
   formedAtTo?: string;
+  in?: "content" | "metadata";
   investigationsDir?: string;
   limit?: number;
   match?: "all" | "any" | "phrase";
@@ -378,20 +379,45 @@ export type InvestigationSearchOptions = {
   tags?: readonly string[];
   workspaceRoot: string;
 };
-export type InvestigationSearchResult = {
-  entries: ReadonlyArray<{
-    id: string;
-    formedAt: string;
-    title: string;
-    question: string;
-    tags: readonly string[];
-    sourcePath: string;
-    previews: ReadonlyArray<{
-      line: number;
-      column: number | null;
-      preview: string;
-    }>;
+export type InvestigationContentSearchEntry = {
+  formedAt: string;
+  id: string;
+  previews: ReadonlyArray<{
+    column: number | null;
+    line: number;
+    preview: string;
   }>;
+  question: string;
+  sourcePath: string;
+  tags: readonly string[];
+  title: string;
+};
+export type InvestigationMetadataSearchField =
+  | "id"
+  | "name"
+  | "title"
+  | "question"
+  | "tags";
+export type InvestigationMetadataMatchedRelation = {
+  summary: string;
+  target: string;
+  type: InvestigationRelationType;
+};
+export type InvestigationMetadataSearchEntry = {
+  formedAt: string;
+  id: string;
+  matchedFields: readonly InvestigationMetadataSearchField[];
+  matchedRelations: readonly InvestigationMetadataMatchedRelation[];
+  question: string;
+  sourcePath: string;
+  tags: readonly string[];
+  title: string;
+};
+export type InvestigationSearchEntry =
+  | InvestigationContentSearchEntry
+  | InvestigationMetadataSearchEntry;
+export type InvestigationSearchResult = {
+  entries: readonly InvestigationSearchEntry[];
   errors: readonly string[];
   indexPath: string;
   status: "error" | "ok";

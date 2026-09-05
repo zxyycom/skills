@@ -238,6 +238,29 @@ function printSearch(
     writeLine(io.stdout, "  tags: " + record.tags.join(", "));
     writeLine(io.stdout, "  title: " + record.projection.title);
     writeLine(io.stdout, "  purpose: " + record.projection.purpose);
+    if ("matchedFields" in record) {
+      writeLine(
+        io.stdout,
+        "  matchedFields: " + record.matchedFields.join(", ")
+      );
+      writeLine(io.stdout, "  matchedRelations:");
+      if (record.matchedRelations.length === 0) {
+        writeLine(io.stdout, "    - none");
+      } else {
+        for (const relation of record.matchedRelations) {
+          writeLine(
+            io.stdout,
+            "    - " +
+              relation.type +
+              " " +
+              relation.target +
+              ": " +
+              relation.summary
+          );
+        }
+      }
+      continue;
+    }
     writeLine(io.stdout, "  previews:");
     for (const preview of record.previews) {
       writeLine(

@@ -3,17 +3,36 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import fastGlob from "fast-glob";
 import { isPathWithinDirectory, toPosix } from "../node/filesystem.ts";
+import {
+  createTextSearchMatcher,
+  matchTextSegments,
+  TextSearchMatcherError,
+  type TextSearchMatcher,
+  type TextSearchMode,
+  type TextSearchRange
+} from "./segment-matcher.ts";
+
+export {
+  createTextSearchMatcher,
+  matchTextSegments,
+  TextSearchMatcherError,
+  type TextSearchMatcher,
+  type TextSearchMatcherErrorCode,
+  type TextSearchMode,
+  type TextSearchQuery,
+  type TextSearchRange,
+  type TextSearchSegment,
+  type TextSearchSegmentMatch
+} from "./segment-matcher.ts";
 
 const utf8Decoder = new TextDecoder("utf-8", { fatal: true });
-const whitespacePattern = /\p{White_Space}/u;
-const segmenter = new Intl.Segmenter("und", { granularity: "grapheme" });
 const defaultResourceLimits = {
   maxCandidateFiles: 10_000,
   maxFileBytes: 2 * 1024 * 1024,
   maxTotalBytes: 20 * 1024 * 1024
 } as const;
 
-export type FileTextSearchMode = "all" | "any" | "phrase";
+export type FileTextSearchMode = TextSearchMode;
 
 export type FileTextSearchSelection =
   | Readonly<{
@@ -51,10 +70,7 @@ export type FileTextSearchRequest = Readonly<{
   signal?: AbortSignal;
 }>;
 
-export type FileTextSearchRange = Readonly<{
-  end: number;
-  start: number;
-}>;
+export type FileTextSearchRange = TextSearchRange;
 
 /** A physical source line. Columns and ranges use UTF-16 offsets. */
 export type FileTextSearchPreview = Readonly<{
@@ -112,24 +128,10 @@ export class FileTextSearchError extends Error {
 type ValidatedRequest = Readonly<{
   limits: FileTextSearchResourceLimits;
   preview: FileTextSearchPreviewPolicy;
-  query: Readonly<{
-    mode: FileTextSearchMode;
-    phrase: string;
-    terms: readonly string[];
-  }>;
+  query: TextSearchMatcher;
   root: string;
   selection: FileTextSearchSelection;
   signal: AbortSignal | undefined;
-}>;
-
-type NormalizedLine = Readonly<{
-  spans: readonly OriginalSpan[];
-  text: string;
-}>;
-
-type OriginalSpan = Readonly<{
-  end: number;
-  start: number;
 }>;
 
 type LineMatch = Readonly<{
@@ -216,16 +218,7 @@ function validateRequest(request: FileTextSearchRequest): ValidatedRequest {
   if (request.query === null || typeof request.query !== "object") {
     throw invalidRequest("File text search query must be an object.");
   }
-  if (typeof request.query.text !== "string") {
-    throw invalidRequest("File text search query text must be a string.");
-  }
-  if (!isSearchMode(request.query.mode)) {
-    throw invalidRequest("File text search query mode is unsupported.");
-  }
-  const normalizedQuery = normalizeSearchText(request.query.text);
-  if (normalizedQuery.length === 0) {
-    throw invalidRequest("File text search query text must not be empty.");
-  }
+  const query = createFileTextSearchMatcher(request.query);
   if (request.preview === null || typeof request.preview !== "object") {
     throw invalidRequest("File text search preview policy must be an object.");
   }
@@ -236,11 +229,7 @@ function validateRequest(request: FileTextSearchRequest): ValidatedRequest {
   return {
     limits,
     preview: request.preview,
-    query: {
-      mode: request.query.mode,
-      phrase: normalizedQuery,
-      terms: [...new Set(normalizedQuery.split(" "))]
-    },
+    query,
     root: request.root,
     selection: request.selection,
     signal: request.signal
@@ -653,155 +642,27 @@ function findLineMatches(
   signal: AbortSignal | undefined
 ): readonly LineMatch[] {
   const lines = splitPhysicalLines(content);
-  const normalizedLines: NormalizedLine[] = [];
-  const rangesByLine: Array<readonly FileTextSearchRange[]> = [];
-  for (const line of lines) {
-    throwIfAborted(signal);
-    const normalized = normalizeLine(line);
-    normalizedLines.push(normalized);
-    rangesByLine.push(
-      query.mode === "phrase"
-        ? rangesForNeedle(normalized, query.phrase, signal)
-        : rangesForTerms(normalized, query.terms, signal)
-    );
+  try {
+    return matchTextSegments(
+      query,
+      lines.map((text, index) => ({ identifier: index + 1, text })),
+      signal
+    ).map(({ identifier: line, ranges }) => ({ line, ranges }));
+  } catch (error) {
+    if (error instanceof TextSearchMatcherError) {
+      throw new FileTextSearchError({
+        code: error.code === "aborted" ? "aborted" : "invalid-request",
+        message: error.message
+      });
+    }
+    throw error;
   }
-  const fileMatches =
-    query.mode === "all"
-      ? query.terms.every((term) => {
-          throwIfAborted(signal);
-          return normalizedLines.some((line) => line.text.includes(term));
-        })
-      : rangesByLine.some((ranges) => ranges.length > 0);
-  if (!fileMatches) return [];
-
-  return rangesByLine.flatMap((ranges, index) =>
-    ranges.length === 0 ? [] : [{ line: index + 1, ranges }]
-  );
 }
 
 function splitPhysicalLines(content: string): readonly string[] {
   const lines = content.split(/\r\n|[\n\r]/u);
   if (/(?:\r\n|[\n\r])$/u.test(content)) lines.pop();
   return lines;
-}
-
-function normalizeLine(line: string): NormalizedLine {
-  const normalized = line.normalize("NFKC").toLowerCase();
-  const mappedCharacters: Array<{ end: number; start: number; text: string }> =
-    [];
-  let normalizedOffset = 0;
-  for (const segment of segmenter.segment(line)) {
-    const expected = segment.segment.normalize("NFKC").toLowerCase();
-    const start = segment.index;
-    const end = start + segment.segment.length;
-    const matchingLength = normalized.startsWith(expected, normalizedOffset)
-      ? expected.length
-      : nextCodePointLength(normalized, normalizedOffset);
-    const text = normalized.slice(
-      normalizedOffset,
-      normalizedOffset + matchingLength
-    );
-    for (const character of text) {
-      appendNormalizedCharacter(mappedCharacters, character, start, end);
-    }
-    normalizedOffset += matchingLength;
-  }
-  const last = mappedCharacters.at(-1);
-  while (normalizedOffset < normalized.length) {
-    const length = nextCodePointLength(normalized, normalizedOffset);
-    const text = normalized.slice(normalizedOffset, normalizedOffset + length);
-    appendNormalizedCharacter(
-      mappedCharacters,
-      text,
-      last?.start ?? 0,
-      last?.end ?? line.length
-    );
-    normalizedOffset += length;
-  }
-  while (mappedCharacters[0]?.text === " ") mappedCharacters.shift();
-  while (mappedCharacters.at(-1)?.text === " ") mappedCharacters.pop();
-  return {
-    spans: mappedCharacters.flatMap(({ end, start, text }) =>
-      Array.from({ length: text.length }, () => ({ end, start }))
-    ),
-    text: mappedCharacters.map(({ text }) => text).join("")
-  };
-}
-
-function appendNormalizedCharacter(
-  characters: Array<{ end: number; start: number; text: string }>,
-  character: string,
-  start: number,
-  end: number
-): void {
-  const text = whitespacePattern.test(character) ? " " : character;
-  const previous = characters.at(-1);
-  if (text === " " && previous?.text === " ") {
-    previous.end = end;
-  } else {
-    characters.push({ end, start, text });
-  }
-}
-
-function nextCodePointLength(text: string, offset: number): number {
-  const codePoint = text.codePointAt(offset);
-  return codePoint === undefined ? 0 : codePoint > 0xffff ? 2 : 1;
-}
-
-function normalizeSearchText(text: string): string {
-  return text
-    .normalize("NFKC")
-    .toLowerCase()
-    .replace(/\p{White_Space}+/gu, " ")
-    .trim();
-}
-
-function rangesForTerms(
-  line: NormalizedLine,
-  terms: readonly string[],
-  signal: AbortSignal | undefined
-): readonly FileTextSearchRange[] {
-  return mergeRanges(
-    terms.flatMap((term) => rangesForNeedle(line, term, signal))
-  );
-}
-
-function rangesForNeedle(
-  line: NormalizedLine,
-  needle: string,
-  signal: AbortSignal | undefined
-): readonly FileTextSearchRange[] {
-  const ranges: FileTextSearchRange[] = [];
-  let searchStart = 0;
-  while (searchStart < line.text.length) {
-    throwIfAborted(signal);
-    const index = line.text.indexOf(needle, searchStart);
-    if (index < 0) break;
-    const start = line.spans[index]?.start;
-    const end = line.spans[index + needle.length - 1]?.end;
-    if (start === undefined || end === undefined) break;
-    ranges.push({ end, start });
-    searchStart = index + 1;
-  }
-  return mergeRanges(ranges);
-}
-
-function mergeRanges(
-  ranges: readonly FileTextSearchRange[]
-): readonly FileTextSearchRange[] {
-  const sorted = [...ranges].sort(
-    (left, right) => left.start - right.start || left.end - right.end
-  );
-  const merged: Array<{ end: number; start: number }> = [];
-  for (const range of sorted) {
-    const previous = merged.at(-1);
-    if (previous !== undefined && range.start <= previous.end) {
-      previous.end = Math.max(previous.end, range.end);
-    } else {
-      merged.push({ ...range });
-    }
-  }
-  return merged;
 }
 
 function limitMatchRanges(
@@ -968,10 +829,6 @@ function parseSourcePath(sourcePath: unknown): string {
   return segments.join("/");
 }
 
-function isSearchMode(value: unknown): value is FileTextSearchMode {
-  return value === "all" || value === "any" || value === "phrase";
-}
-
 function isPositiveInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isInteger(value) && value > 0;
 }
@@ -986,6 +843,21 @@ function compareText(left: string, right: string): number {
 
 function invalidRequest(message: string): FileTextSearchError {
   return new FileTextSearchError({ code: "invalid-request", message });
+}
+
+function createFileTextSearchMatcher(
+  query: FileTextSearchRequest["query"]
+): TextSearchMatcher {
+  try {
+    return createTextSearchMatcher(query);
+  } catch (error) {
+    if (error instanceof TextSearchMatcherError) {
+      throw invalidRequest(
+        error.message.replace("Text search", "File text search")
+      );
+    }
+    throw error;
+  }
 }
 
 function resourceLimit(message: string): FileTextSearchError {

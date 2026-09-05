@@ -131,11 +131,23 @@ rename 对 ID、name、sourcePath 和 owner 都不变的规范 identity 返回 `
 1. 每个正式 Investigation ID 产生一个索引 entry。state 投影由 ID 导出的 `name`、`sourcePath`、`title`、`formedAt`、`question`、`tags`、带可选 summary 的 `relations` 和按规范 ID 排序的 `resourceIds`；不保存正文、candidate、反向关系副本、当前结论或资源内容摘要。
 2. keys 是 exact `name`、exact `tag`、range `formed-at` 与 exact `relation-type`。metadata 是拒绝额外字段的严格空对象；完整正文不复制进派生索引。
 3. source revision 以正式 Investigation ID 为键，指纹化 ID、sourcePath 和完整正式报告 Markdown UTF-8 内容，计算前只把 CRLF 规范为 LF。正式报告成员、位置或可投影内容变化会更新对应 revision；candidate、资源成员和资源字节不参与 revision。
-4. `list` 默认查询全部正式报告，按 Investigation ID 的 locale 无关词法顺序排序；支持可重复 `--tag` 的 AND、包含端点的 formedAt 范围和一个精确关系类型。`search <text>` 支持相同结构筛选及 `--match all|any|phrase`（默认 `all`）和仅限制命中报告的 `--limit`（默认 50、最大 1000）：`all` 要求规范化查询中的每个去重词至少命中一次，`any` 要求任一词，二者的词可分布在不同物理行；`phrase` 只匹配同一物理行连续短语。三种模式统一 NFKC、默认忽略大小写并按空白处理查询。搜索在同一当前索引 snapshot 的 selected `sourcePath` 文件列表中读取完整正式 Markdown，再以该 snapshot 的唯一 `sourcePath → ID` 映射输出完整 ID、state 摘要和命中预览；它严格排除 candidate、资源与索引文件。索引缺失、损坏或不新鲜时，只有完整正式集合及资源验证成功才构建只读内存投影并 warning，绝不写回索引或将部分搜索称作完整。结果文件、每文件命中和预览字符受资源上限约束；截断必须 warning，不得据未显示结果或无结果断言不存在匹配。`show` 与 `trace` 使用当前索引；这些命令均完全忽略 candidates。
-5. 默认全量 `check` 验证正式报告、完整关系图、资源与索引；合法 candidate 只进行成员安全、身份冲突和候选诊断，不被接纳为正式来源。scoped check 只验证命中正式报告及其直接引用，不证明完整图、拆分闭合、未引用资源集合或索引新鲜度。
-6. `sync-index` 不要求旧索引新鲜；无 `--select` 时它在集合 mutation lock 内验证完整**正式**报告、关系图和资源，再从同一正式 Markdown snapshot 重建索引。它忽略合法 candidates，只因 candidate 路径或身份不安全而阻断。锁冲突时命令零写入失败并要求在当前事务结束后重试。已建立空集合只有在当前有效索引存在时成立。
-7. `sync-index --select <name-or-id> ... [--write]` 仍在同一 lock 内完整读取并验证正式集合，不是局部读取。每个 selector 只移除一个末尾 `.md`，先按 calendar-valid ID exact 解析，失败才在持久 baseline 与 current candidate 的 name 映射并集按 unique name 解析；标准 ID 未命中不得回退 name。结果保留输入顺序的原始 `selectors`，并分别按规范顺序报告解析后的 `selectedIds` 与 `changedIds`。selected scope 需要可信 baseline，拒绝集合 metadata 或 metadata revision 改变，并对两边 entry/revision ID 并集计算全部变化。只有所有变化均已选择时 `--write` 原子发布完整 candidate；默认 check 对允许变化返回 stale，任何未选择变化、未知 ID 或坏 baseline 都零写入。新增、删除和显式 ID rename 分别选择新 ID、旧 ID、或同时选择旧/新 ID。它不写 Git pending，不能代替 `stage-index` 或领域 rename 事务。
-8. `sync-index` 是完整正式集合的低频重建、恢复与显式接纳入口。一批手工正式创建、修正、改名或资源引用调整可以先共同完成；在 `list`、`show`、`trace`、已有关系事务、正式 `discard`、默认全量 `check`、`stage-index` 或交付需要当前索引前运行一次。批量编辑期间索引可以暂时陈旧，此时使用 scoped check 或直接读取 Markdown；陈旧索引不提供当前集合事实。
+4. `list` 默认查询全部正式报告，按 Investigation ID 的 locale 无关词法顺序排序；支持可重复 `--tag` 的 AND、包含端点的 formedAt 范围和一个精确关系类型。
+
+### `search`
+
+1. `search <text>` 使用与 `list` 相同的结构筛选，并支持 `--match all|any|phrase`（默认 `all`）和仅限制命中报告的 `--limit`（默认 50、最大 1000）；没有 offset、total 或分页。省略 `--in` 等于 `--in content`。两种范围都先进行结构筛选，再进行文本匹配。
+2. 三种模式统一 NFKC、默认忽略大小写并按空白处理查询。`all` 要求每个去重查询词至少命中一次，`any` 要求任一词。content 的命中段是物理行，metadata 的命中段是单个字段值、单个 tag 或单条 relation summary；因此 `all` 可跨同一报告的多个段，`phrase` 只能在一个段内连续匹配。
+3. `--in content` 的权威内容是当前索引快照选中的正式 Markdown。它只读取该快照的显式 `sourcePath` 文件列表，并用同一快照的唯一 `sourcePath → ID` 映射输出完整 ID、state 摘要和命中预览；candidate、资源与索引文件严格排除。索引缺失、损坏或不新鲜时，只有完整正式集合及资源验证成功才可构建只读内存投影并 warning，绝不写回索引或把部分搜索称为完整。结果文件、每文件命中和预览字符受资源上限约束；截断必须 warning，不得据未显示结果或无结果断言不存在匹配。
+4. `--in metadata` 的权威内容是持久索引快照。它不读取报告、candidate、资源或 relation target，不验证来源新鲜度、重建索引或从实体降级。结构筛选后，它将来源 ID、name、title、question、每个 tag 和本来源记录的每条非空 relation summary 作为独立 segment；relation type、target、时间、资源和 target 报告不参与文本匹配。它按 sourcePath 的确定顺序形成完整命中集后应用 `--limit`。
+5. metadata 结果返回来源 ID、摘要、sourcePath、按字段白名单固定顺序的 `matchedFields`，以及只含实际命中的来源 summary 的 `matchedRelations: { type, target, summary }[]`；relation summary 不冒充字段，且结果不返回预览。metadata 快照可能滞后未同步的正式来源，不能据此陈述当前报告事实。索引缺失、损坏、definition 不兼容或其他读取失败必须失败，而非返回空结果或 fallback；诊断指向 `check`，修正后由获得维护授权的调用方运行 `sync-index`。
+6. `show` 与 `trace` 使用当前索引；这些命令均完全忽略 candidates。
+
+### 索引维护
+
+1. 默认全量 `check` 验证正式报告、完整关系图、资源与索引；合法 candidate 只进行成员安全、身份冲突和候选诊断，不被接纳为正式来源。scoped check 只验证命中正式报告及其直接引用，不证明完整图、拆分闭合、未引用资源集合或索引新鲜度。
+2. `sync-index` 不要求旧索引新鲜；无 `--select` 时它在集合 mutation lock 内验证完整**正式**报告、关系图和资源，再从同一正式 Markdown snapshot 重建索引。它忽略合法 candidates，只因 candidate 路径或身份不安全而阻断。锁冲突时命令零写入失败并要求在当前事务结束后重试。已建立空集合只有在当前有效索引存在时成立。
+3. `sync-index --select <name-or-id> ... [--write]` 仍在同一 lock 内完整读取并验证正式集合，不是局部读取。每个 selector 只移除一个末尾 `.md`，先按 calendar-valid ID exact 解析，失败才在持久 baseline 与 current candidate 的 name 映射并集按 unique name 解析；标准 ID 未命中不得回退 name。结果保留输入顺序的原始 `selectors`，并分别按规范顺序报告解析后的 `selectedIds` 与 `changedIds`。selected scope 需要可信 baseline，拒绝集合 metadata 或 metadata revision 改变，并对两边 entry/revision ID 并集计算全部变化。只有所有变化均已选择时 `--write` 原子发布完整 candidate；默认 check 对允许变化返回 stale，任何未选择变化、未知 ID 或坏 baseline 都零写入。新增、删除和显式 ID rename 分别选择新 ID、旧 ID、或同时选择旧/新 ID。它不写 Git pending，不能代替 `stage-index` 或领域 rename 事务。
+4. `sync-index` 是完整正式集合的低频重建、恢复与显式接纳入口。一批手工正式创建、修正、改名或资源引用调整可以先共同完成；在 `list`、`show`、`trace`、已有关系事务、正式 `discard`、默认全量 `check`、`stage-index` 或交付需要当前索引前运行一次。批量编辑期间索引可以暂时陈旧，此时使用 scoped check 或直接读取 Markdown；陈旧索引不提供当前集合事实。
 
 ### `publish`
 
@@ -210,7 +222,7 @@ node <investigation-report-skill>/scripts/check-investigations.mjs discard-candi
 node <investigation-report-skill>/scripts/check-investigations.mjs --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs sync-index --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs list --root <workspace-root>
-node <investigation-report-skill>/scripts/check-investigations.mjs search <text> [--match all|any|phrase] --root <workspace-root>
+node <investigation-report-skill>/scripts/check-investigations.mjs search <text> [--in content|metadata] [--match all|any|phrase] --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs show <selector> --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs trace <selector> --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs set-relations --source <selector> (--relation <type=target-selector>... [--relation-summary <target-selector=summary>...] | --clear-relations) --root <workspace-root>

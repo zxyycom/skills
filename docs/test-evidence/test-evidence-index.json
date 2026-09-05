@@ -3546,6 +3546,52 @@
         "title": "拒绝移除领域字段与未知 frontmatter"
       }
     },
+    "DECISION-METADATA-SEARCH-001": {
+      "keys": {
+        "search": [
+          "DECISION-METADATA-SEARCH-001 Metadata search 只匹配已发布字段和来源关系摘要 `search --in metadata` 只在已发布 Decision 索引的字段白名单、单个 tag 和来源记录的非空 relation summary 中匹配；all 可跨 segment，phrase 不跨 segment，relation type 和 target 不作为自由文本字段。 NFKC 的 title 与 tag 可共同满足 all，并以固定字段顺序输出 matchedFields，且不输出 content preview。 跨 title/tag 的 phrase 不命中；relation summary 的 phrase 只返回其来源记录和实际命中的 type、target、summary，type 本身不命中。 tools/decision-records/tests/queries.test.ts > decision metadata search matches published fields and source relation summaries bun test --test-name-pattern=\"^decision metadata search matches published fields and source relation summaries$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision metadata search matches published fields and source relation summaries",
+          "bun test --test-name-pattern=\"^decision metadata search matches published fields and source relation summaries$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-METADATA-SEARCH-001",
+        "line": 1,
+        "searchText": "Metadata search 只匹配已发布字段和来源关系摘要 `search --in metadata` 只在已发布 Decision 索引的字段白名单、单个 tag 和来源记录的非空 relation summary 中匹配；all 可跨 segment，phrase 不跨 segment，relation type 和 target 不作为自由文本字段。 NFKC 的 title 与 tag 可共同满足 all，并以固定字段顺序输出 matchedFields，且不输出 content preview。 跨 title/tag 的 phrase 不命中；relation summary 的 phrase 只返回其来源记录和实际命中的 type、target、summary，type 本身不命中。 tools/decision-records/tests/queries.test.ts > decision metadata search matches published fields and source relation summaries bun test --test-name-pattern=\"^decision metadata search matches published fields and source relation summaries$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-metadata-search-matches-published-fields-and-relation-summaries.md",
+        "summary": "`search --in metadata` 只在已发布 Decision 索引的字段白名单、单个 tag 和来源记录的非空 relation summary 中匹配；all 可跨 segment，phrase 不跨 segment，relation type 和 target 不作为自由文本字段。",
+        "title": "Metadata search 只匹配已发布字段和来源关系摘要"
+      }
+    },
+    "DECISION-METADATA-SEARCH-INDEX-001": {
+      "keys": {
+        "search": [
+          "DECISION-METADATA-SEARCH-INDEX-001 Metadata search 不读取实体并在索引失败时给出恢复路径 `search --in metadata` 只能读取持久 Decision index；索引不可用时不得读取实体或回退，并以可行动的 check/sync-index 诊断失败。 注入的 Decision Markdown 读取失败不影响 metadata 查询成功。 删除持久索引后命令非零退出，报告 metadata index 诊断和 check/sync-index 恢复步骤。 tools/decision-records/tests/queries.test.ts > decision metadata search uses only its published index and reports index recovery bun test --test-name-pattern=\"^decision metadata search uses only its published index and reports index recovery$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision metadata search uses only its published index and reports index recovery",
+          "bun test --test-name-pattern=\"^decision metadata search uses only its published index and reports index recovery$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-METADATA-SEARCH-INDEX-001",
+        "line": 1,
+        "searchText": "Metadata search 不读取实体并在索引失败时给出恢复路径 `search --in metadata` 只能读取持久 Decision index；索引不可用时不得读取实体或回退，并以可行动的 check/sync-index 诊断失败。 注入的 Decision Markdown 读取失败不影响 metadata 查询成功。 删除持久索引后命令非零退出，报告 metadata index 诊断和 check/sync-index 恢复步骤。 tools/decision-records/tests/queries.test.ts > decision metadata search uses only its published index and reports index recovery bun test --test-name-pattern=\"^decision metadata search uses only its published index and reports index recovery$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-metadata-search-uses-published-index-and-reports-recovery.md",
+        "summary": "`search --in metadata` 只能读取持久 Decision index；索引不可用时不得读取实体或回退，并以可行动的 check/sync-index 诊断失败。",
+        "title": "Metadata search 不读取实体并在索引失败时给出恢复路径"
+      }
+    },
     "DECISION-QUERY-INDEX-MEMBERSHIP-001": {
       "keys": {
         "search": [
@@ -4354,7 +4400,7 @@
     "DECISION-SEARCH-HELP-001": {
       "keys": {
         "search": [
-          "DECISION-SEARCH-HELP-001 Decision search 帮助公开匹配模式与结构筛选 Decision search 的帮助必须公开 all、any、phrase 匹配模式以及 alignment、status、tag 结构化筛选。 search 帮助列出 match、alignment、status 和 tag 选项。 帮助明确列出三种允许的匹配模式。 tools/decision-records/tests/cli-args.test.ts > decision search help exposes full-text modes and structural filters bun test --test-name-pattern=\"^decision search help exposes full-text modes and structural filters$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-SEARCH-HELP-001 Decision search 帮助公开匹配模式与结构筛选 Decision search 的帮助必须公开 content/metadata 范围、all、any、phrase 匹配模式以及 alignment、status、tag 结构化筛选。 search 帮助列出 in、match、alignment、status 和 tag 选项。 帮助明确列出两种允许范围和三种允许的匹配模式。 tools/decision-records/tests/cli-args.test.ts > decision search help exposes full-text modes and structural filters bun test --test-name-pattern=\"^decision search help exposes full-text modes and structural filters$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -4368,16 +4414,16 @@
         ],
         "id": "DECISION-SEARCH-HELP-001",
         "line": 1,
-        "searchText": "Decision search 帮助公开匹配模式与结构筛选 Decision search 的帮助必须公开 all、any、phrase 匹配模式以及 alignment、status、tag 结构化筛选。 search 帮助列出 match、alignment、status 和 tag 选项。 帮助明确列出三种允许的匹配模式。 tools/decision-records/tests/cli-args.test.ts > decision search help exposes full-text modes and structural filters bun test --test-name-pattern=\"^decision search help exposes full-text modes and structural filters$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Decision search 帮助公开匹配模式与结构筛选 Decision search 的帮助必须公开 content/metadata 范围、all、any、phrase 匹配模式以及 alignment、status、tag 结构化筛选。 search 帮助列出 in、match、alignment、status 和 tag 选项。 帮助明确列出两种允许范围和三种允许的匹配模式。 tools/decision-records/tests/cli-args.test.ts > decision search help exposes full-text modes and structural filters bun test --test-name-pattern=\"^decision search help exposes full-text modes and structural filters$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-search-help-exposes-modes-and-filters.md",
-        "summary": "Decision search 的帮助必须公开 all、any、phrase 匹配模式以及 alignment、status、tag 结构化筛选。",
+        "summary": "Decision search 的帮助必须公开 content/metadata 范围、all、any、phrase 匹配模式以及 alignment、status、tag 结构化筛选。",
         "title": "Decision search 帮助公开匹配模式与结构筛选"
       }
     },
     "DECISION-SEARCH-MODES-001": {
       "keys": {
         "search": [
-          "DECISION-SEARCH-MODES-001 Decision search 以三种模式检索完整 Markdown Decision search 必须在已建立决策的完整 Markdown 中支持 all、any、phrase 三种文本匹配，并将命中 sourcePath 和预览与稳定 ID 一并输出。 位于正文的稀有词组在默认 all、any 和 phrase 查询中都返回对应 Decision ID。 输出含语义 sourcePath、previews 标记和正文命中片段。 tools/decision-records/tests/queries.test.ts > decision search finds full Markdown text with all, any, and phrase modes bun test --test-name-pattern=\"^decision search finds full Markdown text with all, any, and phrase modes$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-SEARCH-MODES-001 Decision search 以三种模式检索完整 Markdown Decision search 的默认范围和显式 `--in content` 都必须在已建立决策的完整 Markdown 中支持 all、any、phrase 三种文本匹配，并将命中 sourcePath 和预览与稳定 ID 一并输出。 位于正文的稀有词组在默认和显式 content 的 all 查询，以及默认 any 和 phrase 查询中都返回对应 Decision ID。 输出含语义 sourcePath、previews 标记和正文命中片段。 tools/decision-records/tests/queries.test.ts > decision search finds full Markdown text with all, any, and phrase modes bun test --test-name-pattern=\"^decision search finds full Markdown text with all, any, and phrase modes$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -4391,9 +4437,9 @@
         ],
         "id": "DECISION-SEARCH-MODES-001",
         "line": 1,
-        "searchText": "Decision search 以三种模式检索完整 Markdown Decision search 必须在已建立决策的完整 Markdown 中支持 all、any、phrase 三种文本匹配，并将命中 sourcePath 和预览与稳定 ID 一并输出。 位于正文的稀有词组在默认 all、any 和 phrase 查询中都返回对应 Decision ID。 输出含语义 sourcePath、previews 标记和正文命中片段。 tools/decision-records/tests/queries.test.ts > decision search finds full Markdown text with all, any, and phrase modes bun test --test-name-pattern=\"^decision search finds full Markdown text with all, any, and phrase modes$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Decision search 以三种模式检索完整 Markdown Decision search 的默认范围和显式 `--in content` 都必须在已建立决策的完整 Markdown 中支持 all、any、phrase 三种文本匹配，并将命中 sourcePath 和预览与稳定 ID 一并输出。 位于正文的稀有词组在默认和显式 content 的 all 查询，以及默认 any 和 phrase 查询中都返回对应 Decision ID。 输出含语义 sourcePath、previews 标记和正文命中片段。 tools/decision-records/tests/queries.test.ts > decision search finds full Markdown text with all, any, and phrase modes bun test --test-name-pattern=\"^decision search finds full Markdown text with all, any, and phrase modes$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-search-finds-full-markdown-in-all-any-and-phrase-modes.md",
-        "summary": "Decision search 必须在已建立决策的完整 Markdown 中支持 all、any、phrase 三种文本匹配，并将命中 sourcePath 和预览与稳定 ID 一并输出。",
+        "summary": "Decision search 的默认范围和显式 `--in content` 都必须在已建立决策的完整 Markdown 中支持 all、any、phrase 三种文本匹配，并将命中 sourcePath 和预览与稳定 ID 一并输出。",
         "title": "Decision search 以三种模式检索完整 Markdown"
       }
     },
@@ -11139,6 +11185,29 @@
         "sourcePath": "investigation-report/indexes-and-queries-one-thousand-independent-reports-by-investigation-id.md",
         "summary": "报告索引与查询可处理一千份独立 Investigation ID 报告并保持 ID 排序。",
         "title": "indexes and queries one thousand independent reports by Investigation ID"
+      }
+    },
+    "INVESTIGATION-SEARCH-METADATA-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-SEARCH-METADATA-001 search 仅读取已发布 metadata 并报告命中证据 `search --in metadata` 只读取持久 Investigation 索引，在既有结构筛选后以独立字段和 relation summary segment 匹配，并在完整确定集形成后应用既有 `--limit`。 metadata 的 all、phrase、relation summary 和 limit 分别按字段 segment、来源 relation 与 sourcePath 确定顺序产生可观察结果；relation type 和 target 不会使来源报告命中，输出只列实际命中的字段和 relation。 CLI 省略 `--in` 与显式 `--in content` 具有相同输出；metadata CLI 不输出内容行预览。 读取报告 Markdown 会使测试失败；索引缺失时 metadata 搜索失败并提供 `check`、`sync-index` recovery，而不回退到实体。 tools/investigation-report/tests/index-query.test.ts > search reads published metadata without reading report sources bun test --test-name-pattern=\"^search reads published metadata without reading report sources$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > search reads published metadata without reading report sources",
+          "bun test --test-name-pattern=\"^search reads published metadata without reading report sources$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-SEARCH-METADATA-001",
+        "line": 1,
+        "searchText": "search 仅读取已发布 metadata 并报告命中证据 `search --in metadata` 只读取持久 Investigation 索引，在既有结构筛选后以独立字段和 relation summary segment 匹配，并在完整确定集形成后应用既有 `--limit`。 metadata 的 all、phrase、relation summary 和 limit 分别按字段 segment、来源 relation 与 sourcePath 确定顺序产生可观察结果；relation type 和 target 不会使来源报告命中，输出只列实际命中的字段和 relation。 CLI 省略 `--in` 与显式 `--in content` 具有相同输出；metadata CLI 不输出内容行预览。 读取报告 Markdown 会使测试失败；索引缺失时 metadata 搜索失败并提供 `check`、`sync-index` recovery，而不回退到实体。 tools/investigation-report/tests/index-query.test.ts > search reads published metadata without reading report sources bun test --test-name-pattern=\"^search reads published metadata without reading report sources$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/searches-published-metadata-without-reading-report-sources.md",
+        "summary": "`search --in metadata` 只读取持久 Investigation 索引，在既有结构筛选后以独立字段和 relation summary segment 匹配，并在完整确定集形成后应用既有 `--limit`。",
+        "title": "search 仅读取已发布 metadata 并报告命中证据"
       }
     },
     "INVESTIGATION-SEARCH-MODES-001": {
@@ -18580,6 +18649,8 @@
       "DECISION-MEMORY-SOURCE-BOUNDARY-001": "sha256:83bc736e80ba5c13c380e5ab00601d8bc47113dac1a5f61813ec5d73900e4cab",
       "DECISION-MERGE-MINIMUM-001": "sha256:9d9808672a6bb7bbfec041dbe3bac03f8b91c6212b4b222e5726e1d14c2338b9",
       "DECISION-METADATA-REMOVED-001": "sha256:acf1d41ba428423573e46332b0b03bcc68c1ad1112445b11d43d9dacae2b591d",
+      "DECISION-METADATA-SEARCH-001": "sha256:01a8aebec6d865ae0de03cc81416b22d99c4d5e0eec16f7f40d356b8b63b195c",
+      "DECISION-METADATA-SEARCH-INDEX-001": "sha256:cf5e8dc2980ea2981a9c9db22a86f72e43435005b38c7097d1ed4c855e75b5f3",
       "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:9be8324d65bc1f3f24199487d7f338d0e126a3388fd49469ef8d71b935bf23cf",
       "DECISION-REALLOCATION-CANDIDATE-001": "sha256:c883ddef5c266f1971d57c3d9415ccd44e63f716aa5021e8cbf09d63dfb69521",
       "DECISION-REALLOCATION-CLOSURE-001": "sha256:618838d15e81eb85480b34a4517c4f5c44636ed247b400bcb6bd9d629bc8f616",
@@ -18615,8 +18686,8 @@
       "DECISION-RENAME-SELECTOR-001": "sha256:124dcdffcc6825fc13b74d63a5fbad52b7b78d99c33dc79ad6cbd057d2408213",
       "DECISION-SCAN-FILESYSTEM-DIAGNOSTIC-001": "sha256:2c55fc6ef196dbbf0d5faa2e563e5d9927b146b93734101afeef1008a7a64ea4",
       "DECISION-SEARCH-FALLBACK-001": "sha256:e4ab6db960a4b9addc4749df09e70d48b09f03a66589977c48eb632d42f372a5",
-      "DECISION-SEARCH-HELP-001": "sha256:591dd8dd41c6d1f3835be919993985f22f3138f43918baf457bc3fdfeec7b7a2",
-      "DECISION-SEARCH-MODES-001": "sha256:6da86777947093a736e44ae10630fc0e1af5872c28cf0650fe2a293705480016",
+      "DECISION-SEARCH-HELP-001": "sha256:3a6182592d416c73172d311d1f9b420a793a6fd233ea250c6d3ae596c6e5c274",
+      "DECISION-SEARCH-MODES-001": "sha256:d44fae3691df9ac73da4ae39656ad216610c66d08ebe564bceb0e3e1304fd0c3",
       "DECISION-SEARCH-STATUS-001": "sha256:e0cec11a12009f272ca361c0b1e037d57fabf0da23b15fd2737d95a9d612c5de",
       "DECISION-SEARCH-UNINDEXED-001": "sha256:69f19d4ad3dc8d0e9162cf79c590d71c095a71b6badea75b017d135d96eacc9e",
       "DECISION-SELECTED-SYNC-001": "sha256:7c9a813540c06875ae0607c0d3f9fd455102bd9f3d63c880040e08f8726ee615",
@@ -18910,6 +18981,7 @@
       "INVESTIGATION-RESOURCE-TYPE-001": "sha256:136efbc83e2cff8a2a8354dc99819168ebb89c5cf70a268ee466e1ffab2a4a63",
       "INVESTIGATION-ROOT-CONFINEMENT-001": "sha256:6cfebc15ed121b4633e6278486565a97c892b8ed39f7a253b59d3d2c62f3c45b",
       "INVESTIGATION-SCALE-INDEX-001": "sha256:a0a230f55169ec69d236d9166c1211e849df1cc89b1bcd5decf70c507133c675",
+      "INVESTIGATION-SEARCH-METADATA-001": "sha256:1c202427e9fce23fe6634b0028628a360798db6f742eaf487769a438c9702e83",
       "INVESTIGATION-SEARCH-MODES-001": "sha256:c52ed037f3d5fec9f802d4bf8c7afcd48bf309d2c7336811b3ce7e5a16ba3ab9",
       "INVESTIGATION-SEARCH-SCOPE-001": "sha256:bc522fcbab3750f50bce4c7b68a1ebad432c9ab32db63d4bb96b16c5a1dcdc07",
       "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001": "sha256:e5d12ac91489c69c70d97324e056f64336d29072c176d68e6afeaf068425ca05",

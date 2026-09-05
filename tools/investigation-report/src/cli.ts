@@ -130,6 +130,7 @@ const valueOptions = new Set([
   "formed-to",
   "relation-type",
   "match",
+  "in",
   "limit",
   "offset",
   "direction",
@@ -194,9 +195,9 @@ function printHelp(
       "List reports from the current derived index."
     ],
     search: [
-      "Usage: investigation-report search <text> [--match all|any|phrase] [options]",
+      "Usage: investigation-report search <text> [--in content|metadata] [--match all|any|phrase] [options]",
       "",
-      "Search complete formal report Markdown, then return matching report IDs and previews."
+      "Search formal report content by default, or only the published index metadata."
     ],
     show: [
       "Usage: investigation-report show <investigation-id> [options]",
@@ -280,6 +281,7 @@ function printHelp(
       "  --offset <count>              Page offset (default: 0)"
     ],
     search: [
+      "  --in <scope>                  content (default) or published index metadata",
       "  --match <mode>                all, any, or phrase (default: all)",
       "  --tag <tag>                   Repeatable AND tag filter",
       "  --formed-from <timestamp>     Inclusive formedAt lower bound",
@@ -1245,6 +1247,7 @@ async function runSearch(
     "root",
     "investigations-dir",
     "match",
+    "in",
     "tag",
     "formed-from",
     "formed-to",
@@ -1259,6 +1262,9 @@ async function runSearch(
     ...(valueOf(input.values, "match") === undefined
       ? {}
       : { match: valueOf(input.values, "match") }),
+    ...(valueOf(input.values, "in") === undefined
+      ? {}
+      : { in: valueOf(input.values, "in") }),
     ...(valuesOf(input.values, "tag") === undefined
       ? {}
       : { tags: valuesOf(input.values, "tag") }),
@@ -1294,8 +1300,23 @@ async function runSearch(
     writeLine(io.stdout, `  question: ${entry.question}`);
     writeLine(io.stdout, `  tags: ${entry.tags.join(", ")}`);
     writeLine(io.stdout, `  sourcePath: ${entry.sourcePath}`);
-    for (const preview of entry.previews)
-      writeLine(io.stdout, `  ${preview.line}: ${preview.preview}`);
+    if ("previews" in entry) {
+      for (const preview of entry.previews)
+        writeLine(io.stdout, `  ${preview.line}: ${preview.preview}`);
+    } else {
+      writeLine(
+        io.stdout,
+        `  matchedFields: ${entry.matchedFields.join(", ")}`
+      );
+      writeLine(io.stdout, "  matchedRelations:");
+      if (entry.matchedRelations.length === 0)
+        writeLine(io.stdout, "    - none");
+      for (const relation of entry.matchedRelations)
+        writeLine(
+          io.stdout,
+          `    - ${relation.type} ${relation.target}: ${relation.summary}`
+        );
+    }
   }
   if (
     result.truncation.files ||
@@ -1740,6 +1761,7 @@ export {
   publishInvestigationCandidates,
   renameInvestigationRecord,
   queryInvestigationIndex,
+  searchInvestigationReports,
   setInvestigationRelations,
   showInvestigationCandidate,
   showInvestigationReport,
@@ -1780,7 +1802,14 @@ export type {
   InvestigationReportShowOptions,
   InvestigationReportShowResult,
   InvestigationReportTraceOptions,
-  InvestigationReportTraceResult
+  InvestigationReportTraceResult,
+  InvestigationSearchEntry,
+  InvestigationSearchOptions,
+  InvestigationSearchResult,
+  InvestigationContentSearchEntry,
+  InvestigationMetadataMatchedRelation,
+  InvestigationMetadataSearchEntry,
+  InvestigationMetadataSearchField
 } from "./types.ts";
 export type {
   InvestigationRenameOptions,

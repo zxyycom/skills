@@ -127,6 +127,7 @@ export type CliArgs =
       "search",
       {
         alignment: DecisionListAlignment;
+        in: "content" | "metadata";
         match: "all" | "any" | "phrase";
         status: DecisionListStatus;
         tags: DecisionTag[];
@@ -165,6 +166,7 @@ type ParsedOptions = {
   decision?: string;
   direction?: DecisionTraceDirection;
   fullTime?: boolean;
+  in?: "content" | "metadata";
   keepUnrecordedHistory?: boolean;
   preflight?: boolean;
   renameRecordedDecision?: boolean;
@@ -587,6 +589,7 @@ function searchCommandArgs(
     ...location,
     alignment: options.alignment ?? "all",
     command: "search",
+    in: options.in ?? "content",
     match: options.match ?? "all",
     status: options.status ?? "active",
     tags: options.tag ?? [],
@@ -767,13 +770,24 @@ export function createCliProgram(
   const search = createSubcommand(
     program,
     "search",
-    "Search full text in indexed established Decision sources and return matching previews."
+    "Search established Decision content by default, or the published index metadata."
   )
-    .argument("<text>", "Text to find in the selected Decision Markdown files.")
+    .argument(
+      "<text>",
+      "Text to find in selected Decision content or published metadata."
+    )
     .addOption(
       new Option("--match <mode>", "Text matching mode.")
         .choices(["all", "any", "phrase"])
         .default("all")
+    )
+    .addOption(
+      new Option(
+        "--in <scope>",
+        "Search scope: content reads established Markdown; metadata reads only the published index."
+      )
+        .choices(["content", "metadata"])
+        .default("content")
     )
     .addOption(
       new Option(

@@ -99,6 +99,7 @@ const investigationIndexQueryOptionsSchema = v.strictObject({
 const investigationSearchOptionsSchema = v.strictObject({
   formedAtFrom: optionalStringSchema,
   formedAtTo: optionalStringSchema,
+  in: v.optional(v.picklist(["content", "metadata"])),
   ...locationFields,
   limit: optionalNumberSchema,
   match: v.optional(v.picklist(["all", "any", "phrase"])),

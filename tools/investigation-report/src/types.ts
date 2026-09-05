@@ -226,6 +226,7 @@ export type InvestigationIndexQueryResult = {
 export type InvestigationSearchOptions = Readonly<{
   formedAtFrom?: string;
   formedAtTo?: string;
+  in?: "content" | "metadata";
   investigationsDir?: string;
   limit?: number;
   match?: "all" | "any" | "phrase";
@@ -234,7 +235,7 @@ export type InvestigationSearchOptions = Readonly<{
   tags?: readonly string[];
   workspaceRoot: string;
 }>;
-export type InvestigationSearchEntry = Readonly<{
+export type InvestigationContentSearchEntry = Readonly<{
   formedAt: string;
   id: string;
   previews: readonly Readonly<{
@@ -247,6 +248,33 @@ export type InvestigationSearchEntry = Readonly<{
   tags: readonly string[];
   title: string;
 }>;
+export const investigationMetadataSearchFields = [
+  "id",
+  "name",
+  "title",
+  "question",
+  "tags"
+] as const;
+export type InvestigationMetadataSearchField =
+  (typeof investigationMetadataSearchFields)[number];
+export type InvestigationMetadataMatchedRelation = Readonly<{
+  summary: string;
+  target: string;
+  type: InvestigationRelationType;
+}>;
+export type InvestigationMetadataSearchEntry = Readonly<{
+  formedAt: string;
+  id: string;
+  matchedFields: readonly InvestigationMetadataSearchField[];
+  matchedRelations: readonly InvestigationMetadataMatchedRelation[];
+  question: string;
+  sourcePath: string;
+  tags: readonly string[];
+  title: string;
+}>;
+export type InvestigationSearchEntry =
+  | InvestigationContentSearchEntry
+  | InvestigationMetadataSearchEntry;
 export type InvestigationSearchResult = Readonly<{
   diagnostics: readonly InvestigationDiagnostic[];
   entries: readonly InvestigationSearchEntry[];

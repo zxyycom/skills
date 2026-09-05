@@ -4,8 +4,11 @@ import os from "node:os";
 import path from "node:path";
 import test, { after } from "node:test";
 import {
+  createTextSearchMatcher,
   FileTextSearchError,
+  matchTextSegments,
   searchFileText,
+  TextSearchMatcherError,
   type FileTextSearchMode,
   type FileTextSearchSelection
 } from "../src/file-text-search/index.ts";
@@ -52,6 +55,52 @@ function request(
     selection
   } as const;
 }
+
+test("matches independent segments while retaining their identifiers and original ranges", () => {
+  const all = matchTextSegments(
+    createTextSearchMatcher({ mode: "all", text: "alpha beta" }),
+    [
+      { identifier: "title", text: "Ａlpha" },
+      { identifier: "tag:0", text: "Ｂeta" }
+    ]
+  );
+  assert.deepEqual(all, [
+    { identifier: "title", ranges: [{ end: 5, start: 0 }] },
+    { identifier: "tag:0", ranges: [{ end: 4, start: 0 }] }
+  ]);
+
+  const phrase = matchTextSegments(
+    createTextSearchMatcher({ mode: "phrase", text: "alpha beta" }),
+    [
+      { identifier: "title", text: "Alpha" },
+      { identifier: "tag:0", text: "Beta" }
+    ]
+  );
+  assert.deepEqual(phrase, []);
+
+  const normalizedPhrase = matchTextSegments(
+    createTextSearchMatcher({ mode: "phrase", text: "alpha beta" }),
+    [{ identifier: "summary", text: "前缀 Ａlpha\u00a0Ｂeta 后缀" }]
+  );
+  assert.deepEqual(normalizedPhrase, [
+    { identifier: "summary", ranges: [{ end: 13, start: 3 }] }
+  ]);
+});
+
+test("rejects aborted segment matching at the pure matcher boundary", () => {
+  const controller = new AbortController();
+  controller.abort();
+  assert.throws(
+    () =>
+      matchTextSegments(
+        createTextSearchMatcher({ mode: "any", text: "needle" }),
+        [{ identifier: "field", text: "needle" }],
+        controller.signal
+      ),
+    (error: unknown) =>
+      error instanceof TextSearchMatcherError && error.code === "aborted"
+  );
+});
 
 test("selects root-relative regular files equivalently from patterns and explicit files", async () => {
   await withFixture(

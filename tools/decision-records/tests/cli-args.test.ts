@@ -99,6 +99,7 @@ test("decision search help exposes full-text modes and structural filters", asyn
   assert.equal(help.exitCode, 0);
   for (const option of [
     "--match <mode>",
+    "--in <scope>",
     "--alignment <value>",
     "--status <value>",
     "--tag <tag>"
@@ -106,6 +107,7 @@ test("decision search help exposes full-text modes and structural filters", asyn
     assert.ok(help.stdout.includes(option), option);
   }
   assert.match(help.stdout, /"all", "any", "phrase"/);
+  assert.match(help.stdout, /"content", "metadata"/);
 });
 
 test("new help fixes explicit scaffold inputs without accepting lifecycle alignment", async () => {

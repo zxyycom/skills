@@ -5,7 +5,7 @@ description: >-
   每份报告以稳定 Investigation ID 保存一轮形成时的背景、依据、结果和边界；tags 用于分类，显式直接前序关系用于认识演进。
   当前事实、长期方向与实施授权继续由各自 owner 承接。
 metadata:
-  version: "36"
+  version: "37"
 ---
 
 # Investigation Report
@@ -23,8 +23,8 @@ metadata:
 1. 本文件承接报告形成与审阅、候选 authoring、关系判断、资源取舍和维护流程；领域调查方法与当前事实由相应任务和 owner 承接。
 2. [固定契约](references/investigation-report-contract.md) 承接报告与候选的身份、结构、关系、资源、索引、CLI、事务与运行时诊断。创建、publish、调整关系、剔除或结构审阅前完整读取。
 3. [维护恢复](references/maintenance-recovery.md) 承接 warning、mutation outcome、锁、权限与中断写入的操作者恢复边界；只在相应诊断或恢复条件出现时读取。
-4. 先读取工作区指令：已知准确 ID 或 name 时用 `show`；已知 tags、formedAt 或关系类型时用 `list`；只知道主题、概念、原因或正文措辞时先用 `search`；需要前序或后继时，再用返回完整 ID 的 `trace`。候选仍用 `candidates`、`show-candidate` 审阅。`search` 的 `all`、`any` 可在不同物理行命中词，`phrase` 只匹配同一物理行连续短语；三者统一 NFKC、忽略大小写并按空白处理查询。它可用 tags、formedAt、关系类型预筛选，`--limit` 只限制命中报告（默认 50、最大 1000）。
-5. `search` 先以同一当前索引快照的正式 entries 建立显式文件列表和唯一 `sourcePath → ID` 映射，绝不扫描 candidate、资源或索引文件；索引缺失、损坏或不新鲜时，只有完整正式来源与资源验证成功才会只读降级并 warning。截断 warning 表示返回或预览受资源上限限制，不能把未显示结果或无结果说成不存在；应收紧筛选、调整 `--limit`，或用已返回 ID 的 `show`/`trace` 深入读取。获得维护授权后才用 `sync-index` 恢复索引。无法恢复的信息记为未知，确实改变问题或结果解释时再向用户确认。
+4. 先读取工作区指令：已知准确 ID 或 name 时用 `show`；已知 tags、formedAt 或关系类型时用 `list`；只知道主题、概念、原因或正文措辞时用 `search`；需要前序或后继时用结果中的完整 ID 调用 `trace`。候选仍用 `candidates`、`show-candidate` 审阅。省略 `--in` 等于 `--in content`，即搜索正式报告 Markdown；`--in metadata` 只搜索已发布索引快照。两种范围都先应用 tags、formedAt、关系类型条件，且统一 NFKC、忽略大小写并按空白处理 `all|any|phrase`。`all`、`any` 可由同一报告的多个 content 物理行或 metadata segment 满足，`phrase` 只能位于一个物理行或一个 metadata segment；`--limit` 只限制已形成的完整确定匹配集（默认 50、最大 1000）。
+5. content 的权威内容是当前索引快照选中的正式 Markdown，候选、资源和索引文件一律排除；索引缺失、损坏或不新鲜时，只有完整正式来源与资源验证成功才可只读降级并 warning。metadata 的权威内容是持久索引：它不读取报告、candidate、资源或 relation target，不检查来源新鲜度，也不回退。它分别匹配 ID、name、title、question、每个 tag 和本来源记录的每条非空 relation summary；`matchedFields` 只列实际命中的普通字段，`matchedRelations` 只列实际命中的来源 `{ type, target, summary }`，不返回内容预览。metadata 快照可能滞后未同步来源，不能据此陈述当前报告事实；索引读取失败时先运行 `check`，修正后在获得维护授权时运行 `sync-index`。content 的截断 warning 表示返回或预览受资源上限限制，不能把未显示结果或无结果说成不存在；应收紧筛选、调整 `--limit`，或用已返回 ID 的 `show`/`trace` 深入读取。
 
 ## 常用 CLI
 
@@ -43,7 +43,7 @@ node scripts/check-investigations.mjs <command> [options] --root <workspace-root
 | 正常建立选中候选 | `publish <selector...>` | 重新检查后，只把显式选择的 candidates 事务化建立为正式报告。 |
 | 丢弃候选 | `discard-candidate <selector>` | 只删除显式候选及经确认的候选 owner 资源。 |
 | 结构化浏览正式报告 | `list` | 读取当前正式索引，忽略 candidates。 |
-| 按主题发现正式报告 | `search <text>` | 搜索正式报告完整 Markdown，返回 ID、摘要和命中预览；当前索引不可用或不新鲜时，完整验证来源后只读降级。 |
+| 按主题发现正式报告 | `search <text> [--in content\|metadata]` | 默认搜索正式报告 Markdown，返回 ID、摘要和命中预览，并在索引不可用或不新鲜时只读降级；metadata 只查询已发布索引并返回命中字段和 relation summary，不读取实体或降级。 |
 | 读取完整正式报告 | `show <selector>` | 通过当前正式索引定位报告。 |
 | 追溯正式关系 | `trace <selector>` | 查询当前正式索引中的关系图。 |
 | 编辑期间检查所选正式报告 | `check --id <investigation-id>` | 只检查所选正式报告及其直接资源，不检查索引新鲜度。 |
