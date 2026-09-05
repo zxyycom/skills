@@ -14,6 +14,7 @@ import {
   type DecisionListAlignment,
   type DecisionListStatus,
   type DecisionRelation,
+  type DecisionRelationType,
   type DecisionRelationOverride,
   type DecisionRelationSummary,
   type DecisionSuccessor,
@@ -94,7 +95,10 @@ export type CliArgs =
       "list",
       {
         alignment: DecisionListAlignment;
+        direction?: DecisionTraceDirection;
         fullTime: boolean;
+        relatedTo?: string;
+        relationType?: DecisionRelationType;
         status: DecisionListStatus;
         tags: DecisionTag[];
       }
@@ -127,8 +131,11 @@ export type CliArgs =
       "search",
       {
         alignment: DecisionListAlignment;
+        direction?: DecisionTraceDirection;
         in: "content" | "metadata";
         match: "all" | "any" | "phrase";
+        relatedTo?: string;
+        relationType?: DecisionRelationType;
         status: DecisionListStatus;
         tags: DecisionTag[];
         text: string;
@@ -174,6 +181,8 @@ type ParsedOptions = {
   match?: "all" | "any" | "phrase";
   purpose?: string;
   relation?: DecisionRelation[];
+  relatedTo?: string;
+  relationType?: DecisionRelationType;
   relationSummary?: DecisionRelationSummary[];
   root?: string;
   status?: DecisionListStatus;
@@ -567,11 +576,21 @@ function listCommandArgs(
   location: CommandLocation,
   options: ParsedOptions
 ): CliArgsFor<"list"> {
+  validateRelatedDirection(options);
   return {
     ...location,
     alignment: options.alignment ?? "all",
     command: "list",
+    ...(options.direction === undefined
+      ? {}
+      : { direction: options.direction }),
     fullTime: options.fullTime ?? false,
+    ...(options.relatedTo === undefined
+      ? {}
+      : { relatedTo: options.relatedTo }),
+    ...(options.relationType === undefined
+      ? {}
+      : { relationType: options.relationType }),
     status: options.status ?? "active",
     tags: options.tag ?? []
   };
@@ -585,16 +604,44 @@ function searchCommandArgs(
   if (typeof text !== "string") {
     throw new InvalidArgumentError("Search text is required");
   }
+  validateRelatedDirection(options);
   return {
     ...location,
     alignment: options.alignment ?? "all",
     command: "search",
+    ...(options.direction === undefined
+      ? {}
+      : { direction: options.direction }),
     in: options.in ?? "content",
     match: options.match ?? "all",
+    ...(options.relatedTo === undefined
+      ? {}
+      : { relatedTo: options.relatedTo }),
+    ...(options.relationType === undefined
+      ? {}
+      : { relationType: options.relationType }),
     status: options.status ?? "active",
     tags: options.tag ?? [],
     text
   };
+}
+
+function validateRelatedDirection(options: ParsedOptions): void {
+  if (options.direction !== undefined && options.relatedTo === undefined) {
+    throw new InvalidArgumentError(
+      "--direction requires --related-to <selector>"
+    );
+  }
+}
+
+function singleRelationQueryOption(option: Option): Option {
+  const parse = option.parseArg;
+  return option.argParser((value, previous) => {
+    if (previous !== undefined) {
+      throw new InvalidArgumentError(`--${option.name()} must not be repeated`);
+    }
+    return parse === undefined ? value : parse(value, previous);
+  });
 }
 
 function traceCommandArgs(
@@ -761,6 +808,30 @@ export function createCliProgram(
         "Require one tag. Repeat for AND filtering."
       ).argParser(parseDecisionTag)
     )
+    .addOption(
+      singleRelationQueryOption(
+        new Option(
+          "--related-to <selector>",
+          "Require a directly related Decision by standard ID or unique semantic name."
+        )
+      )
+    )
+    .addOption(
+      singleRelationQueryOption(
+        new Option(
+          "--direction <value>",
+          "Direction relative to --related-to."
+        ).choices(["both", "predecessors", "successors"])
+      )
+    )
+    .addOption(
+      singleRelationQueryOption(
+        new Option(
+          "--relation-type <type>",
+          "Require one direct relation type."
+        ).choices(decisionRelationTypes)
+      )
+    )
     .option(
       "--full-time",
       "Show the full createdAt timestamp instead of its date."
@@ -807,6 +878,30 @@ export function createCliProgram(
         "--tag <tag>",
         "Require one tag. Repeat for AND filtering."
       ).argParser(parseDecisionTag)
+    )
+    .addOption(
+      singleRelationQueryOption(
+        new Option(
+          "--related-to <selector>",
+          "Require a directly related Decision by standard ID or unique semantic name."
+        )
+      )
+    )
+    .addOption(
+      singleRelationQueryOption(
+        new Option(
+          "--direction <value>",
+          "Direction relative to --related-to."
+        ).choices(["both", "predecessors", "successors"])
+      )
+    )
+    .addOption(
+      singleRelationQueryOption(
+        new Option(
+          "--relation-type <type>",
+          "Require one direct relation type."
+        ).choices(decisionRelationTypes)
+      )
     );
   search.action(() => execute("search", search));
 

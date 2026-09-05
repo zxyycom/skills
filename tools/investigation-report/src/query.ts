@@ -61,6 +61,7 @@ import type {
   InvestigationReportShowResult,
   InvestigationReportTraceOptions,
   InvestigationReportTraceResult,
+  InvestigationSearchOptions,
   InvestigationMetadataMatchedRelation,
   InvestigationMetadataSearchEntry,
   InvestigationMetadataSearchField,
@@ -81,6 +82,9 @@ type ValidatedQueryOptions = Readonly<{
   filters: StateIndexFilter[];
   limit: number;
   offset: number;
+  relatedTo?: string;
+  relationType?: InvestigationIndexQueryOptions["relationType"];
+  direction?: NonNullable<InvestigationIndexQueryOptions["direction"]>;
 }>;
 type QueryOptionValidationFailure = Readonly<{
   errors: string[];
@@ -97,10 +101,18 @@ type PreparedSearch = Readonly<{
   query: string;
   resolved: ResolvedInvestigationsDirectory;
   validated: Readonly<{
+    direction?: NonNullable<InvestigationSearchOptions["direction"]>;
     limit: number;
     match: "all" | "any" | "phrase";
+    relatedTo?: string;
+    relationType?: InvestigationSearchOptions["relationType"];
     states: (state: InvestigationIndexState) => boolean;
   }>;
+}>;
+
+type InvestigationSnapshotEntry = Readonly<{
+  id: string;
+  state: InvestigationIndexState;
 }>;
 
 export async function queryInvestigationIndex(
@@ -229,13 +241,15 @@ async function searchInvestigationMetadata(
   }
 
   const entries: InvestigationMetadataSearchEntry[] = [];
-  const selected = Object.entries(loaded.value.entries)
-    .map(([id, state]) => ({ id, state }))
-    .filter(({ state }) => prepared.validated.states(state))
-    .sort((left, right) =>
-      compareText(left.state.sourcePath, right.state.sourcePath)
-    );
-  for (const entry of selected) {
+  const selected = selectSearchEntries(
+    Object.entries(loaded.value.entries).map(([id, state]) => ({ id, state })),
+    prepared
+  );
+  if (selected.isErr()) return searchFailure(selected.error, indexPath);
+  const sorted = selected.value.sort((left, right) =>
+    compareText(left.state.sourcePath, right.state.sourcePath)
+  );
+  for (const entry of sorted) {
     let matches: ReturnType<
       typeof matchTextSegments<InvestigationMetadataSegment>
     >;
@@ -340,21 +354,86 @@ function metadataMatcherFailure(
 }
 
 type SearchSnapshot = Readonly<{
-  entries: readonly Readonly<{ id: string; state: InvestigationIndexState }>[];
+  entries: readonly InvestigationSnapshotEntry[];
   indexPath: string;
   investigationsDirectory: string;
   prepared: PreparedSearch;
   warnings: readonly string[];
 }>;
 
+function selectSearchEntries(
+  entries: readonly InvestigationSnapshotEntry[],
+  prepared: PreparedSearch
+): Result<InvestigationSnapshotEntry[], string[]> {
+  const related = relatedInvestigationIds(entries, {
+    direction: prepared.validated.direction,
+    relatedTo: prepared.validated.relatedTo,
+    relationType: prepared.validated.relationType
+  });
+  if (related.isErr()) return err(related.error);
+  const ids = related.value;
+  return ok(
+    entries.filter(
+      ({ id, state }) =>
+        prepared.validated.states(state) && (ids === null || ids.has(id))
+    )
+  );
+}
+
+type RelationQuery = Readonly<{
+  direction?: "predecessors" | "successors" | "both";
+  relatedTo?: string;
+  relationType?: InvestigationIndexQueryOptions["relationType"];
+}>;
+
+/** Computes direct neighbors from the exact snapshot used by the enclosing query. */
+function relatedInvestigationIds(
+  entries: readonly InvestigationSnapshotEntry[],
+  query: RelationQuery
+): Result<ReadonlySet<string> | null, string[]> {
+  if (query.relatedTo === undefined) return ok(null);
+  const resolved = resolveInvestigationSelector(
+    entries.map(({ id, state }) => ({ id, name: state.name })),
+    query.relatedTo
+  );
+  if (resolved.status === "error") return err(resolved.errors);
+  const target = entries.find((entry) => entry.id === resolved.id);
+  if (target === undefined)
+    return err([`${query.relatedTo} investigation report does not exist`]);
+  const direction = query.direction ?? "both";
+  const matchesType = (type: InvestigationIndexQueryOptions["relationType"]) =>
+    query.relationType === undefined || type === query.relationType;
+  const ids = new Set<string>();
+  if (direction === "predecessors" || direction === "both") {
+    for (const relation of target.state.relations)
+      if (matchesType(relation.type)) ids.add(relation.target);
+  }
+  if (direction === "successors" || direction === "both") {
+    for (const entry of entries)
+      if (
+        entry.state.relations.some(
+          (relation) =>
+            relation.target === target.id && matchesType(relation.type)
+        )
+      )
+        ids.add(entry.id);
+  }
+  return ok(ids);
+}
+
 async function searchSnapshot(
   snapshot: SearchSnapshot
 ): Promise<InvestigationSearchResult> {
-  const selected = snapshot.entries.filter(({ state }) =>
-    snapshot.prepared.validated.states(state)
-  );
-  const entryBySourcePath = new Map<string, (typeof selected)[number]>();
-  for (const entry of selected) {
+  const selected = selectSearchEntries(snapshot.entries, snapshot.prepared);
+  if (selected.isErr())
+    return searchFailure(
+      selected.error,
+      snapshot.indexPath,
+      [],
+      snapshot.warnings
+    );
+  const entryBySourcePath = new Map<string, (typeof selected.value)[number]>();
+  for (const entry of selected.value) {
     if (entryBySourcePath.has(entry.state.sourcePath)) {
       return searchFailure(
         ["investigation sourcePath mapping is not unique"],
@@ -383,7 +462,7 @@ async function searchSnapshot(
       root: snapshot.investigationsDirectory,
       selection: {
         kind: "files",
-        sourcePaths: selected.map((entry) => entry.state.sourcePath)
+        sourcePaths: selected.value.map((entry) => entry.state.sourcePath)
       }
     });
     const entries: InvestigationSearchEntry[] = [];
@@ -790,13 +869,42 @@ function queryLoadedInvestigationIndex(
   if (loaded.status === "error") {
     return err(indexQueryDiagnostics(loaded.diagnostics, indexPath));
   }
+  const entries = Object.entries(loaded.value.entries).map(([id, state]) => ({
+    id,
+    state
+  }));
+  const related = relatedInvestigationIds(entries, validated);
+  if (related.isErr()) return err({ diagnostics: [], errors: related.error });
+  if (related.value !== null && related.value.size === 0) {
+    return ok({
+      diagnostics: [],
+      entries: [],
+      errors: [],
+      indexPath,
+      limit: validated.limit,
+      offset: validated.offset,
+      total: 0
+    });
+  }
+  const filters =
+    related.value === null
+      ? validated.filters
+      : [
+          ...validated.filters,
+          {
+            key: "id" as const,
+            kind: "exact" as const,
+            operator: "any" as const,
+            values: [...related.value]
+          }
+        ];
   return fromThrowable(
     () =>
       queryStateIndex({
         definition: createInvestigationStateIndexDefinition(),
         index: loaded.value,
         query: {
-          filters: validated.filters,
+          filters,
           limit: validated.limit,
           offset: validated.offset,
           sort: [{ direction: "asc", key: "id" }]
@@ -860,6 +968,8 @@ function prepareSearch(input: unknown): Result<PreparedSearch, string[]> {
     if (!isInvestigationTag(tag))
       errors.push(`tag filter must use kebab-case: ${tag || "<empty>"}`);
   const relationType = parsed.value.relationType;
+  const relatedTo = parsed.value.relatedTo;
+  const direction = parsed.value.direction;
   const from = timestampFilter(
     parsed.value.formedAtFrom,
     "formedAt lower bound",
@@ -872,6 +982,8 @@ function prepareSearch(input: unknown): Result<PreparedSearch, string[]> {
   );
   if (from !== null && to !== null && from > to)
     errors.push("formedAt lower bound must not be after the upper bound");
+  if (direction !== undefined && relatedTo === undefined)
+    errors.push("direction requires relatedTo");
   return errors.length > 0
     ? err(uniqueSorted(errors))
     : ok({
@@ -885,11 +997,15 @@ function prepareSearch(input: unknown): Result<PreparedSearch, string[]> {
         validated: {
           limit,
           match: parsed.value.match ?? "all",
+          ...(direction === undefined ? {} : { direction }),
+          ...(relatedTo === undefined ? {} : { relatedTo }),
+          ...(relationType === undefined ? {} : { relationType }),
           states: (state) => {
             const formedAt = investigationTimestampMilliseconds(state.formedAt);
             return (
               tags.every((tag) => state.tags.includes(tag)) &&
-              (relationType === undefined ||
+              (relatedTo !== undefined ||
+                relationType === undefined ||
                 state.relations.some(
                   (relation) => relation.type === relationType
                 )) &&
@@ -911,12 +1027,32 @@ function validateQueryOptions(
   const offset = options.offset ?? 0;
   validateQueryPagination(limit, offset, errors);
   validateTagFilters(options.tags, filters, errors);
-  validateRelationTypeFilter(options.relationType, filters, errors);
+  if (options.direction !== undefined && options.relatedTo === undefined)
+    errors.push("direction requires relatedTo");
+  validateRelationTypeFilter(
+    options.relationType,
+    filters,
+    errors,
+    options.relatedTo !== undefined
+  );
   validateTimestampFilters(options, filters, errors);
   const uniqueErrors = uniqueSorted(errors);
   return uniqueErrors.length > 0
     ? err({ errors: uniqueErrors, limit, offset })
-    : ok({ filters, limit, offset });
+    : ok({
+        filters,
+        limit,
+        offset,
+        ...(options.direction === undefined
+          ? {}
+          : { direction: options.direction }),
+        ...(options.relatedTo === undefined
+          ? {}
+          : { relatedTo: options.relatedTo }),
+        ...(options.relationType === undefined
+          ? {}
+          : { relationType: options.relationType })
+      });
 }
 
 function validateQueryPagination(
@@ -956,14 +1092,15 @@ function validateTagFilters(
 function validateRelationTypeFilter(
   relationType: InvestigationIndexQueryOptions["relationType"],
   filters: StateIndexFilter[],
-  errors: string[]
+  errors: string[],
+  relatedTo: boolean
 ): void {
   if (
     relationType !== undefined &&
     !isInvestigationRelationType(relationType)
   ) {
     errors.push(`unknown investigation relation type: ${String(relationType)}`);
-  } else if (relationType !== undefined) {
+  } else if (relationType !== undefined && !relatedTo) {
     filters.push({
       key: "relation-type",
       kind: "exact",

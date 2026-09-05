@@ -14,6 +14,7 @@ import {
   isStateIndexText,
   type StateIndexDiagnostic,
   type StateIndexFilter,
+  type StateIndexReader,
   type StateIndexSyncScope
 } from "../../index-runtime/src/index.ts";
 import {
@@ -67,11 +68,14 @@ import {
   type DecisionCandidateRecord,
   type DecisionId,
   type DecisionIndexEntry,
+  type DecisionIndexMetadata,
+  type DecisionIndexState,
   type DecisionListAlignment,
   type DecisionListStatus,
   type EstablishedDecisionStatus,
   type DecisionProjection,
   type DecisionRecord,
+  type DecisionRelationType,
   type DecisionScan,
   type DecisionTraceDirection,
   type DecisionSourcePath,
@@ -89,17 +93,23 @@ export type DecisionQueryRequest =
   | {
       alignment: DecisionListAlignment;
       command: "list";
+      direction?: DecisionTraceDirection;
       fullTime: boolean;
       location: DecisionLocation;
+      relatedTo?: string;
+      relationType?: DecisionRelationType;
       status: DecisionListStatus;
       tags: readonly DecisionTag[];
     }
   | {
       alignment: DecisionListAlignment;
       command: "search";
+      direction?: DecisionTraceDirection;
       in?: "content" | "metadata";
       location: DecisionLocation;
       match: FileTextSearchMode;
+      relatedTo?: string;
+      relationType?: DecisionRelationType;
       status: DecisionListStatus;
       tags: readonly DecisionTag[];
       text: string;
@@ -296,8 +306,23 @@ async function listDecisionRecords(
   if (context.status === "error") {
     return context;
   }
+  const relationFilter = decisionRelationFilter(
+    context.reader,
+    context.indexRelativePath,
+    request
+  );
+  if (relationFilter.status === "error") return relationFilter.failure;
+  if (relationFilter.decisionIds?.size === 0) {
+    return {
+      command: "list",
+      fullTime: request.fullTime,
+      records: [],
+      status: "ok",
+      warnings: []
+    };
+  }
   const queried = context.reader.all({
-    filters: listFilters(request),
+    filters: listFilters(request, relationFilter.decisionIds),
     sort: [{ direction: "asc", key: "id" }]
   });
   if (queried.status === "error") {
@@ -369,6 +394,7 @@ async function searchDecisionRecords(
   const snapshot = await loadDecisionSearchSnapshot(request.location);
   if (snapshot.status === "error") return snapshot.failure;
   const selected = filterSearchRecords(snapshot.value.entries, request);
+  if (selected.status === "error") return selected.failure;
   try {
     const searched = await searchFileText({
       preview: decisionSearchPreviewPolicy,
@@ -376,7 +402,7 @@ async function searchDecisionRecords(
       root: resolveDecisionLocation(request.location).decisionsDirectory,
       selection: {
         kind: "files",
-        sourcePaths: selected.map((record) => record.sourcePath)
+        sourcePaths: selected.records.map((record) => record.sourcePath)
       }
     });
     const records: DecisionContentSearchRecord[] = [];
@@ -444,7 +470,9 @@ async function searchDecisionMetadata(
   const selected = Object.entries(persisted.value.entries)
     .map(([id, state]) => indexedRecord({ id, state }))
     .sort((left, right) => left.sourcePath.localeCompare(right.sourcePath));
-  for (const record of filterSearchRecords(selected, request)) {
+  const filtered = filterSearchRecords(selected, request);
+  if (filtered.status === "error") return filtered.failure;
+  for (const record of filtered.records) {
     const segments = metadataSegments(record);
     let matches: ReturnType<typeof matchTextSegments<DecisionMetadataSegment>>;
     try {
@@ -674,15 +702,171 @@ function filterSearchRecords(
   records: readonly IndexedDecisionRecord[],
   request: Pick<
     Extract<DecisionQueryRequest, { command: "search" }>,
-    "alignment" | "status" | "tags"
+    "alignment" | "direction" | "relatedTo" | "relationType" | "status" | "tags"
   >
-): IndexedDecisionRecord[] {
-  return records.filter(
-    (record) =>
-      (request.status === "all" || record.status === request.status) &&
-      (request.alignment === "all" || record.alignment === request.alignment) &&
-      request.tags.every((tag) => record.tags.includes(tag))
+):
+  | { records: IndexedDecisionRecord[]; status: "ok" }
+  | { failure: DecisionApplicationFailure; status: "error" } {
+  const relationIds = resolveDecisionRelationIds(records, request);
+  if (relationIds.status === "error") return relationIds;
+  return {
+    records: records.filter(
+      (record) =>
+        (request.status === "all" || record.status === request.status) &&
+        (request.alignment === "all" ||
+          record.alignment === request.alignment) &&
+        request.tags.every((tag) => record.tags.includes(tag)) &&
+        (relationIds.decisionIds === null ||
+          relationIds.decisionIds.has(record.decisionId))
+    ),
+    status: "ok"
+  };
+}
+
+function decisionRelationFilter(
+  reader: StateIndexReader<DecisionIndexState, DecisionIndexMetadata>,
+  indexRelativePath: string,
+  request: Pick<
+    Extract<DecisionQueryRequest, { command: "list" }>,
+    "direction" | "relatedTo" | "relationType"
+  >
+):
+  | { decisionIds: ReadonlySet<DecisionId> | null; status: "ok" }
+  | { failure: DecisionApplicationFailure; status: "error" } {
+  if (
+    request.relatedTo === undefined &&
+    request.relationType === undefined &&
+    request.direction === undefined
+  ) {
+    return { decisionIds: null, status: "ok" };
+  }
+  const all = reader.all({ sort: [{ direction: "asc", key: "id" }] });
+  if (all.status === "error") {
+    return { failure: indexFailure(all, indexRelativePath), status: "error" };
+  }
+  return resolveDecisionRelationIds(indexedRecords(all.value), request);
+}
+
+function resolveDecisionRelationIds(
+  records: readonly IndexedDecisionRecord[],
+  request: Pick<
+    Extract<DecisionQueryRequest, { command: "list" | "search" }>,
+    "direction" | "relatedTo" | "relationType"
+  >
+):
+  | { decisionIds: ReadonlySet<DecisionId> | null; status: "ok" }
+  | { failure: DecisionApplicationFailure; status: "error" } {
+  if (request.relatedTo === undefined) {
+    if (request.direction !== undefined) {
+      return {
+        failure: decisionFailure([
+          decisionDiagnostic({
+            code: "decision-records.related-direction-without-target",
+            reason: "Relation direction requires a related Decision selector.",
+            recovery:
+              "Provide --related-to with --direction, or omit --direction.",
+            target: "direction"
+          })
+        ]),
+        status: "error"
+      };
+    }
+    return request.relationType === undefined
+      ? { decisionIds: null, status: "ok" }
+      : {
+          decisionIds: new Set(
+            records
+              .filter((record) =>
+                record.projection.relations.some(
+                  (relation) => relation.type === request.relationType
+                )
+              )
+              .map((record) => record.decisionId)
+          ),
+          status: "ok"
+        };
+  }
+
+  const target = resolveDecisionSelectorInRecords(
+    records,
+    request.relatedTo,
+    "Related decision"
   );
+  if (target.status === "error") return target;
+  const direction = request.direction ?? "both";
+  const relationMatches = (
+    relation: Pick<DecisionRelationEdge, "type">
+  ): boolean =>
+    request.relationType === undefined ||
+    relation.type === request.relationType;
+  const decisionIds = new Set<DecisionId>();
+  if (direction === "predecessors" || direction === "both") {
+    for (const relation of target.record.projection.relations) {
+      if (relationMatches(relation)) decisionIds.add(relation.target);
+    }
+  }
+  if (direction === "successors" || direction === "both") {
+    for (const record of records) {
+      if (
+        record.projection.relations.some(
+          (relation) =>
+            relation.target === target.record.decisionId &&
+            relationMatches(relation)
+        )
+      ) {
+        decisionIds.add(record.decisionId);
+      }
+    }
+  }
+  return { decisionIds, status: "ok" };
+}
+
+function resolveDecisionSelectorInRecords(
+  records: readonly IndexedDecisionRecord[],
+  selector: string,
+  label: string
+):
+  | { record: IndexedDecisionRecord; status: "ok" }
+  | { failure: DecisionApplicationFailure; status: "error" } {
+  const normalized = normalizeDecisionSelectorInput(selector);
+  const dated = parseDatedDecisionId(normalized);
+  if (dated !== null) {
+    const record = records.find(
+      (candidate) => candidate.decisionId === dated.id
+    );
+    return record === undefined
+      ? { failure: selectorNotFound(label, normalized), status: "error" }
+      : { record, status: "ok" };
+  }
+  const matches = records.filter(
+    (candidate) => decisionNameFromId(candidate.decisionId) === normalized
+  );
+  if (matches.length === 0) {
+    return { failure: selectorNotFound(label, normalized), status: "error" };
+  }
+  if (matches.length > 1) {
+    return {
+      failure: decisionFailure(
+        [
+          decisionDiagnostic({
+            code: "decision-records.decision-ambiguous",
+            reason:
+              `${label} name is ambiguous: ${normalized}; choose one standard ID: ` +
+              matches
+                .map((record) => record.decisionId)
+                .sort()
+                .join(", "),
+            recovery:
+              "Retry with one listed calendar-valid YYMMDD-name Decision ID.",
+            target: normalized
+          })
+        ],
+        { presentation: "plain" }
+      ),
+      status: "error"
+    };
+  }
+  return { record: matches[0]!, status: "ok" };
 }
 
 function searchTruncationWarnings(
@@ -1081,7 +1265,8 @@ function syncIndexNoChange(
 }
 
 function listFilters(
-  request: Extract<DecisionQueryRequest, { command: "list" }>
+  request: Extract<DecisionQueryRequest, { command: "list" }>,
+  decisionIds: ReadonlySet<DecisionId> | null
 ): StateIndexFilter[] {
   const filters: StateIndexFilter[] = [];
   for (const [key, value] of [
@@ -1098,6 +1283,14 @@ function listFilters(
       kind: "exact",
       operator: "all",
       values: [...request.tags]
+    });
+  }
+  if (decisionIds !== null) {
+    filters.push({
+      key: "id",
+      kind: "exact",
+      operator: "any",
+      values: [...decisionIds]
     });
   }
   return filters;

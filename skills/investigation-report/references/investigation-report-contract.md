@@ -131,14 +131,14 @@ rename 对 ID、name、sourcePath 和 owner 都不变的规范 identity 返回 `
 1. 每个正式 Investigation ID 产生一个索引 entry，entry 值直接是 state。state 投影由 ID 导出的 `name`、`sourcePath`、`title`、`formedAt`、`question`、`tags`、带可选 summary 的 `relations` 和按规范 ID 排序的 `resourceIds`；不保存正文、candidate、反向关系副本、当前结论或资源内容摘要。
 2. 查询字段由当前 definition 运行时物化而不持久化：exact `state.name`、exact `state.tags`、以 instant 归一化的 range `state.formedAt`，及 each relation 的 exact `state.relations/*/type`。metadata 是拒绝额外字段的严格空对象；完整正文不复制进派生索引。
 3. source revision 以正式 Investigation ID 为键，指纹化 ID、sourcePath 和完整正式报告 Markdown UTF-8 内容，计算前只把 CRLF 规范为 LF。正式报告成员、位置或可投影内容变化会更新对应 revision；candidate、资源成员和资源字节不参与 revision。
-4. `list` 默认查询全部正式报告，按 Investigation ID 的 locale 无关词法顺序排序；支持可重复 `--tag` 的 AND、包含端点的 formedAt 范围和一个精确关系类型。
+4. `list` 默认查询全部正式报告，按 Investigation ID 的 locale 无关词法顺序排序；支持可重复 `--tag` 的 AND、包含端点的 formedAt 范围、一个精确关系类型，以及 `--related-to <selector>` 与可选 `--direction predecessors|successors|both`（默认 `both`）。目标按普通 selector 在本次完整索引 snapshot 中解析，不受其他筛选、排序或分页限制。每条边从 source 后继指向 target 前序：`predecessors` 返回目标自身边的 target，`successors` 返回边 target 为目标的 source，`both` 合并并去重。未提供目标时单独提供 direction 是参数错误；目标不存在或 name 歧义沿用 selector 的可行动错误。单独 relation type 保持“记录含有任一该类型直接边”；与目标同时提供时 type 和目标必须由同一条边满足。关系 ID 集合与其他结构条件一起在排序、offset、limit 与 total 前过滤；合法空集合返回空页。
 
 ### `search`
 
-1. `search <text>` 使用与 `list` 相同的结构筛选，并支持 `--match all|any|phrase`（默认 `all`）和仅限制命中报告的 `--limit`（默认 50、最大 1000）；没有 offset、total 或分页。省略 `--in` 等于 `--in content`。两种范围都先进行结构筛选，再进行文本匹配。
+1. `search <text>` 使用与 `list` 相同的结构筛选（包括 `--related-to`、`--direction` 和 relation type 的同边约束），并支持 `--match all|any|phrase`（默认 `all`）和仅限制命中报告的 `--limit`（默认 50、最大 1000）；没有 offset、total 或分页。省略 `--in` 等于 `--in content`。两种范围都先进行结构筛选，再进行文本匹配。
 2. 三种模式统一 NFKC、默认忽略大小写并按空白处理查询。`all` 要求每个去重查询词至少命中一次，`any` 要求任一词。content 的命中段是物理行，metadata 的命中段是单个字段值、单个 tag 或单条 relation summary；因此 `all` 可跨同一报告的多个段，`phrase` 只能在一个段内连续匹配。
-3. `--in content` 的权威内容是当前索引快照选中的正式 Markdown。它只读取该快照的显式 `sourcePath` 文件列表，并用同一快照的唯一 `sourcePath → ID` 映射输出完整 ID、state 摘要和命中预览；candidate、资源与索引文件严格排除。索引缺失、损坏或不新鲜时，只有完整正式集合及资源验证成功才可构建只读内存投影并 warning，绝不写回索引或把部分搜索称为完整。结果文件、每文件命中和预览字符受资源上限约束；截断必须 warning，不得据未显示结果或无结果断言不存在匹配。
-4. `--in metadata` 的权威内容是持久索引快照。它不读取报告、candidate、资源或 relation target，不验证来源新鲜度、重建索引或从实体降级。结构筛选后，它将来源 ID、name、title、question、每个 tag 和本来源记录的每条非空 relation summary 作为独立 segment；relation type、target、时间、资源和 target 报告不参与文本匹配。它按 sourcePath 的确定顺序形成完整命中集后应用 `--limit`。
+3. `--in content` 的权威内容是当前索引 snapshot 选中的正式 Markdown。同一 snapshot 同时解析关系目标、计算关系 ID、应用所有结构条件、列出显式 `sourcePath`，并以唯一 `sourcePath → ID` 映射输出完整 ID、state 摘要和命中预览；candidate、资源与索引文件严格排除。索引缺失、损坏或不新鲜时，只有完整正式集合及资源验证成功才可构建一次只读内存投影并 warning，绝不混用持久索引、写回索引或把部分搜索称为完整。结果文件、每文件命中和预览字符受资源上限约束；截断必须 warning，不得据未显示结果或无结果断言不存在匹配。
+4. `--in metadata` 的权威内容是持久索引 snapshot。它不读取报告、candidate、资源或 relation target，不验证来源新鲜度、重建索引或从实体降级。结构筛选后，它将来源 ID、name、title、question、每个 tag 和本来源记录的每条非空 relation summary 作为独立 segment；relation type、target、时间、资源和 target 报告不参与文本匹配。结构关系条件本身不增加 segment，也不出现在 `matchedRelations`。它按 sourcePath 的确定顺序形成完整命中集后应用 `--limit`。
 5. metadata 结果返回来源 ID、摘要、sourcePath、按字段白名单固定顺序的 `matchedFields`，以及只含实际命中的来源 summary 的 `matchedRelations: { type, target, summary }[]`；relation summary 不冒充字段，且结果不返回预览。metadata 快照可能滞后未同步的正式来源，不能据此陈述当前报告事实。索引缺失、损坏、definition 不兼容或其他读取失败必须失败，而非返回空结果或 fallback；诊断指向 `check`，修正后由获得维护授权的调用方运行 `sync-index`。
 6. `show` 与 `trace` 使用当前索引；这些命令均完全忽略 candidates。
 
@@ -221,8 +221,8 @@ node <investigation-report-skill>/scripts/check-investigations.mjs publish <sele
 node <investigation-report-skill>/scripts/check-investigations.mjs discard-candidate <selector> --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs sync-index --root <workspace-root>
-node <investigation-report-skill>/scripts/check-investigations.mjs list --root <workspace-root>
-node <investigation-report-skill>/scripts/check-investigations.mjs search <text> [--in content|metadata] [--match all|any|phrase] --root <workspace-root>
+node <investigation-report-skill>/scripts/check-investigations.mjs list [--related-to <selector> [--direction predecessors|successors|both]] [--relation-type <type>] --root <workspace-root>
+node <investigation-report-skill>/scripts/check-investigations.mjs search <text> [--in content|metadata] [--match all|any|phrase] [--related-to <selector> [--direction predecessors|successors|both]] [--relation-type <type>] --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs show <selector> --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs trace <selector> --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs set-relations --source <selector> (--relation <type=target-selector>... [--relation-summary <target-selector=summary>...] | --clear-relations) --root <workspace-root>

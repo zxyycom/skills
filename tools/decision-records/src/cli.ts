@@ -130,8 +130,13 @@ async function runList(
     {
       alignment: args.alignment,
       command: "list",
+      ...(args.direction === undefined ? {} : { direction: args.direction }),
       fullTime: args.fullTime,
       location: decisionLocation(args),
+      ...(args.relatedTo === undefined ? {} : { relatedTo: args.relatedTo }),
+      ...(args.relationType === undefined
+        ? {}
+        : { relationType: args.relationType }),
       status: args.status,
       tags: args.tags
     },
@@ -147,9 +152,14 @@ async function runSearch(
     {
       alignment: args.alignment,
       command: "search",
+      ...(args.direction === undefined ? {} : { direction: args.direction }),
       in: args.in,
       location: decisionLocation(args),
       match: args.match,
+      ...(args.relatedTo === undefined ? {} : { relatedTo: args.relatedTo }),
+      ...(args.relationType === undefined
+        ? {}
+        : { relationType: args.relationType }),
       status: args.status,
       tags: args.tags,
       text: args.text

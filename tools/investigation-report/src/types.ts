@@ -198,11 +198,13 @@ export type InvestigationIndexStageDiagnostic = StateIndexDiagnostic;
 export type InvestigationIndexStageResult = StateIndexEntryStageResult;
 
 export type InvestigationIndexQueryOptions = {
+  direction?: "predecessors" | "successors" | "both";
   formedAtFrom?: string;
   formedAtTo?: string;
   investigationsDir?: string;
   limit?: number;
   offset?: number;
+  relatedTo?: string;
   relationType?: InvestigationRelationType;
   tags?: readonly string[];
   workspaceRoot: string;
@@ -224,6 +226,7 @@ export type InvestigationIndexQueryResult = {
 };
 
 export type InvestigationSearchOptions = Readonly<{
+  direction?: "predecessors" | "successors" | "both";
   formedAtFrom?: string;
   formedAtTo?: string;
   in?: "content" | "metadata";
@@ -231,6 +234,7 @@ export type InvestigationSearchOptions = Readonly<{
   limit?: number;
   match?: "all" | "any" | "phrase";
   query: string;
+  relatedTo?: string;
   relationType?: InvestigationRelationType;
   tags?: readonly string[];
   workspaceRoot: string;

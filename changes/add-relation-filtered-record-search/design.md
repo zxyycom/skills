@@ -81,7 +81,7 @@ Decision 同步 query types、`cli-args.ts`、CLI help/dispatch、`SKILL.md`、�
 
 #### Stable owners and evidence
 
-- `skills/decision-records/references/decision-record-rules.md` 与 `skills/investigation-report/references/investigation-report-contract.md` 分别承接最终查询语义；两个 `SKILL.md` 和人类说明只保存入口选择与使用边界。
+- `skills/decision-records/references/decision-record-rules.md` 与 `skills/investigation-report/references/investigation-report-contract.md` 分别承接最终查询语义；两个 `SKILL.md` 与人类说明承接使用入口、操作边界及到这些规则 owner 的导航，不成为独立的查询契约来源。
 - 已对齐决策已覆盖“结构索引先筛选、权威文件后匹配、同一 snapshot 反查 ID”的长期边界。本 Change 只扩展领域结构条件，不新增或改写长期决策。
 - 新增或修改的最小原生测试入口必须分别维护 test-evidence case；聚合 runner 不代替行为证据。
 - 索引 definition version、JSON Schema 与持久数据不变；生成制品只反映公开 API、CLI 和文档版本变化。

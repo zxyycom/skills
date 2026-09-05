@@ -102,7 +102,10 @@ test("decision search help exposes full-text modes and structural filters", asyn
     "--in <scope>",
     "--alignment <value>",
     "--status <value>",
-    "--tag <tag>"
+    "--tag <tag>",
+    "--related-to <selector>",
+    "--direction <value>",
+    "--relation-type <type>"
   ]) {
     assert.ok(help.stdout.includes(option), option);
   }
@@ -261,6 +264,35 @@ test("trace rejects a negative depth", async () => {
   const result = await runCli(["trace", archivedRelativePath, "--depth", "-1"]);
   assert.equal(result.exitCode, 2);
   assert.match(result.stderr, /must be a non-negative integer/);
+});
+
+test("list and search reject repeated relation query options", async () => {
+  for (const [command, prefix] of [
+    ["list", []],
+    ["search", ["text"]]
+  ] as const) {
+    for (const [option, first, second] of [
+      ["--related-to", "first", "second"],
+      ["--direction", "both", "successors"],
+      ["--relation-type", "修订", "替代"]
+    ] as const) {
+      const result = await runCli([
+        command,
+        ...prefix,
+        option,
+        first,
+        option,
+        second
+      ]);
+      assert.equal(result.exitCode, 2, `${command} ${option}`);
+      assert.equal(result.stdout, "", `${command} ${option}`);
+      assert.match(
+        result.stderr,
+        new RegExp(`${option} must not be repeated`),
+        `${command} ${option}`
+      );
+    }
+  }
 });
 
 test("list rejects an invalid tag token", async () => {

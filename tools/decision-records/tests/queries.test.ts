@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { validateDecisionRecords } from "../src/index.ts";
+import { executeDecisionQuery } from "../src/decision-query-service.ts";
 import {
   normalizeDecisionSelectorInput,
   parseDatedDecisionId,
@@ -407,6 +408,179 @@ test("decision list filters records by alignment selector", () =>
     assert.match(listed, new RegExp(unalignedId));
     assert.doesNotMatch(listed, new RegExp(currentDecisionId));
     assert.doesNotMatch(listed, new RegExp(archivedDecisionId));
+  }));
+
+test("decision list and search combine direct relation conditions", () =>
+  withFixtureWorkspace("query-related-records", async (workspaceRoot) => {
+    const apiResult = await executeDecisionQuery({
+      alignment: "all",
+      command: "list",
+      direction: "predecessors",
+      fullTime: false,
+      location: { decisionsDir: "docs/decisions", workspaceRoot },
+      relatedTo: currentDecisionId,
+      status: "all",
+      tags: []
+    });
+    assert.equal(apiResult.status, "ok");
+    assert.equal(apiResult.command, "list");
+    assert.deepEqual(
+      apiResult.records.map((record) => record.decisionId),
+      [archivedDecisionId]
+    );
+
+    const predecessors = await runSuccessfulSourceCli([
+      "list",
+      "--related-to",
+      currentDecisionId,
+      "--direction",
+      "predecessors",
+      "--status",
+      "archived",
+      "--tag",
+      "decision-records",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.match(predecessors, new RegExp(archivedDecisionId));
+    assert.doesNotMatch(predecessors, new RegExp(currentDecisionId));
+
+    const successors = await runSuccessfulSourceCli([
+      "list",
+      "--related-to",
+      "use-source-cli",
+      "--direction",
+      "successors",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.match(successors, new RegExp(currentDecisionId));
+    assert.doesNotMatch(successors, new RegExp(archivedDecisionId));
+
+    const both = await runSuccessfulSourceCli([
+      "list",
+      "--related-to",
+      archivedDecisionId,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.match(both, new RegExp(currentDecisionId));
+
+    const relationType = await runSuccessfulSourceCli([
+      "list",
+      "--relation-type",
+      "修订",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.match(relationType, new RegExp(currentDecisionId));
+    assert.doesNotMatch(relationType, new RegExp(archivedDecisionId));
+
+    const mismatchedType = await runSuccessfulSourceCli([
+      "list",
+      "--related-to",
+      currentDecisionId,
+      "--direction",
+      "predecessors",
+      "--relation-type",
+      "替代",
+      "--status",
+      "all",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.match(mismatchedType, /- none/);
+
+    const content = await runSourceCli([
+      "search",
+      "生成 CLI",
+      "--related-to",
+      archivedDecisionId,
+      "--direction",
+      "successors",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(content.exitCode, 0, content.stderr);
+    assert.match(content.stdout, new RegExp(currentDecisionId));
+    assert.doesNotMatch(content.stdout, new RegExp(archivedDecisionId));
+
+    const metadata = await runSuccessfulSourceCli([
+      "search",
+      "生成 CLI",
+      "--in",
+      "metadata",
+      "--related-to",
+      archivedDecisionId,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.match(metadata, new RegExp(currentDecisionId));
+    assert.match(metadata, /matchedRelations:\n    - none/);
+
+    const indexPath = path.join(
+      workspaceRoot,
+      "docs",
+      "decisions",
+      "decision-index.json"
+    );
+    const indexBeforeFallback = await fs.readFile(indexPath, "utf8");
+    const currentSource = decisionFilePath(workspaceRoot, currentSourcePath);
+    const currentText = await fs.readFile(currentSource, "utf8");
+    await fs.writeFile(
+      currentSource,
+      currentText
+        .replace(
+          "relations:\n  - type: 修订\n    target: 260710-use-source-cli",
+          "relations:\n  - type: 替代\n    target: 260710-use-source-cli"
+        )
+        .replace("## 背景", "关系回退正文词。\n\n## 背景"),
+      "utf8"
+    );
+    const fallback = await runSourceCli([
+      "search",
+      "关系回退正文词",
+      "--related-to",
+      archivedDecisionId,
+      "--direction",
+      "successors",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(fallback.exitCode, 0, fallback.stderr);
+    assert.match(fallback.stdout, new RegExp(currentDecisionId));
+    assert.match(
+      fallback.stderr,
+      /read-only validated Decision source projection/
+    );
+    const staleTypeMustNotSelect = await runSourceCli([
+      "search",
+      "关系回退正文词",
+      "--related-to",
+      archivedDecisionId,
+      "--direction",
+      "successors",
+      "--relation-type",
+      "修订",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(
+      staleTypeMustNotSelect.exitCode,
+      0,
+      staleTypeMustNotSelect.stderr
+    );
+    assert.match(staleTypeMustNotSelect.stdout, /- none/);
+    assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeFallback);
+
+    const directionWithoutTarget = await runSourceCli([
+      "list",
+      "--direction",
+      "both",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(directionWithoutTarget.exitCode, 2);
   }));
 
 test("decision list defaults to active records without archived results", () =>

@@ -235,11 +235,13 @@ export type InvestigationIndexState = {
 };
 
 export type InvestigationIndexQueryOptions = {
+  direction?: "predecessors" | "successors" | "both";
   formedAtFrom?: string;
   formedAtTo?: string;
   investigationsDir?: string;
   limit?: number;
   offset?: number;
+  relatedTo?: string;
   relationType?: InvestigationRelationType;
   tags?: readonly string[];
   text?: string;
@@ -376,6 +378,7 @@ export declare function renameInvestigationRecord(
 ): Promise<InvestigationRenameResult>;
 
 export type InvestigationSearchOptions = {
+  direction?: "predecessors" | "successors" | "both";
   formedAtFrom?: string;
   formedAtTo?: string;
   in?: "content" | "metadata";
@@ -383,6 +386,7 @@ export type InvestigationSearchOptions = {
   limit?: number;
   match?: "all" | "any" | "phrase";
   query: string;
+  relatedTo?: string;
   relationType?: InvestigationRelationType;
   tags?: readonly string[];
   workspaceRoot: string;

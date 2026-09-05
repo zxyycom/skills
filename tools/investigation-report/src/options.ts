@@ -83,11 +83,18 @@ const investigationIndexStageOptionsSchema = v.strictObject({
   reportIds: requiredStringArraySchema
 });
 const investigationIndexQueryOptionsSchema = v.strictObject({
+  direction: v.optional(
+    v.picklist(
+      ["predecessors", "successors", "both"],
+      "must be predecessors, successors, or both"
+    )
+  ),
   formedAtFrom: optionalStringSchema,
   formedAtTo: optionalStringSchema,
   ...locationFields,
   limit: optionalNumberSchema,
   offset: optionalNumberSchema,
+  relatedTo: optionalStringSchema,
   relationType: v.optional(
     v.picklist(
       investigationRelationTypes,
@@ -97,6 +104,12 @@ const investigationIndexQueryOptionsSchema = v.strictObject({
   tags: optionalStringArraySchema
 });
 const investigationSearchOptionsSchema = v.strictObject({
+  direction: v.optional(
+    v.picklist(
+      ["predecessors", "successors", "both"],
+      "must be predecessors, successors, or both"
+    )
+  ),
   formedAtFrom: optionalStringSchema,
   formedAtTo: optionalStringSchema,
   in: v.optional(v.picklist(["content", "metadata"])),
@@ -104,6 +117,7 @@ const investigationSearchOptionsSchema = v.strictObject({
   limit: optionalNumberSchema,
   match: v.optional(v.picklist(["all", "any", "phrase"])),
   query: requiredStringSchema,
+  relatedTo: optionalStringSchema,
   relationType: v.optional(v.picklist(investigationRelationTypes)),
   tags: optionalStringArraySchema
 });

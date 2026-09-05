@@ -42,11 +42,11 @@ cleanup 待处理。范围未知或恢复不完整时先停止并对账；权限
 按已知信息选择入口，而不是先手工 grep：
 
 1. 已知稳定 ID 或可靠语义 name 时用 `show` 读取该条完整理由。
-2. 已知 lifecycle、alignment 或 tag 时用 `list` 结构化浏览。
-3. 只知道主题、概念、理由或正文措辞时用 `search <text>`；它默认查 active 的已建立 Markdown，并返回完整 Decision ID、结构摘要、`sourcePath` 与带行号预览。
+2. 已知 lifecycle、alignment、tag、一个直接关系目标或关系类型时用 `list` 结构化浏览。`list` 与 `search` 可用 `--related-to <selector>` 按相对该目标的 `predecessors`、`successors` 或默认 `both` 筛选；可选 `--relation-type` 与目标共同使用时必须命中同一条边，单独使用时筛选任意该类型直接边。
+3. 只知道主题、概念、理由或正文措辞时用 `search <text>`；它默认查 active 的已建立 Markdown，并先应用 lifecycle、alignment、tag 和关系结构条件，再返回完整 Decision ID、结构摘要、`sourcePath` 与带行号预览。
 4. 需要前序或后继关系时，把 `search` 或 `list` 得到的完整 ID 交给 `trace`；不要由文件名或路径推断身份。
 
-`search` 的 `all`、`any`、`phrase` 分别要求全部词、任一词、同一物理行连续短语。匹配会统一 NFKC、忽略大小写并按空白处理查询；`all` 和 `any` 的词可分布在不同物理行，`phrase` 不跨行。它先用同一当前索引快照筛选并定位权威文件；该索引缺失、损坏或不新鲜时，只有完整验证来源成功才会只读降级并 warning，绝不写索引。候选和索引 JSON 不在范围内。预览与结果文件受固定资源上限约束；出现截断 warning 时，不能把未显示的结果或无结果当作集合中不存在，应缩小结构条件或继续用返回 ID 的 `show`/`trace` 阅读。
+`search` 的 `all`、`any`、`phrase` 分别要求全部词、任一词、同一物理行连续短语。匹配会统一 NFKC、忽略大小写并按空白处理查询；`all` 和 `any` 的词可分布在不同物理行，`phrase` 不跨行。content search 用同一当前索引快照解析关系目标、应用结构筛选并定位权威文件；该索引缺失、损坏或不新鲜时，只有完整验证来源成功才会从同次只读投影完成这些步骤并 warning，绝不写索引或混用陈旧快照。metadata search 只读取持久索引；关系结构命中不构成 `matchedFields` 或 `matchedRelations` 文本证据。候选和索引 JSON 不在 content 范围内。预览与结果文件受固定资源上限约束；出现截断 warning 时，不能把未显示的结果或无结果当作集合中不存在，应缩小结构条件或继续用返回 ID 的 `show`/`trace` 阅读。
 
 ## 入口
 

@@ -98,6 +98,17 @@ type CliTokenContext = Readonly<{
   positionals: string[];
   values: Map<string, string[]>;
 }>;
+type CommonInvestigationQueryOptions = Readonly<{
+  direction?: string;
+  formedAtFrom?: string;
+  formedAtTo?: string;
+  investigationsDir?: string;
+  limit?: number;
+  relatedTo?: string;
+  relationType?: string;
+  tags?: readonly string[];
+  workspaceRoot: string;
+}>;
 type RelationCliEvent =
   | Readonly<{ kind: "source"; value: string }>
   | Readonly<{ kind: "relation"; value: string }>
@@ -128,6 +139,7 @@ const valueOptions = new Set([
   "tag",
   "formed-from",
   "formed-to",
+  "related-to",
   "relation-type",
   "match",
   "in",
@@ -276,6 +288,8 @@ function printHelp(
       "  --tag <tag>                   Repeatable AND tag filter",
       "  --formed-from <timestamp>     Inclusive formedAt lower bound",
       "  --formed-to <timestamp>       Inclusive formedAt upper bound",
+      "  --related-to <selector>       Direct relation target selector",
+      "  --direction <direction>       predecessors, successors, or both (default: both)",
       "  --relation-type <type>        Direct relation type",
       "  --limit <count>               Page size (default: 50, maximum: 1000)",
       "  --offset <count>              Page offset (default: 0)"
@@ -286,6 +300,8 @@ function printHelp(
       "  --tag <tag>                   Repeatable AND tag filter",
       "  --formed-from <timestamp>     Inclusive formedAt lower bound",
       "  --formed-to <timestamp>       Inclusive formedAt upper bound",
+      "  --related-to <selector>       Direct relation target selector",
+      "  --direction <direction>       predecessors, successors, or both (default: both)",
       "  --relation-type <type>        Direct relation type",
       "  --limit <count>               Maximum matched reports (default: 50, maximum: 1000)"
     ],
@@ -557,6 +573,28 @@ function numberValue(
   const value = valueOf(values, key);
   return value === undefined ? undefined : Number(value);
 }
+function commonInvestigationQueryOptions(
+  input: ParsedCli
+): CommonInvestigationQueryOptions {
+  const { values } = input;
+  const tags = valuesOf(values, "tag");
+  const formedAtFrom = valueOf(values, "formed-from");
+  const formedAtTo = valueOf(values, "formed-to");
+  const relatedTo = valueOf(values, "related-to");
+  const direction = valueOf(values, "direction");
+  const relationType = valueOf(values, "relation-type");
+  const limit = numberValue(values, "limit");
+  return {
+    ...location(values),
+    ...(tags === undefined ? {} : { tags }),
+    ...(formedAtFrom === undefined ? {} : { formedAtFrom }),
+    ...(formedAtTo === undefined ? {} : { formedAtTo }),
+    ...(relatedTo === undefined ? {} : { relatedTo }),
+    ...(direction === undefined ? {} : { direction }),
+    ...(relationType === undefined ? {} : { relationType }),
+    ...(limit === undefined ? {} : { limit })
+  };
+}
 function assertNoPositionals(input: ParsedCli): string | null {
   return input.positionals.length === 0
     ? null
@@ -572,6 +610,17 @@ function assertAllowedOptions(
   return invalid === undefined
     ? null
     : `${input.command} does not accept --${invalid}`;
+}
+function assertSingleOptions(
+  input: ParsedCli,
+  options: readonly string[]
+): string | null {
+  const repeated = options.find(
+    (option) => (input.values.get(option)?.length ?? 0) > 1
+  );
+  return repeated === undefined
+    ? null
+    : `${input.command} accepts --${repeated} only once`;
 }
 
 async function runNew(
@@ -1185,27 +1234,16 @@ async function runList(
       "tag",
       "formed-from",
       "formed-to",
+      "related-to",
+      "direction",
       "relation-type",
       "limit",
       "offset"
-    ]);
+    ]) ??
+    assertSingleOptions(input, ["related-to", "direction", "relation-type"]);
   if (problem !== null) return cliInvalid(problem, io);
-  const relationType = valueOf(input.values, "relation-type");
   const execution = await executeInvestigationIndexQuery({
-    ...location(input.values),
-    ...(valuesOf(input.values, "tag") === undefined
-      ? {}
-      : { tags: valuesOf(input.values, "tag") }),
-    ...(valueOf(input.values, "formed-from") === undefined
-      ? {}
-      : { formedAtFrom: valueOf(input.values, "formed-from") }),
-    ...(valueOf(input.values, "formed-to") === undefined
-      ? {}
-      : { formedAtTo: valueOf(input.values, "formed-to") }),
-    ...(relationType === undefined ? {} : { relationType }),
-    ...(numberValue(input.values, "limit") === undefined
-      ? {}
-      : { limit: numberValue(input.values, "limit") }),
+    ...commonInvestigationQueryOptions(input),
     ...(numberValue(input.values, "offset") === undefined
       ? {}
       : { offset: numberValue(input.values, "offset") })
@@ -1243,41 +1281,31 @@ async function runSearch(
   input: ParsedCli,
   io: InvestigationReportCliIo
 ): Promise<number> {
-  const problem = assertAllowedOptions(input, [
-    "root",
-    "investigations-dir",
-    "match",
-    "in",
-    "tag",
-    "formed-from",
-    "formed-to",
-    "relation-type",
-    "limit"
-  ]);
+  const problem =
+    assertAllowedOptions(input, [
+      "root",
+      "investigations-dir",
+      "match",
+      "in",
+      "tag",
+      "formed-from",
+      "formed-to",
+      "related-to",
+      "direction",
+      "relation-type",
+      "limit"
+    ]) ??
+    assertSingleOptions(input, ["related-to", "direction", "relation-type"]);
   if (problem !== null || input.positionals.length !== 1)
     return cliInvalid(problem ?? "search requires exactly one text query", io);
-  const relationType = valueOf(input.values, "relation-type");
   const result = await searchInvestigationReports({
-    ...location(input.values),
+    ...commonInvestigationQueryOptions(input),
     ...(valueOf(input.values, "match") === undefined
       ? {}
       : { match: valueOf(input.values, "match") }),
     ...(valueOf(input.values, "in") === undefined
       ? {}
       : { in: valueOf(input.values, "in") }),
-    ...(valuesOf(input.values, "tag") === undefined
-      ? {}
-      : { tags: valuesOf(input.values, "tag") }),
-    ...(valueOf(input.values, "formed-from") === undefined
-      ? {}
-      : { formedAtFrom: valueOf(input.values, "formed-from") }),
-    ...(valueOf(input.values, "formed-to") === undefined
-      ? {}
-      : { formedAtTo: valueOf(input.values, "formed-to") }),
-    ...(relationType === undefined ? {} : { relationType }),
-    ...(numberValue(input.values, "limit") === undefined
-      ? {}
-      : { limit: numberValue(input.values, "limit") }),
     query: input.positionals[0]!
   });
   if (result.status === "error")

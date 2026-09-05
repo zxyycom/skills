@@ -2201,6 +2201,19 @@
       "summary": "公开的 candidate、established 和 activation record 类型守卫除 source kind 外，必须验证 Decision ID 与 sourcePath 的格式；candidate 守卫接纳结构合法 scaffold，activation 守卫额外要求 body-ready。",
       "title": "Record 类型守卫拒绝无效身份字段"
     },
+    "DECISION-RELATION-FILTER-001": {
+      "endLine": 15,
+      "entries": [
+        "tools/decision-records/tests/queries.test.ts > decision list and search combine direct relation conditions",
+        "bun test --test-name-pattern=\"^decision list and search combine direct relation conditions$\" ./tools/decision-records/tests/run.ts"
+      ],
+      "id": "DECISION-RELATION-FILTER-001",
+      "line": 1,
+      "searchText": "Decision list 与 search 按直接关系筛选 `list` 与 `search` 使用标准 ID 优先、唯一 name 回退的单个关系目标，按相对目标的直接 predecessors、successors 或默认 both，并先与 status、AND tag 和可选同边 relation type 取交集。 content search 只搜索结构筛选后的权威文件，并在持久索引陈旧时从同次只读验证快照完成关系筛选；metadata search 保持其文本命中证据，不将关系结构筛选伪装为 relation summary 命中。 API 与 CLI 分别返回目标的直接前序、后继和默认双向结果；status 与 tag 继续收窄前序结果。 独立 relation type 选择包含该类型边的来源；目标与不匹配 type 共同选择成功返回空集合。 content 与 metadata search 都排除不相关记录；持久索引中已失效的 relation type 不会在 fallback 中选中正文；metadata 的 `matchedRelations` 仍只反映实际文本命中，且 CLI 拒绝无目标 direction。 tools/decision-records/tests/queries.test.ts > decision list and search combine direct relation conditions bun test --test-name-pattern=\"^decision list and search combine direct relation conditions$\" ./tools/decision-records/tests/run.ts",
+      "sourcePath": "decision-records/decision-relation-filtered-list-and-search.md",
+      "summary": "`list` 与 `search` 使用标准 ID 优先、唯一 name 回退的单个关系目标，按相对目标的直接 predecessors、successors 或默认 both，并先与 status、AND tag 和可选同边 relation type 取交集。",
+      "title": "Decision list 与 search 按直接关系筛选"
+    },
     "DECISION-RELATION-GRAPH-CYCLE-001": {
       "endLine": 15,
       "entries": [
@@ -2304,6 +2317,19 @@
       "sourcePath": "decision-records/shared-relation-graph-traces-bounded-bidirectional-subgraphs.md",
       "summary": "共享关系图按方向和最大深度返回确定的内部子图。",
       "title": "共享关系图执行有界双向追踪"
+    },
+    "DECISION-RELATION-QUERY-OPTIONS-001": {
+      "endLine": 12,
+      "entries": [
+        "tools/decision-records/tests/cli-args.test.ts > list and search reject repeated relation query options",
+        "bun test --test-name-pattern=\"^list and search reject repeated relation query options$\" ./tools/decision-records/tests/run.ts"
+      ],
+      "id": "DECISION-RELATION-QUERY-OPTIONS-001",
+      "line": 1,
+      "searchText": "关系查询选项拒绝重复出现 `list` 与 `search` 的单值 `--related-to`、`--direction`、`--relation-type` 各自至多出现一次，不能由后一个值静默覆盖前一个值。 两个命令对三种关系查询选项的每一种重复出现均以参数错误码 `2` 退出，不写 stdout，并指出重复的选项。 tools/decision-records/tests/cli-args.test.ts > list and search reject repeated relation query options bun test --test-name-pattern=\"^list and search reject repeated relation query options$\" ./tools/decision-records/tests/run.ts",
+      "sourcePath": "decision-records/relation-query-options-reject-repeated-occurrences.md",
+      "summary": "`list` 与 `search` 的单值 `--related-to`、`--direction`、`--relation-type` 各自至多出现一次，不能由后一个值静默覆盖前一个值。",
+      "title": "关系查询选项拒绝重复出现"
     },
     "DECISION-RELATION-SUMMARY-001": {
       "endLine": 13,
@@ -2495,9 +2521,9 @@
       ],
       "id": "DECISION-SEARCH-HELP-001",
       "line": 1,
-      "searchText": "Decision search 帮助公开匹配模式与结构筛选 Decision search 的帮助必须公开 content/metadata 范围、all、any、phrase 匹配模式以及 alignment、status、tag 结构化筛选。 search 帮助列出 in、match、alignment、status 和 tag 选项。 帮助明确列出两种允许范围和三种允许的匹配模式。 tools/decision-records/tests/cli-args.test.ts > decision search help exposes full-text modes and structural filters bun test --test-name-pattern=\"^decision search help exposes full-text modes and structural filters$\" ./tools/decision-records/tests/run.ts",
+      "searchText": "Decision search 帮助公开匹配模式与结构筛选 Decision search 的帮助必须公开 content/metadata 范围、all、any、phrase 匹配模式、alignment、status、tag 结构化筛选，以及单个关系目标、方向和关系类型条件。 search 帮助列出 in、match、alignment、status、tag、related-to、direction 和 relation-type 选项。 帮助明确列出两种允许范围和三种允许的匹配模式。 tools/decision-records/tests/cli-args.test.ts > decision search help exposes full-text modes and structural filters bun test --test-name-pattern=\"^decision search help exposes full-text modes and structural filters$\" ./tools/decision-records/tests/run.ts",
       "sourcePath": "decision-records/decision-search-help-exposes-modes-and-filters.md",
-      "summary": "Decision search 的帮助必须公开 content/metadata 范围、all、any、phrase 匹配模式以及 alignment、status、tag 结构化筛选。",
+      "summary": "Decision search 的帮助必须公开 content/metadata 范围、all、any、phrase 匹配模式、alignment、status、tag 结构化筛选，以及单个关系目标、方向和关系类型条件。",
       "title": "Decision search 帮助公开匹配模式与结构筛选"
     },
     "DECISION-SEARCH-MODES-001": {
@@ -4983,6 +5009,19 @@
       "summary": "资源字节变化不使报告 index 过期，直接调用的源码 CLI 入口 `list` 继续可查询当前报告。",
       "title": "CLI list returns a current report after resource byte changes"
     },
+    "INVESTIGATION-CLI-RELATION-FILTER-001": {
+      "endLine": 15,
+      "entries": [
+        "tools/investigation-report/tests/cli-generated.test.ts > CLI rejects repeated relation query options",
+        "bun test --test-name-pattern=\"^CLI rejects repeated relation query options$\" ./tools/investigation-report/tests/run.ts"
+      ],
+      "id": "INVESTIGATION-CLI-RELATION-FILTER-001",
+      "line": 1,
+      "searchText": "CLI rejects repeated relation query options `list` 与 `search` 的 `--related-to`、`--direction` 和 `--relation-type` 各只接受一次，重复参数不得被忽略或改变为无筛选查询。 两个命令对每个重复关系查询参数返回参数错误、退出码 `2` 且不写 stdout。 tools/investigation-report/tests/cli-generated.test.ts > CLI rejects repeated relation query options bun test --test-name-pattern=\"^CLI rejects repeated relation query options$\" ./tools/investigation-report/tests/run.ts",
+      "sourcePath": "investigation-report/cli-rejects-repeated-relation-query-options.md",
+      "summary": "`list` 与 `search` 的 `--related-to`、`--direction` 和 `--relation-type` 各只接受一次，重复参数不得被忽略或改变为无筛选查询。",
+      "title": "CLI rejects repeated relation query options"
+    },
     "INVESTIGATION-CLI-RELATIONS-001": {
       "endLine": 16,
       "entries": [
@@ -5585,6 +5624,19 @@
       "sourcePath": "investigation-report/index-and-show-resolve-a-report-id-independently-from-its-semantic-sourcepath.md",
       "summary": "正式 Investigation ID 由 frontmatter 声明，索引以该 ID 为 key 保存独立 sourcePath；`show` 必须通过新鲜索引定位语义 filename 后回读同一 ID。",
       "title": "index and show resolve a report id independently from its semantic sourcePath"
+    },
+    "INVESTIGATION-RELATION-FILTER-002": {
+      "endLine": 16,
+      "entries": [
+        "tools/investigation-report/tests/index-query.test.ts > list and search combine direct relation selectors with existing query boundaries",
+        "bun test --test-name-pattern=\"^list and search combine direct relation selectors with existing query boundaries$\" ./tools/investigation-report/tests/run.ts"
+      ],
+      "id": "INVESTIGATION-RELATION-FILTER-002",
+      "line": 1,
+      "searchText": "list and search combine direct relation selectors with existing query boundaries `list` 与 `search` 在各自查询 snapshot 中按一个目标的直接前序、后继或两者筛选；relation type 与目标同现时匹配同一条边，且关系筛选先于 list 分页或文本匹配。 API 与 CLI 分别返回三种方向和默认双向的直接结果，保留 tag、时间、offset、limit 与 total 语义，并拒绝无目标 direction 或缺失 selector。 content fallback 从单次验证内存 snapshot 计算关系；metadata 保持只读索引，结构关系筛选不伪装为 `matchedRelations` 文本证据。 tools/investigation-report/tests/index-query.test.ts > list and search combine direct relation selectors with existing query boundaries bun test --test-name-pattern=\"^list and search combine direct relation selectors with existing query boundaries$\" ./tools/investigation-report/tests/run.ts",
+      "sourcePath": "investigation-report/relation-filtered-list-and-search.md",
+      "summary": "`list` 与 `search` 在各自查询 snapshot 中按一个目标的直接前序、后继或两者筛选；relation type 与目标同现时匹配同一条边，且关系筛选先于 list 分页或文本匹配。",
+      "title": "list and search combine direct relation selectors with existing query boundaries"
     },
     "INVESTIGATION-RELATION-GIT-HEAD-001": {
       "endLine": 15,
@@ -10670,6 +10722,7 @@
       "DECISION-REALLOCATION-SUCCESSOR-MINIMUM-001": "sha256:77735b71d23b12ca591053ffdc9834856f6678b055a1e6c5b83a673673aeb826",
       "DECISION-REALLOCATION-TRANSACTION-001": "sha256:46cc71abded28ef789d6c3e0f031db6fb31c6b863bfc3e278b13d11a778dd375",
       "DECISION-RECORD-GUARD-IDENTITY-001": "sha256:a31f4bf5ce32305a2660177f4311e9a66d3366ce0c80415f45be7945ef907db9",
+      "DECISION-RELATION-FILTER-001": "sha256:d24ef5521d82bf26f4425aa571a21ab5a1345132ee90f139f5c646f964a054bc",
       "DECISION-RELATION-GRAPH-CYCLE-001": "sha256:94fe79d8d3f1e27fbb6a09140004bddc4b74d2f184f39f428dacb7169ae58d6d",
       "DECISION-RELATION-GRAPH-DUPLICATE-001": "sha256:846f0c6032c2d9586f38552b52109a841c4d64f9db4fed0f09cfbff664398d9e",
       "DECISION-RELATION-GRAPH-INDEX-001": "sha256:7ea892c2954286809fbdf6c2e0b3b8bd5f52296c990b7c3d1ef9ee796b711305",
@@ -10678,6 +10731,7 @@
       "DECISION-RELATION-GRAPH-SELF-001": "sha256:d7c07a6984dad2248391afee378aae8f3a0a7d7bb64a118cd041d706c54168d1",
       "DECISION-RELATION-GRAPH-STRUCTURE-001": "sha256:2df4244739b416c6bbc66d86575f4d8b8b9cf4a4f2d47dbc6ba74fc341a756e5",
       "DECISION-RELATION-GRAPH-TRACE-001": "sha256:b8b9a61d8459adba44a12a7b786f7baaa3c6e3f1e43fa517d2a830cff37937c4",
+      "DECISION-RELATION-QUERY-OPTIONS-001": "sha256:03ba7165eac6458b0088688b1c528db03b526d0f7da2ecbc5b7f2c891ea7beb7",
       "DECISION-RELATION-SUMMARY-001": "sha256:35e2044be3f5afb35732fb3f2c1624f87b79b7f1a57d30f53b133fcf1bcbe185",
       "DECISION-RELATION-SUMMARY-002": "sha256:970600214060b8d88712a46d0a538382157f0f51aee8df537ea401755091de43",
       "DECISION-RELATION-SUMMARY-003": "sha256:c8771e2e5e8acae41d0bf30d31ba3d6bd98a53683b887ad89a5754a8245f545b",
@@ -10692,7 +10746,7 @@
       "DECISION-RENAME-SELECTOR-001": "sha256:124dcdffcc6825fc13b74d63a5fbad52b7b78d99c33dc79ad6cbd057d2408213",
       "DECISION-SCAN-FILESYSTEM-DIAGNOSTIC-001": "sha256:2c55fc6ef196dbbf0d5faa2e563e5d9927b146b93734101afeef1008a7a64ea4",
       "DECISION-SEARCH-FALLBACK-001": "sha256:e4ab6db960a4b9addc4749df09e70d48b09f03a66589977c48eb632d42f372a5",
-      "DECISION-SEARCH-HELP-001": "sha256:3a6182592d416c73172d311d1f9b420a793a6fd233ea250c6d3ae596c6e5c274",
+      "DECISION-SEARCH-HELP-001": "sha256:f5d1470a5c3f47a7557b8934c659fbcac70f3d0e4321f5ee83432b1746ee2d2d",
       "DECISION-SEARCH-MODES-001": "sha256:d44fae3691df9ac73da4ae39656ad216610c66d08ebe564bceb0e3e1304fd0c3",
       "DECISION-SEARCH-STATUS-001": "sha256:e0cec11a12009f272ca361c0b1e037d57fabf0da23b15fd2737d95a9d612c5de",
       "DECISION-SEARCH-UNINDEXED-001": "sha256:69f19d4ad3dc8d0e9162cf79c590d71c095a71b6badea75b017d135d96eacc9e",
@@ -10884,6 +10938,7 @@
       "INVESTIGATION-CLI-DISCARD-ARGS-001": "sha256:2999a084757bcda5d09b4491e6e85e57d573c0c1cd41d8d7094ad04dd3f6fa8b",
       "INVESTIGATION-CLI-ENUM-001": "sha256:96f85e4a80c0feafd5b891d43139bdd2b5ad1e915e0c5a0e083915a33aad9ba5",
       "INVESTIGATION-CLI-LIST-001": "sha256:2c3b16e5ffb10a25b4cd7d6016a9ad35a67caa3f792b7d9092b8001ca81bcb42",
+      "INVESTIGATION-CLI-RELATION-FILTER-001": "sha256:16d1e35bd0e5aa6279f0d8416a71844f0420e8a8e6889b1d388955bcd04439e8",
       "INVESTIGATION-CLI-RELATIONS-001": "sha256:c32a54c3aa56b9210b359e179d9ef40b00d16bd47de4597794724805963548e2",
       "INVESTIGATION-CLI-SELECTED-SYNC-001": "sha256:5a8a9210a177ce326b540071d6261004c37bc026d3329972caac7f646ab61b2d",
       "INVESTIGATION-CLI-SHOW-DIAGNOSTIC-001": "sha256:907426c98b810f106f0b5d5cee115fbca6f179a3186a698890d84ff093eb8827",
@@ -10930,6 +10985,7 @@
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:a65a11d47c0fa926d3acb9755ceccd8a1ca112df13f511b284bb79e70d007a7d",
       "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:a080f249b66bd5b07446e32b807f25ab9f6f86e34a85eb066e1f5b6fefd47ef0",
       "INVESTIGATION-QUERY-SOURCE-PATH-001": "sha256:d16d7b57baa97deb67f730e3c1f8a4d43ee6249aa90c11415c98058f5929d979",
+      "INVESTIGATION-RELATION-FILTER-002": "sha256:f7e1ea6e4c45421d00db569ab9f9cc8fd9d56af1d98f5e028e397bb1b939657e",
       "INVESTIGATION-RELATION-GIT-HEAD-001": "sha256:b740f716cf24b71bd291fb8b81f3722901893c2b422e472704948eeba9b2476b",
       "INVESTIGATION-RELATION-GIT-HEAD-002": "sha256:171552df1afa6c92e8e1752e387cb6239e7f53a55fb26eed7ec7d4a86577ec44",
       "INVESTIGATION-RELATION-GRAPH-CYCLE-001": "sha256:c765da2db93e681c3aeee2493d2e16aadb08d39077a5b9af527690865822d170",

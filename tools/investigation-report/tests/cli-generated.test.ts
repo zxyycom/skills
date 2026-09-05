@@ -507,6 +507,35 @@ test("CLI uses invalid-option exit status for malformed list input", async () =>
   });
 });
 
+test("CLI rejects repeated relation query options", async () => {
+  await withTempRoot("cli-repeated-relation-query", async (root) => {
+    await writeCollection(root, [{ id: "report" }]);
+    const repeated = ["related-to", "direction", "relation-type"] as const;
+    for (const command of ["list", "search"] as const) {
+      for (const option of repeated) {
+        const result = await runInvestigationCli(root, [
+          ...(command === "search" ? ["search", "当前"] : ["list"]),
+          `--${option}`,
+          option === "direction"
+            ? "both"
+            : option === "relation-type"
+              ? "补充"
+              : "report",
+          `--${option}`,
+          option === "direction"
+            ? "both"
+            : option === "relation-type"
+              ? "补充"
+              : "report"
+        ]);
+        assert.equal(result.status, 2, result.stderr);
+        assert.equal(result.stdout, "");
+        assert.match(result.stderr, new RegExp(`--${option} only once`, "u"));
+      }
+    }
+  });
+});
+
 test("CLI stage-index uses invalid-option exit status without report IDs", async () => {
   await withTempRoot("cli-stage-invalid", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
