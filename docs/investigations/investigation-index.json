@@ -17,6 +17,20 @@
       ],
       "title": "保留型工件的重名需要区分语义复现与身份冲突"
     },
+    "260907-investigate-vibe-check-test-evidence": {
+      "formedAt": "2026-09-07T06:23:31+00:00",
+      "name": "investigate-vibe-check-test-evidence",
+      "question": "Vibe Check 对 test-evidence-review 的定制及实际使用如何工作，对主仓库拟议的 Case 与 Test 多对多边界有什么启示？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "investigate-vibe-check-test-evidence.md",
+      "tags": [
+        "project-customization",
+        "test-evidence",
+        "vibe-check"
+      ],
+      "title": "Vibe Check 的语义 Case 账本与测试实体闭合实践"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -576,6 +590,7 @@
   "sourceRevision": {
     "entries": {
       "260903-explore-name-collisions-in-retained-artifacts": "sha256:4aa2ab77d625a548920dd74b5ace539cfcf90b15b90130def4963da25078ca6f",
+      "260907-investigate-vibe-check-test-evidence": "sha256:644b0a0adfd55b95089dd822f623c299ae397d83cd316316919bdc31e0cdeb8b",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:4861ec08242f0007c24f5b6d7e8e0a0c5fc1ccaaf6898eb1f64420645a2f0c21",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:886e1ade798bfe48802e32c5296dc03c07d9b192dde3519b52ec5b8583778bdd",
       "align-prompt-optimize-name-and-trigger": "sha256:24700cda424786bc07531f84b6c139f1de6fae7b050ad69811bdddca35734cb6",
