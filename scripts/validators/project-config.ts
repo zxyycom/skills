@@ -45,6 +45,10 @@ export const authoritativeGatePackageScripts = {
   "test:check": "bun test ./scripts/vibe-check.test.ts"
 } as const satisfies Readonly<Record<string, string>>;
 
+export const testEvidenceProjectCheckPackageScripts = {
+  "check:test-evidence-catalog": "bun scripts/test-evidence/check.ts"
+} as const satisfies Readonly<Record<string, string>>;
+
 type ExactPackageScriptRequirement = Readonly<{
   commands: Readonly<Record<string, string>>;
   diagnostic(scriptName: string, expectedCommand: string): string;
@@ -62,6 +66,11 @@ const commandPackageScriptRequirements: readonly ExactPackageScriptRequirement[]
       diagnostic: (scriptName, expectedCommand) =>
         `package.json script ${scriptName} must be ${expectedCommand}; ` +
         "restore the authoritative Vibe Check entry"
+    },
+    {
+      commands: testEvidenceProjectCheckPackageScripts,
+      diagnostic: (scriptName, expectedCommand) =>
+        `package.json script ${scriptName} must delegate to ${expectedCommand}`
     }
   ];
 

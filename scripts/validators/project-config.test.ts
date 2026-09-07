@@ -8,6 +8,7 @@ import {
   authoritativeGatePackageScripts,
   maintenanceCliPackageScripts,
   requiredPackageScripts,
+  testEvidenceProjectCheckPackageScripts,
   validatePackageScripts,
   validateOxcConfigurationFiles,
   validateRepositoryPermissionRules
@@ -106,6 +107,7 @@ function requiredPackageJson(): string {
     scripts,
     maintenanceCliPackageScripts,
     authoritativeGatePackageScripts,
+    testEvidenceProjectCheckPackageScripts,
     formatPackageScripts,
     lintPackageScripts
   );
@@ -144,6 +146,26 @@ test("project package script validation preserves maintenance CLI delegations an
     );
     assert.deepEqual(invalidErrors, [
       `package.json script decision-records must delegate to ${expectedDecisionCommand}`
+    ]);
+
+    const expectedProjectCheckCommand =
+      testEvidenceProjectCheckPackageScripts["check:test-evidence-catalog"];
+    const invalidProjectCheckPackageJson = validPackageJson.replace(
+      JSON.stringify(expectedProjectCheckCommand),
+      JSON.stringify(
+        "node skills/test-evidence-review/scripts/test-evidence-catalog.mjs check --root ."
+      )
+    );
+    assert.notEqual(invalidProjectCheckPackageJson, validPackageJson);
+    await fs.writeFile(packageJsonPath, invalidProjectCheckPackageJson, "utf8");
+
+    const invalidProjectCheckErrors: string[] = [];
+    await validatePackageScripts(
+      (message) => invalidProjectCheckErrors.push(message),
+      tempRoot
+    );
+    assert.deepEqual(invalidProjectCheckErrors, [
+      `package.json script check:test-evidence-catalog must delegate to ${expectedProjectCheckCommand}`
     ]);
 
     const invalidGatePackageJson = validPackageJson

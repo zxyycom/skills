@@ -11,18 +11,20 @@ import {
 } from "../lib/generated-file.ts";
 import { githubRepository, rootDir } from "../lib/project.ts";
 import {
-  testEvidenceCaseShowResultSchema,
-  testEvidenceIndexStageResultSchema,
-  testEvidenceIndexSyncResultSchema,
+  snapshotSchema,
   testEvidenceQueryResultSchema,
+  testEvidenceReferenceResultSchema,
   testEvidenceReportSchema,
+  testEvidenceSearchResultSchema,
+  testEvidenceShowResultSchema,
+  testEvidenceStageResultSchema,
   testEvidenceStateIndexSchema,
-  testEvidenceTopicCatalogSchema,
-  testEvidenceTopicsResultSchema
-} from "../../tools/test-evidence/src/schemas.ts";
+  testEvidenceSyncResultSchema,
+  testEvidenceTagsResultSchema
+} from "../../tools/test-evidence/src/core-schemas.ts";
 
 const rebuildCommand = "bun run sync:test-evidence-cli";
-const schemaSourcePath = "tools/test-evidence/src/schemas.ts";
+const schemaSourcePath = "tools/test-evidence/src/core-schemas.ts";
 const skillSourcePath = "skills/test-evidence-review";
 const sourceApiDirectory = path.join(rootDir, "tools", "test-evidence", "api");
 const publishedScriptsDirectory = path.join(
@@ -46,18 +48,18 @@ const bundleSpec = {
 
 const schemaSpecs = [
   {
-    fileName: "test-evidence-topic-catalog.schema.json",
+    fileName: "test-evidence-entity-snapshot.schema.json",
     mode: "input" as const,
-    schema: testEvidenceTopicCatalogSchema,
-    typeName: "TestEvidenceTopicCatalog",
-    typesFileName: "test-evidence-topic-catalog.types.d.mts"
+    schema: snapshotSchema,
+    typeName: "TestEvidenceEntitySnapshot",
+    typesFileName: "test-evidence-entity-snapshot.types.d.mts"
   },
   {
-    fileName: "test-evidence-case-show-result.schema.json",
+    fileName: "test-evidence-reference-result.schema.json",
     mode: "output" as const,
-    schema: testEvidenceCaseShowResultSchema,
-    typeName: "TestEvidenceCaseShowResult",
-    typesFileName: "test-evidence-case-show-result.types.d.mts"
+    schema: testEvidenceReferenceResultSchema,
+    typeName: "TestEvidenceReferenceResult",
+    typesFileName: "test-evidence-reference-result.types.d.mts"
   },
   {
     fileName: "test-evidence-report.schema.json",
@@ -67,27 +69,6 @@ const schemaSpecs = [
     typesFileName: "test-evidence-report.types.d.mts"
   },
   {
-    fileName: "test-evidence-index-sync-result.schema.json",
-    mode: "output" as const,
-    schema: testEvidenceIndexSyncResultSchema,
-    typeName: "TestEvidenceIndexSyncResult",
-    typesFileName: "test-evidence-index-sync-result.types.d.mts"
-  },
-  {
-    fileName: "test-evidence-index-stage-result.schema.json",
-    mode: "output" as const,
-    schema: testEvidenceIndexStageResultSchema,
-    typeName: "TestEvidenceIndexStageResult",
-    typesFileName: "test-evidence-index-stage-result.types.d.mts"
-  },
-  {
-    fileName: "test-evidence-state-index.schema.json",
-    mode: "output" as const,
-    schema: testEvidenceStateIndexSchema,
-    typeName: "TestEvidenceStateIndex",
-    typesFileName: "test-evidence-state-index.types.d.mts"
-  },
-  {
     fileName: "test-evidence-query-result.schema.json",
     mode: "output" as const,
     schema: testEvidenceQueryResultSchema,
@@ -95,11 +76,46 @@ const schemaSpecs = [
     typesFileName: "test-evidence-query-result.types.d.mts"
   },
   {
-    fileName: "test-evidence-topics-result.schema.json",
+    fileName: "test-evidence-tags-result.schema.json",
     mode: "output" as const,
-    schema: testEvidenceTopicsResultSchema,
-    typeName: "TestEvidenceTopicsResult",
-    typesFileName: "test-evidence-topics-result.types.d.mts"
+    schema: testEvidenceTagsResultSchema,
+    typeName: "TestEvidenceTagsResult",
+    typesFileName: "test-evidence-tags-result.types.d.mts"
+  },
+  {
+    fileName: "test-evidence-show-result.schema.json",
+    mode: "output" as const,
+    schema: testEvidenceShowResultSchema,
+    typeName: "TestEvidenceShowResult",
+    typesFileName: "test-evidence-show-result.types.d.mts"
+  },
+  {
+    fileName: "test-evidence-search-result.schema.json",
+    mode: "output" as const,
+    schema: testEvidenceSearchResultSchema,
+    typeName: "TestEvidenceSearchResult",
+    typesFileName: "test-evidence-search-result.types.d.mts"
+  },
+  {
+    fileName: "test-evidence-sync-result.schema.json",
+    mode: "output" as const,
+    schema: testEvidenceSyncResultSchema,
+    typeName: "TestEvidenceSyncResult",
+    typesFileName: "test-evidence-sync-result.types.d.mts"
+  },
+  {
+    fileName: "test-evidence-stage-result.schema.json",
+    mode: "output" as const,
+    schema: testEvidenceStageResultSchema,
+    typeName: "TestEvidenceStageResult",
+    typesFileName: "test-evidence-stage-result.types.d.mts"
+  },
+  {
+    fileName: "test-evidence-state-index.schema.json",
+    mode: "output" as const,
+    schema: testEvidenceStateIndexSchema,
+    typeName: "TestEvidenceStateIndex",
+    typesFileName: "test-evidence-state-index.types.d.mts"
   }
 ] as const;
 

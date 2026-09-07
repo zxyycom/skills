@@ -2,98 +2,55 @@
   "type": "object",
   "properties": {
     "definitionVersion": {
-      "const": 4
+      "const": 6
     },
     "entries": {
       "type": "object",
       "propertyNames": {
         "type": "string",
-        "minLength": 1,
         "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
       },
       "additionalProperties": {
         "type": "object",
         "properties": {
-          "endLine": {
-            "type": "integer",
-            "minimum": 1
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[^\\r\\n]*$"
           },
-          "entries": {
+          "sourcePath": {
+            "type": "string",
+            "pattern": "^cases\\/[a-z0-9]+(?:-[a-z0-9]+)*\\.md$"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            }
+          },
+          "testIds": {
             "type": "array",
             "items": {
               "type": "string",
               "minLength": 1
             },
             "minItems": 1
-          },
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
-          },
-          "line": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "sourcePath": {
-            "type": "string",
-            "minLength": 1
-          },
-          "summary": {
-            "type": "string",
-            "minLength": 1
-          },
-          "title": {
-            "type": "string",
-            "minLength": 1
-          },
-          "searchText": {
-            "type": "string",
-            "minLength": 1
           }
         },
         "required": [
-          "endLine",
-          "entries",
-          "id",
-          "line",
-          "sourcePath",
-          "summary",
           "title",
-          "searchText"
+          "sourcePath",
+          "tags",
+          "testIds"
         ],
         "additionalProperties": false
       }
     },
     "metadata": {
       "type": "object",
-      "properties": {
-        "topics": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "description": {
-                "type": "string",
-                "pattern": "^[^\\r\\n]*$"
-              },
-              "id": {
-                "type": "string",
-                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
-              }
-            },
-            "required": [
-              "description",
-              "id"
-            ],
-            "additionalProperties": false
-          },
-          "minItems": 1
-        }
-      },
-      "required": [
-        "topics"
-      ],
+      "properties": {},
+      "required": [],
       "additionalProperties": false
     },
     "namespace": {
@@ -109,7 +66,6 @@
           "type": "object",
           "propertyNames": {
             "type": "string",
-            "minLength": 1,
             "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
           },
           "additionalProperties": {

@@ -61,6 +61,9 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Verify project test-evidence prerequisites
+        run: test "$(node_modules/.bin/ast-grep --version)" = "ast-grep 0.45.1"
+
       - name: Install metric prerequisites
         run: |
           set -euo pipefail

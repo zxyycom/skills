@@ -1,5 +1,7 @@
 import path from "node:path";
 import process from "node:process";
+import fs from "node:fs/promises";
+import * as v from "valibot";
 import {
   Command,
   CommanderError,
@@ -7,471 +9,301 @@ import {
   Option
 } from "commander";
 import { isMainModule } from "../../shared/src/node/main-module.ts";
-import { showTestEvidenceCase } from "./case-show.ts";
 import {
-  formatTestEvidenceCaseList,
-  formatTestEvidenceCaseShow,
-  formatTestEvidenceIndexStage,
-  formatTestEvidenceIndexSync,
-  formatTestEvidenceQueryFailure,
-  formatTestEvidenceReport,
-  formatTestEvidenceTopics,
-  type TestEvidenceCliOutput
-} from "./cli-output.ts";
-import { hasBlockingDiagnostics } from "./diagnostics.ts";
-import { queryTestEvidence, testEvidenceQueryDefaultLimit } from "./query.ts";
-import {
-  testEvidenceCaseShowResultSchema,
-  testEvidenceIndexStageResultSchema,
-  testEvidenceIndexSyncResultSchema,
-  testEvidenceQueryResultSchema,
-  testEvidenceReportSchema,
-  testEvidenceStateIndexSchema,
-  testEvidenceTopicCatalogSchema,
-  testEvidenceTopicsResultSchema
-} from "./schemas.ts";
-import { syncTestEvidenceIndex } from "./state-index.ts";
-import {
-  executeTestEvidenceIndexStage,
-  stageTestEvidenceIndex
-} from "./staging.ts";
-import {
+  listTestEvidenceTags,
+  queryTestEvidence,
+  searchTestEvidence,
+  showTestEvidenceCase,
+  stageTestEvidenceIndex,
+  syncTestEvidenceIndex,
+  testEvidenceQueryDefaultLimit,
   validateTestEvidence,
-  type ValidateTestEvidenceOptions
-} from "./validation.ts";
+  validateTestEvidenceReferences
+} from "./core.ts";
 import {
-  listTestEvidenceTopics,
-  type ListTestEvidenceTopicsOptions
-} from "./topics.ts";
-
-type ParsedOptions = {
-  json?: boolean;
-  limit?: number;
-  offset?: number;
-  query?: string;
-  root?: string;
-  select?: string[];
-  topic?: string;
-  write?: boolean;
-};
-type CatalogCliBase = Readonly<{
-  json: boolean;
-  workspaceRoot: string;
-}>;
-type CatalogCliArgs = CatalogCliBase &
-  (
-    | Readonly<{ command: "check" }>
-    | Readonly<{
-        command: "list";
-        limit: number;
-        offset: number;
-        query?: string;
-        topic?: string;
-      }>
-    | Readonly<{
-        caseId: string;
-        command: "show";
-      }>
-    | Readonly<{
-        caseIds: readonly string[];
-        command: "stage-index";
-      }>
-    | Readonly<{
-        command: "sync-index";
-        selectedCaseIds?: readonly string[];
-        write: boolean;
-      }>
-    | Readonly<{ command: "topics" }>
-  );
-
-type CatalogCliIo = Readonly<{
-  stderr: (text: string) => void;
-  stdout: (text: string) => void;
-}>;
+  testEvidenceCaseIdSchema,
+  testEvidenceTagSchema,
+  testEvidenceTestIdSchema
+} from "./core-schemas.ts";
 
 export type TestEvidenceCatalogCliOptions = Readonly<{
   cwd?: string;
-  io?: CatalogCliIo;
+  io?: Readonly<{
+    stdout: (text: string) => void;
+    stderr: (text: string) => void;
+  }>;
 }>;
-
 export async function runTestEvidenceCatalogCli(
   argv: readonly string[] = process.argv.slice(2),
   options: TestEvidenceCatalogCliOptions = {}
 ): Promise<number> {
-  const cwd = options.cwd ?? process.cwd();
   const io = options.io ?? {
-    stderr: (text: string) => process.stderr.write(text),
-    stdout: (text: string) => process.stdout.write(text)
+    stdout: (text: string) => process.stdout.write(text),
+    stderr: (text: string) => process.stderr.write(text)
   };
-  let exitCode = 0;
+  const cwd = options.cwd ?? process.cwd();
+  let code = 0;
+  const repeated = repeatedOption(argv);
+  if (repeated !== null) {
+    io.stderr(`error: option '${repeated}' may only be specified once\n`);
+    return 2;
+  }
   const program = new Command()
     .name("test-evidence-catalog")
-    .description(
-      "Validate, query, and selectively stage indexed test evidence."
-    )
-    .option(
-      "--root <path>",
-      "Target workspace root (default: current directory)."
-    )
-    .option("--json", "Write one machine-readable result to stdout.")
-    .configureHelp({ showGlobalOptions: true })
-    .configureOutput({
-      writeErr: io.stderr,
-      writeOut: io.stdout
-    })
-    .showHelpAfterError()
-    .addHelpText(
-      "afterAll",
-      "\nExit codes:\n" +
-        "  0  Success.\n" +
-        "  1  Validation, query, or operation failure.\n" +
-        "  2  Invalid arguments."
-    )
+    .description("Validate, query, and stage Case test evidence.")
+    .option("--root <path>")
+    .option("--json")
+    .configureOutput({ writeOut: io.stdout, writeErr: io.stderr })
     .exitOverride();
-
-  const execute = async (args: CatalogCliArgs): Promise<void> => {
-    exitCode = await runCatalogCommand(args, io);
+  const root = (command: Command) =>
+    path.resolve(cwd, command.optsWithGlobals<{ root?: string }>().root ?? ".");
+  const json = (command: Command) =>
+    command.optsWithGlobals<{ json?: boolean }>().json ?? false;
+  const output = (command: Command, value: unknown, success: boolean) => {
+    io.stdout(
+      json(command)
+        ? `${JSON.stringify(value, null, 2)}\n`
+        : `${success ? "ok" : "failed"}\n`
+    );
+    code = success ? 0 : 1;
   };
-
-  const check = subcommand(
-    program,
-    "check",
-    "Strictly validate the catalog and derived index.",
-    true
-  );
-  check.action(() =>
-    execute({
-      ...commandBase(check, cwd),
-      command: "check"
-    })
-  );
-
-  const list = subcommand(
-    program,
-    "list",
-    "List compact case summaries from the current catalog."
-  )
+  program.command("check").action(async function (this: Command) {
+    const result = await validateTestEvidence({ workspaceRoot: root(this) });
+    output(this, result, result.diagnostics.length === 0);
+  });
+  const refs = program
+    .command("check-refs")
+    .requiredOption("--snapshot <file>")
+    .requiredOption("--expect-project <id>")
+    .requiredOption("--expect-scope <id>")
+    .requiredOption("--expect-revision <value>")
+    .option("--case <id>", "select Case", collect, [] as string[]);
+  refs.action(async function (this: Command) {
+    const o = this.opts();
+    validateCaseIds(o.case);
+    const loaded = await readSnapshotFile(path.resolve(root(this), o.snapshot));
+    if (loaded === null) {
+      const result = await validateTestEvidenceReferences({
+        workspaceRoot: root(this),
+        snapshot: null,
+        expectedSource: {
+          projectId: o.expectProject,
+          scopeId: o.expectScope,
+          revision: o.expectRevision
+        },
+        ...(o.case.length === 0 ? {} : { caseIds: o.case })
+      });
+      output(this, result, false);
+      return;
+    }
+    const result = await validateTestEvidenceReferences({
+      workspaceRoot: root(this),
+      snapshot: loaded,
+      expectedSource: {
+        projectId: o.expectProject,
+        scopeId: o.expectScope,
+        revision: o.expectRevision
+      },
+      ...(o.case.length === 0 ? {} : { caseIds: o.case })
+    });
+    output(this, result, result.status === "ok");
+  });
+  const list = program
+    .command("list")
+    .option("--id <id>")
+    .option("--tag <tag>", "AND filter", collect, [] as string[])
+    .option("--test <id>")
     .addOption(
-      new Option("--limit <count>", "Maximum cases to return.")
-        .argParser(parsePositiveInteger)
+      new Option("--limit <number>")
+        .argParser(positive)
         .default(testEvidenceQueryDefaultLimit)
     )
     .addOption(
-      new Option("--offset <count>", "Cases to skip before returning results.")
-        .argParser(parseNonNegativeInteger)
-        .default(0)
+      new Option("--offset <number>").argParser(nonnegative).default(0)
+    );
+  list.action(async function (this: Command) {
+    const o = this.opts();
+    validateOptional(testEvidenceCaseIdSchema, o.id, "--id");
+    validateValues(testEvidenceTagSchema, o.tag, "--tag");
+    validateOptional(testEvidenceTestIdSchema, o.test, "--test");
+    const result = await queryTestEvidence({
+      workspaceRoot: root(this),
+      caseId: o.id,
+      tags: o.tag,
+      testId: o.test,
+      limit: o.limit,
+      offset: o.offset
+    });
+    output(this, result, result.diagnostics.length === 0);
+  });
+  program.command("tags").action(async function (this: Command) {
+    const result = await listTestEvidenceTags({ workspaceRoot: root(this) });
+    output(this, result, result.diagnostics.length === 0);
+  });
+  program.command("show <case-id>").action(async function (
+    this: Command,
+    caseId: string
+  ) {
+    validateCaseIds([caseId]);
+    const result = await showTestEvidenceCase({
+      workspaceRoot: root(this),
+      caseId
+    });
+    output(this, result, result.case !== null);
+  });
+  const search = program
+    .command("search <text>")
+    .option("--match <mode>", "all, any, or phrase", "all")
+    .option("--tag <tag>", "AND filter", collect, [] as string[])
+    .option("--test <id>")
+    .addOption(
+      new Option("--limit <number>")
+        .argParser(positive)
+        .default(testEvidenceQueryDefaultLimit)
     )
     .addOption(
-      new Option(
-        "--query <text>",
-        "Search case ID, title, Contract, Proves, or Entry text."
-      ).argParser(parseNonEmptyText)
-    )
-    .addOption(
-      new Option(
-        "--topic <topic-id>",
-        "Filter cases by one defined test-evidence topic."
-      ).argParser(parseSingleTopic)
+      new Option("--offset <number>").argParser(nonnegative).default(0)
     );
-  list.action(() => execute(listCommandArgs(list, cwd)));
-
-  const topics = subcommand(
-    program,
-    "topics",
-    "List the authoritative test-evidence topic definitions."
-  );
-  topics.action(() =>
-    execute({
-      ...commandBase(topics, cwd),
-      command: "topics"
-    })
-  );
-
-  const show = subcommand(
-    program,
-    "show <case-id>",
-    "Show one case and its original Markdown body."
-  );
-  show.action((caseId: string) =>
-    execute({
-      ...commandBase(show, cwd),
-      caseId,
-      command: "show"
-    })
-  );
-
-  const stageIndex = subcommand(
-    program,
-    "stage-index <case-ids...>",
-    "Stage only the selected case entries from the current workspace index."
-  );
-  stageIndex.addHelpText(
-    "after",
-    "\nTopic definitions, case Markdown, test code, and product code are not staged."
-  );
-  stageIndex.action((caseIds: string[]) =>
-    execute({
-      ...commandBase(stageIndex, cwd),
-      caseIds,
-      command: "stage-index"
-    })
-  );
-
-  const syncIndex = subcommand(
-    program,
-    "sync-index",
-    "Check or rebuild the derived test-evidence index."
-  )
-    .option(
-      "--select <case-id>",
-      "Allow only this Case ID's source change; repeat for multiple cases.",
-      (value: string, previous: string[]) => [...previous, value],
-      []
-    )
-    .option(
-      "--write",
-      "Atomically rebuild the index from the current catalog."
-    );
-  syncIndex.action(() => execute(syncCommandArgs(syncIndex, cwd)));
-
+  search.action(async function (this: Command, text: string) {
+    const o = this.opts();
+    if (!["all", "any", "phrase"].includes(o.match))
+      throw new InvalidArgumentError("--match must be all, any, or phrase");
+    validateValues(testEvidenceTagSchema, o.tag, "--tag");
+    validateOptional(testEvidenceTestIdSchema, o.test, "--test");
+    const result = await searchTestEvidence({
+      workspaceRoot: root(this),
+      text,
+      match: o.match,
+      tags: o.tag,
+      testId: o.test,
+      limit: o.limit,
+      offset: o.offset
+    });
+    output(this, result, result.diagnostics.length === 0);
+  });
+  const sync = program
+    .command("sync-index")
+    .option("--write")
+    .option("--select <case-id>", "select Case", collect, [] as string[]);
+  sync.action(async function (this: Command) {
+    const o = this.opts();
+    validateCaseIds(o.select);
+    const result = await syncTestEvidenceIndex({
+      workspaceRoot: root(this),
+      mode: o.write ? "write" : "check",
+      ...(o.select.length === 0 ? {} : { selectedCaseIds: o.select })
+    });
+    output(this, result, result.status === "ok");
+  });
+  program.command("stage-index <case-ids...>").action(async function (
+    this: Command,
+    ids: string[]
+  ) {
+    validateCaseIds(ids);
+    const result = await stageTestEvidenceIndex({
+      workspaceRoot: root(this),
+      caseIds: ids
+    });
+    output(this, result, result.status === "ok");
+  });
   try {
     await program.parseAsync(["node", "test-evidence-catalog.mjs", ...argv]);
   } catch (error) {
-    if (error instanceof CommanderError) {
-      return error.exitCode === 0 ? 0 : 2;
+    if (error instanceof InvalidArgumentError) {
+      io.stderr(`error: ${error.message}\n`);
+      return 2;
     }
+    if (error instanceof CommanderError) return error.exitCode === 0 ? 0 : 2;
     io.stderr(`${error instanceof Error ? error.message : String(error)}\n`);
     return 1;
   }
-  return exitCode;
+  return code;
 }
-
-async function runCatalogCommand(
-  args: CatalogCliArgs,
-  io: CatalogCliIo
-): Promise<number> {
-  if (args.command === "stage-index") {
-    return await runStageIndexCommand(args, io);
-  }
-
-  if (args.command === "sync-index") {
-    const result = await syncTestEvidenceIndex({
-      mode: args.write ? "write" : "check",
-      ...(args.selectedCaseIds === undefined
-        ? {}
-        : { selectedCaseIds: args.selectedCaseIds }),
-      workspaceRoot: args.workspaceRoot
-    });
-    writeOutput(io, formatTestEvidenceIndexSync(result, args.json));
-    return result.status === "ok" ? 0 : 1;
-  }
-
-  if (args.command === "check") {
-    const report = await validateTestEvidence({
-      workspaceRoot: args.workspaceRoot
-    });
-    writeOutput(io, formatTestEvidenceReport(report, args.json));
-    return hasBlockingDiagnostics(report.diagnostics) ? 1 : 0;
-  }
-
-  if (args.command === "topics") {
-    const result = await listTestEvidenceTopics({
-      workspaceRoot: args.workspaceRoot
-    });
-    writeOutput(io, formatTestEvidenceTopics(result, args.json));
-    return hasBlockingDiagnostics(result.diagnostics) ? 1 : 0;
-  }
-
-  if (args.command === "show") {
-    const result = await showTestEvidenceCase({
-      caseId: args.caseId,
-      workspaceRoot: args.workspaceRoot
-    });
-    writeOutput(io, formatTestEvidenceCaseShow(result, args.json));
-    return hasBlockingDiagnostics(result.diagnostics) ? 1 : 0;
-  }
-
-  return await runQueryCommand(args, io);
+function collect(value: string, previous: string[]): string[] {
+  return [...previous, value];
 }
-
-async function runQueryCommand(
-  args: Extract<CatalogCliArgs, { command: "list" }>,
-  io: CatalogCliIo
-): Promise<number> {
-  const result = await queryTestEvidence({
-    limit: args.limit,
-    offset: args.offset,
-    query: args.query,
-    topic: args.topic,
-    workspaceRoot: args.workspaceRoot
-  });
-  if (hasBlockingDiagnostics(result.diagnostics)) {
-    writeOutput(io, formatTestEvidenceQueryFailure(result, args.json));
-    return result.diagnostics.some(
-      (entry) => entry.code === "query.topic-unknown"
-    )
-      ? 2
-      : 1;
-  }
-  writeOutput(io, formatTestEvidenceCaseList(result, args.json));
-  return 0;
-}
-
-async function runStageIndexCommand(
-  args: Extract<CatalogCliArgs, { command: "stage-index" }>,
-  io: CatalogCliIo
-): Promise<number> {
-  const execution = await executeTestEvidenceIndexStage({
-    caseIds: args.caseIds,
-    workspaceRoot: args.workspaceRoot
-  });
-  return execution.match(
-    (result) => {
-      writeOutput(io, formatTestEvidenceIndexStage(result, args.json));
-      return 0;
-    },
-    (failure) => {
-      writeOutput(io, formatTestEvidenceIndexStage(failure.result, args.json));
-      return failure.kind === "invalid-arguments" ? 2 : 1;
-    }
-  );
-}
-
-function commandBase(commandNode: Command, cwd: string): CatalogCliBase {
-  const options = commandNode.optsWithGlobals<ParsedOptions>();
-  return {
-    json: options.json ?? false,
-    workspaceRoot: path.resolve(cwd, options.root ?? ".")
-  };
-}
-
-function listCommandArgs(
-  commandNode: Command,
-  cwd: string
-): Extract<CatalogCliArgs, { command: "list" }> {
-  const options = commandNode.optsWithGlobals<ParsedOptions>();
-  return {
-    ...commandBase(commandNode, cwd),
-    command: "list",
-    limit: options.limit ?? testEvidenceQueryDefaultLimit,
-    offset: options.offset ?? 0,
-    query: options.query,
-    topic: options.topic
-  };
-}
-
-function syncCommandArgs(
-  commandNode: Command,
-  cwd: string
-): Extract<CatalogCliArgs, { command: "sync-index" }> {
-  const options = commandNode.optsWithGlobals<ParsedOptions>();
-  return {
-    ...commandBase(commandNode, cwd),
-    command: "sync-index",
-    ...(options.select === undefined || options.select.length === 0
-      ? {}
-      : { selectedCaseIds: options.select }),
-    write: options.write ?? false
-  };
-}
-
-function subcommand(
-  program: Command,
-  nameAndArgs: string,
-  description: string,
-  isDefault = false
-): Command {
-  return program
-    .command(nameAndArgs, { isDefault })
-    .description(description)
-    .allowExcessArguments(false)
-    .exitOverride();
-}
-
-function parsePositiveInteger(value: string): number {
-  const parsed = parseCliInteger(value);
-  if (parsed < 1) {
-    throw new InvalidArgumentError("must be a positive integer");
-  }
+function positive(value: string): number {
+  const parsed = integer(value);
+  if (parsed < 1) throw new InvalidArgumentError("must be positive");
   return parsed;
 }
-
-function parseNonNegativeInteger(value: string): number {
-  const parsed = parseCliInteger(value);
-  if (parsed < 0) {
-    throw new InvalidArgumentError("must be a non-negative integer");
-  }
+function nonnegative(value: string): number {
+  const parsed = integer(value);
+  if (parsed < 0) throw new InvalidArgumentError("must be non-negative");
   return parsed;
 }
-
-function parseNonEmptyText(value: string): string {
-  const parsed = value.trim();
-  if (parsed.length === 0) {
-    throw new InvalidArgumentError("must contain a non-whitespace character");
-  }
-  return parsed;
-}
-
-function parseSingleTopic(value: string, previous: string | undefined): string {
-  if (previous !== undefined) {
-    throw new InvalidArgumentError("may only be specified once");
-  }
-  return parseNonEmptyText(value);
-}
-
-function parseCliInteger(value: string): number {
-  if (!/^\d+$/u.test(value)) {
-    throw new InvalidArgumentError("must be an integer");
-  }
-  const parsed = Number(value);
-  if (!Number.isSafeInteger(parsed)) {
+function integer(value: string): number {
+  if (!/^\d+$/u.test(value) || !Number.isSafeInteger(Number(value)))
     throw new InvalidArgumentError("must be a safe integer");
-  }
-  return parsed;
+  return Number(value);
 }
-
-function writeOutput(io: CatalogCliIo, output: TestEvidenceCliOutput): void {
-  if (output.stderr.length > 0) {
-    io.stderr(output.stderr);
-  }
-  if (output.stdout.length > 0) {
-    io.stdout(output.stdout);
+function validateOptional(
+  schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
+  value: string | undefined,
+  option: string
+): void {
+  if (value !== undefined && !v.safeParse(schema, value).success)
+    throw new InvalidArgumentError(`${option} is invalid`);
+}
+function validateValues(
+  schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>,
+  values: readonly string[],
+  option: string
+): void {
+  if (values.some((value) => !v.safeParse(schema, value).success))
+    throw new InvalidArgumentError(`${option} is invalid`);
+}
+function validateCaseIds(ids: readonly string[]): void {
+  if (ids.length === 0) return;
+  validateValues(testEvidenceCaseIdSchema, ids, "Case ID");
+  if (new Set(ids).size !== ids.length)
+    throw new InvalidArgumentError("Case IDs must not repeat");
+}
+function repeatedOption(argv: readonly string[]): string | null {
+  for (const option of [
+    "--root",
+    "--json",
+    "--snapshot",
+    "--expect-project",
+    "--expect-scope",
+    "--expect-revision",
+    "--id",
+    "--test",
+    "--limit",
+    "--offset",
+    "--match",
+    "--write"
+  ] as const)
+    if (
+      argv.filter((value) => value === option || value.startsWith(`${option}=`))
+        .length > 1
+    )
+      return option;
+  return null;
+}
+async function readSnapshotFile(file: string): Promise<unknown> {
+  try {
+    const stat = await fs.lstat(file);
+    if (stat.isSymbolicLink() || !stat.isFile() || stat.size > 64 * 1024 * 1024)
+      return null;
+    return JSON.parse(
+      new TextDecoder("utf-8", { fatal: true }).decode(await fs.readFile(file))
+    );
+  } catch {
+    return null;
   }
 }
-
 export {
-  listTestEvidenceTopics,
+  listTestEvidenceTags,
   queryTestEvidence,
+  searchTestEvidence,
   showTestEvidenceCase,
   stageTestEvidenceIndex,
   syncTestEvidenceIndex,
   validateTestEvidence,
-  testEvidenceCaseShowResultSchema,
-  testEvidenceIndexStageResultSchema,
-  testEvidenceIndexSyncResultSchema,
-  testEvidenceQueryResultSchema,
-  testEvidenceReportSchema,
-  testEvidenceStateIndexSchema,
-  testEvidenceTopicCatalogSchema,
-  testEvidenceTopicsResultSchema
+  validateTestEvidenceReferences
 };
-export type { ListTestEvidenceTopicsOptions, ValidateTestEvidenceOptions };
-export type {
-  TestEvidenceCaseShowResult,
-  TestEvidenceCaseState,
-  TestEvidenceIndexStageDiagnostic,
-  TestEvidenceIndexStageResult,
-  TestEvidenceIndexSyncResult,
-  TestEvidenceReport,
-  TestEvidenceStateIndex,
-  TestEvidenceTopicCatalog,
-  TestEvidenceTopicsResult
-} from "./types.ts";
-export type { QueryTestEvidenceOptions } from "./query.ts";
-export type { ShowTestEvidenceCaseOptions } from "./case-show.ts";
-export type { StageTestEvidenceIndexOptions } from "./staging.ts";
-export type { SyncTestEvidenceIndexOptions } from "./state-index.ts";
-
-if (isMainModule(import.meta.url)) {
+export { testEvidenceCaseIdSchema };
+export * from "./core-schemas.ts";
+if (isMainModule(import.meta.url))
   process.exitCode = await runTestEvidenceCatalogCli();
-}

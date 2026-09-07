@@ -83,6 +83,9 @@
       "260905-add-optional-relation-summaries": "sha256:3c07e21510610ff14508e7f7a52269062f8b8eebc0fbcd1ecf254c4eec79cd7b",
       "260905-search-authoritative-files-with-index-identity": "sha256:34240d591900ff1d798fe204e9bb5490dabbc432399336b3c7a5ffa8534d2b6a",
       "260905-separate-persistent-state-from-query-projection": "sha256:ccf93a379ebf4c0d0c4dc1cd84dd255f4959cde9bf8e7c6d85f06f25ec4222c9",
+      "260907-case-only-test-evidence-workspace": "sha256:d9ef81e231035b5535069ba418d16f7456f62aa4dc1a72f22905f011869a09f0",
+      "260907-case-snapshot-reference-boundary": "sha256:e23e4da3f7633e52b0ae4d248d807189db537df953c01e79ceec5db9486d32e0",
+      "260907-stage-case-index-definition-migration": "sha256:ed1a6e4a6ed4d8855f993807114a82358654e537540bdce82a3273aef7806daf",
       "activate-release-gate-checks-by-tag": "sha256:9a4fa7a38e4c87103e295df956469814bfdd926557340399f2c798d8bbf55c4f",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -153,7 +156,7 @@
       "exclude-investigation-resources-from-report-index-revision": "sha256:7ce95a1b9c5c708cba94d20773fb2d6463ba43a046ecfa896705d7766756badc",
       "express-alignment-as-field-relation": "sha256:435a97f712eeee0d9046d5b4c3cd07eef2fb48583fb81b150fd5235eefddab2a",
       "express-decision-alignment-state": "sha256:96013297cbdc6c9c492bff90cf45939620f908c4f5c34480b03ce5e46682baeb",
-      "fix-test-evidence-workspace-contract": "sha256:8fcae8832ef0d899f173987b87c4819d88e5930ea5b55dd47891b1096e3adfb5",
+      "fix-test-evidence-workspace-contract": "sha256:98d370bf888db781c892bae80a591437face0ec0d316c6fa714630d8ccf2a645",
       "form-proposal-and-initial-design-in-draft": "sha256:4c4058da7266d1c768e22d428b7c9991c6d1c5dcd213657516f1376f590f9e78",
       "gate-change-implementation-by-review": "sha256:424735b816d1fe463728592f8ed5498501719a1a3e4dbe926f14887e5df812ef",
       "gate-packaging-on-selected-checks": "sha256:98e4ec369d711f5bc8e9bc2b0ce20df53c34efe1275996d450e9352ab2cb97cc",
@@ -178,7 +181,7 @@
       "locate-decisions-through-id-keyed-index": "sha256:a93ef8e0fccecc31b1360b24087b7375da69cf17f742ba15794513800f5dbf6f",
       "locate-locks-by-task-index-identity": "sha256:3a4ee422820c4bac948b2dc7dfe01669b042c6fd4ad498db2fd4e6dc5b420730",
       "maintain-change-artifact-and-authorization-boundaries": "sha256:024cae7f6c3ec0e8e398391ec2799b571af9646f9521b7665d8cbb608994c3eb",
-      "maintain-closed-many-to-many-test-case-relations": "sha256:2ec235e19df16181f4d69700856c55c1bde84a3148e5eea8bcd5dcbe1c5c698e",
+      "maintain-closed-many-to-many-test-case-relations": "sha256:e26b6f788530dcffe26ffbe883e9fa4be9bae5e813b46d44034354c21103606b",
       "maintain-physical-archive-boundary-as-lifecycle-projection": "sha256:2ee84051731c126e5d6ccb3aae5e8013904ebc835e3b9a7efc57f0e1dc0d6f2c",
       "maintain-rebuildable-read-side-index-boundary": "sha256:f16039ed2d2549caeee0ebc08e08a85ee6604dd79dce0e4e271ec9bb3f36e276",
       "maintain-report-level-investigation-index": "sha256:85ddcfbb95ad89d852b26ca481993b42c1657a5af8f12458175aa32540362bf0",
@@ -273,7 +276,7 @@
       "stage-selected-index-entries": "sha256:c41e376f2a04ab6ca9e9f63683f1b19f4435ff0cffbf01b29cf949c852dd0795",
       "stage-selected-index-entries-by-id": "sha256:9e100ebf08a69ecb3f5287467704b3d6ac7f577a3c5cdaa019aae6111ff0cf9f",
       "stage-selected-investigation-index-entries": "sha256:3dc904a1fbab00c22b41f9024fbb05f920fed64106e3775a2431b4831760bfc8",
-      "stage-selected-test-evidence-index-entries": "sha256:e7d8436c940d75559ee5e171bcd8c28a691e5084b3206c2ac5fa00c4d75b93f2",
+      "stage-selected-test-evidence-index-entries": "sha256:31ef56c205b6dc019f1fcef13d4148c187ef3670ac9fa61482b4bab04c8bec55",
       "standardize-runner-results-at-producer-boundaries": "sha256:44f34e25fc87bd13aca49b77790ef05f7247f123760ca7e62565ce7c6bcf2a35",
       "support-closed-reallocation-of-decision-owners": "sha256:e5f65ea401de818603064dc9e6ba74ce118d7621a77a4665d8b969cc3f52e3c8",
       "support-degraded-decision-maintenance": "sha256:69854f3ef9d623566c963504330e4aaca2a17d072d45534eb13beedd4eee5099",
@@ -1760,6 +1763,67 @@
         }
       ]
     },
+    "260907-case-only-test-evidence-workspace": {
+      "name": "case-only-test-evidence-workspace",
+      "sourcePath": "case-only-test-evidence-workspace.md",
+      "title": "固定 Case-only 测试证据工作区协议",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-07T10:02:46Z",
+      "purpose": "让固定测试证据根只保存 Case 源和派生索引，并把测试实体输入改为显式快照。",
+      "background": "Topic 目录、固定实体输入和运行时兼容会把查询与项目采集耦合。",
+      "decision": "固定 Case-only 目录与显式快照引用边界，旧目录只由受控迁移入口转换。",
+      "tags": [
+        "test-evidence-review"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "fix-test-evidence-workspace-contract"
+        }
+      ]
+    },
+    "260907-case-snapshot-reference-boundary": {
+      "name": "case-snapshot-reference-boundary",
+      "sourcePath": "case-snapshot-reference-boundary.md",
+      "title": "以 Case 声明与项目快照划分引用责任",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-07T10:02:51Z",
+      "purpose": "让核心验证 Case 对显式完整快照的引用，而不拥有项目实体覆盖或关系图。",
+      "background": "闭合双向关系把项目采集、Case 语义和核心查询耦合为同一事实。",
+      "decision": "Case 保存 Tests 集合，核心仅检查显式快照引用，项目另行拥有实体覆盖策略。",
+      "tags": [
+        "test-evidence-review"
+      ],
+      "relations": [
+        {
+          "type": "替代",
+          "target": "maintain-closed-many-to-many-test-case-relations"
+        }
+      ]
+    },
+    "260907-stage-case-index-definition-migration": {
+      "name": "stage-case-index-definition-migration",
+      "sourcePath": "stage-case-index-definition-migration.md",
+      "title": "按 Case 暂存索引并整体处理定义迁移",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-07T10:02:55Z",
+      "purpose": "保留安全的 selected staging，同时禁止在 definition 切换时按 Case 拆分索引。",
+      "background": "Case-only 索引不再有 topic metadata，但跨 definition 的索引基线不能安全组合。",
+      "decision": "普通 Case 变化可 selected stage；首次 definition 迁移必须整体暂存索引。",
+      "tags": [
+        "test-evidence-review",
+        "version-control"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "stage-selected-test-evidence-index-entries"
+        }
+      ]
+    },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",
       "sourcePath": "activate-release-gate-checks-by-tag.md",
@@ -3068,9 +3132,9 @@
     },
     "fix-test-evidence-workspace-contract": {
       "name": "fix-test-evidence-workspace-contract",
-      "sourcePath": "fix-test-evidence-workspace-contract.md",
+      "sourcePath": "archive/fix-test-evidence-workspace-contract.md",
       "title": "固定测试账本的工作区协议",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-07-27T02:22:31Z",
       "purpose": "让测试账本只依赖一个可预测的目录协议，消除没有现实用途的项目级配置和说明文件边界。",
@@ -3551,9 +3615,9 @@
     },
     "maintain-closed-many-to-many-test-case-relations": {
       "name": "maintain-closed-many-to-many-test-case-relations",
-      "sourcePath": "maintain-closed-many-to-many-test-case-relations.md",
+      "sourcePath": "archive/maintain-closed-many-to-many-test-case-relations.md",
       "title": "维护测试实体与语义 Case 的闭合多对多关系",
-      "status": "active",
+      "status": "archived",
       "alignment": "unaligned",
       "createdAt": "2026-08-06T02:22:26Z",
       "purpose": "让可独立选择并单独报告的测试实体与语义 Case 分别划界并建立闭合、可双向查询的多对多关系。",
@@ -5379,9 +5443,9 @@
     },
     "stage-selected-test-evidence-index-entries": {
       "name": "stage-selected-test-evidence-index-entries",
-      "sourcePath": "stage-selected-test-evidence-index-entries.md",
+      "sourcePath": "archive/stage-selected-test-evidence-index-entries.md",
       "title": "按测试证据 Case ID 独立暂存派生索引条目",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-10T06:42:57Z",
       "purpose": "让并行测试证据维护只暂存选中 Case 对应的索引变化，同时保持权威目录与派生索引的责任边界。",

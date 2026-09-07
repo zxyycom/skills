@@ -1,0 +1,176 @@
+{
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 6
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "error"
+      ],
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "valid",
+        "case-invalid",
+        "snapshot-invalid",
+        "snapshot-incomplete",
+        "source-mismatch",
+        "references-invalid"
+      ],
+      "type": "string"
+    },
+    "expectedSource": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\r\\n]*$"
+            },
+            "scopeId": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\r\\n]*$"
+            },
+            "revision": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\r\\n]*$"
+            }
+          },
+          "required": [
+            "projectId",
+            "scopeId",
+            "revision"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "observedSource": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\r\\n]*$"
+            },
+            "scopeId": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\r\\n]*$"
+            },
+            "revision": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[^\\r\\n]*$"
+            }
+          },
+          "required": [
+            "projectId",
+            "scopeId",
+            "revision"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "snapshotFingerprint": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "checkedCaseIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+      }
+    },
+    "checkedReferenceCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "blocking": {
+            "type": "boolean"
+          },
+          "category": {
+            "enum": [
+              "case",
+              "snapshot",
+              "reference",
+              "index",
+              "query"
+            ],
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string"
+          },
+          "caseId": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+          },
+          "testId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "blocking",
+          "category",
+          "code",
+          "message"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "status",
+    "state",
+    "expectedSource",
+    "observedSource",
+    "snapshotFingerprint",
+    "checkedCaseIds",
+    "checkedReferenceCount",
+    "diagnostics"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zxyycom/skills/main/skills/test-evidence-review/references/schemas/test-evidence-reference-result.schema.json",
+  "title": "TestEvidenceReferenceResult"
+}

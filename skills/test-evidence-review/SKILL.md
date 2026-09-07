@@ -1,199 +1,92 @@
 ---
 name: test-evidence-review
 description: >-
-  在新增、修改、删除或审查测试实现，或查询、整理其测试证据 case 时使用。
-  先以测试框架能稳定独立选择并单独报告结果的最小原生测试入口界定 case，
-  再审查契约、证明信号和可靠性，并维护一入口一 case 的可检索账本。
+  在新增、修改、删除或审查测试实现，或查询、整理其测试证据 Case 时使用。
+  先以测试框架能稳定独立选择并单独报告结果的最小原生测试入口界定 Case，
+  审查其 Contract 与 Proves，再维护可检索的 Case-only 账本。
   工程校验、仅运行既有测试或只修改被测对象不使用。
 metadata:
-  version: "24"
+  version: "25"
 ---
 
 # Test Evidence Review
 
 ## 使用判断
 
-本 skill 处理测试实现及其测试证据账本。以下任务使用：
+本 skill 处理测试实现及其测试证据账本。新增、修改、删除或审查测试实现，以及查询、整理或修复已登记 Case 时使用；lint、构建、只运行既有测试或只改被测对象时不使用。
 
-1. 新增、修改、删除或审查测试实现。
-2. 查询、整理或修复已经登记的测试 case。
+触发后，先盘点本次范围内的**保留最小原生测试入口**；每个入口都必须有明确的 Case 证据责任。最小入口是 runner 能稳定独立选择、单独报告结果、且不含可分别归因的更小原生测试节点的命名节点。测试文件、suite、脚本、CI job 是容器；fixture、helper、mock、断言和步骤是内部环节，不单独登记。参数化测试按 runner 实际报告粒度判断。
 
-以下任务不使用：
+Case 以测试意图而非一对一实体关系组织：一个 Case 可以在 `Tests:` 中列出多个实体以共同支持同一 Contract 与 Proves，同一实体也可被多个 Case 引用。测试重命名、移动、拆分或合并时，先判断意图是否连续，再保留、拆分、合并或删除 Case；不从实体 ID、容器或引用检查自动推导这些决定。该模型不建立证明点映射、Case 关系图或反向人工表。
 
-1. lint、类型检查、schema 检查、生成物一致性检查、安全扫描等工程校验。
-2. 普通业务代码、运行时输入校验、构建逻辑或发布 gate 的实现。
-3. 只运行既有测试，或只修改被测对象而不修改测试。
+## 读取路径与 owner
 
-任务同时修改产品代码和测试时，只对测试部分应用本 skill。查询、审查和评估请求
-保持只读；只有用户授权修改时，才修改测试、行为 owner、case 目录或派生索引。
+1. 本文件承接触发、粒度、证据审查、维护流程和完成标准。
+2. 写入、结构修复、查询或引用检查时完整读取 [Case 账本契约](references/catalog-contract.md)。它是字段、固定目录、索引、JSON 快照、CLI/API 和迁移边界的 owner。
+3. 审查或修改测试时读取项目测试约定、目标测试、当前 diff 和被测行为 owner。`Contract:` 只压缩理解当前测试所需的稳定背景，不取代行为 owner。
+4. 工作区仍有旧 topic/`Entry:` 目录时，读取契约中的迁移边界与[旧 Topic 账本升级](references/upgrade-from-legacy-topic-catalog.md)；旧布局只由显式迁移入口处理，不由正常查询兼容读取。其他历史布局不在当前入口或迁移器的支持范围内，先人工恢复为受支持的旧布局或另行建立迁移方案。
 
-触发后的目标结果固定为：
+核心工具只读写固定 Case 根和派生索引；它不扫描测试源码、执行测试、运行采集命令、调用网络或自动登记 Case。项目可以产生实体快照并实行“所有发现实体都有 Case”等项目覆盖策略，但这不是通用 skill 或核心引用检查的责任。
 
-```text
-本次范围内一个保留的最小原生测试入口 <-> 一个 case
-```
+## 证据审查
 
-“保留”指入口经过本次审查或修改后仍存在于测试实现中。账本登记入口，不登记测试
-文件、suite、脚本等聚合容器，也不登记 fixture、helper、断言等内部环节。
+确定最小入口后，逐项判断：
 
-## 核心判断：什么是登记入口
+1. **Contract**：测试关联的产品规则、接口行为、schema、安全边界或错误语义清楚且仍应维护。
+2. **Proves**：失败能指向可判断的外部观察，而非只复述实现或 mock。
+3. **可观察性与可靠性**：断言、输入、fixture、时序、随机性和环境能给出稳定信号。
+4. **独立性与价值**：预期不由被测实现生成，新增价值足以承担维护成本。
 
-最小原生测试入口是测试框架能够稳定独立选择、单独报告通过或失败，并且自身拥有
-一项完整测试意图的最小命名节点。它通常是 `test`、`it`、测试方法或参数化后的
-单个框架 case。
+多个断言可共同服务一个测试意图；已经构成可独立命名、可独立失败意图的观察点应先拆成不同原生入口和 Case。测试重命名、移动、拆分或合并时，依据意图连续性重审 Case ID、Contract 和 Proves；不以实体 ID 或引用检查自动替代语义判断。
 
-按以下顺序判断候选节点：
+## 维护流程
 
-1. 候选节点的结果只用于组成父节点判定时，它是内部环节。
-2. 候选节点拥有 runner 报告的结果，但仍包含结果可分别归因的更小原生测试节点时，
-   它是聚合容器。
-3. 候选节点拥有自身最终结果，且不存在结果可分别归因的更小原生测试节点时，它才是
-   最小原生测试入口。
+### 查询或审查
 
-| 候选对象 | 处理 |
-| --- | --- |
-| 最小原生测试入口 | 保留时恰好登记一个 case |
-| suite、文件、目录、package script、runner 或 CI job | 只作定位或执行容器 |
-| setup、fixture、helper、mock、断言、hook 或测试步骤 | 归入所属入口，不单独登记 |
-| 只产生一个不可再归因且意图单一的最终判定的自定义测试程序 | 可以作为一个入口 |
-| 混合多个可独立命名、独立失败测试意图的入口 | 先拆测试入口，再分别登记 |
-
-“独立”不等于命令行上可以单独运行。只要文件、suite、脚本或 CI job 仍聚合多个
-可区分的原生测试节点，它就是容器。技术上能够 import、临时筛选某个 helper 或
-单独执行一段代码，也不会使它成为测试入口。
-
-参数化测试按 runner 的真实报告粒度判断：每组参数能够稳定选择、稳定命名并独立
-报告时分别登记；否则登记声明这些参数的单个原生测试入口。
-
-## 范围与内容 Owner
-
-本次修改涉及的每个新增或保留入口都必须登记；删除入口时同步删除对应 case。工具
-不会扫描源码来证明全仓完整性，因此未触及的历史测试只有在任务明确要求补齐时才
-进入范围。
-
-内容 owner 与读取条件如下：
-
-1. 本文件承接触发边界、入口粒度、证据评估、执行流程和完成标准。
-2. [catalog-contract.md](references/catalog-contract.md) 承接 case 字段、目录布局、
-   固定路径、派生索引、CLI 和机器接口；写入或结构修复 case，以及需要分页、
-   JSON 或诊断契约时完整读取。
-3. 项目测试约定、目标测试、当前 diff 和被测契约决定具体测试行为；审查或修改测试
-   时读取。
-4. 项目行为 owner 承接长期产品与接口契约；case 的 `Contract:` 只压缩当前测试
-   所需背景，不取代行为 owner。
-5. [migrate-from-verification-implementation-review.md](references/migrate-from-verification-implementation-review.md)
-   只在工作区仍存在泛化验证目录、`Verification:`、旧 marker 或采集配置时读取。
-6. [upgrade-from-single-file-catalog.md](references/upgrade-from-single-file-catalog.md)
-   只在旧账本仍是单个 Markdown，或根目录直属主题 Markdown 时读取。
-
-`scripts/test-evidence-catalog.mjs` 只校验、同步和查询显式 case，或按调用方给出的
-Case ID 暂存派生索引条目。它不扫描源码、不执行 `Entry:`、不发现或自动登记测试，
-也不判断测试粒度或证明价值。
-
-目录不存在时，只读任务报告没有可查询目录；修改任务只有在决定保留至少一个测试
-入口后才初始化目录。
-
-## 证据评估
-
-确定最小原生测试入口后，逐项判断：
-
-1. **契约背景**：测试能够指出产品规则、接口行为、schema、安全边界或错误语义。
-2. **证明信号**：失败能够指向具体契约失效，而不只是内部实现变化。
-3. **可观察性**：断言覆盖调用方可观察的返回值、状态、交互、错误或资源结果。
-4. **可靠性**：输入、fixture、mock、时序、随机性和环境不会制造不稳定信号。
-5. **证据独立性**：没有只复述实现、只证明 mock，或让被测实现生成自己的预期值。
-6. **维护价值**：新增证明价值足以承担运行时间、维护和故障定位成本。
-
-多个断言可以属于一个入口，但必须共同服务同一测试意图和最终判定。只要观察点已经
-形成可独立命名、可独立失败的测试意图，就先拆成不同原生测试入口，再分别登记 case。
-
-## 执行流程
-
-### 查询、审查或评估
-
-1. 确认只读范围、目标测试或目标 case。
-2. 查询 case 时先运行 `topics` 获取受控 topic，再用 `list --topic <topic>` 或
-   `list --query <text>` 缩小范围，最后用 `show <case-id>` 展开权威原文。
-3. 审查测试时读取测试约定、目标测试和被测契约，并搜索相关 case。
-4. 按 runner 原生报告节点区分最小入口、聚合容器和内部环节，再完成证据评估。
-5. 先报告总体判断；对需要动作的入口说明所属容器、测试意图、契约、证明信号和
-   建议处置。不得因只读任务修改测试、case 或索引。
-
-索引缺失、损坏或陈旧时，`list` 和 `show` 使用当前合法 Markdown 的只读内存投影
-并报告 warning，不写回文件。
+1. 确认只读范围、目标测试或 Case，读取必要的行为和测试 owner。
+2. 先用 `list`、`tags` 或 `search` 缩小范围，再以 `show <case-id>` 读取权威正文。
+3. 区分最小入口、聚合容器与内部环节，按证据审查得出结论；只读任务不改测试、Case 或索引。
+4. `list` 与 `tags` 只表示最近同步的索引快照；`show` 核对目标 Case 身份，`search` 读取当前权威正文。索引无效或陈旧时按诊断先同步，不把旧索引冒充当前事实。
 
 ### 修改测试或账本
 
-1. **建立范围**：列出本次新增、修改、删除或保留的原生测试入口及预期契约。
-2. **搜索已有 case**：按测试名、入口、契约、输入、错误和输出查找稳定 case ID。
-3. **确定粒度**：以 runner 原生报告节点为准，排除聚合容器和内部环节。
-4. **评估并修改**：检查六项证据标准；混合多个独立意图的入口先拆分，没有足够
-   证明价值的候选测试不新增，已经确认不再保留的测试删除。
-5. **维护 case**：
-   - 新增或保留的最小入口新建或更新唯一 case。
-   - 删除测试入口时删除对应 case；只改变定位时更新原 case。
-   - 容器和内部环节只在有定位价值时写入所属 case，不独立登记。
-6. **同步索引**：case 正文变化后运行 `sync-index --write`；若本次只允许接纳指定 Case 的变化，使用 `sync-index --select <case-id> ... --write`。selected sync 仍完整读取和验证目录，并只在可信 baseline、topic metadata 不变且全部变化均已选择时发布完整索引；索引不手工编辑。
-7. **按需隔离索引暂存**：同一工作区有多项 Case 变化、当前提交只选择其中一部分时，
-   在第 6 步同步完整工作区索引后先通过目录 `check`，再用
-   `stage-index <case-id...>` 只暂存所选 Case 的索引条目；topic 表、Case Markdown、
-   测试代码和产品代码仍由调用方按实际范围另行暂存。
-8. **验证结果**：运行目标测试，再运行目录 `check`；按项目要求补充更大范围检查。
+1. 列出本次新增、保留、修改或删除的最小原生测试入口及预期 Contract。
+2. 搜索已有 Case，按意图连续性决定保留、拆分、合并或删除 Case；新增或删除入口本身不自动决定 Case 的增删。列出最终每个保留入口由哪个 Case 承接，再继续写入。
+3. 按账本契约写入 `Tests:`、可选 `Tags:`、`Contract:` 和 `Proves:`。Tests 只使用项目快照中真实存在的实体 ID；tags 只做筛选，不能表达 topic、目录、身份或行为 owner。
+4. 运行 `sync-index --write`；需要隔离索引 pending 时，先完整验证目录，再用 `stage-index <case-id...>`。它不暂存 Case Markdown、测试或产品代码。
+5. 项目提供 snapshot/check 时，调用方独立提供 `expectedSource`，再执行引用检查。完整快照且来源一致时，核心只证明所选 Case 的实体引用有效；partial、来源不符或缺失实体阻断。它不证明测试执行通过，也不要求快照中未引用实体失败。
+6. 运行目标测试、Case `check` 和项目要求的覆盖检查；报告测试失败、被测对象失败、Case 结构失败和快照/引用失败的区别。
 
 ## Case 与查询模型
 
-每个 case 只使用 `Entry:`、`Contract:` 和 `Proves:`。Markdown 目录是权威源；
-根目录受控 topic 表定义稳定测试责任，每个 `<topic>/<slug>.md` 恰好保存一个
-case。topic 只提供维护、筛选和定位边界，不合并或改变 case 身份。
+固定根为 `docs/test-evidence/`：`cases/<semantic-slug>.md` 是权威单 Case Markdown，`test-evidence-index.json` 是可删除重建的派生索引。根或 `cases/` 不存在时表示未初始化；目录只允许这两类成员。Case ID 来自标题，不由文件名推导；文件移动不改变身份。
 
-`Entry:` 中的所有定位必须指向同一个最小原生测试入口。`Contract:` 提供理解测试
-所需的最小稳定背景；`Proves:` 说明直接且可判断的可观察结果。目录不使用
-`Verification:`、状态、角色或源码 marker。
+`Tests:` 至少一个不透明实体 ID；`Tags:` 缺失表示无标签；`Contract:` 与 `Proves:` 各至少一个人工可读的单行观察。Case 的 Tests 集合共同支持其 Proves，不要求每个实体单独证明全部条目。精确 Markdown、目录安全、索引 revision、分页、搜索资源上限、JSON snapshot 和稳定 CLI/API 以 [Case 账本契约](references/catalog-contract.md) 为准。
 
-派生索引统一聚合全部 topic，并提供按 case ID、标题、Contract、Proves、Entry
-和精确 topic 的查询。索引可以删除重建，但不收集、注册或生成 case。精确格式、
-固定路径、CLI 参数和机器结果以目录契约为准。
-
-`stage-index` 只把已经存在于 current revision 或工作区索引中的所选 Case ID 交给
-通用索引运行时。Case 重命名同时选择旧、新 ID；topic 表 metadata 变化不能按 Case
-拆分。同一索引已有 `pending` 时命令拒绝覆盖。成功不表示 topic 表、Case Markdown、
-测试代码或产品代码已经暂存，提交前仍需核对完整 `pending` 范围。
-
-从 skill 目录执行常用事务：
+常用维护命令：
 
 ```text
-node scripts/test-evidence-catalog.mjs topics --root <workspace-root>
-node scripts/test-evidence-catalog.mjs list --topic <topic> --root <workspace-root>
-node scripts/test-evidence-catalog.mjs list --query "<contract or entry>" --root <workspace-root>
-node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root>
-node scripts/test-evidence-catalog.mjs sync-index --write --root <workspace-root>
-node scripts/test-evidence-catalog.mjs sync-index --select <case-id> --write --root <workspace-root>
-node scripts/test-evidence-catalog.mjs stage-index <case-id...> --root <workspace-root>
 node scripts/test-evidence-catalog.mjs check --root <workspace-root>
+node scripts/test-evidence-catalog.mjs list --tag <tag> --root <workspace-root>
+node scripts/test-evidence-catalog.mjs tags --root <workspace-root>
+node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root>
+node scripts/test-evidence-catalog.mjs search <text> --root <workspace-root>
+node scripts/test-evidence-catalog.mjs sync-index --write --root <workspace-root>
+node scripts/test-evidence-catalog.mjs stage-index <case-id...> --root <workspace-root>
 ```
 
 ## 完成标准
 
 ### 只读任务
 
-1. 已给出总体判断，并对需要动作的测试说明原生入口、所属容器、契约、证明信号和
-   处置建议。
-2. 没有越过只读授权；拟修改内容、未运行环境和结论边界已经说明。
+- 已说明最小原生入口、所属容器、Contract、Proves、证据判断和需要的动作。
+- 未越过只读授权；索引快照、实体快照和实际测试结果的边界清楚。
 
 ### 修改任务
 
-1. 本次范围内每个新增或保留的最小原生测试入口都恰好由一个 case 承接；已删除
-   入口不再保留 case。
-2. 没有把模块、skill、测试文件、suite、脚本或 CI job 登记成聚合 case，也没有
-   把 fixture、helper、mock、断言或测试步骤登记成独立 case。
-3. 每个 `Entry:` 都定位同一原生测试入口，`Contract:` 与 `Proves:` 可独立理解。
-4. 每个 case 位于受控 topic 的独立 Markdown；topic 没有重新集中或改变 case 粒度。
-5. 工程校验没有进入测试证据目录，目录中没有旧字段、marker、角色或状态。
-6. 派生索引已从合法目录同步；目标测试和目录 `check` 已运行，或阻塞边界已说明。
-7. 使用选择性索引暂存时，所选 Case ID、索引结果与另行暂存的领域文件范围已经核对，
-   未选择 Case 的工作区索引变化没有进入本次 `pending`。
+- 已盘点本次范围内每个保留最小原生测试入口，并说明其 Case 证据责任；测试拆合后的 Case 保留、拆分、合并或删除与意图一致。
+- Case 不登记容器或内部环节；Tests 是真实实体，Contract 与 Proves 可独立理解。
+- Case-only 目录和派生索引已同步；目标测试、Case 检查及适用的项目快照/覆盖检查已运行，或未验证边界已说明。
+- 选择性暂存时，Case IDs 和 pending 范围已核对，未把其他 Case、测试或项目文件误称为已暂存。
 
-### 交付
-
-报告实际改动、目标测试结果、目录校验、未执行环境和残余风险，并区分测试实现失败、
-被测对象失败与目录结构失败。
+交付说明实际改动、测试和目录验证、未运行环境及残余风险。

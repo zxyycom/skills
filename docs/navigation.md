@@ -51,7 +51,7 @@
 | Skill 人类介绍 | `docs/skills/<skill-name>.md` | 面向人类的定位、项目起点和发展方向；不作为 agent 执行入口，也不进入 skill zip |
 | Skill 本体 | `skills/<skill-name>/SKILL.md` 及其相邻材料 | 单个 skill 的触发、行为、读取策略、执行流程、边界、验收和分发内容 |
 | 任务图索引 | `docs/task-graph/task-graph-index.json` | 当前工作中 task、真实父子、显式依赖与排斥、执行租约的唯一权威事实；只由 task-graph 工具事务化修改，复杂有效状态由查询投影 |
-| 测试证据账本 | `docs/test-evidence/test-evidence-topics.json`、`docs/test-evidence/<topic-id>/*.md`、`docs/test-evidence/test-evidence-index.json` | 受控 topic 表定义稳定测试责任，每个 Markdown 只承接一个最小原生测试入口的权威 case，索引 JSON 是统一查询投影；格式与维护事务由 `skills/test-evidence-review/` 承接 |
+| 测试证据账本 | `docs/test-evidence/cases/*.md`、`docs/test-evidence/test-evidence-index.json` | 每个 Markdown 承接一个权威 Case；Case 的 Tests 集合记录共同支持同一 Contract 与 Proves 的一个或多个最小原生测试入口，另含可选 tags；索引 JSON 是 Case-only 查询投影。项目实体快照与覆盖策略由项目 owner 承接，格式和维护事务由 `skills/test-evidence-review/` 承接 |
 | 可分发工具源码 | `tools/<tool-name>/` | 随 skill 分发的源码、声明、测试、fixture 和局部组件契约；`tools/shared/` 承接跨工具运行时不变量，`tools/skill-package/` 承接发布端与 updater 共用的分发协议 |
 | 主仓库自动化与共享交付 | 主仓库根目录、`scripts/` 和 CI 配置 | 命令编排、生成适配、共享校验、打包、聚合发布、依赖入口、Git 和 CI 自动化；不承接随 skill 分发工具的运行时源码 |
 | 调查报告 | `docs/investigations/<investigation-id>.md`、`docs/investigations/investigation-index.json` | 根目录直属 Markdown 各承接一份可独立复核的报告；Investigation ID、tags、关系、资源与维护事务由 `skills/investigation-report/references/investigation-report-contract.md` 承接，JSON 是派生索引 |

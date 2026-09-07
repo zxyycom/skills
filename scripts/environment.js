@@ -21,6 +21,7 @@ const repoRoot = path.resolve(
 const manifestPath = path.join(repoRoot, "package.json");
 const lockfilePath = path.join(repoRoot, "pnpm-lock.yaml");
 const maxBuffer = 64 * 1024 * 1024;
+const projectAstGrepVersion = "0.45.1";
 const globalPrerequisiteRecoveries = {
   codegraph: "Make CodeGraph available on PATH.",
   lizard:
@@ -361,6 +362,42 @@ function getDependencyStatus(config, toolStatuses) {
   };
 }
 
+function getProjectAstGrepStatus(config) {
+  if (!config.dependencyNames.includes("@ast-grep/cli")) {
+    return {
+      detail: "not required by this package manifest",
+      state: "not-applicable"
+    };
+  }
+  const executable = path.join(
+    repoRoot,
+    "node_modules",
+    ".bin",
+    process.platform === "win32" ? "ast-grep.cmd" : "ast-grep"
+  );
+  const result = runCommand(executable, ["--version"]);
+  if (result.resolutionError) {
+    return {
+      detail:
+        "install project dependencies with pnpm install --frozen-lockfile",
+      state: "missing"
+    };
+  }
+  if (result.exitCode !== 0) {
+    return {
+      detail: `--version failed: ${result.output || `exit ${result.exitCode}`}`,
+      state: "error"
+    };
+  }
+  if (result.stdout !== `ast-grep ${projectAstGrepVersion}`) {
+    return {
+      detail: `expected ast-grep ${projectAstGrepVersion}, received ${result.stdout || result.stderr || "no version output"}`,
+      state: "mismatch"
+    };
+  }
+  return { detail: result.stdout, state: "ready" };
+}
+
 function getCodeGraphIndexStatus(toolStatuses) {
   const toolStatus = toolStatuses.find(({ name }) => name === "codegraph");
   if (toolStatus?.state !== "ready") {
@@ -465,6 +502,7 @@ function requireReadyGlobalPrerequisites(toolStatuses) {
 function getEnvironmentStatus(config) {
   const tools = getToolStatuses(config);
   const dependencies = getDependencyStatus(config, tools);
+  const astGrep = getProjectAstGrepStatus(config);
   const codegraphIndex = getCodeGraphIndexStatus(tools);
   const gitStatus = tools.find(({ name }) => name === "git");
   const repository =
@@ -476,11 +514,13 @@ function getEnvironmentStatus(config) {
         };
   return {
     codegraphIndex,
+    astGrep,
     dependencies,
     repository,
     ready:
       tools.every(({ state }) => state === "ready") &&
       dependencies.state === "ready" &&
+      (astGrep.state === "ready" || astGrep.state === "not-applicable") &&
       codegraphIndex.state === "ready" &&
       repository.state === "ready",
     tools
@@ -505,6 +545,16 @@ function printEnvironmentStatus(status) {
   } else {
     console.log(
       `[${status.dependencies.state}] project dependencies - ${status.dependencies.detail}`
+    );
+  }
+
+  if (status.astGrep.state === "ready") {
+    console.log(`[ok]       project ast-grep - ${status.astGrep.detail}`);
+  } else if (status.astGrep.state === "not-applicable") {
+    console.log(`[not-applicable] project ast-grep - ${status.astGrep.detail}`);
+  } else {
+    console.log(
+      `[${status.astGrep.state}] project ast-grep - ${status.astGrep.detail}`
     );
   }
 

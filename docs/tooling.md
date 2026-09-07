@@ -80,12 +80,12 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
-| `bun run check [--diagnostic-log]` | 运行 base Gate：完整 Definition 的全部 60 个 Check 都会显示；32 个 base Check 执行并进入 aggregate，28 个未启用的 release Check 以 `unavailable`、`not run` 和专用提示结算。 |
-| `bun run check --tag release [--baseline-ref <ref>] [--diagnostic-log]` | 运行 release Gate：在 base 基础上启用 release tag，执行全部 60 个 Check、版本验证与打包终结。省略基线时使用 `HEAD`，CI 使用事件基线。 |
+| `bun run check [--diagnostic-log]` | 运行 base Gate：完整 Definition 的全部 62 个 Check 都会显示；34 个 base Check 执行并进入 aggregate，28 个未启用的 release Check 以 `unavailable`、`not run` 和专用提示结算。 |
+| `bun run check --tag release [--baseline-ref <ref>] [--diagnostic-log]` | 运行 release Gate：在 base 基础上启用 release tag，执行全部 62 个 Check、版本验证与打包终结。省略基线时使用 `HEAD`，CI 使用事件基线。 |
 
 ### 权威 Vibe 门禁
 
-`bun run check` 是唯一权威门禁入口。每次运行都构造相同的完整 Check Definition；tag 只控制 activation 与 aggregate selection，不删除任何声明。无 tag 的 base Gate 执行并聚合 32 个 base Check；`--tag release` 激活并聚合全部 60 个 Check。未启用 tag 的 Check 仍显示在 progress 与 machine snapshot 中，但 activation preflight 在其原有 preflight、扫描或命令启动前阻断，结算为 `unavailable`、`not run`、`duration: null` 与 `gate-tag-not-enabled`，并显示 `Pass --tag release`。它们不进入 base aggregate，所以未启动项既不会阻断 base，也不会被误报为通过。被 aggregate 选择的 `unavailable` 或 `not-applicable` 一律 fail closed。`--tag` 是 tag 型 activation 接口；当前仅支持 `release`，因此每次 invocation 最多出现一次 `--tag release`，任何重复 tag 都在启动 Check 前以 usage 拒绝。`--full` 仅保留为等同 `--tag release` 的兼容别名，不能与该 tag 同用。未知 tag、缺失 tag 值、未知参数和重复 `--diagnostic-log` 同样在启动 Check 前以 usage 拒绝。`--baseline-ref` 只可与 release tag 同用，必须是已 trim 的非空 revision 输入，且不得以 `-` 开头、包含 NUL、CR 或 LF。该 wrapper 级验证不解析 Git ref；实际解析由 `release:skill-prepare` 完成。CLI 将规范化 tag 集合同时传给 Vibe run controls 的 `flags`，并映射 Vibe 的最终结果为进程退出状态；`scripts/lib/vibe-gate.ts` 是 Check catalog、Definition、activation、命令 adapter 和 release DAG owner。
+`bun run check` 是唯一权威门禁入口。每次运行都构造相同的完整 Check Definition；tag 只控制 activation 与 aggregate selection，不删除任何声明。无 tag 的 base Gate 执行并聚合 34 个 base Check；`--tag release` 激活并聚合全部 62 个 Check。未启用 tag 的 Check 仍显示在 progress 与 machine snapshot 中，但 activation preflight 在其原有 preflight、扫描或命令启动前阻断，结算为 `unavailable`、`not run`、`duration: null` 与 `gate-tag-not-enabled`，并显示 `Pass --tag release`。它们不进入 base aggregate，所以未启动项既不会阻断 base，也不会被误报为通过。被 aggregate 选择的 `unavailable` 或 `not-applicable` 一律 fail closed。`--tag` 是 tag 型 activation 接口；当前仅支持 `release`，因此每次 invocation 最多出现一次 `--tag release`，任何重复 tag 都在启动 Check 前以 usage 拒绝。`--full` 仅保留为等同 `--tag release` 的兼容别名，不能与该 tag 同用。未知 tag、缺失 tag 值、未知参数和重复 `--diagnostic-log` 同样在启动 Check 前以 usage 拒绝。`--baseline-ref` 只可与 release tag 同用，必须是已 trim 的非空 revision 输入，且不得以 `-` 开头、包含 NUL、CR 或 LF。该 wrapper 级验证不解析 Git ref；实际解析由 `release:skill-prepare` 完成。CLI 将规范化 tag 集合同时传给 Vibe run controls 的 `flags`，并映射 Vibe 的最终结果为进程退出状态；`scripts/lib/vibe-gate.ts` 是 Check catalog、Definition、activation、命令 adapter 和 release DAG owner。
 
 | 术语 | 当前含义 |
 | --- | --- |
@@ -178,7 +178,7 @@ bun run change-plan -- list
 bun run decision-records -- candidates
 bun run investigation-report -- list
 bun run task-graph -- task list
-bun run test-evidence -- topics
+bun run test-evidence -- tags
 bun run validate-skill -- skills/task-graph
 ```
 
@@ -193,7 +193,7 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 | Skill Validator | `test:skill-validator` | `sync:skill-validator` | `check:skill-validator` |
 | Investigation Report | `test:investigation-report-check` | `sync:investigation-report-check` | `check:investigation-report-check`、`check:investigations` |
 | Task Graph | `test:task-graph-cli` | `sync:task-graph-cli` | `check:task-graph-cli`、`check:task-graph-index` |
-| Test Evidence | `test:test-evidence-cli` | `sync:test-evidence-cli`、`sync:test-evidence-catalog` | `check:test-evidence-cli`、`check:test-evidence-catalog` |
+| Test Evidence | `test:test-evidence-cli`、`test:test-evidence-project` | `sync:test-evidence-cli`、`sync:test-evidence-catalog` | `check:test-evidence-cli`、`check:test-evidence-catalog` |
 | Skill Updater | `test:skill-updater` | `sync:skill-updaters` | `check:skill-updaters` |
 | MCPShell Workspace Bridge | `test:mcpshell-workspace-bridge` | `sync:mcpshell-workspace-bridge` | `check:mcpshell-workspace-bridge` |
 | 共享基础设施 | `test:check`、`test:environment`、`test:generated-file`、`test:index-runtime`、`test:relation-graph`、`test:skill-package-hash`、`test:version-control` | — | — |
@@ -217,17 +217,11 @@ Vibe 的原生 `markdown-link-validation` Check 是当前维护 Markdown 链接�
 3. 需要固定 Git 基线的测试在其测试 owner 下提交普通原始 fixture 文件树，而不是提交 `.git/`、bundle、可变工作区或绝对路径。启动 helper 复制该树到 case 私有目录，执行真实 `git init`、固定本地配置、`add` 和基线 `commit`；fixture 原始树是长期输入，helper 是唯一初始化路径。
 4. 并行 case 不共享可变 Git 状态：只读查询可以复用只读模板；index、worktree、refs、config、lock 或恢复路径分别使用其隔离所需的私有状态。只有至少两个实际 consumer 共享同一初始化不变量时，才将最小 bootstrap helper 放入 `tools/shared/tests/`。
 
-本仓库使用固定的 `docs/test-evidence/` 根目录、其中的受控 topic 表、
-每个 `<topic>/<slug>.md` 单 case 文件和固定派生索引维护测试账本。账本覆盖
-`test:*` 稳定入口保留的历史与当前测试；一个 case 对应测试框架能够独立选择并
-单独报告的一个最小原生测试节点。框架不限，本仓库当前沿用 `node:test` API 定义
-节点；普通测试通过已固定版本的 `bun test` 执行，task-graph 真实 native lock
-集成测试通过其声明支持的 Node.js `--test` 执行。该执行器分工只是现有依赖下的
-简单选择。测试文件、package script 和完整检查仍只是聚合容器。topic 表与 case
-由测试改动显式维护，
-工具只读取固定根目录中的合法 topic 和 case，不扫描测试源码、自动收集或注册 case。
-正文变化后运行 `sync:test-evidence-catalog`；`check:test-evidence-catalog` 已进入
-完整检查并只校验显式 topic 根目录与统一索引。
+本仓库使用固定的 `docs/test-evidence/` 根目录、其中的 `cases/` 单 Case 文件和固定派生索引维护测试账本。账本覆盖 `test:*` 稳定入口保留的历史与当前测试；每个 Case 按同一测试意图承接一个或多个可独立选择、单独报告的最小原生测试节点。框架不限，本仓库当前沿用 `node:test` API 定义节点；普通测试通过固定版本的 `bun test` 执行，task-graph 原生 lock 集成测试通过其声明支持的 Node.js `--test` 执行。测试文件、package script 和完整检查仍只是聚合容器。
+
+Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维护；工具不扫描源码、自动登记 Case 或执行测试。核心 `check`、查询和 `sync-index` 只读取 Case 与索引；项目 `snapshot:test-evidence` 产生 schema v2 实体快照，引用检查必须同时接收独立的 expected source。`check:test-evidence-catalog` 先检查 Case/index，再由项目 wrapper 生成快照、检查引用并实行本仓库的实体覆盖门禁。快照引用有效不等同于测试执行通过，未引用实体在通用核心中合法。正文变化后运行 `sync:test-evidence-catalog`；完整检查中的 `check:test-evidence-catalog` 不写回文件。
+
+项目生产和旧账本迁移不属于 `bun run test-evidence` 的常规 Case CLI。需要人工检查或交接快照时，使用 `bun run snapshot:test-evidence -- --output <new-file>`；`migrate:test-evidence` 的 expected source 必须从生成快照所用的同一项目输入边界独立计算或核验，不能直接抄录待验证快照的 source 三字段。迁移命令默认只预演，只有明确追加 `--write` 才写入；支持范围、映射阻断和恢复边界由 [Case 账本契约](../skills/test-evidence-review/references/catalog-contract.md#迁移) 承接。日常查询、同步和检查不得把旧 topic/`Entry:` 当作 fallback 输入。
 
 ## 源码与依赖边界
 

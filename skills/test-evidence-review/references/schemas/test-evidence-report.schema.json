@@ -1,6 +1,9 @@
 {
   "type": "object",
   "properties": {
+    "schemaVersion": {
+      "const": 6
+    },
     "diagnostics": {
       "type": "array",
       "items": {
@@ -9,14 +12,13 @@
           "blocking": {
             "type": "boolean"
           },
-          "caseId": {
-            "type": "string",
-            "minLength": 1
-          },
           "category": {
             "enum": [
-              "catalog",
-              "index"
+              "case",
+              "snapshot",
+              "reference",
+              "index",
+              "query"
             ],
             "type": "string"
           },
@@ -24,83 +26,100 @@
             "type": "string",
             "minLength": 1
           },
-          "column": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "line": {
-            "type": "integer",
-            "minimum": 1
-          },
           "message": {
             "type": "string",
             "minLength": 1
           },
           "path": {
+            "type": "string"
+          },
+          "caseId": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+          },
+          "testId": {
             "type": "string",
             "minLength": 1
-          },
-          "severity": {
-            "enum": [
-              "error",
-              "warning"
-            ],
-            "type": "string"
           }
         },
         "required": [
           "blocking",
           "category",
           "code",
-          "message",
-          "severity"
+          "message"
         ],
         "additionalProperties": false
       }
     },
-    "schemaVersion": {
-      "const": 4
+    "casePath": {
+      "const": "docs/test-evidence/cases"
+    },
+    "indexPath": {
+      "const": "docs/test-evidence/test-evidence-index.json"
+    },
+    "sourceRevision": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "entries": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+              },
+              "additionalProperties": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              }
+            },
+            "metadata": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "entries",
+            "metadata"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "summary": {
       "type": "object",
       "properties": {
-        "testCases": {
+        "cases": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tags": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "references": {
           "type": "integer",
           "minimum": 0
         }
       },
       "required": [
-        "testCases"
+        "cases",
+        "tags",
+        "references"
       ],
       "additionalProperties": false
-    },
-    "topics": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string",
-            "pattern": "^[^\\r\\n]*$"
-          },
-          "id": {
-            "type": "string",
-            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
-          }
-        },
-        "required": [
-          "description",
-          "id"
-        ],
-        "additionalProperties": false
-      }
     }
   },
   "required": [
-    "diagnostics",
     "schemaVersion",
-    "summary",
-    "topics"
+    "diagnostics",
+    "casePath",
+    "indexPath",
+    "sourceRevision",
+    "summary"
   ],
   "additionalProperties": false,
   "$schema": "https://json-schema.org/draft/2020-12/schema",

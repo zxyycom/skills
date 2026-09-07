@@ -52,4 +52,4 @@ task-graph 形成单向调用面：领域操作与类型由 `tools/task-graph/sr
 - [`docs/decisions/derive-sdk-declarations-from-runtime-source.md`](../../docs/decisions/derive-sdk-declarations-from-runtime-source.md)：需要通过后继决策修订的现有 CLI/SDK 入口判断。
 - [`tools/task-graph/src/`](../../tools/task-graph/src/) 与 [`scripts/build/task-graph.ts`](../../scripts/build/task-graph.ts)：领域入口、CLI 适配、分发组合和生成实现。
 - [`skills/task-graph/scripts/`](../../skills/task-graph/scripts/) 与 [`skills/task-graph/references/task-graph-index.schema.json`](../../skills/task-graph/references/task-graph-index.schema.json)：机械生成的分发 bundle、声明树、source map 与同一同步批次中的 Schema；本 Change 预期 Schema 语义和内容不变，但仍由统一同步入口核对。
-- [`tools/task-graph/tests/`](../../tools/task-graph/tests/) 与 [`docs/test-evidence/task-graph/`](../../docs/test-evidence/task-graph/)：源码、分发与直接/CLI 调用边界的验证证据。
+- [`tools/task-graph/tests/`](../../tools/task-graph/tests/) 与 [`docs/test-evidence/cases/`](../../docs/test-evidence/cases/)：源码、分发与直接/CLI 调用边界的验证证据。

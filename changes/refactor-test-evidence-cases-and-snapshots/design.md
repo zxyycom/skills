@@ -7,7 +7,7 @@
 - 当前公开入口是 `tools/test-evidence/src/cli.ts`，由 `scripts/build/test-evidence.ts` 生成 `skills/test-evidence-review/scripts/test-evidence-catalog.mjs`；主仓库短命令仍是 `bun run test-evidence -- ...`。
 - `src/ledger/` 已有独立 Case、可选 tags、实体 JSON、索引和多对多检查，但其 source loader、index metadata、show/query 均依赖固定实体 JSON，且拒绝未被引用的实体。采用其中的可复用实现，不直接切换其 CLI。
 - [Index Runtime](../../tools/index-runtime/README.md) 已提供严格持久快照读取、currentness 检查、按 ID 的同步和暂存；[文件搜索](../../tools/shared/src/file-text-search/index.ts) 已提供权威文件搜索和资源限额。无需新建共享索引或搜索层。
-- [多对多决策](../../docs/decisions/maintain-closed-many-to-many-test-case-relations.md) 仍要求双向闭合；[固定目录决策](../../docs/decisions/fix-test-evidence-workspace-contract.md) 仍包含 Topic 和只接收 root 的输入边界。它们须在本 Change 内按本设计修订，不能直接标为 aligned。
+- [原多对多决策](../../docs/decisions/archive/maintain-closed-many-to-many-test-case-relations.md) 要求双向闭合；[原固定目录决策](../../docs/decisions/archive/fix-test-evidence-workspace-contract.md) 包含 Topic 和只接收 root 的输入边界。它们已由本 Change 的后继决策修订并归档；后继方向需在完整实施与验证成立后才标为 aligned。
 - 项目 `test:*` 当前由 Bun test 和一个 Node `--test` 分支执行，原生节点采用 `node:test`。隔离注册探测确认 Bun 1.3.14 的 JUnit 可报告参数化后的 skipped 节点及 Node 专用 native-store 文件的 4 个节点；`--pass-with-no-tests` 使全 skipped 注册退出 0。Node 26 的排除式过滤不提供同样的叶节点清单，因此不使用该路径采集。此证据不表示整仓注册或测试已经通过。
 
 ## Goals / Non-Goals
@@ -180,6 +180,8 @@ Search 使用共享 NFKC/忽略大小写的 `all | any | phrase`，默认 all；
 验证按 tasks 的 V1–V8 分组执行：格式和引用、快照边界、无副作用、索引独立性、查询/搜索、迁移/暂存、项目注册与分发。1,000/10,000 个生成 Case 的规模测试核对结果、分页与文件读取次数；list/tags 读取 Case/实体次数必须为零，show 只读目标 Case。不规定机器相关毫秒 SLO，也不把索引免读正文表述为免解析索引。
 
 每个新增/修改原生测试的证据记录按切换阶段对应格式维护。通用 fixture 可以包含非 Bun 的不透明实体 ID，证明核心不解释 runner；它不宣称已实现非 Bun 采集器。源码单测、真实 Node 分发 smoke、项目注册探测和实际产品测试分别报告结果。
+
+主要实现由子代理承担，默认使用 Terra，遇到其无法解决的具体问题再升级 Sol。独立审查安排在稳定阶段点，只判断正确性；最终验收分别安排文档 AI-ready 优化和代码规范/最小实现优化，优化后复跑受影响验证，不把风格偏好当作正确性问题。
 
 ## Risks / Trade-offs
 

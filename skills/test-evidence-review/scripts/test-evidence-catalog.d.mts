@@ -6,14 +6,15 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/test-evidence-review
  * Rebuild: bun run sync:test-evidence-cli
  */
-import type { TestEvidenceCaseShowResult } from "./test-evidence-case-show-result.types.mjs";
-import type { TestEvidenceIndexStageResult } from "./test-evidence-index-stage-result.types.mjs";
-import type { TestEvidenceIndexSyncResult } from "./test-evidence-index-sync-result.types.mjs";
-import type { TestEvidenceQueryResult } from "./test-evidence-query-result.types.mjs";
-import type { TestEvidenceReport } from "./test-evidence-report.types.mjs";
-import type { TestEvidenceStateIndex } from "./test-evidence-state-index.types.mjs";
-import type { TestEvidenceTopicCatalog } from "./test-evidence-topic-catalog.types.mjs";
-import type { TestEvidenceTopicsResult } from "./test-evidence-topics-result.types.mjs";
+import type { TestEvidenceStateIndex } from "./test-evidence-state-index.types.d.mts";
+import type { TestEvidenceReferenceResult as SchemaTestEvidenceReferenceResult } from "./test-evidence-reference-result.types.d.mts";
+import type { TestEvidenceReport } from "./test-evidence-report.types.d.mts";
+import type { TestEvidenceQueryResult } from "./test-evidence-query-result.types.d.mts";
+import type { TestEvidenceTagsResult } from "./test-evidence-tags-result.types.d.mts";
+import type { TestEvidenceShowResult } from "./test-evidence-show-result.types.d.mts";
+import type { TestEvidenceSearchResult } from "./test-evidence-search-result.types.d.mts";
+import type { TestEvidenceSyncResult } from "./test-evidence-sync-result.types.d.mts";
+import type { TestEvidenceStageResult } from "./test-evidence-stage-result.types.d.mts";
 
 export type StandardOutputSchema<T> = {
   readonly "~standard": {
@@ -22,96 +23,293 @@ export type StandardOutputSchema<T> = {
   };
 };
 
-export type ValidateTestEvidenceOptions = {
+export type ExpectedSource = {
+  projectId: string;
+  scopeId: string;
+  revision: string;
+};
+
+export type TestEvidenceEntitySnapshot = {
+  schemaVersion: 2;
+  source: ExpectedSource;
+  completeness: "complete" | "partial";
+  entities: readonly {
+    id: string;
+    name: string;
+    locators: readonly string[];
+  }[];
+};
+
+export type TestEvidenceDiagnostic = {
+  blocking: boolean;
+  category: "case" | "snapshot" | "reference" | "index" | "query";
+  code: string;
+  message: string;
+  path?: string;
+  caseId?: string;
+  testId?: string;
+};
+
+export type TestEvidenceCase = {
+  id: string;
+  title: string;
+  sourcePath: string;
+  testIds: readonly string[];
+  tags: readonly string[];
+  contract: readonly string[];
+  proves: readonly string[];
+};
+
+export type TestEvidenceSourceRevision = {
+  metadata: string;
+  entries: Readonly<Record<string, string>>;
+};
+
+export type ValidateTestEvidenceOptions = { workspaceRoot: string };
+export type ValidateTestEvidenceResult = {
+  schemaVersion: 6;
+  diagnostics: readonly TestEvidenceDiagnostic[];
+  casePath: string;
+  indexPath: string;
+  sourceRevision: TestEvidenceSourceRevision | null;
+  summary: { cases: number; tags: number; references: number };
+};
+
+export type ValidateTestEvidenceReferencesOptions = {
   workspaceRoot: string;
+  snapshot: unknown;
+  expectedSource: ExpectedSource;
+  caseIds?: readonly string[];
+};
+export type TestEvidenceReferenceResult = {
+  schemaVersion: 6;
+  status: "ok" | "error";
+  state:
+    | "valid"
+    | "case-invalid"
+    | "snapshot-invalid"
+    | "snapshot-incomplete"
+    | "source-mismatch"
+    | "references-invalid";
+  expectedSource: ExpectedSource | null;
+  observedSource: ExpectedSource | null;
+  snapshotFingerprint: string | null;
+  checkedCaseIds: readonly string[];
+  checkedReferenceCount: number;
+  diagnostics: readonly TestEvidenceDiagnostic[];
 };
 
 export type QueryTestEvidenceOptions = {
+  workspaceRoot: string;
+  caseId?: string;
+  tags?: readonly string[];
+  testId?: string;
   limit?: number;
   offset?: number;
-  query?: string;
-  topic?: string;
-  workspaceRoot: string;
+};
+export type TestEvidenceIndexedCase = {
+  id: string;
+  title: string;
+  sourcePath: string;
+  tags: readonly string[];
+  testIds: readonly string[];
+};
+export type TestEvidenceCaseIndexState = Omit<TestEvidenceIndexedCase, "id">;
+export type QueryTestEvidenceResult = {
+  schemaVersion: 6;
+  source: "index";
+  currentness: "unchecked";
+  diagnostics: readonly TestEvidenceDiagnostic[];
+  cases: readonly TestEvidenceIndexedCase[];
+  total: number;
+  limit: number;
+  offset: number;
 };
 
-export type ListTestEvidenceTopicsOptions = {
-  workspaceRoot: string;
+export type ListTestEvidenceTagsOptions = { workspaceRoot: string };
+export type ListTestEvidenceTagsResult = {
+  schemaVersion: 6;
+  source: "index";
+  currentness: "unchecked";
+  diagnostics: readonly TestEvidenceDiagnostic[];
+  tags: readonly { tag: string; caseCount: number }[];
 };
 
 export type ShowTestEvidenceCaseOptions = {
-  caseId: string;
   workspaceRoot: string;
+  caseId: string;
+};
+export type ShowTestEvidenceCaseResult = {
+  schemaVersion: 6;
+  diagnostics: readonly TestEvidenceDiagnostic[];
+  case: TestEvidenceCase | null;
+  markdown: string | null;
+  indexPath: string;
+};
+
+export type SearchTestEvidenceOptions = {
+  workspaceRoot: string;
+  text: string;
+  match?: "all" | "any" | "phrase";
+  tags?: readonly string[];
+  testId?: string;
+  limit?: number;
+  offset?: number;
+};
+export type SearchTestEvidenceResult = {
+  schemaVersion: 6;
+  diagnostics: readonly TestEvidenceDiagnostic[];
+  sourceRevision: TestEvidenceSourceRevision | null;
+  cases: readonly (TestEvidenceIndexedCase & {
+    previews: readonly {
+      column: number | null;
+      line: number;
+      preview: string;
+      ranges: readonly { start: number; end: number }[];
+    }[];
+  })[];
+  total: number;
+  limit: number;
+  offset: number;
 };
 
 export type SyncTestEvidenceIndexOptions = {
+  workspaceRoot: string;
   mode: "check" | "write";
   selectedCaseIds?: readonly string[];
-  workspaceRoot: string;
+};
+export type SyncTestEvidenceIndexResult = {
+  schemaVersion: 6;
+  status: "ok" | "error";
+  state:
+    | "current"
+    | "unchanged"
+    | "written"
+    | "index-invalid"
+    | "index-missing"
+    | "index-path-invalid"
+    | "index-read-failed"
+    | "index-stale"
+    | "index-write-failed"
+    | "selected-baseline-invalid"
+    | "selected-id-missing"
+    | "selection-invalid"
+    | "collection-changed"
+    | "scoped-stale"
+    | "unselected-changes"
+    | "source-invalid";
+  changed: boolean;
+  diagnostics: readonly TestEvidenceDiagnostic[];
+  indexPath: string;
+  sourceRevision: TestEvidenceSourceRevision | null;
+  selectedIds?: readonly string[];
 };
 
 export type StageTestEvidenceIndexOptions = {
-  caseIds: readonly string[];
   workspaceRoot: string;
+  caseIds: readonly string[];
+};
+export type TestEvidenceRuntimeIndexDiagnostic = {
+  code: string;
+  message: string;
+  path: string | null;
+  stateId: string | null;
+  filesystem?: {
+    causeCategory: string;
+    detail: string | null;
+    operation: string;
+    target: string | null;
+  };
+  versionControl?: {
+    causeCategory: string;
+    detail: string | null;
+    operation: string | null;
+    target: string | null;
+  };
+};
+export type StageTestEvidenceIndexResult = {
+  status: "ok" | "error";
+  state:
+    | "staged"
+    | "unchanged"
+    | "collection-changed"
+    | "definition-invalid"
+    | "index-path-invalid"
+    | "operation-aborted"
+    | "pending-conflict"
+    | "pending-write-failed"
+    | "revision-index-invalid"
+    | "revision-read-failed"
+    | "selection-invalid"
+    | "target-invalid"
+    | "workspace-index-invalid"
+    | "pending-recovery-failed";
+  changed?: boolean | null;
+  diagnostics: readonly (
+    | TestEvidenceDiagnostic
+    | TestEvidenceRuntimeIndexDiagnostic
+  )[];
+  indexPath?: string;
+  selectedIds?: readonly string[];
 };
 
-export type TestEvidenceCaseState =
-  TestEvidenceQueryResult["cases"][number];
+export type { TestEvidenceStateIndex };
 
-export type TestEvidenceIndexStageDiagnostic =
-  TestEvidenceIndexStageResult["diagnostics"][number];
-
-export type {
-  TestEvidenceCaseShowResult,
-  TestEvidenceIndexStageResult,
-  TestEvidenceIndexSyncResult,
-  TestEvidenceQueryResult,
-  TestEvidenceReport,
-  TestEvidenceStateIndex,
-  TestEvidenceTopicCatalog,
-  TestEvidenceTopicsResult
-};
-
-export declare const testEvidenceCaseShowResultSchema:
-  StandardOutputSchema<TestEvidenceCaseShowResult>;
-export declare const testEvidenceIndexStageResultSchema:
-  StandardOutputSchema<TestEvidenceIndexStageResult>;
-export declare const testEvidenceIndexSyncResultSchema:
-  StandardOutputSchema<TestEvidenceIndexSyncResult>;
-export declare const testEvidenceQueryResultSchema:
-  StandardOutputSchema<TestEvidenceQueryResult>;
-export declare const testEvidenceReportSchema:
-  StandardOutputSchema<TestEvidenceReport>;
-export declare const testEvidenceStateIndexSchema:
-  StandardOutputSchema<TestEvidenceStateIndex>;
-export declare const testEvidenceTopicCatalogSchema:
-  StandardOutputSchema<TestEvidenceTopicCatalog>;
-export declare const testEvidenceTopicsResultSchema:
-  StandardOutputSchema<TestEvidenceTopicsResult>;
-
-export declare function listTestEvidenceTopics(
-  options: ListTestEvidenceTopicsOptions
-): Promise<TestEvidenceTopicsResult>;
-
-export declare function queryTestEvidence(
-  options: QueryTestEvidenceOptions
-): Promise<TestEvidenceQueryResult>;
-
-export declare function showTestEvidenceCase(
-  options: ShowTestEvidenceCaseOptions
-): Promise<TestEvidenceCaseShowResult>;
-
-export declare function stageTestEvidenceIndex(
-  options: StageTestEvidenceIndexOptions
-): Promise<TestEvidenceIndexStageResult>;
-
-export declare function syncTestEvidenceIndex(
-  options: SyncTestEvidenceIndexOptions
-): Promise<TestEvidenceIndexSyncResult>;
+export declare const expectedSourceSchema: StandardOutputSchema<ExpectedSource>;
+export declare const fingerprintSchema: StandardOutputSchema<string>;
+export declare const queryLimitSchema: StandardOutputSchema<number>;
+export declare const queryOffsetSchema: StandardOutputSchema<number>;
+export declare const snapshotSchema: StandardOutputSchema<TestEvidenceEntitySnapshot>;
+export declare const testEvidenceCaseIdPatternSource: string;
+export declare const testEvidenceCaseIdSchema: StandardOutputSchema<string>;
+export declare const testEvidenceCaseIndexStateSchema: StandardOutputSchema<TestEvidenceCaseIndexState>;
+export declare const testEvidenceCaseSchema: StandardOutputSchema<TestEvidenceCase>;
+export declare const testEvidenceCasesPath: string;
+export declare const testEvidenceDefinitionVersion: number;
+export declare const testEvidenceDiagnosticSchema: StandardOutputSchema<TestEvidenceDiagnostic>;
+export declare const testEvidenceIndexMetadataSchema: StandardOutputSchema<
+  Record<never, never>
+>;
+export declare const testEvidenceIndexPath: string;
+export declare const testEvidenceNamespace: string;
+export declare const testEvidencePath: string;
+export declare const testEvidenceQueryResultSchema: StandardOutputSchema<TestEvidenceQueryResult>;
+export declare const testEvidenceReferenceResultSchema: StandardOutputSchema<TestEvidenceReferenceResult>;
+export declare const testEvidenceReportSchema: StandardOutputSchema<TestEvidenceReport>;
+export declare const testEvidenceSchemaVersion: number;
+export declare const testEvidenceSearchResultSchema: StandardOutputSchema<TestEvidenceSearchResult>;
+export declare const testEvidenceShowResultSchema: StandardOutputSchema<TestEvidenceShowResult>;
+export declare const testEvidenceStageResultSchema: StandardOutputSchema<TestEvidenceStageResult>;
+export declare const testEvidenceStateIndexSchema: StandardOutputSchema<TestEvidenceStateIndex>;
+export declare const testEvidenceSyncResultSchema: StandardOutputSchema<TestEvidenceSyncResult>;
+export declare const testEvidenceTagSchema: StandardOutputSchema<string>;
+export declare const testEvidenceTagsResultSchema: StandardOutputSchema<TestEvidenceTagsResult>;
+export declare const testEvidenceTestIdSchema: StandardOutputSchema<string>;
 
 export declare function validateTestEvidence(
   options: ValidateTestEvidenceOptions
 ): Promise<TestEvidenceReport>;
-
+export declare function validateTestEvidenceReferences(
+  options: ValidateTestEvidenceReferencesOptions
+): Promise<SchemaTestEvidenceReferenceResult>;
+export declare function queryTestEvidence(
+  options: QueryTestEvidenceOptions
+): Promise<TestEvidenceQueryResult>;
+export declare function listTestEvidenceTags(
+  options: ListTestEvidenceTagsOptions
+): Promise<TestEvidenceTagsResult>;
+export declare function showTestEvidenceCase(
+  options: ShowTestEvidenceCaseOptions
+): Promise<TestEvidenceShowResult>;
+export declare function searchTestEvidence(
+  options: SearchTestEvidenceOptions
+): Promise<TestEvidenceSearchResult>;
+export declare function syncTestEvidenceIndex(
+  options: SyncTestEvidenceIndexOptions
+): Promise<TestEvidenceSyncResult>;
+export declare function stageTestEvidenceIndex(
+  options: StageTestEvidenceIndexOptions
+): Promise<TestEvidenceStageResult>;
 export declare function runTestEvidenceCatalogCli(
   argv?: readonly string[]
 ): Promise<number>;

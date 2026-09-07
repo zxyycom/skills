@@ -533,40 +533,33 @@ const expectedSemanticGateChecks = [
   ],
   [
     "release",
-    "test:test-evidence:catalog-contract",
+    "test:test-evidence:case-runtime",
     "bun",
-    ["./tools/test-evidence/tests/catalog.test.ts"]
+    ["./tools/test-evidence/tests/core.test.ts"]
   ],
   [
     "release",
-    "test:test-evidence:ledger-source-and-relations",
+    "test:test-evidence:public-boundary",
     "bun",
-    [
-      "./tools/test-evidence/tests/ledger-source.test.ts",
-      "./tools/test-evidence/tests/ledger-relations.test.ts"
-    ]
+    ["./tools/test-evidence/tests/public-boundary.test.ts"]
   ],
   [
     "release",
-    "test:test-evidence:ledger-index-and-query",
+    "test:test-evidence:project-snapshot",
     "bun",
-    [
-      "./tools/test-evidence/tests/ledger-api.test.ts",
-      "./tools/test-evidence/tests/ledger-index.test.ts",
-      "./tools/test-evidence/tests/repository-catalog.test.ts"
-    ]
+    ["./scripts/test-evidence/snapshot.test.ts"]
   ],
   [
     "release",
-    "test:test-evidence:ledger-cli",
+    "test:test-evidence:project-reference-check",
     "bun",
-    ["./tools/test-evidence/tests/ledger-cli.test.ts"]
+    ["./scripts/test-evidence/check.test.ts"]
   ],
   [
     "release",
-    "test:test-evidence:pending-stage",
+    "test:test-evidence:migration",
     "bun",
-    ["./tools/test-evidence/tests/staging.test.ts"]
+    ["./scripts/test-evidence/migrate.test.ts"]
   ]
 ] as const;
 
@@ -653,25 +646,22 @@ const expectedSemanticCommandPaths = new Map<string, string>([
     "./tools/task-graph/tests/portable-build.test.ts"
   ],
   [
-    "test:test-evidence:catalog-contract",
-    "./tools/test-evidence/tests/catalog.test.ts"
+    "test:test-evidence:case-runtime",
+    "./tools/test-evidence/tests/core.test.ts"
   ],
   [
-    "test:test-evidence:ledger-source-and-relations",
-    "./tools/test-evidence/tests/checks/ledger-source-and-relations.ts"
+    "test:test-evidence:public-boundary",
+    "./tools/test-evidence/tests/public-boundary.test.ts"
   ],
   [
-    "test:test-evidence:ledger-index-and-query",
-    "./tools/test-evidence/tests/checks/ledger-index-and-query.ts"
+    "test:test-evidence:project-snapshot",
+    "./scripts/test-evidence/snapshot.test.ts"
   ],
   [
-    "test:test-evidence:ledger-cli",
-    "./tools/test-evidence/tests/ledger-cli.test.ts"
+    "test:test-evidence:project-reference-check",
+    "./scripts/test-evidence/check.test.ts"
   ],
-  [
-    "test:test-evidence:pending-stage",
-    "./tools/test-evidence/tests/staging.test.ts"
-  ]
+  ["test:test-evidence:migration", "./scripts/test-evidence/migrate.test.ts"]
 ]);
 
 const expectedSemanticPrerequisites = new Map<string, readonly string[]>([
@@ -727,7 +717,7 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
     },
     progressRendering: { enabled: true }
   });
-  assert.equal(releaseRequiredCheckIds.length, 58);
+  assert.equal(releaseRequiredCheckIds.length, 59);
   assert.deepEqual(
     releaseDefinition.checks.find(
       ({ checkId }) => checkId === releaseSnapshotCheckId
@@ -807,7 +797,7 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
   const semanticFiles = expectedSemanticGateChecks.flatMap(
     ([, , , files]) => files
   );
-  assert.equal(semanticFiles.length, 64);
+  assert.equal(semanticFiles.length, 61);
   assert.equal(new Set(semanticFiles).size, semanticFiles.length);
   for (const tool of [
     "change-plan",

@@ -225,6 +225,7 @@ export const releaseRequiredPackageScripts = [
   "test:version-control",
   "test:skill-package-hash",
   "test:skill-release-publisher",
+  "test:test-evidence-project",
   "typecheck",
   "lint",
   "validate",
@@ -420,38 +421,34 @@ export const semanticGateChecks = [
     command: bunTest("./tools/task-graph/tests/portable-build.test.ts")
   },
   {
-    checkId: "test:test-evidence:catalog-contract",
-    displayName: "Test Evidence catalog contract",
+    checkId: "test:test-evidence:case-runtime",
+    displayName: "Test Evidence Case runtime",
     requiredTag: "release",
-    command: bunTest("./tools/test-evidence/tests/catalog.test.ts")
+    command: bunTest("./tools/test-evidence/tests/core.test.ts")
   },
   {
-    checkId: "test:test-evidence:ledger-source-and-relations",
-    displayName: "Test Evidence ledger source and relations",
+    checkId: "test:test-evidence:public-boundary",
+    displayName: "Test Evidence public API and CLI boundary",
     requiredTag: "release",
-    command: bunTest(
-      "./tools/test-evidence/tests/checks/ledger-source-and-relations.ts"
-    )
+    command: bunTest("./tools/test-evidence/tests/public-boundary.test.ts")
   },
   {
-    checkId: "test:test-evidence:ledger-index-and-query",
-    displayName: "Test Evidence ledger index and query",
+    checkId: "test:test-evidence:project-snapshot",
+    displayName: "Test Evidence project snapshot producer",
     requiredTag: "release",
-    command: bunTest(
-      "./tools/test-evidence/tests/checks/ledger-index-and-query.ts"
-    )
+    command: bunTest("./scripts/test-evidence/snapshot.test.ts")
   },
   {
-    checkId: "test:test-evidence:ledger-cli",
-    displayName: "Test Evidence ledger CLI",
+    checkId: "test:test-evidence:project-reference-check",
+    displayName: "Test Evidence project reference check",
     requiredTag: "release",
-    command: bunTest("./tools/test-evidence/tests/ledger-cli.test.ts")
+    command: bunTest("./scripts/test-evidence/check.test.ts")
   },
   {
-    checkId: "test:test-evidence:pending-stage",
-    displayName: "Test Evidence pending stage",
+    checkId: "test:test-evidence:migration",
+    displayName: "Test Evidence migration",
     requiredTag: "release",
-    command: bunTest("./tools/test-evidence/tests/staging.test.ts")
+    command: bunTest("./scripts/test-evidence/migrate.test.ts")
   }
 ] as const satisfies readonly SemanticGateCheck[];
 

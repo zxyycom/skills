@@ -1,0 +1,93 @@
+{
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 6
+    },
+    "source": {
+      "const": "index"
+    },
+    "currentness": {
+      "const": "unchecked"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "blocking": {
+            "type": "boolean"
+          },
+          "category": {
+            "enum": [
+              "case",
+              "snapshot",
+              "reference",
+              "index",
+              "query"
+            ],
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string"
+          },
+          "caseId": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+          },
+          "testId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "blocking",
+          "category",
+          "code",
+          "message"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "caseCount": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "tag",
+          "caseCount"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "source",
+    "currentness",
+    "diagnostics",
+    "tags"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zxyycom/skills/main/skills/test-evidence-review/references/schemas/test-evidence-tags-result.schema.json",
+  "title": "TestEvidenceTagsResult"
+}

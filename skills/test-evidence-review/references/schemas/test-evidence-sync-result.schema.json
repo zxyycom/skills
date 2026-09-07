@@ -1,0 +1,141 @@
+{
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 6
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "error"
+      ],
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "current",
+        "unchanged",
+        "written",
+        "index-invalid",
+        "index-missing",
+        "index-path-invalid",
+        "index-read-failed",
+        "index-stale",
+        "index-write-failed",
+        "selected-baseline-invalid",
+        "selected-id-missing",
+        "selection-invalid",
+        "collection-changed",
+        "scoped-stale",
+        "unselected-changes",
+        "source-invalid"
+      ],
+      "type": "string"
+    },
+    "changed": {
+      "type": "boolean"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "blocking": {
+            "type": "boolean"
+          },
+          "category": {
+            "enum": [
+              "case",
+              "snapshot",
+              "reference",
+              "index",
+              "query"
+            ],
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string"
+          },
+          "caseId": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+          },
+          "testId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "blocking",
+          "category",
+          "code",
+          "message"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "indexPath": {
+      "const": "docs/test-evidence/test-evidence-index.json"
+    },
+    "sourceRevision": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "entries": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+              },
+              "additionalProperties": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              }
+            },
+            "metadata": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "entries",
+            "metadata"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "selectedIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "status",
+    "state",
+    "changed",
+    "diagnostics",
+    "indexPath",
+    "sourceRevision"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zxyycom/skills/main/skills/test-evidence-review/references/schemas/test-evidence-sync-result.schema.json",
+  "title": "TestEvidenceSyncResult"
+}
