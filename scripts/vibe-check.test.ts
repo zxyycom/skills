@@ -395,6 +395,7 @@ const expectedSemanticGateChecks = [
     [
       "./tools/decision-records/tests/first-establishment.test.ts",
       "./tools/decision-records/tests/index-maintenance.test.ts",
+      "./tools/decision-records/tests/list-facets.test.ts",
       "./tools/decision-records/tests/queries.test.ts"
     ]
   ],
@@ -445,6 +446,7 @@ const expectedSemanticGateChecks = [
     "bun",
     [
       "./tools/investigation-report/tests/index-query.test.ts",
+      "./tools/investigation-report/tests/list-facets.test.ts",
       "./tools/investigation-report/tests/scale.test.ts"
     ]
   ],
@@ -797,7 +799,7 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
   const semanticFiles = expectedSemanticGateChecks.flatMap(
     ([, , , files]) => files
   );
-  assert.equal(semanticFiles.length, 61);
+  assert.equal(semanticFiles.length, 63);
   assert.equal(new Set(semanticFiles).size, semanticFiles.length);
   for (const tool of [
     "change-plan",

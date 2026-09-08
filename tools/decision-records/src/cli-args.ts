@@ -5,6 +5,7 @@ import {
   InvalidArgumentError,
   Option
 } from "commander";
+import { stateIndexQueryMaximumLimit } from "../../index-runtime/src/index.ts";
 import {
   decisionAlignments,
   decisionRelationTypes,
@@ -24,10 +25,13 @@ import {
 import { isDecisionTag, normalizeDecisionIdInput } from "./decision-path.ts";
 import { projectionTextIssue } from "./projection.ts";
 import { normalizeRelationSummary } from "./relation-summary.ts";
+import { isDecisionTimestamp } from "./decision-timestamp.ts";
 import {
   processDecisionRecordsCliIo,
   type DecisionRecordsCliIo
 } from "./cli-io.ts";
+
+const decisionListDefaultLimit = 10;
 
 export type Command =
   | "activate"
@@ -95,8 +99,13 @@ export type CliArgs =
       "list",
       {
         alignment: DecisionListAlignment;
+        createdAtFrom?: string;
+        createdAtTo?: string;
+        detail: boolean;
         direction?: DecisionTraceDirection;
         fullTime: boolean;
+        limit: number;
+        offset: number;
         relatedTo?: string;
         relationType?: DecisionRelationType;
         status: DecisionListStatus;
@@ -166,6 +175,9 @@ type ParsedOptions = {
   alignment?: DecisionListAlignment;
   background?: string;
   clearRelations?: boolean;
+  createdFrom?: string;
+  createdTo?: string;
+  detail?: boolean;
   discard?: DecisionId;
   deleteRecordedDecision?: boolean;
   decisionsDir?: string;
@@ -179,6 +191,8 @@ type ParsedOptions = {
   renameRecordedDecision?: boolean;
   preflightAlignment?: DecisionAlignment;
   match?: "all" | "any" | "phrase";
+  limit?: number;
+  offset?: number;
   purpose?: string;
   relation?: DecisionRelation[];
   relatedTo?: string;
@@ -217,6 +231,40 @@ function parseTraceDepth(value: string): number {
     throw new InvalidArgumentError("must be a safe non-negative integer");
   }
   return depth;
+}
+
+function parseListLimit(value: string): number {
+  const limit = parseSafeNonNegativeInteger(value);
+  if (limit < 1 || limit > stateIndexQueryMaximumLimit) {
+    throw new InvalidArgumentError(
+      `must be from 1 to ${stateIndexQueryMaximumLimit}`
+    );
+  }
+  return limit;
+}
+
+function parseListOffset(value: string): number {
+  return parseSafeNonNegativeInteger(value);
+}
+
+function parseSafeNonNegativeInteger(value: string): number {
+  if (!/^(0|[1-9]\d*)$/.test(value)) {
+    throw new InvalidArgumentError("must be a non-negative integer");
+  }
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed)) {
+    throw new InvalidArgumentError("must be a safe non-negative integer");
+  }
+  return parsed;
+}
+
+function parseDecisionListTimestamp(value: string): string {
+  if (!isDecisionTimestamp(value)) {
+    throw new InvalidArgumentError(
+      "must be an RFC 3339 timestamp with timezone and second precision"
+    );
+  }
+  return value;
 }
 
 function parseSingleDecisionId(
@@ -581,10 +629,19 @@ function listCommandArgs(
     ...location,
     alignment: options.alignment ?? "all",
     command: "list",
+    ...(options.createdFrom === undefined
+      ? {}
+      : { createdAtFrom: options.createdFrom }),
+    ...(options.createdTo === undefined
+      ? {}
+      : { createdAtTo: options.createdTo }),
+    detail: options.detail ?? false,
     ...(options.direction === undefined
       ? {}
       : { direction: options.direction }),
     fullTime: options.fullTime ?? false,
+    limit: options.limit ?? decisionListDefaultLimit,
+    offset: options.offset ?? 0,
     ...(options.relatedTo === undefined
       ? {}
       : { relatedTo: options.relatedTo }),
@@ -634,7 +691,7 @@ function validateRelatedDirection(options: ParsedOptions): void {
   }
 }
 
-function singleRelationQueryOption(option: Option): Option {
+function singleQueryOption(option: Option): Option {
   const parse = option.parseArg;
   return option.argParser((value, previous) => {
     if (previous !== undefined) {
@@ -809,7 +866,7 @@ export function createCliProgram(
       ).argParser(parseDecisionTag)
     )
     .addOption(
-      singleRelationQueryOption(
+      singleQueryOption(
         new Option(
           "--related-to <selector>",
           "Require a directly related Decision by standard ID or unique semantic name."
@@ -817,7 +874,7 @@ export function createCliProgram(
       )
     )
     .addOption(
-      singleRelationQueryOption(
+      singleQueryOption(
         new Option(
           "--direction <value>",
           "Direction relative to --related-to."
@@ -825,7 +882,7 @@ export function createCliProgram(
       )
     )
     .addOption(
-      singleRelationQueryOption(
+      singleQueryOption(
         new Option(
           "--relation-type <type>",
           "Require one direct relation type."
@@ -835,6 +892,38 @@ export function createCliProgram(
     .option(
       "--full-time",
       "Show the full createdAt timestamp instead of its date."
+    )
+    .option("--detail", "Show full facets and the existing multi-line records.")
+    .addOption(
+      singleQueryOption(
+        new Option(
+          "--created-from <timestamp>",
+          "Inclusive createdAt lower bound."
+        ).argParser(parseDecisionListTimestamp)
+      )
+    )
+    .addOption(
+      singleQueryOption(
+        new Option(
+          "--created-to <timestamp>",
+          "Inclusive createdAt upper bound."
+        ).argParser(parseDecisionListTimestamp)
+      )
+    )
+    .addOption(
+      singleQueryOption(
+        new Option(
+          "--limit <count>",
+          `Page size (default: ${decisionListDefaultLimit}, maximum: ${stateIndexQueryMaximumLimit}).`
+        ).argParser(parseListLimit)
+      )
+    )
+    .addOption(
+      singleQueryOption(
+        new Option("--offset <count>", "Page offset (default: 0).").argParser(
+          parseListOffset
+        )
+      )
     );
   list.action(() => execute("list", list));
 
@@ -880,7 +969,7 @@ export function createCliProgram(
       ).argParser(parseDecisionTag)
     )
     .addOption(
-      singleRelationQueryOption(
+      singleQueryOption(
         new Option(
           "--related-to <selector>",
           "Require a directly related Decision by standard ID or unique semantic name."
@@ -888,7 +977,7 @@ export function createCliProgram(
       )
     )
     .addOption(
-      singleRelationQueryOption(
+      singleQueryOption(
         new Option(
           "--direction <value>",
           "Direction relative to --related-to."
@@ -896,7 +985,7 @@ export function createCliProgram(
       )
     )
     .addOption(
-      singleRelationQueryOption(
+      singleQueryOption(
         new Option(
           "--relation-type <type>",
           "Require one direct relation type."

@@ -1,13 +1,13 @@
-### Case INVESTIGATION-INDEX-QUERY-001: list uses Investigation ID ordering and repeated tag filters use AND
+### Case INVESTIGATION-INDEX-QUERY-001: List 按近期时间与 ID tie-break 排序并组合 AND tags
 
 Tests:
-- `test:0facc169363282d37f2e2a74dd8027577cf43b6934d08d30c8399cdeee680bd3`
+- `test:dcb4f23f6e92ea055ce7b8d2b0ca897f63d83c39a4d222853d927a26e585316a`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 报告 list 按 Investigation ID 确定性排序，重复 tag 条件使用 AND。
+- 报告 list 按 formedAt instant 倒序排列，时间相同时用 Investigation ID 升序稳定打破平局；重复 tag 条件使用 AND。
 
 Proves:
-- 两个 tag 条件只返回同时具有两者的报告。
+- 两个 tag 条件只返回同时具有两者的报告，最新报告在前，相同形成时间的两项按 ID 升序。

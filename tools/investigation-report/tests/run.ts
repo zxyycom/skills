@@ -2,6 +2,7 @@ await import("./candidate.test.ts");
 await import("./cli-generated.test.ts");
 await import("./discard.test.ts");
 await import("./index-query.test.ts");
+await import("./list-facets.test.ts");
 await import("./parsing-directory.test.ts");
 await import("./publish.test.ts");
 await import("./resources.test.ts");

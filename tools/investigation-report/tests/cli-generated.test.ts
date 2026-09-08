@@ -493,17 +493,43 @@ test("CLI list returns a current report after resource byte changes", async () =
     const result = await runInvestigationCli(root, ["list"]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
-    assert.match(result.stdout, /^report /mu);
+    assert.match(result.stdout, /^- report /mu);
   });
 });
 
-test("CLI uses invalid-option exit status for malformed list input", async () => {
+test("CLI exposes bounded list controls and rejects malformed or repeated list options", async () => {
   await withTempRoot("cli-invalid", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
-    const result = await runInvestigationCli(root, ["list", "--limit", "zero"]);
-    assert.equal(result.status, 2);
-    assert.equal(result.stdout, "");
-    assert.match(result.stderr, /limit must be a number/u);
+    const help = await runInvestigationCli(root, ["list", "--help"]);
+    assert.equal(help.status, 0, help.stderr);
+    assert.match(help.stdout, /default: 10, maximum: 1000/u);
+    assert.match(help.stdout, /--detail/u);
+
+    for (const args of [
+      ["list", "--limit", "zero"],
+      ["list", "--limit", "0"],
+      ["list", "--offset", "-1"],
+      ["list", "--formed-from", "not-a-timestamp"],
+      ["list", "--detail", "--detail"]
+    ]) {
+      const result = await runInvestigationCli(root, args);
+      assert.equal(result.status, 2, args.join(" "));
+      assert.equal(result.stdout, "", args.join(" "));
+    }
+
+    for (const option of ["formed-from", "formed-to", "limit", "offset"]) {
+      const value = option.startsWith("formed-") ? "2026-09-08T00:00:00Z" : "1";
+      const result = await runInvestigationCli(root, [
+        "list",
+        `--${option}`,
+        value,
+        `--${option}`,
+        value
+      ]);
+      assert.equal(result.status, 2, option);
+      assert.equal(result.stdout, "", option);
+      assert.match(result.stderr, new RegExp(`--${option} only once`, "u"));
+    }
   });
 });
 

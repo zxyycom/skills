@@ -16,6 +16,7 @@ import {
   printCandidateWarnings,
   printDecisionAttention,
   printDecisionFailure,
+  printDecisionListSuccess,
   printDecisionQuerySuccess
 } from "./cli-output.ts";
 import {
@@ -84,13 +85,16 @@ type LockedLifecycleOperationResult = {
 };
 
 async function runQuery(
-  request: DecisionQueryRequest,
+  request: Exclude<DecisionQueryRequest, { command: "list" }>,
   io: DecisionRecordsCliIo
 ): Promise<number> {
   const result = await executeDecisionQuery(request);
   if (result.status === "error") {
     printDecisionFailure(result, io);
     return result.exitCode;
+  }
+  if (result.command === "list") {
+    throw new TypeError("Non-list Decision query returned a list result");
   }
   printDecisionQuerySuccess(result, io);
   return 0;
@@ -126,22 +130,39 @@ async function runList(
   args: CliArgsFor<"list">,
   io: DecisionRecordsCliIo
 ): Promise<number> {
-  return await runQuery(
-    {
-      alignment: args.alignment,
-      command: "list",
-      ...(args.direction === undefined ? {} : { direction: args.direction }),
-      fullTime: args.fullTime,
-      location: decisionLocation(args),
-      ...(args.relatedTo === undefined ? {} : { relatedTo: args.relatedTo }),
-      ...(args.relationType === undefined
-        ? {}
-        : { relationType: args.relationType }),
-      status: args.status,
-      tags: args.tags
-    },
+  const result = await executeDecisionQuery({
+    alignment: args.alignment,
+    command: "list",
+    ...(args.createdAtFrom === undefined
+      ? {}
+      : { createdAtFrom: args.createdAtFrom }),
+    ...(args.createdAtTo === undefined
+      ? {}
+      : { createdAtTo: args.createdAtTo }),
+    ...(args.direction === undefined ? {} : { direction: args.direction }),
+    limit: args.limit,
+    location: decisionLocation(args),
+    offset: args.offset,
+    ...(args.relatedTo === undefined ? {} : { relatedTo: args.relatedTo }),
+    ...(args.relationType === undefined
+      ? {}
+      : { relationType: args.relationType }),
+    status: args.status,
+    tags: args.tags
+  });
+  if (result.status === "error") {
+    printDecisionFailure(result, io);
+    return result.exitCode;
+  }
+  if (result.command !== "list") {
+    throw new TypeError("Decision list query returned a non-list result");
+  }
+  printDecisionListSuccess(
+    result,
+    { detail: args.detail, fullTime: args.fullTime },
     io
   );
+  return 0;
 }
 
 async function runSearch(
@@ -1206,7 +1227,11 @@ export type {
   DecisionIndexMetadata,
   DecisionIndexState,
   DecisionListAlignment,
+  DecisionListFacets,
+  DecisionListMonthFacet,
   DecisionListStatus,
+  DecisionListTagFacet,
+  DecisionListTimeFacets,
   DecisionMetadata,
   DecisionProjection,
   DecisionRecord,

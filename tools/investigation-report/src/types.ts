@@ -215,10 +215,43 @@ export type InvestigationIndexQueryEntry = Readonly<{
   state: InvestigationIndexState;
 }>;
 
+export type InvestigationListTagFacet = Readonly<{
+  count: number;
+  tag: string;
+}>;
+
+export type InvestigationListMonthFacet = Readonly<{
+  count: number;
+  month: string;
+}>;
+
+export type InvestigationListTimeFacets = Readonly<{
+  earliest: string | null;
+  latest: string | null;
+  months: readonly InvestigationListMonthFacet[];
+}>;
+
+export type InvestigationListFacets = Readonly<{
+  formedAt: InvestigationListTimeFacets;
+  recordCount: number;
+  tags: readonly InvestigationListTagFacet[];
+}>;
+
+export type InvestigationListAppliedFilters = Readonly<{
+  direction?: "predecessors" | "successors" | "both";
+  formedAtFrom?: string;
+  formedAtTo?: string;
+  relatedTo?: string;
+  relationType?: InvestigationRelationType;
+  tags: readonly string[];
+}>;
+
 export type InvestigationIndexQueryResult = {
+  appliedFilters: InvestigationListAppliedFilters | null;
   diagnostics: InvestigationDiagnostic[];
   entries: InvestigationIndexQueryEntry[];
   errors: string[];
+  facets: InvestigationListFacets | null;
   indexPath: string;
   limit: number;
   offset: number;

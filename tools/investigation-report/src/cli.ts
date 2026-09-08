@@ -2,6 +2,7 @@
 
 import process from "node:process";
 import { isMainModule } from "../../shared/src/node/main-module.ts";
+import { stateIndexQueryMaximumLimit } from "../../index-runtime/src/index.ts";
 import {
   createInvestigationCandidate,
   createInvestigationCandidateFromCli,
@@ -11,12 +12,14 @@ import {
 import { discardInvestigationCandidate } from "./candidate-discard.ts";
 import {
   executeInvestigationIndexQuery,
+  investigationListDefaultLimit,
   queryInvestigationIndex,
   searchInvestigationReports,
   showInvestigationReport,
   traceInvestigationReports
 } from "./query.ts";
 import { discardInvestigationReport } from "./discard.ts";
+import { printInvestigationList } from "./list-output.ts";
 import { publishInvestigationCandidates } from "./publish.ts";
 import {
   diagnosticFromError,
@@ -161,6 +164,7 @@ const booleanOptions = new Set([
   "preflight",
   "rename-recorded-candidate",
   "rename-recorded-report",
+  "detail",
   "help"
 ]);
 
@@ -291,8 +295,9 @@ function printHelp(
       "  --related-to <selector>       Direct relation target selector",
       "  --direction <direction>       predecessors, successors, or both (default: both)",
       "  --relation-type <type>        Direct relation type",
-      "  --limit <count>               Page size (default: 50, maximum: 1000)",
-      "  --offset <count>              Page offset (default: 0)"
+      `  --limit <count>               Page size (default: ${investigationListDefaultLimit}, maximum: ${stateIndexQueryMaximumLimit})`,
+      "  --offset <count>              Page offset (default: 0)",
+      "  --detail                     Show full facets and existing multi-line records"
     ],
     search: [
       "  --in <scope>                  content (default) or published index metadata",
@@ -1238,9 +1243,19 @@ async function runList(
       "direction",
       "relation-type",
       "limit",
-      "offset"
+      "offset",
+      "detail"
     ]) ??
-    assertSingleOptions(input, ["related-to", "direction", "relation-type"]);
+    assertSingleOptions(input, [
+      "formed-from",
+      "formed-to",
+      "related-to",
+      "direction",
+      "relation-type",
+      "limit",
+      "offset",
+      "detail"
+    ]);
   if (problem !== null) return cliInvalid(problem, io);
   const execution = await executeInvestigationIndexQuery({
     ...commonInvestigationQueryOptions(input),
@@ -1260,20 +1275,7 @@ async function runList(
       execution.error.result.diagnostics
     );
   const result = execution.value;
-  if (result.entries.length === 0) {
-    writeLine(io.stdout, "No investigation reports matched.");
-    return 0;
-  }
-  writeLine(
-    io.stdout,
-    `Investigation reports (${result.entries.length} of ${result.total}, offset ${result.offset}):`
-  );
-  for (const entry of result.entries) {
-    writeLine(io.stdout, `${entry.id} ${entry.state.formedAt}`);
-    writeLine(io.stdout, `  title: ${entry.state.title}`);
-    writeLine(io.stdout, `  question: ${entry.state.question}`);
-    writeLine(io.stdout, `  tags: ${entry.state.tags.join(", ")}`);
-  }
+  printInvestigationList(result, { detail: has(input.values, "detail") }, io);
   return 0;
 }
 
@@ -1813,6 +1815,11 @@ export type {
   InvestigationCandidateShowResult,
   InvestigationIndexQueryOptions,
   InvestigationIndexQueryResult,
+  InvestigationListAppliedFilters,
+  InvestigationListFacets,
+  InvestigationListMonthFacet,
+  InvestigationListTagFacet,
+  InvestigationListTimeFacets,
   InvestigationIndexStageDiagnostic,
   InvestigationIndexStageOptions,
   InvestigationIndexStageResult,

@@ -5,7 +5,7 @@ description: >-
   每份报告以稳定 Investigation ID 保存一轮形成时的背景、依据、结果和边界；tags 用于分类，显式直接前序关系用于认识演进。
   当前事实、长期方向与实施授权继续由各自 owner 承接。
 metadata:
-  version: "39"
+  version: "40"
 ---
 
 # Investigation Report
@@ -23,7 +23,7 @@ metadata:
 1. 本文件承接报告形成与审阅、候选 authoring、关系判断、资源取舍和维护流程；领域调查方法与当前事实由相应任务和 owner 承接。
 2. [固定契约](references/investigation-report-contract.md) 承接报告与候选的身份、结构、关系、资源、索引、CLI、事务与运行时诊断。创建、publish、调整关系、剔除或结构审阅前完整读取。
 3. [维护恢复](references/maintenance-recovery.md) 承接 warning、mutation outcome、锁、权限与中断写入的操作者恢复边界；只在相应诊断或恢复条件出现时读取。
-4. 先读取工作区指令：已知准确 ID 或 name 时用 `show`；已知 tags、formedAt、关系类型或一个直接关系目标时用 `list`；只知道主题、概念、原因或正文措辞时用 `search`；需要完整拓扑时用结果中的完整 ID 调用 `trace`。`list` 和 `search` 的 `--related-to <selector>` 按普通 ID-first/name selector 收敛目标；`--direction predecessors|successors|both` 相对该目标解释，省略为 `both`，单独提供方向是参数错误。关系目标与 `--relation-type` 同时出现时必须命中同一条边。候选仍用 `candidates`、`show-candidate` 审阅。省略 `--in` 等于 `--in content`，即搜索正式报告 Markdown；`--in metadata` 只搜索已发布索引快照。两种范围都先应用 tags、formedAt 和关系条件，且统一 NFKC、忽略大小写并按空白处理 `all|any|phrase`。`all`、`any` 可由同一报告的多个 content 物理行或 metadata segment 满足，`phrase` 只能位于一个物理行或一个 metadata segment；`--limit` 只限制已形成的完整确定匹配集（默认 50、最大 1000）。
+4. 先读取工作区指令：已知准确 ID 或 name 时用 `show`；已知 tags、formedAt、关系类型或一个直接关系目标时用 `list`；只知道主题、概念、原因或正文措辞时用 `search`；需要完整拓扑时用结果中的完整 ID 调用 `trace`。`list` 从同一次完整索引 snapshot 查询时聚合全局 `Index filters`，默认按 formedAt instant 倒序、ID 升序 tie-break 返回最新 10 条紧凑定位行；用 `--limit/--offset` 翻页，用 `--detail` 在同一窗口展开完整 facets 和原有多行摘要，完整正文仍用 `show`。`list` 和 `search` 的 `--related-to <selector>` 按普通 ID-first/name selector 收敛目标；`--direction predecessors|successors|both` 相对该目标解释，省略为 `both`，单独提供方向是参数错误。关系目标与 `--relation-type` 同时出现时必须命中同一条边。候选仍用 `candidates`、`show-candidate` 审阅。省略 `--in` 等于 `--in content`，即搜索正式报告 Markdown；`--in metadata` 只搜索已发布索引快照。两种 search 范围都先应用 tags、formedAt 和关系条件，且统一 NFKC、忽略大小写并按空白处理 `all|any|phrase`。`all`、`any` 可由同一报告的多个 content 物理行或 metadata segment 满足，`phrase` 只能位于一个物理行或一个 metadata segment；search 的 `--limit` 只限制已形成的完整确定匹配集（默认 50、最大 1000）。
 5. content 的权威内容是同一当前索引快照完成关系目标解析、结构筛选和 `sourcePath → ID` 映射后选中的正式 Markdown，候选、资源和索引文件一律排除；索引缺失、损坏或不新鲜时，只有完整正式来源与资源验证成功才可从一次内存投影只读降级并 warning。metadata 的权威内容是持久索引：它不读取报告、candidate、资源或 relation target，不检查来源新鲜度，也不回退。它分别匹配 ID、name、title、question、每个 tag 和本来源记录的每条非空 relation summary；`matchedFields` 只列实际命中的普通字段，`matchedRelations` 只列实际命中的来源 `{ type, target, summary }`，关系结构筛选不产生文本命中证据。metadata 快照可能滞后未同步来源，不能据此陈述当前报告事实；索引读取失败时先运行 `check`，修正后在获得维护授权时运行 `sync-index`。content 的截断 warning 表示返回或预览受资源上限限制，不能把未显示结果或无结果说成不存在；应收紧筛选、调整 `--limit`，或用已返回 ID 的 `show`/`trace` 深入读取。
 
 ## 常用 CLI

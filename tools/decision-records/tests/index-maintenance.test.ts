@@ -232,7 +232,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
       0,
       listWithInvalidRecord.stderr
     );
-    assert.match(listWithInvalidRecord.stdout, /use-generated-cli\.md/);
+    assert.match(listWithInvalidRecord.stdout, /- use-generated-cli /);
     const traceWithInvalidRecord = await runSourceCli([
       "trace",
       currentRelativePath,
@@ -307,8 +307,8 @@ test("index maintenance detects drift and synchronizes canonical decision states
     await fs.writeFile(currentDecisionPath, driftedDecision, "utf8");
     const driftedList = await runSourceCli(["list", "--root", workspaceRoot]);
     assert.equal(driftedList.exitCode, 0, driftedList.stderr);
-    assert.match(driftedList.stdout, /title: 使用生成 CLI/);
-    assert.doesNotMatch(driftedList.stdout, /title: 使用同步后的生成 CLI/);
+    assert.match(driftedList.stdout, /\] 使用生成 CLI/);
+    assert.doesNotMatch(driftedList.stdout, /\] 使用同步后的生成 CLI/);
     await runSuccessfulSourceCli(["sync-index", "--root", workspaceRoot]);
     const synchronizedIndex = await readIndex(indexPath);
     const synchronizedEntry = findIndexEntry(

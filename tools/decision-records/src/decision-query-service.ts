@@ -12,9 +12,8 @@ import {
 } from "../../shared/src/file-text-search/index.ts";
 import {
   isStateIndexText,
+  stateIndexQueryMaximumLimit,
   type StateIndexDiagnostic,
-  type StateIndexFilter,
-  type StateIndexReader,
   type StateIndexSyncScope
 } from "../../index-runtime/src/index.ts";
 import {
@@ -32,6 +31,7 @@ import {
   syncDecisionIndex
 } from "./decision-state-index.ts";
 import { decisionIdFromMarkdown } from "./decision-metadata.ts";
+import { buildDecisionListFacets } from "./list-facets.ts";
 import {
   DecisionCollectionLockError,
   withDecisionCollectionMutationLock
@@ -59,6 +59,7 @@ import {
   type DecisionRelationEdge
 } from "./relation-graph.ts";
 import { scanDecisionRecords } from "./scan.ts";
+import { decisionTimestampMilliseconds } from "./decision-timestamp.ts";
 import {
   compareDecisionRecords,
   isActivationCandidateRecord,
@@ -68,9 +69,8 @@ import {
   type DecisionCandidateRecord,
   type DecisionId,
   type DecisionIndexEntry,
-  type DecisionIndexMetadata,
-  type DecisionIndexState,
   type DecisionListAlignment,
+  type DecisionListFacets,
   type DecisionListStatus,
   type EstablishedDecisionStatus,
   type DecisionProjection,
@@ -85,6 +85,17 @@ import {
 
 export type { DecisionLocation } from "./decision-query-context.ts";
 
+export type DecisionListAppliedFilters = Readonly<{
+  alignment: DecisionListAlignment;
+  createdAtFrom?: string;
+  createdAtTo?: string;
+  direction?: DecisionTraceDirection;
+  relatedTo?: string;
+  relationType?: DecisionRelationType;
+  status: DecisionListStatus;
+  tags: readonly DecisionTag[];
+}>;
+
 export type DecisionQueryRequest =
   | {
       command: "candidates" | "check";
@@ -93,9 +104,12 @@ export type DecisionQueryRequest =
   | {
       alignment: DecisionListAlignment;
       command: "list";
+      createdAtFrom?: string;
+      createdAtTo?: string;
       direction?: DecisionTraceDirection;
-      fullTime: boolean;
+      limit: number;
       location: DecisionLocation;
+      offset: number;
       relatedTo?: string;
       relationType?: DecisionRelationType;
       status: DecisionListStatus;
@@ -185,9 +199,13 @@ export type DecisionQuerySuccess =
       >;
     })
   | (QuerySuccessBase & {
+      appliedFilters: DecisionListAppliedFilters;
       command: "list";
-      fullTime: boolean;
+      facets: DecisionListFacets;
+      limit: number;
+      offset: number;
       records: IndexedDecisionRecord[];
+      total: number;
     })
   | (QuerySuccessBase & {
       command: "search";
@@ -302,39 +320,172 @@ async function checkDecisionRecords(
 async function listDecisionRecords(
   request: Extract<DecisionQueryRequest, { command: "list" }>
 ): Promise<DecisionQueryResult> {
+  const prepared = prepareDecisionListRequest(request);
+  if (prepared.status === "error") return prepared.failure;
   const context = await loadDecisionQueryContext(request.location);
   if (context.status === "error") {
     return context;
   }
-  const relationFilter = decisionRelationFilter(
-    context.reader,
-    context.indexRelativePath,
-    request
-  );
+  const all = context.reader.all({ sort: [{ direction: "asc", key: "id" }] });
+  if (all.status === "error") {
+    return indexFailure(all, context.indexRelativePath);
+  }
+  const allRecords = indexedRecords(all.value);
+  const timedRecords = allRecords.map(timedDecisionListRecord);
+  const facets = buildDecisionListFacets(all.value);
+  const relationFilter = resolveDecisionRelationIds(allRecords, request);
   if (relationFilter.status === "error") return relationFilter.failure;
-  if (relationFilter.decisionIds?.size === 0) {
-    return {
-      command: "list",
-      fullTime: request.fullTime,
-      records: [],
-      status: "ok",
-      warnings: []
-    };
-  }
-  const queried = context.reader.all({
-    filters: listFilters(request, relationFilter.decisionIds),
-    sort: [{ direction: "asc", key: "id" }]
-  });
-  if (queried.status === "error") {
-    return indexFailure(queried, context.indexRelativePath);
-  }
+  const matching = timedRecords
+    .filter(
+      ({ createdAtMilliseconds, record }) =>
+        (request.status === "all" || record.status === request.status) &&
+        (request.alignment === "all" ||
+          record.alignment === request.alignment) &&
+        request.tags.every((tag) => record.tags.includes(tag)) &&
+        (relationFilter.decisionIds === null ||
+          relationFilter.decisionIds.has(record.decisionId)) &&
+        (prepared.createdAtFrom === null ||
+          createdAtMilliseconds >= prepared.createdAtFrom) &&
+        (prepared.createdAtTo === null ||
+          createdAtMilliseconds <= prepared.createdAtTo)
+    )
+    .sort(compareRecentDecisionRecords)
+    .map(({ record }) => record);
+  const records = matching.slice(
+    request.offset,
+    request.offset + request.limit
+  );
   return {
+    appliedFilters: decisionListAppliedFilters(request),
     command: "list",
-    fullTime: request.fullTime,
-    records: indexedRecords(queried.value),
+    facets,
+    limit: request.limit,
+    offset: request.offset,
+    records,
     status: "ok",
+    total: matching.length,
     warnings: []
   };
+}
+
+function prepareDecisionListRequest(
+  request: Extract<DecisionQueryRequest, { command: "list" }>
+):
+  | { createdAtFrom: number | null; createdAtTo: number | null; status: "ok" }
+  | { failure: DecisionApplicationFailure; status: "error" } {
+  const issues: string[] = [];
+  if (
+    !Number.isSafeInteger(request.limit) ||
+    request.limit < 1 ||
+    request.limit > stateIndexQueryMaximumLimit
+  ) {
+    issues.push(
+      `limit must be an integer from 1 to ${stateIndexQueryMaximumLimit}`
+    );
+  }
+  if (!Number.isSafeInteger(request.offset) || request.offset < 0) {
+    issues.push("offset must be a non-negative integer");
+  }
+  const createdAtFrom = decisionListTimestamp(
+    request.createdAtFrom,
+    "createdAt lower bound",
+    issues
+  );
+  const createdAtTo = decisionListTimestamp(
+    request.createdAtTo,
+    "createdAt upper bound",
+    issues
+  );
+  if (
+    createdAtFrom !== null &&
+    createdAtTo !== null &&
+    createdAtFrom > createdAtTo
+  ) {
+    issues.push("createdAt lower bound must not be after the upper bound");
+  }
+  if (issues.length > 0) {
+    return {
+      failure: decisionFailure(
+        [...new Set(issues)].sort(compareText).map((reason) =>
+          decisionDiagnostic({
+            code: "decision-records.list-options-invalid",
+            reason,
+            recovery: "Correct the Decision list options, then retry.",
+            target: "Decision list options"
+          })
+        ),
+        { exitCode: 2 }
+      ),
+      status: "error"
+    };
+  }
+  return { createdAtFrom, createdAtTo, status: "ok" };
+}
+
+function decisionListTimestamp(
+  value: string | undefined,
+  label: string,
+  issues: string[]
+): number | null {
+  if (value === undefined) return null;
+  const milliseconds = decisionTimestampMilliseconds(value);
+  if (milliseconds === null) {
+    issues.push(
+      `${label} must be an RFC 3339 timestamp with timezone and second precision`
+    );
+    return null;
+  }
+  return milliseconds;
+}
+
+function decisionListAppliedFilters(
+  request: Extract<DecisionQueryRequest, { command: "list" }>
+): DecisionListAppliedFilters {
+  return {
+    alignment: request.alignment,
+    ...(request.createdAtFrom === undefined
+      ? {}
+      : { createdAtFrom: request.createdAtFrom }),
+    ...(request.createdAtTo === undefined
+      ? {}
+      : { createdAtTo: request.createdAtTo }),
+    ...(request.relatedTo === undefined
+      ? {}
+      : {
+          direction: request.direction ?? "both",
+          relatedTo: request.relatedTo
+        }),
+    ...(request.relationType === undefined
+      ? {}
+      : { relationType: request.relationType }),
+    status: request.status,
+    tags: [...request.tags]
+  };
+}
+
+type TimedDecisionListRecord = Readonly<{
+  createdAtMilliseconds: number;
+  record: IndexedDecisionRecord;
+}>;
+
+function timedDecisionListRecord(
+  record: IndexedDecisionRecord
+): TimedDecisionListRecord {
+  const createdAtMilliseconds = decisionTimestampMilliseconds(record.createdAt);
+  if (createdAtMilliseconds === null) {
+    throw new TypeError("Decision list requires a valid createdAt timestamp");
+  }
+  return { createdAtMilliseconds, record };
+}
+
+function compareRecentDecisionRecords(
+  left: TimedDecisionListRecord,
+  right: TimedDecisionListRecord
+): number {
+  const timeOrder = right.createdAtMilliseconds - left.createdAtMilliseconds;
+  return timeOrder === 0
+    ? compareText(left.record.decisionId, right.record.decisionId)
+    : timeOrder;
 }
 
 export type DecisionContentSearchRecord = IndexedDecisionRecord & {
@@ -721,30 +872,6 @@ function filterSearchRecords(
     ),
     status: "ok"
   };
-}
-
-function decisionRelationFilter(
-  reader: StateIndexReader<DecisionIndexState, DecisionIndexMetadata>,
-  indexRelativePath: string,
-  request: Pick<
-    Extract<DecisionQueryRequest, { command: "list" }>,
-    "direction" | "relatedTo" | "relationType"
-  >
-):
-  | { decisionIds: ReadonlySet<DecisionId> | null; status: "ok" }
-  | { failure: DecisionApplicationFailure; status: "error" } {
-  if (
-    request.relatedTo === undefined &&
-    request.relationType === undefined &&
-    request.direction === undefined
-  ) {
-    return { decisionIds: null, status: "ok" };
-  }
-  const all = reader.all({ sort: [{ direction: "asc", key: "id" }] });
-  if (all.status === "error") {
-    return { failure: indexFailure(all, indexRelativePath), status: "error" };
-  }
-  return resolveDecisionRelationIds(indexedRecords(all.value), request);
 }
 
 function resolveDecisionRelationIds(
@@ -1262,38 +1389,6 @@ function syncIndexNoChange(
       scope: "Derived decision index"
     }))
   };
-}
-
-function listFilters(
-  request: Extract<DecisionQueryRequest, { command: "list" }>,
-  decisionIds: ReadonlySet<DecisionId> | null
-): StateIndexFilter[] {
-  const filters: StateIndexFilter[] = [];
-  for (const [key, value] of [
-    ["status", request.status],
-    ["alignment", request.alignment]
-  ] as const) {
-    if (value !== "all") {
-      filters.push({ key, kind: "exact", operator: "all", values: [value] });
-    }
-  }
-  if (request.tags.length > 0) {
-    filters.push({
-      key: "tag",
-      kind: "exact",
-      operator: "all",
-      values: [...request.tags]
-    });
-  }
-  if (decisionIds !== null) {
-    filters.push({
-      key: "id",
-      kind: "exact",
-      operator: "any",
-      values: [...decisionIds]
-    });
-  }
-  return filters;
 }
 
 function indexedRecords(

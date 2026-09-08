@@ -153,9 +153,13 @@
       "DECISION-LIFECYCLE-PREFLIGHT-001": "sha256:d50b7ba08e71a910cbff07d9e85669fa881da1f3ace1b42a3b20de787e648adf",
       "DECISION-LIST-ALIGNMENT-001": "sha256:b6f724719a43a186d91b59568f969146a787f13ed76d5420d642a6cd20a31f43",
       "DECISION-LIST-ALL-001": "sha256:6ce1731cc7ef918dc3ea5249b277901687496bf4853f62606ace42d8bb1a9ed4",
+      "DECISION-LIST-ARGS-001": "sha256:2f2d265d243ccb3ca6fb780e249ec5e90955fbe6218a43124bb25166c60f54ca",
       "DECISION-LIST-DEFAULT-001": "sha256:7ae276c1e17814fdf994abbd92be8f7bcc9846eada42e7216fe1b355d8233789",
       "DECISION-LIST-EMPTY-001": "sha256:d9ec11e5381e30b70bc96e63e3bdee357d9202f862df3203afedcb260f5f0ddb",
+      "DECISION-LIST-FACETS-001": "sha256:f225fd2b9ba0da4efc1fe5b8592cc454679c9fa2bf813bd4691dfe2c2f5665bd",
       "DECISION-LIST-FILTERS-001": "sha256:5349d97950f8dad9777695b533475838973bac9e6a742109f99af8be184f5e77",
+      "DECISION-LIST-OUTPUT-001": "sha256:5b908948428a0a61b4419ea47a2219dc49d5d8ade179624772cf4ec5faf9c60f",
+      "DECISION-LIST-PAGE-001": "sha256:3444eafb560274988943a434d238cf446a9d07c9a09e4ee86d7cbc95a85e4973",
       "DECISION-LIST-TAG-AND-001": "sha256:63e6d9ad2eaf7973fb0c51b26ba643018617a06663b53e97c02800f692125580",
       "DECISION-MEMORY-SOURCE-BOUNDARY-001": "sha256:eedbf47ce0abfc7fd13ad76e5d2809b7ef171ad2803455715d965756f83a288d",
       "DECISION-MERGE-MINIMUM-001": "sha256:29647b9c14d4dd8c28a1f53dad02eb2315f52675744a311106586bf345fe48f2",
@@ -288,7 +292,7 @@
       "FILE-TEXT-SEARCH-UNICODE-CASE-001": "sha256:295ce114c93c3fdb64d53f8826286ffb9979f90b808c28953bfaca6908a4777a",
       "FILE-TEXT-SEARCH-UNICODE-RANGE-001": "sha256:044c06148343a040297d82e308a686248a96f5ed9a86076d30977222d57da659",
       "GATE-CLI-RESULT-001": "sha256:8d352c421187b78fd52551a9836b4d14b27764b49a741b79c7773266b3c55c75",
-      "GATE-DEFINITION-CATALOG-001": "sha256:a0e26eeb7d5ea73403f2909388bed1bcef74d661d3b5a4d15d65f2774b1195c4",
+      "GATE-DEFINITION-CATALOG-001": "sha256:5c99fb57adb7aa5fe4895292ba49f3b1d95d0cc372c38efa65580ddbfea49d72",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:0e2a69f23d25f640b8bec8ae7228a83f6eed6cc2534eebe1ce6c71cfaffbb485",
       "GATE-DUPLICATE-DETECTION-001": "sha256:d2e1d80ae26540a504cc548bdb64ca2991f4e41973cae2b72ef7372b8e1902d7",
       "GATE-FILE-SELECTION-001": "sha256:437d211bc53873c6c9fb53697ccbdf9de42f6716745064016df9f522c931dc94",
@@ -390,7 +394,7 @@
       "INVESTIGATION-CLI-CONTRACTS-001": "sha256:84574e29d184bdc1d4e8600c0af2b46e5a962e88a5a99e1d168f255990f62bf7",
       "INVESTIGATION-CLI-DISCARD-ARGS-001": "sha256:d8e42c0ecd8a607ec479bbb731a24e9bcb910b6c835a71b56cfb4c3b8802c38c",
       "INVESTIGATION-CLI-ENUM-001": "sha256:1545eb2645d374d63ed2f338360d0beb346a6202896b24aeed58f1329595c172",
-      "INVESTIGATION-CLI-LIST-001": "sha256:2794ec227311bad04fecc7ebadfee8d6ac3f6728e68e03896fda9691d1bf8057",
+      "INVESTIGATION-CLI-LIST-001": "sha256:d3642305aac7d0e77e923a9dd8196b5d098c347a83d63f2943d7106a4ef397ba",
       "INVESTIGATION-CLI-RELATION-FILTER-001": "sha256:0b6ecbe9fd70f2d3c489c13e0411cc9288985050e28336361f77c819d056d631",
       "INVESTIGATION-CLI-RELATIONS-001": "sha256:469dab2b25b2760e824e3a9b7021481c79b9a0138b839a24ae8cc2244b83d695",
       "INVESTIGATION-CLI-SELECTED-SYNC-001": "sha256:e21a89f14ca15265afc62177391176de90ab2119bc5924684ca0a3233203d49e",
@@ -402,7 +406,7 @@
       "INVESTIGATION-CLI-SYNC-001": "sha256:0fd89d7640f7867b750adff0c52d30e18c6fb781861be38ea093f3938ec52e0d",
       "INVESTIGATION-CLI-SYNC-FILESYSTEM-001": "sha256:9764dde189403c6ba5de04d234fd23968df959750487314f50ddcb812494409b",
       "INVESTIGATION-CLI-SYNC-LOCK-001": "sha256:0f9af317296f2aaa9d8106c8a0b280ee0efbe0884912d6108d8caf78e7461c1c",
-      "INVESTIGATION-CLI-USAGE-001": "sha256:9c21f97d508952f5606710f9c232c5668ca216efaa5d22ad8dd6c6ea86942d66",
+      "INVESTIGATION-CLI-USAGE-001": "sha256:e813548b07e35e9cae5c2626839db5244b6a345d1e94f612b441869c2d6e7d2f",
       "INVESTIGATION-CLI-WARNINGS-001": "sha256:25ffc901382ad4965bce5d194d17dfcb5afe3f03ac2f08a268ed76bbc1be20aa",
       "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:4935ae4676566a5a7b5bf1dbb17934a47358c9e391384de289c4c412f38decf4",
       "INVESTIGATION-COLLECTION-LOCK-DIAGNOSTICS-001": "sha256:fc4b666d43162a6d5c35641114a8a268483ebccb200832c8e8c6e2949a9c237f",
@@ -433,12 +437,14 @@
       "INVESTIGATION-INDEX-COMPATIBILITY-001": "sha256:5c9f62a566c77f14ebebf9a5e352d945e227f3e76ef29c6fb12bbd89659d0426",
       "INVESTIGATION-INDEX-INTEGRITY-001": "sha256:88451a29da3cb3ac414c275bcbe2ab792aa3e6ccfa11be2489e604268dd32964",
       "INVESTIGATION-INDEX-METADATA-001": "sha256:4de2f9fcbf12563eca4f92b70ab12f5cca8811ddb074e3b83ea1d059fadca509",
-      "INVESTIGATION-INDEX-QUERY-001": "sha256:7c42d8d1c518423ae6dcee37f84e1fb90afc335974655af0efa6f1c2fd3913e5",
+      "INVESTIGATION-INDEX-QUERY-001": "sha256:6126e17cdf4e0159c039f3313874768868621e6d620dff408392e7bd729dc702",
       "INVESTIGATION-INDEX-RELATION-FILTER-001": "sha256:98cbf2d1850f43152095e1ccb9f75e89455ea0f06a3d8633b5935585c857c6b2",
+      "INVESTIGATION-LIST-FACETS-001": "sha256:adaccd5671c2a98a538e08a3f42b1a61afa1434fe074573aca23edf2fae0f960",
+      "INVESTIGATION-LIST-OUTPUT-001": "sha256:422953bcc45f2b6d6fab153cb6fa577e24d1d2d6e7f87643533d3208d037b7be",
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:ee5a88e3f84ad67fde85820bc562369217fadfa856db5cc13fde526305329783",
       "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:f0dc75a983f0f8dd0d2c639db8ef53f73339208edd02fc92e4f69e2880d5da7a",
       "INVESTIGATION-QUERY-SOURCE-PATH-001": "sha256:5b6d9dea23ba1247bb59c08674b6242ce40808906ad402f897436ec0163dd043",
-      "INVESTIGATION-RELATION-FILTER-002": "sha256:9a1f4acf969c1935996e57aa2302333cd623cf7537b1f99237c0338cb8713442",
+      "INVESTIGATION-RELATION-FILTER-002": "sha256:cf7ec2716e50c0ef6bb3a3d5c9c2188ee19dbff832f19ec02944702e8ad43ea5",
       "INVESTIGATION-RELATION-GIT-HEAD-001": "sha256:06c11cb696acbbd80f491e9ec2f0a4d89f486821d271ad065b34db6b00a67c02",
       "INVESTIGATION-RELATION-GIT-HEAD-002": "sha256:b58361911704e64e11cd54d10e91ce21dbee1d5450fef0df3d5fd6fca3489750",
       "INVESTIGATION-RELATION-GRAPH-CYCLE-001": "sha256:2c0423b71e8ddec16d5e14b899a1d1a5f0cb9c75892e49f623e53a48bab0b46a",
@@ -2301,6 +2307,16 @@
         "test:b3b600178f54af4d4f842ec619e35f63c2dec529a7e5e071ed203736994bf794"
       ]
     },
+    "DECISION-LIST-ARGS-001": {
+      "title": "Decision CLI 校验近期分页与时间范围参数",
+      "sourcePath": "cases/decision-list-args-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:3124fd263950aceaeea83b09e0829dde65215ca53d3f9e34fd360945909ad993"
+      ]
+    },
     "DECISION-LIST-DEFAULT-001": {
       "title": "List 默认仅返回活动记录",
       "sourcePath": "cases/decision-list-default-001.md",
@@ -2321,6 +2337,16 @@
         "test:4354e72b703e31a914e65cf478a0967f628f5ebaf5c8ca03e82a95b1719e8c78"
       ]
     },
+    "DECISION-LIST-FACETS-001": {
+      "title": "Decision list facets 对完整 snapshot 确定聚合",
+      "sourcePath": "cases/decision-list-facets-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:dd365ce569f29e3e67d5b284b50765e2c84a77a592b3616edd96952ffffc0d12"
+      ]
+    },
     "DECISION-LIST-FILTERS-001": {
       "title": "决策列表按生命周期、标签与对齐状态筛选",
       "sourcePath": "cases/decision-list-filters-001.md",
@@ -2329,6 +2355,26 @@
       ],
       "testIds": [
         "test:abc6d8ad069f60de659370116d26f321a7aa5c1f71e434ca7a09f5062a698a1b"
+      ]
+    },
+    "DECISION-LIST-OUTPUT-001": {
+      "title": "Decision CLI 分层渲染紧凑与 detail 列表",
+      "sourcePath": "cases/decision-list-output-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:d7374b270b5c5ca0191db3dcafe7fdd47f6a9e237fca3b4196e0da8cd53e6180"
+      ]
+    },
+    "DECISION-LIST-PAGE-001": {
+      "title": "Decision list 返回全局 facets 与近期稳定窗口",
+      "sourcePath": "cases/decision-list-page-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:81bf18aef7b14e98fc6cb734bf74a16e1487c20933b066e4735cff2323fb5745"
       ]
     },
     "DECISION-LIST-TAG-AND-001": {
@@ -4795,13 +4841,13 @@
       ]
     },
     "INVESTIGATION-CLI-USAGE-001": {
-      "title": "CLI uses invalid-option exit status for malformed list input",
+      "title": "CLI 暴露有界 list 参数并拒绝畸形或重复输入",
       "sourcePath": "cases/investigation-cli-usage-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:8b1a4fbe28a527977ed9434324b27c6729303749622064387114dc6338bb1f4a"
+        "test:8465fa71b4f43318fbba3469f7a9ad1f3884416c71a809032537165c01cad536"
       ]
     },
     "INVESTIGATION-CLI-WARNINGS-001": {
@@ -5110,13 +5156,13 @@
       ]
     },
     "INVESTIGATION-INDEX-QUERY-001": {
-      "title": "list uses Investigation ID ordering and repeated tag filters use AND",
+      "title": "List 按近期时间与 ID tie-break 排序并组合 AND tags",
       "sourcePath": "cases/investigation-index-query-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:0facc169363282d37f2e2a74dd8027577cf43b6934d08d30c8399cdeee680bd3"
+        "test:dcb4f23f6e92ea055ce7b8d2b0ca897f63d83c39a4d222853d927a26e585316a"
       ]
     },
     "INVESTIGATION-INDEX-RELATION-FILTER-001": {
@@ -5127,6 +5173,26 @@
       ],
       "testIds": [
         "test:b632b9a9ab82c78355f9fd5fa75b352dac8c625c86d7fa7b0c37fb84156d6bfe"
+      ]
+    },
+    "INVESTIGATION-LIST-FACETS-001": {
+      "title": "Investigation list facets 对完整 snapshot 确定聚合",
+      "sourcePath": "cases/investigation-list-facets-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:d06e0893124ab85684eb2b89a6da0c77e4933ebc54855a483173efe2193fea59"
+      ]
+    },
+    "INVESTIGATION-LIST-OUTPUT-001": {
+      "title": "Investigation list 返回 facets 并分层渲染近期窗口",
+      "sourcePath": "cases/investigation-list-output-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:9c5802a66bc659ebcf985c6195ba4103400148f7f77da79464929b8e8efe328c"
       ]
     },
     "INVESTIGATION-PUBLIC-OPTIONS-001": {

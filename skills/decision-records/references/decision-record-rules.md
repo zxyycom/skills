@@ -133,23 +133,28 @@ relations:
 
 1. 索引从全部已建立 Markdown 完整生成，definition、metadata 与字段精确结构以 Schema 为准。metadata 是严格空对象，不保存分类注册表。
 2. entry 与 source revision 以 Decision ID 为键。state 保存由 ID 投影的 name、sourcePath、tags、status、alignment、createdAt、摘要和关系；source revision 覆盖规范 ID、sourcePath 与规范 Markdown 内容。
-3. 索引 keys 为 exact `name`、多值 exact `tag`、exact `status` 和 exact `alignment`；relation projection 保留存在的可选 summary，供 show、trace 和直接关系结构筛选读取，但不改变图或 key 语义。`list` 默认 active；重复 `--tag` 的 AND 过滤要求每个 tag 都匹配。当前查询不推断分类，也不提供 OR、NOT、层级、别名或权重。
-4. `show` 先把普通 selector 收敛为 ID，再由索引定位并只读取目标 Markdown 正文。`trace`、关系、生命周期和 stage 的普通输入也先解析为 ID；输出显示完整 ID、sourcePath 与 tags。
-5. `list` 与 `search <text>` 都可增加一个 `relatedTo` 普通 selector、可选 `direction` 与可选 `relationType` 的直接关系条件：
+3. 索引 keys 为 exact `name`、多值 exact `tag`、exact `status` 和 exact `alignment`；relation projection 保留存在的可选 summary，供 show、trace 和直接关系结构筛选读取，但不改变图或 key 语义。当前查询不推断分类，也不提供 OR、NOT、层级、别名或权重。
+4. `list` 只加载一次当前索引，并在筛选和分页前从同一完整 entries snapshot 查询时聚合全局 facets：记录总数、status、alignment、每记录只计一次的 tag、createdAt instant 的 UTC 月份，以及规范 UTC 最早/最晚边界。空集合固定使用零计数、空列表和 null 时间边界；facets 不写入 metadata，不改变 Schema、definition version 或 source revision。
+   - 默认 status 是 active；alignment 默认 all；重复 tags 使用 AND；`--created-from/--created-to` 是包含端点的 RFC 3339 instant 范围。结构条件在排序与分页前相交，合法空集合和 offset 越界都成功返回带全局 facets 与窗口上下文的空页。
+   - 匹配结果按 createdAt instant 倒序，再按 Decision ID 的 locale 无关词法升序稳定排序；默认 limit 10，最大 1000，offset 默认 0。
+   - 默认文本先显示完整低基数字段、按 count 倒序且 tag 升序 tie-break 的最多 30 个 tags，以及按月份倒序的最近 10 个 UTC 月份；省略部分只报告剩余 distinct 值数量。随后以单行显示窗口内完整 ID、时间、status/alignment、全部 tags 和 title，不截断所选字段。
+   - `--detail` 保持相同筛选、排序、limit 与 offset，展开完整 tag/月目录和原有多行 sourcePath、tags、title、purpose；它不恢复无界列表。完整权威 Markdown 仍由 `show` 读取。
+5. `show` 先把普通 selector 收敛为 ID，再由索引定位并只读取目标 Markdown 正文。`trace`、关系、生命周期和 stage 的普通输入也先解析为 ID；输出显示完整 ID、sourcePath 与 tags。
+6. `list` 与 `search <text>` 都可增加一个 `relatedTo` 普通 selector、可选 `direction` 与可选 `relationType` 的直接关系条件：
    - `relatedTo` 按本规则的普通 selector 收敛：先移除一次末尾 `.md`，再精确解析 calendar-valid 标准 ID；只有标准 ID 解析失败时才按唯一 name 查找。目标不受最终 status、alignment、tag 或文本条件限制。
    - 方向始终相对该目标解释：`predecessors` 返回目标自身 relations 的 target，`successors` 返回 relation target 等于目标的来源记录，`both` 合并两者并按 ID 去重。省略方向等于 `both`；未提供目标时提供方向是输入失败。
    - relation type 单独出现时匹配记录的任意直接边；与目标共同出现时，目标和类型必须由同一个 relation 对象满足。
    - 先把关系结果转为 ID 条件，再与 status、alignment 和重复 tags 的 AND 相交；该交集发生在排序、分页或文本匹配之前。合法空集合成功返回空结果。
-6. content search 的范围和 snapshot 固定如下：
+7. content search 的范围和 snapshot 固定如下：
    - 同一当前可信索引 snapshot 依次完成目标解析、关系和其他结构筛选、显式 `sourcePath` 列表与唯一 `sourcePath → ID` 映射；只在选中的权威 Markdown 中全文匹配。命中 `sourcePath` 只能由该 snapshot 反查完整 Decision ID，不得从 basename 推断身份。
    - `all` 要求规范化查询中的每个去重词至少命中一次，`any` 要求任一词；二者的词可分布在不同物理行。`phrase` 只匹配同一物理行中的连续短语。三种模式统一 NFKC、默认忽略大小写并按空白处理查询。
    - 索引缺失、损坏或不新鲜时，只有完整验证权威 Markdown 后才可从同一次只读内存投影完成目标解析、关系筛选、路径选择和 ID 反查并给出 warning；不得写入索引或混用陈旧持久索引。候选和索引 JSON 永不进入正式搜索范围。
    - 结果文件、每文件命中和预览字符受固定资源上限约束；截断必须 warning，不得将未显示的内容或无结果称为完整集合结论。
-7. metadata search 只读取持久索引，并在文本匹配前应用同一结构条件。关系结构命中不进入 `matchedFields` 或 `matchedRelations`；`matchedRelations` 仍只表示实际文本命中的非空来源 summary。
-8. candidates 与 show-candidate 直接扫描根目录源码，显示 `scaffoldValid` 与 `bodyReady`：单条非法 Markdown 产生 warning 并跳过，显式目标自身非法则失败；根目录、成员边界或已建立集合的索引前提错误属于集合级错误。合法 scaffold 与 body-ready candidate 都排除于正式索引。
-9. 索引缺失、损坏或陈旧时只能由权威 Markdown 重建，不能反向补造 Markdown 事实。常规查询读取结构有效的持久索引，不在每次查询前重扫整个集合。
-10. `new` 接收标准 ID 或 name：标准 ID 日期必须等于本次 UTC 形成日，name 自动加该日期。同日同名 ID 已存在时零写入失败，不追加随机码或序号。writer 在 candidate、active 与 archive 三个目标位置均确认 name basename 可用时优先使用 name，否则使用完整 ID basename。若会与同名 legacy ID 冲突，`new` 零写入返回 `migration-required`、legacy ID、建议 dated ID 和 rename/preflight 指引；它不隐式 rename。`new`、`sync-index` 与关系、生命周期和丢弃事务共用集合 mutation lock；其余事务边界不变。
-11. `sync-index [--select <name-or-id> ...] [--write]` 无 selector 时保留全量重建；selected scope 先严格读取持久索引 baseline，再完整建立和验证当前 candidate。selector 先移除一个末尾 `.md`、按 calendar-valid ID exact 或 baseline/current name 并集唯一解析为 ID；标准 ID 不存在不得退回 name。结果保留输入顺序的原始 `selectors`，并分别按规范顺序报告解析后的 `selectedIds` 与 `changedIds`。只有 metadata 与其 revision 不变，且全部 entry/revision 变化的 ID 都被选择时，`--write` 才原子发布完整 candidate；否则零写入并要求补充选择或运行 full sync。selected check 不写入且将允许的待发布变化报告为 stale。新增、删除和显式 ID rename 必须分别选择新 ID、旧 ID、或同时选择旧/新 ID。该同步不改变 Markdown、关系或 pending，也不能代替 `stage` 或领域 rename 事务。
+8. metadata search 只读取持久索引，并在文本匹配前应用同一结构条件。关系结构命中不进入 `matchedFields` 或 `matchedRelations`；`matchedRelations` 仍只表示实际文本命中的非空来源 summary。
+9. candidates 与 show-candidate 直接扫描根目录源码，显示 `scaffoldValid` 与 `bodyReady`：单条非法 Markdown 产生 warning 并跳过，显式目标自身非法则失败；根目录、成员边界或已建立集合的索引前提错误属于集合级错误。合法 scaffold 与 body-ready candidate 都排除于正式索引。
+10. 索引缺失、损坏或陈旧时只能由权威 Markdown 重建，不能反向补造 Markdown 事实。常规查询读取结构有效的持久索引，不在每次查询前重扫整个集合。
+11. `new` 接收标准 ID 或 name：标准 ID 日期必须等于本次 UTC 形成日，name 自动加该日期。同日同名 ID 已存在时零写入失败，不追加随机码或序号。writer 在 candidate、active 与 archive 三个目标位置均确认 name basename 可用时优先使用 name，否则使用完整 ID basename。若会与同名 legacy ID 冲突，`new` 零写入返回 `migration-required`、legacy ID、建议 dated ID 和 rename/preflight 指引；它不隐式 rename。`new`、`sync-index` 与关系、生命周期和丢弃事务共用集合 mutation lock；其余事务边界不变。
+12. `sync-index [--select <name-or-id> ...] [--write]` 无 selector 时保留全量重建；selected scope 先严格读取持久索引 baseline，再完整建立和验证当前 candidate。selector 先移除一个末尾 `.md`、按 calendar-valid ID exact 或 baseline/current name 并集唯一解析为 ID；标准 ID 不存在不得退回 name。结果保留输入顺序的原始 `selectors`，并分别按规范顺序报告解析后的 `selectedIds` 与 `changedIds`。只有 metadata 与其 revision 不变，且全部 entry/revision 变化的 ID 都被选择时，`--write` 才原子发布完整 candidate；否则零写入并要求补充选择或运行 full sync。selected check 不写入且将允许的待发布变化报告为 stale。新增、删除和显式 ID rename 必须分别选择新 ID、旧 ID、或同时选择旧/新 ID。该同步不改变 Markdown、关系或 pending，也不能代替 `stage` 或领域 rename 事务。
 
 ## CLI 诊断与 mutation 恢复
 

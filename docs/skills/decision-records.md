@@ -42,7 +42,7 @@ cleanup 待处理。范围未知或恢复不完整时先停止并对账；权限
 按已知信息选择入口，而不是先手工 grep：
 
 1. 已知稳定 ID 或可靠语义 name 时用 `show` 读取该条完整理由。
-2. 已知 lifecycle、alignment、tag、一个直接关系目标或关系类型时用 `list` 结构化浏览。`list` 与 `search` 可用 `--related-to <selector>` 按相对该目标的 `predecessors`、`successors` 或默认 `both` 筛选；可选 `--relation-type` 与目标共同使用时必须命中同一条边，单独使用时筛选任意该类型直接边。
+2. 已知 lifecycle、alignment、tag、createdAt 范围、一个直接关系目标或关系类型时用 `list` 结构化浏览。它从同一次完整索引 snapshot 给出全局筛选概览，默认按 createdAt 倒序显示最新 10 条紧凑结果；用 `--limit/--offset` 翻页，用 `--detail` 在同一窗口展开完整概览和多行摘要，完整正文仍交给 `show`。`list` 与 `search` 可用 `--related-to <selector>` 按相对该目标的 `predecessors`、`successors` 或默认 `both` 筛选；可选 `--relation-type` 与目标共同使用时必须命中同一条边，单独使用时筛选任意该类型直接边。
 3. 只知道主题、概念、理由或正文措辞时用 `search <text>`；它默认查 active 的已建立 Markdown，并先应用 lifecycle、alignment、tag 和关系结构条件，再返回完整 Decision ID、结构摘要、`sourcePath` 与带行号预览。
 4. 需要前序或后继关系时，把 `search` 或 `list` 得到的完整 ID 交给 `trace`；不要由文件名或路径推断身份。
 

@@ -113,6 +113,52 @@ test("decision search help exposes full-text modes and structural filters", asyn
   assert.match(help.stdout, /"content", "metadata"/);
 });
 
+test("decision list help and argument boundary expose bounded recent query controls", async () => {
+  const help = await runCli(["list", "--help"]);
+  assert.equal(help.exitCode, 0);
+  for (const option of [
+    "--created-from <timestamp>",
+    "--created-to <timestamp>",
+    "--limit <count>",
+    "--offset <count>",
+    "--detail"
+  ]) {
+    assert.ok(help.stdout.includes(option), option);
+  }
+  assert.match(help.stdout, /default: 10, maximum: 1000/u);
+
+  for (const args of [
+    ["list", "--limit", "0"],
+    ["list", "--limit", "1001"],
+    ["list", "--offset", "-1"],
+    ["list", "--created-from", "not-a-timestamp"],
+    [
+      "list",
+      "--created-from",
+      "2026-09-09T00:00:00Z",
+      "--created-to",
+      "2026-09-08T00:00:00Z"
+    ]
+  ]) {
+    const result = await runCli(args);
+    assert.equal(result.exitCode, 2, args.join(" "));
+    assert.equal(result.stdout, "", args.join(" "));
+  }
+
+  for (const option of [
+    "--created-from",
+    "--created-to",
+    "--limit",
+    "--offset"
+  ]) {
+    const value = option.startsWith("--created") ? "2026-09-08T00:00:00Z" : "1";
+    const result = await runCli(["list", option, value, option, value]);
+    assert.equal(result.exitCode, 2, option);
+    assert.equal(result.stdout, "", option);
+    assert.match(result.stderr, new RegExp(`${option} must not be repeated`));
+  }
+});
+
 test("new help fixes explicit scaffold inputs without accepting lifecycle alignment", async () => {
   const help = await runCli(["new", "--help"]);
   assert.equal(help.exitCode, 0);

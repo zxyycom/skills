@@ -2,6 +2,7 @@ await import("./metadata.test.ts");
 await import("./body-field-validation.test.ts");
 await import("./type-path-invariants.test.ts");
 await import("./layout-index.test.ts");
+await import("./list-facets.test.ts");
 await import("./queries.test.ts");
 await import("./first-establishment.test.ts");
 await import("./state-snapshot.test.ts");

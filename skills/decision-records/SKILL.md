@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "49"
+  version: "50"
 ---
 
 # Decision Records
@@ -31,7 +31,7 @@ metadata:
 1. 先读目标工作区指令和当前任务直接相关的事实来源。
 2. 按 `--root` 和可选 `--decisions-dir` 定位集合；集合整体不存在时视为尚未初始化，不从 Git 状态推断决策是否存在或生效。
 3. 审核尚未建立的记录时，先运行 `candidates`，再按需用 `show-candidate <decision-id>` 审核正文。
-4. 已知准确 Decision ID 或可靠 name 时用 `show <decision-id>`；已知 status、alignment、tag、直接关系目标或关系类型时用 `list` 做结构化浏览；需要完整关系图时用 `trace <decision-id>`。`list` 和 `search` 可用一个 `--related-to <selector>` 选择该记录的直接 `predecessors`、`successors` 或默认 `both`，可选 `--relation-type` 必须与目标命中同一条边；没有目标时，relation type 仍表示记录存在该类型的任意直接边。方向不能脱离目标使用。不要由 basename、`sourcePath` 或 `trace` 之外的引用猜身份。
+4. 已知准确 Decision ID 或可靠 name 时用 `show <decision-id>`；已知 status、alignment、tag、createdAt 范围、直接关系目标或关系类型时用 `list` 做结构化浏览；需要完整关系图时用 `trace <decision-id>`。`list` 从同一次完整索引 snapshot 聚合全局 `Index filters`，默认按 createdAt instant 倒序、ID 升序 tie-break 只返回最新 10 条紧凑定位行；用 `--limit/--offset` 翻页，用 `--detail` 在同一窗口内查看完整 facets 和原有多行摘要，完整正文仍用 `show`。`list` 和 `search` 可用一个 `--related-to <selector>` 选择该记录的直接 `predecessors`、`successors` 或默认 `both`，可选 `--relation-type` 必须与目标命中同一条边；没有目标时，relation type 仍表示记录存在该类型的任意直接边。方向不能脱离目标使用。不要由 basename、`sourcePath` 或 `trace` 之外的引用猜身份。
 5. 只知道主题、概念、理由或正文措辞而不知道 ID 时，用 `search <text>`，再以结果中的完整 ID 调用 `show` 或 `trace`。省略 `--in` 等于 `--in content`：它在 active 已建立记录的权威 Markdown 中搜索。`--in metadata` 只搜索已发布索引快照；两种范围都先应用 status、alignment、tag 和关系结构条件，并支持 `--match all|any|phrase`。三种模式统一 NFKC、忽略大小写并按空白处理；`all`、`any` 可分别由同一记录的多个 content 物理行或 metadata segment 满足，`phrase` 只能位于一个物理行或一个 metadata segment。
 6. content 的权威内容是被同一当前索引快照完成关系目标解析、结构筛选与身份反查后选中的 Markdown：候选和索引 JSON 不在范围内。索引缺失、损坏或不新鲜时，只有完整验证权威 Markdown 成功才可从本次临时投影完成同一流程并 warning，绝不混用陈旧持久索引或写索引；资源截断也会 warning，不能据未显示或无结果断言不存在。metadata 的权威内容是持久索引本身：它不读取实体、candidate 或 relation target，不检查来源新鲜度，也不回退。关系结构条件不会成为文本证据；它将 ID、name、title、purpose、background、decision、每个 tag 和本来源记录的每条非空 relation summary 分别匹配，`matchedFields` 只列实际命中的普通字段，`matchedRelations(type, target, summary)` 只列实际命中的来源 summary，不返回 preview。metadata 快照可能滞后未同步的来源编辑，不能据此陈述当前实体事实；索引读取失败时先运行 `check` 诊断，修正后再在获得维护授权时运行 `sync-index`。
 7. 摘要足够时停止扩大读取。只有任务需要历史时才查询 archived 记录或完整关系图。

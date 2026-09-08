@@ -131,7 +131,10 @@ rename 对 ID、name、sourcePath 和 owner 都不变的规范 identity 返回 `
 1. 每个正式 Investigation ID 产生一个索引 entry，entry 值直接是 state。state 投影由 ID 导出的 `name`、`sourcePath`、`title`、`formedAt`、`question`、`tags`、带可选 summary 的 `relations` 和按规范 ID 排序的 `resourceIds`；不保存正文、candidate、反向关系副本、当前结论或资源内容摘要。
 2. 查询字段由当前 definition 运行时物化而不持久化：exact `state.name`、exact `state.tags`、以 instant 归一化的 range `state.formedAt`，及 each relation 的 exact `state.relations/*/type`。metadata 是拒绝额外字段的严格空对象；完整正文不复制进派生索引。
 3. source revision 以正式 Investigation ID 为键，指纹化 ID、sourcePath 和完整正式报告 Markdown UTF-8 内容，计算前只把 CRLF 规范为 LF。正式报告成员、位置或可投影内容变化会更新对应 revision；candidate、资源成员和资源字节不参与 revision。
-4. `list` 默认查询全部正式报告，按 Investigation ID 的 locale 无关词法顺序排序；支持可重复 `--tag` 的 AND、包含端点的 formedAt 范围、一个精确关系类型，以及 `--related-to <selector>` 与可选 `--direction predecessors|successors|both`（默认 `both`）。目标按普通 selector 在本次完整索引 snapshot 中解析，不受其他筛选、排序或分页限制。每条边从 source 后继指向 target 前序：`predecessors` 返回目标自身边的 target，`successors` 返回边 target 为目标的 source，`both` 合并并去重。未提供目标时单独提供 direction 是参数错误；目标不存在或 name 歧义沿用 selector 的可行动错误。单独 relation type 保持“记录含有任一该类型直接边”；与目标同时提供时 type 和目标必须由同一条边满足。关系 ID 集合与其他结构条件一起在排序、offset、limit 与 total 前过滤；合法空集合返回空页。
+4. `list` 只加载一次当前索引，并在筛选与分页前从同一完整 entries snapshot 查询时聚合全局 facets：记录总数、每记录只计一次的 tag、formedAt instant 的 UTC 月份，以及规范 UTC 最早/最晚边界。空集合固定使用零计数、空列表和 null 时间边界；facets 不写入 metadata，不改变 Schema、definition version 或 source revision。
+   - list 支持可重复 `--tag` 的 AND、包含端点的 formedAt 范围、一个精确关系类型，以及 `--related-to <selector>` 与可选 `--direction predecessors|successors|both`（默认 `both`）。目标按普通 selector 在本次完整索引 snapshot 中解析，不受其他筛选、排序或分页限制。每条边从 source 后继指向 target 前序：`predecessors` 返回目标自身边的 target，`successors` 返回边 target 为目标的 source，`both` 合并并去重。未提供目标时单独提供 direction 是参数错误；目标不存在或 name 歧义沿用 selector 的可行动错误。单独 relation type 保持“记录含有任一该类型直接边”；与目标同时提供时 type 和目标必须由同一条边满足。
+   - 关系 ID 集合与其他结构条件一起在排序、offset、limit 与 total 前过滤；合法空集合和 offset 越界都返回带全局 facets 与窗口上下文的空页。匹配结果按 formedAt instant 倒序，再按 Investigation ID 的 locale 无关词法升序稳定排序；默认 limit 10，最大 1000，offset 默认 0。
+   - 默认文本显示按 count 倒序且 tag 升序 tie-break 的最多 30 个 tags、按月份倒序的最近 10 个 UTC 月份，并报告省略的 distinct 值数量；窗口内每条记录用不截断的 ID、formedAt、全部 tags 和 title 单行定位。`--detail` 保持相同筛选、排序与窗口，展开完整 tag/月目录和原有多行 title、question、tags；完整权威 Markdown 仍由 `show` 读取。
 
 ### `search`
 

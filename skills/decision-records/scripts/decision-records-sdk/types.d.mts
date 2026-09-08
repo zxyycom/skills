@@ -119,6 +119,33 @@ export type DecisionIndexEntry = {
     id: DecisionId;
     state: DecisionIndexState;
 };
+export type DecisionListTagFacet = Readonly<{
+    count: number;
+    tag: DecisionTag;
+}>;
+export type DecisionListMonthFacet = Readonly<{
+    count: number;
+    month: string;
+}>;
+export type DecisionListTimeFacets = Readonly<{
+    earliest: string | null;
+    latest: string | null;
+    months: readonly DecisionListMonthFacet[];
+}>;
+export type DecisionListFacets = Readonly<{
+    alignments: Readonly<{
+        aligned: number;
+        unaligned: number;
+        unknown: number;
+    }>;
+    createdAt: DecisionListTimeFacets;
+    recordCount: number;
+    statuses: Readonly<{
+        active: number;
+        archived: number;
+    }>;
+    tags: readonly DecisionListTagFacet[];
+}>;
 export type DecisionIndexMetadata = Record<string, never>;
 export type DecisionSourceRevision = {
     metadata: string;

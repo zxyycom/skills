@@ -60,7 +60,7 @@ function printDiagnostic(
 }
 
 export function printDecisionQuerySuccess(
-  result: DecisionQuerySuccess,
+  result: Exclude<DecisionQuerySuccess, { command: "list" }>,
   io: DecisionRecordsCliIo = processDecisionRecordsCliIo
 ): void {
   printQueryWarnings(result.warnings, io);
@@ -70,9 +70,6 @@ export function printDecisionQuerySuccess(
       return;
     case "check":
       printCheck(result.summary, io);
-      return;
-    case "list":
-      printList(result.records, result.fullTime, io);
       return;
     case "search":
       printSearch(result, io);
@@ -183,34 +180,187 @@ function printCheck(
   );
 }
 
-function printList(
-  records: Extract<DecisionQuerySuccess, { command: "list" }>["records"],
-  fullTime: boolean,
+type DecisionListSuccess = Extract<DecisionQuerySuccess, { command: "list" }>;
+
+export type DecisionListOutputOptions = Readonly<{
+  detail: boolean;
+  fullTime: boolean;
+}>;
+
+const decisionListTagPreviewLimit = 30;
+const decisionListMonthPreviewLimit = 10;
+
+export function printDecisionListSuccess(
+  result: DecisionListSuccess,
+  options: DecisionListOutputOptions,
   io: DecisionRecordsCliIo
 ): void {
-  writeLine(io.stdout, "Decisions:");
-  if (records.length === 0) {
+  printDecisionListFacets(result, options, io);
+  writeLine(io.stdout, "Applied filters: " + decisionAppliedFilters(result));
+  writeLine(io.stdout, "Latest matches:");
+  if (result.records.length === 0) {
     writeLine(io.stdout, "- none");
-    return;
+  } else if (options.detail) {
+    for (const record of result.records) {
+      const timestamp = displayedDecisionTimestamp(record.createdAt, options);
+      writeLine(
+        io.stdout,
+        `- ${record.status} ${record.alignment ?? "null"} ${timestamp} ${record.decisionId}`
+      );
+      writeLine(io.stdout, "  sourcePath: " + record.sourcePath);
+      writeLine(io.stdout, "  tags: " + record.tags.join(", "));
+      writeLine(io.stdout, "  title: " + record.projection.title);
+      writeLine(io.stdout, "  purpose: " + record.projection.purpose);
+    }
+  } else {
+    for (const record of result.records) {
+      const timestamp = displayedDecisionTimestamp(record.createdAt, options);
+      writeLine(
+        io.stdout,
+        `- ${record.decisionId} ${timestamp} ${record.status}/${record.alignment ?? "null"} [${record.tags.join(", ")}] ${record.projection.title}`
+      );
+    }
   }
-  for (const record of records) {
-    const timestamp = record.createdAt ?? "unknown";
-    writeLine(
-      io.stdout,
-      "- " +
-        record.status +
-        " " +
-        (record.alignment ?? "null") +
-        " " +
-        (fullTime ? timestamp : timestamp.slice(0, 10)) +
-        " " +
-        record.decisionId
+  printDecisionListWindow(result, io);
+}
+
+function printDecisionListFacets(
+  result: DecisionListSuccess,
+  options: DecisionListOutputOptions,
+  io: DecisionRecordsCliIo
+): void {
+  const { facets } = result;
+  writeLine(io.stdout, `Index filters (${facets.recordCount} records):`);
+  writeLine(
+    io.stdout,
+    `  status: active=${facets.statuses.active}, archived=${facets.statuses.archived}`
+  );
+  writeLine(
+    io.stdout,
+    "  alignment: " +
+      `aligned=${facets.alignments.aligned}, ` +
+      `unaligned=${facets.alignments.unaligned}, ` +
+      `unknown=${facets.alignments.unknown}`
+  );
+  writeLine(
+    io.stdout,
+    "  createdAt: " +
+      (facets.createdAt.earliest === null
+        ? "none"
+        : `${facets.createdAt.earliest} .. ${facets.createdAt.latest}`)
+  );
+  writeLine(
+    io.stdout,
+    "  tags: " +
+      facetPreview(
+        facets.tags,
+        options.detail ? facets.tags.length : decisionListTagPreviewLimit,
+        "tag"
+      )
+  );
+  writeLine(
+    io.stdout,
+    "  months (UTC): " +
+      monthPreview(
+        facets.createdAt.months,
+        options.detail
+          ? facets.createdAt.months.length
+          : decisionListMonthPreviewLimit
+      )
+  );
+}
+
+function facetPreview(
+  facets: DecisionListSuccess["facets"]["tags"],
+  limit: number,
+  noun: string
+): string {
+  const sorted = [...facets].sort(
+    (left, right) =>
+      right.count - left.count || compareText(left.tag, right.tag)
+  );
+  const displayed = sorted
+    .slice(0, limit)
+    .map((facet) => `${facet.tag}=${facet.count}`);
+  return previewValues(displayed, sorted.length - displayed.length, noun);
+}
+
+function monthPreview(
+  facets: DecisionListSuccess["facets"]["createdAt"]["months"],
+  limit: number
+): string {
+  const sorted = [...facets].sort((left, right) =>
+    compareText(right.month, left.month)
+  );
+  const displayed = sorted
+    .slice(0, limit)
+    .map((facet) => `${facet.month}=${facet.count}`);
+  return previewValues(displayed, sorted.length - displayed.length, "month");
+}
+
+function previewValues(
+  displayed: readonly string[],
+  omitted: number,
+  noun: string
+): string {
+  const values = displayed.length === 0 ? "none" : displayed.join(", ");
+  return omitted === 0 ? values : `${values}; +${omitted} more ${noun}s`;
+}
+
+function decisionAppliedFilters(result: DecisionListSuccess): string {
+  const filters = result.appliedFilters;
+  const values = [
+    `status=${filters.status}`,
+    `alignment=${filters.alignment}`,
+    `tags=${filters.tags.length === 0 ? "any" : filters.tags.join("+")}`,
+    `createdAt=${rangeText(filters.createdAtFrom, filters.createdAtTo)}`
+  ];
+  if (filters.relatedTo !== undefined) {
+    values.push(
+      `relatedTo=${filters.relatedTo}`,
+      `direction=${filters.direction ?? "both"}`
     );
-    writeLine(io.stdout, "  sourcePath: " + record.sourcePath);
-    writeLine(io.stdout, "  tags: " + record.tags.join(", "));
-    writeLine(io.stdout, "  title: " + record.projection.title);
-    writeLine(io.stdout, "  purpose: " + record.projection.purpose);
   }
+  if (filters.relationType !== undefined) {
+    values.push(`relationType=${filters.relationType}`);
+  }
+  return values.join("; ");
+}
+
+function rangeText(from: string | undefined, to: string | undefined): string {
+  return from === undefined && to === undefined
+    ? "any"
+    : `${from ?? "-∞"}..${to ?? "+∞"}`;
+}
+
+function displayedDecisionTimestamp(
+  timestamp: string,
+  options: DecisionListOutputOptions
+): string {
+  return options.fullTime ? timestamp : timestamp.slice(0, 10);
+}
+
+function printDecisionListWindow(
+  result: DecisionListSuccess,
+  io: DecisionRecordsCliIo
+): void {
+  const remaining = Math.max(
+    0,
+    result.total - result.offset - result.records.length
+  );
+  const next =
+    remaining === 0
+      ? ""
+      : `; next offset ${result.offset + result.records.length}`;
+  writeLine(
+    io.stdout,
+    `Showing ${result.records.length} of ${result.total} matches ` +
+      `(offset ${result.offset}, limit ${result.limit}); ${remaining} remaining${next}.`
+  );
+}
+
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function printSearch(

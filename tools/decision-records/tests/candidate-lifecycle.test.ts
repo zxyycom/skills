@@ -671,7 +671,7 @@ test("candidate queries discover source records while activation indexes only re
       ]);
       assert.equal(candidateList.exitCode, 0);
       assert.equal(candidateList.stderr, "");
-      assert.match(candidateList.stdout, /use-first-unindexed\.md/);
+      assert.match(candidateList.stdout, /- use-first-unindexed /);
       assert.doesNotMatch(candidateList.stdout, /use-second-unindexed\.md/);
 
       const candidateSync = await runSourceCli([

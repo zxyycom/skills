@@ -34,6 +34,7 @@ import {
   type InvestigationDiagnostic
 } from "./diagnostics.ts";
 import { investigationIdFromMarkdown } from "./markdown.ts";
+import { buildInvestigationListFacets } from "./list-facets.ts";
 import {
   parseInvestigationIndexQueryOptions,
   parseInvestigationSearchOptions,
@@ -57,6 +58,7 @@ import type {
   InvestigationIndexQueryOptions,
   InvestigationIndexQueryResult,
   InvestigationIndexState,
+  InvestigationListAppliedFilters,
   InvestigationReportShowOptions,
   InvestigationReportShowResult,
   InvestigationReportTraceOptions,
@@ -79,6 +81,7 @@ type PreparedQuery = Readonly<{
   validated: ValidatedQueryOptions;
 }>;
 type ValidatedQueryOptions = Readonly<{
+  appliedFilters: InvestigationListAppliedFilters;
   filters: StateIndexFilter[];
   limit: number;
   offset: number;
@@ -114,6 +117,8 @@ type InvestigationSnapshotEntry = Readonly<{
   id: string;
   state: InvestigationIndexState;
 }>;
+
+export const investigationListDefaultLimit = 10;
 
 export async function queryInvestigationIndex(
   options: InvestigationIndexQueryOptions
@@ -873,13 +878,16 @@ function queryLoadedInvestigationIndex(
     id,
     state
   }));
+  const facets = buildInvestigationListFacets(entries);
   const related = relatedInvestigationIds(entries, validated);
   if (related.isErr()) return err({ diagnostics: [], errors: related.error });
   if (related.value !== null && related.value.size === 0) {
     return ok({
+      appliedFilters: validated.appliedFilters,
       diagnostics: [],
       entries: [],
       errors: [],
+      facets,
       indexPath,
       limit: validated.limit,
       offset: validated.offset,
@@ -907,7 +915,10 @@ function queryLoadedInvestigationIndex(
           filters,
           limit: validated.limit,
           offset: validated.offset,
-          sort: [{ direction: "asc", key: "id" }]
+          sort: [
+            { direction: "desc", key: "formed-at" },
+            { direction: "asc", key: "id" }
+          ]
         }
       }),
     (error) =>
@@ -920,12 +931,14 @@ function queryLoadedInvestigationIndex(
     queried.status === "error"
       ? err(indexQueryDiagnostics(queried.diagnostics, indexPath))
       : ok({
+          appliedFilters: validated.appliedFilters,
           diagnostics: [],
           entries: queried.value.entries.map((entry) => ({
             id: entry.id,
             state: entry.state
           })),
           errors: [],
+          facets,
           indexPath,
           limit: queried.value.limit,
           offset: queried.value.offset,
@@ -1023,10 +1036,10 @@ function validateQueryOptions(
 ): Result<ValidatedQueryOptions, QueryOptionValidationFailure> {
   const errors: string[] = [];
   const filters: StateIndexFilter[] = [];
-  const limit = options.limit ?? stateIndexQueryDefaultLimit;
+  const limit = options.limit ?? investigationListDefaultLimit;
   const offset = options.offset ?? 0;
   validateQueryPagination(limit, offset, errors);
-  validateTagFilters(options.tags, filters, errors);
+  const tags = validateTagFilters(options.tags, filters, errors);
   if (options.direction !== undefined && options.relatedTo === undefined)
     errors.push("direction requires relatedTo");
   validateRelationTypeFilter(
@@ -1040,6 +1053,24 @@ function validateQueryOptions(
   return uniqueErrors.length > 0
     ? err({ errors: uniqueErrors, limit, offset })
     : ok({
+        appliedFilters: {
+          ...(options.relatedTo === undefined
+            ? {}
+            : {
+                direction: options.direction ?? "both",
+                relatedTo: options.relatedTo
+              }),
+          ...(options.formedAtFrom === undefined
+            ? {}
+            : { formedAtFrom: options.formedAtFrom.trim() }),
+          ...(options.formedAtTo === undefined
+            ? {}
+            : { formedAtTo: options.formedAtTo.trim() }),
+          ...(options.relationType === undefined
+            ? {}
+            : { relationType: options.relationType }),
+          tags
+        },
         filters,
         limit,
         offset,
@@ -1078,7 +1109,7 @@ function validateTagFilters(
   input: readonly string[] | undefined,
   filters: StateIndexFilter[],
   errors: string[]
-): void {
+): string[] {
   const tags = uniqueSorted((input ?? []).map((tag) => tag.trim()));
   const invalidTags = tags.filter((tag) => !isInvestigationTag(tag));
   for (const tag of invalidTags) {
@@ -1087,6 +1118,7 @@ function validateTagFilters(
   if (tags.length > 0 && invalidTags.length === 0) {
     filters.push({ key: "tag", kind: "exact", operator: "all", values: tags });
   }
+  return tags;
 }
 
 function validateRelationTypeFilter(
@@ -1171,9 +1203,11 @@ function queryFailure(
   return {
     kind,
     result: {
+      appliedFilters: null,
       entries: [],
       diagnostics: [...diagnostics],
       errors: uniqueSorted(errors),
+      facets: null,
       indexPath,
       limit,
       offset,
