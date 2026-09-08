@@ -55,7 +55,7 @@
 | 可分发工具源码 | `tools/<tool-name>/` | 随 skill 分发的源码、声明、测试、fixture 和局部组件契约；`tools/shared/` 承接跨工具运行时不变量，`tools/skill-package/` 承接发布端与 updater 共用的分发协议 |
 | 主仓库自动化与共享交付 | 主仓库根目录、`scripts/` 和 CI 配置 | 命令编排、生成适配、共享校验、打包、聚合发布、依赖入口、Git 和 CI 自动化；不承接随 skill 分发工具的运行时源码 |
 | 调查报告 | `docs/investigations/<investigation-id>.md`、`docs/investigations/investigation-index.json` | 根目录直属 Markdown 各承接一份可独立复核的报告；Investigation ID、tags、关系、资源与维护事务由 `skills/investigation-report/references/investigation-report-contract.md` 承接，JSON 是派生索引 |
-| 长期决策 | `docs/decisions/*.md`、`docs/decisions/archive/*.md`、`docs/decisions/decision-index.json` | Markdown basename 是稳定 Decision ID，frontmatter 的非空 tags 承接分类，status 决定根目录或 `archive/` 位置；Markdown 承接生命周期、对齐状态和完整语义。`skills/decision-records/SKILL.md` 是 agent 行为入口，`references/decision-record-rules.md` 承接决策语义与维护不变量，JSON Schema 承接索引精确结构，索引 JSON 是查询投影 |
+| 长期决策 | `docs/decisions/*.md`、`docs/decisions/archive/*.md`、`docs/decisions/decision-index.json` | frontmatter `id` 声明稳定 Decision ID，basename 与 `sourcePath` 表达位置；非空 tags 承接分类，status 决定根目录或 `archive/` 位置；Markdown 承接生命周期、对齐状态和完整语义。`skills/decision-records/SKILL.md` 是 agent 行为入口，`references/decision-record-rules.md` 承接决策语义与维护不变量，JSON Schema 承接索引精确结构，索引 JSON 是查询投影 |
 
 ## 维护规则
 
