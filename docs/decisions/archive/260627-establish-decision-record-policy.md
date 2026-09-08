@@ -2,7 +2,7 @@
 title: 建立决策记录策略
 id: 260627-establish-decision-record-policy
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-06-27T22:56:30+08:00
 purpose: 只沉淀值得长期回放的重要判断，并让索引与维护规则各有明确 owner。
 background: 决策记录需要帮助后续维护者回放重要设计原因, 但过多项目级记录会把真正重要的判断淹没。

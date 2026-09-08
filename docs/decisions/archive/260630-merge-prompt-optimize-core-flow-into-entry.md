@@ -2,7 +2,7 @@
 title: 将 prompt-optimize 核心流程合并回入口
 id: 260630-merge-prompt-optimize-core-flow-into-entry
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-06-30T17:17:43+08:00
 purpose: 让 prompt-optimize 触发后直接获得默认流程，减少重复读取和职责分散。
 background: "`workflows.md` 和 `rewrite-rules.md` 在实际使用中读取概率过高, 基本成为 `prompt-optimize` 的默认执行路径。"

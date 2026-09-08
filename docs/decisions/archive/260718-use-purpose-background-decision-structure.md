@@ -2,7 +2,7 @@
 title: 使用目的、背景和决策的三层投影
 id: 260718-use-purpose-background-decision-structure
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-18T20:24:02+08:00
 purpose: 让当前决策显式回答希望达成什么、为何需要选择以及最终选择什么，同时保持低成本检索和可靠回放。
 background: 只在摘要增加目的会让摘要承载正文未显式出现的语义；继续由背景隐含目的又要求未来维护者自行推断，而完整目的本身可能需要展开。

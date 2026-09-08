@@ -2,7 +2,7 @@
 title: 用 skill package lock 承接发布和自更新
 id: 260703-use-per-skill-hash-lock-for-updater
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-03T10:58:54+08:00
 purpose: 让聚合发布中的每个 skill 能按自身内容准确判断是否需要更新。
 background: 主仓库采用聚合 release，只要任一 skill 的打包输入变化，就会发布一次包含全部 skill zip 的 release。

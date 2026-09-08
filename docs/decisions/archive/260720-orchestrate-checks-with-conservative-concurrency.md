@@ -2,7 +2,7 @@
 title: 用保守顶层并发编排完整检查
 id: 260720-orchestrate-checks-with-conservative-concurrency
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T18:59:56+08:00
 purpose: 缩短完整检查的反馈时间，同时让不同开发机和 CI 的资源使用与打包前置条件保持可预期。
 background: 串行执行会浪费彼此独立的只读检查等待时间，而固定较高或无界的顶层并发会叠加各任务内部的 Git 与 Node 子进程负载。

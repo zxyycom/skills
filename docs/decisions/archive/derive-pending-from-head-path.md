@@ -2,7 +2,7 @@
 title: 从 HEAD 路径临时识别待提交决策
 id: derive-pending-from-head-path
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-22T06:03:46Z
 purpose: 让提交前反复收敛的决策保持可见，同时避免形成虚假的正式演进历史。
 background: 持久化草稿状态或查询历史基线都会为简单的提交前判断增加额外维护成本。

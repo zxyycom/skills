@@ -2,7 +2,7 @@
 title: 以独立证明单元登记 case 并从当前目录提供只读查询
 id: index-independent-proof-cases-from-current-catalog
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-25T04:02:05Z
 purpose: 让验证目录只保存值得长期找回的独立证明单元，并让只读查询始终基于当前合法目录而不要求先写索引。
 background: 将保留实现直接等同于登记 case 会扩大目录库存；只索引首条契约摘要又无法兑现按证明点查找，陈旧索引还会阻断只读审查。

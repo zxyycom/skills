@@ -2,7 +2,7 @@
 title: 在首次激活时自动初始化当前索引
 id: 260720-auto-initialize-index-on-first-activation
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T09:40:51+08:00
 purpose: 让首条已确认决策无需独立的空索引初始化步骤即可进入当前集合。
 background: "`activate` 已经明确表达目标记录和当前成员意图，但索引缺失时仍会失败；单独初始化空索引会增加一个没有独立语义的维护步骤。"

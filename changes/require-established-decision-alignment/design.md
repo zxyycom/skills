@@ -9,7 +9,7 @@
 查询回读为 null，list facets 汇总为 unknown；active 已要求非空。
 
 历史数据由 Change `recall-historical-decision-alignment` 处理。其长期交接为同名
-Investigation Report：通过 name 查询获得完整 ID，读取逐项依据与验收结果。若上游未完成，
+Investigation Report：通过 name 查询获得完整 ID，读取逐项依据与验收结果，并保留上游对本地线索推断的明确不确定性披露。非空字段不代表所有历史值均有原始验证证据。若上游未完成，
 执行者先推进该 Change；本 Change 的严格实现与版本切换串行置于数据验收之后。
 
 当前通用索引 schemaVersion 为 4、领域 definitionVersion 为 10、skill 版本为 51；实施时重新

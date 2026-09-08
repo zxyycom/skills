@@ -2,7 +2,7 @@
 title: 让决策查询带警告返回可用结果
 id: 260720-return-query-results-with-warnings
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T09:40:51+08:00
 purpose: 让局部记录或关系损坏不阻断其他长期判断的恢复，同时保留严格结构检查入口。
 background: "`list` 和 `trace` 与 `check` 共用全库严格校验门禁，任一无关记录、关系或派生字段漂移都会让全部只读查询失败。"

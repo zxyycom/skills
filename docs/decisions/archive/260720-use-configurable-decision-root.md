@@ -2,7 +2,7 @@
 title: 使用可配置的决策根目录
 id: 260720-use-configurable-decision-root
 status: archived
-alignment: null
+alignment: unaligned
 createdAt: 2026-07-20T10:34:37+08:00
 purpose: 让默认目录和 CLI 目录覆盖共享同一套稳定身份与存储契约。
 background: CLI 支持 `--decisions-dir`，但固定契约把 `docs/decisions` 写成唯一绝对位置，非默认目录的索引 owner、相对路径和初始化语义不明确。

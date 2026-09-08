@@ -2,7 +2,7 @@
 title: 使用显式可移植的决策记录形成长期记忆
 id: 260710-use-explicit-portable-decision-memory
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-11T10:26:44+08:00
 purpose: 建立公开、可审阅、可版本化且能跨项目复用的长期决策记忆。
 background: 用户希望把重要决定沉淀为长期记忆，但这种记忆需要能够被查看、审核和持续优化，不能隐藏在模型状态或工具内部。

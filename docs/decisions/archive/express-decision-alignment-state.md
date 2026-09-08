@@ -2,7 +2,7 @@
 title: 为决策表达对齐状态
 id: express-decision-alignment-state
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-22T07:10:38Z
 purpose: 区分必须完全遵守的当前基线与方向已确定但仍保留过渡空间的有效决策。
 background: 生命周期状态只能说明决策是否仍有效，不能说明当前事实和行为是否已经与其对齐。

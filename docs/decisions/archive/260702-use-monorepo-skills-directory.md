@@ -2,7 +2,7 @@
 title: 迁移为 skills 单仓库布局
 id: 260702-use-monorepo-skills-directory
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-03T10:58:54+08:00
 purpose: 简化个人维护的多 skill 仓库结构，并统一共享工具链和交付。
 background: 仓库原来通过 Git submodule 组织多个 skill 子仓库, 但当前项目是个人自用和个人维护, 没有外部使用者依赖子仓库的独立 release 入口。

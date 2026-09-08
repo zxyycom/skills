@@ -2,7 +2,7 @@
 title: 将 prompt-optimize 改写规则重组为管线
 id: 260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-06-30T15:02:20+08:00
 purpose: 让 prompt-optimize 改写规则拥有单一 owner 和稳定的执行顺序。
 background: "`prompt-optimize` skill 的规则内容持续膨胀, 入口和引用文件之间开始出现职责重复。"

@@ -2,7 +2,7 @@
 title: 分离测试入口采集与账本维护
 id: 260721-separate-test-entry-collection-from-ledger
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-21T02:59:31Z
 purpose: 让复杂项目能够替换入口收集方式，同时让账本维护只依赖稳定、可校验的数据契约。
 background: 账本 CLI 同时拥有文件选择、跨语言正则和账本校验，按语言屏蔽非代码上下文仍会漏掉有效入口，也让自定义发现规则必须进入账本实现。

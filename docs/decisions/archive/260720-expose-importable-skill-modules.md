@@ -2,7 +2,7 @@
 title: 让 skill 分发脚本同时提供可导入模块
 id: 260720-expose-importable-skill-modules
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T17:04:27+08:00
 purpose: 让已安装 skill 的自包含代码既能作为 CLI 运行，也能在现有 ESM 进程中直接导入复用。
 background: 现有单文件 JavaScript 主要按 Node 子进程入口交付，不同脚本的导入副作用、公共 exports 和 TypeScript 类型支持并不一致。

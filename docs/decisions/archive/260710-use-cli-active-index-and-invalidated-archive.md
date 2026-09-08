@@ -2,7 +2,7 @@
 title: 使用 CLI 维护活动索引并归档失效决策
 id: 260710-use-cli-active-index-and-invalidated-archive
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-11T10:26:44+08:00
 purpose: 用可预期的 CLI 维护当前决策可见性和索引一致性，同时保留历史。
 background: 只做结构校验不能帮助维护者在文件重命名或状态变化后同步索引，重复手工编辑容易产生旧路径和状态漂移。

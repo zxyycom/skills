@@ -2,7 +2,7 @@
 title: 在测试入口发现前屏蔽明显非代码上下文
 id: mask-non-code-test-syntax
 status: archived
-alignment: null
+alignment: unaligned
 createdAt: 2026-07-21T01:52:14Z
 purpose: 降低注释、字符串、模板和正则样本造成的测试入口误报，让 exempt 保留给真正需要持续审计的发现边界。
 background: 全文正则会把发现器源码、测试 fixture 和生成代码中的测试语法样本识别为入口，增加无意义 marker 与账本库存。

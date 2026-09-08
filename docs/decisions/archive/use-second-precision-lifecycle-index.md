@@ -2,7 +2,7 @@
 title: 使用秒级全生命周期索引
 id: use-second-precision-lifecycle-index
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T13:18:05Z
 purpose: 让语义路径和单一索引稳定恢复全部记录，并用秒级时间区分同日先后。
 background: 日期不应进入稳定身份；既有索引曾使用统一导入时刻，Git 历史能恢复更早的记录时间。

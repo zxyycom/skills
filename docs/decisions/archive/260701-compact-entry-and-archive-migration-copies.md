@@ -2,7 +2,7 @@
 title: 压缩 prompt-optimize 入口并归档迁移副本
 id: 260701-compact-entry-and-archive-migration-copies
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-18T11:43:07+08:00
 purpose: 降低 prompt-optimize 的默认加载和判断成本，同时保留必要细节的可访问性。
 background: "`skills/prompt-optimize/SKILL.md` 在承接默认执行路径后, 同时保留了过多细则展开, 使用时需要关注的点过多。"

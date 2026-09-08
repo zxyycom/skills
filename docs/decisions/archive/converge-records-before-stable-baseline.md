@@ -2,7 +2,7 @@
 title: 在稳定基线前原地收敛决策记录
 id: converge-records-before-stable-baseline
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-21T07:33:17Z
 purpose: 避免同一未提交变更事务的方案收敛被误记为多次正式决策演进。
 background: 既有契约把任何语义变化都视为演进，没有区分已建立判断与当前事务中新建的记录。

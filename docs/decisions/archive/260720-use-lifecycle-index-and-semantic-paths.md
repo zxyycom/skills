@@ -2,7 +2,7 @@
 title: 采用全生命周期索引与语义路径
 id: 260720-use-lifecycle-index-and-semantic-paths
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T19:47:38+08:00
 purpose: 让决策按语义稳定定位，并从单一索引恢复全部记录的状态、时间、摘要和直接关系。
 background: 日期前缀混合了身份与时间，当前索引只保存活动成员，归档后不能直接恢复完整索引元数据。

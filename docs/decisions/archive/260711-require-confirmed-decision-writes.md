@@ -2,7 +2,7 @@
 title: 使用显式确认控制决策写入
 id: 260711-require-confirmed-decision-writes
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-11T14:55:56+08:00
 purpose: 只沉淀经确认且具有长期价值的判断，同时避免频繁打断日常工作。
 background: 如果 agent 对工作中的每个选择都询问是否记录，长期记忆判断会频繁打断原任务。

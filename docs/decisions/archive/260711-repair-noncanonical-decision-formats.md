@@ -2,7 +2,7 @@
 title: 将非标准决策材料修复为唯一契约
 id: 260711-repair-noncanonical-decision-formats
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-11T13:40:17+08:00
 purpose: 将已有决策材料收敛到唯一可维护契约，同时保留能够确认的历史语义。
 background: 如果 skill 为任意已有格式长期维护兼容分支或独立迁移模式, agent 需要同时理解多套目录、模板、状态和索引语义, 容易让同一项目继续产生并行记录。

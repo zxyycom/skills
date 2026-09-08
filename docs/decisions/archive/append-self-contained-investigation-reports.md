@@ -2,7 +2,7 @@
 title: 以完整独立报告演进调查主题
 id: append-self-contained-investigation-reports
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-21T09:00:15Z
 purpose: 让每次调查都具备正确背景并能独立汇报，同时保留同一问题的认识演进。
 background: 顶部概述加增量调查段会让后续结论依赖旧上下文，缺失当前背景时容易产生错误推断。

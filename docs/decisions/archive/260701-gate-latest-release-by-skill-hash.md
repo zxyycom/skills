@@ -2,7 +2,7 @@
 title: 使用 skill hash 门禁 latest release 发布
 id: 260701-gate-latest-release-by-skill-hash
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-18T11:43:07+08:00
 purpose: 只在可安装 skill 包内容变化时更新 latest release，避免产生虚假更新信号。
 background: 主仓库维护文档、脚本、CI 或子仓库 `skill/` 外文件变化时，旧 CI 也会覆盖 `skills-latest` release，但这些变化不一定改变可安装 skill 包。

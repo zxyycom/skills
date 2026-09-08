@@ -2,7 +2,7 @@
 title: 给决策记录增加状态和关系
 id: 260630-track-decision-status-and-relations
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-06-30T16:11:49+08:00
 purpose: 区分当前与历史判断，并保留决策演进的可追溯关系。
 background: 决策记录会随项目演进过期、被替代或被判定与后续规则冲突。

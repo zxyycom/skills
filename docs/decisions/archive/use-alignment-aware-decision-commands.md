@@ -2,7 +2,7 @@
 title: 使用对齐感知的决策命令
 id: use-alignment-aware-decision-commands
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-22T07:38:16Z
 purpose: 让查询和状态命令准确区分决策是否活动、当前实现是否已经与决策对齐，并保持状态变化显式可校验。
 background: 只维护 active 和 archived 会把尚未落实的有效决策与已经完全对齐的当前基线混为一类。

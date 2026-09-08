@@ -2,7 +2,7 @@
 title: 在长期行为变更前恢复决策并显式处理偏离
 id: 260713-recall-before-long-lived-changes
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-18T11:43:07+08:00
 purpose: 在长期行为改变前恢复既有方向，防止后续维护静默偏离。
 background: 只在用户显式要求回放或记录时读取决策，不能保证普通维护任务在改变长期行为前看见已有方向。

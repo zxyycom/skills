@@ -2,7 +2,7 @@
 title: 让问题重构保持自包含
 id: 260720-keep-problem-reframing-self-contained
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T14:55:55+08:00
 purpose: 让 agent 在局部优化掩盖真实目标时, 通过独立的问题重构流程形成可执行的问题框架。
 background: 当前解法容易反向定义问题, 使复杂度持续增加却没有改善真实结果, 而问题重构需要适用于多个领域并避免无边界扩张。

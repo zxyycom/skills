@@ -2,7 +2,7 @@
 title: 以形成时调查输入保存可比较的认识快照
 id: preserve-comparable-investigation-inputs
 status: archived
-alignment: null
+alignment: unaligned
 createdAt: 2026-07-21T11:20:39Z
 purpose: 让每份调查报告保存形成结果时的完整判断输入，并支持跨背景比较同一问题的认识。
 background: 现有完整报告保留当前背景，却未固定每轮目标，也未明确相同结果在不同背景下的比较价值。

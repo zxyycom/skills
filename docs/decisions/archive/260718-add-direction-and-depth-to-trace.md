@@ -2,7 +2,7 @@
 title: 为 trace 增加定向和限深查询
 id: 260718-add-direction-and-depth-to-trace
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-18T14:44:37+08:00
 purpose: 让使用者按回放需要低成本查询前序、后续或有限深度的关系链。
 background: "`trace` 只能把关系当作双向图返回完整连通分量，无法只看前序、只反查后续或限制追溯深度；现有实现已经具备边集合和遍历逻辑。"

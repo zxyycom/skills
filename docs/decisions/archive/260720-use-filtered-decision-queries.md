@@ -2,7 +2,7 @@
 title: 使用筛选式决策查询
 id: 260720-use-filtered-decision-queries
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T19:47:38+08:00
 purpose: 让日常恢复只查看活动决策，同时按需读取完整索引元数据、正文和关系历史。
 background: 把归档和全部记录与默认 list 并列会诱导先查完整历史，现有 list 也没有完整展示索引投影。

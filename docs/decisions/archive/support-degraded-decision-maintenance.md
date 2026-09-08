@@ -2,7 +2,7 @@
 title: 支持故障时的降级决策维护
 id: support-degraded-decision-maintenance
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-21T01:04:44Z
 purpose: 让 CLI 或运行时损坏时仍能恢复工具或继续完成可追踪的决策维护。
 background: 既有手册只能描述命令效果，缺少替代运行时、重新取得工具和手工维护路径。

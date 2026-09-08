@@ -2,7 +2,7 @@
 title: 定义决策对齐状态与未对齐语义
 id: define-decision-alignment-semantics
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-22T07:37:13Z
 purpose: 让已经生效但尚未落实的决策保持约束力，并准确表达当前实现与目标状态之间的差距。
 background: 生命周期只能说明决策是否仍有效，不能说明当前实现是否已经推进到决策要求的状态。

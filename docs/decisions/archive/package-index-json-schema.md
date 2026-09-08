@@ -2,7 +2,7 @@
 title: 随包分发索引 JSON Schema
 id: package-index-json-schema
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-21T01:29:45Z
 purpose: 让工具损坏时可以直接取得机器可读的索引结构并恢复必要操作。
 background: 固定契约足以解释格式，但临时工具仍需要重新提取字段、枚举和基础约束。

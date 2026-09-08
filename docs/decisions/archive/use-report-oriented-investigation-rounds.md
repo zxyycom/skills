@@ -2,7 +2,7 @@
 title: 以可接续调查段形成调查报告
 id: use-report-oriented-investigation-rounds
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-21T07:30:35Z
 purpose: 让 agent 稳定产出可快速汇报、降低上手门槛并支持接续探索的调查报告。
 background: 主动建议范围过宽，事后成文也无法保留多轮调查各自形成认识时的背景和时间。

@@ -2,7 +2,7 @@
 title: 区分编辑性修正与决策演进
 id: 260720-separate-editorial-edits-from-evolution
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T09:40:51+08:00
 purpose: 在允许维护决策记录表述的同时，防止原地改写长期判断而丢失演进历史。
 background: 固定契约同时允许修改记录并要求长期修订创建后续记录，但没有明确哪些变化可以原地完成。

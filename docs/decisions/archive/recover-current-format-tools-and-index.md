@@ -2,7 +2,7 @@
 title: 只恢复当前格式工具与派生索引
 id: recover-current-format-tools-and-index
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-22T08:42:44Z
 purpose: 让工具、索引或写入故障恢复到当前自包含 Markdown 与当前派生索引的单一可校验状态。
 background: Markdown 已拥有全部权威状态，继续维护旧 schema 映射或独立索引状态会重新引入并行事实源和兼容路径。

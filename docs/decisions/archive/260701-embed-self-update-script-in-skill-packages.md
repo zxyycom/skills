@@ -2,7 +2,7 @@
 title: 在 skill 包内分发自更新脚本
 id: 260701-embed-self-update-script-in-skill-packages
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-03T10:31:47+08:00
 purpose: 让已安装 skill 能自行检查版本并通过统一实现完成安全更新。
 background: 仅依赖外部安装器时，已有 skill 目录的覆盖更新、内容一致性检查和多客户端目录适配都缺少稳定 owner。

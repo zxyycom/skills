@@ -2,7 +2,7 @@
 title: 仅用字段表达决策对齐关系
 id: express-alignment-as-field-relation
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-22T09:43:47Z
 purpose: 让对齐状态准确表达当前事实与有效决策的关系，而不建立第二份决策内容或事实副本。
 background: 为未对齐状态保存专门差距结构会重复决策约束和当前 owner 事实，并随实现变化产生漂移。

@@ -2,7 +2,7 @@
 title: 用 Git hook 更新 package hash
 id: 260701-update-package-hash-with-git-hooks
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-03T10:58:54+08:00
 purpose: 让发布 hash 与提交内容同步，同时避免 CI 写回产生额外提交。
 background: GitHub Actions 在 release 成功后写回 `skill-package.hash` 会产生额外 bot 提交，干扰本地同步、提交历史阅读和 submodule 指针维护。

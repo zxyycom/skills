@@ -2,7 +2,7 @@
 title: 允许逐条激活预写决策候选
 id: allow-sequential-activation-of-prewritten-candidates
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-23T01:52:08Z
 purpose: 允许一次准备多条已确认决策并逐条激活，同时保持遗漏候选能够被明确发现。
 background: 单条 activate 的完整集合校验会让其他预写候选阻断目标激活，迫使维护者交替写入和激活文件。

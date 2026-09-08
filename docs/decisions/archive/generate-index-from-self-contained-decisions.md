@@ -2,7 +2,7 @@
 title: 从自包含决策文件生成完整索引
 id: generate-index-from-self-contained-decisions
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-22T07:37:46Z
 purpose: 让每条决策自包含全部权威状态，并使集中索引成为可以随时无损重建的查询投影。
 background: 由集中索引独占生命周期和创建时间会形成第二真相源，索引损坏后无法仅凭决策文件恢复完整集合。

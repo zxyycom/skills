@@ -2,7 +2,7 @@
 title: 区分问题重构与工程落地
 id: 260720-separate-framing-from-engineering-landing
 status: archived
-alignment: null
+alignment: unaligned
 createdAt: 2026-07-20T15:59:38+08:00
 purpose: 让 `product-architecture-thinking` 从已确认目标推导正确的工程责任与实现层级, 而不把当前技术问题当作既定边界, 并与问题框架取舍保持清楚分工。
 background: 产品与架构思维既不能重复决定目标是否值得追求, 也不能因要求工程问题预先成立而失去重定局部任务和技术抽象的核心作用。

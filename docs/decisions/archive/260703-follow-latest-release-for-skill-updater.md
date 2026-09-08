@@ -2,7 +2,7 @@
 title: 自更新脚本跟随 latest release 制品
 id: 260703-follow-latest-release-for-skill-updater
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-03T10:31:47+08:00
 purpose: 让 skill 自更新使用正式发布制品，而不是开发分支快照。
 background: 自更新脚本原来默认从主仓库 `main` 分支下载源码 zip 并截取 `skills/<skill-name>/` 目录。

@@ -2,7 +2,7 @@
 title: 让 skill-maintainer 承接环境自适应的 skill 生命周期
 id: 260719-own-project-aware-skill-lifecycle
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T08:35:03+08:00
 purpose: 让可复用的 agent 能力由新 skill、既有 skill 或其他 owner 清楚承接，并让选定的 skill 在简约或完整的维护环境中都能交付。
 background: Skill 可能位于成熟仓库、独立目录或安装位置；把项目级 owner、校验器和发布工具链作为默认前提会限制其可移植性。

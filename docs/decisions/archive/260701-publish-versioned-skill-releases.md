@@ -2,7 +2,7 @@
 title: 使用版本化 release 发布 skill 制品
 id: 260701-publish-versioned-skill-releases
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-18T11:43:07+08:00
 purpose: 让每次实际发布都具有可识别的时间和内容版本。
 background: 固定 `*-latest` release 被更新后，GitHub 页面仍显示 release 最初的 `published_at`，容易让使用者误以为包没有更新。

@@ -2,7 +2,7 @@
 title: 按任务出口验收决策记录工作
 id: 260720-complete-by-task-outcome
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T10:34:37+08:00
 purpose: 让查询、候选、维护和迁移按各自结果验收，并安全使用带 warning 返回的降级查询。
 background: 非阻断查询已经能够返回可恢复结果，但统一要求严格检查通过会扩大查询范围，而仅报告 warning 又不足以约束对缺失记录和关系的推断。

@@ -2,7 +2,7 @@
 title: 按当前任务出口验收决策记录工作
 id: complete-current-decision-work-by-task-outcome
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-22T08:41:48Z
 purpose: 让恢复或审阅、候选和维护分别按实际结果验收，并安全使用带 warning 返回的查询结果。
 background: 只读查询可能在局部材料有误时返回可恢复结果，统一要求严格检查会扩大任务范围，而维护写入仍需要完整一致性门禁。

@@ -2,7 +2,7 @@
 title: 使用按需维护恢复手册
 id: use-error-recovery-reference
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T13:18:28Z
 purpose: 让旧项目冷启动、索引损坏或运行时故障能够按固定顺序恢复到可校验状态。
 background: 恢复步骤若混入日常 skill 入口会增加上下文；完全缺少说明又会让错误现场依赖临时猜测。

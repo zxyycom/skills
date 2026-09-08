@@ -2,7 +2,7 @@
 title: 使用短日期命名并允许短决策结构
 id: 260630-use-compact-decision-records
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-18T11:43:07+08:00
 purpose: 缩短决策文件名，同时允许简单判断保持精简、可读。
 background: 决策文件名前缀使用完整日期时目录较长, 用户希望改成 `260627` 这类短日期。

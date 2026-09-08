@@ -2,7 +2,7 @@
 title: 将账本扩展为验证义务并统一源码角色
 id: 260719-model-verification-obligations-and-source-roles
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-19T18:44:38+08:00
 purpose: 抑制低价值测试增长，同时让自动化证明、人工审查风险和测试发现豁免都能被持续追踪与审计。
 background: 只登记自动化证明无法承接当前架构下不适合机械测试的真实风险，自由文本源码豁免又会脱离账本；测试发现仍需要区分真实主入口、归属于主 case 的衍生源码和误报。

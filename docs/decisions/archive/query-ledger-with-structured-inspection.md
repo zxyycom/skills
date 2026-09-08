@@ -2,7 +2,7 @@
 title: 为测试账本提供可恢复查询与结构化诊断
 id: query-ledger-with-structured-inspection
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-21T01:51:47Z
 purpose: 让 agent 在严格校验之外直接恢复 case、入口映射和 review trigger，并稳定消费机器诊断。
 background: CLI 只有严格 check，成功结果只给汇总，普通错误仍是字符串，语义审查需要重复解析账本和源码。

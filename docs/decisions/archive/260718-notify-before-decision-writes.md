@@ -2,7 +2,7 @@
 title: 在决策写入前明确通知用户
 id: 260718-notify-before-decision-writes
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-18T14:44:37+08:00
 purpose: 在不增加重复授权成本的前提下，让用户感知长期决策集合的变化。
 background: 为每项决策维护操作重复询问授权会增加交互成本，但静默新增或调整长期决策又会让用户失去对长期记忆变化的感知。

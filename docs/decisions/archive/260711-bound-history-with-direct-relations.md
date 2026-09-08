@@ -2,7 +2,7 @@
 title: 用直接关系和归并决策限制历史读取
 id: 260711-bound-history-with-direct-relations
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-11T13:40:17+08:00
 purpose: 让当前判断能够直接回看前序，并限制日常回放无限展开历史。
 background: 旧记录只链接导致状态变化的新决定时, 从当前 `active` 记录不容易回看本次修订了什么。

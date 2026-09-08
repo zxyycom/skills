@@ -2,7 +2,7 @@
 title: 使用随包 reference 作为唯一固定契约
 id: 260711-use-bundled-contract-owner
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-18T11:43:07+08:00
 purpose: 为不同项目提供唯一随包固定契约，避免项目副本长期漂移。
 background: 随包 reference 与目标项目的 `decision-record-rules.md` 同时解释固定格式时，会形成两份需要同步的契约和二次导航。

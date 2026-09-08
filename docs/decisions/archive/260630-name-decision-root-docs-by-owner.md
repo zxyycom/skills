@@ -2,7 +2,7 @@
 title: 用 owner 命名决策记录根文档
 id: 260630-name-decision-root-docs-by-owner
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-06-30T16:44:06+08:00
 purpose: 让决策清单和维护规则的 owner 能从文件名直接识别。
 background: 通用的 `README.md` 与 `maintenance.md` 无法从文件名区分决策清单和维护规则的职责。

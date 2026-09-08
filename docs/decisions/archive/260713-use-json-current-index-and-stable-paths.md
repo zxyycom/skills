@@ -2,7 +2,7 @@
 title: 使用 JSON 当前索引和稳定决策路径
 id: 260713-use-json-current-index-and-stable-paths
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-18T11:43:07+08:00
 purpose: 让当前决策集合可机器维护、低成本检索，并为历史记录保留稳定身份。
 background: 当前索引既要明确成员，也要用经确认且与正文一致的精简背景和决策支持低成本判断；主题分类已经包含在路径中。

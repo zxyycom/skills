@@ -2,7 +2,7 @@
 title: 分离逻辑归档与决策关系
 id: 260718-separate-logical-archive-from-relations
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-18T14:11:24+08:00
 purpose: 准确区分普通退出与真实决策演进，并保持当前集合和关系链可验证。
 background: 强制每条逻辑归档记录都被后续记录引用，会把没有后续判断的普通退役误建模为决策演进；现有校验只要求任意入链，也不能证明 `archive --by` 指定的后续记录真实承接全部前序。

@@ -2,7 +2,7 @@
 title: 以产品与架构视角校准技术判断
 id: 260720-use-product-and-architecture-lenses
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T14:13:42+08:00
 purpose: 让 agent 在工程任务中先确认产品结果和架构责任, 再选择技术实现, 避免局部技术视角主导目标与方案。
 background: 这项能力原先被表达为代码审查流程, 使 review 的 finding、分类和报告机制遮蔽了可复用于分析、设计、实现、排障与重构的核心思维。

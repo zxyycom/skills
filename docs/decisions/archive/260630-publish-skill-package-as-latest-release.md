@@ -2,7 +2,7 @@
 title: 使用 latest release 自动发布 skill 制品
 id: 260630-publish-skill-package-as-latest-release
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-18T11:43:07+08:00
 purpose: 集中重复的 skill 校验与打包工具链，并提供统一的聚合发布入口。
 background: 多个 skill 子仓库有重复的校验、打包和发布脚本，继续分散维护会让同一套工具链在多个仓库漂移。

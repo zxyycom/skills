@@ -2,7 +2,7 @@
 title: 分离可分发工具源码与仓库自动化
 id: separate-distributable-tool-source-from-repository-automation
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-22T10:50:45Z
 purpose: 让可分发工具源码、主仓库自动化和 skill 分发内容拥有清晰、单向的 owner 边界。
 background: 项目脚本与可分发工具源码混在 `scripts/`，工具运行时还反向依赖仓库 helper 和 validator。

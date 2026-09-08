@@ -2,7 +2,7 @@
 title: 使用 Markdown 生命周期与原子演进建立决策
 id: establish-decisions-with-atomic-evolution
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-25T02:26:03Z
 purpose: 让候选、已建立成员和演进切换均由自包含 Markdown 与显式原子事务确定。
 background: Markdown 已经能够确定建立状态，但先归档前序再激活带关系候选会产生无法通过完整校验的中间状态。

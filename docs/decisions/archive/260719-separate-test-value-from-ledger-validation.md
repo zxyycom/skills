@@ -2,7 +2,7 @@
 title: 分离测试价值审查与账本机械校验
 id: 260719-separate-test-value-from-ledger-validation
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-19T17:05:10+08:00
 purpose: 抑制无意义、重复和实现耦合的测试增长，同时让测试证明目标与实现保持可审计映射。
 background: 只维护测试账本会增加同步成本，单靠测试执行又无法阻止 AI 以 TDD、防回归或覆盖率为由持续新增低价值测试；调用 skill 后再判断是否启用账本还会造成流程分叉和漏登记。

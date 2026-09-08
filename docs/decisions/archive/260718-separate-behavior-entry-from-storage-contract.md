@@ -2,7 +2,7 @@
 title: 分离行为入口与精确存储契约
 id: 260718-separate-behavior-entry-from-storage-contract
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-18T20:57:58+08:00
 purpose: 让日常决策恢复只加载必要语义，同时让精确维护继续遵循唯一、完整且可校验的固定契约。
 background: 目的、背景和决策已经足以理解当前判断；若在 skill 入口再次概括正文结构、关系和事务规则，会形成契约的压缩副本，而 CLI 又必须同时服务只读恢复和写入维护。

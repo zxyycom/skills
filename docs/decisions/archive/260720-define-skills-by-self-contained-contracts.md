@@ -2,7 +2,7 @@
 title: 让分发 skill 以自身契约定义边界
 id: 260720-define-skills-by-self-contained-contracts
 status: archived
-alignment: null
+alignment: unaligned
 createdAt: 2026-07-20T10:15:58+08:00
 purpose: 让每个分发后的 skill 在没有其他 skill 配合时也能被发现、理解和执行。
 background: 仓库维护时可以比较多个能力, 但安装环境中的 skill 组合并不固定; 用相邻能力的差异解释触发或边界会把其他 skill 变成隐含前提。

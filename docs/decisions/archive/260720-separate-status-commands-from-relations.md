@@ -2,7 +2,7 @@
 title: 分离生命周期命令与演进关系
 id: 260720-separate-status-commands-from-relations
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T19:47:38+08:00
 purpose: 让 CLI 状态变化与决策演进关系各自显式，避免归档命令产生隐藏激活副作用。
 background: "`archive --by` 会在归档前序时同时激活后续记录，但命令名称没有表达这一状态变化。"

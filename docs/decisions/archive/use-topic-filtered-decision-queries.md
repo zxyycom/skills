@@ -2,7 +2,7 @@
 title: 使用主题与状态筛选决策查询
 id: use-topic-filtered-decision-queries
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-20T13:17:47Z
 purpose: 让日常恢复默认聚焦活动决策，并按需组合主题、状态筛选和时间显示。
 background: 全量历史会给日常判断引入噪声；主题路径可以在结果较多时直接收窄范围。

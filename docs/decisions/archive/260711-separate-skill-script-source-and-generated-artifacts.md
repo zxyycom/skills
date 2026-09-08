@@ -2,7 +2,7 @@
 title: 分离 skill 分发脚本源码与生成产物
 id: 260711-separate-skill-script-source-and-generated-artifacts
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-11T11:04:33+08:00
 purpose: 兼顾分发脚本的独立可执行性与主仓库 TypeScript 源码的可维护性。
 background: 已安装 skill 需要可直接执行的 JavaScript，而在 skill 目录维护打包代码会失去 TypeScript 模块、类型检查和测试入口。
