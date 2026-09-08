@@ -26,6 +26,7 @@ import {
 import {
   decisionIndexDiagnostics,
   decisionIndexFileName,
+  decisionIndexRecovery,
   loadCurrentDecisionIndex,
   loadDecisionIndex,
   syncDecisionIndex
@@ -158,7 +159,7 @@ type QuerySuccessBase = {
 };
 
 export type IndexedDecisionRecord = {
-  alignment: DecisionAlignment | null;
+  alignment: DecisionAlignment;
   createdAt: string;
   decisionId: DecisionId;
   projection: DecisionProjection;
@@ -703,8 +704,10 @@ function metadataIndexFailure(
   result: { diagnostics: readonly StateIndexDiagnostic[] },
   indexRelativePath: string
 ): DecisionApplicationFailure {
-  const recovery =
-    "Run check to diagnose the Decision collection, then run sync-index after correcting the problem.";
+  const recovery = decisionIndexRecovery(
+    result.diagnostics,
+    "Run check to diagnose the Decision collection, then run sync-index after correcting the problem."
+  );
   return decisionFailure(
     decisionIndexDiagnostics(result.diagnostics, {
       code: "decision-records.metadata-index-unavailable",
@@ -783,11 +786,7 @@ async function loadDecisionSearchSnapshot(
   }
   const records: IndexedDecisionRecord[] = result.scan.records
     .flatMap((record): IndexedDecisionRecord[] => {
-      if (
-        !isEstablishedDecisionRecord(record) ||
-        (record.status !== "active" && record.status !== "archived") ||
-        record.createdAt === null
-      ) {
+      if (!isEstablishedDecisionRecord(record)) {
         return [];
       }
       return [
@@ -1184,7 +1183,9 @@ async function synchronizeLockedDecisionIndex(
     scanErrorPolicy: "source-only"
   });
   if (sourceValidation.errors.length > 0) {
-    return syncIndexNoChange(decisionFailure(sourceValidation.errors));
+    return syncIndexNoChange(
+      sourceFailure(sourceValidation.errors, "Decision source collection")
+    );
   }
   const selection = selectEstablishedDecisionIds(result.scan);
   if (selection.errors.length > 0) {
@@ -1410,7 +1411,7 @@ function indexedRecord(entry: IndexedDecisionState): IndexedDecisionRecord {
     relations: state.relations.map((relation) => ({ ...relation }))
   };
   return {
-    alignment: state.alignment ?? null,
+    alignment: state.alignment,
     createdAt: state.createdAt,
     decisionId: entry.id,
     projection,
@@ -1539,19 +1540,21 @@ function indexFailure(
   indexRelativePath: string,
   additionalReasons: readonly string[] = []
 ): DecisionApplicationFailure {
+  const recovery = decisionIndexRecovery(
+    result.diagnostics,
+    "Run sync-index after correcting the decision Markdown or index problem."
+  );
   return decisionFailure([
     ...decisionIndexDiagnostics(result.diagnostics, {
       code: "decision-records.index-query-failed",
-      recovery:
-        "Run sync-index after correcting the decision Markdown or index problem.",
+      recovery,
       target: indexRelativePath
     }),
     ...additionalReasons.map((reason) =>
       decisionDiagnosticFromReason(
         {
           code: "decision-records.index-query-failed",
-          recovery:
-            "Run sync-index after correcting the decision Markdown or index problem.",
+          recovery,
           target: indexRelativePath
         },
         reason
@@ -1570,7 +1573,7 @@ function sourceFailure(
         {
           code: "decision-records.source-scan-failed",
           recovery:
-            "Restore a readable, valid decision source collection, then retry the command.",
+            "Restore a readable, valid decision source collection. For a reported established alignment, restore the trusted historical alignment before running sync-index or another maintenance command.",
           target
         },
         reason

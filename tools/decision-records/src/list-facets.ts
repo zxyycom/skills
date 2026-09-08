@@ -11,7 +11,7 @@ import type {
 
 type DecisionFacetEntry = Readonly<{
   state: Readonly<{
-    alignment?: DecisionAlignment;
+    alignment: DecisionAlignment;
     createdAt: DecisionIndexState["createdAt"];
     status: EstablishedDecisionStatus;
     tags: readonly DecisionTag[];
@@ -21,7 +21,7 @@ type DecisionFacetEntry = Readonly<{
 export function buildDecisionListFacets(
   entries: readonly DecisionFacetEntry[]
 ): DecisionListFacets {
-  const alignments = { aligned: 0, unaligned: 0, unknown: 0 };
+  const alignments = { aligned: 0, unaligned: 0 };
   const statuses = { active: 0, archived: 0 };
   const tags = new Map<DecisionTag, number>();
   const months = new Map<string, number>();
@@ -30,8 +30,7 @@ export function buildDecisionListFacets(
 
   for (const { state } of entries) {
     statuses[state.status] += 1;
-    if (state.alignment === undefined) alignments.unknown += 1;
-    else alignments[state.alignment] += 1;
+    alignments[state.alignment] += 1;
     for (const tag of new Set(state.tags)) increment(tags, tag);
 
     const milliseconds = decisionTimestampMilliseconds(state.createdAt);

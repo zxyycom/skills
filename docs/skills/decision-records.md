@@ -14,10 +14,11 @@
 
 | 状态 | 含义 |
 | --- | --- |
-| `candidate` | 尚未建立的候选，先完成正文和审核。 |
-| `active + aligned` | 已确认且完整成为当前事实的基线。 |
-| `active + unaligned` | 已确认的未来方向，可约束方案选择；只有当前任务明确纳入交付时才实施。 |
-| `archived` | 退出当前依据，保留最后对齐状态和演进历史。 |
+| `candidate` | 尚未建立的候选；`alignment` 与 `createdAt` 为 `null`，留在正式索引外，先完成正文和审核。 |
+| `active` | 已建立且仍须在当前工作中恢复的判断。 |
+| `archived` | 已建立但退出当前依据的历史判断，保留最后对齐状态和演进历史。 |
+
+已建立记录的 alignment 必为 `aligned` 或 `unaligned`。对 active 而言，前者是已经核对的当前事实，后者是约束相关选择的已确认未来方向；后者仅在当前任务明确纳入交付时实施。archived 只保留最后一次核对时的状态，不能据此断言其方向今天仍适用。candidate 的 `null` 只表示尚未建立。完整字段与动作规则见[决策记录规则的生命周期与对齐](../../skills/decision-records/references/decision-record-rules.md#生命周期与对齐)。
 
 CLI readiness 只说明结构与正文准备情况。一般语义审查、记录选择和委托内取舍由 agent 自行完成；超出范围、缺少关键判断或明确要求人工确认时才询问，删除等高风险操作仍需精确授权。
 
@@ -28,6 +29,10 @@ CLI readiness 只说明结构与正文准备情况。一般语义审查、记录
 一个记录包含多个可独立演进的方向时，应拆分为自包含后继，而不是标记“部分对齐”。已对齐记录与当前事实偏离时，需要报告一致性问题；新的未来目标另行表达。
 
 生命周期、关系和身份维护通过领域 CLI 完成。归档保留历史；明确剔除记录时使用独立删除动作。工具需要额外确认或无法完整恢复时，应停在其报告的边界，按维护规则继续。
+
+## 维护已建立集合
+
+升级到要求非空 alignment 的 definition 前，先核对全部 active 与 archived Markdown 都有 `aligned` 或 `unaligned`，并保留 Git 中可恢复的基线。再用严格 `check` 区分合法来源、索引问题和非法 alignment。来源合法而 definition 过期时，按[索引恢复](../../skills/decision-records/references/maintenance-recovery.md#索引恢复)全量重建并复验。缺失或非法 alignment 时，停止集合维护，按[原位字段恢复](../../skills/decision-records/references/maintenance-recovery.md#已建立-alignment-无效)确认历史证据和针对性授权；不要把生命周期操作、旧索引或默认值当作恢复手段。
 
 ## 从哪里开始
 

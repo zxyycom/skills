@@ -64,6 +64,52 @@ test("decision Markdown parses canonical tags and round-trips its semantic field
   assert.equal(roundTripped.body, parsed.body);
 });
 
+test("decision Markdown requires explicit alignment for every established status", () => {
+  for (const [status, alignment] of [
+    ["active", "aligned"],
+    ["active", "unaligned"],
+    ["archived", "aligned"],
+    ["archived", "unaligned"]
+  ] as const) {
+    const errors: string[] = [];
+    const parsed = parseDecisionMarkdown({
+      errors,
+      markdown: candidateDecisionBody()
+        .replace("status: candidate", `status: ${status}`)
+        .replace("alignment: null", `alignment: ${alignment}`)
+        .replace("createdAt: null", "createdAt: 2026-09-08T10:20:30Z"),
+      relativePath:
+        status === "archived"
+          ? `archive/use-${status}-${alignment}.md`
+          : `use-${status}-${alignment}.md`
+    });
+    assert.ok(parsed);
+    assert.deepEqual(errors, []);
+  }
+
+  for (const [status, invalidAlignment] of [
+    ["active", "alignment: null"],
+    ["active", ""],
+    ["archived", "alignment: null"],
+    ["archived", ""]
+  ] as const) {
+    const errors: string[] = [];
+    const parsed = parseDecisionMarkdown({
+      errors,
+      markdown: candidateDecisionBody()
+        .replace("status: candidate", `status: ${status}`)
+        .replace("alignment: null", invalidAlignment)
+        .replace("createdAt: null", "createdAt: 2026-09-08T10:20:30Z"),
+      relativePath:
+        status === "archived"
+          ? `archive/use-${status}-invalid.md`
+          : `use-${status}-invalid.md`
+    });
+    assert.equal(parsed, null);
+    assert.match(errors.join("\n"), /alignment/);
+  }
+});
+
 test("decision Markdown rejects removed domain fields and unknown frontmatter", async () => {
   for (const line of [
     "domain: decision-records",

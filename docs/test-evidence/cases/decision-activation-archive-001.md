@@ -12,4 +12,4 @@ Contract:
 Proves:
 - 已对齐活动决策不能回退为 unaligned，拒绝后 Markdown 与索引不变。
 - 候选激活写入规范 createdAt，重复激活幂等；缺失或损坏索引可由后续生命周期命令重建。
-- 归档保留 aligned 与 createdAt，重新激活继续保留原 createdAt，源码与打包查询入口均不暴露旧 pending 或 Git HEAD 语义。
+- 归档保留 aligned 与 createdAt；归档后缺少 alignment 确认的 activate 零写入，提供确认后重新激活继续保留原 createdAt，源码与打包查询入口均不暴露旧 pending 或 Git HEAD 语义。

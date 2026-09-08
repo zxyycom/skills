@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "namespace": "decisions",
-  "definitionVersion": 10,
+  "definitionVersion": 11,
   "metadata": {},
   "sourceRevision": {
     "entries": {
@@ -88,6 +88,7 @@
       "260907-stage-case-index-definition-migration": "sha256:ed1a6e4a6ed4d8855f993807114a82358654e537540bdce82a3273aef7806daf",
       "260908-bound-record-list-output": "sha256:c642c0be872d8584579df5658f267073ab6c63b0940759953fa3ee4abc27bf5d",
       "260908-maintain-independent-investigation-rounds": "sha256:eab39227731e99049652e58c07032b334a555303b870e2c70e5f9fa9ab6061eb",
+      "260908-require-established-decision-alignment": "sha256:87f62b2419c4d41d88d47c237bd89f4b55298b73f1889af6be9b9593a6f24209",
       "activate-release-gate-checks-by-tag": "sha256:9a4fa7a38e4c87103e295df956469814bfdd926557340399f2c798d8bbf55c4f",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -1915,6 +1916,22 @@
           "summary": "保留固定核心，改以独立轮次判断分篇与演进"
         }
       ]
+    },
+    "260908-require-established-decision-alignment": {
+      "name": "require-established-decision-alignment",
+      "sourcePath": "require-established-decision-alignment.md",
+      "title": "要求已建立决策具有明确对齐状态",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-08T11:16:21Z",
+      "purpose": "让已建立决策的对齐状态成为可验证、可查询且可回放的明确事实。",
+      "background": "active 当前判断与 archived 历史判断都需要保留完整对齐语义；允许已建立来源为空会使索引和恢复产生歧义。",
+      "decision": "active 与 archived 必须保存 aligned 或 unaligned；candidate 保持 null 并留在正式索引外。",
+      "tags": [
+        "decision-records",
+        "index-runtime"
+      ],
+      "relations": []
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

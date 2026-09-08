@@ -41,6 +41,14 @@ test("decision show returns tagged Markdown by stable ID", () =>
       workspaceRoot
     ]);
     assert.match(shown, /tags:/);
+    assert.match(shown, /^alignment: aligned$/m);
+    const archived = await runSuccessfulSourceCli([
+      "show",
+      archivedDecisionId,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.match(archived, /^alignment: unaligned$/m);
   }));
 
 test("ordinary selectors use dated IDs first and name fallback without reading paths", () =>
@@ -176,6 +184,9 @@ test("decision trace follows stable ID relations", () =>
       workspaceRoot
     ]);
     assert.match(traced, new RegExp(archivedDecisionId));
+    assert.match(traced, /- active aligned use-generated-cli/);
+    assert.match(traced, /- archived unaligned 260710-use-source-cli/);
+    assert.doesNotMatch(traced, /unknown|null/);
   }));
 
 test("check detects tagged source drift and sync-index accepts it", () =>
@@ -628,6 +639,9 @@ test("decision list status all includes both lifecycles and full timestamps", ()
     ]);
     assert.match(listed, new RegExp(currentDecisionId));
     assert.match(listed, new RegExp(archivedDecisionId));
+    assert.match(listed, /active\/aligned/);
+    assert.match(listed, /archived\/unaligned/);
+    assert.doesNotMatch(listed, /unknown|null/);
     assert.match(listed, /2026-07-11T14:15:16\+08:00/);
     assert.match(listed, /2026-07-10T09:10:11\+08:00/);
   }));
@@ -667,6 +681,8 @@ test("decision list returns snapshot facets with recent stable pages and inclusi
     assert.equal(first.status, "ok");
     assert.equal(first.command, "list");
     assert.equal(first.total, 2);
+    assert.deepEqual(first.facets.alignments, { aligned: 2, unaligned: 1 });
+    assert.doesNotMatch(JSON.stringify(first), /unknown|null/);
     assert.deepEqual(
       first.records.map((record) => record.decisionId),
       ["alpha-tie"]
@@ -890,6 +906,8 @@ test("decision search defaults to active and permits archived selection", () =>
       archivedResults,
       /sourcePath: archive\/260710-use-source-cli\.md/
     );
+    assert.match(archivedResults, /- archived unaligned /);
+    assert.doesNotMatch(archivedResults, /unknown|null/);
   }));
 
 test("decision search falls back to a read-only validated source projection", () =>

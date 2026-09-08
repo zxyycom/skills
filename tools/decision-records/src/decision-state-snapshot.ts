@@ -26,7 +26,7 @@ export function decisionIndexState(
     sourcePath,
     title: document.title,
     status: document.status,
-    ...(document.alignment === null ? {} : { alignment: document.alignment }),
+    alignment: document.alignment,
     createdAt: document.createdAt,
     purpose: document.purpose,
     background: document.background,

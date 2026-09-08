@@ -47,34 +47,12 @@
     },
     "state": {
       "additionalProperties": false,
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "status": {
-                "const": "active"
-              }
-            },
-            "required": [
-              "status"
-            ]
-          },
-          "then": {
-            "properties": {
-              "alignment": {
-                "enum": [
-                  "aligned",
-                  "unaligned"
-                ]
-              }
-            },
-            "required": [
-              "alignment"
-            ]
-          }
-        }
-      ],
       "properties": {
+        "name": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "type": "string"
+        },
         "sourcePath": {
           "$ref": "#/$defs/decisionSourcePath"
         },
@@ -142,6 +120,7 @@
         "name",
         "title",
         "status",
+        "alignment",
         "createdAt",
         "purpose",
         "background",
@@ -163,7 +142,7 @@
       "const": "decisions"
     },
     "definitionVersion": {
-      "const": 10
+      "const": 11
     },
     "metadata": {
       "additionalProperties": false,

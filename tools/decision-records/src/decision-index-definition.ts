@@ -34,7 +34,7 @@ import {
 } from "./types.ts";
 
 export const decisionIndexNamespace = "decisions";
-export const decisionIndexDefinitionVersion = 10;
+export const decisionIndexDefinitionVersion = 11;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -62,7 +62,7 @@ const decisionIndexStateSchema = v.strictObject({
   sourcePath: sourcePathSchema,
   title: nonEmptyStringSchema,
   status: v.picklist(establishedDecisionStatuses),
-  alignment: v.optional(v.picklist(decisionAlignments)),
+  alignment: v.picklist(decisionAlignments),
   createdAt: nonEmptyStringSchema,
   purpose: nonEmptyStringSchema,
   background: nonEmptyStringSchema,
@@ -241,17 +241,11 @@ function validateDecisionIndexIdentity(
 function decisionMetadataFromIndexState(
   state: ParsedDecisionIndexState
 ): DecisionMetadata {
-  return state.status === "active"
-    ? {
-        status: "active",
-        alignment: activeAlignment(state.alignment),
-        createdAt: state.createdAt
-      }
-    : {
-        status: "archived",
-        alignment: state.alignment ?? null,
-        createdAt: state.createdAt
-      };
+  return {
+    status: state.status,
+    alignment: state.alignment,
+    createdAt: state.createdAt
+  };
 }
 
 function validateDecisionProjection(state: ParsedDecisionIndexState): void {
@@ -316,17 +310,6 @@ function normalizeIndexRelationSummary(value: string): { summary?: string } {
 function formatDecisionIndexIssue(issue: v.BaseIssue<unknown>): string {
   const issuePath = v.getDotPath(issue);
   return issuePath === null ? issue.message : `${issuePath} ${issue.message}`;
-}
-
-function activeAlignment(
-  alignment: DecisionIndexState["alignment"]
-): "aligned" | "unaligned" {
-  if (alignment === undefined) {
-    throw new TypeError(
-      "alignment must be aligned or unaligned when status is active"
-    );
-  }
-  return alignment;
 }
 
 function parseDecisionIndexMetadata(

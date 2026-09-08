@@ -6,12 +6,14 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { promisify } from "node:util";
+import { Ajv2020 } from "ajv/dist/2020.js";
 import { decisionIndexJsonSchema } from "../src/decision-index-json-schema.ts";
 import {
   generatedCliPath,
   generatedDeclarationDirectory,
   generatedDeclarationPath,
-  generatedSchemaPath
+  generatedSchemaPath,
+  fixtureRoot
 } from "./support.ts";
 
 const execFileAsync = promisify(execFile);
@@ -21,10 +23,17 @@ type SourceMapMetadata = {
   sources: string[];
 };
 
+type DecisionIndexFixture = {
+  entries: Record<string, Record<string, unknown>>;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 function isSourceMapMetadata(value: unknown): value is SourceMapMetadata {
   return (
-    typeof value === "object" &&
-    value !== null &&
+    isRecord(value) &&
     "sourceRoot" in value &&
     typeof value.sourceRoot === "string" &&
     "sources" in value &&
@@ -182,13 +191,62 @@ test("generated decision schema matches the runtime index schema", async () => {
   const distributedSchema: unknown = JSON.parse(
     await fs.readFile(generatedSchemaPath, "utf8")
   );
+  assert.ok(isRecord(distributedSchema));
   assert.deepEqual(distributedSchema, decisionIndexJsonSchema);
-  assert.equal(decisionIndexJsonSchema.properties.definitionVersion.const, 10);
+  assert.equal(decisionIndexJsonSchema.properties.definitionVersion.const, 11);
+  assert.ok(decisionIndexJsonSchema.$defs.state.required.includes("alignment"));
   assert.equal(decisionIndexJsonSchema.properties.schemaVersion.const, 4);
   assert.ok(
     decisionIndexJsonSchema.$defs.state.required.includes("sourcePath")
   );
   assert.ok(decisionIndexJsonSchema.$defs.state.required.includes("tags"));
+
+  const validateConsumer = new Ajv2020({
+    allErrors: true,
+    strict: false
+  }).compile<DecisionIndexFixture>(distributedSchema);
+  const validIndex: unknown = JSON.parse(
+    await fs.readFile(
+      path.join(fixtureRoot, "docs", "decisions", "decision-index.json"),
+      "utf8"
+    )
+  );
+  if (!validateConsumer(validIndex)) {
+    assert.fail(JSON.stringify(validateConsumer.errors));
+  }
+
+  for (const decisionId of ["use-generated-cli", "260710-use-source-cli"]) {
+    for (const invalidAlignment of ["missing", "null"] as const) {
+      const invalid: DecisionIndexFixture = structuredClone(validIndex);
+      if (invalidAlignment === "missing") {
+        delete invalid.entries[decisionId]!.alignment;
+      } else {
+        invalid.entries[decisionId]!.alignment = null;
+      }
+      assert.equal(
+        validateConsumer(invalid),
+        false,
+        `${decisionId}/${invalidAlignment}: ${JSON.stringify(
+          validateConsumer.errors
+        )}`
+      );
+    }
+  }
+
+  for (const invalidName of ["missing", "empty", "blank"] as const) {
+    const invalid: DecisionIndexFixture = structuredClone(validIndex);
+    if (invalidName === "missing") {
+      delete invalid.entries["use-generated-cli"]!.name;
+    } else {
+      invalid.entries["use-generated-cli"]!.name =
+        invalidName === "empty" ? "" : "   ";
+    }
+    assert.equal(
+      validateConsumer(invalid),
+      false,
+      `${invalidName}: ${JSON.stringify(validateConsumer.errors)}`
+    );
+  }
 });
 
 test("generated decision bundle and source map retain portable metadata", async () => {

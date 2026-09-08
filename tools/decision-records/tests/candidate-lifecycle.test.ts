@@ -149,7 +149,7 @@ test("discard rejects invalid candidate lifecycle or body without mutation", () 
         await fs.writeFile(invalidLifecyclePath, invalidLifecycleBody, "utf8");
         await assertRejectedDiscardPreserves({
           decisionPath: invalidLifecyclePath,
-          expectedError: /Discarded Decision ID is unavailable/,
+          expectedError: /candidate decision frontmatter/,
           indexPath,
           relativePath: invalidLifecycleRelativePath,
           workspaceRoot
@@ -166,12 +166,65 @@ test("discard rejects invalid candidate lifecycle or body without mutation", () 
       await fs.writeFile(invalidPath, invalidBody, "utf8");
       await assertRejectedDiscardPreserves({
         decisionPath: invalidPath,
-        expectedError: /Discarded Decision ID is unavailable/,
+        expectedError: /body must start with "## 目的"/,
         indexPath,
         relativePath: invalidRelativePath,
         workspaceRoot
       });
       assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+    }
+  ));
+
+test("discard preflights an invalid established source before touching a candidate", () =>
+  withGitFixtureWorkspace(
+    "candidate-discard-invalid-established-source",
+    async (workspaceRoot) => {
+      const candidateId = "use-invalid-established-discard-candidate";
+      const candidatePath = decisionFilePath(workspaceRoot, candidateId);
+      const indexPath = path.join(
+        workspaceRoot,
+        "docs",
+        "decisions",
+        "decision-index.json"
+      );
+      await writeDecision(
+        workspaceRoot,
+        candidateId,
+        candidateDecisionBody({ id: candidateId })
+      );
+      const archivedPath = decisionFilePath(workspaceRoot, archivedSourcePath);
+      await fs.writeFile(
+        archivedPath,
+        (await fs.readFile(archivedPath, "utf8")).replace(
+          "alignment: unaligned",
+          "alignment: null"
+        ),
+        "utf8"
+      );
+      const preservedMtime = new Date("2000-01-01T00:00:00.000Z");
+      await fs.utimes(candidatePath, preservedMtime, preservedMtime);
+      const candidateBefore = await fs.readFile(candidatePath, "utf8");
+      const candidateMtimeBefore = (
+        await fs.stat(candidatePath, { bigint: true })
+      ).mtimeNs;
+      const indexBefore = await fs.readFile(indexPath, "utf8");
+
+      const discarded = await runSourceCli([
+        "discard",
+        candidateId,
+        "--root",
+        workspaceRoot
+      ]);
+      assert.equal(discarded.exitCode, 1);
+      assert.equal(discarded.stdout, "");
+      assert.match(discarded.stderr, /alignment/i);
+      assert.match(discarded.stderr, /outcome: no-change/);
+      assert.equal(await fs.readFile(candidatePath, "utf8"), candidateBefore);
+      assert.equal(
+        (await fs.stat(candidatePath, { bigint: true })).mtimeNs,
+        candidateMtimeBefore
+      );
+      assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
     }
   ));
 

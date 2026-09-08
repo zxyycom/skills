@@ -205,7 +205,7 @@ export function printDecisionListSuccess(
       const timestamp = displayedDecisionTimestamp(record.createdAt, options);
       writeLine(
         io.stdout,
-        `- ${record.status} ${record.alignment ?? "null"} ${timestamp} ${record.decisionId}`
+        `- ${record.status} ${record.alignment} ${timestamp} ${record.decisionId}`
       );
       writeLine(io.stdout, "  sourcePath: " + record.sourcePath);
       writeLine(io.stdout, "  tags: " + record.tags.join(", "));
@@ -217,7 +217,7 @@ export function printDecisionListSuccess(
       const timestamp = displayedDecisionTimestamp(record.createdAt, options);
       writeLine(
         io.stdout,
-        `- ${record.decisionId} ${timestamp} ${record.status}/${record.alignment ?? "null"} [${record.tags.join(", ")}] ${record.projection.title}`
+        `- ${record.decisionId} ${timestamp} ${record.status}/${record.alignment} [${record.tags.join(", ")}] ${record.projection.title}`
       );
     }
   }
@@ -239,8 +239,7 @@ function printDecisionListFacets(
     io.stdout,
     "  alignment: " +
       `aligned=${facets.alignments.aligned}, ` +
-      `unaligned=${facets.alignments.unaligned}, ` +
-      `unknown=${facets.alignments.unknown}`
+      `unaligned=${facets.alignments.unaligned}`
   );
   writeLine(
     io.stdout,
@@ -378,7 +377,7 @@ function printSearch(
       "- " +
         record.status +
         " " +
-        (record.alignment ?? "null") +
+        record.alignment +
         " " +
         record.createdAt.slice(0, 10) +
         " " +
@@ -489,7 +488,7 @@ function printTrace(
         "- " +
           record.status +
           " " +
-          (record.alignment ?? "null") +
+          record.alignment +
           " " +
           record.decisionId +
           " [" +

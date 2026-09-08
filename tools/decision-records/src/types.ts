@@ -97,7 +97,7 @@ export type DecisionMetadata =
     }
   | {
       status: "archived";
-      alignment: DecisionAlignment | null;
+      alignment: DecisionAlignment;
       createdAt: string;
     };
 
@@ -133,9 +133,7 @@ export type DecisionRecordSource =
       kind: "missing";
     };
 
-export type DecisionIndexState = Omit<DecisionDocument, "alignment"> & {
-  /** Absent for archived records so the optional query field has no value. */
-  alignment?: DecisionAlignment;
+export type DecisionIndexState = DecisionDocument & {
   name: string;
   sourcePath: DecisionSourcePath;
 };
@@ -178,7 +176,6 @@ export type DecisionListFacets = Readonly<{
   alignments: Readonly<{
     aligned: number;
     unaligned: number;
-    unknown: number;
   }>;
   createdAt: DecisionListTimeFacets;
   recordCount: number;
@@ -199,7 +196,7 @@ export type DecisionSourceRevision = {
 export type DecisionIndex = {
   schemaVersion: 4;
   namespace: "decisions";
-  definitionVersion: 10;
+  definitionVersion: 11;
   metadata: DecisionIndexMetadata;
   sourceRevision: DecisionSourceRevision;
   entries: Record<DecisionId, DecisionIndexState>;
@@ -237,7 +234,13 @@ type DecisionRecordWithSource<Kind extends DecisionRecordSource["kind"]> = Omit<
 };
 
 export type DecisionCandidateRecord = DecisionRecordWithSource<"candidate">;
-export type EstablishedDecisionRecord = DecisionRecordWithSource<"established">;
+export type EstablishedDecisionRecord =
+  DecisionRecordWithSource<"established"> & {
+    alignment: DecisionAlignment;
+    createdAt: string;
+    document: DecisionDocument;
+    status: EstablishedDecisionStatus;
+  };
 
 export function isActivationCandidateRecord(
   record: DecisionRecord
@@ -265,6 +268,10 @@ export function isEstablishedDecisionRecord(
 ): record is EstablishedDecisionRecord {
   return (
     record.source.kind === "established" &&
+    record.alignment !== null &&
+    record.createdAt !== null &&
+    record.document !== null &&
+    (record.status === "active" || record.status === "archived") &&
     isDecisionId(record.decisionId) &&
     isDecisionSourcePath(record.sourcePath)
   );

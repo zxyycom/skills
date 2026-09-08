@@ -9,7 +9,7 @@ import type {
 
 type FacetEntry = Readonly<{
   state: Readonly<{
-    alignment?: DecisionAlignment;
+    alignment: DecisionAlignment;
     createdAt: string;
     status: EstablishedDecisionStatus;
     tags: readonly DecisionTag[];
@@ -18,7 +18,7 @@ type FacetEntry = Readonly<{
 
 test("decision list facets are deterministic across empty, UTC-boundary, and ten-thousand-entry snapshots", () => {
   assert.deepEqual(buildDecisionListFacets([]), {
-    alignments: { aligned: 0, unaligned: 0, unknown: 0 },
+    alignments: { aligned: 0, unaligned: 0 },
     createdAt: { earliest: null, latest: null, months: [] },
     recordCount: 0,
     statuses: { active: 0, archived: 0 },
@@ -39,13 +39,14 @@ test("decision list facets are deterministic across empty, UTC-boundary, and ten
       tags: [tag("shared")]
     }),
     entry({
+      alignment: "unaligned",
       createdAt: "2026-03-01T00:00:00+00:00",
       status: "archived",
       tags: [tag("omega")]
     })
   ];
   const expected = {
-    alignments: { aligned: 1, unaligned: 1, unknown: 1 },
+    alignments: { aligned: 1, unaligned: 2 },
     createdAt: {
       earliest: "2026-02-01T00:30:00.000Z",
       latest: "2026-03-01T00:00:00.000Z",

@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- trace 按稳定 ID 解析活动与归档记录的关系。
+- trace 按稳定 ID 解析 active 与 archived 记录的关系，并呈现每个已建立节点的明确 alignment。
 
 Proves:
-- 活动记录的 trace 输出归档关系目标。
+- 活动记录的 trace 输出归档关系目标、active/aligned 和 archived/unaligned 节点，且不输出 unknown 或 null。

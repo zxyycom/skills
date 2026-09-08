@@ -228,6 +228,19 @@ export function decisionIndexDiagnostics(
   });
 }
 
+/** An older definition must be rebuilt from current Markdown, never read as current. */
+export function decisionIndexRecovery(
+  diagnostics: readonly StateIndexDiagnostic[],
+  fallback: string
+): string {
+  return diagnostics.some(
+    (diagnostic) =>
+      diagnostic.code === "state-index.definition-version-mismatch"
+  )
+    ? "Run check to validate current Decision Markdown. If it is valid, run sync-index without --select to rebuild the derived index; if an established source lacks alignment, restore its trusted historical alignment before rebuilding."
+    : fallback;
+}
+
 function indexDiagnosticTarget(
   diagnostic: StateIndexDiagnostic,
   fallback: string

@@ -556,13 +556,19 @@ async function runDiscard(
   args: CliArgsFor<"discard">,
   io: DecisionRecordsCliIo
 ): Promise<number> {
-  const { result } = await loadDecisionValidationContext(
-    decisionScanOptions(args),
-    { checkIndexText: false }
+  const scan = await loadLifecycleScan(
+    args,
+    {
+      allowEmptyDecisionSet: true,
+      checkIndexText: false,
+      scanErrorPolicy: "source-only"
+    },
+    io
   );
+  if (scan === null) return 1;
   return await applyLifecycle(
     args,
-    result.scan,
+    scan,
     {
       action: "discard",
       decisionId: args.decisionId,
@@ -1054,7 +1060,7 @@ function lifecyclePreflightFailure(
           code: "decision-records.lifecycle-preflight-failed",
           outcome: "no-change",
           recovery:
-            "Correct the reported decision collection problem, then retry the command.",
+            "Correct the reported decision collection problem. For an established alignment, restore the trusted historical alignment, run sync-index, then retry the command.",
           scope: "Decision Markdown files and derived decision index",
           target: "Decision lifecycle preflight"
         },

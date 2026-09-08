@@ -347,18 +347,49 @@ test("evolve rejects established successor alignment mismatches without mutation
     }
   ));
 
-test("evolve rejects historical archived successors with null alignment", () =>
+test("evolve rejects archived sources without alignment before mutation", () =>
   withFixtureWorkspace("evolve-historical-successor", async (workspaceRoot) => {
-    const rejected = await runSourceLifecycleCli([
-      "evolve",
-      "--successor",
-      "aligned=" + archivedRelativePath,
-      "--clear-relations",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(rejected.exitCode, 1);
-    assert.match(rejected.stderr, /non-null alignment/);
+    const archivedPath = decisionFilePath(
+      workspaceRoot,
+      "archive/" + archivedRelativePath
+    );
+    const indexPath = path.join(
+      workspaceRoot,
+      "docs",
+      "decisions",
+      "decision-index.json"
+    );
+    const validSource = await fs.readFile(archivedPath, "utf8");
+    const indexBefore = await fs.readFile(indexPath, "utf8");
+
+    for (const invalidAlignment of ["alignment: null", ""] as const) {
+      const invalidSource = validSource.replace(
+        "alignment: unaligned",
+        invalidAlignment
+      );
+      await fs.writeFile(archivedPath, invalidSource, "utf8");
+      const rejected = await runSourceLifecycleCli([
+        "evolve",
+        "--successor",
+        "aligned=" + archivedRelativePath,
+        "--clear-relations",
+        "--root",
+        workspaceRoot
+      ]);
+      assert.equal(rejected.exitCode, 1);
+      assert.equal(rejected.stdout, "");
+      assert.match(
+        rejected.stderr,
+        /decision-records\.lifecycle-preflight-failed/
+      );
+      assert.match(rejected.stderr, /alignment/i);
+      assert.match(
+        rejected.stderr,
+        /restore the trusted historical alignment/i
+      );
+      assert.equal(await fs.readFile(archivedPath, "utf8"), invalidSource);
+      assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
+    }
   }));
 
 test("activate rejects relation replacement for established decisions", () =>

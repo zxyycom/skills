@@ -1,13 +1,14 @@
-### Case DECISION-EVOLVE-HISTORICAL-SUCCESSOR-001: Evolve 拒绝无可确认对齐状态的历史归档后继
+### Case DECISION-EVOLVE-HISTORICAL-SUCCESSOR-001: Evolve 在非法归档来源前零写入失败
 
 Tests:
-- `test:70bb3baea10334cd63c8524c175f6e63be03c4f2831f73442c52f7acd04920ce`
+- `test:9b8662d5206e93d2858a9cc44fc2723ff65de03da5bf04263242e4ca445691a1`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 历史 `archived + alignment: null` 记录没有可供 successor 参数确认的完整对齐状态，不进入普通关系修订路径。
+- 生命周期 mutation 必须在写入前拒绝 alignment 为 null 或缺失的 archived 来源，并给出可信历史恢复与同步路径。
 
 Proves:
-- 选择 alignment 为 null 的归档后继时，evolve 失败并报告必须具有非空 alignment。
+- 两种非法 archived 来源均使 evolve 失败、stdout 为空且报告 lifecycle preflight、alignment 与恢复步骤。
+- 失败后归档 Markdown 和持久索引字节均不变。

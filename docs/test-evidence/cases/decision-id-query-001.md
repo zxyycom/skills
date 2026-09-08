@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- show 通过稳定 ID 从持久索引定位记录，并返回其带 tags 的原始 Markdown。
+- show 通过稳定 ID 从持久索引定位 active 或 archived 记录，并返回其带 tags 与明确 alignment 的原始 Markdown。
 
 Proves:
-- show 输出包含 tags frontmatter。
+- show 分别输出 active/aligned 与 archived/unaligned 的 metadata 和 Markdown frontmatter。

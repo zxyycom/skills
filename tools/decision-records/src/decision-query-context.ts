@@ -11,6 +11,7 @@ import {
   createDecisionStateIndexDefinition,
   decisionIndexFileName,
   decisionIndexDiagnostics,
+  decisionIndexRecovery,
   loadDecisionIndex
 } from "./decision-state-index.ts";
 import { displayDecisionPath } from "./decision-path.ts";
@@ -53,8 +54,10 @@ export async function loadDecisionQueryContext(
     return decisionFailure(
       decisionIndexDiagnostics(currentIndex.diagnostics, {
         code: "decision-records.index-query-failed",
-        recovery:
-          "Run sync-index after correcting the decision Markdown or index problem.",
+        recovery: decisionIndexRecovery(
+          currentIndex.diagnostics,
+          "Run sync-index after correcting the decision Markdown or index problem."
+        ),
         target: indexRelativePath
       })
     );

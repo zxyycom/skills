@@ -110,6 +110,28 @@ test("activation and archive transitions preserve content and index atomicity", 
     assert.equal(archivedState.alignment, "aligned");
     assert.equal(archivedState.createdAt, createdAt);
 
+    const archivedSource = await fs.readFile(
+      path.join(decisionsDirectory, "archive", lifecycleRelativePath),
+      "utf8"
+    );
+    const archivedIndex = await fs.readFile(indexPath, "utf8");
+    const missingReactivationConfirmation = await runSourceCli([
+      "activate",
+      lifecycleRelativePath,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(missingReactivationConfirmation.exitCode, 2);
+    assert.equal(missingReactivationConfirmation.stdout, "");
+    assert.equal(
+      await fs.readFile(
+        path.join(decisionsDirectory, "archive", lifecycleRelativePath),
+        "utf8"
+      ),
+      archivedSource
+    );
+    assert.equal(await fs.readFile(indexPath, "utf8"), archivedIndex);
+
     const reactivated = await runSourceCli([
       "activate",
       lifecycleRelativePath,

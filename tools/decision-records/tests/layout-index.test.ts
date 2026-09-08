@@ -80,7 +80,7 @@ test("decision index is state-only and ID-keyed with empty metadata", () =>
     const index = await readIndex(workspaceRoot);
     assert.equal(index.schemaVersion, 4);
     assert.equal(index.namespace, "decisions");
-    assert.equal(index.definitionVersion, 10);
+    assert.equal(index.definitionVersion, 11);
     assert.deepEqual(index.metadata, {});
     assert.deepEqual(Object.keys(index.entries), [
       archivedDecisionId,

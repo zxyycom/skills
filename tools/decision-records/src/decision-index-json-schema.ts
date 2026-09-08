@@ -66,20 +66,8 @@ export const decisionIndexJsonSchema = {
     },
     state: {
       additionalProperties: false,
-      allOf: [
-        {
-          if: {
-            properties: { status: { const: "active" } },
-            required: ["status"]
-          },
-          // oxlint-disable-next-line unicorn/no-thenable -- JSON Schema's required "then" keyword holds a schema object, not a callable thenable.
-          then: {
-            properties: { alignment: { enum: decisionAlignments } },
-            required: ["alignment"]
-          }
-        }
-      ],
       properties: {
+        name: { minLength: 1, pattern: "\\S", type: "string" },
         sourcePath: { $ref: "#/$defs/decisionSourcePath" },
         title: projectionText,
         status: { enum: establishedDecisionStatuses, type: "string" },
@@ -108,6 +96,7 @@ export const decisionIndexJsonSchema = {
         "name",
         "title",
         "status",
+        "alignment",
         "createdAt",
         "purpose",
         "background",

@@ -7,8 +7,8 @@ Tags:
 - `decision-records`
 
 Contract:
-- Decision search 默认只搜索 active 决策，显式 status=archived 时搜索归档决策及其 archive sourcePath。
+- Decision search 默认只搜索 active 决策，显式 status=archived 时搜索归档决策及其 archive sourcePath 与明确 alignment。
 
 Proves:
 - 默认查询不返回匹配的归档 Decision ID。
-- archived 查询返回该 ID 和 archive 下的 sourcePath。
+- archived 查询返回该 ID、archive 下的 sourcePath、archived/unaligned，且不含 unknown 或 null。

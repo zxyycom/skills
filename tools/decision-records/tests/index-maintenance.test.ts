@@ -33,6 +33,27 @@ test("index maintenance detects drift and synchronizes canonical decision states
     );
     const currentDecision = await fs.readFile(currentDecisionPath, "utf8");
 
+    const legacyDefinition = JSON.parse(JSON.stringify(originalIndex)) as {
+      definitionVersion: number;
+    };
+    legacyDefinition.definitionVersion = 10;
+    await writeIndex(indexPath, legacyDefinition);
+    const legacyCheck = await runSourceCli(["check", "--root", workspaceRoot]);
+    assert.equal(legacyCheck.exitCode, 1);
+    assert.match(legacyCheck.stderr, /definitionVersion|definition version/i);
+    assert.match(legacyCheck.stderr, /sync-index/i);
+    const rebuiltLegacyDefinition = await runSourceCli([
+      "sync-index",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(
+      rebuiltLegacyDefinition.exitCode,
+      0,
+      rebuiltLegacyDefinition.stderr
+    );
+    assert.equal((await readIndex(indexPath)).definitionVersion, 11);
+
     const copiedContractPath = path.join(
       decisionsDirectory,
       "decision-record-rules.md"
@@ -139,16 +160,26 @@ test("index maintenance detects drift and synchronizes canonical decision states
       )
     );
 
-    const invalidAlignmentIndex = structuredClone(originalIndex);
-    delete findIndexEntry(invalidAlignmentIndex, currentRelativePath).alignment;
-    await writeIndex(indexPath, invalidAlignmentIndex);
-    assert.ok(
-      (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>
-        error.includes(
-          "alignment must be aligned or unaligned when status is active"
-        )
-      )
-    );
+    for (const decisionId of [currentRelativePath, archivedDecisionId]) {
+      for (const invalidAlignment of ["missing", "null"] as const) {
+        const invalidAlignmentIndex = structuredClone(originalIndex);
+        const entry = findIndexEntry(invalidAlignmentIndex, decisionId) as {
+          alignment?: unknown;
+        };
+        if (invalidAlignment === "missing") {
+          delete entry.alignment;
+        } else {
+          entry.alignment = null;
+        }
+        await writeIndex(indexPath, invalidAlignmentIndex);
+        assert.ok(
+          (await validateDecisionRecords({ workspaceRoot })).errors.some(
+            (error) => /alignment/i.test(error)
+          ),
+          `${decisionId}/${invalidAlignment}`
+        );
+      }
+    }
 
     const shortProjectionIndex = structuredClone(originalIndex);
     shortProjectionIndex.entries[firstEntryId]!.title = "短";
@@ -210,6 +241,32 @@ test("index maintenance detects drift and synchronizes canonical decision states
       (await validateDecisionRecords({ workspaceRoot })).errors,
       []
     );
+    await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
+    await fs.writeFile(indexPath, originalIndexText, "utf8");
+
+    const invalidEstablishedSource = currentDecision.replace(
+      "alignment: aligned",
+      "alignment: null"
+    );
+    await fs.writeFile(currentDecisionPath, invalidEstablishedSource, "utf8");
+    const indexBeforeInvalidSource = await fs.readFile(indexPath, "utf8");
+    for (const args of [["check"], ["sync-index"]] as const) {
+      const rejected = await runSourceCli([...args, "--root", workspaceRoot]);
+      assert.equal(rejected.exitCode, 1, `${args[0]}: ${rejected.stderr}`);
+      assert.equal(rejected.stdout, "", args[0]);
+      assert.match(rejected.stderr, /alignment/i, args[0]);
+      assert.match(rejected.stderr, /use-generated-cli\.md/, args[0]);
+      assert.equal(
+        await fs.readFile(currentDecisionPath, "utf8"),
+        invalidEstablishedSource,
+        args[0]
+      );
+      assert.equal(
+        await fs.readFile(indexPath, "utf8"),
+        indexBeforeInvalidSource,
+        args[0]
+      );
+    }
     await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
     await fs.writeFile(indexPath, originalIndexText, "utf8");
 

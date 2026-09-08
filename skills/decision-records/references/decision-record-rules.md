@@ -92,13 +92,15 @@ writer 在候选、active 与 archive 位置都可用时优先选 name basename�
 
 | 状态 | 已确认的事实 |
 | --- | --- |
-| `candidate`，alignment 与 createdAt 为 null | 尚未建立，留在正式索引外。 |
-| `active + unaligned` | 方向已确认，作为未来方向约束相关选择；实施范围由当前任务另行授权。 |
-| `active + aligned` | 完整方向已成为当前事实，并经过核对。 |
-| `archived + aligned/unaligned` | 退出当前依据，保留最后对齐状态和演进历史。 |
-| 历史 `archived + alignment: null` | 归档前的事实关系未知，按已有材料保留。 |
+| `candidate` | 尚未建立，`alignment` 与 `createdAt` 都为 `null`，留在正式索引外。 |
+| `active` | 已建立，仍是当前应恢复的判断。 |
+| `archived` | 已建立，退出当前依据，保留演进历史。 |
 
-`activate` 首次建立只接受 body-ready candidate，写入非空 alignment 与不可变 createdAt。重新激活 archived 记录保留原 createdAt 和关系，由本次参数确认当前 alignment。Git 提交与暂存只保存版本管理状态，建立事实由 Markdown 生命周期表达。
+所有已建立记录都必须有非空 alignment：`aligned` 表示完整方向已经成为当前事实并经核对；`unaligned` 表示已确认、会约束相关选择的未来方向，实施范围由当前任务另行授权。归档保留最后的非空值。alignment 不表示部分落地、任务优先级或实施授权。
+
+`activate` 首次建立只接受 body-ready candidate，写入非空 alignment 与不可变 createdAt。完整未来方向成为当前事实并核对后，用 `mark-aligned` 更新 alignment。重新激活 archived 记录保留原 createdAt 和关系，并由本次 CLI 参数显式确认 alignment。Git 提交与暂存只保存版本管理状态，建立事实由 Markdown 生命周期表达。
+
+已建立来源的 alignment 缺失、为 `null` 或不在枚举中均非法，不是归档的未知状态。唯一的非 CLI 例外是历史来源的原位字段修复：按[维护恢复](maintenance-recovery.md#已建立-alignment-无效)保留可信 Git 基线和能证明既有状态的历史材料，取得覆盖该字段的针对性授权后才修复；不得通过 activate、archive 或其他生命周期操作补造事件，也不得默认 `unaligned`。
 
 alignment 始终作用于整条决策：完整方向成为当前事实并核对后，才能由 unaligned 标记为 aligned。可分别修订、归档或对齐的部分应拆成自包含后继；不可独立演进的局部落地仍保持整条 unaligned。已对齐记录后来偏离当前事实时报告一致性问题，保留对齐历史；新的未来目标另建记录。
 
@@ -153,7 +155,7 @@ relations:
 
 ## 维护范围与确认
 
-写入须在当前请求或生效项目规则授权的维护范围内；一般语义审查和委托内取舍由 agent 自行完成，新增记录或改变状态前说明将改变的判断和集合。超出范围、缺少关键事实或明确要求用户决定时再询问。候选正文、tags 及已建立记录的编辑性修正可直接修改 Markdown；生命周期、关系、对齐、删除和身份更正通过 CLI 事务维护。各工作区 mutation 共用集合锁，写前核对来源与相关版本状态，保护其他改动。
+写入须在当前请求或生效项目规则授权的维护范围内；一般语义审查和委托内取舍由 agent 自行完成，新增记录或改变状态前说明将改变的判断和集合。超出范围、缺少关键事实或明确要求用户决定时再询问。候选正文、tags 及已建立记录不改变采用方向的编辑性修正可直接修改 Markdown；已建立记录的生命周期、alignment、关系、删除和身份更正通过 CLI 事务维护。历史来源的非法 alignment 只能按[维护恢复](maintenance-recovery.md#已建立-alignment-无效)取得字段修复授权后原位修复，不能假借生命周期事务。各工作区 mutation 共用集合锁，写前核对来源与相关版本状态，保护其他改动。
 
 ### 保留演进历史
 
@@ -178,7 +180,7 @@ Git 工作树的 unborn HEAD 按空基线处理；Git 工作树外没有此确�
 
 ## 派生索引与查询
 
-Markdown 是权威来源，索引保存已建立记录的定位、状态、摘要、tags 和直接关系。记录内容、身份或位置变化需要同步索引；候选通过独立来源入口读取。常规查询使用结构有效的持久索引，不逐次扫描整个集合。索引异常或陈旧时，以权威 Markdown 验证和重建，保留来源事实。
+Markdown 是权威来源，索引保存已建立记录的定位、状态、非空 alignment、摘要、tags 和直接关系。记录内容、身份或位置变化需要同步索引；candidate 通过独立来源入口读取。常规查询使用结构有效的持久索引，不逐次扫描整个集合。索引异常或陈旧时，以满足当前契约的权威 Markdown 验证和重建，保留来源事实。
 
 ### 查找与结果解释
 
@@ -199,7 +201,7 @@ Markdown 是权威来源，索引保存已建立记录的定位、状态、摘�
 
 ### 同步与待提交快照
 
-手工修改已建立 Markdown、怀疑索引陈旧或准备维护时先严格 `check`，确认合法变化后同步。`sync-index` 无 selector 时全量重建；selected 模式仍完整验证来源，按以下条件接纳：
+手工修改已建立 Markdown、怀疑索引陈旧或准备维护时先严格 `check`，确认合法变化后同步。领域 definition 升级后，只有全部已建立 Markdown 已满足当前契约时才以无 selector 的 `sync-index --write` 全量重建；不能信任旧 definition 的索引，也不能把该升级作为 selected 同步。`sync-index` 无 selector 时全量重建；selected 模式仍完整验证来源，按以下条件接纳：
 
 1. baseline 索引可信，集合 metadata 与其 revision 不变。
 2. selector 从 baseline 与待发布投影的 name 映射并集解析；标准 ID 仍只精确匹配。

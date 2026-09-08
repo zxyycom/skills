@@ -511,6 +511,11 @@ function validateLifecycleStatus(options: {
       "active decision frontmatter alignment must be aligned or unaligned"
     );
   }
+  if (status === "archived" && !isDecisionAlignment(alignment)) {
+    issues.push(
+      "archived decision frontmatter alignment must be aligned or unaligned"
+    );
+  }
   if (status === "active" && createdAt === null) {
     issues.push(
       "active decision frontmatter createdAt must not be null; use status: " +
@@ -565,7 +570,7 @@ function archivedSourceMetadata(
   alignment: unknown,
   createdAt: unknown
 ): DecisionSourceMetadata | null {
-  return (alignment === null || isDecisionAlignment(alignment)) &&
+  return isDecisionAlignment(alignment) &&
     typeof createdAt === "string" &&
     isDecisionTimestamp(createdAt)
     ? { alignment, createdAt, status: "archived" }

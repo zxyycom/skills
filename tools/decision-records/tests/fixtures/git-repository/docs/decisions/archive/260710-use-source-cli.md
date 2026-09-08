@@ -2,7 +2,7 @@
 title: 使用源码 CLI
 id: 260710-use-source-cli
 status: archived
-alignment: null
+alignment: unaligned
 createdAt: 2026-07-10T09:10:11+08:00
 purpose: 为 CLI 关系和生命周期测试保留可追溯的前序判断。
 background: 需要为直接关系校验提供一条可追溯的前序决定。

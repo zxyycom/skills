@@ -1,11 +1,11 @@
 {
   "schemaVersion": 4,
   "namespace": "decisions",
-  "definitionVersion": 10,
+  "definitionVersion": 11,
   "metadata": {},
   "sourceRevision": {
     "entries": {
-      "260710-use-source-cli": "sha256:88a1e7a47e56adb3f7402943d298277212b79e67794e194f36ee9981e7f6c088",
+      "260710-use-source-cli": "sha256:00072adc4b5b31c17933269a9c46be17370a745ea27f1f3924db9f6a557d3cb3",
       "use-generated-cli": "sha256:34fd83f44dea643dcdce873d17f55312f7c6ab2fe2800eb274e93e4136cf7258"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
@@ -16,6 +16,7 @@
       "sourcePath": "archive/260710-use-source-cli.md",
       "title": "使用源码 CLI",
       "status": "archived",
+      "alignment": "unaligned",
       "createdAt": "2026-07-10T09:10:11+08:00",
       "purpose": "为 CLI 关系和生命周期测试保留可追溯的前序判断。",
       "background": "需要为直接关系校验提供一条可追溯的前序决定。",

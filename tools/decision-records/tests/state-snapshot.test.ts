@@ -52,6 +52,44 @@ test("memory sources share deterministic ID-keyed index construction", async () 
   );
 });
 
+test("memory source snapshots require an explicit alignment for every established lifecycle", async () => {
+  for (const [status, sourcePath, alignment] of [
+    ["active", "use-active-aligned.md", "aligned"],
+    ["active", "use-active-unaligned.md", "unaligned"],
+    ["archived", "archive/use-archived-aligned.md", "aligned"],
+    ["archived", "archive/use-archived-unaligned.md", "unaligned"]
+  ] as const) {
+    const decisionId = sourcePath
+      .replace(/^archive\//u, "")
+      .replace(/\.md$/u, "");
+    const text = establishedMarkdown(decisionId)
+      .replace("status: active", `status: ${status}`)
+      .replace("alignment: aligned", `alignment: ${alignment}`);
+    const snapshot = await buildDecisionStateSnapshotFromSources([
+      { decisionId, sourcePath, text }
+    ]);
+    assert.equal(snapshot.states[decisionId]?.alignment, alignment);
+  }
+
+  for (const [status, sourcePath, invalidAlignment] of [
+    ["active", "use-active-invalid.md", "alignment: null"],
+    ["active", "use-active-missing.md", ""],
+    ["archived", "archive/use-archived-invalid.md", "alignment: null"],
+    ["archived", "archive/use-archived-missing.md", ""]
+  ] as const) {
+    const decisionId = sourcePath
+      .replace(/^archive\//u, "")
+      .replace(/\.md$/u, "");
+    const text = establishedMarkdown(decisionId)
+      .replace("status: active", `status: ${status}`)
+      .replace("alignment: aligned", invalidAlignment);
+    await assert.rejects(
+      buildDecisionStateSnapshotFromSources([{ decisionId, sourcePath, text }]),
+      /alignment/
+    );
+  }
+});
+
 test("source revisions fingerprint invalid Markdown and sourcePath without parsing it", () => {
   const original = decisionSourceRevision([
     {
@@ -134,7 +172,7 @@ test("memory source snapshots reject active relationship targets", async () => {
           sourcePath: archivedSourcePath,
           text: source.text
             .replace("status: archived", "status: active")
-            .replace("alignment: null", "alignment: aligned")
+            .replace("alignment: unaligned", "alignment: aligned")
         }
   );
   await assert.rejects(
@@ -150,9 +188,7 @@ test("memory source snapshots reject relationship cycles", async () => {
       ? {
           ...source,
           sourcePath: `archive/${currentDecisionId}.md`,
-          text: source.text
-            .replace("status: active", "status: archived")
-            .replace("alignment: aligned", "alignment: null")
+          text: source.text.replace("status: active", "status: archived")
         }
       : {
           ...source,
