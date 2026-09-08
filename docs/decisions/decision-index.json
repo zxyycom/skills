@@ -89,6 +89,7 @@
       "260908-bound-record-list-output": "sha256:c642c0be872d8584579df5658f267073ab6c63b0940759953fa3ee4abc27bf5d",
       "260908-maintain-independent-investigation-rounds": "sha256:eab39227731e99049652e58c07032b334a555303b870e2c70e5f9fa9ab6061eb",
       "260908-require-established-decision-alignment": "sha256:87f62b2419c4d41d88d47c237bd89f4b55298b73f1889af6be9b9593a6f24209",
+      "260908-separate-investigation-narrative-from-supporting-materials": "sha256:c3cc01ba4cb2a8cd26c96d78bbafbada621972e4ef60b7f8edcc78a9a1c14f44",
       "activate-release-gate-checks-by-tag": "sha256:9a4fa7a38e4c87103e295df956469814bfdd926557340399f2c798d8bbf55c4f",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -1930,6 +1931,21 @@
       "tags": [
         "decision-records",
         "index-runtime"
+      ],
+      "relations": []
+    },
+    "260908-separate-investigation-narrative-from-supporting-materials": {
+      "name": "separate-investigation-narrative-from-supporting-materials",
+      "sourcePath": "separate-investigation-narrative-from-supporting-materials.md",
+      "title": "分层表达调查认识与详细材料",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-08T13:37:14Z",
+      "purpose": "让调查报告保留关键认识，让随附资源按需说明详细依据与当时动作。",
+      "background": "关键认识需要独立可读，详细材料需要按用途保留；阅读、版本维护与复现各有不同成本和责任。",
+      "decision": "正文保留关键认识与边界，资源承接详细材料和历史动作；真实性审查与明确要求的重跑验证分别承担。",
+      "tags": [
+        "investigation-report"
       ],
       "relations": []
     },
