@@ -1,41 +1,40 @@
 # 决策记录规则
 
-本规则是 Decision Records 的写入、结构审阅和维护不变量 owner。写入候选、修改 tags、改变生命周期或关系、构造 `pending` 决策快照前必须完整读取。Agent 行为流程由 [SKILL.md](../SKILL.md) 承接；索引精确机器结构由 [decision-index.schema.json](decision-index.schema.json) 承接。
+本文件承接 Decision Records 的身份、正文、生命周期、关系与维护不变量。候选写入、已建立记录维护、身份更正、暂存或结构审阅前完整读取。是否值得记录及当前任务如何使用判断，见 [SKILL.md](../SKILL.md)；索引机器结构见 [Schema](decision-index.schema.json)，精确命令参数与输出查 `--help`，异常操作路径见[维护恢复](maintenance-recovery.md)。
 
-## 模型与权威
+## 记录身份与集合
 
-| 对象 | 含义 | 权威来源 |
-| --- | --- | --- |
-| Decision ID | 不含扩展名的稳定领域身份；新记录为 `YYMMDD-<name>`，目录或 basename 移动不自动改变它 | Markdown frontmatter `id` |
-| name | 标准 ID 的日期后缀；legacy ID 的完整值 | 由 frontmatter `id` 投影 |
-| tags | 非空、唯一、有序的记录级分类 token 集合 | Markdown frontmatter |
-| status | `candidate`、`active` 或 `archived` 的生命周期事实 | Markdown frontmatter |
-| sourcePath | 相对决策根的当前 POSIX 路径，只负责定位 | 文件系统；已建立记录由索引投影 |
-| relation target | 指向直接前序的 Decision ID | 后继 Markdown frontmatter |
-| decision index | 以 Decision ID 为键，投影已建立记录的 sourcePath、状态、tags、摘要和关系 | 从完整合法 Markdown 派生 |
+每份 Markdown 保存一条决策，在 frontmatter `id` 中声明稳定 Decision ID。身份、当前位置和分类分别维护：
 
-新建 Decision ID 必须为 calendar-valid `YYMMDD-<name>`，其中 `name` 与 ID 的 kebab-case grammar 相同；日期来自 candidate 创建时的 UTC 日且不可关闭。无日期的旧 ID 继续是可读、可迁移的 legacy identity，其 name 是完整旧 ID。tag 必须符合 `^[a-z0-9]+(?:-[a-z0-9]+)*$`。同一集合内 ID 与 `sourcePath` 分别唯一，且每份受管 Markdown 的 frontmatter `id` 必须与其关系、索引 key 和单项回读一致。索引和 `sourcePath` 不能反向补造或改写身份、生命周期、tags、正文或关系。
-
-## 布局、状态与 frontmatter
-
-决策根目录的稳定布局是：
+| 对象 | 定义 |
+| --- | --- |
+| Decision ID | 不含路径或扩展名的稳定身份。新记录使用有效日历日期组成的 `YYMMDD-<name>`，日期取候选创建时的 UTC 日。 |
+| name | 标准 ID 的日期后缀，使用 kebab-case；无日期 legacy ID 的 name 是完整旧 ID。由 ID 派生，无需另存 frontmatter。 |
+| sourcePath | 相对决策根的当前 POSIX 路径。basename 可为 ID 或语义文件名，移动文件不改变身份。 |
+| tags | 有正文依据的记录级分类；与生命周期、alignment 和关系分别表达。 |
+| 决策索引 | 从全部 active、archived Markdown 派生的统一查询投影，以完整 Decision ID 为键。 |
 
 ```text
 docs/decisions/
 ├── decision-index.json
-├── <name-or-decision-id>.md # candidate 或 active
+├── <name-or-decision-id>.md        # candidate 或 active
 └── archive/
-    └── <name-or-decision-id>.md # archived
+    └── <name-or-decision-id>.md    # archived
 ```
 
-这里的 basename 是由 writer 选择的 ID 或语义 name；name 不写入 frontmatter，但会由 ID 投影为索引 key，并可作为普通 selector。文件位置仍以完整 `sourcePath` 独占。
+同一集合内 ID 和 sourcePath 分别唯一，状态与目录位置一致；受管记录均为上述目录的直属 Markdown。生命周期移动保留 basename。关系、索引和单项回读使用 frontmatter ID，索引负责定位而不是反向定义记录事实。无日期旧 ID 继续可读，身份更正使用 `rename`。
 
-1. 根目录直属 Markdown 只能是 `candidate` 或 `active`；`archive/` 直属 Markdown 只能是 `archived`。状态和位置不一致、嵌套目录或跨位置同 ID 都是集合错误。
-2. candidate 不进入正式索引；active 与 archived 由一个统一索引覆盖。archive 不建立第二索引。
-3. `sourcePath` 是相对决策根的实际 Markdown 位置；根目录使用 `<name-or-decision-id>.md`，archive 使用 `archive/<name-or-decision-id>.md`。basename 可等于 ID 或使用语义文件名，但不定义身份。生命周期只改变目录位置并保留 basename；它不是关系或查询身份输入。
-4. `tags` 是当前分类提示，不表示 status、alignment、关系类型、当前事实或历史演进。分类维护不代替语义审阅。
+普通 selector 按以下顺序解析：
 
-新候选使用下列顺序；`tags` 位于 `decision` 之后、`relations` 之前：
+1. 移除一次大小写不敏感的末尾 `.md`。
+2. 若剩余文本是有效标准 ID，精确查找该 ID；未命中即失败。
+3. 否则按完整文本精确查 name：零项报告不存在，一项收敛为完整 ID，多项报告歧义供调用方选择。
+
+路径只用于明确的 path/locator 参数；关系和后续操作使用解析后的完整 ID。
+
+## 正文与候选准备
+
+候选按以下 frontmatter 顺序和三个固定二级章节起草：
 
 ```markdown
 ---
@@ -62,119 +61,166 @@ relations: []
 - 采用: <最终方向、核心理由和长期约束>
 ```
 
-1. tags 至少一个，按 locale 无关的字符串词法升序排列，且同一记录内不得重复。
-2. 标题和三项摘要是 4 至 100 个 Unicode 码点的单行文本；摘要不得引入正文没有表达的独立含义。
-3. 正文只使用依次排列的“目的”“背景”“决策”二级章节，不重复一级标题、摘要或关系。决策至少包含一个非空“采用”。
-4. 已建立记录只能直接进行不改变目的、范围、关键背景、采用方向或核心理由的编辑性修正。语义变化通过新记录和真实演进关系表达。
-5. candidate scaffold 必须具有合法身份、位置、frontmatter、tags、关系语法和依次排列的三个固定章节；三个章节内容可以暂为空。`bodyReady` 仅在三个章节均有非空内容且“决策”含非空“采用”时成立。CLI 不保存“已审核”或“可建立”状态，也不以机械正文条件替代语义审核与建立授权。
+- **标题与摘要**：title、purpose、background、decision 各为 4–100 个 Unicode 码点的单行文本，摘要忠实概括正文。
+- **分类**：tags 至少一个，每项符合 `^[a-z0-9]+(?:-[a-z0-9]+)*$`，唯一并按与 locale 无关的词法升序排列。
+- **正文**：只使用依次排列的“目的、背景、决策”二级章节，直接展开完整含义；省去重复 H1、摘要和关系副本。“决策”至少包含一个非空“采用”。
+- **编辑边界**：原地修正对既有判断的误述、补足其已有依据与边界。实际采用方向、适用范围或核心取舍变化时，按下节判断独立记录与演进；真实曾采用的判断不得伪装成文字错误覆盖。
+
+候选准备分成两项机械事实：`scaffoldValid` 要求身份、位置、frontmatter、tags、关系语法和章节形状合法，章节可以暂为空；`bodyReady` 还要求三节均有内容且包含非空“采用”。语义审核和建立授权由 agent 另行完成。
+
+`new` 从显式 metadata 原子、不覆盖地创建候选；输入 name 时自动加本次 UTC 日期，输入完整 ID 时日期须同日。同日同名冲突时零写入；与同名 legacy ID 冲突时，按 CLI 的 `migration-required` 提示显式处理身份。
+
+writer 在候选、active 与 archive 位置都可用时优先选 name basename，否则使用完整 ID。创建成功后继续编辑或检查 readiness，正文未完成或辅助预检不可用也不重跑 `new`。`candidates` 与 `show-candidate` 从来源读取候选：单条非法来源可 warning 后跳过，显式目标非法则失败；集合成员或索引前提错误仍阻断查询。
+
+## 记录边界与有效演进
+
+先区分原判断的准确记录与实际采用方向的变化，再决定是否新建记录、是否建立关系：
+
+1. **完善原记录**：候选讨论、同一判断的收敛，以及误述修正、既有理由补足和歧义消除，都回到原记录；已建立文本须忠实于实际采用的判断。
+2. **独立新记录**：新判断需要单独修订、归档或判断对齐时独立成篇。承接既有方向时，还须说明原判断曾约束哪些选择，以及保留它能解释新判断的什么变化；仅是未采用的中间版本时，继续完善原候选。
+3. **直接演进关系**：前后判断存在真实采用方向的承接、修订、替代等关系时才建立边。主题相近、时间先后、纠正次数和 Git 提交均不足以证明这种关系。
+
+| 对照场景 | 处理 |
+| --- | --- |
+| 候选经过多轮讨论，或已提交记录遗漏了原本采用的约束 | 完善原候选或原记录，保留真实采用方向。 |
+| 原方案已作为独立采用依据，后来因新的长期约束改变核心取舍 | 自包含新判断；确实承接原判断时建立相应演进边。 |
+| 新增另一项同主题但独立的判断 | 独立记录，关系可为空。 |
+
+已误建的记录或边在相应授权内直接纠正，不追加“纠错后继”。agent 根据内容与采用事实自行审查；Git 状态只用于版本与维护门禁，候选、active 和 archived 状态仍通过既有 CLI 维护。
 
 ## 生命周期与对齐
 
-| 状态 | 含义 |
+| 状态 | 已确认的事实 |
 | --- | --- |
-| `candidate + alignment: null + createdAt: null` | 结构合法 scaffold 或 body-ready candidate，尚未建立；不进入正式索引。 |
-| `active + aligned` | 已确认并进入当前集合，完整方向已成为当前事实并通过核对。 |
-| `active + unaligned` | 已确认并进入当前集合，作为未来方向约束相关选择；这是正常状态，不表示失败、待办或实施授权。 |
-| `archived + aligned/unaligned` | 不再作为当前依据，保留最后对齐状态与演进历史。 |
-| 历史 `archived + alignment: null` | 只表示归档前事实关系未知。 |
+| `candidate`，alignment 与 createdAt 为 null | 尚未建立，留在正式索引外。 |
+| `active + unaligned` | 方向已确认，作为未来方向约束相关选择；实施范围由当前任务另行授权。 |
+| `active + aligned` | 完整方向已成为当前事实，并经过核对。 |
+| `archived + aligned/unaligned` | 退出当前依据，保留最后对齐状态和演进历史。 |
+| 历史 `archived + alignment: null` | 归档前的事实关系未知，按已有材料保留。 |
 
-1. `activate` 是审核与建立边界：首次建立只接受 body-ready candidate，把它改为 active，选择非空 alignment 并写入不可变 createdAt。建立前 agent 仍须完成语义审核和当前授权判断。Git 提交、暂存或历史不参与建立状态。
-2. alignment 始终作用于整条决策。只有完整方向成为当前事实并完成核对后才能从 unaligned 标记为 aligned；不得添加部分对齐状态。
-3. 可分别修订、归档或对齐的部分说明原记录过粗，必须以闭合拆分建立自包含后继。不可独立演进的局部落地不改变整条记录的 unaligned 状态。
-4. 已对齐记录后来与当前事实偏离时报告一致性问题，不改回 unaligned。新的未来目标使用新记录。
-5. archive 保留最后一个非空 alignment；重新激活保留原 createdAt 和关系，并由本次参数建立当前 alignment。
-6. `candidate` 不承接已经确认但尚未执行的方向；后者是 `active + unaligned`。Git pending 也不属于生命周期。
+`activate` 首次建立只接受 body-ready candidate，写入非空 alignment 与不可变 createdAt。重新激活 archived 记录保留原 createdAt 和关系，由本次参数确认当前 alignment。Git 提交与暂存只保存版本管理状态，建立事实由 Markdown 生命周期表达。
 
-## 演进关系与事务
+alignment 始终作用于整条决策：完整方向成为当前事实并核对后，才能由 unaligned 标记为 aligned。可分别修订、归档或对齐的部分应拆成自包含后继；不可独立演进的局部落地仍保持整条 unaligned。已对齐记录后来偏离当前事实时报告一致性问题，保留对齐历史；新的未来目标另建记录。
 
-关系从新记录指向真实直接前序：
+## 演进关系
+
+关系由后继指向真实直接前序，分类、普通引用或实施映射本身不足以形成演进边。
+
+| 类型 | 判断如何变化 |
+| --- | --- |
+| `修订` | 保留主体方向并改变一部分。 |
+| `替代` | 以完整新判断取代前序。 |
+| `判定无效` | 前序依据不成立。 |
+| `归并` | 整合多个前序。 |
+| `拆分` | 把过粗前序重建为多个可独立使用的后继。 |
+| `重划` | 把多个前序的长期含义按新 owner 边界分配给多个自包含后继。 |
 
 ```yaml
 relations:
   - type: 修订
-    target: direct-predecessor
+    target: 260827-define-index-boundary
     summary: 保留前序方向并调整索引边界
 ```
 
-每条 relation 还可有可选 `summary`，从 source 记录视角说明这条直接边。输入先 trim；空白规范化为省略，非空值必须是单行且最多 40 个 Unicode 码点，绝不截断。它只说明已有边，不参与 target 身份、去重、排序、时间方向、关系形状或环验证；相同 target 不能因摘要不同而重复。旧关系可继续省略，不要求回填或迁移。
+每个 target 是合法 Decision ID，在同一来源记录中唯一，完整图无自环、无环。候选关系先检查类型、ID、重复、自环和目标可解析性；候选建立前留在正式图外，活动前序也无需提前归档。
 
-1. `修订` 保留主体方向并改变一部分；`替代` 以完整新判断取代前序；`判定无效` 表明前序依据不成立；`归并` 整合多个前序；`拆分` 把过粗前序重建为多个可独立使用的后继；`重划` 把多个直接前序的长期含义按新的 owner 边界重新分配给多个自包含后继。
-2. 每个 target 是合法 Decision ID，只出现一次，不自环、不成环。关系只保存语义演进，不作为分类、引用列表、任务依赖或实施映射。
-3. 候选关系做类型、ID、重复、自环和目标可解析性前瞻检查，但在建立前不进入正式图，也不要求活动前序提前归档。scaffold 可以继续编辑或 discard；只有 body-ready candidate 能成为 activate/evolve 的后继。
-4. **CLI summary 绑定矩阵：** `--relation-summary <decision-selector=summary>` 只按第一个 `=` 分隔，后续 `=` 属于 summary；selector 收敛后必须唯一绑定同次完整 `--relation` set 中的 target。它不是单边 patch，summary-only、重复、未命中 target 及与 `--clear-relations` 的组合均无效。
-   - `new`：summary 必须与同次至少一个 `--relation` 同现，并绑定该 candidate 的完整 relation set。
-   - 首次 `activate` candidate：未传 relation 或 summary 时保留 candidate 的完整 relation 与 summary；传入 `--relation` 时完整替换，未提供 summary 的边省略该字段。重新激活 archived 记录拒绝 relation 与 summary override。
-   - `evolve`：未传 relation 或 summary 时，每个 successor 保留自身 relation 与 summary；传入 `--relation` 时，同一个完整 set 及其 summary override 复制给全部 selected successors。需要不同 successor summary 时，先写入各 candidate，再省略统一 override。
-   `evolve` 通过重复 `--successor <alignment=decision-id>` 显式选择完整后继集合。推荐由每个候选在自身 `relations` 中声明来源边，尤其适用于后继来源不同的稀疏重划。调用方也可用重复 `--relation <type=decision-id>` 完整替换每个所选后继的关系，或以 `--clear-relations` 表达显式空集合；三种意图不追加、不合并、不互相推断。`--relation` 不因选择重划自动无效，但它对所有所选后继给出同一完整关系集合，最终图仍必须满足本节的策略规则。
-5. CLI 对最终关系图执行以下形状与集合闭合检查：
-   - 非拆分、非重划的有效最终关系只允许一个所选后继；全部为归并时至少含两个不同前序。
-   - 拆分必须显式选择至少两个后继。每个后继恰有一条指向同一前序的拆分关系，且选择集等于该前序的完整直接拆分后继集合。
-   - 重划必须显式选择至少两个后继和至少两个不同直接前序。每个后继至少有一条重划关系且不得混用其他关系，所有直接前序至少被承接一次，前序与后继角色集合在同一事件中互斥，稀疏二部图必须连通，且选择集等于最终图中该重划连通分量的完整后继集合。互不连通的重划必须作为独立事务；后续重划早先后继是另一事件，不与历史分量合并。
-6. 这些机器可验证的不变量不代替语义审阅：agent 仍须确认每个拆分或重划后继覆盖其直接前序继续有效的长期含义，并明确处理被放弃、改写或判定无效的含义。
-7. 关系、生命周期和丢弃变更使用 CLI 事务；它尽可能保证 Markdown 与索引组合的原子性。普通诊断无法恢复的失败按维护恢复处理。
-8. 已建立记录的关系只能由完整关系事务修订。新候选可由 `activate` 的单后继便捷入口进入相同事务；重新激活 archived 记录不借激活修订关系。
+可选 summary 从来源记录视角说明该边：输入 trim 后为空则省略，非空须为单行且最多 40 个 Unicode 码点，超限拒绝。它补充边的说明，边身份、排序、去重和拓扑继续由 type、target 及领域图规则决定。
 
-## 维护不变量
+### 后继集合与语义闭合
 
-1. 当前指令明确授权起草候选，或足以确认长期判断和维护范围时，才在相应边界内写入；新增记录或改变状态前告知用户将改变的判断和集合。
-2. 新候选优先使用 `new` 的显式 metadata 创建；它在集合锁内以原子不覆盖方式发布，不改变正式索引或生命周期。candidate 正文和 tags 可直接修改权威 Markdown；生命周期、对齐、归档和丢弃使用 CLI。已建立 Markdown 的手工修改后同步索引，并在维护或验收前运行严格 check。
-3. Git `HEAD` 只用于在保留独立决策历史前要求再次确认，以及删除已记录决策的机械门禁；不参与候选、建立、生效、对齐或索引成员判断。在 Git 工作树中，尚无首次提交的 unborn `HEAD` 按空 Git `HEAD` 基线处理。可用 Git `HEAD` 基线中，单独 `archive` 的目标，以及本次关系事务中所选后继完整最终关系集里的每个已建立直接前序（relation target），只要尚未进入 Git `HEAD`，CLI 就暂停且不写入；无论前序是 active 还是 archived，调用方都必须以 `--keep-unrecorded-history` 显式确认后才可继续。该判断不使用形成时间。在 Git 工作树外没有这个确认门；但 stage 仍需要其自身的版本控制前提。
-4. `discard` 删除完整、结构有效且在删除后的最终集合中无剩余引用的 candidate、active 或 archived 决策。它既可直接运行，也可通过 `evolve --discard <decision-id>` 与后继建立、最终关系修改和索引重建处于同一事务；被删除 ID 不能同时作为后继，所选后继的最终关系也不得保留该 ID。`evolve` 仍遵循普通演进的关系形状、闭包和最终图验证，不增加只适用于删除的后继数量、状态、前序或显式空关系限制。删除的 Decision ID 已进入 Git `HEAD` 时，未带 `--delete-recorded-decision` 的调用在其余删除条件和演进最终图都已通过后 attention 且零写入；带该参数即为明确的机械删除选择，不会为 discard 自身重复读取 Git `HEAD`，但不绕过同次 `evolve` 最终关系的独立 `--keep-unrecorded-history` 预检。非 Git 工作树、unborn `HEAD` 或 ID 未进入 `HEAD` 时正常删除；无参数且 `HEAD` 不可读取时 fail closed。调用方不主动预检 Git，只响应 CLI 实际提示。
-5. `stage` 只是 Git pending 状态转换，不改变决策生命周期。`sourcePath` 变化是位置变化，stage 选择一次对应 ID 即可；显式改变 frontmatter ID 才是身份变更，必须同时维护关系与索引。生命周期移动、关系维护和 stage 都应在写前拒绝 revision、pending 或所选来源漂移。
+`evolve` 通过重复 `--successor` 显式选择完整后继集合，并在同一事务中维护关系、候选建立与活动前序归档。新候选也可通过 `activate` 的单后继入口建立相同关系事务。
 
-### `rename`
+| 演进形状 | 最终集合要求 |
+| --- | --- |
+| 非拆分、非重划的有效关系 | 只选择一个后继；纯归并至少有两个不同前序。 |
+| 拆分 | 至少两个后继，每个后继恰有一条指向同一前序的拆分边；选择集等于该前序完整的直接拆分后继集合。 |
+| 重划 | 至少两个后继和两个不同前序，每个后继至少有一条重划边且全为重划；所有前序至少被承接一次，前序与后继角色互斥，形成连通的稀疏二部图。选择集等于该连通分量的完整后继集合。 |
 
-`rename <source-selector> <target-name-or-id> [--preflight] [--rename-recorded-decision]` 是唯一的单条身份迁移入口。source 先按标准 dated ID exact 解析，失败才按 unique name；target 标准 ID 直接定义目标，其他合法 kebab-case 值作为 name。标准 source 保留原 ID 日期，legacy established 记录使用 `createdAt` UTC 日，legacy candidate 的 name target 返回 `date-required`，但允许调用方明确提供完整 dated target ID。目标 ID、name 与新路径均须在完整集合内无冲突；同生命周期 `<name>.md` 可用时优先，否则使用 `<id>.md`，两者都冲突时零写入。
+互不连通的重划分属独立事务；后来重划早先后继属于另一次事件。除图形合法外，agent 还须核对每个拆分或重划后继承接了直接前序继续有效的长期含义，并明确说明放弃、改写或判定无效的部分。
 
-事务在 collection lock 内重读来源与索引，改写 source frontmatter ID、所有 candidate/established 结构化 relation target、sourcePath 与完整派生索引；它不改变状态、alignment、createdAt、正文、relation type 或 relation summary，也不自动 stage。`--preflight` 完成相同扫描、日期、关系、路径、索引与 Git HEAD 检查但绝不写入。目标已进入 Git HEAD 时，正式执行必须显式使用 `--rename-recorded-decision`；该确认只授权当前工作树 rename，不重写历史。移动、写入、索引发布或回读失败按领域事务恢复，结果只能报告 no-change、rolled-back、partial-or-unknown 或 committed-cleanup-pending。
-6. 普通单对象 selector 先只移除一个大小写不敏感的末尾 `.md`，再尝试 calendar-valid 标准 ID。标准 ID 解析成功时只精确查该 ID，未命中不得退回 name；解析失败时将完整剩余文本按 exact name 查询。零项是 not-found，一项收敛为完整 ID，多项按 ID 排序报 ambiguous，不按状态、日期或路径猜测。持久 Markdown、关系、索引 entry key、资源 owner 和结构化输出只保存完整 ID；真实路径只能进入明确的 path/locator 参数。
+### 完整替换与摘要绑定
+
+关系维护以完整集合为单位。各后继来源或摘要不同时，先在各 candidate 中写好，再让建立命令保留各自集合。
+
+| 输入意图 | 作用 |
+| --- | --- |
+| 首次 activate 或 evolve 省略关系覆盖 | 保留各候选自身完整 relations 与 summary。 |
+| 提供 `--relation` | 完整替换；evolve 将同一集合应用于全部所选后继，包括重划。新集合未提供摘要的边省略该字段。 |
+| 提供 `--clear-relations` | 显式清空关系集合。 |
+| 重新激活 archived 记录 | 保留既有关系，拒绝关系或摘要覆盖。 |
+
+`--relation-summary <selector=summary>` 必须绑定同次完整 `--relation` 集合中的唯一 target；按首个 `=` 分隔，后续 `=` 属于摘要。`new` 同样按此规则绑定。仅提供摘要、重复绑定、目标未命中或与清空关系组合均拒绝。已建立关系通过完整 CLI 事务修订。
+
+## 维护范围与确认
+
+写入须在当前请求或生效项目规则授权的维护范围内；一般语义审查和委托内取舍由 agent 自行完成，新增记录或改变状态前说明将改变的判断和集合。超出范围、缺少关键事实或明确要求用户决定时再询问。候选正文、tags 及已建立记录的编辑性修正可直接修改 Markdown；生命周期、关系、对齐、删除和身份更正通过 CLI 事务维护。各工作区 mutation 共用集合锁，写前核对来源与相关版本状态，保护其他改动。
+
+### 保留演进历史
+
+CLI 根据 Git `HEAD` 是否记录受检 ID 触发额外维护确认：单独 archive 的目标，或关系事务所选后继的完整最终关系中的任一已建立直接前序尚未进入 HEAD 时，暂停并保持零写入；前序是 active 或 archived 均适用。先自行复核前序是否值得独立保留以及当前授权是否覆盖该操作；属于已委托判断时，agent 可明确选择 `--keep-unrecorded-history` 后重试，只有仍需用户授权或判断时才询问。
+
+Git 工作树的 unborn HEAD 按空基线处理；Git 工作树外没有此确认门。机械提示依据 HEAD 是否记录该 ID，而非形成时间；语义门槛对已提交和未提交记录同样适用。调用方直接执行领域命令，只响应实际提示，无需自行预检 Git。
+
+### 删除
+
+`discard` 删除完整、结构合法且最终集合中无剩余引用的 candidate、active 或 archived 记录。`evolve --discard <id>` 可把删除与演进原子组合：被删 ID 与所选后继互斥，最终关系也须移除该 ID，并继续满足普通演进的形状与闭合规则。
+
+已进入 HEAD 的删除对象，首次未带 `--delete-recorded-decision` 调用在其余条件通过后零写入暂停；取得覆盖删除目标与影响的明确授权后按提示重试。该参数选择本次删除，但不绕过同次 evolve 对其他前序的历史确认。非 Git 工作树、unborn HEAD 或 ID 未进入 HEAD 时正常删除；无确认参数且 HEAD 无法读取时，保持零写入。成功时报告实际删除对象和最终关系。
+
+### 身份更正
+
+`rename` 统一改写目标 frontmatter ID、所有受管 candidate/established relation target、sourcePath 和完整索引；保留状态、alignment、createdAt、正文、relation type 与 summary，不自动暂存。
+
+- source 按普通 selector 解析。target 为标准 ID 时直接使用，其他合法 kebab-case 值作为 name。
+- 标准 source 保留原日期；legacy established 记录用 createdAt 的 UTC 日；legacy candidate 需要显式完整 dated target ID，name-only target 返回 `date-required`。
+- ID、name 与目标路径须无冲突；同生命周期优先 `<name>.md`，其次 `<id>.md`，两者均占用时零写入。
+- `--preflight` 只读完成相同检查。目标已进入 HEAD 时，正式执行须按提示明确 `--rename-recorded-decision`；此确认只作用于当前工作树。
 
 ## 派生索引与查询
 
-1. 索引从全部已建立 Markdown 完整生成，definition、metadata 与字段精确结构以 Schema 为准。metadata 是严格空对象，不保存分类注册表。
-2. entry 与 source revision 以 Decision ID 为键。state 保存由 ID 投影的 name、sourcePath、tags、status、alignment、createdAt、摘要和关系；source revision 覆盖规范 ID、sourcePath 与规范 Markdown 内容。
-3. 索引 keys 为 exact `name`、多值 exact `tag`、exact `status` 和 exact `alignment`；relation projection 保留存在的可选 summary，供 show、trace 和直接关系结构筛选读取，但不改变图或 key 语义。当前查询不推断分类，也不提供 OR、NOT、层级、别名或权重。
-4. `list` 只加载一次当前索引，并在筛选和分页前从同一完整 entries snapshot 查询时聚合全局 facets：记录总数、status、alignment、每记录只计一次的 tag、createdAt instant 的 UTC 月份，以及规范 UTC 最早/最晚边界。空集合固定使用零计数、空列表和 null 时间边界；facets 不写入 metadata，不改变 Schema、definition version 或 source revision。
-   - 默认 status 是 active；alignment 默认 all；重复 tags 使用 AND；`--created-from/--created-to` 是包含端点的 RFC 3339 instant 范围。结构条件在排序与分页前相交，合法空集合和 offset 越界都成功返回带全局 facets 与窗口上下文的空页。
-   - 匹配结果按 createdAt instant 倒序，再按 Decision ID 的 locale 无关词法升序稳定排序；默认 limit 10，最大 1000，offset 默认 0。
-   - 默认文本先显示完整低基数字段、按 count 倒序且 tag 升序 tie-break 的最多 30 个 tags，以及按月份倒序的最近 10 个 UTC 月份；省略部分只报告剩余 distinct 值数量。随后以单行显示窗口内完整 ID、时间、status/alignment、全部 tags 和 title，不截断所选字段。
-   - `--detail` 保持相同筛选、排序、limit 与 offset，展开完整 tag/月目录和原有多行 sourcePath、tags、title、purpose；它不恢复无界列表。完整权威 Markdown 仍由 `show` 读取。
-5. `show` 先把普通 selector 收敛为 ID，再由索引定位并只读取目标 Markdown 正文。`trace`、关系、生命周期和 stage 的普通输入也先解析为 ID；输出显示完整 ID、sourcePath 与 tags。
-6. `list` 与 `search <text>` 都可增加一个 `relatedTo` 普通 selector、可选 `direction` 与可选 `relationType` 的直接关系条件：
-   - `relatedTo` 按本规则的普通 selector 收敛：先移除一次末尾 `.md`，再精确解析 calendar-valid 标准 ID；只有标准 ID 解析失败时才按唯一 name 查找。目标不受最终 status、alignment、tag 或文本条件限制。
-   - 方向始终相对该目标解释：`predecessors` 返回目标自身 relations 的 target，`successors` 返回 relation target 等于目标的来源记录，`both` 合并两者并按 ID 去重。省略方向等于 `both`；未提供目标时提供方向是输入失败。
-   - relation type 单独出现时匹配记录的任意直接边；与目标共同出现时，目标和类型必须由同一个 relation 对象满足。
-   - 先把关系结果转为 ID 条件，再与 status、alignment 和重复 tags 的 AND 相交；该交集发生在排序、分页或文本匹配之前。合法空集合成功返回空结果。
-7. content search 的范围和 snapshot 固定如下：
-   - 同一当前可信索引 snapshot 依次完成目标解析、关系和其他结构筛选、显式 `sourcePath` 列表与唯一 `sourcePath → ID` 映射；只在选中的权威 Markdown 中全文匹配。命中 `sourcePath` 只能由该 snapshot 反查完整 Decision ID，不得从 basename 推断身份。
-   - `all` 要求规范化查询中的每个去重词至少命中一次，`any` 要求任一词；二者的词可分布在不同物理行。`phrase` 只匹配同一物理行中的连续短语。三种模式统一 NFKC、默认忽略大小写并按空白处理查询。
-   - 索引缺失、损坏或不新鲜时，只有完整验证权威 Markdown 后才可从同一次只读内存投影完成目标解析、关系筛选、路径选择和 ID 反查并给出 warning；不得写入索引或混用陈旧持久索引。候选和索引 JSON 永不进入正式搜索范围。
-   - 结果文件、每文件命中和预览字符受固定资源上限约束；截断必须 warning，不得将未显示的内容或无结果称为完整集合结论。
-8. metadata search 只读取持久索引，并在文本匹配前应用同一结构条件。关系结构命中不进入 `matchedFields` 或 `matchedRelations`；`matchedRelations` 仍只表示实际文本命中的非空来源 summary。
-9. candidates 与 show-candidate 直接扫描根目录源码，显示 `scaffoldValid` 与 `bodyReady`：单条非法 Markdown 产生 warning 并跳过，显式目标自身非法则失败；根目录、成员边界或已建立集合的索引前提错误属于集合级错误。合法 scaffold 与 body-ready candidate 都排除于正式索引。
-10. 索引缺失、损坏或陈旧时只能由权威 Markdown 重建，不能反向补造 Markdown 事实。常规查询读取结构有效的持久索引，不在每次查询前重扫整个集合。
-11. `new` 接收标准 ID 或 name：标准 ID 日期必须等于本次 UTC 形成日，name 自动加该日期。同日同名 ID 已存在时零写入失败，不追加随机码或序号。writer 在 candidate、active 与 archive 三个目标位置均确认 name basename 可用时优先使用 name，否则使用完整 ID basename。若会与同名 legacy ID 冲突，`new` 零写入返回 `migration-required`、legacy ID、建议 dated ID 和 rename/preflight 指引；它不隐式 rename。`new`、`sync-index` 与关系、生命周期和丢弃事务共用集合 mutation lock；其余事务边界不变。
-12. `sync-index [--select <name-or-id> ...] [--write]` 无 selector 时保留全量重建；selected scope 先严格读取持久索引 baseline，再完整建立和验证当前 candidate。selector 先移除一个末尾 `.md`、按 calendar-valid ID exact 或 baseline/current name 并集唯一解析为 ID；标准 ID 不存在不得退回 name。结果保留输入顺序的原始 `selectors`，并分别按规范顺序报告解析后的 `selectedIds` 与 `changedIds`。只有 metadata 与其 revision 不变，且全部 entry/revision 变化的 ID 都被选择时，`--write` 才原子发布完整 candidate；否则零写入并要求补充选择或运行 full sync。selected check 不写入且将允许的待发布变化报告为 stale。新增、删除和显式 ID rename 必须分别选择新 ID、旧 ID、或同时选择旧/新 ID。该同步不改变 Markdown、关系或 pending，也不能代替 `stage` 或领域 rename 事务。
+Markdown 是权威来源，索引保存已建立记录的定位、状态、摘要、tags 和直接关系。记录内容、身份或位置变化需要同步索引；候选通过独立来源入口读取。常规查询使用结构有效的持久索引，不逐次扫描整个集合。索引异常或陈旧时，以权威 Markdown 验证和重建，保留来源事实。
 
-## CLI 诊断与 mutation 恢复
+### 查找与结果解释
 
-CLI 成功信息写入 stdout；失败、暂停和 warning 立即写入 stderr，只描述本次命令，不写入
-持久日志、遥测或 receipt。每条失败诊断固定给出 `code`、对象、原因和下一步；有可靠系统
-证据时才补充 `causeCategory` 与经过净化的 `detail`。warning 仍应按其提示核对受影响事实，
-但不能替代阻断失败或改变生命周期、关系和索引事实。
+- `list` 默认查 active、全部 alignment，展示筛选概览和最近记录；按需筛选、翻页或用 `--detail` 展开摘要，完整正文用 `show`。
+- status、alignment、重复 tags 和时间条件取交集；重复 tags 为 AND，时间范围包含端点。空页只说明当前筛选与窗口无结果。
+- `--related-to` 指定的目标先独立解析，再按相对目标的 predecessors、successors 或 both 筛选直接邻居；方向必须与目标同用。
+- relation type 单独使用时匹配任一该类型直接边；与目标同用时，两者须命中同一条边。结构条件先于排序、分页和文本匹配。
+- `show` 由索引定位并确认目标 ID 后读取 Markdown；`trace` 恢复演进图。后续操作继续使用完整 ID。
 
-只有 mutation-capable 命令的失败诊断才包含 `scope` 与 `outcome`。四种 outcome 的含义固定为：
-`no-change` 表示声明范围未改变；`rolled-back` 表示失败后已恢复完整旧范围；
-`partial-or-unknown` 表示无法证明范围已完整恢复，必须先对账；
-`committed-cleanup-pending` 表示领域提交点已经越过但清理未完成，先检查已提交状态和残留
-再进行下一次 mutation。普通查询、检查和参数错误不得附会这些字段。
+| 搜索范围 | 依据与适用边界 |
+| --- | --- |
+| 默认 content | 搜索索引选中的权威 Markdown，并由同一快照把路径映射回 ID。索引缺失、损坏或陈旧时，须完整验证来源后才能用一次内存投影只读降级，并报告 warning。 |
+| metadata | 只搜索已发布索引中的 ID、name、title、三项摘要、tags 与来源关系 summary。反映该快照而非未同步来源；读取失败时诊断并显式恢复索引。 |
 
-诊断要求的“重试”始终由操作者在处理原因并重新观察后显式发起。不得以 `sudo` 提权，
-不得自动删除锁；busy 时先等待或确认活动进程，只有确认没有活动进程后才人工检查残留锁。
-恢复不完整、原因未知或范围无法对账时停止并按[维护恢复](maintenance-recovery.md)处理。
+两种范围都先应用结构筛选。`all` 要求全部词，`any` 要求任一词，`phrase` 要求连续短语；统一 NFKC、忽略大小写并按空白处理。content 以物理行为匹配段，metadata 以单个字段、tag 或 summary 为段；all/any 可跨同一记录的段，phrase 限于单段。关系筛选不是文本命中证据，metadata 只报告实际命中的字段或来源摘要。
 
-## 验证
+搜索降级只服务本次查询，不修复持久索引。截断 warning 表示输出受限；收紧筛选或继续读取已返回 ID，不能据未显示或无结果断言不存在匹配。
 
-1. `check` 验证 Markdown、ID、tags、位置与状态、关系、索引结构、新鲜度、成员一致性及候选前瞻性结构，并分别计数合法 scaffold 与 body-ready candidate；合法 scaffold 留在索引外不构成错误。
-2. Agent 另行检查记录门槛、tags 是否有正文依据、摘要与正文一致性、关系是否确属直接前序、拆分或重划后继是否覆盖前序继续有效的长期含义，以及对齐是否有完整当前事实证据。
-3. 工具、索引或写入恢复出现普通诊断无法解释的故障时，停止猜测并读取 [维护恢复](maintenance-recovery.md)。
+### 同步与待提交快照
+
+手工修改已建立 Markdown、怀疑索引陈旧或准备维护时先严格 `check`，确认合法变化后同步。`sync-index` 无 selector 时全量重建；selected 模式仍完整验证来源，按以下条件接纳：
+
+1. baseline 索引可信，集合 metadata 与其 revision 不变。
+2. selector 从 baseline 与待发布投影的 name 映射并集解析；标准 ID 仍只精确匹配。
+3. 全部 entry/revision 变化的 ID 都已选中；新增选新 ID，删除选旧 ID，身份更正同时选旧/新 ID。
+4. 默认只检查，添加 `--write` 才发布完整索引投影。未选择变化、未知 ID 或坏 baseline 均零写入，先补充选择或显式改用全量同步。
+
+`stage` 在同一 HEAD/工作区 staging 快照中按标准 ID 或唯一 name 选择记录，构造完整 Git pending 决策快照。它不改变生命周期，也不替代同步。位置变化仍选同一 ID；身份变更须由相应事务完整处理。写前 revision、pending 或所选来源漂移时拒绝写入。
+
+## 验证与异常交付
+
+严格 `check` 验证 Markdown、ID、tags、状态与位置、关系、索引结构和新鲜度，并区分合法 scaffold 与 body-ready candidate。候选留在索引外本身不是错误；首次候选集合按[恢复手册的状态分流](maintenance-recovery.md#状态分流)验证。
+
+Agent 另行核对记录门槛、摘要与正文、tags 依据、真实直接前序、后继语义承接，以及完整当前事实是否支持 alignment。
+
+CLI 诊断说明本次命令的 code、对象、原因和下一步；有可靠系统证据时才补充原因类别与净化细节。mutation 失败的 `scope` 与 `outcome` 只说明声明范围：
+
+| outcome | 可确认状态 |
+| --- | --- |
+| `no-change` | 声明范围未改变。 |
+| `rolled-back` | 失败后已恢复完整旧范围。 |
+| `partial-or-unknown` | 无法证明范围完整恢复，须先对账。 |
+| `committed-cleanup-pending` | 已越过领域提交点，尚有清理残留。 |
+
+成功信息在 stdout，失败、暂停和 warning 在 stderr；这些是即时诊断，不保存为日志、遥测或 receipt。普通查询、检查与参数错误不附会 mutation 结果。按 warning 核对受影响事实，恢复操作、权限、锁与重试边界统一执行[维护恢复](maintenance-recovery.md)。

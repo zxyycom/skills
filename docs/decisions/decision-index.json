@@ -87,6 +87,7 @@
       "260907-case-snapshot-reference-boundary": "sha256:e23e4da3f7633e52b0ae4d248d807189db537df953c01e79ceec5db9486d32e0",
       "260907-stage-case-index-definition-migration": "sha256:ed1a6e4a6ed4d8855f993807114a82358654e537540bdce82a3273aef7806daf",
       "260908-bound-record-list-output": "sha256:c642c0be872d8584579df5658f267073ab6c63b0940759953fa3ee4abc27bf5d",
+      "260908-maintain-independent-investigation-rounds": "sha256:eab39227731e99049652e58c07032b334a555303b870e2c70e5f9fa9ab6061eb",
       "activate-release-gate-checks-by-tag": "sha256:9a4fa7a38e4c87103e295df956469814bfdd926557340399f2c798d8bbf55c4f",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -326,7 +327,7 @@
       "use-root-task-dictionary": "sha256:a31c8e7e782babfa82b6722f4399e13ff6244b0aa0691b21a6679cd68acf3a08",
       "use-root-task-dictionary-for-collection-identity": "sha256:322df3609e78d87c0a7dbf7c87602eadda7ca44d9258b24472c7ef8f47dda9a3",
       "use-second-precision-lifecycle-index": "sha256:7389a13ebeab99f16f6578070fa671ae4131084476d04ac7767de4d0e1c65216",
-      "use-single-investigation-report-core": "sha256:8f59ed419920fd725f4dc6b852fd6f81bfd71e2d33b340112fda5ad15100bc22",
+      "use-single-investigation-report-core": "sha256:fdf6a987e656ed511c0e7ea09d1343dcb1eca36a09285522aaa1866451fd0647",
       "use-source-resilient-reviewable-candidates": "sha256:60535b02207047e5a40af001fad1ed78738f8dd2c509acff6f5454c5e2ea5831",
       "use-stable-decision-id-for-relations-and-lifecycle": "sha256:c7d2ad4ea610af9b2c957beef978284b238d9d6df076bb9e20ed56700f9889af",
       "use-stable-decision-ids-tags-and-location-index": "sha256:1526afb243bb35ce06ce3b2a0a1c7b39ba02d87225219c521cd5df34f9a4127a",
@@ -1840,6 +1841,27 @@
         "investigation-report"
       ],
       "relations": []
+    },
+    "260908-maintain-independent-investigation-rounds": {
+      "name": "maintain-independent-investigation-rounds",
+      "sourcePath": "maintain-independent-investigation-rounds.md",
+      "title": "以独立调查轮次维护单报告核心",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-08T08:58:11Z",
+      "purpose": "让每份报告可独立复核，同时让同轮补证与纠错在原报告收敛，避免无独立价值的演进。",
+      "background": "固定核心保障完整复核；按新证据、认识变化或提交状态机械分篇，会把中间版本误当独立调查历史。",
+      "decision": "保留单报告四项固定核心；先审查独立轮次，再审查直接关系，由 agent 在授权内自行完成语义审查。",
+      "tags": [
+        "investigation-report"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "use-single-investigation-report-core",
+          "summary": "保留固定核心，改以独立轮次判断分篇与演进"
+        }
+      ]
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",
@@ -6355,9 +6377,9 @@
     },
     "use-single-investigation-report-core": {
       "name": "use-single-investigation-report-core",
-      "sourcePath": "use-single-investigation-report-core.md",
+      "sourcePath": "archive/use-single-investigation-report-core.md",
       "title": "使用单报告固定调查核心",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-28T10:12:50Z",
       "purpose": "让每份独立调查报告完整保存可比较的形成时输入、证据基础和结果边界，而不再依赖主题容器或追加位置。",

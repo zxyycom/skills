@@ -1,29 +1,50 @@
 # 调查报告维护恢复
 
-本手册承接 `investigation-report` 的 CLI 诊断、candidate 与正式集合 mutation，以及 pending 写入异常。正式报告、candidate、资源与索引的权威关系和精确命令语义由[固定契约](investigation-report-contract.md)承接；本手册不把命令输出变成持久状态。
+本手册帮助操作者根据实际命令结果，恢复可解释的候选、正式报告、资源、索引或 pending 状态。对象与事务范围以[固定契约](investigation-report-contract.md)为准；恢复保留权威来源，再处理派生状态。
 
-## 先判断范围
+## 先确认发生了什么
 
-1. 成功信息在 stdout，失败和 warning 在 stderr。先按诊断中的 `code`、对象、原因和下一步定位；有 `scope` 与 `outcome` 时，只对该声明范围作恢复判断。
-2. warning 不改变 candidate、正式报告、资源、工作区索引或 pending。`search` 的内存投影 warning 只说明当前索引缺失、损坏或不新鲜，而完整权威来源与资源已被只读验证；可使用该次搜索结果，但在依赖 index-backed 操作前先显式 `sync-index`。它不能替代错误、publish 授权或写入授权。搜索的截断 warning 只说明受限输出，不能据未显示结果或无结果推断不存在匹配。
-3. `new` 创建成功即使 body/resource readiness 或辅助 preflight 有 warning 也已经建立 candidate；不要重跑 `new`。改为 `show-candidate`、编辑内容或运行 `publish --preflight`。
-4. `publish --preflight`、`candidates`、`show-candidate`、查询与检查只读，不产生 mutation outcome 或 receipt。预检结果只对应本次读取，普通 publish 必须重新准备。
-5. `stage-index` 只拥有目标正式索引的 pending 路径；`sync-index`、`set-relations`、正式 `discard`、`publish` 与 `discard-candidate` 各自拥有固定契约声明的工作区范围。不得从其中一个结果推断另一个范围已经提交、恢复或安全重试。
+1. 读取诊断中的 code、对象、原因和下一步。只有出现 scope/outcome 时，才对该声明范围判断写入结果。
+2. 保留当前 candidate、正式 Markdown、资源、索引与可用的可信版本；区分本次命令涉及哪些路径，以及哪些属于其他工作。
+3. warning、候选准备、正式建立、索引同步和 Git pending 分别判断，不从单个成功或失败推断其他范围已完成。
 
-## 按 outcome 恢复
+## 状态分流
 
-1. `no-change`：声明范围未改。处理前置条件后，从当前事实显式重试。
-2. `rolled-back`：索引提交点前失败，但声明范围已恢复完整旧状态。复核 candidate、正式报告、资源和索引后，再决定是否显式重新发起操作。
-3. `partial-or-unknown`：不能证明声明范围已完整恢复。停止 mutation，保留现有来源，核对 candidate、正式 Markdown、资源、索引与可用可信版本；无法唯一确认完整状态时交给 owner。
-4. `committed-cleanup-pending`：领域提交点已经越过。publish 时正式报告和索引已经提交；discard 或 discard-candidate 时相应对象已退出自己的集合范围。先检查诊断列出的 tombstone 或 cleanup 残留，再开始新的 mutation。
+| 当前结果或故障 | 下一步 |
+| --- | --- |
+| new 已成功，正文、资源或辅助预检有 warning | 候选已创建，继续编辑、show-candidate 或显式 publish preflight；不重跑 new。 |
+| 候选单独未就绪 | 用 show-candidate 或 publish preflight 核对正文、关系和直接资源，按具体缺口修正。 |
+| content 搜索以内存投影降级 | 可使用这次完整验证后的读取结果；需要索引查询或维护前，显式恢复持久索引。metadata 搜索不走此降级。 |
+| 搜索结果或预览被截断 | 收紧筛选或继续读取已返回 ID，保留“结果不完整”的结论边界。 |
+| 手工正式来源变化，或索引缺失、损坏、陈旧 | 核对完整正式报告与资源后 sync-index；publish 只处理所选候选，不接纳这些变化。 |
+| 资源路径、owner、可见性或引用无效 | 修复相应资源与声明引用；资源字节变化本身不要求同步索引，正式链接变化需要同步。 |
+| 权限不足或锁忙 | 按下节解除操作条件，保留当前领域状态。 |
+| 写入中断或恢复范围不清 | 按 outcome 对账，暂停后续 mutation。 |
 
-## 操作者边界
+## 中断写入
 
-1. 权限问题只授权当前进程所需的访问；不得用 `sudo` 扩大权限。
-2. lock busy 时等待或确认活动进程结束；只有确认没有活动进程后才人工检查残留锁。工具和 agent 不自动删除锁。
-3. 不自动重试。尤其是 candidate、正式来源、资源、索引或 pending 恢复不完整、范围归属不清或原因未知时，必须先重新观察和对账，无法唯一归因即停止并交给对应 owner。
-4. 发现手工正式来源变化、索引缺失、损坏或陈旧时，不能用 publish 混合接纳；完整核对正式报告和资源后，使用 `sync-index` 显式恢复或接纳。合法 candidate 不进入这次同步。
+根据[契约定义的 outcome](investigation-report-contract.md#诊断与验收)处理：
 
-## 验证
+| 诊断结果 | 操作者动作 |
+| --- | --- |
+| `no-change` | 处理前置条件，重新观察后显式发起命令。 |
+| `rolled-back` | 复核声明范围的旧组合已完整恢复，再决定是否重新操作。 |
+| `partial-or-unknown` | 停止重试、补写与清理；比较受影响来源、资源、索引和可信版本，无法唯一确认状态时交给 owner。 |
+| `committed-cleanup-pending` | 先核对已完成的领域写入与诊断列出的 tombstone/cleanup 残留，再决定后续维护。 |
 
-恢复出可解释的完整正式集合后，运行默认全量 `check`。需要重建派生索引时，先确认全部正式报告和资源来源完整，再运行 `sync-index`，随后再次运行 `check`；不要用索引覆盖或补造报告 Markdown 与资源事实。candidate 的单独问题通过 `show-candidate` 或 `publish --preflight` 核对，不以同步索引修复。
+对账以完整旧状态或新状态为目标。publish 越过提交点后，正式报告与索引已建立；discard 或 discard-candidate 越过提交点后，相应对象已退出自己的集合。此时清理残留不是重做领域操作的理由。
+
+stage-index 只拥有目标索引的 pending 路径；其他命令按契约维护各自工作区范围。rename 同时涉及来源身份、关系、位置与资源 owner，必须整体核对，不能仅凭单个文件已改名判断成功。
+
+## 权限、锁与重试
+
+- 权限问题只取得当前进程所需访问授权，不使用 `sudo` 扩大权限。
+- 锁忙时等待或确认活动进程结束；确认没有活动进程后才人工检查残留锁，agent 和工具不自动删锁。
+- 处理原因并重新观察后，由操作者显式重试。恢复不完整、归属不清或原因未知时保持现场，先对账再取得必要判断。
+- 索引从合法正式来源重建；来源内容和资源事实依据可信材料修复，不能反向用索引补造。
+
+## 恢复验收
+
+恢复出完整正式集合后运行默认全量 check。需要重建索引时，先核对正式报告与资源，再 sync-index，随后 check；合法 candidates 保持独立。候选问题用 show-candidate 或 publish preflight 验证。
+
+交付说明实际恢复的对象、旧/新状态判断、运行的验证及剩余未知。清理未完成或范围仍不确定时，明确下一步所需的用户决定，不将局部成功报告为整体恢复。

@@ -1,53 +1,37 @@
 # Decision Records
 
-`decision-records` 用于恢复、形成和演进会长期影响后续选择的判断。它保存采用方向、理由、生命周期与演进关系，让后续工作能够区分当前基线、已确认的未来方向与历史判断；它不保存任务进度、执行日志或当前实现快照。
+`decision-records` 保存会长期影响后续选择的判断：**采用什么方向、为什么采用、适用边界，以及如何演进**。它让后来者恢复取舍理由，并区分当前基线、已确认的未来方向与历史判断。
 
-本页是面向人类的定位与理解入口，不是 agent 执行入口或精确格式契约。实际流程、写入规则和 CLI 以文末链接的 owner 为准。
+本页是人类的定位入口。Agent 从 [SKILL.md](../../skills/decision-records/SKILL.md) 开始执行；代码、配置、规范和项目文档仍提供当前事实，任务进度与执行日志由当前任务承接。
 
-## 何时使用
+## 什么值得记录
 
-当一项判断会持续影响行为、owner、边界、兼容性、风险处理或验收，且缺少记录将使后续维护难以恢复取舍理由时，使用 Decision Records。普通事实、一次性任务、进度和执行结果不属于它的记录对象。
+当一项判断持续影响行为、责任边界、兼容性、风险处理或验收，且未来需要回放采用理由时，适合形成决策。最小对象是一条能整体独立修订、替代、归档和判断对齐的长期判断。
 
-最小模型如下：
+普通事实、一次性任务和执行结果不需要因此成为决策。普通工作形成重要取舍时，可以先提出候选；记录与实施分别服从当前授权。
 
-1. `candidate` 是尚未进入正式集合的判断；它可以先是结构合法 scaffold，正文完成后才成为 mechanically body-ready candidate。CLI readiness 不替代语义审核或建立授权。
-2. `active + aligned` 是已核对并成为当前事实的基线。
-3. `active + unaligned` 是已确认但尚未成为当前事实的未来方向。这是正常状态，不表示失败、待办或实施授权；只有当前任务明确纳入相应交付时才实施。
-4. `archived` 退出当前依据，但保留最后对齐状态和演进历史。
-5. 持久索引只是从已建立 Markdown 重建的查询辅助；它不定义或替代决策事实，候选也不进入其中。
+## 怎样理解记录状态
 
-## 怎样发展与保留历史
+| 状态 | 含义 |
+| --- | --- |
+| `candidate` | 尚未建立的候选，先完成正文和审核。 |
+| `active + aligned` | 已确认且完整成为当前事实的基线。 |
+| `active + unaligned` | 已确认的未来方向，可约束方案选择；只有当前任务明确纳入交付时才实施。 |
+| `archived` | 退出当前依据，保留最后对齐状态和演进历史。 |
 
-已建立记录的判断语义发生变化时，创建新的自包含记录，并让后继指向真实的直接前序；不要在原记录上改写历史。编辑性文字修正仍可直接修改原记录。相同 tags、时间相邻或普通引用都不自动形成演进关系。
+CLI readiness 只说明结构与正文准备情况。一般语义审查、记录选择和委托内取舍由 agent 自行完成；超出范围、缺少关键判断或明确要求人工确认时才询问，删除等高风险操作仍需精确授权。
 
-生命周期、对齐和演进关系分别表达不同事实。维护时直接使用领域 CLI；若工具提示相关历史尚未进入 Git `HEAD`，说明本次操作已零写入暂停，只需转达提示并等待明确确认，不必在运行前自行检查 Git 边界。该提示不改变决策语义，也不替代原有维护授权。
+## 怎样演进
 
-`discard` 统一删除完整且无剩余引用的 candidate、active 或 archived 决策；`evolve --discard <decision-id>` 将同一删除动作放入关系事务。删除对象已经进入 Git `HEAD` 时，首次调用零写入暂停，并要求在重试中加入 `--delete-recorded-decision`；该参数是明确的机械删除选择，不要求事前自行检查 Git。适用条件和影响由固定规则与 CLI 唯一承接。
+候选收敛、原判断误述或理由补足在原记录完善。真实采用方向改变且前后均有独立回放价值时，才形成自包含后继；独立新判断可以不与旧记录建立关系。Git 提交、同主题或出现纠正本身不足以证明演进，具体边界见[决策记录规则](../../skills/decision-records/references/decision-record-rules.md#记录边界与有效演进)。
 
-## 运行时诊断与恢复
+一个记录包含多个可独立演进的方向时，应拆分为自包含后继，而不是标记“部分对齐”。已对齐记录与当前事实偏离时，需要报告一致性问题；新的未来目标另行表达。
 
-`new` 只从显式 metadata 创建一个不覆盖的 scaffold；创建路径写 stdout，结构 readiness 与后续编辑动作写 stderr，正文未完成或未提供 alignment 预演不会把已创建结果伪装成失败。`activate --preflight` 与 `evolve --preflight` 只读取当前选择并不保存确认；正式命令始终重新验证当前参数、来源和 Git 状态。
+生命周期、关系和身份维护通过领域 CLI 完成。归档保留历史；明确剔除记录时使用独立删除动作。工具需要额外确认或无法完整恢复时，应停在其报告的边界，按维护规则继续。
 
-CLI 成功信息写入 stdout；失败、暂停和 warning 在 stderr 即时给出。诊断会指出 code、对象、
-原因和下一步；只有有可靠系统证据时才补充原因类别和经过净化的 detail。它不保存运行日志、
-遥测或 receipt，也不把临时输出写入决策集合。
+## 从哪里开始
 
-仅 mutation 失败会说明受影响范围和结果：未改变、已完整回滚、恢复状态未知，或已提交但
-cleanup 待处理。范围未知或恢复不完整时先停止并对账；权限不足只授权当前进程，busy 时先
-等待或确认活动进程。工具不会建议 `sudo`、自动删除锁或自动重试。精确字段和恢复步骤以
-[决策记录规则](../../skills/decision-records/references/decision-record-rules.md)及其[维护恢复](../../skills/decision-records/references/maintenance-recovery.md)为准。
-
-## 查找既有判断
-
-按已知信息选择入口，而不是先手工 grep：
-
-1. 已知稳定 ID 或可靠语义 name 时用 `show` 读取该条完整理由。
-2. 已知 lifecycle、alignment、tag、createdAt 范围、一个直接关系目标或关系类型时用 `list` 结构化浏览。它从同一次完整索引 snapshot 给出全局筛选概览，默认按 createdAt 倒序显示最新 10 条紧凑结果；用 `--limit/--offset` 翻页，用 `--detail` 在同一窗口展开完整概览和多行摘要，完整正文仍交给 `show`。`list` 与 `search` 可用 `--related-to <selector>` 按相对该目标的 `predecessors`、`successors` 或默认 `both` 筛选；可选 `--relation-type` 与目标共同使用时必须命中同一条边，单独使用时筛选任意该类型直接边。
-3. 只知道主题、概念、理由或正文措辞时用 `search <text>`；它默认查 active 的已建立 Markdown，并先应用 lifecycle、alignment、tag 和关系结构条件，再返回完整 Decision ID、结构摘要、`sourcePath` 与带行号预览。
-4. 需要前序或后继关系时，把 `search` 或 `list` 得到的完整 ID 交给 `trace`；不要由文件名或路径推断身份。
-
-`search` 的 `all`、`any`、`phrase` 分别要求全部词、任一词、同一物理行连续短语。匹配会统一 NFKC、忽略大小写并按空白处理查询；`all` 和 `any` 的词可分布在不同物理行，`phrase` 不跨行。content search 用同一当前索引快照解析关系目标、应用结构筛选并定位权威文件；该索引缺失、损坏或不新鲜时，只有完整验证来源成功才会从同次只读投影完成这些步骤并 warning，绝不写索引或混用陈旧快照。metadata search 只读取持久索引；关系结构命中不构成 `matchedFields` 或 `matchedRelations` 文本证据。候选和索引 JSON 不在 content 范围内。预览与结果文件受固定资源上限约束；出现截断 warning 时，不能把未显示的结果或无结果当作集合中不存在，应缩小结构条件或继续用返回 ID 的 `show`/`trace` 阅读。
-
-## 入口
-
-agent 的触发、读取路径、动作选择与验收由 [Skill 入口](../../skills/decision-records/SKILL.md) 承接。写入、生命周期、关系、对齐、历史确认和索引维护的语义规则由 [决策记录规则](../../skills/decision-records/references/decision-record-rules.md) 承接；CLI 的当前参数与输出通过 `bun run decision-records -- --help` 查询，索引或写入异常按 [维护恢复](../../skills/decision-records/references/maintenance-recovery.md) 处理。
+- 查找既有判断：已知 ID 或唯一 name 用 `show`，按分类、状态或关系浏览用 `list`，按主题发现用 `search`，追溯演进用 `trace`。
+- 起草或维护：[Skill 入口](../../skills/decision-records/SKILL.md)负责判断、流程与交付；[决策记录规则](../../skills/decision-records/references/decision-record-rules.md)负责身份、正文、生命周期、关系与维护约束。
+- 获取命令参数：本仓库使用 `bun run decision-records -- --help`。
+- 遇到工具、索引或写入异常：按[状态与维护恢复](../../skills/decision-records/references/maintenance-recovery.md)处理。

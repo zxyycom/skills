@@ -1,67 +1,41 @@
 # Investigation Report
 
-`investigation-report` 用一份可独立阅读的报告保存**一轮调查在形成时的认识**：为什么调查、检查了什么、依据是什么、得出了什么，以及结论不能说明什么。它让后来者即使没有原对话，也能复核这轮认识及其与其他调查的演进关系。
+`investigation-report` 用一份可独立阅读的报告保存**一轮调查在形成时的认识**：为什么调查、检查了什么、依据是什么、得出了什么，以及结论的适用边界。后来者即使没有原对话，也能复核这轮认识及其与其他调查的演进关系。
 
-它不是当前事实、长期决策、实施计划或任务状态的载体。代码、规范和配置仍拥有当前事实；长期采用方向交给 Decision Records；需要实施时交给 Change 或 Task owner。调查得出下游判断或任务，不会自动授予采用或实施授权。
+本页是人类的定位入口。Agent 从 [SKILL.md](../../skills/investigation-report/SKILL.md) 开始执行；报告格式和维护约束由[固定契约](../../skills/investigation-report/references/investigation-report-contract.md)承接。
 
-本页提供人类的定位和理解路径，不是 agent 执行入口，也不重复固定格式或 CLI 契约。创建、更新和审阅时从 [`skills/investigation-report/SKILL.md`](../../skills/investigation-report/SKILL.md) 开始；报告身份、候选、目录、字段、关系事务、资源路径、索引和命令的精确规则以[固定契约](../../skills/investigation-report/references/investigation-report-contract.md)为准。
+## 什么值得沉淀
 
-## 何时使用
+当前请求或生效项目规则明确要求记录或维护报告时使用。没有这类要求时，普通调查、排障和问答在当前任务中交付。
 
-仅当用户明确要求把一轮调查**记录或沉淀为报告**，或明确要求创建、更新或审阅调查报告时使用。普通调查、排障和问答在当前工作中完成即可，不因可能有用而自动建立报告。
+适合保存的最小对象是“一轮值得独立复核的认识”。同轮补证、纠错和结果收敛完善原报告；只有需要独立保留的新轮次才成篇，再单独判断是否真实承接前序。新认识、纠正或已提交都不自动产生新报告或演进关系，具体边界见[固定契约](../../skills/investigation-report/references/investigation-report-contract.md#报告边界与有效演进)。
 
-适合沉淀的最小对象是“一轮可以独立汇报的认识”，而不是一次命令、一个来源、一个试错步骤或一条待办。新证据、不同环境下的复查或实质认识变化通常构成新报告；只有原报告没有准确保存当时认识，或有格式、链接等记录错误时，才原地修正。
+当前事实由代码、规范和配置等事实来源承接；长期方向、实施计划与测试义务由对应 owner 承接。调查可以为它们提供依据，但不自动产生采用或实施授权。
 
-## 正式集合与候选 workspace
+## 一份报告应说清什么
 
-所有**已建立**报告都是同一正式集合的成员。每份报告以稳定 Investigation ID 定位，改名表示身份变化；单份正式 Markdown 是这轮调查语义的权威来源，索引是从全部正式报告重建的查询适配层，资源是报告按需声明的形成时材料。关系演进不会归档或删除报告；只有明确要求剔除报告时，才通过独立的 `discard` 事务处理删除边界。
+| 核心 | 要回答的问题 |
+| --- | --- |
+| 形成时背景 | 当时发生了什么，有哪些事实、假设、未知和约束？ |
+| 调查目的 | 本轮具体要回答什么，准备支持什么判断？ |
+| 调查范围与依据 | 实际检查了哪些对象，采用什么来源、方法、版本或时点，哪些未覆盖？ |
+| 调查结果与边界 | 哪些是确认事实、推断、建议、实际动作和未知，结论适用于什么条件？ |
 
-authoring candidate 是根目录保留文件 `_candidate.<investigation-id>`，不是正式报告、索引 entry 或 lifecycle 状态。它让正文、资源和关系先在集合外收敛；候选与正式报告同处调查根目录，因此两者都使用不变的 `./_resources/<resource-id>` 链接。候选自己的资源可以先放入最终 owner 路径，也可以共享既有正式资源；publish 不改写正文或搬迁资源。
+主张强度应与证据一致。计量、因果和方案类结论还需说明会改变解释的条件，例如样本与误差、候选解释与反证、授权与验证边界。
 
-```text
-后继正式报告 ──“补充 / 复查 / 修正 / 推翻 / 归并 / 拆分”──> 直接前序正式报告
-      │                                                              │
-      └────────────────── 所有正式报告留在同一集合 ──────────────────┘
+## 报告、关系与资源
 
-_candidate.<investigation-id>  ── publish（显式选择）──>  <investigation-id>
-        authoring workspace                              正式报告 Markdown
-                                                        │
-报告 Markdown（权威：问题、形成时内容、tags、关系、资源引用）
-    ├── 可选：形成时资源（支撑材料；资源本身不是报告正文）
-    └── 重建 ──> investigation-index.json（发现、筛选、排序与 trace 的派生适配层）
-```
+每份正式 Markdown 保存一轮完整认识，以稳定 Investigation ID 标识；文件位置单独维护。所有正式报告留在同一集合，后继通过补充、复查、修正、推翻、归并或拆分关系指向真实直接前序。关系演进保留前序的可见性；明确剔除报告时才执行删除。
 
-这个模型有四个容易混淆的边界：
+tags 表达可检索分类，派生索引帮助发现和追溯。需要当前口径时，回到当前事实 owner，并按需综合报告。
 
-1. **candidate 不等于已建立报告。** `scaffoldValid`、`bodyReady`、`resourceReady` 与 preflight 仅报告机械准备状态，不证明调查结论、关系语义、资源价值、语义审核或 publish 授权。
-2. **关系不产生生命周期。** 即使正式报告被修正、推翻或已有后继，它仍保留在正常发现路径中；没有归档目录或“被替代即隐藏”的机制。显式 `discard` 是独立的破坏性维护动作，不是关系的自动结果。
-3. **publish 是正常入口，不是唯一建立机制。** `publish <id...>` 只建立显式选择且通过完整预检的 candidates。手工写入正式根目录的完整报告仍立即属于正式集合，但只能由 `sync-index` 的全量验证与重建显式接纳；publish 不会静默混合这种来源漂移。
-4. **索引不是第二份事实。** 它方便发现、过滤、排序和追溯关系，但不能取代正式报告 Markdown；索引缺失、过期或异常时，不应把旧投影当作正式集合事实。合法 candidates 不进入索引、正式查询或 `stage-index`。
+正文与稳定来源足以复核时直接引用；确需形成时材料才保留最小必要资源，并在正文解释其来源、条件和支撑作用。资源可以共享，但必须有明确归属；秘密和认证材料不得保存。
 
-## 一份报告应让读者恢复什么
+## 从哪里开始
 
-一份完整报告要让读者恢复形成时背景、调查目的、范围与依据，以及结果与边界。它应说明哪些是确认事实、基于证据的推断、建议、实际动作和未知；证据范围、方法和条件要足以判断主张强度。资源或相邻报告不能替代这些正文语境。
+先判断原地完善还是独立新报告。需要新建时，路径是：**起草 candidate → 完成正文与资源 → agent 自行审查和预检 → 授权范围内 publish → 全量检查与交付**。一般内容与发布条件由 agent 自行判断，缺失关键事实、超出范围或明确要求人工决定时才询问。
 
-计量、因果和方案类结论还应保留会改变解释的条件，例如样本和误差、候选解释和反证、授权、恢复与验证边界。固定章节、frontmatter 和字段排序是可机读的稳定契约，以[固定契约](../../skills/investigation-report/references/investigation-report-contract.md)为准。
-
-## 分类、演进与资源
-
-`tags` 只回答“这份报告属于哪些可检索分类”，不表达状态、当前有效性、时间顺序或关系。关系只回答“本轮认识如何直接承接更早的认识”：它从后继指向真实直接前序，使用补充、复查、修正、推翻、归并或拆分之一；不表示任务依赖、优先级、授权或当前结论。关系的具体选择由 skill 指导，合法图形与事务由固定契约承接。
-
-资源是按需声明的形成时材料。只有正文与稳定事实 owner 无法充分支持未来复核时才保留，并且仍须在正文说明其来源、条件和支撑作用；秘密、认证材料或其他不应入库的信息不得保存。资源归属、共享引用和路径规则以固定契约为准。
-
-## 维护入口与审阅结果
-
-常规创建先以 `new` 得到 candidate。创建成功即使正文尚未完成或辅助检查有 warning，也不应重跑 `new`；继续编辑、用 `show-candidate` 查看，或以 `publish --preflight` 只读预演最终集合。预检不保存 receipt，普通 publish 会重新读取所有相关事实；只有当前授权与人工语义审核都完成后才执行 publish。
-
-按已知信息选择入口：已知 ID 或 name 用 `show`；已知 tags、形成时间、关系类型或某条已知直接关系用 `list`；只知道主题、原因或正文措辞用 `search <text>`；需要认识演进时再把完整 ID 交给 `trace`。`list` 从同一次完整索引 snapshot 给出全局筛选概览，默认按形成时间倒序显示最新 10 条紧凑结果；用 `--limit/--offset` 翻页，用 `--detail` 在同一窗口展开完整概览和多行摘要，完整正文仍交给 `show`。`list` 与 `search` 可用 `--related-to <selector>` 限定一个本领域目标，并用 `--direction predecessors|successors|both` 选择相对该目标的直接前序、直接后继或两者（默认 `both`）；只给 direction 是参数错误。目标与 relation type 同时出现时必须由同一条边满足。`search` 仅扫描索引选出的正式 Markdown，返回完整 ID、摘要、sourcePath 与命中预览；candidate、资源和索引文件不在范围内。`all`、`any`、`phrase` 分别要求全部词、任一词、同一物理行连续短语：统一 NFKC、忽略大小写并按空白处理查询，前两者可跨物理行，`phrase` 不跨行。它可复用 tags、形成时间和关系条件；search 的 `--limit` 只限制返回的命中报告（默认 50、最大 1000）。
-
-搜索先从同一当前索引快照完成目标解析和结构筛选，再取得 `sourcePath` 列表及唯一 `sourcePath → ID` 映射。索引缺失、损坏或不新鲜时，只有完整正式来源与资源验证成功才会以同一次内存投影只读降级并 warning；不会混用旧持久索引、写入，也不会让其他 index-backed 查询把投影当作集合事实。metadata 搜索只读持久索引；关系结构条件不作为 metadata 文本命中，因此不进入 `matchedRelations`。预览和返回报告都受资源上限约束；出现截断 warning 时，不能把未显示结果或无结果表述为集合中不存在，应收紧结构条件、调整 Investigation 的 `--limit`，或继续 `show`/`trace` 已返回的 ID。`sync-index` 是正式集合级的低频重建和显式接纳入口：一批手工正式报告编辑可以先共同完成，在查询、关系事务、全量检查或交付需要当前索引前统一同步一次。合法 candidates 不会被 `sync-index` 接纳，也不进入正式 `list`、`search`、`show`、`trace` 或 `stage-index`；`candidates`、`show-candidate` 和显式选择它们的 `publish` 才会读取候选。
-
-审阅完成时，应能判断正式报告是否仍可独立复核形成时认识，tags 与关系是否各有内容依据，资源是否必要且安全，以及正式报告、索引和关系图是否没有被误读为当前决策或实施状态。调查如形成长期采用方向、实施任务或稳定测试义务，再交接给对应 owner；没有下游载体不影响报告本身成立。
-
-## 运行时诊断与恢复
-
-CLI 将成功信息写入 stdout，将失败与 warning 即时写入 stderr。诊断说明 code、对象、原因和下一步；有可靠系统证据时才附带原因类别、操作和经过净化的 detail。即时诊断不会持久化为报告、索引日志、遥测或 receipt。
-
-只有 mutation-capable 命令的失败，才为各自可证明的范围报告 `no-change`、`rolled-back`、`partial-or-unknown` 或 `committed-cleanup-pending`；普通读取、检查与参数错误不附带这些字段。`new` 成功后的 readiness warning 与 `publish --preflight` 都不是 mutation outcome。`sync-index`、`set-relations`、`discard`、`publish`、`discard-candidate` 和 `stage-index` 分别只声明自己实际拥有的 mutation 范围。恢复不完整时保留来源并停止对账；权限问题只授予当前进程，busy 时先等待或确认活动进程。工具不会使用或建议 `sudo`，也不会自动删除锁或重试。精确诊断字段和恢复动作由[固定契约](../../skills/investigation-report/references/investigation-report-contract.md)及[维护恢复](../../skills/investigation-report/references/maintenance-recovery.md)承接。
+- 查找正式报告：已知 ID 或唯一 name 用 `show`，按分类、时间或关系浏览用 `list`，按主题发现用 `search`，追溯演进用 `trace`。
+- 起草、审阅与维护：[Skill 入口](../../skills/investigation-report/SKILL.md)负责流程与质量判断；[固定契约](../../skills/investigation-report/references/investigation-report-contract.md)负责格式、关系、资源和事务约束。
+- 获取命令参数：本仓库使用 `bun run investigation-report -- help <command>`。
+- 遇到工具、索引或写入异常：按[维护恢复](../../skills/investigation-report/references/maintenance-recovery.md)核对范围和恢复结果。

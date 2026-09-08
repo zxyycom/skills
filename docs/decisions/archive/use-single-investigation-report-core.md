@@ -1,7 +1,7 @@
 ---
 title: 使用单报告固定调查核心
 id: use-single-investigation-report-core
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-28T10:12:50Z
 purpose: 让每份独立调查报告完整保存可比较的形成时输入、证据基础和结果边界，而不再依赖主题容器或追加位置。
