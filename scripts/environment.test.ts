@@ -31,6 +31,7 @@ const gitCommitConfig = [
   "-c",
   "user.name=Environment Test"
 ];
+const repositoryHookNames = ["pre-commit", "post-commit"] as const;
 
 function run(
   command: string,
@@ -400,15 +401,17 @@ function assertHookExecutes(root: string): void {
   assert.notEqual(result.status, 0, "the fixture hook must block the commit");
 }
 
-async function assertHookIsUsable(root: string): Promise<void> {
-  const hook = await fs.stat(path.join(root, ".githooks", "pre-commit"));
-  assert.equal(hook.isFile(), true);
-  if (process.platform !== "win32") {
-    assert.notEqual(hook.mode & 0o111, 0);
+async function assertHooksAreUsable(root: string): Promise<void> {
+  for (const hookName of repositoryHookNames) {
+    const hook = await fs.stat(path.join(root, ".githooks", hookName));
+    assert.equal(hook.isFile(), true);
+    if (process.platform !== "win32") {
+      assert.notEqual(hook.mode & 0o111, 0);
+    }
   }
 }
 
-test("environment setup enables the pre-commit hook in a fresh clone", async () => {
+test("environment setup enables repository hooks in a fresh clone", async () => {
   const tempRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills environment clone ")
   );
@@ -435,19 +438,71 @@ test("environment setup enables the pre-commit hook in a fresh clone", async () 
       ).stdout.trim(),
       ".githooks"
     );
-    assert.equal(
-      (
-        await fs.readFile(path.join(clone, ".githooks", "pre-commit"), "utf8")
-      ).includes("\r"),
-      false,
-      "the hook must remain LF-only when checkout conversion is enabled"
-    );
-    await assertHookIsUsable(clone);
+    for (const hookName of repositoryHookNames) {
+      assert.equal(
+        (
+          await fs.readFile(path.join(clone, ".githooks", hookName), "utf8")
+        ).includes("\r"),
+        false,
+        `${hookName} must remain LF-only when checkout conversion is enabled`
+      );
+    }
+    await assertHooksAreUsable(clone);
 
     assertHookExecutes(clone);
     assert.equal(
       await fs.readFile(path.join(clone, ".hook-ran"), "utf8"),
       "executed\n"
+    );
+    requireSuccess(
+      run(
+        "git",
+        [
+          ...gitCommitConfig,
+          "commit",
+          "--no-verify",
+          "--allow-empty",
+          "-m",
+          "post hook check"
+        ],
+        clone
+      ),
+      "commit through post-commit"
+    );
+    assert.equal(
+      await fs.readFile(path.join(clone, ".post-hook-ran"), "utf8"),
+      "executed\n"
+    );
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test("repository hook setup rejects non-regular hook paths", async () => {
+  const tempRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "skills invalid repository hook ")
+  );
+  try {
+    const root = await createRepository(tempRoot, "repository");
+    const preCommit = path.join(root, ".githooks", "pre-commit");
+    const postCommit = path.join(root, ".githooks", "post-commit");
+    await fs.chmod(preCommit, 0o600);
+    const preCommitMode = (await fs.stat(preCommit)).mode;
+    await fs.rm(postCommit);
+    await fs.mkdir(postCommit);
+
+    const setup = run(
+      process.execPath,
+      [path.join(root, "scripts", "setup-git-hooks.js")],
+      root
+    );
+
+    assert.equal(setup.status, 1);
+    assert.match(setup.stderr, /post-commit hook must be a regular file/u);
+    assert.equal((await fs.stat(preCommit)).mode, preCommitMode);
+    assert.equal(
+      run("git", ["config", "--local", "--get", "core.hooksPath"], root).status,
+      1
     );
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });
@@ -465,7 +520,9 @@ test("environment setup is idempotent in a linked worktree and keeps the main ta
       run("git", ["worktree", "add", "-b", "worker", linked], main),
       "git worktree add"
     );
-    await fs.chmod(path.join(linked, ".githooks", "pre-commit"), 0o600);
+    for (const hookName of repositoryHookNames) {
+      await fs.chmod(path.join(linked, ".githooks", hookName), 0o600);
+    }
     const fakeTools = await createFakeToolPath(tempRoot);
 
     requireSuccess(
@@ -483,7 +540,7 @@ test("environment setup is idempotent in a linked worktree and keeps the main ta
       )[0],
       `worktree ${main}`
     );
-    await assertHookIsUsable(linked);
+    await assertHooksAreUsable(linked);
     assertHookExecutes(linked);
     assert.equal(
       await fs.readFile(path.join(linked, ".hook-ran"), "utf8"),
@@ -546,9 +603,12 @@ test("environment check reports missing repository setup without writing it", as
       ["config", "--local", "--list"],
       root
     ).stdout;
-    const modeBefore = (
-      await fs.stat(path.join(root, ".githooks", "pre-commit"))
-    ).mode;
+    const modesBefore = await Promise.all(
+      repositoryHookNames.map(
+        async (hookName) =>
+          (await fs.stat(path.join(root, ".githooks", hookName))).mode
+      )
+    );
 
     const check = runEnvironment(root, "check", fakeTools);
 
@@ -559,9 +619,14 @@ test("environment check reports missing repository setup without writing it", as
       run("git", ["config", "--local", "--list"], root).stdout,
       configBefore
     );
-    assert.equal(
-      (await fs.stat(path.join(root, ".githooks", "pre-commit"))).mode,
-      modeBefore
+    assert.deepEqual(
+      await Promise.all(
+        repositoryHookNames.map(
+          async (hookName) =>
+            (await fs.stat(path.join(root, ".githooks", hookName))).mode
+        )
+      ),
+      modesBefore
     );
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });

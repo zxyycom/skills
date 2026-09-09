@@ -16,7 +16,7 @@
     "test:change-plan-cli": "bun test ./tools/change-plan/tests/run.ts",
     "test:decision-records-cli": "bun test ./tools/decision-records/tests/run.ts",
     "test:check": "bun test ./scripts/vibe-check.test.ts",
-    "test:environment": "bun test ./scripts/environment.test.ts ./scripts/validators/project-config.test.ts",
+    "test:environment": "bun test ./scripts/auto-push.test.ts ./scripts/environment.test.ts ./scripts/validators/project-config.test.ts",
     "test:generated-file": "bun test ./scripts/lib/generated-file.test.ts",
     "test:skill-package-hash": "bun test ./scripts/lib/skill-package-hash.test.ts",
     "test:skill-release-publisher": "bun test ./scripts/publish-skills.test.ts",

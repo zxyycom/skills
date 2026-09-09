@@ -5,6 +5,11 @@
   "metadata": {},
   "sourceRevision": {
     "entries": {
+      "AUTO-PUSH-BRANCH-001": "sha256:a35adafd5d6b8e79cd27f25f0351db5888a52328126fc064f508f268500b5352",
+      "AUTO-PUSH-CONCURRENCY-001": "sha256:00c61ec3ad196aa6bdf7b1e94a2b2c2323b9ff092ac6c98c4765186ce43e18f0",
+      "AUTO-PUSH-CONFLICT-001": "sha256:f3416932d0929d23ac5ade3011be54aafd23dd1d0c160537a5d89d548bc9758b",
+      "AUTO-PUSH-STATE-001": "sha256:3fb33a9cfca9674509a50069a1c9324194c84c7e1f9c65c19ad2235b25534936",
+      "AUTO-PUSH-THROTTLE-001": "sha256:f7152d4c99d3e0b4066847649eaf251df288914994880b1e8b9caff363ed750a",
       "CHANGE-PLAN-CATALOG-001": "sha256:ac6f2c728b4e25b6e70ec99280991a997f6936f801fac1a8c6077b31f4e0b05b",
       "CHANGE-PLAN-CATALOG-002": "sha256:88d353f581be48ec41406565b260d88a39eee30578388efd24ce89da01b4fd6b",
       "CHANGE-PLAN-CHECK-ARTIFACTS-001": "sha256:b2612d5f5a81d15708559dc83773ac48e83276c9cf33449106e29d9971b5f707",
@@ -276,7 +281,8 @@
       "DECISION-UNRECORDED-WARNING-ORDER-001": "sha256:7fcf842700aa130d629bc30e0bc5780fd03041b2acbfdc44110c738456e062fd",
       "ENV-BUN-RUNTIME-001": "sha256:78577e0d63759da1ed7c1537ef2223627f1a84db18b40e1aababb4a577edd47b",
       "ENV-CHECK-READONLY-001": "sha256:fa1efd3d306caf1ab5cf4193b492f213078975614c3f1ff9d99d8b25be04d84e",
-      "ENV-CLONE-HOOK-001": "sha256:c712b78cd60cc0802fdcdd5390988323d085e37c960e3e15812b45bf05fd023b",
+      "ENV-CLONE-HOOK-001": "sha256:11c6f783ed7fdb8f745e67ae5325fe3f3824c33e89b993a25ffd6acf4f111b84",
+      "ENV-HOOK-PATH-001": "sha256:dc73495d94593158ac5296c07823680ea5e4615a86ae94d746943d0ed8e6203b",
       "ENV-LINKED-HASH-HOOK-001": "sha256:dd328e3eeda0627817ceda2435cc1930b2f4424553db66c473e199fbf234072c",
       "ENV-METRICS-PREREQUISITES-001": "sha256:314270b3a546e433ff2ba5efb559489a7815eeb60a5b3a782087c206639bed7a",
       "ENV-PERMISSION-RULES-001": "sha256:30f1bec51ad299039e9bb7471d15b12a9a428f43663d084376afc3037500a000",
@@ -825,6 +831,56 @@
     "metadata": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
   },
   "entries": {
+    "AUTO-PUSH-BRANCH-001": {
+      "title": "自动推送只接受 Main 提交",
+      "sourcePath": "cases/auto-push-branch-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:8d3d0aec8606fb14381d6f777227039e71a286554b301c577c267a134e37d4b5"
+      ]
+    },
+    "AUTO-PUSH-CONCURRENCY-001": {
+      "title": "并发调用共享同一小时窗口",
+      "sourcePath": "cases/auto-push-concurrency-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:d63a88da82a3d1b3dcd9d318db1d7595cd30f0e62907b65fde77e2407f2a53a8"
+      ]
+    },
+    "AUTO-PUSH-CONFLICT-001": {
+      "title": "Main 自动推送拒绝远端分叉",
+      "sourcePath": "cases/auto-push-conflict-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:3e9878379336f88b51b6ca961f25814979f62863d45b53a4f3efdca5a4fe50f8"
+      ]
+    },
+    "AUTO-PUSH-STATE-001": {
+      "title": "无效节流状态阻止自动推送",
+      "sourcePath": "cases/auto-push-state-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:a687871d298df96f6913bbd32fb45b378d3c3af63e0dda5c3cbb199a904f6961"
+      ]
+    },
+    "AUTO-PUSH-THROTTLE-001": {
+      "title": "Main 自动推送按小时节流",
+      "sourcePath": "cases/auto-push-throttle-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:fa8a5825df205d4cac5abb7d6621832090c2364c5f9693f4792c0d6343512aa0"
+      ]
+    },
     "CHANGE-PLAN-CATALOG-001": {
       "title": "Catalog 仅列出直接 Change 并排除 tombstone",
       "sourcePath": "cases/change-plan-catalog-001.md",
@@ -3542,13 +3598,23 @@
       ]
     },
     "ENV-CLONE-HOOK-001": {
-      "title": "环境 setup 在新 clone 中启用 pre-commit",
+      "title": "环境 setup 在新 clone 中启用仓库 Hooks",
       "sourcePath": "cases/env-clone-hook-001.md",
       "tags": [
         "repository-tooling"
       ],
       "testIds": [
-        "test:f20a8a8c5788cef841f80ba36c6a9bce5e62dde20d438514266736b4165e9da1"
+        "test:baef42808fb0f96878ced5185b89d6e1ed515d23781f611cd16912a026309fa9"
+      ]
+    },
+    "ENV-HOOK-PATH-001": {
+      "title": "Hook setup 拒绝非普通文件",
+      "sourcePath": "cases/env-hook-path-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:89ea7024725e10ac70c96c7c28ff9b0ad262d44e0cf623ebd14fc45d9dff5d71"
       ]
     },
     "ENV-LINKED-HASH-HOOK-001": {

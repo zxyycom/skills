@@ -1,0 +1,27 @@
+#!/bin/sh
+set -u
+
+if ! repo_root="$(git rev-parse --show-toplevel)"; then
+  echo "[auto-push] skipped: could not discover the repository root." >&2
+  exit 0
+fi
+if ! git_local_env_vars="$(git rev-parse --local-env-vars)"; then
+  echo "[auto-push] skipped: could not discover Git local environment variables." >&2
+  exit 0
+fi
+for variable in $git_local_env_vars; do
+  unset "$variable"
+done
+cd "$repo_root" || exit 0
+
+if ! command -v bun >/dev/null 2>&1; then
+  echo "[auto-push] skipped: Bun is required by the post-commit hook." >&2
+  exit 0
+fi
+
+bun scripts/auto-push.ts || {
+  status=$?
+  echo "[auto-push] skipped: helper exited with status $status." >&2
+}
+
+exit 0

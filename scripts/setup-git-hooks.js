@@ -5,6 +5,24 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+export const repositoryHookNames = Object.freeze(["pre-commit", "post-commit"]);
+
+function validatedHookPaths(cwd) {
+  return repositoryHookNames.map((hookName) => {
+    const hookPath = path.join(cwd, ".githooks", hookName);
+    let hook;
+    try {
+      hook = fs.lstatSync(hookPath);
+    } catch {
+      throw new Error(`${hookName} hook is unavailable at ${hookPath}`);
+    }
+    if (!hook.isFile() || hook.isSymbolicLink()) {
+      throw new Error(`${hookName} hook must be a regular file at ${hookPath}`);
+    }
+    return hookPath;
+  });
+}
+
 function git(cwd, args) {
   const result = spawnSync("git", args, {
     cwd,
@@ -23,12 +41,11 @@ function git(cwd, args) {
 }
 
 export function setupGitHooks(cwd) {
-  const hookPath = path.join(cwd, ".githooks", "pre-commit");
-  if (!fs.existsSync(hookPath)) {
-    throw new Error(`pre-commit hook is missing at ${hookPath}`);
-  }
-  if (process.platform !== "win32") {
-    fs.chmodSync(hookPath, 0o755);
+  const hookPaths = validatedHookPaths(cwd);
+  for (const hookPath of hookPaths) {
+    if (process.platform !== "win32") {
+      fs.chmodSync(hookPath, 0o755);
+    }
   }
   git(cwd, ["config", "--local", "core.hooksPath", ".githooks"]);
 }

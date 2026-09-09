@@ -50,6 +50,7 @@
 10. 新增或调整主仓库自动化时放在 `scripts/`; 新增需要随 skill 分发的工具实现时放在 `tools/`, 真实跨工具运行时能力再进入 `tools/shared/` 或独立协议 owner; skill 专属规则仍留在对应 skill 目录。
 11. 打包产物、依赖目录和 workflow 运行产物不作为长期源文件提交。
 12. 新增、修改、删除或审查测试实现时，按 `skills/test-evidence-review/SKILL.md` 维护 `docs/test-evidence/cases/<semantic-slug>.md`；每个文件只保存一个 Case，当前账本覆盖 `test:*` 保留的全部最小原生测试入口，测试框架不限，但每个入口必须能被框架独立选择和单独报告。Case 使用 Tests、可选 tags、Contract 与 Proves；修改目录后同步 `test-evidence-index.json`，项目实体快照与覆盖策略按项目 owner 维护。
+13. 当前 worktree 启用 `.githooks` 后，使用者即已授权 `post-commit` 按[项目工具链](docs/tooling.md#git-hook)定义自动推送。agent 获得当前 commit 授权后，不再为该自动推送单独请求授权或绕过 hook；当前任务明确要求停用或限制自动推送时，按该要求执行。此许可不覆盖手工调用 helper、手工或强制 push、其他 remote/ref。
 
 ## 写作约定
 

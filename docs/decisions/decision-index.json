@@ -86,6 +86,7 @@
       "260907-case-only-test-evidence-workspace": "sha256:d9ef81e231035b5535069ba418d16f7456f62aa4dc1a72f22905f011869a09f0",
       "260907-case-snapshot-reference-boundary": "sha256:e23e4da3f7633e52b0ae4d248d807189db537df953c01e79ceec5db9486d32e0",
       "260907-stage-case-index-definition-migration": "sha256:ed1a6e4a6ed4d8855f993807114a82358654e537540bdce82a3273aef7806daf",
+      "260908-authorize-throttled-main-auto-push-hook": "sha256:69c7284f3cdd44760a10311fdd5d1dfd7b15250f460c79201ddbf806337a6790",
       "260908-bound-record-list-output": "sha256:c642c0be872d8584579df5658f267073ab6c63b0940759953fa3ee4abc27bf5d",
       "260908-maintain-independent-investigation-rounds": "sha256:eab39227731e99049652e58c07032b334a555303b870e2c70e5f9fa9ab6061eb",
       "260908-require-established-decision-alignment": "sha256:87f62b2419c4d41d88d47c237bd89f4b55298b73f1889af6be9b9593a6f24209",
@@ -106,7 +107,7 @@
       "automatically-record-complex-bug-investigations": "sha256:8d9a5eb90ce77dd22805804350ba6e000dc748ab3f021768314bd4b9aafdc07f",
       "bootstrap-hooks-and-select-project-roots": "sha256:8203e4ed3169af1a84a9544f4475ff72856cd288dfac4c2bff772522db589158",
       "bootstrap-hooks-and-use-project-short-commands": "sha256:b4d9f67750442af9fd5caf65df6fa581e3ad37f0ead560e4170526f2c0501ffc",
-      "bootstrap-platform-git-hooks": "sha256:a9e223e08b4da593690f19d9558601a0dfb54a5591c3a5c34da1946f231d2532",
+      "bootstrap-platform-git-hooks": "sha256:8bd5c78bf54feceeaac9cf68e185bb9c1fcb4621ec234138a3bf3dd408275c39",
       "bootstrap-repository-coordination-with-owned-launchers": "sha256:ab51a5a426ac6b5e41e3c051b5e0d67464a957ada203b35995087d48c387d626",
       "bound-review-and-handoff-by-delivery-impact": "sha256:84de72cf61750a9d3e451b0fe4e6876076e261cfff895c74d49201b29832905c",
       "bound-top-level-check-concurrency": "sha256:b4a846834b4c2cfdfd5489c86d59c0c2b150ca9150e68e125287e69756ba1f6a",
@@ -1881,6 +1882,26 @@
         }
       ]
     },
+    "260908-authorize-throttled-main-auto-push-hook": {
+      "name": "authorize-throttled-main-auto-push-hook",
+      "sourcePath": "authorize-throttled-main-auto-push-hook.md",
+      "title": "为已启用 Hook 授权按小时节流的 Main 自动推送",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-08T16:42:17Z",
+      "purpose": "让已启用仓库 hook 的 commit 在明确授权边界内自动同步可快进的 main，同时限制外部写入频率。",
+      "background": "commit 与手工 push 原本分别授权；本仓库需要把目标和频率受限的自动 push 作为启用 hook 后的预先许可行为。",
+      "decision": "启用仓库 hooks 即授权 post-commit 滚动一小时内至多尝试一次非强制 origin main push；该授权不扩展到手工、强制或其他目标 push。",
+      "tags": [
+        "project-tooling"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "bootstrap-platform-git-hooks"
+        }
+      ]
+    },
     "260908-bound-record-list-output": {
       "name": "bound-record-list-output",
       "sourcePath": "bound-record-list-output.md",
@@ -2254,9 +2275,9 @@
     },
     "bootstrap-platform-git-hooks": {
       "name": "bootstrap-platform-git-hooks",
-      "sourcePath": "bootstrap-platform-git-hooks.md",
+      "sourcePath": "archive/bootstrap-platform-git-hooks.md",
       "title": "按 Git 平台建立仓库 Hook",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-09T05:40:36Z",
       "purpose": "让 clone 和 linked worktree 通过标准环境 setup 获得符合当前 Git 平台的 pre-commit 条件。",

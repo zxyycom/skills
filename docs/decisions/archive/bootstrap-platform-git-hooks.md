@@ -1,7 +1,7 @@
 ---
 title: 按 Git 平台建立仓库 Hook
 id: bootstrap-platform-git-hooks
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-09T05:40:36Z
 purpose: 让 clone 和 linked worktree 通过标准环境 setup 获得符合当前 Git 平台的 pre-commit 条件。

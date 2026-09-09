@@ -1,10 +1,15 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import { accessSync, constants as fsConstants, existsSync } from "node:fs";
+import {
+  accessSync,
+  constants as fsConstants,
+  existsSync,
+  lstatSync
+} from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { setupGitHooks } from "./setup-git-hooks.js";
+import { repositoryHookNames, setupGitHooks } from "./setup-git-hooks.js";
 
 function gitResult(cwd, args) {
   return spawnSync("git", args, {
@@ -83,17 +88,26 @@ export function getRepositorySetupStatus(cwd) {
       };
     }
 
-    const hookPath = path.join(cwd, ".githooks", "pre-commit");
-    try {
-      accessSync(
-        hookPath,
-        process.platform === "win32" ? fsConstants.F_OK : fsConstants.X_OK
-      );
-    } catch {
-      return {
-        detail: `pre-commit is missing or not executable at ${hookPath}`,
-        state: "missing"
-      };
+    for (const hookName of repositoryHookNames) {
+      const hookPath = path.join(cwd, ".githooks", hookName);
+      try {
+        const hook = lstatSync(hookPath);
+        if (!hook.isFile() || hook.isSymbolicLink()) {
+          return {
+            detail: `${hookName} must be a regular file at ${hookPath}`,
+            state: "missing"
+          };
+        }
+        accessSync(
+          hookPath,
+          process.platform === "win32" ? fsConstants.F_OK : fsConstants.X_OK
+        );
+      } catch {
+        return {
+          detail: `${hookName} is missing or not executable at ${hookPath}`,
+          state: "missing"
+        };
+      }
     }
 
     const currentRoot = getCurrentTaskGraphRoot(cwd);

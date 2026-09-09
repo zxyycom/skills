@@ -272,17 +272,37 @@ Skill hash 和 zip 使用相同的版本管理 `pending` 快照，只覆盖最�
 
 ## Git hook
 
-标准 `node scripts/environment.js setup` 已包含 hook 配置。只需要单独恢复当前 worktree 的平台 hook 条件或 `hooksPath` 时运行：
+### 启用与授权
+
+标准 `node scripts/environment.js setup` 会启用当前 worktree 的整组仓库 hook。只需要单独恢复平台 hook 条件或 `core.hooksPath` 时运行：
 
 ```bash
 bun run setup-hooks
 ```
 
-`.githooks/pre-commit` 通过 `hash:skills --quiet` 只读检查 Git index；包内容变化但对应 `metadata.version` 未提升时命令失败。hook 不写文件，也不自动 stage。GitHub Actions 不能修改已经 push 的提交，需要阻止错误提交进入 `main` 时，应由 branch protection 或 ruleset 要求 CI check。
+当 `core.hooksPath=.githooks` 且当前平台所需的 hook 文件条件已经满足时，仓库 hook 视为已启用。启用即表示使用者预先授权下文定义的 `post-commit` 自动推送；agent 获得当前 commit 授权后，不需要再次索取该自动推送的授权，也不主动绕过 hook。当前任务明确要求停用或限制自动推送时，该要求优先。
 
-Hook 源文件通过 `.gitattributes` 固定使用 LF，并在 Git index 中保存为 `100755`。POSIX Git 会检查工作区执行位，因此 setup 对当前 worktree 重新执行 `chmod 0755`；原生 Git for Windows 的 `access(X_OK)` 兼容层忽略 `X_OK`，因此 Windows setup 不把 `chmod` 当作启用机制，而是依赖 LF 脚本存在且 `core.hooksPath=.githooks`。环境测试使用真实 `git commit` 验证 hook 被调用，并以启用 checkout 换行转换的 clone 验证 LF 契约；当前完整门禁仍只在 Linux 运行，不能表述为已经完成真实 Windows runner 验证。
+该授权只覆盖 hook 自动调用 helper 后产生的精确外部写入，不覆盖手工调用 helper、手工或强制 push、其他 remote/ref。由于启用动作建立持续的自动外部写入，setup 入口继续属于需要使用者明确选择的有副作用命令。
 
-Git 调用 hook 时会注入当前 worktree 的 `GIT_DIR`、`GIT_INDEX_FILE` 等 repository-local 环境变量。pre-commit 在取得当前顶层路径后先清除 `git rev-parse --local-env-vars` 声明的变量，再从该顶层运行 hash；这样 hash 内部按 skill 路径执行的 Git 发现会重新识别 linked worktree 及其 index，而不会把单个 skill 目录误判成仓库根。
+### Hook 行为
+
+`.githooks/pre-commit` 通过 `hash:skills --quiet` 只读检查 Git index；包内容变化但对应 `metadata.version` 未提升时命令失败。该 hook 不写文件，也不自动 stage。
+
+`.githooks/post-commit` 在 commit 已经完成后调用 `scripts/auto-push.ts`，其边界如下：
+
+1. **目标条件**：仅当当前 symbolic branch 是 `main` 且存在 `origin` 时进入推送流程；其他 branch、detached HEAD 或缺少 `origin` 时跳过。
+2. **更新方式**：只执行非强制的 `refs/heads/main:refs/heads/main` push；Git 的普通 fast-forward 规则拒绝远端分叉或其他非快进更新，不改用 force、其他 branch 或其他 remote。
+3. **频率上限**：自动推送按尝试节流，而不是按成功结果节流。helper 在发起 push 前，以 Git common dir 共享的 `refs/codex/auto-push/last-attempt` blob 保存毫秒时间戳，并用 `update-ref` compare-and-swap 协调 linked worktree；同一仓库滚动一小时内至多保留并发起一次尝试。
+4. **失败结果**：网络、权限或远端冲突造成的失败也占用当前一小时窗口；节流状态无法可信读取、解析或更新时不推送。helper 返回失败并输出诊断，hook 吸收该状态，因此已经完成的 commit 不回滚。
+5. **后续触发**：hook 不创建 timer 或后台重试；窗口结束后的下一次符合条件的 commit 才会再次尝试，并推送届时 `main` 累积的提交。
+
+节流 ref 不属于 `main`，上述显式 push refspec 不会发布它。GitHub Actions 不能修改已经 push 的 commit；需要阻止错误提交进入 `main` 时，由 branch protection 或 ruleset 要求 CI check。
+
+### 平台与 Git 环境
+
+Hook 源文件通过 `.gitattributes` 固定使用 LF，并在 Git index 中保存为 `100755`。POSIX Git 会检查工作区执行位，因此 setup 对当前 worktree 的 `pre-commit` 和 `post-commit` 重新执行 `chmod 0755`；原生 Git for Windows 的 `access(X_OK)` 兼容层忽略 `X_OK`，因此 Windows setup 不把 `chmod` 当作启用机制，而是依赖 LF 脚本存在且 `core.hooksPath=.githooks`。环境测试使用真实 `git commit` 验证两类 hook 被调用，并以启用 checkout 换行转换的 clone 验证 LF 契约；当前完整门禁仍只在 Linux 运行，不能表述为已经完成真实 Windows runner 验证。
+
+Git 调用 hook 时会注入当前 worktree 的 `GIT_DIR`、`GIT_INDEX_FILE` 等 repository-local 环境变量。两个 hook 在取得当前顶层路径后先清除 `git rev-parse --local-env-vars` 声明的变量，再从该顶层运行各自 helper；这样 nested Git 会重新识别当前 worktree、共享 common dir 及其正确 index，而不会继承 hook 调用点的局部覆盖。
 
 ## CI 与发布
 

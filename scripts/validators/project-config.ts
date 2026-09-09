@@ -123,6 +123,7 @@ const requiredProjectFiles = [
   "tsconfig.json",
   ".codex/rules/bun.rules",
   "scripts/environment.js",
+  "scripts/auto-push.ts",
   "scripts/setup-git-hooks.js",
   "scripts/setup-repository.js",
   "scripts/task-graph.js",
@@ -135,6 +136,7 @@ const requiredProjectFiles = [
   "docs/tooling.md",
   "docs/skills",
   ".githooks/pre-commit",
+  ".githooks/post-commit",
   ".github/workflows/package-skills.yml"
 ] as const;
 
