@@ -294,10 +294,10 @@ test(
       t.skip("The Git invocation wrapper is currently POSIX-only");
       return;
     }
-    // The 300-record fixture already exercises the upper bound. Repeating the
-    // same Git/CAS contract at 150 records doubled the process-heavy test
-    // without covering a different boundary.
-    for (const decisionCount of [300]) {
+    // More entries than either accepted call-count ceiling distinguish bounded
+    // Git access from a per-entry regression without making fixture size itself
+    // the behavior under test.
+    for (const decisionCount of [64]) {
       await withTemporaryWorkspace(
         `stage-call-count-${decisionCount}`,
         async (workspaceRoot) => {
@@ -937,19 +937,22 @@ async function createStageScaleFixture(
   workspaceRoot: string,
   decisionCount: number
 ): Promise<string[]> {
-  const decisionIds: string[] = [];
-  for (let index = 0; index < decisionCount; index += 1) {
-    const decisionId = `use-scale-${String(index).padStart(3, "0")}`;
-    decisionIds.push(decisionId);
-    await writeDecision(
-      workspaceRoot,
-      decisionId,
-      candidateDecisionBody({ title: `规模化决策 ${index}` })
-        .replace("status: candidate", "status: active")
-        .replace("alignment: null", "alignment: aligned")
-        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
-    );
-  }
+  const decisionIds = Array.from(
+    { length: decisionCount },
+    (_, index) => `use-scale-${String(index).padStart(3, "0")}`
+  );
+  await Promise.all(
+    decisionIds.map(async (decisionId, index) => {
+      await writeDecision(
+        workspaceRoot,
+        decisionId,
+        candidateDecisionBody({ title: `规模化决策 ${index}` })
+          .replace("status: candidate", "status: active")
+          .replace("alignment: null", "alignment: aligned")
+          .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
+      );
+    })
+  );
   return decisionIds;
 }
 

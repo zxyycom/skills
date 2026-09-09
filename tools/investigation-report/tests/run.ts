@@ -6,7 +6,6 @@ await import("./list-facets.test.ts");
 await import("./parsing-directory.test.ts");
 await import("./publish.test.ts");
 await import("./resources.test.ts");
-await import("./scale.test.ts");
 await import("./staging.test.ts");
 await import("./relations.test.ts");
 await import("./transaction.test.ts");

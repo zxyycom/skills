@@ -7,6 +7,9 @@ import { fileURLToPath } from "node:url";
 import { unzipSync } from "fflate";
 import test from "node:test";
 import "./lib/vibe-gate/impact.test.ts";
+import "./lib/vibe-gate/release-test-batch.test.ts";
+import "./vibe-check-proof-mode.test.ts";
+import { fixtureGateWorkspaceSnapshot } from "./lib/vibe-gate/test-support.ts";
 import {
   defineCheck,
   defineConfig,
@@ -38,7 +41,12 @@ import {
   investigationAuthoringDocumentExclusions,
   maintainedSecretFiles,
   productCodeFiles,
+  releaseBunTestPackageFiles,
   releaseSnapshotCheckId,
+  releaseTestBatchGroups,
+  releaseTestBatchLeaderCheckId,
+  releaseTestBatchResourceClaim,
+  releaseGateResourceCapacities,
   releaseRequiredPackageScripts,
   releaseRequiredCheckIds,
   runGateCommand,
@@ -47,8 +55,7 @@ import {
   vibeNativeCheckIds,
   type GateCommandInvocation,
   type GateCommandRunner,
-  type GateActivationPlan,
-  type GateWorkspaceSnapshot
+  type GateActivationPlan
 } from "./lib/vibe-gate.ts";
 import {
   packSkillPackageSnapshot,
@@ -80,38 +87,6 @@ const noOutput = {
   machinePublication: { enabled: false },
   progressRendering: { enabled: false }
 } as const;
-
-function fixtureGateWorkspaceSnapshot(): GateWorkspaceSnapshot {
-  const digest = "0".repeat(64);
-  return {
-    files: [],
-    tagDigests: {
-      "build-system": digest,
-      "change-plan": digest,
-      "decision-records": digest,
-      documentation: digest,
-      environment: digest,
-      global: digest,
-      "index-runtime": digest,
-      "investigation-report": digest,
-      json: digest,
-      "maintained-code": digest,
-      markdown: digest,
-      "path-inventory": digest,
-      "secret-surface": digest,
-      "shared-tools": digest,
-      "skill-release": digest,
-      "skill-updater": digest,
-      "skill-validator": digest,
-      skills: digest,
-      "task-graph": digest,
-      "test-evidence": digest
-    },
-    toolchainFingerprint: digest,
-    unclassifiedPaths: [],
-    workspaceFingerprint: digest
-  };
-}
 
 function scriptForCommand(invocation: GateCommandInvocation): string | null {
   return invocation.command === "bun" && invocation.args[0] === "run"
@@ -351,7 +326,7 @@ const expectedSemanticGateChecks = [
     ]
   ],
   [
-    "release",
+    undefined,
     "test:decision-records:record-and-established-graph",
     "bun",
     [
@@ -367,7 +342,7 @@ const expectedSemanticGateChecks = [
     ]
   ],
   [
-    "release",
+    undefined,
     "test:decision-records:query-and-index-projection",
     "bun",
     [
@@ -378,7 +353,7 @@ const expectedSemanticGateChecks = [
     ]
   ],
   [
-    "release",
+    undefined,
     "test:decision-records:lifecycle-and-recovery",
     "bun",
     [
@@ -393,13 +368,13 @@ const expectedSemanticGateChecks = [
     ]
   ],
   [
-    "release",
+    undefined,
     "test:decision-records:pending-stage",
     "bun",
     ["./tools/decision-records/tests/stage.test.ts"]
   ],
   [
-    "release",
+    undefined,
     "test:decision-records:public-distribution",
     "bun",
     [
@@ -408,7 +383,7 @@ const expectedSemanticGateChecks = [
     ]
   ],
   [
-    "release",
+    undefined,
     "test:investigation-report:collection-and-resources",
     "bun",
     [
@@ -419,17 +394,16 @@ const expectedSemanticGateChecks = [
     ]
   ],
   [
-    "release",
+    undefined,
     "test:investigation-report:index-and-query",
     "bun",
     [
       "./tools/investigation-report/tests/index-query.test.ts",
-      "./tools/investigation-report/tests/list-facets.test.ts",
-      "./tools/investigation-report/tests/scale.test.ts"
+      "./tools/investigation-report/tests/list-facets.test.ts"
     ]
   ],
   [
-    "release",
+    undefined,
     "test:investigation-report:transactional-maintenance",
     "bun",
     [
@@ -440,19 +414,19 @@ const expectedSemanticGateChecks = [
     ]
   ],
   [
-    "release",
+    undefined,
     "test:investigation-report:pending-stage",
     "bun",
     ["./tools/investigation-report/tests/staging.test.ts"]
   ],
   [
-    "release",
+    undefined,
     "test:investigation-report:cli-contract",
     "bun",
     ["./tools/investigation-report/tests/cli-generated.test.ts"]
   ],
   [
-    "release",
+    undefined,
     "test:task-graph:index-and-projection",
     "bun",
     [
@@ -461,7 +435,7 @@ const expectedSemanticGateChecks = [
     ]
   ],
   [
-    "release",
+    undefined,
     "test:task-graph:task-lifecycle",
     "bun",
     [
@@ -470,7 +444,7 @@ const expectedSemanticGateChecks = [
     ]
   ],
   [
-    "release",
+    undefined,
     "test:task-graph:runtime-and-store",
     "bun",
     [
@@ -479,13 +453,13 @@ const expectedSemanticGateChecks = [
     ]
   ],
   [
-    "release",
+    undefined,
     "test:task-graph:native-store",
     "node",
     ["./tools/task-graph/tests/native-store.test.ts"]
   ],
   [
-    "release",
+    undefined,
     "test:task-graph:cli-rendering",
     "bun",
     [
@@ -494,49 +468,49 @@ const expectedSemanticGateChecks = [
     ]
   ],
   [
-    "release",
+    undefined,
     "test:task-graph:pending-stage",
     "bun",
     ["./tools/task-graph/tests/staging.test.ts"]
   ],
   [
-    "release",
+    undefined,
     "test:task-graph:public-distribution",
     "bun",
     ["./tools/task-graph/tests/generated-artifacts.test.ts"]
   ],
   [
-    "release",
+    undefined,
     "test:task-graph:portable-build",
     "bun",
     ["./tools/task-graph/tests/portable-build.test.ts"]
   ],
   [
-    "release",
+    undefined,
     "test:test-evidence:case-runtime",
     "bun",
     ["./tools/test-evidence/tests/core.test.ts"]
   ],
   [
-    "release",
+    undefined,
     "test:test-evidence:public-boundary",
     "bun",
     ["./tools/test-evidence/tests/public-boundary.test.ts"]
   ],
   [
-    "release",
+    undefined,
     "test:test-evidence:project-snapshot",
     "bun",
     ["./scripts/test-evidence/snapshot.test.ts"]
   ],
   [
-    "release",
+    undefined,
     "test:test-evidence:project-reference-check",
     "bun",
     ["./scripts/test-evidence/check.test.ts"]
   ],
   [
-    "release",
+    undefined,
     "test:test-evidence:migration",
     "bun",
     ["./scripts/test-evidence/migrate.test.ts"]
@@ -740,6 +714,11 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
     baseDefinition.scheduler.resourceCapacities,
     gateResourceCapacities
   );
+  assert.equal(releaseDefinition.scheduler.maxParallel, 4);
+  assert.deepEqual(
+    releaseDefinition.scheduler.resourceCapacities,
+    releaseGateResourceCapacities
+  );
   assert.deepEqual(baseDefinition.outputs, {
     diagnosticLogging: { enabled: false, directory: ".log/vibe-check" },
     machinePublication: {
@@ -754,7 +733,7 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
       textPreviewCodePointLimit: 240
     }
   });
-  assert.equal(releaseRequiredCheckIds.length, 60);
+  assert.equal(releaseRequiredCheckIds.length, 59);
   assert.deepEqual(
     releaseDefinition.checks.find(
       ({ checkId }) => checkId === releaseSnapshotCheckId
@@ -813,18 +792,46 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
       .map(({ checkId, dependsOn }) => [checkId, dependsOn]),
     [...expectedSemanticPrerequisites]
   );
+  const batchedIds = new Set(
+    releaseTestBatchGroups.map(({ checkId }) => checkId)
+  );
+  const batchLeader = releaseDefinition.checks.find(
+    ({ checkId }) => checkId === releaseTestBatchLeaderCheckId
+  );
+  assert.deepEqual(batchLeader?.resourceClaims, releaseTestBatchResourceClaim);
+  assert.equal(batchLeader?.observes, undefined);
   assert.ok(
     releaseDefinition.checks
-      .filter(({ checkId }) => checkId.startsWith("script:"))
+      .filter(
+        ({ checkId }) =>
+          batchedIds.has(checkId) && checkId !== releaseTestBatchLeaderCheckId
+      )
       .every(
-        ({ resourceClaims }) =>
-          JSON.stringify(resourceClaims) ===
-          JSON.stringify({ "external-process": 1 })
+        ({ observes, resourceClaims }) =>
+          JSON.stringify(observes) ===
+            JSON.stringify([releaseTestBatchLeaderCheckId]) &&
+          resourceClaims === undefined
       )
   );
   assert.ok(
     releaseDefinition.checks
-      .filter(({ checkId }) => checkId.startsWith("test:"))
+      .filter(
+        ({ checkId }) =>
+          (checkId.startsWith("script:") || checkId.startsWith("test:")) &&
+          !batchedIds.has(checkId)
+      )
+      .every(
+        ({ resourceClaims }) =>
+          JSON.stringify(resourceClaims) ===
+          JSON.stringify({ "external-process": 1, "cpu-work": 1 })
+      )
+  );
+  assert.ok(
+    baseDefinition.checks
+      .filter(
+        ({ checkId }) =>
+          checkId.startsWith("script:") || checkId.startsWith("test:")
+      )
       .every(
         ({ resourceClaims }) =>
           JSON.stringify(resourceClaims) ===
@@ -873,7 +880,7 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
   const semanticFiles = expectedSemanticGateChecks.flatMap(
     ([, , , files]) => files
   );
-  assert.equal(semanticFiles.length, 63);
+  assert.equal(semanticFiles.length, 62);
   assert.equal(new Set(semanticFiles).size, semanticFiles.length);
   for (const tool of [
     "change-plan",
@@ -925,6 +932,35 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
     semanticGateChecks.find(({ command }) => command.command === "node")
       ?.command.args,
     ["--test", "./tools/task-graph/tests/native-store.test.ts"]
+  );
+  const manifest = JSON.parse(
+    await fs.readFile(path.join(repositoryRoot, "package.json"), "utf8")
+  ) as { scripts: Readonly<Record<string, string>> };
+  assert.equal(
+    manifest.scripts["test:index-runtime-performance"],
+    "bun test ./tools/index-runtime/tests/performance.test.ts"
+  );
+  assert.equal(
+    new Set<string>(releaseRequiredPackageScripts).has(
+      "test:index-runtime-performance"
+    ),
+    false
+  );
+  for (const [script, files] of Object.entries(releaseBunTestPackageFiles)) {
+    assert.equal(manifest.scripts[script], `bun test ${files.join(" ")}`);
+  }
+  assert.deepEqual(
+    releaseTestBatchGroups.map(({ checkId }) => checkId),
+    [
+      ...semanticGateChecks
+        .filter(
+          (check) => check.command.command === "bun" && !("dependsOn" in check)
+        )
+        .map(({ checkId }) => checkId),
+      ...Object.keys(releaseBunTestPackageFiles).map(
+        (script) => `script:${script}`
+      )
+    ]
   );
 });
 
@@ -1110,6 +1146,7 @@ test("public distribution Checks require successful generation Checks", async ()
           const calls: GateCommandInvocation[] = [];
           const result = await runDefinition(
             createGateDefinition(["release"], {
+              batchReleaseTests: false,
               nativeChecks: passingNativeChecks(),
               runCommand: async (invocation) => {
                 calls.push(invocation);
@@ -1358,20 +1395,24 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
   };
 
   assert.deepEqual(resolveGateInvocation([]), {
+    cold: false,
     diagnosticLog: false,
     tags: []
   });
   assert.deepEqual(resolveGateInvocation(["--diagnostic-log"]), {
+    cold: false,
     diagnosticLog: true,
     tags: []
   });
   assert.deepEqual(resolveGateInvocation(["--full"]), {
     baselineRef: "HEAD",
+    cold: false,
     diagnosticLog: false,
     tags: ["release"]
   });
   assert.deepEqual(resolveGateInvocation(["--tag", "release"]), {
     baselineRef: "HEAD",
+    cold: false,
     diagnosticLog: false,
     tags: ["release"]
   });
@@ -1382,8 +1423,20 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
       "origin/release",
       "--full"
     ]),
-    { baselineRef: "origin/release", diagnosticLog: true, tags: ["release"] }
+    {
+      baselineRef: "origin/release",
+      cold: false,
+      diagnosticLog: true,
+      tags: ["release"]
+    }
   );
+  assert.deepEqual(resolveGateInvocation(["--full", "--cold"]), {
+    baselineRef: "HEAD",
+    cold: true,
+    diagnosticLog: false,
+    tags: ["release"]
+  });
+  assert.equal(resolveGateInvocation(["--cold"]), null);
   assert.equal(
     resolveGateInvocation(["--baseline-ref", "origin/release"]),
     null
@@ -1435,6 +1488,7 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
   );
   assert.equal(await runVibeCheck([], dependencies), 0);
   assert.deepEqual(selectedInvocation, {
+    cold: false,
     diagnosticLog: false,
     tags: []
   });
@@ -1448,6 +1502,7 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
   );
   assert.deepEqual(selectedInvocation, {
     baselineRef: "origin/release",
+    cold: false,
     diagnosticLog: false,
     tags: ["release"]
   });
@@ -1479,6 +1534,7 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
     }
   );
   assert.deepEqual(selectedInvocation, {
+    cold: false,
     diagnosticLog: true,
     tags: []
   });
@@ -1724,7 +1780,8 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
         decisions: activationPlan.decisions,
         fallbackDetail: null,
         mode: "incremental",
-        publication: { published: true, receiptCount: 1 }
+        publication: { published: true, receiptCount: 1 },
+        releaseTestBatchProof: null
       });
 
       const reusePlan: GateActivationPlan = {
@@ -1815,6 +1872,7 @@ test("release prepare runs before terminal authorization and package", async () 
       await createReleaseRepository(directory);
       const definition = createGateDefinition(["release"], {
         baselineRef: "HEAD",
+        batchReleaseTests: false,
         nativeChecks: passingNativeChecks(),
         runCommand: completedScript()
       });
@@ -1849,6 +1907,7 @@ test("release authorization and package use the snapshot captured before the ind
       let packCalls = 0;
       const result = await runDefinition(
         createGateDefinition(["release"], {
+          batchReleaseTests: false,
           nativeChecks: passingNativeChecks(),
           prepareRelease: async (workspaceRoot, baselineRef) => {
             const prepared = await prepareSkillPackageRelease(
@@ -1896,6 +1955,7 @@ test("release preparation or version failure blocks packaging", async () => {
       );
       const versionFailed = await runDefinition(
         createGateDefinition(["release"], {
+          batchReleaseTests: false,
           nativeChecks: passingNativeChecks(),
           runCommand: completedScript()
         }),
@@ -1923,6 +1983,7 @@ test("release preparation or version failure blocks packaging", async () => {
 
       const unavailable = await runDefinition(
         createGateDefinition(["release"], {
+          batchReleaseTests: false,
           nativeChecks: passingNativeChecks(),
           prepareRelease: async () => {
             throw new Error("Git resolver unavailable");

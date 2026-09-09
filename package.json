@@ -22,6 +22,7 @@
     "test:skill-package-hash": "bun test ./scripts/lib/skill-package-hash.test.ts",
     "test:skill-release-publisher": "bun test ./scripts/publish-skills.test.ts",
     "test:index-runtime": "bun test ./tools/index-runtime/tests/run.ts",
+    "test:index-runtime-performance": "bun test ./tools/index-runtime/tests/performance.test.ts",
     "test:relation-graph": "bun test ./tools/shared/tests/relation-graph.test.ts",
     "test:file-text-search": "bun test ./tools/shared/tests/file-text-search.test.ts",
     "test:version-control": "bun test ./tools/shared/tests/version-control.test.ts",

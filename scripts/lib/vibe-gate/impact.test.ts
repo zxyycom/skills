@@ -84,7 +84,7 @@ test("incremental Gate activates only checks without an exact successful input p
     runGit(directory, ["commit", "--quiet", "--message", "fixture"]);
 
     assert.deepEqual(validateBaseGateImpactContracts(), []);
-    assert.equal(baseGateCheckIds.length, 35);
+    assert.equal(baseGateCheckIds.length, 59);
     const first = await prepareGateActivation({
       cacheDirectory,
       captureDependencies,
@@ -96,7 +96,7 @@ test("incremental Gate activates only checks without an exact successful input p
     assert.ok(first.decisions.every(({ action }) => action === "execute"));
     assert.deepEqual(
       await publishGateReceipts(first, passed, directory, captureDependencies),
-      { published: true, receiptCount: 35 }
+      { published: true, receiptCount: 59 }
     );
 
     const warm = await prepareGateActivation({
@@ -108,7 +108,7 @@ test("incremental Gate activates only checks without an exact successful input p
     assert.deepEqual(warm.activeCheckIds, []);
     assert.equal(
       warm.decisions.filter(({ action }) => action === "reuse").length,
-      35
+      59
     );
     assert.deepEqual(gateActivationFlags(warm), []);
 
@@ -130,7 +130,7 @@ test("incremental Gate activates only checks without an exact successful input p
         directory,
         captureDependencies
       ),
-      { published: true, receiptCount: 35 }
+      { published: true, receiptCount: 59 }
     );
 
     await writeFixture(
@@ -160,7 +160,7 @@ test("incremental Gate activates only checks without an exact successful input p
       ),
       {
         published: true,
-        receiptCount: 35
+        receiptCount: 59
       }
     );
 
@@ -189,7 +189,7 @@ test("incremental Gate activates only checks without an exact successful input p
         directory,
         captureDependencies
       ),
-      { published: true, receiptCount: 35 }
+      { published: true, receiptCount: 59 }
     );
 
     await writeFixture(
@@ -218,7 +218,7 @@ test("incremental Gate activates only checks without an exact successful input p
         directory,
         captureDependencies
       ),
-      { published: true, receiptCount: 35 }
+      { published: true, receiptCount: 59 }
     );
 
     await writeFixture(directory, "unknown-owner.bin", "unknown\n");
@@ -243,7 +243,7 @@ test("incremental Gate activates only checks without an exact successful input p
       ),
       {
         published: true,
-        receiptCount: 35
+        receiptCount: 59
       }
     );
     const stableUnknown = await prepareGateActivation({
@@ -272,7 +272,7 @@ test("incremental Gate activates only checks without an exact successful input p
         directory,
         captureDependencies
       ),
-      { published: true, receiptCount: 35 }
+      { published: true, receiptCount: 59 }
     );
     const changedEnvironment = { GATE_FIXTURE: "changed", _: "first-parent" };
     const environmentChange = await prepareGateActivation({
@@ -293,7 +293,7 @@ test("incremental Gate activates only checks without an exact successful input p
         ...captureDependencies,
         environment: changedEnvironment
       }),
-      { published: true, receiptCount: 35 }
+      { published: true, receiptCount: 59 }
     );
     const shellBookkeepingChange = await prepareGateActivation({
       cacheDirectory,
@@ -385,7 +385,7 @@ test("incremental Gate activates only checks without an exact successful input p
         directory,
         captureDependencies
       ),
-      { published: true, receiptCount: 35 }
+      { published: true, receiptCount: 59 }
     );
 
     const beforeDrift = await prepareGateActivation({
@@ -443,11 +443,12 @@ test("incremental Gate activates only checks without an exact successful input p
 
     const release = await prepareGateActivation({
       cacheDirectory,
+      captureDependencies,
       release: true,
       workspaceRoot: directory
     });
     assert.equal(release.kind, "release");
-    assert.equal(release.activeCheckIds.length, 63);
+    assert.equal(release.activeCheckIds.length, 62);
     assert.ok(
       release.decisions.every(({ reason }) => reason === "release-full")
     );

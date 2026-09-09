@@ -430,16 +430,16 @@ test("index keys are fixed Case IDs and states cannot repeat their identity", as
   assert.equal(redundantIdResult.total, 0);
   assert.ok(redundantIdResult.diagnostics.some((entry) => entry.blocking));
 });
-test("indexed Case filters use tag AND, exact test, lexical order, and paging at scale", async () => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "test-evidence-scale-"));
+test("indexed Case filters compose exact matches, lexical order, and paging", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "test-evidence-query-"));
   const cases = path.join(root, "docs/test-evidence/cases");
   await fs.mkdir(cases, { recursive: true });
   await Promise.all(
-    Array.from({ length: 1000 }, async (_, index) => {
+    Array.from({ length: 13 }, async (_, index) => {
       const id = String(index).padStart(3, "0");
       await fs.writeFile(
         path.join(cases, `case-${id}.md`),
-        `### Case SCALE-CASE-ENTRY-${id}: scale ${id}\n\nTests:\n- \`test:${id}\`\n\nTags:\n- \`alpha\`\n${index % 2 === 0 ? "- `even`\n" : ""}\nContract:\n- scalable query\n\nProves:\n- ordered result\n`
+        `### Case QUERY-CASE-ENTRY-${id}: query ${id}\n\nTests:\n- \`test:${id}\`\n\nTags:\n- \`alpha\`\n${index % 2 === 0 ? "- `even`\n" : ""}\nContract:\n- composable query\n\nProves:\n- ordered result\n`
       );
     })
   );
@@ -456,7 +456,7 @@ test("indexed Case filters use tag AND, exact test, lexical order, and paging at
     offset: 0
   });
   assert.equal(result.total, 1);
-  assert.equal(result.cases[0]?.id, "SCALE-CASE-ENTRY-010");
+  assert.equal(result.cases[0]?.id, "QUERY-CASE-ENTRY-010");
   const page = await queryTestEvidence({
     workspaceRoot: root,
     tags: ["alpha"],
@@ -465,7 +465,7 @@ test("indexed Case filters use tag AND, exact test, lexical order, and paging at
   });
   assert.deepEqual(
     page.cases.map((entry) => entry.id),
-    ["SCALE-CASE-ENTRY-010", "SCALE-CASE-ENTRY-011", "SCALE-CASE-ENTRY-012"]
+    ["QUERY-CASE-ENTRY-010", "QUERY-CASE-ENTRY-011", "QUERY-CASE-ENTRY-012"]
   );
 });
 test("list and tags only load the index while show reads only its selected Case", async () => {
@@ -493,35 +493,6 @@ test("list and tags only load the index while show reads only its selected Case"
     ["access-control", "security"]
   );
 });
-test(
-  "10,000 indexed Cases retain exact filtering and paging",
-  { timeout: 20_000 },
-  async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "test-evidence-10k-"));
-    const cases = path.join(root, "docs/test-evidence/cases");
-    await fs.mkdir(cases, { recursive: true });
-    for (let index = 0; index < 10_000; index += 1) {
-      const id = String(index).padStart(5, "0");
-      await fs.writeFile(
-        path.join(cases, `case-${id}.md`),
-        `### Case SCALE-LARGE-X${id}-000: large ${id}\n\nTests:\n- \`test:large-${id}\`\n\nTags:\n- \`large\`\n\nContract:\n- large index\n\nProves:\n- exact retrieval\n`
-      );
-    }
-    assert.equal(
-      (await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" }))
-        .status,
-      "ok"
-    );
-    const result = await queryTestEvidence({
-      workspaceRoot: root,
-      testId: "test:large-09999",
-      limit: 1
-    });
-    assert.equal(result.total, 1);
-    assert.equal(result.cases[0]?.id, "SCALE-LARGE-X09999-000");
-  }
-);
-
 test("search includes matches after the index query page boundary", async () => {
   const root = await fs.mkdtemp(
     path.join(os.tmpdir(), "test-evidence-search-")

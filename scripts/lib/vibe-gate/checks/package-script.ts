@@ -27,7 +27,6 @@ export const releaseRequiredPackageScripts = [
   "test:version-control",
   "test:skill-package-hash",
   "test:skill-release-publisher",
-  "test:test-evidence-project",
   "typecheck",
   "lint",
   "validate",
@@ -50,21 +49,29 @@ export type GatePackageScript = (typeof releaseRequiredPackageScripts)[number];
 
 export type GatePackageScriptCheckId = `script:${GatePackageScript}`;
 
+export const releaseBunTestPackageFiles = {
+  "test:environment": [
+    "./scripts/auto-push.test.ts",
+    "./scripts/environment.test.ts",
+    "./scripts/validators/project-config.test.ts"
+  ],
+  "test:index-runtime": ["./tools/index-runtime/tests/run.ts"],
+  "test:skill-updater": ["./tools/skill-updater/tests/run.ts"],
+  "test:skill-validator": ["./tools/skill-validator/tests/run.ts"],
+  "test:relation-graph": ["./tools/shared/tests/relation-graph.test.ts"],
+  "test:file-text-search": ["./tools/shared/tests/file-text-search.test.ts"],
+  "test:version-control": ["./tools/shared/tests/version-control.test.ts"],
+  "test:skill-package-hash": ["./scripts/lib/skill-package-hash.test.ts"],
+  "test:skill-release-publisher": ["./scripts/publish-skills.test.ts"],
+  "test:generated-file": ["./scripts/lib/generated-file.test.ts"]
+} as const satisfies Partial<
+  Readonly<Record<GatePackageScript, readonly string[]>>
+>;
+
 export function packageScriptCheckId(
   script: GatePackageScript
 ): GatePackageScriptCheckId {
   return `script:${script}`;
-}
-
-const releaseOnlyGatePackageScripts: ReadonlySet<GatePackageScript> = new Set([
-  "test:version-control",
-  "test:skill-package-hash"
-]);
-
-export function isReleaseOnlyGatePackageScript(
-  script: GatePackageScript
-): boolean {
-  return releaseOnlyGatePackageScripts.has(script);
 }
 
 export function createPackageScriptCheck(

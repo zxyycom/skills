@@ -6,7 +6,6 @@ import { operationErrorDetail } from "../../../tools/shared/src/node/error-detai
 import { rootDir } from "../project.ts";
 import { vibeNativeCheckIds } from "./checks/native.ts";
 import {
-  isReleaseOnlyGatePackageScript,
   packageScriptCheckId,
   releaseRequiredPackageScripts
 } from "./checks/package-script.ts";
@@ -128,7 +127,7 @@ export type GateActivationPlan =
   | (GateActivationPlanCommon &
       Readonly<{
         kind: "release";
-        snapshot: null;
+        snapshot: GateWorkspaceSnapshot | null;
       }>);
 
 type GateReceipt = Readonly<{
@@ -234,8 +233,9 @@ const packageContracts = [
   contract("script:test:skill-validator", ["skill-validator"]),
   contract("script:test:relation-graph", ["shared-tools"]),
   contract("script:test:file-text-search", ["shared-tools"]),
+  contract("script:test:version-control", ["shared-tools"]),
+  contract("script:test:skill-package-hash", ["build-system", "skill-release"]),
   contract("script:test:skill-release-publisher", ["skill-release"]),
-  contract("script:test:test-evidence-project", ["test-evidence"]),
   contract("script:typecheck", ["maintained-code"]),
   contract("script:lint", ["maintained-code"]),
   contract("script:validate", [
@@ -273,9 +273,22 @@ const nativeContracts = [
   contract("function-metrics", ["maintained-code"])
 ] as const;
 
-const semanticContracts = semanticGateChecks
-  .filter(({ requiredTag }) => requiredTag === undefined)
-  .map(({ checkId }) => contract(checkId, ["change-plan"]));
+function semanticImpactTags(checkId: string): readonly GateImpactTag[] {
+  if (checkId.startsWith("test:change-plan:")) return ["change-plan"];
+  if (checkId.startsWith("test:decision-records:")) {
+    return ["decision-records"];
+  }
+  if (checkId.startsWith("test:investigation-report:")) {
+    return ["investigation-report"];
+  }
+  if (checkId.startsWith("test:task-graph:")) return ["task-graph"];
+  if (checkId.startsWith("test:test-evidence:")) return ["test-evidence"];
+  return ["global"];
+}
+
+const semanticContracts = semanticGateChecks.map(({ checkId }) =>
+  contract(checkId, semanticImpactTags(checkId))
+);
 
 export const baseGateImpactContracts = Object.freeze([
   ...nativeContracts,
@@ -917,12 +930,10 @@ async function readReceiptManifest(cacheDirectory: string): Promise<
 
 function baseDependencyMap(): ReadonlyMap<string, readonly string[]> {
   return new Map(
-    semanticGateChecks
-      .filter(({ requiredTag }) => requiredTag === undefined)
-      .map(
-        (check) =>
-          [check.checkId, "dependsOn" in check ? check.dependsOn : []] as const
-      )
+    semanticGateChecks.map(
+      (check) =>
+        [check.checkId, "dependsOn" in check ? check.dependsOn : []] as const
+    )
   );
 }
 
@@ -954,7 +965,10 @@ function closeRequiredDependencies(
   );
 }
 
-function releasePlan(cacheDirectory: string): GateActivationPlan {
+function releasePlan(
+  cacheDirectory: string,
+  snapshot: GateWorkspaceSnapshot | null
+): GateActivationPlan {
   const decisions = releaseGateCheckIds.map((checkId) => ({
     action: "execute" as const,
     checkId,
@@ -966,7 +980,7 @@ function releasePlan(cacheDirectory: string): GateActivationPlan {
     cacheDirectory,
     decisions,
     kind: "release",
-    snapshot: null
+    snapshot
   };
 }
 
@@ -996,9 +1010,6 @@ export async function prepareGateActivation(
   const cacheDirectory =
     options.cacheDirectory ??
     path.join(workspaceRoot, ".log/vibe-check/cache/incremental-gate-v2");
-  if (options.release) {
-    return releasePlan(cacheDirectory);
-  }
   let snapshot: GateWorkspaceSnapshot;
   try {
     snapshot = await captureGateWorkspaceSnapshot(
@@ -1006,11 +1017,13 @@ export async function prepareGateActivation(
       options.captureDependencies
     );
   } catch (error) {
+    if (options.release) return releasePlan(cacheDirectory, null);
     return fallbackPlan(
       cacheDirectory,
       operationErrorDetail(error) ?? "workspace snapshot failed"
     );
   }
+  if (options.release) return releasePlan(cacheDirectory, snapshot);
   const receiptRead = await readReceiptManifest(cacheDirectory);
   const receipts = new Map(
     receiptRead.manifest?.receipts.map((receipt) => [
@@ -1155,9 +1168,7 @@ export async function publishGateReceipts(
 export function validateBaseGateImpactContracts(): readonly string[] {
   const expected = [
     ...vibeNativeCheckIds,
-    ...releaseRequiredPackageScripts
-      .filter((script) => !isReleaseOnlyGatePackageScript(script))
-      .map(packageScriptCheckId),
+    ...releaseRequiredPackageScripts.map(packageScriptCheckId),
     ...semanticGateChecks
       .filter(({ requiredTag }) => requiredTag === undefined)
       .map(({ checkId }) => checkId)

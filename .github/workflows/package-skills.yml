@@ -76,7 +76,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          args=(--tag release)
+          args=(--tag release --cold)
           if [ -n "${BASELINE_REF:-}" ] && [ "$BASELINE_REF" != "0000000000000000000000000000000000000000" ]; then
             args+=(--baseline-ref "$BASELINE_REF")
           fi

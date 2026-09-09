@@ -92,7 +92,8 @@
       "260908-require-established-decision-alignment": "sha256:87f62b2419c4d41d88d47c237bd89f4b55298b73f1889af6be9b9593a6f24209",
       "260908-separate-investigation-narrative-from-supporting-materials": "sha256:c3cc01ba4cb2a8cd26c96d78bbafbada621972e4ef60b7f8edcc78a9a1c14f44",
       "260909-adopt-vibe-check-0-0-2-gate-runtime": "sha256:2e352e47a274125bd279a4da5b13142eb88067e31603763bc70c74523cab96f8",
-      "260909-incremental-vibe-gate": "sha256:6ee0af6d5adfe69e9aee762b315dc71af30db96fd611c3a391bdbdbc4c85e9f9",
+      "260909-batch-release-test-execution": "sha256:5fb92a08a5bd2a2a30feeca4b0639e384eb59b8d982d00e628206bec9d01399a",
+      "260909-incremental-vibe-gate": "sha256:299d1d0bd252ab671a9b363e844c985e0bc9e59ec0fbac9deb699ccce291b889",
       "260909-use-native-vibe-gate-controls": "sha256:a84662fd7f5163b516b9f573aa136f582f0aaab5556b388e4d4273858304e5d1",
       "260909-write-explanatory-relation-summaries": "sha256:ece110950bc41206998c14673cd9f3e88592c176feeeaa0e317352bad9d180ff",
       "activate-release-gate-checks-by-tag": "sha256:02819304803eade140cd3adb2472a368c290f639acc7998f0d54bc20cecd228e",
@@ -1989,6 +1990,21 @@
       ],
       "relations": []
     },
+    "260909-batch-release-test-execution": {
+      "name": "batch-release-test-execution",
+      "sourcePath": "batch-release-test-execution.md",
+      "title": "Release Gate 按测试文件并集批量执行",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-09T14:16:36Z",
+      "purpose": "让 Release 测试成本随唯一输入增长，并在完整身份未变时复用成功证明。",
+      "background": "逐 Check 启动 Bun 使完整门禁重复初始化且调度变化会放大竞争。",
+      "decision": "Release 以有界 worker pool 执行 Bun 测试文件并集并投影结果；本地只复用完整身份精确匹配的成功证明。",
+      "tags": [
+        "project-tooling"
+      ],
+      "relations": []
+    },
     "260909-incremental-vibe-gate": {
       "name": "incremental-vibe-gate",
       "sourcePath": "incremental-vibe-gate.md",
@@ -1998,7 +2014,7 @@
       "createdAt": "2026-09-09T10:08:24Z",
       "purpose": "让日常门禁只执行缺少当前输入成功证明的 Check。",
       "background": "固定执行全部 base Check 重复扫描和运行无关测试，无法满足日常反馈时延。",
-      "decision": "项目形成内容快照、影响契约和成功 receipt，再以内部 flags 让 Vibe 执行所需 Check；release 始终全量。",
+      "decision": "项目形成内容快照、影响契约和成功 receipt，再以内部 flags 让 Vibe 执行所需 Check；release 激活完整 DAG，测试批次另用精确证明。",
       "tags": [
         "project-tooling"
       ],

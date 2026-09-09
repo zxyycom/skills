@@ -19,6 +19,7 @@ import {
   prepareGateActivation,
   publishGateReceipts,
   type GateActivationPlan,
+  type GateDefinitionDependencies,
   type GateReceiptPublication,
   type GateTag
 } from "./lib/vibe-gate.ts";
@@ -27,12 +28,14 @@ type GateExitCode = 0 | 1;
 
 export type GateInvocation = Readonly<{
   baselineRef?: string;
+  cold: boolean;
   diagnosticLog: boolean;
   tags: readonly GateTag[];
 }>;
 
 type GateInvocationParserState = {
   baselineRef: string | undefined;
+  cold: boolean;
   diagnosticLog: boolean;
   tags: GateTag[];
 };
@@ -40,7 +43,8 @@ type GateInvocationParserState = {
 export type VibeCheckDependencies = Readonly<{
   createDefinition?: (
     invocation: GateInvocation,
-    activationPlan: GateActivationPlan | null
+    activationPlan: GateActivationPlan | null,
+    definitionDependencies: GateDefinitionDependencies
   ) => ProjectDefinition;
   createInvocationDirectory?: () => string;
   prepareActivation?:
@@ -64,6 +68,7 @@ type GateIncrementalSummary = Readonly<{
   fallbackDetail: string | null;
   mode: GateActivationPlan["kind"];
   publication: GateReceiptPublication;
+  releaseTestBatchProof: "cold" | "fresh" | "reused" | "unavailable" | null;
 }>;
 
 type GateActivationCounts = Readonly<{
@@ -133,6 +138,12 @@ function enableDiagnosticLog(state: GateInvocationParserState): 0 | null {
   return 0;
 }
 
+function enableCold(state: GateInvocationParserState): 0 | null {
+  if (state.cold) return null;
+  state.cold = true;
+  return 0;
+}
+
 function setBaselineRef(
   state: GateInvocationParserState,
   value: string | undefined
@@ -156,6 +167,8 @@ function applyGateArgument(
       return appendGateTag(state.tags, "release") ? 0 : null;
     case "--diagnostic-log":
       return enableDiagnosticLog(state);
+    case "--cold":
+      return enableCold(state);
     case "--baseline-ref":
       return setBaselineRef(state, value);
     default:
@@ -168,6 +181,7 @@ export function resolveGateInvocation(
 ): GateInvocation | null {
   const state: GateInvocationParserState = {
     baselineRef: undefined,
+    cold: false,
     diagnosticLog: false,
     tags: []
   };
@@ -179,13 +193,17 @@ export function resolveGateInvocation(
     index += consumed;
   }
   const normalizedTags = normalizeGateTags(state.tags);
-  if (state.baselineRef !== undefined && !normalizedTags.includes("release")) {
+  if (
+    (state.baselineRef !== undefined || state.cold) &&
+    !normalizedTags.includes("release")
+  ) {
     return null;
   }
   return {
     ...(normalizedTags.includes("release")
       ? { baselineRef: state.baselineRef ?? "HEAD" }
       : {}),
+    cold: state.cold,
     diagnosticLog: state.diagnosticLog,
     tags: normalizedTags
   };
@@ -262,7 +280,7 @@ export async function runVibeCheck(
   const invocation = resolveGateInvocation(argv);
   if (invocation === null) {
     reportError(
-      "Usage: bun run check [--tag release] [--baseline-ref <ref>] [--diagnostic-log] (compatibility: --full is --tag release)"
+      "Usage: bun run check [--tag release] [--baseline-ref <ref>] [--cold] [--diagnostic-log] (compatibility: --full is --tag release)"
     );
     return 1;
   }
@@ -276,16 +294,41 @@ export async function runVibeCheck(
           }));
   if (activationPlan !== null)
     reportInfo(describeActivationPlan(activationPlan));
+  let releaseTestBatchProofReused = false;
+  const releaseTestBatchProofCold =
+    invocation.cold ||
+    (process.env.CI !== undefined &&
+      process.env.CI !== "" &&
+      process.env.CI !== "false");
+  const definitionDependencies: GateDefinitionDependencies = {
+    ...(invocation.baselineRef === undefined
+      ? activationPlan?.kind === "incremental"
+        ? { activeCheckIds: activationPlan.activeCheckIds }
+        : {}
+      : { baselineRef: invocation.baselineRef }),
+    ...(activationPlan?.kind === "release" && activationPlan.snapshot !== null
+      ? {
+          releaseTestBatchProof: {
+            cacheDirectory: path.join(
+              path.dirname(activationPlan.cacheDirectory),
+              "release-test-batch-v1"
+            ),
+            cold: releaseTestBatchProofCold,
+            initialWorkspaceFingerprint:
+              activationPlan.snapshot.workspaceFingerprint,
+            onReuse: () => {
+              releaseTestBatchProofReused = true;
+            }
+          }
+        }
+      : {})
+  };
   const definition =
-    dependencies.createDefinition?.(invocation, activationPlan) ??
-    createGateDefinition(
-      invocation.tags,
-      invocation.baselineRef === undefined
-        ? activationPlan?.kind === "incremental"
-          ? { activeCheckIds: activationPlan.activeCheckIds }
-          : {}
-        : { baselineRef: invocation.baselineRef }
-    );
+    dependencies.createDefinition?.(
+      invocation,
+      activationPlan,
+      definitionDependencies
+    ) ?? createGateDefinition(invocation.tags, definitionDependencies);
   const invocationDirectory =
     dependencies.createInvocationDirectory?.() ??
     createGateInvocationDirectory();
@@ -326,6 +369,16 @@ export async function runVibeCheck(
     }
   }
   if (activationPlan !== null) {
+    const releaseTestBatchProof =
+      activationPlan.kind !== "release"
+        ? null
+        : activationPlan.snapshot === null
+          ? "unavailable"
+          : releaseTestBatchProofReused
+            ? "reused"
+            : releaseTestBatchProofCold
+              ? "cold"
+              : "fresh";
     const publication =
       result.kind === "completed" && result.aggregate === "passed"
         ? await (dependencies.publishReceipts?.(
@@ -342,9 +395,19 @@ export async function runVibeCheck(
             ? activationPlan.fallbackDetail
             : null,
         mode: activationPlan.kind,
-        publication
+        publication,
+        releaseTestBatchProof
       });
       reportInfo(`Vibe Check incremental summary: ${summaryPath}`);
+      if (releaseTestBatchProof === "reused") {
+        reportInfo(
+          "Vibe Check reused the exact release test batch proof; no batched test process ran in this invocation."
+        );
+      } else if (releaseTestBatchProof === "cold") {
+        reportInfo(
+          "Vibe Check release test batch ran cold; a matching proof was not reused."
+        );
+      }
     } catch {
       reportInfo(
         "Vibe Check incremental summary unavailable; Gate outcomes are unchanged."

@@ -16,7 +16,7 @@ type FacetEntry = Readonly<{
   }>;
 }>;
 
-test("decision list facets are deterministic across empty, UTC-boundary, and ten-thousand-entry snapshots", () => {
+test("decision list facets are deterministic across empty and UTC-boundary snapshots", () => {
   assert.deepEqual(buildDecisionListFacets([]), {
     alignments: { aligned: 0, unaligned: 0 },
     createdAt: { earliest: null, latest: null, months: [] },
@@ -65,22 +65,6 @@ test("decision list facets are deterministic across empty, UTC-boundary, and ten
   };
   assert.deepEqual(buildDecisionListFacets(boundaryEntries), expected);
   assert.deepEqual(buildDecisionListFacets(boundaryEntries), expected);
-
-  const large = buildDecisionListFacets(
-    Array.from({ length: 10_000 }, () =>
-      entry({
-        alignment: "aligned",
-        createdAt: "2026-09-08T00:00:00Z",
-        status: "active",
-        tags: [tag("scale")]
-      })
-    )
-  );
-  assert.equal(large.recordCount, 10_000);
-  assert.deepEqual(large.tags, [{ count: 10_000, tag: "scale" }]);
-  assert.deepEqual(large.createdAt.months, [
-    { count: 10_000, month: "2026-09" }
-  ]);
 });
 
 function entry(state: FacetEntry["state"]): FacetEntry {

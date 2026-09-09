@@ -9,6 +9,7 @@ import {
   gateResourceCapacities,
   hasGateTag,
   normalizeGateTags,
+  releaseGateResourceCapacities,
   type GateTagSet
 } from "./vibe-gate/contracts.ts";
 import {
@@ -21,7 +22,6 @@ import {
 } from "./vibe-gate/checks/native.ts";
 import {
   createPackageScriptCheck,
-  isReleaseOnlyGatePackageScript,
   packageScriptCheckId,
   releaseRequiredPackageScripts
 } from "./vibe-gate/checks/package-script.ts";
@@ -41,6 +41,14 @@ import {
   type ReleaseState
 } from "./vibe-gate/checks/release.ts";
 import {
+  createReleaseTestBatchSession,
+  releaseTestBatchGroups,
+  releaseTestBatchLeaderCheckId,
+  releaseTestBatchResourceClaim,
+  type ReleaseTestBatchProofOptions,
+  type ReleaseTestBatchSession
+} from "./vibe-gate/release-test-batch.ts";
+import {
   activationFlagForCheck,
   baseGateCheckIds,
   validateBaseGateImpactContracts
@@ -50,7 +58,8 @@ export {
   gateResourceCapacities,
   gateTags,
   hasGateTag,
-  normalizeGateTags
+  normalizeGateTags,
+  releaseGateResourceCapacities
 } from "./vibe-gate/contracts.ts";
 export type { GateTag, GateTagSet } from "./vibe-gate/contracts.ts";
 export { runGateCommand } from "./vibe-gate/command-runner.ts";
@@ -76,6 +85,7 @@ export {
 export {
   compatibilityTestPackageScripts,
   packageScriptCheckId,
+  releaseBunTestPackageFiles,
   releaseRequiredPackageScripts
 } from "./vibe-gate/checks/package-script.ts";
 export type {
@@ -84,6 +94,18 @@ export type {
 } from "./vibe-gate/checks/package-script.ts";
 export { semanticGateChecks } from "./vibe-gate/checks/semantic.ts";
 export type { SemanticGateCheck } from "./vibe-gate/checks/semantic.ts";
+export {
+  createReleaseTestBatchSession,
+  parseReleaseTestBatchReport,
+  releaseTestBatchGroups,
+  releaseTestBatchLeaderCheckId,
+  releaseTestBatchResourceClaim
+} from "./vibe-gate/release-test-batch.ts";
+export type {
+  ReleaseTestBatchGroup,
+  ReleaseTestBatchProofOptions,
+  ReleaseTestBatchSession
+} from "./vibe-gate/release-test-batch.ts";
 export {
   isReleaseBaselineRef,
   releaseSnapshotCheckId,
@@ -113,17 +135,48 @@ export type {
   GateWorkspaceSnapshot
 } from "./vibe-gate/impact.ts";
 
-const learnedSchedulingVersion = "gate-scheduler-v1";
+const learnedSchedulingVersion = "gate-scheduler-v2";
 
 export type GateDefinitionDependencies = Readonly<{
   activeCheckIds?: readonly string[];
   baselineRef?: string;
+  batchReleaseTests?: boolean;
   nativeChecks?: readonly Check[];
   packRelease?: ReleasePacker;
   prepareRelease?: ReleasePreparer;
   runCommand?: GateCommandRunner;
+  releaseTestBatchProof?: ReleaseTestBatchProofOptions;
   schedulingStateDirectory?: string;
 }>;
+
+function batchedCheck(
+  check: Check,
+  checkId: string,
+  batch: ReleaseTestBatchSession | null
+): Check {
+  if (batch === null || !batch.has(checkId)) return check;
+  const { resourceClaims: _resourceClaims, ...projection } = check;
+  return checkId === releaseTestBatchLeaderCheckId
+    ? {
+        ...projection,
+        resourceClaims: releaseTestBatchResourceClaim
+      }
+    : {
+        ...projection,
+        observes: [releaseTestBatchLeaderCheckId]
+      };
+}
+
+function releaseCpuCheck(
+  check: Check,
+  batch: ReleaseTestBatchSession | null
+): Check {
+  if (batch?.has(check.checkId) === true) return check;
+  return {
+    ...check,
+    resourceClaims: { ...check.resourceClaims, "cpu-work": 1 }
+  };
+}
 
 export const releaseRequiredCheckIds = [
   ...vibeNativeCheckIds,
@@ -165,6 +218,7 @@ export function createGateDefinition(
   dependencies: GateDefinitionDependencies = {}
 ): ProjectDefinition {
   const tags = normalizeGateTags(activeTags);
+  const release = hasGateTag(tags, "release");
   const useIncrementalActivation = dependencies.activeCheckIds !== undefined;
   if (useIncrementalActivation) {
     const contractErrors = validateBaseGateImpactContracts();
@@ -180,27 +234,44 @@ export function createGateDefinition(
     }
   }
   const runner = dependencies.runCommand ?? runGateCommand;
+  const testBatch =
+    release && dependencies.batchReleaseTests !== false
+      ? createReleaseTestBatchSession(
+          runner,
+          releaseTestBatchGroups,
+          dependencies.releaseTestBatchProof
+        )
+      : null;
   const releaseState: ReleaseState = { prepared: undefined };
   const nativeChecks = dependencies.nativeChecks ?? createVibeNativeChecks();
-  const semanticChecks = semanticGateChecks.map((check) =>
-    enableGateCheckByFlag(
-      createSemanticGateCheck(check, runner),
+  const semanticChecks = semanticGateChecks.map((check) => {
+    const semantic = createSemanticGateCheck(
+      check,
+      testBatch?.has(check.checkId) === true
+        ? testBatch.runnerFor(check.checkId)
+        : runner
+    );
+    return enableGateCheckByFlag(
+      batchedCheck(semantic, check.checkId, testBatch),
       check.requiredTag ??
         (useIncrementalActivation
           ? activationFlagForCheck(check.checkId)
           : undefined)
-    )
-  );
-  const packageChecks = releaseRequiredPackageScripts.map((script) =>
-    enableGateCheckByFlag(
-      createPackageScriptCheck(script, runner),
-      isReleaseOnlyGatePackageScript(script)
-        ? "release"
-        : useIncrementalActivation
-          ? activationFlagForCheck(packageScriptCheckId(script))
-          : undefined
-    )
-  );
+    );
+  });
+  const packageChecks = releaseRequiredPackageScripts.map((script) => {
+    const checkId = packageScriptCheckId(script);
+    const packageCheck = createPackageScriptCheck(
+      script,
+      testBatch?.has(checkId) === true ? testBatch.runnerFor(checkId) : runner
+    );
+    return enableGateCheckByFlag(
+      batchedCheck(packageCheck, checkId, testBatch),
+      useIncrementalActivation
+        ? activationFlagForCheck(packageScriptCheckId(script))
+        : undefined
+    );
+  });
   const releasePrepareCheck = enableGateCheckByFlag(
     createReleasePrepareCheck(
       dependencies.baselineRef ?? "HEAD",
@@ -217,7 +288,7 @@ export function createGateDefinition(
     createPackSkillsCheck(dependencies.packRelease, releaseState),
     "release"
   );
-  const checks: Check[] = [
+  const authoredChecks: Check[] = [
     releasePrepareCheck,
     ...nativeChecks.map((check) =>
       enableGateCheckByFlag(
@@ -232,6 +303,9 @@ export function createGateDefinition(
     releaseVersionCheck,
     packSkillsCheck
   ];
+  const checks = release
+    ? authoredChecks.map((check) => releaseCpuCheck(check, testBatch))
+    : authoredChecks;
   const strategy = createLearnedCriticalPathStrategy({
     stateDirectory:
       dependencies.schedulingStateDirectory ??
@@ -255,7 +329,9 @@ export function createGateDefinition(
     scheduler: {
       admissionPolicy: { kind: "custom", strategy },
       maxParallel: 4,
-      resourceCapacities: gateResourceCapacities
+      resourceCapacities: release
+        ? releaseGateResourceCapacities
+        : gateResourceCapacities
     }
   });
 }

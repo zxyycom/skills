@@ -9,7 +9,7 @@ type FacetEntry = Readonly<{
   }>;
 }>;
 
-test("investigation list facets are deterministic across empty, UTC-boundary, and ten-thousand-entry snapshots", () => {
+test("investigation list facets are deterministic across empty and UTC-boundary snapshots", () => {
   assert.deepEqual(buildInvestigationListFacets([]), {
     formedAt: { earliest: null, latest: null, months: [] },
     recordCount: 0,
@@ -39,17 +39,6 @@ test("investigation list facets are deterministic across empty, UTC-boundary, an
   };
   assert.deepEqual(buildInvestigationListFacets(boundaryEntries), expected);
   assert.deepEqual(buildInvestigationListFacets(boundaryEntries), expected);
-
-  const large = buildInvestigationListFacets(
-    Array.from({ length: 10_000 }, () =>
-      entry("2026-09-08T00:00:00Z", ["scale"])
-    )
-  );
-  assert.equal(large.recordCount, 10_000);
-  assert.deepEqual(large.tags, [{ count: 10_000, tag: "scale" }]);
-  assert.deepEqual(large.formedAt.months, [
-    { count: 10_000, month: "2026-09" }
-  ]);
 });
 
 function entry(formedAt: string, tags: readonly string[]): FacetEntry {

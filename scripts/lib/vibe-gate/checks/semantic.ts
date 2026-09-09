@@ -46,7 +46,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:decision-records:record-and-established-graph",
     displayName: "Decision Records record and established graph",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest(
       "./tools/decision-records/tests/checks/record-and-established-graph.ts"
     )
@@ -54,7 +54,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:decision-records:query-and-index-projection",
     displayName: "Decision Records query and index projection",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest(
       "./tools/decision-records/tests/checks/query-and-index-projection.ts"
     )
@@ -62,7 +62,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:decision-records:lifecycle-and-recovery",
     displayName: "Decision Records lifecycle and recovery",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest(
       "./tools/decision-records/tests/checks/lifecycle-and-recovery.ts"
     )
@@ -70,14 +70,14 @@ export const semanticGateChecks = [
   {
     checkId: "test:decision-records:pending-stage",
     displayName: "Decision Records pending stage",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./tools/decision-records/tests/stage.test.ts")
   },
   {
     checkId: "test:decision-records:public-distribution",
     dependsOn: ["script:check:decision-records-cli"],
     displayName: "Decision Records public distribution",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest(
       "./tools/decision-records/tests/checks/public-distribution.ts"
     )
@@ -85,7 +85,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:investigation-report:collection-and-resources",
     displayName: "Investigation Report collection and resources",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest(
       "./tools/investigation-report/tests/checks/collection-and-resources.ts"
     )
@@ -93,7 +93,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:investigation-report:index-and-query",
     displayName: "Investigation Report index and query",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest(
       "./tools/investigation-report/tests/checks/index-and-query.ts"
     )
@@ -101,7 +101,7 @@ export const semanticGateChecks = [
   {
     checkId: "test:investigation-report:transactional-maintenance",
     displayName: "Investigation Report transactional maintenance",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest(
       "./tools/investigation-report/tests/checks/transactional-maintenance.ts"
     )
@@ -109,37 +109,37 @@ export const semanticGateChecks = [
   {
     checkId: "test:investigation-report:pending-stage",
     displayName: "Investigation Report pending stage",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./tools/investigation-report/tests/staging.test.ts")
   },
   {
     checkId: "test:investigation-report:cli-contract",
     displayName: "Investigation Report CLI contract",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./tools/investigation-report/tests/cli-generated.test.ts")
   },
   {
     checkId: "test:task-graph:index-and-projection",
     displayName: "Task Graph index and projection",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/checks/index-and-projection.ts")
   },
   {
     checkId: "test:task-graph:task-lifecycle",
     displayName: "Task Graph task lifecycle",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/checks/task-lifecycle.ts")
   },
   {
     checkId: "test:task-graph:runtime-and-store",
     displayName: "Task Graph runtime and store",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/checks/runtime-and-store.ts")
   },
   {
     checkId: "test:task-graph:native-store",
     displayName: "Task Graph native store",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: {
       command: "node",
       args: ["--test", "./tools/task-graph/tests/native-store.test.ts"]
@@ -148,56 +148,56 @@ export const semanticGateChecks = [
   {
     checkId: "test:task-graph:cli-rendering",
     displayName: "Task Graph CLI rendering",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/checks/cli-rendering.ts")
   },
   {
     checkId: "test:task-graph:pending-stage",
     displayName: "Task Graph pending stage",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/staging.test.ts")
   },
   {
     checkId: "test:task-graph:public-distribution",
     dependsOn: ["script:check:task-graph-cli"],
     displayName: "Task Graph public distribution",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/generated-artifacts.test.ts")
   },
   {
     checkId: "test:task-graph:portable-build",
     displayName: "Task Graph portable build",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/portable-build.test.ts")
   },
   {
     checkId: "test:test-evidence:case-runtime",
     displayName: "Test Evidence Case runtime",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./tools/test-evidence/tests/core.test.ts")
   },
   {
     checkId: "test:test-evidence:public-boundary",
     displayName: "Test Evidence public API and CLI boundary",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./tools/test-evidence/tests/public-boundary.test.ts")
   },
   {
     checkId: "test:test-evidence:project-snapshot",
     displayName: "Test Evidence project snapshot producer",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./scripts/test-evidence/snapshot.test.ts")
   },
   {
     checkId: "test:test-evidence:project-reference-check",
     displayName: "Test Evidence project reference check",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./scripts/test-evidence/check.test.ts")
   },
   {
     checkId: "test:test-evidence:migration",
     displayName: "Test Evidence migration",
-    requiredTag: "release",
+    requiredTag: undefined,
     command: bunTest("./scripts/test-evidence/migrate.test.ts")
   }
 ] as const satisfies readonly SemanticGateCheck[];

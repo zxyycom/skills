@@ -19,6 +19,12 @@ export const gateResourceCapacities = {
   "repository-scan": 2
 } as const;
 
+export const releaseGateResourceCapacities = {
+  "cpu-work": 4,
+  "external-process": 3,
+  "repository-scan": 2
+} as const;
+
 export const externalProcessClaim = { "external-process": 1 } as const;
 export const repositoryScanClaim = { "repository-scan": 1 } as const;
 export const repositoryProcessClaims = {

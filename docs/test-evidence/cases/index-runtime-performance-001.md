@@ -7,7 +7,7 @@ Tags:
 - `index-runtime`
 
 Contract:
-- Index runtime 的大规模 ID-keyed state 与逐 ID revision 回归必须通过测试内的宽松退化门禁；该门禁不构成持续性能 SLO。
+- Index runtime 的大规模 ID-keyed state 与逐 ID revision 回归可由按需性能入口检查宽松退化边界；该入口不属于日常或 release Gate，也不构成持续性能 SLO。
 
 Proves:
 - 一千和五千条 keyed state/revision 基准在时间预算内完成并返回正确结果数。
