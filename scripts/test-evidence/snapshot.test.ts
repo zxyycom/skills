@@ -114,6 +114,59 @@ test("JUnit registration accepts only complete skipped reports", () => {
   );
 });
 
+test("producer batches each ast-grep pattern across test files", async () => {
+  await withSnapshotFixture(
+    { "test:batch": "bun test ./tests/first.test.ts ./tests/second.test.ts" },
+    {
+      "tests/first.test.ts": [
+        'import test from "node:test";',
+        'test("first registration", () => {});',
+        ""
+      ].join("\n"),
+      "tests/second.test.ts": [
+        'import test from "node:test";',
+        'test("second registration", () => {});',
+        ""
+      ].join("\n")
+    },
+    async (root) => {
+      const invocationLog = path.join(root, "ast-grep-invocations.log");
+      const projectAstGrep = await fs.realpath(
+        path.join(process.cwd(), "node_modules", "@ast-grep", "cli", "ast-grep")
+      );
+      const astGrep = path.join(root, "node_modules", ".bin", "ast-grep");
+      await fs.writeFile(
+        astGrep,
+        [
+          "#!/bin/sh",
+          `printf '%s\\n' "$*" >> ${JSON.stringify(invocationLog)}`,
+          `exec ${JSON.stringify(projectAstGrep)} "$@"`,
+          ""
+        ].join("\n"),
+        "utf8"
+      );
+      const snapshot = await createRepositoryTestEvidenceSnapshot({
+        workspaceRoot: root
+      });
+      assert.deepEqual(snapshot.entities.map((entity) => entity.name).sort(), [
+        "first registration",
+        "second registration"
+      ]);
+      const patternInvocations = (await fs.readFile(invocationLog, "utf8"))
+        .split("\n")
+        .filter((line) => line.startsWith("run --pattern "));
+      assert.equal(patternInvocations.length, 7);
+      assert.ok(
+        patternInvocations.every(
+          (line) =>
+            line.includes("tests/first.test.ts") &&
+            line.includes("tests/second.test.ts")
+        )
+      );
+    }
+  );
+});
+
 test("producer excludes its requested in-workspace snapshot output from source inputs", async () => {
   await withSnapshotFixture(
     { "test:fixture": "bun test ./tests/fixture.test.ts" },
@@ -123,9 +176,18 @@ test("producer excludes its requested in-workspace snapshot output from source i
     },
     async (root) => {
       const output = "scripts/snapshot-output.json";
-      const snapshot = await writeRepositoryTestEvidenceSnapshot(root, output);
       const expected = await repositoryTestEvidenceSource(root, {
         outputPath: output
+      });
+      await assert.rejects(
+        createRepositoryTestEvidenceSnapshot({
+          expectedSource: { ...expected, scopeId: "different-scope" },
+          workspaceRoot: root
+        }),
+        /expected source does not match the repository source scope/u
+      );
+      const snapshot = await writeRepositoryTestEvidenceSnapshot(root, output, {
+        expectedSource: expected
       });
       assert.equal(snapshot.source.revision, expected.revision);
       const parsed = JSON.parse(

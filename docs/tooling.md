@@ -81,7 +81,7 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
-| `bun run check [--diagnostic-log]` | 运行 base Gate：完整 Definition 的全部 63 个 Check 都会保留；35 个 base Check 执行并进入 aggregate，28 个 release Check 由原生 flag 条件结算为 `not-applicable`，并在 progress 中归组。 |
+| `bun run check [--diagnostic-log]` | 运行增量 base Gate：完整 Definition 的全部 63 个 Check 都会保留；35 个 base Check 只在当前有效输入没有精确成功 receipt 时以内部 flag 激活，28 个 release Check 保持 `not-applicable`。 |
 | `bun run check --tag release [--baseline-ref <ref>] [--diagnostic-log]` | 运行 release Gate：在 base 基础上启用 release tag，执行全部 63 个 Check、版本验证与打包终结。省略基线时使用 `HEAD`，CI 使用事件基线。 |
 
 ### 权威 Vibe 门禁
@@ -91,11 +91,25 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | Owner | 责任 |
 | --- | --- |
 | Vibe | 根据 flags 和依赖完成 Check selection、scheduler admission、settlement 与 aggregate，并生成 progress 和 machine publication。 |
-| 项目 Definition | 声明完整 Check catalog、原生 Check 配置、release DAG、资源 claims、learned strategy 与资源容量。 |
-| 项目 CLI argument layer | 解析并校验仓库支持的参数，把规范化 flags、输出路径和 aggregate policy 交给 Vibe，再将 Vibe 最终结果映射为进程退出状态。 |
+| 项目 Definition | 声明完整 Check catalog、原生 Check 配置、base impact contract、release DAG、资源 claims、learned strategy 与资源容量。 |
+| 项目 impact layer | 从一次起始工作区快照派生标签和完整 Check 输入指纹，读取最近通过 receipt，并把需要执行的 base Check IDs 转成内部 activation flags；它不执行或结算 Check。 |
+| 项目 CLI argument layer | 解析并校验仓库支持的参数，把规范化公开/内部 flags、输出路径和 aggregate policy 交给 Vibe，将 Vibe 最终结果映射为进程退出状态，并在成功后守护和发布 receipt。 |
 | 项目 command adapter | 以参数数组执行 catalog 声明的 Bun/Node 命令，保存 transcript，并将进程终态映射为 Check result。 |
 
-每次运行都构造相同的完整 Check Definition。Release-only executable Check 用 `enabledByFlags` 声明条件，本次 aggregate 用 `checks: "effective"` 复用 Vibe 的 flag 与依赖选择，项目不另算 Check ID 集合。无 tag 的 base Gate 执行并聚合 35 个 base Check；`--tag release` 激活并聚合全部 63 个 Check。未命中 flag 的 Check 不进入 preflight、扫描或命令启动，以 `not-applicable / flag-condition-not-matched`、`not run` 和 `duration: null` 保留在 machine snapshot，并由 progress 归组；它们不进入 base aggregate。被 effective selection 纳入的 `unavailable` 或意外 `not-applicable` 一律 fail closed。
+每次运行都构造 Check ID 相同的完整 Definition。本次 aggregate 用 `checks: "effective"` 复用 Vibe 的 flag 与依赖选择。无 tag 的 base Gate 先准备仓库领域 activation plan，再把需要执行的 Check 映射为内部 flags；release-only Check 仍由 release flag 控制。`--tag release` 不读取日常 receipt，直接激活并聚合全部 63 个 Check。未命中 flag 的 Check 不进入 preflight、扫描或命令启动，以 `not-applicable / flag-condition-not-matched`、`not run` 和 `duration: null` 保留在 Vibe machine snapshot，并由 progress 归组；复用项不冒充本次 passed，也不进入本次 aggregate。被 effective selection 纳入的 `unavailable` 或意外 `not-applicable` 一律 fail closed。
+
+### Base impact 与通过证明
+
+日常 Gate 的 impact layer 以以下闭合边界判断一项 Check 是否可以复用：
+
+1. 每个起始快照恰好执行一次 `git ls-files --cached --others --exclude-standard -z`，对返回的普通文件各读取一次内容并记录 path、kind、mode、size 与 SHA-256；symlink 只记录链接文本，已删除 tracked path 记录为 missing。文件数超过 20,000、普通文件总量超过 512 MiB、Git 枚举失败、非 UTF-8 或越界路径、读取失败时不猜测部分结果，退化为执行全部 35 个 base Check。
+2. 稳定路径规则为同一文件派生可重叠的 owner、`maintained-code`、`markdown`、`json`、`secret-surface` 与 `path-inventory` 标签。项目配置和 Gate 实现进入 `global`；无法分类的新路径也进入 `global`。`path-inventory` 只摘要 path/kind 和 symlink 目标，使 Markdown 目标增删或重定向传播，但普通非 Markdown 文件的内容变化不会无理由重跑链接检查。
+3. 显式标签依赖把 `shared-tools` 传播给当前工具与 build-system consumer，把 `index-runtime` 传播给 Decision Records、Investigation Report 和 Test Evidence，把 `skill-release` 传播给 Environment、Skill Updater 与项目 validate consumer；build adapter 的变化再传播给使用它的生成一致性 Check。每个 base Check 的有效输入指纹由 Check ID、impact contract/version、直接与传递标签摘要以及下条定义的工具链身份共同形成；标签命中本身不构成跳过依据。
+4. 工具链身份覆盖当前 Node 进程版本、平台和架构，Git 版本与完整配置，Bun 版本和 `bun pm ls --all` 报告的已安装依赖图，以及 ast-grep、Oxfmt、Oxlint、SCC、tsgo 的实际版本探测；任一必要探测失败时，当前快照不可用并全量执行，不能把 `unavailable` 固化为可复用身份。当前进程环境除 `_`、`OLDPWD`、`SHLVL` 这三个仓库不读取的父 shell 记账变量外全部进入摘要。原始 `node_modules` 字节不逐文件进入快照；这项证明依赖“依赖由 pnpm frozen lock 安装且不在包管理器外手工改写”的工作区前提，破坏该前提时先运行环境 setup，而不能把 receipt 当作依赖防篡改证明。
+5. 只有该指纹精确命中 `.log/vibe-check/cache/incremental-gate-v2/receipts.json` 中格式合法且 outcome 为 passed 的最近证明时才复用。首次运行、缺项、损坏、指纹变化或未知路径带来的 `global` 变化都执行；consumer 激活时，其 `dependsOn` provider 即使已有跨运行证明也在本次重新执行，供 Vibe 形成真实 dependency outcome。
+6. 只有 Vibe 返回 completed/passed，且本次实际执行项都 passed 时才重新取得结束快照；workspace/toolchain fingerprint 与起始值一致后，才把精确复用的旧证明与本次通过的新证明合并为当前 35 项 manifest 并原子替换。失败、取消、output failure、漂移、结束快照失败或 cache 写入失败不发布证明；cache 不可用只扩大执行，不改变质量结果。35 项全部复用时，CLI 只在确认 activation plan 完整覆盖 base catalog 后把空 effective aggregate 明确设为 passed；其他空选择继续 fail closed。
+
+这些 receipt 是上述契约边界内的内容与环境证明，不按 branch、HEAD 或目录时间推断。普通 owner 目录没变而共享依赖、配置、工具链或声明环境变化时仍会失效；未知路径在首次稳定成功后可以由其 `global` 指纹复用，不会永久强制全跑。snapshot fallback 的消毒后原因同时进入终端计划摘要和 `gate-incremental.json`，便于修复输入边界。日常性能目标是稳定复用和普通 owner 变化低于 10 秒、共享或较重 owner 变化不超过 15 秒；release 不纳入该增量目标。
 
 项目 CLI argument layer 只接受以下参数：
 
@@ -116,6 +130,7 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `scripts/lib/vibe-gate/checks/package-script.ts` | 维护 package script Checks。 |
 | `scripts/lib/vibe-gate/checks/semantic.ts` | 仓库语义测试 catalog。 |
 | `scripts/lib/vibe-gate/checks/release.ts` | Release prepare、version authorization 与 packaging DAG。 |
+| `scripts/lib/vibe-gate/impact.ts` | Git 可见文件快照、标签与传播、逐 Check impact contract、成功 receipt 和漂移保护。 |
 | `scripts/lib/vibe-gate/command-runner.ts` | Vibe 尚未提供的任意 Bun/Node 命令执行、transcript 和进程终态映射。 |
 | `scripts/lib/vibe-gate/diagnostics.ts` | 有界单行 Check messages 投影。 |
 | `scripts/lib/vibe-gate/contracts.ts` | 共享 tag 与 named resource 契约。 |
@@ -124,15 +139,16 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | --- | --- |
 | semantic Check | catalog 中以稳定 ID、显示名、release 条件（如需要）和直接命令定义的最小 Gate 单元。 |
 | complete Definition | 每次 invocation 都包含相同的完整 Check ID 集合；tag 只改变 activation 与 aggregate selection，不删除声明。 |
-| effective Check | 无 flag 条件的 base Check、条件命中的 release Check，以及由 `propagateDependsOn` 带入的传递前置；只有它进入本次 aggregate。 |
+| effective Check | 条件命中的 base/release Check，以及由 `propagateDependsOn` 带入的传递前置；只有它进入本次 aggregate。 |
+| successful input proof | 本地 receipt 中与当前 Check 完整有效输入指纹精确一致的 passed 事实；只允许省略本次工作，不改写 Vibe outcome。 |
 | release tag | 显式启用原 release-only 语义 Check、两个维护脚本、release snapshot、version 与 package DAG 的唯一 tag。 |
 | release-required Check | release tag 下必须形成可信 passed 的普通 Check；全部通过后 release version authorization 才会开始。 |
 
 所有 invocation 都使用 Vibe 原生 progress、`maxParallel: 4`、effective aggregate 和 learned critical-path prepared strategy。调用方拥有的可丢弃 history 位于 `.log/vibe-check/cache/scheduler-history/`；task identity 包含稳定 Task ID、base/release profile 和项目调度策略版本。首次、缺失、损坏或读写失败的 history 只让原生策略退化，不改变 Check membership、outcome 或 aggregate。独立 Check 即使其他无依赖 Check 已失败仍继续结算。
 
-第一版 named resource 按任务性质声明，而不是由反复耗时拟合推测：同时运行的外部进程最多 2 个，同时进行的全仓库扫描最多 2 个；命令型 package/semantic Check 消耗一个 `external-process`，原生内容分析消耗一个 `repository-scan`，SCC 文件指标与 release snapshot 同时消耗两类资源。资源从 Check admission 到 settlement 原子持有；它们只表达共享执行压力，不改变依赖、质量真值或 root 四槽上限，后续可根据实际维护反馈优化。
+第一版 named resource 按任务性质声明，并以当前增量重运行测量修正容量：同时运行的外部进程最多 3 个，同时进行的全仓库扫描最多 2 个；命令型 package/semantic Check 消耗一个 `external-process`，原生内容分析消耗一个 `repository-scan`，SCC 文件指标与 release snapshot 同时消耗两类资源。资源从 Check admission 到 settlement 原子持有；它们只表达共享执行压力，不改变依赖、质量真值或 root 四槽上限。当前 shared-tools 增量中，外部容量 3 比 2 缩短关键路径，4 则因竞争反向变慢；后续只在任务性质或同类测量变化时调整。
 
-每次 CLI invocation 创建唯一且被 Git 忽略的 `.log/vibe-check/invocations/<timestamp>-<uuid>/`：`machine/` 保存 `run.json` 与 `records.ndjson`，`progress.log` 保存终端 progress 副本，`checks/<encoded-check-id>/process.log` 保存命令 Check 的完整 stdout/stderr transcript。终端失败先显示一条主消息，再把有界输出尾部拆成至多四条单行 message 并指向 transcript；单个 Vibe message 不嵌入换行，避免 progress renderer 将换行转义成字面 `\n`。该目录是本地可丢弃诊断状态，当前不自动清理；需要释放空间时可删除旧 invocation 目录。Diagnostic log 默认关闭；追加 `--diagnostic-log` 时只在本次目录的 `diagnostics/core.log` 与 `scheduler.log` 启用固定 channel 名并回显路径，不改变 machine publication。
+每次 CLI invocation 创建唯一且被 Git 忽略的 `.log/vibe-check/invocations/<timestamp>-<uuid>/`：`machine/` 保存 Vibe 的 `run.json`、`records.ndjson` 和项目的 `gate-incremental.json`，后者记录 execute/reuse/fallback/first-run 计数、逐 Check reason、snapshot fallback detail 与 receipt 发布结果；`progress.log` 保存终端 progress 副本，`checks/<encoded-check-id>/process.log` 保存命令 Check 的完整 stdout/stderr transcript。终端在启动前显示同一组 activation 计数；失败仍先显示一条主消息，再把有界输出尾部拆成至多四条单行 message 并指向 transcript。单个 Vibe message 不嵌入换行，避免 progress renderer 将换行转义成字面 `\n`。该目录是本地可丢弃诊断状态，当前不自动清理；需要释放空间时可删除旧 invocation 目录。Diagnostic log 默认关闭；追加 `--diagnostic-log` 时只在本次目录的 `diagnostics/core.log` 与 `scheduler.log` 启用固定 channel 名并回显路径，不改变 machine publication。
 
 Check catalog 以“它证明什么、失败后由谁处理”为分组条件：例如领域记录/索引、生命周期事务、按稳定 ID 的 pending-stage、调用协议和可分发制品可以是不同 Check；共同证明一个契约的多个原生测试文件保留在同一 Check。不得为均衡耗时把 Check 拆成每个测试，也不得把一个工具的全部测试重新合并为单一 Check。package scripts 继续是面向维护者的稳定手动聚合入口，但语义 Check 不再以 package script 身份作为 leaf。失败结果给出的直接命令是重跑该 Check 的权威路径；需要完整领域回归时仍可运行相应 `test:*` 聚合命令。
 
@@ -251,7 +267,7 @@ Vibe 的原生 `markdown-link-validation` Check 是当前维护 Markdown 链接�
 
 本仓库使用固定的 `docs/test-evidence/` 根目录、其中的 `cases/` 单 Case 文件和固定派生索引维护测试账本。账本覆盖 `test:*` 稳定入口保留的历史与当前测试；每个 Case 按同一测试意图承接一个或多个可独立选择、单独报告的最小原生测试节点。框架不限，本仓库当前沿用 `node:test` API 定义节点；普通测试通过固定版本的 `bun test` 执行，task-graph 原生 lock 集成测试通过其声明支持的 Node.js `--test` 执行。测试文件、package script 和完整检查仍只是聚合容器。
 
-Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维护；工具不扫描源码、自动登记 Case 或执行测试。核心 `check`、查询和 `sync-index` 只读取 Case 与索引；项目 `snapshot:test-evidence` 产生 schema v2 实体快照，引用检查必须同时接收独立的 expected source。`check:test-evidence-catalog` 先检查 Case/index，再由项目 wrapper 生成快照、检查引用并实行本仓库的实体覆盖门禁。快照引用有效不等同于测试执行通过，未引用实体在通用核心中合法。正文变化后运行 `sync:test-evidence-catalog`；完整检查中的 `check:test-evidence-catalog` 不写回文件。
+Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维护；工具不扫描源码、自动登记 Case 或执行测试。核心 `check`、查询和 `sync-index` 只读取 Case 与索引；项目 `snapshot:test-evidence` 产生 schema v2 实体快照，引用检查必须同时接收独立的 expected source。`check:test-evidence-catalog` 先检查 Case/index，再计算当前项目测试来源 revision；若 `.log/vibe-check/cache/test-evidence-snapshots-v1/<revision>.json` 是通过 schema、expected source 与引用校验的完整 snapshot fact，则直接复用实体集合，否则重新生成并以同一 revision 发布可丢弃 cache。无论是否命中，Case 引用、实体覆盖和结束来源漂移都在本次重新判断。快照引用有效不等同于测试执行通过，未引用实体在通用核心中合法。正文变化后运行 `sync:test-evidence-catalog`；完整检查中的 `check:test-evidence-catalog` 不写回版本管理文件。
 
 项目生产和旧账本迁移不属于 `bun run test-evidence` 的常规 Case CLI。需要人工检查或交接快照时，使用 `bun run snapshot:test-evidence -- --output <new-file>`；`migrate:test-evidence` 的 expected source 必须从生成快照所用的同一项目输入边界独立计算或核验，不能直接抄录待验证快照的 source 三字段。迁移命令默认只预演，只有明确追加 `--write` 才写入；支持范围、映射阻断和恢复边界由 [Case 账本契约](../skills/test-evidence-review/references/catalog-contract.md#迁移) 承接。日常查询、同步和检查不得把旧 topic/`Entry:` 当作 fallback 输入。
 

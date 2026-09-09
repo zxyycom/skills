@@ -15,7 +15,7 @@ export function hasGateTag(tags: GateTagSet, tag: GateTag): boolean {
 }
 
 export const gateResourceCapacities = {
-  "external-process": 2,
+  "external-process": 3,
   "repository-scan": 2
 } as const;
 

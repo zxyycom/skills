@@ -6,6 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { unzipSync } from "fflate";
 import test from "node:test";
+import "./lib/vibe-gate/impact.test.ts";
 import {
   defineCheck,
   defineConfig,
@@ -28,6 +29,7 @@ import type {
 } from "@zxyycom/vibe-check";
 import {
   automationCodeFiles,
+  activationFlagForCheck,
   createGateDefinition,
   createVibeNativeChecks,
   gateResourceCapacities,
@@ -44,7 +46,9 @@ import {
   testCodeFiles,
   vibeNativeCheckIds,
   type GateCommandInvocation,
-  type GateCommandRunner
+  type GateCommandRunner,
+  type GateActivationPlan,
+  type GateWorkspaceSnapshot
 } from "./lib/vibe-gate.ts";
 import {
   packSkillPackageSnapshot,
@@ -76,6 +80,38 @@ const noOutput = {
   machinePublication: { enabled: false },
   progressRendering: { enabled: false }
 } as const;
+
+function fixtureGateWorkspaceSnapshot(): GateWorkspaceSnapshot {
+  const digest = "0".repeat(64);
+  return {
+    files: [],
+    tagDigests: {
+      "build-system": digest,
+      "change-plan": digest,
+      "decision-records": digest,
+      documentation: digest,
+      environment: digest,
+      global: digest,
+      "index-runtime": digest,
+      "investigation-report": digest,
+      json: digest,
+      "maintained-code": digest,
+      markdown: digest,
+      "path-inventory": digest,
+      "secret-surface": digest,
+      "shared-tools": digest,
+      "skill-release": digest,
+      "skill-updater": digest,
+      "skill-validator": digest,
+      skills: digest,
+      "task-graph": digest,
+      "test-evidence": digest
+    },
+    toolchainFingerprint: digest,
+    unclassifiedPaths: [],
+    workspaceFingerprint: digest
+  };
+}
 
 function scriptForCommand(invocation: GateCommandInvocation): string | null {
   return invocation.command === "bun" && invocation.args[0] === "run"
@@ -628,6 +664,11 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
     nativeChecks,
     runCommand: runner
   });
+  const incrementalDefinition = createGateDefinition([], {
+    activeCheckIds: ["secret-detection"],
+    nativeChecks,
+    runCommand: runner
+  });
   const expectedSemanticCheckIds = expectedSemanticGateChecks.map(
     ([, checkId]) => checkId
   );
@@ -648,6 +689,47 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
     expectedCheckIds
   );
   assert.deepEqual(gateCheckIds(), expectedCheckIds);
+  assert.deepEqual(
+    incrementalDefinition.checks.find(
+      ({ checkId }) => checkId === "secret-detection"
+    )?.enabledByFlags,
+    {
+      flags: ["gate-activation:secret-detection"],
+      mode: "all"
+    }
+  );
+  assert.deepEqual(
+    incrementalDefinition.checks.find(
+      ({ checkId }) => checkId === "test:change-plan:public-distribution"
+    )?.enabledByFlags,
+    {
+      flags: ["gate-activation:test:change-plan:public-distribution"],
+      mode: "all",
+      propagateDependsOn: true
+    }
+  );
+  assert.throws(
+    () =>
+      createGateDefinition([], {
+        activeCheckIds: ["release:skill-version"],
+        nativeChecks,
+        runCommand: runner
+      }),
+    /non-base Check/u
+  );
+  const incrementalResult = await runDefinition(
+    incrementalDefinition,
+    repositoryRoot,
+    [activationFlagForCheck("secret-detection")]
+  );
+  assert.equal(
+    outcomeFor(incrementalResult, "secret-detection").status,
+    "passed"
+  );
+  assert.equal(
+    outcomeFor(incrementalResult, "duplicate-detection").status,
+    "not-applicable"
+  );
   assert.equal(
     baseDefinition.checks.some(({ checkId }) => checkId === "pack:skills"),
     true
@@ -1260,6 +1342,7 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
       selectedInvocation = invocation;
       return passedDefinition;
     },
+    prepareActivation: false as const,
     reportError(message: string) {
       diagnostics.push(message);
     },
@@ -1430,6 +1513,7 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
         await runVibeCheck(["--diagnostic-log"], {
           createDefinition: () => failedDefinition,
           createInvocationDirectory: () => path.join(directory, "invocation"),
+          prepareActivation: false,
           reportError: (message) => failedDiagnostics.push(message),
           reportInfo: (message) => failedInformation.push(message),
           async runProject(
@@ -1469,6 +1553,7 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
         path.join(os.tmpdir(), "skills-vibe-invalid-controls"),
       reportError: (message) => configurationDiagnostics.push(message),
       reportInfo: (message) => configurationInformation.push(message),
+      prepareActivation: false,
       async runProject(_definition: ProjectDefinition, controls: RunControls) {
         return run({}, controls);
       }
@@ -1515,6 +1600,7 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
     await runVibeCheck([], {
       createDefinition: () => failedDefinition,
       createInvocationDirectory: () => dependencies.createInvocationDirectory(),
+      prepareActivation: false,
       reportError: (message) => diagnostics.push(message),
       reportInfo: () => undefined
     }),
@@ -1525,6 +1611,7 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
     await runVibeCheck([], {
       createDefinition: () => invalidDefinition,
       createInvocationDirectory: () => dependencies.createInvocationDirectory(),
+      prepareActivation: false,
       reportError: (message) => diagnostics.push(message),
       reportInfo: () => undefined
     }),
@@ -1535,12 +1622,190 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
     await runVibeCheck([], {
       createDefinition: () => unknownDependencyDefinition,
       createInvocationDirectory: () => dependencies.createInvocationDirectory(),
+      prepareActivation: false,
       reportError: (message) => diagnostics.push(message),
       reportInfo: () => undefined
     }),
     1
   );
   assert.match(diagnostics.at(-1) ?? "", /Vibe Check invocation failed: /u);
+
+  await withTemporaryDirectory(
+    "skills-vibe-incremental-cli-",
+    async (directory) => {
+      const activationPlan: GateActivationPlan = {
+        activeCheckIds: ["passed"],
+        cacheDirectory: path.join(directory, "cache"),
+        decisions: [
+          {
+            action: "execute",
+            checkId: "passed",
+            fingerprint: "fixture-fingerprint",
+            reason: "inputs-changed"
+          },
+          {
+            action: "reuse",
+            checkId: "reused",
+            fingerprint: "reused-fingerprint",
+            reason: "unchanged-success"
+          }
+        ],
+        kind: "incremental",
+        snapshot: fixtureGateWorkspaceSnapshot()
+      };
+      const selectiveDefinition = defineConfig({
+        checks: [
+          defineCheck({
+            checkId: "passed",
+            displayName: "passed",
+            enabledByFlags: {
+              flags: [activationFlagForCheck("passed")],
+              mode: "all"
+            },
+            execution() {
+              return { status: "passed", data: { value: true } };
+            }
+          }),
+          defineCheck({
+            checkId: "reused",
+            displayName: "reused",
+            enabledByFlags: {
+              flags: [activationFlagForCheck("reused")],
+              mode: "all"
+            },
+            execution() {
+              throw new Error("a reused Check must not execute");
+            }
+          })
+        ],
+        outputs: noOutput
+      });
+      const incrementalInformation: string[] = [];
+      const invocationDirectory = path.join(directory, "invocation");
+      let publishedPassedIds: ReadonlySet<string> | null = null;
+      assert.equal(
+        await runVibeCheck([], {
+          createDefinition(_invocation, selectedPlan) {
+            assert.equal(selectedPlan, activationPlan);
+            return selectiveDefinition;
+          },
+          createInvocationDirectory: () => invocationDirectory,
+          prepareActivation: async () => activationPlan,
+          publishReceipts: async (_plan, passedIds) => {
+            publishedPassedIds = passedIds;
+            return { published: true, receiptCount: 1 };
+          },
+          reportInfo: (message) => incrementalInformation.push(message),
+          async runProject(definition, controls) {
+            assert.deepEqual(controls.flags, [
+              activationFlagForCheck("passed")
+            ]);
+            return await run(definition, {
+              ...controls,
+              outputs: noOutput
+            });
+          }
+        }),
+        0
+      );
+      assert.deepEqual([...(publishedPassedIds ?? [])], ["passed"]);
+      assert.match(
+        incrementalInformation[0] ?? "",
+        /execute 1, reuse 1, fallback 0/u
+      );
+      const summary = JSON.parse(
+        await fs.readFile(
+          path.join(invocationDirectory, "machine", "gate-incremental.json"),
+          "utf8"
+        )
+      ) as { mode?: unknown; publication?: unknown };
+      assert.deepEqual(summary, {
+        counts: { execute: 1, fallback: 0, firstRun: 0, reuse: 1 },
+        decisions: activationPlan.decisions,
+        fallbackDetail: null,
+        mode: "incremental",
+        publication: { published: true, receiptCount: 1 }
+      });
+
+      const reusePlan: GateActivationPlan = {
+        ...activationPlan,
+        activeCheckIds: [],
+        decisions: [
+          {
+            action: "reuse",
+            checkId: "reused",
+            fingerprint: "reused-fingerprint",
+            reason: "unchanged-success"
+          }
+        ]
+      };
+      assert.equal(
+        await runVibeCheck([], {
+          createDefinition: () => selectiveDefinition,
+          createInvocationDirectory: () => path.join(directory, "reuse"),
+          prepareActivation: async () => reusePlan,
+          publishReceipts: async (_plan, passedIds) => {
+            assert.deepEqual([...passedIds], []);
+            return { published: true, receiptCount: 1 };
+          },
+          reportInfo: () => undefined,
+          async runProject(definition, controls) {
+            assert.equal(controls.checkAggregation?.empty, "passed");
+            return await run(definition, { ...controls, outputs: noOutput });
+          }
+        }),
+        0
+      );
+
+      const fallbackPlan: GateActivationPlan = {
+        activeCheckIds: ["passed"],
+        cacheDirectory: path.join(directory, "fallback-cache"),
+        decisions: [
+          {
+            action: "execute",
+            checkId: "passed",
+            fingerprint: null,
+            reason: "snapshot-unavailable"
+          }
+        ],
+        fallbackDetail: "required tool probe failed",
+        kind: "fallback",
+        snapshot: null
+      };
+      const fallbackDirectory = path.join(directory, "fallback");
+      const fallbackInformation: string[] = [];
+      assert.equal(
+        await runVibeCheck([], {
+          createDefinition: () => passedDefinition,
+          createInvocationDirectory: () => fallbackDirectory,
+          prepareActivation: async () => fallbackPlan,
+          publishReceipts: async () => ({
+            published: false,
+            reason: "not-incremental"
+          }),
+          reportInfo: (message) => fallbackInformation.push(message),
+          async runProject(definition, controls) {
+            return await run(definition, { ...controls, outputs: noOutput });
+          }
+        }),
+        0
+      );
+      assert.match(
+        fallbackInformation[0] ?? "",
+        /Snapshot fallback: required tool probe failed/u
+      );
+      const fallbackSummary = JSON.parse(
+        await fs.readFile(
+          path.join(fallbackDirectory, "machine", "gate-incremental.json"),
+          "utf8"
+        )
+      ) as { fallbackDetail?: unknown };
+      assert.equal(
+        fallbackSummary.fallbackDetail,
+        "required tool probe failed"
+      );
+    }
+  );
 });
 
 test("release prepare runs before terminal authorization and package", async () => {

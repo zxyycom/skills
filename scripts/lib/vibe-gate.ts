@@ -9,7 +9,6 @@ import {
   gateResourceCapacities,
   hasGateTag,
   normalizeGateTags,
-  type GateTag,
   type GateTagSet
 } from "./vibe-gate/contracts.ts";
 import {
@@ -41,6 +40,11 @@ import {
   type ReleasePreparer,
   type ReleaseState
 } from "./vibe-gate/checks/release.ts";
+import {
+  activationFlagForCheck,
+  baseGateCheckIds,
+  validateBaseGateImpactContracts
+} from "./vibe-gate/impact.ts";
 
 export {
   gateResourceCapacities,
@@ -85,10 +89,34 @@ export {
   releaseSnapshotCheckId,
   releaseVersionPackageScript
 } from "./vibe-gate/checks/release.ts";
+export {
+  activationFlagForCheck,
+  baseGateCheckIds,
+  baseGateImpactContracts,
+  captureGateWorkspaceSnapshot,
+  gateActivationFlags,
+  gateCheckInputFingerprint,
+  gateImpactContractVersion,
+  impactTagsForPath,
+  prepareGateActivation,
+  publishGateReceipts,
+  validateBaseGateImpactContracts
+} from "./vibe-gate/impact.ts";
+export type {
+  GateActivationDecision,
+  GateActivationPlan,
+  GateActivationReason,
+  GateCheckImpactContract,
+  GateImpactTag,
+  GateReceiptPublication,
+  GateWorkspaceFile,
+  GateWorkspaceSnapshot
+} from "./vibe-gate/impact.ts";
 
 const learnedSchedulingVersion = "gate-scheduler-v1";
 
 export type GateDefinitionDependencies = Readonly<{
+  activeCheckIds?: readonly string[];
   baselineRef?: string;
   nativeChecks?: readonly Check[];
   packRelease?: ReleasePacker;
@@ -119,13 +147,13 @@ function enableGateCheckByFlag<
   PreparedOptions extends object
 >(
   check: Check<AuthoredOptions, PreparedOptions>,
-  requiredTag: GateTag | undefined
+  flag: string | undefined
 ): Check<AuthoredOptions, PreparedOptions> {
-  if (requiredTag === undefined) return check;
+  if (flag === undefined) return check;
   return {
     ...check,
     enabledByFlags: {
-      flags: [requiredTag],
+      flags: [flag],
       mode: "all",
       ...(check.dependsOn === undefined ? {} : { propagateDependsOn: true })
     }
@@ -137,19 +165,40 @@ export function createGateDefinition(
   dependencies: GateDefinitionDependencies = {}
 ): ProjectDefinition {
   const tags = normalizeGateTags(activeTags);
+  const useIncrementalActivation = dependencies.activeCheckIds !== undefined;
+  if (useIncrementalActivation) {
+    const contractErrors = validateBaseGateImpactContracts();
+    const baseCheckIds = new Set(baseGateCheckIds);
+    if (
+      contractErrors.length > 0 ||
+      dependencies.activeCheckIds?.some((checkId) => !baseCheckIds.has(checkId))
+    ) {
+      throw new Error(
+        contractErrors[0] ??
+          "incremental Gate activation selected a non-base Check"
+      );
+    }
+  }
   const runner = dependencies.runCommand ?? runGateCommand;
   const releaseState: ReleaseState = { prepared: undefined };
   const nativeChecks = dependencies.nativeChecks ?? createVibeNativeChecks();
   const semanticChecks = semanticGateChecks.map((check) =>
     enableGateCheckByFlag(
       createSemanticGateCheck(check, runner),
-      check.requiredTag
+      check.requiredTag ??
+        (useIncrementalActivation
+          ? activationFlagForCheck(check.checkId)
+          : undefined)
     )
   );
   const packageChecks = releaseRequiredPackageScripts.map((script) =>
     enableGateCheckByFlag(
       createPackageScriptCheck(script, runner),
-      isReleaseOnlyGatePackageScript(script) ? "release" : undefined
+      isReleaseOnlyGatePackageScript(script)
+        ? "release"
+        : useIncrementalActivation
+          ? activationFlagForCheck(packageScriptCheckId(script))
+          : undefined
     )
   );
   const releasePrepareCheck = enableGateCheckByFlag(
@@ -170,7 +219,14 @@ export function createGateDefinition(
   );
   const checks: Check[] = [
     releasePrepareCheck,
-    ...nativeChecks,
+    ...nativeChecks.map((check) =>
+      enableGateCheckByFlag(
+        check,
+        useIncrementalActivation
+          ? activationFlagForCheck(check.checkId)
+          : undefined
+      )
+    ),
     ...packageChecks,
     ...semanticChecks,
     releaseVersionCheck,

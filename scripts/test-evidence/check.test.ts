@@ -74,6 +74,14 @@ test("project check rejects a registered test without a Case", async () => {
         result.diagnostics.map((diagnostic) => diagnostic.code),
         ["project.entity-without-case"]
       );
+      const snapshotCacheDirectory = path.join(
+        root,
+        ".log/vibe-check/cache/test-evidence-snapshots-v1"
+      );
+      const cacheFiles = await fs.readdir(snapshotCacheDirectory);
+      assert.equal(cacheFiles.length, 1);
+      const cachePath = path.join(snapshotCacheDirectory, cacheFiles[0] ?? "");
+      const cacheIdentity = (await fs.stat(cachePath)).ino;
       const uncovered = snapshot.entities.find(
         (entity) => entity.name === "uncovered"
       );
@@ -92,6 +100,7 @@ test("project check rejects a registered test without a Case", async () => {
         entityCount: 2,
         status: "ok"
       });
+      assert.equal((await fs.stat(cachePath)).ino, cacheIdentity);
     }
   );
 });

@@ -1,7 +1,7 @@
 ---
 title: 采用 Vibe 原生门禁选择、调度与调用产物
 id: 260909-use-native-vibe-gate-controls
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-09T07:14:44Z
 purpose: 让项目门禁直接使用 Vibe 的选择、调度、资源与调用级产物边界。

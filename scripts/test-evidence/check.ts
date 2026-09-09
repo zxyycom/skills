@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -12,6 +13,8 @@ import {
   type RepositoryTestSnapshot
 } from "./snapshot.ts";
 
+const snapshotMaximumBytes = 67_108_864;
+
 type CheckDiagnostic = Readonly<{
   blocking: true;
   category: "project";
@@ -25,14 +28,58 @@ function projectDiagnostic(code: string, message: string): CheckDiagnostic {
 
 async function readSnapshot(filePath: string): Promise<unknown> {
   const stat = await fs.lstat(filePath);
-  if (stat.isSymbolicLink() || !stat.isFile()) {
-    throw new Error("temporary snapshot output is not a regular file");
+  if (
+    stat.isSymbolicLink() ||
+    !stat.isFile() ||
+    stat.size > snapshotMaximumBytes
+  ) {
+    throw new Error("snapshot input is not a bounded regular file");
   }
   return JSON.parse(
     new TextDecoder("utf-8", { fatal: true }).decode(
       await fs.readFile(filePath)
     )
   );
+}
+
+function snapshotCachePath(workspaceRoot: string, revision: string): string {
+  return path.join(
+    workspaceRoot,
+    ".log/vibe-check/cache/test-evidence-snapshots-v1",
+    `${revision}.json`
+  );
+}
+
+async function readCachedSnapshot(
+  workspaceRoot: string,
+  revision: string
+): Promise<unknown> {
+  try {
+    return await readSnapshot(snapshotCachePath(workspaceRoot, revision));
+  } catch {
+    return null;
+  }
+}
+
+async function publishCachedSnapshot(
+  workspaceRoot: string,
+  snapshot: RepositoryTestSnapshot
+): Promise<void> {
+  const target = snapshotCachePath(workspaceRoot, snapshot.source.revision);
+  const directory = path.dirname(target);
+  const temporary = path.join(
+    directory,
+    `.${path.basename(target)}.${process.pid}.${randomUUID()}.tmp`
+  );
+  try {
+    await fs.mkdir(directory, { recursive: true });
+    await fs.writeFile(temporary, `${JSON.stringify(snapshot, null, 2)}\n`, {
+      flag: "wx"
+    });
+    await fs.rename(temporary, target);
+  } catch {
+    await fs.rm(temporary, { force: true }).catch(() => undefined);
+  }
 }
 
 async function allReferencedTestIds(
@@ -92,26 +139,33 @@ export async function checkRepositoryTestEvidence(
   const outputPath = path.join(outputDirectory, "snapshot.json");
   try {
     const expectedBefore = await repositoryTestEvidenceSource(root);
-    const written = await writeRepositoryTestEvidenceSnapshot(root, outputPath);
-    const expectedAfterWrite = await repositoryTestEvidenceSource(root);
-    if (expectedBefore.revision !== expectedAfterWrite.revision) {
-      return {
-        diagnostics: [
-          projectDiagnostic(
-            "project.source-drift",
-            "repository source inputs changed while generating the test snapshot"
-          )
-        ],
-        entityCount: written.entities.length,
-        status: "error"
-      };
+    let generatedEntityCount = 0;
+    let snapshot = await readCachedSnapshot(root, expectedBefore.revision);
+    let references =
+      snapshot === null
+        ? null
+        : await validateTestEvidenceReferences({
+            workspaceRoot: root,
+            snapshot,
+            expectedSource: expectedBefore
+          });
+    if (references?.status !== "ok") {
+      const written = await writeRepositoryTestEvidenceSnapshot(
+        root,
+        outputPath,
+        { expectedSource: expectedBefore }
+      );
+      generatedEntityCount = written.entities.length;
+      snapshot = await readSnapshot(outputPath);
+      references = await validateTestEvidenceReferences({
+        workspaceRoot: root,
+        snapshot,
+        expectedSource: expectedBefore
+      });
+      if (references.status === "ok") {
+        await publishCachedSnapshot(root, written);
+      }
     }
-    const snapshot = await readSnapshot(outputPath);
-    const references = await validateTestEvidenceReferences({
-      workspaceRoot: root,
-      snapshot,
-      expectedSource: expectedBefore
-    });
     if (references.status !== "ok") {
       return {
         diagnostics: [
@@ -122,12 +176,13 @@ export async function checkRepositoryTestEvidence(
               .join("; ")
           )
         ],
-        entityCount: written.entities.length,
+        entityCount: generatedEntityCount,
         status: "error"
       };
     }
+    const typedSnapshot = snapshot as RepositoryTestSnapshot;
     const referenced = await allReferencedTestIds(root);
-    const uncovered = (snapshot as RepositoryTestSnapshot).entities
+    const uncovered = typedSnapshot.entities
       .map((entity) => entity.id)
       .filter((id) => !referenced.has(id));
     if (uncovered.length > 0) {
@@ -138,7 +193,7 @@ export async function checkRepositoryTestEvidence(
             `repository test entities require a Case: ${uncovered.join(", ")}`
           )
         ],
-        entityCount: written.entities.length,
+        entityCount: typedSnapshot.entities.length,
         status: "error"
       };
     }
@@ -151,13 +206,13 @@ export async function checkRepositoryTestEvidence(
             "repository source inputs changed while checking Case coverage"
           )
         ],
-        entityCount: written.entities.length,
+        entityCount: typedSnapshot.entities.length,
         status: "error"
       };
     }
     return {
       diagnostics: [],
-      entityCount: written.entities.length,
+      entityCount: typedSnapshot.entities.length,
       status: "ok"
     };
   } catch (error) {

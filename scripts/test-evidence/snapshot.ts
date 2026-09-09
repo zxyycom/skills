@@ -8,6 +8,8 @@ import { XMLParser, XMLValidator } from "fast-xml-parser";
 const projectId = "skills-workspace";
 const scopeId = "repository-native-tests-v1";
 const astGrepVersion = "0.45.1";
+const astGrepFileArgumentByteBudget = 20_000;
+const commandOutputByteLimit = 67_108_864;
 
 export type RepositoryTestSource = Readonly<{
   projectId: string;
@@ -47,18 +49,31 @@ type CommandResult = Readonly<{
 }>;
 
 type AstGrepMatch = Readonly<{
-  metaVariables?: Readonly<{
-    single?: Readonly<Record<string, Readonly<{ text?: unknown }>>>;
-  }>;
+  sourcePath: string;
+  variables: Readonly<Record<string, string>>;
 }>;
 
 type SnapshotOptions = Readonly<{
+  expectedSource?: RepositoryTestSource;
   outputPath?: string;
   workspaceRoot: string;
 }>;
 
 function failure(message: string): Error {
   return new Error(`test-evidence snapshot: ${message}`);
+}
+
+function validateExpectedSource(
+  expectedSource: RepositoryTestSource | undefined
+): void {
+  if (expectedSource === undefined) return;
+  if (
+    expectedSource.projectId !== projectId ||
+    expectedSource.scopeId !== scopeId ||
+    !/^[a-f0-9]{64}$/u.test(expectedSource.revision)
+  ) {
+    throw failure("expected source does not match the repository source scope");
+  }
 }
 
 function isWithin(root: string, candidate: string): boolean {
@@ -238,16 +253,30 @@ async function runCommand(
       windowsHide: true
     });
     let output = "";
+    let outputBytes = 0;
+    let outputExceededLimit = false;
+    const appendOutput = (chunk: string): void => {
+      if (outputExceededLimit) return;
+      outputBytes += Buffer.byteLength(chunk);
+      if (outputBytes > commandOutputByteLimit) {
+        outputExceededLimit = true;
+        child.kill();
+        return;
+      }
+      output += chunk;
+    };
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
-    child.stdout.on("data", (chunk: string) => {
-      output += chunk;
-    });
-    child.stderr.on("data", (chunk: string) => {
-      output += chunk;
-    });
+    child.stdout.on("data", appendOutput);
+    child.stderr.on("data", appendOutput);
     child.once("error", reject);
-    child.once("close", (exitCode) => resolve({ exitCode, output }));
+    child.once("close", (exitCode) => {
+      if (outputExceededLimit) {
+        reject(failure("subprocess output exceeded its 64 MiB safety limit"));
+        return;
+      }
+      resolve({ exitCode, output });
+    });
   });
 }
 
@@ -346,33 +375,141 @@ async function moduleClosure(
   return [...seen].sort();
 }
 
+function astGrepFileBatches(
+  workspaceRoot: string,
+  filePaths: readonly string[]
+): readonly (readonly string[])[] {
+  const relativePaths = [
+    ...new Set(
+      filePaths.map((filePath) => posixRelative(workspaceRoot, filePath))
+    )
+  ].sort();
+  const batches: string[][] = [];
+  let batch: string[] = [];
+  let argumentBytes = 0;
+  for (const relativePath of relativePaths) {
+    const nextBytes = Buffer.byteLength(relativePath) + 1;
+    if (
+      batch.length > 0 &&
+      argumentBytes + nextBytes > astGrepFileArgumentByteBudget
+    ) {
+      batches.push(batch);
+      batch = [];
+      argumentBytes = 0;
+    }
+    batch.push(relativePath);
+    argumentBytes += nextBytes;
+  }
+  if (batch.length > 0) batches.push(batch);
+  return batches;
+}
+
+function parseAstGrepMatches(
+  value: unknown,
+  workspaceRoot: string,
+  expectedSourcePaths: ReadonlySet<string>
+): readonly AstGrepMatch[] {
+  if (!Array.isArray(value)) {
+    throw failure("ast-grep result is not an array");
+  }
+  return value.map((candidate) => {
+    if (
+      typeof candidate !== "object" ||
+      candidate === null ||
+      Array.isArray(candidate)
+    ) {
+      throw failure("ast-grep result contains a non-object match");
+    }
+    const match = candidate as Record<string, unknown>;
+    const file = match.file;
+    if (typeof file !== "string" || file.length === 0 || file.includes("\0")) {
+      throw failure("ast-grep match does not identify a source file");
+    }
+    const resolvedFile = path.resolve(workspaceRoot, file);
+    const sourcePath = posixRelative(workspaceRoot, resolvedFile);
+    if (!expectedSourcePaths.has(sourcePath)) {
+      throw failure(`ast-grep returned an unexpected source file: ${file}`);
+    }
+    const variables: Record<string, string> = {};
+    const metaVariables = match.metaVariables;
+    if (metaVariables === undefined) {
+      return { sourcePath, variables };
+    }
+    if (
+      typeof metaVariables !== "object" ||
+      metaVariables === null ||
+      Array.isArray(metaVariables)
+    ) {
+      throw failure(`ast-grep match has invalid meta variables: ${sourcePath}`);
+    }
+    const single = (metaVariables as Record<string, unknown>).single;
+    if (single === undefined) {
+      return { sourcePath, variables };
+    }
+    if (
+      typeof single !== "object" ||
+      single === null ||
+      Array.isArray(single)
+    ) {
+      throw failure(
+        `ast-grep match has invalid single variables: ${sourcePath}`
+      );
+    }
+    for (const [name, rawVariable] of Object.entries(single)) {
+      if (
+        typeof rawVariable !== "object" ||
+        rawVariable === null ||
+        Array.isArray(rawVariable) ||
+        typeof (rawVariable as Record<string, unknown>).text !== "string"
+      ) {
+        throw failure(
+          `ast-grep match has an invalid ${name} variable: ${sourcePath}`
+        );
+      }
+      variables[name] = (rawVariable as { text: string }).text;
+    }
+    return { sourcePath, variables };
+  });
+}
+
 async function astGrepJson(
   executable: string,
   workspaceRoot: string,
   pattern: string,
-  filePath: string
+  filePaths: readonly string[]
 ): Promise<readonly AstGrepMatch[]> {
-  const result = await runCommand(
-    executable,
-    ["run", "--pattern", pattern, "--lang", "ts", filePath, "--json=compact"],
-    workspaceRoot
+  const expectedSourcePaths = new Set(
+    filePaths.map((filePath) => posixRelative(workspaceRoot, filePath))
   );
-  if (result.exitCode !== 0 && result.exitCode !== 1) {
-    throw failure(
-      `ast-grep failed for ${posixRelative(workspaceRoot, filePath)}: ${result.output.trim()}`
-    );
+  const matches: AstGrepMatch[] = [];
+  const batches = astGrepFileBatches(workspaceRoot, filePaths);
+  if (batches.length === 0) {
+    throw failure("ast-grep batch requires at least one source file");
   }
-  try {
-    const matches: unknown = JSON.parse(result.output);
-    if (!Array.isArray(matches)) {
-      throw new Error("result is not an array");
+  for (const batch of batches) {
+    const result = await runCommand(
+      executable,
+      ["run", "--pattern", pattern, "--lang", "ts", ...batch, "--json=compact"],
+      workspaceRoot
+    );
+    if (result.exitCode !== 0 && result.exitCode !== 1) {
+      throw failure(
+        `ast-grep failed for a ${batch.length}-file batch: ${result.output.trim()}`
+      );
     }
-    return matches as readonly AstGrepMatch[];
-  } catch (error) {
-    throw failure(
-      `ast-grep returned invalid JSON for ${posixRelative(workspaceRoot, filePath)}: ${error instanceof Error ? error.message : String(error)}`
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(result.output);
+    } catch (error) {
+      throw failure(
+        `ast-grep returned invalid JSON for a ${batch.length}-file batch: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+    matches.push(
+      ...parseAstGrepMatches(parsed, workspaceRoot, expectedSourcePaths)
     );
   }
+  return matches;
 }
 
 async function assertSupportedRegistrationShape(
@@ -384,23 +521,23 @@ async function assertSupportedRegistrationShape(
     files.map((file) => path.resolve(workspaceRoot, file))
   );
   const closure = await moduleClosure(workspaceRoot, [...new Set(entries)]);
-  for (const filePath of closure) {
-    for (const pattern of [
-      "t.test($$$)",
-      "it($$$)",
-      "suite($$$)",
-      "test($$$, () => { $$$ test($$$) $$$ })",
-      "test($$$, async () => { $$$ test($$$) $$$ })"
-    ]) {
-      if (
-        (await astGrepJson(executable, workspaceRoot, pattern, filePath))
-          .length > 0
-      ) {
-        throw failure(
-          `unsupported registration shape ${pattern} in ${posixRelative(workspaceRoot, filePath)}`
-        );
-      }
+  for (const pattern of [
+    "t.test($$$)",
+    "it($$$)",
+    "suite($$$)",
+    "test($$$, () => { $$$ test($$$) $$$ })",
+    "test($$$, async () => { $$$ test($$$) $$$ })"
+  ]) {
+    const firstMatch = (
+      await astGrepJson(executable, workspaceRoot, pattern, closure)
+    )[0];
+    if (firstMatch !== undefined) {
+      throw failure(
+        `unsupported registration shape ${pattern} in ${firstMatch.sourcePath}`
+      );
     }
+  }
+  for (const filePath of closure) {
     const source = await fs.readFile(filePath, "utf8");
     if (
       /from\s*["'](?:node|bun):test["']/u.test(source) &&
@@ -435,8 +572,8 @@ async function registrationClosures(
 }
 
 function testNameFromAstMatch(match: AstGrepMatch): string | null {
-  const literal = match.metaVariables?.single?.NAME?.text;
-  if (typeof literal !== "string" || !literal.startsWith('"')) return null;
+  const literal = match.variables.NAME;
+  if (literal === undefined || !literal.startsWith('"')) return null;
   try {
     const name: unknown = JSON.parse(literal);
     return typeof name === "string" && name.length > 0 ? name : null;
@@ -446,10 +583,9 @@ function testNameFromAstMatch(match: AstGrepMatch): string | null {
 }
 
 function parameterizedTestNames(match: AstGrepMatch): readonly string[] {
-  const single = match.metaVariables?.single;
-  const variable = single?.VALUE?.text;
-  const values = single?.VALUES?.text;
-  const template = single?.NAME?.text;
+  const variable = match.variables.VALUE;
+  const values = match.variables.VALUES;
+  const template = match.variables.NAME;
   if (
     typeof variable !== "string" ||
     typeof values !== "string" ||
@@ -494,34 +630,35 @@ async function registrationDefinitions(
     for (const file of closure) files.add(file);
   }
   const definitionsByName = new Map<string, Set<string>>();
-  for (const filePath of [...files].sort()) {
-    const sourcePath = posixRelative(workspaceRoot, filePath);
-    const addDefinitions = (names: readonly string[]): void => {
-      for (const name of names) {
-        const paths = definitionsByName.get(name) ?? new Set<string>();
-        paths.add(sourcePath);
-        definitionsByName.set(name, paths);
-      }
-    };
-    const staticMatches = await astGrepJson(
-      executable,
-      workspaceRoot,
-      "test($NAME, $$$)",
-      filePath
-    );
-    for (const match of staticMatches) {
-      const name = testNameFromAstMatch(match);
-      if (name !== null) addDefinitions([name]);
+  const filePaths = [...files].sort();
+  const addDefinitions = (
+    sourcePath: string,
+    names: readonly string[]
+  ): void => {
+    for (const name of names) {
+      const paths = definitionsByName.get(name) ?? new Set<string>();
+      paths.add(sourcePath);
+      definitionsByName.set(name, paths);
     }
-    const parameterizedMatches = await astGrepJson(
-      executable,
-      workspaceRoot,
-      "for (const $VALUE of $VALUES) { $$$ test($NAME, $$$) $$$ }",
-      filePath
-    );
-    for (const match of parameterizedMatches) {
-      addDefinitions(parameterizedTestNames(match));
-    }
+  };
+  const staticMatches = await astGrepJson(
+    executable,
+    workspaceRoot,
+    "test($NAME, $$$)",
+    filePaths
+  );
+  for (const match of staticMatches) {
+    const name = testNameFromAstMatch(match);
+    if (name !== null) addDefinitions(match.sourcePath, [name]);
+  }
+  const parameterizedMatches = await astGrepJson(
+    executable,
+    workspaceRoot,
+    "for (const $VALUE of $VALUES) { $$$ test($NAME, $$$) $$$ }",
+    filePaths
+  );
+  for (const match of parameterizedMatches) {
+    addDefinitions(match.sourcePath, parameterizedTestNames(match));
   }
   const scoped = new Map<string, ReadonlyMap<string, readonly string[]>>();
   for (const [key, closure] of closures) {
@@ -894,6 +1031,7 @@ export async function createRepositoryTestEvidenceSnapshot(
   options: SnapshotOptions
 ): Promise<RepositoryTestSnapshot> {
   const workspaceRoot = path.resolve(options.workspaceRoot);
+  validateExpectedSource(options.expectedSource);
   const output = outputSourcePath(workspaceRoot, options.outputPath);
   const excludedSourcePaths =
     output === null ? new Set<string>() : new Set<string>([output]);
@@ -901,7 +1039,9 @@ export async function createRepositoryTestEvidenceSnapshot(
   await assertSupportedRegistrationShape(workspaceRoot, commands);
   const closures = await registrationClosures(workspaceRoot, commands);
   const definitions = await registrationDefinitions(workspaceRoot, closures);
-  const before = await sourceFingerprint(workspaceRoot, excludedSourcePaths);
+  const before =
+    options.expectedSource ??
+    (await sourceFingerprint(workspaceRoot, excludedSourcePaths));
   const reportDirectory = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills-test-evidence-")
   );
@@ -934,7 +1074,11 @@ export async function createRepositoryTestEvidenceSnapshot(
       }
     }
     const after = await sourceFingerprint(workspaceRoot, excludedSourcePaths);
-    if (before.revision !== after.revision) {
+    if (
+      before.projectId !== after.projectId ||
+      before.revision !== after.revision ||
+      before.scopeId !== after.scopeId
+    ) {
       throw failure(
         "source inputs changed while collecting the repository test snapshot"
       );
@@ -958,7 +1102,8 @@ export async function createRepositoryTestEvidenceSnapshot(
 
 export async function writeRepositoryTestEvidenceSnapshot(
   workspaceRoot: string,
-  outputPath: string
+  outputPath: string,
+  options: Readonly<{ expectedSource?: RepositoryTestSource }> = {}
 ): Promise<RepositoryTestSnapshot> {
   const root = path.resolve(workspaceRoot);
   const resolvedOutput = path.resolve(root, outputPath);
@@ -975,6 +1120,7 @@ export async function writeRepositoryTestEvidenceSnapshot(
     }
   }
   const snapshot = await createRepositoryTestEvidenceSnapshot({
+    ...options,
     outputPath: resolvedOutput,
     workspaceRoot: root
   });

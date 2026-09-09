@@ -7,7 +7,7 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- 项目源指纹必须排除显式请求的工作区内快照输出。
+- 项目源指纹必须排除显式请求的工作区内快照输出；调用方已取得且通过项目、scope 与 revision 边界校验的 expected source 可以交给生产器复用，生产结束仍须独立重算以检测漂移。
 
 Proves:
-- 写入输出后的快照 source revision 与独立重算的源 revision 相同。
+- 错误 scope 的 expected source 在扫描前被拒绝；写入入口复用预先取得的合法 expected source，输出后的快照 source revision 仍与独立重算的源 revision 相同。
