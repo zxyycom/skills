@@ -300,11 +300,12 @@
       "FILE-TEXT-SEARCH-UNICODE-001": "sha256:abe0532684d57ba0133dd722635c5636e7b1d9953d317cc8bcbff28fdbfeee34",
       "FILE-TEXT-SEARCH-UNICODE-CASE-001": "sha256:295ce114c93c3fdb64d53f8826286ffb9979f90b808c28953bfaca6908a4777a",
       "FILE-TEXT-SEARCH-UNICODE-RANGE-001": "sha256:044c06148343a040297d82e308a686248a96f5ed9a86076d30977222d57da659",
-      "GATE-CLI-RESULT-001": "sha256:cd3b10687cb7d26d8cc97684a567ba7c17c5d569f5e7e705bedba81bdad4db75",
-      "GATE-DEFINITION-CATALOG-001": "sha256:511aeccce3cccf5fbecd628c9b2f8c3e9a410fab1ab98893672eda778546596c",
-      "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:8692b2e2c723b1d4373965b3a80f02aeb8d71597c877adfb8a5a98c7a8a45064",
+      "GATE-CLI-RESULT-001": "sha256:a8c009a1cbfd882d3ade893b462b2b6e583415d828ac708bbc8d2d6ed3f3af20",
+      "GATE-COMMAND-TRANSCRIPT-001": "sha256:88f8665c1f8ac0903551d04ca29f14a56f595041fc7b85b49b1819a382ceab20",
+      "GATE-DEFINITION-CATALOG-001": "sha256:e190bc8bb2e2f78670fd6ac3f20cb1bb5fe5c985270d656c3f5347da70b3c87c",
+      "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:6896455e0612e4a040295b79a0947766ba5dfb1b513f78ef19737848c14a0291",
       "GATE-DUPLICATE-DETECTION-001": "sha256:d2e1d80ae26540a504cc548bdb64ca2991f4e41973cae2b72ef7372b8e1902d7",
-      "GATE-FILE-SELECTION-001": "sha256:86279aebacd914c992915869a1978eac3b9fde0f36e71d1367cb74cc14781b46",
+      "GATE-FILE-SELECTION-001": "sha256:562cf6c4ad073cb12b9ef83987ff004c9e9c9c9e680cc9e1abf1a63914ed62cb",
       "GATE-FUNCTION-ANALYZER-001": "sha256:33d68fdccc5c702bdbaf41088af43095bacb558c8ffdffe985830dab6263ae21",
       "GATE-JSON-SCHEMA-001": "sha256:f535fc0daadd341bf80e9ccbdaa8089722767f59ff30399e61ea2b7c76b31aac",
       "GATE-JSON-VALIDATION-001": "sha256:939b32a1f827cd9dc82139c09f8aac9b2f19438f0d7a31a5627373d6ebcb42f8",
@@ -312,12 +313,9 @@
       "GATE-METRICS-ADVISORY-001": "sha256:9e98619f3737b5251f54ead83c5ed1c6b915b8704da8967c4c70ea428cb9ada0",
       "GATE-RELEASE-FINAL-TIMING-001": "sha256:15aa714254766cc28fbf64a07e375fef869e405b8067b708a2546c283da050dd",
       "GATE-RELEASE-SNAPSHOT-TOCTOU-001": "sha256:55f8b4a1a39cb9b62300fd93e56cc8d4a2a930c6e476bf9d8fb08e152f4a9e88",
-      "GATE-RELEASE-TAG-ACTIVATION-001": "sha256:f153d4eb0cd53a6e1e624ed0e52eae3edd44f3ef02b54c2b9a641067006388ff",
-      "GATE-RELEASE-VERSION-FAILURE-001": "sha256:4849b4e1ab002c18452512273069e624fc7c2496041fe2b3e936f04cb4f0a948",
-      "GATE-SCHEDULING-CRITICAL-RANK-001": "sha256:2ecc3219b3a3369c2573d18495662fe46ca437a7ee73d6b1f0889aafe3eccee2",
-      "GATE-SCHEDULING-NONBLOCKING-FALLBACK-003": "sha256:a5733792c2a9db37cb51cdf3adea2bd5f5fc0399a524c95b2b5631c26eadbfc9",
-      "GATE-SCHEDULING-TAG-PERSISTENCE-002": "sha256:fffa1467389880b516fc045d543462ed5a922c30fa3f27fe223917d36dff5242",
-      "GATE-SCRIPT-ADAPTER-001": "sha256:4d35cb8a27c5c2a91391ac947fe327b400492fcea6c24788a14f885285378dbf",
+      "GATE-RELEASE-TAG-ACTIVATION-001": "sha256:cbf436c37b4f7e2157647aecbe51178b399f5969d6253b5d83d6ff68b7118bd9",
+      "GATE-RELEASE-VERSION-FAILURE-001": "sha256:e8fc92e7ea314c7a24fd63852d6244255f1b711cab9fb184ce42d9096a0e1c80",
+      "GATE-SCRIPT-ADAPTER-001": "sha256:0c6144cf35c4c7e03e6fa664e9c64b3e8c57b5b1e212274f38d10ccc9f5baf8d",
       "GATE-SCRIPT-CANCELLATION-001": "sha256:b5b5a534de36e3777118275ee27a7ea28f5ea2b85a29d37f9afdf575f104165e",
       "GATE-SECRET-DETECTION-001": "sha256:7d70ba52f99ee75f0717bb43b25704c0642a17a25847dad648370cf8a6ee4fae",
       "GENERATED-FILE-DECLARATION-001": "sha256:288495f474d1b91ca347075f9a93ce6ea910f9c84023ae9eb14bc0d4ebd0aa7f",
@@ -3800,8 +3798,18 @@
         "test:1d680d28a3a3d73a5c7a141be0159e8399ba94308a60446078262afccdb0afb3"
       ]
     },
+    "GATE-COMMAND-TRANSCRIPT-001": {
+      "title": "命令 Check 保存完整 transcript 并限制终端摘要",
+      "sourcePath": "cases/gate-command-transcript-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:a6bb07167c3237a8323a58e36728886f04cb0c300cbcf9f8b756af355140e102"
+      ]
+    },
     "GATE-DEFINITION-CATALOG-001": {
-      "title": "Gate 完整 Definition 以 release tag 控制 activation",
+      "title": "Gate 完整 Definition 声明原生选择与资源调度",
       "sourcePath": "cases/gate-definition-catalog-001.md",
       "tags": [
         "repository-tooling"
@@ -3911,13 +3919,13 @@
       ]
     },
     "GATE-RELEASE-TAG-ACTIVATION-001": {
-      "title": "未激活 release Check 可见但不执行",
+      "title": "原生 flag 选择保留未激活 release Check",
       "sourcePath": "cases/gate-release-tag-activation-001.md",
       "tags": [
         "repository-tooling"
       ],
       "testIds": [
-        "test:d827bbe4165b85f692d4326dcef89050cf6aadfe92ab0f5c721325f8380b4bfa"
+        "test:6faf08a99c3d00ad954514e94b291e32db24573865fe43200968f0c20e79c245"
       ]
     },
     "GATE-RELEASE-VERSION-FAILURE-001": {
@@ -3928,36 +3936,6 @@
       ],
       "testIds": [
         "test:171f3f455370dd43fc6c79b83889e3fc8c629d91807306ebb43656abe566f1e3"
-      ]
-    },
-    "GATE-SCHEDULING-CRITICAL-RANK-001": {
-      "title": "critical-rank 按依赖关键路径重排 admission",
-      "sourcePath": "cases/gate-scheduling-critical-rank-001.md",
-      "tags": [
-        "repository-tooling"
-      ],
-      "testIds": [
-        "test:df4812772b4ad49bc3eeff3eb9af8c7007c6d928d8dee7e213374585962518ee"
-      ]
-    },
-    "GATE-SCHEDULING-NONBLOCKING-FALLBACK-003": {
-      "title": "scheduling-hint I/O 与未完成 Run 不改变门禁真值",
-      "sourcePath": "cases/gate-scheduling-nonblocking-fallback-003.md",
-      "tags": [
-        "repository-tooling"
-      ],
-      "testIds": [
-        "test:672e6bed80282e01fecfdf8e619f26dd3784dc094c5fb07712e036208826e687"
-      ]
-    },
-    "GATE-SCHEDULING-TAG-PERSISTENCE-002": {
-      "title": "completed 时长提示按 active tag 集合保存并用于后续 Definition",
-      "sourcePath": "cases/gate-scheduling-tag-persistence-002.md",
-      "tags": [
-        "repository-tooling"
-      ],
-      "testIds": [
-        "test:525c5304d9b56034690411d8244cb9dcc99588655f7ec097bffa5b2ec1294e56"
       ]
     },
     "GATE-SCRIPT-ADAPTER-001": {

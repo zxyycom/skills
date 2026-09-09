@@ -1,7 +1,7 @@
 ---
 title: 采用 Vibe Check 0.0.2 的原生门禁边界
 id: 260909-adopt-vibe-check-0-0-2-gate-runtime
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-09T06:13:34Z
 purpose: 让项目门禁直接采用新版宿主、分析器与安全检查契约。

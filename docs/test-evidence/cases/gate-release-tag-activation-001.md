@@ -1,13 +1,13 @@
-### Case GATE-RELEASE-TAG-ACTIVATION-001: 未激活 release Check 可见但不执行
+### Case GATE-RELEASE-TAG-ACTIVATION-001: 原生 flag 选择保留未激活 release Check
 
 Tests:
-- `test:d827bbe4165b85f692d4326dcef89050cf6aadfe92ab0f5c721325f8380b4bfa`
+- `test:6faf08a99c3d00ad954514e94b291e32db24573865fe43200968f0c20e79c245`
 
 Tags:
 - `repository-tooling`
 
 Contract:
-- 完整 Definition 中需要 `release` tag 的 Check 在无 tag 的 base Gate 也必须显示；activation preflight 必须先于原 preflight，且未激活项不执行、以稳定 `gate-tag-not-enabled` unavailable reason、`not run`、null duration 与 `Pass --tag release` 提示结算，不进入 base aggregate。
+- 完整 Definition 中需要 `release` flag 的 Check 在无 tag 的 base Gate 仍保留；Vibe 原生 flag selection 必须先于 Check preflight，未激活项不执行、以 `flag-condition-not-matched` not-applicable、`not run` 和 null duration 结算，effective aggregate 只纳入本次有效 Check。
 
 Proves:
-- 一个 base 与一个 release Check 的真实 Vibe Run 在只选择 base aggregate 时通过，snapshot 仍包含两个 Check；release Check 的原 preflight 与 execution 调用次数均为零，结果是 `gate-tag-not-enabled` unavailable 且 duration 为 null。
+- 一个 base 与一个 release Check 的真实 Vibe Run 以 effective aggregate 通过，snapshot 仍包含两个 Check；release Check 的 preflight 与 execution 调用次数均为零，结果是原生 flag-condition not-applicable 且 duration 为 null。

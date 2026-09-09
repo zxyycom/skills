@@ -1,20 +1,21 @@
 import process from "node:process";
+import { randomUUID } from "node:crypto";
+import path from "node:path";
 import { run } from "@zxyycom/vibe-check";
-import type { ProjectDefinition, RunResult } from "@zxyycom/vibe-check";
+import type {
+  ProjectDefinition,
+  RunControls,
+  RunResult
+} from "@zxyycom/vibe-check";
 import { isMainModule } from "../tools/shared/src/node/main-module.ts";
 import { rootDir } from "./lib/project.ts";
 import {
-  activeGateCheckIds,
   createGateDefinition,
   gateTags,
   isReleaseBaselineRef,
   normalizeGateTags,
   type GateTag
 } from "./lib/vibe-gate.ts";
-import {
-  createGateSchedulingHints,
-  type GateSchedulingHints
-} from "./lib/vibe-scheduling-hints.ts";
 
 type GateExitCode = 0 | 1;
 
@@ -32,11 +33,54 @@ type GateInvocationParserState = {
 
 export type VibeCheckDependencies = Readonly<{
   createDefinition?: (invocation: GateInvocation) => ProjectDefinition;
+  createInvocationDirectory?: () => string;
   reportError?: (message: string) => void;
   reportInfo?: (message: string) => void;
-  runProject?: typeof run;
-  schedulingHints?: GateSchedulingHints;
+  runProject?: (
+    definition: ProjectDefinition,
+    controls: RunControls
+  ) => Promise<RunResult>;
 }>;
+
+export function createGateInvocationDirectory(
+  workspaceRoot: string = rootDir,
+  now: Date = new Date(),
+  uuid: string = randomUUID()
+): string {
+  const timestamp = now.toISOString().replaceAll(/[-:.]/gu, "");
+  return path.join(
+    workspaceRoot,
+    ".log/vibe-check/invocations",
+    `${timestamp}-${uuid}`
+  );
+}
+
+export function gateInvocationOutputControls(
+  invocationDirectory: string,
+  diagnosticLog: boolean
+): Pick<
+  RunControls,
+  | "checkArtifactBaseDirectory"
+  | "diagnosticLogFileNaming"
+  | "outputs"
+  | "progressLogFile"
+> {
+  return {
+    checkArtifactBaseDirectory: path.join(invocationDirectory, "checks"),
+    diagnosticLogFileNaming: "channel",
+    outputs: {
+      diagnosticLogging: {
+        directory: path.join(invocationDirectory, "diagnostics"),
+        enabled: diagnosticLog
+      },
+      machinePublication: {
+        directory: path.join(invocationDirectory, "machine"),
+        enabled: true
+      }
+    },
+    progressLogFile: path.join(invocationDirectory, "progress.log")
+  };
+}
 
 function isGateTag(value: string | undefined): value is GateTag {
   return gateTags.some((tag) => tag === value);
@@ -145,53 +189,41 @@ export async function runVibeCheck(
     return 1;
   }
 
-  const selectedCheckIds = activeGateCheckIds(invocation.tags);
-  const schedulingHints =
-    dependencies.schedulingHints ?? createGateSchedulingHints(rootDir);
-  const durationHints = await schedulingHints
-    .read(invocation.tags, selectedCheckIds)
-    .catch(() => new Map<string, number>());
   const definition =
     dependencies.createDefinition?.(invocation) ??
     createGateDefinition(
       invocation.tags,
       invocation.baselineRef === undefined
-        ? { durationHints }
-        : { baselineRef: invocation.baselineRef, durationHints }
+        ? {}
+        : { baselineRef: invocation.baselineRef }
     );
+  const invocationDirectory =
+    dependencies.createInvocationDirectory?.() ??
+    createGateInvocationDirectory();
   const result = await (dependencies.runProject ?? run)(definition, {
     checkAggregation: {
-      checks: selectedCheckIds,
+      checks: "effective",
       empty: "failed",
       mode: "all",
       notApplicable: "fail",
       unavailable: "fail"
     },
     flags: invocation.tags,
-    ...(invocation.diagnosticLog
-      ? {
-          outputs: {
-            diagnosticLogging: {
-              directory: ".log/vibe-check",
-              enabled: true
-            }
-          }
-        }
-      : {}),
+    ...gateInvocationOutputControls(
+      invocationDirectory,
+      invocation.diagnosticLog
+    ),
     projectRoot: rootDir
   });
 
-  if (result.kind === "completed" && result.aggregate === "passed") {
-    await schedulingHints
-      .write(invocation.tags, selectedCheckIds, result.checkDurations)
-      .catch(() => undefined);
-  }
-
-  if (invocation.diagnosticLog && "outputs" in result) {
-    for (const channel of ["core", "scheduler"] as const) {
-      const status = result.outputs.diagnosticLogging.channels[channel];
-      if (status.status === "succeeded" && status.file !== null) {
-        reportInfo(`Vibe Check diagnostic log (${channel}): ${status.file}`);
+  if ("outputs" in result) {
+    reportInfo(`Vibe Check artifacts: ${invocationDirectory}`);
+    if (invocation.diagnosticLog) {
+      for (const channel of ["core", "scheduler"] as const) {
+        const status = result.outputs.diagnosticLogging.channels[channel];
+        if (status.status === "succeeded" && status.file !== null) {
+          reportInfo(`Vibe Check diagnostic log (${channel}): ${status.file}`);
+        }
       }
     }
   }

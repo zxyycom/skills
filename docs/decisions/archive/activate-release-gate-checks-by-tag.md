@@ -1,7 +1,7 @@
 ---
 title: 用 release tag 激活可见的 Gate Check
 id: activate-release-gate-checks-by-tag
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-01T13:56:55Z
 purpose: 让日常 Gate 完整显示全部 Check，同时只由显式 release tag 启动发布增量与打包链路。

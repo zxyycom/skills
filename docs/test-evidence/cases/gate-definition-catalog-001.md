@@ -1,4 +1,4 @@
-### Case GATE-DEFINITION-CATALOG-001: Gate 完整 Definition 以 release tag 控制 activation
+### Case GATE-DEFINITION-CATALOG-001: Gate 完整 Definition 声明原生选择与资源调度
 
 Tests:
 - `test:e55fd378031c8b4a9ad69bf1050581562ad6226fa6242e26c5fea6c3b4dd77f0`
@@ -7,8 +7,9 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；base 只聚合不需要 tag 的 35 个 Check，release tag 激活全部 63 个 Check 与 release DAG。
+- 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；release-only Check 以 `enabledByFlags` 声明选择和依赖传播，scheduler 使用原生 learned strategy、四槽上限及外部进程和仓库扫描容量。
 
 Proves:
 - Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/8/5` 个语义 Check；66 个当前测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。
-- base/release Definition Check ID 完全相同，七项 Vibe 原生 Check 与语义 Check 的 requiredTag、固定命令精确匹配独立期望；release 的 `release:skill-prepare` 没有普通前置且处于 Definition 首位，`release:skill-version` 依赖由 catalog 派生的全部普通前置和 prepare，`pack:skills` 只依赖版本节点。Definition 继续使用静态并发 4、progress 与 machine publication，并关闭 diagnostic log。
+- base/release Definition Check ID 完全相同，七项 Vibe 原生 Check 与语义 Check 的 release 条件、固定命令精确匹配独立期望；release prepare、version 和 pack 保持原 DAG，带依赖的 release Check 传播传递前置。
+- Definition 使用 learned custom admission、`maxParallel: 4`、两个外部进程和两个仓库扫描容量；命令型 package/semantic Check 分别声明一个外部进程 unit。

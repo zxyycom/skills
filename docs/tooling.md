@@ -81,38 +81,74 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
-| `bun run check [--diagnostic-log]` | 运行 base Gate：完整 Definition 的全部 63 个 Check 都会显示；35 个 base Check 执行并进入 aggregate，28 个未启用的 release Check 以 `unavailable`、`not run` 和专用提示结算。 |
+| `bun run check [--diagnostic-log]` | 运行 base Gate：完整 Definition 的全部 63 个 Check 都会保留；35 个 base Check 执行并进入 aggregate，28 个 release Check 由原生 flag 条件结算为 `not-applicable`，并在 progress 中归组。 |
 | `bun run check --tag release [--baseline-ref <ref>] [--diagnostic-log]` | 运行 release Gate：在 base 基础上启用 release tag，执行全部 63 个 Check、版本验证与打包终结。省略基线时使用 `HEAD`，CI 使用事件基线。 |
 
 ### 权威 Vibe 门禁
 
-`bun run check` 是唯一权威门禁入口，package script 由满足 Node 最低版本的宿主运行 Vibe。每次运行都构造相同的完整 Check Definition；tag 只控制 activation 与 aggregate selection，不删除任何声明。无 tag 的 base Gate 执行并聚合 35 个 base Check；`--tag release` 激活并聚合全部 63 个 Check。未启用 tag 的 Check 仍显示在 progress 与 machine snapshot 中，但 activation preflight 在其原有 preflight、扫描或命令启动前阻断，结算为 `unavailable`、`not run`、`duration: null` 与 `gate-tag-not-enabled`，并显示 `Pass --tag release`。它们不进入 base aggregate，所以未启动项既不会阻断 base，也不会被误报为通过。被 aggregate 选择的 `unavailable` 或 `not-applicable` 一律 fail closed。`--tag` 是 tag 型 activation 接口；当前仅支持 `release`，因此每次 invocation 最多出现一次 `--tag release`，任何重复 tag 都在启动 Check 前以 usage 拒绝。`--full` 仅保留为等同 `--tag release` 的兼容别名，不能与该 tag 同用。未知 tag、缺失 tag 值、未知参数和重复 `--diagnostic-log` 同样在启动 Check 前以 usage 拒绝。`--baseline-ref` 只可与 release tag 同用，必须是已 trim 的非空 revision 输入，且不得以 `-` 开头、包含 NUL、CR 或 LF。该 wrapper 级验证不解析 Git ref；实际解析由 `release:skill-prepare` 完成。CLI 将规范化 tag 集合同时传给 Vibe run controls 的 `flags`，并映射 Vibe 的最终结果为进程退出状态；`scripts/lib/vibe-gate.ts` 是 Check catalog、Definition、activation、命令 adapter 和 release DAG owner。
+`bun run check` 是唯一权威门禁入口。项目直接调用 Vibe `run`，不在 Vibe 外实现第二套 runner。责任边界如下：
+
+| Owner | 责任 |
+| --- | --- |
+| Vibe | 根据 flags 和依赖完成 Check selection、scheduler admission、settlement 与 aggregate，并生成 progress 和 machine publication。 |
+| 项目 Definition | 声明完整 Check catalog、原生 Check 配置、release DAG、资源 claims、learned strategy 与资源容量。 |
+| 项目 CLI argument layer | 解析并校验仓库支持的参数，把规范化 flags、输出路径和 aggregate policy 交给 Vibe，再将 Vibe 最终结果映射为进程退出状态。 |
+| 项目 command adapter | 以参数数组执行 catalog 声明的 Bun/Node 命令，保存 transcript，并将进程终态映射为 Check result。 |
+
+每次运行都构造相同的完整 Check Definition。Release-only executable Check 用 `enabledByFlags` 声明条件，本次 aggregate 用 `checks: "effective"` 复用 Vibe 的 flag 与依赖选择，项目不另算 Check ID 集合。无 tag 的 base Gate 执行并聚合 35 个 base Check；`--tag release` 激活并聚合全部 63 个 Check。未命中 flag 的 Check 不进入 preflight、扫描或命令启动，以 `not-applicable / flag-condition-not-matched`、`not run` 和 `duration: null` 保留在 machine snapshot，并由 progress 归组；它们不进入 base aggregate。被 effective selection 纳入的 `unavailable` 或意外 `not-applicable` 一律 fail closed。
+
+项目 CLI argument layer 只接受以下参数：
+
+- `--tag release`：每次 invocation 最多出现一次。
+- `--full`：等同 `--tag release` 的兼容别名，不能与该 tag 同用。
+- `--baseline-ref <ref>`：只可与 release tag 同用；值必须是已 trim 的非空 revision 输入，且不得以 `-` 开头或包含 NUL、CR、LF。此层只校验输入形状；Git ref 的实际解析由 `release:skill-prepare` 完成。
+- `--diagnostic-log`：每次 invocation 最多出现一次，只开启本次运行的 diagnostic channels。
+
+未知 tag、缺失 tag 值、未知参数和重复参数在启动 Check 前以 usage 拒绝。
+
+实现按责任放在以下模块：
+
+| 路径 | Owner |
+| --- | --- |
+| `scripts/vibe-check.ts` | 项目 CLI argument layer、invocation 输出路径和退出状态映射。 |
+| `scripts/lib/vibe-gate.ts` | 完整 Definition 的组合入口和既有项目内部导出。 |
+| `scripts/lib/vibe-gate/checks/native.ts` | Vibe 内置 Check 的项目配置。 |
+| `scripts/lib/vibe-gate/checks/package-script.ts` | 维护 package script Checks。 |
+| `scripts/lib/vibe-gate/checks/semantic.ts` | 仓库语义测试 catalog。 |
+| `scripts/lib/vibe-gate/checks/release.ts` | Release prepare、version authorization 与 packaging DAG。 |
+| `scripts/lib/vibe-gate/command-runner.ts` | Vibe 尚未提供的任意 Bun/Node 命令执行、transcript 和进程终态映射。 |
+| `scripts/lib/vibe-gate/diagnostics.ts` | 有界单行 Check messages 投影。 |
+| `scripts/lib/vibe-gate/contracts.ts` | 共享 tag 与 named resource 契约。 |
 
 | 术语 | 当前含义 |
 | --- | --- |
-| semantic Check | catalog 中以稳定 ID、显示名、`requiredTag`（如需要）和直接命令定义的最小 Gate 单元。 |
+| semantic Check | catalog 中以稳定 ID、显示名、release 条件（如需要）和直接命令定义的最小 Gate 单元。 |
 | complete Definition | 每次 invocation 都包含相同的完整 Check ID 集合；tag 只改变 activation 与 aggregate selection，不删除声明。 |
-| active Check | 不需要 tag 的 base Check，或 required tag 已启用的 Check；只有它进入本次 aggregate。被选中的 unavailable 或 not-applicable 仍 fail closed。 |
+| effective Check | 无 flag 条件的 base Check、条件命中的 release Check，以及由 `propagateDependsOn` 带入的传递前置；只有它进入本次 aggregate。 |
 | release tag | 显式启用原 release-only 语义 Check、两个维护脚本、release snapshot、version 与 package DAG 的唯一 tag。 |
 | release-required Check | release tag 下必须形成可信 passed 的普通 Check；全部通过后 release version authorization 才会开始。 |
 
-所有 invocation 都使用 Vibe 原生 progress、静态 `maxParallel: 4` 和按 active Check ID 的 `all` aggregate，明确令被选择的 `unavailable`、`not-applicable` 与空选择失败。调度顺序和并发设置不表达 Check 语义、失败优先级或 release 依赖；独立 Check 即使其他 Check 已失败仍继续结算。wrapper 仅从上一轮 aggregate passed 的 completed `RunResult.checkDurations` 保存可选时长提示：无 tag 的 base 集合保存为 `.vibe-check-scheduling-hints-base.json`，release 集合保存为 `.vibe-check-scheduling-hints-release.json`。提示按规范化 active tag 集合隔离；关键路径排序只使用当前 active executable Check 的完整有限时长，未激活 Check 保留在完整 Definition 中而不参与 admission 排序。文件缺失、损坏、读写失败、不完整提示或环均保留 catalog 顺序，且不改变 Gate 真值。machine publication 默认写入专属且被 Git 忽略的 `.log/vibe-check/publication/`，保存本次完整 Check facts；catalog Check ID 是稳定机器身份。
+所有 invocation 都使用 Vibe 原生 progress、`maxParallel: 4`、effective aggregate 和 learned critical-path prepared strategy。调用方拥有的可丢弃 history 位于 `.log/vibe-check/cache/scheduler-history/`；task identity 包含稳定 Task ID、base/release profile 和项目调度策略版本。首次、缺失、损坏或读写失败的 history 只让原生策略退化，不改变 Check membership、outcome 或 aggregate。独立 Check 即使其他无依赖 Check 已失败仍继续结算。
 
-diagnostic log 用于人类排查单次 invocation 的调度与执行过程，不是稳定机器 schema。它默认关闭；base 或 release 追加 `--diagnostic-log` 时仅为该 invocation 启用 diagnostic logging，分别写入被 Git 忽略的 `.log/vibe-check/core-*.log` 与 `scheduler-*.log`，并回显成功创建的 channel 路径，不改变 machine publication。
+第一版 named resource 按任务性质声明，而不是由反复耗时拟合推测：同时运行的外部进程最多 2 个，同时进行的全仓库扫描最多 2 个；命令型 package/semantic Check 消耗一个 `external-process`，原生内容分析消耗一个 `repository-scan`，SCC 文件指标与 release snapshot 同时消耗两类资源。资源从 Check admission 到 settlement 原子持有；它们只表达共享执行压力，不改变依赖、质量真值或 root 四槽上限，后续可根据实际维护反馈优化。
+
+每次 CLI invocation 创建唯一且被 Git 忽略的 `.log/vibe-check/invocations/<timestamp>-<uuid>/`：`machine/` 保存 `run.json` 与 `records.ndjson`，`progress.log` 保存终端 progress 副本，`checks/<encoded-check-id>/process.log` 保存命令 Check 的完整 stdout/stderr transcript。终端失败先显示一条主消息，再把有界输出尾部拆成至多四条单行 message 并指向 transcript；单个 Vibe message 不嵌入换行，避免 progress renderer 将换行转义成字面 `\n`。该目录是本地可丢弃诊断状态，当前不自动清理；需要释放空间时可删除旧 invocation 目录。Diagnostic log 默认关闭；追加 `--diagnostic-log` 时只在本次目录的 `diagnostics/core.log` 与 `scheduler.log` 启用固定 channel 名并回显路径，不改变 machine publication。
 
 Check catalog 以“它证明什么、失败后由谁处理”为分组条件：例如领域记录/索引、生命周期事务、按稳定 ID 的 pending-stage、调用协议和可分发制品可以是不同 Check；共同证明一个契约的多个原生测试文件保留在同一 Check。不得为均衡耗时把 Check 拆成每个测试，也不得把一个工具的全部测试重新合并为单一 Check。package scripts 继续是面向维护者的稳定手动聚合入口，但语义 Check 不再以 package script 身份作为 leaf。失败结果给出的直接命令是重跑该 Check 的权威路径；需要完整领域回归时仍可运行相应 `test:*` 聚合命令。
 
 
-七项原生 Check 共用当前维护范围：代码类 Check 读取 Git worktree 中 `scripts/`、`tools/` 的 JavaScript/TypeScript，并排除 Vibe 默认排除项和 `docs/investigations/_resources/**`；JSON、Markdown 与 secret detection 也排除后者这类非当前维护内容。Secret detection 只选择仓库维护的文本型扩展名、Git 属性/忽略文件与 hooks，以 4096 个文件和 64 MiB 总输入为 fail-closed 上限；高置信 PEM private-key finding、coverage gap 或 unavailable 都阻断。重复检测只把不少于 150 tokens 的重复片段作为 blocking finding，避免把已知的小型维护片段误作门禁失败。
+七项原生 Check 共用当前维护范围：代码类 Check 读取 Git worktree 中 `scripts/`、`tools/` 的 JavaScript/TypeScript，并排除 Vibe 默认排除项和 `docs/investigations/_resources/**`；JSON、Markdown 与 secret detection 也排除后者这类非当前维护内容。Markdown link validation 在 `.log/vibe-check/cache/markdown-parse-facts/` 启用原生 parse-facts cache；命中只复用解析事实，本次文件选择、目标判断、finding 和 outcome 仍重新形成，缓存不可用则 fresh-parse。Secret detection 只选择仓库维护的文本型扩展名、Git 属性/忽略文件与 hooks，以 4096 个文件和 64 MiB 总输入为 fail-closed 上限；高置信 PEM private-key finding、coverage gap 或 unavailable 都阻断。重复检测只把不少于 150 tokens 的重复片段作为 blocking finding，避免把已知的小型维护片段误作门禁失败。
 
 release tag 同时验证工作区正确性与 release snapshot，但两者输入不能互相替代：普通 Check 在本次项目根 invocation 中结算，原生 Check 明确选择 Git worktree，脚本或直接测试命令由自身契约决定读取输入；`release:skill-prepare` 一次读取 Git `pending` 快照，默认 Git 实现将其映射到 index，随后 version authorization 与 `pack:skills` 只消费该 invocation-local 内存快照。因此 release Gate 通过不说明未暂存的工作树 skill 改动已进入制品；需要核对两者一致性时，分别检查工作树与 index。
 
 | Check 类别 | 语义 |
 | --- | --- |
 | 结构与质量原生 Check | 重复、高置信私钥、JSON、Task Graph/Test Evidence Schema、Markdown 链接的 finding、coverage gap、unavailable 或意外 not-applicable 均阻断 aggregate。 |
-| 文件指标与函数指标 | required advisory：可信 finding 保持 passed，progress 显示 warning 摘要；逐项 finding 保存在 `.log/vibe-check/publication/records.ndjson`。unavailable 或 not-applicable 阻断。finding 数量和执行时长是测量输出，不是 catalog 边界。 |
+| 文件指标与函数指标 | required advisory：可信 finding 保持 passed，progress 显示 warning 摘要；逐项 finding 保存在本次 invocation 的 `machine/records.ndjson`。函数指标将 `tools/` 产品源码设为严格区、`scripts/` 自动化设为中等区、测试设为宽松区，各区显式声明 NLOC、CCN、nesting depth 与参数阈值。unavailable 或意外 not-applicable 阻断；finding 数量和执行时长是测量输出，不是 catalog 边界。 |
 | 语义 Check | adapter 以 catalog 声明的 `bun test` 或必要的 Node 原生命令运行精确测试入口。非零退出为 failed，不能启动、取消或无法形成可信退出结果为 unavailable；诊断提供同一命令以便直接重跑。 |
 | 维护 package script Check | adapter 以参数数组运行 `bun run <script>`，保留既有稳定维护命令的行为验证；它不替代语义 Check。取消与后代进程回收边界仍由脚本协作处理。 |
+
+函数指标区的普通上限依次为 NLOC、CCN、nesting depth、参数数：产品源码 `45/10/5/5`，自动化脚本 `80/16/8/7`，测试 `100/20/10/8`。低复杂度 NLOC allowance 分别为 CCN 严格低于 `5/7/8` 时允许到 `120/220/250`。三个区域当前都保持 non-blocking advisory；阈值差异用于把同一 measurement 转换为符合代码责任的维护信号，不以批量 waiver 隐藏现状。
 
 三个消费当前工作树分发制品的 public-distribution semantic Check 必须先验证对应的唯一生成一致性 Check：
 
@@ -122,7 +158,7 @@ release tag 同时验证工作区正确性与 release snapshot，但两者输入
 | `test:decision-records:public-distribution` | `script:check:decision-records-cli` | `bun run check:decision-records-cli`、`bun run test:decision-records-cli` |
 | `test:task-graph:public-distribution` | `script:check:task-graph-cli` | `bun run check:task-graph-cli`、`bun run test:task-graph-cli` |
 
-`dependsOn` 向 Vibe 声明成功前置：只有直接 provider 全部 `passed` 才进入 dependent callback；前置 failed 或 unavailable 时，Vibe 不启动 consumer，并结算为 `unavailable / dependency-not-passed`。semantic Check 的包装层仍只读取已授权的直接前置结果并验证可信 `passed`，不以缺失或其他状态读取制品。此前置表达当前制品的信任边界，避免失败后的无效 consumer 输出并改善归因；它不减少成功路径中既有的单次生成/漂移检查，也不得据此宣称 happy-path 加速。
+`dependsOn` 向 Vibe 声明成功前置：只有直接 provider 全部 `passed` 才进入 dependent callback；前置 failed 或 unavailable 时，Vibe 不启动 consumer，并结算为 `unavailable / dependency-not-passed`。项目 adapter 不重复读取或翻译 provider status；确需消费 provider final data 的 Check 才在 callback 内通过 `dependencies.get(...)` 做数据边界校验。此前置表达当前制品的信任边界，避免失败后的无效 consumer 输出并改善归因；它不减少成功路径中既有的单次生成/漂移检查，也不得据此宣称 happy-path 加速。
 
 release tag 的 release DAG 固定为：
 
@@ -144,7 +180,7 @@ pack:skills（恰好一次，从已授权的内存快照生成制品）
 2. `release:skill-prepare` 解析基线 revision，并一次捕获 pending snapshot、hash、版本与 version issues。捕获或解析失败为 unavailable；发现 version issue 仍完成 prepare。
 3. `release:skill-version` 只在全部普通 prerequisite 及 prepare passed 后授权这份内存 snapshot；版本问题使 authorization failed。`pack:skills` 只在 authorization passed 后从该 snapshot 生成制品，不重新读取 Git index。`hash:skills` 仍是独立 CLI，pre-commit hook 仍独立以 `HEAD` 校验待提交版本。
 
-当前锁文件解析 `@zxyycom/vibe-check@0.0.2`。重复检测直接使用随包 jscpd 5.1.x adapter；该版本已修复项目相对路径输入，因此项目不再保留 jscpd wrapper。函数指标使用随包 TypeScript analyzer，并增加 nesting-depth measurement，不再读取 PATH Lizard。`fileMetrics` 仍直接使用 PATH SCC，Vibe 原生 availability 精确检查 `scc version 4.0.0`；`node scripts/environment.js check` 精确报告缺失、版本不匹配或 probe failure，`setup` 不安装 SCC。CI 在同一 package job 固定安装并探测 SCC 4.0.0 后运行 release Gate。若锁文件解析的 Vibe 版本或 SCC 调用/输出契约改变，先复核这些边界。
+当前锁文件解析 `@zxyycom/vibe-check@0.0.2`。重复检测直接使用随包 jscpd 5.1.x adapter；该版本已修复项目相对路径输入，因此项目不再保留 jscpd 适配脚本。函数指标使用随包 TypeScript analyzer，并增加 nesting-depth measurement，不再读取 PATH Lizard。`fileMetrics` 仍直接使用 PATH SCC，Vibe 原生 availability 精确检查 `scc version 4.0.0`；`node scripts/environment.js check` 精确报告缺失、版本不匹配或 probe failure，`setup` 不安装 SCC。CI 在同一 package job 固定安装并探测 SCC 4.0.0 后运行 release Gate。若锁文件解析的 Vibe 版本或 SCC 调用/输出契约改变，先复核这些边界。
 
 ### 仓库维护短命令
 

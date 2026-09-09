@@ -20,36 +20,39 @@ import {
   run,
   secretDetection
 } from "@zxyycom/vibe-check";
-import type { Check, ProjectDefinition, RunResult } from "@zxyycom/vibe-check";
+import type {
+  Check,
+  ProjectDefinition,
+  RunControls,
+  RunResult
+} from "@zxyycom/vibe-check";
 import {
+  automationCodeFiles,
   createGateDefinition,
   createVibeNativeChecks,
-  activateGateCheck,
-  activeGateCheckIds,
+  gateResourceCapacities,
   gateCheckIds,
   historicalContentExclusions,
   investigationAuthoringDocumentExclusions,
   maintainedSecretFiles,
-  orderRootChecksByCriticalRank,
+  productCodeFiles,
   releaseSnapshotCheckId,
   releaseRequiredPackageScripts,
   releaseRequiredCheckIds,
   runGateCommand,
   semanticGateChecks,
+  testCodeFiles,
   vibeNativeCheckIds,
   type GateCommandInvocation,
   type GateCommandRunner
 } from "./lib/vibe-gate.ts";
 import {
-  createGateSchedulingHints,
-  schedulingHintsRelativePath,
-  type GateSchedulingHints
-} from "./lib/vibe-scheduling-hints.ts";
-import {
   packSkillPackageSnapshot,
   prepareSkillPackageRelease
 } from "./lib/skill-package-release.ts";
 import {
+  createGateInvocationDirectory,
+  gateInvocationOutputControls,
   resolveGateInvocation,
   runVibeCheck,
   type GateInvocation
@@ -192,11 +195,13 @@ function completed(result: RunResult) {
 async function runDefinition(
   definition: ProjectDefinition,
   projectRoot: string,
+  flags: readonly string[] = [],
   signal: AbortSignal = new AbortController().signal
 ) {
   return completed(
     await run(definition, {
-      checkAggregation: aggregateOptions,
+      checkAggregation: { ...aggregateOptions, checks: "effective" },
+      flags,
       outputs: noOutput,
       projectRoot,
       signal
@@ -648,6 +653,11 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
     true
   );
   assert.equal(baseDefinition.scheduler.maxParallel, 4);
+  assert.equal(baseDefinition.scheduler.admissionPolicy.kind, "custom");
+  assert.deepEqual(
+    baseDefinition.scheduler.resourceCapacities,
+    gateResourceCapacities
+  );
   assert.deepEqual(baseDefinition.outputs, {
     diagnosticLogging: { enabled: false, directory: ".log/vibe-check" },
     machinePublication: {
@@ -678,6 +688,27 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
   assert.deepEqual(releaseTerminalCheck(releaseDefinition).dependsOn, [
     "release:skill-version"
   ]);
+  const releaseFlag = {
+    flags: ["release"],
+    mode: "all",
+    propagateDependsOn: true
+  };
+  assert.deepEqual(
+    releaseDefinition.checks.find(
+      ({ checkId }) => checkId === "release:skill-version"
+    )?.enabledByFlags,
+    releaseFlag
+  );
+  assert.deepEqual(
+    releaseTerminalCheck(releaseDefinition).enabledByFlags,
+    releaseFlag
+  );
+  assert.deepEqual(
+    releaseDefinition.checks.find(
+      ({ checkId }) => checkId === releaseSnapshotCheckId
+    )?.enabledByFlags,
+    { flags: ["release"], mode: "all" }
+  );
   assert.deepEqual(
     semanticGateChecks.map((check) => [
       check.requiredTag,
@@ -699,6 +730,24 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
       .filter(({ checkId }) => expectedSemanticPrerequisites.has(checkId))
       .map(({ checkId, dependsOn }) => [checkId, dependsOn]),
     [...expectedSemanticPrerequisites]
+  );
+  assert.ok(
+    releaseDefinition.checks
+      .filter(({ checkId }) => checkId.startsWith("script:"))
+      .every(
+        ({ resourceClaims }) =>
+          JSON.stringify(resourceClaims) ===
+          JSON.stringify({ "external-process": 1 })
+      )
+  );
+  assert.ok(
+    releaseDefinition.checks
+      .filter(({ checkId }) => checkId.startsWith("test:"))
+      .every(
+        ({ resourceClaims }) =>
+          JSON.stringify(resourceClaims) ===
+          JSON.stringify({ "external-process": 1 })
+      )
   );
   for (const [, checkId, , files] of expectedSemanticGateChecks) {
     const commandPath = expectedSemanticCommandPaths.get(checkId);
@@ -797,7 +846,7 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
   );
 });
 
-test("inactive release Checks remain visible without starting their original preflight or execution", async () => {
+test("native flag selection keeps inactive release Checks visible without starting Check work", async () => {
   let originalPreflightCalls = 0;
   let releaseExecutionCalls = 0;
   const definition = defineConfig({
@@ -807,28 +856,25 @@ test("inactive release Checks remain visible without starting their original pre
         displayName: "base",
         execution: () => ({ status: "passed" as const, data: {} })
       }),
-      activateGateCheck(
-        defineCheck({
-          checkId: "release",
-          displayName: "release",
-          preflight: () => {
-            originalPreflightCalls += 1;
-            return { status: "success" as const, preparedOptions: {} };
-          },
-          execution: () => {
-            releaseExecutionCalls += 1;
-            return { status: "passed" as const, data: {} };
-          }
-        }),
-        "release",
-        []
-      )
+      defineCheck({
+        checkId: "release",
+        displayName: "release",
+        enabledByFlags: { flags: ["release"], mode: "all" },
+        preflight: () => {
+          originalPreflightCalls += 1;
+          return { status: "success" as const, preparedOptions: {} };
+        },
+        execution: () => {
+          releaseExecutionCalls += 1;
+          return { status: "passed" as const, data: {} };
+        }
+      })
     ],
     outputs: noOutput
   });
   const result = completed(
     await run(definition, {
-      checkAggregation: { ...aggregateOptions, checks: ["base"] },
+      checkAggregation: { ...aggregateOptions, checks: "effective" },
       flags: [],
       outputs: noOutput,
       projectRoot: repositoryRoot
@@ -836,7 +882,7 @@ test("inactive release Checks remain visible without starting their original pre
   );
   assert.equal(result.aggregate, "passed");
   assert.equal(result.snapshot.checks.length, 2);
-  assert.equal(outcomeFor(result, "release").status, "unavailable");
+  assert.equal(outcomeFor(result, "release").status, "not-applicable");
   assert.equal(
     result.checkDurations.find(({ checkId }) => checkId === "release")
       ?.durationMs,
@@ -845,237 +891,24 @@ test("inactive release Checks remain visible without starting their original pre
   assert.equal(originalPreflightCalls, 0);
   assert.equal(releaseExecutionCalls, 0);
   const releaseOutcome = outcomeFor(result, "release");
-  if (releaseOutcome.status !== "unavailable") {
-    throw new Error("expected inactive release Check to be unavailable");
+  if (releaseOutcome.status !== "not-applicable") {
+    throw new Error("expected inactive release Check to be not-applicable");
   }
-  assert.equal(releaseOutcome.reason.code, "gate-tag-not-enabled");
-});
-
-test("critical-rank scheduling follows the dependency critical path and preserves incomplete-hint order", () => {
-  const checks = [
-    defineCheck({
-      checkId: "independent",
-      displayName: "independent",
-      execution: () => ({ status: "passed" as const, data: {} })
-    }),
-    defineCheck({
-      checkId: "chain-start",
-      displayName: "chain-start",
-      execution: () => ({ status: "passed" as const, data: {} })
-    }),
-    defineCheck({
-      checkId: "chain-terminal",
-      dependsOn: ["chain-start"],
-      displayName: "chain-terminal",
-      execution: () => ({ status: "passed" as const, data: {} })
-    }),
-    defineCheck({
-      checkId: "tie-left",
-      displayName: "tie-left",
-      execution: () => ({ status: "passed" as const, data: {} })
-    }),
-    defineCheck({
-      checkId: "tie-right",
-      displayName: "tie-right",
-      execution: () => ({ status: "passed" as const, data: {} })
-    })
-  ];
-  const ordered = orderRootChecksByCriticalRank(
-    checks,
-    new Map([
-      ["independent", 99],
-      ["chain-start", 1],
-      ["chain-terminal", 100],
-      ["tie-left", 5],
-      ["tie-right", 5]
-    ])
-  );
-  assert.deepEqual(
-    ordered.map(({ checkId }) => checkId),
-    ["chain-start", "chain-terminal", "independent", "tie-left", "tie-right"]
-  );
-  assert.equal(orderRootChecksByCriticalRank(checks, undefined), checks);
-  assert.equal(
-    orderRootChecksByCriticalRank(checks, new Map([["chain-start", 1]])),
-    checks
-  );
-  const cycle = [
-    defineCheck({
-      checkId: "left",
-      dependsOn: ["right"],
-      displayName: "left",
-      execution: () => ({ status: "passed" as const, data: {} })
-    }),
-    defineCheck({
-      checkId: "right",
-      dependsOn: ["left"],
-      displayName: "right",
-      execution: () => ({ status: "passed" as const, data: {} })
-    })
-  ];
-  assert.equal(
-    orderRootChecksByCriticalRank(
-      cycle,
-      new Map([
-        ["left", 1],
-        ["right", 1]
-      ])
-    ),
-    cycle
-  );
-});
-test("completed duration hints are isolated by active tag set and only alter later admission order", async () => {
-  await withTemporaryDirectory(
-    "skills-vibe-scheduling-hints-",
-    async (directory) => {
-      const schedulingHints = createGateSchedulingHints(directory);
-      const baseCheckIds = activeGateCheckIds([]);
-      const releaseCheckIds = activeGateCheckIds(["release"]);
-      await schedulingHints.write([], baseCheckIds, [
-        ...baseCheckIds.map((checkId, index) => ({
-          checkId,
-          durationMs: index + 1
-        })),
-        { checkId: "unknown", durationMs: 1 }
-      ]);
-      const baseHints = await schedulingHints.read([], baseCheckIds);
-      assert.equal(baseHints.size, baseCheckIds.length);
-      await schedulingHints.write(["release"], releaseCheckIds, [
-        { checkId: releaseCheckIds[0] ?? "", durationMs: 1 }
-      ]);
-      assert.deepEqual(
-        [...(await schedulingHints.read([], baseCheckIds))],
-        [...baseHints]
-      );
-      const firstDefinition = createGateDefinition([], {
-        nativeChecks: passingNativeChecks(),
-        runCommand: completedScript()
-      });
-      const orderedDefinition = createGateDefinition([], {
-        durationHints: baseHints,
-        nativeChecks: passingNativeChecks(),
-        runCommand: completedScript()
-      });
-      assert.notEqual(orderedDefinition.checks, firstDefinition.checks);
-      assert.notDeepEqual(
-        orderedDefinition.checks
-          .filter(({ checkId }) => baseCheckIds.includes(checkId))
-          .map(({ checkId }) => checkId),
-        firstDefinition.checks
-          .filter(({ checkId }) => baseCheckIds.includes(checkId))
-          .map(({ checkId }) => checkId)
-      );
-      assert.deepEqual(
-        orderedDefinition.checks
-          .filter(({ checkId }) => !baseCheckIds.includes(checkId))
-          .map(({ checkId }) => checkId),
-        firstDefinition.checks
-          .filter(({ checkId }) => !baseCheckIds.includes(checkId))
-          .map(({ checkId }) => checkId)
-      );
-      await fs.writeFile(
-        path.join(directory, schedulingHintsRelativePath([])),
-        "{"
-      );
-      const corruptHints = await schedulingHints.read([], baseCheckIds);
-      assert.equal(corruptHints.size, 0);
-    }
-  );
-});
-test("scheduling-hint I/O failures never change Vibe gate results or store incomplete Runs", async () => {
-  const passedDefinition = defineConfig({
-    checks: [
-      defineCheck({
-        checkId: "passed",
-        displayName: "passed",
-        execution: () => ({ status: "passed" as const, data: {} })
-      })
-    ],
-    outputs: noOutput
-  });
-  const failedDefinition = defineConfig({
-    checks: [
-      defineCheck({
-        checkId: "failed",
-        displayName: "failed",
-        execution: () => ({ status: "failed" as const, data: {} })
-      })
-    ],
-    outputs: noOutput
-  });
-  let writes = 0;
-  const brokenHints = {
-    async read() {
-      throw new Error("cannot read hints");
-    },
-    async write() {
-      writes += 1;
-      throw new Error("cannot write hints");
-    }
-  };
-  assert.equal(
-    await runVibeCheck([], {
-      createDefinition: () => passedDefinition,
-      runProject: async () =>
-        await run(passedDefinition, {
-          checkAggregation: aggregateOptions,
-          outputs: noOutput,
-          projectRoot: repositoryRoot
-        }),
-      schedulingHints: brokenHints
-    }),
-    0
-  );
-  assert.equal(writes, 1);
-
-  let failedWrites = 0;
-  assert.equal(
-    await runVibeCheck([], {
-      createDefinition: () => failedDefinition,
-      reportError: () => undefined,
-      runProject: async () =>
-        await run(failedDefinition, {
-          checkAggregation: aggregateOptions,
-          outputs: noOutput,
-          projectRoot: repositoryRoot
-        }),
-      schedulingHints: {
-        async read() {
-          return new Map();
-        },
-        async write() {
-          failedWrites += 1;
-        }
-      }
-    }),
-    1
-  );
-  assert.equal(failedWrites, 0);
-
-  let incompleteWrites = 0;
-  assert.equal(
-    await runVibeCheck([], {
-      createDefinition: () => passedDefinition,
-      reportError: () => undefined,
-      runProject: async (_definition, controls) => await run({}, controls),
-      schedulingHints: {
-        async read() {
-          return new Map();
-        },
-        async write() {
-          incompleteWrites += 1;
-        }
-      }
-    }),
-    1
-  );
-  assert.equal(incompleteWrites, 0);
+  assert.equal(releaseOutcome.reason?.code, "flag-condition-not-matched");
 });
 
 test("package script adapter maps terminal results and settles independent Checks", async () => {
   await withTemporaryDirectory("skills-vibe-adapter-", async (directory) => {
     const calls: GateCommandInvocation[] = [];
     const failedScript = "test:relation-graph";
+    const failedOutput = [
+      "omitted-1",
+      "omitted-2",
+      "detail-1",
+      "detail-2",
+      "detail-3",
+      "detail-4"
+    ].join("\n");
     const failedResult = await runDefinition(
       createGateDefinition([], {
         nativeChecks: passingNativeChecks(),
@@ -1083,7 +916,10 @@ test("package script adapter maps terminal results and settles independent Check
           calls.push(invocation);
           return {
             exitCode: scriptForCommand(invocation) === failedScript ? 1 : 0,
-            output: `${scriptForCommand(invocation)} output`,
+            output:
+              scriptForCommand(invocation) === failedScript
+                ? failedOutput
+                : `${scriptForCommand(invocation)} output`,
             status: "completed"
           };
         }
@@ -1095,6 +931,39 @@ test("package script adapter maps terminal results and settles independent Check
     assert.equal(
       outcomeFor(failedResult, `script:${failedScript}`).status,
       "failed"
+    );
+    assert.deepEqual(
+      failedResult.checkMessages
+        .filter(({ checkId }) => checkId === `script:${failedScript}`)
+        .map(({ code, message }) => ({ code, message })),
+      [
+        {
+          code: "package-script-exit-nonzero",
+          message:
+            "bun run test:relation-graph exited with code 1. Run bun run test:relation-graph directly for its full diagnostic."
+        },
+        {
+          code: "package-script-exit-nonzero-detail",
+          message: "…detail-1"
+        },
+        {
+          code: "package-script-exit-nonzero-detail",
+          message: "detail-2"
+        },
+        {
+          code: "package-script-exit-nonzero-detail",
+          message: "detail-3"
+        },
+        {
+          code: "package-script-exit-nonzero-detail",
+          message: "detail-4"
+        }
+      ]
+    );
+    assert.ok(
+      failedResult.checkMessages.every(
+        ({ message }) => !/[\n\r\u2028\u2029]/u.test(message)
+      )
     );
     assert.equal(outcomeFor(failedResult, "script:lint").status, "passed");
     assert.ok(
@@ -1189,7 +1058,8 @@ test("public distribution Checks require successful generation Checks", async ()
                 };
               }
             }),
-            directory
+            directory,
+            ["release"]
           );
 
           assert.equal(outcomeFor(result, prerequisite).status, behavior);
@@ -1263,9 +1133,63 @@ test("package script runner waits for a cancelled child to close", async () => {
   });
 });
 
+test("command runner keeps a bounded diagnostic tail and writes the complete Check transcript", async () => {
+  await withTemporaryDirectory("skills-vibe-transcript-", async (directory) => {
+    const artifactDirectory = path.join(directory, "checks", "fixture");
+    const result = await runGateCommand({
+      args: [
+        "-e",
+        `process.stdout.write("start:" + "x".repeat(5000) + ":end\\n"); process.stderr.write("stderr-detail\\n")`
+      ],
+      artifactDirectory,
+      command: "node",
+      cwd: directory,
+      signal: new AbortController().signal
+    });
+
+    assert.equal(result.status, "completed");
+    assert.equal(result.output.startsWith("…"), true);
+    assert.match(result.output, /:end\nstderr-detail\n$/u);
+    assert.equal(result.transcript, "checks/fixture/process.log");
+    const transcript = await fs.readFile(
+      path.join(artifactDirectory, "process.log"),
+      "utf8"
+    );
+    assert.match(transcript, /start:x{5000}:end/u);
+    assert.match(transcript, /--- stderr ---\nstderr-detail/u);
+    assert.match(transcript, /status: exited 0/u);
+
+    assert.deepEqual(
+      await runGateCommand({
+        args: ["-e", 'process.stdout.write("must-not-run")'],
+        artifactDirectory,
+        command: "node",
+        cwd: directory,
+        signal: new AbortController().signal
+      }),
+      {
+        output: "",
+        reason: "gate-command-transcript-unavailable",
+        status: "unavailable"
+      }
+    );
+  });
+});
+
 test("CLI parses release tags and compatibility alias, then maps Vibe results to exit codes", async () => {
   const diagnostics: string[] = [];
   const information: string[] = [];
+  assert.equal(
+    createGateInvocationDirectory(
+      "/workspace",
+      new Date("2026-09-09T01:02:03.456Z"),
+      "fixture-id"
+    ),
+    path.join(
+      "/workspace",
+      ".log/vibe-check/invocations/20260909T010203456Z-fixture-id"
+    )
+  );
   let selectedInvocation: GateInvocation | null = null;
   const passedDefinition = defineConfig({
     checks: [
@@ -1323,16 +1247,15 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
     ],
     outputs: noOutput
   });
-  let schedulingHintWrites = 0;
-  const schedulingHints = {
-    async read() {
-      return new Map<string, number>();
-    },
-    async write() {
-      schedulingHintWrites += 1;
-    }
-  } satisfies GateSchedulingHints;
+  let invocationSequence = 0;
   const dependencies = {
+    createInvocationDirectory() {
+      invocationSequence += 1;
+      return path.join(
+        os.tmpdir(),
+        `skills-vibe-cli-${process.pid}-${invocationSequence}`
+      );
+    },
     createDefinition(invocation: GateInvocation) {
       selectedInvocation = invocation;
       return passedDefinition;
@@ -1343,13 +1266,12 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
     reportInfo(message: string) {
       information.push(message);
     },
-    async runProject(definition: unknown, controls?: unknown) {
+    async runProject(definition: ProjectDefinition, controls: RunControls) {
       return await run(definition, {
-        ...(controls as object),
+        ...controls,
         checkAggregation: aggregateOptions
       });
-    },
-    schedulingHints
+    }
   };
 
   assert.deepEqual(resolveGateInvocation([]), {
@@ -1433,7 +1355,7 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
     diagnosticLog: false,
     tags: []
   });
-  assert.deepEqual(information, []);
+  assert.match(information.at(-1) ?? "", /^Vibe Check artifacts: /u);
   assert.equal(
     await runVibeCheck(
       ["--full", "--baseline-ref", "origin/release"],
@@ -1446,23 +1368,25 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
     diagnosticLog: false,
     tags: ["release"]
   });
+  information.length = 0;
   let diagnosticControls: unknown;
+  let diagnosticInvocationDirectory = "";
   await withTemporaryDirectory(
     "skills-vibe-diagnostic-log-",
     async (directory) => {
+      diagnosticInvocationDirectory = path.join(directory, "invocation");
       assert.equal(
         await runVibeCheck(["--diagnostic-log"], {
           ...dependencies,
-          async runProject(definition: unknown, controls?: unknown) {
+          createInvocationDirectory: () => diagnosticInvocationDirectory,
+          async runProject(
+            definition: ProjectDefinition,
+            controls: RunControls
+          ) {
             diagnosticControls = controls;
             return run(definition, {
+              ...controls,
               checkAggregation: aggregateOptions,
-              outputs: {
-                diagnosticLogging: {
-                  directory: ".log/vibe-check",
-                  enabled: true
-                }
-              },
               projectRoot: directory
             });
           }
@@ -1478,25 +1402,24 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
   assert.ok(diagnosticControls && typeof diagnosticControls === "object");
   assert.deepEqual(diagnosticControls, {
     checkAggregation: {
-      checks: activeGateCheckIds([]),
+      checks: "effective",
       empty: "failed",
       mode: "all",
       notApplicable: "fail",
       unavailable: "fail"
     },
+    ...gateInvocationOutputControls(diagnosticInvocationDirectory, true),
     flags: [],
-    outputs: {
-      diagnosticLogging: { directory: ".log/vibe-check", enabled: true }
-    },
     projectRoot: repositoryRoot
   });
+  assert.match(information.at(-3) ?? "", /^Vibe Check artifacts: /u);
   assert.match(
     information.at(-2) ?? "",
-    /^Vibe Check diagnostic log \(core\): \.log\/vibe-check\/core-.+\.log$/u
+    /^Vibe Check diagnostic log \(core\): .*core\.log$/u
   );
   assert.match(
     information.at(-1) ?? "",
-    /^Vibe Check diagnostic log \(scheduler\): \.log\/vibe-check\/scheduler-.+\.log$/u
+    /^Vibe Check diagnostic log \(scheduler\): .*scheduler\.log$/u
   );
   const failedDiagnostics: string[] = [];
   const failedInformation: string[] = [];
@@ -1506,18 +1429,16 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
       assert.equal(
         await runVibeCheck(["--diagnostic-log"], {
           createDefinition: () => failedDefinition,
+          createInvocationDirectory: () => path.join(directory, "invocation"),
           reportError: (message) => failedDiagnostics.push(message),
           reportInfo: (message) => failedInformation.push(message),
-          schedulingHints,
-          async runProject(definition: unknown) {
+          async runProject(
+            definition: ProjectDefinition,
+            controls: RunControls
+          ) {
             return run(definition, {
+              ...controls,
               checkAggregation: aggregateOptions,
-              outputs: {
-                diagnosticLogging: {
-                  directory: ".log/vibe-check",
-                  enabled: true
-                }
-              },
               projectRoot: directory
             });
           }
@@ -1530,23 +1451,25 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
     failedDiagnostics.at(-1) ?? "",
     /Vibe Check gate failed: failed/u
   );
+  assert.match(failedInformation.at(-3) ?? "", /^Vibe Check artifacts: /u);
   assert.match(
     failedInformation.at(-2) ?? "",
-    /^Vibe Check diagnostic log \(core\): \.log\/vibe-check\/core-.+\.log$/u
+    /^Vibe Check diagnostic log \(core\): .*core\.log$/u
   );
   assert.match(
     failedInformation.at(-1) ?? "",
-    /^Vibe Check diagnostic log \(scheduler\): \.log\/vibe-check\/scheduler-.+\.log$/u
+    /^Vibe Check diagnostic log \(scheduler\): .*scheduler\.log$/u
   );
   const configurationDiagnostics: string[] = [];
   const configurationInformation: string[] = [];
   assert.equal(
     await runVibeCheck(["--diagnostic-log"], {
       createDefinition: () => passedDefinition,
+      createInvocationDirectory: () =>
+        path.join(os.tmpdir(), "skills-vibe-invalid-controls"),
       reportError: (message) => configurationDiagnostics.push(message),
       reportInfo: (message) => configurationInformation.push(message),
-      schedulingHints,
-      async runProject(_definition: unknown, controls?: unknown) {
+      async runProject(_definition: ProjectDefinition, controls: RunControls) {
         return run({}, controls);
       }
     }),
@@ -1564,8 +1487,7 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
         invalidDefinitionCalls += 1;
         return passedDefinition;
       },
-      reportError: (message) => diagnostics.push(message),
-      schedulingHints
+      reportError: (message) => diagnostics.push(message)
     }),
     1
   );
@@ -1580,8 +1502,7 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
         invalidDefinitionCalls += 1;
         return passedDefinition;
       },
-      reportError: (message) => diagnostics.push(message),
-      schedulingHints
+      reportError: (message) => diagnostics.push(message)
     }),
     1
   );
@@ -1593,17 +1514,19 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
   assert.equal(
     await runVibeCheck([], {
       createDefinition: () => failedDefinition,
+      createInvocationDirectory: () => dependencies.createInvocationDirectory(),
       reportError: (message) => diagnostics.push(message),
-      schedulingHints
+      reportInfo: () => undefined
     }),
     1
   );
-  assert.match(diagnostics.at(-1) ?? "", /Vibe Check invocation failed: /u);
+  assert.match(diagnostics.at(-1) ?? "", /Vibe Check gate failed: failed/u);
   assert.equal(
     await runVibeCheck([], {
       createDefinition: () => invalidDefinition,
+      createInvocationDirectory: () => dependencies.createInvocationDirectory(),
       reportError: (message) => diagnostics.push(message),
-      schedulingHints
+      reportInfo: () => undefined
     }),
     1
   );
@@ -1611,14 +1534,13 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
   assert.equal(
     await runVibeCheck([], {
       createDefinition: () => unknownDependencyDefinition,
+      createInvocationDirectory: () => dependencies.createInvocationDirectory(),
       reportError: (message) => diagnostics.push(message),
-      schedulingHints
+      reportInfo: () => undefined
     }),
     1
   );
   assert.match(diagnostics.at(-1) ?? "", /Vibe Check invocation failed: /u);
-  assert.equal(information.length, 2);
-  assert.equal(schedulingHintWrites, 3);
 });
 
 test("release prepare runs before terminal authorization and package", async () => {
@@ -1646,7 +1568,7 @@ test("release prepare runs before terminal authorization and package", async () 
         "release:skill-version"
       ]);
       assert.equal(
-        (await runDefinition(definition, directory)).aggregate,
+        (await runDefinition(definition, directory, ["release"])).aggregate,
         "passed"
       );
     }
@@ -1680,7 +1602,8 @@ test("release authorization and package use the snapshot captured before the ind
           },
           runCommand: completedScript()
         }),
-        directory
+        directory,
+        ["release"]
       );
       assert.equal(result.aggregate, "passed");
       assert.equal(packCalls, 1);
@@ -1711,11 +1634,21 @@ test("release preparation or version failure blocks packaging", async () => {
           nativeChecks: passingNativeChecks(),
           runCommand: completedScript()
         }),
-        directory
+        directory,
+        ["release"]
       );
       assert.equal(
         outcomeFor(versionFailed, "release:skill-version").status,
         "failed"
+      );
+      const versionMessages = versionFailed.checkMessages.filter(
+        ({ checkId }) => checkId === "release:skill-version"
+      );
+      assert.ok(versionMessages.length > 1);
+      assert.ok(
+        versionMessages.every(
+          ({ message }) => !/[\n\r\u2028\u2029]/u.test(message)
+        )
       );
       assert.notEqual(
         outcomeFor(versionFailed, "pack:skills").status,
@@ -1731,7 +1664,8 @@ test("release preparation or version failure blocks packaging", async () => {
           },
           runCommand: completedScript()
         }),
-        directory
+        directory,
+        ["release"]
       );
       assert.equal(
         outcomeFor(unavailable, releaseSnapshotCheckId).status,
@@ -2114,6 +2048,25 @@ function nativeCheckExclusions(
   return stringArray(maintainedFiles.exclude) ?? [];
 }
 
+function codeAreaOptions(
+  optionsById: ReadonlyMap<string, unknown>,
+  checkId: string,
+  areaId: string
+): Record<string, unknown> {
+  const options = optionsRecord(
+    optionsById.get(checkId),
+    `missing options for ${checkId}`
+  );
+  const codeAreas = optionsRecord(
+    options.codeAreas,
+    `missing code areas for ${checkId}`
+  );
+  return optionsRecord(
+    codeAreas[areaId],
+    `missing ${areaId} area for ${checkId}`
+  );
+}
+
 function optionsRecord(value: unknown, error: string): Record<string, unknown> {
   const record = optionsRecordOrNull(value);
   if (record === null) throw new Error(error);
@@ -2137,7 +2090,9 @@ test("native file selections exclude historical content and authoring candidates
   const optionsById = new Map(
     checks.map((check) => [check.checkId, check.options])
   );
-  for (const checkId of vibeNativeCheckIds) {
+  for (const checkId of vibeNativeCheckIds.filter(
+    (candidate) => candidate !== "function-metrics"
+  )) {
     const exclusions = nativeCheckExclusions(optionsById, checkId);
     for (const historicalExclusion of historicalContentExclusions) {
       assert.ok(
@@ -2146,6 +2101,35 @@ test("native file selections exclude historical content and authoring candidates
       );
     }
   }
+  for (const [areaId, expectedFiles] of [
+    ["product", productCodeFiles],
+    ["automation", automationCodeFiles],
+    ["tests", testCodeFiles]
+  ] as const) {
+    const area = codeAreaOptions(optionsById, "function-metrics", areaId);
+    assert.deepEqual(area.files, expectedFiles);
+    const exclusions = stringArray(
+      optionsRecord(area.files, `missing files for ${areaId}`).exclude
+    );
+    for (const historicalExclusion of historicalContentExclusions) {
+      assert.ok(exclusions?.includes(historicalExclusion));
+    }
+  }
+  assert.deepEqual(
+    codeAreaOptions(optionsById, "function-metrics", "product").limits,
+    {
+      codeLines: {
+        lowComplexityAllowance: {
+          cyclomaticComplexityBelow: 5,
+          maximum: 120
+        },
+        maximum: 45
+      },
+      cyclomaticComplexity: { maximum: 10 },
+      nestingDepth: { maximum: 5 },
+      parameters: { maximum: 5 }
+    }
+  );
   for (const checkId of ["json-validation", "markdown-link-validation"]) {
     const exclusions = nativeCheckExclusions(optionsById, checkId);
     for (const candidateExclusion of investigationAuthoringDocumentExclusions) {
@@ -2159,5 +2143,27 @@ test("native file selections exclude historical content and authoring candidates
     optionsRecord(optionsById.get("secret-detection"), "missing secret Check")
       .files,
     maintainedSecretFiles
+  );
+  const markdownOptions = optionsRecord(
+    optionsById.get("markdown-link-validation"),
+    "missing Markdown Check"
+  );
+  const markdownCache = optionsRecord(
+    markdownOptions.cache,
+    "missing Markdown cache"
+  );
+  assert.equal(markdownCache.enabled, true);
+  assert.equal(path.isAbsolute(String(markdownCache.directory)), true);
+  assert.deepEqual(
+    checks.map(({ checkId, resourceClaims }) => [checkId, resourceClaims]),
+    [
+      ["duplicate-detection", { "repository-scan": 1 }],
+      ["secret-detection", { "repository-scan": 1 }],
+      ["json-validation", { "repository-scan": 1 }],
+      ["json-schema-validation", { "repository-scan": 1 }],
+      ["markdown-link-validation", { "repository-scan": 1 }],
+      ["file-metrics", { "external-process": 1, "repository-scan": 1 }],
+      ["function-metrics", { "repository-scan": 1 }]
+    ]
   );
 });

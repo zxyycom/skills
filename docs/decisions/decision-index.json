@@ -91,9 +91,10 @@
       "260908-maintain-independent-investigation-rounds": "sha256:eab39227731e99049652e58c07032b334a555303b870e2c70e5f9fa9ab6061eb",
       "260908-require-established-decision-alignment": "sha256:87f62b2419c4d41d88d47c237bd89f4b55298b73f1889af6be9b9593a6f24209",
       "260908-separate-investigation-narrative-from-supporting-materials": "sha256:c3cc01ba4cb2a8cd26c96d78bbafbada621972e4ef60b7f8edcc78a9a1c14f44",
-      "260909-adopt-vibe-check-0-0-2-gate-runtime": "sha256:7b13f6e011fcfd1a38f854faf70a63962d69b94bbd642bbe0261e31825fc8f3d",
+      "260909-adopt-vibe-check-0-0-2-gate-runtime": "sha256:2e352e47a274125bd279a4da5b13142eb88067e31603763bc70c74523cab96f8",
+      "260909-use-native-vibe-gate-controls": "sha256:f8735317a7baf278a448305e3d5dc82caba115ca240d56016642cc6cbf8bfcab",
       "260909-write-explanatory-relation-summaries": "sha256:ece110950bc41206998c14673cd9f3e88592c176feeeaa0e317352bad9d180ff",
-      "activate-release-gate-checks-by-tag": "sha256:9d9e4ad7ede7cd741a5942d20aeaf018cc3bae424a366c7614f79f3592225ea6",
+      "activate-release-gate-checks-by-tag": "sha256:02819304803eade140cd3adb2472a368c290f639acc7998f0d54bc20cecd228e",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
       "allocate-agents-and-runtime-by-task-slice": "sha256:39f43e1fa005c339536b7b9e1d988b2efb8aa54280930dccf460e1778306c9b2",
@@ -1974,9 +1975,9 @@
     },
     "260909-adopt-vibe-check-0-0-2-gate-runtime": {
       "name": "adopt-vibe-check-0-0-2-gate-runtime",
-      "sourcePath": "adopt-vibe-check-0-0-2-gate-runtime.md",
+      "sourcePath": "archive/adopt-vibe-check-0-0-2-gate-runtime.md",
       "title": "采用 Vibe Check 0.0.2 的原生门禁边界",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-09T06:13:34Z",
       "purpose": "让项目门禁直接采用新版宿主、分析器与安全检查契约。",
@@ -1986,6 +1987,32 @@
         "project-tooling"
       ],
       "relations": []
+    },
+    "260909-use-native-vibe-gate-controls": {
+      "name": "use-native-vibe-gate-controls",
+      "sourcePath": "use-native-vibe-gate-controls.md",
+      "title": "采用 Vibe 原生门禁选择、调度与调用产物",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-09T07:14:44Z",
+      "purpose": "让项目门禁直接使用 Vibe 的选择、调度、资源与调用级产物边界。",
+      "background": "Vibe 0.0.2 已提供原生 flags、学习调度、named resources 与调用级输出控制，项目仍重复 Check 选择和调度责任。",
+      "decision": "由 Vibe 原生能力承接有效 Check 选择、依赖传播和学习调度，项目只声明领域条件、资源与调用级输出位置。",
+      "tags": [
+        "project-tooling"
+      ],
+      "relations": [
+        {
+          "type": "归并",
+          "target": "260909-adopt-vibe-check-0-0-2-gate-runtime",
+          "summary": "落实并扩展 0.0.2 原生能力边界"
+        },
+        {
+          "type": "归并",
+          "target": "activate-release-gate-checks-by-tag",
+          "summary": "以原生 flag 条件取代项目自定义 activation preflight"
+        }
+      ]
     },
     "260909-write-explanatory-relation-summaries": {
       "name": "write-explanatory-relation-summaries",
@@ -2011,9 +2038,9 @@
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",
-      "sourcePath": "activate-release-gate-checks-by-tag.md",
+      "sourcePath": "archive/activate-release-gate-checks-by-tag.md",
       "title": "用 release tag 激活可见的 Gate Check",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-01T13:56:55Z",
       "purpose": "让日常 Gate 完整显示全部 Check，同时只由显式 release tag 启动发布增量与打包链路。",
