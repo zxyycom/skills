@@ -24,9 +24,7 @@ const maxBuffer = 64 * 1024 * 1024;
 const projectAstGrepVersion = "0.45.1";
 const globalPrerequisiteRecoveries = {
   codegraph: "Make CodeGraph available on PATH.",
-  lizard:
-    "Install Lizard 1.23.0 on PATH (for example: uv tool install lizard==1.23.0).",
-  scc: "Install SCC 3.7.0 with: go install github.com/boyter/scc/v3@v3.7.0"
+  scc: "Install SCC 4.0.0 with: go install github.com/boyter/scc/v4@v4.0.0"
 };
 const globalPrerequisiteNames = new Set(
   Object.keys(globalPrerequisiteRecoveries)
@@ -84,10 +82,18 @@ function readEnvironmentConfig() {
     throw new Error("package.json engines.bun must use a simple >= version");
   }
 
+  const nodeRange =
+    typeof manifest.engines?.node === "string" ? manifest.engines.node : "";
+  const nodeMinimumMatch = /^>=(\d+\.\d+(?:\.\d+)?)$/u.exec(nodeRange);
+  if (!nodeMinimumMatch) {
+    throw new Error("package.json engines.node must use a simple >= version");
+  }
+
   return {
     bunMinimum: parseVersion(bunMinimumMatch[1]),
     dependencyNames: dependencyNamesFrom(manifest),
     manifest,
+    nodeMinimum: parseVersion(nodeMinimumMatch[1]),
     pnpmVersion: parseVersion(packageManagerMatch[1])
   };
 }
@@ -457,17 +463,13 @@ function getCodeGraphIndexStatus(toolStatuses) {
 function getToolStatuses(config) {
   const requirements = [
     { name: "git" },
-    { name: "node" },
+    { minimumVersion: config.nodeMinimum, name: "node" },
     { minimumVersion: config.bunMinimum, name: "bun" },
     { exactVersion: config.pnpmVersion, name: "pnpm" },
     { name: "codegraph" },
     {
-      exactVersion: { major: 3, minor: 7, patch: 0, text: "3.7.0" },
+      exactVersion: { major: 4, minor: 0, patch: 0, text: "4.0.0" },
       name: "scc"
-    },
-    {
-      exactVersion: { major: 1, minor: 23, patch: 0, text: "1.23.0" },
-      name: "lizard"
     }
   ];
   return requirements.map(getToolStatus);

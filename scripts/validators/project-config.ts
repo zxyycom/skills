@@ -41,8 +41,8 @@ export const maintenanceCliPackageScripts = {
 export type MaintenanceCliCommand = keyof typeof maintenanceCliPackageScripts;
 
 export const authoritativeGatePackageScripts = {
-  check: "bun scripts/vibe-check.ts",
-  "test:check": "bun test ./scripts/vibe-check.test.ts"
+  check: "node scripts/vibe-check.ts",
+  "test:check": "node --test ./scripts/vibe-check.test.ts"
 } as const satisfies Readonly<Record<string, string>>;
 
 export const testEvidenceProjectCheckPackageScripts = {
@@ -131,8 +131,6 @@ const requiredProjectFiles = [
   "scripts/vibe-check.ts",
   "scripts/vibe-check.test.ts",
   "scripts/lib/vibe-gate.ts",
-  "scripts/lib/vibe-jscpd.js",
-  "scripts/lib/vibe-lizard.js",
   "docs/tooling.md",
   "docs/skills",
   ".githooks/pre-commit",

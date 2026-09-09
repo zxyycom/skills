@@ -23,7 +23,7 @@ relations:
 
 - 日常检查仍需要避免运行发布专属测试、Git snapshot、版本与打包写入。
 - 发布资格仍要求原有 release-required Check、版本授权与打包 DAG 全部可信通过。
-- Vibe 0.0.1 的 preflight 可以在任何 execution 前结算 unavailable，因此可作为 tag activation 边界而不接管 scheduler 或 aggregate。
+- Vibe 的 Check-local preflight 可以在所属 execution 前结算 unavailable，因此可作为 tag activation 边界而不接管 scheduler 或 aggregate。
 
 ## 决策
 

@@ -1,13 +1,13 @@
-### Case ENV-BUN-RUNTIME-001: 环境要求 Vibe 的最低 Bun 运行时
+### Case ENV-BUN-RUNTIME-001: 环境要求项目的最低 Bun 运行时
 
 Tests:
-- `test:e5c39fe3f007610906787db53ab2b5c41ccc8ba3ce93334937f228678c1ae44f`
+- `test:1f7d8785e5f525287d45630fb9e6ae02690fafb502aefe1451c2867beb9a91a8`
 
 Tags:
 - `repository-tooling`
 
 Contract:
-- 根 `engines.bun` 覆盖锁定 Vibe Check 的最低运行时；环境入口从该边界诊断 Bun，不能将不兼容版本报告为 ready。
+- 根 `engines.bun` 声明项目 package scripts 的最低 Bun 运行时；环境入口从该边界诊断 Bun，不能将不兼容版本报告为 ready。
 
 Proves:
 - Bun 1.3.14 在其他前置条件准备好时允许 setup 和后续 check。

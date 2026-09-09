@@ -279,12 +279,13 @@
       "DECISION-UNRECORDED-ARCHIVED-PREDECESSOR-001": "sha256:8cb5af735a8661c5da520df14520cc3f57482cf665ebf86baffe97ff8daf4a5f",
       "DECISION-UNRECORDED-EVOLUTION-001": "sha256:ee18fb50647b6bda784bd7ece173fdb7166a77bd2888e8ef02b85c1010e6ead8",
       "DECISION-UNRECORDED-WARNING-ORDER-001": "sha256:7fcf842700aa130d629bc30e0bc5780fd03041b2acbfdc44110c738456e062fd",
-      "ENV-BUN-RUNTIME-001": "sha256:78577e0d63759da1ed7c1537ef2223627f1a84db18b40e1aababb4a577edd47b",
+      "ENV-BUN-RUNTIME-001": "sha256:0a13e5de4ece1c33a498987cb6f63cbeac347c85f2301c01962f0aa52e591740",
       "ENV-CHECK-READONLY-001": "sha256:fa1efd3d306caf1ab5cf4193b492f213078975614c3f1ff9d99d8b25be04d84e",
       "ENV-CLONE-HOOK-001": "sha256:11c6f783ed7fdb8f745e67ae5325fe3f3824c33e89b993a25ffd6acf4f111b84",
       "ENV-HOOK-PATH-001": "sha256:dc73495d94593158ac5296c07823680ea5e4615a86ae94d746943d0ed8e6203b",
       "ENV-LINKED-HASH-HOOK-001": "sha256:dd328e3eeda0627817ceda2435cc1930b2f4424553db66c473e199fbf234072c",
-      "ENV-METRICS-PREREQUISITES-001": "sha256:314270b3a546e433ff2ba5efb559489a7815eeb60a5b3a782087c206639bed7a",
+      "ENV-METRICS-PREREQUISITES-001": "sha256:96dd67d661aa182be96044434774f8b9b6919e353fc0427e9e0769a06ff3122a",
+      "ENV-NODE-RUNTIME-001": "sha256:3a0949fc47d69ea7d5a94eb72521eec5e89bbdf9ca06bd73db60aa340ad9aaa7",
       "ENV-PERMISSION-RULES-001": "sha256:30f1bec51ad299039e9bb7471d15b12a9a428f43663d084376afc3037500a000",
       "ENV-WORKTREE-SETUP-001": "sha256:25e0fd6c6bb98d60cfc5598816b773f56da4ac0b7c4f1c6a07acd368b89f029e",
       "FILE-TEXT-SEARCH-ABORT-001": "sha256:4f6d4c609349dbcbda051260156bf1f1a1ec781d74b2835e867ba2634afeda30",
@@ -299,17 +300,16 @@
       "FILE-TEXT-SEARCH-UNICODE-001": "sha256:abe0532684d57ba0133dd722635c5636e7b1d9953d317cc8bcbff28fdbfeee34",
       "FILE-TEXT-SEARCH-UNICODE-CASE-001": "sha256:295ce114c93c3fdb64d53f8826286ffb9979f90b808c28953bfaca6908a4777a",
       "FILE-TEXT-SEARCH-UNICODE-RANGE-001": "sha256:044c06148343a040297d82e308a686248a96f5ed9a86076d30977222d57da659",
-      "GATE-CLI-RESULT-001": "sha256:8d352c421187b78fd52551a9836b4d14b27764b49a741b79c7773266b3c55c75",
-      "GATE-DEFINITION-CATALOG-001": "sha256:5c99fb57adb7aa5fe4895292ba49f3b1d95d0cc372c38efa65580ddbfea49d72",
-      "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:0e2a69f23d25f640b8bec8ae7228a83f6eed6cc2534eebe1ce6c71cfaffbb485",
+      "GATE-CLI-RESULT-001": "sha256:cd3b10687cb7d26d8cc97684a567ba7c17c5d569f5e7e705bedba81bdad4db75",
+      "GATE-DEFINITION-CATALOG-001": "sha256:511aeccce3cccf5fbecd628c9b2f8c3e9a410fab1ab98893672eda778546596c",
+      "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:8692b2e2c723b1d4373965b3a80f02aeb8d71597c877adfb8a5a98c7a8a45064",
       "GATE-DUPLICATE-DETECTION-001": "sha256:d2e1d80ae26540a504cc548bdb64ca2991f4e41973cae2b72ef7372b8e1902d7",
-      "GATE-FILE-SELECTION-001": "sha256:437d211bc53873c6c9fb53697ccbdf9de42f6716745064016df9f522c931dc94",
-      "GATE-JSCPD-CONFIG-001": "sha256:cf3691b4f3748214e0bba76192585aa4d1cb3e683a6e4a96eec0ed43531c0f10",
+      "GATE-FILE-SELECTION-001": "sha256:86279aebacd914c992915869a1978eac3b9fde0f36e71d1367cb74cc14781b46",
+      "GATE-FUNCTION-ANALYZER-001": "sha256:33d68fdccc5c702bdbaf41088af43095bacb558c8ffdffe985830dab6263ae21",
       "GATE-JSON-SCHEMA-001": "sha256:f535fc0daadd341bf80e9ccbdaa8089722767f59ff30399e61ea2b7c76b31aac",
       "GATE-JSON-VALIDATION-001": "sha256:939b32a1f827cd9dc82139c09f8aac9b2f19438f0d7a31a5627373d6ebcb42f8",
-      "GATE-LIZARD-VERSION-001": "sha256:b1e936bac40b99bec0ad38e8d013137b63e89bcabe71da969e5f1c1630b8802f",
       "GATE-MARKDOWN-LINK-001": "sha256:01172d0b89c44f7a570d64e8257ad368cf21693f51728df70efadaa1e0825e33",
-      "GATE-METRICS-ADVISORY-001": "sha256:93d133f7bf910b4722beb6cc14dd5683d788ebb5bf60e95258f4496e68ca63b1",
+      "GATE-METRICS-ADVISORY-001": "sha256:9e98619f3737b5251f54ead83c5ed1c6b915b8704da8967c4c70ea428cb9ada0",
       "GATE-RELEASE-FINAL-TIMING-001": "sha256:15aa714254766cc28fbf64a07e375fef869e405b8067b708a2546c283da050dd",
       "GATE-RELEASE-SNAPSHOT-TOCTOU-001": "sha256:55f8b4a1a39cb9b62300fd93e56cc8d4a2a930c6e476bf9d8fb08e152f4a9e88",
       "GATE-RELEASE-TAG-ACTIVATION-001": "sha256:f153d4eb0cd53a6e1e624ed0e52eae3edd44f3ef02b54c2b9a641067006388ff",
@@ -319,6 +319,7 @@
       "GATE-SCHEDULING-TAG-PERSISTENCE-002": "sha256:fffa1467389880b516fc045d543462ed5a922c30fa3f27fe223917d36dff5242",
       "GATE-SCRIPT-ADAPTER-001": "sha256:4d35cb8a27c5c2a91391ac947fe327b400492fcea6c24788a14f885285378dbf",
       "GATE-SCRIPT-CANCELLATION-001": "sha256:b5b5a534de36e3777118275ee27a7ea28f5ea2b85a29d37f9afdf575f104165e",
+      "GATE-SECRET-DETECTION-001": "sha256:7d70ba52f99ee75f0717bb43b25704c0642a17a25847dad648370cf8a6ee4fae",
       "GENERATED-FILE-DECLARATION-001": "sha256:288495f474d1b91ca347075f9a93ce6ea910f9c84023ae9eb14bc0d4ebd0aa7f",
       "GENERATED-FILE-DECLARATION-CLEANUP-001": "sha256:26db2c3794331343d29730841c5ec2022567e394719a8d502049e517df15b43e",
       "GENERATED-FILE-DRIFT-001": "sha256:4e53dbd24a3fe5e22bc5b75a4bc335b605c5973bc0414f788cc46601ff1a0c88",
@@ -575,7 +576,7 @@
       "REPO-OXC-CONFIG-001": "sha256:a398732811d1a6110806e766577b60fa115799d8030ee8af5a744e60fea391e0",
       "REPO-PACKAGE-JSON-001": "sha256:1c43d8cf04c91fda22276d26c2bfc3ca81a86cfce5674a22ab578408f6540231",
       "REPO-SHORT-CLI-001": "sha256:350b35b8fe592b7f08c5f50797fc0dd712e66900692f8ef2b5ab7cbc665ef8f9",
-      "REPO-SHORT-CONFIG-001": "sha256:3af5363e7d2ba1a224d0e9348d2b16e9fe6550b9866ca593dc5d874263467078",
+      "REPO-SHORT-CONFIG-001": "sha256:4d47467b1df3026ebd236b537a5ef795a7c4d3b4ce09c02e3f06c17a6c63b844",
       "REPO-SKILL-HASH-001": "sha256:23434ae0f266a497c84bed4f15be80ccd15d1eadfb4e5a57ba53b275646da5f6",
       "REPO-SKILL-HASH-002": "sha256:b6598bf6479d03fdfb580016fdadf7fe429f8e85ae9563f6e8cd5bcad1790440",
       "REPO-SKILL-HASH-003": "sha256:22440c0c101c44ef008c46d4b8397465d18ee994fd970cb2e0f8e20074725d65",
@@ -3578,13 +3579,13 @@
       ]
     },
     "ENV-BUN-RUNTIME-001": {
-      "title": "环境要求 Vibe 的最低 Bun 运行时",
+      "title": "环境要求项目的最低 Bun 运行时",
       "sourcePath": "cases/env-bun-runtime-001.md",
       "tags": [
         "repository-tooling"
       ],
       "testIds": [
-        "test:e5c39fe3f007610906787db53ab2b5c41ccc8ba3ce93334937f228678c1ae44f"
+        "test:1f7d8785e5f525287d45630fb9e6ae02690fafb502aefe1451c2867beb9a91a8"
       ]
     },
     "ENV-CHECK-READONLY-001": {
@@ -3628,13 +3629,23 @@
       ]
     },
     "ENV-METRICS-PREREQUISITES-001": {
-      "title": "环境精确诊断 SCC 与 Lizard 且不自动安装",
+      "title": "环境精确诊断 SCC 且不自动安装",
       "sourcePath": "cases/env-metrics-prerequisites-001.md",
       "tags": [
         "repository-tooling"
       ],
       "testIds": [
-        "test:9e93321538b2285028d40f229b22f86d7f7c44a73bb3f76798b6482deccb9008"
+        "test:9e292a0b1a227d404e0b381b3f669ddb8da9bfb31eb8a9ccdb7ec0aa9a9c7f29"
+      ]
+    },
+    "ENV-NODE-RUNTIME-001": {
+      "title": "环境要求 Vibe 的最低 Node 运行时",
+      "sourcePath": "cases/env-node-runtime-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:be1083206a04ae29b0245144a6eb8888489bb4d91ffa9888f18ebdbaab651d3c"
       ]
     },
     "ENV-PERMISSION-RULES-001": {
@@ -3829,14 +3840,14 @@
         "test:72f6abee64f1e7d0e87eb26a6dd7aa3529e065888d3e1794f4714228d1849a97"
       ]
     },
-    "GATE-JSCPD-CONFIG-001": {
-      "title": "jscpd 兼容 wrapper 对缺失扫描配置 fail closed",
-      "sourcePath": "cases/gate-jscpd-config-001.md",
+    "GATE-FUNCTION-ANALYZER-001": {
+      "title": "函数指标使用随包分析器",
+      "sourcePath": "cases/gate-function-analyzer-001.md",
       "tags": [
         "repository-tooling"
       ],
       "testIds": [
-        "test:38389fe36b49a3784e3e0046bd1ae3526087ea491305f53e8c88bc5a6aeafd05"
+        "test:c5e29360f8f94d86444705f635b36dbda351b49f6e33d0e593311c8d5b172d5c"
       ]
     },
     "GATE-JSON-SCHEMA-001": {
@@ -3857,16 +3868,6 @@
       ],
       "testIds": [
         "test:64fb602c194aeb12ef589c7bb7aaf72ba6320274f55710b8fcd85bb15de3b350"
-      ]
-    },
-    "GATE-LIZARD-VERSION-001": {
-      "title": "函数指标只接受精确 Lizard 版本",
-      "sourcePath": "cases/gate-lizard-version-001.md",
-      "tags": [
-        "repository-tooling"
-      ],
-      "testIds": [
-        "test:2300487dcc159822057c39c298810ea11bb6993778a095d9bdb88a5b7a100a5f"
       ]
     },
     "GATE-MARKDOWN-LINK-001": {
@@ -3977,6 +3978,16 @@
       ],
       "testIds": [
         "test:ce6ae4ef0af03c095c5f4e9d4638b81695bce555e122f354f19004d54d300248"
+      ]
+    },
+    "GATE-SECRET-DETECTION-001": {
+      "title": "私钥检测阻断 finding 并对 unavailable fail closed",
+      "sourcePath": "cases/gate-secret-detection-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:9adc0ab77975cc06df18bc30c5f4a8ec4e642325d1aa6764a5ebdfe90bd1c9c0"
       ]
     },
     "GENERATED-FILE-DECLARATION-001": {

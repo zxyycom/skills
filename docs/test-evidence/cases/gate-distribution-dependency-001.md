@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 - 三个 consumer 分别依赖 `script:check:change-plan-cli`、`script:check:decision-records-cli` 与 `script:check:task-graph-cli`。
-- 生成 Check 通过时 consumer 恰好运行一次；生成 Check failed 或 unavailable 时 consumer 继承该终态且不启动测试命令。
+- 生成 Check 通过时 consumer 恰好运行一次；生成 Check failed 或 unavailable 时，Vibe 将 consumer 结算为 `dependency-not-passed` unavailable 且不启动测试命令。

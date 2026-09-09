@@ -228,7 +228,7 @@ type MetricToolMode = "missing" | "mismatch" | "probe-failure" | "ready";
 
 type FakeToolOptions = Readonly<{
   bunVersion?: string;
-  lizard?: MetricToolMode;
+  nodeVersion?: string;
   scc?: MetricToolMode;
 }>;
 
@@ -238,43 +238,51 @@ async function createFakeToolPath(
 ): Promise<string> {
   const bin = path.join(parent, "fake tools");
   await fs.mkdir(bin, { recursive: true });
-  const metricTools = {
-    lizard: options.lizard ?? "ready",
-    scc: options.scc ?? "ready"
-  };
+  const metricTools = { scc: options.scc ?? "ready" };
   const tools = availableFakeTools(metricTools);
   const bunVersion = options.bunVersion ?? "1.3.14";
+  const nodeVersion = options.nodeVersion ?? "24.18.0";
   if (process.platform === "win32") {
-    await createWindowsFakeTools(bin, tools, metricTools, bunVersion);
+    await createWindowsFakeTools(
+      bin,
+      tools,
+      metricTools,
+      bunVersion,
+      nodeVersion
+    );
   } else {
-    await createPosixFakeTools(bin, tools, metricTools, bunVersion);
+    await createPosixFakeTools(
+      bin,
+      tools,
+      metricTools,
+      bunVersion,
+      nodeVersion
+    );
   }
   return bin;
 }
 
-function availableFakeTools(metricTools: {
-  lizard: MetricToolMode;
-  scc: MetricToolMode;
-}): string[] {
+function availableFakeTools(metricTools: { scc: MetricToolMode }): string[] {
   return [
+    "node",
     "bun",
     "pnpm",
     "codegraph",
-    ...(metricTools.scc === "missing" ? [] : ["scc"]),
-    ...(metricTools.lizard === "missing" ? [] : ["lizard"])
+    ...(metricTools.scc === "missing" ? [] : ["scc"])
   ];
 }
 
 async function createWindowsFakeTools(
   bin: string,
   tools: readonly string[],
-  metricTools: { lizard: MetricToolMode; scc: MetricToolMode },
-  bunVersion: string
+  metricTools: { scc: MetricToolMode },
+  bunVersion: string,
+  nodeVersion: string
 ): Promise<void> {
   const dispatcherPath = path.join(bin, "fake-tool.mjs");
   await fs.writeFile(
     dispatcherPath,
-    windowsFakeToolDispatcher(metricTools, bunVersion),
+    windowsFakeToolDispatcher(metricTools, bunVersion, nodeVersion),
     "utf8"
   );
   for (const tool of tools) {
@@ -287,20 +295,21 @@ async function createWindowsFakeTools(
 }
 
 function windowsFakeToolDispatcher(
-  metricTools: { lizard: MetricToolMode; scc: MetricToolMode },
-  bunVersion: string
+  metricTools: { scc: MetricToolMode },
+  bunVersion: string,
+  nodeVersion: string
 ): string {
   return [
     "const [tool, command] = process.argv.slice(2);",
-    `if (tool === 'bun' && command === '--version') console.log(${JSON.stringify(bunVersion)});`,
+    `if (tool === 'node' && command === '--version') console.log(${JSON.stringify(`v${nodeVersion}`)});`,
+    `else if (tool === 'bun' && command === '--version') console.log(${JSON.stringify(bunVersion)});`,
     "else if (tool === 'pnpm' && command === '--version') console.log('11.7.0');",
     "else if (tool === 'pnpm' && command === 'list') console.log('[{}]');",
     "else if (tool === 'pnpm' && command === 'install') process.exit(0);",
     "else if (tool === 'codegraph' && command === '--version') console.log('codegraph 1.2.3');",
     "else if (tool === 'codegraph' && command === 'status') console.log(JSON.stringify({ initialized: true, lastIndexed: 'fixture' }));",
     "else if (tool === 'codegraph' && (command === 'init' || command === 'sync')) process.exit(0);",
-    `else if (tool === 'scc' && command === '--version') { const mode = ${JSON.stringify(metricTools.scc)}; if (mode === 'mismatch') console.log('scc version 3.7.1'); else if (mode === 'probe-failure') { console.error('scc probe failed'); process.exit(2); } else console.log('scc version 3.7.0'); }`,
-    `else if (tool === 'lizard' && command === '--version') { const mode = ${JSON.stringify(metricTools.lizard)}; if (mode === 'mismatch') console.log('1.23.1'); else if (mode === 'probe-failure') { console.error('lizard probe failed'); process.exit(2); } else console.log('1.23.0'); }`,
+    `else if (tool === 'scc' && command === '--version') { const mode = ${JSON.stringify(metricTools.scc)}; if (mode === 'mismatch') console.log('scc version 4.0.1'); else if (mode === 'probe-failure') { console.error('scc probe failed'); process.exit(2); } else console.log('scc version 4.0.0'); }`,
     "else { console.error(`unexpected ${tool} command: ${process.argv.slice(3).join(' ')}`); process.exit(2); }",
     ""
   ].join("\n");
@@ -313,13 +322,14 @@ function quoteBatch(value: string): string {
 async function createPosixFakeTools(
   bin: string,
   tools: readonly string[],
-  metricTools: { lizard: MetricToolMode; scc: MetricToolMode },
-  bunVersion: string
+  metricTools: { scc: MetricToolMode },
+  bunVersion: string,
+  nodeVersion: string
 ): Promise<void> {
   const dispatcherPath = path.join(bin, "fake-tool");
   await writeExecutable(
     dispatcherPath,
-    posixFakeToolDispatcher(metricTools, bunVersion)
+    posixFakeToolDispatcher(metricTools, bunVersion, nodeVersion)
   );
   for (const tool of tools) {
     await fs.link(dispatcherPath, path.join(bin, tool));
@@ -327,8 +337,9 @@ async function createPosixFakeTools(
 }
 
 function posixFakeToolDispatcher(
-  metricTools: { lizard: MetricToolMode; scc: MetricToolMode },
-  bunVersion: string
+  metricTools: { scc: MetricToolMode },
+  bunVersion: string,
+  nodeVersion: string
 ): string {
   return [
     "#!/bin/sh",
@@ -336,6 +347,7 @@ function posixFakeToolDispatcher(
     "command=$1",
     "shift",
     'case "$tool:$command" in',
+    `  node:--version) printf '%s\\n' ${JSON.stringify(`v${nodeVersion}`)} ;;`,
     `  bun:--version) printf '%s\\n' ${JSON.stringify(bunVersion)} ;;`,
     "  pnpm:--version) printf '%s\\n' '11.7.0' ;;",
     "  pnpm:list) printf '%s\\n' '[{}]' ;;",
@@ -345,10 +357,7 @@ function posixFakeToolDispatcher(
     "  codegraph:init|codegraph:sync) ;;",
     metricTools.scc === "probe-failure"
       ? "  scc:--version) printf '%s\\n' 'scc probe failed' >&2; exit 2 ;;"
-      : `  scc:--version) printf '%s\\n' ${JSON.stringify(metricTools.scc === "mismatch" ? "scc version 3.7.1" : "scc version 3.7.0")} ;;`,
-    metricTools.lizard === "probe-failure"
-      ? "  lizard:--version) printf '%s\\n' 'lizard probe failed' >&2; exit 2 ;;"
-      : `  lizard:--version) printf '%s\\n' ${JSON.stringify(metricTools.lizard === "mismatch" ? "1.23.1" : "1.23.0")} ;;`,
+      : `  scc:--version) printf '%s\\n' ${JSON.stringify(metricTools.scc === "mismatch" ? "scc version 4.0.1" : "scc version 4.0.0")} ;;`,
     '  *) printf \'unexpected %s command: %s\\n\' "$tool" "$*" >&2; exit 2 ;;',
     "esac",
     ""
@@ -633,7 +642,7 @@ test("environment check reports missing repository setup without writing it", as
   }
 });
 
-test("environment requires exact SCC and Lizard prerequisites without installing them", async () => {
+test("environment requires exact SCC without installing it", async () => {
   const tempRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills environment metrics ")
   );
@@ -642,8 +651,7 @@ test("environment requires exact SCC and Lizard prerequisites without installing
     const readyTools = await createFakeToolPath(path.join(tempRoot, "ready"));
     const readySetup = runEnvironment(root, "setup", readyTools);
     requireSuccess(readySetup, "environment setup with ready metric tools");
-    assert.match(readySetup.stdout, /\[ok\]\s+scc 3\.7\.0/u);
-    assert.match(readySetup.stdout, /\[ok\]\s+lizard 1\.23\.0/u);
+    assert.match(readySetup.stdout, /\[ok\]\s+scc 4\.0\.0/u);
 
     const sccDirectories = new Set(
       commandPaths("scc").map((sccPath) => path.dirname(sccPath))
@@ -667,7 +675,7 @@ test("environment requires exact SCC and Lizard prerequisites without installing
     assert.match(missing.stdout, /\[missing\]\s+scc/u);
     assert.match(
       missing.stdout,
-      /Install SCC 3\.7\.0 with: go install github\.com\/boyter\/scc\/v3@v3\.7\.0/u
+      /Install SCC 4\.0\.0 with: go install github\.com\/boyter\/scc\/v4@v4\.0\.0/u
     );
 
     const missingRoot = await createRepository(
@@ -691,13 +699,12 @@ test("environment requires exact SCC and Lizard prerequisites without installing
 
     const mismatchTools = await createFakeToolPath(
       path.join(tempRoot, "mismatch"),
-      { lizard: "mismatch" }
+      { scc: "mismatch" }
     );
     const mismatch = runEnvironment(root, "check", mismatchTools);
     assert.equal(mismatch.status, 1);
-    assert.match(mismatch.stdout, /\[mismatch\]\s+lizard 1\.23\.1/u);
-    assert.match(mismatch.stdout, /expected 1\.23\.0/u);
-    assert.match(mismatch.stdout, /Install Lizard 1\.23\.0 on PATH/u);
+    assert.match(mismatch.stdout, /\[mismatch\]\s+scc 4\.0\.1/u);
+    assert.match(mismatch.stdout, /expected 4\.0\.0/u);
 
     const probeFailureTools = await createFakeToolPath(
       path.join(tempRoot, "probe failure"),
@@ -712,7 +719,7 @@ test("environment requires exact SCC and Lizard prerequisites without installing
   }
 });
 
-test("environment requires the Vibe Bun runtime minimum", async () => {
+test("environment requires the project Bun runtime minimum", async () => {
   const tempRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills environment Bun runtime ")
   );
@@ -743,6 +750,39 @@ test("environment requires the Vibe Bun runtime minimum", async () => {
     assert.match(
       outdated.stdout,
       /Environment is not ready\. Run: node scripts\/environment\.js setup/u
+    );
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test("environment requires the Vibe Node runtime minimum", async () => {
+  const tempRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "skills environment Node runtime ")
+  );
+  try {
+    const root = await createRepository(tempRoot, "Node runtime repository");
+    const supportedTools = await createFakeToolPath(
+      path.join(tempRoot, "supported"),
+      { nodeVersion: "24.18.0" }
+    );
+    const setup = runEnvironment(root, "setup", supportedTools);
+    requireSuccess(setup, "environment setup with supported Node");
+    assert.match(setup.stdout, /\[ok\]\s+node 24\.18\.0/u);
+    requireSuccess(
+      runEnvironment(root, "check", supportedTools),
+      "environment check with supported Node"
+    );
+
+    const outdatedTools = await createFakeToolPath(
+      path.join(tempRoot, "outdated"),
+      { nodeVersion: "24.17.0" }
+    );
+    const outdated = runEnvironment(root, "check", outdatedTools);
+    assert.equal(outdated.status, 1);
+    assert.match(
+      outdated.stdout,
+      /\[outdated\]\s+node 24\.17\.0 - requires >= 24\.18\.0/u
     );
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });

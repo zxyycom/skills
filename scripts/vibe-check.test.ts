@@ -17,7 +17,8 @@ import {
   markdownLinkValidation,
   parseFileMetricsData,
   parseFunctionMetricsData,
-  run
+  run,
+  secretDetection
 } from "@zxyycom/vibe-check";
 import type { Check, ProjectDefinition, RunResult } from "@zxyycom/vibe-check";
 import {
@@ -28,10 +29,9 @@ import {
   gateCheckIds,
   historicalContentExclusions,
   investigationAuthoringDocumentExclusions,
+  maintainedSecretFiles,
   orderRootChecksByCriticalRank,
   releaseSnapshotCheckId,
-  projectJscpdExecutable,
-  projectLizardExecutable,
   releaseRequiredPackageScripts,
   releaseRequiredCheckIds,
   runGateCommand,
@@ -163,69 +163,6 @@ async function zipSkillMarkdownFor(
   const contents = archive[`${skillName}/SKILL.md`];
   assert.ok(contents);
   return Buffer.from(contents).toString("utf8");
-}
-
-async function writeFakeLizard(directory: string): Promise<string> {
-  const binDirectory = path.join(directory, "bin");
-  const executable = path.join(binDirectory, "lizard");
-  await fs.mkdir(binDirectory, { recursive: true });
-  await fs.writeFile(
-    executable,
-    [
-      "#!/usr/bin/env node",
-      'import { writeFileSync } from "node:fs";',
-      "",
-      "const args = process.argv.slice(2);",
-      'if (args.length === 1 && args[0] === "--version") {',
-      '  process.stdout.write(`${process.env.FAKE_LIZARD_VERSION ?? "1.23.0"}\\n`);',
-      "  process.exitCode = 0;",
-      "} else {",
-      "  const marker = process.env.FAKE_LIZARD_SCAN_MARKER;",
-      "  if (marker) writeFileSync(marker, JSON.stringify(args));",
-      '  const file = args.find((argument) => argument !== "--csv") ?? "scripts/fixture.ts";',
-      "  const csv = [",
-      '    "NLOC,CCN,token count,parameter count,length,location,file path,function name,long name,start line,end line",',
-      "    `1,1,1,0,1,1,${file},fixture,fixture(),1,1`",
-      '  ].join("\\n");',
-      "  process.stdout.write(`${csv}\\n`);",
-      "}",
-      ""
-    ].join("\n"),
-    "utf8"
-  );
-  await fs.chmod(executable, 0o755);
-  return binDirectory;
-}
-
-async function withFakeLizard<T>(
-  binDirectory: string,
-  version: string,
-  scanMarker: string,
-  operation: () => Promise<T>
-): Promise<T> {
-  const environmentNames = [
-    "PATH",
-    "FAKE_LIZARD_VERSION",
-    "FAKE_LIZARD_SCAN_MARKER"
-  ] as const;
-  const originalEnvironment = new Map(
-    environmentNames.map((name) => [name, process.env[name]])
-  );
-  process.env.PATH = `${binDirectory}${path.delimiter}${process.env.PATH ?? ""}`;
-  process.env.FAKE_LIZARD_VERSION = version;
-  process.env.FAKE_LIZARD_SCAN_MARKER = scanMarker;
-  try {
-    return await operation();
-  } finally {
-    for (const name of environmentNames) {
-      const value = originalEnvironment.get(name);
-      if (value === undefined) {
-        delete process.env[name];
-      } else {
-        process.env[name] = value;
-      }
-    }
-  }
 }
 
 async function fileExists(filePath: string): Promise<boolean> {
@@ -717,9 +654,15 @@ test("gate catalog keeps one complete Definition for base and release tags", asy
       enabled: true,
       directory: ".log/vibe-check/publication"
     },
-    progressRendering: { enabled: true }
+    progressRendering: {
+      enabled: true,
+      formatter: null,
+      messagePreviewLimit: 5,
+      recordPreviewLimit: 5,
+      textPreviewCodePointLimit: 240
+    }
   });
-  assert.equal(releaseRequiredCheckIds.length, 59);
+  assert.equal(releaseRequiredCheckIds.length, 60);
   assert.deepEqual(
     releaseDefinition.checks.find(
       ({ checkId }) => checkId === releaseSnapshotCheckId
@@ -1250,7 +1193,10 @@ test("public distribution Checks require successful generation Checks", async ()
           );
 
           assert.equal(outcomeFor(result, prerequisite).status, behavior);
-          assert.equal(outcomeFor(result, consumerCheckId).status, behavior);
+          assert.equal(
+            outcomeFor(result, consumerCheckId).status,
+            behavior === "passed" ? "passed" : "unavailable"
+          );
           assert.equal(
             calls.filter(
               (invocation) =>
@@ -1545,8 +1491,12 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
     projectRoot: repositoryRoot
   });
   assert.match(
+    information.at(-2) ?? "",
+    /^Vibe Check diagnostic log \(core\): \.log\/vibe-check\/core-.+\.log$/u
+  );
+  assert.match(
     information.at(-1) ?? "",
-    /^Vibe Check diagnostic log: \.log\/vibe-check\/run-.+\.log$/u
+    /^Vibe Check diagnostic log \(scheduler\): \.log\/vibe-check\/scheduler-.+\.log$/u
   );
   const failedDiagnostics: string[] = [];
   const failedInformation: string[] = [];
@@ -1581,8 +1531,12 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
     /Vibe Check gate failed: failed/u
   );
   assert.match(
+    failedInformation.at(-2) ?? "",
+    /^Vibe Check diagnostic log \(core\): \.log\/vibe-check\/core-.+\.log$/u
+  );
+  assert.match(
     failedInformation.at(-1) ?? "",
-    /^Vibe Check diagnostic log: \.log\/vibe-check\/run-.+\.log$/u
+    /^Vibe Check diagnostic log \(scheduler\): \.log\/vibe-check\/scheduler-.+\.log$/u
   );
   const configurationDiagnostics: string[] = [];
   const configurationInformation: string[] = [];
@@ -1663,7 +1617,7 @@ test("CLI parses release tags and compatibility alias, then maps Vibe results to
     1
   );
   assert.match(diagnostics.at(-1) ?? "", /Vibe Check invocation failed: /u);
-  assert.equal(information.length, 1);
+  assert.equal(information.length, 2);
   assert.equal(schedulingHintWrites, 3);
 });
 
@@ -1817,9 +1771,6 @@ test("duplicate detection blocks findings and fails closed when unavailable", as
           minimumLines: 2,
           minimumTokens: 10
         }
-      },
-      scanner: {
-        command: { kind: "custom", executable: projectJscpdExecutable }
       }
     }),
     async introduceFinding(directory) {
@@ -1843,6 +1794,27 @@ test("duplicate detection blocks findings and fails closed when unavailable", as
           "utf8"
         )
       ]);
+    }
+  });
+});
+
+test("secret detection blocks private-key findings and fails closed when unavailable", async () => {
+  const privateKey = [
+    `-----BEGIN ${"PRIVATE"} KEY-----`,
+    `M${"I"}${"A".repeat(192)}`,
+    `-----END ${"PRIVATE"} KEY-----`,
+    ""
+  ].join("\n");
+  await assertNativeBlockingCheckContract({
+    check: secretDetection({
+      files: { exclude: [], include: ["**/*.txt"], source: "git-worktree" }
+    }),
+    async introduceFinding(directory) {
+      await fs.writeFile(path.join(directory, "private-key.txt"), privateKey);
+    },
+    prefix: "skills-vibe-secret-",
+    async setup(directory) {
+      await fs.writeFile(path.join(directory, "safe.txt"), "safe text\n");
     }
   });
 });
@@ -1940,27 +1912,6 @@ test("Markdown link validation blocks findings and fails closed when unavailable
   });
 });
 
-test("jscpd compatibility wrapper rejects scans without a Vibe config", async () => {
-  await withTemporaryDirectory("skills-vibe-jscpd-", async (directory) => {
-    const result = spawnSync(
-      process.execPath,
-      [projectJscpdExecutable, "--output", path.join(directory, "report")],
-      {
-        cwd: directory,
-        encoding: "utf8",
-        windowsHide: true
-      }
-    );
-
-    assert.equal(result.status, 1);
-    assert.match(
-      result.stderr,
-      /Vibe jscpd scan must provide --config <path>/u
-    );
-    assert.equal(result.stdout, "");
-  });
-});
-
 test("metric findings remain advisory while unavailable and N/A results fail closed", async () => {
   await withTemporaryDirectory("skills-vibe-metrics-", async (directory) => {
     await fs.writeFile(
@@ -2015,7 +1966,8 @@ test("metric findings remain advisory while unavailable and N/A results fail clo
           }
         }
       },
-      findingPolicy: "non-blocking"
+      findingPolicy: "non-blocking",
+      findingWaivers: []
     });
     const findings = await runDefinition(
       defineConfig({ checks: [fileCheck, functionCheck], outputs: noOutput }),
@@ -2049,19 +2001,15 @@ test("metric findings remain advisory while unavailable and N/A results fail clo
             findingWaivers: [],
             scanner: { executable: "missing-scc-for-vibe-test" }
           }),
-          functionMetrics({
-            codeAreas: { fixture: { files: selection } },
-            scanner: { executable: "missing-lizard-for-vibe-test" }
-          })
+          functionCheck
         ],
         outputs: noOutput
       }),
       directory
     );
     assert.equal(unavailable.aggregate, "failed");
-    for (const check of unavailable.snapshot.checks) {
-      assert.equal(check.outcome.status, "unavailable");
-    }
+    assert.equal(outcomeFor(unavailable, "file-metrics").status, "unavailable");
+    assert.equal(outcomeFor(unavailable, "function-metrics").status, "passed");
 
     const notApplicable = await withTemporaryDirectory(
       "skills-vibe-empty-metrics-",
@@ -2086,95 +2034,57 @@ test("metric findings remain advisory while unavailable and N/A results fail clo
   });
 });
 
-test("function metrics requires exact Lizard before scanning or packaging", async () => {
-  await withTemporaryDirectory("skills-vibe-lizard-", async (directory) => {
-    const scanMarker = path.join(directory, "lizard-scan.json");
-    const packageOutput = path.join(directory, "dist", "skills.fixture");
-    const binDirectory = await writeFakeLizard(directory);
-    await fs.mkdir(path.join(directory, "scripts"), { recursive: true });
-    await fs.writeFile(
-      path.join(directory, "scripts", "fixture.ts"),
-      "export const fixture = 1;\n",
-      "utf8"
-    );
-    runGit(directory, ["init"]);
-    runGit(directory, ["add", "."]);
-
-    const productionFunctionMetrics = (): Check => {
-      const check = createVibeNativeChecks().find(
+test("function metrics uses the bundled analyzer without an external scanner", async () => {
+  await withTemporaryDirectory(
+    "skills-vibe-function-analyzer-",
+    async (directory) => {
+      await fs.writeFile(
+        path.join(directory, "fixture.ts"),
+        "export function fixture(value: number): number { return value + 1; }\n",
+        "utf8"
+      );
+      const productionCheck = createVibeNativeChecks().find(
         ({ checkId }) => checkId === "function-metrics"
       );
-      if (!check) {
+      if (!productionCheck) {
         throw new Error("missing production function-metrics Check");
       }
-      const options = check.options as {
-        readonly scanner: { readonly executable: string };
-      };
-      assert.equal(options.scanner.executable, projectLizardExecutable);
-      return check;
-    };
+      assert.ok(productionCheck.options);
+      assert.equal(Object.hasOwn(productionCheck.options, "scanner"), false);
 
-    const accepted = await withFakeLizard(
-      binDirectory,
-      "1.23.0",
-      scanMarker,
-      () =>
-        runDefinition(
+      const pathBefore = process.env.PATH;
+      process.env.PATH = "";
+      try {
+        const result = await runDefinition(
           defineConfig({
-            checks: [productionFunctionMetrics()],
+            checks: [
+              functionMetrics({
+                codeAreas: {
+                  fixture: {
+                    files: {
+                      exclude: [],
+                      include: ["**/*.ts"],
+                      source: "filesystem"
+                    }
+                  }
+                }
+              })
+            ],
             outputs: noOutput
           }),
           directory
-        )
-    );
-    assert.equal(accepted.aggregate, "passed");
-    assert.equal(outcomeFor(accepted, "function-metrics").status, "passed");
-    const scanArguments: unknown = JSON.parse(
-      await fs.readFile(scanMarker, "utf8")
-    );
-    assert.ok(Array.isArray(scanArguments));
-    assert.equal(scanArguments.at(-1), "--csv");
-    assert.ok(scanArguments.includes("scripts/fixture.ts"));
-
-    await fs.rm(scanMarker, { force: true });
-    const calls: string[] = [];
-    const mismatch = await withFakeLizard(
-      binDirectory,
-      "1.23.1",
-      scanMarker,
-      () =>
-        runDefinition(
-          createGateDefinition(["release"], {
-            nativeChecks: passingNativeChecks().map((check) =>
-              check.checkId === "function-metrics"
-                ? productionFunctionMetrics()
-                : check
-            ),
-            runCommand: async (invocation) => {
-              const script = scriptForCommand(invocation);
-              calls.push(script ?? "semantic");
-              if (script === "pack:skills") {
-                await fs.mkdir(path.dirname(packageOutput), {
-                  recursive: true
-                });
-                await fs.writeFile(packageOutput, "unexpected\n", "utf8");
-              }
-              return { exitCode: 0, output: "", status: "completed" };
-            }
-          }),
-          directory
-        )
-    );
-
-    assert.equal(mismatch.aggregate, "failed");
-    assert.equal(
-      outcomeFor(mismatch, "function-metrics").status,
-      "unavailable"
-    );
-    assert.equal(calls.includes("pack:skills"), false);
-    assert.equal(await fileExists(packageOutput), false);
-    assert.equal(await fileExists(scanMarker), false);
-  });
+        );
+        assert.equal(result.aggregate, "passed");
+        assert.equal(outcomeFor(result, "function-metrics").status, "passed");
+      } finally {
+        if (pathBefore === undefined) {
+          delete process.env.PATH;
+        } else {
+          process.env.PATH = pathBefore;
+        }
+      }
+    }
+  );
 });
 
 function nativeCheckExclusions(
@@ -2245,4 +2155,9 @@ test("native file selections exclude historical content and authoring candidates
       );
     }
   }
+  assert.deepEqual(
+    optionsRecord(optionsById.get("secret-detection"), "missing secret Check")
+      .files,
+    maintainedSecretFiles
+  );
 });

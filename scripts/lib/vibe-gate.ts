@@ -1,6 +1,5 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   defaultProjectFileSelection,
   defineCheck,
@@ -10,7 +9,8 @@ import {
   functionMetrics,
   jsonSchemaValidation,
   jsonValidation,
-  markdownLinkValidation
+  markdownLinkValidation,
+  secretDetection
 } from "@zxyycom/vibe-check";
 import type { Check, ProjectDefinition } from "@zxyycom/vibe-check";
 import {
@@ -134,14 +134,6 @@ export function orderRootChecksByCriticalRank(
   );
 }
 
-export const projectJscpdExecutable = fileURLToPath(
-  new URL("./vibe-jscpd.js", import.meta.url)
-);
-
-export const projectLizardExecutable = fileURLToPath(
-  new URL("./vibe-lizard.js", import.meta.url)
-);
-
 export const historicalContentExclusions = [
   "docs/investigations/_resources/**"
 ] as const;
@@ -171,6 +163,17 @@ export const maintainedDocumentFiles = {
   exclude: [...projectExclusions, ...investigationAuthoringDocumentExclusions]
 } as const;
 
+export const maintainedSecretFiles = {
+  source: "git-worktree",
+  include: [
+    "**/*.{code-workspace,example,html,js,json,jsonl,md,mjs,mts,rules,toml,ts,txt,yaml,yml}",
+    "**/.gitattributes",
+    "**/.gitignore",
+    ".githooks/*"
+  ],
+  exclude: projectExclusions
+} as const;
+
 const schemas = [
   {
     id: "urn:skills:task-graph-index",
@@ -197,6 +200,7 @@ const bindings = [
 
 export const vibeNativeCheckIds = [
   "duplicate-detection",
+  "secret-detection",
   "json-validation",
   "json-schema-validation",
   "markdown-link-validation",
@@ -1059,9 +1063,6 @@ export function createVibeNativeChecks(): readonly Check[] {
   return [
     duplicateDetection({
       cache: { enabled: false },
-      scanner: {
-        command: { kind: "custom", executable: projectJscpdExecutable }
-      },
       codeAreas: {
         maintained: {
           files: maintainedCodeFiles,
@@ -1069,6 +1070,12 @@ export function createVibeNativeChecks(): readonly Check[] {
           minimumTokens: 150
         }
       }
+    }),
+    secretDetection({
+      files: maintainedSecretFiles,
+      findingWaivers: [],
+      maximumFileCount: 4_096,
+      maximumTotalBytes: 67_108_864
     }),
     jsonValidation({
       files: maintainedDocumentFiles,
@@ -1110,7 +1117,7 @@ export function createVibeNativeChecks(): readonly Check[] {
         }
       },
       findingPolicy: "non-blocking",
-      scanner: { executable: projectLizardExecutable }
+      findingWaivers: []
     })
   ];
 }

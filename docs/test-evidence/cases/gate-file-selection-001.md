@@ -12,3 +12,4 @@ Contract:
 Proves:
 - 每项原生 Check 的文件选择都包含 `docs/investigations/_resources/**` 排除规则。
 - 文档扫描的 `json-validation` 与 blocking `markdown-link-validation` 排除根目录 `docs/investigations/_candidate.*`，因此未就绪 candidate 的资源链接不会伪装为正式维护文档损坏。
+- `secret-detection` 使用门禁 owner 声明的完整文本输入范围，不回退到隐式全仓库扫描。

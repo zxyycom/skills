@@ -187,14 +187,13 @@ export async function runVibeCheck(
       .catch(() => undefined);
   }
 
-  if (
-    invocation.diagnosticLog &&
-    "outputs" in result &&
-    result.outputs.diagnosticLogging.file !== null
-  ) {
-    reportInfo(
-      `Vibe Check diagnostic log: ${result.outputs.diagnosticLogging.file}`
-    );
+  if (invocation.diagnosticLog && "outputs" in result) {
+    for (const channel of ["core", "scheduler"] as const) {
+      const status = result.outputs.diagnosticLogging.channels[channel];
+      if (status.status === "succeeded" && status.file !== null) {
+        reportInfo(`Vibe Check diagnostic log (${channel}): ${status.file}`);
+      }
+    }
   }
   if (result.kind !== "completed") {
     reportError(
