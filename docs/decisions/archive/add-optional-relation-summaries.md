@@ -1,7 +1,7 @@
 ---
 title: 让关系边携带可检索的简短说明
 id: 260905-add-optional-relation-summaries
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-05T06:27:30Z
 purpose: 让直接演进关系可以快速说明具体承载的变化，并能从索引中检索。

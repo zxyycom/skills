@@ -79,7 +79,10 @@ formedAt: "2026-08-28T12:00:00+00:00"
 question: "资源字节是否应影响报告索引来源版本？"
 tags:
   - "investigation-report"
-relations: []
+relations:
+  - type: "复查"
+    target: "260827-check-index-source"
+    summary: "单独改变资源字节，复核索引来源版本边界"
 ---
 ```
 

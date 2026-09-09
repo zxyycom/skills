@@ -121,7 +121,7 @@ alignment 始终作用于整条决策：完整方向成为当前事实并核对�
 relations:
   - type: 修订
     target: 260827-define-index-boundary
-    summary: 保留前序方向并调整索引边界
+    summary: 将查询投影移出持久索引
 ```
 
 每个 target 是合法 Decision ID，在同一来源记录中唯一，完整图无自环、无环。候选关系先检查类型、ID、重复、自环和目标可解析性；候选建立前留在正式图外，活动前序也无需提前归档。

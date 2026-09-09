@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "52"
+  version: "53"
 ---
 
 # Decision Records
@@ -80,6 +80,8 @@ Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位�
 4. 能作为整体独立演进和判断对齐。
 
 先按[记录边界与有效演进](references/decision-record-rules.md#记录边界与有效演进)区分原地完善、独立新判断与真实后继；Git 提交或出现纠正本身不构成演进依据。需要新建且已获授权时，用 `new` 创建候选，完成“目的、背景、决策”正文，使摘要、tags 与直接关系都有正文依据。创建成功后继续编辑并查看 readiness；未就绪表示需要完善现有候选，而非重跑 `new`。
+
+新建或调整真实直接关系时，依据两端正文为每条边填写 `summary`，简述相对前序的具体变化或承接范围；格式与示例见[演进关系](references/decision-record-rules.md#演进关系)。
 
 ### 4. 按判断性质选择维护动作
 
