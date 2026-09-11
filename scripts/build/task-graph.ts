@@ -157,7 +157,8 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
     outputFileName: path.basename(cliOutputPath),
     plugins: [portableDependency.plugin],
     sourceMapBaseDirectory: publishedScriptsDirectory,
-    sourceMap: true
+    sourceMap: true,
+    unsupportedOptionalPackages: ["supports-color"]
   });
   portableDependency.assertApplied();
   if (bundle.sourceMap === null) {

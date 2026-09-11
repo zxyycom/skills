@@ -34,9 +34,10 @@ export type BunBundleOptions = {
   keepNames?: boolean;
   minify?: boolean;
   outputFileName: string;
-  plugins?: BunBuildPlugin[];
+  plugins?: readonly BunBuildPlugin[];
   sourceMapBaseDirectory?: string;
   sourceMap?: boolean;
+  unsupportedOptionalPackages?: readonly string[];
 };
 
 export type BunBuildPlugin = {
@@ -48,6 +49,12 @@ export type BunBuildPlugin = {
         contents: string;
         loader: "js" | "ts";
       }>
+    ): void;
+    onResolve(
+      options: { filter: RegExp },
+      callback: (args: {
+        path: string;
+      }) => Promise<{ path: string }> | { path: string }
     ): void;
   }): void;
 };
@@ -90,6 +97,29 @@ type BunBuild = (options: {
   target: "node";
 }) => Promise<BunBuildResult>;
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+}
+
+function createUnsupportedOptionalPackagesPlugin(
+  packageNames: readonly string[]
+): BunBuildPlugin {
+  const filter = new RegExp(
+    `^(?:${packageNames.map(escapeRegExp).join("|")})$`,
+    "u"
+  );
+  const replacementPath = path.join(
+    import.meta.dirname,
+    "unsupported-optional-package.ts"
+  );
+  return {
+    name: "unsupported-optional-packages",
+    setup(builder) {
+      builder.onResolve({ filter }, () => ({ path: replacementPath }));
+    }
+  };
+}
+
 export function parseGeneratedFileMode(argv: string[]): GeneratedFileMode {
   const { values } = parseArgs({
     args: argv,
@@ -110,6 +140,13 @@ export async function bundleWithBun(
   options: BunBundleOptions
 ): Promise<BunBundleResult> {
   const sourceMapBaseDirectory = options.sourceMapBaseDirectory;
+  const unsupportedOptionalPackages = options.unsupportedOptionalPackages ?? [];
+  const plugins = [
+    ...(unsupportedOptionalPackages.length === 0
+      ? []
+      : [createUnsupportedOptionalPackagesPlugin(unsupportedOptionalPackages)]),
+    ...(options.plugins ?? [])
+  ];
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "skills-bundle-"));
   const outputPath = path.join(tempDir, options.outputFileName);
   const entryHasShebang = (
@@ -136,7 +173,7 @@ export async function bundleWithBun(
   try {
     let code: string;
     let generatedSourceMap: string | null = null;
-    if (options.plugins === undefined) {
+    if (plugins.length === 0) {
       await execFileAsync(process.execPath, args, { cwd: options.cwd });
       code = await fs.readFile(outputPath, "utf8");
       generatedSourceMap = options.sourceMap
@@ -160,7 +197,7 @@ export async function bundleWithBun(
         naming: options.outputFileName,
         outdir: tempDir,
         packages: "bundle",
-        plugins: options.plugins,
+        plugins,
         sourcemap: options.sourceMap ? "linked" : "none",
         target: "node"
       });

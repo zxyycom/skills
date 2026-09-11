@@ -35,7 +35,8 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
     sourceMapBaseDirectory: path.dirname(
       path.join(rootDir, outputRelativePath)
     ),
-    sourceMap: true
+    sourceMap: true,
+    unsupportedOptionalPackages: ["supports-color"]
   });
   if (bundle.sourceMap === null) {
     throw new Error("Change plan CLI bundle must include a source map");

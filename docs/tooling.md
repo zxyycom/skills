@@ -308,7 +308,11 @@ Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维
 1. TypeScript 源码以及确需独立维护的声明源位于 `tools/`，读取仓库配置并写入 skill 的适配器位于 `scripts/build/`。
 2. `sync:*` 至少生成自包含单文件 ESM `.mjs` 和 linked source map。只有行为 owner 明确建立稳定程序化接口时才同时生成 `.d.mts` 声明入口；声明需要拆分时，其余生成声明保留在同一 skill 的包内目录并只由入口引用。只有 owner 明确需要跨语言机器契约时才生成 JSON Schema 和 Schema 派生声明。
 3. 生成模块可被导入而不执行 CLI、修改退出状态或产生文件和网络副作用；只有作为主模块运行时进入 CLI。
-4. 分发产物只能依赖目标运行时和包内内容。共享源码由构建器内联，不形成跨 skill 运行时前置。Task-graph 的包内 ESM 保持自包含；mutation 另行加载调用方按该 skill 指引配置、并由 CLI 探测的 native runtime 扩展。该扩展不属于 skill 制品，也不改变通用 updater 或其他工具的分发边界。
+4. 分发产物只能依赖目标运行时和包内内容。构建器遵守以下边界：
+   - 构建期解析不得从 workspace 或测试 fixture 的祖先目录吸收依赖树外模块。
+   - 共享源码由构建器内联，不形成跨 skill 运行时前置。
+   - 明确不随制品分发的 optional peer 由对应 build adapter 声明，并由共享 bundler 固定解析到仓库内的不可用替身（unavailable stub），不留给分发运行时解析。
+   - Task-graph 的包内 ESM 保持自包含；mutation 另行加载调用方按该 skill 指引配置、并由 CLI 探测的 native runtime 扩展。该扩展不属于 skill 制品，也不改变通用 updater 或其他工具的分发边界。
 5. 可嵌入注释的生成产物必须写明禁止直接编辑、仓库与维护源码、skill 源目录和重建命令；生成头不写时间戳或本机绝对路径。
 6. `check:*` 在临时目录重建产物，并在把 CRLF 规范为 LF 后比较文本内容；除行尾形式外的差异视为生成漂移。`pack:skills` 不临时构建，只收集已经进入版本管理 `pending` 快照的 `skills/<skill-name>/` 稳定分发输入。
 

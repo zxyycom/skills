@@ -5,7 +5,7 @@ description: >-
   design.md、tasks.md 和 .change-plan.json 维护明确 Change 的目标、设计、任务、
   验证与 draft/plan stage，并在完成后删除短期计划目录。
 metadata:
-  version: "25"
+  version: "26"
 ---
 
 # Change Plan

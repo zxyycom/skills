@@ -135,7 +135,8 @@ async function buildBundle(): Promise<GeneratedArtifact[]> {
     minify: true,
     outputFileName: bundleSpec.outputName,
     sourceMapBaseDirectory: publishedScriptsDirectory,
-    sourceMap: true
+    sourceMap: true,
+    unsupportedOptionalPackages: ["supports-color"]
   });
   if (bundle.sourceMap === null) {
     throw new Error(

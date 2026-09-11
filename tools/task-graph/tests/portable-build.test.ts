@@ -15,6 +15,7 @@ const repositoryRoot = path.resolve(
   ".."
 );
 const execFileAsync = promisify(execFile);
+const ambientOptionalPeerMarker = "ambient-optional-peer";
 
 function packageDependencyNames(manifestContent: string): readonly string[] {
   const manifest: unknown = JSON.parse(manifestContent);
@@ -127,11 +128,31 @@ async function copyTaskGraphBuildCheckout(targetRoot: string): Promise<void> {
   );
 }
 
+async function createAmbientOptionalPeer(root: string): Promise<void> {
+  const packageRoot = path.join(root, "node_modules", "supports-color");
+  await fs.mkdir(packageRoot, { recursive: true });
+  await Promise.all([
+    fs.writeFile(
+      path.join(packageRoot, "package.json"),
+      `${JSON.stringify({
+        main: "index.js",
+        name: "supports-color",
+        version: "0.0.0-test"
+      })}\n`
+    ),
+    fs.writeFile(
+      path.join(packageRoot, "index.js"),
+      `module.exports = { marker: ${JSON.stringify(ambientOptionalPeerMarker)}, stderr: { level: 3 } };\n`
+    )
+  ]);
+}
+
 test(
-  "generated task graph bundle and source map are checkout-path independent",
+  "generated task graph artifacts ignore checkout path and ambient optional peers",
   { timeout: 180_000 },
   async () => {
     await withTempWorkspace(async (root) => {
+      await createAmbientOptionalPeer(root);
       const shortCheckout = path.join(root, "short");
       const longCheckout = path.join(
         root,
@@ -212,6 +233,10 @@ test(
       }
       assert.equal(shortBundle.includes(Buffer.from("debugId=")), false);
       assert.equal(shortSourceMap.includes(Buffer.from("debugId")), false);
+      assert.equal(
+        shortBundle.includes(Buffer.from(ambientOptionalPeerMarker)),
+        false
+      );
       assert.equal(
         shortBundle.includes(
           Buffer.from("node_modules/write-file-atomic/lib/index.js")

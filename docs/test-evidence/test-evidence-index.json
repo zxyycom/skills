@@ -653,7 +653,7 @@
       "TASK-GRAPH-CONTROL-001": "sha256:7e6f81fa4e1a48f7be5a5d8e716b576efced72c1aec748ab184852ac8e7479af",
       "TASK-GRAPH-DEFAULTS-001": "sha256:c4535a38070c67e373be8074dfedefa8c86c9d2d82dc52a2817a023fcb561be8",
       "TASK-GRAPH-DISTRIBUTION-001": "sha256:0c0970e55976247bcf8596c5ccfa8b1f4017dead14bbf3ab3bdb31eebd6f82e6",
-      "TASK-GRAPH-DISTRIBUTION-004": "sha256:b3da347d05f526835b7ac8fb6a856fd7ff1ef889af0236e5936fb5a38bd6a76c",
+      "TASK-GRAPH-DISTRIBUTION-004": "sha256:9e8df60084d17c7c6d094eaf6ad37caf62aff64764756f4a58926e45c014083c",
       "TASK-GRAPH-DISTRIBUTION-IMPORT-001": "sha256:c153ac52429d53a8f9df67ed3b9bc8a6f3d0fdf94e7811058f6d36b5d2bd6e94",
       "TASK-GRAPH-DISTRIBUTION-LIST-PARITY-001": "sha256:72c61f84b7c8be0913bfbce7be224af60d3ab2acc2ab5c16218754f5cbd4a016",
       "TASK-GRAPH-DISTRIBUTION-OFFLINE-001": "sha256:6c423d6735f394320f864e0807261872a0d4128e1fcc1bb386a4854f3eb1f1f6",
@@ -7347,13 +7347,13 @@
       ]
     },
     "TASK-GRAPH-DISTRIBUTION-004": {
-      "title": "portable build 不依赖 checkout 绝对路径",
+      "title": "portable build 不依赖 checkout 路径或祖先包",
       "sourcePath": "cases/task-graph-distribution-004.md",
       "tags": [
         "task-graph"
       ],
       "testIds": [
-        "test:cda1f6c54a0d96ac2d45a72194515f13948b23bd66388462f17318ce3ed2192b"
+        "test:af7a2e17efcbdcea706fcf2e566475847a5b3bbdc48ef68c31c5ed41b35f2c29"
       ]
     },
     "TASK-GRAPH-DISTRIBUTION-IMPORT-001": {

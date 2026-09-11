@@ -45,6 +45,27 @@
       ],
       "title": "历史决策对齐状态召回与来源修复"
     },
+    "260911-bound-bun-optional-peer-resolution": {
+      "formedAt": "2026-09-11T05:49:11Z",
+      "name": "bound-bun-optional-peer-resolution",
+      "question": "为什么 Task Graph portable build 会受 /tmp/node_modules 影响，如何让同类分发构建只由声明依赖决定？",
+      "relations": [
+        {
+          "summary": "闭合前序留下的 Task Graph 本地构建失败",
+          "target": "260911-explain-ci-cold-proof-test-failure",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "bound-bun-optional-peer-resolution.md",
+      "tags": [
+        "bun",
+        "repository-tooling",
+        "task-graph",
+        "test-hermeticity"
+      ],
+      "title": "固定可选 peer 缺失语义使 Bun 分发构建不受祖先目录污染"
+    },
     "260911-explain-ci-cold-proof-test-failure": {
       "formedAt": "2026-09-11T04:41:07Z",
       "name": "explain-ci-cold-proof-test-failure",
@@ -627,6 +648,7 @@
       "260903-explore-name-collisions-in-retained-artifacts": "sha256:4aa2ab77d625a548920dd74b5ace539cfcf90b15b90130def4963da25078ca6f",
       "260907-investigate-vibe-check-test-evidence": "sha256:644b0a0adfd55b95089dd822f623c299ae397d83cd316316919bdc31e0cdeb8b",
       "260908-recall-historical-decision-alignment": "sha256:b5e5f037e9e5da81bdd619b86d66335bc17a26a4e44f9bde682a71f37ca351d1",
+      "260911-bound-bun-optional-peer-resolution": "sha256:f0277c986fee5e29a025dc6e09fa694a465370ca6f4acd435645428784975dfd",
       "260911-explain-ci-cold-proof-test-failure": "sha256:f61100ce3a060d1d614b9065fdd67b7ddf3de76fb88560756d16421b1580e64f",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:4861ec08242f0007c24f5b6d7e8e0a0c5fc1ccaaf6898eb1f64420645a2f0c21",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:886e1ade798bfe48802e32c5296dc03c07d9b192dde3519b52ec5b8583778bdd",

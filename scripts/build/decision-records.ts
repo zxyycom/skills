@@ -44,7 +44,8 @@ async function buildArtifact(): Promise<BunBundleResult> {
     sourceMapBaseDirectory: path.dirname(
       path.join(rootDir, outputRelativePath)
     ),
-    sourceMap: true
+    sourceMap: true,
+    unsupportedOptionalPackages: ["supports-color"]
   });
 }
 
