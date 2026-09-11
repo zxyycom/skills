@@ -96,6 +96,7 @@
       "260909-incremental-vibe-gate": "sha256:299d1d0bd252ab671a9b363e844c985e0bc9e59ec0fbac9deb699ccce291b889",
       "260909-use-native-vibe-gate-controls": "sha256:a84662fd7f5163b516b9f573aa136f582f0aaab5556b388e4d4273858304e5d1",
       "260909-write-explanatory-relation-summaries": "sha256:ece110950bc41206998c14673cd9f3e88592c176feeeaa0e317352bad9d180ff",
+      "260911-block-code-quality-metric-findings": "sha256:88c2f80efad6f4913adf1160e6f715a21209199a5190dd2968081097f7abb526",
       "activate-release-gate-checks-by-tag": "sha256:02819304803eade140cd3adb2472a368c290f639acc7998f0d54bc20cecd228e",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -2071,6 +2072,27 @@
           "type": "修订",
           "target": "260905-add-optional-relation-summaries",
           "summary": "保留字段兼容，改以主动填写摘要为写作路径"
+        }
+      ]
+    },
+    "260911-block-code-quality-metric-findings": {
+      "name": "block-code-quality-metric-findings",
+      "sourcePath": "block-code-quality-metric-findings.md",
+      "title": "让代码质量指标 finding 阻断项目门禁",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-11T02:09:17Z",
+      "purpose": "让文件与函数指标发现成为必须在验收前处置的门禁结果。",
+      "background": "当前指标已清零，继续仅作 advisory 会允许新的质量债务无处置进入主线。",
+      "decision": "文件与函数指标统一使用 blocking policy，保持既有阈值与空 waiver。",
+      "tags": [
+        "project-tooling"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260909-use-native-vibe-gate-controls",
+          "summary": "将代码指标从 advisory 升级为阻断"
         }
       ]
     },

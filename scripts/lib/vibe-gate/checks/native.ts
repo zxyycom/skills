@@ -200,10 +200,10 @@ export function createVibeNativeChecks(
         codeAreas: {
           maintained: {
             files: maintainedCodeFiles,
-            findingPolicy: "non-blocking"
+            findingPolicy: "blocking"
           }
         },
-        findingPolicy: "non-blocking",
+        findingPolicy: "blocking",
         findingWaivers: []
       }),
       repositoryProcessClaims
@@ -213,7 +213,7 @@ export function createVibeNativeChecks(
         codeAreas: {
           product: {
             files: productCodeFiles,
-            findingPolicy: "non-blocking",
+            findingPolicy: "blocking",
             limits: {
               codeLines: {
                 lowComplexityAllowance: {
@@ -229,7 +229,7 @@ export function createVibeNativeChecks(
           },
           automation: {
             files: automationCodeFiles,
-            findingPolicy: "non-blocking",
+            findingPolicy: "blocking",
             limits: {
               codeLines: {
                 lowComplexityAllowance: {
@@ -245,7 +245,7 @@ export function createVibeNativeChecks(
           },
           tests: {
             files: testCodeFiles,
-            findingPolicy: "non-blocking",
+            findingPolicy: "blocking",
             limits: {
               codeLines: {
                 lowComplexityAllowance: {
@@ -260,7 +260,7 @@ export function createVibeNativeChecks(
             }
           }
         },
-        findingPolicy: "non-blocking",
+        findingPolicy: "blocking",
         findingWaivers: []
       }),
       repositoryScanClaim

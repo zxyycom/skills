@@ -311,7 +311,7 @@
       "GATE-JSON-SCHEMA-001": "sha256:1562d23cca2650b3dceb86fe937364b7bba56ddc08714ccc67bb7e6fe8908995",
       "GATE-JSON-VALIDATION-001": "sha256:1b495e9457d277c495c6beda633e5d588e2949366f62d44877511ca1824f6118",
       "GATE-MARKDOWN-LINK-001": "sha256:b084953dd2c12fff3217facf7a7485c54c71b84bef6c590c88d1912c2936864e",
-      "GATE-METRICS-ADVISORY-001": "sha256:9d5111b5aa720fc7906ace76cb20c09b791d71a6fe5aa7142f3e189bb64667ae",
+      "GATE-METRICS-BLOCKING-001": "sha256:da0bb5bc57c92fd3a05316316e8401211820c65805d37519b45db94e3b438c0e",
       "GATE-RELEASE-FINAL-TIMING-001": "sha256:2472134c0bf5af8ed8d7e6c4be0c1d77c098f73de1a5548afbeae535251785e0",
       "GATE-RELEASE-SNAPSHOT-TOCTOU-001": "sha256:ce8a7e7de4da0348eb484ea8527faabd1587456fadd73472d266702f91cb350c",
       "GATE-RELEASE-TAG-ACTIVATION-001": "sha256:b58b85c1bfc0c5e8b49ad7e2fe9d0a78ada7a174d19de8f02eb3522d7f7b105c",
@@ -3919,14 +3919,14 @@
         "test:11c618b120a541c9b101387a8fe2e87d8872835b06b5a997fd46ba7a6866b9ee"
       ]
     },
-    "GATE-METRICS-ADVISORY-001": {
-      "title": "指标 finding 保持 advisory，工具故障与 N/A fail closed",
-      "sourcePath": "cases/gate-metrics-advisory-001.md",
+    "GATE-METRICS-BLOCKING-001": {
+      "title": "指标 finding 与测量失效统一 fail closed",
+      "sourcePath": "cases/gate-metrics-blocking-001.md",
       "tags": [
         "repository-tooling"
       ],
       "testIds": [
-        "test:96da15b16690f5d951944b0d47cc6afa1ad75f16cb51e4f9ae8709956cf8bb95"
+        "test:3b9bbde0aaf1a54ed31f3c5ea20e4597008e20b5cb01e3f559b072701c7907f9"
       ]
     },
     "GATE-RELEASE-FINAL-TIMING-001": {

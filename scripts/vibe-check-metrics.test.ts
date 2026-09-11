@@ -17,7 +17,7 @@ import {
   withTemporaryDirectory
 } from "./vibe-check-test-support.ts";
 
-test("metric findings remain advisory while unavailable and N/A results fail closed", async () => {
+test("metric findings use blocking policy and measurement failures fail closed", async () => {
   await withTemporaryDirectory("skills-vibe-metrics-", async (directory) => {
     await fs.writeFile(
       path.join(directory, "fixture.ts"),
@@ -47,17 +47,17 @@ test("metric findings remain advisory while unavailable and N/A results fail clo
             maximum: 1
           },
           files: selection,
-          findingPolicy: "non-blocking"
+          findingPolicy: "blocking"
         }
       },
-      findingPolicy: "non-blocking",
+      findingPolicy: "blocking",
       findingWaivers: []
     });
     const functionCheck = functionMetrics({
       codeAreas: {
         fixture: {
           files: selection,
-          findingPolicy: "non-blocking",
+          findingPolicy: "blocking",
           limits: {
             codeLines: {
               lowComplexityAllowance: {
@@ -71,7 +71,7 @@ test("metric findings remain advisory while unavailable and N/A results fail clo
           }
         }
       },
-      findingPolicy: "non-blocking",
+      findingPolicy: "blocking",
       findingWaivers: []
     });
     const findings = await runDefinition(
@@ -79,24 +79,37 @@ test("metric findings remain advisory while unavailable and N/A results fail clo
       directory
     );
 
-    assert.equal(findings.aggregate, "passed");
+    assert.equal(findings.aggregate, "failed");
     const fileOutcome = outcomeFor(findings, "file-metrics");
     const functionOutcome = outcomeFor(findings, "function-metrics");
-    assert.equal(fileOutcome.status, "passed");
-    assert.equal(functionOutcome.status, "passed");
+    assert.equal(fileOutcome.status, "failed");
+    assert.equal(functionOutcome.status, "failed");
     if (
-      fileOutcome.status !== "passed" ||
-      functionOutcome.status !== "passed"
+      fileOutcome.status !== "failed" ||
+      functionOutcome.status !== "failed"
     ) {
-      throw new Error("metric findings must remain passed outcomes");
+      throw new Error("metric findings must fail their Checks");
     }
     const fileData = parseFileMetricsData(fileOutcome.data);
     const functionData = parseFunctionMetricsData(functionOutcome.data);
     assert.ok(fileData.findingCount > 0);
-    assert.equal(fileData.blockingFindingCount, 0);
+    assert.equal(fileData.blockingFindingCount, fileData.findingCount);
     assert.ok(functionData.findingCount > 0);
-    assert.equal(functionData.blockingFindingCount, 0);
+    assert.equal(functionData.blockingFindingCount, functionData.findingCount);
     assert.deepEqual(fileCheck.options.findingWaivers, []);
+
+    for (const checkId of ["file-metrics", "function-metrics"]) {
+      const productionCheck = createVibeNativeChecks(directory).find(
+        (check) => check.checkId === checkId
+      );
+      assert.ok(productionCheck?.options);
+      const codeAreas = Reflect.get(productionCheck.options, "codeAreas");
+      assert.ok(codeAreas !== null && typeof codeAreas === "object");
+      for (const area of Object.values(codeAreas)) {
+        assert.ok(area !== null && typeof area === "object");
+        assert.equal(Reflect.get(area, "findingPolicy"), "blocking");
+      }
+    }
 
     const unavailable = await runDefinition(
       defineConfig({
@@ -114,7 +127,7 @@ test("metric findings remain advisory while unavailable and N/A results fail clo
     );
     assert.equal(unavailable.aggregate, "failed");
     assert.equal(outcomeFor(unavailable, "file-metrics").status, "unavailable");
-    assert.equal(outcomeFor(unavailable, "function-metrics").status, "passed");
+    assert.equal(outcomeFor(unavailable, "function-metrics").status, "failed");
 
     const notApplicable = await withTemporaryDirectory(
       "skills-vibe-empty-metrics-",

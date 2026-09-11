@@ -172,11 +172,11 @@ release tag 同时验证工作区正确性与 release snapshot，但两者输入
 | Check 类别 | 语义 |
 | --- | --- |
 | 结构与质量原生 Check | 重复、高置信私钥、JSON、Task Graph/Test Evidence Schema、Markdown 链接的 finding、coverage gap、unavailable 或意外 not-applicable 均阻断 aggregate。 |
-| 文件指标与函数指标 | required advisory：可信 finding 保持 passed，progress 显示 warning 摘要；逐项 finding 保存在本次 invocation 的 `machine/records.ndjson`。函数指标将 `tools/` 产品源码设为严格区、`scripts/` 自动化设为中等区、测试设为宽松区，各区显式声明 NLOC、CCN、nesting depth 与参数阈值。unavailable 或意外 not-applicable 阻断；finding 数量和执行时长是测量输出，不是 catalog 边界。 |
+| 文件指标与函数指标 | required blocking：可信 finding 使对应 Check failed 并阻断 aggregate；逐项 finding 保存在本次 invocation 的 `machine/records.ndjson`。函数指标将 `tools/` 产品源码设为严格区、`scripts/` 自动化设为中等区、测试设为宽松区，各区显式声明 NLOC、CCN、nesting depth 与参数阈值。unavailable 或意外 not-applicable 同样阻断；finding 数量和执行时长是测量输出，不是 catalog 边界。 |
 | 语义 Check | adapter 以 catalog 声明的 `bun test` 或必要的 Node 原生命令运行精确测试入口。非零退出为 failed，不能启动、取消或无法形成可信退出结果为 unavailable；诊断提供同一命令以便直接重跑。 |
 | 维护 package script Check | adapter 以参数数组运行 `bun run <script>`，保留既有稳定维护命令的行为验证；它不替代语义 Check。取消与后代进程回收边界仍由脚本协作处理。 |
 
-函数指标区的普通上限依次为 NLOC、CCN、nesting depth、参数数：产品源码 `45/10/5/5`，自动化脚本 `80/16/8/7`，测试 `100/20/10/8`。低复杂度 NLOC allowance 分别为 CCN 严格低于 `5/7/8` 时允许到 `120/220/250`。三个区域当前都保持 non-blocking advisory；阈值差异用于把同一 measurement 转换为符合代码责任的维护信号，不以批量 waiver 隐藏现状。
+函数指标区的普通上限依次为 NLOC、CCN、nesting depth、参数数：产品源码 `45/10/5/5`，自动化脚本 `80/16/8/7`，测试 `100/20/10/8`。低复杂度 NLOC allowance 分别为 CCN 严格低于 `5/7/8` 时允许到 `120/220/250`。文件指标与三个函数区域都使用 blocking policy；阈值差异用于把同一 measurement 转换为符合代码责任的维护信号。阻断要求在验收前处置每条信号，但不跳过[编码规范](coding-style.md#6-保持局部可推理并按责任组织代码)要求的责任复核，也不以批量 waiver 隐藏现状。
 
 三个消费当前工作树分发制品的 public-distribution semantic Check 必须先验证对应的唯一生成一致性 Check：
 
