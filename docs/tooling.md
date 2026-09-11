@@ -88,6 +88,8 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 
 `bun run check` 是唯一权威门禁入口。项目直接调用 Vibe `run`，不在 Vibe 外实现第二套 runner。责任边界如下：
 
+新增、修改或移除 Check 时，按 [Gate Check 编写与接入](gate-check-authoring.md) 选择 Check 类型、维护 catalog 与 impact contract，并完成对应验证；本节继续作为现有 Gate 运行时行为的 owner。
+
 | Owner | 责任 |
 | --- | --- |
 | Vibe | 根据 flags 和依赖完成 Check selection、scheduler admission、settlement 与 aggregate，并生成 progress 和 machine publication。 |
