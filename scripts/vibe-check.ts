@@ -36,6 +36,7 @@ export type { GateInvocation } from "./vibe-check-invocation.ts";
 type GateExitCode = 0 | 1;
 
 export type VibeCheckDependencies = Readonly<{
+  continuousIntegration?: boolean;
   createDefinition?: (
     invocation: GateInvocation,
     activationPlan: GateActivationPlan | null,
@@ -135,6 +136,12 @@ function passedCheckIds(result: RunResult): ReadonlySet<string> {
   );
 }
 
+function isContinuousIntegrationEnvironment(
+  value: string | undefined
+): boolean {
+  return value !== undefined && value !== "" && value !== "false";
+}
+
 export async function runVibeCheck(
   argv: readonly string[] = process.argv.slice(2),
   dependencies: VibeCheckDependencies = {}
@@ -161,9 +168,8 @@ export async function runVibeCheck(
   let releaseTestBatchProofReused = false;
   const releaseTestBatchProofCold =
     invocation.cold ||
-    (process.env.CI !== undefined &&
-      process.env.CI !== "" &&
-      process.env.CI !== "false");
+    (dependencies.continuousIntegration ??
+      isContinuousIntegrationEnvironment(process.env.CI));
   const definitionDependencies: GateDefinitionDependencies = {
     ...(invocation.baselineRef === undefined
       ? activationPlan?.kind === "incremental"

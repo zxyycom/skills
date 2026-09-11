@@ -31,11 +31,15 @@ type ProofModeRun = Readonly<{
   summary: Readonly<{ releaseTestBatchProof?: unknown }>;
 }>;
 
+type ProofMode = "ci-cold" | "explicit-cold" | "reused";
+
 async function runReleaseProofMode(
   directory: string,
-  cold: boolean,
-  reused: boolean
+  mode: ProofMode
 ): Promise<ProofModeRun> {
+  const cold = mode === "explicit-cold";
+  const continuousIntegration = mode === "ci-cold";
+  const reused = mode === "reused";
   const snapshot = fixtureGateWorkspaceSnapshot();
   const releasePlan: GateActivationPlan = {
     activeCheckIds: ["release-proof-fixture"],
@@ -51,12 +55,16 @@ async function runReleaseProofMode(
     kind: "release",
     snapshot
   };
-  const invocationDirectory = path.join(directory, cold ? "cold" : "reused");
+  const invocationDirectory = path.join(directory, mode);
   const information: string[] = [];
   const exitCode = await runVibeCheck(["--full", ...(cold ? ["--cold"] : [])], {
+    continuousIntegration,
     createDefinition(_invocation, selectedPlan, definitionDependencies) {
       assert.equal(selectedPlan, releasePlan);
-      assert.equal(definitionDependencies.releaseTestBatchProof?.cold, cold);
+      assert.equal(
+        definitionDependencies.releaseTestBatchProof?.cold,
+        cold || continuousIntegration
+      );
       assert.equal(
         definitionDependencies.releaseTestBatchProof
           ?.initialWorkspaceFingerprint,
@@ -99,16 +107,22 @@ test("CLI publishes auditable release test proof modes", async () => {
   await withTemporaryDirectory(
     "skills-vibe-release-proof-mode-",
     async (directory) => {
-      const reused = await runReleaseProofMode(directory, false, true);
+      const reused = await runReleaseProofMode(directory, "reused");
       assert.equal(reused.summary.releaseTestBatchProof, "reused");
       assert.ok(
         reused.information.some((message) => message.includes("reused"))
       );
 
-      const cold = await runReleaseProofMode(directory, true, false);
+      const cold = await runReleaseProofMode(directory, "explicit-cold");
       assert.equal(cold.summary.releaseTestBatchProof, "cold");
       assert.ok(
         cold.information.some((message) => message.includes("ran cold"))
+      );
+
+      const ciCold = await runReleaseProofMode(directory, "ci-cold");
+      assert.equal(ciCold.summary.releaseTestBatchProof, "cold");
+      assert.ok(
+        ciCold.information.some((message) => message.includes("ran cold"))
       );
     }
   );
