@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-UNKNOWN-OPTION-001: CLI 拒绝未知选项
 
 Tests:
-- `test:1bccbe3ca87d9a409f54544178b91348040742a54a638b322bbeac3348563b58`
+- `test:db3bf49eca53a5272dcbee6a3f30934d3759e53104da18bcca907aeb278cc5cb`
 
 Tags:
 - `decision-records`

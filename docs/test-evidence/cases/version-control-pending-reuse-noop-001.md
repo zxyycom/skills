@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-REUSE-NOOP-001: 复用已验证 pending entry 并跳过无变化发布
 
 Tests:
-- `test:2b0d0699d8b585e7e037822bc08749a343f710f2ef34528afb13f4436b6d818a`
+- `test:7d4bab19c31c2832617b09a38e52b21e89bc690d2b374731644eea8f414794a0`
 
 Tags:
 - `version-control`

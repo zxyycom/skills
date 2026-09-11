@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-FIRST-PARENT-RELATION-001: First-parent 历史外的范围不可用
 
 Tests:
-- `test:660142c11cc9f9fb83f0ee7617b7bf2a2bcdf80d6a4ee4bc3bbd99d5ac122751`
+- `test:394ba93a42ae6907c3d46ea5d88f8b04da9b72ffbf932a219b8325b2ed720da3`
 
 Tags:
 - `version-control`

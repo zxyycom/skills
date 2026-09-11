@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-DISCARD-ARCHIVED-RELATION-001: Evolve discard 接受合法的无关 archived 最终关系
 
 Tests:
-- `test:f8259949ae73a43c5e863b0096ea58e33fdfb451b979ece81bb5fb35bda28907`
+- `test:c0a7eca078cea292467ea7af2af6a2cfc6a93cf17e8d003ade1c0a9f8986ae37`
 
 Tags:
 - `decision-records`

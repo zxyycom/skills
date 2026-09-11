@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-RECORD-KEY-SCHEMA-001: State Index 只接受合法 Case ID Record Key
 
 Tests:
-- `test:8fb2ca7749d06e1b074237968f1907f8008579ecff3f5de965ecafd6cb45921b`
+- `test:a52a7a1d09e6248aa42e80348e473af99bcabd47a92a1405f8bc831820a34899`
 
 Tags:
 - `test-evidence`

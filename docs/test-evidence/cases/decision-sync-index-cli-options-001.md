@@ -1,7 +1,7 @@
 ### Case DECISION-SYNC-INDEX-CLI-OPTIONS-001: sync-index CLI 明确公开 selected scope 与写入控制
 
 Tests:
-- `test:efba6402543fda50cc4d21dd18151cc806e2d53394a1d9268fbd6ad08a5d1dde`
+- `test:6159067e404ad640d269443d2ab9b37d3557a4499cf7ddf211c17d044916128e`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-STAGING-SELECTION-001: 选择性暂存条目变化与逐条 Revision
 
 Tests:
-- `test:fd9f394e2b4d58584b0092c0f4134e6790655c9ce1aeecb24e0779613a5be569`
+- `test:6574239b8a4f7268408a86086b5b87ea39ebc7a0fb26964e2cf6906539babd64`
 
 Tags:
 - `index-runtime`

@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-ACTIVATION-SELECTION-001: 源码查询发现候选且激活只索引审核目标
 
 Tests:
-- `test:8380c40f943fa9aa849ccf157596c0585378ba85314ab11fbe3db783493d7b11`
+- `test:10742b04fe87dd1d1c0aa373c0a6cd4d386ee062b8d2c1cf8636d0e6e67a9b99`
 
 Tags:
 - `decision-records`

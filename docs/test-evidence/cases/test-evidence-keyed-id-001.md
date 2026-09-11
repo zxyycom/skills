@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-KEYED-ID-001: 领域解析以 Record Key 作为唯一 Case 身份
 
 Tests:
-- `test:8fb2ca7749d06e1b074237968f1907f8008579ecff3f5de965ecafd6cb45921b`
+- `test:a52a7a1d09e6248aa42e80348e473af99bcabd47a92a1405f8bc831820a34899`
 
 Tags:
 - `test-evidence`

@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-SELECTED-SYNC-002: selected sync 要求合法 baseline 而全量同步可修复
 
 Tests:
-- `test:fa8a44e61b80f9b3059a8fd6ebd9f91d02bd55f7275dd39f304183987903756b`
+- `test:cf75ac71d77550f4f65b5f042837ed9c36240755b7223e4096dcd5aee97c2850`
 
 Tags:
 - `index-runtime`

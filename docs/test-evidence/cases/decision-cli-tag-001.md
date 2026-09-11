@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-TAG-001: list rejects an invalid tag token
 
 Tests:
-- `test:90f1d610b89f4599645c788a974b456f064f3d3cf807025f0927e5e959c0206e`
+- `test:ddaef25cf4e923b2b75241ea75d9583d0d11e7f3a2c66cd915a30ac3e1f3e04e`
 
 Tags:
 - `decision-records`

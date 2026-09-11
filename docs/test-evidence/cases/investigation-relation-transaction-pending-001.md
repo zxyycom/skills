@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-TRANSACTION-PENDING-001: set-relations leaves Git pending unchanged
 
 Tests:
-- `test:bddbb82becbc18f39ea04e80db75a2daa78c5d7ad2337f9e7d8bf9ed2132c5d4`
+- `test:5ecc9dceb06c2d391561047db5b06b6c9c51c1fb4b6337457ef92f9336d70850`
 
 Tags:
 - `investigation-report`

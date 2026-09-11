@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-DISCARD-RECORDED-FLAG-001: Evolve discard 参数删除已记录决策而不读取 Git HEAD
 
 Tests:
-- `test:2a13c64dcf5e347ad6d2784d1d00e4ebf9436244642997f0f3963ae2816606cc`
+- `test:d957b2aca2874115e422f9b039bd3619bc054ef4c205772081981513be5585ee`
 
 Tags:
 - `decision-records`

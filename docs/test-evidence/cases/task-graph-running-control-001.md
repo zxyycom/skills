@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-RUNNING-CONTROL-001: 继承 control 的运行子任务受保护，本地覆盖使无影响的祖先编辑可提交
 
 Tests:
-- `test:e3b9cde404fb13bb4d8bcd5ee634bf9998a2f3cf89e981c365987143ad256268`
+- `test:f04e13a60a79eddf1e55b6f62b50e0394a348cf09e47225d0a6bbb763c8ffaf8`
 
 Tags:
 - `task-graph`

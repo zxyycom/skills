@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-DISCARD-EMPTY-001: Evolve discard 接受显式空的最终关系集合
 
 Tests:
-- `test:6ab5b3010a76d6ab630ef909b76831c6d966c98d58cea9ddff5f447f8aa2a3b9`
+- `test:31ba169f4e942f3283814ca5411e4bfd081230f37b38ec070b48bb9c9589c65f`
 
 Tags:
 - `decision-records`

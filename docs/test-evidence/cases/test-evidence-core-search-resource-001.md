@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-CORE-SEARCH-RESOURCE-001: 搜索阻断超过共享资源限额的 Case 正文
 
 Tests:
-- `test:59b6fc28622bf4c4e1a42d65b8c41a4ecff020dad2b8df9e0e1507ad54cdcdec`
+- `test:68a2b74307f58c33d4b42318403101fc392bd5bb7bb34b2e7fca15780c79e53c`
 
 Tags:
 - `test-evidence`

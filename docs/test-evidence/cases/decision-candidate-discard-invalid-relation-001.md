@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-DISCARD-INVALID-RELATION-001: Discard 拒绝关系目标无效的候选
 
 Tests:
-- `test:30b6c904173aef4987a002b9dacd1a22c7aef3b978f6468f1d1c78dda0e76e20`
+- `test:12136384c530c8dd56c4c5de910a43c782317d6555a098cb99d16e945d0fa699`
 
 Tags:
 - `decision-records`

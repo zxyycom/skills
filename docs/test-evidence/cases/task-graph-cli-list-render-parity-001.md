@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-LIST-RENDER-PARITY-001: 默认 CLI 文本直接渲染完整程序化 projection
 
 Tests:
-- `test:bc85221e0704ce38d0d9bd5e4f1a2e341cd3579a138eb7eea9ff41ddda60d289`
+- `test:77f0701f55ff0a05da4694be7babbbad24a670764977f4414cd3e63087979250`
 
 Tags:
 - `task-graph`

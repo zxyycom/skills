@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-DISCARD-UNBORN-001: Discard 删除 unborn Git HEAD 工作树中的候选
 
 Tests:
-- `test:6f9f791eec6030349b2473bad5a9341356947f8359dc54a3adf429f364d33d9a`
+- `test:057392b309d99deb224eba8e1326abd66606547f61a6df10d9dc318c2143f852`
 
 Tags:
 - `decision-records`

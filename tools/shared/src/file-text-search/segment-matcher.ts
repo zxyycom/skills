@@ -125,6 +125,29 @@ type OriginalSpan = Readonly<{
 
 function normalizeSegment(segment: string): NormalizedSegment {
   const normalized = segment.normalize("NFKC").toLowerCase();
+  const mapped = mapOriginalGraphemes(segment, normalized);
+  appendRemainingNormalizedText(
+    mapped.characters,
+    normalized,
+    mapped.normalizedOffset,
+    segment.length
+  );
+  trimMappedWhitespace(mapped.characters);
+  return {
+    spans: mapped.characters.flatMap(({ end, start, text }) =>
+      Array.from({ length: text.length }, () => ({ end, start }))
+    ),
+    text: mapped.characters.map(({ text }) => text).join("")
+  };
+}
+
+function mapOriginalGraphemes(
+  segment: string,
+  normalized: string
+): {
+  characters: Array<{ end: number; start: number; text: string }>;
+  normalizedOffset: number;
+} {
   const mappedCharacters: Array<{ end: number; start: number; text: string }> =
     [];
   let normalizedOffset = 0;
@@ -144,6 +167,16 @@ function normalizeSegment(segment: string): NormalizedSegment {
     }
     normalizedOffset += matchingLength;
   }
+  return { characters: mappedCharacters, normalizedOffset };
+}
+
+function appendRemainingNormalizedText(
+  mappedCharacters: Array<{ end: number; start: number; text: string }>,
+  normalized: string,
+  initialOffset: number,
+  originalLength: number
+): void {
+  let normalizedOffset = initialOffset;
   const last = mappedCharacters.at(-1);
   while (normalizedOffset < normalized.length) {
     const length = nextCodePointLength(normalized, normalizedOffset);
@@ -152,18 +185,17 @@ function normalizeSegment(segment: string): NormalizedSegment {
       mappedCharacters,
       text,
       last?.start ?? 0,
-      last?.end ?? segment.length
+      last?.end ?? originalLength
     );
     normalizedOffset += length;
   }
+}
+
+function trimMappedWhitespace(
+  mappedCharacters: Array<{ end: number; start: number; text: string }>
+): void {
   while (mappedCharacters[0]?.text === " ") mappedCharacters.shift();
   while (mappedCharacters.at(-1)?.text === " ") mappedCharacters.pop();
-  return {
-    spans: mappedCharacters.flatMap(({ end, start, text }) =>
-      Array.from({ length: text.length }, () => ({ end, start }))
-    ),
-    text: mappedCharacters.map(({ text }) => text).join("")
-  };
 }
 
 function appendNormalizedCharacter(

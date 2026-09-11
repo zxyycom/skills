@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-STAGE-DIAGNOSTIC-001: CLI stage-index preserves version-control diagnostic facts
 
 Tests:
-- `test:2e09b6188ae0a5ca704e09b0cfdabe1a491128ebe6d3c7eb8cc8b6082cf7ca4b`
+- `test:b44471e392ac8d12458348cd990154f260e4c643a76e1469f6b6420a8f35f86c`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-SELECTED-SYNC-001: selected sync accepts one Case change only after proving the full catalog
 
 Tests:
-- `test:eb43a98f7b1213a72569a1279b84082825abfa3dac6c2e62a31bbaccbac3c35b`
+- `test:9c91d146ff63257470715034bae03ea240cb7a5c46c6e9e9618c9660a569ab9d`
 
 Tags:
 - `test-evidence`

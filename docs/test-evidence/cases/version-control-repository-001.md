@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-REPOSITORY-001: 拒绝非 Git 仓库目录
 
 Tests:
-- `test:7738c965a36806c1eb7ba7c301deb1ed073a6ffbc5bfd900a1fa03534dc5fce9`
+- `test:b5503705775cb873b3a85b0a08316dc0f59781ea756ac623646de875d4d249e3`
 
 Tags:
 - `version-control`

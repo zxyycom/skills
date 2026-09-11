@@ -1,7 +1,7 @@
 ### Case DECISION-CHECK-PARITY-001: Check 保持源码、bundle 与进程 CLI 一致
 
 Tests:
-- `test:a0c119cfe2c02b160752506a517517c7d1f129e2e2d8169de8c68332c67a0e2f`
+- `test:94c7e8fe02ba5bc415a54c5d01c68e108a6d02b0fa86da0b321627485c398c63`
 
 Tags:
 - `decision-records`

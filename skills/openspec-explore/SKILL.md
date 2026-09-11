@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires openspec CLI.
 metadata:
   author: openspec
-  version: "2"
+  version: "3"
   generatedBy: "1.3.1"
 ---
 

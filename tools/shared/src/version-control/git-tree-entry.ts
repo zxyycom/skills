@@ -16,28 +16,35 @@ export function parseGitTreeEntries(output: string): GitTreeEntry[] {
     records.pop();
   }
 
-  return records.map((record) => {
-    const separatorIndex = record.indexOf("\t");
-    const metadata =
-      separatorIndex === -1
-        ? []
-        : record.slice(0, separatorIndex).split(/\s+/u);
-    const [mode, objectType, objectId] = metadata;
-    if (
-      metadata.length !== 3 ||
-      !gitTreeModePattern.test(mode ?? "") ||
-      objectType === undefined ||
-      objectType.length === 0 ||
-      !objectIdPattern.test(objectId ?? "")
-    ) {
-      throw new Error("Invalid Git tree entry");
-    }
+  return records.map(parseGitTreeRecord);
+}
 
-    return {
-      mode,
-      objectId,
-      objectType,
-      path: normalizeRepositoryPath(record.slice(separatorIndex + 1))
-    };
-  });
+function parseGitTreeRecord(record: string): GitTreeEntry {
+  const separatorIndex = record.indexOf("\t");
+  const metadata =
+    separatorIndex === -1 ? [] : record.slice(0, separatorIndex).split(/\s+/u);
+  const [mode, objectType, objectId] = metadata;
+  if (!isTreeMetadata(metadata, mode, objectType, objectId)) {
+    throw new Error("Invalid Git tree entry");
+  }
+  return {
+    mode,
+    objectId,
+    objectType,
+    path: normalizeRepositoryPath(record.slice(separatorIndex + 1))
+  };
+}
+
+function isTreeMetadata(
+  metadata: readonly string[],
+  mode: string | undefined,
+  objectType: string | undefined,
+  objectId: string | undefined
+): boolean {
+  return [
+    metadata.length === 3,
+    gitTreeModePattern.test(mode ?? ""),
+    objectType !== undefined && objectType.length > 0,
+    objectIdPattern.test(objectId ?? "")
+  ].every(Boolean);
 }

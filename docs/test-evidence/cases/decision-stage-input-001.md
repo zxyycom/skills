@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-INPUT-001: Stage 拒绝无效、重复和缺失 ID 且不改变 pending
 
 Tests:
-- `test:8148b195eba80574a0afa4deecf5b91653461e2130e0ca8300ebd00d390e97fa`
+- `test:b7696e7281d3985d884b2c0877cdc9cd7a34c8633d4f7b0686ecf7df072c8769`
 
 Tags:
 - `decision-records`

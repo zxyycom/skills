@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-REPORT-SOURCE-DRIFT-001: 回滚不覆盖外部重建的旧报告路径
 
 Tests:
-- `test:4e78eaedf5fd0094ec8a7576fa824274d445463ed2c5a02b1dc467df9262cce0`
+- `test:f680f8edb59882a32dad8d4dd20f5e4e3ad5373b941520b03c1d8052eeed9ecc`
 
 Tags:
 - `investigation-report`

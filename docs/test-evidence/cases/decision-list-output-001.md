@@ -1,7 +1,7 @@
 ### Case DECISION-LIST-OUTPUT-001: Decision CLI 分层渲染紧凑与 detail 列表
 
 Tests:
-- `test:d7374b270b5c5ca0191db3dcafe7fdd47f6a9e237fca3b4196e0da8cd53e6180`
+- `test:e95ce24d68e770d2dea6be9fd5522474fdbfade432ac2d4c98eb17832183e0e6`
 
 Tags:
 - `decision-records`

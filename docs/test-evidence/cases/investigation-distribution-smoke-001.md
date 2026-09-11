@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISTRIBUTION-SMOKE-001: generated Investigation Report CLI starts under Node with argv and stdout protocol
 
 Tests:
-- `test:63cd29daebc8c1498137b292ab1782dbcd9864a612772dda2941662b8d396357`
+- `test:0994a4f0ad24c3ca61e90b408f4f93d3b4d4289ad76cab722c77268e93976d1f`
 
 Tags:
 - `investigation-report`

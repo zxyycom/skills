@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-SYNC-SELECTOR-RAW-001: selected sync 在写入前拒绝畸形 Case ID
 
 Tests:
-- `test:6ae36ea65bdf8960dadb7af62f855af4ad6ab50c0806a06057b0d28637dcdf0a`
+- `test:8614266e2876cda0451548b38697527299ab50f1d95eb99b5ea747385584b6d0`
 
 Tags:
 - `test-evidence`

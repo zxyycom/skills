@@ -1,7 +1,7 @@
 ### Case REPO-SKILL-HASH-001: Linked source map changes do not require a version
 
 Tests:
-- `test:9151f00eef20fae6ee0d82f5add152da92a850fe14da1d83c13aee4369025977`
+- `test:7e2b5d4df4fe8640f0e628f8d3180207de29891445554535055f24f2d8a9e180`
 
 Tags:
 - `repository-tooling`

@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-STAGE-ISOLATION-001: 选择性暂存使用现有 Git 索引边界
 
 Tests:
-- `test:14993d5380123e49f45b803773114651af08c55604a206027e51e8d6e2779e6f`
+- `test:2fdf2b45de9b4a6c43902ed59ad145287dc00f1d1d6e979e8d8146716e31dfe0`
 
 Tags:
 - `test-evidence`

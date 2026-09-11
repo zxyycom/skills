@@ -1,7 +1,7 @@
 ### Case GATE-RELEASE-VERSION-FAILURE-001: prepare 或版本失败阻断打包
 
 Tests:
-- `test:171f3f455370dd43fc6c79b83889e3fc8c629d91807306ebb43656abe566f1e3`
+- `test:9393892ea086ab054699c6a7a205c010e9e810c6df33c53b3d2127c2c30d8b93`
 
 Tags:
 - `repository-tooling`

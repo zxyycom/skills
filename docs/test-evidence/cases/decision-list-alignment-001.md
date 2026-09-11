@@ -1,7 +1,7 @@
 ### Case DECISION-LIST-ALIGNMENT-001: List 按 alignment 筛选
 
 Tests:
-- `test:c7db0b98260915b0e0217881e4e9a84908f65592e4026ebeded30205c874e9e5`
+- `test:6e06242d2d4145f4257af96059feec9d4187d1edaa0f5cfdc9cbfe6ba5cdf570`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-TAG-SOURCE-DRIFT-001: Check 检测标签来源漂移并由同步接受
 
 Tests:
-- `test:93673e9b065aee8550613ab636cdf942c7bdf87724536b9a657996d05070932e`
+- `test:54b2bdb5726aa8a94e675cc7548bd72da78c6beb002ac2aee85e54ee5ede2694`
 
 Tags:
 - `decision-records`

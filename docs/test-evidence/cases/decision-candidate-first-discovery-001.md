@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-FIRST-DISCOVERY-001: 首个候选无需既有索引即可发现
 
 Tests:
-- `test:9cf4ca56878dc7d1b57ad41748391234ec4030145947cc585033abd42f30a6df`
+- `test:ee99bbf712188ad6b33526e3875d9a4b8f9c3953ea2f9063c469ce25fe84e143`
 
 Tags:
 - `decision-records`

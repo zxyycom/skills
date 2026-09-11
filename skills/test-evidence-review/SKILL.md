@@ -6,7 +6,7 @@ description: >-
   审查其 Contract 与 Proves，再维护可检索的 Case-only 账本。
   工程校验、仅运行既有测试或只修改被测对象不使用。
 metadata:
-  version: "25"
+  version: "26"
 ---
 
 # Test Evidence Review

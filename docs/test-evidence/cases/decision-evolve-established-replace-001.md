@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-ESTABLISHED-REPLACE-001: Evolve 只替换已建立记录的完整关系
 
 Tests:
-- `test:fb2c826e55bc197116868609cd2d04ade1ddcfe7cf9acc28ead79b4920d93ebb`
+- `test:0c4213d531e7410e9d8578a54093ed6ef2bebe6fd262057be61f8f7c02e6ef33`
 
 Tags:
 - `decision-records`

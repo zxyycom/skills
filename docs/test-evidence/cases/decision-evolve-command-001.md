@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-COMMAND-001: Evolve 建立单后继并保留已归档前序
 
 Tests:
-- `test:c48b002adb6b5d27c40e3f3adb3fc55c0416370808c76b5116c05622b77bc20c`
+- `test:c80550db3fff828fb74db1a17811dc59d52cfda0c2d32db2656f068ad0209e83`
 
 Tags:
 - `decision-records`

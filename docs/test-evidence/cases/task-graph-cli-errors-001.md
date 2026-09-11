@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-ERRORS-001: 各结果保持单 JSON、稳定 error code、retryable 与可读取 revision
 
 Tests:
-- `test:c83145155939071571a58060ef7be1ec5c3e6d404c1c0fee43ea5940c617071c`
+- `test:51215930e2151342c2de97eac80a10b574cf8c708bf29a659d66cb3d4d05720d`
 
 Tags:
 - `task-graph`

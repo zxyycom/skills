@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-INDEX-COMPATIBILITY-001: index rejects legacy definitions
 
 Tests:
-- `test:d3ac6d8826625a217c728508ae1ff35b3ab8b312ed48f17a73149525c6564b3d`
+- `test:53036db7216e8421d437d501c573a8afaa0e20c75dfa8ae9de7774a90fcf704e`
 
 Tags:
 - `investigation-report`

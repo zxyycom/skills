@@ -1,7 +1,7 @@
 ### Case GATE-SCRIPT-CANCELLATION-001: package-script 取消等待子进程关闭
 
 Tests:
-- `test:ce6ae4ef0af03c095c5f4e9d4638b81695bce555e122f354f19004d54d300248`
+- `test:79e82dfb169d23d5d314210d61c90136f1e32fd81a8b22b7f69b719cf62ea31d`
 
 Tags:
 - `repository-tooling`

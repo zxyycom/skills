@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-FRESHNESS-001: 检测旧源并刷新变化或移除的状态
 
 Tests:
-- `test:e941142c35924acee8ab81ae76a3aa2dd5fa6816ba2f091c9d9bdd348d722333`
+- `test:99633f74051fa0c9c3c4650e6f39a4d78a6186803845b4aab988e92247c24569`
 
 Tags:
 - `index-runtime`

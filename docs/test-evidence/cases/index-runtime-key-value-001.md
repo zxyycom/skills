@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-KEY-VALUE-001: 提取封闭查询 source 并拒绝非法 source 值
 
 Tests:
-- `test:b996313b1febbb4e0798fb76f3b6aae0ee42ca4daf6b969ff3e1d376b5af238b`
+- `test:5c109e87db759999cdc7e4c03e053db0939fd5eb84808bef8cbd19bda41a1f8f`
 
 Tags:
 - `index-runtime`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-INDEX-INTEGRITY-001: index loading rejects stale report projections
 
 Tests:
-- `test:e9b2cd20a6d7319170d6345d831568b5664271a5ec8f8f3e0783a7948f535779`
+- `test:8ca73d0168da6e0503e3e300ba4fe9990ed8da9d356bb09ae71bf32ca7de0531`
 
 Tags:
 - `investigation-report`

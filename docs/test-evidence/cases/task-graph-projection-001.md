@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-PROJECTION-001: ready 与 recovery-needed task 返回正确 actionable nextAction
 
 Tests:
-- `test:09c74b38878b76a0814bef8b8bdd2bc61f046787ced53fdabdbef0215adbd09d`
+- `test:dd879e4963f23f187a5ec42ecca3ebdf20f3dde449057f603d113894d4f87397`
 
 Tags:
 - `task-graph`

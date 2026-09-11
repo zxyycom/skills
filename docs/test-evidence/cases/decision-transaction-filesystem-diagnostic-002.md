@@ -1,7 +1,7 @@
 ### Case DECISION-TRANSACTION-FILESYSTEM-DIAGNOSTIC-002: 事务保留结构化派生索引访问诊断
 
 Tests:
-- `test:04a79ea8f42a56988a953067f2ff3b18194353c65e49463005c84d31bd8e062c`
+- `test:60bf5a4afaf3962b4fabaebbbb8176d0c85e8288f1e0788e68cc0473800e222a`
 
 Tags:
 - `decision-records`

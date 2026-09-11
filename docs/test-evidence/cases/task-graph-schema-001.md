@@ -11,3 +11,4 @@ Contract:
 
 Proves:
 - 未知字段、互斥状态组合、保留 reference key 和跨 task 重复 lease 都返回稳定结构或语义错误。
+- TaskGraphError detail 中的 boolean 保持原始 boolean，并可被 JSON 序列化而不变成字符串。

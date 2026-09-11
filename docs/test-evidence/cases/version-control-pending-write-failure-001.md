@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-WRITE-FAILURE-001: pending 写入失败后保留原范围
 
 Tests:
-- `test:1b517f180af72023da028d956a88602027af475f29141a0262d8b4a949b9a4c6`
+- `test:717e7115e37febc820324b53744558780956c2877d9cc28ab50cc53e6d3e4c8d`
 
 Tags:
 - `version-control`

@@ -116,7 +116,9 @@ export const semanticGateChecks = [
     checkId: "test:investigation-report:cli-contract",
     displayName: "Investigation Report CLI contract",
     requiredTag: undefined,
-    command: bunTest("./tools/investigation-report/tests/cli-generated.test.ts")
+    command: bunTest(
+      "./tools/investigation-report/tests/checks/cli-contract.ts"
+    )
   },
   {
     checkId: "test:task-graph:index-and-projection",
@@ -162,7 +164,7 @@ export const semanticGateChecks = [
     dependsOn: ["script:check:task-graph-cli"],
     displayName: "Task Graph public distribution",
     requiredTag: undefined,
-    command: bunTest("./tools/task-graph/tests/generated-artifacts.test.ts")
+    command: bunTest("./tools/task-graph/tests/checks/public-distribution.ts")
   },
   {
     checkId: "test:task-graph:portable-build",

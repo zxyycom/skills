@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-HISTORY-001: recorded report 与 candidate 使用各自确认 flag
 
 Tests:
-- `test:250865717a8931a5ff6d534465cfc5f3b9a14a8f7000a7f0d0e036fffd210faf`
+- `test:58095189f9e5d9aa224a013c84b7ed735aebc7b17d6b88b05260721cd8f5c26f`
 
 Tags:
 - `investigation-report`

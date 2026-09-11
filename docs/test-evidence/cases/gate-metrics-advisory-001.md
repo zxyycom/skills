@@ -1,7 +1,7 @@
 ### Case GATE-METRICS-ADVISORY-001: 指标 finding 保持 advisory，工具故障与 N/A fail closed
 
 Tests:
-- `test:4910ef99a25d4fc8d539a2f8c0b36997525f792a110ab64b9a179470f6c0b43a`
+- `test:96da15b16690f5d951944b0d47cc6afa1ad75f16cb51e4f9ae8709956cf8bb95`
 
 Tags:
 - `repository-tooling`

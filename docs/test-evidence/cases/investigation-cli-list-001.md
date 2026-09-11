@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-LIST-001: CLI list returns a current report after resource byte changes
 
 Tests:
-- `test:da6235c4b442d3cb80c97cd0705da1a6ea4eacde8c0942aca9f7f183ec2ee57b`
+- `test:b18e63da2b7398025370b7fbda89c0e3c7b25b0cae120fccceccf53c3b42df8f`
 
 Tags:
 - `investigation-report`

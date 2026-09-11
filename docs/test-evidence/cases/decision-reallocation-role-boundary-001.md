@@ -1,7 +1,7 @@
 ### Case DECISION-REALLOCATION-ROLE-BOUNDARY-001: Evolve 拒绝重划角色重叠
 
 Tests:
-- `test:b3a4206a86f369dad98624e4f10d0890e5716a63898b14e9b1a609bfdec80f25`
+- `test:abb8f2f4525dc612873272d95c1127cd785b737faf5243086476d8e3a13a11db`
 
 Tags:
 - `decision-records`

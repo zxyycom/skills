@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-STAGING-PENDING-RECOVERY-001: 以明确部分结果报告 Pending 恢复不完整
 
 Tests:
-- `test:f946066f70dad5caf3697273d03224ec18a961b6ebc88b91ad1aa6f097654344`
+- `test:1dcb2b901859ff6140228ab9f37aa09d6555653e94f1e4109f866dc410908f84`
 
 Tags:
 - `index-runtime`

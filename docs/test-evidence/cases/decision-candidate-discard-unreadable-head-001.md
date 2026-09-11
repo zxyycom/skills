@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-DISCARD-UNREADABLE-HEAD-001: Discard 在 Git HEAD 不可读取时零写入失败
 
 Tests:
-- `test:72413e552692af0810a7b435a2ec720609c9c504e614691a7f4b60cb14023ee7`
+- `test:747628d4f505f26f9c2b9f0b00f9379185879f58b6c83a83ee9da2564e97f115`
 
 Tags:
 - `decision-records`

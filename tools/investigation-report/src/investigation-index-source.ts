@@ -1,42 +1,32 @@
-import type { Dirent } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type {
   StateSnapshot,
   StateSourceRevision
 } from "../../index-runtime/src/index.ts";
-import { sanitizeInvestigationDiagnosticText } from "./diagnostics.ts";
-import {
-  hasCandidateFormalIdentityConflict,
-  investigationCandidateIdFromFileName,
-  isReservedInvestigationCandidateFileName
-} from "./candidate-path.ts";
 import {
   investigationIdFromMarkdown,
   parseInvestigationReport
 } from "./markdown.ts";
-import {
-  investigationIndexFileName,
-  isInvestigationSourcePath
-} from "./report-path.ts";
+import { compareText, uniqueSorted } from "./investigation-layout-support.ts";
+import { isInvestigationSourcePath } from "./report-path.ts";
 import { buildInvestigationReportState } from "./report-validation.ts";
-import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import {
   investigationSourceRevision,
   prepareInvestigationSources
 } from "./investigation-source-revision.ts";
+import {
+  inspectInvestigationCollectionLayout,
+  type InvestigationCollectionLayout
+} from "./investigation-layout.ts";
 import type {
   InvestigationIndexMetadata,
   InvestigationIndexState,
   InvestigationSource
 } from "./types.ts";
 
-export type InvestigationCollectionLayout = Readonly<{
-  candidateErrors: string[];
-  candidateIds: string[];
-  errors: string[];
-  reportIds: string[];
-}>;
+export { inspectInvestigationCollectionLayout };
+export type { InvestigationCollectionLayout };
 
 export async function discoverInvestigationReportIds(
   investigationsDirectory: string
@@ -46,147 +36,6 @@ export async function discoverInvestigationReportIds(
   );
   if (layout.errors.length > 0) throw new Error(layout.errors.join("; "));
   return layout.reportIds;
-}
-
-export async function inspectInvestigationCollectionLayout(
-  investigationsDirectory: string
-): Promise<InvestigationCollectionLayout> {
-  const candidateErrors: string[] = [];
-  const candidateIds: string[] = [];
-  const errors: string[] = [];
-  const formalSources: InvestigationSource[] = [];
-  let rootEntries: Dirent<string>[];
-  try {
-    rootEntries = await fs.readdir(investigationsDirectory, {
-      withFileTypes: true
-    });
-  } catch (error) {
-    throw new Error(
-      `investigation root could not be read: ${errorText(error)}`,
-      { cause: error }
-    );
-  }
-  rootEntries.sort((left, right) => compareText(left.name, right.name));
-  for (const entry of rootEntries) {
-    await inspectInvestigationRootEntry(
-      entry,
-      investigationsDirectory,
-      candidateIds,
-      candidateErrors,
-      errors,
-      formalSources
-    );
-  }
-  const reportIds = formalSources.map((source) => source.id);
-  const duplicateIds = duplicateValues(reportIds);
-  for (const id of duplicateIds) {
-    errors.push(`Investigation ID occurs in more than one source path: ${id}`);
-  }
-  const identityConflicts = hasCandidateFormalIdentityConflict(
-    reportIds,
-    candidateIds
-  );
-  return {
-    candidateErrors: uniqueSorted([...candidateErrors, ...identityConflicts]),
-    candidateIds: uniqueSorted(candidateIds),
-    errors: uniqueSorted([...errors, ...identityConflicts]),
-    reportIds: uniqueSorted(reportIds)
-  };
-}
-
-async function inspectInvestigationRootEntry(
-  entry: Dirent<string>,
-  investigationsDirectory: string,
-  candidateIds: string[],
-  candidateErrors: string[],
-  errors: string[],
-  formalSources: InvestigationSource[]
-): Promise<void> {
-  if (inspectReservedRootEntry(entry, errors)) return;
-  if (entry.isSymbolicLink()) {
-    const error = `${entry.name} must not be a symbolic link`;
-    errors.push(error);
-    if (isReservedInvestigationCandidateFileName(entry.name)) {
-      candidateErrors.push(error);
-    }
-    return;
-  }
-  if (!entry.isFile()) {
-    errors.push(`${entry.name} is not allowed at the investigation root`);
-    return;
-  }
-  const candidateId = investigationCandidateIdFromFileName(entry.name);
-  if (candidateId !== null) {
-    try {
-      const candidatePath = path.join(investigationsDirectory, entry.name);
-      const candidateText = await fs.readFile(candidatePath, "utf8");
-      const declaredId = investigationIdFromMarkdown(candidateText);
-      if (declaredId === null) {
-        const error = `${entry.name} must declare a valid frontmatter Investigation ID`;
-        candidateErrors.push(error);
-        errors.push(error);
-      } else {
-        candidateIds.push(declaredId);
-      }
-    } catch (error) {
-      const message = `${entry.name} could not be read: ${errorText(error)}`;
-      candidateErrors.push(message);
-      errors.push(message);
-    }
-    return;
-  }
-  if (isReservedInvestigationCandidateFileName(entry.name)) {
-    const error = `${entry.name} must use the reserved _candidate.<investigation-id> file name`;
-    candidateErrors.push(error);
-    errors.push(error);
-    return;
-  }
-  if (!isInvestigationSourcePath(entry.name)) {
-    errors.push(
-      `${entry.name} must be a root-level Investigation Markdown source path`
-    );
-    return;
-  }
-  const sourcePath = entry.name;
-  try {
-    const text = await fs.readFile(
-      path.join(investigationsDirectory, sourcePath),
-      "utf8"
-    );
-    const id = investigationIdFromMarkdown(text);
-    if (id === null) {
-      errors.push(
-        `${sourcePath} must declare a valid frontmatter Investigation ID`
-      );
-      return;
-    }
-    formalSources.push({ id, sourcePath, text });
-  } catch (error) {
-    errors.push(`${sourcePath} could not be read: ${errorText(error)}`);
-  }
-}
-
-function inspectReservedRootEntry(
-  entry: Dirent<string>,
-  errors: string[]
-): boolean {
-  if (entry.name === investigationResourcesDirectoryName) {
-    if (entry.isSymbolicLink() || !entry.isDirectory()) {
-      errors.push(
-        `${investigationResourcesDirectoryName} must be a directory and not a symbolic link`
-      );
-    }
-    return true;
-  }
-  if (entry.name === investigationIndexFileName) {
-    if (entry.isSymbolicLink() || !entry.isFile()) {
-      errors.push(
-        `${investigationIndexFileName} must be a regular non-symbolic-link file`
-      );
-    }
-    return true;
-  }
-  return false;
 }
 
 export async function readInvestigationSourceRevision(
@@ -345,22 +194,4 @@ async function formalInvestigationSources(
     );
   }
   return sources;
-}
-
-function duplicateValues(values: readonly string[]): string[] {
-  const counts = new Map<string, number>();
-  for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
-  return [...counts].filter(([, count]) => count > 1).map(([value]) => value);
-}
-
-function uniqueSorted(values: readonly string[]): string[] {
-  return [...new Set(values)].sort(compareText);
-}
-
-function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
-
-function errorText(error: unknown): string {
-  return sanitizeInvestigationDiagnosticText(error);
 }

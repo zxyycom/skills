@@ -7,7 +7,6 @@
  * Rebuild: bun run sync:decision-records-cli
  */
 import { type DecisionScan, type DecisionScanOptions } from "./types.mjs";
-export declare function unindexedDecisionError(indexRelativePath: string, decisionId: string): string;
+export { missingIndexedDecisionError, unindexedDecisionError } from "./scan-relations.mjs";
 export declare function decisionIndexRequiredError(indexRelativePath: string): string;
-export declare function missingIndexedDecisionError(indexRelativePath: string, decisionId: string): string;
 export declare function scanDecisionRecords(options?: DecisionScanOptions): Promise<DecisionScan>;

@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-LEDGER-INDEX-PROJECTION-001: Case 索引投影支持查询与 Tag
 
 Tests:
-- `test:f7c4dce8bcbf191958a208314365a709c8b4d8c23c72b05267da499522b01572`
+- `test:9f785c8b981a3e5eee8157a374166e6ffd1ec598e63bb0df28464827512ec9b8`
 
 Tags:
 - `test-evidence`

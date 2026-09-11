@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-ADDITION-001: 单选新 ID 表达 addition 而非改名
 
 Tests:
-- `test:0307b5fde914ec6a605bfce5b28a71ca988633cc6805d57833e6b4c19ec77639`
+- `test:7edba468217e7bf0bce3d62a8defd0676a6b0b97c2ca003ce7d8568f423ed79f`
 
 Tags:
 - `decision-records`

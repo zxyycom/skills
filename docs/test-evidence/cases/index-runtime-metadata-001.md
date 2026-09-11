@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-METADATA-001: 构建类型化元数据并冻结完整索引投影
 
 Tests:
-- `test:f4ea1bc8ef09104830483bc9c3b7e0bf03f5ec0f88bc2a8de9277d513865bb1d`
+- `test:8a140b1ce5f4c4c65ca9558821c9fa21cd5c00777a5e66a9ad112d4cbb02b669`
 
 Tags:
 - `index-runtime`

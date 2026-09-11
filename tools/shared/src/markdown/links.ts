@@ -188,7 +188,20 @@ async function validateMarkdownTarget(
   if (normalized.kind === "external") {
     return;
   }
+  const resolved = await validateInternalMarkdownPath(
+    normalized,
+    target,
+    context
+  );
+  if (resolved === null || normalized.anchor === null) return;
+  await validateMarkdownAnchor(normalized.anchor, resolved, target, context);
+}
 
+async function validateInternalMarkdownPath(
+  normalized: Extract<NormalizedMarkdownTarget, { kind: "internal" }>,
+  target: string,
+  context: MarkdownLinkValidationContext
+): Promise<string | null> {
   const resolved = normalized.pathTarget
     ? path.resolve(path.dirname(context.filePath), normalized.pathTarget)
     : context.filePath;
@@ -196,19 +209,24 @@ async function validateMarkdownTarget(
     context.report(
       `${context.relativeFilePath} links outside the validation root: ${target}`
     );
-    return;
+    return null;
   }
   if (!(await pathExists(resolved))) {
     context.report(
       `${context.relativeFilePath} has a missing link target: ${target}`
     );
-    return;
+    return null;
   }
-  if (normalized.anchor === null) {
-    return;
-  }
+  return resolved;
+}
 
-  const decodedAnchor = decodeMarkdownAnchor(normalized.anchor);
+async function validateMarkdownAnchor(
+  anchor: string,
+  resolved: string,
+  target: string,
+  context: MarkdownLinkValidationContext
+): Promise<void> {
+  const decodedAnchor = decodeMarkdownAnchor(anchor);
   if (decodedAnchor === null || decodedAnchor.length === 0) {
     context.report(
       `${context.relativeFilePath} has an invalid markdown anchor: ${target}`

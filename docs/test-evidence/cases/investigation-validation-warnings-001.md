@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-VALIDATION-WARNINGS-001: CLI trace accepts report-level direction options
 
 Tests:
-- `test:cc97eeae71e6808bbcf989da87cd985afdef95fc781a894db3ee1e2fa356cae2`
+- `test:f82faae2f91cd7d9ac0d3ca5797e6f9b8c8300ab97c0a987b9af5298e2a29b5a`
 
 Tags:
 - `investigation-report`

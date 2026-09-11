@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-STAGE-PENDING-001: CLI stage-index preserves pending transaction facts
 
 Tests:
-- `test:f2a509b258c69c7905f1b22d24756ba2eb305ad3bef712da01c623636dfe5fb4`
+- `test:a9df74f711e8a443a6a88c3e5d5d1352cee51573c528f72e9b1be2328ae935d7`
 
 Tags:
 - `investigation-report`

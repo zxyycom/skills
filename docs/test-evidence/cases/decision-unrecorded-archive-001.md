@@ -1,7 +1,7 @@
 ### Case DECISION-UNRECORDED-ARCHIVE-001: 归档尚未进入 Git HEAD 的决策前暂停并要求显式确认
 
 Tests:
-- `test:c9378c213e73968e3f0f8345f294a0292cfa366c012b3ba659c34c3ceffe94e7`
+- `test:7ee0a985a225d9374a5088d4ec5abe2af175dd6209d07f4f9cae1cdd42586d5c`
 
 Tags:
 - `decision-records`

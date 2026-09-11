@@ -1,7 +1,7 @@
 ### Case DECISION-SHOW-OUTPUT-001: Show 返回元数据并报告正文读取失败
 
 Tests:
-- `test:06159ddfa5abca71ed6803d47bf2c8744562994ac9a07e0e2b4ae1cf45443d5f`
+- `test:c5c37382a86b650ade735fe2ef9cbeb3f45e2954aff08edffc47c39fd9902315`
 
 Tags:
 - `decision-records`

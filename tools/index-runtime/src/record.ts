@@ -59,25 +59,8 @@ export function createSafeRecordSchema<
   Object.defineProperty(schema, "~run", {
     configurable: true,
     enumerable: true,
-    value: (...args: Parameters<typeof run>): ReturnType<typeof run> => {
-      const originalRecord = args[0].value;
-      const dataset = run(...args);
-      for (const issue of dataset.issues ?? []) {
-        const pathItem = issue.path?.[0];
-        if (pathItem?.type === "object" && typeof pathItem.key === "string") {
-          const originalKey = decodeRecordKey(pathItem.key);
-          Reflect.set(pathItem, "key", originalKey);
-          if (
-            isPlainRecord(originalRecord) &&
-            Object.hasOwn(originalRecord, originalKey)
-          ) {
-            Reflect.set(pathItem, "input", originalRecord);
-            Reflect.set(pathItem, "value", originalRecord[originalKey]);
-          }
-        }
-      }
-      return dataset;
-    },
+    value: (...args: Parameters<typeof run>): ReturnType<typeof run> =>
+      runAndRestoreSafeRecordIssuePaths(run, args),
     writable: true
   });
   return schema;
@@ -98,4 +81,51 @@ function encodeRecordKey(key: string): string {
 
 function decodeRecordKey(key: string): string {
   return key.slice(encodedKeyPrefix.length);
+}
+
+function restoreSafeRecordIssuePaths<Dataset extends { issues?: unknown[] }>(
+  dataset: Dataset,
+  originalRecord: unknown
+): Dataset {
+  for (const issue of dataset.issues ?? [])
+    restoreSafeRecordIssuePath(issue, originalRecord);
+  return dataset;
+}
+
+function restoreSafeRecordIssuePath(
+  issue: unknown,
+  originalRecord: unknown
+): void {
+  if (typeof issue !== "object" || issue === null) return;
+  const pathItem = (issue as { path?: unknown[] }).path?.[0];
+  if (typeof pathItem !== "object" || pathItem === null) return;
+  const item = pathItem as { key?: unknown; type?: unknown };
+  if (item.type !== "object" || typeof item.key !== "string") return;
+  const originalKey = decodeRecordKey(item.key);
+  Reflect.set(pathItem, "key", originalKey);
+  restoreIssueInput(pathItem, originalRecord, originalKey);
+}
+
+function runAndRestoreSafeRecordIssuePaths<
+  Run extends (...args: never[]) => { issues?: unknown[] }
+>(run: Run, args: Parameters<Run>): ReturnType<Run> {
+  const originalRecord = (args[0] as unknown as { value: unknown }).value;
+  return restoreSafeRecordIssuePaths(
+    run(...args),
+    originalRecord
+  ) as ReturnType<Run>;
+}
+
+function restoreIssueInput(
+  pathItem: object,
+  originalRecord: unknown,
+  originalKey: string
+): void {
+  if (
+    !isPlainRecord(originalRecord) ||
+    !Object.hasOwn(originalRecord, originalKey)
+  )
+    return;
+  Reflect.set(pathItem, "input", originalRecord);
+  Reflect.set(pathItem, "value", originalRecord[originalKey]);
 }

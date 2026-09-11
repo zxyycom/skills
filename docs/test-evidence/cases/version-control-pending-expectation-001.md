@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-EXPECTATION-001: 锁内核对期望 Pending 普通文件
 
 Tests:
-- `test:66946aeebcf03d5631057906d0256ee94f882d9a9ee52b52afd11b673c073420`
+- `test:93c25d380197401ca394de6820eeddfbef0940ff668574a0394646e772c8b443`
 
 Tags:
 - `version-control`

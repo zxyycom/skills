@@ -2,7 +2,7 @@
 name: git-commit-organizer
 description: 按一套有明确偏好的项目级风格，将可归因于当前任务的 Git 改动整理成范围准确、语义清楚且信息可追踪的提交。用于用户要求整理或创建一个或多个提交，尤其是工作区还存在其他会话、人员或自动化的并行改动时。
 metadata:
-  version: "3"
+  version: "4"
 ---
 
 # Git Commit Organizer

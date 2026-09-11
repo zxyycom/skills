@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-INDEX-CONTEXT-001: 已建立记录要求当前有效索引
 
 Tests:
-- `test:950dd348ae627ba301089353b068cd2e626eed15fb022bdd961ff0e82ae38062`
+- `test:353f9de6821384b573c51ecce527d7a4755bbbb473276c16fa58406bb6a2022f`
 
 Tags:
 - `decision-records`

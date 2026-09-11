@@ -1,7 +1,7 @@
 ### Case DECISION-LIST-FILTERS-001: 决策列表按生命周期、标签与对齐状态筛选
 
 Tests:
-- `test:abc6d8ad069f60de659370116d26f321a7aa5c1f71e434ca7a09f5062a698a1b`
+- `test:2baef4b00b0e3708ae716d0679f3c0955038b015f6d56e473ce558838168866a`
 
 Tags:
 - `decision-records`

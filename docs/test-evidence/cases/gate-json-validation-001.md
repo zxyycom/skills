@@ -1,7 +1,7 @@
 ### Case GATE-JSON-VALIDATION-001: JSON 校验阻断 finding 并对 unavailable fail closed
 
 Tests:
-- `test:64fb602c194aeb12ef589c7bb7aaf72ba6320274f55710b8fcd85bb15de3b350`
+- `test:0258860e302b2b5a8e0716b554af7fcb6caa95fa70add2b5c4795ca87fdbcfe9`
 
 Tags:
 - `repository-tooling`

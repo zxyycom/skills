@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-REMOVED-PROTOCOL-001: CLI 拒绝移除的领域和路径查询协议
 
 Tests:
-- `test:1d98ac2408a7d501d1570eb716b4ac130756e640b44b8c524877676b236b2a92`
+- `test:15766480365566de8b36183c9e2f0ad2bf084c15eedd5ca4d7c9fee15822324d`
 
 Tags:
 - `decision-records`

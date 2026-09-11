@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-METADATA-002: 序列化解析并领域验证类型化元数据
 
 Tests:
-- `test:37861cbc0fb64bdf5c222c65534fce8f09096be6f12a5544f68dc9d2391bb516`
+- `test:931200b47ee267c2cbad34f931a6d312203d1509a0977437a7a6c168a770afc6`
 
 Tags:
 - `index-runtime`

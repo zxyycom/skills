@@ -40,35 +40,14 @@ export function bindRelationSummaries(
   relations: readonly DecisionRelation[],
   summaries: readonly DecisionRelationSummary[]
 ): { relations: DecisionRelation[] } | { error: string } {
-  const summariesByTarget = new Map<string, DecisionRelationSummary>();
-  for (const summary of summaries) {
-    if (summariesByTarget.has(summary.target)) {
-      return {
-        error: "must not repeat a relation-summary target: " + summary.target
-      };
-    }
-    summariesByTarget.set(summary.target, summary);
-  }
-  const relationTargetCounts = new Map<string, number>();
-  for (const relation of relations) {
-    relationTargetCounts.set(
-      relation.target,
-      (relationTargetCounts.get(relation.target) ?? 0) + 1
-    );
-  }
-  for (const target of summariesByTarget.keys()) {
-    const count = relationTargetCounts.get(target) ?? 0;
-    if (count !== 1) {
-      return {
-        error:
-          count === 0
-            ? "relation-summary target is not in the complete relation set: " +
-              target
-            : "relation-summary target is not unique in the complete relation set: " +
-              target
-      };
-    }
-  }
+  const summariesByTarget = summariesByTargetMap(summaries);
+  if (typeof summariesByTarget === "string")
+    return { error: summariesByTarget };
+  const targetIssue = relationSummaryTargetIssue(
+    summariesByTarget,
+    relationTargetCounts(relations)
+  );
+  if (targetIssue !== null) return { error: targetIssue };
   return {
     relations: relations.map((relation) => {
       const summary = summariesByTarget.get(relation.target);
@@ -77,4 +56,42 @@ export function bindRelationSummaries(
         : { ...relation, ...summary };
     })
   };
+}
+
+function summariesByTargetMap(
+  summaries: readonly DecisionRelationSummary[]
+): Map<string, DecisionRelationSummary> | string {
+  const byTarget = new Map<string, DecisionRelationSummary>();
+  for (const summary of summaries) {
+    if (byTarget.has(summary.target)) {
+      return "must not repeat a relation-summary target: " + summary.target;
+    }
+    byTarget.set(summary.target, summary);
+  }
+  return byTarget;
+}
+
+function relationTargetCounts(
+  relations: readonly DecisionRelation[]
+): ReadonlyMap<string, number> {
+  const counts = new Map<string, number>();
+  for (const relation of relations) {
+    counts.set(relation.target, (counts.get(relation.target) ?? 0) + 1);
+  }
+  return counts;
+}
+
+function relationSummaryTargetIssue(
+  summariesByTarget: ReadonlyMap<string, DecisionRelationSummary>,
+  counts: ReadonlyMap<string, number>
+): string | null {
+  for (const target of summariesByTarget.keys()) {
+    const count = counts.get(target) ?? 0;
+    if (count === 1) continue;
+    return count === 0
+      ? "relation-summary target is not in the complete relation set: " + target
+      : "relation-summary target is not unique in the complete relation set: " +
+          target;
+  }
+  return null;
 }

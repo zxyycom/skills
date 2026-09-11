@@ -4,6 +4,14 @@ import { createInterface } from "node:readline/promises";
 import { parseArgs } from "node:util";
 import type { CliOptions, UpdaterConfig } from "./types.ts";
 
+const cliOptionDefinitions = {
+  check: { type: "boolean" },
+  help: { short: "h", type: "boolean" },
+  "release-tag": { type: "string" },
+  "target-dir": { type: "string" },
+  yes: { short: "y", type: "boolean" }
+} as const;
+
 export type UpdaterLinks = {
   latestReleaseUrl: string;
   releaseAssetUrl: string;
@@ -18,6 +26,21 @@ function defaultTargetDir(scriptPath: string): string {
   return path.basename(scriptDir) === "scripts"
     ? path.dirname(scriptDir)
     : process.cwd();
+}
+
+function defaultBooleanOption(value: boolean | undefined): boolean {
+  return value ?? false;
+}
+
+function optionalReleaseTag(value: string | undefined): string | null {
+  return value ?? null;
+}
+
+function resolveTargetDir(
+  requestedTargetDir: string | undefined,
+  scriptPath: string
+): string {
+  return path.resolve(requestedTargetDir ?? defaultTargetDir(scriptPath));
 }
 
 export function getUpdaterLinks(config: UpdaterConfig): UpdaterLinks {
@@ -67,24 +90,16 @@ export function parseCliOptions(
 ): CliOptions {
   const { values } = parseArgs({
     args: [...argv],
-    options: {
-      check: { type: "boolean" },
-      help: { short: "h", type: "boolean" },
-      "release-tag": { type: "string" },
-      "target-dir": { type: "string" },
-      yes: { short: "y", type: "boolean" }
-    },
+    options: cliOptionDefinitions,
     strict: true
   });
 
   return {
-    check: values.check ?? false,
-    help: values.help ?? false,
-    releaseTag: values["release-tag"] ?? null,
-    targetDir: path.resolve(
-      values["target-dir"] ?? defaultTargetDir(scriptPath)
-    ),
-    yes: values.yes ?? false
+    check: defaultBooleanOption(values.check),
+    help: defaultBooleanOption(values.help),
+    releaseTag: optionalReleaseTag(values["release-tag"]),
+    targetDir: resolveTargetDir(values["target-dir"], scriptPath),
+    yes: defaultBooleanOption(values.yes)
   };
 }
 

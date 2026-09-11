@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-STAGING-CONFLICT-001: 无变化选择仍拒绝同索引既有 Pending
 
 Tests:
-- `test:bee813c57e3675a5e542168b9ff58769192b75cd1244ee23000bf5d4b0b7efbf`
+- `test:5ac34c183136f030be12a19550a1f99c628cb8b50f5a7589f239e3b16456fbbe`
 
 Tags:
 - `index-runtime`

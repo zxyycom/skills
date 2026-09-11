@@ -1,11 +1,8 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 import {
   buildStateIndex,
   serializeStateIndex
 } from "../../index-runtime/src/index.ts";
-import { readInvestigationCandidate } from "./candidate.ts";
-import { investigationCandidateFilePrefix } from "./candidate-path.ts";
 import {
   createInvestigationStateSnapshot,
   inspectInvestigationCollectionLayout,
@@ -16,14 +13,16 @@ import {
   investigationIndexDiagnosticMessages,
   syncInvestigationStateIndex
 } from "./investigation-state-index.ts";
-import { parseInvestigationReport } from "./markdown.ts";
-import { buildInvestigationReportState } from "./report-validation.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
 import {
   validateFullInvestigationResources,
   type InvestigationResourceReferencesByReport
 } from "./resources.ts";
-import { investigationResourcesDirectoryName } from "./resource-reference.ts";
+import {
+  sameReferencedResourceIdentity,
+  snapshotReferencedInvestigationResources,
+  type InvestigationPublishResourceIdentity
+} from "./publish-resource-snapshot.ts";
 import {
   collectValidatedInvestigationCollection,
   unrecordedPredecessorWarnings,
@@ -31,6 +30,7 @@ import {
 } from "./validation.ts";
 import type { InvestigationIndexState, InvestigationSource } from "./types.ts";
 import type { InvestigationDiagnostic } from "./diagnostics.ts";
+import { preparePublishCandidates } from "./publish-preparation-candidates.ts";
 
 export type InvestigationPublishPreparation = Readonly<{
   candidatePaths: Map<string, string>;
@@ -45,11 +45,7 @@ export type InvestigationPublishPreparation = Readonly<{
   warnings: string[];
 }>;
 
-export type InvestigationPublishResourceIdentity = Readonly<{
-  dev: bigint;
-  id: string;
-  ino: bigint;
-}>;
+export type { InvestigationPublishResourceIdentity } from "./publish-resource-snapshot.ts";
 
 export type InvestigationPublishPreparationResult =
   | Readonly<{
@@ -66,19 +62,19 @@ export type InvestigationPublishPreparationResult =
       warnings: string[];
     }>;
 
-type PublishPreparationFailure = Extract<
+export type PublishPreparationFailure = Extract<
   InvestigationPublishPreparationResult,
   { status: "error" }
 >;
-type PublishPreparationStep<T> =
+export type PublishPreparationStep<T> =
   | PublishPreparationFailure
   | { status: "ok"; value: T };
-type FormalPublishContext = Readonly<{
+export type FormalPublishContext = Readonly<{
   formal: ValidatedInvestigationCollection;
   indexExisted: boolean;
   warnings: string[];
 }>;
-type CandidatePublishContext = FormalPublishContext & {
+export type CandidatePublishContext = FormalPublishContext & {
   candidatePaths: Map<string, string>;
   candidateSources: InvestigationSource[];
   states: Map<string, InvestigationIndexState>;
@@ -140,7 +136,7 @@ async function buildPreparedPublication(
     );
   }
 
-  const resourceSnapshot = await snapshotReferencedResources(
+  const resourceSnapshot = await snapshotReferencedInvestigationResources(
     investigationsDirectory,
     context.candidateSources.flatMap(
       (source) => requiredPublishState(context.states, source.id).resourceIds
@@ -221,88 +217,6 @@ async function prepareFormalPublishContext(
   };
 }
 
-async function preparePublishCandidates(
-  investigationsDirectory: string,
-  ids: readonly string[],
-  formal: FormalPublishContext
-): Promise<PublishPreparationStep<CandidatePublishContext>> {
-  const candidateSources: InvestigationSource[] = [];
-  const candidatePaths = new Map<string, string>();
-  const states = new Map(formal.formal.states);
-  for (const id of ids) {
-    const prepared = await preparePublishCandidate(investigationsDirectory, id);
-    if (prepared.status === "error") {
-      return preparationFailure(
-        prepared.errors,
-        prepared.diagnostics,
-        formal.warnings
-      );
-    }
-    candidatePaths.set(id, prepared.value.path);
-    candidateSources.push(prepared.value.source);
-    states.set(id, prepared.value.state);
-  }
-  return {
-    status: "ok",
-    value: { ...formal, candidatePaths, candidateSources, states }
-  };
-}
-
-async function preparePublishCandidate(
-  investigationsDirectory: string,
-  id: string
-): Promise<
-  PublishPreparationStep<{
-    path: string;
-    source: InvestigationSource;
-    state: InvestigationIndexState;
-  }>
-> {
-  const candidate = await readInvestigationCandidate(
-    investigationsDirectory,
-    id
-  );
-  if (candidate.status === "error") {
-    return preparationFailure(candidate.errors, candidate.diagnostics);
-  }
-  if (
-    !candidate.value.readiness.scaffoldValid ||
-    !candidate.value.readiness.bodyReady ||
-    !candidate.value.readiness.resourceReady ||
-    candidate.value.markdown === null
-  ) {
-    return preparationFailure([
-      `${id} investigation candidate is not ready for publish: ${candidate.value.errors.join("; ")}`
-    ]);
-  }
-  const built = buildInvestigationReportState(
-    id,
-    parseInvestigationReport(candidate.value.markdown, id),
-    `${candidateLocatorFromPath(candidate.value.path)}.md`
-  );
-  if (built.status === "invalid") return preparationFailure(built.errors);
-  return {
-    status: "ok",
-    value: {
-      path: candidate.value.path,
-      source: {
-        id,
-        sourcePath: `${candidateLocatorFromPath(candidate.value.path)}.md`,
-        text: candidate.value.markdown
-      },
-      state: built.state
-    }
-  };
-}
-
-function candidateLocatorFromPath(candidatePath: string): string {
-  const basename = path.basename(candidatePath);
-  if (!basename.startsWith(investigationCandidateFilePrefix)) {
-    throw new Error("candidate path must use the reserved candidate filename");
-  }
-  return basename.slice(investigationCandidateFilePrefix.length);
-}
-
 async function validatePublishCollection(
   investigationsDirectory: string,
   context: CandidatePublishContext
@@ -340,19 +254,12 @@ export async function resourceSnapshotStillCurrent(
   investigationsDirectory: string,
   expected: readonly InvestigationPublishResourceIdentity[]
 ): Promise<string[]> {
-  const current = await snapshotReferencedResources(
+  const current = await snapshotReferencedInvestigationResources(
     investigationsDirectory,
     expected.map((resource) => resource.id)
   );
   if (current.status === "error") return current.errors;
-  const unchanged =
-    current.value.length === expected.length &&
-    current.value.every(
-      (entry, index) =>
-        entry.id === expected[index]?.id &&
-        entry.dev === expected[index]?.dev &&
-        entry.ino === expected[index]?.ino
-    );
+  const unchanged = sameReferencedResourceIdentity(expected, current.value);
   return unchanged
     ? []
     : [
@@ -415,44 +322,7 @@ async function regularIndexExists(
   }
 }
 
-async function snapshotReferencedResources(
-  investigationsDirectory: string,
-  ids: readonly string[]
-): Promise<
-  | Readonly<{ status: "ok"; value: InvestigationPublishResourceIdentity[] }>
-  | Readonly<{ errors: string[]; status: "error" }>
-> {
-  const snapshots: InvestigationPublishResourceIdentity[] = [];
-  for (const id of [...new Set(ids)].sort(compareText)) {
-    const resourcePath = path.join(
-      investigationsDirectory,
-      investigationResourcesDirectoryName,
-      ...id.split("/")
-    );
-    try {
-      const stat = await fs.lstat(resourcePath, { bigint: true });
-      if (stat.isSymbolicLink() || !stat.isFile()) {
-        return {
-          errors: [
-            `${investigationResourcesDirectoryName}/${id} changed to an unsafe member`
-          ],
-          status: "error"
-        };
-      }
-      snapshots.push({ dev: stat.dev, id, ino: stat.ino });
-    } catch {
-      return {
-        errors: [
-          `${investigationResourcesDirectoryName}/${id} could not be rechecked before publish`
-        ],
-        status: "error"
-      };
-    }
-  }
-  return { status: "ok", value: snapshots };
-}
-
-function preparationFailure(
+export function preparationFailure(
   errors: readonly string[],
   diagnostics: readonly InvestigationDiagnostic[] = [],
   warnings: readonly string[] = []

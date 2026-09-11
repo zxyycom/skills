@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-MIGRATE-MAPPING-001: 迁移拒绝零匹配与多匹配快照实体
 
 Tests:
-- `test:2a0ad2955f411c1f13aa2e7ee74b84702751f027bd8449d45165a4c71eb7477b`
+- `test:91698e529e5d593d850d2e6849c8525228353765ebbb1719e2870f443297eeab`
 
 Tags:
 - `repository-tooling`

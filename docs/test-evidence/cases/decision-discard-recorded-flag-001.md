@@ -1,7 +1,7 @@
 ### Case DECISION-DISCARD-RECORDED-FLAG-001: Discard 参数删除已记录决策而不读取 Git HEAD
 
 Tests:
-- `test:77e8c3b4a6c3959143b3ce3d725d5d4ce3817de9cac6a2bd90e2ac2ff6f7de49`
+- `test:bd6ecd434c2f1c162430ccff1a4749974269dbe6d00eb315bb761650b92219e4`
 
 Tags:
 - `decision-records`

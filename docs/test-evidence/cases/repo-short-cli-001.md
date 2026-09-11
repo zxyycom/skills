@@ -1,7 +1,7 @@
 ### Case REPO-SHORT-CLI-001: 仓库维护短命令调用各自领域 CLI
 
 Tests:
-- `test:e0031b4978047e26123e1fadf6ba54e224b96005187513c088d23b1dab813b74`
+- `test:965695fa6dab6ed855715c7527d3d470aa04f2db0f01793adcbf155469346793`
 
 Tags:
 - `repository-tooling`

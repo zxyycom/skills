@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-FILE-011: workspace put rejects an initial physical parent outside the project
 
 Tests:
-- `test:c81f40fffadeb6a12259a2556e88d85d034a54bb05f9c8ba111e92c6a2a90bb5`
+- `test:c0b0363beb3cfd5c962c54b8c08328e1ca7686a0d567d84854872a42c25f953c`
 
 Tags:
 - `mcpshell-workspace-bridge`

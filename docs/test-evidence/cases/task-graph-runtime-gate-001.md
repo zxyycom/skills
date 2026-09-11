@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-RUNTIME-GATE-001: CLI 在参数和 apply 输入访问前统一 gate mutation
 
 Tests:
-- `test:e48a17be1ce3284e487be08767df28620fb2c71ff918792151347541bad2a9d7`
+- `test:6087ed2eef4edb946e938243b2ba814e0411b3c99e777ef7d690f373dfc830bc`
 
 Tags:
 - `task-graph`

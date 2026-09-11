@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-FILE-008: workspace put reports outcome unknown when final acknowledgment is lost
 
 Tests:
-- `test:0844cf6d2e8bb40a01bca3415c0e5895b017408857196cc567011bb3f1b311e3`
+- `test:51ceb743b83634f232d34c22c625baa32d03d12a9dc1e01ba938be5c092f3109`
 
 Tags:
 - `mcpshell-workspace-bridge`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-OWNER-RACE-001: rename 不覆盖并发出现的 resource owner target
 
 Tests:
-- `test:93d4a811fc4fbdc322c629e112d88fa4102e6e2c4254720f16042dc57194162c`
+- `test:489bcf280e97cfd654b9ab789d22c2b737bd942271b7924e471e08bea939f3e3`
 
 Tags:
 - `investigation-report`

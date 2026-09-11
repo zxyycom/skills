@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-DISCARD-REFERENCED-001: Discard 拒绝仍被引用的候选
 
 Tests:
-- `test:ffc666a28985c71112a77c3d2851b58b1fab9bdf695c385c770735923d19ee2b`
+- `test:f120cce0bbbe5127da63a9bc1c870fd9e80747c3cc4c9febb9c6e02d2bbacb12`
 
 Tags:
 - `decision-records`

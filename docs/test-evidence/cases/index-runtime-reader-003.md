@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-READER-003: 以一次修订检查打开绑定 reader
 
 Tests:
-- `test:db6222745bb7d8253082ca0f600ff21094376d9d7e4b5fb6ff76ca5c952e0521`
+- `test:0f2aaac701c01caec77f91f41f17597093082adb256bb95dc22d9b14785b1e95`
 
 Tags:
 - `index-runtime`

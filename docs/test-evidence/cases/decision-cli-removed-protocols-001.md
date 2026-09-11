@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-REMOVED-PROTOCOLS-001: CLI 拒绝已移除的拆分与位置式演进协议
 
 Tests:
-- `test:3d84453c688b6d1adf45e7cf8d04ee77203478780ec227a0d831a7daf941fabf`
+- `test:ddb58788215facce55833984f8bb379fbcd11aa674f8b24f32875b87629807e7`
 
 Tags:
 - `decision-records`

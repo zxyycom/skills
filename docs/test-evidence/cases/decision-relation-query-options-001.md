@@ -1,7 +1,7 @@
 ### Case DECISION-RELATION-QUERY-OPTIONS-001: 关系查询选项拒绝重复出现
 
 Tests:
-- `test:5a788c153c720d76613d17f662bad0b2a24d27a6cefa65790ae7c7583532797a`
+- `test:c3bf5203bcead71dcd257300c94c0ce58181b92116e4434ef016e4e043aeb284`
 
 Tags:
 - `decision-records`

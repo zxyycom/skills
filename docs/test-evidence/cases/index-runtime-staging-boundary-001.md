@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-STAGING-BOUNDARY-001: 支持首次索引与合法空目标
 
 Tests:
-- `test:68525b3c5b82e6977d441522553584902afb85930efebf5fc5aef514e31e5a8d`
+- `test:f74b063a15419c0da862f85418a81e1c5e6e37b26b4e244730f15c6f67fe3aa2`
 
 Tags:
 - `index-runtime`

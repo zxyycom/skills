@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-LEDGER-API-SYNC-001: 同步 API 区分缺失、写入与当前索引
 
 Tests:
-- `test:ab056b60618eb9a9d2f16753dde84c15e9bb203d7303f0abb047d3512911a38f`
+- `test:a712088575ce52c4523cce1923164fbf81bc6e2e1add91da556fbfaaa7534f65`
 
 Tags:
 - `test-evidence`

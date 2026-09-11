@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-STAGE-COMMITS-001: 并发 task 变化可形成独立提交
 
 Tests:
-- `test:6e4ab8e26b46d3d7ea525432d87276a586e159efca18bf6874e398723c7193c8`
+- `test:c8f0a7882cf6169322cb2aaef0eede983c5213adc5d7efd9fb7197d986eb61b5`
 
 Tags:
 - `task-graph`

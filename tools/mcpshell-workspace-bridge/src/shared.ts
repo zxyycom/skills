@@ -87,17 +87,32 @@ export async function readBridgeConfig(
     );
   }
 
+  return validateBridgeConfig(readBridgeConfigValues(source));
+}
+
+function readBridgeConfigValues(source: string): BridgeConfig {
+  const values = dotenvValues(source);
+  return {
+    backendHandle: trimmedEnvironmentValue(values, "MCPSHELL_BACKEND_HANDLE"),
+    projectRoot: trimmedEnvironmentValue(values, "MCPSHELL_PROJECT_ROOT"),
+    stagingRoot: trimmedEnvironmentValue(values, "MCPSHELL_STAGING_ROOT")
+  };
+}
+
+function dotenvValues(source: string): ReadonlyMap<string, string> {
   const values = new Map<string, string>();
   for (const line of source.split(/\r?\n/u)) {
     const parsed = dotenvValue(line);
-    if (parsed !== null) {
-      values.set(parsed[0], parsed[1]);
-    }
+    if (parsed !== null) values.set(parsed[0], parsed[1]);
   }
-  const backendHandle = values.get("MCPSHELL_BACKEND_HANDLE")?.trim() ?? "";
-  const projectRoot = values.get("MCPSHELL_PROJECT_ROOT")?.trim() ?? "";
-  const stagingRoot = values.get("MCPSHELL_STAGING_ROOT")?.trim() ?? "";
-  return validateBridgeConfig({ backendHandle, projectRoot, stagingRoot });
+  return values;
+}
+
+function trimmedEnvironmentValue(
+  values: ReadonlyMap<string, string>,
+  name: string
+): string {
+  return values.get(name)?.trim() ?? "";
 }
 
 export function validateBridgeConfig(config: BridgeConfig): BridgeConfig {

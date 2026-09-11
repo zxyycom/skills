@@ -1,7 +1,7 @@
 ### Case DECISION-SYNC-INDEX-CLEANUP-001: 当前派生索引的锁清理失败报告 no-change
 
 Tests:
-- `test:564546b7cec38cbaa422f549acb004158fd1a2c41555070540778da496ef6f8b`
+- `test:84ea2f211590b798d5601c73bc533c0d01c8d87a079bd379fe1b15db7a6aa96f`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-PENDING-EXISTING-001: Stage 拒绝已有 pending index
 
 Tests:
-- `test:78a7c123769b54bbeeb3465886217bd1c3b2569aab0542e312bf4c4a21c4c7da`
+- `test:51c409919773b2406c203b1d84da1232495a8c9813f74da75ca9813c8cbb996b`
 
 Tags:
 - `decision-records`

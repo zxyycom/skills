@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-SEMANTIC-SOURCE-PATH-002: stage ignores an invalid former ID basename after an ID keeps a semantic sourcePath
 
 Tests:
-- `test:87d5fa6e5ea3572b69b706d8b4eb0cce5ace64eb195e90a8fb468b2148c54de8`
+- `test:4351e3c8a1fc1613fd370eb6d3a9b9c35363c652d64cee55a18b14b0d6ffb788`
 
 Tags:
 - `decision-records`

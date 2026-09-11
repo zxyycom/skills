@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SEARCH-METADATA-001: search 仅读取已发布 metadata 并报告命中证据
 
 Tests:
-- `test:c6f0a13ec1db0bc7d15236c8abf4b33f7d953be33c540abcab9cf43b5752a7fa`
+- `test:1fe07f37f3acc269f14652001d01cb8c827700b51b19955d226494dbc70c5d0a`
 
 Tags:
 - `investigation-report`

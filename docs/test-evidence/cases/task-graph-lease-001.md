@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-LEASE-001: 过期 lease 只通过显式恢复 claim 接管
 
 Tests:
-- `test:a968e5a5a1c20500e09bd7c238835d9ba78d8533aac9342fa81c522aeb1b6fec`
+- `test:8a14afbf9656634900e6000381787055a4cc65b588a007bddd6525301575233e`
 
 Tags:
 - `task-graph`

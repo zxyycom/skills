@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-PATH-SYMLINK-READ-001: 拒绝经符号链接逃逸的索引读取
 
 Tests:
-- `test:a0d100d1e3966b20762212a793b80a8e055f09cf4041dd22285015ab8fa553f4`
+- `test:60e8e0d0dbe0698ed903ae0f6a39b3e1036f73f85ba83cd338ee351232a1a77d`
 
 Tags:
 - `index-runtime`

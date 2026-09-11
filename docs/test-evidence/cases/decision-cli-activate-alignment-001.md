@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-ACTIVATE-ALIGNMENT-001: Activate 要求 alignment 参数
 
 Tests:
-- `test:6aca5ec795e418505b5ec72c731a93ac4d3ddc498ddb3c1f1e7946db5555a3c4`
+- `test:4d8eaf153b6958def27b5f6ae453f7bd04cd5d0a641f3f49c88a24f23b3c8bec`
 
 Tags:
 - `decision-records`

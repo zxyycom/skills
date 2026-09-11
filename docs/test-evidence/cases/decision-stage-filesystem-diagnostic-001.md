@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-FILESYSTEM-DIAGNOSTIC-001: Stage 访问拒绝按稳定诊断输出并净化 detail
 
 Tests:
-- `test:10fde3c63a237e5d09834ad9b8944b5459de9ceb2ec6f131b194db4351deef6b`
+- `test:f5e880478a635253b953e5c68a92b7d48a87732c9692a952bc15fe9b5aa17117`
 
 Tags:
 - `decision-records`

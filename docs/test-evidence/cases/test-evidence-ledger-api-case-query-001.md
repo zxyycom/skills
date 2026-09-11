@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-LEDGER-API-CASE-QUERY-001: Case 查询按 tag/test 精确筛选并稳定分页
 
 Tests:
-- `test:3d37b638f25c203355812e9f90f34789cfaeaa0d85deb0a4e912ed396ef5ec11`
+- `test:a4b4b770f1089627bdc39037d8c83fa331cc258b318e74639811a4f157e17d47`
 
 Tags:
 - `test-evidence`

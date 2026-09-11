@@ -1,7 +1,7 @@
 ### Case DECISION-TRANSACTION-MOVE-001: 移动事务在索引替换失败后恢复
 
 Tests:
-- `test:e363e03ec23d8726a7336cbb7a796f6f79ccb704f57150b5d345609d851dc915`
+- `test:7f3364b8eb3fbbf6f87f66f248cb6ffd9f75cf4208e09a7b20fab1a1244c46bc`
 
 Tags:
 - `decision-records`

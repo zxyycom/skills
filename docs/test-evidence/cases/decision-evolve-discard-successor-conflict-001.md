@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-DISCARD-SUCCESSOR-CONFLICT-001: Evolve 拒绝同时 discard 和选择同一后继
 
 Tests:
-- `test:e07cfc0c438754842030af34a35ab0017eaa211e6d9895fb861133d88c09e9ee`
+- `test:f923315d84c40a3c680fb07ca09051597859cf00a78aab1e7a5dac05616f3e9a`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-MATERIALIZATION-001: 源顺序不影响索引序列化
 
 Tests:
-- `test:db183c4c60e4b7f6fe3149050534d84314273ae753fdc7713e66ca6c06732f8a`
+- `test:e128d64733b22d5e3b4aa46af41f8983963271367b08117fa6df0403161c0ba4`
 
 Tags:
 - `index-runtime`

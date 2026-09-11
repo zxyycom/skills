@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-HISTORICAL-SUCCESSOR-001: Evolve 在非法归档来源前零写入失败
 
 Tests:
-- `test:9b8662d5206e93d2858a9cc44fc2723ff65de03da5bf04263242e4ca445691a1`
+- `test:97cc32c2fdcf71e1ed2b4203301cca119b169272d59b600db9aadf3a7235e5a0`
 
 Tags:
 - `decision-records`

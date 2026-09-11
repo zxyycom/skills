@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-PATH-001: 路径失败返回 exit 1、单个 LF JSON 且 stderr 为空
 
 Tests:
-- `test:19084e2f9351228e1f604aee5ff1ee5b3cc79ccabbbda2237f5569e9e44cbabb`
+- `test:f3600694876855f568e566464ab796057a157901ea178e998d61dcb7bb629f40`
 
 Tags:
 - `task-graph`

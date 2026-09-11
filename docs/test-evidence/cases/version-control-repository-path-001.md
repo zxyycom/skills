@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-REPOSITORY-PATH-001: 将绝对后代路径转换为规范化仓库路径
 
 Tests:
-- `test:4746b87a78a42c8e3bb59f1bbfcb6f94ddebe974d36e4fb6bd915afa4b88b73c`
+- `test:d166eb1fe909217268e98151cb5f54d8c1fdc104cb173ce0833c0efb8c09a345`
 
 Tags:
 - `version-control`

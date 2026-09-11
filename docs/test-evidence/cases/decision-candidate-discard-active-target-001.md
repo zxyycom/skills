@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-DISCARD-ACTIVE-TARGET-001: Discard 接受指向活动目标的合法候选
 
 Tests:
-- `test:1b9285915b41850cdcd65302761e834fcbeeca168d2f956026a4b91c44dc25e4`
+- `test:c523a64e0dbc68079448e595b6609d0c6b81864d5a55cbee173fa821d2434be1`
 
 Tags:
 - `decision-records`

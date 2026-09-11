@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-SOURCE-PREFLIGHT-001: Stage 拒绝选择来源在快照后的漂移
 
 Tests:
-- `test:f5173ddbd2e3cff946f794ea5725d76e8f1ca2d5936fe918303f126549dcb5ea`
+- `test:2280a978028eee06f128b12b5e0a1cc32b15df321ead142001a5f8f8c6938704`
 
 Tags:
 - `decision-records`

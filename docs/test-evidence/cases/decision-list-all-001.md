@@ -1,7 +1,7 @@
 ### Case DECISION-LIST-ALL-001: List all 返回两种生命周期及完整时间
 
 Tests:
-- `test:b3b600178f54af4d4f842ec619e35f63c2dec529a7e5e071ed203736994bf794`
+- `test:fcb3e05e67b6b0aea8a13c821a4e81adbc663842d2bf82e288db1bf30823266d`
 
 Tags:
 - `decision-records`

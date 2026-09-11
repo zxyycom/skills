@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-ARGS-001: CLI 顶层帮助公开当前命令集合
 
 Tests:
-- `test:81ce0d94315a7f23df2004b9ff0e0ea133fe3038e12e6a2880657873689e3898`
+- `test:1435a7fb9c09ba3a296de94c51511e5e29060a00ce198f46e6a8ed9218563dbd`
 
 Tags:
 - `decision-records`

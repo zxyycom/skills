@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-LEGACY-FIELD-001: Case 语法拒绝旧 Entry 字段
 
 Tests:
-- `test:e111094bc27bf65ea450edddb7a89e28075fff24d63dda5fd52b0a9e7a23e806`
+- `test:79b5e9f8287834b2dd16b4f90d58ca6e911c2ec60b7422ea49c9be509f253c62`
 
 Tags:
 - `test-evidence`

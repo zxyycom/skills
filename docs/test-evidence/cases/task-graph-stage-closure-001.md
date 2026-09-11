@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-STAGE-CLOSURE-001: 不闭合的选择集整批拒绝
 
 Tests:
-- `test:2e108988d55b03eb2aeb147584d8a981b2369f10291db88c095c7bb06b9a0d00`
+- `test:5991f623714f8f015ebabb371205f4a41ddd3e80fb191c846ad76bf6cc80fa28`
 
 Tags:
 - `task-graph`

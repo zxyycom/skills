@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-TARGET-001: 不一致或冲突 target 零写入失败
 
 Tests:
-- `test:04bfdf3ffde5bda9199aac14a6cfef9cc496c8c0154b1beeafff59c761fbf5cb`
+- `test:1575d0c2030caddaecac64b963978c02dac4c40c345655edf344632a22eb49b7`
 
 Tags:
 - `investigation-report`

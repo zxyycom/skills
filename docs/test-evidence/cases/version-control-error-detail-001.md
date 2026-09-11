@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-ERROR-DETAIL-001: 规范化并净化结构化版本控制操作错误详情
 
 Tests:
-- `test:9669d22d0ab138a7ea011ca7d8764183e463051ce76ae690c7a6633068a99d2e`
+- `test:49ad80cf728696c14b1d3108d3a52f924c244f3e0dcb9d211e2e7349304f7ae0`
 
 Tags:
 - `version-control`

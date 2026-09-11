@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-RUNTIME-001: workspace selects operation-specific runtime deadlines
 
 Tests:
-- `test:f113dde6a42fbf4cbfd41e88fdbebff3a7c57751ef1f0503353bf075f75be6ce`
+- `test:2796922e44516e8c343fd6257fb98f2fb1b99e32420686b575341bb8c1e501d5`
 
 Tags:
 - `mcpshell-workspace-bridge`

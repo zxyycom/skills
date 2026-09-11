@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-SELECTOR-001: dated source 精确匹配且 name 歧义报错
 
 Tests:
-- `test:9171e683c2a32d8ec787e6e12c4a867cdcf3d8e64d417df8638aa5958b3eba53`
+- `test:ba658f639444e6d42d574f333ce304e776ed64f31f6d5fb915fa02784c9fcd13`
 
 Tags:
 - `investigation-report`

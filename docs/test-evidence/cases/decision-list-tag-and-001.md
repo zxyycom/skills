@@ -1,7 +1,7 @@
 ### Case DECISION-LIST-TAG-AND-001: List 对重复标签采用 AND 筛选
 
 Tests:
-- `test:7e7a5492e396819d6d0d935db96a7dfbb8f079649110f1fa3fad13768dce6648`
+- `test:dfefe87d13b7da79839791cdc6e3583be7312ff7daad4e21b156adce1af0f76a`
 
 Tags:
 - `decision-records`

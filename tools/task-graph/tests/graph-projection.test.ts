@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { ancestorIds } from "../src/graph-topology.ts";
 import {
   TaskGraphService,
   applyTaskGraphOperations,
@@ -67,6 +68,23 @@ test("graph validation rejects cycles and dangling references", () => {
       issue.includes("is missing")
     )
   );
+
+  const deep = graphIndex([taskOperation("root")]);
+  const template = structuredClone(deep.tasks["task-000001"]!);
+  for (let number = 2; number <= 8_000; number += 1) {
+    const taskId = `task-${String(number).padStart(6, "0")}`;
+    const parentId = `task-${String(number - 1).padStart(6, "0")}`;
+    deep.tasks[taskId] = {
+      ...structuredClone(template),
+      state: {
+        ...structuredClone(template.state),
+        relations: { parentId, dependsOn: {}, excludes: {} }
+      }
+    };
+  }
+  const ancestors = ancestorIds(deep, "task-008000");
+  assert.equal(ancestors.length, 7_999);
+  assert.equal(ancestors.at(-1), "task-000001");
 });
 
 test("relations enforce symmetric exclusions and reject conflicting inherited pairs", () => {

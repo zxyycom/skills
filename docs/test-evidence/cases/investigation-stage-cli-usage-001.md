@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-STAGE-CLI-USAGE-001: CLI stage-index uses invalid-option exit status without report IDs
 
 Tests:
-- `test:1d7cbea084386e5bee818e34243039799aa89a5f7e39eedf4546beaeb25ded4a`
+- `test:ed032173c89a02a9bf8abe3d9a07c902e852252aff81a0fc79f22f855da23748`
 
 Tags:
 - `investigation-report`

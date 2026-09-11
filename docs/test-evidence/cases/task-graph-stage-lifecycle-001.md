@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-STAGE-LIFECYCLE-001: 新增与删除 task 使用同一选择规则
 
 Tests:
-- `test:c9d24bb693fe816632dae14f0c002ffa0d85e2b23dafaa1ee1f27d86a7c626cc`
+- `test:5f151350e4b80b0cb97377156cddac745a1c95c9535408068dfde159a4669249`
 
 Tags:
 - `task-graph`

@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-STAGE-METADATA-001: 选择性暂存拒绝跨定义索引迁移
 
 Tests:
-- `test:02d322638a68d66fff65adb3f49893357585288b20a207540510bf7098fb473a`
+- `test:0ed768891742e00d3fbb746e3123b7555586be5ff1d184e925938f1de9eb1956`
 
 Tags:
 - `test-evidence`

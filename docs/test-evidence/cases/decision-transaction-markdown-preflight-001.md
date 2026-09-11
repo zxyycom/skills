@@ -1,7 +1,7 @@
 ### Case DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001: 决策事务拒绝并发变化的 Markdown
 
 Tests:
-- `test:f2fcb44c538f9163ecfc9fb69021c8ff59406117f81d0c8492a9df1429ccaba3`
+- `test:3b02fd8dd07b1f116d7867b5fea6bf003df6fd66959d9626e9a12d42d0507a93`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-LEGACY-001: Stage 拒绝旧领域基线
 
 Tests:
-- `test:b667b7e027d7c93cfe3622859c0b4d67ac90167fd5e3e222640e8e722a8e0006`
+- `test:6f40ec4cec12465f37839bd1c6855cead9b79ed28538301e45dcc553f71b9426`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-RELATIVE-ROOT-001: Decision CLI 从注入 cwd 解析相对 root
 
 Tests:
-- `test:0835192306ca6c934028ca2094750b2b9f18848c15e8bd4eed4416ab64b22d0d`
+- `test:12cd3ab041429070e42a3e349f837f725adbae1065860a587c91fc838ad63655`
 
 Tags:
 - `decision-records`

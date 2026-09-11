@@ -6,14 +6,6 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/task-graph
  * Rebuild: bun run sync:task-graph-cli
  */
-import type { TaskGraphProjection, TaskConstraintSource, TaskIndex, TaskProjection } from "./types.mjs";
-export declare function childrenByTask(index: TaskIndex): Map<string, string[]>;
-export declare function ancestorIds(index: TaskIndex, taskId: string): string[];
-export declare function descendantIds(index: TaskIndex, taskId: string): string[];
-export declare function effectiveControl(index: TaskIndex, taskId: string): TaskProjection["effectiveControl"];
-export declare function effectiveDependencySources(index: TaskIndex, taskId: string): TaskConstraintSource[];
-export declare function effectiveExclusionSources(index: TaskIndex, taskId: string): TaskConstraintSource[];
-export declare function projectTaskGraph(index: TaskIndex, now: Date): TaskGraphProjection;
-export declare function validateTaskIndexGraph(index: TaskIndex): string[];
-export declare function assertProtectedTopologyUnchanged(before: TaskIndex, after: TaskIndex): void;
-export declare function assertRunningControlUnchanged(before: TaskIndex, after: TaskIndex): void;
+export { childrenByTask, ancestorIds, descendantIds, effectiveControl, effectiveDependencySources, effectiveExclusionSources } from "./graph-topology.mjs";
+export { projectTaskGraph } from "./graph-projection.mjs";
+export { assertProtectedTopologyUnchanged, assertRunningControlUnchanged, validateTaskIndexGraph } from "./graph-validation.mjs";

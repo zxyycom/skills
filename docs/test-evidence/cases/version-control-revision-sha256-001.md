@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-REVISION-SHA256-001: 批量读取 SHA-256 revision 快照
 
 Tests:
-- `test:53bfd53effc2bc3041482b6ca320202f6893d490c472803be2145796ab3bab6a`
+- `test:a1c06db59f7dac4192fa64daec8b06846eca41532f2cd63d8cba2e2eaf168d2f`
 
 Tags:
 - `version-control`

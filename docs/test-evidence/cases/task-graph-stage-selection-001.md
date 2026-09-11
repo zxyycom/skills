@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-STAGE-SELECTION-001: 选中 task 使用候选条目与全局水位
 
 Tests:
-- `test:38cd6bc67c352b5a1654176399eb719bded2ff3062ae035c8b7028c3e51ab2b6`
+- `test:19f043bf7e19b626300f246898ace6b7482ae8967df1fd9a4742e90f8802516c`
 
 Tags:
 - `task-graph`

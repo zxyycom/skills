@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-STAGING-COLLECTION-001: 不读取领域源并拒绝集合级变化
 
 Tests:
-- `test:ca17f38feac03328543cd32afd039d7aec91ca2dc702e0d4a9871560d5ca20e2`
+- `test:1330c0aaf198a3008e8f21206cbc26d74e140f0f9c3d1fc28d9f3cb94994f475`
 
 Tags:
 - `index-runtime`

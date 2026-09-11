@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-QUERY-REPORT-ID-001: show and trace resolve reports by investigation id
 
 Tests:
-- `test:aaec5517234e22aedca1f16febff5ecad53357fd37c346ac4410d0b7c2b32731`
+- `test:21ba640a53ccd1acf55cd46f95a95078495c63fbd792c4c24b8727383f15cb2b`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-PROTOCOL-001: 排序查询标量并比较有序字段定义
 
 Tests:
-- `test:39c5ecabc373978cbe782c79c3ec462ad50bf6de680c4f817fdae8e67f534442`
+- `test:926d4427f5a4940b531071bbad81ecbb50cd861ad6ce2cf59da84190c044d1be`
 
 Tags:
 - `index-runtime`

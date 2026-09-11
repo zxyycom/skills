@@ -12,10 +12,15 @@ import {
   readonlyStateIndexMetadata,
   validateCompleteStateIndex
 } from "./projection.ts";
-import { compareIndexText, compareStateIndexKeyScalars } from "./ordering.ts";
 import { isPlainRecord } from "./record.ts";
 import { isStateIndexText, stateIndexQuerySchema } from "./schemas.ts";
 import { scalarIdentity } from "./key-values.ts";
+import { matchesFilter } from "./query-matching.ts";
+import {
+  compareEntries,
+  effectiveSort,
+  validateSortCardinality
+} from "./query-sorting.ts";
 import {
   materializeStateIndexEntry,
   type MaterializedStateIndexEntry
@@ -26,14 +31,11 @@ import type {
   StateIndexDefinition,
   StateIndexDiagnostic,
   StateIndexEntry,
-  StateIndexFilter,
-  StateIndexKeyScalar,
   StateIndexQuery,
   StateIndexQueryFieldDefinition,
   StateIndexQueryOutput,
   StateIndexQueryValue,
   StateIndexResult,
-  StateIndexSort,
   StateRecord
 } from "./types.ts";
 import { validateStateIndexValue } from "./validation.ts";
@@ -352,140 +354,4 @@ function validateStateIndexQueryValue(input: unknown): {
     };
   }
   return { diagnostics: [], query: parsed.output };
-}
-
-function matchesFilter(
-  entry: MaterializedStateIndexEntry<object>,
-  filter: StateIndexFilter
-): boolean {
-  const actual =
-    filter.key === "id" ? [entry.id] : (entry.queryValues[filter.key] ?? []);
-  if (filter.kind === "exists") return actual.length > 0 === filter.value;
-  if (filter.kind === "exact") {
-    const identities = new Set(actual.map(scalarIdentity));
-    switch (filter.operator) {
-      case "all":
-        return filter.values.every((value) =>
-          identities.has(scalarIdentity(value))
-        );
-      case "any":
-        return filter.values.some((value) =>
-          identities.has(scalarIdentity(value))
-        );
-      case "none":
-        return filter.values.every(
-          (value) => !identities.has(scalarIdentity(value))
-        );
-    }
-  }
-  if (filter.kind === "range") {
-    return actual.some((value) =>
-      matchesRange(value, filter.operator, filter.value)
-    );
-  }
-  const terms = unique(
-    normalizeText(filter.text).split(/\s+/u).filter(Boolean)
-  );
-  const candidates = actual
-    .filter((value): value is string => typeof value === "string")
-    .map(normalizeText);
-  return filter.operator === "all"
-    ? terms.every((term) =>
-        candidates.some((candidate) => candidate.includes(term))
-      )
-    : terms.some((term) =>
-        candidates.some((candidate) => candidate.includes(term))
-      );
-}
-
-function compareRangeScalar(
-  actual: StateIndexKeyScalar,
-  expected: number | string
-): number | null {
-  if (typeof actual !== typeof expected || typeof actual === "boolean")
-    return null;
-  return typeof actual === "number" && typeof expected === "number"
-    ? actual - expected
-    : compareIndexText(String(actual), String(expected));
-}
-function matchesRange(
-  actual: StateIndexKeyScalar,
-  operator: "eq" | "gt" | "gte" | "lt" | "lte",
-  expected: number | string
-): boolean {
-  const comparison = compareRangeScalar(actual, expected);
-  if (comparison === null) return false;
-  switch (operator) {
-    case "eq":
-      return comparison === 0;
-    case "gt":
-      return comparison > 0;
-    case "gte":
-      return comparison >= 0;
-    case "lt":
-      return comparison < 0;
-    case "lte":
-      return comparison <= 0;
-  }
-}
-function effectiveSort(query: StateIndexQueryValue): StateIndexSort[] {
-  return query.sort === undefined
-    ? [{ direction: "asc", key: "id" }]
-    : [...query.sort];
-}
-function validateSortCardinality(
-  entries: readonly MaterializedStateIndexEntry<object>[],
-  sorts: readonly StateIndexSort[]
-): StateIndexDiagnostic[] {
-  for (const sort of sorts) {
-    if (sort.key === "id") continue;
-    const multivalued = entries.find(
-      (entry) => (entry.queryValues[sort.key]?.length ?? 0) > 1
-    );
-    if (multivalued !== undefined) {
-      return [
-        diagnostic({
-          code: "state-index.sort-key-multivalued",
-          message: `key ${sort.key} has multiple values for state ${multivalued.id}`,
-          stateId: multivalued.id
-        })
-      ];
-    }
-  }
-  return [];
-}
-function compareEntries(
-  left: MaterializedStateIndexEntry<object>,
-  right: MaterializedStateIndexEntry<object>,
-  sorts: readonly StateIndexSort[]
-): number {
-  for (const sort of sorts) {
-    const leftValue =
-      sort.key === "id" ? left.id : left.queryValues[sort.key]?.[0];
-    const rightValue =
-      sort.key === "id" ? right.id : right.queryValues[sort.key]?.[0];
-    const comparison = compareOptionalScalars(
-      leftValue,
-      rightValue,
-      sort.direction
-    );
-    if (comparison !== 0) return comparison;
-  }
-  return compareIndexText(left.id, right.id);
-}
-function compareOptionalScalars(
-  left: StateIndexKeyScalar | undefined,
-  right: StateIndexKeyScalar | undefined,
-  direction: "asc" | "desc"
-): number {
-  if (left === undefined) return right === undefined ? 0 : 1;
-  if (right === undefined) return -1;
-  const comparison = compareStateIndexKeyScalars(left, right);
-  return direction === "desc" ? -comparison : comparison;
-}
-function normalizeText(value: string): string {
-  return value.normalize("NFKC").toLowerCase();
-}
-function unique<Value>(values: readonly Value[]): Value[] {
-  return [...new Set(values)];
 }

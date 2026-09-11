@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-DISCARD-RELATION-HISTORY-001: Evolve discard 参数不绕过最终关系的历史确认
 
 Tests:
-- `test:30921e0d9a20149517913676ea5aaebfab7b2d64774a6ebd811dcb2aeb4edcd5`
+- `test:ba6e872e1a22b7f42026e184b4cd670e06bcd4be5f1ff4cd7572015c52d24cf2`
 
 Tags:
 - `decision-records`

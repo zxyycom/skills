@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-DEFINITION-003: 拒绝通过原型继承的查询字段与来源属性
 
 Tests:
-- `test:94d7f2f26bc0da7de9af6b0eb66e91c36106ed661e420a2219222cc0f759fafb`
+- `test:a3dea116a1d7a7661aee5b9f30703ac5ea56729f155eeb35bd984a1853bed3a8`
 
 Tags:
 - `index-runtime`
@@ -12,3 +12,4 @@ Contract:
 Proves:
 - 仅从原型继承 `mode`、`name`、`sources` 的 field 在 definition 构造时失败。
 - 仅从原型继承 `kind` 的 source 在 definition 构造时失败。
+- 仅从原型继承的可选 `normalization` 不会被当作 descriptor 自身配置采用。

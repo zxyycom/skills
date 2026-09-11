@@ -20,38 +20,48 @@ export async function readGitBlobs(
   let offset = 0;
 
   for (const expectedObjectId of uniqueObjectIds) {
-    const headerEnd = output.indexOf(0x0a, offset);
-    if (headerEnd === -1) {
-      throw new Error(`Missing Git blob header for ${expectedObjectId}`);
-    }
-
-    const header = output.subarray(offset, headerEnd).toString("utf8");
-    const [objectId, objectType, sizeText, ...extraFields] = header.split(" ");
-    const size = Number(sizeText);
-    if (
-      extraFields.length > 0 ||
-      objectId !== expectedObjectId ||
-      objectType !== "blob" ||
-      !Number.isSafeInteger(size) ||
-      size < 0
-    ) {
-      throw new Error(`Unexpected Git blob header for ${expectedObjectId}`);
-    }
-
-    const dataStart = headerEnd + 1;
-    const dataEnd = dataStart + size;
-    if (dataEnd >= output.length || output[dataEnd] !== 0x0a) {
-      throw new Error(`Truncated Git blob content for ${expectedObjectId}`);
-    }
-
-    blobs.set(objectId, output.subarray(dataStart, dataEnd));
-    offset = dataEnd + 1;
+    const record = parseGitBlobRecord(output, offset, expectedObjectId);
+    blobs.set(record.objectId, record.data);
+    offset = record.nextOffset;
   }
 
   if (offset !== output.length) {
     throw new Error("Unexpected trailing Git blob batch output");
   }
   return blobs;
+}
+
+function parseGitBlobRecord(
+  output: Buffer,
+  offset: number,
+  expectedObjectId: string
+): Readonly<{ data: Buffer; nextOffset: number; objectId: string }> {
+  const headerEnd = output.indexOf(0x0a, offset);
+  if (headerEnd === -1) {
+    throw new Error(`Missing Git blob header for ${expectedObjectId}`);
+  }
+  const header = output.subarray(offset, headerEnd).toString("utf8");
+  const [objectId, objectType, sizeText, ...extraFields] = header.split(" ");
+  const size = Number(sizeText);
+  if (
+    extraFields.length > 0 ||
+    objectId !== expectedObjectId ||
+    objectType !== "blob" ||
+    !Number.isSafeInteger(size) ||
+    size < 0
+  ) {
+    throw new Error(`Unexpected Git blob header for ${expectedObjectId}`);
+  }
+  const dataStart = headerEnd + 1;
+  const dataEnd = dataStart + size;
+  if (dataEnd >= output.length || output[dataEnd] !== 0x0a) {
+    throw new Error(`Truncated Git blob content for ${expectedObjectId}`);
+  }
+  return {
+    data: output.subarray(dataStart, dataEnd),
+    nextOffset: dataEnd + 1,
+    objectId
+  };
 }
 
 function runGitBufferWithInput(

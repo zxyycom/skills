@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-PROTOTYPE-001: Prototype-like command 和 option 被拒绝
 
 Tests:
-- `test:b24981cf5ec39866055cf2cbe44788d540c7b6460f79f98e0697f14e819bcae2`
+- `test:ddd02eaee681fae5fdb15f3f23740498b85d0691cc0a4a13b0e55c389feb793a`
 
 Tags:
 - `task-graph`

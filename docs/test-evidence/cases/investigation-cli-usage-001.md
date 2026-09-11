@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-USAGE-001: CLI 暴露有界 list 参数并拒绝畸形或重复输入
 
 Tests:
-- `test:8465fa71b4f43318fbba3469f7a9ad1f3884416c71a809032537165c01cad536`
+- `test:9686b1ef1738ac65bec6abae47b3caac38e50beb8a68e0d9373e3662cf6ecae4`
 
 Tags:
 - `investigation-report`

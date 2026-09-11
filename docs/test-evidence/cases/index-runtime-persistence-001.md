@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-PERSISTENCE-001: 快速拒绝不兼容索引并完整解析损坏投影
 
 Tests:
-- `test:e26221e52adce6ac501f6767d2212b6c7bbcf842284064b43b42128ba8ff5892`
+- `test:bcebc12462d6293871c5d253c9e73c0ed59c80b52b1c149a102c9466115a0623`
 
 Tags:
 - `index-runtime`

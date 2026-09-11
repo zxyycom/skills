@@ -168,43 +168,45 @@ function structuralConsistencyIssues(
   graph: DecisionRelationGraph,
   structuralIssues: readonly StructuralRelationIssue[]
 ): DecisionRelationConsistencyIssue[] {
-  const issues: DecisionRelationConsistencyIssue[] = [];
-  for (const issue of structuralIssues) {
-    switch (issue.kind) {
-      case "missing-target":
-        break;
-      case "self-edge": {
-        const source = graph.recordById.get(issue.edge.source);
-        issues.push({
-          message:
-            (source?.sourcePath ?? issue.edge.source) +
-            " must not relate to itself",
-          sourceIds: [issue.edge.source]
-        });
-        break;
-      }
-      case "duplicate-edge": {
-        const source = graph.recordById.get(issue.edge.source);
-        issues.push({
-          message:
-            (source?.sourcePath ?? issue.edge.source) +
-            " repeats relationship target " +
-            issue.edge.target,
-          sourceIds: [issue.edge.source]
-        });
-        break;
-      }
-      case "cycle":
-        issues.push({
-          message:
-            "Decision relations must not form a cycle: " +
-            issue.cycle.join(" -> "),
-          sourceIds: issue.cycle.slice(0, -1)
-        });
-        break;
-    }
+  return structuralIssues.flatMap((issue) =>
+    structuralConsistencyIssue(graph, issue)
+  );
+}
+
+function structuralConsistencyIssue(
+  graph: DecisionRelationGraph,
+  issue: StructuralRelationIssue
+): DecisionRelationConsistencyIssue[] {
+  if (issue.kind === "missing-target") {
+    return [];
   }
-  return issues;
+  if (issue.kind === "cycle") {
+    return [
+      {
+        message:
+          "Decision relations must not form a cycle: " +
+          issue.cycle.join(" -> "),
+        sourceIds: issue.cycle.slice(0, -1)
+      }
+    ];
+  }
+  return [relationEdgeStructuralIssue(graph, issue)];
+}
+
+function relationEdgeStructuralIssue(
+  graph: DecisionRelationGraph,
+  issue: Extract<
+    StructuralRelationIssue,
+    { kind: "self-edge" | "duplicate-edge" }
+  >
+): DecisionRelationConsistencyIssue {
+  const source = graph.recordById.get(issue.edge.source);
+  const message =
+    (source?.sourcePath ?? issue.edge.source) +
+    (issue.kind === "self-edge"
+      ? " must not relate to itself"
+      : " repeats relationship target " + issue.edge.target);
+  return { message, sourceIds: [issue.edge.source] };
 }
 
 function sourceRelationShapeIssues(
@@ -214,46 +216,77 @@ function sourceRelationShapeIssues(
   for (const [sourceId, sourceEdges] of [...graph.edgesBySource.entries()].sort(
     ([left], [right]) => left.localeCompare(right)
   )) {
-    const splitEdges = sourceEdges.filter((edge) => edge.type === "拆分");
-    if (splitEdges.length > 0 && sourceEdges.length !== 1) {
-      issues.push({
-        message:
-          "Decision 拆分 successor must have exactly one direct 拆分 " +
-          "relation and no other relations: " +
-          sourceId,
-        sourceIds: [sourceId]
-      });
-    }
-    const reallocationEdges = sourceEdges.filter(
-      (edge) => edge.type === "重划"
-    );
-    if (
-      reallocationEdges.length > 0 &&
-      sourceEdges.length !== reallocationEdges.length
-    ) {
-      issues.push({
-        message:
-          "Decision 重划 successor must have at least one direct 重划 " +
-          "relation and no other relations: " +
-          sourceId,
-        sourceIds: [sourceId]
-      });
-    }
-    if (
-      sourceEdges.length > 0 &&
-      sourceEdges.every((edge) => edge.type === "归并") &&
-      sourceEdges.length < 2
-    ) {
-      issues.push({
-        message:
-          "Decision pure 归并 relation set must have at least two direct " +
-          "predecessors: " +
-          sourceId,
-        sourceIds: [sourceId]
-      });
-    }
+    issues.push(...sourceRelationShapeIssuesFor(sourceId, sourceEdges));
   }
   return issues;
+}
+
+function sourceRelationShapeIssuesFor(
+  sourceId: DecisionId,
+  sourceEdges: readonly DecisionRelationEdge[]
+): DecisionRelationConsistencyIssue[] {
+  return [
+    splitSourceRelationShapeIssue(sourceId, sourceEdges),
+    reallocationSourceRelationShapeIssue(sourceId, sourceEdges),
+    mergeSourceRelationShapeIssue(sourceId, sourceEdges)
+  ].flatMap((issue) => (issue === null ? [] : [issue]));
+}
+
+function splitSourceRelationShapeIssue(
+  sourceId: DecisionId,
+  sourceEdges: readonly DecisionRelationEdge[]
+): DecisionRelationConsistencyIssue | null {
+  const splitEdges = sourceEdges.filter((edge) => edge.type === "拆分");
+  if (splitEdges.length === 0 || sourceEdges.length === 1) {
+    return null;
+  }
+  return sourceRelationShapeIssue(
+    "Decision 拆分 successor must have exactly one direct 拆分 " +
+      "relation and no other relations: ",
+    sourceId
+  );
+}
+
+function reallocationSourceRelationShapeIssue(
+  sourceId: DecisionId,
+  sourceEdges: readonly DecisionRelationEdge[]
+): DecisionRelationConsistencyIssue | null {
+  const reallocationEdges = sourceEdges.filter((edge) => edge.type === "重划");
+  if (
+    reallocationEdges.length === 0 ||
+    sourceEdges.length === reallocationEdges.length
+  ) {
+    return null;
+  }
+  return sourceRelationShapeIssue(
+    "Decision 重划 successor must have at least one direct 重划 " +
+      "relation and no other relations: ",
+    sourceId
+  );
+}
+
+function mergeSourceRelationShapeIssue(
+  sourceId: DecisionId,
+  sourceEdges: readonly DecisionRelationEdge[]
+): DecisionRelationConsistencyIssue | null {
+  const isInvalidMergeSet =
+    sourceEdges.length > 0 &&
+    sourceEdges.every((edge) => edge.type === "归并") &&
+    sourceEdges.length < 2;
+  return isInvalidMergeSet
+    ? sourceRelationShapeIssue(
+        "Decision pure 归并 relation set must have at least two direct " +
+          "predecessors: ",
+        sourceId
+      )
+    : null;
+}
+
+function sourceRelationShapeIssue(
+  message: string,
+  sourceId: DecisionId
+): DecisionRelationConsistencyIssue {
+  return { message: message + sourceId, sourceIds: [sourceId] };
 }
 
 function splitTargetConsistencyIssues(

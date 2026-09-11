@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001: Evolve 要求至少一个后继参数
 
 Tests:
-- `test:8bff62c4c7300c7b9a9131d6c140fab5cc21bb31de30bfdbea3fb11d079f1faa`
+- `test:90d8cf5033efe39592ec588c104525ec99a5e6780579e1b2fc51aa250adaba7b`
 
 Tags:
 - `decision-records`

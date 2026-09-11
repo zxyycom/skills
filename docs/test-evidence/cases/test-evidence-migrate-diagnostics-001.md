@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-MIGRATE-DIAGNOSTICS-001: 迁移汇总所有未映射旧 Entry
 
 Tests:
-- `test:f0ca94f3dd86b7573b495cff6dda1158fc07225907e7fa27f28892e0556d205d`
+- `test:d0f2af7878f2d26beb04cad4da0d02089bee19b3463356ef8232ae8d7e97957d`
 
 Tags:
 - `repository-tooling`

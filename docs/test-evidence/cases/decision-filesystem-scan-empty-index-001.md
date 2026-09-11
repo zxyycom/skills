@@ -1,7 +1,7 @@
 ### Case DECISION-FILESYSTEM-SCAN-EMPTY-INDEX-001: Scan 报告空索引诊断
 
 Tests:
-- `test:0851082b6763774ee3e88e34e8e3ea2b4b3fff8fd2c18b5a02d897ba1b16c13a`
+- `test:6bab8040bb587be9751637545b4ac390be5505827af7429eceb2852383b39f51`
 
 Tags:
 - `decision-records`

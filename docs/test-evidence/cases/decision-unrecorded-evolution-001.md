@@ -1,7 +1,7 @@
 ### Case DECISION-UNRECORDED-EVOLUTION-001: 尚未进入 Git HEAD 的决策演进等待显式确认
 
 Tests:
-- `test:5def58d12b37992981e28d7af48003182fae5810e369f6d3be4a94f04580fbe8`
+- `test:7a677936f17f01e603c6e8ef7d48f462e99d83af9790396349ab47d0999a9606`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-BOOTSTRAP-001: Stage 建立第一份 pending 决策集合
 
 Tests:
-- `test:c756c7684f0ce35c37cf31f05b70b706a061a982a98a714cf0f023df665b4c4e`
+- `test:2705df5c1a5e32a17b664024d8001033aafa66d4e3fd600912755514a87c841c`
 
 Tags:
 - `decision-records`

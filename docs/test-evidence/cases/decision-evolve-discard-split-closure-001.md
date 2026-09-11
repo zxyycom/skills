@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-DISCARD-SPLIT-CLOSURE-001: Evolve 用完整拆分闭包替换被 discard 的后继
 
 Tests:
-- `test:90cccbb0e797a894cc90df95e20f3f2e5618f6074ac5ff07319c8d793ef0b66f`
+- `test:29e6b1fabffb1f68e21ab377278f685bd72f68390f2e2a08bb0a7f23467d3864`
 
 Tags:
 - `decision-records`

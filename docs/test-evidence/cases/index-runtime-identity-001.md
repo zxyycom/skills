@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-IDENTITY-001: 解析 State 前拒绝非法 ID 与 Revision 成员差异
 
 Tests:
-- `test:c633f845c328313eeb0e3c351ff470c9040680f241c886a309e6756639bc9103`
+- `test:832df0fc0f74a93bed1007721467378c1012eff850171237fca61e84f02591f4`
 
 Tags:
 - `index-runtime`

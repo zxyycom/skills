@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-HELP-CATALOG-001: 每个规范命令都有可恢复的结构化 help
 
 Tests:
-- `test:57fc1f63183d3f7cdb29c41c8ae5ee3c2ae17b93e50f59aa8424c2d717202d7f`
+- `test:60840e0eee31f6f601a8b0d729e8e6d03ebc93db9834ad607b4d3cfeec14962b`
 
 Tags:
 - `task-graph`

@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-STATES-001: 分离读取 pending 索引内容与 workspace 状态
 
 Tests:
-- `test:b94b3cd2503ab05e878d7c6d711ac428a07d8a6387792634b0f540585b83ed5c`
+- `test:c87770d8bb65af929a33b55da66c89029b2b3b331cbfa673390988578ae4d814`
 
 Tags:
 - `version-control`

@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-STAGE-OVERLAY-001: 选择性暂存组合新增删除与显式重命名
 
 Tests:
-- `test:d801711512922fb2e06b04b6e31e824648321c287b9924e799a2db57ffcfe5f1`
+- `test:19adcf9a6fe73884f6fa44f1621c304383aa8ed9b28de46863d5495ce467b4c2`
 
 Tags:
 - `test-evidence`

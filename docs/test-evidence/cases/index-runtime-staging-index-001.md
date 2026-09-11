@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-STAGING-INDEX-001: 暂存前严格拒绝无效输入索引
 
 Tests:
-- `test:6ef9521372ae6e0bd69fe045fc19e34bf0dcf9804125407e6a3fd98158a003ed`
+- `test:7da5f7cdb29df818937da3d81e530977046c1be6d0cb49cff72474eef476179f`
 
 Tags:
 - `index-runtime`

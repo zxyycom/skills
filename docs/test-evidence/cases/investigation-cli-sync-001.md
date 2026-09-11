@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-SYNC-001: CLI sync-index writes a missing derived index
 
 Tests:
-- `test:9de4b2549abf9b3e9066e96cc43bed22845c5d08f8fbb0f7aebbcfe2491898df`
+- `test:287ae6855f144414455627b00f8aa72d060b667839d3de60f18e3a860a2402f5`
 
 Tags:
 - `investigation-report`

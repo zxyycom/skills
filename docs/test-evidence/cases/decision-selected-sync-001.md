@@ -1,7 +1,7 @@
 ### Case DECISION-SELECTED-SYNC-001: selected sync accepts one Decision change only after proving the complete collection
 
 Tests:
-- `test:637f298a074306a2b7ab11f15ced6f01f4c88da53a0ab1681f17f612f9dfd534`
+- `test:13220f079eee00448e089accf868d0606044a35c99a750f4c6889361b8b204ea`
 
 Tags:
 - `decision-records`

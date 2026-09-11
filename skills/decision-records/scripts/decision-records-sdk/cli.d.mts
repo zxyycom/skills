@@ -8,8 +8,8 @@
  */
 import { type DecisionRecordsCliIo } from "./cli-io.mjs";
 import { renameDecisionRecord } from "./decision-rename.mjs";
-import { validateDecisionRecords } from "./index.mjs";
 import { scanDecisionRecords } from "./scan.mjs";
+import { validateDecisionRecords } from "./index.mjs";
 export type DecisionRecordsCliOptions = {
     cwd?: string;
     io?: DecisionRecordsCliIo;

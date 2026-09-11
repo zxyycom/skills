@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CANCEL-001: 取消集合确定且已成功子任务保留
 
 Tests:
-- `test:e55d9dbd8ef60b8bf30f19f29743896c82821795579c9683409aac3488adb38b`
+- `test:80f751188290fe3c77b2bf0f1e5990f95547442d82e155377db48aa6b329e08c`
 
 Tags:
 - `task-graph`

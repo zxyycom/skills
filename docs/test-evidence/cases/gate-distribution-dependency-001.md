@@ -1,7 +1,7 @@
 ### Case GATE-DISTRIBUTION-DEPENDENCY-001: Public distribution Checks 依赖当前生成 Check
 
 Tests:
-- `test:5bbdbca731bbdc2d2164c1b5dcca60e4b661d5eded2dd0a93ea7e9be9054c449`
+- `test:1373d858c910cb96d5feb720c97618ac622d32e3f67c5f48ede9a810f0cee70e`
 
 Tags:
 - `repository-tooling`

@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-VERSION-001: Version 使用 JSON 协议报告 3.1.0
 
 Tests:
-- `test:9984c414b7b8aa79665cbd2fb167715747299e6a5f8b3c203458a9c974e603a0`
+- `test:ca9a93cea9584b0021c96070c1b3a2e2cd36cd3eb60f5fd012c39abe9dcc0441`
 
 Tags:
 - `task-graph`

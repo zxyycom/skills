@@ -65,10 +65,7 @@ function parseRevisionTokens(
 
   for (const token of tokens) {
     if (expectingHeader) {
-      if (token.length === 0) {
-        throw parseError();
-      }
-      const header = parseRevisionHeader(token);
+      const header = parseExpectedRevisionHeader(token);
       if (header.parents[0] !== expectedParent) {
         return null;
       }
@@ -81,9 +78,7 @@ function parseRevisionTokens(
     }
 
     if (expectingChangeSeparator) {
-      if (token !== "") {
-        throw parseError();
-      }
+      assertChangeSeparator(token);
       expectingChangeSeparator = false;
       continue;
     }
@@ -93,13 +88,7 @@ function parseRevisionTokens(
       expectingHeader = true;
       continue;
     }
-    if (current === null) {
-      throw parseError();
-    }
-
-    const record =
-      current.changes.length === 0 ? removeFirstChangePrefix(token) : token;
-    current.changes.push(parseNumstatRecord(record));
+    appendRevisionChange(current, token);
   }
 
   return {
@@ -108,6 +97,25 @@ function parseRevisionTokens(
     expectingHeader,
     revisions
   };
+}
+
+function parseExpectedRevisionHeader(token: string): RevisionHeader {
+  if (token.length === 0) throw parseError();
+  return parseRevisionHeader(token);
+}
+
+function assertChangeSeparator(token: string): void {
+  if (token !== "") throw parseError();
+}
+
+function appendRevisionChange(
+  current: VersionControlRevisionChange | null,
+  token: string
+): void {
+  if (current === null) throw parseError();
+  const record =
+    current.changes.length === 0 ? removeFirstChangePrefix(token) : token;
+  current.changes.push(parseNumstatRecord(record));
 }
 
 function validateRevisionParseResult(result: RevisionParseResult): void {

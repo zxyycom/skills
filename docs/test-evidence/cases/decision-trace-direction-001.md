@@ -1,7 +1,7 @@
 ### Case DECISION-TRACE-DIRECTION-001: Trace 遵循前序与后继方向
 
 Tests:
-- `test:fa0dc75e0c739f4363c27bd300efe1a39857b5057597feb4e70565eccdbb1e5f`
+- `test:60b984b5187edc6874f253a718d1eadc151941e3581bf0de9d2845fdc93d9e95`
 
 Tags:
 - `decision-records`

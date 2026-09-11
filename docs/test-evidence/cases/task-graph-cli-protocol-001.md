@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-PROTOCOL-001: Root help 暴露命令目录、runtime 前置与全局 JSON option
 
 Tests:
-- `test:e0ecd5fd95bf9bd11d39b517732343b7f6b9209c24f49b261cdf120e2fe5b7cd`
+- `test:e55a22ce5f46c5cf0b4cfb32b5e57572c68691c92da8bbf96b9b6b7605d3f080`
 
 Tags:
 - `task-graph`

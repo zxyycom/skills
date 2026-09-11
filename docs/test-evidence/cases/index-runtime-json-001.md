@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-JSON-001: 拒绝非 JSON 状态与解析器输出
 
 Tests:
-- `test:ace6890ac34639bdb3de2abe93ec08e164f5c37e35100e627014e8cb19315a1c`
+- `test:8c2886182780058fff30a1f5d296bb6cbd9cfba490dd0eed566ff7fa2fa8a268`
 
 Tags:
 - `index-runtime`

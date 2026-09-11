@@ -1,7 +1,7 @@
 ### Case DECISION-ACTIVATE-ESTABLISHED-RELATIONS-001: Activate 不修订已建立记录的关系
 
 Tests:
-- `test:aea5384b0fb2268db61b1a03672e11dfc0640bf38b2c37e24c54cf11170dfb39`
+- `test:61a6f7750a0c945a61295a36809a14e89e76ea5704cc36ea2a34eff31def52e1`
 
 Tags:
 - `decision-records`

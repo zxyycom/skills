@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  TaskGraphError,
   applyTaskGraphOperations,
   emptyTaskIndex,
   parseTaskGraphApplyRequest,
@@ -69,6 +70,16 @@ test("strict schema rejects unknown fields, illegal state unions, and duplicate 
       }),
     "REQUEST_INVALID"
   );
+
+  const error = new TaskGraphError("ARGUMENT_INVALID", "boolean details", {
+    accepted: true,
+    rejected: false
+  });
+  assert.deepEqual(error.details, { accepted: true, rejected: false });
+  assert.deepEqual(JSON.parse(JSON.stringify(error.details)), {
+    accepted: true,
+    rejected: false
+  });
 });
 
 test("canonical serialization keeps root task identity, sorting, LF, and round trip", () => {

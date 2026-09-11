@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-MARK-ALIGNED-HELP-001: Mark-aligned 帮助要求核验当前事实
 
 Tests:
-- `test:eda6a31f4ddb72a4058f32a5fb1698b9283ae086a846e76bef69d688a05fe778`
+- `test:f411ee275d5015347fe21455b16b5e98d76fe3459f26e4f5923ee8e6c688b604`
 
 Tags:
 - `decision-records`

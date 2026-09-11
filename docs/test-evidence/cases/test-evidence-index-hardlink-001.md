@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-INDEX-HARDLINK-001: Case 硬链接身份冲突被拒绝
 
 Tests:
-- `test:eaf9c37bfd8a52a047c6681b37b9817c66705bf13bfeb3e7d1a335dd02ee2ea9`
+- `test:a42bd9f5ae2086a565eec8f0146d8b6078d98df48da6cfc3875b4d742d9cc18d`
 
 Tags:
 - `test-evidence`

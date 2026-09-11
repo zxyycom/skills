@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-GLOBAL-FAILURE-001: 全局参数解析 failure 使用 revision-null JSON
 
 Tests:
-- `test:ea1067987c43a8925469b7db161b818411a400aedac624acdaa2ac89cd94141a`
+- `test:b53cc166d6a5e4fe3a340be0786fe534ae3953de44ec4f80366a9c6768308888`
 
 Tags:
 - `task-graph`

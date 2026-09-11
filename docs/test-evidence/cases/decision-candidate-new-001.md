@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-NEW-001: New 创建规范未完成 scaffold 且不建立记录
 
 Tests:
-- `test:88bddff5c96ff653d55722a63ff3613a73a90dee5f966d43851fb7c3c5e80565`
+- `test:81b6e77dfff3b8da3549e9f85e89e552557c9e075c9ee6658a7a6de3684dde55`
 
 Tags:
 - `decision-records`

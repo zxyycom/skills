@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-EMPTY-INDEX-001: 空索引阻断唯一候选的查询
 
 Tests:
-- `test:6d37913f5be3c2f76e9de509b11bfb748e10d9195992d6d96530a4e134f2fea0`
+- `test:ce133d48c9b588030f0cae6943404613dcbab55f9a5fc65ac65c289cf655cf51`
 
 Tags:
 - `decision-records`

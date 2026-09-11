@@ -1,7 +1,7 @@
 ### Case DECISION-TAGGED-LAYOUT-CHECK-001: 标签化根目录与归档记录的严格 Check
 
 Tests:
-- `test:bdb3d2244d15149737e3f748cf28dfe0bd7959f823d8eb53ac9a0b8981305d0b`
+- `test:051f816d6a02f84620a835b7e8ab384f56d97ec147311f4cf973373d2f20a4ae`
 
 Tags:
 - `decision-records`

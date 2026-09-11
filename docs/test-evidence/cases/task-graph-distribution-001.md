@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-DISTRIBUTION-001: 分发制品与源码公共契约一致
 
 Tests:
-- `test:adb7f735703c31cc39a24129fc36a7d20b4efdfa353958757272edf814a9d446`
+- `test:8c3e7d65b49480978dd036c80ac0ed0489720cfeb441671986a89dec173ffc75`
 
 Tags:
 - `task-graph`

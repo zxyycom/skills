@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-MOVE-001: 按 sourcePath 暂存选择的 ID 移动
 
 Tests:
-- `test:865ae269438d8c074591b0ba74352a4ffa5f6ddf8dd269f00647b639b2a6a68e`
+- `test:d6c5b6a134f6e486713495e46865c80ad6cd1234061a752a98a0f4860d7f1030`
 
 Tags:
 - `decision-records`

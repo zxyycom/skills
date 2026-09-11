@@ -246,13 +246,12 @@ function indexDiagnosticTarget(
   fallback: string
 ): string {
   const filesystemTarget = diagnostic.filesystem?.target;
-  return (
-    (filesystemTarget === null || filesystemTarget === undefined
+  const filesystemDetail =
+    filesystemTarget === null || filesystemTarget === undefined
       ? null
-      : operationErrorDetail(filesystemTarget)) ??
-    diagnostic.path ??
-    fallback
-  );
+      : operationErrorDetail(filesystemTarget);
+  if (filesystemDetail !== null) return filesystemDetail;
+  return diagnostic.path ?? fallback;
 }
 
 function recoveryForIndexFilesystemCause(

@@ -1,172 +1,27 @@
-import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
-import { performance } from "node:perf_hooks";
-import writeFileAtomic from "write-file-atomic";
 import { TaskGraphError } from "./errors.ts";
-import { loadNativeLockBinding, type NativeLockBinding } from "./runtime.ts";
+import { type NativeLockBinding } from "./runtime.ts";
 import {
   emptyTaskIndex,
   parseTaskIndex,
   serializeTaskIndex
 } from "./schema.ts";
+import { type TaskIndex, type TaskIndexInfo } from "./types.ts";
+import type {
+  AtomicWrite,
+  LockHandle,
+  TaskGraphStoreOptions,
+  TaskIndexRead
+} from "./store-contract.ts";
 import {
-  defaultTaskGraphIndexPath,
-  type JsonObject,
-  type TaskIndex,
-  type TaskIndexInfo
-} from "./types.ts";
-
-export type AtomicWrite = (
-  target: string,
-  text: string,
-  options: { encoding: "utf8"; fsync: true }
-) => Promise<void>;
-
-export type TaskGraphStoreOptions = {
-  atomicWrite?: AtomicWrite;
-  indexPath?: string;
-  loadNativeLock?: () => Promise<NativeLockBinding>;
-  lockRoot?: string;
-  lockPollMilliseconds?: number;
-  lockWaitMilliseconds?: number;
-  monotonicClock?: () => number;
-  root?: string;
-  sleep?: (milliseconds: number) => Promise<void>;
-};
-
-export type TaskIndexRead = {
-  canonical: boolean;
-  index: TaskIndex;
-  text: string;
-};
-
-type LockHandle = {
-  binding: NativeLockBinding;
-  file: fs.FileHandle;
-};
-
-const defaultSleep = async (milliseconds: number): Promise<void> => {
-  await new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
-};
-
-const defaultAtomicWrite: AtomicWrite = async (target, text, options) => {
-  await writeFileAtomic(target, text, options);
-};
-
-function getErrnoCode(error: unknown): string | null {
-  return error instanceof Error &&
-    "code" in error &&
-    typeof (error as NodeJS.ErrnoException).code === "string"
-    ? ((error as NodeJS.ErrnoException).code ?? null)
-    : null;
-}
-
-function isErrno(error: unknown, code: string): boolean {
-  return getErrnoCode(error) === code;
-}
-
-function throwFileBoundaryError(
-  error: unknown,
-  code: "INDEX_READ_FAILED" | "WRITE_FAILED",
-  message: string,
-  target: string,
-  details: JsonObject = {}
-): never {
-  if (error instanceof TaskGraphError) throw error;
-  const fileErrorCode = getErrnoCode(error);
-  if (fileErrorCode !== null) {
-    throw new TaskGraphError(
-      code,
-      message,
-      {
-        path: target,
-        fileErrorCode,
-        ...details,
-        cause: error
-      },
-      { cause: error }
-    );
-  }
-  throw error instanceof Error ? error : new Error(String(error));
-}
-
-async function lstatOrNull(
-  target: string
-): Promise<Awaited<ReturnType<typeof fs.lstat>> | null> {
-  try {
-    return await fs.lstat(target);
-  } catch (error) {
-    if (isErrno(error, "ENOENT")) return null;
-    throw error;
-  }
-}
-
-function resolveIndexPath(root: string, configured?: string): string {
-  const candidate = configured ?? defaultTaskGraphIndexPath;
-  if (path.isAbsolute(candidate)) return path.resolve(candidate);
-  const resolved = path.resolve(root, candidate);
-  const relative = path.relative(root, resolved);
-  if (
-    relative === ".." ||
-    relative.startsWith(`..${path.sep}`) ||
-    path.isAbsolute(relative)
-  ) {
-    throw new TaskGraphError(
-      "ARGUMENT_INVALID",
-      "Relative task index path must stay inside --root",
-      { root, indexPath: candidate }
-    );
-  }
-  return resolved;
-}
-
-function storePaths(options: TaskGraphStoreOptions): {
-  indexPath: string;
-  lockPath: string;
-  lockRoot: string;
-} {
-  const root = path.resolve(options.root ?? process.cwd());
-  const indexPath = resolveIndexPath(root, options.indexPath);
-  const lockRoot = path.resolve(
-    options.lockRoot ?? path.join(os.tmpdir(), "task-graph-locks")
-  );
-  const normalizedIndexPath =
-    process.platform === "win32" ? indexPath.toLowerCase() : indexPath;
-  const lockName = createHash("sha256")
-    .update(normalizedIndexPath, "utf8")
-    .digest("hex");
-  return {
-    indexPath,
-    lockPath: path.join(lockRoot, `${lockName}.lock`),
-    lockRoot
-  };
-}
-
-function lockTiming(options: TaskGraphStoreOptions): {
-  pollMilliseconds: number;
-  waitMilliseconds: number;
-} {
-  const pollMilliseconds = options.lockPollMilliseconds ?? 50;
-  const waitMilliseconds = options.lockWaitMilliseconds ?? 5_000;
-  if (
-    !Number.isFinite(pollMilliseconds) ||
-    pollMilliseconds <= 0 ||
-    !Number.isFinite(waitMilliseconds) ||
-    waitMilliseconds < 0
-  ) {
-    throw new TaskGraphError(
-      "ARGUMENT_INVALID",
-      "Task graph lock timing values must be finite and non-negative",
-      {
-        lockPollMilliseconds: pollMilliseconds,
-        lockWaitMilliseconds: waitMilliseconds
-      }
-    );
-  }
-  return { pollMilliseconds, waitMilliseconds };
-}
+  getErrnoCode,
+  isErrno,
+  lstatOrNull,
+  throwFileBoundaryError
+} from "./store-support.ts";
+import { storeConfiguration } from "./store-settings.ts";
+export type { AtomicWrite, TaskGraphStoreOptions } from "./store-contract.ts";
 
 export class TaskGraphStore {
   readonly indexPath: string;
@@ -181,17 +36,16 @@ export class TaskGraphStore {
   private nativeBindingPromise: Promise<NativeLockBinding> | null = null;
 
   constructor(options: TaskGraphStoreOptions = {}) {
-    const paths = storePaths(options);
-    const timing = lockTiming(options);
-    this.indexPath = paths.indexPath;
-    this.lockRoot = paths.lockRoot;
-    this.lockPath = paths.lockPath;
-    this.atomicWrite = options.atomicWrite ?? defaultAtomicWrite;
-    this.loadNativeLock = options.loadNativeLock ?? loadNativeLockBinding;
-    this.lockPollMilliseconds = timing.pollMilliseconds;
-    this.lockWaitMilliseconds = timing.waitMilliseconds;
-    this.monotonicClock = options.monotonicClock ?? (() => performance.now());
-    this.sleep = options.sleep ?? defaultSleep;
+    const configuration = storeConfiguration(options);
+    this.indexPath = configuration.indexPath;
+    this.lockRoot = configuration.lockRoot;
+    this.lockPath = configuration.lockPath;
+    this.atomicWrite = configuration.atomicWrite;
+    this.loadNativeLock = configuration.loadNativeLock;
+    this.lockPollMilliseconds = configuration.pollMilliseconds;
+    this.lockWaitMilliseconds = configuration.waitMilliseconds;
+    this.monotonicClock = configuration.monotonicClock;
+    this.sleep = configuration.sleep;
   }
 
   async read(): Promise<TaskIndexRead> {

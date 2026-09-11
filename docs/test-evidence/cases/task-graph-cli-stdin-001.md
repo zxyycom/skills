@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-STDIN-001: apply 从 stdin 接收单个 JSON request
 
 Tests:
-- `test:db1545ef3771711ba0f98a786d4c08107257380d0a96a5a91f2a16c3c85e896d`
+- `test:ade56b6c12904aa0e1882d243c8af0d75741474bb89670ba71926740d20da230`
 
 Tags:
 - `task-graph`

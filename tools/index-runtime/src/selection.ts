@@ -1,6 +1,4 @@
-import { diagnostic } from "./diagnostics.ts";
-import { compareIndexText } from "./ordering.ts";
-import { isStateIndexText } from "./schemas.ts";
+import { canonicalSelectedIds, selectedIdsInputError } from "./selected-ids.ts";
 import type { JsonObject, StateIndex, StateIndexDiagnostic } from "./types.ts";
 
 export type StateIndexSelectedIdsResult =
@@ -13,52 +11,12 @@ export function validateStateIndexSelectedIds(
   indexPath: string
 ): StateIndexSelectedIdsResult {
   if (!Array.isArray(input) || input.length === 0) {
-    return {
-      diagnostics: [
-        diagnostic({
-          code: "state-index.selected-ids-invalid",
-          message: "selectedIds must be a non-empty array of unique state ids",
-          path: indexPath
-        })
-      ],
-      status: "error"
-    };
+    return { diagnostics: selectedIdsInputError(indexPath), status: "error" };
   }
-  const ids: string[] = [];
-  const seen = new Set<string>();
-  for (const id of input) {
-    if (typeof id !== "string" || !isStateIndexText(id)) {
-      return {
-        diagnostics: [
-          diagnostic({
-            code: "state-index.selected-id-invalid",
-            message:
-              "selected state ids must be non-empty text without surrounding " +
-              "whitespace or control characters",
-            path: indexPath,
-            stateId: typeof id === "string" ? id : null
-          })
-        ],
-        status: "error"
-      };
-    }
-    if (seen.has(id)) {
-      return {
-        diagnostics: [
-          diagnostic({
-            code: "state-index.selected-id-duplicate",
-            message: `selected state id ${JSON.stringify(id)} appears more than once`,
-            path: indexPath,
-            stateId: id
-          })
-        ],
-        status: "error"
-      };
-    }
-    seen.add(id);
-    ids.push(id);
-  }
-  return { selectedIds: ids.sort(compareIndexText), status: "ok" };
+  const validated = canonicalSelectedIds(input, indexPath);
+  return validated.selectedIds === null
+    ? { diagnostics: validated.diagnostics, status: "error" }
+    : { selectedIds: validated.selectedIds, status: "ok" };
 }
 
 /** Compares the collection-level fields that cannot be assigned to one ID. */

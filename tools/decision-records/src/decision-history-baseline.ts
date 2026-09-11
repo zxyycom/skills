@@ -92,49 +92,87 @@ async function loadRepositoryHeadBaseline(
   relativeDirectory: string
 ): Promise<DecisionHistoryBaselineResult> {
   const revision = await repository.getCurrentRevision();
-  if (revision === null) {
-    return {
-      baseline: {
-        kind: "git-head",
-        label: "Git HEAD",
-        recordedDecisionIds: new Set<DecisionId>()
-      },
-      status: "ok"
-    };
-  }
-
+  if (revision === null) return emptyHeadBaseline();
   const directoryScope = toRepositoryPath(relativeDirectory);
-  const revisionFiles =
-    directoryScope.length === 0
-      ? await repository.listRevisionFiles(revision)
-      : await repository.listRevisionFiles(revision, {
-          pathScopes: [directoryScope]
-        });
-  const prefix = directoryScope.length === 0 ? "" : directoryScope + "/";
-  const sourcePaths: string[] = [];
-  for (const filePath of revisionFiles) {
-    if (!filePath.startsWith(prefix)) continue;
-    const sourcePath = filePath.slice(prefix.length);
-    if (isDecisionSourcePath(sourcePath)) sourcePaths.push(filePath);
-  }
-  const recordedDecisionIds = new Set<DecisionId>();
-  if (sourcePaths.length > 0) {
-    const files = await repository.readRevisionFiles(revision, {
-      pathScopes: sourcePaths
-    });
-    const decoder = new TextDecoder("utf-8", { fatal: true });
-    for (const file of files) {
-      const sourcePath = file.path.slice(prefix.length);
-      const decisionId =
-        decisionIdFromMarkdown(decoder.decode(file.data)) ??
-        decisionIdFromSourcePath(sourcePath);
-      if (decisionId !== null) recordedDecisionIds.add(decisionId);
-    }
-  }
+  const sourcePaths = await revisionDecisionSourcePaths(
+    repository,
+    revision,
+    directoryScope
+  );
+  const recordedDecisionIds = await revisionDecisionIds(
+    repository,
+    revision,
+    sourcePaths,
+    directoryScope
+  );
   return {
     baseline: { kind: "git-head", label: "Git HEAD", recordedDecisionIds },
     status: "ok"
   };
+}
+
+function emptyHeadBaseline(): DecisionHistoryBaselineResult {
+  return {
+    baseline: {
+      kind: "git-head",
+      label: "Git HEAD",
+      recordedDecisionIds: new Set<DecisionId>()
+    },
+    status: "ok"
+  };
+}
+
+async function revisionDecisionSourcePaths(
+  repository: VersionControlRepository,
+  revision: string,
+  directoryScope: string
+): Promise<string[]> {
+  const revisionFiles = await repositoryRevisionFiles(
+    repository,
+    revision,
+    directoryScope
+  );
+  const prefix = directoryScope.length === 0 ? "" : directoryScope + "/";
+  return revisionFiles.filter((filePath) =>
+    isDecisionSourcePath(filePath.slice(prefix.length))
+  );
+}
+
+async function repositoryRevisionFiles(
+  repository: VersionControlRepository,
+  revision: string,
+  directoryScope: string
+): Promise<string[]> {
+  return directoryScope.length === 0
+    ? repository.listRevisionFiles(revision)
+    : repository.listRevisionFiles(revision, { pathScopes: [directoryScope] });
+}
+
+async function revisionDecisionIds(
+  repository: VersionControlRepository,
+  revision: string,
+  sourcePaths: readonly string[],
+  directoryScope: string
+): Promise<Set<DecisionId>> {
+  if (sourcePaths.length === 0) return new Set<DecisionId>();
+  const files = await repository.readRevisionFiles(revision, {
+    pathScopes: sourcePaths
+  });
+  const prefix = directoryScope.length === 0 ? "" : directoryScope + "/";
+  return new Set(
+    files.flatMap((file) => decisionIdForRevisionFile(file, prefix))
+  );
+}
+
+function decisionIdForRevisionFile(
+  file: { data: Uint8Array; path: string },
+  prefix: string
+): DecisionId[] {
+  const sourcePath = file.path.slice(prefix.length);
+  const decoded = new TextDecoder("utf-8", { fatal: true }).decode(file.data);
+  const decisionId =
+    decisionIdFromMarkdown(decoded) ?? decisionIdFromSourcePath(sourcePath);
+  return decisionId === null ? [] : [decisionId];
 }
 
 export function prepareUnrecordedHistoryAttention(

@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-CORE-READ-001: List 与 tags 只读索引且 show 只读所选 Case
 
 Tests:
-- `test:6561430cf18d436f9cedfe1b362e1b84526782e054d3ae22a61cef9020fc7914`
+- `test:07da4c262be54cf39083bb4d06b07a1becf2db72a9982712dbfbaf11e5ce67e5`
 
 Tags:
 - `test-evidence`

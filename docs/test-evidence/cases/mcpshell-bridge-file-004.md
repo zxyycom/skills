@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-FILE-004: workspace put reports a failed no-replace link without calling it an existing destination
 
 Tests:
-- `test:7264c70cba0baf4a221dcb205b733b9c7665771490956917575bd7db8ccd30a5`
+- `test:8498f642de2e5adf17f8e4744331076294175f0354b05b03cefe16fe6d3e5968`
 
 Tags:
 - `mcpshell-workspace-bridge`

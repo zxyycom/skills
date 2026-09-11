@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-SHOW-DIAGNOSTIC-001: CLI show renders a scrubbed structured report read failure
 
 Tests:
-- `test:179189cecde077f15fb0b4d8fc8dc6f6f4b7abfbc0223ce28e8cda0b88ffadc7`
+- `test:e26d75be88818314752491cb2bcb4df945f2aba819715eff6aa93b5dd4d383c8`
 
 Tags:
 - `investigation-report`

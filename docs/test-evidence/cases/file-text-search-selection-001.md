@@ -1,7 +1,7 @@
 ### Case FILE-TEXT-SEARCH-SELECTION-001: 文件搜索统一选择模式与显式根内文件
 
 Tests:
-- `test:7ab035fd57a34959e3db880460d099cb30eeb1028be72f181a43f42c2352dcd7`
+- `test:13da082a4d01d57848ac8dcd2f3e45b0943c3782bcbda41b4bb1cba5a89e1c15`
 
 Tags:
 - `index-runtime`

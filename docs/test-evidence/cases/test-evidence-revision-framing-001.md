@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-REVISION-FRAMING-001: Case Revision 规范化 CRLF
 
 Tests:
-- `test:e9dcbebab4581c37d8e78310877030e9038a6a8c15497082b27d66da358842f0`
+- `test:1067e16cb03f9e6a286373ef10be19277eefd693e4898c33fd5e4f4b9a66e8e3`
 
 Tags:
 - `test-evidence`

@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-INDEX-ONLY-BASELINE-001: Stage 从仅派生索引的 revision 基线建立决策
 
 Tests:
-- `test:693dea520f5cc6b7b853fb4e43d5e8acf308796b404e8ff466d807bfa46c1332`
+- `test:db8ed08030852aef3eebb8260529338c7c3640586cfde109632620e0fe945226`
 
 Tags:
 - `decision-records`

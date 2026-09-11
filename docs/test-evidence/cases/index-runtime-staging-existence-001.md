@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-STAGING-EXISTENCE-001: 注入仓储中用统一 ID 存在性规则表达条目变化
 
 Tests:
-- `test:d55b6385e9c1ed96464925954c6773673008668ffe6bad99c31af662e674f7da`
+- `test:1084ae98fc59819b52077b5fb88a520f8548767432772e55c030714f56057a21`
 
 Tags:
 - `index-runtime`

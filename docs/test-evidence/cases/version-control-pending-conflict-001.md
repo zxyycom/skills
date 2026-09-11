@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-CONFLICT-001: 区分陈旧 Pending 与已存在写入边界
 
 Tests:
-- `test:bcb38c71fd4b73debea4fb5348a9af68a6e50d44a11fabed1f70efb57549d1c8`
+- `test:1be5f7bd1f4a683d9b1e2f71001f7ee4862045945576099d72650386b4fbd996`
 
 Tags:
 - `version-control`

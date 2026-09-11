@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-STAGE-WATERMARK-CONFLICT-001: 工作区根水位回退时拒绝暂存
 
 Tests:
-- `test:0fbf1620b1fd4f2ace82b5b7ed496efabfa5019903f12a4d661ab836c1a014e8`
+- `test:fbdb718fe87ca3e42bade88a8aba1cffd5a046f735bc15c6124492197a8cb5fe`
 
 Tags:
 - `task-graph`

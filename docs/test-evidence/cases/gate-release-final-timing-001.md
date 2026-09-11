@@ -1,7 +1,7 @@
 ### Case GATE-RELEASE-FINAL-TIMING-001: release prepare 提前运行而 authorization 保持末端
 
 Tests:
-- `test:bce1370573c53be0a8e676f14b12f7556dc83b5ddefcf544d9f9b492a3a22fc0`
+- `test:ad2d863f0407b6a0acdc6119ee39c996ae35dd9bd02ab908f9a0fd4f7f95f6b0`
 
 Tags:
 - `repository-tooling`

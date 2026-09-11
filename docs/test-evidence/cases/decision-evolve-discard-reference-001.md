@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-DISCARD-REFERENCE-001: Evolve discard 拒绝仍被引用的决策
 
 Tests:
-- `test:843856f22119720fe5370ebd355d581ba5c88d521051e54967bfc1bcac5ef2fe`
+- `test:efb4923981eb9b1e51a80263326ca81e6cf001a47aa384a593e99e5d59756f58`
 
 Tags:
 - `decision-records`

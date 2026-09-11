@@ -56,6 +56,8 @@ test("generated decision declarations expose a portable CLI API", async () => {
     "cli.d.mts",
     "decision-rename.d.mts",
     "index.d.mts",
+    "scan-contracts.d.mts",
+    "scan-relations.d.mts",
     "scan.d.mts",
     "types.d.mts"
   ]);
@@ -94,6 +96,8 @@ test("generated decision declarations expose a portable CLI API", async () => {
     "runDecisionRecordsCli",
     "renameDecisionRecord",
     "scanDecisionRecords",
+    "missingIndexedDecisionError",
+    "unindexedDecisionError",
     "validateDecisionRecords"
   ]) {
     assert.match(declarationTree, new RegExp(`\\b${publicExport}\\b`));

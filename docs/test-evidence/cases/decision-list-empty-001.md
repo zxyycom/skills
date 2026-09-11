@@ -1,7 +1,7 @@
 ### Case DECISION-LIST-EMPTY-001: List 对无匹配 tag 或 alignment 返回空结果
 
 Tests:
-- `test:4354e72b703e31a914e65cf478a0967f628f5ebaf5c8ca03e82a95b1719e8c78`
+- `test:ca76852c7af908bbab6b1654dec8e9855cbb37046f9c9b174e27aa0fb42bf462`
 
 Tags:
 - `decision-records`

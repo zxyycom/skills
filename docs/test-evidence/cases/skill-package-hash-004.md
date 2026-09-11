@@ -1,7 +1,7 @@
 ### Case SKILL-PACKAGE-HASH-004: 接受初始版本为一的新 skill
 
 Tests:
-- `test:408caf2ef4e7e8c45c7b542f63b7219fa751fbabe3924d198c972898099bc9fd`
+- `test:0977a817035bb077aa231fb9a91377a7db7cf6c288f2171a7b1eaf0abf1ecfb8`
 
 Tags:
 - `repository-tooling`

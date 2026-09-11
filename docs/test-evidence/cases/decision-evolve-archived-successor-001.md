@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-ARCHIVED-SUCCESSOR-001: Evolve 修订关系时保持已归档后继的生命周期
 
 Tests:
-- `test:eac2cca5134b6fbbe5ba9600f0d3f2dc48a285358dd39a6f2a056f41a695228a`
+- `test:d3fe41e19d0fd8533e1919502930ead767e6e0d9f1214737ce3eb1336890d1e9`
 
 Tags:
 - `decision-records`

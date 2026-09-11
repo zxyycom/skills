@@ -1,7 +1,7 @@
 ### Case REPO-SKILL-HASH-003: Declaration formatting does not require a version
 
 Tests:
-- `test:e6f2d6e7d6ae1994b4dd51fc2ee9f991b6c73ece98f398628dea9cc04c20a2bf`
+- `test:a3f2b8282547a600e92c8f3160d9e808e197a6d1ae7ef1cad327349bafca2124`
 
 Tags:
 - `repository-tooling`

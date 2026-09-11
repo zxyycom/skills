@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-STAGE-JSON-001: CLI stage-index rejects JSON output
 
 Tests:
-- `test:5e66709e1783db4e70cd83fe64a33556c75a196a1b9563805e54e2b0ef5ec08e`
+- `test:eb8092fc3b206dd381468c8ed13404e45b847ef46c439eed73df1e421c40d39a`
 
 Tags:
 - `investigation-report`

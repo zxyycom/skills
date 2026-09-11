@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-RETRY-001: 重试后的下一次 claim 增加 attempt，成功任务拒绝内容、control 与 retry 改写
 
 Tests:
-- `test:b1d6d5e3d48dab4c83fd762a5622637b16e6d9517e034dbb63b23310e98723a0`
+- `test:ae9ed9f1650d925f693c4e74c9723f53b5cb7be670a2c1984b52c2e1ac5de159`
 
 Tags:
 - `task-graph`

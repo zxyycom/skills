@@ -1,7 +1,7 @@
 ### Case DECISION-REALLOCATION-TRANSACTION-001: Evolve 建立闭合稀疏重划并独立对齐后继
 
 Tests:
-- `test:c6788e587681ba075a671fe361dc2de79d1d38a6838616fc4c48ecc7606c5785`
+- `test:536177c1a8540ff5c20f6c1f908a0f072e084b035bd31ffb1b8a84b5fe033474`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-LIST-PAGE-001: Decision list 返回全局 facets 与近期稳定窗口
 
 Tests:
-- `test:81bf18aef7b14e98fc6cb734bf74a16e1487c20933b066e4735cff2323fb5745`
+- `test:a1f3cc95adc89252222aaa4b1b1e55421bcf98e536e32e63d7e4fb6f5075d207`
 
 Tags:
 - `decision-records`

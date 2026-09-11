@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-DELETION-001: 选择旧 ID 表达删除而非改名
 
 Tests:
-- `test:521197bab05d14e88d01105f608f1f11051fe9fcc036e85e692f770cfb23054a`
+- `test:e93a001bdc6122e6909c687e476c4d6e423991b8b0af29ac991e4dfe59857594`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-CONTRACTS-001: CLI check succeeds on a current report collection
 
 Tests:
-- `test:38a331b12e467227e89bcb889d6e21321f30622e92e6a150e6429658eb1e11ca`
+- `test:cbc90da6c46d85f0447aa06ef5d2d35d47447bd6b1b1ddeab7bd9483690d0328`
 
 Tags:
 - `investigation-report`

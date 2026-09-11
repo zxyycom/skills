@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-STAGE-FILESYSTEM-001: CLI stage-index renders filesystem diagnostics structurally
 
 Tests:
-- `test:3d23aae6fd8e6183e3c6daa10124fa969f1dc94ede33974c3938fce494161e1a`
+- `test:7428e19145ef6ef8f7fb628a4a8ad6aa6110229ffb9485a02c1b86fc5257f621`
 
 Tags:
 - `investigation-report`

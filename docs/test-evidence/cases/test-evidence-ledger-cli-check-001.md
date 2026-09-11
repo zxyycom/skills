@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-LEDGER-CLI-CHECK-001: Check CLI 输出机器失败并映射退出状态
 
 Tests:
-- `test:cd5bcb2e2c1c8752626b62ad5f4cd3d2f944be5ff06ba9f4cce512394a6c9e3e`
+- `test:0342059ec579e821e52dfc4632e0b4826d65e29d7455becf7c24d94a11f4c656`
 
 Tags:
 - `test-evidence`

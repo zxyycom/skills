@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-UNREADABLE-INDEX-001: 不可读索引阻断 list 与 show 且不回退来源
 
 Tests:
-- `test:69c0846adf80fe4df7656d8b330f99bec172e5e46bfd723b79ce9b5ab5cba440`
+- `test:bf5d21340ee758a4dbe798f2c6b2377a9591c4983601f7df087674fd43d783a5`
 
 Tags:
 - `test-evidence`

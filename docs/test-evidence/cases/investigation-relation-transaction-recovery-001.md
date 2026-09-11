@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-TRANSACTION-RECOVERY-001: set-relations restores all report and index bytes after publish failure
 
 Tests:
-- `test:7d05d4c94106c83a23efd799cb280a5192e8cebe414e31ae95818e4a6280ad80`
+- `test:55ca6b496b5adedb70690820901bcaac6c6ddaa8f968dfed2379a407120bb99e`
 
 Tags:
 - `investigation-report`

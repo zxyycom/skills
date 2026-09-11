@@ -1,7 +1,7 @@
 ### Case FILE-TEXT-SEARCH-RANGE-LIMIT-001: 文件搜索按实际范围限制命中
 
 Tests:
-- `test:9f31bbbda79b1267cb074c49daf97b38f23c314dc8da1abd5cb7d5e7bc03da24`
+- `test:a0668935552b498dbc582f3914420023883be0c35953380781b266942a7f428c`
 
 Tags:
 - `index-runtime`

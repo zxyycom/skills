@@ -1,7 +1,7 @@
 ### Case DECISION-MERGE-MINIMUM-001: Evolve 拒绝前序不足的纯归并
 
 Tests:
-- `test:7db861d7f236f6e4bbc79245c3063249d3dd21923e25d89d589f244884035d9d`
+- `test:e3f87bc58bf0902d8861941351ca329c9d7cae1f952d029fda0397ecf3c67f78`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-LIFECYCLE-POST-MUTATION-SCAN-001: 生命周期写后索引检查失败不得伪报成功
 
 Tests:
-- `test:aa3322652acc2d72c651bf4b4ad5e9d8fca90640c9119d89d41de5f37ad3d703`
+- `test:852026df8bbd5ded7b3004ed339790cfcf477d317ad28a68e767bf68120434b2`
 
 Tags:
 - `decision-records`

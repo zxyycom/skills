@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-DISCARD-RECORDED-FLAG-001: Discard 帮助展示已记录决策删除参数
 
 Tests:
-- `test:8b97d807a46b4ea93985b79e17db0f7fca6f5113bbe1a3911d92a59e9a1d1d50`
+- `test:b766155e931f6a092fc9a8aaae3b98cf3fd62f593b07afd47fa0f263a129e644`
 
 Tags:
 - `decision-records`

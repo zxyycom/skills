@@ -1,7 +1,7 @@
 ### Case GATE-COMMAND-TRANSCRIPT-001: 命令 Check 保存完整 transcript 并限制终端摘要
 
 Tests:
-- `test:a6bb07167c3237a8323a58e36728886f04cb0c300cbcf9f8b756af355140e102`
+- `test:0b4fa632af0b475006cfe6822c46842c39a4cb312fe1bfe6befae595b9e99957`
 
 Tags:
 - `repository-tooling`

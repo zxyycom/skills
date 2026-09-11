@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-PARENT-COMPLETE-001: 未收敛或全取消子任务阻止完成，混合成功/取消允许 attempt 0 的父任务成功
 
 Tests:
-- `test:94542a438ef757e29ab998cf187402028c0f01468ad72ab6cd966c69dfcdaacc`
+- `test:0de92d90e790722a47061b70b7e3766689c519c50eb7c5d8d0b8b270dbb3824c`
 
 Tags:
 - `task-graph`

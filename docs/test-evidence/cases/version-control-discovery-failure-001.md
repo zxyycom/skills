@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-DISCOVERY-FAILURE-001: Git 工作树发现故障报告为操作失败
 
 Tests:
-- `test:19ba596ee4a59c5c206ecb7f3635e9bf9bfabe0c5a9cf7ff510d75ce7f463568`
+- `test:3a2fed5eff25256a9541385a6a17a180411720b5e1306f7e8e3d17bb16faa0c3`
 
 Tags:
 - `version-control`

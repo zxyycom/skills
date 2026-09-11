@@ -1,7 +1,7 @@
 ### Case DECISION-ACTIVATION-RELATION-001: Activate 建立候选来源关系并归档活动目标
 
 Tests:
-- `test:178472a35cc87d8ff707416c24cdb6285b83a2f2041254ff10213754b11feae3`
+- `test:3160a6fdb7510e565514ab89605ffdb43f80b1398f1d9601301c0b9600476c22`
 
 Tags:
 - `decision-records`

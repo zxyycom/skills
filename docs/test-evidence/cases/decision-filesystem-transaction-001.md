@@ -1,7 +1,7 @@
 ### Case DECISION-FILESYSTEM-TRANSACTION-001: 事务预检拒绝非普通决策文件
 
 Tests:
-- `test:1e27dff74e7ee0760f1cb967b32e939099114dc879c2d377310279a798263bf4`
+- `test:67d2d64a9664ce754ae141f969f9f810f43f00bbab4cc1aef2779e5df76b9534`
 
 Tags:
 - `decision-records`

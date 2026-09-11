@@ -1,7 +1,7 @@
 ### Case DECISION-ACTIVATE-RELATION-REPLACE-001: Activate 关系覆盖完整替换候选来源关系
 
 Tests:
-- `test:18ede71531fef0735eb36791c309dec52794c67719b6ead57b10b22d35a521d8`
+- `test:6d6b300585e80b0af2b9e312479b267879e374ce107e49c5692fba30ce039381`
 
 Tags:
 - `decision-records`

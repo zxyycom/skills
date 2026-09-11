@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-DISCARD-001: Evolve 以显式最终关系删除中间决策
 
 Tests:
-- `test:1f15d5cd152575ba774709344b9cf71d54532cb4821b40452fbbe73b7a9de36f`
+- `test:6b4c3c12f5e5792c022121360fbcce217449dbf0a190cac4eb27091a34ba60f5`
 
 Tags:
 - `decision-records`

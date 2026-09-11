@@ -1,7 +1,7 @@
 ### Case DECISION-REALLOCATION-SUCCESSOR-MINIMUM-001: Evolve 拒绝单后继重划
 
 Tests:
-- `test:e17fdb0bb536425ee1697289ecbd3acb6cee743a88b525d0b1cbe3081ebf7ee8`
+- `test:c94d742bb6fec5efe2ddf3c12db3cb8782cfcaf1a6cfc33f3710bbeb160294ba`
 
 Tags:
 - `decision-records`

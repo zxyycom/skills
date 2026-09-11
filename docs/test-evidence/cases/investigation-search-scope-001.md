@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SEARCH-SCOPE-001: search 排除非正式文件并只读回退
 
 Tests:
-- `test:c23ee38b05ce3eb37811c86c09504160a4aaa9004e574b65c34b912b7be6d73b`
+- `test:8b983c2e7bd7010d0888bb6837f07a1a3456f45962ae130f6942071d573a84af`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-ISOLATION-001: Stage 隔离未选择的文件系统变更
 
 Tests:
-- `test:4c8b7a9de38ab5c2f59db9d11158f4772fdd090dac824dc5b92e9c28d50d3e48`
+- `test:2d8b82b436ab90d41f1ca4f64885566bad3bbf7de619177048f15239d9f87c51`
 
 Tags:
 - `decision-records`

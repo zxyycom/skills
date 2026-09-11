@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-SPECIAL-ID-001: 原型敏感 ID 经 Schema 与 Runtime 安全往返
 
 Tests:
-- `test:6fed6b8ad136c606894aa48f6c609b37324fa93c89c9a03f610c5ccfee72a2e7`
+- `test:ffbf1b7b602e7ee259a80c1f1ab38f9033582358d4c63c84883a4fbeb0d57903`
 
 Tags:
 - `index-runtime`

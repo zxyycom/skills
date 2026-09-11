@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-CLI-001: CLI 独立公开 Stage 且不扩展生命周期选项
 
 Tests:
-- `test:da714b2a55d09463b21e9eddabcde8c4942d57443d149186f9cb648969031892`
+- `test:e3b53b3b1d2f02f6d81ebfc70955a6ca774da27659b52917d625951181ce426f`
 
 Tags:
 - `decision-records`

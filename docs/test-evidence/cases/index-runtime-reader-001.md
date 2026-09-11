@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-READER-001: 创建不可变内存 reader 快照并验证输入
 
 Tests:
-- `test:f8799bef67e098f2707496cf5f81eb78953e84d776df19a0a2f0ad7a18b5f7fe`
+- `test:6f95c18cbe3cdb182779199e0f622e00a94d217526a3a6b3f81f917ac45f53ea`
 
 Tags:
 - `index-runtime`

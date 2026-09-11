@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-CORE-REFS-001: 引用验证区分快照状态并允许未引用实体
 
 Tests:
-- `test:486299e44e13de9ec7b5e4f1c79e3f5b5cb25faedb90101a99b9db1a08935f22`
+- `test:3934b75b22ea611610355685ff8d4b3b6fa06f83e0890439328194d7d9a3498a`
 
 Tags:
 - `test-evidence`

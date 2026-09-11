@@ -66,26 +66,13 @@ export async function validateDecisionBody(options: {
   sourcePath: string;
   targetExists: DecisionRelationTargetExists;
 }): Promise<ValidatedDecisionBody | null> {
-  const { body: rawBody, sourcePath, errors } = options;
+  const { sourcePath, errors } = options;
   const errorCountBeforeValidation = errors.length;
-  const parsedMarkdown = parseDecisionMarkdown({
-    errors,
-    markdown: rawBody,
-    relativePath: sourcePath
-  });
+  const parsedMarkdown = parseDecisionMarkdown(
+    decisionMarkdownParseOptions(options)
+  );
   const body = parsedMarkdown?.body ?? "";
-
-  if (
-    (options.expectedDecisionId ?? options.decisionId) !== undefined &&
-    parsedMarkdown !== null &&
-    parsedMarkdown.id !== (options.expectedDecisionId ?? options.decisionId)
-  ) {
-    errors.push(
-      sourcePath +
-        " frontmatter id does not match the expected Decision ID " +
-        (options.expectedDecisionId ?? options.decisionId)
-    );
-  }
+  validateExpectedDecisionId(options, parsedMarkdown);
   if (!body.startsWith("## 目的\n")) {
     errors.push(sourcePath + ' body must start with "## 目的"');
   }
@@ -112,6 +99,38 @@ export async function validateDecisionBody(options: {
     sections.bodyReady,
     errors.length === errorCountBeforeValidation
   );
+}
+
+function decisionMarkdownParseOptions(options: {
+  body: string;
+  errors: string[];
+  sourcePath: string;
+}): Parameters<typeof parseDecisionMarkdown>[0] {
+  return {
+    errors: options.errors,
+    markdown: options.body,
+    relativePath: options.sourcePath
+  };
+}
+
+function validateExpectedDecisionId(
+  options: Readonly<{
+    decisionId?: string;
+    errors: string[];
+    expectedDecisionId?: string;
+    sourcePath: string;
+  }>,
+  parsedMarkdown: ReturnType<typeof parseDecisionMarkdown>
+): void {
+  const expectedDecisionId = options.expectedDecisionId ?? options.decisionId;
+  if (expectedDecisionId === undefined || parsedMarkdown === null) return;
+  if (parsedMarkdown.id !== expectedDecisionId) {
+    options.errors.push(
+      options.sourcePath +
+        " frontmatter id does not match the expected Decision ID " +
+        expectedDecisionId
+    );
+  }
 }
 
 function validatedDecisionBody(

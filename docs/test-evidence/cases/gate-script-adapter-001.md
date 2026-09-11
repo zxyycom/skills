@@ -1,7 +1,7 @@
 ### Case GATE-SCRIPT-ADAPTER-001: package-script adapter 映射终态且继续结算独立 Check
 
 Tests:
-- `test:0f6fc2db5b86e5638e13cf867718057158cab281a0158d546dc715ab87cfde36`
+- `test:395a2412f8e2e5c7ba222452167703393d8be37575f189531ca8abd276c1b60e`
 
 Tags:
 - `repository-tooling`

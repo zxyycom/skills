@@ -1,7 +1,7 @@
 ### Case SKILL-PACKAGE-HASH-001: 从 pending Git 内容收集有序 skill 文件
 
 Tests:
-- `test:e1e3694ba0cc52330a683443110d012093bb11ca64fab628ff0be503c4a23f16`
+- `test:b3e044f91f88ae5e8a38b407ed9b6f3eafe7a75aa6ab07f85ea40580b915f99c`
 
 Tags:
 - `repository-tooling`

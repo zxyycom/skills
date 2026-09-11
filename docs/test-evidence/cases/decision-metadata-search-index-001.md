@@ -1,7 +1,7 @@
 ### Case DECISION-METADATA-SEARCH-INDEX-001: Metadata search 不读取实体并在索引失败时给出恢复路径
 
 Tests:
-- `test:c57fd947a6a87317a8ae2a1270b5ca3876dc1f21cb1f88a63af58e8fd3d4e21d`
+- `test:fe27cd88f361b4ad235572e229440fc880a8688791354ccbde6a7a42f007a436`
 
 Tags:
 - `decision-records`

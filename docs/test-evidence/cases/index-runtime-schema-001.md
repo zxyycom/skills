@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-SCHEMA-001: 暴露可组合的状态索引 schema
 
 Tests:
-- `test:6ae308315912d2a280db39423c6fa811909cc63927abdb4b24fe55a90c27488b`
+- `test:b9792b8a99200344ffb5045462db3d1e27e9749f74022d70021145c6199df14e`
 
 Tags:
 - `index-runtime`

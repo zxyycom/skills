@@ -54,7 +54,7 @@ type GateCommandContext =
 function quoteCommandArgument(argument: string): string {
   return /^[A-Za-z0-9_./,:=@+%-]+$/u.test(argument)
     ? argument
-    : `'${argument.replaceAll("'", `'"'"'`)}'`;
+    : "'" + argument.replaceAll("'", "'\"'\"'") + "'";
 }
 
 export function commandText(

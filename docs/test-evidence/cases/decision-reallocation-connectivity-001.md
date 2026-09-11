@@ -1,7 +1,7 @@
 ### Case DECISION-REALLOCATION-CONNECTIVITY-001: Evolve 拒绝不连通重划图
 
 Tests:
-- `test:a2256d7706b7b5ae15ce28ff2adeeadfec68a30b6a292f7d1ba4ed229d4e6f1a`
+- `test:05115fda4c496e4bd80297340a946fd2081dba3b90063c4422282cf1d548899b`
 
 Tags:
 - `decision-records`

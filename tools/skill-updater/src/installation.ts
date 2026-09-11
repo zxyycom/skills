@@ -183,6 +183,55 @@ async function restoreAppliedFiles(
   }
 }
 
+async function backupReplacedFiles(
+  plan: readonly SkillUpdatePlanEntry[],
+  backupDir: string,
+  targetDir: string
+): Promise<void> {
+  for (const entry of plan) {
+    if (entry.action !== "replace") continue;
+    const backupPath = safeJoin(backupDir, entry.path);
+    await fs.mkdir(path.dirname(backupPath), { recursive: true });
+    await fs.copyFile(safeJoin(targetDir, entry.path), backupPath);
+  }
+}
+
+async function applyStagedFiles(
+  files: readonly SkillFile[],
+  plan: readonly SkillUpdatePlanEntry[],
+  stagedDir: string,
+  backupDir: string,
+  targetDir: string
+): Promise<void> {
+  const entriesByPath = new Map(plan.map((entry) => [entry.path, entry]));
+  const applied: SkillUpdatePlanEntry[] = [];
+  try {
+    for (const file of files) {
+      const entry = entriesByPath.get(file.path);
+      if (entry === undefined) {
+        throw new Error(`Update plan is missing remote path: ${file.path}`);
+      }
+      const outputPath = safeJoin(targetDir, file.path);
+      await fs.mkdir(path.dirname(outputPath), { recursive: true });
+      applied.push(entry);
+      await fs.copyFile(safeJoin(stagedDir, file.path), outputPath);
+    }
+  } catch (error) {
+    try {
+      await restoreAppliedFiles(applied, backupDir, targetDir);
+    } catch (rollbackError) {
+      throw new Error(
+        "Skill update failed and rollback did not complete: " +
+          (rollbackError instanceof Error
+            ? rollbackError.message
+            : String(rollbackError)),
+        { cause: error }
+      );
+    }
+    throw error;
+  }
+}
+
 export async function installSkillFiles(
   files: readonly SkillFile[],
   targetDir: string
@@ -199,45 +248,8 @@ export async function installSkillFiles(
   try {
     await writeSkillFiles(files, stagedDir);
     await fs.mkdir(targetDir, { recursive: true });
-
-    for (const entry of plan) {
-      if (entry.action !== "replace") {
-        continue;
-      }
-
-      const backupPath = safeJoin(backupDir, entry.path);
-      await fs.mkdir(path.dirname(backupPath), { recursive: true });
-      await fs.copyFile(safeJoin(targetDir, entry.path), backupPath);
-    }
-
-    const entriesByPath = new Map(plan.map((entry) => [entry.path, entry]));
-    const applied: SkillUpdatePlanEntry[] = [];
-    try {
-      for (const file of files) {
-        const entry = entriesByPath.get(file.path);
-        if (entry === undefined) {
-          throw new Error(`Update plan is missing remote path: ${file.path}`);
-        }
-
-        const outputPath = safeJoin(targetDir, file.path);
-        await fs.mkdir(path.dirname(outputPath), { recursive: true });
-        applied.push(entry);
-        await fs.copyFile(safeJoin(stagedDir, file.path), outputPath);
-      }
-    } catch (error) {
-      try {
-        await restoreAppliedFiles(applied, backupDir, targetDir);
-      } catch (rollbackError) {
-        throw new Error(
-          "Skill update failed and rollback did not complete: " +
-            (rollbackError instanceof Error
-              ? rollbackError.message
-              : String(rollbackError)),
-          { cause: error }
-        );
-      }
-      throw error;
-    }
+    await backupReplacedFiles(plan, backupDir, targetDir);
+    await applyStagedFiles(files, plan, stagedDir, backupDir, targetDir);
   } finally {
     await fs.rm(tempDir, { force: true, recursive: true });
   }

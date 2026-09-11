@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RENAME-OWNER-CONTENT-001: 恢复前 target owner 内容漂移保留外部字节
 
 Tests:
-- `test:e342f82515bcbd24b44c8dd352cb65d85013a2a34ac5acb9fa926bd9b87c6380`
+- `test:0dc820ebe233b7577af661582d5d21cdac7c8938d723378ed9f78df147c174d0`
 
 Tags:
 - `investigation-report`

@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-TRACE-DEPTH-001: Trace 拒绝负深度
 
 Tests:
-- `test:2563f323a6ce45ef0bfbc8b4e9a14d31cf45473311ada05cc34030d193f3d4f6`
+- `test:cc4fdf0c53274c80404fe585847736815cf0463782fb626536f2132089c6241c`
 
 Tags:
 - `decision-records`

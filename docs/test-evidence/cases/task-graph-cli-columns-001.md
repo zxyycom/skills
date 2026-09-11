@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-COLUMNS-001: Task-list columns 在 CLI 边界归一化并按优先级选择
 
 Tests:
-- `test:0d9f79b9e88884bdc8e734fe9696a9d41a7953b8e7b30bc0333f0c2407f73ff5`
+- `test:afc403f69ff9ea4adc3e4a386eb52bd38baf2bb8784a7a785b23d6a5ffd3045b`
 
 Tags:
 - `task-graph`

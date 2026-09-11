@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-SYNC-LIFECYCLE-001: 跨换行格式检查写入并加载当前索引
 
 Tests:
-- `test:41aa9cb805bb7f4c360b901d1471abf57177e21e5e9bab95541ca179ad3598ed`
+- `test:a3421191b25f27eca51e122277b22a092a5dea7c52b89631a90f3d05852f8033`
 
 Tags:
 - `index-runtime`

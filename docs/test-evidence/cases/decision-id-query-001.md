@@ -1,7 +1,7 @@
 ### Case DECISION-ID-QUERY-001: 稳定 ID 的 Show
 
 Tests:
-- `test:11afeb815bab1d16a8560af1ad371f572b9c4e3325de3647ed6753e75ebca059`
+- `test:77a75b5cfb9d9f7d62f7d13e6ea587b31c460d592dbfbdf0bb81915a4a10d731`
 
 Tags:
 - `decision-records`

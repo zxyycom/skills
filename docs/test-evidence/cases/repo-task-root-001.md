@@ -1,7 +1,7 @@
 ### Case REPO-TASK-ROOT-001: task-graph 短命令默认中央 root 并允许显式切换项目
 
 Tests:
-- `test:08dbc017dc912dc79bb33d20406eba9d455a052b4bb97bd8723918ab79d74c44`
+- `test:c686624b6f7397f2bec95948068f438a554c24b0eecc7cc98a1cfc0caad8cbd0`
 
 Tags:
 - `repository-tooling`

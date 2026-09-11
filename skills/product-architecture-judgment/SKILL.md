@@ -7,7 +7,7 @@ description: >-
   技术判断, 形成可执行的最小工程动作。目标、责任和路径已经清楚的机械任务
   保持局部并直接执行。
 metadata:
-  version: "2"
+  version: "3"
 ---
 
 # Product & Architecture Judgment

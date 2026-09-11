@@ -1,7 +1,7 @@
 ### Case DECISION-ID-TRACE-001: 稳定 ID 的 Trace 关系
 
 Tests:
-- `test:649b4590cc79ed5adb67f5a09042a563f77d0779ff0bf263b43cdb43344f0fb6`
+- `test:b7e1b65af5a7d93ae56d7e764c603e3c38ede3f241150def2605bac4dabc06be`
 
 Tags:
 - `decision-records`

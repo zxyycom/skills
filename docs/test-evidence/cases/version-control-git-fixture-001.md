@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-GIT-FIXTURE-001: 普通 fixture 物化为隔离 Git 仓库
 
 Tests:
-- `test:16f4d39e7df07a8092dbdbc12b75d6e44071aff6c7b51557b2ae64383fb86540`
+- `test:4d657cff7b428912758fdc9d51137926225202de1c767c0d39c311f66dd7641a`
 
 Tags:
 - `version-control`

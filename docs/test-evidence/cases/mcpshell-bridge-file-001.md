@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-FILE-001: workspace put and get preserve binary and empty-file bytes with both endpoint hashes
 
 Tests:
-- `test:c2323fa016c1412bcb3c182758ed88f70f5599d53b94c8e05f494a7056abaaed`
+- `test:dd7e41180518a98684b9fb167fbf8d68e20400909fcaf79ed35577f4b4aa7c65`
 
 Tags:
 - `mcpshell-workspace-bridge`

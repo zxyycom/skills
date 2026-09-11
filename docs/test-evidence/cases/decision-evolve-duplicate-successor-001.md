@@ -1,7 +1,7 @@
 ### Case DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001: Evolve CLI 拒绝重复后继成员
 
 Tests:
-- `test:929b6f0fae6718cb54c15f3fcb4c84ddb7808a47f9aa12e858c6a072add85e6a`
+- `test:2ec5906b7692a7be6c0dec418da67fc863b0a66779cf89f6a2de62e3aa1d0674`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-REVISION-CASE-MOVE-001: Case 移动保留身份且只改变自身 Entry Revision
 
 Tests:
-- `test:4d3270d1905360fac4e83088aba0d590eaff3b64db8d75255608dca66fb2be9b`
+- `test:e4d73fe6173d390f35803e09721c93da69f22b2952d6f9c492e96c7eb401ecd4`
 
 Tags:
 - `test-evidence`

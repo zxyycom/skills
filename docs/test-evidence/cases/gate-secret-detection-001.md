@@ -1,7 +1,7 @@
 ### Case GATE-SECRET-DETECTION-001: 私钥检测阻断 finding 并对 unavailable fail closed
 
 Tests:
-- `test:9adc0ab77975cc06df18bc30c5f4a8ec4e642325d1aa6764a5ebdfe90bd1c9c0`
+- `test:6cd2e722e98f97de6feffd132bb929ac2df2588f698eaeab00eff7d15886ebed`
 
 Tags:
 - `repository-tooling`

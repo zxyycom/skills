@@ -1,7 +1,7 @@
 ### Case FILE-TEXT-SEARCH-MODES-001: 文件搜索支持 all、any 与 phrase 匹配
 
 Tests:
-- `test:ec0ca31d7f4a179560ffe98f2bdbef5ee779ad4cd807d2e7e85d58cf7f3a1e26`
+- `test:090180d666f72d2fbbc97deec0522e6e32e2eac38117faabca38a765880313a9`
 
 Tags:
 - `index-runtime`

@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-PENDING-EXPECTATION-CONCURRENCY-001: 期望文件串行化并发 Pending 替换
 
 Tests:
-- `test:e47fa9bdf3579757b4d7423b398b4c64ce45f61a96f1c099a2f4b2e01bc7149d`
+- `test:10e02921d81321763888381d2c6a79132f0e84bf17cae22475a38b68090a0e1b`
 
 Tags:
 - `version-control`

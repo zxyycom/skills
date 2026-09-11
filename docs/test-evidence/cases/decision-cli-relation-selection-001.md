@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-RELATION-SELECTION-001: Relation 与 clear-relations 参数互斥
 
 Tests:
-- `test:40f877b3b5f4d9c7e7f7148f87df39d6243cf09bd882919ae86b7697d873dcea`
+- `test:977b013a2c390d50778a7f947694d9a2d207cf5b835b8303499dbf7908a8a2cf`
 
 Tags:
 - `decision-records`

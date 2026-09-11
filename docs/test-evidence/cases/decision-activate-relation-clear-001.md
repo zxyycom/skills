@@ -1,7 +1,7 @@
 ### Case DECISION-ACTIVATE-RELATION-CLEAR-001: Activate 显式清空候选来源关系
 
 Tests:
-- `test:c466d354f4a35a872e4cf30a68f671fd5a6493905fe3c265e5707b2e3ab2b51f`
+- `test:fe596d4451ff3055cdc79ce82b457be90b529a7c62045f54a8b237957fc4b832`
 
 Tags:
 - `decision-records`

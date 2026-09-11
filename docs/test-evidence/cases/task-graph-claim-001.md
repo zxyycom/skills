@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLAIM-001: 重复领取、排斥任务领取和陈旧 revision 编辑均被拒绝
 
 Tests:
-- `test:54027800cf4acbc0702102ff3dbe6954da92f873fe5ae5fda28fab8df757d96c`
+- `test:73a8cee6e9d462a3d0ba4624db7b24d1b48de8d0d5bf5391ea5fd94c537822d3`
 
 Tags:
 - `task-graph`

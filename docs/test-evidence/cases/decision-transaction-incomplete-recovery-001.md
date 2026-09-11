@@ -1,7 +1,7 @@
 ### Case DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001: 决策事务报告恢复写入失败
 
 Tests:
-- `test:d8f1c17056b56527a98a87ab9421a189160820f2193a24a79d370739440b70d7`
+- `test:d7c70d4c81069b448328e0d9ec2effae46793cba895d439a90a44e7bf535dc3b`
 
 Tags:
 - `decision-records`

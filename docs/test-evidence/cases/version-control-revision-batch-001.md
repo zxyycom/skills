@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-REVISION-BATCH-001: 批量读取受范围约束的 revision 快照
 
 Tests:
-- `test:155e257936baceb6e862fbf3ff6cf98cba3563632f04e6e5afc270b81f5d4a86`
+- `test:47f2db6238d71de79e9d9eb6f13fe735e3096a97a5f9b3e57a58ac755156bbee`
 
 Tags:
 - `version-control`

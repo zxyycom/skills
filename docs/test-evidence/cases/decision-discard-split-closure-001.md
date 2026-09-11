@@ -1,7 +1,7 @@
 ### Case DECISION-DISCARD-SPLIT-CLOSURE-001: Discard 拒绝会打开拆分闭包的后继
 
 Tests:
-- `test:75520649c5e5bad21ae20a12c449f29dd3e9c67216aa510222165ccfa6281fea`
+- `test:482b8f8e1da000a8f40d9c67b76b56b697b21fb29bfaffa0d4b7ac716f727f66`
 
 Tags:
 - `decision-records`

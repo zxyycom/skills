@@ -1,7 +1,7 @@
 ### Case GATE-RELEASE-TAG-ACTIVATION-001: 原生 flag 选择保留未激活 release Check
 
 Tests:
-- `test:6faf08a99c3d00ad954514e94b291e32db24573865fe43200968f0c20e79c245`
+- `test:7d36da91f43c0b1b1778272f50f4a84ed43281a95d6e40f91eb7f1e5d2ee613a`
 
 Tags:
 - `repository-tooling`

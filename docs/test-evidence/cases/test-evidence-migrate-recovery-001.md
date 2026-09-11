@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-MIGRATE-RECOVERY-001: 迁移在并发清理阻断后恢复已验证字节
 
 Tests:
-- `test:5e0b27ca070b842553ac5cd1c972682b391f79c40d01ed665d1a57cd5bc96087`
+- `test:6a94e9c86d93f5a8fa520eecac8c441ff9dd2f586eab742e683b95f9cebdd9e8`
 
 Tags:
 - `repository-tooling`

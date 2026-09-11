@@ -1,7 +1,7 @@
 ### Case GATE-FUNCTION-ANALYZER-001: 函数指标使用随包分析器
 
 Tests:
-- `test:c5e29360f8f94d86444705f635b36dbda351b49f6e33d0e593311c8d5b172d5c`
+- `test:4228fe5cc44b22e050d2f603fce943086aa243d7f1c3169995b3404cd27704bb`
 
 Tags:
 - `repository-tooling`

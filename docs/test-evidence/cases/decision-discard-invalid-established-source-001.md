@@ -1,7 +1,7 @@
 ### Case DECISION-DISCARD-INVALID-ESTABLISHED-SOURCE-001: Discard 在非法已建立来源前零写入失败
 
 Tests:
-- `test:7badd69674fb9e14482ff182c5dc7c2d956590e359e69f787f2359b28df6575c`
+- `test:e2ed109ddeaf2378b3336c11e1f4b6785a695ffe31e759df0f57dd45ee4775fb`
 
 Tags:
 - `decision-records`

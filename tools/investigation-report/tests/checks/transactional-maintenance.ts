@@ -1,4 +1,9 @@
 await import("../transaction.test.ts");
+await import("../transaction-recovery.test.ts");
+await import("../transaction-sync.test.ts");
 await import("../discard.test.ts");
 await import("../publish.test.ts");
 await import("../rename.test.ts");
+await import("../rename-drift.test.ts");
+await import("../rename-recovery.test.ts");
+await import("../rename-validation.test.ts");

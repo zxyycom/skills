@@ -1,7 +1,7 @@
 ### Case GATE-DUPLICATE-DETECTION-001: 重复检测阻断 finding 并对 unavailable fail closed
 
 Tests:
-- `test:acfa4fe4f33f3d74096fbc1758f45a7172a3fb53c92d4b8857c72624a11ee0e8`
+- `test:d906623cfd396d948b4456bb0baf720b32edd1f89cf6a20afaa1f586aa87b654`
 
 Tags:
 - `repository-tooling`

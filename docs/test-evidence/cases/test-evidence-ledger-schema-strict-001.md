@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-LEDGER-SCHEMA-STRICT-001: Reference snapshot 失败状态严格分离
 
 Tests:
-- `test:2c9508d7c7b9648420d4c003b17d58af34d1a9c4de5d265708488b384839c326`
+- `test:66d35d8fc37a3b36db5726792d11eda84023c2c0da21adcdc51adc8e28bfb186`
 
 Tags:
 - `test-evidence`

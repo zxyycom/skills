@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-REVISION-BATCH-001: Stage 对完整决策快照限制 Git 调用数
 
 Tests:
-- `test:2d9267f15946a60845f3da985daf77c1c408b68e009a0fb4b6a71a68f4568e69`
+- `test:5554d617afa1170624776eddf411dfbf8e5a7129b38d2c0dd21dc67bfac4990d`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-LIFECYCLE-PREFLIGHT-001: Lifecycle preflight 保留真实选择参数
 
 Tests:
-- `test:f0e6c65f050ad8de0149b0b970f48e234a75f85f24e30887a30c153d90a9defe`
+- `test:1ab65a122bffd176b09ac628e9ba54291c08c2fb5dc881cd3f42d04fff5ebe8a`
 
 Tags:
 - `decision-records`

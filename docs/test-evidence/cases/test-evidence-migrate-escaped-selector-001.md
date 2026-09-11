@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-MIGRATE-ESCAPED-SELECTOR-001: 迁移归一化转义 selector 名称
 
 Tests:
-- `test:cce924fba79a87b8cfcd2151dc5d198393f1670255aae857192759d54c371d89`
+- `test:8765dd324af9c53e7247539670512a40fdaf95d29b6de3535980750d10ae5633`
 
 Tags:
 - `repository-tooling`

@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-STAGING-CONCURRENCY-001: 注入仓储映射竞争中的 Pending 替换冲突
 
 Tests:
-- `test:0c8cc61716e15b079f1b92e2e7028e3c0530b3d507168e6dec94ab01691e9b2d`
+- `test:966107cad16835ac3fd7b4ae96f7e2fe25d27ec1205e01a9eeee34b47d77b14c`
 
 Tags:
 - `index-runtime`

@@ -1,7 +1,7 @@
 ### Case DECISION-TRANSACTION-CLEANUP-002: 预检无写入时锁清理失败仍报告 no-change
 
 Tests:
-- `test:ab8af86b2022ba8a325d43848918fd9a5aacc9e21d513040f0140d53aa0a0e42`
+- `test:49aa0b23b49b7a09537076c5fcdbb0beb2c607e3df52194941b0ea7ceb161b76`
 
 Tags:
 - `decision-records`

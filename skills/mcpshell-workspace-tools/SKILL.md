@@ -6,7 +6,7 @@ description: >-
   双向单文件 tools。查看文件和执行命令优先用 shell，修改文本优先用 patch，
   put/get 只传输文件实体；已有等价 workspace tools 时直接使用。
 metadata:
-  version: "6"
+  version: "7"
 ---
 
 # MCPShell Workspace Tools

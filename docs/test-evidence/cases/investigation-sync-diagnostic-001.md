@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-SYNC-DIAGNOSTIC-001: sync-index preserves post-rename uncertainty when lock cleanup also fails
 
 Tests:
-- `test:6cad33571a8831c04b93f1a51315c74ee5492508b53b8d8d90f60ce77fa3ec03`
+- `test:9566dc2dd1912f68512349ade151802153d5911c3e5f79b2abeacf20ca945e1a`
 
 Tags:
 - `investigation-report`

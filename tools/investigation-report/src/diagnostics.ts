@@ -96,31 +96,50 @@ export function diagnosticFromStateIndexDiagnostic(
     target: string;
   }>
 ): InvestigationDiagnostic {
-  if (diagnostic.filesystem !== undefined) {
-    return {
-      causeCategory: diagnostic.filesystem.causeCategory,
-      code: diagnostic.code,
-      detail: diagnostic.filesystem.detail,
-      ...(options.mutation === undefined ? {} : { mutation: options.mutation }),
-      operation: diagnostic.filesystem.operation,
-      reason: sanitizeInvestigationDiagnosticText(diagnostic.message),
-      recovery: options.recovery,
-      target: diagnostic.filesystem.target ?? diagnostic.path ?? options.target
-    };
-  }
-  if (diagnostic.versionControl !== undefined) {
-    return {
-      causeCategory: diagnostic.versionControl.causeCategory,
-      code: diagnostic.code,
-      detail: diagnostic.versionControl.detail,
-      ...(options.mutation === undefined ? {} : { mutation: options.mutation }),
-      operation: diagnostic.versionControl.operation,
-      reason: sanitizeInvestigationDiagnosticText(diagnostic.message),
-      recovery: options.recovery,
-      target:
-        diagnostic.versionControl.target ?? diagnostic.path ?? options.target
-    };
-  }
+  const boundary = diagnostic.filesystem ?? diagnostic.versionControl;
+  return boundary === undefined
+    ? internalStateIndexDiagnostic(diagnostic, options)
+    : boundaryStateIndexDiagnostic(diagnostic, boundary, options);
+}
+
+type StateIndexBoundaryDiagnostic = Readonly<{
+  causeCategory: InvestigationDiagnostic["causeCategory"];
+  detail: string | null;
+  operation: string | null;
+  target?: string | null;
+}>;
+
+function boundaryStateIndexDiagnostic(
+  diagnostic: StateIndexDiagnostic,
+  boundary: StateIndexBoundaryDiagnostic,
+  options: Readonly<{
+    mutation?: InvestigationMutationDiagnostic;
+    recovery: string;
+    target: string;
+  }>
+): InvestigationDiagnostic {
+  return {
+    ...(boundary.causeCategory === undefined
+      ? {}
+      : { causeCategory: boundary.causeCategory }),
+    code: diagnostic.code,
+    detail: boundary.detail,
+    ...(options.mutation === undefined ? {} : { mutation: options.mutation }),
+    operation: boundary.operation,
+    reason: sanitizeInvestigationDiagnosticText(diagnostic.message),
+    recovery: options.recovery,
+    target: boundary.target ?? diagnostic.path ?? options.target
+  };
+}
+
+function internalStateIndexDiagnostic(
+  diagnostic: StateIndexDiagnostic,
+  options: Readonly<{
+    mutation?: InvestigationMutationDiagnostic;
+    recovery: string;
+    target: string;
+  }>
+): InvestigationDiagnostic {
   const systemFailure = isStateIndexSystemFailure(diagnostic.code);
   const detail = sanitizeInvestigationDiagnosticText(diagnostic.message);
   return {

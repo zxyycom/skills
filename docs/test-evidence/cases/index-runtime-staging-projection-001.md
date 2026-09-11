@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-STAGING-PROJECTION-001: 完整重投影后拒绝非法选择目标
 
 Tests:
-- `test:12177fe86dbeec1da33670457bbea6c4ccde7e11381963a36e80b3bd503b0abf`
+- `test:b62e1b93eb98da58e362b9217bcd6fdd478a4ca15e09aa1de7bb5344b5c0159f`
 
 Tags:
 - `index-runtime`

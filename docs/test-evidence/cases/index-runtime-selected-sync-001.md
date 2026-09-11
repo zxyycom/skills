@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-SELECTED-SYNC-001: selected sync proves the complete projection before publishing it
 
 Tests:
-- `test:3e43fcc19cc2b6f566a3b089721ad99fca383f1bbea5ee8e7cf333cea9ecc3fb`
+- `test:7324276e779659bcda8d13dbdfee8255b6f0cdf678af585be4f6f524c8c61460`
 
 Tags:
 - `index-runtime`

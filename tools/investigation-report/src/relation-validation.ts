@@ -164,25 +164,42 @@ function relationShapeIssues(
   }
   const types = new Set(edges.map((edge) => edge.type));
   if (types.has("拆分")) {
-    return edges.length === 1 && edges[0]?.type === "拆分"
-      ? []
-      : [
-          `${source} 拆分 successor must have exactly one direct 拆分 relation and no other relations`
-        ];
+    return splitRelationShapeIssues(source, edges);
   }
   if (types.has("归并")) {
-    return types.size === 1 && edges.length >= 2
-      ? []
-      : [
-          `${source} 归并 report must use a pure relation set with at least two direct predecessors`
-        ];
+    return mergeRelationShapeIssues(source, edges, types);
   }
-  if (edges.length !== 1 || !ordinaryRelationTypes.has(edges[0]!.type)) {
-    return [
-      `${source} ordinary relation report must have exactly one 补充、复查、修正 or 推翻 predecessor`
-    ];
-  }
-  return [];
+  return ordinaryRelationShapeIssues(source, edges);
+}
+
+function splitRelationShapeIssues(
+  source: string,
+  edges: readonly RelationEdge<string, InvestigationRelationType>[]
+): string[] {
+  if (edges.length === 1 && edges[0]?.type === "拆分") return [];
+  return [
+    `${source} 拆分 successor must have exactly one direct 拆分 relation and no other relations`
+  ];
+}
+function mergeRelationShapeIssues(
+  source: string,
+  edges: readonly RelationEdge<string, InvestigationRelationType>[],
+  types: ReadonlySet<InvestigationRelationType>
+): string[] {
+  if (types.size === 1 && edges.length >= 2) return [];
+  return [
+    `${source} 归并 report must use a pure relation set with at least two direct predecessors`
+  ];
+}
+function ordinaryRelationShapeIssues(
+  source: string,
+  edges: readonly RelationEdge<string, InvestigationRelationType>[]
+): string[] {
+  if (edges.length === 1 && ordinaryRelationTypes.has(edges[0]!.type))
+    return [];
+  return [
+    `${source} ordinary relation report must have exactly one 补充、复查、修正 or 推翻 predecessor`
+  ];
 }
 
 function isRelationType(value: string): value is InvestigationRelationType {

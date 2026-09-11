@@ -1,7 +1,7 @@
 ### Case DECISION-UNRECORDED-WARNING-ORDER-001: Evolve 按 Decision ID 顺序列出尚未进入 Git HEAD 的前序提示
 
 Tests:
-- `test:789871e8f859ddf79a23903b58aee6a9763a9ba1e264bdc556a03607b03b80ee`
+- `test:92912db9918abd026b1943aa8e9623f66334547973f784bf274921f4a425ece8`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-DISCARD-INVALID-001: Discard 拒绝生命周期或正文无效的候选
 
 Tests:
-- `test:455b61c07ee922a13c14efa393aa722b20949363a096cc3b354e6c80b53f4686`
+- `test:a8c2984745a3a26a33cc1d3696ca5fb2c174d8fc82a77b6d8fd78a829130f71c`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case GATE-RELEASE-SNAPSHOT-TOCTOU-001: authorization 与打包使用 prepare 捕获的同一 snapshot
 
 Tests:
-- `test:8d089e29e87933c1ce96ffc3dedad799b80bebbdac6c25381d384b68437f97be`
+- `test:03e395216e2c712c5293cad74dc936398f69b1c19e83e42ad70be3c3be4db316`
 
 Tags:
 - `repository-tooling`

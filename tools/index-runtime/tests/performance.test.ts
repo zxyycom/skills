@@ -1,3 +1,4 @@
+/* oxlint-disable no-unused-vars -- Split test modules retain shared fixture imports for their focused scenario files. */
 import assert from "node:assert/strict";
 import test from "node:test";
 import { performance } from "node:perf_hooks";
@@ -11,16 +12,11 @@ import {
 } from "../src/index.ts";
 import { resultValue } from "./support.ts";
 
-const scaleStateSchema = v.strictObject({
-  body: v.string(),
-  createdAt: v.pipe(v.number(), v.finite()),
-  id: v.string(),
-  status: v.picklist(["active", "archived"]),
-  tags: v.array(v.string()),
-  title: v.string()
-});
-
-type ScaleState = v.InferOutput<typeof scaleStateSchema>;
+import {
+  createScaleDefinition,
+  scaleStateSchema,
+  type ScaleState
+} from "./performance-definition.ts";
 
 type BenchmarkResult = {
   buildMs: number;
@@ -73,39 +69,7 @@ async function benchmark(count: number): Promise<BenchmarkResult> {
     ),
     metadata: `scale-${count}:metadata`
   };
-  const definition = defineStateIndexDefinition<ScaleState>({
-    definitionVersion: 1,
-    queryFields: [
-      {
-        mode: "exact",
-        name: "status",
-        sources: [{ kind: "state-path", path: ["status"] }]
-      },
-      {
-        mode: "exact",
-        name: "tag",
-        sources: [{ kind: "state-path", path: ["tags"] }]
-      },
-      {
-        mode: "range",
-        name: "created-at",
-        sources: [{ kind: "state-path", path: ["createdAt"] }]
-      },
-      {
-        mode: "text",
-        name: "text",
-        sources: [
-          { kind: "state-path", path: ["title"] },
-          { kind: "state-path", path: ["body"] }
-        ]
-      }
-    ],
-    namespace: "scale",
-    parseMetadata: (metadata) => metadata,
-    parseState: (state) => v.parse(scaleStateSchema, state),
-    read: async () => ({ metadata: {}, sourceRevision, states: stateRecord }),
-    readRevision: async () => sourceRevision
-  });
+  const definition = createScaleDefinition({ sourceRevision, stateRecord });
 
   const buildStart = performance.now();
   const index = resultValue(await buildStateIndex(definition, { root: "." }));

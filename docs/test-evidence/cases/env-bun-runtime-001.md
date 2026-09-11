@@ -1,7 +1,7 @@
 ### Case ENV-BUN-RUNTIME-001: 环境要求项目的最低 Bun 运行时
 
 Tests:
-- `test:1f7d8785e5f525287d45630fb9e6ae02690fafb502aefe1451c2867beb9a91a8`
+- `test:29b8dfb1217c601a65f49afb7555b2e7349ec20067e259a77153e0c9480febb7`
 
 Tags:
 - `repository-tooling`

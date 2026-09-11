@@ -373,6 +373,10 @@ test("complete stops when the Plan lifecycle changes while tombstone setup runs"
     assert.equal(result.outcome, "no-change");
     assert.equal(result.changed, false);
     assert.match(result.error ?? "", /lifecycle changed/u);
+    assert.equal(result.check?.completedTaskCount, 2);
+    assert.ok(
+      (result.check?.completedTaskCount ?? 0) < (result.check?.taskCount ?? 0)
+    );
     await fs.access(change);
   });
 });

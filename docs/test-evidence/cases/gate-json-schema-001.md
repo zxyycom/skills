@@ -1,7 +1,7 @@
 ### Case GATE-JSON-SCHEMA-001: JSON Schema 校验阻断 finding 并对 unavailable fail closed
 
 Tests:
-- `test:d8d6a3edc4c26abca49e4762cd50e6d1e974cca33a59ee4268691d2518edb6ec`
+- `test:d9a7072ad15df42c3bd545dc0b2cf2976299cbb2eef1782b3a23f9193e5b04bf`
 
 Tags:
 - `repository-tooling`

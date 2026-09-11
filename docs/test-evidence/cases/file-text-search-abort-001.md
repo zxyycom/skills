@@ -1,8 +1,8 @@
 ### Case FILE-TEXT-SEARCH-ABORT-001: 文件搜索遵守已取消的信号
 
 Tests:
-- `test:7fd51c8188453c4fbf346914c76a32649f2f796b5c257553f7c16e620edcc95e`
-- `test:86842eb1045ae7dd0e314d2d66bbaf08a93d454d8fbe3f25f7b4964ea433739a`
+- `test:9ae51cd0758c06e12b4bde53c020853327145db176e62c4e4f7e86bd1c4b4928`
+- `test:bde344d7a447f26abe03e6c178bce724857e8258871d3d6b9de78f7490cc49c5`
 
 Tags:
 - `index-runtime`

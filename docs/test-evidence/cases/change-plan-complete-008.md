@@ -11,4 +11,5 @@ Contract:
 
 Proves:
 - hook 在 tombstone setup 后把完成任务改为未完成并提交新 HEAD 时，结果为 `no-change`。
+- 该失败结果保留刷新后的 check，因而报告当前的未完成任务进度而不是初始快照。
 - source Change 仍存在，未进入删除或 cleanup 流程。

@@ -48,14 +48,11 @@ function scalarJsonValue(value: unknown): JsonScalarResult {
     case "boolean":
       return { matched: true, value };
     case "number":
-      return {
-        matched: true,
-        value: Number.isFinite(value) ? value : String(value)
-      };
+      return numericJsonScalar(value);
     case "bigint":
     case "symbol":
     case "function":
-      return { matched: true, value: String(value) };
+      return { matched: true, value: scalarJsonText(value) };
     case "undefined":
       return { matched: true, value: null };
     case "object":
@@ -63,6 +60,19 @@ function scalarJsonValue(value: unknown): JsonScalarResult {
     default:
       return { matched: false };
   }
+}
+
+function numericJsonScalar(value: number): JsonScalarResult {
+  return {
+    matched: true,
+    value: Number.isFinite(value) ? value : String(value)
+  };
+}
+
+function scalarJsonText(value: bigint | symbol | Function): string {
+  return typeof value === "function"
+    ? Function.prototype.toString.call(value)
+    : value.toString();
 }
 
 function jsonObject(value: unknown): JsonObject {

@@ -6,59 +6,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/task-graph
  * Rebuild: bun run sync:task-graph-cli
  */
-import type { CancelTaskOptions, ClaimTaskOptions, CompleteTaskOptions, RemoveTasksOptions, TaskControlInput, TaskGraphApplyRequest, TaskGraphApplyResult, TaskIndex } from "./types.mjs";
-export type IndexMutation<TData> = {
-    index: TaskIndex;
-    data: TData;
-};
-export declare function applyTaskGraphOperations(current: TaskIndex, requestInput: TaskGraphApplyRequest, now: Date): IndexMutation<TaskGraphApplyResult>;
-export declare function claimTask(current: TaskIndex, options: ClaimTaskOptions & {
-    leaseUuid: string;
-}, now: Date): IndexMutation<{
-    taskId: string;
-    leaseId: string;
-    expiresAt: string;
-}>;
-export declare function renewTaskLease(current: TaskIndex, options: {
-    taskId: string;
-    leaseId: string;
-    durationSeconds?: number;
-}, now: Date): IndexMutation<{
-    taskId: string;
-    leaseId: string;
-    expiresAt: string;
-}>;
-export declare function releaseTask(current: TaskIndex, options: {
-    taskId: string;
-    leaseId: string;
-    control: TaskControlInput;
-}, now: Date): IndexMutation<{
-    taskId: string;
-    phase: "idle";
-}>;
-export declare function completeTask(current: TaskIndex, options: CompleteTaskOptions, now: Date): IndexMutation<{
-    taskId: string;
-    phase: "succeeded";
-}>;
-export declare function failTask(current: TaskIndex, options: {
-    taskId: string;
-    leaseId: string;
-    reason: string;
-}, now: Date): IndexMutation<{
-    taskId: string;
-    phase: "failed";
-}>;
-export declare function retryTask(current: TaskIndex, options: {
-    taskId: string;
-    expectedRevision: number;
-}, now: Date): IndexMutation<{
-    taskId: string;
-    phase: "idle";
-}>;
-export declare function cancelTask(current: TaskIndex, options: CancelTaskOptions, now: Date): IndexMutation<{
-    taskId: string;
-    cancelledTaskIds: string[];
-}>;
-export declare function removeTasks(current: TaskIndex, options: RemoveTasksOptions): IndexMutation<{
-    removedTaskIds: string[];
-}>;
+export type { IndexMutation } from "./engine-content.mjs";
+export { applyTaskGraphOperations } from "./engine-apply.mjs";
+export { claimTask } from "./engine-claim.mjs";
+export { cancelTask, completeTask, failTask, releaseTask, renewTaskLease, retryTask } from "./engine-lifecycle.mjs";
+export { removeTasks } from "./engine-removal.mjs";

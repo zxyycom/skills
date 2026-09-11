@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-PATH-SYMLINK-INTERNAL-001: 在稳定符号链接布局中使用根内规范目标
 
 Tests:
-- `test:066f2875ddb97ab3577ec05fd45e7b2c9e72780800bb90a14ab29d1fa2f4cb4e`
+- `test:130e3448f65e64ffd75f8804c331b450de1b269cfb8262592cd1d7ba0a239c39`
 
 Tags:
 - `index-runtime`

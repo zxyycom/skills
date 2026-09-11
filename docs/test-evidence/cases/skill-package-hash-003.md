@@ -1,7 +1,7 @@
 ### Case SKILL-PACKAGE-HASH-003: 要求变化 skill 独立提升版本
 
 Tests:
-- `test:105bdfc46b122de21184590bb88fe0670e9c85b2b26431ef4b4351740e43cc73`
+- `test:74c218f12c6622f4c3a460cd4670e2e0c235d9c2f082e07a774160e8163be41b`
 
 Tags:
 - `repository-tooling`

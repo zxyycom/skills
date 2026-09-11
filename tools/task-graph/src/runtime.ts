@@ -71,23 +71,36 @@ function isSupportedNodeVersion(nodeVersion: string): boolean {
   return major === 22 && (minor > 22 || (minor === 22 && patch >= 2));
 }
 
+function runtimeHome(
+  options: RuntimeContextOptions
+): Readonly<{ toolHome: string; toolHomeSource: "default" | "environment" }> {
+  const configuredHome = (options.environment ?? process.env)
+    .TASK_GRAPH_TOOL_HOME;
+  if (configuredHome !== undefined && configuredHome.length > 0)
+    return {
+      toolHome: path.resolve(configuredHome),
+      toolHomeSource: "environment"
+    };
+  return {
+    toolHome: path.join(
+      (options.homedir ?? os.homedir)(),
+      ".tools",
+      "task-graph"
+    ),
+    toolHomeSource: "default"
+  };
+}
+
 function createRuntimeContext(
   options: RuntimeContextOptions = {}
 ): RuntimeContext {
-  const environment = options.environment || process.env;
-  const configuredHome = environment.TASK_GRAPH_TOOL_HOME;
-  const configured = configuredHome !== undefined && configuredHome.length > 0;
-  const toolHomeSource = configured ? "environment" : "default";
-  const toolHome = configured
-    ? path.resolve(configuredHome)
-    : path.join((options.homedir ?? os.homedir)(), ".tools", "task-graph");
+  const home = runtimeHome(options);
   return {
     arch: options.arch ?? process.arch,
     nodeVersion: currentNodeVersion(options),
     platform: options.platform ?? process.platform,
-    runtimePath: path.join(toolHome, "runtimes", runtimeId),
-    toolHome,
-    toolHomeSource
+    runtimePath: path.join(home.toolHome, "runtimes", runtimeId),
+    ...home
   };
 }
 

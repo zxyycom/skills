@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-REVISION-TREE-001: 拒绝不支持的批量 revision tree entry
 
 Tests:
-- `test:6c8a4e91c2e0ce0e301159f3b3e32e8b31d87c98a15500b4910350e549d02b4a`
+- `test:3f5023a72ae4b53874735545e2647845ab73459ab0005c5f47d86eb54da4c86f`
 
 Tags:
 - `version-control`

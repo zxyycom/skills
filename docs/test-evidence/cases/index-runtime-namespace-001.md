@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-NAMESPACE-001: 拒绝其他命名空间的持久化索引
 
 Tests:
-- `test:dcf5861a7cdb45acecafc42991eed3cdb33d0c18a3117fb715a3a6df81364ef5`
+- `test:c385fe20515b378cea7f4cdc6ac884d5404375c0d4953dac050c605293164911`
 
 Tags:
 - `index-runtime`

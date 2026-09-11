@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-PENDING-CAS-001: Stage 保留并发 pending 内容
 
 Tests:
-- `test:cdb453165a63d6b2f81ef9a1ded5237304865a0d1396fdceb5e068dff527c362`
+- `test:57244d433150b66c5dd4ba06ae24e2aa6499dcb9521d456bdb553619edb46e0f`
 
 Tags:
 - `decision-records`

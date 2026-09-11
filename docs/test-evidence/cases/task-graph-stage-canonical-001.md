@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-STAGE-CANONICAL-001: 非规范工作区索引在写 pending 前被拒绝
 
 Tests:
-- `test:9021946e60272c7bffe7a0507516c799d72a272aa8efec5c57ea96d39618c3f9`
+- `test:304f0cba968045f69b6510f6c12d72cf5873a3eeae03a12ddeddf30e5e053878`
 
 Tags:
 - `task-graph`

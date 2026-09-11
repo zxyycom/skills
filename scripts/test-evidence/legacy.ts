@@ -43,6 +43,29 @@ export async function loadLegacyCatalog(
     `${legacyRoot}/${legacyTopicsFile}`
   );
   const topics = parseTopics(topicText);
+  await assertLegacyRootEntries(root, topics);
+
+  const cases: LegacyCase[] = [];
+  const fingerprints: Record<string, string> = Object.create(null);
+  for (const topicId of topics) {
+    for (const { legacyCase, text } of await loadTopicCases(root, topicId)) {
+      if (fingerprints[legacyCase.id] !== undefined) {
+        throw new LegacyCatalogError(
+          `duplicate legacy Case ID: ${legacyCase.id}`
+        );
+      }
+      fingerprints[legacyCase.id] = sha256(text);
+      cases.push(legacyCase);
+    }
+  }
+  cases.sort((left, right) => compare(left.id, right.id));
+  return { cases, fingerprints };
+}
+
+async function assertLegacyRootEntries(
+  root: string,
+  topics: readonly string[]
+): Promise<void> {
   const allowed = new Set([legacyTopicsFile, legacyIndexFile, ...topics]);
   const rootEntries = await fs.readdir(root, { withFileTypes: true });
   for (const entry of rootEntries) {
@@ -57,51 +80,48 @@ export async function loadLegacyCatalog(
       );
     }
   }
+}
 
-  const cases: LegacyCase[] = [];
-  const fingerprints: Record<string, string> = Object.create(null);
-  for (const topicId of topics) {
-    const topicDirectory = path.join(root, topicId);
-    const stat = await lstatOrNull(topicDirectory);
-    if (stat === null) continue;
-    if (!stat.isDirectory() || stat.isSymbolicLink()) {
-      throw new LegacyCatalogError(
-        `${legacyRoot}/${topicId} must be a real directory`
-      );
-    }
-    const entries = await fs.readdir(topicDirectory, { withFileTypes: true });
-    if (entries.length === 0) {
-      throw new LegacyCatalogError(
-        `${legacyRoot}/${topicId} must not be empty when present`
-      );
-    }
-    for (const entry of entries.sort((a, b) => compare(a.name, b.name))) {
-      if (
-        entry.isSymbolicLink() ||
-        !entry.isFile() ||
-        !/^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/u.test(entry.name)
-      ) {
-        throw new LegacyCatalogError(
-          `${legacyRoot}/${topicId}/${entry.name} must be a regular semantic Markdown file`
-        );
-      }
-      const sourcePath = `${legacyRoot}/${topicId}/${entry.name}`;
-      const text = await readOrdinaryUtf8(
-        path.join(topicDirectory, entry.name),
-        sourcePath
-      );
-      const legacyCase = parseLegacyCase(text, sourcePath, topicId);
-      if (fingerprints[legacyCase.id] !== undefined) {
-        throw new LegacyCatalogError(
-          `duplicate legacy Case ID: ${legacyCase.id}`
-        );
-      }
-      fingerprints[legacyCase.id] = sha256(text);
-      cases.push(legacyCase);
-    }
+async function loadTopicCases(
+  root: string,
+  topicId: string
+): Promise<readonly { legacyCase: LegacyCase; text: string }[]> {
+  const topicDirectory = path.join(root, topicId);
+  const stat = await lstatOrNull(topicDirectory);
+  if (stat === null) return [];
+  if (!stat.isDirectory() || stat.isSymbolicLink()) {
+    throw new LegacyCatalogError(
+      `${legacyRoot}/${topicId} must be a real directory`
+    );
   }
-  cases.sort((left, right) => compare(left.id, right.id));
-  return { cases, fingerprints };
+  const entries = await fs.readdir(topicDirectory, { withFileTypes: true });
+  if (entries.length === 0) {
+    throw new LegacyCatalogError(
+      `${legacyRoot}/${topicId} must not be empty when present`
+    );
+  }
+  const cases: Array<{ legacyCase: LegacyCase; text: string }> = [];
+  for (const entry of entries.sort((a, b) => compare(a.name, b.name))) {
+    if (
+      entry.isSymbolicLink() ||
+      !entry.isFile() ||
+      !/^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/u.test(entry.name)
+    ) {
+      throw new LegacyCatalogError(
+        `${legacyRoot}/${topicId}/${entry.name} must be a regular semantic Markdown file`
+      );
+    }
+    const sourcePath = `${legacyRoot}/${topicId}/${entry.name}`;
+    const text = await readOrdinaryUtf8(
+      path.join(topicDirectory, entry.name),
+      sourcePath
+    );
+    cases.push({
+      legacyCase: parseLegacyCase(text, sourcePath, topicId),
+      text
+    });
+  }
+  return cases;
 }
 
 function parseTopics(text: string): string[] {
@@ -124,31 +144,38 @@ function parseTopics(text: string): string[] {
       `${legacyRoot}/${legacyTopicsFile} must contain the legacy topic table`
     );
   }
-  const topics: string[] = [];
-  for (const topic of input.topics) {
-    if (
-      !isRecord(topic) ||
-      Object.keys(topic).length !== 2 ||
-      typeof topic.id !== "string" ||
-      typeof topic.description !== "string" ||
-      !topicIdPattern.test(topic.id) ||
-      topic.description.trim() !== topic.description ||
-      /[\r\n]/u.test(topic.description) ||
-      Array.from(topic.description).length < 4 ||
-      Array.from(topic.description).length > 200
-    ) {
-      throw new LegacyCatalogError(
-        `${legacyRoot}/${legacyTopicsFile} contains an invalid topic`
-      );
-    }
-    topics.push(topic.id);
-  }
+  const topics = input.topics.map(parseTopic);
   if (new Set(topics).size !== topics.length || !isSorted(topics)) {
     throw new LegacyCatalogError(
       `${legacyRoot}/${legacyTopicsFile} topic IDs must be unique and sorted`
     );
   }
   return topics;
+}
+
+function parseTopic(topic: unknown): string {
+  if (!isRecord(topic) || Object.keys(topic).length !== 2) {
+    throw invalidTopic();
+  }
+  const { description, id } = topic;
+  if (
+    typeof id !== "string" ||
+    typeof description !== "string" ||
+    !topicIdPattern.test(id) ||
+    description.trim() !== description ||
+    /[\r\n]/u.test(description) ||
+    Array.from(description).length < 4 ||
+    Array.from(description).length > 200
+  ) {
+    throw invalidTopic();
+  }
+  return id;
+}
+
+function invalidTopic(): LegacyCatalogError {
+  return new LegacyCatalogError(
+    `${legacyRoot}/${legacyTopicsFile} contains an invalid topic`
+  );
 }
 
 function parseLegacyCase(

@@ -1,7 +1,7 @@
 ### Case ENV-CHECK-READONLY-001: 环境 check 只报告缺失的仓库配置
 
 Tests:
-- `test:63e30ae0fa30d604c81c739eb8640f427a8c7368476c358d9b5a033ee2186c19`
+- `test:db34e78be152a685a28c4b35387656de35c8708f0eb8dcc0c150b07fe80ede29`
 
 Tags:
 - `repository-tooling`

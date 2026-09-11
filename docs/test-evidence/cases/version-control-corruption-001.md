@@ -1,7 +1,7 @@
 ### Case VERSION-CONTROL-CORRUPTION-001: 将损坏修订对象报告为操作失败
 
 Tests:
-- `test:8935eee821a1017205c0242adcd5f21947af4725a529496013bd118bdcfb3bc0`
+- `test:6cef080aaa946cc043863bc588d647a86dff9433a24d09a17fba9d69c27d7f9f`
 
 Tags:
 - `version-control`

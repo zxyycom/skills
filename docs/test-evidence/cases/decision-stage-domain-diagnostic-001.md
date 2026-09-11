@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-DOMAIN-DIAGNOSTIC-001: Stage 将重复选择来源标识报告为领域错误
 
 Tests:
-- `test:e5299822fc28d9e533cf29d0a1a7d307b0aa95c33ed7e2957e3d88208dd0aa34`
+- `test:776d7b89f2826481e5bcb400aed93ec8ac7fe082da83fb60e38feefa53af7b95`
 
 Tags:
 - `decision-records`

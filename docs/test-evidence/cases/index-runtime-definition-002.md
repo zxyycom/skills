@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-DEFINITION-002: 拒绝非法的封闭查询字段描述
 
 Tests:
-- `test:5c7174bb2632a657be12a12e12b2e3b652c227c3a009d57e8b51d5b17ebbca73`
+- `test:7c7627d49cc307681045f67ca5880dd1f66f55c5e2ffa9c4991649ea967c27c4`
 
 Tags:
 - `index-runtime`

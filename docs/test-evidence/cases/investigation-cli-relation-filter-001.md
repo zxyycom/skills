@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-RELATION-FILTER-001: CLI rejects repeated relation query options
 
 Tests:
-- `test:d90dc1376bdace24b842dd854c9131f5a6affafd23987524bdb2dc111898531a`
+- `test:e6e6ab428bcca846525e4ba0ed95e7a2b12e77fbc60e6ef739ef792965cc7bda`
 
 Tags:
 - `investigation-report`

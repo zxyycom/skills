@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-DEFINITION-001: 拒绝 definition version 已变化的持久化索引
 
 Tests:
-- `test:63e2eecdc4a2194d60a667558225c0f410aa9ee3ae8d2966e47d1c8fa9c669cf`
+- `test:003a78c37e02c6ebbbc212bb959f4319a335cc3e5cd8e322e88a06a89d95c01b`
 
 Tags:
 - `index-runtime`

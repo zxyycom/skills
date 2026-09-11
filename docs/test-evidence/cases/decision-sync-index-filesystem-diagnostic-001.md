@@ -1,7 +1,7 @@
 ### Case DECISION-SYNC-INDEX-FILESYSTEM-DIAGNOSTIC-001: sync-index 保留结构化来源访问诊断
 
 Tests:
-- `test:0ba9d981cccb16580fc08282e20fc43cfea18cad4fa00d6ec3f4719efd2fe6f6`
+- `test:7a0ed9c021d88f62e2cec60f6c8ebf747bf675ce25908cde35b44de922a998ac`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-LOCKED-RELEASE-001: 正式生命周期在锁释放失败时报告已提交待清理
 
 Tests:
-- `test:4aedcf5e23004bd4fd90040042b4312f93de2568e6776fb3fb73fc6b3ccc493b`
+- `test:879d9e338cb915d8233ab956e5c6defd4ad38cc250e92f70d6315e846d370486`
 
 Tags:
 - `decision-records`

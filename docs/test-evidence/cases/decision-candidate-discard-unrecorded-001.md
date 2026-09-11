@@ -1,7 +1,7 @@
 ### Case DECISION-CANDIDATE-DISCARD-UNRECORDED-001: Discard 删除未进入 Git HEAD 的候选
 
 Tests:
-- `test:b932b7fea6ac85ad54bb62fa2fdcf25c9fe6d7d9c1e7640bc141e9ddc3a01348`
+- `test:85a1b44d5858dc7569e1b3cfd25bc1d6a5cdcf3b8c8bbab4fb741b8ab58416aa`
 
 Tags:
 - `decision-records`

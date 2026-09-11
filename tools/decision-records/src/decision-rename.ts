@@ -1,45 +1,22 @@
-import path from "node:path";
-import {
-  openVersionControl,
-  VersionControlError
-} from "../../shared/src/version-control/index.ts";
 import {
   decisionAttention,
   decisionDiagnostic,
-  decisionFailure,
-  type DecisionApplicationFailure
+  decisionFailure
 } from "./application-result.ts";
 import { loadDecisionHistoryBaseline } from "./decision-history-baseline.ts";
-import { serializeDecisionFrontmatter } from "./decision-metadata.ts";
-import {
-  datedDecisionIdForName,
-  decisionNameFromId,
-  parseDatedDecisionId,
-  sourcePathForDecisionRename,
-  utcDecisionDate
-} from "./decision-path.ts";
 import {
   DecisionCollectionLockError,
   withDecisionCollectionMutationLock
 } from "./decision-collection-mutation-lock.ts";
-import {
-  applyLockedDecisionChanges,
-  type DecisionFileChange
-} from "./decision-transaction.ts";
+import { applyLockedDecisionChanges } from "./decision-transaction.ts";
 import { loadDecisionValidationContext } from "./index.ts";
 import { scanDecisionRecords } from "./scan.ts";
+import { type DecisionScanOptions } from "./types.ts";
 import {
-  compareDecisionRecords,
-  isDecisionCandidateRecord,
-  isEstablishedDecisionRecord,
-  type DecisionCandidateRecord,
-  type EstablishedDecisionRecord,
-  type DecisionId,
-  type DecisionRecord,
-  type DecisionScan,
-  type DecisionScanOptions,
-  type DecisionSourcePath
-} from "./types.ts";
+  prepareDecisionRename,
+  type PreparedRenameStep
+} from "./decision-rename-planning.ts";
+import { pendingDecisionRenameFailure } from "./decision-rename-pending.ts";
 
 export type DecisionRenameOptions = DecisionScanOptions &
   Readonly<{
@@ -126,12 +103,6 @@ export type DecisionRenameResult =
       status: "ok";
     }>;
 
-type PreparedDecisionRename = Readonly<{
-  changes: readonly DecisionFileChange[];
-  plan: DecisionRenamePlan;
-  source: RenameableDecisionRecord;
-}>;
-
 const decisionRenameScope =
   "Decision Markdown files and derived decision index";
 
@@ -180,36 +151,74 @@ export async function renameDecisionRecord(
 function completedDecisionRenameWithLockCleanup(
   error: unknown
 ): DecisionRenameCommittedCleanup | null {
-  if (
-    !(error instanceof DecisionCollectionLockError) ||
-    error.kind !== "release-failed"
-  ) {
-    return null;
-  }
-  const result = error.operationResult;
-  if (
-    result === null ||
-    typeof result !== "object" ||
-    !("status" in result) ||
-    result.status !== "ok" ||
-    !("changed" in result) ||
-    result.changed !== true ||
-    !("outcome" in result) ||
-    result.outcome !== "committed" ||
-    !("plan" in result)
-  ) {
-    return null;
-  }
-  const plan = result.plan;
-  if (
-    plan === null ||
-    typeof plan !== "object" ||
-    !("oldId" in plan) ||
-    !("newId" in plan)
-  ) {
-    return null;
-  }
-  const diagnostic = decisionDiagnostic({
+  const plan = releasedRenamePlan(error);
+  if (plan === null) return null;
+  const diagnostic = renameLockCleanupDiagnostic();
+  return {
+    changed: true,
+    diagnostics: [diagnostic],
+    errors: [],
+    exitCode: 1,
+    outcome: "committed-cleanup-pending",
+    plan,
+    status: "attention",
+    warnings: [diagnostic.reason]
+  };
+}
+
+function releasedRenamePlan(error: unknown): DecisionRenamePlan | null {
+  if (!(error instanceof DecisionCollectionLockError)) return null;
+  if (error.kind !== "release-failed") return null;
+  return committedRenamePlan(error.operationResult);
+}
+
+function committedRenamePlan(value: unknown): DecisionRenamePlan | null {
+  if (!isCommittedRenameResult(value)) return null;
+  return hasRenamePlanIdentity(value.plan)
+    ? (value.plan as DecisionRenamePlan)
+    : null;
+}
+
+function isCommittedRenameResult(value: unknown): value is {
+  changed: true;
+  outcome: "committed";
+  plan: unknown;
+  status: "ok";
+} {
+  return (
+    isObjectRecord(value) &&
+    propertyEquals(value, "status", "ok") &&
+    propertyEquals(value, "changed", true) &&
+    propertyEquals(value, "outcome", "committed") &&
+    "plan" in value
+  );
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object";
+}
+
+function propertyEquals(
+  value: Record<string, unknown>,
+  key: string,
+  expected: unknown
+): boolean {
+  return value[key] === expected;
+}
+
+function hasRenamePlanIdentity(
+  value: unknown
+): value is Record<string, unknown> {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    "oldId" in value &&
+    "newId" in value
+  );
+}
+
+function renameLockCleanupDiagnostic() {
+  return decisionDiagnostic({
     code: "decision-records.collection-lock-release-failed",
     outcome: "committed-cleanup-pending",
     reason:
@@ -219,16 +228,6 @@ function completedDecisionRenameWithLockCleanup(
     scope: decisionRenameScope,
     target: "Decision collection mutation lock"
   });
-  return {
-    changed: true,
-    diagnostics: [diagnostic],
-    errors: [],
-    exitCode: 1,
-    outcome: "committed-cleanup-pending",
-    plan: plan as DecisionRenamePlan,
-    status: "attention",
-    warnings: [diagnostic.reason]
-  };
 }
 
 async function applyDecisionRenameWithinLock(
@@ -254,10 +253,6 @@ async function applyDecisionRenameWithinLock(
     status: "ok"
   };
 }
-
-type PreparedRenameStep =
-  | DecisionApplicationFailure
-  | Readonly<{ status: "ready"; value: PreparedDecisionRename }>;
 
 async function prepareDecisionRenameAtCurrentState(
   options: DecisionRenameOptions,
@@ -319,352 +314,4 @@ async function prepareDecisionRenameAtCurrentState(
     };
   }
   return prepared;
-}
-
-/**
- * `stage` owns a complete pending collection snapshot. Rename does not stage
- * on the caller's behalf, so it must reject that snapshot rather than leave
- * its old identity in Git's pending view.
- */
-async function pendingDecisionRenameFailure(
-  scan: DecisionScan
-): Promise<DecisionApplicationFailure | null> {
-  try {
-    const repository = await openVersionControl(scan.decisionsDirectory);
-    const revision = await repository.getCurrentRevision();
-    const scope = repositoryRelativeDecisionScope(
-      repository.rootDirectory,
-      scan.decisionsDirectory
-    );
-    if (scope === null) return null;
-    const changed =
-      revision === null
-        ? await repository.readPendingFiles({ pathScopes: [scope] })
-        : await repository.listPendingChangedPaths({
-            from: revision,
-            pathScopes: [scope]
-          });
-    if (changed.length === 0) return null;
-    return renameFailure(
-      "decision-records.rename-pending-stage-conflict",
-      "Decision pending snapshot already contains collection files; rename would leave its old identity in that staged view.",
-      "Inspect or resolve the Decision pending snapshot, then retry rename without relying on automatic staging.",
-      scan.indexRelativePath
-    );
-  } catch (error) {
-    if (
-      error instanceof VersionControlError &&
-      error.code === "not-repository"
-    ) {
-      return null;
-    }
-    return renameFailure(
-      "decision-records.rename-pending-stage-inspection-failed",
-      "Decision pending snapshot could not be inspected before rename.",
-      "Correct the version-control failure, then retry rename; no files were changed.",
-      scan.indexRelativePath
-    );
-  }
-}
-
-function repositoryRelativeDecisionScope(
-  repositoryRoot: string,
-  decisionsDirectory: string
-): string | null {
-  const relative = path.relative(repositoryRoot, decisionsDirectory);
-  if (
-    relative.length === 0 ||
-    path.isAbsolute(relative) ||
-    relative === ".." ||
-    relative.startsWith(`..${path.sep}`)
-  ) {
-    return null;
-  }
-  return relative.split(path.sep).join("/");
-}
-
-function prepareDecisionRename(
-  scan: DecisionScan,
-  options: DecisionRenameOptions
-): PreparedRenameStep {
-  const source = resolveRenameSource(scan, options.source);
-  if (source.status !== "ok") return source;
-  const target = resolveRenameTarget(
-    source.record,
-    scan.records,
-    options.target
-  );
-  if (target.status !== "ok") return target;
-  const relations = rewrittenDecisionChanges(
-    scan.records,
-    source.record,
-    target.value
-  );
-  const sourceChange = relations.find(
-    (change) => change.decisionPath === source.record.decisionPath
-  );
-  if (sourceChange === undefined) {
-    throw new Error("Decision rename did not prepare its selected source");
-  }
-  const candidateRelations = scan.records
-    .filter(isDecisionCandidateRecord)
-    .flatMap((record) => record.source.document.relations)
-    .filter((relation) => relation.target === source.record.decisionId).length;
-  const establishedRelations = scan.records
-    .filter(isEstablishedDecisionRecord)
-    .flatMap((record) => record.source.document.relations)
-    .filter((relation) => relation.target === source.record.decisionId).length;
-  return {
-    status: "ready",
-    value: {
-      changes: relations,
-      plan: {
-        affectedCandidateRelationCount: candidateRelations,
-        affectedEstablishedRelationCount: establishedRelations,
-        newId: target.value.decisionId,
-        newName: target.value.name,
-        newSourcePath: target.value.sourcePath,
-        oldId: source.record.decisionId,
-        oldName: decisionNameFromId(source.record.decisionId),
-        oldSourcePath: source.record.sourcePath,
-        outcome: "ready"
-      },
-      source: source.record
-    }
-  };
-}
-
-type RenameableDecisionRecord =
-  | DecisionCandidateRecord
-  | EstablishedDecisionRecord;
-
-function resolveRenameSource(
-  scan: DecisionScan,
-  rawSource: string
-):
-  | Readonly<{ record: RenameableDecisionRecord; status: "ok" }>
-  | DecisionApplicationFailure {
-  const normalized = rawSource.replace(/\.md$/iu, "");
-  const dated = parseDatedDecisionId(normalized);
-  const records = scan.records.filter(
-    (record): record is RenameableDecisionRecord =>
-      isDecisionCandidateRecord(record) || isEstablishedDecisionRecord(record)
-  );
-  const matches =
-    dated === null
-      ? records.filter(
-          (record) => decisionNameFromId(record.decisionId) === normalized
-        )
-      : records.filter((record) => record.decisionId === dated.id);
-  if (matches.length === 1) return { record: matches[0]!, status: "ok" };
-  const reason =
-    matches.length === 0
-      ? "Decision rename source does not exist: " + normalized
-      : "Decision rename source is ambiguous: " +
-        normalized +
-        "; choose one standard ID: " +
-        matches
-          .map((record) => record.decisionId)
-          .sort()
-          .join(", ");
-  return decisionFailure([
-    decisionDiagnostic({
-      code:
-        matches.length === 0
-          ? "decision-records.rename-source-not-found"
-          : "decision-records.rename-source-ambiguous",
-      outcome: "no-change",
-      reason,
-      recovery:
-        matches.length === 0
-          ? "Choose an existing standard Decision ID or unique name."
-          : "Retry with one listed calendar-valid YYMMDD-name Decision ID.",
-      scope: decisionRenameScope,
-      target: normalized
-    })
-  ]);
-}
-
-type RenameTarget = Readonly<{
-  decisionId: DecisionId;
-  name: string;
-  sourcePath: DecisionSourcePath;
-}>;
-
-function resolveRenameTarget(
-  source: RenameableDecisionRecord,
-  records: readonly DecisionRecord[],
-  rawTarget: string
-):
-  | Readonly<{ status: "ok"; value: RenameTarget }>
-  | DecisionApplicationFailure {
-  const normalized = rawTarget.replace(/\.md$/iu, "");
-  const explicit = parseDatedDecisionId(normalized);
-  const sourceDated = parseDatedDecisionId(source.decisionId);
-  const expectedDate =
-    sourceDated?.date ??
-    (source.source.kind === "established" && source.createdAt !== null
-      ? utcDecisionDate(new Date(source.createdAt))
-      : null);
-  if (
-    source.source.kind === "candidate" &&
-    sourceDated === null &&
-    explicit === null
-  ) {
-    return renameFailure(
-      "decision-records.rename-date-required",
-      "A legacy Decision candidate has no authoritative formation date for a name rename.",
-      "Provide a complete calendar-valid YYMMDD-name target ID to explicitly choose the migration date.",
-      normalized
-    );
-  }
-  if (
-    explicit !== null &&
-    expectedDate !== null &&
-    explicit.date !== expectedDate
-  ) {
-    return renameFailure(
-      "decision-records.rename-date-mismatch",
-      "Target Decision ID date must match the source's authoritative date: " +
-        expectedDate,
-      "Use the source date with the intended semantic name.",
-      normalized
-    );
-  }
-  const decisionId =
-    explicit?.id ??
-    (expectedDate === null
-      ? null
-      : datedDecisionIdForName(normalized, expectedDate));
-  if (decisionId === null) {
-    return renameFailure(
-      "decision-records.rename-target-invalid",
-      "Decision rename target must be a semantic name or calendar-valid YYMMDD-name ID: " +
-        normalized,
-      "Use lowercase kebab-case text, or a complete dated Decision ID.",
-      normalized
-    );
-  }
-  const name = decisionNameFromId(decisionId);
-  const otherRecords = records.filter(
-    (record) => record.decisionPath !== source.decisionPath
-  );
-  if (otherRecords.some((record) => record.decisionId === decisionId)) {
-    return renameFailure(
-      "decision-records.rename-id-conflict",
-      "Target Decision ID already exists: " + decisionId,
-      "Choose an unused dated Decision ID.",
-      decisionId
-    );
-  }
-  if (
-    otherRecords.some((record) =>
-      isDecisionCandidateRecord(record) || isEstablishedDecisionRecord(record)
-        ? decisionNameFromId(record.decisionId) === name
-        : false
-    )
-  ) {
-    return renameFailure(
-      "decision-records.rename-name-conflict",
-      "Target Decision name already exists in the current collection: " + name,
-      "Choose a unique semantic name or resolve the existing record first.",
-      name
-    );
-  }
-  const occupied = new Set(otherRecords.map((record) => record.sourcePath));
-  const status = source.status;
-  if (status === null) {
-    return renameFailure(
-      "decision-records.rename-source-invalid",
-      "Decision rename source has no valid lifecycle status: " +
-        source.sourcePath,
-      "Correct the Decision source before retrying rename.",
-      source.sourcePath
-    );
-  }
-  const sourcePath = sourcePathForDecisionRename(
-    decisionId,
-    name,
-    status,
-    occupied
-  );
-  if (sourcePath === null) {
-    return renameFailure(
-      "decision-records.rename-path-conflict",
-      "Both name and ID target paths are occupied for Decision " + decisionId,
-      "Free one listed target path or choose a different name; no files were changed.",
-      decisionId
-    );
-  }
-  return { status: "ok", value: { decisionId, name, sourcePath } };
-}
-
-function renameFailure(
-  code: string,
-  reason: string,
-  recovery: string,
-  target: string
-): DecisionApplicationFailure {
-  return decisionFailure([
-    decisionDiagnostic({
-      code,
-      outcome: "no-change",
-      reason,
-      recovery,
-      scope: decisionRenameScope,
-      target
-    })
-  ]);
-}
-
-function rewrittenDecisionChanges(
-  records: readonly DecisionRecord[],
-  source: RenameableDecisionRecord,
-  target: RenameTarget
-): DecisionFileChange[] {
-  const changes: DecisionFileChange[] = [];
-  for (const record of [...records].sort(compareDecisionRecords)) {
-    if (
-      !isDecisionCandidateRecord(record) &&
-      !isEstablishedDecisionRecord(record)
-    )
-      continue;
-    const isSource = record.decisionPath === source.decisionPath;
-    const relations = record.source.document.relations.map((relation) => ({
-      ...relation,
-      target:
-        relation.target === source.decisionId
-          ? target.decisionId
-          : relation.target
-    }));
-    const relationChanged = relations.some(
-      (relation, index) =>
-        relation.target !== record.source.document.relations[index]?.target
-    );
-    if (!isSource && !relationChanged) continue;
-    const decisionId = isSource ? target.decisionId : record.decisionId;
-    const nextText =
-      serializeDecisionFrontmatter(
-        decisionId,
-        { ...record.source.document, relations },
-        record.source.document.tags,
-        record.source.document
-      ) + record.source.body;
-    changes.push({
-      decisionPath: record.decisionPath,
-      expectedText: record.source.text,
-      nextText,
-      ...(isSource && target.sourcePath !== record.sourcePath
-        ? {
-            targetPath: path.join(
-              record.sourcePath.startsWith("archive/")
-                ? path.dirname(path.dirname(record.decisionPath))
-                : path.dirname(record.decisionPath),
-              ...target.sourcePath.split("/")
-            )
-          }
-        : {})
-    });
-  }
-  return changes;
 }

@@ -61,23 +61,57 @@ function collectReallocationComponent(
   const pendingSuccessorIds = [firstSuccessorId];
   const pendingPredecessorIds: DecisionId[] = [];
   while (pendingSuccessorIds.length > 0 || pendingPredecessorIds.length > 0) {
-    const successorId = pendingSuccessorIds.pop();
-    if (successorId !== undefined && !successorIds.has(successorId)) {
-      successorIds.add(successorId);
-      remainingSuccessorIds.delete(successorId);
-      pendingPredecessorIds.push(
-        ...(successorToPredecessors.get(successorId) ?? [])
-      );
-    }
-    const predecessorId = pendingPredecessorIds.pop();
-    if (predecessorId !== undefined && !predecessorIds.has(predecessorId)) {
-      predecessorIds.add(predecessorId);
-      pendingSuccessorIds.push(
-        ...(predecessorToSuccessors.get(predecessorId) ?? [])
-      );
-    }
+    collectSuccessorNeighbors({
+      pendingPredecessorIds,
+      pendingSuccessorIds,
+      remainingSuccessorIds,
+      successorIds,
+      successorToPredecessors
+    });
+    collectPredecessorNeighbors({
+      pendingPredecessorIds,
+      pendingSuccessorIds,
+      predecessorIds,
+      predecessorToSuccessors
+    });
   }
   return { predecessorIds, successorIds };
+}
+
+function collectSuccessorNeighbors(options: {
+  pendingPredecessorIds: DecisionId[];
+  pendingSuccessorIds: DecisionId[];
+  remainingSuccessorIds: Set<DecisionId>;
+  successorIds: Set<DecisionId>;
+  successorToPredecessors: ReadonlyMap<DecisionId, ReadonlySet<DecisionId>>;
+}): void {
+  const successorId = options.pendingSuccessorIds.pop();
+  if (successorId === undefined || options.successorIds.has(successorId))
+    return;
+  options.successorIds.add(successorId);
+  options.remainingSuccessorIds.delete(successorId);
+  options.pendingPredecessorIds.push(
+    ...(options.successorToPredecessors.get(successorId) ?? [])
+  );
+}
+
+function collectPredecessorNeighbors(options: {
+  pendingPredecessorIds: DecisionId[];
+  pendingSuccessorIds: DecisionId[];
+  predecessorIds: Set<DecisionId>;
+  predecessorToSuccessors: ReadonlyMap<DecisionId, ReadonlySet<DecisionId>>;
+}): void {
+  const predecessorId = options.pendingPredecessorIds.pop();
+  if (
+    predecessorId === undefined ||
+    options.predecessorIds.has(predecessorId)
+  ) {
+    return;
+  }
+  options.predecessorIds.add(predecessorId);
+  options.pendingSuccessorIds.push(
+    ...(options.predecessorToSuccessors.get(predecessorId) ?? [])
+  );
 }
 
 function addRelationRoleNeighbor(

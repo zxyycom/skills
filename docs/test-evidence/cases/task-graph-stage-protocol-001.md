@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-STAGE-PROTOCOL-001: Index stage 提供专用文本与显式 JSON 协议
 
 Tests:
-- `test:3682e5d1348c5a79dd306bdaf356f2155dcb7486627731bf9fa025848dc33ea1`
+- `test:22ccb851855d4ec4c3589949d1f0807a5d7d606a615207a17f022e9d3abea8de`
 
 Tags:
 - `task-graph`

@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-FILE-006: workspace get reads a fixed physical source snapshot after its lexical parent swaps
 
 Tests:
-- `test:c2b9301a088ebc62c0551583edb929103eefd0a49127d9d9cd4b94c6ea771acb`
+- `test:e44031f6b5b6d98b91b431ea6e580f78f3e8b0cd17623353baaa54598863273f`
 
 Tags:
 - `mcpshell-workspace-bridge`

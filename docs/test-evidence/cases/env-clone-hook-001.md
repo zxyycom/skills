@@ -1,7 +1,7 @@
 ### Case ENV-CLONE-HOOK-001: 环境 setup 在新 clone 中启用仓库 Hooks
 
 Tests:
-- `test:baef42808fb0f96878ced5185b89d6e1ed515d23781f611cd16912a026309fa9`
+- `test:de91266be10ac751fa58bfc83c0ca4505f83bdd240ed7d45f4522861c1948760`
 
 Tags:
 - `repository-tooling`

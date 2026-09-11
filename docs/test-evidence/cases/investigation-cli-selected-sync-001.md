@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CLI-SELECTED-SYNC-001: CLI selected sync proves the full investigation collection before writing
 
 Tests:
-- `test:00a360c9017eb6c278ead9d060f04de0f8a91476f488eb2e748ac15e6778e070`
+- `test:fb55c2cd7d694eb23bc8072d10ed2c5a58eb9169e4bcc276f6edd2b613ef9ff7`
 
 Tags:
 - `investigation-report`

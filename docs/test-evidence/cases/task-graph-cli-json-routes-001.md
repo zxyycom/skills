@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-CLI-JSON-ROUTES-001: Help 与无专用文本 renderer 的 command 保持 JSON route
 
 Tests:
-- `test:4747016189a6d242f7e1e37a6b9047d970f2f3f805f4cca00d0ecbb7b7cc424b`
+- `test:00bed3be9cc78d0770b94c63c9296531ca8c688f52aedef654b8600f9b1214ca`
 
 Tags:
 - `task-graph`

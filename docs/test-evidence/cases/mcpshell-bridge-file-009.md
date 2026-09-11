@@ -1,7 +1,7 @@
 ### Case MCPSHELL-BRIDGE-FILE-009: workspace put does not delete a replacement when final containment is unknown
 
 Tests:
-- `test:366d4a96046a3b8c67d282044c2afd386329aacb7ee9997eb24d192d4b875b04`
+- `test:a0a81b0f2694c98fdee612d5994e990cfcd0ed8ea5cdbec2b79b896950a35ca5`
 
 Tags:
 - `mcpshell-workspace-bridge`

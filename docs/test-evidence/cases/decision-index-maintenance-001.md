@@ -1,7 +1,7 @@
 ### Case DECISION-INDEX-MAINTENANCE-001: 索引维护识别漂移并同步规范状态
 
 Tests:
-- `test:8010500e6348693d7e1b942fffc520166fd9a8bdd266a54009aa5696cbc28584`
+- `test:2ccce67b2ba90aa503d2cb17b2b1cec1c21af41148393232922fb4244c318f1d`
 
 Tags:
 - `decision-records`

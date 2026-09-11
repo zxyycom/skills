@@ -1,7 +1,7 @@
 ### Case DECISION-QUERY-INDEX-MEMBERSHIP-001: 查询读取持久快照且 Check 检测来源漂移
 
 Tests:
-- `test:c8597381b29574e907d1d9044bcafe3d62a282219aa7c6f3dbd9e6439acadbee`
+- `test:e0f0dca8a69f6481611e205ed7bbe441b7a9ff35b96696793c33fa2b8873870f`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,7 @@
 ### Case SKILL-PACKAGE-HASH-006: 从同一 pending 快照发现 skill 成员与内容
 
 Tests:
-- `test:70a94b3b88ae44dc4e307baca4e119c55aa9b904d662ec96469df6cfe338504d`
+- `test:6efcdc40e0d9306611b59ac5da20e109b28cd589fffdf40ded222132ba3b058b`
 
 Tags:
 - `repository-tooling`

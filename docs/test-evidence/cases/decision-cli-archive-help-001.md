@@ -1,7 +1,7 @@
 ### Case DECISION-CLI-ARCHIVE-HELP-001: Archive 帮助承诺保留最后对齐状态
 
 Tests:
-- `test:62ef5177de592a5567f1eeb131e941975125c7e55fa49dfcd4c2152852fc8a26`
+- `test:f43686fba85a25b8f67aa58befb8b7d44ae83c9159bb3074a67382d6e98a9882`
 
 Tags:
 - `decision-records`

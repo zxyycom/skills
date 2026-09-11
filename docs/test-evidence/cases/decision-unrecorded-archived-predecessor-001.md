@@ -1,7 +1,7 @@
 ### Case DECISION-UNRECORDED-ARCHIVED-PREDECESSOR-001: 关系事务确认尚未进入 Git HEAD 的归档直接前序
 
 Tests:
-- `test:d3ffc4310f956eb8e12180a20ea4b83d610b6aba9347c8014738033e10a07dbb`
+- `test:3b2e8e72c3003905fb8966d851670610255f758d838cb5c892d57e7c419c486f`
 
 Tags:
 - `decision-records`

@@ -27,6 +27,16 @@ export type VersionControlErrorDetails = Readonly<{
   target?: string | null;
 }>;
 
+const errorCodeLabels: Readonly<Record<VersionControlErrorCode, string>> = {
+  "invalid-path": "path validation failed",
+  "not-repository": "repository discovery failed",
+  "operation-failed": "operation failed",
+  "pending-conflict": "pending replacement conflicted",
+  "pending-recovery-failed": "pending recovery failed",
+  "pending-replacement-failed": "pending replacement failed",
+  "revision-not-found": "revision was unavailable"
+};
+
 export function classifyVersionControlCause(
   cause: unknown,
   fallback: VersionControlErrorCauseCategory = "unknown"
@@ -108,20 +118,5 @@ export function renderVersionControlError(
 }
 
 function errorCodeLabel(code: VersionControlErrorCode): string {
-  switch (code) {
-    case "invalid-path":
-      return "path validation failed";
-    case "not-repository":
-      return "repository discovery failed";
-    case "operation-failed":
-      return "operation failed";
-    case "pending-conflict":
-      return "pending replacement conflicted";
-    case "pending-recovery-failed":
-      return "pending recovery failed";
-    case "pending-replacement-failed":
-      return "pending replacement failed";
-    case "revision-not-found":
-      return "revision was unavailable";
-  }
+  return errorCodeLabels[code];
 }

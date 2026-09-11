@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-STAGE-REPOSITORY-001: 无版本仓库时稳定失败且不写工作区
 
 Tests:
-- `test:8a8c1b1b6e6df7a6da169731c2830eb5ad2d0aadce5cca1331b45dc9562405ee`
+- `test:f3b1110c73debadbd2d84ffd038d1ab62f42bde9b514c6257d16d2c87abd0fa5`
 
 Tags:
 - `test-evidence`

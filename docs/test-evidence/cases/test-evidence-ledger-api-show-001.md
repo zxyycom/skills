@@ -1,7 +1,7 @@
 ### Case TEST-EVIDENCE-LEDGER-API-SHOW-001: show 检测来源替换并返回当前权威 Case
 
 Tests:
-- `test:6151b76a7790c1e47b252dc936b689ea49509f039035b18ca071d549474aab90`
+- `test:25033a05ccf872e620f16c36b6c54dbe64f2ecc4379e4228484dbb8558c7b4e9`
 
 Tags:
 - `test-evidence`

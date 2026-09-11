@@ -1,7 +1,7 @@
 ### Case DECISION-TRANSACTION-CLEANUP-001: 已提交事务在锁清理失败时报告 cleanup pending
 
 Tests:
-- `test:84c3f7e79b89d7a45e085e9e7ecadb6178acde277830c47c656615ca45ffddbb`
+- `test:fceb37d558606cec271ed050209ec3b4b8fd00976be624a3c553c65c96218a30`
 
 Tags:
 - `decision-records`

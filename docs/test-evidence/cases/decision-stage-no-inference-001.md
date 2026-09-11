@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-NO-INFERENCE-001: Stage 不把无关的相同删除/新增绑定为改名
 
 Tests:
-- `test:25f51032c6cfcb90ffb19f383737c5301f3c82a399c386c59967ea80daf82b63`
+- `test:c82be6e1a8e3eba1ba1849fec7789186b305dc8569569a9438cf59d0a2987bca`
 
 Tags:
 - `decision-records`

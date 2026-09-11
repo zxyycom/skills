@@ -1,7 +1,6 @@
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { toString } from "mdast-util-to-string";
 import type {
-  ArtifactSubsectionContract,
   ArtifactStructureContract,
   ArtifactValidationResult,
   ChangePlanArtifactName,
@@ -10,23 +9,25 @@ import type {
   ChangePlanTaskProgress,
   ChangePlanTaskSection
 } from "./types.ts";
+import { validateSubsections } from "./markdown-subsections.ts";
+import { validateTasks } from "./markdown-tasks.ts";
 
-type MarkdownRoot = ReturnType<typeof fromMarkdown>;
+export type MarkdownRoot = ReturnType<typeof fromMarkdown>;
 type RootContent = MarkdownRoot["children"][number];
 type MarkdownHeading = Extract<RootContent, { type: "heading" }>;
 
-type RootHeading = {
+export type RootHeading = {
   depth: MarkdownHeading["depth"];
   lineIndex: number;
   title: string;
 };
 
-type ChecklistCandidate = {
+export type ChecklistCandidate = {
   line: string;
   lineIndex: number;
 };
 
-type TaskValidationContext = {
+export type TaskValidationContext = {
   completedTaskCount: number;
   contract: ArtifactStructureContract;
   diagnostics: ChangePlanDiagnostic[];
@@ -39,9 +40,9 @@ type TaskValidationContext = {
 };
 
 const taskLinePrefixPattern = /^- \[[^\]]*\]/u;
-const taskLinePattern =
+export const taskLinePattern =
   /^- \[([ xX])\] ([0-9]+\.[0-9]+(?:\.[0-9]+)*) (.+\S|\S)$/u;
-const taskSectionByHeading: Readonly<
+export const taskSectionByHeading: Readonly<
   Record<ChangePlanTaskHeading, ChangePlanTaskSection>
 > = {
   Implementation: "implementation",
@@ -49,7 +50,7 @@ const taskSectionByHeading: Readonly<
   Verification: "verification"
 };
 
-function emptyTaskProgress(): ChangePlanTaskProgress {
+export function emptyTaskProgress(): ChangePlanTaskProgress {
   return {
     implementation: { completedTaskCount: 0, taskCount: 0 },
     readiness: { completedTaskCount: 0, taskCount: 0 },
@@ -84,7 +85,7 @@ function isSemanticNode(node: RootContent): boolean {
   );
 }
 
-function hasSemanticContent(
+export function hasSemanticContent(
   root: MarkdownRoot,
   startLineIndex: number,
   endLineIndex: number
@@ -100,7 +101,7 @@ function hasSemanticContent(
   });
 }
 
-function checklistCandidates(
+export function checklistCandidates(
   root: MarkdownRoot,
   lines: readonly string[]
 ): ChecklistCandidate[] {
@@ -122,7 +123,7 @@ function checklistCandidates(
   });
 }
 
-function diagnostic(
+export function diagnostic(
   file: ChangePlanArtifactName,
   code: ChangePlanDiagnostic["code"],
   message: string,
@@ -169,43 +170,51 @@ function validateRequiredSections(
 ): RootHeading[] {
   const h2 = headings.filter((heading) => heading.depth === 2);
   for (const [index, title] of contract.requiredSections.entries()) {
-    const matches = h2.filter((heading) => heading.title === title);
-    if (matches.length === 0) {
-      diagnostics.push(
-        diagnostic(
-          contract.file,
-          "missing-section",
-          `missing required "## ${title}" section`
-        )
-      );
-      continue;
-    }
-    if (matches.length > 1) {
-      diagnostics.push(
-        diagnostic(
-          contract.file,
-          "duplicate-section",
-          `"## ${title}" must appear exactly once`,
-          matches[1]?.lineIndex === undefined
-            ? undefined
-            : matches[1].lineIndex + 1
-        )
-      );
-    }
-    if (h2[index]?.title !== title) {
-      diagnostics.push(
-        diagnostic(
-          contract.file,
-          "section-order",
-          `H2 sections must start with: ${contract.requiredSections.join(", ")}`,
-          h2[index]?.lineIndex === undefined
-            ? undefined
-            : h2[index].lineIndex + 1
-        )
-      );
-    }
+    validateRequiredSection({ contract, diagnostics, h2, index, title });
   }
   return h2;
+}
+
+function validateRequiredSection(context: {
+  contract: ArtifactStructureContract;
+  diagnostics: ChangePlanDiagnostic[];
+  h2: readonly RootHeading[];
+  index: number;
+  title: string;
+}): void {
+  const { contract, diagnostics, h2, index, title } = context;
+  const matches = h2.filter((heading) => heading.title === title);
+  if (matches.length === 0) {
+    diagnostics.push(
+      diagnostic(
+        contract.file,
+        "missing-section",
+        `missing required "## ${title}" section`
+      )
+    );
+    return;
+  }
+  if (matches.length > 1)
+    diagnostics.push(
+      diagnostic(
+        contract.file,
+        "duplicate-section",
+        `"## ${title}" must appear exactly once`,
+        lineOf(matches[1])
+      )
+    );
+  if (h2[index]?.title !== title)
+    diagnostics.push(
+      diagnostic(
+        contract.file,
+        "section-order",
+        `H2 sections must start with: ${contract.requiredSections.join(", ")}`,
+        lineOf(h2[index])
+      )
+    );
+}
+function lineOf(heading: RootHeading | undefined): number | undefined {
+  return heading === undefined ? undefined : heading.lineIndex + 1;
 }
 
 function validateIntroduction(
@@ -275,256 +284,6 @@ function validateHeadings(
   return h2;
 }
 
-function validateRequiredSubsectionHeadings(
-  headings: readonly RootHeading[],
-  subsectionContract: ArtifactSubsectionContract,
-  file: ChangePlanArtifactName,
-  diagnostics: ChangePlanDiagnostic[]
-): void {
-  const { ownerSection, requiredSubsections } = subsectionContract;
-  for (const [index, title] of requiredSubsections.entries()) {
-    const matches = headings.filter((heading) => heading.title === title);
-    if (matches.length === 0) {
-      diagnostics.push(
-        diagnostic(
-          file,
-          "missing-section",
-          `missing required "### ${title}" subsection in "## ${ownerSection}"`
-        )
-      );
-      continue;
-    }
-    if (matches.length > 1) {
-      diagnostics.push(
-        diagnostic(
-          file,
-          "duplicate-section",
-          `"### ${title}" must appear exactly once in "## ${ownerSection}"`,
-          matches[1]?.lineIndex === undefined
-            ? undefined
-            : matches[1].lineIndex + 1
-        )
-      );
-    }
-    if (headings[index]?.title !== title) {
-      diagnostics.push(
-        diagnostic(
-          file,
-          "section-order",
-          `H3 subsections in "## ${ownerSection}" must start with: ${requiredSubsections.join(", ")}`,
-          headings[index]?.lineIndex === undefined
-            ? undefined
-            : headings[index].lineIndex + 1
-        )
-      );
-    }
-  }
-}
-
-function validateRequiredSubsectionContent(
-  root: MarkdownRoot,
-  headings: readonly RootHeading[],
-  sectionEnd: number,
-  subsectionContract: ArtifactSubsectionContract,
-  file: ChangePlanArtifactName,
-  diagnostics: ChangePlanDiagnostic[]
-): void {
-  for (const title of subsectionContract.requiredSubsections) {
-    const subsection = headings.find((heading) => heading.title === title);
-    if (subsection === undefined) {
-      continue;
-    }
-    const nextHeading = headings.find(
-      (heading) => heading.lineIndex > subsection.lineIndex
-    );
-    const subsectionEnd = nextHeading?.lineIndex ?? sectionEnd;
-    if (!hasSemanticContent(root, subsection.lineIndex + 1, subsectionEnd)) {
-      diagnostics.push(
-        diagnostic(
-          file,
-          "empty-section",
-          `"### ${title}" in "## ${subsectionContract.ownerSection}" must not be empty`,
-          subsection.lineIndex + 1
-        )
-      );
-    }
-  }
-}
-
-function validateSubsections(
-  root: MarkdownRoot,
-  lines: readonly string[],
-  headings: readonly RootHeading[],
-  h2: readonly RootHeading[],
-  contract: ArtifactStructureContract,
-  diagnostics: ChangePlanDiagnostic[]
-): void {
-  for (const subsectionContract of contract.subsectionContracts ?? []) {
-    const section = h2.find(
-      (heading) => heading.title === subsectionContract.ownerSection
-    );
-    if (section === undefined) {
-      continue;
-    }
-    const nextH2 = h2.find((heading) => heading.lineIndex > section.lineIndex);
-    const sectionEnd = nextH2?.lineIndex ?? lines.length;
-    const subsectionHeadings = headings.filter(
-      (heading) =>
-        heading.depth === 3 &&
-        heading.lineIndex > section.lineIndex &&
-        heading.lineIndex < sectionEnd
-    );
-    validateRequiredSubsectionHeadings(
-      subsectionHeadings,
-      subsectionContract,
-      contract.file,
-      diagnostics
-    );
-    validateRequiredSubsectionContent(
-      root,
-      subsectionHeadings,
-      sectionEnd,
-      subsectionContract,
-      contract.file,
-      diagnostics
-    );
-  }
-}
-
-function isTaskHeading(
-  heading: string,
-  taskSections: ReadonlySet<string>
-): heading is ChangePlanTaskHeading {
-  return (
-    taskSections.has(heading) && Object.hasOwn(taskSectionByHeading, heading)
-  );
-}
-
-function recordTaskCandidate(
-  candidate: ChecklistCandidate,
-  context: TaskValidationContext
-): void {
-  const section = context.h2.findLast(
-    (heading) => heading.lineIndex < candidate.lineIndex
-  )?.title;
-  if (section === undefined || !isTaskHeading(section, context.taskSections)) {
-    context.diagnostics.push(
-      diagnostic(
-        context.contract.file,
-        "task-outside-required-section",
-        "checklist tasks must be inside Readiness, Implementation, or Verification",
-        candidate.lineIndex + 1
-      )
-    );
-    return;
-  }
-
-  const match = taskLinePattern.exec(candidate.line);
-  if (match === null) {
-    context.diagnostics.push(
-      diagnostic(
-        context.contract.file,
-        "invalid-task-syntax",
-        "task must use '- [ ] <numeric-id> <description>' or '- [x] <numeric-id> <description>'",
-        candidate.lineIndex + 1
-      )
-    );
-    return;
-  }
-
-  const completedMarker = match[1];
-  const taskId = match[2];
-  if (completedMarker === undefined || taskId === undefined) {
-    return;
-  }
-  recordTaskId(taskId, candidate.lineIndex + 1, context);
-  recordTaskProgress(section, completedMarker, context);
-}
-
-function recordTaskId(
-  taskId: string,
-  line: number,
-  context: TaskValidationContext
-): void {
-  const previousLine = context.seenTaskIds.get(taskId);
-  if (previousLine === undefined) {
-    context.seenTaskIds.set(taskId, line);
-  } else {
-    context.diagnostics.push(
-      diagnostic(
-        context.contract.file,
-        "duplicate-task-id",
-        `task id ${taskId} duplicates line ${previousLine}`,
-        line
-      )
-    );
-  }
-}
-
-function recordTaskProgress(
-  section: ChangePlanTaskHeading,
-  completedMarker: string,
-  context: TaskValidationContext
-): void {
-  context.taskCounts.set(section, (context.taskCounts.get(section) ?? 0) + 1);
-  const progress = context.taskProgress[taskSectionByHeading[section]];
-  progress.taskCount += 1;
-  context.taskCount += 1;
-  if (completedMarker.toLowerCase() === "x") {
-    progress.completedTaskCount += 1;
-    context.completedTaskCount += 1;
-  }
-}
-
-function reportMissingTasks(context: TaskValidationContext): void {
-  for (const section of context.taskSections) {
-    if ((context.taskCounts.get(section) ?? 0) === 0) {
-      context.diagnostics.push(
-        diagnostic(
-          context.contract.file,
-          "missing-task",
-          `"## ${section}" must contain at least one valid checklist task`
-        )
-      );
-    }
-  }
-}
-
-function validateTasks(
-  root: MarkdownRoot,
-  lines: readonly string[],
-  h2: readonly RootHeading[],
-  contract: ArtifactStructureContract,
-  diagnostics: ChangePlanDiagnostic[]
-): Pick<
-  ArtifactValidationResult,
-  "completedTaskCount" | "taskCount" | "taskProgress"
-> {
-  const taskSections = new Set(contract.taskSections ?? []);
-  const context: TaskValidationContext = {
-    completedTaskCount: 0,
-    contract,
-    diagnostics,
-    h2,
-    seenTaskIds: new Map(),
-    taskCount: 0,
-    taskCounts: new Map([...taskSections].map((title) => [title, 0])),
-    taskProgress: emptyTaskProgress(),
-    taskSections
-  };
-
-  for (const candidate of checklistCandidates(root, lines)) {
-    recordTaskCandidate(candidate, context);
-  }
-  reportMissingTasks(context);
-
-  return {
-    completedTaskCount: context.completedTaskCount,
-    taskCount: context.taskCount,
-    taskProgress: context.taskProgress
-  };
-}
-
 export function validateChangePlanArtifact(
   markdown: string,
   contract: ArtifactStructureContract
@@ -535,7 +294,7 @@ export function validateChangePlanArtifact(
   const diagnostics: ChangePlanDiagnostic[] = [];
   const headings = rootHeadings(root);
   const h2 = validateHeadings(root, lines, headings, contract, diagnostics);
-  validateSubsections(root, lines, headings, h2, contract, diagnostics);
+  validateSubsections({ contract, diagnostics, h2, headings, lines, root });
   const tasks =
     contract.taskSections === undefined
       ? {

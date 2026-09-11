@@ -1,7 +1,7 @@
 ### Case INDEX-RUNTIME-READER-002: 冻结 runtime reader 元数据且不重复验证查询覆盖
 
 Tests:
-- `test:c22dc6adf3c89fa06c9739805027164882da973cc3bd0046fe701c848dfd4eac`
+- `test:ea9b3bf76365f0bade93f33a06fd3adbb3f84d20060dc19ef8d5ead27192bf16`
 
 Tags:
 - `index-runtime`
