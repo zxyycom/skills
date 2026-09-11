@@ -188,13 +188,25 @@ test("CLI trace accepts report-level direction options", async () => {
         relations: [{ target: "first", type: "补充" }]
       }
     ]);
-    const result = await runInvestigationCli(root, [
+    const terminal = await runInvestigationCli(root, [
       "trace",
       "--direction",
       "successors",
       "--depth",
       "1",
       "first.md"
+    ]);
+    assert.equal(terminal.status, 0, terminal.stderr);
+    assert.match(terminal.stdout, /successors:\n    补充 \[second\]/u);
+    assert.match(terminal.stdout, /predecessors:\n    补充 \[first\]/u);
+    const result = await runInvestigationCli(root, [
+      "trace",
+      "--direction",
+      "successors",
+      "--depth",
+      "1",
+      "first.md",
+      "--json"
     ]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
@@ -210,7 +222,8 @@ test("CLI trace accepts report-level direction options", async () => {
       "successors",
       "--depth",
       "0",
-      "first.md"
+      "first.md",
+      "--json"
     ]);
     assert.equal(bounded.status, 0, bounded.stderr);
     const boundedTrace = JSON.parse(bounded.stdout) as {
@@ -224,6 +237,95 @@ test("CLI trace accepts report-level direction options", async () => {
       "reason",
       "nextIds"
     ]);
+  });
+});
+
+test("CLI trace renders a stable terminal graph by default and preserves JSON behind --json", async () => {
+  await withTempRoot("cli-trace-terminal", async (root) => {
+    await writeCollection(root, [
+      { id: "base", title: "共同前序" },
+      {
+        id: "alpha",
+        relations: [{ target: "base", type: "拆分", summary: "承接查询责任" }],
+        title: "查询方向"
+      },
+      {
+        id: "beta",
+        relations: [{ target: "base", type: "拆分", summary: "承接存储责任" }],
+        title: "存储方向"
+      }
+    ]);
+    const terminal = await runInvestigationCli(root, [
+      "trace",
+      "alpha",
+      "--direction",
+      "predecessors"
+    ]);
+    assert.equal(terminal.status, 0, terminal.stderr);
+    assert.equal(terminal.stderr, "");
+    assert.match(
+      terminal.stdout,
+      /^TRACE anchor=\[alpha\] direction=predecessors depth=5 complete=true records=3/mu
+    );
+    assert.match(terminal.stdout, /L0\* \[alpha\].*查询方向/u);
+    assert.match(terminal.stdout, /L1\* \[base\].*共同前序/u);
+    assert.match(terminal.stdout, /split-successors:/u);
+    assert.match(terminal.stdout, /\* trace   \[alpha\].*查询方向/u);
+    assert.match(terminal.stdout, /~ context \[beta\].*存储方向/u);
+    assert.match(terminal.stdout, /detail: "承接查询责任"/u);
+
+    const blocked = await runInvestigationCli(root, [
+      "trace",
+      "alpha",
+      "--direction",
+      "predecessors",
+      "--max-records",
+      "2"
+    ]);
+    assert.equal(blocked.status, 0, blocked.stderr);
+    assert.match(
+      blocked.stdout,
+      /BOUNDARY: coverage=incomplete stoppedBy=max-records/u
+    );
+    assert.match(blocked.stdout, /reason=max-records/u);
+    assert.match(
+      blocked.stdout,
+      /blocked-event kind=split records=\[alpha, base, beta\] required-max-records=3/u
+    );
+
+    const json = await runInvestigationCli(root, [
+      "trace",
+      "alpha",
+      "--direction",
+      "predecessors",
+      "--json"
+    ]);
+    assert.equal(json.status, 0, json.stderr);
+    assert.deepEqual(JSON.parse(json.stdout).contextIds, ["beta"]);
+  });
+});
+
+test("CLI trace renders numeric depth layers before lexically earlier trace IDs", async () => {
+  await withTempRoot("cli-trace-layer-order", async (root) => {
+    await writeCollection(root, [
+      { id: "alpha", title: "前序" },
+      {
+        id: "zeta",
+        relations: [{ target: "alpha", type: "补充" }],
+        title: "锚点"
+      }
+    ]);
+    const result = await runInvestigationCli(root, [
+      "trace",
+      "zeta",
+      "--direction",
+      "predecessors"
+    ]);
+    assert.equal(result.status, 0, result.stderr);
+    const anchor = result.stdout.indexOf("L0* [zeta]");
+    const predecessor = result.stdout.indexOf("L1* [alpha]");
+    assert.ok(anchor >= 0, result.stdout);
+    assert.ok(predecessor > anchor, result.stdout);
   });
 });
 

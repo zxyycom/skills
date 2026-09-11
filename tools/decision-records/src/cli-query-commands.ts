@@ -41,7 +41,8 @@ export function isQueryCliArgs(args: CliArgs): args is QueryCliArgs {
 
 async function runQuery(
   request: Exclude<DecisionQueryRequest, { command: "list" }>,
-  io: DecisionRecordsCliIo
+  io: DecisionRecordsCliIo,
+  traceJson = false
 ): Promise<number> {
   const result = await executeDecisionQuery(request);
   if (result.status === "error") {
@@ -51,7 +52,7 @@ async function runQuery(
   if (result.command === "list") {
     throw new TypeError("Non-list Decision query returned a list result");
   }
-  printDecisionQuerySuccess(result, io);
+  printDecisionQuerySuccess(result, io, traceJson);
   return 0;
 }
 
@@ -189,7 +190,8 @@ async function runTrace(
         ? {}
         : { maxRecords: args.traceMaxRecords })
     },
-    io
+    io,
+    args.traceJson
   );
 }
 

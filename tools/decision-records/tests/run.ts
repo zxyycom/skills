@@ -15,6 +15,7 @@ await import("./candidate-scaffold.test.ts");
 await import("./activation-archive.test.ts");
 await import("./relation-validation.test.ts");
 await import("./trace-event-admission.test.ts");
+await import("./cli-output-trace.test.ts");
 await import("./evolution.test.ts");
 await import("./unrecorded-history.test.ts");
 await import("./lifecycle-relations.test.ts");

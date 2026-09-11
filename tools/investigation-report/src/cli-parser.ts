@@ -73,6 +73,7 @@ function parseCommandTokens(
   const context: CliTokenContext = { positionals: [], values: new Map() };
   for (let index = 0; index < tokens.length; index += 1) {
     const parsed = parseCommandToken(
+      command,
       tokens[index]!,
       tokens[index + 1],
       context
@@ -87,6 +88,7 @@ function parseCommandTokens(
 }
 
 function parseCommandToken(
+  command: InvestigationCommand,
   token: string,
   next: string | undefined,
   context: CliTokenContext
@@ -94,7 +96,7 @@ function parseCommandToken(
   if (token === "-h" || token === "--help")
     return addValue("help", "true", false, context);
   if (!token.startsWith("--")) return addPositionalToken(token, context);
-  return parseOptionToken(token, next, context);
+  return parseOptionToken(command, token, next, context);
 }
 
 function addPositionalToken(
@@ -106,14 +108,15 @@ function addPositionalToken(
 }
 
 function parseOptionToken(
+  command: InvestigationCommand,
   token: string,
   next: string | undefined,
   context: CliTokenContext
 ): { consumedNext: boolean; error: string | null } {
   const option = splitOptionToken(token);
-  if (!isKnownOption(option.name))
+  if (!isKnownOption(command, option.name))
     return { consumedNext: false, error: `unknown option: ${token}` };
-  if (booleanOptions.has(option.name))
+  if (booleanOptions.has(option.name) || option.name === "json")
     return parseBooleanOption(option, context);
   return parseValueOption(option, next, context);
 }
@@ -136,8 +139,12 @@ function splitOptionToken(token: string): ParsedOptionToken {
       };
 }
 
-function isKnownOption(name: string): boolean {
-  return valueOptions.has(name) || booleanOptions.has(name);
+function isKnownOption(command: InvestigationCommand, name: string): boolean {
+  return (
+    valueOptions.has(name) ||
+    booleanOptions.has(name) ||
+    (command === "trace" && name === "json")
+  );
 }
 
 function parseBooleanOption(

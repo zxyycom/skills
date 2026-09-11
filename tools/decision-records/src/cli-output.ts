@@ -11,6 +11,7 @@ import {
   type DecisionRecordsCliIo
 } from "./cli-io.ts";
 import { writeCliLine } from "./cli-output-writer.ts";
+import { printDecisionTrace } from "./cli-output-trace.ts";
 
 export function printDecisionFailure(
   failure: DecisionApplicationFailure,
@@ -62,15 +63,17 @@ type PrintableDecisionQuerySuccess = Exclude<
 >;
 type DecisionQuerySuccessPrinter = (
   result: PrintableDecisionQuerySuccess,
-  io: DecisionRecordsCliIo
+  io: DecisionRecordsCliIo,
+  traceJson: boolean
 ) => void;
 
 export function printDecisionQuerySuccess(
   result: PrintableDecisionQuerySuccess,
-  io: DecisionRecordsCliIo = processDecisionRecordsCliIo
+  io: DecisionRecordsCliIo = processDecisionRecordsCliIo,
+  traceJson = false
 ): void {
   printQueryWarnings(result.warnings, io);
-  decisionQuerySuccessPrinters[result.command](result, io);
+  decisionQuerySuccessPrinters[result.command](result, io, traceJson);
 }
 
 const decisionQuerySuccessPrinters: Readonly<
@@ -118,12 +121,12 @@ const decisionQuerySuccessPrinters: Readonly<
       >,
       io
     ),
-  trace: (result, io) => {
+  trace: (result, io, traceJson) => {
     const trace = result as Extract<
       PrintableDecisionQuerySuccess,
       { command: "trace" }
     >;
-    printTrace(trace, io);
+    printDecisionTrace(trace, traceJson, io);
   }
 };
 
@@ -275,27 +278,6 @@ function printSyncIndex(
       : "Decision index is up to date."
   );
   printCandidateWarnings(result.unactivatedPaths, io);
-}
-
-function printTrace(
-  trace: Extract<DecisionQuerySuccess, { command: "trace" }>,
-  io: DecisionRecordsCliIo
-): void {
-  const output = {
-    status: trace.status,
-    anchorId: trace.anchorId,
-    direction: trace.direction,
-    limits: trace.limits,
-    coverage: trace.coverage,
-    traceIds: trace.traceIds,
-    contextIds: trace.contextIds,
-    frontier: trace.frontier,
-    ...(trace.blockedEvent === undefined
-      ? {}
-      : { blockedEvent: trace.blockedEvent }),
-    entries: trace.entries
-  };
-  writeCliLine(io.stdout, JSON.stringify(output, null, 2));
 }
 
 function printRecordHeader(

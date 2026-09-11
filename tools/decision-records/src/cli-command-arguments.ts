@@ -354,6 +354,7 @@ function traceCommandArgs(
     ...location,
     command: "trace",
     decisionId: requiredDecisionId(decisionIds),
+    traceJson: options.json ?? false,
     ...(options.depth === undefined
       ? {}
       : { traceDepth: options.depth === "all" ? null : options.depth }),

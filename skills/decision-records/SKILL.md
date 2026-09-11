@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "56"
+  version: "57"
 ---
 
 # Decision Records
@@ -47,7 +47,7 @@ agent 在当前请求或生效项目规则授权的范围内，自行审查记�
 
 Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位文件。查询后使用返回的完整 ID 继续操作。
 
-`trace` 只读取一次受检索引快照，并输出稳定 JSON 切片。成功结果以 `anchorId`、实际 `direction`、实际 `limits`、`coverage`、成员 ID、`frontier`、可选 `blockedEvent` 与 `entries` 组成；`limits.depth` 在无限深度时为 `"all"`。省略选项时按 `both`、深度 5、最多 50 条唯一记录查询；`--depth all` 取消深度限制，`--max-records <n>` 调整记录预算。`traceIds` 是实际递归遍历成员，`contextIds` 只为闭合拆分、纯归并或重划事件而加入，二者与 `entries` 的键恰好对应。每个 entry 保留其完整直接 `relations`，即使 target 不在切片内；这不是缺失证明。关系已有 `summary` 时原样保留，缺失时省略，trace 不推断或补写。
+`trace` 只读取一次受检索引快照。默认输出稳定的终端关系图，而不是旧的平铺文本或 Mermaid：header 回显 anchor、direction、depth、complete 与记录总数，`L0/L1/...` 展示 trace 成员，`*` 标记递归 trace 成员，`~` 标记为闭合拆分、纯归并或重划事件加入的 context；图尾仅在不完整时输出 coverage、frontier 与可选 blockedEvent。传入 `--json` 时输出**同一份 trace 查询成功结果**的稳定 JSON 切片。JSON 成功结果以 `anchorId`、实际 `direction`、实际 `limits`、`coverage`、成员 ID、`frontier`、可选 `blockedEvent` 与 `entries` 组成；`limits.depth` 在无限深度时为 `"all"`。省略选项时按 `both`、深度 5、最多 50 条唯一记录查询；`--depth all` 取消深度限制，`--max-records <n>` 调整记录预算。`traceIds` 是实际递归遍历成员，`contextIds` 只为闭合完整事件而加入，二者与 `entries` 的键恰好对应。每个 entry 保留其完整直接 `relations`，即使 target 不在切片内；这不是缺失证明。关系已有 `summary` 时原样保留，缺失时省略，trace 不推断或补写。
 
 先依据 `coverage.complete`、`stoppedBy` 和 `frontier` 判断结果边界：`frontier` 的 `fromId`、方向与 `nextIds` 可作为下一次 trace 的 anchor 和 direction，而不是可跨快照续用的 cursor。`blockedEvent` 表示完整事件因记录预算尚未接纳，使用其 `requiredMaxRecords` 扩大预算后重查；不要把其中任何局部成员当成完整演进事实。
 

@@ -104,6 +104,7 @@
       "DECISION-CLI-REMOVED-PROTOCOLS-001": "sha256:e77dde841b91a69fe802017be33e4ebcbea6156d9fe6b5fd26bcb1e010ee4620",
       "DECISION-CLI-TAG-001": "sha256:b9b61173e94d359eb7758b2521b63f70f6cd9012aa585991d2386232c3207f14",
       "DECISION-CLI-TRACE-DEPTH-001": "sha256:70b548cf27b2605c01595aa774f1872a167b63a73b0197bf38b51dbcba8905c6",
+      "DECISION-CLI-TRACE-RENDERING-001": "sha256:e70452e1b6e37a210c1a1e716ce300575a65a38374080bf9f337e591e9ab06e1",
       "DECISION-CLI-UNKNOWN-OPTION-001": "sha256:16968a6799fe529c40f014271d4b3cab68a71e6381b604ae9452e76b1df2926e",
       "DECISION-COLLECTION-LOCK-DIAGNOSTIC-001": "sha256:15a9bd0cc402ffd5f37744e67734dead0074c545bc25fe2528b90f31c326cd28",
       "DECISION-CONFIGURED-ABSOLUTE-DIRECTORY-001": "sha256:92cb963b9678c6d0cd07002505a9b91e939fbc5415b740871b1771863e17b7b3",
@@ -417,6 +418,7 @@
       "INVESTIGATION-CLI-SYNC-001": "sha256:5270b7e8773c3d6eb1a673adc710011bbc7fa182157180dc121dedc3ee8c5e29",
       "INVESTIGATION-CLI-SYNC-FILESYSTEM-001": "sha256:edce8c35de8b3ff1f12200572f289867802aed703b63c69e597733023c1f4df7",
       "INVESTIGATION-CLI-SYNC-LOCK-001": "sha256:bc09b61cfdd37074515fc2928942d2d97f6e362ed8be54bc6af7e90560a8ff76",
+      "INVESTIGATION-CLI-TRACE-RENDERING-001": "sha256:44ec12b63f7e35bef7c510a6e08c7cab886ca28dc683002057977c07e8449a1a",
       "INVESTIGATION-CLI-USAGE-001": "sha256:fb878f6c719b235b5e3ed2654b16a21dd9def7154e0b7c03b468829c35d4ea73",
       "INVESTIGATION-CLI-WARNINGS-001": "sha256:34b383290a4f0a731695a095a3b8bdc6d16a9db2c0ea8bc4170c8bc02d609ce2",
       "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:4935ae4676566a5a7b5bf1dbb17934a47358c9e391384de289c4c412f38decf4",
@@ -1826,6 +1828,19 @@
         "test:cc84d4cc92b53b7364f1017137aa59bfb60b395639173d9f631a9594e51f9986",
         "test:e656b4fbc832c8b6d4e575654fa986ce818c10d8453f461fdc395f06d47dc2b4",
         "test:ffe360fc6e0ddbcaa3f6bd13d6a008835050a9becf1cddf5e949704db2dc4e6f"
+      ]
+    },
+    "DECISION-CLI-TRACE-RENDERING-001": {
+      "title": "Decision Trace 分流终端图与 JSON",
+      "sourcePath": "cases/decision-cli-trace-rendering-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:13cbacbf8f708ef604ee0a800002f608eccc37583b7fa82580a89b7940e3f971",
+        "test:1619611d61e3b7c7c261d55400a68d0e44f6a9b5bb0b8d8d17f25dd900a70a83",
+        "test:8305ad263de7c37e81d775352e9915dfa6c603d0619736b93eadbc2187da8ec5",
+        "test:89813570cf43e26157ab36575e39e00f5cfd15b4f8662b3ed9c965a17903367e"
       ]
     },
     "DECISION-CLI-UNKNOWN-OPTION-001": {
@@ -4988,6 +5003,17 @@
       ],
       "testIds": [
         "test:2d847ecce3f004e9c8404db3316268d5ce7d9656526b6dd59d9ef1c9e5d68cbd"
+      ]
+    },
+    "INVESTIGATION-CLI-TRACE-RENDERING-001": {
+      "title": "Investigation Trace 分流终端图与 JSON",
+      "sourcePath": "cases/investigation-cli-trace-rendering-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:26218bab6d3b7c6c6c0333db0a9267380868cec42ebbbe130c1532fb590a6970",
+        "test:8e265388bdccdaaaa216f00df7d1c3714619566e75194917ed02b6a43b610b0a"
       ]
     },
     "INVESTIGATION-CLI-USAGE-001": {

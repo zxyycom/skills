@@ -141,6 +141,7 @@ export type CliArgs =
       {
         decisionId: DecisionId;
         traceDepth?: number | null;
+        traceJson: boolean;
         traceDirection?: DecisionTraceDirection;
         traceMaxRecords?: number;
       }

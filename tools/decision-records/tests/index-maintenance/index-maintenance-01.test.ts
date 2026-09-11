@@ -321,6 +321,7 @@ async function assertSourceAndIndexDriftHandling({
   const traceWithInvalidRecord = await runSourceCli([
     "trace",
     currentRelativePath,
+    "--json",
     "--root",
     workspaceRoot
   ]);
@@ -370,6 +371,7 @@ async function assertSourceAndIndexDriftHandling({
   const traceWithRelationDrift = await runSourceCli([
     "trace",
     "260710-use-source-cli.md",
+    "--json",
     "--root",
     workspaceRoot
   ]);

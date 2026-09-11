@@ -25,6 +25,7 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
     assert.match(commandHelp.stdout, /Usage: investigation-report trace/u);
     assert.match(commandHelp.stdout, /--depth <count\|all>/u);
     assert.match(commandHelp.stdout, /--max-records <count>/u);
+    assert.match(commandHelp.stdout, /--json/u);
     assert.doesNotMatch(commandHelp.stdout, /set-relations/u);
 
     const searchHelp = await runInvestigationCli(root, ["search", "--help"]);
@@ -185,7 +186,8 @@ test("CLI set-relations scopes summaries to complete source groups", async () =>
       "trace",
       "base",
       "--direction",
-      "successors"
+      "successors",
+      "--json"
     ]);
     assert.equal(traced.status, 0, traced.stderr);
     const trace = JSON.parse(traced.stdout);

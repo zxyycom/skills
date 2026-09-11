@@ -26,6 +26,7 @@ export type ParsedOptions = {
   direction?: DecisionTraceDirection;
   fullTime?: boolean;
   in?: "content" | "metadata";
+  json?: boolean;
   keepUnrecordedHistory?: boolean;
   preflight?: boolean;
   renameRecordedDecision?: boolean;

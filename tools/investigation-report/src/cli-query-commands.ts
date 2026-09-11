@@ -5,6 +5,8 @@ import {
   traceInvestigationReports
 } from "./query.ts";
 import { printInvestigationList } from "./list-output.ts";
+import { renderInvestigationTrace } from "./trace-output.ts";
+import { traceCliOptions } from "./cli-trace-options.ts";
 import type {
   InvestigationSearchEntry,
   InvestigationSearchResult
@@ -294,7 +296,8 @@ export async function runTrace(
     "investigations-dir",
     "direction",
     "depth",
-    "max-records"
+    "max-records",
+    "json"
   ]);
   const [id] = input.positionals;
   if (problem !== null || id === undefined || input.positionals.length !== 1)
@@ -317,59 +320,11 @@ export async function runTrace(
       io,
       title: "Investigation report trace failed:"
     });
-  writeLine(io.stdout, JSON.stringify(result, null, 2));
+  writeLine(
+    io.stdout,
+    has(input.values, "json")
+      ? JSON.stringify(result, null, 2)
+      : renderInvestigationTrace(result)
+  );
   return 0;
-}
-
-function traceCliOptions(input: ParsedCli):
-  | { error: string }
-  | {
-      value: Readonly<{
-        direction?: "predecessors" | "successors" | "both";
-        maxDepth?: number | null;
-        maxRecords?: number;
-      }>;
-    } {
-  const repeated = assertSingleOptions(input, [
-    "direction",
-    "depth",
-    "max-records"
-  ]);
-  if (repeated !== null) return { error: repeated };
-  const direction = valueOf(input.values, "direction");
-  if (
-    direction !== undefined &&
-    direction !== "predecessors" &&
-    direction !== "successors" &&
-    direction !== "both"
-  )
-    return { error: "--direction must be predecessors, successors, or both" };
-  const depth = valueOf(input.values, "depth");
-  const maxDepth = traceDepth(depth);
-  if (maxDepth === undefined && depth !== undefined)
-    return { error: "--depth must be a non-negative safe integer or all" };
-  const maxRecordsValue = valueOf(input.values, "max-records");
-  const maxRecords = traceMaxRecords(maxRecordsValue);
-  if (maxRecords === undefined && maxRecordsValue !== undefined)
-    return { error: "--max-records must be a positive safe integer" };
-  return {
-    value: {
-      ...(direction === undefined ? {} : { direction }),
-      ...(depth === undefined ? {} : { maxDepth }),
-      ...(maxRecordsValue === undefined ? {} : { maxRecords })
-    }
-  };
-}
-
-function traceDepth(value: string | undefined): number | null | undefined {
-  if (value === undefined || value === "all")
-    return value === "all" ? null : undefined;
-  const parsed = Number(value);
-  return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : undefined;
-}
-
-function traceMaxRecords(value: string | undefined): number | undefined {
-  if (value === undefined) return undefined;
-  const parsed = Number(value);
-  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : undefined;
 }

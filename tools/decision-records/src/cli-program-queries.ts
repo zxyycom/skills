@@ -272,12 +272,19 @@ function registerTraceCommand(
   const trace = createSubcommand(
     program,
     "trace",
-    "Return a bounded JSON relation slice for one Decision."
+    "Render a bounded Decision relation graph; use --json for the machine-readable slice."
   )
     .argument(
       "<selector>",
       "Standard Decision ID or unique semantic name.",
       parseSingleDecisionId
+    )
+    .addOption(
+      singleQueryOption(
+        new Option("--json", "Output the stable JSON trace envelope.").preset(
+          true
+        )
+      )
     )
     .addOption(
       singleQueryOption(

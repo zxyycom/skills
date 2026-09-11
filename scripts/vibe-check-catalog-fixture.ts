@@ -54,7 +54,8 @@ export const expectedSemanticGateChecks = [
       "./tools/decision-records/tests/first-establishment.test.ts",
       "./tools/decision-records/tests/index-maintenance.test.ts",
       "./tools/decision-records/tests/list-facets.test.ts",
-      "./tools/decision-records/tests/queries.test.ts"
+      "./tools/decision-records/tests/queries.test.ts",
+      "./tools/decision-records/tests/cli-output-trace.test.ts"
     ]
   ],
   [

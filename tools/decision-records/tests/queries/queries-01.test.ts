@@ -177,6 +177,7 @@ test("decision trace follows stable ID relations", () =>
     const traced = await runSuccessfulSourceCli([
       "trace",
       currentDecisionId,
+      "--json",
       "--root",
       workspaceRoot
     ]);
@@ -219,6 +220,7 @@ test("decision trace applies explicit API depth and record limits", () =>
       "0",
       "--max-records",
       "1",
+      "--json",
       "--root",
       workspaceRoot
     ]);

@@ -113,7 +113,7 @@ test("relations resolve stable IDs across active and archived locations", () =>
       }
     ]);
     assert.match(
-      await traceDecision(candidateId, [], workspaceRoot),
+      await traceDecision(candidateId, ["--json"], workspaceRoot),
       /"summary": "保留稳定 CLI 基线"/u
     );
   }));
@@ -184,7 +184,7 @@ test("activate binds a CLI relation summary after resolving its target selector"
       }
     ]);
     assert.match(
-      await traceDecision(candidateId, [], workspaceRoot),
+      await traceDecision(candidateId, ["--json"], workspaceRoot),
       /"summary": "保留=稳定基线"/u
     );
   }));

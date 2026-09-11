@@ -254,3 +254,15 @@ test("trace rejects repeated bounded-query options", async () => {
     assert.match(result.stderr, new RegExp(`${option} must not be repeated`));
   }
 });
+
+test("trace rejects repeated --json without writing a machine result", async () => {
+  const result = await runCli([
+    "trace",
+    archivedRelativePath,
+    "--json",
+    "--json"
+  ]);
+  assert.equal(result.exitCode, 2);
+  assert.equal(result.stdout, "");
+  assert.match(result.stderr, /--json must not be repeated/);
+});
