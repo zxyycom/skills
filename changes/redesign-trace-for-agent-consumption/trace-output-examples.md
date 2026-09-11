@@ -1,8 +1,8 @@
 # Trace 输出讨论材料
 
-本文件保存 `redesign-trace-for-agent-consumption` 讨论中形成的示例代码块，供核对设计来源和边界。代码块按讨论原文保留，包含中间方案和不完整节选，不定义当前输出契约。
+本文件保存 `redesign-trace-for-agent-consumption` 讨论中形成的示例代码块，用于回查设计来源。代码块按讨论原文保留，不参与实现或验收。
 
-当前设计选择以 [design.md](design.md) 为准，精确 Schema 需在进入 Plan 前关闭其中的开放问题。以下材料中，第一个 JSON 没有列出 `traceIds` 与 `contextIds` 引用的全部 entries，文本渲染草案也不代表当前的 JSON-only CLI 方向。
+当前契约、成员不变量和输出通道以 [design.md](design.md) 为准。以下第一个 JSON 省略了部分 referenced entries，文本渲染片段也不是当前 JSON-only CLI 输出；它们只能说明讨论时关注的结构和事件语义。
 
 ## 索引切片 JSON
 
@@ -127,7 +127,7 @@ L1* [A] active/aligned 方向 A
 }
 ```
 
-## 参数草案
+## 参数讨论示例
 
 ```text
 trace <selector>
