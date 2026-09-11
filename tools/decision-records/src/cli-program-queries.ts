@@ -13,7 +13,8 @@ import {
   parseListLimit,
   parseListOffset,
   parseSingleDecisionId,
-  parseTraceDepth
+  parseTraceDepth,
+  parseTraceMaxRecords
 } from "./cli-option-parsers.ts";
 import { singleQueryOption } from "./cli-command-arguments.ts";
 import { createSubcommand } from "./cli-program-options.ts";
@@ -271,7 +272,7 @@ function registerTraceCommand(
   const trace = createSubcommand(
     program,
     "trace",
-    "Trace available predecessors, successors, or both."
+    "Return a bounded JSON relation slice for one Decision."
   )
     .argument(
       "<selector>",
@@ -279,13 +280,27 @@ function registerTraceCommand(
       parseSingleDecisionId
     )
     .addOption(
-      new Option("--direction <value>", "Relation direction.")
-        .choices(["both", "predecessors", "successors"])
-        .default("both")
+      singleQueryOption(
+        new Option(
+          "--direction <value>",
+          "Relation direction; defaults to both."
+        ).choices(["both", "predecessors", "successors"])
+      )
     )
     .addOption(
-      new Option("--depth <n>", "Maximum relation hops.").argParser(
-        parseTraceDepth
+      singleQueryOption(
+        new Option(
+          "--depth <n|all>",
+          "Maximum relation hops; defaults to 5, or use all."
+        ).argParser(parseTraceDepth)
+      )
+    )
+    .addOption(
+      singleQueryOption(
+        new Option(
+          "--max-records <n>",
+          "Maximum unique records; defaults to 50."
+        ).argParser(parseTraceMaxRecords)
       )
     );
   trace.action((decisionId: DecisionId) =>

@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   investigationRoot,
   runGeneratedInvestigationCliSmoke,
@@ -197,8 +198,32 @@ test("CLI trace accepts report-level direction options", async () => {
     ]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
-    assert.match(result.stdout, /Reports: first, second/u);
-    assert.match(result.stdout, /second --补充--> first/u);
+    const trace = JSON.parse(result.stdout);
+    assert.deepEqual(trace.traceIds, ["first", "second"]);
+    assert.deepEqual(trace.entries.second.relations, [
+      { target: "first", type: "补充" }
+    ]);
+
+    const bounded = await runInvestigationCli(root, [
+      "trace",
+      "--direction",
+      "successors",
+      "--depth",
+      "0",
+      "first.md"
+    ]);
+    assert.equal(bounded.status, 0, bounded.stderr);
+    const boundedTrace = JSON.parse(bounded.stdout) as {
+      frontier: Array<Record<string, unknown>>;
+      traceIds: string[];
+    };
+    assert.deepEqual(boundedTrace.traceIds, ["first"]);
+    assert.deepEqual(Object.keys(boundedTrace.frontier[0] ?? {}), [
+      "fromId",
+      "direction",
+      "reason",
+      "nextIds"
+    ]);
   });
 });
 
@@ -220,6 +245,17 @@ test("generated Investigation Report CLI starts under Node with argv and stdout 
       publishHelp.stdout,
       /Usage: investigation-report publish <investigation-id\.\.\.> \[--preflight\]/u
     );
+
+    const declaration = await fs.readFile(
+      path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "../../../skills/investigation-report/scripts/check-investigations.d.mts"
+      ),
+      "utf8"
+    );
+    assert.match(declaration, /export type InvestigationReportTraceSuccess/u);
+    assert.match(declaration, /maxDepth\?: number \| null/u);
+    assert.match(declaration, /maxRecords\?: number/u);
   });
 });
 

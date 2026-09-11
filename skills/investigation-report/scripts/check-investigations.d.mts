@@ -294,23 +294,70 @@ export type InvestigationReportTraceOptions = {
   direction?: "predecessors" | "successors" | "both";
   id: string;
   investigationsDir?: string;
-  maxDepth?: number;
+  maxDepth?: number | null;
+  maxRecords?: number;
   workspaceRoot: string;
 };
 
-export type InvestigationReportTraceResult = {
-  edges: Array<{
-    source: string;
-    target: string;
-    type: InvestigationRelationType;
-    summary?: string;
-  }>;
-  errors: string[];
-  id: string;
-  indexPath: string;
-  reportIds: string[];
-  status: "ok" | "error";
+export type InvestigationTraceEntry = {
+  title: string;
+  formedAt: string;
+  question: string;
+  tags: readonly string[];
+  relations: readonly InvestigationRelation[];
 };
+
+export type InvestigationRelationEdge = {
+  source: string;
+  target: string;
+  type: InvestigationRelationType;
+  summary?: string;
+};
+
+export type InvestigationReportTraceSuccess = {
+  status: "ok";
+  anchorId: string;
+  direction: "predecessors" | "successors" | "both";
+  limits: {
+    depth: number | "all";
+    maxRecords: number;
+  };
+  coverage: {
+    complete: boolean;
+    stoppedBy: readonly ("depth" | "max-records")[];
+  };
+  traceIds: readonly string[];
+  contextIds: readonly string[];
+  frontier: readonly {
+    fromId: string;
+    direction: "predecessors" | "successors";
+    reason: "depth" | "max-records";
+    nextIds: readonly string[];
+  }[];
+  blockedEvent?: {
+    kind: "split" | "merge";
+    recordIds: readonly string[];
+    requiredMaxRecords: number;
+  };
+  entries: Readonly<Record<string, InvestigationTraceEntry>>;
+};
+
+export type InvestigationReportTraceResult =
+  | InvestigationReportTraceSuccess
+  | {
+      edges: InvestigationRelationEdge[];
+      diagnostics: Array<{
+        code: string;
+        reason: string;
+        recovery: string;
+        target: string;
+      }>;
+      errors: string[];
+      id: string;
+      indexPath: string;
+      reportIds: string[];
+      status: "error";
+    };
 
 export declare function runInvestigationReportCheckCli(
   argv?: readonly string[]

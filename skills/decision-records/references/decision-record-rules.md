@@ -188,7 +188,11 @@ Markdown 是权威来源，索引保存已建立记录的定位、状态、非�
 - status、alignment、重复 tags 和时间条件取交集；重复 tags 为 AND，时间范围包含端点。空页只说明当前筛选与窗口无结果。
 - `--related-to` 指定的目标先独立解析，再按相对目标的 predecessors、successors 或 both 筛选直接邻居；方向必须与目标同用。
 - relation type 单独使用时匹配任一该类型直接边；与目标同用时，两者须命中同一条边。结构条件先于排序、分页和文本匹配。
-- `show` 由索引定位并确认目标 ID 后读取 Markdown；`trace` 恢复演进图。后续操作继续使用完整 ID。
+- `show` 由索引定位并确认目标 ID 后读取 Markdown；`trace` 从同一次受检索引快照返回 JSON 关系切片。后续操作继续使用完整 ID。
+
+`trace` 默认 `direction=both`、`depth=5`、`maxRecords=50`。有限深度可为非负安全整数，`--depth all` 不设深度限制；记录预算必须是正安全整数。成功 JSON 稳定回显 `anchorId`、实际 direction 与 limits；无限深度在 `limits.depth` 中表示为 `"all"`。输出的 `traceIds` 是递归遍历成员，`contextIds` 只闭合一次已跨越的完整拆分、纯归并或重划事件；二者互斥，且并集与 `entries` 的键相同。entry 的 `relations` 永远是索引中的完整直接关系，切片外 target 仍是原始事实；存在的 `summary` 原样投影，缺失时省略，trace 不推断摘要。
+
+`coverage.complete` 只在请求方向未受深度或记录预算限制、且已接纳事件完整时为真。`stoppedBy` 与 `frontier` 说明尚未跨越的直接邻居；以 frontier 的 `fromId`、direction 和 `nextIds` 发起新查询，不能将它视为 cursor。记录预算阻断一个多记录事件时，`blockedEvent` 给出完整成员与最小 `requiredMaxRecords`；该事件没有部分接纳。普通单记录接纳受预算阻断时只形成 `max-records` frontier，不产生 `blockedEvent`。
 
 | 搜索范围 | 依据与适用边界 |
 | --- | --- |

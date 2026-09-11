@@ -7,8 +7,8 @@ Tags:
 - `decision-records`
 
 Contract:
-- `activate --relation-summary <target-selector=summary>` binds only to a target in the same complete relation replacement after ID-first selector resolution; the summary is trimmed and is shown by the index and trace.
+- `activate --relation-summary <target-selector=summary>` binds only to a target in the same complete relation replacement after ID-first selector resolution; the summary is trimmed and is projected by the index and trace entry relations.
 
 Proves:
 - A target selector resolves to the established Decision ID, retains content after the first `=`, and writes the canonical relation summary to the index.
-- Trace displays the stored summary with the existing relation edge.
+- Trace JSON entry relations display the stored summary.

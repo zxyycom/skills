@@ -1,12 +1,14 @@
 import {
   buildRelationGraph,
   relationGraphStructuralIssues,
+  selectRelationGraphTrace,
   sortRelationEdges,
-  traceRelationGraph,
   type RelationEdge,
   type RelationGraph,
-  type RelationGraphTrace,
-  type RelationGraphTraceOptions
+  type RelationGraphTraceAdmissionAdapter,
+  type RelationGraphTraceAdmissionUnit,
+  type RelationGraphTraceSelection,
+  type RelationGraphTraceSelectionOptions
 } from "../../shared/src/graph/relations.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import {
@@ -49,13 +51,76 @@ function buildInvestigationRelationGraph(
 export function traceInvestigationRelations(
   states: ReadonlyMap<string, InvestigationIndexState>,
   startId: string,
-  options: RelationGraphTraceOptions
-): RelationGraphTrace<string, InvestigationRelationType> {
-  return traceRelationGraph(
+  options: RelationGraphTraceSelectionOptions
+): RelationGraphTraceSelection<string> {
+  return selectRelationGraphTrace(
     buildInvestigationRelationGraph(states),
     startId,
-    options
+    options,
+    investigationTraceAdmissionUnits
   );
+}
+
+const investigationTraceAdmissionUnits: RelationGraphTraceAdmissionAdapter<
+  string,
+  InvestigationRelationType
+> = ({ direction, fromId, graph }) => {
+  const edges =
+    direction === "predecessors"
+      ? (graph.edgesBySource.get(fromId) ?? [])
+      : (graph.edgesByTarget.get(fromId) ?? []);
+  return edges.map((edge) =>
+    investigationTraceAdmissionUnit(edge, direction, graph)
+  );
+};
+
+function investigationTraceAdmissionUnit(
+  edge: RelationEdge<string, InvestigationRelationType>,
+  direction: "predecessors" | "successors",
+  graph: InvestigationRelationGraph
+): RelationGraphTraceAdmissionUnit<string> {
+  if (edge.type === "拆分")
+    return splitTraceAdmissionUnit(edge, direction, graph);
+  if (edge.type === "归并")
+    return mergeTraceAdmissionUnit(edge, direction, graph);
+  const traceId = direction === "predecessors" ? edge.target : edge.source;
+  return {
+    kind: "ordinary",
+    recordIds: [edge.source, edge.target],
+    traceIds: [traceId]
+  };
+}
+
+function splitTraceAdmissionUnit(
+  edge: RelationEdge<string, InvestigationRelationType>,
+  direction: "predecessors" | "successors",
+  graph: InvestigationRelationGraph
+): RelationGraphTraceAdmissionUnit<string> {
+  const successors = (graph.edgesByTarget.get(edge.target) ?? [])
+    .filter((candidate) => candidate.type === "拆分")
+    .map((candidate) => candidate.source);
+  const traceIds = direction === "predecessors" ? [edge.target] : successors;
+  return {
+    kind: "split",
+    recordIds: [edge.target, ...successors],
+    traceIds
+  };
+}
+
+function mergeTraceAdmissionUnit(
+  edge: RelationEdge<string, InvestigationRelationType>,
+  direction: "predecessors" | "successors",
+  graph: InvestigationRelationGraph
+): RelationGraphTraceAdmissionUnit<string> {
+  const predecessors = (graph.edgesBySource.get(edge.source) ?? [])
+    .filter((candidate) => candidate.type === "归并")
+    .map((candidate) => candidate.target);
+  const traceIds = direction === "predecessors" ? predecessors : [edge.source];
+  return {
+    kind: "merge",
+    recordIds: [edge.source, ...predecessors],
+    traceIds
+  };
 }
 
 export function validateInvestigationRelationGraph(

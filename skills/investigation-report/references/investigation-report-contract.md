@@ -238,7 +238,11 @@ rename 自行完成索引更新，不把同步或暂存当作第二阶段；成�
 
 ### 查询结果能说明什么
 
-`list` 提供全局筛选概览与近期窗口，`show` 读取完整正式报告，`trace` 恢复关系图。重复 tags 为 AND，形成时间范围包含端点；关系条件与其他条件相交后再排序、翻页或匹配文本。参数默认值和窗口大小查 help，空页只说明本次筛选与窗口无结果。
+`list` 提供全局筛选概览与近期窗口，`show` 读取完整正式报告，`trace` 从一次当前受检索引快照返回面向 agent 的关系切片。重复 tags 为 AND，形成时间范围包含端点；关系条件与其他条件相交后再排序、翻页或匹配文本。参数默认值和窗口大小查 help，空页只说明本次筛选与窗口无结果。
+
+`trace` 成功时只向 stdout 输出稳定 JSON，并回显 `anchorId`、实际 direction 与 limits；无限 depth 在 `limits.depth` 中表示为 `"all"`。省略参数时采用 `direction=both`、`depth=5` 与 `max-records=50`；有限 depth 为非负安全整数，`--depth all` 取消深度限制，max-records 为正安全整数。`traceIds` 是请求方向上实际到达且可继续扩展的成员，`contextIds` 只为完整拆分或纯归并事件闭合加入；二者互斥，且并集恰为 `entries` 的 key。每个 entry 只投影 title、formedAt、question、tags 和完整 relations；ID 已由 key 承接，name、sourcePath 和 resourceIds 不进入结果。
+
+完整事件不能按记录预算拆开：一个跨越触发拆分时接纳该前序与全部直接拆分后继；触发纯归并时接纳归并后继与全部直接前序。能在请求方向直接到达的端点成为 trace member，其余事件成员为 context，除非之后被实际到达而提升。`coverage.complete` 仅在没有深度或预算截断时为 true；`coverage.stoppedBy`、`frontier` 与可选 `blockedEvent` 共同说明限制。frontier 的 fromId、direction 和 nextIds 是继续查询的事实，不是 cursor；预算阻断多记录事件时，blockedEvent 的 recordIds 保持事件完整，requiredMaxRecords 给出接纳该事件所需的最小预算；普通单记录接纳受阻时只形成 max-records frontier。entry 的完整 relations 可能指向切片外 ID，这仍是索引事实；只有两端都在 entries 的 relation 是切片内部边。summary 存在时原样投影，缺失时省略，不由 trace 推断。
 
 `--related-to` 先独立解析目标，再按相对目标的 predecessors、successors 或 both 选择直接邻居；方向须与目标同用。relation type 单独使用匹配任一该类型边，与目标同用则须命中同一条边。
 

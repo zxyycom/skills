@@ -27,6 +27,8 @@
 
 报告以稳定 Investigation ID 标识，tags 用于分类，直接前序关系表达认识演进，关系摘要说明本轮对前序具体增加、核对或改变了什么，派生索引用于查找和追溯。所有正式报告保留在同一集合；当前口径由当前事实 owner 承接。
 
+`trace` 为 agent 从一次当前索引快照返回 JSON 切片：默认双向、深度 5、最多 50 条记录。`traceIds` 是实际遍历成员，`contextIds` 仅补齐完整拆分或纯归并事件；两者合起来正好是 `entries`。`coverage`、`frontier` 和可选 `blockedEvent` 明确深度或预算是否截断；frontier 可作为下一次查询的 anchor 与方向，但不是 cursor。报告自身的完整 relations 仍保留，即使其 target 在切片外；已有 summary 原样保留，缺失时不会补写。使用 `--depth all` 取消深度限制，需要完整接纳被阻断事件时，把 `--max-records` 提高到其 `requiredMaxRecords` 后重查。
+
 正文独立解释关键认识；资源按需补充现场与做法，以必要、Git 友好的纯文本为优先。日志和数据可简化，一次性分析代码、测试代码或查询可用于解释当时动作；材料的来源与处理方式须清楚。复现与重跑按任务另行要求，结论可信度仍取决于来源、方法和推理。
 
 资源的保留范围、形式和维护边界见 [资源选择](../../skills/investigation-report/SKILL.md#3-选择随附资源)。

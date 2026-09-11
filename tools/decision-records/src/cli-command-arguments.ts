@@ -354,8 +354,15 @@ function traceCommandArgs(
     ...location,
     command: "trace",
     decisionId: requiredDecisionId(decisionIds),
-    traceDepth: options.depth ?? null,
-    traceDirection: options.direction ?? "both"
+    ...(options.depth === undefined
+      ? {}
+      : { traceDepth: options.depth === "all" ? null : options.depth }),
+    ...(options.direction === undefined
+      ? {}
+      : { traceDirection: options.direction }),
+    ...(options.maxRecords === undefined
+      ? {}
+      : { traceMaxRecords: options.maxRecords })
   };
 }
 

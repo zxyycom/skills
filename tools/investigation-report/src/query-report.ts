@@ -20,9 +20,11 @@ import {
   resolveInvestigationsDirectory
 } from "./report-path.ts";
 import { resolveInvestigationSelector } from "./investigation-selector.ts";
-import { traceInvestigationRelations } from "./relation-validation.ts";
 import {
-  compareText,
+  normalizeInvestigationTraceOptions,
+  traceLoadedInvestigation
+} from "./query-trace.ts";
+import {
   defaultInvestigationIndexPath,
   investigationIndexPathForOptions,
   queryFailure,
@@ -38,7 +40,6 @@ import type {
   InvestigationIndexQueryResult,
   InvestigationReportShowOptions,
   InvestigationReportShowResult,
-  InvestigationReportTraceOptions,
   InvestigationReportTraceResult
 } from "./types.ts";
 import type {
@@ -243,12 +244,12 @@ export async function traceInvestigationReports(
   }
   const options = parsed.value;
   const selector = options.id;
-  const traceOptions = validatedTraceOptions(options);
-  if (traceOptions === null) {
+  const traceOptions = normalizeInvestigationTraceOptions(options);
+  if ("errors" in traceOptions) {
     return traceFailure(
       selector,
       investigationIndexPathForOptions(parsed.value),
-      ["maxDepth must be a non-negative integer"]
+      traceOptions.errors
     );
   }
   const loaded = await loadIndexedInvestigationContext(
@@ -263,64 +264,12 @@ export async function traceInvestigationReports(
       loaded.error.diagnostics
     );
   }
-  return tracedLoadedInvestigation(selector, traceOptions, loaded.value);
-}
-
-function tracedLoadedInvestigation(
-  selector: string,
-  traceOptions: NonNullable<ReturnType<typeof validatedTraceOptions>>,
-  context: IndexedInvestigationContext
-): InvestigationReportTraceResult {
-  const { index, indexPath } = context;
-  const resolved = resolveInvestigationSelector(
-    Object.entries(index.entries).map(([id, state]) => ({
-      id,
-      name: state.name
-    })),
-    selector
+  return traceLoadedInvestigation(
+    loaded.value.index,
+    loaded.value.indexPath,
+    selector,
+    traceOptions.value
   );
-  if (resolved.status === "error")
-    return traceFailure(selector, indexPath, resolved.errors);
-  const { id } = resolved;
-  const trace = traceInvestigationRelations(
-    new Map(
-      Object.entries(index.entries).map(([reportId, state]) => [
-        reportId,
-        state
-      ])
-    ),
-    id,
-    traceOptions
-  );
-  return {
-    edges: trace.edges.map((edge) => ({
-      source: edge.source,
-      target: edge.target,
-      type: edge.type,
-      ...(edge.summary === undefined ? {} : { summary: edge.summary })
-    })),
-    diagnostics: [],
-    errors: [],
-    id,
-    indexPath,
-    reportIds: [...trace.ids].sort(compareText),
-    status: "ok"
-  };
-}
-
-function validatedTraceOptions(options: InvestigationReportTraceOptions): {
-  direction: NonNullable<InvestigationReportTraceOptions["direction"]>;
-  maxDepth: number | null;
-} | null {
-  const direction = options.direction ?? "both";
-  const maxDepth = options.maxDepth ?? null;
-  if (!validTraceMaxDepth(maxDepth)) return null;
-  return { direction, maxDepth };
-}
-
-function validTraceMaxDepth(maxDepth: number | null): boolean {
-  if (maxDepth === null) return true;
-  return Number.isSafeInteger(maxDepth) && maxDepth >= 0;
 }
 
 function rawStringField(input: unknown, field: string): string | undefined {

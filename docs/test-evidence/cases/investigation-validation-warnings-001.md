@@ -10,4 +10,5 @@ Contract:
 - 直接调用的源码 CLI 入口 `trace` 支持报告级关系方向选项。
 
 Proves:
-- 带 `--direction successors` 的有效 trace 成功、stderr 为空，并在 stdout 返回后继报告和边。
+- 带 `--direction successors` 的有效 trace 成功、stderr 为空，并在 stdout 返回后继报告。
+- depth 0 的真实 CLI JSON frontier 依次写入 fromId、direction、reason 与 nextIds。

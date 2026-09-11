@@ -26,6 +26,8 @@ export type {
   DecisionQueryRequest,
   DecisionQueryResult,
   DecisionQuerySuccess,
+  DecisionTraceEntry,
+  DecisionTraceSuccess,
   IndexedDecisionRecord
 } from "./decision-query-contract.ts";
 export { decisionMetadataSearchFields } from "./decision-query-contract.ts";

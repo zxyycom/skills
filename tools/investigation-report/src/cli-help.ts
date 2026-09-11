@@ -147,7 +147,8 @@ const specificOptions: Partial<
   ],
   trace: [
     "  --direction <direction>       predecessors, successors, or both (default: both)",
-    "  --depth <count>               Maximum non-negative relation depth"
+    "  --depth <count|all>           Maximum relation depth (default: 5; all disables the limit)",
+    "  --max-records <count>         Positive record budget (default: 50)"
   ],
   "set-relations": [
     "  --source <investigation-id>   Start one complete replacement source group",

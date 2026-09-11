@@ -383,7 +383,7 @@ test("candidate queries report readiness while formal sources and default checks
     assert.doesNotMatch(formal.stdout, /候选边界/u);
     const traced = await runInvestigationCli(root, ["trace", "formal.md"]);
     assert.equal(traced.status, 0, traced.stderr);
-    assert.match(traced.stdout, /Reports: formal/u);
+    assert.deepEqual(JSON.parse(traced.stdout).traceIds, ["formal"]);
     const checked = await validateInvestigationReports({ workspaceRoot: root });
     assert.deepEqual(checked.errors, []);
     assert.ok(

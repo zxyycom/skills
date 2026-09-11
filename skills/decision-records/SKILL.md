@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "55"
+  version: "56"
 ---
 
 # Decision Records
@@ -46,6 +46,10 @@ agent 在当前请求或生效项目规则授权的范围内，自行审查记�
 | 完整演进关系 | `trace <selector>` |
 
 Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位文件。查询后使用返回的完整 ID 继续操作。
+
+`trace` 只读取一次受检索引快照，并输出稳定 JSON 切片。成功结果以 `anchorId`、实际 `direction`、实际 `limits`、`coverage`、成员 ID、`frontier`、可选 `blockedEvent` 与 `entries` 组成；`limits.depth` 在无限深度时为 `"all"`。省略选项时按 `both`、深度 5、最多 50 条唯一记录查询；`--depth all` 取消深度限制，`--max-records <n>` 调整记录预算。`traceIds` 是实际递归遍历成员，`contextIds` 只为闭合拆分、纯归并或重划事件而加入，二者与 `entries` 的键恰好对应。每个 entry 保留其完整直接 `relations`，即使 target 不在切片内；这不是缺失证明。关系已有 `summary` 时原样保留，缺失时省略，trace 不推断或补写。
+
+先依据 `coverage.complete`、`stoppedBy` 和 `frontier` 判断结果边界：`frontier` 的 `fromId`、方向与 `nextIds` 可作为下一次 trace 的 anchor 和 direction，而不是可跨快照续用的 cursor。`blockedEvent` 表示完整事件因记录预算尚未接纳，使用其 `requiredMaxRecords` 扩大预算后重查；不要把其中任何局部成员当成完整演进事实。
 
 `list` 与 `search` 默认查 active 已建立记录；需要历史或更多结果时显式筛选并扩展窗口。默认搜索读取权威 Markdown，`--in metadata` 只反映已发布索引快照。遇到降级或截断 warning 时，先按[派生索引与查询](references/decision-record-rules.md#派生索引与查询)确认来源与结果边界，再据此下结论。
 

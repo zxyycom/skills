@@ -121,7 +121,7 @@ test("relation graph rejects a cycle", () => {
   assert.ok(errors.some((error) => error.includes("cycle")));
 });
 
-test("relation trace returns deterministic predecessor successor and bidirectional subgraphs", () => {
+test("relation trace selects deterministic predecessor successor and bidirectional slices", () => {
   const states = new Map<string, InvestigationIndexState>([
     [
       "c",
@@ -133,51 +133,127 @@ test("relation trace returns deterministic predecessor successor and bidirection
     ["a", state("2026-08-28T10:00:00+00:00")]
   ]);
   assert.deepEqual(
-    [
-      ...traceInvestigationRelations(states, "b", {
-        direction: "predecessors",
-        maxDepth: null
-      }).ids
-    ],
-    ["b", "a"]
+    traceInvestigationRelations(states, "b", {
+      direction: "predecessors",
+      maxDepth: null,
+      maxRecords: 50
+    }).traceIds,
+    ["a", "b"]
   );
   assert.deepEqual(
-    [
-      ...traceInvestigationRelations(states, "b", {
-        direction: "successors",
-        maxDepth: null
-      }).ids
-    ],
+    traceInvestigationRelations(states, "b", {
+      direction: "successors",
+      maxDepth: null,
+      maxRecords: 50
+    }).traceIds,
     ["b", "c"]
-  );
-  assert.deepEqual(
-    [
-      ...traceInvestigationRelations(states, "b", {
-        direction: "both",
-        maxDepth: null
-      }).ids
-    ],
-    ["b", "a", "c"]
   );
   assert.deepEqual(
     traceInvestigationRelations(states, "b", {
       direction: "both",
-      maxDepth: null
-    }).edges,
+      maxDepth: null,
+      maxRecords: 50
+    }).traceIds,
+    ["a", "b", "c"]
+  );
+  assert.deepEqual(
+    traceInvestigationRelations(states, "b", {
+      direction: "both",
+      maxDepth: 0,
+      maxRecords: 50
+    }).frontier,
     [
-      { source: "b", target: "a", type: "补充" },
-      { source: "c", target: "b", type: "修正", summary: "修正边界" }
+      {
+        direction: "predecessors",
+        fromId: "b",
+        nextIds: ["a"],
+        reason: "depth"
+      },
+      { direction: "successors", fromId: "b", nextIds: ["c"], reason: "depth" }
     ]
   );
   assert.deepEqual(
-    [
-      ...traceInvestigationRelations(states, "b", {
-        direction: "both",
-        maxDepth: 0
-      }).ids
-    ],
+    traceInvestigationRelations(states, "b", {
+      direction: "both",
+      maxDepth: 0,
+      maxRecords: 50
+    }).traceIds,
     ["b"]
   );
+});
+
+test("relation trace closes split and merge events without treating context as traversal", () => {
+  const splitStates = new Map<string, InvestigationIndexState>([
+    ["base", state("2026-08-28T10:00:00+00:00")],
+    [
+      "first-split",
+      state("2026-08-28T11:00:00+00:00", [{ target: "base", type: "拆分" }])
+    ],
+    [
+      "second-split",
+      state("2026-08-28T11:00:00+00:00", [{ target: "base", type: "拆分" }])
+    ]
+  ]);
+  const split = traceInvestigationRelations(splitStates, "first-split", {
+    direction: "predecessors",
+    maxDepth: null,
+    maxRecords: 50
+  });
+  assert.deepEqual(split.traceIds, ["base", "first-split"]);
+  assert.deepEqual(split.contextIds, ["second-split"]);
+
+  const mergeStates = new Map<string, InvestigationIndexState>([
+    ["first-source", state("2026-08-28T10:00:00+00:00")],
+    ["second-source", state("2026-08-28T10:00:00+00:00")],
+    [
+      "merged",
+      state("2026-08-28T11:00:00+00:00", [
+        { target: "first-source", type: "归并" },
+        { target: "second-source", type: "归并" }
+      ])
+    ]
+  ]);
+  const merge = traceInvestigationRelations(mergeStates, "first-source", {
+    direction: "successors",
+    maxDepth: null,
+    maxRecords: 50
+  });
+  assert.deepEqual(merge.traceIds, ["first-source", "merged"]);
+  assert.deepEqual(merge.contextIds, ["second-source"]);
+});
+
+test("relation trace blocks an oversized split event at the budget boundary", () => {
+  const states = new Map<string, InvestigationIndexState>([
+    ["base", state("2026-08-28T10:00:00+00:00")],
+    [
+      "first-split",
+      state("2026-08-28T11:00:00+00:00", [{ target: "base", type: "拆分" }])
+    ],
+    [
+      "second-split",
+      state("2026-08-28T11:00:00+00:00", [{ target: "base", type: "拆分" }])
+    ]
+  ]);
+  const trace = traceInvestigationRelations(states, "first-split", {
+    direction: "predecessors",
+    maxDepth: null,
+    maxRecords: 2
+  });
+  assert.deepEqual(trace.traceIds, ["first-split"]);
+  assert.deepEqual(trace.contextIds, []);
+  assert.deepEqual(trace.blockedEvent, {
+    kind: "split",
+    recordIds: ["base", "first-split", "second-split"],
+    requiredMaxRecords: 3
+  });
+  assert.deepEqual(trace.frontier, [
+    {
+      direction: "predecessors",
+      fromId: "first-split",
+      nextIds: ["base"],
+      reason: "max-records"
+    }
+  ]);
 });
 
 test("relation summaries do not change graph identity or validation", () => {

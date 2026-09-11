@@ -29,6 +29,18 @@ export type RelationGraphTrace<Id extends string, Type extends string> = {
   ids: ReadonlySet<Id>;
 };
 
+export { selectRelationGraphTrace } from "./trace-selection.ts";
+export type {
+  RelationGraphTraceAdmissionAdapter,
+  RelationGraphTraceAdmissionUnit,
+  RelationGraphTraceBlockedEvent,
+  RelationGraphTraceEventKind,
+  RelationGraphTraceExpansionDirection,
+  RelationGraphTraceFrontier,
+  RelationGraphTraceSelection,
+  RelationGraphTraceSelectionOptions
+} from "./trace-contract.ts";
+
 export type RelationGraphStructuralIssue<
   Id extends string,
   Type extends string

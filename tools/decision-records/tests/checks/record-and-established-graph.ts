@@ -4,6 +4,7 @@ await import("../type-path-invariants.test.ts");
 await import("../record-guards.test.ts");
 await import("../layout-index.test.ts");
 await import("../relation-validation.test.ts");
+await import("../trace-event-admission.test.ts");
 await import("../state-snapshot.test.ts");
 await import("../configured-decision-directory.test.ts");
 await import("../filesystem-boundaries.test.ts");

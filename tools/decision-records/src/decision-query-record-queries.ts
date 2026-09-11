@@ -6,9 +6,12 @@ import {
   isDecisionId,
   parseDatedDecisionId
 } from "./decision-path.ts";
+import type { DecisionId, DecisionTraceDirection } from "./types.ts";
 import { loadDecisionQueryContext } from "./decision-query-context.ts";
 import type {
   CandidateDecisionRecord,
+  DecisionTraceEntry,
+  IndexedDecisionRecord,
   DecisionQueryRequest,
   DecisionQueryResult
 } from "./decision-query-contract.ts";
@@ -132,6 +135,8 @@ function invalidOrMissingCandidate(
 export async function traceDecisionRecord(
   request: Extract<DecisionQueryRequest, { command: "trace" }>
 ): Promise<DecisionQueryResult> {
+  const options = normalizeTraceOptions(request);
+  if (options.status === "error") return options.failure;
   const context = await loadDecisionQueryContext(request.location);
   if (context.status === "error") return context;
   const resolved = resolveIndexedDecisionSelector(
@@ -145,7 +150,19 @@ export async function traceDecisionRecord(
   });
   if (queried.status === "error")
     return indexFailure(queried, context.indexRelativePath);
-  const records = indexedRecords(queried.value);
+  return traceDecisionResult(
+    indexedRecords(queried.value),
+    resolved.record.decisionId,
+    options
+  );
+}
+
+function traceDecisionResult(
+  records: readonly IndexedDecisionRecord[],
+  anchorId: DecisionId,
+  options: Extract<ReturnType<typeof normalizeTraceOptions>, { status: "ok" }>
+): Extract<DecisionQueryResult, { command: "trace"; status: "ok" }> {
+  const { direction, maxDepth, maxRecords } = options;
   const trace = traceDecisionRelations(
     records.map((record) => ({
       decisionId: record.decisionId,
@@ -153,16 +170,112 @@ export async function traceDecisionRecord(
       sourcePath: record.sourcePath,
       status: record.status
     })),
-    resolved.record.decisionId,
-    { direction: request.direction, maxDepth: request.maxDepth }
+    anchorId,
+    { direction, maxDepth, maxRecords }
+  );
+  const recordById = new Map(
+    records.map((record) => [record.decisionId, record])
   );
   return {
+    anchorId,
     command: "trace",
-    edges: trace.edges,
-    records: records
-      .filter((record) => trace.decisionIds.has(record.decisionId))
-      .sort((left, right) => left.sourcePath.localeCompare(right.sourcePath)),
+    contextIds: trace.contextIds,
+    coverage: trace.coverage,
+    direction,
+    entries: traceEntries(recordById, [...trace.traceIds, ...trace.contextIds]),
+    frontier: trace.frontier,
+    ...(trace.blockedEvent === undefined
+      ? {}
+      : { blockedEvent: trace.blockedEvent }),
+    limits: {
+      depth: maxDepth === null ? "all" : maxDepth,
+      maxRecords
+    },
     status: "ok",
+    traceIds: trace.traceIds,
     warnings: []
   };
+}
+
+function normalizeTraceOptions(
+  request: Extract<DecisionQueryRequest, { command: "trace" }>
+):
+  | {
+      direction: DecisionTraceDirection;
+      maxDepth: number | null;
+      maxRecords: number;
+      status: "ok";
+    }
+  | { failure: DecisionQueryResult; status: "error" } {
+  const issues: string[] = [];
+  const direction = request.direction ?? "both";
+  const maxDepth = request.maxDepth === undefined ? 5 : request.maxDepth;
+  const maxRecords = request.maxRecords ?? 50;
+  if (
+    direction !== "both" &&
+    direction !== "predecessors" &&
+    direction !== "successors"
+  ) {
+    issues.push("direction must be predecessors, successors, or both");
+  }
+  if (maxDepth !== null && (!Number.isSafeInteger(maxDepth) || maxDepth < 0)) {
+    issues.push("maxDepth must be a non-negative safe integer or null");
+  }
+  if (!Number.isSafeInteger(maxRecords) || maxRecords < 1) {
+    issues.push("maxRecords must be a positive safe integer");
+  }
+  if (issues.length > 0) {
+    return {
+      failure: decisionFailure(
+        issues.map((reason) =>
+          decisionDiagnostic({
+            code: "decision-records.trace-options-invalid",
+            reason,
+            recovery: "Correct the Decision trace options, then retry.",
+            target: "Decision trace options"
+          })
+        ),
+        { exitCode: 2 }
+      ),
+      status: "error"
+    };
+  }
+  return {
+    direction,
+    maxDepth,
+    maxRecords,
+    status: "ok"
+  };
+}
+
+function traceEntries(
+  recordById: ReadonlyMap<string, IndexedDecisionRecord>,
+  decisionIds: readonly string[]
+): Record<string, DecisionTraceEntry> {
+  return Object.fromEntries(
+    [...new Set(decisionIds)].sort().map((decisionId) => {
+      const record = recordById.get(decisionId);
+      if (record === undefined) {
+        throw new TypeError(
+          "Trace selected an unknown Decision: " + decisionId
+        );
+      }
+      return [
+        decisionId,
+        {
+          title: record.projection.title,
+          status: record.status,
+          alignment: record.alignment,
+          createdAt: record.createdAt,
+          purpose: record.projection.purpose,
+          background: record.projection.background,
+          decision: record.projection.decision,
+          tags: [...record.tags],
+          relations: record.projection.relations.map((relation) => ({
+            ...relation
+          }))
+        }
+      ];
+    })
+  );
 }

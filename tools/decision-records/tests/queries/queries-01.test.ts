@@ -5,6 +5,7 @@ import {
   currentDecisionId,
   currentSourcePath,
   decisionFilePath,
+  executeDecisionQuery,
   execFileSync,
   fs,
   normalizeDecisionSelectorInput,
@@ -179,11 +180,89 @@ test("decision trace follows stable ID relations", () =>
       "--root",
       workspaceRoot
     ]);
-    assert.match(traced, new RegExp(archivedDecisionId));
-    assert.match(traced, /- active aligned use-generated-cli/);
-    assert.match(traced, /- archived unaligned 260710-use-source-cli/);
-    assert.doesNotMatch(traced, /unknown|null/);
+    const result = JSON.parse(traced) as {
+      contextIds: string[];
+      coverage: { complete: boolean };
+      entries: Record<string, { alignment: string; status: string }>;
+      limits: { depth: number; maxRecords: number };
+      traceIds: string[];
+    };
+    assert.deepEqual(result.limits, { depth: 5, maxRecords: 50 });
+    assert.equal(result.coverage.complete, true);
+    assert.deepEqual(result.contextIds, []);
+    assert.deepEqual(result.traceIds, [archivedDecisionId, currentDecisionId]);
+    assert.equal(result.entries[archivedDecisionId]?.alignment, "unaligned");
+    assert.equal(result.entries[archivedDecisionId]?.status, "archived");
+    assert.equal(result.entries[currentDecisionId]?.alignment, "aligned");
+    assert.equal(result.entries[currentDecisionId]?.status, "active");
   }));
+
+test("decision trace applies explicit API depth and record limits", () =>
+  withFixtureWorkspace("query-trace-explicit-limits", async (workspaceRoot) => {
+    const direct = await executeDecisionQuery({
+      command: "trace",
+      decisionId: currentDecisionId,
+      location: { decisionsDir: "docs/decisions", workspaceRoot },
+      maxDepth: 0,
+      maxRecords: 1
+    });
+    assert.equal(direct.status, "ok");
+    if (direct.status === "ok" && direct.command === "trace") {
+      assert.deepEqual(direct.limits, { depth: 0, maxRecords: 1 });
+      assert.deepEqual(direct.traceIds, [currentDecisionId]);
+    }
+
+    const cli = await runSourceCli([
+      "trace",
+      currentDecisionId,
+      "--depth",
+      "0",
+      "--max-records",
+      "1",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(cli.exitCode, 0, cli.stderr);
+    const output = JSON.parse(cli.stdout) as {
+      frontier: Array<Record<string, unknown>>;
+      limits: { depth: number; maxRecords: number };
+      traceIds: string[];
+    };
+    assert.deepEqual(output.limits, { depth: 0, maxRecords: 1 });
+    assert.deepEqual(output.traceIds, [currentDecisionId]);
+    assert.deepEqual(Object.keys(output.frontier[0] ?? {}), [
+      "fromId",
+      "direction",
+      "reason",
+      "nextIds"
+    ]);
+  }));
+
+test("decision trace rejects invalid direct query limits before loading its index", async () => {
+  for (const request of [
+    { maxDepth: -1 },
+    { maxDepth: Number.MAX_SAFE_INTEGER + 1 },
+    { maxRecords: 0 },
+    { maxRecords: Number.MAX_SAFE_INTEGER + 1 }
+  ] as const) {
+    const result = await executeDecisionQuery({
+      command: "trace",
+      decisionId: currentDecisionId,
+      location: {
+        decisionsDir: "docs/decisions",
+        workspaceRoot: "missing-decision-trace-root"
+      },
+      ...request
+    });
+    assert.equal(result.status, "error", JSON.stringify(request));
+    assert.equal(result.exitCode, 2, JSON.stringify(request));
+    assert.equal(
+      result.diagnostics[0]?.code,
+      "decision-records.trace-options-invalid",
+      JSON.stringify(request)
+    );
+  }
+});
 
 test("check detects tagged source drift and sync-index accepts it", () =>
   withFixtureWorkspace("query-drift", async (workspaceRoot) => {

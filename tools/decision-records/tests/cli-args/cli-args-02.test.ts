@@ -65,6 +65,29 @@ test("trace rejects a negative depth", async () => {
   assert.match(result.stderr, /must be a non-negative integer/);
 });
 
+test("trace accepts all depth and rejects invalid record budgets", async () => {
+  const allDepth = await runCli([
+    "trace",
+    archivedRelativePath,
+    "--depth",
+    "all"
+  ]);
+  assert.equal(allDepth.exitCode, 1, allDepth.stderr);
+  assert.doesNotMatch(allDepth.stderr, /must be a non-negative integer/);
+
+  for (const value of ["0", "-1", "not-a-number"] as const) {
+    const result = await runCli([
+      "trace",
+      archivedRelativePath,
+      "--max-records",
+      value
+    ]);
+    assert.equal(result.exitCode, 2, value);
+    assert.equal(result.stdout, "", value);
+    assert.match(result.stderr, /must be a positive integer/, value);
+  }
+});
+
 test("list and search reject repeated relation query options", async () => {
   for (const [command, prefix] of [
     ["list", []],
@@ -210,4 +233,24 @@ test("generated Decision Records CLI preserves the Node success and failure prot
   assert.equal(failure.status, 2);
   assert.equal(failure.stdout, "");
   assert.match(failure.stderr, /required option '--successor/);
+});
+
+test("trace rejects repeated bounded-query options", async () => {
+  for (const [option, first, second] of [
+    ["--direction", "both", "predecessors"],
+    ["--depth", "1", "2"],
+    ["--max-records", "1", "2"]
+  ] as const) {
+    const result = await runCli([
+      "trace",
+      archivedRelativePath,
+      option,
+      first,
+      option,
+      second
+    ]);
+    assert.equal(result.exitCode, 2, option);
+    assert.equal(result.stdout, "", option);
+    assert.match(result.stderr, new RegExp(`${option} must not be repeated`));
+  }
 });

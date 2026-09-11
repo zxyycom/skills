@@ -361,7 +361,8 @@ export type InvestigationReportTraceOptions = {
   direction?: InvestigationTraceDirection;
   id: string;
   investigationsDir?: string;
-  maxDepth?: number;
+  maxDepth?: number | null;
+  maxRecords?: number;
   workspaceRoot: string;
 };
 
@@ -372,16 +373,41 @@ export type InvestigationRelationEdge = Readonly<{
   summary?: string;
 }>;
 
+export type InvestigationTraceEntry = Readonly<{
+  title: string;
+  formedAt: string;
+  question: string;
+  tags: readonly string[];
+  relations: readonly InvestigationRelation[];
+}>;
+
+export type InvestigationReportTraceSuccess = Readonly<{
+  status: "ok";
+  anchorId: string;
+  direction: InvestigationTraceDirection;
+  limits: Readonly<{ depth: number | "all"; maxRecords: number }>;
+  coverage: Readonly<{
+    complete: boolean;
+    stoppedBy: readonly ("depth" | "max-records")[];
+  }>;
+  traceIds: readonly string[];
+  contextIds: readonly string[];
+  frontier: readonly Readonly<{
+    fromId: string;
+    direction: "predecessors" | "successors";
+    reason: "depth" | "max-records";
+    nextIds: readonly string[];
+  }>[];
+  blockedEvent?: Readonly<{
+    kind: "split" | "merge";
+    recordIds: readonly string[];
+    requiredMaxRecords: number;
+  }>;
+  entries: Readonly<Record<string, InvestigationTraceEntry>>;
+}>;
+
 export type InvestigationReportTraceResult =
-  | Readonly<{
-      edges: InvestigationRelationEdge[];
-      diagnostics: InvestigationDiagnostic[];
-      errors: string[];
-      id: string;
-      indexPath: string;
-      reportIds: string[];
-      status: "ok";
-    }>
+  | InvestigationReportTraceSuccess
   | Readonly<{
       edges: InvestigationRelationEdge[];
       diagnostics: InvestigationDiagnostic[];

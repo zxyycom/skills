@@ -139,6 +139,8 @@ export type {
   InvestigationReportShowResult,
   InvestigationReportTraceOptions,
   InvestigationReportTraceResult,
+  InvestigationReportTraceSuccess,
+  InvestigationTraceEntry,
   InvestigationSearchEntry,
   InvestigationSearchOptions,
   InvestigationSearchResult,

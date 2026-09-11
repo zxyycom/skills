@@ -1,13 +1,13 @@
-### Case INVESTIGATION-CLI-ENUM-001: CLI leaves relation and trace enum values for API validation
+### Case INVESTIGATION-CLI-ENUM-001: CLI 拒绝非法关系与 Trace 枚举
 
 Tests:
-- `test:e13cbb8627a5f97b0c1cfea372b38a98254a697e9b0f34a64ab2f74b5a3a70dd`
+- `test:fcf1c5016114731f5a51143e850ca3894f8ef7443d486f2e94717c61c34b2d45`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- CLI 只负责参数分组；关系类型和 trace direction 的领域枚举由公共 API 校验。
+- CLI 必须在参数边界拒绝非法关系类型与 Trace direction。
 
 Proves:
-- 未知关系类型和 direction 均以操作错误退出，只向 stderr 返回领域诊断。
+- 未知关系类型和 direction 均以退出码 2 结束，只向 stderr 返回参数诊断。

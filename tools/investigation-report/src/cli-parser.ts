@@ -25,6 +25,7 @@ const valueOptions = new Set([
   "offset",
   "direction",
   "depth",
+  "max-records",
   "source",
   "relation",
   "relation-summary",

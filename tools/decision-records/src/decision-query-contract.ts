@@ -5,6 +5,10 @@ import type {
 } from "../../shared/src/file-text-search/index.ts";
 import type { DecisionApplicationFailure } from "./application-result.ts";
 import type { DecisionLocation } from "./decision-query-context.ts";
+import type {
+  RelationGraphTraceBlockedEvent,
+  RelationGraphTraceFrontier
+} from "../../shared/src/graph/relations.ts";
 import type { DecisionRelationEdge } from "./relation-graph.ts";
 import type {
   DecisionAlignment,
@@ -79,9 +83,10 @@ export type DecisionQueryRequest =
   | {
       command: "trace";
       decisionId: string;
-      direction: DecisionTraceDirection;
+      direction?: DecisionTraceDirection;
       location: DecisionLocation;
-      maxDepth: number | null;
+      maxDepth?: number | null;
+      maxRecords?: number;
     };
 
 type QuerySuccessBase = { status: "ok"; warnings: string[] };
@@ -138,6 +143,37 @@ export type DecisionSearchSnapshot = {
   sourcePathToRecord: ReadonlyMap<DecisionSourcePath, IndexedDecisionRecord>;
   warnings: string[];
 };
+
+export type DecisionTraceEntry = Readonly<{
+  title: string;
+  status: EstablishedDecisionStatus;
+  alignment: DecisionAlignment;
+  createdAt: string;
+  purpose: string;
+  background: string;
+  decision: string;
+  tags: readonly DecisionTag[];
+  relations: readonly DecisionProjection["relations"][number][];
+}>;
+
+export type DecisionTraceSuccess = Readonly<{
+  status: "ok";
+  anchorId: DecisionId;
+  direction: DecisionTraceDirection;
+  limits: Readonly<{
+    depth: number | "all";
+    maxRecords: number;
+  }>;
+  coverage: Readonly<{
+    complete: boolean;
+    stoppedBy: readonly ("depth" | "max-records")[];
+  }>;
+  traceIds: readonly DecisionId[];
+  contextIds: readonly DecisionId[];
+  frontier: readonly RelationGraphTraceFrontier<DecisionId>[];
+  blockedEvent?: RelationGraphTraceBlockedEvent<DecisionId>;
+  entries: Readonly<Record<string, DecisionTraceEntry>>;
+}>;
 
 export type DecisionQuerySuccess =
   | (QuerySuccessBase & {
@@ -200,9 +236,7 @@ export type DecisionQuerySuccess =
     })
   | (QuerySuccessBase & {
       command: "trace";
-      edges: DecisionRelationEdge[];
-      records: IndexedDecisionRecord[];
-    });
+    } & Omit<DecisionTraceSuccess, "status">);
 
 export type DecisionQueryResult =
   | DecisionApplicationFailure

@@ -21,7 +21,7 @@ export type ParsedOptions = {
   discard?: DecisionId;
   deleteRecordedDecision?: boolean;
   decisionsDir?: string;
-  depth?: number;
+  depth?: number | "all";
   decision?: string;
   direction?: DecisionTraceDirection;
   fullTime?: boolean;
@@ -31,6 +31,7 @@ export type ParsedOptions = {
   renameRecordedDecision?: boolean;
   preflightAlignment?: DecisionAlignment;
   match?: "all" | "any" | "phrase";
+  maxRecords?: number;
   limit?: number;
   offset?: number;
   purpose?: string;

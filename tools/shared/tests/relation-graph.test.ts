@@ -7,6 +7,8 @@ import {
   traceRelationGraph
 } from "../src/graph/relations.ts";
 
+import "./relation-trace-selection.test.ts";
+
 test("relation graph builds source and target indexes in supplied edge order", () => {
   const graph = buildRelationGraph(
     ["a", "b", "c", "d"],

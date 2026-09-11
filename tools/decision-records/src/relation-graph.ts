@@ -1,8 +1,9 @@
 import {
   buildRelationGraph,
   relationGraphStructuralIssues,
+  selectRelationGraphTrace,
   sortRelationEdges,
-  traceRelationGraph,
+  type RelationGraphTraceSelection,
   type RelationEdge,
   type RelationGraph
 } from "../../shared/src/graph/relations.ts";
@@ -16,6 +17,7 @@ import type {
 } from "./types.ts";
 import { isEstablishedDecisionRecord } from "./types.ts";
 import { decisionReallocationComponents } from "./relation-reallocation.ts";
+import { decisionTraceAdmissionAdapter } from "./decision-trace-admission.ts";
 export {
   decisionReallocationComponents,
   type DecisionReallocationComponent
@@ -26,10 +28,7 @@ export type DecisionRelationEdge = RelationEdge<
   DecisionRelationType
 >;
 
-export type DecisionRelationTrace = {
-  edges: DecisionRelationEdge[];
-  decisionIds: Set<DecisionId>;
-};
+export type DecisionRelationTrace = RelationGraphTraceSelection<DecisionId>;
 
 export type DecisionRelationConsistencyIssue = {
   message: string;
@@ -81,14 +80,17 @@ export function traceDecisionRelations(
   options: {
     direction: DecisionTraceDirection;
     maxDepth: number | null;
+    maxRecords: number;
   }
 ): DecisionRelationTrace {
   const graph = buildDecisionRelationGraph(records);
-  const trace = traceRelationGraph(graph, startDecisionId, options);
-  return {
-    edges: [...trace.edges],
-    decisionIds: new Set(trace.ids)
-  };
+  const reallocationComponents = decisionReallocationComponents(graph.edges);
+  return selectRelationGraphTrace(
+    graph,
+    startDecisionId,
+    options,
+    decisionTraceAdmissionAdapter(reallocationComponents)
+  );
 }
 
 export function decisionRelationConsistencyErrors(

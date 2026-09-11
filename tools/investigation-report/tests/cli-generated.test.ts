@@ -23,7 +23,8 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
     const commandHelp = await runInvestigationCli(root, ["trace", "--help"]);
     assert.equal(commandHelp.status, 0);
     assert.match(commandHelp.stdout, /Usage: investigation-report trace/u);
-    assert.match(commandHelp.stdout, /--depth <count>/u);
+    assert.match(commandHelp.stdout, /--depth <count\|all>/u);
+    assert.match(commandHelp.stdout, /--max-records <count>/u);
     assert.doesNotMatch(commandHelp.stdout, /set-relations/u);
 
     const searchHelp = await runInvestigationCli(root, ["search", "--help"]);
@@ -187,9 +188,15 @@ test("CLI set-relations scopes summaries to complete source groups", async () =>
       "successors"
     ]);
     assert.equal(traced.status, 0, traced.stderr);
-    assert.match(
-      traced.stdout,
-      /260828-first --补充 \(first reason\)--> 260828-base/u
+    const trace = JSON.parse(traced.stdout);
+    assert.deepEqual(trace.traceIds, [
+      "260828-base",
+      "260828-first",
+      "260828-second"
+    ]);
+    assert.equal(
+      trace.entries["260828-first"].relations[0].summary,
+      "first reason"
     );
 
     const clearedSummary = await runInvestigationCli(root, [
@@ -242,7 +249,7 @@ test("CLI set-relations scopes summaries to complete source groups", async () =>
   });
 });
 
-test("CLI leaves relation and trace enum values for API validation", async () => {
+test("CLI rejects invalid relation and trace enum values", async () => {
   await withTempRoot("cli-raw-enums", async (root) => {
     await writeCollection(root, [{ id: "base" }, { id: "next" }]);
     const relation = await runInvestigationCli(root, [
@@ -262,7 +269,7 @@ test("CLI leaves relation and trace enum values for API validation", async () =>
       "sideways",
       "next.md"
     ]);
-    assert.equal(trace.status, 1);
+    assert.equal(trace.status, 2);
     assert.equal(trace.stdout, "");
     assert.match(trace.stderr, /direction/u);
   });

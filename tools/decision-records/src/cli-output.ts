@@ -123,7 +123,7 @@ const decisionQuerySuccessPrinters: Readonly<
       PrintableDecisionQuerySuccess,
       { command: "trace" }
     >;
-    printTrace(trace.records, trace.edges, io);
+    printTrace(trace, io);
   }
 };
 
@@ -278,48 +278,24 @@ function printSyncIndex(
 }
 
 function printTrace(
-  records: Extract<DecisionQuerySuccess, { command: "trace" }>["records"],
-  edges: Extract<DecisionQuerySuccess, { command: "trace" }>["edges"],
+  trace: Extract<DecisionQuerySuccess, { command: "trace" }>,
   io: DecisionRecordsCliIo
 ): void {
-  writeCliLine(io.stdout, "Decisions:");
-  if (records.length === 0) {
-    writeCliLine(io.stdout, "- none");
-  } else {
-    for (const record of records) {
-      writeCliLine(
-        io.stdout,
-        "- " +
-          record.status +
-          " " +
-          record.alignment +
-          " " +
-          record.decisionId +
-          " [" +
-          record.sourcePath +
-          "] - " +
-          record.projection.title
-      );
-      writeCliLine(io.stdout, "  tags: " + record.tags.join(", "));
-    }
-  }
-  writeCliLine(io.stdout, "Relations:");
-  if (edges.length === 0) {
-    writeCliLine(io.stdout, "- none");
-  } else {
-    for (const edge of edges) {
-      writeCliLine(
-        io.stdout,
-        "- " +
-          edge.source +
-          " --" +
-          edge.type +
-          "--> " +
-          edge.target +
-          (edge.summary === undefined ? "" : " [" + edge.summary + "]")
-      );
-    }
-  }
+  const output = {
+    status: trace.status,
+    anchorId: trace.anchorId,
+    direction: trace.direction,
+    limits: trace.limits,
+    coverage: trace.coverage,
+    traceIds: trace.traceIds,
+    contextIds: trace.contextIds,
+    frontier: trace.frontier,
+    ...(trace.blockedEvent === undefined
+      ? {}
+      : { blockedEvent: trace.blockedEvent }),
+    entries: trace.entries
+  };
+  writeCliLine(io.stdout, JSON.stringify(output, null, 2));
 }
 
 function printRecordHeader(

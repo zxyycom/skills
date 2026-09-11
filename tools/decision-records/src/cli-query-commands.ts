@@ -179,10 +179,15 @@ async function runTrace(
   return await runQuery(
     {
       command: "trace",
-      direction: args.traceDirection,
       location: decisionLocation(args),
-      maxDepth: args.traceDepth,
-      decisionId: args.decisionId
+      decisionId: args.decisionId,
+      ...(args.traceDirection === undefined
+        ? {}
+        : { direction: args.traceDirection }),
+      ...(args.traceDepth === undefined ? {} : { maxDepth: args.traceDepth }),
+      ...(args.traceMaxRecords === undefined
+        ? {}
+        : { maxRecords: args.traceMaxRecords })
     },
     io
   );

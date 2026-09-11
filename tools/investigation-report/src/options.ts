@@ -134,7 +134,8 @@ const investigationReportTraceOptionsSchema = v.strictObject({
   ),
   id: requiredStringSchema,
   ...locationFields,
-  maxDepth: optionalNumberSchema
+  maxDepth: v.optional(v.nullable(optionalNumberSchema)),
+  maxRecords: optionalNumberSchema
 });
 const relationSchema = v.strictObject({
   summary: v.optional(requiredStringSchema),

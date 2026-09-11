@@ -329,7 +329,11 @@ async function assertSourceAndIndexDriftHandling({
     0,
     traceWithInvalidRecord.stderr
   );
-  assert.match(traceWithInvalidRecord.stdout, /260710-use-source-cli\.md/);
+  const invalidRecordTrace = JSON.parse(traceWithInvalidRecord.stdout) as {
+    entries: Record<string, unknown>;
+  };
+  assert.ok("260710-use-source-cli" in invalidRecordTrace.entries);
+  assert.doesNotMatch(traceWithInvalidRecord.stdout, /sourcePath/);
   assert.ok(
     (await validateDecisionRecords({ workspaceRoot })).errors.some(
       (error) =>
@@ -374,10 +378,15 @@ async function assertSourceAndIndexDriftHandling({
     0,
     traceWithRelationDrift.stderr
   );
-  assert.match(
-    traceWithRelationDrift.stdout,
-    /use-generated-cli --修订--> 260710-use-source-cli/
-  );
+  const relationDriftTrace = JSON.parse(traceWithRelationDrift.stdout) as {
+    entries: Record<
+      string,
+      { relations: Array<{ target: string; type: string }> }
+    >;
+  };
+  assert.deepEqual(relationDriftTrace.entries["use-generated-cli"]?.relations, [
+    { target: "260710-use-source-cli", type: "修订" }
+  ]);
   assert.ok(
     (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>
       error.includes("out of sync")

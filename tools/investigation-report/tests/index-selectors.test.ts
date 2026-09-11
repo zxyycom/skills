@@ -37,15 +37,27 @@ test("show and trace resolve reports by investigation id", async () => {
       workspaceRoot: root
     });
     assert.equal(trace.status, "ok");
-    assert.deepEqual(trace.reportIds, ["first-report", "second-report"]);
-    assert.deepEqual(trace.edges, [
-      {
-        source: "second-report",
-        target: "first-report",
-        type: "补充",
-        summary: "补充可见依据"
+    assert.deepEqual(trace.traceIds, ["first-report", "second-report"]);
+    assert.deepEqual(trace.contextIds, []);
+    assert.deepEqual(trace.limits, { depth: 5, maxRecords: 50 });
+    assert.deepEqual(trace.entries, {
+      "first-report": {
+        title: "first-report",
+        formedAt: "2026-08-28T12:00:00+00:00",
+        question: "当前问题是什么？",
+        tags: ["investigation-report"],
+        relations: []
+      },
+      "second-report": {
+        title: "second-report",
+        formedAt: "2026-08-28T12:00:00+00:00",
+        question: "当前问题是什么？",
+        tags: ["investigation-report"],
+        relations: [
+          { type: "补充", target: "first-report", summary: "补充可见依据" }
+        ]
       }
-    ]);
+    });
     assert.equal(
       (
         await showInvestigationReport({
@@ -131,4 +143,28 @@ test("ordinary Investigation selectors use the standard ID parser before name lo
     assert.equal(parseDatedInvestigationId("991332-topic"), null);
     assert.equal(parseDatedInvestigationId("nested/topic"), null);
   });
+});
+
+test("trace API diagnoses each invalid trace limit before loading its index", async () => {
+  for (const [request, expected] of [
+    [{ maxDepth: -1 }, "maxDepth must be a non-negative safe integer or null"],
+    [{ maxRecords: 0 }, "maxRecords must be a positive safe integer"],
+    [
+      { maxDepth: Number.MAX_SAFE_INTEGER + 1, maxRecords: 0 },
+      "maxDepth must be a non-negative safe integer or null"
+    ]
+  ] as const) {
+    const result = await traceInvestigationReports({
+      id: "missing",
+      workspaceRoot: "missing-investigation-trace-root",
+      ...request
+    });
+    assert.equal(result.status, "error", JSON.stringify(request));
+    assert.ok(result.errors.includes(expected), JSON.stringify(result.errors));
+    if ("maxRecords" in request)
+      assert.ok(
+        result.errors.includes("maxRecords must be a positive safe integer"),
+        JSON.stringify(result.errors)
+      );
+  }
 });

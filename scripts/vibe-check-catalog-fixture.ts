@@ -40,6 +40,7 @@ export const expectedSemanticGateChecks = [
       "./tools/decision-records/tests/record-guards.test.ts",
       "./tools/decision-records/tests/layout-index.test.ts",
       "./tools/decision-records/tests/relation-validation.test.ts",
+      "./tools/decision-records/tests/trace-event-admission.test.ts",
       "./tools/decision-records/tests/state-snapshot.test.ts",
       "./tools/decision-records/tests/configured-decision-directory.test.ts",
       "./tools/decision-records/tests/filesystem-boundaries.test.ts"

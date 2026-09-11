@@ -17,7 +17,8 @@ import { normalizeRelationSummary } from "./relation-summary.ts";
 import { isDecisionTimestamp } from "./decision-timestamp.ts";
 import type { ParsedOptions } from "./cli-command-options.ts";
 
-export function parseTraceDepth(value: string): number {
+export function parseTraceDepth(value: string): number | "all" {
+  if (value === "all") return "all";
   if (!/^(0|[1-9]\d*)$/.test(value)) {
     throw new InvalidArgumentError("must be a non-negative integer");
   }
@@ -26,6 +27,17 @@ export function parseTraceDepth(value: string): number {
     throw new InvalidArgumentError("must be a safe non-negative integer");
   }
   return depth;
+}
+
+export function parseTraceMaxRecords(value: string): number {
+  if (!/^[1-9]\d*$/.test(value)) {
+    throw new InvalidArgumentError("must be a positive integer");
+  }
+  const maxRecords = Number(value);
+  if (!Number.isSafeInteger(maxRecords)) {
+    throw new InvalidArgumentError("must be a positive safe integer");
+  }
+  return maxRecords;
 }
 
 export function parseListLimit(value: string): number {

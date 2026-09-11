@@ -5,7 +5,7 @@ description: >-
   以一份可独立复核的报告保存一轮形成时的背景、依据、结果和边界，
   并用稳定 Investigation ID、tags 和直接前序关系维护分类与认识演进。
 metadata:
-  version: "45"
+  version: "46"
 ---
 
 # Investigation Report
@@ -117,14 +117,14 @@ agent 在当前请求或生效项目规则授权的范围内，自行审查证�
 | 准确 Investigation ID 或唯一 name | `show <selector>` |
 | tags、形成时间、关系类型或直接关系目标 | `list`；按需筛选、翻页或用 `--detail` 展开摘要 |
 | 主题、概念、原因或正文措辞 | `search <text>` → 用结果中的完整 ID 继续读取 |
-| 完整认识演进图 | `trace <selector>` |
+| 在受限索引切片中追溯认识演进 | `trace <selector>` |
 | 审核尚未建立的候选 | `candidates` → `show-candidate <selector>` |
 
 Investigation ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位文件。查询后使用返回的完整 ID 继续操作。
 
 `list` 与 `search` 只查正式报告，候选通过独立入口读取。默认搜索读取报告 Markdown，`--in metadata` 只反映已发布索引快照。遇到降级或截断 warning 时，先按[索引与查询](references/investigation-report-contract.md#索引与查询)确认来源与结果边界，再据此下结论。
 
-所有正式报告保留在同一集合，直接关系描述认识演进。判断当前适用性时，回到当前事实 owner，并按需综合相关报告。
+所有正式报告保留在同一集合，直接关系描述认识演进。`trace` 只读一次当前受检索引，并向 stdout 输出稳定 JSON：成功结果回显 `anchorId`、实际 `direction` 与实际 `limits`，无限深度在 `limits.depth` 中表示为 `"all"`。`traceIds` 是实际沿请求方向到达、可继续扩展的成员，`contextIds` 只为完整拆分或纯归并事件闭合而加入，不递归扩展；两者互斥且并集恰为 `entries` 的键。省略参数时使用 `direction=both`、`depth=5`、`max-records=50`；`--depth all` 取消深度限制。用 `coverage`、`frontier` 和（存在时）`blockedEvent` 判断结果是否完整：frontier 是下一次查询可用的 anchor 与方向，不是 cursor；预算不足时提高 `max-records` 至 `blockedEvent.requiredMaxRecords` 后重查。entry 保留索引中的完整 relations，因而 target 可以在本切片外；可选 relation `summary` 有值才出现，trace 不推断或补写它。判断当前适用性时，回到当前事实 owner，并按需综合相关报告。
 
 ## CLI 入口
 
