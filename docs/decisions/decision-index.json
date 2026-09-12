@@ -92,11 +92,12 @@
       "260908-require-established-decision-alignment": "sha256:87f62b2419c4d41d88d47c237bd89f4b55298b73f1889af6be9b9593a6f24209",
       "260908-separate-investigation-narrative-from-supporting-materials": "sha256:c3cc01ba4cb2a8cd26c96d78bbafbada621972e4ef60b7f8edcc78a9a1c14f44",
       "260909-adopt-vibe-check-0-0-2-gate-runtime": "sha256:2e352e47a274125bd279a4da5b13142eb88067e31603763bc70c74523cab96f8",
-      "260909-batch-release-test-execution": "sha256:5fb92a08a5bd2a2a30feeca4b0639e384eb59b8d982d00e628206bec9d01399a",
-      "260909-incremental-vibe-gate": "sha256:299d1d0bd252ab671a9b363e844c985e0bc9e59ec0fbac9deb699ccce291b889",
+      "260909-batch-release-test-execution": "sha256:5ee09515e7f95c6e2151dba2a64771708a49e9798103502714a22b2e9c243453",
+      "260909-incremental-vibe-gate": "sha256:11a66adfe6cb1d0e4d5942cc8e8271e7577cd21ed8a97941dd50614182c21382",
       "260909-use-native-vibe-gate-controls": "sha256:a84662fd7f5163b516b9f573aa136f582f0aaab5556b388e4d4273858304e5d1",
       "260909-write-explanatory-relation-summaries": "sha256:ece110950bc41206998c14673cd9f3e88592c176feeeaa0e317352bad9d180ff",
       "260911-block-code-quality-metric-findings": "sha256:88c2f80efad6f4913adf1160e6f715a21209199a5190dd2968081097f7abb526",
+      "260912-isolate-release-version-control-resource-boundary": "sha256:a731162b20abf3095656a84cc5ef872af15e4066898b95e18fd7fd5ea7112b14",
       "activate-release-gate-checks-by-tag": "sha256:02819304803eade140cd3adb2472a368c290f639acc7998f0d54bc20cecd228e",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -1993,9 +1994,9 @@
     },
     "260909-batch-release-test-execution": {
       "name": "batch-release-test-execution",
-      "sourcePath": "batch-release-test-execution.md",
+      "sourcePath": "archive/batch-release-test-execution.md",
       "title": "Release Gate 按测试文件并集批量执行",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-09T14:16:36Z",
       "purpose": "让 Release 测试成本随唯一输入增长，并在完整身份未变时复用成功证明。",
@@ -2093,6 +2094,27 @@
           "type": "修订",
           "target": "260909-use-native-vibe-gate-controls",
           "summary": "将代码指标从 advisory 升级为阻断"
+        }
+      ]
+    },
+    "260912-isolate-release-version-control-resource-boundary": {
+      "name": "isolate-release-version-control-resource-boundary",
+      "sourcePath": "isolate-release-version-control-resource-boundary.md",
+      "title": "为 Release 版本管理测试建立独立资源边界",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-12T02:53:01Z",
+      "purpose": "在保留 Release 测试批次收益的同时隔离 Git 子进程密集测试，并保留直接失败诊断。",
+      "background": "版本管理测试在共享四路批次中跨提交间歇失败，现有远端摘要无法定位具体用例。",
+      "decision": "Release 批次排除 test:version-control；其 Gate Check 独立执行并占用全部 cpu-work 容量。",
+      "tags": [
+        "project-tooling"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260909-batch-release-test-execution",
+          "summary": "为 Git 子进程密集测试增加独立调度例外"
         }
       ]
     },

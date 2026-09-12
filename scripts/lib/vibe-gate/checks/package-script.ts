@@ -60,7 +60,6 @@ export const releaseBunTestPackageFiles = {
   "test:skill-validator": ["./tools/skill-validator/tests/run.ts"],
   "test:relation-graph": ["./tools/shared/tests/relation-graph.test.ts"],
   "test:file-text-search": ["./tools/shared/tests/file-text-search.test.ts"],
-  "test:version-control": ["./tools/shared/tests/version-control.test.ts"],
   "test:skill-package-hash": ["./scripts/lib/skill-package-hash.test.ts"],
   "test:skill-release-publisher": ["./scripts/publish-skills.test.ts"],
   "test:generated-file": ["./scripts/lib/generated-file.test.ts"]

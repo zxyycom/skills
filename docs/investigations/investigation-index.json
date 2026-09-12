@@ -87,6 +87,27 @@
       ],
       "title": "CI 环境变量使 release proof mode 测试与本地结果分叉"
     },
+    "260912-isolate-ci-version-control-test-load": {
+      "formedAt": "2026-09-12T02:18:19Z",
+      "name": "isolate-ci-version-control-test-load",
+      "question": "为什么 Package Skills 会跨提交间歇失败于 test:version-control，而目标提交在等价本地环境可以通过？",
+      "relations": [
+        {
+          "summary": "在后续 CI 失败中复查环境分叉与调度边界",
+          "target": "260911-explain-ci-cold-proof-test-failure",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "isolate-ci-version-control-test-load.md",
+      "tags": [
+        "ci",
+        "repository-tooling",
+        "test-hermeticity",
+        "vibe-check"
+      ],
+      "title": "隔离 CI 版本管理测试的并行负载与失败诊断"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -650,6 +671,7 @@
       "260908-recall-historical-decision-alignment": "sha256:b5e5f037e9e5da81bdd619b86d66335bc17a26a4e44f9bde682a71f37ca351d1",
       "260911-bound-bun-optional-peer-resolution": "sha256:f0277c986fee5e29a025dc6e09fa694a465370ca6f4acd435645428784975dfd",
       "260911-explain-ci-cold-proof-test-failure": "sha256:f61100ce3a060d1d614b9065fdd67b7ddf3de76fb88560756d16421b1580e64f",
+      "260912-isolate-ci-version-control-test-load": "sha256:d46df71cb082a9a60bbde3a4db359c19eb28f68ccf2ea64706391ad0f3c03706",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:4861ec08242f0007c24f5b6d7e8e0a0c5fc1ccaaf6898eb1f64420645a2f0c21",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:886e1ade798bfe48802e32c5296dc03c07d9b192dde3519b52ec5b8583778bdd",
       "align-prompt-optimize-name-and-trigger": "sha256:24700cda424786bc07531f84b6c139f1de6fae7b050ad69811bdddca35734cb6",

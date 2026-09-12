@@ -6,6 +6,7 @@ import {
   createGateDefinition,
   gateCheckIds,
   gateResourceCapacities,
+  packageScriptCheckId,
   releaseGateResourceCapacities,
   releaseRequiredCheckIds,
   releaseRequiredPackageScripts,
@@ -198,6 +199,7 @@ test("gate Definition keeps scheduler, output, and release DAG contracts", () =>
 
 test("gate Definition projects semantic prerequisites and batch resources", () => {
   const { baseDefinition, releaseDefinition } = catalogDefinitions();
+  const versionControlCheckId = packageScriptCheckId("test:version-control");
   assert.deepEqual(
     semanticGateChecks.map((check) => [
       check.requiredTag,
@@ -228,44 +230,41 @@ test("gate Definition projects semantic prerequisites and batch resources", () =
   );
   assert.deepEqual(batchLeader?.resourceClaims, releaseTestBatchResourceClaim);
   assert.equal(batchLeader?.observes, undefined);
-  assert.ok(
-    releaseDefinition.checks
-      .filter(
-        ({ checkId }) =>
-          batchedIds.has(checkId) && checkId !== releaseTestBatchLeaderCheckId
-      )
-      .every(
-        ({ observes, resourceClaims }) =>
-          JSON.stringify(observes) ===
-            JSON.stringify([releaseTestBatchLeaderCheckId]) &&
-          resourceClaims === undefined
-      )
+  for (const {
+    checkId,
+    observes,
+    resourceClaims
+  } of releaseDefinition.checks.filter(
+    ({ checkId }) =>
+      batchedIds.has(checkId) && checkId !== releaseTestBatchLeaderCheckId
+  )) {
+    assert.deepEqual(observes, [releaseTestBatchLeaderCheckId], checkId);
+    assert.equal(resourceClaims, undefined, checkId);
+  }
+  for (const { checkId, resourceClaims } of releaseDefinition.checks.filter(
+    ({ checkId }) =>
+      (checkId.startsWith("script:") || checkId.startsWith("test:")) &&
+      !batchedIds.has(checkId) &&
+      checkId !== versionControlCheckId
+  )) {
+    assert.deepEqual(
+      resourceClaims,
+      { "external-process": 1, "cpu-work": 1 },
+      checkId
+    );
+  }
+  assert.deepEqual(
+    releaseDefinition.checks.find(
+      ({ checkId }) => checkId === versionControlCheckId
+    )?.resourceClaims,
+    { "external-process": 1, "cpu-work": 4 }
   );
-  assert.ok(
-    releaseDefinition.checks
-      .filter(
-        ({ checkId }) =>
-          (checkId.startsWith("script:") || checkId.startsWith("test:")) &&
-          !batchedIds.has(checkId)
-      )
-      .every(
-        ({ resourceClaims }) =>
-          JSON.stringify(resourceClaims) ===
-          JSON.stringify({ "external-process": 1, "cpu-work": 1 })
-      )
-  );
-  assert.ok(
-    baseDefinition.checks
-      .filter(
-        ({ checkId }) =>
-          checkId.startsWith("script:") || checkId.startsWith("test:")
-      )
-      .every(
-        ({ resourceClaims }) =>
-          JSON.stringify(resourceClaims) ===
-          JSON.stringify({ "external-process": 1 })
-      )
-  );
+  for (const { checkId, resourceClaims } of baseDefinition.checks.filter(
+    ({ checkId }) =>
+      checkId.startsWith("script:") || checkId.startsWith("test:")
+  )) {
+    assert.deepEqual(resourceClaims, { "external-process": 1 }, checkId);
+  }
 });
 
 test("native flag selection keeps inactive release Checks visible without starting Check work", async () => {

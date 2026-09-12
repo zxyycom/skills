@@ -11,10 +11,10 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；59 个 base impact Check 与三个 release 交付 Check 以 `enabledByFlags` 声明选择和依赖传播，scheduler 使用原生 learned strategy 和四槽上限；base 使用三个外部进程容量，release 另以四个 `cpu-work` units 约束测试批次与普通工作竞争。
+- 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；59 个 base impact Check 与三个 release 交付 Check 以 `enabledByFlags` 声明选择和依赖传播，scheduler 使用原生 learned strategy 和四槽上限；base 使用三个外部进程容量，release 另以四个 `cpu-work` unit 隔离四路测试批次、版本管理测试与其他 CPU 工作。
 
 Proves:
 - Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence 分别展开为 `3/5/5/8/5` 个语义 Check；78 个语义测试文件各出现一次，只有 native-store 使用 Node，多文件 Bun Check 通过单一窄 runner 顺序导入所属测试文件。
 - base/release/增量 Definition Check ID 完全相同，七项 Vibe 原生 Check、26 个语义 Check 与普通 package Check 的内部 activation 条件和固定命令精确匹配独立期望；release prepare、version 和 pack 保持原 DAG，带依赖的 Check 传播传递前置，非 base ID 不能进入日常 activation。
-- Definition 使用 learned custom admission 与 `maxParallel: 4`；base 声明三个外部进程和两个仓库扫描容量，release 保持这两个容量并增加四个 `cpu-work` units。Release 批次 leader 声明全部四个 CPU unit 和一个外部 unit，投影 Check 不再伪称启动进程，其他实际工作 Check 声明一个 CPU unit 并保留原资源 claim。
-- 批次 catalog 精确覆盖无前置依赖的 Bun semantic Check 和已登记 Bun package test，并与 `package.json` 的显式文件参数一致；有生成前置或使用 Node runner 的 Check 保持独立执行。
+- Definition 使用 learned custom admission 与 `maxParallel: 4`；base 声明三个外部进程和两个仓库扫描容量，release 保持这两个容量并增加四个 `cpu-work` unit。测试批次 leader 与 `script:test:version-control` 各声明 `cpu-work: 4` 和 `external-process: 1`，批次投影 Check 不声明资源，其他实际 Release Check 声明 `cpu-work: 1` 并保留原 resource claim。
+- `releaseBunTestPackageFiles` 精确覆盖入批的 Bun package test 并与 `package.json` 的显式文件参数一致；`test:version-control` 仍是 release-required package script，但不在批次 catalog 中。没有生成前置的 Bun semantic Check 自动入批；版本管理测试、带生成前置的 Bun Check 和唯一 Node runner Check 保持独立执行。

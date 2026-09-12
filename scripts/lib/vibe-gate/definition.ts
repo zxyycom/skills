@@ -48,7 +48,8 @@ import {
   validateBaseGateImpactContracts
 } from "./impact.ts";
 
-const learnedSchedulingVersion = "gate-scheduler-v2";
+const learnedSchedulingVersion = "gate-scheduler-v3";
+const releaseExclusiveCpuCheckId = packageScriptCheckId("test:version-control");
 
 export type GateDefinitionDependencies = Readonly<{
   activeCheckIds?: readonly string[];
@@ -86,14 +87,18 @@ function batchedCheck(
       };
 }
 
-function releaseCpuCheck(
+function withReleaseCpuClaim(
   check: Check,
   batch: ReleaseTestBatchSession | null
 ): Check {
   if (batch?.has(check.checkId) === true) return check;
+  const cpuWork =
+    check.checkId === releaseExclusiveCpuCheckId
+      ? releaseGateResourceCapacities["cpu-work"]
+      : 1;
   return {
     ...check,
-    resourceClaims: { ...check.resourceClaims, "cpu-work": 1 }
+    resourceClaims: { ...check.resourceClaims, "cpu-work": cpuWork }
   };
 }
 
@@ -273,7 +278,7 @@ export function createGateDefinition(
     testBatch
   });
   const checks = release
-    ? authoredChecks.map((check) => releaseCpuCheck(check, testBatch))
+    ? authoredChecks.map((check) => withReleaseCpuClaim(check, testBatch))
     : authoredChecks;
   return defineConfig({
     checks,

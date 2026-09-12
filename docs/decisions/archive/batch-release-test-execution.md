@@ -1,7 +1,7 @@
 ---
 title: Release Gate 按测试文件并集批量执行
 id: 260909-batch-release-test-execution
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-09T14:16:36Z
 purpose: 让 Release 测试成本随唯一输入增长，并在完整身份未变时复用成功证明。

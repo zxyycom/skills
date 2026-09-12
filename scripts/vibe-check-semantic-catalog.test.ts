@@ -126,6 +126,18 @@ test("release test batch catalog matches command and package manifests", async (
     ),
     false
   );
+  assert.equal(
+    manifest.scripts["test:version-control"],
+    "bun test ./tools/shared/tests/version-control.test.ts"
+  );
+  assert.equal(
+    releaseRequiredPackageScripts.includes("test:version-control"),
+    true
+  );
+  assert.equal(
+    Object.hasOwn(releaseBunTestPackageFiles, "test:version-control"),
+    false
+  );
   for (const [script, files] of Object.entries(releaseBunTestPackageFiles)) {
     assert.equal(manifest.scripts[script], `bun test ${files.join(" ")}`);
   }

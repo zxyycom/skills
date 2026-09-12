@@ -152,20 +152,38 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | release tag | 显式启用 release snapshot、version 与 package DAG 的唯一 tag；产品语义测试属于可按 owner 影响选择的 base catalog。 |
 | release-required Check | release tag 下必须形成可信 passed 的普通 Check；全部通过后 release version authorization 才会开始。 |
 
+### 调度、资源与运行产物
+
 所有 invocation 都使用 Vibe 原生 progress、`maxParallel: 4`、effective aggregate 和 learned critical-path prepared strategy。调用方拥有的可丢弃 history 位于 `.log/vibe-check/cache/scheduler-history/`；task identity 包含稳定 Task ID、base/release profile 和项目调度策略版本。首次、缺失、损坏或读写失败的 history 只让原生策略退化，不改变 Check membership、outcome 或 aggregate。独立 Check 即使其他无依赖 Check 已失败仍继续结算。
 
 Base named resource 按任务性质声明，并以增量重运行测量修正容量：同时运行的外部进程最多 3 个，同时进行的全仓库扫描最多 2 个；命令型 package/semantic Check 消耗一个 `external-process`，原生内容分析消耗一个 `repository-scan`，SCC 文件指标与 release snapshot 同时消耗两类资源。当前 shared-tools 增量中，外部容量 3 比 2 缩短关键路径，4 则因竞争反向变慢。
 
-Release 保留上述两个容量，并增加四个 `cpu-work` units：测试批次 leader 消耗全部四个 `cpu-work` 和一个 `external-process`，其他实际工作 Check 消耗一个 `cpu-work`，只投影既有批次结果的 Check 不声明资源。批次内部把稳定文件并集轮转分到最多四个独立 Bun 进程，每个进程顺序处理自己的分区；完整 CPU admission 避免其他 Check 与四个分区进程竞争。资源从 Check admission 到 settlement 原子持有；它们只表达共享执行压力，不改变依赖、质量真值或 root 四槽上限。后续只在任务性质、可用 CPU 或同类测量变化时调整。
+Release 保留上述容量，并增加四个 `cpu-work` unit。`test:version-control` 是 package script；其 Gate Check ID 为 `script:test:version-control`。Release 资源规则如下：
+
+| Release 工作 | `cpu-work` | 其他 resource claim | 调度边界 |
+| --- | ---: | --- | --- |
+| 测试批次 leader | 4 | `external-process: 1` | 批次最多启动四个独立 Bun worker，期间不与其他 CPU 工作并发。 |
+| `script:test:version-control` | 4 | `external-process: 1` | 通过原 package-script adapter 独立运行，隔离 Git 子进程负载并保留直接 transcript。 |
+| 测试批次投影 Check | 不声明 | 不声明 | 只观察 leader 终态并投影已有结果，不冒充资源消费者。 |
+| 其他实际 Release Check | 1 | 保留该 Check 原有 claim | 共享剩余 CPU 容量，并继续服从外部进程或仓库扫描容量。 |
+
+版本管理测试例外的采用理由、保留范围和重新评估条件见[独立资源边界决策](decisions/isolate-release-version-control-resource-boundary.md)。
+
+Vibe 从 Check admission 到任意 settlement 原子持有全部 claims；这些资源只表达 invocation 内的共享执行压力，不改变依赖、质量真值或 root 四槽上限。后续只有任务性质、可用 CPU 或同类测量发生变化时才调整容量或 claims。
 
 每次 CLI invocation 创建唯一且被 Git 忽略的 `.log/vibe-check/invocations/<timestamp>-<uuid>/`：`machine/` 保存 Vibe 的 `run.json`、`records.ndjson` 和项目的 `gate-incremental.json`，后者记录 execute/reuse/fallback/first-run 计数、逐 Check reason、snapshot fallback detail、receipt 发布结果与 release 测试批次证明模式。证明模式中，`reused` 表示命中并省略批次进程，`fresh` 表示允许复用但未命中，`cold` 表示显式或由 CI 禁止复用，`unavailable` 表示起始快照不可用而无法判断证明，非 release 为 `null`；这些值描述证明选择，不替代最终 Check outcome。`progress.log` 保存终端 progress 副本，`checks/<encoded-check-id>/process.log` 保存命令 Check 的 stdout/stderr transcript。Release 测试批次由 leader 保存完整共享进程输出，投影 Check 的本地 transcript 保存原命令、映射状态和共享 transcript 定位；证明命中时 transcript 明确说明没有启动批次测试进程，CLI 也回显该事实。终端在启动前显示同一组 activation 计数；失败仍先显示一条主消息，再把有界输出尾部拆成至多四条单行 message 并指向 transcript。单个 Vibe message 不嵌入换行，避免 progress renderer 将换行转义成字面 `\n`。该目录是本地可丢弃诊断状态，当前不自动清理；需要释放空间时可删除旧 invocation 目录。Diagnostic log 默认关闭；追加 `--diagnostic-log` 时只在本次目录的 `diagnostics/core.log` 与 `scheduler.log` 启用固定 channel 名并回显路径，不改变 machine publication。
 
+### Release 测试批次与成功证明
+
 Check catalog 以“它证明什么、失败后由谁处理”为分组条件：例如领域记录/索引、生命周期事务、按稳定 ID 的 pending-stage、调用协议和可分发制品可以是不同 Check；共同证明一个契约的多个原生测试文件保留在同一 Check。不得为均衡耗时把 Check 拆成每个测试，也不得把一个工具的全部测试重新合并为单一 Check。package scripts 继续是面向维护者的稳定手动聚合入口，但语义 Check 不再以 package script 身份作为 leaf。失败结果给出的直接命令是重跑该 Check 的权威路径；需要完整领域回归时仍可运行相应 `test:*` 聚合命令。
 
-Release 中没有生成前置的 Bun semantic Check 与显式登记的 Bun test package Check 共用一次 invocation-local 测试批次。Definition 对文件取稳定并集后轮转分成最多四份，同时启动四个独立 Bun 进程；每个文件只属于一个分区，每个进程在自己的分区内顺序执行，不使用单进程 `bun test --parallel`。每份 JUnit 必须恰好覆盖自己的请求容器且不得重复，合并后每个 Check 只按自己的文件集合结算；单组失败不阻止其他观察 leader 终态的投影 Check。Leader transcript 汇总四个 worker 的完整输出，原始 worker transcript 保留在其 artifact 子目录。Node 测试、带生成前置的分发测试与非测试命令保持独立进程。报告缺失、畸形、覆盖不完整，或进程非零退出却没有失败 suite 时全部 fail closed。
+Release 测试批次有两个输入来源：没有生成前置的 Bun semantic Check 自动进入；Bun test package Check 只有显式登记在 `releaseBunTestPackageFiles` 时才进入。`test:version-control` 保持 release-required，但不登记在该批次 catalog 中，因此 `script:test:version-control` 独立执行且不属于批次成功证明。
 
-本地 release 在 `.log/vibe-check/cache/release-test-batch-v1/success.json` 保存整个批次的成功证明。证明同时绑定完整工作区内容、上述工具链与环境身份、批次 Check/文件映射、worker 数和证明格式；只有所有 suite 通过且结束快照与起始快照完全相同才原子发布，任何缺失、损坏、漂移或身份变化都重新执行。命中只省略该批次真实测试进程，不省略 Node 测试、生成前置、原生扫描或 release 交付 DAG，也不表示冷运行测试成本消失。`--cold` 或 CI 禁止读取证明，但 fresh 通过后仍可刷新它。
+Definition 对批次文件取稳定并集后轮转分成最多四份，同时启动四个独立 Bun 进程；每个文件只属于一个分区，每个进程在自己的分区内顺序执行，不使用单进程 `bun test --parallel`。每份 JUnit 必须恰好覆盖自己的请求容器且不得重复，合并后每个 Check 只按自己的文件集合结算；单组失败不阻止其他观察 leader 终态的投影 Check。Leader transcript 汇总四个 worker 的完整输出，原始 worker transcript 保留在其 artifact 子目录。版本管理测试、Node 测试、带生成前置的分发测试与非测试命令保持独立进程。报告缺失、畸形、覆盖不完整，或进程非零退出却没有失败 suite 时全部 fail closed。
 
+本地 release 在 `.log/vibe-check/cache/release-test-batch-v1/success.json` 保存整个批次的成功证明。证明同时绑定完整工作区内容、上述工具链与环境身份、批次 Check/文件映射、worker 数和证明格式；只有所有 suite 通过且结束快照与起始快照完全相同才原子发布，任何缺失、损坏、漂移或身份变化都重新执行。命中只省略该批次真实测试进程，不省略版本管理测试、Node 测试、生成前置、原生扫描或 release 交付 DAG，也不表示冷运行测试成本消失。`--cold` 或 CI 禁止读取证明，但 fresh 通过后仍可刷新它。
+
+### Check 范围、结算与发布快照
 
 七项原生 Check 共用当前维护范围：代码类 Check 读取 Git worktree 中 `scripts/`、`tools/` 的 JavaScript/TypeScript，并排除 Vibe 默认排除项和 `docs/investigations/_resources/**`；JSON、Markdown 与 secret detection 也排除后者这类非当前维护内容。Markdown link validation 在 `.log/vibe-check/cache/markdown-parse-facts/` 启用原生 parse-facts cache；命中只复用解析事实，本次文件选择、目标判断、finding 和 outcome 仍重新形成，缓存不可用则 fresh-parse。Secret detection 只选择仓库维护的文本型扩展名、Git 属性/忽略文件与 hooks，以 4096 个文件和 64 MiB 总输入为 fail-closed 上限；高置信 PEM private-key finding、coverage gap 或 unavailable 都阻断。重复检测只把不少于 150 tokens 的重复片段作为 blocking finding，避免把已知的小型维护片段误作门禁失败。
 
