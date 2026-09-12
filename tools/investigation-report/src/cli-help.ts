@@ -80,9 +80,9 @@ const commandHelp: Record<InvestigationCommand, readonly string[]> = {
     "Trace predecessor and successor report relationships from the current derived index."
   ],
   "set-relations": [
-    "Usage: investigation-report set-relations --source <selector> (--relation <type=target-selector>... [--relation-summary <target-selector=summary>...] | --clear-relations) [--source ...] [options]",
+    "Usage: investigation-report set-relations --source <selector> (--relation <type=target-selector>... [--relation-summary <target-selector=summary>...] | --clear-relations) [--source ...] [--preflight] [options]",
     "",
-    "Atomically replace every selected source relation set and rebuild the workspace index; does not stage files."
+    "Atomically replace every selected source relation set and rebuild the workspace index; --preflight validates without writing or staging files."
   ]
 };
 
@@ -155,7 +155,8 @@ const specificOptions: Partial<
     "  --source <investigation-id>   Start one complete replacement source group",
     "  --relation <type=target-id>   Add one relation to the active source group",
     "  --relation-summary <target-selector=summary> Add one optional summary to the active source group",
-    "  --clear-relations             Explicitly clear the active source group"
+    "  --clear-relations             Explicitly clear the active source group",
+    "  --preflight                   Validate the replacement without writing reports, index, pending, resources, or staging"
   ]
 };
 

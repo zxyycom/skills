@@ -1,6 +1,7 @@
 import type { DecisionQuerySuccess } from "./decision-query-service.ts";
 import type { DecisionRecordsCliIo } from "./cli-io.ts";
 import { writeCliLine } from "./cli-output-writer.ts";
+import { printRelationFilterEvidence } from "./cli-output-relation-evidence.ts";
 
 export function printSearch(
   result: Extract<DecisionQuerySuccess, { command: "search" }>,
@@ -31,6 +32,7 @@ function printSearchRecord(
   writeCliLine(io.stdout, "  tags: " + record.tags.join(", "));
   writeCliLine(io.stdout, "  title: " + record.projection.title);
   writeCliLine(io.stdout, "  purpose: " + record.projection.purpose);
+  printRelationFilterEvidence(record, false, "  ", io);
   if ("matchedFields" in record) {
     printMetadataSearchMatch(record, io);
     return;

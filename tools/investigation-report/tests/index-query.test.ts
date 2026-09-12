@@ -164,3 +164,109 @@ test("list filters reports by direct relation type", async () => {
     );
   });
 });
+
+test("relation filters project full matching edges from the same query snapshot", async () => {
+  await withTempRoot("relation-filter-evidence", async (root) => {
+    await writeCollection(root, [
+      { id: "base" },
+      {
+        id: "anchor",
+        relations: [
+          { target: "base", type: "补充", summary: "anchor evidence" }
+        ]
+      },
+      {
+        id: "successor",
+        relations: [{ target: "anchor", type: "复查" }]
+      }
+    ]);
+    const predecessors = await queryInvestigationIndex({
+      direction: "predecessors",
+      relatedTo: "anchor",
+      workspaceRoot: root
+    });
+    assert.deepEqual(predecessors.entries, [
+      {
+        id: "base",
+        state: predecessors.entries[0]!.state,
+        filterRelations: [
+          {
+            sourceId: "anchor",
+            target: "base",
+            type: "补充",
+            summary: "anchor evidence"
+          }
+        ]
+      }
+    ]);
+    const successor = await queryInvestigationIndex({
+      direction: "successors",
+      relatedTo: "anchor",
+      workspaceRoot: root
+    });
+    assert.deepEqual(successor.entries[0]?.filterRelations, [
+      { sourceId: "successor", target: "anchor", type: "复查" }
+    ]);
+    const unfiltered = await queryInvestigationIndex({ workspaceRoot: root });
+    assert.ok(
+      unfiltered.entries.every((entry) => entry.filterRelations === undefined)
+    );
+
+    const compact = await runInvestigationCli(root, [
+      "list",
+      "--related-to",
+      "anchor"
+    ]);
+    assert.match(
+      compact.stdout,
+      /relation-filter evidence:[\s\S]*anchor --补充--> base: "anchor evidence"/u
+    );
+  });
+});
+
+test("relation-filter evidence preserves complete UTF-16 ordering and CLI preview budgets", async () => {
+  await withTempRoot("relation-filter-budget", async (root) => {
+    await writeCollection(root, [
+      { id: "alpha" },
+      { id: "bravo" },
+      { id: "charlie" },
+      { id: "delta" },
+      {
+        id: "merged",
+        relations: [
+          { target: "delta", type: "归并", summary: "d" },
+          { target: "bravo", type: "归并", summary: "b" },
+          { target: "alpha", type: "归并", summary: "a" },
+          { target: "charlie", type: "归并" }
+        ]
+      }
+    ]);
+    const queried = await queryInvestigationIndex({
+      relationType: "归并",
+      workspaceRoot: root
+    });
+    assert.deepEqual(queried.entries[0]?.filterRelations, [
+      { sourceId: "merged", target: "alpha", type: "归并", summary: "a" },
+      { sourceId: "merged", target: "bravo", type: "归并", summary: "b" },
+      { sourceId: "merged", target: "charlie", type: "归并" },
+      { sourceId: "merged", target: "delta", type: "归并", summary: "d" }
+    ]);
+    const compact = await runInvestigationCli(root, [
+      "list",
+      "--relation-type",
+      "归并"
+    ]);
+    assert.match(compact.stdout, /merged --归并--> alpha: "a"/u);
+    assert.match(compact.stdout, /merged --归并--> bravo: "b"/u);
+    assert.match(compact.stdout, /merged --归并--> charlie: \[无摘要\]/u);
+    assert.match(compact.stdout, /\+1 more matching relations/u);
+    assert.doesNotMatch(compact.stdout, /merged --归并--> delta/u);
+    const detailed = await runInvestigationCli(root, [
+      "list",
+      "--relation-type",
+      "归并",
+      "--detail"
+    ]);
+    assert.match(detailed.stdout, /merged --归并--> delta: "d"/u);
+  });
+});

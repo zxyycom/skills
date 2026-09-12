@@ -118,19 +118,22 @@ async function setInvestigationRelationsWithWriterAndSummaries(
   }
   const root = canonical.value.investigationsDirectory;
   const indexPath = path.join(root, investigationIndexFileName);
+  const transaction = () =>
+    applyRelationReplacements({
+      indexPath,
+      replacements: validated.replacements,
+      relationSummaryGroups: validated.replacements.map(
+        (replacement) => summaryGroupsBySource.get(replacement.source) ?? []
+      ),
+      root,
+      preflight: parsed.value.preflight === true,
+      write,
+      beforePublish
+    });
+  if (parsed.value.preflight === true) return await transaction();
   return await withInvestigationCollectionMutationLock(
     indexPath,
-    async () =>
-      await applyRelationReplacements({
-        indexPath,
-        replacements: validated.replacements,
-        relationSummaryGroups: validated.replacements.map(
-          (replacement) => summaryGroupsBySource.get(replacement.source) ?? []
-        ),
-        root,
-        write,
-        beforePublish
-      })
+    transaction
   ).catch((error: unknown) =>
     relationLockFailure(error, validated.sourceIds, indexPath)
   );
@@ -175,13 +178,11 @@ function completedRelationLockFailure(
     relationMutation(
       completedResult.changed ? "committed-cleanup-pending" : "no-change"
     );
+  const { relationReview: _relationReview, ...result } = completedResult;
   return {
-    ...completedResult,
-    diagnostics: [
-      ...completedResult.diagnostics,
-      { ...error.diagnostic, mutation }
-    ],
-    errors: uniqueSorted([...completedResult.errors, errorText(error)]),
+    ...result,
+    diagnostics: [...result.diagnostics, { ...error.diagnostic, mutation }],
+    errors: uniqueSorted([...result.errors, errorText(error)]),
     mutation
   };
 }

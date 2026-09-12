@@ -27,6 +27,7 @@ import {
   type DecisionScan,
   type DecisionSuccessor
 } from "./types.ts";
+import type { DecisionRelationReview } from "./decision-relation-transaction-types.ts";
 
 export type DecisionLifecycleRequest =
   | {
@@ -108,6 +109,7 @@ export type DecisionLifecyclePreparation =
   | {
       changes: DecisionFileChange[];
       message: string;
+      relationReview?: DecisionRelationReview;
       status: "ok";
     };
 

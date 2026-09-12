@@ -1,4 +1,5 @@
 import { setInvestigationRelationsFromCli } from "./relation-transaction.ts";
+import { printInvestigationRelationReview } from "./relation-review-output.ts";
 import type { InvestigationRelationSummaryInput } from "./relation-summary.ts";
 import type { InvestigationRelationSetResult } from "./types.ts";
 import type {
@@ -11,6 +12,7 @@ import { cliInvalid, printResultErrors, writeLine } from "./cli-io.ts";
 import {
   assertAllowedOptions,
   assertNoPositionals,
+  has,
   location
 } from "./cli-parser.ts";
 import { parseRelationSummaries } from "./cli-candidate-create.ts";
@@ -33,7 +35,8 @@ export async function runSetRelations(
       "source",
       "relation",
       "relation-summary",
-      "clear-relations"
+      "clear-relations",
+      "preflight"
     ]);
   if (problem !== null) return cliInvalid(problem, io);
   const parsed = parseRelationGroups(input.relationEvents);
@@ -41,6 +44,7 @@ export async function runSetRelations(
   const result = await setInvestigationRelationsFromCli(
     {
       ...location(input.values),
+      preflight: has(input.values, "preflight"),
       replacements: parsed.replacements.map((replacement) => ({
         relations: replacement.relations,
         source: replacement.source
@@ -161,6 +165,10 @@ function printRelationResult(
   }
   writeLine(
     io.stdout,
-    `Investigation relations ${result.changed ? "updated" : "already current"} for: ${result.sourceIds.join(", ")}`
+    result.preflight
+      ? `Investigation relation preflight passed for: ${result.sourceIds.join(", ")}; no report, index, pending, resource, or staging state was changed.`
+      : `Investigation relations ${result.changed ? "updated" : "already current"} for: ${result.sourceIds.join(", ")}`
   );
+  if (result.relationReview !== undefined)
+    printInvestigationRelationReview(result.relationReview, io);
 }

@@ -248,16 +248,17 @@ function printSearchEntry(
   if ("previews" in entry) {
     for (const preview of entry.previews)
       writeLine(io.stdout, `  ${preview.line}: ${preview.preview}`);
-    return;
+  } else {
+    writeLine(io.stdout, `  matchedFields: ${entry.matchedFields.join(", ")}`);
+    writeLine(io.stdout, "  matchedRelations:");
+    if (entry.matchedRelations.length === 0) writeLine(io.stdout, "    - none");
+    for (const relation of entry.matchedRelations)
+      writeLine(
+        io.stdout,
+        `    - ${relation.type} ${relation.target}: ${relation.summary}`
+      );
   }
-  writeLine(io.stdout, `  matchedFields: ${entry.matchedFields.join(", ")}`);
-  writeLine(io.stdout, "  matchedRelations:");
-  if (entry.matchedRelations.length === 0) writeLine(io.stdout, "    - none");
-  for (const relation of entry.matchedRelations)
-    writeLine(
-      io.stdout,
-      `    - ${relation.type} ${relation.target}: ${relation.summary}`
-    );
+  printRelationFilterEvidence(entry.filterRelations, io);
 }
 
 export async function runShow(
@@ -327,4 +328,23 @@ export async function runTrace(
       : renderInvestigationTrace(result)
   );
   return 0;
+}
+
+function printRelationFilterEvidence(
+  relations: InvestigationSearchEntry["filterRelations"],
+  io: InvestigationReportCliIo
+): void {
+  if (relations === undefined) return;
+  writeLine(io.stdout, "  relation-filter evidence:");
+  const visible = relations.slice(0, 3);
+  for (const relation of visible)
+    writeLine(
+      io.stdout,
+      `    - ${relation.sourceId} --${relation.type}--> ${relation.target}: ${relation.summary === undefined ? "[无摘要]" : JSON.stringify(relation.summary)}`
+    );
+  if (relations.length > visible.length)
+    writeLine(
+      io.stdout,
+      `    +${relations.length - visible.length} more matching relations`
+    );
 }

@@ -1,5 +1,6 @@
 import { createInvestigationCandidateFromCli } from "./candidate.ts";
 import { publishInvestigationCandidates } from "./publish.ts";
+import { printInvestigationRelationReview } from "./relation-review-output.ts";
 import {
   normalizeInvestigationRelationSummary,
   type InvestigationRelationSummaryInput
@@ -260,6 +261,8 @@ function printPublishResult(
     });
   printWarnings(published.warnings, io);
   writeLine(io.stdout, publishSuccessMessage(published));
+  if (published.relationReview !== undefined)
+    printInvestigationRelationReview(published.relationReview, io);
   return 0;
 }
 

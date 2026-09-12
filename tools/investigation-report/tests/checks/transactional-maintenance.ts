@@ -1,4 +1,5 @@
 await import("../transaction.test.ts");
+await import("../relation-review.test.ts");
 await import("../transaction-recovery.test.ts");
 await import("../transaction-sync.test.ts");
 await import("../discard.test.ts");

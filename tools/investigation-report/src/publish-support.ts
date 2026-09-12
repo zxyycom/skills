@@ -124,14 +124,12 @@ function completedPublishLockFailure(
     const mutation = publishMutation(
       completed.changed ? "committed-cleanup-pending" : "no-change"
     );
+    const { relationReview: _relationReview, ...result } = completed;
     return {
-      ...completed,
-      diagnostics: [
-        ...completed.diagnostics,
-        { ...error.diagnostic, mutation }
-      ],
+      ...result,
+      diagnostics: [...result.diagnostics, { ...error.diagnostic, mutation }],
       errors: uniqueSorted([
-        ...completed.errors,
+        ...result.errors,
         sanitizeInvestigationDiagnosticText(error)
       ]),
       mutation
@@ -212,6 +210,7 @@ export function result(
     diagnostics?: readonly InvestigationDiagnostic[];
     indexPath?: string;
     mutation?: InvestigationMutationDiagnostic;
+    relationReview?: import("./types.ts").InvestigationRelationReview;
     warnings?: readonly string[];
   }> = {}
 ): InvestigationCandidatePublishResult {
@@ -228,6 +227,9 @@ export function result(
         investigationIndexFileName
       ),
     ...(options.mutation === undefined ? {} : { mutation: options.mutation }),
+    ...(options.relationReview === undefined
+      ? {}
+      : { relationReview: options.relationReview }),
     preflight: input.preflight === true,
     warnings: uniqueSorted(options.warnings ?? [])
   };

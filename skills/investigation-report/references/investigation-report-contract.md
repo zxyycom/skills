@@ -200,6 +200,14 @@ writer 在候选和正式位置均可用时优先使用 name locator，否则使
 
 摘要绑定最近的 source group，可与组内关系任意排序；与清空同组时拒绝。完整替换时，未提供摘要的边清除旧摘要。
 
+`set-relations --preflight` 对同一完整输入只读预演，不写 Markdown、索引、pending 或资源；正式执行仍重新读取和验证。`publish --preflight` 同样只预演显式候选的最终集合。
+
+两种适用的预检及正式成功结果以 `relationReview` 返回完整核对：
+
+- review 按规范 source ID 排列。每个 source 给出 `action`、准备阶段读取的完整 `before` 和规范化完整 `after`；空集合为 `[]`。候选建立固定为 `establish`；正式来源的 before/after 相同为 `unchanged`，否则为 `replace`。
+- 预检的 phase 是 `preflight`，正式成功的 phase 是 `committed`。失败不附成功 review，预检不构成提交凭据。
+- 公开 `publish` 与 `set-relations` API 暴露同一结果，CLI 只格式化该 review 的最终集合与变化。
+
 全部来源和 target 都解析为已建立 ID，各组共同形成最终图预演，允许同一事务完成拆分关系而无非法中间状态。命令要求新鲜索引，验证完整图及所选来源版本后，事务化更新关系和索引；其他 metadata、正文、资源和 pending 保持不变。全部关系与现值相同时零改写，否则报告实际变化。
 
 ### 删除报告或候选
@@ -240,11 +248,13 @@ rename 自行完成索引更新，不把同步或暂存当作第二阶段；成�
 
 `list` 提供全局筛选概览与近期窗口，`show` 读取完整正式报告，`trace` 从一次当前受检索引快照返回面向 agent 的关系切片。重复 tags 为 AND，形成时间范围包含端点；关系条件与其他条件相交后再排序、翻页或匹配文本。参数默认值和窗口大小查 help，空页只说明本次筛选与窗口无结果。
 
-`trace` 成功时默认向 stdout 输出稳定终端关系图；它不是旧的平铺文本或 Mermaid。传入单值 `--json` 时才原样序列化同一份 trace 查询成功结果的稳定 JSON envelope。两种 renderer 不能重读索引、重做选择或改变成员、coverage、frontier 与 blocked event。终端图固定回显 anchor、direction、depth、complete 与记录数，以 `L0/L1/...` 呈现稳定图层；每个 trace 节点只作为一个主体块出现，`* trace` 表示实际遍历成员，`~ context` 只在拆分或归并事件上下文中表示为事件闭合补入的成员。终端图展示可用的 predecessors、successors、split/merge 事件成员和 relation summary，并在不完整时输出 frontier 与 blocked event。JSON 回显 `anchorId`、实际 direction 与 limits；无限 depth 在 `limits.depth` 中表示为 `"all"`。省略参数时采用 `direction=both`、`depth=5` 与 `max-records=50`；有限 depth 为非负安全整数，`--depth all` 取消深度限制，max-records 为正安全整数。`traceIds` 是请求方向上实际到达且可继续扩展的成员，`contextIds` 只为完整拆分或纯归并事件闭合加入；二者互斥，且并集恰为 `entries` 的 key。每个 entry 只投影 title、formedAt、question、tags 和完整 relations；ID 已由 key 承接，name、sourcePath 和 resourceIds 不进入结果。
+`trace` 成功时默认向 stdout 输出稳定终端关系图；它不是旧的平铺文本或 Mermaid。传入单值 `--json` 时才原样序列化同一份 trace 查询成功结果的稳定 JSON envelope。两种 renderer 不能重读索引、重做选择或改变成员、coverage、frontier 与 blocked event。终端图只展开切片内部边；已读取但缺少摘要显示 `[无摘要]`，已有摘要按 JSON 转义的完整单行文本显示。主体或事件对端成员承接已展示边的方向与摘要；context 成员只为事件闭合而加入、不递归扩展，不能据此把切片外边或 `coverage` 解释为缺失。完整直接关系仍从 entry 或来源正文读取。终端图固定回显 anchor、direction、depth、complete 与记录数，以 `L0/L1/...` 呈现稳定图层；每个 trace 节点只作为一个主体块出现，`* trace` 表示实际遍历成员，`~ context` 只在拆分或归并事件上下文中表示为事件闭合补入的成员。终端图展示可用的 predecessors、successors、split/merge 事件成员和 relation summary，并在不完整时输出 frontier 与 blocked event。JSON 回显 `anchorId`、实际 direction 与 limits；无限 depth 在 `limits.depth` 中表示为 `"all"`。省略参数时采用 `direction=both`、`depth=5` 与 `max-records=50`；有限 depth 为非负安全整数，`--depth all` 取消深度限制，max-records 为正安全整数。`traceIds` 是请求方向上实际到达且可继续扩展的成员，`contextIds` 只为完整拆分或纯归并事件闭合加入；二者互斥，且并集恰为 `entries` 的 key。每个 entry 只投影 title、formedAt、question、tags 和完整 relations；ID 已由 key 承接，name、sourcePath 和 resourceIds 不进入结果。
 
 完整事件不能按记录预算拆开：一个跨越触发拆分时接纳该前序与全部直接拆分后继；触发纯归并时接纳归并后继与全部直接前序。能在请求方向直接到达的端点成为 trace member，其余事件成员为 context，除非之后被实际到达而提升。`coverage.complete` 仅在没有深度或预算截断时为 true；`coverage.stoppedBy`、`frontier` 与可选 `blockedEvent` 共同说明限制。frontier 的 fromId、direction 和 nextIds 是继续查询的事实，不是 cursor；预算阻断多记录事件时，blockedEvent 的 recordIds 保持事件完整，requiredMaxRecords 给出接纳该事件所需的最小预算；普通单记录接纳受阻时只形成 max-records frontier。entry 的完整 relations 可能指向切片外 ID，这仍是索引事实；只有两端都在 entries 的 relation 是切片内部边。summary 存在时原样投影，缺失时省略，不由 trace 推断。
 
-`--related-to` 先独立解析目标，再按相对目标的 predecessors、successors 或 both 选择直接邻居；方向须与目标同用。relation type 单独使用匹配任一该类型边，与目标同用则须命中同一条边。
+`--related-to` 先独立解析目标，再按相对目标的 predecessors、successors 或 both 选择直接邻居；方向须与目标同用。relation type 单独使用匹配任一该类型边，与目标同用则须命中同一条边。关系条件的 list/search entry 以可选 `filterRelations` 返回导致该记录命中的完整边集合：只在存在关系条件时出现，使用本次筛选的同一来源快照，按 `(sourceId, type, target)` 去重并以 UTF-16 code-unit 词法序排列；前驱边由 anchor 指向结果，后继边由结果指向 anchor，both 取并集，type-only 选择结果来源的指定类型出边。记录集合、排序、分页与搜索 limit 保持不变。该投影属于公开 Investigation list/search entry API；索引条目、Schema 与正式关系数据模型不因此扩大。
+
+搜索的文本证据与 `filterRelations` 分开：metadata 的 `matchedFields`、`matchedRelations` 只报告实际文本命中，`matchedRelations: none` 不否定关系筛选命中。CLI 默认每条预览最多三条命中边，`list --detail` 展开当前页全部命中边；完整正文或完整直接关系继续通过 `show` 读取。
 
 | 搜索范围 | 来源与适用边界 |
 | --- | --- |

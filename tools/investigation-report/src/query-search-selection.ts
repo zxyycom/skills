@@ -1,17 +1,16 @@
 import { err, ok, type Result } from "neverthrow";
 import { resolveInvestigationSelector } from "./investigation-selector.ts";
-import type { InvestigationIndexQueryOptions } from "./types.ts";
+import type {
+  InvestigationFilterRelation,
+  InvestigationIndexQueryOptions
+} from "./types.ts";
 import type { InvestigationSnapshotEntry, PreparedSearch } from "./query.ts";
 
 export function selectSearchEntries(
   entries: readonly InvestigationSnapshotEntry[],
   prepared: PreparedSearch
 ): Result<InvestigationSnapshotEntry[], string[]> {
-  const related = relatedInvestigationIds(entries, {
-    direction: prepared.validated.direction,
-    relatedTo: prepared.validated.relatedTo,
-    relationType: prepared.validated.relationType
-  });
+  const related = relatedInvestigationIds(entries, prepared.validated);
   if (related.isErr()) return err(related.error);
   const ids = related.value;
   return ok(
@@ -33,14 +32,151 @@ export function relatedInvestigationIds(
   entries: readonly InvestigationSnapshotEntry[],
   query: RelationQuery
 ): Result<ReadonlySet<string> | null, string[]> {
-  if (query.relatedTo === undefined) return ok(null);
-  const target = relatedTarget(entries, query.relatedTo);
+  const relations = filterRelationsByEntry(entries, query);
+  if (relations.isErr()) return err(relations.error);
+  return ok(relations.value === null ? null : new Set(relations.value.keys()));
+}
+
+/** Projects every edge that made a returned record match a relation condition. */
+export function filterRelationsByEntry(
+  entries: readonly InvestigationSnapshotEntry[],
+  query: RelationQuery
+): Result<
+  ReadonlyMap<string, readonly InvestigationFilterRelation[]> | null,
+  string[]
+> {
+  if (query.relatedTo === undefined)
+    return filterTypeOnlyRelations(entries, query.relationType);
+  return filterRelationsForRelatedTarget(entries, query.relatedTo, query);
+}
+
+function filterTypeOnlyRelations(
+  entries: readonly InvestigationSnapshotEntry[],
+  relationType: InvestigationIndexQueryOptions["relationType"] | undefined
+): Result<
+  ReadonlyMap<string, readonly InvestigationFilterRelation[]> | null,
+  string[]
+> {
+  if (relationType === undefined) return ok(null);
+  const relations = new Map<string, InvestigationFilterRelation[]>();
+  appendTypeOnlyRelations(
+    entries,
+    relationTypeMatcher(relationType),
+    relations
+  );
+  return ok(normalizeRelationMap(relations));
+}
+
+function filterRelationsForRelatedTarget(
+  entries: readonly InvestigationSnapshotEntry[],
+  relatedTo: string,
+  query: RelationQuery
+): Result<
+  ReadonlyMap<string, readonly InvestigationFilterRelation[]> | null,
+  string[]
+> {
+  const target = relatedTarget(entries, relatedTo);
   if (target.isErr()) return err(target.error);
-  const ids = new Set<string>();
-  const matches = relationTypeMatcher(query.relationType);
-  addPredecessors(ids, target.value, query.direction, matches);
-  addSuccessors(ids, entries, target.value.id, query.direction, matches);
-  return ok(ids);
+  const relations = new Map<string, InvestigationFilterRelation[]>();
+  const matching = relationTypeMatcher(query.relationType);
+  const direction = query.direction ?? "both";
+  if (direction !== "successors")
+    appendPredecessorRelations(target.value, matching, relations);
+  if (direction !== "predecessors")
+    appendSuccessorRelations(entries, target.value.id, matching, relations);
+  return ok(normalizeRelationMap(relations));
+}
+
+function appendTypeOnlyRelations(
+  entries: readonly InvestigationSnapshotEntry[],
+  matching: (type: InvestigationIndexQueryOptions["relationType"]) => boolean,
+  relations: Map<string, InvestigationFilterRelation[]>
+): void {
+  for (const entry of entries)
+    for (const relation of entry.state.relations)
+      if (matching(relation.type))
+        addRelation(
+          relations,
+          entry.id,
+          relationProjection(entry.id, relation)
+        );
+}
+
+function appendPredecessorRelations(
+  target: InvestigationSnapshotEntry,
+  matching: (type: InvestigationIndexQueryOptions["relationType"]) => boolean,
+  relations: Map<string, InvestigationFilterRelation[]>
+): void {
+  for (const relation of target.state.relations)
+    if (matching(relation.type))
+      addRelation(
+        relations,
+        relation.target,
+        relationProjection(target.id, relation)
+      );
+}
+
+function appendSuccessorRelations(
+  entries: readonly InvestigationSnapshotEntry[],
+  targetId: string,
+  matching: (type: InvestigationIndexQueryOptions["relationType"]) => boolean,
+  relations: Map<string, InvestigationFilterRelation[]>
+): void {
+  for (const entry of entries)
+    for (const relation of entry.state.relations)
+      if (relation.target === targetId && matching(relation.type))
+        addRelation(
+          relations,
+          entry.id,
+          relationProjection(entry.id, relation)
+        );
+}
+
+function relationProjection(
+  sourceId: string,
+  relation: InvestigationSnapshotEntry["state"]["relations"][number]
+): InvestigationFilterRelation {
+  return {
+    sourceId,
+    target: relation.target,
+    type: relation.type,
+    ...(relation.summary === undefined ? {} : { summary: relation.summary })
+  };
+}
+
+function addRelation(
+  relations: Map<string, InvestigationFilterRelation[]>,
+  id: string,
+  relation: InvestigationFilterRelation
+): void {
+  const current = relations.get(id) ?? [];
+  if (
+    !current.some(
+      (item) =>
+        item.sourceId === relation.sourceId &&
+        item.type === relation.type &&
+        item.target === relation.target
+    )
+  ) {
+    current.push(relation);
+    relations.set(id, current);
+  }
+}
+
+function normalizeRelationMap(
+  relations: ReadonlyMap<string, readonly InvestigationFilterRelation[]>
+): ReadonlyMap<string, readonly InvestigationFilterRelation[]> {
+  return new Map(
+    [...relations.entries()].map(([id, values]) => [
+      id,
+      [...values].sort(
+        (left, right) =>
+          compareText(left.sourceId, right.sourceId) ||
+          compareText(left.type, right.type) ||
+          compareText(left.target, right.target)
+      )
+    ])
+  );
 }
 
 function relatedTarget(
@@ -64,40 +200,6 @@ function relationTypeMatcher(
   return (type) => relationType === undefined || type === relationType;
 }
 
-function addPredecessors(
-  ids: Set<string>,
-  target: InvestigationSnapshotEntry,
-  direction: RelationQuery["direction"],
-  matches: (type: InvestigationIndexQueryOptions["relationType"]) => boolean
-): void {
-  if (
-    direction !== "predecessors" &&
-    direction !== "both" &&
-    direction !== undefined
-  )
-    return;
-  for (const relation of target.state.relations)
-    if (matches(relation.type)) ids.add(relation.target);
-}
-
-function addSuccessors(
-  ids: Set<string>,
-  entries: readonly InvestigationSnapshotEntry[],
-  targetId: string,
-  direction: RelationQuery["direction"],
-  matches: (type: InvestigationIndexQueryOptions["relationType"]) => boolean
-): void {
-  if (
-    direction !== "successors" &&
-    direction !== "both" &&
-    direction !== undefined
-  )
-    return;
-  for (const entry of entries)
-    if (
-      entry.state.relations.some(
-        (relation) => relation.target === targetId && matches(relation.type)
-      )
-    )
-      ids.add(entry.id);
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }

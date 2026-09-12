@@ -9,59 +9,107 @@ import {
   parseDatedDecisionId
 } from "./decision-path.ts";
 import type {
+  DecisionFilteredRecord,
+  DecisionFilterRelation,
   DecisionQueryRequest,
   IndexedDecisionRecord
 } from "./decision-query-contract.ts";
-import type { DecisionRelationEdge } from "./relation-graph.ts";
-import type { DecisionId } from "./types.ts";
+import type { DecisionId, DecisionRelation } from "./types.ts";
 
 type RelationFilterRequest = Pick<
   Extract<DecisionQueryRequest, { command: "list" | "search" }>,
   "direction" | "relatedTo" | "relationType"
 >;
 
-export function resolveDecisionRelationIds(
+type DecisionRelationFilter = Readonly<{
+  decisionIds: ReadonlySet<DecisionId> | null;
+  relationsByDecisionId: ReadonlyMap<
+    DecisionId,
+    readonly DecisionFilterRelation[]
+  >;
+}>;
+
+export function filterDecisionRelationRecords(
   records: readonly IndexedDecisionRecord[],
   request: RelationFilterRequest
 ):
-  | { decisionIds: ReadonlySet<DecisionId> | null; status: "ok" }
+  | { records: DecisionFilteredRecord[]; status: "ok" }
+  | { failure: DecisionApplicationFailure; status: "error" } {
+  const filtered = resolveDecisionRelationFilter(records, request);
+  if (filtered.status === "error") return filtered;
+  return {
+    records: records.flatMap((record) => {
+      if (
+        filtered.value.decisionIds !== null &&
+        !filtered.value.decisionIds.has(record.decisionId)
+      ) {
+        return [];
+      }
+      const filterRelations = filtered.value.relationsByDecisionId.get(
+        record.decisionId
+      );
+      return [
+        filterRelations === undefined ? record : { ...record, filterRelations }
+      ];
+    }),
+    status: "ok"
+  };
+}
+
+export function resolveDecisionRelationFilter(
+  records: readonly IndexedDecisionRecord[],
+  request: RelationFilterRequest
+):
+  | { status: "ok"; value: DecisionRelationFilter }
   | { failure: DecisionApplicationFailure; status: "error" } {
   if (request.relatedTo === undefined)
-    return relationIdsWithoutTarget(records, request);
+    return relationFilterWithoutTarget(records, request);
   const target = resolveDecisionSelectorInRecords(
     records,
     request.relatedTo,
     "Related decision"
   );
   if (target.status === "error") return target;
-  const relationIds = new Set<DecisionId>();
+  const relationsByDecisionId = new Map<DecisionId, DecisionFilterRelation[]>();
   const direction = request.direction ?? "both";
   if (direction === "predecessors" || direction === "both") {
     for (const relation of target.record.projection.relations) {
-      if (relationMatches(relation, request)) relationIds.add(relation.target);
+      if (relationMatches(relation, request)) {
+        addRelation(
+          relationsByDecisionId,
+          relation.target,
+          filterRelation(target.record.decisionId, relation)
+        );
+      }
     }
   }
   if (direction === "successors" || direction === "both") {
     for (const record of records) {
-      if (
-        record.projection.relations.some(
-          (relation) =>
-            relation.target === target.record.decisionId &&
-            relationMatches(relation, request)
-        )
-      ) {
-        relationIds.add(record.decisionId);
-      }
+      record.projection.relations.forEach((relation) => {
+        if (
+          relation.target === target.record.decisionId &&
+          relationMatches(relation, request)
+        ) {
+          addRelation(
+            relationsByDecisionId,
+            record.decisionId,
+            filterRelation(record.decisionId, relation)
+          );
+        }
+      });
     }
   }
-  return { decisionIds: relationIds, status: "ok" };
+  return {
+    status: "ok",
+    value: relationFilterFromMap(relationsByDecisionId)
+  };
 }
 
-function relationIdsWithoutTarget(
+function relationFilterWithoutTarget(
   records: readonly IndexedDecisionRecord[],
   request: RelationFilterRequest
 ):
-  | { decisionIds: ReadonlySet<DecisionId> | null; status: "ok" }
+  | { status: "ok"; value: DecisionRelationFilter }
   | { failure: DecisionApplicationFailure; status: "error" } {
   if (request.direction !== undefined) {
     return {
@@ -78,23 +126,85 @@ function relationIdsWithoutTarget(
     };
   }
   if (request.relationType === undefined)
-    return { decisionIds: null, status: "ok" };
+    return { status: "ok", value: emptyRelationFilter() };
+  const relationsByDecisionId = new Map<DecisionId, DecisionFilterRelation[]>();
+  records.forEach((record) =>
+    record.projection.relations.forEach((relation) => {
+      if (relation.type === request.relationType) {
+        addRelation(
+          relationsByDecisionId,
+          record.decisionId,
+          filterRelation(record.decisionId, relation)
+        );
+      }
+    })
+  );
+  return { status: "ok", value: relationFilterFromMap(relationsByDecisionId) };
+}
+
+function emptyRelationFilter(): DecisionRelationFilter {
+  return { decisionIds: null, relationsByDecisionId: new Map() };
+}
+
+function filterRelation(
+  sourceId: DecisionId,
+  relation: DecisionRelation
+): DecisionFilterRelation {
   return {
-    decisionIds: new Set(
-      records
-        .filter((record) =>
-          record.projection.relations.some(
-            (relation) => relation.type === request.relationType
-          )
-        )
-        .map((record) => record.decisionId)
-    ),
-    status: "ok"
+    sourceId,
+    ...(relation.summary === undefined ? {} : { summary: relation.summary }),
+    target: relation.target,
+    type: relation.type
   };
 }
 
+function addRelation(
+  relationsByDecisionId: Map<DecisionId, DecisionFilterRelation[]>,
+  decisionId: DecisionId,
+  relation: DecisionFilterRelation
+): void {
+  relationsByDecisionId.set(decisionId, [
+    ...(relationsByDecisionId.get(decisionId) ?? []),
+    relation
+  ]);
+}
+
+function relationFilterFromMap(
+  relationsByDecisionId: ReadonlyMap<
+    DecisionId,
+    readonly DecisionFilterRelation[]
+  >
+): DecisionRelationFilter {
+  const sorted = new Map<DecisionId, readonly DecisionFilterRelation[]>();
+  relationsByDecisionId.forEach((relations, decisionId) => {
+    const unique = new Map(
+      relations.map((relation) => [
+        `${relation.sourceId}\u0000${relation.type}\u0000${relation.target}`,
+        relation
+      ])
+    );
+    sorted.set(decisionId, [...unique.values()].sort(compareFilterRelations));
+  });
+  return { decisionIds: new Set(sorted.keys()), relationsByDecisionId: sorted };
+}
+
+function compareFilterRelations(
+  left: DecisionFilterRelation,
+  right: DecisionFilterRelation
+): number {
+  return (
+    compareText(left.sourceId, right.sourceId) ||
+    compareText(left.type, right.type) ||
+    compareText(left.target, right.target)
+  );
+}
+
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
 function relationMatches(
-  relation: Pick<DecisionRelationEdge, "type">,
+  relation: Pick<DecisionRelation, "type">,
   request: RelationFilterRequest
 ): boolean {
   return (

@@ -31,6 +31,7 @@ import {
   printDecisionAttention,
   printDecisionFailure
 } from "./cli-output.ts";
+import { printDecisionRelationReview } from "./cli-output-relation-review.ts";
 import type { DecisionRecordsCliIo } from "./cli-io.ts";
 import {
   decisionScanOptions,
@@ -50,7 +51,10 @@ export async function applyLockedCandidateLifecycle(
   request: Extract<DecisionLifecycleRequest, { action: "activate" | "evolve" }>,
   io: DecisionRecordsCliIo
 ): Promise<number> {
-  let completedMessage: string | null = null;
+  let completed: Extract<
+    DecisionLifecyclePreparation,
+    { status: "ok" }
+  > | null = null;
   try {
     const result = await withDecisionCollectionMutationLock(
       initialScan.indexPath,
@@ -67,7 +71,7 @@ export async function applyLockedCandidateLifecycle(
           io
         );
         if (prepared === null) return noChangeLifecycleResult();
-        completedMessage = prepared.message;
+        completed = prepared;
         return await applyPreparedLifecycle({
           args,
           deferSuccessOutput: true,
@@ -78,8 +82,8 @@ export async function applyLockedCandidateLifecycle(
         });
       }
     );
-    if (result.exitCode === 0 && completedMessage !== null) {
-      io.stdout(completedMessage + "\n");
+    if (result.exitCode === 0 && completed !== null) {
+      printLifecycleCompletion(completed, io);
       const updatedScan = await scanDecisionRecords(decisionScanOptions(args));
       printCandidateWarnings(
         updatedScan.records
@@ -130,6 +134,8 @@ export function printLifecyclePreflight(
   io: DecisionRecordsCliIo
 ): number {
   io.stdout("Decision lifecycle preflight passed: " + prepared.message + "\n");
+  if (prepared.relationReview !== undefined)
+    printDecisionRelationReview(prepared.relationReview, io);
   io.stdout(
     "No Decision Markdown, derived index, or pending state was changed. Re-run the lifecycle command with the complete current parameters to establish it.\n"
   );
@@ -163,7 +169,7 @@ export async function applyPreparedLifecycle(options: {
   );
   if (validationFailure !== null) return validationFailure;
   if (options.deferSuccessOutput !== true)
-    printLifecycleSuccess(prepared.message, updatedScan, io);
+    printLifecycleSuccess(prepared, updatedScan, io);
   return { committed: transaction.changed, exitCode: 0, outcome: "no-change" };
 }
 
@@ -222,11 +228,11 @@ async function postMutationValidationFailure(
 }
 
 function printLifecycleSuccess(
-  message: string,
+  prepared: Extract<DecisionLifecyclePreparation, { status: "ok" }>,
   updatedScan: DecisionScan,
   io: DecisionRecordsCliIo
 ): void {
-  io.stdout(`${message}\n`);
+  printLifecycleCompletion(prepared, io);
   printCandidateWarnings(
     updatedScan.records
       .filter((record) => record.activationCandidate)
@@ -234,6 +240,18 @@ function printLifecycleSuccess(
       .map((record) => record.sourcePath),
     io
   );
+}
+
+function printLifecycleCompletion(
+  prepared: Extract<DecisionLifecyclePreparation, { status: "ok" }>,
+  io: DecisionRecordsCliIo
+): void {
+  io.stdout(prepared.message + "\n");
+  if (prepared.relationReview !== undefined)
+    printDecisionRelationReview(
+      { ...prepared.relationReview, phase: "committed" },
+      io
+    );
 }
 
 function noChangeLifecycleResult(): LockedLifecycleOperationResult {

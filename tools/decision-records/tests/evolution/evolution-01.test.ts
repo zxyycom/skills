@@ -20,10 +20,39 @@ test("activate establishes candidate source relations and archives their active 
     await fs.writeFile(
       decisionFilePath(workspaceRoot, successorRelativePath),
       candidateDecisionBody({
-        relations: [{ type: "修订", target: currentRelativePath }]
+        relations: [
+          {
+            summary: "候选承接当前方向",
+            target: currentRelativePath,
+            type: "修订"
+          }
+        ]
       }),
       "utf8"
     );
+
+    const candidatePath = decisionFilePath(
+      workspaceRoot,
+      successorRelativePath
+    );
+    const candidateBefore = await fs.readFile(candidatePath, "utf8");
+    const preflight = await runSuccessfulSourceLifecycleCli([
+      "activate",
+      successorRelativePath,
+      "--alignment",
+      "aligned",
+      "--preflight",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.match(preflight, /Relation review \(preflight\):/);
+    assert.match(preflight, /action=establish/);
+    assert.match(preflight, /before relations:/);
+    assert.match(
+      preflight,
+      /use-candidate-source-relation --修订--> use-generated-cli: "候选承接当前方向"/
+    );
+    assert.equal(await fs.readFile(candidatePath, "utf8"), candidateBefore);
 
     const strictBefore = await validateDecisionRecords({ workspaceRoot });
     assert.deepEqual(strictBefore.errors, []);
@@ -36,6 +65,7 @@ test("activate establishes candidate source relations and archives their active 
       workspaceRoot
     ]);
     assert.match(output, /archived new active predecessors/);
+    assert.match(output, /Relation review \(committed\):/);
 
     const index = await readIndex(
       path.join(workspaceRoot, "docs", "decisions", "decision-index.json")
@@ -43,6 +73,7 @@ test("activate establishes candidate source relations and archives their active 
     assert.equal(findIndexEntry(index, currentRelativePath).status, "archived");
     assert.deepEqual(findIndexEntry(index, successorRelativePath).relations, [
       {
+        summary: "候选承接当前方向",
         type: "修订",
         target: currentRelativePath
       }
@@ -110,7 +141,7 @@ test("activate clear-relations explicitly replaces candidate relations with an e
       }),
       "utf8"
     );
-    await runSuccessfulSourceLifecycleCli([
+    const cleared = await runSuccessfulSourceLifecycleCli([
       "activate",
       successorRelativePath,
       "--alignment",
@@ -119,6 +150,13 @@ test("activate clear-relations explicitly replaces candidate relations with an e
       "--root",
       workspaceRoot
     ]);
+    assert.match(cleared, /Relation review \(committed\):/);
+    assert.match(cleared, /action=establish/);
+    assert.match(cleared, /after relations: \[\]/);
+    assert.match(
+      cleared,
+      /removed use-cleared-candidate-relations --修订--> use-generated-cli: \[无摘要\]/
+    );
 
     const index = await readIndex(
       path.join(workspaceRoot, "docs", "decisions", "decision-index.json")

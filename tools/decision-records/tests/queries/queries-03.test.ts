@@ -1,6 +1,7 @@
 import {
   archivedDecisionId,
   assert,
+  candidateDecisionBody,
   currentDecisionId,
   currentSourcePath,
   decisionFilePath,
@@ -13,6 +14,106 @@ import {
   test,
   withFixtureWorkspace
 } from "./support.ts";
+
+test("decision relation filter evidence is sorted, preview-bounded, and fully detailed", () =>
+  withFixtureWorkspace(
+    "query-relation-evidence-window",
+    async (workspaceRoot) => {
+      const additionalTargets = ["evidence-a", "evidence-b", "evidence-c"];
+      for (const target of additionalTargets) {
+        await fs.writeFile(
+          decisionFilePath(workspaceRoot, target),
+          candidateDecisionBody({ id: target }),
+          "utf8"
+        );
+        await runSuccessfulSourceCli([
+          "activate",
+          target,
+          "--alignment",
+          "aligned",
+          "--root",
+          workspaceRoot
+        ]);
+        await runSuccessfulSourceCli([
+          "archive",
+          target,
+          "--root",
+          workspaceRoot
+        ]);
+      }
+      const currentPath = decisionFilePath(workspaceRoot, currentSourcePath);
+      const currentText = await fs.readFile(currentPath, "utf8");
+      await fs.writeFile(
+        currentPath,
+        currentText.replace(
+          "relations:\n  - type: 修订\n    target: 260710-use-source-cli",
+          "relations:\n" +
+            "  - type: 修订\n    target: evidence-c\n    summary: C\n" +
+            "  - type: 修订\n    target: evidence-a\n    summary: A\n" +
+            "  - type: 修订\n    target: evidence-b\n    summary: B\n" +
+            "  - type: 修订\n    target: 260710-use-source-cli\n    summary: 原有"
+        ),
+        "utf8"
+      );
+      await runSuccessfulSourceCli([
+        "sync-index",
+        "--write",
+        "--root",
+        workspaceRoot
+      ]);
+
+      const preview = await runSuccessfulSourceCli([
+        "list",
+        "--relation-type",
+        "修订",
+        "--root",
+        workspaceRoot
+      ]);
+      const first = preview.indexOf(
+        `${currentDecisionId} --修订--> 260710-use-source-cli`
+      );
+      const second = preview.indexOf(
+        `${currentDecisionId} --修订--> evidence-a`
+      );
+      const third = preview.indexOf(
+        `${currentDecisionId} --修订--> evidence-b`
+      );
+      assert.ok(first >= 0 && first < second && second < third);
+      assert.match(preview, /\+1 more matching relations/);
+      assert.doesNotMatch(
+        preview,
+        new RegExp(`${currentDecisionId} --修订--> evidence-c`)
+      );
+
+      const searchPreview = await runSuccessfulSourceCli([
+        "search",
+        "使用",
+        "--relation-type",
+        "修订",
+        "--root",
+        workspaceRoot
+      ]);
+      assert.match(searchPreview, /\+1 more matching relations/);
+      assert.doesNotMatch(
+        searchPreview,
+        new RegExp(`${currentDecisionId} --修订--> evidence-c`)
+      );
+
+      const detail = await runSuccessfulSourceCli([
+        "list",
+        "--detail",
+        "--relation-type",
+        "修订",
+        "--root",
+        workspaceRoot
+      ]);
+      assert.match(
+        detail,
+        new RegExp(`${currentDecisionId} --修订--> evidence-c: "C"`)
+      );
+      assert.doesNotMatch(detail, /more matching relations/);
+    }
+  ));
 
 test("decision list and search combine direct relation conditions", () =>
   withFixtureWorkspace("query-related-records", async (workspaceRoot) => {
@@ -33,6 +134,13 @@ test("decision list and search combine direct relation conditions", () =>
       apiResult.records.map((record) => record.decisionId),
       [archivedDecisionId]
     );
+    assert.deepEqual(apiResult.records[0]?.filterRelations, [
+      {
+        sourceId: currentDecisionId,
+        target: archivedDecisionId,
+        type: "修订"
+      }
+    ]);
 
     const predecessors = await runSuccessfulSourceCli([
       "list",
@@ -51,9 +159,11 @@ test("decision list and search combine direct relation conditions", () =>
       decisionMatchLines(predecessors),
       new RegExp(archivedDecisionId)
     );
-    assert.doesNotMatch(
-      decisionMatchLines(predecessors),
-      new RegExp(currentDecisionId)
+    assert.match(
+      predecessors,
+      new RegExp(
+        `relation-filter evidence:\\n    - ${currentDecisionId} --修订--> ${archivedDecisionId}: \\[无摘要\\]`
+      )
     );
 
     const successors = await runSuccessfulSourceCli([
@@ -66,10 +176,7 @@ test("decision list and search combine direct relation conditions", () =>
       workspaceRoot
     ]);
     assert.match(decisionMatchLines(successors), new RegExp(currentDecisionId));
-    assert.doesNotMatch(
-      decisionMatchLines(successors),
-      new RegExp(archivedDecisionId)
-    );
+    assert.match(successors, /relation-filter evidence:/);
 
     const both = await runSuccessfulSourceCli([
       "list",
@@ -91,10 +198,7 @@ test("decision list and search combine direct relation conditions", () =>
       decisionMatchLines(relationType),
       new RegExp(currentDecisionId)
     );
-    assert.doesNotMatch(
-      decisionMatchLines(relationType),
-      new RegExp(archivedDecisionId)
-    );
+    assert.match(relationType, /relation-filter evidence:/);
 
     const mismatchedType = await runSuccessfulSourceCli([
       "list",
@@ -123,7 +227,7 @@ test("decision list and search combine direct relation conditions", () =>
     ]);
     assert.equal(content.exitCode, 0, content.stderr);
     assert.match(content.stdout, new RegExp(currentDecisionId));
-    assert.doesNotMatch(content.stdout, new RegExp(archivedDecisionId));
+    assert.match(content.stdout, /relation-filter evidence:/);
 
     const metadata = await runSuccessfulSourceCli([
       "search",
@@ -137,6 +241,7 @@ test("decision list and search combine direct relation conditions", () =>
     ]);
     assert.match(metadata, new RegExp(currentDecisionId));
     assert.match(metadata, /matchedRelations:\n    - none/);
+    assert.match(metadata, /relation-filter evidence:/);
 
     const indexPath = path.join(
       workspaceRoot,
@@ -169,6 +274,12 @@ test("decision list and search combine direct relation conditions", () =>
     ]);
     assert.equal(fallback.exitCode, 0, fallback.stderr);
     assert.match(fallback.stdout, new RegExp(currentDecisionId));
+    assert.match(
+      fallback.stdout,
+      new RegExp(
+        `${currentDecisionId} --替代--> ${archivedDecisionId}: \\[无摘要\\]`
+      )
+    );
     assert.match(
       fallback.stderr,
       /read-only validated Decision source projection/

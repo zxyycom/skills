@@ -23,6 +23,7 @@ import { relationStrategyFor } from "./decision-relation-transaction-strategy.ts
 import { relationsEqual } from "./decision-relation-transaction-support.ts";
 import { prepareSuccessors } from "./decision-relation-transaction-successors.ts";
 import type {
+  DecisionRelationReview,
   DecisionRelationGraphPlan,
   DecisionRelationTransactionPreparation,
   DecisionRelationTransactionRequest
@@ -164,9 +165,48 @@ function relationTransactionChanges(
     archivedPredecessors: graphPlan.archivedPredecessors,
     changes,
     discardedRecord: graphPlan.discardedRecord,
+    relationReview: relationReview(graphPlan.successors),
     status: "ok",
     successors: graphPlan.successors
   };
+}
+
+function relationReview(
+  successors: readonly DecisionRelationGraphPlan["successors"][number][]
+): DecisionRelationReview {
+  return {
+    phase: "preflight",
+    sources: successors
+      .map((successor) => ({
+        action: successor.candidate
+          ? ("establish" as const)
+          : relationsEqual(successor.sourceRelations, successor.finalRelations)
+            ? ("unchanged" as const)
+            : ("replace" as const),
+        after: successor.finalRelations.map(copyRelation),
+        before: successor.sourceRelations.map(copyRelation),
+        sourceId: successor.record.decisionId
+      }))
+      .sort((left, right) =>
+        left.sourceId < right.sourceId
+          ? -1
+          : left.sourceId > right.sourceId
+            ? 1
+            : 0
+      )
+  };
+}
+
+function copyRelation(
+  relation: DecisionRelationGraphPlan["successors"][number]["finalRelations"][number]
+) {
+  return relation.summary === undefined
+    ? { target: relation.target, type: relation.type }
+    : {
+        summary: relation.summary,
+        target: relation.target,
+        type: relation.type
+      };
 }
 
 function successorRelationChange(

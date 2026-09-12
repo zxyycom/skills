@@ -5,7 +5,7 @@ description: >-
   以一份可独立复核的报告保存一轮形成时的背景、依据、结果和边界，
   并用稳定 Investigation ID、tags 和直接前序关系维护分类与认识演进。
 metadata:
-  version: "48"
+  version: "49"
 ---
 
 # Investigation Report
@@ -95,7 +95,7 @@ agent 在当前请求或生效项目规则授权的范围内，自行审查证�
 
 1. 用 `show-candidate` 核对 `scaffoldValid`、`bodyReady` 与 `resourceReady`；它们分别表达结构、正文和资源的机械准备情况。
 2. 自行审查完整内容，确认正文可信、关系真实、资源必要且安全，并核对当前任务的 publish 授权。
-3. 用 `publish <selector...> --preflight` 只读预演显式选中的最终集合。正式 publish 仍会重新读取基线、候选和资源并完整验证，预检不保存确认凭据。
+3. 用 `publish <selector...> --preflight` 预演显式候选的最终集合，或用 `set-relations --preflight` 预演完整替换；两者都返回预计的完整 `relationReview`、零写入且不保存确认凭据。正式命令仍会重新读取基线、候选和资源并完整验证。
 4. 授权和审核均满足后 publish。若存在手工正式来源变化，先按下一节同步，再发布候选。
 
 正式根目录的完整报告一旦写入即已建立。候选通过 `publish` 正常建立；手工正式来源变化按下一节用 `sync-index` 接纳。
@@ -120,14 +120,14 @@ agent 在当前请求或生效项目规则授权的范围内，自行审查证�
 | 已知信息或阅读目的 | 入口 |
 | --- | --- |
 | 准确 Investigation ID 或唯一 name | `show <selector>` |
-| tags、形成时间、关系类型或直接关系目标 | `list`；按需筛选、翻页或用 `--detail` 展开摘要 |
-| 主题、概念、原因或正文措辞 | `search <text>` → 用结果中的完整 ID 继续读取 |
+| tags、形成时间、关系类型或直接关系目标 | `list`；有关系条件时读取返回的命中边依据，普通列表按需筛选、翻页或用 `--detail` 展开记录概览 |
+| 主题、概念、原因或正文措辞 | `search <text>`；文本命中与关系筛选依据分别读取，再用完整 ID 继续读取 |
 | 在受限索引切片中追溯认识演进 | `trace <selector>` |
 | 审核尚未建立的候选 | `candidates` → `show-candidate <selector>` |
 
 Investigation ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位文件。查询后使用返回的完整 ID 继续操作。
 
-`list` 与 `search` 只查正式报告，候选通过独立入口读取。默认搜索读取报告 Markdown，`--in metadata` 只反映已发布索引快照。遇到降级或截断 warning 时，先按[索引与查询](references/investigation-report-contract.md#索引与查询)确认来源与结果边界，再据此下结论。
+`list` 与 `search` 只查正式报告，候选通过独立入口读取。关系筛选依据、文本证据的分工与 `filterRelations` 的读取边界由[索引与查询](references/investigation-report-contract.md#索引与查询)承接；完整正文和完整直接关系继续用 `show` 读取。默认搜索读取报告 Markdown，`--in metadata` 只反映已发布索引快照。遇到降级或截断 warning 时，先按该节确认来源与结果边界，再据此下结论。
 
 所有正式报告保留在同一集合，直接关系描述认识演进。`trace` 只读一次当前受检索引：默认向 stdout 输出稳定终端关系图，而不是旧的平铺文本或 Mermaid；`--json` 才输出同一份 trace 查询成功结果的稳定 JSON envelope，因而不改变 `anchorId`、实际 `direction`、实际 `limits` 或成员边界。文本图用 `L0/L1/...` 表示稳定图层，`* trace` 标记实际遍历成员，`~ context` 标记为完整拆分或纯归并事件补齐的成员，并在存在时呈现 relation summary、frontier 与 blocked event。无限深度在 JSON 的 `limits.depth` 中表示为 `"all"`。`traceIds` 是实际沿请求方向到达、可继续扩展的成员，`contextIds` 只为完整拆分或纯归并事件闭合而加入，不递归扩展；两者互斥且并集恰为 `entries` 的键。省略参数时使用 `direction=both`、`depth=5`、`max-records=50`；`--depth all` 取消深度限制。用 `coverage`、`frontier` 和（存在时）`blockedEvent` 判断结果是否完整：frontier 是下一次查询可用的 anchor 与方向，不是 cursor；预算不足时提高 `max-records` 至 `blockedEvent.requiredMaxRecords` 后重查。entry 保留索引中的完整 relations，因而 target 可以在本切片外；可选 relation `summary` 有值才出现，trace 不推断或补写它。判断当前适用性时，回到当前事实 owner，并按需综合相关报告。
 

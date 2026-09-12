@@ -147,6 +147,7 @@ const relationSchema = v.strictObject({
 });
 const investigationRelationSetOptionsSchema = v.strictObject({
   ...locationFields,
+  preflight: v.optional(v.boolean("must be a boolean")),
   replacements: v.array(
     v.strictObject({
       relations: v.array(relationSchema),

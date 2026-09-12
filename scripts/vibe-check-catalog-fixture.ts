@@ -120,6 +120,7 @@ export const expectedSemanticGateChecks = [
     "bun",
     [
       "./tools/investigation-report/tests/transaction.test.ts",
+      "./tools/investigation-report/tests/relation-review.test.ts",
       "./tools/investigation-report/tests/transaction-recovery.test.ts",
       "./tools/investigation-report/tests/transaction-sync.test.ts",
       "./tools/investigation-report/tests/discard.test.ts",

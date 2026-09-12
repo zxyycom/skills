@@ -27,7 +27,9 @@
 
 报告以稳定 Investigation ID 标识，tags 用于分类，直接前序关系表达认识演进，关系摘要说明本轮对前序具体增加、核对或改变了什么，派生索引用于查找和追溯。所有正式报告保留在同一集合；当前口径由当前事实 owner 承接。
 
-`trace` 从一次当前索引快照形成关系切片：默认输出终端关系图（不是旧的平铺文本或 Mermaid），传入 `--json` 时输出同一份查询成功结果的 JSON envelope；默认双向、深度 5、最多 50 条记录。终端图用稳定图层和 `* trace`、`~ context` 区分实际遍历成员与为完整事件补入的上下文，并在需要时展示 frontier 与 blocked event。`traceIds` 是实际遍历成员，`contextIds` 仅补齐完整拆分或纯归并事件；两者合起来正好是 `entries`。`coverage`、`frontier` 和可选 `blockedEvent` 明确深度或预算是否截断；frontier 可作为下一次查询的 anchor 与方向，但不是 cursor。报告自身的完整 relations 仍保留，即使其 target 在切片外；已有 summary 原样保留，缺失时不会补写。使用 `--depth all` 取消深度限制，需要完整接纳被阻断事件时，把 `--max-records` 提高到其 `requiredMaxRecords` 后重查。
+`trace` 从一次当前索引快照形成关系切片，默认输出终端关系图；`--json` 输出同一份查询成功结果的 JSON envelope。默认双向、深度 5、最多 50 条记录。图中的 `* trace` 是实际遍历成员，`~ context` 是为完整事件补入的上下文；只展开切片内部边，已读取但缺少摘要会标记，context 不递归扩展。
+
+`traceIds` 是实际遍历成员，`contextIds` 仅补齐完整拆分或纯归并事件；两者合起来正好是 `entries`。`coverage`、`frontier` 和可选 `blockedEvent` 说明深度或预算边界；frontier 可作为下一次查询的 anchor 与方向，不是 cursor。报告自身的完整 relations 即使 target 在切片外也仍保留；已有 summary 原样保留，缺失时不会补写。`--depth all` 取消深度限制；要完整接纳被阻断事件，将 `--max-records` 提高到其 `requiredMaxRecords` 后重查。
 
 正文独立解释关键认识；资源按需补充现场与做法，以必要、Git 友好的纯文本为优先。日志和数据可简化，一次性分析代码、测试代码或查询可用于解释当时动作；材料的来源与处理方式须清楚。复现与重跑按任务另行要求，结论可信度仍取决于来源、方法和推理。
 
@@ -37,7 +39,7 @@
 
 需要新建时：起草 candidate → 完成正文与资源 → 审查和预检 → 授权范围内 publish → 全量检查与交付。为当前发生的调查新建 candidate 时，向 `new` 传入不含日期前缀的 name 而非完整 ID，并省略 `--formed-at`，由工具生成当前 UTC 时间和完整 ID；只有已知形成时间或补录历史调查时才显式覆盖。一般内容与发布条件由 agent 自行判断，关键事实缺失、超出范围或明确要求人工决定时再询问。
 
-- 查找正式报告：已知 ID 或唯一 name 用 `show`，按分类、时间或关系浏览用 `list`，按主题发现用 `search`，追溯演进用 `trace`。
+- 查找正式报告：已知 ID 或唯一 name 用 `show`，按分类、时间或关系浏览用 `list`，按主题发现用 `search`，追溯演进用 `trace`。关系条件下的 list/search entry 另返回导致命中的 `filterRelations`，与文本命中证据分开；普通发现不展开全部关系。
 - 起草、审阅与维护：[Skill 入口](../../skills/investigation-report/SKILL.md)负责流程与质量判断；[固定契约](../../skills/investigation-report/references/investigation-report-contract.md)负责格式、关系、资源和事务约束。
 - 获取命令参数：本仓库使用 `bun run investigation-report -- help <command>`。
 - 遇到工具、索引或写入异常：按[维护恢复](../../skills/investigation-report/references/maintenance-recovery.md)核对范围和恢复结果。

@@ -3,12 +3,21 @@ import type {
   InvestigationReportTraceSuccess
 } from "./types.ts";
 
+type TraceEventMember = Readonly<{
+  contextIds: ReadonlySet<string>;
+  memberId: string;
+  relation: InvestigationRelation;
+  relationSourceId: string;
+  trace: InvestigationReportTraceSuccess;
+}>;
+
 /** Renders one already-selected Investigation trace for terminal use. */
 export function renderInvestigationTrace(
   trace: InvestigationReportTraceSuccess
 ): string {
   const lines = [
     `TRACE anchor=[${trace.anchorId}] direction=${trace.direction} depth=${trace.limits.depth} complete=${trace.coverage.complete} records=${trace.traceIds.length + trace.contextIds.length}`,
+    "  Note: only relations within this trace slice are expanded; read source reports or use --json for complete direct relations.",
     ""
   ];
   const contextIds = new Set(trace.contextIds);
@@ -130,7 +139,7 @@ function appendTraceNode(
   if (entry === undefined) return;
   appendSplitSuccessors(lines, trace, id, contextIds);
   appendMergePredecessors(lines, trace, id, contextIds);
-  appendRelations(lines, "predecessors", entry.relations, trace);
+  appendRelations(lines, "predecessors", id, entry.relations, trace);
   appendSuccessors(lines, trace, id);
 }
 
@@ -144,7 +153,13 @@ function appendSplitSuccessors(
   if (successors.length === 0) return;
   lines.push("  split-successors:");
   for (const source of successors)
-    appendEventMember(lines, trace, source.id, source.relation, contextIds);
+    appendEventMember(lines, {
+      contextIds,
+      memberId: source.id,
+      relation: source.relation,
+      relationSourceId: source.id,
+      trace
+    });
 }
 
 function appendMergePredecessors(
@@ -160,12 +175,19 @@ function appendMergePredecessors(
   if (predecessors.length === 0) return;
   lines.push("  merge-predecessors:");
   for (const relation of predecessors)
-    appendEventMember(lines, trace, relation.target, relation, contextIds);
+    appendEventMember(lines, {
+      contextIds,
+      memberId: relation.target,
+      relation,
+      relationSourceId: id,
+      trace
+    });
 }
 
 function appendRelations(
   lines: string[],
   label: "predecessors" | "successors",
+  sourceId: string,
   relations: readonly InvestigationRelation[],
   trace: InvestigationReportTraceSuccess
 ): void {
@@ -179,7 +201,7 @@ function appendRelations(
   lines.push(`  ${label}:`);
   for (const relation of relevant)
     lines.push(
-      `    ${relation.type} [${relation.target}]${relationSummary(relation)}`
+      `    ${sourceId} --${relation.type}--> ${relation.target}${relationSummary(relation)}`
     );
 }
 
@@ -195,7 +217,7 @@ function appendSuccessors(
   lines.push("  successors:");
   for (const source of successors)
     lines.push(
-      `    ${source.relation.type} [${source.id}]${relationSummary(source.relation)}`
+      `    ${source.id} --${source.relation.type}--> ${id}${relationSummary(source.relation)}`
     );
 }
 
@@ -217,19 +239,18 @@ function relationSources(
     .sort((left, right) => compareText(left.id, right.id));
 }
 
-function appendEventMember(
-  lines: string[],
-  trace: InvestigationReportTraceSuccess,
-  id: string,
-  relation: InvestigationRelation,
-  contextIds: ReadonlySet<string>
-): void {
-  const entry = trace.entries[id];
+function appendEventMember(lines: string[], member: TraceEventMember): void {
+  const entry = member.trace.entries[member.memberId];
   if (entry === undefined) return;
-  const member = contextIds.has(id) ? "~ context" : "* trace  ";
-  lines.push(`    ${member} [${id}] ${entry.formedAt} ${entry.title}`);
-  if (relation.summary !== undefined)
-    lines.push(`        detail: ${JSON.stringify(relation.summary)}`);
+  const state = member.contextIds.has(member.memberId)
+    ? "~ context"
+    : "* trace  ";
+  lines.push(
+    `    ${state} [${member.memberId}] ${entry.formedAt} ${entry.title}`
+  );
+  lines.push(
+    `        ${member.relationSourceId} --${member.relation.type}--> ${member.relation.target}${relationSummary(member.relation)}`
+  );
 }
 
 function appendTraceBoundary(
@@ -253,7 +274,7 @@ function appendTraceBoundary(
 
 function relationSummary(relation: InvestigationRelation): string {
   return relation.summary === undefined
-    ? ""
+    ? " [无摘要]"
     : ` ${JSON.stringify(relation.summary)}`;
 }
 

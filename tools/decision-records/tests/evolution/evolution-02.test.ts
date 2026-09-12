@@ -69,7 +69,7 @@ test("evolve replaces established relations while preserving body and lifecycle 
       "active"
     );
 
-    await runSuccessfulSourceLifecycleCli([
+    const replaced = await runSuccessfulSourceLifecycleCli([
       "evolve",
       "--successor",
       "aligned=" + successorRelativePath,
@@ -78,6 +78,10 @@ test("evolve replaces established relations while preserving body and lifecycle 
       "--root",
       workspaceRoot
     ]);
+    assert.match(replaced, /Relation review \(committed\):/);
+    assert.match(replaced, /action=replace/);
+    assert.match(replaced, /removed replace-established-relations --修订-->/);
+    assert.match(replaced, /added replace-established-relations --替代-->/);
 
     const afterText = await fs.readFile(successorPath, "utf8");
     const afterIndex = await readIndex(indexPath);
@@ -107,6 +111,17 @@ test("evolve replaces established relations while preserving body and lifecycle 
       findIndexEntry(afterIndex, activeTargetRelativePath).status,
       "archived"
     );
+    const unchanged = await runSuccessfulSourceLifecycleCli([
+      "evolve",
+      "--successor",
+      "aligned=" + successorRelativePath,
+      "--relation",
+      "替代=" + activeTargetRelativePath,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.match(unchanged, /action=unchanged/);
+    assert.match(unchanged, /changes: unchanged/);
   }));
 
 test("evolve keeps an archived established successor archived during relation replacement", () =>

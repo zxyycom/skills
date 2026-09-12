@@ -197,8 +197,14 @@ test("CLI trace accepts report-level direction options", async () => {
       "first.md"
     ]);
     assert.equal(terminal.status, 0, terminal.stderr);
-    assert.match(terminal.stdout, /successors:\n    补充 \[second\]/u);
-    assert.match(terminal.stdout, /predecessors:\n    补充 \[first\]/u);
+    assert.match(
+      terminal.stdout,
+      /successors:\n    second --补充--> first \[无摘要\]/u
+    );
+    assert.match(
+      terminal.stdout,
+      /predecessors:\n    second --补充--> first \[无摘要\]/u
+    );
     const result = await runInvestigationCli(root, [
       "trace",
       "--direction",
@@ -246,12 +252,14 @@ test("CLI trace renders a stable terminal graph by default and preserves JSON be
       { id: "base", title: "共同前序" },
       {
         id: "alpha",
-        relations: [{ target: "base", type: "拆分", summary: "承接查询责任" }],
+        relations: [
+          { target: "base", type: "拆分", summary: '承接"查询"责任' }
+        ],
         title: "查询方向"
       },
       {
         id: "beta",
-        relations: [{ target: "base", type: "拆分", summary: "承接存储责任" }],
+        relations: [{ target: "base", type: "拆分" }],
         title: "存储方向"
       }
     ]);
@@ -272,7 +280,12 @@ test("CLI trace renders a stable terminal graph by default and preserves JSON be
     assert.match(terminal.stdout, /split-successors:/u);
     assert.match(terminal.stdout, /\* trace   \[alpha\].*查询方向/u);
     assert.match(terminal.stdout, /~ context \[beta\].*存储方向/u);
-    assert.match(terminal.stdout, /detail: "承接查询责任"/u);
+    assert.match(terminal.stdout, /alpha --拆分--> base "承接\\"查询\\"责任"/u);
+    assert.match(terminal.stdout, /beta --拆分--> base \[无摘要\]/u);
+    assert.match(
+      terminal.stdout,
+      /only relations within this trace slice are expanded/u
+    );
 
     const blocked = await runInvestigationCli(root, [
       "trace",
@@ -301,7 +314,14 @@ test("CLI trace renders a stable terminal graph by default and preserves JSON be
       "--json"
     ]);
     assert.equal(json.status, 0, json.stderr);
-    assert.deepEqual(JSON.parse(json.stdout).contextIds, ["beta"]);
+    const parsed = JSON.parse(json.stdout);
+    assert.deepEqual(parsed.contextIds, ["beta"]);
+    assert.deepEqual(parsed.entries.alpha.relations, [
+      { target: "base", type: "拆分", summary: '承接"查询"责任' }
+    ]);
+    assert.deepEqual(parsed.entries.beta.relations, [
+      { target: "base", type: "拆分" }
+    ]);
   });
 });
 

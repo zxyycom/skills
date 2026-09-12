@@ -38,7 +38,8 @@ CLI readiness 只说明结构与正文准备情况。一般语义审查、记录
 
 ## 从哪里开始
 
-- 查找既有判断：已知 ID 或唯一 name 用 `show`，按分类、状态或关系浏览用 `list`，按主题发现用 `search`，追溯演进用 `trace`。`trace` 默认输出受限的终端关系图（不是旧的平铺文本或 Mermaid）：默认同时追溯两个方向、深度 5、最多 50 条记录；用 `--json` 获取同一份查询成功结果的 JSON 索引切片。用 coverage、frontier 和可选 blocked event 判断是否需要以更大范围重查，而不把切片外关系视为缺失。
+- 查找既有判断：已知 ID 或唯一 name 用 `show`，按分类、状态或关系浏览用 `list`，按主题发现用 `search`，追溯演进用 `trace`。关系条件下的 list/search 另返回导致命中的 `filterRelations`，与文本命中证据分开；普通发现不展开全部关系。
+- 阅读演进切片：`trace` 默认同时追溯两个方向、深度 5、最多 50 条记录；`--json` 获取同一份查询成功结果的 JSON 索引切片。终端图只展开切片内部边，已读取但缺少摘要会标记，context 只为闭合事件加入。以 coverage、frontier 和可选 blocked event 判断是否要扩大范围重查，不把切片外关系视为缺失。
 - 起草或维护：[Skill 入口](../../skills/decision-records/SKILL.md)负责判断、流程与交付；[决策记录规则](../../skills/decision-records/references/decision-record-rules.md)负责身份、正文、生命周期、关系与维护约束。
 - 获取命令参数：本仓库使用 `bun run decision-records -- --help`。
 - 遇到工具、索引或写入异常：按[状态与维护恢复](../../skills/decision-records/references/maintenance-recovery.md)处理。

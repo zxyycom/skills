@@ -140,6 +140,7 @@ test("set-relations restores all report and index bytes after publish failure", 
       }
     );
     assert.ok(result.errors.some((error) => error.includes("publish failed")));
+    assert.equal(result.relationReview, undefined);
     assert.deepEqual(result.mutation, {
       outcome: "rolled-back",
       scope: "investigation report relation collection"
@@ -237,3 +238,45 @@ function git(root: string, args: readonly string[]): string {
     stdio: ["ignore", "pipe", "pipe"]
   });
 }
+
+test("set-relations release cleanup failure preserves committed bytes without a successful review", async () => {
+  await withTempRoot("relation-release-review", async (root) => {
+    await writeCollection(root, [{ id: "base" }, { id: "next" }]);
+    const lockPath = `${root}/docs/.investigation-index.json.mutation.lock`;
+    const originalRm = fs.rm;
+    fs.rm = (async (...args) => {
+      if (args[0] === lockPath)
+        throw Object.assign(new Error("injected lock release failure"), {
+          code: "EIO"
+        });
+      return await originalRm(...args);
+    }) as typeof fs.rm;
+    let result;
+    try {
+      result = await setInvestigationRelations({
+        replacements: [
+          { source: "next", relations: [{ target: "base", type: "补充" }] }
+        ],
+        workspaceRoot: root
+      });
+    } finally {
+      fs.rm = originalRm;
+    }
+    assert.equal(result.changed, true);
+    assert.equal(result.relationReview, undefined);
+    assert.ok(result.errors.length > 0);
+    assert.deepEqual(result.mutation, {
+      outcome: "committed-cleanup-pending",
+      scope: "investigation report relation collection"
+    });
+    assert.match(
+      result.diagnostics.at(-1)?.code ?? "",
+      /collection-lock-release-failed/u
+    );
+    assert.match(
+      await fs.readFile(`${investigationRoot(root)}/next.md`, "utf8"),
+      /target: "base"/u
+    );
+    await fs.rm(lockPath, { force: true });
+  });
+});

@@ -20,6 +20,23 @@ export type InvestigationRelation = {
   summary?: string;
 };
 
+export type InvestigationRelationReview = {
+  phase: "preflight" | "committed";
+  sources: ReadonlyArray<{
+    sourceId: string;
+    action: "establish" | "replace" | "unchanged";
+    before: readonly InvestigationRelation[];
+    after: readonly InvestigationRelation[];
+  }>;
+};
+
+export type InvestigationFilterRelation = {
+  sourceId: string;
+  type: InvestigationRelationType;
+  target: string;
+  summary?: string;
+};
+
 export type InvestigationCandidateReadiness = {
   bodyReady: boolean;
   resourceReady: boolean;
@@ -92,6 +109,7 @@ export type InvestigationCandidatePublishResult = {
   ids: string[];
   indexPath: string;
   preflight: boolean;
+  relationReview?: InvestigationRelationReview;
   warnings: string[];
 };
 
@@ -249,7 +267,11 @@ export type InvestigationIndexQueryOptions = {
 };
 
 export type InvestigationIndexQueryResult = {
-  entries: Array<{ id: string; state: InvestigationIndexState }>;
+  entries: Array<{
+    id: string;
+    state: InvestigationIndexState;
+    filterRelations?: readonly InvestigationFilterRelation[];
+  }>;
   errors: string[];
   indexPath: string;
   limit: number;
@@ -264,6 +286,7 @@ export type InvestigationRelationReplacement = {
 
 export type InvestigationRelationSetOptions = {
   investigationsDir?: string;
+  preflight?: boolean;
   replacements: readonly InvestigationRelationReplacement[];
   workspaceRoot: string;
 };
@@ -272,6 +295,8 @@ export type InvestigationRelationSetResult = {
   changed: boolean;
   errors: string[];
   indexPath: string;
+  preflight: boolean;
+  relationReview?: InvestigationRelationReview;
   sourceIds: string[];
 };
 
@@ -450,6 +475,7 @@ export type InvestigationContentSearchEntry = {
   sourcePath: string;
   tags: readonly string[];
   title: string;
+  filterRelations?: readonly InvestigationFilterRelation[];
 };
 export type InvestigationMetadataSearchField =
   | "id"
@@ -471,6 +497,7 @@ export type InvestigationMetadataSearchEntry = {
   sourcePath: string;
   tags: readonly string[];
   title: string;
+  filterRelations?: readonly InvestigationFilterRelation[];
 };
 export type InvestigationSearchEntry =
   | InvestigationContentSearchEntry

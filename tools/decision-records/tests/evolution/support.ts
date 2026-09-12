@@ -135,7 +135,7 @@ export async function establishClosedSplit(
     }),
     "utf8"
   );
-  await runSuccessfulSourceLifecycleCli([
+  const output = await runSuccessfulSourceLifecycleCli([
     "evolve",
     "--successor",
     "aligned=" + alignedRelativePath,
@@ -155,6 +155,7 @@ export async function establishClosedSplit(
       "decisions",
       "decision-index.json"
     ),
+    output,
     unalignedRelativePath
   };
 }
@@ -163,6 +164,7 @@ export type ClosedSplit = {
   alignedRelativePath: string;
   coarseRelativePath: string;
   indexPath: string;
+  output: string;
   unalignedRelativePath: string;
 };
 

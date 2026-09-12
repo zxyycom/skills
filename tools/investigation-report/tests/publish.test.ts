@@ -43,6 +43,8 @@ test("publish preflight leaves candidates untouched and normal publish establish
       preflight.stdout,
       /no candidate, formal report, resource, index, or pending state was changed/u
     );
+    assert.match(preflight.stdout, /relation review \(preflight\):/u);
+    assert.match(preflight.stdout, /first: establish/u);
     assert.equal(
       await fs.readFile(candidatePath(root, "first.md"), "utf8"),
       firstCandidate
@@ -56,6 +58,8 @@ test("publish preflight leaves candidates untouched and normal publish establish
 
     const published = await runInvestigationCli(root, ["publish", "first.md"]);
     assert.equal(published.status, 0, published.stderr);
+    assert.match(published.stdout, /relation review \(committed\):/u);
+    assert.match(published.stdout, /first: establish/u);
     assert.equal(
       await fs.readFile(path.join(investigationRoot(root), "first.md"), "utf8"),
       firstCandidate

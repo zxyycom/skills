@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "57"
+  version: "58"
 ---
 
 # Decision Records
@@ -41,17 +41,17 @@ agent 在当前请求或生效项目规则授权的范围内，自行审查记�
 | --- | --- |
 | 审核尚未建立的候选 | `candidates` → `show-candidate <selector>` |
 | 准确 Decision ID 或唯一 name | `show <selector>` |
-| 状态、alignment、tag、形成时间或直接关系 | `list`；按需筛选、翻页或用 `--detail` 展开摘要 |
-| 主题、概念、理由或正文措辞 | `search <text>` → 用结果中的完整 ID 继续读取 |
-| 完整演进关系 | `trace <selector>` |
+| 状态、alignment、tag、形成时间或直接关系 | `list`；有关系条件时读取返回的命中边依据，普通列表按需筛选、翻页或用 `--detail` 展开记录概览 |
+| 主题、概念、理由或正文措辞 | `search <text>`；文本命中与关系筛选依据分别读取，再用完整 ID 继续读取 |
+| 受限切片内的演进关系 | `trace <selector>` |
 
 Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位文件。查询后使用返回的完整 ID 继续操作。
 
-`trace` 只读取一次受检索引快照。默认输出稳定的终端关系图，而不是旧的平铺文本或 Mermaid：header 回显 anchor、direction、depth、complete 与记录总数，`L0/L1/...` 展示 trace 成员，`*` 标记递归 trace 成员，`~` 标记为闭合拆分、纯归并或重划事件加入的 context；图尾仅在不完整时输出 coverage、frontier 与可选 blockedEvent。传入 `--json` 时输出**同一份 trace 查询成功结果**的稳定 JSON 切片。JSON 成功结果以 `anchorId`、实际 `direction`、实际 `limits`、`coverage`、成员 ID、`frontier`、可选 `blockedEvent` 与 `entries` 组成；`limits.depth` 在无限深度时为 `"all"`。省略选项时按 `both`、深度 5、最多 50 条唯一记录查询；`--depth all` 取消深度限制，`--max-records <n>` 调整记录预算。`traceIds` 是实际递归遍历成员，`contextIds` 只为闭合完整事件而加入，二者与 `entries` 的键恰好对应。每个 entry 保留其完整直接 `relations`，即使 target 不在切片内；这不是缺失证明。关系已有 `summary` 时原样保留，缺失时省略，trace 不推断或补写。
+`trace` 只读取一次受检索引快照，默认输出终端关系图：header 回显 anchor、direction、depth、complete 与记录总数；`L0/L1/...` 展示成员，`*` 是递归 trace 成员，`~` 是为闭合拆分、纯归并或重划事件加入的 context。图尾仅在不完整时输出 coverage、frontier 与可选 blockedEvent。`--json` 返回**同一份查询成功结果**的稳定 JSON 切片，包含 `anchorId`、实际 `direction`、`limits`、`coverage`、成员 ID、`frontier`、可选 `blockedEvent` 和 `entries`；无限深度的 `limits.depth` 为 `"all"`。默认查询为 `both`、深度 5、最多 50 条唯一记录；`--depth all` 取消深度限制，`--max-records <n>` 调整预算。`traceIds` 是实际递归成员，`contextIds` 只闭合完整事件，二者恰好对应 `entries` 的键。
 
-先依据 `coverage.complete`、`stoppedBy` 和 `frontier` 判断结果边界：`frontier` 的 `fromId`、方向与 `nextIds` 可作为下一次 trace 的 anchor 和 direction，而不是可跨快照续用的 cursor。`blockedEvent` 表示完整事件因记录预算尚未接纳，使用其 `requiredMaxRecords` 扩大预算后重查；不要把其中任何局部成员当成完整演进事实。
+每个 entry 保留完整直接 `relations`，target 在切片外不是缺失证明；已有 `summary` 原样保留，缺失时省略，trace 不推断或补写。先用 `coverage.complete`、`stoppedBy` 和 `frontier` 判断边界：`frontier` 的 `fromId`、方向与 `nextIds` 可作为下一次 trace 的 anchor 和 direction，不是可跨快照续用的 cursor。`blockedEvent` 表示完整事件受记录预算阻断；将预算提高到其 `requiredMaxRecords` 后重查，不能把局部成员当作完整演进事实。
 
-`list` 与 `search` 默认查 active 已建立记录；需要历史或更多结果时显式筛选并扩展窗口。默认搜索读取权威 Markdown，`--in metadata` 只反映已发布索引快照。遇到降级或截断 warning 时，先按[派生索引与查询](references/decision-record-rules.md#派生索引与查询)确认来源与结果边界，再据此下结论。
+`list` 与 `search` 默认查 active 已建立记录；需要历史或更多结果时显式筛选并扩展窗口。关系筛选依据、文本证据分工和 `filterRelations` 的读取边界见[派生索引与查询](references/decision-record-rules.md#派生索引与查询)。完整正文和完整直接关系仍用 `show` 读取。默认搜索读取权威 Markdown，`--in metadata` 只反映已发布索引快照；遇到降级或截断 warning 时，先按该节确认来源和结果边界。
 
 ## 工作流程
 
@@ -99,7 +99,9 @@ Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位�
 | 更正 ID/name | `rename`，由事务统一维护身份、引用、位置和索引。 |
 | 明确删除记录 | `discard`；与演进原子组合时显式使用 `evolve --discard <decision-id>`。成功结果报告为删除，而非归档。 |
 
-已建立记录的生命周期、alignment 和关系通过 CLI 事务维护；已建立来源出现非法 alignment 时，才可按恢复手册取得针对字段的授权后原位修复。索引从 Markdown 派生。需要只读预演时，`activate/evolve --preflight` 使用本次完整参数验证；正式执行仍须重新提供参数并重新验证。
+已建立记录的生命周期、alignment 和关系通过 CLI 事务维护；非法 alignment 只能按恢复手册取得字段授权后原位修复。索引从 Markdown 派生。
+
+需要只读预演时，新候选使用 `activate` 或 `evolve --preflight` 以本次完整参数验证，并返回预计的完整 `relationReview`。预检零写入，不能作为正式执行的提交凭据；正式执行仍须重新提供参数、重新验证，并只以 `committed` review 确认已提交的完整关系。重新激活 archived 记录保留既有关系，不适用该核对。
 
 拆分或重划须选择完整后继集合；先按[后继集合与语义闭合](references/decision-record-rules.md#后继集合与语义闭合)核对承接范围，再按 CLI help 组合参数。
 

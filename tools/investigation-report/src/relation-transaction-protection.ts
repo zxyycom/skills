@@ -32,10 +32,8 @@ import {
   relationResult,
   type RelationPhase
 } from "./relation-transaction-support.ts";
-import type {
-  CandidateRelationContext,
-  RelationTransactionOptions
-} from "./relation-transaction-preparation.ts";
+import type { CandidateRelationContext } from "./relation-transaction-candidate.ts";
+import type { RelationTransactionOptions } from "./relation-transaction-preparation.ts";
 
 export async function buildRelationIndex(
   options: RelationTransactionOptions,

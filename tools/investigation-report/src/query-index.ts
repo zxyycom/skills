@@ -14,7 +14,10 @@ import { diagnosticFromStateIndexDiagnostic } from "./diagnostics.ts";
 import { buildInvestigationListFacets } from "./list-facets.ts";
 import { parseInvestigationIndexQueryOptions } from "./options.ts";
 import { resolveInvestigationsDirectory } from "./report-path.ts";
-import { relatedInvestigationIds } from "./query-search-metadata.ts";
+import {
+  filterRelationsByEntry,
+  relatedInvestigationIds
+} from "./query-search-selection.ts";
 import {
   defaultInvestigationIndexPath,
   investigationIndexPathForOptions,
@@ -141,6 +144,9 @@ function queryLoadedInvestigationIndex(
   const facets = buildInvestigationListFacets(entries);
   const related = relatedInvestigationIds(entries, validated);
   if (related.isErr()) return err({ diagnostics: [], errors: related.error });
+  const filterRelations = filterRelationsByEntry(entries, validated);
+  if (filterRelations.isErr())
+    return err({ diagnostics: [], errors: filterRelations.error });
   if (related.value !== null && related.value.size === 0)
     return ok(emptyQueryResult(validated, indexPath, facets));
   return runIndexQuery(
@@ -148,7 +154,8 @@ function queryLoadedInvestigationIndex(
     selectedFilters(validated, related.value),
     validated,
     indexPath,
-    facets
+    facets,
+    filterRelations.value
   );
 }
 
@@ -192,7 +199,11 @@ function runIndexQuery(
   filters: ValidatedQueryOptions["filters"],
   validated: ValidatedQueryOptions,
   indexPath: string,
-  facets: ReturnType<typeof buildInvestigationListFacets>
+  facets: ReturnType<typeof buildInvestigationListFacets>,
+  filterRelations: ReadonlyMap<
+    string,
+    readonly import("./types.ts").InvestigationFilterRelation[]
+  > | null
 ) {
   return fromThrowable(
     () =>
@@ -223,7 +234,10 @@ function runIndexQuery(
           diagnostics: [],
           entries: queried.value.entries.map((entry) => ({
             id: entry.id,
-            state: entry.state
+            state: entry.state,
+            ...(filterRelations?.get(entry.id) === undefined
+              ? {}
+              : { filterRelations: filterRelations.get(entry.id)! })
           })),
           errors: [],
           facets,

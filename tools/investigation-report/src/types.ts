@@ -120,6 +120,22 @@ export type InvestigationCandidatePublishOptions = Readonly<{
   workspaceRoot: string;
 }>;
 
+export type InvestigationRelationReviewPhase = "preflight" | "committed";
+export type InvestigationRelationReviewAction =
+  | "establish"
+  | "replace"
+  | "unchanged";
+export type InvestigationRelationReviewSource = Readonly<{
+  sourceId: string;
+  action: InvestigationRelationReviewAction;
+  before: readonly InvestigationRelation[];
+  after: readonly InvestigationRelation[];
+}>;
+export type InvestigationRelationReview = Readonly<{
+  phase: InvestigationRelationReviewPhase;
+  sources: readonly InvestigationRelationReviewSource[];
+}>;
+
 export type InvestigationCandidatePublishResult = Readonly<{
   changed: boolean;
   diagnostics: InvestigationDiagnostic[];
@@ -128,6 +144,7 @@ export type InvestigationCandidatePublishResult = Readonly<{
   indexPath: string;
   mutation?: InvestigationMutationDiagnostic;
   preflight: boolean;
+  relationReview?: InvestigationRelationReview;
   warnings: string[];
 }>;
 
@@ -210,10 +227,20 @@ export type InvestigationIndexQueryOptions = {
   workspaceRoot: string;
 };
 
+export type InvestigationFilterRelation = Readonly<{
+  sourceId: string;
+  type: InvestigationRelationType;
+  target: string;
+  summary?: string;
+}>;
+export type InvestigationRelationFilterContext = Readonly<{
+  filterRelations?: readonly InvestigationFilterRelation[];
+}>;
 export type InvestigationIndexQueryEntry = Readonly<{
   id: string;
   state: InvestigationIndexState;
-}>;
+}> &
+  InvestigationRelationFilterContext;
 
 export type InvestigationListTagFacet = Readonly<{
   count: number;
@@ -284,7 +311,8 @@ export type InvestigationContentSearchEntry = Readonly<{
   sourcePath: string;
   tags: readonly string[];
   title: string;
-}>;
+}> &
+  InvestigationRelationFilterContext;
 export const investigationMetadataSearchFields = [
   "id",
   "name",
@@ -308,7 +336,8 @@ export type InvestigationMetadataSearchEntry = Readonly<{
   sourcePath: string;
   tags: readonly string[];
   title: string;
-}>;
+}> &
+  InvestigationRelationFilterContext;
 export type InvestigationSearchEntry =
   | InvestigationContentSearchEntry
   | InvestigationMetadataSearchEntry;
@@ -425,6 +454,7 @@ export type InvestigationRelationReplacement = Readonly<{
 
 export type InvestigationRelationSetOptions = {
   investigationsDir?: string;
+  preflight?: boolean;
   replacements: readonly InvestigationRelationReplacement[];
   workspaceRoot: string;
 };
@@ -435,6 +465,8 @@ export type InvestigationRelationSetResult = Readonly<{
   errors: string[];
   indexPath: string;
   mutation?: InvestigationMutationDiagnostic;
+  preflight: boolean;
+  relationReview?: InvestigationRelationReview;
   sourceIds: string[];
 }>;
 

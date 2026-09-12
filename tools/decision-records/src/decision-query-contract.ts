@@ -101,6 +101,20 @@ export type IndexedDecisionRecord = {
   tags: DecisionTag[];
 };
 
+export type DecisionFilterRelation = Readonly<{
+  sourceId: DecisionId;
+  summary?: string;
+  target: DecisionId;
+  type: DecisionRelationType;
+}>;
+
+export type DecisionRelationFilterContext = Readonly<{
+  filterRelations?: readonly DecisionFilterRelation[];
+}>;
+
+export type DecisionFilteredRecord = IndexedDecisionRecord &
+  DecisionRelationFilterContext;
+
 export type CandidateDecisionRecord = {
   alignment: null;
   bodyReady: boolean;
@@ -113,7 +127,7 @@ export type CandidateDecisionRecord = {
   tags: DecisionTag[];
 };
 
-export type DecisionContentSearchRecord = IndexedDecisionRecord & {
+export type DecisionContentSearchRecord = DecisionFilteredRecord & {
   previews: readonly FileTextSearchPreview[];
 };
 
@@ -133,7 +147,7 @@ export type DecisionMetadataMatchedRelation = Readonly<{
   target: DecisionId;
   type: DecisionRelationEdge["type"];
 }>;
-export type DecisionMetadataSearchRecord = IndexedDecisionRecord & {
+export type DecisionMetadataSearchRecord = DecisionFilteredRecord & {
   matchedFields: readonly DecisionMetadataSearchField[];
   matchedRelations: readonly DecisionMetadataMatchedRelation[];
 };
@@ -200,7 +214,7 @@ export type DecisionQuerySuccess =
       facets: DecisionListFacets;
       limit: number;
       offset: number;
-      records: IndexedDecisionRecord[];
+      records: DecisionFilteredRecord[];
       total: number;
     })
   | (QuerySuccessBase & {

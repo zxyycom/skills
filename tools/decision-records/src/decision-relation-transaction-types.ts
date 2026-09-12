@@ -30,6 +30,18 @@ export type PreparedSuccessor =
       record: EstablishedDecisionRecord;
     });
 
+export type DecisionRelationReview = Readonly<{
+  phase: "preflight" | "committed";
+  sources: readonly DecisionRelationReviewSource[];
+}>;
+
+export type DecisionRelationReviewSource = Readonly<{
+  action: "establish" | "replace" | "unchanged";
+  after: readonly DecisionRelation[];
+  before: readonly DecisionRelation[];
+  sourceId: DecisionId;
+}>;
+
 export type DecisionRelationGraphPlan = {
   archivedPredecessors: EstablishedDecisionRecord[];
   discardedRecord: DiscardableDecisionRecord | null;
@@ -43,6 +55,7 @@ export type DecisionRelationTransactionPreparation =
       archivedPredecessors: EstablishedDecisionRecord[];
       changes: DecisionFileChange[];
       discardedRecord: DiscardableDecisionRecord | null;
+      relationReview: DecisionRelationReview;
       status: "ok";
       successors: PreparedSuccessor[];
     };

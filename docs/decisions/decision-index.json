@@ -98,6 +98,7 @@
       "260909-write-explanatory-relation-summaries": "sha256:ece110950bc41206998c14673cd9f3e88592c176feeeaa0e317352bad9d180ff",
       "260911-block-code-quality-metric-findings": "sha256:88c2f80efad6f4913adf1160e6f715a21209199a5190dd2968081097f7abb526",
       "260912-isolate-release-version-control-resource-boundary": "sha256:a731162b20abf3095656a84cc5ef872af15e4066898b95e18fd7fd5ea7112b14",
+      "260912-separate-relation-summary-consumption-by-reading-task": "sha256:53cb822365576b15ff3e1797fb4e751bf82e62b83fe0d81e6e0c5a964f39c847",
       "activate-release-gate-checks-by-tag": "sha256:02819304803eade140cd3adb2472a368c290f639acc7998f0d54bc20cecd228e",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -2117,6 +2118,22 @@
           "summary": "为 Git 子进程密集测试增加独立调度例外"
         }
       ]
+    },
+    "260912-separate-relation-summary-consumption-by-reading-task": {
+      "name": "separate-relation-summary-consumption-by-reading-task",
+      "sourcePath": "separate-relation-summary-consumption-by-reading-task.md",
+      "title": "按读取任务分配关系摘要消费",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-12T07:21:43Z",
+      "purpose": "让关系筛选、写入核对与演进阅读各取得足够边说明，同时保持其他入口职责清楚。",
+      "background": "摘要可选且历史覆盖有限；不同入口需要不同粒度的边信息，不能把记录视图误作边证据。",
+      "decision": "Decision 与 Investigation 按读取任务提供边说明，并保留完整正文、数据和公开 API 的既有边界。",
+      "tags": [
+        "decision-records",
+        "investigation-report"
+      ],
+      "relations": []
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

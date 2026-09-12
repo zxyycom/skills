@@ -11,10 +11,8 @@ import {
   defaultInvestigationIndexPath
 } from "./query-results.ts";
 import { prepareSearch } from "./query-options.ts";
-import {
-  searchInvestigationMetadata,
-  searchSnapshot
-} from "./query-search-metadata.ts";
+import { searchInvestigationMetadata } from "./query-search-metadata.ts";
+import { searchSnapshot } from "./query-search-content.ts";
 import type { InvestigationSearchResult } from "./types.ts";
 
 export async function searchInvestigationReports(

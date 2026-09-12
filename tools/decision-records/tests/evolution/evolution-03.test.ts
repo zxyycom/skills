@@ -49,6 +49,8 @@ test("evolve rejects archived sources without alignment before mutation", () =>
       ]);
       assert.equal(rejected.exitCode, 1);
       assert.equal(rejected.stdout, "");
+      assert.doesNotMatch(rejected.stdout, /Relation review/);
+      assert.equal(rejected.stdout, "");
       assert.match(
         rejected.stderr,
         /decision-records\.lifecycle-preflight-failed/
@@ -100,6 +102,15 @@ test("activate rejects relation replacement for established decisions", () =>
 test("evolve performs a closed split with independently aligned successors", () =>
   withFixtureWorkspace("evolve-closed-split", async (workspaceRoot) => {
     const established = await establishClosedSplit(workspaceRoot);
+    assert.match(established.output, /Relation review \(committed\):/);
+    assert.match(
+      established.output,
+      /keep-current-split-slice action=establish/
+    );
+    assert.match(
+      established.output,
+      /keep-future-split-slice action=establish/
+    );
     const index = await readIndex(established.indexPath);
     const coarseState = findIndexEntry(index, established.coarseRelativePath);
     const alignedState = findIndexEntry(index, established.alignedRelativePath);

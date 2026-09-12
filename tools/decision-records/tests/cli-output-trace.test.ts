@@ -88,13 +88,21 @@ test("Decision trace defaults to a stable text graph with event context and boun
   );
   assert.match(output, /^L0\* \[split-a\] active\/aligned 方向 A$/m);
   assert.match(output, /^L1\* \[original\] archived\/aligned 原有方向$/m);
+  assert.match(output, /only describe edges inside this trace slice/);
+  assert.match(
+    output,
+    /^    \[split-a\] --拆分--> \[original\]: "承接查询责任"$/m
+  );
   assert.match(output, /^  split-successors:$/m);
   assert.match(output, /^    \* \[split-a\] trace active\/aligned 方向 A$/m);
   assert.match(output, /^    ~ \[split-b\] context active\/aligned 方向 B$/m);
-  assert.match(output, /^      detail: "承接查询责任"$/m);
+  assert.match(
+    output,
+    /^      \[split-b\] --拆分--> \[original\]: \[无摘要\]$/m
+  );
   assert.doesNotMatch(
     output,
-    /\* \[original\] trace archived\/aligned 原有方向\n      detail:/
+    /\* \[original\] trace archived\/aligned 原有方向\n      \[original\] --/
   );
   assert.match(output, /^coverage: incomplete stoppedBy=max-records$/m);
   assert.match(
@@ -113,7 +121,7 @@ test("Decision trace --json preserves the stable envelope", () => {
   assert.deepEqual(output.limits, { depth: "all", maxRecords: 3 });
 });
 
-test("Decision trace keeps event summaries with their relation source", () => {
+test("Decision trace keeps context event edges with their source and leaves trace edges in node blocks", () => {
   const trace = traceResult();
   const output = (() => {
     let stdout = "";
@@ -160,19 +168,58 @@ test("Decision trace keeps event summaries with their relation source", () => {
   })();
   assert.match(
     output,
-    /\* \[merge-source\] trace active\/aligned 归并来源\n      detail: "归并说明"/
+    /\[merge-source\] --归并--> \[merge-target\]: "归并说明"/
   );
   assert.doesNotMatch(
     output,
-    /~ \[merge-target\] context active\/aligned 归并目标\n      detail:/
+    /~ \[merge-target\] context active\/aligned 归并目标\n      \[merge-target\] --/
   );
   assert.match(
     output,
-    /\* \[reallocation-source\] trace active\/aligned 重划来源\n      detail: "重划说明一"\n      detail: "重划说明二"/
+    /\[reallocation-source\] --重划--> \[reallocation-target\]: "重划说明一"/
   );
   assert.doesNotMatch(
     output,
-    /~ \[reallocation-target\] context active\/aligned 重划目标\n      detail:/
+    /~ \[reallocation-target\] context active\/aligned 重划目标\n      \[reallocation-target\] --/
+  );
+});
+
+test("Decision trace retains every reallocation edge from a context source", () => {
+  let output = "";
+  printDecisionTrace(
+    {
+      anchorId: "x" as never,
+      contextIds: ["a" as never, "b" as never, "y" as never],
+      coverage: { complete: true, stoppedBy: [] },
+      direction: "both",
+      entries: {
+        a: entry("前序 A", []),
+        b: entry("前序 B", []),
+        x: entry("主体 X", [{ target: "a" as never, type: "重划" }]),
+        y: entry("上下文 Y", [
+          {
+            summary: 'Y "承接" A',
+            target: "a" as never,
+            type: "重划"
+          },
+          { summary: "Y 承接 B", target: "b" as never, type: "重划" }
+        ])
+      },
+      frontier: [],
+      limits: { depth: 1, maxRecords: 4 },
+      traceIds: ["x" as never]
+    },
+    false,
+    {
+      stderr: () => undefined,
+      stdout: (text) => {
+        output += text;
+      }
+    }
+  );
+  assert.match(
+    output,
+    /\[y\] --重划--> \[a\]: "Y \\"承接\\" A"\n      \[y\] --重划--> \[b\]: "Y 承接 B"/
   );
 });
 

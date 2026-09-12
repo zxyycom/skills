@@ -8,8 +8,8 @@ Tags:
 - `investigation-report`
 
 Contract:
-- Investigation Trace 默认从既有选择结果渲染稳定终端关系图；显式 `--json` 保持稳定 JSON envelope。
+- Investigation Trace 默认从既有选择结果渲染稳定终端关系图；文本边展示 source、type、target、JSON 转义的摘要或缺省标记，并说明只展开切片内边；显式 `--json` 保持稳定 JSON envelope。
 
 Proves:
-- 默认图展示图层、普通前后继、拆分 context、summary 与受预算阻断的 coverage、frontier、blockedEvent，`--json` 仍返回 contextIds。
+- 默认图展示图层、普通前后继、拆分 context 的有向边、缺省标记与带引号摘要、受预算阻断的 coverage、frontier、blockedEvent，`--json` 仍保留原始 relation 和 contextIds。
 - 图层先按数值 depth 升序，再按成员 ID 稳定排列，因此词法更早的后继不会出现在 L0 anchor 之前。

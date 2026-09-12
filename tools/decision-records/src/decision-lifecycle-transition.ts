@@ -87,6 +87,7 @@ export function prepareActivation(
           record.sourcePath,
         prepared
       ),
+      relationReview: prepared.relationReview,
       status: "ok"
     };
   }
@@ -191,6 +192,7 @@ export function prepareEvolution(
           .join(", "),
       prepared
     ),
+    relationReview: prepared.relationReview,
     status: "ok"
   };
 }

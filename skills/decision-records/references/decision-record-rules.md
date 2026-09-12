@@ -153,6 +153,12 @@ relations:
 
 `--relation-summary <selector=summary>` 必须绑定同次完整 `--relation` 集合中的唯一 target；按首个 `=` 分隔，后续 `=` 属于摘要。`new` 同样按此规则绑定。仅提供摘要、重复绑定、目标未命中或与清空关系组合均拒绝。已建立关系通过完整 CLI 事务修订。
 
+新候选的 `activate` 与 `evolve` 以 `relationReview` 承接关系核对：
+
+- review 按规范 source ID 排列。每个 source 给出 `action`、同次准备读取的完整 `before` 和规范化完整 `after`；空集合为 `[]`。新候选的 action 恒为 `establish`，正式来源为 `replace` 或 `unchanged`。
+- renderer 只从这组 before/after 推导新增、移除及摘要新增、变更或移除。完整替换未提供摘要即清除旧摘要。
+- `--preflight` 返回 `phase: preflight` 的预计 review 且零写入；正式成功才返回 `phase: committed`。失败不附成功 review，预检不构成提交凭据。
+
 ## 维护范围与确认
 
 写入须在当前请求或生效项目规则授权的维护范围内；一般语义审查和委托内取舍由 agent 自行完成，新增记录或改变状态前说明将改变的判断和集合。超出范围、缺少关键事实或明确要求用户决定时再询问。候选正文、tags 及已建立记录不改变采用方向的编辑性修正可直接修改 Markdown；已建立记录的生命周期、alignment、关系、删除和身份更正通过 CLI 事务维护。历史来源的非法 alignment 只能按[维护恢复](maintenance-recovery.md#已建立-alignment-无效)取得字段修复授权后原位修复，不能假借生命周期事务。各工作区 mutation 共用集合锁，写前核对来源与相关版本状态，保护其他改动。
@@ -190,7 +196,11 @@ Markdown 是权威来源，索引保存已建立记录的定位、状态、非�
 - relation type 单独使用时匹配任一该类型直接边；与目标同用时，两者须命中同一条边。结构条件先于排序、分页和文本匹配。
 - `show` 由索引定位并确认目标 ID 后读取 Markdown；`trace` 从同一次受检索引快照派生默认终端关系图，使用 `--json` 时返回同一份 trace 查询成功结果的稳定 JSON 关系切片。后续操作继续使用完整 ID。
 
-`trace` 默认 `direction=both`、`depth=5`、`maxRecords=50`。有限深度可为非负安全整数，`--depth all` 不设深度限制；记录预算必须是正安全整数。默认终端图稳定显示 header、`L0/L1/...` trace 图层、关系或事件组、`* trace` 与 `~ context`；它不是旧的平铺文本或 Mermaid。不完整时在图尾显示 frontier 和 blockedEvent。`--json` 才输出同一份 trace 查询成功结果的稳定 JSON envelope，回显 `anchorId`、实际 direction 与 limits；无限深度在 `limits.depth` 中表示为 `"all"`。输出的 `traceIds` 是递归遍历成员，`contextIds` 只闭合一次已跨越的完整拆分、纯归并或重划事件；二者互斥，且并集与 `entries` 的键相同。entry 的 `relations` 永远是索引中的完整直接关系，切片外 target 仍是原始事实；存在的 `summary` 原样投影，缺失时省略，trace 不推断摘要。
+关系条件的查询结果另以可选 `filterRelations` 返回**导致该记录命中的完整边集合**。只有传入 `--related-to` 或 `--relation-type` 时才出现；它从本次筛选使用的同一来源快照投影，按 `(sourceId, type, target)` 去重并以 UTF-16 code-unit 词法序排列。前驱边由 anchor 指向结果，后继边由结果指向 anchor，both 取并集；type-only 选择结果来源的指定类型出边，组合条件必须命中同一条边。记录集合、排序、total 与分页不因该投影改变。该字段属于 Decision 内部 list/search 查询记录，不进入索引、Schema 或公开导出边界。
+
+搜索的文本证据与 `filterRelations` 分开：`matchedFields`、`matchedRelations` 只报告实际文本命中，`matchedRelations: none` 不否定关系筛选命中。CLI 默认每条预览最多三条命中边，`list --detail` 展开当前页全部命中边；领域查询结果保留完整集合。需要完整正文或完整直接关系时，继续用 `show` 读取来源记录。
+
+`trace` 默认 `direction=both`、`depth=5`、`maxRecords=50`。有限深度可为非负安全整数，`--depth all` 不设深度限制；记录预算必须是正安全整数。默认终端图稳定显示 header、`L0/L1/...` trace 图层、关系或事件组、`* trace` 与 `~ context`；它不是旧的平铺文本或 Mermaid。不完整时在图尾显示 frontier 和 blockedEvent。`--json` 才输出同一份 trace 查询成功结果的稳定 JSON envelope，回显 `anchorId`、实际 direction 与 limits；无限深度在 `limits.depth` 中表示为 `"all"`。输出的 `traceIds` 是递归遍历成员，`contextIds` 只闭合一次已跨越的完整拆分、纯归并或重划事件；二者互斥，且并集与 `entries` 的键相同。entry 的 `relations` 永远是索引中的完整直接关系，切片外 target 仍是原始事实；存在的 `summary` 原样投影，缺失时省略，trace 不推断摘要。终端图只展开两端都在切片内的边；已读取但缺少摘要显示 `[无摘要]`，摘要按 JSON 转义的完整单行文本显示。主体块承接其 source 边；复杂事件中 source 仅为 context 时，事件按边显示完整 source、type、target 与摘要，不能以匿名摘要代替。context 成员不递归扩展，且它与 trace 成员的边归属不改变 `coverage`、成员选择或 JSON。
 
 `coverage.complete` 只在请求方向未受深度或记录预算限制、且已接纳事件完整时为真。`stoppedBy` 与 `frontier` 说明尚未跨越的直接邻居；以 frontier 的 `fromId`、direction 和 `nextIds` 发起新查询，不能将它视为 cursor。记录预算阻断一个多记录事件时，`blockedEvent` 给出完整成员与最小 `requiredMaxRecords`；该事件没有部分接纳。普通单记录接纳受预算阻断时只形成 `max-records` frontier，不产生 `blockedEvent`。
 

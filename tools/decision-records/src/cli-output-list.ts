@@ -1,6 +1,7 @@
 import type { DecisionQuerySuccess } from "./decision-query-service.ts";
 import type { DecisionRecordsCliIo } from "./cli-io.ts";
 import { writeCliLine } from "./cli-output-writer.ts";
+import { printRelationFilterEvidence } from "./cli-output-relation-evidence.ts";
 
 type DecisionListSuccess = Extract<DecisionQuerySuccess, { command: "list" }>;
 
@@ -33,6 +34,7 @@ export function printDecisionListSuccess(
       writeCliLine(io.stdout, "  tags: " + record.tags.join(", "));
       writeCliLine(io.stdout, "  title: " + record.projection.title);
       writeCliLine(io.stdout, "  purpose: " + record.projection.purpose);
+      printRelationFilterEvidence(record, true, "  ", io);
     }
   } else {
     for (const record of result.records) {
@@ -41,6 +43,7 @@ export function printDecisionListSuccess(
         io.stdout,
         `- ${record.decisionId} ${timestamp} ${record.status}/${record.alignment} [${record.tags.join(", ")}] ${record.projection.title}`
       );
+      printRelationFilterEvidence(record, false, "  ", io);
     }
   }
   printDecisionListWindow(result, io);

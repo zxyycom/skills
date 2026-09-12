@@ -14,7 +14,7 @@ import type {
   IndexedDecisionRecord
 } from "./decision-query-contract.ts";
 import { indexedRecords, indexFailure } from "./decision-query-records.ts";
-import { resolveDecisionRelationIds } from "./decision-query-relation-filter.ts";
+import { filterDecisionRelationRecords } from "./decision-query-relation-filter.ts";
 
 type PreparedDecisionListRequest =
   | { createdAtFrom: number | null; createdAtTo: number | null; status: "ok" }
@@ -35,18 +35,12 @@ export async function listDecisionRecords(
   if (all.status === "error")
     return indexFailure(all, context.indexRelativePath);
   const allRecords = indexedRecords(all.value);
-  const relationFilter = resolveDecisionRelationIds(allRecords, request);
+  const relationFilter = filterDecisionRelationRecords(allRecords, request);
   if (relationFilter.status === "error") return relationFilter.failure;
-  const matching = allRecords
+  const matching = relationFilter.records
     .map(timedDecisionListRecord)
     .filter(({ createdAtMilliseconds, record }) =>
-      matchesListFilters(
-        record,
-        createdAtMilliseconds,
-        request,
-        prepared,
-        relationFilter.decisionIds
-      )
+      matchesListFilters(record, createdAtMilliseconds, request, prepared)
     )
     .sort(compareRecentDecisionRecords)
     .map(({ record }) => record);
@@ -67,14 +61,12 @@ function matchesListFilters(
   record: IndexedDecisionRecord,
   createdAtMilliseconds: number,
   request: Extract<DecisionQueryRequest, { command: "list" }>,
-  prepared: Extract<PreparedDecisionListRequest, { status: "ok" }>,
-  relationIds: ReadonlySet<string> | null
+  prepared: Extract<PreparedDecisionListRequest, { status: "ok" }>
 ): boolean {
   return (
     listStatusMatches(record, request) &&
     listAlignmentMatches(record, request) &&
     listTagsMatch(record, request) &&
-    listRelationMatches(record, relationIds) &&
     listTimestampMatches(createdAtMilliseconds, prepared)
   );
 }
@@ -95,12 +87,6 @@ function listTagsMatch(
   request: Extract<DecisionQueryRequest, { command: "list" }>
 ): boolean {
   return request.tags.every((tag) => record.tags.includes(tag));
-}
-function listRelationMatches(
-  record: IndexedDecisionRecord,
-  relationIds: ReadonlySet<string> | null
-): boolean {
-  return relationIds === null || relationIds.has(record.decisionId);
 }
 function listTimestampMatches(
   createdAtMilliseconds: number,

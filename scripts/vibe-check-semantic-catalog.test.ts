@@ -57,7 +57,7 @@ test("semantic Gate catalog matches its aggregate native entry points", async ()
   const semanticFiles = expectedSemanticGateChecks.flatMap(
     ([, , , files]) => files
   );
-  assert.equal(semanticFiles.length, 78);
+  assert.equal(semanticFiles.length, 79);
   assert.equal(new Set(semanticFiles).size, semanticFiles.length);
   for (const tool of [
     "change-plan",

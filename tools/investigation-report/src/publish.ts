@@ -38,6 +38,7 @@ import {
   resolveInvestigationsDirectory
 } from "./report-path.ts";
 import type { InvestigationCandidatePublishResult } from "./types.ts";
+import { establishedRelationReview } from "./relation-review.ts";
 
 export async function publishInvestigationCandidates(
   input: unknown
@@ -81,6 +82,11 @@ export async function publishInvestigationCandidatesWithWriter(
     return prepared.status === "ok"
       ? result(selectedOptions, false, [], {
           indexPath,
+          relationReview: establishedRelationReview(
+            "preflight",
+            prepared.value.candidateSources,
+            prepared.value.states
+          ),
           warnings: prepared.warnings
         })
       : result(selectedOptions, false, prepared.errors, {
@@ -219,6 +225,11 @@ async function publishPreparedCollection(options: {
       [],
       {
         indexPath: options.preparation.indexPath,
+        relationReview: establishedRelationReview(
+          "committed",
+          options.preparation.candidateSources,
+          options.preparation.states
+        ),
         warnings: [
           ...options.preparation.warnings,
           ...(written?.warnings ?? [])

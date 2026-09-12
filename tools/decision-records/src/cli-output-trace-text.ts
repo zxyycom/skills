@@ -8,6 +8,7 @@ import type {
   TraceRelation
 } from "./cli-output-trace-types.ts";
 import { compareTraceText } from "./cli-output-trace-types.ts";
+import { relationSummaryText } from "./cli-output-relation-evidence.ts";
 
 export function printDecisionTextTrace(
   trace: DecisionTraceResult,
@@ -42,6 +43,10 @@ function printHeader(
       trace.coverage.complete +
       " records=" +
       Object.keys(trace.entries).length
+  );
+  writeCliLine(
+    io.stdout,
+    "Relations below only describe edges inside this trace slice; read the source Decision Markdown or use --json for complete direct relations."
   );
 }
 
@@ -112,7 +117,7 @@ function printPredecessors(
   if (relations.length === 0) return;
   writeCliLine(io.stdout, "  predecessors:");
   relations.forEach((relation) =>
-    writeCliLine(io.stdout, "    " + relationText(relation))
+    writeCliLine(io.stdout, "    " + relationText(id, relation))
   );
 }
 
@@ -129,7 +134,7 @@ function printSuccessors(
     const marker = traceIds.has(sourceId) ? "*" : "~";
     writeCliLine(
       io.stdout,
-      "    " + marker + " [" + sourceId + "] " + relationText(relation)
+      "    " + marker + " " + relationText(sourceId, relation)
     );
   });
 }
@@ -147,21 +152,22 @@ function directSuccessors(trace: DecisionTraceResult, id: string): Successor[] {
 function compareSuccessors(left: Successor, right: Successor): number {
   return left.sourceId === right.sourceId
     ? compareTraceText(
-        relationText(left.relation),
-        relationText(right.relation)
+        relationText(left.sourceId, left.relation),
+        relationText(right.sourceId, right.relation)
       )
     : compareTraceText(left.sourceId, right.sourceId);
 }
 
-function relationText(relation: TraceRelation): string {
+function relationText(sourceId: string, relation: TraceRelation): string {
   return (
+    "[" +
+    sourceId +
+    "] --" +
     relation.type +
-    " [" +
+    "--> [" +
     relation.target +
-    "]" +
-    (relation.summary === undefined
-      ? ""
-      : " " + JSON.stringify(relation.summary))
+    "]: " +
+    relationSummaryText(relation.summary)
   );
 }
 
@@ -210,42 +216,41 @@ function printEventMember(
       " " +
       entry.title
   );
-  printEventSummary(context.trace, event, id, io);
+  printContextEventRelations(context, event, id, io);
 }
 
-function printEventSummary(
-  trace: DecisionTraceResult,
+function printContextEventRelations(
+  context: TraceRenderContext,
   event: TraceEvent,
   id: string,
   io: DecisionRecordsCliIo
 ): void {
-  eventSummaries(trace, event, id).forEach((summary) => {
-    writeCliLine(io.stdout, "      detail: " + JSON.stringify(summary));
-  });
+  if (!context.contextIds.has(id)) return;
+  eventRelations(context.trace, event, id).forEach((relation) =>
+    writeCliLine(io.stdout, "      " + relationText(id, relation))
+  );
 }
 
-function eventSummaries(
+function eventRelations(
   trace: DecisionTraceResult,
   event: TraceEvent,
   id: string
-): readonly string[] {
+): readonly TraceRelation[] {
   const entry = trace.entries[id];
   if (entry === undefined) return [];
   const related = new Set(event.recordIds);
   const relationType = eventRelationType(event);
-  return entry.relations.flatMap((relation) =>
-    summaryForEventRelation(relation, relationType, related)
+  return entry.relations.filter((relation) =>
+    isEventRelation(relation, relationType, related)
   );
 }
 
-function summaryForEventRelation(
+function isEventRelation(
   relation: TraceRelation,
   relationType: "归并" | "拆分" | "重划",
   related: ReadonlySet<string>
-): readonly string[] {
-  if (relation.type !== relationType || !related.has(relation.target))
-    return [];
-  return relation.summary === undefined ? [] : [relation.summary];
+): boolean {
+  return relation.type === relationType && related.has(relation.target);
 }
 
 function eventRelationType(event: TraceEvent): "归并" | "拆分" | "重划" {

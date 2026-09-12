@@ -8,10 +8,8 @@ import {
   restoreOriginalTexts
 } from "./relation-transaction-support.ts";
 import { diagnosticFromError } from "./diagnostics.ts";
-import type {
-  CandidateRelationContext,
-  RelationTransactionOptions
-} from "./relation-transaction-preparation.ts";
+import type { CandidateRelationContext } from "./relation-transaction-candidate.ts";
+import type { RelationTransactionOptions } from "./relation-transaction-preparation.ts";
 
 export async function publishRelationCandidate(
   options: RelationTransactionOptions,
@@ -29,7 +27,9 @@ export async function publishRelationCandidate(
       nextSourceById,
       writtenPaths
     );
-    return relationResult(true, context.sourceIds, options.indexPath, []);
+    return relationResult(true, context.sourceIds, options.indexPath, [], {
+      relationReview: context.relationReview
+    });
   } catch (error) {
     return await relationPublicationFailure(
       options,

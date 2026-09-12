@@ -8,7 +8,8 @@ Tags:
 
 Contract:
 - `list` 与 `search` 在各自查询 snapshot 中按一个目标的直接前序、后继或两者筛选；relation type 与目标同现时匹配同一条边，且关系筛选先于 list 分页或文本匹配。
+- 筛选依据与文本命中分别承接：content、metadata 与 fallback 都投影同次 snapshot 的 filter evidence，metadata `matchedRelations` 只保留实际摘要文本命中。
 
 Proves:
 - API 与 CLI 分别返回三种方向和默认双向的直接结果；默认双向结果按 formedAt 倒序后再应用 offset/limit，保留 tag、时间与 total 语义，并拒绝无目标 direction 或缺失 selector。
-- content fallback 从单次验证内存 snapshot 计算关系；metadata 保持只读索引，结构关系筛选不伪装为 `matchedRelations` 文本证据。
+- metadata 搜索在 `matchedRelations` 为空时仍显示 filter evidence；同一中心边同时作为摘要文本命中和筛选依据时，CLI 保留两个独立 evidence 块，content fallback 使用同次验证内存 snapshot。

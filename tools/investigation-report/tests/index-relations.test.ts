@@ -30,7 +30,9 @@ test("list and search combine direct relation selectors with existing query boun
       {
         formedAt: "2026-08-28T11:00:00+00:00",
         id: "center",
-        relations: [{ target: "predecessor", type: "补充" }]
+        relations: [
+          { target: "predecessor", type: "补充", summary: "center evidence" }
+        ]
       },
       {
         formedAt: "2026-08-28T12:00:00+00:00",
@@ -135,6 +137,20 @@ test("list and search combine direct relation selectors with existing query boun
       content.entries.map((entry) => entry.id),
       ["predecessor", "successor"]
     );
+    assert.deepEqual(
+      content.entries.map((entry) => entry.filterRelations),
+      [
+        [
+          {
+            sourceId: "center",
+            target: "predecessor",
+            type: "补充",
+            summary: "center evidence"
+          }
+        ],
+        [{ sourceId: "successor", target: "center", type: "补充" }]
+      ]
+    );
     const metadata = await searchInvestigationReports({
       in: "metadata",
       query: "relation needle",
@@ -149,6 +165,20 @@ test("list and search combine direct relation selectors with existing query boun
       assert.ok("matchedRelations" in entry);
       assert.deepEqual(entry.matchedRelations, []);
     }
+    assert.deepEqual(
+      metadata.entries.map((entry) => entry.filterRelations),
+      [
+        [
+          {
+            sourceId: "center",
+            target: "predecessor",
+            type: "补充",
+            summary: "center evidence"
+          }
+        ],
+        [{ sourceId: "successor", target: "center", type: "补充" }]
+      ]
+    );
     await fs.rm(`${root}/docs/investigations/investigation-index.json`);
     const fallback = await searchInvestigationReports({
       direction: "both",
@@ -176,6 +206,58 @@ test("list and search combine direct relation selectors with existing query boun
     ]);
     assert.equal(cli.status, 0, cli.stderr);
     assert.match(cli.stdout, /^- predecessor /mu);
+    assert.match(
+      cli.stdout,
+      /center --补充--> predecessor: "center evidence"/u
+    );
     assert.doesNotMatch(cli.stdout, /^- successor /mu);
+
+    const searchCli = await runInvestigationCli(root, [
+      "search",
+      "relation needle",
+      "--related-to",
+      "center"
+    ]);
+    assert.equal(searchCli.status, 0, searchCli.stderr);
+    assert.match(
+      searchCli.stdout,
+      /relation-filter evidence:[\s\S]*center --补充--> predecessor: "center evidence"/u
+    );
+    assert.match(searchCli.stdout, /successor --补充--> center: \[无摘要\]/u);
+
+    const dualEvidence = await searchInvestigationReports({
+      in: "metadata",
+      query: "center evidence",
+      relatedTo: "predecessor",
+      workspaceRoot: root
+    });
+    assert.deepEqual(
+      dualEvidence.entries.map((entry) => entry.id),
+      ["center"]
+    );
+    const dualEntry = dualEvidence.entries[0];
+    assert.ok(dualEntry !== undefined && "matchedRelations" in dualEntry);
+    assert.deepEqual(dualEntry.matchedRelations, [
+      { summary: "center evidence", target: "predecessor", type: "补充" }
+    ]);
+    assert.deepEqual(dualEntry.filterRelations, [
+      {
+        sourceId: "center",
+        target: "predecessor",
+        type: "补充",
+        summary: "center evidence"
+      }
+    ]);
+    const dualCli = await runInvestigationCli(root, [
+      "search",
+      "center evidence",
+      "--in",
+      "metadata",
+      "--related-to",
+      "predecessor"
+    ]);
+    assert.equal(dualCli.status, 0, dualCli.stderr);
+    assert.match(dualCli.stdout, /matchedRelations:[\s\S]*center evidence/u);
+    assert.match(dualCli.stdout, /relation-filter evidence:/u);
   });
 });

@@ -239,6 +239,8 @@ export function relationResult(
   options: Readonly<{
     diagnostics?: readonly InvestigationDiagnostic[];
     mutation?: InvestigationMutationDiagnostic;
+    preflight?: boolean;
+    relationReview?: import("./types.ts").InvestigationRelationReview;
   }> = {}
 ): InvestigationRelationSetResult {
   const sortedErrors = uniqueSorted(errors);
@@ -261,6 +263,10 @@ export function relationResult(
     errors: sortedErrors,
     indexPath,
     ...(options.mutation === undefined ? {} : { mutation: options.mutation }),
+    preflight: options.preflight === true,
+    ...(options.relationReview === undefined
+      ? {}
+      : { relationReview: options.relationReview }),
     sourceIds: [...sourceIds].sort(compareText)
   };
 }

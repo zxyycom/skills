@@ -70,6 +70,7 @@ function printEntries(
       writeLine(io.stdout, `  title: ${entry.state.title}`);
       writeLine(io.stdout, `  question: ${entry.state.question}`);
       writeLine(io.stdout, `  tags: ${entry.state.tags.join(", ")}`);
+      printRelationFilterEvidence(entry.filterRelations, options.detail, io);
     }
     return;
   }
@@ -78,6 +79,7 @@ function printEntries(
       io.stdout,
       `- ${entry.id} ${entry.state.formedAt} [${entry.state.tags.join(", ")}] ${entry.state.title}`
     );
+    printRelationFilterEvidence(entry.filterRelations, false, io);
   }
 }
 
@@ -169,4 +171,24 @@ function writeLine(writer: (text: string) => void, text: string): void {
 
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function printRelationFilterEvidence(
+  relations: import("./types.ts").InvestigationIndexQueryEntry["filterRelations"],
+  detail: boolean,
+  io: InvestigationListOutputIo
+): void {
+  if (relations === undefined) return;
+  writeLine(io.stdout, "  relation-filter evidence:");
+  const visible = detail ? relations : relations.slice(0, 3);
+  for (const relation of visible)
+    writeLine(
+      io.stdout,
+      `    - ${relation.sourceId} --${relation.type}--> ${relation.target}: ${relation.summary === undefined ? "[无摘要]" : JSON.stringify(relation.summary)}`
+    );
+  if (!detail && relations.length > visible.length)
+    writeLine(
+      io.stdout,
+      `    +${relations.length - visible.length} more matching relations`
+    );
 }

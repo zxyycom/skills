@@ -21,6 +21,7 @@ import {
 } from "./decision-state-index.ts";
 import type {
   DecisionContentSearchRecord,
+  DecisionFilteredRecord,
   DecisionQueryRequest,
   DecisionQueryResult,
   DecisionSearchSnapshot,
@@ -58,9 +59,12 @@ export async function searchDecisionContent(
       }
     });
     const records: DecisionContentSearchRecord[] = [];
+    const selectedBySourcePath = new Map(
+      selected.records.map((record) => [record.sourcePath, record])
+    );
     for (const hit of searched.hits) {
       const record = searchedDecisionRecord(
-        snapshot.value,
+        selectedBySourcePath,
         hit.sourcePath as DecisionSourcePath,
         hit.previews
       );
@@ -84,11 +88,11 @@ export async function searchDecisionContent(
 }
 
 function searchedDecisionRecord(
-  snapshot: DecisionSearchSnapshot,
+  recordsBySourcePath: ReadonlyMap<DecisionSourcePath, DecisionFilteredRecord>,
   sourcePath: DecisionSourcePath,
   previews: DecisionContentSearchRecord["previews"]
 ): DecisionContentSearchRecord | DecisionApplicationFailure {
-  const record = snapshot.sourcePathToRecord.get(sourcePath);
+  const record = recordsBySourcePath.get(sourcePath);
   if (record !== undefined) return { ...record, previews };
   return decisionFailure([
     decisionDiagnostic({
