@@ -5,6 +5,7 @@ import {
 import { type DecisionHistoryBaseline } from "./decision-history-baseline.ts";
 import {
   activationRelationTransactionRequest,
+  evolutionRelationTransactionRequest,
   prepareActivation,
   prepareEvolution,
   prepareMarkAligned
@@ -24,6 +25,7 @@ import {
   type DecisionAlignment,
   type DecisionId,
   type DecisionRelationOverride,
+  type DecisionRelationOverrideGroup,
   type DecisionScan,
   type DecisionSuccessor
 } from "./types.ts";
@@ -43,6 +45,7 @@ export type DecisionLifecycleRequest =
       deleteRecordedDecision: boolean;
       keepUnrecordedHistory: boolean;
       relationOverride: DecisionRelationOverride;
+      relationOverrideGroups: readonly DecisionRelationOverrideGroup[];
       successors: readonly DecisionSuccessor[];
     }
   | {
@@ -81,10 +84,10 @@ export function requiresDecisionHistoryBaseline(
       );
     }
     case "evolve":
-      return decisionRelationTransactionRequiresHistoryBaseline(scan, {
-        ...request,
-        kind: "evolve"
-      });
+      return decisionRelationTransactionRequiresHistoryBaseline(
+        scan,
+        evolutionRelationTransactionRequest(request)
+      );
     default:
       return false;
   }

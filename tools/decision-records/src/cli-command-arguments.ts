@@ -12,6 +12,7 @@ import {
   decisionRelationOverride,
   requiredDecisionAlignment
 } from "./cli-option-parsers.ts";
+import { evolveRelationOverridesForCommand } from "./cli-evolve-relation-groups.ts";
 
 const decisionListDefaultLimit = 10;
 
@@ -220,7 +221,7 @@ function evolveCommandArgs(
     deleteRecordedDecision,
     keepUnrecordedHistory,
     preflight,
-    relationOverride: decisionRelationOverride(options),
+    ...evolveRelationOverridesForCommand(command),
     successors
   };
 }

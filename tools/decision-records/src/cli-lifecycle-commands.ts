@@ -69,6 +69,7 @@ export async function runEvolve(
           deleteRecordedDecision: args.deleteRecordedDecision,
           keepUnrecordedHistory: args.keepUnrecordedHistory,
           relationOverride: args.relationOverride,
+          relationOverrideGroups: args.relationOverrideGroups,
           successors: args.successors
         },
         io

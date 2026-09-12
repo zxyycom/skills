@@ -7,6 +7,7 @@ import {
   parseProjectionText,
   parseSingleDecisionId
 } from "./cli-option-parsers.ts";
+import { collectEvolveRelationEvents } from "./cli-evolve-relation-groups.ts";
 import {
   createClearRelationsOption,
   createDecisionRelationOption,
@@ -198,13 +199,6 @@ function registerEvolveCommand(
         .argParser(parseDecisionSuccessor)
         .makeOptionMandatory()
     )
-    .addOption(
-      createDecisionRelationOption(
-        "Replace every selected successor's complete relation list with one final direct predecessor relation. Repeat for the complete replacement."
-      )
-    )
-    .addOption(createDecisionRelationSummaryOption())
-    .addOption(createClearRelationsOption())
     .addOption(createKeepUnrecordedHistoryOption())
     .addOption(createPreflightOption())
     .addOption(
@@ -217,6 +211,32 @@ function registerEvolveCommand(
       "--delete-recorded-decision",
       "Confirm deletion when the discarded Decision ID has entered Git HEAD."
     );
+  evolve
+    .addOption(
+      new Option(
+        "--relations-for <successor-selector>",
+        "Start one complete relation replacement for this selected successor; following relation options belong to this group until the next --relations-for."
+      )
+    )
+    .addOption(
+      new Option(
+        "--relation <type=decision-selector>",
+        "Declare one final direct predecessor relation in the current --relations-for group, or replace every selected successor when no group is used."
+      )
+    )
+    .addOption(
+      new Option(
+        "--relation-summary <decision-selector=summary>",
+        "Attach one optional summary to a relation in the current group or the ungrouped complete replacement."
+      )
+    )
+    .addOption(
+      new Option(
+        "--clear-relations",
+        "Replace the current group's complete relation list with an explicit empty set, or clear every selected successor when no group is used."
+      )
+    );
+  collectEvolveRelationEvents(evolve);
   evolve.action(() => execute("evolve", evolve));
 }
 

@@ -92,6 +92,7 @@
       "DECISION-CLI-DISCARD-RECORDED-FLAG-001": "sha256:d8453e23a642fa580a6c57fd5297f2ef48a35a16aab3fb1e82739ca1c30cbafd",
       "DECISION-CLI-EVOLVE-HELP-001": "sha256:7ab407154de3a6d04c260516ed2e1083e62896ad2aa4de8131bcdb8a1fa352ff",
       "DECISION-CLI-EVOLVE-RECORDED-FLAG-001": "sha256:51659405be9fade4b1167817f8d37d974b7b7d2f499f12eb5d67e4b1c004604e",
+      "DECISION-CLI-EVOLVE-RELATION-GROUPS-001": "sha256:18fa0b083a92af31edc0cf91a8b120583a2ecfa246d5f803ed70a7d7de2ebbc6",
       "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001": "sha256:26b53449b744bda8ec224433f18551a2eebce5cfc4b31bab210f5d44ab318414",
       "DECISION-CLI-LIFECYCLE-PREFLIGHT-001": "sha256:b8afc613e243577299daa5435dfafe8e04861e8a26d5ec2beeea8eef83e10a51",
       "DECISION-CLI-MARK-ALIGNED-HELP-001": "sha256:f76b75da87f071fd5d109e0d471c2c6d530e57bd67e9ff8a3fcd62cd485ffb8c",
@@ -135,6 +136,14 @@
       "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001": "sha256:64c521698bf88741054939cff22d6b852678e44c41acc16fcdcb0e58ae6dea6f",
       "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001": "sha256:23d372855a9053efd3d6f5b5d587dde8c97f4ddda03f56d00ac2e6aed99af5de",
       "DECISION-EVOLVE-ESTABLISHED-REPLACE-001": "sha256:560cce075fbd5295546bac524d8eead5247724827b0e6b4994ea800c894b5e63",
+      "DECISION-EVOLVE-GROUPED-COMPLETE-REPLACEMENT-001": "sha256:ec91d98d455e8c53f924f0a9b30bd949c6f0a7ca8493896611a017d8b8916f42",
+      "DECISION-EVOLVE-GROUPED-HISTORY-001": "sha256:a3d934daa02e798ffd2c70538bb50768d099939cebc82f5a8bdbe1a70ca148cd",
+      "DECISION-EVOLVE-GROUPED-NODE-SMOKE-001": "sha256:a30e5e32e32bc735d5b297863a4a43b6481200f4c9b7bf2bf9f0a0c3fa21a972",
+      "DECISION-EVOLVE-GROUPED-REALLOCATION-001": "sha256:74c3b3afbc785ec8d0afbac4e615572a55e2f2aeab19baf689da2f5606d560fb",
+      "DECISION-EVOLVE-GROUPED-RECOVERY-001": "sha256:31dcaf6763ca66a0471b8e44b8dbf30f1f975fca7f2c06125af2ec353e0f5a23",
+      "DECISION-EVOLVE-GROUPED-SOURCE-PRESERVATION-001": "sha256:e5715dd6bebc1f2b76b15c33f39b14a1d4e8cd07eee7bdb2944fd42768f4dee7",
+      "DECISION-EVOLVE-GROUPED-SOURCE-SELECTION-001": "sha256:9abec362dc077cc6c5ce18956668b144abcf8366bc42cdb4a0309f9080e63367",
+      "DECISION-EVOLVE-GROUPED-SPLIT-001": "sha256:f3844514cd491a3364dc36c3550ab3be73270744b37830e2574a5ce129a59550",
       "DECISION-EVOLVE-HISTORICAL-SUCCESSOR-001": "sha256:aff7d7c7a9fe12ed5eaa76f4887ecb95be9555fb2f960345c1f7337b8b3a13d1",
       "DECISION-EVOLVE-UNSUPPORTED-MULTI-001": "sha256:ecca9f3726663cc38385a2564fde4d237d118d310fbca4fdd8daf1daf02c9492",
       "DECISION-FAST-REVISION-001": "sha256:6f250ede3e232fc061d8741644fffb51d379f7f1144f34c9a1790c8ffa359318",
@@ -256,6 +265,7 @@
       "DECISION-STATE-SOURCE-PARITY-001": "sha256:fba0fc7fa84f19bab9a9190d3f9e3e2f6cd9dcd3840c6a5bbc93472ded5f5691",
       "DECISION-STATIC-MERGE-MINIMUM-001": "sha256:0f63ed149a4735859b37cb57a21d31795eacc82c48c27e503c20c3a8302491f3",
       "DECISION-STATIC-SPLIT-PURITY-001": "sha256:48691ec49fb81c770bb5e84f5f32650bf7f2d9badb747ea9753ffadba27371e2",
+      "DECISION-SUCCESSOR-RELATION-OVERRIDE-001": "sha256:7d93249273afa576ccda3af446e6cf528f64c4bfd681d75022673f54901a9076",
       "DECISION-SYNC-INDEX-002": "sha256:bf51a4a9d4a8dbe4d2d00095ca8fc34974e08348ce5029df4a2b8d2c86f2ec9e",
       "DECISION-SYNC-INDEX-003": "sha256:9354534909ca412d2834a106377c7e06b2672f448819a379686f87ef5d042e14",
       "DECISION-SYNC-INDEX-CLEANUP-001": "sha256:396da709c7766e1c4df3115cfb2248edbe725e6641bb23d5d174ccfc59b79a2e",
@@ -1713,6 +1723,17 @@
         "test:d5ef9a281795bc2bcd958332d826946c0cd987e50a620e0351482f6e4b33995b"
       ]
     },
+    "DECISION-CLI-EVOLVE-RELATION-GROUPS-001": {
+      "title": "Evolve 在写入前拒绝不完整或混用的关系分组",
+      "sourcePath": "cases/decision-cli-evolve-relation-groups-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:a0afbe1d4e683619ea665f1f4dd78d0b94ea229be8d1810ea5b9e922fb75f51e",
+        "test:bf1b5166177bf9babf6fd696fedbb503a8063ad7b3fdf62741ff258a2c6cffdf"
+      ]
+    },
     "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001": {
       "title": "Evolve 要求至少一个后继参数",
       "sourcePath": "cases/decision-cli-evolve-successor-required-001.md",
@@ -2154,6 +2175,86 @@
       ],
       "testIds": [
         "test:0c4213d531e7410e9d8578a54093ed6ef2bebe6fd262057be61f8f7c02e6ef33"
+      ]
+    },
+    "DECISION-EVOLVE-GROUPED-COMPLETE-REPLACEMENT-001": {
+      "title": "Evolve 拒绝不完整或不纯的分组 replacement",
+      "sourcePath": "cases/decision-evolve-grouped-complete-replacement-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:2e00692e83169eeb04b08d6f4b6eeb8b65e1bbbd4fae0d60204cbe9999b1955b"
+      ]
+    },
+    "DECISION-EVOLVE-GROUPED-HISTORY-001": {
+      "title": "Evolve 为仅由分组引入的前序执行历史门禁",
+      "sourcePath": "cases/decision-evolve-grouped-history-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:c4e0e73b4560fba0dbc07f6ccb1d5482213d9bfb740a3c58eb11990048b7e354"
+      ]
+    },
+    "DECISION-EVOLVE-GROUPED-NODE-SMOKE-001": {
+      "title": "分发 Node CLI 接受分组 Evolve 参数",
+      "sourcePath": "cases/decision-evolve-grouped-node-smoke-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:78e557462f0af9ab38aa854a55b21f1f7fec42698480eb93609ce98843ee9a0e"
+      ]
+    },
+    "DECISION-EVOLVE-GROUPED-REALLOCATION-001": {
+      "title": "Evolve 独立保留稀疏重划的完整关系集合",
+      "sourcePath": "cases/decision-evolve-grouped-reallocation-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:e58739c63360aabeaa5e0e982f701d92570d9aeceb86add01f2632cb11dd2b25"
+      ]
+    },
+    "DECISION-EVOLVE-GROUPED-RECOVERY-001": {
+      "title": "分组 Evolve 发布失败时回滚且不输出成功 review",
+      "sourcePath": "cases/decision-evolve-grouped-recovery-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:2137937005904ad67bffc1cbbc8fd9bbdfe5361745b144a2c8b580a59f0d1cdd"
+      ]
+    },
+    "DECISION-EVOLVE-GROUPED-SOURCE-PRESERVATION-001": {
+      "title": "Evolve 保留未分组后继的完整关系",
+      "sourcePath": "cases/decision-evolve-grouped-source-preservation-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:6ddf6fd56181d5d35eea039eafca3e4d0bf0a33031e07f36e0df233bb56307ed"
+      ]
+    },
+    "DECISION-EVOLVE-GROUPED-SOURCE-SELECTION-001": {
+      "title": "Evolve 收敛并核对分组 source 与摘要目标",
+      "sourcePath": "cases/decision-evolve-grouped-source-selection-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:9f49ebdddb1527f9aa4b49c96d3f6c03922ec10c394fbd847380bac8670ff1db"
+      ]
+    },
+    "DECISION-EVOLVE-GROUPED-SPLIT-001": {
+      "title": "Evolve 为闭合拆分的每个后继保存独立摘要",
+      "sourcePath": "cases/decision-evolve-grouped-split-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:a99715aebebe4f2347e7a5ce0c0bbd73cb393ededb4a1a6e79fc2364e3eb9817"
       ]
     },
     "DECISION-EVOLVE-HISTORICAL-SUCCESSOR-001": {
@@ -3365,6 +3466,16 @@
       ],
       "testIds": [
         "test:0bc16347f52804a3f3471db949b091de86a6e98c96022028a42390feb30cc816"
+      ]
+    },
+    "DECISION-SUCCESSOR-RELATION-OVERRIDE-001": {
+      "title": "后继局部完整 override 优先于事务默认值",
+      "sourcePath": "cases/decision-successor-relation-override-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:683bc9ad7b65829c45335d083232297fe6b1924fad74148dbd5c8e20ed77694c"
       ]
     },
     "DECISION-SYNC-INDEX-002": {

@@ -98,7 +98,7 @@ export function decisionRelationTransactionRequiresHistoryBaseline(
         decisionId: record.decisionId,
         finalRelations: resolveEffectiveRelations(
           record.source.document.relations,
-          request.relationOverride
+          successor.relationOverride ?? request.relationOverride
         )
       }
     ];

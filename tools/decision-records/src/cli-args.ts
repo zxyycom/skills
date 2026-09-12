@@ -5,6 +5,7 @@ import type {
   DecisionListStatus,
   DecisionRelation,
   DecisionRelationOverride,
+  DecisionRelationOverrideGroup,
   DecisionRelationSummary,
   DecisionRelationType,
   DecisionSuccessor,
@@ -71,6 +72,7 @@ export type CliArgs =
         keepUnrecordedHistory: boolean;
         preflight: boolean;
         relationOverride: DecisionRelationOverride;
+        relationOverrideGroups: DecisionRelationOverrideGroup[];
         successors: DecisionSuccessor[];
       }
     >

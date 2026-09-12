@@ -14,6 +14,7 @@ import type {
   DecisionId,
   DecisionRelation,
   DecisionRelationOverride,
+  DecisionRelationOverrideGroup,
   DecisionRelationSummary,
   DecisionScan,
   DecisionSuccessor
@@ -100,17 +101,51 @@ function resolveEvolutionRequest(
   if (relationOverride === null) return selectorResolutionFailure(resolution);
   if ("status" in relationOverride)
     return { failure: relationOverride, status: "error" } as const;
+  const selection = resolveEvolutionSelection(request, resolution);
+  if (selection === null || resolution.failures.length > 0)
+    return selectorResolutionFailure(resolution);
+  if ("status" in selection)
+    return { failure: selection, status: "error" } as const;
+  const successorsWithOverrides = attachSuccessorRelationOverrides(
+    selection.successors,
+    selection.relationOverrideGroups
+  );
+  if ("status" in successorsWithOverrides)
+    return { failure: successorsWithOverrides, status: "error" } as const;
+  return {
+    request: {
+      ...request,
+      discardId: selection.discardId,
+      relationOverride,
+      relationOverrideGroups: selection.relationOverrideGroups,
+      successors: successorsWithOverrides
+    },
+    status: "ok"
+  } as const;
+}
+
+function resolveEvolutionSelection(
+  request: Extract<DecisionLifecycleRequest, { action: "evolve" }>,
+  resolution: LifecycleSelectorResolution
+):
+  | {
+      discardId: DecisionId | null;
+      relationOverrideGroups: DecisionRelationOverrideGroup[];
+      successors: DecisionSuccessor[];
+    }
+  | DecisionApplicationFailure
+  | null {
   const discardId =
     request.discardId === null ? null : resolution.one(request.discardId);
   const successors = resolveSuccessors(request.successors, resolution.one);
-  if (successors === null || resolution.failures.length > 0)
-    return selectorResolutionFailure(resolution);
-  if (request.discardId !== null && discardId === null)
-    return selectorResolutionFailure(resolution);
-  return {
-    request: { ...request, discardId, relationOverride, successors },
-    status: "ok"
-  } as const;
+  const relationOverrideGroups = resolveRelationOverrideGroups(
+    request.relationOverrideGroups,
+    resolution.one
+  );
+  if (successors === null || relationOverrideGroups === null) return null;
+  if ("status" in relationOverrideGroups) return relationOverrideGroups;
+  if (request.discardId !== null && discardId === null) return null;
+  return { discardId, relationOverrideGroups, successors };
 }
 
 function resolveArchiveRequest(
@@ -150,6 +185,13 @@ function resolveRelationOverride(
     if (target === null) return null;
     summaries.push({ ...summary, target });
   }
+  const duplicateTarget = duplicateRelationSelectorTarget(relations, summaries);
+  if (duplicateTarget !== null) {
+    return decisionFailure([
+      "Relation selectors resolve to the same direct predecessor target: " +
+        duplicateTarget
+    ]);
+  }
   const bound = bindRelationSummaries(relations, summaries);
   if ("error" in bound) {
     return decisionFailure(
@@ -170,6 +212,23 @@ function resolveRelationOverride(
   return { kind: "replace", relations: bound.relations };
 }
 
+function duplicateRelationSelectorTarget(
+  relations: readonly DecisionRelation[],
+  summaries: readonly DecisionRelationSummary[]
+): DecisionId | null {
+  const relationTargets = new Set<DecisionId>();
+  for (const relation of relations) {
+    if (relationTargets.has(relation.target)) return relation.target;
+    relationTargets.add(relation.target);
+  }
+  const summaryTargets = new Set<DecisionId>();
+  for (const summary of summaries) {
+    if (summaryTargets.has(summary.target)) return summary.target;
+    summaryTargets.add(summary.target);
+  }
+  return null;
+}
+
 function resolveSuccessors(
   successors: readonly DecisionSuccessor[],
   resolve: (selector: string) => DecisionId | null
@@ -181,6 +240,53 @@ function resolveSuccessors(
     resolved.push({ ...successor, decisionId });
   }
   return resolved;
+}
+
+function resolveRelationOverrideGroups(
+  groups: readonly DecisionRelationOverrideGroup[],
+  resolve: (selector: string) => DecisionId | null
+): DecisionRelationOverrideGroup[] | DecisionApplicationFailure | null {
+  const resolved: DecisionRelationOverrideGroup[] = [];
+  for (const group of groups) {
+    const source = resolve(group.source);
+    if (source === null) return null;
+    const relationOverride = resolveRelationOverride(
+      group.relationOverride,
+      resolve
+    );
+    if (relationOverride === null) return null;
+    if ("status" in relationOverride) return relationOverride;
+    resolved.push({ relationOverride, source });
+  }
+  return resolved;
+}
+
+function attachSuccessorRelationOverrides(
+  successors: readonly DecisionSuccessor[],
+  groups: readonly DecisionRelationOverrideGroup[]
+): DecisionSuccessor[] | DecisionApplicationFailure {
+  const overrides = new Map<DecisionId, DecisionRelationOverride>();
+  const selected = new Set(successors.map((successor) => successor.decisionId));
+  for (const group of groups) {
+    if (!selected.has(group.source)) {
+      return decisionFailure([
+        "--relations-for source is not a selected successor: " + group.source
+      ]);
+    }
+    if (overrides.has(group.source)) {
+      return decisionFailure([
+        "--relations-for resolves to the same selected successor more than once: " +
+          group.source
+      ]);
+    }
+    overrides.set(group.source, group.relationOverride);
+  }
+  return successors.map((successor) => {
+    const relationOverride = overrides.get(successor.decisionId);
+    return relationOverride === undefined
+      ? successor
+      : { ...successor, relationOverride };
+  });
 }
 
 function resolveDecisionSelector(

@@ -30,11 +30,13 @@ CLI readiness 只说明结构与正文准备情况。一般语义审查、记录
 
 建立或调整直接关系时，用简短摘要说明后继对该前序具体保留、改变或承接了什么，让演进图同时表达连接与变化含义。
 
+一次 `evolve` 必须先选择闭合事件的完整 successor 集合；这不要求每个 successor 使用相同关系。候选首次建立通常保留各自 Markdown 中的关系。已建立关系需要统一替换时使用无分组的完整覆盖；不同 successor 要有不同关系、摘要或空集合时，为每个要替换的成员使用 `--relations-for` 分组，未分组成员保留原值。完整 replacement 不会合并旧关系，遗漏的摘要会移除；完整成员、分组约束和命令参数由[决策记录规则](../../skills/decision-records/references/decision-record-rules.md#完整替换与摘要绑定)与 CLI help 承接。
+
 生命周期、关系和身份维护通过领域 CLI 完成。归档保留历史；明确剔除记录时使用独立删除动作。工具需要额外确认或无法完整恢复时，应停在其报告的边界，按维护规则继续。
 
 ## 维护已建立集合
 
-升级到要求非空 alignment 的 definition 前，先核对全部 active 与 archived Markdown 都有 `aligned` 或 `unaligned`，并保留 Git 中可恢复的基线。再用严格 `check` 区分合法来源、索引问题和非法 alignment。来源合法而 definition 过期时，按[索引恢复](../../skills/decision-records/references/maintenance-recovery.md#索引恢复)全量重建并复验。缺失或非法 alignment 时，停止集合维护，按[原位字段恢复](../../skills/decision-records/references/maintenance-recovery.md#已建立-alignment-无效)确认历史证据和针对性授权；不要把生命周期操作、旧索引或默认值当作恢复手段。
+常规路径是先运行严格 `check`，再按诊断处理，最后重新运行 `check` 验证完整集合。来源合法而索引缺失、损坏或陈旧时，按[索引恢复](../../skills/decision-records/references/maintenance-recovery.md#索引恢复)全量重建并复验。已建立来源的 alignment 缺失或非法时，停止集合维护，按[原位字段恢复](../../skills/decision-records/references/maintenance-recovery.md#已建立-alignment-无效)以历史证据和针对性授权修复，不用生命周期操作、旧索引或默认值补造状态。写入中断、工具不可用或恢复结果不完整时，按[状态与维护恢复](../../skills/decision-records/references/maintenance-recovery.md)先对账并保留其声明的边界，再决定是否重试。
 
 ## 从哪里开始
 

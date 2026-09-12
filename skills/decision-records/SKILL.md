@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "58"
+  version: "59"
 ---
 
 # Decision Records
@@ -103,7 +103,15 @@ Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位�
 
 需要只读预演时，新候选使用 `activate` 或 `evolve --preflight` 以本次完整参数验证，并返回预计的完整 `relationReview`。预检零写入，不能作为正式执行的提交凭据；正式执行仍须重新提供参数、重新验证，并只以 `committed` review 确认已提交的完整关系。重新激活 archived 记录保留既有关系，不适用该核对。
 
-拆分或重划须选择完整后继集合；先按[后继集合与语义闭合](references/decision-record-rules.md#后继集合与语义闭合)核对承接范围，再按 CLI help 组合参数。
+拆分或重划先用重复 `--successor` 选择完整后继集合；这是本次闭合事件的成员，不表示各成员必须使用相同关系。再按[后继集合与语义闭合](references/decision-record-rules.md#后继集合与语义闭合)核对承接范围，并为每个成员确定其完整最终 relations：
+
+| 需要的最终关系 | `evolve` 输入选择 |
+| --- | --- |
+| 首次建立的候选，或关系应保留各自 Markdown 的原值 | 省略所有关系覆盖选项。 |
+| 所有已选后继都替换为同一完整集合 | 不使用 `--relations-for`，提供统一的 `--relation`、可选 `--relation-summary`，或 `--clear-relations`。 |
+| 不同后继需要不同完整集合、摘要或清空结果 | 用 `--relations-for <successor-selector>` 为每个要替换的后继开始一组；组内提供其完整 `--relation` 与可选摘要，或 `--clear-relations`。未分组的已选后继保留各自原值。 |
+
+统一覆盖与分组互斥；分组中的 relation、summary 和 clear 只属于该组。完整 replacement 不合并旧关系，未随 replacement 提供的摘要会移除。组的精确参数、顺序和诊断以 `evolve --help` 为准；完整成员、分组载荷和失败边界见[完整替换与摘要绑定](references/decision-record-rules.md#完整替换与摘要绑定)。
 
 由 CLI 检查 Git 维护门禁。命令暂停时，核对受检 ID、操作与写入状态，按[维护范围与确认](references/decision-record-rules.md#维护范围与确认)自行复核历史价值及授权后显式选择；需要用户决定时才询问。中断或恢复不完整时按恢复手册处理。
 

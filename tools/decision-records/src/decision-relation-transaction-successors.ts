@@ -94,7 +94,7 @@ function activationSuccessorRecord(
     candidate: true,
     finalRelations: resolveEffectiveRelations(
       sourceRelations,
-      relationOverride
+      requested.relationOverride ?? relationOverride
     ),
     record,
     sourceRelations
@@ -128,7 +128,7 @@ function establishedSuccessorRecord(
     candidate: false,
     finalRelations: resolveEffectiveRelations(
       sourceRelations,
-      relationOverride
+      requested.relationOverride ?? relationOverride
     ),
     record,
     sourceRelations

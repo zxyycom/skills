@@ -99,6 +99,7 @@
       "260911-block-code-quality-metric-findings": "sha256:88c2f80efad6f4913adf1160e6f715a21209199a5190dd2968081097f7abb526",
       "260912-isolate-release-version-control-resource-boundary": "sha256:a731162b20abf3095656a84cc5ef872af15e4066898b95e18fd7fd5ea7112b14",
       "260912-separate-relation-summary-consumption-by-reading-task": "sha256:53cb822365576b15ff3e1797fb4e751bf82e62b83fe0d81e6e0c5a964f39c847",
+      "260912-support-per-successor-complete-relation-replacements": "sha256:0be97c88e176bf210ddc70882ce1975cf7c92d7494b893c92a82cf316a1fc4a0",
       "activate-release-gate-checks-by-tag": "sha256:02819304803eade140cd3adb2472a368c290f639acc7998f0d54bc20cecd228e",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -250,7 +251,7 @@
       "render-check-step-results-concisely": "sha256:70ce68a900b4fe81b54039b57489424dfc2433956ef0d8ebe3ab7f9f8ce9f974",
       "render-full-task-list-as-layered-dag": "sha256:37aadca0c4bb81f2e3c87f7a864cc43062229861089e66f4f358cb0c22bf9045",
       "repair-only-delivery-blocking-review-findings": "sha256:6b1d46c1d30258d261d2c8c854f55b35d77cf924f281bb175da4f88ad0119958",
-      "replace-decision-relations-as-complete-sets": "sha256:053ede773f81bae719cba52d2f7459ad111e30aa28c2b650af639b7f125752dd",
+      "replace-decision-relations-as-complete-sets": "sha256:8f1c1f0293274db1226a8e8a686d60296b0131c58644d847710186a70b8260ec",
       "report-check-results-concisely": "sha256:bf9cd4aa0d392a4258845195a416c1b3baee678611baf3bb4c7aa3a63e4c0cd7",
       "report-plan-git-distance-as-context": "sha256:355393db59b4ea63a5765e0152dfadb29e6e782f3d840e1ad1d3ccd717dd0b10",
       "require-canonical-active-change-metadata": "sha256:4a89c651f7efdd25af27e95e1b6d922dcc6976ccbbe6e7ee8ccc7762eecad1b9",
@@ -297,7 +298,7 @@
       "track-decision-execution-state": "sha256:0b98d8a2b88ff04724580b8d1c393a0369335d529f1154cc2f1c69f1560d2b8f",
       "track-per-id-source-revisions": "sha256:090c68b67e35d622ffbbd237b8a9999e9f6b07a6664722dd80900d3e812d2063",
       "treat-unaligned-as-future-direction": "sha256:36473b9572cc55b560d1d10b2d55cbd9ec44fea1e8b429b3899f0098e4ecf1bc",
-      "unify-closed-decision-relation-evolution": "sha256:d1c6cca621971a6baa02e13a01de3188dd904969c27d2011e8714ddebf8425dc",
+      "unify-closed-decision-relation-evolution": "sha256:8fdd802c5ebe7d0f1fd66ec7d9ae027c98765015143743487dd688341251540d",
       "upgrade-decision-domains-after-real-pressure": "sha256:164f4863d3433552cff05c1953bf4b958ab4a0595e23b56b372ffaaaabfefe46",
       "use-ai-ready-docs-identity": "sha256:06e85026d046b73ee858db04c1e415d2841b4f7dac1acade29694d1eb3c4a21c",
       "use-alignment-aware-decision-commands": "sha256:1e6591ce9f4100f9d09c50765d357da189ae2d790c0545a25f24cf1a147616ba",
@@ -343,7 +344,7 @@
       "use-stable-decision-id-for-relations-and-lifecycle": "sha256:c7d2ad4ea610af9b2c957beef978284b238d9d6df076bb9e20ed56700f9889af",
       "use-stable-decision-ids-tags-and-location-index": "sha256:1526afb243bb35ce06ce3b2a0a1c7b39ba02d87225219c521cd5df34f9a4127a",
       "use-stable-id-keyed-index-identity": "sha256:1afb44f11c0a3d225c483edbfbb27fb5fdf24959b9153b999b7b343dab6dc88a",
-      "use-strategy-driven-closed-decision-relation-evolution": "sha256:e5b43e62cc3f7901ffbe4f622c351fd04ec20a8b5714760c4ef07829e03689cb",
+      "use-strategy-driven-closed-decision-relation-evolution": "sha256:ae72417b4735245421d281ddd13bf93e60ed252d5e1d1621843486e9ff75bdbb",
       "use-topic-filtered-decision-queries": "sha256:8d9e8e60389b36ea496955ac64a9d7bff08152904bda6fadeaba1961e918b12e",
       "use-typed-collection-metadata": "sha256:0b086deea57ed2abbd5689a7db7dcebb42260cc730f14d1586b66a83c8461364",
       "use-versioned-overlay-skill-updates": "sha256:9ad7abea41b8e986ee499ad4cb033c51cec5e902a441222d17e8879b3cb510c5",
@@ -2134,6 +2135,27 @@
         "investigation-report"
       ],
       "relations": []
+    },
+    "260912-support-per-successor-complete-relation-replacements": {
+      "name": "support-per-successor-complete-relation-replacements",
+      "sourcePath": "support-per-successor-complete-relation-replacements.md",
+      "title": "按后继分别完整替换决策关系",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-12T08:47:39Z",
+      "purpose": "让闭合多后继事务能够表达各成员不同的完整最终关系。",
+      "background": "统一覆盖会复制关系和摘要，无法维护已建立多后继事件的独立关系载荷。",
+      "decision": "将完整成员集合与各后继完整关系载荷分离，并保留既有闭合与字段保护边界。",
+      "tags": [
+        "decision-records"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "replace-decision-relations-as-complete-sets",
+          "summary": "允许各后继分别完整替换关系"
+        }
+      ]
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",
@@ -5015,9 +5037,9 @@
     },
     "replace-decision-relations-as-complete-sets": {
       "name": "replace-decision-relations-as-complete-sets",
-      "sourcePath": "replace-decision-relations-as-complete-sets.md",
+      "sourcePath": "archive/replace-decision-relations-as-complete-sets.md",
       "title": "以完整集合审核和替换决策关系",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-06T11:12:10Z",
       "purpose": "让候选关系可提前审核，并允许在闭合事务中完整修订错误的已建立关系。",

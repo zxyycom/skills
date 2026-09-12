@@ -30,7 +30,7 @@ relations:
 
 - 采用: `evolve` 是决策关系事务的唯一公开入口和内部 owner。调用方显式选择完整后继集合；事务以其最终关系恢复直接前序和全部受影响记录，在验证后共同处理前序生命周期、后继、索引与读回检查。
 - 采用: 关系策略只接入各自的形状和闭合不变量，不拥有旁路的命令、写入、归档、索引或恢复流程。精确策略规则由[决策记录规则](../../skills/decision-records/references/decision-record-rules.md)拥有；单前序拆分和多前序、多后继重划的长期边界分别由[单前序决策的闭合拆分](use-closed-splits-for-single-predecessor-decisions.md)和[闭合重划决策 owner 边界](support-closed-reallocation-of-decision-owners.md)说明。
-- 采用: `activate --relation` 保留为新候选的单后继便利入口；候选自身声明关系时，普通 `activate` 同样进入统一建立事务。关系来源、完整替换和 CLI 覆盖优先级由[以完整集合审核和替换决策关系](replace-decision-relations-as-complete-sets.md)拥有。
+- 采用: `activate --relation` 保留为新候选的单后继便利入口；候选自身声明关系时，普通 `activate` 同样进入统一建立事务。关系来源、完整替换和 CLI 覆盖优先级由[按后继分别完整替换决策关系](support-per-successor-complete-relation-replacements.md)拥有。
 - 采用: 不保留独立 `split`、`reorganize`、`重组` 或其他同级关系命令；新关系类型扩展策略而非命令面。
 - 采用: 对可处理失败，事务尽力恢复命令前的全部受影响 Markdown 和索引；进程中断或恢复不完整时停止后续维护并进入恢复流程，不以“原子”名义承诺普通文件系统无法保证的结果。
 - 采用: `evolve --discard` 可在关系事务中显式折叠一个未记录中间决策；该动作不自动继承关系，也不因重划而扩大适用范围。

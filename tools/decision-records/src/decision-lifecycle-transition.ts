@@ -173,7 +173,7 @@ export function prepareEvolution(
 ): DecisionLifecyclePreparation {
   const prepared = prepareDecisionRelationTransaction(
     scan,
-    { ...request, kind: "evolve" },
+    evolutionRelationTransactionRequest(request),
     currentTimestamp,
     historyBaseline
   );
@@ -195,6 +195,13 @@ export function prepareEvolution(
     relationReview: prepared.relationReview,
     status: "ok"
   };
+}
+
+export function evolutionRelationTransactionRequest(
+  request: Extract<DecisionLifecycleRequest, { action: "evolve" }>
+): DecisionRelationTransactionRequest {
+  const { relationOverrideGroups: _, ...transactionRequest } = request;
+  return { ...transactionRequest, kind: "evolve" };
 }
 
 export function prepareMarkAligned(

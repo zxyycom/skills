@@ -130,7 +130,7 @@ relations:
 
 ### 后继集合与语义闭合
 
-`evolve` 通过重复 `--successor` 显式选择完整后继集合，并在同一事务中维护关系、候选建立与活动前序归档。新候选也可通过 `activate` 的单后继入口建立相同关系事务。
+`evolve` 通过重复 `--successor` 显式选择完整后继集合；每个 successor 是关系 source。该选择集只声明本次闭合事件的完整成员，并不要求成员采用同一最终 relations。事务在同一次处理中为全部成员计算各自完整最终关系，再维护关系、候选建立与活动前序归档。新候选也可通过 `activate` 的单后继入口建立相同关系事务。
 
 | 演进形状 | 最终集合要求 |
 | --- | --- |
@@ -142,21 +142,26 @@ relations:
 
 ### 完整替换与摘要绑定
 
-关系维护以完整集合为单位。各后继来源或摘要不同时，先在各 candidate 中写好，再让建立命令保留各自集合。
+关系维护以每个 successor 的完整集合为单位。先选择完整 successor 集合，再为每个成员确定最终 relations：未覆盖的成员保留自身权威 Markdown 的完整原值；覆盖只替换其所属成员的整个集合，不合并旧关系。新集合未提供 summary 的边省略该字段，因而移除旧摘要。
 
-| 输入意图 | 作用 |
+| 输入意图 | 最终关系来源 |
 | --- | --- |
-| 首次 activate 或 evolve 省略关系覆盖 | 保留各候选自身完整 relations 与 summary。 |
-| 提供 `--relation` | 完整替换；evolve 将同一集合应用于全部所选后继，包括重划。新集合未提供摘要的边省略该字段。 |
-| 提供 `--clear-relations` | 显式清空关系集合。 |
+| 首次 activate 或 evolve 省略所有关系覆盖 | 每个后继保留自身完整 relations 与 summary。候选首次建立优先使用此路径。 |
+| 无分组的 `--relation` 与可选 `--relation-summary` | 同一完整 replacement 应用于全部所选后继。 |
+| 无分组的 `--clear-relations` | 全部所选后继使用显式空集合。 |
+| 以 `--relations-for <successor-selector>` 开始的组 | 该组 source 使用组内完整 replacement；未分组的所选后继仍保留自身原值。组内可用 `--clear-relations` 显式提供空集合。 |
 | 重新激活 archived 记录 | 保留既有关系，拒绝关系或摘要覆盖。 |
 
-`--relation-summary <selector=summary>` 必须绑定同次完整 `--relation` 集合中的唯一 target；按首个 `=` 分隔，后续 `=` 属于摘要。`new` 同样按此规则绑定。仅提供摘要、重复绑定、目标未命中或与清空关系组合均拒绝。已建立关系通过完整 CLI 事务修订。
+`--relations-for` 开始一个后继组，直到下一个同名选项或命令结束；只有 `--relation`、`--relation-summary` 和 `--clear-relations` 随组归属，其他选项仍作用于整个事务。分组与统一覆盖互斥：出现分组后，首组之前不能有关系选项，且未分组成员不接收统一默认 replacement。
+
+每个组必须在解析后唯一地指向一个已选 successor，并提供至少一条 `--relation` 或一个 `--clear-relations`。摘要可在同组 relation 前后出现；它按首个 `=` 分隔，后续 `=` 属于摘要，并且只绑定同组完整 `--relation` 集合中的唯一 target。不同组可对同一 target 写入不同摘要。
+
+首组前关系选项、空组、只含摘要、clear 与 relation 或 summary 混用、原始重复 source 或 target、以及摘要形状错误属于参数错误：退出 `2` 且零写入。selector 不存在或歧义、解析后重复 source/target、source 未选中、摘要未命中、alignment 不匹配、最终关系形状或闭合错误属于集合解析与领域预演失败：退出 `1` 且零写入。历史确认、锁或写入阶段沿维护恢复的实际 outcome 报告，不能把写入后失败声称为零写入。精确参数顺序与诊断以 `evolve --help` 为准。
 
 新候选的 `activate` 与 `evolve` 以 `relationReview` 承接关系核对：
 
-- review 按规范 source ID 排列。每个 source 给出 `action`、同次准备读取的完整 `before` 和规范化完整 `after`；空集合为 `[]`。新候选的 action 恒为 `establish`，正式来源为 `replace` 或 `unchanged`。
-- renderer 只从这组 before/after 推导新增、移除及摘要新增、变更或移除。完整替换未提供摘要即清除旧摘要。
+- review 按规范 source ID 排列，覆盖全部所选后继（包括未分组或最终相同的成员）。每个 source 给出 `action`、同次准备读取的完整 `before` 和规范化完整 `after`；空集合为 `[]`。新候选的 action 恒为 `establish`，正式来源为 `replace` 或 `unchanged`。
+- renderer 只从这组 before/after 推导新增、移除及摘要新增、变更或移除。完整 replacement 未提供摘要即清除旧摘要。
 - `--preflight` 返回 `phase: preflight` 的预计 review 且零写入；正式成功才返回 `phase: committed`。失败不附成功 review，预检不构成提交凭据。
 
 ## 维护范围与确认

@@ -45,6 +45,8 @@ export type DecisionRelationSummary = {
 export type DecisionSuccessor = {
     alignment: DecisionAlignment;
     decisionId: DecisionId;
+    /** An optional complete relation replacement for this selected successor. */
+    relationOverride?: DecisionRelationOverride;
 };
 export type DecisionRelationOverride = {
     kind: "source";
@@ -52,6 +54,11 @@ export type DecisionRelationOverride = {
     kind: "replace";
     relations: DecisionRelation[];
     relationSummaries?: DecisionRelationSummary[];
+};
+/** One CLI relation group before its source selector is resolved. */
+export type DecisionRelationOverrideGroup = {
+    relationOverride: DecisionRelationOverride;
+    source: DecisionId;
 };
 export type DecisionProjection = {
     title: string;
