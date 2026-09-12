@@ -94,6 +94,7 @@ export const expectedSemanticGateChecks = [
     "bun",
     [
       "./tools/investigation-report/tests/candidate.test.ts",
+      "./tools/investigation-report/tests/candidate-timestamp.test.ts",
       "./tools/investigation-report/tests/parsing-directory.test.ts",
       "./tools/investigation-report/tests/resources.test.ts",
       "./tools/investigation-report/tests/relations.test.ts"

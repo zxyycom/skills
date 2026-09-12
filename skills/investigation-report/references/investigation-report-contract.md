@@ -89,7 +89,7 @@ relations:
 | 字段或正文位置 | 合法内容 |
 | --- | --- |
 | title、question | 非空单行语义文本。 |
-| formedAt | 调用方显式提供的形成时间，使用有时区、无小数秒的 RFC 3339；新 ID 日期与其 UTC 日一致。 |
+| formedAt | `createInvestigationCandidate` API 或 CLI `new` 缺省时，由工具取一次当前 UTC 时间；已知形成时间或补录历史调查时可显式提供。使用有时区、无小数秒的 RFC 3339；新 ID 日期与其 UTC 日一致。 |
 | tags | 至少一个符合 `^[a-z0-9]+(?:-[a-z0-9]+)*$` 的 token，唯一并按与 locale 无关的词法升序排列，表达有依据的分类。 |
 | relations | 完整直接前序集合；独立报告用 `[]`，非空集合遵循下节的字段与图规则。 |
 | 前四个 H2 | 依次且唯一为“形成时背景、调查目的、调查范围与依据、调查结果与边界”，正式报告每节非空。 |
@@ -165,7 +165,7 @@ resource ID 首段确定唯一 owner，而非报告 basename。owner 须直接�
 
 ## 候选创建与发布
 
-`new` 从显式 title、formedAt、question、tags 和完整直接关系原子、不覆盖地创建候选。name 输入自动使用 formedAt 的 UTC 日形成 ID，完整 ID 输入须同日；重复分类、关系或非法 metadata 拒绝。同日同名冲突时零写入，与同名 legacy ID 冲突时按 `migration-required` 提示显式处理。
+`createInvestigationCandidate` API 与 CLI `new` 从显式 title、question、tags、完整直接关系和可选 formedAt 原子、不覆盖地创建候选。省略 formedAt 时，创建入口在身份归一化前读取一次当前 UTC 时间作为有效值；显式值继续按既有格式与日期一致性规则校验，非法输入不会回退到默认值。name 输入自动使用有效 formedAt 的 UTC 日形成 ID，完整 ID 输入须同日；重复分类、关系或非法 metadata 拒绝。同日同名冲突时零写入，与同名 legacy ID 冲突时按 `migration-required` 提示显式处理。
 
 writer 在候选和正式位置均可用时优先使用 name locator，否则使用完整 ID；发布保留相同 basename。创建成功即表示 candidate 已存在，readiness 或辅助预检 warning 提示继续编辑、查看候选或显式预检，不要求重跑 new。
 

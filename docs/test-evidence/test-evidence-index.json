@@ -304,7 +304,7 @@
       "FILE-TEXT-SEARCH-UNICODE-RANGE-001": "sha256:d7b1d476a2fe864ca543f15c6cf2e444d7f003bc96c9a05cfb3da3144a8911b6",
       "GATE-CLI-RESULT-001": "sha256:b779a9f27447bf2fc867b30379512d49ea4b30a9b8eae617bf9dccae2eee6f18",
       "GATE-COMMAND-TRANSCRIPT-001": "sha256:542a18a7a3a40d0ed8eab84838a7df7e248890e2456b795cc15e0ed42c40fabf",
-      "GATE-DEFINITION-CATALOG-001": "sha256:b05287875069adf58f3a91f525aa9fed9dd166c8792a0801e18c63592d120ccc",
+      "GATE-DEFINITION-CATALOG-001": "sha256:269f6f724bb6582ac281df49d535987001aca5426ca9961363ed323e6de09e9a",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:75aae9eabcdb47d4571e47cc41de09c649633924ed646ef3fa9a0bb79ccbae41",
       "GATE-DUPLICATE-DETECTION-001": "sha256:68116ffb4a1862c6d09fb298a74d4b02281727ca34815ef02cab2257b3f9e41d",
       "GATE-FILE-SELECTION-001": "sha256:3562703c498e03eb5444ac363526eb230ccd7f71e41eca3d62010a37f0041e82",
@@ -390,6 +390,7 @@
       "INDEX-RUNTIME-TEXT-SEARCH-001": "sha256:2313163721af66e00504c3b28fb6834e0fc17b02b02c6eca594f7545a207b30c",
       "INVESTIGATION-BUNDLED-PARITY-001": "sha256:742dc1607e409de1071d38a31ef7a00fb802acc4b2d70453c2700e38776aeb76",
       "INVESTIGATION-CANDIDATE-CLI-001": "sha256:ce90a37b86fce670ac2a88cd5f203c77b2598edabf9a008f3f41bc49ae3c4cb8",
+      "INVESTIGATION-CANDIDATE-DEFAULT-FORMED-AT-001": "sha256:fceb45c6d4ac6ad17aa31ddd8e3671d9a6688e9d262ee8ff99dc312b429616be",
       "INVESTIGATION-CANDIDATE-DISCARD-004": "sha256:cf32927cfeae36ef6d0108890933919123d8bc1e07ed168ccc1d95d57623883e",
       "INVESTIGATION-CANDIDATE-DISCARD-005": "sha256:29e09a6b78ed338dffa5289c53112d3d397a94ba0bdee614672252e52f9a8995",
       "INVESTIGATION-CANDIDATE-DISCARD-006": "sha256:74e0e27ea488ea319786e23aceef672fa8c233f9c1caceef50a1713b7ac6b19b",
@@ -404,6 +405,7 @@
       "INVESTIGATION-CANDIDATE-QUERY-001": "sha256:d26b5b6b22425d8731f16dbb57b0de790ec7190f60b5b34e70d196b89a1a8c1f",
       "INVESTIGATION-CANDIDATE-RESOURCE-001": "sha256:5889c59af00c70acf61748d16145fbba3bb898e4560525f83f1bb803df2273ee",
       "INVESTIGATION-CLI-CONTRACTS-001": "sha256:862de3ea3eef2a574ae8ea8314b35d4912fdf3195a567641a71ad30da839c433",
+      "INVESTIGATION-CLI-DEFAULT-FORMED-AT-001": "sha256:5f79e545b34d6d672c64c9cd9fc649cc33d54399c3f26649844eb1c848ca48e0",
       "INVESTIGATION-CLI-DISCARD-ARGS-001": "sha256:d8e42c0ecd8a607ec479bbb731a24e9bcb910b6c835a71b56cfb4c3b8802c38c",
       "INVESTIGATION-CLI-ENUM-001": "sha256:b0c0e339d1e839027a9845f93314de930893853455b57854efe0308db8a83e20",
       "INVESTIGATION-CLI-LIST-001": "sha256:c46d719b206779af5116bc235475708063cef73ed8302aafbc97b252bf016bcb",
@@ -4725,6 +4727,16 @@
         "test:eba7a2d3e1becb4a6d609d61695e10e7b61a2f496b96d9ed9ba3a2709102e604"
       ]
     },
+    "INVESTIGATION-CANDIDATE-DEFAULT-FORMED-AT-001": {
+      "title": "candidate API resolves one effective formation timestamp",
+      "sourcePath": "cases/investigation-candidate-default-formed-at-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:773d103719b1d409b7d643ebb47eba1b4a13353355ddc8aca01689da8dddd645"
+      ]
+    },
     "INVESTIGATION-CANDIDATE-DISCARD-004": {
       "title": "destructive discards fail closed on invalid candidate references",
       "sourcePath": "cases/investigation-candidate-discard-004.md",
@@ -4863,6 +4875,16 @@
       ],
       "testIds": [
         "test:cbc90da6c46d85f0447aa06ef5d2d35d47447bd6b1b1ddeab7bd9483690d0328"
+      ]
+    },
+    "INVESTIGATION-CLI-DEFAULT-FORMED-AT-001": {
+      "title": "distributed CLI defaults omitted formedAt to current UTC",
+      "sourcePath": "cases/investigation-cli-default-formed-at-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:59e66230166a9994bbbdae81c9e1dfa537ac6bb19a71f0af8bc1cf68cfa1ce23"
       ]
     },
     "INVESTIGATION-CLI-DISCARD-ARGS-001": {

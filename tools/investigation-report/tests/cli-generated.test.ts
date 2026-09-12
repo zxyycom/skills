@@ -4,6 +4,7 @@ import path from "node:path";
 import { test } from "node:test";
 import {
   investigationRoot,
+  runGeneratedInvestigationCliSmoke,
   runInvestigationCli,
   withTempRoot,
   writeCollection
@@ -56,6 +57,78 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
     ]);
     assert.equal(retiredText.status, 2);
     assert.match(retiredText.stderr, /unknown option: --text/u);
+  });
+});
+
+test("CLI new defaults formedAt to the current UTC second when omitted", async () => {
+  await withTempRoot("cli-default-formed-at", async (root) => {
+    const help = runGeneratedInvestigationCliSmoke(root, ["new", "--help"]);
+    assert.equal(help.status, 0);
+    assert.match(help.stdout, /new <name-or-id>/u);
+    assert.match(help.stdout, /\[--formed-at <rfc3339>\]/u);
+    assert.match(help.stdout, /default: current UTC time/u);
+
+    const missingIdentity = runGeneratedInvestigationCliSmoke(root, [
+      "new",
+      "--title",
+      "缺少身份",
+      "--question",
+      "候选身份是什么？",
+      "--tag",
+      "investigation-report"
+    ]);
+    assert.equal(missingIdentity.status, 2);
+    assert.match(
+      missingIdentity.stderr,
+      /new requires exactly one Investigation name or ID/u
+    );
+
+    const missingQuestion = runGeneratedInvestigationCliSmoke(root, [
+      "new",
+      "missing-question",
+      "--title",
+      "缺少问题",
+      "--tag",
+      "investigation-report"
+    ]);
+    assert.equal(missingQuestion.status, 2);
+    assert.match(
+      missingQuestion.stderr,
+      /new requires --title, --question, and at least one --tag/u
+    );
+    assert.doesNotMatch(missingQuestion.stderr, /--formed-at/u);
+
+    const before = Math.floor(Date.now() / 1000) * 1000;
+    const created = runGeneratedInvestigationCliSmoke(root, [
+      "new",
+      "cli-default-formed-at",
+      "--title",
+      "默认形成时间候选",
+      "--question",
+      "工具能否生成当前形成时间？",
+      "--tag",
+      "investigation-report"
+    ]);
+    const after = Math.floor(Date.now() / 1000) * 1000;
+    assert.equal(created.status, 0, created.stderr);
+
+    const shown = runGeneratedInvestigationCliSmoke(root, [
+      "show-candidate",
+      "cli-default-formed-at"
+    ]);
+    assert.equal(shown.status, 0, shown.stderr);
+    const formedAt = shown.stdout.match(
+      /formedAt: "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)"/u
+    )?.[1];
+    if (formedAt === undefined) assert.fail("formedAt was not rendered");
+    const formedAtMilliseconds = Date.parse(formedAt);
+    assert.ok(formedAtMilliseconds >= before);
+    assert.ok(formedAtMilliseconds <= after);
+    const datePrefix = `${formedAt.slice(2, 4)}${formedAt.slice(5, 7)}${formedAt.slice(8, 10)}`;
+    assert.match(
+      shown.stdout,
+      new RegExp(`id: "${datePrefix}-cli-default-formed-at"`, "u")
+    );
   });
 });
 

@@ -42,7 +42,7 @@ export type InvestigationCandidate = Readonly<{
 }>;
 
 export type InvestigationCandidateCreateOptions = Readonly<{
-  formedAt: string;
+  formedAt?: string;
   id: string;
   investigationsDir?: string;
   question: string;

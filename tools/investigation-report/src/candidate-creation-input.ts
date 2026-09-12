@@ -15,7 +15,10 @@ import {
   type ResolvedInvestigationsDirectory
 } from "./report-path.ts";
 import { isInvestigationRelationType } from "./report-validation.ts";
-import { investigationTimestampMilliseconds } from "./timestamp.ts";
+import {
+  currentInvestigationTimestamp,
+  investigationTimestampMilliseconds
+} from "./timestamp.ts";
 import {
   bindInvestigationRelationSummaries,
   type InvestigationRelationSummaryInput
@@ -27,16 +30,24 @@ import type {
 } from "./types.ts";
 import { compareText, uniqueSorted } from "./candidate-support.ts";
 
+export type PreparedInvestigationCandidateCreateOptions = Readonly<
+  Omit<InvestigationCandidateCreateOptions, "formedAt"> & { formedAt: string }
+>;
 export type PreparedCandidateCreate = Readonly<{
-  candidate: InvestigationCandidateCreateOptions;
+  candidate: PreparedInvestigationCandidateCreateOptions;
   resolved: ResolvedInvestigationsDirectory;
 }>;
 export function prepareCandidateCreate(
-  input: unknown
+  input: unknown,
+  currentTimestamp: () => string = currentInvestigationTimestamp
 ): Result<PreparedCandidateCreate, string[]> {
   const parsed = parseInvestigationCandidateCreateOptions(input);
   if (parsed.isErr()) return err(parsed.error);
-  const normalized = normalizeNewCandidateIdentity(parsed.value);
+  const candidate: PreparedInvestigationCandidateCreateOptions = {
+    ...parsed.value,
+    formedAt: parsed.value.formedAt ?? currentTimestamp()
+  };
+  const normalized = normalizeNewCandidateIdentity(candidate);
   const resolved = resolveInvestigationsDirectory(
     parsed.value.workspaceRoot,
     parsed.value.investigationsDir
@@ -54,11 +65,14 @@ export function prepareCandidateCreate(
   });
 }
 export function resolveCandidateRelationSelectors(
-  candidate: InvestigationCandidateCreateOptions,
+  candidate: PreparedInvestigationCandidateCreateOptions,
   availableIds: readonly string[],
   summaryInputs: readonly InvestigationRelationSummaryInput[]
 ):
-  | { candidate: InvestigationCandidateCreateOptions; status: "ok" }
+  | {
+      candidate: PreparedInvestigationCandidateCreateOptions;
+      status: "ok";
+    }
   | { errors: string[]; status: "error" } {
   const relations: InvestigationRelation[] = [];
   for (const relation of candidate.relations) {
@@ -109,8 +123,11 @@ function resolveCandidateRelationSelector(
       };
 }
 function normalizeNewCandidateIdentity(
-  candidate: InvestigationCandidateCreateOptions
-): { candidate: InvestigationCandidateCreateOptions; errors: string[] } {
+  candidate: PreparedInvestigationCandidateCreateOptions
+): {
+  candidate: PreparedInvestigationCandidateCreateOptions;
+  errors: string[];
+} {
   const dated = parseDatedInvestigationId(candidate.id);
   const generated = datedInvestigationIdForName(
     candidate.id,
@@ -171,7 +188,7 @@ async function pathExists(target: string): Promise<boolean> {
   }
 }
 export function validateCandidateCreateOptions(
-  candidate: InvestigationCandidateCreateOptions
+  candidate: PreparedInvestigationCandidateCreateOptions
 ): string[] {
   const errors: string[] = [];
   if (!isInvestigationId(candidate.id))
@@ -224,8 +241,8 @@ function hasC0ControlCharacter(value: string): boolean {
   return false;
 }
 function canonicalCandidateCreateOptions(
-  candidate: InvestigationCandidateCreateOptions
-): InvestigationCandidateCreateOptions {
+  candidate: PreparedInvestigationCandidateCreateOptions
+): PreparedInvestigationCandidateCreateOptions {
   return {
     ...candidate,
     relations: canonicalRelations(candidate.relations),

@@ -58,22 +58,35 @@ export async function runNew(
 
 type PreparedCandidateInput = Readonly<{
   id: string;
-  input: Parameters<typeof createInvestigationCandidateFromCli>[0];
-  relationSummaries: InvestigationRelationSummaryInput[];
+  input: CandidateCreationInput;
+  relationSummaries: readonly InvestigationRelationSummaryInput[];
 }>;
-type RequiredCandidateValues = Readonly<{
-  formedAt: string;
+type CandidateCreationInput = Readonly<{
+  formedAt?: string;
+  id: string;
+  investigationsDir?: string;
+  question: string;
+  relations: readonly CandidateRelationInput[];
+  tags: readonly string[];
+  title: string;
+  workspaceRoot: string;
+}>;
+type CandidateCreationValues = Readonly<{
+  formedAt?: string;
   id: string;
   question: string;
-  tags: string[];
+  tags: readonly string[];
   title: string;
 }>;
 type CandidatePreparation =
   | Readonly<{ error: string }>
   | Readonly<{ value: PreparedCandidateInput }>;
-type CandidateRelation = Readonly<{ target: string; type: string }>;
+type CandidateRelationInput = Readonly<{ target: string; type: string }>;
 type RelationSummaryParse =
-  | Readonly<{ status: "ok"; values: InvestigationRelationSummaryInput[] }>
+  | Readonly<{
+      status: "ok";
+      values: readonly InvestigationRelationSummaryInput[];
+    }>
   | Readonly<{ error: string; status: "error" }>;
 
 function prepareNewCandidateInput(input: ParsedCli): CandidatePreparation {
@@ -82,26 +95,24 @@ function prepareNewCandidateInput(input: ParsedCli): CandidatePreparation {
 }
 
 function prepareCandidateDetails(input: ParsedCli): CandidatePreparation {
-  const required = requiredCandidateValues(input);
-  return "error" in required
-    ? required
-    : prepareCandidateRelations(input, required);
+  const values = candidateCreationValues(input);
+  return "error" in values ? values : prepareCandidateRelations(input, values);
 }
 
 function prepareCandidateRelations(
   input: ParsedCli,
-  required: RequiredCandidateValues
+  values: CandidateCreationValues
 ): CandidatePreparation {
   const relations = parseNewRelations(valuesOf(input.values, "relation") ?? []);
   return relations.status === "error"
     ? relations
-    : prepareCandidateSummaries(input, required, relations.values);
+    : prepareCandidateSummaries(input, values, relations.values);
 }
 
 function prepareCandidateSummaries(
   input: ParsedCli,
-  required: RequiredCandidateValues,
-  relations: CandidateRelation[]
+  values: CandidateCreationValues,
+  relations: readonly CandidateRelationInput[]
 ): CandidatePreparation {
   const summaries = parseRelationSummaries(
     valuesOf(input.values, "relation-summary") ?? []
@@ -110,26 +121,26 @@ function prepareCandidateSummaries(
   if (relationSummariesWithoutRelations(relations, summaries.values))
     return { error: "--relation-summary requires at least one --relation" };
   return {
-    value: preparedCandidateInput(input, required, relations, summaries.values)
+    value: preparedCandidateInput(input, values, relations, summaries.values)
   };
 }
 
 function preparedCandidateInput(
   input: ParsedCli,
-  required: RequiredCandidateValues,
-  relations: CandidateRelation[],
-  relationSummaries: InvestigationRelationSummaryInput[]
+  values: CandidateCreationValues,
+  relations: readonly CandidateRelationInput[],
+  relationSummaries: readonly InvestigationRelationSummaryInput[]
 ): PreparedCandidateInput {
   return {
-    id: required.id,
+    id: values.id,
     input: {
       ...location(input.values),
-      formedAt: required.formedAt,
-      id: required.id,
-      question: required.question,
+      ...(values.formedAt === undefined ? {} : { formedAt: values.formedAt }),
+      id: values.id,
+      question: values.question,
       relations,
-      tags: required.tags,
-      title: required.title
+      tags: values.tags,
+      title: values.title
     },
     relationSummaries
   };
@@ -149,13 +160,13 @@ function newCandidateProblem(input: ParsedCli): string | null {
     ]) ??
     (input.positionals.length === 1
       ? null
-      : "new requires exactly one Investigation ID")
+      : "new requires exactly one Investigation name or ID")
   );
 }
 
-function requiredCandidateValues(
+function candidateCreationValues(
   input: ParsedCli
-): RequiredCandidateValues | Readonly<{ error: string }> {
+): CandidateCreationValues | Readonly<{ error: string }> {
   const [id] = input.positionals;
   const title = valueOf(input.values, "title");
   const formedAt = valueOf(input.values, "formed-at");
@@ -164,13 +175,11 @@ function requiredCandidateValues(
   if (
     id === undefined ||
     title === undefined ||
-    formedAt === undefined ||
     question === undefined ||
     tags === undefined
   )
     return {
-      error:
-        "new requires --title, --formed-at, --question, and at least one --tag"
+      error: "new requires --title, --question, and at least one --tag"
     };
   return { formedAt, id, question, tags, title };
 }
@@ -307,9 +316,9 @@ function parseRelationSummary(
 function parseNewRelations(
   values: readonly string[]
 ):
-  | { status: "ok"; values: CandidateRelation[] }
+  | { status: "ok"; values: readonly CandidateRelationInput[] }
   | { error: string; status: "error" } {
-  const relations: CandidateRelation[] = [];
+  const relations: CandidateRelationInput[] = [];
   for (const value of values) {
     const separator = value.indexOf("=");
     if (separator <= 0 || separator === value.length - 1) {

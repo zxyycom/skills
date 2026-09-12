@@ -6,6 +6,10 @@ const investigationTimestampPattern = new RegExp(
   "u"
 );
 
+export function currentInvestigationTimestamp(): string {
+  return new Date().toISOString().replace(/\.\d{3}Z$/u, "Z");
+}
+
 function isCalendarDate(value: string): boolean {
   const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/u);
   if (match === null) {

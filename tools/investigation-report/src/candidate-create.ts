@@ -14,7 +14,8 @@ import {
 import {
   prepareCandidateCreate,
   resolveCandidateRelationSelectors,
-  allocateCandidatePath
+  allocateCandidatePath,
+  type PreparedInvestigationCandidateCreateOptions
 } from "./candidate-creation-input.ts";
 import {
   candidateOperationDiagnostic,
@@ -27,7 +28,6 @@ import { readInvestigationCandidate } from "./candidate-document.ts";
 import { serializeInvestigationCandidate } from "./candidate-format.ts";
 import type {
   InvestigationCandidate,
-  InvestigationCandidateCreateOptions,
   InvestigationCandidateCreateResult
 } from "./types.ts";
 import type { InvestigationRelationSummaryInput } from "./relation-summary.ts";
@@ -88,7 +88,7 @@ async function createInvestigationCandidateWithSummaries(
 
 async function createCandidateUnderLock(
   investigationsDirectory: string,
-  candidate: InvestigationCandidateCreateOptions,
+  candidate: PreparedInvestigationCandidateCreateOptions,
   relationSummaries: readonly InvestigationRelationSummaryInput[]
 ): Promise<InvestigationCandidateCreateResult> {
   try {
@@ -111,7 +111,7 @@ async function createCandidateUnderLock(
 }
 async function createCandidateWithinLock(
   investigationsDirectory: string,
-  initialCandidate: InvestigationCandidateCreateOptions,
+  initialCandidate: PreparedInvestigationCandidateCreateOptions,
   relationSummaries: readonly InvestigationRelationSummaryInput[]
 ): Promise<InvestigationCandidateCreateResult> {
   const layout = await safeCandidateLayout(investigationsDirectory);
@@ -136,7 +136,7 @@ async function createCandidateWithinLock(
 
 async function writePreparedCandidate(
   investigationsDirectory: string,
-  candidate: InvestigationCandidateCreateOptions
+  candidate: PreparedInvestigationCandidateCreateOptions
 ): Promise<InvestigationCandidateCreateResult> {
   const target = await allocateCandidatePath(
     investigationsDirectory,
@@ -168,7 +168,7 @@ async function writePreparedCandidate(
   );
 }
 function duplicateCandidateError(
-  candidate: InvestigationCandidateCreateOptions,
+  candidate: PreparedInvestigationCandidateCreateOptions,
   reportIds: readonly string[],
   candidateIds: readonly string[]
 ): InvestigationCandidateCreateResult | null {

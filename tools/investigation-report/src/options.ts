@@ -36,7 +36,7 @@ const locationFields = {
   workspaceRoot: requiredStringSchema
 };
 const investigationCandidateCreateOptionsSchema = v.strictObject({
-  formedAt: requiredStringSchema,
+  formedAt: optionalStringSchema,
   id: requiredStringSchema,
   ...locationFields,
   question: requiredStringSchema,

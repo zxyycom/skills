@@ -36,7 +36,7 @@ export type InvestigationCandidate = {
 };
 
 export type InvestigationCandidateCreateOptions = {
-  formedAt: string;
+  formedAt?: string;
   id: string;
   investigationsDir?: string;
   question: string;

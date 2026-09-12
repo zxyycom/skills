@@ -1,8 +1,8 @@
 import { serializeInvestigationReportFrontmatter } from "./markdown.ts";
-import type { InvestigationCandidateCreateOptions } from "./types.ts";
+import type { PreparedInvestigationCandidateCreateOptions } from "./candidate-creation-input.ts";
 export function serializeInvestigationCandidate(
   input: Pick<
-    InvestigationCandidateCreateOptions,
+    PreparedInvestigationCandidateCreateOptions,
     "formedAt" | "id" | "question" | "relations" | "tags" | "title"
   >
 ): string {

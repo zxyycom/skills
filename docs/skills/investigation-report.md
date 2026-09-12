@@ -35,7 +35,7 @@
 
 ## 从哪里开始
 
-需要新建时：起草 candidate → 完成正文与资源 → 审查和预检 → 授权范围内 publish → 全量检查与交付。一般内容与发布条件由 agent 自行判断，关键事实缺失、超出范围或明确要求人工决定时再询问。
+需要新建时：起草 candidate → 完成正文与资源 → 审查和预检 → 授权范围内 publish → 全量检查与交付。为当前发生的调查新建 candidate 时，向 `new` 传入不含日期前缀的 name 而非完整 ID，并省略 `--formed-at`，由工具生成当前 UTC 时间和完整 ID；只有已知形成时间或补录历史调查时才显式覆盖。一般内容与发布条件由 agent 自行判断，关键事实缺失、超出范围或明确要求人工决定时再询问。
 
 - 查找正式报告：已知 ID 或唯一 name 用 `show`，按分类、时间或关系浏览用 `list`，按主题发现用 `search`，追溯演进用 `trace`。
 - 起草、审阅与维护：[Skill 入口](../../skills/investigation-report/SKILL.md)负责流程与质量判断；[固定契约](../../skills/investigation-report/references/investigation-report-contract.md)负责格式、关系、资源和事务约束。

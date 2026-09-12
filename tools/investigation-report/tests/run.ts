@@ -1,4 +1,5 @@
 await import("./candidate.test.ts");
+await import("./candidate-timestamp.test.ts");
 await import("./cli-generated.test.ts");
 await import("./cli-index.test.ts");
 await import("./cli-stage.test.ts");

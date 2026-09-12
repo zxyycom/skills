@@ -8,7 +8,7 @@ import { writeLine } from "./cli-io.ts";
 
 const commandHelp: Record<InvestigationCommand, readonly string[]> = {
   new: [
-    "Usage: investigation-report new <investigation-id> --title <title> --formed-at <rfc3339> --question <question> --tag <tag>... [--relation <type=target-selector>...] [--relation-summary <target-selector=summary>...] [options]",
+    "Usage: investigation-report new <name-or-id> --title <title> --question <question> --tag <tag>... [--formed-at <rfc3339>] [--relation <type=target-selector>...] [--relation-summary <target-selector=summary>...] [options]",
     "",
     "Atomically create a non-formal authoring candidate. Creation succeeds independently of body, resource, or publish readiness."
   ],
@@ -96,7 +96,7 @@ const specificOptions: Partial<
 > = {
   new: [
     "  --title <title>               Candidate title",
-    "  --formed-at <rfc3339>         Explicit formation timestamp",
+    "  --formed-at <rfc3339>         Known or historical formation time (default: current UTC time)",
     "  --question <question>         Candidate investigation question",
     "  --tag <tag>                   Repeatable candidate tag",
     "  --relation <type=target-selector> Repeatable complete direct predecessor relation",
