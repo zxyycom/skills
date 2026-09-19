@@ -1,0 +1,76 @@
+# Design
+
+本 design 以查询实际读取的数据为主线，为陈旧派生索引定义可预测的只读降级和严格写入门禁。
+
+## Context
+
+两个领域都以正式 Markdown 为权威来源，并在派生索引的 `sourceRevision.entries` 中保存来源摘要。运行时需要区分以下状态：
+
+| 状态 | 可依赖的信息 |
+| --- | --- |
+| 已知来源变化 | 调用者已经审阅正式 Markdown 的合法变化，持久索引尚未接纳它。 |
+| 未知集合异常 | 来源、索引或索引定义至少有一项可能无效，需要严格诊断。 |
+| 索引定义变化 | 持久索引不能作为选择性同步的可信基线。 |
+| 持久索引快照 | 可支持索引型发现，但可能遗漏新增、保留删除或返回旧 metadata 与关系。 |
+| 当前来源投影 | 可支持内容查询，但不表示持久索引已经恢复。 |
+
+## Goals / Non-Goals
+
+目标：
+
+- 每类操作都明确读取持久索引、当前来源或两者，并返回对应边界。
+- 已知合法变化使用“同步后检查”的主路径；未知异常使用“检查后恢复”的诊断路径。
+- 两个领域共享诊断分类、零写入语义和完成证据。
+
+范围边界：
+
+- 正式 Markdown 继续拥有领域事实，派生索引继续由显式同步入口发布。
+- Markdown、关系图、alignment、资源和候选准备规则继续由现有领域 owner 校验。
+- CLI 定位、生命周期、关系维护和 staging 范围由相邻 Change 承接。
+
+## Decisions
+
+### Intended Change
+
+操作按下表路由：
+
+| 操作类别 | 陈旧时的行为 | 结果边界 |
+| --- | --- | --- |
+| `list`、metadata search、`trace` | 读取最后一次持久索引并发出 warning。 | 结果只代表该索引快照，不能支持当前全集的否定性结论。 |
+| `show` | 用索引定位文件，再验证当前文件仍声明目标 ID；验证成功后返回当前正文并发出 warning。 | 索引 metadata 与当前正文分别标识来源；身份验证失败时返回 error。 |
+| 内容搜索 | 完整验证当前正式 Markdown 后建立临时来源投影，并发出 warning。 | 文本命中来自当前来源，持久索引仍视为陈旧。 |
+| 候选查询 | 继续直接读取候选来源。 | 不依赖正式索引。 |
+| 严格检查和 mutation | 要求持久索引与权威来源一致。 | 门禁失败保持零领域写入并给出同步或修复动作。 |
+
+`sync-index` 表示发布完整派生索引。全量与 `--select` 都先验证完整正式集合；选择性模式只限制被接纳的已知来源变化，不生成局部索引文件。`sync-index --preflight` 执行同一准备与验证但保持零写入。
+
+诊断至少区分索引缺失、索引无效、定义过期、来源摘要过期和来源无效。Warning 必须标识结果数据源与恢复命令；error 必须标识阻断对象和零写入结果。
+
+### Resulting Impacts
+
+- Decision Records 与 Investigation Report 的查询服务、CLI 渲染和行为测试需要按操作类别对齐。
+- 同步入口需要移除 `--write` 分支，并让 SDK、CLI、help 和恢复说明共同采用默认写入加 `--preflight`。
+- mutation 入口需要复用同一新鲜度门禁，避免各命令自行解释陈旧状态。
+- 如现有领域诊断无法形成稳定分类，再扩展 `tools/index-runtime/`；共享层不承接领域专属恢复文案。
+- 两个 skill 与人类入口使用同一状态表和维护顺序；运行时制品、版本、测试与 Test Evidence 同步更新。
+- 公共陈旧索引策略形成或演进一份长期 Decision Record。
+
+## Risks / Trade-offs
+
+| 风险 | 控制 |
+| --- | --- |
+| 非法来源被当作普通陈旧状态 | 同步和来源投影先完整验证权威 Markdown，验证失败保持零写入。 |
+| 持久快照被理解为当前全集 | 每次降级标识快照来源和不支持的结论，后续 mutation 仍要求同步。 |
+| 选择性同步遗漏并行变化 | 只在可信持久基线上接纳显式选择，并在发布前验证完整集合与写前 revision。 |
+| 共享诊断扩大公共运行时责任 | 先在领域层映射；只有两个领域都缺少同一可观察状态时才扩展共享层。 |
+
+## Open Questions
+
+无。
+
+## Implementation Observations
+
+- Decision 查询与同步入口集中在 `decision-query-*`、`decision-query-sync.ts`、`decision-state-index.ts` 和 CLI query/mutation modules；Investigation 对应入口集中在 `query-*`、`validation-sync-flow.ts`、`investigation-state-index.ts` 和 CLI query/maintenance modules。两边都能在领域层完成操作分类与恢复文案。
+- `tools/index-runtime/` 已提供 reader、query source validation、runtime refresh 与 selected sync；实施先复用现有状态和诊断，只在两个领域都缺少同一稳定分类时扩展 `diagnostics.ts` 或 reader/runtime 结果。
+- 长期方向应形成一份新的跨领域 Decision，并修订 `locate-decisions-through-id-keyed-index`、`260905-search-authoritative-files-with-index-identity`、`260905-separate-persistent-state-from-query-projection` 与 `rebuild-index-only-with-current-tools` 中受影响的陈旧查询和同步语义。
+- 现有证据入口包括 `DECISION-INDEX-REVISION-001`、`DECISION-SEARCH-FALLBACK-001`、`INVESTIGATION-INDEX-INTEGRITY-001`、`INDEX-RUNTIME-QUERY-VALIDATION-001`，以及两个领域的 query/index suites；新增分支继续由这些最小原生入口或同责任新入口承接。
