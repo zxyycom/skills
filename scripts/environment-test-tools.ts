@@ -23,7 +23,7 @@ export async function createFakeToolPath(
   await fs.mkdir(bin, { recursive: true });
   const metricTools = { scc: options.scc ?? "ready" };
   const tools = availableFakeTools(metricTools);
-  const bunVersion = options.bunVersion ?? "1.3.14";
+  const bunVersion = options.bunVersion ?? "1.4.2";
   const nodeVersion = options.nodeVersion ?? "24.18.0";
   if (process.platform === "win32") {
     await createWindowsFakeTools(
@@ -157,7 +157,7 @@ export function environmentWith(
 
 export function runEnvironment(
   root: string,
-  action: "check" | "setup",
+  action: "check" | "gate" | "setup",
   fakeToolPath: string,
   environment: NodeJS.ProcessEnv = environmentWith(fakeToolPath)
 ): CommandResult {

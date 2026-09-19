@@ -1,6 +1,7 @@
 import "./lib/vibe-gate/impact.test.ts";
 import "./lib/vibe-gate/release-test-batch.test.ts";
 import "./vibe-check-definition.test.ts";
+import "./vibe-check-environment.test.ts";
 import "./vibe-check-semantic-catalog.test.ts";
 import "./vibe-check-cli-arguments.test.ts";
 import "./vibe-check-cli-diagnostics.test.ts";

@@ -48,8 +48,8 @@ export type GateCommandRunner = (
 ) => Promise<GateCommandRunResult>;
 
 type GateCommandContext =
-  | Readonly<{ kind: "package-script"; script: string }>
-  | Readonly<{ kind: "semantic" }>;
+  | Readonly<{ kind: "gate-command" }>
+  | Readonly<{ kind: "package-script"; script: string }>;
 
 function quoteCommandArgument(argument: string): string {
   return /^[A-Za-z0-9_./,:=@+%-]+$/u.test(argument)
@@ -69,7 +69,7 @@ function contextReason(
   context: GateCommandContext,
   reason: GateCommandUnavailableReason
 ): GateCommandUnavailableReason | PackageScriptUnavailableReason {
-  if (context.kind === "semantic") return reason;
+  if (context.kind === "gate-command") return reason;
   switch (reason) {
     case "gate-command-cancelled":
       return "package-script-cancelled";
@@ -113,7 +113,7 @@ function settleGateCommand(
     );
   }
   const data =
-    context.kind === "semantic"
+    context.kind === "gate-command"
       ? {
           args: invocation.args,
           command: invocation.command,
@@ -131,7 +131,7 @@ function settleGateCommand(
         };
   if (result.exitCode === 0) return { status: "passed" as const, data };
   const code =
-    context.kind === "semantic"
+    context.kind === "gate-command"
       ? "gate-command-exit-nonzero"
       : "package-script-exit-nonzero";
   const primary = `${commandText(invocation)} exited with code ${result.exitCode}.${result.transcript === undefined ? ` Run ${commandText(invocation)} directly for its full diagnostic.` : ` Full transcript: ${result.transcript}.`}`;

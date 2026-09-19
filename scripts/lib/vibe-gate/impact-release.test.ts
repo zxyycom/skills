@@ -15,7 +15,7 @@ test("release activation and non-repository fallback execute the complete catalo
       workspaceRoot: fixture.directory
     });
     assert.equal(release.kind, "release");
-    assert.equal(release.activeCheckIds.length, 62);
+    assert.equal(release.activeCheckIds.length, 63);
     assert.ok(
       release.decisions.every(({ reason }) => reason === "release-full")
     );

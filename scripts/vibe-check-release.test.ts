@@ -4,6 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import {
   createGateDefinition,
+  gateEnvironmentCheckId,
   releaseRequiredCheckIds,
   releaseSnapshotCheckId
 } from "./lib/vibe-gate.ts";
@@ -41,12 +42,13 @@ test("release prepare runs before terminal authorization and package", async () 
       const version = definition.checks.find(
         ({ checkId }) => checkId === "release:skill-version"
       );
-      assert.deepEqual(prepare?.dependsOn ?? [], []);
+      assert.deepEqual(prepare?.dependsOn ?? [], [gateEnvironmentCheckId]);
       assert.deepEqual(version?.dependsOn, [
         ...releaseRequiredCheckIds,
         releaseSnapshotCheckId
       ]);
       assert.deepEqual(releaseTerminalCheck(definition).dependsOn, [
+        gateEnvironmentCheckId,
         "release:skill-version"
       ]);
       assert.equal(

@@ -100,6 +100,7 @@
       "260912-isolate-release-version-control-resource-boundary": "sha256:a731162b20abf3095656a84cc5ef872af15e4066898b95e18fd7fd5ea7112b14",
       "260912-separate-relation-summary-consumption-by-reading-task": "sha256:53cb822365576b15ff3e1797fb4e751bf82e62b83fe0d81e6e0c5a964f39c847",
       "260912-support-per-successor-complete-relation-replacements": "sha256:0be97c88e176bf210ddc70882ce1975cf7c92d7494b893c92a82cf316a1fc4a0",
+      "260919-require-gate-environment-check-prerequisite": "sha256:918b0c73227afcc3f02a5e477a53d9469afe31472d389aa1e06a40254efd3871",
       "activate-release-gate-checks-by-tag": "sha256:02819304803eade140cd3adb2472a368c290f639acc7998f0d54bc20cecd228e",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -2156,6 +2157,21 @@
           "summary": "允许各后继分别完整替换关系"
         }
       ]
+    },
+    "260919-require-gate-environment-check-prerequisite": {
+      "name": "require-gate-environment-check-prerequisite",
+      "sourcePath": "require-gate-environment-check-prerequisite.md",
+      "title": "以基础环境 Check 阻断 Gate 工具链漂移",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-19T11:32:52Z",
+      "purpose": "让基础工具版本错误直接定位到环境边界，避免扩散成跨 owner 的级联失败。",
+      "background": "Gate 曾把 Bun 与 SCC 漂移退化为全量执行，产生生成、测试和指标伪症状。",
+      "decision": "采用精确 Bun 契约，并让所有业务 Check 依赖复用自举检查的基础环境 Check。",
+      "tags": [
+        "project-tooling"
+      ],
+      "relations": []
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

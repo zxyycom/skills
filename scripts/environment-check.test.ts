@@ -90,7 +90,7 @@ test("environment requires exact SCC without installing it", async () => {
     assert.match(missing.stdout, /\[missing\]\s+scc/u);
     assert.match(
       missing.stdout,
-      /Install SCC 4\.0\.0 with: go install github\.com\/boyter\/scc\/v4@v4\.0\.0/u
+      /Activate SCC 4\.0\.0 on PATH[\s\S]*go install github\.com\/boyter\/scc\/v4@v4\.0\.0/u
     );
 
     const missingRoot = await createRepository(
@@ -134,7 +134,38 @@ test("environment requires exact SCC without installing it", async () => {
   }
 });
 
-test("environment requires the project Bun runtime minimum", async () => {
+test("Gate environment check stops on tool drift without requiring repository setup", async () => {
+  const tempRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "skills Gate environment ")
+  );
+  try {
+    const root = await createRepository(
+      tempRoot,
+      "Gate environment repository"
+    );
+    const readyTools = await createFakeToolPath(path.join(tempRoot, "ready"));
+    const ready = runEnvironment(root, "gate", readyTools);
+    requireSuccess(ready, "Gate environment with exact tools");
+    assert.match(ready.stdout, /Gate environment is ready/u);
+    assert.doesNotMatch(ready.stdout, /repository setup|codegraph index/u);
+
+    const driftedTools = await createFakeToolPath(
+      path.join(tempRoot, "drifted"),
+      { bunVersion: "1.4.3" }
+    );
+    const drifted = runEnvironment(root, "gate", driftedTools);
+    assert.equal(drifted.status, 1);
+    assert.match(
+      drifted.stdout,
+      /Gate environment[\s\S]*\[mismatch\]\s+bun 1\.4\.3 - expected 1\.4\.2/u
+    );
+    assert.doesNotMatch(drifted.stdout, /repository setup|codegraph index/u);
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test("environment requires the exact project Bun runtime", async () => {
   const tempRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills environment Bun runtime ")
   );
@@ -142,11 +173,11 @@ test("environment requires the project Bun runtime minimum", async () => {
     const root = await createRepository(tempRoot, "Bun runtime repository");
     const supportedTools = await createFakeToolPath(
       path.join(tempRoot, "supported"),
-      { bunVersion: "1.3.14" }
+      { bunVersion: "1.4.2" }
     );
     const setup = runEnvironment(root, "setup", supportedTools);
     requireSuccess(setup, "environment setup with supported Bun");
-    assert.match(setup.stdout, /\[ok\]\s+bun 1\.3\.14/u);
+    assert.match(setup.stdout, /\[ok\]\s+bun 1\.4\.2/u);
     requireSuccess(
       runEnvironment(root, "check", supportedTools),
       "environment check with supported Bun"
@@ -154,17 +185,27 @@ test("environment requires the project Bun runtime minimum", async () => {
 
     const outdatedTools = await createFakeToolPath(
       path.join(tempRoot, "outdated"),
-      { bunVersion: "1.3.13" }
+      { bunVersion: "1.4.1" }
     );
     const outdated = runEnvironment(root, "check", outdatedTools);
     assert.equal(outdated.status, 1);
     assert.match(
       outdated.stdout,
-      /\[outdated\]\s+bun 1\.3\.13 - requires >= 1\.3\.14/u
+      /\[mismatch\]\s+bun 1\.4\.1 - expected 1\.4\.2/u
     );
     assert.match(
       outdated.stdout,
       /Environment is not ready\. Run: node scripts\/environment\.js setup/u
+    );
+
+    const newerTools = await createFakeToolPath(path.join(tempRoot, "newer"), {
+      bunVersion: "1.4.3"
+    });
+    const newer = runEnvironment(root, "check", newerTools);
+    assert.equal(newer.status, 1);
+    assert.match(
+      newer.stdout,
+      /\[mismatch\]\s+bun 1\.4\.3 - expected 1\.4\.2/u
     );
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });

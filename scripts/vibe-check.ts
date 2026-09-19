@@ -205,11 +205,7 @@ export async function runVibeCheck(
   const result = await (dependencies.runProject ?? run)(definition, {
     checkAggregation: {
       checks: "effective",
-      empty:
-        activationPlan?.kind === "incremental" &&
-        activationPlan.activeCheckIds.length === 0
-          ? "passed"
-          : "failed",
+      empty: "failed",
       mode: "all",
       notApplicable: "fail",
       unavailable: "fail"

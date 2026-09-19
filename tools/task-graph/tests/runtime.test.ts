@@ -99,10 +99,18 @@ test("runtime missing and incompatible states fail closed", async () => {
       () => loadNativeLockBinding(options),
       "RUNTIME_MISSING"
     );
-    assert.deepEqual(
-      missingError.details.installCommand,
-      missing.installCommand
-    );
+    const installCommand = missingError.details.installCommand;
+    if (
+      installCommand === null ||
+      typeof installCommand !== "object" ||
+      Array.isArray(installCommand)
+    ) {
+      throw new Error(
+        "RUNTIME_MISSING installCommand detail must be an object"
+      );
+    }
+    assert.equal(Object.getPrototypeOf(installCommand), null);
+    assert.deepEqual({ ...installCommand }, missing.installCommand);
 
     const packageRoot = path.join(
       missing.runtimePath,

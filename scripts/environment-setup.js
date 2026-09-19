@@ -79,10 +79,8 @@ export function setupEnvironment(config) {
 
   const bunStatus = toolStatuses.find(({ name }) => name === "bun");
   if (bunStatus.state !== "ready") {
-    console.log(
-      `Installing Bun with npm to satisfy >= ${config.bunMinimum.text}...`
-    );
-    installWithNpm("bun@latest");
+    console.log(`Installing exact Bun ${config.bunVersion.text} with npm...`);
+    installWithNpm(`bun@${config.bunVersion.text}`);
     toolStatuses = getToolStatuses(config);
   }
 

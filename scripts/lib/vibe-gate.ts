@@ -13,6 +13,10 @@ export {
   releaseGateResourceCapacities
 } from "./vibe-gate/contracts.ts";
 export type { GateTag, GateTagSet } from "./vibe-gate/contracts.ts";
+export {
+  createGateEnvironmentCheck,
+  gateEnvironmentCheckId
+} from "./vibe-gate/checks/environment.ts";
 export { runGateCommand } from "./vibe-gate/command-runner.ts";
 export type {
   GateCommand,

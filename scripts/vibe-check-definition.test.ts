@@ -5,6 +5,7 @@ import {
   activationFlagForCheck,
   createGateDefinition,
   gateCheckIds,
+  gateEnvironmentCheckId,
   gateResourceCapacities,
   packageScriptCheckId,
   releaseGateResourceCapacities,
@@ -68,6 +69,7 @@ test("gate Definition keeps the complete catalog and incremental selection", asy
     ([, checkId]) => checkId
   );
   const expectedCheckIds = [
+    gateEnvironmentCheckId,
     releaseSnapshotCheckId,
     ...vibeNativeCheckIds,
     ...releaseRequiredPackageScripts.map((script) => `script:${script}`),
@@ -129,6 +131,21 @@ test("gate Definition keeps the complete catalog and incremental selection", asy
     baseDefinition.checks.some(({ checkId }) => checkId === "pack:skills"),
     true
   );
+  assert.equal(
+    baseDefinition.checks.find(
+      ({ checkId }) => checkId === gateEnvironmentCheckId
+    )?.enabledByFlags,
+    undefined
+  );
+  for (const check of baseDefinition.checks) {
+    assert.equal(
+      check.checkId === gateEnvironmentCheckId ||
+        (Array.isArray(check.dependsOn) &&
+          check.dependsOn.includes(gateEnvironmentCheckId)),
+      true,
+      check.checkId
+    );
+  }
 });
 
 test("gate Definition keeps scheduler, output, and release DAG contracts", () => {
@@ -158,12 +175,12 @@ test("gate Definition keeps scheduler, output, and release DAG contracts", () =>
       textPreviewCodePointLimit: 240
     }
   });
-  assert.equal(releaseRequiredCheckIds.length, 59);
+  assert.equal(releaseRequiredCheckIds.length, 60);
   assert.deepEqual(
     releaseDefinition.checks.find(
       ({ checkId }) => checkId === releaseSnapshotCheckId
     )?.dependsOn ?? [],
-    []
+    [gateEnvironmentCheckId]
   );
   assert.deepEqual(
     releaseDefinition.checks.find(
@@ -172,6 +189,7 @@ test("gate Definition keeps scheduler, output, and release DAG contracts", () =>
     [...releaseRequiredCheckIds, releaseSnapshotCheckId]
   );
   assert.deepEqual(releaseTerminalCheck(releaseDefinition).dependsOn, [
+    gateEnvironmentCheckId,
     "release:skill-version"
   ]);
   const releaseFlag = {
@@ -219,7 +237,14 @@ test("gate Definition projects semantic prerequisites and batch resources", () =
   assert.deepEqual(
     releaseDefinition.checks
       .filter(({ checkId }) => expectedSemanticPrerequisites.has(checkId))
-      .map(({ checkId, dependsOn }) => [checkId, dependsOn]),
+      .map(({ checkId, dependsOn }) => [
+        checkId,
+        Array.isArray(dependsOn)
+          ? dependsOn.filter(
+              (dependency) => dependency !== gateEnvironmentCheckId
+            )
+          : dependsOn
+      ]),
     [...expectedSemanticPrerequisites]
   );
   const batchedIds = new Set(

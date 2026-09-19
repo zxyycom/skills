@@ -7,10 +7,13 @@ const lockfilePath = path.join(repoRoot, "pnpm-lock.yaml");
 
 export function parseAction(argv) {
   if (argv.length === 0) return "check";
-  if (argv.length === 1 && (argv[0] === "check" || argv[0] === "setup")) {
+  if (
+    argv.length === 1 &&
+    (argv[0] === "check" || argv[0] === "gate" || argv[0] === "setup")
+  ) {
     return argv[0];
   }
-  throw new Error("usage: node scripts/environment.js <check|setup>");
+  throw new Error("usage: node scripts/environment.js <check|gate|setup>");
 }
 
 export function readEnvironmentConfig() {
@@ -35,11 +38,13 @@ export function readEnvironmentConfig() {
       "package.json packageManager must pin pnpm as pnpm@<major>.<minor>.<patch>"
     );
   }
-  const bunRange =
+  const bunVersionText =
     typeof manifest.engines?.bun === "string" ? manifest.engines.bun : "";
-  const bunMinimumMatch = /^>=(\d+\.\d+(?:\.\d+)?)$/u.exec(bunRange);
-  if (!bunMinimumMatch) {
-    throw new Error("package.json engines.bun must use a simple >= version");
+  const bunVersionMatch = /^(\d+\.\d+\.\d+)$/u.exec(bunVersionText);
+  if (!bunVersionMatch) {
+    throw new Error(
+      "package.json engines.bun must pin an exact major.minor.patch version"
+    );
   }
   const nodeRange =
     typeof manifest.engines?.node === "string" ? manifest.engines.node : "";
@@ -48,7 +53,7 @@ export function readEnvironmentConfig() {
     throw new Error("package.json engines.node must use a simple >= version");
   }
   return {
-    bunMinimum: parseVersion(bunMinimumMatch[1]),
+    bunVersion: parseVersion(bunVersionMatch[1]),
     dependencyNames: dependencyNamesFrom(manifest),
     manifest,
     nodeMinimum: parseVersion(nodeMinimumMatch[1]),

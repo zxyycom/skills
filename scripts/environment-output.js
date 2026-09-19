@@ -54,3 +54,23 @@ export function printEnvironmentStatus(status) {
     );
   }
 }
+
+export function printGateEnvironmentStatus(status) {
+  console.log(`Gate environment: ${repoRoot}`);
+  for (const tool of status.tools) {
+    if (tool.state === "ready") {
+      console.log(`[ok]       ${tool.name} ${tool.version.text}`);
+    } else {
+      const version = tool.version ? ` ${tool.version.text}` : "";
+      console.log(`[${tool.state}] ${tool.name}${version} - ${tool.detail}`);
+      if (tool.name === "scc") {
+        console.log(`           recovery: ${globalPrerequisiteRecovery(tool)}`);
+      }
+    }
+  }
+  console.log(
+    status.ready
+      ? "Gate environment is ready."
+      : "Gate environment is not ready. Restore the reported prerequisite and rerun bun run check."
+  );
+}

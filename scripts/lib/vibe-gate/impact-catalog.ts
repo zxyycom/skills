@@ -1,4 +1,5 @@
 import { vibeNativeCheckIds } from "./checks/native.ts";
+import { gateEnvironmentCheckId } from "./checks/environment.ts";
 import {
   packageScriptCheckId,
   releaseRequiredPackageScripts
@@ -170,6 +171,7 @@ export const baseGateCheckIds = Object.freeze(
 );
 
 export const releaseGateCheckIds = Object.freeze([
+  gateEnvironmentCheckId,
   releaseSnapshotCheckId,
   ...vibeNativeCheckIds,
   ...releaseRequiredPackageScripts.map(packageScriptCheckId),

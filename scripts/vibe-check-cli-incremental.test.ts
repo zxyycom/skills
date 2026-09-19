@@ -117,40 +117,6 @@ test("CLI publishes incremental activation and receipt summaries", async () => {
   );
 });
 
-test("CLI accepts an empty effective aggregate when all base Checks are reused", async () => {
-  await withTemporaryDirectory("skills-vibe-reuse-cli-", async (directory) => {
-    const reusePlan: GateActivationPlan = {
-      ...incrementalPlan(directory),
-      activeCheckIds: [],
-      decisions: [
-        {
-          action: "reuse",
-          checkId: "reused",
-          fingerprint: "reused-fingerprint",
-          reason: "unchanged-success"
-        }
-      ]
-    };
-    assert.equal(
-      await runVibeCheck([], {
-        createDefinition: selectiveDefinition,
-        createInvocationDirectory: () => path.join(directory, "reuse"),
-        prepareActivation: async () => reusePlan,
-        publishReceipts: async (_plan, passedIds) => {
-          assert.deepEqual([...passedIds], []);
-          return { published: true, receiptCount: 1 };
-        },
-        reportInfo: () => undefined,
-        async runProject(definition, controls) {
-          assert.equal(controls.checkAggregation?.empty, "passed");
-          return await run(definition, { ...controls, outputs: noOutput });
-        }
-      }),
-      0
-    );
-  });
-});
-
 test("CLI publishes conservative fallback reasons", async () => {
   await withTemporaryDirectory(
     "skills-vibe-fallback-cli-",

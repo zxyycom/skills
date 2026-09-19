@@ -10,7 +10,7 @@ import { getRepositorySetupStatus } from "./setup-repository.js";
 const projectAstGrepVersion = "0.45.1";
 export const globalPrerequisiteRecoveries = {
   codegraph: "Make CodeGraph available on PATH.",
-  scc: "Install SCC 4.0.0 with: go install github.com/boyter/scc/v4@v4.0.0"
+  scc: "Activate SCC 4.0.0 on PATH (mise: mise use go:github.com/boyter/scc/v4@4.0.0; otherwise install it with: go install github.com/boyter/scc/v4@v4.0.0)"
 };
 export const globalPrerequisiteNames = new Set(
   Object.keys(globalPrerequisiteRecoveries)
@@ -210,18 +210,34 @@ function getCodeGraphIndexStatus(toolStatuses) {
   };
 }
 
-export function getToolStatuses(config) {
+function toolRequirements(config) {
   return [
     { name: "git" },
     { minimumVersion: config.nodeMinimum, name: "node" },
-    { minimumVersion: config.bunMinimum, name: "bun" },
+    { exactVersion: config.bunVersion, name: "bun" },
     { exactVersion: config.pnpmVersion, name: "pnpm" },
     { name: "codegraph" },
     {
       exactVersion: { major: 4, minor: 0, patch: 0, text: "4.0.0" },
       name: "scc"
     }
-  ].map(getToolStatus);
+  ];
+}
+
+export function getToolStatuses(config) {
+  return toolRequirements(config).map(getToolStatus);
+}
+
+const gateToolNames = new Set(["git", "node", "bun", "pnpm", "scc"]);
+
+export function getGateEnvironmentStatus(config) {
+  const tools = toolRequirements(config)
+    .filter(({ name }) => gateToolNames.has(name))
+    .map(getToolStatus);
+  return {
+    ready: tools.every(({ state }) => state === "ready"),
+    tools
+  };
 }
 
 export function unreadyGlobalPrerequisites(toolStatuses) {

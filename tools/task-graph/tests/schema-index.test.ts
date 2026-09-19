@@ -75,7 +75,8 @@ test("strict schema rejects unknown fields, illegal state unions, and duplicate 
     accepted: true,
     rejected: false
   });
-  assert.deepEqual(error.details, { accepted: true, rejected: false });
+  assert.equal(Object.getPrototypeOf(error.details), null);
+  assert.deepEqual({ ...error.details }, { accepted: true, rejected: false });
   assert.deepEqual(JSON.parse(JSON.stringify(error.details)), {
     accepted: true,
     rejected: false

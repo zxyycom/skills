@@ -13,6 +13,10 @@ import {
   type GateTagSet
 } from "./contracts.ts";
 import { runGateCommand, type GateCommandRunner } from "./command-runner.ts";
+import {
+  createGateEnvironmentCheck,
+  gateEnvironmentCheckId
+} from "./checks/environment.ts";
 import { createVibeNativeChecks, vibeNativeCheckIds } from "./checks/native.ts";
 import {
   createPackageScriptCheck,
@@ -103,6 +107,7 @@ function withReleaseCpuClaim(
 }
 
 export const releaseRequiredCheckIds = [
+  gateEnvironmentCheckId,
   ...vibeNativeCheckIds,
   ...releaseRequiredPackageScripts.map(packageScriptCheckId),
   ...semanticGateChecks.map(({ checkId }) => checkId)
@@ -110,6 +115,7 @@ export const releaseRequiredCheckIds = [
 
 export function gateCheckIds(): readonly string[] {
   return [
+    gateEnvironmentCheckId,
     releaseSnapshotCheckId,
     ...vibeNativeCheckIds,
     ...releaseRequiredPackageScripts.map(packageScriptCheckId),
@@ -117,6 +123,22 @@ export function gateCheckIds(): readonly string[] {
     releaseVersionCheckId,
     packSkillsCheckId
   ];
+}
+
+function withGateEnvironmentPrerequisite(check: Check): Check {
+  if (check.checkId === gateEnvironmentCheckId) return check;
+  if (check.dependsOn !== undefined && !Array.isArray(check.dependsOn)) {
+    throw new Error(
+      `Gate Check ${check.checkId} must declare concrete dependencies before the environment prerequisite is added`
+    );
+  }
+  const dependencies = (check.dependsOn ?? []) as readonly string[];
+  return {
+    ...check,
+    dependsOn: dependencies.includes(gateEnvironmentCheckId)
+      ? dependencies
+      : [gateEnvironmentCheckId, ...dependencies]
+  };
 }
 
 function enableGateCheckByFlag<
@@ -227,6 +249,7 @@ function createAuthoredChecks(
     "release"
   );
   return [
+    createGateEnvironmentCheck(context.runner),
     releasePrepareCheck,
     ...(dependencies.nativeChecks ?? createVibeNativeChecks()).map((check) =>
       enableGateCheckByFlag(
@@ -244,7 +267,7 @@ function createAuthoredChecks(
       createPackSkillsCheck(dependencies.packRelease, releaseState),
       "release"
     )
-  ];
+  ].map(withGateEnvironmentPrerequisite);
 }
 
 function createSchedulerStrategy(

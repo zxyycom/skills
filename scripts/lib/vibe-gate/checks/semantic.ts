@@ -219,7 +219,7 @@ export function createSemanticGateCheck(
         command: check.command,
         projectRoot: project.root,
         runner,
-        context: { kind: "semantic" },
+        context: { kind: "gate-command" },
         signal
       });
     }
