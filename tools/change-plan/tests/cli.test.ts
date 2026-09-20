@@ -36,23 +36,29 @@ function commitAll(root: string): void {
   });
 }
 
-test("CLI exposes active commands and rejects archive-era options", async () => {
+test("CLI exposes finalize and rejects retired lifecycle interfaces", async () => {
   await withTempRoot("cli-active", async (root) => {
     const help = await runCli(["--help"], root);
     assert.equal(help.exitCode, 0);
-    assert.match(help.stdout, /complete <change-directory>/u);
+    assert.match(help.stdout, /finalize <change-directory>/u);
     assert.doesNotMatch(
       help.stdout,
       /archive <change-directory>|--archived|--all/u
     );
-    const invalid = await runCli(["list", "--archived"], root);
-    assert.equal(invalid.exitCode, 2);
-    assert.match(invalid.stderr, /Unknown option/u);
+    for (const args of [
+      ["complete", "missing"],
+      ["archive", "missing"],
+      ["list", "--archived"]
+    ]) {
+      const invalid = await runCli(args, root);
+      assert.equal(invalid.exitCode, 2, invalid.stderr);
+      assert.match(invalid.stderr, /Unknown (change-plan command|option)/u);
+    }
   });
 });
 
-test("CLI reports complete preflight and generated Node runtime preserves its protocol", async () => {
-  await withTempRoot("cli-complete", async (root) => {
+test("CLI reports finalize preflight and generated Node runtime preserves its protocol", async () => {
+  await withTempRoot("cli-finalize", async (root) => {
     const change = await writePlan(
       path.join(root, "changes"),
       "finished-plan",
@@ -62,7 +68,7 @@ test("CLI reports complete preflight and generated Node runtime preserves its pr
     );
     commitAll(root);
     const preflight = await runCli(
-      ["complete", change, "--preflight", "--json"],
+      ["finalize", change, "--preflight", "--json"],
       root
     );
     assert.equal(preflight.exitCode, 0, preflight.stderr);
@@ -75,7 +81,7 @@ test("CLI reports complete preflight and generated Node runtime preserves its pr
 
     const generated = spawnSync(
       "node",
-      [generatedCliPath, "complete", change, "--preflight", "--json"],
+      [generatedCliPath, "finalize", change, "--preflight", "--json"],
       { cwd: root, encoding: "utf8" }
     );
     assert.equal(generated.status, 0, generated.stderr);
@@ -87,7 +93,7 @@ test("CLI reports complete preflight and generated Node runtime preserves its pr
 });
 
 test("CLI reports committed cleanup pending with recovery details in text and JSON", async () => {
-  await withTempRoot("cli-complete-pending", async (root) => {
+  await withTempRoot("cli-finalize-pending", async (root) => {
     const changes = path.join(root, "changes");
     const textChange = await writePlan(changes, "text-pending", {
       tasks: completedTasks
@@ -124,7 +130,7 @@ test("CLI reports committed cleanup pending with recovery details in text and JS
       }
     };
 
-    const text = await runWithInjectedCleanupFailure(["complete", textChange]);
+    const text = await runWithInjectedCleanupFailure(["finalize", textChange]);
     assert.equal(text.exitCode, 0, text.stderr);
     assert.match(text.stdout, /committed-cleanup-pending/u);
     assert.match(text.stdout, /HEAD recovery/u);
@@ -133,7 +139,7 @@ test("CLI reports committed cleanup pending with recovery details in text and JS
     assert.match(text.stderr, /Cleanup diagnostic:/u);
 
     const json = await runWithInjectedCleanupFailure([
-      "complete",
+      "finalize",
       jsonChange,
       "--json"
     ]);
@@ -192,13 +198,13 @@ test("CLI supports direct members of a custom Change root", async () => {
       "plan"
     );
 
-    const completed = await runCli(
-      ["complete", plan, "--preflight", "--json"],
+    const finalized = await runCli(
+      ["finalize", plan, "--preflight", "--json"],
       root
     );
-    assert.equal(completed.exitCode, 0, completed.stderr);
+    assert.equal(finalized.exitCode, 0, finalized.stderr);
     assert.equal(
-      (JSON.parse(completed.stdout) as { outcome: string }).outcome,
+      (JSON.parse(finalized.stdout) as { outcome: string }).outcome,
       "preflight"
     );
   });
@@ -298,10 +304,10 @@ test("CLI rejects tombstone and nested paths for every single-directory command"
         false
       );
 
-      const completed = await runCli(["complete", target, "--json"], root);
-      assert.equal(completed.exitCode, 1);
+      const finalized = await runCli(["finalize", target, "--json"], root);
+      assert.equal(finalized.exitCode, 1);
       assert.equal(
-        (JSON.parse(completed.stdout) as { outcome: string }).outcome,
+        (JSON.parse(finalized.stdout) as { outcome: string }).outcome,
         "no-change"
       );
     }

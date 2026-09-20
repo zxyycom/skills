@@ -1,7 +1,7 @@
-### Case CHANGE-PLAN-CHECK-COMPLETE-001: 完整计划通过检查
+### Case CHANGE-PLAN-CHECK-VALID-001: 有效 Plan 通过检查
 
 Tests:
-- `test:3527cf14fb7d9541f7fe01c114865e4e5be1d702cced039dc16a9b54f36af246`
+- `test:706c6be9e9fad74e52e2fb5b6c356789f8c53d41027bb00c55a04f1e5a7b7a58`
 
 Tags:
 - `change-plan`

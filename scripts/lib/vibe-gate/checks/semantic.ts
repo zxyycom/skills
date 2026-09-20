@@ -31,10 +31,10 @@ export const semanticGateChecks = [
     )
   },
   {
-    checkId: "test:change-plan:lifecycle-complete",
-    displayName: "Change Plan lifecycle and complete",
+    checkId: "test:change-plan:lifecycle-finalize",
+    displayName: "Change Plan lifecycle and finalization",
     requiredTag: undefined,
-    command: bunTest("./tools/change-plan/tests/checks/lifecycle-complete.ts")
+    command: bunTest("./tools/change-plan/tests/checks/lifecycle-finalize.ts")
   },
   {
     checkId: "test:change-plan:public-distribution",

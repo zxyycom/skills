@@ -70,7 +70,7 @@ export async function executePreparedChangeDeletion(
     ? {
         changed: true,
         error: null,
-        outcome: "completed",
+        outcome: "finalized",
         tombstoneDirectory: null
       }
     : {
@@ -171,7 +171,7 @@ async function revalidatePreparation(
     if (identityError !== null) return identityError;
     const repository = await openVersionControl(preparation.sourceDirectory);
     if ((await repository.getCurrentRevision()) !== preparation.headCommit)
-      return "Git HEAD changed before completion";
+      return "Git HEAD changed before finalization";
     await verifyPhysicalTree(
       preparation.sourceDirectory,
       preparation.directories,
@@ -193,17 +193,17 @@ async function preparationIdentityError(
     lstatOrNull(preparation.tombstoneDirectory)
   ]);
   if (!hasDirectoryIdentity(root, preparation.changeRootIdentity))
-    return "change root changed before completion";
+    return "change root changed before finalization";
   if (!hasDirectoryIdentity(source, preparation.sourceIdentity))
-    return "change directory changed before completion";
+    return "change directory changed before finalization";
   if (
     preparation.tombstoneRootIdentity === null ||
     !hasDirectoryIdentity(tombstoneRoot, preparation.tombstoneRootIdentity)
   )
-    return "change tombstone root changed before completion";
+    return "change tombstone root changed before finalization";
   return target === null
     ? null
-    : "change tombstone target appeared before completion";
+    : "change tombstone target appeared before finalization";
 }
 
 async function removePreparedTree(

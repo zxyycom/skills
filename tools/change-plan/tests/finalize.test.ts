@@ -8,7 +8,7 @@ import {
   executePreparedChangeDeletion,
   prepareChangeDeletion
 } from "../src/change-deletion.ts";
-import { completeChangePlanDirectory } from "../src/complete.ts";
+import { finalizeChangePlanDirectory } from "../src/finalize.ts";
 import { completedTasks, withTempRoot, writePlan } from "./support.ts";
 
 function commitAll(root: string, message: string): void {
@@ -18,8 +18,8 @@ function commitAll(root: string, message: string): void {
   });
 }
 
-test("complete preflight is read-only and complete removes a HEAD-exact finished plan", async () => {
-  await withTempRoot("complete-success", async (root) => {
+test("finalize preflight is read-only and finalize removes a HEAD-exact finished plan", async () => {
+  await withTempRoot("finalize-success", async (root) => {
     const changes = path.join(root, "changes");
     const change = await writePlan(changes, "finished-plan", {
       tasks: completedTasks
@@ -36,7 +36,7 @@ test("complete preflight is read-only and complete removes a HEAD-exact finished
     await fs.chmod(path.join(change, "evidence", "check.sh"), 0o755);
     commitAll(root, "record finished plan");
 
-    const preflight = await completeChangePlanDirectory(change, {
+    const preflight = await finalizeChangePlanDirectory(change, {
       preflight: true
     });
     assert.equal(preflight.outcome, "preflight");
@@ -46,11 +46,11 @@ test("complete preflight is read-only and complete removes a HEAD-exact finished
       fs.access(path.join(changes, ".change-plan-tombstones"))
     );
 
-    const completed = await completeChangePlanDirectory(change);
-    assert.equal(completed.outcome, "completed", completed.error ?? "");
-    assert.equal(completed.changed, true);
-    assert.notEqual(completed.headCommit, null);
-    assert.equal(completed.tombstoneDirectory, null);
+    const finalized = await finalizeChangePlanDirectory(change);
+    assert.equal(finalized.outcome, "finalized", finalized.error ?? "");
+    assert.equal(finalized.changed, true);
+    assert.notEqual(finalized.headCommit, null);
+    assert.equal(finalized.tombstoneDirectory, null);
     await assert.rejects(fs.access(change));
     assert.equal(
       (
@@ -61,11 +61,11 @@ test("complete preflight is read-only and complete removes a HEAD-exact finished
   });
 });
 
-test("complete rejects an incomplete or non-HEAD-exact change without moving it", async () => {
-  await withTempRoot("complete-gates", async (root) => {
+test("finalize rejects an incomplete or non-HEAD-exact change without moving it", async () => {
+  await withTempRoot("finalize-gates", async (root) => {
     const changes = path.join(root, "changes");
     const incomplete = await writePlan(changes, "incomplete-plan");
-    const taskGate = await completeChangePlanDirectory(incomplete, {
+    const taskGate = await finalizeChangePlanDirectory(incomplete, {
       preflight: true
     });
     assert.equal(taskGate.outcome, "no-change");
@@ -76,7 +76,7 @@ test("complete rejects an incomplete or non-HEAD-exact change without moving it"
     });
     commitAll(root, "record plan");
     await fs.writeFile(path.join(exact, "untracked.txt"), "unknown\n");
-    const unknown = await completeChangePlanDirectory(exact, {
+    const unknown = await finalizeChangePlanDirectory(exact, {
       preflight: true
     });
     assert.equal(unknown.outcome, "no-change");
@@ -85,8 +85,8 @@ test("complete rejects an incomplete or non-HEAD-exact change without moving it"
   });
 });
 
-test("complete preserves a recoverable tombstone after cleanup fails", async () => {
-  await withTempRoot("complete-cleanup", async (root) => {
+test("finalize preserves a recoverable tombstone after cleanup fails", async () => {
+  await withTempRoot("finalize-cleanup", async (root) => {
     const changes = path.join(root, "changes");
     const change = await writePlan(changes, "cleanup-plan", {
       tasks: completedTasks
@@ -107,7 +107,7 @@ test("complete preserves a recoverable tombstone after cleanup fails", async () 
     });
     let result;
     try {
-      result = await completeChangePlanDirectory(change);
+      result = await finalizeChangePlanDirectory(change);
     } finally {
       Object.defineProperty(fs, "unlink", {
         configurable: true,
@@ -123,8 +123,8 @@ test("complete preserves a recoverable tombstone after cleanup fails", async () 
   });
 });
 
-test("complete rejects content, mode, ignored, empty-directory, and symbolic-link drift without moving", async () => {
-  await withTempRoot("complete-physical-drift", async (root) => {
+test("finalize rejects content, mode, ignored, empty-directory, and symbolic-link drift without moving", async () => {
+  await withTempRoot("finalize-physical-drift", async (root) => {
     const changes = path.join(root, "changes");
     const changed = await writePlan(changes, "changed-plan", {
       tasks: completedTasks
@@ -160,14 +160,14 @@ test("complete rejects content, mode, ignored, empty-directory, and symbolic-lin
     );
 
     await fs.writeFile(path.join(ignored, "ignored.txt"), "ignored\n");
-    const ignoredResult = await completeChangePlanDirectory(ignored, {
+    const ignoredResult = await finalizeChangePlanDirectory(ignored, {
       preflight: true
     });
     assert.equal(ignoredResult.outcome, "no-change");
     assert.match(ignoredResult.error ?? "", /unknown or empty/u);
 
     await fs.mkdir(path.join(empty, "empty"));
-    const emptyResult = await completeChangePlanDirectory(empty, {
+    const emptyResult = await finalizeChangePlanDirectory(empty, {
       preflight: true
     });
     assert.equal(emptyResult.outcome, "no-change");
@@ -177,7 +177,7 @@ test("complete rejects content, mode, ignored, empty-directory, and symbolic-lin
       path.join(root, ".gitignore"),
       path.join(linked, "outside")
     );
-    const linkResult = await completeChangePlanDirectory(linked, {
+    const linkResult = await finalizeChangePlanDirectory(linked, {
       preflight: true
     });
     assert.equal(linkResult.outcome, "no-change");
@@ -188,8 +188,8 @@ test("complete rejects content, mode, ignored, empty-directory, and symbolic-lin
   });
 });
 
-test("complete rejects Git symlink and submodule tree entries without moving", async () => {
-  await withTempRoot("complete-git-tree-types", async (root) => {
+test("finalize rejects Git symlink and submodule tree entries without moving", async () => {
+  await withTempRoot("finalize-git-tree-types", async (root) => {
     const changes = path.join(root, "changes");
     const symlink = await writePlan(changes, "symlink-plan", {
       tasks: completedTasks
@@ -236,7 +236,7 @@ test("complete rejects Git symlink and submodule tree entries without moving", a
 });
 
 test("prepared deletion revalidates tombstone target, members, and HEAD before deletion", async () => {
-  await withTempRoot("complete-revalidation", async (root) => {
+  await withTempRoot("finalize-revalidation", async (root) => {
     const changes = path.join(root, "changes");
     const change = await writePlan(changes, "revalidated-plan", {
       tasks: completedTasks
@@ -277,7 +277,7 @@ test("prepared deletion revalidates tombstone target, members, and HEAD before d
 });
 
 test("prepared deletion claims the tombstone without overwriting a concurrent target", async () => {
-  await withTempRoot("complete-target-race", async (root) => {
+  await withTempRoot("finalize-target-race", async (root) => {
     const changes = path.join(root, "changes");
     const change = await writePlan(changes, "raced-plan", {
       tasks: completedTasks
@@ -332,8 +332,8 @@ test("prepared deletion claims the tombstone without overwriting a concurrent ta
   });
 });
 
-test("complete stops when the Plan lifecycle changes while tombstone setup runs", async () => {
-  await withTempRoot("complete-lifecycle-race", async (root) => {
+test("finalize stops when the Plan lifecycle changes while tombstone setup runs", async () => {
+  await withTempRoot("finalize-lifecycle-race", async (root) => {
     const changes = path.join(root, "changes");
     const change = await writePlan(changes, "lifecycle-plan", {
       tasks: completedTasks
@@ -354,7 +354,7 @@ test("complete stops when the Plan lifecycle changes while tombstone setup runs"
             tasksPath,
             originalTasks.replace("- [x] 1.1", "- [ ] 1.1")
           );
-          commitAll(root, "change lifecycle during completion");
+          commitAll(root, "change lifecycle during finalization");
         }
         return result;
       },
@@ -362,7 +362,7 @@ test("complete stops when the Plan lifecycle changes while tombstone setup runs"
     });
     let result;
     try {
-      result = await completeChangePlanDirectory(change);
+      result = await finalizeChangePlanDirectory(change);
     } finally {
       Object.defineProperty(fs, "mkdir", {
         configurable: true,

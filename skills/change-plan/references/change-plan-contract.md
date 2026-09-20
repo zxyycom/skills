@@ -6,15 +6,16 @@
 
 ## 状态模型
 
-Change 只有仍在工作区中维护的内容 stage：`draft` 或 `plan`。目录是当前 Change 的唯一成员资格，
-成功完成后目录被删除而不是写入 `completed` 或其他持久 status。Readiness、Implementation 和
+Change 只有仍在工作区中维护的内容 stage：`draft` 或 `plan`。生命周期是
+`draft -> plan --finalize--> directory absent`；`finalize` 成功的效果是删除目录，而不是写入持久
+`finalized` status。Readiness、Implementation 和
 Verification checkbox 只表达 active Plan 内任务进度。
 
 ## Change 目录与 metadata
 
 1. 每个 Change 使用独立目录，目录名必须是小写英文、数字和连字符组成的 kebab-case。
 2. Change 根目录优先服从目标项目约定；项目没有约定时使用 `changes/`。
-3. Change 根目录的直接普通目录表示当前 Change；根下 `.change-plan-tombstones/` 是 complete 的私有
+3. Change 根目录的直接普通目录表示当前 Change；根下 `.change-plan-tombstones/` 是 finalize 的私有
    清理根，catalog 无条件跳过、不递归、不读取也不输出：
 
    ```text
@@ -31,7 +32,7 @@ Verification checkbox 只表达 active Plan 内任务进度。
 6. 可以增加交付说明或证据文件；附加文件不参与固定结构检查，也不能代替当前 stage 要求的 artifacts。
 7. Catalog 只发现 Change 根的直接普通目录，并排除 `.change-plan-tombstones`。它不递归发现更深层
    Change，也不把文件或符号链接作为列表成员。
-8. `plan` 与 `complete` 在受信工作区中由单一操作者执行。命令运行期间，目标 Change、Change 根和
+8. `plan` 与 `finalize` 在受信工作区中由单一操作者执行。命令运行期间，目标 Change、Change 根和
    tombstone 路径的命名空间保持稳定；工具拒绝已观察到的符号链接、身份变化和目标冲突，但不把这些
    路径检查当作跨进程锁或恶意并发改名隔离。
 
@@ -83,7 +84,7 @@ JSON Schema 或分发类型声明。
 | 检查场景 | `proposal.md` | `design.md` | `tasks.md` |
 | --- | --- | --- | --- |
 | Draft 的结构检查 | Draft Proposal 结构 | Design 结构 | 不参与结构检查 |
-| Plan 的结构检查、`plan` 命令目标和 `complete` | Plan Proposal 结构 | Design 结构 | Tasks 结构 |
+| Plan 的结构检查、`plan` 命令目标和 `finalize` | Plan Proposal 结构 | Design 结构 | Tasks 结构 |
 
 准备运行 `plan` 时，仍为 Draft 的目录可以包含 `tasks.md`。普通 Draft 检查不校验它，`show`
 仍按查询契约返回其可读取内容，`plan` 则按目标 Plan 结构检查它；文件的创建时机和派生关系由
@@ -217,7 +218,7 @@ Plan 使用 `baseCommit` 到当前 `HEAD` 的 first-parent Git 距离。可用�
 - `commitCount` 与 `changedLines` 均为零：`自计划基线以来，未统计到 Change 目录外的项目变化。`
 - `commitCount` 非零：`距离计划基线已过去 <commitCount> 个提交，Change 目录外累计变化 <changedLines> 行；继续前请确认这些变化没有影响当前计划。`
 
-可用距离只提示复核，不阻断 `check` 或 `complete`。基线无法解析、不在当前 `HEAD`
+可用距离只提示复核，不阻断 `check` 或 `finalize`。基线无法解析、不在当前 `HEAD`
 first-parent 历史上、当前仓库没有 `HEAD` 或版本控制操作失败时，检查返回稳定、可行动的阻断诊断；
 完成语义复核后重新运行 `plan` 可以刷新基线。
 
@@ -241,7 +242,7 @@ node <change-plan-cli> show <change-directory> [--json]
 node <change-plan-cli> check <change-directory> [--json]
 node <change-plan-cli> check-all [change-root] [--json]
 node <change-plan-cli> plan <change-directory> [--json]
-node <change-plan-cli> complete <change-directory> [--preflight] [--json]
+node <change-plan-cli> finalize <change-directory> [--preflight] [--json]
 ```
 
 ### 查询命令
@@ -256,7 +257,7 @@ node <change-plan-cli> complete <change-directory> [--preflight] [--json]
 `list` 与 `check-all` 只发现 Change 根的直接成员，按 Change 名称排序；`.change-plan-tombstones`
 始终忽略。
 
-`show`、`check`、`plan` 与 `complete` 的显式目录必须是项目约定 Change 根（未约定时
+`show`、`check`、`plan` 与 `finalize` 的显式目录必须是项目约定 Change 根（未约定时
 `changes/`）的直接 active member。单目录命令从目标父目录推导该根，不进行跨根名称搜索；目标父目录
 或任一祖先是另一个 Change 的 metadata 边界时视为嵌套路径。`.change-plan-tombstones` 及其 child
 和任何嵌套路径都返回
@@ -311,13 +312,13 @@ version-control-failed
 | 命令 | 源状态与门禁 | 成功结果 |
 | --- | --- | --- |
 | `plan` | 规范 Draft 或 Plan；目标 Plan 的三个 artifacts 结构有效，当前仓库存在 `HEAD`。不以任何 checkbox 进度为门禁。 | 原子写入 `{ "stage": "plan", "baseCommit": "<当前 HEAD>" }`。 |
-| `complete` | 结构有效、基线可用且全部 checkbox 已完成的 Plan；完整 physical tree 必须与当前 `HEAD` 的同一路径 Git tree 精确匹配。 | 删除 Change 目录；或在 cleanup 无法证明完成时保留 tombstone child。 |
+| `finalize` | 结构有效、基线可用且全部 checkbox 已完成的 Plan；完整 physical tree 必须与当前 `HEAD` 的同一路径 Git tree 精确匹配。 | 删除 Change 目录；或在 cleanup 无法证明完成时保留 tombstone child。 |
 
 两个命令都接受显式直接 active Change 目录，并从目标父目录推导项目约定根，不进行跨根名称搜索。
 `plan` 的现有 Plan 必须先由操作者完成语义复核，刷新基线只记录调用时的 `HEAD`，不证明审阅、实施或授权已经完成。
 
-`complete --preflight` 执行与实际删除相同的 Plan、任务、Git-tree、同设备、tombstone target 和
-identity 准备，但零写入且不保存 receipt。实际 complete 先在 Change root 下创建私有
+`finalize --preflight` 执行与实际删除相同的 Plan、任务、Git-tree、同设备、tombstone target 和
+identity 准备，但零写入且不保存 receipt。实际 finalize 先在 Change root 下创建私有
 `.change-plan-tombstones`（如尚不存在），再重新读取完整 Plan/任务/base/HEAD 门禁并重新准备；两次
 lifecycle 与 HEAD snapshot 必须一致。声明 tombstone child 前重验 root/source/tombstone identity、当前
 `HEAD`、完整 physical member 和 target absence。它只接受 Git regular file mode `100644`、
@@ -327,28 +328,28 @@ lifecycle 与 HEAD snapshot 必须一致。声明 tombstone child 前重验 root
 才 unlink 已预演 files，再从深到浅 `rmdir` 已预演目录，绝不递归删除。任何并发 target 或成员漂移都不
 覆盖、不删除外来内容。
 
-`complete --json` 始终返回 `sourceDirectory`、`check`、`changed`、`outcome`、`headCommit`、
+`finalize --json` 始终返回 `sourceDirectory`、`check`、`changed`、`outcome`、`headCommit`、
 `memberCount`、`tombstoneDirectory` 与 `error`。`outcome` 为：
 
 - `preflight`：所有门禁和删除准备通过，未写入。
 - `no-change`：任一门禁、准备、重验或 source 删除未提交，`changed: false`。若独占 target 已出现外来
   内容，`tombstoneDirectory` 指向只可人工检查的未提交声明路径。
-- `completed`：已验证复制且 source 与 tombstone 都已精确清理，`changed: true`、`tombstoneDirectory: null`。
+- `finalized`：已验证复制且 source 与 tombstone 都已精确清理，`changed: true`、`tombstoneDirectory: null`。
 - `committed-cleanup-pending`：已建立可验证 tombstone 副本，但 source 或 tombstone 的精确清理无法完成，
   `changed: true`，`tombstoneDirectory` 是
   唯一可操作的恢复位置。
 
-complete 不 stage、commit、reset、revert 或自动 Git restore；`headCommit` 是维护者可用普通 Git
+finalize 不 stage、commit、reset、revert 或自动 Git restore；`headCommit` 是维护者可用普通 Git
 恢复 source 的 revision。source 删除前失败不删除 source 成员；建立验证副本后失败不是 rollback 或完成，
 维护者只可检查报告的 tombstone child，或从报告的 `HEAD` 用普通 Git 恢复。
 
 ### 退出码与输出
 
 1. `0`：查询成功；`list` 中存在 invalid 成员不使发现操作失败；`check-all` 的合法空集合也成功；
-   `complete` 的 `preflight`、`completed` 或 `committed-cleanup-pending` 也成功并在文本中明确 outcome。
-2. `1`：查询根或目标不可用、结构或 Plan 基线无效、`check-all` 的任一成员无效，或 `plan` / `complete`
+   `finalize` 的 `preflight`、`finalized` 或 `committed-cleanup-pending` 也成功并在文本中明确 outcome。
+2. `1`：查询根或目标不可用、结构或 Plan 基线无效、`check-all` 的任一成员无效，或 `plan` / `finalize`
    的领域门禁、准备、重验或写入失败。
-3. `2`：CLI 参数无效，包含调用六个命令之外的名称、`--archived` 或 `--all`。
+3. `2`：CLI 参数无效，包含调用六个命令之外的名称（包括旧 `complete`、`archive`）、`--archived` 或 `--all`。
 
 文本模式把成功结果写入 stdout，把诊断和失败写入 stderr。`committed-cleanup-pending` 在 stdout 明确输出
 outcome、source、HEAD recovery revision、member count 与 precise tombstone，并在 stderr 输出 cleanup
@@ -358,7 +359,7 @@ diagnostic；JSON 保留同一结构并以 0 退出。
 ### MJS 直接导入边界
 
 `scripts/change-plan.mjs` 可以作为 ESM 直接 import，当前运行时导出 list、show、单项 check、集合
-check、plan、complete、metadata 解析与读取以及 CLI runner 对应的底层函数。该能力用于直接复用当前
+check、plan、finalize、metadata 解析与读取以及 CLI runner 对应的底层函数。该能力用于直接复用当前
 实现，不建立稳定 SDK：`change-plan.mjs` 不配套生成 `.d.mts`、SDK 声明树或 metadata JSON Schema，
 也不承诺导出集合和函数签名跨版本兼容。需要稳定交互时使用本节定义的 CLI 与 JSON 输出；直接 import
 的调用方需随当前实现同步调整。

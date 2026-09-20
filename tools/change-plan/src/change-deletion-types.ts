@@ -45,7 +45,7 @@ export type ChangeDeletionPreparation = Readonly<{
 }>;
 
 export type ChangeDeletionOutcome =
-  | "completed"
+  | "finalized"
   | "committed-cleanup-pending"
   | "no-change";
 export type ChangeDeletionExecution = Readonly<{

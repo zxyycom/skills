@@ -1,7 +1,7 @@
 ---
 title: 以删除完成当前 Change Plan
 id: 260904-current-change-plan-completion
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-04T20:50:14Z
 purpose: 让公开 Change Plan 只承接当前实施计划并安全退出名称空间。

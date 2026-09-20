@@ -1,2 +1,2 @@
 await import("../lifecycle.test.ts");
-await import("../complete.test.ts");
+await import("../finalize.test.ts");

@@ -1,7 +1,7 @@
-### Case CHANGE-PLAN-COMPLETE-003: 清理失败保留可恢复 tombstone
+### Case CHANGE-PLAN-FINALIZE-003: Finalize 清理失败保留可恢复 tombstone
 
 Tests:
-- `test:85958fb243d1f38486b58776ed5f16061a3b0bad8bfc2b2e1ec41ba7945e60a9`
+- `test:7f9044f924b6d30d2e12fc12f3b84fc85b6033b709f3c3e6e3a5d9c922dea935`
 
 Tags:
 - `change-plan`

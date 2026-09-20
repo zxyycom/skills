@@ -13,27 +13,27 @@
       "CHANGE-PLAN-CATALOG-001": "sha256:ac6f2c728b4e25b6e70ec99280991a997f6936f801fac1a8c6077b31f4e0b05b",
       "CHANGE-PLAN-CATALOG-002": "sha256:88d353f581be48ec41406565b260d88a39eee30578388efd24ce89da01b4fd6b",
       "CHANGE-PLAN-CHECK-ARTIFACTS-001": "sha256:b2612d5f5a81d15708559dc83773ac48e83276c9cf33449106e29d9971b5f707",
-      "CHANGE-PLAN-CHECK-COMPLETE-001": "sha256:e366bbd44c997ac83a0076913ed34a98d3559ca89f7d00d2abf04f027d52b86b",
       "CHANGE-PLAN-CHECK-METADATA-001": "sha256:1fa887781a7769fcd49651485246736fa2da1559e50e7543703b840f85dc4091",
       "CHANGE-PLAN-CHECK-PATH-001": "sha256:c2712e9f0fa2751ba350b369a6aa25b25c6c88343e81be545062350e9dfb4d9d",
       "CHANGE-PLAN-CHECK-STAGES-001": "sha256:3ba6622bb4d48d321cae7414bf618273bd22e2d2a5dfc10762418ddf13780c87",
       "CHANGE-PLAN-CHECK-SYMLINK-001": "sha256:3b7e2b5975497a4433fc17e227d86bb2226787ee6789101efd7b6df70814a517",
+      "CHANGE-PLAN-CHECK-VALID-001": "sha256:08f13f72d0cecf3f139a68d9a60fa774d53039478bea38eb89aa7496c0817698",
       "CHANGE-PLAN-CHECK-VC-001": "sha256:e1ab0a64625e539db37ce336aae98759965b72df4b7a322f6a063a9ab0a052fb",
-      "CHANGE-PLAN-CLI-001": "sha256:a55b1a7b7cde3bd51a5393bf4f08247d58f48ae11262358a6610dcedf39166e7",
-      "CHANGE-PLAN-CLI-002": "sha256:4d8920cfd976c55402e954bc7097a93d38efdc9bcb0f13ea9708e09eedc6da9c",
+      "CHANGE-PLAN-CLI-001": "sha256:a54d1cb89e296049ac12ba8bcb83e6b4b281185024c2938f26d855d9a5de44ae",
+      "CHANGE-PLAN-CLI-002": "sha256:936b76f96c72caf09304fef57e1ff085d54b89bde9d9d7689188433b943c0522",
       "CHANGE-PLAN-CLI-003": "sha256:01c40456bc3fcfe1400e20ec1b7c4f7ec330b4922a18250125a47f81d76c4f3f",
       "CHANGE-PLAN-CLI-004": "sha256:c4eb03821d7b0027fc168078adb1e0eb578e9832e99b0a65730fb59e70d95640",
-      "CHANGE-PLAN-CLI-005": "sha256:1fa148934b3c97a1361681fa7b03147aa27c23493dc95b7e8263dd1dfd03f140",
-      "CHANGE-PLAN-CLI-006": "sha256:9ad5188487264ca0fff54e33575c22e59cb6acdafb1e56218c4e8d875da1683e",
-      "CHANGE-PLAN-COMPLETE-001": "sha256:95d5ef3260d2c4297bb780dd07f653ce3c8deca89f308c138472c232b5429306",
-      "CHANGE-PLAN-COMPLETE-002": "sha256:0f46f9fa82d2310e8d3ea5756efd348445f3c3f3e910b87c5725c856e273172d",
-      "CHANGE-PLAN-COMPLETE-003": "sha256:4051438a62aff131416ba71ff57b46afd7e71f1a9709933c3a0c20380a42c917",
-      "CHANGE-PLAN-COMPLETE-004": "sha256:f42462a4c368ffa16a4b62ec9a5f83519667c8768c20ffaaf630ee1e642a101e",
-      "CHANGE-PLAN-COMPLETE-005": "sha256:1953d93c8bde66106af5d6a5fdce9a9ec808096e69db7fd8983fd3a709a57478",
-      "CHANGE-PLAN-COMPLETE-006": "sha256:2818d8412524220515791784d75ec08ee93955d71fc00fdbaac13c0aa86cd9fe",
-      "CHANGE-PLAN-COMPLETE-007": "sha256:0dc230fbf8f035c21e686e71cba30e370f922aa9be2b4c7b54b60fb405ade8d7",
-      "CHANGE-PLAN-COMPLETE-008": "sha256:8258de469a3e1101d5bf248bfdc70f361211259821e3d6db727bd580dfdce80a",
-      "CHANGE-PLAN-GENERATED-ARTIFACTS-001": "sha256:fa8c6575c3594c349b4a8048a8b456bb42184ed901169c6cc543183c4ee79124",
+      "CHANGE-PLAN-CLI-005": "sha256:c5cc33ecd25bdbfa84cfcf5ec8b9206848cc07cce53247a08706641780b60541",
+      "CHANGE-PLAN-CLI-006": "sha256:5d953921acaef0d4554d96e3ae1b431ba4d14ae328adb94545a72f05590e77b3",
+      "CHANGE-PLAN-FINALIZE-001": "sha256:fd720f5ef1eca4bdbd4908e7d32e4e90f39c97075c33090c31c549a1129c0345",
+      "CHANGE-PLAN-FINALIZE-002": "sha256:fd0789d69c6475277c93d6290502572f443abc6d55f6f8f4bd5d755de7c20e03",
+      "CHANGE-PLAN-FINALIZE-003": "sha256:f4d5f93b2a7a69632f4fa02ee45c4f15ce73816d4cb8788451207b84f376e683",
+      "CHANGE-PLAN-FINALIZE-004": "sha256:4d80fbb3a96b79ead9140f1fba63f4bf684a907b63ed334741ad89a5af1be7a6",
+      "CHANGE-PLAN-FINALIZE-005": "sha256:ad226029d5b0c5a239bc548272772d379d4e79b135aab96a94705784db0c0d21",
+      "CHANGE-PLAN-FINALIZE-006": "sha256:4731ac1c9a9966bae5c276da20086d103bb61ac74a20718187b3d599ca070836",
+      "CHANGE-PLAN-FINALIZE-007": "sha256:3d90d75b8e52b92be1571d02014133f9d5282dd0d5186871b71c1e51fc835c51",
+      "CHANGE-PLAN-FINALIZE-008": "sha256:7e0f07989860a36bda01b78f1bfc8e1c2703a02569487e844ba576bdbb2dc2a5",
+      "CHANGE-PLAN-GENERATED-ARTIFACTS-001": "sha256:42e9a3f5e0a5a141471e5d430d0c45496f4a91963053f4e7d6dc5b27104b0fcc",
       "CHANGE-PLAN-GIT-BASE-001": "sha256:821231c924ec051ee8c6060fc00e0c12c5aa3937a90e26191070575525ca9c8e",
       "CHANGE-PLAN-GIT-EXCLUDE-001": "sha256:264b488e3e6820618be13fbb3cdb772c657c7b091668e439537139544acbac2d",
       "CHANGE-PLAN-GIT-FAILURE-001": "sha256:29ebd1c5ee994b7c813d1df83d8a5322c68a2f2c990740383d360bcd206be076",
@@ -934,16 +934,6 @@
         "test:3ce33cc640384243b6329a56ce3c53169f3424974bef14cebb6faf2bfbb5e01e"
       ]
     },
-    "CHANGE-PLAN-CHECK-COMPLETE-001": {
-      "title": "完整计划通过检查",
-      "sourcePath": "cases/change-plan-check-complete-001.md",
-      "tags": [
-        "change-plan"
-      ],
-      "testIds": [
-        "test:3527cf14fb7d9541f7fe01c114865e4e5be1d702cced039dc16a9b54f36af246"
-      ]
-    },
     "CHANGE-PLAN-CHECK-METADATA-001": {
       "title": "检查只接受规范 Active Metadata",
       "sourcePath": "cases/change-plan-check-metadata-001.md",
@@ -984,6 +974,16 @@
         "test:0c1ab8cd9a458816ee38b72440b6c251c94d53c7d5e94cb9221769cc42730d82"
       ]
     },
+    "CHANGE-PLAN-CHECK-VALID-001": {
+      "title": "有效 Plan 通过检查",
+      "sourcePath": "cases/change-plan-check-valid-001.md",
+      "tags": [
+        "change-plan"
+      ],
+      "testIds": [
+        "test:706c6be9e9fad74e52e2fb5b6c356789f8c53d41027bb00c55a04f1e5a7b7a58"
+      ]
+    },
     "CHANGE-PLAN-CHECK-VC-001": {
       "title": "检查区分 Git 故障与不可用基线",
       "sourcePath": "cases/change-plan-check-vc-001.md",
@@ -995,23 +995,23 @@
       ]
     },
     "CHANGE-PLAN-CLI-001": {
-      "title": "CLI 只公开 active complete 命令面",
+      "title": "CLI 只公开 active finalize 命令面",
       "sourcePath": "cases/change-plan-cli-001.md",
       "tags": [
         "change-plan"
       ],
       "testIds": [
-        "test:f396084efd8c8b0c866c47b95a0e5c8d46bbea5efca2711022e505a6fc68690e"
+        "test:491993076f96085dd74d3770adf2730af4610920832dc455e5eb805a8941faeb"
       ]
     },
     "CHANGE-PLAN-CLI-002": {
-      "title": "CLI 与生成 Node runtime 保持 complete preflight 协议",
+      "title": "CLI 与生成 Node runtime 保持 finalize preflight 协议",
       "sourcePath": "cases/change-plan-cli-002.md",
       "tags": [
         "change-plan"
       ],
       "testIds": [
-        "test:588ea0ac5beba24773f7753dff2f7775ff44adb2fdc83dc60974397547055082"
+        "test:2b602513dddd102621a1401a5406dd7f5d480f326b292669405d674549515846"
       ]
     },
     "CHANGE-PLAN-CLI-003": {
@@ -1054,84 +1054,84 @@
         "test:a6ac0439a33a1bbc5625ebe7dfa70e7b16f617b3fe2bfff5c54c687343b92742"
       ]
     },
-    "CHANGE-PLAN-COMPLETE-001": {
-      "title": "Complete 预演零写入且精确 Plan 可删除",
-      "sourcePath": "cases/change-plan-complete-001.md",
+    "CHANGE-PLAN-FINALIZE-001": {
+      "title": "Finalize 预演零写入且精确 Plan 可删除",
+      "sourcePath": "cases/change-plan-finalize-001.md",
       "tags": [
         "change-plan"
       ],
       "testIds": [
-        "test:c15cbdf2743d9ff65d411a83cbee622d851899ef837b34579b23be1145435535"
+        "test:c766a47c36a9d84411d7020841ad1afd6d7bea8d560bdf538f28787259c06b3d"
       ]
     },
-    "CHANGE-PLAN-COMPLETE-002": {
-      "title": "Complete 对任务或未知成员门禁零移动",
-      "sourcePath": "cases/change-plan-complete-002.md",
+    "CHANGE-PLAN-FINALIZE-002": {
+      "title": "Finalize 对任务或未知成员门禁零移动",
+      "sourcePath": "cases/change-plan-finalize-002.md",
       "tags": [
         "change-plan"
       ],
       "testIds": [
-        "test:15712446f5fbd1eb97cfc180a75310717767d22403d211c4189be4fa8e320d6e"
+        "test:d595b6d0d4c428787ce116ee097579cf81eabebd23eccaafde359e96e677c552"
       ]
     },
-    "CHANGE-PLAN-COMPLETE-003": {
-      "title": "清理失败保留可恢复 tombstone",
-      "sourcePath": "cases/change-plan-complete-003.md",
+    "CHANGE-PLAN-FINALIZE-003": {
+      "title": "Finalize 清理失败保留可恢复 tombstone",
+      "sourcePath": "cases/change-plan-finalize-003.md",
       "tags": [
         "change-plan"
       ],
       "testIds": [
-        "test:85958fb243d1f38486b58776ed5f16061a3b0bad8bfc2b2e1ec41ba7945e60a9"
+        "test:7f9044f924b6d30d2e12fc12f3b84fc85b6033b709f3c3e6e3a5d9c922dea935"
       ]
     },
-    "CHANGE-PLAN-COMPLETE-004": {
+    "CHANGE-PLAN-FINALIZE-004": {
       "title": "删除准备拒绝 physical tree 漂移",
-      "sourcePath": "cases/change-plan-complete-004.md",
+      "sourcePath": "cases/change-plan-finalize-004.md",
       "tags": [
         "change-plan"
       ],
       "testIds": [
-        "test:1e7dbb1a3da7b555451e912fbf41589aecf32612965bb2f80832739f815b1384"
+        "test:62f9ab2385068919d31e7005e510e9b093bc587535dbfeedd93495416ccd22e9"
       ]
     },
-    "CHANGE-PLAN-COMPLETE-005": {
-      "title": "删除准备拒绝 Git 特殊 tree entry",
-      "sourcePath": "cases/change-plan-complete-005.md",
+    "CHANGE-PLAN-FINALIZE-005": {
+      "title": "Finalize 删除准备拒绝 Git 特殊 tree entry",
+      "sourcePath": "cases/change-plan-finalize-005.md",
       "tags": [
         "change-plan"
       ],
       "testIds": [
-        "test:e61e12e095463a37201bb3e40396bf848892d6bca5bbfd419cc9f17711979c7d"
+        "test:e88365536ef548a7922e03b156f89ca83891d92b0560c324872e161babf990a3"
       ]
     },
-    "CHANGE-PLAN-COMPLETE-006": {
-      "title": "预演在删除前重验 target、成员与 HEAD",
-      "sourcePath": "cases/change-plan-complete-006.md",
+    "CHANGE-PLAN-FINALIZE-006": {
+      "title": "Finalize 预演在删除前重验 target、成员与 HEAD",
+      "sourcePath": "cases/change-plan-finalize-006.md",
       "tags": [
         "change-plan"
       ],
       "testIds": [
-        "test:34426025da997169a7278fec3dcde564992bb9c3843b7eea3d7e2a9ee2a8a57f"
+        "test:1ea60b64e4ca0b1ecbd689d13be87fb2efe1bf0506fad6ba9ab135e1af4784e0"
       ]
     },
-    "CHANGE-PLAN-COMPLETE-007": {
-      "title": "Tombstone 声明不覆盖并发目标",
-      "sourcePath": "cases/change-plan-complete-007.md",
+    "CHANGE-PLAN-FINALIZE-007": {
+      "title": "Finalize Tombstone 声明不覆盖并发目标",
+      "sourcePath": "cases/change-plan-finalize-007.md",
       "tags": [
         "change-plan"
       ],
       "testIds": [
-        "test:24a5786230bb9f52067512e5540098bb06bd61eb19f31078f04b6aaaf8aa33ab"
+        "test:928bb70e28fb5a229c940a9e770799dc593471feb50d7d992523bb9bf652870e"
       ]
     },
-    "CHANGE-PLAN-COMPLETE-008": {
-      "title": "Complete 在 lifecycle 或 HEAD 漂移时停止",
-      "sourcePath": "cases/change-plan-complete-008.md",
+    "CHANGE-PLAN-FINALIZE-008": {
+      "title": "Finalize 在 lifecycle 或 HEAD 漂移时停止",
+      "sourcePath": "cases/change-plan-finalize-008.md",
       "tags": [
         "change-plan"
       ],
       "testIds": [
-        "test:3bbfab11f5bcb6aa0cfafe8d07785396b77acb3aad9533ab50673a53f21a339b"
+        "test:835b5d1904ae762d4ea4707eadf0a17d520188bd5a2f375e98863981ab00e49d"
       ]
     },
     "CHANGE-PLAN-GENERATED-ARTIFACTS-001": {

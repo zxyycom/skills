@@ -79,7 +79,7 @@
       "260721-separate-test-entry-collection-from-ledger": "sha256:7cfb8b1001ee0457246140b74c9f4ace0ca985ba4313253504cb865eb4cda65a",
       "260904-adopt-date-prefixed-record-identities": "sha256:1c6fe42c7eab92f319c1db57ab37ce92ab86b97a9f306f5702ab4484807fc441",
       "260904-complete-change-plans-by-deletion": "sha256:f6937dcf430b83672ff94c5c60bed62de6ff4725a9285653e45d1aa123d1b3f7",
-      "260904-current-change-plan-completion": "sha256:40957798161dd713bd1b8068f277f7f23de907c5617901cbf697d8eed586ef71",
+      "260904-current-change-plan-completion": "sha256:073226b25fe497749235f85d88ebf1635421c2fa86cfcbc772e6b9118c9b8176",
       "260905-add-optional-relation-summaries": "sha256:a371437fae26e53c3b883efe81696ae36c0dc373038feb4a4a510689fd67f841",
       "260905-search-authoritative-files-with-index-identity": "sha256:34240d591900ff1d798fe204e9bb5490dabbc432399336b3c7a5ffa8534d2b6a",
       "260905-separate-persistent-state-from-query-projection": "sha256:ccf93a379ebf4c0d0c4dc1cd84dd255f4959cde9bf8e7c6d85f06f25ec4222c9",
@@ -101,6 +101,7 @@
       "260912-separate-relation-summary-consumption-by-reading-task": "sha256:53cb822365576b15ff3e1797fb4e751bf82e62b83fe0d81e6e0c5a964f39c847",
       "260912-support-per-successor-complete-relation-replacements": "sha256:0be97c88e176bf210ddc70882ce1975cf7c92d7494b893c92a82cf316a1fc4a0",
       "260919-require-gate-environment-check-prerequisite": "sha256:918b0c73227afcc3f02a5e477a53d9469afe31472d389aa1e06a40254efd3871",
+      "260920-finalize-change-plans-by-deletion": "sha256:e9f78b4641a85d94293d6ace19b6f13f48d510ebf21706eca85846aa9fcaf24d",
       "activate-release-gate-checks-by-tag": "sha256:02819304803eade140cd3adb2472a368c290f639acc7998f0d54bc20cecd228e",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -1747,9 +1748,9 @@
     },
     "260904-current-change-plan-completion": {
       "name": "current-change-plan-completion",
-      "sourcePath": "current-change-plan-completion.md",
+      "sourcePath": "archive/current-change-plan-completion.md",
       "title": "以删除完成当前 Change Plan",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-04T20:50:14Z",
       "purpose": "让公开 Change Plan 只承接当前实施计划并安全退出名称空间。",
@@ -2172,6 +2173,27 @@
         "project-tooling"
       ],
       "relations": []
+    },
+    "260920-finalize-change-plans-by-deletion": {
+      "name": "finalize-change-plans-by-deletion",
+      "sourcePath": "finalize-change-plans-by-deletion.md",
+      "title": "以结项删除 Change Plan",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-20T03:31:37Z",
+      "purpose": "用 finalize 作为唯一最终生命周期动作，并保留进度、验收与删除的责任边界。",
+      "background": "complete 同时指向进度、验收和删除，无法准确表达最终动作；目录退出后由 Git 提供历史恢复。",
+      "decision": "采用 finalize/finalized；保留 completedTaskCount、删除和 tombstone 术语。",
+      "tags": [
+        "change-plan"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260904-current-change-plan-completion",
+          "summary": "以 finalize 的专用动作术语承接原有安全删除边界。"
+        }
+      ]
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

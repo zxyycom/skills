@@ -1,4 +1,4 @@
-await import("./complete.test.ts");
+await import("./finalize.test.ts");
 await import("./catalog.test.ts");
 await import("./check.test.ts");
 await import("./cli.test.ts");

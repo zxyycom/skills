@@ -15,7 +15,7 @@ import {
 } from "./check-diagnostics.test.ts";
 import { testSymbolicLinkDiagnostics } from "./check-symlinks.test.ts";
 
-test("check accepts a complete plan", () =>
+test("check accepts a valid plan", () =>
   withTempRoot("check-valid", testValidPlan));
 
 test("check applies stage-specific artifact contracts", () =>

@@ -13,11 +13,11 @@ export const expectedSemanticGateChecks = [
   ],
   [
     undefined,
-    "test:change-plan:lifecycle-complete",
+    "test:change-plan:lifecycle-finalize",
     "bun",
     [
       "./tools/change-plan/tests/lifecycle.test.ts",
-      "./tools/change-plan/tests/complete.test.ts"
+      "./tools/change-plan/tests/finalize.test.ts"
     ]
   ],
   [
@@ -248,8 +248,8 @@ export const expectedSemanticCommandPaths = new Map<string, string>([
     "./tools/change-plan/tests/checks/artifact-and-active-plan-gates.ts"
   ],
   [
-    "test:change-plan:lifecycle-complete",
-    "./tools/change-plan/tests/checks/lifecycle-complete.ts"
+    "test:change-plan:lifecycle-finalize",
+    "./tools/change-plan/tests/checks/lifecycle-finalize.ts"
   ],
   [
     "test:change-plan:public-distribution",

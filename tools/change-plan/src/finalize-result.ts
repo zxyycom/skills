@@ -1,7 +1,7 @@
 import type { ChangePlanCheckResult } from "./types.ts";
 import type { ChangeDeletionOutcome } from "./change-deletion-types.ts";
 
-export type ChangePlanCompleteResult = Readonly<{
+export type ChangePlanFinalizeResult = Readonly<{
   changed: boolean;
   check: ChangePlanCheckResult | null;
   error: string | null;
@@ -12,15 +12,15 @@ export type ChangePlanCompleteResult = Readonly<{
   tombstoneDirectory: string | null;
 }>;
 
-export function completeGateError(check: ChangePlanCheckResult): string | null {
-  if (!check.valid) return "change plan must pass check before complete";
+export function finalizeGateError(check: ChangePlanCheckResult): string | null {
+  if (!check.valid) return "change plan must pass check before finalize";
   if (check.stage !== "plan")
-    return "change plan must be a plan before complete";
+    return "change plan must be a plan before finalize";
   return check.completedTaskCount === check.taskCount
     ? null
-    : `all tasks must be completed before complete: ${check.completedTaskCount}/${check.taskCount}`;
+    : `all tasks must be completed before finalize: ${check.completedTaskCount}/${check.taskCount}`;
 }
-export function matchesCompletionSnapshot(
+export function matchesFinalizationSnapshot(
   check: ChangePlanCheckResult,
   headCommit: string
 ): boolean {
@@ -30,7 +30,7 @@ export function matchesCompletionSnapshot(
     check.distance?.headCommit === headCommit
   );
 }
-export function sameCompletionLifecycle(
+export function sameFinalizationLifecycle(
   initial: ChangePlanCheckResult,
   refreshed: ChangePlanCheckResult
 ): boolean {
@@ -42,11 +42,11 @@ export function sameCompletionLifecycle(
     planBaseCommit(initial) === planBaseCommit(refreshed)
   );
 }
-export function completeFailure(
+export function finalizeFailure(
   sourceDirectory: string,
   check: ChangePlanCheckResult | null,
   error: string
-): ChangePlanCompleteResult {
+): ChangePlanFinalizeResult {
   return {
     changed: false,
     check,

@@ -35,7 +35,7 @@ test("incremental Gate propagates documentation and shared owner changes", async
     const sharedChange = await prepareFixtureActivation(fixture);
     assert.ok(
       sharedChange.activeCheckIds.includes(
-        "test:change-plan:lifecycle-complete"
+        "test:change-plan:lifecycle-finalize"
       )
     );
     assert.ok(sharedChange.activeCheckIds.includes("script:check:decisions"));
@@ -78,7 +78,7 @@ test("incremental Gate propagates skill-package and build-system changes", async
     );
     assert.ok(
       buildSystemChange.activeCheckIds.includes(
-        "test:change-plan:lifecycle-complete"
+        "test:change-plan:lifecycle-finalize"
       )
     );
   });

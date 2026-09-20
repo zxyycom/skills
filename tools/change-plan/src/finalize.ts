@@ -7,33 +7,33 @@ import {
   type ChangeDeletionPreparation
 } from "./change-deletion.ts";
 import {
-  completeFailure,
-  completeGateError,
-  matchesCompletionSnapshot,
-  sameCompletionLifecycle,
-  type ChangePlanCompleteResult
-} from "./complete-result.ts";
+  finalizeFailure,
+  finalizeGateError,
+  matchesFinalizationSnapshot,
+  sameFinalizationLifecycle,
+  type ChangePlanFinalizeResult
+} from "./finalize-result.ts";
 import type { ChangePlanCheckResult } from "./types.ts";
 
-export type ChangePlanCompleteOptions = Readonly<{ preflight?: boolean }>;
-export type { ChangePlanCompleteResult } from "./complete-result.ts";
-export async function completeChangePlanDirectory(
+export type ChangePlanFinalizeOptions = Readonly<{ preflight?: boolean }>;
+export type { ChangePlanFinalizeResult } from "./finalize-result.ts";
+export async function finalizeChangePlanDirectory(
   changeDirectoryInput: string,
-  options: ChangePlanCompleteOptions = {}
-): Promise<ChangePlanCompleteResult> {
+  options: ChangePlanFinalizeOptions = {}
+): Promise<ChangePlanFinalizeResult> {
   const sourceDirectory = path.resolve(changeDirectoryInput);
   const check = await checkChangePlanDirectory(sourceDirectory);
-  const gateError = completeGateError(check);
+  const gateError = finalizeGateError(check);
   if (gateError !== null)
-    return completeFailure(sourceDirectory, check, gateError);
-  const prepared = await prepareCompletion(sourceDirectory, check);
+    return finalizeFailure(sourceDirectory, check, gateError);
+  const prepared = await prepareFinalization(sourceDirectory, check);
   if (prepared instanceof Error)
-    return completeFailure(sourceDirectory, check, prepared.message);
+    return finalizeFailure(sourceDirectory, check, prepared.message);
   if (options.preflight === true)
     return preflightResult(sourceDirectory, check, prepared);
-  const refreshed = await refreshCompletion(sourceDirectory, check, prepared);
+  const refreshed = await refreshFinalization(sourceDirectory, check, prepared);
   if (refreshed.preparation === null)
-    return completeFailure(sourceDirectory, refreshed.check, refreshed.error);
+    return finalizeFailure(sourceDirectory, refreshed.check, refreshed.error);
   const execution = await executePreparedChangeDeletion(refreshed.preparation);
   return {
     changed: execution.changed,
@@ -46,7 +46,7 @@ export async function completeChangePlanDirectory(
     tombstoneDirectory: execution.tombstoneDirectory
   };
 }
-async function prepareCompletion(
+async function prepareFinalization(
   sourceDirectory: string,
   check: Awaited<ReturnType<typeof checkChangePlanDirectory>>
 ): Promise<ChangeDeletionPreparation | Error> {
@@ -55,10 +55,10 @@ async function prepareCompletion(
       sourceDirectory,
       path.dirname(sourceDirectory)
     );
-    return matchesCompletionSnapshot(check, preparation.headCommit)
+    return matchesFinalizationSnapshot(check, preparation.headCommit)
       ? preparation
       : new Error(
-          "change lifecycle or Git HEAD changed during completion preparation"
+          "change lifecycle or Git HEAD changed during finalization preparation"
         );
   } catch (error) {
     return new Error(`cannot prepare change deletion: ${errorMessage(error)}`);
@@ -68,7 +68,7 @@ function preflightResult(
   sourceDirectory: string,
   check: Awaited<ReturnType<typeof checkChangePlanDirectory>>,
   preparation: ChangeDeletionPreparation
-): ChangePlanCompleteResult {
+): ChangePlanFinalizeResult {
   return {
     changed: false,
     check,
@@ -80,43 +80,43 @@ function preflightResult(
     tombstoneDirectory: preparation.tombstoneDirectory
   };
 }
-async function refreshCompletion(
+async function refreshFinalization(
   sourceDirectory: string,
   check: ChangePlanCheckResult,
   preparation: ChangeDeletionPreparation
-): Promise<CompletionRefresh> {
+): Promise<FinalizationRefresh> {
   let refreshedCheck = check;
   try {
     await ensureChangeTombstoneRoot(preparation);
     refreshedCheck = await checkChangePlanDirectory(sourceDirectory);
-    const gateError = completeGateError(refreshedCheck);
+    const gateError = finalizeGateError(refreshedCheck);
     if (gateError !== null)
-      return completionRefreshFailure(
+      return finalizationRefreshFailure(
         refreshedCheck,
-        `change lifecycle changed before completion: ${gateError}`
+        `change lifecycle changed before finalization: ${gateError}`
       );
     const refreshed = await prepareChangeDeletion(
       sourceDirectory,
       path.dirname(sourceDirectory)
     );
     const lifecycleIsCurrent =
-      sameCompletionLifecycle(check, refreshedCheck) &&
+      sameFinalizationLifecycle(check, refreshedCheck) &&
       refreshed.headCommit === preparation.headCommit &&
-      matchesCompletionSnapshot(refreshedCheck, refreshed.headCommit);
+      matchesFinalizationSnapshot(refreshedCheck, refreshed.headCommit);
     return lifecycleIsCurrent
       ? { check: refreshedCheck, error: null, preparation: refreshed }
-      : completionRefreshFailure(
+      : finalizationRefreshFailure(
           refreshedCheck,
-          "change lifecycle or Git HEAD changed before completion"
+          "change lifecycle or Git HEAD changed before finalization"
         );
   } catch (error) {
-    return completionRefreshFailure(
+    return finalizationRefreshFailure(
       refreshedCheck,
       `cannot prepare change tombstone: ${errorMessage(error)}`
     );
   }
 }
-type CompletionRefresh =
+type FinalizationRefresh =
   | Readonly<{
       check: ChangePlanCheckResult;
       error: string;
@@ -127,10 +127,10 @@ type CompletionRefresh =
       error: null;
       preparation: ChangeDeletionPreparation;
     }>;
-function completionRefreshFailure(
+function finalizationRefreshFailure(
   check: ChangePlanCheckResult,
   error: string
-): CompletionRefresh {
+): FinalizationRefresh {
   return { check, error, preparation: null };
 }
 function errorMessage(error: unknown): string {

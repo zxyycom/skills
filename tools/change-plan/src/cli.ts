@@ -11,7 +11,7 @@ import {
 } from "./catalog.ts";
 import { checkChangePlanDirectory } from "./check.ts";
 import { planChangePlanDirectory } from "./lifecycle.ts";
-import { runComplete } from "./cli-complete.ts";
+import { runFinalize } from "./cli-finalize.ts";
 import {
   formatDiagnostic,
   formatGitDistance,
@@ -20,7 +20,7 @@ import {
   printDiagnostics,
   writeLine
 } from "./cli-output.ts";
-import { completeChangePlanDirectory } from "./complete.ts";
+import { finalizeChangePlanDirectory } from "./finalize.ts";
 import {
   ChangePlanMetadataError,
   parseChangePlanMetadata,
@@ -267,18 +267,18 @@ export async function runChangePlanCli(
   const resolvedDirectory = path.resolve(cwd, directory);
   if (command === "show")
     return preflight
-      ? invalidArguments("--preflight is only valid with complete.", io)
+      ? invalidArguments("--preflight is only valid with finalize.", io)
       : await runShow(resolvedDirectory, json, io);
   if (command === "check")
     return preflight
-      ? invalidArguments("--preflight is only valid with complete.", io)
+      ? invalidArguments("--preflight is only valid with finalize.", io)
       : await runCheck(resolvedDirectory, json, io);
   if (command === "plan")
     return preflight
-      ? invalidArguments("--preflight is only valid with complete.", io)
+      ? invalidArguments("--preflight is only valid with finalize.", io)
       : await runPlan(resolvedDirectory, json, io);
-  if (command === "complete")
-    return await runComplete(resolvedDirectory, preflight, json, io);
+  if (command === "finalize")
+    return await runFinalize(resolvedDirectory, preflight, json, io);
   return invalidArguments(
     `Unknown change-plan command: ${command ?? "<missing>"}`,
     io
@@ -286,7 +286,7 @@ export async function runChangePlanCli(
 }
 
 export {
-  completeChangePlanDirectory,
+  finalizeChangePlanDirectory,
   checkChangePlanCollection,
   checkChangePlanDirectory,
   listChangePlans,

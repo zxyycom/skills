@@ -1,7 +1,7 @@
-### Case CHANGE-PLAN-COMPLETE-007: Tombstone 声明不覆盖并发目标
+### Case CHANGE-PLAN-FINALIZE-007: Finalize Tombstone 声明不覆盖并发目标
 
 Tests:
-- `test:24a5786230bb9f52067512e5540098bb06bd61eb19f31078f04b6aaaf8aa33ab`
+- `test:928bb70e28fb5a229c940a9e770799dc593471feb50d7d992523bb9bf652870e`
 
 Tags:
 - `change-plan`
