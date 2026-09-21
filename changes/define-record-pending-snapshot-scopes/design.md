@@ -59,6 +59,7 @@ Decision 的 `domain` 是所选正式 Markdown。Investigation 的 `domain` 是�
 - Investigation Report 将索引-only staging 扩展为共同 `stage`，并增加正式报告与 owner 资源的路径准备和漂移验证。
 - 两个领域共同使用 scope、selector 和结果协议；领域路径发现保持在领域层，原子 pending replacement 保持在共享版本控制层。
 - Investigation 的旧 `stage-index` 公共入口由 `stage --scope index` 取代；Decision `stage` 采用同一 scope 契约。
+- 旧 staging 命令与旧参数只进入普通未知命令或无效参数路径，不保留别名、弃用分支或迁移专用提示。
 - 该 Plan 的 CLI 位置解析依赖 `unify-record-cli-location-and-help` 的目标契约，实施顺序需先确认该依赖已经可用或同时协调。
 - 两个 skill、人类入口、生成制品、版本、staging 与版本控制测试、Test Evidence 同步更新。
 - 公共 pending 快照范围形成或演进一份长期 Decision Record。
@@ -77,10 +78,9 @@ Decision 的 `domain` 是所选正式 Markdown。Investigation 的 `domain` 是�
 
 无。
 
-## Implementation Observations
+## Implementation Dependencies
 
-- Decision 已在 `decision-stage-*` 中实现 current/`HEAD` ID 并集、删除/移动选择和 pending CAS；Investigation 的 `staging*.ts` 当前只委托索引 staging，资源成员发现可复用 `resources.ts`、`resource-root.ts` 与 rename resource snapshot 的安全扫描方式。
-- 共享写入 owner 已由 `tools/shared/src/version-control/git-pending-*` 和 `manage-pending-snapshot-writes` 固定；领域层负责把 selector 解析为路径与目标字节，共享层继续只执行预期 pending 范围替换和读回验证。
-- 公开 CLI 收口依赖 `unify-record-cli-location-and-help` 完成共同 parser 与 location 契约。领域 staging service、路径准备和测试可以先实施，CLI parser/help 任务在该依赖完成后执行。
-- 长期方向应建立新的跨领域 staging Decision，并修订 `stage-selected-decisions-by-stable-id`、`stage-investigation-index-entries-by-report-id`，同时保持 `manage-pending-snapshot-writes` 与 `anchor-investigation-resources-to-report-owners` 的 owner 边界。
-- 现有证据入口包括 `DECISION-STAGE-DELETION-001`、`DECISION-STAGE-RENAME-001`、`DECISION-STAGE-PENDING-CAS-001`、Investigation stage resource Cases，以及 `VERSION-CONTROL-PENDING-REPLACE-001`；资源 Cases 的 Contract 将从索引-only 扩展为 domain scope。
+领域 staging service 的硬前置是 `unify-record-cli-location-and-help` 与
+`make-record-index-staleness-actionable`：前者提供最终 location/parser，后者提供同步集合和 mutation
+freshness gate。候选生命周期与关系维护不是 staging 语义前置，但公共 parser、SDK、help 和生成制品
+的集成安排在二者完成后，以最终命令表面一次收口；不把这种集成顺序扩张为共同领域 owner。

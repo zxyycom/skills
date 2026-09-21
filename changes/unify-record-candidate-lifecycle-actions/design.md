@@ -55,6 +55,7 @@ Investigation `publish` 继续验证 `formedAt`、关系和资源。显式历史
 - Decision Records 新增 `publish` 与 `reactivate` 公共入口，并让它们复用现有生命周期事务、锁和恢复结果；`evolve` 保持复合事务职责。
 - Investigation Report 将候选与正式记录删除合并到 `discard`，并复用现有资源快照、历史检查与 tombstone 恢复能力。
 - 目标命令替代 `activate` 和 `discard-candidate`；公开 help、parser、SDK 与文档只保留目标动作。
+- 被取代的旧命令与目标专属旧参数不进入 legacy detector；调用只得到普通未知命令或无效参数结果。
 - 目标专属 Git 删除确认参数收口为 `--delete-recorded`，Investigation 保留正交的 `--delete-owned-resources`。
 - 两个 skill、人类入口、运行时制品、版本、生命周期与恢复测试、Test Evidence 同步更新。
 - 公共候选生命周期形成或演进一份长期 Decision Record。
@@ -66,15 +67,14 @@ Investigation `publish` 继续验证 `formedAt`、关系和资源。显式历史
 | `discard` 自动识别隐藏实际删除范围 | 预检与正式结果在写入前列出目标种类、来源、索引和资源成员。 |
 | 拆分 Decision 入口复制事务逻辑 | `publish`、`reactivate` 和 `evolve` 共享准备、锁、写前验证和恢复组件，只拆分合法状态转移。 |
 | 两个确认参数被理解为同一授权 | Help 与诊断分别说明 Git 历史和 owner 资源，且共享引用保持独立门禁。 |
-| 命令更名影响既有调用 | 作为 skill 的破坏性版本变化发布，并用明确的未知命令与新 help 收口公共表面。 |
+| 命令更名影响既有调用 | 作为 skill 的破坏性版本变化发布；旧输入走普通未知命令或无效参数路径，当前 help 只展示目标表面。 |
 
 ## Open Questions
 
 无。
 
-## Implementation Observations
+## Implementation Dependencies
 
-- Decision 可复用 `decision-candidate-publication.ts` 的候选建立准备，以及 `decision-lifecycle-*` 的状态转移、锁和恢复；`publish`、`reactivate` 与 `evolve` 应共享这些内部组件，而不是互相调用公开命令。
-- Investigation 保留 `publish-*`、candidate discard 与 formal discard 的专门事务。共同 `discard` 先按唯一 ID 选择目标，再路由到对应事务，因此无需合并资源 tombstone 与正式索引发布的内部提交点。
-- 长期方向应建立新的跨领域候选生命周期 Decision，并修订 `260908-require-established-decision-alignment`、`publish-investigation-candidates-selectively`、`separate-investigation-authoring-candidates-from-established-reports`、两个 `discard-complete-*` 以及 `use-strategy-driven-closed-decision-relation-evolution` 中受动作边界影响的判断。
-- 现有证据入口包括 `DECISION-CANDIDATE-PREFLIGHT-001`、`DECISION-CLI-DISCARD-RECORDED-FLAG-001`、`INVESTIGATION-CANDIDATE-PUBLISH-001`、`INVESTIGATION-DISCARD-CANDIDATE-001` 与 `INVESTIGATION-DISCARD-RESOURCE-SAFETY-001`，并由 candidate/lifecycle、publish、discard 和 recovery suites 承接新增分支。
+实施前先完成 `unify-record-cli-location-and-help` 与 `make-record-index-staleness-actionable`。本 Change
+只拥有候选、正式记录和 Decision lifecycle 的动作与状态转移；关系输入归一化、关系审核形状和
+`evolve --source` 由后续 `unify-record-relation-maintenance-actions` 承接，本 Change 不提前重构该边界。

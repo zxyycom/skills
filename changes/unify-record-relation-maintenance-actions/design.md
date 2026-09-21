@@ -51,6 +51,7 @@ Decision `set-relations` 只替换已正式建立记录的关系与索引。Deci
 - Investigation Report 现有入口对齐共同输入、排序、审核结果和诊断分类。
 - 两个领域先共享公开协议与行为测试；仅在实现中出现完全相同且无领域语义的纯函数时提取共享组件，图验证始终由领域 owner 执行。
 - `evolve` 的 `--relations-for` 由共同 `--source` 取代；公开 parser、help 与测试只保留目标语法。
+- 被取代的旧参数只进入普通无效参数路径，不保留兼容别名、弃用分支或迁移专用提示。
 - 两个 skill、人类入口、生成制品、版本、事务与恢复测试、Test Evidence 同步更新。
 - 公共关系维护契约形成或演进一份长期 Decision Record。
 
@@ -67,9 +68,9 @@ Decision `set-relations` 只替换已正式建立记录的关系与索引。Deci
 
 无。
 
-## Implementation Observations
+## Implementation Dependencies
 
-- Decision 的关系事务集中在 `decision-relation-transaction-*`、`cli-evolve-relation-groups.ts` 与 relation review 输出；Investigation 已有完整的 `relation-transaction-*`、review 和 CLI relation command 分层。
-- 两个领域先对齐请求/审核协议和行为测试。领域图规则、Markdown 投影、锁与恢复继续留在各自工具；只有实现后出现完全相同且无领域语义的纯函数时才提取共享组件。
-- 长期方向应建立新的跨领域关系维护 Decision，并修订 `use-strategy-driven-closed-decision-relation-evolution` 与 `260912-support-per-successor-complete-relation-replacements` 对 `evolve` 唯一入口和分组参数的现有判断。
-- 现有证据入口包括 `DECISION-EVOLVE-GROUPED-COMPLETE-REPLACEMENT-001`、`DECISION-EVOLVE-GROUPED-RECOVERY-001`、`INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001`、`INVESTIGATION-RELATION-TRANSACTION-REVIEW-001` 与 `INVESTIGATION-RELATION-TRANSACTION-RECOVERY-001`。
+实施前先完成 `unify-record-candidate-lifecycle-actions`，并沿用它已经稳定的 `publish`、`reactivate`、
+`discard` 与 `evolve` 状态职责；CLI 与 freshness gate 则分别来自更早的
+`unify-record-cli-location-and-help` 和 `make-record-index-staleness-actionable`。本 Change 独占关系输入
+归一化、关系审核形状和 `evolve --source`，不重新定义候选或生命周期状态转移。

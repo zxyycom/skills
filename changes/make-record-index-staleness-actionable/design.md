@@ -44,12 +44,14 @@
 
 `sync-index` 表示发布完整派生索引。全量与 `--select` 都先验证完整正式集合；选择性模式只限制被接纳的已知来源变化，不生成局部索引文件。`sync-index --preflight` 执行同一准备与验证但保持零写入。
 
+`--write` 从公开语法直接移除，不保留别名、弃用分支、legacy detector 或迁移专用提示；旧输入只进入普通无效参数路径。
+
 诊断至少区分索引缺失、索引无效、定义过期、来源摘要过期和来源无效。Warning 必须标识结果数据源与恢复命令；error 必须标识阻断对象和零写入结果。
 
 ### Resulting Impacts
 
 - Decision Records 与 Investigation Report 的查询服务、CLI 渲染和行为测试需要按操作类别对齐。
-- 同步入口需要移除 `--write` 分支，并让 SDK、CLI、help 和恢复说明共同采用默认写入加 `--preflight`。
+- 同步入口需要移除 `--write` 分支，并让 SDK、CLI、help 和恢复说明共同采用默认写入加 `--preflight`；旧参数只走普通无效参数路径。
 - mutation 入口需要复用同一新鲜度门禁，避免各命令自行解释陈旧状态。
 - 如现有领域诊断无法形成稳定分类，再扩展 `tools/index-runtime/`；共享层不承接领域专属恢复文案。
 - 两个 skill 与人类入口使用同一状态表和维护顺序；运行时制品、版本、测试与 Test Evidence 同步更新。
@@ -68,9 +70,8 @@
 
 无。
 
-## Implementation Observations
+## Implementation Dependencies
 
-- Decision 查询与同步入口集中在 `decision-query-*`、`decision-query-sync.ts`、`decision-state-index.ts` 和 CLI query/mutation modules；Investigation 对应入口集中在 `query-*`、`validation-sync-flow.ts`、`investigation-state-index.ts` 和 CLI query/maintenance modules。两边都能在领域层完成操作分类与恢复文案。
-- `tools/index-runtime/` 已提供 reader、query source validation、runtime refresh 与 selected sync；实施先复用现有状态和诊断，只在两个领域都缺少同一稳定分类时扩展 `diagnostics.ts` 或 reader/runtime 结果。
-- 长期方向应形成一份新的跨领域 Decision，并修订 `locate-decisions-through-id-keyed-index`、`260905-search-authoritative-files-with-index-identity`、`260905-separate-persistent-state-from-query-projection` 与 `rebuild-index-only-with-current-tools` 中受影响的陈旧查询和同步语义。
-- 现有证据入口包括 `DECISION-INDEX-REVISION-001`、`DECISION-SEARCH-FALLBACK-001`、`INVESTIGATION-INDEX-INTEGRITY-001`、`INDEX-RUNTIME-QUERY-VALIDATION-001`，以及两个领域的 query/index suites；新增分支继续由这些最小原生入口或同责任新入口承接。
+实施前先完成 `unify-record-cli-location-and-help`，再以其最终 parser、location 与 help renderer
+实现 `sync-index` 和查询诊断。该 Change 建立的 freshness gate 是后续候选生命周期、关系维护与
+pending 快照 mutation 的共同前置；下游动作必须消费该门禁，不得各自重新解释索引陈旧状态。

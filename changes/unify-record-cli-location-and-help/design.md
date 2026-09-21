@@ -26,6 +26,7 @@
 - 工作区发现保持显式，不向上搜索 Git root 或领域索引。
 - `--root` 始终表示工作区根；领域目录由 `--decisions-dir` 或 `--investigations-dir` 表示。
 - 生命周期、关系、索引维护和 staging 行为由各自 Change 承接。
+- 旧命令、旧参数和旧调用形态不属于兼容表面；parser 不识别其历史身份，也不输出迁移专用提示。
 
 ## Decisions
 
@@ -45,12 +46,13 @@
 - Help 只解析请求并渲染静态命令信息，不读取集合状态。
 - 缺少 command 时渲染顶层 help，并以参数错误退出。
 - 当 `--root` 指向领域集合目录时，诊断给出 `--root <workspace> --*-dir <relative-collection>` 的恢复形态。
+- 被目标语法移除的旧命令与旧参数进入普通未知命令或无效参数路径；不保留别名、弃用期、legacy detector 或迁移文案。
 
 ### Resulting Impacts
 
 - Investigation Report parser 改用仓库现有的 Commander 依赖，并保留领域 command handler；不新增共享 parser 包。
 - Decision Records location API 与 CLI 采用相同的相对领域目录类型和 containment 校验。
-- 绝对领域目录与工作区外路径统一返回参数错误；旧解析分支、help 条目和相关测试由目标契约取代。
+- 绝对领域目录与工作区外路径统一返回普通参数错误；旧解析分支、help 条目和相关测试由目标契约取代，不增加历史输入特判。
 - 两个 skill 与人类入口采用“当前目录优先”的示例，并只在跨工作区示例中展示 `--root`。
 - 受影响的仓库短命令、生成制品、skill 版本、argv 测试和 Test Evidence 同步更新。
 - 公共定位和 help 契约形成或演进一份长期 Decision Record。
@@ -59,7 +61,7 @@
 
 | 风险 | 控制 |
 | --- | --- |
-| 既有绝对领域目录调用失效 | 诊断返回工作区根与相对领域目录的等价写法，版本与发布说明标识破坏性变化。 |
+| 既有绝对领域目录调用失效 | 按当前参数约束返回普通错误并展示当前 help；不识别或转换旧调用。 |
 | 全局选项的两个合法位置产生歧义 | 重复参数、终止符和位置参数由共同 argv 测试固定。 |
 | 当前目录默认值被理解为自动发现 | Skill 明确要求进程位于目标工作区；工具不执行向上搜索。 |
 | Help 意外依赖无效集合 | Help 路径在集合解析前完成，并由无集合 fixture 验证。 |
@@ -68,9 +70,7 @@
 
 无。
 
-## Implementation Observations
+## Implementation Dependencies
 
-- Decision 的公开解析和定位 owner 是 `cli-args.ts`、`cli-command-options.ts`、`cli-location.ts` 与 `decision-query-context.ts`；Investigation 对应 owner 是 `cli-parser.ts`、`cli-contract.ts`、`cli-help.ts`、`options.ts` 与 `query-options.ts`。
-- Decision 已使用 Commander，仓库也已有该依赖。Investigation 改用同一解析库并保留领域 command handler，可直接复用 global option、help、重复参数和退出码规则；不新增共享 parser 包。
-- 长期方向应建立新的跨领域 CLI 定位 Decision，并修订已归档且未对齐的 `260720-use-configurable-decision-root` 以及项目 root/短命令方向中受影响的路径语义。
-- 现有证据入口包括 `DECISION-CLI-ARGS-001`、`DECISION-CONFIGURED-ABSOLUTE-DIRECTORY-001`、`INVESTIGATION-CLI-USAGE-001` 与 `INVESTIGATION-DIRECTORY-PATH-001`。绝对目录 Case 的 Contract 将随目标行为重写，而不是作为兼容要求保留。
+这是记录维护系列的首个实施 Change，不依赖其他记录 Change。它只建立 argv、location、help renderer
+和普通参数错误基础；后续 Change 拥有各自命令的领域语义与 help 内容。

@@ -15,18 +15,18 @@
 - **调查选择**：已有报告足以回答原问题时，先恢复结果与边界，再按用户意图复用或复查。
 - **运行时入口**：`list` 与 `search` 的命令级 help 支持普通正确调用和结果解释；固定契约保留完整语义。
 - **既有责任**：搜索算法、索引 Schema、关系模型、生命周期和查询输出保持由当前 owner 管理；当前事实继续从事实 owner 验证。
-- **交互边界**：明确要求最新验证或由项目规则要求当次调查时直接复查；Decision Records 继续按既有授权与偏离分类使用恢复的判断。
+- **交互边界**：复用/复查询问是减少无谓重复调查的体验优化，不是正确性门禁；明确要求最新验证或由项目规则要求当次调查时直接复查，明确要求已有材料时直接复用。Decision Records 继续按既有授权与偏离分类使用恢复的判断。
 
 ## Decisions
 
 ### Intended Change
 
-1. **恢复已有记录**：两个 skill 在形成新记录前先检查相关 candidate，再按已知信息选择 `show`、`list` 或 `search`；需要理解直接演进时继续 `trace`。查询在足以区分继续候选、完善原记录、独立新记录或无需记录时停止。
+1. **恢复已有记录**：两个 skill 按当前信息选择损失最小的入口：已知准确 candidate 时用 `show-candidate`，已知准确正式 selector 时用 `show`，已知 metadata 条件时用 `list`，主题或正文措辞用 `search`，需要理解直接演进时继续 `trace`。准备新建时再确认没有相关 candidate；不建立固定 candidate-first 顺序。查询在足以区分继续候选、完善原记录、独立新记录或无需记录时停止。
 2. **分流调查请求**：Investigation Report 按下表处理已有报告与用户意图。
 
    | 当前情形 | 下一步 |
    | --- | --- |
-   | 既有报告大致回答同一问题，用户未说明是否需要当前验证 | 先概述已有认识，再询问复用还是复查。 |
+   | 既有报告大致回答同一问题，用户未说明是否需要当前验证 | 先简述报告形成时间、结论与边界，再询问复用既有结论还是按当前事实复查。 |
    | 用户只要求查找、总结或审阅已有材料 | 直接交付已有结果及其形成时边界。 |
    | 用户明确要求重新调查、最新结果或当前事实，或项目规则要求当次调查 | 以旧报告为背景，直接按当前事实复查。 |
    | 没有足够相关的已有报告 | 继续正常调查。 |
@@ -56,3 +56,11 @@
 ## Open Questions
 
 无。
+
+## Implementation Dependencies
+
+本 Change 最后实施。开始前完成 `unify-record-cli-location-and-help`、
+`make-record-index-staleness-actionable`、`unify-record-candidate-lifecycle-actions`、
+`unify-record-relation-maintenance-actions` 与 `define-record-pending-snapshot-scopes`，再按最终命令名、
+query warning、help renderer 和 mutation 表面复核本文。CLI 基础 Change 只拥有语法和 renderer；本
+Change 拥有查询选择、停止条件、结果解释以及 Investigation 复用/复查体验。

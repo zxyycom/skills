@@ -31,6 +31,7 @@
 3. `discard` 根据唯一 ID 判断候选或正式记录；进入 Git `HEAD` 的目标统一要求 `--delete-recorded`。
 4. Investigation owner 资源删除额外要求 `--delete-owned-resources`，共享引用继续阻断不安全删除。
 5. 公开 help 与 parser 只呈现目标动作；目标测试、生成检查、领域检查和完整仓库检查通过，Test Evidence 保持同步。
+6. 被目标动作取代的旧命令与旧参数只按普通无效输入处理，不保留兼容别名、弃用分支或迁移专用提示。
 
 ## Affected Owners
 
