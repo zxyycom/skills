@@ -94,7 +94,7 @@ export async function establishAdditionalActivePredecessor(
     "utf8"
   );
   await runSuccessfulSourceLifecycleCli([
-    "activate",
+    "publish",
     decisionId,
     "--alignment",
     "aligned",
@@ -114,7 +114,7 @@ export async function establishClosedSplit(
     "utf8"
   );
   await runSuccessfulSourceLifecycleCli([
-    "activate",
+    "publish",
     coarseRelativePath,
     "--alignment",
     "unaligned",

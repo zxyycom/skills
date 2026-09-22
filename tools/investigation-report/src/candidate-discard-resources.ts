@@ -156,7 +156,7 @@ export async function candidateRecordedAtHead(
     return { status: "ok", value: files.length > 0 };
   } catch {
     return {
-      errors: ["Git HEAD could not be inspected before discard-candidate"],
+      errors: ["Git HEAD could not be inspected before the candidate discard"],
       status: "error"
     };
   }
@@ -179,7 +179,7 @@ export async function openRepository(
     }
     return {
       errors: [
-        "version-control state could not be inspected before discard-candidate"
+        "version-control state could not be inspected before the candidate discard"
       ],
       status: "error"
     };

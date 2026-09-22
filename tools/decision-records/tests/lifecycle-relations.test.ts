@@ -52,7 +52,7 @@ test("archive and reactivate move one Decision ID while preserving its Markdown 
     );
 
     const reactivated = await runSourceLifecycleCli([
-      "activate",
+      "reactivate",
       currentDecisionId,
       "--alignment",
       "aligned",
@@ -90,15 +90,15 @@ test("relations resolve stable IDs across active and archived locations", () =>
         ]
       })
     );
-    const activated = await runSourceLifecycleCli([
-      "activate",
+    const published = await runSourceLifecycleCli([
+      "publish",
       candidateId,
       "--alignment",
       "unaligned",
       "--root",
       workspaceRoot
     ]);
-    assert.equal(activated.exitCode, 0, activated.stderr);
+    assert.equal(published.exitCode, 0, published.stderr);
     const index = await readIndex(workspaceRoot);
     assert.equal(findIndexEntry(index, currentDecisionId).status, "archived");
     assert.equal(
@@ -158,15 +158,14 @@ test("lifecycle rejects a source changed after its prewrite scan before moving e
     );
   }));
 
-test("activate binds a CLI relation summary after resolving its target selector", () =>
-  withFixtureWorkspace("activate-relation-summary", async (workspaceRoot) => {
+test("evolve binds a CLI relation summary after resolving its target selector", () =>
+  withFixtureWorkspace("evolve-relation-summary", async (workspaceRoot) => {
     const candidateId = "use-cli-relation-summary";
     await writeDecision(workspaceRoot, candidateId, candidateDecisionBody());
     await runSuccessfulSourceLifecycleCli([
-      "activate",
-      candidateId,
-      "--alignment",
-      "aligned",
+      "evolve",
+      "--successor",
+      "aligned=" + candidateId,
       "--relation",
       "修订=" + currentDecisionId,
       "--relation-summary",

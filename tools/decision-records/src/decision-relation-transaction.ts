@@ -136,7 +136,7 @@ function relationTransactionAttention(
   if (unrecordedAttention !== null) return unrecordedAttention;
   return prepareRecordedDiscardAttention(
     graphPlan.discardedRecord,
-    request.deleteRecordedDecision,
+    request.deleteRecorded,
     historyBaseline
   );
 }

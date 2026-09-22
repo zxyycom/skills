@@ -31,7 +31,7 @@ test("evolve pauses for an unrecorded archived direct predecessor", () =>
         "utf8"
       );
       await runSuccessfulSourceCli([
-        "activate",
+        "publish",
         predecessorRelativePath,
         "--alignment",
         "aligned",
@@ -127,7 +127,7 @@ test("evolve lists unrecorded predecessor warnings in Decision ID order", () =>
           "utf8"
         );
         await runSuccessfulSourceCli([
-          "activate",
+          "publish",
           decisionId,
           "--alignment",
           "aligned",
@@ -197,7 +197,7 @@ test("evolve discards an intermediate with explicit final relations", () =>
         unrecordedIntermediateRelativePath,
         "--relation",
         "修订=" + currentRelativePath,
-        "--delete-recorded-decision",
+        "--delete-recorded",
         "--root",
         workspaceRoot
       ]);

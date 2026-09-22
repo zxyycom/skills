@@ -150,7 +150,7 @@ function candidateTombstoneMoveFailure(
             "the candidate and confirmed owner resources could not be moved to their tombstone",
           recovery:
             failure.outcome === "rolled-back"
-              ? "correct the reported failure, then retry discard-candidate"
+              ? "correct the reported failure, then retry discard"
               : "stop mutations and reconcile the candidate and owner resource paths before retrying",
           target: input.id
         })

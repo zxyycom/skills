@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "62"
+  version: "63"
 ---
 
 # Decision Records
@@ -91,17 +91,17 @@ Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位�
 
 | 需要的结果 | 操作与边界 |
 | --- | --- |
-| 建立已审核、body-ready 的候选 | `activate`；多个后继或完整演进用 `evolve`。 |
+| 建立已审核、body-ready 的候选 | `publish`；多个后继或完整演进用 `evolve`。 |
 | 既有方向发生真实取舍变化，前后判断均有独立回放价值 | 创建新记录；真实承接前序时才建立演进关系，拆分或重划须覆盖前序继续有效的长期含义。 |
 | 记录误述、理由补足或表述纠正，采用方向与范围未实质变化 | 完善原记录，再同步索引；候选收敛也继续编辑原候选。 |
 | 完整未来方向已成为当前事实 | 核对事实后用 `mark-aligned`。 |
-| 退出当前依据或重新启用历史记录 | `archive` 或 `activate`，保留既有历史边界。 |
+| 退出当前依据或重新启用历史记录 | `archive` 或 `reactivate`，保留既有历史边界。 |
 | 更正 ID/name | `rename`，由事务统一维护身份、引用、位置和索引。 |
 | 明确删除记录 | `discard`；与演进原子组合时显式使用 `evolve --discard <decision-id>`。成功结果报告为删除，而非归档。 |
 
 已建立记录的生命周期、alignment 和关系通过 CLI 事务维护；非法 alignment 只能按恢复手册取得字段授权后原位修复。索引从 Markdown 派生。
 
-需要只读预演时，新候选使用 `activate` 或 `evolve --preflight` 以本次完整参数验证，并返回预计的完整 `relationReview`。预检零写入，不能作为正式执行的提交凭据；正式执行仍须重新提供参数、重新验证，并只以 `committed` review 确认已提交的完整关系。重新激活 archived 记录保留既有关系，不适用该核对。
+需要只读预演时，新候选使用 `publish --preflight` 或 `evolve --preflight` 以本次完整参数验证，并返回预计的完整 `relationReview`。预检零写入，不能作为正式执行的提交凭据；正式执行仍须重新提供参数、重新验证，并只以 `committed` review 确认已提交的完整关系。`reactivate` 只执行 `archived` → `active`，保留既有关系与 createdAt，不进入该关系核对。
 
 拆分或重划先用重复 `--successor` 选择完整后继集合；这是本次闭合事件的成员，不表示各成员必须使用相同关系。再按[后继集合与语义闭合](references/decision-record-rules.md#后继集合与语义闭合)核对承接范围，并为每个成员确定其完整最终 relations：
 

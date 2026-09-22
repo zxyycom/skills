@@ -118,7 +118,7 @@ test("candidate queries discover source records while activation indexes only re
         /2 candidate scaffolds/
       );
       const multipleUnindexedActivation = await runSourceCli([
-        "activate",
+        "publish",
         firstUnindexedRelativePath,
         "--alignment",
         "aligned",
@@ -128,7 +128,7 @@ test("candidate queries discover source records while activation indexes only re
       assert.equal(multipleUnindexedActivation.exitCode, 0);
       assert.match(
         multipleUnindexedActivation.stdout,
-        /Activated new decision as aligned use-first-unindexed\.md\./
+        /Published new decision as aligned use-first-unindexed\.md\./
       );
       assert.match(
         multipleUnindexedActivation.stderr,
@@ -181,14 +181,14 @@ test("candidate queries discover source records while activation indexes only re
       assert.match(candidateSync.stderr, /use-second-unindexed\.md/);
 
       const secondActivation = await runSuccessfulSourceCli([
-        "activate",
+        "publish",
         secondUnindexedRelativePath,
         "--alignment",
         "aligned",
         "--root",
         workspaceRoot
       ]);
-      assert.match(secondActivation, /Activated new decision as aligned/);
+      assert.match(secondActivation, /Published new decision as aligned/);
       const completeCandidateIndex = await readIndex(indexPath);
       findIndexEntry(completeCandidateIndex, firstUnindexedRelativePath);
       findIndexEntry(completeCandidateIndex, secondUnindexedRelativePath);

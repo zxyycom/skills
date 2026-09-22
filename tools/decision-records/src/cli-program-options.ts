@@ -35,13 +35,6 @@ export function createDecisionRelationSummaryOption(): Option {
     .conflicts("clearRelations");
 }
 
-export function createClearRelationsOption(): Option {
-  return new Option(
-    "--clear-relations",
-    "Replace the complete relation list with an explicit empty set."
-  ).conflicts("relation");
-}
-
 export function createKeepUnrecordedHistoryOption(): Option {
   return new Option(
     "--keep-unrecorded-history",

@@ -69,7 +69,7 @@ test("activation reconciles unindexed established records before committing a ca
     findIndexEntry(await readIndex(indexPath), orphanRelativePath);
 
     const activationWithOrphan = await runSourceCli([
-      "activate",
+      "publish",
       targetCandidateRelativePath,
       "--alignment",
       "aligned",

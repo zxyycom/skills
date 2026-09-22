@@ -286,7 +286,7 @@ async function discardHistoryFailure(
   if (recorded.errors.length > 0) {
     return discardHistoryCheckFailure(options, recorded.errors);
   }
-  if (recorded.recorded && !options.deleteRecordedReport) {
+  if (recorded.recorded && !options.deleteRecorded) {
     return {
       ...result(
         options,
@@ -294,7 +294,7 @@ async function discardHistoryFailure(
         [],
         [
           `Investigation report ${options.id} has entered Git HEAD; confirm that its recorded history should be deleted.`,
-          "Re-run with --delete-recorded-report only after confirming deletion; no files were changed."
+          "Re-run with --delete-recorded only after confirming deletion; no files were changed."
         ]
       ),
       requiresRecordedDeletionConfirmation: true

@@ -84,7 +84,7 @@ test("discard pauses before deleting a candidate recorded in Git HEAD", () =>
       ]);
       assert.equal(paused.exitCode, 1);
       assert.match(paused.stderr, /Decision .* has entered Git HEAD/i);
-      assert.match(paused.stderr, /--delete-recorded-decision/);
+      assert.match(paused.stderr, /--delete-recorded/);
       assert.equal(
         await fs.readFile(discardedPath, "utf8"),
         candidateDecisionBody()
@@ -93,7 +93,7 @@ test("discard pauses before deleting a candidate recorded in Git HEAD", () =>
       const discarded = await runSourceCli([
         "discard",
         discardedRelativePath,
-        "--delete-recorded-decision",
+        "--delete-recorded",
         "--root",
         workspaceRoot
       ]);

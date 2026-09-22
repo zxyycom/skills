@@ -29,5 +29,5 @@ relations: []
 - 采用: 使用唯一保留 basename `_candidate.<investigation-id>` 保存 candidate；该文件不匹配正式 Investigation ID，不进入正式索引、`list`、`show`、`trace` 或 `stage-index`。
 - 采用: candidate 使用正式 frontmatter、固定章节与资源链接语法；`scaffoldValid`、`bodyReady`、`resourceReady` 与 publish preflight 只表达机械准备事实，不证明语义质量、关系真实性、资源价值或建立授权。
 - 采用: candidate 与正式报告共享根目录 `_resources/`。candidate 可以直接拥有最终 `<investigation-id-stem>/...` 路径中的资源，或共享已建立 owner 的资源；publish 不改写链接、不搬迁或自动暂存资源。
-- 采用: candidate 通过 `new` 创建、通过 `publish` 建立或通过 `discard-candidate` 显式清理；它不是 status、archive 或 active/archived lifecycle 的另一种形式。
+- 采用: candidate 通过 `new` 创建、通过 `publish` 建立或通过 `discard` 显式清理；它不是 status、archive 或 active/archived lifecycle 的另一种形式。
 - 不采用: 以子目录隔离 candidate、用索引保存 candidate、从 readiness 推断语义审核，或让 candidate/关系自动改变正式报告的可见性与生命周期。

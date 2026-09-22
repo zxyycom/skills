@@ -4,9 +4,11 @@ import type { DecisionRecordsCliIo } from "./cli-io.ts";
 import type { ParsedOptions } from "./cli-command-options.ts";
 import type { DecisionId } from "./types.ts";
 import {
-  decisionRelationOverride,
-  requiredDecisionAlignment
+  defaultOption,
+  requiredDecisionAlignment,
+  requiredDecisionId
 } from "./cli-option-parsers.ts";
+import { newCommandArgs } from "./cli-new-arguments.ts";
 import { evolveRelationOverridesForCommand } from "./cli-evolve-relation-groups.ts";
 import { resolveWorkspaceDecisionLocation } from "./decision-location.ts";
 
@@ -15,7 +17,7 @@ const decisionListDefaultLimit = 10;
 type CommandLocation = Pick<CliArgs, "decisionsDir" | "workspaceRoot">;
 type LifecycleCommand = Extract<
   Command,
-  "activate" | "archive" | "discard" | "evolve"
+  "archive" | "discard" | "evolve" | "publish" | "reactivate"
 >;
 type SimpleCommand = Extract<Command, "candidates" | "check">;
 
@@ -69,7 +71,6 @@ function commandLocation(
 const commandArgumentFactories: Readonly<
   Record<Command, CommandArgumentFactory>
 > = {
-  activate: lifecycleArguments,
   archive: lifecycleArguments,
   candidates: simpleArguments,
   check: simpleArguments,
@@ -77,8 +78,9 @@ const commandArgumentFactories: Readonly<
   evolve: lifecycleArguments,
   list: ({ location, options }) => listCommandArgs(location, options),
   "mark-aligned": singleDecisionArguments,
-  new: ({ decisionIds, location, options }) =>
-    newCommandArgs(decisionIds, location, options),
+  new: newCommandArgs,
+  publish: lifecycleArguments,
+  reactivate: lifecycleArguments,
   rename: renameArguments,
   search: ({ commanderCommand, location, options }) =>
     searchCommandArgs(location, options, commanderCommand.args[0]),
@@ -164,21 +166,11 @@ function lifecycleCommandArgs(
   options: ParsedOptions
 ): CliArgs {
   const {
-    deleteRecordedDecision = false,
+    deleteRecorded = false,
     keepUnrecordedHistory = false,
     preflight = false
   } = options;
   switch (command) {
-    case "activate":
-      return {
-        ...location,
-        alignment: requiredDecisionAlignment(options.alignment),
-        command,
-        decisionId: requiredDecisionId(decisionIds),
-        keepUnrecordedHistory,
-        preflight,
-        relationOverride: decisionRelationOverride(options)
-      };
     case "archive":
       return {
         ...location,
@@ -191,11 +183,48 @@ function lifecycleCommandArgs(
         ...location,
         command,
         decisionId: requiredDecisionId(decisionIds),
-        deleteRecordedDecision
+        deleteRecorded
       };
     case "evolve":
       return evolveCommandArgs(commanderCommand, location, options);
+    case "publish":
+      return publishArguments(location, options, decisionIds, {
+        keepUnrecordedHistory,
+        preflight
+      });
+    case "reactivate":
+      return reactivateArguments(location, options, decisionIds, preflight);
   }
+}
+
+function publishArguments(
+  location: CommandLocation,
+  options: ParsedOptions,
+  decisionIds: DecisionId[],
+  flags: { keepUnrecordedHistory: boolean; preflight: boolean }
+): CliArgsFor<"publish"> {
+  return {
+    ...location,
+    alignment: requiredDecisionAlignment(options.alignment),
+    command: "publish",
+    decisionId: requiredDecisionId(decisionIds),
+    ...flags
+  };
+}
+
+function reactivateArguments(
+  location: CommandLocation,
+  options: ParsedOptions,
+  decisionIds: DecisionId[],
+  preflight: boolean
+): CliArgsFor<"reactivate"> {
+  return {
+    ...location,
+    alignment: requiredDecisionAlignment(options.alignment),
+    command: "reactivate",
+    decisionId: requiredDecisionId(decisionIds),
+    preflight
+  };
 }
 
 function evolveCommandArgs(
@@ -204,60 +233,28 @@ function evolveCommandArgs(
   options: ParsedOptions
 ): CliArgsFor<"evolve"> {
   const {
-    deleteRecordedDecision = false,
+    deleteRecorded = false,
     discard: discardId,
     keepUnrecordedHistory = false,
     preflight = false,
     successor: successors = []
   } = options;
-  if (deleteRecordedDecision && discardId === undefined) {
-    command.error(
-      "--delete-recorded-decision requires --discard <decision-id>",
-      {
-        exitCode: 2,
-        code: "decision-records.missing-discard"
-      }
-    );
+  if (deleteRecorded && discardId === undefined) {
+    command.error("--delete-recorded requires --discard <decision-id>", {
+      exitCode: 2,
+      code: "decision-records.missing-discard"
+    });
   }
   return {
     ...location,
     discardId: discardId ?? null,
     command: "evolve",
-    deleteRecordedDecision,
+    deleteRecorded,
     keepUnrecordedHistory,
     preflight,
     ...evolveRelationOverridesForCommand(command),
     successors
   };
-}
-
-function newCommandArgs(
-  decisionIds: DecisionId[],
-  location: CommandLocation,
-  options: ParsedOptions
-): CliArgsFor<"new"> {
-  validateNewRelationOptions(options);
-  return {
-    ...location,
-    background: requiredProjectionOption(options.background, "--background"),
-    command: "new",
-    decision: requiredProjectionOption(options.decision, "--decision"),
-    decisionId: requiredDecisionId(decisionIds),
-    preflightAlignment: defaultOption(options.preflightAlignment, null),
-    purpose: requiredProjectionOption(options.purpose, "--purpose"),
-    relations: defaultOption(options.relation, []),
-    relationSummaries: defaultOption(options.relationSummary, []),
-    tags: defaultOption(options.tag, []),
-    title: requiredProjectionOption(options.title, "--title")
-  };
-}
-
-function validateNewRelationOptions(options: ParsedOptions): void {
-  if (options.relation !== undefined || options.relationSummary === undefined)
-    return;
-  throw new InvalidArgumentError(
-    "--relation-summary requires at least one --relation"
-  );
 }
 
 function listCommandArgs(
@@ -333,10 +330,6 @@ function validateRelatedDirection(options: ParsedOptions): void {
   }
 }
 
-function defaultOption<T>(value: T | undefined, fallback: T): T {
-  return value === undefined ? fallback : value;
-}
-
 function secondDecisionSelector(decisionIds: readonly DecisionId[]): string {
   return decisionIds[1] === undefined ? "" : decisionIds[1];
 }
@@ -361,22 +354,4 @@ function traceCommandArgs(
       ? {}
       : { traceMaxRecords: options.maxRecords })
   };
-}
-
-function requiredProjectionOption(
-  value: string | undefined,
-  name: string
-): string {
-  if (value === undefined) {
-    throw new InvalidArgumentError(name + " is required");
-  }
-  return value;
-}
-
-function requiredDecisionId(decisionIds: readonly DecisionId[]): DecisionId {
-  const decisionId = decisionIds[0];
-  if (decisionId === undefined) {
-    throw new InvalidArgumentError("Decision ID is required");
-  }
-  return decisionId;
 }

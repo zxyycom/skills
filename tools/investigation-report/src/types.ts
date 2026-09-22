@@ -150,7 +150,7 @@ export type InvestigationCandidatePublishResult = Readonly<{
 
 export type InvestigationCandidateDiscardOptions = Readonly<{
   deleteOwnedResources?: boolean;
-  deleteRecordedCandidate?: boolean;
+  deleteRecorded?: boolean;
   id: string;
   investigationsDir?: string;
   workspaceRoot: string;
@@ -491,7 +491,7 @@ export type InvestigationRelationSetResult = Readonly<{
 
 export type InvestigationReportDiscardOptions = {
   deleteOwnedResources?: boolean;
-  deleteRecordedReport?: boolean;
+  deleteRecorded?: boolean;
   id: string;
   investigationsDir?: string;
   workspaceRoot: string;

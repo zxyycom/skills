@@ -9,7 +9,6 @@ import {
 } from "./cli-option-parsers.ts";
 import { collectEvolveRelationEvents } from "./cli-evolve-relation-groups.ts";
 import {
-  createClearRelationsOption,
   createDecisionRelationOption,
   createDecisionRelationSummaryOption,
   createKeepUnrecordedHistoryOption,
@@ -25,7 +24,8 @@ export function registerMutationCommands(
   registerNewCommand(program, execute);
   registerRenameCommand(program, execute);
   registerStageCommand(program, execute);
-  registerActivateCommand(program, execute);
+  registerPublishCommand(program, execute);
+  registerReactivateCommand(program, execute);
   registerEvolveCommand(program, execute);
   registerMarkAlignedCommand(program, execute);
   registerArchiveCommand(program, execute);
@@ -141,16 +141,16 @@ function registerStageCommand(
   );
 }
 
-function registerActivateCommand(
+function registerPublishCommand(
   program: CommanderCommand,
   execute: CliProgramExecute
 ): void {
-  const activate = createSubcommand(
+  const publish = createSubcommand(
     program,
-    "activate",
-    "Establish one new decision candidate or reactivate one archived decision; " +
-      "new candidates may record direct evolution relations and archive their " +
-      "predecessors in the same transaction."
+    "publish",
+    "Establish one reviewed decision candidate as a formal record with its " +
+      "declared relations; active predecessors declared by the candidate are " +
+      "archived in the same transaction."
   )
     .argument(
       "<selector>",
@@ -160,22 +160,44 @@ function registerActivateCommand(
     .addOption(
       new Option(
         "--alignment <value>",
-        "Alignment state for the active decision."
+        "Alignment state for the published decision."
       )
         .choices(decisionAlignments)
         .makeOptionMandatory()
     )
-    .addOption(
-      createDecisionRelationOption(
-        "Replace every selected successor's complete relation list with one final direct predecessor relation. Repeat for the complete replacement."
-      )
-    )
-    .addOption(createDecisionRelationSummaryOption())
-    .addOption(createClearRelationsOption())
     .addOption(createPreflightOption())
     .addOption(createKeepUnrecordedHistoryOption());
-  activate.action((decisionId: DecisionId) =>
-    execute("activate", activate, [decisionId])
+  publish.action((decisionId: DecisionId) =>
+    execute("publish", publish, [decisionId])
+  );
+}
+
+function registerReactivateCommand(
+  program: CommanderCommand,
+  execute: CliProgramExecute
+): void {
+  const reactivate = createSubcommand(
+    program,
+    "reactivate",
+    "Move one archived decision back to the active lifecycle location with " +
+      "its confirmed alignment; use evolve for combined lifecycle transactions."
+  )
+    .argument(
+      "<selector>",
+      "Standard Decision ID or unique semantic name.",
+      parseSingleDecisionId
+    )
+    .addOption(
+      new Option(
+        "--alignment <value>",
+        "Alignment state for the reactivated decision."
+      )
+        .choices(decisionAlignments)
+        .makeOptionMandatory()
+    )
+    .addOption(createPreflightOption());
+  reactivate.action((decisionId: DecisionId) =>
+    execute("reactivate", reactivate, [decisionId])
   );
 }
 
@@ -208,7 +230,7 @@ function registerEvolveCommand(
       ).argParser(parseSingleDecisionId)
     )
     .option(
-      "--delete-recorded-decision",
+      "--delete-recorded",
       "Confirm deletion when the discarded Decision ID has entered Git HEAD."
     );
   evolve
@@ -287,8 +309,8 @@ function registerDiscardCommand(
   const discard = createSubcommand(
     program,
     "discard",
-    "Delete one complete, unreferenced candidate or established decision. IDs already " +
-      "recorded in Git HEAD require --delete-recorded-decision."
+    "Delete one complete, unreferenced candidate or established decision. Targets already " +
+      "recorded in Git HEAD require --delete-recorded."
   )
     .argument(
       "<selector>",
@@ -296,7 +318,7 @@ function registerDiscardCommand(
       parseSingleDecisionId
     )
     .option(
-      "--delete-recorded-decision",
+      "--delete-recorded",
       "Confirm deletion of a Decision ID that has entered Git HEAD."
     );
   discard.action((decisionId: DecisionId) =>

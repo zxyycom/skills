@@ -14,7 +14,6 @@ import type {
 } from "./types.ts";
 
 export type Command =
-  | "activate"
   | "archive"
   | "candidates"
   | "check"
@@ -23,6 +22,8 @@ export type Command =
   | "list"
   | "mark-aligned"
   | "new"
+  | "publish"
+  | "reactivate"
   | "rename"
   | "search"
   | "show"
@@ -42,16 +43,6 @@ type LocatedCommand<
 
 export type CliArgs =
   | LocatedCommand<
-      "activate",
-      {
-        alignment: DecisionAlignment;
-        decisionId: DecisionId;
-        keepUnrecordedHistory: boolean;
-        preflight: boolean;
-        relationOverride: DecisionRelationOverride;
-      }
-    >
-  | LocatedCommand<
       "archive",
       {
         decisionIds: DecisionId[];
@@ -62,13 +53,13 @@ export type CliArgs =
   | LocatedCommand<"check">
   | LocatedCommand<
       "discard",
-      { decisionId: DecisionId; deleteRecordedDecision: boolean }
+      { decisionId: DecisionId; deleteRecorded: boolean }
     >
   | LocatedCommand<
       "evolve",
       {
+        deleteRecorded: boolean;
         discardId: DecisionId | null;
-        deleteRecordedDecision: boolean;
         keepUnrecordedHistory: boolean;
         preflight: boolean;
         relationOverride: DecisionRelationOverride;
@@ -106,6 +97,23 @@ export type CliArgs =
         relationSummaries: DecisionRelationSummary[];
         tags: DecisionTag[];
         title: string;
+      }
+    >
+  | LocatedCommand<
+      "publish",
+      {
+        alignment: DecisionAlignment;
+        decisionId: DecisionId;
+        keepUnrecordedHistory: boolean;
+        preflight: boolean;
+      }
+    >
+  | LocatedCommand<
+      "reactivate",
+      {
+        alignment: DecisionAlignment;
+        decisionId: DecisionId;
+        preflight: boolean;
       }
     >
   | LocatedCommand<

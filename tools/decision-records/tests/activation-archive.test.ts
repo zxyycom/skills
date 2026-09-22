@@ -14,7 +14,7 @@ import {
   withFixtureWorkspace
 } from "./support.ts";
 
-test("activation and archive transitions preserve content and index atomicity", () =>
+test("publication and archive transitions preserve content and index atomicity", () =>
   withFixtureWorkspace("activation-archive", async (workspaceRoot) => {
     assert.equal(await fileExists(path.join(workspaceRoot, ".git")), false);
 
@@ -27,18 +27,31 @@ test("activation and archive transitions preserve content and index atomicity", 
     const establishedText = await fs.readFile(establishedPath, "utf8");
     const originalIndexText = await fs.readFile(indexPath, "utf8");
 
-    const rejectedAlignmentRollback = await runBundledCli([
-      "activate",
+    const rejectedActiveReactivation = await runBundledCli([
+      "reactivate",
       currentRelativePath,
       "--alignment",
       "unaligned",
       "--root",
       workspaceRoot
     ]);
-    assert.equal(rejectedAlignmentRollback.exitCode, 1);
+    assert.equal(rejectedActiveReactivation.exitCode, 1);
     assert.match(
-      rejectedAlignmentRollback.stderr,
-      /cannot be changed back to unaligned/
+      rejectedActiveReactivation.stderr,
+      /reactivate requires an archived decision/
+    );
+    const rejectedEstablishedPublish = await runBundledCli([
+      "publish",
+      currentRelativePath,
+      "--alignment",
+      "unaligned",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(rejectedEstablishedPublish.exitCode, 1);
+    assert.match(
+      rejectedEstablishedPublish.stderr,
+      /publish establishes a decision candidate; this decision is already an active formal record/
     );
     assert.equal(await fs.readFile(establishedPath, "utf8"), establishedText);
     assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
@@ -51,32 +64,35 @@ test("activation and archive transitions preserve content and index atomicity", 
     await fs.mkdir(path.dirname(lifecyclePath), { recursive: true });
     await fs.writeFile(lifecyclePath, candidateDecisionBody(), "utf8");
 
-    const activation = await runSourceCli([
-      "activate",
+    const publication = await runSourceCli([
+      "publish",
       lifecycleRelativePath,
       "--alignment",
       "unaligned",
       "--root",
       workspaceRoot
     ]);
-    assert.equal(activation.exitCode, 0, activation.stderr);
-    assert.doesNotMatch(activation.stdout, /pending/i);
-    assert.doesNotMatch(activation.stderr, /pending/i);
+    assert.equal(publication.exitCode, 0, publication.stderr);
+    assert.doesNotMatch(publication.stdout, /pending/i);
+    assert.doesNotMatch(publication.stderr, /pending/i);
     const activatedText = await fs.readFile(lifecyclePath, "utf8");
     const createdAt = activatedText.match(/^createdAt: (.+)$/m)?.[1];
     assert.match(createdAt ?? "", /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
     findIndexEntry(await readIndex(indexPath), lifecycleRelativePath);
 
-    const repeatedActivation = await runSourceCli([
-      "activate",
+    const repeatedPublication = await runSourceCli([
+      "publish",
       lifecycleRelativePath,
       "--alignment",
       "unaligned",
       "--root",
       workspaceRoot
     ]);
-    assert.equal(repeatedActivation.exitCode, 0, repeatedActivation.stderr);
-    assert.match(repeatedActivation.stdout, /already active and unaligned/);
+    assert.equal(repeatedPublication.exitCode, 1, repeatedPublication.stderr);
+    assert.match(
+      repeatedPublication.stderr,
+      /publish establishes a decision candidate/
+    );
     assert.equal(await fs.readFile(lifecyclePath, "utf8"), activatedText);
 
     await fs.rm(indexPath);
@@ -173,7 +189,7 @@ test("activation and archive transitions preserve content and index atomicity", 
     );
     const archivedIndex = await fs.readFile(indexPath, "utf8");
     const missingReactivationConfirmation = await runSourceCli([
-      "activate",
+      "reactivate",
       lifecycleRelativePath,
       "--root",
       workspaceRoot
@@ -190,7 +206,7 @@ test("activation and archive transitions preserve content and index atomicity", 
     assert.equal(await fs.readFile(indexPath, "utf8"), archivedIndex);
 
     const reactivated = await runSourceCli([
-      "activate",
+      "reactivate",
       lifecycleRelativePath,
       "--alignment",
       "aligned",
@@ -228,7 +244,7 @@ test("activation and archive transitions preserve content and index atomicity", 
     const discardedArchived = await runSourceCli([
       "discard",
       lifecycleRelativePath,
-      "--delete-recorded-decision",
+      "--delete-recorded",
       "--root",
       workspaceRoot
     ]);

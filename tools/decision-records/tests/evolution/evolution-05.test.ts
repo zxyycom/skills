@@ -35,7 +35,7 @@ test("evolve keeps a later reallocation separate from its archived predecessor e
         "utf8"
       );
       await runSuccessfulSourceLifecycleCli([
-        "activate",
+        "publish",
         additionalPredecessor,
         "--alignment",
         "aligned",
@@ -98,7 +98,7 @@ test("discard rejects a split successor that would leave an open split", () =>
     const discarded = await runSourceCli([
       "discard",
       established.alignedRelativePath,
-      "--delete-recorded-decision",
+      "--delete-recorded",
       "--root",
       workspaceRoot
     ]);
@@ -140,7 +140,7 @@ test("evolve discards one split successor when it replaces the complete closure"
         "拆分=" + established.coarseRelativePath,
         "--discard",
         established.alignedRelativePath,
-        "--delete-recorded-decision",
+        "--delete-recorded",
         "--root",
         workspaceRoot
       ]);
@@ -216,7 +216,7 @@ test("evolve rejects a discarded Decision ID selected as a successor without mut
         "aligned=" + currentRelativePath,
         "--discard",
         currentRelativePath,
-        "--delete-recorded-decision",
+        "--delete-recorded",
         "--root",
         workspaceRoot
       ]);

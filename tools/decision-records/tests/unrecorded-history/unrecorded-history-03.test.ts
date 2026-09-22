@@ -37,7 +37,7 @@ test("evolve discard accepts source-empty final relations", () =>
         "aligned=" + successorRelativePath,
         "--discard",
         unrecordedIntermediateRelativePath,
-        "--delete-recorded-decision",
+        "--delete-recorded",
         "--root",
         workspaceRoot
       ]);
@@ -70,7 +70,7 @@ test("evolve discard accepts an explicitly empty final relation set", () =>
         "--discard",
         unrecordedIntermediateRelativePath,
         "--clear-relations",
-        "--delete-recorded-decision",
+        "--delete-recorded",
         "--root",
         workspaceRoot
       ]);
@@ -104,7 +104,7 @@ test("evolve discard accepts an unrelated archived final relation", () =>
         unrecordedIntermediateRelativePath,
         "--relation",
         "修订=" + archivedRelativePath,
-        "--delete-recorded-decision",
+        "--delete-recorded",
         "--root",
         workspaceRoot
       ]);
@@ -184,7 +184,7 @@ test("evolve discard flag deletes a recorded decision without reading Git HEAD",
         "aligned=" + successorRelativePath,
         "--discard",
         unrecordedIntermediateRelativePath,
-        "--delete-recorded-decision",
+        "--delete-recorded",
         "--root",
         workspaceRoot
       ]);

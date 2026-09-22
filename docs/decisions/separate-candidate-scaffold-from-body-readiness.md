@@ -28,5 +28,5 @@ relations:
 
 - 采用: candidate 可以是具有合法身份、frontmatter、关系语法和固定章节形状的 scaffold；CLI 以 `scaffoldValid` 与 `bodyReady` 分别报告结构与机械正文条件。
 - 采用: `new` 只以显式 metadata 原子、不覆盖地创建 scaffold；创建成功不因正文未完成、alignment 未预演或辅助预检 attention 变成失败。
-- 采用: 只有 body-ready candidate 才能被 `activate` 或 `evolve` 建立；建立前仍要求人工或 agent 完成语义审核与本次授权判断。
-- 采用: `activate --preflight` 与 `evolve --preflight` 复用当前准备逻辑但零写入、不保存 receipt；正式命令重新读取并验证所有当前参数与来源。
+- 采用: 只有 body-ready candidate 才能被 `publish` 或 `evolve` 建立；建立前仍要求人工或 agent 完成语义审核与本次授权判断。
+- 采用: `publish --preflight` 与 `evolve --preflight` 复用当前准备逻辑但零写入、不保存 receipt；正式命令重新读取并验证所有当前参数与来源。

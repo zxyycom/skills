@@ -32,7 +32,7 @@ test("evolve discard flag still pauses for an unrecorded final predecessor", () 
         "utf8"
       );
       await runSuccessfulSourceCli([
-        "activate",
+        "publish",
         unrecordedPredecessorId,
         "--alignment",
         "aligned",
@@ -59,7 +59,7 @@ test("evolve discard flag still pauses for an unrecorded final predecessor", () 
         "aligned=" + successorRelativePath,
         "--discard",
         unrecordedIntermediateRelativePath,
-        "--delete-recorded-decision",
+        "--delete-recorded",
         "--relation",
         "修订=" + unrecordedPredecessorId,
         "--root",
@@ -125,7 +125,7 @@ test("evolve discard rejects a predecessor referenced by another candidate", () 
         unrecordedIntermediateRelativePath,
         "--relation",
         "修订=" + currentRelativePath,
-        "--delete-recorded-decision",
+        "--delete-recorded",
         "--root",
         workspaceRoot
       ]);

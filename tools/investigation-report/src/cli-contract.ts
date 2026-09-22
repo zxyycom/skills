@@ -15,7 +15,6 @@ export type InvestigationCommand =
   | "candidates"
   | "check"
   | "discard"
-  | "discard-candidate"
   | "list"
   | "search"
   | "show"

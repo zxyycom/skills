@@ -29,7 +29,7 @@ test("evolve replaces established relations while preserving body and lifecycle 
       "utf8"
     );
     await runSuccessfulSourceLifecycleCli([
-      "activate",
+      "publish",
       successorRelativePath,
       "--alignment",
       "aligned",
@@ -43,7 +43,7 @@ test("evolve replaces established relations while preserving body and lifecycle 
       "utf8"
     );
     await runSuccessfulSourceLifecycleCli([
-      "activate",
+      "publish",
       activeTargetRelativePath,
       "--alignment",
       "aligned",
@@ -133,7 +133,7 @@ test("evolve keeps an archived established successor archived during relation re
       "utf8"
     );
     await runSuccessfulSourceLifecycleCli([
-      "activate",
+      "publish",
       successorRelativePath,
       "--alignment",
       "unaligned",

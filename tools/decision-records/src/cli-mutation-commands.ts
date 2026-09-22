@@ -15,11 +15,12 @@ import {
 import { renameDecisionRecord } from "./decision-rename.ts";
 import { stageDecisionRecords } from "./decision-stage-service.ts";
 import {
-  runActivate,
   runArchive,
   runDiscard,
   runEvolve,
-  runMarkAligned
+  runMarkAligned,
+  runPublish,
+  runReactivate
 } from "./cli-lifecycle-commands.ts";
 import { loadDecisionValidationContext } from "./index.ts";
 import type { DecisionScan } from "./types.ts";
@@ -103,11 +104,10 @@ function printNewCandidateReadinessResult(
     const preparation = prepareDecisionLifecycle(
       scan,
       {
-        action: "activate",
+        action: "publish",
         alignment: args.preflightAlignment ?? "unaligned",
         decisionId: args.decisionId,
-        keepUnrecordedHistory: false,
-        relationOverride: { kind: "source" }
+        keepUnrecordedHistory: false
       },
       { historyBaseline: null }
     );
@@ -132,7 +132,7 @@ function printNewCandidateNextStep(
           " (provided to auxiliary preparation; full projection waits for body readiness and is not written)\n"
   );
   io.stderr(
-    "- next: edit the candidate, review it semantically, then run activate --preflight or evolve --preflight with the complete current selection; do not rerun new for this ID.\n"
+    "- next: edit the candidate, review it semantically, then run publish --preflight or evolve --preflight with the complete current selection; do not rerun new for this ID.\n"
   );
 }
 
@@ -229,7 +229,8 @@ function withStageNoChange(
 }
 
 const mutationCommandHandlers = {
-  activate: runActivate,
+  publish: runPublish,
+  reactivate: runReactivate,
   archive: runArchive,
   discard: runDiscard,
   evolve: runEvolve,

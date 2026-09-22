@@ -250,7 +250,7 @@ test("strict relation checks reject impure split successors", () =>
         "utf8"
       );
       await runSuccessfulSourceCli([
-        "activate",
+        "publish",
         secondArchivedRelativePath,
         "--alignment",
         "aligned",

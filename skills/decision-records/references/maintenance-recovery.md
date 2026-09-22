@@ -14,7 +14,7 @@
 | 当前事实 | 下一步 |
 | --- | --- |
 | 根目录整体不存在，且项目从未记录决策 | 视为尚未初始化；按当前任务决定是否起草。 |
-| 只有合法 candidates，没有 active、archived 或正式索引 | 用 `candidates`、`show-candidate` 和严格 `check` 验收结构。继续完成正文与审核；经授权首次 activate 才建立索引，此时不运行 sync-index。 |
+| 只有合法 candidates，没有 active、archived 或正式索引 | 用 `candidates`、`show-candidate` 和严格 `check` 验收结构。继续完成正文与审核；经授权首次 publish 才建立索引，此时不运行 sync-index。 |
 | ID、tags、状态与位置或 Markdown 结构无效 | 按可信来源和领域契约，在授权范围内修复权威 Markdown；关键判断无法确定时保留并询问。 |
 | 已建立来源的 alignment 缺失、为 null 或非法 | 停止集合维护，按[已建立 alignment 无效](#已建立-alignment-无效)恢复；不能用生命周期操作或默认值补造状态。 |
 | 已建立来源合法，索引缺失、损坏或陈旧 | 完整核对来源后，按下节重建索引。 |
@@ -28,7 +28,7 @@
 1. 保留当前 Markdown、索引以及 Git 中可恢复的最后可信基线；确认受影响 Decision ID、其原位 Markdown 和非法字段值。
 2. 从可信 Git 历史或能够直接证明该记录既有状态的历史材料确定每个正确值。派生索引、目录位置和缺失值都不是证据；无法确定时保留来源并请求判断。
 3. 取得明确授权，使其覆盖这些 ID 的原位 `alignment` 字段修复及影响；该授权不等同于建立、重新激活、归档或改变关系的授权。
-4. 仅在原位 Markdown 修复已获证实的字段，保留 status、createdAt、关系和正文；不执行 activate、archive 或其他生命周期命令，也不默认写入 `unaligned`。
+4. 仅在原位 Markdown 修复已获证实的字段，保留 status、createdAt、关系和正文；不执行 publish、archive 或其他生命周期命令，也不默认写入 `unaligned`。
 5. 再按下节全量重建索引并运行严格 `check`。验证失败时停止，不以旧索引、selected 同步或补值绕过来源错误。
 
 ## 索引恢复

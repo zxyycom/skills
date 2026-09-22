@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
+import { discardInvestigationRecord } from "../src/discard-entry.ts";
 import {
   discardInvestigationReport,
   discardInvestigationReportWithWriter
@@ -14,6 +15,7 @@ import {
 } from "../src/validation.ts";
 import {
   investigationRoot,
+  reportMarkdown,
   withTempRoot,
   writeCollection
 } from "./v6-support.ts";
@@ -131,7 +133,7 @@ test("discard pauses recorded reports until recorded deletion is explicitly conf
     assert.equal(paused.requiresRecordedDeletionConfirmation, true);
     await fs.access(path.join(investigationRoot(root), "report.md"));
     const discarded = await discardInvestigationReport({
-      deleteRecordedReport: true,
+      deleteRecorded: true,
       id: "report",
       workspaceRoot: root
     });
@@ -280,7 +282,7 @@ test("discard rechecks ignored owner resource drift before publishing", async ()
     const result = await discardInvestigationReportWithWriter(
       {
         deleteOwnedResources: true,
-        deleteRecordedReport: true,
+        deleteRecorded: true,
         id: "report",
         workspaceRoot: root
       },
@@ -500,7 +502,7 @@ test("discard preserves existing Git pending content", async () => {
     git(root, ["add", "pending.txt"]);
     const pendingBefore = git(root, ["diff", "--cached", "--binary"]);
     const result = await discardInvestigationReport({
-      deleteRecordedReport: true,
+      deleteRecorded: true,
       id: "report",
       workspaceRoot: root
     });
@@ -566,5 +568,52 @@ test("sync-index rejects a concurrent rebuild while discard owns the collection"
       entries: Record<string, unknown>;
     };
     assert.deepEqual(index.entries, {});
+  });
+});
+
+test("discard identifies a formal report, a missing target, and ambiguous names", async () => {
+  await withTempRoot("discard-identify", async (root) => {
+    await writeCollection(root, [{ id: "formal" }]);
+    const formal = await discardInvestigationRecord({
+      deleteRecorded: false,
+      id: "formal",
+      workspaceRoot: root
+    });
+    assert.deepEqual(formal.errors, []);
+
+    const missing = await discardInvestigationRecord({
+      id: "missing",
+      workspaceRoot: root
+    });
+    assert.ok(missing.errors.some((error) => error.includes("does not exist")));
+    assert.equal(missing.changed, false);
+  });
+});
+
+test("discard rejects one name that matches both a candidate and a formal report", async () => {
+  await withTempRoot("discard-ambiguous", async (root) => {
+    await writeCollection(root, [
+      { formedAt: "2026-01-01T12:00:00+00:00", id: "260101-alpha" }
+    ]);
+    await fs.writeFile(
+      path.join(investigationRoot(root), "_candidate.260102-alpha"),
+      reportMarkdown({
+        formedAt: "2026-01-02T12:00:00+00:00",
+        id: "260102-alpha"
+      }),
+      "utf8"
+    );
+    const ambiguous = await discardInvestigationRecord({
+      id: "alpha",
+      workspaceRoot: root
+    });
+    assert.ok(
+      ambiguous.errors.some((error) =>
+        error.includes(
+          "matches both an investigation candidate and a formal report"
+        )
+      )
+    );
+    assert.equal(ambiguous.changed, false);
   });
 });

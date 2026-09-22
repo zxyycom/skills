@@ -41,7 +41,7 @@ export type DiscardCollectionOptions = Readonly<{
   afterResourceTombstone: AfterDiscardResourceTombstone;
   beforePublish: BeforeDiscardPublish;
   deleteOwnedResources: boolean;
-  deleteRecordedReport: boolean;
+  deleteRecorded: boolean;
   id: string;
   indexPath: string;
   root: string;
@@ -96,7 +96,7 @@ export async function discardInvestigationReportWithWriter(
         afterResourceTombstone,
         beforePublish,
         deleteOwnedResources: parsed.value.deleteOwnedResources === true,
-        deleteRecordedReport: parsed.value.deleteRecordedReport === true,
+        deleteRecorded: parsed.value.deleteRecorded === true,
         id: parsed.value.id,
         indexPath,
         root,

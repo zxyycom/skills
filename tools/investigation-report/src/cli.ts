@@ -7,11 +7,7 @@ import {
   diagnosticFromError,
   renderInvestigationDiagnostic
 } from "./diagnostics.ts";
-import {
-  runCandidates,
-  runDiscardCandidate,
-  runShowCandidate
-} from "./cli-candidates.ts";
+import { runCandidates, runShowCandidate } from "./cli-candidates.ts";
 import { runNew, runPublish } from "./cli-candidate-create.ts";
 import type {
   InvestigationReportCliIo,
@@ -63,7 +59,6 @@ const commandRunners: Readonly<Record<ParsedCli["command"], CommandRunner>> = {
   candidates: runCandidates,
   check: runCheck,
   discard: runDiscard,
-  "discard-candidate": runDiscardCandidate,
   list: runList,
   new: runNew,
   publish: runPublish,
@@ -90,8 +85,7 @@ export {
   listInvestigationCandidates,
   showInvestigationCandidate
 } from "./candidate.ts";
-export { discardInvestigationCandidate } from "./candidate-discard.ts";
-export { discardInvestigationReport } from "./discard.ts";
+export { discardInvestigationRecord } from "./discard-entry.ts";
 export { publishInvestigationCandidates } from "./publish.ts";
 export { renameInvestigationRecord } from "./rename.ts";
 export {

@@ -1,4 +1,4 @@
-import { discardInvestigationReport } from "./discard.ts";
+import { discardInvestigationRecord } from "./discard-entry.ts";
 import { diagnosticFromStateIndexDiagnostic } from "./diagnostics.ts";
 import {
   renameInvestigationRecord,
@@ -150,7 +150,7 @@ export async function runDiscard(
     "root",
     "investigations-dir",
     "delete-owned-resources",
-    "delete-recorded-report"
+    "delete-recorded"
   ]);
   const [id] = input.positionals;
   if (problem !== null || id === undefined || input.positionals.length !== 1)
@@ -163,10 +163,10 @@ export async function runDiscard(
       `${id || "<empty>"} discard id must use an Investigation ID`,
       io
     );
-  const result = await discardInvestigationReport({
+  const result = await discardInvestigationRecord({
     ...location(input.values),
     deleteOwnedResources: has(input.values, "delete-owned-resources"),
-    deleteRecordedReport: has(input.values, "delete-recorded-report"),
+    deleteRecorded: has(input.values, "delete-recorded"),
     id
   });
   if (result.errors.length > 0)
@@ -176,12 +176,12 @@ export async function runDiscard(
       exitCode: 1,
       io,
       title: result.changed
-        ? "Investigation report discard committed, but cleanup failed:"
-        : "Investigation report discard failed:"
+        ? "Investigation discard committed, but cleanup failed:"
+        : "Investigation discard failed:"
     });
   writeLine(
     io.stdout,
-    discardedResourceOwnerMessage("Investigation report", result)
+    discardedResourceOwnerMessage("Investigation record", result)
   );
   return 0;
 }

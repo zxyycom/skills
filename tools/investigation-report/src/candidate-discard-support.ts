@@ -49,7 +49,7 @@ export function validateOptions(
   input: InvestigationCandidateDiscardOptions
 ): string[] {
   return input.id.length === 0
-    ? ["discard-candidate requires an Investigation selector"]
+    ? ["discard requires an Investigation selector"]
     : [];
 }
 
@@ -129,7 +129,7 @@ function ordinaryLockFailure(
               mutation,
               reason: "the candidate discard transaction stopped unexpectedly",
               recovery:
-                "verify the candidate and owner resource paths before retrying discard-candidate",
+                "verify the candidate and owner resource paths before retrying discard",
               target: input.id
             })
       ],

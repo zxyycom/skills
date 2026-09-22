@@ -19,12 +19,14 @@ import type {
 import {
   isActivationCandidateRecord,
   type DecisionId,
-  type DecisionScan
+  type DecisionRecord,
+  type DecisionScan,
+  type EstablishedDecisionRecord
 } from "./types.ts";
 
-export function activationRelationTransactionRequest(
+export function publicationRelationTransactionRequest(
   scan: DecisionScan,
-  request: Extract<DecisionLifecycleRequest, { action: "activate" }>
+  request: Extract<DecisionLifecycleRequest, { action: "publish" }>
 ): DecisionRelationTransactionRequest | null {
   const record = findRecord(scan, request.decisionId);
   if (record === null || !isActivationCandidateRecord(record)) {
@@ -32,10 +34,10 @@ export function activationRelationTransactionRequest(
   }
   return {
     discardId: null,
-    deleteRecordedDecision: false,
+    deleteRecorded: false,
     kind: "evolve",
     keepUnrecordedHistory: request.keepUnrecordedHistory,
-    relationOverride: request.relationOverride,
+    relationOverride: { kind: "source" },
     successors: [
       {
         alignment: request.alignment,
@@ -45,9 +47,9 @@ export function activationRelationTransactionRequest(
   };
 }
 
-export function prepareActivation(
+export function preparePublication(
   scan: DecisionScan,
-  request: Extract<DecisionLifecycleRequest, { action: "activate" }>,
+  request: Extract<DecisionLifecycleRequest, { action: "publish" }>,
   currentTimestamp: () => string,
   historyBaseline: DecisionHistoryBaseline | null
 ): DecisionLifecyclePreparation {
@@ -58,73 +60,94 @@ export function prepareActivation(
   if (!record.markdownExists) {
     return plainFailure("Decision body does not exist: " + record.sourcePath);
   }
-
-  if (record.source.kind === "candidate") {
-    const transactionRequest = activationRelationTransactionRequest(
-      scan,
-      request
+  if (record.source.kind === "established") {
+    return plainFailure(
+      record.source.document.status === "archived"
+        ? "publish establishes a decision candidate; use reactivate for an archived decision: " +
+            record.sourcePath
+        : "publish establishes a decision candidate; this decision is already an active formal record: " +
+            record.sourcePath
     );
-    if (transactionRequest === null) {
-      return plainFailure(
-        "Validated decision candidate is unavailable: " + record.sourcePath
-      );
-    }
-    const prepared = prepareDecisionRelationTransaction(
-      scan,
-      transactionRequest,
-      currentTimestamp,
-      historyBaseline
-    );
-    if (prepared.status !== "ok") {
-      return prepared;
-    }
-    return {
-      changes: prepared.changes,
-      message: decisionRelationTransactionMessage(
-        "Activated new decision as " +
-          request.alignment +
-          " " +
-          record.sourcePath,
-        prepared
-      ),
-      relationReview: prepared.relationReview,
-      status: "ok"
-    };
   }
-
-  if (record.source.kind !== "established") {
+  if (record.source.kind !== "candidate") {
     return plainFailure(
       "Validated decision source is unavailable: " + record.sourcePath
     );
   }
-  const source = record.source;
-
-  if (request.relationOverride.kind === "replace") {
+  const transactionRequest = publicationRelationTransactionRequest(
+    scan,
+    request
+  );
+  if (transactionRequest === null) {
     return plainFailure(
-      "--relation and --clear-relations apply only when activate establishes " +
-        "a new decision candidate: " +
+      "Validated decision candidate is unavailable: " + record.sourcePath
+    );
+  }
+  const prepared = prepareDecisionRelationTransaction(
+    scan,
+    transactionRequest,
+    currentTimestamp,
+    historyBaseline
+  );
+  if (prepared.status !== "ok") {
+    return prepared;
+  }
+  return {
+    changes: prepared.changes,
+    message: decisionRelationTransactionMessage(
+      "Published new decision as " +
+        request.alignment +
+        " " +
+        record.sourcePath,
+      prepared
+    ),
+    relationReview: prepared.relationReview,
+    status: "ok"
+  };
+}
+
+export function prepareReactivation(
+  scan: DecisionScan,
+  request: Extract<DecisionLifecycleRequest, { action: "reactivate" }>
+): DecisionLifecyclePreparation {
+  const record = findRecord(scan, request.decisionId);
+  if (record === null) {
+    return plainFailure("Decision does not exist: " + request.decisionId);
+  }
+  if (!record.markdownExists) {
+    return plainFailure("Decision body does not exist: " + record.sourcePath);
+  }
+  if (record.source.kind !== "established") {
+    return plainFailure(
+      "reactivate requires an archived established decision; use publish for a decision candidate: " +
         record.sourcePath
     );
   }
-  if (source.document.status === "active") {
-    if (source.document.alignment !== request.alignment) {
-      return plainFailure(
-        source.document.alignment === "unaligned"
-          ? "Use mark-aligned to change an active decision from unaligned to aligned."
-          : "An aligned active decision cannot be changed back to unaligned."
-      );
-    }
-    return {
-      changes: [],
-      message:
-        "Decision is already active and " +
-        request.alignment +
-        ": " +
-        record.sourcePath +
-        ".",
-      status: "ok"
-    };
+  const source = record.source;
+  if (source.document.status !== "archived") {
+    return plainFailure(
+      "reactivate requires an archived decision: " + record.sourcePath
+    );
   }
+  const targetSourcePath = sourcePathForDecisionStatus(
+    record.sourcePath,
+    "active"
+  );
+  if (targetSourcePath === null) {
+    return plainFailure(
+      "Decision source path cannot move to active lifecycle location: " +
+        record.sourcePath
+    );
+  }
+  return reactivationResult(request, record, source, targetSourcePath);
+}
+
+function reactivationResult(
+  request: Extract<DecisionLifecycleRequest, { action: "reactivate" }>,
+  record: DecisionRecord,
+  source: EstablishedDecisionRecord["source"],
+  targetSourcePath: string
+): DecisionLifecyclePreparation {
   const nextText =
     serializeDecisionFrontmatter(
       request.decisionId,
@@ -136,16 +159,6 @@ export function prepareActivation(
         status: "active"
       }
     ) + source.body;
-  const targetSourcePath = sourcePathForDecisionStatus(
-    record.sourcePath,
-    "active"
-  );
-  if (targetSourcePath === null) {
-    return plainFailure(
-      "Decision source path cannot move to active lifecycle location: " +
-        record.sourcePath
-    );
-  }
   return {
     changes: [
       {
@@ -160,7 +173,7 @@ export function prepareActivation(
       }
     ],
     message:
-      "Activated as " + request.alignment + " " + record.sourcePath + ".",
+      "Reactivated as " + request.alignment + " " + record.sourcePath + ".",
     status: "ok"
   };
 }

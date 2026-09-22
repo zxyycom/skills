@@ -117,7 +117,7 @@ test("discard rejects an established decision that is still referenced without m
         "utf8"
       );
       await runSuccessfulSourceLifecycleCli([
-        "activate",
+        "publish",
         successorRelativePath,
         "--alignment",
         "aligned",
@@ -207,7 +207,7 @@ test("discard flag deletes a recorded decision without reading Git HEAD", () =>
       const discarded = await runSourceCli([
         "discard",
         sourceRelativePath,
-        "--delete-recorded-decision",
+        "--delete-recorded",
         "--root",
         workspaceRoot
       ]);

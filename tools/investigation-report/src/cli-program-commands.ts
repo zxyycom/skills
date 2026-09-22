@@ -91,23 +91,6 @@ const commandSpecs: readonly CommandSpec[] = [
   },
   {
     description:
-      "Delete one authoring candidate and only its explicitly confirmed owner resources; formal reports and the formal index remain unchanged.",
-    name: "discard-candidate",
-    options: [
-      {
-        description: "Confirm deletion of the candidate owner-prefix resources",
-        flags: "--delete-owned-resources"
-      },
-      {
-        description:
-          "Confirm deletion of candidate or owned resources already in Git HEAD",
-        flags: "--delete-recorded-candidate"
-      }
-    ],
-    positionals: ["[investigation-id]"]
-  },
-  {
-    description:
       "Validate reports, the complete relation graph, resource ownership, and the current index. Scoped --id checks validate only selected reports and their declared resources.",
     name: "check",
     options: [
@@ -277,17 +260,17 @@ const commandSpecs: readonly CommandSpec[] = [
   },
   {
     description:
-      "Delete one established report after a full graph and resource preflight. Refuses remaining relation references and shared owner resources; reports or owned resources in Git HEAD require --delete-recorded-report.",
+      "Delete one authoring candidate or established report after a full graph and resource preflight. Refuses remaining relation references and shared owner resources; records or owned resources in Git HEAD require --delete-recorded.",
     name: "discard",
     options: [
       {
-        description: "Confirm deletion of the report's owner-prefix resources",
+        description: "Confirm deletion of the target's owner-prefix resources",
         flags: "--delete-owned-resources"
       },
       {
         description:
-          "Confirm deletion of report or owned resources already in Git HEAD",
-        flags: "--delete-recorded-report"
+          "Confirm deletion of candidate, report, or owned resources already in Git HEAD",
+        flags: "--delete-recorded"
       }
     ],
     positionals: ["[investigation-id]"]

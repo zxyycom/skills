@@ -98,9 +98,9 @@ writer 在候选、active 与 archive 位置都可用时优先选 name basename�
 
 所有已建立记录都必须有非空 alignment：`aligned` 表示完整方向已经成为当前事实并经核对；`unaligned` 表示已确认、会约束相关选择的未来方向，实施范围由当前任务另行授权。归档保留最后的非空值。alignment 不表示部分落地、任务优先级或实施授权。
 
-`activate` 首次建立只接受 body-ready candidate，写入非空 alignment 与不可变 createdAt。完整未来方向成为当前事实并核对后，用 `mark-aligned` 更新 alignment。重新激活 archived 记录保留原 createdAt 和关系，并由本次 CLI 参数显式确认 alignment。Git 提交与暂存只保存版本管理状态，建立事实由 Markdown 生命周期表达。
+`publish` 首次建立只接受 body-ready candidate，写入非空 alignment 与不可变 createdAt，并按候选声明的关系归档其活动前序。完整未来方向成为当前事实并核对后，用 `mark-aligned` 更新 alignment。`reactivate` 只执行 `archived` → `active`，保留原 createdAt 和关系，并由本次 CLI 参数显式确认 alignment。Git 提交与暂存只保存版本管理状态，建立事实由 Markdown 生命周期表达。
 
-已建立来源的 alignment 缺失、为 `null` 或不在枚举中均非法，不是归档的未知状态。唯一的非 CLI 例外是历史来源的原位字段修复：按[维护恢复](maintenance-recovery.md#已建立-alignment-无效)保留可信 Git 基线和能证明既有状态的历史材料，取得覆盖该字段的针对性授权后才修复；不得通过 activate、archive 或其他生命周期操作补造事件，也不得默认 `unaligned`。
+已建立来源的 alignment 缺失、为 `null` 或不在枚举中均非法，不是归档的未知状态。唯一的非 CLI 例外是历史来源的原位字段修复：按[维护恢复](maintenance-recovery.md#已建立-alignment-无效)保留可信 Git 基线和能证明既有状态的历史材料，取得覆盖该字段的针对性授权后才修复；不得通过 publish、archive 或其他生命周期操作补造事件，也不得默认 `unaligned`。
 
 alignment 始终作用于整条决策：完整方向成为当前事实并核对后，才能由 unaligned 标记为 aligned。可分别修订、归档或对齐的部分应拆成自包含后继；不可独立演进的局部落地仍保持整条 unaligned。已对齐记录后来偏离当前事实时报告一致性问题，保留对齐历史；新的未来目标另建记录。
 
@@ -130,7 +130,7 @@ relations:
 
 ### 后继集合与语义闭合
 
-`evolve` 通过重复 `--successor` 显式选择完整后继集合；每个 successor 是关系 source。该选择集只声明本次闭合事件的完整成员，并不要求成员采用同一最终 relations。事务在同一次处理中为全部成员计算各自完整最终关系，再维护关系、候选建立与活动前序归档。新候选也可通过 `activate` 的单后继入口建立相同关系事务。
+`evolve` 通过重复 `--successor` 显式选择完整后继集合；每个 successor 是关系 source。该选择集只声明本次闭合事件的完整成员，并不要求成员采用同一最终 relations。事务在同一次处理中为全部成员计算各自完整最终关系，再维护关系、候选建立与活动前序归档。单个候选的首次建立用 `publish` 表达，不带关系覆盖输入。
 
 | 演进形状 | 最终集合要求 |
 | --- | --- |
@@ -146,7 +146,7 @@ relations:
 
 | 输入意图 | 最终关系来源 |
 | --- | --- |
-| 首次 activate 或 evolve 省略所有关系覆盖 | 每个后继保留自身完整 relations 与 summary。候选首次建立优先使用此路径。 |
+| 首次 publish，或 evolve 省略所有关系覆盖 | 每个后继保留自身完整 relations 与 summary。候选首次建立优先使用此路径。 |
 | 无分组的 `--relation` 与可选 `--relation-summary` | 同一完整 replacement 应用于全部所选后继。 |
 | 无分组的 `--clear-relations` | 全部所选后继使用显式空集合。 |
 | 以 `--relations-for <successor-selector>` 开始的组 | 该组 source 使用组内完整 replacement；未分组的所选后继仍保留自身原值。组内可用 `--clear-relations` 显式提供空集合。 |
@@ -158,7 +158,7 @@ relations:
 
 首组前关系选项、空组、只含摘要、clear 与 relation 或 summary 混用、原始重复 source 或 target、以及摘要形状错误属于参数错误：退出 `2` 且零写入。selector 不存在或歧义、解析后重复 source/target、source 未选中、摘要未命中、alignment 不匹配、最终关系形状或闭合错误属于集合解析与领域预演失败：退出 `1` 且零写入。历史确认、锁或写入阶段沿维护恢复的实际 outcome 报告，不能把写入后失败声称为零写入。精确参数顺序与诊断以 `evolve --help` 为准。
 
-新候选的 `activate` 与 `evolve` 以 `relationReview` 承接关系核对：
+新候选的 `publish` 与 `evolve` 以 `relationReview` 承接关系核对：
 
 - review 按规范 source ID 排列，覆盖全部所选后继（包括未分组或最终相同的成员）。每个 source 给出 `action`、同次准备读取的完整 `before` 和规范化完整 `after`；空集合为 `[]`。新候选的 action 恒为 `establish`，正式来源为 `replace` 或 `unchanged`。
 - renderer 只从这组 before/after 推导新增、移除及摘要新增、变更或移除。完整 replacement 未提供摘要即清除旧摘要。
@@ -178,7 +178,7 @@ Git 工作树的 unborn HEAD 按空基线处理；Git 工作树外没有此确�
 
 `discard` 删除完整、结构合法且最终集合中无剩余引用的 candidate、active 或 archived 记录。`evolve --discard <id>` 可把删除与演进原子组合：被删 ID 与所选后继互斥，最终关系也须移除该 ID，并继续满足普通演进的形状与闭合规则。
 
-已进入 HEAD 的删除对象，首次未带 `--delete-recorded-decision` 调用在其余条件通过后零写入暂停；取得覆盖删除目标与影响的明确授权后按提示重试。该参数选择本次删除，但不绕过同次 evolve 对其他前序的历史确认。非 Git 工作树、unborn HEAD 或 ID 未进入 HEAD 时正常删除；无确认参数且 HEAD 无法读取时，保持零写入。成功时报告实际删除对象和最终关系。
+已进入 HEAD 的删除对象，首次未带 `--delete-recorded` 调用在其余条件通过后零写入暂停；取得覆盖删除目标与影响的明确授权后按提示重试。该参数选择本次删除，但不绕过同次 evolve 对其他前序的历史确认。非 Git 工作树、unborn HEAD 或 ID 未进入 HEAD 时正常删除；无确认参数且 HEAD 无法读取时，保持零写入。成功时报告实际删除对象和最终关系。
 
 ### 身份更正
 

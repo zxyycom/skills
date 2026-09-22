@@ -27,7 +27,7 @@ test("decision relation filter evidence is sorted, preview-bounded, and fully de
           "utf8"
         );
         await runSuccessfulSourceCli([
-          "activate",
+          "publish",
           target,
           "--alignment",
           "aligned",

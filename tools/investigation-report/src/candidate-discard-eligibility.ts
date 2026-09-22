@@ -55,14 +55,14 @@ export async function candidateDiscardHistoryGate(
           mutation: discardMutation("no-change"),
           reason: `the Git history check required${timing} could not be completed`,
           recovery:
-            "restore version-control access, then rerun discard-candidate before deleting the candidate",
+            "restore version-control access, then rerun discard before deleting the candidate",
           target: input.id
         })
       ],
       mutation: discardMutation("no-change")
     });
   }
-  if (!recorded.value || input.deleteRecordedCandidate === true) return null;
+  if (!recorded.value || input.deleteRecorded === true) return null;
   const timing = protectedCheck ? " entered" : " has entered";
   return {
     ...result(
@@ -71,7 +71,7 @@ export async function candidateDiscardHistoryGate(
       [],
       [
         `Investigation candidate ${input.id}${timing} Git HEAD${protectedCheck ? " before deletion" : ""}; confirm that its recorded history should be deleted.`,
-        "Re-run with --delete-recorded-candidate only after confirming deletion; no files were changed."
+        "Re-run with --delete-recorded only after confirming deletion; no files were changed."
       ],
       { mutation: discardMutation("no-change") }
     ),

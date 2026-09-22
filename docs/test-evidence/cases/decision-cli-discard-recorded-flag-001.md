@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- CLI 必须公开删除已进入 Git `HEAD` Decision ID 所需的 `--delete-recorded-decision` 显式参数。
+- CLI 必须公开删除已进入 Git `HEAD` Decision ID 所需的 `--delete-recorded` 显式参数。
 
 Proves:
 - `discard --help` 展示参数及其 Git HEAD 适用说明。

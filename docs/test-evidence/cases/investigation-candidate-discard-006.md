@@ -7,7 +7,7 @@ Tags:
 - `investigation-report`
 
 Contract:
-- `discard-candidate` 在 tombstone 移动前重新核对 candidate 与 owner resource 的 Git HEAD 记录；新进入 HEAD 的内容仍需 `--delete-recorded-candidate` 明确确认。
+- `discard` 在 tombstone 移动前重新核对 candidate 与 owner resource 的 Git HEAD 记录；新进入 HEAD 的内容仍需 `--delete-recorded` 明确确认。
 
 Proves:
 - 初次检查后、删除前进入 HEAD 的 candidate 会停止事务并要求确认。

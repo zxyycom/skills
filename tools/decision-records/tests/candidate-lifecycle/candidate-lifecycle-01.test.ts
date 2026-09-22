@@ -25,7 +25,7 @@ test("discarding the only active established decision removes the derived index"
     await fs.mkdir(path.dirname(decisionPath), { recursive: true });
     await fs.writeFile(decisionPath, candidateDecisionBody(), "utf8");
     await runSuccessfulSourceLifecycleCli([
-      "activate",
+      "publish",
       decisionId,
       "--alignment",
       "aligned",
@@ -37,7 +37,7 @@ test("discarding the only active established decision removes the derived index"
     const discarded = await runSourceCli([
       "discard",
       decisionId,
-      "--delete-recorded-decision",
+      "--delete-recorded",
       "--root",
       workspaceRoot
     ]);
@@ -55,7 +55,7 @@ test("discarding the only archived established decision removes its archive path
     await fs.mkdir(path.dirname(decisionPath), { recursive: true });
     await fs.writeFile(decisionPath, candidateDecisionBody(), "utf8");
     await runSuccessfulSourceLifecycleCli([
-      "activate",
+      "publish",
       decisionId,
       "--alignment",
       "aligned",
@@ -78,7 +78,7 @@ test("discarding the only archived established decision removes its archive path
     const discarded = await runSourceCli([
       "discard",
       decisionId,
-      "--delete-recorded-decision",
+      "--delete-recorded",
       "--root",
       workspaceRoot
     ]);

@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 - 测试在锁已取得后将 body-ready candidate 变回空固定章节。
-- 正式 activate 拒绝该 candidate，且不生成正式索引。
+- 正式 publish 拒绝该 candidate，且不生成正式索引。

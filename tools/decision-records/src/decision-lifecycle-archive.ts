@@ -110,7 +110,7 @@ function archiveChanges(
 export function prepareDiscard(
   scan: DecisionScan,
   decisionId: DecisionId,
-  deleteRecordedDecision: boolean,
+  deleteRecorded: boolean,
   historyBaseline: DecisionHistoryBaseline | null
 ): DecisionLifecyclePreparation {
   const prepared = prepareDecisionRelationTransaction(
@@ -118,7 +118,7 @@ export function prepareDiscard(
     discardRelationTransactionRequest({
       action: "discard",
       decisionId,
-      deleteRecordedDecision
+      deleteRecorded
     }),
     currentDecisionTimestamp,
     historyBaseline
@@ -136,7 +136,7 @@ export function discardRelationTransactionRequest(
 ): DecisionRelationTransactionRequest {
   return {
     discardId: request.decisionId,
-    deleteRecordedDecision: request.deleteRecordedDecision,
+    deleteRecorded: request.deleteRecorded,
     kind: "discard",
     keepUnrecordedHistory: false,
     relationOverride: { kind: "source" },

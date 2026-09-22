@@ -34,18 +34,32 @@ test("evolve requires at least one successor argument", async () => {
   }
 });
 
-test("relation and clear-relations options are mutually exclusive", async () => {
-  const result = await runCli([
+test("decision CLI rejects the removed activate command and its override options", async () => {
+  const removedCommand = await runCli([
     "activate",
     currentRelativePath,
     "--alignment",
-    "aligned",
-    "--relation",
-    "修订=" + archivedRelativePath,
-    "--clear-relations"
+    "aligned"
   ]);
-  assert.equal(result.exitCode, 2);
-  assert.match(result.stderr, /cannot be used with option/);
+  assert.equal(removedCommand.exitCode, 2);
+  assert.match(removedCommand.stderr, /unknown command 'activate'/);
+
+  for (const removedOption of [
+    ["--relation", "修订=" + archivedRelativePath],
+    ["--relation-summary", archivedRelativePath + "=summary"],
+    ["--clear-relations"]
+  ]) {
+    const result = await runCli([
+      "publish",
+      currentRelativePath,
+      "--alignment",
+      "aligned",
+      ...removedOption
+    ]);
+    assert.equal(result.exitCode, 2, removedOption[0]);
+    assert.equal(result.stdout, "", removedOption[0]);
+    assert.match(result.stderr, /unknown option/);
+  }
 });
 
 test("decision CLI rejects unknown options", async () => {
@@ -123,8 +137,8 @@ test("list rejects an invalid tag token", async () => {
   assert.match(result.stderr, /must be a kebab-case tag/);
 });
 
-test("activate requires an alignment argument", async () => {
-  const result = await runCli(["activate", currentRelativePath]);
+test("publish requires an alignment argument", async () => {
+  const result = await runCli(["publish", currentRelativePath]);
   assert.equal(result.exitCode, 2);
   assert.match(result.stderr, /required option '--alignment <value>'/);
 });
@@ -200,7 +214,7 @@ test("decision CLI rejects removed domain and path query protocols", async () =>
 
 test("positional Decision IDs are validated at every CLI command boundary", async () => {
   for (const args of [
-    ["activate", "invalid_name.md", "--alignment", "aligned"],
+    ["publish", "invalid_name.md", "--alignment", "aligned"],
     ["archive", "invalid_name.md"],
     ["discard", "invalid_name.md"],
     ["mark-aligned", "invalid_name.md"],

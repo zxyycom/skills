@@ -63,7 +63,7 @@ export type DecisionRelationTransactionPreparation =
 export type DecisionRelationTransactionRequest =
   | {
       discardId: DecisionId | null;
-      deleteRecordedDecision: boolean;
+      deleteRecorded: boolean;
       kind: "evolve";
       keepUnrecordedHistory: boolean;
       relationOverride: DecisionRelationOverride;
@@ -71,7 +71,7 @@ export type DecisionRelationTransactionRequest =
     }
   | {
       discardId: DecisionId;
-      deleteRecordedDecision: boolean;
+      deleteRecorded: boolean;
       kind: "discard";
       keepUnrecordedHistory: false;
       relationOverride: { kind: "source" };

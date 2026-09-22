@@ -246,7 +246,9 @@ export async function runSourceCli(
 export async function runSourceLifecycleCli(
   args: readonly string[]
 ): Promise<CliExecution> {
-  return await runSourceCli([...args, "--keep-unrecorded-history"]);
+  const keepUnrecordedHistory =
+    args[0] === "reactivate" ? [] : ["--keep-unrecorded-history"];
+  return await runSourceCli([...args, ...keepUnrecordedHistory]);
 }
 
 export async function runBundledCli(

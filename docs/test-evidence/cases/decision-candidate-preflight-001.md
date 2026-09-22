@@ -7,9 +7,9 @@ Tags:
 - `decision-records`
 
 Contract:
-- scaffold 不能通过 lifecycle 建立；body-ready candidate 的 preflight 必须零写入，正式 activate 必须独立执行建立。
+- scaffold 不能通过 lifecycle 建立；body-ready candidate 的 preflight 必须零写入，正式 publish 必须独立执行建立。
 
 Proves:
-- 未完成 scaffold 的 activate preflight 失败且 Markdown 不变。
-- body-ready candidate 的 activate preflight 成功、不写 Markdown 或索引，并明确指出没有写入。
-- 随后非 preflight activate 才创建正式索引。
+- 未完成 scaffold 的 publish preflight 失败且 Markdown 不变。
+- body-ready candidate 的 publish preflight 成功、不写 Markdown 或索引，并明确指出没有写入。
+- 随后非 preflight publish 才创建正式索引。

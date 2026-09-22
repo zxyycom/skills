@@ -4,11 +4,12 @@ import {
 } from "./application-result.ts";
 import { type DecisionHistoryBaseline } from "./decision-history-baseline.ts";
 import {
-  activationRelationTransactionRequest,
   evolutionRelationTransactionRequest,
-  prepareActivation,
   prepareEvolution,
-  prepareMarkAligned
+  prepareMarkAligned,
+  preparePublication,
+  prepareReactivation,
+  publicationRelationTransactionRequest
 } from "./decision-lifecycle-transition.ts";
 import {
   discardRelationTransactionRequest,
@@ -33,16 +34,20 @@ import type { DecisionRelationReview } from "./decision-relation-transaction-typ
 
 export type DecisionLifecycleRequest =
   | {
-      action: "activate";
+      action: "publish";
       alignment: DecisionAlignment;
       keepUnrecordedHistory: boolean;
       decisionId: DecisionId;
-      relationOverride: DecisionRelationOverride;
+    }
+  | {
+      action: "reactivate";
+      alignment: DecisionAlignment;
+      decisionId: DecisionId;
     }
   | {
       action: "evolve";
+      deleteRecorded: boolean;
       discardId: DecisionId | null;
-      deleteRecordedDecision: boolean;
       keepUnrecordedHistory: boolean;
       relationOverride: DecisionRelationOverride;
       relationOverrideGroups: readonly DecisionRelationOverrideGroup[];
@@ -56,7 +61,7 @@ export type DecisionLifecycleRequest =
   | {
       action: "discard";
       decisionId: DecisionId;
-      deleteRecordedDecision: boolean;
+      deleteRecorded: boolean;
     }
   | {
       action: "mark-aligned";
@@ -76,8 +81,8 @@ export function requiresDecisionHistoryBaseline(
         scan,
         discardRelationTransactionRequest(request)
       );
-    case "activate": {
-      const transaction = activationRelationTransactionRequest(scan, request);
+    case "publish": {
+      const transaction = publicationRelationTransactionRequest(scan, request);
       return (
         transaction !== null &&
         decisionRelationTransactionRequiresHistoryBaseline(scan, transaction)
@@ -96,13 +101,13 @@ export function requiresDecisionHistoryBaseline(
 function keepsUnrecordedLifecycleHistory(
   request: DecisionLifecycleRequest
 ): boolean {
-  if (request.action === "activate" || request.action === "archive") {
+  if (request.action === "publish" || request.action === "archive") {
     return request.keepUnrecordedHistory;
   }
   if (request.action !== "evolve") return false;
   return (
     request.keepUnrecordedHistory &&
-    (request.discardId === null || request.deleteRecordedDecision)
+    (request.discardId === null || request.deleteRecorded)
   );
 }
 
@@ -133,13 +138,15 @@ export function prepareDecisionLifecycle(
     );
   }
   switch (request.action) {
-    case "activate":
-      return prepareActivation(
+    case "publish":
+      return preparePublication(
         scan,
         request,
         options.currentTimestamp ?? currentDecisionTimestamp,
         options.historyBaseline
       );
+    case "reactivate":
+      return prepareReactivation(scan, request);
     case "evolve":
       return prepareEvolution(
         scan,
@@ -158,7 +165,7 @@ export function prepareDecisionLifecycle(
       return prepareDiscard(
         scan,
         request.decisionId,
-        request.deleteRecordedDecision,
+        request.deleteRecorded,
         options.historyBaseline
       );
     case "mark-aligned":

@@ -1,14 +1,14 @@
-### Case DECISION-ACTIVATE-ESTABLISHED-RELATIONS-001: Activate 不修订已建立记录的关系
+### Case DECISION-ACTIVATE-ESTABLISHED-RELATIONS-001: Publish 拒绝已建立记录与被移除的覆盖选项
 
 Tests:
-- `test:61a6f7750a0c945a61295a36809a14e89e76ea5704cc36ea2a34eff31def52e1`
+- `test:32a1d3f55ee5d19896ea9f4bf5ee8e601015a0e4f0ccb2286d2b054438859c66`
 
 Tags:
 - `decision-records`
 
 Contract:
-- `activate --relation` 与 `activate --clear-relations` 只服务于首次建立候选；已建立记录的关系修订必须通过 evolve 表达。
+- `publish` 只建立决策候选；已建立记录返回领域失败并指向 `reactivate` 或 `evolve`。被取代的 activate 关系覆盖选项只得到普通未知选项结果。
 
 Proves:
-- 对已建立记录提供非空关系覆盖或显式清空都返回关系输入不适用诊断。
-- 两种拒绝路径均逐字节保留目标 Markdown 和 decision-index.json。
+- 对已建立记录调用 publish 返回领域失败诊断，Markdown 与 decision-index.json 逐字节不变。
+- `activate` 是未知命令；publish 上的 `--relation`、`--relation-summary` 与 `--clear-relations` 均退出 2 并报告 unknown option。

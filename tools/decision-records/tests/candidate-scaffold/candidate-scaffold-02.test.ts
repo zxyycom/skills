@@ -32,7 +32,7 @@ test("lifecycle preflight is read-only and still requires a body-ready candidate
       const candidatePath = decisionFilePath(workspaceRoot, candidateId);
       const incompleteText = await fs.readFile(candidatePath, "utf8");
       const incompletePreflight = await runSourceCli([
-        "activate",
+        "publish",
         candidateId,
         "--alignment",
         "unaligned",
@@ -47,7 +47,7 @@ test("lifecycle preflight is read-only and still requires a body-ready candidate
       await writeDecision(workspaceRoot, candidateId, candidateDecisionBody());
       const readyText = await fs.readFile(candidatePath, "utf8");
       const preflight = await runSourceCli([
-        "activate",
+        "publish",
         candidateId,
         "--alignment",
         "unaligned",
@@ -56,7 +56,7 @@ test("lifecycle preflight is read-only and still requires a body-ready candidate
         workspaceRoot
       ]);
       assert.equal(preflight.exitCode, 0, preflight.stderr);
-      assert.match(preflight.stdout, /Decision lifecycle preflight passed/);
+      assert.match(preflight.stdout, /Decision publish preflight passed/);
       assert.match(
         preflight.stdout,
         /No Decision Markdown, derived index, or pending state was changed/
@@ -70,7 +70,7 @@ test("lifecycle preflight is read-only and still requires a body-ready candidate
       );
 
       const activated = await runSourceCli([
-        "activate",
+        "publish",
         candidateId,
         "--alignment",
         "unaligned",
@@ -122,7 +122,7 @@ test("formal lifecycle re-reads candidate readiness after acquiring the collecti
       let activated: Awaited<ReturnType<typeof runSourceCli>>;
       try {
         activated = await runSourceCli([
-          "activate",
+          "publish",
           candidateId,
           "--alignment",
           "unaligned",
@@ -169,7 +169,7 @@ test("formal lifecycle reports committed cleanup instead of success when lock re
     let activated: Awaited<ReturnType<typeof runSourceCli>>;
     try {
       activated = await runSourceCli([
-        "activate",
+        "publish",
         candidateId,
         "--alignment",
         "unaligned",

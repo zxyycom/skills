@@ -7,6 +7,7 @@ import {
   discardInvestigationCandidate,
   discardInvestigationCandidateWithHook
 } from "../src/candidate-discard.ts";
+import { discardInvestigationRecord } from "../src/discard-entry.ts";
 import { discardInvestigationReport } from "../src/discard.ts";
 import {
   publishInvestigationCandidates,
@@ -317,7 +318,7 @@ test("publish rechecks candidate, formal source, and index drift before changing
   });
 });
 
-test("discard-candidate protects shared and recorded authoring resources without changing formal reports", async () => {
+test("discard identifies candidates and protects shared and recorded authoring resources without changing formal reports", async () => {
   await withTempRoot("discard-candidate", async (root) => {
     await writeCollection(root, [{ id: "formal" }]);
     await createReadyCandidate(root, "candidate.md", {
@@ -336,7 +337,7 @@ test("discard-candidate protects shared and recorded authoring resources without
     );
     await fs.mkdir(path.dirname(resource), { recursive: true });
     await fs.writeFile(resource, "evidence", "utf8");
-    const shared = await discardInvestigationCandidate({
+    const shared = await discardInvestigationRecord({
       deleteOwnedResources: true,
       id: "candidate",
       workspaceRoot: root
@@ -358,9 +359,9 @@ test("discard-candidate protects shared and recorded authoring resources without
       workspaceRoot: root
     });
     assert.equal(recorded.requiresRecordedDeletionConfirmation, true);
-    const discarded = await discardInvestigationCandidate({
+    const discarded = await discardInvestigationRecord({
       deleteOwnedResources: true,
-      deleteRecordedCandidate: true,
+      deleteRecorded: true,
       id: "candidate",
       workspaceRoot: root
     });
@@ -377,7 +378,7 @@ test("discard-candidate protects shared and recorded authoring resources without
   });
 });
 
-test("discard-candidate detects candidate drift before committing its tombstone", async () => {
+test("candidate discard detects drift before committing its tombstone", async () => {
   await withTempRoot("discard-candidate-drift", async (root) => {
     await createReadyCandidate(root, "candidate.md");
     const before = await fs.readFile(
@@ -401,7 +402,7 @@ test("discard-candidate detects candidate drift before committing its tombstone"
   });
 });
 
-test("discard-candidate reports pending cleanup after its tombstone commit", async () => {
+test("candidate discard reports pending cleanup after its tombstone commit", async () => {
   await withTempRoot("discard-candidate-cleanup", async (root) => {
     await createReadyCandidate(root, "candidate.md");
     const originalUnlink = fs.unlink;

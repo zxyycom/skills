@@ -112,7 +112,7 @@ export function decisionRelationTransactionRequiresHistoryBaseline(
   ) {
     return true;
   }
-  if (request.deleteRecordedDecision) return false;
+  if (request.deleteRecorded) return false;
   const discarded = prepareDiscardDecisionEligibility(scan, request.discardId);
   return discarded.status === "ok" && discarded.record !== null;
 }

@@ -15,7 +15,7 @@ test("first establishment creates a root Decision ID and definition-eleven index
     const decisionId = "use-first-index.md";
     await writeDecision(workspaceRoot, decisionId, candidateDecisionBody());
     const activated = await runSourceCli([
-      "activate",
+      "publish",
       decisionId,
       "--alignment",
       "aligned",
@@ -51,7 +51,7 @@ test("date-shaped IDs and titles remain valid candidates and can be activated", 
     assert.equal(candidates.exitCode, 0, candidates.stderr);
     assert.match(candidates.stdout, new RegExp(decisionId));
     const activated = await runSourceCli([
-      "activate",
+      "publish",
       decisionId,
       "--alignment",
       "aligned",

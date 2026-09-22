@@ -115,7 +115,7 @@ export type InvestigationCandidatePublishResult = {
 
 export type InvestigationCandidateDiscardOptions = {
   deleteOwnedResources?: boolean;
-  deleteRecordedCandidate?: boolean;
+  deleteRecorded?: boolean;
   id: string;
   investigationsDir?: string;
   workspaceRoot: string;
@@ -418,7 +418,7 @@ export declare function validateInvestigationReports(
 
 export type InvestigationReportDiscardOptions = {
   deleteOwnedResources?: boolean;
-  deleteRecordedReport?: boolean;
+  deleteRecorded?: boolean;
   id: string;
   investigationsDir?: string;
   workspaceRoot: string;
@@ -433,9 +433,11 @@ export type InvestigationReportDiscardResult = {
   requiresRecordedDeletionConfirmation: boolean;
 };
 
-export declare function discardInvestigationReport(
+export declare function discardInvestigationRecord(
   input: unknown
-): Promise<InvestigationReportDiscardResult>;
+): Promise<
+  InvestigationReportDiscardResult | InvestigationCandidateDiscardResult
+>;
 
 export declare function createInvestigationCandidate(
   input: unknown
@@ -449,9 +451,6 @@ export declare function showInvestigationCandidate(
 export declare function publishInvestigationCandidates(
   input: unknown
 ): Promise<InvestigationCandidatePublishResult>;
-export declare function discardInvestigationCandidate(
-  input: unknown
-): Promise<InvestigationCandidateDiscardResult>;
 export declare function renameInvestigationRecord(
   options: InvestigationRenameOptions
 ): Promise<InvestigationRenameResult>;

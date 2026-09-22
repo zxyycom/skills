@@ -28,6 +28,6 @@ relations: []
 
 - 采用: 两域在 `--related-to` 或 `--relation-type` 筛选时，于查询结果的可选 `filterRelations` 返回同一筛选快照中导致该记录命中的完整边集合。无关系条件时省略该字段；文本命中证据与筛选依据分开，普通 list/search 继续以记录发现为职责。
 - 采用: Decision 的 `filterRelations` 限于内部 list/search 查询记录；Investigation 将其置于公开 list/search entry。两者都不写入索引、Schema 或正式关系数据模型，完整正文和完整直接关系继续由 show 或来源 Markdown 承接。
-- 采用: Decision 新候选的 activate/evolve 及 Investigation 的 publish/set-relations 在适用的预检和成功结果中以 `relationReview` 返回按来源分组的完整 before/after。preflight 只说明预计集合且零写入，committed 才说明事务成功边界；失败不附成功 review。正式执行必须重新读取和验证，不能消费预检作为提交凭据。
+- 采用: Decision 新候选的 publish/evolve 及 Investigation 的 publish/set-relations 在适用的预检和成功结果中以 `relationReview` 返回按来源分组的完整 before/after。preflight 只说明预计集合且零写入，committed 才说明事务成功边界；失败不附成功 review。正式执行必须重新读取和验证，不能消费预检作为提交凭据。
 - 采用: trace 保持现有图选择、预算、coverage 与 JSON。文本只展开切片内部边，已读取但缺少摘要明确标记；主体或必要的 context 事件边承接 source、type、target 与摘要。context 只闭合事件而不递归扩展，切片外边仍回到 entry 或来源正文读取。
 - 采用: show、候选准备、状态或身份回执、检查、同步和 pending 保持原有职责，不为摘要消费扩展为关系解释入口。新增或调整关系仍以真实两端正文为依据；缺少摘要时说明读取路径，不推断或补写摘要。

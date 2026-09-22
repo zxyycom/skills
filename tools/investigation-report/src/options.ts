@@ -65,7 +65,7 @@ const investigationCandidatePublishOptionsSchema = v.strictObject({
 });
 const investigationCandidateDiscardOptionsSchema = v.strictObject({
   deleteOwnedResources: v.optional(v.boolean("must be a boolean")),
-  deleteRecordedCandidate: v.optional(v.boolean("must be a boolean")),
+  deleteRecorded: v.optional(v.boolean("must be a boolean")),
   id: requiredStringSchema,
   ...locationFields
 });
@@ -157,7 +157,7 @@ const investigationRelationSetOptionsSchema = v.strictObject({
 });
 const investigationReportDiscardOptionsSchema = v.strictObject({
   deleteOwnedResources: v.optional(v.boolean("must be a boolean")),
-  deleteRecordedReport: v.optional(v.boolean("must be a boolean")),
+  deleteRecorded: v.optional(v.boolean("must be a boolean")),
   id: requiredStringSchema,
   ...locationFields
 });

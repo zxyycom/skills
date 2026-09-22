@@ -43,7 +43,7 @@ test("help exposes stage independently without adding lifecycle stage options", 
   );
   assert.match(program.helpInformation(), /stage <selector\.\.\.>/);
   for (const command of [
-    "activate",
+    "publish",
     "evolve",
     "archive",
     "mark-aligned",

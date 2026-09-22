@@ -265,7 +265,7 @@ async function prepareCandidateDiscard(
           reason:
             "the candidate and owner resources could not be prepared for discard",
           recovery:
-            "restore a readable candidate collection and owner resource tree, then retry discard-candidate",
+            "restore a readable candidate collection and owner resource tree, then retry discard",
           target: id
         })
       ],
@@ -362,7 +362,7 @@ async function sharedCandidateResourceReferences(
     )
     .map(
       ([source]) =>
-        `${id} owns resources still referenced by ${source}; remove or replace those resource links before discard-candidate`
+        `${id} owns resources still referenced by ${source}; remove or replace those resource links before discard`
     )
     .sort(compareText);
 }

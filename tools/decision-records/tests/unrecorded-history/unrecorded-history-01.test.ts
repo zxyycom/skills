@@ -28,7 +28,7 @@ test("archive pauses before preserving an unrecorded established decision", () =
     );
     await fs.writeFile(unrecordedPath, candidateDecisionBody(), "utf8");
     await runSuccessfulSourceCli([
-      "activate",
+      "publish",
       unrecordedRelativePath,
       "--alignment",
       "aligned",
@@ -97,10 +97,9 @@ test("unrecorded decision evolution pauses until history is explicitly preserved
       );
       const indexBeforeWarning = await fs.readFile(indexPath, "utf8");
       const paused = await runSourceCli([
-        "activate",
-        successorRelativePath,
-        "--alignment",
-        "aligned",
+        "evolve",
+        "--successor",
+        "aligned=" + successorRelativePath,
         "--relation",
         "修订=" + unrecordedIntermediateRelativePath,
         "--root",
@@ -129,10 +128,9 @@ test("unrecorded decision evolution pauses until history is explicitly preserved
       assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeWarning);
 
       const preserved = await runSourceCli([
-        "activate",
-        successorRelativePath,
-        "--alignment",
-        "aligned",
+        "evolve",
+        "--successor",
+        "aligned=" + successorRelativePath,
         "--relation",
         "修订=" + unrecordedIntermediateRelativePath,
         "--keep-unrecorded-history",

@@ -168,7 +168,7 @@ export function printCandidateWarnings(
         code: "decision-records.candidate-remains",
         reason: "Decision candidate scaffold remains: " + sourcePath,
         recovery:
-          "Use candidates to inspect readiness, then edit, activate, or discard it explicitly.",
+          "Use candidates to inspect readiness, then edit, publish, or discard it explicitly.",
         target: sourcePath
       },
       io

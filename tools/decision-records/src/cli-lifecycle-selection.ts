@@ -33,8 +33,6 @@ export function resolveDecisionLifecycleRequest(
   request: DecisionLifecycleRequest
 ): LifecycleResolutionResult {
   const resolution = lifecycleSelectorResolution(scan);
-  if (request.action === "activate")
-    return resolveActivationRequest(request, resolution);
   if (request.action === "evolve")
     return resolveEvolutionRequest(request, resolution);
   if (request.action === "archive")
@@ -45,7 +43,7 @@ export function resolveDecisionLifecycleRequest(
 function resolveSingleDecisionRequest(
   request: Extract<
     DecisionLifecycleRequest,
-    { action: "discard" | "mark-aligned" }
+    { action: "discard" | "mark-aligned" | "publish" | "reactivate" }
   >,
   resolution: LifecycleSelectorResolution
 ) {
@@ -68,26 +66,6 @@ function lifecycleSelectorResolution(
     return value;
   };
   return { failures, one };
-}
-
-function resolveActivationRequest(
-  request: Extract<DecisionLifecycleRequest, { action: "activate" }>,
-  resolution: LifecycleSelectorResolution
-) {
-  const relationOverride = resolveRelationOverride(
-    request.relationOverride,
-    resolution.one
-  );
-  if (relationOverride === null) return selectorResolutionFailure(resolution);
-  if ("status" in relationOverride)
-    return { failure: relationOverride, status: "error" } as const;
-  const decisionId = resolution.one(request.decisionId);
-  if (decisionId === null || resolution.failures.length > 0)
-    return selectorResolutionFailure(resolution);
-  return {
-    request: { ...request, decisionId, relationOverride },
-    status: "ok"
-  } as const;
 }
 
 function resolveEvolutionRequest(

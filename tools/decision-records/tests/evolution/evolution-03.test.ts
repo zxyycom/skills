@@ -65,9 +65,9 @@ test("evolve rejects archived sources without alignment before mutation", () =>
     }
   }));
 
-test("activate rejects relation replacement for established decisions", () =>
+test("publish rejects an established decision and its removed override options", () =>
   withFixtureWorkspace(
-    "activate-established-relations",
+    "publish-established-decision",
     async (workspaceRoot) => {
       const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
       const indexPath = path.join(
@@ -78,21 +78,35 @@ test("activate rejects relation replacement for established decisions", () =>
       );
       const currentBefore = await fs.readFile(currentPath, "utf8");
       const indexBefore = await fs.readFile(indexPath, "utf8");
-      for (const relationSelection of [
+      const rejected = await runSourceLifecycleCli([
+        "publish",
+        currentRelativePath,
+        "--alignment",
+        "aligned",
+        "--root",
+        workspaceRoot
+      ]);
+      assert.equal(rejected.exitCode, 1);
+      assert.match(
+        rejected.stderr,
+        /publish establishes a decision candidate; this decision is already an active formal record/
+      );
+      for (const removedOption of [
         ["--clear-relations"],
-        ["--relation", "替代=" + archivedRelativePath]
+        ["--relation", "替代=" + archivedRelativePath],
+        ["--relation-summary", archivedRelativePath + "=summary"]
       ]) {
-        const rejected = await runSourceLifecycleCli([
-          "activate",
+        const invalid = await runSourceLifecycleCli([
+          "publish",
           currentRelativePath,
           "--alignment",
           "aligned",
-          ...relationSelection,
+          ...removedOption,
           "--root",
           workspaceRoot
         ]);
-        assert.equal(rejected.exitCode, 1);
-        assert.match(rejected.stderr, /apply only when activate establishes/);
+        assert.equal(invalid.exitCode, 2, removedOption.join(" "));
+        assert.match(invalid.stderr, /unknown option/);
       }
       assert.equal(await fs.readFile(currentPath, "utf8"), currentBefore);
       assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);

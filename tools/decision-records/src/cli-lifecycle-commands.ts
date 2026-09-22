@@ -20,8 +20,8 @@ import {
 } from "./cli-location.ts";
 import { resolveDecisionLifecycleRequest } from "./cli-lifecycle-selection.ts";
 
-export async function runActivate(
-  args: CliArgsFor<"activate">,
+export async function runPublish(
+  args: CliArgsFor<"publish">,
   io: DecisionRecordsCliIo
 ): Promise<number> {
   const scan = await loadLifecycleScan(
@@ -37,14 +37,28 @@ export async function runActivate(
         args,
         scan,
         {
-          action: "activate",
+          action: "publish",
           alignment: args.alignment,
           keepUnrecordedHistory: args.keepUnrecordedHistory,
-          decisionId: args.decisionId,
-          relationOverride: args.relationOverride
+          decisionId: args.decisionId
         },
         io
       );
+}
+
+export async function runReactivate(
+  args: CliArgsFor<"reactivate">,
+  io: DecisionRecordsCliIo
+): Promise<number> {
+  return await runValidatedMaintenance(
+    args,
+    {
+      action: "reactivate",
+      alignment: args.alignment,
+      decisionId: args.decisionId
+    },
+    io
+  );
 }
 
 export async function runEvolve(
@@ -66,7 +80,7 @@ export async function runEvolve(
         {
           action: "evolve",
           discardId: args.discardId,
-          deleteRecordedDecision: args.deleteRecordedDecision,
+          deleteRecorded: args.deleteRecorded,
           keepUnrecordedHistory: args.keepUnrecordedHistory,
           relationOverride: args.relationOverride,
           relationOverrideGroups: args.relationOverrideGroups,
@@ -134,7 +148,7 @@ export async function runDiscard(
     {
       action: "discard",
       decisionId: args.decisionId,
-      deleteRecordedDecision: args.deleteRecordedDecision
+      deleteRecorded: args.deleteRecorded
     },
     io
   );
@@ -168,7 +182,7 @@ export async function applyLifecycle(
     return 1;
   }
   request = resolved.request;
-  if (request.action === "activate" || request.action === "evolve") {
+  if (request.action === "publish" || request.action === "evolve") {
     if (args.preflight === true) {
       const prepared = await prepareLifecycleWithCurrentHistory(
         scan,
@@ -176,12 +190,14 @@ export async function applyLifecycle(
         io
       );
       if (prepared === null) return 1;
-      return printLifecyclePreflight(prepared, io);
+      return printLifecyclePreflight(request.action, prepared, io);
     }
     return await applyLockedCandidateLifecycle(args, scan, request, io);
   }
   const prepared = await prepareLifecycleWithCurrentHistory(scan, request, io);
   if (prepared === null) return 1;
+  if (args.preflight === true && request.action === "reactivate")
+    return printLifecyclePreflight(request.action, prepared, io);
   return (
     await applyPreparedLifecycle({
       args,

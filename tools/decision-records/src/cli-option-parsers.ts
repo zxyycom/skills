@@ -17,6 +17,30 @@ import { normalizeRelationSummary } from "./relation-summary.ts";
 import { isDecisionTimestamp } from "./decision-timestamp.ts";
 import type { ParsedOptions } from "./cli-command-options.ts";
 
+export function defaultOption<T>(value: T | undefined, fallback: T): T {
+  return value === undefined ? fallback : value;
+}
+
+export function requiredOption(
+  value: string | undefined,
+  name: string
+): string {
+  if (value === undefined) {
+    throw new InvalidArgumentError(name + " is required");
+  }
+  return value;
+}
+
+export function requiredDecisionId(
+  decisionIds: readonly DecisionId[]
+): DecisionId {
+  const decisionId = decisionIds[0];
+  if (decisionId === undefined) {
+    throw new InvalidArgumentError("Decision ID is required");
+  }
+  return decisionId;
+}
+
 export function parseTraceDepth(value: string): number | "all" {
   if (value === "all") return "all";
   if (!/^(0|[1-9]\d*)$/.test(value)) {

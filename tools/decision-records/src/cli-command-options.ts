@@ -19,7 +19,7 @@ export type ParsedOptions = {
   createdTo?: string;
   detail?: boolean;
   discard?: DecisionId;
-  deleteRecordedDecision?: boolean;
+  deleteRecorded?: boolean;
   decisionsDir?: string;
   depth?: number | "all";
   decision?: string;

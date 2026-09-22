@@ -53,12 +53,12 @@ export function prepareDiscardDecisionEligibility(
 
 export function prepareRecordedDiscardAttention(
   record: DiscardableDecisionRecord | null,
-  deleteRecordedDecision: boolean,
+  deleteRecorded: boolean,
   historyBaseline: DecisionHistoryBaseline | null
 ): DecisionApplicationAttention | null {
   if (
     record === null ||
-    deleteRecordedDecision ||
+    deleteRecorded ||
     historyBaseline?.kind !== "git-head" ||
     !historyBaseline.recordedDecisionIds.has(record.decisionId)
   ) {
@@ -68,7 +68,7 @@ export function prepareRecordedDiscardAttention(
     "Decision " +
       record.decisionId +
       " has entered Git HEAD; confirm that its recorded history should be deleted.",
-    "Re-run with --delete-recorded-decision only after confirming deletion; no files were changed."
+    "Re-run with --delete-recorded only after confirming deletion; no files were changed."
   ]);
 }
 

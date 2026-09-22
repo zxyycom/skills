@@ -14,8 +14,8 @@ import {
   withFixtureWorkspace
 } from "./support.ts";
 
-test("activate establishes candidate source relations and archives their active targets", () =>
-  withFixtureWorkspace("activate-source-relations", async (workspaceRoot) => {
+test("publish establishes candidate source relations and archives their active targets", () =>
+  withFixtureWorkspace("publish-source-relations", async (workspaceRoot) => {
     const successorRelativePath = "use-candidate-source-relation";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, successorRelativePath),
@@ -37,7 +37,7 @@ test("activate establishes candidate source relations and archives their active 
     );
     const candidateBefore = await fs.readFile(candidatePath, "utf8");
     const preflight = await runSuccessfulSourceLifecycleCli([
-      "activate",
+      "publish",
       successorRelativePath,
       "--alignment",
       "aligned",
@@ -57,7 +57,7 @@ test("activate establishes candidate source relations and archives their active 
     const strictBefore = await validateDecisionRecords({ workspaceRoot });
     assert.deepEqual(strictBefore.errors, []);
     const output = await runSuccessfulSourceLifecycleCli([
-      "activate",
+      "publish",
       successorRelativePath,
       "--alignment",
       "aligned",
@@ -80,8 +80,8 @@ test("activate establishes candidate source relations and archives their active 
     ]);
   }));
 
-test("activate relation replacement overrides rather than merges candidate relations", () =>
-  withFixtureWorkspace("activate-relation-replace", async (workspaceRoot) => {
+test("evolve relation replacement overrides rather than merges candidate relations", () =>
+  withFixtureWorkspace("evolve-relation-replace", async (workspaceRoot) => {
     const parallelRelativePath = "use-replacement-predecessor";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, parallelRelativePath),
@@ -89,7 +89,7 @@ test("activate relation replacement overrides rather than merges candidate relat
       "utf8"
     );
     await runSuccessfulSourceLifecycleCli([
-      "activate",
+      "publish",
       parallelRelativePath,
       "--alignment",
       "aligned",
@@ -105,10 +105,9 @@ test("activate relation replacement overrides rather than merges candidate relat
       "utf8"
     );
     await runSuccessfulSourceLifecycleCli([
-      "activate",
-      successorRelativePath,
-      "--alignment",
-      "aligned",
+      "evolve",
+      "--successor",
+      "aligned=" + successorRelativePath,
       "--relation",
       "替代=" + parallelRelativePath,
       "--root",
@@ -131,8 +130,8 @@ test("activate relation replacement overrides rather than merges candidate relat
     ]);
   }));
 
-test("activate clear-relations explicitly replaces candidate relations with an empty set", () =>
-  withFixtureWorkspace("activate-relation-clear", async (workspaceRoot) => {
+test("evolve clear-relations explicitly replaces candidate relations with an empty set", () =>
+  withFixtureWorkspace("evolve-relation-clear", async (workspaceRoot) => {
     const successorRelativePath = "use-cleared-candidate-relations";
     await fs.writeFile(
       decisionFilePath(workspaceRoot, successorRelativePath),
@@ -142,10 +141,9 @@ test("activate clear-relations explicitly replaces candidate relations with an e
       "utf8"
     );
     const cleared = await runSuccessfulSourceLifecycleCli([
-      "activate",
-      successorRelativePath,
-      "--alignment",
-      "aligned",
+      "evolve",
+      "--successor",
+      "aligned=" + successorRelativePath,
       "--clear-relations",
       "--root",
       workspaceRoot

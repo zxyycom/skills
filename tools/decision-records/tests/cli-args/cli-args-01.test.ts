@@ -244,8 +244,8 @@ test("new help fixes explicit scaffold inputs without accepting lifecycle alignm
   );
 });
 
-test("activate and evolve preflight retain their real lifecycle selection options", async () => {
-  for (const command of ["activate", "evolve"] as const) {
+test("publish and evolve preflight retain their real lifecycle selection options", async () => {
+  for (const command of ["publish", "evolve"] as const) {
     const help = await runCli([command, "--help"]);
     assert.equal(help.exitCode, 0);
     assert.match(help.stdout, /--preflight/);
@@ -278,8 +278,8 @@ test("archive help promises to preserve the last alignment", async () => {
 test("discard help requires an explicit recorded decision deletion flag", async () => {
   const help = await runCli(["discard", "--help"]);
   assert.equal(help.exitCode, 0);
-  assert.match(help.stdout, /--delete-recorded-decision/);
-  assert.match(help.stdout, /Decision ID that has entered\s+Git HEAD/);
+  assert.match(help.stdout, /--delete-recorded/);
+  assert.match(help.stdout, /Decision ID that has entered\s+Git\s+HEAD/);
 });
 
 test("evolve rejects a recorded-decision deletion flag without discard", async () => {
@@ -287,13 +287,13 @@ test("evolve rejects a recorded-decision deletion flag without discard", async (
     "evolve",
     "--successor",
     "aligned=use-successor.md",
-    "--delete-recorded-decision"
+    "--delete-recorded"
   ]);
   assert.equal(result.exitCode, 2);
   assert.equal(result.stdout, "");
   assert.match(
     result.stderr,
-    /--delete-recorded-decision requires --discard <decision-id>/
+    /--delete-recorded requires --discard <decision-id>/
   );
 });
 

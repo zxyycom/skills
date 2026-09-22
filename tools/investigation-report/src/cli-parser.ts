@@ -85,7 +85,6 @@ export function normalizeIdentitySelectorsAtCliBoundary(
     [
       "new",
       "discard",
-      "discard-candidate",
       "show",
       "show-candidate",
       "publish",
