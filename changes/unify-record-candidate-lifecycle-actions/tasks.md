@@ -26,6 +26,6 @@ Readiness 复核项是本 Change 的实施前审计门禁；未勾选的前置�
 ## Verification
 
 - [ ] 2.1 运行两个领域的候选、发布、生命周期、discard 和恢复目标测试。
-- [ ] 2.2 在临时 Git 集合执行候选建立、Decision 重新启用、候选删除、正式删除、已记录目标和共享资源的双领域场景。
+- [ ] 2.2 在隔离 Git 测试集合执行候选建立、Decision 重新启用、候选删除、正式删除、已记录目标和共享资源的双领域场景。
 - [ ] 2.3 运行两个生成漂移检查、`typecheck`、`lint`、领域检查与 Test Evidence 检查。
 - [ ] 2.4 运行 `bun run check`，并审阅公开 help、SDK 声明、skill 和长期 Decision 使用同一动作表面。

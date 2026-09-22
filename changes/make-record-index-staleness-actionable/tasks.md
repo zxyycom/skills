@@ -25,6 +25,6 @@ Readiness 复核项是本 Change 的实施前审计门禁；未勾选的前置�
 ## Verification
 
 - [ ] 2.1 运行 Decision Records、Investigation Report 和按需的 index-runtime 目标测试，覆盖陈旧快照、实体身份、来源投影、同步预演、mutation 阻断和旧 `--write` 的普通无效参数结果。
-- [ ] 2.2 在临时集合执行正文追加、索引定义变化和非法来源的代表性 A/B，核对 warning、error、零写入和恢复命令。
+- [ ] 2.2 在隔离测试集合执行正文追加、索引定义变化和非法来源的代表性 A/B，核对 warning、error、零写入和恢复命令。
 - [ ] 2.3 运行两个生成漂移检查、`typecheck`、`lint`、`check:decisions`、`check:investigations` 与 Test Evidence 检查。
 - [ ] 2.4 运行 `bun run check`，并审阅 skill 版本、生成物和长期 owner 没有遗留不一致。

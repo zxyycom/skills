@@ -25,6 +25,6 @@ Readiness 复核项是本 Change 的实施前审计门禁；未勾选的前置�
 ## Verification
 
 - [ ] 2.1 运行两个领域的关系、图验证、事务、CLI 和恢复目标测试。
-- [ ] 2.2 在临时集合执行单 source、多 source、clear、summary 失配、图非法和写前漂移的双领域 A/B。
+- [ ] 2.2 在隔离测试集合执行单 source、多 source、clear、summary 失配、图非法和写前漂移的双领域 A/B。
 - [ ] 2.3 运行两个生成漂移检查、`typecheck`、`lint`、领域检查与 Test Evidence 检查。
 - [ ] 2.4 运行 `bun run check`，并审阅公开 help、SDK、skill 与长期 Decision 使用同一关系协议。

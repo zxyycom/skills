@@ -27,7 +27,7 @@ Readiness 复核项是本 Change 的实施前审计门禁；未勾选的前置�
 ## Verification
 
 - [ ] 2.1 运行两个领域的 staging、版本控制、索引投影、资源和 CLI 目标测试。
-- [ ] 2.2 在临时 Git 工作区执行三种 scope 的新增、更新、删除、重命名、完整 owner 资源树和其他 owner 隔离场景。
+- [ ] 2.2 在隔离 Git 测试工作区执行三种 scope 的新增、更新、删除、重命名、完整 owner 资源树和其他 owner 隔离场景。
 - [ ] 2.3 注入 `HEAD`、pending、来源字节和资源成员漂移，确认写入保持原子且无关 pending 内容不变。
 - [ ] 2.4 运行两个生成漂移检查、`typecheck`、`lint`、领域检查与 Test Evidence 检查。
 - [ ] 2.5 运行 `bun run check`，并审阅公开 help、SDK、skill 与长期 Decision 使用同一 scope 契约。

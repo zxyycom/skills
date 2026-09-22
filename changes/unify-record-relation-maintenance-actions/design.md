@@ -66,7 +66,7 @@ Decision `set-relations` 只替换已正式建立记录的关系与索引。Deci
 
 ## Open Questions
 
-无。
+当前无未决问题。
 
 ## Implementation Dependencies
 

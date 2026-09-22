@@ -55,7 +55,7 @@
 
 ## Open Questions
 
-无。
+当前无未决问题。
 
 ## Implementation Dependencies
 

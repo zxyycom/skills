@@ -76,7 +76,7 @@ Decision 的 `domain` 是所选正式 Markdown。Investigation 的 `domain` 是�
 
 ## Open Questions
 
-无。
+当前无未决问题。
 
 ## Implementation Dependencies
 

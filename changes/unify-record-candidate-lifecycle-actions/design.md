@@ -71,7 +71,7 @@ Investigation `publish` 继续验证 `formedAt`、关系和资源。显式历史
 
 ## Open Questions
 
-无。
+当前无未决问题。
 
 ## Implementation Dependencies
 
