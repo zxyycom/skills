@@ -17,6 +17,10 @@ import {
   prepareDiscard
 } from "./decision-lifecycle-archive.ts";
 import {
+  prepareDecisionSetRelations,
+  type DecisionSetRelationsRequest
+} from "./decision-relation-maintenance.ts";
+import {
   currentDecisionTimestamp,
   plainFailure
 } from "./decision-lifecycle-support.ts";
@@ -66,7 +70,8 @@ export type DecisionLifecycleRequest =
   | {
       action: "mark-aligned";
       decisionId: DecisionId;
-    };
+    }
+  | DecisionSetRelationsRequest;
 
 export function requiresDecisionHistoryBaseline(
   scan: DecisionScan,
@@ -170,5 +175,7 @@ export function prepareDecisionLifecycle(
       );
     case "mark-aligned":
       return prepareMarkAligned(scan, request.decisionId);
+    case "set-relations":
+      return prepareDecisionSetRelations(scan, request);
   }
 }

@@ -35,6 +35,8 @@ export function resolveDecisionLifecycleRequest(
   const resolution = lifecycleSelectorResolution(scan);
   if (request.action === "evolve")
     return resolveEvolutionRequest(request, resolution);
+  if (request.action === "set-relations")
+    return resolveSetRelationsRequest(request, resolution);
   if (request.action === "archive")
     return resolveArchiveRequest(request, resolution);
   return resolveSingleDecisionRequest(request, resolution);
@@ -124,6 +126,48 @@ function resolveEvolutionSelection(
   if ("status" in relationOverrideGroups) return relationOverrideGroups;
   if (request.discardId !== null && discardId === null) return null;
   return { discardId, relationOverrideGroups, successors };
+}
+
+function resolveSetRelationsRequest(
+  request: Extract<DecisionLifecycleRequest, { action: "set-relations" }>,
+  resolution: LifecycleSelectorResolution
+) {
+  const relationOverrideGroups = resolveRelationOverrideGroups(
+    request.relationOverrideGroups,
+    resolution.one
+  );
+  if (relationOverrideGroups === null || resolution.failures.length > 0)
+    return selectorResolutionFailure(resolution);
+  if ("status" in relationOverrideGroups)
+    return { failure: relationOverrideGroups, status: "error" } as const;
+  const duplicateSource = duplicateSetRelationsSource(relationOverrideGroups);
+  if (duplicateSource !== null) {
+    return {
+      failure: decisionFailure(
+        [
+          "--source resolves to the same established decision more than once: " +
+            duplicateSource
+        ],
+        { presentation: "plain" }
+      ),
+      status: "error"
+    } as const;
+  }
+  return {
+    request: { ...request, relationOverrideGroups },
+    status: "ok"
+  } as const;
+}
+
+function duplicateSetRelationsSource(
+  groups: readonly DecisionRelationOverrideGroup[]
+): DecisionId | null {
+  const sources = new Set<DecisionId>();
+  for (const group of groups) {
+    if (sources.has(group.source)) return group.source;
+    sources.add(group.source);
+  }
+  return null;
 }
 
 function resolveArchiveRequest(
@@ -248,12 +292,12 @@ function attachSuccessorRelationOverrides(
   for (const group of groups) {
     if (!selected.has(group.source)) {
       return decisionFailure([
-        "--relations-for source is not a selected successor: " + group.source
+        "--source group is not a selected successor: " + group.source
       ]);
     }
     if (overrides.has(group.source)) {
       return decisionFailure([
-        "--relations-for resolves to the same selected successor more than once: " +
+        "--source resolves to the same selected successor more than once: " +
           group.source
       ]);
     }

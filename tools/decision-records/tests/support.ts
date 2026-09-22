@@ -246,8 +246,11 @@ export async function runSourceCli(
 export async function runSourceLifecycleCli(
   args: readonly string[]
 ): Promise<CliExecution> {
-  const keepUnrecordedHistory =
-    args[0] === "reactivate" ? [] : ["--keep-unrecorded-history"];
+  const keepUnrecordedHistory = /^(reactivate|set-relations)$/u.test(
+    args[0] ?? ""
+  )
+    ? []
+    : ["--keep-unrecorded-history"];
   return await runSourceCli([...args, ...keepUnrecordedHistory]);
 }
 

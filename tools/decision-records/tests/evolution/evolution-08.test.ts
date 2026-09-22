@@ -33,7 +33,7 @@ test("evolve applies one grouped replacement while preserving ungrouped successo
         "unaligned=" + established.unalignedRelativePath,
         "--successor",
         "aligned=" + candidate,
-        "--relations-for",
+        "--source",
         "grouped-candidate-split-slice",
         "--relation-summary",
         established.coarseRelativePath + "=候选先绑定摘要",
@@ -86,7 +86,7 @@ test("evolve rejects invalid grouped sources and summaries without writing", () 
       for (const { args, diagnostic } of [
         {
           args: [
-            "--relations-for",
+            "--source",
             "use-generated-cli",
             "--relation",
             "修订=use-generated-cli"
@@ -95,7 +95,7 @@ test("evolve rejects invalid grouped sources and summaries without writing", () 
         },
         {
           args: [
-            "--relations-for",
+            "--source",
             successor,
             "--relation",
             "修订=use-generated-cli",
@@ -107,7 +107,7 @@ test("evolve rejects invalid grouped sources and summaries without writing", () 
         },
         {
           args: [
-            "--relations-for",
+            "--source",
             successor,
             "--relation",
             "修订=260710-use-source-cli",
@@ -143,11 +143,11 @@ test("evolve rejects invalid grouped sources and summaries without writing", () 
         "evolve",
         "--successor",
         "aligned=" + datedSuccessor,
-        "--relations-for",
+        "--source",
         datedSuccessor,
         "--relation",
         "修订=use-generated-cli",
-        "--relations-for",
+        "--source",
         "grouped-duplicate-source",
         "--relation",
         "修订=use-generated-cli",
@@ -201,7 +201,7 @@ test("evolve rejects incomplete, mismatched, and impure grouped replacements wit
       for (const { args, diagnostic } of [
         {
           args: [
-            "--relations-for",
+            "--source",
             firstSuccessor,
             "--relation",
             "拆分=use-generated-cli"
@@ -210,11 +210,11 @@ test("evolve rejects incomplete, mismatched, and impure grouped replacements wit
         },
         {
           args: [
-            "--relations-for",
+            "--source",
             firstSuccessor,
             "--relation",
             "拆分=use-generated-cli",
-            "--relations-for",
+            "--source",
             secondSuccessor,
             "--relation",
             "拆分=260710-use-source-cli"
@@ -223,13 +223,13 @@ test("evolve rejects incomplete, mismatched, and impure grouped replacements wit
         },
         {
           args: [
-            "--relations-for",
+            "--source",
             firstSuccessor,
             "--relation",
             "拆分=use-generated-cli",
             "--relation",
             "修订=260710-use-source-cli",
-            "--relations-for",
+            "--source",
             secondSuccessor,
             "--relation",
             "拆分=use-generated-cli"
@@ -266,11 +266,11 @@ test("generated Node CLI accepts grouped evolve argv through preflight", () =>
         "aligned=" + established.alignedRelativePath,
         "--successor",
         "unaligned=" + established.unalignedRelativePath,
-        "--relations-for",
+        "--source",
         established.alignedRelativePath,
         "--relation",
         "拆分=" + established.coarseRelativePath,
-        "--relations-for",
+        "--source",
         established.unalignedRelativePath,
         "--relation",
         "拆分=" + established.coarseRelativePath,
@@ -321,13 +321,13 @@ test("grouped evolve rolls back without printing a committed review after public
         "aligned=" + established.alignedRelativePath,
         "--successor",
         "unaligned=" + established.unalignedRelativePath,
-        "--relations-for",
+        "--source",
         established.alignedRelativePath,
         "--relation",
         "拆分=" + established.coarseRelativePath,
         "--relation-summary",
         established.coarseRelativePath + "=恢复前摘要",
-        "--relations-for",
+        "--source",
         established.unalignedRelativePath,
         "--relation",
         "拆分=" + established.coarseRelativePath,

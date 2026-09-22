@@ -21,18 +21,17 @@ export function createSubcommand(
 }
 
 export function createDecisionRelationOption(description: string): Option {
-  return new Option("--relation <type=decision-selector>", description)
-    .argParser(parseDecisionRelation)
-    .conflicts("clearRelations");
+  return new Option(
+    "--relation <type=decision-selector>",
+    description
+  ).argParser(parseDecisionRelation);
 }
 
 export function createDecisionRelationSummaryOption(): Option {
   return new Option(
     "--relation-summary <decision-selector=summary>",
     "Attach one optional short summary to a target in this command's complete relation set. Repeat for multiple targets."
-  )
-    .argParser(parseDecisionRelationSummary)
-    .conflicts("clearRelations");
+  ).argParser(parseDecisionRelationSummary);
 }
 
 export function createKeepUnrecordedHistoryOption(): Option {

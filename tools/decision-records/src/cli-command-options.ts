@@ -37,7 +37,6 @@ export type ParsedOptions = {
   offset?: number;
   purpose?: string;
   relation?: DecisionRelation[];
-  relationsFor?: DecisionId[];
   relatedTo?: string;
   relationType?: DecisionRelationType;
   relationSummary?: DecisionRelationSummary[];

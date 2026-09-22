@@ -30,7 +30,7 @@ CLI readiness 只说明结构与正文准备情况。一般语义审查、记录
 
 建立或调整直接关系时，用简短摘要说明后继对该前序具体保留、改变或承接了什么，让演进图同时表达连接与变化含义。
 
-一次 `evolve` 必须先选择闭合事件的完整 successor 集合；这不要求每个 successor 使用相同关系。候选首次建立通常保留各自 Markdown 中的关系。已建立关系需要统一替换时使用无分组的完整覆盖；不同 successor 要有不同关系、摘要或空集合时，为每个要替换的成员使用 `--relations-for` 分组，未分组成员保留原值。完整 replacement 不会合并旧关系，遗漏的摘要会移除；完整成员、分组约束和命令参数由[决策记录规则](../../skills/decision-records/references/decision-record-rules.md#完整替换与摘要绑定)与 CLI help 承接。
+一次 `evolve` 必须先选择闭合事件的完整 successor 集合；这不要求每个 successor 使用相同关系。候选首次建立通常保留各自 Markdown 中的关系。已建立关系需要统一替换时使用无分组的完整覆盖；不同 successor 要有不同关系、摘要或空集合时，为每个要替换的成员使用 `--source` 分组，未分组成员保留原值。只修正已建立记录的关系而不改变生命周期时，直接使用与 Investigation Report 同协议的 `set-relations`。完整 replacement 不会合并旧关系，遗漏的摘要会移除；完整成员、分组约束和命令参数由[决策记录规则](../../skills/decision-records/references/decision-record-rules.md#完整替换与摘要绑定)与 CLI help 承接。
 
 生命周期、关系和身份维护通过领域 CLI 完成。归档保留历史；明确剔除记录时使用独立删除动作。工具需要额外确认或无法完整恢复时，应停在其报告的边界，按维护规则继续。
 

@@ -27,7 +27,7 @@ test("evolve probes group-only predecessors before writing", () =>
         "evolve",
         "--successor",
         "aligned=" + successor,
-        "--relations-for",
+        "--source",
         successor,
         "--relation",
         "修订=use-unrecorded-intermediate",

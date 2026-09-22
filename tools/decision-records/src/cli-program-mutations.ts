@@ -2,15 +2,19 @@ import { Command as CommanderCommand, Option } from "commander";
 import { decisionAlignments, type DecisionId } from "./types.ts";
 import {
   parseDecisionIdList,
+  parseDecisionRelationSingle,
+  parseDecisionRelationSummarySingle,
   parseDecisionSuccessor,
   parseDecisionTag,
   parseProjectionText,
   parseSingleDecisionId
 } from "./cli-option-parsers.ts";
-import { collectEvolveRelationEvents } from "./cli-evolve-relation-groups.ts";
+import { collectRelationGroupEvents } from "./cli-relation-groups.ts";
 import {
   createDecisionRelationOption,
-  createDecisionRelationSummaryOption,
+  createDecisionRelationSummaryOption
+} from "./cli-program-options.ts";
+import {
   createKeepUnrecordedHistoryOption,
   createPreflightOption,
   createSubcommand
@@ -27,6 +31,7 @@ export function registerMutationCommands(
   registerPublishCommand(program, execute);
   registerReactivateCommand(program, execute);
   registerEvolveCommand(program, execute);
+  registerSetRelationsCommand(program, execute);
   registerMarkAlignedCommand(program, execute);
   registerArchiveCommand(program, execute);
   registerDiscardCommand(program, execute);
@@ -236,14 +241,14 @@ function registerEvolveCommand(
   evolve
     .addOption(
       new Option(
-        "--relations-for <successor-selector>",
-        "Start one complete relation replacement for this selected successor; following relation options belong to this group until the next --relations-for."
+        "--source <successor-selector>",
+        "Start one complete relation replacement for this selected successor; following relation options belong to this group until the next --source."
       )
     )
     .addOption(
       new Option(
         "--relation <type=decision-selector>",
-        "Declare one final direct predecessor relation in the current --relations-for group, or replace every selected successor when no group is used."
+        "Declare one final direct predecessor relation in the current --source group, or replace every selected successor when no group is used."
       )
     )
     .addOption(
@@ -258,8 +263,54 @@ function registerEvolveCommand(
         "Replace the current group's complete relation list with an explicit empty set, or clear every selected successor when no group is used."
       )
     );
-  collectEvolveRelationEvents(evolve);
+  collectRelationGroupEvents(evolve);
   evolve.action(() => execute("evolve", evolve));
+}
+
+function registerSetRelationsCommand(
+  program: CommanderCommand,
+  execute: CliProgramExecute
+): void {
+  const setRelations = createSubcommand(
+    program,
+    "set-relations",
+    "Replace the complete direct relations of one or more established " +
+      "decisions and republish the derived index in the same recoverable " +
+      "transaction, without changing any lifecycle state; use evolve to also " +
+      "establish successors, archive predecessors, or discard."
+  )
+    .addOption(
+      new Option(
+        "--source <decision-selector>",
+        "Start one complete relation replacement for this established decision; following relation options belong to this group until the next --source. Repeat for each source."
+      )
+    )
+    .addOption(
+      new Option(
+        "--relation <type=decision-selector>",
+        "Declare one final direct predecessor relation in the current --source group. Repeat for the group's complete relation set."
+      ).argParser(parseDecisionRelationSingle)
+    )
+    .addOption(
+      new Option(
+        "--relation-summary <decision-selector=summary>",
+        "Attach one optional summary to a relation in the current --source group."
+      ).argParser(parseDecisionRelationSummarySingle)
+    )
+    .addOption(
+      new Option(
+        "--clear-relations",
+        "Replace the current --source group's complete relation list with an explicit empty set."
+      )
+    )
+    .addOption(
+      new Option(
+        "--preflight",
+        "Read and validate the complete relation replacements without writing Decision Markdown, the derived index, or pending state."
+      )
+    );
+  collectRelationGroupEvents(setRelations);
+  setRelations.action(() => execute("set-relations", setRelations));
 }
 
 function registerMarkAlignedCommand(

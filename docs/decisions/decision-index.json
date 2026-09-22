@@ -103,6 +103,7 @@
       "260919-require-gate-environment-check-prerequisite": "sha256:918b0c73227afcc3f02a5e477a53d9469afe31472d389aa1e06a40254efd3871",
       "260920-finalize-change-plans-by-deletion": "sha256:e9f78b4641a85d94293d6ace19b6f13f48d510ebf21706eca85846aa9fcaf24d",
       "260922-unify-cli-workspace-location-and-help": "sha256:08dd6f20381c1e4e613b59fa1d1f131a62af7e32c11941285d5a96351b345f83",
+      "260922-unify-formal-relation-maintenance-actions": "sha256:a7d223db5f2b5f0eb78e4680e51a45f5d32e34743ec37ffe1c7684d608a47042",
       "260922-unify-record-candidate-lifecycle-actions": "sha256:bcfd3285dd6857c9a853a71a20dd2e290ca747b8dbb1dcff2bfa2a5029221585",
       "activate-release-gate-checks-by-tag": "sha256:02819304803eade140cd3adb2472a368c290f639acc7998f0d54bc20cecd228e",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
@@ -2212,6 +2213,28 @@
         "project-tooling"
       ],
       "relations": []
+    },
+    "260922-unify-formal-relation-maintenance-actions": {
+      "name": "unify-formal-relation-maintenance-actions",
+      "sourcePath": "unify-formal-relation-maintenance-actions.md",
+      "title": "为正式记录统一关系维护动作",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-22T15:15:53Z",
+      "purpose": "让两个记录领域用同一命令结构原地替换正式记录的完整直接关系。",
+      "background": "Decision 只有演进事务可改关系，Investigation 已有独立替换命令，调用者需要记忆两套入口与选择条件。",
+      "decision": "两域 CLI 以 set-relations 按 source 分组完整替换正式关系；evolve 只承接复合生命周期事务并改用同一分组语法。",
+      "tags": [
+        "decision-records",
+        "project-tooling"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "replace-decision-relations-as-complete-sets",
+          "summary": "将完整集合替换统一为两域共同基础动作"
+        }
+      ]
     },
     "260922-unify-record-candidate-lifecycle-actions": {
       "name": "unify-record-candidate-lifecycle-actions",

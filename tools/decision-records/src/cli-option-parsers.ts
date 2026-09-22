@@ -185,6 +185,18 @@ export function parseDecisionRelationSummary(
   return [...previous, { target, ...normalized }];
 }
 
+/** Parses one relation value without the cross-option accumulation check. */
+export function parseDecisionRelationSingle(value: string): DecisionRelation {
+  return parseDecisionRelation(value, [])[0] as DecisionRelation;
+}
+
+/** Parses one relation-summary value without cross-option accumulation. */
+export function parseDecisionRelationSummarySingle(
+  value: string
+): DecisionRelationSummary {
+  return parseDecisionRelationSummary(value, [])[0] as DecisionRelationSummary;
+}
+
 export function parseDecisionSuccessor(
   value: string,
   previous: DecisionSuccessor[] = []

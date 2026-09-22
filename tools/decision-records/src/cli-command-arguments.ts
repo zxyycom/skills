@@ -9,7 +9,10 @@ import {
   requiredDecisionId
 } from "./cli-option-parsers.ts";
 import { newCommandArgs } from "./cli-new-arguments.ts";
-import { evolveRelationOverridesForCommand } from "./cli-evolve-relation-groups.ts";
+import {
+  evolveRelationOverridesForCommand,
+  setRelationsGroupsForCommand
+} from "./cli-relation-groups.ts";
 import { resolveWorkspaceDecisionLocation } from "./decision-location.ts";
 
 const decisionListDefaultLimit = 10;
@@ -84,6 +87,7 @@ const commandArgumentFactories: Readonly<
   rename: renameArguments,
   search: ({ commanderCommand, location, options }) =>
     searchCommandArgs(location, options, commanderCommand.args[0]),
+  "set-relations": setRelationsArguments,
   show: singleDecisionArguments,
   "show-candidate": singleDecisionArguments,
   stage: ({ decisionIds, location }) => ({
@@ -254,6 +258,17 @@ function evolveCommandArgs(
     preflight,
     ...evolveRelationOverridesForCommand(command),
     successors
+  };
+}
+
+function setRelationsArguments(
+  input: CommandArgumentInput
+): CliArgsFor<"set-relations"> {
+  return {
+    ...input.location,
+    command: "set-relations",
+    preflight: input.options.preflight ?? false,
+    ...setRelationsGroupsForCommand(input.commanderCommand)
   };
 }
 

@@ -48,7 +48,10 @@ type LockedLifecycleOperationResult = {
 export async function applyLockedCandidateLifecycle(
   args: DecisionLocationArgs,
   initialScan: DecisionScan,
-  request: Extract<DecisionLifecycleRequest, { action: "evolve" | "publish" }>,
+  request: Extract<
+    DecisionLifecycleRequest,
+    { action: "evolve" | "publish" | "set-relations" }
+  >,
   io: DecisionRecordsCliIo
 ): Promise<number> {
   let completed: Extract<
@@ -130,7 +133,7 @@ export async function prepareLifecycleWithCurrentHistory(
 }
 
 export function printLifecyclePreflight(
-  action: "evolve" | "publish" | "reactivate",
+  action: "evolve" | "publish" | "reactivate" | "set-relations",
   prepared: Extract<DecisionLifecyclePreparation, { status: "ok" }>,
   io: DecisionRecordsCliIo
 ): number {

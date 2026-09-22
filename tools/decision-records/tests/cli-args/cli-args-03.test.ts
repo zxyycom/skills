@@ -9,19 +9,19 @@ test("evolve relation groups reject incomplete and mixed relation input before s
         "aligned=use-successor",
         "--relation",
         "修订=" + currentRelativePath,
-        "--relations-for",
+        "--source",
         "use-successor",
         "--relation",
         "修订=" + currentRelativePath
       ],
-      message: /must follow --relations-for/
+      message: /must follow --source/
     },
     {
       args: [
         "evolve",
         "--successor",
         "aligned=use-successor",
-        "--relations-for",
+        "--source",
         "use-successor"
       ],
       message: /requires at least one --relation or --clear-relations/
@@ -31,7 +31,7 @@ test("evolve relation groups reject incomplete and mixed relation input before s
         "evolve",
         "--successor",
         "aligned=use-successor",
-        "--relations-for",
+        "--source",
         "use-successor",
         "--clear-relations",
         "--relation",
@@ -51,20 +51,20 @@ test("evolve relation groups reject repeated raw sources and targets", async () 
   for (const { args, message } of [
     {
       args: [
-        "--relations-for",
+        "--source",
         "use-successor",
         "--relation",
         "修订=" + currentRelativePath,
-        "--relations-for",
+        "--source",
         "use-successor.md",
         "--relation",
         "修订=" + currentRelativePath
       ],
-      message: /must not repeat a successor Decision selector/
+      message: /must not repeat a Decision selector/
     },
     {
       args: [
-        "--relations-for",
+        "--source",
         "use-successor",
         "--relation",
         "修订=" + currentRelativePath,

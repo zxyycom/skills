@@ -63,8 +63,16 @@ function parseRelationGroups(
   if (events === undefined)
     return { error: "set-relations requires --source groups", status: "error" };
   const replacements: RawInvestigationRelationReplacement[] = [];
+  const seenSources = new Set<string>();
   let current: RelationGroupState | null = null;
   for (const event of events) {
+    if (event.kind === "source" && seenSources.has(event.value)) {
+      return {
+        error: `${event.value} source appears more than once`,
+        status: "error"
+      };
+    }
+    if (event.kind === "source") seenSources.add(event.value);
     const applied = applyRelationGroupEvent(event, current, replacements);
     if ("error" in applied) return { error: applied.error, status: "error" };
     current = applied.current;
@@ -139,11 +147,14 @@ function appendRelation(
     return {
       error: `relation ${JSON.stringify(value)} must use <type=target-id>`
     };
+  const target = value.slice(separator + 1);
+  if (current.relations.some((relation) => relation.target === target)) {
+    return {
+      error: `${current.source} relations must not repeat target ${target}`
+    };
+  }
   current.mode = "relations";
-  current.relations.push({
-    target: value.slice(separator + 1),
-    type: value.slice(0, separator)
-  });
+  current.relations.push({ target, type: value.slice(0, separator) });
   return { current };
 }
 function relationModeConflict(current: RelationGroupState): string {

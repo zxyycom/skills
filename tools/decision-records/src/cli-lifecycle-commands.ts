@@ -90,6 +90,31 @@ export async function runEvolve(
       );
 }
 
+export async function runSetRelations(
+  args: CliArgsFor<"set-relations">,
+  io: DecisionRecordsCliIo
+): Promise<number> {
+  const scan = await loadLifecycleScan(
+    args,
+    {
+      allowEmptyDecisionSet: true
+    },
+    io
+  );
+  return scan === null
+    ? 1
+    : await applyLifecycle(
+        args,
+        scan,
+        {
+          action: "set-relations",
+          preflight: args.preflight,
+          relationOverrideGroups: args.relationOverrideGroups
+        },
+        io
+      );
+}
+
 export async function runMarkAligned(
   args: CliArgsFor<"mark-aligned">,
   io: DecisionRecordsCliIo
@@ -182,7 +207,11 @@ export async function applyLifecycle(
     return 1;
   }
   request = resolved.request;
-  if (request.action === "publish" || request.action === "evolve") {
+  if (
+    request.action === "publish" ||
+    request.action === "evolve" ||
+    request.action === "set-relations"
+  ) {
     if (args.preflight === true) {
       const prepared = await prepareLifecycleWithCurrentHistory(
         scan,

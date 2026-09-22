@@ -95,7 +95,7 @@
       "DECISION-CLI-DISCARD-RECORDED-FLAG-001": "sha256:b6283ab6fb6f0b70f3bd463cd8386c109b06202b75ee9a6074acb9404b35aed7",
       "DECISION-CLI-EVOLVE-HELP-001": "sha256:7ab407154de3a6d04c260516ed2e1083e62896ad2aa4de8131bcdb8a1fa352ff",
       "DECISION-CLI-EVOLVE-RECORDED-FLAG-001": "sha256:6bf0724427fbd2b3851d342d875571543e188383c1d08d8b4798ef7eb5dc53e5",
-      "DECISION-CLI-EVOLVE-RELATION-GROUPS-001": "sha256:18fa0b083a92af31edc0cf91a8b120583a2ecfa246d5f803ed70a7d7de2ebbc6",
+      "DECISION-CLI-EVOLVE-RELATION-GROUPS-001": "sha256:b23b57a6fe9ae4f09dbb69ab6d49df640a5bc42579390a6462f29034ac95b349",
       "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001": "sha256:26b53449b744bda8ec224433f18551a2eebce5cfc4b31bab210f5d44ab318414",
       "DECISION-CLI-LIFECYCLE-PREFLIGHT-001": "sha256:6e216eb8e569c5cc414ff5545cb55fffda3e0425e54f4934714f4a4045d93e11",
       "DECISION-CLI-MARK-ALIGNED-HELP-001": "sha256:f76b75da87f071fd5d109e0d471c2c6d530e57bd67e9ff8a3fcd62cd485ffb8c",
@@ -231,6 +231,11 @@
       "DECISION-SEARCH-UNINDEXED-001": "sha256:83893d2eaa712c0508fac2b313fd8af7cee43cab5ca7e66c8547177c00f9c55b",
       "DECISION-SELECTED-SYNC-001": "sha256:19c4715f025bd893e19815b4398c90fe1d1c26c90b0689c298d022a261903db9",
       "DECISION-SELECTED-SYNC-MEMBERSHIP-001": "sha256:5b9691e3bb7333e255cd3b7de395098ebdac83d2ff973808fd898b7099623900",
+      "DECISION-SET-RELATIONS-ATOMIC-001": "sha256:c493c78bb330355564262edc055088719e434214a6ea0a70697885d14f72878f",
+      "DECISION-SET-RELATIONS-DOMAIN-GUARDS-001": "sha256:ca623bee78f30b0042d40defed0afdbf921eb27fc3c472d06f9552b021e5be1d",
+      "DECISION-SET-RELATIONS-DRIFT-001": "sha256:e6bbb87a5219c768f8cef6a20858b2fac516b18829126366467785d28e81e5d4",
+      "DECISION-SET-RELATIONS-PREFLIGHT-CLEAR-001": "sha256:116c994a9f2884f5f2d3876c3b0dd7ba1042eeebcec33367b6384a107cdd1aae",
+      "DECISION-SET-RELATIONS-REPLACE-001": "sha256:d15c8d7964179f5feb95a88a272cb3434963599cc1bdddd9f20a38bd9b5aab43",
       "DECISION-SHOW-OUTPUT-001": "sha256:6035c7a462f00957af4d441437b165125bc1610b672cff2b5bf33bbb11015b7d",
       "DECISION-SPLIT-CLOSURE-001": "sha256:f79c51ff0856c8f5d66fd1f95a71fa15dc050930d29886fd6548e8c4b0aa6efd",
       "DECISION-SPLIT-EXTENSION-001": "sha256:8feb8da97005d523f79cc711d48524510787040abd9b9839b330f61846222564",
@@ -610,6 +615,7 @@
       "MCPSHELL-BRIDGE-RUNTIME-003": "sha256:a2422b8a1742ea9e4f0cab1481c0b004c03551441ecbf4add4f1cf042acf9c34",
       "MCPSHELL-BRIDGE-SHELL-001": "sha256:81b50ac95062c9bae83e5f8f5d19ecdbb04561731897770dd5526f64fcce3ce3",
       "MCPSHELL-BRIDGE-SHELL-002": "sha256:c99cdeb05103a9a29712c2705543857583c491a5b04edee2701874219be2bd02",
+      "RECORD-SET-RELATIONS-CLI-CLASSIFICATION-001": "sha256:33712ac2e46fe72937657f485d92c9dfab65359b0ce8f699dd184696c147131d",
       "RELATION-TRACE-SELECTION-001": "sha256:c129ed8df342774c949950b89ff27e815be45c5236524ac67ed76ae52a7392d3",
       "REPO-FORMAT-SCRIPTS-001": "sha256:57f46d4515a6c9a022fd26868d1b7d291d3812aa945c957583dba9957d54cae3",
       "REPO-LINT-PREFLIGHT-001": "sha256:b7db9512b7e996fccd5c74222f1cb62b3d957d806ff96c4c6cfb2c505c271455",
@@ -3144,6 +3150,62 @@
       ],
       "testIds": [
         "test:1c15f2ac2296a56ee97045564c65ce1c19b0d75e6cc52b5847267218515d8a92"
+      ]
+    },
+    "DECISION-SET-RELATIONS-ATOMIC-001": {
+      "title": "set-relations 多来源单一事务且失败零写入",
+      "sourcePath": "cases/decision-set-relations-atomic-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:82a1817cff8c3ae50eb804670582b37409157b0370d2a2d6c1edac10f8b265c6",
+        "test:83ab2750617d8860cdff6180ab76738f82af00b16336fd30496426398bf01804",
+        "test:ac9a49daa22cf2b2f2cd802733e1253022097f3d183e3537b0666c5807a7e63c"
+      ]
+    },
+    "DECISION-SET-RELATIONS-DOMAIN-GUARDS-001": {
+      "title": "set-relations 仅维护已建立记录并校验摘要命中",
+      "sourcePath": "cases/decision-set-relations-domain-guards-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:230b4873cb0bc8aa5d1a72de6f36df0c83c81556c2dc783e7cf914489939b33a",
+        "test:3815f05932b9014c49a216b2c0e416e4b8c8a0f7da6590aea49e5569d0a7242b"
+      ]
+    },
+    "DECISION-SET-RELATIONS-DRIFT-001": {
+      "title": "set-relations 拒绝写前来源漂移并支持重扫后重试",
+      "sourcePath": "cases/decision-set-relations-drift-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:814ea65570354e72dce3e42288626cb4c59ea21e259715921842cba83bac01d7",
+        "test:a3c04488804cd886cf4fe3af9441651263a3820a973257949aa5a218c9324c74"
+      ]
+    },
+    "DECISION-SET-RELATIONS-PREFLIGHT-CLEAR-001": {
+      "title": "set-relations 预检零写入并区分清空与未变化来源",
+      "sourcePath": "cases/decision-set-relations-preflight-clear-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:5579bff71ff6b8d51d167448e7932dbdb48c1f2989dc736d13355276ad1cb8d0",
+        "test:dc60b4f1fb5d7400c7d3e2827e76c506c49cdf13fd95c4854642588fe6137b15"
+      ]
+    },
+    "DECISION-SET-RELATIONS-REPLACE-001": {
+      "title": "set-relations 完整替换已建立记录关系并重建索引",
+      "sourcePath": "cases/decision-set-relations-replace-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:c84710f358f2a49729a026234b015d69bb75635b122d241b6a8ef0d515ebab17",
+        "test:d4e40a307aa628dfac35e51ff2cc4bfae79cba1e0affa7e4d59a9d9b8a7980b8"
       ]
     },
     "DECISION-SHOW-OUTPUT-001": {
@@ -6973,6 +7035,20 @@
       ],
       "testIds": [
         "test:46b392a6aa26d3ec7284a04ed4c6b1c16c96fda491d6ff53239ff2dac0180bc0"
+      ]
+    },
+    "RECORD-SET-RELATIONS-CLI-CLASSIFICATION-001": {
+      "title": "两域 set-relations 对输入形态错误保持一致分类",
+      "sourcePath": "cases/record-set-relations-cli-classification-001.md",
+      "tags": [
+        "decision-records",
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:3d1d9dc401a0040c24b77db88ec1c5791d603225cfaef4d50bb8da160103dc5b",
+        "test:8d9d315a5fe4957c92c6f15f62255545fc3e06379de1cd00187337f05e2e9ac7",
+        "test:d83ccdd15a3155755438c7005f07a2044704426075efae54f12f38cf2e462263",
+        "test:ff900cc3d159664915ae6557b4147436a7988ae54cc9bb0087bddf28eeffb1f5"
       ]
     },
     "RELATION-TRACE-SELECTION-001": {

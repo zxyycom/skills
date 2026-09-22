@@ -26,6 +26,7 @@ export type Command =
   | "reactivate"
   | "rename"
   | "search"
+  | "set-relations"
   | "show"
   | "show-candidate"
   | "stage"
@@ -123,6 +124,13 @@ export type CliArgs =
         renameRecordedDecision: boolean;
         source: string;
         target: string;
+      }
+    >
+  | LocatedCommand<
+      "set-relations",
+      {
+        preflight: boolean;
+        relationOverrideGroups: DecisionRelationOverrideGroup[];
       }
     >
   | LocatedCommand<

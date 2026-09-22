@@ -203,6 +203,40 @@ test("CLI set-relations rejects relations that do not follow a source", async ()
   });
 });
 
+test("CLI set-relations rejects repeated sources and targets as invalid arguments", async () => {
+  await withTempRoot("cli-relations-duplicates", async (root) => {
+    await writeCollection(root, [{ id: "base" }, { id: "next" }]);
+    const repeatedSource = await runInvestigationCli(root, [
+      "set-relations",
+      "--source",
+      "next",
+      "--relation",
+      "补充=base",
+      "--source",
+      "next",
+      "--clear-relations"
+    ]);
+    assert.equal(repeatedSource.status, 2);
+    assert.equal(repeatedSource.stdout, "");
+    assert.match(repeatedSource.stderr, /next source appears more than once/u);
+    const repeatedTarget = await runInvestigationCli(root, [
+      "set-relations",
+      "--source",
+      "next",
+      "--relation",
+      "补充=base",
+      "--relation",
+      "复查=base"
+    ]);
+    assert.equal(repeatedTarget.status, 2);
+    assert.equal(repeatedTarget.stdout, "");
+    assert.match(
+      repeatedTarget.stderr,
+      /next relations must not repeat target base/u
+    );
+  });
+});
+
 test("CLI new binds relation summaries after selector resolution and preserves equals", async () => {
   await withTempRoot("cli-new-relation-summary", async (root) => {
     await writeCollection(root, [{ id: "260828-base" }]);

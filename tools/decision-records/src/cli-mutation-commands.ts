@@ -20,7 +20,8 @@ import {
   runEvolve,
   runMarkAligned,
   runPublish,
-  runReactivate
+  runReactivate,
+  runSetRelations
 } from "./cli-lifecycle-commands.ts";
 import { loadDecisionValidationContext } from "./index.ts";
 import type { DecisionScan } from "./types.ts";
@@ -234,6 +235,7 @@ const mutationCommandHandlers = {
   archive: runArchive,
   discard: runDiscard,
   evolve: runEvolve,
+  "set-relations": runSetRelations,
   "mark-aligned": runMarkAligned,
   new: runNew,
   rename: runRename,

@@ -196,7 +196,7 @@ writer 在候选和正式位置均可用时优先使用 name locator，否则使
 
 ### 完整替换关系
 
-`set-relations` 的每个 `--source` 开始一个替换组，直到下一个 source；同一来源只出现一次。组内二选一：重复 `--relation` 给出全部最终关系，或 `--clear-relations` 明确清空。
+`set-relations` 的每个 `--source` 开始一个替换组，直到下一个 source；同一来源只出现一次。组内二选一：重复 `--relation` 给出全部最终关系，或 `--clear-relations` 明确清空。重复 source、组内重复 target、空分组、只含摘要、clear 混用与摘要失配按与 Decision Records `set-relations` 相同的错误分类处理：输入形态问题在 CLI 边界以参数错误拒绝，需要集合知识的解析与绑定结果属于领域失败。
 
 摘要绑定最近的 source group，可与组内关系任意排序；与清空同组时拒绝。完整替换时，未提供摘要的边清除旧摘要。
 

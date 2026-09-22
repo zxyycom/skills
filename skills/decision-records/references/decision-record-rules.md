@@ -149,20 +149,28 @@ relations:
 | 首次 publish，或 evolve 省略所有关系覆盖 | 每个后继保留自身完整 relations 与 summary。候选首次建立优先使用此路径。 |
 | 无分组的 `--relation` 与可选 `--relation-summary` | 同一完整 replacement 应用于全部所选后继。 |
 | 无分组的 `--clear-relations` | 全部所选后继使用显式空集合。 |
-| 以 `--relations-for <successor-selector>` 开始的组 | 该组 source 使用组内完整 replacement；未分组的所选后继仍保留自身原值。组内可用 `--clear-relations` 显式提供空集合。 |
+| 以 `--source <successor-selector>` 开始的组 | 该组 source 使用组内完整 replacement；未分组的所选后继仍保留自身原值。组内可用 `--clear-relations` 显式提供空集合。 |
 | 重新激活 archived 记录 | 保留既有关系，拒绝关系或摘要覆盖。 |
 
-`--relations-for` 开始一个后继组，直到下一个同名选项或命令结束；只有 `--relation`、`--relation-summary` 和 `--clear-relations` 随组归属，其他选项仍作用于整个事务。分组与统一覆盖互斥：出现分组后，首组之前不能有关系选项，且未分组成员不接收统一默认 replacement。
+`--source` 开始一个后继组，直到下一个同名选项或命令结束；只有 `--relation`、`--relation-summary` 和 `--clear-relations` 随组归属，其他选项仍作用于整个事务。分组与统一覆盖互斥：出现分组后，首组之前不能有关系选项，且未分组成员不接收统一默认 replacement。
 
 每个组必须在解析后唯一地指向一个已选 successor，并提供至少一条 `--relation` 或一个 `--clear-relations`。摘要可在同组 relation 前后出现；它按首个 `=` 分隔，后续 `=` 属于摘要，并且只绑定同组完整 `--relation` 集合中的唯一 target。不同组可对同一 target 写入不同摘要。
 
-首组前关系选项、空组、只含摘要、clear 与 relation 或 summary 混用、原始重复 source 或 target、以及摘要形状错误属于参数错误：退出 `2` 且零写入。selector 不存在或歧义、解析后重复 source/target、source 未选中、摘要未命中、alignment 不匹配、最终关系形状或闭合错误属于集合解析与领域预演失败：退出 `1` 且零写入。历史确认、锁或写入阶段沿维护恢复的实际 outcome 报告，不能把写入后失败声称为零写入。精确参数顺序与诊断以 `evolve --help` 为准。
+首组前关系选项、空组、只含摘要、clear 与 relation 或 summary 混用、原始重复 source 或 target、以及摘要形状错误属于参数错误：退出 `2` 且零写入。selector 不存在或歧义、解析后重复 source/target、source 未选中、摘要未命中、alignment 不匹配、最终关系形状或闭合错误属于集合解析与领域预演失败：退出 `1` 且零写入。历史确认、锁或写入阶段沿维护恢复的实际 outcome 报告，不能把写入后失败声称为零写入。精确参数顺序与诊断以 `evolve --help` 为准。被取代的 `--relations-for` 分组参数按普通无效参数处理，不保留兼容别名。
 
 新候选的 `publish` 与 `evolve` 以 `relationReview` 承接关系核对：
 
 - review 按规范 source ID 排列，覆盖全部所选后继（包括未分组或最终相同的成员）。每个 source 给出 `action`、同次准备读取的完整 `before` 和规范化完整 `after`；空集合为 `[]`。新候选的 action 恒为 `establish`，正式来源为 `replace` 或 `unchanged`。
 - renderer 只从这组 before/after 推导新增、移除及摘要新增、变更或移除。完整 replacement 未提供摘要即清除旧摘要。
 - `--preflight` 返回 `phase: preflight` 的预计 review 且零写入；正式成功才返回 `phase: committed`。失败不附成功 review，预检不构成提交凭据。
+
+### 正式关系的原地维护
+
+`set-relations` 以 `--source <decision-selector>` 分组完整替换一个或多个**已建立**记录的直接关系，并在同一可恢复事务中重建派生索引。它只修改所选正式 Markdown 的 relations 与派生索引，不建立候选、不归档前序、不改变 status、alignment 或 createdAt；候选的关系继续在候选来源中维护并在 publish 时审核。
+
+选择条件只有一条：只修正关系用 `set-relations`，同一事务需要同时改变生命周期（建立后继、归档前序、删除记录）用 `evolve`。因此 `set-relations` 的最终关系目标必须已经满足领域图约束（目标须为已归档的已建立记录）；需要指向活动前序时，该事件属于 `evolve`。
+
+输入分组、完整替换、清空、摘要绑定、排序和审核结果与 Investigation Report 的 `set-relations` 使用同一协议：每组表示该 source 的完整直接关系集合，重复 source/target、空分组、摘要失配和 clear 混用按参数错误分类；预检与正式成功都返回按规范 source ID 排序、含 `phase`、`action`、完整 `before` 与 `after` 的 `relationReview`。多个 source 在同一请求中形成单一事务，任一 source 失败即整体零写入或恢复。
 
 ## 维护范围与确认
 

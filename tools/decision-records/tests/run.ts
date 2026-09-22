@@ -19,6 +19,7 @@ await import("./cli-output-trace.test.ts");
 await import("./evolution.test.ts");
 await import("./unrecorded-history.test.ts");
 await import("./lifecycle-relations.test.ts");
+await import("./relation-maintenance.test.ts");
 await import("./transaction-recovery.test.ts");
 await import("./rename.test.ts");
 await import("./filesystem-boundaries.test.ts");

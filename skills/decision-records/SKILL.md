@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "63"
+  version: "64"
 ---
 
 # Decision Records
@@ -96,22 +96,23 @@ Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位�
 | 记录误述、理由补足或表述纠正，采用方向与范围未实质变化 | 完善原记录，再同步索引；候选收敛也继续编辑原候选。 |
 | 完整未来方向已成为当前事实 | 核对事实后用 `mark-aligned`。 |
 | 退出当前依据或重新启用历史记录 | `archive` 或 `reactivate`，保留既有历史边界。 |
+| 只修正已建立记录的正式关系（含清空与摘要），不改变任何生命周期 | `set-relations`，按 `--source` 分组完整替换；同一判断需要同时改变生命周期时才用 `evolve`。 |
 | 更正 ID/name | `rename`，由事务统一维护身份、引用、位置和索引。 |
 | 明确删除记录 | `discard`；与演进原子组合时显式使用 `evolve --discard <decision-id>`。成功结果报告为删除，而非归档。 |
 
 已建立记录的生命周期、alignment 和关系通过 CLI 事务维护；非法 alignment 只能按恢复手册取得字段授权后原位修复。索引从 Markdown 派生。
 
-需要只读预演时，新候选使用 `publish --preflight` 或 `evolve --preflight` 以本次完整参数验证，并返回预计的完整 `relationReview`。预检零写入，不能作为正式执行的提交凭据；正式执行仍须重新提供参数、重新验证，并只以 `committed` review 确认已提交的完整关系。`reactivate` 只执行 `archived` → `active`，保留既有关系与 createdAt，不进入该关系核对。
+需要只读预演时，新候选使用 `publish --preflight` 或 `evolve --preflight`，正式记录的原地关系修正使用 `set-relations --preflight`，均以本次完整参数验证，并返回预计的完整 `relationReview`。预检零写入，不能作为正式执行的提交凭据；正式执行仍须重新提供参数、重新验证，并只以 `committed` review 确认已提交的完整关系。`reactivate` 只执行 `archived` → `active`，保留既有关系与 createdAt，不进入该关系核对。
 
 拆分或重划先用重复 `--successor` 选择完整后继集合；这是本次闭合事件的成员，不表示各成员必须使用相同关系。再按[后继集合与语义闭合](references/decision-record-rules.md#后继集合与语义闭合)核对承接范围，并为每个成员确定其完整最终 relations：
 
 | 需要的最终关系 | `evolve` 输入选择 |
 | --- | --- |
 | 首次建立的候选，或关系应保留各自 Markdown 的原值 | 省略所有关系覆盖选项。 |
-| 所有已选后继都替换为同一完整集合 | 不使用 `--relations-for`，提供统一的 `--relation`、可选 `--relation-summary`，或 `--clear-relations`。 |
-| 不同后继需要不同完整集合、摘要或清空结果 | 用 `--relations-for <successor-selector>` 为每个要替换的后继开始一组；组内提供其完整 `--relation` 与可选摘要，或 `--clear-relations`。未分组的已选后继保留各自原值。 |
+| 所有已选后继都替换为同一完整集合 | 不使用 `--source` 分组，提供统一的 `--relation`、可选 `--relation-summary`，或 `--clear-relations`。 |
+| 不同后继需要不同完整集合、摘要或清空结果 | 用 `--source <successor-selector>` 为每个要替换的后继开始一组；组内提供其完整 `--relation` 与可选摘要，或 `--clear-relations`。未分组的已选后继保留各自原值。 |
 
-统一覆盖与分组互斥；分组中的 relation、summary 和 clear 只属于该组。完整 replacement 不合并旧关系，未随 replacement 提供的摘要会移除。组的精确参数、顺序和诊断以 `evolve --help` 为准；完整成员、分组载荷和失败边界见[完整替换与摘要绑定](references/decision-record-rules.md#完整替换与摘要绑定)。
+统一覆盖与分组互斥；分组中的 relation、summary 和 clear 只属于该组。完整 replacement 不合并旧关系，未随 replacement 提供的摘要会移除。分组语法与 Investigation Report 的 `set-relations` 一致。组的精确参数、顺序和诊断以 `evolve --help` 为准；完整成员、分组载荷和失败边界见[完整替换与摘要绑定](references/decision-record-rules.md#完整替换与摘要绑定)。
 
 由 CLI 检查 Git 维护门禁。命令暂停时，核对受检 ID、操作与写入状态，按[维护范围与确认](references/decision-record-rules.md#维护范围与确认)自行复核历史价值及授权后显式选择；需要用户决定时才询问。中断或恢复不完整时按恢复手册处理。
 
