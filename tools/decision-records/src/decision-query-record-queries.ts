@@ -7,7 +7,11 @@ import {
   parseDatedDecisionId
 } from "./decision-path.ts";
 import type { DecisionId, DecisionTraceDirection } from "./types.ts";
-import { loadDecisionQueryContext } from "./decision-query-context.ts";
+import {
+  loadDecisionQueryContext,
+  persistedSnapshotBodyWarning
+} from "./decision-query-context.ts";
+import { decisionSourceRevision } from "./decision-state-index.ts";
 import type {
   CandidateDecisionRecord,
   DecisionTraceEntry,
@@ -30,7 +34,9 @@ import { traceDecisionRelations } from "./relation-graph.ts";
 export async function showDecisionRecord(
   request: Extract<DecisionQueryRequest, { command: "show" }>
 ): Promise<DecisionQueryResult> {
-  const context = await loadDecisionQueryContext(request.location);
+  const context = await loadDecisionQueryContext(request.location, {
+    collectionStaleness: false
+  });
   if (context.status === "error") return context;
   const resolved = resolveIndexedDecisionSelector(
     context,
@@ -42,15 +48,24 @@ export async function showDecisionRecord(
     context.decisionsDirectory,
     resolved.record
   );
-  return body.status === "error"
-    ? body
-    : {
-        body: body.value,
-        command: "show",
-        record: resolved.record,
-        status: "ok",
-        warnings: []
-      };
+  if (body.status === "error") return body;
+  const recordRevision = decisionSourceRevision([
+    {
+      decisionId: resolved.record.decisionId,
+      sourcePath: resolved.record.sourcePath,
+      text: body.value
+    }
+  ]).entries[resolved.record.decisionId];
+  const stale =
+    context.index.sourceRevision.entries[resolved.record.decisionId] !==
+    recordRevision;
+  return {
+    body: body.value,
+    command: "show",
+    record: resolved.record,
+    status: "ok",
+    warnings: stale ? [persistedSnapshotBodyWarning] : []
+  };
 }
 
 export async function showDecisionCandidate(
@@ -150,11 +165,12 @@ export async function traceDecisionRecord(
   });
   if (queried.status === "error")
     return indexFailure(queried, context.indexRelativePath);
-  return traceDecisionResult(
+  const traced = traceDecisionResult(
     indexedRecords(queried.value),
     resolved.record.decisionId,
     options
   );
+  return { ...traced, warnings: context.warnings };
 }
 
 function traceDecisionResult(

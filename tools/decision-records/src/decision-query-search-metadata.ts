@@ -15,6 +15,10 @@ import {
   decisionIndexRecovery,
   loadDecisionIndex
 } from "./decision-state-index.ts";
+import {
+  decisionIndexStale,
+  persistedSnapshotWarning
+} from "./decision-query-context.ts";
 import { decisionNameFromId, displayDecisionPath } from "./decision-path.ts";
 import { resolveDecisionLocation } from "./decision-query-context.ts";
 import type {
@@ -47,6 +51,7 @@ export async function searchDecisionMetadata(
   const persisted = await loadDecisionIndex({ decisionsDirectory });
   if (persisted.status === "error")
     return metadataIndexFailure(persisted, indexRelativePath);
+  const stale = await decisionIndexStale(decisionsDirectory, persisted.value);
   const matcher = metadataMatcher(request);
   if (matcher.status === "error") return matcher.failure;
   const selected = Object.entries(persisted.value.entries)
@@ -65,7 +70,7 @@ export async function searchDecisionMetadata(
     in: "metadata",
     records,
     status: "ok",
-    warnings: []
+    warnings: stale ? [persistedSnapshotWarning] : []
   };
 }
 

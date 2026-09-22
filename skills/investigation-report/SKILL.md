@@ -5,7 +5,7 @@ description: >-
   以一份可独立复核的报告保存一轮形成时的背景、依据、结果和边界，
   并用稳定 Investigation ID、tags 和直接前序关系维护分类与认识演进。
 metadata:
-  version: "51"
+  version: "52"
 ---
 
 # Investigation Report
@@ -103,10 +103,10 @@ agent 在当前请求或生效项目规则授权的范围内，自行审查证�
 ### 6. 同步、验证与交付
 
 1. 只读审阅运行适用的 `check` 或 `publish --preflight`，保持集合状态不变。
-2. 一批手工正式报告编辑可先共同完成，期间用 scoped check 获取局部反馈。在索引查询、已有关系事务、正式删除、默认全量检查、暂存或交付需要当前集合前，统一运行一次 `sync-index`。它验证完整正式集合；`--select ... --write` 仅接纳所选 ID 的变化，合法 candidates 不参与同步。
+2. 一批手工正式报告编辑可先共同完成，期间用 scoped check 获取局部反馈。在索引查询、已有关系事务、正式删除、默认全量检查、暂存或交付需要当前集合前，统一运行一次 `sync-index`。它默认写入并发布完整有效索引，`--preflight` 零写入预演同一验证；`--select ...` 只接纳所选 ID 的已知来源变化，仍发布完整索引，合法 candidates 不参与同步。已知合法来源变化的规范顺序是先 `sync-index` 再默认全量 `check`；未解释的索引异常先 `check` 诊断，再同步或修复。
 3. `set-relations` 与正式 `discard` 要求当前索引，并在成功事务中同步索引。只改资源字节时保留索引；暂停、失败或 cleanup 诊断按契约与恢复手册处理。
 4. publish、同步或事务完成后运行默认全量 `check`，并按下列完成标准复核实际结果。
-5. 需要 Git pending 快照时，同步和全量检查后用 `stage-index` 选择正式 Investigation ID；报告与资源按实际交付范围另行暂存。
+5. 需要 Git pending 快照时，同步和全量检查后用 `stage-index` 选择正式 Investigation ID；工作区索引陈旧或无效时 stage-index 零写入停止，按诊断同步后再重试。报告与资源按实际交付范围另行暂存。
 
 ## 完成标准
 
@@ -127,7 +127,7 @@ agent 在当前请求或生效项目规则授权的范围内，自行审查证�
 
 Investigation ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位文件。查询后使用返回的完整 ID 继续操作。
 
-`list` 与 `search` 只查正式报告，候选通过独立入口读取。关系筛选依据、文本证据的分工与 `filterRelations` 的读取边界由[索引与查询](references/investigation-report-contract.md#索引与查询)承接；完整正文和完整直接关系继续用 `show` 读取。默认搜索读取报告 Markdown，`--in metadata` 只反映已发布索引快照。遇到降级或截断 warning 时，先按该节确认来源与结果边界，再据此下结论。
+`list` 与 `search` 只查正式报告，候选通过独立入口读取。关系筛选依据、文本证据的分工与 `filterRelations` 的读取边界由[索引与查询](references/investigation-report-contract.md#索引与查询)承接；完整正文和完整直接关系继续用 `show` 读取。默认搜索读取报告 Markdown，`--in metadata` 只反映已发布索引快照。持久索引陈旧时，`list`、`trace` 与 metadata `search` 仍返回最后一次发布快照并给出 warning；`show` 验证当前文件身份后返回当前正文；默认内容搜索基于已验证的当前来源投影。这些 warning 标明数据源与 `sync-index` 恢复命令，快照结果不能支持对当前全集的否定性结论。遇到降级或截断 warning 时，先按该节确认来源与结果边界，再据此下结论。
 
 所有正式报告保留在同一集合，直接关系描述认识演进。`trace` 只读一次当前受检索引：默认向 stdout 输出稳定终端关系图，而不是旧的平铺文本或 Mermaid；`--json` 才输出同一份 trace 查询成功结果的稳定 JSON envelope，因而不改变 `anchorId`、实际 `direction`、实际 `limits` 或成员边界。文本图用 `L0/L1/...` 表示稳定图层，`* trace` 标记实际遍历成员，`~ context` 标记为完整拆分或纯归并事件补齐的成员，并在存在时呈现 relation summary、frontier 与 blocked event。无限深度在 JSON 的 `limits.depth` 中表示为 `"all"`。`traceIds` 是实际沿请求方向到达、可继续扩展的成员，`contextIds` 只为完整拆分或纯归并事件闭合而加入，不递归扩展；两者互斥且并集恰为 `entries` 的键。省略参数时使用 `direction=both`、`depth=5`、`max-records=50`；`--depth all` 取消深度限制。用 `coverage`、`frontier` 和（存在时）`blockedEvent` 判断结果是否完整：frontier 是下一次查询可用的 anchor 与方向，不是 cursor；预算不足时提高 `max-records` 至 `blockedEvent.requiredMaxRecords` 后重查。entry 保留索引中的完整 relations，因而 target 可以在本切片外；可选 relation `summary` 有值才出现，trace 不推断或补写它。判断当前适用性时，回到当前事实 owner，并按需综合相关报告。
 

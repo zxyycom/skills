@@ -89,7 +89,7 @@
       "260908-authorize-throttled-main-auto-push-hook": "sha256:69c7284f3cdd44760a10311fdd5d1dfd7b15250f460c79201ddbf806337a6790",
       "260908-bound-record-list-output": "sha256:c642c0be872d8584579df5658f267073ab6c63b0940759953fa3ee4abc27bf5d",
       "260908-maintain-independent-investigation-rounds": "sha256:eab39227731e99049652e58c07032b334a555303b870e2c70e5f9fa9ab6061eb",
-      "260908-require-established-decision-alignment": "sha256:87f62b2419c4d41d88d47c237bd89f4b55298b73f1889af6be9b9593a6f24209",
+      "260908-require-established-decision-alignment": "sha256:c96dea7482b1c432dbaa30070956a9b4560a5f371c51930aab1985b32eb863c6",
       "260908-separate-investigation-narrative-from-supporting-materials": "sha256:c3cc01ba4cb2a8cd26c96d78bbafbada621972e4ef60b7f8edcc78a9a1c14f44",
       "260909-adopt-vibe-check-0-0-2-gate-runtime": "sha256:2e352e47a274125bd279a4da5b13142eb88067e31603763bc70c74523cab96f8",
       "260909-batch-release-test-execution": "sha256:5ee09515e7f95c6e2151dba2a64771708a49e9798103502714a22b2e9c243453",

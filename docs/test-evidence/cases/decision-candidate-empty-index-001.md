@@ -1,13 +1,13 @@
-### Case DECISION-CANDIDATE-EMPTY-INDEX-001: 空索引阻断唯一候选的查询
+### Case DECISION-CANDIDATE-EMPTY-INDEX-001: 候选收集不依赖空已发布索引
 
 Tests:
-- `test:ce133d48c9b588030f0cae6943404613dcbab55f9a5fc65ac65c289cf655cf51`
+- `test:b9180a5d6b2bad54e060b9cc2fda7e515597c5bf826eb50341281e394ffd5869`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 仅 candidate 但存在结构有效的空 decision-index 时，collection 不是首次发现；`candidates` 和 `show-candidate` 都必须在 collection 层失败。只有 index 缺失时才允许首次候选发现。
+- 仅剩 candidate 且已发布 decision-index 为结构有效的空 entries 时，collection 不得依赖该空索引；`candidates` 和 `show-candidate` 都必须从来源继续返回候选并成功。
 
 Proves:
-- 删除全部 established 后写入空 entries/sourceRevision index，两个查询均非零、无 stdout 并报告 index 问题。
+- 删除全部 established 并写入空 entries/sourceRevision index 后，两个查询均零退出并在 stdout 返回该候选。

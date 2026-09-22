@@ -30,7 +30,6 @@ test("selected sync accepts one Decision change only after proving the complete 
       "sync-index",
       "--select",
       archivedDecisionId,
-      "--write",
       "--root",
       workspaceRoot
     ]);
@@ -42,6 +41,7 @@ test("selected sync accepts one Decision change only after proving the complete 
       "sync-index",
       "--select",
       `${currentDecisionId}.md`,
+      "--preflight",
       "--root",
       workspaceRoot
     ]);
@@ -53,7 +53,6 @@ test("selected sync accepts one Decision change only after proving the complete 
       "sync-index",
       "--select",
       `${currentDecisionId}.md`,
-      "--write",
       "--root",
       workspaceRoot
     ]);

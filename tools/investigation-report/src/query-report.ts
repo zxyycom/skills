@@ -9,8 +9,14 @@ import { investigationIdFromMarkdown } from "./markdown.ts";
 import {
   investigationIndexDiagnosticMessages,
   investigationIndexFileName,
-  loadCurrentInvestigationIndex
+  loadInvestigationIndex
 } from "./investigation-state-index.ts";
+import {
+  investigationIndexStale,
+  persistedSnapshotBodyWarning,
+  persistedSnapshotWarning,
+  shownInvestigationStale
+} from "./index-staleness.ts";
 import {
   parseInvestigationReportShowOptions,
   parseInvestigationReportTraceOptions
@@ -104,24 +110,29 @@ export async function showInvestigationReport(
       loaded.error.diagnostics
     );
   }
-  const { index, indexPath, investigationsDirectory } = loaded.value;
-  const resolved = resolveInvestigationSelector(
-    Object.entries(index.entries).map(([id, state]) => ({
-      id,
-      name: state.name
-    })),
-    selector
-  );
-  if (resolved.status === "error")
-    return showFailure(selector, indexPath, resolved.errors);
-  const { id } = resolved;
-  const entry = index.entries[id]!;
-  return await readShownInvestigation(
+  const context = loaded.value;
+  const { index, indexPath, investigationsDirectory } = context;
+  const selected = selectInvestigationEntry(context, selector);
+  if (selected.isErr()) return selected.error;
+  const { id, entry } = selected.value;
+  const shown = await readShownInvestigation(
     investigationsDirectory,
     indexPath,
     id,
     entry
   );
+  return shown.status === "error"
+    ? shown
+    : {
+        ...shown,
+        warnings: shownInvestigationStale(index, {
+          id,
+          sourcePath: entry.sourcePath,
+          text: shown.markdown
+        })
+          ? [persistedSnapshotBodyWarning]
+          : []
+      };
 }
 
 type CurrentInvestigationIndex = Extract<
@@ -140,6 +151,28 @@ type InvestigationQueryLocationOptions = Pick<
   InvestigationReportShowOptions,
   "investigationsDir" | "workspaceRoot"
 >;
+
+type SelectedInvestigationEntry = Readonly<{
+  id: string;
+  entry: NonNullable<InvestigationReportShowResult["state"]>;
+}>;
+
+function selectInvestigationEntry(
+  context: IndexedInvestigationContext,
+  selector: string
+): Result<SelectedInvestigationEntry, InvestigationReportShowResult> {
+  const resolved = resolveInvestigationSelector(
+    Object.entries(context.index.entries).map(([id, state]) => ({
+      id,
+      name: state.name
+    })),
+    selector
+  );
+  if (resolved.status === "error")
+    return err(showFailure(selector, context.indexPath, resolved.errors));
+  const { id } = resolved;
+  return ok({ entry: context.index.entries[id]!, id });
+}
 
 async function loadIndexedInvestigationContext(
   options: InvestigationQueryLocationOptions,
@@ -170,7 +203,7 @@ async function loadIndexedInvestigationContext(
     investigationsDirectory,
     investigationIndexFileName
   );
-  const loaded = await loadCurrentInvestigationIndex({
+  const loaded = await loadInvestigationIndex({
     investigationsDirectory
   });
   if (loaded.status === "error") {
@@ -212,7 +245,8 @@ async function readShownInvestigation(
       indexPath,
       markdown,
       state,
-      status: "ok"
+      status: "ok",
+      warnings: []
     };
   } catch (error) {
     return showFailure(
@@ -264,12 +298,18 @@ export async function traceInvestigationReports(
       loaded.error.diagnostics
     );
   }
-  return traceLoadedInvestigation(
+  const traced = traceLoadedInvestigation(
     loaded.value.index,
     loaded.value.indexPath,
     selector,
     traceOptions.value
   );
+  if (traced.status === "error") return traced;
+  const stale = await investigationIndexStale(
+    loaded.value.investigationsDirectory,
+    loaded.value.index
+  );
+  return { ...traced, warnings: stale ? [persistedSnapshotWarning] : [] };
 }
 
 function rawStringField(input: unknown, field: string): string | undefined {

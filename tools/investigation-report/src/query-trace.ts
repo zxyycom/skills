@@ -67,7 +67,8 @@ export function traceLoadedInvestigation(
     entries: traceInvestigationEntries(states, [
       ...trace.traceIds,
       ...trace.contextIds
-    ])
+    ]),
+    warnings: []
   };
 }
 

@@ -38,7 +38,7 @@
 来源完整、满足当前 definition 且已取得维护授权后，从 skill 目录执行不带选择器的全量重建：
 
 ```text
-node scripts/decision-records.mjs sync-index --write
+node scripts/decision-records.mjs sync-index
 node scripts/decision-records.mjs check
 ```
 

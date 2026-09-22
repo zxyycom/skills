@@ -7,9 +7,10 @@ Tags:
 - `investigation-report`
 
 Contract:
-- 直接调用的源码 CLI 入口的帮助仅公开当前报告级命令；search 公开文本与匹配模式入口，旧 topic 筛选和 list 的 retired text 参数不属于当前接口。
+- 直接调用的源码 CLI 入口的帮助仅公开当前报告级命令；search 公开文本与匹配模式入口，sync-index 公开 `--select` 与 `--preflight` 而不保留 `--write`，旧 topic 筛选和 list 的 retired text 参数不属于当前接口。
 
 Proves:
 - 顶层帮助成功且只写 stdout，列出报告级命令而不列出 `--category`。
 - search 帮助公开 `[text]` 位置入口和 `--match <mode>`。
+- sync-index 帮助公开 `--select <name-or-id>` 与 `--preflight`；直接 CLI 与生成 CLI 的 `sync-index --write` 都以用法错误退出并报告 `unknown option '--write'`。
 - `list --category` 与 `list --text` 都以用法错误退出，且前者 stdout 为空、错误输出包含对应未知选项诊断。

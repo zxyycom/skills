@@ -176,7 +176,7 @@ export function printCandidateWarnings(
   }
 }
 
-function printQueryWarnings(
+export function printQueryWarnings(
   warnings: readonly string[],
   io: DecisionRecordsCliIo
 ): void {

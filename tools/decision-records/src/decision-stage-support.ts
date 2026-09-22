@@ -151,3 +151,39 @@ export function stageDomainFailure(
     })
   ]);
 }
+
+export function staleStageFailure(
+  errors: readonly string[]
+): DecisionApplicationFailure {
+  return decisionFailure(
+    errors.map((reason) => ({
+      ...decisionDiagnostic({
+        code: "decision-records.stage-collection-stale",
+        reason,
+        recovery:
+          "Run check to diagnose the decision collection, run sync-index to publish the current index, then retry stage.",
+        target: "Decision collection"
+      }),
+      outcome: "no-change" as const,
+      scope: "Pending decision snapshot"
+    }))
+  );
+}
+
+export function stageInputFailure(
+  errors: readonly string[],
+  exitCode: 1 | 2 = 1
+): DecisionApplicationFailure {
+  return decisionFailure(
+    errors.map((reason) =>
+      decisionDiagnostic({
+        code: "decision-records.stage-input-invalid",
+        reason,
+        recovery:
+          "Correct the selected Decision IDs or source state, then retry staging.",
+        target: "Decision stage input"
+      })
+    ),
+    { exitCode }
+  );
+}

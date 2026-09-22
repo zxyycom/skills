@@ -2,12 +2,15 @@ import path from "node:path";
 import { err, errAsync, ok, ResultAsync } from "neverthrow";
 import {
   createStateIndexRuntime,
+  type StateIndexDiagnostic,
   type StateIndexEntryStageResult
 } from "../../index-runtime/src/index.ts";
 import {
   createInvestigationStateIndexDefinition,
-  investigationIndexFileName
+  investigationIndexFileName,
+  loadInvestigationIndex
 } from "./investigation-state-index.ts";
+import { investigationIndexStale } from "./index-staleness.ts";
 import {
   investigationStageDiagnosticCodes,
   prepareInvestigationIndexStage,
@@ -45,11 +48,93 @@ export function executeInvestigationIndexStage(
   return canonicalizeInvestigationsDirectory(prepared.value.resolved)
     .mapErr((errors) => stageLocationFailure(prepared.value.indexPath, errors))
     .andThen((canonical) =>
-      stageValidatedInvestigationIndex(
-        canonical.investigationsDirectory,
-        prepared.value.reportIds
+      ResultAsync.fromSafePromise(
+        stageFreshnessFailure(
+          canonical.investigationsDirectory,
+          prepared.value.indexPath
+        )
+      ).andThen((gate) =>
+        gate !== null
+          ? errAsync(gate)
+          : stageValidatedInvestigationIndex(
+              canonical.investigationsDirectory,
+              prepared.value.reportIds
+            )
       )
     );
+}
+
+/**
+ * Staging combines workspace index entries into a pending snapshot, so the
+ * workspace index must match the authoritative Markdown. A missing index
+ * keeps the staging transaction's own diagnosis; an invalid or stale
+ * projection stops staging with the check/sync-index recovery instead of
+ * staging entries drifted from the current sources.
+ */
+async function stageFreshnessFailure(
+  investigationsDirectory: string,
+  indexPath: string
+): Promise<InvestigationIndexStageFailure | null> {
+  const persisted = await loadInvestigationIndex({ investigationsDirectory });
+  if (persisted.status === "error") {
+    if (
+      persisted.diagnostics.some(
+        (diagnostic) => diagnostic.code === "state-index.index-missing"
+      )
+    )
+      return null;
+    return invalidIndexStageFailure(indexPath, persisted.diagnostics);
+  }
+  const stale = await investigationIndexStale(
+    investigationsDirectory,
+    persisted.value
+  );
+  return stale ? staleStageFailure(indexPath) : null;
+}
+
+function invalidIndexStageFailure(
+  indexPath: string,
+  diagnostics: readonly StateIndexDiagnostic[]
+): InvestigationIndexStageFailure {
+  return {
+    kind: "operation",
+    result: {
+      changed: false,
+      diagnostics: [...diagnostics],
+      indexPath,
+      namespace: "investigation-report",
+      selectedIds: [],
+      state: "workspace-index-invalid",
+      status: "error"
+    }
+  };
+}
+
+function staleStageFailure(indexPath: string): InvestigationIndexStageFailure {
+  return {
+    kind: "operation",
+    result: {
+      changed: false,
+      diagnostics: [staleStageDiagnostic(indexPath)],
+      indexPath,
+      namespace: "investigation-report",
+      selectedIds: [],
+      state: "index-stale",
+      status: "error"
+    }
+  };
+}
+
+function staleStageDiagnostic(indexPath: string): StateIndexDiagnostic {
+  return {
+    code: "state-index.index-stale",
+    message:
+      "the workspace derived index is stale relative to the current formal report sources; " +
+      "run check to diagnose the collection, run sync-index to publish the current index, " +
+      "then retry stage-index",
+    path: indexPath,
+    stateId: null
+  };
 }
 
 function stageLocationFailure(

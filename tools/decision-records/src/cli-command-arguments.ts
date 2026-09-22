@@ -136,7 +136,7 @@ function syncIndexArguments(
   const args: CliArgsFor<"sync-index"> = {
     ...input.location,
     command: "sync-index",
-    write: input.options.write ?? false
+    preflight: input.options.preflight ?? false
   };
   if (input.options.select !== undefined && input.options.select.length > 0) {
     args.selectors = input.options.select;

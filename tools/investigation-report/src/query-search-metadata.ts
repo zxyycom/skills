@@ -8,6 +8,10 @@ import {
   diagnosticFromStateIndexDiagnostic
 } from "./diagnostics.ts";
 import { loadInvestigationIndex } from "./investigation-state-index.ts";
+import {
+  investigationIndexStale,
+  persistedSnapshotWarning
+} from "./index-staleness.ts";
 import { compareText, searchFailure } from "./query-results.ts";
 import { investigationMetadataSearchFields } from "./types.ts";
 import type {
@@ -39,6 +43,10 @@ export async function searchInvestigationMetadata(
   const loaded = await loadInvestigationIndex({ investigationsDirectory });
   if (loaded.status === "error")
     return metadataIndexFailure(loaded.diagnostics, indexPath);
+  const stale = await investigationIndexStale(
+    investigationsDirectory,
+    loaded.value
+  );
   const matcher = metadataMatcher(prepared);
   if (matcher instanceof Error)
     return metadataMatcherFailure(matcher, indexPath);
@@ -58,7 +66,8 @@ export async function searchInvestigationMetadata(
     selected.value,
     prepared.validated.limit,
     indexPath,
-    filterRelations.value
+    filterRelations.value,
+    stale ? [persistedSnapshotWarning] : []
   );
 }
 
@@ -105,7 +114,8 @@ function metadataSearchResult(
   filterRelations: ReadonlyMap<
     string,
     readonly import("./types.ts").InvestigationFilterRelation[]
-  > | null
+  > | null,
+  warnings: readonly string[]
 ): InvestigationSearchResult {
   const entries: InvestigationMetadataSearchEntry[] = [];
   for (const entry of [...selected].sort(compareSearchSourcePath)) {
@@ -127,7 +137,7 @@ function metadataSearchResult(
     indexPath,
     status: "ok",
     truncation: { files: false, matches: false, previewCharacters: false },
-    warnings: []
+    warnings: [...warnings]
   };
 }
 

@@ -15,7 +15,8 @@ import {
   test,
   withGitFixtureWorkspace,
   withTemporaryWorkspace,
-  writeDecision
+  writeDecision,
+  syncDecisionIndexBeforeStage
 } from "./support.ts";
 
 test("stage applies selected additions modifications deletions and explicit renames", () =>
@@ -42,6 +43,7 @@ test("stage applies selected additions modifications deletions and explicit rena
         .replace("alignment: null", "alignment: aligned")
         .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
+    await syncDecisionIndexBeforeStage(workspaceRoot);
     const staged = await runSourceCli([
       "stage",
       currentDecisionId,
@@ -104,6 +106,7 @@ test("stage bootstraps a new Decision when revision contains only the derived in
         .replace("alignment: null", "alignment: aligned")
         .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
+    await syncDecisionIndexBeforeStage(workspaceRoot);
     const staged = await runSourceCli([
       "stage",
       decisionId,
@@ -174,31 +177,55 @@ test("stage keeps duplicate selected source identities as a domain diagnostic", 
         workspaceRoot,
         `archive/${currentDecisionId}`
       );
-      await fs.mkdir(path.dirname(archivePath), { recursive: true });
-      await fs.writeFile(
-        archivePath,
-        await fs.readFile(currentPath, "utf8"),
-        "utf8"
-      );
+      // The duplicate identity appears only after the freshness gate has
+      // read the synchronized sources; a duplicated collection must never
+      // be published as fresh state in the first place.
+      const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
+      assert.ok(descriptor);
+      const readFile = fs.readFile.bind(fs);
+      let reads = 0;
+      let injected = false;
+      Object.defineProperty(fs, "readFile", {
+        ...descriptor,
+        value: async (
+          filePath: string,
+          encoding: BufferEncoding
+        ): Promise<string> => {
+          if (path.resolve(filePath) === currentPath && ++reads === 2) {
+            injected = true;
+            await fs.mkdir(path.dirname(archivePath), { recursive: true });
+            await fs.writeFile(
+              archivePath,
+              await readFile(currentPath, "utf8"),
+              "utf8"
+            );
+          }
+          return await readFile(filePath, encoding);
+        }
+      });
+      try {
+        const result = await runSourceCli([
+          "stage",
+          currentDecisionId,
+          "--root",
+          workspaceRoot
+        ]);
 
-      const result = await runSourceCli([
-        "stage",
-        currentDecisionId,
-        "--root",
-        workspaceRoot
-      ]);
-
-      assert.equal(result.exitCode, 1);
-      assert.equal(result.stdout, "");
-      assert.match(
-        result.stderr,
-        /code: decision-records\.stage-snapshot-invalid/
-      );
-      assert.match(
-        result.stderr,
-        /Decision ID occurs in more than one filesystem source path/
-      );
-      assert.doesNotMatch(result.stderr, /causeCategory: unknown/);
+        assert.equal(result.exitCode, 1);
+        assert.equal(result.stdout, "");
+        assert.match(
+          result.stderr,
+          /code: decision-records\.stage-snapshot-invalid/
+        );
+        assert.match(
+          result.stderr,
+          /Decision ID occurs in more than one filesystem source path/
+        );
+        assert.doesNotMatch(result.stderr, /causeCategory: unknown/);
+      } finally {
+        Object.defineProperty(fs, "readFile", descriptor);
+      }
+      assert.equal(injected, true);
     }
   ));
 

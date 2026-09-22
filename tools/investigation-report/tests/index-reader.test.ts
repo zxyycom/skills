@@ -9,7 +9,7 @@ import {
   writeCollection
 } from "./v6-support.ts";
 
-test("search reads published metadata without reading report sources", async () => {
+test("metadata search reports its persisted-snapshot source boundary", async () => {
   await withTempRoot("search-metadata", async (root) => {
     await writeCollection(root, [
       {
@@ -37,9 +37,14 @@ test("search reads published metadata without reading report sources", async () 
     const directory = `${root}/docs/investigations`;
     const indexPath = `${directory}/investigation-index.json`;
     const originalReadFile = fs.readFile;
-    fs.readFile = (async (path, ...args) => {
-      assert.equal(path, indexPath, "metadata search must read only its index");
-      return await originalReadFile(path, ...args);
+    fs.readFile = (async (readPath: string, ...args) => {
+      assert.ok(
+        readPath === indexPath ||
+          readPath === `${directory}/alpha.md` ||
+          readPath === `${directory}/zulu.md`,
+        `metadata search must only read its index and formal reports: ${readPath}`
+      );
+      return await originalReadFile(readPath, ...args);
     }) as typeof fs.readFile;
     let all;
     let relation;

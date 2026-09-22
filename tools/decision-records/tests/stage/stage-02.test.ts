@@ -15,7 +15,8 @@ import {
   test,
   withGitFixtureWorkspace,
   withTemporaryWorkspace,
-  writeDecision
+  writeDecision,
+  syncDecisionIndexBeforeStage
 } from "./support.ts";
 
 test("stage does not bind unrelated identical deletion and addition as a rename", () =>
@@ -29,6 +30,7 @@ test("stage does not bind unrelated identical deletion and addition as a rename"
       commitWorkspace(workspaceRoot);
       await fs.rm(decisionFilePath(workspaceRoot, oldId));
       await writeDecision(workspaceRoot, newId, body);
+      await syncDecisionIndexBeforeStage(workspaceRoot);
       const staged = await runSourceCli([
         "stage",
         oldId,
@@ -58,6 +60,7 @@ test("stage isolates unselected filesystem changes", () =>
       unselectedId,
       candidateDecisionBody({ title: "未选择的暂存变更" })
     );
+    await syncDecisionIndexBeforeStage(workspaceRoot);
     const staged = await runSourceCli([
       "stage",
       selectedId,
@@ -123,6 +126,7 @@ test(
             ),
             "utf8"
           );
+          await syncDecisionIndexBeforeStage(workspaceRoot);
           const changed = await countGitInvocations(async () =>
             runSourceCli(["stage", decisionIds[0]!, "--root", workspaceRoot])
           );

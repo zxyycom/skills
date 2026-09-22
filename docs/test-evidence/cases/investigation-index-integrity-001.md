@@ -1,13 +1,13 @@
-### Case INVESTIGATION-INDEX-INTEGRITY-001: index loading rejects stale report projections
+### Case INVESTIGATION-INDEX-INTEGRITY-001: list serves the persisted snapshot with a staleness warning on unreadable sources
 
 Tests:
-- `test:8ca73d0168da6e0503e3e300ba4fe9990ed8da9d356bb09ae71bf32ca7de0531`
+- `test:7f3d585d026f0f38872543d8f5571d78347cf7036a174c21119148f1c52fa5eb`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 索引读取必须拒绝与权威报告 Markdown 不一致的陈旧投影。
+- 索引型查询在报告源与持久化投影不一致时不再阻断读取：继续服务最后发布的快照，并以 staleness warning 提示先 `sync-index` 再对完整集合下结论。
 
 Proves:
-- 报告源变化后查询返回 source 或 index 诊断。
+- 报告源改写后 list 返回快照条目与零 error，warnings 恰好是一条指向 `sync-index` 的 staleness 提示。

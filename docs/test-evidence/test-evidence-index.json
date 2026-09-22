@@ -72,10 +72,10 @@
       "DECISION-CANDIDATE-DISCARD-UNBORN-001": "sha256:ddee56f3a87d4b325c82394cb0aa35f1964f6ba091d10712f95dea9cf8125a91",
       "DECISION-CANDIDATE-DISCARD-UNREADABLE-HEAD-001": "sha256:ef6cd0d88de64e70d109d24737c07c606cc52acf2dfe946eeeeb0e1ce8c52538",
       "DECISION-CANDIDATE-DISCARD-UNRECORDED-001": "sha256:5271f0af77c68a82c43ec0f52064297d046d24ae6f7c846118590bd7a982e4b2",
-      "DECISION-CANDIDATE-EMPTY-INDEX-001": "sha256:9c9eb6569dc77af73047cbe713b7385830a957d33ff85f8b72cc6df5b4c5fabd",
+      "DECISION-CANDIDATE-EMPTY-INDEX-001": "sha256:2b885f3df239f4c44aa1c7514dea291851a00b1b68c04feace621bec6a56086c",
       "DECISION-CANDIDATE-FIRST-DISCOVERY-001": "sha256:6caf54f55657c4b215946c36226dc5503067ec5be00947b1d92f18e5a232cb6a",
       "DECISION-CANDIDATE-INDEX-001": "sha256:06d8cf9d42a9797149701e486684b7492e64a23e940f7c816744b8e25af21e47",
-      "DECISION-CANDIDATE-INDEX-CONTEXT-001": "sha256:3f252dce6fa4f1f0dd8a974bc3ad71210a4311a9547ed5a1518ebcdb1fe71c6d",
+      "DECISION-CANDIDATE-INDEX-CONTEXT-001": "sha256:9751e8839fe8fe6b1ccbdbe80d9e730666f85176fe777389667feffc098a66b5",
       "DECISION-CANDIDATE-LOCKED-READINESS-001": "sha256:f142e7063b52c692e8c5786b459d8ab63bedbffbb6c425c9f5c279ba7a14f561",
       "DECISION-CANDIDATE-LOCKED-RELEASE-001": "sha256:4d3402675caecc3bf46fd6c08afc5811f0fcf2d9ccb7fa8d582801d383d181ac",
       "DECISION-CANDIDATE-NEW-001": "sha256:0ddf5d46e7aee03b5ad85ddbcfce627eb89a87fc58137d78778728fc887fb236",
@@ -187,7 +187,7 @@
       "DECISION-METADATA-REMOVED-001": "sha256:819209237e17d908016aeb03a95fe07f6db994a10a3a25b5efe20a2e514a1689",
       "DECISION-METADATA-SEARCH-001": "sha256:6d2d8f81a8cda2b63807f7b2354d7e821aa71de60eb0b25798d1b83fa68c538f",
       "DECISION-METADATA-SEARCH-INDEX-001": "sha256:e5598efb77be57702753b788bf355f3b3470a4e77ad36ad5708ce4bb5363eaae",
-      "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:1a0496c67424ef3c36211847a12cbdc190beafd6dfafd08e542e28554231f81a",
+      "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:2dd0c7a650a5a39013d19792b1628917a33b2fd10c4d3c9ebb1a70612faaff49",
       "DECISION-REALLOCATION-CANDIDATE-001": "sha256:ce4ad4e78703918172438a092fbbdeb70a2fcda6c79336142a29abc55ad2209e",
       "DECISION-REALLOCATION-CLOSURE-001": "sha256:65a95619af0ae72ebb66e5d7b2273d2d2746f96396e9362102e7842525b0068c",
       "DECISION-REALLOCATION-CONNECTIVITY-001": "sha256:e95accdd314ea7a1a37d1c355144be9defd4773e9918a3313cc7407d83d7986e",
@@ -273,7 +273,7 @@
       "DECISION-SYNC-INDEX-002": "sha256:bf51a4a9d4a8dbe4d2d00095ca8fc34974e08348ce5029df4a2b8d2c86f2ec9e",
       "DECISION-SYNC-INDEX-003": "sha256:9354534909ca412d2834a106377c7e06b2672f448819a379686f87ef5d042e14",
       "DECISION-SYNC-INDEX-CLEANUP-001": "sha256:396da709c7766e1c4df3115cfb2248edbe725e6641bb23d5d174ccfc59b79a2e",
-      "DECISION-SYNC-INDEX-CLI-OPTIONS-001": "sha256:5597d469e757f8d07d3105e5fb532f24bf2e4925a2b765c34280482d2611bf78",
+      "DECISION-SYNC-INDEX-CLI-OPTIONS-001": "sha256:03fb336ae2e0c0b2b99843791b837c4142db7b46f3273cb58ad6e1c9b7b92e29",
       "DECISION-SYNC-INDEX-FILESYSTEM-DIAGNOSTIC-001": "sha256:10132e8121d3687fb1ae1d95a1ea14378650d0d4d7e17dc23528730f077117ee",
       "DECISION-TAG-METADATA-001": "sha256:390eb917be6cac1fb1ae474984e23f1930a430f6b74141208a4b00f57f51335b",
       "DECISION-TAG-SOURCE-DRIFT-001": "sha256:8725554f39cd5d9c0ab538f2e4ebe578f6abf16534b42f9117688370ce49f552",
@@ -404,7 +404,7 @@
       "INDEX-RUNTIME-SYNC-UTF8-001": "sha256:cb8ba9a07dd1c51e67f4a63a4e6fdbd8244f1fd94bba59a6fdb90c8b10260e33",
       "INDEX-RUNTIME-TEMPORAL-SORT-001": "sha256:4709dc09f0b80dae632c33c5e6b867f577477b70df43cc39997884fbe80e6954",
       "INDEX-RUNTIME-TEXT-SEARCH-001": "sha256:2313163721af66e00504c3b28fb6834e0fc17b02b02c6eca594f7545a207b30c",
-      "INVESTIGATION-BUNDLED-PARITY-001": "sha256:8af0479a2bf1c2eeaa8446933606dc0a2e5977450bf68594dcde885397ff3f4f",
+      "INVESTIGATION-BUNDLED-PARITY-001": "sha256:16105f75fdf958c2f686bf399b407b3a642d51d94adc862200140b1cee672692",
       "INVESTIGATION-CANDIDATE-CLI-001": "sha256:ce90a37b86fce670ac2a88cd5f203c77b2598edabf9a008f3f41bc49ae3c4cb8",
       "INVESTIGATION-CANDIDATE-DEFAULT-FORMED-AT-001": "sha256:fceb45c6d4ac6ad17aa31ddd8e3671d9a6688e9d262ee8ff99dc312b429616be",
       "INVESTIGATION-CANDIDATE-DISCARD-004": "sha256:cf32927cfeae36ef6d0108890933919123d8bc1e07ed168ccc1d95d57623883e",
@@ -435,7 +435,7 @@
       "INVESTIGATION-CLI-MISSING-COMMAND-001": "sha256:24fc6ee6484716226963817f50388c2d577d030c4291131c8dcf87bd6cc26a34",
       "INVESTIGATION-CLI-RELATION-FILTER-001": "sha256:689da1fc8528698e1eaa4776b6e2407553fd36fd797d5132d59541ef775a7cd6",
       "INVESTIGATION-CLI-RELATIONS-001": "sha256:469dab2b25b2760e824e3a9b7021481c79b9a0138b839a24ae8cc2244b83d695",
-      "INVESTIGATION-CLI-SELECTED-SYNC-001": "sha256:2bc720914f4b0b376fb23892d038cb69e79244eedc38d21ad8e1ad92fbb6ace6",
+      "INVESTIGATION-CLI-SELECTED-SYNC-001": "sha256:b0fa7c618213c0f7c0a7b5c718761cb7e7ffc40fc0297cf6aaa843c69ab38f4d",
       "INVESTIGATION-CLI-SHOW-DIAGNOSTIC-001": "sha256:a6bb7e0c474d753cb48dd5fbe05e6242ff7c62cedfa2e78fd577647655fffc19",
       "INVESTIGATION-CLI-STAGE-DIAGNOSTIC-001": "sha256:bcf1e3ffcdc0daeaf2efc81c77f1fb0d8c02e1b02db8820c74d7ae52438a698b",
       "INVESTIGATION-CLI-STAGE-FILESYSTEM-001": "sha256:729267bd9285c69bbb77f0e31033da4ba2155db002f6ae65e5445d3fdbd1fde1",
@@ -475,7 +475,7 @@
       "INVESTIGATION-EMPTY-INDEX-SYNC-001": "sha256:77dfdbc15a1e5bb0b4f27766294049cb9b0343cce1f5d2a37b5bc0385dffdc4d",
       "INVESTIGATION-GENERATED-METADATA-002": "sha256:db2e0998912922aa904c1b076fef7638b7d63925fceb473799cfad8f96180790",
       "INVESTIGATION-INDEX-COMPATIBILITY-001": "sha256:5c4fc94159cff9ce594e6426b67b4c9a4c9c937a2407cdf6908a39be7f48a61f",
-      "INVESTIGATION-INDEX-INTEGRITY-001": "sha256:af7a09a1bbdf1f374c74c28ff222de263aff6d7722714ef9db31d84b71566fae",
+      "INVESTIGATION-INDEX-INTEGRITY-001": "sha256:7e53344246d76596ba6c12d126548a63703f30ae2ed82fb0de63535bda3473ef",
       "INVESTIGATION-INDEX-METADATA-001": "sha256:11c37ed14c052b2bd01171eecf73c23a19f0a41e133f77756821964cc74ebb0b",
       "INVESTIGATION-INDEX-QUERY-001": "sha256:6126e17cdf4e0159c039f3313874768868621e6d620dff408392e7bd729dc702",
       "INVESTIGATION-INDEX-RELATION-FILTER-001": "sha256:98cbf2d1850f43152095e1ccb9f75e89455ea0f06a3d8633b5935585c857c6b2",
@@ -484,6 +484,7 @@
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:ee5a88e3f84ad67fde85820bc562369217fadfa856db5cc13fde526305329783",
       "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:4591b6b6b59f39ba32510e9535bf7c3d4c96785abf6f5af844e431dc0de5c2f6",
       "INVESTIGATION-QUERY-SOURCE-PATH-001": "sha256:63ddff121b2792bf621e0f822464f149352164185dbda16008c05aab6b4d8e89",
+      "INVESTIGATION-QUERY-STALENESS-001": "sha256:e415b5e307e3db74507bb57027802cdffb52e01ca74a5b85f41f09690a93005a",
       "INVESTIGATION-RELATION-FILTER-002": "sha256:999a73884462e4540aa09fd1637e8c48a2693623bd17869769d1d76d722b1005",
       "INVESTIGATION-RELATION-FILTER-EVIDENCE-001": "sha256:0d2cfe935aa85edd05f73a307927aaa10ad670c301d04e7b091cc33996f86e31",
       "INVESTIGATION-RELATION-GIT-HEAD-001": "sha256:06c11cb696acbbd80f491e9ec2f0a4d89f486821d271ad065b34db6b00a67c02",
@@ -546,16 +547,17 @@
       "INVESTIGATION-RESOURCE-TRACKED-MISSING-ROOT-001": "sha256:aaaa2d541f18785eb4b0a0f0f150a13a661c76ba3842a030d77975769a5c437a",
       "INVESTIGATION-RESOURCE-TYPE-001": "sha256:67c91f99a4abcd3eae345ac89ff6149ad8dcdf3a1416be922c2d37f7115ea1fc",
       "INVESTIGATION-ROOT-CONFINEMENT-001": "sha256:fe4b7c8ceeb46ff994514555d4dbffef9b202cf493d7d7fa5f864d87e4844935",
-      "INVESTIGATION-SEARCH-METADATA-001": "sha256:e83447108b2a92a7bbdf1fdf75956676a6214d416bbee60584d5cac8f64842ee",
+      "INVESTIGATION-SEARCH-METADATA-001": "sha256:edf6d2353d22b5728dbe0cdfa09f93b2b2aefe7a12779d16e52d6d24a0eb5888",
       "INVESTIGATION-SEARCH-MODES-001": "sha256:643566133be496f4993db31ec6696e8712a9f4fd606e5aba15ffa99879c2dd7e",
       "INVESTIGATION-SEARCH-SCOPE-001": "sha256:ee3b7f480f6285a8b2bb4a8309944682a68e66579ec1cf2eb32f1476abca0a88",
       "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001": "sha256:66e4a53db3156ecf6039e3b9b18eb3c51ad49f667b14019bc1afa27f7bedb912",
       "INVESTIGATION-SNAPSHOT-REVISION-001": "sha256:e449940c67b05ab9db3b84298d68459037b1e789bdd96913daa5b5d2186f2d28",
-      "INVESTIGATION-SOURCE-REVISION-001": "sha256:056bac7aa871ff1bcd7e778d4aba84eeea00da6950365f2f44b31e7bd6fd8db9",
+      "INVESTIGATION-SOURCE-REVISION-001": "sha256:625dbefc185c844b0d27d6304a039c0ebf930827a7b2f6ef54c1a4e8c79ab328",
       "INVESTIGATION-STAGE-BOOTSTRAP-001": "sha256:548795fdfa86ad2ce12a69ecf4d338783fdd4e39771beb0b042896edec581db5",
       "INVESTIGATION-STAGE-CLI-USAGE-001": "sha256:47ee8eb63071a44d9d1690f741f8d053785e127963ee4be21df60420df60df8b",
       "INVESTIGATION-STAGE-CONFLICT-001": "sha256:870c48f320e87c24f1400ede96b18b0da6b14898a8331a2c70b7ec38470be1d8",
       "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001": "sha256:11b4434e671ef966b736ffa35ee604372c25cbd05469bae8ce5c3a9c61baee5f",
+      "INVESTIGATION-STAGE-FRESHNESS-001": "sha256:8ded1d085301600f6707d12411a4fa29cf54d0629bd0234f119f911824b14d6e",
       "INVESTIGATION-STAGE-INPUT-001": "sha256:08bc41247288a8ff3cd3a030faf2e5c3b9ad18fe4fdd79e620ee996907fb6d34",
       "INVESTIGATION-STAGE-ISOLATION-001": "sha256:8ff8e7aa7c982677c1458e2e7a3da6956a2575702cdb59a2fb4218458216d61b",
       "INVESTIGATION-STAGE-MISSING-001": "sha256:6af16b90aac797b02eaf8e9a5ceeaa7ea551c98843abeb3985febf3f775faf8a",
@@ -1537,13 +1539,13 @@
       ]
     },
     "DECISION-CANDIDATE-EMPTY-INDEX-001": {
-      "title": "空索引阻断唯一候选的查询",
+      "title": "候选收集不依赖空已发布索引",
       "sourcePath": "cases/decision-candidate-empty-index-001.md",
       "tags": [
         "decision-records"
       ],
       "testIds": [
-        "test:ce133d48c9b588030f0cae6943404613dcbab55f9a5fc65ac65c289cf655cf51"
+        "test:b9180a5d6b2bad54e060b9cc2fda7e515597c5bf826eb50341281e394ffd5869"
       ]
     },
     "DECISION-CANDIDATE-FIRST-DISCOVERY-001": {
@@ -1567,13 +1569,13 @@
       ]
     },
     "DECISION-CANDIDATE-INDEX-CONTEXT-001": {
-      "title": "已建立记录要求当前有效索引",
+      "title": "已建立索引缺失无效或漂移时候选收集继续服务来源",
       "sourcePath": "cases/decision-candidate-index-context-001.md",
       "tags": [
         "decision-records"
       ],
       "testIds": [
-        "test:353f9de6821384b573c51ecce527d7a4755bbbb473276c16fa58406bb6a2022f"
+        "test:4255307c6565c4f12adf93835e182fc2faa8e92d2f64e8ab5b4dac56ef0e29d2"
       ]
     },
     "DECISION-CANDIDATE-LOCKED-READINESS-001": {
@@ -2701,13 +2703,13 @@
       ]
     },
     "DECISION-QUERY-INDEX-MEMBERSHIP-001": {
-      "title": "查询读取持久快照且 Check 检测来源漂移",
+      "title": "查询读取持久快照并提示陈旧且 Check 检测来源漂移",
       "sourcePath": "cases/decision-query-index-membership-001.md",
       "tags": [
         "decision-records"
       ],
       "testIds": [
-        "test:e0f0dca8a69f6481611e205ed7bbe441b7a9ff35b96696793c33fa2b8873870f"
+        "test:bc657ec07745a8374cfb473daed69a84a0adef7b4245d72eabe77d7e4f28d31d"
       ]
     },
     "DECISION-REALLOCATION-CANDIDATE-001": {
@@ -3562,13 +3564,13 @@
       ]
     },
     "DECISION-SYNC-INDEX-CLI-OPTIONS-001": {
-      "title": "sync-index CLI 明确公开 selected scope 与写入控制",
+      "title": "sync-index CLI 默认发布并以 preflight 分离零写入",
       "sourcePath": "cases/decision-sync-index-cli-options-001.md",
       "tags": [
         "decision-records"
       ],
       "testIds": [
-        "test:6159067e404ad640d269443d2ab9b37d3557a4499cf7ddf211c17d044916128e"
+        "test:2ddcab0aaa7a1f57c11d3cd610836afec3d474e41f40ca49424035f2aff284af"
       ]
     },
     "DECISION-SYNC-INDEX-FILESYSTEM-DIAGNOSTIC-001": {
@@ -5209,13 +5211,13 @@
       ]
     },
     "INVESTIGATION-CLI-SELECTED-SYNC-001": {
-      "title": "CLI selected sync proves the full investigation collection before writing",
+      "title": "CLI selected sync publishes by default and keeps --preflight zero-write",
       "sourcePath": "cases/investigation-cli-selected-sync-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:fb55c2cd7d694eb23bc8072d10ed2c5a58eb9169e4bcc276f6edd2b613ef9ff7"
+        "test:86b1668025ce56ee57fc73669d3fe39a8658fcdb3b756c841a36962f1150f052"
       ]
     },
     "INVESTIGATION-CLI-SHOW-DIAGNOSTIC-001": {
@@ -5615,13 +5617,13 @@
       ]
     },
     "INVESTIGATION-INDEX-INTEGRITY-001": {
-      "title": "index loading rejects stale report projections",
+      "title": "list serves the persisted snapshot with a staleness warning on unreadable sources",
       "sourcePath": "cases/investigation-index-integrity-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:8ca73d0168da6e0503e3e300ba4fe9990ed8da9d356bb09ae71bf32ca7de0531"
+        "test:7f3d585d026f0f38872543d8f5571d78347cf7036a174c21119148f1c52fa5eb"
       ]
     },
     "INVESTIGATION-INDEX-METADATA-001": {
@@ -5702,6 +5704,16 @@
       ],
       "testIds": [
         "test:dc832830cbcb9bda5b2adad3407376afb08b65260e09c2c50090b04b9de81fac"
+      ]
+    },
+    "INVESTIGATION-QUERY-STALENESS-001": {
+      "title": "CLI queries serve persisted snapshots with staleness warnings",
+      "sourcePath": "cases/investigation-query-staleness-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:bcdb8950fd525097e9995a254f4e1565d2f83fcaaa51807dc642f718c67a6a81"
       ]
     },
     "INVESTIGATION-RELATION-FILTER-002": {
@@ -6331,13 +6343,13 @@
       ]
     },
     "INVESTIGATION-SEARCH-METADATA-001": {
-      "title": "search 仅读取已发布 metadata 并报告命中证据",
+      "title": "metadata search reads only its index and formal reports and reports match evidence",
       "sourcePath": "cases/investigation-search-metadata-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:1fe07f37f3acc269f14652001d01cb8c827700b51b19955d226494dbc70c5d0a"
+        "test:1152418bfd7aa375121fd3658d0b3d699db9eb8a4db4b39674987cb2871f2bda"
       ]
     },
     "INVESTIGATION-SEARCH-MODES-001": {
@@ -6428,6 +6440,16 @@
       ],
       "testIds": [
         "test:c21c3f2227725925901fd4834bb6f6ccced2aae4781a4b4d872059c90c03411f"
+      ]
+    },
+    "INVESTIGATION-STAGE-FRESHNESS-001": {
+      "title": "CLI strict check and stage-index stop on a stale derived index",
+      "sourcePath": "cases/investigation-stage-freshness-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:dcf268c1057a402e2dc4aac36e4ced0bbdcb9ac15a519e949adecb4bc552e97c"
       ]
     },
     "INVESTIGATION-STAGE-INPUT-001": {

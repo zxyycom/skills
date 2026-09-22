@@ -119,16 +119,17 @@ const commandSpecs: readonly CommandSpec[] = [
   },
   {
     description:
-      "Validate the full formal collection and rebuild its derived index in the working tree; this is the explicit recovery and acceptance path for hand-written formal reports and ignores legal candidates.",
+      "Validate the full formal collection and rebuild and publish its complete derived index in the working tree; this is the explicit recovery and acceptance path for hand-written formal reports and ignores legal candidates.",
     name: "sync-index",
     options: [
       {
-        description: "Allow only this report's source change; repeatable",
+        description: "Accept only this report's source change; repeatable",
         flags: "--select <name-or-id>"
       },
       {
-        description: "Publish the complete validated index projection",
-        flags: "--write"
+        description:
+          "Validate the complete projection and report the outcome without writing the index",
+        flags: "--preflight"
       }
     ]
   },

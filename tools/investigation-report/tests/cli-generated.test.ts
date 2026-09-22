@@ -38,6 +38,28 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
     assert.match(searchHelp.stdout, /\[text\]/u);
     assert.match(searchHelp.stdout, /--match <mode>/u);
 
+    const syncHelp = await runInvestigationCli(root, ["sync-index", "--help"]);
+    assert.equal(syncHelp.status, 0);
+    assert.match(syncHelp.stdout, /--select <name-or-id>/u);
+    assert.match(syncHelp.stdout, /Accept only this report's source change/u);
+    assert.match(syncHelp.stdout, /--preflight/u);
+    assert.doesNotMatch(syncHelp.stdout, /--write/u);
+
+    const removedWrite = await runInvestigationCli(root, [
+      "sync-index",
+      "--write"
+    ]);
+    assert.equal(removedWrite.status, 2);
+    assert.equal(removedWrite.stdout, "");
+    assert.match(removedWrite.stderr, /unknown option '--write'/u);
+
+    const generatedRemovedWrite = runGeneratedInvestigationCliSmoke(root, [
+      "sync-index",
+      "--write"
+    ]);
+    assert.equal(generatedRemovedWrite.status, 2);
+    assert.match(generatedRemovedWrite.stderr, /unknown option '--write'/u);
+
     const relationHelp = await runInvestigationCli(root, [
       "set-relations",
       "--help"

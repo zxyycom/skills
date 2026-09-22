@@ -46,12 +46,7 @@ test("decision list returns snapshot facets with recent stable pages and inclusi
         .replace("alignment: null", "alignment: aligned")
         .replace("createdAt: null", "createdAt: 2026-07-11T14:15:16+08:00")
     );
-    const synced = await runSourceCli([
-      "sync-index",
-      "--write",
-      "--root",
-      workspaceRoot
-    ]);
+    const synced = await runSourceCli(["sync-index", "--root", workspaceRoot]);
     assert.equal(synced.exitCode, 0, synced.stderr);
 
     const first = await executeDecisionQuery({
@@ -117,12 +112,7 @@ test("decision CLI renders bounded compact and detailed list views without chang
           .replace("createdAt: null", `createdAt: ${createdAt}`)
       );
     }
-    const synced = await runSourceCli([
-      "sync-index",
-      "--write",
-      "--root",
-      workspaceRoot
-    ]);
+    const synced = await runSourceCli(["sync-index", "--root", workspaceRoot]);
     assert.equal(synced.exitCode, 0, synced.stderr);
     const indexPath = path.join(
       workspaceRoot,

@@ -184,7 +184,7 @@ export type InvestigationReportCheckResult = {
 
 export type InvestigationIndexSyncOptions = {
   investigationsDir?: string;
-  mode?: "check" | "write";
+  preflight?: boolean;
   selectors?: readonly string[];
   workspaceRoot: string;
 };
@@ -212,7 +212,23 @@ export type InvestigationIndexStageOptions = {
 
 export type InvestigationIndexStageDiagnostic = StateIndexDiagnostic;
 
-export type InvestigationIndexStageResult = StateIndexEntryStageResult;
+/**
+ * Extends the shared staging result with the domain freshness gate: staging
+ * stops before any repository access when the workspace index is stale
+ * relative to the authoritative formal Markdown.
+ */
+export type InvestigationIndexStageResult =
+  | StateIndexEntryStageResult
+  | Readonly<{
+      changed: false;
+      diagnostics: readonly InvestigationIndexStageDiagnostic[];
+      indexPath: string;
+      namespace: "investigation-report";
+      pending?: undefined;
+      selectedIds: string[];
+      state: "index-stale";
+      status: "error";
+    }>;
 
 export type InvestigationIndexQueryOptions = {
   direction?: "predecessors" | "successors" | "both";
@@ -283,6 +299,7 @@ export type InvestigationIndexQueryResult = {
   limit: number;
   offset: number;
   total: number;
+  warnings: string[];
 };
 
 export type InvestigationSearchOptions = Readonly<{
@@ -370,6 +387,7 @@ export type InvestigationReportShowResult =
       markdown: string;
       state: InvestigationIndexState;
       status: "ok";
+      warnings: string[];
     }>
   | Readonly<{
       errors: string[];
@@ -433,6 +451,7 @@ export type InvestigationReportTraceSuccess = Readonly<{
     requiredMaxRecords: number;
   }>;
   entries: Readonly<Record<string, InvestigationTraceEntry>>;
+  warnings: readonly string[];
 }>;
 
 export type InvestigationReportTraceResult =

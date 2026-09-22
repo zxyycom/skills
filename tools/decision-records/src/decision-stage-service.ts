@@ -8,11 +8,15 @@ import {
   type VersionControlRepository
 } from "../../shared/src/version-control/index.ts";
 import {
-  decisionDiagnostic,
   decisionFailure,
   type DecisionApplicationFailure
 } from "./application-result.ts";
-import { decisionIndexFileName } from "./decision-state-index.ts";
+import {
+  decisionIndexDiagnosticMessages,
+  decisionIndexFileName,
+  loadDecisionIndex
+} from "./decision-state-index.ts";
+import { decisionIndexStale } from "./decision-query-context.ts";
 import {
   displayDecisionPath,
   isDecisionId,
@@ -33,6 +37,8 @@ import {
   repositoryPath,
   stageDomainFailure,
   stageFileSystemFailure,
+  stageInputFailure,
+  staleStageFailure,
   versionControlFailure
 } from "./decision-stage-support.ts";
 import {
@@ -53,6 +59,38 @@ export type DecisionStageResult =
   | DecisionStageSuccess;
 
 type StageStep<T> = DecisionApplicationFailure | { status: "ok"; value: T };
+
+/**
+ * Staging writes a complete pending snapshot, so it requires the persisted
+ * index to match the authoritative Markdown. A missing index with no
+ * established projection is the supported first-record bootstrap; every other
+ * missing, invalid, or stale projection stops staging with the sync-index
+ * recovery instead of guessing identities from a drifted snapshot.
+ */
+async function stageFreshnessGate(
+  decisionsDirectory: string
+): Promise<StageStep<true>> {
+  const persisted = await loadDecisionIndex({ decisionsDirectory });
+  if (persisted.status === "error") {
+    if (
+      persisted.diagnostics.some(
+        (diagnostic) => diagnostic.code === "state-index.index-missing"
+      )
+    ) {
+      return { status: "ok", value: true };
+    }
+    return staleStageFailure(
+      decisionIndexDiagnosticMessages(persisted.diagnostics)
+    );
+  }
+  const stale = await decisionIndexStale(decisionsDirectory, persisted.value);
+  return stale
+    ? staleStageFailure([
+        `${decisionIndexFileName} is out of sync; run sync-index`
+      ])
+    : { status: "ok", value: true };
+}
+
 type StageRepositoryContext = Readonly<{
   decisionScope: string;
   repository: VersionControlRepository;
@@ -73,6 +111,8 @@ export async function stageDecisionRecords(options: {
   const selectedSelectors = validateSelectedSelectors(options.decisionIds);
   if (selectedSelectors.status === "error") return selectedSelectors;
   const location = resolveDecisionLocation(options.location);
+  const gate = await stageFreshnessGate(location.decisionsDirectory);
+  if (gate.status === "error") return gate;
   const opened = await openStageRepository(location.decisionsDirectory);
   if (opened.status === "error") return opened;
   return stageAtRepository(location, opened.value, selectedSelectors.value);
@@ -329,22 +369,4 @@ function validateSelectedSelectors(
   return errors.length === 0
     ? { status: "ok", value: values }
     : stageInputFailure(errors, 2);
-}
-
-function stageInputFailure(
-  errors: readonly string[],
-  exitCode: 1 | 2 = 1
-): DecisionApplicationFailure {
-  return decisionFailure(
-    errors.map((reason) =>
-      decisionDiagnostic({
-        code: "decision-records.stage-input-invalid",
-        reason,
-        recovery:
-          "Correct the selected Decision IDs or source state, then retry staging.",
-        target: "Decision stage input"
-      })
-    ),
-    { exitCode }
-  );
 }

@@ -101,7 +101,7 @@ async function searchValidatedFallback(
     investigationsDirectory,
     prepared,
     warnings: [
-      "The derived investigation index is unavailable; search used a validated in-memory source projection. Run sync-index before relying on index-backed operations."
+      "The persisted Investigation index is unavailable or stale; search used a validated in-memory source projection of the current formal Markdown. Run sync-index to publish the current projection."
     ]
   });
 }

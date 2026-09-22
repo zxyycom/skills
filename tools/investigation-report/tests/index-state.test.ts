@@ -118,7 +118,7 @@ test("index rejects additional metadata", async () => {
   });
 });
 
-test("index loading rejects stale report projections", async () => {
+test("list serves the persisted snapshot with a staleness warning on unreadable sources", async () => {
   await withTempRoot("stale", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
     await fs.writeFile(
@@ -127,11 +127,14 @@ test("index loading rejects stale report projections", async () => {
       "utf8"
     );
     const result = await queryInvestigationIndex({ workspaceRoot: root });
-    assert.ok(
-      result.errors.some(
-        (error) => error.includes("source") || error.includes("index")
-      )
+    assert.deepEqual(result.errors, []);
+    assert.deepEqual(
+      result.entries.map((entry) => entry.id),
+      ["report"]
     );
+    assert.deepEqual(result.warnings, [
+      "The persisted Investigation index is stale; this result reflects the last published index snapshot, not the current investigation Markdown. Run sync-index to publish the current projection before drawing conclusions about the complete collection."
+    ]);
   });
 });
 
@@ -141,9 +144,10 @@ test("source revisions fingerprint report Markdown", async () => {
     const indexPath = `${root}/docs/investigations/investigation-index.json`;
     const before = parseJsonObject(await fs.readFile(indexPath, "utf8"));
     await fs.appendFile(`${root}/docs/investigations/report.md`, "\n", "utf8");
-    assert.ok(
-      (await queryInvestigationIndex({ workspaceRoot: root })).errors.length > 0
-    );
+    const drifted = await queryInvestigationIndex({ workspaceRoot: root });
+    assert.deepEqual(drifted.errors, []);
+    assert.equal(drifted.warnings.length, 1);
+    assert.match(drifted.warnings[0]!, /stale/u);
     assert.deepEqual(
       (await synchronizeInvestigationIndex({ workspaceRoot: root })).errors,
       []

@@ -75,7 +75,7 @@ const investigationReportCheckOptionsSchema = v.strictObject({
 });
 const investigationIndexSyncOptionsSchema = v.strictObject({
   ...locationFields,
-  mode: v.optional(v.picklist(["check", "write"])),
+  preflight: v.optional(v.boolean("must be a boolean")),
   selectors: optionalStringArraySchema
 });
 const investigationIndexStageOptionsSchema = v.strictObject({

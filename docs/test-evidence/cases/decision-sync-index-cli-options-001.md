@@ -1,13 +1,13 @@
-### Case DECISION-SYNC-INDEX-CLI-OPTIONS-001: sync-index CLI 明确公开 selected scope 与写入控制
+### Case DECISION-SYNC-INDEX-CLI-OPTIONS-001: sync-index CLI 默认发布并以 preflight 分离零写入
 
 Tests:
-- `test:6159067e404ad640d269443d2ab9b37d3557a4499cf7ddf211c17d044916128e`
+- `test:2ddcab0aaa7a1f57c11d3cd610836afec3d474e41f40ca49424035f2aff284af`
 
 Tags:
 - `decision-records`
 
 Contract:
-- Decision `sync-index` 的 CLI 帮助必须把从 established Markdown 检查或重建索引、显式 `--select` 范围和 `--write` 写入控制作为同一命令协议公开。
+- Decision `sync-index` 的 CLI 帮助必须把从 established Markdown 重建并发布完整 JSON 索引、显式 `--select <name-or-id>` 范围和零写入 `--preflight` 作为同一命令协议公开，且不再提供 `--write`。
 
 Proves:
-- `sync-index --help` 说明其 established Markdown 输入，并列出 `--select <name-or-id>` 与 `--write`；追加 `--write` 的调用不因 usage 形状失败。
+- `sync-index --help` 说明其 established Markdown 输入，并列出 `--select <name-or-id>` 与 `--preflight` 而不含 `--write`；`sync-index --write` 以 usage 错误退出并报告 unknown option。

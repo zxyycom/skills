@@ -112,10 +112,7 @@ export async function runValidatedMaintenance(
 ): Promise<number> {
   const scan = await loadLifecycleScan(
     args,
-    {
-      checkIndexText: false,
-      scanErrorPolicy: "source-only"
-    },
+    { allowEmptyDecisionSet: true },
     io
   );
   return scan === null ? 1 : await applyLifecycle(args, scan, request, io);
@@ -127,11 +124,7 @@ export async function runDiscard(
 ): Promise<number> {
   const scan = await loadLifecycleScan(
     args,
-    {
-      allowEmptyDecisionSet: true,
-      checkIndexText: false,
-      scanErrorPolicy: "source-only"
-    },
+    { allowEmptyDecisionSet: true },
     io
   );
   if (scan === null) return 1;

@@ -64,15 +64,14 @@ export async function runSync(
       "root",
       "investigations-dir",
       "select",
-      "write"
+      "preflight"
     ]);
   if (problem !== null) return cliInvalid(problem, io);
   const selectors = valuesOf(input.values, "select");
   const execution = await executeInvestigationIndexSync({
     ...location(input.values),
-    ...(selectors === undefined ? {} : { selectors }),
-    mode:
-      selectors === undefined || has(input.values, "write") ? "write" : "check"
+    preflight: has(input.values, "preflight"),
+    ...(selectors === undefined ? {} : { selectors })
   });
   if (execution.isErr()) return printSyncFailure(execution.error, io);
   printSyncSuccess(execution.value, io);

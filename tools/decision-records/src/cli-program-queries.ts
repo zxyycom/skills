@@ -320,14 +320,17 @@ function registerSyncIndexCommand(
   const syncIndex = createSubcommand(
     program,
     "sync-index",
-    "Check or rebuild the JSON index from established Markdown."
+    "Rebuild and publish the complete JSON index from established Markdown."
   )
     .option(
       "--select <name-or-id>",
-      "Allow only this Decision's source change; repeat for multiple Decisions.",
+      "Accept only this Decision's source change; repeat for multiple Decisions.",
       (value: string, previous: string[]) => [...previous, value],
       []
     )
-    .option("--write", "Publish the complete validated index projection.");
+    .option(
+      "--preflight",
+      "Validate the complete projection and report the outcome without writing the index."
+    );
   syncIndex.action(() => execute("sync-index", syncIndex));
 }

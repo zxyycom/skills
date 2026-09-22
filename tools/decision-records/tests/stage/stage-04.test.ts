@@ -68,6 +68,7 @@ test("stage preserves concurrent pending bytes discovered by the replacement CAS
     const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
     assert.ok(descriptor);
     const readFile = fs.readFile.bind(fs);
+    let reads = 0;
     let injected = false;
     Object.defineProperty(fs, "readFile", {
       ...descriptor,
@@ -75,7 +76,13 @@ test("stage preserves concurrent pending bytes discovered by the replacement CAS
         filePath: string,
         encoding: BufferEncoding
       ): Promise<string> => {
-        if (!injected && path.resolve(filePath) === selectedPath) {
+        // Inject after the freshness gate but while the pending snapshot is
+        // being read, so the replacement CAS discovers the concurrent bytes.
+        if (
+          !injected &&
+          path.resolve(filePath) === selectedPath &&
+          ++reads === 2
+        ) {
           injected = true;
           await writeDecision(workspaceRoot, concurrentId, concurrentBody);
           runGit(workspaceRoot, ["add", `docs/decisions/${concurrentId}.md`]);
@@ -122,7 +129,7 @@ test("stage rejects selected source drift before replacing the pending snapshot"
             filePath: string,
             encoding: BufferEncoding
           ): Promise<string> => {
-            if (path.resolve(filePath) === sourcePath && ++reads === 2) {
+            if (path.resolve(filePath) === sourcePath && ++reads === 3) {
               injected = true;
               if (mutation === "change") {
                 await fs.writeFile(

@@ -55,12 +55,7 @@ test("decision relation filter evidence is sorted, preview-bounded, and fully de
         ),
         "utf8"
       );
-      await runSuccessfulSourceCli([
-        "sync-index",
-        "--write",
-        "--root",
-        workspaceRoot
-      ]);
+      await runSuccessfulSourceCli(["sync-index", "--root", workspaceRoot]);
 
       const preview = await runSuccessfulSourceCli([
         "list",

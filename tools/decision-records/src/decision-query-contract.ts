@@ -77,8 +77,8 @@ export type DecisionQueryRequest =
   | {
       command: "sync-index";
       location: DecisionLocation;
+      preflight: boolean;
       selectors?: readonly string[];
-      write: boolean;
     }
   | {
       command: "trace";

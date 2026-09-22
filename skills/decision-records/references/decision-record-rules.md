@@ -201,6 +201,8 @@ Markdown 是权威来源，索引保存已建立记录的定位、状态、非�
 - relation type 单独使用时匹配任一该类型直接边；与目标同用时，两者须命中同一条边。结构条件先于排序、分页和文本匹配。
 - `show` 由索引定位并确认目标 ID 后读取 Markdown；`trace` 从同一次受检索引快照派生默认终端关系图，使用 `--json` 时返回同一份 trace 查询成功结果的稳定 JSON 关系切片。后续操作继续使用完整 ID。
 
+持久索引陈旧时，`list`、`trace` 与 metadata 搜索继续返回最后一次发布快照并发出 warning；`show` 由索引定位并验证当前文件仍声明目标 ID，通过后返回当前正文，warning 区分索引快照 metadata 与当前正文来源，验证失败为 error。warning 标识结果数据源与 `sync-index` 恢复命令；快照结果只代表该快照，不能支持对当前全集的否定性结论。
+
 关系条件的查询结果另以可选 `filterRelations` 返回**导致该记录命中的完整边集合**。只有传入 `--related-to` 或 `--relation-type` 时才出现；它从本次筛选使用的同一来源快照投影，按 `(sourceId, type, target)` 去重并以 UTF-16 code-unit 词法序排列。前驱边由 anchor 指向结果，后继边由结果指向 anchor，both 取并集；type-only 选择结果来源的指定类型出边，组合条件必须命中同一条边。记录集合、排序、total 与分页不因该投影改变。该字段属于 Decision 内部 list/search 查询记录，不进入索引、Schema 或公开导出边界。
 
 搜索的文本证据与 `filterRelations` 分开：`matchedFields`、`matchedRelations` 只报告实际文本命中，`matchedRelations: none` 不否定关系筛选命中。CLI 默认每条预览最多三条命中边，`list --detail` 展开当前页全部命中边；领域查询结果保留完整集合。需要完整正文或完整直接关系时，继续用 `show` 读取来源记录。
@@ -220,14 +222,14 @@ Markdown 是权威来源，索引保存已建立记录的定位、状态、非�
 
 ### 同步与待提交快照
 
-手工修改已建立 Markdown、怀疑索引陈旧或准备维护时先严格 `check`，确认合法变化后同步。领域 definition 升级后，只有全部已建立 Markdown 已满足当前契约时才以无 selector 的 `sync-index --write` 全量重建；不能信任旧 definition 的索引，也不能把该升级作为 selected 同步。`sync-index` 无 selector 时全量重建；selected 模式仍完整验证来源，按以下条件接纳：
+已知合法来源变化先 `sync-index` 再严格 `check`；未解释的索引异常先严格 `check` 诊断，再同步或修复。领域 definition 升级后，只有全部已建立 Markdown 已满足当前契约时才以无 selector 的 `sync-index` 全量重建；不能信任旧 definition 的索引，也不能把该升级作为 selected 同步。`sync-index` 无 selector 时全量重建，默认写入并发布完整索引，`--preflight` 零写入预演同一验证；selected 模式仍完整验证来源，按以下条件接纳：
 
 1. baseline 索引可信，集合 metadata 与其 revision 不变。
 2. selector 从 baseline 与待发布投影的 name 映射并集解析；标准 ID 仍只精确匹配。
 3. 全部 entry/revision 变化的 ID 都已选中；新增选新 ID，删除选旧 ID，身份更正同时选旧/新 ID。
-4. 默认只检查，添加 `--write` 才发布完整索引投影。未选择变化、未知 ID 或坏 baseline 均零写入，先补充选择或显式改用全量同步。
+4. 默认写入并发布完整索引投影，`--preflight` 零写入预演同一验证。未选择变化、未知 ID 或坏 baseline 均零写入，先补充选择或显式改用全量同步。
 
-`stage` 在同一 HEAD/工作区 staging 快照中按标准 ID 或唯一 name 选择记录，构造完整 Git pending 决策快照。它不改变生命周期，也不替代同步。位置变化仍选同一 ID；身份变更须由相应事务完整处理。写前 revision、pending 或所选来源漂移时拒绝写入。
+`stage` 在同一 HEAD/工作区 staging 快照中按标准 ID 或唯一 name 选择记录，构造完整 Git pending 决策快照。它不改变生命周期，也不替代同步。staging 要求持久索引与权威来源一致：索引缺失保持首次建立路径，索引无效或陈旧时零写入停止，按诊断先 `check` 诊断、`sync-index` 发布后再重试。位置变化仍选同一 ID；身份变更须由相应事务完整处理。写前 revision、pending 或所选来源漂移时拒绝写入。
 
 ## 验证与异常交付
 

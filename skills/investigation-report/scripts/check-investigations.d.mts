@@ -178,7 +178,7 @@ export type InvestigationReportCheckResult = {
 
 export type InvestigationIndexSyncOptions = {
   investigationsDir?: string;
-  mode?: "check" | "write";
+  preflight?: boolean;
   selectors?: readonly string[];
   workspaceRoot: string;
 };

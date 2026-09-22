@@ -8,8 +8,12 @@ import {
   createInvestigationStateIndexDefinition,
   investigationIndexDiagnosticMessages,
   investigationIndexFileName,
-  loadCurrentInvestigationIndex
+  loadInvestigationIndex
 } from "./investigation-state-index.ts";
+import {
+  investigationIndexStale,
+  persistedSnapshotWarning
+} from "./index-staleness.ts";
 import { diagnosticFromStateIndexDiagnostic } from "./diagnostics.ts";
 import { buildInvestigationListFacets } from "./list-facets.ts";
 import { parseInvestigationIndexQueryOptions } from "./options.ts";
@@ -114,26 +118,33 @@ export function queryValidatedInvestigationIndex(
     investigationIndexFileName
   );
   return ResultAsync.fromPromise(
-    loadCurrentInvestigationIndex({ investigationsDirectory }),
+    loadInvestigationIndex({ investigationsDirectory }),
     (error) =>
       queryOperationFailure(
         error,
-        "the derived index could not be loaded for the query",
+        "the persisted index could not be loaded for the query",
         indexPath
       )
   ).andThen((loaded) =>
-    queryLoadedInvestigationIndex(loaded, validated, indexPath)
+    ResultAsync.fromSafePromise(
+      loaded.status === "ok"
+        ? snapshotWarnings(loaded.value, investigationsDirectory)
+        : Promise.resolve<string[]>([])
+    ).andThen((warnings) =>
+      queryLoadedInvestigationIndex(loaded, validated, indexPath, warnings)
+    )
   );
 }
 
 export type LoadedInvestigationIndex = Awaited<
-  ReturnType<typeof loadCurrentInvestigationIndex>
+  ReturnType<typeof loadInvestigationIndex>
 >;
 
 function queryLoadedInvestigationIndex(
   loaded: LoadedInvestigationIndex,
   validated: ValidatedQueryOptions,
-  indexPath: string
+  indexPath: string,
+  warnings: readonly string[]
 ) {
   if (loaded.status === "error")
     return err(indexQueryDiagnostics(loaded.diagnostics, indexPath));
@@ -148,21 +159,32 @@ function queryLoadedInvestigationIndex(
   if (filterRelations.isErr())
     return err({ diagnostics: [], errors: filterRelations.error });
   if (related.value !== null && related.value.size === 0)
-    return ok(emptyQueryResult(validated, indexPath, facets));
+    return ok(emptyQueryResult(validated, indexPath, facets, warnings));
   return runIndexQuery(
     loaded.value,
     selectedFilters(validated, related.value),
     validated,
     indexPath,
     facets,
-    filterRelations.value
+    filterRelations.value,
+    warnings
   );
+}
+
+async function snapshotWarnings(
+  index: Extract<LoadedInvestigationIndex, { status: "ok" }>["value"],
+  investigationsDirectory: string
+): Promise<string[]> {
+  return (await investigationIndexStale(investigationsDirectory, index))
+    ? [persistedSnapshotWarning]
+    : [];
 }
 
 function emptyQueryResult(
   validated: ValidatedQueryOptions,
   indexPath: string,
-  facets: ReturnType<typeof buildInvestigationListFacets>
+  facets: ReturnType<typeof buildInvestigationListFacets>,
+  warnings: readonly string[]
 ): InvestigationIndexQueryResult {
   return {
     appliedFilters: validated.appliedFilters,
@@ -173,7 +195,8 @@ function emptyQueryResult(
     indexPath,
     limit: validated.limit,
     offset: validated.offset,
-    total: 0
+    total: 0,
+    warnings: [...warnings]
   };
 }
 
@@ -203,7 +226,8 @@ function runIndexQuery(
   filterRelations: ReadonlyMap<
     string,
     readonly import("./types.ts").InvestigationFilterRelation[]
-  > | null
+  > | null,
+  warnings: readonly string[]
 ) {
   return fromThrowable(
     () =>
@@ -244,7 +268,8 @@ function runIndexQuery(
           indexPath,
           limit: queried.value.limit,
           offset: queried.value.offset,
-          total: queried.value.total
+          total: queried.value.total,
+          warnings: [...warnings]
         })
   );
 }

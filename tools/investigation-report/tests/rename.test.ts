@@ -126,7 +126,7 @@ test("Investigation rename moves the report and owner resources while rewriting 
       }
     ]);
     assert.deepEqual(
-      (await synchronizeInvestigationIndex({ mode: "check", workspaceRoot }))
+      (await synchronizeInvestigationIndex({ preflight: true, workspaceRoot }))
         .errors,
       []
     );

@@ -47,5 +47,4 @@ export type ParsedOptions = {
   select?: string[];
   tag?: DecisionTag[];
   title?: string;
-  write?: boolean;
 };

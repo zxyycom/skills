@@ -53,7 +53,7 @@ export async function listDecisionRecords(
     records: matching.slice(request.offset, request.offset + request.limit),
     status: "ok",
     total: matching.length,
-    warnings: []
+    warnings: context.warnings
   };
 }
 

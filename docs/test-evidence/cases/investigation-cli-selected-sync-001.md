@@ -1,14 +1,15 @@
-### Case INVESTIGATION-CLI-SELECTED-SYNC-001: CLI selected sync proves the full investigation collection before writing
+### Case INVESTIGATION-CLI-SELECTED-SYNC-001: CLI selected sync publishes by default and keeps --preflight zero-write
 
 Tests:
-- `test:fb55c2cd7d694eb23bc8072d10ed2c5a58eb9169e4bcc276f6edd2b613ef9ff7`
+- `test:86b1668025ce56ee57fc73669d3fe39a8658fcdb3b756c841a36962f1150f052`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- Investigation `sync-index --select` 在 collection lock 内完整验证正式报告集合，并以 ID-first selector 限制本次可接纳变化。
+- Investigation `sync-index --select` 默认在完整验证正式报告集合后发布当前 projection；`--preflight` 保持零写入，selector 以 ID-first 解析限制本次可接纳的来源变化。
 
 Proves:
-- 未选择来源变化的 write 保持 index 原字节；name selector 的 check 返回 stale。
-- 原始 `.md` name selector 与解析后的标准日期 ID 同时出现在文本结果；完整 projection 字节等于 full sync。
+- 选择范围外的来源变化以领域错误拒绝且 index 保持原字节；selector 对应报告缺少来源变化时 `--preflight` 失败且零写入。
+- `--write` 触发用法错误退出，stdout 为空且 index 保持原字节。
+- 原始 `.md` name selector 与解析后的标准日期 ID 同时出现在结果文本；完整 projection 字节等于 full sync。

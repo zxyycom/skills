@@ -107,7 +107,7 @@ test("discarding the only candidate leaves no established decision index", () =>
     );
   }));
 
-test("candidate collection requires a current valid index when established records exist", async () => {
+test("candidate collection serves sources while the established index is missing invalid or stale", async () => {
   for (const indexState of ["missing", "invalid", "stale"] as const) {
     await withFixtureWorkspace(
       `candidate-index-${indexState}`,
@@ -117,6 +117,12 @@ test("candidate collection requires a current valid index when established recor
           "docs",
           "decisions",
           "decision-index.json"
+        );
+        const candidateId = "use-unreviewed-candidate";
+        await writeDecision(
+          workspaceRoot,
+          candidateId,
+          candidateDecisionBody()
         );
         if (indexState === "missing") {
           await fs.rm(indexPath);
@@ -141,8 +147,16 @@ test("candidate collection requires a current valid index when established recor
           "--root",
           workspaceRoot
         ]);
-        assert.notEqual(candidates.exitCode, 0, indexState);
-        assert.equal(candidates.stdout, "", indexState);
+        assert.equal(candidates.exitCode, 0, candidates.stderr);
+        assert.match(candidates.stdout, new RegExp(candidateId), indexState);
+        const shown = await runSourceCli([
+          "show-candidate",
+          candidateId,
+          "--root",
+          workspaceRoot
+        ]);
+        assert.equal(shown.exitCode, 0, shown.stderr);
+        assert.match(shown.stdout, new RegExp(candidateId), indexState);
       }
     );
   }
@@ -161,7 +175,7 @@ test("first candidate discovery succeeds with no established records and no inde
     assert.match(candidates.stdout, new RegExp(candidateId));
   }));
 
-test("candidate collection rejects an empty index when only candidates remain", () =>
+test("candidate collection serves sources without relying on an empty published index", () =>
   withFixtureWorkspace("candidate-empty-index", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
     const candidateId = "use-only-candidate";
@@ -182,8 +196,7 @@ test("candidate collection rejects an empty index when only candidates remain", 
 
     for (const args of [["candidates"], ["show-candidate", candidateId]]) {
       const result = await runSourceCli([...args, "--root", workspaceRoot]);
-      assert.notEqual(result.exitCode, 0, args.join(" "));
-      assert.equal(result.stdout, "", args.join(" "));
-      assert.match(result.stderr, /decision-index|index/i, args.join(" "));
+      assert.equal(result.exitCode, 0, args.join(" ") + result.stderr);
+      assert.match(result.stdout, new RegExp(candidateId), args.join(" "));
     }
   }));

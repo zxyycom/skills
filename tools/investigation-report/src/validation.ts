@@ -258,9 +258,7 @@ function prepareSync(
       resolved.value.investigationsDirectory,
       investigationIndexFileName
     ),
-    mode:
-      parsed.value.mode ??
-      (parsed.value.selectors === undefined ? "write" : "check"),
+    mode: parsed.value.preflight === true ? "check" : "write",
     resolved: resolved.value,
     ...(parsed.value.selectors === undefined
       ? {}

@@ -127,7 +127,7 @@ test("decision CLI top-level help exposes the current command set", async () => 
   assert.doesNotMatch(help.stdout, /This is the default command/);
   assert.match(
     help.stdout,
-    /sync-index[\s\S]*Check or rebuild the JSON index from[\s\S]*established Markdown/
+    /sync-index[\s\S]*Rebuild and publish the complete JSON index from[\s\S]*established Markdown/
   );
   assert.match(
     help.stdout,
@@ -253,18 +253,20 @@ test("activate and evolve preflight retain their real lifecycle selection option
   }
 });
 
-test("sync-index exposes explicit selected scope and write controls", async () => {
+test("sync-index publishes by default and separates the zero-write preflight", async () => {
   const help = await runCli(["sync-index", "--help"]);
   assert.equal(help.exitCode, 0);
   assert.match(
     help.stdout,
-    /Check or rebuild the JSON index from established Markdown/
+    /Rebuild and publish the complete JSON index from established Markdown/
   );
   assert.match(help.stdout, /--select <name-or-id>/);
-  assert.match(help.stdout, /--write/);
+  assert.match(help.stdout, /--preflight/);
+  assert.doesNotMatch(help.stdout, /--write/);
 
-  const explicitWrite = await runCli(["sync-index", "--write"]);
-  assert.notEqual(explicitWrite.exitCode, 2);
+  const removedWrite = await runCli(["sync-index", "--write"]);
+  assert.equal(removedWrite.exitCode, 2);
+  assert.match(removedWrite.stderr, /unknown option/i);
 });
 
 test("archive help promises to preserve the last alignment", async () => {

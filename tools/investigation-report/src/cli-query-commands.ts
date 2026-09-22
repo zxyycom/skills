@@ -101,6 +101,7 @@ async function executeList(
     listQueryOptions(input)
   );
   if (execution.isErr()) return printQueryFailure(execution.error, io);
+  printWarnings(execution.value.warnings, io);
   printInvestigationList(
     execution.value,
     { detail: has(input.values, "detail") },
@@ -284,6 +285,7 @@ export async function runShow(
       io,
       title: "Investigation report show failed:"
     });
+  printWarnings(result.warnings, io);
   io.stdout(result.markdown);
   return 0;
 }
@@ -321,6 +323,7 @@ export async function runTrace(
       io,
       title: "Investigation report trace failed:"
     });
+  printWarnings(result.warnings, io);
   writeLine(
     io.stdout,
     has(input.values, "json")

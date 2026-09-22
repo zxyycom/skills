@@ -136,7 +136,7 @@ export type CliArgs =
   | LocatedCommand<"stage", { decisionIds: DecisionId[] }>
   | LocatedCommand<
       "sync-index",
-      { selectors?: readonly string[]; write: boolean }
+      { preflight: boolean; selectors?: readonly string[] }
     >
   | LocatedCommand<
       "trace",

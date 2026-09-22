@@ -80,6 +80,33 @@ test("activation and archive transitions preserve content and index atomicity", 
     assert.equal(await fs.readFile(lifecyclePath, "utf8"), activatedText);
 
     await fs.rm(indexPath);
+    const blockedWithoutIndex = await runSourceCli([
+      "mark-aligned",
+      lifecycleRelativePath,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(blockedWithoutIndex.exitCode, 1);
+    assert.match(
+      blockedWithoutIndex.stderr,
+      /decision-index\.json is required/
+    );
+    assert.match(blockedWithoutIndex.stderr, /run sync-index/);
+    assert.equal(await fs.readFile(lifecyclePath, "utf8"), activatedText);
+    assert.equal(await fileExists(indexPath), false);
+
+    const republished = await runSourceCli([
+      "sync-index",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(republished.exitCode, 0, republished.stderr);
+    assert.equal(
+      findIndexEntry(await readIndex(indexPath), lifecycleRelativePath)
+        .alignment,
+      "unaligned"
+    );
+
     const markedAligned = await runSourceCli([
       "mark-aligned",
       lifecycleRelativePath,
@@ -94,6 +121,36 @@ test("activation and archive transitions preserve content and index atomicity", 
     );
 
     await fs.writeFile(indexPath, "{ invalid json\n", "utf8");
+    const blockedWithInvalidIndex = await runSourceCli([
+      "archive",
+      lifecycleRelativePath,
+      "--keep-unrecorded-history",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(blockedWithInvalidIndex.exitCode, 1);
+    assert.match(blockedWithInvalidIndex.stderr, /decision-index\.json/);
+    assert.match(blockedWithInvalidIndex.stderr, /run sync-index/);
+    assert.match(await fs.readFile(lifecyclePath, "utf8"), /status: active/);
+    assert.equal(
+      await fileExists(
+        path.join(decisionsDirectory, "archive", lifecycleRelativePath)
+      ),
+      false
+    );
+    assert.equal(await fs.readFile(indexPath, "utf8"), "{ invalid json\n");
+
+    const republishedForArchive = await runSourceCli([
+      "sync-index",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(
+      republishedForArchive.exitCode,
+      0,
+      republishedForArchive.stderr
+    );
+
     const archived = await runSourceCli([
       "archive",
       lifecycleRelativePath,

@@ -36,7 +36,8 @@ export function queryFailure(
       indexPath: input.indexPath,
       limit: input.limit,
       offset: input.offset,
-      total: 0
+      total: 0,
+      warnings: []
     }
   };
 }

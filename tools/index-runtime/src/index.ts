@@ -1,3 +1,4 @@
+export { sameStateSourceRevision } from "./canonicalization.ts";
 export {
   buildStateIndex,
   canonicalizeStateIndex,

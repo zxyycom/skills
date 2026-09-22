@@ -191,7 +191,7 @@ export async function syncSelectedStateIndex<
           code: "state-index.scoped-stale",
           message:
             "the selected source change is not present in the current index; rerun " +
-            "the selected sync in write mode to publish the complete projection",
+            "the selected sync to publish the complete projection",
           path: options.indexPath,
           stateId
         })

@@ -130,3 +130,10 @@ export async function countGitInvocations<T>(
     await fs.rm(wrapperDirectory, { force: true, recursive: true });
   }
 }
+
+export async function syncDecisionIndexBeforeStage(
+  workspaceRoot: string
+): Promise<void> {
+  const synced = await runSourceCli(["sync-index", "--root", workspaceRoot]);
+  assert.equal(synced.exitCode, 0, synced.stderr);
+}

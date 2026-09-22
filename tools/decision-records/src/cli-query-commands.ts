@@ -5,7 +5,8 @@ import {
 import {
   printDecisionFailure,
   printDecisionListSuccess,
-  printDecisionQuerySuccess
+  printDecisionQuerySuccess,
+  printQueryWarnings
 } from "./cli-output.ts";
 import type { CliArgs, CliArgsFor } from "./cli-args.ts";
 import type { DecisionRecordsCliIo } from "./cli-io.ts";
@@ -113,6 +114,7 @@ async function runList(
   if (result.command !== "list") {
     throw new TypeError("Decision list query returned a non-list result");
   }
+  printQueryWarnings(result.warnings, io);
   printDecisionListSuccess(
     result,
     { detail: args.detail, fullTime: args.fullTime },
@@ -203,8 +205,8 @@ async function runSyncIndex(
     {
       command: "sync-index",
       location: decisionLocation(args),
-      ...(args.selectors === undefined ? {} : { selectors: args.selectors }),
-      write: args.write
+      preflight: args.preflight,
+      ...(args.selectors === undefined ? {} : { selectors: args.selectors })
     },
     io
   );

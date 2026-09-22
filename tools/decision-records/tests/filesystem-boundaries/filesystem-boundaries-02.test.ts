@@ -183,11 +183,17 @@ test("stage classifies access denial and redacts filesystem error detail", () =>
       const descriptor = Object.getOwnPropertyDescriptor(fs, "lstat");
       assert.ok(descriptor);
       const lstat = fs.lstat.bind(fs);
+      let targetLstatCalls = 0;
       Object.defineProperty(fs, "lstat", {
         ...descriptor,
         value: async (...args: Parameters<typeof fs.lstat>) => {
           if (isTargetPath(args[0], sourcePath)) {
-            throw accessDeniedFileSystemError();
+            targetLstatCalls += 1;
+            // The first target lstat is the stage freshness gate probe; keep
+            // it working so the denial hits stage snapshot construction.
+            if (targetLstatCalls > 1) {
+              throw accessDeniedFileSystemError();
+            }
           }
           return await lstat(...args);
         }

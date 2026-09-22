@@ -11,7 +11,8 @@ import {
   runSourceCli,
   test,
   withGitFixtureWorkspace,
-  writeDecision
+  writeDecision,
+  syncDecisionIndexBeforeStage
 } from "./support.ts";
 
 test("stage selects one Decision ID when its sourcePath moves between root and archive", () =>
@@ -32,6 +33,7 @@ test("stage selects one Decision ID when its sourcePath moves between root and a
       "utf8"
     );
 
+    await syncDecisionIndexBeforeStage(workspaceRoot);
     const staged = await runSourceCli([
       "stage",
       currentDecisionId,
@@ -64,6 +66,7 @@ test("stage treats a selected new ID as an addition and preserves an unselected 
         .replace("alignment: null", "alignment: aligned")
         .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
+    await syncDecisionIndexBeforeStage(workspaceRoot);
     const staged = await runSourceCli([
       "stage",
       addedId,
@@ -80,6 +83,7 @@ test("stage treats a selected new ID as an addition and preserves an unselected 
 
 test("stage resolves a unique Decision name after one Markdown suffix", () =>
   withGitFixtureWorkspace("stage-name-selector", async (workspaceRoot) => {
+    await syncDecisionIndexBeforeStage(workspaceRoot);
     const staged = await runSourceCli([
       "stage",
       "use-source-cli.MD",
@@ -91,6 +95,7 @@ test("stage resolves a unique Decision name after one Markdown suffix", () =>
 
 test("stage treats a standard Decision ID as exact instead of falling back to a name", () =>
   withGitFixtureWorkspace("stage-exact-selector", async (workspaceRoot) => {
+    await syncDecisionIndexBeforeStage(workspaceRoot);
     const staged = await runSourceCli([
       "stage",
       "260801-stage-not-present",
@@ -112,6 +117,7 @@ test("stage reports ambiguous Decision names before writing pending files", () =
       duplicateId,
       candidateDecisionBody({ id: duplicateId, title: "同名候选" })
     );
+    await syncDecisionIndexBeforeStage(workspaceRoot);
     const staged = await runSourceCli([
       "stage",
       "use-source-cli",
@@ -137,6 +143,7 @@ test("stage resolves a filesystem-only Decision addition by name", () =>
         .replace("alignment: null", "alignment: aligned")
         .replace("createdAt: null", "createdAt: 2026-08-01T00:00:00Z")
     );
+    await syncDecisionIndexBeforeStage(workspaceRoot);
     const staged = await runSourceCli([
       "stage",
       "stage-filesystem-only",
@@ -166,6 +173,7 @@ test("stage preserves one Decision ID when its semantic sourcePath is renamed", 
       ),
       "utf8"
     );
+    await syncDecisionIndexBeforeStage(workspaceRoot);
     const staged = await runSourceCli([
       "stage",
       currentDecisionId,
@@ -189,31 +197,50 @@ test("stage ignores an invalid former ID basename after an ID keeps a semantic s
     const semanticSourcePath = "semantic-current.md";
     const semanticPath = decisionFilePath(workspaceRoot, semanticSourcePath);
     await fs.rename(formerPath, semanticPath);
-    const synchronized = await runSourceCli([
-      "sync-index",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(synchronized.exitCode, 0, synchronized.stderr);
+    await syncDecisionIndexBeforeStage(workspaceRoot);
     commitWorkspace(workspaceRoot);
 
-    await fs.writeFile(formerPath, "not a Decision record\n", "utf8");
-    await fs.writeFile(
-      semanticPath,
-      (await fs.readFile(semanticPath, "utf8")).replace(
-        "使用生成 CLI",
-        "语义路径的选择修改"
-      ),
-      "utf8"
-    );
-
-    const staged = await runSourceCli([
-      "stage",
-      currentDecisionId,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(staged.exitCode, 0, staged.stderr);
+    // The former basename turns invalid and the semantic content moves on
+    // only after the freshness gate has read the synchronized sources; the
+    // gate itself must still see a collection in sync.
+    const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
+    assert.ok(descriptor);
+    const readFile = fs.readFile.bind(fs);
+    let reads = 0;
+    let injected = false;
+    Object.defineProperty(fs, "readFile", {
+      ...descriptor,
+      value: async (
+        filePath: string,
+        encoding: BufferEncoding
+      ): Promise<string> => {
+        if (path.resolve(filePath) === semanticPath && ++reads === 2) {
+          injected = true;
+          await fs.writeFile(formerPath, "not a Decision record\n", "utf8");
+          await fs.writeFile(
+            semanticPath,
+            (await readFile(semanticPath, "utf8")).replace(
+              "使用生成 CLI",
+              "语义路径的选择修改"
+            ),
+            "utf8"
+          );
+        }
+        return await readFile(filePath, encoding);
+      }
+    });
+    try {
+      const staged = await runSourceCli([
+        "stage",
+        currentDecisionId,
+        "--root",
+        workspaceRoot
+      ]);
+      assert.equal(staged.exitCode, 0, staged.stderr);
+    } finally {
+      Object.defineProperty(fs, "readFile", descriptor);
+    }
+    assert.equal(injected, true);
     const pendingPaths = runGit(workspaceRoot, [
       "diff",
       "--cached",
