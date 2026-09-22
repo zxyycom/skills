@@ -90,6 +90,29 @@ test("investigation CLI renders help without reading the collection", async () =
   });
 });
 
+test("investigation list and search help project record discovery semantics", async () => {
+  await withTempRoot("cli-query-help-semantics", async (root) => {
+    for (const command of ["list", "search"]) {
+      const help = await runCli(["help", command], { cwd: root });
+      assert.equal(help.status, 0, command);
+      assert.equal(help.stderr, "", command);
+      assert.match(help.stdout, /Semantics:/u, command);
+      assert.match(help.stdout, /stay outside the index/u, command);
+      assert.match(help.stdout, /--related-to resolves first/u, command);
+      assert.match(
+        help.stdout,
+        new RegExp(`Examples:\n  investigation-report ${command} `, "u"),
+        command
+      );
+    }
+    const listHelp = await runCli(["list", "--help"], { cwd: root });
+    assert.match(listHelp.stdout, /last published snapshot with a warning/u);
+    const searchHelp = await runCli(["search", "--help"], { cwd: root });
+    assert.match(searchHelp.stdout, /--limit bounds matched reports/u);
+    assert.match(searchHelp.stdout, /show <investigation-id>/u);
+  });
+});
+
 test("investigation CLI without a command renders top-level help as an argument error", async () => {
   await withTempRoot("cli-missing-command", async (root) => {
     const missingCommand = await runCli([], { cwd: root });

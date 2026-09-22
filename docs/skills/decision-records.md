@@ -43,6 +43,7 @@ CLI readiness 只说明结构与正文准备情况。一般语义审查、记录
 ## 从哪里开始
 
 - 查找既有判断：已知 ID 或唯一 name 用 `show`，按分类、状态或关系浏览用 `list`，按主题发现用 `search`，追溯演进用 `trace`。关系条件下的 list/search 另返回导致命中的 `filterRelations`，与文本命中证据分开；普通发现不展开全部关系。
+- 恢复顺序：维护判断或起草新记录前，先按已知信息选择信息损失最小的查询并完整读取直接相关记录；准备新建时，同时确认没有相关候选与已建立记录覆盖同一判断，再决定继续候选、完善原记录、新建或停止。
 - 阅读演进切片：`trace` 默认同时追溯两个方向、深度 5、最多 50 条记录；`--json` 获取同一份查询成功结果的 JSON 索引切片。终端图只展开切片内部边，已读取但缺少摘要会标记，context 只为闭合事件加入。以 coverage、frontier 和可选 blocked event 判断是否要扩大范围重查，不把切片外关系视为缺失。
 - 起草或维护：[Skill 入口](../../skills/decision-records/SKILL.md)负责判断、流程与交付；[决策记录规则](../../skills/decision-records/references/decision-record-rules.md)负责身份、正文、生命周期、关系与维护约束。
 - 获取命令参数：本仓库使用 `bun run decision-records -- --help`。

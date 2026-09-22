@@ -102,6 +102,7 @@
       "260912-support-per-successor-complete-relation-replacements": "sha256:0be97c88e176bf210ddc70882ce1975cf7c92d7494b893c92a82cf316a1fc4a0",
       "260919-require-gate-environment-check-prerequisite": "sha256:918b0c73227afcc3f02a5e477a53d9469afe31472d389aa1e06a40254efd3871",
       "260920-finalize-change-plans-by-deletion": "sha256:e9f78b4641a85d94293d6ace19b6f13f48d510ebf21706eca85846aa9fcaf24d",
+      "260922-front-load-record-context-recovery": "sha256:0e692c559f9d2616f9384caf72d202e52c2e959674cb06296729daee47de862d",
       "260922-unify-cli-workspace-location-and-help": "sha256:08dd6f20381c1e4e613b59fa1d1f131a62af7e32c11941285d5a96351b345f83",
       "260922-unify-formal-relation-maintenance-actions": "sha256:a7d223db5f2b5f0eb78e4680e51a45f5d32e34743ec37ffe1c7684d608a47042",
       "260922-unify-record-candidate-lifecycle-actions": "sha256:bcfd3285dd6857c9a853a71a20dd2e290ca747b8dbb1dcff2bfa2a5029221585",
@@ -2198,6 +2199,22 @@
           "summary": "以 finalize 的专用动作术语承接原有安全删除边界。"
         }
       ]
+    },
+    "260922-front-load-record-context-recovery": {
+      "name": "front-load-record-context-recovery",
+      "sourcePath": "front-load-record-context-recovery.md",
+      "title": "前置恢复记录上下文并分流调查复用",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-22T18:27:27Z",
+      "purpose": "让两个记录领域在建立新记录或重新开展调查前先恢复可复用的已有认识，并让调查请求在复用与复查之间得到明确选择。",
+      "background": "两域查询入口的前置程度不一致，普通调查可能重复进行，也会跳过“复用形成时认识还是按当前事实复查”的用户选择；命令级 help 只列参数，普通发现语义仍散落在固定契约中。",
+      "decision": "两域前置最小查询与完整读取并排除重复记录；调查命中已有报告时按当前性意图复用或复查；list 与 search help 投影发现语义，固定契约保留精确规则。",
+      "tags": [
+        "decision-records",
+        "investigation-report"
+      ],
+      "relations": []
     },
     "260922-unify-cli-workspace-location-and-help": {
       "name": "unify-cli-workspace-location-and-help",

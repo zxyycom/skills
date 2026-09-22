@@ -1,5 +1,9 @@
 import { Command as CommanderCommand, Option } from "commander";
 import type { InvestigationCommand, RelationCliEvent } from "./cli-contract.ts";
+import {
+  investigationListHelp,
+  investigationSearchHelp
+} from "./cli-query-help.ts";
 
 type CommandOptionSpec = Readonly<{
   description: string;
@@ -10,6 +14,8 @@ type CommandSpec = Readonly<{
   description: string;
   name: InvestigationCommand;
   options?: readonly CommandOptionSpec[];
+  /** Static semantics and examples appended to this command's help output. */
+  helpAfter?: string;
   /** Positional placeholders; counts stay validated by the command handlers. */
   positionals?: readonly string[];
 }>;
@@ -118,6 +124,7 @@ const commandSpecs: readonly CommandSpec[] = [
   },
   {
     description: "List reports from the current derived index.",
+    helpAfter: investigationListHelp,
     name: "list",
     options: [
       { description: "Repeatable AND tag filter", flags: "--tag <tag>" },
@@ -158,6 +165,7 @@ const commandSpecs: readonly CommandSpec[] = [
   {
     description:
       "Search formal report content by default, or only the published index metadata.",
+    helpAfter: investigationSearchHelp,
     name: "search",
     options: [
       {
@@ -348,6 +356,9 @@ function registerCommand(
     .exitOverride();
   for (const positional of positionals) command.argument(positional);
   for (const option of options) command.addOption(collectingOption(option));
+  if (spec.helpAfter !== undefined) {
+    command.addHelpText("after", spec.helpAfter);
+  }
   command.action(() => execute(spec.name, command));
   if (spec.name === "set-relations") collectRelationEvents(command);
 }

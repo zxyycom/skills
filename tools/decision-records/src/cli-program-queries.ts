@@ -66,6 +66,30 @@ function registerCandidatesCommand(
   candidates.action(() => execute("candidates", candidates));
 }
 
+const decisionListHelpAfter = [
+  "Semantics:",
+  "  Lists established decisions only; candidates stay outside the index (see candidates / show-candidate).",
+  "  Defaults to the active persisted snapshot; --status, --alignment, repeatable --tag (AND), and inclusive --created-from/--created-to intersect before paging.",
+  "  --related-to resolves first; --direction and --relation-type qualify its direct edges, while --relation-type alone matches any direct edge of that type.",
+  "  A stale index still returns the last published snapshot with a warning; restore it with sync-index. An empty page only describes the current filters and window.",
+  "Examples:",
+  "  decision-records list --tag project-tooling --limit 20",
+  "  decision-records list --related-to 260922-unify-cli-workspace-location-and-help --direction successors --detail"
+].join("\n");
+
+const decisionSearchHelpAfter = [
+  "Semantics:",
+  "  Searches established decisions only; candidates stay outside the index.",
+  "  --in content (default) reads authoritative Markdown; --in metadata reads only the published index snapshot. Structural filters apply before text matching.",
+  "  --related-to resolves first; --direction and --relation-type qualify its direct edges, while --relation-type alone matches any direct edge of that type.",
+  "  --match all requires every term, any requires one term, phrase requires one contiguous phrase.",
+  "  Bounded or degraded results carry warnings: read returned IDs or tighten filters, and do not conclude absence from them.",
+  "  Identify a record here, then read its full body and direct relations with show <decision-id>.",
+  "Examples:",
+  '  decision-records search "record lifecycle" --match phrase --status archived',
+  '  decision-records search "索引" --in metadata --tag decision-records'
+].join("\n");
+
 function registerListCommand(
   program: CommanderCommand,
   execute: CliProgramExecute
@@ -153,7 +177,8 @@ function registerListCommand(
           parseListOffset
         )
       )
-    );
+    )
+    .addHelpText("after", decisionListHelpAfter);
   list.action(() => execute("list", list));
 }
 
@@ -225,7 +250,8 @@ function registerSearchCommand(
           "Require one direct relation type."
         ).choices(decisionRelationTypes)
       )
-    );
+    )
+    .addHelpText("after", decisionSearchHelpAfter);
   search.action(() => execute("search", search));
 }
 

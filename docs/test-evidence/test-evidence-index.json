@@ -187,6 +187,7 @@
       "DECISION-METADATA-REMOVED-001": "sha256:819209237e17d908016aeb03a95fe07f6db994a10a3a25b5efe20a2e514a1689",
       "DECISION-METADATA-SEARCH-001": "sha256:6d2d8f81a8cda2b63807f7b2354d7e821aa71de60eb0b25798d1b83fa68c538f",
       "DECISION-METADATA-SEARCH-INDEX-001": "sha256:e5598efb77be57702753b788bf355f3b3470a4e77ad36ad5708ce4bb5363eaae",
+      "DECISION-QUERY-HELP-SEMANTICS-001": "sha256:dc93630488e39e1a1974c9e59ae60b6a03ffd272d6af20bfef04e446b1e0e485",
       "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:2dd0c7a650a5a39013d19792b1628917a33b2fd10c4d3c9ebb1a70612faaff49",
       "DECISION-REALLOCATION-CANDIDATE-001": "sha256:ce4ad4e78703918172438a092fbbdeb70a2fcda6c79336142a29abc55ad2209e",
       "DECISION-REALLOCATION-CLOSURE-001": "sha256:65a95619af0ae72ebb66e5d7b2273d2d2746f96396e9362102e7842525b0068c",
@@ -498,6 +499,7 @@
       "INVESTIGATION-LIST-FACETS-001": "sha256:b44d17fbd4055509a1b8de6dc3fd734e3fa3ee30507ae7692affef55c606e75d",
       "INVESTIGATION-LIST-OUTPUT-001": "sha256:422953bcc45f2b6d6fab153cb6fa577e24d1d2d6e7f87643533d3208d037b7be",
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:7c1c4d229f15339621b4e1dced9b498a9be967168bdea10c301cdffa7a477e8a",
+      "INVESTIGATION-QUERY-HELP-SEMANTICS-001": "sha256:69b014aefd468d5b2122cab261d304c92e06ea9074d59e5c2bb095985dd3b54a",
       "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:4591b6b6b59f39ba32510e9535bf7c3d4c96785abf6f5af844e431dc0de5c2f6",
       "INVESTIGATION-QUERY-SOURCE-PATH-001": "sha256:63ddff121b2792bf621e0f822464f149352164185dbda16008c05aab6b4d8e89",
       "INVESTIGATION-QUERY-STALENESS-001": "sha256:e415b5e307e3db74507bb57027802cdffb52e01ca74a5b85f41f09690a93005a",
@@ -2729,6 +2731,16 @@
       ],
       "testIds": [
         "test:fe27cd88f361b4ad235572e229440fc880a8688791354ccbde6a7a42f007a436"
+      ]
+    },
+    "DECISION-QUERY-HELP-SEMANTICS-001": {
+      "title": "list 与 search help 投影记录发现语义",
+      "sourcePath": "cases/decision-query-help-semantics-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:74dc82fe39b97acc5a37d6fb0576a1534959298755bb8471178ef0ed24ed3344"
       ]
     },
     "DECISION-QUERY-INDEX-MEMBERSHIP-001": {
@@ -5879,6 +5891,16 @@
       ],
       "testIds": [
         "test:66943ec9108b5d14c1b201631c4f2fcdb2df7a02bcbc2e55cb5d98ad75e7e15d"
+      ]
+    },
+    "INVESTIGATION-QUERY-HELP-SEMANTICS-001": {
+      "title": "list 与 search help 投影报告发现语义",
+      "sourcePath": "cases/investigation-query-help-semantics-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:7dd9b05b92d219c06776c9204920f5a1fc99dffd06d51f143b38f0cdd597399f"
       ]
     },
     "INVESTIGATION-QUERY-REPORT-ID-001": {

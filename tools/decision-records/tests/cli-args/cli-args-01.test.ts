@@ -218,6 +218,22 @@ test("decision list help and argument boundary expose bounded recent query contr
   }
 });
 
+test("decision list and search help project record discovery semantics", async () => {
+  for (const command of ["list", "search"]) {
+    const help = await runCli([command, "--help"]);
+    assert.equal(help.exitCode, 0, command);
+    assert.match(help.stdout, /Semantics:/u, command);
+    assert.match(help.stdout, /stay outside the index/u, command);
+    assert.match(help.stdout, /--related-to resolves first/u, command);
+    assert.match(help.stdout, /Examples:\n  decision-records /u, command);
+  }
+  const listHelp = await runCli(["list", "--help"]);
+  assert.match(listHelp.stdout, /last published snapshot with a warning/u);
+  const searchHelp = await runCli(["search", "--help"]);
+  assert.match(searchHelp.stdout, /show <decision-id>/u);
+  assert.match(searchHelp.stdout, /do not conclude absence/u);
+});
+
 test("new help fixes explicit scaffold inputs without accepting lifecycle alignment", async () => {
   const help = await runCli(["new", "--help"]);
   assert.equal(help.exitCode, 0);
