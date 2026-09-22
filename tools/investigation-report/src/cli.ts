@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import process from "node:process";
+import { CommanderError } from "commander";
 import { isMainModule } from "../../shared/src/node/main-module.ts";
 import {
   diagnosticFromError,
@@ -17,8 +18,8 @@ import type {
   InvestigationReportCliOptions,
   ParsedCli
 } from "./cli-contract.ts";
-import { printHelp } from "./cli-help.ts";
-import { cliInvalid } from "./cli-io.ts";
+import { createInvestigationCliProgram } from "./cli-program.ts";
+import { processInvestigationReportCliIo } from "./cli-io.ts";
 import {
   runCheck,
   runDiscard,
@@ -26,27 +27,31 @@ import {
   runStage,
   runSync
 } from "./cli-maintenance-commands.ts";
-import { parseCliWithRelationEvents } from "./cli-parser.ts";
 import { runList, runSearch, runShow, runTrace } from "./cli-query-commands.ts";
 import { runSetRelations } from "./cli-relation-commands.ts";
-
-const processCliIo: InvestigationReportCliIo = {
-  stderr: (text) => process.stderr.write(text),
-  stdout: (text) => process.stdout.write(text)
-};
 
 export async function runInvestigationReportCheckCli(
   argv: readonly string[] = process.argv.slice(2),
   options: InvestigationReportCliOptions = {}
 ): Promise<number> {
-  const io = options.io ?? processCliIo;
-  const parsed = parseCliWithRelationEvents(argv);
-  if (parsed.status === "help") {
-    printHelp(parsed.command, io);
-    return 0;
+  const io = options.io ?? processInvestigationReportCliIo;
+  const cwd = options.cwd ?? process.cwd();
+  let exitCode = 0;
+  const program = createInvestigationCliProgram(
+    (input) => runCommand(input, io),
+    (value) => {
+      exitCode = value;
+    },
+    { cwd, io }
+  );
+
+  try {
+    await program.parseAsync(["node", "check-investigations.mjs", ...argv]);
+  } catch (error) {
+    if (error instanceof CommanderError) return error.exitCode === 0 ? 0 : 2;
+    throw error;
   }
-  if (parsed.status === "invalid") return cliInvalid(parsed.error, io);
-  return await runCommand(parsed.value, io);
+  return exitCode;
 }
 
 type CommandRunner = (

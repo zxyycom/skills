@@ -3,6 +3,10 @@ import path from "node:path";
 import process from "node:process";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
 import { displayDecisionPath } from "./decision-path.ts";
+import {
+  defaultDecisionsDir,
+  resolveWorkspaceDecisionLocation
+} from "./decision-location.ts";
 import { decisionIndexFileName } from "./decision-state-index.ts";
 import {
   collectSourceFiles,
@@ -39,7 +43,11 @@ export function decisionIndexRequiredError(indexRelativePath: string): string {
 export async function scanDecisionRecords(
   options: DecisionScanOptions = {}
 ): Promise<DecisionScan> {
-  const location = resolveDecisionScanLocation(options);
+  const resolution = resolveDecisionScanLocation(options);
+  if (resolution.error !== null) {
+    return unavailableDecisionScan(resolution.location, resolution.error);
+  }
+  const location = resolution.location;
   const directoryError = await inspectDecisionsDirectory(location);
   if (directoryError !== null)
     return unavailableDecisionScan(location, directoryError);
@@ -166,21 +174,37 @@ function successfulDecisionScan(options: {
   };
 }
 
-function resolveDecisionScanLocation(
-  options: DecisionScanOptions
-): DecisionScanLocation {
+/**
+ * Resolves the scan location and validates the workspace-location contract.
+ * The naive location stays available so contract violations can be reported
+ * against the paths the caller named.
+ */
+function resolveDecisionScanLocation(options: DecisionScanOptions): {
+  error: string | null;
+  location: DecisionScanLocation;
+} {
   const workspaceRoot = path.resolve(options.workspaceRoot ?? process.cwd());
-  const configuredDecisionDirectory = options.decisionsDir ?? "docs/decisions";
-  const decisionsDirectory = path.isAbsolute(configuredDecisionDirectory)
-    ? path.resolve(configuredDecisionDirectory)
-    : path.resolve(workspaceRoot, configuredDecisionDirectory);
+  const configuredDecisionDirectory =
+    options.decisionsDir ?? defaultDecisionsDir;
+  const decisionsDirectory = path.resolve(
+    workspaceRoot,
+    configuredDecisionDirectory
+  );
   const indexPath = path.join(decisionsDirectory, decisionIndexFileName);
-  return {
+  const location: DecisionScanLocation = {
     decisionsDirectory,
     decisionsLabel: displayDecisionPath(workspaceRoot, decisionsDirectory),
     indexPath,
     indexRelativePath: displayDecisionPath(workspaceRoot, indexPath),
     workspaceRoot
+  };
+  const resolution = resolveWorkspaceDecisionLocation({
+    cwd: workspaceRoot,
+    decisionsDir: options.decisionsDir
+  });
+  return {
+    error: resolution.error?.message ?? null,
+    location
   };
 }
 

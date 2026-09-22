@@ -27,10 +27,14 @@ export function createCliProgram(
     )
     .configureHelp({ showGlobalOptions: true })
     .configureOutput({ writeErr: io.stderr, writeOut: io.stdout })
-    .option("--root <path>", "Workspace root.", cwd)
+    .option(
+      "--root <path>",
+      "Workspace root. Defaults to the current directory.",
+      cwd
+    )
     .option(
       "--decisions-dir <path>",
-      "Decision directory. Relative paths resolve from --root.",
+      "Decision directory, relative to the workspace root.",
       "docs/decisions"
     )
     .showHelpAfterError()

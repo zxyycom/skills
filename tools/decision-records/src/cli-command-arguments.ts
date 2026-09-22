@@ -1,9 +1,4 @@
-import path from "node:path";
-import {
-  Command as CommanderCommand,
-  InvalidArgumentError,
-  Option
-} from "commander";
+import { Command as CommanderCommand, InvalidArgumentError } from "commander";
 import type { CliArgs, CliArgsFor, Command } from "./cli-args.ts";
 import type { DecisionRecordsCliIo } from "./cli-io.ts";
 import type { ParsedOptions } from "./cli-command-options.ts";
@@ -13,6 +8,7 @@ import {
   requiredDecisionAlignment
 } from "./cli-option-parsers.ts";
 import { evolveRelationOverridesForCommand } from "./cli-evolve-relation-groups.ts";
+import { resolveWorkspaceDecisionLocation } from "./decision-location.ts";
 
 const decisionListDefaultLimit = 10;
 
@@ -44,7 +40,7 @@ export function commandArgs(
   cwd: string
 ): CliArgs {
   const options = commanderCommand.optsWithGlobals<ParsedOptions>();
-  const location = commandLocation(options, cwd);
+  const location = commandLocation(options, cwd, commanderCommand);
   return commandArgumentFactories[command]({
     command,
     commanderCommand,
@@ -54,11 +50,20 @@ export function commandArgs(
   });
 }
 
-function commandLocation(options: ParsedOptions, cwd: string): CommandLocation {
-  return {
-    decisionsDir: options.decisionsDir ?? "docs/decisions",
-    workspaceRoot: path.resolve(cwd, options.root ?? ".")
-  };
+function commandLocation(
+  options: ParsedOptions,
+  cwd: string,
+  commanderCommand: CommanderCommand
+): CommandLocation {
+  const { error, location } = resolveWorkspaceDecisionLocation({
+    cwd,
+    decisionsDir: options.decisionsDir,
+    root: options.root
+  });
+  if (error !== undefined) {
+    commanderCommand.error(error.message, { code: error.code, exitCode: 2 });
+  }
+  return location;
 }
 
 const commandArgumentFactories: Readonly<
@@ -334,16 +339,6 @@ function defaultOption<T>(value: T | undefined, fallback: T): T {
 
 function secondDecisionSelector(decisionIds: readonly DecisionId[]): string {
   return decisionIds[1] === undefined ? "" : decisionIds[1];
-}
-
-export function singleQueryOption(option: Option): Option {
-  const parse = option.parseArg;
-  return option.argParser((value, previous) => {
-    if (previous !== undefined) {
-      throw new InvalidArgumentError(`--${option.name()} must not be repeated`);
-    }
-    return parse === undefined ? value : parse(value, previous);
-  });
 }
 
 function traceCommandArgs(

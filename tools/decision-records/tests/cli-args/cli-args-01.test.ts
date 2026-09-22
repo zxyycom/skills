@@ -26,6 +26,97 @@ test("decision CLI resolves a relative root from injected cwd", async () => {
   assert.equal(workspaceRoot, cwd);
 });
 
+test("decision CLI rejects absolute and escaping decision directories", async () => {
+  for (const decisionsDir of ["/tmp/decisions", "../decisions"]) {
+    const result = await runCli(["check", "--decisions-dir", decisionsDir]);
+    assert.equal(result.exitCode, 2, decisionsDir);
+    assert.equal(result.stdout, "", decisionsDir);
+    assert.match(
+      result.stderr,
+      /--decisions-dir must (?:be relative|remain within)/
+    );
+  }
+});
+
+test("decision CLI reports the recovery form for a collection directory passed as root", async () => {
+  const defaultDirectory = await runCli([
+    "check",
+    "--root",
+    path.join("workspace", "docs", "decisions")
+  ]);
+  assert.equal(defaultDirectory.exitCode, 2);
+  assert.equal(defaultDirectory.stdout, "");
+  assert.match(
+    defaultDirectory.stderr,
+    /--root <workspace> --decisions-dir docs\/decisions/
+  );
+
+  const configuredDirectory = await runCli([
+    "check",
+    "--root",
+    path.join("workspace", "notes"),
+    "--decisions-dir",
+    "notes"
+  ]);
+  assert.equal(configuredDirectory.exitCode, 2);
+  assert.match(
+    configuredDirectory.stderr,
+    /--root <workspace> --decisions-dir notes/
+  );
+
+  const lookalikeDirectory = await runCli([
+    "check",
+    "--root",
+    path.join("workspace", "mydocs", "decisions")
+  ]);
+  assert.equal(lookalikeDirectory.exitCode, 1);
+  assert.match(lookalikeDirectory.stderr, /is required/u);
+  assert.doesNotMatch(lookalikeDirectory.stderr, /Use --root <workspace>/u);
+});
+
+test("decision CLI without a command renders top-level help as an argument error", async () => {
+  const missingCommand = await runCli([]);
+  assert.equal(missingCommand.exitCode, 2);
+  assert.equal(missingCommand.stdout, "");
+  assert.match(
+    missingCommand.stderr,
+    /Query and maintain agent-oriented decision records/
+  );
+  assert.match(missingCommand.stderr, /\bhelp \[command\]/);
+
+  const helpCommand = await runCli(["help"]);
+  assert.equal(helpCommand.exitCode, 0);
+  assert.match(
+    helpCommand.stdout,
+    /Query and maintain agent-oriented decision records/
+  );
+});
+
+test("decision CLI normalizes the configured relative decisions directory", async () => {
+  let decisionsDir: string | null = null;
+  const program = createCliProgram(
+    async (args) => {
+      decisionsDir = args.decisionsDir;
+      return 0;
+    },
+    () => {},
+    {
+      cwd: path.join(process.cwd(), "decision-records-cli-cwd"),
+      io: { stderr: () => {}, stdout: () => {} }
+    }
+  );
+
+  await program.parseAsync([
+    "node",
+    "decision-records.mjs",
+    "check",
+    "--decisions-dir",
+    "./docs/decisions/"
+  ]);
+
+  assert.equal(decisionsDir, "docs/decisions");
+});
+
 test("decision CLI top-level help exposes the current command set", async () => {
   const help = await runCli(["--help"]);
   assert.equal(help.exitCode, 0);
@@ -33,7 +124,7 @@ test("decision CLI top-level help exposes the current command set", async () => 
     help.stdout,
     /Query and maintain agent-oriented decision records/
   );
-  assert.match(help.stdout, /This is the default command/);
+  assert.doesNotMatch(help.stdout, /This is the default command/);
   assert.match(
     help.stdout,
     /sync-index[\s\S]*Check or rebuild the JSON index from[\s\S]*established Markdown/

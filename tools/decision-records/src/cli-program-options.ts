@@ -1,4 +1,8 @@
-import { Command as CommanderCommand, Option } from "commander";
+import {
+  Command as CommanderCommand,
+  InvalidArgumentError,
+  Option
+} from "commander";
 import {
   parseDecisionRelation,
   parseDecisionRelationSummary
@@ -7,11 +11,10 @@ import {
 export function createSubcommand(
   program: CommanderCommand,
   nameAndArgs: string,
-  description: string,
-  options: { isDefault?: boolean } = {}
+  description: string
 ): CommanderCommand {
   return program
-    .command(nameAndArgs, options)
+    .command(nameAndArgs)
     .description(description)
     .allowExcessArguments(false)
     .exitOverride();
@@ -51,4 +54,14 @@ export function createPreflightOption(): Option {
     "--preflight",
     "Read and validate the current lifecycle selection without writing Decision Markdown, the derived index, or pending state."
   );
+}
+
+export function singleQueryOption(option: Option): Option {
+  const parse = option.parseArg;
+  return option.argParser((value, previous) => {
+    if (previous !== undefined) {
+      throw new InvalidArgumentError(`--${option.name()} must not be repeated`);
+    }
+    return parse === undefined ? value : parse(value, previous);
+  });
 }

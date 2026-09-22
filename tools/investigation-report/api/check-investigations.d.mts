@@ -377,7 +377,14 @@ export type InvestigationReportTraceResult =
     };
 
 export declare function runInvestigationReportCheckCli(
-  argv?: readonly string[]
+  argv?: readonly string[],
+  options?: {
+    cwd?: string;
+    io?: {
+      stderr: (text: string) => void;
+      stdout: (text: string) => void;
+    };
+  }
 ): Promise<number>;
 export declare function synchronizeInvestigationIndex(
   options: InvestigationIndexSyncOptions

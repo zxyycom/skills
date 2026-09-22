@@ -6,6 +6,7 @@ export type InvestigationReportCliIo = Readonly<{
 }>;
 
 export type InvestigationReportCliOptions = Readonly<{
+  cwd?: string;
   io?: InvestigationReportCliIo;
 }>;
 
@@ -38,11 +39,6 @@ export type ParsedCli = Readonly<{
   relationEvents?: readonly RelationCliEvent[];
   values: Map<string, string[]>;
 }>;
-
-export type CliParseResult =
-  | { command?: InvestigationCommand; status: "help" }
-  | { status: "invalid"; error: string }
-  | { status: "command"; value: ParsedCli };
 
 export type CommonInvestigationQueryOptions = Readonly<{
   direction?: string;

@@ -102,6 +102,7 @@
       "260912-support-per-successor-complete-relation-replacements": "sha256:0be97c88e176bf210ddc70882ce1975cf7c92d7494b893c92a82cf316a1fc4a0",
       "260919-require-gate-environment-check-prerequisite": "sha256:918b0c73227afcc3f02a5e477a53d9469afe31472d389aa1e06a40254efd3871",
       "260920-finalize-change-plans-by-deletion": "sha256:e9f78b4641a85d94293d6ace19b6f13f48d510ebf21706eca85846aa9fcaf24d",
+      "260922-unify-cli-workspace-location-and-help": "sha256:08dd6f20381c1e4e613b59fa1d1f131a62af7e32c11941285d5a96351b345f83",
       "activate-release-gate-checks-by-tag": "sha256:02819304803eade140cd3adb2472a368c290f639acc7998f0d54bc20cecd228e",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -2194,6 +2195,22 @@
           "summary": "以 finalize 的专用动作术语承接原有安全删除边界。"
         }
       ]
+    },
+    "260922-unify-cli-workspace-location-and-help": {
+      "name": "unify-cli-workspace-location-and-help",
+      "sourcePath": "unify-cli-workspace-location-and-help.md",
+      "title": "为领域 CLI 统一工作区定位与帮助契约",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-22T05:53:39Z",
+      "purpose": "让同一调用结构在不同领域 CLI 之间可复用，工作区定位、帮助和路径错误的语义不因工具而不同。",
+      "background": "领域 CLI 曾各自决定全局选项位置、缺少 command 的行为和领域目录约束；同一调用形态需要按工具分别记忆，集合目录误传给 --root 时也缺少直接的恢复路径。",
+      "decision": "领域 CLI 统一全局选项位置、工作区根默认值、相对领域目录约束和帮助行为，路径错误按当前参数形态给出恢复诊断。",
+      "tags": [
+        "decision-records",
+        "project-tooling"
+      ],
+      "relations": []
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

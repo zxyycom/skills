@@ -5,7 +5,7 @@ description: >-
   以一份可独立复核的报告保存一轮形成时的背景、依据、结果和边界，
   并用稳定 Investigation ID、tags 和直接前序关系维护分类与认识演进。
 metadata:
-  version: "50"
+  version: "51"
 ---
 
 # Investigation Report
@@ -136,7 +136,11 @@ Investigation ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只�
 从 skill 目录运行，或使用脚本绝对路径：
 
 ```text
-node scripts/check-investigations.mjs <command> [options] --root <workspace-root>
+node scripts/check-investigations.mjs [global-options] <command> [command-options]
+node scripts/check-investigations.mjs help [command]
 ```
 
-操作前用 `help <command>` 取得精确参数。本文负责报告形成与审阅，格式、命令前置和恢复范围沿“读取路径”取得。
+- 规范调用把全局选项放在 command 之前；在目标工作区内执行时省略 `--root`，默认以当前目录为工作区根，跨工作区调用才显式提供 `--root <workspace-root>`。
+- `--investigations-dir` 只接受解析后仍在工作区内的相对路径；把集合目录误传给 `--root` 时，诊断会给出 `--root <workspace> --investigations-dir <relative-collection>` 的恢复形态。
+- `help [command]` 与 `<command> --help` 只渲染帮助，不读取集合状态；省略 command 时渲染顶层帮助并以参数错误结束。
+- 操作前用 `help <command>` 取得精确参数。本文负责报告形成与审阅，格式、命令前置和恢复范围沿“读取路径”取得。

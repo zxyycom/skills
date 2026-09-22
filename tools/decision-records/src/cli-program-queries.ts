@@ -16,8 +16,7 @@ import {
   parseTraceDepth,
   parseTraceMaxRecords
 } from "./cli-option-parsers.ts";
-import { singleQueryOption } from "./cli-command-arguments.ts";
-import { createSubcommand } from "./cli-program-options.ts";
+import { createSubcommand, singleQueryOption } from "./cli-program-options.ts";
 
 const decisionListDefaultLimit = 10;
 
@@ -49,8 +48,7 @@ function registerCheckCommand(
     program,
     "check",
     "Strictly validate Markdown metadata, tags, source locations, alignment, relations, " +
-      "candidate scaffold/body readiness, and the JSON index. This is the default command.",
-    { isDefault: true }
+      "candidate scaffold/body readiness, and the JSON index."
   );
   check.action(() => execute("check", check));
 }

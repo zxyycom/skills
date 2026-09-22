@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "60"
+  version: "61"
 ---
 
 # Decision Records
@@ -32,7 +32,7 @@ agent 在当前请求或生效项目规则授权的范围内，自行审查记�
 
 ## 读取路径
 
-1. 先读目标工作区指令和任务直接相关的当前事实来源，按 `--root` 和可选 `--decisions-dir` 定位集合。集合整体不存在时视为尚未初始化。
+1. 先读目标工作区指令和任务直接相关的当前事实来源，定位集合：在目标工作区内执行时省略 `--root`（默认当前目录）；跨工作区调用才显式提供 `--root <workspace-root>`，领域目录始终使用工作区内相对 `--decisions-dir`。集合整体不存在时视为尚未初始化。
 2. 按下表定位相关记录；摘要足够时停止扩大读取，只有需要历史或完整演进图时才继续追溯。
 3. 候选写入、已建立记录维护、身份更正、暂存快照或结构审阅前，完整读取[决策记录规则](references/decision-record-rules.md)。它承接身份、正文、生命周期、关系和维护不变量；索引精确机器结构由 [Schema](references/decision-index.schema.json) 承接，命令参数与输出查 `--help`。
 4. 首次候选集合、工具不可用、索引异常或写入中断时，读取[状态与维护恢复](references/maintenance-recovery.md)，按实际状态选择验证或恢复路径。
@@ -127,7 +127,11 @@ Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位�
 从 skill 目录运行，或使用脚本绝对路径：
 
 ```text
-node scripts/decision-records.mjs <command> [options] --root <resolution-root>
+node scripts/decision-records.mjs [global-options] <command> [command-options]
+node scripts/decision-records.mjs help [command]
 ```
 
-操作前通过 `--help` 获取当前命令参数。本文负责判断和动作选择，精确结构与维护约束沿“读取路径”取得。
+- 规范调用把全局选项放在 command 之前；在目标工作区内执行时省略 `--root`，默认以当前目录为工作区根，跨工作区调用才显式提供 `--root <workspace-root>`。
+- `--decisions-dir` 只接受解析后仍在工作区内的相对路径；把集合目录误传给 `--root` 时，诊断会给出 `--root <workspace> --decisions-dir <relative-collection>` 的恢复形态。
+- `help [command]` 与 `<command> --help` 只渲染帮助，不读取集合状态；省略 command 时渲染顶层帮助并以参数错误结束。
+- 操作前通过 `--help` 获取当前命令参数。本文负责判断和动作选择，精确结构与维护约束沿“读取路径”取得。

@@ -161,7 +161,7 @@ test("decision CLI rejects removed domain and path query protocols", async () =>
   assert.doesNotMatch(help.stdout, /\bdomains\b/);
   assert.doesNotMatch(help.stdout, /--domain/);
   for (const { args, stderr } of [
-    { args: ["domains"], stderr: /too many arguments/ },
+    { args: ["domains"], stderr: /unknown command 'domains'/ },
     {
       args: ["list", "--domain", "decision-records"],
       stderr: /unknown option/

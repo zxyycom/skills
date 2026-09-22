@@ -51,7 +51,7 @@
     "check:skill-validator": "bun scripts/build/skill-validator.ts --check",
     "sync:investigation-report-check": "bun scripts/build/investigation-report.ts --write",
     "check:investigation-report-check": "bun scripts/build/investigation-report.ts --check",
-    "check:investigations": "bun tools/investigation-report/src/cli.ts --root .",
+    "check:investigations": "bun tools/investigation-report/src/cli.ts check --root .",
     "check:decisions": "bun tools/decision-records/src/cli.ts check --root .",
     "sync:task-graph-cli": "bun scripts/build/task-graph.ts --write",
     "check:task-graph-cli": "bun scripts/build/task-graph.ts --check",

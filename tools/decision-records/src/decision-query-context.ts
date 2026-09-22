@@ -75,14 +75,16 @@ export async function loadDecisionQueryContext(
   };
 }
 
+/**
+ * The decisions directory is a workspace-relative path by location contract;
+ * callers received it from the CLI boundary or the scan location API.
+ */
 export function resolveDecisionLocation(
   location: DecisionLocation
 ): ResolvedDecisionLocation {
   const workspaceRoot = path.resolve(location.workspaceRoot);
   return {
-    decisionsDirectory: path.isAbsolute(location.decisionsDir)
-      ? path.resolve(location.decisionsDir)
-      : path.resolve(workspaceRoot, location.decisionsDir),
+    decisionsDirectory: path.resolve(workspaceRoot, location.decisionsDir),
     workspaceRoot
   };
 }

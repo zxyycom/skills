@@ -45,6 +45,6 @@ stage-index 只拥有目标索引的 pending 路径；其他命令按契约维�
 
 ## 恢复验收
 
-恢复出完整正式集合后运行默认全量 check。需要重建索引时，先核对正式报告与资源，再 sync-index，随后 check；合法 candidates 保持独立。候选问题用 show-candidate 或 publish preflight 验证。
+恢复出完整正式集合后运行全量 `check`。需要重建索引时，先核对正式报告与资源，再 sync-index，随后 check；合法 candidates 保持独立。候选问题用 show-candidate 或 publish preflight 验证。
 
 交付说明实际恢复的对象、旧/新状态判断、运行的验证及剩余未知。清理未完成或范围仍不确定时，明确下一步所需的用户决定，不将局部成功报告为整体恢复。

@@ -5,7 +5,7 @@
 ## 先保留来源并判断范围
 
 1. 保留当前 Markdown、索引和 Git 中可恢复的最后可信基线。Markdown 拥有决策事实，索引只用于定位和对账。
-2. 按 `--root` 与可选 `--decisions-dir` 确认同一决策根，检查根目录、`archive/` 和索引的可读性。
+2. 按工作区根（当前目录或显式 `--root`）与可选 `--decisions-dir` 确认同一决策根，检查根目录、`archive/` 和索引的可读性。
 3. 从诊断的 code、对象、原因和下一步定位；有 scope/outcome 时，只对声明范围判断是否已写入或恢复。
 4. 根据可信来源自行恢复可确定的内容。关键事实或取舍无法确定且会改变恢复结果时，保留相关内容并询问；不从派生索引补造来源事实。
 
@@ -38,11 +38,11 @@
 来源完整、满足当前 definition 且已取得维护授权后，从 skill 目录执行不带选择器的全量重建：
 
 ```text
-node scripts/decision-records.mjs sync-index --write --root <resolution-root>
-node scripts/decision-records.mjs check --root <resolution-root>
+node scripts/decision-records.mjs sync-index --write
+node scripts/decision-records.mjs check
 ```
 
-自定义目录时，两条命令使用相同 `--decisions-dir`。definition 过期但来源合法时，完整同步建立新投影；不使用 `--select`，也不把旧索引作为正常 reader 或来源。已建立来源的 alignment 无效时，同步和检查均失败并保持零写入，不能只修索引。完成后按需用 `list --status all --alignment all`、`show` 或 `trace` 核对预期身份、位置、内容、非空 alignment 与关系。
+在目标工作区内执行时省略 `--root`；跨工作区调用才为两条命令提供相同的 `--root <workspace-root>`。自定义目录时，两条命令使用相同工作区内相对 `--decisions-dir`。definition 过期但来源合法时，完整同步建立新投影；不使用 `--select`，也不把旧索引作为正常 reader 或来源。已建立来源的 alignment 无效时，同步和检查均失败并保持零写入，不能只修索引。完成后按需用 `list --status all --alignment all`、`show` 或 `trace` 核对预期身份、位置、内容、非空 alignment 与关系。
 
 ## 中断写入
 

@@ -88,7 +88,10 @@
       "DECISION-CHECK-PARITY-001": "sha256:189fe5b498ae370fcf9ee6fa0a3249b710e3e09f2e547563c0237f2ac51d4854",
       "DECISION-CLI-ACTIVATE-ALIGNMENT-001": "sha256:48fcb375e3d9ea4249a64d559e278eaa10572e9c49dbffb8e5b7d7e2dc20346b",
       "DECISION-CLI-ARCHIVE-HELP-001": "sha256:c0612df3d314e91bab8d9db6feca90ff3cff53e573ccd38472026a253a1c8502",
-      "DECISION-CLI-ARGS-001": "sha256:472213c0320c6da8af3bf06077354c47fb99e3de2c23c236898d451e56577d12",
+      "DECISION-CLI-ARGS-001": "sha256:8fd6b35d0d9583311b6776558d395f8b7a82f464ca0d9492f9355f00ff00a668",
+      "DECISION-CLI-COLLECTION-ROOT-001": "sha256:f1784198b21944f8b51167ca95fa67a301ec48b5c296f10baaa0ef7eeae65d35",
+      "DECISION-CLI-DECISIONS-DIR-BOUNDARY-001": "sha256:a30131733a8e74771fa98dfbc33cfddcd97ebba61a1545105d0f5b531f64c4e0",
+      "DECISION-CLI-DECISIONS-DIR-NORMALIZATION-001": "sha256:29a619dc9c6392e39e114196aeb5a69af37a7dc7eb73b101024136d6584c3365",
       "DECISION-CLI-DISCARD-RECORDED-FLAG-001": "sha256:d8453e23a642fa580a6c57fd5297f2ef48a35a16aab3fb1e82739ca1c30cbafd",
       "DECISION-CLI-EVOLVE-HELP-001": "sha256:7ab407154de3a6d04c260516ed2e1083e62896ad2aa4de8131bcdb8a1fa352ff",
       "DECISION-CLI-EVOLVE-RECORDED-FLAG-001": "sha256:51659405be9fade4b1167817f8d37d974b7b7d2f499f12eb5d67e4b1c004604e",
@@ -96,6 +99,7 @@
       "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001": "sha256:26b53449b744bda8ec224433f18551a2eebce5cfc4b31bab210f5d44ab318414",
       "DECISION-CLI-LIFECYCLE-PREFLIGHT-001": "sha256:b8afc613e243577299daa5435dfafe8e04861e8a26d5ec2beeea8eef83e10a51",
       "DECISION-CLI-MARK-ALIGNED-HELP-001": "sha256:f76b75da87f071fd5d109e0d471c2c6d530e57bd67e9ff8a3fcd62cd485ffb8c",
+      "DECISION-CLI-MISSING-COMMAND-001": "sha256:852736dd02f24b45a6fc17f7e721935998d3ce99ff6271decb65c94c4b57cb70",
       "DECISION-CLI-NEW-HELP-001": "sha256:e28aa5bccf4d21fd4aac96339cdafae287b185d4d511257ba8cc9c3e34d2c657",
       "DECISION-CLI-NODE-SMOKE-001": "sha256:493ff4d3ae58d57ea2d68f24852be0a496ed3f8012c3e85c597aa97e09223405",
       "DECISION-CLI-POSITIONAL-ID-001": "sha256:98216475c90d6c7c8e304d8f9fb136166d39bc2667367021bcb8a82f09db9c2e",
@@ -108,7 +112,7 @@
       "DECISION-CLI-TRACE-RENDERING-001": "sha256:9398630ad3ad6b9c27c4dda3cdb55976a72eaa76d95a2291d5c5261fc4308113",
       "DECISION-CLI-UNKNOWN-OPTION-001": "sha256:16968a6799fe529c40f014271d4b3cab68a71e6381b604ae9452e76b1df2926e",
       "DECISION-COLLECTION-LOCK-DIAGNOSTIC-001": "sha256:15a9bd0cc402ffd5f37744e67734dead0074c545bc25fe2528b90f31c326cd28",
-      "DECISION-CONFIGURED-ABSOLUTE-DIRECTORY-001": "sha256:92cb963b9678c6d0cd07002505a9b91e939fbc5415b740871b1771863e17b7b3",
+      "DECISION-CONFIGURED-ABSOLUTE-DIRECTORY-001": "sha256:655a12e69b21dafd62894400acbd19a655ed0f0416c67e564efe262bb56213d5",
       "DECISION-CONFIGURED-RELATIVE-DIRECTORY-001": "sha256:f7ad7b8784e015ad641eb0997ebfbd40a71d9e67304058e8d91ab0e2b1bb15fe",
       "DECISION-DATED-IDENTITY-001": "sha256:e5af6eac8e27dba34a4714d2ecb83412dab447b1cf8492d1a135c09ab690cd21",
       "DECISION-DISCARD-INVALID-ESTABLISHED-SOURCE-001": "sha256:026d63f97b74e7dc08930a379477c99c53bf3c1097d0472b973d22e5f8a1e815",
@@ -400,7 +404,7 @@
       "INDEX-RUNTIME-SYNC-UTF8-001": "sha256:cb8ba9a07dd1c51e67f4a63a4e6fdbd8244f1fd94bba59a6fdb90c8b10260e33",
       "INDEX-RUNTIME-TEMPORAL-SORT-001": "sha256:4709dc09f0b80dae632c33c5e6b867f577477b70df43cc39997884fbe80e6954",
       "INDEX-RUNTIME-TEXT-SEARCH-001": "sha256:2313163721af66e00504c3b28fb6834e0fc17b02b02c6eca594f7545a207b30c",
-      "INVESTIGATION-BUNDLED-PARITY-001": "sha256:742dc1607e409de1071d38a31ef7a00fb802acc4b2d70453c2700e38776aeb76",
+      "INVESTIGATION-BUNDLED-PARITY-001": "sha256:8af0479a2bf1c2eeaa8446933606dc0a2e5977450bf68594dcde885397ff3f4f",
       "INVESTIGATION-CANDIDATE-CLI-001": "sha256:ce90a37b86fce670ac2a88cd5f203c77b2598edabf9a008f3f41bc49ae3c4cb8",
       "INVESTIGATION-CANDIDATE-DEFAULT-FORMED-AT-001": "sha256:fceb45c6d4ac6ad17aa31ddd8e3671d9a6688e9d262ee8ff99dc312b429616be",
       "INVESTIGATION-CANDIDATE-DISCARD-004": "sha256:cf32927cfeae36ef6d0108890933919123d8bc1e07ed168ccc1d95d57623883e",
@@ -417,11 +421,18 @@
       "INVESTIGATION-CANDIDATE-PUBLISH-CLEANUP-001": "sha256:6ab462366268bb132fc8715e25f8080a4633f5c22c09ef600150d4d06ddf838a",
       "INVESTIGATION-CANDIDATE-QUERY-001": "sha256:d26b5b6b22425d8731f16dbb57b0de790ec7190f60b5b34e70d196b89a1a8c1f",
       "INVESTIGATION-CANDIDATE-RESOURCE-001": "sha256:5889c59af00c70acf61748d16145fbba3bb898e4560525f83f1bb803df2273ee",
+      "INVESTIGATION-CLI-COLLECTION-ROOT-001": "sha256:3fb686ca20cb3b5676ac0c391a2459272a8b1517795f0b538682ae2cffc29aed",
       "INVESTIGATION-CLI-CONTRACTS-001": "sha256:862de3ea3eef2a574ae8ea8314b35d4912fdf3195a567641a71ad30da839c433",
+      "INVESTIGATION-CLI-CUSTOM-RELATIVE-DIRECTORY-001": "sha256:bb47d09b903cd903659cd55eeed5426c444c9e515de185ef11e5bd623bbf27e8",
       "INVESTIGATION-CLI-DEFAULT-FORMED-AT-001": "sha256:5f79e545b34d6d672c64c9cd9fc649cc33d54399c3f26649844eb1c848ca48e0",
       "INVESTIGATION-CLI-DISCARD-ARGS-001": "sha256:d8e42c0ecd8a607ec479bbb731a24e9bcb910b6c835a71b56cfb4c3b8802c38c",
       "INVESTIGATION-CLI-ENUM-001": "sha256:b0c0e339d1e839027a9845f93314de930893853455b57854efe0308db8a83e20",
+      "INVESTIGATION-CLI-GLOBAL-OPTION-POSITIONS-001": "sha256:a4b5aea5d80d469bee8984c5c84b4e107a52ee7cbc4f5b56af34d7e72c66ca1f",
+      "INVESTIGATION-CLI-HELP-WITHOUT-COLLECTION-001": "sha256:4f486750fd6cf741f38c7dfd3bfc17d8d9bcccaad419bb24b04aef602b32197a",
+      "INVESTIGATION-CLI-INVESTIGATIONS-DIR-BOUNDARY-001": "sha256:f9150c22999fec9fbfbfcb0d612e1a263e862a902604826d523e3f3dbf1e8bac",
+      "INVESTIGATION-CLI-INVESTIGATIONS-DIR-NORMALIZATION-001": "sha256:f0a0d017621228fd2e92b6238215b2be0f56f56346118eb1ef7845a48e4f4d39",
       "INVESTIGATION-CLI-LIST-001": "sha256:c46d719b206779af5116bc235475708063cef73ed8302aafbc97b252bf016bcb",
+      "INVESTIGATION-CLI-MISSING-COMMAND-001": "sha256:24fc6ee6484716226963817f50388c2d577d030c4291131c8dcf87bd6cc26a34",
       "INVESTIGATION-CLI-RELATION-FILTER-001": "sha256:689da1fc8528698e1eaa4776b6e2407553fd36fd797d5132d59541ef775a7cd6",
       "INVESTIGATION-CLI-RELATIONS-001": "sha256:469dab2b25b2760e824e3a9b7021481c79b9a0138b839a24ae8cc2244b83d695",
       "INVESTIGATION-CLI-SELECTED-SYNC-001": "sha256:2bc720914f4b0b376fb23892d038cb69e79244eedc38d21ad8e1ad92fbb6ace6",
@@ -434,6 +445,7 @@
       "INVESTIGATION-CLI-SYNC-FILESYSTEM-001": "sha256:edce8c35de8b3ff1f12200572f289867802aed703b63c69e597733023c1f4df7",
       "INVESTIGATION-CLI-SYNC-LOCK-001": "sha256:bc09b61cfdd37074515fc2928942d2d97f6e362ed8be54bc6af7e90560a8ff76",
       "INVESTIGATION-CLI-TRACE-RENDERING-001": "sha256:c85f4217e3111bed8522d7a1669fc6da813312e85707d0e69f60150a3d40f539",
+      "INVESTIGATION-CLI-UNKNOWN-INPUT-001": "sha256:152ee75ab1645d4d73bf90c44b7e2cbe12cdadb54be396a51216da456efefdc0",
       "INVESTIGATION-CLI-USAGE-001": "sha256:fb878f6c719b235b5e3ed2654b16a21dd9def7154e0b7c03b468829c35d4ea73",
       "INVESTIGATION-CLI-WARNINGS-001": "sha256:34b383290a4f0a731695a095a3b8bdc6d16a9db2c0ea8bc4170c8bc02d609ce2",
       "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:4935ae4676566a5a7b5bf1dbb17934a47358c9e391384de289c4c412f38decf4",
@@ -1694,6 +1706,36 @@
         "test:1435a7fb9c09ba3a296de94c51511e5e29060a00ce198f46e6a8ed9218563dbd"
       ]
     },
+    "DECISION-CLI-COLLECTION-ROOT-001": {
+      "title": "集合目录误传 --root 时给出恢复形态",
+      "sourcePath": "cases/decision-cli-collection-root-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:7b3053e9226968a68c779f407d0093ad433f6a647c48a44424d3843f0405ddd3"
+      ]
+    },
+    "DECISION-CLI-DECISIONS-DIR-BOUNDARY-001": {
+      "title": "绝对与越界决策目录按普通参数错误失败",
+      "sourcePath": "cases/decision-cli-decisions-dir-boundary-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:114023e49e3df8d6fd4bbdc8e2c0044662de1754f4092bb0d6ffc91a545371fc"
+      ]
+    },
+    "DECISION-CLI-DECISIONS-DIR-NORMALIZATION-001": {
+      "title": "相对决策目录在参数边界规范化",
+      "sourcePath": "cases/decision-cli-decisions-dir-normalization-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:bfe3718702b0fe494c495b1a9d516fc334ba8c71db1e74cc993dbaf178c01dab"
+      ]
+    },
     "DECISION-CLI-DISCARD-RECORDED-FLAG-001": {
       "title": "Discard 帮助展示已记录决策删除参数",
       "sourcePath": "cases/decision-cli-discard-recorded-flag-001.md",
@@ -1763,6 +1805,16 @@
       ],
       "testIds": [
         "test:f411ee275d5015347fe21455b16b5e98d76fe3459f26e4f5923ee8e6c688b604"
+      ]
+    },
+    "DECISION-CLI-MISSING-COMMAND-001": {
+      "title": "缺少命令时渲染顶层帮助并按参数错误结束",
+      "sourcePath": "cases/decision-cli-missing-command-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:792f73cfca5ff75f5281707bae9e6be88d5391578c5b6550dd6c61f07adb463c"
       ]
     },
     "DECISION-CLI-NEW-HELP-001": {
@@ -1894,13 +1946,13 @@
       ]
     },
     "DECISION-CONFIGURED-ABSOLUTE-DIRECTORY-001": {
-      "title": "绝对决策目录可位于 workspace 之外",
+      "title": "绝对决策目录按普通定位错误失败",
       "sourcePath": "cases/decision-configured-absolute-directory-001.md",
       "tags": [
         "decision-records"
       ],
       "testIds": [
-        "test:93bdf6ad375f7690d90ce0f459f43b3522dad3cd90bc39c0c40fb885f3f75964"
+        "test:bc03c608e275550398e2ddaa578dd49376547e6b8b8c94146e095f7cc2058d21"
       ]
     },
     "DECISION-CONFIGURED-RELATIVE-DIRECTORY-001": {
@@ -5015,6 +5067,16 @@
         "test:b7a695fed827a67fca39de06bbdedcd3b0aa531cf3da16db04855b2e860eb36c"
       ]
     },
+    "INVESTIGATION-CLI-COLLECTION-ROOT-001": {
+      "title": "集合目录误传 --root 时给出恢复形态",
+      "sourcePath": "cases/investigation-cli-collection-root-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:41eb956540294b8cd0b406989c5bb50834a37485b537235deef6e2de3317f336"
+      ]
+    },
     "INVESTIGATION-CLI-CONTRACTS-001": {
       "title": "CLI check succeeds on a current report collection",
       "sourcePath": "cases/investigation-cli-contracts-001.md",
@@ -5023,6 +5085,16 @@
       ],
       "testIds": [
         "test:cbc90da6c46d85f0447aa06ef5d2d35d47447bd6b1b1ddeab7bd9483690d0328"
+      ]
+    },
+    "INVESTIGATION-CLI-CUSTOM-RELATIVE-DIRECTORY-001": {
+      "title": "跨工作区使用工作区内相对调查目录",
+      "sourcePath": "cases/investigation-cli-custom-relative-directory-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:550fca6010283f444baa42f76b3ef72856452c4f7dc719f2ed8bc2959dcc6cf2"
       ]
     },
     "INVESTIGATION-CLI-DEFAULT-FORMED-AT-001": {
@@ -5055,6 +5127,47 @@
         "test:fcf1c5016114731f5a51143e850ca3894f8ef7443d486f2e94717c61c34b2d45"
       ]
     },
+    "INVESTIGATION-CLI-GLOBAL-OPTION-POSITIONS-001": {
+      "title": "全局定位选项位置与当前目录默认值",
+      "sourcePath": "cases/investigation-cli-global-option-positions-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:31760eff3e8c3c2a451b43449db4babe81a982fe07d78f2c127c1071481abeee",
+        "test:905f1aadb053ca056a55786072223339d34ea4c75700c2d7d1bb79f39a122e17"
+      ]
+    },
+    "INVESTIGATION-CLI-HELP-WITHOUT-COLLECTION-001": {
+      "title": "help 渲染不读取集合状态",
+      "sourcePath": "cases/investigation-cli-help-without-collection-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:f2c0e5d7d3ac7ba27c26d069bd3603bb0cc01bbc3373c6a10705fec6b8cd8842"
+      ]
+    },
+    "INVESTIGATION-CLI-INVESTIGATIONS-DIR-BOUNDARY-001": {
+      "title": "绝对与越界调查目录按普通参数错误失败",
+      "sourcePath": "cases/investigation-cli-investigations-dir-boundary-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:86b51027ac1a4d1e067afaa48065b343b88a54cbae35d3fd6ff08bb8e18f9fdf"
+      ]
+    },
+    "INVESTIGATION-CLI-INVESTIGATIONS-DIR-NORMALIZATION-001": {
+      "title": "相对调查目录在参数边界规范化",
+      "sourcePath": "cases/investigation-cli-investigations-dir-normalization-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:4eddde9845e113ea7056fd624667eba7687726c4a0c22e121a47f66ec24d7d80"
+      ]
+    },
     "INVESTIGATION-CLI-LIST-001": {
       "title": "CLI list returns a current report after resource byte changes",
       "sourcePath": "cases/investigation-cli-list-001.md",
@@ -5063,6 +5176,16 @@
       ],
       "testIds": [
         "test:b18e63da2b7398025370b7fbda89c0e3c7b25b0cae120fccceccf53c3b42df8f"
+      ]
+    },
+    "INVESTIGATION-CLI-MISSING-COMMAND-001": {
+      "title": "缺少命令时渲染顶层帮助并按参数错误结束",
+      "sourcePath": "cases/investigation-cli-missing-command-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:9c37cdc63ebb7f6cb47f9aad3f170593fbf280089f75acccb0ee0cb5aa56f898"
       ]
     },
     "INVESTIGATION-CLI-RELATION-FILTER-001": {
@@ -5184,6 +5307,16 @@
       "testIds": [
         "test:26218bab6d3b7c6c6c0333db0a9267380868cec42ebbbe130c1532fb590a6970",
         "test:8e265388bdccdaaaa216f00df7d1c3714619566e75194917ed02b6a43b610b0a"
+      ]
+    },
+    "INVESTIGATION-CLI-UNKNOWN-INPUT-001": {
+      "title": "旧命令与旧参数按普通未知输入失败",
+      "sourcePath": "cases/investigation-cli-unknown-input-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:94a9e283d45bbecc68087c2cfc9c095270b5af90ddc50bae522c204927139d34"
       ]
     },
     "INVESTIGATION-CLI-USAGE-001": {

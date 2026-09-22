@@ -164,7 +164,7 @@ test("CLI stage-index rejects JSON output", async () => {
     ]);
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
-    assert.match(result.stderr, /unknown option: --json/u);
+    assert.match(result.stderr, /unknown option '--json'/u);
     assert.equal(await fs.readFile(indexPath, "utf8"), before);
   });
 });
@@ -365,8 +365,9 @@ test("generated Investigation Report CLI starts under Node with argv and stdout 
     assert.equal(publishHelp.stderr, "");
     assert.match(
       publishHelp.stdout,
-      /Usage: investigation-report publish <investigation-id\.\.\.> \[--preflight\]/u
+      /Usage: investigation-report publish \[options\] \[investigation-id\.\.\.\]/u
     );
+    assert.match(publishHelp.stdout, /--preflight/u);
 
     const declaration = await fs.readFile(
       path.resolve(

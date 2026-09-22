@@ -143,6 +143,7 @@ export const expectedSemanticGateChecks = [
     "bun",
     [
       "./tools/investigation-report/tests/cli-generated.test.ts",
+      "./tools/investigation-report/tests/cli-location-contract.test.ts",
       "./tools/investigation-report/tests/cli-index.test.ts",
       "./tools/investigation-report/tests/cli-stage.test.ts"
     ]

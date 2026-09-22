@@ -1,3 +1,4 @@
+import process from "node:process";
 import {
   genericInvestigationDiagnostic,
   renderInvestigationDiagnostic,
@@ -27,6 +28,11 @@ export function printWarnings(
     );
   }
 }
+
+export const processInvestigationReportCliIo: InvestigationReportCliIo = {
+  stderr: (text) => process.stderr.write(text),
+  stdout: (text) => process.stdout.write(text)
+};
 
 export type ResultErrorOutput = Readonly<{
   diagnostics?: readonly InvestigationDiagnostic[];

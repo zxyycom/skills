@@ -16,7 +16,10 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
     const help = await runInvestigationCli(root, ["--help"]);
     assert.equal(help.status, 0);
     assert.equal(help.stderr, "");
-    assert.match(help.stdout, /Usage: investigation-report <command>/u);
+    assert.match(
+      help.stdout,
+      /Usage: investigation-report \[options\] \[command\]/u
+    );
     assert.match(help.stdout, /Exit status: 0 success; 1/u);
     assert.doesNotMatch(help.stdout, /check-investigations\.mjs/u);
     assert.doesNotMatch(help.stdout, /--category/u);
@@ -31,7 +34,8 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
 
     const searchHelp = await runInvestigationCli(root, ["search", "--help"]);
     assert.equal(searchHelp.status, 0);
-    assert.match(searchHelp.stdout, /search <text>/u);
+    assert.match(searchHelp.stdout, /Usage: investigation-report search/u);
+    assert.match(searchHelp.stdout, /\[text\]/u);
     assert.match(searchHelp.stdout, /--match <mode>/u);
 
     const relationHelp = await runInvestigationCli(root, [
@@ -48,7 +52,7 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
     ]);
     assert.equal(oldOption.status, 2);
     assert.equal(oldOption.stdout, "");
-    assert.match(oldOption.stderr, /unknown option: --category/u);
+    assert.match(oldOption.stderr, /unknown option '--category'/u);
 
     const retiredText = await runInvestigationCli(root, [
       "list",
@@ -56,7 +60,7 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
       "legacy"
     ]);
     assert.equal(retiredText.status, 2);
-    assert.match(retiredText.stderr, /unknown option: --text/u);
+    assert.match(retiredText.stderr, /unknown option '--text'/u);
   });
 });
 
@@ -64,8 +68,9 @@ test("CLI new defaults formedAt to the current UTC second when omitted", async (
   await withTempRoot("cli-default-formed-at", async (root) => {
     const help = runGeneratedInvestigationCliSmoke(root, ["new", "--help"]);
     assert.equal(help.status, 0);
-    assert.match(help.stdout, /new <name-or-id>/u);
-    assert.match(help.stdout, /\[--formed-at <rfc3339>\]/u);
+    assert.match(help.stdout, /Usage: investigation-report new/u);
+    assert.match(help.stdout, /\[name-or-id\]/u);
+    assert.match(help.stdout, /--formed-at <rfc3339>/u);
     assert.match(help.stdout, /default: current UTC time/u);
 
     const missingIdentity = runGeneratedInvestigationCliSmoke(root, [
@@ -153,7 +158,7 @@ test("CLI set-relations prints a human-readable result and rejects JSON output",
       "--json"
     ]);
     assert.equal(json.status, 2);
-    assert.match(json.stderr, /unknown option: --json/u);
+    assert.match(json.stderr, /unknown option '--json'/u);
     const markdown = await fs.readFile(
       path.join(investigationRoot(root), "next.md"),
       "utf8"
