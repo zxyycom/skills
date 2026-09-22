@@ -1,3 +1,4 @@
+import type { DecisionStageScope } from "./decision-stage-contracts.ts";
 import type {
   DecisionAlignment,
   DecisionId,
@@ -149,7 +150,10 @@ export type CliArgs =
     >
   | LocatedCommand<"show", { decisionId: DecisionId }>
   | LocatedCommand<"show-candidate", { decisionId: DecisionId }>
-  | LocatedCommand<"stage", { decisionIds: DecisionId[] }>
+  | LocatedCommand<
+      "stage",
+      { decisionIds: DecisionId[]; scope: DecisionStageScope }
+    >
   | LocatedCommand<
       "sync-index",
       { preflight: boolean; selectors?: readonly string[] }

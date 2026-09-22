@@ -134,13 +134,22 @@ function registerStageCommand(
   const stage = createSubcommand(
     program,
     "stage",
-    "Build a complete pending decision snapshot from the current revision and " +
-      "the explicitly selected Decision selectors."
-  ).argument(
-    "<selector...>",
-    "Standard Decision IDs or unique semantic names.",
-    parseDecisionIdList
-  );
+    "Build a Git pending decision snapshot from the current revision and the " +
+      "explicitly selected Decision selectors."
+  )
+    .argument(
+      "<selector...>",
+      "Standard Decision IDs or unique semantic names.",
+      parseDecisionIdList
+    )
+    .addOption(
+      new Option(
+        "--scope <scope>",
+        "Pending paths written by this stage: the derived index projection and formal Markdown (all), only the index projection (index), or only the formal Markdown while the pending index stays unchanged (domain)."
+      )
+        .choices(["all", "index", "domain"])
+        .default("all")
+    );
   stage.action((decisionIds: DecisionId[]) =>
     execute("stage", stage, decisionIds)
   );

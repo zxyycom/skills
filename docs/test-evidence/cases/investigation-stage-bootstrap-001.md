@@ -1,7 +1,7 @@
-### Case INVESTIGATION-STAGE-BOOTSTRAP-001: stage-index accepts selected report additions in a current index
+### Case INVESTIGATION-STAGE-BOOTSTRAP-001: stage --scope index accepts selected report additions in a current index
 
 Tests:
-- `test:51894fe68608cac2cc67cbb33918f1e8e61229461ecf084a429e7a3a752af2c2`
+- `test:aaf3cadf1286186d3eb88ffbcd682b14c3150360abbb51148cb7c65b65423e04`
 
 Tags:
 - `investigation-report`

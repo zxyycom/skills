@@ -5,7 +5,7 @@ description: >-
   以一份可独立复核的报告保存一轮形成时的背景、依据、结果和边界，
   并用稳定 Investigation ID、tags 和直接前序关系维护分类与认识演进。
 metadata:
-  version: "54"
+  version: "55"
 ---
 
 # Investigation Report
@@ -106,7 +106,7 @@ agent 在当前请求或生效项目规则授权的范围内，自行审查证�
 2. 一批手工正式报告编辑可先共同完成，期间用 scoped check 获取局部反馈。在索引查询、已有关系事务、正式删除、默认全量检查、暂存或交付需要当前集合前，统一运行一次 `sync-index`。它默认写入并发布完整有效索引，`--preflight` 零写入预演同一验证；`--select ...` 只接纳所选 ID 的已知来源变化，仍发布完整索引，合法 candidates 不参与同步。已知合法来源变化的规范顺序是先 `sync-index` 再默认全量 `check`；未解释的索引异常先 `check` 诊断，再同步或修复。
 3. `set-relations` 与正式 `discard` 要求当前索引，并在成功事务中同步索引。只改资源字节时保留索引；暂停、失败或 cleanup 诊断按契约与恢复手册处理。
 4. publish、同步或事务完成后运行默认全量 `check`，并按下列完成标准复核实际结果。
-5. 需要 Git pending 快照时，同步和全量检查后用 `stage-index` 选择正式 Investigation ID；工作区索引陈旧或无效时 stage-index 零写入停止，按诊断同步后再重试。报告与资源按实际交付范围另行暂存。
+5. 需要 Git pending 快照时，同步和全量检查后用 `stage <investigation-id...> [--scope all|index|domain]` 选择正式报告。默认 `all` 原子写入所选索引投影、所选正式报告 Markdown 及其完整 owner 资源树；`index` 只写入索引投影；`domain` 只写入报告与 owner 资源并保持 pending 索引字节不变。工作区索引陈旧或无效时零写入停止，按诊断同步后再重试。基线-only 旧 ID 写入删除，重命名显式同时选择旧 ID 与新 ID；owner 资源成员取工作区与 `HEAD` 的路径并集，其他 owner 的资源保持不变。pending、commit 与 push 仍由调用方按授权显式完成。
 
 ## 完成标准
 

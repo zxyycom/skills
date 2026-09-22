@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
-import { stageInvestigationIndex } from "../src/staging.ts";
+import { stageInvestigationReports } from "../src/staging.ts";
 import {
+  git,
+  indexRelativePath,
+  initializeGit,
   investigationRoot,
   jsonObjectMember,
   parseJsonObject,
@@ -12,29 +14,13 @@ import {
   writeCollection
 } from "./v6-support.ts";
 
-const indexRelativePath = "docs/investigations/investigation-index.json";
-
-function git(root: string, args: readonly string[]): string {
-  return execFileSync("git", ["-C", root, ...args], {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"]
-  });
-}
-
-function initializeGit(root: string): void {
-  git(root, ["init", "--quiet"]);
-  git(root, ["config", "user.email", "test@example.invalid"]);
-  git(root, ["config", "user.name", "Test"]);
-  git(root, ["add", "."]);
-  git(root, ["commit", "--quiet", "-m", "initial"]);
-}
-
-test("stage-index selects entries by Investigation ID without staging reports", async () => {
+test("stage --scope index selects entries by Investigation ID without staging reports", async () => {
   await withTempRoot("stage", async (root) => {
     await writeCollection(root, [{ id: "stage-report" }]);
     initializeGit(root);
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["stage-report"],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "ok");
@@ -42,13 +28,14 @@ test("stage-index selects entries by Investigation ID without staging reports", 
   });
 });
 
-test("stage-index resolves a unique Investigation name after one Markdown suffix", async () => {
+test("stage --scope index resolves a unique Investigation name after one Markdown suffix", async () => {
   await withTempRoot("stage-name-selector", async (root) => {
     const id = "260828-stage-name";
     await writeCollection(root, [{ id }]);
     initializeGit(root);
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["stage-name.MD"],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "ok");
@@ -56,12 +43,13 @@ test("stage-index resolves a unique Investigation name after one Markdown suffix
   });
 });
 
-test("stage-index treats a standard Investigation ID as exact", async () => {
+test("stage --scope index treats a standard Investigation ID as exact", async () => {
   await withTempRoot("stage-exact-selector", async (root) => {
     await writeCollection(root, [{ id: "260828-stage-name" }]);
     initializeGit(root);
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["260829-stage-not-present"],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "error");
@@ -75,15 +63,16 @@ test("stage-index treats a standard Investigation ID as exact", async () => {
   });
 });
 
-test("stage-index rejects an ambiguous Investigation name", async () => {
+test("stage --scope index rejects an ambiguous Investigation name", async () => {
   await withTempRoot("stage-ambiguous-name", async (root) => {
     await writeCollection(root, [
       { id: "260828-stage-name" },
       { id: "260829-stage-name", formedAt: "2026-08-29T12:00:00+00:00" }
     ]);
     initializeGit(root);
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["stage-name"],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "error");
@@ -96,7 +85,7 @@ test("stage-index rejects an ambiguous Investigation name", async () => {
   });
 });
 
-test("stage-index resolves a baseline-only Investigation name as a deletion", async () => {
+test("stage --scope index resolves a baseline-only Investigation name as a deletion", async () => {
   await withTempRoot("stage-baseline-name", async (root) => {
     const deletedId = "260828-baseline-only";
     const retainedId = "260828-retained";
@@ -104,8 +93,9 @@ test("stage-index resolves a baseline-only Investigation name as a deletion", as
     initializeGit(root);
     await fs.rm(path.join(investigationRoot(root), `${deletedId}.md`));
     await writeCollection(root, [{ id: retainedId }]);
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["baseline-only"],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "ok");
@@ -119,7 +109,7 @@ test("stage-index resolves a baseline-only Investigation name as a deletion", as
   });
 });
 
-test("stage-index resolves a workspace-only Investigation name as an addition", async () => {
+test("stage --scope index resolves a workspace-only Investigation name as an addition", async () => {
   await withTempRoot("stage-workspace-name", async (root) => {
     const baselineId = "260828-baseline";
     const addedId = "260829-workspace-only";
@@ -129,8 +119,9 @@ test("stage-index resolves a workspace-only Investigation name as an addition", 
       { id: baselineId },
       { id: addedId, formedAt: "2026-08-29T12:00:00+00:00" }
     ]);
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["workspace-only"],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "ok");
@@ -141,10 +132,10 @@ test("stage-index resolves a workspace-only Investigation name as an addition", 
   });
 });
 
-test("stage-index rejects invalid or duplicate Investigation IDs", async () => {
+test("stage --scope index rejects invalid or duplicate Investigation IDs", async () => {
   await withTempRoot("stage-invalid", async (root) => {
     await writeCollection(root, [{ id: "stage-report" }]);
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: [
         "stage-report",
         "stage-report",
@@ -152,6 +143,7 @@ test("stage-index rejects invalid or duplicate Investigation IDs", async () => {
         "./stage-report.md",
         " stage-report.md "
       ],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "error");
@@ -177,10 +169,10 @@ test("stage-index rejects invalid or duplicate Investigation IDs", async () => {
   });
 });
 
-test("stage-index validates canonical Investigation IDs before repository access", async () => {
+test("stage --scope index validates canonical Investigation IDs before repository access", async () => {
   await withTempRoot("stage-before-repository", async (root) => {
     const missingRoot = path.join(root, "missing-workspace");
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["bad/path.md"],
       workspaceRoot: missingRoot
     });
@@ -195,7 +187,7 @@ test("stage-index validates canonical Investigation IDs before repository access
   });
 });
 
-test("stage-index reports unavailable version control without working-tree writes", async () => {
+test("stage --scope index reports unavailable version control without working-tree writes", async () => {
   await withTempRoot("stage-no-git", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
     const reportPath = path.join(investigationRoot(root), "report.md");
@@ -208,8 +200,9 @@ test("stage-index reports unavailable version control without working-tree write
         async (file) => await fs.readFile(file, "utf8")
       )
     );
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["report"],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "error");
@@ -224,18 +217,19 @@ test("stage-index reports unavailable version control without working-tree write
   });
 });
 
-test("stage-index rejects IDs missing from the current collection", async () => {
+test("stage --scope index rejects IDs missing from the current collection", async () => {
   await withTempRoot("stage-missing", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["missing"],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "error");
   });
 });
 
-test("stage-index keeps report Markdown outside selected index staging", async () => {
+test("stage --scope index keeps report Markdown outside selected index staging", async () => {
   await withTempRoot("stage-isolation", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
     initializeGit(root);
@@ -244,8 +238,9 @@ test("stage-index keeps report Markdown outside selected index staging", async (
       `${investigationRoot(root)}/investigation-index.json`,
       "utf8"
     );
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["report"],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "ok");
@@ -266,7 +261,7 @@ test("stage-index keeps report Markdown outside selected index staging", async (
   });
 });
 
-test("stage-index accepts selected report additions in a current index", async () => {
+test("stage --scope index accepts selected report additions in a current index", async () => {
   await withTempRoot("stage-add", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
     initializeGit(root);
@@ -282,8 +277,9 @@ test("stage-index accepts selected report additions in a current index", async (
       `${investigationRoot(root)}/added.md`,
       "utf8"
     );
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["added"],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "ok");
@@ -311,7 +307,7 @@ test("stage-index accepts selected report additions in a current index", async (
   });
 });
 
-test("stage-index treats resource byte changes as outside report selection", async () => {
+test("stage --scope index treats resource byte changes as outside report selection", async () => {
   await withTempRoot("stage-resource-byte", async (root) => {
     const resourcePath = `${investigationRoot(root)}/_resources/report/evidence.txt`;
     await fs.mkdir(`${investigationRoot(root)}/_resources/report`, {
@@ -328,8 +324,9 @@ test("stage-index treats resource byte changes as outside report selection", asy
       "utf8"
     );
     await fs.writeFile(resourcePath, "after", "utf8");
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["report"],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "ok");
@@ -357,7 +354,7 @@ test("stage-index treats resource byte changes as outside report selection", asy
   });
 });
 
-test("stage-index treats unrelated report resources as outside selected report entries", async () => {
+test("stage --scope index treats unrelated report resources as outside selected report entries", async () => {
   await withTempRoot("stage-unrelated", async (root) => {
     const resourcePath = `${investigationRoot(root)}/_resources/second/evidence.txt`;
     await fs.mkdir(`${investigationRoot(root)}/_resources/second`, {
@@ -385,8 +382,9 @@ test("stage-index treats unrelated report resources as outside selected report e
     );
     const baseEntries = jsonObjectMember(baseIndex, "entries");
     await fs.writeFile(resourcePath, "after", "utf8");
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["first"],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "ok");
@@ -425,7 +423,7 @@ test("stage-index treats unrelated report resources as outside selected report e
   });
 });
 
-test("stage-index preserves strict current index definition requirements", async () => {
+test("stage --scope index preserves strict current index definition requirements", async () => {
   await withTempRoot("stage-definition", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
     initializeGit(root);
@@ -436,8 +434,9 @@ test("stage-index preserves strict current index definition requirements", async
     invalidIndex["definitionVersion"] = 5;
     const invalidText = `${JSON.stringify(invalidIndex, null, 2)}\n`;
     await fs.writeFile(indexPath, invalidText, "utf8");
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["report"],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "error");
@@ -453,11 +452,12 @@ test("stage-index preserves strict current index definition requirements", async
   });
 });
 
-test("stage-index reports selection diagnostics deterministically", async () => {
+test("stage --scope index reports selection diagnostics deterministically", async () => {
   await withTempRoot("stage-diagnostics", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: [],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "error");
@@ -465,11 +465,12 @@ test("stage-index reports selection diagnostics deterministically", async () => 
   });
 });
 
-test("stage-index does not accept legacy topic path identifiers", async () => {
+test("stage --scope index does not accept legacy topic path identifiers", async () => {
   await withTempRoot("stage-legacy-path", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
-    const result = await stageInvestigationIndex({
+    const result = await stageInvestigationReports({
       reportIds: ["category/report.md"],
+      scope: "index",
       workspaceRoot: root
     });
     assert.equal(result.status, "error");

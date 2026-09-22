@@ -105,6 +105,7 @@
       "260922-unify-cli-workspace-location-and-help": "sha256:08dd6f20381c1e4e613b59fa1d1f131a62af7e32c11941285d5a96351b345f83",
       "260922-unify-formal-relation-maintenance-actions": "sha256:a7d223db5f2b5f0eb78e4680e51a45f5d32e34743ec37ffe1c7684d608a47042",
       "260922-unify-record-candidate-lifecycle-actions": "sha256:bcfd3285dd6857c9a853a71a20dd2e290ca747b8dbb1dcff2bfa2a5029221585",
+      "260922-unify-record-pending-snapshot-scopes": "sha256:607c4281bc07db72e2b1ab3eaa5c857d94f5a2c4657298f4cc6e79b7d5a4e41d",
       "activate-release-gate-checks-by-tag": "sha256:02819304803eade140cd3adb2472a368c290f639acc7998f0d54bc20cecd228e",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -277,7 +278,7 @@
       "separate-design-discovery-from-lifecycle-maintenance": "sha256:e991f2a8acd19170c018152d186ee26ea525019579872a3974f4629f061105ee",
       "separate-distributable-tool-source-from-repository-automation": "sha256:39072f3236b4c4586cea69f51d0157b96f3476bb15988ace03537cdc4c90c299",
       "separate-domain-ids-from-storage-details": "sha256:a5acc37a700fe17946bc446b13757664393b1274509f6e86dbcaeeab9c1cf735",
-      "separate-investigation-authoring-candidates-from-established-reports": "sha256:f14309fc9aabe522c0cdf69aeebf51f68bd08e04827b03548047051c43642553",
+      "separate-investigation-authoring-candidates-from-established-reports": "sha256:747038d798024807ab25dc9d7df580300df3cf8e20a7fa098c1ebc233620b682",
       "separate-maintenance-diagnostics-from-mutation-outcomes": "sha256:c6a1ae031c8af1b542a53c8f0504b23d39cba810661c5af27ea2ad5b27a64d3b",
       "separate-package-byte-identity-from-version-carrying-changes": "sha256:be8a74e552e7696351b4a7c553dd76820fb2a12f491ef5b0d1826c951211239e",
       "separate-raw-results-from-output-functions": "sha256:a23263e7fa5fc63b30d3e6c1caa860c8d8abba09c56f4518666393da2980db93",
@@ -289,7 +290,7 @@
       "simplify-change-lifecycle-to-draft-plan-and-archive": "sha256:dcd82659fd01ca7fef3dbd2a3fc17c72f5aaeab8ff3fd6a02a73330c71fcf5f4",
       "split-commits-by-semantic-unit": "sha256:c0a945c7836efa7840f3c1969fef984dabf47df488cbaadeca6595f575c175ed",
       "stage-investigation-index-entries-across-resource-changes": "sha256:cfbb01ce5a37f7e8f47d877d71196b702d70513fb5f8c584e400beb6da554484",
-      "stage-investigation-index-entries-by-report-id": "sha256:c424a7f5a51ee7c706d477effd74cc98d146bfd0a3fc32a3523b8ae4e0fa23be",
+      "stage-investigation-index-entries-by-report-id": "sha256:c00317d1e79a1558b623c508b6a8f351000bd096cd5740ec67990b5f6919bb13",
       "stage-selected-decisions": "sha256:b3a8a30a7c1546879db9e016cf8df13d4303a8a00aed97b1813ef4b82c33c1db",
       "stage-selected-decisions-by-stable-id": "sha256:28d4c15d637987e6d6c62da5e30cd8f5a7200182c8ee59e11ba75571ff1f0e6d",
       "stage-selected-index-entries": "sha256:c41e376f2a04ab6ca9e9f63683f1b19f4435ff0cffbf01b29cf949c852dd0795",
@@ -2251,6 +2252,29 @@
         "project-tooling"
       ],
       "relations": []
+    },
+    "260922-unify-record-pending-snapshot-scopes": {
+      "name": "unify-record-pending-snapshot-scopes",
+      "sourcePath": "unify-record-pending-snapshot-scopes.md",
+      "title": "为记录领域统一待提交快照范围",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-22T16:58:11Z",
+      "purpose": "让两个记录领域用同一 stage 命令和显式 scope 构造可预测的选择性 Git pending 快照。",
+      "background": "Decision 已有完整快照 stage，Investigation 只有索引条目 stage-index；同名交付动作覆盖的领域文件不同，删除、重命名和 owner 资源也缺乏统一边界。",
+      "decision": "两域 CLI 共用 stage selector 与 all、index、domain scope；selector 在当前集合与 HEAD 基线并集中解析，结果返回实际写入路径与保留范围。",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "version-control"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "stage-investigation-index-entries-by-report-id",
+          "summary": "保留按 ID 选择索引条目，把报告与资源暂存收口为显式 scope"
+        }
+      ]
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",
@@ -5790,9 +5814,9 @@
     },
     "stage-investigation-index-entries-by-report-id": {
       "name": "stage-investigation-index-entries-by-report-id",
-      "sourcePath": "stage-investigation-index-entries-by-report-id.md",
+      "sourcePath": "archive/stage-investigation-index-entries-by-report-id.md",
       "title": "按报告 ID 独立暂存调查索引条目",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-28T10:12:56Z",
       "purpose": "让按 Investigation ID 选择的派生索引条目可以独立进入 pending，不因资源文件变化或其他报告阻塞。",

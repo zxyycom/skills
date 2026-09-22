@@ -1,4 +1,3 @@
-import path from "node:path";
 import { err, errAsync, ok, ResultAsync } from "neverthrow";
 import {
   createStateIndexRuntime,
@@ -13,40 +12,38 @@ import {
 import { investigationIndexStale } from "./index-staleness.ts";
 import {
   investigationStageDiagnosticCodes,
-  prepareInvestigationIndexStage,
-  type InvestigationIndexStageFailure
+  prepareInvestigationStage,
+  type InvestigationStageFailure
 } from "./staging-options.ts";
 import { resolveInvestigationStageSelectors } from "./staging-selectors.ts";
+import { stageInvestigationDomain } from "./staging-domain.ts";
 import { canonicalizeInvestigationsDirectory } from "./report-path.ts";
 import type {
-  InvestigationIndexStageOptions,
-  InvestigationIndexStageResult
+  InvestigationStageOptions,
+  InvestigationStageResult,
+  InvestigationStageScope,
+  InvestigationStageSuccess
 } from "./types.ts";
 
-export type { InvestigationIndexStageFailure } from "./staging-options.ts";
+export type { InvestigationStageFailure } from "./staging-options.ts";
 
-type InvestigationIndexStageSuccess = Extract<
-  InvestigationIndexStageResult,
-  { status: "ok" }
->;
-
-export async function stageInvestigationIndex(
-  options: InvestigationIndexStageOptions
-): Promise<InvestigationIndexStageResult> {
-  const executed = await executeInvestigationIndexStage(options);
+export async function stageInvestigationReports(
+  options: InvestigationStageOptions
+): Promise<InvestigationStageResult> {
+  const executed = await executeInvestigationStage(options);
   return executed.match(
     (result) => result,
     (failure) => failure.result
   );
 }
 
-export function executeInvestigationIndexStage(
+export function executeInvestigationStage(
   input: unknown
-): ResultAsync<InvestigationIndexStageSuccess, InvestigationIndexStageFailure> {
-  const prepared = prepareInvestigationIndexStage(input);
+): ResultAsync<InvestigationStageSuccess, InvestigationStageFailure> {
+  const prepared = prepareInvestigationStage(input);
   if (prepared.isErr()) return errAsync(prepared.error);
   return canonicalizeInvestigationsDirectory(prepared.value.resolved)
-    .mapErr((errors) => stageLocationFailure(prepared.value.indexPath, errors))
+    .mapErr((errors) => stageLocationFailure(prepared.value, errors))
     .andThen((canonical) =>
       ResultAsync.fromSafePromise(
         stageFreshnessFailure(
@@ -56,10 +53,10 @@ export function executeInvestigationIndexStage(
       ).andThen((gate) =>
         gate !== null
           ? errAsync(gate)
-          : stageValidatedInvestigationIndex(
-              canonical.investigationsDirectory,
-              prepared.value.reportIds
-            )
+          : stageValidatedInvestigationSelection({
+              ...prepared.value,
+              investigationsDirectory: canonical.investigationsDirectory
+            })
       )
     );
 }
@@ -74,7 +71,7 @@ export function executeInvestigationIndexStage(
 async function stageFreshnessFailure(
   investigationsDirectory: string,
   indexPath: string
-): Promise<InvestigationIndexStageFailure | null> {
+): Promise<InvestigationStageFailure | null> {
   const persisted = await loadInvestigationIndex({ investigationsDirectory });
   if (persisted.status === "error") {
     if (
@@ -95,7 +92,7 @@ async function stageFreshnessFailure(
 function invalidIndexStageFailure(
   indexPath: string,
   diagnostics: readonly StateIndexDiagnostic[]
-): InvestigationIndexStageFailure {
+): InvestigationStageFailure {
   return {
     kind: "operation",
     result: {
@@ -103,6 +100,7 @@ function invalidIndexStageFailure(
       diagnostics: [...diagnostics],
       indexPath,
       namespace: "investigation-report",
+      scope: "all",
       selectedIds: [],
       state: "workspace-index-invalid",
       status: "error"
@@ -110,7 +108,7 @@ function invalidIndexStageFailure(
   };
 }
 
-function staleStageFailure(indexPath: string): InvestigationIndexStageFailure {
+function staleStageFailure(indexPath: string): InvestigationStageFailure {
   return {
     kind: "operation",
     result: {
@@ -118,6 +116,7 @@ function staleStageFailure(indexPath: string): InvestigationIndexStageFailure {
       diagnostics: [staleStageDiagnostic(indexPath)],
       indexPath,
       namespace: "investigation-report",
+      scope: "all",
       selectedIds: [],
       state: "index-stale",
       status: "error"
@@ -131,20 +130,20 @@ function staleStageDiagnostic(indexPath: string): StateIndexDiagnostic {
     message:
       "the workspace derived index is stale relative to the current formal report sources; " +
       "run check to diagnose the collection, run sync-index to publish the current index, " +
-      "then retry stage-index",
+      "then retry stage",
     path: indexPath,
     stateId: null
   };
 }
 
 function stageLocationFailure(
-  indexPath: string,
+  prepared: { indexPath: string; scope: InvestigationStageScope },
   errors: readonly string[]
-): InvestigationIndexStageFailure {
+): InvestigationStageFailure {
   const diagnostics = errors.map((message) => ({
     code: investigationStageDiagnosticCodes.locationInvalid,
     message,
-    path: indexPath,
+    path: prepared.indexPath,
     stateId: null
   }));
   return {
@@ -152,8 +151,9 @@ function stageLocationFailure(
     result: {
       changed: false,
       diagnostics,
-      indexPath,
+      indexPath: prepared.indexPath,
       namespace: "investigation-report",
+      scope: prepared.scope,
       selectedIds: [],
       state: "index-path-invalid",
       status: "error"
@@ -161,24 +161,35 @@ function stageLocationFailure(
   };
 }
 
-function stageValidatedInvestigationIndex(
-  investigationsDirectory: string,
-  reportIds: readonly string[]
-): ResultAsync<InvestigationIndexStageSuccess, InvestigationIndexStageFailure> {
-  const indexPath = path.join(
-    investigationsDirectory,
-    investigationIndexFileName
-  );
+function stageValidatedInvestigationSelection(prepared: {
+  indexPath: string;
+  investigationsDirectory: string;
+  reportIds: readonly string[];
+  scope: InvestigationStageScope;
+}): ResultAsync<InvestigationStageSuccess, InvestigationStageFailure> {
+  if (prepared.scope !== "index") {
+    return ResultAsync.fromSafePromise(
+      stageInvestigationDomain({
+        investigationsDirectory: prepared.investigationsDirectory,
+        reportIds: prepared.reportIds,
+        scope: prepared.scope
+      })
+    ).andThen((result) =>
+      result.status === "ok"
+        ? ok(result)
+        : errAsync({ kind: "operation" as const, result })
+    );
+  }
   const runtime = createStateIndexRuntime({
     definition: createInvestigationStateIndexDefinition(),
     indexPath: investigationIndexFileName,
     resolveSelectedIds: resolveInvestigationStageSelectors,
-    root: investigationsDirectory
+    root: prepared.investigationsDirectory
   });
   return ResultAsync.fromSafePromise(
-    runtime.stageSelectedEntries(reportIds)
+    runtime.stageSelectedEntries(prepared.reportIds)
   ).andThen((result) => {
-    const mapped = withDisplayIndexPath(result, indexPath);
+    const mapped = withDisplayIndexPath(result, prepared.indexPath);
     return mapped.status === "error"
       ? err({ kind: "operation" as const, result: mapped })
       : ok(mapped);
@@ -188,9 +199,25 @@ function stageValidatedInvestigationIndex(
 function withDisplayIndexPath(
   result: StateIndexEntryStageResult,
   indexPath: string
-): InvestigationIndexStageResult {
+): InvestigationStageResult {
+  const scope = "index" as const;
+  if (result.status === "error") {
+    return {
+      ...result,
+      diagnostics: result.diagnostics.map((diagnostic) => ({
+        ...diagnostic,
+        path:
+          diagnostic.path === investigationIndexFileName
+            ? indexPath
+            : diagnostic.path
+      })),
+      indexPath,
+      scope
+    };
+  }
   return {
-    ...result,
+    callerOwnedPaths: [],
+    changed: result.changed,
     diagnostics: result.diagnostics.map((diagnostic) => ({
       ...diagnostic,
       path:
@@ -198,6 +225,13 @@ function withDisplayIndexPath(
           ? indexPath
           : diagnostic.path
     })),
-    indexPath
+    indexPath,
+    namespace: result.namespace,
+    preservedPendingPaths: [],
+    scope,
+    selectedIds: result.selectedIds,
+    state: result.state,
+    status: "ok",
+    writtenPaths: result.changed ? [indexPath] : []
   };
 }

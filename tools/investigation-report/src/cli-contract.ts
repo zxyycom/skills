@@ -21,7 +21,7 @@ export type InvestigationCommand =
   | "show-candidate"
   | "publish"
   | "rename"
-  | "stage-index"
+  | "stage"
   | "sync-index"
   | "trace"
   | "set-relations";

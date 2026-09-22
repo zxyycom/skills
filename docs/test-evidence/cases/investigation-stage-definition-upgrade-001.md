@@ -1,7 +1,7 @@
-### Case INVESTIGATION-STAGE-DEFINITION-UPGRADE-001: stage-index validates canonical Investigation IDs before repository access
+### Case INVESTIGATION-STAGE-DEFINITION-UPGRADE-001: stage --scope index validates canonical Investigation IDs before repository access
 
 Tests:
-- `test:c21c3f2227725925901fd4834bb6f6ccced2aae4781a4b4d872059c90c03411f`
+- `test:da4f23f03779fccdc60f651efc98060db9eec5b490f23a8ada890136a3873aaa`
 
 Tags:
 - `investigation-report`

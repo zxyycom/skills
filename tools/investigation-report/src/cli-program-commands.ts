@@ -254,8 +254,15 @@ const commandSpecs: readonly CommandSpec[] = [
   },
   {
     description:
-      "Write only selected report entries to the pending index; report Markdown and resources remain outside this operation.",
-    name: "stage-index",
+      "Build a Git pending Investigation snapshot for explicitly selected formal reports: the derived index projection together with report Markdown and the complete owner resource tree (all), only the index projection (index), or only report Markdown and owner resources while the pending index stays unchanged (domain).",
+    name: "stage",
+    options: [
+      {
+        description:
+          "all, index, or domain pending snapshot scope (default: all)",
+        flags: "--scope <scope>"
+      }
+    ],
     positionals: ["[investigation-id...]"]
   },
   {

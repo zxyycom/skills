@@ -1,7 +1,7 @@
 ---
 title: 按报告 ID 独立暂存调查索引条目
 id: stage-investigation-index-entries-by-report-id
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-28T10:12:56Z
 purpose: 让按 Investigation ID 选择的派生索引条目可以独立进入 pending，不因资源文件变化或其他报告阻塞。

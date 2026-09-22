@@ -1,7 +1,7 @@
 import path from "node:path";
 import { err, ok, type Result } from "neverthrow";
 import type { StateIndexDiagnostic } from "../../index-runtime/src/index.ts";
-import { parseInvestigationIndexStageOptions } from "./options.ts";
+import { parseInvestigationStageOptions } from "./options.ts";
 import {
   defaultInvestigationsDirectory,
   isInvestigationId,
@@ -12,16 +12,20 @@ import {
   investigationIndexFileName,
   investigationIndexNamespace
 } from "./investigation-state-index.ts";
-import type { InvestigationIndexStageResult } from "./types.ts";
+import type {
+  InvestigationStageResult,
+  InvestigationStageScope
+} from "./types.ts";
 
-export type InvestigationIndexStageFailure = Readonly<{
+export type InvestigationStageFailure = Readonly<{
   kind: "invalid-options" | "operation";
-  result: Extract<InvestigationIndexStageResult, { status: "error" }>;
+  result: Extract<InvestigationStageResult, { status: "error" }>;
 }>;
-export type PreparedInvestigationIndexStage = Readonly<{
+export type PreparedInvestigationStage = Readonly<{
   indexPath: string;
   reportIds: string[];
   resolved: ResolvedInvestigationsDirectory;
+  scope: InvestigationStageScope;
 }>;
 
 export const investigationStageDiagnosticCodes = {
@@ -34,12 +38,17 @@ export const investigationStageDiagnosticCodes = {
 type InvestigationStageDiagnosticCode =
   (typeof investigationStageDiagnosticCodes)[keyof typeof investigationStageDiagnosticCodes];
 
-export function prepareInvestigationIndexStage(
+export function prepareInvestigationStage(
   input: unknown
-): Result<PreparedInvestigationIndexStage, InvestigationIndexStageFailure> {
-  const parsed = parseInvestigationIndexStageOptions(input);
+): Result<PreparedInvestigationStage, InvestigationStageFailure> {
+  const parsed = parseInvestigationStageOptions(input);
   if (parsed.isErr())
-    return invalidOptionsFailure(defaultInvestigationIndexPath(), parsed.error);
+    return invalidOptionsFailure(
+      defaultInvestigationIndexPath(),
+      parsed.error,
+      requestedStageScope(input)
+    );
+  const scope = parsed.value.scope ?? "all";
   const indexPath = investigationIndexPathForOptions(parsed.value);
   const resolved = resolveInvestigationsDirectory(
     parsed.value.workspaceRoot,
@@ -47,18 +56,34 @@ export function prepareInvestigationIndexStage(
   );
   const reportIds = validateStageReportIds(parsed.value.reportIds);
   if (resolved.isErr() || reportIds.isErr())
-    return invalidLocationOrSelection(indexPath, resolved, reportIds);
+    return invalidLocationOrSelection(indexPath, scope, resolved, reportIds);
   return ok({
     indexPath,
     reportIds: reportIds.value,
-    resolved: resolved.value
+    resolved: resolved.value,
+    scope
   });
+}
+
+function requestedStageScope(input: unknown): InvestigationStageScope {
+  if (
+    typeof input === "object" &&
+    input !== null &&
+    "scope" in input &&
+    (input.scope === "all" ||
+      input.scope === "index" ||
+      input.scope === "domain")
+  ) {
+    return input.scope;
+  }
+  return "all";
 }
 
 function invalidOptionsFailure(
   indexPath: string,
-  messages: readonly string[]
-): Result<never, InvestigationIndexStageFailure> {
+  messages: readonly string[],
+  scope: InvestigationStageScope = "all"
+): Result<never, InvestigationStageFailure> {
   return err(
     stageFailure(
       "invalid-options",
@@ -68,7 +93,8 @@ function invalidOptionsFailure(
           investigationStageDiagnosticCodes.optionsInvalid,
           messages,
           indexPath
-        )
+        ),
+        scope
       )
     )
   );
@@ -76,9 +102,10 @@ function invalidOptionsFailure(
 
 function invalidLocationOrSelection(
   indexPath: string,
+  scope: InvestigationStageScope,
   resolved: ReturnType<typeof resolveInvestigationsDirectory>,
   reportIds: ReturnType<typeof validateStageReportIds>
-): Result<never, InvestigationIndexStageFailure> {
+): Result<never, InvestigationStageFailure> {
   const diagnostics = [
     ...(resolved.isErr()
       ? diagnosticsFromMessages(
@@ -95,6 +122,7 @@ function invalidLocationOrSelection(
       failedStage(
         indexPath,
         diagnostics,
+        scope,
         resolved.isErr() ? "index-path-invalid" : "selection-invalid"
       )
     )
@@ -108,7 +136,7 @@ function validateStageReportIds(
     return err([
       stageDiagnostic(
         investigationStageDiagnosticCodes.reportIdsEmpty,
-        "stage-index requires at least one Investigation ID"
+        "stage requires at least one Investigation ID"
       )
     ]);
   const diagnostics: StateIndexDiagnostic[] = [];
@@ -146,13 +174,15 @@ function validateOneStageReportId(
 function failedStage(
   indexPath: string,
   diagnostics: StateIndexDiagnostic[],
+  scope: InvestigationStageScope,
   state: "index-path-invalid" | "selection-invalid" = "selection-invalid"
-): Extract<InvestigationIndexStageResult, { changed: false; status: "error" }> {
+): Extract<InvestigationStageResult, { changed: false; status: "error" }> {
   return {
     changed: false,
     diagnostics,
     indexPath,
     namespace: investigationIndexNamespace,
+    scope,
     selectedIds: [],
     state,
     status: "error"
@@ -160,9 +190,9 @@ function failedStage(
 }
 
 function stageFailure(
-  kind: InvestigationIndexStageFailure["kind"],
-  result: Extract<InvestigationIndexStageResult, { status: "error" }>
-): InvestigationIndexStageFailure {
+  kind: InvestigationStageFailure["kind"],
+  result: Extract<InvestigationStageResult, { status: "error" }>
+): InvestigationStageFailure {
   return { kind, result };
 }
 

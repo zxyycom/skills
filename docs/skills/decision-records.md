@@ -34,6 +34,8 @@ CLI readiness 只说明结构与正文准备情况。一般语义审查、记录
 
 生命周期、关系和身份维护通过领域 CLI 完成。归档保留历史；明确剔除记录时使用独立删除动作。工具需要额外确认或无法完整恢复时，应停在其报告的边界，按维护规则继续。
 
+需要 Git 待提交快照时，同步并全量检查后用 `stage <selector...> [--scope all|index|domain]` 选择记录：默认原子写入索引投影与正式 Markdown，`index` 或 `domain` 只写其中一侧并保护其余 pending 字节。删除选旧 ID，重命名显式同选新旧 ID；pending、commit 与 push 仍由调用方按授权显式完成。
+
 ## 维护已建立集合
 
 常规路径是先运行严格 `check`，再按诊断处理，最后重新运行 `check` 验证完整集合。来源合法而索引缺失、损坏或陈旧时，按[索引恢复](../../skills/decision-records/references/maintenance-recovery.md#索引恢复)全量重建并复验。已建立来源的 alignment 缺失或非法时，停止集合维护，按[原位字段恢复](../../skills/decision-records/references/maintenance-recovery.md#已建立-alignment-无效)以历史证据和针对性授权修复，不用生命周期操作、旧索引或默认值补造状态。写入中断、工具不可用或恢复结果不完整时，按[状态与维护恢复](../../skills/decision-records/references/maintenance-recovery.md)先对账并保留其声明的边界，再决定是否重试。

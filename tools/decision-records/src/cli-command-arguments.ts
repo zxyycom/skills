@@ -2,6 +2,7 @@ import { Command as CommanderCommand, InvalidArgumentError } from "commander";
 import type { CliArgs, CliArgsFor, Command } from "./cli-args.ts";
 import type { DecisionRecordsCliIo } from "./cli-io.ts";
 import type { ParsedOptions } from "./cli-command-options.ts";
+import type { DecisionStageScope } from "./decision-stage-contracts.ts";
 import type { DecisionId } from "./types.ts";
 import {
   defaultOption,
@@ -90,10 +91,11 @@ const commandArgumentFactories: Readonly<
   "set-relations": setRelationsArguments,
   show: singleDecisionArguments,
   "show-candidate": singleDecisionArguments,
-  stage: ({ decisionIds, location }) => ({
+  stage: ({ decisionIds, location, options }) => ({
     ...location,
     command: "stage",
-    decisionIds
+    decisionIds,
+    scope: stageScopeOption(options)
   }),
   "sync-index": syncIndexArguments,
   trace: ({ decisionIds, location, options }) =>
@@ -134,6 +136,12 @@ function renameArguments(input: CommandArgumentInput): CliArgsFor<"rename"> {
     source: requiredDecisionId(input.decisionIds) as string,
     target: secondDecisionSelector(input.decisionIds)
   };
+}
+
+function stageScopeOption(options: ParsedOptions): DecisionStageScope {
+  return options.scope === "index" || options.scope === "domain"
+    ? options.scope
+    : "all";
 }
 
 function syncIndexArguments(

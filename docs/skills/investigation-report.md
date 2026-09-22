@@ -35,6 +35,8 @@
 
 资源的保留范围、形式和维护边界见 [资源选择](../../skills/investigation-report/SKILL.md#3-选择随附资源)。
 
+需要 Git 待提交快照时，同步并全量检查后用 `stage <investigation-id...> [--scope all|index|domain]` 选择正式报告：默认原子写入索引投影、报告 Markdown 及其完整 owner 资源树，`index` 或 `domain` 只写其中一侧并保护其余 pending 字节。删除选旧 ID，重命名显式同选新旧 ID；pending、commit 与 push 仍由调用方按授权显式完成。
+
 ## 从哪里开始
 
 需要新建时：起草 candidate → 完成正文与资源 → 审查和预检 → 授权范围内 publish → 全量检查与交付。为当前发生的调查新建 candidate 时，向 `new` 传入不含日期前缀的 name 而非完整 ID，并省略 `--formed-at`，由工具生成当前 UTC 时间和完整 ID；只有已知形成时间或补录历史调查时才显式覆盖。一般内容与发布条件由 agent 自行判断，关键事实缺失、超出范围或明确要求人工决定时再询问。

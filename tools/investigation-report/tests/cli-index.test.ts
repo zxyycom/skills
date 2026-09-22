@@ -224,7 +224,7 @@ test("CLI queries serve persisted snapshots with staleness warnings", async () =
   });
 });
 
-test("CLI strict check and stage-index stop on a stale derived index", async () => {
+test("CLI strict check and stage stop on a stale derived index", async () => {
   await withTempRoot("cli-stale-gates", async (root) => {
     await writeCollection(root, [{ id: "260828-alpha" }]);
     initializeGit(root);
@@ -246,14 +246,16 @@ test("CLI strict check and stage-index stop on a stale derived index", async () 
     assert.equal(checked.stdout, "");
 
     const staged = await runInvestigationCli(root, [
-      "stage-index",
+      "stage",
+      "--scope",
+      "index",
       "260828-alpha"
     ]);
     assert.equal(staged.status, 1);
     assert.match(staged.stderr, /state: index-stale/u);
     assert.match(
       staged.stderr,
-      /run check to diagnose the collection, run sync-index to publish the current index, then retry stage-index/u
+      /run check to diagnose the collection, run sync-index to publish the current index, then retry stage/u
     );
     assert.equal(git(root, ["diff", "--cached", "--name-only"]).trim(), "");
     assert.equal(
@@ -269,11 +271,16 @@ test("CLI strict check and stage-index stop on a stale derived index", async () 
     const synchronized = await runInvestigationCli(root, ["sync-index"]);
     assert.equal(synchronized.status, 0, synchronized.stderr);
     const restaged = await runInvestigationCli(root, [
-      "stage-index",
+      "stage",
+      "--scope",
+      "index",
       "260828-alpha"
     ]);
     assert.equal(restaged.status, 0, restaged.stderr);
-    assert.match(restaged.stdout, /staged for 1 selected report/u);
+    assert.match(
+      restaged.stdout,
+      /staged \(scope: index\) for 1 selected report/u
+    );
     await fs.rm(indexPath);
   });
 });

@@ -10,6 +10,7 @@ export {
   type VersionControlErrorDetails
 } from "./errors.ts";
 export { repositoryRelativePathFromFileSystemPath } from "./repository-relative-path.ts";
+export { changedPendingPaths } from "./pending-changed-paths.ts";
 export type {
   ListChangedPathsOptions,
   ListPendingChangedPathsOptions,

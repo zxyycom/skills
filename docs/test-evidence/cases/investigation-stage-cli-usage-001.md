@@ -1,13 +1,13 @@
-### Case INVESTIGATION-STAGE-CLI-USAGE-001: CLI stage-index uses invalid-option exit status without report IDs
+### Case INVESTIGATION-STAGE-CLI-USAGE-001: CLI stage uses invalid-option exit status without report IDs
 
 Tests:
-- `test:ed032173c89a02a9bf8abe3d9a07c902e852252aff81a0fc79f22f855da23748`
+- `test:6b173b35b79ccc6a1af2ac5f838ad6ba5f81c0b6dbf340ec26694033a2d288b9`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 直接调用的源码 CLI 入口 `stage-index` 必须要求至少一个 Investigation ID。
+- 直接调用的源码 CLI 入口 `stage` 必须要求至少一个 Investigation ID。
 
 Proves:
 - 省略报告 ID 返回退出码 2、stdout 为空、stderr 给出用法诊断且派生 index 字节不变。

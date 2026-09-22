@@ -152,20 +152,33 @@ export async function runStage(
 ): Promise<number> {
   const result = await stageDecisionRecords({
     location: decisionLocation(args),
-    decisionIds: args.decisionIds
+    decisionIds: args.decisionIds,
+    scope: args.scope
   });
   if (result.status === "error") {
     printDecisionFailure(withStageNoChange(result), io);
     return result.exitCode;
   }
   io.stdout(
-    "Staged a complete pending decision snapshot for " +
+    "Staged a pending decision snapshot (scope: " +
+      result.scope +
+      ") for " +
       result.selectedIds.length +
-      " selected Decision ID(s), including " +
-      result.indexRelativePath +
-      " (" +
+      " selected Decision ID(s): " +
       result.pendingFileCount +
-      " files in the pending decision scope).\n"
+      " files in the pending decision scope, including " +
+      result.indexRelativePath +
+      ".\n"
+  );
+  io.stdout(
+    "Written paths: " + (result.writtenPaths.join(", ") || "none") + ".\n"
+  );
+  io.stdout(
+    "Preserved unrelated pending paths: " +
+      (result.preservedPendingPaths.join(", ") || "none") +
+      "; caller-owned paths: " +
+      (result.callerOwnedPaths.join(", ") || "none") +
+      ".\n"
   );
   return 0;
 }

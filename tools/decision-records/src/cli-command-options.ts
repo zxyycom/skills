@@ -1,3 +1,4 @@
+import type { DecisionStageScope } from "./decision-stage-contracts.ts";
 import type {
   DecisionAlignment,
   DecisionId,
@@ -42,6 +43,7 @@ export type ParsedOptions = {
   relationSummary?: DecisionRelationSummary[];
   root?: string;
   status?: DecisionListStatus;
+  scope?: DecisionStageScope;
   successor?: DecisionSuccessor[];
   select?: string[];
   tag?: DecisionTag[];

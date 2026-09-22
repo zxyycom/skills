@@ -1,7 +1,7 @@
-### Case INVESTIGATION-STAGE-RESOURCE-ADD-001: stage-index treats unrelated report resources as outside selected report entries
+### Case INVESTIGATION-STAGE-RESOURCE-ADD-001: stage --scope index treats unrelated report resources as outside selected report entries
 
 Tests:
-- `test:5263f289ea121f94c62969ffea8db5214c1c9686b36ec2c54209b49db095764a`
+- `test:ec4a918d59b60af7cb3faaa9e42c1b83cf292a849f7d0fb435d81992a6c9d295`
 
 Tags:
 - `investigation-report`

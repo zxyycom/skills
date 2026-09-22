@@ -41,7 +41,7 @@ test("help exposes stage independently without adding lifecycle stage options", 
     async () => 0,
     () => undefined
   );
-  assert.match(program.helpInformation(), /stage <selector\.\.\.>/);
+  assert.match(program.helpInformation(), /stage \[options\] <selector\.\.\.>/);
   for (const command of [
     "publish",
     "evolve",

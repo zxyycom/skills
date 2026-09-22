@@ -279,11 +279,15 @@ search 的 limit 只限制返回的命中报告，不提供 offset 分页或 tot
 
 selected 同步须有可信 baseline，集合 metadata 及其 revision 保持不变，全部变化 ID 都被选择。selector 从 baseline 与待发布投影的 name 映射并集解析，标准 ID 只精确匹配。新增选新 ID，删除选旧 ID，身份更正同时选旧/新 ID；未选择变化、未知 ID 或坏 baseline 均零写入，先补充选择或显式全量同步。
 
-### 待提交索引快照
+### 待提交快照
 
-同步并通过全量 check 后，`stage-index` 在同一 HEAD/工作区索引快照中按标准 ID 或唯一 name 选择正式报告。只组合所选 entry 进入 pending，报告 Markdown、候选和资源由调用方按交付范围另行暂存。stage-index 先检查工作区索引新鲜度：索引缺失保持其自身诊断路径，索引无效或陈旧时零写入停止，诊断给出 `check`、`sync-index` 再重试的顺序。
+同步并通过全量 check 后，`stage <investigation-id...> [--scope all|index|domain]` 在同一 HEAD/工作区快照中按标准 ID 或唯一 name 选择正式报告，构造 Git pending 调查快照。stage 先检查工作区索引新鲜度：索引缺失保持其自身诊断路径，索引无效或陈旧时零写入停止，诊断给出 `check`、`sync-index` 再重试的顺序。
 
-选择项须存在且无歧义，解析后 ID 不重复；sourcePath 变化仍选择同一 ID。已有同一索引 pending 时失败并保留原内容，目标外 pending 保持不变。stage-index 不重读报告与资源，其成功只证明暂存操作，不能代替来源验证。
+selector 在当前正式集合与 `HEAD` 基线索引的 ID 并集中解析。选择项须存在且无歧义，解析后 ID 不重复；sourcePath 变化仍选择同一 ID；基线-only 旧 ID 写入删除；重命名显式同时选择旧 ID 与新 ID，不从名称相似度推断。候选不进入 stage 范围。
+
+scope 决定 pending 写入路径。`all`（默认）在一个原子替换中写入所选索引投影、所选正式报告 Markdown 及其完整 owner 资源树。`index` 只替换 pending 索引投影；已有同一索引 pending 时失败并保留原内容，目标外 pending 保持不变。`domain` 只写入所选正式报告 Markdown 与其完整 owner 资源树——成员取工作区与 `HEAD` 的路径并集，未引用成员也进入范围——并把 pending 索引按当前字节原样保留；其他 owner 的资源、候选和未选报告的 pending 内容保持不变。
+
+所有 scope 在写前验证 `HEAD` revision、pending 快照、所选报告字节和 owner 资源成员漂移；结果报告实际写入路径、保留的无关 pending 范围与仍由调用方负责的路径。`index` scope 不重读报告与资源，其成功只证明暂存操作，不能代替来源验证。pending、commit 与 push 由调用方按授权显式完成，`stage` 不提交或推送。被移除的 `stage-index` 入口按普通未知命令处理。
 
 ## 诊断与验收
 

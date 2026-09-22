@@ -89,7 +89,7 @@ export function normalizeIdentitySelectorsAtCliBoundary(
       "show-candidate",
       "publish",
       "rename",
-      "stage-index",
+      "stage",
       "trace"
     ].includes(command)
   ) {

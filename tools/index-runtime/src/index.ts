@@ -31,6 +31,8 @@ export {
   validateStateIndexSelectedIds,
   type StateIndexSelectedIdsResult
 } from "./selection.ts";
+export { hasEntry, selectTargetSnapshot } from "./staging-selection.ts";
+export { buildStateIndexFromSnapshot } from "./snapshot-builder.ts";
 export type {
   JsonObject,
   JsonPrimitive,

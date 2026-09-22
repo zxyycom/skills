@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "64"
+  version: "65"
 ---
 
 # Decision Records
@@ -120,7 +120,7 @@ Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位�
 
 1. 已知合法来源变化先 `sync-index` 再运行严格 `check`；未解释的索引异常先严格 `check` 诊断，再同步或修复。definition 过期而来源合法时，按[索引恢复](references/maintenance-recovery.md#索引恢复)全量重建；非法已建立来源先按该手册修复原位字段，不能以同步、旧索引或默认值补齐。`sync-index` 默认写入并发布完整索引，`--preflight` 零写入预演；`--select` 只用于可信基线上的已知局部合法变化，仍发布完整索引。
 2. 已建立集合的维护结束时运行严格 `check`。首次候选集合按恢复手册验收结构，保持候选准备、语义审核与建立三者独立。
-3. 任务要求 Git pending 快照时，用 `stage <selector...>` 选择完整 Decision ID；它只构造待提交快照，不替代同步或改变生命周期。索引无效或陈旧时零写入停止，按诊断先 `check` 诊断、`sync-index` 发布后再重试。
+3. 任务要求 Git pending 快照时，用 `stage <selector...> [--scope all|index|domain]` 选择完整 Decision ID；它只构造待提交快照，不替代同步或改变生命周期。默认 `all` 原子写入所选索引投影与所选正式 Markdown；`index` 只写入索引投影；`domain` 只写入所选正式 Markdown 并保持 pending 索引字节不变。索引无效或陈旧时零写入停止，按诊断先 `check` 诊断、`sync-index` 发布后再重试。删除与重命名按同一 selector 模型：基线-only 旧 ID 写入删除，重命名显式同时选择旧 ID 与新 ID。pending、commit 与 push 仍由调用方按授权显式完成。
 4. 按任务出口交付：只读任务说明适用判断及结果边界；候选任务说明回放价值与 readiness；维护任务说明实际状态、关系、删除或对齐变化及验证证据；暂存任务说明选中的完整 ID 与 pending 结果。验证无法完成时明确未证明的范围。
 
 ## CLI 入口

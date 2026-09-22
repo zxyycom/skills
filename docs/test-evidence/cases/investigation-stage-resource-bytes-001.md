@@ -1,7 +1,7 @@
-### Case INVESTIGATION-STAGE-RESOURCE-BYTES-001: stage-index treats resource byte changes as outside report selection
+### Case INVESTIGATION-STAGE-RESOURCE-BYTES-001: stage --scope index treats resource byte changes as outside report selection
 
 Tests:
-- `test:b25e7aef08e001526f35d69a1b7e65bce3caffe89ecb4eadda49de2aa288a5bf`
+- `test:674e9dc410d25a1f0249c9887a5fb473fb836a926f0eabf8a2790b48675105cc`
 
 Tags:
 - `investigation-report`

@@ -1,6 +1,7 @@
 import type {
   StateIndexDiagnostic,
-  StateIndexEntryStageResult
+  StateIndexEntryStageResult,
+  StateIndexPendingMutation
 } from "../../index-runtime/src/index.ts";
 import type {
   InvestigationDiagnostic,
@@ -204,29 +205,69 @@ export type InvestigationIndexSyncResult = {
   warnings: string[];
 };
 
-export type InvestigationIndexStageOptions = {
+/**
+ * Selects which pending paths one stage transaction writes: the derived index
+ * projection together with the formal report Markdown and its complete owner
+ * resource tree (`all`, the default), only the index projection (`index`), or
+ * only the report Markdown and owner resources while the pending index stays
+ * byte-identical (`domain`).
+ */
+export type InvestigationStageScope = "all" | "index" | "domain";
+
+export type InvestigationStageOptions = {
   investigationsDir?: string;
   reportIds: readonly string[];
+  scope?: InvestigationStageScope;
   workspaceRoot: string;
 };
 
-export type InvestigationIndexStageDiagnostic = StateIndexDiagnostic;
+export type InvestigationStageDiagnostic = StateIndexDiagnostic;
+
+export type InvestigationStageSuccess = Readonly<{
+  callerOwnedPaths: readonly string[];
+  changed: boolean;
+  diagnostics: readonly InvestigationStageDiagnostic[];
+  indexPath: string;
+  namespace: string;
+  preservedPendingPaths: readonly string[];
+  scope: InvestigationStageScope;
+  selectedIds: string[];
+  state: "staged" | "unchanged";
+  status: "ok";
+  writtenPaths: readonly string[];
+}>;
 
 /**
  * Extends the shared staging result with the domain freshness gate: staging
  * stops before any repository access when the workspace index is stale
  * relative to the authoritative formal Markdown.
  */
-export type InvestigationIndexStageResult =
-  | StateIndexEntryStageResult
+export type InvestigationStageResult =
+  | InvestigationStageSuccess
+  | (Extract<StateIndexEntryStageResult, { status: "error" }> & {
+      scope: InvestigationStageScope;
+    })
   | Readonly<{
       changed: false;
-      diagnostics: readonly InvestigationIndexStageDiagnostic[];
+      diagnostics: readonly InvestigationStageDiagnostic[];
       indexPath: string;
-      namespace: "investigation-report";
-      pending?: undefined;
+      namespace: string;
+      pending?: StateIndexPendingMutation;
+      scope: InvestigationStageScope;
       selectedIds: string[];
-      state: "index-stale";
+      state:
+        | "collection-changed"
+        | "domain-stage-failed"
+        | "index-path-invalid"
+        | "index-stale"
+        | "pending-conflict"
+        | "pending-recovery-failed"
+        | "pending-write-failed"
+        | "revision-index-invalid"
+        | "selection-invalid"
+        | "source-drift"
+        | "target-invalid"
+        | "workspace-index-invalid";
       status: "error";
     }>;
 

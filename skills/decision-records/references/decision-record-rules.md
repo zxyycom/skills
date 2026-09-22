@@ -237,7 +237,9 @@ Markdown 是权威来源，索引保存已建立记录的定位、状态、非�
 3. 全部 entry/revision 变化的 ID 都已选中；新增选新 ID，删除选旧 ID，身份更正同时选旧/新 ID。
 4. 默认写入并发布完整索引投影，`--preflight` 零写入预演同一验证。未选择变化、未知 ID 或坏 baseline 均零写入，先补充选择或显式改用全量同步。
 
-`stage` 在同一 HEAD/工作区 staging 快照中按标准 ID 或唯一 name 选择记录，构造完整 Git pending 决策快照。它不改变生命周期，也不替代同步。staging 要求持久索引与权威来源一致：索引缺失保持首次建立路径，索引无效或陈旧时零写入停止，按诊断先 `check` 诊断、`sync-index` 发布后再重试。位置变化仍选同一 ID；身份变更须由相应事务完整处理。写前 revision、pending 或所选来源漂移时拒绝写入。
+`stage <selector...> [--scope all|index|domain]` 在同一 HEAD/工作区 staging 快照中按标准 ID 或唯一 name 选择记录，构造 Git pending 决策快照。它不改变生命周期，也不替代同步。staging 要求持久索引与权威来源一致：索引缺失保持首次建立路径，索引无效或陈旧时零写入停止，按诊断先 `check` 诊断、`sync-index` 发布后再重试。
+
+selector 在当前正式集合与 `HEAD` 基线的 ID 并集中解析：当前 ID 表示新增或更新，基线-only ID 写入删除；重命名显式同时选择旧 ID 与新 ID，位置变化仍选同一 ID。scope 决定 pending 写入路径：`all`（默认）在一个原子替换中写入所选索引投影与所选正式 Markdown；`index` 只替换 pending 索引投影，要求 pending 索引与 `HEAD` 基线一致；`domain` 只写入所选正式 Markdown，pending 索引按当前字节原样保留。所有 scope 都在写前验证 `HEAD` revision、pending 快照与所选来源字节漂移并保护无关 pending 内容；结果报告实际写入路径、保留的无关 pending 范围与仍由调用方负责的路径。pending、commit 与 push 由调用方按授权显式完成，`stage` 不提交或推送。
 
 ## 验证与异常交付
 

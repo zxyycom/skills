@@ -12,6 +12,14 @@ import {
 
 const utf8Decoder = new TextDecoder("utf-8", { fatal: true });
 
+/**
+ * One recoverable step of a stage transaction: either a mapped domain failure
+ * or the value carried into the next step.
+ */
+export type StageStep<T> =
+  | DecisionApplicationFailure
+  | { status: "ok"; value: T };
+
 export function decisionRepositoryScope(
   repositoryRoot: string,
   decisionsDirectory: string

@@ -1,7 +1,7 @@
-### Case INVESTIGATION-STAGE-VERSION-CONTROL-001: stage-index reports unavailable version control without working-tree writes
+### Case INVESTIGATION-STAGE-VERSION-CONTROL-001: stage --scope index reports unavailable version control without working-tree writes
 
 Tests:
-- `test:83c81a14a2627933f811fe9711bcfcf8a3ed926716a68782fb48d7db3751110f`
+- `test:c8fbe0bcb5513ac8bbbdf9307368ce6546cd21453abd543ec77596bf87004af6`
 
 Tags:
 - `investigation-report`

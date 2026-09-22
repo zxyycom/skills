@@ -1,10 +1,8 @@
 import { discardInvestigationRecord } from "./discard-entry.ts";
-import { diagnosticFromStateIndexDiagnostic } from "./diagnostics.ts";
 import {
   renameInvestigationRecord,
   type InvestigationRenameResult
 } from "./rename.ts";
-import { executeInvestigationIndexStage } from "./staging.ts";
 import {
   executeInvestigationIndexSync,
   executeInvestigationReportCheck,
@@ -12,10 +10,7 @@ import {
   type InvestigationReportCheckFailure
 } from "./validation.ts";
 import { normalizeInvestigationIdInput } from "./report-path.ts";
-import type {
-  InvestigationIndexStageResult,
-  InvestigationIndexSyncResult
-} from "./types.ts";
+import type { InvestigationIndexSyncResult } from "./types.ts";
 import type { InvestigationReportCliIo, ParsedCli } from "./cli-contract.ts";
 import {
   cliInvalid,
@@ -280,24 +275,6 @@ function renameOutcome(result: InvestigationRenameResult): string {
   return "no-change";
 }
 
-export async function runStage(
-  input: ParsedCli,
-  io: InvestigationReportCliIo
-): Promise<number> {
-  const problem = assertAllowedOptions(input, ["root", "investigations-dir"]);
-  if (problem !== null) return cliInvalid(problem, io);
-  const execution = await executeInvestigationIndexStage({
-    ...location(input.values),
-    reportIds: input.positionals
-  });
-  if (execution.isErr()) {
-    printStageErrors(execution.error.result, io);
-    return execution.error.kind === "invalid-options" ? 2 : 1;
-  }
-  printStageSuccess(execution.value, io);
-  return 0;
-}
-
 function discardedResourceOwnerMessage(
   label: string,
   discarded: { deletedResourceIds: readonly string[]; id: string }
@@ -307,47 +284,4 @@ function discardedResourceOwnerMessage(
       ? ""
       : `; deleted ${discarded.deletedResourceIds.length} owned resource(s)`;
   return `${label} discarded: ${discarded.id}${deleted}.`;
-}
-function printStageSuccess(
-  result: Extract<InvestigationIndexStageResult, { status: "ok" }>,
-  io: InvestigationReportCliIo
-): void {
-  writeLine(
-    io.stdout,
-    result.changed
-      ? `Investigation index entries staged for ${result.selectedIds.length} selected report(s) in ${result.indexPath}.`
-      : `Investigation index entries are unchanged for ${result.selectedIds.length} selected report(s) in ${result.indexPath}.`
-  );
-  writeLine(io.stdout, `state: ${result.state}; changed: ${result.changed}`);
-  writeLine(io.stdout, `selected IDs: ${result.selectedIds.join(", ")}`);
-  writeLine(
-    io.stdout,
-    "Report Markdown and attached resources remain outside this operation."
-  );
-}
-function printStageErrors(
-  result: Extract<InvestigationIndexStageResult, { status: "error" }>,
-  io: InvestigationReportCliIo
-): void {
-  printResultErrors({
-    diagnostics: result.diagnostics.map((diagnostic) =>
-      diagnosticFromStateIndexDiagnostic(diagnostic, {
-        ...(result.pending === undefined
-          ? {}
-          : {
-              mutation: {
-                outcome: result.pending.outcome,
-                scope: result.pending.scope
-              }
-            }),
-        recovery:
-          "correct the reported staging problem, then retry the selected index update",
-        target: result.indexPath
-      })
-    ),
-    errors: [`selected IDs: ${result.selectedIds.join(", ") || "none"}`],
-    exitCode: 1,
-    io,
-    title: `Investigation index entry staging failed (state: ${result.state}; changed: ${result.changed}):`
-  });
 }

@@ -1,7 +1,7 @@
-### Case INVESTIGATION-STAGE-RESOURCE-DELETE-001: stage-index reports selection diagnostics deterministically
+### Case INVESTIGATION-STAGE-RESOURCE-DELETE-001: stage --scope index reports selection diagnostics deterministically
 
 Tests:
-- `test:637f05ebfd34ac901fa101d1d5b6f32ef1383a045f4b1d720cf4d5f57ec56ae5`
+- `test:6d1cfa8bf0bfdc8cbe5e03e1e4e35bd95459760c4c33be3d1739ac7d899fa9ea`
 
 Tags:
 - `investigation-report`

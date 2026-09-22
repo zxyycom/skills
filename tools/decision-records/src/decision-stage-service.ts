@@ -1,64 +1,44 @@
-import { Buffer } from "node:buffer";
-import path from "node:path";
-import {
-  openVersionControl,
-  VersionControlError,
-  type RevisionId,
-  type VersionControlFile,
-  type VersionControlRepository
-} from "../../shared/src/version-control/index.ts";
-import {
-  decisionFailure,
-  type DecisionApplicationFailure
-} from "./application-result.ts";
 import {
   decisionIndexDiagnosticMessages,
   decisionIndexFileName,
   loadDecisionIndex
 } from "./decision-state-index.ts";
-import { decisionIndexStale } from "./decision-query-context.ts";
 import {
-  displayDecisionPath,
-  isDecisionId,
-  normalizeDecisionSelectorInput
-} from "./decision-path.ts";
-import {
+  decisionIndexStale,
   resolveDecisionLocation,
   type DecisionLocation
 } from "./decision-query-context.ts";
-import type { DecisionId } from "./types.ts";
-import { buildDecisionStageTarget } from "./decision-stage-target.ts";
-import { verifySelectedFilesystemSources } from "./decision-stage-sources.ts";
-import type { DecisionStageTarget } from "./decision-stage-contracts.ts";
 import {
-  DecisionStageFileSystemError,
-  DecisionStageInputError,
-  decisionRepositoryScope,
-  repositoryPath,
-  stageDomainFailure,
-  stageFileSystemFailure,
+  isDecisionId,
+  normalizeDecisionSelectorInput
+} from "./decision-path.ts";
+import type { DecisionId } from "./types.ts";
+import type { DecisionStageScope } from "./decision-stage-contracts.ts";
+import type { DecisionApplicationFailure } from "./application-result.ts";
+import {
   stageInputFailure,
   staleStageFailure,
-  versionControlFailure
+  type StageStep
 } from "./decision-stage-support.ts";
-import {
-  buildDecisionIndexText,
-  compareVersionControlFiles
-} from "./decision-stage-index.ts";
+import { openStageRepository } from "./decision-stage-repository.ts";
+import { stageIndexProjection } from "./decision-stage-index-scope.ts";
+import { stageWorkspaceSnapshot } from "./decision-stage-workspace-scope.ts";
 
 export type DecisionStageSuccess = {
+  callerOwnedPaths: string[];
   command: "stage";
   indexRelativePath: string;
   pendingFileCount: number;
+  preservedPendingPaths: string[];
+  scope: DecisionStageScope;
   selectedIds: DecisionId[];
   status: "ok";
+  writtenPaths: string[];
 };
 
 export type DecisionStageResult =
   | DecisionApplicationFailure
   | DecisionStageSuccess;
-
-type StageStep<T> = DecisionApplicationFailure | { status: "ok"; value: T };
 
 /**
  * Staging writes a complete pending snapshot, so it requires the persisted
@@ -91,255 +71,27 @@ async function stageFreshnessGate(
     : { status: "ok", value: true };
 }
 
-type StageRepositoryContext = Readonly<{
-  decisionScope: string;
-  repository: VersionControlRepository;
-}>;
-type PendingDecisionSnapshot = Readonly<{
-  expectedFiles: VersionControlFile[];
-  revision: RevisionId | null;
-}>;
-type DecisionStageFiles = Readonly<{
-  files: VersionControlFile[];
-  indexRelativePath: string;
-}>;
-
 export async function stageDecisionRecords(options: {
   decisionIds: readonly string[];
   location: DecisionLocation;
+  scope?: DecisionStageScope;
 }): Promise<DecisionStageResult> {
   const selectedSelectors = validateSelectedSelectors(options.decisionIds);
   if (selectedSelectors.status === "error") return selectedSelectors;
+  const scope = options.scope ?? "all";
   const location = resolveDecisionLocation(options.location);
   const gate = await stageFreshnessGate(location.decisionsDirectory);
   if (gate.status === "error") return gate;
   const opened = await openStageRepository(location.decisionsDirectory);
   if (opened.status === "error") return opened;
-  return stageAtRepository(location, opened.value, selectedSelectors.value);
-}
-
-async function stageAtRepository(
-  location: ReturnType<typeof resolveDecisionLocation>,
-  opened: StageRepositoryContext,
-  selectedSelectors: readonly DecisionId[]
-): Promise<DecisionStageResult> {
-  const pending = await inspectPendingDecisionSnapshot(
-    opened.repository,
-    opened.decisionScope
-  );
-  if (pending.status === "error") return pending;
-  const targetResult = await constructDecisionStageTarget({
-    decisionsDirectory: location.decisionsDirectory,
-    decisionScope: opened.decisionScope,
-    repository: opened.repository,
-    revision: pending.value.revision,
-    selectedSelectors
-  });
-  if (targetResult.status === "error") return targetResult;
-  return stagePreparedTarget(
+  const context = {
     location,
-    opened,
-    pending.value,
-    targetResult.value
-  );
-}
-
-async function stagePreparedTarget(
-  location: ReturnType<typeof resolveDecisionLocation>,
-  opened: StageRepositoryContext,
-  pending: PendingDecisionSnapshot,
-  target: DecisionStageTarget
-): Promise<DecisionStageResult> {
-  if (target.sources.length === 0) {
-    return decisionFailure([
-      "Selected Decision IDs must produce at least one established decision"
-    ]);
-  }
-  const stagedFiles = await prepareDecisionStageFiles(
-    location,
-    opened.decisionScope,
-    opened.repository,
-    target
-  );
-  if (stagedFiles.status === "error") return stagedFiles;
-  const replaced = await replacePendingDecisionFiles(
-    opened.repository,
-    opened.decisionScope,
-    pending.expectedFiles,
-    target.revision,
-    stagedFiles.value.files
-  );
-  if (replaced.status === "error") return replaced;
-  return {
-    command: "stage",
-    indexRelativePath: stagedFiles.value.indexRelativePath,
-    pendingFileCount: replaced.value,
-    selectedIds: target.selectedIds,
-    status: "ok"
+    opened: opened.value,
+    selectedSelectors: selectedSelectors.value
   };
-}
-
-async function openStageRepository(
-  decisionsDirectory: string
-): Promise<StageStep<StageRepositoryContext>> {
-  let repository: VersionControlRepository;
-  try {
-    repository = await openVersionControl(decisionsDirectory);
-  } catch (error) {
-    return versionControlFailure(
-      "open the version-controlled decision workspace",
-      error
-    );
-  }
-  const decisionScope = decisionRepositoryScope(
-    repository.rootDirectory,
-    decisionsDirectory
-  );
-  if (decisionScope === null) {
-    return decisionFailure([
-      "Decision directory must be inside, and below the root of, its version-controlled " +
-        "repository: " +
-        decisionsDirectory
-    ]);
-  }
-  return { status: "ok", value: { decisionScope, repository } };
-}
-
-async function inspectPendingDecisionSnapshot(
-  repository: VersionControlRepository,
-  decisionScope: string
-): Promise<StageStep<PendingDecisionSnapshot>> {
-  try {
-    const revision = await repository.getCurrentRevision();
-    const expectedFiles = await repository.readPendingFiles({
-      pathScopes: [decisionScope]
-    });
-    const existingPending =
-      revision === null
-        ? []
-        : await repository.listPendingChangedPaths({
-            from: revision,
-            pathScopes: [decisionScope]
-          });
-    if (
-      existingPending.length > 0 ||
-      (revision === null && expectedFiles.length > 0)
-    ) {
-      return decisionFailure([
-        "Decision pending snapshot already contains files in " +
-          decisionScope +
-          "; inspect or resolve it before staging another decision set."
-      ]);
-    }
-    return { status: "ok", value: { expectedFiles, revision } };
-  } catch (error) {
-    return versionControlFailure(
-      "inspect the pending decision snapshot",
-      error
-    );
-  }
-}
-
-async function constructDecisionStageTarget(
-  options: Parameters<typeof buildDecisionStageTarget>[0]
-): Promise<StageStep<DecisionStageTarget>> {
-  try {
-    return { status: "ok", value: await buildDecisionStageTarget(options) };
-  } catch (error) {
-    if (error instanceof DecisionStageInputError) {
-      return stageInputFailure([error.message], 2);
-    }
-    if (error instanceof DecisionStageFileSystemError) {
-      return stageFileSystemFailure(
-        "Failed to construct the selected decision snapshot.",
-        error.cause
-      );
-    }
-    if (error instanceof VersionControlError) {
-      return versionControlFailure(
-        "construct the selected decision snapshot",
-        error
-      );
-    }
-    return stageDomainFailure(
-      "decision-records.stage-snapshot-invalid",
-      "The selected decision snapshot is invalid.",
-      "Decision stage source selection",
-      error
-    );
-  }
-}
-
-async function prepareDecisionStageFiles(
-  location: ReturnType<typeof resolveDecisionLocation>,
-  decisionScope: string,
-  repository: VersionControlRepository,
-  target: DecisionStageTarget
-): Promise<StageStep<DecisionStageFiles>> {
-  const indexPath = repositoryPath(decisionScope, decisionIndexFileName);
-  const indexRelativePath = displayDecisionPath(
-    location.workspaceRoot,
-    path.join(location.decisionsDirectory, decisionIndexFileName)
-  );
-  try {
-    await verifySelectedFilesystemSources(
-      location.decisionsDirectory,
-      decisionScope,
-      target.selectedSources
-    );
-  } catch (error) {
-    if (error instanceof DecisionStageFileSystemError) {
-      return stageFileSystemFailure(
-        "Failed to verify selected decision filesystem sources before staging.",
-        error.cause
-      );
-    }
-    return stageDomainFailure(
-      "decision-records.stage-source-changed",
-      "Selected decision filesystem source changed before staging.",
-      "Selected decision filesystem sources",
-      error
-    );
-  }
-  let indexText: string;
-  try {
-    indexText = await buildDecisionIndexText(target.sources, indexRelativePath);
-  } catch (error) {
-    return stageDomainFailure(
-      "decision-records.stage-index-projection-invalid",
-      "The selected decision snapshot cannot produce a derived index.",
-      indexRelativePath,
-      error
-    );
-  }
-  const files = [
-    ...target.sourceFiles,
-    { data: Buffer.from(indexText, "utf8"), path: indexPath }
-  ].sort(compareVersionControlFiles);
-  return { status: "ok", value: { files, indexRelativePath } };
-}
-
-async function replacePendingDecisionFiles(
-  repository: VersionControlRepository,
-  decisionScope: string,
-  expectedFiles: readonly VersionControlFile[],
-  revision: RevisionId | null,
-  files: readonly VersionControlFile[]
-): Promise<StageStep<number>> {
-  try {
-    const replaced = await repository.replacePendingFiles({
-      expectedFiles,
-      expectedRevision: revision,
-      files,
-      pathScope: decisionScope
-    });
-    return { status: "ok", value: replaced.pendingPaths.length };
-  } catch (error) {
-    return versionControlFailure(
-      "replace the pending decision snapshot",
-      error
-    );
-  }
+  return scope === "index"
+    ? await stageIndexProjection(context)
+    : await stageWorkspaceSnapshot(context, scope);
 }
 
 function validateSelectedSelectors(

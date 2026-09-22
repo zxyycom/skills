@@ -16,11 +16,11 @@ import type {
 } from "./cli-contract.ts";
 import { createInvestigationCliProgram } from "./cli-program.ts";
 import { processInvestigationReportCliIo } from "./cli-io.ts";
+import { runStage } from "./cli-stage-commands.ts";
 import {
   runCheck,
   runDiscard,
   runRename,
-  runStage,
   runSync
 } from "./cli-maintenance-commands.ts";
 import { runList, runSearch, runShow, runTrace } from "./cli-query-commands.ts";
@@ -67,7 +67,7 @@ const commandRunners: Readonly<Record<ParsedCli["command"], CommandRunner>> = {
   "set-relations": runSetRelations,
   show: runShow,
   "show-candidate": runShowCandidate,
-  "stage-index": runStage,
+  stage: runStage,
   "sync-index": runSync,
   trace: runTrace
 };
@@ -95,7 +95,7 @@ export {
   traceInvestigationReports
 } from "./query.ts";
 export { setInvestigationRelations } from "./relation-transaction.ts";
-export { stageInvestigationIndex } from "./staging.ts";
+export { stageInvestigationReports } from "./staging.ts";
 export {
   synchronizeInvestigationIndex,
   validateInvestigationReports
@@ -120,9 +120,10 @@ export type {
   InvestigationListMonthFacet,
   InvestigationListTagFacet,
   InvestigationListTimeFacets,
-  InvestigationIndexStageDiagnostic,
-  InvestigationIndexStageOptions,
-  InvestigationIndexStageResult,
+  InvestigationStageDiagnostic,
+  InvestigationStageOptions,
+  InvestigationStageResult,
+  InvestigationStageScope,
   InvestigationIndexState,
   InvestigationIndexSyncOptions,
   InvestigationIndexSyncResult,

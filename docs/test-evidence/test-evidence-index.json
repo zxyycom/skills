@@ -261,6 +261,14 @@
       "DECISION-STAGE-PENDING-EXISTING-001": "sha256:c7a53acccd5dd059d6fc698c3eefff770c51900ba0cc8623b3aced2fa3cebc26",
       "DECISION-STAGE-RENAME-001": "sha256:b0b7b4fd13587f4d4f3abff173551ea139ffc90ba229fd3f29e48037d4f704bc",
       "DECISION-STAGE-REVISION-BATCH-001": "sha256:bdc1165f37bfa279123db5f35cc1d86857bcbb40190dc6359bca3a870eebcd8c",
+      "DECISION-STAGE-SCOPE-COMPOSE-001": "sha256:b33ad05f36f2440235e69afb4e7ba5b8704471ab44d045773fb6b511164454c5",
+      "DECISION-STAGE-SCOPE-DOMAIN-001": "sha256:00aed0415ac26e5ecbb25960ee6b57d692c9a834a496125267a474bf2f475a26",
+      "DECISION-STAGE-SCOPE-DOMAIN-DELETION-001": "sha256:8a8adf1c2eaa8ac23811e7205874c274a63591d08aac5941de24df9ff38afca7",
+      "DECISION-STAGE-SCOPE-FIRST-COLLECTION-001": "sha256:115fe384a889c7e5e296707c315a6402bbcd9f451bae6b4e7fe7a6aa255903c0",
+      "DECISION-STAGE-SCOPE-HELP-001": "sha256:7890f2072c83deced13ff3ea2ef069f147c255a02e46aa13fb9916052d584283",
+      "DECISION-STAGE-SCOPE-INDEX-001": "sha256:e4056d6a835e4846359555ac97a010e40dec3c719ad3ce2e724a77034af21e0b",
+      "DECISION-STAGE-SCOPE-INDEX-CONFLICT-001": "sha256:7a5f184f7e018f0588c09999ddd5b662a8e3d33839a2e523e2323a7829d1b6eb",
+      "DECISION-STAGE-SCOPE-INVALID-001": "sha256:cba9fedb1ccd0892ebdc2b15e9f2b69f84c762ae9d96e5a62c79961c67c65587",
       "DECISION-STAGE-SELECTED-MEMBER-TYPE-001": "sha256:f1683413acac407f72cbf0aaa7062ffc31e672dc729a7546adf9d7159fc972e5",
       "DECISION-STAGE-SEMANTIC-SOURCE-PATH-002": "sha256:a98e8df4f282cdf8008a688047892985ecd1387e95e431ce70298e433db8e8b4",
       "DECISION-STAGE-SOURCE-PREFLIGHT-001": "sha256:53e2b509f56b73a64350ebe6b3a1ee0e294b730b9c29926cf360ee2b47772abb",
@@ -424,7 +432,7 @@
       "INVESTIGATION-CANDIDATE-PUBLISH-004": "sha256:2d94b234cb28328ad74cbf86c5da9ff506590a135ff418e38e82d065e7241863",
       "INVESTIGATION-CANDIDATE-PUBLISH-005": "sha256:a39a00dc593ad43624de869f3be6d339b7b073b8f2272d9ca3774edf99abe315",
       "INVESTIGATION-CANDIDATE-PUBLISH-CLEANUP-001": "sha256:6ab462366268bb132fc8715e25f8080a4633f5c22c09ef600150d4d06ddf838a",
-      "INVESTIGATION-CANDIDATE-QUERY-001": "sha256:d26b5b6b22425d8731f16dbb57b0de790ec7190f60b5b34e70d196b89a1a8c1f",
+      "INVESTIGATION-CANDIDATE-QUERY-001": "sha256:da69ee35174b3b3d8af987fcb740e99a96127c47bc327783150109f63cc1a162",
       "INVESTIGATION-CANDIDATE-RESOURCE-001": "sha256:5889c59af00c70acf61748d16145fbba3bb898e4560525f83f1bb803df2273ee",
       "INVESTIGATION-CLI-COLLECTION-ROOT-001": "sha256:3fb686ca20cb3b5676ac0c391a2459272a8b1517795f0b538682ae2cffc29aed",
       "INVESTIGATION-CLI-CONTRACTS-001": "sha256:862de3ea3eef2a574ae8ea8314b35d4912fdf3195a567641a71ad30da839c433",
@@ -442,10 +450,10 @@
       "INVESTIGATION-CLI-RELATIONS-001": "sha256:469dab2b25b2760e824e3a9b7021481c79b9a0138b839a24ae8cc2244b83d695",
       "INVESTIGATION-CLI-SELECTED-SYNC-001": "sha256:b0fa7c618213c0f7c0a7b5c718761cb7e7ffc40fc0297cf6aaa843c69ab38f4d",
       "INVESTIGATION-CLI-SHOW-DIAGNOSTIC-001": "sha256:a6bb7e0c474d753cb48dd5fbe05e6242ff7c62cedfa2e78fd577647655fffc19",
-      "INVESTIGATION-CLI-STAGE-DIAGNOSTIC-001": "sha256:bcf1e3ffcdc0daeaf2efc81c77f1fb0d8c02e1b02db8820c74d7ae52438a698b",
-      "INVESTIGATION-CLI-STAGE-FILESYSTEM-001": "sha256:729267bd9285c69bbb77f0e31033da4ba2155db002f6ae65e5445d3fdbd1fde1",
-      "INVESTIGATION-CLI-STAGE-JSON-001": "sha256:e1cb3eeb5dace2573ac46492c2d5cb1931e6534301867c1f8dcf4b1a9d479cee",
-      "INVESTIGATION-CLI-STAGE-PENDING-001": "sha256:81e8fa0333709a5ced9eabd18b2106ae3ff130a593c2a5c38d306af96be7ccdb",
+      "INVESTIGATION-CLI-STAGE-DIAGNOSTIC-001": "sha256:e3390261f93d16020a94088ac1922c9a6fc27ba771af922e0dfb157a1086dc74",
+      "INVESTIGATION-CLI-STAGE-FILESYSTEM-001": "sha256:54126c2078b968a1f0fe96d29e364ad374a7269f4ac253da1d8e06afe6bf774d",
+      "INVESTIGATION-CLI-STAGE-JSON-001": "sha256:0aa70ed3f7b5c1da0aaba8e2e2d35025494fc4468dc4fca0fea7469212007814",
+      "INVESTIGATION-CLI-STAGE-PENDING-001": "sha256:01b8f2af2940853aacd41787b5808f29a07a372e88ca0c27d87820ae0029ef8b",
       "INVESTIGATION-CLI-SYNC-001": "sha256:5270b7e8773c3d6eb1a673adc710011bbc7fa182157180dc121dedc3ee8c5e29",
       "INVESTIGATION-CLI-SYNC-FILESYSTEM-001": "sha256:edce8c35de8b3ff1f12200572f289867802aed703b63c69e597733023c1f4df7",
       "INVESTIGATION-CLI-SYNC-LOCK-001": "sha256:bc09b61cfdd37074515fc2928942d2d97f6e362ed8be54bc6af7e90560a8ff76",
@@ -456,7 +464,7 @@
       "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:4935ae4676566a5a7b5bf1dbb17934a47358c9e391384de289c4c412f38decf4",
       "INVESTIGATION-COLLECTION-LOCK-DIAGNOSTICS-001": "sha256:fc4b666d43162a6d5c35641114a8a268483ebccb200832c8e8c6e2949a9c237f",
       "INVESTIGATION-COLLECTION-ROOT-001": "sha256:fc53e55e16011068012672a7e4ddd7db972ef27894a91a03bb87e59dbbdff317",
-      "INVESTIGATION-DATED-SELECTOR-001": "sha256:9439981a00cc0a863b5e8a7b671a65c312367ab1b9d5dfcf08eba04319e53a8f",
+      "INVESTIGATION-DATED-SELECTOR-001": "sha256:b870806fa56f536559fe4029b5d7637b61b28947dd43f992bfb5d123238850da",
       "INVESTIGATION-DIAGNOSTIC-SANITIZATION-001": "sha256:4b24284dd1f7b73b9321ddc57d1ea5b1442e1a4b3fe394c16697258381b73249",
       "INVESTIGATION-DIRECTORY-PATH-001": "sha256:c587bb05003f0a3ed7dad4ee848aae47db81e4d0d0971164d4bc871f49a3991f",
       "INVESTIGATION-DISCARD-CANDIDATE-001": "sha256:1d86e6fc159ed25aa92dbce88e19e6b310978b5cda457878d3e9a1f8c93bb749",
@@ -561,20 +569,32 @@
       "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001": "sha256:66e4a53db3156ecf6039e3b9b18eb3c51ad49f667b14019bc1afa27f7bedb912",
       "INVESTIGATION-SNAPSHOT-REVISION-001": "sha256:e449940c67b05ab9db3b84298d68459037b1e789bdd96913daa5b5d2186f2d28",
       "INVESTIGATION-SOURCE-REVISION-001": "sha256:625dbefc185c844b0d27d6304a039c0ebf930827a7b2f6ef54c1a4e8c79ab328",
-      "INVESTIGATION-STAGE-BOOTSTRAP-001": "sha256:548795fdfa86ad2ce12a69ecf4d338783fdd4e39771beb0b042896edec581db5",
-      "INVESTIGATION-STAGE-CLI-USAGE-001": "sha256:47ee8eb63071a44d9d1690f741f8d053785e127963ee4be21df60420df60df8b",
-      "INVESTIGATION-STAGE-CONFLICT-001": "sha256:870c48f320e87c24f1400ede96b18b0da6b14898a8331a2c70b7ec38470be1d8",
-      "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001": "sha256:11b4434e671ef966b736ffa35ee604372c25cbd05469bae8ce5c3a9c61baee5f",
-      "INVESTIGATION-STAGE-FRESHNESS-001": "sha256:8ded1d085301600f6707d12411a4fa29cf54d0629bd0234f119f911824b14d6e",
-      "INVESTIGATION-STAGE-INPUT-001": "sha256:08bc41247288a8ff3cd3a030faf2e5c3b9ad18fe4fdd79e620ee996907fb6d34",
-      "INVESTIGATION-STAGE-ISOLATION-001": "sha256:8ff8e7aa7c982677c1458e2e7a3da6956a2575702cdb59a2fb4218458216d61b",
-      "INVESTIGATION-STAGE-MISSING-001": "sha256:6af16b90aac797b02eaf8e9a5ceeaa7ea551c98843abeb3985febf3f775faf8a",
-      "INVESTIGATION-STAGE-OVERLAY-001": "sha256:e1cb8bbefa243a1b909792f8a48e31d06dfc0526108d8340195d80420f3f2823",
-      "INVESTIGATION-STAGE-RESOURCE-ADD-001": "sha256:174921bbf5fa541e9abb2d10aa2ec57a61aef4f51df8dfb7308aebf588bf4579",
-      "INVESTIGATION-STAGE-RESOURCE-BYTES-001": "sha256:cae1459a884a098dfd7e34a7b91efc0807e0485695fa463a8c900f479efe1fdf",
-      "INVESTIGATION-STAGE-RESOURCE-DELETE-001": "sha256:71ac2832e1c3f8c96a892b7d0d95a3dfef2fb8b7daee79a0f21a3c87df4ac34c",
-      "INVESTIGATION-STAGE-RESOURCE-RENAME-001": "sha256:4c2bd9d6d5777b458bdcdbe2455a359a9aa61fdd7d38bcd910bf9b56cfe90025",
-      "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:c303d6b0ba56382cd80d8238a945633b0985ddd2453802ca84d0235b584eba65",
+      "INVESTIGATION-STAGE-BOOTSTRAP-001": "sha256:c69589e03b32e58f07709b9d96c34a6d374f5f7a3ea237978d7d2fd10956c837",
+      "INVESTIGATION-STAGE-CLI-USAGE-001": "sha256:0bbf14e84fd031a5fff7997e17ee484e280ee4b26b9c0e37a997635f9f3b3900",
+      "INVESTIGATION-STAGE-CONFLICT-001": "sha256:60e3e66205c22f52480217c37609e53641e6159a8414a169989c511eed238103",
+      "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001": "sha256:ae7b98d705cd92b07d4cdbb1644bc210aca7d928bc0c1292aa5f6cdcd056f269",
+      "INVESTIGATION-STAGE-DOMAIN-BUSY-001": "sha256:67139e33a416b310f6e226188ef1aa736e65f18f3059ce4256995819c36139bd",
+      "INVESTIGATION-STAGE-DOMAIN-CLI-001": "sha256:439f9d0d5a010bb7c4a389c27c01b2cfe70bd5dfc32fc852790fd493ac32b400",
+      "INVESTIGATION-STAGE-DOMAIN-DRIFT-001": "sha256:d8dbc4a47e983b66a02c6714d7942d33b21729e70e8dc39ffd69daf4d9ed772f",
+      "INVESTIGATION-STAGE-DOMAIN-PRESERVE-INDEX-001": "sha256:9f65ddeb2185bf16d7ccb03d9fd24e4e260056d325f0ba9152f7eac54db2f758",
+      "INVESTIGATION-STAGE-DOMAIN-PRESERVE-STAGED-DELETION-001": "sha256:56f394b181f937e1a9b8154dc94e8abc2498d0f3b21c866a78da811c933ecb98",
+      "INVESTIGATION-STAGE-DOMAIN-RENAME-001": "sha256:aa16294cb2127cbbe47ff7bdca0e2640eab6ee5f7e554dc386be188246c62c28",
+      "INVESTIGATION-STAGE-DOMAIN-REPORT-DELETION-001": "sha256:6777a01f55be7407d0a6cbe3aa16f80447fc7e040e1f02a8039d3c318aa65eb7",
+      "INVESTIGATION-STAGE-DOMAIN-RESOURCE-DELETION-001": "sha256:bd7cde214589d453b01b152d94c682d231a8584a57c42510f615deb7a7831550",
+      "INVESTIGATION-STAGE-DOMAIN-TREE-001": "sha256:102e2ee685c128cc6ab27f81d0134041937809f7b0d79606929d7eb5cabb12ca",
+      "INVESTIGATION-STAGE-FRESHNESS-001": "sha256:04b223d56c2f886d6f66eb42e4d4e0aef3b5ba78a09e7de8b79bee33535ec308",
+      "INVESTIGATION-STAGE-INPUT-001": "sha256:06dce3538248badd4561a8ca2888eae41ac7b318ccdd8467805f39a03447c51a",
+      "INVESTIGATION-STAGE-ISOLATION-001": "sha256:d1df98feaac6345c05519fd9b7119afc0f1af0ffb8dd00486c424620c610b011",
+      "INVESTIGATION-STAGE-MISSING-001": "sha256:89de0e25da1669d1a7142d284bd4dc1c4a47ec03d0f56af573b61520724059e9",
+      "INVESTIGATION-STAGE-OVERLAY-001": "sha256:fa500621ffa4fe6cd36ac3ad6ff6998d87df15bcb052c3711786c7bcbc5f5211",
+      "INVESTIGATION-STAGE-RESOURCE-ADD-001": "sha256:139b83a93b9f7340d77c0c32736c6ba0b5b1019abc0ec9920d0798e54696c3b9",
+      "INVESTIGATION-STAGE-RESOURCE-BYTES-001": "sha256:d760d33bd700545ddecb97959263ac36431c192488e40618b78d20c89c7025f8",
+      "INVESTIGATION-STAGE-RESOURCE-DELETE-001": "sha256:319012593514719e8a6c8d27526ce9879282270cd683befc4c872034795d57ce",
+      "INVESTIGATION-STAGE-RESOURCE-RENAME-001": "sha256:25641269a2cd0bc5903acc1474834701e1c2c28cb62d6316b253cdcab88ce119",
+      "INVESTIGATION-STAGE-SCOPE-ALL-001": "sha256:62f07a39ab7c09639e52d378140cb9172ea856729e5c84709d85e829de62f059",
+      "INVESTIGATION-STAGE-SCOPE-CLI-001": "sha256:a47e90253eb36bde6dc5d80fc60d2251621aec22553b88394b367595150e123f",
+      "INVESTIGATION-STAGE-SCOPE-CLI-REMOVED-001": "sha256:7e072304970f9f531892da0039fe8c929f2a84792e6a531a3130c43221ee2972",
+      "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:2f96af63dec8c49b43aba5ceb85d6c52cc059f6a1c384ce48d2eaa83018624b5",
       "INVESTIGATION-SYNC-DIAGNOSTIC-001": "sha256:d86b6e9cf00adf93558a63db137fea385c91a2e58ad12398196be982275e2e03",
       "INVESTIGATION-SYNC-DISCARD-LOCK-001": "sha256:34e650b190f8e16eedb4eeac46a6815f66ac0079eb73ead07edc42e9e8cd9230",
       "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": "sha256:7450667bcd6556b0e131933672fedcea1e408c6e9e78bb85db6b1ef39eeb3768",
@@ -3458,6 +3478,86 @@
         "test:5554d617afa1170624776eddf411dfbf8e5a7129b38d2c0dd21dc67bfac4990d"
       ]
     },
+    "DECISION-STAGE-SCOPE-COMPOSE-001": {
+      "title": "stage --scope domain composes with a previous index scope into the all snapshot",
+      "sourcePath": "cases/decision-stage-scope-compose-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:e1152624a7332ab99be225417cfe30c512d5531027f9009c5688b53820ba8731"
+      ]
+    },
+    "DECISION-STAGE-SCOPE-DOMAIN-001": {
+      "title": "stage --scope domain writes only formal Markdown and preserves the pending index",
+      "sourcePath": "cases/decision-stage-scope-domain-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:101ec0b9ef6515e96fed773fc1ec3c9e86ef3a5b437fb7257b2c1bbfdf3bf32b"
+      ]
+    },
+    "DECISION-STAGE-SCOPE-DOMAIN-DELETION-001": {
+      "title": "stage --scope domain writes a deletion for a baseline-only ID without touching the pending index",
+      "sourcePath": "cases/decision-stage-scope-domain-deletion-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:fc7c5c7a3633d38d2e2b01298eb5fb0cf5b1a5507a9b616da38f0066782702eb"
+      ]
+    },
+    "DECISION-STAGE-SCOPE-FIRST-COLLECTION-001": {
+      "title": "stage --scope domain preserves an unrelated pending index byte-for-byte after source drift is absent",
+      "sourcePath": "cases/decision-stage-scope-first-collection-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:d1d3d42a634e4b2f9a7ec62f410e5f668e2dee2a4f2ab28f115d15cff091013e"
+      ]
+    },
+    "DECISION-STAGE-SCOPE-HELP-001": {
+      "title": "help exposes the stage scope contract",
+      "sourcePath": "cases/decision-stage-scope-help-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:947fc8e6a4523e7054a59a64ede072a9f343332a9066f64fefc6ae3aa2f5086f"
+      ]
+    },
+    "DECISION-STAGE-SCOPE-INDEX-001": {
+      "title": "stage --scope index writes only the derived index projection",
+      "sourcePath": "cases/decision-stage-scope-index-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:4829e943a67b03f4b7fcdd6a82c6a011881b1d9ee72480e6e80a4bb4d96d8ee0"
+      ]
+    },
+    "DECISION-STAGE-SCOPE-INDEX-CONFLICT-001": {
+      "title": "stage --scope index rejects a pending index that already differs from the revision",
+      "sourcePath": "cases/decision-stage-scope-index-conflict-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:dcd1be75a84e408fd4f61b2a3a0ab7bc527cd68dc24e736025a2d5734e52da99"
+      ]
+    },
+    "DECISION-STAGE-SCOPE-INVALID-001": {
+      "title": "stage rejects an invalid scope as a normal invalid argument",
+      "sourcePath": "cases/decision-stage-scope-invalid-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:ab79677789a3bb76d9f9611567f1b3f43c40f19edf6db8c1d42d2152e6fc841b"
+      ]
+    },
     "DECISION-STAGE-SELECTED-MEMBER-TYPE-001": {
       "title": "Stage 拒绝指向决策根外的选择 symlink 且不写入 pending",
       "sourcePath": "cases/decision-stage-selected-member-type-001.md",
@@ -5296,43 +5396,43 @@
       ]
     },
     "INVESTIGATION-CLI-STAGE-DIAGNOSTIC-001": {
-      "title": "CLI stage-index preserves version-control diagnostic facts",
+      "title": "CLI stage preserves version-control diagnostic facts",
       "sourcePath": "cases/investigation-cli-stage-diagnostic-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:b44471e392ac8d12458348cd990154f260e4c643a76e1469f6b6420a8f35f86c"
+        "test:bb9c5998e4f22f451d05ce2d44e385f9cf72ad7d1edd80137b2b959d2194fe22"
       ]
     },
     "INVESTIGATION-CLI-STAGE-FILESYSTEM-001": {
-      "title": "CLI stage-index renders filesystem diagnostics structurally",
+      "title": "CLI stage renders filesystem diagnostics structurally",
       "sourcePath": "cases/investigation-cli-stage-filesystem-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:7428e19145ef6ef8f7fb628a4a8ad6aa6110229ffb9485a02c1b86fc5257f621"
+        "test:f8acb4f3dfe09790891b0f3521cc95341647e794bc63742599d9af4af2496f55"
       ]
     },
     "INVESTIGATION-CLI-STAGE-JSON-001": {
-      "title": "CLI stage-index rejects JSON output",
+      "title": "CLI stage rejects JSON output",
       "sourcePath": "cases/investigation-cli-stage-json-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:eb8092fc3b206dd381468c8ed13404e45b847ef46c439eed73df1e421c40d39a"
+        "test:51dcb6bbe09de57bd33c960d5b0cbae3ca502af26e6eabafa36356325fcf824b"
       ]
     },
     "INVESTIGATION-CLI-STAGE-PENDING-001": {
-      "title": "CLI stage-index preserves pending transaction facts",
+      "title": "CLI stage --scope index preserves pending transaction facts",
       "sourcePath": "cases/investigation-cli-stage-pending-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:a9df74f711e8a443a6a88c3e5d5d1352cee51573c528f72e9b1be2328ae935d7"
+        "test:45522b4aab7a62caee3478dffb81bcc0ae9b92a26925a8f240f174ca8f0d244b"
       ]
     },
     "INVESTIGATION-CLI-SYNC-001": {
@@ -5443,12 +5543,12 @@
         "investigation-report"
       ],
       "testIds": [
-        "test:1ad25085fe757dfbe53d468cabd096a6ad8183d6745fb280d2c71f3e6a4a328f",
-        "test:248d4cb117d4b798fb3b6f7bf943db121475ff72bbd88aa5aa772dbebd41f396",
-        "test:25eac528d496adc307d3ebecaa532c501a4ab4c85e910d488749aa843f10bec3",
+        "test:3aa746ed9b9e7a36ef91ffc5b3520160a6a72c030819d6f40f6f9a810fb2df24",
         "test:4a6e9856533ef43e66521ebf37159aa5bfa8555ba77a97d45f93467e5ce1ab9e",
-        "test:722d9e892b735056fbab75c9fb157fce14f4a236a9f07af178d0493db5e06ebd",
-        "test:9797d019cf792c6caebfd0d903de3e62843c40ac00a93d3314616629e09a5e00"
+        "test:5f8dd8c1795294e36b1382b439da729888f388cd14e1ff5ab9cf2a98abbfe132",
+        "test:80f4943358fdb5890ba19fe5fce575a664ee6942db327973485cb743af09739f",
+        "test:9f7cd102c213861b58af8c36403aac95adffe8171f096fb1c0f57d475810292d",
+        "test:b654920214610af84173c7f0bd29be576be9f99cc5e44188ea8c1752f7250b1a"
       ]
     },
     "INVESTIGATION-DIAGNOSTIC-SANITIZATION-001": {
@@ -6498,143 +6598,263 @@
       ]
     },
     "INVESTIGATION-STAGE-BOOTSTRAP-001": {
-      "title": "stage-index accepts selected report additions in a current index",
+      "title": "stage --scope index accepts selected report additions in a current index",
       "sourcePath": "cases/investigation-stage-bootstrap-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:51894fe68608cac2cc67cbb33918f1e8e61229461ecf084a429e7a3a752af2c2"
+        "test:aaf3cadf1286186d3eb88ffbcd682b14c3150360abbb51148cb7c65b65423e04"
       ]
     },
     "INVESTIGATION-STAGE-CLI-USAGE-001": {
-      "title": "CLI stage-index uses invalid-option exit status without report IDs",
+      "title": "CLI stage uses invalid-option exit status without report IDs",
       "sourcePath": "cases/investigation-stage-cli-usage-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:ed032173c89a02a9bf8abe3d9a07c902e852252aff81a0fc79f22f855da23748"
+        "test:6b173b35b79ccc6a1af2ac5f838ad6ba5f81c0b6dbf340ec26694033a2d288b9"
       ]
     },
     "INVESTIGATION-STAGE-CONFLICT-001": {
-      "title": "stage-index preserves strict current index definition requirements",
+      "title": "stage --scope index preserves strict current index definition requirements",
       "sourcePath": "cases/investigation-stage-conflict-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:a0df847940ecbd43f6e0e5b529a28044bcd93e81ad1d218842af4441e9bb10c2"
+        "test:f6582316998cd40b348c5f65c7e5320caab2691534fa0062a6f327a8dcb4cff7"
       ]
     },
     "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001": {
-      "title": "stage-index validates canonical Investigation IDs before repository access",
+      "title": "stage --scope index validates canonical Investigation IDs before repository access",
       "sourcePath": "cases/investigation-stage-definition-upgrade-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:c21c3f2227725925901fd4834bb6f6ccced2aae4781a4b4d872059c90c03411f"
+        "test:da4f23f03779fccdc60f651efc98060db9eec5b490f23a8ada890136a3873aaa"
+      ]
+    },
+    "INVESTIGATION-STAGE-DOMAIN-BUSY-001": {
+      "title": "stage --scope domain reports a busy pending boundary without workspace writes",
+      "sourcePath": "cases/investigation-stage-domain-busy-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:636251d03f078cdfef096264c371b2454b1f7539a306efb308802b136c696c3b"
+      ]
+    },
+    "INVESTIGATION-STAGE-DOMAIN-CLI-001": {
+      "title": "CLI stage --scope domain stages report Markdown and owner resources without the index",
+      "sourcePath": "cases/investigation-stage-domain-cli-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:7d84cea62e39d295025da3e34200f7731fec8a03efc00751086782a0a0aefdfc"
+      ]
+    },
+    "INVESTIGATION-STAGE-DOMAIN-DRIFT-001": {
+      "title": "stage rejects owner source drift before the pending write stays atomic",
+      "sourcePath": "cases/investigation-stage-domain-drift-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:c00fcf40229db1edbeaf16b228f360460bc49045b225dbd281c6a261c0aba47c"
+      ]
+    },
+    "INVESTIGATION-STAGE-DOMAIN-PRESERVE-INDEX-001": {
+      "title": "stage --scope domain preserves staged index pending bytes and reports the preserved scope",
+      "sourcePath": "cases/investigation-stage-domain-preserve-index-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:0b5d4f2a899fdc5ea3979c789f4b3669dce0ada6bef9eed5f17b05a6841772f0"
+      ]
+    },
+    "INVESTIGATION-STAGE-DOMAIN-PRESERVE-STAGED-DELETION-001": {
+      "title": "stage --scope domain keeps unrelated staged deletions when staging another report",
+      "sourcePath": "cases/investigation-stage-domain-preserve-staged-deletion-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:a78fdb40b8415d94bae08543fe3d4a39a7e71db9135a93004dfbec346f5cb56b"
+      ]
+    },
+    "INVESTIGATION-STAGE-DOMAIN-RENAME-001": {
+      "title": "stage --scope domain stages an explicit rename as deletion plus addition",
+      "sourcePath": "cases/investigation-stage-domain-rename-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:7778ed4253aa7fe256fbdcb25d03d0dc7929327f1ff1b5ba09e0ec4e50482781"
+      ]
+    },
+    "INVESTIGATION-STAGE-DOMAIN-REPORT-DELETION-001": {
+      "title": "stage --scope domain stages report deletion with the owner tree for a baseline-only ID",
+      "sourcePath": "cases/investigation-stage-domain-report-deletion-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:2b80afe43b214f7bf66f8ce3feb93b9aa2d7f113bba14397c8caffdba3b971d2"
+      ]
+    },
+    "INVESTIGATION-STAGE-DOMAIN-RESOURCE-DELETION-001": {
+      "title": "stage --scope domain stages owner resource deletions and ignores other owners",
+      "sourcePath": "cases/investigation-stage-domain-resource-deletion-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:f17dd807707dd4796cc84d03060851bb4db5b0a8bbe4f7b4bf559b017e327c31"
+      ]
+    },
+    "INVESTIGATION-STAGE-DOMAIN-TREE-001": {
+      "title": "stage --scope domain writes the report and its complete owner resource tree",
+      "sourcePath": "cases/investigation-stage-domain-tree-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:365afdc71dd8025634717a36b234b9f0ef80ef6175b6a94500d114f2ee651f52"
       ]
     },
     "INVESTIGATION-STAGE-FRESHNESS-001": {
-      "title": "CLI strict check and stage-index stop on a stale derived index",
+      "title": "CLI strict check and stage stop on a stale derived index",
       "sourcePath": "cases/investigation-stage-freshness-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:dcf268c1057a402e2dc4aac36e4ced0bbdcb9ac15a519e949adecb4bc552e97c"
+        "test:b76fd075f52b30ebb48aff40afa6b7a58c3ebfe638700203b1f00845b6bdae28"
       ]
     },
     "INVESTIGATION-STAGE-INPUT-001": {
-      "title": "stage-index rejects invalid or duplicate Investigation IDs",
+      "title": "stage --scope index rejects invalid or duplicate Investigation IDs",
       "sourcePath": "cases/investigation-stage-input-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:85d37a4bcab0517616b2598547d910cbb5b7ec83a3878e419cdd19c6b4fd0883"
+        "test:0c7d6daca27e99a1c24fbd74c21e37905b2302caefff5e59b7f80a1b53edf960"
       ]
     },
     "INVESTIGATION-STAGE-ISOLATION-001": {
-      "title": "stage-index keeps report Markdown outside selected index staging",
+      "title": "stage --scope index keeps report Markdown outside selected index staging",
       "sourcePath": "cases/investigation-stage-isolation-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:f7a5f9b4bf20a1461fab06a38f3df7d20c932677e6160566136f96486697799f"
+        "test:22e5559a81a7f6fcc8c82df6073e2497f3258ef6dd3070ef979b006342f37c4b"
       ]
     },
     "INVESTIGATION-STAGE-MISSING-001": {
-      "title": "stage-index rejects IDs missing from the current collection",
+      "title": "stage --scope index rejects IDs missing from the current collection",
       "sourcePath": "cases/investigation-stage-missing-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:86798caa5bcd3f594d455364d106a7f396f783bf8df8a5a2443988584da8e36b"
+        "test:52d1662554a777e0f625c3a124b9a92d6d20f4af8d6aa94ce4b99d7538ff7444"
       ]
     },
     "INVESTIGATION-STAGE-OVERLAY-001": {
-      "title": "stage-index selects entries by Investigation ID without staging reports",
+      "title": "stage --scope index selects entries by Investigation ID without staging reports",
       "sourcePath": "cases/investigation-stage-overlay-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:071716067c5cba93f2a0035ea5ec517e99f1e07dec5b1ec90de4335cb2c3645f"
+        "test:e08e7b0c16b23f55f7167bad46be005da4f3af1e286a0587e23672d83a8a66ca"
       ]
     },
     "INVESTIGATION-STAGE-RESOURCE-ADD-001": {
-      "title": "stage-index treats unrelated report resources as outside selected report entries",
+      "title": "stage --scope index treats unrelated report resources as outside selected report entries",
       "sourcePath": "cases/investigation-stage-resource-add-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:5263f289ea121f94c62969ffea8db5214c1c9686b36ec2c54209b49db095764a"
+        "test:ec4a918d59b60af7cb3faaa9e42c1b83cf292a849f7d0fb435d81992a6c9d295"
       ]
     },
     "INVESTIGATION-STAGE-RESOURCE-BYTES-001": {
-      "title": "stage-index treats resource byte changes as outside report selection",
+      "title": "stage --scope index treats resource byte changes as outside report selection",
       "sourcePath": "cases/investigation-stage-resource-bytes-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:b25e7aef08e001526f35d69a1b7e65bce3caffe89ecb4eadda49de2aa288a5bf"
+        "test:674e9dc410d25a1f0249c9887a5fb473fb836a926f0eabf8a2790b48675105cc"
       ]
     },
     "INVESTIGATION-STAGE-RESOURCE-DELETE-001": {
-      "title": "stage-index reports selection diagnostics deterministically",
+      "title": "stage --scope index reports selection diagnostics deterministically",
       "sourcePath": "cases/investigation-stage-resource-delete-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:637f05ebfd34ac901fa101d1d5b6f32ef1383a045f4b1d720cf4d5f57ec56ae5"
+        "test:6d1cfa8bf0bfdc8cbe5e03e1e4e35bd95459760c4c33be3d1739ac7d899fa9ea"
       ]
     },
     "INVESTIGATION-STAGE-RESOURCE-RENAME-001": {
-      "title": "stage-index does not accept legacy topic path identifiers",
+      "title": "stage --scope index does not accept legacy topic path identifiers",
       "sourcePath": "cases/investigation-stage-resource-rename-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:055d3f119c310f2bafa472808e54d8e53b1f8e857063dafd8d67da9967581eb0"
+        "test:3a8e96173394532aa88587aa0aaffc2566914e8f219942e8c4af153020f9db31"
+      ]
+    },
+    "INVESTIGATION-STAGE-SCOPE-ALL-001": {
+      "title": "stage --scope all writes the index projection, report, and owner tree atomically",
+      "sourcePath": "cases/investigation-stage-scope-all-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:4663feccffbb111620ddc44318c917f32bb9a3c9232511b0403bd8a0d3d446a7"
+      ]
+    },
+    "INVESTIGATION-STAGE-SCOPE-CLI-001": {
+      "title": "CLI stage exposes the scope contract and rejects an invalid scope",
+      "sourcePath": "cases/investigation-stage-scope-cli-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:3cd22fb651541beae981d49dc0c38d932e8347285fcc542b88abbdc457db4937"
+      ]
+    },
+    "INVESTIGATION-STAGE-SCOPE-CLI-REMOVED-001": {
+      "title": "CLI treats the removed stage-index entry as an unknown command",
+      "sourcePath": "cases/investigation-stage-scope-cli-removed-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:5d3c05d6493c2362966f963adfac4474281f13f868fd39980709e29921998942"
       ]
     },
     "INVESTIGATION-STAGE-VERSION-CONTROL-001": {
-      "title": "stage-index reports unavailable version control without working-tree writes",
+      "title": "stage --scope index reports unavailable version control without working-tree writes",
       "sourcePath": "cases/investigation-stage-version-control-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:83c81a14a2627933f811fe9711bcfcf8a3ed926716a68782fb48d7db3751110f"
+        "test:c8fbe0bcb5513ac8bbbdf9307368ce6546cd21453abd543ec77596bf87004af6"
       ]
     },
     "INVESTIGATION-SYNC-DIAGNOSTIC-001": {

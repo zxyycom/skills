@@ -405,7 +405,9 @@ test("candidate queries report readiness while formal sources and default checks
     const resynchronized = await runInvestigationCli(root, ["sync-index"]);
     assert.equal(resynchronized.status, 0, resynchronized.stderr);
     const staged = await runInvestigationCli(root, [
-      "stage-index",
+      "stage",
+      "--scope",
+      "index",
       "formal.md"
     ]);
     assert.equal(staged.status, 0, staged.stderr);

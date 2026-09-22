@@ -1,7 +1,7 @@
-### Case INVESTIGATION-STAGE-RESOURCE-RENAME-001: stage-index does not accept legacy topic path identifiers
+### Case INVESTIGATION-STAGE-RESOURCE-RENAME-001: stage --scope index does not accept legacy topic path identifiers
 
 Tests:
-- `test:055d3f119c310f2bafa472808e54d8e53b1f8e857063dafd8d67da9967581eb0`
+- `test:3a8e96173394532aa88587aa0aaffc2566914e8f219942e8c4af153020f9db31`
 
 Tags:
 - `investigation-report`

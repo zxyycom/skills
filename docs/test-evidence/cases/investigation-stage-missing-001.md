@@ -1,7 +1,7 @@
-### Case INVESTIGATION-STAGE-MISSING-001: stage-index rejects IDs missing from the current collection
+### Case INVESTIGATION-STAGE-MISSING-001: stage --scope index rejects IDs missing from the current collection
 
 Tests:
-- `test:86798caa5bcd3f594d455364d106a7f396f783bf8df8a5a2443988584da8e36b`
+- `test:52d1662554a777e0f625c3a124b9a92d6d20f4af8d6aa94ce4b99d7538ff7444`
 
 Tags:
 - `investigation-report`

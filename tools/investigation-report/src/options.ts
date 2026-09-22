@@ -9,7 +9,7 @@ import {
   type InvestigationCandidateShowOptions,
   type InvestigationIndexQueryOptions,
   type InvestigationSearchOptions,
-  type InvestigationIndexStageOptions,
+  type InvestigationStageOptions,
   type InvestigationIndexSyncOptions,
   type InvestigationRelation,
   type InvestigationRelationSetOptions,
@@ -78,9 +78,12 @@ const investigationIndexSyncOptionsSchema = v.strictObject({
   preflight: v.optional(v.boolean("must be a boolean")),
   selectors: optionalStringArraySchema
 });
-const investigationIndexStageOptionsSchema = v.strictObject({
+const investigationStageOptionsSchema = v.strictObject({
   ...locationFields,
-  reportIds: requiredStringArraySchema
+  reportIds: requiredStringArraySchema,
+  scope: v.optional(
+    v.picklist(["all", "index", "domain"], "must be all, index, or domain")
+  )
 });
 const investigationIndexQueryOptionsSchema = v.strictObject({
   direction: v.optional(
@@ -212,10 +215,10 @@ export function parseInvestigationIndexSyncOptions(
 ): Result<InvestigationIndexSyncOptions, string[]> {
   return parseOptions(investigationIndexSyncOptionsSchema, input);
 }
-export function parseInvestigationIndexStageOptions(
+export function parseInvestigationStageOptions(
   input: unknown
-): Result<InvestigationIndexStageOptions, string[]> {
-  return parseOptions(investigationIndexStageOptionsSchema, input).map(
+): Result<InvestigationStageOptions, string[]> {
+  return parseOptions(investigationStageOptionsSchema, input).map(
     (options) => ({
       ...options,
       reportIds: options.reportIds.map(normalizeCompatibleId)

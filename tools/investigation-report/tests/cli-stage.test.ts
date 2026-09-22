@@ -41,7 +41,7 @@ test("CLI rejects repeated relation query options", async () => {
   });
 });
 
-test("CLI stage-index uses invalid-option exit status without report IDs", async () => {
+test("CLI stage uses invalid-option exit status without report IDs", async () => {
   await withTempRoot("cli-stage-invalid", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
     const indexPath = path.join(
@@ -49,22 +49,24 @@ test("CLI stage-index uses invalid-option exit status without report IDs", async
       "investigation-index.json"
     );
     const before = await fs.readFile(indexPath, "utf8");
-    const result = await runInvestigationCli(root, ["stage-index"]);
+    const result = await runInvestigationCli(root, ["stage"]);
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
     assert.match(
       result.stderr,
-      /stage-index requires at least one Investigation ID/u
+      /stage requires at least one Investigation ID/u
     );
     assert.equal(await fs.readFile(indexPath, "utf8"), before);
   });
 });
 
-test("CLI stage-index preserves version-control diagnostic facts", async () => {
+test("CLI stage preserves version-control diagnostic facts", async () => {
   await withTempRoot("cli-stage-version-control", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
     const result = await runInvestigationCli(root, [
-      "stage-index",
+      "stage",
+      "--scope",
+      "index",
       "report.md"
     ]);
     assert.equal(result.status, 1);
@@ -79,7 +81,7 @@ test("CLI stage-index preserves version-control diagnostic facts", async () => {
   });
 });
 
-test("CLI stage-index renders filesystem diagnostics structurally", async () => {
+test("CLI stage renders filesystem diagnostics structurally", async () => {
   await withTempRoot("cli-stage-filesystem", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
     git(root, ["init", "--quiet"]);
@@ -104,7 +106,12 @@ test("CLI stage-index renders filesystem diagnostics structurally", async () => 
     }) as typeof fs.readFile;
     let result;
     try {
-      result = await runInvestigationCli(root, ["stage-index", "report.md"]);
+      result = await runInvestigationCli(root, [
+        "stage",
+        "--scope",
+        "index",
+        "report.md"
+      ]);
     } finally {
       fs.readFile = originalReadFile;
     }
@@ -122,7 +129,7 @@ test("CLI stage-index renders filesystem diagnostics structurally", async () => 
   });
 });
 
-test("CLI stage-index preserves pending transaction facts", async () => {
+test("CLI stage --scope index preserves pending transaction facts", async () => {
   await withTempRoot("cli-stage-pending", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
     git(root, ["init", "--quiet"]);
@@ -134,7 +141,9 @@ test("CLI stage-index preserves pending transaction facts", async () => {
     await fs.writeFile(lockPath, "held", "utf8");
     try {
       const result = await runInvestigationCli(root, [
-        "stage-index",
+        "stage",
+        "--scope",
+        "index",
         "report.md"
       ]);
       assert.equal(result.status, 1);
@@ -149,7 +158,7 @@ test("CLI stage-index preserves pending transaction facts", async () => {
   });
 });
 
-test("CLI stage-index rejects JSON output", async () => {
+test("CLI stage rejects JSON output", async () => {
   await withTempRoot("cli-stage-json", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
     const indexPath = path.join(
@@ -158,7 +167,7 @@ test("CLI stage-index rejects JSON output", async () => {
     );
     const before = await fs.readFile(indexPath, "utf8");
     const result = await runInvestigationCli(root, [
-      "stage-index",
+      "stage",
       "report.md",
       "--json"
     ]);
@@ -166,6 +175,106 @@ test("CLI stage-index rejects JSON output", async () => {
     assert.equal(result.stdout, "");
     assert.match(result.stderr, /unknown option '--json'/u);
     assert.equal(await fs.readFile(indexPath, "utf8"), before);
+  });
+});
+
+test("CLI stage exposes the scope contract and rejects an invalid scope", async () => {
+  await withTempRoot("cli-stage-scope", async (root) => {
+    await writeCollection(root, [{ id: "report" }]);
+    const help = await runInvestigationCli(root, ["stage", "--help"]);
+    assert.equal(help.status, 0, help.stderr);
+    assert.match(help.stdout, /--scope <scope>/u);
+    assert.match(help.stdout, /all, index, or domain pending snapshot scope/u);
+
+    const invalid = await runInvestigationCli(root, [
+      "stage",
+      "--scope",
+      "everything",
+      "report"
+    ]);
+    assert.equal(invalid.status, 2);
+    assert.equal(invalid.stdout, "");
+    assert.match(
+      invalid.stderr,
+      /stage --scope must be all, index, or domain/u
+    );
+
+    const repeated = await runInvestigationCli(root, [
+      "stage",
+      "--scope",
+      "index",
+      "--scope",
+      "domain",
+      "report"
+    ]);
+    assert.equal(repeated.status, 2);
+    assert.match(repeated.stderr, /--scope only once/u);
+  });
+});
+
+test("CLI treats the removed stage-index entry as an unknown command", async () => {
+  await withTempRoot("cli-stage-index-removed", async (root) => {
+    await writeCollection(root, [{ id: "report" }]);
+    const result = await runInvestigationCli(root, ["stage-index", "report"]);
+    assert.equal(result.status, 2);
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, /unknown command/u);
+  });
+});
+
+test("CLI stage --scope domain stages report Markdown and owner resources without the index", async () => {
+  await withTempRoot("cli-stage-domain", async (root) => {
+    const resourceDirectory = path.join(
+      investigationRoot(root),
+      "_resources",
+      "report"
+    );
+    await fs.mkdir(resourceDirectory, { recursive: true });
+    await fs.writeFile(
+      path.join(resourceDirectory, "evidence.txt"),
+      "evidence\n",
+      "utf8"
+    );
+    await writeCollection(root, [
+      { id: "report", resources: ["report/evidence.txt"] }
+    ]);
+    git(root, ["init", "--quiet"]);
+    git(root, ["config", "user.email", "test@example.invalid"]);
+    git(root, ["config", "user.name", "Test"]);
+    git(root, ["add", "."]);
+    git(root, ["commit", "--quiet", "-m", "initial"]);
+    await writeCollection(root, [
+      { id: "report", resources: ["report/evidence.txt"], title: "Changed" }
+    ]);
+    const result = await runInvestigationCli(root, [
+      "stage",
+      "--scope",
+      "domain",
+      "report"
+    ]);
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /scope: domain/u);
+    assert.match(
+      result.stdout,
+      /written paths: docs\/investigations\/report\.md/u
+    );
+    assert.match(
+      result.stdout,
+      /caller-owned paths: docs\/investigations\/investigation-index\.json/u
+    );
+    assert.match(
+      git(root, ["diff", "--cached", "--name-only"]),
+      /docs\/investigations\/report\.md/u
+    );
+    assert.equal(
+      git(root, [
+        "diff",
+        "--cached",
+        "--",
+        "docs/investigations/investigation-index.json"
+      ]),
+      ""
+    );
   });
 });
 
