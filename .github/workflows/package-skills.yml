@@ -25,7 +25,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       skill_hash: ${{ steps.skill_hash.outputs.current_hash }}
-      skill_packages_changed: ${{ steps.release_gate.outputs.changed }}
 
     steps:
       - name: Checkout
@@ -108,25 +107,6 @@ jobs:
           fi
           bun run hash:skills -- "${args[@]}"
 
-      - name: Detect skill package changes
-        id: release_gate
-        env:
-          BASELINE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
-        run: |
-          set -euo pipefail
-
-          changed=false
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            changed=true
-          elif [ -z "${BASELINE_REF:-}" ] || [ "$BASELINE_REF" = "0000000000000000000000000000000000000000" ]; then
-            changed=true
-          elif ! git diff --quiet "$BASELINE_REF" "$GITHUB_SHA" -- skills; then
-            changed=true
-          fi
-
-          echo "Skill package content changed: $changed"
-          echo "changed=$changed" >> "$GITHUB_OUTPUT"
-
       - name: Upload skill assets
         uses: actions/upload-artifact@v4
         with:
@@ -151,7 +131,7 @@ jobs:
 
   publish:
     needs: package
-    if: ${{ needs.package.outputs.skill_packages_changed == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     concurrency:
       group: publish-skills

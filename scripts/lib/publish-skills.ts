@@ -66,8 +66,14 @@ function parseRequest(
 function publishRolling(
   request: PublishRequest,
   assets: ReleaseAssets
-): { action: "created" | "updated"; tag: string } {
+): { action: "created" | "unchanged" | "updated"; tag: string } {
   const existing = findRelease(workspaceRoot, rollingTag);
+  if (
+    existing !== undefined &&
+    assetDifferences(assets.ordered, existing.assets).length === 0
+  ) {
+    return { action: "unchanged", tag: rollingTag };
+  }
   execute(
     workspaceRoot,
     "git",

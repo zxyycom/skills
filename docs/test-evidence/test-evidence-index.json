@@ -664,6 +664,7 @@
       "SKILL-RELEASE-PUBLISH-003": "sha256:b074d23ab4a0a8f005fa201d0cddedce07fc0b90d2c66b425bf072246b04f61b",
       "SKILL-RELEASE-PUBLISH-004": "sha256:2f48476c464686b0c6e265252aaea966236da5c1e54f93c7b66727583251dcbc",
       "SKILL-RELEASE-PUBLISH-005": "sha256:553669863f6166311b69c0f5345a1933751e9accc2aedf25552d169391da1f2c",
+      "SKILL-RELEASE-PUBLISH-006": "sha256:a14fe349506e2bbfa268087eb8a299120ec6b626970315a0913374be8a7004b2",
       "SKILL-UPDATER-CANONICAL-PATH-001": "sha256:c84f5ca6ea60feb9c355a58d81053f153a9c8f6b8ff0e7d260e5a6b636fdb445",
       "SKILL-UPDATER-CURRENT-CHECK-001": "sha256:8cbaf0944d5a6c81e13d52b608f7be13df92cc63b49353e293605a6c3e025328",
       "SKILL-UPDATER-DECLARATIONS-001": "sha256:e9e8b15dc2dac17f2b041bfac8e8b8a0373ccedc05788c119623c4fced1708ef",
@@ -7556,6 +7557,16 @@
       ],
       "testIds": [
         "test:0ef5aa9359f887cc846604ed145a5f8f4c5721e40771fd152524135e2b8d3de2"
+      ]
+    },
+    "SKILL-RELEASE-PUBLISH-006": {
+      "title": "滚动发布跳过已同步资产",
+      "sourcePath": "cases/skill-release-publish-006.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:5f219882a0163762f1121430eb49e460a370629c51a21f741214ee65297d5058"
       ]
     },
     "SKILL-UPDATER-CANONICAL-PATH-001": {

@@ -121,6 +121,20 @@
       ],
       "title": "定位 Gate 工具链漂移导致的级联失败"
     },
+    "260923-stale-skill-release-after-failed-ci": {
+      "formedAt": "2026-09-23T09:00:25Z",
+      "name": "stale-skill-release-after-failed-ci",
+      "question": "为什么含 skill 变更的 CI 失败后，后续成功构建没有补发当前制品？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "stale-skill-release-after-failed-ci.md",
+      "tags": [
+        "ci",
+        "release",
+        "repository-tooling"
+      ],
+      "title": "定位失败构建后滚动 Skill Release 不补发"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -686,6 +700,7 @@
       "260911-explain-ci-cold-proof-test-failure": "sha256:f61100ce3a060d1d614b9065fdd67b7ddf3de76fb88560756d16421b1580e64f",
       "260912-isolate-ci-version-control-test-load": "sha256:d46df71cb082a9a60bbde3a4db359c19eb28f68ccf2ea64706391ad0f3c03706",
       "260919-gate-toolchain-drift": "sha256:6e782b067a86da17947542acb24540521c62df9b55d3d594cd1ee42ea3970226",
+      "260923-stale-skill-release-after-failed-ci": "sha256:dc2cbf8762209c64b23d75e8c17382e17b3b6de654300b8a3f8ac92987c52cd7",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:4861ec08242f0007c24f5b6d7e8e0a0c5fc1ccaaf6898eb1f64420645a2f0c21",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:886e1ade798bfe48802e32c5296dc03c07d9b192dde3519b52ec5b8583778bdd",
       "align-prompt-optimize-name-and-trigger": "sha256:24700cda424786bc07531f84b6c139f1de6fae7b050ad69811bdddca35734cb6",

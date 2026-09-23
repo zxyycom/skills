@@ -100,6 +100,18 @@ test("rolling publication creates a verified latest release when absent", async 
   });
 });
 
+test("rolling publication skips remote writes when current assets are already published", async () => {
+  await withHarness("complete", async ({ root, run }) => {
+    const result = await run("rolling", {
+      "skills-latest": await publishedAssets(root)
+    });
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Skill Release unchanged: skills-latest/u);
+    assert.deepEqual(result.commands.map(commandAction), ["gh:view"]);
+  });
+});
+
 test("snapshot publication creates once and reuses matching digests", async () => {
   await withHarness("complete", async ({ root, run }) => {
     const tag = `skills-${packageHash.slice(0, 12)}`;
