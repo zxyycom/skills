@@ -5,7 +5,7 @@ import {
   type GateCommandInvocation
 } from "./lib/vibe-gate.ts";
 import {
-  expectedSemanticCommandPaths,
+  expectedSemanticChecks,
   expectedSemanticPrerequisites
 } from "./vibe-check-catalog-fixture.ts";
 import {
@@ -137,7 +137,9 @@ test("public distribution Checks require successful generation Checks", async ()
         prerequisites
       ] of expectedSemanticPrerequisites) {
         const [prerequisite] = prerequisites;
-        const consumerPath = expectedSemanticCommandPaths.get(consumerCheckId);
+        const consumerPath = expectedSemanticChecks.find(
+          ([checkId]) => checkId === consumerCheckId
+        )?.[2];
         if (consumerPath === undefined) {
           throw new Error(
             `missing consumer command path for ${consumerCheckId}`

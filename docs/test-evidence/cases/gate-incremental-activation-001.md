@@ -9,6 +9,7 @@ Tests:
 - `test:9b5dd0725c798ef758b1e57a654b092cfbad664c980ca45df11b8a0c510af823`
 - `test:c067f038382c3793fd65a6e57d05ffb200a59f4ecbe4e5a5de9b09f343d25709`
 - `test:d734f26be9f780c80e02df9dd15fd77ad3d37149d7df8d7af03553d8a05d7eff`
+- `test:da5c325ff39accab38f2730d58c10cd28b7abe309c13622ff846b7cc99ecc358`
 - `test:db7194efa67cbb9de2a9ea3ac74dc903817906ae1205424fbb21ba93731b001c`
 
 Tags:
@@ -20,5 +21,6 @@ Contract:
 Proves:
 - 首次运行执行基础环境 Check 与全部 59 个 base impact Checks，成功后只为后者原子形成 59 项可复用 receipt；稳定工作区复用全部 impact Checks，但基础环境 Check 仍真实执行并由 aggregate 结算。
 - Markdown 变化只激活 Markdown 与 secret Checks；shared-tools 变化传播到 validate 和领域 consumer，skill-package 变化传播到 Environment、Skill Updater 与 validate，build-system 变化传播到生成一致性 consumer；未知 owner 变化激活全部 Checks，但其稳定成功证明可在下一次复用。
+- `script:test:check` 的直接输入显式包含 `maintained-code`：稳定工作区下其 receipt 保持复用，而修改 `tools/<owner>/tests/run.ts` 语义聚合入口内容即以 `inputs-changed` 失效并重跑 Gate 自身测试套件。
 - 根配置、声明环境或工具/依赖图身份变化使全部有效输入证明失效，只承载父 shell 记账的 `_` 变化不影响证明；必要工具探测失败形成带原因的全量 fallback，不能缓存 unavailable 占位值。
 - 损坏 receipt 按 miss 全量重算；未通过 Check、不可写 cache、结束快照不可用与开始/结束快照漂移不发布证明，release 激活全部 63 项，起始快照不可用的 base 路径执行基础环境 Check 与全部 59 个 impact Checks。

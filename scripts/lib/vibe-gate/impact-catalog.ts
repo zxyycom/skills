@@ -98,7 +98,7 @@ const packageContracts = [
     "skill-release"
   ]),
   contract("script:test:index-runtime", ["index-runtime"]),
-  contract("script:test:check", ["global"]),
+  contract("script:test:check", ["global", "maintained-code"]),
   contract("script:test:skill-updater", ["skill-updater", "skill-release"]),
   contract("script:test:skill-validator", ["skill-validator"]),
   contract("script:test:relation-graph", ["shared-tools"]),

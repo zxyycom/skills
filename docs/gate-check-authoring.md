@@ -119,8 +119,8 @@
    ```
 
 4. 核对 `semanticImpactTags(checkId)` 的 owner tag。
-5. 更新 `scripts/vibe-check-catalog-fixture.ts` 的 Check、命令路径与前置期望，以及 catalog 测试中明确断言的 owner 或文件数量。
-6. 更新 `docs/tooling.md`、Gate Definition 测试和 Test Evidence Case 中明确承接 catalog 数量的当前事实。
+5. 更新 `scripts/vibe-check-catalog-fixture.ts` 的 Check、runner、命令路径与前置期望；catalog 测试从 wrapper 磁盘导入推导叶子测试文件，并校验其与 `tools/<owner>/tests/run.ts` 聚合一致，不维护逐文件清单或固定数量断言。
+6. 更新 `docs/tooling.md` 和 Test Evidence Case 中明确承接 catalog 数量的当前事实。
 
 没有生成前置的 Bun 语义 Check 自动进入 release 测试批次；Node Check 和带 `dependsOn` 的 Bun Check 保持独立执行。批次资格服从真实 runner 与依赖关系。
 

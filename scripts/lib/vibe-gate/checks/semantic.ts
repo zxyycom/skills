@@ -110,7 +110,9 @@ export const semanticGateChecks = [
     checkId: "test:investigation-report:pending-stage",
     displayName: "Investigation Report pending stage",
     requiredTag: undefined,
-    command: bunTest("./tools/investigation-report/tests/staging.test.ts")
+    command: bunTest(
+      "./tools/investigation-report/tests/checks/pending-stage.ts"
+    )
   },
   {
     checkId: "test:investigation-report:cli-contract",

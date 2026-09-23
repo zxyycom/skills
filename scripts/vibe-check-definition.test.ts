@@ -19,8 +19,7 @@ import {
   vibeNativeCheckIds
 } from "./lib/vibe-gate.ts";
 import {
-  expectedSemanticCommandPaths,
-  expectedSemanticGateChecks,
+  expectedSemanticChecks,
   expectedSemanticPrerequisites
 } from "./vibe-check-catalog-fixture.ts";
 import {
@@ -65,8 +64,8 @@ test("gate Definition keeps the complete catalog and incremental selection", asy
     releaseDefinition,
     runner
   } = catalogDefinitions();
-  const expectedSemanticCheckIds = expectedSemanticGateChecks.map(
-    ([, checkId]) => checkId
+  const expectedSemanticCheckIds = expectedSemanticChecks.map(
+    ([checkId]) => checkId
   );
   const expectedCheckIds = [
     gateEnvironmentCheckId,
@@ -220,17 +219,15 @@ test("gate Definition projects semantic prerequisites and batch resources", () =
   const versionControlCheckId = packageScriptCheckId("test:version-control");
   assert.deepEqual(
     semanticGateChecks.map((check) => [
-      check.requiredTag,
       check.checkId,
       check.command.command,
       check.command.args.at(-1),
       "dependsOn" in check ? check.dependsOn : []
     ]),
-    expectedSemanticGateChecks.map(([requiredTag, checkId, command]) => [
-      requiredTag,
+    expectedSemanticChecks.map(([checkId, command, commandPath]) => [
       checkId,
       command,
-      expectedSemanticCommandPaths.get(checkId),
+      commandPath,
       expectedSemanticPrerequisites.get(checkId) ?? []
     ])
   );

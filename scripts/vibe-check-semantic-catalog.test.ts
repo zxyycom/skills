@@ -8,90 +8,94 @@ import {
   releaseTestBatchGroups,
   semanticGateChecks
 } from "./lib/vibe-gate.ts";
-import {
-  expectedSemanticCommandPaths,
-  expectedSemanticGateChecks
-} from "./vibe-check-catalog-fixture.ts";
+import { expectedSemanticChecks } from "./vibe-check-catalog-fixture.ts";
 import { repositoryRoot } from "./vibe-check-test-support.ts";
 
+async function readRepositoryFile(relativePath: string): Promise<string> {
+  return await fs.readFile(
+    path.join(repositoryRoot, relativePath.slice(2)),
+    "utf8"
+  );
+}
+
+function importedTestFiles(
+  source: string,
+  importerPath: string
+): readonly string[] {
+  return [...source.matchAll(/await import\("(\.[^"\n]+)"\);/gu)].map(
+    ([, relativePath]) =>
+      `./${path.posix.normalize(
+        path.posix.join(path.posix.dirname(importerPath.slice(2)), relativePath)
+      )}`
+  );
+}
+
 test("semantic Gate catalog matches its aggregate native entry points", async () => {
-  for (const [, checkId, , files] of expectedSemanticGateChecks) {
-    const commandPath = expectedSemanticCommandPaths.get(checkId);
-    assert.ok(commandPath, `missing command path for ${checkId}`);
-    if (commandPath?.includes("/checks/")) {
-      const source = await fs.readFile(
-        path.join(repositoryRoot, commandPath.slice(2)),
-        "utf8"
+  assert.deepEqual(
+    semanticGateChecks.map(({ checkId, command }) => [
+      checkId,
+      command.command,
+      command.args.at(-1)
+    ]),
+    expectedSemanticChecks
+  );
+  assert.ok(
+    semanticGateChecks.every(({ requiredTag }) => requiredTag === undefined)
+  );
+
+  const semanticLeafFiles: string[] = [];
+  const aggregateFilesByTool = new Map<string, string[]>();
+  for (const [checkId, command, commandPath] of expectedSemanticChecks) {
+    const leafFiles = commandPath.includes("/checks/")
+      ? importedTestFiles(await readRepositoryFile(commandPath), commandPath)
+      : [commandPath];
+    assert.ok(
+      leafFiles.length > 0,
+      `${checkId} wrapper imports no leaf test files: ${commandPath}`
+    );
+    for (const leafFile of leafFiles) {
+      assert.equal(
+        leafFile.includes("/checks/"),
+        false,
+        `${checkId} must import leaf test files only: ${leafFile}`
       );
-      const importedFiles = [
-        ...source.matchAll(/await import\("(\.\.\/[^"\n]+)"\);/gu)
-      ].map(
-        ([, relativePath]) =>
-          `./${path.posix.normalize(
-            path.posix.join(
-              path.posix.dirname(commandPath.slice(2)),
-              relativePath
-            )
-          )}`
-      );
-      assert.deepEqual(importedFiles, files, checkId);
-    } else {
-      assert.deepEqual([commandPath], files, checkId);
+    }
+    semanticLeafFiles.push(...leafFiles);
+    if (command === "bun") {
+      const tool = /^\.\/tools\/([^/]+)\/tests\//u.exec(commandPath)?.[1];
+      if (tool !== undefined) {
+        const aggregateFiles = aggregateFilesByTool.get(tool) ?? [];
+        aggregateFiles.push(...leafFiles);
+        aggregateFilesByTool.set(tool, aggregateFiles);
+      }
     }
   }
-  assert.deepEqual(
-    [
-      "change-plan",
-      "decision-records",
-      "investigation-report",
-      "task-graph",
-      "test-evidence"
-    ].map(
-      (tool) =>
-        semanticGateChecks.filter(({ checkId }) =>
-          checkId.startsWith(`test:${tool}:`)
-        ).length
-    ),
-    [3, 5, 5, 8, 5]
+
+  const duplicateLeafFiles = semanticLeafFiles.filter(
+    (leafFile, index) => semanticLeafFiles.indexOf(leafFile) !== index
   );
-  const semanticFiles = expectedSemanticGateChecks.flatMap(
-    ([, , , files]) => files
-  );
-  assert.equal(semanticFiles.length, 80);
-  assert.equal(new Set(semanticFiles).size, semanticFiles.length);
-  for (const tool of [
-    "change-plan",
-    "decision-records",
-    "investigation-report",
-    "task-graph",
-    "test-evidence"
-  ]) {
+  assert.deepEqual(duplicateLeafFiles, []);
+  const missingLeafFiles: string[] = [];
+  for (const leafFile of semanticLeafFiles) {
+    try {
+      await fs.access(path.join(repositoryRoot, leafFile.slice(2)));
+    } catch {
+      missingLeafFiles.push(leafFile);
+    }
+  }
+  assert.deepEqual(missingLeafFiles, []);
+
+  for (const [tool, expectedAggregateFiles] of aggregateFilesByTool) {
     const aggregatePath = `./tools/${tool}/tests/run.ts`;
-    const aggregateSource = await fs.readFile(
-      path.join(repositoryRoot, aggregatePath.slice(2)),
-      "utf8"
+    const aggregateFiles = importedTestFiles(
+      await readRepositoryFile(aggregatePath),
+      aggregatePath
     );
-    const aggregateFiles = [
-      ...aggregateSource.matchAll(/await import\("(\.\/[^"\n]+)"\);/gu)
-    ]
-      .map(
-        ([, relativePath]) =>
-          `./${path.posix.normalize(
-            path.posix.join(
-              path.posix.dirname(aggregatePath.slice(2)),
-              relativePath
-            )
-          )}`
-      )
-      .sort();
-    const expectedAggregateFiles = semanticFiles
-      .filter(
-        (file) =>
-          file.startsWith(`./tools/${tool}/tests/`) &&
-          file !== "./tools/task-graph/tests/native-store.test.ts"
-      )
-      .sort();
-    assert.deepEqual(aggregateFiles, expectedAggregateFiles, aggregatePath);
+    assert.deepEqual(
+      [...aggregateFiles].sort(),
+      [...expectedAggregateFiles].sort(),
+      aggregatePath
+    );
   }
 });
 

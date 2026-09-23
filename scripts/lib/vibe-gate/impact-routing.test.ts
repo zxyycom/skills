@@ -124,3 +124,37 @@ test("incremental Gate treats unknown paths and root configuration conservativel
     });
   });
 });
+
+test("incremental Gate reruns the Gate test suite when a semantic aggregation entry changes", async () => {
+  await withImpactFixture(async (fixture) => {
+    const aggregationEntry = "tools/task-graph/tests/run.ts";
+    await writeImpactFixture(
+      fixture.directory,
+      aggregationEntry,
+      'await import("./schema-index.test.ts");\n'
+    );
+    await publishFixtureReceipts(
+      fixture,
+      await prepareFixtureActivation(fixture)
+    );
+    const warm = await prepareFixtureActivation(fixture);
+    assert.equal(
+      warm.decisions.find(({ checkId }) => checkId === "script:test:check")
+        ?.action,
+      "reuse"
+    );
+
+    await writeImpactFixture(
+      fixture.directory,
+      aggregationEntry,
+      'await import("./schema-index.test.ts");\nawait import("./store.test.ts");\n'
+    );
+    const aggregationChange = await prepareFixtureActivation(fixture);
+    const suiteDecision = aggregationChange.decisions.find(
+      ({ checkId }) => checkId === "script:test:check"
+    );
+    assert.equal(suiteDecision?.action, "execute");
+    assert.equal(suiteDecision?.reason, "inputs-changed");
+    assert.match(suiteDecision?.fingerprint ?? "", /^[a-f0-9]{64}$/u);
+  });
+});

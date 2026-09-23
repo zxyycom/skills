@@ -29,9 +29,21 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      - name: Verify event baseline
+        env:
+          BASELINE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ -n "${BASELINE_REF:-}" ] && [ "$BASELINE_REF" != "0000000000000000000000000000000000000000" ]; then
+            if ! git cat-file -e "${BASELINE_REF}^{commit}" 2>/dev/null; then
+              echo "::error title=Event baseline unavailable::Cannot resolve $BASELINE_REF after checkout. A force-push may have removed the event's before commit; use a manual workflow dispatch for the current snapshot instead of silently comparing against HEAD."
+              exit 1
+            fi
+          fi
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -39,17 +51,18 @@ jobs:
           bun-version: 1.4.2
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24.18.0
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: 1.26.5
+          cache: false
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 11.7.0
 
@@ -122,6 +135,20 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      - name: Upload Gate failure diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate-diagnostics
+          include-hidden-files: true
+          path: |
+            .log/vibe-check/invocations/*/machine/*.json
+            .log/vibe-check/invocations/*/machine/*.ndjson
+            .log/vibe-check/invocations/*/progress.log
+            .log/vibe-check/invocations/*/checks/**/process.log
+          if-no-files-found: ignore
+          retention-days: 3
+
   publish:
     needs: package
     if: ${{ needs.package.outputs.skill_packages_changed == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
@@ -134,7 +161,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: ${{ github.sha }}
