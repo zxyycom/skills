@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- Stage 遇到同一 Decision ID 同时出现在 current 与 archive 来源时，这是领域来源冲突而非文件系统故障；诊断必须保留稳定领域 code 与受控 detail，不能伪报 filesystem unknown。
+- Stage 的 freshness gate 同步读取放行后，快照构建自己的来源扫描遇到同一 Decision ID 出现在 current 与 archive 两个来源时，这是领域来源冲突而非文件系统故障；诊断必须保留稳定领域 code 与受控 detail，不能伪报 filesystem unknown。
 
 Proves:
 - CLI 以失败退出且 stdout 为空，输出 `decision-records.stage-snapshot-invalid` 与重复来源说明。

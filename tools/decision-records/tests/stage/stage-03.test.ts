@@ -172,6 +172,7 @@ test("stage keeps duplicate selected source identities as a domain diagnostic", 
   withGitFixtureWorkspace(
     "stage-duplicate-source-identity",
     async (workspaceRoot) => {
+      const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
       const currentPath = decisionFilePath(workspaceRoot, currentSourcePath);
       const archivePath = decisionFilePath(
         workspaceRoot,
@@ -179,19 +180,24 @@ test("stage keeps duplicate selected source identities as a domain diagnostic", 
       );
       // The duplicate identity appears only after the freshness gate has
       // read the synchronized sources; a duplicated collection must never
-      // be published as fresh state in the first place.
-      const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
+      // be published as fresh state. The second decisions directory
+      // listing is the stage snapshot's own candidates scan, so
+      // materializing the duplicate before that listing makes the snapshot
+      // construction itself observe it, independent of the filesystem's
+      // entry order between the current source and the archive directory.
+      const descriptor = Object.getOwnPropertyDescriptor(fs, "readdir");
       assert.ok(descriptor);
       const readFile = fs.readFile.bind(fs);
-      let reads = 0;
+      const readdir = fs.readdir.bind(fs);
+      let listings = 0;
       let injected = false;
-      Object.defineProperty(fs, "readFile", {
+      Object.defineProperty(fs, "readdir", {
         ...descriptor,
-        value: async (
-          filePath: string,
-          encoding: BufferEncoding
-        ): Promise<string> => {
-          if (path.resolve(filePath) === currentPath && ++reads === 2) {
+        value: async (directory: string, options: { withFileTypes: true }) => {
+          if (
+            path.resolve(directory) === decisionsDirectory &&
+            ++listings === 2
+          ) {
             injected = true;
             await fs.mkdir(path.dirname(archivePath), { recursive: true });
             await fs.writeFile(
@@ -200,7 +206,7 @@ test("stage keeps duplicate selected source identities as a domain diagnostic", 
               "utf8"
             );
           }
-          return await readFile(filePath, encoding);
+          return await readdir(directory, options);
         }
       });
       try {
@@ -223,7 +229,7 @@ test("stage keeps duplicate selected source identities as a domain diagnostic", 
         );
         assert.doesNotMatch(result.stderr, /causeCategory: unknown/);
       } finally {
-        Object.defineProperty(fs, "readFile", descriptor);
+        Object.defineProperty(fs, "readdir", descriptor);
       }
       assert.equal(injected, true);
     }
