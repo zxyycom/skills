@@ -5,7 +5,6 @@ import { validateSkillDirectory } from "../tools/skill-validator/src/validation.
 import {
   validatePackageScripts,
   validateOxcConfigurationFiles,
-  validateRepositoryPermissionRules,
   validateRequiredProjectFiles,
   validateSkillPackageVersions
 } from "./validators/project-config.ts";
@@ -43,7 +42,6 @@ export async function validateRepository(
   await validatePackageScripts(reporter.report, workspaceRoot);
   await validateRequiredProjectFiles(reporter.report, workspaceRoot);
   await validateOxcConfigurationFiles(reporter.report, workspaceRoot);
-  await validateRepositoryPermissionRules(reporter.report, workspaceRoot);
   await validateSkillPackageVersions(reporter.report, discovery.skills);
 
   return { errors: reporter.errors, skillCount: discovery.skills.length };

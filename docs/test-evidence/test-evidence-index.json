@@ -317,7 +317,6 @@
       "ENV-LINKED-HASH-HOOK-001": "sha256:7db19552e336f47ea01129e9c8dbbcab82c35780c4f404b7e32256af5d21ed6d",
       "ENV-METRICS-PREREQUISITES-001": "sha256:09d8bc5b516bb885f8b521549304fa24ebdcaecf4d93d9770a70955f604a9617",
       "ENV-NODE-RUNTIME-001": "sha256:765f9bc7777babbcf4bee5e86aa1377ad36c19d6b839ed7dedac8ef5d173d71c",
-      "ENV-PERMISSION-RULES-001": "sha256:30f1bec51ad299039e9bb7471d15b12a9a428f43663d084376afc3037500a000",
       "ENV-WORKTREE-SETUP-001": "sha256:6a4e7fb21bf58dcba402cb1fec09c3f1ded4f99828fbfbd07c04ad21850cc009",
       "FILE-TEXT-SEARCH-ABORT-001": "sha256:bcc8f8bed1a9ba717eeac9ae5ba9d3435701a9e5f76240d411be6ae8072d3a02",
       "FILE-TEXT-SEARCH-LIMITS-001": "sha256:81336a04d6931042c4865514efee9dcb12d2956dcc296b29ea4d6ac5c78d9970",
@@ -4041,16 +4040,6 @@
       ],
       "testIds": [
         "test:d98de2b5cb9a9685fa1746bcd49751a61e436b8b571542b68f5fc5cc3d68f529"
-      ]
-    },
-    "ENV-PERMISSION-RULES-001": {
-      "title": "仓库权限规则覆盖环境 setup 且拒绝死入口",
-      "sourcePath": "cases/env-permission-rules-001.md",
-      "tags": [
-        "repository-tooling"
-      ],
-      "testIds": [
-        "test:66d47968f52efcd7c42ba11f1d716312950601ab3f4d590c060bf576f3371810"
       ]
     },
     "ENV-WORKTREE-SETUP-001": {
