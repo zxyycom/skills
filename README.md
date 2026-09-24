@@ -32,6 +32,8 @@
 
 [AI-Ready Docs](docs/skills/ai-ready-docs.md) 负责把文档优化到适合 AI 阅读、理解和使用的状态。它让 AI 能从实际文本准确恢复用途、信息、关系、范围、权威性和边界，同时保持文档便于人类阅读与维护；人类侧是次级约束和常见收益，不是并列主目标。实际 skill 位于 [`skills/ai-ready-docs/`](skills/ai-ready-docs/)。
 
+[File Lifecycle Hygiene](docs/skills/file-lifecycle-hygiene.md) 为 agent 自行决定的文件输出、复制、移动与留存提供轻量归位习惯，避免最终产物和回退、过渡等辅助物留下难以辨认的来源或去留。它不强制统一目录和逐文件记录。实际 skill 位于 [`skills/file-lifecycle-hygiene/`](skills/file-lifecycle-hygiene/)。
+
 [Skill Maintainer](docs/skills/skill-maintainer.md) 说明 skill 的组成与主要类型，判断能力归属，以自包含基线和环境适配完成交付，并随包提供机械结构验证器。实际 skill 位于 [`skills/skill-maintainer/`](skills/skill-maintainer/)。
 
 [Git Commit Organizer](docs/skills/git-commit-organizer.md) 关注提交信息质量。它希望统一提交风格，让每一次提交都能更准确地表达变更意图，降低后续阅读、审查、追踪和管理成本。实际 skill 位于 [`skills/git-commit-organizer/`](skills/git-commit-organizer/)。

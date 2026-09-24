@@ -24,6 +24,7 @@
    - `investigation-report`: 以带稳定 ID、tags 与显式关系的单份报告保存可独立复核的调查背景、依据、结果与边界。
    - `test-evidence-review`: 以最小原生测试入口为单位审查测试证据，区分测试节点与聚合容器或内部环节，并维护带 Tests、可选 tags、Contract 与 Proves 的 Case-only 账本。
    - `ai-ready-docs`: 优化说明、规则、任务和工作流等文档, 使 AI 能准确理解和可靠使用。
+   - `file-lifecycle-hygiene`: 以轻量习惯管理 agent 主导的文件输出、复制、移动和留存, 让最终产物与辅助物都有可理解的归宿。
    - `skill-maintainer`: 维护 skill 的能力归属、组成和交付边界。
    - `git-commit-organizer`: 整理当前 Git 改动并创建范围清楚、信息可追踪的提交。
    - `change-plan`: 用 proposal、design、tasks 与 draft/plan 元数据维护明确 Change，并在 Plan 内推进任务；以 `finalize` 结项时删除短期目录。
