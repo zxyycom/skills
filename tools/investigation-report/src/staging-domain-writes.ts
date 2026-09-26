@@ -14,8 +14,18 @@ import {
 
 export type DomainWrite = Readonly<{ data: Uint8Array | null; path: string }>;
 
+type DomainWriteFailure = Readonly<{
+  status: "error";
+  code: "source-read-failed" | "version-control-failed";
+  error: unknown;
+}>;
+
+export type DomainWritesResult =
+  | Readonly<{ status: "ok"; value: readonly DomainWrite[] }>
+  | DomainWriteFailure;
+
 export type DomainWriteOptions = Readonly<{
-  investigationsDirectory: string;
+  baseline: InvestigationIndex | null;
   investigationsScope: string;
   repository: VersionControlRepository;
   revision: RevisionId | null;
@@ -24,21 +34,16 @@ export type DomainWriteOptions = Readonly<{
 }>;
 
 /**
- * Prepares the selected domain writes: one Markdown write per selected report
- * (a baseline-only ID stages as a deletion) plus every workspace-and-HEAD
- * owner resource member of each selected report.
+ * Prepares the selected domain writes from indexed report paths plus every
+ * workspace-and-HEAD owner resource member of each selected report.
  */
 export async function collectDomainWrites(
   options: DomainWriteOptions
-): Promise<
-  | { status: "ok"; value: DomainWrite[] }
-  | { status: "error"; code: string; error: unknown }
-> {
-  const writes: DomainWrite[] = [];
+): Promise<DomainWritesResult> {
+  const reports = await selectedReportWrites(options);
+  if (reports.status === "error") return reports;
+  const writes = [...reports.value];
   for (const id of options.selectedIds) {
-    const report = await selectedReportWrite(options, id);
-    if (report.status === "error") return report;
-    writes.push(report.value);
     const resources = await ownerResourceWrites(options, id);
     if (resources.status === "error") return resources;
     writes.push(...resources.value);
@@ -46,35 +51,55 @@ export async function collectDomainWrites(
   return { status: "ok", value: writes };
 }
 
-async function selectedReportWrite(
-  options: DomainWriteOptions,
-  id: string
-): Promise<
-  | { status: "ok"; value: DomainWrite }
-  | { status: "error"; code: string; error: unknown }
-> {
-  const reportPath = path.posix.join(options.investigationsScope, `${id}.md`);
-  if (!hasEntry(options.workspaceIndex, id)) {
-    return { status: "ok", value: { data: null, path: reportPath } };
+/**
+ * Plans removals for obsolete baseline paths and reads current report bytes;
+ * it does not modify pending or workspace files. Current paths of all selected
+ * IDs take precedence over baseline removals, independent of selector order.
+ */
+async function selectedReportWrites(
+  options: DomainWriteOptions
+): Promise<DomainWritesResult> {
+  const currentPaths = selectedReportPaths(options.workspaceIndex, options);
+  const baselinePaths = selectedReportPaths(options.baseline, options);
+  const writes: DomainWrite[] = [...baselinePaths]
+    .filter((reportPath) => !currentPaths.has(reportPath))
+    .map((reportPath) => ({ data: null, path: reportPath }));
+  for (const reportPath of currentPaths) {
+    const bytes = await readWorkspaceFileBytes(options.repository, reportPath);
+    if (bytes.status === "error") {
+      return {
+        status: "error",
+        code: "source-read-failed",
+        error: bytes.error
+      };
+    }
+    writes.push({ data: bytes.value, path: reportPath });
   }
-  const bytes = await readWorkspaceFileBytes(options.repository, reportPath);
-  if (bytes.status === "error") {
-    return {
-      status: "error",
-      code: "source-read-failed",
-      error: bytes.error
-    };
+  return { status: "ok", value: writes };
+}
+
+function selectedReportPaths(
+  index: InvestigationIndex | null,
+  options: Pick<DomainWriteOptions, "investigationsScope" | "selectedIds">
+): ReadonlySet<string> {
+  const paths = new Set<string>();
+  for (const id of options.selectedIds) {
+    if (hasEntry(index, id)) {
+      paths.add(
+        path.posix.join(
+          options.investigationsScope,
+          index.entries[id].sourcePath
+        )
+      );
+    }
   }
-  return { status: "ok", value: { data: bytes.value, path: reportPath } };
+  return paths;
 }
 
 async function ownerResourceWrites(
   options: DomainWriteOptions,
   id: string
-): Promise<
-  | { status: "ok"; value: DomainWrite[] }
-  | { status: "error"; code: string; error: unknown }
-> {
+): Promise<DomainWritesResult> {
   const ownerScope = path.posix.join(
     options.investigationsScope,
     investigationResourcesDirectoryName,
@@ -112,7 +137,7 @@ async function ownerResourceWrites(
  * preparation and the write stops the transaction with pending unchanged.
  */
 export async function verifyDomainWrites(
-  options: DomainWriteOptions & { writes: readonly DomainWrite[] }
+  options: DomainWriteOptions & Readonly<{ writes: readonly DomainWrite[] }>
 ): Promise<string | null> {
   const current = await collectDomainWrites(options);
   if (current.status === "error") {
@@ -132,13 +157,19 @@ export async function verifyDomainWrites(
   return null;
 }
 
-async function ownerResourceMembers(options: {
-  ownerScope: string;
-  repository: VersionControlRepository;
-  revision: RevisionId | null;
-}): Promise<
-  | { status: "ok"; value: string[] }
-  | { status: "error"; code: string; error: unknown }
+async function ownerResourceMembers(
+  options: Readonly<{
+    ownerScope: string;
+    repository: VersionControlRepository;
+    revision: RevisionId | null;
+  }>
+): Promise<
+  | Readonly<{ status: "ok"; value: readonly string[] }>
+  | Readonly<{
+      status: "error";
+      code: "version-control-failed";
+      error: unknown;
+    }>
 > {
   try {
     const workspace = (

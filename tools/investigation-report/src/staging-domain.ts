@@ -29,7 +29,8 @@ import {
 import {
   collectDomainWrites,
   verifyDomainWrites,
-  type DomainWrite
+  type DomainWrite,
+  type DomainWriteOptions
 } from "./staging-domain-writes.ts";
 import type { InvestigationStageResult } from "./types.ts";
 
@@ -77,20 +78,22 @@ export async function stageInvestigationDomain(
 
 type PreparedDomainWrite = Readonly<{
   domainPaths: ReadonlySet<string>;
-  files: VersionControlFile[];
-  headFiles: VersionControlFile[];
-  pending: VersionControlFile[];
+  files: readonly VersionControlFile[];
+  headFiles: readonly VersionControlFile[];
+  pending: readonly VersionControlFile[];
   revision: DomainSnapshot["revision"];
   selectedIds: readonly string[];
 }>;
 
-async function prepareDomainWrite(options: {
-  control: DomainStageControl;
-  domain: DomainRepository;
-  indexFile: VersionControlFile | null;
-  selection: DomainSelection;
-  snapshot: DomainSnapshot;
-}): Promise<DomainStep<PreparedDomainWrite>> {
+async function prepareDomainWrite(
+  options: Readonly<{
+    control: DomainStageControl;
+    domain: DomainRepository;
+    indexFile: VersionControlFile | null;
+    selection: DomainSelection;
+    snapshot: DomainSnapshot;
+  }>
+): Promise<DomainStep<PreparedDomainWrite>> {
   const reads = await readDomainScope(options);
   if (reads.status === "error") return reads;
   const verified = await verifiedDomainWrite(options, reads.value.writes);
@@ -120,9 +123,11 @@ type DomainWriteOptionsInput = Readonly<{
   snapshot: DomainSnapshot;
 }>;
 
-function domainWriteOptions(options: DomainWriteOptionsInput) {
+function domainWriteOptions(
+  options: Pick<DomainWriteOptionsInput, "domain" | "selection" | "snapshot">
+): DomainWriteOptions {
   return {
-    investigationsDirectory: options.control.input.investigationsDirectory,
+    baseline: options.snapshot.baseline,
     investigationsScope: options.domain.investigationsScope,
     repository: options.domain.repository,
     revision: options.snapshot.revision,
@@ -132,9 +137,9 @@ function domainWriteOptions(options: DomainWriteOptionsInput) {
 }
 
 type DomainScopeReads = Readonly<{
-  writes: DomainWrite[];
-  pending: VersionControlFile[];
-  headFiles: VersionControlFile[];
+  writes: readonly DomainWrite[];
+  pending: readonly VersionControlFile[];
+  headFiles: readonly VersionControlFile[];
 }>;
 
 /** Reads the selected domain writes plus the pending and HEAD scope states. */
@@ -216,11 +221,16 @@ function domainSourceDrift(
  * staged deletions of unrelated paths stay deleted; HEAD content must not
  * re-enter the target, or a later stage would silently resurrect them.
  */
-function assemblePendingTarget(options: {
-  indexFile: VersionControlFile | null;
-  pending: readonly VersionControlFile[];
-  writes: readonly DomainWrite[];
-}): { domainPaths: Set<string>; files: VersionControlFile[] } {
+function assemblePendingTarget(
+  options: Readonly<{
+    indexFile: VersionControlFile | null;
+    pending: readonly VersionControlFile[];
+    writes: readonly DomainWrite[];
+  }>
+): Readonly<{
+  domainPaths: ReadonlySet<string>;
+  files: readonly VersionControlFile[];
+}> {
   const targetByPath = new Map<string, Uint8Array>();
   for (const file of options.pending) {
     targetByPath.set(file.path, file.data);
@@ -244,11 +254,13 @@ function assemblePendingTarget(options: {
   return { domainPaths, files };
 }
 
-async function writeDomainPending(options: {
-  control: DomainStageControl;
-  domain: DomainRepository;
-  prepared: PreparedDomainWrite;
-}): Promise<InvestigationStageResult> {
+async function writeDomainPending(
+  options: Readonly<{
+    control: DomainStageControl;
+    domain: DomainRepository;
+    prepared: PreparedDomainWrite;
+  }>
+): Promise<InvestigationStageResult> {
   const { control, domain, prepared } = options;
   try {
     await domain.repository.replacePendingFiles({

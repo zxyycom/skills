@@ -595,6 +595,12 @@
       "INVESTIGATION-STAGE-SCOPE-ALL-001": "sha256:62f07a39ab7c09639e52d378140cb9172ea856729e5c84709d85e829de62f059",
       "INVESTIGATION-STAGE-SCOPE-CLI-001": "sha256:a47e90253eb36bde6dc5d80fc60d2251621aec22553b88394b367595150e123f",
       "INVESTIGATION-STAGE-SCOPE-CLI-REMOVED-001": "sha256:7e072304970f9f531892da0039fe8c929f2a84792e6a531a3130c43221ee2972",
+      "INVESTIGATION-STAGE-SOURCE-PATH-ADD-001": "sha256:7766c6943b14f0376cbd1165e95f47a1384fd33ad7b8d12919d429b4148ef7da",
+      "INVESTIGATION-STAGE-SOURCE-PATH-DELETE-001": "sha256:d89899dccac1f223150dda6045be83c469d6106f450757d701955c244596eccb",
+      "INVESTIGATION-STAGE-SOURCE-PATH-MOVE-001": "sha256:b85d78052e40be246d5b786a701b795ebed805e0010bb25b61e56705149d6669",
+      "INVESTIGATION-STAGE-SOURCE-PATH-REUSE-001": "sha256:76fc73905da136629dac67cdac945fec0cf84e7983831b120c03d7db154cb104",
+      "INVESTIGATION-STAGE-SOURCE-PATH-SWAP-001": "sha256:7f5a5158be1fc44d3ce6637bf8219ac33b9e55b1784a81f5854f0b731ad56a79",
+      "INVESTIGATION-STAGE-SOURCE-PATH-UPDATE-001": "sha256:08ff50fb2c62825bb0af48dab898c6d3c11d76080b595b341ab62fbfc04b83db",
       "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:2f96af63dec8c49b43aba5ceb85d6c52cc059f6a1c384ce48d2eaa83018624b5",
       "INVESTIGATION-SYNC-DIAGNOSTIC-001": "sha256:d86b6e9cf00adf93558a63db137fea385c91a2e58ad12398196be982275e2e03",
       "INVESTIGATION-SYNC-DISCARD-LOCK-001": "sha256:34e650b190f8e16eedb4eeac46a6815f66ac0079eb73ead07edc42e9e8cd9230",
@@ -6858,6 +6864,72 @@
       ],
       "testIds": [
         "test:5d3c05d6493c2362966f963adfac4474281f13f868fd39980709e29921998942"
+      ]
+    },
+    "INVESTIGATION-STAGE-SOURCE-PATH-ADD-001": {
+      "title": "按索引位置暂存新增报告并按 ID 收集资源",
+      "sourcePath": "cases/investigation-stage-source-path-add-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:b176d50808c037beb1b1df13d97ebf36cdf15c1900c2570141d774e7ad4559ce",
+        "test:e6797855a99105ef23be3248e7650865b9750ad5fae676baf4e974b4e03943ee"
+      ]
+    },
+    "INVESTIGATION-STAGE-SOURCE-PATH-DELETE-001": {
+      "title": "依据 HEAD 索引位置暂存已删除报告",
+      "sourcePath": "cases/investigation-stage-source-path-delete-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:35a573e14518b7fd0af66d13c0173f14bf65fdba714586fb08deddc88efb78e1",
+        "test:aab8d04e867991d1edac54e97c672ffad63a98071694a91af02c2a764736f448"
+      ]
+    },
+    "INVESTIGATION-STAGE-SOURCE-PATH-MOVE-001": {
+      "title": "同一报告移动位置时同时暂存旧路径删除与新路径新增",
+      "sourcePath": "cases/investigation-stage-source-path-move-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:86e476b8769571a0d7d35fcf37b35c3fa7fcd3c752e13e16fecef3bbf0b7daf6",
+        "test:b0d558deb5cf8ac67b946dee9ada6aac3c7a6fe8d2bc1e6fc630898a4658097a"
+      ]
+    },
+    "INVESTIGATION-STAGE-SOURCE-PATH-REUSE-001": {
+      "title": "身份更正共用文件位置时保留所选新报告",
+      "sourcePath": "cases/investigation-stage-source-path-reuse-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:7c1ad2abb52a8e3baeffe77a56db3d865aac2013557e1273ccaa4a6ef63b7985",
+        "test:fb0823bfdbd037ff10b5a88940601f22e729cc006e1e9c77e7ff7ef5daa0a519"
+      ]
+    },
+    "INVESTIGATION-STAGE-SOURCE-PATH-SWAP-001": {
+      "title": "同选报告交换位置时保留两个当前版本",
+      "sourcePath": "cases/investigation-stage-source-path-swap-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:34ac2102d7e8b84cd06c5b2c163acdca02c60de2c5c7060ada97a9ac3838901e",
+        "test:5f00a7a9cb8bfa23d54bf366ff138c7067f07bc045f4daa4ff48007dcd0fdb06"
+      ]
+    },
+    "INVESTIGATION-STAGE-SOURCE-PATH-UPDATE-001": {
+      "title": "暂存索引指向的报告而非同 ID 文件名下的其他报告",
+      "sourcePath": "cases/investigation-stage-source-path-update-001.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:2cf39b37168c3a0ef20c43d0c43ccd2758e9835269d1f75dff9c0cf39ee3bc7a",
+        "test:ba2a155d3e8dec53646c6a597fe5567163afd208ced078b6b5d57fd22c7d53e2"
       ]
     },
     "INVESTIGATION-STAGE-VERSION-CONTROL-001": {

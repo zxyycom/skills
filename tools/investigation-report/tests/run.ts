@@ -17,6 +17,7 @@ await import("./publish.test.ts");
 await import("./resources.test.ts");
 await import("./staging.test.ts");
 await import("./staging-domain.test.ts");
+await import("./staging-source-path.test.ts");
 await import("./relations.test.ts");
 await import("./relation-review.test.ts");
 await import("./transaction.test.ts");
