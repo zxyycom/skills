@@ -22,6 +22,7 @@ type RelationFilterRequest = Pick<
 >;
 
 type DecisionRelationFilter = Readonly<{
+  relatedTo?: DecisionId;
   decisionIds: ReadonlySet<DecisionId> | null;
   relationsByDecisionId: ReadonlyMap<
     DecisionId,
@@ -33,11 +34,14 @@ export function filterDecisionRelationRecords(
   records: readonly IndexedDecisionRecord[],
   request: RelationFilterRequest
 ):
-  | { records: DecisionFilteredRecord[]; status: "ok" }
+  | { records: DecisionFilteredRecord[]; relatedTo?: DecisionId; status: "ok" }
   | { failure: DecisionApplicationFailure; status: "error" } {
   const filtered = resolveDecisionRelationFilter(records, request);
   if (filtered.status === "error") return filtered;
   return {
+    ...(filtered.value.relatedTo === undefined
+      ? {}
+      : { relatedTo: filtered.value.relatedTo }),
     records: records.flatMap((record) => {
       if (
         filtered.value.decisionIds !== null &&
@@ -101,7 +105,10 @@ export function resolveDecisionRelationFilter(
   }
   return {
     status: "ok",
-    value: relationFilterFromMap(relationsByDecisionId)
+    value: {
+      ...relationFilterFromMap(relationsByDecisionId),
+      relatedTo: target.record.decisionId
+    }
   };
 }
 

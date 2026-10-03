@@ -27,3 +27,5 @@ await import("./rename.test.ts");
 await import("./rename-validation.test.ts");
 await import("./rename-recovery.test.ts");
 await import("./rename-drift.test.ts");
+
+await import("./search-info.test.ts");

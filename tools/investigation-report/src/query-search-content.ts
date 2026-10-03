@@ -1,16 +1,20 @@
 import {
-  FileTextSearchError,
-  searchFileText
-} from "../../shared/src/file-text-search/index.ts";
+  searchRecordText,
+  type RecordTextSearchResult
+} from "../../shared/src/file-text-search/record-search.ts";
+import {
+  contentSearchFacts,
+  searchLimitWarnings
+} from "../../shared/src/file-text-search/record-search-info.ts";
+import { FileTextSearchError } from "../../shared/src/file-text-search/index.ts";
 import { diagnosticFromError } from "./diagnostics.ts";
 import { searchFailure } from "./query-results.ts";
-import {
-  filterRelationsByEntry,
-  selectSearchEntries
-} from "./query-search-selection.ts";
+import { selectSearchEntries } from "./query-search-selection.ts";
 import type {
   InvestigationFilterRelation,
   InvestigationSearchEntry,
+  InvestigationSearchInfo,
+  InvestigationSearchFilters,
   InvestigationSearchResult
 } from "./types.ts";
 import type { InvestigationSnapshotEntry, PreparedSearch } from "./query.ts";
@@ -20,6 +24,7 @@ type SearchSnapshot = Readonly<{
   indexPath: string;
   investigationsDirectory: string;
   prepared: PreparedSearch;
+  source: InvestigationSearchInfo["source"];
   warnings: readonly string[];
 }>;
 
@@ -35,30 +40,27 @@ export async function searchSnapshot(
       [],
       snapshot.warnings
     );
-  const filterRelations = filterRelationsByEntry(
-    snapshot.entries,
-    snapshot.prepared.validated
-  );
-  if (filterRelations.isErr())
-    return searchFailure(
-      filterRelations.error,
-      snapshot.indexPath,
-      [],
-      snapshot.warnings
-    );
-  const sourceMap = sourceEntryMap(selected.value);
+  const sourceMap = sourceEntryMap(selected.value.entries);
   if (sourceMap instanceof Error)
     return searchFailure([sourceMap.message], snapshot.indexPath);
   try {
-    const searched = await searchSelectedSources(snapshot, selected.value);
+    const searched = await searchSelectedSources(
+      snapshot,
+      selected.value.entries
+    );
     const entries = searchHitEntries(
       searched.hits,
       sourceMap,
-      filterRelations.value
+      selected.value.filterRelations
     );
     if (entries instanceof Error)
       return searchFailure([entries.message], snapshot.indexPath);
-    return successfulSearch(snapshot, entries, searched.truncation);
+    return successfulSearch(
+      snapshot,
+      entries,
+      searched,
+      selected.value.filters
+    );
   } catch (error) {
     return unavailableSearchFailure(snapshot, error);
   }
@@ -80,7 +82,7 @@ async function searchSelectedSources(
   snapshot: SearchSnapshot,
   entries: readonly InvestigationSnapshotEntry[]
 ) {
-  return await searchFileText({
+  return await searchRecordText({
     limits: {
       maxCandidateFiles: 2_000,
       maxFileBytes: 2 * 1024 * 1024,
@@ -105,7 +107,7 @@ async function searchSelectedSources(
 }
 
 function searchHitEntries(
-  hits: Awaited<ReturnType<typeof searchFileText>>["hits"],
+  hits: Awaited<ReturnType<typeof searchRecordText>>["hits"],
   entryBySourcePath: ReadonlyMap<string, InvestigationSnapshotEntry>,
   filterRelations: ReadonlyMap<
     string,
@@ -138,16 +140,30 @@ function searchHitEntries(
 function successfulSearch(
   snapshot: SearchSnapshot,
   entries: InvestigationSearchEntry[],
-  truncation: Awaited<ReturnType<typeof searchFileText>>["truncation"]
+  searched: RecordTextSearchResult,
+  filters: InvestigationSearchFilters
 ): InvestigationSearchResult {
+  const facts = contentSearchFacts(searched);
   return {
+    searchInfo: {
+      query: {
+        text: snapshot.prepared.query,
+        in: "content",
+        match: snapshot.prepared.validated.match,
+        filters,
+        limits: facts.limits
+      },
+      source: snapshot.source,
+      counts: facts.counts,
+      coverage: facts.coverage
+    },
     diagnostics: [],
     entries,
     errors: [],
     indexPath: snapshot.indexPath,
     status: "ok",
-    truncation,
-    warnings: [...snapshot.warnings]
+    truncation: searched.truncation,
+    warnings: [...snapshot.warnings, ...searchLimitWarnings(facts.coverage)]
   };
 }
 

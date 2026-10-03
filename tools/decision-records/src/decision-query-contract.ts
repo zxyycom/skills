@@ -1,4 +1,8 @@
 import type {
+  RecordSearchInfo,
+  RecordSearchSource
+} from "../../shared/src/file-text-search/record-search-info.ts";
+import type {
   FileTextSearchMode,
   FileTextSearchPreview,
   FileTextSearchTruncation
@@ -152,7 +156,14 @@ export type DecisionMetadataSearchRecord = DecisionFilteredRecord & {
   matchedRelations: readonly DecisionMetadataMatchedRelation[];
 };
 
+export type DecisionSearchFilters = Omit<
+  DecisionListAppliedFilters,
+  "createdAtFrom" | "createdAtTo"
+>;
+export type DecisionSearchInfo = RecordSearchInfo<DecisionSearchFilters>;
+
 export type DecisionSearchSnapshot = {
+  source: RecordSearchSource;
   entries: readonly IndexedDecisionRecord[];
   sourcePathToRecord: ReadonlyMap<DecisionSourcePath, IndexedDecisionRecord>;
   warnings: string[];
@@ -219,12 +230,14 @@ export type DecisionQuerySuccess =
     })
   | (QuerySuccessBase & {
       command: "search";
+      searchInfo: DecisionSearchInfo;
       in: "content";
       records: DecisionContentSearchRecord[];
       truncation: FileTextSearchTruncation;
     })
   | (QuerySuccessBase & {
       command: "search";
+      searchInfo: DecisionSearchInfo;
       in: "metadata";
       records: DecisionMetadataSearchRecord[];
     })

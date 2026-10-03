@@ -27,15 +27,27 @@ export async function investigationIndexStale(
   investigationsDirectory: string,
   index: PersistedInvestigationIndex
 ): Promise<boolean> {
+  return (
+    (await investigationIndexCurrentness(investigationsDirectory, index)) !==
+    "current"
+  );
+}
+
+export async function investigationIndexCurrentness(
+  investigationsDirectory: string,
+  index: PersistedInvestigationIndex
+): Promise<"current" | "stale" | "unchecked"> {
   let currentRevision: StateSourceRevision;
   try {
     currentRevision = await readInvestigationSourceRevision(
       investigationsDirectory
     );
   } catch {
-    return true;
+    return "unchecked";
   }
-  return !sameStateSourceRevision(index.sourceRevision, currentRevision);
+  return sameStateSourceRevision(index.sourceRevision, currentRevision)
+    ? "current"
+    : "stale";
 }
 
 /**

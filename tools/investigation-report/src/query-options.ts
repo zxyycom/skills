@@ -56,6 +56,18 @@ function preparedSearch(
     query: criteria.query,
     resolved,
     validated: {
+      filters: {
+        tags: criteria.tags,
+        ...(criteria.from === null
+          ? {}
+          : { formedAtFrom: new Date(criteria.from).toISOString() }),
+        ...(criteria.to === null
+          ? {}
+          : { formedAtTo: new Date(criteria.to).toISOString() }),
+        ...(options.relationType === undefined
+          ? {}
+          : { relationType: options.relationType })
+      },
       limit: criteria.limit,
       match: options.match ?? "all",
       direction: options.direction,

@@ -2,6 +2,7 @@ import { err, ok, type Result } from "neverthrow";
 import { resolveInvestigationSelector } from "./investigation-selector.ts";
 import type {
   InvestigationFilterRelation,
+  InvestigationSearchFilters,
   InvestigationIndexQueryOptions
 } from "./types.ts";
 import type { InvestigationSnapshotEntry, PreparedSearch } from "./query.ts";
@@ -9,16 +10,45 @@ import type { InvestigationSnapshotEntry, PreparedSearch } from "./query.ts";
 export function selectSearchEntries(
   entries: readonly InvestigationSnapshotEntry[],
   prepared: PreparedSearch
-): Result<InvestigationSnapshotEntry[], string[]> {
-  const related = relatedInvestigationIds(entries, prepared.validated);
-  if (related.isErr()) return err(related.error);
-  const ids = related.value;
-  return ok(
-    entries.filter(
+): Result<
+  Readonly<{
+    entries: InvestigationSnapshotEntry[];
+    filters: InvestigationSearchFilters;
+    filterRelations: ReadonlyMap<
+      string,
+      readonly InvestigationFilterRelation[]
+    > | null;
+  }>,
+  string[]
+> {
+  const query = prepared.validated;
+  let filters = query.filters;
+  let resolvedQuery: RelationQuery = query;
+  if (query.relatedTo !== undefined) {
+    const target = relatedTarget(entries, query.relatedTo);
+    if (target.isErr()) return err(target.error);
+    resolvedQuery = {
+      ...query,
+      relatedTo: target.value.id,
+      direction: query.direction ?? "both"
+    };
+    filters = {
+      ...filters,
+      relatedTo: target.value.id,
+      direction: query.direction ?? "both"
+    };
+  }
+  const relations = filterRelationsByEntry(entries, resolvedQuery);
+  if (relations.isErr()) return err(relations.error);
+  return ok({
+    entries: entries.filter(
       ({ id, state }) =>
-        prepared.validated.states(state) && (ids === null || ids.has(id))
-    )
-  );
+        query.states(state) &&
+        (relations.value === null || relations.value.has(id))
+    ),
+    filters,
+    filterRelations: relations.value
+  });
 }
 
 type RelationQuery = Readonly<{

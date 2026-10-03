@@ -57,6 +57,11 @@ async function searchContent(
         indexPath,
         investigationsDirectory,
         prepared,
+        source: {
+          kind: "validated-source",
+          currentness: "current",
+          fallback: false
+        },
         warnings: []
       })
     : await searchValidatedFallback(
@@ -100,8 +105,13 @@ async function searchValidatedFallback(
     indexPath,
     investigationsDirectory,
     prepared,
+    source: {
+      kind: "validated-source",
+      currentness: "current",
+      fallback: true
+    },
     warnings: [
-      "The persisted Investigation index is unavailable or stale; search used a validated in-memory source projection of the current formal Markdown. Run sync-index to publish the current projection."
+      "search source: validated-source fallback; the persisted Investigation index is unavailable or stale; search used a validated in-memory source projection of the current formal Markdown. Run sync-index to publish the current projection."
     ]
   });
 }

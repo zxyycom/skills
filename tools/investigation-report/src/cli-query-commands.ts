@@ -1,3 +1,4 @@
+import { renderRecordSearchSummary } from "../../shared/src/file-text-search/record-search-output.ts";
 import {
   executeInvestigationIndexQuery,
   searchInvestigationReports,
@@ -208,33 +209,19 @@ function printSearchFailure(
 }
 
 function printSearchSuccess(
-  result: InvestigationSearchResult,
+  result: Extract<InvestigationSearchResult, { status: "ok" }>,
   io: InvestigationReportCliIo
 ): number {
-  printWarnings(result.warnings, io);
+  for (const warning of result.warnings) {
+    writeLine(io.stderr, "[investigation-report.warning] " + warning);
+  }
+  writeLine(io.stdout, renderRecordSearchSummary(result.searchInfo));
   if (result.entries.length === 0) {
     writeLine(io.stdout, "No investigation reports matched.");
     return 0;
   }
   for (const entry of result.entries) printSearchEntry(entry, io);
-  printSearchTruncationWarning(result.truncation, io);
   return 0;
-}
-
-function printSearchTruncationWarning(
-  truncation: Readonly<{
-    files: boolean;
-    matches: boolean;
-    previewCharacters: boolean;
-  }>,
-  io: InvestigationReportCliIo
-): void {
-  if (!truncation.files && !truncation.matches && !truncation.previewCharacters)
-    return;
-  writeLine(
-    io.stderr,
-    "[investigation-report.warning] search previews were truncated by configured limits"
-  );
 }
 
 function printSearchEntry(

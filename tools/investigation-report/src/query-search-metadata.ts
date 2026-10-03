@@ -1,4 +1,9 @@
 import {
+  metadataSearchFacts,
+  publishedSearchWarning,
+  searchLimitWarnings
+} from "../../shared/src/file-text-search/record-search-info.ts";
+import {
   createTextSearchMatcher,
   matchTextSegments,
   TextSearchMatcherError
@@ -8,13 +13,12 @@ import {
   diagnosticFromStateIndexDiagnostic
 } from "./diagnostics.ts";
 import { loadInvestigationIndex } from "./investigation-state-index.ts";
-import {
-  investigationIndexStale,
-  persistedSnapshotWarning
-} from "./index-staleness.ts";
+import { investigationIndexCurrentness } from "./index-staleness.ts";
 import { compareText, searchFailure } from "./query-results.ts";
 import { investigationMetadataSearchFields } from "./types.ts";
 import type {
+  InvestigationSearchFilters,
+  InvestigationSearchInfo,
   InvestigationIndexState,
   InvestigationMetadataMatchedRelation,
   InvestigationMetadataSearchEntry,
@@ -22,10 +26,7 @@ import type {
   InvestigationSearchResult
 } from "./types.ts";
 import type { PreparedSearch, InvestigationSnapshotEntry } from "./query.ts";
-import {
-  filterRelationsByEntry,
-  selectSearchEntries
-} from "./query-search-selection.ts";
+import { selectSearchEntries } from "./query-search-selection.ts";
 export { relatedInvestigationIds } from "./query-search-selection.ts";
 
 type InvestigationMetadataSegment =
@@ -43,7 +44,7 @@ export async function searchInvestigationMetadata(
   const loaded = await loadInvestigationIndex({ investigationsDirectory });
   if (loaded.status === "error")
     return metadataIndexFailure(loaded.diagnostics, indexPath);
-  const stale = await investigationIndexStale(
+  const currentness = await investigationIndexCurrentness(
     investigationsDirectory,
     loaded.value
   );
@@ -55,19 +56,14 @@ export async function searchInvestigationMetadata(
     prepared
   );
   if (selected.isErr()) return searchFailure(selected.error, indexPath);
-  const filterRelations = filterRelationsByEntry(
-    Object.entries(loaded.value.entries).map(([id, state]) => ({ id, state })),
-    prepared.validated
-  );
-  if (filterRelations.isErr())
-    return searchFailure(filterRelations.error, indexPath);
   return metadataSearchResult(
     matcher,
-    selected.value,
-    prepared.validated.limit,
+    selected.value.entries,
+    prepared,
     indexPath,
-    filterRelations.value,
-    stale ? [persistedSnapshotWarning] : []
+    selected.value.filterRelations,
+    selected.value.filters,
+    { kind: "published-index", currentness, fallback: false }
   );
 }
 
@@ -109,13 +105,14 @@ function metadataMatcher(
 function metadataSearchResult(
   matcher: ReturnType<typeof createTextSearchMatcher>,
   selected: readonly InvestigationSnapshotEntry[],
-  limit: number,
+  prepared: PreparedSearch,
   indexPath: string,
   filterRelations: ReadonlyMap<
     string,
     readonly import("./types.ts").InvestigationFilterRelation[]
   > | null,
-  warnings: readonly string[]
+  filters: InvestigationSearchFilters,
+  source: InvestigationSearchInfo["source"]
 ): InvestigationSearchResult {
   const entries: InvestigationMetadataSearchEntry[] = [];
   for (const entry of [...selected].sort(compareSearchSourcePath)) {
@@ -130,14 +127,39 @@ function metadataSearchResult(
           : { filterRelations: filterRelations.get(entry.id)! })
       });
   }
+  const returned = entries.slice(0, prepared.validated.limit);
+  const facts = metadataSearchFacts(
+    entries.length,
+    returned.length,
+    prepared.validated.limit
+  );
   return {
+    searchInfo: {
+      query: {
+        text: prepared.query,
+        in: "metadata",
+        match: prepared.validated.match,
+        filters,
+        limits: facts.limits
+      },
+      source,
+      counts: facts.counts,
+      coverage: facts.coverage
+    },
     diagnostics: [],
-    entries: entries.slice(0, limit),
+    entries: returned,
     errors: [],
     indexPath,
     status: "ok",
-    truncation: { files: false, matches: false, previewCharacters: false },
-    warnings: [...warnings]
+    truncation: {
+      files: entries.length > returned.length,
+      matches: false,
+      previewCharacters: false
+    },
+    warnings: [
+      ...publishedSearchWarning(source.currentness, "Investigation"),
+      ...searchLimitWarnings(facts.coverage)
+    ]
   };
 }
 

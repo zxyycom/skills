@@ -96,6 +96,15 @@ export async function decisionIndexStale(
   decisionsDirectory: string,
   index: DecisionIndex
 ): Promise<boolean> {
+  return (
+    (await decisionIndexCurrentness(decisionsDirectory, index)) !== "current"
+  );
+}
+
+export async function decisionIndexCurrentness(
+  decisionsDirectory: string,
+  index: DecisionIndex
+): Promise<"current" | "stale" | "unchecked"> {
   let currentRevision: ReturnType<typeof decisionSourceRevision>;
   try {
     currentRevision = await readDecisionSourceRevision(
@@ -103,9 +112,11 @@ export async function decisionIndexStale(
       undefined
     );
   } catch {
-    return true;
+    return "unchecked";
   }
-  return !sameStateSourceRevision(index.sourceRevision, currentRevision);
+  return sameStateSourceRevision(index.sourceRevision, currentRevision)
+    ? "current"
+    : "stale";
 }
 
 export const persistedSnapshotWarning =

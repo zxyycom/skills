@@ -25,3 +25,5 @@ await import("./rename.test.ts");
 await import("./filesystem-boundaries.test.ts");
 await import("./stage.test.ts");
 await import("./generated-artifacts.test.ts");
+
+await import("./search-info.test.ts");

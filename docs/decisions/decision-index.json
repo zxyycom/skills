@@ -107,6 +107,7 @@
       "260922-unify-formal-relation-maintenance-actions": "sha256:a7d223db5f2b5f0eb78e4680e51a45f5d32e34743ec37ffe1c7684d608a47042",
       "260922-unify-record-candidate-lifecycle-actions": "sha256:bcfd3285dd6857c9a853a71a20dd2e290ca747b8dbb1dcff2bfa2a5029221585",
       "260922-unify-record-pending-snapshot-scopes": "sha256:607c4281bc07db72e2b1ab3eaa5c857d94f5a2c4657298f4cc6e79b7d5a4e41d",
+      "261003-separate-record-search-coverage-from-preview-budgets": "sha256:7753c0523a1d8627b3323d41c4a0cc44545b7d77be8454e47a09a6d429cd8b44",
       "activate-release-gate-checks-by-tag": "sha256:02819304803eade140cd3adb2472a368c290f639acc7998f0d54bc20cecd228e",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -2292,6 +2293,22 @@
           "summary": "保留按 ID 选择索引条目，把报告与资源暂存收口为显式 scope"
         }
       ]
+    },
+    "261003-separate-record-search-coverage-from-preview-budgets": {
+      "name": "separate-record-search-coverage-from-preview-budgets",
+      "sourcePath": "separate-record-search-coverage-from-preview-budgets.md",
+      "title": "分离记录搜索覆盖与预览预算",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-03T06:00:32Z",
+      "purpose": "让两个记录域的搜索直接交付来源、计数与完整性，避免把预览限制误作记录发现限制。",
+      "background": "返回条数、真实命中数与预览省略属于不同边界；仅凭 warning 和逐条输出难以可靠恢复本次查询。",
+      "decision": "Decision 与 Investigation 的即时搜索分别报告扫描、返回与预览覆盖，预览预算仅限制展示。",
+      "tags": [
+        "decision-records",
+        "investigation-report"
+      ],
+      "relations": []
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

@@ -108,7 +108,7 @@ test("investigation list and search help project record discovery semantics", as
     const listHelp = await runCli(["list", "--help"], { cwd: root });
     assert.match(listHelp.stdout, /last published snapshot with a warning/u);
     const searchHelp = await runCli(["search", "--help"], { cwd: root });
-    assert.match(searchHelp.stdout, /--limit bounds matched reports/u);
+    assert.match(searchHelp.stdout, /--limit bounds returned reports/u);
     assert.match(searchHelp.stdout, /show <investigation-id>/u);
   });
 });

@@ -226,7 +226,56 @@ Markdown 是权威来源，索引保存已建立记录的定位、状态、非�
 
 两种范围都先应用结构筛选。`all` 要求全部词，`any` 要求任一词，`phrase` 要求连续短语；统一 NFKC、忽略大小写并按空白处理。content 以物理行为匹配段，metadata 以单个字段、tag 或 summary 为段；all/any 可跨同一记录的段，phrase 限于单段。关系筛选不是文本命中证据，metadata 只报告实际命中的字段或来源摘要。
 
-搜索降级只服务本次查询，不修复持久索引。截断 warning 表示输出受限；收紧筛选或继续读取已返回 ID，不能据未显示或无结果断言不存在匹配。
+搜索降级只服务本次查询，不修复持久索引；数量、来源与三种覆盖按下方搜索总览解释。
+
+### 搜索总览与完整性
+
+每次成功 `search`（含零命中）的内部查询结果都包含只读 `searchInfo`，记录同一即时查询的四组事实；索引和 Schema 继续只承接持久记录。记录字段、文本证据与关系筛选依据仍按上文读取。
+
+| 分组 | 含义与读取方式 |
+| --- | --- |
+| `query` | 经校验、用于 matcher 的 `text`，实际 `in`、`match`，以及生效的 `filters` 与 `limits`。 |
+| `source` | `kind` 表示发布索引或已验证来源，`currentness` 表示本次新鲜度证据，`fallback` 表示是否只读降级。 |
+| `counts` | `matched.value` 按记录计数，含已发现但无法返回的命中；`precision` 为 `exact` 或 `lower-bound`。`returned` 是实际返回记录数。 |
+| `coverage` | 分别说明扫描、记录返回与预览展示是否完整；`reasons` 去重并按 `max-records`、`match-previews`、`preview-characters` 顺序列出实际限制，未受限时为 `[]`。 |
+
+#### 条件与预算
+
+`filters` 保存 `status`（默认 `active`）、`alignment`（默认 `all`）、`tags`（默认 `[]`）及已使用的 `relationType`、`relatedTo`、`direction`。关系目标回显同一筛选快照解析出的完整 ID；有目标时 direction 默认 `both`，未使用的可选条件省略。
+
+`limits` 回显本次生效预算：metadata 的 `maxRecords=null` 表示无返回上限，`resources`、`preview` 为 `null` 表示不适用；content 的 `maxRecords=20`，`resources` 为 `maxCandidateFiles=10,000`、`maxFileBytes=2 MiB`、`maxTotalBytes=20 MiB`，`preview` 为 `contextLines=1`、`maxMatchesPerFile=3`、`maxPreviewCharacters=12,000`（UTF-16 字符）。
+
+#### 来源证据
+
+| 本次依据 | `kind` | `currentness` | `fallback` |
+| --- | --- | --- | --- |
+| metadata：发布索引与本次读取的来源 revision 相同 | `published-index` | `current` | `false` |
+| metadata：两者 revision 不同 | `published-index` | `stale` | `false` |
+| metadata：来源 revision 核对失败，继续查询结构有效的发布快照 | `published-index` | `unchecked` | `false` |
+| content：当前来源验证成功，索引映射可用 | `validated-source` | `current` | `false` |
+| content：索引不可用或陈旧，完整验证来源后用只读内存投影降级 | `validated-source` | `current` | `true` |
+
+`current` 只说明本次已有验证证据，不承诺查询期间锁或跨文件原子快照。`stale`、`unchecked` 的计数与覆盖只代表发布快照；这两种来源状态与 fallback 均产生 warning。
+
+#### 计数与覆盖
+
+- `scanComplete` 检查结构筛选后的全部待匹配记录：全部检查完为 `true`、计数 `exact`；提前停止为 `false`、计数 `lower-bound`。
+- `resultsComplete` 要求扫描完整、计数精确且全部命中均已返回。metadata 完整计算命中并全部返回。
+- `previewsComplete` 只描述已返回记录的命中范围及上下文片段；metadata 为 `null`。预览预算仅限制展示，耗尽后继续在扫描资源与返回预算内识别命中，空 `previews` 仍保留身份。只有实际省略片段才标记预览受限，恰好用满预算或未返回记录均不影响该字段。
+- content 返回预算满后，在首个无法返回的命中文件处停止，并将其计入 `matched`。还有未检查文件时计数为下界；若它是最后一个文件则计数精确、扫描完整，但两者都使结果返回不完整。
+- 完整零命中为 `exact 0`、`returned=0`，扫描与结果均完整，content 预览也完整。metadata 必需索引读取、content 必需正文读取，以及资源错误或取消均保持失败，不作为成功的部分结果。
+
+#### 输出与后续阅读
+
+默认 CLI 在 stdout 先输出六行 `Query`、`Filters`、`Source`、`Limits`、`Counts`、`Coverage`，再输出记录或零命中提示；全部展示来自同一查询结果。字符串使用 JSON 转义，Filters 使用紧凑 JSON；Limits 只展开适用预算，无返回上限显示 `maxRecords=unlimited`。下界显示 `matched>=N`，覆盖显示 `complete`、`limited` 或 `n/a`，未受限显示 `reasons=none`。
+
+warning 保留领域前缀并写入 stderr，每类仅一次：
+
+- 返回限制：`search results limited: max-records`。
+- 预览限制：`search previews limited: match-previews,preview-characters`，只列实际原因。
+- 来源状态：`search source: stale published-index`、`search source: unchecked published-index` 或 `search source: validated-source fallback`，附来源边界及 `sync-index` 恢复动作；普通预算限制不要求修复来源。
+
+按来源和各项覆盖判断结论：仅预览受限不表示记录发现不完整；来源为 stale/unchecked 或扫描不完整时，不能对当前全集作否定性结论。需要更多命中时收紧筛选，完整正文和直接关系用 `show` 读取。预览预算不是 stdout 总字节上限，外部展示仍可能截断。
 
 ### 同步与待提交快照
 

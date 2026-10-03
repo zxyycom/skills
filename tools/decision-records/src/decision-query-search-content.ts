@@ -1,8 +1,12 @@
 import {
-  FileTextSearchError,
-  searchFileText,
-  type FileTextSearchTruncation
-} from "../../shared/src/file-text-search/index.ts";
+  searchRecordText,
+  type RecordTextSearchResult
+} from "../../shared/src/file-text-search/record-search.ts";
+import {
+  contentSearchFacts,
+  searchLimitWarnings
+} from "../../shared/src/file-text-search/record-search-info.ts";
+import { FileTextSearchError } from "../../shared/src/file-text-search/index.ts";
 import {
   decisionDiagnostic,
   decisionFailure,
@@ -25,6 +29,7 @@ import type {
   DecisionQueryRequest,
   DecisionQueryResult,
   DecisionSearchSnapshot,
+  DecisionSearchFilters,
   IndexedDecisionRecord
 } from "./decision-query-contract.ts";
 import { indexedRecord, sourceFailure } from "./decision-query-records.ts";
@@ -49,7 +54,7 @@ export async function searchDecisionContent(
   const selected = filterSearchRecords(snapshot.value.entries, request);
   if (selected.status === "error") return selected.failure;
   try {
-    const searched = await searchFileText({
+    const searched = await searchRecordText({
       preview: decisionSearchPreviewPolicy,
       query: { mode: request.match, text: request.text },
       root: resolveDecisionLocation(request.location).decisionsDirectory,
@@ -71,20 +76,46 @@ export async function searchDecisionContent(
       if ("status" in record && record.status === "error") return record;
       records.push(record);
     }
-    return {
-      command: "search",
-      in: "content",
+    return contentSearchSuccess(
+      request,
+      selected.filters,
+      snapshot.value,
       records,
-      status: "ok",
-      truncation: searched.truncation,
-      warnings: [
-        ...snapshot.value.warnings,
-        ...searchTruncationWarnings(searched.truncation)
-      ]
-    };
+      searched
+    );
   } catch (error) {
     return searchFileFailure(error);
   }
+}
+
+function contentSearchSuccess(
+  request: Extract<DecisionQueryRequest, { command: "search" }>,
+  filters: DecisionSearchFilters,
+  snapshot: DecisionSearchSnapshot,
+  records: DecisionContentSearchRecord[],
+  searched: RecordTextSearchResult
+): Extract<DecisionQueryResult, { command: "search"; in: "content" }> {
+  const facts = contentSearchFacts(searched);
+  return {
+    searchInfo: {
+      query: {
+        text: request.text,
+        in: "content",
+        match: request.match,
+        filters,
+        limits: facts.limits
+      },
+      source: snapshot.source,
+      counts: facts.counts,
+      coverage: facts.coverage
+    },
+    command: "search",
+    in: "content",
+    records,
+    status: "ok",
+    truncation: searched.truncation,
+    warnings: [...snapshot.warnings, ...searchLimitWarnings(facts.coverage)]
+  };
 }
 
 function searchedDecisionRecord(
@@ -132,7 +163,16 @@ export async function loadDecisionSearchSnapshot(
       if (mapped.status === "error") return mapped;
       return {
         status: "ok",
-        value: { entries, sourcePathToRecord: mapped.value, warnings: [] }
+        value: {
+          entries,
+          sourcePathToRecord: mapped.value,
+          warnings: [],
+          source: {
+            kind: "validated-source",
+            currentness: "current",
+            fallback: false
+          }
+        }
       };
     }
   }
@@ -182,8 +222,13 @@ async function sourceSearchSnapshot(
     value: {
       entries,
       sourcePathToRecord: mapped.value,
+      source: {
+        kind: "validated-source",
+        currentness: "current",
+        fallback: true
+      },
       warnings: [
-        "The persisted Decision index was unavailable or stale; searched a read-only validated Decision source projection instead."
+        "search source: validated-source fallback; the persisted Decision index was unavailable or stale; searched a read-only validated Decision source projection instead. Run sync-index to publish the current projection."
       ]
     }
   };
@@ -218,19 +263,6 @@ function decisionSearchMap(records: readonly IndexedDecisionRecord[]):
     sourcePathToRecord.set(record.sourcePath, record);
   }
   return { status: "ok", value: sourcePathToRecord };
-}
-
-function searchTruncationWarnings(
-  truncation: FileTextSearchTruncation
-): string[] {
-  const warnings: string[] = [];
-  if (truncation.files)
-    warnings.push("Decision search result file limit was reached.");
-  if (truncation.matches)
-    warnings.push("Decision search match preview limit was reached.");
-  if (truncation.previewCharacters)
-    warnings.push("Decision search preview character limit was reached.");
-  return warnings;
 }
 
 function searchFileFailure(error: unknown): DecisionApplicationFailure {

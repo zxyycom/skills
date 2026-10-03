@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 - `list` 与 `search` help 均包含 Semantics 与 Examples，说明 candidates 留在索引外、`--related-to` 先解析再由方向与类型限定。
-- `list` help 说明陈旧索引仍返回最后发布快照并可用 sync-index 恢复；`search` help 说明 `--limit` 有界且无 offset 分页、截断或降级 warning 下不据以断言无匹配，并指引用 `show <investigation-id>` 读取完整报告。
+- `list` help 说明陈旧索引仍返回最后发布快照并可用 sync-index 恢复；`search` help 说明 `--limit` 限制返回报告且无 offset 分页、来源或返回受限时不据以断言无匹配，并指引用 `show <investigation-id>` 读取完整报告。

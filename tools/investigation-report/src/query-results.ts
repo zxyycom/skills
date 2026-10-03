@@ -53,6 +53,7 @@ export function searchFailure(
     errors: uniqueSorted(errors),
     indexPath,
     status: "error",
+    searchInfo: null,
     truncation: { files: false, matches: false, previewCharacters: false },
     warnings: [...warnings]
   };

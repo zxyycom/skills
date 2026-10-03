@@ -72,7 +72,7 @@ export function printDecisionQuerySuccess(
   io: DecisionRecordsCliIo = processDecisionRecordsCliIo,
   traceJson = false
 ): void {
-  printQueryWarnings(result.warnings, io);
+  if (result.command !== "search") printQueryWarnings(result.warnings, io);
   decisionQuerySuccessPrinters[result.command](result, io, traceJson);
 }
 

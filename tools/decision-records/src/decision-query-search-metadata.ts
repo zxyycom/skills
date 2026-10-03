@@ -1,3 +1,7 @@
+import {
+  metadataSearchFacts,
+  publishedSearchWarning
+} from "../../shared/src/file-text-search/record-search-info.ts";
 import path from "node:path";
 import {
   createTextSearchMatcher,
@@ -15,10 +19,7 @@ import {
   decisionIndexRecovery,
   loadDecisionIndex
 } from "./decision-state-index.ts";
-import {
-  decisionIndexStale,
-  persistedSnapshotWarning
-} from "./decision-query-context.ts";
+import { decisionIndexCurrentness } from "./decision-query-context.ts";
 import { decisionNameFromId, displayDecisionPath } from "./decision-path.ts";
 import { resolveDecisionLocation } from "./decision-query-context.ts";
 import type {
@@ -27,6 +28,8 @@ import type {
   DecisionMetadataSearchRecord,
   DecisionQueryRequest,
   DecisionQueryResult,
+  DecisionSearchFilters,
+  DecisionSearchInfo,
   IndexedDecisionRecord
 } from "./decision-query-contract.ts";
 import { decisionMetadataSearchFields } from "./decision-query-contract.ts";
@@ -51,7 +54,10 @@ export async function searchDecisionMetadata(
   const persisted = await loadDecisionIndex({ decisionsDirectory });
   if (persisted.status === "error")
     return metadataIndexFailure(persisted, indexRelativePath);
-  const stale = await decisionIndexStale(decisionsDirectory, persisted.value);
+  const currentness = await decisionIndexCurrentness(
+    decisionsDirectory,
+    persisted.value
+  );
   const matcher = metadataMatcher(request);
   if (matcher.status === "error") return matcher.failure;
   const selected = Object.entries(persisted.value.entries)
@@ -65,12 +71,34 @@ export async function searchDecisionMetadata(
     if (matched.status === "error") return matched.failure;
     if (matched.value !== null) records.push(matched.value);
   }
+  return metadataSearchSuccess(request, filtered.filters, currentness, records);
+}
+
+function metadataSearchSuccess(
+  request: Extract<DecisionQueryRequest, { command: "search" }>,
+  filters: DecisionSearchFilters,
+  currentness: DecisionSearchInfo["source"]["currentness"],
+  records: DecisionMetadataSearchRecord[]
+): Extract<DecisionQueryResult, { command: "search"; in: "metadata" }> {
+  const facts = metadataSearchFacts(records.length, records.length, null);
   return {
+    searchInfo: {
+      query: {
+        text: request.text,
+        in: "metadata",
+        match: request.match,
+        filters,
+        limits: facts.limits
+      },
+      source: { kind: "published-index", currentness, fallback: false },
+      counts: facts.counts,
+      coverage: facts.coverage
+    },
     command: "search",
     in: "metadata",
     records,
     status: "ok",
-    warnings: stale ? [persistedSnapshotWarning] : []
+    warnings: publishedSearchWarning(currentness, "Decision")
   };
 }
 

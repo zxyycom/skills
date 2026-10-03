@@ -7,6 +7,7 @@ import type {
   InvestigationIndexQueryResult,
   InvestigationIndexState,
   InvestigationListAppliedFilters,
+  InvestigationSearchFilters,
   InvestigationSearchOptions
 } from "./types.ts";
 
@@ -43,6 +44,7 @@ export type PreparedSearch = Readonly<{
   query: string;
   resolved: ResolvedInvestigationsDirectory;
   validated: Readonly<{
+    filters: InvestigationSearchFilters;
     direction?: NonNullable<InvestigationSearchOptions["direction"]>;
     limit: number;
     match: "all" | "any" | "phrase";

@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "66"
+  version: "67"
 ---
 
 # Decision Records
@@ -51,7 +51,9 @@ Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位�
 
 每个 entry 保留完整直接 `relations`，target 在切片外不是缺失证明；已有 `summary` 原样保留，缺失时省略，trace 不推断或补写。先用 `coverage.complete`、`stoppedBy` 和 `frontier` 判断边界：`frontier` 的 `fromId`、方向与 `nextIds` 可作为下一次 trace 的 anchor 和 direction，不是可跨快照续用的 cursor。`blockedEvent` 表示完整事件受记录预算阻断；将预算提高到其 `requiredMaxRecords` 后重查，不能把局部成员当作完整演进事实。
 
-`list` 与 `search` 默认查 active 已建立记录；需要历史或更多结果时显式筛选并扩展窗口。关系筛选依据、文本证据分工和 `filterRelations` 的读取边界见[派生索引与查询](references/decision-record-rules.md#派生索引与查询)。完整正文和完整直接关系仍用 `show` 读取。默认搜索读取权威 Markdown，`--in metadata` 只反映已发布索引快照；遇到降级或截断 warning 时，先按该节确认来源和结果边界。
+`list` 与 `search` 默认查 active 已建立记录；需要历史时显式筛选，列表窗口按需扩展。关系筛选依据、文本证据分工和 `filterRelations` 的读取边界见[派生索引与查询](references/decision-record-rules.md#派生索引与查询)。完整正文和完整直接关系用 `show` 读取。
+
+默认搜索读取权威 Markdown，`--in metadata` 只反映已发布索引快照。先读六行搜索摘要，确认实际条件、来源、命中计数与扫描、结果、预览各自的覆盖，再按[搜索总览与完整性](references/decision-record-rules.md#搜索总览与完整性)解释 warning 和结论边界。
 
 ## 工作流程
 

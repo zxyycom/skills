@@ -417,6 +417,7 @@
       "INDEX-RUNTIME-SYNC-UTF8-001": "sha256:cb8ba9a07dd1c51e67f4a63a4e6fdbd8244f1fd94bba59a6fdb90c8b10260e33",
       "INDEX-RUNTIME-TEMPORAL-SORT-001": "sha256:4709dc09f0b80dae632c33c5e6b867f577477b70df43cc39997884fbe80e6954",
       "INDEX-RUNTIME-TEXT-SEARCH-001": "sha256:2313163721af66e00504c3b28fb6834e0fc17b02b02c6eca594f7545a207b30c",
+      "INV-SEARCH-METADATA-001": "sha256:e62e7fd97632a31c5456e70129d8f83eb245964f1d2efbaad47b791a9d56d9c3",
       "INVESTIGATION-BUNDLED-PARITY-001": "sha256:16105f75fdf958c2f686bf399b407b3a642d51d94adc862200140b1cee672692",
       "INVESTIGATION-CANDIDATE-CLI-001": "sha256:ce90a37b86fce670ac2a88cd5f203c77b2598edabf9a008f3f41bc49ae3c4cb8",
       "INVESTIGATION-CANDIDATE-DEFAULT-FORMED-AT-001": "sha256:fceb45c6d4ac6ad17aa31ddd8e3671d9a6688e9d262ee8ff99dc312b429616be",
@@ -498,7 +499,7 @@
       "INVESTIGATION-LIST-FACETS-001": "sha256:b44d17fbd4055509a1b8de6dc3fd734e3fa3ee30507ae7692affef55c606e75d",
       "INVESTIGATION-LIST-OUTPUT-001": "sha256:422953bcc45f2b6d6fab153cb6fa577e24d1d2d6e7f87643533d3208d037b7be",
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:7c1c4d229f15339621b4e1dced9b498a9be967168bdea10c301cdffa7a477e8a",
-      "INVESTIGATION-QUERY-HELP-SEMANTICS-001": "sha256:69b014aefd468d5b2122cab261d304c92e06ea9074d59e5c2bb095985dd3b54a",
+      "INVESTIGATION-QUERY-HELP-SEMANTICS-001": "sha256:3c1451e6b5e51ca0025add88fc17eed21136bd1b03b6c53de18b1a113d657016",
       "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:4591b6b6b59f39ba32510e9535bf7c3d4c96785abf6f5af844e431dc0de5c2f6",
       "INVESTIGATION-QUERY-SOURCE-PATH-001": "sha256:63ddff121b2792bf621e0f822464f149352164185dbda16008c05aab6b4d8e89",
       "INVESTIGATION-QUERY-STALENESS-001": "sha256:e415b5e307e3db74507bb57027802cdffb52e01ca74a5b85f41f09690a93005a",
@@ -642,6 +643,16 @@
       "MCPSHELL-BRIDGE-RUNTIME-003": "sha256:a2422b8a1742ea9e4f0cab1481c0b004c03551441ecbf4add4f1cf042acf9c34",
       "MCPSHELL-BRIDGE-SHELL-001": "sha256:81b50ac95062c9bae83e5f8f5d19ecdbb04561731897770dd5526f64fcce3ce3",
       "MCPSHELL-BRIDGE-SHELL-002": "sha256:c99cdeb05103a9a29712c2705543857583c491a5b04edee2701874219be2bd02",
+      "RECORD-SEARCH-BUDGET-001": "sha256:e2b3007cb2f47adc78426a3c05e3b0e2e96730efea8af2f2d5600f8b075cae94",
+      "RECORD-SEARCH-COUNTS-001": "sha256:6e44dae3758168a1da9c56f4ff99d7ff7e6e6f876f4c5c636aff9e56111566a4",
+      "RECORD-SEARCH-FAILURE-001": "sha256:7f4d1189861c5a8eea17aace062106c898ff89d18a2a5ed493517f7e1894460d",
+      "RECORD-SEARCH-FALLBACK-001": "sha256:35cd34f80d78a97d3f152c43d7ca8b6c6f52f84a1a5dc8c27af5c5045fd22c86",
+      "RECORD-SEARCH-FILTERS-001": "sha256:6423f47e26efa7557ca2ce8c3f2b69ffc234c233c50fb5712e6881b8763e55ae",
+      "RECORD-SEARCH-OUTPUT-001": "sha256:869419b8d2531e6c65b1e4f89b6d4e8fdb868da34fcf45af88f0d2e260c2e770",
+      "RECORD-SEARCH-PREVIEWS-001": "sha256:a6072e6effe4a51ffe224468b199d911c3abda0f8e4a425d471106f8f0756e3f",
+      "RECORD-SEARCH-SOURCE-001": "sha256:caab08263a140a6a375ac8dab03abcd6eaeae4f79dfd2058cee66d290d2710c4",
+      "RECORD-SEARCH-WARNING-001": "sha256:4a91bd24a1229a5b25cd065e4363495dcab801d2d5b23d5b2e910ee7e95d0d43",
+      "RECORD-SEARCH-ZERO-001": "sha256:7611fe4210bc65a88b9c9cd5a3afe68cfe73e2160e1b10625d4f1ccc5190b0e0",
       "RECORD-SET-RELATIONS-CLI-CLASSIFICATION-001": "sha256:33712ac2e46fe72937657f485d92c9dfab65359b0ce8f699dd184696c147131d",
       "RELATION-TRACE-SELECTION-001": "sha256:c129ed8df342774c949950b89ff27e815be45c5236524ac67ed76ae52a7392d3",
       "REPO-FORMAT-SCRIPTS-001": "sha256:57f46d4515a6c9a022fd26868d1b7d291d3812aa945c957583dba9957d54cae3",
@@ -5073,6 +5084,16 @@
         "test:372b3af8c04e411596f08b65a6dbc9c55721f6ca5a053b7ef6ea260343e91705"
       ]
     },
+    "INV-SEARCH-METADATA-001": {
+      "title": "元数据保留精确全集计数并标记隐藏返回",
+      "sourcePath": "cases/investigation-metadata-return-limit.md",
+      "tags": [
+        "record-search"
+      ],
+      "testIds": [
+        "test:70fed2ed8864d3f7ccd99df532168bb6f54d5c726b38137eb6e92afa661a3655"
+      ]
+    },
     "INVESTIGATION-BUNDLED-PARITY-001": {
       "title": "CLI exposes only report-level commands and rejects old topic options",
       "sourcePath": "cases/investigation-bundled-parity-001.md",
@@ -7340,6 +7361,117 @@
       ],
       "testIds": [
         "test:46b392a6aa26d3ec7284a04ed4c6b1c16c96fda491d6ff53239ff2dac0180bc0"
+      ]
+    },
+    "RECORD-SEARCH-BUDGET-001": {
+      "title": "恰好满额与未返回记录不制造预览截断",
+      "sourcePath": "cases/record-search-exact-preview-budget.md",
+      "tags": [
+        "record-search"
+      ],
+      "testIds": [
+        "test:318be398c9abab77f5b92566dffa8e44da31e23b1dc46429bab9ca1380a960c7"
+      ]
+    },
+    "RECORD-SEARCH-COUNTS-001": {
+      "title": "首个隐藏命中的早停与末文件精确计数",
+      "sourcePath": "cases/record-search-bounded-counts.md",
+      "tags": [
+        "record-search"
+      ],
+      "testIds": [
+        "test:25f5df931fece097fa7868ae2065d79488b572ffab6d89ee5273d2c1f4c37af5",
+        "test:479c30f2fb4505acb4f5805296ea70f61c6ff138f5d77ec0746beccd5aa2f9ae",
+        "test:e4e9c6523d9342f587f0e0759bd4db193377d407dd571c3bdde7ff34511c571a"
+      ]
+    },
+    "RECORD-SEARCH-FAILURE-001": {
+      "title": "显示耗尽后仍保留必需读取与资源失败",
+      "sourcePath": "cases/record-search-required-failures.md",
+      "tags": [
+        "record-search"
+      ],
+      "testIds": [
+        "test:18ff13fe0c73f7b18396d4dd73633165597e87d439bd3d79d787989e27858118"
+      ]
+    },
+    "RECORD-SEARCH-FALLBACK-001": {
+      "title": "来源降级验证且不写发布索引",
+      "sourcePath": "cases/record-search-validated-fallback.md",
+      "tags": [
+        "record-search"
+      ],
+      "testIds": [
+        "test:784bced1dea307fedafb8abe16ad0b192acebf3194036d1e726be07f410d83f1",
+        "test:901eacf20eeaae03ab0c206002a4bc866dbc8e27ae23342c611483adeca974e9"
+      ]
+    },
+    "RECORD-SEARCH-FILTERS-001": {
+      "title": "元信息回显已解析的实际筛选",
+      "sourcePath": "cases/record-search-applied-filters.md",
+      "tags": [
+        "record-search"
+      ],
+      "testIds": [
+        "test:5cb10aa2be91ed0d03dd68dbdd5c6227b6b4ad5292f30384ed7f5d049c2b63a3",
+        "test:6e4762ab466c143ca3990eebda895b69a370b6e0c909c897c93f45ca54192dcd"
+      ]
+    },
+    "RECORD-SEARCH-OUTPUT-001": {
+      "title": "分发 CLI 从结果输出六行摘要",
+      "sourcePath": "cases/record-search-distributed-summary.md",
+      "tags": [
+        "record-search"
+      ],
+      "testIds": [
+        "test:1b90dec979a5e7d1af9bb37170149aeee3a324c9b3bbc07b61c1c7a2bcf0c75f",
+        "test:7b585d56c763294b34f3b9cce481fa6e634b5b07082dd9a633e497b5fb891632"
+      ]
+    },
+    "RECORD-SEARCH-PREVIEWS-001": {
+      "title": "预览受限不影响记录身份与完整扫描",
+      "sourcePath": "cases/record-search-preview-independence.md",
+      "tags": [
+        "record-search"
+      ],
+      "testIds": [
+        "test:03d8ad68972f3865c7165d3d62381cc1b714f1bee834ee176b6f747fe5810b17",
+        "test:c810b8db343918856326e384e8ba4522891483f0e74cbfe26452dc5a3bcbe7e2",
+        "test:c8a7d3abed98e07ce295d7983fd8ec5df055813cc05fdf0544a7b8a6538d9d9c",
+        "test:d178e50829fcfdd2a02396f1aff6bc1c598ff59766b7f7b37d312ebddd126998"
+      ]
+    },
+    "RECORD-SEARCH-SOURCE-001": {
+      "title": "发布快照区分陈旧与未核实来源",
+      "sourcePath": "cases/record-search-source-currentness.md",
+      "tags": [
+        "record-search"
+      ],
+      "testIds": [
+        "test:11e02aea8eb025b8d8c61dcb3b5a179aa7e6dedeee52bc33c92e075f50e42097",
+        "test:c57efe5c5b464152e632488bca1d7f44ce092d7736209a81ab9edd97a44b9fa7"
+      ]
+    },
+    "RECORD-SEARCH-WARNING-001": {
+      "title": "正常预览限制不要求修复当前来源",
+      "sourcePath": "cases/record-search-warning-classification.md",
+      "tags": [
+        "record-search"
+      ],
+      "testIds": [
+        "test:3e2081fb0711ffbd399861224fb6b8a5dc12194914b8eb9711195ffc83fd93f7"
+      ]
+    },
+    "RECORD-SEARCH-ZERO-001": {
+      "title": "完整零命中及生效预算回显",
+      "sourcePath": "cases/record-search-complete-zero.md",
+      "tags": [
+        "record-search"
+      ],
+      "testIds": [
+        "test:287807dfc30240d25db39614bb2e78e044cf19235e2af3108c0c9c8420fe9cca",
+        "test:3c08c41ec0af2c00fbc965bceee9b941175277e839fb77854dff602dfa9f575c",
+        "test:f58099494d895713ad49c097263a3e3b64503b30fc02821e37261b14c9e23b0b"
       ]
     },
     "RECORD-SET-RELATIONS-CLI-CLASSIFICATION-001": {

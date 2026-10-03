@@ -524,13 +524,40 @@ export type InvestigationMetadataSearchEntry = {
 export type InvestigationSearchEntry =
   | InvestigationContentSearchEntry
   | InvestigationMetadataSearchEntry;
-export type InvestigationSearchResult = {
+export type InvestigationSearchFilters = Readonly<{
+  tags: readonly string[];
+  formedAtFrom?: string;
+  formedAtTo?: string;
+  relatedTo?: string;
+  direction?: "predecessors" | "successors" | "both";
+  relationType?: InvestigationRelationType;
+}>;
+export type InvestigationSearchInfo = Readonly<{
+  query: Readonly<{
+    text: string;
+    in: "content" | "metadata";
+    match: "all" | "any" | "phrase";
+    filters: InvestigationSearchFilters;
+    limits: Readonly<{
+      maxRecords: number | null;
+      resources: Readonly<{ maxCandidateFiles: number; maxFileBytes: number; maxTotalBytes: number }> | null;
+      preview: Readonly<{ contextLines: number; maxMatchesPerFile: number; maxPreviewCharacters: number }> | null;
+    }>;
+  }>;
+  source: Readonly<{ kind: "published-index" | "validated-source"; currentness: "current" | "stale" | "unchecked"; fallback: boolean }>;
+  counts: Readonly<{ matched: Readonly<{ value: number; precision: "exact" | "lower-bound" }>; returned: number }>;
+  coverage: Readonly<{ scanComplete: boolean; resultsComplete: boolean; previewsComplete: boolean | null; reasons: readonly ("max-records" | "match-previews" | "preview-characters")[] }>;
+}>;
+export type InvestigationSearchResult = InvestigationSearchResultBase & (
+  | Readonly<{ status: "ok"; searchInfo: InvestigationSearchInfo }>
+  | Readonly<{ status: "error"; searchInfo: null }>
+);
+type InvestigationSearchResultBase = Readonly<{
   entries: readonly InvestigationSearchEntry[];
   errors: readonly string[];
   indexPath: string;
-  status: "error" | "ok";
   warnings: readonly string[];
-};
+}>;
 export declare function searchInvestigationReports(
   input: unknown
 ): Promise<InvestigationSearchResult>;

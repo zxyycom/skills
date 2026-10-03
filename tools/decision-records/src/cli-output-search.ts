@@ -1,3 +1,4 @@
+import { renderRecordSearchSummary } from "../../shared/src/file-text-search/record-search-output.ts";
 import type { DecisionQuerySuccess } from "./decision-query-service.ts";
 import type { DecisionRecordsCliIo } from "./cli-io.ts";
 import { writeCliLine } from "./cli-output-writer.ts";
@@ -7,6 +8,10 @@ export function printSearch(
   result: Extract<DecisionQuerySuccess, { command: "search" }>,
   io: DecisionRecordsCliIo
 ): void {
+  for (const warning of result.warnings) {
+    writeCliLine(io.stderr, "[decision-records.query-warning] " + warning);
+  }
+  writeCliLine(io.stdout, renderRecordSearchSummary(result.searchInfo));
   writeCliLine(io.stdout, "Decision search results:");
   if (result.records.length === 0) {
     writeCliLine(io.stdout, "- none");
