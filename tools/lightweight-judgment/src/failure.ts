@@ -1,6 +1,7 @@
 export type FailureKind =
   | "configuration"
   | "input"
+  | "storage"
   | "authentication"
   | "rate_limit"
   | "timeout"
@@ -23,6 +24,18 @@ export class JudgmentFailure extends Error {
   ) {
     super(message);
   }
+}
+
+export function normalizeFailure(
+  error: unknown,
+  fallbackKind: "input" | "invalid_response"
+): JudgmentFailure {
+  return error instanceof JudgmentFailure
+    ? error
+    : new JudgmentFailure(
+        fallbackKind,
+        "执行失败；请核对输入、运行环境或服务状态。"
+      );
 }
 
 export function fail(kind: FailureKind, path: string, reason: string): never {

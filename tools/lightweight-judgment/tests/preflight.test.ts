@@ -110,7 +110,18 @@ test("malformed inputs incompatible criteria and invalid configuration fail befo
   ])
     assert.equal((await runCli(argv, rt)).exitCode, 2);
   for (const config of [
-    '{"endpoint":"https://evil"}',
+    '{"endpoint":"http://external.example/v1/systemone"}',
+    '{"endpoint":"https://key@example.test/v1/systemone"}',
+    '{"endpoint":"https://example.test/v1/systemone?key=secret"}',
+    '{"endpoint":"https://example.test/v1/systemone#fragment"}',
+    '{"endpoint":"/relative"}',
+    '{"apiKey":""}',
+    '{"apiKey":"bad key"}',
+    '{"logging":{"enabled":"true"}}',
+    '{"logging":{"databasePath":""}}',
+    '{"logging":{"saveRequest":1}}',
+    '{"logging":{"saveResponse":null}}',
+    '{"logging":{"__proto__":true}}',
     '{"timeoutMs":0}',
     '{"timeoutMs":1.5}',
     '{"timeoutMs":2147483648}',

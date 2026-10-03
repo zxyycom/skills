@@ -10,7 +10,7 @@ export type Options = Readonly<{
   dryRun: boolean;
 }>;
 
-const common = ["config", "model", "timeout-ms"] as const;
+const common = ["config", "model", "endpoint", "timeout-ms"] as const;
 
 const jsonFlags = ["file", "json"] as const;
 

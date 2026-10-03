@@ -83,19 +83,29 @@ test("help doctor dry run remain offline and preview never reads the key", async
     }
   });
   assert.equal((await runCli([...args, "--dry-run"], rt)).exitCode, 0);
-  assert.equal(
-    (
-      await runCli(
-        ["--config", "/missing", "--help"],
-        runtime({
-          readFile: async () => {
-            throw new Error("read");
-          }
-        })
-      )
-    ).exitCode,
-    0
+  const help = await runCli(["--config", "/missing", "--help"], {
+    ...rt,
+    readFile: async () => {
+      throw new Error("read");
+    },
+    readStdin: async () => {
+      throw new Error("stdin read");
+    }
+  });
+  assert.equal(help.exitCode, 0);
+  assert.equal(help.stderr, "");
+  assert.ok(help.stdout.includes("LIGHTWEIGHT_JUDGMENT_CONFIG"));
+  assert.ok(help.stdout.includes("apiKeyEnv=OPENROUTER_API_KEY"));
+  assert.ok(
+    help.stdout.includes("--file /absolute/path/request.json --dry-run")
   );
+  assert.ok(help.stdout.includes("configuration/input"));
+  assert.ok(help.stdout.includes("error.kind"));
+  assert.ok(help.stdout.includes("logging.databasePath"));
+  assert.ok(help.stdout.includes("enabled: false"));
+  assert.ok(help.stdout.includes("--endpoint URL"));
+  assert.ok(help.stdout.includes("meta.persistence"));
+  assert.ok(help.stdout.includes("references/cli.md"));
   const doctor = decodeSuccess((await runCli(["doctor"], runtime())).stdout);
   assert.equal(doctor.result.hasApiKey, true);
   assert.equal(doctor.meta.attempts, 0);

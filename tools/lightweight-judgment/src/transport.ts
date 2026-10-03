@@ -1,9 +1,22 @@
 import { JudgmentFailure } from "./failure.ts";
-import { endpoint, type Request } from "./request.ts";
-import { validateResponse } from "./response.ts";
-import { stringifyJson, type JsonValue } from "./json.ts";
+import type { Request } from "./request.ts";
+import { validateResponse, type ValidatedResponse } from "./response.ts";
+import type { ApiKey } from "./configuration.ts";
 
 export type Fetch = (url: string, init: RequestInit) => Promise<Response>;
+
+export type TransportOptions = Readonly<{
+  endpoint: string;
+  body: string;
+  apiKey: ApiKey;
+  timeoutMs: number;
+  received?: (status: number, body?: Uint8Array) => void;
+}>;
+
+type ResponseHead = Readonly<{
+  status: number;
+  failure: JudgmentFailure | undefined;
+}>;
 
 function retryAfter(value: string | null, now: number): number | undefined {
   if (value === null) {
@@ -38,10 +51,9 @@ function httpFailure(response: Response): JudgmentFailure {
   );
 }
 
-async function decodedBody(response: Response): Promise<string> {
-  let bytes: ArrayBuffer;
+async function responseBytes(response: Response): Promise<Uint8Array> {
   try {
-    bytes = await response.arrayBuffer();
+    return new Uint8Array(await response.arrayBuffer());
   } catch {
     throw new JudgmentFailure(
       "network",
@@ -49,33 +61,36 @@ async function decodedBody(response: Response): Promise<string> {
       response.status
     );
   }
+}
+
+function decodedBody(bytes: Uint8Array, status: number): string {
   try {
     return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
   } catch {
     throw new JudgmentFailure(
       "invalid_response",
       "响应正文不是有效 UTF-8。",
-      response.status
+      status
     );
   }
 }
 
 async function exchange(
   request: Request,
-  apiKey: string,
+  options: TransportOptions,
   fetch: Fetch,
   signal: AbortSignal,
-  received: (status: number) => void
-): Promise<JsonValue> {
+  received: (head: ResponseHead) => void
+): Promise<ValidatedResponse> {
   let response: Response;
   try {
-    response = await fetch(endpoint, {
+    response = await fetch(options.endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`
+        Authorization: `Bearer ${options.apiKey}`
       },
-      body: stringifyJson(request),
+      body: options.body,
       redirect: "manual",
       signal
     });
@@ -85,11 +100,21 @@ async function exchange(
       "请求连接失败；服务端是否完成处理未知。"
     );
   }
-  received(response.status);
-  if (!response.ok) {
-    throw httpFailure(response);
+  signal.throwIfAborted();
+  const failure = response.ok ? undefined : httpFailure(response);
+  received({ status: response.status, failure });
+  options.received?.(response.status);
+  if (failure !== undefined && options.received === undefined) throw failure;
+  let bytes: Uint8Array;
+  try {
+    bytes = await responseBytes(response);
+  } catch (error) {
+    throw failure ?? error;
   }
-  const body = await decodedBody(response);
+  signal.throwIfAborted();
+  options.received?.(response.status, bytes);
+  if (failure !== undefined) throw failure;
+  const body = decodedBody(bytes, response.status);
   try {
     return validateResponse(body, request);
   } catch (error) {
@@ -110,29 +135,29 @@ async function exchange(
 
 export async function sendRequest(
   request: Request,
-  apiKey: string,
-  timeoutMs: number,
+  options: TransportOptions,
   fetch: Fetch
-): Promise<JsonValue> {
+): Promise<ValidatedResponse> {
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
-  let status: number | null = null;
+  let head: ResponseHead | undefined;
   const timeout = new Promise<never>((_, reject) => {
     timer = setTimeout(() => {
       reject(
-        new JudgmentFailure(
-          "timeout",
-          "请求等待超时；服务端是否完成处理未知。",
-          status
-        )
+        head?.failure ??
+          new JudgmentFailure(
+            "timeout",
+            "请求等待超时；服务端是否完成处理未知。",
+            head?.status ?? null
+          )
       );
       controller.abort();
-    }, timeoutMs);
+    }, options.timeoutMs);
   });
   try {
     return await Promise.race([
-      exchange(request, apiKey, fetch, controller.signal, (received) => {
-        status = received;
+      exchange(request, options, fetch, controller.signal, (received) => {
+        head = received;
       }),
       timeout
     ]);

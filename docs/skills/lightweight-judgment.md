@@ -2,19 +2,22 @@
 
 `lightweight-judgment` 是按需点名使用的能力：用户明确指定该 skill 后，agent 才用 JEV 完成分类、候选选择、相关性筛选、命题判断和程度评分。适合输出空间明确、需要语义理解、结果可复核或回退的局部任务。
 
+## 使用方式
+
 在任务中点名 `$lightweight-judgment` 即可显式调用。包内 [agents/openai.yaml](../../skills/lightweight-judgment/agents/openai.yaml) 将 Codex 的 `policy.allow_implicit_invocation` 设为 `false`，使安装后的 skill 按此方式启用。
 
-内容按职责组织：
+agent 负责选择局部任务、组织输入、复核结果并继续原任务；CLI 负责本地检查、离线预览、单次请求和机械响应校验。默认通道是 OpenRouter JEV，也可配置兼容 System One 的完整地址、密钥与 JEV 型号。
 
-- [SKILL.md](../../skills/lightweight-judgment/SKILL.md)：任务选择、JEV 特点摘要，以及构造请求、调用、检查与采用结果的流程。
-- [CLI 操作契约](../../skills/lightweight-judgment/references/cli.md)：配置、JSON／参数输入、离线预览、响应校验与技术失败。
-- [JEV 特点与实测依据](../../skills/lightweight-judgment/references/jev-characteristics.md)：具体任务、样本分母、观察结果和外推边界，供按需查阅。
+调用日志默认关闭。手动开启后，本地 SQLite 保存调用状态及选定的请求／响应正文，供进程中断后核对和后续统计；每次 CLI 仍直接调用，不自动重放。
 
-## 使用与交付
+skill 包含行为文档、自包含 CLI／source map、Codex 调用策略与通用 updater。分发后使用 Node.js 直接运行；仓库内可从 `bun run lightweight-judgment -- --help` 开始。
 
-skill 包括行为文档、自包含 `scripts/lightweight-judgment.mjs`／source map 与通用 updater。CLI 通过固定 OpenRouter JEV 通道发送单次请求，提供本地前置诊断、完整 JSON 与单题参数输入、离线预览和机械响应校验。
+## 阅读入口
 
-分发后按 [CLI 操作契约](../../skills/lightweight-judgment/references/cli.md) 使用 Node.js 直接运行；仓库内可从 `bun run lightweight-judgment -- --help` 开始。
+- [SKILL.md](../../skills/lightweight-judgment/SKILL.md)：agent 执行入口，承接任务选择、请求构造、结果复核与采用。
+- [CLI 操作契约](../../skills/lightweight-judgment/references/cli.md)：运行前置、配置、输入输出、响应校验与技术失败。
+- [调用日志](../../skills/lightweight-judgment/references/call-logging.md)：可选 SQLite 留存、调用状态、恢复与统计。
+- [JEV 特点与实测依据](../../skills/lightweight-judgment/references/jev-characteristics.md)：具体任务、样本条件、观察结果和外推边界。
 
 ## 验证责任
 

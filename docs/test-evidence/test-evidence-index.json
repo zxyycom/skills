@@ -611,9 +611,9 @@
       "LIGHTWEIGHT-JUDGMENT-CLI-001": "sha256:6deabc8f60e96044dba3a18f8a6c22f8bc360ccde63593157d56764ade83b58d",
       "LIGHTWEIGHT-JUDGMENT-CLI-002": "sha256:eb2f722f8a813e4e02bb88fb1b3e1d845fd19349c89a4cc7698aa4c1f71fc50a",
       "LIGHTWEIGHT-JUDGMENT-CLI-003": "sha256:4820e5e4d92b0c40842468ec83e5ec9d1ab54f44ea72b48be4bd87f2882ebc6c",
-      "LIGHTWEIGHT-JUDGMENT-CLI-004": "sha256:f1baf4a2437d098253f4d7284eda7f212e6d89c4cc6db29b7f185cfe27ef23c1",
-      "LIGHTWEIGHT-JUDGMENT-CLI-005": "sha256:338fb495c1d0e82bfe7cf4eb4d7dd59858d77619e527ea2db2d32c56ac9242c5",
-      "LIGHTWEIGHT-JUDGMENT-CLI-006": "sha256:671a749a4ba76498642bde3fc7a7979b1588ba440d25bfc46c19a0bb95046314",
+      "LIGHTWEIGHT-JUDGMENT-CLI-004": "sha256:57ac1c38d6acae9a0d4bdcb1c0f46b11b684a3f023f5c7d24334dd53f590f911",
+      "LIGHTWEIGHT-JUDGMENT-CLI-005": "sha256:786b92e02b94b02aafe065fb59c8f3372b4bde8953e052afc91c696b79c57cbb",
+      "LIGHTWEIGHT-JUDGMENT-CLI-006": "sha256:62594eb0d2a5177a5728ac1d30ef2fee3ea9816b257242a103e23a5690a369c9",
       "LIGHTWEIGHT-JUDGMENT-CLI-007": "sha256:71144f333d9efc157f2503ac65585614457389b77c8f163700dba2a74aa80031",
       "LIGHTWEIGHT-JUDGMENT-CLI-008": "sha256:4f63fd5471550305b0e79e22eb1219a0984bb00dc87c77720a7868df29c785f1",
       "LIGHTWEIGHT-JUDGMENT-CLI-009": "sha256:e803b3729da2721bced2be6bab6471b500ced4574c55edec5da9f83330ac6f57",
@@ -628,6 +628,17 @@
       "LIGHTWEIGHT-JUDGMENT-CLI-018": "sha256:9ebb3020738254a439d5abfde8c7b12eda958e19fa8da9baeb9b08418072727a",
       "LIGHTWEIGHT-JUDGMENT-CLI-019": "sha256:1372e2963f54850f9c04a423c69aadc1807356386e232a6fd65163c3721d88b9",
       "LIGHTWEIGHT-JUDGMENT-CLI-020": "sha256:6ac8071cf5e0cca1a103a187545acfb55135043d1b87fcfc03645c8ff22fe3bf",
+      "LIGHTWEIGHT-JUDGMENT-CLI-021": "sha256:f28f8fddcd08d3fd548529d690ad75b284c8f32be33c267fe96cb409490b17a4",
+      "LIGHTWEIGHT-JUDGMENT-CLI-022": "sha256:f87be4349cbe615f4c10e3163c4c9510290985e23da440fdb9bfbf05d41cc952",
+      "LIGHTWEIGHT-JUDGMENT-CLI-023": "sha256:0ce38ee6e3139444487214cf1a598ec52366ed724f7f83945197ee8c9a13be99",
+      "LIGHTWEIGHT-JUDGMENT-CLI-024": "sha256:740d8b70713c56a2b99cc9e74b024d555eb60f148eab3866b76b1acd7aaf81e2",
+      "LIGHTWEIGHT-JUDGMENT-CLI-025": "sha256:fbd0d5636f9446378768f2adf19e1e1f090248fc95677021cc325db054846ed1",
+      "LIGHTWEIGHT-JUDGMENT-CLI-026": "sha256:539853cb4352ecd9e5df306f4567039624cb460eab411a71c87617dc03edb9a5",
+      "LIGHTWEIGHT-JUDGMENT-CLI-027": "sha256:0f2256dda9407c7245107aecebfe68bf363282db4f7d476b1d70e563889ec135",
+      "LIGHTWEIGHT-JUDGMENT-CLI-028": "sha256:22ceae1496c7fe91d152189c1f724dfee29a7385eb2085ab382f2071b679f309",
+      "LIGHTWEIGHT-JUDGMENT-CLI-029": "sha256:af02bd24ef5bbc4f54c90fa387438632efa47e312435b34fc0f12971918ee6a0",
+      "LIGHTWEIGHT-JUDGMENT-CLI-030": "sha256:230946d92f27fb1c42c174926737be6a7c74066a4e555bf6852611608dfe14f0",
+      "LIGHTWEIGHT-JUDGMENT-CLI-031": "sha256:64db46d0638beb80cf202ce12378b4e02ca881f0db1a9b5b732303dffa564716",
       "MCPSHELL-BRIDGE-DIST-001": "sha256:771e5f7ac1cc9b48d75a9c5266d51c4762e6913880ba9080daf7acd7a6fca097",
       "MCPSHELL-BRIDGE-DIST-002": "sha256:145804c2ee97112c2e15ffbe221f6f072c7a5a6b44bef7a50130a7f94d9930fc",
       "MCPSHELL-BRIDGE-DIST-003": "sha256:03b5da99f66635f94127d16a7488ec0e92ec0aad685b48ef967c35ee92eb30fa",
@@ -7084,7 +7095,7 @@
       ]
     },
     "LIGHTWEIGHT-JUDGMENT-CLI-006": {
-      "title": "多题与固定通道",
+      "title": "多题与默认通道",
       "sourcePath": "cases/lightweight-judgment-multi-question-channel.md",
       "tags": [
         "lightweight-judgment"
@@ -7231,6 +7242,118 @@
       ],
       "testIds": [
         "test:a814f594ebb6bdf3c2a1d7616860b007b49c1c6bcc7ff5adbdd1ded5a659e1a8"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-021": {
+      "title": "显式自定义调用连接",
+      "sourcePath": "cases/lightweight-judgment-custom-connection.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:63d934bb5b8461e44d3021d0012e0c7ca246148556ef022699ddf06bb6f8d418"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-022": {
+      "title": "超时记录不被迟到响应改写",
+      "sourcePath": "cases/lightweight-judgment-log-timeout.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:efe8a7200bd2644dd9af082cd45ad277fb29ff2166237b73c6cd5ed8df60ecc4"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-023": {
+      "title": "默认关闭与离线不建库",
+      "sourcePath": "cases/lightweight-judgment-log-opt-in.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:6486b0bf7e87d60d88dcdcc6034f6b9be657824dc47fc9175833279705c755bb"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-024": {
+      "title": "调用意图与独立正文留存",
+      "sourcePath": "cases/lightweight-judgment-log-retention.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:70cbed3d7f9754f860c6df9b243825263f7c82d55e76201cd360a11dce5d89bd"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-025": {
+      "title": "默认建库与路径解析",
+      "sourcePath": "cases/lightweight-judgment-log-path.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:59054100fec71a89698fe9e3e8b62b54ef1518ec46d5b75e65d61862f7ac4c3f"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-026": {
+      "title": "失败状态与原始异常正文",
+      "sourcePath": "cases/lightweight-judgment-log-failure-states.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:e40b077ccd84a9ee43c0a7ddfc4e9873a7968a68e23a694153c31758f00bb854"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-027": {
+      "title": "发送前存储失败关闭调用",
+      "sourcePath": "cases/lightweight-judgment-log-fail-closed.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:27ef848886be7842f677cc171ba20ba3f89c5320a2bf18e7787e9cad43c01e1e",
+        "test:89823753ca2305febdb65207230cf18ed987055b3086be70f3d6e08f746f601f",
+        "test:ca6bf4ea36ae6d2d5fa0a55250dffff6072d7d45ce47ce0d55b5388d5655b2b0"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-028": {
+      "title": "发送后存储失败保留远端结果",
+      "sourcePath": "cases/lightweight-judgment-log-output-preservation.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:577954375d616804d292851eb888ec5172f5acf2e8ccc4c5891345d778262efb"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-029": {
+      "title": "独立进程并发追加",
+      "sourcePath": "cases/lightweight-judgment-log-concurrency.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:226506e6b22ff8c8d7a51b59f505f8302a58bf9b2fc8c1e174f332334b21a262"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-030": {
+      "title": "强制终止后的记录恢复",
+      "sourcePath": "cases/lightweight-judgment-log-crash-recovery.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:d095df0dd4f9a186d8f1abdc14b48c511079921a5b7080f09c1452a6f45b2bbf"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-031": {
+      "title": "正文接收失败保留已知 HTTP 错误",
+      "sourcePath": "cases/lightweight-judgment-http-failure-retention.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:041a9a51d650a2f3f44415e252081fb83f87923abf029e8406b64553f8db9f62"
       ]
     },
     "MCPSHELL-BRIDGE-DIST-001": {

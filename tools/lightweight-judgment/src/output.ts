@@ -1,8 +1,10 @@
-import { JudgmentFailure } from "./failure.ts";
+import { normalizeFailure } from "./failure.ts";
+import type { ApiKey } from "./configuration.ts";
 import { stringifyJson, type JsonValue } from "./json.ts";
+import type { PersistenceMeta } from "./call-log.ts";
 
 export type CliOutcome = Readonly<{
-  exitCode: 0 | 2 | 3;
+  exitCode: 0 | 2 | 3 | 4;
   stdout: string;
   stderr: string;
 }>;
@@ -11,13 +13,15 @@ export type InvocationState = {
   attempts: 0 | 1;
   started: number | undefined;
   requestModel: string | undefined;
-  apiKey: string | undefined;
+  apiKey: ApiKey | undefined;
+  persistence?: PersistenceMeta;
 };
 
 type InvocationMeta = Readonly<{
   requestModel?: string;
   elapsedMs: number;
   attempts: 0 | 1;
+  persistence?: PersistenceMeta;
 }>;
 
 function meta(state: Readonly<InvocationState>, now: number): InvocationMeta {
@@ -30,7 +34,10 @@ function meta(state: Readonly<InvocationState>, now: number): InvocationMeta {
       ? {}
       : { requestModel: state.requestModel }),
     elapsedMs,
-    attempts: state.attempts
+    attempts: state.attempts,
+    ...(state.persistence === undefined
+      ? {}
+      : { persistence: state.persistence })
   };
 }
 
@@ -42,9 +49,9 @@ export function successOutcome(
   // The API key is never inserted into this envelope. Preserve valid response fields;
   // do not mutate JSON tokens, keys, or data because a short key matches their text.
   return {
-    exitCode: 0,
+    exitCode: state.persistence?.status === "failed" ? 4 : 0,
     stdout: `${stringifyJson({ ok: true, result, meta: meta(state, now), error: null })}\n`,
-    stderr: ""
+    stderr: persistenceDiagnostic(state)
   };
 }
 
@@ -54,13 +61,7 @@ export function failureOutcome(
   now: number
 ): CliOutcome {
   const fallbackKind = state.attempts === 0 ? "input" : "invalid_response";
-  const failure =
-    error instanceof JudgmentFailure
-      ? error
-      : new JudgmentFailure(
-          fallbackKind,
-          "执行失败；请核对输入、运行环境或服务状态。"
-        );
+  const failure = normalizeFailure(error, fallbackKind);
   const message = state.apiKey
     ? failure.message.split(state.apiKey).join("[REDACTED]")
     : failure.message;
@@ -72,9 +73,19 @@ export function failureOutcome(
       ? {}
       : { retryAfterMs: failure.retryAfterMs })
   };
+  let exitCode: CliOutcome["exitCode"] = 3;
+  if (["input", "configuration"].includes(failure.kind)) exitCode = 2;
+  if (failure.kind === "storage" || state.persistence?.status === "failed")
+    exitCode = 4;
   return {
-    exitCode: ["input", "configuration"].includes(failure.kind) ? 2 : 3,
+    exitCode,
     stdout: `${stringifyJson({ ok: false, result: null, meta: meta(state, now), error: detail })}\n`,
-    stderr: `${message}\n`
+    stderr: `${message}\n${persistenceDiagnostic(state)}`
   };
+}
+
+function persistenceDiagnostic(state: Readonly<InvocationState>): string {
+  return state.persistence?.status === "failed"
+    ? "调用记录未完整落盘；请保留当前输出并检查数据库。不要仅因日志失败自动重发。\n"
+    : "";
 }

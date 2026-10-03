@@ -1,0 +1,76 @@
+# 调用日志
+
+本文承接可选 SQLite 调用记录的配置、留存、状态、恢复与统计。日常命令、输出和存储失败的退出 4 处理由 [CLI 操作契约](cli.md) 承接。
+
+## 开启与留存
+
+日志默认关闭；在选中的 CLI 配置文件设置 `logging.enabled: true` 后启用。每次 CLI 仍直接发送单次请求，记录用于核对与分析，不构成队列或自动重放机制。
+
+| `logging` 字段 | 默认值与含义 |
+| --- | --- |
+| `enabled` | `false`；关闭时不创建或访问数据库 |
+| `databasePath` | 用户目录下 `.local/share/lightweight-judgment/calls.sqlite3`；支持 `~/`，相对路径以选中配置文件所在目录为基准 |
+| `saveRequest` | `false`；开启时保存实际发送的完整 JSON 正文，包含补齐／覆盖后的 model，保留原生类型与键顺序；不保留输入文件的原始空白 |
+| `saveResponse` | `true`；保存完整收到的 fetch 响应正文原始字节，包括成功响应、非 2xx 正文及无效 UTF-8／JSON，不保存响应头 |
+
+正文开关只在日志启用后生效。无论是否留存正文，记录都包含 ID、UTC 起止／更新时间、endpoint、请求／响应模型、问题数、留存开关、HTTP 状态、错误类别和耗时。仅对有效响应提取服务提供的非负 `input_tokens`、`output_tokens`、`cost`；缺失或无效值保存为 SQL NULL，不估算费用。
+
+未完整收到的响应正文保存为 SQL NULL。非 2xx 响应已确认的 HTTP 错误和 `retryAfterMs` 不因正文读取失败或超时被覆盖；记录仍为 `failed`，保留 `http_status` 与 `error_kind`。正文接收失败本身不是数据库写入失败，`meta.persistence` 仍按实际写入结果报告。
+
+CLI 不将错误消息、配置全文、API key 或鉴权头写入库。启用正文留存时按原内容保存，不替换其中的敏感内容；调用者放入正文或服务回显的敏感信息也可能被保留。开启前应确认两项正文开关及留存权限。
+
+## 数据库位置与写入
+
+仅真实推理通过输入和凭据校验后创建缺失的父目录与数据库；`help`、`doctor`、`dry-run` 均不访问数据库。
+
+- 使用私有本地文件系统，不使用网络共享盘。新目录按 POSIX `0700`、数据库按 `0600` 创建；已有目录权限由使用者维护。
+- 已有非私有文件、符号链接、其他应用的库或不支持的版本会被拒绝，不覆盖或修正它们。
+- 每次调用生成独立 UUID，写入 SQLite `calls` 表。WAL、`synchronous=FULL` 和最长 5 秒锁等待支持本机多个 CLI 进程追加；每次记录更新原子提交。
+
+## 调用状态
+
+发送意图提交成功后才调用 HTTP；收到完整正文后，在协议解析和 stdout 输出前更新记录，最后提交成功或失败状态。
+
+| `status` | 可证明的含义 |
+| --- | --- |
+| `started` | 发送意图已提交；可能仍执行、尚未发送或已发送后中断，不能据此认定服务未处理 |
+| `response_received` | 完整正文已接收并更新记录，但最终校验／状态尚未提交；正文是否留存取决于 `saveResponse` |
+| `succeeded` | 响应通过协议校验且最终记录已提交，不代表业务答案一定正确 |
+| `failed` | 已记录 HTTP 或协议失败，`error_kind` 区分原因 |
+| `indeterminate` | 已记录超时或网络失败，远端是否处理完成可能未知 |
+
+数据库的 `status` 表达调用进度；输出中的 `meta.persistence.status` 表达本次写入是否完整成功，两者按 `callId` 关联。存储失败时先按 [CLI 技术失败](cli.md#技术失败) 保留当前输出，再检查记录。
+
+## 恢复与统计
+
+已提交的记录独立于原 CLI 进程存活，可由新进程使用已有 SQLite 工具只读查询。进程强制终止后，恢复按以下边界处理：
+
+1. 结合进程和服务状态核对不完整记录；“没有完成记录”不构成安全重发依据。CLI 不自动重试或重放，也不保证远端恰好处理一次。
+2. `response_received` 正文尚未经最终协议确认，恢复时重新校验并关联原问题；`saveRequest: false` 时需另有原请求来源。未收到或未提交的响应无法恢复。
+3. 无效正文按 BLOB 检查，不假定能转换为文本。持久性依赖 SQLite 与底层存储；进程终止测试不证明断电或介质损坏时仍可恢复。
+
+通过 SQLite 客户端以只读方式打开配置中的数据库路径后，可执行以下查询：
+
+```sql
+-- 待核对的未完成或远端结果不确定的调用
+SELECT id, started_at, status, http_status, error_kind
+FROM calls
+WHERE status IN ('started', 'response_received', 'indeterminate')
+ORDER BY started_at;
+
+-- 按接收方、请求模型和调用状态统计服务报告值
+SELECT endpoint, request_model, status, COUNT(*) AS calls,
+       COUNT(cost) AS calls_with_cost, SUM(cost) AS reported_cost,
+       SUM(input_tokens) AS reported_input_tokens, AVG(elapsed_ms) AS elapsed_ms
+FROM calls GROUP BY endpoint, request_model, status;
+
+-- 已成功调用的可选正文；关闭对应留存开关时该列为 NULL
+SELECT id, request_json, CAST(response_body AS TEXT) AS response_json
+FROM calls WHERE status = 'succeeded' ORDER BY started_at DESC LIMIT 20;
+```
+
+统计只涵盖启用日志的调用；`cost` 是服务报告值，不同服务的计量约定应分别核对。
+
+## 数据维护
+
+数据保留期限、清理和容量管理由使用者负责，CLI 不自动删除记录。制作分析副本时使用 SQLite 备份能力，或待全部写入进程停止并完成 checkpoint 后复制；不要只复制活跃库的主文件而遗漏 WAL。

@@ -107,6 +107,7 @@
       "260922-unify-formal-relation-maintenance-actions": "sha256:a7d223db5f2b5f0eb78e4680e51a45f5d32e34743ec37ffe1c7684d608a47042",
       "260922-unify-record-candidate-lifecycle-actions": "sha256:bcfd3285dd6857c9a853a71a20dd2e290ca747b8dbb1dcff2bfa2a5029221585",
       "260922-unify-record-pending-snapshot-scopes": "sha256:607c4281bc07db72e2b1ab3eaa5c857d94f5a2c4657298f4cc6e79b7d5a4e41d",
+      "261003-lightweight-judgment-durable-calls": "sha256:be254f6a1a0680dd997fa20469d3247e2e76d54187db0bfecdd68f185980f99a",
       "261003-lightweight-judgment-explicit-invocation": "sha256:42fe1dc47c8c6a6a5ae0809304ad5964767fa088b4a127fa89d50ad59f756b2b",
       "261003-separate-record-search-coverage-from-preview-budgets": "sha256:7753c0523a1d8627b3323d41c4a0cc44545b7d77be8454e47a09a6d429cd8b44",
       "activate-release-gate-checks-by-tag": "sha256:02819304803eade140cd3adb2472a368c290f639acc7998f0d54bc20cecd228e",
@@ -2294,6 +2295,22 @@
           "summary": "保留按 ID 选择索引条目，把报告与资源暂存收口为显式 scope"
         }
       ]
+    },
+    "261003-lightweight-judgment-durable-calls": {
+      "name": "lightweight-judgment-durable-calls",
+      "sourcePath": "lightweight-judgment-durable-calls.md",
+      "title": "Lightweight Judgment 以可选 SQLite 记录持久化直接调用",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-03T18:29:37Z",
+      "purpose": "让单次调用的已提交状态与正文可跨进程恢复并支持后续统计。",
+      "background": "规模化调用不能只依赖 CLI 内存，但当前边界仍是直接调用而非队列或后台服务。",
+      "decision": "默认关闭日志，显式启用 SQLite 发送前记录与返回后更新，区分远端结果和存储失败且不自动重放。",
+      "tags": [
+        "lightweight-judgment",
+        "persistence"
+      ],
+      "relations": []
     },
     "261003-lightweight-judgment-explicit-invocation": {
       "name": "lightweight-judgment-explicit-invocation",

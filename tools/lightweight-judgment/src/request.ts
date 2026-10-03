@@ -11,8 +11,6 @@ import {
 
 export const defaultModel = "typesafe/jev-1.13";
 
-export const endpoint = "https://openrouter.ai/api/v1/systemone";
-
 export type Structured = string | readonly JsonValue[] | JsonObject;
 
 export type Question = Readonly<

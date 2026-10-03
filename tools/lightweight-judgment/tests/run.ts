@@ -5,3 +5,7 @@ await import("./response.test.ts");
 await import("./distribution.test.ts");
 await import("./review-regressions.test.ts");
 await import("./mapping-regressions.test.ts");
+await import("./logging.test.ts");
+await import("./connection-config.test.ts");
+await import("./http-retention.test.ts");
+await import("./logging-safety.test.ts");

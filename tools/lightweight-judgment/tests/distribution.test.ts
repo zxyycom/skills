@@ -82,3 +82,5 @@ test("distributed mjs works without workspace dependencies and import has no sid
     await fs.rm(temp, { recursive: true, force: true });
   }
 });
+
+await import("./durable-process.test.ts");

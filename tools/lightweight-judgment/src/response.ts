@@ -1,7 +1,19 @@
 import * as v from "valibot";
 import { fail, JudgmentFailure } from "./failure.ts";
-import { parseJson, record, orderedKeys, type JsonValue } from "./json.ts";
+import {
+  parseJson,
+  record,
+  orderedKeys,
+  type JsonValue,
+  type JsonObject
+} from "./json.ts";
 import type { Question, Request } from "./request.ts";
+
+export type ValidatedResponse = JsonObject &
+  Readonly<{
+    model: string;
+    answers: JsonObject;
+  }>;
 
 export const probabilityTolerance = 0.000001;
 
@@ -173,8 +185,10 @@ function parseResponse(text: string): JsonValue {
   }
 }
 
-export function validateResponse(text: string, request: Request): JsonValue {
-  const raw = parseResponse(text);
+function validateResponseObject(
+  raw: JsonValue,
+  request: Request
+): asserts raw is ValidatedResponse {
   if (!record(raw)) {
     fail("invalid_response", "response", "需要响应对象");
   }
@@ -197,5 +211,13 @@ export function validateResponse(text: string, request: Request): JsonValue {
     const question = request.questions[id];
     answerResponse(answers[id], question, `response.answers[${ordinal}]`);
   }
+}
+
+export function validateResponse(
+  text: string,
+  request: Request
+): ValidatedResponse {
+  const raw = parseResponse(text);
+  validateResponseObject(raw, request);
   return raw;
 }

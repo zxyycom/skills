@@ -8,7 +8,13 @@ const objectSchema = v.custom<Readonly<Record<string, unknown>>>(record);
 const metaSchema = v.strictObject({
   attempts: v.number(),
   elapsedMs: v.number(),
-  requestModel: v.optional(v.string())
+  requestModel: v.optional(v.string()),
+  persistence: v.optional(
+    v.strictObject({
+      callId: v.optional(v.string()),
+      status: v.picklist(["recorded", "failed"])
+    })
+  )
 });
 
 const envelopeSchema = v.variant("ok", [
