@@ -174,7 +174,7 @@ test("gate Definition keeps scheduler, output, and release DAG contracts", () =>
       textPreviewCodePointLimit: 240
     }
   });
-  assert.equal(releaseRequiredCheckIds.length, 60);
+  assert.equal(releaseRequiredCheckIds.length, 63);
   assert.deepEqual(
     releaseDefinition.checks.find(
       ({ checkId }) => checkId === releaseSnapshotCheckId

@@ -4,6 +4,16 @@ export const expectedSemanticChecks: readonly (readonly [
   commandPath: string
 ])[] = [
   [
+    "test:lightweight-judgment:request-and-response",
+    "bun",
+    "./tools/lightweight-judgment/tests/checks/request-and-response.ts"
+  ],
+  [
+    "test:lightweight-judgment:public-distribution",
+    "bun",
+    "./tools/lightweight-judgment/tests/distribution.test.ts"
+  ],
+  [
     "test:change-plan:artifact-and-active-plan-gates",
     "bun",
     "./tools/change-plan/tests/checks/artifact-and-active-plan-gates.ts"
@@ -137,6 +147,10 @@ export const expectedSemanticChecks: readonly (readonly [
 
 export const expectedSemanticPrerequisites = new Map<string, readonly string[]>(
   [
+    [
+      "test:lightweight-judgment:public-distribution",
+      ["script:check:lightweight-judgment-cli"]
+    ],
     ["test:change-plan:public-distribution", ["script:check:change-plan-cli"]],
     [
       "test:decision-records:public-distribution",

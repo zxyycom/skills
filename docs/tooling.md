@@ -88,8 +88,8 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
-| `bun run check [--diagnostic-log]` | 运行增量 base Gate：完整 Definition 的全部 63 个 Check 都会保留；基础环境 Check 每次执行，其他所有 Check 都依赖它。59 个可按 owner 影响选择的 Check 只在当前有效输入没有精确成功 receipt 时以内部 flag 激活，三个 release 交付 Check 保持 `not-applicable`。 |
-| `bun run check --tag release [--baseline-ref <ref>] [--cold] [--diagnostic-log]` | 运行 release Gate：基础环境 Check 通过后激活完整 63 项 catalog、版本验证与打包终结；本地可复用精确匹配的成功测试批次证明，`--cold` 与 CI 始终重跑。省略基线时使用 `HEAD`，CI 使用事件基线。 |
+| `bun run check [--diagnostic-log]` | 运行增量 base Gate：完整 Definition 的全部 66 个 Check 都会保留；基础环境 Check 每次执行，其他所有 Check 都依赖它。62 个可按 owner 影响选择的 Check 只在当前有效输入没有精确成功 receipt 时以内部 flag 激活，三个 release 交付 Check 保持 `not-applicable`。 |
+| `bun run check --tag release [--baseline-ref <ref>] [--cold] [--diagnostic-log]` | 运行 release Gate：基础环境 Check 通过后激活完整 66 项 catalog、版本验证与打包终结；本地可复用精确匹配的成功测试批次证明，`--cold` 与 CI 始终重跑。省略基线时使用 `HEAD`，CI 使用事件基线。 |
 
 ### 权威 Vibe 门禁
 
@@ -105,20 +105,20 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | 项目 CLI argument layer | 解析并校验仓库支持的参数，把规范化公开/内部 flags、输出路径和 aggregate policy 交给 Vibe，将 Vibe 最终结果映射为进程退出状态，并在成功后守护和发布 receipt。 |
 | 项目 command adapter | 以参数数组执行 catalog 声明的 Bun/Node 命令；release 测试批次按文件并集执行并从 JUnit 投影原 Check result；两种路径都保存可定位 transcript。 |
 
-参数合法后，项目 CLI 准备 activation plan，并构造 Check ID 相同的完整 63 项 Definition。本次 aggregate 用 `checks: "effective"` 复用 Vibe 的 flag 与依赖选择。`gate-environment` 无 flag、不可 receipt 复用，每次通过 `node scripts/environment.js gate` 检查 Git、Node、精确 Bun、精确 pnpm 与精确 SCC；其他全部 Check 显式依赖它。环境失败由 Vibe 记录为真实 failed outcome 和完整 Check transcript，依赖 Check 不执行，本次不发布成功 receipt。该窄 action 复用完整自举检查的工具版本 owner，但不要求 CodeGraph、项目依赖、索引或 repository setup；无法启动 Vibe 的新工作区仍先运行 `node scripts/environment.js check` 或 `setup`。
+参数合法后，项目 CLI 准备 activation plan，并构造 Check ID 相同的完整 66 项 Definition。本次 aggregate 用 `checks: "effective"` 复用 Vibe 的 flag 与依赖选择。`gate-environment` 无 flag、不可 receipt 复用，每次通过 `node scripts/environment.js gate` 检查 Git、Node、精确 Bun、精确 pnpm 与精确 SCC；其他全部 Check 显式依赖它。环境失败由 Vibe 记录为真实 failed outcome 和完整 Check transcript，依赖 Check 不执行，本次不发布成功 receipt。该窄 action 复用完整自举检查的工具版本 owner，但不要求 CodeGraph、项目依赖、索引或 repository setup；无法启动 Vibe 的新工作区仍先运行 `node scripts/environment.js check` 或 `setup`。
 
-无 tag 的 base Gate 把需要执行的 59 个 impact Check 映射为内部 flags；release snapshot、version authorization 与 packaging 由 release flag 控制。`--tag release` 不读取日常逐 Check receipt，直接激活并聚合全部 63 个 Check；其中测试批次可以按下述独立证明契约复用。未命中 flag 的 Check 不进入 preflight、扫描或命令启动，以 `not-applicable / flag-condition-not-matched`、`not run` 和 `duration: null` 保留在 Vibe machine snapshot，并由 progress 归组；日常复用项不冒充本次 passed，也不进入本次 aggregate。被 effective selection 纳入的 `unavailable` 或意外 `not-applicable` 一律 fail closed。
+无 tag 的 base Gate 把需要执行的 62 个 impact Check 映射为内部 flags；release snapshot、version authorization 与 packaging 由 release flag 控制。`--tag release` 不读取日常逐 Check receipt，直接激活并聚合全部 66 个 Check；其中测试批次可以按下述独立证明契约复用。未命中 flag 的 Check 不进入 preflight、扫描或命令启动，以 `not-applicable / flag-condition-not-matched`、`not run` 和 `duration: null` 保留在 Vibe machine snapshot，并由 progress 归组；日常复用项不冒充本次 passed，也不进入本次 aggregate。被 effective selection 纳入的 `unavailable` 或意外 `not-applicable` 一律 fail closed。
 
 ### Base impact 与通过证明
 
 日常 Gate 的 impact layer 以以下闭合边界判断一项 Check 是否可以复用：
 
-1. 每个起始快照恰好执行一次 `git ls-files --cached --others --exclude-standard -z`，对返回的普通文件各读取一次内容并记录 path、kind、mode、size 与 SHA-256；symlink 只记录链接文本，已删除 tracked path 记录为 missing。文件数超过 20,000、普通文件总量超过 512 MiB、Git 枚举失败、非 UTF-8 或越界路径、读取失败时不猜测部分结果，退化为执行全部 59 个 base Check。
+1. 每个起始快照恰好执行一次 `git ls-files --cached --others --exclude-standard -z`，对返回的普通文件各读取一次内容并记录 path、kind、mode、size 与 SHA-256；symlink 只记录链接文本，已删除 tracked path 记录为 missing。文件数超过 20,000、普通文件总量超过 512 MiB、Git 枚举失败、非 UTF-8 或越界路径、读取失败时不猜测部分结果，退化为执行全部 62 个 base Check。
 2. 稳定路径规则为同一文件派生可重叠的 owner、`maintained-code`、`markdown`、`json`、`secret-surface` 与 `path-inventory` 标签。项目配置和 Gate 实现进入 `global`；无法分类的新路径也进入 `global`。`path-inventory` 只摘要 path/kind 和 symlink 目标，使 Markdown 目标增删或重定向传播，但普通非 Markdown 文件的内容变化不会无理由重跑链接检查。
 3. 显式标签依赖把 `shared-tools` 传播给当前工具与 build-system consumer，把 `index-runtime` 传播给 Decision Records、Investigation Report 和 Test Evidence，把 `skill-release` 传播给 Environment、Skill Updater 与项目 validate consumer；build adapter 的变化再传播给使用它的生成一致性 Check。每个 base Check 的有效输入指纹由 Check ID、impact contract/version、直接与传递标签摘要以及下条定义的工具链身份共同形成；标签命中本身不构成跳过依据。
 4. 工具链身份覆盖当前 Node 进程版本、平台和架构，Git 版本与完整配置，Bun 版本和 `bun pm ls --all` 报告的已安装依赖图，以及 ast-grep、Oxfmt、Oxlint、SCC、tsgo 的实际版本探测。Git、Node、Bun、pnpm 或 SCC 的基础要求由每次执行的 `gate-environment` Check 失败闭合；activation snapshot 中的依赖图或其他必要探测仍可能先失败并形成全量 fallback，但不能把 `unavailable` 固化为可复用身份。当前进程环境除 `_`、`OLDPWD`、`SHLVL` 这三个仓库不读取的父 shell 记账变量外全部进入摘要。原始 `node_modules` 字节不逐文件进入快照；这项证明依赖“依赖由 pnpm frozen lock 安装且不在包管理器外手工改写”的工作区前提，破坏该前提时先运行环境 setup，而不能把 receipt 当作依赖防篡改证明。
 5. 只有该指纹精确命中 `.log/vibe-check/cache/incremental-gate-v2/receipts.json` 中格式合法且 outcome 为 passed 的最近证明时才复用。首次运行、缺项、损坏、指纹变化或未知路径带来的 `global` 变化都执行；consumer 激活时，其 `dependsOn` provider 即使已有跨运行证明也在本次重新执行，供 Vibe 形成真实 dependency outcome。
-6. 只有 Vibe 返回 completed/passed，且本次实际执行项都 passed 时才重新取得结束快照；workspace/toolchain fingerprint 与起始值一致后，才把精确复用的旧证明与本次通过的新证明合并为当前 59 项 manifest 并原子替换。失败、取消、output failure、漂移、结束快照失败或 cache 写入失败不发布证明；cache 不可用只扩大执行，不改变质量结果。59 项全部复用时，`gate-environment` 仍进入 effective aggregate 并真实通过；基础环境 Check 不写入这份 impact receipt。
+6. 只有 Vibe 返回 completed/passed，且本次实际执行项都 passed 时才重新取得结束快照；workspace/toolchain fingerprint 与起始值一致后，才把精确复用的旧证明与本次通过的新证明合并为当前 62 项 manifest 并原子替换。失败、取消、output failure、漂移、结束快照失败或 cache 写入失败不发布证明；cache 不可用只扩大执行，不改变质量结果。62 项全部复用时，`gate-environment` 仍进入 effective aggregate 并真实通过；基础环境 Check 不写入这份 impact receipt。
 
 这些 receipt 是上述契约边界内的内容与环境证明，不按 branch、HEAD 或目录时间推断。普通 owner 目录没变而共享依赖、配置、工具链或声明环境变化时仍会失效；未知路径在首次稳定成功后可以由其 `global` 指纹复用，不会永久强制全跑。snapshot fallback 的消毒后原因同时进入终端计划摘要和 `gate-incremental.json`，便于修复输入边界。日常性能目标是稳定复用和普通 owner 变化低于 10 秒、共享或较重 owner 变化不超过 15 秒；release 不纳入该增量目标。
 
@@ -247,6 +247,7 @@ pack:skills（恰好一次，从已授权的内存快照生成制品）
 
 | 短命令 | 本仓库内用途 |
 | --- | --- |
+| `bun run lightweight-judgment -- <command> [参数]` | 单次 JEV 推理、本地前置诊断和离线预览；外发、配置与结果按 [CLI 操作契约](../skills/lightweight-judgment/references/cli.md) |
 | `bun run change-plan -- <arguments>` | 维护 change proposal、design、tasks 与生命周期 |
 | `bun run decision-records -- <arguments>` | 查询和维护长期决策及其派生索引 |
 | `bun run investigation-report -- <arguments>` | 检查、同步或查询调查报告索引 |
@@ -279,6 +280,7 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 
 | 责任 | 行为测试 | 显式写入 | 只读检查 |
 | --- | --- | --- | --- |
+| Lightweight Judgment | `test:lightweight-judgment-cli` | `sync:lightweight-judgment-cli` | `check:lightweight-judgment-cli` |
 | Change Plan | `test:change-plan-cli` | `sync:change-plan-cli` | `check:change-plan-cli` |
 | Decision Records | `test:decision-records-cli` | `sync:decision-records-cli` | `check:decision-records-cli`、`check:decisions` |
 | Skill Validator | `test:skill-validator` | `sync:skill-validator` | `check:skill-validator` |
@@ -349,6 +351,7 @@ Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维
 
 | 维护源码 | 分发目标 |
 | --- | --- |
+| `tools/lightweight-judgment/` | `skills/lightweight-judgment/scripts/lightweight-judgment.mjs` 与 `lightweight-judgment.mjs.map`；构建适配为 `scripts/build/lightweight-judgment.ts` |
 | `tools/change-plan/` | `skills/change-plan/scripts/change-plan.mjs` 与 `change-plan.mjs.map` |
 | `tools/decision-records/` | `skills/decision-records/scripts/decision-records.*` 和索引 Schema |
 | `tools/investigation-report/` | `skills/investigation-report/scripts/check-investigations.*` 和索引 Schema |

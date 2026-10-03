@@ -125,6 +125,11 @@ const packageContracts = [
   contract("script:check:skill-validator", ["skill-validator"]),
   contract("script:check:investigation-report-check", ["investigation-report"]),
   contract("script:check:change-plan-cli", ["change-plan"]),
+  contract("script:check:lightweight-judgment-cli", [
+    "global",
+    "build-system",
+    "skills"
+  ]),
   contract("script:check:decision-records-cli", ["decision-records"]),
   contract("script:check:task-graph-cli", ["task-graph"]),
   contract("script:check:skill-updaters", ["skill-release", "skill-updater"]),
@@ -144,6 +149,9 @@ const nativeContracts = [
 ] as const;
 
 function semanticImpactTags(checkId: string): readonly GateImpactTag[] {
+  if (checkId === "test:lightweight-judgment:public-distribution") {
+    return ["global", "skills"];
+  }
   if (checkId.startsWith("test:change-plan:")) return ["change-plan"];
   if (checkId.startsWith("test:decision-records:")) {
     return ["decision-records"];

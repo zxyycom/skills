@@ -17,7 +17,7 @@ Contract:
 - 权威入口接受无 tag 的增量 base Gate，或一次 `--tag release` 的全量 release Gate；`--full` 只作为 release tag 的兼容别名。release 缺省基线为 `HEAD`，可追加一次 `--baseline-ref <ref>`、只限 release 的 `--cold` 与一次 `--diagnostic-log`；显式 cold 或 CI 环境都必须禁止复用 release test batch proof。参数错误必须在启动 Check 前失败。每次有效调用使用唯一 invocation directory、effective aggregate、machine/progress/Check artifact 路径，增量计划通过内部 flags 交给 Vibe 并单独发布执行、复用与 receipt 事实，diagnostic flag 只开启该目录的固定 channel 日志。已完成但 aggregate failed 的结果与非 completed Vibe Result 都映射为稳定的非零退出和可行动诊断。
 
 Proves:
-- base/release 使用同一完整 63 项 Definition；基础环境 Check 每次进入 aggregate，base 另根据输入证明选择最多 59 个 impact Check，release 选择全部 63 个 Check；release 的显式基线原样传入 Definition，`--cold` 只在 release 中合法并传入测试批次 proof options，tag、兼容别名、重复参数与基线错误在启动前给出 usage。
+- base/release 使用同一完整 66 项 Definition；基础环境 Check 每次进入 aggregate，base 另根据输入证明选择最多 62 个 impact Check，release 选择全部 66 个 Check；release 的显式基线原样传入 Definition，`--cold` 只在 release 中合法并传入测试批次 proof options，tag、兼容别名、重复参数与基线错误在启动前给出 usage。
 - 调用控制使用 `checks: "effective"`，把规范化公开 flags、内部 activation flags 与唯一目录下的 `machine/`、`progress.log`、`checks/` 一起交给 Vibe；目录名由 UTC timestamp 与 UUID 构成，`gate-incremental.json` 保留 activation 计数、逐 Check 决策、snapshot fallback detail、receipt 发布结果和 release 测试证明状态；本地可复用、显式 cold 与 CI 隐式 cold 都由与宿主环境无关的 fixture 分别证明，reused 与 cold 分别写入机器字段并产生可核对的终端提示。
-- effective aggregate 始终对空选择 fail closed；当前完整 Definition 即使复用全部 59 个 impact Check，也仍由每次执行的基础环境 Check 提供真实 outcome。
+- effective aggregate 始终对空选择 fail closed；当前完整 Definition 即使复用全部 62 个 impact Check，也仍由每次执行的基础环境 Check 提供真实 outcome。
 - completed 或带 outputs 的失败回显 invocation artifact 根；启用 diagnostic flag 时另回显 `diagnostics/core.log` 与 `scheduler.log`。failed aggregate 与 configuration 类 invocation failure 都返回退出码 1、保留 Vibe 状态或类别而不重建 renderer；configuration 因没有 outputs 不回显目录。

@@ -23,6 +23,21 @@ const bunTest = (file: string): GateCommand => ({
 
 export const semanticGateChecks = [
   {
+    checkId: "test:lightweight-judgment:request-and-response",
+    displayName: "Lightweight Judgment request and response boundary",
+    requiredTag: undefined,
+    command: bunTest(
+      "./tools/lightweight-judgment/tests/checks/request-and-response.ts"
+    )
+  },
+  {
+    checkId: "test:lightweight-judgment:public-distribution",
+    dependsOn: ["script:check:lightweight-judgment-cli"],
+    displayName: "Lightweight Judgment standalone distribution",
+    requiredTag: undefined,
+    command: bunTest("./tools/lightweight-judgment/tests/distribution.test.ts")
+  },
+  {
     checkId: "test:change-plan:artifact-and-active-plan-gates",
     displayName: "Change Plan artifact and active-plan gates",
     requiredTag: undefined,

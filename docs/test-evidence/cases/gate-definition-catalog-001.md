@@ -11,7 +11,7 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；一个每次执行的基础环境 Check、59 个 base impact Check 与三个 release 交付 Check 共同构成 63 项 catalog，其他所有 Check 显式依赖基础环境 Check，impact/release 项再以 `enabledByFlags` 声明选择和依赖传播；scheduler 使用原生 learned strategy 和四槽上限，base 使用三个外部进程容量，release 另以四个 `cpu-work` unit 隔离四路测试批次、版本管理测试与其他 CPU 工作。
+- 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；一个每次执行的基础环境 Check、62 个 base impact Check 与三个 release 交付 Check 共同构成 66 项 catalog，其他所有 Check 显式依赖基础环境 Check，impact/release 项再以 `enabledByFlags` 声明选择和依赖传播；scheduler 使用原生 learned strategy 和四槽上限，base 使用三个外部进程容量，release 另以四个 `cpu-work` unit 隔离四路测试批次、版本管理测试与其他 CPU 工作。
 
 Proves:
 - 语义 catalog 的 Check ID、runner 与命令路径逐项匹配独立手写期望，且全部语义 Check 保持无 tag 的 base 归属；每个多文件 Check 的 wrapper 从磁盘实际导入且只导入自身 `tests/` 内的叶子测试文件，叶子文件在全部语义 Check 间不重复且真实存在；各工具 `tests/run.ts` 聚合入口恰好导入该工具全部 Bun 语义 Check 的叶子文件，唯一 Node runner Check（native-store）保持聚合之外独立执行。

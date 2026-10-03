@@ -37,6 +37,7 @@ export const releaseRequiredPackageScripts = [
   "check:skill-validator",
   "check:investigation-report-check",
   "check:change-plan-cli",
+  "check:lightweight-judgment-cli",
   "check:decision-records-cli",
   "check:task-graph-cli",
   "check:skill-updaters",

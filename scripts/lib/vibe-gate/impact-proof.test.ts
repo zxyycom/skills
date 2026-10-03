@@ -14,14 +14,14 @@ import {
 test("incremental Gate reuses only exact successful receipts", async () => {
   await withImpactFixture(async (fixture) => {
     assert.deepEqual(validateBaseGateImpactContracts(), []);
-    assert.equal(baseGateCheckIds.length, 59);
+    assert.equal(baseGateCheckIds.length, 62);
     await publishInitialFixtureReceipts(fixture);
 
     const warm = await prepareFixtureActivation(fixture);
     assert.deepEqual(warm.activeCheckIds, []);
     assert.equal(
       warm.decisions.filter(({ action }) => action === "reuse").length,
-      59
+      62
     );
     assert.deepEqual(gateActivationFlags(warm), []);
   });

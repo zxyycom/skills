@@ -24,7 +24,7 @@ test("incremental Gate propagates documentation and shared owner changes", async
     );
     assert.deepEqual(
       await publishFixtureReceipts(fixture, documentationChange),
-      { published: true, receiptCount: 59 }
+      { published: true, receiptCount: 62 }
     );
 
     await writeImpactFixture(
@@ -63,7 +63,7 @@ test("incremental Gate propagates skill-package and build-system changes", async
       await publishFixtureReceipts(fixture, skillPackageChange),
       {
         published: true,
-        receiptCount: 59
+        receiptCount: 62
       }
     );
 
@@ -81,6 +81,36 @@ test("incremental Gate propagates skill-package and build-system changes", async
         "test:change-plan:lifecycle-finalize"
       )
     );
+
+    for (const extension of ["mjs", "mjs.map"]) {
+      const bundle = `skills/lightweight-judgment/scripts/lightweight-judgment.${extension}`;
+      await writeImpactFixture(fixture.directory, bundle, "initial artifact\n");
+      await publishFixtureReceipts(
+        fixture,
+        await prepareFixtureActivation(fixture)
+      );
+      const warm = await prepareFixtureActivation(fixture);
+      const consumerIds = [
+        "script:check:lightweight-judgment-cli",
+        "test:lightweight-judgment:public-distribution"
+      ];
+      for (const checkId of consumerIds) {
+        assert.equal(
+          warm.decisions.find((decision) => decision.checkId === checkId)
+            ?.action,
+          "reuse"
+        );
+      }
+      await writeImpactFixture(fixture.directory, bundle, "changed artifact\n");
+      const changed = await prepareFixtureActivation(fixture);
+      for (const checkId of consumerIds) {
+        const decision = changed.decisions.find(
+          (item) => item.checkId === checkId
+        );
+        assert.equal(decision?.action, "execute");
+        assert.equal(decision?.reason, "inputs-changed");
+      }
+    }
   });
 });
 
@@ -101,7 +131,7 @@ test("incremental Gate treats unknown paths and root configuration conservativel
     );
     assert.deepEqual(await publishFixtureReceipts(fixture, unknownChange), {
       published: true,
-      receiptCount: 59
+      receiptCount: 62
     });
     assert.deepEqual(
       (await prepareFixtureActivation(fixture)).activeCheckIds,

@@ -30,7 +30,7 @@ test("incremental Gate fingerprints environment and toolchain identity", async (
         fixture.passedCheckIds,
         { ...fixture.captureDependencies, environment: changedEnvironment }
       ),
-      { published: true, receiptCount: 59 }
+      { published: true, receiptCount: 62 }
     );
     const shellBookkeepingChange = await prepareFixtureActivation(fixture, {
       ...fixture.captureDependencies,

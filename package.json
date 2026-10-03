@@ -69,7 +69,11 @@
     "fix": "bun run lint:fix && bun run format",
     "test:mcpshell-workspace-bridge": "bun test ./tools/mcpshell-workspace-bridge/tests/run.ts",
     "sync:mcpshell-workspace-bridge": "bun scripts/build/mcpshell-workspace-bridge.ts --write",
-    "check:mcpshell-workspace-bridge": "bun scripts/build/mcpshell-workspace-bridge.ts --check"
+    "check:mcpshell-workspace-bridge": "bun scripts/build/mcpshell-workspace-bridge.ts --check",
+    "lightweight-judgment": "node skills/lightweight-judgment/scripts/lightweight-judgment.mjs",
+    "test:lightweight-judgment-cli": "bun test ./tools/lightweight-judgment/tests/run.ts",
+    "sync:lightweight-judgment-cli": "bun scripts/build/lightweight-judgment.ts --write",
+    "check:lightweight-judgment-cli": "bun scripts/build/lightweight-judgment.ts --check"
   },
   "devDependencies": {
     "@ast-grep/cli": "0.45.1",

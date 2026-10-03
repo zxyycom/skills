@@ -330,15 +330,15 @@
       "FILE-TEXT-SEARCH-UNICODE-001": "sha256:881c6c1f98d6fc1d6d8dadfdbd41e57a61299d959e29e48d140e607b3fb9f71a",
       "FILE-TEXT-SEARCH-UNICODE-CASE-001": "sha256:33bd599c40e9466fd82406d193090b48fe7221141b731abacc6ca01ae4c5b7f4",
       "FILE-TEXT-SEARCH-UNICODE-RANGE-001": "sha256:d7b1d476a2fe864ca543f15c6cf2e444d7f003bc96c9a05cfb3da3144a8911b6",
-      "GATE-CLI-RESULT-001": "sha256:7e144504160a6c1e29af211100e44c51151a2527feffd7b70e5287696f6ade6f",
+      "GATE-CLI-RESULT-001": "sha256:5231ba66bcd69e807ae9f518139a859cbca6af974d054f2683eba225f680870c",
       "GATE-COMMAND-TRANSCRIPT-001": "sha256:542a18a7a3a40d0ed8eab84838a7df7e248890e2456b795cc15e0ed42c40fabf",
-      "GATE-DEFINITION-CATALOG-001": "sha256:f6723f9b36fbf7c0f39fc5c640688f09546efda39fae142cdd9f77b9fb1a947c",
+      "GATE-DEFINITION-CATALOG-001": "sha256:fe829b38c94cff6a6398bad955939eb19924f2840798ef39c19a5b4fe13dbef9",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:75aae9eabcdb47d4571e47cc41de09c649633924ed646ef3fa9a0bb79ccbae41",
       "GATE-DUPLICATE-DETECTION-001": "sha256:68116ffb4a1862c6d09fb298a74d4b02281727ca34815ef02cab2257b3f9e41d",
       "GATE-ENVIRONMENT-CHECK-001": "sha256:ee349c88f938bdebfa3850b45206efe8796a7bda74354da021758c2782800ffe",
       "GATE-FILE-SELECTION-001": "sha256:3562703c498e03eb5444ac363526eb230ccd7f71e41eca3d62010a37f0041e82",
       "GATE-FUNCTION-ANALYZER-001": "sha256:0557c3ae30bd5acfab1a3e363a96c1a929064d7ea35e62950f383d8c5b960f2b",
-      "GATE-INCREMENTAL-ACTIVATION-001": "sha256:7b81931b64bbd6a645de50f6f0caa6864d3f47ff3ca33431db7639c3e9bfaa60",
+      "GATE-INCREMENTAL-ACTIVATION-001": "sha256:158e9a309a2c04bd1389fab9068e3695e363ebd8435fcf0dd1aa771a4c2f70af",
       "GATE-JSON-SCHEMA-001": "sha256:1562d23cca2650b3dceb86fe937364b7bba56ddc08714ccc67bb7e6fe8908995",
       "GATE-JSON-VALIDATION-001": "sha256:1b495e9457d277c495c6beda633e5d588e2949366f62d44877511ca1824f6118",
       "GATE-MARKDOWN-LINK-001": "sha256:b084953dd2c12fff3217facf7a7485c54c71b84bef6c590c88d1912c2936864e",
@@ -608,6 +608,26 @@
       "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": "sha256:7450667bcd6556b0e131933672fedcea1e408c6e9e78bb85db6b1ef39eeb3768",
       "INVESTIGATION-TRACE-LIMITS-001": "sha256:1e8c09f591fce4216b445ff88a58f4196605deb56b54b133a7d88ebee403999a",
       "INVESTIGATION-VALIDATION-WARNINGS-001": "sha256:57f359db45efe9842a2027c7f436c0d0462510afcc5328e322fbf0b3d5d88375",
+      "LIGHTWEIGHT-JUDGMENT-CLI-001": "sha256:6deabc8f60e96044dba3a18f8a6c22f8bc360ccde63593157d56764ade83b58d",
+      "LIGHTWEIGHT-JUDGMENT-CLI-002": "sha256:eb2f722f8a813e4e02bb88fb1b3e1d845fd19349c89a4cc7698aa4c1f71fc50a",
+      "LIGHTWEIGHT-JUDGMENT-CLI-003": "sha256:4820e5e4d92b0c40842468ec83e5ec9d1ab54f44ea72b48be4bd87f2882ebc6c",
+      "LIGHTWEIGHT-JUDGMENT-CLI-004": "sha256:f1baf4a2437d098253f4d7284eda7f212e6d89c4cc6db29b7f185cfe27ef23c1",
+      "LIGHTWEIGHT-JUDGMENT-CLI-005": "sha256:338fb495c1d0e82bfe7cf4eb4d7dd59858d77619e527ea2db2d32c56ac9242c5",
+      "LIGHTWEIGHT-JUDGMENT-CLI-006": "sha256:671a749a4ba76498642bde3fc7a7979b1588ba440d25bfc46c19a0bb95046314",
+      "LIGHTWEIGHT-JUDGMENT-CLI-007": "sha256:71144f333d9efc157f2503ac65585614457389b77c8f163700dba2a74aa80031",
+      "LIGHTWEIGHT-JUDGMENT-CLI-008": "sha256:4f63fd5471550305b0e79e22eb1219a0984bb00dc87c77720a7868df29c785f1",
+      "LIGHTWEIGHT-JUDGMENT-CLI-009": "sha256:e803b3729da2721bced2be6bab6471b500ced4574c55edec5da9f83330ac6f57",
+      "LIGHTWEIGHT-JUDGMENT-CLI-010": "sha256:3a0f17fccc448477d0dfd4426259dab80846f0f4a52c8b64651a9a3d9f0d043d",
+      "LIGHTWEIGHT-JUDGMENT-CLI-011": "sha256:2bbe632401c39346e5e2e27c72b027ae9e6ff9e191d702be72ec3c0b9d47cc81",
+      "LIGHTWEIGHT-JUDGMENT-CLI-012": "sha256:d3b97519d07187d60571c5e491b5efab998497c8828cf94190d87e1fea28b8ec",
+      "LIGHTWEIGHT-JUDGMENT-CLI-013": "sha256:be5adf734d508e7512c0144404e80f9865f39d2ff157fea353e439eb2e75ebd0",
+      "LIGHTWEIGHT-JUDGMENT-CLI-014": "sha256:eb6664642f712715536f58dc199d54e0283c6474c96514412164852a884e77f8",
+      "LIGHTWEIGHT-JUDGMENT-CLI-015": "sha256:00a2afcdca13ee0310fb8c2b7137143e139faf7f26936a20db53002f7df95c5d",
+      "LIGHTWEIGHT-JUDGMENT-CLI-016": "sha256:a950d4c03747ec98632d70612128ab63a8f35b3091625095e332620a6e6d9b1d",
+      "LIGHTWEIGHT-JUDGMENT-CLI-017": "sha256:68071f749fc7f3c6d4a75ab3434baad49bbd43c1610b1089824bc6ecf2f02a7b",
+      "LIGHTWEIGHT-JUDGMENT-CLI-018": "sha256:9ebb3020738254a439d5abfde8c7b12eda958e19fa8da9baeb9b08418072727a",
+      "LIGHTWEIGHT-JUDGMENT-CLI-019": "sha256:1372e2963f54850f9c04a423c69aadc1807356386e232a6fd65163c3721d88b9",
+      "LIGHTWEIGHT-JUDGMENT-CLI-020": "sha256:6ac8071cf5e0cca1a103a187545acfb55135043d1b87fcfc03645c8ff22fe3bf",
       "MCPSHELL-BRIDGE-DIST-001": "sha256:771e5f7ac1cc9b48d75a9c5266d51c4762e6913880ba9080daf7acd7a6fca097",
       "MCPSHELL-BRIDGE-DIST-002": "sha256:145804c2ee97112c2e15ffbe221f6f072c7a5a6b44bef7a50130a7f94d9930fc",
       "MCPSHELL-BRIDGE-DIST-003": "sha256:03b5da99f66635f94127d16a7488ec0e92ec0aad685b48ef967c35ee92eb30fa",
@@ -659,7 +679,7 @@
       "REPO-LINT-PREFLIGHT-001": "sha256:b7db9512b7e996fccd5c74222f1cb62b3d957d806ff96c4c6cfb2c505c271455",
       "REPO-OXC-CONFIG-001": "sha256:a398732811d1a6110806e766577b60fa115799d8030ee8af5a744e60fea391e0",
       "REPO-PACKAGE-JSON-001": "sha256:1c43d8cf04c91fda22276d26c2bfc3ca81a86cfce5674a22ab578408f6540231",
-      "REPO-SHORT-CLI-001": "sha256:e924c143d84409f7a4b5bcc1b4f2bd303e35319136559632f84833bccfce460f",
+      "REPO-SHORT-CLI-001": "sha256:52567559c948e8b7f031375765ed01ed70b376ff9f942e947ded5efbcbc95545",
       "REPO-SHORT-CONFIG-001": "sha256:4d47467b1df3026ebd236b537a5ef795a7c4d3b4ce09c02e3f06c17a6c63b844",
       "REPO-SKILL-HASH-001": "sha256:9b7d3447a47af630e77c130d5d651d17effdd5d264d16aad8537ee2d47a74151",
       "REPO-SKILL-HASH-002": "sha256:6b3cb84014ed20261fa55a7327382bfbf1638429071f6a9664082172294ae49d",
@@ -7011,6 +7031,206 @@
       ],
       "testIds": [
         "test:f82faae2f91cd7d9ac0d3ca5797e6f9b8c8300ab97c0a987b9af5298e2a29b5a"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-001": {
+      "title": "严格 JSON 与精度边界",
+      "sourcePath": "cases/lightweight-judgment-json-boundary.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:6c1100db53f2276cf40ec0993255fbfe6acf177343dcaefa2feb3ef1d04b8647"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-002": {
+      "title": "等义输入与单次请求",
+      "sourcePath": "cases/lightweight-judgment-input-equivalence.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:1f0965dafe5bae6844ab1fed5ee66b2b156f4ca7a9d59f074fdccb757fe05f67"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-003": {
+      "title": "配置与覆盖优先级",
+      "sourcePath": "cases/lightweight-judgment-configuration-priority.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:8a2fe20c757f5afc123774e60e0a0ca8662e98b78c7c8e64444190add7237ffc"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-004": {
+      "title": "离线与凭据读取边界",
+      "sourcePath": "cases/lightweight-judgment-offline-privacy.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:5971c8fed013b751a1071e98e00a5a9d635ffa697043a899b5eba1cda04c57db"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-005": {
+      "title": "输入与配置前置校验",
+      "sourcePath": "cases/lightweight-judgment-preflight-failure.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:666058ecf4e37e2cec60cc5102808cdc43f06c2b298f29b74cfb475dd749a364"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-006": {
+      "title": "多题与固定通道",
+      "sourcePath": "cases/lightweight-judgment-multi-question-channel.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:cb20a70b12d266f9e7733714d093bac400f78036c575826345093f7ff082153d"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-007": {
+      "title": "技术失败与隐私",
+      "sourcePath": "cases/lightweight-judgment-technical-failure.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:7a44b92636478e8235d46915e3f0d1edb194d95170ff47bb870bcc0a4a90ba11"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-008": {
+      "title": "协议异常不修复",
+      "sourcePath": "cases/lightweight-judgment-protocol-failure.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:c2938588cf257072360d3bdcf1278d9ed392c09659104ca864888ecded5dd9fc"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-009": {
+      "title": "Noul 概率",
+      "sourcePath": "cases/lightweight-judgment-noul-response.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:62ccd29a2bb32c8ff0ee85ce8208f6a3f953384967fc2884d02bfa1d459c011f"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-010": {
+      "title": "Choice 完整校验",
+      "sourcePath": "cases/lightweight-judgment-choice-response.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:5f2ab1e04c5f58da51e830ee150f47d844682bba0278c6f8749984b03f781f95"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-011": {
+      "title": "Score 完整校验",
+      "sourcePath": "cases/lightweight-judgment-score-response.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:512a822d06567d8b766520b17668b2ea5de60a31fc682a901aa9f5adb35fc16c"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-012": {
+      "title": "原生键顺序",
+      "sourcePath": "cases/lightweight-judgment-native-order.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:31b8c9b201976a11ca12ff2e1a1864397e9017a9ced2f25493891ea39c4bc0d1"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-013": {
+      "title": "独立分发与导入",
+      "sourcePath": "cases/lightweight-judgment-standalone-distribution.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:25516a261d481a6d8392122e6b3ac43b8353c328f783a826a3b45568037e9a10"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-014": {
+      "title": "官方模型标识原样传递",
+      "sourcePath": "cases/lightweight-judgment-model-aliases.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:63d63d4fbb241f66f549af1260b44ed0ee8cfd87eff9d44657f70852dd1e2b2e"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-015": {
+      "title": "短密钥与输出边界",
+      "sourcePath": "cases/lightweight-judgment-credential-output.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:2b9b9db769d114c47326d213f9a49d01cb1978e95ea9ae6f90ff7c37ad2ec674"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-016": {
+      "title": "网络响应 UTF-8 边界",
+      "sourcePath": "cases/lightweight-judgment-response-utf8.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:08392cbb5344a43c5b899e8b22a6144097d1c7b872be02339858d48b6d116d67"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-017": {
+      "title": "原型外观键原生保真",
+      "sourcePath": "cases/lightweight-judgment-prototype-native-keys.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:ad3ff2a3a3f6cf9e45ebbf60dff05db123e47b1944dce8e4a6c4b5b3f037a7df"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-018": {
+      "title": "响应 own key 不得被清洗",
+      "sourcePath": "cases/lightweight-judgment-prototype-response-validation.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:c30ea4ef997832adbb0d3ca0752ff36a405b7c0e1235b2aede5c1d9923cbf64f"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-019": {
+      "title": "未知 own 字段仍拒绝",
+      "sourcePath": "cases/lightweight-judgment-prototype-unknown-fields.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:4a9e457ad0182c2e6091ed77f555e687d93a1a0ca110a5eeca31538e5915688c"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-CLI-020": {
+      "title": "缺失本地密钥是配置前置失败",
+      "sourcePath": "cases/lightweight-judgment-local-key-preflight.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:a814f594ebb6bdf3c2a1d7616860b007b49c1c6bcc7ff5adbdd1ded5a659e1a8"
       ]
     },
     "MCPSHELL-BRIDGE-DIST-001": {
