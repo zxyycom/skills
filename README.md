@@ -26,7 +26,7 @@
 
 [Minimal Implementation](docs/skills/minimal-implementation.md) 在目标、contract 和责任 owner 已明确后，让 agent 识别依赖、抽象、配置、扩展点、状态和 ownership 等会改变选择的维护面，并在通过正确性门槛的候选之间选择总体维护面更小的实现；它也可以对当前 diff 或指定范围执行只读 complexity pass。实际 skill 位于 [`skills/minimal-implementation/`](skills/minimal-implementation/)。
 
-[Lightweight Judgment](docs/skills/lightweight-judgment.md) 使用 JEV 低成本、低延迟地完成局部分类、候选选择、相关性筛选和评分，再回到原任务。它把模型实测特点、请求组织与结果处理交给 agent，配套自包含 CLI 提供本地检查、离线预览与单次请求。实际 skill 位于 [`skills/lightweight-judgment/`](skills/lightweight-judgment/)。
+[Lightweight Judgment](docs/skills/lightweight-judgment.md) 在用户点名该 skill 后，使用 JEV 低成本、低延迟地完成局部分类、候选选择、相关性筛选和评分，再回到原任务。它把模型实测特点、请求组织与结果处理交给 agent，配套自包含 CLI 提供本地检查、离线预览与单次请求。实际 skill 位于 [`skills/lightweight-judgment/`](skills/lightweight-judgment/)。
 
 [Skill Design Discovery](docs/skills/skill-design-discovery.md) 用于创建、显著扩展或大幅重构 skill 前的深度设计发现。它从现实案例、现有材料和行为证据中恢复目标、端到端流程、潜藏决策、约束来源、人机权限与验证义务，形成可交给实现入口的设计契约。实际 skill 位于 [`skills/skill-design-discovery/`](skills/skill-design-discovery/)。
 

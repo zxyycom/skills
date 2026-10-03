@@ -1,6 +1,8 @@
 # Lightweight Judgment
 
-`lightweight-judgment` 让 agent 使用 JEV 完成分类、候选选择、相关性筛选、命题判断和程度评分，再把结构化结果用于原任务。适合输出空间明确、需要语义理解、结果可复核或回退的局部任务。
+`lightweight-judgment` 是按需点名使用的能力：用户明确指定该 skill 后，agent 才用 JEV 完成分类、候选选择、相关性筛选、命题判断和程度评分。适合输出空间明确、需要语义理解、结果可复核或回退的局部任务。
+
+在任务中点名 `$lightweight-judgment` 即可显式调用。包内 [agents/openai.yaml](../../skills/lightweight-judgment/agents/openai.yaml) 将 Codex 的 `policy.allow_implicit_invocation` 设为 `false`，使安装后的 skill 按此方式启用。
 
 内容按职责组织：
 

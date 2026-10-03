@@ -1,16 +1,19 @@
 ---
 name: lightweight-judgment
 description: >-
+  仅在用户点名 lightweight-judgment 时启用。
   用低成本、低延迟的结构化判断处理分类、候选选择、相关性筛选、命题判断
   和程度评分。当前使用 JEV；根据其特点准备上下文与问题，检查类型化结果
   后继续原任务。适用于输出空间明确、需要语义理解且结果可复核或回退的子任务。
 metadata:
-  version: "1"
+  version: "2"
 ---
 
 # Lightweight Judgment
 
-## 目标与读取方式
+## 目标与启用
+
+用户点名 `$lightweight-judgment` 或明确要求使用该 skill 后，在指定任务范围内启用；一般分类、筛选或评分请求本身不触发它。Codex 的显式调用策略由 [agents/openai.yaml](agents/openai.yaml) 声明。
 
 把适合的局部语义判断交给 JEV，取得类别、候选、概率或分数，供当前 agent 继续原任务。以准备、调用、复核和回退的总开销判断是否值得委托；重复语义处理或较多候选通常更值得考虑。
 

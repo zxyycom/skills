@@ -20,7 +20,7 @@
    - `common-denominator-design`: 识别多个现实场景可共同依赖的契约边界, 并决定公约数的数量与层次。
    - `dependency-boundary-design`: 判断分散的依赖调用是否需要收口, 并形成明确的责任边界。
    - `minimal-implementation`: 在目标和责任明确后, 比较正确候选的整体维护面并选择更小方案。
-   - `lightweight-judgment`: 使用 JEV 进行低成本、低延迟的分类、候选选择、相关性筛选和评分, 并按模型实测特点组织输入与处理结果; 配套自包含 CLI 随 skill 分发, 支持单次请求、离线检查与响应校验。
+   - `lightweight-judgment`: 仅在用户点名该 skill 时启用, 使用 JEV 进行低成本、低延迟的分类、候选选择、相关性筛选和评分; 配套自包含 CLI 支持单次请求、离线检查与响应校验。
    - `skill-design-discovery`: 在创建或重构 skill 前, 从现实材料恢复流程、判断、约束、权限和验证义务。
    - `investigation-report`: 以带稳定 ID、tags 与显式关系的单份报告保存可独立复核的调查背景、依据、结果与边界。
    - `test-evidence-review`: 以最小原生测试入口为单位审查测试证据，区分测试节点与聚合容器或内部环节，并维护带 Tests、可选 tags、Contract 与 Proves 的 Case-only 账本。
