@@ -84,3 +84,7 @@ test("distributed mjs works without workspace dependencies and import has no sid
 });
 
 await import("./durable-process.test.ts");
+
+await import("./statistics-distribution.test.ts");
+
+await import("./journal-process.test.ts");

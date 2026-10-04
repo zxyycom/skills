@@ -11,8 +11,16 @@ import {
 import { JudgmentFailure, normalizeFailure } from "./failure.ts";
 import { stringifyJson, type JsonValue } from "./json.ts";
 import { CallLog, type CallCompletion } from "./call-log.ts";
+import { localMetadata } from "./local-metadata.ts";
+import { parseStatisticsOptions } from "./stats-options.ts";
+import { statistics, type StatisticsResult } from "./statistics.ts";
 import { loadInput } from "./input.ts";
-import { parseOptions, type Options } from "./options.ts";
+import {
+  parseArguments,
+  parseOptions,
+  type Options,
+  type ParsedArguments
+} from "./options.ts";
 import {
   failureOutcome,
   successOutcome,
@@ -25,7 +33,7 @@ import { sendRequest, type Fetch } from "./transport.ts";
 export type { CliOutcome } from "./output.ts";
 
 export const help = `Lightweight Judgment — Node.js >=24.18
-Usage: node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs [--config path] doctor|json|ask [options]
+Usage: node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs [--config path] doctor|json|ask|stats [options]
 将示例中的绝对路径替换为实际 skill 和输入文件路径。
 
 命令：
@@ -37,6 +45,13 @@ Usage: node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs
                                  单题上下文，恰选一种输入
       [--id answer] [--option key=description ...] [--level text ...]
                                  Choice 用 --option；Score 按低到高重复 --level
+  stats [--database path | --config path]  已有调用日志的只读离线统计
+      [--from UTC --to UTC] [--endpoint URL] [--request-model id --response-model id]
+      [--status status --run-id id --tag key=value ...]
+      [--group-by endpoint,requestModel,status,tag:key] [--bucket requestBytes=100,1000 ...]
+      [--percentiles 50,90,95,99] [--max-rows 100000]
+      不取环境密钥、不联网、不创建/迁移库；完整口径见 references/statistics.md。
+  --run-id id --run-index n (json/ask) 本地批次顺序，成对提供；--tag key=value 可重复
   --model jev-*|typesafe/jev-*|~typesafe/jev-*  --timeout-ms 1..2147483647
   --endpoint URL                 覆盖本次 System One 完整地址
   --dry-run (json/ask)            预览最终请求，不取环境密钥、不联网或建库
@@ -63,7 +78,7 @@ Usage: node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs
   除帮助外 stdout 为一个 JSON 对象，stderr 为诊断。
   0：调用或离线检查成功；否定、不确定类别或低 confidence 也可有效。
   2：configuration/input，本次未发送；3：远端或传输失败，检查 error.kind。
-  4：日志存储失败；检查 attempts 与 meta.persistence，保留结果，不自动重发。
+  4：日志存储或 stats 读取/统计失败；stats 不带 persistence；推理需检查 attempts 与 meta.persistence。
   CLI 每次只发送一个请求，不自动重试、跟随重定向或切换服务。
   完整请求与返回格式见 skill 包内 references/cli.md。
 `;
@@ -113,6 +128,11 @@ async function infer(
   runtime: CliRuntime,
   state: InvocationState
 ): Promise<JsonValue> {
+  const metadata = localMetadata(
+    options.values["run-id"],
+    options.values["run-index"],
+    options.tags
+  );
   const request = validateRequest(
     await loadInput(options, runtime),
     options.values.model,
@@ -125,7 +145,7 @@ async function infer(
   state.apiKey = resolveApiKey(config, runtime);
   const body = stringifyJson(request);
   const log = config.logging.enabled
-    ? CallLog.start(config, request, body)
+    ? CallLog.start(config, request, body, metadata)
     : undefined;
   state.attempts = 1;
   state.started = runtime.now();
@@ -162,6 +182,27 @@ async function infer(
   return completion.result;
 }
 
+async function runStatistics(
+  parsed: ParsedArguments,
+  runtime: CliRuntime
+): Promise<StatisticsResult> {
+  const options = parseStatisticsOptions(parsed, runtime.home);
+  const file =
+    options.database ??
+    (await loadConfiguration({ path: options.config }, runtime)).logging
+      .databasePath;
+  return statistics(file, options);
+}
+
+function initialState(): InvocationState {
+  return {
+    attempts: 0,
+    started: undefined,
+    requestModel: undefined,
+    apiKey: undefined
+  };
+}
+
 export async function runCli(
   argv: readonly string[],
   runtime: CliRuntime
@@ -169,14 +210,19 @@ export async function runCli(
   if (argv.includes("--help")) {
     return { exitCode: 0, stdout: help, stderr: "" };
   }
-  const state: InvocationState = {
-    attempts: 0,
-    started: undefined,
-    requestModel: undefined,
-    apiKey: undefined
-  };
+  const state = initialState();
+  let statsCommand = false;
   try {
-    const options = parseOptions(argv);
+    const parsed = parseArguments(argv);
+    statsCommand = parsed.positionals[0] === "stats";
+    if (statsCommand) {
+      return successOutcome(
+        await runStatistics(parsed, runtime),
+        state,
+        runtime.now()
+      );
+    }
+    const options = parseOptions(parsed);
     const config = await loadConfiguration(
       {
         path: options.values.config,
@@ -191,7 +237,11 @@ export async function runCli(
         : await infer(options, config, runtime, state);
     return successOutcome(result, state, runtime.now());
   } catch (error) {
-    if (error instanceof JudgmentFailure && error.kind === "storage") {
+    if (
+      error instanceof JudgmentFailure &&
+      error.kind === "storage" &&
+      !statsCommand
+    ) {
       state.persistence = { status: "failed" };
     }
     return failureOutcome(error, state, runtime.now());

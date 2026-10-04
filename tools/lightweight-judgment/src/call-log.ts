@@ -4,6 +4,8 @@ import { openCallDatabase } from "./call-database.ts";
 import type { Configuration, LoggingConfiguration } from "./configuration.ts";
 import { JudgmentFailure } from "./failure.ts";
 import { record } from "./json.ts";
+import type { LocalMetadata } from "./local-metadata.ts";
+import { stringifyJson } from "./json.ts";
 import type { Request } from "./request.ts";
 import type { ValidatedResponse } from "./response.ts";
 
@@ -62,7 +64,12 @@ export class CallLog {
     private readonly config: LoggingConfiguration
   ) {}
 
-  static start(config: Configuration, request: Request, body: string): CallLog {
+  static start(
+    config: Configuration,
+    request: Request,
+    body: string,
+    metadata: LocalMetadata
+  ): CallLog {
     const database = openCallDatabase(config.logging.databasePath);
     const log = new CallLog(database, config.logging);
     const now = new Date().toISOString();
@@ -70,8 +77,8 @@ export class CallLog {
       const written = database
         .prepare(`INSERT INTO calls
         (id, started_at, updated_at, status, endpoint, request_model, question_count,
-         save_request, save_response, request_json)
-        VALUES (?, ?, ?, 'started', ?, ?, ?, ?, ?, ?)`)
+         save_request, save_response, request_json, run_id, run_index, local_tags, request_bytes)
+        VALUES (?, ?, ?, 'started', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
         .run(
           log.id,
           now,
@@ -81,7 +88,11 @@ export class CallLog {
           Object.keys(request.questions).length,
           Number(config.logging.saveRequest),
           Number(config.logging.saveResponse),
-          config.logging.saveRequest ? body : null
+          config.logging.saveRequest ? body : null,
+          metadata.runId,
+          metadata.runIndex,
+          stringifyJson(metadata.tags),
+          Buffer.byteLength(body, "utf8")
         );
       requireChange(written.changes);
       return log;
@@ -89,7 +100,7 @@ export class CallLog {
       database.close();
       throw new JudgmentFailure(
         "storage",
-        "无法持久化发送前记录；此次未发送。请检查日志数据库空间、权限与锁占用。"
+        "无法持久化发送前记录；此次未发送。请检查重复 run-id/run-index、日志数据库空间、权限与锁占用。"
       );
     }
   }
@@ -99,12 +110,13 @@ export class CallLog {
       const written = this.database
         .prepare(`UPDATE calls SET updated_at = ?, http_status = ?,
         status = CASE WHEN ? IS NULL THEN status ELSE 'response_received' END,
-        response_body = ? WHERE id = ?`)
+        response_body = ?, response_bytes = ? WHERE id = ?`)
         .run(
           new Date().toISOString(),
           status,
           body === undefined ? null : 1,
           this.config.saveResponse && body !== undefined ? body : null,
+          body?.byteLength ?? null,
           this.id
         );
       requireChange(written.changes);

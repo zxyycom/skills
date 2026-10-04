@@ -5,7 +5,7 @@ description: >-
   用低成本、低延迟的结构化判断处理分类、候选选择、相关性筛选、命题判断
   和程度评分；按 JEV 特点准备输入、复核类型化结果，再继续原任务。
 metadata:
-  version: "3"
+  version: "4"
 ---
 
 # Lightweight Judgment
@@ -21,7 +21,8 @@ metadata:
 ## 读取策略
 
 - 初次调用、配置变化或处理技术错误时，读取 [CLI 操作契约](references/cli.md)，确认参数、配置和返回格式。
-- 开启调用日志、恢复未完成记录或统计用量时，读取 [调用日志](references/call-logging.md)，确认留存与恢复边界。
+- 开启调用日志、恢复未完成记录时，读取 [调用日志](references/call-logging.md)，确认留存与恢复边界。
+- 统计已有日志、分层比较用量／耗时或核对批次首条时，读取 [离线调用统计](references/statistics.md)，用 `stats` 取得汇总并核对覆盖与分母；新增服务调用另按原任务授权。
 - 判断任务适用性、调整输入表示或分析异常时，按主题读取 [JEV 特点与实测依据](references/jev-characteristics.md)；日常使用以本文摘要为起点。
 
 ## 任务选择
@@ -97,7 +98,7 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs ask --
 
 配置或输入错误先修正；鉴权、限流、超时、网络和响应错误按 CLI 的 `error.kind` 处理。CLI 不自动重试，调用方再次发送须有理由和次数上限；超时后服务端是否已处理或计费可能未知。
 
-启用日志后，同时检查 `meta.persistence`；退出 4 表示存储失败，已有有效结果仍须保留。数据库中的未完成记录不证明请求未发送，恢复和统计按[调用日志](references/call-logging.md)处理，不自动重放。
+启用日志后，同时检查 `meta.persistence`；退出 4 表示存储失败，已有有效结果仍须保留。数据库中的未完成记录不证明请求未发送，恢复按[调用日志](references/call-logging.md)处理，不自动重放。
 
 ### 5. 使用结果并继续原任务
 

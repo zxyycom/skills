@@ -13,7 +13,7 @@ test("unsupported database versions remain unchanged without sending", async () 
   try {
     const database = new DatabaseSync(fixture.databasePath);
     database.exec(
-      "PRAGMA application_id = 1246058033; PRAGMA user_version = 2; CREATE TABLE retained (value TEXT); INSERT INTO retained VALUES ('keep')"
+      "PRAGMA application_id = 1246058033; PRAGMA user_version = 3; CREATE TABLE retained (value TEXT); INSERT INTO retained VALUES ('keep')"
     );
     database.close();
     fs.chmodSync(fixture.databasePath, 0o600);

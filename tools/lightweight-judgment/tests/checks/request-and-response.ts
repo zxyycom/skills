@@ -8,3 +8,8 @@ await import("../logging.test.ts");
 await import("../connection-config.test.ts");
 await import("../http-retention.test.ts");
 await import("../logging-safety.test.ts");
+
+await import("../statistics-storage.test.ts");
+await import("../statistics-schema.test.ts");
+await import("../statistics-summary.test.ts");
+await import("../statistics-batches.test.ts");

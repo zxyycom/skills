@@ -1,5 +1,15 @@
 import { parseArgs } from "node:util";
 import { fail } from "./failure.ts";
+import { statisticsFlags } from "./stats-options.ts";
+
+export type ParsedArguments = Readonly<{
+  values: Readonly<Record<string, unknown>>;
+  positionals: readonly string[];
+  tokens: readonly (
+    | { kind: "option"; name: string }
+    | { kind: "positional" | "option-terminator" }
+  )[];
+}>;
 
 export type Options = Readonly<{
   command: "doctor" | "json" | "ask";
@@ -8,9 +18,12 @@ export type Options = Readonly<{
   levels: readonly string[];
   stdin: boolean;
   dryRun: boolean;
+  tags: readonly string[];
 }>;
 
 const common = ["config", "model", "endpoint", "timeout-ms"] as const;
+
+const localFlags = ["run-id", "run-index", "tag"] as const;
 
 const jsonFlags = ["file", "json"] as const;
 
@@ -26,11 +39,11 @@ const askFlags = [
   "level"
 ] as const;
 
-const valueFlags = [...common, ...jsonFlags, ...askFlags];
+const valueFlags = [...common, ...jsonFlags, ...askFlags, ...localFlags];
 
 type ValueFlag = (typeof valueFlags)[number];
 
-type SingleValueFlag = Exclude<ValueFlag, "option" | "level">;
+type SingleValueFlag = Exclude<ValueFlag, "option" | "level" | "tag">;
 
 function rejectDuplicates(
   tokens: readonly (
@@ -44,7 +57,7 @@ function rejectDuplicates(
       continue;
     }
     const name = token.name;
-    if (["option", "level"].includes(name)) {
+    if (["option", "level", "tag"].includes(name)) {
       continue;
     }
     if (seen.has(name)) {
@@ -55,12 +68,18 @@ function rejectDuplicates(
 }
 
 function validateCompatibility(input: Options): void {
-  const { command, values, options, levels, stdin, dryRun } = input;
-  const specific = { doctor: [], json: jsonFlags, ask: askFlags }[command];
+  const { command, values, options, levels, tags, stdin, dryRun } = input;
+  const specific = {
+    doctor: [],
+    json: [...jsonFlags, ...localFlags],
+    ask: [...askFlags, ...localFlags]
+  }[command];
   const allowed = new Set<string>([...common, ...specific]);
   if (Object.keys(values).some((key) => !allowed.has(key))) {
     fail("input", "arguments", "参数与命令不兼容");
   }
+  if (command === "doctor" && tags.length > 0)
+    fail("input", "arguments", "doctor 不接受标签");
   if (command !== "ask" && options.length + levels.length > 0) {
     fail("input", "arguments", "criteria 参数仅用于 ask");
   }
@@ -83,7 +102,7 @@ function argumentDefinitions(): Record<
   for (const name of valueFlags) {
     definitions[name] = {
       type: "string",
-      multiple: ["option", "level"].includes(name)
+      multiple: ["option", "level", "tag"].includes(name)
     };
   }
   return definitions;
@@ -102,24 +121,32 @@ function commandPositionals(
   return { command, stdin: extra.length === 1 };
 }
 
-export function parseOptions(argv: readonly string[]): Options {
-  let parsed;
+export function parseArguments(argv: readonly string[]): ParsedArguments {
+  const definitions = argumentDefinitions();
+  for (const name of statisticsFlags) definitions[name] = { type: "string" };
+  definitions.bucket = { type: "string", multiple: true };
   try {
-    parsed = parseArgs({
+    return parseArgs({
       args: [...argv],
       allowPositionals: true,
       strict: true,
       tokens: true,
-      options: argumentDefinitions()
+      options: definitions
     });
   } catch {
     return fail("input", "arguments", "未知参数或参数缺值");
   }
+}
+
+export function parseOptions(parsed: ParsedArguments): Options {
+  const allowed = new Set<string>([...valueFlags, "dry-run"]);
+  if (Object.keys(parsed.values).some((key) => !allowed.has(key)))
+    fail("input", "arguments", "未知参数或参数缺值");
   rejectDuplicates(parsed.tokens);
   const { command, stdin } = commandPositionals(parsed.positionals);
   const values: Partial<Record<SingleValueFlag, string>> = {};
   for (const key of valueFlags) {
-    if (key === "option" || key === "level") {
+    if (key === "option" || key === "level" || key === "tag") {
       continue;
     }
     const value = parsed.values[key];
@@ -129,8 +156,9 @@ export function parseOptions(argv: readonly string[]): Options {
   }
   const options = repeatedValues(parsed.values.option, "--option");
   const levels = repeatedValues(parsed.values.level, "--level");
+  const tags = repeatedValues(parsed.values.tag, "--tag");
   const dryRun = parsed.values["dry-run"] === true;
-  const result = { command, values, options, levels, stdin, dryRun };
+  const result = { command, values, options, levels, tags, stdin, dryRun };
   validateCompatibility(result);
   return result;
 }

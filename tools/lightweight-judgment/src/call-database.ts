@@ -3,44 +3,19 @@ import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { JudgmentFailure } from "./failure.ts";
 
-const applicationId = 1246058033;
+import {
+  migration,
+  schema,
+  callDatabaseVersion,
+  type CallDatabaseVersion
+} from "./call-schema.ts";
+export { callDatabaseVersion } from "./call-schema.ts";
+const lockTimeoutMs = 5000;
+const walRetryDelayMs = 10;
+const sqlitePrimaryCodeRange = 256;
+const sqliteBusyCode = 5;
 
-const schema = `
-CREATE TABLE calls (
-  id TEXT PRIMARY KEY,
-  started_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
-  finished_at TEXT,
-  status TEXT NOT NULL CHECK(status IN ('started','response_received','succeeded','failed','indeterminate')),
-  endpoint TEXT NOT NULL,
-  request_model TEXT NOT NULL,
-  response_model TEXT,
-  question_count INTEGER NOT NULL,
-  save_request INTEGER NOT NULL,
-  save_response INTEGER NOT NULL,
-  request_json TEXT,
-  response_body BLOB,
-  http_status INTEGER,
-  error_kind TEXT,
-  elapsed_ms INTEGER,
-  input_tokens INTEGER,
-  output_tokens INTEGER,
-  cost REAL
-) STRICT;
-CREATE INDEX calls_started_at ON calls(started_at);
-CREATE INDEX calls_status ON calls(status);
-PRAGMA application_id = ${applicationId};
-PRAGMA user_version = 1;
-`;
-
-function prepareFile(file: string): void {
-  fs.mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
-  try {
-    fs.closeSync(fs.openSync(file, "wx", 0o600));
-  } catch (error) {
-    if (!(error instanceof Error && "code" in error && error.code === "EEXIST"))
-      throw error;
-  }
+export function requirePrivateFile(file: string): void {
   const stat = fs.lstatSync(file);
   if (
     !stat.isFile() ||
@@ -53,34 +28,75 @@ function prepareFile(file: string): void {
   }
 }
 
+function prepareFile(file: string): void {
+  fs.mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
+  try {
+    fs.closeSync(fs.openSync(file, "wx", 0o600));
+  } catch (error) {
+    if (!(error instanceof Error && "code" in error && error.code === "EEXIST"))
+      throw error;
+  }
+  requirePrivateFile(file);
+}
+
+function isSqliteBusy(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    "errcode" in error &&
+    typeof error.errcode === "number" &&
+    error.errcode % sqlitePrimaryCodeRange === sqliteBusyCode
+  );
+}
+
+function enableWriterWal(database: DatabaseSync): void {
+  const deadline = performance.now() + lockTimeoutMs;
+  const sleeper = new Int32Array(new SharedArrayBuffer(4));
+  // Journal transitions can bypass SQLite's busy handler. Own one bounded wait
+  // here, rather than multiplying the connection's ordinary 5-second timeout.
+  database.exec("PRAGMA busy_timeout=0");
+  while (true) {
+    try {
+      const mode = database
+        .prepare("PRAGMA journal_mode=WAL")
+        .get()?.journal_mode;
+      if (mode !== "wal") throw new Error("SQLite did not enable WAL");
+      database.exec(
+        `PRAGMA synchronous=FULL; PRAGMA busy_timeout=${lockTimeoutMs}`
+      );
+      return;
+    } catch (error) {
+      const remaining = deadline - performance.now();
+      if (!isSqliteBusy(error) || remaining <= 0) throw error;
+      Atomics.wait(sleeper, 0, 0, Math.min(walRetryDelayMs, remaining));
+    }
+  }
+}
+
 function initialize(database: DatabaseSync): void {
   database.exec("BEGIN IMMEDIATE");
   try {
     const id = database.prepare("PRAGMA application_id").get()?.application_id;
     const version = database.prepare("PRAGMA user_version").get()?.user_version;
-    const tables = database
+    const objects = database
       .prepare("SELECT name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'")
       .all();
-    if (id === 0 && version === 0 && tables.length === 0) database.exec(schema);
-    else if (id !== applicationId || version !== 1) {
-      throw new JudgmentFailure(
-        "storage",
-        "日志数据库不是受支持的调用记录库；请选择独立路径，不覆盖已有数据库。"
-      );
-    }
+    if (id === 0 && version === 0 && objects.length === 0)
+      database.exec(schema);
+    const current = callDatabaseVersion(database);
+    if (current === 1) database.exec(migration);
     database.exec("COMMIT");
   } catch (error) {
     database.exec("ROLLBACK");
     throw error;
   }
-  database.exec("PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL");
+  enableWriterWal(database);
 }
 
 export function openCallDatabase(file: string): DatabaseSync {
   let database: DatabaseSync | undefined;
   try {
     prepareFile(file);
-    database = new DatabaseSync(file, { timeout: 5000 });
+    database = new DatabaseSync(file, { timeout: lockTimeoutMs });
     initialize(database);
     return database;
   } catch (error) {
@@ -89,6 +105,35 @@ export function openCallDatabase(file: string): DatabaseSync {
     throw new JudgmentFailure(
       "storage",
       "无法创建或打开日志数据库；请检查配置中的 logging.databasePath、权限、空间与锁占用。此次未发送。"
+    );
+  }
+}
+
+export function openStatisticsDatabase(
+  file: string
+): Readonly<{ database: DatabaseSync; version: CallDatabaseVersion }> {
+  let database: DatabaseSync | undefined;
+  let snapshot = false;
+  try {
+    requirePrivateFile(file);
+    database = new DatabaseSync(file, {
+      readOnly: true,
+      timeout: lockTimeoutMs
+    });
+    database.exec("BEGIN");
+    snapshot = true;
+    const version = callDatabaseVersion(database);
+    return { database, version };
+  } catch (error) {
+    try {
+      if (snapshot) database?.exec("ROLLBACK");
+    } finally {
+      database?.close();
+    }
+    if (error instanceof JudgmentFailure) throw error;
+    throw new JudgmentFailure(
+      "storage",
+      "无法只读打开日志数据库；请用 --database 指定已有私有调用记录库，检查路径、权限与锁占用。stats 不创建数据库。"
     );
   }
 }

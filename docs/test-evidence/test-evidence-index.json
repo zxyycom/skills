@@ -630,7 +630,7 @@
       "LIGHTWEIGHT-JUDGMENT-CLI-020": "sha256:6ac8071cf5e0cca1a103a187545acfb55135043d1b87fcfc03645c8ff22fe3bf",
       "LIGHTWEIGHT-JUDGMENT-CLI-021": "sha256:f28f8fddcd08d3fd548529d690ad75b284c8f32be33c267fe96cb409490b17a4",
       "LIGHTWEIGHT-JUDGMENT-CLI-022": "sha256:f87be4349cbe615f4c10e3163c4c9510290985e23da440fdb9bfbf05d41cc952",
-      "LIGHTWEIGHT-JUDGMENT-CLI-023": "sha256:0ce38ee6e3139444487214cf1a598ec52366ed724f7f83945197ee8c9a13be99",
+      "LIGHTWEIGHT-JUDGMENT-CLI-023": "sha256:3a002560a27b0214896930b697196ed937856efdc3771a236cb6f8468bd1fb78",
       "LIGHTWEIGHT-JUDGMENT-CLI-024": "sha256:740d8b70713c56a2b99cc9e74b024d555eb60f148eab3866b76b1acd7aaf81e2",
       "LIGHTWEIGHT-JUDGMENT-CLI-025": "sha256:fbd0d5636f9446378768f2adf19e1e1f090248fc95677021cc325db054846ed1",
       "LIGHTWEIGHT-JUDGMENT-CLI-026": "sha256:539853cb4352ecd9e5df306f4567039624cb460eab411a71c87617dc03edb9a5",
@@ -639,6 +639,30 @@
       "LIGHTWEIGHT-JUDGMENT-CLI-029": "sha256:af02bd24ef5bbc4f54c90fa387438632efa47e312435b34fc0f12971918ee6a0",
       "LIGHTWEIGHT-JUDGMENT-CLI-030": "sha256:230946d92f27fb1c42c174926737be6a7c74066a4e555bf6852611608dfe14f0",
       "LIGHTWEIGHT-JUDGMENT-CLI-031": "sha256:64db46d0638beb80cf202ce12378b4e02ca881f0db1a9b5b732303dffa564716",
+      "LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-BUDGET-001": "sha256:9b625ee8583aba2adfd11c4473d9ba9a8fef70aa64aecac9c82ee93e94f2729f",
+      "LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-ERRORS-001": "sha256:2c06a9d99eda4dbbaed8efbafca36776ec9cd0c42b7430348243aaddba399c2a",
+      "LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-MODE-001": "sha256:4ffe7a135be7860e82a570dd88b6e794c9b624d16280e474f1ffe956eca5f970",
+      "LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-RECOVERY-001": "sha256:1a7cefbc101a5f7ebaa98bca22c759962093b397da4dc8efb9445abb9e679bc3",
+      "LIGHTWEIGHT-JUDGMENT-STATS-BATCH-001": "sha256:5ec560693da6f668e70f836ce4cea3e0138b4a41318ac54648763ff7d1c2c561",
+      "LIGHTWEIGHT-JUDGMENT-STATS-BUDGET-001": "sha256:9cb06c31dbcecf3c6145f39ea99501a31866e1ffb0104246e2d7a0fb7f8e6408",
+      "LIGHTWEIGHT-JUDGMENT-STATS-DATABASE-001": "sha256:617292af08b88d9469b13550911ed1710ae8c4697c2b2e0a372851502348cd93",
+      "LIGHTWEIGHT-JUDGMENT-STATS-DISTRIBUTION-001": "sha256:f940f3f0e9d6d1bb8393bb4bf0fe7d7b841215e45bf3dd74bc103d1d192568d8",
+      "LIGHTWEIGHT-JUDGMENT-STATS-EXACT-RANK-001": "sha256:c9fbb62e9c077295a133bea19174f75abcbb5cf66c77888a044901706531b558",
+      "LIGHTWEIGHT-JUDGMENT-STATS-FILES-001": "sha256:56f9fdcf11241abcfbd7fdeae471c89b8c36fbf1efc7083a2b379800c1e8c698",
+      "LIGHTWEIGHT-JUDGMENT-STATS-FILTER-001": "sha256:11f41c8d00eb31bb36483eb7ec010cd15318c212a38d016a8ba24c4af6e21220",
+      "LIGHTWEIGHT-JUDGMENT-STATS-GROUP-001": "sha256:71ac4d4b46ff3b3cbc6803c65e0f397c050498409ba4c4e057a5e8595a1a8ed5",
+      "LIGHTWEIGHT-JUDGMENT-STATS-GROUP-DIAGNOSTICS-001": "sha256:45bcb36afef1a7986fdf4cc9ff0a79ed6b02025337d2694769f8066f0bd50c7d",
+      "LIGHTWEIGHT-JUDGMENT-STATS-INDEX-LAYOUT-001": "sha256:ff70f21c4fa661833add30085bfcdaa224ff20f42dd80c616bc4c5e8cecfe2da",
+      "LIGHTWEIGHT-JUDGMENT-STATS-LEGACY-001": "sha256:fcce8c2f0711ed0e3123e6ef06236ce8b8808e38586b6d7154d98d007a034121",
+      "LIGHTWEIGHT-JUDGMENT-STATS-METADATA-001": "sha256:8df348b37844bbcc7e385223b84ff9b3d3fb636edae3dfd15be3c02676921247",
+      "LIGHTWEIGHT-JUDGMENT-STATS-METRICS-001": "sha256:39f38e39a030a5bf3e8358b00497a5adfad9afd62f4a672dba1e36c4b9b7d609",
+      "LIGHTWEIGHT-JUDGMENT-STATS-MIGRATION-001": "sha256:96b25b50b3cf5b3f26a4909712323068ae8522ba777490b9e0f168ba11cc1404",
+      "LIGHTWEIGHT-JUDGMENT-STATS-NULL-TAGS-001": "sha256:425c4643605fec12a898be9e60bb6c4f10d6dee5241796b081f6bf550bc63af3",
+      "LIGHTWEIGHT-JUDGMENT-STATS-OFFLINE-001": "sha256:ed65fcb8a47991fbd8a19aafe2572e025d07566e652b09c61f38bb695cdb3b0e",
+      "LIGHTWEIGHT-JUDGMENT-STATS-PARTIAL-001": "sha256:5e29261c5744a5cf062922ae5f2a6055f2405eee0ce9db8b9ca296272eae1919",
+      "LIGHTWEIGHT-JUDGMENT-STATS-RUN-ID-001": "sha256:88c1826ba7c184f0db456d064acb4dd3fd33d7dbe2a200375ed13b56749d933a",
+      "LIGHTWEIGHT-JUDGMENT-STATS-STORED-TAGS-001": "sha256:52d0d852f7681a47b45e5078c6e6b976b4dd6d8fdee6c6e6fee9ace00d69cd8f",
+      "LIGHTWEIGHT-JUDGMENT-STATS-WAL-001": "sha256:749bbe18b6b55e72c985f9578d7cd8c0d535c3270a5fdeb5b1e3f9c18bbf21e9",
       "MCPSHELL-BRIDGE-DIST-001": "sha256:771e5f7ac1cc9b48d75a9c5266d51c4762e6913880ba9080daf7acd7a6fca097",
       "MCPSHELL-BRIDGE-DIST-002": "sha256:145804c2ee97112c2e15ffbe221f6f072c7a5a6b44bef7a50130a7f94d9930fc",
       "MCPSHELL-BRIDGE-DIST-003": "sha256:03b5da99f66635f94127d16a7488ec0e92ec0aad685b48ef967c35ee92eb30fa",
@@ -7354,6 +7378,246 @@
       ],
       "testIds": [
         "test:041a9a51d650a2f3f44415e252081fb83f87923abf029e8406b64553f8db9f62"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-BUDGET-001": {
+      "title": "WAL 切换等待预算",
+      "sourcePath": "cases/lightweight-judgment-log-journal-budget.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:f5185371d50ef26b5d8f581dd751dce77631ee70b51b7aea8f986b6c547a1cfc"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-ERRORS-001": {
+      "title": "非 BUSY 不重试",
+      "sourcePath": "cases/lightweight-judgment-log-journal-errors.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:dd96d7b7d6370ccda6562beda9f351535b36aa8c9ca00c755f7cdf14292be3b7"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-MODE-001": {
+      "title": "确认 WAL 返回值",
+      "sourcePath": "cases/lightweight-judgment-log-journal-mode.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:9c20adb58f13b725af415c3f24a20e9ebdd993f3b9762c13531d499cc631e031"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-RECOVERY-001": {
+      "title": "WAL 切换等待后继续",
+      "sourcePath": "cases/lightweight-judgment-log-journal-recovery.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:49ef595cf16ada73f2cf198b9e7a820a94312a9c5a6e663d746164f38df04fe8"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-BATCH-001": {
+      "title": "明确首条与后续 P50 对照",
+      "sourcePath": "cases/lightweight-judgment-stats-batch.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:8bfade0da7c4597093e0971b7d2ecfd017511e41471dd67dad2b682146045f01"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-BUDGET-001": {
+      "title": "非法参数资源与精度拒绝",
+      "sourcePath": "cases/lightweight-judgment-stats-budget.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:7126bfcbd2bab5659df73280b6cf5fa1cc1c6246cd206265d0d8e2f0dccb72a0"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-DATABASE-001": {
+      "title": "缺失外来未知与变形库拒绝",
+      "sourcePath": "cases/lightweight-judgment-stats-database.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:dfb899a4f6dffff8d9f4272f9b310ca091ee57d250e2294bbd56e15d8a0df0ff"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-DISTRIBUTION-001": {
+      "title": "独立 Node 离线统计分发",
+      "sourcePath": "cases/lightweight-judgment-stats-distribution.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:3fab27ac9c28a973f3979059e3f0a7f4f68dcdbd47ba9e7d486bf060bf649c9a"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-EXACT-RANK-001": {
+      "title": "十进制分位 rank 边界",
+      "sourcePath": "cases/lightweight-judgment-stats-exact-rank.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:ebb9be3644835556cccc16b8dfbf4d658cc546a3b682a8fe9fdfa2e09ab1060e"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-FILES-001": {
+      "title": "私有普通文件与符号链接边界",
+      "sourcePath": "cases/lightweight-judgment-stats-files.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:1d5eb0bc818d36be9975c4d2160e4ec8041a1205bbe73e53ba2b8edb119f8ead"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-FILTER-001": {
+      "title": "UTC 窗口与参数绑定筛选",
+      "sourcePath": "cases/lightweight-judgment-stats-filter.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:ef30442b36bbaa25795d8d5475a5961156c9a4c413b666625912e192e4f7c6a0"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-GROUP-001": {
+      "title": "原型标签分组与费用隔离",
+      "sourcePath": "cases/lightweight-judgment-stats-group.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:b1e7bad601b3fb61677ebf0fa699303d19936860d52266316d97f7dd095e2386"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-GROUP-DIAGNOSTICS-001": {
+      "title": "标签分组参数诊断",
+      "sourcePath": "cases/lightweight-judgment-stats-group-diagnostics.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:a787a2b832cc76131863ee0d031cf880b6cd8a5ee7075a55f7794aaaeb46f5e4"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-INDEX-LAYOUT-001": {
+      "title": "固定日志索引布局",
+      "sourcePath": "cases/lightweight-judgment-stats-index-layout.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:ecbddfed1aaae9c4170418712937a510d5bf0458131d52936835a402d54812d1"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-LEGACY-001": {
+      "title": "只读 v1 与正文隔离",
+      "sourcePath": "cases/lightweight-judgment-stats-legacy.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:5a4957d7fe2896225e419cd42073537989d8df52fd855ed4766741fc3c211257"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-METADATA-001": {
+      "title": "本地元数据与独立字节记录",
+      "sourcePath": "cases/lightweight-judgment-stats-metadata.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:189baa58a92574752090c51cdb65bcbfbd3eab6e3b7095810b01810a1f5e231d"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-METRICS-001": {
+      "title": "分位数缺失与桶边界",
+      "sourcePath": "cases/lightweight-judgment-stats-metrics.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:73041b282bf95a8cd516d3acc02779614a7dec9c135941bc8ad7791139d3449e"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-MIGRATION-001": {
+      "title": "普通 writer 原子升级旧库",
+      "sourcePath": "cases/lightweight-judgment-stats-migration.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:148612a93f57a848eee8d7c41ff74d907b10993e5d0b24f4b7670901b9813882"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-NULL-TAGS-001": {
+      "title": "旧记录缺标签与原型隔离",
+      "sourcePath": "cases/lightweight-judgment-stats-null-tags.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:2e73a61eea5c105ed3242a907c9fb4a630513cd156d85580c36fc7a19ab060c0"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-OFFLINE-001": {
+      "title": "关闭日志仍可离线读取历史",
+      "sourcePath": "cases/lightweight-judgment-stats-offline.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:cfdf092b0e948878441e19a891bcb1fb3ba42cd04d5eebf77412e5b7615f99b3"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-PARTIAL-001": {
+      "title": "缺失未完成与被筛掉首条",
+      "sourcePath": "cases/lightweight-judgment-stats-partial.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:d1b09ad83e4b6c4b918faee491e8887fe3a44e24c4f9e59593f4bb6288af19dd"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-RUN-ID-001": {
+      "title": "CLI 与存储批次 ID 边界",
+      "sourcePath": "cases/lightweight-judgment-stats-run-id.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:cf70f3495118e55a643f89bf11f23ae4764754018f36caf0e23780bcc49f9872"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-STORED-TAGS-001": {
+      "title": "存储 JSON 标签独立校验",
+      "sourcePath": "cases/lightweight-judgment-stats-stored-tags.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:62909251cb84b8d3a94927632f1a3c76cbc89375c211dba4cf4e565a92f9d1c5"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-WAL-001": {
+      "title": "活跃 WAL 与一致快照",
+      "sourcePath": "cases/lightweight-judgment-stats-wal.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:28d53357b59cc72378a0dfbfdbb893048a3bd1b9dfa3c70d87f0125eaff22900"
       ]
     },
     "MCPSHELL-BRIDGE-DIST-001": {

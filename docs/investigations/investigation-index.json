@@ -135,6 +135,20 @@
       ],
       "title": "定位失败构建后滚动 Skill Release 不补发"
     },
+    "261004-lightweight-judgment-wal-init-contention": {
+      "formedAt": "2026-10-04T04:45:24Z",
+      "name": "lightweight-judgment-wal-init-contention",
+      "question": "为何并发日志 writer 在五秒 timeout 前失败，最小安全修复应落在哪个阶段？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "lightweight-judgment-wal-init-contention.md",
+      "tags": [
+        "concurrency",
+        "lightweight-judgment",
+        "sqlite"
+      ],
+      "title": "轻量调用日志初始化的并发 WAL 切换"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -701,6 +715,7 @@
       "260912-isolate-ci-version-control-test-load": "sha256:d46df71cb082a9a60bbde3a4db359c19eb28f68ccf2ea64706391ad0f3c03706",
       "260919-gate-toolchain-drift": "sha256:6e782b067a86da17947542acb24540521c62df9b55d3d594cd1ee42ea3970226",
       "260923-stale-skill-release-after-failed-ci": "sha256:dc2cbf8762209c64b23d75e8c17382e17b3b6de654300b8a3f8ac92987c52cd7",
+      "261004-lightweight-judgment-wal-init-contention": "sha256:bcbda16e642f27a0e9e01fdda93f209e06e59cac4b4a2c35997922ed00d88a61",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:4861ec08242f0007c24f5b6d7e8e0a0c5fc1ccaaf6898eb1f64420645a2f0c21",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:886e1ade798bfe48802e32c5296dc03c07d9b192dde3519b52ec5b8583778bdd",
       "align-prompt-optimize-name-and-trigger": "sha256:24700cda424786bc07531f84b6c139f1de6fae7b050ad69811bdddca35734cb6",

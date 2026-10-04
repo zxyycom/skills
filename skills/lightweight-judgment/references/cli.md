@@ -1,6 +1,6 @@
 # CLI 操作契约
 
-本文是随 skill 分发的 CLI 操作 owner，定义运行、配置、输入输出、校验和错误处理。可选 SQLite 留存与恢复由 [调用日志](call-logging.md) 承接。
+本文是随 skill 分发的 CLI 操作 owner，定义运行、配置、输入输出、校验和错误处理。可选 SQLite 留存与恢复由 [调用日志](call-logging.md) 承接，离线统计由[统计契约](statistics.md)承接。
 
 使用 Node.js 24.18 或更新版本直接运行 `scripts/lightweight-judgment.mjs`，无需全局安装或项目依赖。下列绝对路径均为占位示例，调用前替换为实际路径；仓库内使用 `bun run lightweight-judgment -- <command> [参数]`。
 
@@ -155,13 +155,21 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs ask --
 
 Choice 重复 `--option key=description`，按第一个等号分隔，键唯一；Score 重复 `--level`，顺序即等级。不同题型的 criteria 参数不可混用。复杂 instructions、结构化 criteria、Noul 的 true／false 定义及多题使用 `json`。
 
-### 通用参数
+### `stats`：离线日志统计
+
+用 `stats` 汇总已有日志的用量／耗时，并按模型、状态、标签或批次比较。直接运行 `stats` 使用配置中的日志路径；`stats --database /absolute/private/calls.sqlite3` 跳过配置。此命令只读、不要求密钥或发送请求；筛选、分组、分桶、输出和解读见[离线调用统计](statistics.md)。
+
+### 推理参数与帮助
+
+下表按 `json`／`ask` 解释参数；`stats` 的 `--endpoint`、`--run-id`、`--tag` 用于日志筛选，见[统计参数](statistics.md#筛选分组与分桶)。`--help` 适用于所有命令。
 
 | 参数 | 行为 |
 | --- | --- |
 | `--endpoint <URL>` | 覆盖本次完整 System One 地址，受连接规则约束 |
 | `--model <id>` | 覆盖本次 JEV 请求标识 |
 | `--timeout-ms <positive-integer>` | 1–2147483647 毫秒，从发送到完整响应的本次等待上限 |
+| `--run-id <id>` / `--run-index <n>` | 仅 json／ask，成对提供的本地批次 ID／从 1 开始的顺序；留存与校验见[本地元数据](statistics.md#记录本地批次与标签) |
+| `--tag key=value` | 可重复的本地标签；留存与校验见[本地元数据](statistics.md#记录本地批次与标签) |
 | `--dry-run` | 仅用于 `json`／`ask`：解析配置与输入、补齐 model、本地校验，输出 endpoint 与最终请求；不读取环境密钥、不要求密钥存在、不联网或建库 |
 | `--help` | 展示命令、配置来源、离线示例和退出语义，不读取配置、输入或凭据，不联网 |
 
@@ -188,7 +196,7 @@ Choice 重复 `--option key=description`，按第一个等号分隔，键唯一�
 - `result` 保留完整有效响应：实际 model、answers、各原语的概率／confidence／legend，以及服务端提供的 usage、id、provider。缺失的字段、费用、解释或 confidence 不予补造。
 - `meta.elapsedMs` 为本次客户端请求耗时，`attempts` 为实际发送次数。
 - 推理进入日志写入阶段后，`meta.persistence.status` 为 `recorded` 或 `failed`，表示本次持久化是否完整成功；有调用记录时用 `callId` 关联数据库。存储失败的退出与结果保留规则见下方。
-- `doctor` 的 result 为配置诊断；`--dry-run` 的 result 为 `{ "endpoint": ..., "request": ... }`。二者 attempts 为 0，不含 answers。
+- `stats` 的 result 为[只读统计](statistics.md#输出与统计口径)，attempts 为 0，不带 `meta.persistence`。`doctor` 的 result 为配置诊断；`--dry-run` 的 result 为 `{ "endpoint": ..., "request": ... }`。二者 attempts 为 0，不含 answers。
 - 否定、`unclear` 或低 confidence 仍是有效结果；`ok` 只代表调用有效，业务采用与语义正确性由 agent 复核。
 
 有效响应须满足：
@@ -222,13 +230,14 @@ Choice 重复 `--option key=description`，按第一个等号分隔，键唯一�
 
 | 退出码 | error.kind | 调用方处理 |
 | --- | --- | --- |
-| 0 | 无 | 消费有效响应，或确认 doctor／dry-run 的本地结果 |
+| 0 | 无 | 消费有效响应，或确认 doctor／dry-run／stats 的本地结果 |
 | 2 | `configuration`、`input` | 修正配置或输入，此次未发送 |
 | 3 | `authentication` | 核对凭据 |
 | 3 | `rate_limit` | 结合服务等待信号和预算决定后续调用 |
 | 3 | `timeout`、`network`、`http` | 报告技术失败，评估是否再次发送；可能已处理或计费 |
 | 3 | `invalid_response` | 保留异常状态，与模型的否定或不确定答案分开 |
-| 4 | `storage`，attempts 为 0 | 发送前无法提交记录，此次未发送；修复日志路径、权限、空间或锁占用 |
+| 4 | `storage`，stats、attempts 为 0、无 persistence | 无法只读打开库或完成统计；按[统计契约](statistics.md)核对已有库、schema、权限与资源预算，未返回截断或空统计 |
+| 4 | `storage`，推理、attempts 为 0 | 发送前无法提交记录，此次未发送；修复日志路径、权限、空间或锁占用 |
 | 4 | 保留原推理 error 或 null，attempts 为 1 | 发送后持久化失败，`meta.persistence.status` 为 `failed`；保留输出并检查数据库，不因日志错误自动重发 |
 
 `error.httpStatus` 有 HTTP 状态码时保留，否则为 null；支持时提供脱敏的 `retryAfterMs`，CLI 仍不自动重试。未知参数、冲突输入来源或缺少必填项均为 `input` 错误。
@@ -243,6 +252,6 @@ Choice 重复 `--option key=description`，按第一个等号分隔，键唯一�
 - 调用与响应：每次只发送一次，共享 state 多题正确关联；有效的否定／未知／低 confidence 与协议、鉴权、限流、超时失败分别处理。
 - 持久化：覆盖日志开关、正文独立留存、自动建库、发送前提交、并发追加、SIGKILL 后读取和存储失败结果保留。
 
-后续调用、数据保留策略、统计分析和业务动作仍由调用方负责。
+后续调用、数据保留策略、统计解读和业务动作仍由调用方负责。
 
 维护接口或核对兼容性时查 [System One 兼容通道](https://openrouter.ai/docs/guides/community/typesafe-sdk)、[API reference](https://docs.typesafe.ai/api) 与 [Primitives](https://docs.typesafe.ai/primitives)，并分别核对当前通道支持与实际响应。

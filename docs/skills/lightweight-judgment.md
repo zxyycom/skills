@@ -8,7 +8,7 @@
 
 agent 负责选择局部任务、组织输入、复核结果并继续原任务；CLI 负责本地检查、离线预览、单次请求和机械响应校验。默认通道是 OpenRouter JEV，也可配置兼容 System One 的完整地址、密钥与 JEV 型号。
 
-调用日志默认关闭。手动开启后，本地 SQLite 保存调用状态及选定的请求／响应正文，供进程中断后核对和后续统计；每次 CLI 仍直接调用，不自动重放。
+调用日志默认关闭。手动开启后，本地 SQLite 保存调用状态及选定的请求／响应正文，供进程中断后核对。离线 `stats` 汇总已有日志的用量／耗时，支持分层、分桶与批次首条对照；每次推理仍直接调用，不自动重放。
 
 skill 包含行为文档、自包含 CLI／source map、Codex 调用策略与通用 updater。分发后使用 Node.js 直接运行；仓库内可从 `bun run lightweight-judgment -- --help` 开始。
 
@@ -16,7 +16,8 @@ skill 包含行为文档、自包含 CLI／source map、Codex 调用策略与通
 
 - [SKILL.md](../../skills/lightweight-judgment/SKILL.md)：agent 执行入口，承接任务选择、请求构造、结果复核与采用。
 - [CLI 操作契约](../../skills/lightweight-judgment/references/cli.md)：运行前置、配置、输入输出、响应校验与技术失败。
-- [调用日志](../../skills/lightweight-judgment/references/call-logging.md)：可选 SQLite 留存、调用状态、恢复与统计。
+- [调用日志](../../skills/lightweight-judgment/references/call-logging.md)：可选 SQLite 留存、调用状态、恢复与 schema 兼容。
+- [离线调用统计](../../skills/lightweight-judgment/references/statistics.md)：`stats` 用法、统计口径、批次对照与只读边界。
 - [JEV 特点与实测依据](../../skills/lightweight-judgment/references/jev-characteristics.md)：具体任务、样本条件、观察结果和外推边界。
 
 ## 验证责任

@@ -110,6 +110,7 @@
       "261003-lightweight-judgment-durable-calls": "sha256:be254f6a1a0680dd997fa20469d3247e2e76d54187db0bfecdd68f185980f99a",
       "261003-lightweight-judgment-explicit-invocation": "sha256:42fe1dc47c8c6a6a5ae0809304ad5964767fa088b4a127fa89d50ad59f756b2b",
       "261003-separate-record-search-coverage-from-preview-budgets": "sha256:7753c0523a1d8627b3323d41c4a0cc44545b7d77be8454e47a09a6d429cd8b44",
+      "261004-lightweight-judgment-readonly-statistics": "sha256:7badae20cc6bba0edf2c45567d163a4c018bc6212c6d122dfc544d0fef8b48a4",
       "activate-release-gate-checks-by-tag": "sha256:02819304803eade140cd3adb2472a368c290f639acc7998f0d54bc20cecd228e",
       "aggregate-parent-task-completion": "sha256:f3039ac240324ee801644298c61d7763d31b829c4e376c25fafe04c3348fe8cc",
       "align-agent-lifecycle-with-task-slices": "sha256:47e600cfefcc3cfbbb09c0dfca761043b360284ba4a6c7d43d561a62111d1da8",
@@ -2341,6 +2342,22 @@
       "tags": [
         "decision-records",
         "investigation-report"
+      ],
+      "relations": []
+    },
+    "261004-lightweight-judgment-readonly-statistics": {
+      "name": "lightweight-judgment-readonly-statistics",
+      "sourcePath": "lightweight-judgment-readonly-statistics.md",
+      "title": "Lightweight Judgment 以只读快照统计调用与显式批次",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-04T04:32:49Z",
+      "purpose": "提供可复算的离线调用统计与同批首条对照。",
+      "background": "日志汇总需要统一分母与计时口径，批次比较需要独立于筛选结果的首条身份。",
+      "decision": "复用现有 SQLite 提供离线统计，以本地批次元数据支持首条对照，并明确缺失、筛选与资源预算。",
+      "tags": [
+        "lightweight-judgment",
+        "statistics"
       ],
       "relations": []
     },

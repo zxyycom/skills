@@ -247,7 +247,7 @@ pack:skills（恰好一次，从已授权的内存快照生成制品）
 
 | 短命令 | 本仓库内用途 |
 | --- | --- |
-| `bun run lightweight-judgment -- <command> [参数]` | 单次 JEV 推理、本地前置诊断和离线预览；外发、配置与结果按 [CLI 操作契约](../skills/lightweight-judgment/references/cli.md) |
+| `bun run lightweight-judgment -- <command> [参数]` | 单次 JEV 推理、本地前置诊断、离线预览与调用统计；外发、配置与结果按 [CLI 操作契约](../skills/lightweight-judgment/references/cli.md) |
 | `bun run change-plan -- <arguments>` | 维护 change proposal、design、tasks 与生命周期 |
 | `bun run decision-records -- <arguments>` | 查询和维护长期决策及其派生索引 |
 | `bun run investigation-report -- <arguments>` | 检查、同步或查询调查报告索引 |
