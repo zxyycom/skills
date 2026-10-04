@@ -10,7 +10,7 @@ CLI 负责配置、输入、鉴权、请求发送、响应校验、可选调用�
 
 默认通道为 OpenRouter `https://openrouter.ai/api/v1/systemone`，默认模型 `typesafe/jev-1.13`；自定义 endpoint 也须兼容原生 System One 请求与响应。每次 `json` 或 `ask` 接收一个 state 与一组问题，本地校验通过后发送一次 HTTP 请求。不同 state 分次调用；拆题、后续调用与模型／服务选择由调用方显式决定。
 
-首次使用按“配置 → `doctor` → `json --dry-run`／`ask --dry-run` → 正式调用 → 检查输出与退出码”完成本地核对。`doctor` 和预览均离线，不能证明服务可用。
+首次正式调用按“配置 → `doctor` → `json --dry-run`／`ask --dry-run` → 正式调用 → 检查输出与退出码”核对。只需预览请求时直接使用 `--dry-run`，无需密钥或先通过 `doctor`。`doctor` 和预览均离线，不能证明服务可用；历史统计按 `stats` 路径执行。
 
 ## 配置
 
