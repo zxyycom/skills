@@ -83,6 +83,7 @@ function indexProjectionFile(
   return {
     status: "ok",
     value: {
+      kind: "regular",
       data: Buffer.from(
         serializeStateIndex(target.value, snapshot.canonicalDefinition),
         "utf8"

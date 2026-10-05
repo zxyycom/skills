@@ -186,6 +186,20 @@
       ],
       "title": "轻量调用日志初始化的并发 WAL 切换"
     },
+    "261005-pending-file-representation-conflict": {
+      "formedAt": "2026-10-05T09:51:08Z",
+      "name": "pending-file-representation-conflict",
+      "question": "合法可执行附件为何触发 pending-conflict，如何修复且保持真实冲突与执行权限？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "pending-file-representation-conflict.md",
+      "tags": [
+        "artifact-integrity",
+        "investigation-report",
+        "version-control"
+      ],
+      "title": "调查暂存的文件表示误判与保真修复"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -842,6 +856,7 @@
       "260923-stale-skill-release-after-failed-ci": "sha256:30f5274c8658ca3684d44997f7f3e2ee09d3552a1d1a4dc6a975be58878e4299",
       "261004-jev-record-maintenance-boundaries": "sha256:168f6931ca8b9f1392643ec7606dd8dfad06f87eacd4d26c4c23c8c676024046",
       "261004-lightweight-judgment-wal-init-contention": "sha256:3dc57830e8c2b5f466922ea241f86702a776ea8ebcb091018705157c8933fde7",
+      "261005-pending-file-representation-conflict": "sha256:2fb0c701b837460cb5324b091afd36bf4035307b1cc40eee180cf7358a2558d1",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

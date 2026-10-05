@@ -19,6 +19,7 @@ export type {
   ReplacePendingFilesResult,
   RevisionId,
   VersionControlFile,
+  VersionControlFileKind,
   VersionControlRepository
 } from "./types.ts";
 

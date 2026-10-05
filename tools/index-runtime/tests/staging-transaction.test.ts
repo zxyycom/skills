@@ -116,6 +116,7 @@ test(
       });
       invalidRevision.revisionFile = {
         data: Buffer.from([0xff, 0xfe, 0xfd]),
+        kind: "regular",
         path: indexPath
       };
       resetControl(control);

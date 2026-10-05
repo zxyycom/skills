@@ -6,7 +6,9 @@ import {
   runGitWithInputForExitCode
 } from "./git-command.ts";
 import {
-  defaultGitBlobMode,
+  fileKindForGitMode,
+  gitBlobModes,
+  gitModeForFileKind,
   type GitIndexEntry,
   normalizePathScopes,
   operationError,
@@ -24,8 +26,6 @@ import {
   sameGitIndexEntries,
   type NormalizedPendingReplacementFile
 } from "./git-pending-values.ts";
-
-const readablePendingModes = new Set(["100644", "100755", "120000"]);
 
 export async function readPendingFiles(
   context: GitRepositoryContext,
@@ -83,9 +83,7 @@ export async function readPendingEntries(
       { target: "pending snapshot" }
     );
   assertUniquePaths(entries);
-  const unsupported = entries.find(
-    (entry) => !readablePendingModes.has(entry.mode)
-  );
+  const unsupported = entries.find((entry) => !gitBlobModes.has(entry.mode));
   if (unsupported !== undefined)
     throw operationError("read a non-file pending entry", undefined, {
       target: unsupported.path
@@ -108,7 +106,7 @@ export async function readPendingEntries(
       throw operationError("read a file from the pending snapshot", undefined, {
         target: entry.path
       });
-    return { data, path: entry.path };
+    return { data, kind: fileKindForGitMode(entry.mode), path: entry.path };
   });
 }
 
@@ -174,7 +172,7 @@ export async function createPendingEntries(
   );
   const reusableEntries = new Map(
     currentEntries
-      .filter((entry) => entry.stage === 0 && entry.mode === defaultGitBlobMode)
+      .filter((entry) => entry.stage === 0)
       .map((entry) => [entry.path, entry])
   );
   return await Promise.all(
@@ -183,12 +181,13 @@ export async function createPendingEntries(
       const current = currentFilesByPath.get(file.path);
       if (
         reusable !== undefined &&
+        reusable.mode === gitModeForFileKind(file.kind) &&
         current !== undefined &&
         Buffer.from(current.data).equals(file.data)
       )
         return reusable;
       return {
-        mode: defaultGitBlobMode,
+        mode: gitModeForFileKind(file.kind),
         objectId: await writeGitBlob(context, file.data),
         path: file.path,
         stage: 0

@@ -279,7 +279,11 @@ export async function createStagingFixture(options: {
     revisionFile:
       revisionText === null
         ? null
-        : { data: Buffer.from(revisionText, "utf8"), path: indexPath },
+        : {
+            data: Buffer.from(revisionText, "utf8"),
+            kind: "regular",
+            path: indexPath
+          },
     revisionText,
     workspaceText
   };

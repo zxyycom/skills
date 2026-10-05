@@ -35,12 +35,15 @@ export type VersionControlRevisionChange = {
   revision: RevisionId;
 };
 
-export type VersionControlFile = {
-  data: Uint8Array;
-  path: string;
-};
+export type VersionControlFileKind = "regular" | "executable" | "symlink";
 
-export type ReplacePendingFilesOptions = {
+export type VersionControlFile = Readonly<{
+  data: Uint8Array;
+  kind: VersionControlFileKind;
+  path: string;
+}>;
+
+export type ReplacePendingFilesOptions = Readonly<{
   /** Exact pending file set that must still exist when the replacement lock is held. */
   expectedFiles?: readonly VersionControlFile[];
   /** Revision that must still be current when the replacement lock is held. */
@@ -49,7 +52,7 @@ export type ReplacePendingFilesOptions = {
   files: readonly VersionControlFile[];
   /** Literal repository-relative file or directory scope. */
   pathScope: string;
-};
+}>;
 
 export type ReplacePendingFilesResult = {
   pathScope: string;
@@ -79,6 +82,8 @@ export type VersionControlRepository = {
   readPendingFiles: (
     options?: ListVersionControlFilesOptions
   ) => Promise<VersionControlFile[]>;
+  /** Reads a regular workspace file with its effective executable representation. */
+  readWorkspaceFile: (filePath: string) => Promise<VersionControlFile | null>;
   replacePendingFiles: (
     options: ReplacePendingFilesOptions
   ) => Promise<ReplacePendingFilesResult>;

@@ -4,13 +4,46 @@ import {
   type VersionControlErrorCauseCategory
 } from "./errors.ts";
 import { normalizeRepositoryPath } from "./repository-path.ts";
-import type { RevisionId } from "./types.ts";
+import type { RevisionId, VersionControlFileKind } from "./types.ts";
 
 const gitIndexModePattern = /^[0-7]{6}$/u;
 const objectIdPattern = /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/u;
 
-export const gitBlobModes = new Set(["100644", "100755", "120000"]);
-export const defaultGitBlobMode = "100644";
+const regularGitBlobMode = "100644";
+const executableGitBlobMode = "100755";
+const symlinkGitBlobMode = "120000";
+
+export const gitBlobModes: ReadonlySet<string> = new Set([
+  regularGitBlobMode,
+  executableGitBlobMode,
+  symlinkGitBlobMode
+]);
+
+export function gitModeForFileKind(kind: VersionControlFileKind): string {
+  switch (kind) {
+    case "regular":
+      return regularGitBlobMode;
+    case "executable":
+      return executableGitBlobMode;
+    case "symlink":
+      return symlinkGitBlobMode;
+    default:
+      throw operationError("validate a version-control file representation");
+  }
+}
+
+export function fileKindForGitMode(mode: string): VersionControlFileKind {
+  switch (mode) {
+    case regularGitBlobMode:
+      return "regular";
+    case executableGitBlobMode:
+      return "executable";
+    case symlinkGitBlobMode:
+      return "symlink";
+    default:
+      throw operationError("read a non-file version-control entry");
+  }
+}
 
 export type GitIndexEntry = Readonly<{
   mode: string;

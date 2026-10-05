@@ -121,6 +121,7 @@
       "261004-route-current-results-to-the-minimal-durable-carrier": "sha256:a7a86d70d38638b16bf25e205e5666747e06f797e35635f6fe5af2a3321c7888",
       "261004-stage-decisions-by-explicit-id-and-selected-scope": "sha256:1c96322c1e3a6b7ccb6e42a1378c3dc55af615b06cd2740978afafae7cb7f08b",
       "261005-lightweight-judgment-current-schema-statistics": "sha256:f41233044718d3f1be6a32d34a87508d6520edb76fcdb250b375ccb118da5847",
+      "261005-preserve-pending-file-representation": "sha256:4d2c3fb6a1659edc28fc47928b5762942c2272e950f221c6899bf45196d5df20",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -225,7 +226,7 @@
       "make-skill-zip-bytes-deterministic": "sha256:a5cbeca0db4a6e05a424917a76644cc2c443a5c2f1474b56ddc24103a5a83f1d",
       "manage-basic-change-lifecycle": "sha256:679045fb78a48872987204cbe3632a32c4c3d3d4d515583e0a9147495dd65166",
       "manage-change-lifecycle-stages": "sha256:11c872d8927aed5a19078b0f360e0add661efa062d6e462c45f808875119b774",
-      "manage-pending-snapshot-writes": "sha256:30a445c001f02993e543e3138a0588ce2e32866dc14c28e227c06d654c3b4a92",
+      "manage-pending-snapshot-writes": "sha256:141c9349b33e56e2dcffed94a78d733368c795bc316d310e2980202f77c0aacd",
       "mask-non-code-test-syntax": "sha256:120ac764ab7306dca509faf048cf102ae35fb11f4777afb021c344a1429240e0",
       "model-investigation-evolution-and-explicit-removal": "sha256:7bc19d6911d042c98356939e7736515f1975de39dca3540ddd3d724bdd6894ee",
       "model-investigation-evolution-as-direct-relations": "sha256:f8a57cddf44fe445d9f8eead6dbef8fb14aa4917be3a06588d2e306e5285f749",
@@ -2779,6 +2780,29 @@
         }
       ]
     },
+    "261005-preserve-pending-file-representation": {
+      "name": "preserve-pending-file-representation",
+      "sourcePath": "preserve-pending-file-representation.md",
+      "title": "保持待提交文件表示的端到端一致性",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-05T10:08:30Z",
+      "purpose": "让共享快照完整保存文件表示，暂存可执行资源时既不误判冲突也不丢失执行位。",
+      "background": "调查暂存会重建包含可执行资源的完整范围，而纯路径与字节契约不能保真表达该目标。",
+      "decision": "公共快照增加文件表示；共享层核对、写入和读回都保真，领域层不处理原始 Git 模式。",
+      "tags": [
+        "artifact-integrity",
+        "responsibility-boundaries",
+        "version-control"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "manage-pending-snapshot-writes",
+          "summary": "保留共享写入责任并增加文件表示保真义务"
+        }
+      ]
+    },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",
       "sourcePath": "archive/activate-release-gate-checks-by-tag.md",
@@ -4966,9 +4990,9 @@
     },
     "manage-pending-snapshot-writes": {
       "name": "manage-pending-snapshot-writes",
-      "sourcePath": "manage-pending-snapshot-writes.md",
+      "sourcePath": "archive/manage-pending-snapshot-writes.md",
       "title": "由共享版本管理层承接待提交快照写入",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-03T10:35:28Z",
       "purpose": "让调用方通过共享版本管理 owner 读写待提交快照，而不依赖底层实现的专属信息。",

@@ -141,6 +141,7 @@ async function prepareWorkspaceStageFiles(
     if (indexText.status === "error") return indexText;
     files.push({
       data: Buffer.from(indexText.value, "utf8"),
+      kind: "regular",
       path: repositoryPath(opened.decisionScope, decisionIndexFileName)
     });
   } else {

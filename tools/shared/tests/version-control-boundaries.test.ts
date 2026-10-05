@@ -89,6 +89,7 @@ test(
           expectedRevision: revision,
           files: [
             {
+              kind: "regular" as const,
               data: Buffer.from("replacement\n"),
               path: "conflicted.txt"
             }

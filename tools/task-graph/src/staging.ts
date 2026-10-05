@@ -1,3 +1,7 @@
+import {
+  changedPendingPaths,
+  type VersionControlFile
+} from "../../shared/src/version-control/index.ts";
 import { TaskGraphError } from "./errors.ts";
 import {
   emptyTaskIndex,
@@ -18,7 +22,7 @@ import {
   readWorkspaceIndex,
   validateTaskSelection
 } from "./staging-snapshots.ts";
-import type { TaskIndexStageResult } from "./types.ts";
+import type { TaskIndex, TaskIndexStageResult } from "./types.ts";
 
 export async function stageSelectedTaskIndex(
   options: Readonly<{ indexPath: string; selectedTaskIds: readonly string[] }>
@@ -45,26 +49,43 @@ export async function stageSelectedTaskIndex(
   );
   assertSelectedTasksExist(baseline, workspace, selection.selectedTaskIds);
   const target = buildTargetIndex(baseline, workspace, selection);
-  const targetData = Buffer.from(serializeTaskIndex(target), "utf8");
+  const targetFile: VersionControlFile = {
+    data: Buffer.from(serializeTaskIndex(target), "utf8"),
+    kind: "regular",
+    path: opened.repositoryIndexPath
+  };
   const differsFromHead =
-    head.indexFile === null ||
-    !targetData.equals(Buffer.from(head.indexFile.data));
+    changedPendingPaths(head.indexFile === null ? [] : [head.indexFile], [
+      targetFile
+    ]).length > 0;
   await replacePendingIndex({
-    data: targetData,
+    file: targetFile,
     head,
     opened,
     selectedTaskIds: selection.selectedTaskIds
   });
-  const commonResult = {
+  return taskIndexStageResult(
+    target,
+    selection.selectedTaskIds,
+    differsFromHead
+  );
+}
+
+function taskIndexStageResult(
+  target: Readonly<TaskIndex>,
+  selectedTaskIds: readonly string[],
+  changed: boolean
+): Readonly<{ revision: number; data: TaskIndexStageResult }> {
+  const common = {
     nextTaskId: target.nextTaskId,
-    selectedTaskIds: [...selection.selectedTaskIds],
+    selectedTaskIds: [...selectedTaskIds],
     taskCount: Object.keys(target.tasks).length
   };
   return {
     revision: target.revision,
-    data: differsFromHead
-      ? { ...commonResult, changed: true, state: "staged" }
-      : { ...commonResult, changed: false, state: "unchanged" }
+    data: changed
+      ? { ...common, changed: true, state: "staged" }
+      : { ...common, changed: false, state: "unchanged" }
   };
 }
 

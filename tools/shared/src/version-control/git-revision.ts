@@ -3,6 +3,7 @@ import { readGitBlobs } from "./git-blob-batch.ts";
 import { runGitForExitCode } from "./git-command.ts";
 import {
   assertRevisionInput,
+  fileKindForGitMode,
   gitBlobModes,
   normalizePathScopes,
   operationError,
@@ -131,7 +132,7 @@ export async function readRevisionFile(
     "read a file from a revision",
     normalizedPath
   );
-  return { data, path: normalizedPath };
+  return { data, kind: fileKindForGitMode(entry.mode), path: normalizedPath };
 }
 
 export async function readRevisionFiles(
@@ -169,7 +170,7 @@ export async function readRevisionFiles(
         throw operationError("read a file from a revision", undefined, {
           target: entry.path
         });
-      return { data, path: entry.path };
+      return { data, kind: fileKindForGitMode(entry.mode), path: entry.path };
     })
     .sort((left, right) => left.path.localeCompare(right.path));
   if (files.some((file, index) => file.path === files[index - 1]?.path)) {

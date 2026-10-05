@@ -251,13 +251,26 @@ test(
       const result = await repository.replacePendingFiles({
         expectedRevision: await repository.getCurrentRevision(),
         files: [
-          { data: Buffer.from("target add\n"), path: "selected/add.md" },
-          { data: Buffer.from("revision link\n"), path: "selected/link.md" },
           {
+            kind: "regular" as const,
+            data: Buffer.from("target add\n"),
+            path: "selected/add.md"
+          },
+          {
+            kind: "regular" as const,
+            data: Buffer.from("revision link\n"),
+            path: "selected/link.md"
+          },
+          {
+            kind: "regular" as const,
             data: Buffer.from("revision mode\n"),
             path: "selected/mode-only.md"
           },
-          { data: Buffer.from("target modify\n"), path: "selected/modify.md" }
+          {
+            kind: "regular" as const,
+            data: Buffer.from("target modify\n"),
+            path: "selected/modify.md"
+          }
         ],
         pathScope: "selected"
       });

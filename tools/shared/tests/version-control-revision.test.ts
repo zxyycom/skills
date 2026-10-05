@@ -42,6 +42,7 @@ test(
       assert.deepEqual(
         await repository.readRevisionFile(baseRevision, "docs/tracked.md"),
         {
+          kind: "regular" as const,
           data: Buffer.from("base\n"),
           path: "docs/tracked.md"
         }
@@ -83,16 +84,17 @@ test(
       const allFiles = await repository.readRevisionFiles(revision);
       assert.deepEqual(
         allFiles.map((file) => ({
+          kind: file.kind,
           data: Buffer.from(file.data).toString("utf8"),
           path: file.path
         })),
         [
-          { data: "literal star\n", path: "docs/*.md" },
-          { data: "link target", path: "docs/link.md" },
-          { data: "other\n", path: "docs/other.md" },
-          { data: "plain\n", path: "docs/plain.md" },
-          { data: "run\n", path: "docs/run.sh" },
-          { data: "root\n", path: "root.md" }
+          { data: "literal star\n", kind: "regular", path: "docs/*.md" },
+          { data: "link target", kind: "symlink", path: "docs/link.md" },
+          { data: "other\n", kind: "regular", path: "docs/other.md" },
+          { data: "plain\n", kind: "regular", path: "docs/plain.md" },
+          { data: "run\n", kind: "executable", path: "docs/run.sh" },
+          { data: "root\n", kind: "regular", path: "root.md" }
         ]
       );
       assert.deepEqual(
@@ -101,10 +103,11 @@ test(
             pathScopes: ["docs/*.md"]
           })
         ).map((file) => ({
+          kind: file.kind,
           data: Buffer.from(file.data).toString("utf8"),
           path: file.path
         })),
-        [{ data: "literal star\n", path: "docs/*.md" }]
+        [{ data: "literal star\n", kind: "regular", path: "docs/*.md" }]
       );
       assert.deepEqual(
         (
@@ -167,7 +170,13 @@ test(
         await (
           await openVersionControl(repositoryRoot)
         ).readRevisionFiles(revision),
-        [{ data: Buffer.from("sha 256\n"), path: "docs/sha.md" }]
+        [
+          {
+            kind: "regular" as const,
+            data: Buffer.from("sha 256\n"),
+            path: "docs/sha.md"
+          }
+        ]
       );
     });
   }

@@ -21,7 +21,6 @@ import {
 import {
   compareFiles,
   compareText,
-  sameBytes,
   stageDiagnostic,
   type DomainStageControl,
   type DomainStep
@@ -42,7 +41,7 @@ export type { InvestigationDomainStageInput };
  * selected report Markdown plus the complete owner resource tree (workspace
  * and HEAD member union), while every other pending path in the investigation
  * scope - the derived index for `domain`, candidates, unselected reports, and
- * other owners' resources - keeps its current pending bytes.
+ * other owners' resources - keeps its current pending bytes and representation.
  */
 export async function stageInvestigationDomain(
   input: InvestigationDomainStageInput
@@ -231,9 +230,9 @@ function assemblePendingTarget(
   domainPaths: ReadonlySet<string>;
   files: readonly VersionControlFile[];
 }> {
-  const targetByPath = new Map<string, Uint8Array>();
+  const targetByPath = new Map<string, VersionControlFile>();
   for (const file of options.pending) {
-    targetByPath.set(file.path, file.data);
+    targetByPath.set(file.path, file);
   }
   const domainPaths = new Set<string>();
   for (const write of options.writes) {
@@ -241,16 +240,14 @@ function assemblePendingTarget(
     if (write.data === null) {
       targetByPath.delete(write.path);
     } else {
-      targetByPath.set(write.path, write.data);
+      targetByPath.set(write.path, write);
     }
   }
   if (options.indexFile !== null) {
     domainPaths.add(options.indexFile.path);
-    targetByPath.set(options.indexFile.path, options.indexFile.data);
+    targetByPath.set(options.indexFile.path, options.indexFile);
   }
-  const files = [...targetByPath.entries()]
-    .map(([filePath, data]) => ({ data, path: filePath }))
-    .sort(compareFiles);
+  const files = [...targetByPath.values()].sort(compareFiles);
   return { domainPaths, files };
 }
 
@@ -281,14 +278,13 @@ function domainStageSuccess(
   prepared: PreparedDomainWrite
 ): InvestigationStageResult {
   const written = changedPendingPaths(prepared.pending, prepared.files);
-  const headByPath = new Map(
-    prepared.headFiles.map((file) => [file.path, file.data] as const)
+  const differsFromHead = new Set(
+    changedPendingPaths(prepared.headFiles, prepared.pending)
   );
   const preserved = prepared.pending
     .filter(
       (file) =>
-        !prepared.domainPaths.has(file.path) &&
-        !sameBytes(headByPath.get(file.path) ?? null, file.data)
+        !prepared.domainPaths.has(file.path) && differsFromHead.has(file.path)
     )
     .map((file) => file.path)
     .sort(compareText);

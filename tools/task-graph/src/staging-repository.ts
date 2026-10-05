@@ -56,18 +56,20 @@ export async function readHeadIndex(
   }
 }
 
-export async function replacePendingIndex(options: {
-  data: Buffer;
-  head: Awaited<ReturnType<typeof readHeadIndex>>;
-  opened: Awaited<ReturnType<typeof openStagingRepository>>;
-  selectedTaskIds: readonly string[];
-}): Promise<void> {
+export async function replacePendingIndex(
+  options: Readonly<{
+    file: VersionControlFile;
+    head: Awaited<ReturnType<typeof readHeadIndex>>;
+    opened: Awaited<ReturnType<typeof openStagingRepository>>;
+    selectedTaskIds: readonly string[];
+  }>
+): Promise<void> {
   try {
     await options.opened.repository.replacePendingFiles({
       expectedFiles:
         options.head.indexFile === null ? [] : [options.head.indexFile],
       expectedRevision: options.head.revision,
-      files: [{ data: options.data, path: options.opened.repositoryIndexPath }],
+      files: [options.file],
       pathScope: options.opened.repositoryIndexPath
     });
   } catch (error) {

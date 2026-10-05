@@ -584,6 +584,8 @@
       "INVESTIGATION-STAGE-DOMAIN-REPORT-DELETION-001": "sha256:6777a01f55be7407d0a6cbe3aa16f80447fc7e040e1f02a8039d3c318aa65eb7",
       "INVESTIGATION-STAGE-DOMAIN-RESOURCE-DELETION-001": "sha256:bd7cde214589d453b01b152d94c682d231a8584a57c42510f615deb7a7831550",
       "INVESTIGATION-STAGE-DOMAIN-TREE-001": "sha256:102e2ee685c128cc6ab27f81d0134041937809f7b0d79606929d7eb5cabb12ca",
+      "INVESTIGATION-STAGE-EXECUTABLE-DRIFT-001": "sha256:290021c648e1357b24830cba53e4751500b9d8c4a3cb050c33ac8571d5d85fe1",
+      "INVESTIGATION-STAGE-EXECUTABLE-ONLY-001": "sha256:5b270519a0629bffaed0d15cf02420589774e3527bed21d1cf3ade37b748b95a",
       "INVESTIGATION-STAGE-FRESHNESS-001": "sha256:04b223d56c2f886d6f66eb42e4d4e0aef3b5ba78a09e7de8b79bee33535ec308",
       "INVESTIGATION-STAGE-INPUT-001": "sha256:06dce3538248badd4561a8ca2888eae41ac7b318ccdd8467805f39a03447c51a",
       "INVESTIGATION-STAGE-ISOLATION-001": "sha256:d1df98feaac6345c05519fd9b7119afc0f1af0ffb8dd00486c424620c610b011",
@@ -596,12 +598,15 @@
       "INVESTIGATION-STAGE-SCOPE-ALL-001": "sha256:62f07a39ab7c09639e52d378140cb9172ea856729e5c84709d85e829de62f059",
       "INVESTIGATION-STAGE-SCOPE-CLI-001": "sha256:a47e90253eb36bde6dc5d80fc60d2251621aec22553b88394b367595150e123f",
       "INVESTIGATION-STAGE-SCOPE-CLI-REMOVED-001": "sha256:7e072304970f9f531892da0039fe8c929f2a84792e6a531a3130c43221ee2972",
+      "INVESTIGATION-STAGE-SELECTED-EXECUTABLES-001": "sha256:fc66c3ab647fc0837a7989093c803490b6dc2d12be401de0e09e37b3e36f095b",
       "INVESTIGATION-STAGE-SOURCE-PATH-ADD-001": "sha256:7766c6943b14f0376cbd1165e95f47a1384fd33ad7b8d12919d429b4148ef7da",
       "INVESTIGATION-STAGE-SOURCE-PATH-DELETE-001": "sha256:d89899dccac1f223150dda6045be83c469d6106f450757d701955c244596eccb",
       "INVESTIGATION-STAGE-SOURCE-PATH-MOVE-001": "sha256:b85d78052e40be246d5b786a701b795ebed805e0010bb25b61e56705149d6669",
       "INVESTIGATION-STAGE-SOURCE-PATH-REUSE-001": "sha256:76fc73905da136629dac67cdac945fec0cf84e7983831b120c03d7db154cb104",
       "INVESTIGATION-STAGE-SOURCE-PATH-SWAP-001": "sha256:7f5a5158be1fc44d3ce6637bf8219ac33b9e55b1784a81f5854f0b731ad56a79",
       "INVESTIGATION-STAGE-SOURCE-PATH-UPDATE-001": "sha256:08ff50fb2c62825bb0af48dab898c6d3c11d76080b595b341ab62fbfc04b83db",
+      "INVESTIGATION-STAGE-SYMLINK-SOURCE-001": "sha256:1ca790e4bd525df3c14c23830825e6d6bb596f21e3653ebd0538f43c97da3286",
+      "INVESTIGATION-STAGE-UNSELECTED-REPRESENTATIONS-001": "sha256:925f13c52d7a4295e70b64a5775cf4c99f7ef751adfe6927c349b463d73e1617",
       "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:2f96af63dec8c49b43aba5ceb85d6c52cc059f6a1c384ce48d2eaa83018624b5",
       "INVESTIGATION-SYNC-DIAGNOSTIC-001": "sha256:d86b6e9cf00adf93558a63db137fea385c91a2e58ad12398196be982275e2e03",
       "INVESTIGATION-SYNC-DISCARD-LOCK-001": "sha256:34e650b190f8e16eedb4eeac46a6815f66ac0079eb73ead07edc42e9e8cd9230",
@@ -954,23 +959,29 @@
       "VERSION-CONTROL-HEAD-001": "sha256:376d6072d65b12f922dae19c11e5e41211b7b1742c78ca9fedd56c87e491f64f",
       "VERSION-CONTROL-NUMSTAT-001": "sha256:bbf392dddc7c2d712b9b6cdf27586e78ee6a30dec8c876c21566d4a27f47d769",
       "VERSION-CONTROL-PENDING-CONFLICT-001": "sha256:b3c2a1da1e55e3d727bf7028e8784113396787ad6c7c1d2e7c6dbf171de7c002",
-      "VERSION-CONTROL-PENDING-EXPECTATION-001": "sha256:c1c31b0cd3ea0bb3b85449edc67ad75a6ce2fa34b4babcfef607e3a048ead772",
+      "VERSION-CONTROL-PENDING-EXPECTATION-001": "sha256:761c7e8ae4840ff586eb1f1a81242367df1f78378c536a8272800522a08bdc79",
       "VERSION-CONTROL-PENDING-EXPECTATION-CONCURRENCY-001": "sha256:7430b30a1f61a07c920fba873e762ff7964ac55927f6e290e48fe2cf96421a8c",
+      "VERSION-CONTROL-PENDING-KIND-CHANGES-001": "sha256:409eb8b63fcf4574bd7e7841c4ad6f4f6cc67f2591b5219ccdf81f5bf3aec93f",
       "VERSION-CONTROL-PENDING-PATHS-001": "sha256:f898c0472accbe3ccb8d0bd0b77052d76fe7133402cd6c6eaa5aa916c8f3e294",
       "VERSION-CONTROL-PENDING-READBACK-FAILURE-001": "sha256:b864005f67ed309b09b4142b075d66f4d195d586d8034ebe959f18dd21933bd8",
       "VERSION-CONTROL-PENDING-RECOVERY-FAILURE-001": "sha256:a53dc33a12578bbe7e2f1ef5c3f675bc10ba5f3c537e07212ca13a295ca9ef2d",
-      "VERSION-CONTROL-PENDING-REPLACE-001": "sha256:6750186bc7980912ca8dfa81b0deb1b32a76d714c7fca280a8cf652b55a3fa73",
+      "VERSION-CONTROL-PENDING-REPLACE-001": "sha256:fcbec103142d75a9c49326083e365197c4bfdcb190a93bb07daa6d46d2fd2a44",
+      "VERSION-CONTROL-PENDING-REPRESENTATION-001": "sha256:5ad322cc3347322fe66e96cbbcdcfb26ca1eecfcaa4cc8be641d1320d11ba360",
+      "VERSION-CONTROL-PENDING-REPRESENTATION-DRIFT-001": "sha256:4491d40aaa08a67335fddafc8e18bc35926fac16312777c8cc12f95617dc19ee",
+      "VERSION-CONTROL-PENDING-REPRESENTATION-RECOVERY-001": "sha256:518963c0126cf33e290e69d24a2eb49d9f8b922acfbe66a3832bf4657666e107",
       "VERSION-CONTROL-PENDING-REUSE-NOOP-001": "sha256:f3495a071201f0213331e64bb6f9c672e635770056ab8c26210a74c72df288b8",
       "VERSION-CONTROL-PENDING-UNRESOLVED-001": "sha256:5ebe7bd7b8feccf1921b185e17780fb91e02eda94dc9c718c145e499b6b974cc",
       "VERSION-CONTROL-PENDING-WRITE-FAILURE-001": "sha256:df2674f44b517e591b20f134ceb40a5798e5fe47d7aba67d6279df6b2497afdc",
       "VERSION-CONTROL-REPOSITORY-001": "sha256:a8b6bd87f0f1a1f556929ae7e9225d90b304e8199f0d6668e95782c39874cbe8",
       "VERSION-CONTROL-REPOSITORY-PATH-001": "sha256:71082967d002839697a7a3d6dadda5dd531f4ded2c8ba9fbcfb69e2c262ae428",
       "VERSION-CONTROL-REVISION-001": "sha256:2737549d045eb49bbdb727ae0a453c2490b39c4a081f9b0d2eda9a7a5163e979",
-      "VERSION-CONTROL-REVISION-BATCH-001": "sha256:1f7a4f365a40304670a5f2f5bd77fc1ba9fa73c694337de8ca26881795353866",
+      "VERSION-CONTROL-REVISION-BATCH-001": "sha256:d88279d88a26528da26eb2d47ee908cb329a46f343247c9a9486e6de5db65905",
       "VERSION-CONTROL-REVISION-SHA256-001": "sha256:fc20585678735684ac205ad827852253b129efad0ccd7d3298b0fed6d455c0dc",
       "VERSION-CONTROL-REVISION-TREE-001": "sha256:cbb7a7c12fd6b07af4b7ed29ee0c7e0fa502bd83bc5081cb06c86567f15a1ec2",
       "VERSION-CONTROL-STATES-001": "sha256:99e1dfeb928ef7b5b8acb0c1ab96c31e592eda4c46a43c36eecb18f5ccc23c75",
       "VERSION-CONTROL-SYSTEM-CAUSE-001": "sha256:54f6951eaf0744eed8969d6964a1a1b7a3bcae5c09a8fc8aceb050ebc7e13300",
+      "VERSION-CONTROL-WORKSPACE-EXECUTABLE-001": "sha256:db3f540cdebe28f98526b955971673528961d1997c2f4ced8b9b0ee06f36f4a9",
+      "VERSION-CONTROL-WORKSPACE-FILE-SAFETY-001": "sha256:e9ca91330d7eb16c37eae3a462ed9a1edb719166761ba32a1efd9b1ded1ccba2",
       "VERSION-CONTROL-WORKTREE-001": "sha256:49d1c9a3a480101304635e9023a083aff87c99c9ba93fe105162988868bd320d"
     },
     "metadata": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
@@ -6827,6 +6838,28 @@
         "test:365afdc71dd8025634717a36b234b9f0ef80ef6175b6a94500d114f2ee651f52"
       ]
     },
+    "INVESTIGATION-STAGE-EXECUTABLE-DRIFT-001": {
+      "title": "来源执行位漂移阻断写入",
+      "sourcePath": "cases/investigation-stage-executable-drift.md",
+      "tags": [
+        "investigation-report",
+        "version-control"
+      ],
+      "testIds": [
+        "test:32d30faaf187f55ba0d4e36ac35fd6d60327db1dbab8a2ee5d15fcaa31eede3c"
+      ]
+    },
+    "INVESTIGATION-STAGE-EXECUTABLE-ONLY-001": {
+      "title": "仅执行位变化参与暂存结果",
+      "sourcePath": "cases/investigation-stage-executable-only.md",
+      "tags": [
+        "investigation-report",
+        "version-control"
+      ],
+      "testIds": [
+        "test:3091d0101f771e557f4851e8a7e1fc9c6f6f9c19745d582b6172176af8fd411b"
+      ]
+    },
     "INVESTIGATION-STAGE-FRESHNESS-001": {
       "title": "CLI strict check and stage stop on a stale derived index",
       "sourcePath": "cases/investigation-stage-freshness-001.md",
@@ -6947,6 +6980,17 @@
         "test:5d3c05d6493c2362966f963adfac4474281f13f868fd39980709e29921998942"
       ]
     },
+    "INVESTIGATION-STAGE-SELECTED-EXECUTABLES-001": {
+      "title": "暂存修改与新增可执行资源",
+      "sourcePath": "cases/investigation-stage-selected-executables.md",
+      "tags": [
+        "investigation-report",
+        "version-control"
+      ],
+      "testIds": [
+        "test:ec7d3e2c6edec0891c6dc237b94ed35c69c54bed277b7e03346c2a3500a86dec"
+      ]
+    },
     "INVESTIGATION-STAGE-SOURCE-PATH-ADD-001": {
       "title": "按索引位置暂存新增报告并按 ID 收集资源",
       "sourcePath": "cases/investigation-stage-source-path-add-001.md",
@@ -7011,6 +7055,29 @@
       "testIds": [
         "test:2cf39b37168c3a0ef20c43d0c43ccd2758e9835269d1f75dff9c0cf39ee3bc7a",
         "test:ba2a155d3e8dec53646c6a597fe5567163afd208ced078b6b5d57fd22c7d53e2"
+      ]
+    },
+    "INVESTIGATION-STAGE-SYMLINK-SOURCE-001": {
+      "title": "选中 owner 的符号链接来源阻断暂存",
+      "sourcePath": "cases/investigation-stage-symlink-source.md",
+      "tags": [
+        "investigation-report",
+        "version-control"
+      ],
+      "testIds": [
+        "test:1bc50cab82b69fb68c0873272774ead841ac35b37089d89a46de9ba7ce3cc615"
+      ]
+    },
+    "INVESTIGATION-STAGE-UNSELECTED-REPRESENTATIONS-001": {
+      "title": "保留未选可执行资源与链接快照",
+      "sourcePath": "cases/investigation-stage-unselected-representations.md",
+      "tags": [
+        "investigation-report",
+        "version-control"
+      ],
+      "testIds": [
+        "test:6680ae5d0e74ecd879c1cee82b5617a1040e302110d7a2b03fe178c1d0f6a237",
+        "test:c94df6ee92ec62fab0e4e60f3ae689bd8c315863f7177cd619242cca8e0d7d77"
       ]
     },
     "INVESTIGATION-STAGE-VERSION-CONTROL-001": {
@@ -10576,6 +10643,16 @@
         "test:10e02921d81321763888381d2c6a79132f0e84bf17cae22475a38b68090a0e1b"
       ]
     },
+    "VERSION-CONTROL-PENDING-KIND-CHANGES-001": {
+      "title": "变化报告包含仅文件表示变化",
+      "sourcePath": "cases/version-control-pending-kind-changes.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:f1a55a7f1ae8a6a7cf067e2bffa5d850049a3092d65d41410bf67d630e46f39c"
+      ]
+    },
     "VERSION-CONTROL-PENDING-PATHS-001": {
       "title": "拒绝非法 Pending 替换路径且不产生写入",
       "sourcePath": "cases/version-control-pending-paths-001.md",
@@ -10614,6 +10691,36 @@
       ],
       "testIds": [
         "test:b5e1d12f39fb46789a3bf82b626a168dd8799841ed2766e65c02dd7e03b8cb40"
+      ]
+    },
+    "VERSION-CONTROL-PENDING-REPRESENTATION-001": {
+      "title": "保真替换可执行文件与符号链接快照",
+      "sourcePath": "cases/version-control-pending-representation.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:217b40fe8bb0913d2d16bd6a5d2944986a1a3a5137406adc4e949d42d6dfb1aa"
+      ]
+    },
+    "VERSION-CONTROL-PENDING-REPRESENTATION-DRIFT-001": {
+      "title": "拒绝仅表示变化的期望漂移",
+      "sourcePath": "cases/version-control-pending-representation-drift.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:12cc3be19df0e2d241708b72b4a97324200c466fb751adacb4327dda9308b9ea"
+      ]
+    },
+    "VERSION-CONTROL-PENDING-REPRESENTATION-RECOVERY-001": {
+      "title": "读回失败保留原可执行快照",
+      "sourcePath": "cases/version-control-pending-representation-recovery.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:fc76c5e7c49e90be580a77d4b535d374d496c9542086836b85e3fd501dbc8223"
       ]
     },
     "VERSION-CONTROL-PENDING-REUSE-NOOP-001": {
@@ -10724,6 +10831,26 @@
       ],
       "testIds": [
         "test:f274494b1c104108d02dc08b40f2110bcd3d6c1b98b01d9314e75f79040a0169"
+      ]
+    },
+    "VERSION-CONTROL-WORKSPACE-EXECUTABLE-001": {
+      "title": "工作区执行位读取尊重 Git 策略",
+      "sourcePath": "cases/version-control-workspace-executable.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:4fa7dd02ce53d878d3ddd513dc22edb1a11f2a5f2d2b7e0ffc39c18f43b53ea5"
+      ]
+    },
+    "VERSION-CONTROL-WORKSPACE-FILE-SAFETY-001": {
+      "title": "工作区文件读取安全失败不降级",
+      "sourcePath": "cases/version-control-workspace-file-safety.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:4ca882c16324d23ccdc11ff6aecb29d313600b10b9c25d2205422d5ede572875"
       ]
     },
     "VERSION-CONTROL-WORKTREE-001": {

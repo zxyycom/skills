@@ -41,7 +41,7 @@ type IndexBaseline = Readonly<{
 
 /**
  * Stages only the derived index projection, so the pending index must still
- * match the current revision baseline; any other pending index bytes stop the
+ * match the current revision baseline in bytes and representation; drift stops the
  * projection instead of composing an unreviewed state.
  */
 export async function stageIndexProjection(
@@ -59,8 +59,9 @@ export async function stageIndexProjection(
     indexRelativePath
   );
   if (indexText.status === "error") return indexText;
-  const files = [
-    { data: Buffer.from(indexText.value, "utf8"), path: indexPath }
+  const data = Buffer.from(indexText.value, "utf8");
+  const files: VersionControlFile[] = [
+    { data, kind: "regular", path: indexPath }
   ];
   const replaced = await replacePendingDecisionFiles(
     opened.repository,
@@ -103,7 +104,7 @@ async function indexScopeBaseline(
       pathScopes: [indexPath]
     });
     const expectedFiles = headIndex === null ? [] : [headIndex];
-    if (!samePendingFileSets(pendingIndexFiles, expectedFiles)) {
+    if (changedPendingPaths(pendingIndexFiles, expectedFiles).length > 0) {
       return indexBaselineConflict();
     }
     return { status: "ok", value: { expectedFiles, revision } };
@@ -116,20 +117,4 @@ function indexBaselineConflict(): DecisionApplicationFailure {
   return decisionFailure([
     "The pending decision index already differs from the current revision baseline; inspect or resolve it before staging another index projection."
   ]);
-}
-
-function samePendingFileSets(
-  left: readonly VersionControlFile[],
-  right: readonly VersionControlFile[]
-): boolean {
-  return (
-    left.length === right.length &&
-    left.every((file) =>
-      right.some(
-        (candidate) =>
-          candidate.path === file.path &&
-          Buffer.from(candidate.data).equals(Buffer.from(file.data))
-      )
-    )
-  );
 }

@@ -24,7 +24,11 @@ test(
         await createRepositoryFixture(tempRoot);
       runGit(repositoryRoot, ["reset", "--quiet", "HEAD"]);
       const expectedFiles = [
-        { data: Buffer.from("current\n"), path: "docs/tracked.md" }
+        {
+          kind: "regular" as const,
+          data: Buffer.from("current\n"),
+          path: "docs/tracked.md"
+        }
       ];
       let pendingWrites = 0;
       const repository = await openGitVersionControl(repositoryRoot, {
@@ -50,7 +54,11 @@ test(
         expectedFiles,
         expectedRevision: currentRevision,
         files: [
-          { data: Buffer.from("replacement\n"), path: "docs/tracked.md" }
+          {
+            kind: "regular" as const,
+            data: Buffer.from("replacement\n"),
+            path: "docs/tracked.md"
+          }
         ],
         pathScope: "docs/tracked.md"
       });
@@ -77,6 +85,7 @@ test(
       );
       runGit(repositoryRoot, ["add", "outside/preserve.md"]);
       const expectedFile = {
+        kind: "regular" as const,
         data: Buffer.from("current\n"),
         path: "docs/tracked.md"
       };
@@ -95,6 +104,7 @@ test(
           expectedRevision: currentRevision,
           files: [
             {
+              kind: "regular" as const,
               data: Buffer.from("replacement\n"),
               path: "docs/tracked.md"
             }
@@ -156,6 +166,7 @@ test(
             expectedRevision: currentRevision,
             files: [
               {
+                kind: "regular" as const,
                 data: Buffer.from("replacement\n"),
                 path: "docs/tracked.md"
               }
@@ -222,6 +233,7 @@ test(
           expectedRevision: conflictRevision,
           files: [
             {
+              kind: "regular" as const,
               data: Buffer.from("replacement\n"),
               path: "docs/tracked.md"
             }
@@ -256,6 +268,7 @@ test(
       runGit(repositoryRoot, ["reset", "--quiet", "HEAD"]);
       const expectedFiles = [
         {
+          kind: "regular" as const,
           data: Buffer.from("current\n"),
           path: "docs/tracked.md"
         }
@@ -271,6 +284,7 @@ test(
             expectedRevision: currentRevision,
             files: [
               {
+                kind: "regular" as const,
                 data: Buffer.from(content),
                 path: "docs/tracked.md"
               }
@@ -313,7 +327,13 @@ test(
       await assert.rejects(
         repository.replacePendingFiles({
           expectedRevision,
-          files: [{ data: Buffer.from("outside\n"), path: "outside.md" }],
+          files: [
+            {
+              kind: "regular" as const,
+              data: Buffer.from("outside\n"),
+              path: "outside.md"
+            }
+          ],
           pathScope: "docs"
         }),
         (error: unknown) => hasVersionControlCode(error, "invalid-path")
@@ -322,8 +342,16 @@ test(
         repository.replacePendingFiles({
           expectedRevision,
           files: [
-            { data: Buffer.from("one\n"), path: "docs/duplicate.md" },
-            { data: Buffer.from("two\n"), path: "docs\\duplicate.md" }
+            {
+              kind: "regular" as const,
+              data: Buffer.from("one\n"),
+              path: "docs/duplicate.md"
+            },
+            {
+              kind: "regular" as const,
+              data: Buffer.from("two\n"),
+              path: "docs\\duplicate.md"
+            }
           ],
           pathScope: "docs"
         }),

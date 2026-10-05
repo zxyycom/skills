@@ -87,6 +87,7 @@ export async function readFilesystemDecisionCandidates(
       const source = stageSourceFromFile(
         {
           data,
+          kind: "regular",
           path: repositoryPath(decisionScope, sourcePath)
         },
         sourcePath
@@ -192,11 +193,9 @@ export async function readFilesystemDecisionSource(
         );
       return;
     }
+    const filePath = repositoryPath(decisionScope, sourcePath);
     matches.push(
-      stageSourceFromFile(
-        { data, path: repositoryPath(decisionScope, sourcePath) },
-        sourcePath
-      )
+      stageSourceFromFile({ data, kind: "regular", path: filePath }, sourcePath)
     );
   };
 

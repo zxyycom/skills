@@ -274,7 +274,9 @@ export function createBaselineRepository(
     async readRevisionFile(_revision: string, filePath: string) {
       options.readPaths?.push(filePath);
       const data = contents.get(filePath);
-      return data === undefined ? null : { data, path: filePath };
+      return data === undefined
+        ? null
+        : { data, kind: "regular" as const, path: filePath };
     }
   };
 }

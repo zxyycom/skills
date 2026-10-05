@@ -1,4 +1,5 @@
 import {
+  changedPendingPaths,
   openVersionControl,
   type VersionControlFile
 } from "../../shared/src/version-control/index.ts";
@@ -325,14 +326,20 @@ export async function stageSelectedIndexEntriesWithRepository<
   }
 
   const targetText = serializeStateIndex(target.value, definition);
-  const targetData = Buffer.from(targetText, "utf8");
+  const targetFile: VersionControlFile = {
+    data: Buffer.from(targetText, "utf8"),
+    kind: "regular",
+    path: repositoryIndexPath
+  };
   const changed =
-    revisionFile === null || !targetData.equals(Buffer.from(revisionFile.data));
+    changedPendingPaths(revisionFile === null ? [] : [revisionFile], [
+      targetFile
+    ]).length > 0;
   try {
     await repository.replacePendingFiles({
       expectedFiles: revisionFile === null ? [] : [revisionFile],
       expectedRevision: revision,
-      files: [{ data: targetData, path: repositoryIndexPath }],
+      files: [targetFile],
       pathScope: repositoryIndexPath
     });
   } catch (error) {

@@ -334,9 +334,17 @@ selected 同步须有可信 baseline，集合 metadata 及其 revision 保持不
 
 selector 在当前正式集合与 `HEAD` 基线索引的 ID 并集中解析。选择项须存在且无歧义，解析后 ID 不重复；sourcePath 变化仍选择同一 ID；基线-only 旧 ID 写入删除；重命名显式同时选择旧 ID 与新 ID，不从名称相似度推断。候选不进入 stage 范围。
 
-scope 决定 pending 写入路径。`all`（默认）在一个原子替换中写入所选索引投影、所选正式报告 Markdown 及其完整 owner 资源树。`index` 只替换 pending 索引投影；已有同一索引 pending 时失败并保留原内容，目标外 pending 保持不变。`domain` 只写入所选正式报告 Markdown 与其完整 owner 资源树——成员取工作区与 `HEAD` 的路径并集，未引用成员也进入范围——并把 pending 索引按当前字节原样保留；其他 owner 的资源、候选和未选报告的 pending 内容保持不变。
+scope 决定 pending 写入路径：
 
-所有 scope 在写前验证 `HEAD` revision、pending 快照、所选报告字节和 owner 资源成员漂移；结果报告实际写入路径、保留的无关 pending 范围与仍由调用方负责的路径。`index` scope 不重读报告与资源，其成功只证明暂存操作，不能代替来源验证。pending、commit 与 push 由调用方按授权显式完成，`stage` 不提交或推送。被移除的 `stage-index` 入口按普通未知命令处理。
+| scope | 写入内容 | 保留边界 |
+| --- | --- | --- |
+| `all`（默认） | 所选索引投影、正式报告 Markdown 及完整 owner 资源树，在一次原子替换中写入 | 未选报告、候选及其他 owner 的 pending 字节与文件表示保持不变 |
+| `index` | 所选索引投影 | pending 索引须与 HEAD 基线一致，否则失败且保留原内容；其他 pending 保持不变 |
+| `domain` | 所选正式报告 Markdown 与完整 owner 资源树 | pending 索引、未选报告、候选及其他 owner 的字节与文件表示保持不变 |
+
+完整 owner 资源树的成员取工作区与 `HEAD` 的路径并集，包含未引用成员；已删除的基线资源进入删除目标。所选来源必须是常规非符号链接文件，使用工作区字节和尊重 Git `core.fileMode` 的有效执行位；仅执行位变化也计入实际写入路径。不满足来源类型要求时停止并保留 pending。
+
+所有 scope 在写前验证 `HEAD` revision 及 pending 快照的字节与文件表示；`all`/`domain` 还重读所选来源，核对字节、有效执行位与 owner 资源成员。结果报告实际写入路径、保留的无关 pending 范围与调用方负责的路径。`index` 的成功只证明索引暂存，来源验证另行完成。`stage` 只更新 pending，commit 与 push 由调用方按授权执行。
 
 ## 诊断与验收
 

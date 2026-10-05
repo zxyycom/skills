@@ -1,7 +1,7 @@
 ---
 title: 由共享版本管理层承接待提交快照写入
 id: manage-pending-snapshot-writes
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-03T10:35:28Z
 purpose: 让调用方通过共享版本管理 owner 读写待提交快照，而不依赖底层实现的专属信息。

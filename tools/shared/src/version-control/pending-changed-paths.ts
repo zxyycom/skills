@@ -10,7 +10,7 @@ function comparePaths(left: string, right: string): number {
 }
 
 /**
- * Computes the repository paths whose bytes differ between the expected
+ * Computes the repository paths whose bytes or representation differ between the expected
  * baseline and the replacement target of one pending replacement, including
  * additions and deletions on either side, in ascending path order.
  */
@@ -19,11 +19,9 @@ export function changedPendingPaths(
   files: readonly VersionControlFile[]
 ): string[] {
   const previousByPath = new Map(
-    previous.map((file) => [file.path, file.data] as const)
+    previous.map((file) => [file.path, file] as const)
   );
-  const targetByPath = new Map(
-    files.map((file) => [file.path, file.data] as const)
-  );
+  const targetByPath = new Map(files.map((file) => [file.path, file] as const));
   const paths = new Set([...previousByPath.keys(), ...targetByPath.keys()]);
   const changed: string[] = [];
   for (const filePath of paths) {
@@ -33,7 +31,8 @@ export function changedPendingPaths(
       changed.push(filePath);
       continue;
     }
-    if (!sameFileBytes(before, after)) changed.push(filePath);
+    if (before.kind !== after.kind || !sameFileBytes(before.data, after.data))
+      changed.push(filePath);
   }
   return changed.sort(comparePaths);
 }

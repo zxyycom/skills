@@ -1,7 +1,7 @@
-import fs from "node:fs/promises";
 import path from "node:path";
 import type {
   RevisionId,
+  VersionControlFile,
   VersionControlRepository
 } from "../../shared/src/version-control/index.ts";
 import { hasEntry } from "../../index-runtime/src/index.ts";
@@ -12,7 +12,9 @@ import {
   type InvestigationIndex
 } from "./staging-domain-support.ts";
 
-export type DomainWrite = Readonly<{ data: Uint8Array | null; path: string }>;
+export type DomainWrite =
+  | VersionControlFile
+  | Readonly<{ data: null; path: string }>;
 
 type DomainWriteFailure = Readonly<{
   status: "error";
@@ -52,7 +54,7 @@ export async function collectDomainWrites(
 }
 
 /**
- * Plans removals for obsolete baseline paths and reads current report bytes;
+ * Plans removals for obsolete baseline paths and reads current report snapshots;
  * it does not modify pending or workspace files. Current paths of all selected
  * IDs take precedence over baseline removals, independent of selector order.
  */
@@ -65,15 +67,16 @@ async function selectedReportWrites(
     .filter((reportPath) => !currentPaths.has(reportPath))
     .map((reportPath) => ({ data: null, path: reportPath }));
   for (const reportPath of currentPaths) {
-    const bytes = await readWorkspaceFileBytes(options.repository, reportPath);
-    if (bytes.status === "error") {
+    const source = await readWorkspaceSource(options.repository, reportPath);
+    if (source.status === "error") return source;
+    if (source.value === null) {
       return {
         status: "error",
         code: "source-read-failed",
-        error: bytes.error
+        error: new Error("Selected report is missing: " + reportPath)
       };
     }
-    writes.push({ data: bytes.value, path: reportPath });
+    writes.push(source.value);
   }
   return { status: "ok", value: writes };
 }
@@ -115,26 +118,16 @@ async function ownerResourceWrites(
   }
   const writes: DomainWrite[] = [];
   for (const member of members.value) {
-    const bytes = await readWorkspaceFileBytesOrNull(
-      options.repository,
-      member
-    );
-    if (bytes.status === "error") {
-      return {
-        status: "error",
-        code: "source-read-failed",
-        error: bytes.error
-      };
-    }
-    writes.push({ data: bytes.value, path: member });
+    const source = await readWorkspaceSource(options.repository, member);
+    if (source.status === "error") return source;
+    writes.push(source.value ?? { data: null, path: member });
   }
   return { status: "ok", value: writes };
 }
 
 /**
- * Rereads the selected report bytes and owner resource members immediately
- * before the pending replacement so injected drift between snapshot
- * preparation and the write stops the transaction with pending unchanged.
+ * Rereads selected source snapshots and owner resource members before pending
+ * replacement; changes in membership, bytes, or representation stop the write.
  */
 export async function verifyDomainWrites(
   options: DomainWriteOptions & Readonly<{ writes: readonly DomainWrite[] }>
@@ -146,15 +139,23 @@ export async function verifyDomainWrites(
   if (current.value.length !== options.writes.length) {
     return "the selected owner resource members changed before the pending write";
   }
+  const currentByPath = new Map(
+    current.value.map((write) => [write.path, write])
+  );
   for (const write of options.writes) {
-    const verified = current.value.find(
-      (candidate) => candidate.path === write.path
-    );
-    if (verified === undefined || !sameBytes(verified.data, write.data)) {
+    const verified = currentByPath.get(write.path);
+    if (verified === undefined || !sameDomainWriteValue(write, verified)) {
       return `${write.path} changed before the pending write`;
     }
   }
   return null;
+}
+
+function sameDomainWriteValue(left: DomainWrite, right: DomainWrite): boolean {
+  if (left.data === null || right.data === null) {
+    return left.data === right.data;
+  }
+  return left.kind === right.kind && sameBytes(left.data, right.data);
 }
 
 async function ownerResourceMembers(
@@ -192,54 +193,18 @@ async function ownerResourceMembers(
   }
 }
 
-/**
- * Reads one workspace member for the pending target: absent members return
- * null so tracked-but-deleted owner resources stage as deletions, while
- * symlinks, non-regular entries, and unreadable bytes stop the transaction.
- */
-async function readWorkspaceFileBytesOrNull(
+/** Reads source bytes and representation together; missing resources become deletions. */
+async function readWorkspaceSource(
   repository: VersionControlRepository,
   repositoryFilePath: string
 ): Promise<
-  { status: "ok"; value: Buffer | null } | { status: "error"; error: unknown }
+  | Readonly<{ status: "ok"; value: VersionControlFile | null }>
+  | Readonly<{ status: "error"; code: "source-read-failed"; error: unknown }>
 > {
-  const read = await readWorkspaceFileBytes(repository, repositoryFilePath);
-  if (read.status === "error") {
-    if (
-      read.error instanceof Error &&
-      "code" in read.error &&
-      read.error.code === "ENOENT"
-    ) {
-      return { status: "ok", value: null };
-    }
-    return read;
-  }
-  return { status: "ok", value: read.value };
-}
-
-async function readWorkspaceFileBytes(
-  repository: VersionControlRepository,
-  repositoryFilePath: string
-): Promise<
-  { status: "ok"; value: Buffer } | { status: "error"; error: unknown }
-> {
-  const filePath = path.join(
-    repository.rootDirectory,
-    ...repositoryFilePath.split("/")
-  );
   try {
-    const entry = await fs.lstat(filePath);
-    if (entry.isSymbolicLink() || !entry.isFile()) {
-      return {
-        status: "error",
-        error: new Error(
-          "Investigation stage source must be a regular non-symlink file: " +
-            path.basename(filePath)
-        )
-      };
-    }
-    return { status: "ok", value: await fs.readFile(filePath) };
+    const file = await repository.readWorkspaceFile(repositoryFilePath);
+    return { status: "ok", value: file };
   } catch (error) {
-    return { status: "error", error };
+    return { status: "error", code: "source-read-failed", error };
   }
 }

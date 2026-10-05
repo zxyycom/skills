@@ -7,7 +7,7 @@ import {
   type VersionControlErrorCauseCategory
 } from "./errors.ts";
 import {
-  defaultGitBlobMode,
+  gitModeForFileKind,
   operationError,
   type GitIndexEntry
 } from "./git-core.ts";
@@ -22,6 +22,7 @@ const objectIdPattern = /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/u;
 
 export type NormalizedPendingReplacementFile = Readonly<{
   data: Buffer;
+  kind: VersionControlFile["kind"];
   path: string;
 }>;
 export type NormalizedPendingReplacement = Readonly<{
@@ -58,7 +59,7 @@ export function normalizePendingReplacement(
 
 export function sameVersionControlFiles(
   left: readonly VersionControlFile[],
-  right: readonly { data: Uint8Array; path: string }[]
+  right: readonly VersionControlFile[]
 ): boolean {
   return (
     left.length === right.length &&
@@ -67,6 +68,7 @@ export function sameVersionControlFiles(
       return (
         expected !== undefined &&
         file.path === expected.path &&
+        file.kind === expected.kind &&
         Buffer.from(file.data).equals(Buffer.from(expected.data))
       );
     })
@@ -75,16 +77,19 @@ export function sameVersionControlFiles(
 
 export function sameExpectedPendingEntries(
   entries: readonly GitIndexEntry[],
-  expected: readonly { path: string }[]
+  expected: readonly Pick<VersionControlFile, "kind" | "path">[]
 ): boolean {
   return (
     entries.length === expected.length &&
-    entries.every(
-      (entry, index) =>
-        entry.mode === defaultGitBlobMode &&
+    entries.every((entry, index) => {
+      const expectedFile = expected[index];
+      return (
+        expectedFile !== undefined &&
         entry.stage === 0 &&
-        entry.path === expected[index]?.path
-    )
+        entry.path === expectedFile.path &&
+        entry.mode === gitModeForFileKind(expectedFile.kind)
+      );
+    })
   );
 }
 
@@ -173,7 +178,8 @@ function normalizePendingFiles(
           `a ${role} file path is duplicated`
         );
       seen.add(filePath);
-      return { data: Buffer.from(file.data), path: filePath };
+      gitModeForFileKind(file.kind);
+      return { data: Buffer.from(file.data), kind: file.kind, path: filePath };
     })
     .sort((left, right) => left.path.localeCompare(right.path));
 }

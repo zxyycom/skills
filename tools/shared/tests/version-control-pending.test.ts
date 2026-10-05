@@ -33,6 +33,7 @@ test(
       const before = await readPendingText(repository);
       const replacement = [
         {
+          kind: "regular" as const,
           data: Buffer.from("replacement\n"),
           path: "docs/tracked.md"
         }
@@ -93,6 +94,7 @@ test(
           expectedRevision: await repository.getCurrentRevision(),
           files: [
             {
+              kind: "regular" as const,
               data: Buffer.from("replacement\n"),
               path: "docs/tracked.md"
             }
@@ -131,6 +133,7 @@ test(
           expectedRevision: await repository.getCurrentRevision(),
           files: [
             {
+              kind: "regular" as const,
               data: Buffer.from("replacement\n"),
               path: "docs/tracked.md"
             }
@@ -164,6 +167,7 @@ test(
           expectedRevision: await repository.getCurrentRevision(),
           files: [
             {
+              kind: "regular" as const,
               data: Buffer.from("replacement\n"),
               path: "docs/tracked.md"
             }
