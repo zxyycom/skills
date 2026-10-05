@@ -14,5 +14,5 @@ Contract:
 Proves:
 - 其他应用数据库触发 storage/4、attempts=0 且 fetch 未调用，原表数据与 application_id 不变。
 - 父路径为普通文件或 POSIX 数据库权限公开时退出 4 且 attempts=0；公开权限保持原值，不通过改权限掩盖错误。
-- 应用 ID 正确但版本不受支持时返回明确 storage 诊断、退出 4、attempts=0 且 fetch 未调用；目标数据库字节不变。
+- 应用 ID 正确但版本不受支持时返回明确 storage 诊断与升级指南路径、退出 4、attempts=0 且 fetch 未调用；目标数据库字节不变。
 - POSIX 中同一有效数据库可通过直接路径成功调用，但符号链接路径返回明确拒绝诊断、退出 4、attempts=0 且 fetch 未调用；链接与目标字节不变。

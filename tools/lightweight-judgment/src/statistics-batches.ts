@@ -250,12 +250,11 @@ export function batchStatistics(
   database: DatabaseSync,
   rows: readonly StatisticsRow[],
   selected: Selection,
-  version: 1 | 2,
   percentiles: readonly number[]
 ): BatchStatistics {
   const runs = runCohorts(rows);
   const contexts =
-    version === 2 && runs.size > 0
+    runs.size > 0
       ? runContexts(database, selected)
       : new Map<string, Context>();
   const batches = comparisons(runs, contexts);

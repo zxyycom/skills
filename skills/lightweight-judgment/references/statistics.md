@@ -1,6 +1,6 @@
 # 离线调用统计
 
-用 `stats` 汇总已有日志的用量与客户端耗时，按模型、状态、标签分层或对照批次首条。本文承接参数、输出、统计口径与只读边界；记录开启、正文留存和 schema 兼容由[调用日志](call-logging.md)承接，输出 envelope 与退出码由 [CLI 操作契约](cli.md)承接。
+用 `stats` 汇总已有日志的用量与客户端耗时，按模型、状态、标签分层或对照批次首条。本文承接参数、输出、统计口径与只读边界；记录开启、正文留存和当前格式由[调用日志](call-logging.md)承接，输出 envelope 与退出码由 [CLI 操作契约](cli.md)承接。
 
 ## 取得统计
 
@@ -69,7 +69,7 @@ stdout 为 `{ ok, result, meta, error }`，`meta.attempts: 0` 且无 `meta.persi
 | `responseBytes` | 完整收到响应的实际字节数；无完整响应时为 null |
 | `elapsedMs` | 发送前计时器启动，至完整响应接收、协议校验／失败处理完成且最终日志 finish 开始前的整数毫秒；启用日志时可包含中间接收记录写入，不含配置／输入／凭据前置及最终落盘／stdout |
 
-字节数独立于正文留存开关；旧记录没有新增字节元数据时为 null。`elapsedMs` **不是完整 CLI 进程耗时、纯推理耗时或 TTFT**，非流式日志也不能推算 TTFT。
+新调用的字节数摘要独立于正文留存开关；统计中缺失值为 null。`elapsedMs` **不是完整 CLI 进程耗时、纯推理耗时或 TTFT**，非流式日志也不能推算 TTFT。
 
 数量、tokens、字节和耗时为安全非负整数；总和超安全整数或浮点聚合非有限时明确失败，不静默舍入。服务报告 cost 沿用有限非负浮点数，不新增货币精度承诺。
 
@@ -88,7 +88,7 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json \
 | `--run-id` / `--run-index` | 成对提供；ID 为 1–128 字符且无空白／控制字符，index 为从 1 开始的安全正整数。同一库内 ID／index 唯一；冲突在发送前以 storage 失败，另一次调用需显式选下一 index 或新 ID，不自动改号 |
 | `--tag key=value` | 最多 32 个唯一键，按首个等号分隔；键匹配 `[A-Za-z_][A-Za-z0-9_.-]{0,63}`，值为 1–256 字符且无控制字符 |
 
-非法元数据在发送／建库前拒绝；日志关闭时不留存，dry-run 仍验证但不访问库。新记录的元数据与字节数不依赖正文留存；v1 或升级前旧记录的缺失项不从正文补推。
+非法元数据在发送／建库前拒绝；日志关闭时不留存，dry-run 仍验证但不访问库。新记录的元数据与字节数不依赖正文留存；日常 stats 对库中缺失字段保持缺失，不读取正文补算。旧库显式迁移时的逐字段来源与回填规则见[数据映射](../migrations/log-v1-to-v2/README.md#字段映射与回填规则)。
 
 ## 批次首条对照
 
@@ -115,7 +115,7 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json \
 
 ## 只读与失败边界
 
-`stats` 只读既有领域数据与 schema，兼容 v1／v2；不创建库或目录、迁移、清理、更新记录或改变 journal 设置。一个只读事务提供一致快照，包含活跃 WAL 已提交数据；SQLite 可参与 WAL／SHM 协调，因此不保证旁文件完全不变，也不使用忽略活跃 WAL 的 immutable 打开方式。
+`stats` 只读当前 schema v2 的既有库；需要继续统计旧历史时，按[保留数据的迁移说明](../migrations/README.md)转换；无需旧历史则可[重新建库](call-logging.md#不保留历史重新建库)。统计不创建库或目录、迁移、清理、更新记录或改变 journal 设置。一个只读事务提供一致快照，包含活跃 WAL 已提交数据；SQLite 可参与 WAL／SHM 协调，因此不保证旁文件完全不变，也不使用忽略活跃 WAL 的 immutable 打开方式。
 
 缺库、非私有普通文件、符号链接、其他应用的库、未知版本、schema 不符、读取失败或非法统计数据均失败，与成功空集严格区分。
 

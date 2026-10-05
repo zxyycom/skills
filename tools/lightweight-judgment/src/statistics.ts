@@ -1,5 +1,5 @@
 import { openStatisticsDatabase } from "./call-database.ts";
-import type { CallDatabaseVersion } from "./call-schema.ts";
+import { callSchemaVersion } from "./call-schema.ts";
 import { JudgmentFailure } from "./failure.ts";
 import type { StatisticsOptions } from "./stats-options.ts";
 import { selectedRows, selection } from "./statistics-data.ts";
@@ -14,7 +14,7 @@ import { batchStatistics, type BatchStatistics } from "./statistics-batches.ts";
 // Internal serialization model, not a separately versioned SDK contract.
 export type StatisticsResult = Readonly<{
   database: string;
-  schemaVersion: CallDatabaseVersion;
+  schemaVersion: typeof callSchemaVersion;
   method: Readonly<{
     snapshot: "single-read-transaction";
     time: "UTC-started-at-[from,to)";
@@ -39,13 +39,13 @@ export function statistics(
   file: string,
   options: StatisticsOptions
 ): StatisticsResult {
-  const { database, version } = openStatisticsDatabase(file);
+  const database = openStatisticsDatabase(file);
   try {
-    const selected = selection(options, version);
-    const rows = selectedRows(database, selected, version, options.maxRows);
+    const selected = selection(options);
+    const rows = selectedRows(database, selected, options.maxRows);
     return {
       database: file,
-      schemaVersion: version,
+      schemaVersion: callSchemaVersion,
       method: {
         snapshot: "single-read-transaction",
         time: "UTC-started-at-[from,to)",
@@ -68,7 +68,6 @@ export function statistics(
         database,
         rows,
         selected,
-        version,
         options.percentiles
       )
     };

@@ -113,13 +113,14 @@
       "261004-anchor-investigation-resources-to-explicit-report-ids": "sha256:a9d439a77fc5cf5919195e580faddf9b27d4a4801852514138e48dfd34e2042a",
       "261004-evolve-decision-lifecycle-through-closed-strategies": "sha256:35945dd42c3847e733728bbf480d343c300e92c2a82e9b58b486b2ca8252260e",
       "261004-exclude-historical-investigation-bytes-from-link-gate": "sha256:dbad1c240d0c22cbe31785024c5fd43d9e937f085090175e2a110c33b9ed7e71",
-      "261004-lightweight-judgment-readonly-statistics": "sha256:7badae20cc6bba0edf2c45567d163a4c018bc6212c6d122dfc544d0fef8b48a4",
+      "261004-lightweight-judgment-readonly-statistics": "sha256:70b3a59e8a5d60960d6a2ba96892ab220a7c7b6eb53d3cffe1d7f63156ab3316",
       "261004-maintain-formal-record-relations-with-shared-input-contract": "sha256:d295f1ff27a1c1d36ff5ddb6b56956f85f4dfe23cda30be43890665b9db89416",
       "261004-project-record-discovery-semantics-into-cli-help": "sha256:32d2e0d77dee41fdb2c36dc1a197d873ce1ee7e8a5dfcfe8a64d00da0e6bb26d",
       "261004-recover-record-context-before-new-work": "sha256:435e069278dd7ef9d8027ef6948979663bd22f72207d6fb777337b470f2ef861",
       "261004-require-one-canonical-change-metadata-model": "sha256:8b323acb814148b44a43577839937b78f1eb22a9a5cc4aa62f2fa4b4335df2ab",
       "261004-route-current-results-to-the-minimal-durable-carrier": "sha256:a7a86d70d38638b16bf25e205e5666747e06f797e35635f6fe5af2a3321c7888",
       "261004-stage-decisions-by-explicit-id-and-selected-scope": "sha256:1c96322c1e3a6b7ccb6e42a1378c3dc55af615b06cd2740978afafae7cb7f08b",
+      "261005-lightweight-judgment-current-schema-statistics": "sha256:f41233044718d3f1be6a32d34a87508d6520edb76fcdb250b375ccb118da5847",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -2591,9 +2592,9 @@
     },
     "261004-lightweight-judgment-readonly-statistics": {
       "name": "lightweight-judgment-readonly-statistics",
-      "sourcePath": "lightweight-judgment-readonly-statistics.md",
+      "sourcePath": "archive/lightweight-judgment-readonly-statistics.md",
       "title": "Lightweight Judgment 以只读快照统计调用与显式批次",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-04T04:32:49Z",
       "purpose": "提供可复算的离线调用统计与同批首条对照。",
@@ -2753,6 +2754,28 @@
           "type": "修订",
           "target": "stage-selected-decisions-by-stable-id",
           "summary": "保留按 ID 隔离，修正 basename 与 scope 边界"
+        }
+      ]
+    },
+    "261005-lightweight-judgment-current-schema-statistics": {
+      "name": "lightweight-judgment-current-schema-statistics",
+      "sourcePath": "lightweight-judgment-current-schema-statistics.md",
+      "title": "Lightweight Judgment 使用当前日志结构，按需迁移旧数据",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-05T04:13:59Z",
+      "purpose": "保持可复核的离线调用统计，让保留旧数据的迁移独立于正常读写。",
+      "background": "正常统计与写入共享当前结构；兼容分支与隐式迁移增加维护面并混淆数据变更边界。",
+      "decision": "保留只读快照与显式批次统计，只读写当前结构；无需历史时重新建库，需要历史时按字段来源显式迁移。",
+      "tags": [
+        "lightweight-judgment",
+        "statistics"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261004-lightweight-judgment-readonly-statistics",
+          "summary": "保留统计契约，将旧库兼容与隐式升级改为独立迁移"
         }
       ]
     },

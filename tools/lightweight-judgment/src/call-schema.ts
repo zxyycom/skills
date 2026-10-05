@@ -2,7 +2,7 @@ import type { DatabaseSync } from "node:sqlite";
 import { JudgmentFailure } from "./failure.ts";
 
 export const applicationId = 1246058033;
-export type CallDatabaseVersion = 1 | 2;
+export const callSchemaVersion = 2;
 export const callStatuses = [
   "started",
   "response_received",
@@ -18,7 +18,14 @@ type CallIndex = Readonly<{
   partial: 0 | 1;
   sql: string;
 }>;
-const baseIndexes: readonly CallIndex[] = [
+const callIndexes: readonly CallIndex[] = [
+  {
+    name: "calls_run_index",
+    columns: ["run_id", "run_index"],
+    unique: 1,
+    partial: 1,
+    sql: "CREATE UNIQUE INDEX calls_run_index ON calls(run_id, run_index) WHERE run_id IS NOT NULL"
+  },
   {
     name: "calls_started_at",
     columns: ["started_at"],
@@ -34,14 +41,7 @@ const baseIndexes: readonly CallIndex[] = [
     sql: "CREATE INDEX calls_status ON calls(status)"
   }
 ];
-const runIndex: CallIndex = {
-  name: "calls_run_index",
-  columns: ["run_id", "run_index"],
-  unique: 1,
-  partial: 1,
-  sql: "CREATE UNIQUE INDEX calls_run_index ON calls(run_id, run_index) WHERE run_id IS NOT NULL"
-};
-const baseColumns = [
+const callColumns = [
   ["id", "TEXT", 1, 1],
   ["started_at", "TEXT", 1, 0],
   ["updated_at", "TEXT", 1, 0],
@@ -60,23 +60,13 @@ const baseColumns = [
   ["elapsed_ms", "INTEGER", 0, 0],
   ["input_tokens", "INTEGER", 0, 0],
   ["output_tokens", "INTEGER", 0, 0],
-  ["cost", "REAL", 0, 0]
-] as const;
-const metadataColumns = [
+  ["cost", "REAL", 0, 0],
   ["run_id", "TEXT", 0, 0],
   ["run_index", "INTEGER", 0, 0],
   ["local_tags", "TEXT", 0, 0],
   ["request_bytes", "INTEGER", 0, 0],
   ["response_bytes", "INTEGER", 0, 0]
 ] as const;
-export const migration = `
-ALTER TABLE calls ADD COLUMN run_id TEXT;
-ALTER TABLE calls ADD COLUMN run_index INTEGER;
-ALTER TABLE calls ADD COLUMN local_tags TEXT;
-ALTER TABLE calls ADD COLUMN request_bytes INTEGER;
-ALTER TABLE calls ADD COLUMN response_bytes INTEGER;
-${runIndex.sql};
-PRAGMA user_version = 2;`;
 export const schema = `
 CREATE TABLE calls (
   id TEXT PRIMARY KEY,
@@ -97,16 +87,21 @@ CREATE TABLE calls (
   elapsed_ms INTEGER,
   input_tokens INTEGER,
   output_tokens INTEGER,
-  cost REAL
+  cost REAL,
+  run_id TEXT,
+  run_index INTEGER,
+  local_tags TEXT,
+  request_bytes INTEGER,
+  response_bytes INTEGER
 ) STRICT;
-${baseIndexes.map((index) => index.sql).join(";\n")};
+${callIndexes.map((index) => index.sql).join(";\n")};
 PRAGMA application_id = ${applicationId};
-PRAGMA user_version = 1;`;
+PRAGMA user_version = ${callSchemaVersion};`;
 
 function unsupported(): never {
   throw new JudgmentFailure(
     "storage",
-    "数据库不是受支持的调用记录库或 schema 已改变；请选择正确的日志数据库。"
+    "数据库不是受支持的调用记录库或 schema 已改变；请核对所选路径。按随包 references/call-logging.md 选择重新建库；需要保留旧日志时再读 migrations/README.md。"
   );
 }
 
@@ -123,13 +118,11 @@ function columnMatches(actual: SqlRow, expected: Column | undefined): boolean {
     actual.dflt_value === null
   );
 }
-function validateColumns(database: DatabaseSync, version: 1 | 2): void {
-  const expected =
-    version === 1 ? baseColumns : [...baseColumns, ...metadataColumns];
+function validateColumns(database: DatabaseSync): void {
   const actual = database.prepare("PRAGMA table_info(calls)").all();
   if (
-    actual.length !== expected.length ||
-    !actual.every((column, index) => columnMatches(column, expected[index]))
+    actual.length !== callColumns.length ||
+    !actual.every((column, index) => columnMatches(column, callColumns[index]))
   ) {
     unsupported();
   }
@@ -137,21 +130,14 @@ function validateColumns(database: DatabaseSync, version: 1 | 2): void {
 function normalizedSql(sql: string): string {
   return sql.replace(/\s+/gu, "").toLowerCase();
 }
-function validateTable(database: DatabaseSync, version: 1 | 2): void {
+function validateTable(database: DatabaseSync): void {
   const tableSql = database
     .prepare("SELECT sql FROM sqlite_master WHERE name='calls'")
     .get()?.sql;
-  const baseSql = schema.slice(
+  const expectedSql = schema.slice(
     schema.indexOf("CREATE TABLE"),
     schema.indexOf(";")
   );
-  const expectedSql =
-    version === 1
-      ? baseSql
-      : baseSql.replace(
-          ") STRICT",
-          ", run_id TEXT, run_index INTEGER, local_tags TEXT, request_bytes INTEGER, response_bytes INTEGER) STRICT"
-        );
   if (
     typeof tableSql !== "string" ||
     normalizedSql(tableSql) !== normalizedSql(expectedSql)
@@ -172,16 +158,13 @@ function objectMatches(row: SqlRow, expected: string | undefined): boolean {
     row.type === (row.name === "calls" ? "table" : "index")
   );
 }
-function validateObjects(database: DatabaseSync, version: 1 | 2): void {
+function validateObjects(database: DatabaseSync): void {
   const objects = database
     .prepare(
       "SELECT type, name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY name"
     )
     .all();
-  const names =
-    version === 1
-      ? ["calls", "calls_started_at", "calls_status"]
-      : ["calls", "calls_run_index", "calls_started_at", "calls_status"];
+  const names = ["calls", ...callIndexes.map((index) => index.name)];
   if (
     objects.length !== names.length ||
     !objects.every((row, index) => objectMatches(row, names[index]))
@@ -215,18 +198,18 @@ function validateIndex(database: DatabaseSync, expected: CallIndex): void {
   }
 }
 // Header identity alone is insufficient: both readers and writers validate the fixed layout.
-export function callDatabaseVersion(
-  database: DatabaseSync
-): CallDatabaseVersion {
+export function validateCallDatabase(database: DatabaseSync): void {
   const id = database.prepare("PRAGMA application_id").get()?.application_id;
+  if (id !== applicationId) unsupported();
   const version = database.prepare("PRAGMA user_version").get()?.user_version;
-  if (id !== applicationId || (version !== 1 && version !== 2)) {
-    unsupported();
+  if (version !== callSchemaVersion) {
+    throw new JudgmentFailure(
+      "storage",
+      `日志数据库只接受 schema ${callSchemaVersion}；无需历史时按随包 references/call-logging.md 移走旧库后重新建库，需要保留历史时再按 migrations/README.md 迁移；正常读写不会升级旧库。`
+    );
   }
-  validateColumns(database, version);
-  validateTable(database, version);
-  validateObjects(database, version);
-  for (const index of baseIndexes) validateIndex(database, index);
-  if (version === 2) validateIndex(database, runIndex);
-  return version;
+  validateColumns(database);
+  validateTable(database);
+  validateObjects(database);
+  for (const index of callIndexes) validateIndex(database, index);
 }

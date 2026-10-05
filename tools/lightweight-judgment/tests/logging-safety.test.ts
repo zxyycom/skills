@@ -38,7 +38,7 @@ test("unsupported database versions remain unchanged without sending", async () 
     assert.equal(output.meta.persistence?.status, "failed");
     assert.equal(sent, 0);
     assert.deepEqual(fs.readFileSync(fixture.databasePath), before);
-    assert.match(output.error.message, /不是受支持的调用记录库/u);
+    assert.match(output.error.message, /migrations\/README\.md/u);
   } finally {
     fixture.cleanup();
   }

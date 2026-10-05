@@ -1,13 +1,13 @@
-### Case LIGHTWEIGHT-JUDGMENT-STATS-NULL-TAGS-001: 旧记录缺标签与原型隔离
+### Case LIGHTWEIGHT-JUDGMENT-STATS-NULL-TAGS-001: 当前记录缺标签与原型隔离
 
 Tests:
-- `test:2e73a61eea5c105ed3242a907c9fb4a630513cd156d85580c36fc7a19ab060c0`
+- `test:6c177d58e388169aae7a59cb3127434c0bfee658f8e531941ef467a2d30bc968`
 
 Tags:
 - `lightweight-judgment`
 
 Contract:
-- 未记录本地标签的旧行在 v1 读取与 v2 迁移后均只表达标签缺失，不继承对象原型字段或输出非法 JSON。
+- 当前结构中未记录本地标签的行只表达标签缺失，不继承对象原型字段或输出非法 JSON。
 
 Proves:
-- 真实 v1 与 writer 升级的 v2 库按 constructor／toString／__proto__ 组合分组均仅产生一个三字段 null 组；包含升级后新调用时分母为2，JSON 合法且没有 undefined。
+- 当前库按 constructor／toString／__proto__ 组合分组仅产生一个三字段 null 组；新增未带标签的调用后仍为同一组且分母为 2，JSON 没有 undefined。

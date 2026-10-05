@@ -5,7 +5,7 @@ description: >-
   用低成本、低延迟的结构化判断处理分类、候选选择、相关性筛选、命题判断
   和程度评分；按 JEV 特点准备输入、复核类型化结果，再继续原任务。
 metadata:
-  version: "7"
+  version: "8"
 ---
 
 # Lightweight Judgment
@@ -29,6 +29,7 @@ metadata:
 | 预览请求 | 按判断流程的步骤 1、2 准备请求，再用 `json --dry-run`／`ask --dry-run`；[预览](references/cli.md#推理参数与帮助)离线执行，无需密钥或先通过 `doctor` |
 | 核对或恢复已有记录 | 按[调用日志](references/call-logging.md#恢复与只读核对)读取已提交状态与正文，区分可采用结果和待验证内容 |
 | 统计已有调用 | 按[离线调用统计](references/statistics.md)运行 `stats`；直接读取已有库，无需凭据检查或新推理 |
+| 日志结构不受支持 | 无需历史时按[旧库处理](references/call-logging.md#当前格式与旧库处理)重新建库；需要保留历史时才读取对应版本的迁移说明 |
 
 判断任务适用性、调整输入表示或分析异常时，按主题读取 [JEV 使用边界与任务验证](references/jev-characteristics.md)；日常使用以本文流程为起点。
 

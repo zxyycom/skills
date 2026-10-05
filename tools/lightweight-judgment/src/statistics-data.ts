@@ -51,27 +51,18 @@ const filterColumns = [
   { field: "to", column: "started_at", operator: "<" }
 ] as const;
 
-export function selection(
-  options: StatisticsOptions,
-  version: 1 | 2
-): Selection {
+export function selection(options: StatisticsOptions): Selection {
   const predicates: string[] = [];
   const parameters: SQLInputValue[] = [];
   for (const { field, column, operator } of filterColumns) {
     const value = options.filters[field];
     if (value === undefined) continue;
-    predicates.push(
-      `${field === "runId" && version === 1 ? "NULL" : column} ${operator} ?`
-    );
+    predicates.push(`${column} ${operator} ?`);
     parameters.push(value);
   }
   for (const [key, value] of Object.entries(options.tags)) {
-    predicates.push(
-      version === 2
-        ? "json_extract(local_tags, ?) = ?"
-        : "0 = ? AND ? IS NOT NULL"
-    );
-    parameters.push(version === 2 ? `$."${key}"` : 1, value);
+    predicates.push("json_extract(local_tags, ?) = ?");
+    parameters.push(`$."${key}"`, value);
   }
   return {
     where: predicates.length === 0 ? "1" : predicates.join(" AND "),
@@ -120,7 +111,6 @@ function decodeTags(tagsJson: string | null): LocalTags {
 export function selectedRows(
   database: DatabaseSync,
   selected: Selection,
-  version: 1 | 2,
   maxRows: number
 ): readonly StatisticsRow[] {
   const count = database
@@ -132,17 +122,15 @@ export function selectedRows(
       "storage",
       "所选调用超过 --max-rows 资源预算；请缩小时间/筛选范围，或提高 --max-rows（内存随摘要行数增长）。未返回截断结果。"
     );
-  const metadata =
-    version === 2
-      ? "run_id AS runId, run_index AS runIndex, local_tags AS tagsJson, request_bytes AS requestBytes, response_bytes AS responseBytes"
-      : "NULL AS runId, NULL AS runIndex, NULL AS tagsJson, NULL AS requestBytes, NULL AS responseBytes";
   const rows: StatisticsRow[] = [];
   // Only metadata is selected: request_json and response_body never cross the reader boundary.
   for (const row of database
     .prepare(`SELECT id, started_at AS startedAt, endpoint, request_model AS requestModel,
     response_model AS responseModel, status, error_kind AS errorKind, elapsed_ms AS elapsedMs,
     input_tokens AS inputTokens, output_tokens AS outputTokens, cost, question_count AS questionCount,
-    ${metadata} FROM calls WHERE ${selected.where} ORDER BY started_at, id`)
+    run_id AS runId, run_index AS runIndex, local_tags AS tagsJson,
+    request_bytes AS requestBytes, response_bytes AS responseBytes
+    FROM calls WHERE ${selected.where} ORDER BY started_at, id`)
     .iterate(...selected.parameters))
     rows.push(readRow(row));
   return rows;

@@ -1,13 +1,13 @@
-### Case LIGHTWEIGHT-JUDGMENT-STATS-MIGRATION-001: 普通 writer 原子升级旧库
+### Case LIGHTWEIGHT-JUDGMENT-STATS-MIGRATION-001: 显式 SQL 升级副本并保留原库
 
 Tests:
-- `test:148612a93f57a848eee8d7c41ff74d907b10993e5d0b24f4b7670901b9813882`
+- `test:6a04951394e3c5cd70739da8060f64a1dd4a42e01d00efe78a82a372b5b20808`
 
 Tags:
 - `lightweight-judgment`
 
 Contract:
-- 仅启用日志的真实调用 writer 在发送前将合法 v1 原子增量升级到 v2，保留历史数据并让新增旧元数据为 NULL。
+- 已知 v1 通过独立版本迁移记录附带的 SQL 脚本 在副本上升级为当前结构，保留所有旧字段与记录，新增字段按来源回填，缺失来源保持 NULL；正常读写不承担迁移。
 
 Proves:
-- 真实 v1 样本的请求正文与 tokens 保留，新列为空；普通 logged 调用后 version=2，新增调用持久化 run/index 和请求字节。
+- 直接执行随包 SQL 脚本 后，副本完整性正常、版本为 2，全部原字段保留，留存请求的字节数回填为 8，无来源的字段保持 NULL，当前 stats 与 writer 成功；原库版本、记录及字节保持不变。

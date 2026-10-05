@@ -1,3 +1,4 @@
+import fs from "node:fs/promises";
 import path from "node:path";
 import {
   buildGeneratedFileHeader,
@@ -13,6 +14,8 @@ const skillSourcePath = "skills/lightweight-judgment";
 const sourceRelativePath = "tools/lightweight-judgment/src/cli.ts";
 const outputRelativePath =
   "skills/lightweight-judgment/scripts/lightweight-judgment.mjs";
+const migrationSourcePath =
+  "tools/lightweight-judgment/migrations/log-v1-to-v2.sql";
 
 async function buildArtifacts(): Promise<GeneratedArtifact[]> {
   const bundle = await bundleWithBun({
@@ -60,6 +63,21 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
       content: bundle.sourceMap,
       path: `${outputPath}.map`,
       sourcePath: sourceRelativePath
+    },
+    {
+      content: `${buildGeneratedFileHeader({
+        artifactName: "lightweight judgment log v1 to v2 migration",
+        rebuildCommand,
+        repository: githubRepository,
+        skillSourcePath,
+        sourcePath: migrationSourcePath
+      })}\n\n${await fs.readFile(path.join(rootDir, migrationSourcePath), "utf8")}`,
+      path: path.join(
+        rootDir,
+        skillSourcePath,
+        "migrations/log-v1-to-v2/migrate.sql"
+      ),
+      sourcePath: migrationSourcePath
     }
   ];
 }
@@ -77,7 +95,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
   if (!changed) {
-    console.log("Lightweight Judgment CLI generated artifacts are current.");
+    console.log("Lightweight Judgment generated artifacts are current.");
   }
 }
 

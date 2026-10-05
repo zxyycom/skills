@@ -6,7 +6,7 @@ import { runCli } from "../src/cli.ts";
 import { runtime } from "./runtime-fixture.ts";
 import { decodeSuccess, object } from "./output.ts";
 
-// Independent legacy DDL keeps reader compatibility and writer migration observable.
+// Independent DDL keeps current-format behavior and explicit legacy upgrades observable.
 const legacy = `CREATE TABLE calls (
  id TEXT PRIMARY KEY, started_at TEXT NOT NULL, updated_at TEXT NOT NULL, finished_at TEXT,
  status TEXT NOT NULL CHECK(status IN ('started','response_received','succeeded','failed','indeterminate')),
@@ -21,10 +21,14 @@ ALTER TABLE calls ADD COLUMN local_tags TEXT; ALTER TABLE calls ADD COLUMN reque
 ALTER TABLE calls ADD COLUMN response_bytes INTEGER;
 CREATE UNIQUE INDEX calls_run_index ON calls(run_id,run_index) WHERE run_id IS NOT NULL; PRAGMA user_version=2;`;
 
-export function statisticsFixture(version: 1 | 2 = 2) {
+export function statisticsFixture(
+  version: 1 | 2 = 2,
+  encoding: "UTF-8" | "UTF-16le" = "UTF-8"
+) {
   const fixture = logFixture();
   const database = new DatabaseSync(fixture.databasePath);
   try {
+    database.exec(`PRAGMA encoding = '${encoding}'`);
     database.exec(legacy);
     if (version === 2) database.exec(metadata);
     fs.chmodSync(fixture.databasePath, 0o600);

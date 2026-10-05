@@ -1,6 +1,6 @@
 # 调用日志
 
-本文承接可选 SQLite 调用记录的配置、留存、状态、恢复与 schema 兼容。离线统计参数和口径由[统计契约](statistics.md)承接。日常命令、输出和存储失败的退出 4 处理由 [CLI 操作契约](cli.md) 承接。
+本文承接可选 SQLite 调用记录的配置、留存、状态、恢复与当前格式。离线统计参数和口径由[统计契约](statistics.md)承接。日常命令、输出和存储失败的退出 4 处理由 [CLI 操作契约](cli.md) 承接。
 
 ## 开启与留存
 
@@ -27,11 +27,21 @@ CLI 不将错误消息、配置全文、API key 或鉴权头写入库。启用�
 - 已有非私有文件、符号链接、其他应用的库或不支持的版本会被拒绝，不覆盖或修正它们。
 - 每次调用生成独立 UUID，写入 SQLite `calls` 表。WAL、`synchronous=FULL` 和最长 5 秒锁等待支持本机多个 CLI 进程追加；每次记录更新原子提交。初始化 WAL 切换时，仅 SQLite BUSY 可在单个 5 秒预算内等待，确认返回 WAL 后继续；其他初始化错误直接失败。记录库准备完成是发送前置，数据库锁等待不重发 HTTP。
 
-## Schema 兼容
+## 当前格式与旧库处理
 
-当前写入 schema v2 保留 `calls` 的既有列，增加可空 `run_id`、`run_index`、`local_tags`（JSON 对象文本）、`request_bytes`、`response_bytes`。同一库内 `run_id` 非 NULL 时以唯一索引约束 `(run_id,run_index)`；CLI 保证两项成对、index 为正整数。
+正常读写只接受 schema v2 的固定结构。`calls` 包含可空 `run_id`、`run_index`、`local_tags`（JSON 对象文本）、`request_bytes`、`response_bytes`。同一库内 `run_id` 非 NULL 时以唯一索引约束 `(run_id,run_index)`；CLI 保证两项成对、index 为正整数。
 
-启用日志的真实调用在发送前，将受支持的 v1 库事务性升级到 v2；原数据保留，旧记录的新增列为 SQL NULL，不从正文反推字节／标签／批次。新库直接初始化为 v2。`stats` 只读兼容 v1 与 v2；未知版本或不符固定 schema 均拒绝。关闭日志的推理不访问库；只读统计不触发升级。
+新库直接创建当前结构。已有库的版本或结构不符时以 storage／退出 4 拒绝；推理在发送前停止，统计不返回结果，正常调用不修改旧库。关闭日志的推理不访问库。
+
+按是否需要把旧记录继续用于当前日志和统计选择路径：不需要时直接[重新建库](#不保留历史重新建库)；需要时才读取[保留数据的迁移说明](../migrations/README.md)，按版本核对字段如何保留、回填或保持未知。
+
+### 不保留历史：重新建库
+
+1. 停止访问该库的所有进程。
+2. 将 `logging.databasePath` 指向的旧库移出原路径；遗留的同名 `-wal`／`-shm` 旁文件一并移走。WAL 属于数据库状态，见 [SQLite WAL 说明](https://www.sqlite.org/wal.html#the_wal_file)。
+3. 保持日志启用，下一次通过前置校验的正常推理会在原路径创建当前格式的新库，从新调用开始记录。
+
+也可直接将 `logging.databasePath` 改为尚不存在的新路径，保留旧库原位。`stats`、`doctor` 和 `dry-run` 不建库，等待下一次本来就需要的调用即可，无需为建库额外发送请求。旧文件按使用者的留存或删除决定处理。
 
 ## 调用状态
 

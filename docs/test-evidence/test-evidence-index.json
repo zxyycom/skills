@@ -634,7 +634,7 @@
       "LIGHTWEIGHT-JUDGMENT-CLI-024": "sha256:740d8b70713c56a2b99cc9e74b024d555eb60f148eab3866b76b1acd7aaf81e2",
       "LIGHTWEIGHT-JUDGMENT-CLI-025": "sha256:fbd0d5636f9446378768f2adf19e1e1f090248fc95677021cc325db054846ed1",
       "LIGHTWEIGHT-JUDGMENT-CLI-026": "sha256:539853cb4352ecd9e5df306f4567039624cb460eab411a71c87617dc03edb9a5",
-      "LIGHTWEIGHT-JUDGMENT-CLI-027": "sha256:0f2256dda9407c7245107aecebfe68bf363282db4f7d476b1d70e563889ec135",
+      "LIGHTWEIGHT-JUDGMENT-CLI-027": "sha256:0f46a612d0156483279321cc7bcfde91d00041c3d7305e7d118922dabd3ba578",
       "LIGHTWEIGHT-JUDGMENT-CLI-028": "sha256:22ceae1496c7fe91d152189c1f724dfee29a7385eb2085ab382f2071b679f309",
       "LIGHTWEIGHT-JUDGMENT-CLI-029": "sha256:af02bd24ef5bbc4f54c90fa387438632efa47e312435b34fc0f12971918ee6a0",
       "LIGHTWEIGHT-JUDGMENT-CLI-030": "sha256:230946d92f27fb1c42c174926737be6a7c74066a4e555bf6852611608dfe14f0",
@@ -643,24 +643,28 @@
       "LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-ERRORS-001": "sha256:2c06a9d99eda4dbbaed8efbafca36776ec9cd0c42b7430348243aaddba399c2a",
       "LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-MODE-001": "sha256:4ffe7a135be7860e82a570dd88b6e794c9b624d16280e474f1ffe956eca5f970",
       "LIGHTWEIGHT-JUDGMENT-LOG-JOURNAL-RECOVERY-001": "sha256:1a7cefbc101a5f7ebaa98bca22c759962093b397da4dc8efb9445abb9e679bc3",
+      "LIGHTWEIGHT-JUDGMENT-LOG-UPGRADE-BACKFILL-001": "sha256:c42b831b36557f06d71e0e584ac465c34df00e21e9fe0f32310fa898afe91c53",
+      "LIGHTWEIGHT-JUDGMENT-LOG-UPGRADE-ENCODING-001": "sha256:2bc3b4f14bba26b80094b2645ffcc84adc56546684c7e2996aa32f5ed046599d",
+      "LIGHTWEIGHT-JUDGMENT-LOG-UPGRADE-ROLLBACK-001": "sha256:77a53c2670655ec7cdae10ae5e488aa03b655326630456f3b16a3897773e61e8",
       "LIGHTWEIGHT-JUDGMENT-RESPONSE-PRESERVATION-001": "sha256:9b84b1cb260843f391d106f21dadb2208ca93e387a8c311a7f7b69a79792b836",
       "LIGHTWEIGHT-JUDGMENT-STATS-BATCH-001": "sha256:5ec560693da6f668e70f836ce4cea3e0138b4a41318ac54648763ff7d1c2c561",
       "LIGHTWEIGHT-JUDGMENT-STATS-BUDGET-001": "sha256:9cb06c31dbcecf3c6145f39ea99501a31866e1ffb0104246e2d7a0fb7f8e6408",
       "LIGHTWEIGHT-JUDGMENT-STATS-DATABASE-001": "sha256:617292af08b88d9469b13550911ed1710ae8c4697c2b2e0a372851502348cd93",
-      "LIGHTWEIGHT-JUDGMENT-STATS-DISTRIBUTION-001": "sha256:f940f3f0e9d6d1bb8393bb4bf0fe7d7b841215e45bf3dd74bc103d1d192568d8",
+      "LIGHTWEIGHT-JUDGMENT-STATS-DISTRIBUTION-001": "sha256:c659eb9576d4fea400e9f3dd78c23da06dc97cfa5c4d22c43f07f15af8100a00",
       "LIGHTWEIGHT-JUDGMENT-STATS-EXACT-RANK-001": "sha256:c9fbb62e9c077295a133bea19174f75abcbb5cf66c77888a044901706531b558",
       "LIGHTWEIGHT-JUDGMENT-STATS-FILES-001": "sha256:56f9fdcf11241abcfbd7fdeae471c89b8c36fbf1efc7083a2b379800c1e8c698",
       "LIGHTWEIGHT-JUDGMENT-STATS-FILTER-001": "sha256:11f41c8d00eb31bb36483eb7ec010cd15318c212a38d016a8ba24c4af6e21220",
       "LIGHTWEIGHT-JUDGMENT-STATS-GROUP-001": "sha256:71ac4d4b46ff3b3cbc6803c65e0f397c050498409ba4c4e057a5e8595a1a8ed5",
       "LIGHTWEIGHT-JUDGMENT-STATS-GROUP-DIAGNOSTICS-001": "sha256:45bcb36afef1a7986fdf4cc9ff0a79ed6b02025337d2694769f8066f0bd50c7d",
-      "LIGHTWEIGHT-JUDGMENT-STATS-INDEX-LAYOUT-001": "sha256:ff70f21c4fa661833add30085bfcdaa224ff20f42dd80c616bc4c5e8cecfe2da",
-      "LIGHTWEIGHT-JUDGMENT-STATS-LEGACY-001": "sha256:fcce8c2f0711ed0e3123e6ef06236ce8b8808e38586b6d7154d98d007a034121",
+      "LIGHTWEIGHT-JUDGMENT-STATS-INDEX-LAYOUT-001": "sha256:5c563a19b41f7c247ad3a774e9e1e2587c5a45fd3162d8d526f221e4e94ecb26",
+      "LIGHTWEIGHT-JUDGMENT-STATS-LEGACY-001": "sha256:79fd0e946e4dc148c7b4989ecdcf17c53efe0fdb5365540b9d7b91a0e56edabc",
       "LIGHTWEIGHT-JUDGMENT-STATS-METADATA-001": "sha256:8df348b37844bbcc7e385223b84ff9b3d3fb636edae3dfd15be3c02676921247",
       "LIGHTWEIGHT-JUDGMENT-STATS-METRICS-001": "sha256:39f38e39a030a5bf3e8358b00497a5adfad9afd62f4a672dba1e36c4b9b7d609",
-      "LIGHTWEIGHT-JUDGMENT-STATS-MIGRATION-001": "sha256:96b25b50b3cf5b3f26a4909712323068ae8522ba777490b9e0f168ba11cc1404",
-      "LIGHTWEIGHT-JUDGMENT-STATS-NULL-TAGS-001": "sha256:425c4643605fec12a898be9e60bb6c4f10d6dee5241796b081f6bf550bc63af3",
+      "LIGHTWEIGHT-JUDGMENT-STATS-MIGRATION-001": "sha256:33af5eb493c2dacdffc8f99f3d393bea7905b3dcf22c98b50fad09639b56ed10",
+      "LIGHTWEIGHT-JUDGMENT-STATS-NULL-TAGS-001": "sha256:98465722f922eb856d6b4a51a1a372f4f41a9b32fc4c8e2b0d1d8590098ad747",
       "LIGHTWEIGHT-JUDGMENT-STATS-OFFLINE-001": "sha256:ed65fcb8a47991fbd8a19aafe2572e025d07566e652b09c61f38bb695cdb3b0e",
       "LIGHTWEIGHT-JUDGMENT-STATS-PARTIAL-001": "sha256:5e29261c5744a5cf062922ae5f2a6055f2405eee0ce9db8b9ca296272eae1919",
+      "LIGHTWEIGHT-JUDGMENT-STATS-RETENTION-001": "sha256:2387081b974a46e7f018a904802f7fb12db7d1d09f011432bb8159f361888c4d",
       "LIGHTWEIGHT-JUDGMENT-STATS-RUN-ID-001": "sha256:88c1826ba7c184f0db456d064acb4dd3fd33d7dbe2a200375ed13b56749d933a",
       "LIGHTWEIGHT-JUDGMENT-STATS-STORED-TAGS-001": "sha256:52d0d852f7681a47b45e5078c6e6b976b4dd6d8fdee6c6e6fee9ace00d69cd8f",
       "LIGHTWEIGHT-JUDGMENT-STATS-WAL-001": "sha256:749bbe18b6b55e72c985f9578d7cd8c0d535c3270a5fdeb5b1e3f9c18bbf21e9",
@@ -7421,6 +7425,36 @@
         "test:49ef595cf16ada73f2cf198b9e7a820a94312a9c5a6e663d746164f38df04fe8"
       ]
     },
+    "LIGHTWEIGHT-JUDGMENT-LOG-UPGRADE-BACKFILL-001": {
+      "title": "逐字段回填与缺失语义",
+      "sourcePath": "cases/lightweight-judgment-log-upgrade-backfill.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:a2ae6a70b701a265f82007a44c1b6b7c2844e0cc171c195e071cbb3c0136c458"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-LOG-UPGRADE-ENCODING-001": {
+      "title": "请求回填的编码前置",
+      "sourcePath": "cases/lightweight-judgment-log-upgrade-encoding.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:9421968fe852f6799b7af1adae2957a823c74587011e37c5ed0e23fd66fe6250"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-LOG-UPGRADE-ROLLBACK-001": {
+      "title": "迁移身份检查与失败回滚",
+      "sourcePath": "cases/lightweight-judgment-log-upgrade-rollback.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:3908440312f04cb8e5399f2959950a341670a9f35e1301418a03f002ea852c5c"
+      ]
+    },
     "LIGHTWEIGHT-JUDGMENT-RESPONSE-PRESERVATION-001": {
       "title": "CLI 原样保留 schema 有效响应",
       "sourcePath": "cases/lightweight-judgment-response-preservation.md",
@@ -7468,7 +7502,7 @@
         "lightweight-judgment"
       ],
       "testIds": [
-        "test:3fab27ac9c28a973f3979059e3f0a7f4f68dcdbd47ba9e7d486bf060bf649c9a"
+        "test:166d4c01cf894e1f880d2966ae39e203ff02b9545c3af5f02266fc95046922f1"
       ]
     },
     "LIGHTWEIGHT-JUDGMENT-STATS-EXACT-RANK-001": {
@@ -7532,13 +7566,13 @@
       ]
     },
     "LIGHTWEIGHT-JUDGMENT-STATS-LEGACY-001": {
-      "title": "只读 v1 与正文隔离",
+      "title": "旧库拒绝与显式升级指引",
       "sourcePath": "cases/lightweight-judgment-stats-legacy.md",
       "tags": [
         "lightweight-judgment"
       ],
       "testIds": [
-        "test:5a4957d7fe2896225e419cd42073537989d8df52fd855ed4766741fc3c211257"
+        "test:c35464996687b6039b7277f7dd8ba3e3900e9a34c7d65ec7c309cae0bd097dec"
       ]
     },
     "LIGHTWEIGHT-JUDGMENT-STATS-METADATA-001": {
@@ -7562,23 +7596,23 @@
       ]
     },
     "LIGHTWEIGHT-JUDGMENT-STATS-MIGRATION-001": {
-      "title": "普通 writer 原子升级旧库",
+      "title": "显式 SQL 升级副本并保留原库",
       "sourcePath": "cases/lightweight-judgment-stats-migration.md",
       "tags": [
         "lightweight-judgment"
       ],
       "testIds": [
-        "test:148612a93f57a848eee8d7c41ff74d907b10993e5d0b24f4b7670901b9813882"
+        "test:6a04951394e3c5cd70739da8060f64a1dd4a42e01d00efe78a82a372b5b20808"
       ]
     },
     "LIGHTWEIGHT-JUDGMENT-STATS-NULL-TAGS-001": {
-      "title": "旧记录缺标签与原型隔离",
+      "title": "当前记录缺标签与原型隔离",
       "sourcePath": "cases/lightweight-judgment-stats-null-tags.md",
       "tags": [
         "lightweight-judgment"
       ],
       "testIds": [
-        "test:2e73a61eea5c105ed3242a907c9fb4a630513cd156d85580c36fc7a19ab060c0"
+        "test:6c177d58e388169aae7a59cb3127434c0bfee658f8e531941ef467a2d30bc968"
       ]
     },
     "LIGHTWEIGHT-JUDGMENT-STATS-OFFLINE-001": {
@@ -7599,6 +7633,16 @@
       ],
       "testIds": [
         "test:d1b09ad83e4b6c4b918faee491e8887fe3a44e24c4f9e59593f4bb6288af19dd"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-STATS-RETENTION-001": {
+      "title": "当前摘要与正文隔离",
+      "sourcePath": "cases/lightweight-judgment-stats-retention.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:d33b7daaad7ed821ad29edfaaffa7bace33c4abe2cb2acfa54529daad220f777"
       ]
     },
     "LIGHTWEIGHT-JUDGMENT-STATS-RUN-ID-001": {

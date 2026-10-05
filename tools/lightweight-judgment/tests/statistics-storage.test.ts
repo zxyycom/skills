@@ -12,7 +12,7 @@ import {
   array
 } from "./statistics-fixture.ts";
 
-test("stats reads legacy v1 without migration or raw retention access", async () => {
+test("stats and writer reject legacy v1 with upgrade guidance and no mutation or HTTP", async () => {
   const fixture = statisticsFixture(1);
   try {
     fixture.insert({
@@ -23,15 +23,60 @@ test("stats reads legacy v1 without migration or raw retention access", async ()
       response_body: Buffer.from("PRIVATE-RESPONSE")
     });
     const before = fs.readFileSync(fixture.databasePath);
-    const result = await fixture.stats();
-    assert.equal(result.schemaVersion, 1);
-    assert.equal(summary(result).calls, 1);
-    assert.equal(metric(result, "requestBytes").missing, 1);
-    assert.equal(JSON.stringify(result).includes("PRIVATE"), false);
+    const reader = await runCli(
+      ["stats", "--database", fixture.databasePath],
+      runtime({ fetch: async () => assert.fail("stats must not fetch") })
+    );
+    const writer = await runCli(
+      args,
+      fixture.runtime(
+        {},
+        {
+          fetch: async () => assert.fail("legacy schema must block HTTP")
+        }
+      )
+    );
+    for (const outcome of [reader, writer]) {
+      assert.equal(outcome.exitCode, 4);
+      const output = decodeFailure(outcome.stdout);
+      assert.equal(output.error.kind, "storage");
+      assert.equal(output.meta.attempts, 0);
+      assert.equal(output.result, null);
+      assert.match(output.error.message, /migrations\/README\.md/u);
+      assert.equal(
+        (outcome.stdout + outcome.stderr).includes("PRIVATE"),
+        false
+      );
+    }
+    assert.equal(decodeFailure(reader.stdout).meta.persistence, undefined);
     assert.equal(
       fixture.database.prepare("PRAGMA user_version").get()?.user_version,
       1
     );
+    assert.deepEqual(fs.readFileSync(fixture.databasePath), before);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test("stats reads current summaries without exposing retained bodies or deriving missing metadata", async () => {
+  const fixture = statisticsFixture();
+  try {
+    fixture.insert({
+      input_tokens: 7,
+      output_tokens: 0,
+      request_json: "PRIVATE-REQUEST",
+      response_body: Buffer.from("PRIVATE-RESPONSE")
+    });
+    const before = fs.readFileSync(fixture.databasePath);
+    const result = await fixture.stats();
+    assert.equal(result.schemaVersion, 2);
+    assert.equal(summary(result).calls, 1);
+    assert.equal(metric(result, "inputTokens").sum, 7);
+    assert.equal(metric(result, "outputTokens").sum, 0);
+    assert.equal(metric(result, "requestBytes").missing, 1);
+    assert.equal(metric(result, "responseBytes").missing, 1);
+    assert.equal(JSON.stringify(result).includes("PRIVATE"), false);
     assert.deepEqual(fs.readFileSync(fixture.databasePath), before);
   } finally {
     fixture.cleanup();
@@ -132,7 +177,7 @@ test("stats sees committed active WAL data and preserves a consistent transactio
       "wal"
     );
     const { openStatisticsDatabase } = await import("../src/call-database.ts");
-    const { database: reader } = openStatisticsDatabase(fixture.databasePath);
+    const reader = openStatisticsDatabase(fixture.databasePath);
     try {
       const beforeCount = reader
         .prepare("SELECT COUNT(*) AS count FROM calls")
@@ -153,26 +198,26 @@ test("stats sees committed active WAL data and preserves a consistent transactio
   }
 });
 
-test("legacy and migrated NULL tags never inherit prototype names during grouping", async () => {
-  const fixture = statisticsFixture(1);
+test("current NULL tags never inherit prototype names during grouping", async () => {
+  const fixture = statisticsFixture();
   try {
     fixture.insert();
     const flags = ["--group-by", "tag:constructor,tag:toString,tag:__proto__"];
-    for (const version of [1, 2]) {
-      if (version === 2) {
+    for (const count of [1, 2]) {
+      if (count === 2) {
         const invoked = await runCli(args, fixture.runtime());
         assert.equal(invoked.exitCode, 0, invoked.stdout);
       }
       const result = await fixture.stats(flags);
       const groups = array(result.groups);
-      assert.equal(result.schemaVersion, version);
+      assert.equal(result.schemaVersion, 2);
       assert.equal(groups.length, 1);
       assert.deepEqual(object(object(groups[0]).key), {
         "tag:constructor": null,
         "tag:toString": null,
         "tag:__proto__": null
       });
-      assert.equal(object(object(groups[0]).summary).calls, version);
+      assert.equal(object(object(groups[0]).summary).calls, count);
       assert.equal(JSON.stringify(result).includes("undefined"), false);
     }
   } finally {

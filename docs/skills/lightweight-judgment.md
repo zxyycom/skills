@@ -16,7 +16,8 @@ skill 包含行为文档、自包含 CLI／source map、Codex 调用策略与通
 
 - [SKILL.md](../../skills/lightweight-judgment/SKILL.md)：agent 执行入口，承接任务选择、请求构造、结果复核与采用。
 - [CLI 操作契约](../../skills/lightweight-judgment/references/cli.md)：运行前置、配置、输入输出、响应校验与技术失败。
-- [调用日志](../../skills/lightweight-judgment/references/call-logging.md)：可选 SQLite 留存、调用状态、恢复与 schema 兼容。
+- [调用日志](../../skills/lightweight-judgment/references/call-logging.md)：可选 SQLite 留存、调用状态、恢复与当前结构要求。
+- [保留数据的版本迁移](../../skills/lightweight-judgment/migrations/README.md)：仅在需要旧历史时读取，按版本说明字段含义与回填依据，可确定的简单转换才附脚本；不保留历史可直接重新建库。
 - [离线调用统计](../../skills/lightweight-judgment/references/statistics.md)：`stats` 用法、统计口径、批次对照与只读边界。
 - [JEV 使用边界与任务验证](../../skills/lightweight-judgment/references/jev-characteristics.md)：可访问的官方模型说明、输入准备、结果解读与目标任务验证方法。
 

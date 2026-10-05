@@ -351,7 +351,7 @@ Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维
 
 | 维护源码 | 分发目标 |
 | --- | --- |
-| `tools/lightweight-judgment/` | `skills/lightweight-judgment/scripts/lightweight-judgment.mjs` 与 `lightweight-judgment.mjs.map`；构建适配为 `scripts/build/lightweight-judgment.ts` |
+| `tools/lightweight-judgment/` | `skills/lightweight-judgment/scripts/lightweight-judgment.mjs` 与 `lightweight-judgment.mjs.map`；`migrations/log-v1-to-v2.sql` 同步到该 skill 的 `migrations/log-v1-to-v2/migrate.sql`，迁移记录手工维护；构建适配为 `scripts/build/lightweight-judgment.ts` |
 | `tools/change-plan/` | `skills/change-plan/scripts/change-plan.mjs` 与 `change-plan.mjs.map` |
 | `tools/decision-records/` | `skills/decision-records/scripts/decision-records.*` 和索引 Schema |
 | `tools/investigation-report/` | `skills/investigation-report/scripts/check-investigations.*` 和索引 Schema |

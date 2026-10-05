@@ -1,7 +1,7 @@
 ---
 title: Lightweight Judgment 以只读快照统计调用与显式批次
 id: 261004-lightweight-judgment-readonly-statistics
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-04T04:32:49Z
 purpose: 提供可复算的离线调用统计与同批首条对照。
@@ -29,4 +29,4 @@ relations: []
 - 按调用累计状态、延迟和服务报告的 token，费用按接收方隔离。默认保留失败与重复调用的实际权重，输出筛选条件、计量方法及有效／缺失数量；缺失值保持缺失。资源预算显式且可调整，超限整体失败。
 - 调用方显式提供批次 ID、批内序号和标签，作为仅本地元数据留存。序号表达指定位置，首条、后续、缺失与部分选择分别呈现；筛选保留原首条身份。该顺序不证明并发发出顺序或冷启动原因。
 - 新调用的批次与字节数摘要独立于正文留存开关。读取受支持旧库时沿用已有字段；真实调用的 writer 负责事务化升级受支持结构并保留旧记录，旧记录的新增字段保持缺失。
-- 结果用于调用级表现比较，计时起止、分位数、分组与分桶由[统计契约](../../skills/lightweight-judgment/references/statistics.md)承接。TTFT、纯推理时间、缓存收益及依赖标准答案与语义映射的质量结论，均须取得相应证据后另行评估。
+- 结果用于调用级表现比较，计时起止、分位数、分组与分桶由[统计契约](../../../skills/lightweight-judgment/references/statistics.md)承接。TTFT、纯推理时间、缓存收益及依赖标准答案与语义映射的质量结论，均须取得相应证据后另行评估。

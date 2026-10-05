@@ -1,13 +1,13 @@
-### Case LIGHTWEIGHT-JUDGMENT-STATS-LEGACY-001: 只读 v1 与正文隔离
+### Case LIGHTWEIGHT-JUDGMENT-STATS-LEGACY-001: 旧库拒绝与显式升级指引
 
 Tests:
-- `test:5a4957d7fe2896225e419cd42073537989d8df52fd855ed4766741fc3c211257`
+- `test:c35464996687b6039b7277f7dd8ba3e3900e9a34c7d65ec7c309cae0bd097dec`
 
 Tags:
 - `lightweight-judgment`
 
 Contract:
-- stats 支持读取既有 v1 摘要，不迁移库，也不读取或输出原始请求／响应正文。
+- 正常 stats 与 writer 只接受当前结构；v1 在发送前被拒绝，不自动升级或泄露正文，并指向独立升级指南。
 
 Proves:
-- 真实 v1 库统计成功且新元数据缺失可见，原文件字节与 user_version 均保持；统计输出没有正文标记。
+- 真实 v1 库的 stats 与推理均返回 storage／退出 4、attempts=0 和升级路径；stats 无 persistence，输出无正文标记，原库字节与版本保持，HTTP 未调用。

@@ -6,8 +6,8 @@ import { test } from "node:test";
 import { statisticsFixture, summary } from "./statistics-fixture.ts";
 import { decodeSuccess, decodeFailure } from "./output.ts";
 
-test("standalone Node stats reads v1 and active WAL without configuration keys network or workspace packages", async () => {
-  const fixture = statisticsFixture(1);
+test("standalone Node stats reads current schema and active WAL without configuration keys network or workspace packages", async () => {
+  const fixture = statisticsFixture();
   try {
     fixture.database.exec(
       "PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0"
@@ -37,12 +37,12 @@ test("standalone Node stats reads v1 and active WAL without configuration keys n
     const output = decodeSuccess(child.stdout);
     assert.equal(output.meta.attempts, 0);
     assert.equal(summary(output.result).calls, 1);
-    assert.equal(output.result.schemaVersion, 1);
+    assert.equal(output.result.schemaVersion, 2);
     assert.equal(output.meta.persistence, undefined);
     assert.deepEqual(fs.readFileSync(fixture.databasePath), before);
     assert.equal(
       fixture.database.prepare("PRAGMA user_version").get()?.user_version,
-      1
+      2
     );
     const absent = path.join(fixture.directory, "absent.db");
     const blocked = spawnSync(

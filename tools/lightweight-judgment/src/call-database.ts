@@ -3,13 +3,7 @@ import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { JudgmentFailure } from "./failure.ts";
 
-import {
-  migration,
-  schema,
-  callDatabaseVersion,
-  type CallDatabaseVersion
-} from "./call-schema.ts";
-export { callDatabaseVersion } from "./call-schema.ts";
+import { schema, validateCallDatabase } from "./call-schema.ts";
 const lockTimeoutMs = 5000;
 const walRetryDelayMs = 10;
 const sqlitePrimaryCodeRange = 256;
@@ -82,8 +76,7 @@ function initialize(database: DatabaseSync): void {
       .all();
     if (id === 0 && version === 0 && objects.length === 0)
       database.exec(schema);
-    const current = callDatabaseVersion(database);
-    if (current === 1) database.exec(migration);
+    validateCallDatabase(database);
     database.exec("COMMIT");
   } catch (error) {
     database.exec("ROLLBACK");
@@ -109,9 +102,7 @@ export function openCallDatabase(file: string): DatabaseSync {
   }
 }
 
-export function openStatisticsDatabase(
-  file: string
-): Readonly<{ database: DatabaseSync; version: CallDatabaseVersion }> {
+export function openStatisticsDatabase(file: string): DatabaseSync {
   let database: DatabaseSync | undefined;
   let snapshot = false;
   try {
@@ -122,8 +113,8 @@ export function openStatisticsDatabase(
     });
     database.exec("BEGIN");
     snapshot = true;
-    const version = callDatabaseVersion(database);
-    return { database, version };
+    validateCallDatabase(database);
+    return database;
   } catch (error) {
     try {
       if (snapshot) database?.exec("ROLLBACK");

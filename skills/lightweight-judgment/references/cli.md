@@ -64,7 +64,7 @@ CLI 负责配置、输入、鉴权、请求发送、响应校验、可选调用�
 
 日志默认关闭；设置 `logging.enabled: true` 后，真实推理通过输入和凭据校验才创建或打开 SQLite 库。`help`、`doctor`、`dry-run` 均不访问数据库。开启前按 [调用日志](call-logging.md) 确认正文留存、私有路径与数据权限。
 
-启用后先提交发送意图，再调用 HTTP；检查结果时同时检查 `meta.persistence` 和退出码。存储失败使用退出 4，保留已知远端结果，具体处理见下方“技术失败”。
+启用后先提交发送意图，再调用 HTTP；检查结果时同时检查 `meta.persistence` 和退出码。正常读写只接受当前日志结构；遇到旧库，按[旧库处理](call-logging.md#当前格式与旧库处理)选择重新建库或保留数据的迁移。存储失败使用退出 4，保留已知远端结果，具体处理见下方“技术失败”。
 
 ## 命令与输入
 
@@ -253,7 +253,7 @@ Score legend 键须为 `"0"` 至 `"n-1"`，值须为字符串；字符串等级�
 | 3 | `timeout`、`network`、`http` | 报告技术失败，评估是否再次发送；可能已处理或计费 |
 | 3 | `invalid_response` | 保留异常状态，与模型的否定或不确定答案分开 |
 | 4 | `storage`，stats、attempts 为 0、无 persistence | 无法只读打开库或完成统计；按[统计契约](statistics.md)核对已有库、schema、权限与资源预算，未返回截断或空统计 |
-| 4 | `storage`，推理、attempts 为 0 | 发送前无法提交记录，此次未发送；修复日志路径、权限、空间或锁占用 |
+| 4 | `storage`，推理、attempts 为 0 | 发送前无法提交记录，此次未发送；核对日志路径、schema、权限、空间或锁占用，旧库按[旧库处理](call-logging.md#当前格式与旧库处理)选择是否保留历史 |
 | 4 | 保留原推理 error 或 null，attempts 为 1 | 发送后持久化失败，`meta.persistence.status` 为 `failed`；保留输出并检查数据库，不因日志错误自动重发 |
 
 `error.httpStatus` 有 HTTP 状态码时保留，否则为 null；支持时提供脱敏的 `retryAfterMs`，CLI 仍不自动重试。未知参数、冲突输入来源或缺少必填项均为 `input` 错误。
