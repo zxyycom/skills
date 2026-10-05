@@ -152,6 +152,22 @@
       ],
       "title": "定位失败构建后滚动 Skill Release 不补发"
     },
+    "261004-jev-record-maintenance-boundaries": {
+      "formedAt": "2026-10-04T15:30:13Z",
+      "name": "jev-record-maintenance-boundaries",
+      "question": "JEV 对标签、记录内部质量、直接关系、闭合事件与跨记录冲突的判断能支持哪些维护，哪些错误来自输入设计或采用范围？",
+      "relations": [],
+      "resourceIds": [
+        "261004-jev-record-maintenance-boundaries/observations.json"
+      ],
+      "sourcePath": "jev-record-maintenance-boundaries.md",
+      "tags": [
+        "lightweight-judgment",
+        "record-maintenance",
+        "semantic-validation"
+      ],
+      "title": "JEV 用于真实中文记录维护的效果与采用边界"
+    },
     "261004-lightweight-judgment-wal-init-contention": {
       "formedAt": "2026-10-04T04:45:24Z",
       "name": "lightweight-judgment-wal-init-contention",
@@ -824,6 +840,7 @@
       "260912-isolate-ci-version-control-test-load": "sha256:676088ae4f676fbdb7d86544680808b9544199fb698037e875c760316e497c25",
       "260919-gate-toolchain-drift": "sha256:6ae61d9a98622da92e811e803fd84805bd8161223ae8d6edd40ff2323c07a169",
       "260923-stale-skill-release-after-failed-ci": "sha256:30f5274c8658ca3684d44997f7f3e2ee09d3552a1d1a4dc6a975be58878e4299",
+      "261004-jev-record-maintenance-boundaries": "sha256:168f6931ca8b9f1392643ec7606dd8dfad06f87eacd4d26c4c23c8c676024046",
       "261004-lightweight-judgment-wal-init-contention": "sha256:3dc57830e8c2b5f466922ea241f86702a776ea8ebcb091018705157c8933fde7",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",

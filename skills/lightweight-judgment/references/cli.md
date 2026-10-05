@@ -203,9 +203,11 @@ Choice 重复 `--option key=description`，按第一个等号分隔，键唯一�
 
 1. 可解析且 model 可识别；答案 ID 集合与请求一致，type 对应问题。
 2. Noul 为有限 0–1 数值；Choice 选中项与概率键对应候选；Score 范围、概率键和 legend 对应等级。
-3. 概率和 confidence 数值有效；概率归一化、Choice 最大项和 Score 加权结果一致性按明确容差检查，容差仅吸收舍入误差。
+3. `probabilities` 的每项数值与 `confidence` 均为有限 0–1 数值。
 
-绝对容差统一为 `1e-6`（再容纳浮点 epsilon），只接受舍入量级偏差，不归一化概率；confidence 仅验证 0–1 范围，不按公式补造或重算。Score legend 键须为 `"0"` 至 `"n-1"`，值须为字符串；字符串等级精确对应，结构化等级的服务端 legend 文本编码未由官方定义，因此只检查键与值类型，不猜测其序列化。
+CLI 只校验响应 schema 及其与请求的对应关系，不校验概率总和、`choice` 是否为最大概率项或 `score` 是否等于概率加权结果。`score`、`choice`、`probabilities` 和 `confidence` 均原样保留，不重算、归一化或补造；schema 有效不证明模型判断正确。
+
+Score legend 键须为 `"0"` 至 `"n-1"`，值须为字符串；字符串等级精确对应，结构化等级的服务端 legend 文本编码未由官方定义，因此只检查键与值类型，不猜测其序列化。
 
 违反上述条件返回 `invalid_response`；不通过改选、归一化或重发制造有效答案。
 

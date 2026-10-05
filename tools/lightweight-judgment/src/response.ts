@@ -12,25 +12,20 @@ import type { Question, Request } from "./request.ts";
 export type ValidatedResponse = JsonObject &
   Readonly<{
     model: string;
-    answers: JsonObject;
+    answers: Readonly<
+      Record<
+        string,
+        JsonObject & Readonly<v.InferOutput<ReturnType<typeof answerSchema>>>
+      >
+    >;
   }>;
 
-export const probabilityTolerance = 0.000001;
-
-export const scoreTolerance = 0.000001;
-
-function valid(path: string, condition: boolean, reason: string): void {
-  if (!condition) {
-    fail("invalid_response", path, reason);
-  }
-}
-
-function probability(value: unknown): value is number {
-  return (
-    typeof value === "number" &&
-    Number.isFinite(value) &&
-    value >= 0 &&
-    value <= 1
+function probabilitySchema(message: string) {
+  return v.pipe(
+    v.number(message),
+    v.finite(message),
+    v.minValue(0, message),
+    v.maxValue(1, message)
   );
 }
 
@@ -44,133 +39,137 @@ function sameKeys(
   );
 }
 
-const probabilityMapSchema = v.custom<Readonly<Record<string, number>>>(
-  (value) => record(value) && Object.values(value).every(probability)
-);
-
-const legendMapSchema = v.custom<Readonly<Record<string, string>>>(
-  (value) =>
-    record(value) &&
-    Object.values(value).every((item) => typeof item === "string")
-);
-
-function distribution(
-  answer: Readonly<Record<string, unknown>>,
-  keys: readonly string[],
-  field: string
-): Readonly<Record<string, number>> {
-  const parsed = v.safeParse(probabilityMapSchema, answer.probabilities);
-  if (!parsed.success) {
-    fail(
-      "invalid_response",
-      `${field}.probabilities`,
-      "概率须为 0–1 有限数值映射"
-    );
-  }
-  valid(
-    `${field}.probabilities`,
-    sameKeys(parsed.output, keys),
-    "概率键不匹配"
-  );
-  const sum = Object.values(parsed.output).reduce((total, p) => total + p, 0);
-  valid(
-    `${field}.probabilities`,
-    Math.abs(sum - 1) <= probabilityTolerance + Number.EPSILON,
-    "概率和不等于 1"
-  );
-  valid(
-    `${field}.confidence`,
-    probability(answer.confidence),
-    "confidence 须为 0–1 有限数值"
-  );
-  return parsed.output;
-}
-
-function choiceResponse(
-  answer: Readonly<Record<string, unknown>>,
-  question: Extract<Question, { type: "choice" }>,
-  field: string
-): void {
-  const keys = Object.keys(question.criteria);
-  const probabilities = distribution(answer, keys, field);
-  const choice = answer.choice;
-  if (typeof choice !== "string" || !keys.includes(choice)) {
-    fail("invalid_response", `${field}.choice`, "choice 不是候选键");
-  }
-  const max = Math.max(...Object.values(probabilities));
-  valid(
-    `${field}.choice`,
-    Math.abs(probabilities[choice] - max) <=
-      probabilityTolerance + Number.EPSILON,
-    "choice 不是最大概率项"
-  );
-}
-
-function scoreLegend(
-  raw: unknown,
-  levels: readonly unknown[],
-  keys: readonly string[],
-  field: string
-): void {
-  const parsed = v.safeParse(legendMapSchema, raw);
-  if (!parsed.success) {
-    fail("invalid_response", `${field}.legend`, "需要字符串 legend 映射");
-  }
-  valid(`${field}.legend`, sameKeys(parsed.output, keys), "legend 键不匹配");
-  valid(
-    `${field}.legend`,
-    levels.every(
-      (level, index) =>
-        typeof level !== "string" || parsed.output[String(index)] === level
+function distributionEntries(keys: readonly string[]) {
+  const probability = probabilitySchema("概率须为 0–1 有限数值");
+  return {
+    probabilities: v.pipe(
+      // 自定义映射保留并检查全部 own key，包括原型同名候选。
+      v.custom<Readonly<Record<string, number>>>(
+        (value) =>
+          record(value) &&
+          Object.values(value).every((item) => v.is(probability, item)),
+        "概率须为 0–1 有限数值映射"
+      ),
+      v.check((value) => sameKeys(value, keys), "概率键不匹配")
     ),
-    "legend 与字符串等级不对应"
+    confidence: probabilitySchema("confidence 须为 0–1 有限数值")
+  };
+}
+
+function protocolObject<const Entries extends v.ObjectEntries>(
+  entries: Entries,
+  message: string
+) {
+  return v.pipe(
+    // 协议对象不接受数组；Valibot object 本身接受任意非空 object。
+    v.custom<Readonly<Record<string, unknown>>>(record, message),
+    v.object(entries, (issue) => {
+      // 缺失字段沿用其字段 Schema 的原因，而非 object 的整体形状诊断。
+      const key = issue.path?.[0]?.key;
+      if (typeof key === "string" && Object.hasOwn(entries, key)) {
+        const missing = v.safeParse(entries[key], undefined, {
+          abortEarly: true
+        });
+        if (!missing.success) return missing.issues[0].message;
+      }
+      return message;
+    })
   );
 }
 
-function scoreResponse(
-  answer: Readonly<Record<string, unknown>>,
-  question: Extract<Question, { type: "score" }>,
-  field: string
-): void {
+function scoreResponseSchema(question: Extract<Question, { type: "score" }>) {
   const keys = question.criteria.map((_, index) => String(index));
-  const probabilities = distribution(answer, keys, field);
-  const weighted = keys.reduce(
-    (total, key, index) => total + index * probabilities[key],
-    0
+  return protocolObject(
+    {
+      type: v.literal("score", "答案 type 不匹配"),
+      ...distributionEntries(keys),
+      score: v.pipe(
+        v.number("score 须为有限数值"),
+        v.finite("score 须为有限数值"),
+        v.minValue(0, "score 超出等级范围"),
+        v.maxValue(keys.length - 1, "score 超出等级范围")
+      ),
+      legend: v.pipe(
+        v.custom<Readonly<Record<string, string>>>(
+          (value) =>
+            record(value) &&
+            Object.values(value).every((item) => typeof item === "string"),
+          "需要字符串 legend 映射"
+        ),
+        v.check((value) => sameKeys(value, keys), "legend 键不匹配"),
+        v.check(
+          (value) =>
+            question.criteria.every(
+              (level, index) =>
+                typeof level !== "string" || value[String(index)] === level
+            ),
+          "legend 与字符串等级不对应"
+        )
+      )
+    },
+    "需要答案对象"
   );
-  const score = answer.score;
-  if (typeof score !== "number" || !Number.isFinite(score)) {
-    fail("invalid_response", `${field}.score`, "score 须为有限数值");
-  }
-  valid(
-    `${field}.score`,
-    score >= 0 && score <= keys.length - 1,
-    "score 超出等级范围"
-  );
-  valid(
-    `${field}.score`,
-    Math.abs(score - weighted) <= scoreTolerance + Number.EPSILON,
-    "score 与加权结果不一致"
-  );
-  scoreLegend(answer.legend, question.criteria, keys, field);
 }
 
-function answerResponse(raw: unknown, question: Question, field: string): void {
-  if (!record(raw)) {
-    fail("invalid_response", field, "需要答案对象");
-  }
-  valid(field, raw.type === question.type, "答案 type 不匹配");
+function answerSchema(question: Question) {
   switch (question.type) {
     case "noul":
-      valid(`${field}.noul`, probability(raw.noul), "需要 0–1 有限概率");
-      break;
+      return protocolObject(
+        {
+          type: v.literal("noul", "答案 type 不匹配"),
+          noul: probabilitySchema("需要 0–1 有限概率")
+        },
+        "需要答案对象"
+      );
     case "choice":
-      choiceResponse(raw, question, field);
-      break;
+      return protocolObject(
+        {
+          type: v.literal("choice", "答案 type 不匹配"),
+          ...distributionEntries(Object.keys(question.criteria)),
+          choice: v.pipe(
+            v.string("choice 不是候选键"),
+            v.check(
+              (value) => Object.hasOwn(question.criteria, value),
+              "choice 不是候选键"
+            )
+          )
+        },
+        "需要答案对象"
+      );
     case "score":
-      scoreResponse(raw, question, field);
-      break;
+      return scoreResponseSchema(question);
   }
+}
+
+const responseSchema = protocolObject(
+  {
+    model: v.pipe(
+      v.string("无法识别实际模型"),
+      v.regex(
+        /^(?:typesafe\/)?jev-[A-Za-z0-9][A-Za-z0-9._-]*$/u,
+        "无法识别实际模型"
+      )
+    ),
+    answers: v.custom<Readonly<Record<string, unknown>>>(record, "需要答案映射")
+  },
+  "需要响应对象"
+);
+
+function validateSchema<Schema extends v.GenericSchema>(
+  schema: Schema,
+  raw: unknown,
+  field: string
+): v.InferOutput<Schema> {
+  const parsed = v.safeParse(schema, raw, { abortEarly: true });
+  if (!parsed.success) {
+    const issue = parsed.issues[0];
+    // Schema 路径只含固定协议字段；动态问题与候选映射不展开原始键。
+    const fields = issue.path?.map(({ key }) => String(key)) ?? [];
+    // type 诊断定位答案整体，维持既有协议位置。
+    if (fields.at(-1) === "type") fields.pop();
+    fail("invalid_response", [field, ...fields].join("."), issue.message);
+  }
+  return parsed.output;
 }
 
 function parseResponse(text: string): JsonValue {
@@ -189,27 +188,17 @@ function validateResponseObject(
   raw: JsonValue,
   request: Request
 ): asserts raw is ValidatedResponse {
-  if (!record(raw)) {
-    fail("invalid_response", "response", "需要响应对象");
+  const { answers } = validateSchema(responseSchema, raw, "response");
+  if (!sameKeys(answers, Object.keys(request.questions))) {
+    fail("invalid_response", "response.answers", "答案 ID 集合不匹配");
   }
-  valid(
-    "response.model",
-    typeof raw.model === "string" &&
-      /^(?:typesafe\/)?jev-[A-Za-z0-9][A-Za-z0-9._-]*$/u.test(raw.model),
-    "无法识别实际模型"
-  );
-  const answers = raw.answers;
-  if (!record(answers)) {
-    fail("invalid_response", "response.answers", "需要答案映射");
-  }
-  valid(
-    "response.answers",
-    sameKeys(answers, Object.keys(request.questions)),
-    "答案 ID 集合不匹配"
-  );
   for (const [ordinal, id] of orderedKeys(request.questions).entries()) {
     const question = request.questions[id];
-    answerResponse(answers[id], question, `response.answers[${ordinal}]`);
+    validateSchema(
+      answerSchema(question),
+      answers[id],
+      `response.answers[${ordinal}]`
+    );
   }
 }
 
@@ -219,5 +208,6 @@ export function validateResponse(
 ): ValidatedResponse {
   const raw = parseResponse(text);
   validateResponseObject(raw, request);
+  // Schema 只提供验证与类型证据；返回原对象，保留额外字段和原始键顺序。
   return raw;
 }
