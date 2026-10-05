@@ -18,8 +18,8 @@ skill 包含行为文档、自包含 CLI／source map、Codex 调用策略与通
 - [CLI 操作契约](../../skills/lightweight-judgment/references/cli.md)：运行前置、配置、输入输出、响应校验与技术失败。
 - [调用日志](../../skills/lightweight-judgment/references/call-logging.md)：可选 SQLite 留存、调用状态、恢复与 schema 兼容。
 - [离线调用统计](../../skills/lightweight-judgment/references/statistics.md)：`stats` 用法、统计口径、批次对照与只读边界。
-- [JEV 特点与实测依据](../../skills/lightweight-judgment/references/jev-characteristics.md)：具体任务、样本条件、观察结果和外推边界。
+- [JEV 使用边界与任务验证](../../skills/lightweight-judgment/references/jev-characteristics.md)：可访问的官方模型说明、输入准备、结果解读与目标任务验证方法。
 
 ## 验证责任
 
-CLI 的本地验证边界见操作契约；模型的具体历史实测、样本条件和外推边界见 JEV 证据。实际采用时，用目标任务验证分类与精确求值的分流、独立问题与依赖问题的拆分、缺证与技术失败的区分，以及外发和高风险动作的权限边界。
+CLI 的本地验证边界见操作契约；模型的输入风险与任务验证方法见对应引用。实际采用时，用目标任务验证分类与精确求值的分流、独立问题与依赖问题的拆分、缺证与技术失败的区分，以及外发和高风险动作的权限边界。

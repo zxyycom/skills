@@ -2,7 +2,7 @@
 
 本文是随 skill 分发的 CLI 操作 owner，定义运行、配置、输入输出、校验和错误处理。可选 SQLite 留存与恢复由 [调用日志](call-logging.md) 承接，离线统计由[统计契约](statistics.md)承接。
 
-使用 Node.js 24.18 或更新版本直接运行 `scripts/lightweight-judgment.mjs`，无需全局安装或项目依赖。下列绝对路径均为占位示例，调用前替换为实际路径；仓库内使用 `bun run lightweight-judgment -- <command> [参数]`。
+使用 Node.js 24.18 或更新版本直接运行 `scripts/lightweight-judgment.mjs`，无需全局安装或项目依赖。下列绝对路径均为占位示例，调用前替换为实际路径。
 
 ## 职责与通道
 
@@ -100,31 +100,45 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json -
 | `score` | 必填有序等级数组，2–10 个等级；等级为字符串、对象或数组 |
 | `noul` | 可省略；提供时为只含 `true`／`false` 的对象，两字段均可省略，条件为字符串、对象或数组 |
 
-共享 state 的双题示例，可保存后通过 `json --file` 发送：
+双题示例：比较两份共同适用的规范，分别判断是否冲突、是否各有独有要求。以下为虚构的完整材料，两题共享 state；可保存为 JSON 后通过 `json --file` 发送：
 
 ```json
 {
-  "state": { "message": "升级后启动失败，提示配置字段不存在。" },
+  "state": {
+    "scope": "两份规范当前均适用于同一项目的每次正式发布，没有例外条件。",
+    "a": {
+      "id": "A",
+      "text": "发布前必须完成安全检查。版本号采用递增整数。"
+    },
+    "b": {
+      "id": "B",
+      "text": "发布前允许跳过安全检查。发布时必须附带变更说明。"
+    }
+  },
   "questions": {
-    "category": {
+    "conflict": {
       "type": "choice",
-      "instructions": "根据 message，选择最适合的问题类别。",
+      "instructions": "依据 state.scope，比较 state.a.text 与 state.b.text 是否对同一行为提出互不相容的要求或许可；一方要求必做而另一方允许不做，也属于冲突。",
       "criteria": {
-        "configuration": "配置字段、格式或配置兼容性问题",
-        "network": "连接、域名解析或服务可达性问题",
-        "other": "信息足够，但不属于以上类别",
-        "unclear": "信息不足，无法判断类别"
+        "conflict": "共同适用时存在互不相容的要求或许可",
+        "compatible": "材料足够，且共同适用时要求与许可相容",
+        "insufficient": "正文或适用条件不足以确定是否相容"
       }
     },
-    "requests_rollback": {
-      "type": "noul",
-      "instructions": "message 是否明确请求回退旧版本？只判断是否提出请求。"
+    "distinct_requirements": {
+      "type": "choice",
+      "instructions": "只根据 state.a.text 与 state.b.text 判断：双方是否各自包含对方未覆盖的要求？有无独有要求与是否存在局部冲突分别判断。",
+      "criteria": {
+        "yes": "双方各有对方未覆盖的要求",
+        "no": "至少一方的全部要求已被另一方覆盖",
+        "insufficient": "正文不足以确定要求是否被覆盖"
+      }
     }
   }
 }
 ```
 
-两题共享材料、独立作答：`category` 的 `unclear` 与 `other` 分别保留缺证和无匹配出口；`requests_rollback` 只判断是否提出请求。具体路由与回退授权由原任务决定。
+阅读预期（非服务实测）：`conflict=conflict` 且 `distinct_requirements=yes`。安全检查的要求与许可冲突，版本号和变更说明则各自独有；两种性质可以同时成立。两题均保留缺证出口，实际使用时核对正文与适用条件，再由 agent 复核原文形成建议；改写、合并或删除遵循原任务授权。
 
 ### `ask`：单题参数
 
@@ -207,7 +221,7 @@ Choice 重复 `--option key=description`，按第一个等号分隔，键唯一�
 
 CLI 只校验响应 schema 及其与请求的对应关系，不校验概率总和、`choice` 是否为最大概率项或 `score` 是否等于概率加权结果。`score`、`choice`、`probabilities` 和 `confidence` 均原样保留，不重算、归一化或补造；schema 有效不证明模型判断正确。
 
-Score legend 键须为 `"0"` 至 `"n-1"`，值须为字符串；字符串等级精确对应，结构化等级的服务端 legend 文本编码未由官方定义，因此只检查键与值类型，不猜测其序列化。
+Score legend 键须为 `"0"` 至 `"n-1"`，值须为字符串；字符串等级精确对应，结构化等级只检查键与值类型。
 
 违反上述条件返回 `invalid_response`；不通过改选、归一化或重发制造有效答案。
 
@@ -248,12 +262,8 @@ Score legend 键须为 `"0"` 至 `"n-1"`，值须为字符串；字符串等级�
 
 ## 验证边界
 
-本地源码测试、模拟网络和独立 Node 进程验证 CLI 接口与分发边界。它们不证明真实服务的鉴权、余额、延迟或当前模型语义表现；采用结果时另按 [JEV 证据](jev-characteristics.md) 的任务与版本边界验证。
+本地检查与预览只验证配置和请求前置；真实调用还会按上述契约验证响应。它们不证明目标任务的语义正确性或整体收益，采用条件按 [JEV 使用边界与任务验证](jev-characteristics.md)核对。
 
-- 输入与配置：各输入方式等价，类型和顺序保留；配置优先级正确，非法输入与缺密钥在联网前失败，离线命令不发送请求。
-- 调用与响应：每次只发送一次，共享 state 多题正确关联；有效的否定／未知／低 confidence 与协议、鉴权、限流、超时失败分别处理。
-- 持久化：覆盖日志开关、正文独立留存、自动建库、发送前提交、并发追加、SIGKILL 后读取和存储失败结果保留。
-
-后续调用、数据保留策略、统计解读和业务动作仍由调用方负责。
+日志状态仅证明其已提交内容，故障后的可恢复范围按[调用日志](call-logging.md#恢复与只读核对)核对。后续调用、数据保留策略、统计解读和业务动作仍由调用方负责。
 
 维护接口或核对兼容性时查 [System One 兼容通道](https://openrouter.ai/docs/guides/community/typesafe-sdk)、[API reference](https://docs.typesafe.ai/api) 与 [Primitives](https://docs.typesafe.ai/primitives)，并分别核对当前通道支持与实际响应。

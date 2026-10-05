@@ -19,7 +19,7 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs stats 
   --percentiles 50,90,95,99
 ```
 
-以上绝对路径是占位示例，调用前替换为实际路径。
+以上路径、时间窗口、标签和分桶值均为示例，按实际数据与比较目标替换。
 
 | 选库方式 | 行为 |
 | --- | --- |
@@ -75,7 +75,7 @@ stdout 为 `{ ok, result, meta, error }`，`meta.attempts: 0` 且无 `meta.persi
 
 ## 记录本地批次与标签
 
-需要后续批次对照时，在已获授权的 `json`／`ask` 调用中提供本地元数据；它们保存到启用的日志，不进入 HTTP 请求：
+需要后续批次对照时，在已获授权的 `json`／`ask` 调用中提供本地元数据；它们保存到启用的日志，不进入 HTTP 请求。以下批次 ID 与标签仅为示例，实际值由当前比较目标确定：
 
 ```bash
 node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json \
