@@ -8,6 +8,7 @@ purpose: 在复杂 Skill 创建或重构前从现实证据恢复流程、判断�
 background: 生命周期维护拥有结构与分发责任，但隐性领域行为需要不同的触发、证据和完成标准；强制所有维护进入深度发现又会制造额外流程。
 decision: 以独立发现行为按复杂度形成轻量或深度设计契约，区分证据强度并交接实现；不拥有结构、分发和发布，也不绑定建立阶段的上游材料。
 tags:
+  - responsibility-boundaries
   - skill-design-discovery
 relations:
   - type: 修订

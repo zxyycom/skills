@@ -8,6 +8,7 @@ purpose: 让隐性工作流、潜藏决策和约束在 Skill 实现前成为可�
 background: 现有维护能力覆盖归属、结构、分发和交付，但创建只是其中一条路径，无法稳定承接复杂领域能力的深度发现。
 decision: 新增独立 `skill-design-discovery`，以轻量或深度发现形成证据化设计契约，再交由当前环境的实现入口落地。
 tags:
+  - responsibility-boundaries
   - skill-design-discovery
 relations: []
 ---

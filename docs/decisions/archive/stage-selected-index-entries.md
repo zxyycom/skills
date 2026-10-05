@@ -8,7 +8,11 @@ purpose: 让并行任务只暂存自己选择的索引条目，不带入同一�
 background: 一个领域的全部索引条目聚合在单个文件中，普通文件级暂存无法隔离互不相关的并行变化。
 decision: 索引运行时只接收选中条目 id，自行重建并暂存完整索引；领域文件由接入方负责，同索引已有待提交变化时拒绝。
 tags:
+  - dependency-boundary-design
   - index-runtime
+  - product-architecture-judgment
+  - responsibility-boundaries
+  - source-artifact-separation
 relations: []
 ---
 

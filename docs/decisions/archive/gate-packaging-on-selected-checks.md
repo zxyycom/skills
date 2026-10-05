@@ -8,7 +8,9 @@ purpose: 确保一次检查命令生成的 skill 包建立在本次所选前置�
 background: 打包不是 quick 或 full 前置任务；与检查并发或在失败后继续打包会产生未经本次门禁证明的制品。
 decision: 所选前置检查全部完成且通过后才串行运行一次打包；任一失败时显式跳过，打包失败决定整体失败。
 tags:
+  - artifact-integrity
   - project-tooling
+  - validation-boundaries
 relations:
   - type: 拆分
     target: use-profiled-concise-checks

@@ -8,7 +8,10 @@ purpose: 让集合元数据与条目来自同一快照，并只以只读上下�
 background: 条目 ID 已由外层身份集合提供；若再把 metadata 传给身份回调，会重复身份责任并描述不存在的接口。
 decision: 先校验集合 metadata，再向 parser 和 key 策略传递只读的 ID 与 metadata，不设置身份回调。
 tags:
+  - dependency-boundary-design
   - index-runtime
+  - metadata-design
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: carry-typed-collection-metadata

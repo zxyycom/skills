@@ -8,6 +8,7 @@ purpose: 让失联执行的恢复仍是一个可竞争的事务领取动作，�
 background: recover 后再 retry 和 claim 扩大命令面与竞态窗口，活动 lease 强制接管还会削弱当前执行者所有权。
 decision: 过期 running task 只通过携带旧 lease、最新 revision 和原因的 claim 写入新 lease，活动 lease 不允许提前接管。
 tags:
+  - product-architecture-judgment
   - task-graph
 relations:
   - type: 修订

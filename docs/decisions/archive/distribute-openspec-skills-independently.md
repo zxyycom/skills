@@ -8,6 +8,8 @@ purpose: 让 OpenSpec 各阶段能力可以分别选择、安装、更新和演�
 background: 四个 skill 围绕同一 OpenSpec 生命周期协作，但各自拥有入口、版本、制品和 updater，且没有组合安装契约。
 decision: OpenSpec explore、propose、apply 和 archive 分别构成独立分发单元，阶段关系不产生隐含跨 skill 依赖。
 tags:
+  - product-architecture-judgment
+  - responsibility-boundaries
   - skill-maintainer
 relations:
   - type: 拆分

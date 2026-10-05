@@ -8,6 +8,9 @@ purpose: 让 task 的成功终态对应完整目标，而不是分支实现、�
 background: 当目标包含主线集成、发布或外部确认时，提前完成会让协调状态错误地宣称目标已经达成。
 decision: 只有完整 goal 达成后才完成 task；即时集成续用同一 task，异步集成使用显式依赖的独立 tasks。
 tags:
+  - goal-alignment
+  - goal-modeling
+  - responsibility-boundaries
   - task-graph
 relations:
   - type: 拆分

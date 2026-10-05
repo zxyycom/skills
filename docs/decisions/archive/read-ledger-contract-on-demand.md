@@ -8,7 +8,9 @@ purpose: 让测试价值审查先恢复相关契约和证据，只在精确维�
 background: 固定契约包含大量字段、配置和 CLI 细节，纯语义审查每次完整读取会挤占实现、测试和行为 owner 的有效上下文。
 decision: 所有任务继续受账本契约约束，但仅在写入、结构审阅、修复或精确诊断时完整读取；日常恢复先用 list/show/check。
 tags:
+  - context-management
   - test-evidence-review
+  - validation-boundaries
 relations: []
 ---
 

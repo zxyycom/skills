@@ -8,7 +8,10 @@ purpose: 让发布 hash 与提交内容同步，同时避免 CI 写回产生额�
 background: GitHub Actions 在 release 成功后写回 `skill-package.hash` 会产生额外 bot 提交，干扰本地同步、提交历史阅读和 submodule 指针维护。
 decision: 主仓库和每个子仓库都继续保留 `skill-package.hash` 源文件。
 tags:
+  - git-integration
   - project-tooling
+  - release-publishing
+  - version-control
 relations:
   - type: 修订
     target: 260630-publish-skill-package-as-latest-release

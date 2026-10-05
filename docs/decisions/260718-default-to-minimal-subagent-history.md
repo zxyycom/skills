@@ -8,6 +8,8 @@ purpose: 让子代理只获得完成任务所需的上下文，降低无关历�
 background: 入口要求最小上下文，但缺少可映射到不同工具的历史选择规则；依赖默认值会引入噪音，绑定字段又降低复用性。
 decision: 派发前按当前工具能力确定最小充分的历史范围; 可控时显式配置, 默认不继承主线程对话, 必要时只继承最小有限范围, 仅在完整对话本身是不可替代输入时主动选择全量继承, 具体字段和值由工具接口承接。
 tags:
+  - context-management
+  - skill-maintainer
   - subagent-orchestration
 relations: []
 ---

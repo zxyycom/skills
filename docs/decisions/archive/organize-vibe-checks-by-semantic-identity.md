@@ -9,6 +9,10 @@ background: package script 既是手动聚合容器又曾是 Gate leaf，混合�
 decision: 采用稳定 semantic Check ID 和语义 catalog 替代 package 容器身份，保持 profile 覆盖，并以普通 Check 到版本再到打包的 DAG 组织 release。
 tags:
   - project-tooling
+  - responsibility-boundaries
+  - semantic-fidelity
+  - test-identity
+  - vibe-gate
 relations:
   - type: 修订
     target: use-vibe-check-as-authoritative-project-gate

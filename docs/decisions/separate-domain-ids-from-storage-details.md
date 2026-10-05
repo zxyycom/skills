@@ -8,8 +8,13 @@ purpose: 让受管记录的稳定身份不再由文件位置或扩展名承担�
 background: basename 同时表达语义和位置时，重命名或移动会被误判为身份迁移，并使索引无法独立定位来源。
 decision: 使用 Markdown 显式纯 ID 与索引 sourcePath 分离身份和位置；关系与选择只使用 ID。
 tags:
+  - artifact-identity
   - decision-records
+  - metadata-design
+  - product-architecture-judgment
+  - record-identity
   - repository-model
+  - source-artifact-separation
 relations:
   - type: 修订
     target: use-stable-decision-id-for-relations-and-lifecycle

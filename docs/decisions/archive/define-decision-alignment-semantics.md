@@ -9,6 +9,9 @@ background: 生命周期只能说明决策是否仍有效，不能说明当前�
 decision: 活动决策使用 aligned 或 unaligned 表达对齐关系；unaligned 表示决策已生效但当前实现尚未达到目标，不默认产生开放空间。
 tags:
   - decision-records
+  - goal-alignment
+  - naming
+  - semantic-fidelity
 relations:
   - type: 修订
     target: express-decision-alignment-state

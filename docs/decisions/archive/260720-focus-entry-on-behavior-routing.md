@@ -9,6 +9,8 @@ background: 行为入口已经与存储契约分离，但仍重复自动初始�
 decision: "`SKILL.md` 只承接内容 owner、主动读取、任务出口、恢复、候选、命令选择和分出口验收；目录、字段、关系、维护事务与 CLI 精确语义继续只由固定契约完整承接，入口在精确维护前加载该契约。"
 tags:
   - decision-records
+  - product-architecture-judgment
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: 260718-separate-behavior-entry-from-storage-contract

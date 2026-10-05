@@ -8,7 +8,9 @@ purpose: 让已启用仓库 hook 的 commit 在明确授权边界内自动同步
 background: commit 与手工 push 原本分别授权；本仓库需要把目标和频率受限的自动 push 作为启用 hook 后的预先许可行为。
 decision: 启用仓库 hooks 即授权 post-commit 滚动一小时内至多尝试一次非强制 origin main push；该授权不扩展到手工、强制或其他目标 push。
 tags:
+  - git-integration
   - project-tooling
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: bootstrap-platform-git-hooks

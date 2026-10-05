@@ -9,6 +9,8 @@ background: 只读检查器要求 agent 手工扫描和移动计划，已经无�
 decision: 在现有 change-plan 中提供 list、show、check 和 archive，并让语义审阅继续负责机械命令无法判断的完成条件。
 tags:
   - change-plan
+  - product-architecture-judgment
+  - record-lifecycle
 relations:
   - type: 拆分
     target: use-independent-change-plans

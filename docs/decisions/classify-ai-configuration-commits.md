@@ -9,6 +9,7 @@ background: AI 能力相关内容既包含运行配置，也包含说明、协�
 decision: 只有纯 AI 或 agent 配置变化使用 ai；Skill、协作规则、OpenSpec、schema、示例和测试按实际语义选择类型。
 tags:
   - git-commit-organizer
+  - tagging
 relations:
   - type: 拆分
     target: 260702-refine-commit-granularity-types-and-command

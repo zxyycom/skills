@@ -8,6 +8,9 @@ purpose: 在保持交付状态写入互斥的同时，允许独立调查、验�
 background: 独立性要求不修改被评估对象，而不是禁止一切写入；把两者混同会限制验证，也会掩盖真正的共享状态冲突。
 decision: 交付物、共享项目和外部状态的写入所有权保持互斥；独立代理可在明确隔离范围内创建辅助物，但不得修改被评估对象。
 tags:
+  - agent-workspace-isolation
+  - concurrency
+  - responsibility-boundaries
   - subagent-orchestration
 relations:
   - type: 拆分

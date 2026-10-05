@@ -8,7 +8,10 @@ purpose: 让每份调查报告保存形成结果时的完整判断输入，并�
 background: 现有完整报告保留当前背景，却未固定每轮目标，也未明确相同结果在不同背景下的比较价值。
 decision: 每份报告固定记录背景、调查动因、调查目标和调查结果；判断输入实质变化时追加完整报告。
 tags:
+  - context-management
   - investigation-report
+  - knowledge-evolution
+  - skill-maintainer
 relations:
   - type: 修订
     target: append-self-contained-investigation-reports

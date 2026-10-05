@@ -8,6 +8,8 @@ purpose: 让大量短期任务以稳定、紧凑且可查询的状态存在，�
 background: 任务上下文很少、更新频繁且通常无需长期回放；逐任务 Markdown 会放大维护面，派生索引也会引入第二事实源。
 decision: 使用长期存在的 JSON 运行时索引作为任务唯一事实源，每项任务是短期条目，不创建逐任务 Markdown 或归档历史。
 tags:
+  - product-architecture-judgment
+  - record-lifecycle
   - task-graph
 relations: []
 ---

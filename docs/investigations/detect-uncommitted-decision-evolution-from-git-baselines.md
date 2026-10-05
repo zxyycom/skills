@@ -5,6 +5,8 @@ formedAt: "2026-07-28T16:39:03+08:00"
 question: "Git 版本基线能否安全识别同一 Change 内尚未提交的中间决策演进候选？"
 tags:
   - "decision-records"
+  - "epistemic-limits"
+  - "preliminary-research"
 relations: []
 ---
 

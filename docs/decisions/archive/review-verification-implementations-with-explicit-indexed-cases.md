@@ -8,6 +8,7 @@ purpose: 让 skill 只在测试或工程校验实现发生变化时评估证明�
 background: 入口发现、源码 marker、未登记统计和 Git 范围触发让流程围绕采集完整性展开，也会由普通业务变化间接启用；工程校验又无法被测试入口模型准确承接。
 decision: 使用 `verification-implementation-review` 审查 test/check 实现；只登记显式 case，移除采集、marker、自动注册与范围触发，保留派生索引查询。
 tags:
+  - responsibility-boundaries
   - test-evidence-review
 relations:
   - type: 替代

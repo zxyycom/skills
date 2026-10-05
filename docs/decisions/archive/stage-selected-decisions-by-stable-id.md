@@ -1,7 +1,7 @@
 ---
 title: 按稳定 Decision ID 构造待提交快照
 id: stage-selected-decisions-by-stable-id
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-15T03:14:04Z
 purpose: 让调用者从并行磁盘决策变化中按稳定身份选择可独立提交且索引一致的待提交决策集合。
@@ -9,6 +9,9 @@ background: 当前路径会因分类和归档移动而变化；以路径作为�
 decision: stage 以 Decision ID 显式选择 filesystem 变化，以 revision 为基线构造完整目标集合并原子替换 pending 决策范围。
 tags:
   - decision-records
+  - product-architecture-judgment
+  - responsibility-boundaries
+  - source-artifact-separation
   - version-control
 relations:
   - type: 修订

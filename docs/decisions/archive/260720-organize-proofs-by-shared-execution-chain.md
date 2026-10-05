@@ -8,7 +8,9 @@ purpose: 让 automated case 同时表达分支结果和线性 happy path 或失�
 background: 既有规则把 `Proves:` 主要描述为分支叶子，但一条没有分支的连续执行链路也可能依次固定多个状态迁移、输出、副作用或清理不变量。
 decision: automated case 按共同契约、共享基座或连续链路组织；`Proves:` 可写分支或线性检查点，Mermaid 按需表达，仅独立契约才拆分。
 tags:
+  - semantic-test-cases
   - test-evidence-review
+  - test-traceability
 relations:
   - type: 修订
     target: 260719-organize-multi-branch-proofs-by-shared-base

@@ -8,6 +8,8 @@ purpose: 在没有可复核误终态实例时保持终态事实与下游协调�
 background: 当前真实场景分别由后继 task 和语义 result 版本锚点解决，尚未出现必须撤销 succeeded 或 cancelled 才能恢复协调的案例。
 decision: 当前不实现 correct、reopen 或新的 task 演进协议，维持现有终态封闭规则；只有出现后继或修复 task 无法处理的真实错误终态时才重新探索最小纠正机制。
 tags:
+  - product-architecture-judgment
+  - responsibility-boundaries
   - task-graph
 relations:
   - type: 拆分

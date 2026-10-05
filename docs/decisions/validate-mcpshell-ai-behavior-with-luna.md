@@ -10,6 +10,7 @@ decision: 仅为不能机械证明的 AI 行为少量调用 Luna；MCP 结构与
 tags:
   - mcpshell-workspace-tools
   - skill-maintainer
+  - validation-boundaries
 relations: []
 ---
 

@@ -8,7 +8,11 @@ purpose: 让核心验证 Case 对显式完整快照的引用，而不拥有项�
 background: 闭合双向关系把项目采集、Case 语义和核心查询耦合为同一事实。
 decision: Case 保存 Tests 集合，核心仅检查显式快照引用，项目另行拥有实体覆盖策略。
 tags:
+  - product-architecture-judgment
+  - record-relations
+  - responsibility-boundaries
   - test-evidence-review
+  - validation-boundaries
 relations:
   - type: 替代
     target: maintain-closed-many-to-many-test-case-relations

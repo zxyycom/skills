@@ -4,7 +4,9 @@ id: "align-prompt-optimize-name-and-trigger"
 formedAt: "2026-07-21T18:10:32+08:00"
 question: "prompt-optimize 的名称怎样同时表达真实能力、人类发现入口与 agent 主动触发边界？"
 tags:
+  - "naming"
   - "prompt-optimize"
+  - "semantic-fidelity"
 relations: []
 ---
 

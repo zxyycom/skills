@@ -9,6 +9,8 @@ background: 把 alignment 称为实时事实关系，会与已对齐后不允许
 decision: active 即生效；alignment 表示目标是否已核对并建立为单向基线，偏离按一致性问题处理。
 tags:
   - decision-records
+  - goal-alignment
+  - naming
 relations:
   - type: 修订
     target: express-alignment-as-field-relation

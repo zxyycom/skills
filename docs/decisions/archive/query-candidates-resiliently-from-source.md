@@ -9,6 +9,7 @@ background: 候选不进入正式索引，若源码查询遇到任一非法文�
 decision: candidates 和 show-candidate 直接扫描源码并逐文件容错；集合级错误和严格 check 继续阻断。
 tags:
   - decision-records
+  - validation-boundaries
 relations:
   - type: 拆分
     target: use-source-resilient-reviewable-candidates

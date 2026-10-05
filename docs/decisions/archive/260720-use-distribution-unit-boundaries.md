@@ -8,7 +8,10 @@ purpose: 让单个 skill 和成套 skills 都能按真实安装与使用方式�
 background: Skill 是行为入口，分发单元才是安装和交付边界；要求每个 skill 单独交付会破坏合法的单元内依赖。
 decision: "`skill-maintainer` 区分 skill 行为单元与 distribution unit 交付单元, 允许同一单元内显式依赖和交接, 并要求跨单元依赖声明前置条件及缺失路径。"
 tags:
+  - product-architecture-judgment
+  - responsibility-boundaries
   - skill-maintainer
+  - validation-boundaries
 relations:
   - type: 修订
     target: 260719-own-project-aware-skill-lifecycle

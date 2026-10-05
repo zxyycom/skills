@@ -8,6 +8,7 @@ purpose: 在缩短检查尾部等待的同时限制顶层资源竞争，并允�
 background: 检查任务内部可能继续启动测试和子进程，默认提高顶层并发会放大 CPU、内存和进程压力。
 decision: 已选前置检查默认最多并发两个，可由正整数配置覆盖，并优先调度 full 档慢任务。
 tags:
+  - concurrency
   - project-tooling
 relations:
   - type: 拆分

@@ -9,6 +9,7 @@ background: 原 prompt-optimize 的主承诺检查与当前 AI-ready 内容组�
 decision: 在 AI-ready 文档流程中建立主承诺，以目标方向组织内容并用正文主题、层级、篇幅、结论和验收验证兑现情况。
 tags:
   - ai-ready-docs
+  - goal-alignment
 relations:
   - type: 归并
     target: 260701-add-document-main-promise-check

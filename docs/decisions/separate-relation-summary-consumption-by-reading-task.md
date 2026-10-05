@@ -10,6 +10,7 @@ decision: Decision 与 Investigation 按读取任务提供边说明，并保留�
 tags:
   - decision-records
   - investigation-report
+  - responsibility-boundaries
 relations: []
 ---
 

@@ -9,6 +9,9 @@ background: complete 同时指向进度、验收和删除，无法准确表达�
 decision: 采用 finalize/finalized；保留 completedTaskCount、删除和 tombstone 术语。
 tags:
   - change-plan
+  - naming
+  - record-lifecycle
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: 260904-current-change-plan-completion

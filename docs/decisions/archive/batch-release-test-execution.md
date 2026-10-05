@@ -8,7 +8,10 @@ purpose: 让 Release 测试成本随唯一输入增长，并在完整身份未�
 background: 逐 Check 启动 Bun 使完整门禁重复初始化且调度变化会放大竞争。
 decision: Release 以有界 worker pool 执行 Bun 测试文件并集并投影结果；本地只复用完整身份精确匹配的成功证明。
 tags:
+  - product-architecture-judgment
   - project-tooling
+  - release
+  - test-traceability
 relations: []
 ---
 

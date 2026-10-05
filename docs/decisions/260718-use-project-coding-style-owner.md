@@ -9,6 +9,7 @@ background: "`AGENTS.md` 已承接项目协作约定，`docs/tooling.md` 已承�
 decision: 使用 `docs/coding-style.md` 承接 `scripts/` 实现代码的通用质量规则，由 `AGENTS.md` 提供读取入口；行为契约和工具链细节继续留在各自 owner。
 tags:
   - project-documentation
+  - responsibility-boundaries
 relations: []
 ---
 

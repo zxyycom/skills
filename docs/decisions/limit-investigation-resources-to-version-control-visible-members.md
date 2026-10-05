@@ -8,6 +8,7 @@ purpose: 让项目 ignore 排除的未跟踪生成文件退出受管调查资源
 background: 递归扫描全部磁盘文件会把项目已忽略的缓存和编译产物误判为完全未引用资源，而内置缓存名单无法覆盖项目真实边界。
 decision: Git 工作区只管理版本控制可见资源；非 Git 工作区继续完整发现文件系统资源。
 tags:
+  - git-integration
   - investigation-report
   - version-control
 relations:

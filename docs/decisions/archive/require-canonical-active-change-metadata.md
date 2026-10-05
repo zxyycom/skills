@@ -9,6 +9,9 @@ background: 旧状态投影只节省少量一次性迁移，却长期增加隐�
 decision: Active Change 只接受规范 Draft 与非空基线 Plan；旧状态和 null-base Plan 直接判为无效，当前数据显式迁移且 archived 历史继续不解析。
 tags:
   - change-plan
+  - metadata-design
+  - product-architecture-judgment
+  - validation-boundaries
 relations:
   - type: 修订
     target: simplify-change-lifecycle-to-draft-plan-and-archive

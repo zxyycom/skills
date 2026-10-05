@@ -9,6 +9,8 @@ background: 文件类型和目录边界不能可靠表示改动之间的行为�
 decision: 按语义依赖形成提交单元；独立变化分别提交，兑现同一变化所需的代码、测试、文档和示例保持同一单元。
 tags:
   - git-commit-organizer
+  - semantic-fidelity
+  - version-control
 relations:
   - type: 拆分
     target: 260702-refine-commit-granularity-types-and-command

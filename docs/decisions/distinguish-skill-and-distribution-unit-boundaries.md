@@ -8,6 +8,8 @@ purpose: 让 skill 的发现和行为契约与安装、更新、兼容及完整�
 background: 一个分发单元可以包含一个或多个 skill，但仓库位置、主题相近或偶尔协作都不能证明共同安装契约。
 decision: Skill 作为行为单元独立定义入口，distribution unit 按显式安装与交付契约确定成员和依赖边界。
 tags:
+  - product-architecture-judgment
+  - responsibility-boundaries
   - skill-maintainer
 relations:
   - type: 拆分

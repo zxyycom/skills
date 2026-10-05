@@ -9,6 +9,8 @@ background: 写成完整记录与确认其进入当前决策集合是两个动�
 decision: 候选使用显式生命周期并留在正式索引外；审核时才选择对齐状态、写入建立时间并进入决策集合。
 tags:
   - decision-records
+  - record-lifecycle
+  - validation-boundaries
 relations:
   - type: 修订
     target: separate-candidates-from-established-decisions

@@ -9,6 +9,8 @@ background: 长期保留不等于永远禁止删除；手工删除会把关系�
 decision: 删除只通过 discard 事务完成，并在写入前验证完整图、资源归属、版本记录与恢复边界。
 tags:
   - investigation-report
+  - product-architecture-judgment
+  - transactional-updates
   - version-control
 relations:
   - type: 拆分

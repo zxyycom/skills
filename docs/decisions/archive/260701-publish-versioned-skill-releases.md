@@ -8,7 +8,11 @@ purpose: 让每次实际发布都具有可识别的时间和内容版本。
 background: 固定 `*-latest` release 被更新后，GitHub 页面仍显示 release 最初的 `published_at`，容易让使用者误以为包没有更新。
 decision: 主仓库聚合发布和子仓库独立发布都使用 `<timestamp>-<hash12>` 作为版本化 release tag，时间戳使用 UTC `YYYYMMDDTHHMMSSZ` 格式。
 tags:
+  - artifact-identity
   - project-tooling
+  - release
+  - release-publishing
+  - version-control
 relations:
   - type: 修订
     target: 260630-publish-skill-package-as-latest-release

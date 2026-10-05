@@ -9,6 +9,7 @@ background: 模型可以理解“不使用 X”, 但 X 的常见用法、修正�
 decision: 先建立正向目标框架, 再分类负向方案; 只有容易回落、重要边界或明确契约需要时才点名 X, 并避免围绕 X 反复展开。
 tags:
   - ai-ready-docs
+  - prompt-optimize
 relations: []
 ---
 

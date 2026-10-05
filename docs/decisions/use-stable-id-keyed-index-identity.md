@@ -9,6 +9,7 @@ background: 领域读取阶段已经知道稳定身份，数组与二次 identif
 decision: 索引身份集合统一使用安全的 ID 键控对象，对象键是通用边界的唯一权威身份。
 tags:
   - index-runtime
+  - record-identity
 relations:
   - type: 拆分
     target: use-id-keyed-state-index

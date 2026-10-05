@@ -8,6 +8,7 @@ purpose: 让 scope 与 task 的字典键成为身份和归属的唯一来源，�
 background: 任务采用嵌套字典后，如果 entry 内继续重复保存 ID 和作用域，就会形成可分叉的身份事实；内容、运行事实和派生结果混写也会让调度语义失真。
 decision: 嵌套字典键承接身份与作用域；task entry 只保存 content 和显式 state，派生信息仅在查询时投影。
 tags:
+  - product-architecture-judgment
   - task-graph
 relations:
   - type: 修订

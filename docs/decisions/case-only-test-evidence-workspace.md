@@ -8,7 +8,10 @@ purpose: 让固定测试证据根只保存 Case 源和派生索引，并把测�
 background: Topic 目录、固定实体输入和运行时兼容会把查询与项目采集耦合。
 decision: 固定 Case-only 目录与显式快照引用边界，旧目录只由受控迁移入口转换。
 tags:
+  - dependency-boundary-design
+  - source-artifact-separation
   - test-evidence-review
+  - validation-boundaries
 relations:
   - type: 修订
     target: fix-test-evidence-workspace-contract

@@ -9,6 +9,8 @@ background: 强制每条逻辑归档记录都被后续记录引用，会把没�
 decision: JSON 索引维护当前成员；记录可独立归档，真实演进才建直接关系；`archive --by` 校验后续承接全部前序，CLI 拒绝关系环。
 tags:
   - decision-records
+  - record-lifecycle
+  - record-relations
 relations:
   - type: 替代
     target: 260713-use-json-current-index-and-stable-paths

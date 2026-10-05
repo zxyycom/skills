@@ -9,15 +9,11 @@ background: archive 与 tombstone 的历史或恢复内容不能成为公开 Cha
 decision: 以直接 active member、Git 可恢复删除与受控 tombstone 恢复收敛当前 Change Plan 生命周期。
 tags:
   - change-plan
+  - record-lifecycle
 relations:
-  - type: 归并
-    target: require-canonical-active-change-metadata
-  - type: 归并
-    target: exclude-formation-time-link-bytes-from-validation
-  - type: 归并
-    target: route-future-work-by-minimal-carrier
-  - type: 归并
+  - type: 修订
     target: 260904-complete-change-plans-by-deletion
+    summary: 保留删除结项方向，改为独占副本与逐项清理
 ---
 
 ## 目的

@@ -8,7 +8,11 @@ purpose: 让并行任务只暂存自己选择的索引条目，不带入同一�
 background: 单文件索引无法按文件边界隔离不同任务，但 ID 键控条目及其来源指纹可以独立组合。
 decision: 索引运行时只接收选中 ID，从 revision 与工作区索引组合完整目标并受控写入 pending。
 tags:
+  - agent-workspace-isolation
+  - dependency-boundary-design
   - index-runtime
+  - product-architecture-judgment
+  - responsibility-boundaries
   - version-control
 relations:
   - type: 拆分

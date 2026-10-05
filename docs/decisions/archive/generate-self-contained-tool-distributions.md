@@ -8,7 +8,12 @@ purpose: 让独立 skill 获得可导入、可验证且不依赖主仓库路径�
 background: 直接运行仓库源码或依赖其他 skill 会破坏独立分发，手工维护生成副本又会产生源码漂移。
 decision: 构建适配从同一源码生成自包含 ESM 和必要契约；sync 写入、check 重建比较，根检查覆盖完整链路。
 tags:
+  - artifact-integrity
+  - build-portability
+  - build-reproducibility
+  - dependency-boundary-design
   - project-tooling
+  - source-artifact-separation
 relations:
   - type: 拆分
     target: separate-tool-source-and-repository-automation

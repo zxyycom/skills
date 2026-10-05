@@ -8,7 +8,10 @@ purpose: 抑制无意义、重复和实现耦合的测试增长，同时让测�
 background: 只维护测试账本会增加同步成本，单靠测试执行又无法阻止 AI 以 TDD、防回归或覆盖率为由持续新增低价值测试；调用 skill 后再判断是否启用账本还会造成流程分叉和漏登记。
 decision: 使用 `test-evidence-review` 对自动化测试执行证据准入，并默认以账本保存通过准入的稳定证明目标，再用可配置的跨语言 CLI 校验主要入口、辅助归属、豁免和未登记测试文件。
 tags:
+  - responsibility-boundaries
+  - test-evidence
   - test-evidence-review
+  - test-traceability
 relations: []
 ---
 

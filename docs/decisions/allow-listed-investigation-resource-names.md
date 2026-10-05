@@ -9,6 +9,8 @@ background: 过窄名称规则迫使形成时材料改名，而宽泛 Unicode �
 decision: 资源 ID 使用逐项列出的常用字符白名单和少量跨平台结构门禁；路径身份与根目录约束继续独立执行。
 tags:
   - investigation-report
+  - naming
+  - validation-boundaries
 relations:
   - type: 拆分
     target: define-version-control-visible-investigation-resources

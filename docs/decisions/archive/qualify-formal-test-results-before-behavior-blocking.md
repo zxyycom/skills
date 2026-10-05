@@ -8,7 +8,11 @@ purpose: 让正式测试只有在身份、关系、来源和结果集合完整�
 background: 无法追溯或关系不闭合的结果说明测试证据自身不完整，若解释成行为回归会混淆故障责任。
 decision: 正式结果先通过 Test 身份、Case 关系与完整性门禁，再按 Test 报告并从权威账本派生 Case。
 tags:
+  - artifact-integrity
+  - regression-prevention
   - test-evidence-review
+  - test-traceability
+  - validation-boundaries
 relations:
   - type: 拆分
     target: defer-standard-test-result-blocking

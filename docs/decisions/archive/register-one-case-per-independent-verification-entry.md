@@ -9,6 +9,7 @@ background: 以值得长期找回的独立证明单元作为准入标准仍然�
 decision: 每个项目保留的独立验证入口各登记一个 case，内部环节归入父入口；入口身份由稳定选择方式和自身最终判定确定。
 tags:
   - test-evidence-review
+  - test-registration
 relations:
   - type: 修订
     target: index-independent-proof-cases-from-current-catalog

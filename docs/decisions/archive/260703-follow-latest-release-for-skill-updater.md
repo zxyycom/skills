@@ -9,6 +9,8 @@ background: 自更新脚本原来默认从主仓库 `main` 分支下载源码 zi
 decision: skill updater 默认读取主仓库 latest release，并以正式 package lock 和 skill zip 作为远端更新输入。
 tags:
   - project-tooling
+  - release
+  - source-artifact-separation
 relations:
   - type: 修订
     target: 260701-embed-self-update-script-in-skill-packages

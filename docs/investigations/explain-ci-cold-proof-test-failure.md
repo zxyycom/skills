@@ -5,13 +5,14 @@ formedAt: "2026-09-11T04:41:07Z"
 question: "为什么 3f960041 之后本地门禁可以通过，而 Package Skills 在 CI 中持续失败于 test:check？"
 tags:
   - "ci"
-  - "repository-tooling"
+  - "complex-bug"
+  - "environment-isolation"
+  - "evidence-sufficiency"
+  - "project-tooling"
+  - "root-cause-analysis"
   - "test-hermeticity"
   - "vibe-check"
-relations:
-  - type: "复查"
-    target: "ci-clean-runner-environment-regressions"
-    summary: "复查新 Gate 被 CI 环境变量触发的本地与远端分叉"
+relations: []
 ---
 
 ## 形成时背景

@@ -9,6 +9,8 @@ background: 重叠的多个直接前序需要按新 owner 边界重建，且不�
 decision: 在统一 evolve 事务中采用连通且闭合的稀疏重划策略，由候选分别声明关系并独立确认 alignment。
 tags:
   - decision-records
+  - record-relations
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: evaluate-reorganization-from-task-graph-case

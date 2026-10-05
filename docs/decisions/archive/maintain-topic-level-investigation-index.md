@@ -9,6 +9,7 @@ background: 主题拥有核心问题和生命周期，报告只是时点认识�
 decision: 每个主题生成一个主题级索引项；领域 state、keys、metadata 与 source revision 从同一完整源快照确定性派生，索引可以删除重建。
 tags:
   - investigation-report
+  - product-architecture-judgment
 relations:
   - type: 修订
     target: generate-query-index-from-topic-files

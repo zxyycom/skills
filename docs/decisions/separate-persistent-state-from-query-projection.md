@@ -9,6 +9,9 @@ background: 持久查询值与领域状态重复，会扩大协议和同步维�
 decision: Index Runtime 持久化状态快照并物化查询值，领域 definition 声明字段来源。
 tags:
   - index-runtime
+  - persistence
+  - product-architecture-judgment
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: maintain-rebuildable-read-side-index-boundary

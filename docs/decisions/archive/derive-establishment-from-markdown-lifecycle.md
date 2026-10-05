@@ -9,6 +9,9 @@ background: Git HEAD 只能证明路径曾被提交，旧索引也无法发现�
 decision: createdAt 为空的完整新记录是候选；合法非空 createdAt Markdown 是全部已建立成员，索引只从它们完整派生。
 tags:
   - decision-records
+  - product-architecture-judgment
+  - record-lifecycle
+  - validation-boundaries
 relations:
   - type: 归并
     target: allow-sequential-activation-of-prewritten-candidates

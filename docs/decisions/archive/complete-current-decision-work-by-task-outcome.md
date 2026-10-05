@@ -9,6 +9,7 @@ background: 只读查询可能在局部材料有误时返回可恢复结果，�
 decision: 按恢复或审阅、候选和维护三类出口验收；warning 限定查询结论，严格 check 作为维护写入的最终门禁。
 tags:
   - decision-records
+  - validation-boundaries
 relations:
   - type: 修订
     target: 260720-complete-by-task-outcome

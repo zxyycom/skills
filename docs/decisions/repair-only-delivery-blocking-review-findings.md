@@ -8,6 +8,7 @@ purpose: 让独立审查围绕当前交付目标收敛，不把偏好、可选�
 background: 以发现更多问题为目标会制造无界循环，而每轮重新审查稳定范围也不会增加与风险相称的证据。
 decision: 只有影响目标、正确性、安全权限、范围、集成或必要验证的问题触发定向修复；复核受影响边界并在阻断清除后停止。
 tags:
+  - responsibility-boundaries
   - subagent-orchestration
 relations:
   - type: 拆分

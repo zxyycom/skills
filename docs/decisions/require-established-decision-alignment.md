@@ -9,7 +9,12 @@ background: active 当前判断与 archived 历史判断都需要保留完整对
 decision: active 与 archived 必须保存 aligned 或 unaligned；candidate 保持 null 并留在正式索引外。
 tags:
   - decision-records
+  - goal-alignment
   - index-runtime
+  - product-architecture-judgment
+  - record-lifecycle
+  - uncertainty-expression
+  - validation-boundaries
 relations: []
 ---
 

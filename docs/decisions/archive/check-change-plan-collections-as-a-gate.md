@@ -9,6 +9,8 @@ background: 单目录 check 无法直接用于仓库门禁，而 list 即使逐�
 decision: 使用独立 check-all 聚合现有单项检查；默认门禁 active Change，显式选择 archived 或全部集合，根级错误或任一成员无效时整体失败。
 tags:
   - change-plan
+  - product-architecture-judgment
+  - responsibility-boundaries
 relations: []
 ---
 

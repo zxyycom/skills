@@ -4,7 +4,11 @@ id: "260919-gate-toolchain-drift"
 formedAt: "2026-09-19T11:27:05Z"
 question: "为什么权威 check 在本地同时出现生成漂移、测试失败和 SCC unavailable？"
 tags:
+  - "build-reproducibility"
   - "project-tooling"
+  - "regression-prevention"
+  - "root-cause-analysis"
+  - "toolchain-versioning"
   - "vibe-gate"
 relations: []
 ---

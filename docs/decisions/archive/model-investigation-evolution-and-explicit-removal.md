@@ -9,6 +9,9 @@ background: 报告没有归档生命周期，但长期保留不等于永远禁�
 decision: 报告继续以六种直接前序关系表达认识演进且不产生归档或隐藏；删除只通过独立 discard 事务完成，并在写入前验证完整图、资源归属、版本记录与恢复边界。
 tags:
   - investigation-report
+  - product-architecture-judgment
+  - record-relations
+  - transactional-updates
 relations:
   - type: 修订
     target: model-investigation-evolution-as-report-relations

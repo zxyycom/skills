@@ -8,7 +8,9 @@ purpose: 让仓库自举按 Git 平台语义启用 hook，并让本仓库通过�
 background: POSIX 与 Git for Windows 的 hook 条件不同，隐藏绝对 root 会陈旧，而重复 skill 脚本路径不能形成稳定的项目调用约定。
 decision: Hook 按平台建立条件；仓库维护 CLI 由 package scripts 委托既有领域入口，task-graph 额外负责安全的项目 root 选择。
 tags:
+  - git-integration
   - project-tooling
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: bootstrap-hooks-and-select-project-roots

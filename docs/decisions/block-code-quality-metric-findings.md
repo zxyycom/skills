@@ -8,6 +8,7 @@ purpose: 让文件与函数指标发现成为必须在验收前处置的门禁�
 background: 当前指标已清零，继续仅作 advisory 会允许新的质量债务无处置进入主线。
 decision: 文件与函数指标统一使用 blocking policy，保持既有阈值与空 waiver。
 tags:
+  - function-metrics
   - project-tooling
 relations:
   - type: 修订

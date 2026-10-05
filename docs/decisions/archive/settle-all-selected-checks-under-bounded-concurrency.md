@@ -8,6 +8,7 @@ purpose: 让已选择的前置检查在保守资源边界内全部形成结果�
 background: 前置检查会启动 runner 和子进程；首个失败即停止会遗漏同一计划中的其他结果。
 decision: 已选检查默认并发两个、允许正整数覆盖并优先长任务；单项失败不取消或停止其余已选检查。
 tags:
+  - concurrency
   - project-tooling
 relations:
   - type: 修订

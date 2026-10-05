@@ -8,6 +8,7 @@ purpose: 让每个 clone 和 linked worktree 在标准自举后获得可恢复�
 background: 交互式 alias 和进程环境不能稳定覆盖跨平台非交互命令，当前目录默认值还可能把中央 task index 分叉到 worker。
 decision: 标准 setup 持久化 hook 与中央 task root；仓库 launcher 核对主 worktree 后委托现有 CLI。
 tags:
+  - product-architecture-judgment
   - project-tooling
 relations: []
 ---

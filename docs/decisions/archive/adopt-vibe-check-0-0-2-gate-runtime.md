@@ -8,7 +8,11 @@ purpose: 让项目门禁直接采用新版宿主、分析器与安全检查契�
 background: 0.0.2 已替代旧扫描兼容层并改变运行时、诊断和依赖结算语义。
 decision: 升级到 0.0.2，由 Node 承载门禁并只保留 SCC 外部前置。
 tags:
+  - dependency-boundary-design
   - project-tooling
+  - toolchain-versioning
+  - validation-boundaries
+  - vibe-check
 relations: []
 ---
 

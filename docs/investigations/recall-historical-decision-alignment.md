@@ -5,6 +5,10 @@ formedAt: "2026-09-08T10:26:59Z"
 question: "已归档且 alignment 为 null 的历史决策能否按逐条历史证据恢复最后对齐状态，并留下可独立复核的完整结果与推断边界？"
 tags:
   - "decision-records"
+  - "epistemic-limits"
+  - "evidence-sufficiency"
+  - "goal-alignment"
+  - "validation-boundaries"
 relations: []
 ---
 

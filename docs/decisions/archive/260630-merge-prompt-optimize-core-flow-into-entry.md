@@ -9,6 +9,7 @@ background: "`workflows.md` 和 `rewrite-rules.md` 在实际使用中读取概�
 decision: 由 `prompt-optimize` 的 `SKILL.md` 直接承接定位、出口、骨架、审计、owner、规则收敛、表达、冲突、交付和完成检查。
 tags:
   - ai-ready-docs
+  - prompt-optimize
 relations:
   - type: 替代
     target: 260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline

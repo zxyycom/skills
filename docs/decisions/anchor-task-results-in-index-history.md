@@ -8,6 +8,7 @@ purpose: 让终态 task 可追溯到记录该结果的仓库版本，同时不�
 background: 工作区 mutation 和 pending 快照都不是版本历史，只有包含终态 entry 的提交能够形成稳定仓库锚点。
 decision: 首个包含终态 entry 的 task index 提交构成版本锚点；该锚点只证明仓库已记录结果。
 tags:
+  - git-integration
   - task-graph
   - version-control
 relations:

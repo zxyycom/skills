@@ -9,6 +9,7 @@ background: 单一实现也会产生调用扩散和重复治理成本；把收�
 decision: 新增独立 `dependency-boundary-design`，按责任建立最小且诚实的依赖边界，坚持先收口、再演进。
 tags:
   - dependency-boundary-design
+  - responsibility-boundaries
 relations: []
 ---
 

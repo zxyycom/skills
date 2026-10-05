@@ -9,6 +9,9 @@ background: Git 不决定决策是否生效，但能证明一个待归档前序�
 decision: 归档未进入 Git HEAD 的决策前先暂停警告，由调用者显式保留历史或通过 evolve 折叠单个中间前序并声明完整最终关系集合。
 tags:
   - decision-records
+  - git-integration
+  - record-lifecycle
+  - record-relations
 relations: []
 ---
 

@@ -8,6 +8,8 @@ purpose: 让 agent 以独立能力维护当前工作的短期任务状态、拓�
 background: 线性计划和子代理编排都不拥有跨步骤持续维护的短期任务图，依靠对话推演会丢失候选、阻塞和并行关系。
 decision: 新建 task-graph skill 及同一分发单元内的专用工具，承接短期任务图；持久 change 与代理委派继续由既有 owner 管理。
 tags:
+  - product-architecture-judgment
+  - responsibility-boundaries
   - task-graph
 relations: []
 ---

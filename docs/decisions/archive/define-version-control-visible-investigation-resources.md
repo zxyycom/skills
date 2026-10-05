@@ -9,6 +9,8 @@ background: 过窄名称规则迫使形成时材料改名，而递归扫描全�
 decision: 资源 ID 采用逐项列出的常用字符白名单并增加少量跨平台结构门禁；Git 工作区只管理版本控制可见资源，非 Git 工作区继续完整发现文件系统资源。
 tags:
   - investigation-report
+  - naming
+  - validation-boundaries
 relations: []
 ---
 

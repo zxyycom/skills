@@ -9,6 +9,7 @@ background: 常规查询先遍历并解析全部 Markdown 再读取索引，既�
 decision: list、show 和 trace 直接读取已验证结构的持久索引；完整源一致性由维护事务、check 和 sync-index 负责。
 tags:
   - decision-records
+  - index-runtime
 relations: []
 ---
 

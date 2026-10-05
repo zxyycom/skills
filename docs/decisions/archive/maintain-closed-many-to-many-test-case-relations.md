@@ -8,7 +8,10 @@ purpose: 让可独立选择并单独报告的测试实体与语义 Case 分别�
 background: 把一个最小原生测试入口固定等同于一个 Case，会迫使语义证据按运行器节点机械拆分或重复，且无法表达共同证明关系。
 decision: 受控测试实体与当前 Case 使用同一组权威多对多关系；双方都至少有一个有效关联，且每条关系的端点都存在。
 tags:
+  - record-relations
+  - semantic-test-cases
   - test-evidence-review
+  - test-traceability
 relations: []
 ---
 

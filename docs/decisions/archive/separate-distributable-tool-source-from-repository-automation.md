@@ -8,7 +8,11 @@ purpose: 让可分发工具源码、主仓库自动化和 skill 分发内容拥�
 background: 项目脚本与可分发工具源码混在 `scripts/`，工具运行时还反向依赖仓库 helper 和 validator。
 decision: 使用 `tools/` 维护可分发源码及共享协议，`scripts/` 只承接项目自动化，再生成自包含 skill 产物。
 tags:
+  - dependency-boundary-design
+  - product-architecture-judgment
   - project-tooling
+  - responsibility-boundaries
+  - source-artifact-separation
 relations:
   - type: 修订
     target: 260720-expose-importable-skill-modules

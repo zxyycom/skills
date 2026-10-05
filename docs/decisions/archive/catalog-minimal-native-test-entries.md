@@ -8,7 +8,9 @@ purpose: 恢复测试证据目录的自然粒度，避免泛化校验把模块�
 background: 测试框架有可独立选择和报告的原生节点，工程校验没有统一的最小单位；共用独立验证入口会把聚合容器误当登记单元。
 decision: test-evidence-review 只登记最小原生测试入口，目录与索引保持显式维护和快速查询，不接入工程校验、marker、采集或自动注册。
 tags:
+  - test-evidence
   - test-evidence-review
+  - test-registration
 relations:
   - type: 替代
     target: register-one-case-per-independent-verification-entry

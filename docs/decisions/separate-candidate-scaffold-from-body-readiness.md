@@ -9,6 +9,7 @@ background: 候选创建需要固定身份和元数据，但正文与语义审�
 decision: 使用结构合法 scaffold 与机械 body readiness 分离候选创建和正式建立。
 tags:
   - decision-records
+  - validation-boundaries
 relations:
   - type: 修订
     target: separate-reviewable-candidates-from-established-decisions

@@ -8,6 +8,9 @@ purpose: 让相同版本的打包工具对同一 skill 输入生成不受当前�
 background: ZIP entry 顺序和 mtime 若来自运行环境，每次打包都会产生无语义内容变化的不同制品。
 decision: Skill ZIP 使用稳定文件排序和固定 mtime，并由成熟归档实现生成，不让环境时间进入产物身份。
 tags:
+  - artifact-identity
+  - artifact-integrity
+  - build-reproducibility
   - project-tooling
 relations:
   - type: 拆分

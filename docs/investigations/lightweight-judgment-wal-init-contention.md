@@ -4,9 +4,13 @@ id: "261004-lightweight-judgment-wal-init-contention"
 formedAt: "2026-10-04T04:45:24Z"
 question: "为何并发日志 writer 在五秒 timeout 前失败，最小安全修复应落在哪个阶段？"
 tags:
+  - "complex-bug"
   - "concurrency"
+  - "evidence-sufficiency"
   - "lightweight-judgment"
+  - "root-cause-analysis"
   - "sqlite"
+  - "test-evidence"
 relations: []
 ---
 

@@ -8,7 +8,11 @@ purpose: 让独立 skill 获得不依赖主仓库路径且可安全导入，并�
 background: 生成检查需要识别真实内容漂移，同时把 CRLF 与 LF 视为同一文本，不能误写成逐字节比较。
 decision: 构建适配生成自包含 ESM 与必要契约；sync 写入规范输出，check 重建后按统一行尾比较文本内容。
 tags:
+  - build-portability
+  - build-reproducibility
+  - dependency-boundary-design
   - project-tooling
+  - source-artifact-separation
 relations:
   - type: 修订
     target: generate-import-safe-self-contained-tool-artifacts

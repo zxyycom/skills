@@ -9,6 +9,8 @@ background: 为未对齐状态保存专门差距结构会重复决策约束和�
 decision: active 即生效；alignment 只在 frontmatter 表达离散关系，索引仅投影该值，实际差距通过决策与 owner 比较得出。
 tags:
   - decision-records
+  - goal-alignment
+  - source-artifact-separation
 relations:
   - type: 修订
     target: define-decision-alignment-semantics

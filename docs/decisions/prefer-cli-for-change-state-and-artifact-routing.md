@@ -8,7 +8,10 @@ purpose: 让 OpenSpec skills 从工具事实源恢复状态、schema、依赖和
 background: 直接猜测目录与 artifact 状态会复制 CLI 责任，但 CLI 不一定返回完成当前阶段所需的全部正文或旧行为背景。
 decision: 优先使用 CLI 查询状态、schema、依赖、路径和验证；失败或正文不足时读取精确当前文件，必要时只把旧版参考用于回放安全回退。
 tags:
+  - context-management
   - openspec
+  - project-tooling
+  - skill-invocation
 relations:
   - type: 拆分
     target: 260706-gate-temporary-change-plans

@@ -8,6 +8,7 @@ purpose: 在缩短检查等待的同时限制顶层资源竞争，并保持可�
 background: 前置检查会继续启动 runner 和子进程，顶层高并发会放大资源压力。
 decision: 已选前置检查默认最多并发两个，允许正整数覆盖，并优先领取 full 档长任务。
 tags:
+  - concurrency
   - project-tooling
 relations:
   - type: 修订

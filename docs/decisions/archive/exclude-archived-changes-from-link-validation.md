@@ -9,6 +9,7 @@ background: 归档会增加目录层级，稳定 owner 后续也可能移动；�
 decision: bun run validate 排除 changes/archive 下的 Markdown，同时继续校验 active change 与当前稳定文档。
 tags:
   - project-tooling
+  - validation-boundaries
 relations: []
 ---
 

@@ -8,6 +8,8 @@ purpose: 让仓库自举按 Git 平台语义启用 hook，并让短入口在安�
 background: POSIX 执行位不是 Git for Windows 的启用机制，隐藏绝对 root 和完全禁止 root 都偏离当前项目默认语义。
 decision: Hook 同时维护 LF、POSIX mode 与 hooksPath；task-graph 从当前 Git 项目发现默认 root，并接受一个显式项目 root。
 tags:
+  - build-portability
+  - git-integration
   - project-tooling
 relations:
   - type: 修订

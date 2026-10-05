@@ -5,6 +5,11 @@ formedAt: "2026-08-13T09:37:25+00:00"
 question: "拥有者在多大程度上能够从歧义、候选和冲突中识别深层目标？"
 tags:
   - "ai-ready-docs"
+  - "epistemic-limits"
+  - "goal-modeling"
+  - "preference-formation"
+  - "uncertainty-expression"
+  - "validation-boundaries"
 relations:
   - type: "修正"
     target: "separate-semantic-fidelity-goal-fit-and-goal-explication"

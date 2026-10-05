@@ -8,7 +8,9 @@ purpose: 让当前判断能够直接回看前序，并限制日常回放无限�
 background: 旧记录只链接导致状态变化的新决定时, 从当前 `active` 记录不容易回看本次修订了什么。
 decision: 新 `active` 记录改变已有判断时, 在 `## 状态` 内使用可选的 `### 关系`, 按修订、替代、判定无效或归并链接本次直接作用的前序记录。
 tags:
+  - context-management
   - decision-records
+  - record-relations
 relations: []
 ---
 

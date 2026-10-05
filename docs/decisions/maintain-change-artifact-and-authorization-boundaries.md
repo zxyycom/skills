@@ -9,6 +9,9 @@ background: CLI 和阶段记录已经独立演进，但活动决策集合缺少�
 decision: Change Plan 以 proposal、design 和 tasks 承接临时变更计划，并让机械就绪、内容审阅和实施授权保持可区分。
 tags:
   - change-plan
+  - context-management
+  - responsibility-boundaries
+  - validation-boundaries
 relations:
   - type: 拆分
     target: use-independent-change-plans

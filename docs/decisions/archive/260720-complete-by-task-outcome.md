@@ -9,6 +9,8 @@ background: 非阻断查询已经能够返回可恢复结果，但统一要求�
 decision: 分别按恢复或审阅、候选、维护或迁移验收；warning 限定查询结论，严格 `check` 只作为写入和迁移门禁。
 tags:
   - decision-records
+  - epistemic-limits
+  - validation-boundaries
 relations:
   - type: 修订
     target: 260720-return-query-results-with-warnings

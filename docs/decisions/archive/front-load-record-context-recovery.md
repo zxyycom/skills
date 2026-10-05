@@ -1,13 +1,14 @@
 ---
 title: 前置恢复记录上下文并分流调查复用
 id: 260922-front-load-record-context-recovery
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-22T18:27:27Z
 purpose: 让两个记录领域在建立新记录或重新开展调查前先恢复可复用的已有认识，并让调查请求在复用与复查之间得到明确选择。
 background: 两域查询入口的前置程度不一致，普通调查可能重复进行，也会跳过“复用形成时认识还是按当前事实复查”的用户选择；命令级 help 只列参数，普通发现语义仍散落在固定契约中。
 decision: 两域前置最小查询与完整读取并排除重复记录；调查命中已有报告时按当前性意图复用或复查；list 与 search help 投影发现语义，固定契约保留精确规则。
 tags:
+  - context-management
   - decision-records
   - investigation-report
 relations: []

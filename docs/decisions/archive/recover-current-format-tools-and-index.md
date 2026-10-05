@@ -8,6 +8,7 @@ purpose: 让工具、索引或写入故障恢复到当前自包含 Markdown 与�
 background: Markdown 已拥有全部权威状态，继续维护旧 schema 映射或独立索引状态会重新引入并行事实源和兼容路径。
 decision: 恢复手册只处理当前格式；优先恢复当前 CLI，再从 Markdown 重建当前索引，不读取、迁移或推断其他 schema。
 tags:
+  - artifact-integrity
   - decision-records
 relations:
   - type: 替代

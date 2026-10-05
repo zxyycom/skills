@@ -8,7 +8,10 @@ purpose: 让 clone 和 linked worktree 通过标准环境 setup 获得符合当�
 background: POSIX Git 使用执行位判断 hook 可用性，Git for Windows 使用不同的可执行性兼容语义，但两者都需要稳定脚本换行和 hooksPath。
 decision: Hook 源固定为 LF 并保留 Git executable mode；setup 始终配置 hooksPath，只在 POSIX 恢复工作区执行位。
 tags:
+  - build-portability
+  - git-integration
   - project-tooling
+  - version-control
 relations:
   - type: 拆分
     target: bootstrap-hooks-and-use-project-short-commands

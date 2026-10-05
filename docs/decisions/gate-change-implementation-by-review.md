@@ -9,6 +9,8 @@ background: Artifact 完成只证明满足当前 schema 的结构要求，不能
 decision: Change 可以作为临时计划存在；propose 设置阻塞级实现前审计，apply 在开放问题或关键歧义消除前暂停实现。
 tags:
   - openspec
+  - responsibility-boundaries
+  - validation-boundaries
 relations:
   - type: 拆分
     target: 260706-gate-temporary-change-plans

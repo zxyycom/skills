@@ -9,6 +9,8 @@ background: 统一资源目录只表达集中存放，任意嵌套路径没有�
 decision: 被引用资源的路径确定唯一 owner 主题；owner 必须参与当前引用，其他报告可以复用且不改变归属。
 tags:
   - investigation-report
+  - product-architecture-judgment
+  - responsibility-boundaries
 relations:
   - type: 拆分
     target: attach-verifiable-resources-to-investigation-reports

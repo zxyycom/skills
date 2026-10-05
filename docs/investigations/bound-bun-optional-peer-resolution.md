@@ -4,8 +4,12 @@ id: "260911-bound-bun-optional-peer-resolution"
 formedAt: "2026-09-11T05:49:11Z"
 question: "为什么 Task Graph portable build 会受 /tmp/node_modules 影响，如何让同类分发构建只由声明依赖决定？"
 tags:
+  - "build-portability"
+  - "build-reproducibility"
   - "bun"
-  - "repository-tooling"
+  - "environment-isolation"
+  - "project-tooling"
+  - "root-cause-analysis"
   - "task-graph"
   - "test-hermeticity"
 relations:

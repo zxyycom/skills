@@ -8,8 +8,11 @@ purpose: 让 Decision Records 与 Investigation Report 用同一动作词汇表�
 background: 两个领域都有候选、机械准备、语义审核和正式建立过程，但首次建立、历史记录重新启用和删除使用不同动作边界，调用者需要记忆领域差异。
 decision: 两个记录 CLI 用共同动作表达候选生命周期；首次建立与重新启用拆为 publish 与 reactivate，删除确认统一为 --delete-recorded。
 tags:
+  - common-denominator-design
   - decision-records
+  - naming
   - project-tooling
+  - record-lifecycle
 relations: []
 ---
 

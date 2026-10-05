@@ -9,6 +9,7 @@ background: 统一覆盖会复制关系和摘要，无法维护已建立多后�
 decision: 将完整成员集合与各后继完整关系载荷分离，并保留既有闭合与字段保护边界。
 tags:
   - decision-records
+  - record-relations
 relations:
   - type: 修订
     target: replace-decision-relations-as-complete-sets
@@ -31,4 +32,4 @@ relations:
 - 采用: `evolve` 继续显式选择一次闭合事件的完整 successor 集合；该集合只确定参与成员，包含关系不变的成员，不表示全部成员必须使用相同 relations。
 - 采用: 每个 successor 的最终 relations 独立来自其权威 Markdown 的完整原值，或来自本次为该 successor 提供的完整 replacement（包括显式空集合）。公开输入允许按 successor 分组提供 replacement；未被分组覆盖的成员保留自身完整原值，无分组的既有统一覆盖继续兼容地应用于全部已选成员。
 - 采用: 每个 replacement 只替换所属 successor 的整个关系集合，绝不与旧关系合并；summary 只能绑定同组 replacement 中的关系，未在新集合给出的旧 summary 随该 successor 的完整替换移除。已建立 successor 的正文、`status`、`alignment` 和 `createdAt` 继续受保护，不因关系维护隐式改变。
-- 采用: 事务先汇集所有已选 successor 的最终集合，再沿既有统一事务执行历史基线探测、拓扑与语义闭合、前序归档、锁、可恢复写入、索引重建及完整 before/after 核对。完整成员约束、拆分策略和重划策略仍分别由[统一关系事务](use-strategy-driven-closed-decision-relation-evolution.md)、[闭合拆分](use-closed-splits-for-single-predecessor-decisions.md)和[闭合重划](support-closed-reallocation-of-decision-owners.md)拥有；本决策不接管或放宽它们。
+- 采用: 事务先汇集所有已选 successor 的最终集合，再沿既有统一事务执行历史基线探测、拓扑与语义闭合、前序归档、锁、可恢复写入、索引重建及完整 before/after 核对。完整成员约束、拆分策略和重划策略仍分别由[闭合生命周期事务](evolve-decision-lifecycle-through-closed-strategies.md)、[闭合拆分](use-closed-splits-for-single-predecessor-decisions.md)和[闭合重划](support-closed-reallocation-of-decision-owners.md)拥有；本决策不接管或放宽它们。

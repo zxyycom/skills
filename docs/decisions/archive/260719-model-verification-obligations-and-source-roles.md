@@ -8,7 +8,9 @@ purpose: 抑制低价值测试增长，同时让自动化证明、人工审查�
 background: 只登记自动化证明无法承接当前架构下不适合机械测试的真实风险，自由文本源码豁免又会脱离账本；测试发现仍需要区分真实主入口、归属于主 case 的衍生源码和误报。
 decision: 账本 case 采用 automated、review 或 exempt 验证义务；源码使用 main、derived、exempt 角色，CLI 按测试文件校验映射与发现结果。
 tags:
+  - test-evidence
   - test-evidence-review
+  - test-traceability
 relations:
   - type: 修订
     target: 260719-separate-test-value-from-ledger-validation

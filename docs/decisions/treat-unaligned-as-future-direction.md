@@ -9,6 +9,7 @@ background: 把未对齐解释为尚未完成执行，会混淆方向、当前�
 decision: 未对齐表示已确认但尚未成为当前事实的未来方向，不保证实施；相关工作优先保留兼容路径，任务明确覆盖时才实施。
 tags:
   - decision-records
+  - goal-alignment
 relations:
   - type: 修订
     target: track-decision-execution-state

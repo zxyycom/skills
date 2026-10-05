@@ -8,6 +8,10 @@ purpose: 让 task 在仍影响选择、阻塞、交接或执行时持续存在�
 background: 终态或经过时间不能证明协调价值已经消失，自动删除可能丢失仍被关系和结果消费的任务。
 decision: 时间和终态不自动删除 task；仅在结果交付、协调价值消失且关系闭合后显式批量清理，ID 不复用。
 tags:
+  - context-management
+  - persistence
+  - product-architecture-judgment
+  - record-lifecycle
   - task-graph
 relations:
   - type: 拆分

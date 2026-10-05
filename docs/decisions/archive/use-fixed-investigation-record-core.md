@@ -8,7 +8,10 @@ purpose: 让每轮调查完整保存可比较的形成时输入、证据基础�
 background: 真实报告标题各异，但共同保留形成时背景、调查目的、调查范围与依据以及结果边界；互斥格式不能承接混合场景。
 decision: 每份报告固定使用形成时背景、调查目的、调查范围与依据、调查结果与边界四段；场景支撑先写入对应核心，需要独立组织时再在其后展开。
 tags:
+  - common-denominator-design
+  - document-structure
   - investigation-report
+  - skill-maintainer
 relations:
   - type: 修订
     target: preserve-comparable-investigation-inputs

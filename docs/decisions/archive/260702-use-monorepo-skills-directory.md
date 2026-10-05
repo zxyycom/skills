@@ -8,7 +8,9 @@ purpose: 简化个人维护的多 skill 仓库结构，并统一共享工具链�
 background: 仓库原来通过 Git submodule 组织多个 skill 子仓库, 但当前项目是个人自用和个人维护, 没有外部使用者依赖子仓库的独立 release 入口。
 decision: 用 `skills/<skill-name>/` 直接承接所有实际可打包 skill, 每个一级目录必须包含 `SKILL.md`。
 tags:
+  - product-architecture-judgment
   - repository-model
+  - source-artifact-separation
 relations:
   - type: 修订
     target: 260630-publish-skill-package-as-latest-release

@@ -8,7 +8,11 @@ purpose: 让领域通过同一索引快照安全携带读取整个集合所需�
 background: 既有索引只投影条目，消费方若另读集合定义会重复新鲜度、校验和序列化责任。
 decision: 通用索引要求不透明 JSON metadata，并按元数据、条目投影、完整索引校验的阶段传播类型化上下文。
 tags:
+  - dependency-boundary-design
   - index-runtime
+  - metadata-design
+  - product-architecture-judgment
+  - responsibility-boundaries
 relations:
   - type: 拆分
     target: use-independent-read-side-index-runtime

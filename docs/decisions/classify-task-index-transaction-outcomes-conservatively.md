@@ -8,7 +8,10 @@ purpose: 让完整写事务只有在原子写入与锁释放均成功时报告�
 background: 原子写 reject 或写入成功后的锁释放失败都无法向调用方证明最终提交状态。
 decision: 完整写事务正常收敛才成功；不确定提交结果统一返回 WRITE_OUTCOME_UNKNOWN，并要求重读权威事实。
 tags:
+  - epistemic-limits
   - task-graph
+  - transactional-updates
+  - uncertainty-expression
 relations:
   - type: 修订
     target: use-conservative-task-index-write-outcomes

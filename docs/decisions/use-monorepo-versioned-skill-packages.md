@@ -8,7 +8,10 @@ purpose: 集中维护和发布多个 skill，同时保留每个 skill 独立判�
 background: 子仓库和持久化 package lock 都会增加当前个人维护仓库的状态同步成本。
 decision: 在 `skills/` 维护带手动 `metadata.version` 的独立包，聚合发布，hash 仅按需临时计算。
 tags:
+  - product-architecture-judgment
+  - release-publishing
   - repository-model
+  - source-artifact-separation
 relations:
   - type: 修订
     target: 260702-use-monorepo-skills-directory

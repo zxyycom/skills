@@ -9,6 +9,9 @@ background: Metadata 不能总从单条 state 恢复；另行读取会重复新�
 decision: 先校验快照 metadata，再以递归只读值传播到逐条投影和 reader，并在完整投影后执行跨条目校验。
 tags:
   - index-runtime
+  - metadata-design
+  - responsibility-boundaries
+  - validation-boundaries
 relations:
   - type: 修订
     target: pass-id-and-metadata-to-projection-strategies

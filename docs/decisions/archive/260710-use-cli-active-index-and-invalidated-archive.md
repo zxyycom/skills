@@ -9,6 +9,7 @@ background: 只做结构校验不能帮助维护者在文件重命名或状态�
 decision: "`decision-records.mjs check` 作为默认只读命令，检查目录、文件名、正文状态、链接、归档位置和活动索引。"
 tags:
   - decision-records
+  - record-lifecycle
 relations:
   - type: 修订
     target: 260710-use-explicit-portable-decision-memory

@@ -9,6 +9,7 @@ background: 决策文件名前缀使用完整日期时目录较长, 用户希望
 decision: 决策文件名使用 `YYMMDD-<status>-short-title.md`, 正文标题继续使用完整日期。
 tags:
   - decision-records
+  - naming
 relations:
   - type: 修订
     target: 260630-track-decision-status-and-relations

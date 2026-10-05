@@ -8,7 +8,11 @@ purpose: 让多个领域复用派生索引的读取、查询、校验与同步�
 background: 多个领域需要相同的可重建查询投影，但它们的来源格式、身份、写入事务和动态语义仍由各自 owner 决定。
 decision: Index Runtime 只管理可删除重建的读侧投影与通用查询同步，领域继续拥有事实、写入、解析和索引定义。
 tags:
+  - dependency-boundary-design
   - index-runtime
+  - product-architecture-judgment
+  - responsibility-boundaries
+  - source-artifact-separation
 relations:
   - type: 拆分
     target: use-independent-read-side-index-runtime

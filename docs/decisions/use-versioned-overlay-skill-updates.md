@@ -8,6 +8,9 @@ purpose: 让本地定制不干扰更新判断，并避免更新删除正式制�
 background: 用本地目录 hash 判断更新会把定制误判为新版本，整目录替换还会删除额外文件。
 decision: updater 只比较每个 skill 的独立版本，确认前列出文件，并覆盖正式制品中的路径。
 tags:
+  - metadata-design
+  - product-architecture-judgment
+  - project-customization
   - repository-model
 relations:
   - type: 修订

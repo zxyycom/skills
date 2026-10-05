@@ -8,6 +8,8 @@ purpose: 让正式测试结果只有在身份、集合、来源和 Test–Case �
 background: Runner 协议只提供 invocation 级逐 Test 结果；结果资格、账本关系和行为解释需要由消费侧独立判断。
 decision: 先验证正式结果的证据链，再形成行为结论；诊断按 Test 报告并只从权威账本派生 Case 语境。
 tags:
+  - evidence-sufficiency
+  - regression-prevention
   - test-evidence-review
 relations:
   - type: 修订

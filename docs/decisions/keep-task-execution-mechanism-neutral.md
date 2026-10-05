@@ -8,6 +8,9 @@ purpose: 让 task-graph 提供统一协调契约，由调用方独立选择执�
 background: 执行者的选择和配置随调用环境变化，把具体机制写进协调 owner 会使可选能力成为分发前提。
 decision: Task-graph skill 与状态工具共同分发但不创建或审计执行者；所有执行方式使用同一领取、续租和收敛契约。
 tags:
+  - common-denominator-design
+  - product-architecture-judgment
+  - responsibility-boundaries
   - task-graph
 relations:
   - type: 修订

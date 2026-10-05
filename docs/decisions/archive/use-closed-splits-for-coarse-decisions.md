@@ -9,6 +9,7 @@ background: alignment 只适用于完整决策；粗记录的不同部分分别�
 decision: 发现可独立演进的部分时，以闭合的一对多拆分归档粗决策并同时建立全部后继；每条后继独立对齐。
 tags:
   - decision-records
+  - record-relations
 relations: []
 ---
 

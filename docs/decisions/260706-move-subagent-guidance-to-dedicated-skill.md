@@ -9,6 +9,8 @@ background: "`prompt-optimize` 的 `agent-tasks.md` 曾负责 worker、explorer�
 decision: 删除 `prompt-optimize` 的 `agent-tasks.md`，由 `subagent-orchestration` 唯一承接子代理编排和任务派发。
 tags:
   - ai-ready-docs
+  - product-architecture-judgment
+  - responsibility-boundaries
   - subagent-orchestration
 relations:
   - type: 修订

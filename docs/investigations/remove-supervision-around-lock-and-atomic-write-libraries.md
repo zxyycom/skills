@@ -4,7 +4,11 @@ id: "remove-supervision-around-lock-and-atomic-write-libraries"
 formedAt: "2026-08-07T10:28:43+08:00"
 question: "删除外围监督协议后，已选锁与原子写库应继续承接哪些责任？"
 tags:
+  - "dependency-boundary-design"
+  - "product-architecture-judgment"
+  - "responsibility-boundaries"
   - "task-graph"
+  - "validation-boundaries"
 relations:
   - type: "修正"
     target: "adopt-native-lock-and-atomic-write-libraries"

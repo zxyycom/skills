@@ -9,6 +9,9 @@ background: 单一完整索引使普通路径暂存无法隔离并行决策，�
 decision: 独立 stage 命令以 revision 为基线叠加指定 filesystem 变化，生成完整索引后替换 pending 决策范围。
 tags:
   - decision-records
+  - responsibility-boundaries
+  - source-artifact-separation
+  - validation-boundaries
 relations: []
 ---
 

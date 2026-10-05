@@ -8,6 +8,8 @@ purpose: 让 task 身份、内容、状态、拓扑和执行租约只有一个�
 background: 为每个 task 建立 Markdown 和派生索引会增加发现、同步与新鲜度成本，并形成第二事实源。
 decision: 每个 task 直接作为权威 JSON 索引中的 entry 存在，不建立逐 task 文档、归档目录或默认事件历史。
 tags:
+  - product-architecture-judgment
+  - source-artifact-separation
   - task-graph
 relations:
   - type: 拆分

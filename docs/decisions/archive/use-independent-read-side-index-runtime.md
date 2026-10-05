@@ -8,7 +8,11 @@ purpose: 让多个领域以低接入和维护成本获得稳定的状态查询�
 background: 决策、调查和测试证据都需要索引，但领域事实、写入和动态状态语义并不相同。
 decision: 领域提供 state、唯一 id、revision 和多 key 策略，通用层只管理派生副本、查询与确定性文件同步。
 tags:
+  - common-denominator-design
   - index-runtime
+  - product-architecture-judgment
+  - responsibility-boundaries
+  - shared-protocols
 relations: []
 ---
 

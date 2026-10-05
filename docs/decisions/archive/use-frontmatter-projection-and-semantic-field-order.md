@@ -9,6 +9,10 @@ background: 正文中的索引摘要和关系分散了结构化字段，递归�
 decision: Frontmatter 保存文档自有投影字段，索引对象使用固定语义字段序，条目仍按 ID 排序。
 tags:
   - decision-records
+  - document-structure
+  - metadata-design
+  - record-lifecycle
+  - source-artifact-separation
 relations:
   - type: 修订
     target: generate-index-from-self-contained-decisions

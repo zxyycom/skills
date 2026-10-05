@@ -8,7 +8,10 @@ purpose: 让索引原子写入成功立即收敛，失败统一保留未知结�
 background: 原子写调用 reject 后的磁盘读回只能观察某个时点，不能证明提交点是否越过或重放是否安全。
 decision: 原子写 resolve 即成功且不回读；reject 统一返回 WRITE_OUTCOME_UNKNOWN，并要求重读索引和目标实体。
 tags:
+  - epistemic-limits
+  - product-architecture-judgment
   - task-graph
+  - transactional-updates
 relations:
   - type: 拆分
     target: keep-task-graph-locks-outside-workspace

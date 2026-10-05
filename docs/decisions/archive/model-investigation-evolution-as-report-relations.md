@@ -9,6 +9,7 @@ background: 主题内 H3 追加只能表达时间先后，跨主题也没有直�
 decision: 报告以补充、复查、修正、推翻、归并和拆分六种关系指向真实直接前序，完整图无环；所有正式报告始终留在正常集合。
 tags:
   - investigation-report
+  - record-relations
 relations:
   - type: 拆分
     target: use-fixed-investigation-record-core

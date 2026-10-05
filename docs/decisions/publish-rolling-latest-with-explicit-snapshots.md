@@ -8,7 +8,9 @@ purpose: 控制发布资产持续增长，同时保留正式当前版本和按�
 background: 旧发布路径为每次 skill 内容变化保存完整版本化 Release、滚动 Release 和 CI artifact，产生重复资产与高频 tag。
 decision: 以 skills-latest 承接正式滚动发布，只在手动显式请求时按聚合 hash 创建不可变快照，并短期保留 CI artifact。
 tags:
+  - product-architecture-judgment
   - project-tooling
+  - release-publishing
 relations:
   - type: 修订
     target: 260701-publish-versioned-skill-releases

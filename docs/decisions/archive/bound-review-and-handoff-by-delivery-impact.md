@@ -8,6 +8,7 @@ purpose: 让审查围绕阻断交付的问题收敛，并让子代理只返回�
 background: 不区分问题实质性会制造审查循环，强制填写重复或空字段也会增加成本而不改善交付判断。
 decision: 审查只对实质阻断问题触发定向修复；交接只强制结果和证据，改动与重大例外在实际存在时报告。
 tags:
+  - responsibility-boundaries
   - subagent-orchestration
 relations: []
 ---

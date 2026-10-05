@@ -4,7 +4,9 @@ id: "select-pattern-matching-and-state-modeling-libraries"
 formedAt: "2026-08-07T11:43:56+08:00"
 question: "哪些库适合预装以承接穷尽匹配、判别联合与轻量有限状态机？"
 tags:
+  - "evidence-sufficiency"
   - "implementation-libraries"
+  - "preliminary-research"
 relations: []
 ---
 

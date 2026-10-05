@@ -8,6 +8,8 @@ purpose: 让父子、完成依赖和并发排斥各自表达唯一调度含义�
 background: 三类关系具有不同方向、基数和闭合条件，混成通用 edge 会让执行者重新猜测调度语义。
 decision: 分别用无环森林、依赖有向无环图和对称无自环集合维护父子、顺序与并发关系。
 tags:
+  - product-architecture-judgment
+  - record-relations
   - task-graph
 relations:
   - type: 拆分

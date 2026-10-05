@@ -8,6 +8,11 @@ purpose: 让测试账本直接获得通用索引的统一同步、筛选、分�
 background: 账本登记本身已有成本；如果每次维护和查询还依赖加载完整正文或专用查询逻辑，账本增长会继续放大用户与 agent 的上下文、定位和写入成本。
 decision: 测试领域只提供以 case ID 为身份的紧凑 state、revision、keys 和动态状态，通用层统一拥有索引外壳、新鲜度、同步以及 `query|get|all`。
 tags:
+  - context-management
+  - dependency-boundary-design
+  - product-architecture-judgment
+  - responsibility-boundaries
+  - source-artifact-separation
   - test-evidence-review
 relations: []
 ---

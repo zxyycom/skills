@@ -8,6 +8,7 @@ purpose: 缩短完整检查的反馈时间，同时让不同开发机和 CI 的�
 background: 串行执行会浪费彼此独立的只读检查等待时间，而固定较高或无界的顶层并发会叠加各任务内部的 Git 与 Node 子进程负载。
 decision: 由 `scripts/check.ts` 统一编排完整检查，默认最多并发两个顶层任务并允许显式覆盖；失败后停止领取新任务、等待已启动任务，且仅在全部前置检查通过后打包。
 tags:
+  - concurrency
   - project-tooling
 relations: []
 ---

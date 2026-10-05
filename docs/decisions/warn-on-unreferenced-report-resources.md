@@ -9,6 +9,8 @@ background: 未引用文件可能是待接入或待清理材料；新 owner 由�
 decision: 被引用资源继续严格校验，完全未引用的版本控制可见资源只产生 warning，ignore 排除的未跟踪噪声不提示。
 tags:
   - investigation-report
+  - product-architecture-judgment
+  - validation-boundaries
 relations:
   - type: 修订
     target: warn-on-unreferenced-investigation-resources

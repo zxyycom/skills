@@ -9,6 +9,8 @@ background: 报告被补充、复查、修正或推翻不意味着前序报告�
 decision: 报告只以六种直接前序关系表达认识演进；关系不产生生命周期或删除效果。
 tags:
   - investigation-report
+  - knowledge-evolution
+  - record-relations
 relations:
   - type: 拆分
     target: model-investigation-evolution-and-explicit-removal

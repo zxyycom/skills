@@ -9,6 +9,7 @@ background: 归档 Change 与调查资源都保存形成时字节，持续链接
 decision: bun run validate 排除归档 Change 与调查资源；Change Plan 只在归档前门禁，Investigation Report 维护资源完整性。
 tags:
   - project-tooling
+  - validation-boundaries
 relations:
   - type: 修订
     target: exclude-archived-changes-from-link-validation

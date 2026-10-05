@@ -25,8 +25,12 @@
       "resourceIds": [],
       "sourcePath": "investigate-vibe-check-test-evidence.md",
       "tags": [
+        "evidence-sufficiency",
         "project-customization",
+        "record-relations",
+        "responsibility-boundaries",
         "test-evidence",
+        "validation-boundaries",
         "vibe-check"
       ],
       "title": "Vibe Check 的语义 Case 账本与测试实体闭合实践"
@@ -41,7 +45,11 @@
       ],
       "sourcePath": "recall-historical-decision-alignment.md",
       "tags": [
-        "decision-records"
+        "decision-records",
+        "epistemic-limits",
+        "evidence-sufficiency",
+        "goal-alignment",
+        "validation-boundaries"
       ],
       "title": "历史决策对齐状态召回与来源修复"
     },
@@ -59,8 +67,12 @@
       "resourceIds": [],
       "sourcePath": "bound-bun-optional-peer-resolution.md",
       "tags": [
+        "build-portability",
+        "build-reproducibility",
         "bun",
-        "repository-tooling",
+        "environment-isolation",
+        "project-tooling",
+        "root-cause-analysis",
         "task-graph",
         "test-hermeticity"
       ],
@@ -70,18 +82,16 @@
       "formedAt": "2026-09-11T04:41:07Z",
       "name": "explain-ci-cold-proof-test-failure",
       "question": "为什么 3f960041 之后本地门禁可以通过，而 Package Skills 在 CI 中持续失败于 test:check？",
-      "relations": [
-        {
-          "summary": "复查新 Gate 被 CI 环境变量触发的本地与远端分叉",
-          "target": "ci-clean-runner-environment-regressions",
-          "type": "复查"
-        }
-      ],
+      "relations": [],
       "resourceIds": [],
       "sourcePath": "explain-ci-cold-proof-test-failure.md",
       "tags": [
         "ci",
-        "repository-tooling",
+        "complex-bug",
+        "environment-isolation",
+        "evidence-sufficiency",
+        "project-tooling",
+        "root-cause-analysis",
         "test-hermeticity",
         "vibe-check"
       ],
@@ -91,19 +101,17 @@
       "formedAt": "2026-09-12T02:18:19Z",
       "name": "isolate-ci-version-control-test-load",
       "question": "为什么 Package Skills 会跨提交间歇失败于 test:version-control，而目标提交在等价本地环境可以通过？",
-      "relations": [
-        {
-          "summary": "在后续 CI 失败中复查环境分叉与调度边界",
-          "target": "260911-explain-ci-cold-proof-test-failure",
-          "type": "复查"
-        }
-      ],
+      "relations": [],
       "resourceIds": [],
       "sourcePath": "isolate-ci-version-control-test-load.md",
       "tags": [
         "ci",
-        "repository-tooling",
+        "concurrency",
+        "environment-isolation",
+        "evidence-sufficiency",
+        "project-tooling",
         "test-hermeticity",
+        "validation-boundaries",
         "vibe-check"
       ],
       "title": "隔离 CI 版本管理测试的并行负载与失败诊断"
@@ -116,7 +124,11 @@
       "resourceIds": [],
       "sourcePath": "gate-toolchain-drift.md",
       "tags": [
+        "build-reproducibility",
         "project-tooling",
+        "regression-prevention",
+        "root-cause-analysis",
+        "toolchain-versioning",
         "vibe-gate"
       ],
       "title": "定位 Gate 工具链漂移导致的级联失败"
@@ -130,8 +142,13 @@
       "sourcePath": "stale-skill-release-after-failed-ci.md",
       "tags": [
         "ci",
+        "complex-bug",
+        "project-tooling",
         "release",
-        "repository-tooling"
+        "release-publishing",
+        "release-recovery",
+        "root-cause-analysis",
+        "validation-boundaries"
       ],
       "title": "定位失败构建后滚动 Skill Release 不补发"
     },
@@ -143,9 +160,13 @@
       "resourceIds": [],
       "sourcePath": "lightweight-judgment-wal-init-contention.md",
       "tags": [
+        "complex-bug",
         "concurrency",
+        "evidence-sufficiency",
         "lightweight-judgment",
-        "sqlite"
+        "root-cause-analysis",
+        "sqlite",
+        "test-evidence"
       ],
       "title": "轻量调用日志初始化的并发 WAL 切换"
     },
@@ -162,7 +183,11 @@
       "resourceIds": [],
       "sourcePath": "adopt-native-lock-and-atomic-write-libraries.md",
       "tags": [
-        "task-graph"
+        "dependency-boundary-design",
+        "epistemic-limits",
+        "responsibility-boundaries",
+        "task-graph",
+        "validation-boundaries"
       ],
       "title": "约束收窄后采用原生锁与原子写库"
     },
@@ -179,7 +204,11 @@
       "resourceIds": [],
       "sourcePath": "adopt-preflight-warning-and-single-predecessor-collapse.md",
       "tags": [
-        "decision-records"
+        "decision-records",
+        "git-integration",
+        "record-lifecycle",
+        "responsibility-boundaries",
+        "validation-boundaries"
       ],
       "title": "采用事前警告与显式单前序折叠"
     },
@@ -191,7 +220,9 @@
       "resourceIds": [],
       "sourcePath": "align-prompt-optimize-name-and-trigger.md",
       "tags": [
-        "prompt-optimize"
+        "naming",
+        "prompt-optimize",
+        "semantic-fidelity"
       ],
       "title": "现名未完整表达能力，并暴露双向触发约束"
     },
@@ -208,7 +239,8 @@
       "resourceIds": [],
       "sourcePath": "bind-mentioned-objects-to-negative-roles.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "responsibility-boundaries"
       ],
       "title": "负向描述需要额外完成对象角色绑定"
     },
@@ -225,7 +257,12 @@
       "resourceIds": [],
       "sourcePath": "bound-identifiability-of-deep-goals.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "epistemic-limits",
+        "goal-modeling",
+        "preference-formation",
+        "uncertainty-expression",
+        "validation-boundaries"
       ],
       "title": "深层目标只有局部且不可靠的可识别性"
     },
@@ -237,9 +274,13 @@
       "resourceIds": [],
       "sourcePath": "ci-clean-runner-environment-regressions.md",
       "tags": [
+        "build-reproducibility",
         "ci",
+        "environment-isolation",
         "git-fixture",
-        "repository-tooling",
+        "project-tooling",
+        "root-cause-analysis",
+        "test-hermeticity",
         "vibe-check"
       ],
       "title": "CI clean runner 暴露 wrapper 权限与 Git fixture identity 缺口"
@@ -257,7 +298,8 @@
       "resourceIds": [],
       "sourcePath": "compare-human-and-ai-abstraction-defaults.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "epistemic-limits"
       ],
       "title": "人与 AI 具有不同的抽象默认偏差"
     },
@@ -274,7 +316,8 @@
       "resourceIds": [],
       "sourcePath": "compress-negative-revision-history-into-positive-goals.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "goal-modeling"
       ],
       "title": "正向目标是对负向修正历史的认知压缩"
     },
@@ -290,6 +333,8 @@
       ],
       "sourcePath": "defer-standard-test-result-blocking.md",
       "tags": [
+        "knowledge-evolution",
+        "record-lifecycle",
         "test-evidence"
       ],
       "title": "确认延期方向并退出活动 Change"
@@ -302,7 +347,11 @@
       "resourceIds": [],
       "sourcePath": "define-git-library-selection-evidence.md",
       "tags": [
-        "git-integration"
+        "epistemic-limits",
+        "evidence-sufficiency",
+        "git-integration",
+        "preliminary-research",
+        "validation-boundaries"
       ],
       "title": "统一选型需要正确性、性能与维护证据"
     },
@@ -314,7 +363,9 @@
       "resourceIds": [],
       "sourcePath": "detect-uncommitted-decision-evolution-from-git-baselines.md",
       "tags": [
-        "decision-records"
+        "decision-records",
+        "epistemic-limits",
+        "preliminary-research"
       ],
       "title": "版本基线可发现同一变更内的决策演进候选"
     },
@@ -331,7 +382,8 @@
       "resourceIds": [],
       "sourcePath": "distinguish-activation-neighborhoods-from-valid-solution-space.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "epistemic-limits"
       ],
       "title": "关联激活邻域不等于任务有效解集合"
     },
@@ -361,8 +413,12 @@
       "sourcePath": "evaluate-mcpshell-as-user-scoped-workspace-bridge.md",
       "tags": [
         "agent-workspace-isolation",
+        "epistemic-limits",
+        "evidence-sufficiency",
         "mcpshell",
         "preliminary-research",
+        "responsibility-boundaries",
+        "validation-boundaries",
         "workspace-bridge"
       ],
       "title": "MCPShell 工作区桥接前期调查：通过 SSH 暴露 shell 与 diff"
@@ -392,7 +448,12 @@
       "resourceIds": [],
       "sourcePath": "identify-operation-time-skill-rerouting-gap.md",
       "tags": [
-        "skill-orchestration"
+        "epistemic-limits",
+        "evidence-sufficiency",
+        "responsibility-boundaries",
+        "skill-orchestration",
+        "uncertainty-expression",
+        "validation-boundaries"
       ],
       "title": "首次发现改进没有覆盖动作时重路由"
     },
@@ -416,8 +477,12 @@
       "resourceIds": [],
       "sourcePath": "identify-vibe-001-jscpd-path-and-lizard-version-gaps.md",
       "tags": [
+        "dependency-boundary-design",
         "duplicate-detection",
+        "evidence-sufficiency",
         "function-metrics",
+        "root-cause-analysis",
+        "validation-boundaries",
         "vibe-check"
       ],
       "title": "识别 Vibe 0.0.1 的 jscpd 路径与 Lizard 版本缺口"
@@ -435,7 +500,12 @@
       "resourceIds": [],
       "sourcePath": "model-goals-as-layered-partially-expressible-intentions.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "goal-alignment",
+        "goal-elicitation",
+        "goal-modeling",
+        "preference-formation",
+        "uncertainty-expression"
       ],
       "title": "目标是层级化且部分可表达的动态意向"
     },
@@ -450,7 +520,12 @@
       ],
       "sourcePath": "preserve-redacted-conversations-in-two-derived-forms.md",
       "tags": [
-        "codex"
+        "artifact-integrity",
+        "codex",
+        "responsibility-boundaries",
+        "semantic-fidelity",
+        "source-artifact-separation",
+        "validation-boundaries"
       ],
       "title": "形成脱敏近全量档案与机械对话初稿"
     },
@@ -467,7 +542,11 @@
       "resourceIds": [],
       "sourcePath": "recognize-document-projections-as-part-of-goal-formation.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "goal-modeling",
+        "knowledge-evolution",
+        "preference-formation",
+        "semantic-fidelity"
       ],
       "title": "文档投影会反过来参与目标形成"
     },
@@ -479,7 +558,9 @@
       "resourceIds": [],
       "sourcePath": "recover-candidate-model-from-negative-description-dispute.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "knowledge-evolution",
+        "preliminary-research"
       ],
       "title": "从负向描述争议恢复候选概念模型"
     },
@@ -491,7 +572,10 @@
       "resourceIds": [],
       "sourcePath": "reject-lock-and-atomic-write-library-dependencies.md",
       "tags": [
-        "task-graph"
+        "dependency-boundary-design",
+        "product-architecture-judgment",
+        "task-graph",
+        "validation-boundaries"
       ],
       "title": "现有候选无法缩减 task-graph 的关键事务协议"
     },
@@ -508,7 +592,11 @@
       "resourceIds": [],
       "sourcePath": "remove-supervision-around-lock-and-atomic-write-libraries.md",
       "tags": [
-        "task-graph"
+        "dependency-boundary-design",
+        "product-architecture-judgment",
+        "responsibility-boundaries",
+        "task-graph",
+        "validation-boundaries"
       ],
       "title": "保留成熟库并删除外围监督协议"
     },
@@ -537,7 +625,9 @@
       "resourceIds": [],
       "sourcePath": "select-functional-utilities-and-data-structures.md",
       "tags": [
-        "implementation-libraries"
+        "evidence-sufficiency",
+        "implementation-libraries",
+        "preliminary-research"
       ],
       "title": "预装候选的适用价值与依赖边界"
     },
@@ -549,6 +639,8 @@
       "resourceIds": [],
       "sourcePath": "select-neverthrow-and-project-option.md",
       "tags": [
+        "dependency-resolution",
+        "evidence-sufficiency",
         "implementation-libraries"
       ],
       "title": "采用 neverthrow 并由项目源码承接 Option"
@@ -561,7 +653,9 @@
       "resourceIds": [],
       "sourcePath": "select-pattern-matching-and-state-modeling-libraries.md",
       "tags": [
-        "implementation-libraries"
+        "evidence-sufficiency",
+        "implementation-libraries",
+        "preliminary-research"
       ],
       "title": "确定穷尽匹配与轻量状态机的预装候选"
     },
@@ -595,7 +689,8 @@
       "resourceIds": [],
       "sourcePath": "separate-logical-pruning-search-bias-and-path-dependence.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "epistemic-limits"
       ],
       "title": "区分逻辑剪枝、搜索偏置与路径依赖"
     },
@@ -612,7 +707,11 @@
       "resourceIds": [],
       "sourcePath": "separate-semantic-fidelity-goal-fit-and-goal-explication.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "epistemic-limits",
+        "responsibility-boundaries",
+        "semantic-fidelity",
+        "validation-boundaries"
       ],
       "title": "区分内容保真、目标符合与目标显化"
     },
@@ -629,7 +728,9 @@
       "resourceIds": [],
       "sourcePath": "separate-semantic-responsibility-from-solution-space-analysis.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "responsibility-boundaries",
+        "semantic-fidelity"
       ],
       "title": "区分语义责任与解空间分析层"
     },
@@ -646,7 +747,8 @@
       "resourceIds": [],
       "sourcePath": "separate-solution-space-positioning-from-contextual-anchoring.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "knowledge-evolution"
       ],
       "title": "分离解空间定位与上下文搜索锚定"
     },
@@ -663,7 +765,8 @@
       "resourceIds": [],
       "sourcePath": "specify-safety-goals-with-negative-rules.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "validation-boundaries"
       ],
       "title": "安全主线可以由负向规则具体化"
     },
@@ -680,7 +783,8 @@
       "resourceIds": [],
       "sourcePath": "treat-description-polarity-as-reference-relative.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "preliminary-research"
       ],
       "title": "正负极性依赖描述层级与参照对象"
     },
@@ -697,7 +801,12 @@
       "resourceIds": [],
       "sourcePath": "treat-goals-as-complete-in-abstraction-and-incremental-in-practice.md",
       "tags": [
-        "ai-ready-docs"
+        "ai-ready-docs",
+        "epistemic-limits",
+        "goal-alignment",
+        "goal-elicitation",
+        "goal-modeling",
+        "preference-formation"
       ],
       "title": "目标在抽象层完整而在实践层逐步收敛"
     }
@@ -708,50 +817,50 @@
   "sourceRevision": {
     "entries": {
       "260903-explore-name-collisions-in-retained-artifacts": "sha256:4aa2ab77d625a548920dd74b5ace539cfcf90b15b90130def4963da25078ca6f",
-      "260907-investigate-vibe-check-test-evidence": "sha256:644b0a0adfd55b95089dd822f623c299ae397d83cd316316919bdc31e0cdeb8b",
-      "260908-recall-historical-decision-alignment": "sha256:b5e5f037e9e5da81bdd619b86d66335bc17a26a4e44f9bde682a71f37ca351d1",
-      "260911-bound-bun-optional-peer-resolution": "sha256:f0277c986fee5e29a025dc6e09fa694a465370ca6f4acd435645428784975dfd",
-      "260911-explain-ci-cold-proof-test-failure": "sha256:f61100ce3a060d1d614b9065fdd67b7ddf3de76fb88560756d16421b1580e64f",
-      "260912-isolate-ci-version-control-test-load": "sha256:d46df71cb082a9a60bbde3a4db359c19eb28f68ccf2ea64706391ad0f3c03706",
-      "260919-gate-toolchain-drift": "sha256:6e782b067a86da17947542acb24540521c62df9b55d3d594cd1ee42ea3970226",
-      "260923-stale-skill-release-after-failed-ci": "sha256:dc2cbf8762209c64b23d75e8c17382e17b3b6de654300b8a3f8ac92987c52cd7",
-      "261004-lightweight-judgment-wal-init-contention": "sha256:bcbda16e642f27a0e9e01fdda93f209e06e59cac4b4a2c35997922ed00d88a61",
-      "adopt-native-lock-and-atomic-write-libraries": "sha256:4861ec08242f0007c24f5b6d7e8e0a0c5fc1ccaaf6898eb1f64420645a2f0c21",
-      "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:886e1ade798bfe48802e32c5296dc03c07d9b192dde3519b52ec5b8583778bdd",
-      "align-prompt-optimize-name-and-trigger": "sha256:24700cda424786bc07531f84b6c139f1de6fae7b050ad69811bdddca35734cb6",
-      "bind-mentioned-objects-to-negative-roles": "sha256:6bbeafb899760c64de769224bc73312f2cd91b0f296518c5206afe6786c8759f",
-      "bound-identifiability-of-deep-goals": "sha256:403ec87904a43d27109f8ea9907e60de2639d2cf87f28cd51e83ef7a3e76885b",
-      "ci-clean-runner-environment-regressions": "sha256:d073612bdbe327c02b87315b8bb98f0cbaac13a310b8c48902e48442677e1e34",
-      "compare-human-and-ai-abstraction-defaults": "sha256:06933f39b2e749da063484854693b831a260f1a4961c898b1b070da874cdd075",
-      "compress-negative-revision-history-into-positive-goals": "sha256:eb1c72935cffae759db02fe81871903e9cd5cd0cd85564669623a513b316d492",
-      "defer-standard-test-result-blocking": "sha256:9198e4aad55419b4987508b90e21f03e8bb3be07f461e5017d87013e804381de",
-      "define-git-library-selection-evidence": "sha256:4abddd154bdd819f86ef1b798105bc7e634aa8c644304798e115f10e8fefa2db",
-      "detect-uncommitted-decision-evolution-from-git-baselines": "sha256:1e6ddb4edf8b265b14095407f16c1fe90abac3b03ca628691735c5743437c138",
-      "distinguish-activation-neighborhoods-from-valid-solution-space": "sha256:35b5b81f21a74f1b35dc5fa2368ab1adff797d71091a745193bcde3a57b7dc7a",
+      "260907-investigate-vibe-check-test-evidence": "sha256:ceb08a215fca02e71e3197ff8bac3f1b3cb2ecff83e88cece860bba39f4867bb",
+      "260908-recall-historical-decision-alignment": "sha256:5b5baaff297122336c96e05a2cfb2c1ab97099a062cb373ef8ea3aa489cf1b4e",
+      "260911-bound-bun-optional-peer-resolution": "sha256:cd9604eedaeca962481e9d3decb0a8e98a99e1332ce1b2078a68449ebcb424f9",
+      "260911-explain-ci-cold-proof-test-failure": "sha256:2bb1a591998082c1ad39c3ae51daa73842a0195022a690601061b80827845a42",
+      "260912-isolate-ci-version-control-test-load": "sha256:676088ae4f676fbdb7d86544680808b9544199fb698037e875c760316e497c25",
+      "260919-gate-toolchain-drift": "sha256:6ae61d9a98622da92e811e803fd84805bd8161223ae8d6edd40ff2323c07a169",
+      "260923-stale-skill-release-after-failed-ci": "sha256:30f5274c8658ca3684d44997f7f3e2ee09d3552a1d1a4dc6a975be58878e4299",
+      "261004-lightweight-judgment-wal-init-contention": "sha256:3dc57830e8c2b5f466922ea241f86702a776ea8ebcb091018705157c8933fde7",
+      "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
+      "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
+      "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",
+      "bind-mentioned-objects-to-negative-roles": "sha256:5956a7173868fcf52f833c9b7d72631c9b19364cf81a5927dccb9e3bb5b11af5",
+      "bound-identifiability-of-deep-goals": "sha256:7c51d52e8816c007ee76ca08e78f32d92a297d22ca2290b5e61825a518e08e27",
+      "ci-clean-runner-environment-regressions": "sha256:06863d08f3b62c30486a5ed0b953b84f58ab12dd68156cc78e2b0df9ab680a88",
+      "compare-human-and-ai-abstraction-defaults": "sha256:308c50cd97e3caa8eb237fbb9c5fcb2541316dbb20f65e3c98b087b8a497e52c",
+      "compress-negative-revision-history-into-positive-goals": "sha256:3ddc36bd0d2c0d776ce1353501b492820b2405a3aaf8608fe880465c1f836a9e",
+      "defer-standard-test-result-blocking": "sha256:fc2bf08d49412d882bb9a97c55994be90f5263f8738849ab59935d8e63a608f2",
+      "define-git-library-selection-evidence": "sha256:c89802bd2cf1aa87c73a0a5fd56a80d59f0305f7ecc93c6d859ab60226e90825",
+      "detect-uncommitted-decision-evolution-from-git-baselines": "sha256:5f28ab56b9f8c23fb9c775b39369d4eceb7df0c54de51fb80cb3b93c14672338",
+      "distinguish-activation-neighborhoods-from-valid-solution-space": "sha256:098c7a2a1bfcd15c3f64251b68c54e12752c3bf88310272b2bb46ac380dacb3d",
       "distinguish-expressive-equivalence-from-construction-cost": "sha256:a7ea90047ec8f89d1cb83e62ff35b8a21d27f7ad526b12db08622b112a21e1e5",
-      "evaluate-mcpshell-as-user-scoped-workspace-bridge": "sha256:8603077f52c0dd5e6d0f424c43a537e4ee7d20097c06b2bbf776c1e91b63f008",
+      "evaluate-mcpshell-as-user-scoped-workspace-bridge": "sha256:1117a288375c051f938c6115783f0e084fd01e819fb332197fd9cec606a5794a",
       "ground-positive-negative-asymmetry-in-reference-structure": "sha256:989e701325766ded31e2c4b0c90d191804b2e21aacf5fa716c0fbde54dc6fff7",
-      "identify-operation-time-skill-rerouting-gap": "sha256:1688c3e6111ec48fbff0110c1fd22212adc6921f41cafd9b7287481b516a568a",
+      "identify-operation-time-skill-rerouting-gap": "sha256:21f570c4ef34d834621fb23c34f78d30818898bf0fa722700ede500fb7f96829",
       "identify-routing-and-coordination-gaps-in-context-management": "sha256:6b953106a0ffadb738b662b90244c5f68d811b736203dd6b7872ebd63264d36b",
-      "identify-vibe-001-jscpd-path-and-lizard-version-gaps": "sha256:7410924c90cc5ee980888347383ebc37103ffa3d05505a032ce2ab84886e8a8c",
-      "model-goals-as-layered-partially-expressible-intentions": "sha256:b14b5a503256f0e912861823ea2f6889d169a9ff821c5b614356ece061b114eb",
-      "preserve-redacted-conversations-in-two-derived-forms": "sha256:2aadc89228eb560dc88ab70aed571a700b2b290b663bf3bcd1d3f5524ed17fd2",
-      "recognize-document-projections-as-part-of-goal-formation": "sha256:c91fef6a95326b9cb8a3aaf47eb3a2a2da14221d52c126b5e7504aae0de602e8",
-      "recover-candidate-model-from-negative-description-dispute": "sha256:6c88757af0cf7f2148e9d58c76f7a5eb5dc0b519f243593a59b21333724d3671",
-      "reject-lock-and-atomic-write-library-dependencies": "sha256:f362a04ed1f9ef9b5e12dec561d676d1dab91e5a150934dcee02d15832443f1a",
-      "remove-supervision-around-lock-and-atomic-write-libraries": "sha256:ac9db8913f7630df00164600707dea6bc06a54ae2c21f1670be1951f524a6a90",
+      "identify-vibe-001-jscpd-path-and-lizard-version-gaps": "sha256:5ab2c102f8afec6e68ff5499f8718fbd575480bce9f36b41242bf3051297d086",
+      "model-goals-as-layered-partially-expressible-intentions": "sha256:c64d32dfe7fd1ed38314254be75af7712aa276bb337e5dad2a5eeef60f538c03",
+      "preserve-redacted-conversations-in-two-derived-forms": "sha256:2f496ad741ff081a5919760c0f918b815e1bcde4df520289072c81b15ae0610c",
+      "recognize-document-projections-as-part-of-goal-formation": "sha256:e636c7e927beb109ea9fc35b9aea518cce7c4a1890ae4650983b4a4189ff4537",
+      "recover-candidate-model-from-negative-description-dispute": "sha256:2dd8c9fc60a280f4dfe0733bc6ce9e73ecc9130a1ec2ccf0bd665ec1c99d2003",
+      "reject-lock-and-atomic-write-library-dependencies": "sha256:41c6346019b5c6b59a6dc73bfadbffc5a0a4f8c8266a3bb54c18d854044c741a",
+      "remove-supervision-around-lock-and-atomic-write-libraries": "sha256:99db31816850cd211dee65c5e0112fd38ce11beb5040a0980624801846773c6a",
       "return-from-framework-strategy-to-description-polarity": "sha256:4b26444c14ecb49eb510f34b34f4fbec9f6180a2129042bcecd053a78b0836f5",
-      "select-functional-utilities-and-data-structures": "sha256:a7193052016b591df6397e27a5827aefc0a579583391e8a5cd617309562e730a",
-      "select-neverthrow-and-project-option": "sha256:466e5189496e5ebaf817f12c5b1e6850b7b0b91c0d9618f8325999c0b4f9031e",
-      "select-pattern-matching-and-state-modeling-libraries": "sha256:6279342faab250029cae72f94818366201284c215e73ff06ef9dfa5bf36b5d51",
+      "select-functional-utilities-and-data-structures": "sha256:b13e9f7f177d89d6856b5ce5692dff61c284d11dd1b327212f48536fbcbd3ac1",
+      "select-neverthrow-and-project-option": "sha256:35dbf81e2e9231fd562ccd92dd40135b7d20def5e1701a2bc617e43bd9c5f7a8",
+      "select-pattern-matching-and-state-modeling-libraries": "sha256:fce1929acfaa07458e0dfff9fb2b3c7df13d0bf5d6aa5abc55febcb5351cf00a",
       "separate-framework-reconstruction-from-local-repair": "sha256:0fb2921f95b7d017f26dc931044d992ccb0d6481697ba18113f0337571b22ea2",
-      "separate-logical-pruning-search-bias-and-path-dependence": "sha256:497610f8a7cd5f2fd63c509cc594318786ef9df9ba9be2a574707c9d3f808dcf",
-      "separate-semantic-fidelity-goal-fit-and-goal-explication": "sha256:f6061362f42e27943136f0ce7d383883ecd8dba2931844a8ea191c60fa4528aa",
-      "separate-semantic-responsibility-from-solution-space-analysis": "sha256:0ae286ea9e90f4c0be5ad8f454a1cb3e84275ef14718a2da5464affa211289b8",
-      "separate-solution-space-positioning-from-contextual-anchoring": "sha256:0990425b9e3b2e6506b1f8ce908898a727c4195bf55c792698f76312b70693c4",
-      "specify-safety-goals-with-negative-rules": "sha256:4abffe3bd73bc3c0ace0f8db56f894b5938f5a7cc4dce8f5022cb564be79858a",
-      "treat-description-polarity-as-reference-relative": "sha256:ebab7eb180d3f07439b3e745ac9dfd33ecd889e68305848356a74dfe5f9094ac",
-      "treat-goals-as-complete-in-abstraction-and-incremental-in-practice": "sha256:50edde0abcd22a621f4b383217496a0b0cd5ca2bc2506048e8a5290e87c10f4e"
+      "separate-logical-pruning-search-bias-and-path-dependence": "sha256:8318cef1ea93ce8dfbc99cb638358999c7ea996579350bf46ab618abc07a7a70",
+      "separate-semantic-fidelity-goal-fit-and-goal-explication": "sha256:ff2c7dc19ab64e0684f003b3c3c911177fd95af2d469b20f4aa55966673e5b4a",
+      "separate-semantic-responsibility-from-solution-space-analysis": "sha256:a40bf7f269d26baaedf019d7337ad18685bf564908ab0cfc20c1f373fb6c66ba",
+      "separate-solution-space-positioning-from-contextual-anchoring": "sha256:aca9ae52d1ae924c447b726833a6c253591141f186c68f61fa491324bb97fd74",
+      "specify-safety-goals-with-negative-rules": "sha256:2bac1a594e0fa0672ca0a7b6740943d83008b630a7ec253dc0856232a84d00ac",
+      "treat-description-polarity-as-reference-relative": "sha256:c383489182a22e486414068fcc69e69fdd03e40a2fcd8ba6a4bb129f4e7cd07a",
+      "treat-goals-as-complete-in-abstraction-and-incremental-in-practice": "sha256:d6b3b8126a796aad8e4f13b2a66bc13278da44d3fd0d7d433ca20c7e3fc94399"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

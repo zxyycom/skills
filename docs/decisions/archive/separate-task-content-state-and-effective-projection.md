@@ -8,6 +8,7 @@ purpose: 让紧凑任务语义与复杂调度状态各自清楚，并避免派�
 background: 内容、控制状态、执行状态、关系和阻塞原因平铺在同一层会混淆可写事实、运行结果与工具计算值。
 decision: 任务条目按身份、内容和显式状态分区，有效状态、继承来源、阻塞原因和反向关系只在查询时确定性投影。
 tags:
+  - product-architecture-judgment
   - task-graph
 relations: []
 ---

@@ -5,6 +5,7 @@ formedAt: "2026-08-13T10:32:26+00:00"
 question: "正向目标怎样压缩候选反馈与负向修正历史，而不丢失仍需独立保留的边界？"
 tags:
   - "ai-ready-docs"
+  - "goal-modeling"
 relations:
   - type: "补充"
     target: "distinguish-expressive-equivalence-from-construction-cost"

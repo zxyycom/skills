@@ -9,6 +9,7 @@ background: 目标方向不能代替定义或检验所需规格，但只按表�
 decision: 默认以文档主承诺组织内容，用目标状态、必要约束、推荐路径和验收方式建立主线，再保留必要的具体规格。
 tags:
   - ai-ready-docs
+  - goal-alignment
 relations:
   - type: 拆分
     target: organize-by-main-promise-and-manage-context-association

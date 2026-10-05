@@ -8,7 +8,11 @@ purpose: 让制品身份完整保留原始字节，同时只为使用者可感�
 background: 生成 source map 和声明格式化会改变包字节，却不总是改变运行时或声明语义。
 decision: 聚合 hash 保留全部原始字节，版本门禁仅排除 linked map 与纯格式声明差异。
 tags:
+  - artifact-integrity
+  - metadata-design
   - project-tooling
+  - source-artifact-separation
+  - toolchain-versioning
 relations: []
 ---
 

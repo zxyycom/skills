@@ -9,6 +9,8 @@ background: 完整报告写入根目录即建立，机械问题只能在进入�
 decision: 用根目录 `_candidate.<investigation-id>` 保存集合外候选；共用资源链接但不进入 lifecycle、正式查询或索引，readiness 不构成授权。
 tags:
   - investigation-report
+  - product-architecture-judgment
+  - validation-boundaries
 relations: []
 ---
 

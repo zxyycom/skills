@@ -8,6 +8,9 @@ purpose: 让项目只通过一个稳定 owner 查询版本状态，使后续替�
 background: 项目同时需要提交树、待提交内容和工作区变化，直接依赖 Git 命令与 index 语义会把解析和替换成本散入多个模块。
 decision: 建立项目自有版本管理中间层，默认采用 Git 并允许 Git 倾向语义，但不提前承诺多版本系统兼容或建设 provider 框架。
 tags:
+  - dependency-boundary-design
+  - product-architecture-judgment
+  - responsibility-boundaries
   - version-control
 relations: []
 ---

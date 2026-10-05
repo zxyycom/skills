@@ -9,6 +9,7 @@ background: 拆分和归并分别覆盖一对多与多对一；多对多边界�
 decision: 将重组作为由真实案例触发的未来方向；现有关系无法忠实表达时再设计，并要求多前序、多后继和语义覆盖共同闭合。
 tags:
   - decision-records
+  - record-relations
 relations: []
 ---
 

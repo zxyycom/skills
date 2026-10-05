@@ -9,6 +9,8 @@ background: "`list` 和 `trace` 与 `check` 共用全库严格校验门禁，任
 decision: 中央索引可解析且目标存在时，`list` 与 `trace` 返回可恢复结果并以 warning 暴露错误；检查和写事务仍严格失败。
 tags:
   - decision-records
+  - product-architecture-judgment
+  - validation-boundaries
 relations: []
 ---
 

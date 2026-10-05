@@ -5,6 +5,7 @@ formedAt: "2026-08-13T09:52:08+00:00"
 question: "任务契约对解空间的正常定位与对象被提及时产生的上下文搜索锚定有何不同？"
 tags:
   - "ai-ready-docs"
+  - "knowledge-evolution"
 relations:
   - type: "修正"
     target: "separate-logical-pruning-search-bias-and-path-dependence"

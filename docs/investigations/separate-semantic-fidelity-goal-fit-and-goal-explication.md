@@ -5,6 +5,10 @@ formedAt: "2026-08-13T09:29:48+00:00"
 question: "内容语义保真、结果符合深层目标与目标通过反馈显化有何不同？"
 tags:
   - "ai-ready-docs"
+  - "epistemic-limits"
+  - "responsibility-boundaries"
+  - "semantic-fidelity"
+  - "validation-boundaries"
 relations:
   - type: "补充"
     target: "recognize-document-projections-as-part-of-goal-formation"

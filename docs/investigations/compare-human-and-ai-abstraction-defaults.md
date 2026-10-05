@@ -5,6 +5,7 @@ formedAt: "2026-08-13T11:05:47+00:00"
 question: "人和 AI 在何种机制下会把有限规则过度抽象为具有外推权威的框架？"
 tags:
   - "ai-ready-docs"
+  - "epistemic-limits"
 relations:
   - type: "修正"
     target: "compress-negative-revision-history-into-positive-goals"

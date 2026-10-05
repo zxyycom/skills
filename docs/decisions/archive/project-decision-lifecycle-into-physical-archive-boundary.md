@@ -9,6 +9,7 @@ background: 已归档记录需要离开常规搜索路径，但物理移动只�
 decision: candidate 与 active 记录直属决策根，archived 记录直属统一 archive；位置与索引必须投影并验证 Markdown status。
 tags:
   - decision-records
+  - record-lifecycle
 relations:
   - type: 拆分
     target: use-stable-decision-ids-tags-and-location-index

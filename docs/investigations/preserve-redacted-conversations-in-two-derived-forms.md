@@ -4,7 +4,12 @@ id: "preserve-redacted-conversations-in-two-derived-forms"
 formedAt: "2026-08-14T02:57:11+00:00"
 question: "怎样从含敏感运行时数据的 Codex JSONL 形成可审计近全量档案和可阅读对话初稿？"
 tags:
+  - "artifact-integrity"
   - "codex"
+  - "responsibility-boundaries"
+  - "semantic-fidelity"
+  - "source-artifact-separation"
+  - "validation-boundaries"
 relations: []
 ---
 

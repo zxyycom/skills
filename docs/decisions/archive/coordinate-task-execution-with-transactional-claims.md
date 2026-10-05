@@ -8,7 +8,10 @@ purpose: 让多个 agent 在共享索引上领取就绪任务，而不重复执�
 background: 查询就绪后再非事务地写入运行状态会产生竞态，执行者异常退出还会留下无法判断归属的运行状态。
 decision: 任务工具以 revision 和租约事务化领取、完成、失败与释放，并在每次写入前验证有效状态和完整拓扑。
 tags:
+  - concurrency
+  - product-architecture-judgment
   - task-graph
+  - transactional-updates
 relations: []
 ---
 

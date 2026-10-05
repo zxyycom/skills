@@ -8,7 +8,10 @@ purpose: 让日常门禁只执行缺少当前输入成功证明的 Check。
 background: 固定执行全部 base Check 重复扫描和运行无关测试，无法满足日常反馈时延。
 decision: 项目形成内容快照、影响契约和成功 receipt，再以内部 flags 让 Vibe 执行所需 Check；release 激活完整 DAG，测试批次另用精确证明。
 tags:
+  - dependency-boundary-design
   - project-tooling
+  - responsibility-boundaries
+  - vibe-gate
 relations:
   - type: 修订
     target: 260909-use-native-vibe-gate-controls

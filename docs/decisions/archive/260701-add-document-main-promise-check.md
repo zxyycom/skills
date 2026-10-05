@@ -9,6 +9,7 @@ background: "`prompt-optimize` 已经要求判断用途、阅读脉络和内容 
 decision: 从标题、序言、触发条件、资源名、字段和输入输出等入口信号建立文档主承诺，并据此检查正文重心。
 tags:
   - ai-ready-docs
+  - goal-alignment
 relations: []
 ---
 

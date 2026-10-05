@@ -8,6 +8,9 @@ purpose: 让同一主机上的索引 mutation 共享稳定短锁，同时不在�
 background: Advisory lock 只需遵守协议的写入者打开同一稳定文件，锁位置无需与索引相邻。
 decision: 由规范索引绝对路径的 hash 在系统临时目录定位稳定锁，锁只覆盖本地短事务并不管理工作区路径。
 tags:
+  - concurrency
+  - product-architecture-judgment
+  - responsibility-boundaries
   - task-graph
 relations:
   - type: 拆分

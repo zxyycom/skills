@@ -8,7 +8,10 @@ purpose: 允许调查报告按需引用不适合在正文完整展开的形成�
 background: 原始参数、响应、日志、规范和二进制材料需要独立保存；目录位置不能表达它支持哪份报告，未纳入索引的文件变化也难以发现。
 decision: 允许报告按需声明统一资源池中的资源引用；主题索引管理已声明的报告关系和资源 SHA-256，并让资源快照参与 source revision。
 tags:
+  - artifact-integrity
   - investigation-report
+  - record-relations
+  - source-artifact-separation
 relations: []
 ---
 

@@ -9,6 +9,8 @@ background: 既有契约把任何语义变化都视为演进，没有区分已�
 decision: 已建立记录继续通过后序保留演进；未进入稳定基线且未被依赖的新记录在原路径收敛。
 tags:
   - decision-records
+  - record-lifecycle
+  - record-relations
 relations:
   - type: 修订
     target: 260720-separate-editorial-edits-from-evolution

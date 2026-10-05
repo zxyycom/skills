@@ -8,7 +8,11 @@ purpose: 同时保持测试 case 的自然粒度和账本随规模增长后的�
 background: 测试框架能提供最小可归因节点，但把全部节点集中在单个 Markdown 会放大查找、修改冲突和上下文成本；主题文件不应反向改变 case 身份。
 decision: 每个最小原生测试入口仍对应一个 case，权威目录按稳定测试责任拆分主题 Markdown，并由统一索引跨文件查询和定点展开。
 tags:
+  - responsibility-boundaries
+  - source-artifact-separation
   - test-evidence-review
+  - test-registration
+  - test-traceability
 relations:
   - type: 修订
     target: catalog-minimal-native-test-entries

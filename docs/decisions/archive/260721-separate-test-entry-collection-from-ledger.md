@@ -8,6 +8,10 @@ purpose: 让复杂项目能够替换入口收集方式，同时让账本维护�
 background: 账本 CLI 同时拥有文件选择、跨语言正则和账本校验，按语言屏蔽非代码上下文仍会漏掉有效入口，也让自定义发现规则必须进入账本实现。
 decision: 以 Schema 为结构真源，把工具拆成输出标准清单的可替换采集层和只消费清单的账本层，并保留组合兼容入口。
 tags:
+  - dependency-boundary-design
+  - product-architecture-judgment
+  - responsibility-boundaries
+  - source-artifact-separation
   - test-evidence-review
 relations:
   - type: 替代

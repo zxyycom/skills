@@ -8,6 +8,9 @@ purpose: 让默认任务清单直接呈现推进结构与运行排斥，同时�
 background: 平铺 raw 结果虽完整，却要求调用方重建层级、依赖与排斥；三类关系语义不同，不能压成同一种图边。
 decision: 默认 task list 以父子和依赖形成 track、仅以依赖形成 layer，排斥关系独立进入 RUN MUTEX；视图始终全量且只折叠可恢复信息。
 tags:
+  - product-architecture-judgment
+  - record-relations
+  - semantic-fidelity
   - task-graph
 relations: []
 ---

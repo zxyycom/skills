@@ -8,6 +8,10 @@ purpose: 让测试入口采集可独立替换，并让账本维护只依赖稳�
 background: 组合兼容入口会把旧配置、旧输出和默认采集器继续带入账本工具边界，削弱两层接口的独立性。
 decision: 以 Schema 为结构真源，只发布采集层和账本层两套接口，旧版升级仅由独立文档承接。
 tags:
+  - dependency-boundary-design
+  - product-architecture-judgment
+  - responsibility-boundaries
+  - source-artifact-separation
   - test-evidence-review
 relations:
   - type: 修订

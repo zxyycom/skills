@@ -8,6 +8,8 @@ purpose: 让 agent 在严格校验之外直接恢复 case、入口映射和 revi
 background: CLI 只有严格 check，成功结果只给汇总，普通错误仍是字符串，语义审查需要重复解析账本和源码。
 decision: 保留严格 check，新增非阻断 list/show、可导入 inspection 和带版本的结构化 diagnostics。
 tags:
+  - product-architecture-judgment
+  - test-evidence
   - test-evidence-review
 relations: []
 ---

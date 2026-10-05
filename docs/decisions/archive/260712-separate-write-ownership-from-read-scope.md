@@ -8,6 +8,9 @@ purpose: 在避免并行写入冲突的同时，保留子代理读取必要证�
 background: "`skills/subagent-orchestration/SKILL.md` 原先要求子代理工作范围、文件范围和决策范围保持互斥, 没有区分写入所有权与只读证据范围。"
 decision: 只要求并行子代理的写入范围互斥, 并按实际可能修改的文件、配置、生成产物或外部状态划分所有权; 原因是冲突来自共享状态变更, 不是共享证据读取。
 tags:
+  - agent-workspace-isolation
+  - concurrency
+  - responsibility-boundaries
   - subagent-orchestration
 relations: []
 ---

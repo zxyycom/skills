@@ -8,7 +8,11 @@ purpose: 让每个被发现器识别的测试入口都能回到明确契约和 c
 background: 文件级最小归属会让一个 marker 覆盖同文件内未评估的其他测试；case 缺少契约背景，普通三级标题会被误判；Scope 只校验路径外形，无法发现失效范围或命中变更。
 decision: case 使用固定标题和 `Contract:`；源码角色逐测试入口映射；Scope 用严格 glob 与 Git 路径校验，并按变化和 CR 基线触发 review。
 tags:
+  - product-architecture-judgment
+  - test-discovery
   - test-evidence-review
+  - test-registration
+  - test-traceability
 relations:
   - type: 修订
     target: 260719-model-verification-obligations-and-source-roles

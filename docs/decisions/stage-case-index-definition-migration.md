@@ -8,6 +8,8 @@ purpose: 保留安全的 selected staging，同时禁止在 definition 切换时
 background: Case-only 索引不再有 topic metadata，但跨 definition 的索引基线不能安全组合。
 decision: 普通 Case 变化可 selected stage；首次 definition 迁移必须整体暂存索引。
 tags:
+  - responsibility-boundaries
+  - source-artifact-separation
   - test-evidence-review
   - version-control
 relations:

@@ -8,7 +8,10 @@ purpose: 让 task-graph 保留可追踪 JSON，同时把跨进程互斥和原子
 background: 自研锁恢复需要 owner、heartbeat、进程探测和 generation 防护，维护面远超短事务本身。
 decision: 使用稳定旁路文件上的原生排他锁和成熟原子写库，并保留 revision、执行租约与未知结果核验。
 tags:
+  - concurrency
+  - product-architecture-judgment
   - task-graph
+  - transactional-updates
 relations: []
 ---
 

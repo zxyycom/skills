@@ -8,7 +8,10 @@ purpose: 让关系、查询、生命周期和选择性暂存以不随目录移�
 background: 目录路径承担身份时，分类调整或归档移动会扩大为关系、引用和维护操作的身份迁移。
 decision: 使用 Markdown basename 作为全集合唯一的稳定 Decision ID；目录移动不改变身份，关系与生命周期操作按 ID 选择。
 tags:
+  - artifact-identity
   - decision-records
+  - record-identity
+  - record-relations
 relations:
   - type: 拆分
     target: use-stable-decision-ids-tags-and-location-index

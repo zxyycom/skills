@@ -9,6 +9,7 @@ background: archive 只保留不再受检查的计划快照，却持续扩大名
 decision: 以完整 Plan、任务与 Git tree 门禁的 complete-and-delete 替代 archive 和 archived raw reader。
 tags:
   - change-plan
+  - record-lifecycle
 relations:
   - type: 修订
     target: validate-only-active-change-plans

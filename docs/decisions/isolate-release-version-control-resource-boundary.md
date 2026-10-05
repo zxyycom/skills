@@ -8,7 +8,11 @@ purpose: 在保留 Release 测试批次收益的同时隔离 Git 子进程密集
 background: 版本管理测试在共享四路批次中跨提交间歇失败，现有远端摘要无法定位具体用例。
 decision: Release 批次排除 test:version-control；其 Gate Check 独立执行并占用全部 cpu-work 容量。
 tags:
+  - concurrency
+  - environment-isolation
   - project-tooling
+  - responsibility-boundaries
+  - version-control
 relations:
   - type: 修订
     target: 260909-batch-release-test-execution

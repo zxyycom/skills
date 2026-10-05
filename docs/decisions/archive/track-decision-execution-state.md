@@ -9,6 +9,8 @@ background: 只说明决策是否当前适用，无法让后续工作判断目�
 decision: active 与 alignment 共同表达当前约束；unaligned 必须纳入相关工作规划，aligned 必须被遵守，归档时保留最后执行状态。
 tags:
   - decision-records
+  - goal-alignment
+  - metadata-design
 relations:
   - type: 修订
     target: use-monotonic-alignment-baseline

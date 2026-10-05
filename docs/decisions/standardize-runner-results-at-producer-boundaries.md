@@ -8,6 +8,10 @@ purpose: 让 runner 私有事件在生产边缘转换为 invocation 级版本化
 background: 协议记录若同时承接 Case 派生、资格分类和持久状态，会与正式结果资格判断形成重复 owner。
 decision: Producer 负责原生解析、Test ID 绑定和版本化 envelope；Case 派生、资格与行为分类留给下游。
 tags:
+  - common-denominator-design
+  - dependency-boundary-design
+  - product-architecture-judgment
+  - responsibility-boundaries
   - test-evidence-review
 relations:
   - type: 修订

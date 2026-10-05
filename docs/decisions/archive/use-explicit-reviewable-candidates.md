@@ -9,6 +9,10 @@ background: 创建记录与确认其能够进入当前决策集合是两个动�
 decision: 使用显式 candidate 保存结构完整但尚未审核建立的记录；候选由源码查询和检查发现，审核通过后才选择对齐状态并进入正式索引。
 tags:
   - decision-records
+  - record-lifecycle
+  - responsibility-boundaries
+  - source-artifact-separation
+  - validation-boundaries
 relations:
   - type: 拆分
     target: use-recoverable-evolution-transactions

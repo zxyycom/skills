@@ -8,7 +8,10 @@ purpose: 让可分发工具源码、共享协议、仓库自动化和 skill 产�
 background: 可分发运行时曾依赖仓库脚本，package lock 又把仓库状态误放进共享协议层。
 decision: "`tools/` 维护可分发能力，`scripts/` 维护仓库自动化，临时 package hash 不进入共享协议。"
 tags:
+  - dependency-boundary-design
   - project-tooling
+  - responsibility-boundaries
+  - source-artifact-separation
 relations:
   - type: 修订
     target: separate-distributable-tool-source-from-repository-automation

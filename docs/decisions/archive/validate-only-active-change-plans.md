@@ -9,6 +9,8 @@ background: 对 archived Change 重用当前 checker 会让已经完成的历史
 decision: 单项与集合 checker 只接受 active Change；archive 在移动前完成最终门禁，list 和 show 不校验 archived 内容。
 tags:
   - change-plan
+  - product-architecture-judgment
+  - validation-boundaries
 relations:
   - type: 修订
     target: check-change-plan-collections-as-a-gate

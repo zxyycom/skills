@@ -8,7 +8,9 @@ purpose: 让调查主题可低成本发现、续接和查询，同时只维护�
 background: 主题承接核心问题与生命周期，报告只是主题内的时点认识；手写索引既双写元数据又没有明确索引粒度。
 decision: 每个主题 Markdown 生成一个通用 JSON 索引项，报告元数据聚合进主题 state；索引按完整快照同步且可删除重建。
 tags:
+  - dependency-boundary-design
   - investigation-report
+  - product-architecture-judgment
 relations: []
 ---
 

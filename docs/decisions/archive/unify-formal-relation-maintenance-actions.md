@@ -1,15 +1,19 @@
 ---
 title: 为正式记录统一关系维护动作
 id: 260922-unify-formal-relation-maintenance-actions
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-22T15:15:53Z
 purpose: 让两个记录领域用同一命令结构原地替换正式记录的完整直接关系。
 background: Decision 只有演进事务可改关系，Investigation 已有独立替换命令，调用者需要记忆两套入口与选择条件。
 decision: 两域 CLI 以 set-relations 按 source 分组完整替换正式关系；evolve 只承接复合生命周期事务并改用同一分组语法。
 tags:
+  - common-denominator-design
   - decision-records
+  - product-architecture-judgment
   - project-tooling
+  - record-relations
+  - shared-protocols
 relations:
   - type: 修订
     target: replace-decision-relations-as-complete-sets
@@ -25,7 +29,7 @@ relations:
 
 - 两个领域都维护由来源记录指向直接前序的完整关系集合，关系摘要绑定最终集合中的一条边，预检与提交都需要完整 before/after。
 - Investigation Report 已有按 source 分组的 `set-relations` 事务；Decision Records 只有 `evolve` 这一个复合事务入口，原地修正关系被迫叠加生命周期语义。
-- [以完整集合审核和替换决策关系](archive/replace-decision-relations-as-complete-sets.md)确立了完整集合替换原则，但它的输入模型只在 Decision 的演进事务中定义。
+- [以完整集合审核和替换决策关系](replace-decision-relations-as-complete-sets.md)确立了完整集合替换原则，但它的输入模型只在 Decision 的演进事务中定义。
 
 ## 决策
 

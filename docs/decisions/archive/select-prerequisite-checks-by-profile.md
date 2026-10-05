@@ -8,6 +8,7 @@ purpose: 让日常检查与完整验收使用明确且可复核的前置任务�
 background: 不同场景需要不同检查成本，任务选择必须独立于调度、报告和打包行为。
 decision: quick 选择必要快速检查，full 选择 quick 与高成本检查，并显式维护任务的最低档位。
 tags:
+  - project-documentation
   - project-tooling
 relations:
   - type: 修订

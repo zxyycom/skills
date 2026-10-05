@@ -8,6 +8,9 @@ purpose: 让程序化调用和多种 CLI 表达共享一份完整结果，而不
 background: 单一 JSON 输出容易把完整语义与具体表达绑定；新增文本视图若反向读取索引或污染 projection，会形成第二套推导。
 decision: Service 与 dispatch 先返回结构化 raw result，CLI 再按已识别路由选择纯 serializer 或 renderer；显示派生不进入公开 projection。
 tags:
+  - product-architecture-judgment
+  - responsibility-boundaries
+  - semantic-fidelity
   - task-graph
 relations: []
 ---

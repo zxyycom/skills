@@ -9,6 +9,8 @@ background: 单条 activate 的完整集合校验会让其他预写候选阻断�
 decision: 识别未进入 HEAD 的完整未激活候选；作用域维护可在逐条提醒后继续，索引排除候选，严格 check 继续阻断遗漏。
 tags:
   - decision-records
+  - product-architecture-judgment
+  - validation-boundaries
 relations: []
 ---
 

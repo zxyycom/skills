@@ -8,6 +8,9 @@ purpose: 保留经过探针验证的原生锁，同时删除 task-graph 对包�
 background: 固定 npm 包已经携带多平台 prebuild，CLI 内建超时、输出清理、marker、并发发布和安装回收没有改善任务图能力。
 decision: runtime info 只返回状态、诊断和固定安装 argv，由取得授权的调用方执行安装，再由同一命令验证精确直接版本、API 和真实探针。
 tags:
+  - dependency-boundary-design
+  - product-architecture-judgment
+  - responsibility-boundaries
   - task-graph
 relations:
   - type: 修订

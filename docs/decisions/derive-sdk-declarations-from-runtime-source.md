@@ -8,6 +8,9 @@ purpose: 让 CLI 与程序化调用共享一个实现和公开导出事实源，
 background: Task-graph 模块已经安全导出 CLI 所调用的核心能力；把 SDK 作为独立接口层会重复维护同一接口，并可能泄漏内部依赖。
 decision: 程序化调用直接使用 CLI 模块的公开导出，由 TypeScript 实现机械生成声明入口及其可达声明树，不维护独立 SDK 实现、接口清单或声明源。
 tags:
+  - dependency-boundary-design
+  - product-architecture-judgment
+  - source-artifact-separation
   - task-graph
 relations: []
 ---

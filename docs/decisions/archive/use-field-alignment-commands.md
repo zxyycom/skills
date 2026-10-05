@@ -9,6 +9,7 @@ background: 对齐关系属于 Markdown 元数据；让命令依赖专门正文�
 decision: activate 显式设置 alignment，mark-aligned 只更新字段，check 校验结构与投影；正文不随对齐状态分叉。
 tags:
   - decision-records
+  - goal-alignment
 relations:
   - type: 修订
     target: use-alignment-aware-decision-commands

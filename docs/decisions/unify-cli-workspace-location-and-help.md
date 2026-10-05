@@ -10,6 +10,7 @@ decision: 领域 CLI 统一全局选项位置、工作区根默认值、相对�
 tags:
   - decision-records
   - project-tooling
+  - shared-protocols
 relations: []
 ---
 

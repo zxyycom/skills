@@ -5,8 +5,13 @@ formedAt: "2026-09-23T09:00:25Z"
 question: "为什么含 skill 变更的 CI 失败后，后续成功构建没有补发当前制品？"
 tags:
   - "ci"
+  - "complex-bug"
+  - "project-tooling"
   - "release"
-  - "repository-tooling"
+  - "release-publishing"
+  - "release-recovery"
+  - "root-cause-analysis"
+  - "validation-boundaries"
 relations: []
 ---
 

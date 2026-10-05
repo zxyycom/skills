@@ -9,6 +9,8 @@ background: 常规查询需要持久快照，候选需要直接发现源码；�
 decision: 持久索引以 Decision ID 为键、以 sourcePath 定位来源；查询读取受检快照，check、同步与生命周期事务维护来源一致性。
 tags:
   - decision-records
+  - responsibility-boundaries
+  - source-artifact-separation
 relations:
   - type: 拆分
     target: use-stable-decision-ids-tags-and-location-index

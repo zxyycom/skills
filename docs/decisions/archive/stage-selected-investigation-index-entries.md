@@ -8,7 +8,11 @@ purpose: 让并行调查只暂存选中主题对应的索引变化，同时保�
 background: 多个主题共享一个派生索引；公共运行时已经能按稳定 ID 组合条目，但领域仍需拥有选择输入和文件边界。
 decision: 调查入口校验主题路径后只把选中 ID 交给索引运行时，领域文件另行暂存，集合级资源变化拒绝条目级操作。
 tags:
+  - dependency-boundary-design
   - investigation-report
+  - responsibility-boundaries
+  - source-artifact-separation
+  - validation-boundaries
 relations: []
 ---
 

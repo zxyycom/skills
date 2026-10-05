@@ -8,6 +8,8 @@ purpose: 让执行顺序、父子继承和并发互斥由可校验拓扑决定�
 background: 依赖和排斥具有不同方向与约束，若由 agent 临场推断，多个执行者无法共享稳定调度依据。
 decision: 分别维护父子层级、完成依赖和并发排斥；约束通过祖先向下生效，子任务可显式覆盖软控制并增加局部约束。
 tags:
+  - record-relations
+  - subagent-orchestration
   - task-graph
 relations: []
 ---

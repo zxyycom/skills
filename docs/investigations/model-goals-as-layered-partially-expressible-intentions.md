@@ -5,6 +5,11 @@ formedAt: "2026-08-13T09:01:17+00:00"
 question: "目标应怎样同时表达深层意向、当前代理、偏好、现实约束与允许偏离的理由？"
 tags:
   - "ai-ready-docs"
+  - "goal-alignment"
+  - "goal-elicitation"
+  - "goal-modeling"
+  - "preference-formation"
+  - "uncertainty-expression"
 relations:
   - type: "修正"
     target: "treat-goals-as-complete-in-abstraction-and-incremental-in-practice"

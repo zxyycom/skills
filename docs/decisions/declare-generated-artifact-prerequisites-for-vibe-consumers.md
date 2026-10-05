@@ -8,7 +8,9 @@ purpose: 让消费当前分发制品的 Vibe Check 只在对应生成结果可�
 background: semantic Check 已按证明契约划分，但 public-distribution consumer 若不依赖生成一致性结果，会在制品漂移后产生无效失败噪声。
 decision: 为真实消费分发制品的 semantic Check 声明精确生成前置，并以调度依赖和直接结果守卫保持可定位的失败边界。
 tags:
+  - dependency-boundary-design
   - project-tooling
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: organize-vibe-checks-by-semantic-identity

@@ -9,6 +9,10 @@ background: 由集中索引独占生命周期和创建时间会形成第二真�
 decision: 决策文件保存 status、alignment 和 createdAt 等权威元数据；集中 JSON 索引完全由 Markdown 生成，不拥有独立事实。
 tags:
   - decision-records
+  - metadata-design
+  - record-lifecycle
+  - responsibility-boundaries
+  - source-artifact-separation
 relations:
   - type: 修订
     target: use-second-precision-lifecycle-index

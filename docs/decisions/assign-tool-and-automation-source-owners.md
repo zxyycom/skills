@@ -8,7 +8,11 @@ purpose: 让源码路径明确表达运行环境、分发责任和允许的依�
 background: 可分发 CLI、仓库脚本和共享协议混在同一层时，独立 skill 会依赖主仓库结构并产生循环 owner。
 decision: tools 承接分发运行时及真实共享协议，scripts 承接仓库自动化；领域工具只依赖明确的下层能力。
 tags:
+  - dependency-boundary-design
   - project-tooling
+  - repository-model
+  - responsibility-boundaries
+  - source-artifact-separation
 relations:
   - type: 拆分
     target: separate-tool-source-and-repository-automation

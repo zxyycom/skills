@@ -8,6 +8,8 @@ purpose: 让 skill 的触发入口清楚表达何时调用，避免执行细节�
 background: "`description` 同时枚举触发场景和历史、所有权、等待、审计等执行规则，削弱触发信号并重复正文。"
 decision: "`description` 只说明子代理编排定位和触发条件；用户显式要求或任务适合委派时加载，执行规则留在正文。"
 tags:
+  - skill-design-discovery
+  - skill-invocation
   - subagent-orchestration
 relations: []
 ---

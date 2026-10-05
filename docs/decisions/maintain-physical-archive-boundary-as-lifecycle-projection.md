@@ -9,6 +9,10 @@ background: 通用文件工具不能解析 frontmatter；统一路径边界可�
 decision: Markdown status 决定生命周期；根目录和 archive 位置及索引受检投影 status，历史记录仍可显式查询和追踪。
 tags:
   - decision-records
+  - product-architecture-judgment
+  - record-lifecycle
+  - responsibility-boundaries
+  - validation-boundaries
 relations:
   - type: 归并
     target: project-decision-lifecycle-into-physical-archive-boundary

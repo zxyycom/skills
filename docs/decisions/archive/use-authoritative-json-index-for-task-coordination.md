@@ -8,6 +8,7 @@ purpose: 让任务内容、拓扑和执行状态以稳定、可查询的形式�
 background: Task entry 的本地上下文有限且更新频繁，但任务拓扑可能持续存在；逐任务 Markdown 会放大同步、发现和维护成本。
 decision: 使用受工具管理的 JSON 索引作为任务协调事实的唯一来源；任务按协调价值保留，不创建逐任务 Markdown、归档目录或默认事件历史。
 tags:
+  - product-architecture-judgment
   - task-graph
 relations:
   - type: 修订

@@ -8,6 +8,7 @@ purpose: 让测试账本只依赖一个可预测的目录协议，消除没有�
 background: 可配置目录、索引和 case ID 规则没有形成有效使用差异，却引入额外 Schema、路径冲突、兼容分支和重复说明。
 decision: 只由工作区根定位固定测试账本目录、派生索引和 case ID 规则，目录不承接独立说明文件，CLI 与导入 API 不提供项目级配置能力。
 tags:
+  - product-architecture-judgment
   - test-evidence-review
 relations:
   - type: 修订

@@ -9,6 +9,9 @@ background: 本决策形成前，stage-index 只组合派生索引条目，却�
 decision: stage-index 保持只暂存选中索引项；调查领域不再用资源变化触发集合门禁，领域文件仍由调用方显式选择。
 tags:
   - investigation-report
+  - responsibility-boundaries
+  - source-artifact-separation
+  - validation-boundaries
 relations:
   - type: 修订
     target: stage-selected-investigation-index-entries

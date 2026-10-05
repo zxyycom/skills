@@ -9,6 +9,7 @@ background: 决策记录需要帮助后续维护者回放重要设计原因, 但
 decision: 按影响面目录组织决策，分别由清单索引和维护规则承接导航与契约；文件命名由后续状态规则确定。
 tags:
   - decision-records
+  - record-classification
 relations: []
 ---
 

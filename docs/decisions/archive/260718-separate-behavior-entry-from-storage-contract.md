@@ -9,6 +9,7 @@ background: 目的、背景和决策已经足以理解当前判断；若在 skil
 decision: "`SKILL.md` 承接触发、恢复、偏离判断、候选、CLI 编排和交付；随包 reference 唯一承接精确存储契约。"
 tags:
   - decision-records
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: 260711-use-bundled-contract-owner

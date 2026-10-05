@@ -8,7 +8,11 @@ purpose: 防止共享工作区中的其他会话或归属不明改动被泛化�
 background: Git 状态不记录工作区改动的会话归属，而用户常用简短的提交指令表示提交当前任务结果。
 decision: 将泛化提交指令的默认范围限定为可由任务上下文可靠归因的改动，并在无法隔离混合改动时停止提交。
 tags:
+  - agent-workspace-isolation
+  - concurrency
   - git-commit-organizer
+  - git-integration
+  - responsibility-boundaries
 relations: []
 ---
 

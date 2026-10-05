@@ -9,6 +9,8 @@ background: CLI 支持 `--decisions-dir`，但固定契约把 `docs/decisions` �
 decision: 以可配置的决策根目录承载索引和 Markdown；默认 `docs/decisions`，身份、布局和 owner 均相对同一根目录解释。
 tags:
   - decision-records
+  - product-architecture-judgment
+  - project-customization
 relations: []
 ---
 

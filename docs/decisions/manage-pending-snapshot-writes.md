@@ -8,6 +8,9 @@ purpose: 让调用方通过共享版本管理 owner 读写待提交快照，而�
 background: 指定范围的待提交快照需要完整替换与失败恢复，领域消费者直接调用 Git 会破坏共享边界。
 decision: 共享版本管理层拥有完整范围替换及恢复；本决策不要求 Git 以外实现，公共契约不得暴露 Git 专属语义。
 tags:
+  - dependency-boundary-design
+  - product-architecture-judgment
+  - responsibility-boundaries
   - version-control
 relations:
   - type: 修订

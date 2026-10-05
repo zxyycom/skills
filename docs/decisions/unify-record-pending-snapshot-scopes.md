@@ -10,6 +10,8 @@ decision: 两域 CLI 共用 stage selector 与 all、index、domain scope；sele
 tags:
   - decision-records
   - investigation-report
+  - responsibility-boundaries
+  - validation-boundaries
   - version-control
 relations:
   - type: 修订

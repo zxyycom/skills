@@ -9,6 +9,7 @@ background: 无长度上限会让索引退化为正文副本，内容过短又�
 decision: "`title`、`purpose`、`background` 和 `decision` 必须是 4 至 100 个 Unicode 字符的单行文本；CLI 不截断或补齐，完整正文不受限制。"
 tags:
   - decision-records
+  - validation-boundaries
 relations:
   - type: 修订
     target: 260718-use-purpose-background-decision-structure

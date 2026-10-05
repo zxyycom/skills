@@ -9,6 +9,8 @@ background: 内容组织与上下文关联是两个独立判断, 均适用于全
 decision: 默认用目标方向建立主线并保留必要规格, 同时独立检查被点名对象带来的上下文关联。
 tags:
   - ai-ready-docs
+  - context-management
+  - goal-alignment
 relations:
   - type: 修订
     target: 260720-treat-negative-options-as-solution-anchors

@@ -9,6 +9,10 @@ background: 资源字节变更不改变报告 Markdown 的形成时认识；新�
 decision: 保留报告 state 的资源引用，排除资源 metadata 与字节 revision；资源完整性由检查维护，形成时字节身份由 Git 与报告证据承接。
 tags:
   - investigation-report
+  - metadata-design
+  - product-architecture-judgment
+  - responsibility-boundaries
+  - source-artifact-separation
 relations:
   - type: 修订
     target: exclude-investigation-resources-from-index-revision

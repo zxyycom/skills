@@ -8,7 +8,11 @@ purpose: 让日常 Gate 完整显示全部 Check，同时只由显式 release ta
 background: 按运行范围构造不同 Definition 会把未启动的 Check 从 progress 和 machine snapshot 隐去，调用方无法区分未选择、未启动与已通过。
 decision: 每次运行构造相同完整 Definition；base 只聚合不需要 tag 的 Check，release tag 激活发布增量并传入 Vibe flags。
 tags:
+  - product-architecture-judgment
   - project-tooling
+  - release
+  - release-publishing
+  - tagging
 relations:
   - type: 修订
     target: use-vibe-check-as-authoritative-project-gate

@@ -1,7 +1,7 @@
 ---
 title: 以报告归属锚定调查资源
 id: anchor-investigation-resources-to-report-owners
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-28T10:12:53Z
 purpose: 让集中存放的调查资源由可从路径恢复的唯一 owner 报告负责，同时允许其他报告安全复用。
@@ -9,6 +9,8 @@ background: 资源 owner 当前由 topic 路径推导，但新集合不再保留
 decision: 被引用资源使用 Investigation ID stem 作为路径前缀确定唯一 owner 报告；owner 必须直接引用，其他报告可复用而不改变归属。
 tags:
   - investigation-report
+  - product-architecture-judgment
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: anchor-investigation-resources-to-topic-owners

@@ -8,6 +8,9 @@ purpose: 让 task-graph 使用原生文件锁而不把平台二进制写入 Git 
 background: Native addon 包体不大，但 `.node` 不可审阅、会累积 Git 历史，并扩大每个 skill 制品的平台内容。
 decision: 由 task-graph 显式安装锁定 native 依赖到 `~/.tools/task-graph`，并允许环境变量覆盖 tool home。
 tags:
+  - dependency-boundary-design
+  - product-architecture-judgment
+  - responsibility-boundaries
   - task-graph
 relations: []
 ---

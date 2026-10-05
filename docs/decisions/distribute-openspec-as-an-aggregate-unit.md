@@ -9,6 +9,7 @@ background: 共同分发单元描述成员协作与交付关系，并不要求�
 decision: 四个 OpenSpec skill 共同组成聚合分发单元；每个成员仍有独立制品、版本和 updater，支持按需安装。
 tags:
   - openspec
+  - product-architecture-judgment
   - skill-maintainer
 relations:
   - type: 修订

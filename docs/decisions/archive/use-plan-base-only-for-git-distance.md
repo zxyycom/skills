@@ -9,6 +9,7 @@ background: 把 baseCommit 同时解释为历史基线与 artifact 内容快照�
 decision: plan 只把命令运行时已有的 HEAD 记录为 Git 距离基线，不比较 artifacts 与该提交的内容；未来若需要内容一致性证明，应建立独立机制而不改变 baseCommit 的职责。
 tags:
   - change-plan
+  - responsibility-boundaries
 relations: []
 ---
 

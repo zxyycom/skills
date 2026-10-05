@@ -8,6 +8,8 @@ purpose: 让 agent 持续维护仍有协调价值的任务、拓扑和执行边�
 background: 任务图可能需要跨越较长工作周期；把内容职责上的临时性误写成短生命周期，会诱导调用方按时间清理仍有价值的协调事实。
 decision: 由 task-graph 承接当前工作中仍有协调价值的可恢复任务图；task entry 不承担长期知识，但任务可以保留到协调价值消失。
 tags:
+  - product-architecture-judgment
+  - responsibility-boundaries
   - task-graph
 relations:
   - type: 修订

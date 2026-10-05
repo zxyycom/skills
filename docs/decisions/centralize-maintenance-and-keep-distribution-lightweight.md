@@ -8,7 +8,9 @@ purpose: 降低多个 skill 的长期维护与发布成本，同时保持使用�
 background: 单 skill 独立建仓会重复工具链和发布维护；同仓、聚合 release 与 updater 便利不代表共同安装或完整更新系统。
 decision: 以单仓库集中维护并按 skill 独立打包，使用者知情选择所需能力，聚合发布和 updater 只承接轻量分发便利。
 tags:
+  - product-architecture-judgment
   - repository-model
+  - responsibility-boundaries
 relations: []
 ---
 

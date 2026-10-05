@@ -9,6 +9,9 @@ background: 只维护 active 和 archived 会把尚未落实的有效决策与�
 decision: activate 显式设置对齐状态，mark-aligned 只完成 unaligned 到 aligned，list 支持对齐筛选；关系不隐式改变状态。
 tags:
   - decision-records
+  - goal-alignment
+  - metadata-design
+  - record-lifecycle
 relations:
   - type: 修订
     target: 260720-separate-status-commands-from-relations

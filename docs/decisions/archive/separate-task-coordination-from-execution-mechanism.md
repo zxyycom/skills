@@ -8,6 +8,8 @@ purpose: 让 task-graph 独立维护可恢复的协调事实，由调用方选�
 background: task graph 的任务状态可以服务不同执行方式；把具体执行机制写进协调 owner，会让可选机制成为 task-graph 的分发前提。
 decision: task-graph 只拥有任务发现、关系、控制、租约、结果和清理；调用方选择执行者与执行方式，任何执行者都通过中立任务事实和统一领取、续租与收敛契约参与协调。
 tags:
+  - product-architecture-judgment
+  - responsibility-boundaries
   - task-graph
 relations:
   - type: 修订

@@ -9,6 +9,9 @@ background: 创建记录与确认其进入当前决策集合是两个动作；�
 decision: 使用结构完整的显式 candidate 分离创建与审核；候选查询逐文件跳过非法源码，严格检查仍校验全集，审核后才选择对齐状态并进入正式索引。
 tags:
   - decision-records
+  - responsibility-boundaries
+  - source-artifact-separation
+  - validation-boundaries
 relations:
   - type: 修订
     target: use-explicit-reviewable-candidates

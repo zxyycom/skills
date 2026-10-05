@@ -9,6 +9,7 @@ background: 生命周期状态只能说明决策是否仍有效，不能说明�
 decision: 后续决策格式必须表达独立于生命周期的对齐状态；具体形式不固定，索引投影是便于筛选与校验的自然延伸。
 tags:
   - decision-records
+  - goal-alignment
 relations: []
 ---
 

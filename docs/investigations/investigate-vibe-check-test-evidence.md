@@ -4,8 +4,12 @@ id: "260907-investigate-vibe-check-test-evidence"
 formedAt: "2026-09-07T06:23:31+00:00"
 question: "Vibe Check 对 test-evidence-review 的定制及实际使用如何工作，对主仓库拟议的 Case 与 Test 多对多边界有什么启示？"
 tags:
+  - "evidence-sufficiency"
   - "project-customization"
+  - "record-relations"
+  - "responsibility-boundaries"
   - "test-evidence"
+  - "validation-boundaries"
   - "vibe-check"
 relations: []
 ---

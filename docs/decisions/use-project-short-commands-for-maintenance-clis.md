@@ -9,6 +9,7 @@ background: 多个随 skill 分发的 CLI 已用于本仓库维护；完整脚�
 decision: 为实际日常使用的稳定领域 CLI 提供 `bun run` 短命令；项目内优先使用短命令，完整路径只用于明确的实现与分发边界。
 tags:
   - project-tooling
+  - responsibility-boundaries
 relations:
   - type: 拆分
     target: bootstrap-hooks-and-use-project-short-commands

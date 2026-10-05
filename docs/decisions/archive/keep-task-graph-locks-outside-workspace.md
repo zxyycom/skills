@@ -8,6 +8,9 @@ purpose: 保留权威 JSON 与原生短锁，同时让目标仓库只承载任�
 background: 稳定锁身份可以由索引绝对路径在系统临时目录确定，工作区旁路锁、符号链接门禁和提交回读增加维护面却不改变领域结果。
 decision: 以索引路径 hash 定位系统临时锁，原子写 resolve 即成功、reject 统一未知，并停止管理工作区 gitignore 与路径别名防护。
 tags:
+  - agent-workspace-isolation
+  - concurrency
+  - product-architecture-judgment
   - task-graph
 relations:
   - type: 修订

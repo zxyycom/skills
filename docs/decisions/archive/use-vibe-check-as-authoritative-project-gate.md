@@ -9,6 +9,9 @@ background: 旧项目编排重复实现选择、调度、展示、聚合和打�
 decision: 采用 Vibe 的 Definition、scheduler、progress 与 aggregate 承接唯一 check，并把打包限制为 full 的依赖终结 Check。
 tags:
   - project-tooling
+  - release-publishing
+  - vibe-check
+  - vibe-gate
 relations:
   - type: 归并
     target: derive-check-exit-status-from-step-results

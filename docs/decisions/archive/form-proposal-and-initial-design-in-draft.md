@@ -9,6 +9,7 @@ background: Draft 只要求最小 proposal 会把设计方向推迟到 Plan，�
 decision: Draft 必须包含最小 proposal 和初始 design；进入 Plan 时继续完善二者并从设计派生 tasks，确认三者一致后再建立可实施计划。
 tags:
   - change-plan
+  - record-lifecycle
 relations:
   - type: 修订
     target: manage-change-lifecycle-stages

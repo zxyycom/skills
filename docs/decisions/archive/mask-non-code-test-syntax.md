@@ -8,6 +8,8 @@ purpose: 降低注释、字符串、模板和正则样本造成的测试入口�
 background: 全文正则会把发现器源码、测试 fixture 和生成代码中的测试语法样本识别为入口，增加无意义 marker 与账本库存。
 decision: 发现前按语言屏蔽常见非代码上下文并保留原始位置，再运行既有入口模式；不把轻量屏蔽扩展为完整解析器。
 tags:
+  - product-architecture-judgment
+  - test-discovery
   - test-evidence-review
 relations: []
 ---

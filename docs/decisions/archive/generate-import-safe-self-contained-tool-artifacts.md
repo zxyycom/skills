@@ -8,7 +8,11 @@ purpose: 让独立 skill 获得不依赖主仓库路径且可安全导入的工�
 background: 直接运行仓库源码会破坏独立分发，手工维护多个生成副本又会产生实现漂移。
 decision: 构建适配从 tools 源码生成自包含 ESM，并按稳定接口需要生成声明或 Schema。
 tags:
+  - build-portability
+  - dependency-boundary-design
+  - product-architecture-judgment
   - project-tooling
+  - source-artifact-separation
 relations:
   - type: 修订
     target: generate-self-contained-tool-distributions

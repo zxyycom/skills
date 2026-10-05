@@ -11,6 +11,8 @@ tags:
   - artifact-identity
   - decision-records
   - investigation-report
+  - naming
+  - record-identity
 relations: []
 ---
 

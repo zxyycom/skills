@@ -9,6 +9,9 @@ background: 用户希望把重要决定沉淀为长期记忆，但这种记忆�
 decision: 使用固定的 `docs/decisions/` Markdown 方案在不同项目中保存决策，包括规则 owner、索引 owner、稳定影响面、文件名状态和正文关系。
 tags:
   - decision-records
+  - responsibility-boundaries
+  - shared-protocols
+  - validation-boundaries
 relations: []
 ---
 

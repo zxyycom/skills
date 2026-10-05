@@ -10,6 +10,10 @@ decision: stage-index 只接收并暂存选中 Investigation ID 的索引项；�
 tags:
   - index-runtime
   - investigation-report
+  - product-architecture-judgment
+  - responsibility-boundaries
+  - source-artifact-separation
+  - validation-boundaries
   - version-control
 relations:
   - type: 修订

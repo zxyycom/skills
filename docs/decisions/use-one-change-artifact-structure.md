@@ -9,6 +9,7 @@ background: 只有 Scope 和 Decisions 的集合式内容无法机械区分 Chan
 decision: Scope 与 Decisions 固定使用 Intended Change 和 Resulting Impacts，metadata 继续只表达生命周期和计划基线。
 tags:
   - change-plan
+  - document-structure
 relations: []
 ---
 

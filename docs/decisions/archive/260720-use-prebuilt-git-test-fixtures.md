@@ -8,6 +8,7 @@ purpose: 在保留真实 Git 语义和 Node 分发兼容验证的前提下，减
 background: "`scripts/test-evidence/tests/` 为多个稳定场景反复创建仓库和提交相同基线，主要耗时来自 Git 与 Node 进程而非领域计算。"
 decision: 使用多个预构建的逻辑 Git fixture 承接稳定历史，按场景物化隔离工作区；纯逻辑和可导入 CLI 测试在 Bun 进程内运行，只保留最小真实 Git 与 Node smoke。
 tags:
+  - git-fixture
   - project-tooling
 relations: []
 ---

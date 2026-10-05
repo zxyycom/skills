@@ -8,6 +8,7 @@ purpose: 让每份报告可独立复核，同时让同轮补证与纠错在原�
 background: 固定核心保障完整复核；按新证据、认识变化或提交状态机械分篇，会把中间版本误当独立调查历史。
 decision: 保留单报告四项固定核心；先审查独立轮次，再审查直接关系，由 agent 在授权内自行完成语义审查。
 tags:
+  - document-structure
   - investigation-report
 relations:
   - type: 修订

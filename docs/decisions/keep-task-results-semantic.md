@@ -8,6 +8,9 @@ purpose: 让终态 task 保存可恢复的结果含义和稳定 owner 引用，�
 background: 分支和提交身份会在集成时变化，当前没有长期消费者要求从每个 result 解析唯一实现提交。
 decision: Task result 默认只保存结果摘要和必要的稳定引用，不保存中间交接信息或常规 commit SHA。
 tags:
+  - product-architecture-judgment
+  - responsibility-boundaries
+  - semantic-fidelity
   - task-graph
 relations:
   - type: 拆分

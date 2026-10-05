@@ -8,7 +8,9 @@ purpose: 让当前决策集合可机器维护、低成本检索，并为历史�
 background: 当前索引既要明确成员，也要用经确认且与正文一致的精简背景和决策支持低成本判断；主题分类已经包含在路径中。
 decision: 以 `decision-index.json` 维护当前成员及 Markdown 摘要；路径保持稳定，归档只退出当前集合，关系由新记录单向指向直接前序。
 tags:
+  - context-management
   - decision-records
+  - source-artifact-separation
 relations:
   - type: 归并
     target: 260630-use-compact-decision-records

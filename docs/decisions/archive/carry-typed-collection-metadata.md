@@ -8,7 +8,10 @@ purpose: 让集合级信息与条目来自同一索引快照，并在解析、�
 background: 集合级信息不能总从单条 state 恢复，消费方另读定义源会重复新鲜度、校验和序列化责任。
 decision: Index Runtime 将不透明 JSON metadata 作为快照组成，并通过分阶段类型化上下文传播而不解释其领域语义。
 tags:
+  - dependency-boundary-design
   - index-runtime
+  - metadata-design
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: use-typed-collection-metadata

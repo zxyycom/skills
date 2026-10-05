@@ -5,6 +5,10 @@ formedAt: "2026-08-03T10:45:21+08:00"
 question: "如何用事前警告和显式单前序折叠处理尚未进入版本基线的决策演进？"
 tags:
   - "decision-records"
+  - "git-integration"
+  - "record-lifecycle"
+  - "responsibility-boundaries"
+  - "validation-boundaries"
 relations:
   - type: "补充"
     target: "detect-uncommitted-decision-evolution-from-git-baselines"

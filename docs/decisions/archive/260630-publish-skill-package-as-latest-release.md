@@ -9,6 +9,8 @@ background: 多个 skill 子仓库有重复的校验、打包和发布脚本，�
 decision: 主仓库 CI 在所有触发场景运行校验、打包和 workflow artifact 上传。
 tags:
   - project-tooling
+  - release-publishing
+  - responsibility-boundaries
 relations: []
 ---
 

@@ -9,11 +9,8 @@ background: 用 TypeScript validator 解析或正则匹配 GitHub Actions workfl
 decision: 校验脚本只检查仓库长期源文件、skill 入口、Markdown 链接、决策记录和 package script 等项目约束。
 tags:
   - project-tooling
-relations:
-  - type: 修订
-    target: 260630-publish-skill-package-as-latest-release
-  - type: 修订
-    target: 260701-gate-latest-release-by-skill-hash
+  - validation-boundaries
+relations: []
 ---
 
 ## 目的

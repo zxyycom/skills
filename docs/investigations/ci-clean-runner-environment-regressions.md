@@ -4,9 +4,13 @@ id: "ci-clean-runner-environment-regressions"
 formedAt: "2026-09-02T02:41:24+00:00"
 question: "为什么 main 的 Package Skills 在 43f2faf 的 clean runner 上失败，而本地门禁通过？"
 tags:
+  - "build-reproducibility"
   - "ci"
+  - "environment-isolation"
   - "git-fixture"
-  - "repository-tooling"
+  - "project-tooling"
+  - "root-cause-analysis"
+  - "test-hermeticity"
   - "vibe-check"
 relations: []
 ---

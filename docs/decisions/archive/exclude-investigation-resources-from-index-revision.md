@@ -9,6 +9,9 @@ background: 资源哈希能够暴露文件变化，但把全部资源纳入 meta
 decision: 保留主题 state 的资源引用，移除资源 metadata 与字节 revision；当前完整性由检查维护，形成时身份由 Git 与报告证据承接。
 tags:
   - investigation-report
+  - product-architecture-judgment
+  - responsibility-boundaries
+  - source-artifact-separation
 relations:
   - type: 拆分
     target: attach-verifiable-resources-to-investigation-reports

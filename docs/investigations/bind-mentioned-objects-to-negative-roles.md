@@ -5,6 +5,7 @@ formedAt: "2026-08-13T10:13:48+00:00"
 question: "负向描述为什么需要同时准确表示对象并把它绑定到排除角色？"
 tags:
   - "ai-ready-docs"
+  - "responsibility-boundaries"
 relations:
   - type: "补充"
     target: "distinguish-activation-neighborhoods-from-valid-solution-space"

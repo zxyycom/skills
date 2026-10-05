@@ -9,6 +9,8 @@ background: 稳定文档和长期决策已有各自 owner，而 OpenSpec 的 pro
 decision: 新增独立 `change-plan`，以三文件临时计划和只读结构检查器承接规划，不拥有稳定事实、长期决策或实施许可。
 tags:
   - change-plan
+  - product-architecture-judgment
+  - source-artifact-separation
 relations: []
 ---
 

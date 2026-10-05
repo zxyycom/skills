@@ -8,7 +8,10 @@ purpose: 让每个子代理完成边界清楚且可独立验收的工作，并�
 background: 用绝对只读表达独立性会妨碍必要的辅助执行，把模型与思考强度视为同类档位则会混淆能力和困难问题的思考上限。
 decision: 以最小可独立验收切面和主要交付责任分配子代理；独立代理不修改被评估对象但可有限辅助写入；模型决定能力，思考强度决定所选模型的思考预算上限。
 tags:
+  - agent-workspace-isolation
+  - responsibility-boundaries
   - subagent-orchestration
+  - validation-boundaries
 relations:
   - type: 修订
     target: 260712-separate-write-ownership-from-read-scope

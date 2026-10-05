@@ -9,6 +9,7 @@ background: 候选有意排除在正式索引外，只能从 Markdown 源发现�
 decision: candidates 与 show-candidate 扫描候选源码并按文件容错，集合边界或显式目标非法时整体失败。
 tags:
   - decision-records
+  - validation-boundaries
 relations:
   - type: 修订
     target: query-established-records-through-persistent-index

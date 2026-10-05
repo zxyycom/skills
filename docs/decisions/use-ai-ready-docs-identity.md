@@ -9,6 +9,10 @@ background: prompt-optimize 缩窄了处理对象，而对称的人机共读定�
 decision: 将既有 skill 重命名为 ai-ready-docs，以 AI 的准确阅读、理解和使用为主目标，人类可维护性作为次级约束。
 tags:
   - ai-ready-docs
+  - artifact-identity
+  - goal-alignment
+  - naming
+  - record-identity
 relations: []
 ---
 

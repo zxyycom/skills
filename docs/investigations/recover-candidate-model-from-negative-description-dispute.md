@@ -5,6 +5,8 @@ formedAt: "2026-08-13T08:35:10+00:00"
 question: "负向描述争议暴露了怎样的候选概念层次与后续调查边界？"
 tags:
   - "ai-ready-docs"
+  - "knowledge-evolution"
+  - "preliminary-research"
 relations: []
 ---
 

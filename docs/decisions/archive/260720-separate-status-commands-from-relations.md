@@ -9,6 +9,8 @@ background: "`archive --by` 会在归档前序时同时激活后续记录，但�
 decision: "`activate` 只把记录设为 active，`archive` 只设为 archived；关系不改变状态，不再由 archive 隐式激活后续记录。"
 tags:
   - decision-records
+  - record-lifecycle
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: 260718-use-purpose-background-decision-structure

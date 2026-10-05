@@ -8,6 +8,9 @@ purpose: 让相同显式输入生成不受当前时间和文件遍历顺序影�
 background: ZIP entry 顺序和 mtime 若来自运行环境，会造成没有源码语义变化的不同制品。
 decision: 归档使用稳定 entry 顺序和固定 mtime，并保证相同工具、配置与输入产生相同字节。
 tags:
+  - artifact-identity
+  - artifact-integrity
+  - build-reproducibility
   - project-tooling
 relations:
   - type: 修订

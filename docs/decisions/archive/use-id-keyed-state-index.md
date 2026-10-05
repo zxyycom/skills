@@ -9,6 +9,7 @@ background: 决策形成时的数组需要再次推导身份，整体来源摘�
 decision: 身份集合统一使用 ID 键控对象，来源 revision 按 metadata 与各 ID 分解，快速读取保持单次轻量扫描。
 tags:
   - index-runtime
+  - record-identity
 relations:
   - type: 拆分
     target: stage-selected-index-entries

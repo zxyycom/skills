@@ -8,7 +8,12 @@ purpose: 让已安装 skill 的自包含代码既能作为 CLI 运行，也能�
 background: 现有单文件 JavaScript 主要按 Node 子进程入口交付，不同脚本的导入副作用、公共 exports 和 TypeScript 类型支持并不一致。
 decision: 从同一 TypeScript 源生成 import-safe 的自包含 MJS、声明和 source map；主模块判断负责兼容 CLI。
 tags:
+  - dependency-boundary-design
+  - product-architecture-judgment
   - project-tooling
+  - responsibility-boundaries
+  - skill-maintainer
+  - source-artifact-separation
 relations:
   - type: 修订
     target: 260711-separate-skill-script-source-and-generated-artifacts

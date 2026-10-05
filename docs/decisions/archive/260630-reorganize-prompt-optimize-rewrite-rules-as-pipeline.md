@@ -9,6 +9,7 @@ background: "`prompt-optimize` skill 的规则内容持续膨胀, 入口和引�
 decision: 在 `prompt-optimize` 中, `rewrite-rules.md` 作为改写判断 owner, 按管线组织规则, 每一步的产物决定下一步处理方式。
 tags:
   - ai-ready-docs
+  - responsibility-boundaries
 relations: []
 ---
 

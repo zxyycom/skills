@@ -8,6 +8,9 @@ purpose: 让真实父子分解通过子 task 终态和后代租约形成父 task
 background: 父 task 若独立宣称完成，会与尚未收敛的子目标或活动后代执行产生矛盾。
 decision: 有子 task 的父项只在直接子项全部收敛、至少一项成功且没有活动后代租约时完成。
 tags:
+  - dependency-resolution
+  - record-relations
+  - subagent-orchestration
   - task-graph
 relations:
   - type: 拆分

@@ -9,6 +9,9 @@ background: 报告级索引从完整正式集合重建；candidate workspace 不
 decision: publish 只建立通过当前正式基线完整预检的显式 candidates 并发布最终索引；sync-index 保留全量恢复和接纳职责。
 tags:
   - investigation-report
+  - product-architecture-judgment
+  - responsibility-boundaries
+  - source-artifact-separation
 relations:
   - type: 修订
     target: maintain-report-level-investigation-index

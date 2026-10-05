@@ -9,6 +9,9 @@ background: Decision Records 的 CLI 模块已公开程序化调用所需的值�
 decision: 程序化调用直接使用 CLI 模块的公共导出，并由 TypeScript 从实现机械生成声明入口及可达声明闭包。
 tags:
   - decision-records
+  - dependency-boundary-design
+  - product-architecture-judgment
+  - source-artifact-separation
 relations: []
 ---
 

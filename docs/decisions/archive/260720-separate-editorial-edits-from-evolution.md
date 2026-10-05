@@ -9,6 +9,10 @@ background: 固定契约同时允许修改记录并要求长期修订创建后�
 decision: 只允许不改变目的、适用范围、关键背景前提、采用方向、核心理由或关系语义的编辑性修正原地完成；任一决策语义变化都创建新记录并按真实关系切换当前成员，无法判断时按决策演进处理。
 tags:
   - decision-records
+  - knowledge-evolution
+  - record-lifecycle
+  - record-relations
+  - semantic-fidelity
 relations: []
 ---
 

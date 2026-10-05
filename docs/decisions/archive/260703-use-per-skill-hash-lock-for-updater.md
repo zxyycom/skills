@@ -8,7 +8,9 @@ purpose: 让聚合发布中的每个 skill 能按自身内容准确判断是否�
 background: 主仓库采用聚合 release，只要任一 skill 的打包输入变化，就会发布一次包含全部 skill zip 的 release。
 decision: 根目录只保留 `skill-package-lock.json`，记录聚合 hash 和每个 skill 的独立包内容 hash。
 tags:
+  - product-architecture-judgment
   - project-tooling
+  - release-publishing
 relations:
   - type: 修订
     target: 260701-gate-latest-release-by-skill-hash

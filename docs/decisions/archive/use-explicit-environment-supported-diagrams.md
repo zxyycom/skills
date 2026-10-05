@@ -9,6 +9,7 @@ background: AI 消费环境对图示语法和渲染支持并不一致，固定�
 decision: 按目标环境选择图示格式并显式表达关系，不把 Mermaid 方位、subgraph 或表格列数设为通用要求。
 tags:
   - ai-ready-docs
+  - semantic-fidelity
 relations:
   - type: 修订
     target: 260720-use-controlled-mermaid-flowcharts

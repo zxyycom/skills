@@ -8,6 +8,8 @@ purpose: 让 task result 保存可维护的语义结果，并由 task index 的�
 background: 分支 SHA 会被 rebase 改写，而 task 协调没有明确消费者需要在 result 中重复保存具体实现提交。
 decision: Task result 默认只保存摘要和稳定 owner 引用；完成状态进入 task index 的 Git 历史后锚定仓库版本，不常规记录 commit SHA。
 tags:
+  - git-integration
+  - product-architecture-judgment
   - task-graph
 relations: []
 ---

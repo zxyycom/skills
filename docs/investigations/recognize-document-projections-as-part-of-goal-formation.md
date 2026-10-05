@@ -5,6 +5,10 @@ formedAt: "2026-08-13T09:07:50+00:00"
 question: "文档作为目标的时点投影时，怎样通过反馈反过来参与目标形成？"
 tags:
   - "ai-ready-docs"
+  - "goal-modeling"
+  - "knowledge-evolution"
+  - "preference-formation"
+  - "semantic-fidelity"
 relations:
   - type: "修正"
     target: "model-goals-as-layered-partially-expressible-intentions"

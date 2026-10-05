@@ -8,7 +8,11 @@ purpose: 让已安装 skill 能自行检查版本并通过统一实现完成安�
 background: 仅依赖外部安装器时，已有 skill 目录的覆盖更新、内容一致性检查和多客户端目录适配都缺少稳定 owner。
 decision: 主仓库维护统一 TypeScript updater 模板，用 `fflate` 解压 release zip，并提供远端指纹检查、确认和覆盖更新。
 tags:
+  - dependency-boundary-design
+  - product-architecture-judgment
   - project-tooling
+  - responsibility-boundaries
+  - source-artifact-separation
 relations: []
 ---
 

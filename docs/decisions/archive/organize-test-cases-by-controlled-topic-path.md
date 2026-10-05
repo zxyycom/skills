@@ -8,7 +8,10 @@ purpose: 让测试 case 的稳定身份、责任归属和物理源路径在账�
 background: 根目录直属主题文件只能表达隐含分组，无法约束主题集合、路径唯一归属或单 case 写入边界。
 decision: 由受控主题表定义责任域，每个 case 独占一个主题路径文件，并由统一索引投影主题 metadata 和路径派生查询 key。
 tags:
+  - product-architecture-judgment
+  - responsibility-boundaries
   - test-evidence-review
+  - test-traceability
 relations:
   - type: 修订
     target: organize-native-test-cases-by-responsibility-topic

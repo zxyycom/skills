@@ -5,6 +5,7 @@ formedAt: "2026-08-13T13:43:12+00:00"
 question: "正负极性应怎样相对于具体命题、参照对象和描述层级判断？"
 tags:
   - "ai-ready-docs"
+  - "preliminary-research"
 relations:
   - type: "补充"
     target: "distinguish-expressive-equivalence-from-construction-cost"

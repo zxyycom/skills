@@ -9,6 +9,7 @@ background: 把 show 概括为只读索引会掩盖其先由索引定位、再�
 decision: 已建立决策由索引定位，show 再读取目标 Markdown 正文；候选查询继续逐文件扫描源码。
 tags:
   - decision-records
+  - source-artifact-separation
 relations:
   - type: 修订
     target: query-candidates-resiliently-from-source

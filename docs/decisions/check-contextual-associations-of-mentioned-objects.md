@@ -9,6 +9,8 @@ background: 点名目标、约束、示例、历史方案或排除对象都会�
 decision: 对任何被点名对象独立进行上下文关联检查；无新增判断的重复内容收敛，必要的边界或示例明确角色并回到主线。
 tags:
   - ai-ready-docs
+  - context-management
+  - goal-alignment
 relations:
   - type: 拆分
     target: organize-by-main-promise-and-manage-context-association

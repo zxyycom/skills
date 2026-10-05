@@ -8,7 +8,11 @@ purpose: 让项目门禁直接使用 Vibe 的选择、调度、资源与调用�
 background: Vibe 0.0.2 已提供原生 flags、学习调度、named resources 与调用级输出控制，项目仍重复 Check 选择和调度责任。
 decision: 由 Vibe 原生能力承接有效 Check 选择、依赖传播和学习调度，项目只声明领域条件、资源与调用级输出位置。
 tags:
+  - product-architecture-judgment
+  - project-customization
   - project-tooling
+  - responsibility-boundaries
+  - vibe-gate
 relations:
   - type: 归并
     target: 260909-adopt-vibe-check-0-0-2-gate-runtime

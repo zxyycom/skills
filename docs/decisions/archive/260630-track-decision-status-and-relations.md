@@ -9,6 +9,8 @@ background: 决策记录会随项目演进过期、被替代或被判定与后�
 decision: 决策文件名包含状态段, 状态值为 `active`、`amended`、`superseded` 或 `invalidated`。
 tags:
   - decision-records
+  - record-lifecycle
+  - record-relations
 relations:
   - type: 修订
     target: 260627-establish-decision-record-policy

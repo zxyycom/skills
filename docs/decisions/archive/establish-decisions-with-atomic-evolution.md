@@ -9,6 +9,10 @@ background: Markdown 已经能够确定建立状态，但先归档前序再激�
 decision: "`createdAt` 确定建立状态；普通激活只建立目标，显式演进则原子归档前序、写入完整关系、激活候选并重建派生索引。"
 tags:
   - decision-records
+  - record-lifecycle
+  - record-relations
+  - transactional-updates
+  - validation-boundaries
 relations:
   - type: 修订
     target: derive-establishment-from-markdown-lifecycle

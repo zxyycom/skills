@@ -9,6 +9,10 @@ background: 一次演进会同时改变后继、直接前序和派生索引，�
 decision: 生命周期演进在一次可恢复事务中应用并验证全部变化，对可处理失败尽力恢复原组合；恢复不完整时停止维护并进入恢复流程。
 tags:
   - decision-records
+  - product-architecture-judgment
+  - record-lifecycle
+  - record-relations
+  - transactional-updates
 relations:
   - type: 拆分
     target: use-recoverable-evolution-transactions

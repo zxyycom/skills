@@ -9,6 +9,10 @@ background: 顺序文件写入可以在普通失败后尝试回滚，但无法�
 decision: 演进在一次可恢复事务中应用并验证全部变化，对可处理失败尽力恢复原组合；恢复不完整时停止维护并进入恢复流程。
 tags:
   - decision-records
+  - knowledge-evolution
+  - record-lifecycle
+  - record-relations
+  - transactional-updates
 relations:
   - type: 修订
     target: establish-decisions-with-atomic-evolution

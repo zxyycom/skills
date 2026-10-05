@@ -10,6 +10,7 @@ decision: Decision 与 Investigation 在查询时从同一索引快照聚合筛�
 tags:
   - decision-records
   - investigation-report
+  - product-architecture-judgment
 relations: []
 ---
 

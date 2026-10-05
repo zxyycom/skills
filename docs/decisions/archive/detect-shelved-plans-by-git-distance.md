@@ -9,6 +9,7 @@ background: 日历时间不能区分项目停滞与计划偏离，完全依赖�
 decision: 使用固定 Git 演进距离产生候选；查询不改阶段，显式 reconcile 以机械证据写入 shelved。
 tags:
   - change-plan
+  - git-integration
 relations: []
 ---
 

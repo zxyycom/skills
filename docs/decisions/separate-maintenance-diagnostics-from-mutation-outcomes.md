@@ -9,8 +9,11 @@ background: 共享版本控制与索引运行时服务多个维护工具；若�
 decision: 共享层只提供经净化的操作原因，Index Runtime 只拥有 pending 范围，领域工具各自拥有 mutation 结果并即时渲染；禁止持久诊断、自动提权、删锁与重试。
 tags:
   - decision-records
+  - dependency-boundary-design
   - index-runtime
   - investigation-report
+  - product-architecture-judgment
+  - responsibility-boundaries
   - version-control
 relations: []
 ---

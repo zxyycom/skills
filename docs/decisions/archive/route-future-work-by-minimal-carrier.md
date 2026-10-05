@@ -12,6 +12,8 @@ tags:
   - decision-records
   - investigation-report
   - project-documentation
+  - record-relations
+  - responsibility-boundaries
   - task-graph
 relations: []
 ---

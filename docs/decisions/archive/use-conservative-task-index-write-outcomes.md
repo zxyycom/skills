@@ -8,7 +8,10 @@ purpose: 让原子写入成功立即收敛，失败保留未知结果并阻止�
 background: 原子写调用 reject 后的磁盘读回不能证明提交点是否已经越过。
 decision: 原子写 resolve 即成功，reject 返回 WRITE_OUTCOME_UNKNOWN，并要求调用方重读事实后恢复。
 tags:
+  - epistemic-limits
+  - product-architecture-judgment
   - task-graph
+  - uncertainty-expression
 relations:
   - type: 修订
     target: use-conservative-atomic-write-outcomes

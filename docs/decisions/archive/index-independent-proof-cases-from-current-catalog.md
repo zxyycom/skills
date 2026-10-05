@@ -8,6 +8,7 @@ purpose: 让验证目录只保存值得长期找回的独立证明单元，并�
 background: 将保留实现直接等同于登记 case 会扩大目录库存；只索引首条契约摘要又无法兑现按证明点查找，陈旧索引还会阻断只读审查。
 decision: 按独立长期证明单元组织 test/check case，搜索覆盖完整 Contract 与 Proves；持久化索引不可用时只读建立内存投影，严格检查仍要求索引新鲜。
 tags:
+  - responsibility-boundaries
   - test-evidence-review
 relations:
   - type: 修订

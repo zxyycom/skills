@@ -9,6 +9,7 @@ background: 决策目录既可以使用默认位置，也可以指向 root 外�
 decision: 默认使用 root/docs/decisions；显式 decisions-dir 直接选择目标，绝对路径可在 root 外，非绝对路径只相对 root 解析。
 tags:
   - decision-records
+  - product-architecture-judgment
 relations:
   - type: 修订
     target: 260720-use-configurable-decision-root

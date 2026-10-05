@@ -9,6 +9,8 @@ background: 日期不应进入稳定身份；既有索引曾使用统一导入�
 decision: 使用语义路径和 schema v3 全生命周期索引；createdAt 固定秒级，新记录取激活时间，既有记录优先取最早 Git 作者时间。
 tags:
   - decision-records
+  - metadata-design
+  - record-lifecycle
 relations:
   - type: 修订
     target: 260720-use-lifecycle-index-and-semantic-paths

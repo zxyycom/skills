@@ -9,6 +9,7 @@ background: 日期前缀混合了身份与时间，当前索引只保存活动�
 decision: 使用不含日期的主题语义路径；索引登记全部记录并保存状态、精确创建时间、摘要投影和直接关系，按路径稳定排序。
 tags:
   - decision-records
+  - metadata-design
 relations:
   - type: 修订
     target: 260718-use-purpose-background-decision-structure

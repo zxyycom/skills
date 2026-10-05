@@ -9,6 +9,7 @@ background: 起草只需记录任务或方向，计划阶段才固化执行细�
 decision: 活动 Change 按起草、计划、实施逐步收敛；计划后、实施前实际暂停时进入搁置，恢复只能回到计划阶段复核。
 tags:
   - change-plan
+  - record-lifecycle
 relations:
   - type: 拆分
     target: use-independent-change-plans

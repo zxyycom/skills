@@ -9,6 +9,7 @@ background: 固定契约同时解释决策模型、索引运行时和 CLI 精确
 decision: "`SKILL.md` 承接 agent 流程，领域契约承接语义与维护不变量，Schema 和 CLI 自身承接机器细节。"
 tags:
   - decision-records
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: 260720-focus-entry-on-behavior-routing

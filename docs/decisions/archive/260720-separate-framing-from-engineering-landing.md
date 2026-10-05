@@ -9,6 +9,7 @@ background: 产品与架构思维既不能重复决定目标是否值得追求, 
 decision: 保留独立分发的产品与架构思维 skill, 只把目标结果基本明确作为前置条件; 当前工程问题和已有解法均可被重新定位, 只有需要改变目标或重新选择问题时才形成不依赖其他 skill 的最小交接。
 tags:
   - product-architecture-judgment
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: 260720-use-product-and-architecture-lenses

@@ -8,7 +8,12 @@ purpose: 兼顾分发脚本的独立可执行性与主仓库 TypeScript 源码�
 background: 已安装 skill 需要可直接执行的 JavaScript，而在 skill 目录维护打包代码会失去 TypeScript 模块、类型检查和测试入口。
 decision: 在主仓库 `scripts/` 下按工具建立源码目录，承接 TypeScript 模块、测试、夹具和构建入口；skill 目录只承接实际分发所需的生成 JavaScript。
 tags:
+  - artifact-integrity
+  - build-reproducibility
+  - product-architecture-judgment
   - project-tooling
+  - responsibility-boundaries
+  - source-artifact-separation
 relations:
   - type: 修订
     target: 260701-embed-self-update-script-in-skill-packages

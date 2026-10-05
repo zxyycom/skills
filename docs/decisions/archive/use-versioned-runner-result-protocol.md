@@ -8,7 +8,11 @@ purpose: 为未来正式测试提供 runner 无关的逐 Test 结果边界，并
 background: Runner 原生事件、日志和退出码各不相同，只有生产边缘能可靠绑定稳定 Test ID 并保留完整结果语义。
 decision: Runner 侧 producer 输出版本化 JSON 与 Test ID，consumer 严格消费共同协议且不从私有格式猜测结果。
 tags:
+  - dependency-boundary-design
+  - product-architecture-judgment
   - test-evidence-review
+  - test-identity
+  - test-traceability
 relations:
   - type: 拆分
     target: defer-standard-test-result-blocking

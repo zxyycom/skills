@@ -9,6 +9,10 @@ background: evolve、split 和带关系的 activate 分担关系维护，新增�
 decision: 由 evolve 统一执行完整关系事务，关系策略校验拓扑闭合，activate --relation 作为单后继便捷入口。
 tags:
   - decision-records
+  - product-architecture-judgment
+  - record-relations
+  - responsibility-boundaries
+  - transactional-updates
 relations:
   - type: 拆分
     target: use-recoverable-decision-lifecycle-transactions

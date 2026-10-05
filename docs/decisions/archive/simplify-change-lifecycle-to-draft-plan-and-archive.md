@@ -9,6 +9,7 @@ background: Draft 与 Plan 具有不同内容契约，tasks 已表达 Plan 内�
 decision: Active Change 只使用 Draft 和 Plan，任务推进全部发生在 Plan 内，完成后归档；CLI 只承担发现、检查、Plan 确认和归档。
 tags:
   - change-plan
+  - record-lifecycle
 relations:
   - type: 归并
     target: form-proposal-and-initial-design-in-draft

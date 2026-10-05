@@ -8,6 +8,10 @@ purpose: 让每个子代理围绕一个可独立交付和验收的主要责任�
 background: 按零散动作分派会增加交接成本，跨目标复用同一代理又会混合上下文、责任和验收边界。
 decision: 以最小可独立交付切面分派一个主要责任；同一切面的实现、自验证和定向修复延续原代理，责任或角色改变时建立新代理。
 tags:
+  - agent-workspace-isolation
+  - context-management
+  - record-lifecycle
+  - responsibility-boundaries
   - subagent-orchestration
 relations:
   - type: 拆分

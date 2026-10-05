@@ -8,6 +8,7 @@ purpose: 让每份独立调查报告完整保存可比较的形成时输入、�
 background: 四项固定核心仍是每轮可复核认识的共同最低结构，但主题级核心问题和 H3 追加模型阻碍报告独立身份与演进。
 decision: 每份报告固定四个非空核心；有资源时 `随附资源` 必须是第五个 H2，其他可选语义 H2 只能随后出现。
 tags:
+  - document-structure
   - investigation-report
 relations:
   - type: 拆分

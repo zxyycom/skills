@@ -8,7 +8,9 @@ purpose: 让日常检查快速覆盖必要门禁，并为 CI、发布和完整�
 background: 少数高成本集成测试主导等待时间，但直接移出默认路径不能削弱所选检查的可信完成语义。
 decision: 默认 quick 只选择必要快速检查，full 包含 quick 和耗时检查；未选择项显式跳过，CI 使用 full。
 tags:
+  - project-documentation
   - project-tooling
+  - validation-boundaries
 relations:
   - type: 拆分
     target: use-profiled-concise-checks

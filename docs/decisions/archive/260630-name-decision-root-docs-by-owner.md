@@ -9,6 +9,8 @@ background: 通用的 `README.md` 与 `maintenance.md` 无法从文件名区分�
 decision: "`decision-record-index.md` 作为决策清单和影响面导航 owner, 只负责状态速查、影响面说明和决策链接。"
 tags:
   - decision-records
+  - naming
+  - responsibility-boundaries
 relations:
   - type: 修订
     target: 260627-establish-decision-record-policy

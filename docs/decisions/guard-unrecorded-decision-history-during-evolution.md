@@ -9,6 +9,7 @@ background: Git 不决定决策是否建立，但可以指出待归档前序尚�
 decision: 对尚未进入 Git HEAD 的待归档前序暂停并要求显式保留历史确认；关系演进始终由调用者提供完整最终关系集合。
 tags:
   - decision-records
+  - git-integration
   - version-control
 relations:
   - type: 拆分

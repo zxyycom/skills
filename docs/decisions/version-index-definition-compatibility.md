@@ -9,6 +9,8 @@ background: Source revision 只能证明来源新鲜度，不能判断 parser、
 decision: 领域以 definitionVersion 标识完整投影契约；兼容性变化提升版本，失配时拒绝并从权威源重建。
 tags:
   - index-runtime
+  - product-architecture-judgment
+  - responsibility-boundaries
 relations:
   - type: 拆分
     target: use-independent-read-side-index-runtime

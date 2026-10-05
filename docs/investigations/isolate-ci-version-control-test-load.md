@@ -5,13 +5,14 @@ formedAt: "2026-09-12T02:18:19Z"
 question: "为什么 Package Skills 会跨提交间歇失败于 test:version-control，而目标提交在等价本地环境可以通过？"
 tags:
   - "ci"
-  - "repository-tooling"
+  - "concurrency"
+  - "environment-isolation"
+  - "evidence-sufficiency"
+  - "project-tooling"
   - "test-hermeticity"
+  - "validation-boundaries"
   - "vibe-check"
-relations:
-  - type: "复查"
-    target: "260911-explain-ci-cold-proof-test-failure"
-    summary: "在后续 CI 失败中复查环境分叉与调度边界"
+relations: []
 ---
 
 ## 形成时背景

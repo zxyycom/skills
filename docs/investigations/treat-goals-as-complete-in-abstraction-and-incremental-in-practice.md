@@ -5,6 +5,11 @@ formedAt: "2026-08-13T08:48:36+00:00"
 question: "为什么目标在理想抽象中可以包含边界，而在实际文档中仍需逐步收敛？"
 tags:
   - "ai-ready-docs"
+  - "epistemic-limits"
+  - "goal-alignment"
+  - "goal-elicitation"
+  - "goal-modeling"
+  - "preference-formation"
 relations:
   - type: "补充"
     target: "separate-semantic-responsibility-from-solution-space-analysis"

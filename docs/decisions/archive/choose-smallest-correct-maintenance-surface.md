@@ -9,6 +9,7 @@ background: 相邻 skills 已拥有产品架构、共享契约和测试证据判
 decision: 新增独立 minimal-implementation，以单一、有界流程识别决定性维护面并按授权选择、实施或报告，不依赖相邻 skill 安装。
 tags:
   - minimal-implementation
+  - responsibility-boundaries
 relations: []
 ---
 

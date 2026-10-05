@@ -9,6 +9,9 @@ background: 持久化草稿状态或查询历史基线都会为简单的提交�
 decision: 始终查询当前记录，并按 Markdown 路径是否存在于 HEAD 临时标记 pending。
 tags:
   - decision-records
+  - git-integration
+  - product-architecture-judgment
+  - record-lifecycle
 relations:
   - type: 修订
     target: converge-records-before-stable-baseline

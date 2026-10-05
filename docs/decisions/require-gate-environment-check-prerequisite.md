@@ -8,7 +8,11 @@ purpose: 让基础工具版本错误直接定位到环境边界，避免扩散�
 background: Gate 曾把 Bun 与 SCC 漂移退化为全量执行，产生生成、测试和指标伪症状。
 decision: 采用精确 Bun 契约，并让所有业务 Check 依赖复用自举检查的基础环境 Check。
 tags:
+  - build-reproducibility
+  - dependency-boundary-design
   - project-tooling
+  - toolchain-versioning
+  - validation-boundaries
 relations: []
 ---
 

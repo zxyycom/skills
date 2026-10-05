@@ -5,6 +5,7 @@ formedAt: "2026-08-13T14:07:58+00:00"
 question: "安全目标在什么条件下应由可判断的负向规则具体化，而不能只保留正向概括？"
 tags:
   - "ai-ready-docs"
+  - "validation-boundaries"
 relations:
   - type: "补充"
     target: "treat-description-polarity-as-reference-relative"

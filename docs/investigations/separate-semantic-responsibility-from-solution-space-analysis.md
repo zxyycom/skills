@@ -5,6 +5,8 @@ formedAt: "2026-08-13T08:42:11+00:00"
 question: "语义责任与解空间分析分别承担什么层次的判断，它们如何衔接？"
 tags:
   - "ai-ready-docs"
+  - "responsibility-boundaries"
+  - "semantic-fidelity"
 relations:
   - type: "修正"
     target: "recover-candidate-model-from-negative-description-dispute"

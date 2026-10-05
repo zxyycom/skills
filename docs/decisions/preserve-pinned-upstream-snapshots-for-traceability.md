@@ -8,7 +8,10 @@ purpose: 让 minimal-implementation 的行为提炼能够对照固定上游材�
 background: 仅引用可变上游不能稳定回放提炼依据，而把原始材料加入普通执行路径又会扩大上下文并混入非当前契约。
 decision: 将固定版本的上游逐字材料及许可证随 skill 分发，仅在维护、审计提炼或更新固定版本时读取，普通执行不加载。
 tags:
+  - artifact-integrity
   - minimal-implementation
+  - source-artifact-separation
+  - test-traceability
 relations:
   - type: 拆分
     target: choose-smallest-correct-maintenance-surface

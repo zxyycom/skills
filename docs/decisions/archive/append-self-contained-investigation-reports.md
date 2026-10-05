@@ -8,7 +8,10 @@ purpose: 让每次调查都具备正确背景并能独立汇报，同时保留�
 background: 顶部概述加增量调查段会让后续结论依赖旧上下文，缺失当前背景时容易产生错误推断。
 decision: 同一核心问题使用稳定主题文件，每次实质更新追加包含背景、起因和调查结果的完整报告。
 tags:
+  - context-management
   - investigation-report
+  - knowledge-evolution
+  - skill-maintainer
 relations:
   - type: 替代
     target: use-report-oriented-investigation-rounds

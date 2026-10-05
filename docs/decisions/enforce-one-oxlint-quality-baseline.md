@@ -9,6 +9,8 @@ background: 局部注释规则不能阻止路径忽略、配置继承、规则�
 decision: 将 Oxlint 配置作为受校验的统一基线；配置行为变化必须同步规范、前置校验和测试，局部例外继续使用带理由的单行抑制。
 tags:
   - project-tooling
+  - regression-prevention
+  - validation-boundaries
 relations:
   - type: 修订
     target: use-local-reasoned-oxlint-exceptions

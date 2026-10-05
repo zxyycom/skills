@@ -9,6 +9,9 @@ background: 只返回领域 ID 无法解释责任边界，在索引 state 复制
 decision: 索引 metadata 投影完整领域目录，记录领域键由路径派生，CLI 查询返回与结果相关的领域定义。
 tags:
   - decision-records
+  - product-architecture-judgment
+  - responsibility-boundaries
+  - source-artifact-separation
 relations:
   - type: 拆分
     target: use-domain-paths-as-primary-classification

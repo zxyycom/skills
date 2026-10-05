@@ -8,7 +8,10 @@ purpose: 只在可安装 skill 包内容变化时更新 latest release，避免�
 background: 主仓库维护文档、脚本、CI 或子仓库 `skill/` 外文件变化时，旧 CI 也会覆盖 `skills-latest` release，但这些变化不一定改变可安装 skill 包。
 decision: 根目录保留 `skill-package.hash`，记录最近一次成功发布的全部 skill 打包输入 hash。
 tags:
+  - artifact-integrity
   - project-tooling
+  - release-publishing
+  - validation-boundaries
 relations:
   - type: 修订
     target: 260630-publish-skill-package-as-latest-release

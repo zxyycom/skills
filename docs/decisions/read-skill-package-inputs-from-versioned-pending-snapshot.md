@@ -8,7 +8,10 @@ purpose: 让 skill hash 与打包读取同一组准备进入下一版本的稳�
 background: 工作区可能包含未选择改动；打包时临时构建又会让制品输入不同于已审阅的待提交内容。
 decision: Hash 与 pack 共用版本管理 pending 中的 skill 文件快照；pack 不生成或修复输入，只消费已经存在的稳定内容。
 tags:
+  - artifact-integrity
+  - build-reproducibility
   - project-tooling
+  - responsibility-boundaries
   - version-control
 relations:
   - type: 修订

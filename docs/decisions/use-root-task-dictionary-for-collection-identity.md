@@ -8,6 +8,7 @@ purpose: 让 task index 以根级字典表达一个平铺任务集合，并让�
 background: 索引文件已界定任务集合，额外 scope 容器只会重复集合与身份边界。
 decision: 索引根级使用 tasks 字典，taskId 键是唯一任务身份，索引文件直接界定集合。
 tags:
+  - record-identity
   - task-graph
 relations:
   - type: 修订

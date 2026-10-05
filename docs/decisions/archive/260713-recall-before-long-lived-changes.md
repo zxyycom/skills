@@ -8,7 +8,9 @@ purpose: 在长期行为改变前恢复既有方向，防止后续维护静默�
 background: 只在用户显式要求回放或记录时读取决策，不能保证普通维护任务在改变长期行为前看见已有方向。
 decision: 任务可能改变长期行为、owner、边界、兼容性、风险处理或验收方式时，在实质改动前从 JSON 当前索引读取相关记录，因为只有在决策点前恢复上下文才能实际防止方向静默漂移。
 tags:
+  - context-management
   - decision-records
+  - regression-prevention
 relations: []
 ---
 

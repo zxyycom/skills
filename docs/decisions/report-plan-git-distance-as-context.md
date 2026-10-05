@@ -9,6 +9,9 @@ background: Git 距离能够提示计划上下文可能变化，但不能判断�
 decision: 保留 baseCommit 与 Git 距离计算，查询直接返回距离事实和行动提示；可用距离只提示，基线不可追溯时要求重新审阅 Plan。
 tags:
   - change-plan
+  - git-integration
+  - metadata-design
+  - validation-boundaries
 relations:
   - type: 归并
     target: detect-shelved-plans-by-git-distance

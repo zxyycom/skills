@@ -8,7 +8,10 @@ purpose: 让每个分发后的 skill 在没有其他 skill 配合时也能被发
 background: 仓库维护时可以比较多个能力, 但安装环境中的 skill 组合并不固定; 用相邻能力的差异解释触发或边界会把其他 skill 变成隐含前提。
 decision: 维护时可以比较可访问能力以判断 owner, 但分发入口和行为正文只用自身输入、目标结果、判断、步骤、边界和验收定义能力, 不假定其他 skill 存在。
 tags:
+  - environment-isolation
+  - responsibility-boundaries
   - skill-maintainer
+  - validation-boundaries
 relations: []
 ---
 
