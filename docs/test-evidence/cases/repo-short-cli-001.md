@@ -12,3 +12,4 @@ Contract:
 Proves:
 - 映射中的每个 `bun run <command> -- --help` 均成功退出，并返回对应领域 CLI 的稳定能力标识；Change Plan 以 `check-all` 命令表面识别当前入口，Investigation Report 以报告记录及其派生索引的公共说明识别当前入口。
 - 维护短命令清单包含 Lightweight Judgment，其 help 通过对应公开入口运行且不读取凭据或调用服务。
+- novel-cards 的 help 通过仓库短入口展示本地卡片能力，不扫描项目或调用远端接口。

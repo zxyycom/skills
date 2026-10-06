@@ -137,6 +137,6 @@ export async function publishInitialFixtureReceipts(
   assert.ok(first.decisions.every(({ action }) => action === "execute"));
   assert.deepEqual(await publishFixtureReceipts(fixture, first), {
     published: true,
-    receiptCount: 62
+    receiptCount: 64
   });
 }

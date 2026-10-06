@@ -38,6 +38,7 @@ export const releaseRequiredPackageScripts = [
   "check:investigation-report-check",
   "check:change-plan-cli",
   "check:lightweight-judgment-cli",
+  "check:novel-cards-cli",
   "check:decision-records-cli",
   "check:task-graph-cli",
   "check:skill-updaters",

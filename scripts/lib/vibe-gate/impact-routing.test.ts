@@ -9,6 +9,48 @@ import {
   writeImpactFixture
 } from "./impact-test-support.ts";
 
+test("incremental Gate invalidates Novel Cards consumers for every shared and distributed input", async () => {
+  await withImpactFixture(async (fixture) => {
+    const consumerIds = [
+      "script:check:novel-cards-cli",
+      "test:novel-cards:card-and-query-contract"
+    ];
+    for (const source of [
+      "tools/index-runtime/src/value.ts",
+      "tools/shared/src/value.ts",
+      "scripts/lib/generated-file.ts",
+      "skills/novel-cards/scripts/novel-cards.mjs",
+      "skills/novel-cards/scripts/novel-cards.mjs.map"
+    ]) {
+      await writeImpactFixture(fixture.directory, source, "initial input\n");
+      await publishFixtureReceipts(
+        fixture,
+        await prepareFixtureActivation(fixture)
+      );
+      const warm = await prepareFixtureActivation(fixture);
+      for (const checkId of consumerIds)
+        assert.equal(
+          warm.decisions.find((item) => item.checkId === checkId)?.action,
+          "reuse",
+          `${source}: ${checkId}`
+        );
+      await writeImpactFixture(fixture.directory, source, "changed input\n");
+      const changed = await prepareFixtureActivation(fixture);
+      for (const checkId of consumerIds) {
+        const decision = changed.decisions.find(
+          (item) => item.checkId === checkId
+        );
+        assert.equal(decision?.action, "execute", `${source}: ${checkId}`);
+        assert.equal(
+          decision?.reason,
+          "inputs-changed",
+          `${source}: ${checkId}`
+        );
+      }
+    }
+  });
+});
+
 test("incremental Gate propagates documentation and shared owner changes", async () => {
   await withImpactFixture(async (fixture) => {
     await publishInitialFixtureReceipts(fixture);
@@ -24,7 +66,7 @@ test("incremental Gate propagates documentation and shared owner changes", async
     );
     assert.deepEqual(
       await publishFixtureReceipts(fixture, documentationChange),
-      { published: true, receiptCount: 62 }
+      { published: true, receiptCount: 64 }
     );
 
     await writeImpactFixture(
@@ -63,7 +105,7 @@ test("incremental Gate propagates skill-package and build-system changes", async
       await publishFixtureReceipts(fixture, skillPackageChange),
       {
         published: true,
-        receiptCount: 62
+        receiptCount: 64
       }
     );
 
@@ -131,7 +173,7 @@ test("incremental Gate treats unknown paths and root configuration conservativel
     );
     assert.deepEqual(await publishFixtureReceipts(fixture, unknownChange), {
       published: true,
-      receiptCount: 62
+      receiptCount: 64
     });
     assert.deepEqual(
       (await prepareFixtureActivation(fixture)).activeCheckIds,

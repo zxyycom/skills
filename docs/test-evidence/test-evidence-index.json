@@ -332,13 +332,13 @@
       "FILE-TEXT-SEARCH-UNICODE-RANGE-001": "sha256:d7b1d476a2fe864ca543f15c6cf2e444d7f003bc96c9a05cfb3da3144a8911b6",
       "GATE-CLI-RESULT-001": "sha256:5231ba66bcd69e807ae9f518139a859cbca6af974d054f2683eba225f680870c",
       "GATE-COMMAND-TRANSCRIPT-001": "sha256:542a18a7a3a40d0ed8eab84838a7df7e248890e2456b795cc15e0ed42c40fabf",
-      "GATE-DEFINITION-CATALOG-001": "sha256:fe829b38c94cff6a6398bad955939eb19924f2840798ef39c19a5b4fe13dbef9",
+      "GATE-DEFINITION-CATALOG-001": "sha256:60744384dec15bf7169ef8e4ee0380cb0aa3ea53734bef9502a3aaafd558eb01",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:75aae9eabcdb47d4571e47cc41de09c649633924ed646ef3fa9a0bb79ccbae41",
       "GATE-DUPLICATE-DETECTION-001": "sha256:68116ffb4a1862c6d09fb298a74d4b02281727ca34815ef02cab2257b3f9e41d",
       "GATE-ENVIRONMENT-CHECK-001": "sha256:ee349c88f938bdebfa3850b45206efe8796a7bda74354da021758c2782800ffe",
       "GATE-FILE-SELECTION-001": "sha256:3562703c498e03eb5444ac363526eb230ccd7f71e41eca3d62010a37f0041e82",
       "GATE-FUNCTION-ANALYZER-001": "sha256:0557c3ae30bd5acfab1a3e363a96c1a929064d7ea35e62950f383d8c5b960f2b",
-      "GATE-INCREMENTAL-ACTIVATION-001": "sha256:158e9a309a2c04bd1389fab9068e3695e363ebd8435fcf0dd1aa771a4c2f70af",
+      "GATE-INCREMENTAL-ACTIVATION-001": "sha256:bb4a36168679e9ea571d69ab142d988b5de380bcb2bcba28e4486b650fcef64c",
       "GATE-JSON-SCHEMA-001": "sha256:1562d23cca2650b3dceb86fe937364b7bba56ddc08714ccc67bb7e6fe8908995",
       "GATE-JSON-VALIDATION-001": "sha256:1b495e9457d277c495c6beda633e5d588e2949366f62d44877511ca1824f6118",
       "GATE-MARKDOWN-LINK-001": "sha256:b084953dd2c12fff3217facf7a7485c54c71b84bef6c590c88d1912c2936864e",
@@ -708,6 +708,24 @@
       "MCPSHELL-BRIDGE-RUNTIME-003": "sha256:a2422b8a1742ea9e4f0cab1481c0b004c03551441ecbf4add4f1cf042acf9c34",
       "MCPSHELL-BRIDGE-SHELL-001": "sha256:81b50ac95062c9bae83e5f8f5d19ecdbb04561731897770dd5526f64fcce3ce3",
       "MCPSHELL-BRIDGE-SHELL-002": "sha256:c99cdeb05103a9a29712c2705543857583c491a5b04edee2701874219be2bd02",
+      "NOVEL-CARDS-BYTE-BUDGET-016": "sha256:7fedd59ad67e479a64b38d18d4aea1df6940f089d270162aed9c16c4f47b9c3e",
+      "NOVEL-CARDS-CLI-011": "sha256:cfca2de8a481d5a053517f86d4d59887622284b896600978798e0e3854bb104a",
+      "NOVEL-CARDS-COUNT-BUDGET-018": "sha256:20590ccac4c69c8e6ed44e4ef31e347c49b339fa1b9b972a13d4c41d1e6b6b0d",
+      "NOVEL-CARDS-CYCLES-004": "sha256:7d3fccba1c3d6de549c2821eb2789825a23e506a8f29160b6762ad1abcad69a7",
+      "NOVEL-CARDS-DIRECTORY-DEPTH-017": "sha256:c3b0d93184886fb3e1baf794a8f4a2318dc21e022db38bbad9c86c0db32f49d3",
+      "NOVEL-CARDS-DISTRIBUTION-012": "sha256:54248642a2616e8568d9b7c49389aa0c20b9724663b0a8c029d1c1f086046b21",
+      "NOVEL-CARDS-DUPLICATE-ID-002": "sha256:c6419b55030d1f4da8129f8dc2c0a6d972ea99134b0695bd6183211be7a2acfe",
+      "NOVEL-CARDS-EXPANSION-008": "sha256:d47f78bb6d39f69b1c4b84040face720738883cdcc0d9b0d12a594af058fd717",
+      "NOVEL-CARDS-FILESYSTEM-010": "sha256:428e04c6eb8c4416dc69eb46a5b4115dc69bb9a6a1a5f208cabcccb2a0b4e9cc",
+      "NOVEL-CARDS-INDEX-IDENTITY-007": "sha256:b7ad2e3ab68ba67a888c545eab3d2207af92b4a072bd85c4df3e666271f17b46",
+      "NOVEL-CARDS-LAYOUT-014": "sha256:d35c80ef16aca307484852dd1790b986db48f59d8471c5c285bc15675b712158",
+      "NOVEL-CARDS-LINE-ENDINGS-015": "sha256:6c7deb4e50e31152120c0e87470edee0f2a11d81a0911c7c1eb932951942c7a1",
+      "NOVEL-CARDS-METADATA-009": "sha256:dafccc9511fd127dc2c95f3da8fc927b2d7443cbe408df14e1453fe8bb4de89a",
+      "NOVEL-CARDS-MODEL-001": "sha256:e4aee0dd296ea216d578d1893a0009f59e89a281b71e18ea1274106541bc4916",
+      "NOVEL-CARDS-REFERENCE-BOUNDARY-005": "sha256:0aa99e3de152bf0ec6a519c7eb81e5a5c0ae3298a2d496a6d775c87cc85e2d50",
+      "NOVEL-CARDS-REFERENCES-003": "sha256:6267620acf20cb34fe52beb74e41b3ba769d6b85e70549daee50d7d750bf5d97",
+      "NOVEL-CARDS-SHARED-FRONTIER-013": "sha256:95d99b3db4e78637a9f1b9b663a1c64e36228d9be55b3ed8f009de57d0d19825",
+      "NOVEL-CARDS-STALE-INDEX-006": "sha256:bd4cbef42d0545babff351227b4213dab6e4b8cfa5ea449b2e1f50b47358f01a",
       "RECORD-SEARCH-BUDGET-001": "sha256:e2b3007cb2f47adc78426a3c05e3b0e2e96730efea8af2f2d5600f8b075cae94",
       "RECORD-SEARCH-COUNTS-001": "sha256:6e44dae3758168a1da9c56f4ff99d7ff7e6e6f876f4c5c636aff9e56111566a4",
       "RECORD-SEARCH-FAILURE-001": "sha256:7f4d1189861c5a8eea17aace062106c898ff89d18a2a5ed493517f7e1894460d",
@@ -724,7 +742,7 @@
       "REPO-LINT-PREFLIGHT-001": "sha256:b7db9512b7e996fccd5c74222f1cb62b3d957d806ff96c4c6cfb2c505c271455",
       "REPO-OXC-CONFIG-001": "sha256:a398732811d1a6110806e766577b60fa115799d8030ee8af5a744e60fea391e0",
       "REPO-PACKAGE-JSON-001": "sha256:1c43d8cf04c91fda22276d26c2bfc3ca81a86cfce5674a22ab578408f6540231",
-      "REPO-SHORT-CLI-001": "sha256:52567559c948e8b7f031375765ed01ed70b376ff9f942e947ded5efbcbc95545",
+      "REPO-SHORT-CLI-001": "sha256:97e89e12ffeed4d6d5c0ce9bbe6d18b012910be6eddf9dcdc6a6d1ce012c8a57",
       "REPO-SHORT-CONFIG-001": "sha256:4d47467b1df3026ebd236b537a5ef795a7c4d3b4ce09c02e3f06c17a6c63b844",
       "REPO-SKILL-HASH-001": "sha256:9b7d3447a47af630e77c130d5d651d17effdd5d264d16aad8537ee2d47a74151",
       "REPO-SKILL-HASH-002": "sha256:6b3cb84014ed20261fa55a7327382bfbf1638429071f6a9664082172294ae49d",
@@ -4368,6 +4386,7 @@
         "test:70a93ca1284d1289e17836b130a25f5f3fa0ce349e13f482993be605598ed19e",
         "test:9b5dd0725c798ef758b1e57a654b092cfbad664c980ca45df11b8a0c510af823",
         "test:c067f038382c3793fd65a6e57d05ffb200a59f4ecbe4e5a5de9b09f343d25709",
+        "test:c20d3139a2625c46333d36010b64b438d37e6ac857bbb683eff13fa709be39c5",
         "test:d734f26be9f780c80e02df9dd15fd77ad3d37149d7df8d7af03553d8a05d7eff",
         "test:da5c325ff39accab38f2730d58c10cd28b7abe309c13622ff846b7cc99ecc358",
         "test:db7194efa67cbb9de2a9ea3ac74dc903817906ae1205424fbb21ba93731b001c"
@@ -8090,6 +8109,186 @@
       ],
       "testIds": [
         "test:46b392a6aa26d3ec7284a04ed4c6b1c16c96fda491d6ff53239ff2dac0180bc0"
+      ]
+    },
+    "NOVEL-CARDS-BYTE-BUDGET-016": {
+      "title": "集合字节上限",
+      "sourcePath": "cases/novel-cards-byte-budget.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:fb647efff938ffc385ba1111c9ae45fc5f84d2d8f0002df8e75f5b3e30f8d4b4"
+      ]
+    },
+    "NOVEL-CARDS-CLI-011": {
+      "title": "CLI参数与诊断",
+      "sourcePath": "cases/novel-cards-cli.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:608f307ca9edd3a2bdef6d379622eba5adefe6319e5707d4b843415bfb9dc198"
+      ]
+    },
+    "NOVEL-CARDS-COUNT-BUDGET-018": {
+      "title": "卡片数量上限",
+      "sourcePath": "cases/novel-cards-count-budget.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:bc2d97d09596d36d4b51b2823647ab5bd62fb83760e777be0abfe79c78a15a53"
+      ]
+    },
+    "NOVEL-CARDS-CYCLES-004": {
+      "title": "无环且不固定层数",
+      "sourcePath": "cases/novel-cards-cycles.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:6ae3d44f287a3156830c676fce251cd03605e22f85e9a27edd6d01d61f6bded6"
+      ]
+    },
+    "NOVEL-CARDS-DIRECTORY-DEPTH-017": {
+      "title": "文件目录深度预算",
+      "sourcePath": "cases/novel-cards-directory-depth.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:47752b5e43c7f6e22e53b30dc1aee8dbc92c0afd53f3a10b46ddf14364526b07"
+      ]
+    },
+    "NOVEL-CARDS-DISTRIBUTION-012": {
+      "title": "独立分发与import边界",
+      "sourcePath": "cases/novel-cards-distribution.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:3ac91f5e6775728dc966f097edd8ae6a92c76d566dc3d9df4053dda1f1f54ef2"
+      ]
+    },
+    "NOVEL-CARDS-DUPLICATE-ID-002": {
+      "title": "重复身份保护索引",
+      "sourcePath": "cases/novel-cards-duplicate-id.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:455e18d1cdfe76a0efe0d51e6ddc97ea57b0053d13316433dee6e63f58f70283"
+      ]
+    },
+    "NOVEL-CARDS-EXPANSION-008": {
+      "title": "有界包含展开",
+      "sourcePath": "cases/novel-cards-expansion.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:c7be23e26500458e9cf1c0d8287378711793abdba384793d541dfa9a93ea4745"
+      ]
+    },
+    "NOVEL-CARDS-FILESYSTEM-010": {
+      "title": "文件边界与资源限制",
+      "sourcePath": "cases/novel-cards-filesystem.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:694968bfc1cf52b763a4c1f86d0eb9c87a1ab8e2bc6364c4f95b91370414db2f"
+      ]
+    },
+    "NOVEL-CARDS-INDEX-IDENTITY-007": {
+      "title": "索引不能重定向身份",
+      "sourcePath": "cases/novel-cards-index-identity.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:b543b7b51a34f93a7697a9c9b6b9fd144b92fb6dfa5056b7ba531d330ec7adc8"
+      ]
+    },
+    "NOVEL-CARDS-LAYOUT-014": {
+      "title": "空集合与必需目录",
+      "sourcePath": "cases/novel-cards-layout.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:faa8bb7b0308fe4658a290b3aad608b3f17e585aaeb3762b6770e43c0eed3957"
+      ]
+    },
+    "NOVEL-CARDS-LINE-ENDINGS-015": {
+      "title": "换行规范化与返回正文",
+      "sourcePath": "cases/novel-cards-line-endings.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:bc61a0f9d7f9e843683f07521cf23034d83a13e590b2ebc477c712f055594ddf"
+      ]
+    },
+    "NOVEL-CARDS-METADATA-009": {
+      "title": "字段结构与状态维度",
+      "sourcePath": "cases/novel-cards-metadata.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:10b447567d65203e2a7aadee85eb1ec8aa8ca915ba0ea27b0a861c4dfba7263e"
+      ]
+    },
+    "NOVEL-CARDS-MODEL-001": {
+      "title": "模型与递归压缩",
+      "sourcePath": "cases/novel-cards-model.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:8e4bc868885736848751abfbb717b91f9b88535d1ef820e9b831bc8b9a68ae11"
+      ]
+    },
+    "NOVEL-CARDS-REFERENCE-BOUNDARY-005": {
+      "title": "参考区选择与当前边界",
+      "sourcePath": "cases/novel-cards-reference-boundary.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:a6c58ad4290e18f68e12568bf55c929ecd0b7dce53568a10a8ea9e0319cdd90d"
+      ]
+    },
+    "NOVEL-CARDS-REFERENCES-003": {
+      "title": "所有受管引用校验",
+      "sourcePath": "cases/novel-cards-references.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:9b4cb94c3532f889b93775759ac8b95ec107f87d0b802715ef36a171f96958e7"
+      ]
+    },
+    "NOVEL-CARDS-SHARED-FRONTIER-013": {
+      "title": "共享下级准确边界",
+      "sourcePath": "cases/novel-cards-shared-frontier.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:07a52654846a33e475f9743ae969bfc28a96a7a8e1ff080541f92526cd4b08b8"
+      ]
+    },
+    "NOVEL-CARDS-STALE-INDEX-006": {
+      "title": "真实来源使旧索引失效",
+      "sourcePath": "cases/novel-cards-stale-index.md",
+      "tags": [
+        "novel-cards"
+      ],
+      "testIds": [
+        "test:b0fa63f2108d9277f19d582f58cf7176b3d055eb2d799cd147bd1257f5ad5728"
       ]
     },
     "RECORD-SEARCH-BUDGET-001": {

@@ -122,6 +122,7 @@
       "261004-stage-decisions-by-explicit-id-and-selected-scope": "sha256:1c96322c1e3a6b7ccb6e42a1378c3dc55af615b06cd2740978afafae7cb7f08b",
       "261005-lightweight-judgment-current-schema-statistics": "sha256:f41233044718d3f1be6a32d34a87508d6520edb76fcdb250b375ccb118da5847",
       "261005-preserve-pending-file-representation": "sha256:4d2c3fb6a1659edc28fc47928b5762942c2272e950f221c6899bf45196d5df20",
+      "261006-keep-novel-card-meaning-separate-from-index": "sha256:954dee882f33e08aaee3cacaec57461c26b4a9be8da1751da1f2355484efce55",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -2802,6 +2803,22 @@
           "summary": "保留共享写入责任并增加文件表示保真义务"
         }
       ]
+    },
+    "261006-keep-novel-card-meaning-separate-from-index": {
+      "name": "keep-novel-card-meaning-separate-from-index",
+      "sourcePath": "keep-novel-card-meaning-separate-from-index.md",
+      "title": "小说卡片语义与索引职责分离",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-06T06:19:11Z",
+      "purpose": "保持小说规划递归自由与卡片引用可核对",
+      "background": "小说规划有未展开未来、来源摘要与独立参考，机械索引不能证明语义",
+      "decision": "novel-cards采用详情与递归总结，文件为事实，索引只定位且不自动更新规划",
+      "tags": [
+        "novel-cards",
+        "writing-workflow"
+      ],
+      "relations": []
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

@@ -73,7 +73,11 @@
     "lightweight-judgment": "node skills/lightweight-judgment/scripts/lightweight-judgment.mjs",
     "test:lightweight-judgment-cli": "bun test ./tools/lightweight-judgment/tests/run.ts",
     "sync:lightweight-judgment-cli": "bun scripts/build/lightweight-judgment.ts --write",
-    "check:lightweight-judgment-cli": "bun scripts/build/lightweight-judgment.ts --check"
+    "check:lightweight-judgment-cli": "bun scripts/build/lightweight-judgment.ts --check",
+    "novel-cards": "node skills/novel-cards/scripts/novel-cards.mjs",
+    "test:novel-cards-cli": "bun test ./tools/novel-cards/tests/run.ts",
+    "sync:novel-cards-cli": "bun scripts/build/novel-cards.ts --write",
+    "check:novel-cards-cli": "bun scripts/build/novel-cards.ts --check"
   },
   "devDependencies": {
     "@ast-grep/cli": "0.45.1",

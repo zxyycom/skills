@@ -20,6 +20,7 @@ import {
 } from "../../tools/skill-package/src/version.ts";
 
 export const maintenanceCliPackageScripts = {
+  "novel-cards": "node skills/novel-cards/scripts/novel-cards.mjs",
   "lightweight-judgment":
     "node skills/lightweight-judgment/scripts/lightweight-judgment.mjs",
   "change-plan": "node skills/change-plan/scripts/change-plan.mjs",
@@ -98,6 +99,7 @@ export const requiredPackageScripts = [
   "sync:skill-updaters",
   "sync:change-plan-cli",
   "sync:lightweight-judgment-cli",
+  "sync:novel-cards-cli",
   "sync:skill-validator",
   "sync:investigation-report-check",
   "sync:decision-records-cli",

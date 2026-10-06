@@ -16,6 +16,7 @@ import {
 
 test("repository maintenance short commands invoke their owned skill CLIs", () => {
   const commandHelpPatterns = {
+    "novel-cards": /Novel Cards/u,
     "lightweight-judgment": /Lightweight Judgment/u,
     "change-plan": /change-plan\.mjs check-all/u,
     "decision-records": /Query and maintain agent-oriented decision records/u,

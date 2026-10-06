@@ -23,6 +23,15 @@ const bunTest = (file: string): GateCommand => ({
 
 export const semanticGateChecks = [
   {
+    checkId: "test:novel-cards:card-and-query-contract",
+    dependsOn: ["script:check:novel-cards-cli"],
+    displayName: "Novel Cards card integrity and standalone query",
+    requiredTag: undefined,
+    command: bunTest(
+      "./tools/novel-cards/tests/checks/card-and-query-contract.ts"
+    )
+  },
+  {
     checkId: "test:lightweight-judgment:request-and-response",
     displayName: "Lightweight Judgment request and response boundary",
     requiredTag: undefined,
