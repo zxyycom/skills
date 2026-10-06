@@ -127,5 +127,19 @@ test("shared children already returned by another path do not create false front
         { fromId: "b", nextIds: ["c"], reason: limits.reason }
       ]);
     }
+    await put(
+      root,
+      "root",
+      markdown("root", { kind: "summary", children: ["a", "b@1"] })
+    );
+    const aliases = expandCards((await readSource(root)).records, "root", {
+      includeReference: false,
+      depth: 2,
+      maxCards: 3
+    });
+    assert.equal(aliases.cards.length, 3);
+    assert.deepEqual(aliases.frontier, [
+      { fromId: "b@1", nextIds: ["c"], reason: "max-cards" }
+    ]);
   });
 });

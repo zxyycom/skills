@@ -1,11 +1,7 @@
+import { validateCards } from "../src/graph.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
-import {
-  CardFailure,
-  parseCard,
-  validateCards,
-  type CardRecord
-} from "../src/card.ts";
+import { CardFailure, parseCard, type CardRecord } from "../src/card.ts";
 import { currentSource, synchronize } from "../src/index.ts";
 import { readSource } from "../src/source.ts";
 import { selectCard, expandCards } from "../src/query.ts";

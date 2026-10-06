@@ -14,7 +14,7 @@ test("empty current and absent reference are valid while missing and linked card
     assert.equal((await readSource(root)).records.length, 0);
     assert.equal((await synchronize(root)).status, "ok");
     assert.equal((await currentSource(root)).records.length, 0);
-    const current = path.join(root, "cards/current");
+    const current = path.join(root, "cards");
     await fs.rmdir(current);
     await assert.rejects(
       readSource(root),
@@ -24,7 +24,7 @@ test("empty current and absent reference are valid while missing and linked card
         error.file === current
     );
     await fs.mkdir(current);
-    await fs.symlink(current, path.join(root, "cards/reference"));
+    await fs.symlink(current, path.join(root, "reference"));
     await assert.rejects(readSource(root), failure("source-path"));
   });
 });
@@ -59,7 +59,7 @@ test("collection byte budget accepts the exact limit and rejects excess", async 
 
 test("directory depth budget accepts the exact limit and rejects excess", async () => {
   await project(async (root) => {
-    let directory = path.join(root, "cards/current");
+    let directory = path.join(root, "cards");
     for (let depth = 0; depth < 100; depth += 1) {
       directory = path.join(directory, "nested");
       await fs.mkdir(directory);
@@ -80,7 +80,7 @@ test(
           Array.from({ length: 100 }, (_, offset) => {
             const id = `card-${start + offset}`;
             return fs.writeFile(
-              path.join(root, "cards/current", `${id}.md`),
+              path.join(root, "cards", `${id}.md`),
               markdown(id)
             );
           })
@@ -118,17 +118,17 @@ test("changed, moved and deleted cards invalidate persisted indexes without gues
     await assert.rejects(currentSource(root), failure("index-invalid"));
     await synchronize(root);
     await fs.rename(
-      path.join(root, "cards/current/original.md"),
-      path.join(root, "cards/current/moved.md")
+      path.join(root, "cards/original.md"),
+      path.join(root, "cards/moved.md")
     );
     await assert.rejects(currentSource(root), failure("index-invalid"));
     await synchronize(root);
     assert.equal(
       selectCard((await currentSource(root)).records, "stable", false)
         .sourcePath,
-      "cards/current/moved.md"
+      "cards/moved.md"
     );
-    await fs.unlink(path.join(root, "cards/current/moved.md"));
+    await fs.unlink(path.join(root, "cards/moved.md"));
     await assert.rejects(currentSource(root), failure("index-invalid"));
     await synchronize(root);
     assert.throws(
@@ -143,7 +143,7 @@ test("tampered index identities, paths and areas cannot redirect a query", async
     await put(root, "a", markdown("a"));
     await put(root, "b", markdown("b"));
     for (const patch of [
-      { sourcePath: "cards/current/b.md" },
+      { sourcePath: "cards/b.md" },
       { sourcePath: "../../outside.md" },
       { area: "reference" },
       { title: "伪标题" }
@@ -170,7 +170,7 @@ test("tampered index identities, paths and areas cannot redirect a query", async
       );
     }
     await synchronize(root);
-    const result = await cli(root, ["show", "cards/current/a.md"]);
+    const result = await cli(root, ["show", "cards/a.md"]);
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
   });
@@ -178,7 +178,7 @@ test("tampered index identities, paths and areas cannot redirect a query", async
 
 test("unsafe card files and oversized inputs fail rather than yielding partial success", async () => {
   await project(async (root) => {
-    const file = path.join(root, "cards/current/card.md");
+    const file = path.join(root, "cards/card.md");
     await fs.symlink(path.join(root, "external.md"), file);
     await assert.rejects(readSource(root), failure("source-path"));
     await fs.unlink(file);
@@ -199,12 +199,12 @@ test("unsafe card files and oversized inputs fail rather than yielding partial s
     assert.ok(invalidText.stderr.includes(file));
     await fs.unlink(file);
     await fs.writeFile(file, markdown("card"));
-    const hardlink = path.join(root, "cards/current/linked.md");
+    const hardlink = path.join(root, "cards/linked.md");
     await fs.link(file, hardlink);
     await assert.rejects(readSource(root), failure("source-path"));
     await fs.unlink(hardlink);
     await fs.unlink(file);
-    await fs.writeFile(path.join(root, "cards/current/other.txt"), "ignored?");
+    await fs.writeFile(path.join(root, "cards/other.txt"), "ignored?");
     await assert.rejects(readSource(root), failure("source-path"));
   });
 });

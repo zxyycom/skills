@@ -1,3 +1,5 @@
+import { validateCards } from "./graph.ts";
+import { pendingTransaction } from "./transaction.ts";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import type { Stats } from "node:fs";
@@ -5,7 +7,7 @@ import path from "node:path";
 import {
   CardFailure,
   parseCardRecord,
-  validateCards,
+  recordKey,
   type CardRecord
 } from "./card.ts";
 import type { StateSourceRevision } from "../../index-runtime/src/index.ts";
@@ -68,19 +70,42 @@ class SourceScanner {
 
   async read(): Promise<Source> {
     await requireDirectory(this.root);
+    if (await pendingTransaction(this.root))
+      throw new CardFailure(
+        "transaction-pending",
+        this.root,
+        "批量事务未结算，先recover --write"
+      );
     const cardsPath = path.join(this.root, "cards");
     await requireDirectory(cardsPath);
-    await this.visit(path.join(cardsPath, "current"), "current", 0);
-    const referencePath = path.join(cardsPath, "reference");
+    await this.visit(cardsPath, "current", 0);
+    const referencePath = path.join(this.root, "reference");
     if (await referenceExists(referencePath))
       await this.visit(referencePath, "reference", 0);
+    const history = path.join(this.root, "history");
+    if (await referenceExists(history)) {
+      await requireDirectory(history);
+      for (const name of await fs.readdir(history)) {
+        if (!["snapshots", "transitions"].includes(name))
+          throw new CardFailure(
+            "source-path",
+            history,
+            "history只允许snapshots/transitions"
+          );
+        await this.visit(
+          path.join(history, name),
+          name === "snapshots" ? "snapshot" : "transition",
+          0
+        );
+      }
+    }
     validateCards(this.records);
     return sourceResult(this.records);
   }
 
   private async visit(
     directory: string,
-    area: "current" | "reference",
+    area: CardRecord["area"],
     depth: number
   ): Promise<void> {
     if (depth > 100)
@@ -106,7 +131,7 @@ class SourceScanner {
 
   private async readCard(
     file: string,
-    area: "current" | "reference",
+    area: CardRecord["area"],
     stat: Stats
   ): Promise<void> {
     if (!stat.isFile() || stat.nlink !== 1 || !file.endsWith(".md"))
@@ -129,7 +154,10 @@ class SourceScanner {
     const bytes = await fs.readFile(file);
     let markdown: string;
     try {
-      markdown = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      markdown = new TextDecoder("utf-8", {
+        fatal: true,
+        ignoreBOM: true
+      }).decode(bytes);
     } catch {
       throw new CardFailure("card-format", file, "卡片必须为合法 UTF-8 文本");
     }
@@ -147,10 +175,10 @@ function sourceResult(records: readonly CardRecord[]): Source {
   return {
     records,
     revision: {
-      metadata: "novel-cards-v1",
+      metadata: "novel-cards-v2",
       entries: Object.fromEntries(
         records.map((record) => [
-          record.card.id,
+          recordKey(record),
           createHash("sha256")
             .update(
               JSON.stringify([

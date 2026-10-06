@@ -6,10 +6,35 @@ export const idSchema = v.pipe(
   v.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u)
 );
 const text = v.pipe(v.string(), v.trim(), v.minLength(1));
-const ids = v.optional(v.pipe(v.array(idSchema), v.readonly()), []);
+export const referenceSchema = v.pipe(
+  v.string(),
+  v.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*(?:@[1-9][0-9]*)?$/u)
+);
+const versionReference = v.pipe(referenceSchema, v.regex(/@[1-9][0-9]*$/u));
+const positiveInteger = v.pipe(v.number(), v.safeInteger(), v.minValue(1));
+const ids = v.optional(v.pipe(v.array(referenceSchema), v.readonly()), []);
+const transitionSchema = v.pipe(
+  v.strictObject({
+    mode: v.picklist(["evolution", "revision"]),
+    lifecycle: v.picklist(["active", "withdrawn"]),
+    events: v.pipe(v.array(versionReference), v.readonly()),
+    changes: v.pipe(
+      v.array(
+        v.pipe(
+          v.strictObject({ before: versionReference, after: versionReference }),
+          v.readonly()
+        )
+      ),
+      v.minLength(1),
+      v.readonly()
+    ),
+    supersedes: v.optional(v.pipe(v.array(versionReference), v.readonly()), [])
+  }),
+  v.readonly()
+);
 const relation = v.pipe(
   v.strictObject({
-    target: idSchema,
+    target: referenceSchema,
     relation: text,
     attitude: text,
     knowledge: text
@@ -20,7 +45,15 @@ export const cardSchema = v.pipe(
   v.strictObject({
     id: idSchema,
     title: text,
-    kind: v.picklist(["summary", "detail"]),
+    version: v.optional(positiveInteger, 1),
+    chapter: v.optional(
+      v.pipe(
+        v.strictObject({ scope: idSchema, number: positiveInteger }),
+        v.readonly()
+      )
+    ),
+    transition: v.optional(transitionSchema),
+    kind: v.picklist(["summary", "detail", "transition"]),
     domain: v.picklist(["plot", "character", "setting", "history"]),
     status: v.picklist(["occurred", "expected", "mixed"]),
     completeness: v.picklist(["planned", "expanded"]),
@@ -30,18 +63,23 @@ export const cardSchema = v.pipe(
     refs: ids,
     story_time: v.optional(text),
     narrative_position: v.optional(text),
-    state_at: v.optional(idSchema),
+    state_at: v.optional(referenceSchema),
     relations: v.optional(v.pipe(v.array(relation), v.readonly()), [])
   }),
   v.readonly()
 );
 export type Card = v.InferOutput<typeof cardSchema>;
+export type Transition = NonNullable<Card["transition"]>;
 export type CardRecord = Readonly<{
   card: Card;
-  area: "current" | "reference";
+  area: "current" | "reference" | "snapshot" | "transition";
   sourcePath: string;
   markdown: string;
   explicitRefs: readonly string[];
+  referenceContext?:
+    | "current"
+    | "snapshot-unqualified-current-not-historical"
+    | "snapshot-version-locked";
 }>;
 
 export type CardFailureCode =
@@ -62,7 +100,11 @@ export type CardFailureCode =
   | "index-invalid"
   | "index-identity"
   | "card-not-found"
-  | "reference-read-required";
+  | "reference-read-required"
+  | "chapter-number"
+  | "transition-contract"
+  | "transaction-pending"
+  | "transaction-failed";
 
 export class CardFailure extends Error {
   constructor(
@@ -112,8 +154,41 @@ function validateDetail(card: Card, file: string): void {
   }
 }
 
+function validateTransitionMetadata(
+  card: Card,
+  transition: Transition,
+  file: string
+): void {
+  const { domain, children, status, story_time: storyTime } = card;
+  if (domain !== "history")
+    throw new CardFailure("transition-contract", file, "专门变迁须为history");
+  if (children.length > 0)
+    throw new CardFailure("transition-contract", file, "专门变迁没有children");
+  if (status === "mixed")
+    throw new CardFailure("transition-contract", file, "专门变迁不使用mixed");
+  if (transition.mode !== "revision") return;
+  if (storyTime !== undefined)
+    throw new CardFailure("transition-contract", file, "作者修订不是故事时间");
+}
+function validateCardMetadata(card: Card, file: string): void {
+  if (card.chapter !== undefined && card.domain !== "plot")
+    throw new CardFailure("card-contract", file, "chapter仅剧情卡可用");
+  const hasTransition = card.transition !== undefined;
+  const needsTransition = card.kind === "transition";
+  if (hasTransition !== needsTransition)
+    throw new CardFailure(
+      "transition-contract",
+      file,
+      "transition字段仅由专门变迁承接且必填"
+    );
+  const transition = card.transition;
+  if (transition === undefined) return;
+  validateTransitionMetadata(card, transition, file);
+}
+
 export function parseCard(markdown: string, file: string): Card {
-  const frontmatter = parseYamlFrontmatter(markdown);
+  const content = markdown.replace(/^\uFEFF/u, "");
+  const frontmatter = parseYamlFrontmatter(content);
   if (frontmatter === null)
     throw new CardFailure("card-format", file, "缺少 YAML frontmatter");
   if (frontmatter.error !== null)
@@ -124,13 +199,14 @@ export function parseCard(markdown: string, file: string): Card {
   const card = parsed.output;
   validateUniqueReferences(card, file);
   validateDetail(card, file);
+  validateCardMetadata(card, file);
   if (
     card.domain !== "character" &&
     Object.hasOwn(frontmatter.values, "relations")
   ) {
     throw new CardFailure("card-contract", file, "relations 仅由人物卡承接");
   }
-  const body = markdown
+  const body = content
     .replace(/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/u, "")
     .trim();
   if (!body) throw new CardFailure("card-format", file, "卡片正文不能为空");
@@ -152,7 +228,10 @@ export function parseCardRecord(
     const targetStart = start + linkPrefix.length;
     const end = markdown.indexOf(")", targetStart);
     if (end === -1) break;
-    const target = v.safeParse(idSchema, markdown.slice(targetStart, end));
+    const target = v.safeParse(
+      referenceSchema,
+      markdown.slice(targetStart, end)
+    );
     if (!target.success)
       throw new CardFailure(
         "card-format",
@@ -162,131 +241,57 @@ export function parseCardRecord(
     explicitRefs.push(target.output);
     offset = end + 1;
   }
-  return { card, sourcePath, area, markdown, explicitRefs };
+  const references = [
+    ...card.children,
+    ...card.sources,
+    ...card.refs,
+    ...explicitRefs,
+    ...card.relations.map((edge) => edge.target),
+    ...(card.state_at === undefined ? [] : [card.state_at])
+  ];
+  const referenceContext =
+    area !== "snapshot"
+      ? "current"
+      : references.some((ref) => !ref.includes("@"))
+        ? "snapshot-unqualified-current-not-historical"
+        : "snapshot-version-locked";
+  return { card, sourcePath, area, markdown, explicitRefs, referenceContext };
 }
 
-function collectIdentities(
+export function versionKey(card: Card): string {
+  return `${card.id}@${card.version}`;
+}
+export function recordKey(record: CardRecord): string {
+  return record.area === "snapshot" ? versionKey(record.card) : record.card.id;
+}
+
+export function identityMap(
   records: readonly CardRecord[]
 ): Map<string, CardRecord> {
   const byId = new Map<string, CardRecord>();
   for (const record of records) {
-    if (byId.has(record.card.id))
+    const version = versionKey(record.card);
+    if (
+      byId.has(version) ||
+      (record.area !== "snapshot" && byId.has(record.card.id))
+    )
       throw new CardFailure(
         "duplicate-id",
         record.sourcePath,
-        `重复 ID ${record.card.id}`
+        `重复身份 ${version}`
       );
-    byId.set(record.card.id, record);
+    byId.set(version, record);
+    if (record.area !== "snapshot") byId.set(record.card.id, record);
   }
   return byId;
 }
 
-type ResolveCard = (id: string) => CardRecord;
-
-function validateChildren(record: CardRecord, resolve: ResolveCard): void {
-  for (const id of record.card.children) {
-    const target = resolve(id);
-    if (record.area === "current" && target.area === "reference") {
-      throw new CardFailure(
-        "reference-child",
-        record.sourcePath,
-        `当前展开不能纳入参考卡：${id}`
-      );
-    }
-    const allowedDomains =
-      record.card.domain === "history"
-        ? ["history", "plot"]
-        : [record.card.domain];
-    if (!allowedDomains.includes(target.card.domain)) {
-      throw new CardFailure(
-        "child-domain",
-        record.sourcePath,
-        `children 域不匹配：${id}`
-      );
-    }
-  }
-}
-
-function validateReferences(
-  record: CardRecord,
-  byId: ReadonlyMap<string, CardRecord>
-): void {
-  const resolve: ResolveCard = (id) => {
-    const target = byId.get(id);
-    if (!target)
-      throw new CardFailure(
-        "missing-reference",
-        record.sourcePath,
-        `不存在的卡片 ID：${id}`
-      );
-    return target;
-  };
-  const { card } = record;
-  for (const id of [...card.sources, ...card.refs, ...record.explicitRefs])
-    resolve(id);
-  validateChildren(record, resolve);
-  if (
-    card.state_at !== undefined &&
-    resolve(card.state_at).card.domain !== "plot"
-  ) {
+export function requiredTransition(record: CardRecord): Transition {
+  if (!record.card.transition)
     throw new CardFailure(
-      "state-anchor",
+      "transition-contract",
       record.sourcePath,
-      "state_at 必须指向剧情卡"
+      "专门变迁必须有transition字段"
     );
-  }
-  for (const edge of card.relations) {
-    if (resolve(edge.target).card.domain !== "character") {
-      throw new CardFailure(
-        "relation-target",
-        record.sourcePath,
-        `人物关系目标必须为人物卡：${edge.target}`
-      );
-    }
-  }
-}
-
-function requiredIndegree(
-  indegree: ReadonlyMap<string, number>,
-  id: string
-): number {
-  const count = indegree.get(id);
-  if (count === undefined)
-    throw new CardFailure(
-      "missing-reference",
-      "cards",
-      `不存在的卡片 ID：${id}`
-    );
-  return count;
-}
-
-function validateContainmentCycles(
-  records: readonly CardRecord[],
-  byId: ReadonlyMap<string, CardRecord>
-): void {
-  // Kahn traversal is iterative: deep hierarchies do not consume the JS call stack.
-  const indegree = new Map(records.map((record) => [record.card.id, 0]));
-  for (const record of records) {
-    for (const child of record.card.children)
-      indegree.set(child, requiredIndegree(indegree, child) + 1);
-  }
-  const queue = records.filter((record) => indegree.get(record.card.id) === 0);
-  let visited = 0;
-  for (const record of queue) {
-    visited += 1;
-    for (const child of record.card.children) {
-      const remaining = requiredIndegree(indegree, child) - 1;
-      indegree.set(child, remaining);
-      const target = byId.get(child);
-      if (remaining === 0 && target) queue.push(target);
-    }
-  }
-  if (visited !== records.length)
-    throw new CardFailure("children-cycle", "cards", "children 图含循环");
-}
-
-export function validateCards(records: readonly CardRecord[]): void {
-  const byId = collectIdentities(records);
-  for (const record of records) validateReferences(record, byId);
-  validateContainmentCycles(records, byId);
+  return record.card.transition;
 }

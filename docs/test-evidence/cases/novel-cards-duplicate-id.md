@@ -7,7 +7,7 @@ Tags:
 - `novel-cards`
 
 Contract:
-- ID由卡片frontmatter定义且全项目唯一；无效集合不能替换派生索引。
+- ID由卡片frontmatter定义且非快照区全项目唯一，同对象版本身份全项目唯一；无效集合不能替换派生索引。
 
 Proves:
 - 重复ID被定位拒绝，CLI退出1且旧索引字节保持不变。

@@ -20,7 +20,7 @@
    - `common-denominator-design`: 识别多个现实场景可共同依赖的契约边界, 并决定公约数的数量与层次。
    - `dependency-boundary-design`: 判断分散的依赖调用是否需要收口, 并形成明确的责任边界。
    - `minimal-implementation`: 在目标和责任明确后, 比较正确候选的整体维护面并选择更小方案。
-   - `novel-cards`: 用详情与递归总结组织小说规划、分层修改、按卡写作和正文反推对照；本地 CLI 验证实际身份、引用与索引并有界读取。
+   - `novel-cards`: 用详情与递归总结组织小说规划、分层修改、按卡写作和正文反推对照；以独立章节编号定位，用版本快照与统一变迁连接故事演进和作者修订。
    - `lightweight-judgment`: 仅在用户点名该 skill 时启用, 使用 JEV 进行低成本、低延迟的分类、候选选择、相关性筛选和评分; 配套自包含 CLI 支持单次请求、离线检查与响应校验。
    - `skill-design-discovery`: 在创建或重构 skill 前, 从现实材料恢复流程、判断、约束、权限和验证义务。
    - `investigation-report`: 以带稳定 ID、tags 与显式关系的单份报告保存可独立复核的调查背景、依据、结果与边界。

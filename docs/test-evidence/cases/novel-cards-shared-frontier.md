@@ -10,4 +10,4 @@ Contract:
 - frontier只承接此次未返回的卡；通过其他children路径返回的同一ID不再算未读。
 
 Proves:
-- 共享下级在depth与max-cards预算内全返回时complete为真；共享下级另有未读孩子时仅保留真实边界。
+- 共享下级在depth与max-cards预算内全返回时complete为真；共享下级另有未读孩子时仅保留真实边界；当前ID与id@N别名同时可达时同版本只计一次，不产生别名虚假frontier。

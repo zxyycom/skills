@@ -1,7 +1,7 @@
 ---
 title: 小说卡片语义与索引职责分离
 id: 261006-keep-novel-card-meaning-separate-from-index
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-06T06:19:11Z
 purpose: 保持小说规划递归自由与卡片引用可核对

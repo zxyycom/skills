@@ -19,7 +19,10 @@ export async function put(
   text: string,
   area: "current" | "reference" = "current"
 ): Promise<void> {
-  const directory = path.join(root, "cards", area);
+  const directory =
+    area === "current"
+      ? path.join(root, "cards")
+      : path.join(root, "reference");
   await fs.mkdir(directory, { recursive: true });
   await fs.writeFile(path.join(directory, `${name}.md`), text);
 }
@@ -28,7 +31,7 @@ export async function project(
 ): Promise<void> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "novel-cards-test-"));
   try {
-    await fs.mkdir(path.join(root, "cards/current"), { recursive: true });
+    await fs.mkdir(path.join(root, "cards"), { recursive: true });
     await operation(root);
   } finally {
     await fs.rm(root, { recursive: true, force: true });
@@ -57,4 +60,14 @@ export async function cli(
   assert.ok(stderr.length <= 1, "diagnostics remain on one stderr channel");
   if (stdout[0] !== undefined) JSON.parse(stdout[0]);
   return { status, stdout: stdout.join("\n"), stderr: stderr.join("\n") };
+}
+
+export async function cliValue(
+  root: string,
+  args: readonly string[]
+): Promise<unknown> {
+  const result = await cli(root, args);
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stderr, "");
+  return JSON.parse(result.stdout);
 }

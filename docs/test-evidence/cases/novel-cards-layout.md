@@ -7,7 +7,7 @@ Tags:
 - `novel-cards`
 
 Contract:
-- current必须真实存在，空集合合法；reference可以缺失但存在时不得为符号链接。
+- cards必须真实存在，空集合合法；reference可以缺失但存在时不得为符号链接。
 
 Proves:
-- 空current且缺reference可同步并核对当前索引；current缺失以read-failed定位该目录，符号链接reference以source-path拒绝。
+- 空cards且缺reference可同步并核对当前索引；cards缺失以read-failed定位该目录，符号链接reference以source-path拒绝。

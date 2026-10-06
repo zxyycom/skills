@@ -1,7 +1,12 @@
+import { readSource } from "./source.ts";
+import { randomUUID } from "node:crypto";
+import { match } from "ts-pattern";
+import { applyTransition } from "./apply-transition.ts";
+import { recoverTransaction } from "./transaction.ts";
 import { isMainModule } from "../../shared/src/node/main-module.ts";
 import { CardFailure, type CardFailureCode } from "./card.ts";
 import { currentSource, synchronize } from "./index.ts";
-import { expandCards, selectCard } from "./query.ts";
+import { expandCards, selectCard, findCards, historyFor } from "./query.ts";
 import { parseOptions, type Options } from "./options.ts";
 
 export const help = `Novel Cards — Node.js >=24.18
@@ -9,6 +14,11 @@ node <skill>/scripts/novel-cards.mjs check --root <project>
 node <skill>/scripts/novel-cards.mjs sync-index --write --root <project>
 node <skill>/scripts/novel-cards.mjs show <id> --root <project> [--include-reference]
 node <skill>/scripts/novel-cards.mjs expand <id> --root <project> [--depth 0..20] [--max-cards 1..1000] [--include-reference]
+node <skill>/scripts/novel-cards.mjs find --title TEXT | --chapter N [--scope ID]
+node <skill>/scripts/novel-cards.mjs history <id[@N]> --root <project>
+node <skill>/scripts/novel-cards.mjs new-id
+node <skill>/scripts/novel-cards.mjs apply-transition --input FILE --write --root <project>
+node <skill>/scripts/novel-cards.mjs recover --write --root <project>
 除 --help 外 stdout 为单个 JSON；失败 stderr 诊断。退出0成功，1来源/索引/引用错误，2参数错误。
 索引不存在或陈旧时显式 sync-index --write；同步不证明摘要语义。`;
 
@@ -36,6 +46,17 @@ function diagnosticFailure(error: unknown, root: string): Diagnostic {
   };
 }
 
+async function generateId(root: string): Promise<Readonly<{ id: string }>> {
+  const existing = new Set(
+    (await readSource(root)).records.map((record) => record.card.id)
+  );
+  let id: string;
+  do {
+    id = `card-${randomUUID()}`;
+  } while (existing.has(id));
+  return { id };
+}
+
 async function executeCommand(
   options: Options,
   output: CliOutput
@@ -49,17 +70,38 @@ async function executeCommand(
     }
     return 0;
   }
+  if (options.command === "recover") {
+    output.stdout(JSON.stringify(await recoverTransaction(options.root)));
+    return 0;
+  }
+  if (options.command === "apply-transition") {
+    output.stdout(
+      JSON.stringify(await applyTransition(options.root, options.input))
+    );
+    return 0;
+  }
+  if (options.command === "new-id") {
+    output.stdout(JSON.stringify(await generateId(options.root)));
+    return 0;
+  }
   const source = await currentSource(options.root);
-  const result =
-    options.command === "check"
-      ? {
-          status: "ok",
-          cardCount: source.records.length,
-          semanticReview: "not-proven"
-        }
-      : options.command === "show"
-        ? selectCard(source.records, options.id, options.includeReference)
-        : expandCards(source.records, options.id, options);
+  const result = match(options)
+    .with({ command: "find" }, (query) => findCards(source.records, query))
+    .with({ command: "history" }, (query) =>
+      historyFor(source.records, query.id, query.includeReference)
+    )
+    .with({ command: "check" }, () => ({
+      status: "ok",
+      cardCount: source.records.length,
+      semanticReview: "not-proven"
+    }))
+    .with({ command: "show" }, (query) =>
+      selectCard(source.records, query.id, query.includeReference)
+    )
+    .with({ command: "expand" }, (query) =>
+      expandCards(source.records, query.id, query)
+    )
+    .exhaustive();
   output.stdout(JSON.stringify(result));
   return 0;
 }

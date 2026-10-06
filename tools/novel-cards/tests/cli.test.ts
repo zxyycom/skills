@@ -31,6 +31,15 @@ test("CLI rejects invalid usage and reports missing index with stable channels",
       ["show", "a", "--root="],
       ["check", "--include-reference"],
       ["expand", "a", "--depth", "1.5"],
+      ["find"],
+      ["find", "--title", "a", "--chapter", "1"],
+      ["find", "--title", "a", "--scope", "a"],
+      ["find", "--chapter", "0"],
+      ["find", "--chapter", "1", "--scope", "../a"],
+      ["history"],
+      ["new-id", "a"],
+      ["recover"],
+      ["apply-transition", "--write"],
       ["unknown"]
     ]) {
       const result = await cli(root, args);
@@ -115,7 +124,7 @@ test("distributed CLI runs without workspace dependencies and importing has no s
     assert.match(check.stdout, /"cardCount":1/u);
     const invalidUsage = spawnSync(
       "node",
-      [standalone, "show", "cards/current/card.md", "--root", root],
+      [standalone, "show", "cards/card.md", "--root", root],
       { cwd: root, encoding: "utf8" }
     );
     assert.equal(invalidUsage.status, 2);

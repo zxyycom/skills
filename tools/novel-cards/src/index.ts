@@ -7,23 +7,25 @@ import {
   type StateIndexDefinition,
   type StateIndexSyncResult
 } from "../../index-runtime/src/index.ts";
-import { CardFailure } from "./card.ts";
+import { CardFailure, recordKey } from "./card.ts";
 import { readSource, type Source } from "./source.ts";
 
 const stateSchema = v.strictObject({
   title: v.string(),
   sourcePath: v.pipe(
     v.string(),
-    v.regex(/^cards\/(?:current|reference)\/(?:[^/]+\/)*[^/]+\.md$/u)
+    v.regex(
+      /^(?:cards|reference|history\/(?:snapshots|transitions))\/(?:[^/]+\/)*[^/]+\.md$/u
+    )
   ),
-  area: v.picklist(["current", "reference"])
+  area: v.picklist(["current", "reference", "snapshot", "transition"])
 });
 type State = Readonly<v.InferOutput<typeof stateSchema>>;
 
 function states(source: Source): Readonly<Record<string, State>> {
   return Object.fromEntries(
     source.records.map((record) => [
-      record.card.id,
+      recordKey(record),
       {
         title: record.card.title,
         sourcePath: record.sourcePath,
@@ -36,7 +38,7 @@ function states(source: Source): Readonly<Record<string, State>> {
 function definition(source: Source): StateIndexDefinition<State> {
   return defineStateIndexDefinition({
     namespace: "novel-cards",
-    definitionVersion: 1,
+    definitionVersion: 2,
     parseMetadata: (input) => v.parse(v.strictObject({}), input),
     parseState: (input) => v.parse(stateSchema, input),
     queryFields: [

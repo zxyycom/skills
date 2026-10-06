@@ -1,10 +1,20 @@
 import path from "node:path";
 import { parseArgs } from "node:util";
 import * as v from "valibot";
-import { idSchema } from "./card.ts";
-import type { ExpansionLimits } from "./query.ts";
+import { idSchema, referenceSchema } from "./card.ts";
+import type { CardSelector, ExpansionLimits } from "./query.ts";
 
-const commandSchema = v.picklist(["check", "sync-index", "show", "expand"]);
+const commandSchema = v.picklist([
+  "check",
+  "sync-index",
+  "show",
+  "expand",
+  "find",
+  "new-id",
+  "history",
+  "apply-transition",
+  "recover"
+]);
 type Command = v.InferOutput<typeof commandSchema>;
 type QueryOptions = Readonly<{
   root: string;
@@ -14,6 +24,11 @@ type QueryOptions = Readonly<{
 export type Options =
   | Readonly<{ command: "check"; root: string }>
   | Readonly<{ command: "sync-index"; root: string }>
+  | Readonly<{ command: "new-id"; root: string }>
+  | Readonly<{ command: "recover"; root: string }>
+  | Readonly<{ command: "apply-transition"; root: string; input: string }>
+  | (CardSelector & Readonly<{ command: "find"; root: string }>)
+  | (QueryOptions & Readonly<{ command: "history" }>)
   | (QueryOptions & Readonly<{ command: "show" }>)
   | (QueryOptions & ExpansionLimits & Readonly<{ command: "expand" }>);
 const optionDefinitions = {
@@ -22,9 +37,17 @@ const optionDefinitions = {
   "include-reference": { type: "boolean" },
   depth: { type: "string" },
   "max-cards": { type: "string" },
+  title: { type: "string" },
+  chapter: { type: "string" },
+  scope: { type: "string" },
+  input: { type: "string" },
   help: { type: "boolean" }
 } as const;
 type RawCommandValues = Readonly<{
+  title?: string;
+  chapter?: string;
+  scope?: string;
+  input?: string;
   write?: boolean;
   "include-reference"?: boolean;
   depth?: string;
@@ -60,6 +83,26 @@ function validateCommandShape(
     >
   > = {
     check: { allowedOptions: ["root"], positionalCount: 1 },
+    "new-id": { allowedOptions: ["root"], positionalCount: 1 },
+    recover: { allowedOptions: ["root", "write"], positionalCount: 1 },
+    "apply-transition": {
+      allowedOptions: ["root", "write", "input"],
+      positionalCount: 1
+    },
+    find: {
+      allowedOptions: [
+        "root",
+        "title",
+        "chapter",
+        "scope",
+        "include-reference"
+      ],
+      positionalCount: 1
+    },
+    history: {
+      allowedOptions: ["root", "include-reference"],
+      positionalCount: 2
+    },
     "sync-index": { allowedOptions: ["root", "write"], positionalCount: 1 },
     show: { allowedOptions: ["root", "include-reference"], positionalCount: 2 },
     expand: {
@@ -77,27 +120,63 @@ function validateCommandShape(
   }
   if (positionals.length !== shape.positionalCount) {
     throw new Error(
-      "show/expand 必须有精确稳定 ID，check/sync-index 不接受 ID"
+      `${command} 要求 ${shape.positionalCount - 1} 个位置参数（不含命令本身）`
     );
   }
 }
 
-function parseCommandOptions(
-  command: Command,
+function validateChapterScope(values: RawCommandValues): void {
+  if (values.scope === undefined) return;
+  if (values.chapter === undefined) throw new Error("scope只用于章号");
+  if (!v.safeParse(idSchema, values.scope).success)
+    throw new Error("scope必须稳定ID");
+}
+
+function parseFindOptions(
+  root: string,
+  values: RawCommandValues
+): Extract<Options, { command: "find" }> {
+  if ((values.title === undefined) === (values.chapter === undefined))
+    throw new Error("find恰好选择--title或--chapter");
+  validateChapterScope(values);
+  const includeReference = Boolean(values["include-reference"]);
+  if (values.title !== undefined) {
+    if (!values.title.trim()) throw new Error("title不能为空");
+    return { command: "find", root, title: values.title, includeReference };
+  }
+  return {
+    command: "find",
+    root,
+    chapter: boundedInteger(values.chapter, 1, 1, Number.MAX_SAFE_INTEGER),
+    scope: values.scope,
+    includeReference
+  };
+}
+
+function parseMutationOptions(
+  command: "recover" | "apply-transition",
+  root: string,
+  values: RawCommandValues
+): Options {
+  if (!values.write) throw new Error(`${command} 要求 --write`);
+  if (command === "recover") return { command, root };
+  if (!values.input?.trim())
+    throw new Error("apply-transition 要求 --input FILE");
+  return { command, root, input: path.resolve(values.input) };
+}
+
+function parseQueryOptions(
+  command: "show" | "history" | "expand",
   root: string,
   values: RawCommandValues,
   rawId: string | undefined
 ): Options {
-  if (command === "check") return { command, root };
-  if (command === "sync-index") {
-    if (!values.write) throw new Error("sync-index 要求 --write");
-    return { command, root };
-  }
-  const parsedId = v.safeParse(idSchema, rawId);
+  const parsedId = v.safeParse(referenceSchema, rawId);
   if (!parsedId.success) throw new Error("目标必须为精确稳定 ID，不接受路径");
   const id = parsedId.output;
   const includeReference = Boolean(values["include-reference"]);
-  if (command === "show") return { command, root, id, includeReference };
+  if (command === "show" || command === "history")
+    return { command, root, id, includeReference };
   return {
     command,
     root,
@@ -106,6 +185,28 @@ function parseCommandOptions(
     depth: boundedInteger(values.depth, 1, 0, 20),
     maxCards: boundedInteger(values["max-cards"], 100, 1, 1000)
   };
+}
+function parseCommandOptions(
+  command: Command,
+  root: string,
+  values: RawCommandValues,
+  rawId: string | undefined
+): Options {
+  switch (command) {
+    case "check":
+    case "new-id":
+      return { command, root };
+    case "recover":
+    case "apply-transition":
+      return parseMutationOptions(command, root, values);
+    case "find":
+      return parseFindOptions(root, values);
+    case "sync-index":
+      if (!values.write) throw new Error("sync-index 要求 --write");
+      return { command, root };
+    default:
+      return parseQueryOptions(command, root, values, rawId);
+  }
 }
 
 export function parseOptions(argv: readonly string[]): Options | null {
@@ -121,7 +222,9 @@ export function parseOptions(argv: readonly string[]): Options | null {
   }
   const command = v.safeParse(commandSchema, positionals[0]);
   if (!command.success) {
-    throw new Error("命令必须为 check、sync-index、show 或 expand");
+    throw new Error(
+      "命令必须为 check、sync-index、show、expand、find、new-id、history、apply-transition 或 recover"
+    );
   }
   const names = tokens
     .filter((token) => token.kind === "option")
