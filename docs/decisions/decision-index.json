@@ -124,6 +124,7 @@
       "261005-preserve-pending-file-representation": "sha256:4d2c3fb6a1659edc28fc47928b5762942c2272e950f221c6899bf45196d5df20",
       "261006-keep-novel-card-meaning-separate-from-index": "sha256:387ae9b3fae7b9a7ab20c0890e35f11aee28e9a0d88c5833e9bd98c3226d2e1f",
       "261006-separate-novel-identity-and-versioned-transitions": "sha256:7b8bef472813e23dd8cb3d9a8538c9511d13501a67f51a3cadae38ac0d389188",
+      "261008-maintain-record-quality-through-project-workflow": "sha256:804ad74dfa950e266e09648a62c29eed04fe1850971ced043c6a4ae632090f82",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -2842,6 +2843,23 @@
           "summary": "保留递归内容与语义边界，增加章节定位和版本变迁"
         }
       ]
+    },
+    "261008-maintain-record-quality-through-project-workflow": {
+      "name": "maintain-record-quality-through-project-workflow",
+      "sourcePath": "maintain-record-quality-through-project-workflow.md",
+      "title": "在项目内以可复核闭环维护记录",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-08T08:08:06Z",
+      "purpose": "让决策与调查报告的语义维护能够实际执行，并依据每轮结果持续改进。",
+      "background": "结构校验与局部模型判断各有覆盖边界，集合维护需要连接取证、复核、修正和验收。",
+      "decision": "由项目工作流编排记录维护，领域 skill 保有语义和事务，轻量判断按显式授权辅助。",
+      "tags": [
+        "record-maintenance",
+        "responsibility-boundaries",
+        "semantic-validation"
+      ],
+      "relations": []
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

@@ -1,0 +1,269 @@
+{
+  "workflowVersion": 3,
+  "domain": "decision",
+  "questionSetVersion": 2,
+  "consumer": "agent",
+  "preparation": {
+    "tagCandidates": "读取完整记录和本次集合的既有标签用法。先逐一列出全部既有 tags；再从正文提取尚未被既有 tags 表达的主要对象、方向或机制，优先复用集合中有同义用法的标签，再提出必要的新标签。每项按 tag 模板填写 name、meaning、origin(existing/proposed)、meaningEvidence 与 bodyEvidence；新定义明确标为建议，不冒充既有受控词表。既有标签找不到正文依据时 bodyEvidence 如实写未找到，不删掉这个受检项。只偶然提及、文体名或词形相似的不列为新候选。保留候选来源和未能覆盖的主题；生成候选不等于采纳，也不保证穷尽所有可检索主题。",
+    "pairContext": "读取两份完整决策，填写 comparison 的共同对象、各自采用时点与适用条件、支持该解释的原句；必要时取回采用历史。共同适用须有依据，缺条件时记缺证。保存共同 owner、行为检索、引用或关系等发现依据；冲突、独立回放价值及遗漏的真实直接承接分别判断。"
+  },
+  "templates": {
+    "record": {
+      "inputs": {
+        "record": {
+          "domain": "decision",
+          "id": "__FILL_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        }
+      },
+      "checks": {
+        "decision_summary": {
+          "prompt": "比较 inputs.record.markdown 中 title、purpose、background、decision 与对应正文，摘要是否准确保留采用方向、对象和关键适用条件？",
+          "criteria": {
+            "issue": "摘要改变了采用方向、范围或关键条件",
+            "clear": "摘要忠实概括完整判断",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        },
+        "decision_consistency": {
+          "prompt": "依据 inputs.record.markdown，在共同对象、时点和条件下，目的、理由与采用条款是否相容？区分历史方案、当前采用和未来方向。必做与允许不做也可能冲突。",
+          "criteria": {
+            "issue": "共同适用的陈述互不相容且未解释取舍",
+            "clear": "陈述相容，或差异由明确的条件及演进解释",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        },
+        "decision_rationale": {
+          "prompt": "依据 inputs.record.markdown，能否恢复为何选择该方向、保护什么、适用范围与关键约束？区分取舍理由和声称已实现的事实。只检查记录所述依据，当前实现另行核对。",
+          "criteria": {
+            "issue": "采用理由或边界存在可指出的缺漏，或把尚未实现的取舍写成已发生事实",
+            "clear": "目的、背景与采用方向形成可回放的选择依据",
+            "unresolved": "正文不足以区分实际缺漏与当前材料未取得"
+          }
+        },
+        "decision_boundary": {
+          "prompt": "依据 inputs.record.markdown，是否包含需分别修订、替代、归档或判断对齐的多个长期方向？互相依赖且须共同采用的条款作为一个整体判断，篇幅本身不是拆分依据。",
+          "criteria": {
+            "issue": "存在需要独立演进的方向，合放会混淆其采用或对齐状态",
+            "clear": "方向可以作为整体独立维护",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        },
+        "decision_record_value": {
+          "prompt": "按实际采用时期判断，这份记录是否保存需要长期回放的选择与理由，而不是仅记录事实、一次性任务、进度或执行结果？archived 的历史价值不由今天是否仍适用决定。",
+          "criteria": {
+            "issue": "仅承接一次性事项或事实，缺少需要长期保存的独立取舍",
+            "clear": "存在持续影响后续选择的判断，保留它有助于恢复当时采用理由及历史演进",
+            "unresolved": "必要事实或判断依据不足，须补证或继续判断"
+          }
+        }
+      }
+    },
+    "tag": {
+      "inputs": {
+        "record": {
+          "domain": "decision",
+          "id": "__FILL_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        },
+        "tag": {
+          "name": "__FILL_TAG__",
+          "meaning": "__FILL_MEANING_GROUNDED_IN_REPOSITORY_USAGE__",
+          "origin": "__FILL_existing_OR_proposed__",
+          "meaningEvidence": "__FILL_USAGE_SOURCE_OR_MARK_AS_PROPOSED_DEFINITION__",
+          "bodyEvidence": "__FILL_VERBATIM_TOPIC_EVIDENCE_OR_EXPLICITLY_NOT_FOUND__"
+        },
+        "otherTags": [
+          {
+            "name": "__FILL_OTHER_EXISTING_OR_PROPOSED_TAG__",
+            "meaning": "__FILL_GROUNDED_MEANING__"
+          }
+        ]
+      },
+      "checks": {
+        "tag_support": {
+          "prompt": "依据 inputs.record.markdown 的实质主题，判断 inputs.tag.meaning 是否有正文依据；既有标签与候选标签使用同一标准。只看体裁、词形、测试列表偶然提及或仅引用另一工具不足以成立。同名 skill 的启用条件不是主题相关性的门槛。",
+          "criteria": {
+            "issue": "完整正文没有该主题的实质依据，标签仅偶然提及、词形相近或不相关",
+            "clear": "正文实质讨论该标签对应的对象、方向或机制",
+            "unresolved": "标签含义或正文不足以判断"
+          }
+        },
+        "tag_redundancy": {
+          "prompt": "比较 inputs.tag 与 inputs.otherTags 在该记录中的检索含义，是否只是另一个标签的同义重复？上下位、同一领域的不同机制和不同检索切面不自动视为重复。独立判断，不假设 tag_support 的答案。otherTags 为空表示没有其他待比较标签。",
+          "criteria": {
+            "issue": "至少一个其他标签表达相同检索含义，没有可说明的区分",
+            "clear": "材料足够，没有同义重复；不代表此标签一定值得添加",
+            "unresolved": "标签含义不足以比较"
+          }
+        }
+      }
+    },
+    "pair": {
+      "inputs": {
+        "a": {
+          "domain": "decision",
+          "id": "__FILL_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        },
+        "b": {
+          "domain": "decision",
+          "id": "__FILL_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        },
+        "comparison": {
+          "object": "__FILL_COMMON_OBJECT_OR_BEHAVIOR__",
+          "timeAndConditions": "__FILL_EACH_RECORDS_ACTUAL_APPLICABILITY__",
+          "evidence": "__FILL_ORIGINAL_CLAUSES_SUPPORTING_THE_COMPARISON__"
+        }
+      },
+      "checks": {
+        "decision_pair_conflict": {
+          "prompt": "按 inputs.comparison 与 inputs.a、inputs.b 全文核对共同适用条件，是否对同一行为提出互不相容的要求或许可？一方必做、另一方允许不做也属冲突；历史前后阶段按各自实际条件解释。与冗余独立判断。",
+          "criteria": {
+            "issue": "有依据的共同适用条件下存在未解释冲突",
+            "clear": "要求相容，或差异由明确条件及历史演进解释",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        },
+        "decision_pair_redundancy": {
+          "prompt": "依据两份完整决策及 inputs.comparison，是否至少一份长期判断被另一份完整覆盖，且没有独立采用历史或演进价值？双方各有独有约束时分别保留，即使局部冲突。",
+          "criteria": {
+            "issue": "至少一份被完整覆盖且缺少独立回放价值",
+            "clear": "双方各有独有方向、采用历史或适用条件",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        },
+        "decision_missing_relation": {
+          "prompt": "依据两份完整决策、实际采用历史与当前直接关系，是否有真实直接承接、修订或替代尚未记入关系？先区分直接前序、间接祖先和普通背景。",
+          "criteria": {
+            "issue": "真实直接采用承接有证据，但对应关系缺失",
+            "clear": "应有的直接关系已表达，或证据支持二者没有应声明的直接承接",
+            "unresolved": "必要事实或判断依据不足，须补证或继续判断"
+          }
+        }
+      }
+    },
+    "relation": {
+      "inputs": {
+        "source": {
+          "domain": "decision",
+          "id": "__FILL_SUCCESSOR_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        },
+        "target": {
+          "domain": "decision",
+          "id": "__FILL_PREDECESSOR_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        },
+        "relation": {
+          "type": "__FILL_ACTUAL_RELATION_TYPE__",
+          "summary": null
+        },
+        "typeRule": "__FILL_CURRENT_DOMAIN_OWNERS_DEFINITION_OF_THIS_TYPE__"
+      },
+      "checks": {
+        "decision_relation_type": {
+          "prompt": "按 inputs.typeRule 与 source 后继、target 前序正文，relation.type 是否准确表达真实采用方向的直接承接、修订或替代？普通引用和主题接近只作为背景。",
+          "criteria": {
+            "issue": "没有真实直接承接，或类型误述判断变化",
+            "clear": "两端采用事实支持该直接关系及类型",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        },
+        "decision_relation_summary": {
+          "prompt": "依据 source、target 全文，已有 relation.summary 是否从后继视角准确说明采用方向的变化或承接范围？",
+          "criteria": {
+            "issue": "摘要颠倒方向、误述变化或扩大承接范围",
+            "clear": "已有摘要忠实表达两端支持的变化",
+            "unresolved": "摘要或关键正文缺失"
+          }
+        }
+      }
+    },
+    "event": {
+      "inputs": {
+        "domain": "decision",
+        "eventType": "__FILL_ACTUAL_EVENT_TYPE__",
+        "membershipEvidence": "__FILL_COMPLETE_MEMBER_DISCOVERY_AND_COVERAGE__",
+        "predecessors": [
+          {
+            "id": "__FILL_FULL_ID__",
+            "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+            "sha256": "__FILL_SHA256__",
+            "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+          }
+        ],
+        "successors": [
+          {
+            "id": "__FILL_FULL_ID__",
+            "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+            "sha256": "__FILL_SHA256__",
+            "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+          }
+        ]
+      },
+      "checks": {
+        "decision_event_coverage": {
+          "prompt": "依据完整 predecessors、successors 和 membershipEvidence，逐项核对前序继续有效的长期含义是否由后继承接，改写、放弃和判定无效的部分是否有明确说明。单边合法或多数内容相同不证明整体闭合。",
+          "criteria": {
+            "issue": "至少一项长期含义没有去向或明确处置",
+            "clear": "完整事件的承接、改变与放弃均可解释",
+            "unresolved": "成员或关键正文不完整"
+          }
+        }
+      }
+    },
+    "applicability": {
+      "inputs": {
+        "record": {
+          "domain": "decision",
+          "id": "__FILL_ACTIVE_DECISION_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        },
+        "currentEvidence": [
+          {
+            "source": "__FILL_CURRENT_OWNER_OR_IMPLEMENTATION_PATH__",
+            "version": "__FILL_SOURCE_HASH_OR_OTHER_VERIFIABLE_VERSION__",
+            "observedAt": "__FILL_ACTUAL_READING_OR_EXECUTION_TIME__",
+            "kind": "__FILL_document_OR_code_OR_execution__",
+            "content": "__FILL_ACTUALLY_READ_TEXT_OR_EXECUTION_RESULT__",
+            "proves": "__FILL_WHAT_THIS_EVIDENCE_CAN_ESTABLISH__"
+          }
+        ]
+      },
+      "checks": {
+        "decision_applicability": {
+          "prompt": "依据 record 全文和 currentEvidence，检查 active 决策与当前事实的一致性：aligned 的完整方向是否已出现具体偏离？unaligned 是已确认的未来方向，与当前实现不同本身不是错误；只在有事实反驳其仍适用的依据或边界时标疑。读到代码不等于实际环境生效，历史 aligned 的偏离不授权把它改成 unaligned。",
+          "criteria": {
+            "issue": "当前证据显示已对齐方向的具体偏离，或反驳未来方向仍适用的依据或条件",
+            "clear": "当前证据足够，未发现该类不一致；不把未实现的未来方向判错",
+            "unresolved": "当前证据不足以覆盖完整方向或核对其适用条件"
+          }
+        },
+        "decision_alignment_completion": {
+          "prompt": "仅对 active + unaligned：列出完整方向的采用要求，逐项对应 currentEvidence，是否已经全部成为当前事实并经核对？代码存在、局部实现和计划不代替必要的环境生效证据。",
+          "criteria": {
+            "issue": "完整方向已经实现且证据充分，alignment 应提议更新为 aligned",
+            "clear": "有明确尚未完成的要求，仍保留 unaligned；这不等于决策内容错误",
+            "unresolved": "必要事实或判断依据不足，须补证或继续判断"
+          }
+        }
+      }
+    }
+  }
+}

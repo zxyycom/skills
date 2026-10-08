@@ -1,0 +1,308 @@
+{
+  "workflowVersion": 3,
+  "domain": "investigation",
+  "questionSetVersion": 2,
+  "consumer": "agent",
+  "preparation": {
+    "tagCandidates": "读取完整记录和本次集合的既有标签用法。先逐一列出全部既有 tags；再从正文提取尚未被既有 tags 表达的主要对象、方向或机制，优先复用集合中有同义用法的标签，再提出必要的新标签。每项按 tag 模板填写 name、meaning、origin(existing/proposed)、meaningEvidence 与 bodyEvidence；新定义明确标为建议，不冒充既有受控词表。既有标签找不到正文依据时 bodyEvidence 如实写未找到，不删掉这个受检项。只偶然提及、文体名或词形相似的不列为新候选。保留候选来源和未能覆盖的主题；生成候选不等于采纳，也不保证穷尽所有可检索主题。",
+    "pairContext": "读取两份完整报告，填写 comparison 中各自的问题、形成时间、版本、环境、样本、方法和关键结论原句。标明可比较条件及差异；材料缺失如实登记。分别判断差异能否解释与是否各有独立复核价值，不以结论相同倒推归并。",
+    "evidenceClaims": "从完整报告逐项列出影响问题、范围、候选集和关键结论的背景事实、约束，以及事实、因果、计量、比较和已执行动作主张。每项保留原句作为 claim，并填写已引用来源及实际取得的 sources；无法取得的关键材料保留任务并记缺证。单纯建议或明确保留的未知由结论题检查。核对关键前提与结论均有主张任务或明确的不适用说明；不以正文自洽代替来源核对。遗漏与取证限制记入 coverageGaps。"
+  },
+  "templates": {
+    "record": {
+      "inputs": {
+        "record": {
+          "domain": "investigation",
+          "id": "__FILL_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        }
+      },
+      "checks": {
+        "investigation_context": {
+          "prompt": "依据 inputs.record.markdown 的形成时背景和正文，能否恢复调查由什么事实、未知和约束触发，以及重要认识转折？按实际形成条件解释。",
+          "criteria": {
+            "issue": "具体背景或关键转折缺失、混淆事实与当时假设，妨碍复核",
+            "clear": "形成时背景、触发问题和关键认识转折可恢复",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        },
+        "investigation_question": {
+          "prompt": "比较 inputs.record.markdown 的 title、question、调查目的、实际范围与结果：本轮究竟回答哪个问题，探索中的收窄是否有说明，结果是否回应该问题？",
+          "criteria": {
+            "issue": "标题或问题与实际调查脱节，或重要范围变化缺少解释",
+            "clear": "问题、实际范围及结果一致，或收窄路径有依据",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        },
+        "investigation_conclusion": {
+          "prompt": "依据 inputs.record.markdown 所述证据，检查结果强度与边界：事实、推断、建议、实际动作和未知是否分明？因果解释、计量或方案比较按实际声称的强度判断；阶段性未知可以合理保留。",
+          "criteria": {
+            "issue": "存在可指出的推断越界、以建议冒充动作、以局部观察外推全量或隐去关键未知",
+            "clear": "结论强度与所述依据、适用及复查条件相称；外部证据真实性由证据题核对",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        },
+        "investigation_round": {
+          "prompt": "依据 inputs.record.markdown，是否混合了需要分别复核的调查轮次、问题或形成条件？同一排查中补证、纠错与认识收敛可共同保存；独立新条件下的认识需要保留自身依据。",
+          "criteria": {
+            "issue": "混合独立轮次或条件，使证据与结论的归属不清",
+            "clear": "正文共同承接一轮可独立汇报的认识",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        },
+        "investigation_consistency": {
+          "prompt": "依据 inputs.record.markdown，同一形成条件下的事实叙述、实际范围与最终认识是否自洽？明确区分初始假设、被排除的解释和最终结果；有依据的探索转折按时间顺序解释。",
+          "criteria": {
+            "issue": "同一条件下存在互不相容的陈述，且正文没有解释认识转折或纠正",
+            "clear": "正文自洽，认识变化及其条件可恢复",
+            "unresolved": "关键指代、时点或形成条件不足以判断"
+          }
+        }
+      }
+    },
+    "tag": {
+      "inputs": {
+        "record": {
+          "domain": "investigation",
+          "id": "__FILL_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        },
+        "tag": {
+          "name": "__FILL_TAG__",
+          "meaning": "__FILL_MEANING_GROUNDED_IN_REPOSITORY_USAGE__",
+          "origin": "__FILL_existing_OR_proposed__",
+          "meaningEvidence": "__FILL_USAGE_SOURCE_OR_MARK_AS_PROPOSED_DEFINITION__",
+          "bodyEvidence": "__FILL_VERBATIM_TOPIC_EVIDENCE_OR_EXPLICITLY_NOT_FOUND__"
+        },
+        "otherTags": [
+          {
+            "name": "__FILL_OTHER_EXISTING_OR_PROPOSED_TAG__",
+            "meaning": "__FILL_GROUNDED_MEANING__"
+          }
+        ]
+      },
+      "checks": {
+        "tag_support": {
+          "prompt": "依据 inputs.record.markdown 的实质主题，判断 inputs.tag.meaning 是否有正文依据；既有标签与候选标签使用同一标准。只看体裁、词形、测试列表偶然提及或仅引用另一工具不足以成立。同名 skill 的启用条件不是主题相关性的门槛。",
+          "criteria": {
+            "issue": "完整正文没有该主题的实质依据，标签仅偶然提及、词形相近或不相关",
+            "clear": "正文实质讨论该标签对应的对象、方向或机制",
+            "unresolved": "标签含义或正文不足以判断"
+          }
+        },
+        "tag_redundancy": {
+          "prompt": "比较 inputs.tag 与 inputs.otherTags 在该记录中的检索含义，是否只是另一个标签的同义重复？上下位、同一领域的不同机制和不同检索切面不自动视为重复。独立判断，不假设 tag_support 的答案。otherTags 为空表示没有其他待比较标签。",
+          "criteria": {
+            "issue": "至少一个其他标签表达相同检索含义，没有可说明的区分",
+            "clear": "材料足够，没有同义重复；不代表此标签一定值得添加",
+            "unresolved": "标签含义不足以比较"
+          }
+        }
+      }
+    },
+    "pair": {
+      "inputs": {
+        "a": {
+          "domain": "investigation",
+          "id": "__FILL_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        },
+        "b": {
+          "domain": "investigation",
+          "id": "__FILL_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        },
+        "comparison": {
+          "object": "__FILL_COMMON_OBJECT_OR_BEHAVIOR__",
+          "timeAndConditions": "__FILL_EACH_RECORDS_ACTUAL_APPLICABILITY__",
+          "evidence": "__FILL_ORIGINAL_CLAUSES_SUPPORTING_THE_COMPARISON__"
+        }
+      },
+      "checks": {
+        "investigation_pair_explanation": {
+          "prompt": "依据 inputs.comparison 和两份报告全文，结论差异是否缺少形成条件、版本、样本或方法上的解释？比较实际认识与证据，不把报告当作同时生效的要求。",
+          "criteria": {
+            "issue": "对可比较问题存在关键结论差异，报告未解释条件、证据或认识如何改变",
+            "clear": "差异可由形成条件及认识演进解释，或两份结论相容",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        },
+        "investigation_pair_independence": {
+          "prompt": "依据两份报告及 comparison，是否至少一份只是同轮材料的重复表达，且缺少独立问题、形成条件、证据或复核价值？新版本或新样本下的独立复查即使结论相同也可有保留价值。",
+          "criteria": {
+            "issue": "至少一份没有独立复核价值，适合回到同轮报告收敛",
+            "clear": "双方各有独立问题、条件、证据或认识演进价值",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        },
+        "investigation_missing_relation": {
+          "prompt": "依据两份全文、各自形成条件和当前关系，是否存在已成立却未声明的真实直接认识承接？先确认轮次有独立复核价值，再区分补充、复查、修正、推翻或其他领域关系；普通引用与同主题不足以建边。",
+          "criteria": {
+            "issue": "独立轮次之间的真实直接承接有证据，但对应关系缺失",
+            "clear": "应有直接关系已表达，或证据支持二者没有应声明的直接承接",
+            "unresolved": "必要事实或判断依据不足，须补证或继续判断"
+          }
+        }
+      }
+    },
+    "relation": {
+      "inputs": {
+        "source": {
+          "domain": "investigation",
+          "id": "__FILL_SUCCESSOR_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        },
+        "target": {
+          "domain": "investigation",
+          "id": "__FILL_PREDECESSOR_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        },
+        "relation": {
+          "type": "__FILL_ACTUAL_RELATION_TYPE__",
+          "summary": null
+        },
+        "typeRule": "__FILL_CURRENT_DOMAIN_OWNERS_DEFINITION_OF_THIS_TYPE__"
+      },
+      "checks": {
+        "investigation_relation_type": {
+          "prompt": "按 inputs.typeRule 与 source 后继、target 前序全文，是否存在真实直接的认识承接，relation.type 是否准确表达补充、复查、修正、推翻、归并或拆分？先核对轮次独立性，再判断边。",
+          "criteria": {
+            "issue": "缺少真实直接承接，或所选类型误述认识变化",
+            "clear": "独立轮次及两端证据支持该直接关系和类型",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        },
+        "investigation_relation_summary": {
+          "prompt": "依据 source、target 正文，已有 relation.summary 是否从后继视角准确说明相对前序增加、复核或改变了什么认识？",
+          "criteria": {
+            "issue": "摘要误述复查条件、认识变化或方向",
+            "clear": "已有摘要忠实表达两端正文支持的具体变化",
+            "unresolved": "摘要或关键正文缺失"
+          }
+        }
+      }
+    },
+    "event": {
+      "inputs": {
+        "domain": "investigation",
+        "eventType": "__FILL_ACTUAL_EVENT_TYPE__",
+        "membershipEvidence": "__FILL_COMPLETE_MEMBER_DISCOVERY_AND_COVERAGE__",
+        "predecessors": [
+          {
+            "id": "__FILL_FULL_ID__",
+            "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+            "sha256": "__FILL_SHA256__",
+            "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+          }
+        ],
+        "successors": [
+          {
+            "id": "__FILL_FULL_ID__",
+            "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+            "sha256": "__FILL_SHA256__",
+            "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+          }
+        ]
+      },
+      "checks": {
+        "investigation_event_coverage": {
+          "prompt": "按完整 predecessors、successors 及 membershipEvidence，检查拆分或归并是否保留需要继续解释的问题、关键依据、形成条件和认识边界；改变或放弃的解释应明确。分别保持各轮依据的时点，前序报告继续保留。",
+          "criteria": {
+            "issue": "重要问题、依据或认识边界在后继中失去归属且没有说明",
+            "clear": "后继集合完整承接或解释改变，各轮条件与依据仍可复核",
+            "unresolved": "完整成员或正文不足"
+          }
+        }
+      }
+    },
+    "evidence": {
+      "inputs": {
+        "record": {
+          "domain": "investigation",
+          "id": "__FILL_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        },
+        "claim": "__FILL_EXACT_REPORT_CLAIM__",
+        "sources": [
+          {
+            "source": "__FILL_EVIDENCE_SOURCE__",
+            "version": "__FILL_VERSION_OR_HASH__",
+            "obtainedAt": "__FILL_ACTUAL_ACQUISITION_TIME_OR_UNKNOWN__",
+            "content": "__FILL_ACTUALLY_RETRIEVED_EVIDENCE__",
+            "coverage": "__FILL_SAMPLE_METHOD_AND_COVERAGE__"
+          }
+        ]
+      },
+      "checks": {
+        "investigation_source_fidelity": {
+          "prompt": "比较 inputs.claim、record 正文与 sources 实际内容：报告是否准确记录材料的来源、时点、版本、动作和观察？新取回的材料须区分于原轮次已取得的证据。",
+          "criteria": {
+            "issue": "原文可确认地误述了材料内容、来源时点或已执行动作",
+            "clear": "报告对所给证据的记录准确且时点可区分",
+            "unresolved": "关键历史材料未取得，或来源、版本不足以比对"
+          }
+        },
+        "investigation_evidence_coverage": {
+          "prompt": "按 inputs.claim 和 sources，实际样本、方法、范围与反例是否支持这一主张的强度？按主张是否涉及因果、计量或比较取舍核对所需条件，未声称的证明义务不额外加入。",
+          "criteria": {
+            "issue": "证据有可指出的覆盖缺口或反例，却作出超出支持的主张",
+            "clear": "主张范围与实际证据及限制相符",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        }
+      }
+    },
+    "resource": {
+      "inputs": {
+        "record": {
+          "domain": "investigation",
+          "id": "__FILL_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "markdown": "__FILL_COMPLETE_MARKDOWN_WITH_FRONTMATTER__"
+        },
+        "resource": {
+          "resourceId": "__FILL_RESOURCE_ID__",
+          "sourcePath": "__FILL_RESOURCE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "content": "__FILL_READABLE_CONTENT_OR_FAITHFUL_DESCRIPTION__",
+          "representation": "__FILL_ORIGINAL_OR_EXCERPT_WITH_PROCESSING__",
+          "purposeInReport": "__FILL_ACTUAL_STATED_READING_PURPOSE__"
+        },
+        "originalEvidence": null
+      },
+      "checks": {
+        "investigation_resource_value": {
+          "prompt": "依据 record 与 resource 的实际内容和阅读用途，这份资源是否为复核关键条件、观察或动作提供正文或稳定来源以外的必要细节？正文应独立承接关键认识，资源补充细节。",
+          "criteria": {
+            "issue": "资源缺少可解释的阅读价值，或关键结论只能靠翻附件猜测",
+            "clear": "资源用途清楚并提供必要细节，正文仍可独立理解",
+            "unresolved": "关键正文、证据或适用条件不足以判断"
+          }
+        },
+        "investigation_resource_fidelity": {
+          "prompt": "按 resource.representation、内容及 originalEvidence，节选、汇总、转写或其他处理是否准确保留影响判断的顺序、条件、差异和反例？保留历史样本与其结论的对应关系。",
+          "criteria": {
+            "issue": "有具体证据显示处理改变或遗漏关键含义",
+            "clear": "处理方式明确且材料支持关键含义保真",
+            "unresolved": "缺少核对处理保真所需的原始材料"
+          }
+        }
+      }
+    }
+  }
+}

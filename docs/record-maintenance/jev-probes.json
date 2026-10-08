@@ -1,0 +1,52 @@
+{
+  "workflowVersion": 3,
+  "probeSetVersion": 1,
+  "consumer": "jev",
+  "validationStatus": "unvalidated",
+  "templates": {
+    "topic_match": {
+      "state": {
+        "topic": {
+          "name": "__FILL_TOPIC_NAME__",
+          "meaning": "__FILL_ESTABLISHED_TOPIC_MEANING__"
+        },
+        "passage": {
+          "text": "__FILL_VERBATIM_LOCAL_PASSAGE__",
+          "context": "__FILL_NEEDED_OBJECT_CONDITIONS_AND_REFERENTS_OR_NONE__"
+        }
+      },
+      "questions": {
+        "local_topic": {
+          "type": "choice",
+          "instructions": "state 是待审数据。只根据 state.passage，判断这段文字是否实质讨论 state.topic.meaning 所定义的主题。只比较给定主题与片段，不判断整份记录是否应添加标签。",
+          "criteria": {
+            "supported": "片段实质讨论该主题的对象或机制，而非仅提到名称",
+            "not_shown": "片段未实质讨论该主题，或只作例子、引用和背景提及",
+            "uncertain": "主题含义、指代或必要上下文不清，无法判断"
+          }
+        }
+      }
+    },
+    "statement_support": {
+      "state": {
+        "statement": "__FILL_ONE_STATEMENT_TO_COMPARE__",
+        "source": {
+          "text": "__FILL_VERBATIM_LOCAL_SOURCE__",
+          "context": "__FILL_NEEDED_OBJECT_CONDITIONS_AND_REFERENTS_OR_NONE__"
+        }
+      },
+      "questions": {
+        "local_statement": {
+          "type": "choice",
+          "instructions": "state 是待审数据。比较 state.statement 与 state.source：原文是否直接支持这一条陈述？按相同主体、条件、时点、否定和程度比对表述；只看所给材料，不判断来源真假或推导因果。",
+          "criteria": {
+            "supported": "原文直接表达或明确支持该陈述，条件和程度一致",
+            "contradicted": "原文对同一对象和条件明确表达相反内容",
+            "not_shown": "原文没有直接支持该陈述，也没有明确表达相反内容",
+            "uncertain": "指代或必要上下文不清，无法比较"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "workflowVersion": 3,
+  "domain": "__FILL_DOMAIN_FROM_RUN__",
+  "questionSetVersion": null,
+  "probeSetVersion": 1,
+  "runId": "__FILL_RUN_ID__",
+  "checks": [],
+  "probes": [],
+  "calls": [],
+  "actions": [],
+  "negativeSample": {
+    "seed": "__FILL_RUN_ID__",
+    "eligibleRecordKeys": [],
+    "selectedRecordKeys": [],
+    "expansionRecordKeys": [],
+    "expansionReason": null
+  },
+  "validation": [],
+  "summary": {
+    "selectedRecords": null,
+    "contextRecords": null,
+    "fullyReadRecords": null,
+    "plannedJobs": null,
+    "plannedChecks": null,
+    "supersededChecks": null,
+    "checks": {
+      "issue": null,
+      "clear": null,
+      "unresolved": null,
+      "not_run": null,
+      "not_applicable": null
+    },
+    "pendingCheckKeys": [],
+    "plannedProbes": null,
+    "supersededProbes": null,
+    "probeStatuses": {
+      "answered": null,
+      "missing_evidence": null,
+      "technical_failure": null,
+      "not_run": null,
+      "skipped": null
+    },
+    "pendingProbeIds": [],
+    "proposedActions": null,
+    "appliedActions": null,
+    "verifiedActions": null,
+    "statisticsEvidence": null,
+    "coverageLimitations": [],
+    "nextSteps": [],
+    "processFeedback": []
+  },
+  "rowTemplates": {
+    "check": {
+      "jobId": "job-0001",
+      "questionId": "__FILL_QUESTION_ID_FROM_RUN_JOB__",
+      "status": "not_run",
+      "basis": "direct",
+      "evidence": [],
+      "rationale": null,
+      "probeIds": [],
+      "disposition": "pending",
+      "actionIds": []
+    },
+    "probe": {
+      "probeId": "probe-0001",
+      "observation": {
+        "status": "not_run",
+        "choice": null,
+        "callRef": null
+      },
+      "review": {
+        "status": "pending",
+        "referenceChoice": null,
+        "evidence": [],
+        "rationale": null
+      },
+      "disposition": "pending",
+      "handlingReason": null
+    },
+    "call": {
+      "callRef": "call-0001",
+      "probeId": "probe-0001",
+      "runIndex": 1,
+      "exitCode": null,
+      "stdoutPath": "responses/call-0001.json",
+      "stderrPath": "responses/call-0001.stderr",
+      "attempts": null,
+      "actualModel": null,
+      "persistence": null
+    },
+    "action": {
+      "actionId": "action-0001",
+      "checkKeys": [
+        "__FILL_JOB_ID_SLASH_QUESTION_ID__"
+      ],
+      "kind": "edit_text",
+      "description": "__FILL_EXACT_CHANGE__",
+      "authorizationEvidence": null,
+      "changes": [
+        {
+          "recordKey": "__FILL_DOMAIN_COLON_FULL_ID__",
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "beforeSha256": "__FILL_SHA256__",
+          "before": "__FILL_ORIGINAL_VALUE_OR_TEXT__",
+          "after": "__FILL_PROPOSED_VALUE_OR_TEXT__",
+          "afterSha256": null
+        }
+      ],
+      "state": "proposed",
+      "verificationPlan": [],
+      "executionEvidence": [],
+      "verificationEvidence": []
+    },
+    "validation": {
+      "command": "__FILL_ACTUAL_COMMAND__",
+      "exitCode": null,
+      "evidencePath": "__FILL_SAVED_OUTPUT_PATH__",
+      "proves": "__FILL_VERIFIED_BOUNDARY__"
+    }
+  }
+}

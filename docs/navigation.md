@@ -18,6 +18,7 @@
 | 修改项目级 agent 协作约定 | [AGENTS](../AGENTS.md) | 改变任务路由或内容 owner 时读本文；需要让文档更适合 AI 阅读和使用时读 [AI-Ready Docs](../skills/ai-ready-docs/SKILL.md) |
 | 修改工具源码、项目脚本、校验、打包、CI 或 updater | [项目工具链](tooling.md)、[编码规范](coding-style.md) | 修改 `tools/<tool-name>/` 时补读该目录的局部契约；工具服务特定 skill 时再读其行为 owner；改变通用分发边界时读 [仓库模型](repository-model.md) |
 | 新增、修改或移除 Gate Check | [Gate Check 编写与接入](gate-check-authoring.md) | [项目工具链的权威 Vibe 门禁](tooling.md#权威-vibe-门禁)、[编码规范](coding-style.md)；涉及测试实现或 Case 时读 [Test Evidence Review](../skills/test-evidence-review/SKILL.md) |
+| 成批审阅或持续纠正记录 | [记录维护入口](record-maintenance-workflow.md) | 按对象选择[决策流程](record-maintenance/decisions.md)或[调查流程](record-maintenance/investigations.md)及其领域 skill；明确使用 JEV 时读取 [Lightweight Judgment](../skills/lightweight-judgment/SKILL.md) |
 | 恢复、审阅或维护长期决策 | [决策索引](decisions/decision-index.json)、[Decision Records](../skills/decision-records/SKILL.md) | 相关根目录或 `archive/` 中的决策 Markdown；写入或结构审阅前按 skill 读取决策记录规则 |
 | 创建、更新或审阅调查报告 | [调查索引](investigations/investigation-index.json)、[Investigation Report](../skills/investigation-report/SKILL.md) | 相关调查报告；创建、更新、拆分或结构审阅前按 skill 读取固定契约 |
 | 整理并创建 Git 提交 | [Git Commit Organizer](../skills/git-commit-organizer/SKILL.md) | 当前 Git 状态、diff 和目标改动的验证结果 |
@@ -50,6 +51,7 @@
 | 编码规范 | `docs/coding-style.md` | `scripts/` 与 `tools/` 实现代码的归属、边界、类型、组织和风险验证规则 |
 | Gate Check 编写与接入 | `docs/gate-check-authoring.md` | 新增、修改或移除 Gate Check 时的类型选择、建模要求、接入步骤、npm 随包文档入口和交付检查；Gate 运行时事实仍由 `docs/tooling.md` 承接 |
 | 复杂 Bug 调查与报告规则 | `docs/complex-bug-investigation.md` | 复杂 Bug 的识别、调查主线、修复验证、报告触发与证据要求和其他 owner 交接 |
+| 记录维护工作流 | `docs/record-maintenance-workflow.md` 及 `docs/record-maintenance/` | 决策与调查分别拥有主代理审查清单、处置和验收；公共层承接执行、局部 JEV 辅助与对账，领域语义及事务由各自 skill 承接 |
 | Skill 人类介绍 | `docs/skills/<skill-name>.md` | 面向人类的定位、项目起点和发展方向；不作为 agent 执行入口，也不进入 skill zip |
 | Skill 本体 | `skills/<skill-name>/SKILL.md` 及其相邻材料 | 单个 skill 的触发、行为、读取策略、执行流程、边界、验收和分发内容 |
 | 任务图索引 | `docs/task-graph/task-graph-index.json` | 当前工作中 task、真实父子、显式依赖与排斥、执行租约的唯一权威事实；只由 task-graph 工具事务化修改，复杂有效状态由查询投影 |

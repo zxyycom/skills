@@ -1,0 +1,129 @@
+{
+  "workflowVersion": 3,
+  "runId": "__FILL_RUN_ID__",
+  "objective": "__FILL_OBJECTIVE__",
+  "mode": "review",
+  "scope": {
+    "allEstablished": false,
+    "recordIds": []
+  },
+  "dimensions": [
+    "framing",
+    "evidence",
+    "conclusions",
+    "boundaries",
+    "tags",
+    "relations",
+    "resources"
+  ],
+  "authorization": {
+    "source": "__FILL_CURRENT_REQUEST_OR_AUTHORIZATION_REFERENCE__",
+    "allowedChanges": [],
+    "external": {
+      "authorized": false,
+      "endpoint": null,
+      "maxCalls": 0,
+      "costBoundary": null
+    }
+  },
+  "artifacts": {
+    "directory": "__FILL_PRIVATE_RUN_DIRECTORY__",
+    "retention": "保留至本轮验收；验收时决定需独立保存的证据与其余运行产物的清理。"
+  },
+  "reviewPolicy": {
+    "negativeSamplePerStratum": 5,
+    "seed": "__FILL_RUN_ID__"
+  },
+  "baseline": {
+    "head": null,
+    "dirtyPaths": [],
+    "ownerSources": [],
+    "checkEvidence": [],
+    "reviewBankSha256": null,
+    "probeBankSha256": null
+  },
+  "inventory": [],
+  "discoveryEvidence": [],
+  "jobs": [],
+  "coverageGaps": [],
+  "rowTemplates": {
+    "inventory": {
+      "recordKey": "investigation:__FILL_FULL_ID__",
+      "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+      "sha256": null,
+      "stratum": "investigation",
+      "role": "selected",
+      "readStatus": "pending"
+    },
+    "job": {
+      "jobId": "job-0001",
+      "supersedesJobId": null,
+      "kind": "record",
+      "recordKeys": [
+        "investigation:__FILL_FULL_ID__"
+      ],
+      "discoveryReason": "__FILL_SELECTION_OR_CANDIDATE_EVIDENCE__",
+      "questions": [
+        {
+          "id": "investigation_context",
+          "dimension": "framing",
+          "readiness": "missing_evidence",
+          "reason": "尚未填写记录正文"
+        }
+      ],
+      "inputPath": "evidence/job-0001.json",
+      "inputSha256": null
+    },
+    "coverageGap": {
+      "kind": "uncovered",
+      "recordKeys": [],
+      "dimension": "__FILL_DIMENSION__",
+      "reason": "__FILL_UNCOVERED_RANGE_OR_LIMIT__",
+      "nextStep": "__FILL_NEXT_STEP__"
+    },
+    "ownerSource": {
+      "sourcePath": "__FILL_REPOSITORY_RELATIVE_OWNER_PATH__",
+      "sha256": "__FILL_SHA256__"
+    },
+    "probe": {
+      "probeId": "probe-0001",
+      "supersedesProbeId": null,
+      "template": "topic_match",
+      "supports": [
+        "__FILL_JOB_ID_SLASH_QUESTION_ID__"
+      ],
+      "selectionReason": "__FILL_LOCAL_JUDGMENT_PURPOSE_AND_EXPECTED_BENEFIT__",
+      "sourceRefs": [
+        {
+          "sourcePath": "__FILL_REPOSITORY_RELATIVE_PATH__",
+          "sha256": "__FILL_SHA256__",
+          "locator": "__FILL_EXACT_SPAN_AND_CONTEXT_LOCATION__"
+        }
+      ],
+      "readiness": "missing_evidence",
+      "reason": "尚未选取局部充分材料",
+      "requestPath": "requests/probe-0001.json",
+      "requestSha256": null
+    },
+    "probeValidation": {
+      "template": "topic_match",
+      "probeSetVersion": 1,
+      "actualModel": "__FILL_ACTUAL_MODEL__",
+      "language": "zh",
+      "inputScope": "__FILL_VALIDATED_MATERIAL_AND_COMPLEXITY__",
+      "allowedUse": "__FILL_VALIDATED_LOCAL_SIGNAL_USE__",
+      "evidence": [
+        "__FILL_REFERENCE_AND_HELD_OUT_RESULTS__"
+      ]
+    }
+  },
+  "domain": "investigation",
+  "questionSetVersion": 2,
+  "jev": {
+    "mode": "off",
+    "probeSetVersion": 1,
+    "enabledTemplates": [],
+    "validationEvidence": []
+  },
+  "probes": []
+}
