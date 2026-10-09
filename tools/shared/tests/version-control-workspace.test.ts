@@ -5,7 +5,7 @@ import {
   gitTestOptions,
   hasVersionControlCode,
   initializeRepository,
-  listFirstParentRevisionChanges,
+  listResolvedFirstParentRevisionChanges,
   openVersionControl,
   path,
   readPendingModes,
@@ -54,7 +54,7 @@ test(
       await fs.writeFile(blobPath, "corrupt Git object", "utf8");
 
       await assert.rejects(
-        listFirstParentRevisionChanges(
+        listResolvedFirstParentRevisionChanges(
           await openVersionControl(repositoryRoot),
           { from: baseRevision, to: currentRevision }
         ),

@@ -16,24 +16,17 @@ export type ListPendingChangedPathsOptions = {
   pathScopes?: readonly string[];
 };
 
-export type ListFirstParentRevisionChangesOptions = {
-  /** Excluded revision at the start of the first-parent range. */
-  from: RevisionId;
-  /** Included revision at the end of the range; defaults to the current revision. */
-  to?: RevisionId;
-};
-
-export type VersionControlPathChange = {
+export type VersionControlPathChange = Readonly<{
   /** Null counts identify a binary path whose line counts Git cannot provide. */
   addedLineCount: number | null;
   deletedLineCount: number | null;
   path: string;
-};
+}>;
 
-export type VersionControlRevisionChange = {
-  changes: VersionControlPathChange[];
+export type VersionControlRevisionChange = Readonly<{
+  changes: readonly VersionControlPathChange[];
   revision: RevisionId;
-};
+}>;
 
 export type VersionControlFileKind = "regular" | "executable" | "symlink";
 

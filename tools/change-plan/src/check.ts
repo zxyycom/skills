@@ -4,6 +4,8 @@ import {
   directChangeDirectoryError
 } from "./active-directory.ts";
 import { inspectGitDistance, validateArtifacts } from "./check-artifacts.ts";
+import type { PlanVersionControlInspector } from "./git-distance.ts";
+import { inspectChangeRootRepositoryBoundary } from "./repository-boundary.ts";
 import {
   addChangeNameDiagnostic,
   directoryDiagnostic,
@@ -21,10 +23,12 @@ import type {
   GitDistanceEvidence
 } from "./types.ts";
 
-type ChangePlanCheckOptions = {
+type ChangePlanCheckOptions = Readonly<{
   artifactStage?: ChangePlanStage;
   inspectGitDistance: boolean;
-};
+  inspectVersionControl?: PlanVersionControlInspector;
+  repositoryBoundaryChecked?: boolean;
+}>;
 type CheckState = Readonly<{
   changeDirectory: string;
   diagnostics: readonly ChangePlanDiagnostic[];
@@ -59,6 +63,15 @@ async function checkChangePlanDirectoryWithOptions(
   addChangeNameDiagnostic(changeDirectory, diagnostics);
   if (!(await inspectChangeDirectory(changeDirectory, diagnostics)))
     return failedScope(changeDirectory, diagnostics, null);
+  if (!options.repositoryBoundaryChecked) {
+    const failure = await inspectChangeRootRepositoryBoundary(
+      path.dirname(changeDirectory)
+    );
+    if (failure !== null) {
+      diagnostics.push(directoryDiagnostic(failure.code, failure.message));
+      return failedScope(changeDirectory, diagnostics, null);
+    }
+  }
   return await inspectActiveChange(changeDirectory, diagnostics, options);
 }
 async function scopeErrorFor(
@@ -133,7 +146,12 @@ async function distanceEvidence(
   diagnostics: ChangePlanDiagnostic[]
 ): Promise<GitDistanceEvidence | null> {
   return options.inspectGitDistance && metadata?.stage === "plan"
-    ? await inspectGitDistance(changeDirectory, metadata, diagnostics)
+    ? await inspectGitDistance(
+        changeDirectory,
+        metadata,
+        diagnostics,
+        options.inspectVersionControl
+      )
     : null;
 }
 export async function checkChangePlanDirectory(
@@ -153,11 +171,12 @@ export async function checkChangePlanDirectoryForPlan(
 }
 export async function checkChangePlanDirectoryInRoot(
   changeDirectoryInput: string,
-  changeRootInput: string
+  changeRootInput: string,
+  options: ChangePlanCheckOptions = { inspectGitDistance: true }
 ): Promise<ChangePlanCheckResult> {
   return await checkChangePlanDirectoryWithOptions(
     changeDirectoryInput,
-    { inspectGitDistance: true },
+    options,
     changeRootInput
   );
 }

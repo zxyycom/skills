@@ -6,14 +6,19 @@
 
 ## 当前契约
 
-通用仓库入口是 `tools/shared/src/version-control/index.ts`。`openVersionControl(startDirectory)` 返回 `VersionControlRepository`；仓库对象负责 revision、pending 与 workspace 操作。First-parent 枚举由专用共享子模块 `tools/shared/src/version-control/git-first-parent.ts` 的独立操作 `listFirstParentRevisionChanges(repository, { from, to? })` 承接，Change Plan 直接导入该子模块；它不是 `VersionControlRepository` 方法，也不由通用仓库入口导出。
+通用仓库入口是 `tools/shared/src/version-control/index.ts`。`openVersionControl(startDirectory)`
+返回 `VersionControlRepository`，承接 revision、pending 与 workspace 操作。
+
+First-parent 枚举由专用子模块 `tools/shared/src/version-control/git-first-parent.ts` 的
+`listResolvedFirstParentRevisionChanges(repository, { from, to })` 承接，Change Plan 直接导入该操作。
+调用方提供同一仓库已解析的 commit ID；操作核对 ID 格式后读取历史，返回只读提交与路径变化事实。
+该操作属于专用子模块，通用仓库入口与 `VersionControlRepository` 保持原有边界。
 
 当前能力包括：
 
 1. 定位仓库根目录，读取当前 revision，并把 revision ref 解析为确定的 commit id。
-2. 通过独立操作 `listFirstParentRevisionChanges(repository, { from, to? })` 列出 first-parent
-   范围内每个 revision 的路径与增删行数。`from` 不包含，`to` 包含且默认当前
-   revision；结果从旧到新排列并保留无路径变化的 commit。文本行数是安全整数，
+2. 按显式 commit ID 范围列出 first-parent 历史内每个 revision 的路径与增删行数。
+   `from` 不包含，`to` 包含；结果从旧到新排列并保留无路径变化的 commit。文本行数是安全整数，
    Git 无法提供行数的二进制路径将两个计数都返回 `null`；`from` 不在 `to` 的
    first-parent 历史中时，整个操作返回 `null` 表示范围不可用。
 3. 列出 revision 文件、两个 revision 之间的路径变化，以及 revision 与 `pending` 之间的路径变化。

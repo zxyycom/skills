@@ -4,7 +4,7 @@ import {
   gitTestOptions,
   hasVersionControlCode,
   initializeRepository,
-  listFirstParentRevisionChanges,
+  listResolvedFirstParentRevisionChanges,
   openVersionControl,
   path,
   parseGitFirstParentRevisionChanges,
@@ -13,6 +13,67 @@ import {
   withTempRoot,
   writeFile
 } from "./version-control-test-support.ts";
+
+test(
+  "resolved first-parent ranges reuse verified endpoints without resolving refs",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (root) => {
+      initializeRepository(root);
+      runGit(root, ["commit", "--quiet", "--allow-empty", "--message", "base"]);
+      const from = runGit(root, ["rev-parse", "HEAD"]).trim();
+      await writeFile(root, "outside.md", "outside\n");
+      runGit(root, ["add", "."]);
+      runGit(root, ["commit", "--quiet", "--message", "outside"]);
+      const to = runGit(root, ["rev-parse", "HEAD"]).trim();
+      const repository = await openVersionControl(root);
+      repository.resolveRevision = async () =>
+        assert.fail("resolved endpoints must not be resolved again");
+      repository.getCurrentRevision = async () =>
+        assert.fail("the supplied HEAD must not be queried again");
+      assert.deepEqual(
+        await listResolvedFirstParentRevisionChanges(repository, { from, to }),
+        [
+          {
+            revision: to,
+            changes: [
+              { path: "outside.md", addedLineCount: 1, deletedLineCount: 0 }
+            ]
+          }
+        ]
+      );
+      assert.deepEqual(
+        await listResolvedFirstParentRevisionChanges(repository, {
+          from: to,
+          to
+        }),
+        []
+      );
+    });
+  }
+);
+
+test(
+  "resolved first-parent ranges reject malformed commit identifiers",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (root) => {
+      initializeRepository(root);
+      const repository = await openVersionControl(root);
+      for (const endpoint of ["HEAD", "--all", "", "not-a-commit"]) {
+        for (const range of [
+          { from: endpoint, to: "a".repeat(40) },
+          { from: "a".repeat(40), to: endpoint }
+        ]) {
+          await assert.rejects(
+            listResolvedFirstParentRevisionChanges(repository, range),
+            (error: unknown) => hasVersionControlCode(error, "operation-failed")
+          );
+        }
+      }
+    });
+  }
+);
 
 test(
   "lists first-parent revision changes in order and preserves empty commits",
@@ -91,7 +152,7 @@ test(
       ]).trim();
 
       const repository = await openVersionControl(repositoryRoot);
-      const changes = await listFirstParentRevisionChanges(repository, {
+      const changes = await listResolvedFirstParentRevisionChanges(repository, {
         from: baseRevision,
         to: mergeRevision
       });
@@ -144,13 +205,7 @@ test(
         }
       ]);
       assert.deepEqual(
-        await listFirstParentRevisionChanges(repository, {
-          from: baseRevision
-        }),
-        changes
-      );
-      assert.deepEqual(
-        await listFirstParentRevisionChanges(repository, {
+        await listResolvedFirstParentRevisionChanges(repository, {
           from: mergeRevision,
           to: mergeRevision
         }),
@@ -200,7 +255,7 @@ test(
       ]).trim();
 
       assert.equal(
-        await listFirstParentRevisionChanges(
+        await listResolvedFirstParentRevisionChanges(
           await openVersionControl(repositoryRoot),
           { from: sideRevision, to: mergeRevision }
         ),

@@ -1,7 +1,48 @@
+import assert from "node:assert/strict";
+import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import process from "node:process";
 import { fileURLToPath } from "node:url";
+
+export function git(root: string, args: readonly string[]): string {
+  return execFileSync("git", ["-C", root, ...args], {
+    encoding: "utf8"
+  }).trim();
+}
+
+export async function tracedQuery(
+  root: string,
+  args: readonly string[],
+  expectedExitCode = 0
+): Promise<Readonly<{ commands: readonly string[]; result: unknown }>> {
+  const tracePath = path.join(root, "git-query-trace.txt");
+  await fs.writeFile(tracePath, "");
+  const output = spawnSync(
+    process.execPath,
+    [
+      fileURLToPath(new URL("../src/cli.ts", import.meta.url)),
+      ...args,
+      "--json"
+    ],
+    {
+      cwd: root,
+      encoding: "utf8",
+      env: { ...process.env, GIT_TRACE: tracePath }
+    }
+  );
+  assert.equal(output.status, expectedExitCode, output.stderr);
+  const trace = await fs.readFile(tracePath, "utf8");
+  const result: unknown = JSON.parse(output.stdout);
+  return {
+    commands: trace
+      .split("\n")
+      .filter((line) => line.includes("built-in: git ")),
+    result
+  };
+}
+
 export type PlanOverrides = {
   design?: string;
   /** Raw JSON fixture value; invalid-schema tests intentionally pass unknown. */
@@ -148,7 +189,6 @@ export async function withTempRoot(
   run: (tempRoot: string) => Promise<void>
 ): Promise<void> {
   await withTemporaryRoot(suiteName, async (tempRoot) => {
-    const { spawnSync } = await import("node:child_process");
     const initialize = spawnSync(
       "git",
       ["-C", tempRoot, "init", "--quiet", "--initial-branch=main"],
@@ -199,7 +239,6 @@ async function withTemporaryRoot(
 }
 
 async function resolveHead(directory: string): Promise<string> {
-  const { spawnSync } = await import("node:child_process");
   let current = path.resolve(directory);
   while (true) {
     const result = spawnSync("git", ["-C", current, "rev-parse", "HEAD"], {

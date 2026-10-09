@@ -7,7 +7,7 @@ Tags:
 - `version-control`
 
 Contract:
-- first-parent 变化范围必须排除 `from`、包含显式或默认的 `to`，按从旧到新返回每个修订，并保留没有路径变化的提交。
+- first-parent 变化范围使用显式提交 ID，排除 `from`、包含 `to`，按从旧到新返回每个修订，并保留没有路径变化的提交。
 
 Proves:
 - 文本路径返回准确增删行数，二进制路径返回两个 `null` 计数，特殊路径保持原值且每个修订内顺序稳定。

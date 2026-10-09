@@ -10,7 +10,6 @@ import {
 } from "../../shared/src/version-control/index.ts";
 import {
   identity,
-  tombstoneDirectoryName,
   type ChangeDeletionPreparation
 } from "./change-deletion-types.ts";
 import {
@@ -18,6 +17,7 @@ import {
   validateSupportedGitTreeEntries,
   validateTreeEntries
 } from "./change-deletion-tree.ts";
+import { tombstoneDirectoryName } from "./types.ts";
 
 export async function prepareChangeDeletion(
   sourceDirectoryInput: string,

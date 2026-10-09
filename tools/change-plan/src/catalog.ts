@@ -1,12 +1,15 @@
-import type { Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { errorMessage, lstatOrNull } from "./check-support.ts";
+import { createPlanVersionControlInspector } from "./git-distance.ts";
+import { inspectChangeRootRepositoryBoundary } from "./repository-boundary.ts";
 import {
   checkChangePlanDirectory,
   checkChangePlanDirectoryInRoot
 } from "./check.ts";
 import {
   changePlanArtifactNames,
+  tombstoneDirectoryName,
   type ChangePlanArtifactContents,
   type ChangePlanCollectionCheckResult,
   type ChangePlanCollectionOptions,
@@ -14,28 +17,6 @@ import {
   type ChangePlanListResult,
   type ChangePlanShowResult
 } from "./types.ts";
-
-const tombstoneDirectoryName = ".change-plan-tombstones";
-
-async function lstatOrNull(targetPath: string): Promise<Stats | null> {
-  try {
-    return await fs.lstat(targetPath);
-  } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "ENOENT"
-    ) {
-      return null;
-    }
-    throw error;
-  }
-}
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
 
 async function listChangeDirectoryNames(directory: string): Promise<string[]> {
   return (await fs.readdir(directory, { withFileTypes: true }))
@@ -46,31 +27,6 @@ async function listChangeDirectoryNames(directory: string): Promise<string[]> {
     .sort((left, right) => left.localeCompare(right));
 }
 
-async function inspectChangeRoot(
-  result: ChangePlanListResult
-): Promise<boolean> {
-  let rootStat: Stats | null;
-  try {
-    rootStat = await lstatOrNull(result.changeRoot);
-  } catch (error) {
-    result.errors.push(
-      `cannot access change root ${result.changeRoot}: ${errorMessage(error)}`
-    );
-    return false;
-  }
-  if (rootStat === null) {
-    result.errors.push(`change root does not exist: ${result.changeRoot}`);
-    return false;
-  }
-  if (rootStat.isSymbolicLink() || !rootStat.isDirectory()) {
-    result.errors.push(
-      `change root must be a regular directory: ${result.changeRoot}`
-    );
-    return false;
-  }
-  return true;
-}
-
 export async function listChangePlans(
   options: ChangePlanListOptions = {}
 ): Promise<ChangePlanListResult> {
@@ -79,13 +35,27 @@ export async function listChangePlans(
     entries: [],
     errors: []
   };
-  if (!(await inspectChangeRoot(result))) return result;
+  const boundaryFailure = await inspectChangeRootRepositoryBoundary(
+    result.changeRoot
+  );
+  if (boundaryFailure !== null) {
+    result.errors.push(boundaryFailure.message);
+    return result;
+  }
+  const inspectVersionControl = createPlanVersionControlInspector(
+    result.changeRoot
+  );
   try {
     result.entries = await Promise.all(
       (await listChangeDirectoryNames(result.changeRoot)).map((name) =>
         checkChangePlanDirectoryInRoot(
           path.join(result.changeRoot, name),
-          result.changeRoot
+          result.changeRoot,
+          {
+            inspectGitDistance: options.stage !== "draft",
+            inspectVersionControl,
+            repositoryBoundaryChecked: true
+          }
         )
       )
     );
@@ -148,7 +118,10 @@ export async function showChangePlanDirectory(
   const check = await checkChangePlanDirectory(changeDirectoryInput);
   return {
     artifacts: check.diagnostics.some(
-      (diagnostic) => diagnostic.code === "change-directory-not-active-member"
+      (diagnostic) =>
+        diagnostic.code === "change-directory-not-active-member" ||
+        diagnostic.code === "change-root-contains-repository" ||
+        diagnostic.code === "change-root-read-failed"
     )
       ? {
           "design.md": null,

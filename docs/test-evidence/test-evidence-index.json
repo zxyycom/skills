@@ -25,6 +25,7 @@
       "CHANGE-PLAN-CLI-004": "sha256:c4eb03821d7b0027fc168078adb1e0eb578e9832e99b0a65730fb59e70d95640",
       "CHANGE-PLAN-CLI-005": "sha256:c5cc33ecd25bdbfa84cfcf5ec8b9206848cc07cce53247a08706641780b60541",
       "CHANGE-PLAN-CLI-006": "sha256:5d953921acaef0d4554d96e3ae1b431ba4d14ae328adb94545a72f05590e77b3",
+      "CHANGE-PLAN-DRAFT-SELECTION-NO-GIT-001": "sha256:41484ed0c6122e63043fa467dbb833b36f633a78b68efdedeebf5040b965f481",
       "CHANGE-PLAN-FINALIZE-001": "sha256:fd720f5ef1eca4bdbd4908e7d32e4e90f39c97075c33090c31c549a1129c0345",
       "CHANGE-PLAN-FINALIZE-002": "sha256:fd0789d69c6475277c93d6290502572f443abc6d55f6f8f4bd5d755de7c20e03",
       "CHANGE-PLAN-FINALIZE-003": "sha256:f4d5f93b2a7a69632f4fa02ee45c4f15ce73816d4cb8788451207b84f376e683",
@@ -54,6 +55,14 @@
       "CHANGE-PLAN-METADATA-SCHEMA-001": "sha256:3dfb63c4caaf2faddefa588272f31ac595dad3cfd56a334e3d909866d2eb1a27",
       "CHANGE-PLAN-METADATA-SYMLINK-001": "sha256:614ab4ee44ada942845d72a5444b9d605d60f1169d0c0a4b4b91ae84a06c5d16",
       "CHANGE-PLAN-METADATA-WRITER-001": "sha256:e4f44304ea3e9b437873c2c59dc6987bbd16d246f278ac7046f8167857b90543",
+      "CHANGE-PLAN-QUERY-BASELINE-ISOLATION-001": "sha256:c67c92adffb262d2210187b02fd7b03fc0e44bb40931c8a02332bdf7db4cea79",
+      "CHANGE-PLAN-QUERY-CACHE-LIFETIME-001": "sha256:4c93a430eeea324ece02e64a09480bd07efe7212b7bf5344c5545347842febfc",
+      "CHANGE-PLAN-QUERY-HISTORY-REUSE-001": "sha256:53110a874b306b20bc2db52035b60de90f5702c8adad98fd1eae1d8ca1293ef2",
+      "CHANGE-PLAN-QUERY-SHARED-FAILURES-001": "sha256:7a048608ef2f8096e301cfbb1f824ad1f2d90595b62cbb7413d2b3874d16cd42",
+      "CHANGE-PLAN-REPOSITORY-MARKERS-001": "sha256:c5f8c922b4234182e2a55858219b6feb641010b7b5f22374bad3a59cb50d2b79",
+      "CHANGE-PLAN-REPOSITORY-SCAN-READ-FAILURE-001": "sha256:e03b0c5ebd69baaa9bf4ee447441a7572923fe99fc64a81cb5ec42c1a6e91021",
+      "CHANGE-PLAN-REPOSITORY-SCAN-SCOPE-001": "sha256:62db1eb35a1594df60d412e4cd52ca97f67b45330ee3f8175cc6eb3286e3c23b",
+      "CHANGE-PLAN-ROOT-REPOSITORY-GATE-001": "sha256:b990324396bb25d7de5b00c28a5458dea5e872c9d157e0cc70ad1c6f6ab8a706",
       "DECISION-ACTIVATE-ESTABLISHED-RELATIONS-001": "sha256:0ca35c3d49edab6a899759d4e3cf49dca28bfd8ec8c76e3789eab596ef731734",
       "DECISION-ACTIVATE-RELATION-CLEAR-001": "sha256:aa576fca83fbfa68e1972312c43ae63a04fd4ef995698acb59dcc9f7f7fb45b1",
       "DECISION-ACTIVATE-RELATION-REPLACE-001": "sha256:70216b1c5f3bea564c0b94653191ae64d9e370d2dd30215c6169bebb797817ca",
@@ -771,6 +780,8 @@
       "REPO-SKILL-HASH-005": "sha256:4e2b621bc28928a3b7e4756882351ca67303a1a138b0e38a9660be0e6f62d3ef",
       "REPO-TASK-ROOT-001": "sha256:bdfd3afc9cac930707dacc27f3de7079340fa78ae46f93b0d9c27287c4a9af35",
       "REPO-TASK-TARGET-001": "sha256:036d2e88484402609fb6b42b22a813628921ea8500b26096cae87d27d444bcb0",
+      "RESOLVED-FIRST-PARENT-ENDPOINTS-REUSE-001": "sha256:0f09aae11c06d4956ad6e8dc6ddd7b8527744ab4f3f863dba9d724b9958448a2",
+      "RESOLVED-FIRST-PARENT-ENDPOINTS-VALIDATION-001": "sha256:6ecdbf5169794af69e0c13e6b3c57f72006769caa8223ce85a419c0627dc80c3",
       "SKILL-PACKAGE-HASH-001": "sha256:8cf53d18f84b1589ac13c554c5822b699101cfc0bc30d28d3f19a7abba257f22",
       "SKILL-PACKAGE-HASH-002": "sha256:2487e02f1fc80948709a1a6b3308cb265b5c77fd6ae8c8d75aeb3714a206f736",
       "SKILL-PACKAGE-HASH-003": "sha256:667076f63ca8d89cfef6068fb97f1a756621bb9327546cec395e076d936b55f5",
@@ -990,7 +1001,7 @@
       "VERSION-CONTROL-CORRUPTION-001": "sha256:94dd66b5d140d18d841a6b59afa201784e2bfd177211cad0ec8563d4c756ab80",
       "VERSION-CONTROL-DISCOVERY-FAILURE-001": "sha256:74ef03d4531bfb0be98b9be9872336a911383c623e69ea05a26b3ebad94480a1",
       "VERSION-CONTROL-ERROR-DETAIL-001": "sha256:2603ba673019655d615eb175f6dd778763943ebd0dc8a3b5085787f2641085b6",
-      "VERSION-CONTROL-FIRST-PARENT-001": "sha256:372de98649a502d41ea428adfa58412eb79d15adeaa3787b6940f3d9e728163e",
+      "VERSION-CONTROL-FIRST-PARENT-001": "sha256:a1683f4979fd355852bfd0ddd4dbbf3bea04eafddeaa53d777dce121c9cab5e0",
       "VERSION-CONTROL-FIRST-PARENT-FAILURE-001": "sha256:5650bbb6fccdce83ecdf661b2ac04c3393d1141a2e141864ae6640d647f3668c",
       "VERSION-CONTROL-FIRST-PARENT-RELATION-001": "sha256:895b55eec37388e31d98c55009ae504bce9c7cd1ddae13e18b507ca69dbe7a2c",
       "VERSION-CONTROL-GIT-FIXTURE-001": "sha256:2dc2a7c3342be7a5d18dcad6771fe5c1ff82283a2142a2c39e4adfe6278f4bfe",
@@ -1223,6 +1234,17 @@
       ],
       "testIds": [
         "test:a6ac0439a33a1bbc5625ebe7dfa70e7b16f617b3fe2bfff5c54c687343b92742"
+      ]
+    },
+    "CHANGE-PLAN-DRAFT-SELECTION-NO-GIT-001": {
+      "title": "Draft 筛选不执行无关 Plan 的 Git 查询",
+      "sourcePath": "cases/change-plan-draft-selection-no-git-001.md",
+      "tags": [
+        "change-plan",
+        "performance"
+      ],
+      "testIds": [
+        "test:75da04b0f84c9c75391ac1f4c555b07d2e631fec56299c9f357757f5fd28e75c"
       ]
     },
     "CHANGE-PLAN-FINALIZE-001": {
@@ -1513,6 +1535,91 @@
       ],
       "testIds": [
         "test:b7ff40ca9733f34488177a2c37864d0e498188a40e9c80615e814684c6b120ed"
+      ]
+    },
+    "CHANGE-PLAN-QUERY-BASELINE-ISOLATION-001": {
+      "title": "同一项目仓库内不同基线不混用距离",
+      "sourcePath": "cases/change-plan-query-baseline-isolation-001.md",
+      "tags": [
+        "change-plan"
+      ],
+      "testIds": [
+        "test:8f268216e23b47ee72a991e4a9474b0b86f730db9f19ae67a24faf2edcb96d50"
+      ]
+    },
+    "CHANGE-PLAN-QUERY-CACHE-LIFETIME-001": {
+      "title": "Git 快照缓存只在单次查询内有效",
+      "sourcePath": "cases/change-plan-query-cache-lifetime-001.md",
+      "tags": [
+        "change-plan"
+      ],
+      "testIds": [
+        "test:ea225f79c1ae97f3653b9081ac9d667a6caa8f4966b9bf512499484a4b24a31a"
+      ]
+    },
+    "CHANGE-PLAN-QUERY-HISTORY-REUSE-001": {
+      "title": "集合查询复用 Git 历史但独立计算 Change 排除",
+      "sourcePath": "cases/change-plan-query-history-reuse-001.md",
+      "tags": [
+        "change-plan",
+        "performance"
+      ],
+      "testIds": [
+        "test:62f9e5814d0a36ff6d09188ab3473a8b515b730f0927055fcf4d7bf1e1b4d202"
+      ]
+    },
+    "CHANGE-PLAN-QUERY-SHARED-FAILURES-001": {
+      "title": "查询复用保留每项 Plan 的失败诊断",
+      "sourcePath": "cases/change-plan-query-shared-failures-001.md",
+      "tags": [
+        "change-plan"
+      ],
+      "testIds": [
+        "test:f40c4b12ce9516576d9404f9a0b10641bb3d52786b45eb807fb659756d144a33"
+      ]
+    },
+    "CHANGE-PLAN-REPOSITORY-MARKERS-001": {
+      "title": "拒绝不同表示的仓库入口",
+      "sourcePath": "cases/change-plan-repository-markers-001.md",
+      "tags": [
+        "change-plan",
+        "repository-boundary"
+      ],
+      "testIds": [
+        "test:640d5fea1744bf52a7c91c7ea210dbbd76fcacdc610843faa15a48f39d8c71ed"
+      ]
+    },
+    "CHANGE-PLAN-REPOSITORY-SCAN-READ-FAILURE-001": {
+      "title": "无法安全检查 Change 根时阻断",
+      "sourcePath": "cases/change-plan-repository-scan-read-failure-001.md",
+      "tags": [
+        "change-plan",
+        "repository-boundary"
+      ],
+      "testIds": [
+        "test:19a7e54c4899392a415e90a774b47bae96256a1de185ab95919d4fb30d9e41bb"
+      ]
+    },
+    "CHANGE-PLAN-REPOSITORY-SCAN-SCOPE-001": {
+      "title": "仓库扫描不越过活动真实目录边界",
+      "sourcePath": "cases/change-plan-repository-scan-scope-001.md",
+      "tags": [
+        "change-plan",
+        "repository-boundary"
+      ],
+      "testIds": [
+        "test:7664b53d8711ea1584f86806fd5f310149164a45e3a457c0b8fbb62421f1288d"
+      ]
+    },
+    "CHANGE-PLAN-ROOT-REPOSITORY-GATE-001": {
+      "title": "整个 Change 根的子仓库阻断查询和写入",
+      "sourcePath": "cases/change-plan-root-repository-gate-001.md",
+      "tags": [
+        "change-plan",
+        "repository-boundary"
+      ],
+      "testIds": [
+        "test:77a0de61962e774b0211279a33d4491cfed34d20a3b7628d7752643deae7a3d5"
       ]
     },
     "DECISION-ACTIVATE-ESTABLISHED-RELATIONS-001": {
@@ -8778,6 +8885,28 @@
       ],
       "testIds": [
         "test:3f983281b0ad54b2fba0e221acfd41a72354219a80f7ee5f21af3e7da64ed2e4"
+      ]
+    },
+    "RESOLVED-FIRST-PARENT-ENDPOINTS-REUSE-001": {
+      "title": "已解析提交范围不重复解析端点",
+      "sourcePath": "cases/resolved-first-parent-endpoints-reuse-001.md",
+      "tags": [
+        "git-integration",
+        "version-control"
+      ],
+      "testIds": [
+        "test:e498c09f4a8800d1901ee20917f3a95f59caec051823a4fd3ef749af47a0c712"
+      ]
+    },
+    "RESOLVED-FIRST-PARENT-ENDPOINTS-VALIDATION-001": {
+      "title": "已解析历史入口拒绝非提交 ID",
+      "sourcePath": "cases/resolved-first-parent-endpoints-validation-001.md",
+      "tags": [
+        "git-integration",
+        "version-control"
+      ],
+      "testIds": [
+        "test:7526a3564691ccc3213440f3da5b3a8bf7ff62f146db745d49732fb3917444eb"
       ]
     },
     "SKILL-PACKAGE-HASH-001": {

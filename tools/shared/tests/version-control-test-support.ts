@@ -24,8 +24,8 @@ export {
 };
 import { operationErrorDetail } from "../src/version-control/error-detail.ts";
 export { operationErrorDetail };
-import { listFirstParentRevisionChanges } from "../src/version-control/git-first-parent.ts";
-export { listFirstParentRevisionChanges };
+import { listResolvedFirstParentRevisionChanges } from "../src/version-control/git-first-parent.ts";
+export { listResolvedFirstParentRevisionChanges };
 import { openGitVersionControl } from "../src/version-control/git.ts";
 export { openGitVersionControl };
 import { parseGitFirstParentRevisionChanges } from "../src/version-control/git-numstat.ts";

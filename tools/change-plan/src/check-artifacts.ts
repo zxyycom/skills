@@ -1,6 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { inspectPlanVersionControl } from "./git-distance.ts";
+import {
+  inspectPlanVersionControl,
+  type PlanVersionControlInspector
+} from "./git-distance.ts";
 import { validateChangePlanArtifact } from "./markdown.ts";
 import { artifactContractsByStage } from "./check-contracts.ts";
 import {
@@ -122,10 +125,11 @@ async function readableArtifact(
 export async function inspectGitDistance(
   changeDirectory: string,
   activeMetadata: Extract<ChangePlanMetadata, { stage: "plan" }>,
-  diagnostics: ChangePlanDiagnostic[]
+  diagnostics: ChangePlanDiagnostic[],
+  inspectVersionControl: PlanVersionControlInspector = inspectPlanVersionControl
 ): Promise<GitDistanceEvidence | null> {
   try {
-    const inspection = await inspectPlanVersionControl(
+    const inspection = await inspectVersionControl(
       changeDirectory,
       activeMetadata.baseCommit
     );

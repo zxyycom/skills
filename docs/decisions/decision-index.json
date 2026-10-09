@@ -125,6 +125,7 @@
       "261006-keep-novel-card-meaning-separate-from-index": "sha256:387ae9b3fae7b9a7ab20c0890e35f11aee28e9a0d88c5833e9bd98c3226d2e1f",
       "261006-separate-novel-identity-and-versioned-transitions": "sha256:7b8bef472813e23dd8cb3d9a8538c9511d13501a67f51a3cadae38ac0d389188",
       "261008-maintain-record-quality-through-project-workflow": "sha256:804ad74dfa950e266e09648a62c29eed04fe1850971ced043c6a4ae632090f82",
+      "261009-require-one-project-repository-for-change-roots": "sha256:ebcd33cdec3e750108043b1fa433ed0bddd7d0b9cfea1117374496f5ec9a8bfc",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -2858,6 +2859,23 @@
         "record-maintenance",
         "responsibility-boundaries",
         "semantic-validation"
+      ],
+      "relations": []
+    },
+    "261009-require-one-project-repository-for-change-roots": {
+      "name": "require-one-project-repository-for-change-roots",
+      "sourcePath": "require-one-project-repository-for-change-roots.md",
+      "title": "Change 根只维护单一项目仓库内的计划",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-09T02:43:20Z",
+      "purpose": "让同一 Change 集合的 Git 证据属于同一项目，并按基线复用查询。",
+      "background": "内嵌仓库会改变提交证据的归属；逐成员辨别仓库又增加普通集合的查询成本。",
+      "decision": "Change 根采用单一项目仓库边界，完整检查通过后共享仓库与基线历史。",
+      "tags": [
+        "change-plan",
+        "git-integration",
+        "responsibility-boundaries"
       ],
       "relations": []
     },

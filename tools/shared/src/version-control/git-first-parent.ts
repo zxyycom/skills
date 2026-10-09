@@ -1,37 +1,28 @@
 import { execFile } from "node:child_process";
 import { classifyVersionControlCause, VersionControlError } from "./errors.ts";
 import { parseGitFirstParentRevisionChanges } from "./git-numstat.ts";
+import { parseObjectId } from "./git-core.ts";
 import type {
-  ListFirstParentRevisionChangesOptions,
+  RevisionId,
   VersionControlRepository,
   VersionControlRevisionChange
 } from "./types.ts";
 
 const gitOutputMaxBuffer = 16 * 1024 * 1024;
 
-type GitCommandExit = {
+type GitCommandExit = Readonly<{
   exitCode: number;
   stderr: string;
   stdout: string;
-};
+}>;
 
-export async function listFirstParentRevisionChanges(
+/** Endpoints must already be commit IDs resolved by this repository. */
+export async function listResolvedFirstParentRevisionChanges(
   repository: VersionControlRepository,
-  options: ListFirstParentRevisionChangesOptions
-): Promise<VersionControlRevisionChange[] | null> {
-  const from = await repository.resolveRevision(options.from);
-  const to =
-    options.to === undefined
-      ? await repository.getCurrentRevision()
-      : await repository.resolveRevision(options.to);
-  if (to === null) {
-    throw new VersionControlError({
-      causeCategory: "revision-unavailable",
-      code: "revision-not-found",
-      operation: "read the current revision",
-      target: "current revision"
-    });
-  }
+  options: Readonly<{ from: RevisionId; to: RevisionId }>
+): Promise<readonly VersionControlRevisionChange[] | null> {
+  const from = parseObjectId(options.from, "first-parent start revision");
+  const to = parseObjectId(options.to, "first-parent end revision");
   if (from === to) {
     return [];
   }

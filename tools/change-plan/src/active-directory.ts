@@ -1,8 +1,7 @@
 import type { Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
-
-const tombstoneDirectoryName = ".change-plan-tombstones";
+import { tombstoneDirectoryName } from "./types.ts";
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);

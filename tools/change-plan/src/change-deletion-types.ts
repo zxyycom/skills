@@ -1,6 +1,5 @@
 import type { Stats } from "node:fs";
 
-export const tombstoneDirectoryName = ".change-plan-tombstones";
 export const supportedGitModes = new Set(["100644", "100755"]);
 
 export type DirectoryIdentity = Readonly<{ dev: number; ino: number }>;

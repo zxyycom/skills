@@ -29,12 +29,32 @@ Verification checkbox 只表达 active Plan 内任务进度。
    `.change-plan.json` 或 artifact 为符号链接时检查失败且不会跟随链接。
 5. 当前 Change 必须包含 `.change-plan.json`。缺失、无法读取、规范字段组合不合法或存在未定义字段时
    检查失败，不投影或自动迁移无效输入。
-6. 可以增加交付说明或证据文件；附加文件不参与固定结构检查，也不能代替当前 stage 要求的 artifacts。
+6. 可以增加交付说明或证据文件。附加文件不替代必需 artifacts，也不参与其结构检查；
+   附加目录仍受仓库边界检查约束。
 7. Catalog 只发现 Change 根的直接普通目录，并排除 `.change-plan-tombstones`。它不递归发现更深层
    Change，也不把文件或符号链接作为列表成员。
 8. `plan` 与 `finalize` 在受信工作区中由单一操作者执行。命令运行期间，目标 Change、Change 根和
    tombstone 路径的命名空间保持稳定；工具拒绝已观察到的符号链接、身份变化和目标冲突，但不把这些
    路径检查当作跨进程锁或恶意并发改名隔离。
+
+### 单一项目仓库边界
+
+Change 根为同一项目保存计划材料，根及其活动真实目录树不支持内嵌 Git 仓库。六个命令在读取
+metadata、artifacts、查询 Git 或写入前，先检查完整根；阶段筛选和单项选择都遵守此边界。
+
+检查要求根为可读的普通真实目录，并遍历所有普通子目录，包括附加证据目录；符号链接目录和根下
+私有 `.change-plan-tombstones/` 不参与遍历。命令期间保持仓库布局稳定；检查不是跨进程锁。
+
+以下任一标记使检查失败，标记内容无需读取：
+
+- `.git` 成员：目录、gitfile、符号链接或损坏入口均适用。
+- 裸仓库布局：同一目录包含非目录 `HEAD` 以及普通目录 `objects/`、`refs/`。
+
+发现标记返回 `change-root-contains-repository`；所需目录无法完整检查时返回
+`change-root-read-failed`。失败会阻断整个根的操作：集合返回根级 `errors` 与空 `entries`，单项返回
+对应诊断；均以 `1` 退出，不读取 artifacts 或执行写入。集合只检查一次完整根。
+
+### 规范 metadata
 
 规范 metadata 不包含 schema version，以 `stage` 判别且每个对象只允许对应示例中的字段。
 Parser 与 writer 接受以下结构：
@@ -203,6 +223,10 @@ Tasks 规则：
 
 ## Plan Git 距离
 
+需要 Git 证据时，统一使用 Change 根所属的上层项目仓库；普通仓库与 linked worktree 均可。
+`list` 与 `check-all` 在单次查询中共享仓库发现和 `HEAD`，同基线历史只读取一次，每个 Change
+仍独立排除自己的目录内变化。缓存在查询结束后退出；Draft 查询和 `list --stage draft` 不调用 Git。
+
 Plan 使用 `baseCommit` 到当前 `HEAD` 的 first-parent Git 距离。可用时从基线到当前 `HEAD`
 逐个提交统计：
 
@@ -283,6 +307,8 @@ change-directory-not-active-member
 change-directory-not-found
 change-directory-read-failed
 change-path-not-directory
+change-root-contains-repository
+change-root-read-failed
 duplicate-section
 duplicate-task-id
 empty-introduction

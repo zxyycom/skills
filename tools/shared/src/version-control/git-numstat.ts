@@ -9,8 +9,13 @@ import type {
 const objectIdPattern = /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/u;
 const lineCountPattern = /^(?:0|[1-9][0-9]*)$/u;
 
-type RevisionHeader = {
-  parents: RevisionId[];
+type RevisionHeader = Readonly<{
+  parents: readonly RevisionId[];
+  revision: RevisionId;
+}>;
+
+type RevisionBuilder = {
+  changes: VersionControlPathChange[];
   revision: RevisionId;
 };
 
@@ -18,14 +23,14 @@ type RevisionParseResult = {
   expectedParent: RevisionId;
   expectingChangeSeparator: boolean;
   expectingHeader: boolean;
-  revisions: VersionControlRevisionChange[];
+  revisions: RevisionBuilder[];
 };
 
 export function parseGitFirstParentRevisionChanges(
   output: string,
   from: RevisionId,
   to: RevisionId
-): VersionControlRevisionChange[] | null {
+): readonly VersionControlRevisionChange[] | null {
   if (from === to) {
     if (output.length !== 0) {
       throw parseError();
@@ -57,8 +62,8 @@ function parseRevisionTokens(
   tokens: readonly string[],
   from: RevisionId
 ): RevisionParseResult | null {
-  const revisions: VersionControlRevisionChange[] = [];
-  let current: VersionControlRevisionChange | null = null;
+  const revisions: RevisionBuilder[] = [];
+  let current: RevisionBuilder | null = null;
   let expectingHeader = true;
   let expectingChangeSeparator = false;
   let expectedParent = from;
@@ -109,7 +114,7 @@ function assertChangeSeparator(token: string): void {
 }
 
 function appendRevisionChange(
-  current: VersionControlRevisionChange | null,
+  current: RevisionBuilder | null,
   token: string
 ): void {
   if (current === null) throw parseError();
@@ -128,9 +133,7 @@ function validateRevisionParseResult(result: RevisionParseResult): void {
   }
 }
 
-function normalizeRevisionChanges(
-  revisions: VersionControlRevisionChange[]
-): void {
+function normalizeRevisionChanges(revisions: readonly RevisionBuilder[]): void {
   for (const revision of revisions) {
     const seenPaths = new Set<string>();
     revision.changes.sort((left, right) => left.path.localeCompare(right.path));

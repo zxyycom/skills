@@ -7,6 +7,7 @@ export const changePlanArtifactNames = [
 ] as const;
 
 export const changePlanMetadataName = ".change-plan.json" as const;
+export const tombstoneDirectoryName = ".change-plan-tombstones";
 
 export type ChangePlanArtifactName = (typeof changePlanArtifactNames)[number];
 
@@ -20,12 +21,12 @@ export type ChangePlanStage = ChangePlanMetadata["stage"];
 
 export type { ChangePlanMetadata } from "./metadata.ts";
 
-export type GitDistanceEvidence = {
+export type GitDistanceEvidence = Readonly<{
   baseCommit: string;
   changedLines: number;
   commitCount: number;
   headCommit: string;
-};
+}>;
 
 export type ChangePlanTaskSection =
   | "readiness"
@@ -78,6 +79,8 @@ export type ChangePlanDiagnosticCode =
   | "change-directory-not-found"
   | "change-directory-read-failed"
   | "change-path-not-directory"
+  | "change-root-contains-repository"
+  | "change-root-read-failed"
   | "duplicate-section"
   | "duplicate-task-id"
   | "empty-introduction"
@@ -116,14 +119,14 @@ export type ChangePlanCheckResult = {
   valid: boolean;
 };
 
-export type ChangePlanCollectionOptions = {
+export type ChangePlanCollectionOptions = Readonly<{
   changeRoot?: string;
-};
+}>;
 
-export type ChangePlanListOptions = {
+export type ChangePlanListOptions = Readonly<{
   changeRoot?: string;
   stage?: ChangePlanStage;
-};
+}>;
 
 export type ChangePlanListEntry = ChangePlanCheckResult;
 

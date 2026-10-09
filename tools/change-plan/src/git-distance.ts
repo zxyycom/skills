@@ -4,39 +4,36 @@ import {
   VersionControlError,
   type VersionControlRepository
 } from "../../shared/src/version-control/index.ts";
-import { listFirstParentRevisionChanges } from "../../shared/src/version-control/git-first-parent.ts";
+import type { VersionControlRevisionChange } from "../../shared/src/version-control/types.ts";
+import { listResolvedFirstParentRevisionChanges } from "../../shared/src/version-control/git-first-parent.ts";
 import { repositoryRelativePathFromFileSystemPath } from "../../shared/src/version-control/repository-relative-path.ts";
 import type { GitDistanceEvidence } from "./types.ts";
 export type { GitDistanceEvidence } from "./types.ts";
 
 export type PlanVersionControlInspection =
-  | {
+  | Readonly<{
       baseCommit: string;
       headCommit: string | null;
       outcome: "base-unavailable";
-    }
-  | {
+    }>
+  | Readonly<{
       evidence: GitDistanceEvidence;
       outcome: "measured";
-    };
+    }>;
 
-type ChangeRepositoryContext = {
-  changePath: string;
-  repository: VersionControlRepository;
-};
+export type PlanVersionControlInspector = (
+  changeDirectory: string,
+  baseCommit: string
+) => Promise<PlanVersionControlInspection>;
 
-async function repositoryContext(
-  changeDirectory: string
-): Promise<ChangeRepositoryContext> {
-  const repository = await openVersionControl(changeDirectory);
-  return {
-    changePath: repositoryRelativePathFromFileSystemPath(
-      repository.rootDirectory,
-      path.resolve(changeDirectory)
-    ),
-    repository
-  };
-}
+type PlanHistory =
+  | Extract<PlanVersionControlInspection, { outcome: "base-unavailable" }>
+  | Readonly<{
+      baseCommit: string;
+      headCommit: string;
+      outcome: "available";
+      revisions: readonly VersionControlRevisionChange[];
+    }>;
 
 function isInsideChange(file: string, changePath: string): boolean {
   return file.startsWith(`${changePath}/`);
@@ -59,24 +56,15 @@ async function resolveCommit(
   }
 }
 
-async function measureResolvedGitDistance(
-  context: ChangeRepositoryContext,
-  resolvedBase: string,
-  headCommit: string
-): Promise<GitDistanceEvidence | null> {
-  const revisions = await listFirstParentRevisionChanges(context.repository, {
-    from: resolvedBase,
-    to: headCommit
-  });
-  if (revisions === null) {
-    return null;
-  }
-
+function measureGitDistance(
+  changePath: string,
+  history: Extract<PlanHistory, { outcome: "available" }>
+): GitDistanceEvidence {
   let changedLines = 0;
   let commitCount = 0;
-  for (const revision of revisions) {
+  for (const revision of history.revisions) {
     const outsideChanges = revision.changes.filter(
-      (change) => !isInsideChange(change.path, context.changePath)
+      (change) => !isInsideChange(change.path, changePath)
     );
     const onlyChangesCurrentChange =
       revision.changes.length > 0 && outsideChanges.length === 0;
@@ -85,24 +73,25 @@ async function measureResolvedGitDistance(
     }
 
     commitCount += 1;
-    for (const change of outsideChanges) {
-      changedLines +=
-        (change.addedLineCount ?? 0) + (change.deletedLineCount ?? 0);
-    }
+    changedLines += outsideChanges.reduce(
+      (lines, change) =>
+        lines + (change.addedLineCount ?? 0) + (change.deletedLineCount ?? 0),
+      0
+    );
   }
 
   return {
-    baseCommit: resolvedBase,
+    baseCommit: history.baseCommit,
     changedLines,
     commitCount,
-    headCommit
+    headCommit: history.headCommit
   };
 }
 
 export async function readCurrentHeadCommit(
   changeDirectory: string
 ): Promise<string | null> {
-  const repository = await openVersionControl(changeDirectory);
+  const repository = await openVersionControl(path.dirname(changeDirectory));
   return await repository.getCurrentRevision();
 }
 
@@ -110,23 +99,68 @@ export async function inspectPlanVersionControl(
   changeDirectory: string,
   baseCommit: string
 ): Promise<PlanVersionControlInspection> {
-  const context = await repositoryContext(changeDirectory);
-  const headCommit = await context.repository.getCurrentRevision();
+  return await createPlanVersionControlInspector(path.dirname(changeDirectory))(
+    changeDirectory,
+    baseCommit
+  );
+}
+
+/** One query owns these promises, including failures; no cache survives a query. */
+export function createPlanVersionControlInspector(
+  changeRoot: string
+): PlanVersionControlInspector {
+  let repositoryQuery: Promise<VersionControlRepository> | undefined;
+  let currentHead: Promise<string | null> | undefined;
+  const histories = new Map<string, Promise<PlanHistory>>();
+  return async (changeDirectory, baseCommit) => {
+    // The caller checks the whole Change root before sharing this repository.
+    repositoryQuery ??= openVersionControl(changeRoot);
+    const repository = await repositoryQuery;
+    const changePath = repositoryRelativePathFromFileSystemPath(
+      repository.rootDirectory,
+      path.resolve(changeDirectory)
+    );
+    currentHead ??= repository.getCurrentRevision();
+    let history = histories.get(baseCommit);
+    if (history === undefined) {
+      history = readPlanHistory(repository, currentHead, baseCommit);
+      histories.set(baseCommit, history);
+    }
+    const result = await history;
+    return result.outcome === "base-unavailable"
+      ? result
+      : {
+          evidence: measureGitDistance(changePath, result),
+          outcome: "measured"
+        };
+  };
+}
+
+async function readPlanHistory(
+  repository: VersionControlRepository,
+  currentHead: Promise<string | null>,
+  baseCommit: string
+): Promise<PlanHistory> {
+  const headCommit = await currentHead;
   if (headCommit === null) {
     return { baseCommit, headCommit, outcome: "base-unavailable" };
   }
 
-  const resolvedBase = await resolveCommit(context.repository, baseCommit);
+  const resolvedBase = await resolveCommit(repository, baseCommit);
   if (resolvedBase === null) {
     return { baseCommit, headCommit, outcome: "base-unavailable" };
   }
-  const evidence = await measureResolvedGitDistance(
-    context,
-    resolvedBase,
-    headCommit
-  );
-  if (evidence === null) {
+  const revisions = await listResolvedFirstParentRevisionChanges(repository, {
+    from: resolvedBase,
+    to: headCommit
+  });
+  if (revisions === null) {
     return { baseCommit, headCommit, outcome: "base-unavailable" };
   }
-  return { evidence, outcome: "measured" };
+  return {
+    baseCommit: resolvedBase,
+    headCommit,
+    outcome: "available",
+    revisions
+  };
 }
