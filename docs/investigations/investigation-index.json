@@ -200,6 +200,24 @@
       ],
       "title": "调查暂存的文件表示误判与保真修复"
     },
+    "261009-skill-cli-repeated-process-and-source-access": {
+      "formedAt": "2026-10-09T03:33:16Z",
+      "name": "skill-cli-repeated-process-and-source-access",
+      "question": "Change 之外的 Skill CLI 是否重复访问同一 Git 上下文或集合来源，哪些路径已形成可复现的扩展问题？",
+      "relations": [],
+      "resourceIds": [
+        "261009-skill-cli-repeated-process-and-source-access/measure-process-access.py",
+        "261009-skill-cli-repeated-process-and-source-access/observations.json"
+      ],
+      "sourcePath": "skill-cli-repeated-process-and-source-access.md",
+      "tags": [
+        "git-integration",
+        "performance",
+        "root-cause-analysis",
+        "skill-tooling"
+      ],
+      "title": "其他 Skill CLI 的重复进程与集合读取"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -857,6 +875,7 @@
       "261004-jev-record-maintenance-boundaries": "sha256:168f6931ca8b9f1392643ec7606dd8dfad06f87eacd4d26c4c23c8c676024046",
       "261004-lightweight-judgment-wal-init-contention": "sha256:3dc57830e8c2b5f466922ea241f86702a776ea8ebcb091018705157c8933fde7",
       "261005-pending-file-representation-conflict": "sha256:2fb0c701b837460cb5324b091afd36bf4035307b1cc40eee180cf7358a2558d1",
+      "261009-skill-cli-repeated-process-and-source-access": "sha256:c36ef47b219d7f4c7c8ce1496b70aeee91958106a01835275793a8fe0eca64be",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",
