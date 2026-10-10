@@ -218,6 +218,31 @@
       ],
       "title": "其他 Skill CLI 的重复进程与集合读取"
     },
+    "261010-investigation-acquisition-performance-recheck": {
+      "formedAt": "2026-10-10T07:11:53Z",
+      "name": "investigation-acquisition-performance-recheck",
+      "question": "发布快照、局部验证、候选与 domain 暂存按职责取源后，重复正文读取与 Git 进程是否减少且关键写入保护仍成立？",
+      "relations": [
+        {
+          "summary": "同样本复查 Investigation，Decision保持原边界",
+          "target": "261009-skill-cli-repeated-process-and-source-access",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261009-skill-cli-repeated-process-and-source-access/measure-process-access.py",
+        "261010-investigation-acquisition-performance-recheck/final-optimization-observations.json",
+        "261010-investigation-acquisition-performance-recheck/measure-snapshot-query-access.py",
+        "261010-investigation-acquisition-performance-recheck/observations.json"
+      ],
+      "sourcePath": "investigation-acquisition-performance-recheck.md",
+      "tags": [
+        "performance",
+        "root-cause-analysis",
+        "skill-tooling"
+      ],
+      "title": "调查读取职责收敛后的性能复查"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -876,6 +901,7 @@
       "261004-lightweight-judgment-wal-init-contention": "sha256:3dc57830e8c2b5f466922ea241f86702a776ea8ebcb091018705157c8933fde7",
       "261005-pending-file-representation-conflict": "sha256:2fb0c701b837460cb5324b091afd36bf4035307b1cc40eee180cf7358a2558d1",
       "261009-skill-cli-repeated-process-and-source-access": "sha256:c36ef47b219d7f4c7c8ce1496b70aeee91958106a01835275793a8fe0eca64be",
+      "261010-investigation-acquisition-performance-recheck": "sha256:363386f7d53281c571fabb6682fb3f8e69c28be86b0437033e7f37751efba60a",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

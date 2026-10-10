@@ -1,0 +1,998 @@
+{
+  "schemaVersion": 1,
+  "observedAtUTC": "2026-10-10T07:48:22.230634Z",
+  "baselineCommit": "3e6e8cd7ffeaf280b721d3029ba8fa909b8a5af4",
+  "state": "uncommitted implementation checkpoints during final document and code optimization on the same baseline",
+  "generatedCliSha256": {
+    "investigation-report": "6b00d4c97e3b798ffea7cba18fcada6fe32befe361d28199d2dcb8df52441dd5",
+    "decision-records": "f111e201658d9b4dc0a92cda132adb41c59aa889b06694b97b5ed2dca4967ef8"
+  },
+  "environment": {
+    "node": "v26.8.2",
+    "bun": "1.4.2",
+    "git": "git version 2.53.0",
+    "python": "Python 3.14.7"
+  },
+  "method": "Replay unchanged predecessor measure-process-access.py --count 1 --count 20 and same-round measure-snapshot-query-access.py. Fixtures automatically clean their isolated repositories; main pending remains unchanged.",
+  "after": [
+    {
+      "skill": "investigation-report",
+      "command": "candidates",
+      "sample_size": 1,
+      "fixture": "candidates-1-True",
+      "git_calls": 2,
+      "commands": {
+        "rev-parse": 1,
+        "ls-files": 1
+      },
+      "filesystem": {
+        "readFile": 2,
+        "candidateReadFile": 1
+      },
+      "elapsed_single_ms": 134,
+      "exit": 0
+    },
+    {
+      "skill": "investigation-report",
+      "command": "candidates",
+      "sample_size": 1,
+      "fixture": "candidates-1-False",
+      "git_calls": 0,
+      "commands": {},
+      "filesystem": {
+        "readFile": 2,
+        "candidateReadFile": 1
+      },
+      "elapsed_single_ms": 75,
+      "exit": 0
+    },
+    {
+      "skill": "investigation-report",
+      "command": "check",
+      "sample_size": 1,
+      "fixture": "formal-1",
+      "git_calls": 2,
+      "commands": {
+        "rev-parse": 1,
+        "ls-files": 1
+      },
+      "filesystem": {
+        "readFile": 2,
+        "candidateReadFile": 0
+      },
+      "elapsed_single_ms": 143,
+      "exit": 0
+    },
+    {
+      "skill": "investigation-report",
+      "command": "check",
+      "sample_size": 1,
+      "fixture": "formal-1",
+      "git_calls": 2,
+      "commands": {
+        "rev-parse": 1,
+        "ls-files": 1
+      },
+      "filesystem": {
+        "readFile": 3,
+        "candidateReadFile": 0
+      },
+      "elapsed_single_ms": 137,
+      "exit": 0
+    },
+    {
+      "skill": "investigation-report",
+      "command": "stage",
+      "sample_size": 1,
+      "fixture": "formal-1",
+      "git_calls": 24,
+      "commands": {
+        "rev-parse": 9,
+        "ls-files": 5,
+        "ls-tree": 4,
+        "cat-file": 4,
+        "config": 2
+      },
+      "filesystem": {
+        "readFile": 7,
+        "candidateReadFile": 0
+      },
+      "elapsed_single_ms": 225,
+      "exit": 0
+    },
+    {
+      "skill": "investigation-report",
+      "command": "stage",
+      "sample_size": 1,
+      "fixture": "formal-1",
+      "git_calls": 26,
+      "commands": {
+        "rev-parse": 9,
+        "ls-files": 7,
+        "ls-tree": 4,
+        "cat-file": 4,
+        "config": 2
+      },
+      "filesystem": {
+        "readFile": 7,
+        "candidateReadFile": 0
+      },
+      "elapsed_single_ms": 234,
+      "exit": 0
+    },
+    {
+      "skill": "decision-records",
+      "command": "stage",
+      "sample_size": 1,
+      "fixture": "decisions-1",
+      "git_calls": 15,
+      "commands": {
+        "rev-parse": 7,
+        "ls-files": 2,
+        "cat-file": 3,
+        "diff": 1,
+        "ls-tree": 2
+      },
+      "filesystem": {
+        "readFile": 4,
+        "candidateReadFile": 0
+      },
+      "elapsed_single_ms": 242,
+      "exit": 0
+    },
+    {
+      "skill": "decision-records",
+      "command": "archive",
+      "sample_size": 1,
+      "fixture": "decisions-1",
+      "git_calls": 7,
+      "commands": {
+        "rev-parse": 4,
+        "ls-tree": 2,
+        "cat-file": 1
+      },
+      "filesystem": {
+        "readFile": 23,
+        "candidateReadFile": 0
+      },
+      "elapsed_single_ms": 175,
+      "exit": 0
+    },
+    {
+      "skill": "investigation-report",
+      "command": "candidates",
+      "sample_size": 20,
+      "fixture": "candidates-20-True",
+      "git_calls": 2,
+      "commands": {
+        "rev-parse": 1,
+        "ls-files": 1
+      },
+      "filesystem": {
+        "readFile": 21,
+        "candidateReadFile": 20
+      },
+      "elapsed_single_ms": 160,
+      "exit": 0
+    },
+    {
+      "skill": "investigation-report",
+      "command": "candidates",
+      "sample_size": 20,
+      "fixture": "candidates-20-False",
+      "git_calls": 0,
+      "commands": {},
+      "filesystem": {
+        "readFile": 21,
+        "candidateReadFile": 20
+      },
+      "elapsed_single_ms": 80,
+      "exit": 0
+    },
+    {
+      "skill": "investigation-report",
+      "command": "check",
+      "sample_size": 20,
+      "fixture": "formal-20",
+      "git_calls": 2,
+      "commands": {
+        "rev-parse": 1,
+        "ls-files": 1
+      },
+      "filesystem": {
+        "readFile": 21,
+        "candidateReadFile": 0
+      },
+      "elapsed_single_ms": 155,
+      "exit": 0
+    },
+    {
+      "skill": "investigation-report",
+      "command": "check",
+      "sample_size": 20,
+      "fixture": "formal-20",
+      "git_calls": 2,
+      "commands": {
+        "rev-parse": 1,
+        "ls-files": 1
+      },
+      "filesystem": {
+        "readFile": 41,
+        "candidateReadFile": 0
+      },
+      "elapsed_single_ms": 162,
+      "exit": 0
+    },
+    {
+      "skill": "investigation-report",
+      "command": "stage",
+      "sample_size": 20,
+      "fixture": "formal-20",
+      "git_calls": 24,
+      "commands": {
+        "rev-parse": 9,
+        "ls-files": 5,
+        "ls-tree": 4,
+        "cat-file": 4,
+        "config": 2
+      },
+      "filesystem": {
+        "readFile": 102,
+        "candidateReadFile": 0
+      },
+      "elapsed_single_ms": 294,
+      "exit": 0
+    },
+    {
+      "skill": "investigation-report",
+      "command": "stage",
+      "sample_size": 20,
+      "fixture": "formal-20",
+      "git_calls": 26,
+      "commands": {
+        "rev-parse": 9,
+        "ls-files": 7,
+        "ls-tree": 4,
+        "cat-file": 4,
+        "config": 2
+      },
+      "filesystem": {
+        "readFile": 102,
+        "candidateReadFile": 0
+      },
+      "elapsed_single_ms": 295,
+      "exit": 0
+    },
+    {
+      "skill": "decision-records",
+      "command": "stage",
+      "sample_size": 20,
+      "fixture": "decisions-20",
+      "git_calls": 15,
+      "commands": {
+        "rev-parse": 7,
+        "ls-files": 2,
+        "cat-file": 3,
+        "diff": 1,
+        "ls-tree": 2
+      },
+      "filesystem": {
+        "readFile": 441,
+        "candidateReadFile": 0
+      },
+      "elapsed_single_ms": 460,
+      "exit": 0
+    },
+    {
+      "skill": "decision-records",
+      "command": "archive",
+      "sample_size": 20,
+      "fixture": "decisions-20",
+      "git_calls": 7,
+      "commands": {
+        "rev-parse": 4,
+        "ls-tree": 2,
+        "cat-file": 1
+      },
+      "filesystem": {
+        "readFile": 270,
+        "candidateReadFile": 0
+      },
+      "elapsed_single_ms": 332,
+      "exit": 0
+    }
+  ],
+  "snapshotQueries": [
+    {
+      "arguments": [
+        "list",
+        "--limit",
+        "1"
+      ],
+      "published_report_count": 49,
+      "filesystem": {
+        "formalReadFile": 0,
+        "distinctFormalFiles": 0
+      },
+      "exit": 0
+    },
+    {
+      "arguments": [
+        "search",
+        "Git",
+        "--in",
+        "metadata",
+        "--limit",
+        "1"
+      ],
+      "published_report_count": 49,
+      "filesystem": {
+        "formalReadFile": 0,
+        "distinctFormalFiles": 0
+      },
+      "exit": 0
+    }
+  ],
+  "comparison": "All command, Git and filesystem counts match the initial after in observations.json; elapsed_single_ms is a new individual observation, not a speedup estimate.",
+  "limitations": [
+    "No after N=100 measurement.",
+    "Single-run timings do not establish steady-state latency.",
+    "These fixtures do not prove arbitrary histories, resource topologies, platforms or concurrent schedules."
+  ],
+  "rechecks": [
+    {
+      "observedAtUTC": "2026-10-10T07:53:54.795209Z",
+      "generatedCliSha256": {
+        "investigation-report": "7767b06bb579bf26e7dcecc500ab57abaf29f94a56709373daab84057342d53c",
+        "decision-records": "834b3d4f07ce8ac6807708600d36e13a295cc41eb28d99f4d5f904d872df0195"
+      },
+      "after": [
+        {
+          "skill": "investigation-report",
+          "command": "candidates",
+          "sample_size": 1,
+          "fixture": "candidates-1-True",
+          "git_calls": 2,
+          "commands": {
+            "rev-parse": 1,
+            "ls-files": 1
+          },
+          "filesystem": {
+            "readFile": 2,
+            "candidateReadFile": 1
+          },
+          "elapsed_single_ms": 135,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "candidates",
+          "sample_size": 1,
+          "fixture": "candidates-1-False",
+          "git_calls": 0,
+          "commands": {},
+          "filesystem": {
+            "readFile": 2,
+            "candidateReadFile": 1
+          },
+          "elapsed_single_ms": 74,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "check",
+          "sample_size": 1,
+          "fixture": "formal-1",
+          "git_calls": 2,
+          "commands": {
+            "rev-parse": 1,
+            "ls-files": 1
+          },
+          "filesystem": {
+            "readFile": 2,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 143,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "check",
+          "sample_size": 1,
+          "fixture": "formal-1",
+          "git_calls": 2,
+          "commands": {
+            "rev-parse": 1,
+            "ls-files": 1
+          },
+          "filesystem": {
+            "readFile": 3,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 136,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "stage",
+          "sample_size": 1,
+          "fixture": "formal-1",
+          "git_calls": 24,
+          "commands": {
+            "rev-parse": 9,
+            "ls-files": 5,
+            "ls-tree": 4,
+            "cat-file": 4,
+            "config": 2
+          },
+          "filesystem": {
+            "readFile": 7,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 214,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "stage",
+          "sample_size": 1,
+          "fixture": "formal-1",
+          "git_calls": 26,
+          "commands": {
+            "rev-parse": 9,
+            "ls-files": 7,
+            "ls-tree": 4,
+            "cat-file": 4,
+            "config": 2
+          },
+          "filesystem": {
+            "readFile": 7,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 266,
+          "exit": 0
+        },
+        {
+          "skill": "decision-records",
+          "command": "stage",
+          "sample_size": 1,
+          "fixture": "decisions-1",
+          "git_calls": 15,
+          "commands": {
+            "rev-parse": 7,
+            "ls-files": 2,
+            "cat-file": 3,
+            "diff": 1,
+            "ls-tree": 2
+          },
+          "filesystem": {
+            "readFile": 4,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 237,
+          "exit": 0
+        },
+        {
+          "skill": "decision-records",
+          "command": "archive",
+          "sample_size": 1,
+          "fixture": "decisions-1",
+          "git_calls": 7,
+          "commands": {
+            "rev-parse": 4,
+            "ls-tree": 2,
+            "cat-file": 1
+          },
+          "filesystem": {
+            "readFile": 23,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 162,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "candidates",
+          "sample_size": 20,
+          "fixture": "candidates-20-True",
+          "git_calls": 2,
+          "commands": {
+            "rev-parse": 1,
+            "ls-files": 1
+          },
+          "filesystem": {
+            "readFile": 21,
+            "candidateReadFile": 20
+          },
+          "elapsed_single_ms": 147,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "candidates",
+          "sample_size": 20,
+          "fixture": "candidates-20-False",
+          "git_calls": 0,
+          "commands": {},
+          "filesystem": {
+            "readFile": 21,
+            "candidateReadFile": 20
+          },
+          "elapsed_single_ms": 78,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "check",
+          "sample_size": 20,
+          "fixture": "formal-20",
+          "git_calls": 2,
+          "commands": {
+            "rev-parse": 1,
+            "ls-files": 1
+          },
+          "filesystem": {
+            "readFile": 21,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 145,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "check",
+          "sample_size": 20,
+          "fixture": "formal-20",
+          "git_calls": 2,
+          "commands": {
+            "rev-parse": 1,
+            "ls-files": 1
+          },
+          "filesystem": {
+            "readFile": 41,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 137,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "stage",
+          "sample_size": 20,
+          "fixture": "formal-20",
+          "git_calls": 24,
+          "commands": {
+            "rev-parse": 9,
+            "ls-files": 5,
+            "ls-tree": 4,
+            "cat-file": 4,
+            "config": 2
+          },
+          "filesystem": {
+            "readFile": 102,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 280,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "stage",
+          "sample_size": 20,
+          "fixture": "formal-20",
+          "git_calls": 26,
+          "commands": {
+            "rev-parse": 9,
+            "ls-files": 7,
+            "ls-tree": 4,
+            "cat-file": 4,
+            "config": 2
+          },
+          "filesystem": {
+            "readFile": 102,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 278,
+          "exit": 0
+        },
+        {
+          "skill": "decision-records",
+          "command": "stage",
+          "sample_size": 20,
+          "fixture": "decisions-20",
+          "git_calls": 15,
+          "commands": {
+            "rev-parse": 7,
+            "ls-files": 2,
+            "cat-file": 3,
+            "diff": 1,
+            "ls-tree": 2
+          },
+          "filesystem": {
+            "readFile": 441,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 427,
+          "exit": 0
+        },
+        {
+          "skill": "decision-records",
+          "command": "archive",
+          "sample_size": 20,
+          "fixture": "decisions-20",
+          "git_calls": 7,
+          "commands": {
+            "rev-parse": 4,
+            "ls-tree": 2,
+            "cat-file": 1
+          },
+          "filesystem": {
+            "readFile": 270,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 329,
+          "exit": 0
+        }
+      ],
+      "snapshotQueries": [
+        {
+          "arguments": [
+            "list",
+            "--limit",
+            "1"
+          ],
+          "published_report_count": 49,
+          "filesystem": {
+            "formalReadFile": 0,
+            "distinctFormalFiles": 0
+          },
+          "exit": 0
+        },
+        {
+          "arguments": [
+            "search",
+            "Git",
+            "--in",
+            "metadata",
+            "--limit",
+            "1"
+          ],
+          "published_report_count": 49,
+          "filesystem": {
+            "formalReadFile": 0,
+            "distinctFormalFiles": 0
+          },
+          "exit": 0
+        }
+      ],
+      "comparison": "Same counts as initial implementation and prior optimization checkpoint; prior measurements and fingerprints above are retained."
+    },
+    {
+      "observedAtUTC": "2026-10-10T07:56:14.435974Z",
+      "generatedCliSha256": {
+        "investigation-report": "f4cb1f7d4079aa371d53241ded88bf11e92b23b88e614d1656f08acecef8e177",
+        "decision-records": "4324299c14b019408cccd57654fbf6365acad1ec0763e23afa193de0bd6dc309"
+      },
+      "after": [
+        {
+          "skill": "investigation-report",
+          "command": "candidates",
+          "sample_size": 1,
+          "fixture": "candidates-1-True",
+          "git_calls": 2,
+          "commands": {
+            "rev-parse": 1,
+            "ls-files": 1
+          },
+          "filesystem": {
+            "readFile": 2,
+            "candidateReadFile": 1
+          },
+          "elapsed_single_ms": 143,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "candidates",
+          "sample_size": 1,
+          "fixture": "candidates-1-False",
+          "git_calls": 0,
+          "commands": {},
+          "filesystem": {
+            "readFile": 2,
+            "candidateReadFile": 1
+          },
+          "elapsed_single_ms": 85,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "check",
+          "sample_size": 1,
+          "fixture": "formal-1",
+          "git_calls": 2,
+          "commands": {
+            "rev-parse": 1,
+            "ls-files": 1
+          },
+          "filesystem": {
+            "readFile": 2,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 138,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "check",
+          "sample_size": 1,
+          "fixture": "formal-1",
+          "git_calls": 2,
+          "commands": {
+            "rev-parse": 1,
+            "ls-files": 1
+          },
+          "filesystem": {
+            "readFile": 3,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 135,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "stage",
+          "sample_size": 1,
+          "fixture": "formal-1",
+          "git_calls": 24,
+          "commands": {
+            "rev-parse": 9,
+            "ls-files": 5,
+            "ls-tree": 4,
+            "cat-file": 4,
+            "config": 2
+          },
+          "filesystem": {
+            "readFile": 7,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 213,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "stage",
+          "sample_size": 1,
+          "fixture": "formal-1",
+          "git_calls": 26,
+          "commands": {
+            "rev-parse": 9,
+            "ls-files": 7,
+            "ls-tree": 4,
+            "cat-file": 4,
+            "config": 2
+          },
+          "filesystem": {
+            "readFile": 7,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 212,
+          "exit": 0
+        },
+        {
+          "skill": "decision-records",
+          "command": "stage",
+          "sample_size": 1,
+          "fixture": "decisions-1",
+          "git_calls": 15,
+          "commands": {
+            "rev-parse": 7,
+            "ls-files": 2,
+            "cat-file": 3,
+            "diff": 1,
+            "ls-tree": 2
+          },
+          "filesystem": {
+            "readFile": 4,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 276,
+          "exit": 0
+        },
+        {
+          "skill": "decision-records",
+          "command": "archive",
+          "sample_size": 1,
+          "fixture": "decisions-1",
+          "git_calls": 7,
+          "commands": {
+            "rev-parse": 4,
+            "ls-tree": 2,
+            "cat-file": 1
+          },
+          "filesystem": {
+            "readFile": 23,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 206,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "candidates",
+          "sample_size": 20,
+          "fixture": "candidates-20-True",
+          "git_calls": 2,
+          "commands": {
+            "rev-parse": 1,
+            "ls-files": 1
+          },
+          "filesystem": {
+            "readFile": 21,
+            "candidateReadFile": 20
+          },
+          "elapsed_single_ms": 166,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "candidates",
+          "sample_size": 20,
+          "fixture": "candidates-20-False",
+          "git_calls": 0,
+          "commands": {},
+          "filesystem": {
+            "readFile": 21,
+            "candidateReadFile": 20
+          },
+          "elapsed_single_ms": 84,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "check",
+          "sample_size": 20,
+          "fixture": "formal-20",
+          "git_calls": 2,
+          "commands": {
+            "rev-parse": 1,
+            "ls-files": 1
+          },
+          "filesystem": {
+            "readFile": 21,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 154,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "check",
+          "sample_size": 20,
+          "fixture": "formal-20",
+          "git_calls": 2,
+          "commands": {
+            "rev-parse": 1,
+            "ls-files": 1
+          },
+          "filesystem": {
+            "readFile": 41,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 137,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "stage",
+          "sample_size": 20,
+          "fixture": "formal-20",
+          "git_calls": 24,
+          "commands": {
+            "rev-parse": 9,
+            "ls-files": 5,
+            "ls-tree": 4,
+            "cat-file": 4,
+            "config": 2
+          },
+          "filesystem": {
+            "readFile": 102,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 278,
+          "exit": 0
+        },
+        {
+          "skill": "investigation-report",
+          "command": "stage",
+          "sample_size": 20,
+          "fixture": "formal-20",
+          "git_calls": 26,
+          "commands": {
+            "rev-parse": 9,
+            "ls-files": 7,
+            "ls-tree": 4,
+            "cat-file": 4,
+            "config": 2
+          },
+          "filesystem": {
+            "readFile": 102,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 289,
+          "exit": 0
+        },
+        {
+          "skill": "decision-records",
+          "command": "stage",
+          "sample_size": 20,
+          "fixture": "decisions-20",
+          "git_calls": 15,
+          "commands": {
+            "rev-parse": 7,
+            "ls-files": 2,
+            "cat-file": 3,
+            "diff": 1,
+            "ls-tree": 2
+          },
+          "filesystem": {
+            "readFile": 441,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 428,
+          "exit": 0
+        },
+        {
+          "skill": "decision-records",
+          "command": "archive",
+          "sample_size": 20,
+          "fixture": "decisions-20",
+          "git_calls": 7,
+          "commands": {
+            "rev-parse": 4,
+            "ls-tree": 2,
+            "cat-file": 1
+          },
+          "filesystem": {
+            "readFile": 270,
+            "candidateReadFile": 0
+          },
+          "elapsed_single_ms": 317,
+          "exit": 0
+        }
+      ],
+      "snapshotQueries": [
+        {
+          "arguments": [
+            "list",
+            "--limit",
+            "1"
+          ],
+          "published_report_count": 49,
+          "filesystem": {
+            "formalReadFile": 0,
+            "distinctFormalFiles": 0
+          },
+          "exit": 0
+        },
+        {
+          "arguments": [
+            "search",
+            "Git",
+            "--in",
+            "metadata",
+            "--limit",
+            "1"
+          ],
+          "published_report_count": 49,
+          "filesystem": {
+            "formalReadFile": 0,
+            "distinctFormalFiles": 0
+          },
+          "exit": 0
+        }
+      ],
+      "comparison": "Same counts as initial implementation and prior optimization checkpoints; this entry identifies the frozen final generated CLI."
+    }
+  ]
+}
