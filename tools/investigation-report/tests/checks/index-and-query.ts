@@ -8,3 +8,4 @@ await import("../list-facets.test.ts");
 await import("../acquisition-contract.test.ts");
 await import("../identity-membership.test.ts");
 await import("../candidate-read-failure.test.ts");
+await import("../snapshot-check-contract.test.ts");

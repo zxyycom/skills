@@ -11,7 +11,7 @@ import {
   investigationIndexDiagnosticMessages,
   investigationIndexFileName,
   loadInvestigationIndex,
-  syncInvestigationStateIndex
+  checkInvestigationStateSnapshot
 } from "./investigation-state-index.ts";
 import { parseInvestigationReport } from "./markdown.ts";
 import {
@@ -66,9 +66,8 @@ async function validateSynchronizedCollection(
   collection: ValidatedInvestigationCollection,
   snapshot: InvestigationSnapshot
 ): Promise<InvestigationReportCheckResult> {
-  const synchronized = await syncInvestigationStateIndex({
+  const synchronized = await checkInvestigationStateSnapshot({
     investigationsDirectory: investigationRoot,
-    mode: "check",
     snapshot
   });
   const errors =

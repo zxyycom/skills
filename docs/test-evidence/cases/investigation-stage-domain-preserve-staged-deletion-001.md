@@ -11,3 +11,4 @@ Contract:
 
 Proves:
 - 先以 domain 暂存 removed 报告及其 owner 资源删除，再以 domain 暂存 kept 报告；pending 中 removed 报告与资源仍为删除，kept 报告正常更新且 writtenPaths 只含 kept。
+- preservedPendingPaths 明确报告两个相对 HEAD 的未选 staged 删除路径，不只包含仍存在的 pending 文件。

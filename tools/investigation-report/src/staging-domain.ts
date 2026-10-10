@@ -5,9 +5,9 @@ import {
   domainStageControl,
   loadDomainSnapshot,
   openDomainRepository,
-  readHeadScope,
   readPendingScope,
   resolveDomainSelection,
+  verifyDomainIndex,
   type DomainRepository,
   type DomainSelection,
   type DomainSnapshot
@@ -29,7 +29,8 @@ import {
   collectDomainWrites,
   verifyDomainWrites,
   type DomainWrite,
-  type DomainWriteOptions
+  type DomainWriteOptions,
+  type DomainWritesAcquisition
 } from "./staging-domain-writes.ts";
 import type { InvestigationStageResult } from "./types.ts";
 
@@ -78,7 +79,7 @@ export async function stageInvestigationDomain(
 type PreparedDomainWrite = Readonly<{
   domainPaths: ReadonlySet<string>;
   files: readonly VersionControlFile[];
-  headFiles: readonly VersionControlFile[];
+  preservedPaths: readonly string[];
   pending: readonly VersionControlFile[];
   revision: DomainSnapshot["revision"];
   selectedIds: readonly string[];
@@ -95,19 +96,19 @@ async function prepareDomainWrite(
 ): Promise<DomainStep<PreparedDomainWrite>> {
   const reads = await readDomainScope(options);
   if (reads.status === "error") return reads;
-  const verified = await verifiedDomainWrite(options, reads.value.writes);
+  const verified = await verifiedDomainWrite(options, reads.value);
   if (verified.status === "error") return verified;
   const target = assemblePendingTarget({
     indexFile: options.indexFile,
     pending: reads.value.pending,
-    writes: reads.value.writes
+    writes: reads.value.acquisition.value
   });
   return {
     status: "ok",
     value: {
       domainPaths: target.domainPaths,
       files: target.files,
-      headFiles: reads.value.headFiles,
+      preservedPaths: reads.value.preservedPaths,
       pending: reads.value.pending,
       revision: options.snapshot.revision,
       selectedIds: options.selection.selectedIds
@@ -130,68 +131,94 @@ function domainWriteOptions(
     investigationsScope: options.domain.investigationsScope,
     repository: options.domain.repository,
     revision: options.snapshot.revision,
+    sourceSelection: options.selection.sourceSelection,
     selectedIds: options.selection.selectedIds,
     workspaceIndex: options.snapshot.workspaceIndex
   };
 }
 
 type DomainScopeReads = Readonly<{
-  writes: readonly DomainWrite[];
+  acquisition: DomainWritesAcquisition;
   pending: readonly VersionControlFile[];
-  headFiles: readonly VersionControlFile[];
+  preservedPaths: readonly string[];
 }>;
 
 /** Reads the selected domain writes plus the pending and HEAD scope states. */
 async function readDomainScope(
   options: DomainWriteOptionsInput
 ): Promise<DomainStep<DomainScopeReads>> {
-  const { control, domain, snapshot } = options;
-  const writes = await collectDomainWrites(domainWriteOptions(options));
-  if (writes.status === "error") {
-    return {
-      status: "error",
-      result: domainFailure(control, writes.code, writes.error)
-    };
-  }
+  const { control, domain } = options;
   const pending = await readPendingScope(
     domain.repository,
     domain.investigationsScope
   );
-  if (pending.status === "error") {
+  if (pending.status === "error")
     return {
       status: "error",
       result: domainFailure(control, "pending-read-failed", pending.error)
     };
-  }
-  const headFiles = await readHeadScope(
-    domain.repository,
-    snapshot.revision,
-    domain.investigationsScope
-  );
-  if (headFiles.status === "error") {
+  const writes = await collectDomainWrites({
+    ...domainWriteOptions(options),
+    pendingFiles: pending.value
+  });
+  if (writes.status === "error")
     return {
       status: "error",
-      result: domainFailure(control, "revision-read-failed", headFiles.error)
+      result: domainFailure(control, writes.code, writes.error)
     };
-  }
+  const preserved = await preservedDomainPaths(options, pending.value);
+  if (preserved.status === "error") return preserved;
   return {
     status: "ok",
     value: {
-      headFiles: headFiles.value,
       pending: pending.value,
-      writes: writes.value
+      preservedPaths: preserved.value,
+      acquisition: writes
     }
   };
+}
+
+async function preservedDomainPaths(
+  { control, domain, snapshot }: DomainWriteOptionsInput,
+  pending: readonly VersionControlFile[]
+): Promise<DomainStep<readonly string[]>> {
+  let preservedPaths: readonly string[];
+  try {
+    preservedPaths =
+      snapshot.revision === null
+        ? pending.map((file) => file.path)
+        : await domain.repository.listPendingChangedPaths({
+            from: snapshot.revision,
+            pathScopes: [domain.investigationsScope]
+          });
+  } catch (error) {
+    return {
+      status: "error",
+      result: domainFailure(control, "pending-read-failed", error)
+    };
+  }
+  return { status: "ok", value: preservedPaths };
 }
 
 /** Rereads the prepared writes right before replacement to reject drift. */
 async function verifiedDomainWrite(
   options: DomainWriteOptionsInput,
-  writes: readonly DomainWrite[]
+  reads: DomainScopeReads
 ): Promise<DomainStep<true>> {
+  const indexDrift = await verifyDomainIndex(options.snapshot, options.control);
+  if (indexDrift !== null)
+    return {
+      status: "error",
+      result: domainSourceDrift(options.control, indexDrift)
+    };
+  const pending = await verifiedDomainPending(options, reads.pending);
+  if (pending.status === "error") return pending;
   const drift = await verifyDomainWrites({
     ...domainWriteOptions(options),
-    writes
+    pendingFiles: pending.value,
+    headResourcePaths: reads.acquisition.headResourcePaths,
+    sourceFiles: reads.acquisition.sourceFiles,
+    writes: reads.acquisition.value
   });
   if (drift !== null) {
     return {
@@ -200,6 +227,37 @@ async function verifiedDomainWrite(
     };
   }
   return { status: "ok", value: true };
+}
+
+async function verifiedDomainPending(
+  options: DomainWriteOptionsInput,
+  expected: readonly VersionControlFile[]
+): Promise<DomainStep<readonly VersionControlFile[]>> {
+  const pending = await readPendingScope(
+    options.domain.repository,
+    options.domain.investigationsScope
+  );
+  if (pending.status === "error")
+    return {
+      status: "error",
+      result: domainFailure(
+        options.control,
+        "pending-read-failed",
+        pending.error
+      )
+    };
+  if (changedPendingPaths(expected, pending.value).length > 0)
+    return {
+      status: "error",
+      result: domainFailureDiagnostics(options.control, "pending-conflict", [
+        stageDiagnostic(
+          "state-index.pending-conflict",
+          "the pending snapshot changed before the write; reread it before retrying",
+          options.control.indexPath
+        )
+      ])
+    };
+  return { status: "ok", value: pending.value };
 }
 
 function domainSourceDrift(
@@ -278,15 +336,8 @@ function domainStageSuccess(
   prepared: PreparedDomainWrite
 ): InvestigationStageResult {
   const written = changedPendingPaths(prepared.pending, prepared.files);
-  const differsFromHead = new Set(
-    changedPendingPaths(prepared.headFiles, prepared.pending)
-  );
-  const preserved = prepared.pending
-    .filter(
-      (file) =>
-        !prepared.domainPaths.has(file.path) && differsFromHead.has(file.path)
-    )
-    .map((file) => file.path)
+  const preserved = prepared.preservedPaths
+    .filter((filePath) => !prepared.domainPaths.has(filePath))
     .sort(compareText);
   return {
     callerOwnedPaths:

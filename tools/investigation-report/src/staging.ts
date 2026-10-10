@@ -1,16 +1,9 @@
 import { err, errAsync, ok, ResultAsync } from "neverthrow";
 import {
   createStateIndexRuntime,
-  sameStateSourceRevision,
-  type StateIndexDiagnostic,
   type StateIndexEntryStageResult
 } from "../../index-runtime/src/index.ts";
-import {
-  createInvestigationStateIndexDefinition,
-  investigationIndexFileName,
-  loadInvestigationIndex
-} from "./investigation-state-index.ts";
-import { collectValidatedInvestigationCollection } from "./validation-collection.ts";
+import { investigationIndexFileName } from "./investigation-state-index.ts";
 import {
   investigationStageDiagnosticCodes,
   prepareInvestigationStage,
@@ -18,6 +11,7 @@ import {
 } from "./staging-options.ts";
 import { resolveInvestigationStageSelectors } from "./staging-selectors.ts";
 import { stageInvestigationDomain } from "./staging-domain.ts";
+import { createInvestigationStageIndexDefinition } from "./staging-domain-index.ts";
 import { canonicalizeInvestigationsDirectory } from "./report-path.ts";
 import type {
   InvestigationStageOptions,
@@ -46,110 +40,11 @@ export function executeInvestigationStage(
   return canonicalizeInvestigationsDirectory(prepared.value.resolved)
     .mapErr((errors) => stageLocationFailure(prepared.value, errors))
     .andThen((canonical) =>
-      ResultAsync.fromSafePromise(
-        stageFreshnessFailure(
-          canonical.investigationsDirectory,
-          prepared.value.indexPath
-        )
-      ).andThen((gate) =>
-        gate !== null
-          ? errAsync(gate)
-          : stageValidatedInvestigationSelection({
-              ...prepared.value,
-              investigationsDirectory: canonical.investigationsDirectory
-            })
-      )
+      stageValidatedInvestigationSelection({
+        ...prepared.value,
+        investigationsDirectory: canonical.investigationsDirectory
+      })
     );
-}
-
-/**
- * Staging combines workspace index entries into a pending snapshot, so the
- * workspace index must match the authoritative Markdown. A missing index
- * keeps the staging transaction's own diagnosis; an invalid or stale
- * projection stops staging with the check/sync-index recovery instead of
- * staging entries drifted from the current sources.
- */
-async function stageFreshnessFailure(
-  investigationsDirectory: string,
-  indexPath: string
-): Promise<InvestigationStageFailure | null> {
-  const persisted = await loadInvestigationIndex({ investigationsDirectory });
-  if (persisted.status === "error") {
-    if (
-      persisted.diagnostics.some(
-        (diagnostic) => diagnostic.code === "state-index.index-missing"
-      )
-    )
-      return null;
-    return invalidIndexStageFailure(indexPath, persisted.diagnostics);
-  }
-  const collection = await collectValidatedInvestigationCollection(
-    investigationsDirectory,
-    { allowEmptyCollection: true }
-  );
-  if (collection.errors.length > 0 || collection.snapshot === null)
-    return invalidIndexStageFailure(
-      indexPath,
-      collection.errors.map((message) => ({
-        code: "investigation-report.stage-source-invalid",
-        message,
-        path: indexPath,
-        stateId: null
-      }))
-    );
-  return sameStateSourceRevision(
-    persisted.value.sourceRevision,
-    collection.snapshot.sourceRevision
-  )
-    ? null
-    : staleStageFailure(indexPath);
-}
-
-function invalidIndexStageFailure(
-  indexPath: string,
-  diagnostics: readonly StateIndexDiagnostic[]
-): InvestigationStageFailure {
-  return {
-    kind: "operation",
-    result: {
-      changed: false,
-      diagnostics: [...diagnostics],
-      indexPath,
-      namespace: "investigation-report",
-      scope: "all",
-      selectedIds: [],
-      state: "workspace-index-invalid",
-      status: "error"
-    }
-  };
-}
-
-function staleStageFailure(indexPath: string): InvestigationStageFailure {
-  return {
-    kind: "operation",
-    result: {
-      changed: false,
-      diagnostics: [staleStageDiagnostic(indexPath)],
-      indexPath,
-      namespace: "investigation-report",
-      scope: "all",
-      selectedIds: [],
-      state: "index-stale",
-      status: "error"
-    }
-  };
-}
-
-function staleStageDiagnostic(indexPath: string): StateIndexDiagnostic {
-  return {
-    code: "state-index.index-stale",
-    message:
-      "the workspace derived index is stale relative to the current formal report sources; " +
-      "run check to diagnose the collection, run sync-index to publish the current index, " +
-      "then retry stage",
-    path: indexPath,
-    stateId: null
-  };
 }
 
 function stageLocationFailure(
@@ -197,7 +92,7 @@ function stageValidatedInvestigationSelection(prepared: {
     );
   }
   const runtime = createStateIndexRuntime({
-    definition: createInvestigationStateIndexDefinition(),
+    definition: createInvestigationStageIndexDefinition(),
     indexPath: investigationIndexFileName,
     resolveSelectedIds: resolveInvestigationStageSelectors,
     root: prepared.investigationsDirectory

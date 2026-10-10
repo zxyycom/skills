@@ -1,7 +1,7 @@
 ---
 title: 分离调查快照查询与来源验证的读取职责
 id: 261010-separate-investigation-query-and-validation-acquisition
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-10T07:11:23Z
 purpose: 让调查发现按发布快照查询，局部读取按需取源，全集验证与写前复核各承担必要证据。

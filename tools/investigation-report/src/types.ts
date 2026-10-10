@@ -238,9 +238,8 @@ export type InvestigationStageSuccess = Readonly<{
 }>;
 
 /**
- * Extends the shared staging result with the domain freshness gate: staging
- * stops before any repository access when the workspace index is stale
- * relative to the authoritative formal Markdown.
+ * Reports metadata-only index staging or locally validated domain staging.
+ * Unselected source health is not a staging precondition.
  */
 export type InvestigationStageResult =
   | InvestigationStageSuccess
@@ -613,10 +612,10 @@ export type InvestigationIndexState = Readonly<{
   formedAt: string;
   name: string;
   question: string;
-  relations: InvestigationRelation[];
-  resourceIds: string[];
+  relations: readonly InvestigationRelation[];
+  resourceIds: readonly string[];
   sourcePath: string;
-  tags: string[];
+  tags: readonly string[];
   title: string;
 }>;
 

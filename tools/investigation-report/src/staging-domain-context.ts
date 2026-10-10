@@ -10,13 +10,18 @@ import {
   expectationOf,
   hasEntry,
   parseStateIndex,
+  serializeStateIndex,
   type StateIndexDefinition
 } from "../../index-runtime/src/index.ts";
 import {
-  createInvestigationStateIndexDefinition,
   investigationIndexFileName,
   loadInvestigationIndex
 } from "./investigation-state-index.ts";
+import {
+  domainSourceSelection,
+  type DomainSourceSelection
+} from "./staging-domain-sources.ts";
+import { createInvestigationStageIndexDefinition } from "./staging-domain-index.ts";
 import { resolveInvestigationStageSelectors } from "./staging-selectors.ts";
 import {
   compareText,
@@ -55,8 +60,27 @@ export type DomainSnapshot = Readonly<{
 }>;
 
 export type DomainSelection = Readonly<{
-  selectedIds: string[];
+  selectedIds: readonly string[];
+  sourceSelection: DomainSourceSelection;
 }>;
+
+/** Workspace metadata is mutable; the fixed revision baseline is not reloaded. */
+export async function verifyDomainIndex(
+  snapshot: DomainSnapshot,
+  control: DomainStageControl
+): Promise<string | null> {
+  const loaded = await loadInvestigationIndex({
+    investigationsDirectory: control.input.investigationsDirectory
+  });
+  if (loaded.status === "error")
+    return loaded.diagnostics.map((item) => item.message).join("; ");
+  if (
+    serializeStateIndex(loaded.value, snapshot.canonicalDefinition) !==
+    serializeStateIndex(snapshot.workspaceIndex, snapshot.canonicalDefinition)
+  )
+    return "the published workspace index changed before the write; reread it before retrying";
+  return null;
+}
 
 export function domainStageControl(
   input: InvestigationDomainStageInput
@@ -143,7 +167,15 @@ export async function loadDomainSnapshot(
       )
     };
   }
-  const definition = createInvestigationStateIndexDefinition();
+  const definition = createInvestigationStageIndexDefinition();
+  try {
+    definition.validateIndex?.(workspaceIndex.value);
+  } catch (error) {
+    return {
+      status: "error",
+      result: domainFailure(control, "workspace-index-invalid", error)
+    };
+  }
   const canonicalDefinition = defineStateIndexDefinition(definition);
   const baseline = await domainBaselineIndex(
     domain,
@@ -267,45 +299,32 @@ export function resolveDomainSelection(
       ])
     };
   }
-  return { status: "ok", value: { selectedIds } };
+  return {
+    status: "ok",
+    value: {
+      selectedIds,
+      sourceSelection: domainSourceSelection(
+        snapshot.workspaceIndex,
+        selectedIds
+      )
+    }
+  };
 }
+
+type DomainPendingResult =
+  | Readonly<{ status: "ok"; value: readonly VersionControlFile[] }>
+  | Readonly<{ status: "error"; error: unknown }>;
 
 export async function readPendingScope(
   repository: VersionControlRepository,
   investigationsScope: string
-): Promise<
-  | { status: "ok"; value: VersionControlFile[] }
-  | { status: "error"; error: unknown }
-> {
+): Promise<DomainPendingResult> {
   try {
     return {
       status: "ok",
       value: await repository.readPendingFiles({
         pathScopes: [investigationsScope]
       })
-    };
-  } catch (error) {
-    return { status: "error", error };
-  }
-}
-
-export async function readHeadScope(
-  repository: VersionControlRepository,
-  revision: RevisionId | null,
-  investigationsScope: string
-): Promise<
-  | { status: "ok"; value: VersionControlFile[] }
-  | { status: "error"; error: unknown }
-> {
-  try {
-    return {
-      status: "ok",
-      value:
-        revision === null
-          ? []
-          : await repository.readRevisionFiles(revision, {
-              pathScopes: [investigationsScope]
-            })
     };
   } catch (error) {
     return { status: "error", error };

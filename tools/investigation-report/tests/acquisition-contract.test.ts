@@ -218,8 +218,7 @@ test("investigation domain preparation batches selected member and source reads 
     const loaded = await loadInvestigationIndex({
       investigationsDirectory: investigationRoot(root)
     });
-    assert.equal(loaded.status, "ok");
-    if (loaded.status !== "ok") return;
+    assert.ok(loaded.status === "ok");
     const calls = { workspace: 0, head: 0, sources: 0 };
     const originalWorkspace = repository.listWorkspaceFiles;
     const originalHead = repository.listRevisionFiles;
@@ -232,9 +231,9 @@ test("investigation domain preparation batches selected member and source reads 
       calls.head += 1;
       return await originalHead.call(repository, revision, options);
     };
-    repository.readWorkspaceFiles = async (paths) => {
+    repository.readWorkspaceFiles = async (paths, basis) => {
       calls.sources += 1;
-      return await originalSources.call(repository, paths);
+      return await originalSources.call(repository, paths, basis);
     };
     const options = {
       repository,
@@ -245,14 +244,17 @@ test("investigation domain preparation batches selected member and source reads 
       investigationsScope: "docs/investigations"
     };
     const prepared = await collectDomainWrites(options);
-    assert.equal(prepared.status, "ok");
+    assert.ok(prepared.status === "ok");
     assert.deepEqual(calls, { workspace: 1, head: 1, sources: 1 });
-    if (prepared.status !== "ok") return;
     assert.equal(
-      await verifyDomainWrites({ ...options, writes: prepared.value }),
+      await verifyDomainWrites({
+        ...options,
+        ...prepared,
+        writes: prepared.value
+      }),
       null
     );
-    assert.deepEqual(calls, { workspace: 2, head: 2, sources: 2 });
+    assert.deepEqual(calls, { workspace: 2, head: 1, sources: 2 });
     await fs.mkdir(path.join(investigationRoot(root), "_resources", "one"), {
       recursive: true
     });
@@ -331,8 +333,7 @@ test("investigation predecessor diagnostics skip Git without targets and never r
     const loaded = await loadInvestigationIndex({
       investigationsDirectory: investigationRoot(root)
     });
-    assert.equal(loaded.status, "ok");
-    if (loaded.status !== "ok") return;
+    assert.ok(loaded.status === "ok");
     const { unrecordedPredecessorWarnings } =
       await import("../src/validation-history.ts");
     const previous = process.env.GIT_TRACE2_EVENT;

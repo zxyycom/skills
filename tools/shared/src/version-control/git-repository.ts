@@ -26,6 +26,7 @@ import type {
   ListChangedPathsOptions,
   ListPendingChangedPathsOptions,
   ListVersionControlFilesOptions,
+  ReadWorkspaceFilesOptions,
   ReplacePendingFilesOptions,
   ReplacePendingFilesResult,
   RevisionId,
@@ -109,9 +110,10 @@ class GitVersionControlRepository implements VersionControlRepository {
     return await readWorkspaceFile(this.#context, filePath);
   }
   async readWorkspaceFiles(
-    filePaths: readonly string[]
+    filePaths: readonly string[],
+    options: ReadWorkspaceFilesOptions = {}
   ): Promise<VersionControlFile[]> {
-    return await readWorkspaceFiles(this.#context, filePaths);
+    return await readWorkspaceFiles(this.#context, filePaths, options);
   }
   async listPendingChangedPaths(
     options: ListPendingChangedPathsOptions

@@ -19,10 +19,10 @@ export async function directInvestigationResourceIssues(
   const errors = invalidResourceIdErrors(id);
   if (isSafeResourcePath(id))
     errors.push(
-      ...(await referencedResourceErrors(
-        resourceRoot.canonicalResourcesRoot,
-        id
-      ))
+      ...(await resourcePathErrors(resourceRoot.canonicalResourcesRoot, id, {
+        target: "file",
+        missing: "reject"
+      }))
     );
   if (
     resourceRoot.membership.mode === "version-control" &&
@@ -34,6 +34,46 @@ export async function directInvestigationResourceIssues(
   return uniqueSorted(errors);
 }
 
+/** Selected owner trees may have deleted members, but no unsafe live components. */
+export async function ownedInvestigationResourceIssues(
+  resourceRoot: ResourceRoot,
+  ownerIds: readonly string[],
+  resourceIds: readonly string[]
+): Promise<string[]> {
+  const errors: string[] = [];
+  for (const ownerId of ownerIds)
+    errors.push(
+      ...(await resourcePathErrors(
+        resourceRoot.canonicalResourcesRoot,
+        ownerId,
+        {
+          target: "directory",
+          missing: "allow"
+        }
+      ))
+    );
+  for (const id of resourceIds) {
+    if (!isSafeResourcePath(id)) {
+      errors.push(
+        `${resourcePath(id)} must use a safe, normalized resource path`
+      );
+      continue;
+    }
+    errors.push(
+      ...(await resourcePathErrors(resourceRoot.canonicalResourcesRoot, id, {
+        target: "file",
+        missing: "allow"
+      }))
+    );
+  }
+  return uniqueSorted(errors);
+}
+
+type ResourcePathRequirement = Readonly<{
+  target: "file" | "directory";
+  missing: "allow" | "reject";
+}>;
+
 function invalidResourceIdErrors(id: string): string[] {
   return isInvestigationResourceId(id)
     ? []
@@ -42,20 +82,22 @@ function invalidResourceIdErrors(id: string): string[] {
       ];
 }
 
-async function referencedResourceErrors(
+async function resourcePathErrors(
   canonicalResourcesRoot: string,
-  id: string
+  id: string,
+  requirement: ResourcePathRequirement
 ): Promise<string[]> {
   try {
-    return await validateReferencedResource(canonicalResourcesRoot, id);
+    return await validateResourcePath(canonicalResourcesRoot, id, requirement);
   } catch (error) {
     return [`${resourcePath(id)} could not be validated: ${errorText(error)}`];
   }
 }
 
-async function validateReferencedResource(
+async function validateResourcePath(
   canonicalResourcesRoot: string,
-  id: string
+  id: string,
+  requirement: ResourcePathRequirement
 ): Promise<string[]> {
   const errors: string[] = [];
   let currentDirectory = canonicalResourcesRoot;
@@ -65,7 +107,8 @@ async function validateReferencedResource(
       currentDirectory,
       segment,
       id,
-      errors
+      errors,
+      requirement.missing
     );
     if (entry === null) return errors;
     const absolutePath = path.join(currentDirectory, entry.name);
@@ -75,7 +118,7 @@ async function validateReferencedResource(
       canonicalResourcesRoot,
       errors,
       id,
-      isLast: index === segments.length - 1,
+      isFile: index === segments.length - 1 && requirement.target === "file",
       segment,
       stat
     });
@@ -89,7 +132,8 @@ async function exactResourceEntry(
   currentDirectory: string,
   segment: string,
   id: string,
-  errors: string[]
+  errors: string[],
+  missing: ResourcePathRequirement["missing"]
 ): Promise<Dirent<string> | null> {
   const entries = await fs.readdir(currentDirectory, { withFileTypes: true });
   const exact = entries.find((entry) => entry.name === segment);
@@ -97,6 +141,7 @@ async function exactResourceEntry(
   const caseMismatch = entries.find(
     (entry) => entry.name.toLowerCase() === segment.toLowerCase()
   );
+  if (caseMismatch === undefined && missing === "allow") return null;
   errors.push(
     caseMismatch === undefined
       ? `${resourcePath(id)} does not exist`
@@ -110,7 +155,7 @@ type ResourcePathStep = Readonly<{
   canonicalResourcesRoot: string;
   errors: string[];
   id: string;
-  isLast: boolean;
+  isFile: boolean;
   segment: string;
   stat: Awaited<ReturnType<typeof fs.lstat>>;
 }>;
@@ -124,7 +169,7 @@ async function nextValidatedResourcePath(
     );
     return null;
   }
-  return step.isLast
+  return step.isFile
     ? await validatedResourceFile(step)
     : await validatedResourceDirectory(step);
 }

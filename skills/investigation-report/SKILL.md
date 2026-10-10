@@ -5,7 +5,7 @@ description: >-
   以一份可独立复核的报告保存一轮形成时的背景、依据、结果和边界，
   并用稳定 Investigation ID、tags 和直接前序关系维护分类与认识演进。
 metadata:
-  version: "60"
+  version: "61"
 ---
 
 # Investigation Report
@@ -120,8 +120,8 @@ agent 在当前请求或生效项目规则授权的范围内，自行审查证�
 1. 只读审阅运行适用的 `check` 或 `publish --preflight`，保持集合状态不变。
 2. 一批手工正式报告编辑可先共同完成，期间用 scoped check 获取局部反馈。在已有关系事务、正式删除、默认全量检查、暂存或交付需要当前集合前，统一运行一次 `sync-index`。它默认写入并发布完整有效索引，`--preflight` 零写入预演同一验证；`--select ...` 只接纳所选 ID 的已知来源变化，仍发布完整索引，合法 candidates 不参与同步。已知合法来源变化的规范顺序是先 `sync-index` 再默认全量 `check`；未解释的索引异常先 `check` 诊断，再同步或修复。
 3. `set-relations` 与正式 `discard` 要求当前索引，并在成功事务中同步索引。只改资源字节时保留索引；暂停、失败或 cleanup 诊断按契约与恢复手册处理。
-4. publish、同步或事务完成后运行默认全量 `check`，并按下列完成标准复核实际结果。
-5. 需要 Git pending 快照时，同步并通过全量检查后用 `stage <investigation-id...> [--scope all|index|domain]` 选择正式报告。默认 `all` 写入索引投影、报告及完整 owner 资源树；`index` 只写索引；`domain` 只写报告和资源。所选常规来源保留有效执行位，未选 pending 保持原样；选择、删除、漂移核对与结果边界按[待提交快照](references/investigation-report-contract.md#待提交快照)执行。commit 与 push 另按授权完成。
+4. publish、同步或事务完成后运行默认全量 `check`，核对本次首次采集集合的完整投影，并按下列完成标准复核实际结果；检查时点与各操作的漂移保护由[检查与同步](references/investigation-report-contract.md#检查与同步)承接。
+5. 需要 Git pending 快照时，用 `stage <investigation-id...> [--scope all|index|domain]` 选择正式报告；要将所选报告的新来源纳入 `all`／`domain` 快照，先用 `sync-index` 发布相应投影。默认 `all` 写入索引投影、报告及完整 owner 资源树；`index` 只写索引；`domain` 只写报告和资源。所选常规来源保留有效执行位，未选 pending 保持原样；选择、删除、漂移核对与结果边界按[待提交快照](references/investigation-report-contract.md#待提交快照)执行。commit 与 push 另按授权完成。
 
 ## 完成标准
 

@@ -184,6 +184,10 @@ test("stage --scope domain keeps unrelated staged deletions when staging another
     });
     assert.equal(result.status, "ok");
     assert.deepEqual(result.writtenPaths, ["docs/investigations/kept.md"]);
+    assert.deepEqual(result.preservedPendingPaths, [
+      "docs/investigations/_resources/removed/evidence.txt",
+      "docs/investigations/removed.md"
+    ]);
     const pending = git(root, [
       "diff",
       "--cached",

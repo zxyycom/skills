@@ -97,7 +97,7 @@ const commandSpecs: readonly CommandSpec[] = [
   },
   {
     description:
-      "Validate reports, the complete relation graph, resource ownership, and the current index. Scoped --id checks validate only selected reports and their declared resources.",
+      "Validate the first-acquired report collection, complete relation graph, resource ownership, and full index projection without an end-of-check freshness promise. Scoped --id checks validate only selected reports and their declared resources.",
     name: "check",
     options: [
       {
@@ -262,7 +262,7 @@ const commandSpecs: readonly CommandSpec[] = [
   },
   {
     description:
-      "Build a Git pending Investigation snapshot for explicitly selected formal reports: the derived index projection together with report Markdown and the complete owner resource tree (all), only the index projection (index), or only report Markdown and owner resources while the pending index stays unchanged (domain).",
+      "Build a Git pending Investigation snapshot from strict published metadata; domain sources and direct resource owners are validated locally, not the entire source collection: the derived index projection together with report Markdown and the complete owner resource tree (all), only the index projection (index), or only report Markdown and owner resources while the pending index stays unchanged (domain).",
     name: "stage",
     options: [
       {

@@ -9,7 +9,11 @@ import {
   normalizeRepositoryPath,
   normalizeRepositoryPaths
 } from "./repository-path.ts";
-import type { VersionControlFile, VersionControlFileKind } from "./types.ts";
+import type {
+  ReadWorkspaceFilesOptions,
+  VersionControlFile,
+  VersionControlFileKind
+} from "./types.ts";
 
 const userExecuteBit = 0o100;
 
@@ -36,7 +40,8 @@ export async function readWorkspaceFile(
 /** One invocation owns one fresh policy and pending-representation basis. */
 export async function readWorkspaceFiles(
   context: GitRepositoryContext,
-  filePaths: readonly string[]
+  filePaths: readonly string[],
+  options: ReadWorkspaceFilesOptions = {}
 ): Promise<VersionControlFile[]> {
   const paths = normalizeRepositoryPaths(filePaths);
   const sources: WorkspaceSource[] = [];
@@ -47,9 +52,9 @@ export async function readWorkspaceFiles(
   if (sources.length === 0) return [];
   const honorsExecuteBit = await honorsWorkspaceExecuteBit(context);
   const selectedPaths = sources.map((source) => source.path);
-  let pendingKinds = new Map<string, RegularFileKind>();
-  if (!honorsExecuteBit)
-    pendingKinds = await readPendingWorkspaceKinds(context, selectedPaths);
+  const pendingKinds = honorsExecuteBit
+    ? new Map<string, RegularFileKind>()
+    : await workspacePendingKinds(context, selectedPaths, options);
   const files: VersionControlFile[] = [];
   for (const source of sources) {
     let kind: RegularFileKind;
@@ -121,6 +126,39 @@ async function readPendingWorkspaceKinds(
         { target: entry.path }
       );
     kinds.set(entry.path, kind);
+  }
+  return kinds;
+}
+
+async function workspacePendingKinds(
+  context: GitRepositoryContext,
+  paths: readonly string[],
+  options: ReadWorkspaceFilesOptions
+): Promise<Map<string, RegularFileKind>> {
+  if (options.pendingFiles !== undefined)
+    return pendingWorkspaceKinds(options.pendingFiles, paths);
+  return await readPendingWorkspaceKinds(context, paths);
+}
+
+function pendingWorkspaceKinds(
+  files: readonly VersionControlFile[],
+  paths: readonly string[]
+): Map<string, RegularFileKind> {
+  const selected = new Set(paths);
+  const kinds = new Map<string, RegularFileKind>();
+  for (const file of files) {
+    const normalized = normalizeRepositoryPath(file.path);
+    if (!selected.has(normalized)) continue;
+    if (
+      kinds.has(normalized) ||
+      (file.kind !== "regular" && file.kind !== "executable")
+    )
+      throw operationError(
+        "read a unique regular pending representation",
+        undefined,
+        { target: normalized }
+      );
+    kinds.set(normalized, file.kind);
   }
   return kinds;
 }

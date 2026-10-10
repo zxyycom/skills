@@ -2,10 +2,14 @@ import { Buffer } from "node:buffer";
 import type { VersionControlFile } from "../../shared/src/version-control/index.ts";
 import {
   buildStateIndexFromSnapshot,
+  defineStateIndexDefinition,
   sameStateIndexCollectionMetadata,
   selectTargetSnapshot,
   serializeStateIndex
 } from "../../index-runtime/src/index.ts";
+import { createInvestigationStateIndexDefinition } from "./investigation-state-index.ts";
+import { validateInvestigationRelationGraph } from "./relation-validation.ts";
+import { validateInvestigationResourceOwnership } from "./resources.ts";
 import {
   stageDiagnostic,
   type DomainStageControl,
@@ -17,6 +21,29 @@ import type {
   DomainSnapshot
 } from "./staging-domain-context.ts";
 import { domainFailureDiagnostics } from "./staging-domain-failures.ts";
+
+/** Stage validates the full metadata graph, without reading its source files. */
+export function createInvestigationStageIndexDefinition() {
+  const definition = createInvestigationStateIndexDefinition();
+  return defineStateIndexDefinition({
+    ...definition,
+    validateIndex(index) {
+      definition.validateIndex?.(index);
+      const states = new Map(Object.entries(index.entries));
+      const references = new Map(
+        [...states].map(([id, state]) => [id, new Set(state.resourceIds)])
+      );
+      const errors = [
+        ...validateInvestigationRelationGraph(states),
+        ...validateInvestigationResourceOwnership(
+          [...states.values()].flatMap((state) => state.resourceIds),
+          references
+        )
+      ];
+      if (errors.length > 0) throw new Error(errors.join("; "));
+    }
+  });
+}
 
 /**
  * Builds the derived index projection for the `all` scope from the fresh

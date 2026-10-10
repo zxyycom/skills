@@ -63,11 +63,16 @@ First-parent 枚举由专用子模块 `tools/shared/src/version-control/git-firs
 
 `readWorkspaceFile(path)` 接受规范仓库相对路径，只读取常规非符号链接来源，返回字节与 `regular` 或 `executable` 表示。只有来源确实不存在时返回 `null`；来源类型、字节或有效表示无法读取时报告 `operation-failed`。读取保持 workspace 和 pending 不变。
 
-`readWorkspaceFiles(paths)` 批量读取显式文件路径，不按目录发现成员。调用方先按所需范围发现成员，再传入文件路径集合。
+`readWorkspaceFiles(paths, options?)` 批量读取显式文件路径。调用方先按所需范围发现成员，再传入文件路径集合；批量读取本身不发现目录成员。
 
 - 路径归一化、去重并稳定排序；空集合与全缺失集合返回空数组，均不探测 Git。缺失文件省略，其他边界失败阻断整个结果。
-- 每次调用至多读取一次 `core.fileMode`；关闭时，所选现存来源共用一次 pending 表示读取。每个来源仍单独核对常规非符号链接类型并读取字节。
-- 下一次调用重新取得全部事实，无跨调用缓存。准备与写前复核分别调用，不能用准备结果替代复核；单次批量读取也不承诺跨文件原子快照。
+- 每次调用重新取得工作区类型、字节与配置，至多读取一次 `core.fileMode`；每个来源仍单独核对常规非符号链接类型并读取字节。单次批量读取不承诺跨文件原子快照，也不建立跨调用缓存。
+- `core.fileMode` 关闭时，表示依据按下表取得；调用方需要准备／写前两阶段保护时，每阶段分别取得新 pending 依据。
+
+| pending 依据 | 获取与失败责任 |
+| --- | --- |
+| 省略 `options.pendingFiles` | adapter 为所选现存来源取得一次新的 pending 表示依据。 |
+| 显式 `options.pendingFiles` | 调用方提供本阶段已取得、覆盖全部显式路径的完整 pending 快照；adapter 直接使用，省去重复读取。路径缺失表示该阶段没有条目，不自动补读；重复或非法的所选表示仍失败。完整性与阶段新鲜度由调用方负责。 |
 
 Git adapter 按 `core.fileMode` 确定有效执行位：
 

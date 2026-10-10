@@ -26,7 +26,8 @@ export type ResourceRootPreparation =
   | (ResourceRoot & Readonly<{ status: "ready" }>);
 
 export async function prepareInvestigationResourceRoot(
-  investigationsDirectory: string
+  investigationsDirectory: string,
+  membership?: ManagedResourceMembership
 ): Promise<ResourceRootPreparation> {
   const resourcesRoot = path.join(
     investigationsDirectory,
@@ -37,7 +38,8 @@ export async function prepareInvestigationResourceRoot(
     if (rootStat === null)
       return await prepareMissingResourceRoot(
         investigationsDirectory,
-        resourcesRoot
+        resourcesRoot,
+        membership
       );
     if (rootStat.isSymbolicLink())
       return invalidRoot(
@@ -49,7 +51,8 @@ export async function prepareInvestigationResourceRoot(
       );
     return await prepareReadyResourceRoot(
       investigationsDirectory,
-      resourcesRoot
+      resourcesRoot,
+      membership
     );
   } catch (error) {
     return invalidRoot(
@@ -74,14 +77,17 @@ export async function discoverVisibleInvestigationResourceIds(
 
 async function prepareMissingResourceRoot(
   investigationsDirectory: string,
-  resourcesRoot: string
+  resourcesRoot: string,
+  membership?: ManagedResourceMembership
 ): Promise<ResourceRootPreparation> {
   try {
     return {
-      membership: await readManagedResourceMembership(
-        investigationsDirectory,
-        resourcesRoot
-      ),
+      membership:
+        membership ??
+        (await readManagedResourceMembership(
+          investigationsDirectory,
+          resourcesRoot
+        )),
       status: "missing"
     };
   } catch (error) {
@@ -93,18 +99,21 @@ async function prepareMissingResourceRoot(
 
 async function prepareReadyResourceRoot(
   investigationsDirectory: string,
-  resourcesRoot: string
+  resourcesRoot: string,
+  membership?: ManagedResourceMembership
 ): Promise<ResourceRootPreparation> {
   try {
     const canonicalResourcesRoot = await verifiedCanonicalResourcesRoot(
       investigationsDirectory,
       resourcesRoot
     );
-    const membership = await readManagedResourceMembership(
-      investigationsDirectory,
-      canonicalResourcesRoot
-    );
-    return { canonicalResourcesRoot, membership, status: "ready" };
+    const managed =
+      membership ??
+      (await readManagedResourceMembership(
+        investigationsDirectory,
+        canonicalResourcesRoot
+      ));
+    return { canonicalResourcesRoot, membership: managed, status: "ready" };
   } catch (error) {
     return invalidRoot(
       `${investigationResourcesDirectoryName} could not be safely resolved: ${errorText(error)}`

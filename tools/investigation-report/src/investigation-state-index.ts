@@ -115,6 +115,30 @@ export async function syncInvestigationStateIndex(options: {
   });
 }
 
+/** Checks the complete first-acquired projection, not end-of-check freshness. */
+export async function checkInvestigationStateSnapshot(
+  options: Readonly<{
+    investigationsDirectory: string;
+    snapshot: StateSnapshot<
+      InvestigationIndexState,
+      InvestigationIndexMetadata
+    >;
+  }>
+): Promise<StateIndexSyncResult> {
+  const definition = createInvestigationStateIndexDefinition({
+    snapshot: options.snapshot
+  });
+  return await syncStateIndex({
+    context: { root: options.investigationsDirectory },
+    definition: {
+      ...definition,
+      readRevision: async () => options.snapshot.sourceRevision
+    },
+    indexPath: investigationIndexFileName,
+    mode: "check"
+  });
+}
+
 export function investigationIndexDiagnosticMessages(
   diagnostics: readonly StateIndexDiagnostic[],
   displayPath: string = investigationIndexFileName

@@ -126,7 +126,8 @@
       "261006-separate-novel-identity-and-versioned-transitions": "sha256:7b8bef472813e23dd8cb3d9a8538c9511d13501a67f51a3cadae38ac0d389188",
       "261008-maintain-record-quality-through-project-workflow": "sha256:804ad74dfa950e266e09648a62c29eed04fe1850971ced043c6a4ae632090f82",
       "261009-require-one-project-repository-for-change-roots": "sha256:ebcd33cdec3e750108043b1fa433ed0bddd7d0b9cfea1117374496f5ec9a8bfc",
-      "261010-separate-investigation-query-and-validation-acquisition": "sha256:25afb1508bdc25f749a720c934abaad6d5d8ce4688b8d55155bfb1626faebfd6",
+      "261010-investigation-local-validation-and-phase-facts": "sha256:8071ef58afd4dd61bbab63372a63c694e98c683cf711975ea9ffa5c437fcacfb",
+      "261010-separate-investigation-query-and-validation-acquisition": "sha256:5669fdde0cbe2d1f86188ef5ed606f836f32660c960a2554b4c48083afc4a70a",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -2880,11 +2881,35 @@
       ],
       "relations": []
     },
+    "261010-investigation-local-validation-and-phase-facts": {
+      "name": "investigation-local-validation-and-phase-facts",
+      "sourcePath": "investigation-local-validation-and-phase-facts.md",
+      "title": "以首次采集检查和局部依赖暂存调查报告",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-10T10:01:57Z",
+      "purpose": "让调查只读检查验证本次对象，局部暂存只获取所选来源及必要依赖，同时保留写入漂移保护。",
+      "background": "全量结束重读和暂存全集门禁承担了用户不需要的保证，固定选择仍随报告全集重复读取。",
+      "decision": "只读 check 比较首次完整投影，stage 按发布元数据预选依赖并分阶段复核可变事实，固定 revision 事实复用。",
+      "tags": [
+        "investigation-report",
+        "performance",
+        "responsibility-boundaries",
+        "validation-boundaries"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261010-separate-investigation-query-and-validation-acquisition",
+          "summary": "取消只读结束保证与暂存全集原文门禁，保留写入复核"
+        }
+      ]
+    },
     "261010-separate-investigation-query-and-validation-acquisition": {
       "name": "separate-investigation-query-and-validation-acquisition",
-      "sourcePath": "separate-investigation-query-and-validation-acquisition.md",
+      "sourcePath": "archive/separate-investigation-query-and-validation-acquisition.md",
       "title": "分离调查快照查询与来源验证的读取职责",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-10T07:11:23Z",
       "purpose": "让调查发现按发布快照查询，局部读取按需取源，全集验证与写前复核各承担必要证据。",

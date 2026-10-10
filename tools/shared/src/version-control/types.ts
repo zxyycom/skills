@@ -53,6 +53,11 @@ export type ReplacePendingFilesResult = {
   previousPaths: string[];
 };
 
+/** A fresh, complete pending basis for the explicit workspace paths. */
+export type ReadWorkspaceFilesOptions = Readonly<{
+  pendingFiles?: readonly VersionControlFile[];
+}>;
+
 export type VersionControlRepository = {
   readonly rootDirectory: string;
   getCurrentRevision: () => Promise<RevisionId | null>;
@@ -79,7 +84,8 @@ export type VersionControlRepository = {
   readWorkspaceFile: (filePath: string) => Promise<VersionControlFile | null>;
   /** Reads an explicit path set with one fresh effective-representation basis; missing files are omitted. */
   readWorkspaceFiles: (
-    filePaths: readonly string[]
+    filePaths: readonly string[],
+    options?: ReadWorkspaceFilesOptions
   ) => Promise<VersionControlFile[]>;
   replacePendingFiles: (
     options: ReplacePendingFilesOptions

@@ -15,6 +15,7 @@ export type {
   ListChangedPathsOptions,
   ListPendingChangedPathsOptions,
   ListVersionControlFilesOptions,
+  ReadWorkspaceFilesOptions,
   ReplacePendingFilesOptions,
   ReplacePendingFilesResult,
   RevisionId,

@@ -1,6 +1,6 @@
 import { Buffer } from "node:buffer";
 import type {
-  StateIndex,
+  ReadonlyStateIndex,
   StateIndexDiagnostic
 } from "../../index-runtime/src/index.ts";
 import type {
@@ -9,7 +9,7 @@ import type {
   InvestigationStageResult
 } from "./types.ts";
 
-export type InvestigationIndex = StateIndex<
+export type InvestigationIndex = ReadonlyStateIndex<
   InvestigationIndexState,
   InvestigationIndexMetadata
 >;
@@ -27,8 +27,8 @@ export type DomainStageControl = Readonly<{
 }>;
 
 export type DomainStep<T> =
-  | { status: "ok"; value: T }
-  | { status: "error"; result: InvestigationStageResult };
+  | Readonly<{ status: "ok"; value: T }>
+  | Readonly<{ status: "error"; result: InvestigationStageResult }>;
 
 export function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;

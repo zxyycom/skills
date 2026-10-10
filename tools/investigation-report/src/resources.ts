@@ -22,6 +22,15 @@ export type InvestigationResourceReferencesByReport = ReadonlyMap<
   ReadonlySet<string>
 >;
 
+export function validateInvestigationResourceOwnership(
+  resourceIds: readonly string[],
+  referencesByReport: InvestigationResourceReferencesByReport
+): string[] {
+  return uniqueSorted(
+    resourceIds.flatMap((id) => ownerIssues(id, referencesByReport))
+  );
+}
+
 export async function validateReferencedInvestigationResources(
   investigationsDirectory: string,
   resourceIds: readonly string[],

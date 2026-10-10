@@ -223,7 +223,7 @@ test("CLI snapshot queries stay source-free while show and content report source
   });
 });
 
-test("CLI strict check and stage stop on a stale derived index", async () => {
+test("CLI check diagnoses stale sources while index stage uses the published projection", async () => {
   await withTempRoot("cli-stale-gates", async (root) => {
     await writeCollection(root, [{ id: "260828-alpha" }]);
     initializeGit(root);
@@ -250,12 +250,15 @@ test("CLI strict check and stage stop on a stale derived index", async () => {
       "index",
       "260828-alpha"
     ]);
-    assert.equal(staged.status, 1);
-    assert.match(staged.stderr, /state: index-stale/u);
-    assert.match(
-      staged.stderr,
-      /run check to diagnose the collection, run sync-index to publish the current index, then retry stage/u
-    );
+    assert.equal(staged.status, 0, staged.stderr);
+    const domain = await runInvestigationCli(root, [
+      "stage",
+      "--scope",
+      "domain",
+      "260828-alpha"
+    ]);
+    assert.equal(domain.status, 1);
+    assert.match(domain.stderr, /published source/u);
     assert.equal(git(root, ["diff", "--cached", "--name-only"]).trim(), "");
     assert.equal(
       git(root, [

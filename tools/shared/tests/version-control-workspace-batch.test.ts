@@ -139,3 +139,77 @@ test(
     });
   }
 );
+
+test(
+  "batch workspace reads can consume an explicit phase pending basis without weakening default freshness",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const { repositoryRoot } = await createRepositoryFixture(tempRoot);
+      await writeFile(repositoryRoot, "basis.txt", "basis\n");
+      runGit(repositoryRoot, ["add", "basis.txt"]);
+      runGit(repositoryRoot, ["config", "core.fileMode", "false"]);
+      const repository = await openVersionControl(repositoryRoot);
+      const pendingFiles = await repository.readPendingFiles({
+        pathScopes: ["basis.txt"]
+      });
+      const priorTrace = process.env.GIT_TRACE2_EVENT;
+      const tracePath = path.join(tempRoot, "basis.jsonl");
+      try {
+        process.env.GIT_TRACE2_EVENT = tracePath;
+        const files = await repository.readWorkspaceFiles(["basis.txt"], {
+          pendingFiles
+        });
+        assert.equal(files[0].kind, "regular");
+        const starts = (await fs.readFile(tracePath, "utf8"))
+          .split("\n")
+          .filter((line) => line.includes('"event":"start"'));
+        assert.equal(
+          starts.filter((line) => line.includes('"config"')).length,
+          1
+        );
+        assert.equal(
+          starts.filter((line) => line.includes('"ls-files"')).length,
+          0
+        );
+      } finally {
+        if (priorTrace === undefined) delete process.env.GIT_TRACE2_EVENT;
+        else process.env.GIT_TRACE2_EVENT = priorTrace;
+      }
+      runGit(repositoryRoot, ["update-index", "--chmod=+x", "basis.txt"]);
+      assert.equal(
+        (await repository.readWorkspaceFiles(["basis.txt"]))[0].kind,
+        "executable"
+      );
+      assert.equal(
+        (
+          await repository.readWorkspaceFiles(["basis.txt"], { pendingFiles })
+        )[0].kind,
+        "regular"
+      );
+      assert.equal(
+        (
+          await repository.readWorkspaceFiles(["basis.txt"], {
+            pendingFiles: []
+          })
+        )[0].kind,
+        "regular"
+      );
+      await assert.rejects(
+        repository.readWorkspaceFiles(["basis.txt"], {
+          pendingFiles: [...pendingFiles, ...pendingFiles]
+        })
+      );
+      await assert.rejects(
+        repository.readWorkspaceFiles(["basis.txt"], {
+          pendingFiles: [{ ...pendingFiles[0], kind: "symlink" }]
+        })
+      );
+      assert.equal(
+        (await repository.readPendingFiles({ pathScopes: ["basis.txt"] }))[0]
+          .kind,
+        "executable"
+      );
+    });
+  }
+);

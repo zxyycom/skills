@@ -8,8 +8,8 @@ Tags:
 - `investigation-report`
 
 Contract:
-- domain stage 保留全集合法性门禁，并在准备和复核两阶段独立批量读取成员、来源字节与表示，任何漂移或非法资源 owner 不写 pending。
+- domain stage 验证局部所选来源与必要 owner，并在准备和复核两阶段独立批量读取可变成员、来源字节与表示，任何漂移或非法资源 owner 不写 pending。
 
 Proves:
-- 准备与复核各调用一次 workspace/HEAD 成员获取和一次批量来源读取；新增资源成员与报告来源漂移和非法 UTF-8 被结构化拒绝。
+- 准备与复核各调用一次 workspace 成员获取和一次批量来源读取，固定 HEAD 成员只取得一次并显式向后传递；新增资源成员与报告来源漂移和非法 UTF-8 被结构化拒绝。
 - 来源 revision 合法但正式资源 owner 引用非法的 stage 在 pending 写入前失败，pending 保持不变。
