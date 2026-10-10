@@ -1,0 +1,6675 @@
+{
+  "head": "10442106f209321457ad22066af5b379606a7b5d",
+  "cli_sha256": "d63a98dd4ce5bf5a03b7dae2ecd67f77a4da59b1c147187d56a05e212487ca69",
+  "captured_utc": "2026-10-10T10:54:46Z",
+  "observations": [
+    {
+      "label": "full-check",
+      "n": 1,
+      "k": 1,
+      "arguments": [
+        "check"
+      ],
+      "exit": 0,
+      "git_calls": 2,
+      "git_commands": {
+        "rev-parse": 1,
+        "ls-files": 1
+      },
+      "read_counts": {
+        "formal": 1,
+        "index": 1
+      },
+      "paths": {
+        "docs/investigations/audit-001.md": 1,
+        "docs/investigations/investigation-index.json": 1
+      },
+      "elapsed_single_ms": 211,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at tL (<workspace>/tools/investigation-report/src/investigation-layout-entry.ts:126:27)",
+          "count": 1
+        },
+        {
+          "kind": "index",
+          "caller": "at di (<workspace>/tools/index-runtime/src/storage-sync.ts:132:34)",
+          "count": 1
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        }
+      ]
+    },
+    {
+      "label": "fixed-k-domain-true",
+      "n": 1,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 354,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        }
+      ]
+    },
+    {
+      "label": "fixed-k-all-true",
+      "n": 1,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "all"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 324,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        }
+      ]
+    },
+    {
+      "label": "fixed-k-index-true",
+      "n": 1,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "index"
+      ],
+      "exit": 0,
+      "git_calls": 9,
+      "git_commands": {
+        "rev-parse": 5,
+        "ls-tree": 1,
+        "cat-file": 2,
+        "ls-files": 1
+      },
+      "read_counts": {
+        "index": 1
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 1
+      },
+      "elapsed_single_ms": 259,
+      "read_origins": [
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 1
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        }
+      ]
+    },
+    {
+      "label": "all-k-domain-true",
+      "n": 1,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 349,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        }
+      ]
+    },
+    {
+      "label": "fixed-k-domain-false",
+      "n": 1,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 374,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        }
+      ]
+    },
+    {
+      "label": "all-k-domain-false",
+      "n": 1,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 408,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "42b2a102dc2f2f81a1274204d824373059a31220^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "42b2a102dc2f2f81a1274204d824373059a31220",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 3,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 3
+        }
+      ]
+    },
+    {
+      "label": "fixed-k-no-resource",
+      "n": 1,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 418,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "d438e0e9a60b294f2e07788d39d1065a497e7db0^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "d438e0e9a60b294f2e07788d39d1065a497e7db0",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 2,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 2
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "d438e0e9a60b294f2e07788d39d1065a497e7db0^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "d438e0e9a60b294f2e07788d39d1065a497e7db0",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "d438e0e9a60b294f2e07788d39d1065a497e7db0^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "d438e0e9a60b294f2e07788d39d1065a497e7db0",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 2,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 2
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 2,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 2
+        }
+      ]
+    },
+    {
+      "label": "full-check",
+      "n": 20,
+      "k": 20,
+      "arguments": [
+        "check"
+      ],
+      "exit": 0,
+      "git_calls": 2,
+      "git_commands": {
+        "rev-parse": 1,
+        "ls-files": 1
+      },
+      "read_counts": {
+        "formal": 20,
+        "index": 1
+      },
+      "paths": {
+        "docs/investigations/audit-001.md": 1,
+        "docs/investigations/audit-002.md": 1,
+        "docs/investigations/audit-003.md": 1,
+        "docs/investigations/audit-004.md": 1,
+        "docs/investigations/audit-005.md": 1,
+        "docs/investigations/audit-006.md": 1,
+        "docs/investigations/audit-007.md": 1,
+        "docs/investigations/audit-008.md": 1,
+        "docs/investigations/audit-009.md": 1,
+        "docs/investigations/audit-010.md": 1,
+        "docs/investigations/audit-011.md": 1,
+        "docs/investigations/audit-012.md": 1,
+        "docs/investigations/audit-013.md": 1,
+        "docs/investigations/audit-014.md": 1,
+        "docs/investigations/audit-015.md": 1,
+        "docs/investigations/audit-016.md": 1,
+        "docs/investigations/audit-017.md": 1,
+        "docs/investigations/audit-018.md": 1,
+        "docs/investigations/audit-019.md": 1,
+        "docs/investigations/audit-020.md": 1,
+        "docs/investigations/investigation-index.json": 1
+      },
+      "elapsed_single_ms": 188,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at tL (<workspace>/tools/investigation-report/src/investigation-layout-entry.ts:126:27)",
+          "count": 20
+        },
+        {
+          "kind": "index",
+          "caller": "at di (<workspace>/tools/index-runtime/src/storage-sync.ts:132:34)",
+          "count": 1
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources"
+          ],
+          "tree_or_pending_entries": 20,
+          "blob_requests": 0
+        }
+      ]
+    },
+    {
+      "label": "fixed-k-domain-true",
+      "n": 20,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 362,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        }
+      ]
+    },
+    {
+      "label": "fixed-k-all-true",
+      "n": 20,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "all"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 427,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        }
+      ]
+    },
+    {
+      "label": "fixed-k-index-true",
+      "n": 20,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "index"
+      ],
+      "exit": 0,
+      "git_calls": 9,
+      "git_commands": {
+        "rev-parse": 5,
+        "ls-tree": 1,
+        "cat-file": 2,
+        "ls-files": 1
+      },
+      "read_counts": {
+        "index": 1
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 1
+      },
+      "elapsed_single_ms": 252,
+      "read_origins": [
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 1
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        }
+      ]
+    },
+    {
+      "label": "all-k-domain-true",
+      "n": 20,
+      "k": 20,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "261009-audit-002",
+        "261009-audit-003",
+        "261009-audit-004",
+        "261009-audit-005",
+        "261009-audit-006",
+        "261009-audit-007",
+        "261009-audit-008",
+        "261009-audit-009",
+        "261009-audit-010",
+        "261009-audit-011",
+        "261009-audit-012",
+        "261009-audit-013",
+        "261009-audit-014",
+        "261009-audit-015",
+        "261009-audit-016",
+        "261009-audit-017",
+        "261009-audit-018",
+        "261009-audit-019",
+        "261009-audit-020",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 40,
+        "formal": 40
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-002/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-003/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-004/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-005/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-006/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-007/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-008/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-009/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-010/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-011/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-012/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-013/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-014/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-015/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-016/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-017/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-018/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-019/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-020/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2,
+        "docs/investigations/audit-002.md": 2,
+        "docs/investigations/audit-003.md": 2,
+        "docs/investigations/audit-004.md": 2,
+        "docs/investigations/audit-005.md": 2,
+        "docs/investigations/audit-006.md": 2,
+        "docs/investigations/audit-007.md": 2,
+        "docs/investigations/audit-008.md": 2,
+        "docs/investigations/audit-009.md": 2,
+        "docs/investigations/audit-010.md": 2,
+        "docs/investigations/audit-011.md": 2,
+        "docs/investigations/audit-012.md": 2,
+        "docs/investigations/audit-013.md": 2,
+        "docs/investigations/audit-014.md": 2,
+        "docs/investigations/audit-015.md": 2,
+        "docs/investigations/audit-016.md": 2,
+        "docs/investigations/audit-017.md": 2,
+        "docs/investigations/audit-018.md": 2,
+        "docs/investigations/audit-019.md": 2,
+        "docs/investigations/audit-020.md": 2
+      },
+      "elapsed_single_ms": 735,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 40
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 40
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-002",
+            ":(literal)docs/investigations/_resources/261009-audit-002/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-003",
+            ":(literal)docs/investigations/_resources/261009-audit-003/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-004",
+            ":(literal)docs/investigations/_resources/261009-audit-004/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-005",
+            ":(literal)docs/investigations/_resources/261009-audit-005/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-006",
+            ":(literal)docs/investigations/_resources/261009-audit-006/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-007",
+            ":(literal)docs/investigations/_resources/261009-audit-007/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-008",
+            ":(literal)docs/investigations/_resources/261009-audit-008/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-009",
+            ":(literal)docs/investigations/_resources/261009-audit-009/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-010",
+            ":(literal)docs/investigations/_resources/261009-audit-010/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-011",
+            ":(literal)docs/investigations/_resources/261009-audit-011/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-012",
+            ":(literal)docs/investigations/_resources/261009-audit-012/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-013",
+            ":(literal)docs/investigations/_resources/261009-audit-013/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-014",
+            ":(literal)docs/investigations/_resources/261009-audit-014/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-015",
+            ":(literal)docs/investigations/_resources/261009-audit-015/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-016",
+            ":(literal)docs/investigations/_resources/261009-audit-016/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-017",
+            ":(literal)docs/investigations/_resources/261009-audit-017/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-018",
+            ":(literal)docs/investigations/_resources/261009-audit-018/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-019",
+            ":(literal)docs/investigations/_resources/261009-audit-019/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-020",
+            ":(literal)docs/investigations/_resources/261009-audit-020/sample.txt"
+          ],
+          "tree_or_pending_entries": 20,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-002",
+            ":(literal)docs/investigations/_resources/261009-audit-003",
+            ":(literal)docs/investigations/_resources/261009-audit-004",
+            ":(literal)docs/investigations/_resources/261009-audit-005",
+            ":(literal)docs/investigations/_resources/261009-audit-006",
+            ":(literal)docs/investigations/_resources/261009-audit-007",
+            ":(literal)docs/investigations/_resources/261009-audit-008",
+            ":(literal)docs/investigations/_resources/261009-audit-009",
+            ":(literal)docs/investigations/_resources/261009-audit-010",
+            ":(literal)docs/investigations/_resources/261009-audit-011",
+            ":(literal)docs/investigations/_resources/261009-audit-012",
+            ":(literal)docs/investigations/_resources/261009-audit-013",
+            ":(literal)docs/investigations/_resources/261009-audit-014",
+            ":(literal)docs/investigations/_resources/261009-audit-015",
+            ":(literal)docs/investigations/_resources/261009-audit-016",
+            ":(literal)docs/investigations/_resources/261009-audit-017",
+            ":(literal)docs/investigations/_resources/261009-audit-018",
+            ":(literal)docs/investigations/_resources/261009-audit-019",
+            ":(literal)docs/investigations/_resources/261009-audit-020"
+          ],
+          "tree_or_pending_entries": 20,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-002",
+            ":(literal)docs/investigations/_resources/261009-audit-002/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-003",
+            ":(literal)docs/investigations/_resources/261009-audit-003/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-004",
+            ":(literal)docs/investigations/_resources/261009-audit-004/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-005",
+            ":(literal)docs/investigations/_resources/261009-audit-005/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-006",
+            ":(literal)docs/investigations/_resources/261009-audit-006/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-007",
+            ":(literal)docs/investigations/_resources/261009-audit-007/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-008",
+            ":(literal)docs/investigations/_resources/261009-audit-008/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-009",
+            ":(literal)docs/investigations/_resources/261009-audit-009/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-010",
+            ":(literal)docs/investigations/_resources/261009-audit-010/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-011",
+            ":(literal)docs/investigations/_resources/261009-audit-011/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-012",
+            ":(literal)docs/investigations/_resources/261009-audit-012/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-013",
+            ":(literal)docs/investigations/_resources/261009-audit-013/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-014",
+            ":(literal)docs/investigations/_resources/261009-audit-014/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-015",
+            ":(literal)docs/investigations/_resources/261009-audit-015/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-016",
+            ":(literal)docs/investigations/_resources/261009-audit-016/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-017",
+            ":(literal)docs/investigations/_resources/261009-audit-017/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-018",
+            ":(literal)docs/investigations/_resources/261009-audit-018/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-019",
+            ":(literal)docs/investigations/_resources/261009-audit-019/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-020",
+            ":(literal)docs/investigations/_resources/261009-audit-020/sample.txt"
+          ],
+          "tree_or_pending_entries": 20,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        }
+      ]
+    },
+    {
+      "label": "fixed-k-domain-false",
+      "n": 20,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 453,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        }
+      ]
+    },
+    {
+      "label": "all-k-domain-false",
+      "n": 20,
+      "k": 20,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "261009-audit-002",
+        "261009-audit-003",
+        "261009-audit-004",
+        "261009-audit-005",
+        "261009-audit-006",
+        "261009-audit-007",
+        "261009-audit-008",
+        "261009-audit-009",
+        "261009-audit-010",
+        "261009-audit-011",
+        "261009-audit-012",
+        "261009-audit-013",
+        "261009-audit-014",
+        "261009-audit-015",
+        "261009-audit-016",
+        "261009-audit-017",
+        "261009-audit-018",
+        "261009-audit-019",
+        "261009-audit-020",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 40,
+        "formal": 40
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-002/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-003/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-004/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-005/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-006/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-007/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-008/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-009/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-010/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-011/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-012/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-013/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-014/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-015/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-016/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-017/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-018/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-019/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-020/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2,
+        "docs/investigations/audit-002.md": 2,
+        "docs/investigations/audit-003.md": 2,
+        "docs/investigations/audit-004.md": 2,
+        "docs/investigations/audit-005.md": 2,
+        "docs/investigations/audit-006.md": 2,
+        "docs/investigations/audit-007.md": 2,
+        "docs/investigations/audit-008.md": 2,
+        "docs/investigations/audit-009.md": 2,
+        "docs/investigations/audit-010.md": 2,
+        "docs/investigations/audit-011.md": 2,
+        "docs/investigations/audit-012.md": 2,
+        "docs/investigations/audit-013.md": 2,
+        "docs/investigations/audit-014.md": 2,
+        "docs/investigations/audit-015.md": 2,
+        "docs/investigations/audit-016.md": 2,
+        "docs/investigations/audit-017.md": 2,
+        "docs/investigations/audit-018.md": 2,
+        "docs/investigations/audit-019.md": 2,
+        "docs/investigations/audit-020.md": 2
+      },
+      "elapsed_single_ms": 1453,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 40
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 40
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-002",
+            ":(literal)docs/investigations/_resources/261009-audit-002/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-003",
+            ":(literal)docs/investigations/_resources/261009-audit-003/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-004",
+            ":(literal)docs/investigations/_resources/261009-audit-004/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-005",
+            ":(literal)docs/investigations/_resources/261009-audit-005/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-006",
+            ":(literal)docs/investigations/_resources/261009-audit-006/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-007",
+            ":(literal)docs/investigations/_resources/261009-audit-007/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-008",
+            ":(literal)docs/investigations/_resources/261009-audit-008/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-009",
+            ":(literal)docs/investigations/_resources/261009-audit-009/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-010",
+            ":(literal)docs/investigations/_resources/261009-audit-010/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-011",
+            ":(literal)docs/investigations/_resources/261009-audit-011/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-012",
+            ":(literal)docs/investigations/_resources/261009-audit-012/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-013",
+            ":(literal)docs/investigations/_resources/261009-audit-013/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-014",
+            ":(literal)docs/investigations/_resources/261009-audit-014/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-015",
+            ":(literal)docs/investigations/_resources/261009-audit-015/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-016",
+            ":(literal)docs/investigations/_resources/261009-audit-016/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-017",
+            ":(literal)docs/investigations/_resources/261009-audit-017/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-018",
+            ":(literal)docs/investigations/_resources/261009-audit-018/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-019",
+            ":(literal)docs/investigations/_resources/261009-audit-019/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-020",
+            ":(literal)docs/investigations/_resources/261009-audit-020/sample.txt"
+          ],
+          "tree_or_pending_entries": 20,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-002",
+            ":(literal)docs/investigations/_resources/261009-audit-003",
+            ":(literal)docs/investigations/_resources/261009-audit-004",
+            ":(literal)docs/investigations/_resources/261009-audit-005",
+            ":(literal)docs/investigations/_resources/261009-audit-006",
+            ":(literal)docs/investigations/_resources/261009-audit-007",
+            ":(literal)docs/investigations/_resources/261009-audit-008",
+            ":(literal)docs/investigations/_resources/261009-audit-009",
+            ":(literal)docs/investigations/_resources/261009-audit-010",
+            ":(literal)docs/investigations/_resources/261009-audit-011",
+            ":(literal)docs/investigations/_resources/261009-audit-012",
+            ":(literal)docs/investigations/_resources/261009-audit-013",
+            ":(literal)docs/investigations/_resources/261009-audit-014",
+            ":(literal)docs/investigations/_resources/261009-audit-015",
+            ":(literal)docs/investigations/_resources/261009-audit-016",
+            ":(literal)docs/investigations/_resources/261009-audit-017",
+            ":(literal)docs/investigations/_resources/261009-audit-018",
+            ":(literal)docs/investigations/_resources/261009-audit-019",
+            ":(literal)docs/investigations/_resources/261009-audit-020"
+          ],
+          "tree_or_pending_entries": 20,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-002",
+            ":(literal)docs/investigations/_resources/261009-audit-002/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-003",
+            ":(literal)docs/investigations/_resources/261009-audit-003/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-004",
+            ":(literal)docs/investigations/_resources/261009-audit-004/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-005",
+            ":(literal)docs/investigations/_resources/261009-audit-005/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-006",
+            ":(literal)docs/investigations/_resources/261009-audit-006/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-007",
+            ":(literal)docs/investigations/_resources/261009-audit-007/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-008",
+            ":(literal)docs/investigations/_resources/261009-audit-008/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-009",
+            ":(literal)docs/investigations/_resources/261009-audit-009/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-010",
+            ":(literal)docs/investigations/_resources/261009-audit-010/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-011",
+            ":(literal)docs/investigations/_resources/261009-audit-011/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-012",
+            ":(literal)docs/investigations/_resources/261009-audit-012/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-013",
+            ":(literal)docs/investigations/_resources/261009-audit-013/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-014",
+            ":(literal)docs/investigations/_resources/261009-audit-014/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-015",
+            ":(literal)docs/investigations/_resources/261009-audit-015/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-016",
+            ":(literal)docs/investigations/_resources/261009-audit-016/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-017",
+            ":(literal)docs/investigations/_resources/261009-audit-017/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-018",
+            ":(literal)docs/investigations/_resources/261009-audit-018/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-019",
+            ":(literal)docs/investigations/_resources/261009-audit-019/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-020",
+            ":(literal)docs/investigations/_resources/261009-audit-020/sample.txt"
+          ],
+          "tree_or_pending_entries": 20,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        }
+      ]
+    },
+    {
+      "label": "unrelated-malformed",
+      "n": 20,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 954,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        }
+      ]
+    },
+    {
+      "label": "unrelated-deleted",
+      "n": 20,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 1128,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        }
+      ]
+    },
+    {
+      "label": "selected-malformed",
+      "n": 20,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 1,
+      "git_calls": 11,
+      "git_commands": {
+        "rev-parse": 4,
+        "ls-tree": 2,
+        "cat-file": 2,
+        "ls-files": 2,
+        "config": 1
+      },
+      "read_counts": {
+        "index": 1,
+        "resource": 1,
+        "formal": 1
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 1,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 1,
+        "docs/investigations/audit-001.md": 1
+      },
+      "elapsed_single_ms": 630,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 1
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 1
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 1
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        }
+      ]
+    },
+    {
+      "label": "necessary-owner",
+      "n": 20,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 25,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 5,
+        "ls-files": 6,
+        "config": 2,
+        "diff": 1,
+        "hash-object": 1,
+        "update-index": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 4,
+        "formal": 4
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/_resources/261009-audit-002/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2,
+        "docs/investigations/audit-002.md": 2
+      },
+      "elapsed_single_ms": 757,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 4
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 4
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-002/sample.txt"
+          ],
+          "tree_or_pending_entries": 2,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-002/sample.txt"
+          ],
+          "tree_or_pending_entries": 2,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "hash-object",
+            "-w",
+            "--stdin"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "update-index",
+            "-z",
+            "--index-info"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        }
+      ]
+    },
+    {
+      "label": "necessary-owner-malformed",
+      "n": 20,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 1,
+      "git_calls": 11,
+      "git_commands": {
+        "rev-parse": 4,
+        "ls-tree": 2,
+        "cat-file": 2,
+        "ls-files": 2,
+        "config": 1
+      },
+      "read_counts": {
+        "index": 1,
+        "resource": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 1,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 1,
+        "docs/investigations/_resources/261009-audit-002/sample.txt": 1,
+        "docs/investigations/audit-001.md": 1,
+        "docs/investigations/audit-002.md": 1
+      },
+      "elapsed_single_ms": 580,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 1
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 41,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 22
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt",
+            ":(literal)docs/investigations/_resources/261009-audit-002/sample.txt"
+          ],
+          "tree_or_pending_entries": 2,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "e2d7f9ff695791f7cad5762555ecbff28dcbdd22",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        }
+      ]
+    },
+    {
+      "label": "fixed-k-no-resource",
+      "n": 20,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 465,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "4c15a22f84f8ba4fc5d362879dbc4d8d16c0c381^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "4c15a22f84f8ba4fc5d362879dbc4d8d16c0c381",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 21,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 21
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "4c15a22f84f8ba4fc5d362879dbc4d8d16c0c381^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "4c15a22f84f8ba4fc5d362879dbc4d8d16c0c381",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "4c15a22f84f8ba4fc5d362879dbc4d8d16c0c381^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "4c15a22f84f8ba4fc5d362879dbc4d8d16c0c381",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 21,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 21
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 21,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 21
+        }
+      ]
+    },
+    {
+      "label": "full-check",
+      "n": 100,
+      "k": 100,
+      "arguments": [
+        "check"
+      ],
+      "exit": 0,
+      "git_calls": 2,
+      "git_commands": {
+        "rev-parse": 1,
+        "ls-files": 1
+      },
+      "read_counts": {
+        "formal": 100,
+        "index": 1
+      },
+      "paths": {
+        "docs/investigations/audit-001.md": 1,
+        "docs/investigations/audit-002.md": 1,
+        "docs/investigations/audit-003.md": 1,
+        "docs/investigations/audit-004.md": 1,
+        "docs/investigations/audit-005.md": 1,
+        "docs/investigations/audit-006.md": 1,
+        "docs/investigations/audit-007.md": 1,
+        "docs/investigations/audit-008.md": 1,
+        "docs/investigations/audit-009.md": 1,
+        "docs/investigations/audit-010.md": 1,
+        "docs/investigations/audit-011.md": 1,
+        "docs/investigations/audit-012.md": 1,
+        "docs/investigations/audit-013.md": 1,
+        "docs/investigations/audit-014.md": 1,
+        "docs/investigations/audit-015.md": 1,
+        "docs/investigations/audit-016.md": 1,
+        "docs/investigations/audit-017.md": 1,
+        "docs/investigations/audit-018.md": 1,
+        "docs/investigations/audit-019.md": 1,
+        "docs/investigations/audit-020.md": 1,
+        "docs/investigations/audit-021.md": 1,
+        "docs/investigations/audit-022.md": 1,
+        "docs/investigations/audit-023.md": 1,
+        "docs/investigations/audit-024.md": 1,
+        "docs/investigations/audit-025.md": 1,
+        "docs/investigations/audit-026.md": 1,
+        "docs/investigations/audit-027.md": 1,
+        "docs/investigations/audit-028.md": 1,
+        "docs/investigations/audit-029.md": 1,
+        "docs/investigations/audit-030.md": 1,
+        "docs/investigations/audit-031.md": 1,
+        "docs/investigations/audit-032.md": 1,
+        "docs/investigations/audit-033.md": 1,
+        "docs/investigations/audit-034.md": 1,
+        "docs/investigations/audit-035.md": 1,
+        "docs/investigations/audit-036.md": 1,
+        "docs/investigations/audit-037.md": 1,
+        "docs/investigations/audit-038.md": 1,
+        "docs/investigations/audit-039.md": 1,
+        "docs/investigations/audit-040.md": 1,
+        "docs/investigations/audit-041.md": 1,
+        "docs/investigations/audit-042.md": 1,
+        "docs/investigations/audit-043.md": 1,
+        "docs/investigations/audit-044.md": 1,
+        "docs/investigations/audit-045.md": 1,
+        "docs/investigations/audit-046.md": 1,
+        "docs/investigations/audit-047.md": 1,
+        "docs/investigations/audit-048.md": 1,
+        "docs/investigations/audit-049.md": 1,
+        "docs/investigations/audit-050.md": 1,
+        "docs/investigations/audit-051.md": 1,
+        "docs/investigations/audit-052.md": 1,
+        "docs/investigations/audit-053.md": 1,
+        "docs/investigations/audit-054.md": 1,
+        "docs/investigations/audit-055.md": 1,
+        "docs/investigations/audit-056.md": 1,
+        "docs/investigations/audit-057.md": 1,
+        "docs/investigations/audit-058.md": 1,
+        "docs/investigations/audit-059.md": 1,
+        "docs/investigations/audit-060.md": 1,
+        "docs/investigations/audit-061.md": 1,
+        "docs/investigations/audit-062.md": 1,
+        "docs/investigations/audit-063.md": 1,
+        "docs/investigations/audit-064.md": 1,
+        "docs/investigations/audit-065.md": 1,
+        "docs/investigations/audit-066.md": 1,
+        "docs/investigations/audit-067.md": 1,
+        "docs/investigations/audit-068.md": 1,
+        "docs/investigations/audit-069.md": 1,
+        "docs/investigations/audit-070.md": 1,
+        "docs/investigations/audit-071.md": 1,
+        "docs/investigations/audit-072.md": 1,
+        "docs/investigations/audit-073.md": 1,
+        "docs/investigations/audit-074.md": 1,
+        "docs/investigations/audit-075.md": 1,
+        "docs/investigations/audit-076.md": 1,
+        "docs/investigations/audit-077.md": 1,
+        "docs/investigations/audit-078.md": 1,
+        "docs/investigations/audit-079.md": 1,
+        "docs/investigations/audit-080.md": 1,
+        "docs/investigations/audit-081.md": 1,
+        "docs/investigations/audit-082.md": 1,
+        "docs/investigations/audit-083.md": 1,
+        "docs/investigations/audit-084.md": 1,
+        "docs/investigations/audit-085.md": 1,
+        "docs/investigations/audit-086.md": 1,
+        "docs/investigations/audit-087.md": 1,
+        "docs/investigations/audit-088.md": 1,
+        "docs/investigations/audit-089.md": 1,
+        "docs/investigations/audit-090.md": 1,
+        "docs/investigations/audit-091.md": 1,
+        "docs/investigations/audit-092.md": 1,
+        "docs/investigations/audit-093.md": 1,
+        "docs/investigations/audit-094.md": 1,
+        "docs/investigations/audit-095.md": 1,
+        "docs/investigations/audit-096.md": 1,
+        "docs/investigations/audit-097.md": 1,
+        "docs/investigations/audit-098.md": 1,
+        "docs/investigations/audit-099.md": 1,
+        "docs/investigations/audit-100.md": 1,
+        "docs/investigations/investigation-index.json": 1
+      },
+      "elapsed_single_ms": 665,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at tL (<workspace>/tools/investigation-report/src/investigation-layout-entry.ts:126:27)",
+          "count": 100
+        },
+        {
+          "kind": "index",
+          "caller": "at di (<workspace>/tools/index-runtime/src/storage-sync.ts:132:34)",
+          "count": 1
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources"
+          ],
+          "tree_or_pending_entries": 100,
+          "blob_requests": 0
+        }
+      ]
+    },
+    {
+      "label": "fixed-k-domain-true",
+      "n": 100,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 504,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "12ee816b8cdc988849082f5f26d0832b381e5bf0^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "12ee816b8cdc988849082f5f26d0832b381e5bf0",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 201,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 102
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "12ee816b8cdc988849082f5f26d0832b381e5bf0^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "12ee816b8cdc988849082f5f26d0832b381e5bf0",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "12ee816b8cdc988849082f5f26d0832b381e5bf0^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "12ee816b8cdc988849082f5f26d0832b381e5bf0",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 201,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 102
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 201,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 102
+        }
+      ]
+    },
+    {
+      "label": "fixed-k-all-true",
+      "n": 100,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "all"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "resource": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/_resources/261009-audit-001/sample.txt": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 508,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        },
+        {
+          "kind": "resource",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "12ee816b8cdc988849082f5f26d0832b381e5bf0^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "12ee816b8cdc988849082f5f26d0832b381e5bf0",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 201,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 102
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "12ee816b8cdc988849082f5f26d0832b381e5bf0^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "12ee816b8cdc988849082f5f26d0832b381e5bf0",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "12ee816b8cdc988849082f5f26d0832b381e5bf0^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "12ee816b8cdc988849082f5f26d0832b381e5bf0",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 201,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 102
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001",
+            ":(literal)docs/investigations/_resources/261009-audit-001/sample.txt"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 201,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 102
+        }
+      ]
+    },
+    {
+      "label": "fixed-k-index-true",
+      "n": 100,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "index"
+      ],
+      "exit": 0,
+      "git_calls": 9,
+      "git_commands": {
+        "rev-parse": 5,
+        "ls-tree": 1,
+        "cat-file": 2,
+        "ls-files": 1
+      },
+      "read_counts": {
+        "index": 1
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 1
+      },
+      "elapsed_single_ms": 374,
+      "read_origins": [
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 1
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "12ee816b8cdc988849082f5f26d0832b381e5bf0^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "12ee816b8cdc988849082f5f26d0832b381e5bf0",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        }
+      ]
+    },
+    {
+      "label": "fixed-k-no-resource",
+      "n": 100,
+      "k": 1,
+      "arguments": [
+        "stage",
+        "261009-audit-001",
+        "--scope",
+        "domain"
+      ],
+      "exit": 0,
+      "git_calls": 21,
+      "git_commands": {
+        "rev-parse": 7,
+        "ls-tree": 2,
+        "cat-file": 4,
+        "ls-files": 5,
+        "config": 2,
+        "diff": 1
+      },
+      "read_counts": {
+        "index": 2,
+        "formal": 2
+      },
+      "paths": {
+        "docs/investigations/investigation-index.json": 2,
+        "docs/investigations/audit-001.md": 2
+      },
+      "elapsed_single_ms": 513,
+      "read_origins": [
+        {
+          "kind": "formal",
+          "caller": "at dA (<workspace>/tools/shared/src/version-control/git-workspace-file.ts:82:22)",
+          "count": 2
+        },
+        {
+          "kind": "index",
+          "caller": "at Hx (<workspace>/tools/index-runtime/src/storage-load.ts:95:21)",
+          "count": 2
+        }
+      ],
+      "git_batches": [
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--show-toplevel"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "5eb844401289053d6d11afd87a8c40114e2e3c2b^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-z",
+            "5eb844401289053d6d11afd87a8c40114e2e3c2b",
+            "--",
+            ":(literal)docs/investigations/investigation-index.json"
+          ],
+          "tree_or_pending_entries": 1,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 1
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 101,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 101
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "5eb844401289053d6d11afd87a8c40114e2e3c2b^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            "5eb844401289053d6d11afd87a8c40114e2e3c2b",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "--end-of-options",
+            "5eb844401289053d6d11afd87a8c40114e2e3c2b^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "diff",
+            "--cached",
+            "--name-only",
+            "--no-renames",
+            "-z",
+            "5eb844401289053d6d11afd87a8c40114e2e3c2b",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 101,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 101
+        },
+        {
+          "argv": [
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            ":(literal)docs/investigations/_resources/261009-audit-001"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "config",
+            "--type=bool",
+            "--get",
+            "core.fileMode"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--git-path",
+            "index"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            "HEAD^{commit}"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "ls-files",
+            "--stage",
+            "-z",
+            "--",
+            ":(literal)docs/investigations"
+          ],
+          "tree_or_pending_entries": 101,
+          "blob_requests": 0
+        },
+        {
+          "argv": [
+            "-C",
+            "<fixture>",
+            "cat-file",
+            "--batch"
+          ],
+          "tree_or_pending_entries": 0,
+          "blob_requests": 101
+        }
+      ]
+    }
+  ]
+}

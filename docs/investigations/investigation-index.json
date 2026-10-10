@@ -243,6 +243,32 @@
       ],
       "title": "调查读取职责收敛后的性能复查"
     },
+    "261010-investigation-local-stage-and-single-read-check": {
+      "formedAt": "2026-10-10T10:00:44Z",
+      "name": "investigation-local-stage-and-single-read-check",
+      "question": "全量只读检查采用首次对象、局部暂存预选必要依赖后，固定选择增大全集时访问是否仍局部且写入保护保留？",
+      "relations": [
+        {
+          "summary": "改变检查与暂存责任后复测固定选择及全局残余成本",
+          "target": "261010-investigation-acquisition-performance-recheck",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261010-investigation-local-stage-and-single-read-check/final-optimization-observations.json",
+        "261010-investigation-local-stage-and-single-read-check/final-safety-observations.json",
+        "261010-investigation-local-stage-and-single-read-check/measure-local-acquisition.py",
+        "261010-investigation-local-stage-and-single-read-check/observations.json",
+        "261010-investigation-local-stage-and-single-read-check/post-safety-observations.json"
+      ],
+      "sourcePath": "investigation-local-stage-and-single-read-check.md",
+      "tags": [
+        "performance",
+        "root-cause-analysis",
+        "skill-tooling"
+      ],
+      "title": "调查单次采集检查与局部暂存职责复查"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -902,6 +928,7 @@
       "261005-pending-file-representation-conflict": "sha256:2fb0c701b837460cb5324b091afd36bf4035307b1cc40eee180cf7358a2558d1",
       "261009-skill-cli-repeated-process-and-source-access": "sha256:c36ef47b219d7f4c7c8ce1496b70aeee91958106a01835275793a8fe0eca64be",
       "261010-investigation-acquisition-performance-recheck": "sha256:363386f7d53281c571fabb6682fb3f8e69c28be86b0437033e7f37751efba60a",
+      "261010-investigation-local-stage-and-single-read-check": "sha256:a1ed5d551d2dea05dbcfd4e3bf928adcb60cb82d25a604524a2170f278fc81aa",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",
