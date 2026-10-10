@@ -126,6 +126,7 @@
       "261006-separate-novel-identity-and-versioned-transitions": "sha256:7b8bef472813e23dd8cb3d9a8538c9511d13501a67f51a3cadae38ac0d389188",
       "261008-maintain-record-quality-through-project-workflow": "sha256:804ad74dfa950e266e09648a62c29eed04fe1850971ced043c6a4ae632090f82",
       "261009-require-one-project-repository-for-change-roots": "sha256:ebcd33cdec3e750108043b1fa433ed0bddd7d0b9cfea1117374496f5ec9a8bfc",
+      "261010-separate-investigation-query-and-validation-acquisition": "sha256:25afb1508bdc25f749a720c934abaad6d5d8ce4688b8d55155bfb1626faebfd6",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -171,7 +172,7 @@
       "defer-standard-test-result-blocking": "sha256:7a4a6d1cd686117d378d95d0920295b62ea3b92337d14c6ae0255d3d06a34280",
       "defer-terminal-correction-until-confirmed-recovery-need": "sha256:741f83865b3fbe25c81e5c61d1cad01a403d128a5e07e188d173f430a42cb76e",
       "define-decision-alignment-semantics": "sha256:0f80dfe50628ed41a91cc2ecfb687d4af623fefaf6d4e737ac56cb400c8b95c9",
-      "define-version-control-visible-investigation-resources": "sha256:9df6eca4d0319492683c20615e494d21f46795f2e341f163110d3c79bb555842",
+      "define-version-control-visible-investigation-resources": "sha256:fca0999fba98268cc8e3cc950b6c8875b68cff888b4a9e469a298053725ef32a",
       "delegate-native-runtime-installation-to-caller": "sha256:d8f3e546f21b706d12fdcd7a3e146e5f69d361dff942a250155029631522a41d",
       "derive-check-exit-status-from-step-results": "sha256:924e1b6318b7cb216c8e0d7d681ece09972531185cf672b3686f3a31783ffbb6",
       "derive-decision-records-declarations-from-runtime-source": "sha256:c13c5482f99b56548cfcabfcba650d5096a9ad0bad59811124d26798e112a7e0",
@@ -193,7 +194,7 @@
       "exclude-archived-changes-from-link-validation": "sha256:fa9b132ae0e1d867acc4d75de33f2d00d81882c85123d9563fa8ae6872cb045c",
       "exclude-formation-time-link-bytes-from-validation": "sha256:f2302b5f1858302c2f892050b9a9d9f1478729177f3cef9e22a3866e01560f70",
       "exclude-investigation-resources-from-index-revision": "sha256:9d88b8badefe07aa4c6a0aa1e85773c0d3d3cab49f6dbaa7ae65d9dad4d71a15",
-      "exclude-investigation-resources-from-report-index-revision": "sha256:6936cfdab61a7f033bf7103e6d6b9fc0a950b1f30fb19c5603484fc512c8d33c",
+      "exclude-investigation-resources-from-report-index-revision": "sha256:37bceaccf1fdf8ba1880c6d09efc12d3e349d517bafb897144fbcdb97e519d54",
       "express-alignment-as-field-relation": "sha256:7ce274733f960fbd71512c995e2188caa6eb0b3dcb1b47432e6a8abfe37e0adc",
       "express-decision-alignment-state": "sha256:4bdefc92f185b05d51e80a8a6ce08d961075eedab485b14572d46eb9fdba21d9",
       "fix-test-evidence-workspace-contract": "sha256:add0a0443d7ee01d81e0238eec879ebe4fa69f61a1b8af7b70fcabff25a8edea",
@@ -2879,6 +2880,30 @@
       ],
       "relations": []
     },
+    "261010-separate-investigation-query-and-validation-acquisition": {
+      "name": "separate-investigation-query-and-validation-acquisition",
+      "sourcePath": "separate-investigation-query-and-validation-acquisition.md",
+      "title": "分离调查快照查询与来源验证的读取职责",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-10T07:11:23Z",
+      "purpose": "让调查发现按发布快照查询，局部读取按需取源，全集验证与写前复核各承担必要证据。",
+      "background": "查询前核对全集与逐条重建资源依据混淆了读取职责，放大正文访问和 Git 进程而未提供相应结果价值。",
+      "decision": "Investigation Report 按结果需要取得来源，批次内复用身份与资源事实，写入阶段独立重读，资源字节仍不参与报告索引。",
+      "tags": [
+        "investigation-report",
+        "performance",
+        "responsibility-boundaries",
+        "validation-boundaries"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "exclude-investigation-resources-from-report-index-revision",
+          "summary": "保留资源排除，改由全集验证核对来源，快照查询不读原文"
+        }
+      ]
+    },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",
       "sourcePath": "archive/activate-release-gate-checks-by-tag.md",
@@ -4269,9 +4294,9 @@
     },
     "exclude-investigation-resources-from-report-index-revision": {
       "name": "exclude-investigation-resources-from-report-index-revision",
-      "sourcePath": "exclude-investigation-resources-from-report-index-revision.md",
+      "sourcePath": "archive/exclude-investigation-resources-from-report-index-revision.md",
       "title": "让调查资源退出报告索引来源版本",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-28T10:12:54Z",
       "purpose": "让报告索引只投影报告事实与资源引用关系，不把资源文件成员或字节纳入索引来源版本。",

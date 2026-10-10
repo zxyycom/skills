@@ -29,9 +29,9 @@
 
 报告以稳定 Investigation ID 标识，tags 用于分类，直接前序关系表达认识演进，关系摘要说明本轮对前序具体增加、核对或改变了什么，派生索引用于查找和追溯。所有正式报告保留在同一集合；当前口径由当前事实 owner 承接。
 
-`trace` 从一次当前索引快照形成关系切片，默认输出终端关系图；`--json` 输出同一份查询成功结果的 JSON envelope。默认双向、深度 5、最多 50 条记录。图中的 `* trace` 是实际遍历成员，`~ context` 是为完整事件补入的上下文；只展开切片内部边，已读取但缺少摘要会标记，context 不递归扩展。
+按分类、时间或关系发现报告时，`list`、`trace` 与 metadata 搜索查询最后发布的索引快照。需要当前正文用 `show`，需要当前文本发现用默认 content 搜索；完整来源与索引对齐由全量 `check` 和显式 `sync-index` 验证。
 
-`traceIds` 是实际遍历成员，`contextIds` 仅补齐完整拆分或纯归并事件；两者合起来正好是 `entries`。`coverage`、`frontier` 和可选 `blockedEvent` 说明深度或预算边界；frontier 可作为下一次查询的 anchor 与方向，不是 cursor。报告自身的完整 relations 即使 target 在切片外也仍保留；已有 summary 原样保留，缺失时不会补写。`--depth all` 取消深度限制；要完整接纳被阻断事件，将 `--max-records` 提高到其 `requiredMaxRecords` 后重查。
+`trace` 默认输出关系图，`--json` 返回同一查询切片；`* trace` 是实际遍历成员，`~ context` 只补齐完整拆分或纯归并事件。深度、记录预算与后续阅读依据见[查找与阅读](../../skills/investigation-report/SKILL.md#查找与阅读)。
 
 正文独立解释关键认识；资源按需补充现场与做法，以必要、Git 友好的纯文本为优先。日志和数据可简化，一次性分析代码、测试代码或查询可用于解释当时动作；材料的来源与处理方式须清楚。复现与重跑按任务另行要求，结论可信度仍取决于来源、方法和推理。
 

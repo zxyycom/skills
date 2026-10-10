@@ -10,10 +10,6 @@ import {
   investigationIndexFileName,
   loadInvestigationIndex
 } from "./investigation-state-index.ts";
-import {
-  investigationIndexStale,
-  persistedSnapshotWarning
-} from "./index-staleness.ts";
 import { diagnosticFromStateIndexDiagnostic } from "./diagnostics.ts";
 import { buildInvestigationListFacets } from "./list-facets.ts";
 import { parseInvestigationIndexQueryOptions } from "./options.ts";
@@ -29,7 +25,10 @@ import {
   queryOperationFailure
 } from "./query-results.ts";
 import { validateQueryOptions } from "./query-options.ts";
-import type { InvestigationIndexQueryResult } from "./types.ts";
+import type {
+  InvestigationFilterRelation,
+  InvestigationIndexQueryResult
+} from "./types.ts";
 import type {
   InvestigationIndexQueryFailure,
   PreparedQuery,
@@ -126,25 +125,26 @@ export function queryValidatedInvestigationIndex(
         indexPath
       )
   ).andThen((loaded) =>
-    ResultAsync.fromSafePromise(
-      loaded.status === "ok"
-        ? snapshotWarnings(loaded.value, investigationsDirectory)
-        : Promise.resolve<string[]>([])
-    ).andThen((warnings) =>
-      queryLoadedInvestigationIndex(loaded, validated, indexPath, warnings)
-    )
+    queryLoadedInvestigationIndex(loaded, validated, indexPath)
   );
 }
 
 export type LoadedInvestigationIndex = Awaited<
   ReturnType<typeof loadInvestigationIndex>
 >;
+type IndexQuerySelection = Readonly<{
+  filters: ValidatedQueryOptions["filters"];
+  facets: ReturnType<typeof buildInvestigationListFacets>;
+  filterRelations: ReadonlyMap<
+    string,
+    readonly InvestigationFilterRelation[]
+  > | null;
+}>;
 
 function queryLoadedInvestigationIndex(
   loaded: LoadedInvestigationIndex,
   validated: ValidatedQueryOptions,
-  indexPath: string,
-  warnings: readonly string[]
+  indexPath: string
 ) {
   if (loaded.status === "error")
     return err(indexQueryDiagnostics(loaded.diagnostics, indexPath));
@@ -159,32 +159,18 @@ function queryLoadedInvestigationIndex(
   if (filterRelations.isErr())
     return err({ diagnostics: [], errors: filterRelations.error });
   if (related.value !== null && related.value.size === 0)
-    return ok(emptyQueryResult(validated, indexPath, facets, warnings));
-  return runIndexQuery(
-    loaded.value,
-    selectedFilters(validated, related.value),
-    validated,
-    indexPath,
+    return ok(emptyQueryResult(validated, indexPath, facets));
+  return runIndexQuery(loaded.value, validated, indexPath, {
+    filters: selectedFilters(validated, related.value),
     facets,
-    filterRelations.value,
-    warnings
-  );
-}
-
-async function snapshotWarnings(
-  index: Extract<LoadedInvestigationIndex, { status: "ok" }>["value"],
-  investigationsDirectory: string
-): Promise<string[]> {
-  return (await investigationIndexStale(investigationsDirectory, index))
-    ? [persistedSnapshotWarning]
-    : [];
+    filterRelations: filterRelations.value
+  });
 }
 
 function emptyQueryResult(
   validated: ValidatedQueryOptions,
   indexPath: string,
-  facets: ReturnType<typeof buildInvestigationListFacets>,
-  warnings: readonly string[]
+  facets: ReturnType<typeof buildInvestigationListFacets>
 ): InvestigationIndexQueryResult {
   return {
     appliedFilters: validated.appliedFilters,
@@ -196,7 +182,7 @@ function emptyQueryResult(
     limit: validated.limit,
     offset: validated.offset,
     total: 0,
-    warnings: [...warnings]
+    warnings: []
   };
 }
 
@@ -219,15 +205,9 @@ function selectedFilters(
 
 function runIndexQuery(
   index: Extract<LoadedInvestigationIndex, { status: "ok" }>["value"],
-  filters: ValidatedQueryOptions["filters"],
   validated: ValidatedQueryOptions,
   indexPath: string,
-  facets: ReturnType<typeof buildInvestigationListFacets>,
-  filterRelations: ReadonlyMap<
-    string,
-    readonly import("./types.ts").InvestigationFilterRelation[]
-  > | null,
-  warnings: readonly string[]
+  selection: IndexQuerySelection
 ) {
   return fromThrowable(
     () =>
@@ -235,7 +215,7 @@ function runIndexQuery(
         definition: createInvestigationStateIndexDefinition(),
         index,
         query: {
-          filters,
+          filters: selection.filters,
           limit: validated.limit,
           offset: validated.offset,
           sort: [
@@ -259,17 +239,17 @@ function runIndexQuery(
           entries: queried.value.entries.map((entry) => ({
             id: entry.id,
             state: entry.state,
-            ...(filterRelations?.get(entry.id) === undefined
+            ...(selection.filterRelations?.get(entry.id) === undefined
               ? {}
-              : { filterRelations: filterRelations.get(entry.id)! })
+              : { filterRelations: selection.filterRelations.get(entry.id)! })
           })),
           errors: [],
-          facets,
+          facets: selection.facets,
           indexPath,
           limit: queried.value.limit,
           offset: queried.value.offset,
           total: queried.value.total,
-          warnings: [...warnings]
+          warnings: []
         })
   );
 }

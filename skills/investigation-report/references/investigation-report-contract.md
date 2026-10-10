@@ -35,7 +35,7 @@ docs/investigations/
 - 有效标准 ID 只精确匹配该 ID，未命中即失败。
 - 其他输入按完整文本精确查 name；零项报告不存在，一项收敛为完整 ID，多项报告歧义。
 
-路径只进入明确的定位参数。关系、资源 owner、索引 entry 和后续操作使用完整 ID。单项读取由新鲜索引定位 sourcePath，并确认文件仍声明同一 ID。
+路径只进入明确的定位参数。关系、资源 owner、索引 entry 和后续操作使用完整 ID。单项读取由结构合法的发布索引定位 sourcePath，并确认文件仍声明同一 ID。
 
 ### 建立边界
 
@@ -169,7 +169,7 @@ resource ID 首段确定唯一 owner，而非报告 basename。owner 须直接�
 
 writer 在候选和正式位置均可用时优先使用 name locator，否则使用完整 ID；发布保留相同 basename。创建成功即表示 candidate 已存在，readiness 或辅助预检 warning 提示继续编辑、查看候选或显式预检，不要求重跑 new。
 
-`candidates` 与 `show-candidate` 直接读取候选和准备情况。集合安全允许时，单条非法候选可 warning 后跳过；显式目标非法则失败。正式查询仍走正式集合。
+`candidates` 与 `show-candidate` 从未索引候选定位身份并读取准备情况；同一阶段复用候选源字节、身份映射、引用与资源依据，正式共享 owner 按实际引用读取。没有可用索引或出现未知／移动 owner 时，身份发现可以扩大，但局部读取不证明正式全集健康。集合安全允许时，单条非法候选可 warning 后跳过；显式目标非法则失败。正式查询仍走正式集合。
 
 ### 发布前提与效果
 
@@ -245,11 +245,36 @@ rename 自行完成索引更新，不把同步或暂存当作第二阶段；成�
 
 ### 查询结果能说明什么
 
-`list` 提供全局筛选概览与近期窗口，`show` 读取完整正式报告，`trace` 从一次当前受检索引快照返回面向 agent 的关系切片。重复 tags 为 AND，形成时间范围包含端点；关系条件与其他条件相交后再排序、翻页或匹配文本。参数默认值和窗口大小查 help，空页只说明本次筛选与窗口无结果。
+`list` 提供全局筛选概览与近期窗口，`show` 读取完整正式报告，`trace` 从一次结构受检的发布索引快照返回面向 agent 的关系切片。重复 tags 为 AND，形成时间范围包含端点；关系条件与其他条件相交后再排序、翻页或匹配文本。参数默认值和窗口大小查 help，空页只说明本次筛选与窗口无结果。
 
-`trace` 成功时默认向 stdout 输出稳定终端关系图；它不是旧的平铺文本或 Mermaid。传入单值 `--json` 时才原样序列化同一份 trace 查询成功结果的稳定 JSON envelope。两种 renderer 不能重读索引、重做选择或改变成员、coverage、frontier 与 blocked event。终端图只展开切片内部边；已读取但缺少摘要显示 `[无摘要]`，已有摘要按 JSON 转义的完整单行文本显示。主体或事件对端成员承接已展示边的方向与摘要；context 成员只为事件闭合而加入、不递归扩展，不能据此把切片外边或 `coverage` 解释为缺失。完整直接关系仍从 entry 或来源正文读取。终端图固定回显 anchor、direction、depth、complete 与记录数，以 `L0/L1/...` 呈现稳定图层；每个 trace 节点只作为一个主体块出现，`* trace` 表示实际遍历成员，`~ context` 只在拆分或归并事件上下文中表示为事件闭合补入的成员。终端图展示可用的 predecessors、successors、split/merge 事件成员和 relation summary，并在不完整时输出 frontier 与 blocked event。JSON 回显 `anchorId`、实际 direction 与 limits；无限 depth 在 `limits.depth` 中表示为 `"all"`。省略参数时采用 `direction=both`、`depth=5` 与 `max-records=50`；有限 depth 为非负安全整数，`--depth all` 取消深度限制，max-records 为正安全整数。`traceIds` 是请求方向上实际到达且可继续扩展的成员，`contextIds` 只为完整拆分或纯归并事件闭合加入；二者互斥，且并集恰为 `entries` 的 key。每个 entry 只投影 title、formedAt、question、tags 和完整 relations；ID 已由 key 承接，name、sourcePath 和 resourceIds 不进入结果。
+#### trace 的输出与成员
 
-完整事件不能按记录预算拆开：一个跨越触发拆分时接纳该前序与全部直接拆分后继；触发纯归并时接纳归并后继与全部直接前序。能在请求方向直接到达的端点成为 trace member，其余事件成员为 context，除非之后被实际到达而提升。`coverage.complete` 仅在没有深度或预算截断时为 true；`coverage.stoppedBy`、`frontier` 与可选 `blockedEvent` 共同说明限制。frontier 的 fromId、direction 和 nextIds 是继续查询的事实，不是 cursor；预算阻断多记录事件时，blockedEvent 的 recordIds 保持事件完整，requiredMaxRecords 给出接纳该事件所需的最小预算；普通单记录接纳受阻时只形成 max-records frontier。entry 的完整 relations 可能指向切片外 ID，这仍是索引事实；只有两端都在 entries 的 relation 是切片内部边。summary 存在时原样投影，缺失时省略，不由 trace 推断。
+`trace` 从同一成功查询结果渲染终端关系图或 JSON；两种 renderer 不重读索引、不重做选择，也不改变成员、coverage、frontier 或 blockedEvent。
+
+| 表述 | 输出契约 |
+| --- | --- |
+| 默认终端图 | 向 stdout 输出 anchor、direction、depth、complete 与记录数，以 `L0/L1/...` 表示稳定图层。每个 trace 节点只出现为一个主体块；`* trace` 标记实际遍历成员，`~ context` 标记为事件闭合补入的成员。展示可用的 predecessors、successors、拆分／归并事件及 relation summary；不完整时输出 frontier 和 blockedEvent。 |
+| `--json` | 单值开关，原样序列化同一查询成功结果的稳定 JSON envelope，回显 `anchorId`、实际 direction 与 limits；无限 depth 表示为 `"all"`。 |
+| 参数 | 默认 `direction=both`、`depth=5`、`max-records=50`。有限 depth 为非负安全整数，`--depth all` 取消深度限制；max-records 为正安全整数。 |
+
+成员和直接关系按以下边界解释：
+
+- `traceIds` 是请求方向上实际到达、可继续扩展的成员；`contextIds` 只为完整拆分或纯归并事件闭合补入，不递归扩展。二者互斥，并集恰为 `entries` 的键。
+- 每个 entry 只投影 title、formedAt、question、tags 和完整 relations。ID 由键承接；name、sourcePath、resourceIds 不进入结果。relation target 可以在切片外，这仍是发布索引事实，不是缺失证明。
+- 终端图只展开两端都在切片内的边，主体或事件对端成员承接已展示边的方向与摘要。已读取但缺少摘要显示 `[无摘要]`；已有摘要按 JSON 转义的完整单行文本显示。JSON 中 summary 有值才出现，trace 不推断或补写。
+- 完整直接关系从 entry 或来源正文读取；context 与切片外边均不扩大本次遍历或 coverage。
+
+#### trace 的事件闭合与覆盖
+
+完整事件按整体接纳：跨越拆分时接纳前序与全部直接拆分后继；跨越纯归并时接纳归并后继与全部直接前序。请求方向可直接到达的端点成为 trace member，其余成为 context；context 后续实际到达时提升为 trace member。
+
+`coverage.complete` 仅在没有深度或预算截断时为 true；`coverage.stoppedBy`、`frontier` 与可选 `blockedEvent` 共同解释限制：
+
+- frontier 的 fromId、direction、nextIds 是后续查询可用的事实，不是 cursor。
+- 预算不足以整体接纳多记录事件时，blockedEvent 的 recordIds 保持事件完整，requiredMaxRecords 给出接纳所需最小预算；不接纳部分事件。
+- 普通单记录接纳受阻时只形成 max-records frontier。
+
+#### 筛选与文本证据
 
 `--related-to` 先独立解析目标，再按相对目标的 predecessors、successors 或 both 选择直接邻居；方向须与目标同用。relation type 单独使用匹配任一该类型边，与目标同用则须命中同一条边。关系条件的 list/search entry 以可选 `filterRelations` 返回导致该记录命中的完整边集合：只在存在关系条件时出现，使用本次筛选的同一来源快照，按 `(sourceId, type, target)` 去重并以 UTF-16 code-unit 词法序排列；前驱边由 anchor 指向结果，后继边由结果指向 anchor，both 取并集，type-only 选择结果来源的指定类型出边。记录集合、排序、分页与搜索 limit 保持不变。该投影属于公开 Investigation list/search entry API；索引条目、Schema 与正式关系数据模型不因此扩大。
 
@@ -264,7 +289,9 @@ rename 自行完成索引更新，不把同步或暂存当作第二阶段；成�
 
 search 的 limit 只限制返回的命中报告，不提供 offset 分页；命中计数、来源与三种覆盖按下方搜索总览解释。降级只服务本次查询，持久索引仍须显式恢复。
 
-持久索引陈旧时，只读查询按数据来源降级并发出 warning：`list`、metadata `search` 与 `trace` 返回最后一次发布快照；`show` 用索引定位并验证当前文件仍声明目标 ID，通过后返回当前正文，warning 区分索引 metadata 快照与当前正文来源，验证失败为 error；默认 content 搜索完整验证正式来源后以只读内存投影服务当前文本命中。warning 标识结果数据源与 `sync-index` 恢复命令，快照结果不支持对当前全集的否定性结论。严格 `check`、发布、关系与生命周期 mutation、删除和 staging 要求持久索引与权威来源一致，陈旧或无效时零写入停止并给出恢复动作。
+`list`、metadata `search` 与 `trace` 只保证索引结构合法及按最后发布快照正确查询；不读取正式 Markdown 核对新鲜度，不自动同步，也不把“未核对”作为默认 warning。快照计数、筛选和关系事实不能证明当前全集无命中或仍保持相同关系。索引缺失、损坏或 definition 不符时查询失败，须显式恢复。
+
+`show` 以发布索引定位一个普通非符号链接文件，确认当前 frontmatter ID，并返回当前正文；它用已读字节比较该 entry 的来源指纹，漂移时 warning 区分发布 metadata 与当前正文。该读取只证明所选报告。全量 `check`、发布、关系事务、正式删除和 stage 按各自前提验证完整来源与索引；mutation 前提不满足时零写入停止并给出恢复动作。
 
 ### 搜索总览与完整性
 
@@ -287,13 +314,11 @@ search 的 limit 只限制返回的命中报告，不提供 offset 分页；命�
 
 | 本次依据 | `kind` | `currentness` | `fallback` |
 | --- | --- | --- | --- |
-| metadata：发布索引与本次读取的来源 revision 相同 | `published-index` | `current` | `false` |
-| metadata：两者 revision 不同 | `published-index` | `stale` | `false` |
-| metadata：来源 revision 核对失败，继续查询结构有效的发布快照 | `published-index` | `unchecked` | `false` |
+| metadata：只读取结构合法的发布快照，不核对当前来源 | `published-index` | `unchecked` | `false` |
 | content：当前来源验证成功，索引映射可用 | `validated-source` | `current` | `false` |
 | content：索引不可用或陈旧，完整验证正式来源与资源后用只读内存投影降级 | `validated-source` | `current` | `true` |
 
-`current` 只说明本次已有验证证据，不承诺查询期间锁或跨文件原子快照。`stale`、`unchecked` 的计数与覆盖只代表发布快照；这两种来源状态与 fallback 均产生 warning。
+`current` 只说明本次已有验证证据，不承诺查询期间锁或跨文件原子快照。metadata 的 `unchecked` 是正常的发布快照来源边界，不产生 warning；其计数与覆盖只代表该快照。content 的 fallback 产生来源 warning。
 
 #### 计数与覆盖
 
@@ -311,20 +336,22 @@ warning 保留领域前缀并写入 stderr，每类仅一次：
 
 - 返回限制：`search results limited: max-records`。
 - 预览限制：`search previews limited: match-previews,preview-characters`，只列实际原因。
-- 来源状态：`search source: stale published-index`、`search source: unchecked published-index` 或 `search source: validated-source fallback`，附来源边界及 `sync-index` 恢复动作；普通预算限制不要求修复来源。
+- 来源状态：`search source: validated-source fallback`，附来源边界及 `sync-index` 恢复动作；普通预算限制不要求修复来源。
 
-按来源和各项覆盖判断结论：仅预览受限不表示记录发现不完整；来源为 stale/unchecked 或扫描不完整时，不能对当前全集作否定性结论。需要更多命中时收紧筛选，完整正文和直接关系用 `show` 读取。预览预算不是 stdout 总字节上限，外部展示仍可能截断。
+按来源和各项覆盖判断结论：仅预览受限不表示记录发现不完整；来源为发布快照或扫描不完整时，不能对当前全集作否定性结论。需要更多命中时收紧筛选，完整正文和直接关系用 `show` 读取。预览预算不是 stdout 总字节上限，外部展示仍可能截断。
 
 ### 检查与同步
 
 | 操作 | 证明或更新范围 |
 | --- | --- |
 | 默认全量 `check` | 正式报告、完整关系图、资源和索引；合法 candidate 只做成员安全、身份冲突和准备诊断。 |
-| `check --id` | 所选正式报告及直接资源的局部合法性，不证明完整图、拆分闭合、未引用资源集合或索引新鲜度。 |
+| `check --id` | 优先按发布索引定位并核对所选 ID；未索引或移动身份需要时做一次身份发现。复用已读字节验证所选报告及直接资源。结果只证明选定范围，完整图、拆分闭合、未引用资源集合和索引新鲜度由全量验证承接。 |
 | 全量 `sync-index` | 完整验证正式来源后重建索引，接纳手工正式来源变化；合法候选留在集合外。 |
 | selected `sync-index` | 同样完整验证，但只接纳明确选中 ID 的已知来源变化，默认写入并发布完整索引；`--preflight` 对同一验证零写入预演。 |
 
-一批手工正式编辑可先共同完成，期间用局部 check 或读取 Markdown；在索引查询、已有关系事务、正式删除、全量验收或暂存需要当前集合前同步一次。全量同步可恢复旧索引缺失、损坏或陈旧，来源或候选成员安全问题仍须先解决。`sync-index` 默认写入完整有效索引，`--preflight` 零写入执行同一准备与验证；被移除的 `--write` 按普通无效参数处理。已知合法来源变化的规范顺序是同步后全量 `check`；未解释的索引异常先 `check` 诊断，再同步或修复。
+全量 `check` 与 `sync-index` 在同一准备阶段复用已取得的身份、源字节、解析结果与资源事实，并在结束前独立复核来源，拒绝期间漂移；阶段内复用不构成跨调用缓存或跨文件原子快照。
+
+一批手工正式编辑可先共同完成，期间用局部 check 或读取 Markdown；在已有关系事务、正式删除、全量验收或暂存需要当前集合前同步一次。全量同步可恢复旧索引缺失、损坏或陈旧，来源或候选成员安全问题仍须先解决。`sync-index` 默认写入完整有效索引，`--preflight` 零写入执行同一准备与验证；被移除的 `--write` 按普通无效参数处理。已知合法来源变化的规范顺序是同步后全量 `check`；未解释的索引异常先 `check` 诊断，再同步或修复。
 
 selected 同步须有可信 baseline，集合 metadata 及其 revision 保持不变，全部变化 ID 都被选择。selector 从 baseline 与待发布投影的 name 映射并集解析，标准 ID 只精确匹配。新增选新 ID，删除选旧 ID，身份更正同时选旧/新 ID；未选择变化、未知 ID 或坏 baseline 均零写入，先补充选择或显式全量同步。
 
@@ -344,7 +371,13 @@ scope 决定 pending 写入路径：
 
 完整 owner 资源树的成员取工作区与 `HEAD` 的路径并集，包含未引用成员；已删除的基线资源进入删除目标。所选来源必须是常规非符号链接文件，使用工作区字节和尊重 Git `core.fileMode` 的有效执行位；仅执行位变化也计入实际写入路径。不满足来源类型要求时停止并保留 pending。
 
-所有 scope 在写前验证 `HEAD` revision 及 pending 快照的字节与文件表示；`all`/`domain` 还重读所选来源，核对字节、有效执行位与 owner 资源成员。结果报告实际写入路径、保留的无关 pending 范围与调用方负责的路径。`index` 的成功只证明索引暂存，来源验证另行完成。`stage` 只更新 pending，commit 与 push 由调用方按授权执行。
+stage 的读取与写入保护按阶段承担：
+
+1. 先通过完整集合、关系、资源与索引的合法性门禁。
+2. `all`/`domain` 在准备与写前复核两个独立阶段，分别批量发现所选 owner 的 workspace/HEAD 成员，读取来源字节与有效文件表示。每阶段至多读取一次 `core.fileMode`；关闭时至多读取一次所选现存来源的 pending 表示。
+3. 写前复核重新取得事实，拒绝 ID、来源指纹、资源成员、字节或执行位漂移。所有 scope 另外在 pending 写入边界验证 `HEAD` revision 及 pending 快照的字节与文件表示。
+
+结果报告实际写入路径、保留的无关 pending 范围与调用方负责的路径。`index` 的成功只证明索引暂存，来源验证另行完成。`stage` 只更新 pending，commit 与 push 由调用方按授权执行。
 
 ## 诊断与验收
 

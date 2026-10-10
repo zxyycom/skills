@@ -7,7 +7,7 @@ import type {
   PendingReplacementHooks
 } from "./git-context.ts";
 import { readPendingFiles } from "./git-pending.ts";
-import { readWorkspaceFile } from "./git-workspace-file.ts";
+import { readWorkspaceFile, readWorkspaceFiles } from "./git-workspace-file.ts";
 import {
   listChangedPaths,
   listPendingChangedPaths,
@@ -107,6 +107,11 @@ class GitVersionControlRepository implements VersionControlRepository {
     filePath: string
   ): Promise<VersionControlFile | null> {
     return await readWorkspaceFile(this.#context, filePath);
+  }
+  async readWorkspaceFiles(
+    filePaths: readonly string[]
+  ): Promise<VersionControlFile[]> {
+    return await readWorkspaceFiles(this.#context, filePaths);
   }
   async listPendingChangedPaths(
     options: ListPendingChangedPathsOptions

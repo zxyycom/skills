@@ -33,7 +33,7 @@ test("CLI check succeeds on a current report collection", async () => {
     const result = await runInvestigationCli(root, ["check"]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
-    assert.match(result.stdout, /1 of 1 reports checked; full index current/u);
+    assert.match(result.stdout, /1 reports checked; full index current/u);
   });
 });
 
@@ -162,7 +162,7 @@ test("CLI selected sync publishes by default and keeps --preflight zero-write", 
   });
 });
 
-test("CLI queries serve persisted snapshots with staleness warnings", async () => {
+test("CLI snapshot queries stay source-free while show and content report source boundaries", async () => {
   await withTempRoot("cli-stale-snapshot", async (root) => {
     await writeCollection(root, [
       { id: "260828-alpha" },
@@ -178,20 +178,15 @@ test("CLI queries serve persisted snapshots with staleness warnings", async () =
       ),
       "utf8"
     );
-    const snapshotWarning = /persisted Investigation index is stale/u;
 
     const listed = await runInvestigationCli(root, ["list"]);
     assert.equal(listed.status, 0, listed.stderr);
     assert.match(listed.stdout, /260828-alpha/u);
-    assert.match(listed.stderr, snapshotWarning);
-    assert.match(
-      listed.stderr,
-      /Run sync-index to publish the current projection/u
-    );
+    assert.equal(listed.stderr, "");
 
     const traced = await runInvestigationCli(root, ["trace", "260828-alpha"]);
     assert.equal(traced.status, 0, traced.stderr);
-    assert.match(traced.stderr, snapshotWarning);
+    assert.equal(traced.stderr, "");
 
     const shown = await runInvestigationCli(root, ["show", "260828-alpha"]);
     assert.equal(shown.status, 0, shown.stderr);
@@ -208,7 +203,11 @@ test("CLI queries serve persisted snapshots with staleness warnings", async () =
       "alpha"
     ]);
     assert.equal(metadata.status, 0, metadata.stderr);
-    assert.match(metadata.stderr, snapshotWarning);
+    assert.equal(metadata.stderr, "");
+    assert.match(
+      metadata.stdout,
+      /kind=published-index currentness=unchecked fallback=false/u
+    );
 
     const content = await runInvestigationCli(root, [
       "search",

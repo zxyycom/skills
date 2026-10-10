@@ -1,9 +1,18 @@
 import path from "node:path";
-import { readInvestigationCandidate } from "./candidate.ts";
+import {
+  readInvestigationCandidate,
+  prepareCandidateReadContext,
+  type CandidateReadContext
+} from "./candidate-document.ts";
 import { investigationCandidateFilePrefix } from "./candidate-path.ts";
-import { parseInvestigationReport } from "./markdown.ts";
+
 import { buildInvestigationReportState } from "./report-validation.ts";
-import type { InvestigationIndexState, InvestigationSource } from "./types.ts";
+import type {
+  InvestigationCandidate,
+  InvestigationIndexState,
+  InvestigationSource,
+  ParsedInvestigationReport
+} from "./types.ts";
 import {
   preparationFailure,
   type CandidatePublishContext,
@@ -16,11 +25,20 @@ export async function preparePublishCandidates(
   ids: readonly string[],
   formal: FormalPublishContext
 ): Promise<PublishPreparationStep<CandidatePublishContext>> {
+  const readContext = await prepareCandidateReadContext(
+    investigationsDirectory,
+    formal.layout,
+    ids
+  );
   const candidateSources: InvestigationSource[] = [];
   const candidatePaths = new Map<string, string>();
   const states = new Map(formal.formal.states);
   for (const id of ids) {
-    const prepared = await preparePublishCandidate(investigationsDirectory, id);
+    const prepared = await preparePublishCandidate(
+      investigationsDirectory,
+      id,
+      readContext
+    );
     if (prepared.status === "error") {
       return preparationFailure(
         prepared.errors,
@@ -40,7 +58,8 @@ export async function preparePublishCandidates(
 
 async function preparePublishCandidate(
   investigationsDirectory: string,
-  id: string
+  id: string,
+  context: CandidateReadContext
 ): Promise<
   PublishPreparationStep<{
     path: string;
@@ -50,7 +69,8 @@ async function preparePublishCandidate(
 > {
   const candidate = await readInvestigationCandidate(
     investigationsDirectory,
-    id
+    id,
+    context
   );
   if (candidate.status === "error") {
     return preparationFailure(candidate.errors, candidate.diagnostics);
@@ -65,15 +85,13 @@ async function preparePublishCandidate(
       `${id} investigation candidate is not ready for publish: ${candidate.value.errors.join("; ")}`
     ]);
   }
-  return publishCandidateState(id, candidate.value);
+  return publishCandidateState(id, candidate.value, context.parsed.get(id)!);
 }
 
 function publishCandidateState(
   id: string,
-  candidate: Extract<
-    Awaited<ReturnType<typeof readInvestigationCandidate>>,
-    { status: "ok" }
-  >["value"]
+  candidate: InvestigationCandidate,
+  parsed: ParsedInvestigationReport
 ): PublishPreparationStep<{
   path: string;
   source: InvestigationSource;
@@ -81,7 +99,7 @@ function publishCandidateState(
 }> {
   const built = buildInvestigationReportState(
     id,
-    parseInvestigationReport(candidate.markdown!, id),
+    parsed,
     `${candidateLocatorFromPath(candidate.path)}.md`
   );
   if (built.status === "invalid") return preparationFailure(built.errors);

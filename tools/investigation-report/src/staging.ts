@@ -1,6 +1,7 @@
 import { err, errAsync, ok, ResultAsync } from "neverthrow";
 import {
   createStateIndexRuntime,
+  sameStateSourceRevision,
   type StateIndexDiagnostic,
   type StateIndexEntryStageResult
 } from "../../index-runtime/src/index.ts";
@@ -9,7 +10,7 @@ import {
   investigationIndexFileName,
   loadInvestigationIndex
 } from "./investigation-state-index.ts";
-import { investigationIndexStale } from "./index-staleness.ts";
+import { collectValidatedInvestigationCollection } from "./validation-collection.ts";
 import {
   investigationStageDiagnosticCodes,
   prepareInvestigationStage,
@@ -82,11 +83,26 @@ async function stageFreshnessFailure(
       return null;
     return invalidIndexStageFailure(indexPath, persisted.diagnostics);
   }
-  const stale = await investigationIndexStale(
+  const collection = await collectValidatedInvestigationCollection(
     investigationsDirectory,
-    persisted.value
+    { allowEmptyCollection: true }
   );
-  return stale ? staleStageFailure(indexPath) : null;
+  if (collection.errors.length > 0 || collection.snapshot === null)
+    return invalidIndexStageFailure(
+      indexPath,
+      collection.errors.map((message) => ({
+        code: "investigation-report.stage-source-invalid",
+        message,
+        path: indexPath,
+        stateId: null
+      }))
+    );
+  return sameStateSourceRevision(
+    persisted.value.sourceRevision,
+    collection.snapshot.sourceRevision
+  )
+    ? null
+    : staleStageFailure(indexPath);
 }
 
 function invalidIndexStageFailure(

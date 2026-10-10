@@ -427,8 +427,13 @@
       "INDEX-RUNTIME-TEMPORAL-SORT-001": "sha256:4709dc09f0b80dae632c33c5e6b867f577477b70df43cc39997884fbe80e6954",
       "INDEX-RUNTIME-TEXT-SEARCH-001": "sha256:2313163721af66e00504c3b28fb6834e0fc17b02b02c6eca594f7545a207b30c",
       "INV-SEARCH-METADATA-001": "sha256:e62e7fd97632a31c5456e70129d8f83eb245964f1d2efbaad47b791a9d56d9c3",
+      "INVESTIGATION-ACQUISITION-CANDIDATES-001": "sha256:b2be6dd55493b1738b0b756e12eeaac477bf064ce9c97d08de435a88812a8a94",
+      "INVESTIGATION-ACQUISITION-HISTORY-001": "sha256:e24516c8a3c2c045ee914167e81427de1498f3e02035cb4f59a14fd41200fa35",
+      "INVESTIGATION-ACQUISITION-LOCAL-001": "sha256:4263caeaa7a2cd9c3c42e79205729705f99b3eddab8ce9580498f43defc4da44",
+      "INVESTIGATION-ACQUISITION-QUERIES-001": "sha256:33895e5397e0f0c748413028543aaf2c56b5f25fd7a0d997ca32b426db8699f8",
+      "INVESTIGATION-ACQUISITION-STAGE-001": "sha256:e32f8817e48bfd4dcc29f2fb409a2e3dede1dedd29420f0b26050697e3722551",
       "INVESTIGATION-BUNDLED-PARITY-001": "sha256:16105f75fdf958c2f686bf399b407b3a642d51d94adc862200140b1cee672692",
-      "INVESTIGATION-CANDIDATE-CLI-001": "sha256:ce90a37b86fce670ac2a88cd5f203c77b2598edabf9a008f3f41bc49ae3c4cb8",
+      "INVESTIGATION-CANDIDATE-CLI-001": "sha256:62da445afa32e7810163706af13e753f6b253fe62b8e382ccf22aa48a56ac4f5",
       "INVESTIGATION-CANDIDATE-DEFAULT-FORMED-AT-001": "sha256:fceb45c6d4ac6ad17aa31ddd8e3671d9a6688e9d262ee8ff99dc312b429616be",
       "INVESTIGATION-CANDIDATE-DISCARD-004": "sha256:cf32927cfeae36ef6d0108890933919123d8bc1e07ed168ccc1d95d57623883e",
       "INVESTIGATION-CANDIDATE-DISCARD-005": "sha256:446235f7e79b3b689d333a21c8fbd4dccbcd8eee821368df3f4157a4bc25d5d9",
@@ -443,6 +448,7 @@
       "INVESTIGATION-CANDIDATE-PUBLISH-005": "sha256:a39a00dc593ad43624de869f3be6d339b7b073b8f2272d9ca3774edf99abe315",
       "INVESTIGATION-CANDIDATE-PUBLISH-CLEANUP-001": "sha256:6ab462366268bb132fc8715e25f8080a4633f5c22c09ef600150d4d06ddf838a",
       "INVESTIGATION-CANDIDATE-QUERY-001": "sha256:da69ee35174b3b3d8af987fcb740e99a96127c47bc327783150109f63cc1a162",
+      "INVESTIGATION-CANDIDATE-READ-FAILURE-001": "sha256:8a194ef8686765cad62d176207f137e5cc14fac3406830ba5a8c962ac9621c02",
       "INVESTIGATION-CANDIDATE-RESOURCE-001": "sha256:5889c59af00c70acf61748d16145fbba3bb898e4560525f83f1bb803df2273ee",
       "INVESTIGATION-CLI-COLLECTION-ROOT-001": "sha256:3fb686ca20cb3b5676ac0c391a2459272a8b1517795f0b538682ae2cffc29aed",
       "INVESTIGATION-CLI-CONTRACTS-001": "sha256:862de3ea3eef2a574ae8ea8314b35d4912fdf3195a567641a71ad30da839c433",
@@ -501,17 +507,18 @@
       "INVESTIGATION-EMPTY-INDEX-SYNC-001": "sha256:77dfdbc15a1e5bb0b4f27766294049cb9b0343cce1f5d2a37b5bc0385dffdc4d",
       "INVESTIGATION-GENERATED-METADATA-002": "sha256:db2e0998912922aa904c1b076fef7638b7d63925fceb473799cfad8f96180790",
       "INVESTIGATION-INDEX-COMPATIBILITY-001": "sha256:5c4fc94159cff9ce594e6426b67b4c9a4c9c937a2407cdf6908a39be7f48a61f",
-      "INVESTIGATION-INDEX-INTEGRITY-001": "sha256:7e53344246d76596ba6c12d126548a63703f30ae2ed82fb0de63535bda3473ef",
+      "INVESTIGATION-INDEX-INTEGRITY-001": "sha256:0cde6559d66933ae3b7db8cf416784d29eb2f5e5dca68b8216fe59fbc31d733c",
       "INVESTIGATION-INDEX-METADATA-001": "sha256:11c37ed14c052b2bd01171eecf73c23a19f0a41e133f77756821964cc74ebb0b",
       "INVESTIGATION-INDEX-QUERY-001": "sha256:6126e17cdf4e0159c039f3313874768868621e6d620dff408392e7bd729dc702",
       "INVESTIGATION-INDEX-RELATION-FILTER-001": "sha256:98cbf2d1850f43152095e1ccb9f75e89455ea0f06a3d8633b5935585c857c6b2",
+      "INVESTIGATION-LEGACY-IDENTITY-001": "sha256:64dbbce3196588664585ab1a791231f7477ad8a8f72d20da7fbc186371922e2e",
       "INVESTIGATION-LIST-FACETS-001": "sha256:b44d17fbd4055509a1b8de6dc3fd734e3fa3ee30507ae7692affef55c606e75d",
       "INVESTIGATION-LIST-OUTPUT-001": "sha256:422953bcc45f2b6d6fab153cb6fa577e24d1d2d6e7f87643533d3208d037b7be",
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:7c1c4d229f15339621b4e1dced9b498a9be967168bdea10c301cdffa7a477e8a",
-      "INVESTIGATION-QUERY-HELP-SEMANTICS-001": "sha256:3c1451e6b5e51ca0025add88fc17eed21136bd1b03b6c53de18b1a113d657016",
+      "INVESTIGATION-QUERY-HELP-SEMANTICS-001": "sha256:69eb99cd0b345558dc04f475e66cf199a33e7e33c907eb44614203600a00fcd2",
       "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:4591b6b6b59f39ba32510e9535bf7c3d4c96785abf6f5af844e431dc0de5c2f6",
       "INVESTIGATION-QUERY-SOURCE-PATH-001": "sha256:63ddff121b2792bf621e0f822464f149352164185dbda16008c05aab6b4d8e89",
-      "INVESTIGATION-QUERY-STALENESS-001": "sha256:e415b5e307e3db74507bb57027802cdffb52e01ca74a5b85f41f09690a93005a",
+      "INVESTIGATION-QUERY-STALENESS-001": "sha256:dc8f9862fe101da55252453dcf1774be5e2f1d1db232e288c0580ac8059bc551",
       "INVESTIGATION-RELATION-FILTER-002": "sha256:999a73884462e4540aa09fd1637e8c48a2693623bd17869769d1d76d722b1005",
       "INVESTIGATION-RELATION-FILTER-EVIDENCE-001": "sha256:0d2cfe935aa85edd05f73a307927aaa10ad670c301d04e7b091cc33996f86e31",
       "INVESTIGATION-RELATION-GIT-HEAD-001": "sha256:06c11cb696acbbd80f491e9ec2f0a4d89f486821d271ad065b34db6b00a67c02",
@@ -574,12 +581,12 @@
       "INVESTIGATION-RESOURCE-TRACKED-MISSING-ROOT-001": "sha256:aaaa2d541f18785eb4b0a0f0f150a13a661c76ba3842a030d77975769a5c437a",
       "INVESTIGATION-RESOURCE-TYPE-001": "sha256:67c91f99a4abcd3eae345ac89ff6149ad8dcdf3a1416be922c2d37f7115ea1fc",
       "INVESTIGATION-ROOT-CONFINEMENT-001": "sha256:fe4b7c8ceeb46ff994514555d4dbffef9b202cf493d7d7fa5f864d87e4844935",
-      "INVESTIGATION-SEARCH-METADATA-001": "sha256:edf6d2353d22b5728dbe0cdfa09f93b2b2aefe7a12779d16e52d6d24a0eb5888",
+      "INVESTIGATION-SEARCH-METADATA-001": "sha256:720f142b36dcb97113dea3df3f1b02db79cb687b352dbedce94f8bfcf5842646",
       "INVESTIGATION-SEARCH-MODES-001": "sha256:643566133be496f4993db31ec6696e8712a9f4fd606e5aba15ffa99879c2dd7e",
       "INVESTIGATION-SEARCH-SCOPE-001": "sha256:ee3b7f480f6285a8b2bb4a8309944682a68e66579ec1cf2eb32f1476abca0a88",
       "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001": "sha256:66e4a53db3156ecf6039e3b9b18eb3c51ad49f667b14019bc1afa27f7bedb912",
       "INVESTIGATION-SNAPSHOT-REVISION-001": "sha256:e449940c67b05ab9db3b84298d68459037b1e789bdd96913daa5b5d2186f2d28",
-      "INVESTIGATION-SOURCE-REVISION-001": "sha256:625dbefc185c844b0d27d6304a039c0ebf930827a7b2f6ef54c1a4e8c79ab328",
+      "INVESTIGATION-SOURCE-REVISION-001": "sha256:fed0f241beff3ba6a4485ba6576ea117c24bf5f2cdf1570b3717837a0ed4996b",
       "INVESTIGATION-STAGE-BOOTSTRAP-001": "sha256:c69589e03b32e58f07709b9d96c34a6d374f5f7a3ea237978d7d2fd10956c837",
       "INVESTIGATION-STAGE-CLI-USAGE-001": "sha256:0bbf14e84fd031a5fff7997e17ee484e280ee4b26b9c0e37a997635f9f3b3900",
       "INVESTIGATION-STAGE-CONFLICT-001": "sha256:60e3e66205c22f52480217c37609e53641e6159a8414a169989c511eed238103",
@@ -762,7 +769,7 @@
       "RECORD-SEARCH-FILTERS-001": "sha256:6423f47e26efa7557ca2ce8c3f2b69ffc234c233c50fb5712e6881b8763e55ae",
       "RECORD-SEARCH-OUTPUT-001": "sha256:869419b8d2531e6c65b1e4f89b6d4e8fdb868da34fcf45af88f0d2e260c2e770",
       "RECORD-SEARCH-PREVIEWS-001": "sha256:a6072e6effe4a51ffe224468b199d911c3abda0f8e4a425d471106f8f0756e3f",
-      "RECORD-SEARCH-SOURCE-001": "sha256:caab08263a140a6a375ac8dab03abcd6eaeae4f79dfd2058cee66d290d2710c4",
+      "RECORD-SEARCH-SOURCE-001": "sha256:949add39d31d75e8365f86ad0cd1fcb46623e564991b5601c06fc3e61ce0da1d",
       "RECORD-SEARCH-WARNING-001": "sha256:4a91bd24a1229a5b25cd065e4363495dcab801d2d5b23d5b2e910ee7e95d0d43",
       "RECORD-SEARCH-ZERO-001": "sha256:7611fe4210bc65a88b9c9cd5a3afe68cfe73e2160e1b10625d4f1ccc5190b0e0",
       "RECORD-SET-RELATIONS-CLI-CLASSIFICATION-001": "sha256:33712ac2e46fe72937657f485d92c9dfab65359b0ce8f699dd184696c147131d",
@@ -1029,6 +1036,8 @@
       "VERSION-CONTROL-REVISION-TREE-001": "sha256:cbb7a7c12fd6b07af4b7ed29ee0c7e0fa502bd83bc5081cb06c86567f15a1ec2",
       "VERSION-CONTROL-STATES-001": "sha256:99e1dfeb928ef7b5b8acb0c1ab96c31e592eda4c46a43c36eecb18f5ccc23c75",
       "VERSION-CONTROL-SYSTEM-CAUSE-001": "sha256:54f6951eaf0744eed8969d6964a1a1b7a3bcae5c09a8fc8aceb050ebc7e13300",
+      "VERSION-CONTROL-WORKSPACE-BATCH-001": "sha256:d16924cec8c091d1b8fc4c1f9bc2a3a3568330e70343fca4393b7e33b0f81e0a",
+      "VERSION-CONTROL-WORKSPACE-BATCH-002": "sha256:64e9d62a5bd23d4336c75c03a67a738ee9852ebaadcfc0f806a9e5154a2f67bf",
       "VERSION-CONTROL-WORKSPACE-EXECUTABLE-001": "sha256:db3f540cdebe28f98526b955971673528961d1997c2f4ced8b9b0ee06f36f4a9",
       "VERSION-CONTROL-WORKSPACE-FILE-SAFETY-001": "sha256:e9ca91330d7eb16c37eae3a462ed9a1edb719166761ba32a1efd9b1ded1ccba2",
       "VERSION-CONTROL-WORKTREE-001": "sha256:49d1c9a3a480101304635e9023a083aff87c99c9ba93fe105162988868bd320d"
@@ -5311,6 +5320,58 @@
         "test:70fed2ed8864d3f7ccd99df532168bb6f54d5c726b38137eb6e92afa661a3655"
       ]
     },
+    "INVESTIGATION-ACQUISITION-CANDIDATES-001": {
+      "title": "候选共享身份快照并按需读取正式 owner",
+      "sourcePath": "cases/investigation-acquisition-candidates.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:26f38c7f4a56b6334773f2399491fab0d5d6895f955d7e3bfd4032dac7e6b2e5"
+      ]
+    },
+    "INVESTIGATION-ACQUISITION-HISTORY-001": {
+      "title": "关系历史只取得必要 Git 证据",
+      "sourcePath": "cases/investigation-acquisition-history.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:f4cb7f0fb8d51e9a3fc8dbe015dc329a4181a9865e49cfa7fd7576fe8c3cf366"
+      ]
+    },
+    "INVESTIGATION-ACQUISITION-LOCAL-001": {
+      "title": "单条读取与局部检查按需取得普通来源",
+      "sourcePath": "cases/investigation-acquisition-local.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:7dd31948d0c885a2a8d7af1e9cfcdd3b5d35ecd1081d832b9d1a54cf25f1e461",
+        "test:d947d8f098f7047d41b57f797ad13a7d137195e08cc0810f586d6e96c98cd6df"
+      ]
+    },
+    "INVESTIGATION-ACQUISITION-QUERIES-001": {
+      "title": "快照发现不获取正式或候选来源",
+      "sourcePath": "cases/investigation-acquisition-queries.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:fca530377b1b1e97ffd521566b51a0a0ec07bf513d3ec3cb849a2dbac0028bdf"
+      ]
+    },
+    "INVESTIGATION-ACQUISITION-STAGE-001": {
+      "title": "domain 暂存批量取得事实且独立写前复核",
+      "sourcePath": "cases/investigation-acquisition-stage.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:6ef460a926d427834a0dadaa1646d72d1dce8789a17ffaa90d7e629b751d6e24",
+        "test:ac733a647c9412bec77f02528573e629fc35303e3e2b575181e0ec4204374dd2"
+      ]
+    },
     "INVESTIGATION-BUNDLED-PARITY-001": {
       "title": "CLI exposes only report-level commands and rejects old topic options",
       "sourcePath": "cases/investigation-bundled-parity-001.md",
@@ -5469,6 +5530,16 @@
       ],
       "testIds": [
         "test:352bcb06674be9c003923f11c3f0492f5012ef45b836231a89bb71bc9f239041"
+      ]
+    },
+    "INVESTIGATION-CANDIDATE-READ-FAILURE-001": {
+      "title": "候选准备失败保持只读诊断边界",
+      "sourcePath": "cases/investigation-candidate-read-failure.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:63091a8548ca9ad8fb4671f88f51a80d9a3618ca87884fdeb2bdd16509f67b03"
       ]
     },
     "INVESTIGATION-CANDIDATE-RESOURCE-001": {
@@ -6059,13 +6130,13 @@
       ]
     },
     "INVESTIGATION-INDEX-INTEGRITY-001": {
-      "title": "list serves the persisted snapshot with a staleness warning on unreadable sources",
+      "title": "不可读来源不影响合法快照 list",
       "sourcePath": "cases/investigation-index-integrity-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:7f3d585d026f0f38872543d8f5571d78347cf7036a174c21119148f1c52fa5eb"
+        "test:2b742f4342995878846e8c45e2354e173561cb2ec4810a9a40a2c6ffc4ed56ab"
       ]
     },
     "INVESTIGATION-INDEX-METADATA-001": {
@@ -6096,6 +6167,18 @@
       ],
       "testIds": [
         "test:b632b9a9ab82c78355f9fd5fa75b352dac8c625c86d7fa7b0c37fb84156d6bfe"
+      ]
+    },
+    "INVESTIGATION-LEGACY-IDENTITY-001": {
+      "title": "legacy 身份只按索引自有成员定位",
+      "sourcePath": "cases/investigation-legacy-identity-membership.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:182fc7e9156d84ae00daf9f0d751609c54232cad58a255d9ba39fefb64a3a5dd",
+        "test:19cadd404cf31c4d32e34517246796dcdee6c569b4d2cdaad8c92de0c6538d12",
+        "test:1cef39e2c47246b5d53c079880d7f474f307362eea111bdf45e79a984c5086c6"
       ]
     },
     "INVESTIGATION-LIST-FACETS-001": {
@@ -6159,13 +6242,13 @@
       ]
     },
     "INVESTIGATION-QUERY-STALENESS-001": {
-      "title": "CLI queries serve persisted snapshots with staleness warnings",
+      "title": "CLI 区分快照查询与当前正文边界",
       "sourcePath": "cases/investigation-query-staleness-001.md",
       "tags": [
         "investigation-report"
       ],
       "testIds": [
-        "test:bcdb8950fd525097e9995a254f4e1565d2f83fcaaa51807dc642f718c67a6a81"
+        "test:8003446d3824c4f6cce4f04fd3aae29e1b4db26552973b3a51769c7eab086ff5"
       ]
     },
     "INVESTIGATION-RELATION-FILTER-002": {
@@ -6795,7 +6878,7 @@
       ]
     },
     "INVESTIGATION-SEARCH-METADATA-001": {
-      "title": "metadata search reads only its index and formal reports and reports match evidence",
+      "title": "metadata search 只查询发布索引并返回匹配证据",
       "sourcePath": "cases/investigation-search-metadata-001.md",
       "tags": [
         "investigation-report"
@@ -8697,14 +8780,14 @@
       ]
     },
     "RECORD-SEARCH-SOURCE-001": {
-      "title": "发布快照区分陈旧与未核实来源",
+      "title": "各领域按自身职责表达发布快照来源",
       "sourcePath": "cases/record-search-source-currentness.md",
       "tags": [
         "record-search"
       ],
       "testIds": [
         "test:11e02aea8eb025b8d8c61dcb3b5a179aa7e6dedeee52bc33c92e075f50e42097",
-        "test:c57efe5c5b464152e632488bca1d7f44ce092d7736209a81ab9edd97a44b9fa7"
+        "test:6547fc8be0f76d6da95f4040d1f157a7f9a2511731407707618244bb4c9406b9"
       ]
     },
     "RECORD-SEARCH-WARNING-001": {
@@ -11379,6 +11462,26 @@
       ],
       "testIds": [
         "test:f274494b1c104108d02dc08b40f2110bcd3d6c1b98b01d9314e75f79040a0169"
+      ]
+    },
+    "VERSION-CONTROL-WORKSPACE-BATCH-001": {
+      "title": "批量工作区读取共享一次新鲜表示依据",
+      "sourcePath": "cases/version-control-workspace-batch.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:4fc62965353a5f2eeb8a312f2cca36ef283505248d9813cad79a428cab83589f"
+      ]
+    },
+    "VERSION-CONTROL-WORKSPACE-BATCH-002": {
+      "title": "批量读取拒绝不安全类型策略与 pending",
+      "sourcePath": "cases/version-control-workspace-batch-safety.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:a0b459f1152e2cb2ab987830cb4ea6bca29302e92edc5626f878316bd685ee52"
       ]
     },
     "VERSION-CONTROL-WORKSPACE-EXECUTABLE-001": {

@@ -1,13 +1,13 @@
-### Case INVESTIGATION-INDEX-INTEGRITY-001: list serves the persisted snapshot with a staleness warning on unreadable sources
+### Case INVESTIGATION-INDEX-INTEGRITY-001: 不可读来源不影响合法快照 list
 
 Tests:
-- `test:7f3d585d026f0f38872543d8f5571d78347cf7036a174c21119148f1c52fa5eb`
+- `test:2b742f4342995878846e8c45e2354e173561cb2ec4810a9a40a2c6ffc4ed56ab`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 索引型查询在报告源与持久化投影不一致时不再阻断读取：继续服务最后发布的快照，并以 staleness warning 提示先 `sync-index` 再对完整集合下结论。
+- 合法发布索引的 list 不读取报告源，不证明当前工作区来源合法或对齐。
 
 Proves:
-- 报告源改写后 list 返回快照条目与零 error，warnings 恰好是一条指向 `sync-index` 的 staleness 提示。
+- 来源变为不可读后 list 返回既有快照与零 error、零 warning。

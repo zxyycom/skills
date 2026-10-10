@@ -6,7 +6,7 @@ description: >-
   提取细纲、导演视角和模拟读者视角后分阶段对照目标卡；配套本地 CLI
   检查卡片身份、引用与索引并有界读取。
 metadata:
-  version: "2"
+  version: "3"
 ---
 
 # Novel Cards

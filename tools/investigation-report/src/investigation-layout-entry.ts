@@ -17,6 +17,7 @@ import type { InvestigationSource } from "./types.ts";
 export type InvestigationLayoutScan = Readonly<{
   candidateErrors: string[];
   candidateIds: string[];
+  candidateSources: InvestigationSource[];
   errors: string[];
   formalSources: InvestigationSource[];
 }>;
@@ -24,7 +25,11 @@ export type InvestigationLayoutScan = Readonly<{
 export async function inspectInvestigationLayoutEntry(
   entry: Dirent<string>,
   investigationsDirectory: string,
-  scan: InvestigationLayoutScan
+  scan: InvestigationLayoutScan,
+  options: Readonly<{
+    readFormalSources?: boolean;
+    readCandidateSources?: boolean;
+  }> = {}
 ): Promise<void> {
   if (inspectReservedRootEntry(entry, scan.errors)) return;
   if (entry.isSymbolicLink()) {
@@ -37,7 +42,12 @@ export async function inspectInvestigationLayoutEntry(
   }
   const candidateId = investigationCandidateIdFromFileName(entry.name);
   if (candidateId !== null) {
-    await inspectCandidateRootEntry(entry.name, investigationsDirectory, scan);
+    if (options.readCandidateSources !== false)
+      await inspectCandidateRootEntry(
+        entry.name,
+        investigationsDirectory,
+        scan
+      );
     return;
   }
   if (isReservedInvestigationCandidateFileName(entry.name)) {
@@ -50,7 +60,8 @@ export async function inspectInvestigationLayoutEntry(
     );
     return;
   }
-  await inspectFormalRootEntry(entry.name, investigationsDirectory, scan);
+  if (options.readFormalSources !== false)
+    await inspectFormalRootEntry(entry.name, investigationsDirectory, scan);
 }
 
 function inspectReservedRootEntry(
@@ -90,7 +101,14 @@ async function inspectCandidateRootEntry(
         `${name} must declare a valid frontmatter Investigation ID`,
         scan
       );
-    } else scan.candidateIds.push(declaredId);
+    } else {
+      scan.candidateIds.push(declaredId);
+      scan.candidateSources.push({
+        id: declaredId,
+        sourcePath: name,
+        text: candidateText
+      });
+    }
   } catch (error) {
     recordCandidateError(
       `${name} could not be read: ${errorText(error)}`,

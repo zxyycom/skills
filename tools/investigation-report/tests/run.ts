@@ -30,3 +30,7 @@ await import("./rename-recovery.test.ts");
 await import("./rename-drift.test.ts");
 
 await import("./search-info.test.ts");
+
+await import("./acquisition-contract.test.ts");
+await import("./identity-membership.test.ts");
+await import("./candidate-read-failure.test.ts");

@@ -25,13 +25,14 @@ export type InvestigationResourceReferencesByReport = ReadonlyMap<
 export async function validateReferencedInvestigationResources(
   investigationsDirectory: string,
   resourceIds: readonly string[],
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  preparation?: ResourceRootPreparation
 ): Promise<string[]> {
   const ids = uniqueSorted(resourceIds);
   if (ids.length === 0) return [];
-  const prepared = await prepareInvestigationResourceRoot(
-    investigationsDirectory
-  );
+  const prepared =
+    preparation ??
+    (await prepareInvestigationResourceRoot(investigationsDirectory));
   if (prepared.status === "invalid") return prepared.errors;
   if (prepared.status === "missing") return ids.map(missingResourceIssue);
   return await validateResourceIds(prepared, ids, signal);
@@ -41,12 +42,14 @@ export async function validateCandidateInvestigationResources(
   investigationsDirectory: string,
   candidateResourceIds: readonly string[],
   authoringReferencesByReport: InvestigationResourceReferencesByReport,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  preparation?: ResourceRootPreparation
 ): Promise<string[]> {
   const directErrors = await validateReferencedInvestigationResources(
     investigationsDirectory,
     candidateResourceIds,
-    signal
+    signal,
+    preparation
   );
   const ownerErrors = uniqueSorted(candidateResourceIds).flatMap((id) =>
     ownerIssues(id, authoringReferencesByReport)
@@ -54,13 +57,16 @@ export async function validateCandidateInvestigationResources(
   return uniqueSorted([...directErrors, ...ownerErrors]);
 }
 
+type FullResourceValidationOptions = Readonly<{
+  authoringReferencesByReport?: InvestigationResourceReferencesByReport;
+  signal?: AbortSignal;
+  preparation?: ResourceRootPreparation;
+}>;
+
 export async function validateFullInvestigationResources(
   investigationsDirectory: string,
   referencesByReport: InvestigationResourceReferencesByReport,
-  options: Readonly<{
-    authoringReferencesByReport?: InvestigationResourceReferencesByReport;
-    signal?: AbortSignal;
-  }> = {}
+  options: FullResourceValidationOptions = {}
 ): Promise<InvestigationResourceValidationResult> {
   const referencedIds = referencedResourceIds(referencesByReport);
   const authoringReferences =
@@ -68,9 +74,9 @@ export async function validateFullInvestigationResources(
   const errors = referencedIds.flatMap((id) =>
     ownerIssues(id, referencesByReport)
   );
-  const prepared = await prepareInvestigationResourceRoot(
-    investigationsDirectory
-  );
+  let prepared = options.preparation;
+  if (prepared === undefined)
+    prepared = await prepareInvestigationResourceRoot(investigationsDirectory);
   if (prepared.status === "invalid")
     return validationResult([...errors, ...prepared.errors], []);
   if (prepared.status === "missing")

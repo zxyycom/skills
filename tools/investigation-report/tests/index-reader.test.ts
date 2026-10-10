@@ -39,10 +39,8 @@ test("metadata search reports its persisted-snapshot source boundary", async () 
     const originalReadFile = fs.readFile;
     fs.readFile = (async (readPath: string, ...args) => {
       assert.ok(
-        readPath === indexPath ||
-          readPath === `${directory}/alpha.md` ||
-          readPath === `${directory}/zulu.md`,
-        `metadata search must only read its index and formal reports: ${readPath}`
+        readPath === indexPath,
+        `metadata search must only read its published index: ${readPath}`
       );
       return await originalReadFile(readPath, ...args);
     }) as typeof fs.readFile;

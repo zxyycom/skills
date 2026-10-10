@@ -464,7 +464,7 @@ test("generated Investigation Report CLI starts under Node with argv and stdout 
     const result = runGeneratedInvestigationCliSmoke(root, ["check"]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
-    assert.match(result.stdout, /1 of 1 reports checked; full index current/u);
+    assert.match(result.stdout, /1 reports checked; full index current/u);
 
     const publishHelp = runGeneratedInvestigationCliSmoke(root, [
       "publish",

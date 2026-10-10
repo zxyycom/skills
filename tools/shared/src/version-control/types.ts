@@ -77,6 +77,10 @@ export type VersionControlRepository = {
   ) => Promise<VersionControlFile[]>;
   /** Reads a regular workspace file with its effective executable representation. */
   readWorkspaceFile: (filePath: string) => Promise<VersionControlFile | null>;
+  /** Reads an explicit path set with one fresh effective-representation basis; missing files are omitted. */
+  readWorkspaceFiles: (
+    filePaths: readonly string[]
+  ) => Promise<VersionControlFile[]>;
   replacePendingFiles: (
     options: ReplacePendingFilesOptions
   ) => Promise<ReplacePendingFilesResult>;

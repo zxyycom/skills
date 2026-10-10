@@ -14,7 +14,8 @@ import type {
 } from "./types.ts";
 
 export async function safeCandidateLayout(
-  investigationsDirectory: string
+  investigationsDirectory: string,
+  options: Readonly<{ readFormalSources?: boolean }> = {}
 ): Promise<
   | {
       status: "ok";
@@ -28,7 +29,8 @@ export async function safeCandidateLayout(
 > {
   try {
     const layout = await inspectInvestigationCollectionLayout(
-      investigationsDirectory
+      investigationsDirectory,
+      options
     );
     return layout.errors.length === 0
       ? { status: "ok", value: layout }

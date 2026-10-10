@@ -1,15 +1,17 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type {
-  StateSnapshot,
-  StateSourceRevision
+import {
+  hasEntry,
+  type StateIndex,
+  type StateSnapshot,
+  type StateSourceRevision
 } from "../../index-runtime/src/index.ts";
 import {
   investigationIdFromMarkdown,
   parseInvestigationReport
 } from "./markdown.ts";
 import { compareText, uniqueSorted } from "./investigation-layout-support.ts";
-import { isInvestigationSourcePath } from "./report-path.ts";
+import { loadInvestigationIndex } from "./investigation-state-index.ts";
 import { buildInvestigationReportState } from "./report-validation.ts";
 import {
   investigationSourceRevision,
@@ -126,25 +128,77 @@ export function sameInvestigationSources(
 export async function readInvestigationSources(
   investigationsDirectory: string,
   reportIds: readonly string[],
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  loadedIndex?: Awaited<ReturnType<typeof loadInvestigationIndex>>
 ): Promise<InvestigationSource[]> {
   const requested = [...reportIds].sort(compareText);
   if (new Set(requested).size !== requested.length) {
     throw new Error("investigation sources must use unique Investigation IDs");
   }
-  const sources = await formalInvestigationSources(
-    investigationsDirectory,
-    signal
-  );
-  const sourceById = new Map(sources.map((source) => [source.id, source]));
-  return requested.map((id) => {
-    const source = sourceById.get(id);
-    if (source === undefined)
+  if (requested.length === 0) return [];
+  const loaded =
+    loadedIndex ?? (await loadInvestigationIndex({ investigationsDirectory }));
+  const sources: InvestigationSource[] = [];
+  const unresolved: string[] = [];
+  for (const id of requested) {
+    if (signal?.aborted === true)
+      throw new Error("investigation source read was aborted");
+    const source = await readIndexedInvestigationSource(
+      investigationsDirectory,
+      id,
+      loaded.status === "ok" ? loaded.value : null
+    );
+    if (source === null) unresolved.push(id);
+    else sources.push(source);
+  }
+  if (unresolved.length > 0) {
+    // Only unknown or moved identities need source discovery. A local check
+    // does not promote unrelated layout or document findings to global proof.
+    const layout = await inspectInvestigationCollectionLayout(
+      investigationsDirectory
+    );
+    sources.push(...resolveDiscoveredSources(layout, unresolved));
+  }
+  return sources.sort((a, b) => compareText(a.id, b.id));
+}
+
+function resolveDiscoveredSources(
+  layout: InvestigationCollectionLayout,
+  ids: readonly string[]
+): InvestigationSource[] {
+  return ids.map((id) => {
+    const matches = layout.formalSources.filter((source) => source.id === id);
+    if (matches.length !== 1)
       throw new Error(
-        `Investigation ID does not resolve to a source path: ${id}`
+        `Investigation ID does not resolve to one source path: ${id}`
       );
-    return source;
+    return matches[0]!;
   });
+}
+
+async function readIndexedInvestigationSource(
+  investigationsDirectory: string,
+  id: string,
+  index: StateIndex<InvestigationIndexState, InvestigationIndexMetadata> | null
+): Promise<InvestigationSource | null> {
+  if (!hasEntry(index, id)) return null;
+  const state = index.entries[id];
+  const target = path.join(investigationsDirectory, state.sourcePath);
+  try {
+    const entry = await fs.lstat(target);
+    if (!entry.isFile() || entry.isSymbolicLink())
+      throw new Error(
+        `${state.sourcePath} must be a regular non-symbolic-link file`
+      );
+    const text = await fs.readFile(target, "utf8");
+    return investigationIdFromMarkdown(text) === id
+      ? { id, sourcePath: state.sourcePath, text }
+      : null;
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT")
+      return null;
+    throw error;
+  }
 }
 
 async function readInvestigationCollection(
@@ -155,43 +209,7 @@ async function readInvestigationCollection(
     investigationsDirectory
   );
   if (layout.errors.length > 0) throw new Error(layout.errors.join("; "));
-  return await readInvestigationSources(
-    investigationsDirectory,
-    layout.reportIds,
-    signal
-  );
-}
-
-async function formalInvestigationSources(
-  investigationsDirectory: string,
-  signal?: AbortSignal
-): Promise<InvestigationSource[]> {
-  const entries = await fs.readdir(investigationsDirectory, {
-    withFileTypes: true
-  });
-  const sources: InvestigationSource[] = [];
-  for (const entry of entries.sort((left, right) =>
-    compareText(left.name, right.name)
-  )) {
-    if (!entry.isFile() || !isInvestigationSourcePath(entry.name)) continue;
-    if (signal?.aborted === true)
-      throw new Error("investigation source read was aborted");
-    const sourcePath = entry.name;
-    const text = await fs.readFile(
-      path.join(investigationsDirectory, sourcePath),
-      "utf8"
-    );
-    const id = investigationIdFromMarkdown(text);
-    if (id === null)
-      throw new Error(
-        `${sourcePath} must declare a valid frontmatter Investigation ID`
-      );
-    sources.push({ id, sourcePath, text });
-  }
-  if (new Set(sources.map((source) => source.id)).size !== sources.length) {
-    throw new Error(
-      "Investigation IDs must be unique across formal source paths"
-    );
-  }
-  return sources;
+  if (signal?.aborted === true)
+    throw new Error("investigation source read was aborted");
+  return layout.formalSources;
 }

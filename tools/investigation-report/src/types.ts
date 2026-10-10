@@ -427,11 +427,17 @@ export type InvestigationSearchInfo = Readonly<{
       }> | null;
     }>;
   }>;
-  source: Readonly<{
-    kind: "published-index" | "validated-source";
-    currentness: "current" | "stale" | "unchecked";
-    fallback: boolean;
-  }>;
+  source:
+    | Readonly<{
+        kind: "published-index";
+        currentness: "unchecked";
+        fallback: false;
+      }>
+    | Readonly<{
+        kind: "validated-source";
+        currentness: "current";
+        fallback: boolean;
+      }>;
   counts: Readonly<{
     matched: Readonly<{ value: number; precision: "exact" | "lower-bound" }>;
     returned: number;

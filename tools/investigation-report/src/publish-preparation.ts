@@ -71,6 +71,7 @@ export type PublishPreparationStep<T> =
   | { status: "ok"; value: T };
 export type FormalPublishContext = Readonly<{
   formal: ValidatedInvestigationCollection;
+  layout: InvestigationCollectionLayout;
   indexExisted: boolean;
   warnings: string[];
 }>;
@@ -93,7 +94,10 @@ export async function prepareInvestigationPublish(
   if ("errors" in layout) return layout;
   const selectionErrors = selectedCandidateErrors(layout.value, ids);
   if (selectionErrors.length > 0) return preparationFailure(selectionErrors);
-  const formalStep = await prepareFormalPublishContext(investigationsDirectory);
+  const formalStep = await prepareFormalPublishContext(
+    investigationsDirectory,
+    layout.value
+  );
   if (formalStep.status === "error") return formalStep;
   const candidateStep = await preparePublishCandidates(
     investigationsDirectory,
@@ -179,11 +183,12 @@ function requiredPublishState(
 }
 
 async function prepareFormalPublishContext(
-  investigationsDirectory: string
+  investigationsDirectory: string,
+  layout: InvestigationCollectionLayout
 ): Promise<PublishPreparationStep<FormalPublishContext>> {
   const formal = await collectValidatedInvestigationCollection(
     investigationsDirectory,
-    { allowEmptyCollection: true }
+    { allowEmptyCollection: true, layout }
   );
   if (formal.errors.length > 0 || formal.snapshot === null) {
     return preparationFailure(formal.errors, [], formal.warnings);
@@ -211,6 +216,7 @@ async function prepareFormalPublishContext(
     status: "ok",
     value: {
       formal,
+      layout,
       indexExisted: indexExisted.value,
       warnings: [...formal.warnings]
     }

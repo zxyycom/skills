@@ -110,14 +110,14 @@ test("investigation search complete zero hits separates content previews from me
       assert.equal(result.searchInfo.query.limits.maxRecords, 50);
       assert.deepEqual(result.searchInfo.source, {
         kind: scope === "metadata" ? "published-index" : "validated-source",
-        currentness: "current",
+        currentness: scope === "metadata" ? "unchecked" : "current",
         fallback: false
       });
     }
   });
 });
 
-test("investigation metadata search preserves stale and unchecked snapshots with distinct evidence", async () => {
+test("investigation metadata search always reports an unchecked published snapshot without source warnings", async () => {
   await withTempRoot("search-info-currentness", async (root) => {
     await writeCollection(root, [{ id: "one" }]);
     const file = path.join(investigationRoot(root), "one.md");
@@ -128,8 +128,8 @@ test("investigation metadata search preserves stale and unchecked snapshots with
       in: "metadata"
     });
     assert.ok(stale.status === "ok");
-    assert.equal(stale.searchInfo.source.currentness, "stale");
-    assert.match(stale.warnings[0]!, /^search source: stale published-index/);
+    assert.equal(stale.searchInfo.source.currentness, "unchecked");
+    assert.deepEqual(stale.warnings, []);
     await fs.rm(file);
     const outside = path.join(root, "outside.md");
     await fs.writeFile(outside, reportMarkdown({ id: "one" }));
@@ -142,10 +142,7 @@ test("investigation metadata search preserves stale and unchecked snapshots with
     assert.ok(unchecked.status === "ok");
     assert.equal(unchecked.searchInfo.source.currentness, "unchecked");
     assert.deepEqual(unchecked.searchInfo.counts, stale.searchInfo.counts);
-    assert.match(
-      unchecked.warnings[0]!,
-      /^search source: unchecked published-index/
-    );
+    assert.deepEqual(unchecked.warnings, []);
     const content = await searchInvestigationReports({
       workspaceRoot: root,
       query: "当前"
@@ -275,7 +272,7 @@ test("distributed investigation search prints exact metadata and lower-bound con
     assert.deepEqual(metadata.stdout.split("\n").slice(0, 6), [
       'Query: text="当前" in=metadata match=all',
       'Filters: {"tags":[]}',
-      "Source: kind=published-index currentness=current fallback=false",
+      "Source: kind=published-index currentness=unchecked fallback=false",
       "Limits: maxRecords=1",
       "Counts: matched=3 precision=exact returned=1",
       "Coverage: scan=complete results=limited previews=n/a reasons=max-records"

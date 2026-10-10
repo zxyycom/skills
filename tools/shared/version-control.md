@@ -29,7 +29,7 @@ First-parent 枚举由专用子模块 `tools/shared/src/version-control/git-firs
 8. 独立列出工作区变化；工作区文件集合与变化集合不互相替代。
 9. 按字面仓库相对路径范围读取 `pending` 文件快照。
 10. 通过 `replacePendingFiles({ expectedRevision, expectedFiles?, pathScope, files })`，以精确目标文件集合完整替换一个字面仓库相对路径范围，按下文核对前提和结果。
-11. 通过 `readWorkspaceFile(path)` 读取常规非符号链接工作区文件的字节与有效文件表示。
+11. 通过 `readWorkspaceFile(path)` 读取常规非符号链接工作区文件的字节与有效文件表示；`readWorkspaceFiles(paths)` 对显式文件路径集合在一次调用内批量取得同一新读策略与 pending 表示依据。
 
 `revision` 表示已经提交的不可变版本；`pending` 表示准备进入下一版本的内容。首个 Git 实现在内部将 `pending` 映射到 index，公共参数、结果和错误不暴露该映射。工作区文件和工作区变化不是版本快照，通过独立查询暴露，三者不能互相替代。
 
@@ -62,6 +62,12 @@ First-parent 枚举由专用子模块 `tools/shared/src/version-control/git-firs
 ### 工作区有效文件表示
 
 `readWorkspaceFile(path)` 接受规范仓库相对路径，只读取常规非符号链接来源，返回字节与 `regular` 或 `executable` 表示。只有来源确实不存在时返回 `null`；来源类型、字节或有效表示无法读取时报告 `operation-failed`。读取保持 workspace 和 pending 不变。
+
+`readWorkspaceFiles(paths)` 批量读取显式文件路径，不按目录发现成员。调用方先按所需范围发现成员，再传入文件路径集合。
+
+- 路径归一化、去重并稳定排序；空集合与全缺失集合返回空数组，均不探测 Git。缺失文件省略，其他边界失败阻断整个结果。
+- 每次调用至多读取一次 `core.fileMode`；关闭时，所选现存来源共用一次 pending 表示读取。每个来源仍单独核对常规非符号链接类型并读取字节。
+- 下一次调用重新取得全部事实，无跨调用缓存。准备与写前复核分别调用，不能用准备结果替代复核；单次批量读取也不承诺跨文件原子快照。
 
 Git adapter 按 `core.fileMode` 确定有效执行位：
 

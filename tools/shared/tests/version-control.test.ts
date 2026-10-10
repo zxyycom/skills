@@ -6,3 +6,4 @@ import "./version-control-replacement.test.ts";
 import "./version-control-representation.test.ts";
 import "./version-control-pending.test.ts";
 import "./version-control-boundaries.test.ts";
+import "./version-control-workspace-batch.test.ts";

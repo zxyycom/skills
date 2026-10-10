@@ -1,7 +1,10 @@
 import type { Dirent } from "node:fs";
 import fs from "node:fs/promises";
 import { hasCandidateFormalIdentityConflict } from "./candidate-path.ts";
-import { inspectInvestigationLayoutEntry } from "./investigation-layout-entry.ts";
+import {
+  inspectInvestigationLayoutEntry,
+  type InvestigationLayoutScan
+} from "./investigation-layout-entry.ts";
 import {
   compareText,
   duplicateValues,
@@ -12,22 +15,34 @@ import type { InvestigationSource } from "./types.ts";
 export type InvestigationCollectionLayout = Readonly<{
   candidateErrors: string[];
   candidateIds: string[];
+  candidateSources: InvestigationSource[];
+  formalSources: InvestigationSource[];
   errors: string[];
   reportIds: string[];
 }>;
 
 export async function inspectInvestigationCollectionLayout(
-  investigationsDirectory: string
+  investigationsDirectory: string,
+  options: Readonly<{
+    readFormalSources?: boolean;
+    readCandidateSources?: boolean;
+  }> = {}
 ): Promise<InvestigationCollectionLayout> {
-  const scan = {
-    candidateErrors: [] as string[],
-    candidateIds: [] as string[],
-    errors: [] as string[],
-    formalSources: [] as InvestigationSource[]
+  const scan: InvestigationLayoutScan = {
+    candidateErrors: [],
+    candidateIds: [],
+    candidateSources: [],
+    errors: [],
+    formalSources: []
   };
   const rootEntries = await readRootEntries(investigationsDirectory);
   for (const entry of rootEntries)
-    await inspectInvestigationLayoutEntry(entry, investigationsDirectory, scan);
+    await inspectInvestigationLayoutEntry(
+      entry,
+      investigationsDirectory,
+      scan,
+      options
+    );
   return finalizedLayout(scan);
 }
 
@@ -51,6 +66,7 @@ function finalizedLayout(
   scan: Readonly<{
     candidateErrors: readonly string[];
     candidateIds: readonly string[];
+    candidateSources: readonly InvestigationSource[];
     errors: readonly string[];
     formalSources: readonly InvestigationSource[];
   }>
@@ -60,15 +76,20 @@ function finalizedLayout(
     reportIds,
     scan.candidateIds
   );
-  const duplicateErrors = duplicateValues(reportIds).map(
-    (id) => `Investigation ID occurs in more than one source path: ${id}`
-  );
+  const duplicateErrors = [
+    ...duplicateValues(reportIds),
+    ...duplicateValues(scan.candidateIds)
+  ].map((id) => `Investigation ID occurs in more than one source path: ${id}`);
   return {
     candidateErrors: uniqueSorted([
       ...scan.candidateErrors,
       ...identityConflicts
     ]),
     candidateIds: uniqueSorted(scan.candidateIds),
+    candidateSources: [...scan.candidateSources],
+    formalSources: [...scan.formalSources].sort((a, b) =>
+      compareText(a.id, b.id)
+    ),
     errors: uniqueSorted([
       ...scan.errors,
       ...duplicateErrors,

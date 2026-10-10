@@ -2,7 +2,7 @@ import path from "node:path";
 import {
   createInvestigationStateSnapshot,
   inspectInvestigationCollectionLayout,
-  readInvestigationSources
+  type InvestigationCollectionLayout
 } from "./investigation-index-source.ts";
 import { readCandidateAuthoringResourceReferences } from "./candidate.ts";
 import { investigationIndexFileName } from "./investigation-state-index.ts";
@@ -37,18 +37,20 @@ export type ValidatedInvestigationCollection = Readonly<{
 
 export async function collectValidatedInvestigationCollection(
   investigationRoot: string,
-  options: { allowEmptyCollection?: boolean } = {}
+  options: Readonly<{
+    allowEmptyCollection?: boolean;
+    layout?: InvestigationCollectionLayout;
+  }> = {}
 ): Promise<ValidatedInvestigationCollection> {
   const indexPath = path.join(investigationRoot, investigationIndexFileName);
-  const layout = await inspectInvestigationCollectionLayout(investigationRoot);
+  const layout =
+    options.layout ??
+    (await inspectInvestigationCollectionLayout(investigationRoot));
   const errors = [...layout.errors];
   if (layout.reportIds.length === 0 && !options.allowEmptyCollection) {
     errors.push("investigation collection must contain at least one report");
   }
-  const sources =
-    layout.errors.length > 0
-      ? []
-      : await readInvestigationSources(investigationRoot, layout.reportIds);
+  const sources = layout.errors.length > 0 ? [] : layout.formalSources;
   const states = collectionStates(sources, errors);
   if (errors.length === 0)
     errors.push(...validateInvestigationRelationGraph(states));
@@ -60,7 +62,10 @@ export async function collectValidatedInvestigationCollection(
     referencesByReport,
     {
       authoringReferencesByReport:
-        await readCandidateAuthoringResourceReferences(investigationRoot)
+        await readCandidateAuthoringResourceReferences(investigationRoot, {
+          layout,
+          formalReferences: referencesByReport
+        })
     }
   );
   errors.push(...resources.errors);

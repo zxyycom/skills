@@ -1,19 +1,16 @@
-import fs from "node:fs/promises";
 import path from "node:path";
 import {
-  diagnosticFromError,
   diagnosticFromStateIndexDiagnostic,
   type InvestigationDiagnostic
 } from "./diagnostics.ts";
-import {
-  inspectInvestigationCollectionLayout,
-  readInvestigationSources
-} from "./investigation-index-source.ts";
+import { readInvestigationSources } from "./investigation-index-source.ts";
 import { buildInvestigationReportState } from "./report-validation.ts";
 import { validateReferencedInvestigationResources } from "./resources.ts";
+import { prepareInvestigationResourceRoot } from "./resource-root.ts";
 import {
   investigationIndexDiagnosticMessages,
   investigationIndexFileName,
+  loadInvestigationIndex,
   syncInvestigationStateIndex
 } from "./investigation-state-index.ts";
 import { parseInvestigationReport } from "./markdown.ts";
@@ -23,10 +20,7 @@ import {
   type ValidatedInvestigationCollection
 } from "./validation-collection.ts";
 import { unrecordedPredecessorWarnings } from "./validation-history.ts";
-import type {
-  InvestigationReportCheckResult,
-  InvestigationSource
-} from "./types.ts";
+import type { InvestigationReportCheckResult } from "./types.ts";
 import { checkResult, lstatOrNull } from "./validation-results.ts";
 
 export async function validateFullCollection(
@@ -116,78 +110,63 @@ export async function validateScopedCollection(
   investigationRoot: string,
   ids: readonly string[]
 ): Promise<InvestigationReportCheckResult> {
-  const layout = await inspectInvestigationCollectionLayout(investigationRoot);
-  // Scoped checks intentionally do not claim collection-wide layout, graph,
-  // resource membership, or index freshness proof. The selected root report
-  // and only its direct resource links are the validation boundary.
-  const errors: string[] = [...layout.candidateErrors];
-  const diagnostics: InvestigationDiagnostic[] = [];
+  const loaded = await loadInvestigationIndex({
+    investigationsDirectory: investigationRoot
+  });
   const sources = await readInvestigationSources(
     investigationRoot,
-    layout.reportIds
+    ids,
+    undefined,
+    loaded
   );
-  const sourceById = new Map(sources.map((source) => [source.id, source]));
-  const available = new Set(sourceById.keys());
-  const selected = ids.filter((id) => available.has(id));
-  if (selected.length === 0) {
-    errors.push("no investigation reports matched the requested IDs");
-  }
-  for (const id of ids) {
-    if (!available.has(id)) {
-      errors.push(`${id} investigation report does not exist`);
-      continue;
-    }
-    errors.push(
-      ...(await validateScopedReport(
-        investigationRoot,
-        sourceById.get(id)!,
-        diagnostics
-      ))
-    );
-  }
+  const diagnostics: InvestigationDiagnostic[] = [];
+  const errors: string[] = [];
+  const states = sources.map((source) =>
+    buildInvestigationReportState(
+      source.id,
+      parseInvestigationReport(source.text, source.id),
+      source.sourcePath
+    )
+  );
+  errors.push(
+    ...(await validateScopedResourceStates(investigationRoot, states))
+  );
   return checkResult({
-    availableReportCount: layout.reportIds.length,
+    availableReportCount:
+      loaded.status === "ok"
+        ? Object.keys(loaded.value.entries).length
+        : sources.length,
     diagnostics,
     errors,
     indexChecked: false,
     indexPath: path.join(investigationRoot, investigationIndexFileName),
-    selectedReportCount: selected.length
+    selectedReportCount: sources.length
   });
 }
 
-async function validateScopedReport(
+async function validateScopedResourceStates(
   investigationRoot: string,
-  source: InvestigationSource,
-  diagnostics: InvestigationDiagnostic[]
+  states: readonly ReturnType<typeof buildInvestigationReportState>[]
 ): Promise<string[]> {
-  const { id } = source;
-  const target = path.join(investigationRoot, source.sourcePath);
-  let text: string;
-  try {
-    text = await fs.readFile(target, "utf8");
-  } catch (error) {
-    diagnostics.push(
-      diagnosticFromError({
-        code: "investigation-report.report-read-failed",
-        error,
-        reason: "the selected investigation report could not be read",
-        recovery: "restore read access to the report, then retry the check",
-        target
-      })
-    );
-    return [`${id} could not be read`];
-  }
-  const built = buildInvestigationReportState(
-    id,
-    parseInvestigationReport(text, id),
-    source.sourcePath
+  const errors: string[] = [];
+  const resourceIds = states.flatMap((built) =>
+    built.status === "valid" ? built.state.resourceIds : []
   );
-  if (built.status !== "valid") return built.errors;
-  return [
-    ...built.errors,
-    ...(await validateReferencedInvestigationResources(
-      investigationRoot,
-      built.state.resourceIds
-    ))
-  ];
+  const preparedResources =
+    resourceIds.length === 0
+      ? undefined
+      : await prepareInvestigationResourceRoot(investigationRoot);
+  for (const built of states) {
+    errors.push(...built.errors);
+    if (built.status === "valid")
+      errors.push(
+        ...(await validateReferencedInvestigationResources(
+          investigationRoot,
+          built.state.resourceIds,
+          undefined,
+          preparedResources
+        ))
+      );
+  }
+  return errors;
 }

@@ -123,7 +123,7 @@ const commandSpecs: readonly CommandSpec[] = [
     ]
   },
   {
-    description: "List reports from the current derived index.",
+    description: "List reports from the validated published index snapshot.",
     helpAfter: investigationListHelp,
     name: "list",
     options: [
@@ -206,13 +206,13 @@ const commandSpecs: readonly CommandSpec[] = [
   },
   {
     description:
-      "Print one report Markdown document from the current derived index.",
+      "Read one current ordinary report via its published index locator and verify its ID.",
     name: "show",
     positionals: ["[investigation-id]"]
   },
   {
     description:
-      "Trace predecessor and successor report relationships from the current derived index.",
+      "Trace predecessor and successor report relationships from the validated published index snapshot.",
     name: "trace",
     options: [
       {

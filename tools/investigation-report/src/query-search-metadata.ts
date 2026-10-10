@@ -1,6 +1,5 @@
 import {
   metadataSearchFacts,
-  publishedSearchWarning,
   searchLimitWarnings
 } from "../../shared/src/file-text-search/record-search-info.ts";
 import {
@@ -13,12 +12,9 @@ import {
   diagnosticFromStateIndexDiagnostic
 } from "./diagnostics.ts";
 import { loadInvestigationIndex } from "./investigation-state-index.ts";
-import { investigationIndexCurrentness } from "./index-staleness.ts";
 import { compareText, searchFailure } from "./query-results.ts";
 import { investigationMetadataSearchFields } from "./types.ts";
 import type {
-  InvestigationSearchFilters,
-  InvestigationSearchInfo,
   InvestigationIndexState,
   InvestigationMetadataMatchedRelation,
   InvestigationMetadataSearchEntry,
@@ -26,7 +22,10 @@ import type {
   InvestigationSearchResult
 } from "./types.ts";
 import type { PreparedSearch, InvestigationSnapshotEntry } from "./query.ts";
-import { selectSearchEntries } from "./query-search-selection.ts";
+import {
+  selectSearchEntries,
+  type InvestigationSearchSelection
+} from "./query-search-selection.ts";
 export { relatedInvestigationIds } from "./query-search-selection.ts";
 
 type InvestigationMetadataSegment =
@@ -44,10 +43,6 @@ export async function searchInvestigationMetadata(
   const loaded = await loadInvestigationIndex({ investigationsDirectory });
   if (loaded.status === "error")
     return metadataIndexFailure(loaded.diagnostics, indexPath);
-  const currentness = await investigationIndexCurrentness(
-    investigationsDirectory,
-    loaded.value
-  );
   const matcher = metadataMatcher(prepared);
   if (matcher instanceof Error)
     return metadataMatcherFailure(matcher, indexPath);
@@ -56,15 +51,7 @@ export async function searchInvestigationMetadata(
     prepared
   );
   if (selected.isErr()) return searchFailure(selected.error, indexPath);
-  return metadataSearchResult(
-    matcher,
-    selected.value.entries,
-    prepared,
-    indexPath,
-    selected.value.filterRelations,
-    selected.value.filters,
-    { kind: "published-index", currentness, fallback: false }
-  );
+  return metadataSearchResult(matcher, selected.value, prepared, indexPath);
 }
 
 function metadataIndexFailure(
@@ -104,27 +91,21 @@ function metadataMatcher(
 
 function metadataSearchResult(
   matcher: ReturnType<typeof createTextSearchMatcher>,
-  selected: readonly InvestigationSnapshotEntry[],
+  selection: InvestigationSearchSelection,
   prepared: PreparedSearch,
-  indexPath: string,
-  filterRelations: ReadonlyMap<
-    string,
-    readonly import("./types.ts").InvestigationFilterRelation[]
-  > | null,
-  filters: InvestigationSearchFilters,
-  source: InvestigationSearchInfo["source"]
+  indexPath: string
 ): InvestigationSearchResult {
   const entries: InvestigationMetadataSearchEntry[] = [];
-  for (const entry of [...selected].sort(compareSearchSourcePath)) {
-    const matched = metadataEntryMatch(matcher, entry, indexPath);
+  for (const entry of [...selection.entries].sort(compareSearchSourcePath)) {
+    const matched = metadataEntryMatch(matcher, entry);
     if (matched instanceof Error)
       return metadataMatcherFailure(matched, indexPath);
     if (matched !== null)
       entries.push({
         ...matched,
-        ...(filterRelations?.get(entry.id) === undefined
+        ...(selection.filterRelations?.get(entry.id) === undefined
           ? {}
-          : { filterRelations: filterRelations.get(entry.id)! })
+          : { filterRelations: selection.filterRelations.get(entry.id)! })
       });
   }
   const returned = entries.slice(0, prepared.validated.limit);
@@ -139,10 +120,14 @@ function metadataSearchResult(
         text: prepared.query,
         in: "metadata",
         match: prepared.validated.match,
-        filters,
+        filters: selection.filters,
         limits: facts.limits
       },
-      source,
+      source: {
+        kind: "published-index",
+        currentness: "unchecked",
+        fallback: false
+      },
       counts: facts.counts,
       coverage: facts.coverage
     },
@@ -156,10 +141,7 @@ function metadataSearchResult(
       matches: false,
       previewCharacters: false
     },
-    warnings: [
-      ...publishedSearchWarning(source.currentness, "Investigation"),
-      ...searchLimitWarnings(facts.coverage)
-    ]
+    warnings: searchLimitWarnings(facts.coverage)
   };
 }
 
@@ -172,8 +154,7 @@ function compareSearchSourcePath(
 
 function metadataEntryMatch(
   matcher: ReturnType<typeof createTextSearchMatcher>,
-  entry: InvestigationSnapshotEntry,
-  _indexPath: string
+  entry: InvestigationSnapshotEntry
 ): InvestigationMetadataSearchEntry | null | Error {
   try {
     const matches = matchTextSegments(matcher, metadataSegments(entry));

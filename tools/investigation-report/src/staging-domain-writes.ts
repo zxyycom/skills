@@ -4,6 +4,8 @@ import type {
   VersionControlFile,
   VersionControlRepository
 } from "../../shared/src/version-control/index.ts";
+import { investigationSourceRevision } from "./investigation-source-revision.ts";
+import { investigationIdFromMarkdown } from "./markdown.ts";
 import { hasEntry } from "../../index-runtime/src/index.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import {
@@ -42,43 +44,95 @@ export type DomainWriteOptions = Readonly<{
 export async function collectDomainWrites(
   options: DomainWriteOptions
 ): Promise<DomainWritesResult> {
-  const reports = await selectedReportWrites(options);
-  if (reports.status === "error") return reports;
-  const writes = [...reports.value];
-  for (const id of options.selectedIds) {
-    const resources = await ownerResourceWrites(options, id);
-    if (resources.status === "error") return resources;
-    writes.push(...resources.value);
-  }
-  return { status: "ok", value: writes };
-}
-
-/**
- * Plans removals for obsolete baseline paths and reads current report snapshots;
- * it does not modify pending or workspace files. Current paths of all selected
- * IDs take precedence over baseline removals, independent of selector order.
- */
-async function selectedReportWrites(
-  options: DomainWriteOptions
-): Promise<DomainWritesResult> {
   const currentPaths = selectedReportPaths(options.workspaceIndex, options);
   const baselinePaths = selectedReportPaths(options.baseline, options);
+  let resourcePaths: string[];
+  try {
+    resourcePaths = await selectedResourcePaths(options);
+  } catch (error) {
+    return { status: "error", code: "version-control-failed", error };
+  }
+  let files: VersionControlFile[];
+  try {
+    files = await options.repository.readWorkspaceFiles([
+      ...currentPaths,
+      ...resourcePaths
+    ]);
+  } catch (error) {
+    return { status: "error", code: "source-read-failed", error };
+  }
+  const filesByPath = new Map(files.map((file) => [file.path, file]));
+  try {
+    verifySelectedReportSources(options, filesByPath, currentPaths);
+  } catch (error) {
+    return { status: "error", code: "source-read-failed", error };
+  }
   const writes: DomainWrite[] = [...baselinePaths]
     .filter((reportPath) => !currentPaths.has(reportPath))
     .map((reportPath) => ({ data: null, path: reportPath }));
-  for (const reportPath of currentPaths) {
-    const source = await readWorkspaceSource(options.repository, reportPath);
-    if (source.status === "error") return source;
-    if (source.value === null) {
-      return {
-        status: "error",
-        code: "source-read-failed",
-        error: new Error("Selected report is missing: " + reportPath)
-      };
-    }
-    writes.push(source.value);
-  }
+  for (const reportPath of currentPaths)
+    writes.push(filesByPath.get(reportPath)!);
+  for (const resourcePath of resourcePaths)
+    writes.push(
+      filesByPath.get(resourcePath) ?? { data: null, path: resourcePath }
+    );
   return { status: "ok", value: writes };
+}
+
+async function selectedResourcePaths(
+  options: DomainWriteOptions
+): Promise<string[]> {
+  const ownerScopes = options.selectedIds.map((id) =>
+    path.posix.join(
+      options.investigationsScope,
+      investigationResourcesDirectoryName,
+      id
+    )
+  );
+  const workspace = await options.repository.listWorkspaceFiles({
+    pathScopes: ownerScopes
+  });
+  const baseline =
+    options.revision === null
+      ? []
+      : await options.repository.listRevisionFiles(options.revision, {
+          pathScopes: ownerScopes
+        });
+  return [...new Set([...workspace, ...baseline])]
+    .filter((filePath) =>
+      ownerScopes.some((scope) => filePath.startsWith(scope + "/"))
+    )
+    .sort(compareText);
+}
+
+function verifySelectedReportSources(
+  options: DomainWriteOptions,
+  filesByPath: ReadonlyMap<string, VersionControlFile>,
+  currentPaths: ReadonlySet<string>
+): void {
+  for (const reportPath of currentPaths) {
+    const file = filesByPath.get(reportPath);
+    if (file === undefined)
+      throw new Error("Selected report is missing: " + reportPath);
+  }
+  for (const id of options.selectedIds) {
+    if (!hasEntry(options.workspaceIndex, id)) continue;
+    const state = options.workspaceIndex.entries[id];
+    const reportPath = path.posix.join(
+      options.investigationsScope,
+      state.sourcePath
+    );
+    const file = filesByPath.get(reportPath)!;
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(file.data);
+    if (
+      investigationIdFromMarkdown(text) !== id ||
+      investigationSourceRevision([{ id, sourcePath: state.sourcePath, text }])
+        .entries[id] !== options.workspaceIndex.sourceRevision.entries[id]
+    )
+      throw new Error(
+        "Selected report changed from the published source: " + reportPath
+      );
+  }
 }
 
 function selectedReportPaths(
@@ -87,42 +141,15 @@ function selectedReportPaths(
 ): ReadonlySet<string> {
   const paths = new Set<string>();
   for (const id of options.selectedIds) {
-    if (hasEntry(index, id)) {
+    if (hasEntry(index, id))
       paths.add(
         path.posix.join(
           options.investigationsScope,
           index.entries[id].sourcePath
         )
       );
-    }
   }
   return paths;
-}
-
-async function ownerResourceWrites(
-  options: DomainWriteOptions,
-  id: string
-): Promise<DomainWritesResult> {
-  const ownerScope = path.posix.join(
-    options.investigationsScope,
-    investigationResourcesDirectoryName,
-    id
-  );
-  const members = await ownerResourceMembers({
-    ownerScope,
-    repository: options.repository,
-    revision: options.revision
-  });
-  if (members.status === "error") {
-    return { status: "error", code: members.code, error: members.error };
-  }
-  const writes: DomainWrite[] = [];
-  for (const member of members.value) {
-    const source = await readWorkspaceSource(options.repository, member);
-    if (source.status === "error") return source;
-    writes.push(source.value ?? { data: null, path: member });
-  }
-  return { status: "ok", value: writes };
 }
 
 /**
@@ -156,55 +183,4 @@ function sameDomainWriteValue(left: DomainWrite, right: DomainWrite): boolean {
     return left.data === right.data;
   }
   return left.kind === right.kind && sameBytes(left.data, right.data);
-}
-
-async function ownerResourceMembers(
-  options: Readonly<{
-    ownerScope: string;
-    repository: VersionControlRepository;
-    revision: RevisionId | null;
-  }>
-): Promise<
-  | Readonly<{ status: "ok"; value: readonly string[] }>
-  | Readonly<{
-      status: "error";
-      code: "version-control-failed";
-      error: unknown;
-    }>
-> {
-  try {
-    const workspace = (
-      await options.repository.listWorkspaceFiles({
-        pathScopes: [options.ownerScope]
-      })
-    ).filter((filePath) => filePath.startsWith(options.ownerScope + "/"));
-    const revisionFiles =
-      options.revision === null
-        ? []
-        : await options.repository.listRevisionFiles(options.revision, {
-            pathScopes: [options.ownerScope]
-          });
-    return {
-      status: "ok",
-      value: [...new Set([...workspace, ...revisionFiles])].sort(compareText)
-    };
-  } catch (error) {
-    return { status: "error", code: "version-control-failed", error };
-  }
-}
-
-/** Reads source bytes and representation together; missing resources become deletions. */
-async function readWorkspaceSource(
-  repository: VersionControlRepository,
-  repositoryFilePath: string
-): Promise<
-  | Readonly<{ status: "ok"; value: VersionControlFile | null }>
-  | Readonly<{ status: "error"; code: "source-read-failed"; error: unknown }>
-> {
-  try {
-    const file = await repository.readWorkspaceFile(repositoryFilePath);
-    return { status: "ok", value: file };
-  } catch (error) {
-    return { status: "error", code: "source-read-failed", error };
-  }
 }

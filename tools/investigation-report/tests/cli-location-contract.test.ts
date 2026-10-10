@@ -34,11 +34,11 @@ test("investigation CLI accepts global options before and after the command", as
     await writeCollection(root, [{ id: "report" }]);
     const before = await runCli(["--root", root, "check"]);
     assert.equal(before.status, 0, before.stderr);
-    assert.match(before.stdout, /1 of 1 reports checked/u);
+    assert.match(before.stdout, /1 reports checked/u);
 
     const after = await runCli(["check", "--root", root]);
     assert.equal(after.status, 0, after.stderr);
-    assert.match(after.stdout, /1 of 1 reports checked/u);
+    assert.match(after.stdout, /1 reports checked/u);
 
     const bothSides = await runCli([
       "--root",
@@ -56,7 +56,7 @@ test("investigation CLI defaults the workspace root to the current directory", a
     await writeCollection(root, [{ id: "report" }]);
     const result = await runCli(["check"], { cwd: root });
     assert.equal(result.status, 0, result.stderr);
-    assert.match(result.stdout, /1 of 1 reports checked/u);
+    assert.match(result.stdout, /1 reports checked/u);
   });
 });
 
@@ -106,7 +106,10 @@ test("investigation list and search help project record discovery semantics", as
       );
     }
     const listHelp = await runCli(["list", "--help"], { cwd: root });
-    assert.match(listHelp.stdout, /last published snapshot with a warning/u);
+    assert.match(
+      listHelp.stdout,
+      /without checking source freshness or synchronizing/u
+    );
     const searchHelp = await runCli(["search", "--help"], { cwd: root });
     assert.match(searchHelp.stdout, /--limit bounds returned reports/u);
     assert.match(searchHelp.stdout, /show <investigation-id>/u);
@@ -255,6 +258,6 @@ test("investigation CLI checks a custom relative investigations directory from a
       { cwd: os.tmpdir() }
     );
     assert.equal(result.status, 0, result.stderr);
-    assert.match(result.stdout, /1 of 1 reports checked/u);
+    assert.match(result.stdout, /1 reports checked/u);
   });
 });

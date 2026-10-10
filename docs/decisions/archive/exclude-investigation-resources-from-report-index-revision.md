@@ -1,7 +1,7 @@
 ---
 title: 让调查资源退出报告索引来源版本
 id: exclude-investigation-resources-from-report-index-revision
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-28T10:12:54Z
 purpose: 让报告索引只投影报告事实与资源引用关系，不把资源文件成员或字节纳入索引来源版本。

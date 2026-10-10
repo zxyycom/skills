@@ -517,9 +517,8 @@ test("candidate root safety failures block formal checks and candidate CLI keeps
       ids: ["formal.md"],
       workspaceRoot: root
     });
-    assert.ok(
-      scoped.errors.some((error) => error.includes("reserved _candidate"))
-    );
+    assert.deepEqual(scoped.errors, []);
+    assert.equal(scoped.indexChecked, false);
   });
 });
 

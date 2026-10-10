@@ -7,20 +7,19 @@ import type {
 } from "./types.ts";
 import type { InvestigationSnapshotEntry, PreparedSearch } from "./query.ts";
 
+export type InvestigationSearchSelection = Readonly<{
+  entries: readonly InvestigationSnapshotEntry[];
+  filters: InvestigationSearchFilters;
+  filterRelations: ReadonlyMap<
+    string,
+    readonly InvestigationFilterRelation[]
+  > | null;
+}>;
+
 export function selectSearchEntries(
   entries: readonly InvestigationSnapshotEntry[],
   prepared: PreparedSearch
-): Result<
-  Readonly<{
-    entries: InvestigationSnapshotEntry[];
-    filters: InvestigationSearchFilters;
-    filterRelations: ReadonlyMap<
-      string,
-      readonly InvestigationFilterRelation[]
-    > | null;
-  }>,
-  string[]
-> {
+): Result<InvestigationSearchSelection, string[]> {
   const query = prepared.validated;
   let filters = query.filters;
   let resolvedQuery: RelationQuery = query;

@@ -7,8 +7,8 @@ Tags:
 - `investigation-report`
 
 Contract:
-- `list` 与 `search` 的命令级 help 以紧凑 Semantics 与 Examples 投影普通发现所需语义：正式报告与 authoring candidate 边界、关系参数依赖、结果上限、warning 边界与 `show` 后续入口；精确查询规则仍由固定契约承接。
+- `list` 与 `search` 的命令级 help 以紧凑 Semantics 与 Examples 投影普通发现所需语义：正式报告与 authoring candidate 边界、关系参数依赖、结果上限、来源与 warning 边界与 `show` 后续入口；精确查询规则仍由固定契约承接。
 
 Proves:
 - `list` 与 `search` help 均包含 Semantics 与 Examples，说明 candidates 留在索引外、`--related-to` 先解析再由方向与类型限定。
-- `list` help 说明陈旧索引仍返回最后发布快照并可用 sync-index 恢复；`search` help 说明 `--limit` 限制返回报告且无 offset 分页、来源或返回受限时不据以断言无匹配，并指引用 `show <investigation-id>` 读取完整报告。
+- `list` help 说明只读取合法发布快照、不核对来源或同步；`search` help 说明 `--limit` 限制返回报告且无 offset 分页、来源或返回受限时不据以断言无匹配，并指引用 `show <investigation-id>` 读取完整报告。

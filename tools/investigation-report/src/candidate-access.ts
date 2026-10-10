@@ -1,4 +1,9 @@
-import { err, ok, type Result } from "neverthrow";
+import { err, ok, ResultAsync, type Result } from "neverthrow";
+import {
+  diagnosticFromError,
+  type InvestigationDiagnostic
+} from "./diagnostics.ts";
+import type { InvestigationCollectionLayout } from "./investigation-index-source.ts";
 import {
   canonicalizeInvestigationsDirectory,
   resolveInvestigationsDirectory,
@@ -18,11 +23,14 @@ import {
   safeCandidateLayout,
   uniqueSorted
 } from "./candidate-support.ts";
-import { readInvestigationCandidate } from "./candidate-document.ts";
+import {
+  readInvestigationCandidate,
+  prepareCandidateReadContext,
+  type CandidateReadContext
+} from "./candidate-document.ts";
 import type {
   InvestigationCandidate,
   InvestigationCandidateListResult,
-  InvestigationCandidateShowOptions,
   InvestigationCandidateShowResult
 } from "./types.ts";
 
@@ -30,74 +38,70 @@ type PreparedCandidateLocation = Readonly<{
   id?: string;
   resolved: ResolvedInvestigationsDirectory;
 }>;
+type PreparedCandidateAccess = Readonly<{
+  directory: string;
+  id?: string;
+  layout: InvestigationCollectionLayout;
+}>;
+type CandidatePreparationFailure = Readonly<{
+  diagnostics: readonly InvestigationDiagnostic[];
+  errors: readonly string[];
+}>;
 export async function listInvestigationCandidates(
   input: unknown
 ): Promise<InvestigationCandidateListResult> {
-  const prepared = prepareCandidateLocation(input, false);
-  if (prepared.isErr()) return candidateListFailure(prepared.error);
-  const canonical = await canonicalizeInvestigationsDirectory(
-    prepared.value.resolved
-  );
-  if (canonical.isErr()) return candidateListFailure(canonical.error);
-  const layout = await safeCandidateLayout(
-    canonical.value.investigationsDirectory
-  );
-  if (layout.status === "error")
-    return candidateListFailure(layout.errors, layout.diagnostics);
+  const access = await prepareCandidateAccess(input, false);
+  if (access.isErr())
+    return candidateListFailure(access.error.errors, access.error.diagnostics);
+  const { directory, layout } = access.value;
+  const context = await prepareReadContext(directory, layout);
+  if (context.isErr())
+    return candidateListFailure(
+      context.error.errors,
+      context.error.diagnostics
+    );
   const candidates: InvestigationCandidate[] = [];
   const errors: string[] = [];
-  const diagnostics =
-    [] as import("./diagnostics.ts").InvestigationDiagnostic[];
-  for (const id of layout.value.candidateIds) {
-    const read = await readInvestigationCandidate(
-      canonical.value.investigationsDirectory,
-      id
-    );
+  const diagnostics: InvestigationDiagnostic[] = [];
+  for (const id of layout.candidateIds) {
+    const read = await readInvestigationCandidate(directory, id, context.value);
     if (read.status === "ok") candidates.push(read.value);
     else {
       errors.push(...read.errors);
       diagnostics.push(...read.diagnostics);
     }
   }
+  const result = {
+    candidates,
+    warnings: candidates.flatMap((candidate) => candidate.errors)
+  };
   return errors.length === 0
-    ? {
-        candidates,
-        diagnostics: [],
-        errors: [],
-        status: "ok",
-        warnings: candidates.flatMap((candidate) => candidate.errors)
-      }
-    : {
-        candidates,
-        diagnostics,
-        errors: uniqueSorted(errors),
-        status: "error",
-        warnings: candidates.flatMap((candidate) => candidate.errors)
-      };
+    ? { ...result, diagnostics: [], errors: [], status: "ok" }
+    : { ...result, diagnostics, errors: uniqueSorted(errors), status: "error" };
 }
 export async function showInvestigationCandidate(
   input: unknown
 ): Promise<InvestigationCandidateShowResult> {
-  const prepared = prepareCandidateLocation(input, true);
-  if (prepared.isErr()) return candidateShowFailure(prepared.error);
-  const canonical = await canonicalizeInvestigationsDirectory(
-    prepared.value.resolved
-  );
-  if (canonical.isErr()) return candidateShowFailure(canonical.error);
-  const layout = await safeCandidateLayout(
-    canonical.value.investigationsDirectory
-  );
-  if (layout.status === "error")
-    return candidateShowFailure(layout.errors, layout.diagnostics);
+  const access = await prepareCandidateAccess(input, true);
+  if (access.isErr())
+    return candidateShowFailure(access.error.errors, access.error.diagnostics);
+  const { directory, layout } = access.value;
   const selected = resolveInvestigationSelector(
-    investigationSelectorEntries(layout.value.candidateIds),
-    prepared.value.id!,
+    investigationSelectorEntries(layout.candidateIds),
+    access.value.id!,
     "investigation candidate"
   );
   if (selected.status === "error") return candidateShowFailure(selected.errors);
+  const context = await prepareReadContext(directory, layout, [selected.id]);
+  if (context.isErr())
+    return candidateShowFailure(
+      context.error.errors,
+      context.error.diagnostics
+    );
   const candidate = await readInvestigationCandidate(
-    canonical.value.investigationsDirectory,
-    selected.id
+    directory,
+    selected.id,
+    context.value
   );
   return candidate.status === "ok"
     ? {
@@ -109,24 +113,71 @@ export async function showInvestigationCandidate(
       }
     : candidateShowFailure(candidate.errors, candidate.diagnostics);
 }
+
+async function prepareCandidateAccess(
+  input: unknown,
+  requiresId: boolean
+): Promise<Result<PreparedCandidateAccess, CandidatePreparationFailure>> {
+  const prepared = prepareCandidateLocation(input, requiresId);
+  if (prepared.isErr()) return err({ errors: prepared.error, diagnostics: [] });
+  const canonical = await canonicalizeInvestigationsDirectory(
+    prepared.value.resolved
+  );
+  if (canonical.isErr())
+    return err({ errors: canonical.error, diagnostics: [] });
+  const directory = canonical.value.investigationsDirectory;
+  const layout = await safeCandidateLayout(directory, {
+    readFormalSources: false
+  });
+  if (layout.status === "error") return err(layout);
+  return ok({ directory, layout: layout.value, id: prepared.value.id });
+}
+
+function prepareReadContext(
+  investigationsDirectory: string,
+  layout: InvestigationCollectionLayout,
+  ids: readonly string[] = layout.candidateIds
+): ResultAsync<CandidateReadContext, CandidatePreparationFailure> {
+  return ResultAsync.fromPromise(
+    prepareCandidateReadContext(investigationsDirectory, layout, ids),
+    (error) => ({
+      errors: ["candidate preparation could not be completed"],
+      diagnostics: [
+        diagnosticFromError({
+          code: "investigation-report.candidate-read-failed",
+          error,
+          reason: "the investigation candidate read preparation failed",
+          recovery:
+            "restore access to the candidates and their required owners, then retry the read",
+          target: investigationsDirectory
+        })
+      ]
+    })
+  );
+}
+
 function prepareCandidateLocation(
   input: unknown,
   requiresId: boolean
 ): Result<PreparedCandidateLocation, string[]> {
   const parsed = requiresId
-    ? parseInvestigationCandidateShowOptions(input)
-    : parseInvestigationCandidateListOptions(input);
+    ? parseInvestigationCandidateShowOptions(input).map((options) => ({
+        options,
+        id: options.id
+      }))
+    : parseInvestigationCandidateListOptions(input).map((options) => ({
+        options,
+        id: undefined
+      }));
   if (parsed.isErr()) return err(parsed.error);
   const resolved = resolveInvestigationsDirectory(
-    parsed.value.workspaceRoot,
-    parsed.value.investigationsDir
+    parsed.value.options.workspaceRoot,
+    parsed.value.options.investigationsDir
   );
   return resolved.isErr()
     ? err(resolved.error)
     : ok({
-        ...(requiresId
-          ? { id: (parsed.value as InvestigationCandidateShowOptions).id }
-          : {}),
+        ...(parsed.value.id !== undefined ? { id: parsed.value.id } : {}),
         resolved: resolved.value
       });
 }

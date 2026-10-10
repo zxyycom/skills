@@ -12,9 +12,7 @@ import {
   loadInvestigationIndex
 } from "./investigation-state-index.ts";
 import {
-  investigationIndexStale,
   persistedSnapshotBodyWarning,
-  persistedSnapshotWarning,
   shownInvestigationStale
 } from "./index-staleness.ts";
 import {
@@ -232,12 +230,7 @@ async function readShownInvestigation(
 ): Promise<InvestigationReportShowResult> {
   const target = path.join(investigationsDirectory, state.sourcePath);
   try {
-    const markdown = await fs.readFile(target, "utf8");
-    if (investigationIdFromMarkdown(markdown) !== id) {
-      throw new Error(
-        "frontmatter Investigation ID does not match the requested ID"
-      );
-    }
+    const markdown = await readShownMarkdown(target, id);
     return {
       errors: [],
       diagnostics: [],
@@ -264,6 +257,19 @@ async function readShownInvestigation(
       ]
     );
   }
+}
+
+async function readShownMarkdown(target: string, id: string): Promise<string> {
+  const entry = await fs.lstat(target);
+  if (!entry.isFile() || entry.isSymbolicLink())
+    throw new Error("selected report must be a regular non-symbolic-link file");
+  const markdown = await fs.readFile(target, "utf8");
+  if (investigationIdFromMarkdown(markdown) !== id) {
+    throw new Error(
+      "frontmatter Investigation ID does not match the requested ID"
+    );
+  }
+  return markdown;
 }
 
 export async function traceInvestigationReports(
@@ -305,11 +311,7 @@ export async function traceInvestigationReports(
     traceOptions.value
   );
   if (traced.status === "error") return traced;
-  const stale = await investigationIndexStale(
-    loaded.value.investigationsDirectory,
-    loaded.value.index
-  );
-  return { ...traced, warnings: stale ? [persistedSnapshotWarning] : [] };
+  return traced;
 }
 
 function rawStringField(input: unknown, field: string): string | undefined {

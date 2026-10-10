@@ -44,7 +44,9 @@ export async function runCheck(
   printWarnings(result.warnings, io);
   writeLine(
     io.stdout,
-    `Investigation report check passed (${result.selectedReportCount} of ${result.availableReportCount} reports checked${result.indexChecked ? "; full index current" : "; index not checked"}).`
+    result.indexChecked
+      ? `Investigation report check passed (${result.selectedReportCount} reports checked; full index current).`
+      : `Investigation report check passed (${result.selectedReportCount} selected reports checked; index not checked).`
   );
   return 0;
 }

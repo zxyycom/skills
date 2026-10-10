@@ -3,7 +3,8 @@ import { operationErrorDetail } from "../../shared/src/version-control/error-det
 import {
   openVersionControl,
   repositoryRelativePathFromFileSystemPath,
-  VersionControlError
+  VersionControlError,
+  type VersionControlFile
 } from "../../shared/src/version-control/index.ts";
 import { investigationIdFromMarkdown } from "./markdown.ts";
 import { isInvestigationSourcePath } from "./report-path.ts";
@@ -16,6 +17,7 @@ export async function unrecordedPredecessorWarnings(
   const directPredecessors = [...states].flatMap(([source, state]) =>
     state.relations.map((relation) => ({ relation, source }))
   );
+  if (directPredecessors.length === 0) return [];
   const recorded = await recordedInvestigationIdsAtHead(
     investigationsDirectory,
     new Set(directPredecessors.map(({ relation }) => relation.target))
@@ -64,24 +66,13 @@ async function recordedInvestigationIdsAtHead(
           : filePath.slice(directoryScope.length + 1);
       return isInvestigationSourcePath(sourcePath);
     });
+    if (sourcePaths.length === 0)
+      return { ids: new Set(), status: "available" };
     const files = await repository.readRevisionFiles(revision, {
       pathScopes: sourcePaths
     });
-    const requested = new Set(ids);
     return {
-      ids: new Set(
-        files.flatMap((file) => {
-          const sourcePath =
-            directoryScope.length === 0
-              ? file.path
-              : file.path.slice(directoryScope.length + 1);
-          const id =
-            investigationIdFromMarkdown(
-              Buffer.from(file.data).toString("utf8")
-            ) ?? sourcePath.slice(0, -".md".length);
-          return requested.has(id) ? [id] : [];
-        })
-      ),
+      ids: matchingRecordedIds(files, directoryScope, new Set(ids)),
       status: "available"
     };
   } catch (error) {
@@ -92,6 +83,25 @@ async function recordedInvestigationIdsAtHead(
       warning: historyCheckUnavailableWarning(investigationsDirectory, error)
     };
   }
+}
+
+function matchingRecordedIds(
+  files: readonly VersionControlFile[],
+  directoryScope: string,
+  requested: ReadonlySet<string>
+): Set<string> {
+  return new Set(
+    files.flatMap((file) => {
+      const sourcePath =
+        directoryScope.length === 0
+          ? file.path
+          : file.path.slice(directoryScope.length + 1);
+      const id =
+        investigationIdFromMarkdown(Buffer.from(file.data).toString("utf8")) ??
+        sourcePath.slice(0, -".md".length);
+      return requested.has(id) ? [id] : [];
+    })
+  );
 }
 
 function historyCheckUnavailableWarning(
