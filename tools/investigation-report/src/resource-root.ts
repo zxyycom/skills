@@ -1,16 +1,24 @@
+import {
+  verifiedCanonicalResourceDirectory,
+  verifiedCanonicalResourcesRoot
+} from "./resource-canonical-path.ts";
+export { verifiedCanonicalResourceDirectory } from "./resource-canonical-path.ts";
+import {
+  inspectResource,
+  ResourceInspectionError,
+  resourceInspectionFailure
+} from "./resource-inspection.ts";
 import { type Dirent } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
-import {
-  isFileSystemError,
-  isPathWithinDirectory
-} from "../../shared/src/node/filesystem.ts";
+import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
 import {
   openVersionControl,
   repositoryRelativePathFromFileSystemPath,
   VersionControlError
 } from "../../shared/src/version-control/index.ts";
 import { sanitizeInvestigationDiagnosticText } from "./diagnostics.ts";
+import { ResourceDirectoryFacts } from "./resource-directory-facts.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 
 export type ManagedResourceMembership =
@@ -18,11 +26,16 @@ export type ManagedResourceMembership =
   | Readonly<{ files: ReadonlySet<string>; mode: "version-control" }>;
 export type ResourceRoot = Readonly<{
   canonicalResourcesRoot: string;
+  directories: ResourceDirectoryFacts;
   membership: ManagedResourceMembership;
 }>;
 export type ResourceRootPreparation =
   | Readonly<{ membership: ManagedResourceMembership; status: "missing" }>
-  | Readonly<{ errors: string[]; status: "invalid" }>
+  | Readonly<{
+      errors: string[];
+      failure?: ResourceInspectionError | VersionControlError;
+      status: "invalid";
+    }>
   | (ResourceRoot & Readonly<{ status: "ready" }>);
 
 export async function prepareInvestigationResourceRoot(
@@ -56,7 +69,8 @@ export async function prepareInvestigationResourceRoot(
     );
   } catch (error) {
     return invalidRoot(
-      `${investigationResourcesDirectoryName} could not be inspected: ${errorText(error)}`
+      `${investigationResourcesDirectoryName} could not be inspected: ${errorText(error)}`,
+      error
     );
   }
 }
@@ -92,7 +106,8 @@ async function prepareMissingResourceRoot(
     };
   } catch (error) {
     return invalidRoot(
-      `${investigationResourcesDirectoryName} membership could not be determined: ${errorText(error)}`
+      `${investigationResourcesDirectoryName} membership could not be determined: ${errorText(error)}`,
+      error
     );
   }
 }
@@ -113,10 +128,16 @@ async function prepareReadyResourceRoot(
         investigationsDirectory,
         canonicalResourcesRoot
       ));
-    return { canonicalResourcesRoot, membership: managed, status: "ready" };
+    return {
+      canonicalResourcesRoot,
+      directories: await ResourceDirectoryFacts.create(canonicalResourcesRoot),
+      membership: managed,
+      status: "ready"
+    };
   } catch (error) {
     return invalidRoot(
-      `${investigationResourcesDirectoryName} could not be safely resolved: ${errorText(error)}`
+      `${investigationResourcesDirectoryName} could not be safely resolved: ${errorText(error)}`,
+      error
     );
   }
 }
@@ -183,9 +204,11 @@ async function readResourceDirectory(
   relativeDirectory: string
 ): Promise<Dirent<string>[]> {
   try {
-    const entries = await fs.readdir(absoluteDirectory, {
-      withFileTypes: true
-    });
+    const entries = await inspectResource(
+      "read resource directory",
+      absoluteDirectory,
+      () => fs.readdir(absoluteDirectory, { withFileTypes: true })
+    );
     return entries.sort((left, right) => compareText(left.name, right.name));
   } catch (error) {
     throw new Error(
@@ -228,7 +251,9 @@ async function inspectedResourceEntry(
   id: string
 ): Promise<Awaited<ReturnType<typeof fs.lstat>>> {
   try {
-    return await fs.lstat(absolutePath);
+    return await inspectResource("inspect resource path", absolutePath, () =>
+      fs.lstat(absolutePath)
+    );
   } catch (error) {
     throw new Error(
       `${resourcePath(id)} could not be inspected: ${errorText(error)}`,
@@ -255,74 +280,18 @@ async function canonicalNestedDirectory(
   }
 }
 
-export async function verifiedCanonicalResourceDirectory(
-  directoryPath: string,
-  canonicalResourcesRoot: string
-): Promise<string> {
-  const canonicalDirectory = await fs.realpath(directoryPath);
-  if (!isPathWithinDirectory(canonicalDirectory, canonicalResourcesRoot))
-    throw new Error("directory resolves outside the resource root");
-  const verifiedStat = await fs.lstat(directoryPath, { bigint: true });
-  if (verifiedStat.isSymbolicLink())
-    throw new Error("directory must not be a symbolic link");
-  if (!verifiedStat.isDirectory())
-    throw new Error("path component must remain a directory");
-  const canonicalStat = await fs.stat(canonicalDirectory, { bigint: true });
-  if (!sameFileIdentity(verifiedStat, canonicalStat))
-    throw new Error("directory identity changed while being verified");
-  if ((await fs.realpath(directoryPath)) !== canonicalDirectory)
-    throw new Error("directory changed while being verified");
-  return canonicalDirectory;
-}
-
-async function verifiedCanonicalResourcesRoot(
-  investigationsDirectory: string,
-  resourcesRoot: string
-): Promise<string> {
-  const canonicalInvestigationsDirectory = await fs.realpath(
-    investigationsDirectory
-  );
-  const canonicalResourcesRoot = await fs.realpath(resourcesRoot);
-  if (
-    !isPathWithinDirectory(
-      canonicalResourcesRoot,
-      canonicalInvestigationsDirectory
-    )
-  )
-    throw new Error(
-      `${investigationResourcesDirectoryName} resolves outside the investigation root`
-    );
-  const verifiedRootStat = await fs.lstat(resourcesRoot, { bigint: true });
-  if (verifiedRootStat.isSymbolicLink())
-    throw new Error(
-      `${investigationResourcesDirectoryName} must not be a symbolic link`
-    );
-  if (!verifiedRootStat.isDirectory())
-    throw new Error(
-      `${investigationResourcesDirectoryName} must be a directory`
-    );
-  const canonicalRootStat = await fs.stat(canonicalResourcesRoot, {
-    bigint: true
-  });
-  if (!sameFileIdentity(verifiedRootStat, canonicalRootStat))
-    throw new Error(
-      `${investigationResourcesDirectoryName} identity changed while being verified`
-    );
-  if ((await fs.realpath(resourcesRoot)) !== canonicalResourcesRoot)
-    throw new Error(
-      `${investigationResourcesDirectoryName} changed while being verified`
-    );
-  return canonicalResourcesRoot;
-}
-
-function invalidRoot(error: string): ResourceRootPreparation {
-  return { errors: [error], status: "invalid" };
-}
-function sameFileIdentity(
-  left: Readonly<{ dev: bigint; ino: bigint }>,
-  right: Readonly<{ dev: bigint; ino: bigint }>
-): boolean {
-  return left.dev === right.dev && left.ino === right.ino;
+function invalidRoot(
+  error: string,
+  failure?: unknown
+): ResourceRootPreparation {
+  return {
+    errors: [error],
+    ...(failure instanceof ResourceInspectionError ||
+    failure instanceof VersionControlError
+      ? { failure }
+      : {}),
+    status: "invalid"
+  };
 }
 async function lstatOrNull(
   targetPath: string
@@ -331,7 +300,7 @@ async function lstatOrNull(
     return await fs.lstat(targetPath);
   } catch (error) {
     if (isFileSystemError(error, "ENOENT")) return null;
-    throw error;
+    throw resourceInspectionFailure(error, "inspect resource path", targetPath);
   }
 }
 function throwIfAborted(

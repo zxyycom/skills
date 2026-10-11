@@ -1,116 +1,183 @@
+import {
+  validateDomainResources,
+  domainResourceInspectionFailure
+} from "./staging-domain-resources.ts";
 import path from "node:path";
+import { hasEntry } from "../../index-runtime/src/index.ts";
 import type {
   RevisionId,
   VersionControlFile,
   VersionControlRepository
 } from "../../shared/src/version-control/index.ts";
-import { hasEntry } from "../../index-runtime/src/index.ts";
 import {
-  domainSourceSelection,
+  readPendingSnapshot,
+  type PendingFileUpdate,
+  type PendingSnapshot
+} from "../../shared/src/version-control/pending-snapshot.ts";
+import { investigationResourcesDirectoryName } from "./resource-reference.ts";
+import {
   validateDomainReportSources,
   verifyDeletedDomainSources,
   type DomainSourceSelection
 } from "./staging-domain-sources.ts";
-import { prepareInvestigationResourceRoot } from "./resource-root.ts";
-import { ownedInvestigationResourceIssues } from "./resource-file-validation.ts";
-import { validateReferencedInvestigationResources } from "./resources.ts";
-import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import {
   compareText,
   sameBytes,
   type InvestigationIndex
 } from "./staging-domain-support.ts";
 
-export type DomainWrite =
-  | VersionControlFile
-  | Readonly<{ data: null; path: string }>;
-
-type DomainWriteFailure = Readonly<{
+export type DomainWrite = PendingFileUpdate;
+export type DomainWriteFailure = Readonly<{
   status: "error";
-  code: "source-read-failed" | "version-control-failed";
+  code: "source-read-failed" | "pending-read-failed";
   error: unknown;
 }>;
 
-/** Acquisition facts shared by preparation and the write-before comparison. */
+/** Immutable request and resolved HEAD facts; all mutable facts belong to one acquisition. */
+export type DomainAcquisitionRequest = Readonly<{
+  baseline: InvestigationIndex | null;
+  investigationsScope: string;
+  repository: VersionControlRepository;
+  selectedIds: readonly string[];
+  sourceSelection: DomainSourceSelection;
+  workspaceIndex: InvestigationIndex;
+  headResourcePaths: readonly string[];
+}>;
+export type DomainWriteRequestInput = Omit<
+  DomainAcquisitionRequest,
+  "headResourcePaths"
+> &
+  Readonly<{ revision: RevisionId | null }>;
+
+export async function prepareDomainAcquisitionRequest(
+  input: DomainWriteRequestInput
+): Promise<DomainAcquisitionRequest> {
+  const ownerScopes = input.selectedIds.map((id) =>
+    path.posix.join(
+      input.investigationsScope,
+      investigationResourcesDirectoryName,
+      id
+    )
+  );
+  const headResourcePaths =
+    input.revision === null
+      ? []
+      : await input.repository.listRevisionFiles(input.revision, {
+          pathScopes: ownerScopes
+        });
+  return {
+    baseline: input.baseline,
+    investigationsScope: input.investigationsScope,
+    repository: input.repository,
+    selectedIds: input.selectedIds,
+    sourceSelection: input.sourceSelection,
+    workspaceIndex: input.workspaceIndex,
+    headResourcePaths
+  };
+}
+
 export type DomainWritesAcquisition = Readonly<{
   status: "ok";
   value: readonly DomainWrite[];
   sourceFiles: readonly VersionControlFile[];
-  headResourcePaths: readonly string[];
+  pending: PendingSnapshot;
 }>;
-
 export type DomainWritesResult = DomainWritesAcquisition | DomainWriteFailure;
 
-export type DomainWriteOptions = Readonly<{
-  baseline: InvestigationIndex | null;
-  investigationsScope: string;
-  repository: VersionControlRepository;
-  revision: RevisionId | null;
-  selectedIds: readonly string[];
-  workspaceIndex: InvestigationIndex;
-  sourceSelection?: DomainSourceSelection;
-  headResourcePaths?: readonly string[];
-  pendingFiles?: readonly VersionControlFile[];
+export type DomainPhaseFacts = Readonly<{
+  resources: DomainResourcePaths;
+  reportPaths: ReadonlySet<string>;
+  baselinePaths: ReadonlySet<string>;
+  pending: PendingSnapshot;
 }>;
+export type DomainPhaseResult =
+  | Readonly<{ status: "ok"; value: DomainPhaseFacts }>
+  | DomainWriteFailure;
 
-/**
- * Prepares the selected domain writes from indexed report paths plus every
- * workspace-and-HEAD owner resource member of each selected report.
- */
-export async function collectDomainWrites(
-  options: DomainWriteOptions
-): Promise<DomainWritesResult> {
+/** Membership and complete pending facts are fresh before any phase source bytes are read. */
+export async function acquireDomainPhase(
+  request: DomainAcquisitionRequest
+): Promise<DomainPhaseResult> {
+  let resources: DomainResourcePaths;
   try {
-    return await readDomainWrites(options);
+    resources = await selectedResourcePaths(request);
   } catch (error) {
     return { status: "error", code: "source-read-failed", error };
   }
+  const reportPaths = selectedReportPaths(
+    request.workspaceIndex,
+    request.sourceSelection.reportIds,
+    request.investigationsScope
+  );
+  const baselinePaths = selectedReportPaths(
+    request.baseline,
+    request.selectedIds,
+    request.investigationsScope
+  );
+  try {
+    const pending = await readPendingSnapshot(request.repository, {
+      pathScope: request.investigationsScope,
+      contentPaths: [...reportPaths, ...baselinePaths, ...resources.paths]
+    });
+    return {
+      status: "ok",
+      value: { resources, reportPaths, baselinePaths, pending }
+    };
+  } catch (error) {
+    return { status: "error", code: "pending-read-failed", error };
+  }
 }
 
-async function readDomainWrites(
-  options: DomainWriteOptions
-): Promise<DomainWritesAcquisition> {
-  const selection =
-    options.sourceSelection ??
-    domainSourceSelection(options.workspaceIndex, options.selectedIds);
-  const currentPaths = selectedReportPaths(options.workspaceIndex, options);
-  const baselinePaths = selectedReportPaths(options.baseline, options);
-  const resources = await selectedResourcePaths(options, selection);
-  await validateDomainResources(options, selection, resources);
-  const reportPaths = selectedReportPaths(options.workspaceIndex, {
-    ...options,
-    selectedIds: selection.reportIds
-  });
-  const sourceFiles = await options.repository.readWorkspaceFiles(
-    [...reportPaths, ...resources.paths],
-    options.pendingFiles === undefined
-      ? {}
-      : { pendingFiles: options.pendingFiles }
-  );
-  const filesByPath = new Map(sourceFiles.map((file) => [file.path, file]));
-  validateDomainReportSources({
-    files: filesByPath,
-    index: options.workspaceIndex,
-    investigationsScope: options.investigationsScope,
-    selection
-  });
-  await verifyDeletedDomainSources(
-    path.join(options.repository.rootDirectory, options.investigationsScope),
-    selection,
-    filesByPath,
-    options.investigationsScope
-  );
-  return {
-    status: "ok",
-    value: domainWrites(
-      currentPaths,
-      baselinePaths,
-      resources.ownerPaths,
-      filesByPath
-    ),
-    sourceFiles,
-    headResourcePaths: resources.headPaths
-  };
+/** Resource validation precedes this phase's source-byte acquisition. */
+export async function collectDomainWrites(
+  request: DomainAcquisitionRequest,
+  phase: DomainPhaseFacts
+): Promise<DomainWritesResult> {
+  const { resources, reportPaths, baselinePaths, pending } = phase;
+  try {
+    await validateDomainResources(request, resources);
+    const sourceFiles = await request.repository.readWorkspaceFiles(
+      [...reportPaths, ...resources.paths],
+      { pendingFiles: pending.members }
+    );
+    const filesByPath = new Map(sourceFiles.map((file) => [file.path, file]));
+    validateDomainReportSources({
+      files: filesByPath,
+      index: request.workspaceIndex,
+      investigationsScope: request.investigationsScope,
+      selection: request.sourceSelection
+    });
+    await verifyDeletedDomainSources(
+      path.join(request.repository.rootDirectory, request.investigationsScope),
+      request.sourceSelection,
+      filesByPath,
+      request.investigationsScope
+    );
+    return {
+      status: "ok",
+      pending,
+      sourceFiles,
+      value: domainWrites(
+        selectedReportPaths(
+          request.workspaceIndex,
+          request.selectedIds,
+          request.investigationsScope
+        ),
+        baselinePaths,
+        resources.ownerPaths,
+        filesByPath
+      )
+    };
+  } catch (error) {
+    return {
+      status: "error",
+      code: "source-read-failed",
+      error: domainResourceInspectionFailure(
+        error,
+        request.repository.rootDirectory
+      )
+    };
+  }
 }
 
 function domainWrites(
@@ -131,164 +198,108 @@ function domainWrites(
   return writes;
 }
 
-type DomainResourcePaths = Readonly<{
+export type DomainResourcePaths = Readonly<{
   paths: readonly string[];
   ownerPaths: readonly string[];
   workspacePaths: readonly string[];
-  headPaths: readonly string[];
 }>;
-
 async function selectedResourcePaths(
-  options: DomainWriteOptions,
-  selection: DomainSourceSelection
+  request: DomainAcquisitionRequest
 ): Promise<DomainResourcePaths> {
-  const ownerScopes = options.selectedIds.map((id) =>
+  const prefix =
     path.posix.join(
-      options.investigationsScope,
-      investigationResourcesDirectoryName,
-      id
-    )
+      request.investigationsScope,
+      investigationResourcesDirectoryName
+    ) + "/";
+  const ownerScopes = request.selectedIds.map((id) => prefix + id);
+  const directPaths = request.sourceSelection.resourceIds.map(
+    (id) => prefix + id
   );
-  const directPaths = selection.resourceIds.map((id) =>
-    path.posix.join(
-      options.investigationsScope,
-      investigationResourcesDirectoryName,
-      id
-    )
-  );
-  const workspacePaths = await options.repository.listWorkspaceFiles({
+  const workspacePaths = await request.repository.listWorkspaceFiles({
     pathScopes: [...ownerScopes, ...directPaths]
   });
-  const headPaths =
-    options.headResourcePaths ??
-    (options.revision === null
-      ? []
-      : await options.repository.listRevisionFiles(options.revision, {
-          pathScopes: ownerScopes
-        }));
-  const ownerPaths = [...new Set([...workspacePaths, ...headPaths])]
-    .filter((filePath) =>
-      ownerScopes.some((scope) => filePath.startsWith(scope + "/"))
-    )
+  const selected = new Set(request.selectedIds);
+  const ownerPaths = [
+    ...new Set([...workspacePaths, ...request.headResourcePaths])
+  ]
+    .filter((filePath) => {
+      if (!filePath.startsWith(prefix)) return false;
+      const relative = filePath.slice(prefix.length);
+      const separator = relative.indexOf("/");
+      return separator > 0 && selected.has(relative.slice(0, separator));
+    })
     .sort(compareText);
   return {
     ownerPaths,
     workspacePaths,
-    headPaths,
     paths: [...new Set([...ownerPaths, ...directPaths])].sort(compareText)
   };
 }
 
-async function validateDomainResources(
-  options: DomainWriteOptions,
-  selection: DomainSourceSelection,
-  resources: DomainResourcePaths
-): Promise<void> {
-  const prefix =
-    path.posix.join(
-      options.investigationsScope,
-      investigationResourcesDirectoryName
-    ) + "/";
-  const prepared = await prepareInvestigationResourceRoot(
-    path.join(options.repository.rootDirectory, options.investigationsScope),
-    {
-      mode: "version-control",
-      files: new Set(
-        resources.workspacePaths
-          .filter((filePath) => filePath.startsWith(prefix))
-          .map((filePath) => filePath.slice(prefix.length))
-      )
-    }
-  );
-  if (prepared.status === "invalid")
-    throw new Error(prepared.errors.join("; "));
-  const ownerErrors =
-    prepared.status === "ready"
-      ? await ownedInvestigationResourceIssues(
-          prepared,
-          options.selectedIds,
-          resources.ownerPaths.map((filePath) => filePath.slice(prefix.length))
-        )
-      : [];
-  const directErrors = await validateReferencedInvestigationResources(
-    path.join(options.repository.rootDirectory, options.investigationsScope),
-    selection.resourceIds,
-    undefined,
-    prepared
-  );
-  const errors = [...ownerErrors, ...directErrors];
-  if (errors.length > 0) throw new Error(errors.join("; "));
-}
-
 function selectedReportPaths(
   index: InvestigationIndex | null,
-  options: Pick<DomainWriteOptions, "investigationsScope" | "selectedIds">
+  selectedIds: readonly string[],
+  scope: string
 ): ReadonlySet<string> {
-  const paths = new Set<string>();
-  for (const id of options.selectedIds) {
-    if (hasEntry(index, id))
-      paths.add(
-        path.posix.join(
-          options.investigationsScope,
-          index.entries[id].sourcePath
-        )
-      );
-  }
-  return paths;
-}
-
-/**
- * Rereads selected source snapshots and owner resource members before pending
- * replacement; changes in membership, bytes, or representation stop the write.
- */
-export async function verifyDomainWrites(
-  options: DomainWriteOptions &
-    Readonly<{
-      writes: readonly DomainWrite[];
-      sourceFiles?: readonly VersionControlFile[];
-    }>
-): Promise<string | null> {
-  const current = await collectDomainWrites(options);
-  if (current.status === "error") {
-    return "the selected domain sources could not be reread before the pending write";
-  }
-  if (
-    options.sourceFiles !== undefined &&
-    !sameSourceFiles(options.sourceFiles, current.sourceFiles)
-  )
-    return "the selected sources or required owner bytes or representation changed before the pending write";
-  if (current.value.length !== options.writes.length) {
-    return "the selected owner resource members changed before the pending write";
-  }
-  const currentByPath = new Map(
-    current.value.map((write) => [write.path, write])
+  if (index === null) return new Set();
+  return new Set(
+    selectedIds
+      .filter((id) => hasEntry(index, id))
+      .map((id) => path.posix.join(scope, index.entries[id].sourcePath))
   );
-  for (const write of options.writes) {
-    const verified = currentByPath.get(write.path);
-    if (verified === undefined || !sameDomainWriteValue(write, verified)) {
-      return `${write.path} changed before the pending write`;
-    }
-  }
-  return null;
 }
 
+export type DomainWritesVerification =
+  | Readonly<{ status: "ok" }>
+  | Readonly<{ status: "drift"; reason: string }>
+  | DomainWriteFailure;
+/** Pure phase comparison preserves acquisition failures rather than disguising them as byte drift. */
+export function verifyDomainWrites(
+  expected: DomainWritesAcquisition,
+  current: DomainWritesResult
+): DomainWritesVerification {
+  if (current.status === "error") return current;
+  if (current.value.length !== expected.value.length)
+    return {
+      status: "drift",
+      reason:
+        "the selected owner resource members changed before the pending write"
+    };
+  if (!sameSourceFiles(expected.sourceFiles, current.sourceFiles))
+    return {
+      status: "drift",
+      reason:
+        "the selected sources or required owner bytes or representation changed before the pending write"
+    };
+  const byPath = new Map(current.value.map((write) => [write.path, write]));
+  for (const write of expected.value) {
+    const verified = byPath.get(write.path);
+    if (verified === undefined || !sameDomainWriteValue(write, verified))
+      return {
+        status: "drift",
+        reason: `${write.path} changed before the pending write`
+      };
+  }
+  return { status: "ok" };
+}
 function sameDomainWriteValue(left: DomainWrite, right: DomainWrite): boolean {
-  if (left.data === null || right.data === null) {
-    return left.data === right.data;
-  }
-  return left.kind === right.kind && sameBytes(left.data, right.data);
+  return left.data === null || right.data === null
+    ? left.data === right.data
+    : left.kind === right.kind && sameBytes(left.data, right.data);
 }
-
 function sameSourceFiles(
   left: readonly VersionControlFile[],
   right: readonly VersionControlFile[]
 ): boolean {
   return (
     left.length === right.length &&
-    left.every(
-      (file, index) =>
-        file.path === right[index]?.path &&
-        sameDomainWriteValue(file, right[index]!)
-    )
+    left.every((file, index) => {
+      const current = right[index];
+      return (
+        current !== undefined &&
+        file.path === current.path &&
+        sameDomainWriteValue(file, current)
+      );
+    })
   );
 }

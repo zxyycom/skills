@@ -30,11 +30,77 @@ export async function replacePendingFiles(
   options: ReplacePendingFilesOptions
 ): Promise<ReplacePendingFilesResult> {
   const replacement = normalizePendingReplacement(options);
+  return await runPendingReplacement(
+    context,
+    getCurrentRevision,
+    replacement.pathScope,
+    replacement.expectedRevision,
+    async (lockPath) => {
+      const previousEntries = await listPendingEntries(
+        context,
+        [replacement.pathScope],
+        lockPath
+      );
+      assertExpectedEntries(
+        previousEntries,
+        replacement.expectedFiles,
+        replacement.pathScope
+      );
+      const previousFiles = await readPendingEntries(context, previousEntries);
+      assertExpectedFiles(
+        previousFiles,
+        replacement.expectedFiles,
+        replacement.pathScope
+      );
+      const targetEntries = await createPendingEntries(
+        context,
+        replacement.files,
+        previousEntries,
+        previousFiles
+      );
+      const result = replacementResult(
+        replacement.pathScope,
+        replacement.files,
+        previousFiles
+      );
+      if (sameGitIndexEntries(previousEntries, targetEntries)) {
+        return { result, publish: false };
+      }
+      await context.hooks.beforePendingWrite?.();
+      await writePendingEntries(
+        context,
+        previousEntries,
+        targetEntries,
+        lockPath
+      );
+      await context.hooks.afterPendingWrite?.();
+      await assertWrittenEntries(
+        context,
+        lockPath,
+        replacement.pathScope,
+        targetEntries,
+        replacement.files
+      );
+      return { result, publish: true };
+    }
+  );
+}
+
+/** Shared lock/copy/publication lifecycle; targets own their expectation and readback checks. */
+export async function runPendingReplacement<T>(
+  context: GitRepositoryContext,
+  getCurrentRevision: () => Promise<RevisionId | null>,
+  pathScope: string,
+  expectedRevision: RevisionId | null,
+  action: (
+    lockPath: string
+  ) => Promise<Readonly<{ result: T; publish: boolean }>>
+): Promise<T> {
   let indexPath: string;
   try {
     indexPath = await resolvePendingIndexPath(context);
   } catch (error) {
-    throw pendingReplacementError(replacement.pathScope, error);
+    throw pendingReplacementError(pathScope, error);
   }
   const lockPath = indexPath + ".lock";
   let lock: Awaited<ReturnType<typeof fs.open>>;
@@ -42,15 +108,15 @@ export async function replacePendingFiles(
     lock = await fs.open(lockPath, "wx");
   } catch (error) {
     if (isFileSystemError(error, "EEXIST"))
-      throw pendingConflictError(replacement.pathScope, "busy", error);
-    throw pendingReplacementError(replacement.pathScope, error);
+      throw pendingConflictError(pathScope, "busy", error);
+    throw pendingReplacementError(pathScope, error);
   }
   let lockIsOpen = true;
   try {
     await assertExpectedRevision(
       getCurrentRevision,
-      replacement.expectedRevision,
-      replacement.pathScope
+      expectedRevision,
+      pathScope
     );
     await initializePendingIndexLock({
       handle: lock,
@@ -60,64 +126,14 @@ export async function replacePendingFiles(
     });
     await lock.close();
     lockIsOpen = false;
-    const previousEntries = await listPendingEntries(
-      context,
-      [replacement.pathScope],
-      lockPath
-    );
-    assertExpectedEntries(
-      previousEntries,
-      replacement.expectedFiles,
-      replacement.pathScope
-    );
-    const previousFiles = await readPendingEntries(context, previousEntries);
-    assertExpectedFiles(
-      previousFiles,
-      replacement.expectedFiles,
-      replacement.pathScope
-    );
-    const targetEntries = await createPendingEntries(
-      context,
-      replacement.files,
-      previousEntries,
-      previousFiles
-    );
-    const result = replacementResult(
-      replacement.pathScope,
-      replacement.files,
-      previousFiles
-    );
-    if (sameGitIndexEntries(previousEntries, targetEntries)) {
-      await removePendingIndexLock(lockPath);
-      return result;
-    }
-    await context.hooks.beforePendingWrite?.();
-    await writePendingEntries(
-      context,
-      previousEntries,
-      targetEntries,
-      lockPath
-    );
-    await context.hooks.afterPendingWrite?.();
-    await assertWrittenEntries(
-      context,
-      lockPath,
-      replacement.pathScope,
-      targetEntries,
-      replacement.files
-    );
-    await fs.rename(lockPath, indexPath);
-    return result;
+    const target = await action(lockPath);
+    if (target.publish) await fs.rename(lockPath, indexPath);
+    else await removePendingIndexLock(lockPath);
+    return target.result;
   } catch (error) {
-    await recoverLock(
-      lock,
-      lockIsOpen,
-      lockPath,
-      context,
-      replacement.pathScope
-    );
+    await recoverLock(lock, lockIsOpen, lockPath, context, pathScope);
     if (isPendingConflict(error)) throw error;
-    throw pendingReplacementError(replacement.pathScope, error);
+    throw pendingReplacementError(pathScope, error);
   } finally {
     if (lockIsOpen) await lock.close().catch(() => undefined);
   }

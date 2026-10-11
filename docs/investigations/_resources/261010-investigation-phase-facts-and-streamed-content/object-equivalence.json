@@ -1,0 +1,21 @@
+{
+  "payloadSHA256": "3eec6f2df36b88a1a97c03224253e9d0c59f2696ff7b145203a5d43c736bc7e0",
+  "originalCompressedBytes": 4816,
+  "truncatedBytes": 12,
+  "observations": [
+    {
+      "flag": "--batch-check",
+      "exit": 0,
+      "stdoutBytes": 53,
+      "header": "ac94c46379f124b9e260cfec622f048043e98a56 blob 600000",
+      "stderr": ""
+    },
+    {
+      "flag": "--batch",
+      "exit": 128,
+      "stdoutBytes": 589877,
+      "header": "ac94c46379f124b9e260cfec622f048043e98a56 blob 600000",
+      "stderr": "fatal: unable to stream ac94c46379f124b9e260cfec622f048043e98a56 to stdout\n"
+    }
+  ]
+}

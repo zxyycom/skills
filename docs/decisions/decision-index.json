@@ -127,6 +127,7 @@
       "261008-maintain-record-quality-through-project-workflow": "sha256:804ad74dfa950e266e09648a62c29eed04fe1850971ced043c6a4ae632090f82",
       "261009-require-one-project-repository-for-change-roots": "sha256:ebcd33cdec3e750108043b1fa433ed0bddd7d0b9cfea1117374496f5ec9a8bfc",
       "261010-investigation-local-validation-and-phase-facts": "sha256:8071ef58afd4dd61bbab63372a63c694e98c683cf711975ea9ffa5c437fcacfb",
+      "261010-retain-complete-validation-with-selected-content": "sha256:bc20db4275ae8bfd460f168c2c676dd66f5f6da9c3fdd849207905a6557e39db",
       "261010-separate-investigation-query-and-validation-acquisition": "sha256:5669fdde0cbe2d1f86188ef5ed606f836f32660c960a2554b4c48083afc4a70a",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
@@ -2904,6 +2905,23 @@
           "summary": "取消只读结束保证与暂存全集原文门禁，保留写入复核"
         }
       ]
+    },
+    "261010-retain-complete-validation-with-selected-content": {
+      "name": "retain-complete-validation-with-selected-content",
+      "sourcePath": "retain-complete-validation-with-selected-content.md",
+      "title": "完整内容验证与选择性保留分离",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-10T18:05:07Z",
+      "purpose": "在减小快照内存与复制成本时保留完整范围失败和漂移保护。",
+      "background": "阶段快照需要完整身份保护，但领域通常只消费所选路径或身份前缀。",
+      "decision": "以共享专用原语分离完整实际payload验证、opaque快照身份和所需内容保留。",
+      "tags": [
+        "investigation-report",
+        "responsibility-boundaries",
+        "version-control"
+      ],
+      "relations": []
     },
     "261010-separate-investigation-query-and-validation-acquisition": {
       "name": "separate-investigation-query-and-validation-acquisition",

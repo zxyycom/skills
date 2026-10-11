@@ -66,6 +66,10 @@ class GitVersionControlRepository implements VersionControlRepository {
     };
   }
 
+  snapshotContext(): GitRepositoryContext {
+    return this.#context;
+  }
+
   async getCurrentRevision(): Promise<RevisionId | null> {
     return await getCurrentRevision(this.#context);
   }
@@ -188,4 +192,16 @@ function isFileNotFoundError(cause: unknown): boolean {
     "code" in cause &&
     cause.code === "ENOENT"
   );
+}
+
+/** Adapter-only bridge for dedicated shared snapshot operations; never exported by the public entry. */
+export function gitContextForRepository(
+  repository: VersionControlRepository
+): GitRepositoryContext {
+  if (!(repository instanceof GitVersionControlRepository))
+    throw operationError(
+      "open a dedicated version-control snapshot",
+      "the repository adapter does not support this operation"
+    );
+  return repository.snapshotContext();
 }

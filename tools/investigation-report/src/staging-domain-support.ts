@@ -1,4 +1,4 @@
-import { Buffer } from "node:buffer";
+import { sameBytes as equalBytes } from "../../shared/src/node/bytes.ts";
 import type {
   ReadonlyStateIndex,
   StateIndexDiagnostic
@@ -46,7 +46,7 @@ export function sameBytes(
   right: Uint8Array | null
 ): boolean {
   if (left === null || right === null) return left === right;
-  return Buffer.from(left).equals(Buffer.from(right));
+  return equalBytes(left, right);
 }
 
 export function decodeUtf8(data: Uint8Array): string {

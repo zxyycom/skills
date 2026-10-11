@@ -1,4 +1,7 @@
+import { ResourceInspectionError } from "./resource-inspection.ts";
 import { VersionControlError } from "../../shared/src/version-control/index.ts";
+import { fileSystemDiagnostic as filesystemDiagnostic } from "../../shared/src/node/filesystem-diagnostic.ts";
+import { sanitizeInvestigationDiagnosticText } from "./diagnostics.ts";
 import type { StateIndexDiagnostic } from "../../index-runtime/src/index.ts";
 import { investigationIndexNamespace } from "./investigation-state-index.ts";
 import type { InvestigationStageResult } from "./types.ts";
@@ -16,19 +19,62 @@ export function domainFailure(
   codeSuffix: string,
   error: unknown
 ): InvestigationStageResult {
-  const detail =
-    error instanceof VersionControlError && error.causeCategory !== undefined
-      ? ` (causeCategory: ${error.causeCategory})`
-      : error instanceof Error && error.message
-        ? `: ${error.message}`
-        : "";
   return domainFailureDiagnostics(control, "domain-stage-failed", [
-    stageDiagnostic(
+    stageErrorDiagnostic(
+      control,
       `investigation-report.stage-${codeSuffix}`,
-      `the selected Investigation ${control.input.scope} snapshot could not be prepared${detail}`,
-      control.indexPath
+      `the selected Investigation ${control.input.scope} snapshot could not be prepared`,
+      error
     )
   ]);
+}
+
+export function domainSourceReadFailure(
+  control: DomainStageControl,
+  error: unknown
+): InvestigationStageResult {
+  return domainFailureDiagnostics(control, "source-drift", [
+    stageErrorDiagnostic(
+      control,
+      "investigation-report.stage-source-read-failed",
+      "the selected domain sources could not be reread before the pending write",
+      error
+    )
+  ]);
+}
+
+function stageErrorDiagnostic(
+  control: DomainStageControl,
+  code: string,
+  reason: string,
+  error: unknown
+): StateIndexDiagnostic {
+  const base = stageDiagnostic(code, reason, control.indexPath);
+  if (error instanceof VersionControlError)
+    return {
+      ...base,
+      versionControl: {
+        causeCategory: error.causeCategory,
+        detail: error.detail,
+        operation: error.operation,
+        target:
+          error.target === null
+            ? control.indexPath
+            : sanitizeInvestigationDiagnosticText(error.target)
+      }
+    };
+  if (error instanceof ResourceInspectionError)
+    return { ...base, filesystem: error.diagnostic };
+  const filesystem = filesystemDiagnostic(error, {
+    operation: "read selected domain sources",
+    target: control.indexPath
+  });
+  return filesystem === undefined
+    ? {
+        ...base,
+        message: `${reason}: ${sanitizeInvestigationDiagnosticText(error)}`
+      }
+    : { ...base, filesystem };
 }
 
 export function domainFailureDiagnostics(
@@ -57,10 +103,11 @@ export function pendingReplacementFailure(
   return {
     changed: false,
     diagnostics: [
-      stageDiagnostic(
+      stageErrorDiagnostic(
+        control,
         `state-index.${state}`,
         pendingReplacementMessage(error),
-        control.indexPath
+        error
       )
     ],
     indexPath: control.indexPath,

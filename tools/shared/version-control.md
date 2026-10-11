@@ -72,7 +72,7 @@ First-parent 枚举由专用子模块 `tools/shared/src/version-control/git-firs
 | pending 依据 | 获取与失败责任 |
 | --- | --- |
 | 省略 `options.pendingFiles` | adapter 为所选现存来源取得一次新的 pending 表示依据。 |
-| 显式 `options.pendingFiles` | 调用方提供本阶段已取得、覆盖全部显式路径的完整 pending 快照；adapter 直接使用，省去重复读取。路径缺失表示该阶段没有条目，不自动补读；重复或非法的所选表示仍失败。完整性与阶段新鲜度由调用方负责。 |
+| 显式 `options.pendingFiles` | 调用方提供本阶段已取得、覆盖全部显式路径的 pending 成员与 `kind` 依据；不要求内容字节。adapter 直接使用，省去重复读取。路径缺失表示该阶段没有条目，不自动补读；重复或非法的所选表示仍失败。完整性与阶段新鲜度由调用方负责。 |
 
 Git adapter 按 `core.fileMode` 确定有效执行位：
 
@@ -83,6 +83,24 @@ Git adapter 按 `core.fileMode` 确定有效执行位：
 | 关闭，同路径没有 pending 条目 | 使用 `regular` |
 
 配置无效或读取失败，以及关闭策略时 pending 含未解决、链接或其他非文件表示，均停止读取并报告 `operation-failed`。
+
+### 完整验证与选择性内容保留
+
+以下专用子模块由 Investigation Report 消费；它们减少内容保留、复制和解码，保留完整实际 payload 读取与失败责任。通用 full-read/full-replacement 默认入口不变。
+
+#### Pending snapshot
+
+`pending-snapshot.ts` 提供 `readPendingSnapshot(repository, { pathScope, contentPaths })`、`samePendingSnapshots` 与 `replacePendingSnapshot`。
+
+- **读取与消费**：验证 scope 内全部成员的唯一文件表示，以及每个 unique 对象的完整实际 payload；返回全部成员的 `path`、`kind`，仅保留显式 `contentPaths` 的字节。调用方不得修改返回的内容字节。
+- **身份与比较**：共享层保存完整成员、表示与实际 payload 指纹，并把 snapshot 绑定到取得它的 repository 实例与 scope。只有该原始 snapshot 能参与同边界比较与替换；普通对象、其他 adapter 或其他 scope 的事实不能代替它。对象标识不能代替实际字节可读性与漂移证据。
+- **替换与发布**：调用方提供原 snapshot、当前 revision 期望和显式 updates（文件或 `data: null` 删除）。边界取得更新目标的自有字节，变化路径与写入内容使用同一目标。锁内先核对完整成员及表示，再验证全部实际内容身份；只更新声明路径，保留其余条目。写后完整验证对象、更新内容与保留内容身份，再发布。范围外由原事务复制保护，失败及恢复服从范围替换契约。
+
+#### Revision prefix
+
+`revision-file-prefixes.ts` 的 `readRevisionFilePrefixes(repository, { revision, paths, prefixBytes })` 接受固定 revision 与显式路径；返回有限字节前缀，并以 `complete` 表示是否为完整内容。不存在的路径省略，表示或对象读取错误失败。前缀不足以决定领域语义时，消费者以同一 revision 显式补读该文件。
+
+前缀足够时也校验所选对象的完整 payload，后段腐败仍是读取失败。完整范围成员、payload I/O 与物理事务复制成本继续存在；Git 批量读取的 stdout、stderr 各自保持 256 MiB 完整输出预算，有限保留不扩大预算。替换仍复制完整物理 index，以保护范围外状态。
 
 ## 运行时诊断与恢复边界
 

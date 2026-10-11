@@ -1,29 +1,33 @@
+import {
+  inspectResource,
+  ResourceInspectionError,
+  type ResourceInspectionResult
+} from "./resource-inspection.ts";
 import { constants as fileSystemConstants, type Dirent } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { isPathWithinDirectory } from "../../shared/src/node/filesystem.ts";
 import { sanitizeInvestigationDiagnosticText } from "./diagnostics.ts";
-import {
-  verifiedCanonicalResourceDirectory,
-  type ResourceRoot
-} from "./resource-root.ts";
+import { type ResourceRoot } from "./resource-root.ts";
 import {
   investigationResourcesDirectoryName,
   isInvestigationResourceId
 } from "./resource-reference.ts";
 
-export async function directInvestigationResourceIssues(
+export async function inspectDirectInvestigationResource(
   resourceRoot: ResourceRoot,
   id: string
-): Promise<string[]> {
+): Promise<ResourceInspectionResult> {
   const errors = invalidResourceIdErrors(id);
-  if (isSafeResourcePath(id))
-    errors.push(
-      ...(await resourcePathErrors(resourceRoot.canonicalResourcesRoot, id, {
-        target: "file",
-        missing: "reject"
-      }))
-    );
+  let failure: ResourceInspectionError | undefined;
+  if (isSafeResourcePath(id)) {
+    const inspected = await resourcePathErrors(resourceRoot, id, {
+      target: "file",
+      missing: "reject"
+    });
+    errors.push(...inspected.errors);
+    failure = inspected.failure;
+  }
   if (
     resourceRoot.membership.mode === "version-control" &&
     !resourceRoot.membership.files.has(id)
@@ -31,27 +35,28 @@ export async function directInvestigationResourceIssues(
     errors.push(
       `${resourcePath(id)} is ignored by version-control rules and is not a managed investigation resource`
     );
-  return uniqueSorted(errors);
+  return {
+    errors: uniqueSorted(errors),
+    ...(failure === undefined ? {} : { failure })
+  };
 }
 
 /** Selected owner trees may have deleted members, but no unsafe live components. */
-export async function ownedInvestigationResourceIssues(
+export async function inspectOwnedInvestigationResources(
   resourceRoot: ResourceRoot,
   ownerIds: readonly string[],
   resourceIds: readonly string[]
-): Promise<string[]> {
+): Promise<ResourceInspectionResult> {
   const errors: string[] = [];
-  for (const ownerId of ownerIds)
-    errors.push(
-      ...(await resourcePathErrors(
-        resourceRoot.canonicalResourcesRoot,
-        ownerId,
-        {
-          target: "directory",
-          missing: "allow"
-        }
-      ))
-    );
+  let failure: ResourceInspectionError | undefined;
+  for (const ownerId of ownerIds) {
+    const inspected = await resourcePathErrors(resourceRoot, ownerId, {
+      target: "directory",
+      missing: "allow"
+    });
+    errors.push(...inspected.errors);
+    failure ??= inspected.failure;
+  }
   for (const id of resourceIds) {
     if (!isSafeResourcePath(id)) {
       errors.push(
@@ -59,15 +64,23 @@ export async function ownedInvestigationResourceIssues(
       );
       continue;
     }
-    errors.push(
-      ...(await resourcePathErrors(resourceRoot.canonicalResourcesRoot, id, {
-        target: "file",
-        missing: "allow"
-      }))
-    );
+    const inspected = await resourcePathErrors(resourceRoot, id, {
+      target: "file",
+      missing: "allow"
+    });
+    errors.push(...inspected.errors);
+    failure ??= inspected.failure;
   }
-  return uniqueSorted(errors);
+  return {
+    errors: uniqueSorted(errors),
+    ...(failure === undefined ? {} : { failure })
+  };
 }
+
+type ResourcePathValidation = {
+  errors: string[];
+  failure?: ResourceInspectionError;
+};
 
 type ResourcePathRequirement = Readonly<{
   target: "file" | "directory";
@@ -83,69 +96,82 @@ function invalidResourceIdErrors(id: string): string[] {
 }
 
 async function resourcePathErrors(
-  canonicalResourcesRoot: string,
+  resourceRoot: ResourceRoot,
   id: string,
   requirement: ResourcePathRequirement
-): Promise<string[]> {
+): Promise<ResourceInspectionResult> {
   try {
-    return await validateResourcePath(canonicalResourcesRoot, id, requirement);
+    return await validateResourcePath(resourceRoot, id, requirement);
   } catch (error) {
-    return [`${resourcePath(id)} could not be validated: ${errorText(error)}`];
+    return {
+      errors: [
+        `${resourcePath(id)} could not be validated: ${errorText(error)}`
+      ],
+      ...(error instanceof ResourceInspectionError ? { failure: error } : {})
+    };
   }
 }
 
 async function validateResourcePath(
-  canonicalResourcesRoot: string,
+  resourceRoot: ResourceRoot,
   id: string,
   requirement: ResourcePathRequirement
-): Promise<string[]> {
-  const errors: string[] = [];
+): Promise<ResourceInspectionResult> {
+  const { canonicalResourcesRoot } = resourceRoot;
+  const result: ResourcePathValidation = { errors: [] };
+  const { errors } = result;
   let currentDirectory = canonicalResourcesRoot;
   const segments = id.split("/");
   for (const [index, segment] of segments.entries()) {
     const entry = await exactResourceEntry(
+      resourceRoot,
       currentDirectory,
       segment,
       id,
-      errors,
-      requirement.missing
+      { errors, missing: requirement.missing }
     );
-    if (entry === null) return errors;
+    if (entry === null) return result;
     const absolutePath = path.join(currentDirectory, entry.name);
-    const stat = await fs.lstat(absolutePath);
+    const stat = await inspectResource(
+      "inspect resource path",
+      absolutePath,
+      () => fs.lstat(absolutePath)
+    );
     const next = await nextValidatedResourcePath({
       absolutePath,
       canonicalResourcesRoot,
-      errors,
+      directories: resourceRoot.directories,
+      result,
       id,
       isFile: index === segments.length - 1 && requirement.target === "file",
       segment,
       stat
     });
-    if (next === null) return errors;
+    if (next === null) return result;
     currentDirectory = next;
   }
-  return errors;
+  return result;
 }
 
 async function exactResourceEntry(
+  resourceRoot: ResourceRoot,
   currentDirectory: string,
   segment: string,
   id: string,
-  errors: string[],
-  missing: ResourcePathRequirement["missing"]
+  options: Readonly<{
+    errors: string[];
+    missing: ResourcePathRequirement["missing"];
+  }>
 ): Promise<Dirent<string> | null> {
-  const entries = await fs.readdir(currentDirectory, { withFileTypes: true });
-  const exact = entries.find((entry) => entry.name === segment);
-  if (exact !== undefined) return exact;
-  const caseMismatch = entries.find(
-    (entry) => entry.name.toLowerCase() === segment.toLowerCase()
-  );
-  if (caseMismatch === undefined && missing === "allow") return null;
-  errors.push(
-    caseMismatch === undefined
-      ? `${resourcePath(id)} does not exist`
-      : `${resourcePath(id)} must match actual path casing; found ${JSON.stringify(caseMismatch.name)}`
+  const found = await resourceRoot.directories.entry(currentDirectory, segment);
+  if (found !== null && found.name === segment) return found;
+  if (found === null) {
+    if (options.missing === "reject")
+      options.errors.push(`${resourcePath(id)} does not exist`);
+    return null;
+  }
+  options.errors.push(
+    `${resourcePath(id)} must match actual path casing; found ${JSON.stringify(found.name)}`
   );
   return null;
 }
@@ -153,7 +179,8 @@ async function exactResourceEntry(
 type ResourcePathStep = Readonly<{
   absolutePath: string;
   canonicalResourcesRoot: string;
-  errors: string[];
+  directories: ResourceRoot["directories"];
+  result: ResourcePathValidation;
   id: string;
   isFile: boolean;
   segment: string;
@@ -164,7 +191,7 @@ async function nextValidatedResourcePath(
   step: ResourcePathStep
 ): Promise<string | null> {
   if (step.stat.isSymbolicLink()) {
-    step.errors.push(
+    step.result.errors.push(
       `${resourcePath(step.id)} must not traverse or target a symbolic link`
     );
     return null;
@@ -178,18 +205,16 @@ async function validatedResourceDirectory(
   step: ResourcePathStep
 ): Promise<string | null> {
   if (!step.stat.isDirectory()) {
-    step.errors.push(
+    step.result.errors.push(
       `${resourcePath(step.id)} has a non-directory path component ${JSON.stringify(step.segment)}`
     );
     return null;
   }
   try {
-    return await verifiedCanonicalResourceDirectory(
-      step.absolutePath,
-      step.canonicalResourcesRoot
-    );
+    return await step.directories.directory(step.absolutePath);
   } catch (error) {
-    step.errors.push(
+    if (error instanceof ResourceInspectionError) step.result.failure ??= error;
+    step.result.errors.push(
       `${resourcePath(step.id)} could not be safely traversed: ${errorText(error)}`
     );
     return null;
@@ -200,13 +225,14 @@ async function validatedResourceFile(
   step: ResourcePathStep
 ): Promise<string | null> {
   if (!step.stat.isFile()) {
-    step.errors.push(`${resourcePath(step.id)} must be a regular file`);
+    step.result.errors.push(`${resourcePath(step.id)} must be a regular file`);
     return null;
   }
   try {
     await verifyRegularFile(step.absolutePath, step.canonicalResourcesRoot);
   } catch (error) {
-    step.errors.push(
+    if (error instanceof ResourceInspectionError) step.result.failure ??= error;
+    step.result.errors.push(
       `${resourcePath(step.id)} could not be read as a regular file: ${errorText(error)}`
     );
   }
@@ -217,26 +243,44 @@ async function verifyRegularFile(
   absolutePath: string,
   canonicalResourcesRoot: string
 ): Promise<void> {
-  const handle = await fs.open(
-    absolutePath,
-    fileSystemConstants.O_RDONLY | fileSystemConstants.O_NOFOLLOW
+  const handle = await inspectResource("open resource file", absolutePath, () =>
+    fs.open(
+      absolutePath,
+      fileSystemConstants.O_RDONLY | fileSystemConstants.O_NOFOLLOW
+    )
   );
   try {
-    const openedStat = await handle.stat({ bigint: true });
+    const openedStat = await inspectResource(
+      "inspect opened resource file",
+      absolutePath,
+      () => handle.stat({ bigint: true })
+    );
     if (!openedStat.isFile()) throw new Error("target is not a regular file");
-    const canonicalTarget = await fs.realpath(absolutePath);
+    const canonicalTarget = await inspectResource(
+      "resolve resource file",
+      absolutePath,
+      () => fs.realpath(absolutePath)
+    );
     if (!isPathWithinDirectory(canonicalTarget, canonicalResourcesRoot))
       throw new Error("opened target resolves outside the resource root");
-    const resolvedStat = await fs.stat(canonicalTarget, { bigint: true });
+    const resolvedStat = await inspectResource(
+      "inspect resource file",
+      canonicalTarget,
+      () => fs.stat(canonicalTarget, { bigint: true })
+    );
     if (
-      (await fs.realpath(absolutePath)) !== canonicalTarget ||
+      (await inspectResource("resolve resource file", absolutePath, () =>
+        fs.realpath(absolutePath)
+      )) !== canonicalTarget ||
       !sameFileIdentity(openedStat, resolvedStat)
     )
       throw new Error(
         "resource path changed while its opened file was being verified"
       );
   } finally {
-    await handle.close();
+    await inspectResource("close resource file", absolutePath, () =>
+      handle.close()
+    );
   }
 }
 
@@ -269,4 +313,12 @@ function compareText(left: string, right: string): number {
 }
 function errorText(error: unknown): string {
   return sanitizeInvestigationDiagnosticText(error);
+}
+
+/** Existing validation callers consume issues without adopting stage failure policy. */
+export async function directInvestigationResourceIssues(
+  resourceRoot: ResourceRoot,
+  id: string
+): Promise<string[]> {
+  return (await inspectDirectInvestigationResource(resourceRoot, id)).errors;
 }

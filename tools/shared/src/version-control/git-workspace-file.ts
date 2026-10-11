@@ -141,7 +141,7 @@ async function workspacePendingKinds(
 }
 
 function pendingWorkspaceKinds(
-  files: readonly VersionControlFile[],
+  files: readonly Pick<VersionControlFile, "path" | "kind">[],
   paths: readonly string[]
 ): Map<string, RegularFileKind> {
   const selected = new Set(paths);

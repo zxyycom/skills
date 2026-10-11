@@ -431,7 +431,7 @@
       "INVESTIGATION-ACQUISITION-HISTORY-001": "sha256:e24516c8a3c2c045ee914167e81427de1498f3e02035cb4f59a14fd41200fa35",
       "INVESTIGATION-ACQUISITION-LOCAL-001": "sha256:4263caeaa7a2cd9c3c42e79205729705f99b3eddab8ce9580498f43defc4da44",
       "INVESTIGATION-ACQUISITION-QUERIES-001": "sha256:33895e5397e0f0c748413028543aaf2c56b5f25fd7a0d997ca32b426db8699f8",
-      "INVESTIGATION-ACQUISITION-STAGE-001": "sha256:f8bf9915438ad41dc627f6775bc395febf401cc5990f4de0d8b11cc659aa5bf2",
+      "INVESTIGATION-ACQUISITION-STAGE-001": "sha256:3c3c8ad77325c58471804980993910044c8c56ebabb64a2996ea19991d347c24",
       "INVESTIGATION-BUNDLED-PARITY-001": "sha256:16105f75fdf958c2f686bf399b407b3a642d51d94adc862200140b1cee672692",
       "INVESTIGATION-CANDIDATE-CLI-001": "sha256:62da445afa32e7810163706af13e753f6b253fe62b8e382ccf22aa48a56ac4f5",
       "INVESTIGATION-CANDIDATE-DEFAULT-FORMED-AT-001": "sha256:fceb45c6d4ac6ad17aa31ddd8e3671d9a6688e9d262ee8ff99dc312b429616be",
@@ -485,6 +485,7 @@
       "INVESTIGATION-DATED-SELECTOR-001": "sha256:b870806fa56f536559fe4029b5d7637b61b28947dd43f992bfb5d123238850da",
       "INVESTIGATION-DIAGNOSTIC-SANITIZATION-001": "sha256:4b24284dd1f7b73b9321ddc57d1ea5b1442e1a4b3fe394c16697258381b73249",
       "INVESTIGATION-DIRECTORY-PATH-001": "sha256:c587bb05003f0a3ed7dad4ee848aae47db81e4d0d0971164d4bc871f49a3991f",
+      "INVESTIGATION-DIRECTORY-PHASE-SAFETY-001": "sha256:818410e6ff8ff012b499f55879d1aa4618d45f76215901ebab7f490b53baa90d",
       "INVESTIGATION-DISCARD-CANDIDATE-001": "sha256:1d86e6fc159ed25aa92dbce88e19e6b310978b5cda457878d3e9a1f8c93bb749",
       "INVESTIGATION-DISCARD-CANDIDATE-002": "sha256:c6da746bfa9938077fffb433ed262b9b55efc6674286d4925213009df608c97c",
       "INVESTIGATION-DISCARD-CANDIDATE-003": "sha256:08fe00687c5d90bcc03fa46be0e228c3d94152d03cb239e0a1075ccad730feb6",
@@ -508,6 +509,8 @@
       "INVESTIGATION-EMPTY-COLLECTION-001": "sha256:bdfd865156bf9e003ceb784afed6d176c39753466d4c31ea936ea3c611c067e1",
       "INVESTIGATION-EMPTY-INDEX-SYNC-001": "sha256:77dfdbc15a1e5bb0b4f27766294049cb9b0343cce1f5d2a37b5bc0385dffdc4d",
       "INVESTIGATION-GENERATED-METADATA-002": "sha256:db2e0998912922aa904c1b076fef7638b7d63925fceb473799cfad8f96180790",
+      "INVESTIGATION-HISTORY-PAYLOAD-INTEGRITY-001": "sha256:dbb35ee867db0bad000814836437ccbf21231cf37d9032ddff905722ec6c79b2",
+      "INVESTIGATION-HISTORY-PREFIX-PRESENCE-001": "sha256:7937c95a6e202efed947d104f8b52d7fc7903b9238b886c1d3187a82aad9045b",
       "INVESTIGATION-INDEX-COMPATIBILITY-001": "sha256:5c4fc94159cff9ce594e6426b67b4c9a4c9c937a2407cdf6908a39be7f48a61f",
       "INVESTIGATION-INDEX-INTEGRITY-001": "sha256:0cde6559d66933ae3b7db8cf416784d29eb2f5e5dca68b8216fe59fbc31d733c",
       "INVESTIGATION-INDEX-METADATA-001": "sha256:11c37ed14c052b2bd01171eecf73c23a19f0a41e133f77756821964cc74ebb0b",
@@ -565,6 +568,7 @@
       "INVESTIGATION-REPORT-VALIDATION-SCOPE-001": "sha256:72c8d40a822e40f710d9c4f5b1b9502dba67c98e80cea2507183b7b7a2e980c3",
       "INVESTIGATION-RESOURCE-CASE-001": "sha256:f18c4d83ac340b026cbc07e9a031ed93d91eab7191632f0745a8654a5265bdce",
       "INVESTIGATION-RESOURCE-GIT-VISIBILITY-001": "sha256:647e6528b4254af10b6f72d5a2637c9a5ba8b9d72c8b57fa6bd14755ea2931b9",
+      "INVESTIGATION-RESOURCE-INSPECTION-FAILURE-FACTS-001": "sha256:bddf31f236ccb1a0be0c80d897f08661494618066f4abb79a0c3a4600eca32e7",
       "INVESTIGATION-RESOURCE-INVALID-OWNER-ANCHOR-001": "sha256:9907a0b047cb47a30a2b34541e47eb3dc60f6c224ee633a6200efc12b138e67f",
       "INVESTIGATION-RESOURCE-INVALID-OWNER-WARNING-001": "sha256:3e38204507b7c2257492309d31e78520f984ea8f950d8b7e55012e8697ae2ad6",
       "INVESTIGATION-RESOURCE-MEMBERSHIP-001": "sha256:8a8705930693a68af07fa985717315eb70ea93c63e1456208d3eaf3e496754b6",
@@ -616,6 +620,7 @@
       "INVESTIGATION-STAGE-MISSING-001": "sha256:89de0e25da1669d1a7142d284bd4dc1c4a47ec03d0f56af573b61520724059e9",
       "INVESTIGATION-STAGE-OVERLAY-001": "sha256:fa500621ffa4fe6cd36ac3ad6ff6998d87df15bcb052c3711786c7bcbc5f5211",
       "INVESTIGATION-STAGE-OWNER-DEPENDENCY-001": "sha256:8d3bb49420e8fe00fe66fbadcc9ec5bf910dc3721bdbe946eac4a90f575c5add",
+      "INVESTIGATION-STAGE-READ-FAILURE-FACTS-001": "sha256:14fcf13e99d5830e686d0811e9b88a5014fb92863c8e56da1de8f62a32ce850c",
       "INVESTIGATION-STAGE-RESOURCE-ADD-001": "sha256:139b83a93b9f7340d77c0c32736c6ba0b5b1019abc0ec9920d0798e54696c3b9",
       "INVESTIGATION-STAGE-RESOURCE-BYTES-001": "sha256:d760d33bd700545ddecb97959263ac36431c192488e40618b78d20c89c7025f8",
       "INVESTIGATION-STAGE-RESOURCE-DELETE-001": "sha256:319012593514719e8a6c8d27526ce9879282270cd683befc4c872034795d57ce",
@@ -1046,9 +1051,13 @@
       "VERSION-CONTROL-REPOSITORY-PATH-001": "sha256:71082967d002839697a7a3d6dadda5dd531f4ded2c8ba9fbcfb69e2c262ae428",
       "VERSION-CONTROL-REVISION-001": "sha256:2737549d045eb49bbdb727ae0a453c2490b39c4a081f9b0d2eda9a7a5163e979",
       "VERSION-CONTROL-REVISION-BATCH-001": "sha256:d88279d88a26528da26eb2d47ee908cb329a46f343247c9a9486e6de5db65905",
+      "VERSION-CONTROL-REVISION-PREFIX-CONTENT-001": "sha256:095a59c761c6395561bab36736e0a0a81acc7d47cd7f158dee6f29b82ef5dd70",
       "VERSION-CONTROL-REVISION-SHA256-001": "sha256:fc20585678735684ac205ad827852253b129efad0ccd7d3298b0fed6d455c0dc",
       "VERSION-CONTROL-REVISION-TREE-001": "sha256:cbb7a7c12fd6b07af4b7ed29ee0c7e0fa502bd83bc5081cb06c86567f15a1ec2",
+      "VERSION-CONTROL-SELECTED-PAYLOAD-INTEGRITY-001": "sha256:aa24a383bd1c9b8b87afc0709ef74d55d3285e101661fd489232b4b2e3a68572",
+      "VERSION-CONTROL-SELECTED-SNAPSHOT-CAS-001": "sha256:5153438af83ab4fe0dbd8c2ef2c6758a265a695f4a25e239550f8accd728ddd2",
       "VERSION-CONTROL-STATES-001": "sha256:99e1dfeb928ef7b5b8acb0c1ab96c31e592eda4c46a43c36eecb18f5ccc23c75",
+      "VERSION-CONTROL-STREAMED-BLOB-FRAMING-001": "sha256:c6b1bb8f7e3f958f09a5362639682e1f474e4a1e0ea399ab9b7a57c1efccb282",
       "VERSION-CONTROL-SYSTEM-CAUSE-001": "sha256:54f6951eaf0744eed8969d6964a1a1b7a3bcae5c09a8fc8aceb050ebc7e13300",
       "VERSION-CONTROL-WORKSPACE-BATCH-001": "sha256:d16924cec8c091d1b8fc4c1f9bc2a3a3568330e70343fca4393b7e33b0f81e0a",
       "VERSION-CONTROL-WORKSPACE-BATCH-002": "sha256:64e9d62a5bd23d4336c75c03a67a738ee9852ebaadcfc0f806a9e5154a2f67bf",
@@ -5924,6 +5933,28 @@
         "test:5db9a9d57de2022814d8c7c82946b4827dcbef3da64ed57d6e527e0bbd4d2c74"
       ]
     },
+    "INVESTIGATION-DIRECTORY-PHASE-SAFETY-001": {
+      "title": "目录阶段事实保持相关路径安全与局部范围",
+      "sourcePath": "cases/investigation-directory-phase-safety.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:095c4ab5dd07c730391b844c4833a6ba149dbb8c2313e35710c3b08cf85e21e9",
+        "test:176d0825a17ff9daafa756b1fcd60ac4b6eb81db19bb1dda1cb03fadf365435a",
+        "test:1de079343025cacf4bb9106f1c380985fd76a5e7e85f866cf8d6cb1cc604181d",
+        "test:21a0cea9074d83ccb2422e0da6933abcea63c105b847f3abeee27f27cd55b35c",
+        "test:27f2ace6849169e73112c9a581e4ce37187403451027112975dfd29b5fe98808",
+        "test:322774e7c4b2f33efb5b7f55ee855d729f1ab0068cee88b06714fcd81952b804",
+        "test:341fbaef86504e1bc059193ec23c750da82d6c0da9a008c0165a3d6693be5092",
+        "test:a0c97803f1fa3ad95dcf242364c2f283d562e43d8b580c99454d82723fab7711",
+        "test:add2c2548623cb39a9c4f72d16c0b9ef9b81d5dacc06c28e014cf79831f39f47",
+        "test:cd907aea977bafad81ae8e88d2c2a9f5eb1e8c65eb6f541442fa8c0dd1da14f6",
+        "test:cf639c6a228fa1ee4437219bbdd66300d68f15647a60c7f401d30858d5ecdcd5",
+        "test:d970772bdabc8ba64b2d7b443c625724e5f500ef456f2fefaa7ee39a2ea086af",
+        "test:e5140993183515dab321312cdca4bb7281879afa8870d7532412edafb725a48e"
+      ]
+    },
     "INVESTIGATION-DISCARD-CANDIDATE-001": {
       "title": "discard 识别候选并保护共享与已记录资源",
       "sourcePath": "cases/investigation-discard-candidate-001.md",
@@ -6152,6 +6183,36 @@
       ],
       "testIds": [
         "test:04e0f7ce3749df06dd77c19fc8c546a790d25040c6cc33ca355ddbbc7d5a96d1"
+      ]
+    },
+    "INVESTIGATION-HISTORY-PAYLOAD-INTEGRITY-001": {
+      "title": "有限历史保留不绕过全payload失败",
+      "sourcePath": "cases/investigation-history-payload-integrity.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:4159a2ccb1c07df1df52b9c3307864622c9aafc81765cbcce9359b21784af33a",
+        "test:deb84616f4af929afcecfac240b134a8ec66bda63958ff88fc2c98bc55394339"
+      ]
+    },
+    "INVESTIGATION-HISTORY-PREFIX-PRESENCE-001": {
+      "title": "历史身份前缀保持真实来源存在语义",
+      "sourcePath": "cases/investigation-history-prefix-presence.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:01a2c79ef223004496492bbc5c6142817b7c0016077ea1044ad17087a581b56e",
+        "test:091dc245debd8c47ac31dc956ce58ae0a514a9ae2e49161666d6f7f068438bd2",
+        "test:45fe5575710fd1d5bffdd62f57564ba2fcb11d8d2353740a734b9b91d8646802",
+        "test:4af295ae9121c5da2587ab30323060733c13ce4fefb8afb8e9930a11fb7acc8a",
+        "test:67a6df0a16c64e22a390785c088198651c7d60516fc5c57ce41bfab25b7fc708",
+        "test:9dc9258f43667200239dda8304ffc1cd9f54ed70a1812a4b0c7992d627a0b963",
+        "test:aaad6b573fde3d0fdbf35454a266a6034e411255e0cc90c06d34bd8ed0c3494d",
+        "test:cb7e2070448ec59ffa803e7c7931f2e76516d01c7c4aa0f3fc14b0e85c5ef591",
+        "test:db6865d82d95f4695055589516a1062f14fa36db1cec20ac0b81fc951a896d36",
+        "test:f7d62d056b003a055ed55d46f75b5f4543181c45e0aa4ff04b5f2f0b225946d7"
       ]
     },
     "INVESTIGATION-INDEX-COMPATIBILITY-001": {
@@ -6732,6 +6793,25 @@
         "test:694972a408148dae367d25d7371b7137dcb876da30bcd60e9bb8f6af042b3ca0"
       ]
     },
+    "INVESTIGATION-RESOURCE-INSPECTION-FAILURE-FACTS-001": {
+      "title": "资源读取故障与普通验证问题分别承接",
+      "sourcePath": "cases/investigation-resource-inspection-failure-facts.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:20ba4a8f8ad2ac23b2ee08b37cd0153a54b553e4467b6f56feea03643e5447a7",
+        "test:219098982118b8a96537b71ac6ea3d116bbeb2110fe41bcf92a1afecd707263c",
+        "test:38a2b1ca6ad49b958d3499b7f9ff861526a1be012a0e47565f9ede23984e91fd",
+        "test:5bafd0e2aa30d2d66195e9ceb3b3c62e0731b53d3effd1e249f812a9ca3125d0",
+        "test:5c4260a281bf92fd60db1f264f134fd86e272dd391eabe51e71da7dc397f15d7",
+        "test:6bd0988886f2f6a110e9adfa7c6499360e2a22dc6c6ae76bc77bff72f648bd50",
+        "test:86013627102a17ff5a09350e5e57d2f790ac186e0e2b838d8c737b0f42c54fa2",
+        "test:8ceb339d4106834a4e60e7b77a34b22e575c0393853354013e51c7f93af89c07",
+        "test:b0c4a214056c3aafcd0606272ec8ef7ce3b9497b35bfce7a9c920f13aa028174",
+        "test:d26cb47c9ee564ff6abd5c570cee7a543eab35e6f11a025abc8d9b7f695764b3"
+      ]
+    },
     "INVESTIGATION-RESOURCE-INVALID-OWNER-ANCHOR-001": {
       "title": "owner report must exist for a report-owned resource",
       "sourcePath": "cases/investigation-resource-invalid-owner-anchor-001.md",
@@ -7243,6 +7323,16 @@
       ],
       "testIds": [
         "test:f3afffec59cf5eedfce8e0c006f48809dab365640ad42e3119b8a45b980cd74f"
+      ]
+    },
+    "INVESTIGATION-STAGE-READ-FAILURE-FACTS-001": {
+      "title": "写前读取失败保留净化事实与恢复动作",
+      "sourcePath": "cases/investigation-stage-read-failure-facts.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:5522bbc0b481f43dd8180ce6282ab9f5cd1fb880505ed5bd515c641394372ac4"
       ]
     },
     "INVESTIGATION-STAGE-RESOURCE-ADD-001": {
@@ -11589,6 +11679,16 @@
         "test:47f2db6238d71de79e9d9eb6f13fe735e3096a97a5f9b3e57a58ac755156bbee"
       ]
     },
+    "VERSION-CONTROL-REVISION-PREFIX-CONTENT-001": {
+      "title": "修订前缀内容明确完整性",
+      "sourcePath": "cases/version-control-revision-prefix-content.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:f9d8b76db2c6a2f879374cd2744de65e374cd655704c994e7300ee9d580a68ef"
+      ]
+    },
     "VERSION-CONTROL-REVISION-SHA256-001": {
       "title": "批量读取 SHA-256 revision 快照",
       "sourcePath": "cases/version-control-revision-sha256-001.md",
@@ -11609,6 +11709,37 @@
         "test:3f5023a72ae4b53874735545e2647845ab73459ab0005c5f47d86eb54da4c86f"
       ]
     },
+    "VERSION-CONTROL-SELECTED-PAYLOAD-INTEGRITY-001": {
+      "title": "选择性内容保留仍读取全部范围payload",
+      "sourcePath": "cases/version-control-selected-payload-integrity.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:585091e093a5a39d47f55b3007dcc29409615eb56b13baa005d9d6c58eb8c27b",
+        "test:7a983d9eb9a467fbdce63c2c3a67ea3673cacbe99ffb2987857d66685e2fae32",
+        "test:d9a587ee5313e15a691fec1bda838d73a107714930b3b4160ce3d19898c6a256"
+      ]
+    },
+    "VERSION-CONTROL-SELECTED-SNAPSHOT-CAS-001": {
+      "title": "选择性快照保持完整范围CAS和恢复",
+      "sourcePath": "cases/version-control-selected-snapshot-cas.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:02cea973e4dc42ec4ccaa42beef7aa32d713bdae68be27e4572307595b2ca5ab",
+        "test:4074fc16bf97b41d883425da3cda213a3ff1d4550473ebd0128e4981a2196554",
+        "test:7c759f14e952a441f9429dcb1d0e7c5627881777a561d53546cdb1eecf14f30b",
+        "test:85836b2aa4291ccac03f6f6cb8043940e47d73781990df44288cfadb6d31cda7",
+        "test:bbc58f5dfeea671677e4753a96be42eef4fd2f7a8ed5c49141d192b34d16133c",
+        "test:bc40d154ba1cfaf75c5c3df1ba135a0d0d9241484489b63eaa15c51c813baefc",
+        "test:c568635de67fe78fd524394e8f825484d231626a627aa5db5934baff28fdd175",
+        "test:ee7cd34b26888e3c7c19d73838991b6166cb01fd9188d4762c1b34d5440ef49a",
+        "test:f5e323362880130a576e9c67682b0bd953ec53b104b7f3079ece78392e7bc507",
+        "test:fc3252530a356729d58a4f4adc1242bdd54585356c9ada01924d278936e27784"
+      ]
+    },
     "VERSION-CONTROL-STATES-001": {
       "title": "分离读取 pending 索引内容与 workspace 状态",
       "sourcePath": "cases/version-control-states-001.md",
@@ -11617,6 +11748,20 @@
       ],
       "testIds": [
         "test:c87770d8bb65af929a33b55da66c89029b2b3b331cbfa673390988578ae4d814"
+      ]
+    },
+    "VERSION-CONTROL-STREAMED-BLOB-FRAMING-001": {
+      "title": "流式blob协议完整验证与预算",
+      "sourcePath": "cases/version-control-streamed-blob-framing.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:37a3bbfcc621309f0007e5f121e0d6794cee77072be620d518eaaa29a54f21a0",
+        "test:3dbe0d787ec29cc3533262038dd07a5e16e6904a79ae90562fef103088dc7850",
+        "test:44832b7ff3b8e8ff6ec3a792eeead1c6724e951fb7dd5577442b3ff6195eab23",
+        "test:9d97d0f85b7e3468d9f1ae3c87d241c6df8f54c3962b6b059fe5b115246498a8",
+        "test:d7ad0b98f975975b42f029935e081774fa06d74ff993f809a43b6ce6b8f0bcae"
       ]
     },
     "VERSION-CONTROL-SYSTEM-CAUSE-001": {

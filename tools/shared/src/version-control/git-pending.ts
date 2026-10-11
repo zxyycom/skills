@@ -1,3 +1,4 @@
+import { sameBytes } from "../node/bytes.ts";
 import fs from "node:fs/promises";
 import { VersionControlError } from "./errors.ts";
 import { readGitBlobs } from "./git-blob-batch.ts";
@@ -73,21 +74,7 @@ export async function readPendingEntries(
   context: GitRepositoryContext,
   entries: readonly GitIndexEntry[]
 ): Promise<VersionControlFile[]> {
-  const conflicts = normalizeRepositoryPaths(
-    entries.filter((entry) => entry.stage !== 0).map((entry) => entry.path)
-  );
-  if (conflicts.length > 0)
-    throw operationError(
-      "resolve pending content conflicts before reading",
-      undefined,
-      { target: "pending snapshot" }
-    );
-  assertUniquePaths(entries);
-  const unsupported = entries.find((entry) => !gitBlobModes.has(entry.mode));
-  if (unsupported !== undefined)
-    throw operationError("read a non-file pending entry", undefined, {
-      target: unsupported.path
-    });
+  validatePendingEntries(entries);
   let blobs: ReadonlyMap<string, Buffer>;
   try {
     blobs = await readGitBlobs(
@@ -108,6 +95,26 @@ export async function readPendingEntries(
       });
     return { data, kind: fileKindForGitMode(entry.mode), path: entry.path };
   });
+}
+
+export function validatePendingEntries(
+  entries: readonly GitIndexEntry[]
+): void {
+  const conflicts = normalizeRepositoryPaths(
+    entries.filter((entry) => entry.stage !== 0).map((entry) => entry.path)
+  );
+  if (conflicts.length > 0)
+    throw operationError(
+      "resolve pending content conflicts before reading",
+      undefined,
+      { target: "pending snapshot" }
+    );
+  assertUniquePaths(entries);
+  const unsupported = entries.find((entry) => !gitBlobModes.has(entry.mode));
+  if (unsupported !== undefined)
+    throw operationError("read a non-file pending entry", undefined, {
+      target: unsupported.path
+    });
 }
 
 export async function resolvePendingIndexPath(
@@ -183,7 +190,7 @@ export async function createPendingEntries(
         reusable !== undefined &&
         reusable.mode === gitModeForFileKind(file.kind) &&
         current !== undefined &&
-        Buffer.from(current.data).equals(file.data)
+        sameBytes(current.data, file.data)
       )
         return reusable;
       return {

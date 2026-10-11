@@ -103,8 +103,7 @@ function printStageErrors(
                 scope: result.pending.scope
               }
             }),
-        recovery:
-          "correct the reported staging problem, then retry the selected index update",
+        recovery: stageRecovery(diagnostic),
         target: result.indexPath
       })
     ),
@@ -113,4 +112,30 @@ function printStageErrors(
     io,
     title: `Investigation index entry staging failed (state: ${result.state}; changed: ${result.changed}):`
   });
+}
+
+function stageRecovery(
+  diagnostic: import("../../index-runtime/src/index.ts").StateIndexDiagnostic
+): string {
+  if (diagnostic.code === "state-index.pending-recovery-failed")
+    return "uniquely read the reported scope through the version-control API and explicitly reconcile it with the original expectation and target before retrying; stop and contact its owner if the scope cannot be uniquely read";
+  const category =
+    diagnostic.versionControl?.causeCategory ??
+    diagnostic.filesystem?.causeCategory;
+  switch (category) {
+    case "access-denied":
+      return "restore access required by the reported read or write operation and target, then rerun the selected stage without elevated privileges";
+    case "tool-unavailable":
+      return "restore the required version-control tool through the project environment setup, then rerun stage";
+    case "busy":
+      return "wait for the known concurrent operation to finish, then reread the current pending scope before retrying";
+    case "command-failed":
+      return "resolve the reported version-control read or object failure, then reread the current scope and rerun stage";
+    default:
+      if (diagnostic.filesystem !== undefined)
+        return "inspect and resolve the reported filesystem read failure for its target, then reread the selected sources before rerunning stage";
+      if (diagnostic.code === "state-index.pending-conflict")
+        return "reread the current revision and complete pending scope, resolve the reported expectation drift, then rerun the selected stage";
+      return "run scoped check for the reported source; correct it and explicitly sync-index when needed, then rerun the selected stage";
+  }
 }

@@ -55,7 +55,7 @@ export type ReplacePendingFilesResult = {
 
 /** A fresh, complete pending basis for the explicit workspace paths. */
 export type ReadWorkspaceFilesOptions = Readonly<{
-  pendingFiles?: readonly VersionControlFile[];
+  pendingFiles?: readonly Pick<VersionControlFile, "path" | "kind">[];
 }>;
 
 export type VersionControlRepository = {

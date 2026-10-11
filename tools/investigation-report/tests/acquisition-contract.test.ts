@@ -14,8 +14,11 @@ import {
   showInvestigationReport,
   traceInvestigationReports
 } from "../src/query.ts";
+import { domainSourceSelection } from "../src/staging-domain-sources.ts";
 import {
+  acquireDomainPhase,
   collectDomainWrites,
+  prepareDomainAcquisitionRequest,
   verifyDomainWrites
 } from "../src/staging-domain-writes.ts";
 import { stageInvestigationReports } from "../src/staging.ts";
@@ -235,25 +238,26 @@ test("investigation domain preparation batches selected member and source reads 
       calls.sources += 1;
       return await originalSources.call(repository, paths, basis);
     };
-    const options = {
+    const options = await prepareDomainAcquisitionRequest({
       repository,
+      sourceSelection: domainSourceSelection(loaded.value, ["one", "two"]),
       baseline: loaded.value,
       workspaceIndex: loaded.value,
       revision: await repository.getCurrentRevision(),
       selectedIds: ["one", "two"],
       investigationsScope: "docs/investigations"
+    });
+    const collect = async () => {
+      const phase = await acquireDomainPhase(options);
+      assert.ok(phase.status === "ok");
+      return await collectDomainWrites(options, phase.value);
     };
-    const prepared = await collectDomainWrites(options);
+    const prepared = await collect();
     assert.ok(prepared.status === "ok");
     assert.deepEqual(calls, { workspace: 1, head: 1, sources: 1 });
-    assert.equal(
-      await verifyDomainWrites({
-        ...options,
-        ...prepared,
-        writes: prepared.value
-      }),
-      null
-    );
+    assert.deepEqual(verifyDomainWrites(prepared, await collect()), {
+      status: "ok"
+    });
     assert.deepEqual(calls, { workspace: 2, head: 1, sources: 2 });
     await fs.mkdir(path.join(investigationRoot(root), "_resources", "one"), {
       recursive: true
@@ -262,20 +266,14 @@ test("investigation domain preparation batches selected member and source reads 
       path.join(investigationRoot(root), "_resources", "one", "new.txt"),
       "new member\n"
     );
-    assert.match(
-      (await verifyDomainWrites({ ...options, writes: prepared.value }))!,
-      /members changed/u
-    );
-    await fs.appendFile(
-      path.join(investigationRoot(root), "one.md"),
-      "changed source\n"
-    );
-    assert.equal((await collectDomainWrites(options)).status, "error");
-    await fs.writeFile(
-      path.join(investigationRoot(root), "one.md"),
-      new Uint8Array([0xff])
-    );
-    assert.equal((await collectDomainWrites(options)).status, "error");
+    const drift = verifyDomainWrites(prepared, await collect());
+    assert.ok(drift.status === "drift");
+    assert.match(drift.reason, /members changed/u);
+    const source = path.join(investigationRoot(root), "one.md");
+    await fs.appendFile(source, "changed source\n");
+    assert.equal((await collect()).status, "error");
+    await fs.writeFile(source, new Uint8Array([0xff]));
+    assert.equal((await collect()).status, "error");
     assert.equal(git(root, ["diff", "--cached", "--name-only"]), "");
   });
 });

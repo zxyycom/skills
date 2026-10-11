@@ -1,9 +1,5 @@
-import { Buffer } from "node:buffer";
+import { sameBytes } from "../node/bytes.ts";
 import type { VersionControlFile } from "./types.ts";
-
-function sameFileBytes(left: Uint8Array, right: Uint8Array): boolean {
-  return Buffer.from(left).equals(Buffer.from(right));
-}
 
 function comparePaths(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -31,7 +27,7 @@ export function changedPendingPaths(
       changed.push(filePath);
       continue;
     }
-    if (before.kind !== after.kind || !sameFileBytes(before.data, after.data))
+    if (before.kind !== after.kind || !sameBytes(before.data, after.data))
       changed.push(filePath);
   }
   return changed.sort(comparePaths);

@@ -222,7 +222,7 @@ type TreeQuery = Readonly<{
   target?: string;
 }>;
 
-async function listTreeEntries(
+export async function listTreeEntries(
   context: GitRepositoryContext,
   query: TreeQuery
 ): Promise<GitTreeEntry[]> {
@@ -272,6 +272,6 @@ function pathspecs(scopes: readonly string[] | undefined): string[] {
   return normalizePathScopes(scopes ?? []).map((scope) => `:(literal)${scope}`);
 }
 
-function isReadableBlob(entry: GitTreeEntry): boolean {
+export function isReadableBlob(entry: GitTreeEntry): boolean {
   return entry.objectType === "blob" && gitBlobModes.has(entry.mode);
 }

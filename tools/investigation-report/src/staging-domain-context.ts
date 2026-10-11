@@ -1,7 +1,6 @@
 import path from "node:path";
 import type {
   RevisionId,
-  VersionControlFile,
   VersionControlRepository
 } from "../../shared/src/version-control/index.ts";
 import { openVersionControl } from "../../shared/src/version-control/index.ts";
@@ -68,18 +67,33 @@ export type DomainSelection = Readonly<{
 export async function verifyDomainIndex(
   snapshot: DomainSnapshot,
   control: DomainStageControl
-): Promise<string | null> {
+): Promise<
+  | Readonly<{ status: "ok" }>
+  | Readonly<{
+      status: "error";
+      diagnostics: import("../../index-runtime/src/index.ts").StateIndexDiagnostic[];
+    }>
+> {
   const loaded = await loadInvestigationIndex({
     investigationsDirectory: control.input.investigationsDirectory
   });
   if (loaded.status === "error")
-    return loaded.diagnostics.map((item) => item.message).join("; ");
+    return { status: "error", diagnostics: loaded.diagnostics };
   if (
     serializeStateIndex(loaded.value, snapshot.canonicalDefinition) !==
     serializeStateIndex(snapshot.workspaceIndex, snapshot.canonicalDefinition)
   )
-    return "the published workspace index changed before the write; reread it before retrying";
-  return null;
+    return {
+      status: "error",
+      diagnostics: [
+        stageDiagnostic(
+          "investigation-report.stage-source-drift",
+          "the published workspace index changed before the write; reread it before retrying",
+          control.indexPath
+        )
+      ]
+    };
+  return { status: "ok" };
 }
 
 export function domainStageControl(
@@ -309,24 +323,4 @@ export function resolveDomainSelection(
       )
     }
   };
-}
-
-type DomainPendingResult =
-  | Readonly<{ status: "ok"; value: readonly VersionControlFile[] }>
-  | Readonly<{ status: "error"; error: unknown }>;
-
-export async function readPendingScope(
-  repository: VersionControlRepository,
-  investigationsScope: string
-): Promise<DomainPendingResult> {
-  try {
-    return {
-      status: "ok",
-      value: await repository.readPendingFiles({
-        pathScopes: [investigationsScope]
-      })
-    };
-  } catch (error) {
-    return { status: "error", error };
-  }
 }

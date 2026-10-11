@@ -269,6 +269,34 @@
       ],
       "title": "调查单次采集检查与局部暂存职责复查"
     },
+    "261010-investigation-phase-facts-and-streamed-content": {
+      "formedAt": "2026-10-10T18:04:45Z",
+      "name": "investigation-phase-facts-and-streamed-content",
+      "question": "如何消除目录重复枚举与全范围内容复制而保留安全及失败语义？",
+      "relations": [
+        {
+          "summary": "复查局部获取后残余的目录枚举与全范围复制成本。",
+          "target": "261010-investigation-local-stage-and-single-read-check",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261010-investigation-phase-facts-and-streamed-content/after.json",
+        "261010-investigation-phase-facts-and-streamed-content/before.json",
+        "261010-investigation-phase-facts-and-streamed-content/counter.mjs",
+        "261010-investigation-phase-facts-and-streamed-content/measure.py",
+        "261010-investigation-phase-facts-and-streamed-content/object-equivalence.json",
+        "261010-investigation-phase-facts-and-streamed-content/object-integrity.py",
+        "261010-investigation-phase-facts-and-streamed-content/profile-summary.mjs"
+      ],
+      "sourcePath": "investigation-phase-facts-and-streamed-content.md",
+      "tags": [
+        "investigation-report",
+        "performance",
+        "version-control"
+      ],
+      "title": "阶段目录事实与完整流式内容校验的成本收敛"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -929,6 +957,7 @@
       "261009-skill-cli-repeated-process-and-source-access": "sha256:c36ef47b219d7f4c7c8ce1496b70aeee91958106a01835275793a8fe0eca64be",
       "261010-investigation-acquisition-performance-recheck": "sha256:363386f7d53281c571fabb6682fb3f8e69c28be86b0437033e7f37751efba60a",
       "261010-investigation-local-stage-and-single-read-check": "sha256:a1ed5d551d2dea05dbcfd4e3bf928adcb60cb82d25a604524a2170f278fc81aa",
+      "261010-investigation-phase-facts-and-streamed-content": "sha256:3d01be251aeb0eccdfbb8140a582cc44ccd84f5c6b227eb804a82838ea6bb0e1",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

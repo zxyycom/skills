@@ -1,3 +1,4 @@
+import { sameBytes } from "../node/bytes.ts";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import { runGitForExitCode } from "./git-command.ts";
@@ -69,7 +70,7 @@ export function sameVersionControlFiles(
         expected !== undefined &&
         file.path === expected.path &&
         file.kind === expected.kind &&
-        Buffer.from(file.data).equals(Buffer.from(expected.data))
+        sameBytes(file.data, expected.data)
       );
     })
   );

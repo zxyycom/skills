@@ -4,8 +4,14 @@ import {
   openVersionControl,
   repositoryRelativePathFromFileSystemPath,
   VersionControlError,
+  type VersionControlRepository,
+  type RevisionId,
   type VersionControlFile
 } from "../../shared/src/version-control/index.ts";
+import {
+  type RevisionFilePrefix,
+  readRevisionFilePrefixes
+} from "../../shared/src/version-control/revision-file-prefixes.ts";
 import { investigationIdFromMarkdown } from "./markdown.ts";
 import { isInvestigationSourcePath } from "./report-path.ts";
 import type { InvestigationIndexState } from "./types.ts";
@@ -53,24 +59,19 @@ async function recordedInvestigationIdsAtHead(
             repository.rootDirectory,
             investigationsDirectory
           );
-    const revisionFiles =
-      directoryScope.length === 0
-        ? await repository.listRevisionFiles(revision)
-        : await repository.listRevisionFiles(revision, {
-            pathScopes: [directoryScope]
-          });
-    const sourcePaths = revisionFiles.filter((filePath) => {
-      const sourcePath =
-        directoryScope.length === 0
-          ? filePath
-          : filePath.slice(directoryScope.length + 1);
-      return isInvestigationSourcePath(sourcePath);
-    });
+    const sourcePaths = await headFormalSourcePaths(
+      repository,
+      revision,
+      directoryScope
+    );
     if (sourcePaths.length === 0)
       return { ids: new Set(), status: "available" };
-    const files = await repository.readRevisionFiles(revision, {
-      pathScopes: sourcePaths
+    const prefixes = await readRevisionFilePrefixes(repository, {
+      revision,
+      paths: sourcePaths,
+      prefixBytes: 16384
     });
+    const files = await historyIdentityFiles(repository, revision, prefixes);
     return {
       ids: matchingRecordedIds(files, directoryScope, new Set(ids)),
       status: "available"
@@ -97,8 +98,13 @@ function matchingRecordedIds(
           ? file.path
           : file.path.slice(directoryScope.length + 1);
       const id =
-        investigationIdFromMarkdown(Buffer.from(file.data).toString("utf8")) ??
-        sourcePath.slice(0, -".md".length);
+        investigationIdFromMarkdown(
+          Buffer.from(
+            file.data.buffer,
+            file.data.byteOffset,
+            file.data.byteLength
+          ).toString("utf8")
+        ) ?? sourcePath.slice(0, -".md".length);
       return requested.has(id) ? [id] : [];
     })
   );
@@ -132,4 +138,54 @@ function uniqueSorted(values: readonly string[]): string[] {
   return [...new Set(values)].sort((left, right) =>
     left < right ? -1 : left > right ? 1 : 0
   );
+}
+
+/** The third line must terminate inside the prefix; incomplete UTF-8 after it is immaterial. */
+function firstThreeLinesComplete(text: string): boolean {
+  return (text.match(/\r\n|\r|\n/gu)?.length ?? 0) >= 3;
+}
+
+async function headFormalSourcePaths(
+  repository: VersionControlRepository,
+  revision: RevisionId,
+  directoryScope: string
+): Promise<string[]> {
+  const revisionFiles =
+    directoryScope.length === 0
+      ? await repository.listRevisionFiles(revision)
+      : await repository.listRevisionFiles(revision, {
+          pathScopes: [directoryScope]
+        });
+  const sourcePaths = revisionFiles.filter((filePath) => {
+    const sourcePath =
+      directoryScope.length === 0
+        ? filePath
+        : filePath.slice(directoryScope.length + 1);
+    return isInvestigationSourcePath(sourcePath);
+  });
+  return sourcePaths;
+}
+async function historyIdentityFiles(
+  repository: VersionControlRepository,
+  revision: RevisionId,
+  prefixes: readonly RevisionFilePrefix[]
+): Promise<VersionControlFile[]> {
+  const files: VersionControlFile[] = [];
+  for (const prefix of prefixes) {
+    const text = Buffer.from(
+      prefix.data.buffer,
+      prefix.data.byteOffset,
+      prefix.data.byteLength
+    ).toString("utf8");
+    if (prefix.complete || firstThreeLinesComplete(text)) files.push(prefix);
+    else {
+      const full = await repository.readRevisionFile(revision, prefix.path);
+      if (full === null)
+        throw new Error(
+          "a fixed revision source disappeared during history reading"
+        );
+      files.push(full);
+    }
+  }
+  return files;
 }
