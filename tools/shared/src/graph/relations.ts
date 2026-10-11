@@ -235,21 +235,31 @@ function relationGraphCycleIssues<Id extends string, Type extends string>(
   const issues: RelationGraphStructuralIssue<Id, Type>[] = [];
   const visitState = new Map<Id, "visiting" | "visited">();
   const idStack: Id[] = [];
+  const frames: {
+    readonly id: Id;
+    readonly targets: readonly Id[];
+    nextTargetIndex: number;
+  }[] = [];
 
-  function visit(id: Id): void {
+  function enter(id: Id): void {
     visitState.set(id, "visiting");
     idStack.push(id);
+    frames.push({ id, targets: cycleTargets(graph, id), nextTargetIndex: 0 });
+  }
 
-    const targets = [
-      ...new Set(
-        (graph.edgesBySource.get(id) ?? [])
-          .filter((edge) => edge.source !== edge.target)
-          .map((edge) => edge.target)
-      )
-    ]
-      .filter((target) => graph.ids.has(target))
-      .sort(compareStrings);
-    for (const target of targets) {
+  function visit(id: Id): void {
+    enter(id);
+    while (frames.length > 0) {
+      const frame = frames[frames.length - 1]!;
+      const target = frame.targets[frame.nextTargetIndex];
+      if (target === undefined) {
+        frames.pop();
+        idStack.pop();
+        visitState.set(frame.id, "visited");
+        continue;
+      }
+      // Advance before entering a child so the paused parent resumes at its next edge.
+      frame.nextTargetIndex += 1;
       const targetState = visitState.get(target);
       if (targetState === "visiting") {
         const cycleStart = idStack.indexOf(target);
@@ -258,12 +268,9 @@ function relationGraphCycleIssues<Id extends string, Type extends string>(
           kind: "cycle"
         });
       } else if (targetState !== "visited") {
-        visit(target);
+        enter(target);
       }
     }
-
-    idStack.pop();
-    visitState.set(id, "visited");
   }
 
   for (const id of [...graph.ids].sort(compareStrings)) {
@@ -272,4 +279,19 @@ function relationGraphCycleIssues<Id extends string, Type extends string>(
     }
   }
   return issues;
+}
+
+function cycleTargets<Id extends string, Type extends string>(
+  graph: RelationGraph<Id, Type>,
+  id: Id
+): Id[] {
+  return [
+    ...new Set(
+      (graph.edgesBySource.get(id) ?? [])
+        .filter((edge) => edge.source !== edge.target)
+        .map((edge) => edge.target)
+    )
+  ]
+    .filter((target) => graph.ids.has(target))
+    .sort(compareStrings);
 }

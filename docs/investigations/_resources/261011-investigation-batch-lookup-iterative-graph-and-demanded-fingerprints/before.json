@@ -1,0 +1,176 @@
+{
+  "revision": "0bda55fd78c3fa30223e91460c3b97790cbed7e4",
+  "bunVersion": "1.4.2",
+  "bunCompatibilityProcessVersion": "v26.3.0",
+  "selectors": [
+    {
+      "N": 20,
+      "Kname": 1,
+      "entryYields": 20,
+      "mapGets": 0,
+      "mapSets": 20,
+      "status": "ok",
+      "selected": 1
+    },
+    {
+      "N": 20,
+      "Kname": 20,
+      "entryYields": 400,
+      "mapGets": 0,
+      "mapSets": 20,
+      "status": "ok",
+      "selected": 20
+    },
+    {
+      "N": 200,
+      "Kname": 1,
+      "entryYields": 200,
+      "mapGets": 0,
+      "mapSets": 200,
+      "status": "ok",
+      "selected": 1
+    },
+    {
+      "N": 200,
+      "Kname": 20,
+      "entryYields": 4000,
+      "mapGets": 0,
+      "mapSets": 200,
+      "status": "ok",
+      "selected": 20
+    }
+  ],
+  "discovery": [
+    {
+      "N": 20,
+      "Ku": 1,
+      "sourceElementReads": 20,
+      "mapGets": 0,
+      "mapSets": 0,
+      "resolved": 1
+    },
+    {
+      "N": 20,
+      "Ku": 20,
+      "sourceElementReads": 400,
+      "mapGets": 0,
+      "mapSets": 0,
+      "resolved": 20
+    },
+    {
+      "N": 200,
+      "Ku": 1,
+      "sourceElementReads": 200,
+      "mapGets": 0,
+      "mapSets": 0,
+      "resolved": 1
+    },
+    {
+      "N": 200,
+      "Ku": 20,
+      "sourceElementReads": 4000,
+      "mapGets": 0,
+      "mapSets": 0,
+      "resolved": 20
+    }
+  ],
+  "hash": [
+    {
+      "mode": "none",
+      "retention": null,
+      "payloadBytes": 1048576,
+      "framingBytes": 55,
+      "handedToReaderBytes": 1048631,
+      "hashUpdateBytes": 1048576,
+      "hashUpdateCalls": 3,
+      "retainedBytes": 1048576
+    },
+    {
+      "mode": "none",
+      "retention": 16384,
+      "payloadBytes": 1048576,
+      "framingBytes": 55,
+      "handedToReaderBytes": 1048631,
+      "hashUpdateBytes": 1048576,
+      "hashUpdateCalls": 3,
+      "retainedBytes": 16384
+    },
+    {
+      "mode": "none",
+      "retention": 0,
+      "payloadBytes": 1048576,
+      "framingBytes": 55,
+      "handedToReaderBytes": 1048631,
+      "hashUpdateBytes": 1048576,
+      "hashUpdateCalls": 3,
+      "retainedBytes": 0
+    },
+    {
+      "mode": "sha256",
+      "retention": null,
+      "payloadBytes": 1048576,
+      "framingBytes": 55,
+      "handedToReaderBytes": 1048631,
+      "hashUpdateBytes": 1048576,
+      "hashUpdateCalls": 3,
+      "retainedBytes": 1048576
+    },
+    {
+      "mode": "sha256",
+      "retention": 16384,
+      "payloadBytes": 1048576,
+      "framingBytes": 55,
+      "handedToReaderBytes": 1048631,
+      "hashUpdateBytes": 1048576,
+      "hashUpdateCalls": 3,
+      "retainedBytes": 16384
+    },
+    {
+      "mode": "sha256",
+      "retention": 0,
+      "payloadBytes": 1048576,
+      "framingBytes": 55,
+      "handedToReaderBytes": 1048631,
+      "hashUpdateBytes": 1048576,
+      "hashUpdateCalls": 3,
+      "retainedBytes": 0
+    }
+  ],
+  "nodeGraph": {
+    "runtime": "v26.8.2",
+    "results": [
+      {
+        "V": 1000,
+        "E": 999,
+        "issues": 0
+      },
+      {
+        "V": 3000,
+        "E": 2999,
+        "issues": 0
+      },
+      {
+        "V": 6000,
+        "E": 5999,
+        "error": "Maximum call stack size exceeded"
+      },
+      {
+        "V": 10000,
+        "E": 9999,
+        "error": "Maximum call stack size exceeded"
+      }
+    ]
+  },
+  "safeGraph": {
+    "samples": 200,
+    "initialSeed": 71838,
+    "structuralIssueDigest": "bdf51ea0aeea862918f966bc25c12570f8ee2f8f857a3a9c085a5d752a3be1ac"
+  },
+  "sourceFingerprints": {
+    "tools/investigation-report/src/staging-selectors.ts": "a701b680dc98001ad988c81298042f983d45b7acc2907b755ed48f0364ba02f9",
+    "tools/shared/src/version-control/git-blob-batch.ts": "a25221e796784e38c3c832b327d6a558b9a0f633cd7525e902b5b7b163fe8fdf",
+    "tools/shared/src/graph/relations.ts": "a7da33af222d69f5c6edaebe73ba02bf677802850fabdef6d0fb8bcff3e97d5a",
+    "tools/investigation-report/src/investigation-index-source.ts": "2b3e6bfdfc6c125a471871554744f8abceb37a6343475900cee6403fc5cc064f"
+  },
+  "observedAt": "2026-10-11T07:21:44.422Z"
+}

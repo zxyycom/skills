@@ -8,3 +8,5 @@ await import("../phase-facts-contract.test.ts");
 await import("../resource-identity-contract.test.ts");
 
 await import("../resource-failure-contract.test.ts");
+
+await import("../batch-stage-selectors.test.ts");

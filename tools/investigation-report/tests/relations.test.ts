@@ -286,3 +286,27 @@ test("relation summaries do not change graph identity or validation", () => {
     "next relations must not repeat target base"
   ]);
 });
+
+test("investigation graph accepts same-time deep ordinary chains and preserves late-cycle diagnostics", () => {
+  const ids = Array.from(
+    { length: 12000 },
+    (_, i) => `chain-${String(i).padStart(5, "0")}`
+  );
+  const states = new Map(
+    ids.map((id, i) => [
+      id,
+      state(
+        "2026-08-28T12:00:00Z",
+        i + 1 === ids.length ? [] : [{ target: ids[i + 1]!, type: "复查" }]
+      )
+    ])
+  );
+  assert.deepEqual(validateInvestigationRelationGraph(states), []);
+  states.set(
+    ids[11999]!,
+    state("2026-08-28T12:00:00Z", [{ target: ids[11997]!, type: "复查" }])
+  );
+  assert.deepEqual(validateInvestigationRelationGraph(states), [
+    "investigation relations must not form a cycle: chain-11997 -> chain-11998 -> chain-11999 -> chain-11997"
+  ]);
+});

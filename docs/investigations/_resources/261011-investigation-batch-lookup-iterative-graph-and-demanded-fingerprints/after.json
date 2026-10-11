@@ -1,0 +1,176 @@
+{
+  "revision": "workspace",
+  "bunVersion": "1.4.2",
+  "bunCompatibilityProcessVersion": "v26.3.0",
+  "selectors": [
+    {
+      "N": 20,
+      "Kname": 1,
+      "entryYields": 20,
+      "mapGets": 21,
+      "mapSets": 40,
+      "status": "ok",
+      "selected": 1
+    },
+    {
+      "N": 20,
+      "Kname": 20,
+      "entryYields": 20,
+      "mapGets": 40,
+      "mapSets": 40,
+      "status": "ok",
+      "selected": 20
+    },
+    {
+      "N": 200,
+      "Kname": 1,
+      "entryYields": 200,
+      "mapGets": 201,
+      "mapSets": 400,
+      "status": "ok",
+      "selected": 1
+    },
+    {
+      "N": 200,
+      "Kname": 20,
+      "entryYields": 200,
+      "mapGets": 220,
+      "mapSets": 400,
+      "status": "ok",
+      "selected": 20
+    }
+  ],
+  "discovery": [
+    {
+      "N": 20,
+      "Ku": 1,
+      "sourceElementReads": 20,
+      "mapGets": 21,
+      "mapSets": 20,
+      "resolved": 1
+    },
+    {
+      "N": 20,
+      "Ku": 20,
+      "sourceElementReads": 20,
+      "mapGets": 40,
+      "mapSets": 20,
+      "resolved": 20
+    },
+    {
+      "N": 200,
+      "Ku": 1,
+      "sourceElementReads": 200,
+      "mapGets": 201,
+      "mapSets": 200,
+      "resolved": 1
+    },
+    {
+      "N": 200,
+      "Ku": 20,
+      "sourceElementReads": 200,
+      "mapGets": 220,
+      "mapSets": 200,
+      "resolved": 20
+    }
+  ],
+  "hash": [
+    {
+      "mode": "none",
+      "retention": null,
+      "payloadBytes": 1048576,
+      "framingBytes": 55,
+      "handedToReaderBytes": 1048631,
+      "hashUpdateBytes": 0,
+      "hashUpdateCalls": 0,
+      "retainedBytes": 1048576
+    },
+    {
+      "mode": "none",
+      "retention": 16384,
+      "payloadBytes": 1048576,
+      "framingBytes": 55,
+      "handedToReaderBytes": 1048631,
+      "hashUpdateBytes": 0,
+      "hashUpdateCalls": 0,
+      "retainedBytes": 16384
+    },
+    {
+      "mode": "none",
+      "retention": 0,
+      "payloadBytes": 1048576,
+      "framingBytes": 55,
+      "handedToReaderBytes": 1048631,
+      "hashUpdateBytes": 0,
+      "hashUpdateCalls": 0,
+      "retainedBytes": 0
+    },
+    {
+      "mode": "sha256",
+      "retention": null,
+      "payloadBytes": 1048576,
+      "framingBytes": 55,
+      "handedToReaderBytes": 1048631,
+      "hashUpdateBytes": 1048576,
+      "hashUpdateCalls": 3,
+      "retainedBytes": 1048576
+    },
+    {
+      "mode": "sha256",
+      "retention": 16384,
+      "payloadBytes": 1048576,
+      "framingBytes": 55,
+      "handedToReaderBytes": 1048631,
+      "hashUpdateBytes": 1048576,
+      "hashUpdateCalls": 3,
+      "retainedBytes": 16384
+    },
+    {
+      "mode": "sha256",
+      "retention": 0,
+      "payloadBytes": 1048576,
+      "framingBytes": 55,
+      "handedToReaderBytes": 1048631,
+      "hashUpdateBytes": 1048576,
+      "hashUpdateCalls": 3,
+      "retainedBytes": 0
+    }
+  ],
+  "nodeGraph": {
+    "runtime": "v26.8.2",
+    "results": [
+      {
+        "V": 1000,
+        "E": 999,
+        "issues": 0
+      },
+      {
+        "V": 3000,
+        "E": 2999,
+        "issues": 0
+      },
+      {
+        "V": 6000,
+        "E": 5999,
+        "issues": 0
+      },
+      {
+        "V": 10000,
+        "E": 9999,
+        "issues": 0
+      }
+    ]
+  },
+  "safeGraph": {
+    "samples": 200,
+    "initialSeed": 71838,
+    "structuralIssueDigest": "bdf51ea0aeea862918f966bc25c12570f8ee2f8f857a3a9c085a5d752a3be1ac"
+  },
+  "sourceFingerprints": {
+    "tools/investigation-report/src/staging-selectors.ts": "d5c9e68e0505782c6cdb3c9f14e4aae8335efc7ee298b73ac72b97858cca6da2",
+    "tools/shared/src/version-control/git-blob-batch.ts": "5b8850de85a0aef9cbb55c75a9d8f3b5f95ece65ddcf12df07e4613d4a4ca157",
+    "tools/shared/src/graph/relations.ts": "0dd974ddcee54aa7146e2efa22e0a2a9112a36add08eb12b90615c709a04643f",
+    "tools/investigation-report/src/investigation-index-source.ts": "8b5d5011daffe58e86ec46018f591adf1ba0b4e957dae73ff56c7de07a7fc49b"
+  },
+  "observedAt": "2026-10-11T07:39:35.582Z"
+}

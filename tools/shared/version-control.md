@@ -86,7 +86,27 @@ Git adapter 按 `core.fileMode` 确定有效执行位：
 
 ### 完整验证与选择性内容保留
 
-以下专用子模块由 Investigation Report 消费；它们减少内容保留、复制和解码，保留完整实际 payload 读取与失败责任。通用 full-read/full-replacement 默认入口不变。
+共享层将完整验证与内容保留分开。Investigation Report 使用下方 pending snapshot 与
+revision prefix 专用子模块减少内容保留、复制和解码，保留完整实际 payload 读取与失败责任；
+通用 full-read/full-replacement 默认入口不变。
+
+#### Blob 指纹模式
+
+Git adapter 内部的 `git-blob-batch.ts` 按对象 ID 的唯一 selection 批量读取；每项选择
+完整保留（`null`）、有限前缀或零保留。指纹模式独立于保留量：
+
+| `readGitBlobSelections` 模式 | 返回项与实际责任 | 消费者 |
+| --- | --- | --- |
+| 省略模式或 `sha256` | `GitBlobSelection` 的 `fingerprint` 必有；SHA256 覆盖该对象的完整实际 payload，包括未保留后段。 | pending snapshot |
+| 显式 `none` | `GitBlobContent` 只含 `data` 与完整 `size`，不计算 SHA256。 | 普通完整读、revision prefix |
+
+两种模式均完整读取每个 unique 对象，执行相同的 frame、对象身份、类型、长度、
+separator、EOF 和输出预算检查；缺失、腐败、输入失败及进程失败继续阻断读取。
+指纹需求不能减少 payload I/O 或失败检查，Git OID 也不能代替实际 payload 指纹。
+
+增量 reader 的 constructor 固定该批的模式与结果容器；`finish()` 验证完整 batch 后返回
+内容结果，`finishFingerprinted()` 另要求 `sha256` 模式，返回实际构造的必有指纹项；
+`none` 调用后者失败。这些是 adapter 内部责任，不扩张通用仓库入口。
 
 #### Pending snapshot
 

@@ -16,4 +16,4 @@ Contract:
 Proves:
 - 逐字节跨chunk二进制prefix、空blob与实际payload指纹正确；错误header/ID/type/size、截断、多余记录和separator失败。
 - 未保留内容仍受stdout与stderr各自完整256MiB输出预算约束，超预算声明在大分配前拒绝。
-- 有效payload framing但超过stderr预算的真实子进程仍被拒绝；诊断只有限保留，不把完整stderr预算降低为保留量。
+- 有无指纹两模式中，有效payload framing但超过stderr预算的真实子进程仍被拒绝；诊断只有限保留，不把完整stderr预算降低为保留量。

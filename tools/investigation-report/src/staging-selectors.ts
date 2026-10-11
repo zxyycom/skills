@@ -20,43 +20,47 @@ export function resolveInvestigationStageSelectors(
     workspace: StateIndex<InvestigationIndexState, InvestigationIndexMetadata>;
   }>
 ): StateIndexResult<string[]> {
-  const entries = stateEntriesById(options.baseline, options.workspace);
+  const idsByName = stateIdsByName(options.baseline, options.workspace);
   const diagnostics: StateIndexDiagnostic[] = [];
   const resolved = options.selectedIds.flatMap((selector) =>
-    resolveStageSelector(selector, entries, diagnostics)
+    resolveStageSelector(selector, idsByName, diagnostics)
   );
   return diagnostics.length === 0
     ? { diagnostics: [], status: "ok", value: resolved }
     : { diagnostics, status: "error", value: null };
 }
 
-function stateEntriesById(
+function stateIdsByName(
   baseline: StateIndex<
     InvestigationIndexState,
     InvestigationIndexMetadata
   > | null,
   workspace: StateIndex<InvestigationIndexState, InvestigationIndexMetadata>
-): Map<string, string> {
-  const entries = new Map<string, string>();
+): ReadonlyMap<string, readonly string[]> {
+  const namesById = new Map<string, string>();
   for (const index of [baseline, workspace]) {
     if (index === null) continue;
     for (const [id, state] of Object.entries(index.entries))
-      entries.set(id, state.name);
+      namesById.set(id, state.name);
   }
-  return entries;
+  const idsByName = new Map<string, string[]>();
+  for (const [id, name] of namesById) {
+    const ids = idsByName.get(name);
+    if (ids === undefined) idsByName.set(name, [id]);
+    else ids.push(id);
+  }
+  for (const ids of idsByName.values()) ids.sort(compareText);
+  return idsByName;
 }
 
 function resolveStageSelector(
   selector: string,
-  entries: ReadonlyMap<string, string>,
+  idsByName: ReadonlyMap<string, readonly string[]>,
   diagnostics: StateIndexDiagnostic[]
 ): string[] {
   const dated = parseDatedInvestigationId(selector);
   if (dated !== null) return [dated.id];
-  const matches = [...entries]
-    .filter(([, name]) => name === selector)
-    .map(([id]) => id)
-    .sort(compareText);
+  const matches = idsByName.get(selector) ?? [];
   if (matches.length === 1) return [matches[0]!];
   diagnostics.push(stageSelectorDiagnostic(selector, matches));
   return [];

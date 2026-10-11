@@ -21,7 +21,7 @@ test("streamed blob framing preserves bounded binary prefixes across header payl
     Buffer.from(`\n${"b".repeat(40)} blob 0\n\n`)
   ]);
   for (const byte of records) reader.consume(Buffer.from([byte]));
-  const blobs = reader.finish();
+  const blobs = reader.finishFingerprinted();
   assert.deepEqual(blobs.get(oid)?.data, Buffer.from([0, 0xff]));
   assert.equal(blobs.get(oid)?.size, 5);
   assert.equal(blobs.get("b".repeat(40))?.data.length, 0);
@@ -95,10 +95,14 @@ for(let i=0;i<4097;i++) if(!process.stderr.write(chunk)) await once(process.stde
       const priorPath = process.env.PATH;
       process.env.PATH = `${root}${path.delimiter}${priorPath ?? ""}`;
       try {
-        await assert.rejects(
-          readGitBlobSelections(root, new Map([[oid, 0]])),
-          /stderr exceeded the read budget/u
-        );
+        for (const mode of ["none", "sha256"] as const) {
+          await assert.rejects(
+            mode === "none"
+              ? readGitBlobSelections(root, new Map([[oid, 0]]), "none")
+              : readGitBlobSelections(root, new Map([[oid, 0]])),
+            /stderr exceeded the read budget/u
+          );
+        }
       } finally {
         if (priorPath === undefined) delete process.env.PATH;
         else process.env.PATH = priorPath;

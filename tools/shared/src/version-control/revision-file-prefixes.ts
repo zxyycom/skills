@@ -41,7 +41,8 @@ export async function readRevisionFilePrefixes(
   try {
     const blobs = await readGitBlobSelections(
       context.rootDirectory,
-      new Map(entries.map((entry) => [entry.objectId, options.prefixBytes]))
+      new Map(entries.map((entry) => [entry.objectId, options.prefixBytes])),
+      "none"
     );
     const files = entries
       .map((entry) => {

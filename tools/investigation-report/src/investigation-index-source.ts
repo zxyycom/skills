@@ -166,8 +166,14 @@ function resolveDiscoveredSources(
   layout: InvestigationCollectionLayout,
   ids: readonly string[]
 ): InvestigationSource[] {
+  const sourcesById = new Map<string, InvestigationSource[]>();
+  for (const source of layout.formalSources) {
+    const sources = sourcesById.get(source.id);
+    if (sources === undefined) sourcesById.set(source.id, [source]);
+    else sources.push(source);
+  }
   return ids.map((id) => {
-    const matches = layout.formalSources.filter((source) => source.id === id);
+    const matches = sourcesById.get(id) ?? [];
     if (matches.length !== 1)
       throw new Error(
         `Investigation ID does not resolve to one source path: ${id}`

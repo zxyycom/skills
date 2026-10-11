@@ -3,17 +3,39 @@ import { spawn } from "node:child_process";
 
 const gitBatchOutputMaxBuffer = 256 * 1024 * 1024;
 
-export type GitBlobSelection = Readonly<{
+export type GitBlobContent = Readonly<{
   data: Buffer;
   size: number;
-  fingerprint: string;
+}>;
+export type GitBlobSelection = GitBlobContent &
+  Readonly<{ fingerprint: string }>;
+type GitBlobFingerprintMode = "none" | "sha256";
+type GitBlobBatchResult =
+  | Readonly<{ mode: "none"; blobs: Map<string, GitBlobContent> }>
+  | Readonly<{ mode: "sha256"; blobs: Map<string, GitBlobSelection> }>;
+type GitBlobPayload = Readonly<{
+  data: Buffer;
+  objectId: string;
+  size: number;
+  hash: Hash | null;
 }>;
 
 /** Validate every requested payload; retain only the requested byte prefix. */
+export function readGitBlobSelections(
+  rootDirectory: string,
+  selections: ReadonlyMap<string, number | null>,
+  fingerprint?: "sha256"
+): Promise<ReadonlyMap<string, GitBlobSelection>>;
+export function readGitBlobSelections(
+  rootDirectory: string,
+  selections: ReadonlyMap<string, number | null>,
+  fingerprint: "none"
+): Promise<ReadonlyMap<string, GitBlobContent>>;
 export async function readGitBlobSelections(
   rootDirectory: string,
-  selections: ReadonlyMap<string, number | null>
-): Promise<ReadonlyMap<string, GitBlobSelection>> {
+  selections: ReadonlyMap<string, number | null>,
+  fingerprint: GitBlobFingerprintMode = "sha256"
+): Promise<ReadonlyMap<string, GitBlobContent>> {
   if (selections.size === 0) return new Map();
   const child = spawn("git", ["-C", rootDirectory, "cat-file", "--batch"], {
     windowsHide: true,
@@ -37,7 +59,7 @@ export async function readGitBlobSelections(
     if (stderr.length < 65536) stderr += chunk.toString("utf8");
   });
   child.stdin.end([...selections.keys()].join("\n") + "\n");
-  const reader = new GitBlobBatchReader(selections);
+  const reader = new GitBlobBatchReader(selections, fingerprint);
   try {
     for await (const chunk of child.stdout) {
       if (!Buffer.isBuffer(chunk))
@@ -65,7 +87,8 @@ export async function readGitBlobs(
 ): Promise<ReadonlyMap<string, Buffer>> {
   const selections = await readGitBlobSelections(
     rootDirectory,
-    new Map([...new Set(objectIds)].map((id) => [id, null]))
+    new Map([...new Set(objectIds)].map((id) => [id, null])),
+    "none"
   );
   return new Map([...selections].map(([id, blob]) => [id, blob.data]));
 }
@@ -74,21 +97,23 @@ export async function readGitBlobs(
 export class GitBlobBatchReader {
   readonly #selections: ReadonlyMap<string, number | null>;
   readonly #objectIds: readonly string[];
-  readonly #blobs = new Map<string, GitBlobSelection>();
+  readonly #result: GitBlobBatchResult;
   #index = 0;
   #header = Buffer.alloc(0);
-  #content: Readonly<{
-    data: Buffer;
-    objectId: string;
-    size: number;
-    hash: Hash;
-  }> | null = null;
+  #content: GitBlobPayload | null = null;
   #consumed = 0;
   #outputBytes = 0;
 
-  constructor(selections: ReadonlyMap<string, number | null>) {
+  constructor(
+    selections: ReadonlyMap<string, number | null>,
+    fingerprint: GitBlobFingerprintMode = "sha256"
+  ) {
     this.#selections = selections;
     this.#objectIds = [...selections.keys()];
+    this.#result =
+      fingerprint === "sha256"
+        ? { mode: "sha256", blobs: new Map() }
+        : { mode: "none", blobs: new Map() };
   }
 
   consume(chunk: Buffer): void {
@@ -116,7 +141,7 @@ export class GitBlobBatchReader {
     const parsed = parsedBlobHeader(this.#header, this.#objectIds[this.#index]);
     this.#content = {
       ...parsed,
-      hash: createHash("sha256"),
+      hash: this.#result.mode === "sha256" ? createHash("sha256") : null,
       data: Buffer.alloc(
         retainedSize(parsed.size, this.#selections.get(parsed.objectId)!)
       )
@@ -138,30 +163,45 @@ export class GitBlobBatchReader {
     );
     if (retained > 0)
       chunk.copy(content.data, this.#consumed, offset, offset + retained);
-    content.hash.update(chunk.subarray(offset, offset + count));
+    content.hash?.update(chunk.subarray(offset, offset + count));
     this.#consumed += count;
     offset += count;
     if (this.#consumed !== content.size || offset === chunk.length)
       return offset;
     if (chunk[offset] !== 10) throw new Error("Truncated Git blob content");
-    this.#blobs.set(content.objectId, {
-      data: content.data,
-      size: content.size,
-      fingerprint: content.hash.digest("hex")
-    });
+    this.#completeBlob(content);
     this.#content = null;
     this.#index += 1;
     return offset + 1;
   }
 
-  finish(): ReadonlyMap<string, GitBlobSelection> {
+  #completeBlob(content: GitBlobPayload): void {
+    const blob = { data: content.data, size: content.size };
+    if (this.#result.mode === "sha256") {
+      if (content.hash === null)
+        throw new Error("Git blob fingerprint was not computed");
+      this.#result.blobs.set(content.objectId, {
+        ...blob,
+        fingerprint: content.hash.digest("hex")
+      });
+    } else this.#result.blobs.set(content.objectId, blob);
+  }
+
+  finish(): ReadonlyMap<string, GitBlobContent> {
     if (
       this.#index !== this.#objectIds.length ||
       this.#content !== null ||
       this.#header.length > 0
     )
       throw new Error("Truncated Git blob batch output");
-    return this.#blobs;
+    return this.#result.blobs;
+  }
+
+  finishFingerprinted(): ReadonlyMap<string, GitBlobSelection> {
+    this.finish();
+    if (this.#result.mode !== "sha256")
+      throw new Error("Git blob fingerprints were not requested");
+    return this.#result.blobs;
   }
 }
 

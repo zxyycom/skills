@@ -297,6 +297,30 @@
       ],
       "title": "阶段目录事实与完整流式内容校验的成本收敛"
     },
+    "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints": {
+      "formedAt": "2026-10-11T07:19:44Z",
+      "name": "investigation-batch-lookup-iterative-graph-and-demanded-fingerprints",
+      "question": "如何消除批量重复扫描与未消费指纹，并在深链中保持关系诊断兼容？",
+      "relations": [
+        {
+          "summary": "复查前轮残余的匹配、关系深链与未消费指纹成本。",
+          "target": "261010-investigation-phase-facts-and-streamed-content",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints/after.json",
+        "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints/before.json",
+        "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints/measure.mjs"
+      ],
+      "sourcePath": "investigation-batch-lookup-iterative-graph-and-demanded-fingerprints.md",
+      "tags": [
+        "investigation-report",
+        "performance",
+        "version-control"
+      ],
+      "title": "批量匹配、深链校验与按需payload指纹"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -958,6 +982,7 @@
       "261010-investigation-acquisition-performance-recheck": "sha256:363386f7d53281c571fabb6682fb3f8e69c28be86b0437033e7f37751efba60a",
       "261010-investigation-local-stage-and-single-read-check": "sha256:a1ed5d551d2dea05dbcfd4e3bf928adcb60cb82d25a604524a2170f278fc81aa",
       "261010-investigation-phase-facts-and-streamed-content": "sha256:3d01be251aeb0eccdfbb8140a582cc44ccd84f5c6b227eb804a82838ea6bb0e1",
+      "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints": "sha256:ce79cceb5f8d0fff03dc278874c5b834743c27bf7c9e87ab569af2df608c3e8c",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

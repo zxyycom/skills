@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { execFileSync } from "node:child_process";
 import {
   buildRelationGraph,
   relationGraphStructuralIssues,
@@ -187,4 +188,67 @@ test("relation graph traces do not include missing targets", () => {
     trace.edges.some((edge) => edge.target === "missing"),
     false
   );
+});
+
+test("relation structural validation accepts a deep acyclic chain in the actual Node runtime", () => {
+  const moduleUrl = new URL("../src/graph/relations.ts", import.meta.url).href;
+  const output = execFileSync(
+    "node",
+    [
+      "--input-type=module",
+      "-e",
+      `
+    import { buildRelationGraph, relationGraphStructuralIssues } from ${JSON.stringify(moduleUrl)};
+    const ids = Array.from({length: 12000}, (_, i) => String(i).padStart(5, "0"));
+    const graph = buildRelationGraph(ids, ids.slice(1).map((target, i) => ({source:ids[i], target, type:"review"})));
+    console.log(JSON.stringify(relationGraphStructuralIssues(graph)));
+  `
+    ],
+    { encoding: "utf8" }
+  );
+  assert.deepEqual(JSON.parse(output), []);
+});
+
+test("relation structural validation reports the exact late cycle after a deep chain", () => {
+  const ids = Array.from({ length: 12000 }, (_, i) =>
+    String(i).padStart(5, "0")
+  );
+  const graph = buildRelationGraph(ids, [
+    ...ids
+      .slice(1)
+      .map((target, i) => ({ source: ids[i]!, target, type: "review" })),
+    { source: ids[11999]!, target: ids[11996]!, type: "review" }
+  ]);
+  assert.deepEqual(relationGraphStructuralIssues(graph), [
+    { kind: "cycle", cycle: ["11996", "11997", "11998", "11999", "11996"] }
+  ]);
+});
+
+test("relation structural DFS retains branch diamond disconnected and defect ordering without duplicate cycles", () => {
+  const edges = [
+    { source: "a", target: "c", type: "x" },
+    { source: "b", target: "d", type: "x" },
+    { source: "a", target: "b", type: "x" },
+    { source: "b", target: "c", type: "x" },
+    { source: "c", target: "d", type: "x" },
+    { source: "c", target: "a", type: "x" },
+    { source: "d", target: "b", type: "x" },
+    { source: "a", target: "b", type: "y" },
+    { source: "d", target: "d", type: "x" },
+    { source: "a", target: "missing", type: "x" },
+    { source: "y", target: "x", type: "x" },
+    { source: "x", target: "y", type: "x" }
+  ];
+  const graph = buildRelationGraph(
+    ["y", "d", "c", "x", "b", "a", "isolated"],
+    edges
+  );
+  assert.deepEqual(relationGraphStructuralIssues(graph), [
+    { kind: "missing-target", edge: edges[9] },
+    { kind: "self-edge", edge: edges[8] },
+    { kind: "duplicate-edge", edge: edges[7], repeatedEdge: edges[2] },
+    { kind: "cycle", cycle: ["a", "b", "c", "a"] },
+    { kind: "cycle", cycle: ["b", "c", "d", "b"] },
+    { kind: "cycle", cycle: ["x", "y", "x"] }
+  ]);
 });

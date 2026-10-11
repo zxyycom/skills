@@ -44,3 +44,6 @@ await import("./history-prefix-contract.test.ts");
 await import("./resource-identity-contract.test.ts");
 
 await import("./resource-failure-contract.test.ts");
+
+await import("./batch-stage-selectors.test.ts");
+await import("./batch-source-discovery.test.ts");

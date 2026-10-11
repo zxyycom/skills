@@ -4,7 +4,11 @@ import path from "node:path";
 import test from "node:test";
 import { validateDecisionRecords } from "../src/index.ts";
 import { decisionIdFromSourcePath } from "../src/decision-path.ts";
-import { decisionReallocationComponents } from "../src/relation-graph.ts";
+import {
+  decisionRelationConsistencyIssues,
+  decisionReallocationComponents
+} from "../src/relation-graph.ts";
+import type { DecisionRelationConsistencyRecord } from "../src/relation-graph.ts";
 import { normalizeRelationSummary } from "../src/relation-summary.ts";
 import {
   archivedRelativePath,
@@ -353,3 +357,33 @@ function relationSummaryIssue(
   assert.ok("issue" in result);
   return result.issue;
 }
+
+test("decision graph accepts deep archived revision chains and preserves late-cycle source identities", () => {
+  const ids = Array.from({ length: 12000 }, (_, i) =>
+    decisionId(`chain-${String(i).padStart(5, "0")}.md`)
+  );
+  const records: DecisionRelationConsistencyRecord[] = ids.map((id, i) => ({
+    decisionId: id,
+    sourcePath: `archive/${id}.md`,
+    status: "archived",
+    projection: {
+      title: "链节点",
+      purpose: "验证合法深链",
+      background: "共享结构验证",
+      decision: "沿直接前序演进",
+      relations:
+        i + 1 === ids.length ? [] : [{ target: ids[i + 1]!, type: "修订" }]
+    }
+  }));
+  assert.deepEqual(decisionRelationConsistencyIssues(records), []);
+  records[11999]!.projection.relations = [
+    { target: ids[11997]!, type: "修订" }
+  ];
+  assert.deepEqual(decisionRelationConsistencyIssues(records), [
+    {
+      message:
+        "Decision relations must not form a cycle: chain-11997 -> chain-11998 -> chain-11999 -> chain-11997",
+      sourceIds: [ids[11997], ids[11998], ids[11999]]
+    }
+  ]);
+});
