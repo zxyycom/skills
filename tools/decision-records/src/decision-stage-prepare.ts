@@ -24,7 +24,7 @@ import {
 import type { resolveDecisionLocation } from "./decision-query-context.ts";
 
 export type PreparedDecisionStage = Readonly<{
-  selectedIds: DecisionId[];
+  selectedIds: readonly DecisionId[];
   selectedSources: readonly SelectedFilesystemSource[];
   sourceFiles: readonly VersionControlFile[];
   sources: readonly DecisionSource[];

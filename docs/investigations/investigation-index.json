@@ -297,6 +297,46 @@
       ],
       "title": "阶段目录事实与完整流式内容校验的成本收敛"
     },
+    "261011-decision-batch-lookup-and-stable-event-members": {
+      "formedAt": "2026-10-11T13:18:13Z",
+      "name": "decision-batch-lookup-and-stable-event-members",
+      "question": "批量 selector 与稀疏大重划能否消除阶段查找和完整成员的乘积成本，同时保留动态快照与接纳语义？",
+      "relations": [
+        {
+          "summary": "补充批量定位与大重划剩余乘积成本及动态边界",
+          "target": "261011-decision-snapshot-stage-and-event-costs",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "decision-batch-lookup-and-stable-event-members.md",
+      "tags": [
+        "decision-records",
+        "performance",
+        "semantic-fidelity"
+      ],
+      "title": "决策批量定位与稳定事件成员复杂度"
+    },
+    "261011-decision-snapshot-stage-and-event-costs": {
+      "formedAt": "2026-10-11T11:47:58Z",
+      "name": "decision-snapshot-stage-and-event-costs",
+      "question": "决策纯索引查询、写前验证及事件处理的重复扫描能否在保留职责和输出边界的同时收敛？",
+      "relations": [
+        {
+          "summary": "复查决策阶段扫描，并扩展查询、事件与呈现成本",
+          "target": "261009-skill-cli-repeated-process-and-source-access",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "decision-snapshot-stage-and-event-costs.md",
+      "tags": [
+        "decision-records",
+        "performance",
+        "semantic-fidelity"
+      ],
+      "title": "决策快照查询与阶段、事件成本收敛"
+    },
     "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints": {
       "formedAt": "2026-10-11T07:19:44Z",
       "name": "investigation-batch-lookup-iterative-graph-and-demanded-fingerprints",
@@ -1004,6 +1044,8 @@
       "261010-investigation-acquisition-performance-recheck": "sha256:363386f7d53281c571fabb6682fb3f8e69c28be86b0437033e7f37751efba60a",
       "261010-investigation-local-stage-and-single-read-check": "sha256:a1ed5d551d2dea05dbcfd4e3bf928adcb60cb82d25a604524a2170f278fc81aa",
       "261010-investigation-phase-facts-and-streamed-content": "sha256:3d01be251aeb0eccdfbb8140a582cc44ccd84f5c6b227eb804a82838ea6bb0e1",
+      "261011-decision-batch-lookup-and-stable-event-members": "sha256:a93fa43bf87a2afc1fc79b29cf5e315fc5baae1fbfee4afcf7ef60329155ce7d",
+      "261011-decision-snapshot-stage-and-event-costs": "sha256:c8b5d3aaa42896e3be0d0aeb96387cbd22256535f2ea57d987812880758d9aff",
       "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints": "sha256:ce79cceb5f8d0fff03dc278874c5b834743c27bf7c9e87ab569af2df608c3e8c",
       "261011-investigation-event-query-and-trace-rendering": "sha256:4936145c3049f56c27e26ed025729c7a31172bd8fbb9425f95fa82a0c2739915",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",

@@ -1,4 +1,8 @@
 import {
+  findEstablishedDecisionRecord,
+  type DecisionRecordLookup
+} from "./decision-record-lookup.ts";
+import {
   prepareUnrecordedHistoryAttention,
   type DecisionHistoryBaseline
 } from "./decision-history-baseline.ts";
@@ -9,7 +13,6 @@ import {
 } from "./decision-relation-transaction.ts";
 import {
   currentDecisionTimestamp,
-  findEstablishedRecord,
   plainFailure
 } from "./decision-lifecycle-support.ts";
 import type {
@@ -24,12 +27,12 @@ import type {
 } from "./types.ts";
 
 export function prepareArchive(
-  scan: DecisionScan,
+  lookup: DecisionRecordLookup,
   decisionIds: readonly DecisionId[],
   keepUnrecordedHistory: boolean,
   historyBaseline: DecisionHistoryBaseline | null
 ): DecisionLifecyclePreparation {
-  const records = archiveRecords(scan, decisionIds);
+  const records = archiveRecords(lookup, decisionIds);
   if (!Array.isArray(records)) return records;
   const attention = archiveHistoryAttention(
     records,
@@ -48,7 +51,7 @@ export function prepareArchive(
 }
 
 function archiveRecords(
-  scan: DecisionScan,
+  lookup: DecisionRecordLookup,
   decisionIds: readonly DecisionId[]
 ): EstablishedDecisionRecord[] | DecisionLifecyclePreparation {
   if (decisionIds.length === 0) {
@@ -57,7 +60,7 @@ function archiveRecords(
   const archivedIds = new Set<DecisionId>();
   const records: EstablishedDecisionRecord[] = [];
   for (const decisionId of decisionIds) {
-    const record = archiveRecord(scan, decisionId, archivedIds);
+    const record = archiveRecord(lookup, decisionId, archivedIds);
     if (!("source" in record)) return record;
     records.push(record);
   }
@@ -65,11 +68,11 @@ function archiveRecords(
 }
 
 function archiveRecord(
-  scan: DecisionScan,
+  lookup: DecisionRecordLookup,
   decisionId: DecisionId,
   archivedIds: Set<DecisionId>
 ): EstablishedDecisionRecord | DecisionLifecyclePreparation {
-  const record = findEstablishedRecord(scan, decisionId);
+  const record = findEstablishedDecisionRecord(lookup, decisionId);
   if (record === null)
     return plainFailure("Established decision does not exist: " + decisionId);
   if (record.source.document.status === "archived")
@@ -111,7 +114,8 @@ export function prepareDiscard(
   scan: DecisionScan,
   decisionId: DecisionId,
   deleteRecorded: boolean,
-  historyBaseline: DecisionHistoryBaseline | null
+  historyBaseline: DecisionHistoryBaseline | null,
+  records: DecisionRecordLookup
 ): DecisionLifecyclePreparation {
   const prepared = prepareDecisionRelationTransaction(
     scan,
@@ -121,7 +125,8 @@ export function prepareDiscard(
       deleteRecorded
     }),
     currentDecisionTimestamp,
-    historyBaseline
+    historyBaseline,
+    records
   );
   if (prepared.status !== "ok") return prepared;
   return {

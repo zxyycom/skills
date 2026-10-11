@@ -1,11 +1,15 @@
 import {
+  createDecisionRecordLookup,
+  createDecisionNameLookup,
+  type DecisionRecordLookup
+} from "./decision-record-lookup.ts";
+import {
   decisionDiagnosticFromReason,
   decisionFailure,
   type DecisionApplicationFailure
 } from "./application-result.ts";
 import { bindRelationSummaries } from "./relation-summary.ts";
 import {
-  decisionNameFromId,
   normalizeDecisionSelectorInput,
   parseDatedDecisionId
 } from "./decision-path.ts";
@@ -59,8 +63,20 @@ function lifecycleSelectorResolution(
   scan: DecisionScan
 ): LifecycleSelectorResolution {
   const failures: DecisionApplicationFailure[] = [];
+  const records = createDecisionRecordLookup(scan.records);
+  let names: ReadonlyMap<string, readonly DecisionId[]> | undefined;
+  const matches = (normalized: string): readonly DecisionId[] => {
+    names ??= createDecisionNameLookup(
+      scan.records.flatMap((record) =>
+        typeof record.decisionId === "string"
+          ? [record.decisionId as DecisionId]
+          : []
+      )
+    );
+    return names.get(normalized) ?? [];
+  };
   const one = (selector: string): DecisionId | null => {
-    const value = resolveDecisionSelector(scan, selector);
+    const value = resolveDecisionSelector(records, matches, selector);
     if (typeof value === "object") {
       failures.push(value);
       return null;
@@ -312,24 +328,18 @@ function attachSuccessorRelationOverrides(
 }
 
 function resolveDecisionSelector(
-  scan: DecisionScan,
+  records: DecisionRecordLookup,
+  names: (name: string) => readonly DecisionId[],
   selector: string
 ): DecisionId | DecisionApplicationFailure {
   const normalized = normalizeDecisionSelectorInput(selector);
   const dated = parseDatedDecisionId(normalized);
   const matches =
     dated === null
-      ? scan.records
-          .filter(
-            (record) =>
-              typeof record.decisionId === "string" &&
-              decisionNameFromId(record.decisionId as DecisionId) === normalized
-          )
-          .map((record) => record.decisionId as DecisionId)
-          .sort()
-      : scan.records
-          .filter((record) => record.decisionId === dated.id)
-          .map((record) => record.decisionId as DecisionId);
+      ? names(normalized)
+      : (records.get(dated.id) ?? []).map(
+          (record) => record.decisionId as DecisionId
+        );
   if (matches.length === 1) return matches[0]!;
   return decisionFailure(
     [

@@ -9,119 +9,103 @@ import type { DecisionId, DecisionRelationType } from "./types.ts";
 
 type DecisionRelationEdge = RelationEdge<DecisionId, DecisionRelationType>;
 type TraceDirection = "predecessors" | "successors";
+type TraceEvent = Readonly<{
+  kind: "split" | "merge" | "reallocation";
+  recordIds: readonly DecisionId[];
+  members: ReadonlySet<DecisionId>;
+  units: Map<string, RelationGraphTraceAdmissionUnit<DecisionId>>;
+}>;
 
+/** Event facts and stable units belong to this query, never to a global graph. */
 export function decisionTraceAdmissionAdapter(
   reallocationComponents: readonly DecisionReallocationComponent[]
 ): RelationGraphTraceAdmissionAdapter<DecisionId, DecisionRelationType> {
-  return ({ direction, fromId, graph }) =>
-    traceEdges(graph, fromId, direction).map((edge) =>
-      decisionTraceAdmissionUnit(edge, direction, graph, reallocationComponents)
-    );
-}
-
-function decisionTraceAdmissionUnit(
-  edge: DecisionRelationEdge,
-  direction: TraceDirection,
-  graph: RelationGraph<DecisionId, DecisionRelationType>,
-  reallocationComponents: readonly DecisionReallocationComponent[]
-): RelationGraphTraceAdmissionUnit<DecisionId> {
-  switch (edge.type) {
-    case "拆分":
-      return traceEventUnit(
-        "split",
-        splitRecordIds(edge, graph),
-        edge,
-        direction,
-        graph
-      );
-    case "归并":
-      return traceEventUnit(
-        "merge",
-        mergeRecordIds(edge, graph),
-        edge,
-        direction,
-        graph
-      );
-    case "重划":
-      return traceEventUnit(
-        "reallocation",
-        reallocationRecordIds(edge, reallocationComponents),
-        edge,
-        direction,
-        graph
-      );
-    default:
-      return {
-        kind: "ordinary",
-        recordIds: [edge.source, edge.target],
-        traceIds: [directTraceId(edge, direction)]
-      };
+  const splits = new Map<DecisionId, TraceEvent>();
+  const merges = new Map<DecisionId, TraceEvent>();
+  const reallocations = new Map<DecisionId, TraceEvent>();
+  for (const component of reallocationComponents) {
+    const event = traceEvent("reallocation", [
+      ...component.predecessorIds,
+      ...component.successorIds
+    ]);
+    for (const source of component.successorIds)
+      reallocations.set(source, event);
   }
-}
-
-function traceEventUnit(
-  kind: "split" | "merge" | "reallocation",
-  recordIds: readonly DecisionId[],
-  edge: DecisionRelationEdge,
-  direction: TraceDirection,
-  graph: RelationGraph<DecisionId, DecisionRelationType>
-): RelationGraphTraceAdmissionUnit<DecisionId> {
-  return {
-    kind,
-    recordIds,
-    traceIds: eventDirectTraceIds(recordIds, edge, direction, graph)
+  const eventsByKind = { splits, merges, reallocations };
+  return ({ direction, fromId, graph }) => {
+    const edges = traceEdges(graph, fromId, direction);
+    const directIds = new Set(
+      edges.map((edge) => directTraceId(edge, direction))
+    );
+    const events = new Set<TraceEvent>();
+    const units: RelationGraphTraceAdmissionUnit<DecisionId>[] = [];
+    for (const edge of edges) {
+      const event = eventForEdge(edge, graph, eventsByKind);
+      if (event === null) {
+        units.push({
+          kind: "ordinary",
+          recordIds: [edge.source, edge.target],
+          traceIds: [directTraceId(edge, direction)]
+        });
+      } else {
+        events.add(event);
+      }
+    }
+    for (const event of events) units.push(eventUnit(event, directIds));
+    return units;
   };
 }
 
-function splitRecordIds(
+function eventForEdge(
   edge: DecisionRelationEdge,
-  graph: RelationGraph<DecisionId, DecisionRelationType>
-): DecisionId[] {
-  return [
-    edge.target,
-    ...(graph.edgesByTarget.get(edge.target) ?? [])
-      .filter((candidate) => candidate.type === "拆分")
-      .map((candidate) => candidate.source)
-  ];
-}
-
-function mergeRecordIds(
-  edge: DecisionRelationEdge,
-  graph: RelationGraph<DecisionId, DecisionRelationType>
-): DecisionId[] {
-  return [
-    edge.source,
-    ...(graph.edgesBySource.get(edge.source) ?? [])
-      .filter((candidate) => candidate.type === "归并")
-      .map((candidate) => candidate.target)
-  ];
-}
-
-function reallocationRecordIds(
-  edge: DecisionRelationEdge,
-  reallocationComponents: readonly DecisionReallocationComponent[]
-): DecisionId[] {
-  const component = reallocationComponents.find(
-    (candidate) =>
-      candidate.successorIds.has(edge.source) &&
-      candidate.predecessorIds.has(edge.target)
-  );
-  if (component === undefined) {
-    throw new TypeError("Reallocation edge is not part of a component");
+  graph: RelationGraph<DecisionId, DecisionRelationType>,
+  events: Readonly<{
+    splits: Map<DecisionId, TraceEvent>;
+    merges: Map<DecisionId, TraceEvent>;
+    reallocations: ReadonlyMap<DecisionId, TraceEvent>;
+  }>
+): TraceEvent | null {
+  if (edge.type === "拆分") return splitEvent(edge, graph, events.splits);
+  if (edge.type === "归并") return mergeEvent(edge, graph, events.merges);
+  if (edge.type === "重划") {
+    const event = events.reallocations.get(edge.source);
+    if (event === undefined || !event.members.has(edge.target))
+      throw new TypeError("Reallocation edge is not part of a component");
+    return event;
   }
-  return [...component.predecessorIds, ...component.successorIds];
+  return null;
 }
 
-function eventDirectTraceIds(
-  recordIds: readonly DecisionId[],
-  edge: DecisionRelationEdge,
-  direction: TraceDirection,
-  graph: RelationGraph<DecisionId, DecisionRelationType>
-): DecisionId[] {
-  const eventIds = new Set(recordIds);
-  return traceEdges(graph, traceFromId(edge, direction), direction)
-    .map((candidate) => directTraceId(candidate, direction))
-    .filter((candidate) => eventIds.has(candidate));
+function traceEvent(
+  kind: TraceEvent["kind"],
+  ids: readonly DecisionId[]
+): TraceEvent {
+  const recordIds = Object.freeze([...new Set(ids)].sort());
+  return { kind, recordIds, members: new Set(recordIds), units: new Map() };
+}
+
+function eventUnit(
+  event: TraceEvent,
+  directIds: ReadonlySet<DecisionId>
+): RelationGraphTraceAdmissionUnit<DecisionId> {
+  // Intersect all direct neighbors, including ordinary edges inside the event.
+  // The smaller side avoids rescanning a large star for each single neighbor.
+  const traceIds = (
+    directIds.size < event.members.size
+      ? [...directIds].filter((id) => event.members.has(id))
+      : event.recordIds.filter((id) => directIds.has(id))
+  ).sort();
+  const key = traceIds.join("\u0000");
+  let unit = event.units.get(key);
+  if (unit === undefined) {
+    unit = Object.freeze({
+      kind: event.kind,
+      recordIds: event.recordIds,
+      traceIds: Object.freeze(traceIds)
+    });
+    event.units.set(key, unit);
+  }
+  return unit;
 }
 
 function traceEdges(
@@ -141,9 +125,38 @@ function directTraceId(
   return direction === "predecessors" ? edge.target : edge.source;
 }
 
-function traceFromId(
+function splitEvent(
   edge: DecisionRelationEdge,
-  direction: TraceDirection
-): DecisionId {
-  return direction === "predecessors" ? edge.source : edge.target;
+  graph: RelationGraph<DecisionId, DecisionRelationType>,
+  splits: Map<DecisionId, TraceEvent>
+): TraceEvent {
+  let event = splits.get(edge.target);
+  if (event === undefined) {
+    event = traceEvent("split", [
+      edge.target,
+      ...(graph.edgesByTarget.get(edge.target) ?? [])
+        .filter((candidate) => candidate.type === "拆分")
+        .map((candidate) => candidate.source)
+    ]);
+    splits.set(edge.target, event);
+  }
+  return event;
+}
+
+function mergeEvent(
+  edge: DecisionRelationEdge,
+  graph: RelationGraph<DecisionId, DecisionRelationType>,
+  merges: Map<DecisionId, TraceEvent>
+): TraceEvent {
+  let event = merges.get(edge.source);
+  if (event === undefined) {
+    event = traceEvent("merge", [
+      edge.source,
+      ...(graph.edgesBySource.get(edge.source) ?? [])
+        .filter((candidate) => candidate.type === "归并")
+        .map((candidate) => candidate.target)
+    ]);
+    merges.set(edge.source, event);
+  }
+  return event;
 }

@@ -1,4 +1,8 @@
 import {
+  findDecisionRecord,
+  type DecisionRecordLookup
+} from "./decision-record-lookup.ts";
+import {
   decisionAttention,
   decisionDiagnostic,
   decisionFailure,
@@ -26,16 +30,18 @@ export type DiscardDecisionEligibility =
 
 export function prepareDiscardDecisionEligibility(
   scan: DecisionScan,
-  decisionId: DecisionId | null
+  decisionId: DecisionId | null,
+  records?: DecisionRecordLookup
 ): DiscardDecisionEligibility {
   if (decisionId === null) {
     return { record: null, status: "ok" };
   }
-  const record = scan.records.find(
-    (candidate) => candidate.decisionId === decisionId
-  );
+  const record =
+    records === undefined
+      ? scan.records.find((candidate) => candidate.decisionId === decisionId)
+      : findDecisionRecord(records, decisionId);
   if (
-    record === undefined ||
+    record == null ||
     !record.markdownExists ||
     (!isDecisionCandidateRecord(record) && !isEstablishedDecisionRecord(record))
   ) {

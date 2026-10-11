@@ -1,11 +1,16 @@
 import type { DecisionRecordsCliIo } from "./cli-io.ts";
 import { writeCliLine } from "./cli-output-writer.ts";
-import { eventsByOwner } from "./cli-output-trace-events.ts";
+import {
+  eventsByOwner,
+  traceRenderRelations
+} from "./cli-output-trace-events.ts";
 import { traceLayers } from "./cli-output-trace-layers.ts";
 import type {
   DecisionTraceResult,
   TraceEvent,
-  TraceRelation
+  TraceRelation,
+  TraceSuccessor,
+  TraceRenderRelations
 } from "./cli-output-trace-types.ts";
 import { compareTraceText } from "./cli-output-trace-types.ts";
 import { relationSummaryText } from "./cli-output-relation-evidence.ts";
@@ -15,11 +20,17 @@ export function printDecisionTextTrace(
   io: DecisionRecordsCliIo
 ): void {
   printHeader(trace, io);
+  writeCliLine(
+    io.stdout,
+    "Source: kind=published-index currentness=unchecked fallback=false"
+  );
   const traceIds = new Set(trace.traceIds);
   const contextIds = new Set(trace.contextIds);
+  const relations = traceRenderRelations(trace);
   const context: TraceRenderContext = {
+    relations,
     contextIds,
-    ownedEvents: eventsByOwner(trace, traceIds, contextIds),
+    ownedEvents: eventsByOwner(relations, traceIds),
     trace,
     traceIds
   };
@@ -55,6 +66,7 @@ type TraceRenderContext = Readonly<{
   ownedEvents: ReadonlyMap<string, readonly TraceEvent[]>;
   trace: DecisionTraceResult;
   traceIds: ReadonlySet<string>;
+  relations: TraceRenderRelations;
 }>;
 
 function printLayers(
@@ -63,7 +75,8 @@ function printLayers(
 ): void {
   for (const [layer, ids] of traceLayers(
     context.trace,
-    context.traceIds
+    context.traceIds,
+    context.relations
   ).entries()) {
     writeCliLine(io.stdout, "");
     ids.forEach((id) => printTraceNode(context, layer, id, io));
@@ -103,7 +116,7 @@ function printRelations(
   io: DecisionRecordsCliIo
 ): void {
   printPredecessors(context.trace, id, io);
-  printSuccessors(context.trace, id, context.traceIds, io);
+  printSuccessors(context, id, io);
 }
 
 function printPredecessors(
@@ -122,16 +135,17 @@ function printPredecessors(
 }
 
 function printSuccessors(
-  trace: DecisionTraceResult,
+  context: TraceRenderContext,
   id: string,
-  traceIds: ReadonlySet<string>,
   io: DecisionRecordsCliIo
 ): void {
-  const successors = directSuccessors(trace, id).sort(compareSuccessors);
+  const successors = [...(context.relations.reverse.get(id) ?? [])].sort(
+    compareSuccessors
+  );
   if (successors.length === 0) return;
   writeCliLine(io.stdout, "  successors:");
   successors.forEach(({ relation, sourceId }) => {
-    const marker = traceIds.has(sourceId) ? "*" : "~";
+    const marker = context.traceIds.has(sourceId) ? "*" : "~";
     writeCliLine(
       io.stdout,
       "    " + marker + " " + relationText(sourceId, relation)
@@ -139,17 +153,10 @@ function printSuccessors(
   });
 }
 
-type Successor = Readonly<{ relation: TraceRelation; sourceId: string }>;
-
-function directSuccessors(trace: DecisionTraceResult, id: string): Successor[] {
-  return Object.entries(trace.entries).flatMap(([sourceId, source]) =>
-    source.relations
-      .filter((relation) => relation.target === id)
-      .map((relation) => ({ relation, sourceId }))
-  );
-}
-
-function compareSuccessors(left: Successor, right: Successor): number {
+function compareSuccessors(
+  left: TraceSuccessor,
+  right: TraceSuccessor
+): number {
   return left.sourceId === right.sourceId
     ? compareTraceText(
         relationText(left.sourceId, left.relation),
@@ -226,39 +233,9 @@ function printContextEventRelations(
   io: DecisionRecordsCliIo
 ): void {
   if (!context.contextIds.has(id)) return;
-  eventRelations(context.trace, event, id).forEach((relation) =>
+  (event.relationsBySource.get(id) ?? []).forEach((relation) =>
     writeCliLine(io.stdout, "      " + relationText(id, relation))
   );
-}
-
-function eventRelations(
-  trace: DecisionTraceResult,
-  event: TraceEvent,
-  id: string
-): readonly TraceRelation[] {
-  const entry = trace.entries[id];
-  if (entry === undefined) return [];
-  const related = new Set(event.recordIds);
-  const relationType = eventRelationType(event);
-  return entry.relations.filter((relation) =>
-    isEventRelation(relation, relationType, related)
-  );
-}
-
-function isEventRelation(
-  relation: TraceRelation,
-  relationType: "归并" | "拆分" | "重划",
-  related: ReadonlySet<string>
-): boolean {
-  return relation.type === relationType && related.has(relation.target);
-}
-
-function eventRelationType(event: TraceEvent): "归并" | "拆分" | "重划" {
-  return event.kind === "merge"
-    ? "归并"
-    : event.kind === "split"
-      ? "拆分"
-      : "重划";
 }
 
 function printCoverageBoundary(

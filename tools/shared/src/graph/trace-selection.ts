@@ -11,7 +11,7 @@ import {
   compareStrings,
   compareTraceFrontier,
   normalizeAdmissionUnits,
-  type NormalizedTraceAdmissionUnit
+  createTraceAdmissionNormalization
 } from "./trace-ordering.ts";
 
 /**
@@ -29,11 +29,9 @@ export function selectRelationGraphTrace<
   options: RelationGraphTraceSelectionOptions,
   admissionUnits: RelationGraphTraceAdmissionAdapter<Id, Type>
 ): RelationGraphTraceSelection<Id> {
-  const normalizedByUnit = new WeakMap<
-    RelationGraphTraceAdmissionUnit<Id>,
-    NormalizedTraceAdmissionUnit<Id>
-  >();
+  const normalization = createTraceAdmissionNormalization<Id>();
   const admittedUnits = new WeakSet<RelationGraphTraceAdmissionUnit<Id>>();
+  const admittedMemberGroups = new WeakSet<readonly Id[]>();
   const traceIds = new Set<Id>([startId]);
   const contextIds = new Set<Id>();
   const depthByTraceId = new Map<Id, number>([[startId, 0]]);
@@ -202,7 +200,7 @@ export function selectRelationGraphTrace<
 
         const units = normalizeAdmissionUnits(
           admissionUnits({ direction, fromId: currentId, graph }),
-          normalizedByUnit
+          normalization
         );
         for (let unitIndex = 0; unitIndex < units.length; unitIndex += 1) {
           const unit = units[unitIndex];
@@ -211,9 +209,12 @@ export function selectRelationGraphTrace<
           if (unit === undefined || admittedUnits.has(unit)) {
             continue;
           }
-          const newIds = unit.recordIds.filter(
-            (id) => !traceIds.has(id) && !contextIds.has(id)
-          );
+          const membersAdmitted = admittedMemberGroups.has(unit.recordIds);
+          const newIds = membersAdmitted
+            ? []
+            : unit.recordIds.filter(
+                (id) => !traceIds.has(id) && !contextIds.has(id)
+              );
           if (
             traceIds.size + contextIds.size + newIds.length >
             options.maxRecords
@@ -239,9 +240,10 @@ export function selectRelationGraphTrace<
           }
 
           const directTraceIds = new Set(unit.traceIds);
-          for (const id of unit.recordIds) {
-            if (!traceIds.has(id) && !directTraceIds.has(id)) {
-              contextIds.add(id);
+          if (!membersAdmitted) {
+            for (const id of unit.recordIds) {
+              if (!traceIds.has(id) && !directTraceIds.has(id))
+                contextIds.add(id);
             }
           }
           for (const id of directTraceIds) {
@@ -256,6 +258,8 @@ export function selectRelationGraphTrace<
               nextLayer.add(id);
             }
           }
+          // Context admission and direct promotion now complete this group's union membership.
+          if (!membersAdmitted) admittedMemberGroups.add(unit.recordIds);
           admittedUnits.add(unit);
         }
         if (stoppedByBudget) break;

@@ -22,22 +22,20 @@ import type {
 } from "./decision-stage-contracts.ts";
 import type { DecisionId } from "./types.ts";
 
-export async function readDecisionBaseline(options: {
-  decisionsDirectory: string;
-  decisionScope: string;
-  repository: VersionControlRepository;
-  revision: RevisionId | null;
-}): Promise<DecisionStageSource[]> {
-  if (options.revision === null) {
-    return [];
-  }
+export async function readDecisionBaseline(
+  options: Readonly<{
+    decisionsDirectory: string;
+    decisionScope: string;
+    repository: VersionControlRepository;
+    revision: RevisionId | null;
+  }>
+): Promise<readonly DecisionStageSource[]> {
+  if (options.revision === null) return [];
   const revisionPaths = await options.repository.listRevisionFiles(
     options.revision,
     { pathScopes: [options.decisionScope] }
   );
-  if (revisionPaths.length === 0) {
-    return [];
-  }
+  if (revisionPaths.length === 0) return [];
   const sourcePaths: string[] = [];
   for (const repositoryFilePath of revisionPaths) {
     const sourcePath = decisionRelativePath(
@@ -54,9 +52,7 @@ export async function readDecisionBaseline(options: {
     }
     sourcePaths.push(repositoryFilePath);
   }
-  if (sourcePaths.length === 0) {
-    return [];
-  }
+  if (sourcePaths.length === 0) return [];
   const files = await options.repository.readRevisionFiles(options.revision, {
     pathScopes: sourcePaths
   });
@@ -68,18 +64,19 @@ export async function readDecisionBaseline(options: {
   );
 }
 
-/**
- * Discovers only recognizable current Decision identities for selector
- * resolution. It deliberately ignores unrelated or malformed files: selected
- * sources are read and verified again by the staging transaction below.
- */
+/** One phase-local discovery; selected resolution owns which failures matter. */
 export async function readFilesystemDecisionCandidates(
   decisionsDirectory: string,
   decisionScope: string
 ): Promise<FilesystemDecisionCandidates> {
   const sources = new Map<DecisionId, DecisionStageSource>();
   const duplicateIds = new Set<DecisionId>();
-  const addSource = async (sourcePath: string): Promise<void> => {
+  const paths = new Map<
+    string,
+    { source: DecisionStageSource } | { error: unknown }
+  >();
+  const inspect = async (sourcePath: string): Promise<void> => {
+    if (!isDecisionSourcePath(sourcePath)) return;
     try {
       const data = await readStageFile(
         path.join(decisionsDirectory, ...sourcePath.split("/"))
@@ -92,31 +89,52 @@ export async function readFilesystemDecisionCandidates(
         },
         sourcePath
       );
-      if (sources.has(source.source.decisionId)) {
+      paths.set(sourcePath, { source });
+      if (sources.has(source.source.decisionId))
         duplicateIds.add(source.source.decisionId);
-      } else {
-        sources.set(source.source.decisionId, source);
-      }
-    } catch {
-      // A malformed unselected file is not part of this stage transaction.
+      else sources.set(source.source.decisionId, source);
+    } catch (error) {
+      paths.set(sourcePath, { error });
     }
   };
-  const rootEntries = await readStageDirectory(decisionsDirectory);
-  for (const entry of rootEntries) {
-    if (entry.isFile() && entry.name.endsWith(".md")) {
-      await addSource(entry.name);
-    } else if (entry.isDirectory() && entry.name === "archive") {
-      const archivedEntries = await readStageDirectory(
+  for (const entry of await readStageDirectory(decisionsDirectory)) {
+    if (entry.name === "archive" && entry.isDirectory()) {
+      for (const archived of await readStageDirectory(
         path.join(decisionsDirectory, "archive")
-      );
-      for (const archivedEntry of archivedEntries) {
-        if (archivedEntry.isFile() && archivedEntry.name.endsWith(".md")) {
-          await addSource("archive/" + archivedEntry.name);
-        }
+      )) {
+        await inspect("archive/" + archived.name);
+      }
+    } else {
+      await inspect(entry.name);
+    }
+  }
+  return { duplicateIds, paths, sources };
+}
+
+/** Expected-path evidence takes precedence over another path declaring the ID. */
+export function resolveFilesystemDecisionSource(
+  filesystem: FilesystemDecisionCandidates,
+  decisionId: DecisionId,
+  expectedSourcePath?: string
+): DecisionStageSource | null {
+  if (expectedSourcePath !== undefined) {
+    const expected = filesystem.paths.get(expectedSourcePath);
+    if (expected !== undefined) {
+      if ("error" in expected) throw expected.error;
+      if (expected.source.source.decisionId !== decisionId) {
+        throw new Error(
+          `${expectedSourcePath} no longer declares the selected Decision ID ${decisionId}`
+        );
       }
     }
   }
-  return { duplicateIds, sources };
+  if (filesystem.duplicateIds.has(decisionId)) {
+    throw new Error(
+      "Decision ID occurs in more than one filesystem source path: " +
+        decisionId
+    );
+  }
+  return filesystem.sources.get(decisionId) ?? null;
 }
 
 export async function verifySelectedFilesystemSources(
@@ -124,10 +142,13 @@ export async function verifySelectedFilesystemSources(
   decisionScope: string,
   selectedSources: readonly SelectedFilesystemSource[]
 ): Promise<void> {
+  const filesystem = await readFilesystemDecisionCandidates(
+    decisionsDirectory,
+    decisionScope
+  );
   for (const selectedSource of selectedSources) {
-    const current = await readFilesystemDecisionSource(
-      decisionsDirectory,
-      decisionScope,
+    const current = resolveFilesystemDecisionSource(
+      filesystem,
       selectedSource.decisionId,
       selectedSource.source?.source.sourcePath
     );
@@ -145,81 +166,6 @@ export async function verifySelectedFilesystemSources(
       throw new Error(selectedSource.decisionId);
     }
   }
-}
-
-export async function readFilesystemDecisionSource(
-  decisionsDirectory: string,
-  decisionScope: string,
-  decisionId: DecisionId,
-  expectedSourcePath?: string
-): Promise<DecisionStageSource | null> {
-  const matches: DecisionStageSource[] = [];
-  const inspect = async (
-    sourcePath: string,
-    entry: { isFile(): boolean; name: string }
-  ): Promise<void> => {
-    if (!isDecisionSourcePath(sourcePath)) return;
-    const isKnownPath = sourcePath === expectedSourcePath;
-    if (!entry.isFile()) {
-      if (isKnownPath) {
-        await readStageFile(
-          path.join(decisionsDirectory, ...sourcePath.split("/"))
-        );
-      }
-      return;
-    }
-
-    let data: Buffer;
-    try {
-      data = await readStageFile(
-        path.join(decisionsDirectory, ...sourcePath.split("/"))
-      );
-    } catch (error) {
-      if (isKnownPath) throw error;
-      return;
-    }
-    let text: string;
-    try {
-      text = decodeUtf8(data, sourcePath);
-    } catch (error) {
-      if (isKnownPath) throw error;
-      return;
-    }
-    const declaredId = decisionIdFromMarkdown(text);
-    if (declaredId !== decisionId) {
-      if (isKnownPath)
-        throw new Error(
-          `${sourcePath} no longer declares the selected Decision ID ${decisionId}`
-        );
-      return;
-    }
-    const filePath = repositoryPath(decisionScope, sourcePath);
-    matches.push(
-      stageSourceFromFile({ data, kind: "regular", path: filePath }, sourcePath)
-    );
-  };
-
-  const rootEntries = await readStageDirectory(decisionsDirectory);
-  for (const entry of rootEntries) {
-    if (entry.name === decisionIndexFileName) continue;
-    if (entry.name === "archive" && entry.isDirectory()) {
-      const archiveEntries = await readStageDirectory(
-        path.join(decisionsDirectory, "archive")
-      );
-      for (const archiveEntry of archiveEntries) {
-        await inspect("archive/" + archiveEntry.name, archiveEntry);
-      }
-      continue;
-    }
-    await inspect(entry.name, entry);
-  }
-  if (matches.length > 1) {
-    throw new Error(
-      "Decision ID occurs in more than one filesystem source path: " +
-        decisionId
-    );
-  }
-  return matches[0] ?? null;
 }
 
 function stageSourceFromFile(

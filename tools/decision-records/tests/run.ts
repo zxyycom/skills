@@ -27,3 +27,12 @@ await import("./stage.test.ts");
 await import("./generated-artifacts.test.ts");
 
 await import("./search-info.test.ts");
+
+await import("./query-snapshot.test.ts");
+
+await import("./trace-admission-complexity.test.ts");
+
+await import("./relation-filter-complexity.test.ts");
+
+await import("./batch-lookup.test.ts");
+await import("./reallocation-member-complexity.test.ts");

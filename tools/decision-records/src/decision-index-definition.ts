@@ -33,6 +33,7 @@ import {
   type DecisionTag
 } from "./types.ts";
 
+export const decisionIndexFileName = "decision-index.json";
 export const decisionIndexNamespace = "decisions";
 export const decisionIndexDefinitionVersion = 11;
 

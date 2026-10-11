@@ -74,7 +74,7 @@ test("decision search metadata returns exact counts applied defaults and resolve
     );
     assert.deepEqual(result.searchInfo.source, {
       kind: "published-index",
-      currentness: "current",
+      currentness: "unchecked",
       fallback: false
     });
     assert.deepEqual(result.searchInfo.counts, {
@@ -110,7 +110,7 @@ test("decision search complete zero hits distinguishes content and metadata prev
   });
 });
 
-test("decision search metadata distinguishes stale and unchecked source snapshots", async () => {
+test("decision search metadata always identifies the published snapshot without source warnings", async () => {
   await withFixtureWorkspace("search-info-currentness", async (root) => {
     const file = decisionFilePath(root, currentSourcePath);
     await fs.appendFile(file, "\n- changed content\n");
@@ -118,8 +118,8 @@ test("decision search metadata distinguishes stale and unchecked source snapshot
       searchRequest(root, { in: "metadata" })
     );
     assert.ok(stale.status === "ok" && stale.command === "search");
-    assert.equal(stale.searchInfo.source.currentness, "stale");
-    assert.match(stale.warnings[0]!, /^search source: stale published-index/);
+    assert.equal(stale.searchInfo.source.currentness, "unchecked");
+    assert.deepEqual(stale.warnings, []);
     const text = await fs.readFile(file, "utf8");
     const outside = path.join(root, "outside.md");
     await fs.writeFile(outside, text);
@@ -130,10 +130,7 @@ test("decision search metadata distinguishes stale and unchecked source snapshot
     );
     assert.ok(unchecked.status === "ok" && unchecked.command === "search");
     assert.equal(unchecked.searchInfo.source.currentness, "unchecked");
-    assert.match(
-      unchecked.warnings[0]!,
-      /^search source: unchecked published-index/
-    );
+    assert.deepEqual(unchecked.warnings, []);
     assert.deepEqual(unchecked.searchInfo.counts, stale.searchInfo.counts);
   });
 });
@@ -240,7 +237,7 @@ test("distributed decision search prints six escaped summary lines before zero-h
     assert.deepEqual(output.stdout.split("\n").slice(0, 6), [
       'Query: text="absent\\"term" in=metadata match=all',
       'Filters: {"status":"active","alignment":"all","tags":[]}',
-      "Source: kind=published-index currentness=current fallback=false",
+      "Source: kind=published-index currentness=unchecked fallback=false",
       "Limits: maxRecords=unlimited",
       "Counts: matched=0 precision=exact returned=0",
       "Coverage: scan=complete results=complete previews=n/a reasons=none"

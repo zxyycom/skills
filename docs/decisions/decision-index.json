@@ -129,6 +129,7 @@
       "261010-investigation-local-validation-and-phase-facts": "sha256:8071ef58afd4dd61bbab63372a63c694e98c683cf711975ea9ffa5c437fcacfb",
       "261010-retain-complete-validation-with-selected-content": "sha256:bc20db4275ae8bfd460f168c2c676dd66f5f6da9c3fdd849207905a6557e39db",
       "261010-separate-investigation-query-and-validation-acquisition": "sha256:5669fdde0cbe2d1f86188ef5ed606f836f32660c960a2554b4c48083afc4a70a",
+      "261011-publish-decision-index-query-snapshots": "sha256:e70725985c320e52778936cb0db50357a238154a47596c051e63d6d9c689bbed",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -2946,6 +2947,23 @@
           "summary": "保留资源排除，改由全集验证核对来源，快照查询不读原文"
         }
       ]
+    },
+    "261011-publish-decision-index-query-snapshots": {
+      "name": "publish-decision-index-query-snapshots",
+      "sourcePath": "publish-decision-index-query-snapshots.md",
+      "title": "以发布快照承接纯索引决策查询",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-11T11:49:10Z",
+      "purpose": "让纯索引发现与来源验证各自承担明确成本和事实边界。",
+      "background": "每次快照查询遍历来源会扩大规模成本，未同步来源也不应改变快照含义。",
+      "decision": "列表、追溯和元数据搜索只验证已发布索引，并显式返回未核对来源的快照事实。",
+      "tags": [
+        "decision-records",
+        "performance",
+        "source-artifact-separation"
+      ],
+      "relations": []
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",

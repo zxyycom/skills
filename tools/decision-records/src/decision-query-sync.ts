@@ -1,3 +1,4 @@
+import { createDecisionNameLookup } from "./decision-record-lookup.ts";
 import path from "node:path";
 import {
   isStateIndexText,
@@ -16,7 +17,6 @@ import {
   syncDecisionIndex
 } from "./decision-state-index.ts";
 import {
-  decisionNameFromId,
   isDecisionId,
   normalizeDecisionSelectorInput,
   parseDatedDecisionId
@@ -151,15 +151,16 @@ function syncIndexRuntimeFailure(
   );
 }
 
+type SelectedDecisionSyncScopeResult =
+  | Readonly<{ status: "ok"; value: StateIndexSyncScope | undefined }>
+  | Readonly<{ failure: DecisionApplicationFailure; status: "error" }>;
+
 async function selectedDecisionSyncScope(options: {
   candidateIds: readonly string[];
   decisionsDirectory: string;
   indexPath: string;
   selectors: readonly string[] | undefined;
-}): Promise<
-  | Readonly<{ status: "ok"; value: StateIndexSyncScope | undefined }>
-  | Readonly<{ failure: DecisionApplicationFailure; status: "error" }>
-> {
+}): Promise<SelectedDecisionSyncScopeResult> {
   if (options.selectors === undefined)
     return { status: "ok", value: undefined };
   const rawValidation = validateDecisionSyncSelectors(options.selectors);
@@ -177,14 +178,38 @@ async function selectedDecisionSyncScope(options: {
     ...Object.keys(baseline.value.entries),
     ...options.candidateIds
   ]);
+  return resolveSelectedDecisionSyncScope(
+    ids,
+    rawValidation.selectors,
+    options.indexPath
+  );
+}
+
+/** Resolve only against the current phase's baseline/current identity union. */
+function resolveSelectedDecisionSyncScope(
+  ids: ReadonlySet<string>,
+  selectors: readonly string[],
+  indexPath: string
+): SelectedDecisionSyncScopeResult {
+  let names: ReadonlyMap<string, readonly string[]> | undefined;
+  const resolveName = (name: string): readonly string[] => {
+    names ??= createDecisionNameLookup([...ids].filter(isDecisionId));
+    return names.get(name) ?? [];
+  };
   const selectedIds: string[] = [];
   const failures: DecisionApplicationFailure[] = [];
-  for (const selector of rawValidation.selectors)
-    resolveSelectedDecisionId(selector, ids, selectedIds, failures);
+  for (const selector of selectors)
+    resolveSelectedDecisionId(
+      selector,
+      ids,
+      resolveName,
+      selectedIds,
+      failures
+    );
   if (failures.length > 0)
     return { failure: mergeDecisionFailures(failures), status: "error" };
   if (new Set(selectedIds).size !== selectedIds.length)
-    return selectedSyncDuplicateFailure(options.indexPath);
+    return selectedSyncDuplicateFailure(indexPath);
   return {
     status: "ok",
     value: { kind: "selected", selectedIds: selectedIds.sort(compareText) }
@@ -194,6 +219,7 @@ async function selectedDecisionSyncScope(options: {
 function resolveSelectedDecisionId(
   selector: string,
   ids: ReadonlySet<string>,
+  resolveName: (name: string) => readonly string[],
   selectedIds: string[],
   failures: DecisionApplicationFailure[]
 ): void {
@@ -201,11 +227,7 @@ function resolveSelectedDecisionId(
   const dated = parseDatedDecisionId(normalized);
   const matches =
     dated === null
-      ? [...ids]
-          .filter(
-            (id) => isDecisionId(id) && decisionNameFromId(id) === normalized
-          )
-          .sort(compareText)
+      ? resolveName(normalized)
       : ids.has(dated.id)
         ? [dated.id]
         : [];

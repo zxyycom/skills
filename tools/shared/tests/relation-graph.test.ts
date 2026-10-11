@@ -253,3 +253,5 @@ test("relation structural DFS retains branch diamond disconnected and defect ord
     { kind: "cycle", cycle: ["x", "y", "x"] }
   ]);
 });
+
+import "./trace-member-facts.test.ts";

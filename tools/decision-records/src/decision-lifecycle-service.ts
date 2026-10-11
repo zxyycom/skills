@@ -1,4 +1,8 @@
 import {
+  createDecisionRecordLookup,
+  type DecisionRecordLookup
+} from "./decision-record-lookup.ts";
+import {
   type DecisionApplicationAttention,
   type DecisionApplicationFailure
 } from "./application-result.ts";
@@ -75,7 +79,8 @@ export type DecisionLifecycleRequest =
 
 export function requiresDecisionHistoryBaseline(
   scan: DecisionScan,
-  request: DecisionLifecycleRequest
+  request: DecisionLifecycleRequest,
+  records: DecisionRecordLookup = createDecisionRecordLookup(scan.records)
 ): boolean {
   if (keepsUnrecordedLifecycleHistory(request)) return false;
   switch (request.action) {
@@ -84,19 +89,29 @@ export function requiresDecisionHistoryBaseline(
     case "discard":
       return decisionRelationTransactionRequiresHistoryBaseline(
         scan,
-        discardRelationTransactionRequest(request)
+        discardRelationTransactionRequest(request),
+        records
       );
     case "publish": {
-      const transaction = publicationRelationTransactionRequest(scan, request);
+      const transaction = publicationRelationTransactionRequest(
+        scan,
+        request,
+        records
+      );
       return (
         transaction !== null &&
-        decisionRelationTransactionRequiresHistoryBaseline(scan, transaction)
+        decisionRelationTransactionRequiresHistoryBaseline(
+          scan,
+          transaction,
+          records
+        )
       );
     }
     case "evolve":
       return decisionRelationTransactionRequiresHistoryBaseline(
         scan,
-        evolutionRelationTransactionRequest(request)
+        evolutionRelationTransactionRequest(request),
+        records
       );
     default:
       return false;
@@ -132,10 +147,12 @@ export function prepareDecisionLifecycle(
   options: {
     currentTimestamp?: () => string;
     historyBaseline: DecisionHistoryBaseline | null;
+    records?: DecisionRecordLookup;
   }
 ): DecisionLifecyclePreparation {
+  const records = options.records ?? createDecisionRecordLookup(scan.records);
   if (
-    requiresDecisionHistoryBaseline(scan, request) &&
+    requiresDecisionHistoryBaseline(scan, request, records) &&
     options.historyBaseline === null
   ) {
     return plainFailure(
@@ -148,7 +165,8 @@ export function prepareDecisionLifecycle(
         scan,
         request,
         options.currentTimestamp ?? currentDecisionTimestamp,
-        options.historyBaseline
+        options.historyBaseline,
+        records
       );
     case "reactivate":
       return prepareReactivation(scan, request);
@@ -157,11 +175,12 @@ export function prepareDecisionLifecycle(
         scan,
         request,
         options.currentTimestamp ?? currentDecisionTimestamp,
-        options.historyBaseline
+        options.historyBaseline,
+        records
       );
     case "archive":
       return prepareArchive(
-        scan,
+        records,
         request.decisionIds,
         request.keepUnrecordedHistory,
         options.historyBaseline
@@ -171,11 +190,12 @@ export function prepareDecisionLifecycle(
         scan,
         request.decisionId,
         request.deleteRecorded,
-        options.historyBaseline
+        options.historyBaseline,
+        records
       );
     case "mark-aligned":
       return prepareMarkAligned(scan, request.decisionId);
     case "set-relations":
-      return prepareDecisionSetRelations(scan, request);
+      return prepareDecisionSetRelations(scan, request, records);
   }
 }

@@ -1,13 +1,13 @@
-### Case DECISION-QUERY-INDEX-MEMBERSHIP-001: 查询读取持久快照并提示陈旧且 Check 检测来源漂移
+### Case DECISION-QUERY-INDEX-MEMBERSHIP-001: 查询显式读取发布快照且 Check 检测来源漂移
 
 Tests:
-- `test:bc657ec07745a8374cfb473daed69a84a0adef7b4245d72eabe77d7e4f28d31d`
+- `test:d9704ac514289db75b4d1f945ccf5017bbeacdbe1dcb28c16ee8b166cd4e2b7b`
 
 Tags:
 - `decision-records`
 
 Contract:
-- list/trace 读取持久索引快照并在来源漂移时携带 stderr 陈旧警告继续成功，show 读取正文，check 检测来源漂移并失败。
+- list/trace 仅读取发布索引并显式返回固定 Source，主动不核对不产生 warning，show 读取正文，check 检测来源漂移并失败。
 
 Proves:
-- 删除正文后 list/trace 仍从快照返回并输出持久索引陈旧与 sync-index 提示，show 以正文读取失败退出，check 非零。
+- 删除正文后 list/trace 仍从快照返回、显示发布 Source 且 stderr 为空，show 以正文读取失败退出，check 非零。

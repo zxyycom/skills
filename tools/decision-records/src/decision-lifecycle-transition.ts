@@ -1,3 +1,8 @@
+import {
+  createDecisionRecordLookup,
+  findDecisionRecord,
+  type DecisionRecordLookup
+} from "./decision-record-lookup.ts";
 import path from "node:path";
 import {
   decisionRelationTransactionMessage,
@@ -26,9 +31,10 @@ import {
 
 export function publicationRelationTransactionRequest(
   scan: DecisionScan,
-  request: Extract<DecisionLifecycleRequest, { action: "publish" }>
+  request: Extract<DecisionLifecycleRequest, { action: "publish" }>,
+  records: DecisionRecordLookup = createDecisionRecordLookup(scan.records)
 ): DecisionRelationTransactionRequest | null {
-  const record = findRecord(scan, request.decisionId);
+  const record = findDecisionRecord(records, request.decisionId);
   if (record === null || !isActivationCandidateRecord(record)) {
     return null;
   }
@@ -51,9 +57,10 @@ export function preparePublication(
   scan: DecisionScan,
   request: Extract<DecisionLifecycleRequest, { action: "publish" }>,
   currentTimestamp: () => string,
-  historyBaseline: DecisionHistoryBaseline | null
+  historyBaseline: DecisionHistoryBaseline | null,
+  records: DecisionRecordLookup
 ): DecisionLifecyclePreparation {
-  const record = findRecord(scan, request.decisionId);
+  const record = findDecisionRecord(records, request.decisionId);
   if (record === null) {
     return plainFailure("Decision does not exist: " + request.decisionId);
   }
@@ -76,7 +83,8 @@ export function preparePublication(
   }
   const transactionRequest = publicationRelationTransactionRequest(
     scan,
-    request
+    request,
+    records
   );
   if (transactionRequest === null) {
     return plainFailure(
@@ -87,7 +95,8 @@ export function preparePublication(
     scan,
     transactionRequest,
     currentTimestamp,
-    historyBaseline
+    historyBaseline,
+    records
   );
   if (prepared.status !== "ok") {
     return prepared;
@@ -182,13 +191,15 @@ export function prepareEvolution(
   scan: DecisionScan,
   request: Extract<DecisionLifecycleRequest, { action: "evolve" }>,
   currentTimestamp: () => string,
-  historyBaseline: DecisionHistoryBaseline | null
+  historyBaseline: DecisionHistoryBaseline | null,
+  records: DecisionRecordLookup
 ): DecisionLifecyclePreparation {
   const prepared = prepareDecisionRelationTransaction(
     scan,
     evolutionRelationTransactionRequest(request),
     currentTimestamp,
-    historyBaseline
+    historyBaseline,
+    records
   );
   if (prepared.status !== "ok") {
     return prepared;

@@ -147,3 +147,102 @@ test("Decision trace closes sparse reallocation events and rejects partial admis
     requiredMaxRecords: 4
   });
 });
+
+test("Decision trace keeps sparse reallocation direct members separate from context at depth one", () => {
+  const records = [
+    record("p1"),
+    record("p2"),
+    record("p3"),
+    record("s1", [
+      { target: "p1", type: "重划" },
+      { target: "p2", type: "重划" }
+    ]),
+    record("s2", [
+      { target: "p2", type: "重划" },
+      { target: "p3", type: "重划" }
+    ])
+  ];
+  const shallow = traceDecisionRelations(records, decisionId("s1"), {
+    direction: "predecessors",
+    maxDepth: 1,
+    maxRecords: 5
+  });
+  assert.deepEqual(shallow, {
+    traceIds: ["p1", "p2", "s1"],
+    contextIds: ["p3", "s2"],
+    coverage: { complete: true, stoppedBy: [] },
+    frontier: []
+  });
+  const both = traceDecisionRelations(records, decisionId("s1"), {
+    direction: "both",
+    maxDepth: 2,
+    maxRecords: 5
+  });
+  assert.deepEqual(both.traceIds, ["p1", "p2", "s1", "s2"]);
+  assert.deepEqual(both.contextIds, ["p3"]);
+  assert.deepEqual(both.frontier, [
+    {
+      fromId: "s2",
+      direction: "predecessors",
+      reason: "depth",
+      nextIds: ["p2", "p3"]
+    }
+  ]);
+  assert.deepEqual(both.coverage, { complete: false, stoppedBy: ["depth"] });
+  const complete = traceDecisionRelations(records, decisionId("s1"), {
+    direction: "both",
+    maxDepth: null,
+    maxRecords: 5
+  });
+  assert.deepEqual(complete, {
+    traceIds: ["p1", "p2", "p3", "s1", "s2"],
+    contextIds: [],
+    coverage: { complete: true, stoppedBy: [] },
+    frontier: []
+  });
+  const blocked = traceDecisionRelations(records, decisionId("s1"), {
+    direction: "both",
+    maxDepth: null,
+    maxRecords: 4
+  });
+  assert.deepEqual(blocked, {
+    traceIds: ["s1"],
+    contextIds: [],
+    coverage: { complete: false, stoppedBy: ["max-records"] },
+    frontier: [
+      {
+        fromId: "s1",
+        direction: "predecessors",
+        reason: "max-records",
+        nextIds: ["p1", "p2"]
+      }
+    ],
+    blockedEvent: {
+      kind: "reallocation",
+      recordIds: ["p1", "p2", "p3", "s1", "s2"],
+      requiredMaxRecords: 5
+    }
+  });
+});
+
+test("Decision merge direct trace intersection includes ordinary neighbors inside the event", () => {
+  const records = [
+    record("m", [
+      { target: "p1", type: "归并" },
+      { target: "p2", type: "归并" }
+    ]),
+    record("p1", [{ target: "p2", type: "修订" }]),
+    record("p2")
+  ];
+  const traced = traceDecisionRelations(records, decisionId("p2"), {
+    direction: "successors",
+    maxDepth: 1,
+    maxRecords: 3
+  });
+  assert.deepEqual(traced.traceIds, ["m", "p1", "p2"]);
+  assert.deepEqual(traced.contextIds, []);
+  assert.deepEqual(traced.coverage, { complete: false, stoppedBy: ["depth"] });
+  assert.deepEqual(traced.frontier, [
+    { fromId: "p1", direction: "successors", reason: "depth", nextIds: ["m"] }
+  ]);
+});

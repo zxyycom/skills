@@ -1,11 +1,13 @@
 import type { UnrecordedHistoryAttentionTarget } from "./decision-history-baseline.ts";
-import { findEstablishedRecord } from "./decision-relation-transaction-support.ts";
+import {
+  findEstablishedDecisionRecord,
+  type DecisionRecordLookup
+} from "./decision-record-lookup.ts";
 import type { PreparedSuccessor } from "./decision-relation-transaction-types.ts";
 import type {
   DecisionId,
   DecisionRelation,
   DecisionRelationType,
-  DecisionScan,
   EstablishedDecisionRecord
 } from "./types.ts";
 
@@ -17,7 +19,7 @@ type DirectPredecessorContext = Readonly<{
 }>;
 
 export function directPredecessors(
-  scan: DecisionScan,
+  records: DecisionRecordLookup,
   successors: readonly PreparedSuccessor[]
 ): {
   activeRecords: EstablishedDecisionRecord[];
@@ -33,7 +35,13 @@ export function directPredecessors(
   for (const successor of successors) {
     const seenTargets = new Set<DecisionId>();
     for (const relation of successor.finalRelations) {
-      recordDirectPredecessor(relation, successor, scan, seenTargets, context);
+      recordDirectPredecessor(
+        relation,
+        successor,
+        records,
+        seenTargets,
+        context
+      );
     }
   }
   return {
@@ -46,7 +54,7 @@ export function directPredecessors(
 function recordDirectPredecessor(
   relation: DecisionRelation,
   successor: PreparedSuccessor,
-  scan: DecisionScan,
+  records: DecisionRecordLookup,
   seenTargets: Set<DecisionId>,
   context: DirectPredecessorContext
 ): void {
@@ -67,7 +75,7 @@ function recordDirectPredecessor(
     return;
   }
   seenTargets.add(targetId);
-  const predecessor = findEstablishedRecord(scan, targetId);
+  const predecessor = findEstablishedDecisionRecord(records, targetId);
   if (predecessor === null) {
     context.errors.push(
       "Evolution predecessor is not an established decision: " + targetId

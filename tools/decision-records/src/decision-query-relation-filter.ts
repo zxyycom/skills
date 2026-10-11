@@ -170,10 +170,10 @@ function addRelation(
   decisionId: DecisionId,
   relation: DecisionFilterRelation
 ): void {
-  relationsByDecisionId.set(decisionId, [
-    ...(relationsByDecisionId.get(decisionId) ?? []),
-    relation
-  ]);
+  const relations = relationsByDecisionId.get(decisionId);
+  if (relations === undefined)
+    relationsByDecisionId.set(decisionId, [relation]);
+  else relations.push(relation);
 }
 
 function relationFilterFromMap(
@@ -182,16 +182,20 @@ function relationFilterFromMap(
     readonly DecisionFilterRelation[]
   >
 ): DecisionRelationFilter {
-  const sorted = new Map<DecisionId, readonly DecisionFilterRelation[]>();
-  relationsByDecisionId.forEach((relations, decisionId) => {
-    const unique = new Map(
-      relations.map((relation) => [
-        `${relation.sourceId}\u0000${relation.type}\u0000${relation.target}`,
-        relation
-      ])
-    );
-    sorted.set(decisionId, [...unique.values()].sort(compareFilterRelations));
-  });
+  const sorted = new Map(
+    [...relationsByDecisionId].map(([decisionId, relations]) => {
+      const unique = new Map(
+        relations.map((relation) => [
+          `${relation.sourceId}\u0000${relation.type}\u0000${relation.target}`,
+          relation
+        ])
+      );
+      return [
+        decisionId,
+        [...unique.values()].sort(compareFilterRelations)
+      ] as const;
+    })
+  );
   return { decisionIds: new Set(sorted.keys()), relationsByDecisionId: sorted };
 }
 

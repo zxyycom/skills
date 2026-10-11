@@ -1,3 +1,4 @@
+import { createDecisionRecordLookup } from "./decision-record-lookup.ts";
 import {
   decisionDiagnosticFromReason,
   decisionFailure,
@@ -109,8 +110,9 @@ export async function prepareLifecycleWithCurrentHistory(
   request: DecisionLifecycleRequest,
   io: DecisionRecordsCliIo
 ): Promise<Extract<DecisionLifecyclePreparation, { status: "ok" }> | null> {
+  const records = createDecisionRecordLookup(scan.records);
   let historyBaseline: DecisionHistoryBaseline | null = null;
-  if (requiresDecisionHistoryBaseline(scan, request)) {
+  if (requiresDecisionHistoryBaseline(scan, request, records)) {
     const loadedBaseline = await loadDecisionHistoryBaseline(scan);
     if (loadedBaseline.status === "error") {
       printDecisionFailure(withLifecycleNoChange(loadedBaseline), io);
@@ -119,7 +121,8 @@ export async function prepareLifecycleWithCurrentHistory(
     historyBaseline = loadedBaseline.baseline;
   }
   const prepared = prepareDecisionLifecycle(scan, request, {
-    historyBaseline
+    historyBaseline,
+    records
   });
   if (prepared.status === "attention") {
     printDecisionAttention(prepared, io);

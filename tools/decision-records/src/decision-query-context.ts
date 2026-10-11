@@ -1,7 +1,6 @@
 import path from "node:path";
 import {
   createStateIndexReader,
-  sameStateSourceRevision,
   type StateIndexReader
 } from "../../index-runtime/src/index.ts";
 import {
@@ -13,9 +12,7 @@ import {
   decisionIndexFileName,
   decisionIndexDiagnostics,
   decisionIndexRecovery,
-  decisionSourceRevision,
-  loadDecisionIndex,
-  readDecisionSourceRevision
+  loadDecisionIndex
 } from "./decision-state-index.ts";
 import { displayDecisionPath } from "./decision-path.ts";
 import type {
@@ -25,28 +22,27 @@ import type {
   DecisionScanOptions
 } from "./types.ts";
 
-export type DecisionLocation = {
+export type DecisionLocation = Readonly<{
   decisionsDir: string;
   workspaceRoot: string;
-};
+}>;
 
-export type DecisionQueryContext = {
+export type DecisionQueryContext = Readonly<{
   decisionsDirectory: string;
   index: DecisionIndex;
   indexRelativePath: string;
   reader: StateIndexReader<DecisionIndexState, DecisionIndexMetadata>;
   status: "ok";
   warnings: string[];
-};
+}>;
 
-type ResolvedDecisionLocation = {
+type ResolvedDecisionLocation = Readonly<{
   decisionsDirectory: string;
   workspaceRoot: string;
-};
+}>;
 
 export async function loadDecisionQueryContext(
-  location: DecisionLocation,
-  options: { collectionStaleness?: boolean } = {}
+  location: DecisionLocation
 ): Promise<DecisionApplicationFailure | DecisionQueryContext> {
   const { decisionsDirectory, workspaceRoot } =
     resolveDecisionLocation(location);
@@ -67,10 +63,6 @@ export async function loadDecisionQueryContext(
       })
     );
   }
-  const stale =
-    options.collectionStaleness === false
-      ? false
-      : await decisionIndexStale(decisionsDirectory, currentIndex.value);
   return {
     decisionsDirectory,
     index: currentIndex.value,
@@ -81,49 +73,12 @@ export async function loadDecisionQueryContext(
       indexPath: indexRelativePath
     }),
     status: "ok",
-    warnings: stale ? [persistedSnapshotWarning] : []
+    warnings: []
   };
 }
 
-/**
- * Compares the persisted index source revision with the current established
- * Markdown revision. A mismatch — or any failure to read the current
- * revision — is treated as a known source change: read-only queries keep
- * serving the persisted snapshot and report its boundary, while strict check
- * and mutations own the actual source diagnosis.
- */
-export async function decisionIndexStale(
-  decisionsDirectory: string,
-  index: DecisionIndex
-): Promise<boolean> {
-  return (
-    (await decisionIndexCurrentness(decisionsDirectory, index)) !== "current"
-  );
-}
-
-export async function decisionIndexCurrentness(
-  decisionsDirectory: string,
-  index: DecisionIndex
-): Promise<"current" | "stale" | "unchecked"> {
-  let currentRevision: ReturnType<typeof decisionSourceRevision>;
-  try {
-    currentRevision = await readDecisionSourceRevision(
-      decisionsDirectory,
-      undefined
-    );
-  } catch {
-    return "unchecked";
-  }
-  return sameStateSourceRevision(index.sourceRevision, currentRevision)
-    ? "current"
-    : "stale";
-}
-
-export const persistedSnapshotWarning =
-  "The persisted Decision index is stale; this result reflects the last published index snapshot, not the current decision Markdown. Run sync-index to publish the current projection before drawing conclusions about the complete collection.";
-
 export const persistedSnapshotBodyWarning =
-  "The persisted Decision index is stale; the metadata reflects the last published index snapshot while the body is read from the current decision Markdown. Run sync-index to publish the current projection.";
+  "The selected Decision metadata differs from its current source; the metadata reflects the last published index snapshot while the body is read from the current decision Markdown. Run sync-index to publish the current projection.";
 
 /**
  * The decisions directory is a workspace-relative path by location contract;

@@ -1,3 +1,4 @@
+import { decisionPublishedSnapshotSource } from "./decision-query-contract.ts";
 import { decisionDiagnostic, decisionFailure } from "./application-result.ts";
 import { loadCandidateQueryContext } from "./decision-query-candidates.ts";
 import {
@@ -34,9 +35,7 @@ import { traceDecisionRelations } from "./relation-graph.ts";
 export async function showDecisionRecord(
   request: Extract<DecisionQueryRequest, { command: "show" }>
 ): Promise<DecisionQueryResult> {
-  const context = await loadDecisionQueryContext(request.location, {
-    collectionStaleness: false
-  });
+  const context = await loadDecisionQueryContext(request.location);
   if (context.status === "error") return context;
   const resolved = resolveIndexedDecisionSelector(
     context,
@@ -195,6 +194,7 @@ function traceDecisionResult(
   return {
     anchorId,
     command: "trace",
+    source: decisionPublishedSnapshotSource,
     contextIds: trace.contextIds,
     coverage: trace.coverage,
     direction,

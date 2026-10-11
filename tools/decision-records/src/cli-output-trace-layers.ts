@@ -1,14 +1,24 @@
-import type { DecisionTraceResult } from "./cli-output-trace-types.ts";
+import type {
+  DecisionTraceResult,
+  TraceRenderRelations
+} from "./cli-output-trace-types.ts";
 import { compareTraceText } from "./cli-output-trace-types.ts";
 
 export function traceLayers(
   trace: DecisionTraceResult,
-  traceIds: ReadonlySet<string>
+  traceIds: ReadonlySet<string>,
+  relations: TraceRenderRelations
 ): readonly (readonly string[])[] {
   const layers: string[][] = [[trace.anchorId]];
   const visited = new Set<string>([trace.anchorId]);
   for (let index = 0; index < layers.length; index += 1) {
-    const next = nextLayer(trace, layers[index] ?? [], traceIds, visited);
+    const next = nextLayer(
+      trace,
+      layers[index] ?? [],
+      traceIds,
+      visited,
+      relations
+    );
     if (next.length === 0) continue;
     next.forEach((id) => visited.add(id));
     layers.push(next);
@@ -23,11 +33,12 @@ function nextLayer(
   trace: DecisionTraceResult,
   layer: readonly string[],
   traceIds: ReadonlySet<string>,
-  visited: ReadonlySet<string>
+  visited: ReadonlySet<string>,
+  relations: TraceRenderRelations
 ): string[] {
   const next = new Set<string>();
   for (const id of layer) {
-    relatedTraceIds(trace, id, traceIds).forEach((relatedId) => {
+    relatedTraceIds(trace, id, traceIds, relations).forEach((relatedId) => {
       if (!visited.has(relatedId)) next.add(relatedId);
     });
   }
@@ -37,7 +48,8 @@ function nextLayer(
 function relatedTraceIds(
   trace: DecisionTraceResult,
   id: string,
-  traceIds: ReadonlySet<string>
+  traceIds: ReadonlySet<string>,
+  relations: TraceRenderRelations
 ): readonly string[] {
   const related = new Set<string>();
   if (trace.direction !== "successors") {
@@ -46,9 +58,10 @@ function relatedTraceIds(
     );
   }
   if (trace.direction !== "predecessors") {
-    successorIds(trace, id, traceIds).forEach((relatedId) =>
-      related.add(relatedId)
-    );
+    (relations.reverse.get(id) ?? [])
+      .map(({ sourceId }) => sourceId)
+      .filter((sourceId) => traceIds.has(sourceId))
+      .forEach((relatedId) => related.add(relatedId));
   }
   return [...related].sort(compareTraceText);
 }
@@ -61,18 +74,4 @@ function predecessorIds(
   return (trace.entries[id]?.relations ?? [])
     .map((relation) => relation.target)
     .filter((target) => traceIds.has(target));
-}
-
-function successorIds(
-  trace: DecisionTraceResult,
-  id: string,
-  traceIds: ReadonlySet<string>
-): readonly string[] {
-  return Object.entries(trace.entries)
-    .filter(
-      ([sourceId, source]) =>
-        traceIds.has(sourceId) &&
-        source.relations.some((relation) => relation.target === id)
-    )
-    .map(([sourceId]) => sourceId);
 }

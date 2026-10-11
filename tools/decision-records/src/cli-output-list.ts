@@ -19,6 +19,10 @@ export function printDecisionListSuccess(
   io: DecisionRecordsCliIo
 ): void {
   printDecisionListFacets(result, options, io);
+  writeCliLine(
+    io.stdout,
+    "Source: kind=published-index currentness=unchecked fallback=false"
+  );
   writeCliLine(io.stdout, "Applied filters: " + decisionAppliedFilters(result));
   writeCliLine(io.stdout, "Latest matches:");
   if (result.records.length === 0) {

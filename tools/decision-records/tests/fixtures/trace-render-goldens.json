@@ -1,0 +1,672 @@
+{
+  "baseline": "223805466196410174d8c58111489f5d7933ed33",
+  "cases": [
+    {
+      "name": "chain-and-unlayered",
+      "trace": {
+        "anchorId": "c",
+        "direction": "both",
+        "traceIds": [
+          "a",
+          "b",
+          "c",
+          "orphan"
+        ],
+        "contextIds": [],
+        "entries": {
+          "a": {
+            "title": "A",
+            "relations": [],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "b": {
+            "title": "B",
+            "relations": [
+              {
+                "target": "a",
+                "type": "修订",
+                "summary": "quoted \"A\"\nline"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "c": {
+            "title": "C",
+            "relations": [
+              {
+                "target": "b",
+                "type": "修订"
+              },
+              {
+                "target": "outside",
+                "type": "修订"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "orphan": {
+            "title": "unlayered",
+            "relations": [],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          }
+        },
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "depth"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "c",
+            "direction": "predecessors",
+            "reason": "depth",
+            "nextIds": [
+              "outside"
+            ]
+          }
+        ],
+        "limits": {
+          "depth": 1,
+          "maxRecords": 50
+        }
+      },
+      "expected": "TRACE anchor=[c] direction=both depth=1 complete=false records=4\nRelations below only describe edges inside this trace slice; read the source Decision Markdown or use --json for complete direct relations.\n\nL0* [c] active/aligned C\n  predecessors:\n    [c] --修订--> [b]: [无摘要]\n\nL1* [b] active/aligned B\n  predecessors:\n    [b] --修订--> [a]: \"quoted \\\"A\\\"\\nline\"\n  successors:\n    * [c] --修订--> [b]: [无摘要]\n\nL2* [a] active/aligned A\n  successors:\n    * [b] --修订--> [a]: \"quoted \\\"A\\\"\\nline\"\n\nL3* [orphan] active/aligned unlayered\n\ncoverage: incomplete stoppedBy=depth\nfrontier:\n  - [c] direction=predecessors reason=depth next=[outside]\n"
+    },
+    {
+      "name": "split-star-context",
+      "trace": {
+        "anchorId": "x",
+        "direction": "predecessors",
+        "traceIds": [
+          "a",
+          "x"
+        ],
+        "contextIds": [
+          "y",
+          "z"
+        ],
+        "entries": {
+          "a": {
+            "title": "A",
+            "relations": [],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "x": {
+            "title": "X",
+            "relations": [
+              {
+                "target": "a",
+                "type": "拆分",
+                "summary": "summary"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "y": {
+            "title": "Y",
+            "relations": [
+              {
+                "target": "a",
+                "type": "拆分"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "z": {
+            "title": "Z",
+            "relations": [
+              {
+                "target": "a",
+                "type": "拆分"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          }
+        },
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "depth"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "x",
+            "direction": "predecessors",
+            "reason": "depth",
+            "nextIds": [
+              "outside"
+            ]
+          }
+        ],
+        "limits": {
+          "depth": 1,
+          "maxRecords": 50
+        }
+      },
+      "expected": "TRACE anchor=[x] direction=predecessors depth=1 complete=false records=4\nRelations below only describe edges inside this trace slice; read the source Decision Markdown or use --json for complete direct relations.\n\nL0* [x] active/aligned X\n  predecessors:\n    [x] --拆分--> [a]: \"summary\"\n\nL1* [a] active/aligned A\n  successors:\n    * [x] --拆分--> [a]: \"summary\"\n    ~ [y] --拆分--> [a]: [无摘要]\n    ~ [z] --拆分--> [a]: [无摘要]\n  split-successors:\n    * [a] trace active/aligned A\n    * [x] trace active/aligned X\n    ~ [y] context active/aligned Y\n      [y] --拆分--> [a]: [无摘要]\n    ~ [z] context active/aligned Z\n      [z] --拆分--> [a]: [无摘要]\n\ncoverage: incomplete stoppedBy=depth\nfrontier:\n  - [x] direction=predecessors reason=depth next=[outside]\n"
+    },
+    {
+      "name": "multiple-events",
+      "trace": {
+        "anchorId": "m",
+        "direction": "both",
+        "traceIds": [
+          "a",
+          "b",
+          "m",
+          "x",
+          "y"
+        ],
+        "contextIds": [],
+        "entries": {
+          "a": {
+            "title": "A",
+            "relations": [],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "b": {
+            "title": "B",
+            "relations": [],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "m": {
+            "title": "merge",
+            "relations": [
+              {
+                "target": "a",
+                "type": "归并"
+              },
+              {
+                "target": "b",
+                "type": "归并"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "x": {
+            "title": "X",
+            "relations": [
+              {
+                "target": "m",
+                "type": "拆分"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "y": {
+            "title": "Y",
+            "relations": [
+              {
+                "target": "m",
+                "type": "拆分"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          }
+        },
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "depth"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "m",
+            "direction": "predecessors",
+            "reason": "depth",
+            "nextIds": [
+              "outside"
+            ]
+          }
+        ],
+        "limits": {
+          "depth": 1,
+          "maxRecords": 50
+        }
+      },
+      "expected": "TRACE anchor=[m] direction=both depth=1 complete=false records=5\nRelations below only describe edges inside this trace slice; read the source Decision Markdown or use --json for complete direct relations.\n\nL0* [m] active/aligned merge\n  predecessors:\n    [m] --归并--> [a]: [无摘要]\n    [m] --归并--> [b]: [无摘要]\n  successors:\n    * [x] --拆分--> [m]: [无摘要]\n    * [y] --拆分--> [m]: [无摘要]\n  merge-predecessors:\n    * [a] trace active/aligned A\n    * [b] trace active/aligned B\n    * [m] trace active/aligned merge\n  split-successors:\n    * [m] trace active/aligned merge\n    * [x] trace active/aligned X\n    * [y] trace active/aligned Y\n\nL1* [a] active/aligned A\n  successors:\n    * [m] --归并--> [a]: [无摘要]\nL1* [b] active/aligned B\n  successors:\n    * [m] --归并--> [b]: [无摘要]\nL1* [x] active/aligned X\n  predecessors:\n    [x] --拆分--> [m]: [无摘要]\nL1* [y] active/aligned Y\n  predecessors:\n    [y] --拆分--> [m]: [无摘要]\n\ncoverage: incomplete stoppedBy=depth\nfrontier:\n  - [m] direction=predecessors reason=depth next=[outside]\n"
+    },
+    {
+      "name": "reallocation-context-source",
+      "trace": {
+        "anchorId": "x",
+        "direction": "predecessors",
+        "traceIds": [
+          "a",
+          "x"
+        ],
+        "contextIds": [
+          "b",
+          "y"
+        ],
+        "entries": {
+          "a": {
+            "title": "A",
+            "relations": [],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "b": {
+            "title": "B",
+            "relations": [],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "x": {
+            "title": "X",
+            "relations": [
+              {
+                "target": "a",
+                "type": "重划"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "y": {
+            "title": "Y",
+            "relations": [
+              {
+                "target": "a",
+                "type": "重划",
+                "summary": "quoted \"a\""
+              },
+              {
+                "target": "b",
+                "type": "重划"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          }
+        },
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "depth"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "x",
+            "direction": "predecessors",
+            "reason": "depth",
+            "nextIds": [
+              "outside"
+            ]
+          }
+        ],
+        "limits": {
+          "depth": 1,
+          "maxRecords": 50
+        }
+      },
+      "expected": "TRACE anchor=[x] direction=predecessors depth=1 complete=false records=4\nRelations below only describe edges inside this trace slice; read the source Decision Markdown or use --json for complete direct relations.\n\nL0* [x] active/aligned X\n  predecessors:\n    [x] --重划--> [a]: [无摘要]\n\nL1* [a] active/aligned A\n  successors:\n    * [x] --重划--> [a]: [无摘要]\n    ~ [y] --重划--> [a]: \"quoted \\\"a\\\"\"\n  reallocation:\n    * [a] trace active/aligned A\n    ~ [b] context active/aligned B\n    * [x] trace active/aligned X\n    ~ [y] context active/aligned Y\n      [y] --重划--> [a]: \"quoted \\\"a\\\"\"\n      [y] --重划--> [b]: [无摘要]\n\ncoverage: incomplete stoppedBy=depth\nfrontier:\n  - [x] direction=predecessors reason=depth next=[outside]\n"
+    },
+    {
+      "name": "split-historical-owner",
+      "trace": {
+        "anchorId": "z",
+        "direction": "both",
+        "traceIds": [
+          "a",
+          "b",
+          "x",
+          "z"
+        ],
+        "contextIds": [],
+        "entries": {
+          "a": {
+            "title": "A",
+            "relations": [
+              {
+                "target": "z",
+                "type": "拆分"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "b": {
+            "title": "B",
+            "relations": [
+              {
+                "target": "z",
+                "type": "拆分"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "x": {
+            "title": "X",
+            "relations": [
+              {
+                "target": "a",
+                "type": "拆分"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "z": {
+            "title": "Z",
+            "relations": [],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          }
+        },
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "depth"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "z",
+            "direction": "predecessors",
+            "reason": "depth",
+            "nextIds": [
+              "outside"
+            ]
+          }
+        ],
+        "limits": {
+          "depth": 1,
+          "maxRecords": 50
+        }
+      },
+      "expected": "TRACE anchor=[z] direction=both depth=1 complete=false records=4\nRelations below only describe edges inside this trace slice; read the source Decision Markdown or use --json for complete direct relations.\n\nL0* [z] active/aligned Z\n  successors:\n    * [a] --拆分--> [z]: [无摘要]\n    * [b] --拆分--> [z]: [无摘要]\n\nL1* [a] active/aligned A\n  predecessors:\n    [a] --拆分--> [z]: [无摘要]\n  successors:\n    * [x] --拆分--> [a]: [无摘要]\n  split-successors:\n    * [a] trace active/aligned A\n    * [b] trace active/aligned B\n    * [z] trace active/aligned Z\n  split-successors:\n    * [a] trace active/aligned A\n    * [x] trace active/aligned X\nL1* [b] active/aligned B\n  predecessors:\n    [b] --拆分--> [z]: [无摘要]\n\nL2* [x] active/aligned X\n  predecessors:\n    [x] --拆分--> [a]: [无摘要]\n\ncoverage: incomplete stoppedBy=depth\nfrontier:\n  - [z] direction=predecessors reason=depth next=[outside]\n"
+    },
+    {
+      "name": "merge-outside-owner",
+      "trace": {
+        "anchorId": "z",
+        "direction": "both",
+        "traceIds": [
+          "a",
+          "b",
+          "z"
+        ],
+        "contextIds": [],
+        "entries": {
+          "a": {
+            "title": "A",
+            "relations": [
+              {
+                "target": "outside",
+                "type": "归并"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "b": {
+            "title": "B",
+            "relations": [],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "z": {
+            "title": "Z",
+            "relations": [
+              {
+                "target": "a",
+                "type": "归并"
+              },
+              {
+                "target": "b",
+                "type": "归并"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          }
+        },
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "depth"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "z",
+            "direction": "predecessors",
+            "reason": "depth",
+            "nextIds": [
+              "outside"
+            ]
+          }
+        ],
+        "limits": {
+          "depth": 1,
+          "maxRecords": 50
+        }
+      },
+      "expected": "TRACE anchor=[z] direction=both depth=1 complete=false records=3\nRelations below only describe edges inside this trace slice; read the source Decision Markdown or use --json for complete direct relations.\n\nL0* [z] active/aligned Z\n  predecessors:\n    [z] --归并--> [a]: [无摘要]\n    [z] --归并--> [b]: [无摘要]\n\nL1* [a] active/aligned A\n  successors:\n    * [z] --归并--> [a]: [无摘要]\n  merge-predecessors:\n    * [a] trace active/aligned A\n    * [b] trace active/aligned B\n    * [z] trace active/aligned Z\nL1* [b] active/aligned B\n  successors:\n    * [z] --归并--> [b]: [无摘要]\n\ncoverage: incomplete stoppedBy=depth\nfrontier:\n  - [z] direction=predecessors reason=depth next=[outside]\n"
+    },
+    {
+      "name": "overlapping-context-event-edges",
+      "trace": {
+        "anchorId": "z",
+        "direction": "predecessors",
+        "traceIds": [
+          "z"
+        ],
+        "contextIds": [
+          "a",
+          "b"
+        ],
+        "entries": {
+          "a": {
+            "title": "A",
+            "relations": [
+              {
+                "target": "b",
+                "type": "归并",
+                "summary": "context history"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "b": {
+            "title": "B",
+            "relations": [],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          },
+          "z": {
+            "title": "Z",
+            "relations": [
+              {
+                "target": "a",
+                "type": "归并"
+              },
+              {
+                "target": "b",
+                "type": "归并"
+              }
+            ],
+            "status": "active",
+            "alignment": "aligned",
+            "createdAt": "2026-09-11T00:00:00Z",
+            "purpose": "purpose",
+            "background": "background",
+            "decision": "decision",
+            "tags": []
+          }
+        },
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "depth"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "z",
+            "direction": "predecessors",
+            "reason": "depth",
+            "nextIds": [
+              "outside"
+            ]
+          }
+        ],
+        "limits": {
+          "depth": 1,
+          "maxRecords": 50
+        }
+      },
+      "expected": "TRACE anchor=[z] direction=predecessors depth=1 complete=false records=3\nRelations below only describe edges inside this trace slice; read the source Decision Markdown or use --json for complete direct relations.\n\nL0* [z] active/aligned Z\n  predecessors:\n    [z] --归并--> [a]: [无摘要]\n    [z] --归并--> [b]: [无摘要]\n  merge-predecessors:\n    ~ [a] context active/aligned A\n      [a] --归并--> [b]: \"context history\"\n    ~ [b] context active/aligned B\n    * [z] trace active/aligned Z\n\ncoverage: incomplete stoppedBy=depth\nfrontier:\n  - [z] direction=predecessors reason=depth next=[outside]\n"
+    }
+  ]
+}

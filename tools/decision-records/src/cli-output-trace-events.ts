@@ -1,86 +1,119 @@
 import type {
   DecisionTraceResult,
   TraceEvent,
-  TraceEventRelation
+  TraceRenderRelations,
+  TraceSuccessor,
+  TraceEventRelation,
+  OrderedEventEdge
 } from "./cli-output-trace-types.ts";
 import { compareTraceText } from "./cli-output-trace-types.ts";
 
+type TraceEventMembers = Omit<TraceEvent, "relationsBySource">;
+
 export function eventsByOwner(
-  trace: DecisionTraceResult,
-  traceIds: ReadonlySet<string>,
-  contextIds: ReadonlySet<string>
+  relations: TraceRenderRelations,
+  traceIds: ReadonlySet<string>
 ): ReadonlyMap<string, readonly TraceEvent[]> {
   const grouped = new Map<string, TraceEvent[]>();
-  for (const event of traceEvents(trace, traceIds, contextIds)) {
-    const owner = eventOwner(event, traceIds, trace.entries);
+  for (const event of traceEvents(relations.selected)) {
+    const owner = eventOwner(event, traceIds, relations);
     if (owner === undefined) continue;
-    const owned = grouped.get(owner) ?? [];
-    grouped.set(owner, [...owned, event]);
+    const owned = grouped.get(owner);
+    const renderedEvent = {
+      ...event,
+      relationsBySource: contextEventRelations(event, relations)
+    };
+    if (owned === undefined) grouped.set(owner, [renderedEvent]);
+    else owned.push(renderedEvent);
   }
   return grouped;
 }
 
 function traceEvents(
-  trace: DecisionTraceResult,
-  traceIds: ReadonlySet<string>,
-  contextIds: ReadonlySet<string>
-): readonly TraceEvent[] {
-  const relations = selectedRelations(trace, traceIds, contextIds);
-  const events = [
-    ...splitEvents(relations),
-    ...mergeEvents(relations),
+  relations: readonly TraceEventRelation[]
+): readonly TraceEventMembers[] {
+  return [
+    ...groupedEvents(relations, "split"),
+    ...groupedEvents(relations, "merge"),
     ...reallocationEvents(relations)
-  ];
-  return events.sort(compareEvents);
+  ].sort(compareEvents);
 }
 
-function selectedRelations(
-  trace: DecisionTraceResult,
-  traceIds: ReadonlySet<string>,
-  contextIds: ReadonlySet<string>
-): readonly TraceEventRelation[] {
-  const selectedIds = new Set([...traceIds, ...contextIds]);
-  return Object.entries(trace.entries).flatMap(([sourceId, entry]) =>
-    entry.relations
-      .filter((relation) => selectedIds.has(relation.target))
-      .map((relation) => ({ ...relation, sourceId }))
-  );
+/** One render-local edge pass supplies reverse lookup and historical owner facts. */
+export function traceRenderRelations(
+  trace: DecisionTraceResult
+): TraceRenderRelations {
+  const reverse = new Map<string, TraceSuccessor[]>();
+  const selected: TraceEventRelation[] = [];
+  const selectedIds = new Set([...trace.traceIds, ...trace.contextIds]);
+  const contextIds = new Set<string>(trace.contextIds);
+  const splitTargets = new Set<string>();
+  const mergeSources = new Set<string>();
+  const eventEdges = new Map<string, Map<string, EventTargetEdges>>();
+  for (const [sourceId, entry] of Object.entries(trace.entries)) {
+    for (const [order, relation] of entry.relations.entries()) {
+      if (contextIds.has(sourceId))
+        addContextEventEdge(eventEdges, sourceId, relation, order);
+      if (relation.type === "拆分") splitTargets.add(relation.target);
+      if (relation.type === "归并") mergeSources.add(sourceId);
+      if (trace.entries[relation.target] === undefined) continue;
+      const successors = reverse.get(relation.target);
+      const successor = { relation, sourceId };
+      if (successors === undefined) reverse.set(relation.target, [successor]);
+      else successors.push(successor);
+      if (selectedIds.has(relation.target))
+        selected.push({ ...relation, sourceId });
+    }
+  }
+  return { reverse, selected, splitTargets, mergeSources, eventEdges };
 }
 
-function splitEvents(relations: readonly TraceEventRelation[]): TraceEvent[] {
-  const targets = new Set(
-    relations
-      .filter((relation) => relation.type === "拆分")
-      .map((relation) => relation.target)
-  );
-  return [...targets].sort(compareTraceText).map((target) => ({
-    kind: "split",
-    recordIds: eventRecordIds(
-      relations.filter(
-        (relation) => relation.type === "拆分" && relation.target === target
-      ),
-      target,
-      "source"
-    )
-  }));
-}
-
-function mergeEvents(relations: readonly TraceEventRelation[]): TraceEvent[] {
-  const sources = new Set(
-    relations
-      .filter((relation) => relation.type === "归并")
-      .map((relation) => relation.sourceId)
-  );
-  return [...sources].sort(compareTraceText).map((sourceId) => ({
-    kind: "merge",
-    recordIds: eventRecordIds(
-      relations.filter(
-        (relation) => relation.type === "归并" && relation.sourceId === sourceId
-      ),
+/** Preserve context edges even when a hand-built slice has overlapping events. */
+function contextEventRelations(
+  event: TraceEventMembers,
+  relations: TraceRenderRelations
+): TraceEvent["relationsBySource"] {
+  const type =
+    event.kind === "split" ? "拆分" : event.kind === "merge" ? "归并" : "重划";
+  const sources = relations.eventEdges.get(type);
+  const members = new Set(event.recordIds);
+  const result = new Map<string, readonly TraceSuccessor["relation"][]>();
+  for (const sourceId of event.recordIds) {
+    const targets = sources?.get(sourceId);
+    if (targets === undefined) continue;
+    const selected = selectMemberEdges(targets, event.recordIds, members);
+    result.set(
       sourceId,
-      "target"
-    )
-  }));
+      selected
+        .sort((left, right) => left.order - right.order)
+        .map(({ relation }) => relation)
+    );
+  }
+  return result;
+}
+
+function groupedEvents(
+  relations: readonly TraceEventRelation[],
+  kind: "split" | "merge"
+): TraceEventMembers[] {
+  const groups = new Map<string, TraceEventRelation[]>();
+  for (const relation of relations) {
+    if (relation.type !== (kind === "split" ? "拆分" : "归并")) continue;
+    const focalId = kind === "split" ? relation.target : relation.sourceId;
+    const group = groups.get(focalId);
+    if (group === undefined) groups.set(focalId, [relation]);
+    else group.push(relation);
+  }
+  return [...groups]
+    .sort(([left], [right]) => compareTraceText(left, right))
+    .map(([focalId, edges]) => ({
+      kind,
+      recordIds: eventRecordIds(
+        edges,
+        focalId,
+        kind === "split" ? "source" : "target"
+      )
+    }));
 }
 
 function eventRecordIds(
@@ -96,7 +129,7 @@ function eventRecordIds(
 
 function reallocationEvents(
   relations: readonly TraceEventRelation[]
-): TraceEvent[] {
+): TraceEventMembers[] {
   return reallocationComponents(relations).map((recordIds) => ({
     kind: "reallocation",
     recordIds
@@ -157,56 +190,80 @@ function reallocationComponent(
 }
 
 function eventOwner(
-  event: TraceEvent,
+  event: TraceEventMembers,
   traceIds: ReadonlySet<string>,
-  entries: DecisionTraceResult["entries"]
+  relations: TraceRenderRelations
 ): string | undefined {
   const traceMembers = event.recordIds
     .filter((id) => traceIds.has(id))
     .sort(compareTraceText);
   if (traceMembers.length === 0) return undefined;
-  const semanticOwner = eventSemanticOwner(event, entries);
+  const semanticOwner = eventSemanticOwner(event, relations);
   return semanticOwner !== undefined && traceIds.has(semanticOwner)
     ? semanticOwner
     : traceMembers[0];
 }
 
 function eventSemanticOwner(
-  event: TraceEvent,
-  entries: DecisionTraceResult["entries"]
+  event: TraceEventMembers,
+  relations: TraceRenderRelations
 ): string | undefined {
-  if (event.kind === "split") return splitTarget(event, entries);
-  if (event.kind === "merge") return mergeSource(event, entries);
+  if (event.kind === "split")
+    return event.recordIds.find((id) => relations.splitTargets.has(id));
+  if (event.kind === "merge")
+    return event.recordIds.find((id) => relations.mergeSources.has(id));
   return undefined;
 }
 
-function splitTarget(
-  event: TraceEvent,
-  entries: DecisionTraceResult["entries"]
-): string | undefined {
-  return event.recordIds.find((id) =>
-    Object.values(entries).some((entry) =>
-      entry.relations.some(
-        (relation) => relation.type === "拆分" && relation.target === id
-      )
-    )
-  );
-}
-
-function mergeSource(
-  event: TraceEvent,
-  entries: DecisionTraceResult["entries"]
-): string | undefined {
-  return event.recordIds.find((id) =>
-    entries[id]?.relations.some((relation) => relation.type === "归并")
-  );
-}
-
-function compareEvents(left: TraceEvent, right: TraceEvent): number {
+function compareEvents(
+  left: TraceEventMembers,
+  right: TraceEventMembers
+): number {
   return left.kind === right.kind
     ? compareTraceText(
         left.recordIds.join("\u0000"),
         right.recordIds.join("\u0000")
       )
     : compareTraceText(left.kind, right.kind);
+}
+
+type EventTargetEdges = Map<string, OrderedEventEdge[]>;
+
+function addContextEventEdge(
+  eventEdges: Map<string, Map<string, EventTargetEdges>>,
+  sourceId: string,
+  relation: TraceSuccessor["relation"],
+  order: number
+): void {
+  if (
+    relation.type !== "归并" &&
+    relation.type !== "拆分" &&
+    relation.type !== "重划"
+  )
+    return;
+  let sources = eventEdges.get(relation.type);
+  if (sources === undefined) {
+    sources = new Map();
+    eventEdges.set(relation.type, sources);
+  }
+  let targets = sources.get(sourceId);
+  if (targets === undefined) {
+    targets = new Map();
+    sources.set(sourceId, targets);
+  }
+  const edges = targets.get(relation.target);
+  if (edges === undefined) targets.set(relation.target, [{ relation, order }]);
+  else edges.push({ relation, order });
+}
+
+function selectMemberEdges(
+  targets: ReadonlyMap<string, readonly OrderedEventEdge[]>,
+  recordIds: readonly string[],
+  members: ReadonlySet<string>
+): OrderedEventEdge[] {
+  return targets.size < members.size
+    ? [...targets].flatMap(([target, edges]) =>
+        members.has(target) ? edges : []
+      )
+    : recordIds.flatMap((target) => targets.get(target) ?? []);
 }

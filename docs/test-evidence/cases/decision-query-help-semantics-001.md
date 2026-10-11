@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 - `list` 与 `search` help 均包含 Semantics 与 Examples，说明 candidates 留在索引外、`--related-to` 先解析再由方向与类型限定。
-- `list` help 说明陈旧索引仍返回最后发布快照并可用 sync-index 恢复；`search` help 说明截断或降级 warning 下读取已返回 ID 或收紧筛选、不据以断言无匹配，并指引用 `show <decision-id>` 读取完整记录。
+- `list` help 说明只读最后发布快照，不核对 Markdown currentness；`search` help 说明截断或降级 warning 下读取已返回 ID 或收紧筛选、不据以断言无匹配，并指引用 `show <decision-id>` 读取完整记录。

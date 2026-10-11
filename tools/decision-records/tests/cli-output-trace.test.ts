@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { printDecisionTrace } from "../src/cli-output-trace.ts";
+import { decisionPublishedSnapshotSource } from "../src/decision-query-contract.ts";
 import type { DecisionTraceSuccess } from "../src/decision-query-contract.ts";
 
 function traceResult(): Omit<DecisionTraceSuccess, "status"> {
   return {
+    source: decisionPublishedSnapshotSource,
     anchorId: "split-a" as never,
     contextIds: ["split-b" as never],
     coverage: { complete: false, stoppedBy: ["max-records"] },
@@ -128,6 +130,7 @@ test("Decision trace keeps context event edges with their source and leaves trac
     printDecisionTrace(
       {
         ...trace,
+        source: decisionPublishedSnapshotSource,
         anchorId: "merge-source" as never,
         contextIds: ["merge-target" as never, "reallocation-target" as never],
         direction: "both",
@@ -188,6 +191,7 @@ test("Decision trace retains every reallocation edge from a context source", () 
   let output = "";
   printDecisionTrace(
     {
+      source: decisionPublishedSnapshotSource,
       anchorId: "x" as never,
       contextIds: ["a" as never, "b" as never, "y" as never],
       coverage: { complete: true, stoppedBy: [] },
@@ -239,3 +243,96 @@ function entry(
     title
   };
 }
+
+test("Decision trace text remains byte-identical to baseline across context and historical owner slices except the explicit source line", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const fixture = JSON.parse(
+    await readFile(
+      new URL("./fixtures/trace-render-goldens.json", import.meta.url),
+      "utf8"
+    )
+  ) as {
+    cases: {
+      name: string;
+      trace: Omit<DecisionTraceSuccess, "status" | "source">;
+      expected: string;
+    }[];
+  };
+  for (const { name, trace, expected } of fixture.cases) {
+    let output = "";
+    printDecisionTrace(
+      { ...trace, source: decisionPublishedSnapshotSource },
+      false,
+      {
+        stdout: (text) => {
+          output += text;
+        },
+        stderr: () => undefined
+      }
+    );
+    assert.equal(
+      output.replace(
+        "Source: kind=published-index currentness=unchecked fallback=false\n",
+        ""
+      ),
+      expected,
+      name
+    );
+  }
+});
+
+test("Decision trace rendering visits relation lists linearly for chains stars and many events", () => {
+  for (const size of [10, 100, 1000]) {
+    for (const shape of ["chain", "star", "events"]) {
+      let reads = 0;
+      const entries: Record<string, DecisionTraceSuccess["entries"][string]> =
+        {};
+      for (let index = 0; index < size; index += 1) {
+        const id = `record-${String(index).padStart(4, "0")}`;
+        const relations =
+          index === 0
+            ? []
+            : [
+                {
+                  target: (shape === "star"
+                    ? "record-0000"
+                    : `record-${String(index - 1).padStart(4, "0")}`) as never,
+                  type:
+                    shape === "events" ? ("拆分" as const) : ("修订" as const)
+                }
+              ];
+        entries[id] = {
+          ...entry(id, relations),
+          get relations() {
+            reads += 1;
+            return relations;
+          }
+        };
+      }
+      const ids = Object.keys(entries);
+      const trace: Omit<DecisionTraceSuccess, "status"> = {
+        source: decisionPublishedSnapshotSource,
+        anchorId: ids[0] as never,
+        direction: "successors",
+        contextIds: [],
+        traceIds: ids as never[],
+        entries,
+        frontier: [],
+        coverage: { complete: true, stoppedBy: [] },
+        limits: { depth: "all", maxRecords: size }
+      };
+      let output = "";
+      printDecisionTrace(trace, false, {
+        stdout: (text) => {
+          output += text;
+        },
+        stderr: () => undefined
+      });
+      assert.equal((output.match(/^L\d+\*/gm) ?? []).length, size);
+      assert.ok(
+        reads <= size * 3,
+        `${shape} V=${size}: ${reads} relation list accesses`
+      );
+    }
+  }
+});

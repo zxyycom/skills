@@ -1,4 +1,8 @@
 import {
+  createDecisionRecordLookup,
+  type DecisionRecordLookup
+} from "./decision-record-lookup.ts";
+import {
   decisionFailure,
   type DecisionApplicationFailure
 } from "./application-result.ts";
@@ -42,19 +46,24 @@ export function prepareDecisionRelationTransaction(
   scan: DecisionScan,
   request: DecisionRelationTransactionRequest,
   currentTimestamp: () => string,
-  historyBaseline: DecisionHistoryBaseline | null
+  historyBaseline: DecisionHistoryBaseline | null,
+  records: DecisionRecordLookup = createDecisionRecordLookup(scan.records)
 ): DecisionRelationTransactionPreparation {
   const successors = prepareSuccessors(
-    scan,
+    { scan, records },
     request.successors,
     request.relationOverride,
     currentTimestamp(),
     request.kind === "discard"
   );
   if (successors.status === "error") return successors;
-  const discarded = prepareDiscardDecisionEligibility(scan, request.discardId);
+  const discarded = prepareDiscardDecisionEligibility(
+    scan,
+    request.discardId,
+    records
+  );
   if (discarded.status === "error") return discarded;
-  const predecessorSelection = directPredecessors(scan, successors.records);
+  const predecessorSelection = directPredecessors(records, successors.records);
   if (predecessorSelection.errors.length > 0)
     return decisionFailure(predecessorSelection.errors);
   const graphPlan: DecisionRelationGraphPlan = {

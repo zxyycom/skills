@@ -1,3 +1,4 @@
+import { createDecisionRecordLookup } from "../src/decision-record-lookup.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
@@ -56,7 +57,7 @@ test("successor relation overrides take precedence over transaction defaults", (
       ];
       for (const { relationOverride, expected } of variants) {
         const prepared = prepareSuccessors(
-          scan,
+          { scan, records: createDecisionRecordLookup(scan.records) },
           [{ ...requested, relationOverride }],
           transactionOverride,
           "2026-09-12T00:00:00Z",

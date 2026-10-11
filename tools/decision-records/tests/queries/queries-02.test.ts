@@ -116,17 +116,17 @@ test("decision trace follows predecessor and successor directions", () =>
     assert.doesNotMatch(none, new RegExp(currentDecisionId));
   }));
 
-test("decision queries use persisted snapshots with staleness warnings while check detects source drift", () =>
+test("decision queries identify published snapshots without source warnings while check detects drift", () =>
   withFixtureWorkspace("query-snapshot", async (workspaceRoot) => {
     const source = decisionFilePath(workspaceRoot, currentSourcePath);
     await fs.rm(source);
     const listed = await runSourceCli(["list", "--root", workspaceRoot]);
     assert.equal(listed.exitCode, 0, listed.stderr);
     assert.match(listed.stdout, new RegExp(currentDecisionId));
-    assert.match(listed.stderr, /persisted Decision index is stale/);
+    assert.equal(listed.stderr, "");
     assert.match(
-      listed.stderr,
-      /Run sync-index to publish the current projection/
+      listed.stdout,
+      /Source: kind=published-index currentness=unchecked fallback=false/
     );
     const traced = await runSourceCli([
       "trace",
@@ -136,7 +136,11 @@ test("decision queries use persisted snapshots with staleness warnings while che
     ]);
     assert.equal(traced.exitCode, 0, traced.stderr);
     assert.match(traced.stdout, new RegExp(archivedDecisionId));
-    assert.match(traced.stderr, /persisted Decision index is stale/);
+    assert.equal(traced.stderr, "");
+    assert.match(
+      traced.stdout,
+      /Source: kind=published-index currentness=unchecked fallback=false/
+    );
     const shown = await runSourceCli([
       "show",
       currentDecisionId,

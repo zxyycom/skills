@@ -13,28 +13,32 @@ import type { DecisionId, DecisionSource } from "./types.ts";
  */
 export type DecisionStageScope = "all" | "index" | "domain";
 
-export type DecisionStageSource = {
+export type DecisionStageSource = Readonly<{
   file: VersionControlFile;
   source: DecisionSource;
-};
+}>;
 
 export type FilesystemDecisionCandidates = Readonly<{
+  paths: ReadonlyMap<
+    string,
+    Readonly<{ source: DecisionStageSource }> | Readonly<{ error: unknown }>
+  >;
   duplicateIds: ReadonlySet<DecisionId>;
   sources: ReadonlyMap<DecisionId, DecisionStageSource>;
 }>;
 
-export type SelectedFilesystemSource = {
+export type SelectedFilesystemSource = Readonly<{
   decisionId: DecisionId;
   source: DecisionStageSource | null;
-};
+}>;
 
-export type DecisionStageTarget = {
+export type DecisionStageTarget = Readonly<{
   revision: RevisionId | null;
-  selectedIds: DecisionId[];
-  selectedSources: SelectedFilesystemSource[];
-  sourceFiles: VersionControlFile[];
-  sources: DecisionSource[];
-};
+  selectedIds: readonly DecisionId[];
+  selectedSources: readonly SelectedFilesystemSource[];
+  sourceFiles: readonly VersionControlFile[];
+  sources: readonly DecisionSource[];
+}>;
 
 export type DecisionStageTargetOptions = Readonly<{
   decisionsDirectory: string;

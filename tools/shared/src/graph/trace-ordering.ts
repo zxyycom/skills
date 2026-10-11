@@ -1,3 +1,4 @@
+import { types } from "node:util";
 import type {
   RelationGraphTraceAdmissionUnit,
   RelationGraphTraceEventKind,
@@ -7,64 +8,124 @@ import type {
 
 const standardArrayIterator = Array.prototype[Symbol.iterator];
 
-export type NormalizedTraceAdmissionUnit<Id extends string> = Readonly<{
+type RecordMemberFacts<Id extends string> = Readonly<{
   identity: string;
+  members: ReadonlySet<Id>;
+  recordIds: readonly Id[];
+}>;
+export type NormalizedTraceAdmissionUnit<Id extends string> = Readonly<{
+  identityKind: RelationGraphTraceEventKind;
+  recordIdentity: string;
   unit: RelationGraphTraceAdmissionUnit<Id>;
 }>;
-
-export function normalizeAdmissionUnits<Id extends string>(
-  units: readonly RelationGraphTraceAdmissionUnit<Id>[],
+/** Facts proved and retained only for one trace selection. */
+export type TraceAdmissionNormalization<Id extends string> = Readonly<{
   normalizedByUnit: WeakMap<
     RelationGraphTraceAdmissionUnit<Id>,
     NormalizedTraceAdmissionUnit<Id>
-  >
+  >;
+  stableArrays: WeakSet<readonly Id[]>;
+  recordMembersByArray: WeakMap<readonly Id[], RecordMemberFacts<Id>>;
+}>;
+export function createTraceAdmissionNormalization<
+  Id extends string
+>(): TraceAdmissionNormalization<Id> {
+  return {
+    normalizedByUnit: new WeakMap(),
+    stableArrays: new WeakSet(),
+    recordMembersByArray: new WeakMap()
+  };
+}
+export function normalizeAdmissionUnits<Id extends string>(
+  units: readonly RelationGraphTraceAdmissionUnit<Id>[],
+  context: TraceAdmissionNormalization<Id>
 ): RelationGraphTraceAdmissionUnit<Id>[] {
-  const byIdentity = new Map<string, RelationGraphTraceAdmissionUnit<Id>>();
+  const positions = new Map<RelationGraphTraceEventKind, Map<string, number>>();
+  const ordered: RelationGraphTraceAdmissionUnit<Id>[] = [];
   for (const unit of units) {
-    const normalized = normalizeAdmissionUnit(unit, normalizedByUnit);
-    const { identity, unit: current } = normalized;
-    const previous = byIdentity.get(identity);
-    if (previous === undefined) {
-      byIdentity.set(identity, current);
+    const normalized = normalizeAdmissionUnit(unit, context);
+    const current = normalized.unit;
+    let members = positions.get(normalized.identityKind);
+    if (members === undefined) {
+      members = new Map();
+      positions.set(normalized.identityKind, members);
+    }
+    const position = members.get(normalized.recordIdentity);
+    if (position === undefined) {
+      members.set(normalized.recordIdentity, ordered.length);
+      ordered.push(current);
       continue;
     }
-    byIdentity.set(identity, {
+    const previous = ordered[position]!;
+    ordered[position] = {
       kind: current.kind,
       recordIds: current.recordIds,
       traceIds: [...new Set([...previous.traceIds, ...current.traceIds])].sort(
         compareStrings
       ) as Id[]
-    });
+    };
   }
-  return [...byIdentity.values()].sort(compareAdmissionUnits);
+  return ordered.sort(compareAdmissionUnits);
 }
-
 function normalizeAdmissionUnit<Id extends string>(
   unit: RelationGraphTraceAdmissionUnit<Id>,
-  normalizedByUnit: WeakMap<
-    RelationGraphTraceAdmissionUnit<Id>,
-    NormalizedTraceAdmissionUnit<Id>
-  >
+  context: TraceAdmissionNormalization<Id>
 ): NormalizedTraceAdmissionUnit<Id> {
-  // 单位与数组的 own data 已在首次准入时证明；继承的 iterator 仍可改变。
-  const cached = normalizedByUnit.get(unit);
+  // Frozen own data remains stable; inherited Array iteration must still match.
+  const cached = context.normalizedByUnit.get(unit);
   if (cached !== undefined && hasStandardArrayIterator()) return cached;
-  const reusable = hasStableAdmissionData(unit);
+  const reusable = hasStableAdmissionData(unit, context.stableArrays);
+  if (!reusable) return normalizeDynamicAdmissionUnit(unit);
+  const facts = stableRecordMembers(unit.recordIds, context);
+  const traceIds = [...new Set(unit.traceIds)]
+    .filter((id) => facts.members.has(id))
+    .sort(compareStrings) as Id[];
+  // Keep the dynamic fallback's two kind reads, and its original value identity.
+  const normalized = {
+    identityKind: unit.kind,
+    recordIdentity: facts.identity,
+    unit: { kind: unit.kind, recordIds: facts.recordIds, traceIds }
+  };
+  context.normalizedByUnit.set(unit, normalized);
+  return normalized;
+}
+/** Preserve dynamic getters and iterator evaluation in the original order. */
+function normalizeDynamicAdmissionUnit<Id extends string>(
+  unit: RelationGraphTraceAdmissionUnit<Id>
+): NormalizedTraceAdmissionUnit<Id> {
   const recordMembers = new Set(unit.recordIds);
   const recordIds = [...recordMembers].sort(compareStrings) as Id[];
   const traceIds = [...new Set(unit.traceIds)]
     .filter((id) => recordMembers.has(id))
     .sort(compareStrings) as Id[];
-  const normalized = {
-    identity: `${unit.kind}\u0000${recordIds.join("\u0000")}`,
+  return {
+    identityKind: unit.kind,
+    recordIdentity: recordIds.join("\u0000"),
     unit: { kind: unit.kind, recordIds, traceIds }
   };
-  if (reusable) normalizedByUnit.set(unit, normalized);
-  return normalized;
 }
 
+function stableRecordMembers<Id extends string>(
+  ids: readonly Id[],
+  context: TraceAdmissionNormalization<Id>
+): RecordMemberFacts<Id> {
+  let facts = context.recordMembersByArray.get(ids);
+  if (facts === undefined) {
+    facts = recordMemberFacts(ids);
+    context.recordMembersByArray.set(ids, facts);
+  }
+  return facts;
+}
+function recordMemberFacts<Id extends string>(
+  ids: readonly Id[]
+): RecordMemberFacts<Id> {
+  const members = new Set(ids);
+  const recordIds = [...members].sort(compareStrings) as Id[];
+  return { identity: recordIds.join("\u0000"), members, recordIds };
+}
 function hasStableAdmissionData<Id extends string>(
-  unit: RelationGraphTraceAdmissionUnit<Id>
+  unit: RelationGraphTraceAdmissionUnit<Id>,
+  stableArrays: WeakSet<readonly Id[]>
 ): boolean {
   if (!Object.isFrozen(unit)) return false;
   const kind = Object.getOwnPropertyDescriptor(unit, "kind");
@@ -77,38 +138,33 @@ function hasStableAdmissionData<Id extends string>(
   )
     return false;
   return (
-    hasStableIdArray(recordIds?.value) && hasStableIdArray(traceIds?.value)
+    hasStableIdArray(recordIds?.value, stableArrays) &&
+    hasStableIdArray(traceIds?.value, stableArrays)
   );
 }
-
-function hasStableIdArray(ids: unknown): boolean {
-  if (!Array.isArray(ids)) {
+function hasStableIdArray<Id extends string>(
+  ids: unknown,
+  stableArrays: WeakSet<readonly Id[]>
+): boolean {
+  if (!Array.isArray(ids) || types.isProxy(ids) || !hasStandardArrayIterator())
     return false;
-  }
-  if (!Object.isFrozen(ids)) {
+  if (stableArrays.has(ids)) return true;
+  if (
+    !Object.isFrozen(ids) ||
+    Object.getPrototypeOf(ids) !== Array.prototype ||
+    Object.hasOwn(ids, Symbol.iterator)
+  )
     return false;
-  }
-  if (Object.getPrototypeOf(ids) !== Array.prototype) {
-    return false;
-  }
-  if (Object.hasOwn(ids, Symbol.iterator)) {
-    return false;
-  }
-  if (!hasStandardArrayIterator()) {
-    return false;
-  }
   for (let index = 0; index < ids.length; index += 1) {
     const item = Object.getOwnPropertyDescriptor(ids, index);
-    if (item === undefined) {
+    if (
+      item === undefined ||
+      !Object.hasOwn(item, "value") ||
+      typeof item.value !== "string"
+    )
       return false;
-    }
-    if (!Object.hasOwn(item, "value")) {
-      return false;
-    }
-    if (typeof item.value !== "string") {
-      return false;
-    }
   }
+  stableArrays.add(ids);
   return true;
 }
 
@@ -134,6 +190,7 @@ function compareIdSequences<Id extends string>(
   left: readonly Id[],
   right: readonly Id[]
 ): number {
+  if (left === right) return 0;
   const length = Math.min(left.length, right.length);
   for (let index = 0; index < length; index += 1) {
     const compared = compareStrings(left[index] ?? "", right[index] ?? "");

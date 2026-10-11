@@ -199,7 +199,7 @@ Git 工作树的 unborn HEAD 按空基线处理；Git 工作树外没有此确�
 
 ## 派生索引与查询
 
-Markdown 是权威来源，索引保存已建立记录的定位、状态、非空 alignment、摘要、tags 和直接关系。记录内容、身份或位置变化需要同步索引；candidate 通过独立来源入口读取。常规查询使用结构有效的持久索引，不逐次扫描整个集合。索引异常或陈旧时，以满足当前契约的权威 Markdown 验证和重建，保留来源事实。
+Markdown 是权威来源，索引保存已建立记录的定位、状态、非空 alignment、摘要、tags 和直接关系。记录内容、身份或位置变化需要同步索引；candidate 通过独立来源入口读取。`list`、`trace` 与 metadata 搜索只读取结构有效的已发布索引，不逐次发现或读取 Markdown 核对新鲜度。索引异常时显式诊断并恢复；已知合法来源变化用同步发布新快照，保留来源事实。
 
 ### 查找与结果解释
 
@@ -209,13 +209,19 @@ Markdown 是权威来源，索引保存已建立记录的定位、状态、非�
 - relation type 单独使用时匹配任一该类型直接边；与目标同用时，两者须命中同一条边。结构条件先于排序、分页和文本匹配。
 - `show` 由索引定位并确认目标 ID 后读取 Markdown；`trace` 从同一次受检索引快照派生默认终端关系图，使用 `--json` 时返回同一份 trace 查询成功结果的稳定 JSON 关系切片。后续操作继续使用完整 ID。
 
-持久索引陈旧时，`list`、`trace` 与 metadata 搜索继续返回最后一次发布快照并发出 warning；`show` 由索引定位并验证当前文件仍声明目标 ID，通过后返回当前正文，warning 区分索引快照 metadata 与当前正文来源，验证失败为 error。warning 标识结果数据源与 `sync-index` 恢复命令；快照结果只代表该快照，不能支持对当前全集的否定性结论。
+`list` 与 `trace` 的成功结果显式包含固定 `source={kind: "published-index", currentness: "unchecked", fallback: false}`；metadata 搜索在 `searchInfo.source` 返回相同事实。`unchecked` 表示该入口按职责不核对当前来源，属于正常快照边界，不产生来源 warning。快照计数、筛选和关系不能证明当前 Markdown 全集无命中或关系仍未变化。缺失、损坏或 definition 不符的索引保持失败，不自动同步或降级。
+
+`show` 由索引定位并验证当前文件仍声明目标 ID，通过后返回当前正文；只用该目标已读字节核对单条 revision，漂移时 warning 区分发布 metadata 与当前正文。该读取不验证全集，目标不可读或身份不符为 error。content 搜索、严格 `check`、同步、mutation 与 stage 各自保留来源验证和漂移保护职责。
 
 关系条件的查询结果另以可选 `filterRelations` 返回**导致该记录命中的完整边集合**。只有传入 `--related-to` 或 `--relation-type` 时才出现；它从本次筛选使用的同一来源快照投影，按 `(sourceId, type, target)` 去重并以 UTF-16 code-unit 词法序排列。前驱边由 anchor 指向结果，后继边由结果指向 anchor，both 取并集；type-only 选择结果来源的指定类型出边，组合条件必须命中同一条边。记录集合、排序、total 与分页不因该投影改变。该字段属于 Decision 内部 list/search 查询记录，不进入索引、Schema 或公开导出边界。
 
 搜索的文本证据与 `filterRelations` 分开：`matchedFields`、`matchedRelations` 只报告实际文本命中，`matchedRelations: none` 不否定关系筛选命中。CLI 默认每条预览最多三条命中边，`list --detail` 展开当前页全部命中边；领域查询结果保留完整集合。需要完整正文或完整直接关系时，继续用 `show` 读取来源记录。
 
-`trace` 默认 `direction=both`、`depth=5`、`maxRecords=50`。有限深度可为非负安全整数，`--depth all` 不设深度限制；记录预算必须是正安全整数。默认终端图稳定显示 header、`L0/L1/...` trace 图层、关系或事件组、`* trace` 与 `~ context`；它不是旧的平铺文本或 Mermaid。不完整时在图尾显示 frontier 和 blockedEvent。`--json` 才输出同一份 trace 查询成功结果的稳定 JSON envelope，回显 `anchorId`、实际 direction 与 limits；无限深度在 `limits.depth` 中表示为 `"all"`。输出的 `traceIds` 是递归遍历成员，`contextIds` 只闭合一次已跨越的完整拆分、纯归并或重划事件；二者互斥，且并集与 `entries` 的键相同。entry 的 `relations` 永远是索引中的完整直接关系，切片外 target 仍是原始事实；存在的 `summary` 原样投影，缺失时省略，trace 不推断摘要。终端图只展开两端都在切片内的边；已读取但缺少摘要显示 `[无摘要]`，摘要按 JSON 转义的完整单行文本显示。主体块承接其 source 边；复杂事件中 source 仅为 context 时，事件按边显示完整 source、type、target 与摘要，不能以匿名摘要代替。context 成员不递归扩展，且它与 trace 成员的边归属不改变 `coverage`、成员选择或 JSON。
+`trace` 默认 `direction=both`、`depth=5`、`maxRecords=50`。有限深度可为非负安全整数，`--depth all` 不设深度限制；记录预算必须是正安全整数。默认终端图稳定显示 header、来源 Source、`L0/L1/...` trace 图层、关系或事件组、`* trace` 与 `~ context`。不完整时在图尾显示 frontier 和 blockedEvent。`--json` 才输出同一份 trace 查询成功结果的稳定 JSON envelope，回显 `anchorId`、实际 direction 与 limits；无限深度在 `limits.depth` 中表示为 `"all"`。
+
+输出的 `traceIds` 是递归遍历成员，`contextIds` 只闭合已跨越的完整拆分、纯归并或重划事件；二者互斥，且并集与 `entries` 的键相同。entry 的 `relations` 永远是索引中的完整直接关系，切片外 target 仍是原始事实；存在的 `summary` 原样投影，缺失时省略，trace 不推断摘要。
+
+终端图只展开两端都在切片内的边；已读取但缺少摘要显示 `[无摘要]`，摘要按 JSON 转义的完整单行文本显示。主体块承接其 source 边；复杂事件中 source 仅为 context 时，事件按边显示完整 source、type、target 与摘要，不能以匿名摘要代替。context 成员不递归扩展，且它与 trace 成员的边归属不改变 `coverage`、成员选择或 JSON。
 
 `coverage.complete` 只在请求方向未受深度或记录预算限制、且已接纳事件完整时为真。`stoppedBy` 与 `frontier` 说明尚未跨越的直接邻居；以 frontier 的 `fromId`、direction 和 `nextIds` 发起新查询，不能将它视为 cursor。记录预算阻断一个多记录事件时，`blockedEvent` 给出完整成员与最小 `requiredMaxRecords`；该事件没有部分接纳。普通单记录接纳受预算阻断时只形成 `max-records` frontier，不产生 `blockedEvent`。
 
@@ -249,13 +255,11 @@ Markdown 是权威来源，索引保存已建立记录的定位、状态、非�
 
 | 本次依据 | `kind` | `currentness` | `fallback` |
 | --- | --- | --- | --- |
-| metadata：发布索引与本次读取的来源 revision 相同 | `published-index` | `current` | `false` |
-| metadata：两者 revision 不同 | `published-index` | `stale` | `false` |
-| metadata：来源 revision 核对失败，继续查询结构有效的发布快照 | `published-index` | `unchecked` | `false` |
+| metadata：读取完整验证的发布快照，当前来源未核对 | `published-index` | `unchecked` | `false` |
 | content：当前来源验证成功，索引映射可用 | `validated-source` | `current` | `false` |
 | content：索引不可用或陈旧，完整验证来源后用只读内存投影降级 | `validated-source` | `current` | `true` |
 
-`current` 只说明本次已有验证证据，不承诺查询期间锁或跨文件原子快照。`stale`、`unchecked` 的计数与覆盖只代表发布快照；这两种来源状态与 fallback 均产生 warning。
+`current` 只说明本次已有验证证据，不承诺查询期间锁或跨文件原子快照。metadata 的来源证据和计数边界同[查找与结果解释](#查找与结果解释)；content 的 fallback 产生来源 warning。
 
 #### 计数与覆盖
 
@@ -273,9 +277,9 @@ warning 保留领域前缀并写入 stderr，每类仅一次：
 
 - 返回限制：`search results limited: max-records`。
 - 预览限制：`search previews limited: match-previews,preview-characters`，只列实际原因。
-- 来源状态：`search source: stale published-index`、`search source: unchecked published-index` 或 `search source: validated-source fallback`，附来源边界及 `sync-index` 恢复动作；普通预算限制不要求修复来源。
+- 来源状态：`search source: validated-source fallback`，附来源边界及 `sync-index` 恢复动作；普通预算限制不要求修复来源。
 
-按来源和各项覆盖判断结论：仅预览受限不表示记录发现不完整；来源为 stale/unchecked 或扫描不完整时，不能对当前全集作否定性结论。需要更多命中时收紧筛选，完整正文和直接关系用 `show` 读取。预览预算不是 stdout 总字节上限，外部展示仍可能截断。
+按来源和各项覆盖判断结论：仅预览受限不表示记录发现不完整；来源为发布快照或扫描不完整时，不能对当前全集作否定性结论。需要更多命中时收紧筛选，完整正文和直接关系用 `show` 读取。预览预算不是 stdout 总字节上限，外部展示仍可能截断。
 
 ### 同步与待提交快照
 

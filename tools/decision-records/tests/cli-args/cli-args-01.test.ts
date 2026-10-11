@@ -228,10 +228,16 @@ test("decision list and search help project record discovery semantics", async (
     assert.match(help.stdout, /Examples:\n  decision-records /u, command);
   }
   const listHelp = await runCli(["list", "--help"]);
-  assert.match(listHelp.stdout, /last published snapshot with a warning/u);
+  assert.match(
+    listHelp.stdout,
+    /last published snapshot, without checking Markdown currentness/u
+  );
   const searchHelp = await runCli(["search", "--help"]);
   assert.match(searchHelp.stdout, /show <decision-id>/u);
-  assert.match(searchHelp.stdout, /do not conclude absence/u);
+  assert.match(
+    searchHelp.stdout,
+    /does not prove absence from current Markdown/u
+  );
 });
 
 test("new help fixes explicit scaffold inputs without accepting lifecycle alignment", async () => {

@@ -160,6 +160,14 @@ export type DecisionSearchFilters = Omit<
   DecisionListAppliedFilters,
   "createdAtFrom" | "createdAtTo"
 >;
+export const decisionPublishedSnapshotSource = {
+  kind: "published-index",
+  currentness: "unchecked",
+  fallback: false
+} as const;
+export type DecisionPublishedSnapshotSource =
+  typeof decisionPublishedSnapshotSource;
+
 export type DecisionSearchInfo = RecordSearchInfo<DecisionSearchFilters>;
 
 export type DecisionSearchSnapshot = {
@@ -184,6 +192,7 @@ export type DecisionTraceEntry = Readonly<{
 export type DecisionTraceSuccess = Readonly<{
   status: "ok";
   anchorId: DecisionId;
+  source: DecisionPublishedSnapshotSource;
   direction: DecisionTraceDirection;
   limits: Readonly<{
     depth: number | "all";
@@ -222,6 +231,7 @@ export type DecisionQuerySuccess =
   | (QuerySuccessBase & {
       appliedFilters: DecisionListAppliedFilters;
       command: "list";
+      source: DecisionPublishedSnapshotSource;
       facets: DecisionListFacets;
       limit: number;
       offset: number;

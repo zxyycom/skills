@@ -68,6 +68,10 @@
       "DECISION-ACTIVATE-RELATION-REPLACE-001": "sha256:70216b1c5f3bea564c0b94653191ae64d9e370d2dd30215c6169bebb797817ca",
       "DECISION-ACTIVATION-ARCHIVE-001": "sha256:c48386727c47ad4d668d0cf4b281dc34a03df05b94d13e68edf0e1db52ce5be4",
       "DECISION-ACTIVATION-RELATION-001": "sha256:dd5b8b4bf857e03a6853b098b254b5f130d2846a34df92554658c5b629605ce7",
+      "DECISION-BATCH-FRESH-001": "sha256:620a56faa9fbc13e9467361e955436376a345ec3a34ae185628f1a85855890e7",
+      "DECISION-BATCH-LOOKUP-001": "sha256:4dcb9df0c8626d3ef6021d473848ee761ac5c2ed40648f2035914bb32bdeef53",
+      "DECISION-BATCH-NAMES-001": "sha256:08df4e6b94affa63ffc2e1262bd10de1cf3f4f205523aff314b886c79f09190c",
+      "DECISION-BATCH-SELECTOR-001": "sha256:b7dbb8098a70a4c6ed2d5a40f22f91d1d79b2d0cbae56ac3402bde3ba1dc249e",
       "DECISION-BODY-EMPTY-001": "sha256:0acf69468bc148885b4075b0671fefaa6423640d5aa196be307e85aef00cc5e0",
       "DECISION-BODY-PUNCTUATION-001": "sha256:a2300f182241a0f3ad3bd14fceae5df525c62d736f0a06f11d31e3c1027a45db",
       "DECISION-BODY-UNSUPPORTED-001": "sha256:a958e367bfc6a5e0a9fc5dc5b5b1ed70442d68c844ff9ae0676daf68937ec6fb",
@@ -166,6 +170,8 @@
       "DECISION-FILESYSTEM-SCAN-EMPTY-INDEX-001": "sha256:6437cfb66196b1d622825042e5602f8c59413b3af0a038d0a12dff3a532afbc2",
       "DECISION-FILESYSTEM-SCAN-READ-FAILURES-001": "sha256:2e4923a3a9a35c94fa14e114ea7a09780f62a50a8128d957ed02ffc0ce6b97b8",
       "DECISION-FILESYSTEM-TRANSACTION-001": "sha256:36165998565a21138c2b04327b6b5e383ce105be3c461ab9e2e48c1b713caf58",
+      "DECISION-FILTER-EVIDENCE-DIRECTIONS-001": "sha256:a1a3c0137ad6e8730becfc63d44c54086ce553cf7f3c0fd44ef38be4ae02f3c5",
+      "DECISION-FILTER-EVIDENCE-LINEAR-001": "sha256:c7fa0c2fa7c7518d0ff930dd333e518ee200f5ecbd391b86a8f516d94ca234eb",
       "DECISION-FIRST-ESTABLISHMENT-001": "sha256:b00524bcc21b773f69dbab5b581a50a68ea8b5abf034c6f30cc450008867c075",
       "DECISION-GENERATED-ARTIFACTS-001": "sha256:f7667557e86c98a106edfadb7243f835de660c407fcdf70c457f24054b318d20",
       "DECISION-GENERATED-METADATA-001": "sha256:d9606425ea3530502c36f433801caf2cc238372609562859385b42a44ee243a5",
@@ -194,16 +200,22 @@
       "DECISION-LIST-TAG-AND-001": "sha256:d3024a5edee3bdb9bf3690ea8abb4dda744806084997aef6d63101bc8184f8fb",
       "DECISION-MEMORY-SOURCE-BOUNDARY-001": "sha256:eedbf47ce0abfc7fd13ad76e5d2809b7ef171ad2803455715d965756f83a288d",
       "DECISION-MERGE-MINIMUM-001": "sha256:a821c019e5465a0e81fe3ad612fda13434fe5a6a8ea856ad4d73de9ad6cbae2b",
+      "DECISION-MERGE-ORDINARY-INTERSECTION-001": "sha256:1c9724bc2483c62b70b8652dc1ad2de670ee24b6683759a1e89207ee6342865b",
       "DECISION-METADATA-REMOVED-001": "sha256:819209237e17d908016aeb03a95fe07f6db994a10a3a25b5efe20a2e514a1689",
       "DECISION-METADATA-SEARCH-001": "sha256:6d2d8f81a8cda2b63807f7b2354d7e821aa71de60eb0b25798d1b83fa68c538f",
       "DECISION-METADATA-SEARCH-INDEX-001": "sha256:e5598efb77be57702753b788bf355f3b3470a4e77ad36ad5708ce4bb5363eaae",
-      "DECISION-QUERY-HELP-SEMANTICS-001": "sha256:dc93630488e39e1a1974c9e59ae60b6a03ffd272d6af20bfef04e446b1e0e485",
-      "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:2dd0c7a650a5a39013d19792b1628917a33b2fd10c4d3c9ebb1a70612faaff49",
+      "DECISION-PUBLISHED-INDEX-FAIL-CLOSED-001": "sha256:9d5e03734ba5418d7c780bb0be739d841d369ff081047ec45962d3d7a29d55b2",
+      "DECISION-PUBLISHED-QUERY-NO-SOURCE-001": "sha256:474520c2e7a72e87240d47cce48c8380710403849777a431804aee27e83149f7",
+      "DECISION-QUERY-HELP-SEMANTICS-001": "sha256:a3cb65343993840370a09b0066f578120f9f3c1565b322fe97f597064edc07b4",
+      "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:79d1ca9c1e710754ebeea14ae27a539b41ba48a41e05ce4e0043907fe96d3b24",
       "DECISION-REALLOCATION-CANDIDATE-001": "sha256:ce4ad4e78703918172438a092fbbdeb70a2fcda6c79336142a29abc55ad2209e",
       "DECISION-REALLOCATION-CLOSURE-001": "sha256:65a95619af0ae72ebb66e5d7b2273d2d2746f96396e9362102e7842525b0068c",
       "DECISION-REALLOCATION-CONNECTIVITY-001": "sha256:e95accdd314ea7a1a37d1c355144be9defd4773e9918a3313cc7407d83d7986e",
+      "DECISION-REALLOCATION-DIRECT-CONTEXT-001": "sha256:a25ad86976071e739245daff90011612c26bf1f4e02e4501f022a4e1d83f0a46",
       "DECISION-REALLOCATION-GRAPH-001": "sha256:188ff839f4b23dfc148398d8914ea80047679e639d9f9819ec8ccf10b204f8e0",
       "DECISION-REALLOCATION-HISTORY-BOUNDARY-001": "sha256:14e292639c5a8255f54556d3d6464b6822e6b4a8b817827c8541f1c731f120ab",
+      "DECISION-REALLOCATION-MEMBERS-001": "sha256:7baf49e591aaaa07ba53c5001a43c894d5892030b3f0dca3e9cf2c6b25855b55",
+      "DECISION-REALLOCATION-NODE-001": "sha256:1aa12c755cac45c88d4caf316099fac91cf7070c10f5ae5548f73dbdf51eb0e0",
       "DECISION-REALLOCATION-PREDECESSOR-MINIMUM-001": "sha256:6695af4e77bb1baf0a57c00054ff17032d1cebb7ab0cb5453954b2ee980eae8f",
       "DECISION-REALLOCATION-PURITY-001": "sha256:6eeb335e243df22007a76f55f139e15db40814f0f86efce860c9a90f18676fd5",
       "DECISION-REALLOCATION-ROLE-BOUNDARY-001": "sha256:623199a1c8305847cea8010b1da1decce54b5a0b3f42b289193b171825080f21",
@@ -260,11 +272,15 @@
       "DECISION-STAGE-CLI-001": "sha256:d61fe45fcc3d86f750ded6b876f62d877d169dcfd57efa0bea296ec50dee3177",
       "DECISION-STAGE-DELETION-001": "sha256:c52e2d3b274c65bf68e9efed290596f359fd3634f523d8bfeb7076e3813cb61a",
       "DECISION-STAGE-DOMAIN-DIAGNOSTIC-001": "sha256:8c023bcca4638d1128f909f85826db3760cd56a47176ad70157a6aae5f1f2aa1",
+      "DECISION-STAGE-EXPECTED-PATH-EVIDENCE-001": "sha256:fa13405904fa4d346db3f56c0a2b39a2e6b73ed9694687f5dd25e8b65a1774c4",
       "DECISION-STAGE-FILESYSTEM-DIAGNOSTIC-001": "sha256:52c03b8764006d607f37de0c14a8c58f8e790eb4790dc7349bb13d380f25700d",
+      "DECISION-STAGE-FRESH-IDENTITY-DRIFT-001": "sha256:5900179c24a86888379b4b4e945909e6f419c155ad9f5aa89c3b70248d0fecd7",
+      "DECISION-STAGE-FRESH-SCOPE-PROTECTION-001": "sha256:cea28fce67e0f3d8113bc723ef517daae83e81b0ae3f011163a1e0dd8c2c4b6a",
       "DECISION-STAGE-INDEX-ONLY-BASELINE-001": "sha256:3c66b8dd3a5bce7aa4c1bfa35c3df7e729fb894ef1b76b6c3d1fcd0f1d6c64f8",
       "DECISION-STAGE-INPUT-001": "sha256:ce23e50737bab2ad742774dfbcc2e77e5e4724a39b162deada77d38e83478158",
       "DECISION-STAGE-ISOLATION-001": "sha256:eef4fcbcde9ffcbafd3bb9f9dc77d5cc530f3c4d7f2db53dcdaf410e1059438b",
       "DECISION-STAGE-LEGACY-001": "sha256:96b7edefdbdaf7fcfc1fffeb86f361d394dc4682472c387f41fab3de56ffff01",
+      "DECISION-STAGE-LINEAR-DISCOVERY-001": "sha256:84e1f019d8f53fc4698cef226226b1c34425f5aaf5d2d2e68a2d0e5e7fd7b606",
       "DECISION-STAGE-MOVE-001": "sha256:e548cf4e081df78fb33ae0d9a8f9224b2f16b24b3cdfc79d4ad28867a8417adc",
       "DECISION-STAGE-NO-INFERENCE-001": "sha256:1444b508d2022412266db186347a6d0f9e6493e4a9037fd1b46c59faa7145ab6",
       "DECISION-STAGE-OVERLAY-001": "sha256:34e66777bd3a4b555c4574f6d64e4eb2775fb7d60a3ca6401b3c60ad22fd7fe9",
@@ -303,8 +319,11 @@
       "DECISION-TAG-SOURCE-DRIFT-001": "sha256:8725554f39cd5d9c0ab538f2e4ebe578f6abf16534b42f9117688370ce49f552",
       "DECISION-TAG-VALIDATION-001": "sha256:cff1f7a11539283900b0d0e22ca929f9e27244d2d329a17f1269c0c7453a3a6b",
       "DECISION-TAGGED-LAYOUT-CHECK-001": "sha256:0e1a1e39e34e994d08db813813fbf05b94a56ee6778f9865455fde51ee4a8b9f",
+      "DECISION-TRACE-ADMISSION-LINEAR-001": "sha256:d83b4ca118056f4d40f2a222026f58a63652760253200dfffc6010beee33f2e2",
       "DECISION-TRACE-DIRECTION-001": "sha256:754945c800831e3fe7ff4007140e94150fa3fdcb8b609c017fa52fae17eb1801",
       "DECISION-TRACE-EVENT-ADMISSION-001": "sha256:7f0e57b9ffaceab19fd9cd75191fa652163799b9989c7e4e33e60e9eb687c468",
+      "DECISION-TRACE-RENDER-BASELINE-001": "sha256:26c3c95011c4b683e54f85bbddf98fb6b7e302e92689284aa89b205750b89c54",
+      "DECISION-TRACE-RENDER-LINEAR-001": "sha256:36ec97beffe5a01fa5b1a6ee731acfa0106a3d8891aad0b3efb9dda877b1230d",
       "DECISION-TRANSACTION-CLEANUP-001": "sha256:9b61b01c1a7925d75f53523f6c1a5f249d81f27d10e73b5c8ab6e31dfe89f252",
       "DECISION-TRANSACTION-CLEANUP-002": "sha256:85b4ee2d0b4a53c0402f48848d8fa0e99401623143e6541862ca1c53dd958bd6",
       "DECISION-TRANSACTION-CLEANUP-003": "sha256:35e487bff9e93e7214fa621fcc6eced5e13d607b3ff39c618061de3f712c26ad",
@@ -367,6 +386,12 @@
       "GENERATED-FILE-DRIFT-001": "sha256:4e53dbd24a3fe5e22bc5b75a4bc335b605c5973bc0414f788cc46601ff1a0c88",
       "GENERATED-FILE-SOURCE-MAP-001": "sha256:5fe20d725b3ba8de48dc2ec45f4981ec26804727e9e323e300644cc88ed8a6ef",
       "GENERATED-FILE-SYMLINK-001": "sha256:02ab6eda795de9f1f9857b70dd5b785598b46c807a43b2a5dbf54f4f37b74add",
+      "GRAPH-DYNAMIC-ORDER-001": "sha256:b2d2f734591a2358e22a5d0a54a314fbfd819b62ab56c679210e23fc03b309aa",
+      "GRAPH-ITERATOR-RESTORE-001": "sha256:c2b6361574c939521cfba81955658c4f7b93cc907200357a63693f7399c59c87",
+      "GRAPH-MEMBER-IDENTITY-001": "sha256:54df64a6551e52ca6c8358ca9ac6f4b1bc92c2eef4727e9e0601dd34b2a89aa7",
+      "GRAPH-MEMBER-REPRESENTATION-001": "sha256:fb63dce3bfc7a6a3f084501d32ae5199d279d637e930f90e14a80842d7401f64",
+      "GRAPH-PROXY-DIRECT-001": "sha256:ec2112c3e58f1beb3b56dd6ee3ca8cd14f88cdd9f559376b01d82a9df3d63241",
+      "GRAPH-PROXY-MEMBERS-001": "sha256:2e559eef05533246ca13e3ae2f09a4006a68c2be821e10bd699caeed845bf046",
       "GRAPH-TRACE-ACCESSOR-001": "sha256:c62e232518030ddd8f548d735b8d522ea5fe5a9b8c22ebd5af539e4fbada8ffa",
       "GRAPH-TRACE-ARRAY-SNAPSHOT-001": "sha256:feecfe007b20cc322305f01247309aed554ff47f767e8ad13e5fc91ad4b4eaaa",
       "GRAPH-TRACE-INHERITED-001": "sha256:7ee93dc93e98d1e5d5a6e453caa6cafeb13c5ca5f3ab3a82e3604a8a4d4c616e",
@@ -805,7 +830,7 @@
       "RECORD-SEARCH-FILTERS-001": "sha256:6423f47e26efa7557ca2ce8c3f2b69ffc234c233c50fb5712e6881b8763e55ae",
       "RECORD-SEARCH-OUTPUT-001": "sha256:869419b8d2531e6c65b1e4f89b6d4e8fdb868da34fcf45af88f0d2e260c2e770",
       "RECORD-SEARCH-PREVIEWS-001": "sha256:a6072e6effe4a51ffe224468b199d911c3abda0f8e4a425d471106f8f0756e3f",
-      "RECORD-SEARCH-SOURCE-001": "sha256:949add39d31d75e8365f86ad0cd1fcb46623e564991b5601c06fc3e61ce0da1d",
+      "RECORD-SEARCH-SOURCE-001": "sha256:d48b47f0f65f58b64776a684309b6c5d7995bd91f2e46e01c38608dd940a50d6",
       "RECORD-SEARCH-WARNING-001": "sha256:4a91bd24a1229a5b25cd065e4363495dcab801d2d5b23d5b2e910ee7e95d0d43",
       "RECORD-SEARCH-ZERO-001": "sha256:7611fe4210bc65a88b9c9cd5a3afe68cfe73e2160e1b10625d4f1ccc5190b0e0",
       "RECORD-SET-RELATIONS-CLI-CLASSIFICATION-001": "sha256:33712ac2e46fe72937657f485d92c9dfab65359b0ce8f699dd184696c147131d",
@@ -1723,6 +1748,46 @@
       ],
       "testIds": [
         "test:d8d9ba14de32faa5b12083bee3255fe022bd211f8dd31d6104c7c7b530159fb6"
+      ]
+    },
+    "DECISION-BATCH-FRESH-001": {
+      "title": "来源阶段变化不复用旧身份定位",
+      "sourcePath": "cases/decision-batch-lookup-fresh.md",
+      "tags": [
+        "source-validation"
+      ],
+      "testIds": [
+        "test:a6282d8bd38d3b7b3eb938fd3b6fe0f66b211b158b6bbef4559f44aad1f39987"
+      ]
+    },
+    "DECISION-BATCH-LOOKUP-001": {
+      "title": "批量定位与准备的 ID 工作线性增长",
+      "sourcePath": "cases/decision-batch-lookup-linear.md",
+      "tags": [
+        "performance"
+      ],
+      "testIds": [
+        "test:d546adc454443e392eb6ba7520d5a15ea4d37e3854b805d8f0b5a7f0e0a3c38d"
+      ]
+    },
+    "DECISION-BATCH-NAMES-001": {
+      "title": "暂存与选择性同步保留混合名字选择及错误",
+      "sourcePath": "cases/decision-stage-sync-name-lookup.md",
+      "tags": [
+        "selector"
+      ],
+      "testIds": [
+        "test:4622f2a74d6d9869cb5110bab3fb7050ef38ebc61358a7ff72fe0326826d2ef2"
+      ]
+    },
+    "DECISION-BATCH-SELECTOR-001": {
+      "title": "批量定位保留完整 ID、名字歧义和重复首条事实",
+      "sourcePath": "cases/decision-batch-selector-facts.md",
+      "tags": [
+        "selector"
+      ],
+      "testIds": [
+        "test:495ee0657c2c51a94448e1b1ca31cf01a525fe175702371617baa6e4445a9660"
       ]
     },
     "DECISION-BODY-EMPTY-001": {
@@ -2719,6 +2784,26 @@
         "test:67d2d64a9664ce754ae141f969f9f810f43f00bbab4cc1aef2779e5df76b9534"
       ]
     },
+    "DECISION-FILTER-EVIDENCE-DIRECTIONS-001": {
+      "title": "方向类型组合保持同边筛选与省略边界",
+      "sourcePath": "cases/decision-filter-evidence-directions.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:2e3e5586e37881f239694ce62be0bd7f0aeb6cbb911148c77ebb9fe0410af89a"
+      ]
+    },
+    "DECISION-FILTER-EVIDENCE-LINEAR-001": {
+      "title": "私有追加消除命中数组平方复制",
+      "sourcePath": "cases/decision-filter-evidence-linear.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:853856d60bf84f2f95fe681a2328b6db1b0c558081c281fe43399991222bad96"
+      ]
+    },
     "DECISION-FIRST-ESTABLISHMENT-001": {
       "title": "首次建立创建根目录 Decision ID 与定义十一索引",
       "sourcePath": "cases/decision-first-establishment-001.md",
@@ -2999,6 +3084,16 @@
         "test:e3f87bc58bf0902d8861941351ca329c9d7cae1f952d029fda0397ecf3c67f78"
       ]
     },
+    "DECISION-MERGE-ORDINARY-INTERSECTION-001": {
+      "title": "归并事件 direct 集合包含事件内普通邻居",
+      "sourcePath": "cases/decision-merge-ordinary-intersection.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:20010d5510a22600bf081fb812042e580a4aa0e958238ed2eb6f8857e53ef36b"
+      ]
+    },
     "DECISION-METADATA-REMOVED-001": {
       "title": "拒绝移除领域字段与未知 frontmatter",
       "sourcePath": "cases/decision-metadata-removed-001.md",
@@ -3029,6 +3124,26 @@
         "test:fe27cd88f361b4ad235572e229440fc880a8688791354ccbde6a7a42f007a436"
       ]
     },
+    "DECISION-PUBLISHED-INDEX-FAIL-CLOSED-001": {
+      "title": "发布索引异常与非法领域图保持失败",
+      "sourcePath": "cases/decision-published-index-fail-closed.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:db7075c04af1e9c9f1f5840eaf1e931b739b919e57df84c29bd6b5086459b757"
+      ]
+    },
+    "DECISION-PUBLISHED-QUERY-NO-SOURCE-001": {
+      "title": "发布查询不读取或发现 Markdown",
+      "sourcePath": "cases/decision-published-query-no-source.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:570a429a3d3d117bc7091cfb93e008b2131dfaaa01acab7ee814753d7a6a3703"
+      ]
+    },
     "DECISION-QUERY-HELP-SEMANTICS-001": {
       "title": "list 与 search help 投影记录发现语义",
       "sourcePath": "cases/decision-query-help-semantics-001.md",
@@ -3040,13 +3155,13 @@
       ]
     },
     "DECISION-QUERY-INDEX-MEMBERSHIP-001": {
-      "title": "查询读取持久快照并提示陈旧且 Check 检测来源漂移",
+      "title": "查询显式读取发布快照且 Check 检测来源漂移",
       "sourcePath": "cases/decision-query-index-membership-001.md",
       "tags": [
         "decision-records"
       ],
       "testIds": [
-        "test:bc657ec07745a8374cfb473daed69a84a0adef7b4245d72eabe77d7e4f28d31d"
+        "test:d9704ac514289db75b4d1f945ccf5017bbeacdbe1dcb28c16ee8b166cd4e2b7b"
       ]
     },
     "DECISION-REALLOCATION-CANDIDATE-001": {
@@ -3079,6 +3194,16 @@
         "test:05115fda4c496e4bd80297340a946fd2081dba3b90063c4422282cf1d548899b"
       ]
     },
+    "DECISION-REALLOCATION-DIRECT-CONTEXT-001": {
+      "title": "稀疏重划按方向与深度区别 direct 与 context",
+      "sourcePath": "cases/decision-reallocation-direct-context.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:186a67dc7479b90a923818ef2b9a4e4ee93b5498aa3c2e981401d86fe5bac792"
+      ]
+    },
     "DECISION-REALLOCATION-GRAPH-001": {
       "title": "重划分量保留角色并隔离断连图",
       "sourcePath": "cases/decision-reallocation-graph-001.md",
@@ -3097,6 +3222,26 @@
       ],
       "testIds": [
         "test:611d8d9922358785622fcc8a6a55a2d24fe775c922451e45e0b52b547780bfef"
+      ]
+    },
+    "DECISION-REALLOCATION-MEMBERS-001": {
+      "title": "合法稀疏重划完整遍历不重复处理全成员",
+      "sourcePath": "cases/decision-reallocation-members-linear.md",
+      "tags": [
+        "performance"
+      ],
+      "testIds": [
+        "test:bd6516a02175a4c343c68813ee67464d78896fe5ebc6ebe48a565856de8c6c5e"
+      ]
+    },
+    "DECISION-REALLOCATION-NODE-001": {
+      "title": "生成 Node 重划 CLI 保留原子预算和完整遍历",
+      "sourcePath": "cases/decision-reallocation-node-budget.md",
+      "tags": [
+        "generated-runtime"
+      ],
+      "testIds": [
+        "test:7a6e048fc15a0ab089a052d7f2216e1ef0b75983bf09c15176d82a26b5866f30"
       ]
     },
     "DECISION-REALLOCATION-PREDECESSOR-MINIMUM-001": {
@@ -3666,6 +3811,16 @@
         "test:776d7b89f2826481e5bcb400aed93ec8ac7fe082da83fb60e38feefa53af7b95"
       ]
     },
+    "DECISION-STAGE-EXPECTED-PATH-EVIDENCE-001": {
+      "title": "预期路径的失败不能被同 ID 他处来源遮蔽",
+      "sourcePath": "cases/decision-stage-expected-path-evidence.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:32f4526900f1665a37bfe9e35ab5b55328a78c2b07dded296fd423228a637d3d"
+      ]
+    },
     "DECISION-STAGE-FILESYSTEM-DIAGNOSTIC-001": {
       "title": "Stage 访问拒绝按稳定诊断输出并净化 detail",
       "sourcePath": "cases/decision-stage-filesystem-diagnostic-001.md",
@@ -3674,6 +3829,26 @@
       ],
       "testIds": [
         "test:f5e880478a635253b953e5c68a92b7d48a87732c9692a952bc15fe9b5aa17117"
+      ]
+    },
+    "DECISION-STAGE-FRESH-IDENTITY-DRIFT-001": {
+      "title": "新鲜发现拒绝重复移动和删除重现",
+      "sourcePath": "cases/decision-stage-fresh-identity-drift.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:1270ea9c854bc87bc39e547788fd877dc852b2768491ce61def50a4c69e71a5c"
+      ]
+    },
+    "DECISION-STAGE-FRESH-SCOPE-PROTECTION-001": {
+      "title": "三个 scope 都独立写前重读并保护 pending",
+      "sourcePath": "cases/decision-stage-fresh-scope-protection.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:a610185e6f9ff32bbd62e38098871ffb9dc76f4e1954735292d0cb60e7a542b6"
       ]
     },
     "DECISION-STAGE-INDEX-ONLY-BASELINE-001": {
@@ -3714,6 +3889,16 @@
       ],
       "testIds": [
         "test:6f40ec4cec12465f37839bd1c6855cead9b79ed28538301e45dcc553f71b9426"
+      ]
+    },
+    "DECISION-STAGE-LINEAR-DISCOVERY-001": {
+      "title": "每个 stage 写前阶段只发现一次集合",
+      "sourcePath": "cases/decision-stage-linear-discovery.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:6a24f4973ca685339efb902ea61d7740b67dd11eb391f17fba3e33d0ad03f28d"
       ]
     },
     "DECISION-STAGE-MOVE-001": {
@@ -4096,6 +4281,16 @@
         "test:051f816d6a02f84620a835b7e8ab384f56d97ec147311f4cf973373d2f20a4ae"
       ]
     },
+    "DECISION-TRACE-ADMISSION-LINEAR-001": {
+      "title": "split 与 merge 单次发现并复用稳定单位",
+      "sourcePath": "cases/decision-trace-admission-linear.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:2ba6061edd370040cd69331473aade43deed11177220b494dbd28ee363ef13b3"
+      ]
+    },
     "DECISION-TRACE-DIRECTION-001": {
       "title": "Trace 遵循前序与后继方向",
       "sourcePath": "cases/decision-trace-direction-001.md",
@@ -4116,6 +4311,26 @@
         "test:19e4acf783da95bf4a9760d95a0b230e3cb6bc06c8a9ea11542b752d4e2f953f",
         "test:7380352825be7a8e2eb8ceacecea8209b21befb3309872bea3b2e82f945b6087",
         "test:7a57236594c453b8ffdae3c06e3c07e5ce561cb3dc71177a869bd2ca75c145fe"
+      ]
+    },
+    "DECISION-TRACE-RENDER-BASELINE-001": {
+      "title": "渲染字节保留历史 owner 与上下文摘要",
+      "sourcePath": "cases/decision-trace-render-baseline.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:1e6f826bd468b4a381c9d8d0af38a4bef0aeb80d4f17990e1833a6c206a56489"
+      ]
+    },
+    "DECISION-TRACE-RENDER-LINEAR-001": {
+      "title": "层与事件渲染复用一次关系上下文",
+      "sourcePath": "cases/decision-trace-render-linear.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:e5c62914fb5550628fa1beaffeabb81c27f8123c5ec923c5d7596c274f8125b1"
       ]
     },
     "DECISION-TRANSACTION-CLEANUP-001": {
@@ -4762,6 +4977,66 @@
       ],
       "testIds": [
         "test:234e68e4e0dc8b99c4f7f546a5d48f869811ba167e5381d843c728f4838a79c4"
+      ]
+    },
+    "GRAPH-DYNAMIC-ORDER-001": {
+      "title": "动态字段与 iterator 保持原快照读取次序",
+      "sourcePath": "cases/graph-dynamic-snapshot-order.md",
+      "tags": [
+        "relation-graph"
+      ],
+      "testIds": [
+        "test:8fd3bb441122147e7e2aedb5e14f11a95e7ec6fced44658e713fff77fd01ba2a"
+      ]
+    },
+    "GRAPH-ITERATOR-RESTORE-001": {
+      "title": "继承 iterator 改变及恢复不遗漏 direct 晋升",
+      "sourcePath": "cases/graph-iterator-restoration.md",
+      "tags": [
+        "relation-graph"
+      ],
+      "testIds": [
+        "test:968ee87587d210009973292e96b6bab1c9b0dd19b0176c236531b87922aa79ba"
+      ]
+    },
+    "GRAPH-MEMBER-IDENTITY-001": {
+      "title": "按成员值和 kind 合并并保留直接目标并集",
+      "sourcePath": "cases/graph-member-value-identity.md",
+      "tags": [
+        "relation-graph"
+      ],
+      "testIds": [
+        "test:a74ea26e7d40c76c1128c488ecad8dbbaa66beeebc7b7633e954fb7b688f8703"
+      ]
+    },
+    "GRAPH-MEMBER-REPRESENTATION-001": {
+      "title": "不同稳定 direct 单位共享一份完整成员表示",
+      "sourcePath": "cases/graph-member-representation.md",
+      "tags": [
+        "performance"
+      ],
+      "testIds": [
+        "test:7604c4e5c8afbe9c47110156fc9612f96cccdaf9e127eab373df8a1c04e67142"
+      ]
+    },
+    "GRAPH-PROXY-DIRECT-001": {
+      "title": "Proxy direct iterator 变化重新快照并晋升",
+      "sourcePath": "cases/graph-proxy-direct-snapshot.md",
+      "tags": [
+        "relation-graph"
+      ],
+      "testIds": [
+        "test:5fb9bb7ee3beaddec94c211ba28df98f5d5caa46399965de1435777752f00224"
+      ]
+    },
+    "GRAPH-PROXY-MEMBERS-001": {
+      "title": "Proxy 成员变化重算预算而非复用成功组",
+      "sourcePath": "cases/graph-proxy-member-budget.md",
+      "tags": [
+        "relation-graph"
+      ],
+      "testIds": [
+        "test:2244be2c75dc0484d74e9f92cb33b9a21f905de43b2e03ac813e470fa9d1ba82"
       ]
     },
     "GRAPH-TRACE-ACCESSOR-001": {
@@ -9247,8 +9522,8 @@
         "record-search"
       ],
       "testIds": [
-        "test:11e02aea8eb025b8d8c61dcb3b5a179aa7e6dedeee52bc33c92e075f50e42097",
-        "test:6547fc8be0f76d6da95f4040d1f157a7f9a2511731407707618244bb4c9406b9"
+        "test:6547fc8be0f76d6da95f4040d1f157a7f9a2511731407707618244bb4c9406b9",
+        "test:e30db019c652c5333afa1f6a0e7b028cfbb995ee74655fa61b02dabb0e043cfa"
       ]
     },
     "RECORD-SEARCH-WARNING-001": {

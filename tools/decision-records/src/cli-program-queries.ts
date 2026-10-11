@@ -71,7 +71,7 @@ const decisionListHelpAfter = [
   "  Lists established decisions only; candidates stay outside the index (see candidates / show-candidate).",
   "  Defaults to the active persisted snapshot; --status, --alignment, repeatable --tag (AND), and inclusive --created-from/--created-to intersect before paging.",
   "  --related-to resolves first; --direction and --relation-type qualify its direct edges, while --relation-type alone matches any direct edge of that type.",
-  "  A stale index still returns the last published snapshot with a warning; restore it with sync-index. An empty page only describes the current filters and window.",
+  "  Reads only the last published snapshot, without checking Markdown currentness or emitting a source warning. Use sync-index to publish source changes; an empty page does not prove absence from current Markdown.",
   "Examples:",
   "  decision-records list --tag project-tooling --limit 20",
   "  decision-records list --related-to 260922-unify-cli-workspace-location-and-help --direction successors --detail"
@@ -80,11 +80,11 @@ const decisionListHelpAfter = [
 const decisionSearchHelpAfter = [
   "Semantics:",
   "  Searches established decisions only; candidates stay outside the index.",
-  "  --in content (default) reads authoritative Markdown; --in metadata reads only the published index snapshot. Structural filters apply before text matching.",
+  "  --in content (default) reads authoritative Markdown; --in metadata reads only the published index snapshot with unchecked currentness and no source warning. Structural filters apply before text matching.",
   "  --related-to resolves first; --direction and --relation-type qualify its direct edges, while --relation-type alone matches any direct edge of that type.",
   "  --match all requires every term, any requires one term, phrase requires one contiguous phrase.",
   "  The six-line summary reports applied query/filters, source, limits, counts, and independent scan/results/previews coverage; matched>=N is a lower bound.",
-  "  Preview limits do not stop matching; source or results warnings mean do not conclude absence from bounded or unverified-current results. Read returned IDs with show or tighten filters.",
+  "  Preview limits do not stop matching. Published metadata does not prove absence from current Markdown; content fallback and results warnings describe their own boundaries. Read returned IDs with show or tighten filters.",
   "  Identify a record here, then read its full body and direct relations with show <decision-id>.",
   "Examples:",
   '  decision-records search "record lifecycle" --match phrase --status archived',
@@ -297,7 +297,7 @@ function registerTraceCommand(
   const trace = createSubcommand(
     program,
     "trace",
-    "Render a bounded Decision relation graph; use --json for the machine-readable slice."
+    "Render a bounded relation graph from the published index snapshot without checking Markdown currentness; use --json for the machine-readable slice."
   )
     .argument(
       "<selector>",

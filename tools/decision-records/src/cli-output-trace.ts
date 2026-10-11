@@ -22,6 +22,7 @@ export function printDecisionTrace(
 function jsonTrace(trace: DecisionTraceResult): object {
   return {
     status: "ok",
+    source: trace.source,
     anchorId: trace.anchorId,
     direction: trace.direction,
     limits: trace.limits,

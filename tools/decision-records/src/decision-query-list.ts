@@ -1,3 +1,4 @@
+import { decisionPublishedSnapshotSource } from "./decision-query-contract.ts";
 import { stateIndexQueryMaximumLimit } from "../../index-runtime/src/index.ts";
 import {
   decisionDiagnostic,
@@ -47,6 +48,7 @@ export async function listDecisionRecords(
   return {
     appliedFilters: decisionListAppliedFilters(request),
     command: "list",
+    source: decisionPublishedSnapshotSource,
     facets: buildDecisionListFacets(all.value),
     limit: request.limit,
     offset: request.offset,

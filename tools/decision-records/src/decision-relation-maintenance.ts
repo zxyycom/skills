@@ -1,14 +1,16 @@
 import {
+  createDecisionRecordLookup,
+  findDecisionRecord,
+  type DecisionRecordLookup
+} from "./decision-record-lookup.ts";
+import {
   decisionDiagnostic,
   decisionFailure,
   type DecisionApplicationFailure
 } from "./application-result.ts";
 import { serializeDecisionFrontmatter } from "./decision-metadata.ts";
 import { decisionRelationConsistencyIssues } from "./relation-graph.ts";
-import {
-  findRecord,
-  relationsEqual
-} from "./decision-relation-transaction-support.ts";
+import { relationsEqual } from "./decision-relation-transaction-support.ts";
 import type { DecisionRelationReview } from "./decision-relation-transaction-types.ts";
 import type { DecisionFileChange } from "./decision-transaction.ts";
 import type {
@@ -48,14 +50,15 @@ type DecisionSetRelationsPreparation =
  */
 export function prepareDecisionSetRelations(
   scan: DecisionScan,
-  request: DecisionSetRelationsRequest
+  request: DecisionSetRelationsRequest,
+  records: DecisionRecordLookup = createDecisionRecordLookup(scan.records)
 ): DecisionSetRelationsPreparation {
   const groups = [...request.relationOverrideGroups].sort((left, right) =>
     compareText(left.source, right.source)
   );
   const sources: PreparedSetRelationsSource[] = [];
   for (const group of groups) {
-    const prepared = prepareSetRelationsSource(scan, group);
+    const prepared = prepareSetRelationsSource(records, group);
     if ("status" in prepared) return prepared;
     sources.push(prepared);
   }
@@ -65,10 +68,10 @@ export function prepareDecisionSetRelations(
 }
 
 function prepareSetRelationsSource(
-  scan: DecisionScan,
+  records: DecisionRecordLookup,
   group: DecisionRelationOverrideGroup
 ): PreparedSetRelationsSource | DecisionApplicationFailure {
-  const record = findRecord(scan, group.source);
+  const record = findDecisionRecord(records, group.source);
   if (record === null || !record.markdownExists) {
     return setRelationsFailure(
       "set-relations source does not exist: " + group.source

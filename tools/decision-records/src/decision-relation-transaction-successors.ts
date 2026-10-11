@@ -1,11 +1,14 @@
 import {
+  findDecisionRecord,
+  type DecisionRecordLookup
+} from "./decision-record-lookup.ts";
+import {
   decisionFailure,
   type DecisionApplicationFailure
 } from "./application-result.ts";
 import {
   plainRelationFailure,
   cloneRelations,
-  findRecord,
   resolveEffectiveRelations
 } from "./decision-relation-transaction-support.ts";
 import type { PreparedSuccessor } from "./decision-relation-transaction-types.ts";
@@ -25,7 +28,7 @@ type PreparedSuccessors =
   | { establishedAt: string; records: PreparedSuccessor[]; status: "ok" };
 
 export function prepareSuccessors(
-  scan: DecisionScan,
+  context: Readonly<{ scan: DecisionScan; records: DecisionRecordLookup }>,
   requestedSuccessors: readonly DecisionSuccessor[],
   relationOverride: DecisionRelationOverride,
   establishedAt: string,
@@ -36,11 +39,12 @@ export function prepareSuccessors(
       ? { establishedAt, records: [], status: "ok" }
       : plainRelationFailure("evolve requires at least one --successor value.");
   }
+  const { scan, records: lookup } = context;
   const selectedIds = new Set();
   const records: PreparedSuccessor[] = [];
   for (const requested of requestedSuccessors) {
     const requestedId = requested.decisionId;
-    const record = findRecord(scan, requestedId);
+    const record = findDecisionRecord(lookup, requestedId);
     if (record === null || !record.markdownExists) {
       return plainRelationFailure(
         "Successor decision does not exist: " + requested.decisionId

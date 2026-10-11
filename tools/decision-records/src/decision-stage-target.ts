@@ -1,9 +1,10 @@
-import { decisionNameFromId, parseDatedDecisionId } from "./decision-path.ts";
+import { createDecisionNameLookup } from "./decision-record-lookup.ts";
+import { parseDatedDecisionId } from "./decision-path.ts";
 import { DecisionStageInputError } from "./decision-stage-support.ts";
 import {
   readDecisionBaseline,
   readFilesystemDecisionCandidates,
-  readFilesystemDecisionSource
+  resolveFilesystemDecisionSource
 } from "./decision-stage-sources.ts";
 import { compareText } from "./decision-stage-index.ts";
 import type {
@@ -114,9 +115,8 @@ async function mergeSelectedDecisionSources(
         source:
           baselineSource === undefined
             ? null
-            : await readFilesystemDecisionSource(
-                options.decisionsDirectory,
-                options.decisionScope,
+            : resolveFilesystemDecisionSource(
+                filesystem,
                 decisionId,
                 baselineSource.source.sourcePath
               )
@@ -151,13 +151,17 @@ function resolveSelectedDecisionIds(
     ...baseline.map((source) => source.source.decisionId),
     ...filesystem.sources.keys()
   ]);
+  let names: ReadonlyMap<string, readonly DecisionId[]> | undefined;
   const resolved: DecisionId[] = [];
   const seen = new Set<DecisionId>();
   for (const selector of selectors) {
     const parsed = parseDatedDecisionId(selector);
     const decisionId =
       parsed === null
-        ? resolveDecisionNameSelector(selector, candidateIds)
+        ? resolveDecisionNameSelector(
+            selector,
+            (names ??= createDecisionNameLookup(candidateIds))
+          )
         : parsed.id;
     if (seen.has(decisionId)) {
       throw new DecisionStageInputError(
@@ -179,11 +183,9 @@ function duplicateFilesystemDecisionIdError(decisionId: DecisionId): Error {
 
 function resolveDecisionNameSelector(
   name: string,
-  candidateIds: ReadonlySet<DecisionId>
+  names: ReadonlyMap<string, readonly DecisionId[]>
 ): DecisionId {
-  const matches = [...candidateIds]
-    .filter((decisionId) => decisionNameFromId(decisionId) === name)
-    .sort(compareText);
+  const matches = names.get(name) ?? [];
   if (matches.length === 0) {
     throw new DecisionStageInputError(
       "Selected Decision name does not exist in the revision or filesystem: " +

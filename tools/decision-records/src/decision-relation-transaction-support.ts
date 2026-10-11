@@ -1,4 +1,10 @@
 import {
+  createDecisionRecordLookup,
+  findDecisionRecord,
+  findEstablishedDecisionRecord,
+  type DecisionRecordLookup
+} from "./decision-record-lookup.ts";
+import {
   decisionDiagnostic,
   decisionFailure,
   type DecisionApplicationFailure
@@ -8,28 +14,10 @@ import type { DecisionRelationTransactionRequest } from "./decision-relation-tra
 import {
   isDecisionCandidateRecord,
   isEstablishedDecisionRecord,
-  type DecisionId,
-  type DecisionRecord,
   type DecisionRelation,
   type DecisionRelationOverride,
-  type DecisionScan,
-  type EstablishedDecisionRecord
+  type DecisionScan
 } from "./types.ts";
-
-export function findRecord(
-  scan: DecisionScan,
-  value: DecisionId
-): DecisionRecord | null {
-  return scan.records.find((record) => record.decisionId === value) ?? null;
-}
-
-export function findEstablishedRecord(
-  scan: DecisionScan,
-  value: DecisionId
-): EstablishedDecisionRecord | null {
-  const record = findRecord(scan, value);
-  return record !== null && isEstablishedDecisionRecord(record) ? record : null;
-}
 
 export function cloneRelations(
   relations: readonly DecisionRelation[]
@@ -82,10 +70,11 @@ export function plainRelationFailure(
 
 export function decisionRelationTransactionRequiresHistoryBaseline(
   scan: DecisionScan,
-  request: DecisionRelationTransactionRequest
+  request: DecisionRelationTransactionRequest,
+  records: DecisionRecordLookup = createDecisionRecordLookup(scan.records)
 ): boolean {
   const successors = request.successors.flatMap((successor) => {
-    const record = findRecord(scan, successor.decisionId);
+    const record = findDecisionRecord(records, successor.decisionId);
     if (
       record === null ||
       (!isDecisionCandidateRecord(record) &&
@@ -107,12 +96,17 @@ export function decisionRelationTransactionRequiresHistoryBaseline(
   const relations = successors.flatMap((successor) => successor.finalRelations);
   if (
     relations.some(
-      (relation) => findEstablishedRecord(scan, relation.target) !== null
+      (relation) =>
+        findEstablishedDecisionRecord(records, relation.target) !== null
     )
   ) {
     return true;
   }
   if (request.deleteRecorded) return false;
-  const discarded = prepareDiscardDecisionEligibility(scan, request.discardId);
+  const discarded = prepareDiscardDecisionEligibility(
+    scan,
+    request.discardId,
+    records
+  );
   return discarded.status === "ok" && discarded.record !== null;
 }

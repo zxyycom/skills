@@ -1,10 +1,11 @@
+import { sameStateSourceRevision } from "../../index-runtime/src/index.ts";
 import {
   decisionIndexDiagnosticMessages,
   decisionIndexFileName,
-  loadDecisionIndex
+  loadDecisionIndex,
+  readDecisionSourceRevision
 } from "./decision-state-index.ts";
 import {
-  decisionIndexStale,
   resolveDecisionLocation,
   type DecisionLocation
 } from "./decision-query-context.ts";
@@ -24,17 +25,17 @@ import { openStageRepository } from "./decision-stage-repository.ts";
 import { stageIndexProjection } from "./decision-stage-index-scope.ts";
 import { stageWorkspaceSnapshot } from "./decision-stage-workspace-scope.ts";
 
-export type DecisionStageSuccess = {
-  callerOwnedPaths: string[];
+export type DecisionStageSuccess = Readonly<{
+  callerOwnedPaths: readonly string[];
   command: "stage";
   indexRelativePath: string;
   pendingFileCount: number;
-  preservedPendingPaths: string[];
+  preservedPendingPaths: readonly string[];
   scope: DecisionStageScope;
-  selectedIds: DecisionId[];
+  selectedIds: readonly DecisionId[];
   status: "ok";
-  writtenPaths: string[];
-};
+  writtenPaths: readonly string[];
+}>;
 
 export type DecisionStageResult =
   | DecisionApplicationFailure
@@ -63,7 +64,16 @@ async function stageFreshnessGate(
       decisionIndexDiagnosticMessages(persisted.diagnostics)
     );
   }
-  const stale = await decisionIndexStale(decisionsDirectory, persisted.value);
+  let stale = true;
+  try {
+    const revision = await readDecisionSourceRevision(
+      decisionsDirectory,
+      undefined
+    );
+    stale = !sameStateSourceRevision(persisted.value.sourceRevision, revision);
+  } catch {
+    // Stage must fail closed when current source evidence cannot be acquired.
+  }
   return stale
     ? staleStageFailure([
         `${decisionIndexFileName} is out of sync; run sync-index`
@@ -71,11 +81,13 @@ async function stageFreshnessGate(
     : { status: "ok", value: true };
 }
 
-export async function stageDecisionRecords(options: {
-  decisionIds: readonly string[];
-  location: DecisionLocation;
-  scope?: DecisionStageScope;
-}): Promise<DecisionStageResult> {
+export async function stageDecisionRecords(
+  options: Readonly<{
+    decisionIds: readonly string[];
+    location: DecisionLocation;
+    scope?: DecisionStageScope;
+  }>
+): Promise<DecisionStageResult> {
   const selectedSelectors = validateSelectedSelectors(options.decisionIds);
   if (selectedSelectors.status === "error") return selectedSelectors;
   const scope = options.scope ?? "all";
