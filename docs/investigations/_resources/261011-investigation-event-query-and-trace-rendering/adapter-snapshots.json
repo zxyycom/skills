@@ -1,0 +1,8684 @@
+{
+  "bun": "1.4.2",
+  "checks": 189,
+  "variants": [
+    "unit-trace",
+    "unit-record",
+    "unit-kind",
+    "inherited-fields",
+    "array-index",
+    "array-iterator",
+    "inherited-iterator"
+  ],
+  "allCompleteOutputsEqual": true,
+  "completeOutputsSha256": "66ae321cf4d27e567433bc52180856f303c480785162faeaad4522365f4143d3",
+  "sourceSha256": {
+    "tools/investigation-report/src/relation-validation.ts": "391d4bf3768585d652dae2fe27599fe79093c122d1fd86355399235a35cff76a",
+    "tools/shared/src/graph/trace-ordering.ts": "34692d190756c5071acd5dc7896a87984fea2e69fcaf1dd86eb2b4254aebe597",
+    "tools/shared/src/graph/trace-selection.ts": "621f9ac116b88e5e37d424447b8d07233c6c9bc80f3374e78a41c44fd3f98677",
+    "tools/index-runtime/src/query.ts": "0e5c41d2177b21469c21f5d5afad8448a213fb4e657f6c401bf63dae55d31e61",
+    "tools/index-runtime/src/query-matching.ts": "7e63e9f03d1d5bb286572764c911544e96abd55df9dd686ee23c0a6f50a4314e",
+    "tools/investigation-report/src/trace-output.ts": "25df5f357aaa3ef6889f210cf7c56702c5068e551bf17f2f411975ff96ea12b0"
+  },
+  "purpose": "Formation-time complete old/current snapshot oracle; not a distributed benchmark or maintained runner",
+  "results": [
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-trace",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor"
+          ],
+          "requiredMaxRecords": 2
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor"
+          ],
+          "requiredMaxRecords": 2
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor"
+          ],
+          "requiredMaxRecords": 2
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor"
+          ],
+          "requiredMaxRecords": 2
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a",
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a",
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor"
+          ],
+          "requiredMaxRecords": 2
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor"
+          ],
+          "requiredMaxRecords": 2
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor"
+          ],
+          "requiredMaxRecords": 2
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor"
+          ],
+          "requiredMaxRecords": 2
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a",
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a",
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor"
+          ],
+          "requiredMaxRecords": 2
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor"
+          ],
+          "requiredMaxRecords": 2
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor"
+          ],
+          "requiredMaxRecords": 2
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor"
+          ],
+          "requiredMaxRecords": 2
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a",
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a",
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-record",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "split",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "split",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "split",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "split",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "split",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "split",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "unit-kind",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "split",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "split",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "split",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "split",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "split",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "split",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "a",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "b"
+            ]
+          }
+        ],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-fields",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-index",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "array-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "predecessors",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "successors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "successors",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 1
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 2
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": 0,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": 1,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      },
+      "after": {
+        "contextIds": [
+          "b"
+        ],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 1
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 2
+      },
+      "before": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      },
+      "after": {
+        "blockedEvent": {
+          "kind": "merge",
+          "recordIds": [
+            "a",
+            "anchor",
+            "b"
+          ],
+          "requiredMaxRecords": 3
+        },
+        "contextIds": [],
+        "coverage": {
+          "complete": false,
+          "stoppedBy": [
+            "max-records"
+          ]
+        },
+        "frontier": [
+          {
+            "fromId": "anchor",
+            "direction": "predecessors",
+            "reason": "max-records",
+            "nextIds": [
+              "a"
+            ]
+          }
+        ],
+        "traceIds": [
+          "anchor"
+        ]
+      }
+    },
+    {
+      "variant": "inherited-iterator",
+      "options": {
+        "direction": "both",
+        "maxDepth": null,
+        "maxRecords": 3
+      },
+      "before": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      },
+      "after": {
+        "contextIds": [],
+        "coverage": {
+          "complete": true,
+          "stoppedBy": []
+        },
+        "frontier": [],
+        "traceIds": [
+          "a",
+          "anchor",
+          "b"
+        ]
+      }
+    }
+  ]
+}

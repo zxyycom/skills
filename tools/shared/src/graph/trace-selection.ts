@@ -10,7 +10,8 @@ import type {
 import {
   compareStrings,
   compareTraceFrontier,
-  normalizeAdmissionUnits
+  normalizeAdmissionUnits,
+  type NormalizedTraceAdmissionUnit
 } from "./trace-ordering.ts";
 
 /**
@@ -28,6 +29,11 @@ export function selectRelationGraphTrace<
   options: RelationGraphTraceSelectionOptions,
   admissionUnits: RelationGraphTraceAdmissionAdapter<Id, Type>
 ): RelationGraphTraceSelection<Id> {
+  const normalizedByUnit = new WeakMap<
+    RelationGraphTraceAdmissionUnit<Id>,
+    NormalizedTraceAdmissionUnit<Id>
+  >();
+  const admittedUnits = new WeakSet<RelationGraphTraceAdmissionUnit<Id>>();
   const traceIds = new Set<Id>([startId]);
   const contextIds = new Set<Id>();
   const depthByTraceId = new Map<Id, number>([[startId, 0]]);
@@ -195,11 +201,14 @@ export function selectRelationGraphTrace<
         }
 
         const units = normalizeAdmissionUnits(
-          admissionUnits({ direction, fromId: currentId, graph })
+          admissionUnits({ direction, fromId: currentId, graph }),
+          normalizedByUnit
         );
         for (let unitIndex = 0; unitIndex < units.length; unitIndex += 1) {
           const unit = units[unitIndex];
-          if (unit === undefined) {
+          // BFS 深度单调，同一完整 normalized unit 成功接纳后不会再改变成员或深度。
+          // 仍保留 units 和 unitIndex，预算 frontier 需要完整的剩余单位。
+          if (unit === undefined || admittedUnits.has(unit)) {
             continue;
           }
           const newIds = unit.recordIds.filter(
@@ -247,6 +256,7 @@ export function selectRelationGraphTrace<
               nextLayer.add(id);
             }
           }
+          admittedUnits.add(unit);
         }
         if (stoppedByBudget) break;
       }

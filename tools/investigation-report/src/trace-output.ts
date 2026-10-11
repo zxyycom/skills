@@ -3,6 +3,16 @@ import type {
   InvestigationReportTraceSuccess
 } from "./types.ts";
 
+type TraceRelationSource = Readonly<{
+  id: string;
+  relation: InvestigationRelation;
+}>;
+
+type TraceReverseRelations = ReadonlyMap<
+  string,
+  readonly TraceRelationSource[]
+>;
+
 type TraceEventMember = Readonly<{
   contextIds: ReadonlySet<string>;
   memberId: string;
@@ -21,13 +31,14 @@ export function renderInvestigationTrace(
     ""
   ];
   const contextIds = new Set(trace.contextIds);
-  const layers = traceLayers(trace);
+  const reverse = reverseTraceRelations(trace);
+  const layers = traceLayers(trace, reverse);
   for (const [depth, ids] of layers.entries()) {
     for (const id of ids) {
       const entry = trace.entries[id];
       if (entry === undefined) continue;
       lines.push(`L${depth}* [${id}] ${entry.formedAt} ${entry.title}`);
-      appendTraceNode(lines, trace, id, contextIds);
+      appendTraceNode(lines, trace, id, contextIds, reverse);
     }
   }
   appendTraceBoundary(lines, trace);
@@ -35,24 +46,26 @@ export function renderInvestigationTrace(
 }
 
 function traceLayers(
-  trace: InvestigationReportTraceSuccess
+  trace: InvestigationReportTraceSuccess,
+  reverse: TraceReverseRelations
 ): ReadonlyMap<number, readonly string[]> {
-  return groupTraceIdsByDepth(trace.traceIds, traceDepths(trace));
+  return groupTraceIdsByDepth(trace.traceIds, traceDepths(trace, reverse));
 }
 
 function traceDepths(
-  trace: InvestigationReportTraceSuccess
+  trace: InvestigationReportTraceSuccess,
+  reverse: TraceReverseRelations
 ): ReadonlyMap<string, number> {
   const traceIds = new Set(trace.traceIds);
   const depths = new Map<string, number>([[trace.anchorId, 0]]);
   const pending = [trace.anchorId];
-  while (pending.length > 0) {
-    const id = pending.shift();
+  for (let index = 0; index < pending.length; index += 1) {
+    const id = pending[index];
     if (id === undefined) continue;
     const depth = depths.get(id);
     if (depth === undefined) continue;
     addUnseenTraceIds(
-      traceNeighbours(trace, id, traceIds),
+      traceNeighbours(trace, id, traceIds, reverse),
       depth,
       depths,
       pending
@@ -92,7 +105,8 @@ function groupTraceIdsByDepth(
 function traceNeighbours(
   trace: InvestigationReportTraceSuccess,
   id: string,
-  traceIds: ReadonlySet<string>
+  traceIds: ReadonlySet<string>,
+  reverse: TraceReverseRelations
 ): readonly string[] {
   const neighbours = new Set<string>();
   if (trace.direction !== "successors")
@@ -102,7 +116,7 @@ function traceNeighbours(
       neighbours
     );
   if (trace.direction !== "predecessors")
-    addSuccessorNeighbours(trace, id, traceIds, neighbours);
+    addSuccessorNeighbours(reverse, id, traceIds, neighbours);
   return [...neighbours].sort(compareText);
 }
 
@@ -117,15 +131,13 @@ function addPredecessorNeighbours(
 }
 
 function addSuccessorNeighbours(
-  trace: InvestigationReportTraceSuccess,
+  reverse: TraceReverseRelations,
   id: string,
   traceIds: ReadonlySet<string>,
   neighbours: Set<string>
 ): void {
-  for (const [sourceId, entry] of Object.entries(trace.entries)) {
-    if (!traceIds.has(sourceId)) continue;
-    if (entry.relations.some((relation) => relation.target === id))
-      neighbours.add(sourceId);
+  for (const source of reverse.get(id) ?? []) {
+    if (traceIds.has(source.id)) neighbours.add(source.id);
   }
 }
 
@@ -133,23 +145,27 @@ function appendTraceNode(
   lines: string[],
   trace: InvestigationReportTraceSuccess,
   id: string,
-  contextIds: ReadonlySet<string>
+  contextIds: ReadonlySet<string>,
+  reverse: TraceReverseRelations
 ): void {
   const entry = trace.entries[id];
   if (entry === undefined) return;
-  appendSplitSuccessors(lines, trace, id, contextIds);
+  appendSplitSuccessors(lines, trace, id, contextIds, reverse);
   appendMergePredecessors(lines, trace, id, contextIds);
   appendRelations(lines, "predecessors", id, entry.relations, trace);
-  appendSuccessors(lines, trace, id);
+  appendSuccessors(lines, reverse, id);
 }
 
 function appendSplitSuccessors(
   lines: string[],
   trace: InvestigationReportTraceSuccess,
   id: string,
-  contextIds: ReadonlySet<string>
+  contextIds: ReadonlySet<string>,
+  reverse: TraceReverseRelations
 ): void {
-  const successors = relationSources(trace, id, "拆分");
+  const successors = (reverse.get(id) ?? []).filter(
+    ({ relation }) => relation.type === "拆分"
+  );
   if (successors.length === 0) return;
   lines.push("  split-successors:");
   for (const source of successors)
@@ -207,10 +223,10 @@ function appendRelations(
 
 function appendSuccessors(
   lines: string[],
-  trace: InvestigationReportTraceSuccess,
+  reverse: TraceReverseRelations,
   id: string
 ): void {
-  const successors = relationSources(trace, id).filter(
+  const successors = (reverse.get(id) ?? []).filter(
     ({ relation }) => relation.type !== "拆分" && relation.type !== "归并"
   );
   if (successors.length === 0) return;
@@ -221,22 +237,24 @@ function appendSuccessors(
     );
 }
 
-function relationSources(
-  trace: InvestigationReportTraceSuccess,
-  target: string,
-  type?: InvestigationRelation["type"]
-): readonly Readonly<{ id: string; relation: InvestigationRelation }>[] {
-  return Object.entries(trace.entries)
-    .flatMap(([id, entry]) =>
-      entry.relations
-        .filter(
-          (relation) =>
-            relation.target === target &&
-            (type === undefined || relation.type === type)
-        )
-        .map((relation) => ({ id, relation }))
-    )
-    .sort((left, right) => compareText(left.id, right.id));
+function reverseTraceRelations(
+  trace: InvestigationReportTraceSuccess
+): TraceReverseRelations {
+  const reverse = new Map<string, TraceRelationSource[]>();
+  // 固定 source 顺序后追加原 relation 顺序，使反向 bucket 保持终端输出契约。
+  const entries = Object.entries(trace.entries).sort(([left], [right]) =>
+    compareText(left, right)
+  );
+  for (const [id, entry] of entries) {
+    for (const relation of entry.relations) {
+      if (trace.entries[relation.target] === undefined) continue;
+      const sources = reverse.get(relation.target);
+      const source = { id, relation };
+      if (sources === undefined) reverse.set(relation.target, [source]);
+      else sources.push(source);
+    }
+  }
+  return reverse;
 }
 
 function appendEventMember(lines: string[], member: TraceEventMember): void {

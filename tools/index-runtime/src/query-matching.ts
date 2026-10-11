@@ -3,18 +3,23 @@ import { scalarIdentity } from "./key-values.ts";
 import type { StateIndexFilter, StateIndexKeyScalar } from "./types.ts";
 import type { MaterializedStateIndexEntry } from "./query-fields.ts";
 
-export function matchesFilter(
-  entry: MaterializedStateIndexEntry<object>,
+export function compileFilter(
   filter: StateIndexFilter
-): boolean {
-  const actual = filterValues(entry, filter);
-  if (filter.kind === "exists") return actual.length > 0 === filter.value;
-  if (filter.kind === "exact") return matchesExact(actual, filter);
-  if (filter.kind === "range")
-    return actual.some((value) =>
-      matchesRange(value, filter.operator, filter.value)
-    );
-  return matchesText(actual, filter);
+): (entry: MaterializedStateIndexEntry<object>) => boolean {
+  if (filter.kind === "exact") {
+    const requested = new Set(filter.values.map(scalarIdentity));
+    return (entry) =>
+      matchesExact(filterValues(entry, filter), filter.operator, requested);
+  }
+  return (entry) => {
+    const actual = filterValues(entry, filter);
+    if (filter.kind === "exists") return actual.length > 0 === filter.value;
+    if (filter.kind === "range")
+      return actual.some((value) =>
+        matchesRange(value, filter.operator, filter.value)
+      );
+    return matchesText(actual, filter);
+  };
 }
 
 function filterValues(
@@ -27,14 +32,21 @@ function filterValues(
 
 function matchesExact(
   actual: readonly StateIndexKeyScalar[],
-  filter: Extract<StateIndexFilter, { kind: "exact" }>
+  operator: "all" | "any" | "none",
+  requested: ReadonlySet<string>
 ): boolean {
-  const identities = new Set(actual.map(scalarIdentity));
-  const has = (value: StateIndexKeyScalar) =>
-    identities.has(scalarIdentity(value));
-  if (filter.operator === "all") return filter.values.every(has);
-  if (filter.operator === "any") return filter.values.some(has);
-  return filter.values.every((value) => !has(value));
+  if (operator !== "all") {
+    const overlaps = actual.some((value) =>
+      requested.has(scalarIdentity(value))
+    );
+    return operator === "any" ? overlaps : !overlaps;
+  }
+  const matching = new Set<string>();
+  for (const value of actual) {
+    const identity = scalarIdentity(value);
+    if (requested.has(identity)) matching.add(identity);
+  }
+  return matching.size === requested.size;
 }
 
 function matchesText(

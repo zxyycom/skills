@@ -1,0 +1,345 @@
+{
+  "head": "a01efb41f9c7863e9c6102c3ceefc4c1ada20922",
+  "bun": "1.4.2",
+  "traces": 864,
+  "texts": 864,
+  "lists": 882,
+  "searches": 72,
+  "scalarQueries": 108,
+  "nodeCLI": 7,
+  "fullOutputSha256": "0a1c1eab4f2561863bf5093b9cf0eda716c5269f7bc4f7aa1f31bd7f87ae6078",
+  "allCompleteOutputsEqual": true,
+  "commands": [
+    {
+      "args": [
+        "trace",
+        "merged"
+      ],
+      "status": 0,
+      "stdout": "TRACE anchor=[merged] direction=both depth=5 complete=true records=7\n  Note: only relations within this trace slice are expanded; read source reports or use --json for complete direct relations.\n\nL0* [merged] 2026-08-28T12:00:00Z merged needle\n  merge-predecessors:\n    * trace   [mid] 2026-08-28T12:00:00Z mid needle\n        merged --归并--> mid [无摘要]\n    * trace   [q] 2026-08-28T12:00:00Z q needle\n        merged --归并--> q [无摘要]\n    * trace   [s-b] 2026-08-28T12:00:00Z s-b needle\n        merged --归并--> s-b [无摘要]\n  successors:\n    after --修正--> merged \"a \\\"quote\\\"\"\nL1* [after] 2026-08-28T12:00:00Z after needle\n  predecessors:\n    after --修正--> merged \"a \\\"quote\\\"\"\nL1* [mid] 2026-08-28T12:00:00Z mid needle\n  predecessors:\n    mid --补充--> s-a [无摘要]\nL1* [q] 2026-08-28T12:00:00Z q needle\nL1* [s-b] 2026-08-28T12:00:00Z s-b needle\nL2* [base] 2026-08-28T12:00:00Z base needle\n  split-successors:\n    * trace   [s-a] 2026-08-28T12:00:00Z s-a needle\n        s-a --拆分--> base \"A\"\n    * trace   [s-b] 2026-08-28T12:00:00Z s-b needle\n        s-b --拆分--> base [无摘要]\nL2* [s-a] 2026-08-28T12:00:00Z s-a needle\n  successors:\n    mid --补充--> s-a [无摘要]\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "trace",
+        "s-a",
+        "--direction",
+        "predecessors",
+        "--depth",
+        "all"
+      ],
+      "status": 0,
+      "stdout": "TRACE anchor=[s-a] direction=predecessors depth=all complete=true records=3\n  Note: only relations within this trace slice are expanded; read source reports or use --json for complete direct relations.\n\nL0* [s-a] 2026-08-28T12:00:00Z s-a needle\nL1* [base] 2026-08-28T12:00:00Z base needle\n  split-successors:\n    * trace   [s-a] 2026-08-28T12:00:00Z s-a needle\n        s-a --拆分--> base \"A\"\n    ~ context [s-b] 2026-08-28T12:00:00Z s-b needle\n        s-b --拆分--> base [无摘要]\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "trace",
+        "base",
+        "--max-records",
+        "2"
+      ],
+      "status": 0,
+      "stdout": "TRACE anchor=[base] direction=both depth=5 complete=false records=1\n  Note: only relations within this trace slice are expanded; read source reports or use --json for complete direct relations.\n\nL0* [base] 2026-08-28T12:00:00Z base needle\n\nBOUNDARY: coverage=incomplete stoppedBy=max-records\n  frontier from=[base] direction=successors reason=max-records next=[s-a, s-b]\n  blocked-event kind=split records=[base, s-a, s-b] required-max-records=3\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "trace",
+        "merged",
+        "--json"
+      ],
+      "status": 0,
+      "stdout": "{\n  \"status\": \"ok\",\n  \"anchorId\": \"merged\",\n  \"direction\": \"both\",\n  \"limits\": {\n    \"depth\": 5,\n    \"maxRecords\": 50\n  },\n  \"coverage\": {\n    \"complete\": true,\n    \"stoppedBy\": []\n  },\n  \"traceIds\": [\n    \"after\",\n    \"base\",\n    \"merged\",\n    \"mid\",\n    \"q\",\n    \"s-a\",\n    \"s-b\"\n  ],\n  \"contextIds\": [],\n  \"frontier\": [],\n  \"entries\": {\n    \"after\": {\n      \"title\": \"after needle\",\n      \"formedAt\": \"2026-08-28T12:00:00Z\",\n      \"question\": \"Q needle\",\n      \"tags\": [\n        \"beta\",\n        \"test\"\n      ],\n      \"relations\": [\n        {\n          \"summary\": \"a \\\"quote\\\"\",\n          \"target\": \"merged\",\n          \"type\": \"修正\"\n        }\n      ]\n    },\n    \"base\": {\n      \"title\": \"base needle\",\n      \"formedAt\": \"2026-08-28T12:00:00Z\",\n      \"question\": \"Q needle\",\n      \"tags\": [\n        \"beta\",\n        \"test\"\n      ],\n      \"relations\": []\n    },\n    \"merged\": {\n      \"title\": \"merged needle\",\n      \"formedAt\": \"2026-08-28T12:00:00Z\",\n      \"question\": \"Q needle\",\n      \"tags\": [\n        \"alpha\",\n        \"test\"\n      ],\n      \"relations\": [\n        {\n          \"target\": \"mid\",\n          \"type\": \"归并\"\n        },\n        {\n          \"target\": \"q\",\n          \"type\": \"归并\"\n        },\n        {\n          \"target\": \"s-b\",\n          \"type\": \"归并\"\n        }\n      ]\n    },\n    \"mid\": {\n      \"title\": \"mid needle\",\n      \"formedAt\": \"2026-08-28T12:00:00Z\",\n      \"question\": \"Q needle\",\n      \"tags\": [\n        \"beta\",\n        \"test\"\n      ],\n      \"relations\": [\n        {\n          \"target\": \"s-a\",\n          \"type\": \"补充\"\n        }\n      ]\n    },\n    \"q\": {\n      \"title\": \"q needle\",\n      \"formedAt\": \"2026-08-28T12:00:00Z\",\n      \"question\": \"Q needle\",\n      \"tags\": [\n        \"alpha\",\n        \"test\"\n      ],\n      \"relations\": []\n    },\n    \"s-a\": {\n      \"title\": \"s-a needle\",\n      \"formedAt\": \"2026-08-28T12:00:00Z\",\n      \"question\": \"Q needle\",\n      \"tags\": [\n        \"beta\",\n        \"test\"\n      ],\n      \"relations\": [\n        {\n          \"summary\": \"A\",\n          \"target\": \"base\",\n          \"type\": \"拆分\"\n        }\n      ]\n    },\n    \"s-b\": {\n      \"title\": \"s-b needle\",\n      \"formedAt\": \"2026-08-28T12:00:00Z\",\n      \"question\": \"Q needle\",\n      \"tags\": [\n        \"alpha\",\n        \"test\"\n      ],\n      \"relations\": [\n        {\n          \"target\": \"base\",\n          \"type\": \"拆分\"\n        }\n      ]\n    }\n  },\n  \"warnings\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "list",
+        "--related-to",
+        "merged",
+        "--direction",
+        "both",
+        "--limit",
+        "1"
+      ],
+      "status": 0,
+      "stdout": "Index filters (7 records):\n  formedAt: 2026-08-28T12:00:00.000Z .. 2026-08-28T12:00:00.000Z\n  tags: test=7, beta=4, alpha=3\n  months (UTC): 2026-08=7\nApplied filters: tags=any; formedAt=any; relatedTo=merged; direction=both\nLatest matches:\n- after 2026-08-28T12:00:00Z [beta, test] after needle\n  relation-filter evidence:\n    - after --修正--> merged: \"a \\\"quote\\\"\"\nShowing 1 of 4 matches (offset 0, limit 1); 3 remaining; next offset 1.\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "list",
+        "--related-to",
+        "merged",
+        "--detail"
+      ],
+      "status": 0,
+      "stdout": "Index filters (7 records):\n  formedAt: 2026-08-28T12:00:00.000Z .. 2026-08-28T12:00:00.000Z\n  tags: test=7, beta=4, alpha=3\n  months (UTC): 2026-08=7\nApplied filters: tags=any; formedAt=any; relatedTo=merged; direction=both\nLatest matches:\nafter 2026-08-28T12:00:00Z\n  title: after needle\n  question: Q needle\n  tags: beta, test\n  relation-filter evidence:\n    - after --修正--> merged: \"a \\\"quote\\\"\"\nmid 2026-08-28T12:00:00Z\n  title: mid needle\n  question: Q needle\n  tags: beta, test\n  relation-filter evidence:\n    - merged --归并--> mid: [无摘要]\nq 2026-08-28T12:00:00Z\n  title: q needle\n  question: Q needle\n  tags: alpha, test\n  relation-filter evidence:\n    - merged --归并--> q: [无摘要]\ns-b 2026-08-28T12:00:00Z\n  title: s-b needle\n  question: Q needle\n  tags: alpha, test\n  relation-filter evidence:\n    - merged --归并--> s-b: [无摘要]\nShowing 4 of 4 matches (offset 0, limit 10); 0 remaining.\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "trace",
+        "missing"
+      ],
+      "status": 1,
+      "stdout": "",
+      "stderr": "Investigation report trace failed:\n- [investigation-report.operation-failed] Investigation report trace failed\n-   reason: missing investigation report does not exist\n-   next: correct the reported problem, then rerun the command\n"
+    }
+  ],
+  "sourceSha256": {
+    "tools/investigation-report/src/relation-validation.ts": "391d4bf3768585d652dae2fe27599fe79093c122d1fd86355399235a35cff76a",
+    "tools/shared/src/graph/trace-ordering.ts": "34692d190756c5071acd5dc7896a87984fea2e69fcaf1dd86eb2b4254aebe597",
+    "tools/shared/src/graph/trace-selection.ts": "621f9ac116b88e5e37d424447b8d07233c6c9bc80f3374e78a41c44fd3f98677",
+    "tools/index-runtime/src/query.ts": "0e5c41d2177b21469c21f5d5afad8448a213fb4e657f6c401bf63dae55d31e61",
+    "tools/index-runtime/src/query-matching.ts": "7e63e9f03d1d5bb286572764c911544e96abd55df9dd686ee23c0a6f50a4314e",
+    "tools/investigation-report/src/trace-output.ts": "25df5f357aaa3ef6889f210cf7c56702c5068e551bf17f2f411975ff96ea12b0"
+  },
+  "generatedSha256": {
+    "skills/investigation-report/scripts/check-investigations.mjs": "69c478076ab92fe1e25a10d0042c65db4e5106288d80543876a50fe48de4c29b",
+    "skills/decision-records/scripts/decision-records.mjs": "7251f954a9f0e953fc02fe5c8656438cea3168b9ff1a5e71cd458d83783db466",
+    "skills/test-evidence-review/scripts/test-evidence-catalog.mjs": "9e2f225f0e3a4c5207fc7e044f9ae9d424aea86bad7c7bccf0bc5a5ba1934cfd",
+    "skills/novel-cards/scripts/novel-cards.mjs": "1f53ea1ffcac10f9c74f66469488d953deec14b91c0b1ca9a533c726034fcc30"
+  },
+  "externalNodeVersion": "v26.8.2",
+  "suites": {
+    "index-runtime": 62,
+    "relation-graph": 23,
+    "investigation-report-check": 305,
+    "decision-records-cli": 282,
+    "test-evidence-cli": 32,
+    "novel-cards-cli": 38
+  },
+  "nativeFailures": 0,
+  "cases": {
+    "added": 13,
+    "allCoveredEntities": 1208
+  },
+  "skillVersions": {
+    "investigation-report": 64,
+    "decision-records": 74,
+    "test-evidence-review": 36,
+    "novel-cards": 5
+  },
+  "uncovered": [
+    "CPU/wall-clock SLO",
+    "other platforms/runtime versions",
+    "release/publishing/deployment"
+  ],
+  "priorSourceGate": {
+    "counts": {
+      "passed": 65,
+      "failed": 0,
+      "unavailable": 0,
+      "notApplicable": 3
+    },
+    "impactCounts": {
+      "execute": 64,
+      "fallback": 64,
+      "firstRun": 0,
+      "reuse": 0
+    },
+    "publication": {
+      "published": true,
+      "receiptCount": 64
+    },
+    "machineRunSha256": "2f258e05e6297eb7e93cf36c8c370bd1c596f6890a1652046cdf04944e47e3c0",
+    "when": "before the frozen-accessor blocker was discovered, not proof of the corrected source"
+  },
+  "firstGateFailure": {
+    "check": "function-metrics",
+    "cyclomaticComplexity": 12,
+    "complexityLimit": 10,
+    "nestingDepth": 6,
+    "nestingLimit": 5,
+    "resolution": "restore existing edge-to-domain admission responsibility; no policy/config/waiver change"
+  },
+  "frozenAdapterSnapshots": {
+    "bun": "1.4.2",
+    "checks": 189,
+    "variants": [
+      "unit-trace",
+      "unit-record",
+      "unit-kind",
+      "inherited-fields",
+      "array-index",
+      "array-iterator",
+      "inherited-iterator"
+    ],
+    "allCompleteOutputsEqual": true,
+    "completeOutputsSha256": "66ae321cf4d27e567433bc52180856f303c480785162faeaad4522365f4143d3",
+    "nativeCases": [
+      {
+        "path": "docs/test-evidence/cases/trace-frozen-unit-getters.md",
+        "caseId": "GRAPH-TRACE-ACCESSOR-001",
+        "nativeName": "trace selection snapshots frozen unit getters on each expansion",
+        "testId": "test:33177fcd3a96dbf281f5896f672fba665df3a1c74c0357dd810f967baeb028e3",
+        "nativeFile": "tools/shared/tests/trace-admission-snapshot.test.ts"
+      },
+      {
+        "path": "docs/test-evidence/cases/trace-inherited-field-snapshots.md",
+        "caseId": "GRAPH-TRACE-INHERITED-001",
+        "nativeName": "trace selection preserves frozen inherited kind and member snapshots",
+        "testId": "test:36f9f24223e5b0a75a54d55a59c22547aa723fce8b3d093755dba44a788d0636",
+        "nativeFile": "tools/shared/tests/trace-admission-snapshot.test.ts"
+      },
+      {
+        "path": "docs/test-evidence/cases/trace-frozen-array-snapshots.md",
+        "caseId": "GRAPH-TRACE-ARRAY-SNAPSHOT-001",
+        "nativeName": "trace selection snapshots frozen array accessors and custom iterators",
+        "testId": "test:92ebf8e0b080604be254c4d874e45d019e161ab77b2a1459df0cc7a201f8a01f",
+        "nativeFile": "tools/shared/tests/trace-admission-snapshot.test.ts"
+      },
+      {
+        "path": "docs/test-evidence/cases/trace-inherited-iteration-change.md",
+        "caseId": "GRAPH-TRACE-ITERATOR-001",
+        "nativeName": "trace selection rechecks inherited array iteration before a cache hit",
+        "testId": "test:01e6ed36bffdfaa4137f2754a31a79d2adb91dff321f6de0d9a71917352b58f0",
+        "nativeFile": "tools/shared/tests/trace-admission-snapshot.test.ts"
+      }
+    ]
+  },
+  "oldBeforeRemeasurement": {
+    "all18SamplesEqualPriorActualBefore": true,
+    "scopePrimarySamples": 15,
+    "historicalExcludedCycleSamples": 3
+  },
+  "accessorFirstGateFailures": [
+    {
+      "check": "function-metrics",
+      "nestingDepth": 9,
+      "limit": 5
+    },
+    {
+      "check": "file-metrics",
+      "codeLines": 477,
+      "limit": 360
+    }
+  ],
+  "resolution": "explicit guard blocks in the same stable-array proof; separately registered snapshot regression module; no quality policy or waiver change",
+  "accessorSourceGate": {
+    "counts": {
+      "passed": 64,
+      "not-applicable": 4
+    },
+    "impactCounts": {
+      "execute": 63,
+      "fallback": 63,
+      "firstRun": 0,
+      "reuse": 1
+    },
+    "publication": {
+      "published": true,
+      "receiptCount": 64
+    },
+    "machineRunSha256": "b61384ec86d9d7da9f4f92f8f7f3ea8c16bf930e91f1d99acda1544f8855d892",
+    "when": "corrected source/generated/Case and substantive report resources stabilized; before appending this receipt"
+  },
+  "independentNativeSelection": {
+    "publicCommand": "bun run test:relation-graph -- -t <exact native name>",
+    "selectedRuns": 4,
+    "eachPassed": 1,
+    "eachFailed": 0
+  },
+  "secondAccessorGateFailures": {
+    "nestingDepth": 8,
+    "limit": 5,
+    "unfinishedReportResourcesMissing": 2,
+    "resolution": "explicit guard blocks, then write actual attachments and synchronize the complete collection before final Gate"
+  },
+  "measurementInstrumentCorrection": {
+    "capturedAtUtc": "2026-10-11T09:51:27.143399+00:00",
+    "samplesActuallyRerun": 123,
+    "instrumentFieldMembership": "captured natives.includes.call bypasses globally patched Array.prototype.includes",
+    "removedSyntheticIncludesCalls": 9440,
+    "productionAdmissionIncludesCalls": 0,
+    "productionAdmissionIncludesLogicalComparisons": 0,
+    "allOtherCountersExactlyEqualOriginalObservation": true,
+    "originalPollutedObservationSha256": "0246f8cb6d99b2a3ab3f48d0dd130193253cf19c1910ad9a1e22714599e640f2",
+    "preCorrectionFormalMeasurementSha256": "835c8fb7a19bfeb06e36ae90684453a8a10101f12b5096ade6890ccb40d63f4e",
+    "correctedActualHarnessSha256": "91bc72300bcb51bc298928a8bd83f8ae8a871bcb2a680cb1690619219ad63562",
+    "correctedActualRawCountsSha256": "17f32121ae1b9b2584edab6eaa6ef29cc7bd8cfaed156377ac1b64dbf12b490a",
+    "preservation": "Original main/reviewer observations and pre-correction formal resources retained; before.json unchanged."
+  },
+  "finalOptimizationValidation": {
+    "capturedAtUtc": "2026-10-11T09:51:27.143399+00:00",
+    "sourceSha256": {
+      "tools/investigation-report/src/relation-validation.ts": "391d4bf3768585d652dae2fe27599fe79093c122d1fd86355399235a35cff76a",
+      "tools/shared/src/graph/trace-ordering.ts": "34692d190756c5071acd5dc7896a87984fea2e69fcaf1dd86eb2b4254aebe597",
+      "tools/shared/src/graph/trace-selection.ts": "621f9ac116b88e5e37d424447b8d07233c6c9bc80f3374e78a41c44fd3f98677",
+      "tools/index-runtime/src/query.ts": "0e5c41d2177b21469c21f5d5afad8448a213fb4e657f6c401bf63dae55d31e61",
+      "tools/index-runtime/src/query-matching.ts": "7e63e9f03d1d5bb286572764c911544e96abd55df9dd686ee23c0a6f50a4314e",
+      "tools/investigation-report/src/trace-output.ts": "25df5f357aaa3ef6889f210cf7c56702c5068e551bf17f2f411975ff96ea12b0"
+    },
+    "generatedSha256": {
+      "skills/investigation-report/scripts/check-investigations.mjs": "69c478076ab92fe1e25a10d0042c65db4e5106288d80543876a50fe48de4c29b",
+      "skills/decision-records/scripts/decision-records.mjs": "7251f954a9f0e953fc02fe5c8656438cea3168b9ff1a5e71cd458d83783db466",
+      "skills/test-evidence-review/scripts/test-evidence-catalog.mjs": "9e2f225f0e3a4c5207fc7e044f9ae9d424aea86bad7c7bccf0bc5a5ba1934cfd",
+      "skills/novel-cards/scripts/novel-cards.mjs": "1f53ea1ffcac10f9c74f66469488d953deec14b91c0b1ca9a533c726034fcc30"
+    },
+    "productionChange": "Rename split/merge helpers by their full bidirectional event responsibility; document cache-hit, admitted-unit/frontier and reverse-order invariants. No behavior or quality-policy change.",
+    "originalCompleteOutputsActuallyRerun": 2797,
+    "originalCompleteOutputsSha256": "0a1c1eab4f2561863bf5093b9cf0eda716c5269f7bc4f7aa1f31bd7f87ae6078",
+    "adapterCompleteOutputsActuallyRerun": 189,
+    "adapterCompleteOutputsSha256": "66ae321cf4d27e567433bc52180856f303c480785162faeaad4522365f4143d3",
+    "afterMeasurementSamplesActuallyRerun": 123,
+    "publicNativeSuitesActuallyRerun": {
+      "index-runtime": 62,
+      "relation-graph": 23,
+      "investigation-report-check": 305,
+      "decision-records-cli": 282,
+      "test-evidence-cli": 32,
+      "novel-cards-cli": 38
+    },
+    "nativeFailures": 0,
+    "beforeRemeasurement": "Reused prior real 18-sample rerun; before and historical production bytes not modified.",
+    "caseReview": "All 13 new minimal native nodes retain their registered Tests/Contract/Proves; no test or Case semantics changed.",
+    "gate": {
+      "machinePath": "/workspace/skills/.log/vibe-check/invocations/20261011T095222017Z-bff3e6cc-a89d-4cfe-b2ee-89c724d46e78/machine",
+      "machineRunSha256": "94420b2ebb5b4bfd8e3e08540b19769f96a4ba8dbbb4d67250044b89478ad890",
+      "counts": {
+        "passed": 65,
+        "failed": 0,
+        "unavailable": 0,
+        "notApplicable": 3
+      },
+      "impactCounts": {
+        "execute": 64,
+        "fallback": 64,
+        "firstRun": 0,
+        "reuse": 0
+      },
+      "publication": {
+        "published": true,
+        "receiptCount": 64
+      },
+      "when": "Final optimized source/generated artifacts, corrected measurements, report and current index; before appending this Gate receipt to verification.json. All 64 impact Checks executed; no daily receipt reuse; 3 release-only Checks not run."
+    },
+    "independentMinimalNativeSelection": {
+      "publicRunnerCommands": "bun run test:index-runtime | test:relation-graph | test:investigation-report-check -- -t <exact native name>",
+      "selectedRuns": 13,
+      "eachPassed": 1,
+      "eachFailed": 0,
+      "cases": [
+        "INDEX-EXACT-IDENTITIES-001",
+        "INDEX-EXACT-LIFECYCLE-001",
+        "INDEX-EXACT-DIAGNOSTICS-001",
+        "GRAPH-TRACE-SNAPSHOT-001",
+        "GRAPH-TRACE-UNION-001",
+        "IR-TRACE-REUSE-001",
+        "IR-TRACE-FRONTIER-001",
+        "IR-TRACE-RENDER-001",
+        "IR-TRACE-BOUNDARY-001",
+        "GRAPH-TRACE-ACCESSOR-001",
+        "GRAPH-TRACE-INHERITED-001",
+        "GRAPH-TRACE-ARRAY-SNAPSHOT-001",
+        "GRAPH-TRACE-ITERATOR-001"
+      ]
+    },
+    "caseCatalogActuallyChecked": {
+      "coveredEntities": 1208,
+      "caseReferencesAndCurrentIndex": true
+    }
+  }
+}

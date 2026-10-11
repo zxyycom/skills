@@ -15,7 +15,7 @@ import {
 import { isPlainRecord } from "./record.ts";
 import { isStateIndexText, stateIndexQuerySchema } from "./schemas.ts";
 import { scalarIdentity } from "./key-values.ts";
-import { matchesFilter } from "./query-matching.ts";
+import { compileFilter } from "./query-matching.ts";
 import {
   compareEntries,
   effectiveSort,
@@ -125,8 +125,9 @@ export function queryMaterializedStateIndex<
   if (semanticDiagnostics.length > 0) {
     return { diagnostics: semanticDiagnostics, status: "error", value: null };
   }
+  const matchers = query.filters.map(compileFilter);
   const entries = options.entries.filter((entry) =>
-    query.filters.every((filter) => matchesFilter(entry, filter))
+    matchers.every((matches) => matches(entry))
   );
   const sort = effectiveSort(query);
   const sortDiagnostics = validateSortCardinality(entries, sort);

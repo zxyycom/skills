@@ -367,6 +367,15 @@
       "GENERATED-FILE-DRIFT-001": "sha256:4e53dbd24a3fe5e22bc5b75a4bc335b605c5973bc0414f788cc46601ff1a0c88",
       "GENERATED-FILE-SOURCE-MAP-001": "sha256:5fe20d725b3ba8de48dc2ec45f4981ec26804727e9e323e300644cc88ed8a6ef",
       "GENERATED-FILE-SYMLINK-001": "sha256:02ab6eda795de9f1f9857b70dd5b785598b46c807a43b2a5dbf54f4f37b74add",
+      "GRAPH-TRACE-ACCESSOR-001": "sha256:c62e232518030ddd8f548d735b8d522ea5fe5a9b8c22ebd5af539e4fbada8ffa",
+      "GRAPH-TRACE-ARRAY-SNAPSHOT-001": "sha256:feecfe007b20cc322305f01247309aed554ff47f767e8ad13e5fc91ad4b4eaaa",
+      "GRAPH-TRACE-INHERITED-001": "sha256:7ee93dc93e98d1e5d5a6e453caa6cafeb13c5ca5f3ab3a82e3604a8a4d4c616e",
+      "GRAPH-TRACE-ITERATOR-001": "sha256:a72da95530889055af2848e476cb1559f797ecb019091caea1d26821a3110139",
+      "GRAPH-TRACE-SNAPSHOT-001": "sha256:7b1c374415e208114fd56c32f5a56cec1b7dd9fa8868c5019ad95d16413e0c4a",
+      "GRAPH-TRACE-UNION-001": "sha256:ae88996759302ad68d70e2310320c38e2e32d1e70a88f078662c2c7f893c1baf",
+      "INDEX-EXACT-DIAGNOSTICS-001": "sha256:7fa6f6f61cc9bb877e2f7694706a6fc9f2d08bfc43d6c5b4969dc05a2f6ad4ae",
+      "INDEX-EXACT-IDENTITIES-001": "sha256:d1a2f4b51145ea38eb447a14700d8af65da8db4026d6b8b834a0e33982031c86",
+      "INDEX-EXACT-LIFECYCLE-001": "sha256:f8a4be84298a27d962cd6a1dc1c0986800fb13498c7d437876a8ac6b701174d3",
       "INDEX-RUNTIME-ABORT-001": "sha256:b3d0b1bc1921f82ac5aadf15edd595cc536bcd12326233e137073205276dfb00",
       "INDEX-RUNTIME-DEFINITION-001": "sha256:0cb35d50213dd9d7763e959121d781d37011cf77c7683d2162d4586a88284987",
       "INDEX-RUNTIME-DEFINITION-002": "sha256:3fe42ebadd4fef6bdd50dfc7a6163a5b42c225012bf22ac67f7e5efba39976e8",
@@ -652,6 +661,10 @@
       "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": "sha256:7450667bcd6556b0e131933672fedcea1e408c6e9e78bb85db6b1ef39eeb3768",
       "INVESTIGATION-TRACE-LIMITS-001": "sha256:1e8c09f591fce4216b445ff88a58f4196605deb56b54b133a7d88ebee403999a",
       "INVESTIGATION-VALIDATION-WARNINGS-001": "sha256:57f359db45efe9842a2027c7f436c0d0462510afcc5328e322fbf0b3d5d88375",
+      "IR-TRACE-BOUNDARY-001": "sha256:f32fbd5ae01f18a6084c9491a18f0950971f14f5ec31b577696137aa2ce5c8e4",
+      "IR-TRACE-FRONTIER-001": "sha256:c605bc45d5df9caf4a7a158ba7dfea7172d6bfa499a11d6bafb6f1fb0d0ff652",
+      "IR-TRACE-RENDER-001": "sha256:407986a520d18dd6836dedca273b4f310be4b31ac038258ac9ff9a328738a3ec",
+      "IR-TRACE-REUSE-001": "sha256:db36bf31402578857a5681cfbfaf88cecd09f801b781994ea23137990643c73d",
       "LIGHTWEIGHT-JUDGMENT-CLI-001": "sha256:6deabc8f60e96044dba3a18f8a6c22f8bc360ccde63593157d56764ade83b58d",
       "LIGHTWEIGHT-JUDGMENT-CLI-002": "sha256:eb2f722f8a813e4e02bb88fb1b3e1d845fd19349c89a4cc7698aa4c1f71fc50a",
       "LIGHTWEIGHT-JUDGMENT-CLI-003": "sha256:4820e5e4d92b0c40842468ec83e5ec9d1ab54f44ea72b48be4bd87f2882ebc6c",
@@ -4751,6 +4764,105 @@
         "test:234e68e4e0dc8b99c4f7f546a5d48f869811ba167e5381d843c728f4838a79c4"
       ]
     },
+    "GRAPH-TRACE-ACCESSOR-001": {
+      "title": "冻结单位的 getter 按扩展取得快照",
+      "sourcePath": "cases/trace-frozen-unit-getters.md",
+      "tags": [
+        "performance",
+        "semantic-fidelity"
+      ],
+      "testIds": [
+        "test:33177fcd3a96dbf281f5896f672fba665df3a1c74c0357dd810f967baeb028e3"
+      ]
+    },
+    "GRAPH-TRACE-ARRAY-SNAPSHOT-001": {
+      "title": "冻结数组的动态成员消费",
+      "sourcePath": "cases/trace-frozen-array-snapshots.md",
+      "tags": [
+        "performance",
+        "semantic-fidelity"
+      ],
+      "testIds": [
+        "test:92ebf8e0b080604be254c4d874e45d019e161ab77b2a1459df0cc7a201f8a01f"
+      ]
+    },
+    "GRAPH-TRACE-INHERITED-001": {
+      "title": "继承字段的事件与预算快照",
+      "sourcePath": "cases/trace-inherited-field-snapshots.md",
+      "tags": [
+        "performance",
+        "semantic-fidelity"
+      ],
+      "testIds": [
+        "test:36f9f24223e5b0a75a54d55a59c22547aa723fce8b3d093755dba44a788d0636"
+      ]
+    },
+    "GRAPH-TRACE-ITERATOR-001": {
+      "title": "缓存命中前核对继承迭代语义",
+      "sourcePath": "cases/trace-inherited-iteration-change.md",
+      "tags": [
+        "performance",
+        "semantic-fidelity"
+      ],
+      "testIds": [
+        "test:01e6ed36bffdfaa4137f2754a31a79d2adb91dff321f6de0d9a71917352b58f0"
+      ]
+    },
+    "GRAPH-TRACE-SNAPSHOT-001": {
+      "title": "可变 admission 单位按扩展取得快照",
+      "sourcePath": "cases/trace-adapter-mutable-snapshots.md",
+      "tags": [
+        "performance",
+        "semantic-fidelity"
+      ],
+      "testIds": [
+        "test:d74be15eae026f0ee2ffa67ad809b4fbe88e780321478ce33d49ca5beedcb50f"
+      ]
+    },
+    "GRAPH-TRACE-UNION-001": {
+      "title": "冻结事件单位合并后仍接纳完整 trace 集合",
+      "sourcePath": "cases/trace-frozen-unit-union.md",
+      "tags": [
+        "performance",
+        "semantic-fidelity"
+      ],
+      "testIds": [
+        "test:e6735dbe751d39df4d988bbb8e5ced9f1110d77a33b5279ffa90400fafe1239d"
+      ]
+    },
+    "INDEX-EXACT-DIAGNOSTICS-001": {
+      "title": "精确匹配保留非法标量诊断",
+      "sourcePath": "cases/index-exact-membership-diagnostics.md",
+      "tags": [
+        "performance",
+        "semantic-fidelity"
+      ],
+      "testIds": [
+        "test:c8a7758097cf4348bbb2082d6a079518ee7c63f2a9026faa6034dcbe2933ac00"
+      ]
+    },
+    "INDEX-EXACT-IDENTITIES-001": {
+      "title": "精确匹配保留标量身份与空量词",
+      "sourcePath": "cases/index-exact-membership-identities.md",
+      "tags": [
+        "performance",
+        "semantic-fidelity"
+      ],
+      "testIds": [
+        "test:235c615563cb41782b10a3017ae0a1efdb7cd1b2c7758cc05462fc1046925eb3"
+      ]
+    },
+    "INDEX-EXACT-LIFECYCLE-001": {
+      "title": "查询成员集合不跨 reader 查询泄漏",
+      "sourcePath": "cases/index-exact-membership-lifecycle.md",
+      "tags": [
+        "performance",
+        "semantic-fidelity"
+      ],
+      "testIds": [
+        "test:9f27ef435f22627063ac3033607dfb71df4581448a8cae6becb6288b1be5939a"
+      ]
+    },
     "INDEX-RUNTIME-ABORT-001": {
       "title": "遵守已取消的构建信号",
       "sourcePath": "cases/index-runtime-abort-001.md",
@@ -7672,6 +7784,50 @@
       ],
       "testIds": [
         "test:f82faae2f91cd7d9ac0d3ca5797e6f9b8c8300ab97c0a987b9af5298e2a29b5a"
+      ]
+    },
+    "IR-TRACE-BOUNDARY-001": {
+      "title": "终端事件与预算边界文本保持完整",
+      "sourcePath": "cases/investigation-trace-render-boundary.md",
+      "tags": [
+        "performance",
+        "semantic-fidelity"
+      ],
+      "testIds": [
+        "test:2fe4582fb5d22f4b2d1dd5ba9c2570896c24e090c98f57735c3f8c367f6beaee"
+      ]
+    },
+    "IR-TRACE-FRONTIER-001": {
+      "title": "已接纳事件仍出现在后续预算 frontier",
+      "sourcePath": "cases/investigation-trace-budget-frontier.md",
+      "tags": [
+        "performance",
+        "semantic-fidelity"
+      ],
+      "testIds": [
+        "test:607fbca58ca4ca94a9c428d5ef9c4ac5ad3598fa87d9b128e155a415976dbc65"
+      ]
+    },
+    "IR-TRACE-RENDER-001": {
+      "title": "终端输出保留稳定邻接顺序与摘要",
+      "sourcePath": "cases/investigation-trace-render-adjacency.md",
+      "tags": [
+        "performance",
+        "semantic-fidelity"
+      ],
+      "testIds": [
+        "test:03064e080717d9e3d7afe72c868544ccfb40d0c4d7254e4deedbdc8f5b2ab272"
+      ]
+    },
+    "IR-TRACE-REUSE-001": {
+      "title": "完整事件双向查询保留 anchor 与深度边界",
+      "sourcePath": "cases/investigation-trace-event-reuse.md",
+      "tags": [
+        "performance",
+        "semantic-fidelity"
+      ],
+      "testIds": [
+        "test:7a988e5ad0704d0ace22f584ac78434e7415c3d42286c98668b221148a666144"
       ]
     },
     "LIGHTWEIGHT-JUDGMENT-CLI-001": {

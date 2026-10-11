@@ -321,6 +321,28 @@
       ],
       "title": "批量匹配、深链校验与按需payload指纹"
     },
+    "261011-investigation-event-query-and-trace-rendering": {
+      "formedAt": "2026-10-11T09:09:42Z",
+      "name": "investigation-event-query-and-trace-rendering",
+      "question": "如何在不改变查询和事件预算语义时消除正常关系查询的重复聚合与扫描？",
+      "relations": [],
+      "resourceIds": [
+        "261011-investigation-event-query-and-trace-rendering/adapter-snapshots.json",
+        "261011-investigation-event-query-and-trace-rendering/adapter-snapshots.ts",
+        "261011-investigation-event-query-and-trace-rendering/after.json",
+        "261011-investigation-event-query-and-trace-rendering/before.json",
+        "261011-investigation-event-query-and-trace-rendering/measurement.ts",
+        "261011-investigation-event-query-and-trace-rendering/verification.json"
+      ],
+      "sourcePath": "investigation-event-query-and-trace-rendering.md",
+      "tags": [
+        "index-runtime",
+        "investigation-report",
+        "performance",
+        "semantic-fidelity"
+      ],
+      "title": "完整事件、关系筛选与终端图的重复扫描收敛"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -983,6 +1005,7 @@
       "261010-investigation-local-stage-and-single-read-check": "sha256:a1ed5d551d2dea05dbcfd4e3bf928adcb60cb82d25a604524a2170f278fc81aa",
       "261010-investigation-phase-facts-and-streamed-content": "sha256:3d01be251aeb0eccdfbb8140a582cc44ccd84f5c6b227eb804a82838ea6bb0e1",
       "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints": "sha256:ce79cceb5f8d0fff03dc278874c5b834743c27bf7c9e87ab569af2df608c3e8c",
+      "261011-investigation-event-query-and-trace-rendering": "sha256:4936145c3049f56c27e26ed025729c7a31172bd8fbb9425f95fa82a0c2739915",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

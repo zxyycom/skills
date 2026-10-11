@@ -7,6 +7,7 @@ import {
   type RelationGraph,
   type RelationGraphTraceAdmissionAdapter,
   type RelationGraphTraceAdmissionUnit,
+  type RelationGraphTraceExpansionDirection,
   type RelationGraphTraceSelection,
   type RelationGraphTraceSelectionOptions
 } from "../../shared/src/graph/relations.ts";
@@ -53,74 +54,127 @@ export function traceInvestigationRelations(
   startId: string,
   options: RelationGraphTraceSelectionOptions
 ): RelationGraphTraceSelection<string> {
+  const graph = buildInvestigationRelationGraph(states);
   return selectRelationGraphTrace(
-    buildInvestigationRelationGraph(states),
+    graph,
     startId,
     options,
-    investigationTraceAdmissionUnits
+    investigationTraceAdmissionUnits(graph)
   );
 }
 
-const investigationTraceAdmissionUnits: RelationGraphTraceAdmissionAdapter<
-  string,
-  InvestigationRelationType
-> = ({ direction, fromId, graph }) => {
-  const edges =
-    direction === "predecessors"
-      ? (graph.edgesBySource.get(fromId) ?? [])
-      : (graph.edgesByTarget.get(fromId) ?? []);
-  return edges.map((edge) =>
-    investigationTraceAdmissionUnit(edge, direction, graph)
-  );
-};
+type InvestigationTraceEvent = Readonly<
+  Record<
+    RelationGraphTraceExpansionDirection,
+    RelationGraphTraceAdmissionUnit<string>
+  >
+>;
+
+function investigationTraceAdmissionUnits(
+  graph: InvestigationRelationGraph
+): RelationGraphTraceAdmissionAdapter<string, InvestigationRelationType> {
+  const splits = new Map<string, InvestigationTraceEvent>();
+  const merges = new Map<string, InvestigationTraceEvent>();
+  return ({ direction, fromId }) => {
+    const edges =
+      direction === "predecessors"
+        ? (graph.edgesBySource.get(fromId) ?? [])
+        : (graph.edgesByTarget.get(fromId) ?? []);
+    return [
+      ...new Set(
+        edges.map((edge) =>
+          investigationTraceAdmissionUnit(
+            edge,
+            direction,
+            graph,
+            splits,
+            merges
+          )
+        )
+      )
+    ];
+  };
+}
 
 function investigationTraceAdmissionUnit(
   edge: RelationEdge<string, InvestigationRelationType>,
-  direction: "predecessors" | "successors",
-  graph: InvestigationRelationGraph
+  direction: RelationGraphTraceExpansionDirection,
+  graph: InvestigationRelationGraph,
+  splits: Map<string, InvestigationTraceEvent>,
+  merges: Map<string, InvestigationTraceEvent>
 ): RelationGraphTraceAdmissionUnit<string> {
-  if (edge.type === "拆分")
-    return splitTraceAdmissionUnit(edge, direction, graph);
-  if (edge.type === "归并")
-    return mergeTraceAdmissionUnit(edge, direction, graph);
-  const traceId = direction === "predecessors" ? edge.target : edge.source;
+  if (edge.type === "拆分") {
+    let event = splits.get(edge.target);
+    if (event === undefined) {
+      event = splitTraceEvent(edge, graph);
+      splits.set(edge.target, event);
+    }
+    return event[direction];
+  }
+  if (edge.type === "归并") {
+    let event = merges.get(edge.source);
+    if (event === undefined) {
+      event = mergeTraceEvent(edge, graph);
+      merges.set(edge.source, event);
+    }
+    return event[direction];
+  }
   return {
     kind: "ordinary",
     recordIds: [edge.source, edge.target],
-    traceIds: [traceId]
+    traceIds: [direction === "predecessors" ? edge.target : edge.source]
   };
 }
 
-function splitTraceAdmissionUnit(
+function splitTraceEvent(
   edge: RelationEdge<string, InvestigationRelationType>,
-  direction: "predecessors" | "successors",
   graph: InvestigationRelationGraph
-): RelationGraphTraceAdmissionUnit<string> {
+): InvestigationTraceEvent {
   const successors = (graph.edgesByTarget.get(edge.target) ?? [])
     .filter((candidate) => candidate.type === "拆分")
     .map((candidate) => candidate.source);
-  const traceIds = direction === "predecessors" ? [edge.target] : successors;
-  return {
-    kind: "split",
-    recordIds: [edge.target, ...successors],
-    traceIds
-  };
+  return frozenTraceEvent(
+    "split",
+    [edge.target, ...successors],
+    [edge.target],
+    successors
+  );
 }
 
-function mergeTraceAdmissionUnit(
+function mergeTraceEvent(
   edge: RelationEdge<string, InvestigationRelationType>,
-  direction: "predecessors" | "successors",
   graph: InvestigationRelationGraph
-): RelationGraphTraceAdmissionUnit<string> {
+): InvestigationTraceEvent {
   const predecessors = (graph.edgesBySource.get(edge.source) ?? [])
     .filter((candidate) => candidate.type === "归并")
     .map((candidate) => candidate.target);
-  const traceIds = direction === "predecessors" ? predecessors : [edge.source];
-  return {
-    kind: "merge",
-    recordIds: [edge.source, ...predecessors],
-    traceIds
-  };
+  return frozenTraceEvent(
+    "merge",
+    [edge.source, ...predecessors],
+    predecessors,
+    [edge.source]
+  );
+}
+
+function frozenTraceEvent(
+  kind: "split" | "merge",
+  recordIds: string[],
+  predecessors: string[],
+  successors: string[]
+): InvestigationTraceEvent {
+  Object.freeze(recordIds);
+  return Object.freeze({
+    predecessors: Object.freeze({
+      kind,
+      recordIds,
+      traceIds: Object.freeze(predecessors)
+    }),
+    successors: Object.freeze({
+      kind,
+      recordIds,
+      traceIds: Object.freeze(successors)
+    })
+  });
 }
 
 export function validateInvestigationRelationGraph(

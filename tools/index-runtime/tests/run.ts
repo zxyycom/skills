@@ -14,3 +14,5 @@ await import("./staging-selection.test.ts");
 await import("./staging-errors.test.ts");
 await import("./staging-transaction.test.ts");
 await import("./staging-conflicts.test.ts");
+
+await import("./exact-membership.test.ts");

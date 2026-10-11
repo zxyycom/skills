@@ -310,3 +310,108 @@ test("investigation graph accepts same-time deep ordinary chains and preserves l
     "investigation relations must not form a cycle: chain-11997 -> chain-11998 -> chain-11999 -> chain-11997"
   ]);
 });
+
+test("relation trace reuses complete events across both directions anchors and depth boundaries", () => {
+  for (const kind of ["split", "merge"] as const) {
+    const states = new Map<string, InvestigationIndexState>([
+      ["center", state("2026-08-28T12:00:00Z")],
+      ...["a", "b", "c"].map((id): [string, InvestigationIndexState] => [
+        id,
+        state(
+          "2026-08-28T12:00:00Z",
+          kind === "split" ? [{ type: "拆分", target: "center" }] : []
+        )
+      ])
+    ]);
+    if (kind === "merge")
+      states.set(
+        "center",
+        state("2026-08-28T12:00:00Z", [
+          { type: "归并", target: "a" },
+          { type: "归并", target: "b" },
+          { type: "归并", target: "c" }
+        ])
+      );
+    assert.deepEqual(validateInvestigationRelationGraph(states), []);
+    for (const anchor of states.keys()) {
+      const complete = traceInvestigationRelations(states, anchor, {
+        direction: "both",
+        maxDepth: null,
+        maxRecords: 4
+      });
+      assert.deepEqual(complete, {
+        contextIds: [],
+        coverage: { complete: true, stoppedBy: [] },
+        frontier: [],
+        traceIds: ["a", "b", "c", "center"]
+      });
+      const blocked = traceInvestigationRelations(states, anchor, {
+        direction: "both",
+        maxDepth: null,
+        maxRecords: 3
+      });
+      assert.deepEqual(blocked.traceIds, [anchor]);
+      assert.deepEqual(blocked.contextIds, []);
+      assert.deepEqual(blocked.blockedEvent, {
+        kind,
+        recordIds: ["a", "b", "c", "center"],
+        requiredMaxRecords: 4
+      });
+    }
+    const depth = traceInvestigationRelations(states, "a", {
+      direction: "both",
+      maxDepth: 1,
+      maxRecords: 4
+    });
+    assert.deepEqual(depth.traceIds, ["a", "center"]);
+    assert.deepEqual(depth.contextIds, ["b", "c"]);
+    assert.deepEqual(depth.frontier, [
+      {
+        fromId: "center",
+        direction: kind === "split" ? "successors" : "predecessors",
+        nextIds: ["a", "b", "c"],
+        reason: "depth"
+      }
+    ]);
+  }
+});
+
+test("relation trace retains already admitted event targets in a later budget frontier", () => {
+  const states = new Map<string, InvestigationIndexState>([
+    [
+      "z",
+      state("2026-08-28T12:00:00Z", [
+        { type: "归并", target: "b" },
+        { type: "归并", target: "p" },
+        { type: "归并", target: "q" }
+      ])
+    ],
+    ["b", state("2026-08-28T12:00:00Z")],
+    ["p", state("2026-08-28T12:00:00Z")],
+    ["q", state("2026-08-28T12:00:00Z")],
+    ["a", state("2026-08-28T12:00:00Z", [{ type: "补充", target: "p" }])]
+  ]);
+  assert.deepEqual(validateInvestigationRelationGraph(states), []);
+  const trace = traceInvestigationRelations(states, "z", {
+    direction: "both",
+    maxDepth: null,
+    maxRecords: 4
+  });
+  assert.deepEqual(trace.traceIds, ["b", "p", "q", "z"]);
+  assert.deepEqual(trace.contextIds, []);
+  assert.equal(trace.blockedEvent, undefined);
+  assert.deepEqual(trace.frontier, [
+    {
+      fromId: "p",
+      direction: "successors",
+      nextIds: ["a", "z"],
+      reason: "max-records"
+    },
+    {
+      fromId: "q",
+      direction: "successors",
+      nextIds: ["z"],
+      reason: "max-records"
+    }
+  ]);
+});

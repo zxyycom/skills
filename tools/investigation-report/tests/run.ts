@@ -47,3 +47,5 @@ await import("./resource-failure-contract.test.ts");
 
 await import("./batch-stage-selectors.test.ts");
 await import("./batch-source-discovery.test.ts");
+
+await import("./trace-output.test.ts");
