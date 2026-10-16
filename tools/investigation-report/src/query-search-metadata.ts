@@ -50,7 +50,12 @@ export async function searchInvestigationMetadata(
     Object.entries(loaded.value.entries).map(([id, state]) => ({ id, state })),
     prepared
   );
-  if (selected.isErr()) return searchFailure(selected.error, indexPath);
+  if (selected.isErr())
+    return searchFailure({
+      errors: selected.error,
+      indexPath,
+      failureKind: "operation"
+    });
   return metadataSearchResult(matcher, selected.value, prepared, indexPath);
 }
 
@@ -60,18 +65,19 @@ function metadataIndexFailure(
 ): InvestigationSearchResult {
   const recovery =
     "Run investigation-report check to diagnose the collection, then run sync-index after correcting the problem.";
-  return searchFailure(
-    [
+  return searchFailure({
+    errors: [
       "the published investigation index could not be loaded for metadata search"
     ],
     indexPath,
-    diagnostics.map((diagnostic) =>
+    diagnostics: diagnostics.map((diagnostic) =>
       diagnosticFromStateIndexDiagnostic(diagnostic, {
         recovery,
         target: indexPath
       })
-    )
-  );
+    ),
+    failureKind: "operation"
+  });
 }
 
 function metadataMatcher(
@@ -240,10 +246,10 @@ function metadataMatcherFailure(
   error: unknown,
   indexPath: string
 ): InvestigationSearchResult {
-  return searchFailure(
-    ["investigation metadata search could not be completed"],
+  return searchFailure({
+    errors: ["investigation metadata search could not be completed"],
     indexPath,
-    [
+    diagnostics: [
       diagnosticFromError({
         code: "investigation-report.metadata-search-failed",
         error,
@@ -254,6 +260,7 @@ function metadataMatcherFailure(
         recovery: "correct the metadata search query, then retry",
         target: indexPath
       })
-    ]
-  );
+    ],
+    failureKind: "operation"
+  });
 }

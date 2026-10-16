@@ -240,6 +240,7 @@ export const testEvidenceSyncResultSchema = v.strictObject({
     "current",
     "unchanged",
     "written",
+    "previewed",
     "index-invalid",
     "index-missing",
     "index-path-invalid",

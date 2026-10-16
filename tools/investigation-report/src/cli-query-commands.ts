@@ -195,15 +195,18 @@ function searchOptions(
 }
 
 function printSearchFailure(
-  result: InvestigationSearchResult,
+  result: Extract<InvestigationSearchResult, { status: "error" }>,
   io: InvestigationReportCliIo
 ): number {
   return printResultErrors({
     diagnostics: result.diagnostics,
     errors: result.errors,
-    exitCode: 1,
+    exitCode: result.failureKind === "invalid-options" ? 2 : 1,
     io,
-    title: "Investigation report search failed:",
+    title:
+      result.failureKind === "invalid-options"
+        ? "Invalid investigation report search options:"
+        : "Investigation report search failed:",
     warnings: result.warnings
   });
 }

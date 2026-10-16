@@ -207,6 +207,7 @@ async function prepareCandidateResources(
 }
 
 type CandidateReadFailure = Readonly<{
+  kind: "scaffold-invalid" | "operation";
   diagnostics: InvestigationDiagnostic[];
   errors: string[];
   status: "error";
@@ -239,6 +240,7 @@ export async function readInvestigationCandidate(
   } catch (error) {
     return {
       status: "error",
+      kind: "operation",
       diagnostics: [
         diagnosticFromError({
           code: "investigation-report.candidate-read-failed",
@@ -257,6 +259,7 @@ export async function readInvestigationCandidate(
 function missingCandidate(id: string): CandidateReadFailure {
   return {
     diagnostics: [],
+    kind: "operation",
     errors: [`${id} investigation candidate could not be read`],
     status: "error"
   };
@@ -268,7 +271,9 @@ async function parsedCandidateResult(
   target: string,
   markdown: string,
   context: CandidateReadContext
-): Promise<{ status: "ok"; value: InvestigationCandidate }> {
+): Promise<
+  { status: "ok"; value: InvestigationCandidate } | CandidateReadFailure
+> {
   const scaffold = context.parsed.get(id)!;
   const bodyErrors: string[] = [];
   validateInvestigationBody(
@@ -282,18 +287,20 @@ async function parsedCandidateResult(
     ...scaffold.frontmatterErrors,
     ...scaffold.bodyErrors
   ]);
+  if (scaffoldErrors.length > 0)
+    return {
+      status: "error",
+      kind: "scaffold-invalid",
+      diagnostics: [],
+      errors: scaffoldErrors
+    };
   const resourceErrors = await candidateResourceErrors(
     investigationsDirectory,
     id,
     scaffold,
-    scaffoldErrors,
     context
   );
-  const errors = uniqueSorted([
-    ...scaffoldErrors,
-    ...bodyErrors,
-    ...resourceErrors
-  ]);
+  const errors = uniqueSorted([...bodyErrors, ...resourceErrors]);
   return {
     status: "ok",
     value: {
@@ -302,22 +309,13 @@ async function parsedCandidateResult(
       id,
       markdown,
       path: target,
-      readiness: candidateReadiness(scaffoldErrors, bodyErrors, resourceErrors),
+      readiness: {
+        scaffoldValid: true,
+        bodyReady: bodyErrors.length === 0,
+        resourceReady: resourceErrors.length === 0
+      },
       warnings: []
     }
-  };
-}
-
-function candidateReadiness(
-  scaffoldErrors: readonly string[],
-  bodyErrors: readonly string[],
-  resourceErrors: readonly string[]
-): InvestigationCandidate["readiness"] {
-  return {
-    bodyReady: scaffoldErrors.length === 0 && bodyErrors.length === 0,
-    resourceReady:
-      scaffoldErrors.length === 0 && uniqueSorted(resourceErrors).length === 0,
-    scaffoldValid: scaffoldErrors.length === 0
   };
 }
 
@@ -325,11 +323,10 @@ async function candidateResourceErrors(
   investigationsDirectory: string,
   id: string,
   scaffold: ParsedInvestigationReport,
-  scaffoldErrors: readonly string[],
   context: CandidateReadContext
 ): Promise<string[]> {
   const errors = [...scaffold.resourceErrors];
-  if (scaffoldErrors.length > 0 || scaffold.report === null) return errors;
+  if (scaffold.report === null) return errors;
   try {
     const references = context.references;
     errors.push(

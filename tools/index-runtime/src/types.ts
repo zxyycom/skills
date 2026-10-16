@@ -166,7 +166,7 @@ export type StateIndexQueryOutput<
   total: number;
 };
 
-export type StateIndexSyncMode = "check" | "write";
+export type StateIndexSyncMode = "check" | "preview" | "write";
 
 /** `selected` limits accepted source changes, never validation or output scope. */
 export type StateIndexSyncScope =
@@ -187,7 +187,7 @@ export type StateIndexSyncResult =
   | (StateIndexSyncBase & {
       changed: false;
       mode: StateIndexSyncMode;
-      state: "current" | "unchanged";
+      state: "current" | "unchanged" | "previewed";
       status: "ok";
     })
   | (StateIndexSyncBase & {

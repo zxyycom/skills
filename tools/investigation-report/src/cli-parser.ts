@@ -139,3 +139,27 @@ function normalizeCompatibleRelationSummaryTarget(value: string): string {
       : normalizeInvestigationIdInput(value.slice(0, separator));
   return target === null ? value : target + value.slice(separator);
 }
+
+/** Retain occurrences until the command boundary validates cardinality. */
+export function collectOptionValues(
+  value: string,
+  previous: readonly string[] = []
+): string[] {
+  return [...previous, value];
+}
+
+export function assertOptionCardinality(input: ParsedCli): string | null {
+  const repeatable = new Set([
+    "tag",
+    "select",
+    "id",
+    "source",
+    "relation",
+    "relation-summary"
+  ]);
+  if (input.command === "set-relations") repeatable.add("clear-relations");
+  return assertSingleOptions(
+    input,
+    [...input.values.keys()].filter((key) => !repeatable.has(key))
+  );
+}

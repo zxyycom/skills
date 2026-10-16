@@ -91,9 +91,9 @@
       "DECISION-CANDIDATE-INDEX-CONTEXT-001": "sha256:9751e8839fe8fe6b1ccbdbe80d9e730666f85176fe777389667feffc098a66b5",
       "DECISION-CANDIDATE-LOCKED-READINESS-001": "sha256:b9b3de5e1e663c92c3652eb49a63bc90c2d7afbc14eb59fa0144391da9ead944",
       "DECISION-CANDIDATE-LOCKED-RELEASE-001": "sha256:3d0034e4ca9f47aeadd45148848e31dbbe089f1fb1536bbcb76fb94ad4dde384",
-      "DECISION-CANDIDATE-NEW-001": "sha256:0ddf5d46e7aee03b5ad85ddbcfce627eb89a87fc58137d78778728fc887fb236",
+      "DECISION-CANDIDATE-NEW-001": "sha256:4401da50cb71657bb7e03e017d0fd5e39c88bf58c05c30b5b9b7776bc515b113",
       "DECISION-CANDIDATE-NEW-LOCK-RELEASE-001": "sha256:ed6042b9073926861ecd82bd065f111bbbdeafe08e42ae219dbe7b36671c8576",
-      "DECISION-CANDIDATE-PREFLIGHT-001": "sha256:c037a6054d865343ed29c8c54994102e161114497b27836eddae14ce12068f01",
+      "DECISION-CANDIDATE-PREFLIGHT-001": "sha256:087100c5999cf6ba9d32f05461974d6e6b941656cc90bc2ddf866334465bb03a",
       "DECISION-CANDIDATE-RELATION-MISSING-001": "sha256:b933fa537bc09676254895f08f40180a87be4745594872ff3dcfdc69af5bb12e",
       "DECISION-CANDIDATE-RELATION-REPEATED-TARGET-001": "sha256:e358b120dbab27fa56b69112756362b0451e9b08d0f06727cf5a6e36440e2668",
       "DECISION-CANDIDATE-RELATION-SELF-001": "sha256:6c1c412fb0752912e9cb61732e5f2fef8b62d93c21e344f6bc355c719e10514f",
@@ -116,6 +116,7 @@
       "DECISION-CLI-NEW-HELP-001": "sha256:e28aa5bccf4d21fd4aac96339cdafae287b185d4d511257ba8cc9c3e34d2c657",
       "DECISION-CLI-NODE-SMOKE-001": "sha256:493ff4d3ae58d57ea2d68f24852be0a496ed3f8012c3e85c597aa97e09223405",
       "DECISION-CLI-POSITIONAL-ID-001": "sha256:b5500fc858b7e7714474cd7fb252c449d7b3c08f3f5b823eb6904a585d03b88b",
+      "DECISION-CLI-PREVIEW-RECOVERY-001": "sha256:22f3a45d22af465256fd1fe96bace9915c89616cb30743f8a83f69f07c24484a",
       "DECISION-CLI-RELATION-SELECTION-001": "sha256:1653dc9cba3cba44b36f1f4ac4c32e7166aba72167c2d573e01db5b2bd87f5be",
       "DECISION-CLI-RELATIVE-ROOT-001": "sha256:251411e928e18ea5979f79b19bfa66a3b1562d29fb726e713afd810d95077e4f",
       "DECISION-CLI-REMOVED-PROTOCOL-001": "sha256:d6af71d7dddd451d2536d97f755af9ffee26f28169f62f44f2a764a86a07aae9",
@@ -252,7 +253,7 @@
       "DECISION-SEARCH-MODES-001": "sha256:6445576c883ddab8998928dd88a1d2d6695b7310de0ed7f89693d819be5d7f87",
       "DECISION-SEARCH-STATUS-001": "sha256:d0a5fde62131731f5fa8b5a5c1ee240834da040513088167ada696cd7dfc3e7e",
       "DECISION-SEARCH-UNINDEXED-001": "sha256:83893d2eaa712c0508fac2b313fd8af7cee43cab5ca7e66c8547177c00f9c55b",
-      "DECISION-SELECTED-SYNC-001": "sha256:19c4715f025bd893e19815b4398c90fe1d1c26c90b0689c298d022a261903db9",
+      "DECISION-SELECTED-SYNC-001": "sha256:c0221b59520fce658ae65378a5d225aaf238e83382440b470f4bf1420fa19ec9",
       "DECISION-SELECTED-SYNC-MEMBERSHIP-001": "sha256:5b9691e3bb7333e255cd3b7de395098ebdac83d2ff973808fd898b7099623900",
       "DECISION-SET-RELATIONS-ATOMIC-001": "sha256:c493c78bb330355564262edc055088719e434214a6ea0a70697885d14f72878f",
       "DECISION-SET-RELATIONS-DOMAIN-GUARDS-001": "sha256:ca623bee78f30b0042d40defed0afdbf921eb27fc3c472d06f9552b021e5be1d",
@@ -426,6 +427,9 @@
       "INDEX-RUNTIME-PERFORMANCE-001": "sha256:a2c3f3ceffb8c8b649d62efc6e51b43f7e6d6b46263a8db7a7cb3aeb4b32d480",
       "INDEX-RUNTIME-PERSISTED-SCHEMA-VERSION-001": "sha256:c3e8e602a98f75e5fb37ae1909ff6d0fa9ee374d51a1fd001a4909755f12ea6e",
       "INDEX-RUNTIME-PERSISTENCE-001": "sha256:a0674d0df48915d0df6c83c68b38d452bec7e1947d2b152589af29a5ef90ecdf",
+      "INDEX-RUNTIME-PREVIEW-RECOVERY-001": "sha256:e4ed7c3c7d2e4d085f5bd2237f0e8a4335a1a13183dce3aa0653bc047890aad1",
+      "INDEX-RUNTIME-PREVIEW-SELECTION-001": "sha256:5bd071e0f409539c0ffd388dcb962f1cfa2274a66628458b72473539ee9d501a",
+      "INDEX-RUNTIME-PREVIEW-SOURCE-001": "sha256:829a6aab5492b3d0661f549ca04bdc1e5949da2539c3e99e41c2f6a8d7a1bccf",
       "INDEX-RUNTIME-PROTOCOL-001": "sha256:84646ca4b10f8f182440aba2375496527235bd8fb9056974979326cbea07400d",
       "INDEX-RUNTIME-QUERY-001": "sha256:0a8a35ba966169b8e4b68929451463123ae1d4c712a8f9175abd9d342f2493d6",
       "INDEX-RUNTIME-QUERY-VALIDATION-001": "sha256:f31219b4238156b1b38850bef38820876089d0dc1384faba9aab370857a914a4",
@@ -435,7 +439,7 @@
       "INDEX-RUNTIME-RUNTIME-001": "sha256:69c4367689a67d3ff483783f354b0e34fa766a02354acbd439e66425f39aed7c",
       "INDEX-RUNTIME-RUNTIME-OVERLAY-001": "sha256:76c413b0cc2c290113d07d331edf039ac6b766e87270cb33a1373f9969cc7056",
       "INDEX-RUNTIME-SCHEMA-001": "sha256:89ee8fc56a6e7c1054bc3ab72ed0c218c3091258d1556c6a830af6d5c7653603",
-      "INDEX-RUNTIME-SELECTED-SYNC-001": "sha256:b575a4641ff8ad5be19cf067129bd9be79d5c23004a7dd65bd2d9c0380243126",
+      "INDEX-RUNTIME-SELECTED-SYNC-001": "sha256:2990ce8e04f4b4c11993e10cf9c13ae1b1d70b4d5cd69db586d434184714a2b3",
       "INDEX-RUNTIME-SELECTED-SYNC-002": "sha256:07be68c0f4e2af99e6d7a39149f69b94f2feca32a3f7204ae17b49120c48bd8d",
       "INDEX-RUNTIME-SERIALIZATION-001": "sha256:68310295f09bdf2c09616f4abe2f13641841f8dd3b14e69fdf0d4e0ed07705d6",
       "INDEX-RUNTIME-SOURCE-REVISION-001": "sha256:7bc36a77a38f0b3f797a2cdd4581df3cc4d7b6e717a8ba942d0c30ec79353a80",
@@ -470,7 +474,7 @@
       "INVESTIGATION-BATCH-DISCOVERED-SOURCES-001": "sha256:027940c265f6901f830a478a17180e8d7a7934da538ae6c9bf9417a4f9d10456",
       "INVESTIGATION-BATCH-STAGE-SELECTORS-001": "sha256:06a660e60169589a8994838cd0f0c31d11f9ff83d271ba67bf31b698f20e8688",
       "INVESTIGATION-BUNDLED-PARITY-001": "sha256:16105f75fdf958c2f686bf399b407b3a642d51d94adc862200140b1cee672692",
-      "INVESTIGATION-CANDIDATE-CLI-001": "sha256:62da445afa32e7810163706af13e753f6b253fe62b8e382ccf22aa48a56ac4f5",
+      "INVESTIGATION-CANDIDATE-CLI-001": "sha256:02ca3372ba6a8058282f10f28ae17a65ab87023ae01dfadd00ab167e370beee2",
       "INVESTIGATION-CANDIDATE-DEFAULT-FORMED-AT-001": "sha256:fceb45c6d4ac6ad17aa31ddd8e3671d9a6688e9d262ee8ff99dc312b429616be",
       "INVESTIGATION-CANDIDATE-DISCARD-004": "sha256:cf32927cfeae36ef6d0108890933919123d8bc1e07ed168ccc1d95d57623883e",
       "INVESTIGATION-CANDIDATE-DISCARD-005": "sha256:446235f7e79b3b689d333a21c8fbd4dccbcd8eee821368df3f4157a4bc25d5d9",
@@ -489,6 +493,7 @@
       "INVESTIGATION-CANDIDATE-RESOURCE-001": "sha256:5889c59af00c70acf61748d16145fbba3bb898e4560525f83f1bb803df2273ee",
       "INVESTIGATION-CHECK-FIRST-ACQUISITION-001": "sha256:d0696bb580df3d4d64359bf8bd2c02b95cf6ea55e813390f7c7ab433b453928e",
       "INVESTIGATION-CHECK-FULL-PROJECTION-001": "sha256:753a20378ad47edd831d2ebcdd993e7f67a1a751f88dab06c5a8e463627582cc",
+      "INVESTIGATION-CLI-CANDIDATE-VALIDITY-001": "sha256:c84c9c378e95ee596995c3c708cc48a918b7a27131efd2da8add6c6e88e44d7b",
       "INVESTIGATION-CLI-COLLECTION-ROOT-001": "sha256:3fb686ca20cb3b5676ac0c391a2459272a8b1517795f0b538682ae2cffc29aed",
       "INVESTIGATION-CLI-CONTRACTS-001": "sha256:862de3ea3eef2a574ae8ea8314b35d4912fdf3195a567641a71ad30da839c433",
       "INVESTIGATION-CLI-CUSTOM-RELATIVE-DIRECTORY-001": "sha256:bb47d09b903cd903659cd55eeed5426c444c9e515de185ef11e5bd623bbf27e8",
@@ -501,10 +506,14 @@
       "INVESTIGATION-CLI-INVESTIGATIONS-DIR-NORMALIZATION-001": "sha256:f0a0d017621228fd2e92b6238215b2be0f56f56346118eb1ef7845a48e4f4d39",
       "INVESTIGATION-CLI-LIST-001": "sha256:c46d719b206779af5116bc235475708063cef73ed8302aafbc97b252bf016bcb",
       "INVESTIGATION-CLI-MISSING-COMMAND-001": "sha256:24fc6ee6484716226963817f50388c2d577d030c4291131c8dcf87bd6cc26a34",
+      "INVESTIGATION-CLI-NEW-AUXILIARY-001": "sha256:ebff15440b046d11b1ef0999aad778526d87898ffd66fca6a7df5375c18ef5c4",
+      "INVESTIGATION-CLI-PREVIEW-RECOVERY-001": "sha256:11e0d38c4d38735be4cfab6d029338f0dc05afd0dc5e76a9e3af5b771a5850af",
       "INVESTIGATION-CLI-RELATION-FILTER-001": "sha256:689da1fc8528698e1eaa4776b6e2407553fd36fd797d5132d59541ef775a7cd6",
       "INVESTIGATION-CLI-RELATIONS-001": "sha256:469dab2b25b2760e824e3a9b7021481c79b9a0138b839a24ae8cc2244b83d695",
-      "INVESTIGATION-CLI-SELECTED-SYNC-001": "sha256:b0fa7c618213c0f7c0a7b5c718761cb7e7ffc40fc0297cf6aaa843c69ab38f4d",
+      "INVESTIGATION-CLI-SEARCH-FAILURE-001": "sha256:1a23d3ca790177ba1c2e33363d6cc605ecf254b6ebfa58fa76a103bfddca4b60",
+      "INVESTIGATION-CLI-SELECTED-SYNC-001": "sha256:5631b208d2bed6dd987e8cd0c3ad49d2718cf5f67545db34199373a85e1b4215",
       "INVESTIGATION-CLI-SHOW-DIAGNOSTIC-001": "sha256:a6bb7e0c474d753cb48dd5fbe05e6242ff7c62cedfa2e78fd577647655fffc19",
+      "INVESTIGATION-CLI-SINGLE-OPTIONS-001": "sha256:e0b1a82eadd43103d8bbaf09dc3923f1f87e3b47f7aba0d7895e23abf02d0e8f",
       "INVESTIGATION-CLI-STAGE-DIAGNOSTIC-001": "sha256:e3390261f93d16020a94088ac1922c9a6fc27ba771af922e0dfb157a1086dc74",
       "INVESTIGATION-CLI-STAGE-FILESYSTEM-001": "sha256:54126c2078b968a1f0fe96d29e364ad374a7269f4ac253da1d8e06afe6bf774d",
       "INVESTIGATION-CLI-STAGE-JSON-001": "sha256:0aa70ed3f7b5c1da0aaba8e2e2d35025494fc4468dc4fca0fea7469212007814",
@@ -2229,6 +2238,16 @@
       ],
       "testIds": [
         "test:76caa9f7d3b144a156c193966a180369f5e92d7b2431d111cf994a40a71fa7ca"
+      ]
+    },
+    "DECISION-CLI-PREVIEW-RECOVERY-001": {
+      "title": "决策全量预演恢复边界与严格检查分离",
+      "sourcePath": "cases/decision-cli-preview-recovery.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:6ecf7793f5761f855ee45ce5ebad4a534f2ae43bfee75a794c4bccbcc2391ead"
       ]
     },
     "DECISION-CLI-RELATION-SELECTION-001": {
@@ -5388,6 +5407,36 @@
         "test:bcebc12462d6293871c5d253c9e73c0ed59c80b52b1c149a102c9466115a0623"
       ]
     },
+    "INDEX-RUNTIME-PREVIEW-RECOVERY-001": {
+      "title": "完整同步预演允许恢复索引且不落盘",
+      "sourcePath": "cases/index-runtime-preview-recovery.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:425e72ea25d7752176cc29b2a6b2a14423220622b56c82d91ba61e2f61e5e91b"
+      ]
+    },
+    "INDEX-RUNTIME-PREVIEW-SELECTION-001": {
+      "title": "选择性预演保持完整接纳边界",
+      "sourcePath": "cases/index-runtime-preview-selection.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:3d66119a531e43fc4ff52ec1d0563ec11538533f9896e027fcbd075a5f3a1bb2"
+      ]
+    },
+    "INDEX-RUNTIME-PREVIEW-SOURCE-001": {
+      "title": "同步预演拒绝来源无效或期间漂移",
+      "sourcePath": "cases/index-runtime-preview-source.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:0dec7081a08188d3b9b55c13f191b8a8e8169c25d6a76c6b0aeec6c9d0e51020"
+      ]
+    },
     "INDEX-RUNTIME-PROTOCOL-001": {
       "title": "排序查询标量并比较有序字段定义",
       "sourcePath": "cases/index-runtime-protocol-001.md",
@@ -6023,6 +6072,16 @@
         "test:d7bb287805fa76b76e86579c29864dae58b63cc4f10ecc716c3a78e1391cbd70"
       ]
     },
+    "INVESTIGATION-CLI-CANDIDATE-VALIDITY-001": {
+      "title": "候选查询区分结构无效和机械未就绪",
+      "sourcePath": "cases/investigation-cli-candidate-validity.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:9b23d0eaea4077383114e89a19170ae8b8fef5908c4f12d12cacb6f12a34f608"
+      ]
+    },
     "INVESTIGATION-CLI-COLLECTION-ROOT-001": {
       "title": "集合目录误传 --root 时给出恢复形态",
       "sourcePath": "cases/investigation-cli-collection-root-001.md",
@@ -6144,6 +6203,26 @@
         "test:9c37cdc63ebb7f6cb47f9aad3f170593fbf280089f75acccb0ee0cb5aa56f898"
       ]
     },
+    "INVESTIGATION-CLI-NEW-AUXILIARY-001": {
+      "title": "辅助预检不可用不撤销候选创建成功",
+      "sourcePath": "cases/investigation-cli-new-auxiliary.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:22aed34ba8dfc53f3ba1f6bece194ca75a81159f716747940748c7130cf0cd61"
+      ]
+    },
+    "INVESTIGATION-CLI-PREVIEW-RECOVERY-001": {
+      "title": "调查全量预演恢复边界与严格检查分离",
+      "sourcePath": "cases/investigation-cli-preview-recovery.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:dc53e06649d4109fbeb8ca40840b9ef034378d43618f7a8730df7e273445e86a"
+      ]
+    },
     "INVESTIGATION-CLI-RELATION-FILTER-001": {
       "title": "CLI rejects repeated relation query options",
       "sourcePath": "cases/investigation-cli-relation-filter-001.md",
@@ -6164,6 +6243,16 @@
         "test:76ef62a3584c3b166dd16a95c5097a0cbab6840fdce7d2f34e786ad6cb8c0ffe"
       ]
     },
+    "INVESTIGATION-CLI-SEARCH-FAILURE-001": {
+      "title": "搜索参数与来源失败保留不同退出状态",
+      "sourcePath": "cases/investigation-cli-search-failure-kind.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:1a8818c699b90d3e09a67b882a2a9ca6d2b0c74a3c5b357c0c1b401896b00cb2"
+      ]
+    },
     "INVESTIGATION-CLI-SELECTED-SYNC-001": {
       "title": "CLI selected sync publishes by default and keeps --preflight zero-write",
       "sourcePath": "cases/investigation-cli-selected-sync-001.md",
@@ -6171,7 +6260,7 @@
         "investigation-report"
       ],
       "testIds": [
-        "test:86b1668025ce56ee57fc73669d3fe39a8658fcdb3b756c841a36962f1150f052"
+        "test:06267a316e544644393723e47b8d092e0e978b5ff78bec8ab51e5852c8d98352"
       ]
     },
     "INVESTIGATION-CLI-SHOW-DIAGNOSTIC-001": {
@@ -6182,6 +6271,16 @@
       ],
       "testIds": [
         "test:e26d75be88818314752491cb2bcb4df945f2aba819715eff6aa93b5dd4d383c8"
+      ]
+    },
+    "INVESTIGATION-CLI-SINGLE-OPTIONS-001": {
+      "title": "单值选项重复在 CLI 边界拒绝",
+      "sourcePath": "cases/investigation-cli-single-options.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:30bf95bb8658c9f1dcc12c87d71fd70128e8ac1efe63e229b9c3ec39d45077bf"
       ]
     },
     "INVESTIGATION-CLI-STAGE-DIAGNOSTIC-001": {

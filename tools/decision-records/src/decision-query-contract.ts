@@ -268,7 +268,7 @@ export type DecisionQuerySuccess =
       scope: "all" | "selected";
       selectedIds: string[];
       selectors: string[];
-      state: "current" | "unchanged" | "written";
+      state: "current" | "unchanged" | "previewed" | "written";
       unactivatedPaths: string[];
     })
   | (QuerySuccessBase & {

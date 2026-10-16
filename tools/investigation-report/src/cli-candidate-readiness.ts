@@ -1,15 +1,13 @@
 import type { InvestigationReportCliIo } from "./cli-contract.ts";
-import { writeLine } from "./cli-io.ts";
+import type { InvestigationCandidateReadiness } from "./types.ts";
+import { diagnosticFromError } from "./diagnostics.ts";
+import { printResultErrors, writeLine } from "./cli-io.ts";
 
 export function printCandidateReadiness(
   candidate: Readonly<{
     errors: readonly string[];
     id: string;
-    readiness: Readonly<{
-      bodyReady: boolean;
-      resourceReady: boolean;
-      scaffoldValid: boolean;
-    }>;
+    readiness: InvestigationCandidateReadiness;
   }>,
   io: InvestigationReportCliIo
 ): void {
@@ -27,8 +25,41 @@ export function printCandidateReadiness(
   if (!candidate.readiness.resourceReady)
     writeLine(io.stderr, "- resources: need attention");
   for (const error of candidate.errors) writeLine(io.stderr, `- ${error}`);
+}
+
+export function printCandidateReadinessSummary(
+  readiness: InvestigationCandidateReadiness,
+  io: InvestigationReportCliIo
+): void {
+  writeLine(io.stdout, `scaffoldValid: ${readiness.scaffoldValid}`);
+  writeLine(io.stdout, `bodyReady: ${readiness.bodyReady}`);
+  writeLine(io.stdout, `resourceReady: ${readiness.resourceReady}`);
+}
+
+export function printCandidatePreflightUnavailable(
+  id: string,
+  error: unknown,
+  io: InvestigationReportCliIo
+): void {
   writeLine(
-    io.stderr,
-    "  next: edit the candidate, inspect it with show-candidate, then run publish --preflight before publishing"
+    io.stdout,
+    "Candidate publish preflight: unavailable (candidate remains created)."
   );
+  printResultErrors({
+    diagnostics: [
+      diagnosticFromError({
+        code: "investigation-report.candidate-preflight-unavailable",
+        error,
+        reason:
+          "the candidate was created but its auxiliary publish preflight could not complete",
+        recovery:
+          "keep the created candidate, restore collection access, then inspect it or run publish --preflight; do not rerun new",
+        target: id
+      })
+    ],
+    errors: [],
+    exitCode: 0,
+    io,
+    title: "Auxiliary candidate preflight unavailable:"
+  });
 }

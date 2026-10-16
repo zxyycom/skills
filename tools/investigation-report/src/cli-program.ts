@@ -5,9 +5,12 @@ import type {
   InvestigationReportCliIo,
   ParsedCli
 } from "./cli-contract.ts";
-import { normalizeIdentitySelectorsAtCliBoundary } from "./cli-parser.ts";
+import {
+  assertOptionCardinality,
+  collectOptionValues,
+  normalizeIdentitySelectorsAtCliBoundary
+} from "./cli-parser.ts";
 import { resolveInvestigationLocation } from "./investigation-location.ts";
-import { defaultInvestigationsDirectory } from "./report-path.ts";
 import { processInvestigationReportCliIo } from "./cli-io.ts";
 import {
   collectedRelationEvents,
@@ -39,12 +42,12 @@ export function createInvestigationCliProgram(
     .option(
       "--root <path>",
       "Workspace root. Defaults to the current directory.",
-      cwd
+      collectOptionValues
     )
     .option(
       "--investigations-dir <path>",
       "Investigation directory, relative to the workspace root.",
-      defaultInvestigationsDirectory
+      collectOptionValues
     )
     .showHelpAfterError()
     .addHelpText(
@@ -70,12 +73,18 @@ function parsedCli(
   cwd: string
 ): ParsedCli {
   const values = collectedValues(commanderCommand);
-  resolveCommandLocation(commanderCommand, values, cwd);
   const input: ParsedCli = {
     command,
     positionals: [...commanderCommand.args],
     values
   };
+  const cardinalityError = assertOptionCardinality(input);
+  if (cardinalityError !== null)
+    commanderCommand.error(cardinalityError, {
+      code: "investigation-report.option-repeated",
+      exitCode: 2
+    });
+  resolveCommandLocation(commanderCommand, values, cwd);
   const relationEvents = collectedRelationEvents(commanderCommand);
   const normalized = {
     ...input,

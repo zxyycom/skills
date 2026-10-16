@@ -494,8 +494,15 @@ test("candidate root safety failures block formal checks and candidate CLI keeps
     ]);
     assert.equal(created.status, 0);
     assert.match(created.stdout, /Investigation candidate created:/u);
-    assert.match(created.stderr, /body: incomplete/u);
-    assert.match(created.stderr, /publish --preflight/u);
+    assert.match(created.stdout, /260902-candidate-topic/u);
+    assert.match(created.stdout, /title: 候选调查/u);
+    assert.match(created.stdout, /path: .*_candidate\.candidate-topic/u);
+    assert.match(created.stdout, /scaffoldValid: true/u);
+    assert.match(created.stdout, /bodyReady: false/u);
+    assert.match(created.stdout, /resourceReady: true/u);
+    assert.match(created.stdout, /preflight: needs attention/u);
+    assert.doesNotMatch(created.stderr + created.stdout, /next:/u);
+    assert.doesNotMatch(created.stdout, /## 调查目的/u);
 
     const show = await runInvestigationCli(root, [
       "show-candidate",

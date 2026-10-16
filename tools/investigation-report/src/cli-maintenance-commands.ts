@@ -117,9 +117,11 @@ function printSyncSuccess(
   if (result.scope === "selected") return printSelectedSyncSuccess(result, io);
   writeLine(
     io.stdout,
-    result.changed
-      ? `Investigation index synchronized (${result.reportCount} reports).`
-      : `Investigation index is already current (${result.reportCount} reports).`
+    result.state === "previewed"
+      ? `Investigation index sync preflight passed (${result.reportCount} reports); complete projection not published.`
+      : result.changed
+        ? `Investigation index synchronized (${result.reportCount} reports).`
+        : `Investigation index is already current (${result.reportCount} reports).`
   );
 }
 
@@ -133,9 +135,11 @@ function printSelectedSyncSuccess(
   );
   writeLine(
     io.stdout,
-    result.changed
-      ? `Published the complete Investigation index projection for resolved IDs: ${result.selectedIds.join(", ")}.`
-      : `Resolved Investigation IDs are already current: ${result.selectedIds.join(", ")}.`
+    result.state === "previewed"
+      ? `Investigation index sync preflight passed; complete projection not published for resolved IDs: ${result.selectedIds.join(", ")}.`
+      : result.changed
+        ? `Published the complete Investigation index projection for resolved IDs: ${result.selectedIds.join(", ")}.`
+        : `Resolved Investigation IDs are already current: ${result.selectedIds.join(", ")}.`
   );
 }
 

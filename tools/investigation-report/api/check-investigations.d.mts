@@ -552,7 +552,7 @@ export type InvestigationSearchInfo = Readonly<{
 }>;
 export type InvestigationSearchResult = InvestigationSearchResultBase & (
   | Readonly<{ status: "ok"; searchInfo: InvestigationSearchInfo }>
-  | Readonly<{ status: "error"; searchInfo: null }>
+  | Readonly<{ status: "error"; searchInfo: null; failureKind: "invalid-options" | "operation" }>
 );
 type InvestigationSearchResultBase = Readonly<{
   entries: readonly InvestigationSearchEntry[];

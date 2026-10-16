@@ -46,7 +46,7 @@ export async function syncStateIndex<
       diagnostics: [
         diagnostic({
           code: "state-index.mode-invalid",
-          message: "sync mode must be check or write",
+          message: "sync mode must be check, preview, or write",
           path: indexPath
         })
       ],
@@ -226,6 +226,21 @@ export async function syncStateIndex<
           "all",
           []
         );
+  }
+
+  if (mode === "preview") {
+    return {
+      changed: false,
+      changedIds: [],
+      diagnostics: [],
+      indexPath,
+      mode,
+      namespace: definition.namespace,
+      scope: "all",
+      selectedIds: [],
+      state: "previewed",
+      status: "ok"
+    };
   }
 
   let writtenPath: string;

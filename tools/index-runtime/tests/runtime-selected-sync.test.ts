@@ -86,7 +86,7 @@ test("selected sync proves the complete projection before publishing it", async 
 
     source.states.alpha = { label: "Alpha changed" };
     source.revisions.alpha = "alpha-2";
-    const unselected = await runtime.sync("write", {
+    const unselected = await runtime.sync("preview", {
       kind: "selected",
       selectedIds: ["beta"]
     });
@@ -102,6 +102,13 @@ test("selected sync proves the complete projection before publishing it", async 
     assert.deepEqual(checked.changedIds, ["alpha"]);
     assert.equal(await fs.readFile(indexPath, "utf8"), baselineText);
 
+    const previewed = await runtime.sync("preview", {
+      kind: "selected",
+      selectedIds: ["alpha"]
+    });
+    assert.equal(previewed.state, "previewed");
+    assert.deepEqual(previewed.changedIds, ["alpha"]);
+    assert.equal(await fs.readFile(indexPath, "utf8"), baselineText);
     const written = await runtime.sync("write", {
       kind: "selected",
       selectedIds: ["alpha"]
@@ -145,7 +152,7 @@ test("selected sync proves the complete projection before publishing it", async 
     delete source.revisions.alpha;
     source.states.omega = { label: "Omega" };
     source.revisions.omega = "omega-1";
-    const incompleteRename = await runtime.sync("write", {
+    const incompleteRename = await runtime.sync("preview", {
       kind: "selected",
       selectedIds: ["omega"]
     });

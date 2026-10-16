@@ -34,15 +34,19 @@ export async function searchSnapshot(
 ): Promise<InvestigationSearchResult> {
   const selected = selectSearchEntries(snapshot.entries, snapshot.prepared);
   if (selected.isErr())
-    return searchFailure(
-      selected.error,
-      snapshot.indexPath,
-      [],
-      snapshot.warnings
-    );
+    return searchFailure({
+      errors: selected.error,
+      indexPath: snapshot.indexPath,
+      warnings: snapshot.warnings,
+      failureKind: "operation"
+    });
   const sourceMap = sourceEntryMap(selected.value.entries);
   if (sourceMap instanceof Error)
-    return searchFailure([sourceMap.message], snapshot.indexPath);
+    return searchFailure({
+      errors: [sourceMap.message],
+      indexPath: snapshot.indexPath,
+      failureKind: "operation"
+    });
   try {
     const searched = await searchSelectedSources(
       snapshot,
@@ -54,7 +58,11 @@ export async function searchSnapshot(
       selected.value.filterRelations
     );
     if (entries instanceof Error)
-      return searchFailure([entries.message], snapshot.indexPath);
+      return searchFailure({
+        errors: [entries.message],
+        indexPath: snapshot.indexPath,
+        failureKind: "operation"
+      });
     return successfulSearch(
       snapshot,
       entries,
@@ -172,10 +180,10 @@ function unavailableSearchFailure(
   error: unknown
 ): InvestigationSearchResult {
   const fileError = error instanceof FileTextSearchError ? error : null;
-  return searchFailure(
-    ["investigation file search could not be completed"],
-    snapshot.indexPath,
-    [
+  return searchFailure({
+    errors: ["investigation file search could not be completed"],
+    indexPath: snapshot.indexPath,
+    diagnostics: [
       diagnosticFromError({
         code:
           fileError === null
@@ -187,6 +195,7 @@ function unavailableSearchFailure(
         target: fileError?.sourcePath ?? snapshot.indexPath
       })
     ],
-    snapshot.warnings
-  );
+    warnings: snapshot.warnings,
+    failureKind: "operation"
+  });
 }

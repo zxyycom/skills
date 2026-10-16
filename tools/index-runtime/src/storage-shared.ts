@@ -62,7 +62,7 @@ export async function readSourceRevision<
 export function isStateIndexSyncMode(
   value: unknown
 ): value is StateIndexSyncMode {
-  return value === "check" || value === "write";
+  return value === "check" || value === "preview" || value === "write";
 }
 
 export function failedSync<State extends object, Metadata extends JsonObject>(

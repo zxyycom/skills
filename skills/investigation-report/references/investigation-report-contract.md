@@ -167,9 +167,9 @@ resource ID 首段确定唯一 owner，而非报告 basename。owner 须直接�
 
 `createInvestigationCandidate` API 与 CLI `new` 从显式 title、question、tags、完整直接关系和可选 formedAt 原子、不覆盖地创建候选。省略 formedAt 时，创建入口在身份归一化前读取一次当前 UTC 时间作为有效值；显式值继续按既有格式与日期一致性规则校验，非法输入不会回退到默认值。name 输入自动使用有效 formedAt 的 UTC 日形成 ID，完整 ID 输入须同日；重复分类、关系或非法 metadata 拒绝。同日同名冲突时零写入，与同名 legacy ID 冲突时按 `migration-required` 提示显式处理。
 
-writer 在候选和正式位置均可用时优先使用 name locator，否则使用完整 ID；发布保留相同 basename。创建成功即表示 candidate 已存在，readiness 或辅助预检 warning 提示继续编辑、查看候选或显式预检，不要求重跑 new。
+writer 在候选和正式位置均可用时优先使用 name locator，否则使用完整 ID；发布保留相同 basename。`new` 的 stdout 集中回显完整 Investigation ID、标题、路径、三项 readiness 及独立的轻量辅助预检结论，不默认打印全文或固定下一步；warning 和错误诊断保留在 stderr。创建成功只表示 candidate 已存在，不表示报告已建立或发布；readiness 或辅助预检不就绪／不可用不撤销创建，继续完善已有候选，不重跑 `new`。
 
-`candidates` 与 `show-candidate` 从未索引候选定位身份并读取准备情况；同一阶段复用候选源字节、身份映射、引用与资源依据，正式共享 owner 按实际引用读取。没有可用索引或出现未知／移动 owner 时，身份发现可以扩大，但局部读取不证明正式全集健康。集合安全允许时，单条非法候选可 warning 后跳过；显式目标非法则失败。正式查询仍走正式集合。
+`candidates` 与 `show-candidate` 从未索引候选定位身份并读取准备情况；同一阶段复用候选源字节、身份映射、引用与资源依据，正式共享 owner 按实际引用读取。没有可用索引或出现未知／移动 owner 时，身份发现可以扩大，但局部读取不证明正式全集健康。集合安全允许时，单条非法候选可 warning 后跳过；显式目标结构或 metadata 非法时退出 1 并给出诊断；结构合法但正文或资源未就绪时仍退出 0。`show-candidate` 始终展示三项 readiness 的 true/false，包括全部为 true 时；未就绪时另给诊断。集合安全错误仍阻断查询，正式查询仍走正式集合。
 
 ### 发布前提与效果
 
@@ -295,7 +295,7 @@ search 的 limit 只限制返回的命中报告，不提供 offset 分页；命�
 
 ### 搜索总览与完整性
 
-每次成功 `search`（含零命中）都以只读 `InvestigationSearchInfo` 返回同一即时查询的四组事实。公开 `InvestigationSearchResult` 由 `status` 判别：`ok` 时 `searchInfo` 完整，`error` 时为 `null`，失败不伪造命中数。索引和 Schema 继续只承接持久记录；记录字段、文本证据与关系筛选依据仍按上文读取。
+每次成功 `search`（含零命中）都以只读 `InvestigationSearchInfo` 返回同一即时查询的四组事实。公开 `InvestigationSearchResult` 由 `status` 判别：`ok` 时 `searchInfo` 完整，`error` 时为 `null`，失败不伪造命中数。失败的 `failureKind` 区分 `invalid-options` 与 `operation`，CLI 分别退出 2 与 1。索引和 Schema 继续只承接持久记录；记录字段、文本证据与关系筛选依据仍按上文读取。
 
 | 分组 | 含义与读取方式 |
 | --- | --- |
@@ -358,6 +358,8 @@ warning 保留领域前缀并写入 stderr，每类仅一次：
 
 一批手工正式编辑可先共同完成，期间用局部 check 或读取 Markdown；在已有关系事务、正式删除或全量验收需要当前集合前同步一次；暂存所选来源变化前发布相应索引投影。全量同步可恢复旧索引缺失、损坏或陈旧，来源或候选成员安全问题仍须先解决。`sync-index` 默认写入完整有效索引，`--preflight` 零写入执行同一准备与验证。已知合法来源变化的规范顺序是同步后全量 `check`；未解释的索引异常先 `check` 诊断，再同步或修复。
 
+全量 `sync-index --preflight` 对上述可恢复索引验证能否从当前合法来源重建，只有正式同步才落盘恢复；严格 `check` 仍拒绝缺失、无效或陈旧索引。全量与 selected 预演都执行正式同步的来源漂移保护，不写持久领域文件、索引、资源或 Git pending；既有短暂集合锁不在此持久写入边界内。预演成功但尚未发布、索引已经 current 与实际已写入分别报告；预演不是正式执行的提交凭据。
+
 selected 同步须有可信 baseline，集合 metadata 及其 revision 保持不变，全部变化 ID 都被选择。selector 从 baseline 与待发布投影的 name 映射并集解析，标准 ID 只精确匹配。新增选新 ID，删除选旧 ID，身份更正同时选旧/新 ID；未选择变化、未知 ID 或坏 baseline 均零写入，先补充选择或显式全量同步。
 
 ### 待提交快照
@@ -404,6 +406,8 @@ stage 的读取与写入保护分为以下责任；“阶段”是本次命令�
 ## 诊断与验收
 
 CLI 的 code、对象、原因和下一步说明本次命令；有可靠系统证据时才补充原因类别、操作与净化细节。成功信息在 stdout，失败和 warning 在 stderr，均为即时输出，不保存日志、遥测或 receipt。退出码和精确输出查 help。
+
+各命令的单值 CLI 参数重复时按参数错误退出 2，不回退默认条件；合法 repeatable 参数仍保留其集合或分组语义。`search` 的参数与运行失败分类见[搜索总览与完整性](#搜索总览与完整性)。
 
 mutation 失败的 scope/outcome 只说明声明范围：
 

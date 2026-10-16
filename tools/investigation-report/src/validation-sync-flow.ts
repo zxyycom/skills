@@ -1,6 +1,7 @@
 import path from "node:path";
 import {
   isStateIndexText,
+  type StateIndexSyncMode,
   type StateIndexSyncScope
 } from "../../index-runtime/src/index.ts";
 import { withInvestigationCollectionMutationLock } from "./collection-mutation-lock.ts";
@@ -39,7 +40,7 @@ import {
 
 export async function synchronizeFullCollection(
   investigationRoot: string,
-  mode: "check" | "write",
+  mode: StateIndexSyncMode,
   selectors: readonly string[] | undefined
 ): Promise<InvestigationIndexSyncResult> {
   const collection = await collectValidatedInvestigationCollection(
@@ -83,7 +84,7 @@ async function synchronizeValidatedCollection(
   investigationRoot: string,
   collection: ValidatedInvestigationCollection,
   snapshot: InvestigationSnapshot,
-  mode: "check" | "write",
+  mode: StateIndexSyncMode,
   selectors: readonly string[] | undefined
 ): Promise<InvestigationIndexSyncResult> {
   const scope = await selectedInvestigationSyncScope({
@@ -124,7 +125,7 @@ function invalidSelectedSyncResult(
 
 function syncRequest(
   investigationsDirectory: string,
-  mode: "check" | "write",
+  mode: StateIndexSyncMode,
   snapshot: InvestigationSnapshot,
   scope: StateIndexSyncScope | undefined
 ) {
@@ -185,7 +186,7 @@ function syncFailureMutation(
 
 export async function synchronizeFullCollectionWithMutationLock(
   investigationRoot: string,
-  mode: "check" | "write",
+  mode: StateIndexSyncMode,
   selectors: readonly string[] | undefined
 ): Promise<InvestigationIndexSyncResult> {
   return await withInvestigationCollectionMutationLock(

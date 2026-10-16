@@ -10,7 +10,7 @@ Contract:
 - `new` 从显式规范输入以稳定 field/tag 顺序创建不覆盖 scaffold；创建成功、正文 readiness 与正式建立必须分开报告。
 
 Proves:
-- 创建退出 0，stdout 报告路径与未发生的 lifecycle/index 变化，stderr 报告 scaffold/body readiness、后续动作且不附会 mutation outcome。
+- 创建退出 0，stdout 集中报告自动生成的完整日期 ID、标题、路径、scaffold/body readiness 与未发生的 lifecycle/index 变化，不打印固定下一步；辅助预检诊断在 stderr，且不附会 mutation outcome。
 - 新 Markdown 具有 candidate lifecycle、空固定正文和排序 tags；没有正式索引。
 - candidates 与严格 check 分别显示 scaffold/body readiness 计数。
 - 重复 identity 退出 1 且保留原字节；非法 ID 退出 2 且不创建路径。

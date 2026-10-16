@@ -26,7 +26,7 @@ test("lifecycle preflight is read-only and still requires a body-ready candidate
       ]);
       assert.equal(scaffold.exitCode, 0, scaffold.stderr);
       assert.match(
-        scaffold.stderr,
+        scaffold.stdout,
         /alignment preview: aligned \(provided to auxiliary preparation/
       );
       const candidatePath = decisionFilePath(workspaceRoot, candidateId);

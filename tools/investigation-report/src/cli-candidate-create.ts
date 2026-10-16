@@ -6,7 +6,10 @@ import {
   type InvestigationRelationSummaryInput
 } from "./relation-summary.ts";
 import type { InvestigationReportCliIo, ParsedCli } from "./cli-contract.ts";
-import { printCandidateReadiness } from "./cli-candidate-readiness.ts";
+import {
+  printCandidateReadinessSummary,
+  printCandidatePreflightUnavailable
+} from "./cli-candidate-readiness.ts";
 import {
   cliInvalid,
   printResultErrors,
@@ -45,13 +48,17 @@ export async function runNew(
     });
   writeLine(
     io.stdout,
-    `Investigation candidate created: ${result.candidate.path}`
+    `Investigation candidate created: ${result.candidate.id}`
   );
-  printWarnings(result.warnings, io);
-  printCandidateReadiness(result.candidate, io);
+  writeLine(io.stdout, `title: ${prepared.value.input.title}`);
+  writeLine(io.stdout, `path: ${result.candidate.path}`);
+  printCandidateReadinessSummary(result.candidate.readiness, io);
+  for (const warning of result.warnings)
+    writeLine(io.stderr, `warning: ${warning}`);
   await printNewCandidatePublishPreflight(
-    prepared.value.id,
+    result.candidate.id,
     location(input.values),
+    result.candidate.errors,
     io
   );
   return 0;
@@ -195,25 +202,33 @@ function relationSummariesWithoutRelations(
 async function printNewCandidatePublishPreflight(
   id: string,
   candidateLocation: { investigationsDir?: string; workspaceRoot: string },
+  reportedErrors: readonly string[],
   io: InvestigationReportCliIo
 ): Promise<void> {
-  const preflight = await publishInvestigationCandidates({
-    ...candidateLocation,
-    ids: [id],
-    preflight: true
-  });
+  let preflight: Awaited<ReturnType<typeof publishInvestigationCandidates>>;
+  try {
+    preflight = await publishInvestigationCandidates({
+      ...candidateLocation,
+      ids: [id],
+      preflight: true
+    });
+  } catch (error) {
+    printCandidatePreflightUnavailable(id, error, io);
+    return;
+  }
   if (preflight.errors.length === 0) {
-    writeLine(io.stderr, "Candidate publish preflight: ready.");
+    writeLine(io.stdout, "Candidate publish preflight: ready (not published).");
     printWarnings(preflight.warnings, io);
     return;
   }
-  writeLine(io.stderr, "Candidate publish preflight: needs attention.");
-  for (const error of preflight.errors) writeLine(io.stderr, `- ${error}`);
-  printWarnings(preflight.warnings, io);
   writeLine(
-    io.stderr,
-    "  next: keep the created candidate, edit it or inspect it with show-candidate, then rerun publish --preflight; do not rerun new"
+    io.stdout,
+    "Candidate publish preflight: needs attention (candidate remains created)."
   );
+  for (const error of preflight.errors) {
+    if (!reportedErrors.includes(error)) writeLine(io.stderr, `- ${error}`);
+  }
+  printWarnings(preflight.warnings, io);
 }
 
 export async function runPublish(

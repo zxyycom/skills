@@ -1,5 +1,6 @@
 import path from "node:path";
 import { err, errAsync, ok, ResultAsync, type Result } from "neverthrow";
+import type { StateIndexSyncMode } from "../../index-runtime/src/index.ts";
 import { investigationIndexFileName } from "./investigation-state-index.ts";
 import { diagnosticFromError } from "./diagnostics.ts";
 import {
@@ -55,7 +56,7 @@ export type PreparedCheck = Readonly<{
 }>;
 export type PreparedSync = Readonly<{
   indexPath: string;
-  mode: "check" | "write";
+  mode: StateIndexSyncMode;
   resolved: ResolvedInvestigationsDirectory;
   selectors?: readonly string[];
 }>;
@@ -258,7 +259,7 @@ function prepareSync(
       resolved.value.investigationsDirectory,
       investigationIndexFileName
     ),
-    mode: parsed.value.preflight === true ? "check" : "write",
+    mode: parsed.value.preflight === true ? "preview" : "write",
     resolved: resolved.value,
     ...(parsed.value.selectors === undefined
       ? {}

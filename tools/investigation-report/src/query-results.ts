@@ -42,20 +42,27 @@ export function queryFailure(
   };
 }
 export function searchFailure(
-  errors: readonly string[],
-  indexPath: string,
-  diagnostics: readonly InvestigationDiagnostic[] = [],
-  warnings: readonly string[] = []
-): InvestigationSearchResult {
+  input: Readonly<{
+    errors: readonly string[];
+    indexPath: string;
+    diagnostics?: readonly InvestigationDiagnostic[];
+    warnings?: readonly string[];
+    failureKind: Extract<
+      InvestigationSearchResult,
+      { status: "error" }
+    >["failureKind"];
+  }>
+): Extract<InvestigationSearchResult, { status: "error" }> {
   return {
-    diagnostics: [...diagnostics],
+    diagnostics: [...(input.diagnostics ?? [])],
     entries: [],
-    errors: uniqueSorted(errors),
-    indexPath,
+    errors: uniqueSorted(input.errors),
+    indexPath: input.indexPath,
     status: "error",
     searchInfo: null,
+    failureKind: input.failureKind,
     truncation: { files: false, matches: false, previewCharacters: false },
-    warnings: [...warnings]
+    warnings: [...(input.warnings ?? [])]
   };
 }
 export function showFailure(

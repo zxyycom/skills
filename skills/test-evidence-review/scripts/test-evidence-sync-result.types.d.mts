@@ -13,6 +13,7 @@ export interface TestEvidenceSyncResult {
     | "current"
     | "unchanged"
     | "written"
+    | "previewed"
     | "index-invalid"
     | "index-missing"
     | "index-path-invalid"

@@ -70,7 +70,9 @@ relations: []
 
 `new` 从显式 metadata 原子、不覆盖地创建候选；输入 name 时自动加本次 UTC 日期，输入完整 ID 时日期须同日。同日同名冲突时零写入；与同名 legacy ID 冲突时，按 CLI 的 `migration-required` 提示显式处理身份。
 
-writer 在候选、active 与 archive 位置都可用时优先选 name basename，否则使用完整 ID。创建成功后继续编辑或检查 readiness，正文未完成或辅助预检不可用也不重跑 `new`。`candidates` 与 `show-candidate` 从来源读取候选：单条非法来源可 warning 后跳过，显式目标非法则失败；集合成员或索引前提错误仍阻断查询。
+writer 在候选、active 与 archive 位置都可用时优先选 name basename，否则使用完整 ID。`new` 的 stdout 集中回显完整 Decision ID、标题、路径、scaffold/body readiness 及独立的轻量辅助预检结论，不默认打印正文或固定下一步；warning 和失败诊断留在 stderr。创建成功只表示候选已存在，不表示已建立；正文未完成或辅助预检不就绪／不可用不撤销创建，继续编辑或检查已有候选，不重跑 `new`。
+
+`candidates` 与 `show-candidate` 从来源读取候选：单条非法来源可 warning 后跳过，显式目标非法则失败；集合成员或索引前提错误仍阻断查询。
 
 ## 记录边界与有效演进
 
@@ -289,6 +291,8 @@ warning 保留领域前缀并写入 stderr，每类仅一次：
 2. selector 从 baseline 与待发布投影的 name 映射并集解析；标准 ID 仍只精确匹配。
 3. 全部 entry/revision 变化的 ID 都已选中；新增选新 ID，删除选旧 ID，身份更正同时选旧/新 ID。
 4. 默认写入并发布完整索引投影，`--preflight` 零写入预演同一验证。未选择变化、未知 ID 或坏 baseline 均零写入，先补充选择或显式改用全量同步。
+
+全量 `sync-index --preflight` 对缺失、损坏或旧索引验证能否从当前合法来源重建，只有正式同步才落盘恢复；严格 `check` 仍拒绝缺失、无效或陈旧索引。全量与 selected 预演都执行正式同步的来源漂移保护，不写持久领域文件、索引、资源或 Git pending；既有短暂集合锁不在此持久写入边界内。成功输出分别标明预演通过但尚未发布、索引已经 current 或实际已写入；预演不产生可供后续执行复用的提交凭据。
 
 `stage <selector...> [--scope all|index|domain]` 在同一 HEAD/工作区 staging 快照中按标准 ID 或唯一 name 选择记录，构造 Git pending 决策快照。它不改变生命周期，也不替代同步。staging 要求持久索引与权威来源一致：索引缺失保持首次建立路径，索引无效或陈旧时零写入停止，按诊断先 `check` 诊断、`sync-index` 发布后再重试。
 

@@ -130,7 +130,7 @@ async function synchronizeIndexScope(
 ) {
   return await syncDecisionIndex({
     decisionsDirectory,
-    mode: request.preflight ? "check" : "write",
+    mode: request.preflight ? "preview" : "write",
     ...(scope === undefined ? {} : { scope })
   });
 }

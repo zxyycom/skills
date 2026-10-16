@@ -16,3 +16,5 @@ await import("./staging-transaction.test.ts");
 await import("./staging-conflicts.test.ts");
 
 await import("./exact-membership.test.ts");
+
+await import("./preview.test.ts");

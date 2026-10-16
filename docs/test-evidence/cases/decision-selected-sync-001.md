@@ -7,8 +7,8 @@ Tags:
 - `decision-records`
 
 Contract:
-- Decision `sync-index --select` 先按 ID-first 解析 selector 并验证完整 established 集合；只有所选 ID 覆盖全部变化时才可用 `--write` 发布完整投影。
+- Decision `sync-index --select` 先按 ID-first 解析 selector 并验证完整 established 集合；只有所选 ID 覆盖全部变化时才默认发布完整投影，`--preflight` 只读预演相同接纳条件。
 
 Proves:
-- 未选择的 Decision 变化零写入失败；唯一 name 加 `.md` 的 selected check 返回 stale。
+- 未选择的 Decision 变化零写入失败；唯一 name 加 `.md` 的 selected preflight 成功并明确尚未发布，baseline 字节不变。
 - selected 文本结果同时保留原始 `.md` selector 与解析后的 ID，且其完整索引字节与同一来源的 full sync 相同。

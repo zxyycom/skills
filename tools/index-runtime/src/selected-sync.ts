@@ -202,6 +202,21 @@ export async function syncSelectedStateIndex<
     );
   }
 
+  if (options.mode === "preview") {
+    return {
+      changed: false,
+      changedIds,
+      diagnostics: [],
+      indexPath: options.indexPath,
+      mode: options.mode,
+      namespace: options.definition.namespace,
+      scope: "selected",
+      selectedIds: options.selectedIds,
+      state: "previewed",
+      status: "ok"
+    };
+  }
+
   const expectedText = serializeStateIndex(candidate.value, options.definition);
   let writtenPath: string;
   try {

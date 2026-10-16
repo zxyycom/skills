@@ -61,11 +61,14 @@ export async function listInvestigationCandidates(
       context.error.diagnostics
     );
   const candidates: InvestigationCandidate[] = [];
+  const skippedWarnings: string[] = [];
   const errors: string[] = [];
   const diagnostics: InvestigationDiagnostic[] = [];
   for (const id of layout.candidateIds) {
     const read = await readInvestigationCandidate(directory, id, context.value);
     if (read.status === "ok") candidates.push(read.value);
+    else if (read.kind === "scaffold-invalid")
+      skippedWarnings.push(...read.errors);
     else {
       errors.push(...read.errors);
       diagnostics.push(...read.diagnostics);
@@ -73,7 +76,10 @@ export async function listInvestigationCandidates(
   }
   const result = {
     candidates,
-    warnings: candidates.flatMap((candidate) => candidate.errors)
+    warnings: [
+      ...skippedWarnings,
+      ...candidates.flatMap((candidate) => candidate.errors)
+    ]
   };
   return errors.length === 0
     ? { ...result, diagnostics: [], errors: [], status: "ok" }

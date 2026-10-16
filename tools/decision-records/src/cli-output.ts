@@ -260,11 +260,15 @@ function printSyncIndex(
     );
     writeCliLine(
       io.stdout,
-      result.state === "written"
-        ? "Published the complete Decision index projection for resolved IDs: " +
+      result.state === "previewed"
+        ? "Decision index sync preflight passed; complete projection not published for resolved IDs: " +
             result.selectedIds.join(", ") +
             "."
-        : "Resolved Decision IDs are already current: " +
+        : result.state === "written"
+          ? "Published the complete Decision index projection for resolved IDs: " +
+            result.selectedIds.join(", ") +
+            "."
+          : "Resolved Decision IDs are already current: " +
             result.selectedIds.join(", ") +
             "."
     );
@@ -273,9 +277,13 @@ function printSyncIndex(
   }
   writeCliLine(
     io.stdout,
-    result.state === "written"
-      ? "Rebuilt " + result.indexRelativePath + " from decision Markdown files."
-      : "Decision index is up to date."
+    result.state === "previewed"
+      ? "Decision index sync preflight passed; complete projection not published."
+      : result.state === "written"
+        ? "Rebuilt " +
+          result.indexRelativePath +
+          " from decision Markdown files."
+        : "Decision index is up to date."
   );
   printCandidateWarnings(result.unactivatedPaths, io);
 }

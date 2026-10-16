@@ -49,3 +49,7 @@ await import("./batch-stage-selectors.test.ts");
 await import("./batch-source-discovery.test.ts");
 
 await import("./trace-output.test.ts");
+
+await import("./cli-boundaries.test.ts");
+
+await import("./cli-sync-preflight.test.ts");

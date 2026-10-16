@@ -3,8 +3,16 @@ import {
   showInvestigationCandidate
 } from "./candidate.ts";
 import type { InvestigationReportCliIo, ParsedCli } from "./cli-contract.ts";
-import { printCandidateReadiness } from "./cli-candidate-readiness.ts";
-import { cliInvalid, printResultErrors, writeLine } from "./cli-io.ts";
+import {
+  printCandidateReadiness,
+  printCandidateReadinessSummary
+} from "./cli-candidate-readiness.ts";
+import {
+  cliInvalid,
+  printResultErrors,
+  printWarnings,
+  writeLine
+} from "./cli-io.ts";
 import {
   assertAllowedOptions,
   assertNoPositionals,
@@ -35,6 +43,7 @@ export async function runCandidates(
       warnings: result.warnings
     });
   }
+  printWarnings(result.warnings, io);
   if (result.candidates.length === 0) {
     writeLine(io.stdout, "No investigation candidates found.");
     return 0;
@@ -48,7 +57,6 @@ export async function runCandidates(
       io.stdout,
       `${candidate.id} scaffold=${candidate.readiness.scaffoldValid} body=${candidate.readiness.bodyReady} resources=${candidate.readiness.resourceReady}`
     );
-    printCandidateReadiness(candidate, io);
   }
   return 0;
 }
@@ -79,6 +87,7 @@ export async function runShowCandidate(
       warnings: result.warnings
     });
   }
+  printCandidateReadinessSummary(result.candidate.readiness, io);
   io.stdout(result.candidate.markdown ?? "");
   printCandidateReadiness(result.candidate, io);
   return 0;

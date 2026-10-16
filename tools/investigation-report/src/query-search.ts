@@ -20,12 +20,20 @@ export async function searchInvestigationReports(
 ): Promise<InvestigationSearchResult> {
   const prepared = prepareSearch(input);
   if (prepared.isErr())
-    return searchFailure(prepared.error, defaultInvestigationIndexPath());
+    return searchFailure({
+      errors: prepared.error,
+      indexPath: defaultInvestigationIndexPath(),
+      failureKind: "invalid-options"
+    });
   const canonical = await canonicalizeInvestigationsDirectory(
     prepared.value.resolved
   );
   if (canonical.isErr())
-    return searchFailure(canonical.error, prepared.value.indexPath);
+    return searchFailure({
+      errors: canonical.error,
+      indexPath: prepared.value.indexPath,
+      failureKind: "operation"
+    });
   const investigationsDirectory = canonical.value.investigationsDirectory;
   const indexPath = path.join(
     investigationsDirectory,
@@ -89,13 +97,15 @@ async function searchValidatedFallback(
     { allowEmptyCollection: true }
   );
   if (collection.errors.length > 0 || collection.snapshot === null) {
-    return searchFailure(
-      collection.errors.length > 0
-        ? collection.errors
-        : ["the formal investigation collection could not be validated"],
+    return searchFailure({
+      errors:
+        collection.errors.length > 0
+          ? collection.errors
+          : ["the formal investigation collection could not be validated"],
       indexPath,
-      diagnostics
-    );
+      diagnostics,
+      failureKind: "operation"
+    });
   }
   return await searchSnapshot({
     entries: Object.entries(collection.snapshot.states).map(([id, state]) => ({

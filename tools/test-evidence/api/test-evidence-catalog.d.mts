@@ -177,6 +177,7 @@ export type SyncTestEvidenceIndexResult = {
     | "current"
     | "unchanged"
     | "written"
+    | "previewed"
     | "index-invalid"
     | "index-missing"
     | "index-path-invalid"

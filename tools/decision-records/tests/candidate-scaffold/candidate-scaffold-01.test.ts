@@ -24,10 +24,15 @@ test("new creates a canonical incomplete scaffold without entering the establish
       created.stdout,
       /No lifecycle state or derived decision index was changed/
     );
-    assert.match(created.stderr, /scaffoldValid: true/);
-    assert.match(created.stderr, /bodyReady: false/);
-    assert.match(created.stderr, /preflight: selection-incomplete/);
-    assert.match(created.stderr, /do not rerun new/i);
+    assert.match(created.stdout, /scaffoldValid: true/);
+    assert.match(created.stdout, /bodyReady: false/);
+    assert.match(created.stdout, /preflight: selection-incomplete/);
+    assert.doesNotMatch(
+      created.stderr + created.stdout,
+      /next:|do not rerun new/i
+    );
+    assert.match(created.stdout, /Decision ID: \d{6}-create-decision-scaffold/);
+    assert.match(created.stdout, /title: /);
     assert.doesNotMatch(created.stderr, /outcome:/);
 
     const candidatePath = decisionFilePath(workspaceRoot, candidateId);

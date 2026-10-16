@@ -129,12 +129,20 @@ runtime state overlay 是 `id -> state`。同 ID 临时替换静态 entry，新 
 `syncStateIndex`：
 
 1. 完整 `read`、parse、字段提取与集合验证；
-2. 写入前再次 `readRevision` 并拒绝并发漂移；
+2. 完成准备后再次 `readRevision` 并拒绝并发漂移，`preview` 同样复核；
 3. 规范序列化 state-only snapshot；
-4. check 比较当前文本，write 在根目录边界内原子替换并读回验证；
+4. 按下表选择检查、预演或写入；
 5. 不写领域源。
 
+| mode | 接纳条件与持久结果 |
+| --- | --- |
+| `check` | 严格比较当前文本，缺失、无效或陈旧均失败；不写索引。 |
+| `preview` | 使用与 `write` 相同的接纳条件，全量模式可对缺失、损坏或旧索引完成重建预演；不创建索引目录、不写索引，尚未发布重建结果。 |
+| `write` | 在根目录边界内原子替换索引并读回验证。 |
+
 省略 scope 或 `{ kind: "all" }` 是全量同步。`{ kind: "selected", selectedIds }` 只限制本次允许接纳的 ID 变化，不减少来源读取、完整验证或最终发布范围。selected 需要可信 baseline；对 baseline/candidate 的 state 与逐 ID revision 计算 `changedIds`。新增选择新 ID，删除选择旧 ID，rename 同时选择旧/新 ID。集合 metadata/revision 变化、所选 ID 两侧均不存在、或存在未选择变化都会在写前失败。成功 write 发布的仍是完整 candidate，字节等同同来源的全量重建。
+
+成功结果以 `state` 区分事实：`previewed` 表示完整同步预演通过但投影尚未发布，`current`／`unchanged` 表示已经 current，`written` 才表示实际写入。`changed` 只报告持久写入，因此待发布的预演同样为 `false`，不能据此推断索引 current。selected 的预演与写入执行相同的可信 baseline、完整来源验证、ID 接纳和来源漂移保护，严格 selected `check` 仍拒绝 scoped stale。
 
 ## 按 ID staging 到 pending
 
