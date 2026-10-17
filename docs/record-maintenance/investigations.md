@@ -1,6 +1,6 @@
 # 调查报告维护工作流
 
-审查 `docs/investigations/` 的正式报告及资源，让读者能复核当时的问题、证据、认识转折、结果和边界。语义和事务以 [Investigation Report](../../skills/investigation-report/SKILL.md)及其[固定契约](../../skills/investigation-report/references/investigation-report-contract.md)为准。
+审查 `docs/investigations/` 的正式报告及资源，让读者能复核当时的问题、证据、认识转折、结果和边界。按 [Investigation Report](../../skills/investigation-report/SKILL.md#任务路由)选择所需材料：领域语义由[固定契约](../../skills/investigation-report/references/investigation-report-contract.md)承接，操作前提与结果由 [CLI 操作契约](../../skills/investigation-report/references/cli-operations.md)对应章节承接。
 
 按[公共流程](../record-maintenance-workflow.md)选择 `DOMAIN=investigation`，使用[任务模板](investigation-run.template.json)和[主代理审查清单](investigation-review.json)。本页定义领域检查、处置及验收。
 

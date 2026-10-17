@@ -1,6 +1,6 @@
 # 调查报告维护恢复
 
-本手册帮助操作者根据实际命令结果，恢复可解释的候选、正式报告、资源、索引或 pending 状态。对象与事务范围以[固定契约](investigation-report-contract.md)为准；恢复保留权威来源，再处理派生状态。
+本手册帮助操作者根据实际命令结果，恢复可解释的候选、正式报告、资源、索引或 pending 状态。领域事实以[固定契约](investigation-report-contract.md)为准，操作范围以 [CLI 操作契约](cli-operations.md)对应章节为准；恢复保留权威来源，再处理派生状态。
 
 ## 先确认发生了什么
 
@@ -12,20 +12,21 @@
 
 | 当前结果或故障 | 下一步 |
 | --- | --- |
-| new 已成功，正文、资源或辅助预检有 warning | 候选已创建，继续编辑、show-candidate 或显式 publish preflight；不重跑 new。 |
+| new 已成功，正文、资源或辅助预检有 warning | 候选已创建，继续编辑、show-candidate 或显式 publish preflight。 |
 | 候选单独未就绪 | 用 show-candidate 或 publish preflight 核对正文、关系和直接资源，按具体缺口修正。 |
 | content 搜索以内存投影降级 | 可使用这次完整验证后的读取结果；需要发布当前投影或执行维护前，显式恢复持久索引。metadata 搜索不走此降级。 |
-| 搜索结果或预览被截断 | 收紧筛选或继续读取已返回 ID，保留“结果不完整”的结论边界。 |
+| 搜索结果被截断 | 收紧筛选或调整允许的返回预算，保留记录发现的覆盖边界。 |
+| 只有搜索预览被截断 | 用 show 读取已返回 ID 的完整正文；预览不完整不代表记录发现不完整。 |
 | 手工正式来源变化，或索引缺失、损坏、陈旧 | 核对完整正式报告与资源后运行 `sync-index`（默认写入，`--preflight` 零写入预演）；publish 只处理所选候选，不接纳这些变化。 |
 | 严格 check、关系事务、正式删除报索引陈旧或无效 | 未解释的异常先运行默认全量 `check` 区分来源与索引问题；已知合法来源变化直接 `sync-index` 发布当前投影，再重试原动作。 |
-| stage 的发布索引无效，或所选来源／必要 owner 不符合发布投影 | 先按诊断区分 metadata 与所选来源问题：索引无效时修复或重建；所选来源用局部 `check --id` 定位，合法变化由 `sync-index` 发布后重试。stage 的验证范围见[待提交快照](investigation-report-contract.md#待提交快照)。 |
+| stage 的发布索引无效，或所选来源／必要 owner 不符合发布投影 | 先按诊断区分 metadata 与所选来源问题：索引无效时修复或重建；所选来源用局部 `check --id` 定位，合法变化由 `sync-index` 发布后重试。stage 的验证范围见[待提交快照](cli-operations.md#待提交快照)。 |
 | 资源路径、owner、可见性或引用无效 | 修复相应资源与声明引用；资源字节变化本身不要求同步索引，正式链接变化需要同步。 |
 | 权限不足或锁忙 | 按下节解除操作条件，保留当前领域状态。 |
 | 写入中断或恢复范围不清 | 按 outcome 对账，暂停后续 mutation。 |
 
 ## 中断写入
 
-根据[契约定义的 outcome](investigation-report-contract.md#诊断与验收)处理：
+根据[操作契约的 outcome](cli-operations.md#结果与恢复)处理：
 
 | 诊断结果 | 操作者动作 |
 | --- | --- |

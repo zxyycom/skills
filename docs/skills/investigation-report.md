@@ -2,50 +2,28 @@
 
 `investigation-report` 保存一轮调查在形成时的认识：为什么调查、检查了什么、得出了什么，以及依据和适用边界。后来者可以据此理解、复核并接续调查。
 
-本页是人类的定位入口。Agent 从 [SKILL.md](../../skills/investigation-report/SKILL.md) 开始执行；报告格式和维护约束由[固定契约](../../skills/investigation-report/references/investigation-report-contract.md)承接。
+本页是人类的定位入口。Agent 从 [SKILL.md](../../skills/investigation-report/SKILL.md)开始，按当前任务选择所需材料。
 
 ## 什么值得沉淀
 
-当前请求或生效项目规则明确要求记录或维护报告时使用。没有这类要求时，普通调查、排障和问答在当前任务中交付。
+当前请求或生效项目规则明确要求记录或维护报告时使用；其他调查在当前任务中交付。报告适用于各领域，包括仍有未知的阶段性认识。
 
-开始一轮调查或建立新报告前，先用已知信息做最小的记录发现并完整读取相关报告；准备新建时，同时确认没有相关候选与正式报告已经回答同一问题。
+先恢复已有报告：同轮补证、纠错与收敛完善原报告，需要独立复核的新问题或新条件另行成篇。历史报告保存形成时认识，当前事实仍由代码、规范、配置等事实来源承接；调查为长期方向或实施提供依据，不自动产生采用或实施授权。
 
-适用于各领域中值得独立保留的调查认识，包括仍有未知的阶段性结果。同轮补证、纠错和收敛完善原报告，独立新轮次另行成篇；具体边界见[固定契约](../../skills/investigation-report/references/investigation-report-contract.md#报告边界与有效演进)。
+## 一份报告提供什么
 
-当前事实由代码、规范和配置等事实来源承接；长期方向、实施计划与测试义务由对应 owner 承接。调查可以为它们提供依据，但不自动产生采用或实施授权。
-
-## 一份报告应说清什么
-
-| 核心 | 要回答的问题 |
+| 内容 | 读者能恢复的信息 |
 | --- | --- |
-| 形成时背景 | 当时发生了什么，有哪些事实、假设、未知和约束？ |
-| 调查目的 | 本轮具体要回答什么，准备支持什么判断？ |
-| 调查范围与依据 | 实际检查了哪些对象，采用什么来源、方法、版本或时点，哪些未覆盖？ |
-| 调查结果与边界 | 哪些是确认事实、推断、建议、实际动作和未知，结论适用于什么条件？ |
+| 形成时背景 | 当时的事实、假设、未知与约束。 |
+| 调查目的 | 本轮问题与准备支持的判断。 |
+| 调查范围与依据 | 实际检查对象、来源、方法、版本或时点，以及未覆盖部分。 |
+| 调查结果与边界 | 事实、推断、建议、实际动作与未知，以及结论适用条件。 |
 
-写法围绕本轮问题展开：解释关键依据与判断转折，区分事实、推断和未知。渐进探索可以在同一轮中逐步收窄问题，按取得新依据的实际时点完善认识。具体方法见 [写作指导](../../skills/investigation-report/SKILL.md#3-形成可独立复核的认识)。
-
-## 报告、关系与资源
-
-报告以稳定 Investigation ID 标识，tags 用于分类，直接前序关系表达认识演进，关系摘要说明本轮对前序具体增加、核对或改变了什么，派生索引用于查找和追溯。所有正式报告保留在同一集合；当前口径由当前事实 owner 承接。
-
-按分类、时间或关系发现报告时，`list`、`trace` 与 metadata 搜索查询最后发布的索引快照。需要当前正文用 `show`，需要当前文本发现用默认 content 搜索；完整来源与索引对齐由全量 `check` 和显式 `sync-index` 验证。
-
-`trace` 默认输出关系图，`--json` 返回同一查询切片；`* trace` 是实际遍历成员，`~ context` 只补齐完整拆分或纯归并事件。深度、记录预算与后续阅读依据见[查找与阅读](../../skills/investigation-report/SKILL.md#查找与阅读)。
-
-正文独立解释关键认识；资源按需补充现场与做法，以必要、Git 友好的纯文本为优先。日志和数据可简化，一次性分析代码、测试代码或查询可用于解释当时动作；材料的来源与处理方式须清楚。复现与重跑按任务另行要求，结论可信度仍取决于来源、方法和推理。
-
-资源的保留范围、形式和维护边界见 [资源选择](../../skills/investigation-report/SKILL.md#4-选择随附资源)。
-
-需要 Git 待提交快照时，同步并全量检查后用 `stage <investigation-id...> [--scope all|index|domain]` 选择正式报告：默认原子写入索引投影、报告 Markdown 及其完整 owner 资源树，`index` 或 `domain` 只写其中一侧并保护其余 pending 字节。删除选旧 ID，重命名显式同选新旧 ID；pending、commit 与 push 仍由调用方按授权显式完成。
+正文独立解释关键认识，资源按需补充现场与做法。稳定 ID 连接报告身份，tags 支持主题发现，直接前序关系表达认识演进，索引支持查找和追溯。复现与重跑按任务另行要求。
 
 ## 从哪里开始
 
-已有报告大致回答普通“调查一下”且没有明确的当前性意图时，先概述它的形成时间、关键结果与边界，再询问是复用既有结论还是按当前事实复查；明确要求查找已有材料时直接交付，明确要求当前、最新或重新调查时直接复查。
-
-需要新建时：起草 candidate → 完成正文与资源 → 审查和预检 → 授权范围内 publish → 全量检查与交付。为当前发生的调查新建 candidate 时，向 `new` 传入不含日期前缀的 name 而非完整 ID，并省略 `--formed-at`，由工具生成当前 UTC 时间和完整 ID；只有已知形成时间或补录历史调查时才显式覆盖。一般内容与发布条件由 agent 自行判断，关键事实缺失、超出范围或明确要求人工决定时再询问。
-
-- 查找正式报告：已知 ID 或唯一 name 用 `show`，按分类、时间或关系浏览用 `list`，按主题发现用 `search`，追溯演进用 `trace`。关系条件下的 list/search entry 另返回导致命中的 `filterRelations`，与文本命中证据分开；普通发现不展开全部关系。
-- 起草、审阅与维护：[Skill 入口](../../skills/investigation-report/SKILL.md)负责流程与质量判断；[固定契约](../../skills/investigation-report/references/investigation-report-contract.md)负责格式、关系、资源和事务约束。
-- 获取命令参数：本仓库使用 `bun run investigation-report -- help <command>`。
-- 遇到工具、索引或写入异常：按[维护恢复](../../skills/investigation-report/references/maintenance-recovery.md)核对范围和恢复结果。
+- **查询、创建或维护报告**：[Skill 任务路由](../../skills/investigation-report/SKILL.md#任务路由)区分只读、写作、操作与异常恢复；维护报告仍属于工具使用。
+- **检查报告格式和语义边界**：[固定契约](../../skills/investigation-report/references/investigation-report-contract.md)承接身份、正文、关系与资源规则。
+- **执行命令**：[CLI 操作契约](../../skills/investigation-report/references/cli-operations.md)按操作解释前提、影响和结果，本仓库通过 `bun run investigation-report -- help <command>` 取得参数。
+- **修改 CLI、SDK 或测试实现**：[工具维护入口](../../tools/investigation-report/README.md)承接实现约束和验证路径，不是普通报告维护的前置。

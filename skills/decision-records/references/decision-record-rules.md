@@ -1,6 +1,6 @@
 # 决策记录规则
 
-本文件承接 Decision Records 的身份、正文、生命周期、关系与维护不变量。候选写入、已建立记录维护、身份更正、暂存或结构审阅前完整读取。是否值得记录及当前任务如何使用判断，见 [SKILL.md](../SKILL.md)；索引机器结构见 [Schema](decision-index.schema.json)，精确命令参数与输出查 `--help`，异常操作路径见[维护恢复](maintenance-recovery.md)。
+本文件承接记录身份、正文、生命周期、演进关系与维护不变量。起草、编辑或结构审阅先读身份、正文、记录边界与生命周期；涉及关系时再读演进关系。是否值得记录及如何使用判断由 [SKILL.md](../SKILL.md) 承接，具体工具操作按 [CLI 操作契约](cli-operations.md)选择章节，索引精确机器结构见 [Schema](decision-index.schema.json)。
 
 ## 记录身份与集合
 
@@ -23,14 +23,6 @@ docs/decisions/
 ```
 
 同一集合内 ID 和 sourcePath 分别唯一，状态与目录位置一致；受管记录均为上述目录的直属 Markdown。生命周期移动保留 basename。关系、索引和单项回读使用 frontmatter ID，索引负责定位而不是反向定义记录事实。无日期旧 ID 继续可读，身份更正使用 `rename`。
-
-普通 selector 按以下顺序解析：
-
-1. 移除一次大小写不敏感的末尾 `.md`。
-2. 若剩余文本是有效标准 ID，精确查找该 ID；未命中即失败。
-3. 否则按完整文本精确查 name：零项报告不存在，一项收敛为完整 ID，多项报告歧义供调用方选择。
-
-路径只用于明确的 path/locator 参数；关系和后续操作使用解析后的完整 ID。
 
 ## 正文与候选准备
 
@@ -67,12 +59,6 @@ relations: []
 - **编辑边界**：原地修正对既有判断的误述、补足其已有依据与边界。实际采用方向、适用范围或核心取舍变化时，按下节判断独立记录与演进；真实曾采用的判断不得伪装成文字错误覆盖。
 
 候选准备分成两项机械事实：`scaffoldValid` 要求身份、位置、frontmatter、tags、关系语法和章节形状合法，章节可以暂为空；`bodyReady` 还要求三节均有内容且包含非空“采用”。语义审核和建立授权由 agent 另行完成。
-
-`new` 从显式 metadata 原子、不覆盖地创建候选；输入 name 时自动加本次 UTC 日期，输入完整 ID 时日期须同日。同日同名冲突时零写入；与同名 legacy ID 冲突时，按 CLI 的 `migration-required` 提示显式处理身份。
-
-writer 在候选、active 与 archive 位置都可用时优先选 name basename，否则使用完整 ID。`new` 的 stdout 集中回显完整 Decision ID、标题、路径、scaffold/body readiness 及独立的轻量辅助预检结论，不默认打印正文或固定下一步；warning 和失败诊断留在 stderr。创建成功只表示候选已存在，不表示已建立；正文未完成或辅助预检不就绪／不可用不撤销创建，继续编辑或检查已有候选，不重跑 `new`。
-
-`candidates` 与 `show-candidate` 从来源读取候选：单条非法来源可 warning 后跳过，显式目标非法则失败；集合成员或索引前提错误仍阻断查询。
 
 ## 记录边界与有效演进
 
@@ -132,7 +118,7 @@ relations:
 
 ### 后继集合与语义闭合
 
-`evolve` 通过重复 `--successor` 显式选择完整后继集合；每个 successor 是关系 source。该选择集只声明本次闭合事件的完整成员，并不要求成员采用同一最终 relations。事务在同一次处理中为全部成员计算各自完整最终关系，再维护关系、候选建立与活动前序归档。单个候选的首次建立用 `publish` 表达，不带关系覆盖输入。
+完整演进一次选择闭合事件的全部后继，每个后继是关系 source，各自可以使用不同的完整关系集合。单个候选首次建立用 `publish`，多成员或组合生命周期事务用 `evolve`；输入与核对方式见 [CLI 关系契约](cli-operations.md#关系输入与核对)。
 
 | 演进形状 | 最终集合要求 |
 | --- | --- |
@@ -142,175 +128,20 @@ relations:
 
 互不连通的重划分属独立事务；后来重划早先后继属于另一次事件。除图形合法外，agent 还须核对每个拆分或重划后继承接了直接前序继续有效的长期含义，并明确说明放弃、改写或判定无效的部分。
 
-### 完整替换与摘要绑定
+## 维护边界
 
-关系维护以每个 successor 的完整集合为单位。先选择完整 successor 集合，再为每个成员确定最终 relations：未覆盖的成员保留自身权威 Markdown 的完整原值；覆盖只替换其所属成员的整个集合，不合并旧关系。新集合未提供 summary 的边省略该字段，因而移除旧摘要。
+写入范围由当前请求或生效项目规则授权。一般语义审查和委托内取舍由 agent 自行完成，新增记录或改变状态前说明将改变的判断和集合；关键事实缺失、超出委托或明确要求人工决定时再询问。
 
-| 输入意图 | 最终关系来源 |
-| --- | --- |
-| 首次 publish，或 evolve 省略所有关系覆盖 | 每个后继保留自身完整 relations 与 summary。候选首次建立优先使用此路径。 |
-| 无分组的 `--relation` 与可选 `--relation-summary` | 同一完整 replacement 应用于全部所选后继。 |
-| 无分组的 `--clear-relations` | 全部所选后继使用显式空集合。 |
-| 以 `--source <successor-selector>` 开始的组 | 该组 source 使用组内完整 replacement；未分组的所选后继仍保留自身原值。组内可用 `--clear-relations` 显式提供空集合。 |
-| 重新激活 archived 记录 | 保留既有关系，拒绝关系或摘要覆盖。 |
+候选正文、tags 及已建立记录不改变采用方向的编辑性修正可直接修改 Markdown；已建立记录的生命周期、alignment、关系、删除和身份更正通过 CLI 事务维护。删除等高风险操作需要覆盖精确对象和影响的授权。
 
-`--source` 开始一个后继组，直到下一个同名选项或命令结束；只有 `--relation`、`--relation-summary` 和 `--clear-relations` 随组归属，其他选项仍作用于整个事务。分组与统一覆盖互斥：出现分组后，首组之前不能有关系选项，且未分组成员不接收统一默认 replacement。
-
-每个组必须在解析后唯一地指向一个已选 successor，并提供至少一条 `--relation` 或一个 `--clear-relations`。摘要可在同组 relation 前后出现；它按首个 `=` 分隔，后续 `=` 属于摘要，并且只绑定同组完整 `--relation` 集合中的唯一 target。不同组可对同一 target 写入不同摘要。
-
-首组前关系选项、空组、只含摘要、clear 与 relation 或 summary 混用、原始重复 source 或 target、以及摘要形状错误属于参数错误：退出 `2` 且零写入。selector 不存在或歧义、解析后重复 source/target、source 未选中、摘要未命中、alignment 不匹配、最终关系形状或闭合错误属于集合解析与领域预演失败：退出 `1` 且零写入。历史确认、锁或写入阶段沿维护恢复的实际 outcome 报告，不能把写入后失败声称为零写入。精确参数顺序与诊断以 `evolve --help` 为准。被取代的 `--relations-for` 分组参数按普通无效参数处理，不保留兼容别名。
-
-新候选的 `publish` 与 `evolve` 以 `relationReview` 承接关系核对：
-
-- review 按规范 source ID 排列，覆盖全部所选后继（包括未分组或最终相同的成员）。每个 source 给出 `action`、同次准备读取的完整 `before` 和规范化完整 `after`；空集合为 `[]`。新候选的 action 恒为 `establish`，正式来源为 `replace` 或 `unchanged`。
-- renderer 只从这组 before/after 推导新增、移除及摘要新增、变更或移除。完整 replacement 未提供摘要即清除旧摘要。
-- `--preflight` 返回 `phase: preflight` 的预计 review 且零写入；正式成功才返回 `phase: committed`。失败不附成功 review，预检不构成提交凭据。
-
-### 正式关系的原地维护
-
-`set-relations` 以 `--source <decision-selector>` 分组完整替换一个或多个**已建立**记录的直接关系，并在同一可恢复事务中重建派生索引。它只修改所选正式 Markdown 的 relations 与派生索引，不建立候选、不归档前序、不改变 status、alignment 或 createdAt；候选的关系继续在候选来源中维护并在 publish 时审核。
-
-选择条件只有一条：只修正关系用 `set-relations`，同一事务需要同时改变生命周期（建立后继、归档前序、删除记录）用 `evolve`。因此 `set-relations` 的最终关系目标必须已经满足领域图约束（目标须为已归档的已建立记录）；需要指向活动前序时，该事件属于 `evolve`。
-
-输入分组、完整替换、清空、摘要绑定、排序和审核结果与 Investigation Report 的 `set-relations` 使用同一协议：每组表示该 source 的完整直接关系集合，重复 source/target、空分组、摘要失配和 clear 混用按参数错误分类；预检与正式成功都返回按规范 source ID 排序、含 `phase`、`action`、完整 `before` 与 `after` 的 `relationReview`。多个 source 在同一请求中形成单一事务，任一 source 失败即整体零写入或恢复。
-
-## 维护范围与确认
-
-写入须在当前请求或生效项目规则授权的维护范围内；一般语义审查和委托内取舍由 agent 自行完成，新增记录或改变状态前说明将改变的判断和集合。超出范围、缺少关键事实或明确要求用户决定时再询问。候选正文、tags 及已建立记录不改变采用方向的编辑性修正可直接修改 Markdown；已建立记录的生命周期、alignment、关系、删除和身份更正通过 CLI 事务维护。历史来源的非法 alignment 只能按[维护恢复](maintenance-recovery.md#已建立-alignment-无效)取得字段修复授权后原位修复，不能假借生命周期事务。各工作区 mutation 共用集合锁，写前核对来源与相关版本状态，保护其他改动。
-
-### 保留演进历史
-
-CLI 根据 Git `HEAD` 是否记录受检 ID 触发额外维护确认：单独 archive 的目标，或关系事务所选后继的完整最终关系中的任一已建立直接前序尚未进入 HEAD 时，暂停并保持零写入；前序是 active 或 archived 均适用。先自行复核前序是否值得独立保留以及当前授权是否覆盖该操作；属于已委托判断时，agent 可明确选择 `--keep-unrecorded-history` 后重试，只有仍需用户授权或判断时才询问。
-
-Git 工作树的 unborn HEAD 按空基线处理；Git 工作树外没有此确认门。机械提示依据 HEAD 是否记录该 ID，而非形成时间；语义门槛对已提交和未提交记录同样适用。调用方直接执行领域命令，只响应实际提示，无需自行预检 Git。
-
-### 删除
-
-`discard` 删除完整、结构合法且最终集合中无剩余引用的 candidate、active 或 archived 记录。`evolve --discard <id>` 可把删除与演进原子组合：被删 ID 与所选后继互斥，最终关系也须移除该 ID，并继续满足普通演进的形状与闭合规则。
-
-已进入 HEAD 的删除对象，首次未带 `--delete-recorded` 调用在其余条件通过后零写入暂停；取得覆盖删除目标与影响的明确授权后按提示重试。该参数选择本次删除，但不绕过同次 evolve 对其他前序的历史确认。非 Git 工作树、unborn HEAD 或 ID 未进入 HEAD 时正常删除；无确认参数且 HEAD 无法读取时，保持零写入。成功时报告实际删除对象和最终关系。
-
-### 身份更正
-
-`rename` 统一改写目标 frontmatter ID、所有受管 candidate/established relation target、sourcePath 和完整索引；保留状态、alignment、createdAt、正文、relation type 与 summary，不自动暂存。
-
-- source 按普通 selector 解析。target 为标准 ID 时直接使用，其他合法 kebab-case 值作为 name。
-- 标准 source 保留原日期；legacy established 记录用 createdAt 的 UTC 日；legacy candidate 需要显式完整 dated target ID，name-only target 返回 `date-required`。
-- ID、name 与目标路径须无冲突；同生命周期优先 `<name>.md`，其次 `<id>.md`，两者均占用时零写入。
-- `--preflight` 只读完成相同检查。目标已进入 HEAD 时，正式执行须按提示明确 `--rename-recorded-decision`；此确认只作用于当前工作树。
+历史来源的非法 alignment 是原位字段恢复事项，按[维护恢复](maintenance-recovery.md#已建立-alignment-无效)取得针对性授权后处理；恢复既有事实与采用新判断分别判断。操作权限、Git 历史确认与失败恢复见 [CLI 操作前提](cli-operations.md#操作前提)。
 
 ## 派生索引与查询
 
-Markdown 是权威来源，索引保存已建立记录的定位、状态、非空 alignment、摘要、tags 和直接关系。记录内容、身份或位置变化需要同步索引；candidate 通过独立来源入口读取。`list`、`trace` 与 metadata 搜索只读取结构有效的已发布索引，不逐次发现或读取 Markdown 核对新鲜度。索引异常时显式诊断并恢复；已知合法来源变化用同步发布新快照，保留来源事实。
+Markdown 是权威来源，索引保存已建立记录的定位、状态、非空 alignment、摘要、tags 和直接关系。记录内容、身份或位置变化需要同步；candidate 留在正式索引外，通过独立入口读取。
 
-### 查找与结果解释
+`list`、`trace` 与 metadata 搜索使用已发布快照；`show` 读取所选当前正文，默认 content 搜索发现当前文本。结果只证明实际来源与覆盖，索引不能反向定义记录事实。具体查询选择和完整性解释见 [CLI 查询契约](cli-operations.md#查询与结果解释)。
 
-- `list` 默认查 active、全部 alignment，展示筛选概览和最近记录；按需筛选、翻页或用 `--detail` 展开摘要，完整正文用 `show`。
-- status、alignment、重复 tags 和时间条件取交集；重复 tags 为 AND，时间范围包含端点。空页只说明当前筛选与窗口无结果。
-- `--related-to` 指定的目标先独立解析，再按相对目标的 predecessors、successors 或 both 筛选直接邻居；方向必须与目标同用。
-- relation type 单独使用时匹配任一该类型直接边；与目标同用时，两者须命中同一条边。结构条件先于排序、分页和文本匹配。
-- `show` 由索引定位并确认目标 ID 后读取 Markdown；`trace` 从同一次受检索引快照派生默认终端关系图，使用 `--json` 时返回同一份 trace 查询成功结果的稳定 JSON 关系切片。后续操作继续使用完整 ID。
+已知合法来源变化先 `sync-index` 再严格 `check`；未解释的索引异常先检查诊断。严格检查验证来源、状态位置、关系与索引一致性，agent 另行核对记录门槛、正文与摘要、真实前序、后继承接和 alignment 依据。
 
-`list` 与 `trace` 的成功结果显式包含固定 `source={kind: "published-index", currentness: "unchecked", fallback: false}`；metadata 搜索在 `searchInfo.source` 返回相同事实。`unchecked` 表示该入口按职责不核对当前来源，属于正常快照边界，不产生来源 warning。快照计数、筛选和关系不能证明当前 Markdown 全集无命中或关系仍未变化。缺失、损坏或 definition 不符的索引保持失败，不自动同步或降级。
-
-`show` 由索引定位并验证当前文件仍声明目标 ID，通过后返回当前正文；只用该目标已读字节核对单条 revision，漂移时 warning 区分发布 metadata 与当前正文。该读取不验证全集，目标不可读或身份不符为 error。content 搜索、严格 `check`、同步、mutation 与 stage 各自保留来源验证和漂移保护职责。
-
-关系条件的查询结果另以可选 `filterRelations` 返回**导致该记录命中的完整边集合**。只有传入 `--related-to` 或 `--relation-type` 时才出现；它从本次筛选使用的同一来源快照投影，按 `(sourceId, type, target)` 去重并以 UTF-16 code-unit 词法序排列。前驱边由 anchor 指向结果，后继边由结果指向 anchor，both 取并集；type-only 选择结果来源的指定类型出边，组合条件必须命中同一条边。记录集合、排序、total 与分页不因该投影改变。该字段属于 Decision 内部 list/search 查询记录，不进入索引、Schema 或公开导出边界。
-
-搜索的文本证据与 `filterRelations` 分开：`matchedFields`、`matchedRelations` 只报告实际文本命中，`matchedRelations: none` 不否定关系筛选命中。CLI 默认每条预览最多三条命中边，`list --detail` 展开当前页全部命中边；领域查询结果保留完整集合。需要完整正文或完整直接关系时，继续用 `show` 读取来源记录。
-
-`trace` 默认 `direction=both`、`depth=5`、`maxRecords=50`。有限深度可为非负安全整数，`--depth all` 不设深度限制；记录预算必须是正安全整数。默认终端图稳定显示 header、来源 Source、`L0/L1/...` trace 图层、关系或事件组、`* trace` 与 `~ context`。不完整时在图尾显示 frontier 和 blockedEvent。`--json` 才输出同一份 trace 查询成功结果的稳定 JSON envelope，回显 `anchorId`、实际 direction 与 limits；无限深度在 `limits.depth` 中表示为 `"all"`。
-
-输出的 `traceIds` 是递归遍历成员，`contextIds` 只闭合已跨越的完整拆分、纯归并或重划事件；二者互斥，且并集与 `entries` 的键相同。entry 的 `relations` 永远是索引中的完整直接关系，切片外 target 仍是原始事实；存在的 `summary` 原样投影，缺失时省略，trace 不推断摘要。
-
-终端图只展开两端都在切片内的边；已读取但缺少摘要显示 `[无摘要]`，摘要按 JSON 转义的完整单行文本显示。主体块承接其 source 边；复杂事件中 source 仅为 context 时，事件按边显示完整 source、type、target 与摘要，不能以匿名摘要代替。context 成员不递归扩展，且它与 trace 成员的边归属不改变 `coverage`、成员选择或 JSON。
-
-`coverage.complete` 只在请求方向未受深度或记录预算限制、且已接纳事件完整时为真。`stoppedBy` 与 `frontier` 说明尚未跨越的直接邻居；以 frontier 的 `fromId`、direction 和 `nextIds` 发起新查询，不能将它视为 cursor。记录预算阻断一个多记录事件时，`blockedEvent` 给出完整成员与最小 `requiredMaxRecords`；该事件没有部分接纳。普通单记录接纳受预算阻断时只形成 `max-records` frontier，不产生 `blockedEvent`。
-
-| 搜索范围 | 依据与适用边界 |
-| --- | --- |
-| 默认 content | 搜索索引选中的权威 Markdown，并由同一快照把路径映射回 ID。索引缺失、损坏或陈旧时，须完整验证来源后才能用一次内存投影只读降级，并报告 warning。 |
-| metadata | 只搜索已发布索引中的 ID、name、title、三项摘要、tags 与来源关系 summary。反映该快照而非未同步来源；读取失败时诊断并显式恢复索引。 |
-
-两种范围都先应用结构筛选。`all` 要求全部词，`any` 要求任一词，`phrase` 要求连续短语；统一 NFKC、忽略大小写并按空白处理。content 以物理行为匹配段，metadata 以单个字段、tag 或 summary 为段；all/any 可跨同一记录的段，phrase 限于单段。关系筛选不是文本命中证据，metadata 只报告实际命中的字段或来源摘要。
-
-搜索降级只服务本次查询，不修复持久索引；数量、来源与三种覆盖按下方搜索总览解释。
-
-### 搜索总览与完整性
-
-每次成功 `search`（含零命中）的内部查询结果都包含只读 `searchInfo`，记录同一即时查询的四组事实；索引和 Schema 继续只承接持久记录。记录字段、文本证据与关系筛选依据仍按上文读取。
-
-| 分组 | 含义与读取方式 |
-| --- | --- |
-| `query` | 经校验、用于 matcher 的 `text`，实际 `in`、`match`，以及生效的 `filters` 与 `limits`。 |
-| `source` | `kind` 表示发布索引或已验证来源，`currentness` 表示本次新鲜度证据，`fallback` 表示是否只读降级。 |
-| `counts` | `matched.value` 按记录计数，含已发现但无法返回的命中；`precision` 为 `exact` 或 `lower-bound`。`returned` 是实际返回记录数。 |
-| `coverage` | 分别说明扫描、记录返回与预览展示是否完整；`reasons` 去重并按 `max-records`、`match-previews`、`preview-characters` 顺序列出实际限制，未受限时为 `[]`。 |
-
-#### 条件与预算
-
-`filters` 保存 `status`（默认 `active`）、`alignment`（默认 `all`）、`tags`（默认 `[]`）及已使用的 `relationType`、`relatedTo`、`direction`。关系目标回显同一筛选快照解析出的完整 ID；有目标时 direction 默认 `both`，未使用的可选条件省略。
-
-`limits` 回显本次生效预算：metadata 的 `maxRecords=null` 表示无返回上限，`resources`、`preview` 为 `null` 表示不适用；content 的 `maxRecords=20`，`resources` 为 `maxCandidateFiles=10,000`、`maxFileBytes=2 MiB`、`maxTotalBytes=20 MiB`，`preview` 为 `contextLines=1`、`maxMatchesPerFile=3`、`maxPreviewCharacters=12,000`（UTF-16 字符）。
-
-#### 来源证据
-
-| 本次依据 | `kind` | `currentness` | `fallback` |
-| --- | --- | --- | --- |
-| metadata：读取完整验证的发布快照，当前来源未核对 | `published-index` | `unchecked` | `false` |
-| content：当前来源验证成功，索引映射可用 | `validated-source` | `current` | `false` |
-| content：索引不可用或陈旧，完整验证来源后用只读内存投影降级 | `validated-source` | `current` | `true` |
-
-`current` 只说明本次已有验证证据，不承诺查询期间锁或跨文件原子快照。metadata 的来源证据和计数边界同[查找与结果解释](#查找与结果解释)；content 的 fallback 产生来源 warning。
-
-#### 计数与覆盖
-
-- `scanComplete` 检查结构筛选后的全部待匹配记录：全部检查完为 `true`、计数 `exact`；提前停止为 `false`、计数 `lower-bound`。
-- `resultsComplete` 要求扫描完整、计数精确且全部命中均已返回。metadata 完整计算命中并全部返回。
-- `previewsComplete` 只描述已返回记录的命中范围及上下文片段；metadata 为 `null`。预览预算仅限制展示，耗尽后继续在扫描资源与返回预算内识别命中，空 `previews` 仍保留身份。只有实际省略片段才标记预览受限，恰好用满预算或未返回记录均不影响该字段。
-- content 返回预算满后，在首个无法返回的命中文件处停止，并将其计入 `matched`。还有未检查文件时计数为下界；若它是最后一个文件则计数精确、扫描完整，但两者都使结果返回不完整。
-- 完整零命中为 `exact 0`、`returned=0`，扫描与结果均完整，content 预览也完整。metadata 必需索引读取、content 必需正文读取，以及资源错误或取消均保持失败，不作为成功的部分结果。
-
-#### 输出与后续阅读
-
-默认 CLI 在 stdout 先输出六行 `Query`、`Filters`、`Source`、`Limits`、`Counts`、`Coverage`，再输出记录或零命中提示；全部展示来自同一查询结果。字符串使用 JSON 转义，Filters 使用紧凑 JSON；Limits 只展开适用预算，无返回上限显示 `maxRecords=unlimited`。下界显示 `matched>=N`，覆盖显示 `complete`、`limited` 或 `n/a`，未受限显示 `reasons=none`。
-
-warning 保留领域前缀并写入 stderr，每类仅一次：
-
-- 返回限制：`search results limited: max-records`。
-- 预览限制：`search previews limited: match-previews,preview-characters`，只列实际原因。
-- 来源状态：`search source: validated-source fallback`，附来源边界及 `sync-index` 恢复动作；普通预算限制不要求修复来源。
-
-按来源和各项覆盖判断结论：仅预览受限不表示记录发现不完整；来源为发布快照或扫描不完整时，不能对当前全集作否定性结论。需要更多命中时收紧筛选，完整正文和直接关系用 `show` 读取。预览预算不是 stdout 总字节上限，外部展示仍可能截断。
-
-### 同步与待提交快照
-
-已知合法来源变化先 `sync-index` 再严格 `check`；未解释的索引异常先严格 `check` 诊断，再同步或修复。领域 definition 升级后，只有全部已建立 Markdown 已满足当前契约时才以无 selector 的 `sync-index` 全量重建；不能信任旧 definition 的索引，也不能把该升级作为 selected 同步。`sync-index` 无 selector 时全量重建，默认写入并发布完整索引，`--preflight` 零写入预演同一验证；selected 模式仍完整验证来源，按以下条件接纳：
-
-1. baseline 索引可信，集合 metadata 与其 revision 不变。
-2. selector 从 baseline 与待发布投影的 name 映射并集解析；标准 ID 仍只精确匹配。
-3. 全部 entry/revision 变化的 ID 都已选中；新增选新 ID，删除选旧 ID，身份更正同时选旧/新 ID。
-4. 默认写入并发布完整索引投影，`--preflight` 零写入预演同一验证。未选择变化、未知 ID 或坏 baseline 均零写入，先补充选择或显式改用全量同步。
-
-全量 `sync-index --preflight` 对缺失、损坏或旧索引验证能否从当前合法来源重建，只有正式同步才落盘恢复；严格 `check` 仍拒绝缺失、无效或陈旧索引。全量与 selected 预演都执行正式同步的来源漂移保护，不写持久领域文件、索引、资源或 Git pending；既有短暂集合锁不在此持久写入边界内。成功输出分别标明预演通过但尚未发布、索引已经 current 或实际已写入；预演不产生可供后续执行复用的提交凭据。
-
-`stage <selector...> [--scope all|index|domain]` 在同一 HEAD/工作区 staging 快照中按标准 ID 或唯一 name 选择记录，构造 Git pending 决策快照。它不改变生命周期，也不替代同步。staging 要求持久索引与权威来源一致：索引缺失保持首次建立路径，索引无效或陈旧时零写入停止，按诊断先 `check` 诊断、`sync-index` 发布后再重试。
-
-selector 在当前正式集合与 `HEAD` 基线的 ID 并集中解析：当前 ID 表示新增或更新，基线-only ID 写入删除；重命名显式同时选择旧 ID 与新 ID，位置变化仍选同一 ID。scope 决定 pending 写入路径：`all`（默认）在一个原子替换中写入所选索引投影与所选正式 Markdown；`index` 只替换 pending 索引投影，要求 pending 索引与 `HEAD` 基线一致；`domain` 只写入所选正式 Markdown，pending 索引按当前字节原样保留。所有 scope 都在写前验证 `HEAD` revision、pending 快照与所选来源字节漂移并保护无关 pending 内容；结果报告实际写入路径、保留的无关 pending 范围与仍由调用方负责的路径。pending、commit 与 push 由调用方按授权显式完成，`stage` 不提交或推送。
-
-## 验证与异常交付
-
-严格 `check` 验证 Markdown、ID、tags、状态与位置、关系、索引结构和新鲜度，并区分合法 scaffold 与 body-ready candidate。候选留在索引外本身不是错误；首次候选集合按[恢复手册的状态分流](maintenance-recovery.md#状态分流)验证。
-
-Agent 另行核对记录门槛、摘要与正文、tags 依据、真实直接前序、后继语义承接，以及完整当前事实是否支持 alignment。
-
-CLI 诊断说明本次命令的 code、对象、原因和下一步；有可靠系统证据时才补充原因类别与净化细节。mutation 失败的 `scope` 与 `outcome` 只说明声明范围：
-
-| outcome | 可确认状态 |
-| --- | --- |
-| `no-change` | 声明范围未改变。 |
-| `rolled-back` | 失败后已恢复完整旧范围。 |
-| `partial-or-unknown` | 无法证明范围完整恢复，须先对账。 |
-| `committed-cleanup-pending` | 已越过领域提交点，尚有清理残留。 |
-
-成功信息在 stdout，失败、暂停和 warning 在 stderr；这些是即时诊断，不保存为日志、遥测或 receipt。普通查询、检查与参数错误不附会 mutation 结果。按 warning 核对受影响事实，恢复操作、权限、锁与重试边界统一执行[维护恢复](maintenance-recovery.md)。
+Git 待提交快照与领域状态分别维护：`stage` 只构造所选正式记录的 pending 内容，commit 与 push 另按授权执行。同步与暂存前提分别见 [CLI 检查与同步](cli-operations.md#检查与同步)和[待提交快照](cli-operations.md#待提交快照)。

@@ -1,6 +1,6 @@
 # 决策记录状态与维护恢复
 
-本手册帮助操作者在首次候选集合、工具或索引异常、写入中断时，恢复可解释且可验证的决策集合。身份、生命周期与维护条件以[决策记录规则](decision-record-rules.md)为准。
+本手册帮助操作者在首次候选集合、工具或索引异常、写入中断时，恢复可解释且可验证的决策集合。身份与生命周期以[决策记录规则](decision-record-rules.md)为准，具体操作范围以 [CLI 操作契约](cli-operations.md)对应章节为准。
 
 ## 先保留来源并判断范围
 
@@ -35,18 +35,18 @@
 
 默认 content 搜索可在完整验证来源后，用一次内存投影只读降级。该结果只证明本次读取；恢复常规索引查询仍需显式同步。metadata 搜索只读持久索引，不能走此降级路径。截断提示出现时，收紧筛选或继续读取已知 ID，不把缺失输出当作不存在记录。
 
-来源完整、满足当前 definition 且已取得维护授权后，从 skill 目录执行不带选择器的全量重建：
+来源完整、满足当前 definition 且已取得维护授权后，在目标工作区根目录用实际安装脚本的绝对路径执行全量重建：
 
 ```text
-node scripts/decision-records.mjs sync-index
-node scripts/decision-records.mjs check
+node <skill绝对路径>/scripts/decision-records.mjs sync-index
+node <skill绝对路径>/scripts/decision-records.mjs check
 ```
 
-在目标工作区内执行时省略 `--root`；跨工作区调用才为两条命令提供相同的 `--root <workspace-root>`。自定义目录时，两条命令使用相同工作区内相对 `--decisions-dir`。definition 过期但来源合法时，完整同步建立新投影；不使用 `--select`，也不把旧索引作为正常 reader 或来源。已建立来源的 alignment 无效时，同步和检查均失败并保持零写入，不能只修索引。完成后按需用 `list --status all --alignment all`、`show` 或 `trace` 核对预期身份、位置、内容、非空 alignment 与关系。
+当前目录默认是工作区根；从 skill 安装目录或其他目录调用时，为两条命令在 command 前提供相同的 `--root <workspace-root>`。项目提供维护短命令时优先使用该入口。自定义目录时，两条命令使用相同工作区内相对 `--decisions-dir`。definition 过期但来源合法时，完整同步建立新投影；不使用 `--select`，也不把旧索引作为正常 reader 或来源。已建立来源的 alignment 无效时，同步和检查均失败并保持零写入，不能只修索引。完成后按需用 `list --status all --alignment all`、`show` 或 `trace` 核对预期身份、位置、内容、非空 alignment 与关系。
 
 ## 中断写入
 
-根据[规则定义的 outcome](decision-record-rules.md#验证与异常交付)选择动作：
+根据[操作契约的 outcome](cli-operations.md#结果与恢复)选择动作：
 
 | 诊断结果 | 操作者动作 |
 | --- | --- |
@@ -61,7 +61,7 @@ node scripts/decision-records.mjs check
 
 ## 工具恢复
 
-- Node 不可用但有兼容运行时时，可用该运行时执行同一 CLI，例如 `bun scripts/decision-records.mjs check ...`。
+- Node 不可用但有兼容运行时时，可用该运行时执行同一 CLI，在目标工作区用该运行时调用实际安装脚本的绝对路径。
 - 分发文件损坏时，优先通过相邻 `scripts/update-skill.mjs` 检查并按更新授权恢复完整 skill，使 CLI、声明和 Schema 保持同一分发单元。
 - 入口仍不可用时，保留全部来源，停止索引和状态维护，交付已确认的故障与阻塞范围。
 

@@ -1,6 +1,6 @@
 # 决策维护工作流
 
-审查 `docs/decisions/` 中的 active 与 archived 决策，恢复采用方向、理由、约束及演进。语义和事务以 [Decision Records](../../skills/decision-records/SKILL.md)及其[规则](../../skills/decision-records/references/decision-record-rules.md)为准。
+审查 `docs/decisions/` 中的 active 与 archived 决策，恢复采用方向、理由、约束及演进。按 [Decision Records](../../skills/decision-records/SKILL.md#任务路由)选择所需材料：领域语义由[规则](../../skills/decision-records/references/decision-record-rules.md)承接，操作前提与结果由 [CLI 操作契约](../../skills/decision-records/references/cli-operations.md)对应章节承接。
 
 按[公共流程](../record-maintenance-workflow.md)选择 `DOMAIN=decision`，使用[任务模板](decision-run.template.json)和[主代理审查清单](decision-review.json)。本页定义领域检查、处置及验收。
 

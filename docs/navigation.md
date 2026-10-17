@@ -17,10 +17,11 @@
 | 调整仓库定位、skill 选择与启用边界或通用分发边界 | [仓库模型](repository-model.md) | 涉及具体打包、发布或 updater 机制时读 [项目工具链](tooling.md)；只影响特定 skill 时读其行为 owner |
 | 修改项目级 agent 协作约定 | [AGENTS](../AGENTS.md) | 改变任务路由或内容 owner 时读本文；需要让文档更适合 AI 阅读和使用时读 [AI-Ready Docs](../skills/ai-ready-docs/SKILL.md) |
 | 修改工具源码、项目脚本、校验、打包、CI 或 updater | [项目工具链](tooling.md)、[编码规范](coding-style.md) | 修改 `tools/<tool-name>/` 时补读该目录的局部契约；工具服务特定 skill 时再读其行为 owner；改变通用分发边界时读 [仓库模型](repository-model.md) |
+| 修改调查或决策工具的 CLI、SDK 或测试实现 | [调查工具维护](../tools/investigation-report/README.md)、[决策工具维护](../tools/decision-records/README.md)中对应入口 | 所改行为的领域规则与 CLI 操作契约；普通报告或决策维护从各自 skill 进入 |
 | 新增、修改或移除 Gate Check | [Gate Check 编写与接入](gate-check-authoring.md) | [项目工具链的权威 Vibe 门禁](tooling.md#权威-vibe-门禁)、[编码规范](coding-style.md)；涉及测试实现或 Case 时读 [Test Evidence Review](../skills/test-evidence-review/SKILL.md) |
 | 成批审阅或持续纠正记录 | [记录维护入口](record-maintenance-workflow.md) | 按对象选择[决策流程](record-maintenance/decisions.md)或[调查流程](record-maintenance/investigations.md)及其领域 skill；明确使用 JEV 时读取 [Lightweight Judgment](../skills/lightweight-judgment/SKILL.md) |
-| 恢复、审阅或维护长期决策 | [决策索引](decisions/decision-index.json)、[Decision Records](../skills/decision-records/SKILL.md) | 相关根目录或 `archive/` 中的决策 Markdown；写入或结构审阅前按 skill 读取决策记录规则 |
-| 创建、更新或审阅调查报告 | [调查索引](investigations/investigation-index.json)、[Investigation Report](../skills/investigation-report/SKILL.md) | 相关调查报告；创建、更新、拆分或结构审阅前按 skill 读取固定契约 |
+| 恢复、审阅或维护长期决策 | [决策索引](decisions/decision-index.json)、[Decision Records](../skills/decision-records/SKILL.md) | 相关根目录或 `archive/` 中的决策 Markdown；按 skill 任务路由读取领域规则、所选 CLI 操作或恢复章节 |
+| 创建、更新或审阅调查报告 | [调查索引](investigations/investigation-index.json)、[Investigation Report](../skills/investigation-report/SKILL.md) | 相关调查报告；按 skill 任务路由读取领域规则、所选 CLI 操作或恢复章节 |
 | 整理并创建 Git 提交 | [Git Commit Organizer](../skills/git-commit-organizer/SKILL.md) | 当前 Git 状态、diff 和目标改动的验证结果 |
 
 同一任务跨越多个 owner 时，只补读实际受影响的文档；目录相邻或主题相近本身不扩大读取范围。
@@ -58,8 +59,8 @@
 | 测试证据账本 | `docs/test-evidence/cases/*.md`、`docs/test-evidence/test-evidence-index.json` | 每个 Markdown 承接一个权威 Case；Case 的 Tests 集合记录共同支持同一 Contract 与 Proves 的一个或多个最小原生测试入口，另含可选 tags；索引 JSON 是 Case-only 查询投影。项目实体快照与覆盖策略由项目 owner 承接，格式和维护事务由 `skills/test-evidence-review/` 承接 |
 | 可分发工具源码 | `tools/<tool-name>/` | 随 skill 分发的源码、声明、测试、fixture 和局部组件契约；`tools/shared/` 承接跨工具运行时不变量，`tools/skill-package/` 承接发布端与 updater 共用的分发协议 |
 | 主仓库自动化与共享交付 | 主仓库根目录、`scripts/` 和 CI 配置 | 命令编排、生成适配、共享校验、打包、聚合发布、依赖入口、Git 和 CI 自动化；不承接随 skill 分发工具的运行时源码 |
-| 调查报告 | `docs/investigations/<investigation-id>.md`、`docs/investigations/investigation-index.json` | 根目录直属 Markdown 各承接一份可独立复核的报告；Investigation ID、tags、关系、资源与维护事务由 `skills/investigation-report/references/investigation-report-contract.md` 承接，JSON 是派生索引 |
-| 长期决策 | `docs/decisions/*.md`、`docs/decisions/archive/*.md`、`docs/decisions/decision-index.json` | frontmatter `id` 声明稳定 Decision ID，basename 与 `sourcePath` 表达位置；非空 tags 承接分类，status 决定根目录或 `archive/` 位置；Markdown 承接生命周期、对齐状态和完整语义。`skills/decision-records/SKILL.md` 是 agent 行为入口，`references/decision-record-rules.md` 承接决策语义与维护不变量，JSON Schema 承接索引精确结构，索引 JSON 是查询投影 |
+| 调查报告 | `docs/investigations/<investigation-id>.md`、`docs/investigations/investigation-index.json` | 根目录直属 Markdown 各承接一份可独立复核的报告；Investigation ID、tags、关系、资源与验证含义由 `skills/investigation-report/references/investigation-report-contract.md` 承接，调用前提与操作结果由同目录 `cli-operations.md` 承接，JSON 是派生索引 |
+| 长期决策 | `docs/decisions/*.md`、`docs/decisions/archive/*.md`、`docs/decisions/decision-index.json` | frontmatter `id` 声明稳定 Decision ID，basename 与 `sourcePath` 表达位置；非空 tags 承接分类，status 决定根目录或 `archive/` 位置；Markdown 承接生命周期、对齐状态和完整语义。`skills/decision-records/SKILL.md` 是 agent 行为入口，`references/decision-record-rules.md` 承接决策语义与维护不变量，`references/cli-operations.md` 承接调用前提与操作结果，JSON Schema 承接索引精确结构，索引 JSON 是查询投影 |
 
 ## 维护规则
 

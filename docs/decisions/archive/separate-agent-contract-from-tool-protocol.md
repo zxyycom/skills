@@ -1,7 +1,7 @@
 ---
 title: 分离 Agent 决策契约与工具协议
 id: separate-agent-contract-from-tool-protocol
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-25T02:10:02Z
 purpose: 让 agent 只加载完成判断与维护所需的决策语义，并把机器细节交给对应 owner。

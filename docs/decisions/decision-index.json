@@ -130,6 +130,7 @@
       "261010-retain-complete-validation-with-selected-content": "sha256:bc20db4275ae8bfd460f168c2c676dd66f5f6da9c3fdd849207905a6557e39db",
       "261010-separate-investigation-query-and-validation-acquisition": "sha256:5669fdde0cbe2d1f86188ef5ed606f836f32660c960a2554b4c48083afc4a70a",
       "261011-publish-decision-index-query-snapshots": "sha256:e70725985c320e52778936cb0db50357a238154a47596c051e63d6d9c689bbed",
+      "261017-route-record-documentation-by-consumer-task": "sha256:45930827a933def1ad4df38f87547f0418e595912280f7ae9e03f3e3d7d0884a",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -295,7 +296,7 @@
       "select-prerequisite-checks-by-profile": "sha256:a8ecc1c37054f30f0ed1382fcfd5a463d78ff79100a0c48792daa341f049eb8d",
       "select-task-graph-project-roots": "sha256:b2a206064f9b1e3ca381b2a1cc60fac2809a372d8f83558552c7ceed991147ca",
       "separate-activation-effect-from-head-pending": "sha256:916f5740245191ede7fa7bde07e0aee71f1b2b6339725d1f936e4e0122b004f4",
-      "separate-agent-contract-from-tool-protocol": "sha256:34bd233937996fbd17a73c1e660301f9ddb789b059a2dbae033dce695e72cf78",
+      "separate-agent-contract-from-tool-protocol": "sha256:f437dacd4cff52fa9b6cc96b8eaf9ceca215360f8ba7b46c02ce2ce150120b47",
       "separate-candidate-scaffold-from-body-readiness": "sha256:e82efcd4524a017f9868ecb7e558c77bf3637bdd51921da27534d872c8fd8476",
       "separate-candidates-from-established-decisions": "sha256:4962cbc252cba5db58b73bce5c5c74eaa91a00b4d13cab6be4c1ffe8cfcb4082",
       "separate-delivery-and-auxiliary-write-ownership": "sha256:bb5a50cf408dc0ff1c32c948c7392bc577a3f229b5f25a75eb3baa80ccc08ecd",
@@ -2964,6 +2965,30 @@
         "source-artifact-separation"
       ],
       "relations": []
+    },
+    "261017-route-record-documentation-by-consumer-task": {
+      "name": "route-record-documentation-by-consumer-task",
+      "sourcePath": "route-record-documentation-by-consumer-task.md",
+      "title": "按消费任务组织调查与决策文档",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-17T03:23:05Z",
+      "purpose": "让记录使用者只读取当前任务所需契约，让工具维护者恢复实现与验证责任。",
+      "background": "统一契约同时承接领域判断、命令操作和实现细节，全量必读及多处复制增加阅读负担与口径漂移。",
+      "decision": "两项记录 skill 按任务选择领域规则、操作契约和恢复路径，工具实现约束归源码维护入口。",
+      "tags": [
+        "ai-ready-docs",
+        "decision-records",
+        "investigation-report",
+        "responsibility-boundaries"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "separate-agent-contract-from-tool-protocol",
+          "summary": "保留领域与机器分工，按消费任务区分操作和实现契约"
+        }
+      ]
     },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",
@@ -6454,9 +6479,9 @@
     },
     "separate-agent-contract-from-tool-protocol": {
       "name": "separate-agent-contract-from-tool-protocol",
-      "sourcePath": "separate-agent-contract-from-tool-protocol.md",
+      "sourcePath": "archive/separate-agent-contract-from-tool-protocol.md",
       "title": "分离 Agent 决策契约与工具协议",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-07-25T02:10:02Z",
       "purpose": "让 agent 只加载完成判断与维护所需的决策语义，并把机器细节交给对应 owner。",
