@@ -9,7 +9,7 @@ import {
   type LocalRuntime
 } from "./configuration.ts";
 import { JudgmentFailure, normalizeFailure } from "./failure.ts";
-import { stringifyJson, type JsonValue } from "./json.ts";
+import { type JsonValue } from "./json.ts";
 import { CallLog, type CallCompletion } from "./call-log.ts";
 import { localMetadata } from "./local-metadata.ts";
 import { parseStatisticsOptions } from "./stats-options.ts";
@@ -27,7 +27,13 @@ import {
   type InvocationState,
   type CliOutcome
 } from "./output.ts";
-import { validateModel, validateRequest } from "./request.ts";
+import { validateRequest } from "./request.ts";
+import {
+  adapterContract,
+  validateAdapterModel,
+  type AdapterContract
+} from "./adapter-contract.ts";
+import { prepareRequest } from "./adapter-request.ts";
 import { sendRequest, type Fetch } from "./transport.ts";
 
 export type { CliOutcome } from "./output.ts";
@@ -40,7 +46,7 @@ Usage: node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs
   doctor                         本地配置与密钥存在性检查（离线）
   json --file path | --json text | -
                                  完整请求，恰选一种输入；- 表示 stdin
-  ask --type choice|score|noul --question text
+  ask --type choice|score|noul|box --question text
       --text text | --text-file path | --state-json JSON | --state-file path
                                  单题上下文，恰选一种输入
       [--id answer] [--option key=description ...] [--level text ...]
@@ -52,8 +58,8 @@ Usage: node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs
       [--percentiles 50,90,95,99] [--max-rows 100000]
       不取环境密钥、不联网、不创建/迁移库；完整口径见 references/statistics.md。
   --run-id id --run-index n (json/ask) 本地批次顺序，成对提供；--tag key=value 可重复
-  --model jev-*|typesafe/jev-*|~typesafe/jev-*  --timeout-ms 1..2147483647
-  --endpoint URL                 覆盖本次 System One 完整地址
+  --model id（按 config.adapter 校验）  --timeout-ms 1..2147483647
+  --endpoint URL                 覆盖本次所选 adapter 完整地址
   --dry-run (json/ask)            预览最终请求，不取环境密钥、不联网或建库
   --help                         展示帮助，不读取配置、输入或凭据
 
@@ -63,6 +69,9 @@ Usage: node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs
   默认 model=typesafe/jev-1.13、apiKeyEnv=OPENROUTER_API_KEY、timeoutMs=15000。
   endpoint 默认 https://openrouter.ai/api/v1/systemone；仅 HTTPS 或回环 HTTP。
   可在私有配置中设置 apiKey，优先于 apiKeyEnv；不自动读取 .env。
+  adapter 默认 openrouter-systemone；其他值 typesafe、openrouter-decisions、openai-decisions。
+  新 adapter 显式配置 endpoint、model 和 apiKey/apiKeyEnv；不会继承旧凭据。
+  images、longContext 默认 false，仅可信配置启用；完整模态与转换合同见 references/protocol-adapters.md。
   logging: { enabled: false, saveRequest: false, saveResponse: true }。
   logging.databasePath 默认 ~/.local/share/lightweight-judgment/calls.sqlite3。
   日志默认关闭；开启后的真实调用自动建库，发送前记录，返回后更新，不自动重放。
@@ -87,6 +96,9 @@ export type CliRuntime = LocalRuntime &
   Readonly<{ readStdin(): Promise<string>; fetch: Fetch; now(): number }>;
 
 type DoctorResult = Readonly<{
+  adapterContract: AdapterContract;
+  images: boolean;
+  longContext: boolean;
   configPath: string;
   endpoint: string;
   model: string;
@@ -104,12 +116,20 @@ function doctor(
   runtime: CliRuntime
 ): DoctorResult {
   // Only existence is consumed. Never put the credential into output state.
-  resolveApiKey(config, runtime);
   const model =
     options.values.model === undefined
       ? config.model
-      : validateModel(options.values.model, "input", "--model");
+      : validateAdapterModel(
+          options.values.model,
+          config.adapter,
+          "input",
+          "--model"
+        );
+  resolveApiKey(config, runtime);
   return {
+    adapterContract: adapterContract(config.adapter),
+    images: config.images,
+    longContext: config.longContext,
     configPath: config.path,
     endpoint: config.endpoint,
     model,
@@ -136,16 +156,25 @@ async function infer(
   const request = validateRequest(
     await loadInput(options, runtime),
     options.values.model,
-    config.model
+    config.model,
+    config.adapter
   );
   state.requestModel = request.model;
+  const prepared = prepareRequest(request, config);
+  state.adapterContract = prepared.adapterContract;
   if (options.dryRun) {
-    return { endpoint: config.endpoint, request };
+    return {
+      endpoint: config.endpoint,
+      adapterContract: prepared.adapterContract,
+      request: prepared.wire,
+      headers: prepared.headers,
+      manifest: prepared.manifest
+    };
   }
   state.apiKey = resolveApiKey(config, runtime);
-  const body = stringifyJson(request);
+  const body = prepared.body;
   const log = config.logging.enabled
-    ? CallLog.start(config, request, body, metadata)
+    ? CallLog.start(config, request, metadata, prepared)
     : undefined;
   state.attempts = 1;
   state.started = runtime.now();
@@ -155,6 +184,9 @@ async function infer(
       request,
       {
         endpoint: config.endpoint,
+        adapter: config.adapter,
+        responseRequest: prepared.responseRequest,
+        headers: prepared.headers,
         body,
         apiKey: state.apiKey,
         timeoutMs: config.timeoutMs,
@@ -167,17 +199,16 @@ async function infer(
       },
       runtime.fetch
     );
-    completion = { ok: true, result };
+    completion = { ok: true, result: result.result };
+    state.normalized = result.normalized;
   } catch (error) {
     completion = {
       ok: false,
       error: normalizeFailure(error, "invalid_response")
     };
   }
-  state.persistence = log?.finish(
-    completion,
-    Math.max(0, Math.round(runtime.now() - state.started))
-  );
+  state.elapsedMs = Math.max(0, Math.round(runtime.now() - state.started));
+  state.persistence = log?.finish(completion, state.elapsedMs);
   if (!completion.ok) throw completion.error;
   return completion.result;
 }

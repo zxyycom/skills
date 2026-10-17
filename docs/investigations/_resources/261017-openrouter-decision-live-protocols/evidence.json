@@ -1,0 +1,724 @@
+{
+  "format": "one-off-sanitized-live-protocol-evidence/v1",
+  "authority": "All calls explicitly authorized; official OpenRouter endpoint only; no native TypeSafe or native OpenAI call",
+  "handling": "Requests 01-06 and successful response JSON values retained. Long state bodies represented by exact construction recipe plus wire hash. HTTP403 response user_id omitted. Authentication headers, configuration, private paths and network client are not retained. Request SHA hashes cover compact JSON.stringify body.",
+  "syntheticImages": {
+    "format": "PNG RGB, static, 320x320",
+    "background": [
+      255,
+      255,
+      255
+    ],
+    "square": {
+      "x": [
+        80,
+        239
+      ],
+      "y": [
+        80,
+        239
+      ]
+    },
+    "references": [
+      "red-square.png",
+      "blue-square.png"
+    ]
+  },
+  "summary": {
+    "httpRequests": 8,
+    "http200": 7,
+    "http403": 1,
+    "inputTokens": 50460,
+    "outputTokens": 413,
+    "reportedCostSum": 0.00211932,
+    "costCoverage": 7,
+    "missingCostCoverage": 1
+  },
+  "records": [
+    {
+      "name": "01-legacy-bare",
+      "path": "/api/v1/systemone",
+      "requestModel": "jev-1.14",
+      "requestBytes": 606,
+      "status": 200,
+      "elapsedMs": 882,
+      "result": {
+        "model": "typesafe/jev-1.14-20261014",
+        "answers": {
+          "exists": {
+            "type": "noul",
+            "noul": 0.99
+          },
+          "category": {
+            "type": "choice",
+            "choice": "rollback",
+            "probabilities": {
+              "rollback": 1,
+              "new_feature": 0,
+              "other": 0
+            },
+            "confidence": 1
+          },
+          "urgency": {
+            "type": "score",
+            "score": 2,
+            "legend": {
+              "0": {
+                "label": "routine",
+                "details": [
+                  "No urgency stated"
+                ]
+              },
+              "1": {
+                "label": "urgent",
+                "details": [
+                  "As soon as possible"
+                ]
+              },
+              "2": {
+                "label": "immediate",
+                "details": [
+                  "Immediately now"
+                ]
+              }
+            },
+            "probabilities": {
+              "0": 0,
+              "1": 0,
+              "2": 1
+            },
+            "confidence": 1
+          }
+        },
+        "usage": {
+          "input_tokens": 444,
+          "output_tokens": 70,
+          "cost": 0.000018648
+        },
+        "id": "gen-dec-1792208172-e9wcHGHl71oYxZMRYVmk",
+        "provider": "TypeSafe"
+      },
+      "requestSHA256": "78e281f669b0acccdc46c0da9b3875af01f688d394e54d38cfce21f7fee5177f",
+      "contentType": "application/json",
+      "experimentalHeaders": [],
+      "timeoutMs": 90000,
+      "redirect": "manual",
+      "observedAt": "2026-10-17T03:35:55.479Z",
+      "request": {
+        "model": "jev-1.14",
+        "state": "Please roll back this release immediately now.",
+        "questions": {
+          "exists": {
+            "type": "noul",
+            "instructions": "The message explicitly asks to roll back the release."
+          },
+          "category": {
+            "type": "choice",
+            "instructions": "Classify the explicit request.",
+            "criteria": {
+              "rollback": "Roll back a release",
+              "new_feature": "Add a feature",
+              "other": "Other"
+            }
+          },
+          "urgency": {
+            "type": "score",
+            "instructions": "How urgent is the explicit request?",
+            "criteria": [
+              {
+                "label": "routine",
+                "details": [
+                  "No urgency stated"
+                ]
+              },
+              {
+                "label": "urgent",
+                "details": [
+                  "As soon as possible"
+                ]
+              },
+              {
+                "label": "immediate",
+                "details": [
+                  "Immediately now"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "02-alpha-jev",
+      "path": "/api/alpha/decisions",
+      "requestModel": "typesafe/jev-1.14",
+      "requestBytes": 615,
+      "status": 200,
+      "elapsedMs": 362,
+      "result": {
+        "model": "typesafe/jev-1.14-20261014",
+        "answers": {
+          "exists": {
+            "type": "noul",
+            "noul": 0.99
+          },
+          "category": {
+            "type": "choice",
+            "choice": "rollback",
+            "probabilities": {
+              "rollback": 1,
+              "new_feature": 0,
+              "other": 0
+            },
+            "confidence": 1
+          },
+          "urgency": {
+            "type": "score",
+            "score": 2,
+            "legend": {
+              "0": {
+                "label": "routine",
+                "details": [
+                  "No urgency stated"
+                ]
+              },
+              "1": {
+                "label": "urgent",
+                "details": [
+                  "As soon as possible"
+                ]
+              },
+              "2": {
+                "label": "immediate",
+                "details": [
+                  "Immediately now"
+                ]
+              }
+            },
+            "probabilities": {
+              "0": 0,
+              "1": 0,
+              "2": 1
+            },
+            "confidence": 1
+          }
+        },
+        "usage": {
+          "input_tokens": 444,
+          "output_tokens": 70,
+          "cost": 0.000018648
+        },
+        "id": "gen-dec-1792208172-twyvKpLegK9RDvkKMPX8",
+        "provider": "TypeSafe"
+      },
+      "requestSHA256": "789324549f028cbf921f43b39d075a3ab3e6d4aad4b0dc22b55330934d4d748e",
+      "contentType": "application/json",
+      "experimentalHeaders": [],
+      "timeoutMs": 90000,
+      "redirect": "manual",
+      "observedAt": "2026-10-17T03:35:55.843Z",
+      "request": {
+        "model": "typesafe/jev-1.14",
+        "state": "Please roll back this release immediately now.",
+        "questions": {
+          "exists": {
+            "type": "noul",
+            "instructions": "The message explicitly asks to roll back the release."
+          },
+          "category": {
+            "type": "choice",
+            "instructions": "Classify the explicit request.",
+            "criteria": {
+              "rollback": "Roll back a release",
+              "new_feature": "Add a feature",
+              "other": "Other"
+            }
+          },
+          "urgency": {
+            "type": "score",
+            "instructions": "How urgent is the explicit request?",
+            "criteria": [
+              {
+                "label": "routine",
+                "details": [
+                  "No urgency stated"
+                ]
+              },
+              {
+                "label": "urgent",
+                "details": [
+                  "As soon as possible"
+                ]
+              },
+              {
+                "label": "immediate",
+                "details": [
+                  "Immediately now"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "03-alpha-openai",
+      "path": "/api/alpha/decisions",
+      "requestModel": "openai/gpt-6-luna-decisions",
+      "requestBytes": 625,
+      "status": 403,
+      "elapsedMs": 204,
+      "result": {
+        "error": {
+          "message": "The request is prohibited due to a violation of provider Terms Of Service.",
+          "code": 403
+        }
+      },
+      "requestSHA256": "63e31de456cfa6d596f04b8ae5c871e01bf6c7b9b2881256d36edaed1fad5ab7",
+      "contentType": "application/json",
+      "experimentalHeaders": [],
+      "timeoutMs": 90000,
+      "redirect": "manual",
+      "observedAt": "2026-10-17T03:35:56.047Z",
+      "request": {
+        "model": "openai/gpt-6-luna-decisions",
+        "state": "Please roll back this release immediately now.",
+        "questions": {
+          "exists": {
+            "type": "noul",
+            "instructions": "The message explicitly asks to roll back the release."
+          },
+          "category": {
+            "type": "choice",
+            "instructions": "Classify the explicit request.",
+            "criteria": {
+              "rollback": "Roll back a release",
+              "new_feature": "Add a feature",
+              "other": "Other"
+            }
+          },
+          "urgency": {
+            "type": "score",
+            "instructions": "How urgent is the explicit request?",
+            "criteria": [
+              {
+                "label": "routine",
+                "details": [
+                  "No urgency stated"
+                ]
+              },
+              {
+                "label": "urgent",
+                "details": [
+                  "As soon as possible"
+                ]
+              },
+              {
+                "label": "immediate",
+                "details": [
+                  "Immediately now"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "04-alpha-shared-image-box",
+      "path": "/api/alpha/decisions",
+      "requestModel": "typesafe/jev-1.14",
+      "requestBytes": 2801,
+      "status": 200,
+      "elapsedMs": 2464,
+      "result": {
+        "model": "typesafe/jev-1.14-20261014",
+        "answers": {
+          "color": {
+            "type": "choice",
+            "choice": "red",
+            "probabilities": {
+              "red": 1,
+              "blue": 0,
+              "green": 0
+            },
+            "confidence": 1
+          },
+          "bounds": {
+            "type": "box",
+            "box": {
+              "top": 0.14,
+              "bottom": 0.7,
+              "left": 0.23,
+              "right": 0.7
+            },
+            "confidence": 0.61
+          },
+          "exists": {
+            "type": "noul",
+            "noul": 0.98
+          }
+        },
+        "usage": {
+          "input_tokens": 679,
+          "output_tokens": 71,
+          "cost": 0.000028518
+        },
+        "id": "gen-dec-1792208208-HUukfMT7Kj7SChTR8COF",
+        "provider": "TypeSafe"
+      },
+      "requestSHA256": "361fe35a3361e874dec793c6ded649019ab5cdf005e51d2490cce2d8467b689e",
+      "contentType": "application/json",
+      "experimentalHeaders": [],
+      "timeoutMs": 90000,
+      "redirect": "manual",
+      "observedAt": "2026-10-17T03:36:31.651Z",
+      "request": {
+        "model": "typesafe/jev-1.14",
+        "state": {
+          "photo": {
+            "type": "image_url",
+            "image_url": {
+              "url": "data:image/png;base64,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"
+            }
+          }
+        },
+        "questions": {
+          "color": {
+            "type": "choice",
+            "instructions": "What color is the square in state.photo?",
+            "criteria": {
+              "red": "red",
+              "blue": "blue",
+              "green": "green"
+            }
+          },
+          "bounds": {
+            "type": "box",
+            "instructions": "the red square in state.photo"
+          },
+          "exists": {
+            "type": "noul",
+            "instructions": "There is a red square in state.photo."
+          }
+        }
+      }
+    },
+    {
+      "name": "05-alpha-local-images",
+      "path": "/api/alpha/decisions",
+      "requestModel": "typesafe/jev-1.14",
+      "requestBytes": 10283,
+      "status": 200,
+      "elapsedMs": 448,
+      "result": {
+        "model": "typesafe/jev-1.14-20261014",
+        "answers": {
+          "local_color": {
+            "type": "choice",
+            "choice": "blue",
+            "probabilities": {
+              "red": 0,
+              "blue": 1,
+              "green": 0
+            },
+            "confidence": 1
+          },
+          "image_legend": {
+            "type": "score",
+            "score": 0.03,
+            "legend": {
+              "0": {
+                "name": "red-reference",
+                "picture": {
+                  "type": "image_url",
+                  "image_url": {
+                    "url": "data:image/png;base64,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"
+                  }
+                }
+              },
+              "1": {
+                "name": "blue-reference",
+                "picture": {
+                  "type": "image_url",
+                  "image_url": {
+                    "url": "data:image/png;base64,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"
+                  }
+                }
+              }
+            },
+            "probabilities": {
+              "0": 0.97,
+              "1": 0.03
+            },
+            "confidence": 0.94
+          }
+        },
+        "usage": {
+          "input_tokens": 1697,
+          "output_tokens": 55,
+          "cost": 0.000071274
+        },
+        "id": "gen-dec-1792208208-DPA5esqs7ZETXgjrLmwg",
+        "provider": "TypeSafe"
+      },
+      "requestSHA256": "5de44ca44f30e70a94e38d78d38ed103563ecb56ad37ebab9991bccfc12c008a",
+      "contentType": "application/json",
+      "experimentalHeaders": [],
+      "timeoutMs": 90000,
+      "redirect": "manual",
+      "observedAt": "2026-10-17T03:36:32.099Z",
+      "request": {
+        "model": "typesafe/jev-1.14",
+        "state": "Each question has its own visual evidence. Do not infer a color from another question.",
+        "questions": {
+          "local_color": {
+            "type": "choice",
+            "instructions": [
+              "What color is the square in this question image?",
+              {
+                "type": "image_url",
+                "image_url": {
+                  "url": "data:image/png;base64,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"
+                }
+              }
+            ],
+            "criteria": {
+              "red": "red",
+              "blue": "blue",
+              "green": "green"
+            }
+          },
+          "image_legend": {
+            "type": "score",
+            "instructions": [
+              "Select the level whose image matches the red square.",
+              {
+                "type": "image_url",
+                "image_url": {
+                  "url": "data:image/png;base64,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"
+                }
+              }
+            ],
+            "criteria": [
+              {
+                "name": "red-reference",
+                "picture": {
+                  "type": "image_url",
+                  "image_url": {
+                    "url": "data:image/png;base64,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"
+                  }
+                }
+              },
+              {
+                "name": "blue-reference",
+                "picture": {
+                  "type": "image_url",
+                  "image_url": {
+                    "url": "data:image/png;base64,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"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "06-legacy-shared-image-box",
+      "path": "/api/v1/systemone",
+      "requestModel": "jev-1.14",
+      "requestBytes": 2792,
+      "status": 200,
+      "elapsedMs": 443,
+      "result": {
+        "model": "typesafe/jev-1.14-20261014",
+        "answers": {
+          "color": {
+            "type": "choice",
+            "choice": "red",
+            "probabilities": {
+              "red": 1,
+              "blue": 0,
+              "green": 0
+            },
+            "confidence": 1
+          },
+          "bounds": {
+            "type": "box",
+            "box": {
+              "top": 0.13,
+              "bottom": 0.66,
+              "left": 0.23,
+              "right": 0.7
+            },
+            "confidence": 0.67
+          },
+          "exists": {
+            "type": "noul",
+            "noul": 0.98
+          }
+        },
+        "usage": {
+          "input_tokens": 680,
+          "output_tokens": 71,
+          "cost": 0.00002856
+        },
+        "id": "gen-dec-1792208209-Onxk58Gqio2Czbq2HEg3",
+        "provider": "TypeSafe"
+      },
+      "requestSHA256": "81eaf58b7a720354693eb4009e17caf0ecd7c29c5868455876097526cafca597",
+      "contentType": "application/json",
+      "experimentalHeaders": [],
+      "timeoutMs": 90000,
+      "redirect": "manual",
+      "observedAt": "2026-10-17T03:36:32.547Z",
+      "request": {
+        "model": "jev-1.14",
+        "state": {
+          "photo": {
+            "type": "image_url",
+            "image_url": {
+              "url": "data:image/png;base64,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"
+            }
+          }
+        },
+        "questions": {
+          "color": {
+            "type": "choice",
+            "instructions": "What color is the square in state.photo?",
+            "criteria": {
+              "red": "red",
+              "blue": "blue",
+              "green": "green"
+            }
+          },
+          "bounds": {
+            "type": "box",
+            "instructions": "the red square in state.photo"
+          },
+          "exists": {
+            "type": "noul",
+            "instructions": "There is a red square in state.photo."
+          }
+        }
+      }
+    },
+    {
+      "name": "07-alpha-long-40k",
+      "path": "/api/alpha/decisions",
+      "requestModel": "typesafe/jev-1.14",
+      "requestBytes": 40901,
+      "status": 200,
+      "elapsedMs": 630,
+      "result": {
+        "model": "typesafe/jev-1.14-20261014",
+        "answers": {
+          "marker": {
+            "type": "choice",
+            "choice": "correct",
+            "probabilities": {
+              "correct": 1,
+              "wrong": 0,
+              "missing": 0
+            },
+            "confidence": 1
+          }
+        },
+        "usage": {
+          "input_tokens": 6158,
+          "output_tokens": 38,
+          "cost": 0.000258636
+        },
+        "id": "gen-dec-1792208210-vaSFJDeOvKdgfCb2JsIP",
+        "provider": "TypeSafe"
+      },
+      "requestSHA256": "9258803038ce24309e6aa6c61b6bf7f3d81ea567fd5879deccafa6b232e72ce3",
+      "contentType": "application/json",
+      "experimentalHeaders": [],
+      "timeoutMs": 90000,
+      "redirect": "manual",
+      "observedAt": "2026-10-17T03:36:33.175Z",
+      "syntheticRequest": {
+        "model": "typesafe/jev-1.14",
+        "stateRecipe": {
+          "prefix": "HEADER marker: SYNTHETIC_START\n",
+          "repeat": {
+            "value": "filler ",
+            "times": 5800
+          },
+          "suffix": "\nFOOTER marker: SYNTHETIC_END"
+        },
+        "questions": {
+          "marker": {
+            "type": "choice",
+            "instructions": "What is the FOOTER marker at the end of state?",
+            "criteria": {
+              "correct": "SYNTHETIC_END",
+              "wrong": "SYNTHETIC_START",
+              "missing": "No footer marker"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "08-alpha-long-280k",
+      "path": "/api/alpha/decisions",
+      "requestModel": "typesafe/jev-1.14",
+      "requestBytes": 280301,
+      "status": 200,
+      "elapsedMs": 1221,
+      "result": {
+        "model": "typesafe/jev-1.14-20261014",
+        "answers": {
+          "marker": {
+            "type": "choice",
+            "choice": "correct",
+            "probabilities": {
+              "correct": 1,
+              "wrong": 0,
+              "missing": 0
+            },
+            "confidence": 1
+          }
+        },
+        "usage": {
+          "input_tokens": 40358,
+          "output_tokens": 38,
+          "cost": 0.001695036
+        },
+        "id": "gen-dec-1792208211-a7vo930tRvjTVG4ibhY6",
+        "provider": "TypeSafe"
+      },
+      "requestSHA256": "5f8149760f3b2d0ee4ac7ae74e074a148ff723ec27b006dfb233cba24f26b9a7",
+      "contentType": "application/json",
+      "experimentalHeaders": [],
+      "timeoutMs": 90000,
+      "redirect": "manual",
+      "observedAt": "2026-10-17T03:36:34.399Z",
+      "syntheticRequest": {
+        "model": "typesafe/jev-1.14",
+        "stateRecipe": {
+          "prefix": "HEADER marker: SYNTHETIC_START\n",
+          "repeat": {
+            "value": "filler ",
+            "times": 40000
+          },
+          "suffix": "\nFOOTER marker: SYNTHETIC_END"
+        },
+        "questions": {
+          "marker": {
+            "type": "choice",
+            "instructions": "What is the FOOTER marker at the end of state?",
+            "criteria": {
+              "correct": "SYNTHETIC_END",
+              "wrong": "SYNTHETIC_START",
+              "missing": "No footer marker"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

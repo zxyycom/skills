@@ -9,6 +9,7 @@ const metaSchema = v.strictObject({
   attempts: v.number(),
   elapsedMs: v.number(),
   requestModel: v.optional(v.string()),
+  adapterContract: v.optional(v.string()),
   persistence: v.optional(
     v.strictObject({
       callId: v.optional(v.string()),
@@ -21,6 +22,7 @@ const envelopeSchema = v.variant("ok", [
   v.strictObject({
     ok: v.literal(true),
     result: objectSchema,
+    normalized: v.optional(objectSchema),
     meta: metaSchema,
     error: v.null()
   }),

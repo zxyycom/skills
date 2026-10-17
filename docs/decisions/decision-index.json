@@ -130,6 +130,7 @@
       "261010-retain-complete-validation-with-selected-content": "sha256:bc20db4275ae8bfd460f168c2c676dd66f5f6da9c3fdd849207905a6557e39db",
       "261010-separate-investigation-query-and-validation-acquisition": "sha256:5669fdde0cbe2d1f86188ef5ed606f836f32660c960a2554b4c48083afc4a70a",
       "261011-publish-decision-index-query-snapshots": "sha256:e70725985c320e52778936cb0db50357a238154a47596c051e63d6d9c689bbed",
+      "261017-lightweight-judgment-faithful-protocol-adapters": "sha256:bb4a453ec6fb6159f865a3b5b3307e5ff5b0585a3aa9481a78919fd79ebc40b3",
       "261017-route-record-documentation-by-consumer-task": "sha256:45930827a933def1ad4df38f87547f0418e595912280f7ae9e03f3e3d7d0884a",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
@@ -2963,6 +2964,22 @@
         "decision-records",
         "performance",
         "source-artifact-separation"
+      ],
+      "relations": []
+    },
+    "261017-lightweight-judgment-faithful-protocol-adapters": {
+      "name": "lightweight-judgment-faithful-protocol-adapters",
+      "sourcePath": "lightweight-judgment-faithful-protocol-adapters.md",
+      "title": "Lightweight Judgment 以 JEV 载体和封闭合同保持多协议边界",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-17T03:36:31Z",
+      "purpose": "复用统一判断输入，同时保留不同协议的能力、原答和恢复身份。",
+      "background": "JEV 与 Decisions 的字段、模态、拒答和凭据不同，仅改 endpoint 或 model 无法保真接入。",
+      "decision": "保留 JEV 载体，以封闭版本化 adapter 编译和校验，分离原答与统一结果，无法保真时发送前拒绝。",
+      "tags": [
+        "lightweight-judgment",
+        "protocol-adaptation"
       ],
       "relations": []
     },

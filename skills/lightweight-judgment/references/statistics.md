@@ -5,7 +5,7 @@
 ## 取得统计
 
 1. 选择已有的私有日志库：使用配置中的路径，或显式指定 `--database`。
-2. 按比较目标筛选记录，再选择分组、数值分桶与百分位数。
+2. 按比较目标筛选记录，再选择分组、数值分桶与百分位数；跨接入比较时先区分 adapterContract、endpoint 和实际 responseModel，再比较同一任务条件。
 3. 检查退出码与 `ok`，成功后先核对调用数、指标覆盖与批次完整性，再解读分布。
 
 ```bash
@@ -14,7 +14,7 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs stats 
 node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs stats \
   --database /absolute/private/calls.sqlite3 \
   --from 2026-10-01T00:00:00Z --to 2026-10-02T00:00:00Z \
-  --group-by requestModel,status,tag:suite \
+  --group-by adapterContract,endpoint,responseModel,status,tag:suite \
   --bucket requestBytes=1000,5000 --bucket inputTokens=100,1000 \
   --percentiles 50,90,95,99
 ```
@@ -33,12 +33,13 @@ stdout 为 `{ ok, result, meta, error }`，`meta.attempts: 0` 且无 `meta.persi
 | 参数 | 规则 |
 | --- | --- |
 | `--from` / `--to` | UTC `YYYY-MM-DDTHH:mm:ss[.sss]Z`，按记录 `started_at` 筛选，窗口为 `[from,to)`；可只给一端，两端同时给时须 from < to |
+| `--adapter-contract` | 精确匹配版本化合同，如 `openai-decisions/v1`；NULL 历史不命中具体合同 |
 | `--endpoint` | 精确匹配已记录的完整 endpoint，不做 URL 归一化或模糊匹配 |
 | `--request-model` / `--response-model` | 精确匹配请求标识／实际响应型号，不把别名合并 |
 | `--status` | `started`、`response_received`、`succeeded`、`failed`、`indeterminate` 之一 |
 | `--run-id` | 精确匹配批次 ID；无批次元数据的记录不匹配 |
 | `--tag key=value` | 可重复，精确 AND 匹配；键值规则见[本地元数据](#记录本地批次与标签)，缺标签不匹配 |
-| `--group-by` | 逗号组合 `endpoint,requestModel,responseModel,status,errorKind,runId,tag:<key>`；最多 8 个唯一字段；缺值独立为 null，不并入字符串 `"null"` |
+| `--group-by` | 逗号组合 `adapterContract,endpoint,requestModel,responseModel,status,errorKind,runId,tag:<key>`；最多 8 个唯一字段；缺值独立为 null，不并入字符串 `"null"` |
 | `--bucket field=b1,b2` | 可重复，每字段一组、每组最多 100 个非负有限且严格递增边界；字段为 `elapsedMs,inputTokens,outputTokens,requestBytes,responseBytes,questionCount` |
 | `--percentiles` | 默认 `50,90,95,99`；最多 100 个严格递增、>0 且 <=100 的百分位数 |
 | `--max-rows` | 默认 100000，正安全整数；完整所选摘要行数超限即失败。内存随摘要行数与分组增长，不载入正文 |
@@ -53,9 +54,11 @@ stdout 为 `{ ok, result, meta, error }`，`meta.attempts: 0` 且无 `meta.persi
 
 ### 覆盖与分母
 
-- `summary.calls` 是调用条数，不是题目数；`statuses` 分列调用状态，`errors` 按已有 `error_kind` 计数。`unfinished` 只计 `started` 与 `response_received`；`indeterminate` 单列，不能据此认定未发送。
+- `summary.calls` 是调用条数，不是题目数；`statuses` 分列调用状态（succeeded 为技术成功，可包含合法拒答，不是全题答复计数），`errors` 按已有 `error_kind` 计数。`unfinished` 只计 `started` 与 `response_received`；`indeterminate` 单列，不能据此认定未发送。
 - `metrics` 含耗时、input/output tokens、请求／响应字节数和问题数。每项提供有值 `count`、`missing`、`sum`、`mean`、`min`、`max` 和所选 `percentiles`；SQL NULL 不等于 0，全缺失或空 cohort 的 sum／mean／极值／分位数均为 null。
 - 统计只覆盖已留存调用；日志关闭时的调用没有样本。没有 gold／人工判定就不输出准确率或质量评分；协议成功、高 confidence、重复同答均不代替正确性。
+
+合同未知的历史以 null 独立分组，不并入默认 JEV；stats 不读正文补猜身份。未提取为公共摘要的原生 usage 细节仅随原答留存，统计不汇总 cache 命中或 answered/refused 数，不由缺失缓存字段推导零命中。不同 tokenizer 的 token 数不代表相同工作量。
 
 分位数固定 **nearest-rank**：n 个有值样本升序排列后，取 1-based 第 `ceil(p/100*n)` 个，算法由 `method.quantiles` 明示。P50 不是偶数样本中间两项的平均：`[300,1000]` 的 P50 是 300，而非 650。
 
@@ -65,7 +68,7 @@ stdout 为 `{ ok, result, meta, error }`，`meta.attempts: 0` 且无 `meta.persi
 | --- | --- |
 | `inputTokens` / `outputTokens` | 有效响应的服务报告、请求级 usage；一条多题请求只累计一次。失败或未上报时保留缺失，不按题数放大或估算 |
 | `reportedCostByEndpoint` | 始终按接收方隔离费用覆盖与分布，单位为 `service-reported-unspecified`；不提供跨 endpoint 无条件总费用，不假定货币、价格或跨服务可比性 |
-| `requestBytes` | 补齐／覆盖模型后实际发送 JSON 的 UTF-8 字节数 |
+| `requestBytes` | 实际 wire JSON 的 UTF-8 字节数，含内联图片与编译模板，不是 carrier 或解码像素大小 |
 | `responseBytes` | 完整收到响应的实际字节数；无完整响应时为 null |
 | `elapsedMs` | 发送前计时器启动，至完整响应接收、协议校验／失败处理完成且最终日志 finish 开始前的整数毫秒；启用日志时可包含中间接收记录写入，不含配置／输入／凭据前置及最终落盘／stdout |
 
@@ -88,7 +91,7 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json \
 | `--run-id` / `--run-index` | 成对提供；ID 为 1–128 字符且无空白／控制字符，index 为从 1 开始的安全正整数。同一库内 ID／index 唯一；冲突在发送前以 storage 失败，另一次调用需显式选下一 index 或新 ID，不自动改号 |
 | `--tag key=value` | 最多 32 个唯一键，按首个等号分隔；键匹配 `[A-Za-z_][A-Za-z0-9_.-]{0,63}`，值为 1–256 字符且无控制字符 |
 
-非法元数据在发送／建库前拒绝；日志关闭时不留存，dry-run 仍验证但不访问库。新记录的元数据与字节数不依赖正文留存；日常 stats 对库中缺失字段保持缺失，不读取正文补算。旧库显式迁移时的逐字段来源与回填规则见[数据映射](../migrations/log-v1-to-v2/README.md#字段映射与回填规则)。
+非法元数据在发送／建库前拒绝；日志关闭时不留存，dry-run 仍验证但不访问库。新记录的元数据与字节数不依赖正文留存；日常 stats 对库中缺失字段保持缺失，不读取正文补算。旧库显式迁移时，批次与字节来源见 [v1→v2 数据映射](../migrations/log-v1-to-v2/README.md#字段映射与回填规则)，合同与 carrier 来源见 [v2→v3 数据映射](../migrations/log-v2-to-v3/README.md#字段映射与来源)。
 
 ## 批次首条对照
 
@@ -102,7 +105,7 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json \
 | `firstState` / `first` | 首条状态为 `measured`、`missing`（原库无 index 1）、`filtered`（原库有但本次排除）、`unfinished`、`missing_elapsed` 或 `ambiguous`；`first` 含所选 index 1 的 ID、状态、型号、接收方和已有耗时，没有时为 null，不以最早所选记录补位 |
 | `selectedLaterCalls` / `laterMeasuredCalls` / `laterP50Ms` | 后续所选数／有可用耗时的后续数／nearest-rank P50。耗时只取所选 index >1、已结束且有值的调用，包含 failed／indeterminate，排除未完成 |
 | `firstMinusLaterP50Ms` / `firstOverLaterP50` | 首条已结束且有耗时、后续有值时给差值（首条减后续 P50）；后续 P50 >0 时才给倍数，否则倍数为 null |
-| `dimensions` | 所选调用的 endpoint／请求模型／响应模型组合；混合型号批次需按比较目标过滤后解读 |
+| `dimensions` | 所选调用的 adapterContract／endpoint／请求模型／响应模型组合；混合型号批次需按比较目标过滤后解读 |
 
 顶层分布的采样单位不同：
 
@@ -115,7 +118,7 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json \
 
 ## 只读与失败边界
 
-`stats` 只读当前 schema v2 的既有库；需要继续统计旧历史时，按[保留数据的迁移说明](../migrations/README.md)转换；无需旧历史则可[重新建库](call-logging.md#不保留历史重新建库)。统计不创建库或目录、迁移、清理、更新记录或改变 journal 设置。一个只读事务提供一致快照，包含活跃 WAL 已提交数据；SQLite 可参与 WAL／SHM 协调，因此不保证旁文件完全不变，也不使用忽略活跃 WAL 的 immutable 打开方式。
+`stats` 只读当前 schema v3 的既有库；需要继续统计旧历史时，按[保留数据的迁移说明](../migrations/README.md)转换；无需旧历史则可[重新建库](call-logging.md#不保留历史重新建库)。统计不创建库或目录、迁移、清理、更新记录或改变 journal 设置。一个只读事务提供一致快照，包含活跃 WAL 已提交数据；SQLite 可参与 WAL／SHM 协调，因此不保证旁文件完全不变，也不使用忽略活跃 WAL 的 immutable 打开方式。
 
 缺库、非私有普通文件、符号链接、其他应用的库、未知版本、schema 不符、读取失败或非法统计数据均失败，与成功空集严格区分。
 

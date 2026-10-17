@@ -14,8 +14,7 @@ const skillSourcePath = "skills/lightweight-judgment";
 const sourceRelativePath = "tools/lightweight-judgment/src/cli.ts";
 const outputRelativePath =
   "skills/lightweight-judgment/scripts/lightweight-judgment.mjs";
-const migrationSourcePath =
-  "tools/lightweight-judgment/migrations/log-v1-to-v2.sql";
+const migrations = ["log-v1-to-v2", "log-v2-to-v3"] as const;
 
 async function buildArtifacts(): Promise<GeneratedArtifact[]> {
   const bundle = await bundleWithBun({
@@ -53,6 +52,26 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
   }
 
   const outputPath = path.join(rootDir, outputRelativePath);
+  const migrationArtifacts = await Promise.all(
+    migrations.map(async (migration): Promise<GeneratedArtifact> => {
+      const sourcePath = `tools/lightweight-judgment/migrations/${migration}.sql`;
+      return {
+        content: `${buildGeneratedFileHeader({
+          artifactName: `lightweight judgment ${migration.replaceAll("-", " ")} migration`,
+          rebuildCommand,
+          repository: githubRepository,
+          skillSourcePath,
+          sourcePath
+        })}\n\n${await fs.readFile(path.join(rootDir, sourcePath), "utf8")}`,
+        path: path.join(
+          rootDir,
+          skillSourcePath,
+          `migrations/${migration}/migrate.sql`
+        ),
+        sourcePath
+      };
+    })
+  );
   return [
     {
       content: bundle.code,
@@ -64,21 +83,7 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
       path: `${outputPath}.map`,
       sourcePath: sourceRelativePath
     },
-    {
-      content: `${buildGeneratedFileHeader({
-        artifactName: "lightweight judgment log v1 to v2 migration",
-        rebuildCommand,
-        repository: githubRepository,
-        skillSourcePath,
-        sourcePath: migrationSourcePath
-      })}\n\n${await fs.readFile(path.join(rootDir, migrationSourcePath), "utf8")}`,
-      path: path.join(
-        rootDir,
-        skillSourcePath,
-        "migrations/log-v1-to-v2/migrate.sql"
-      ),
-      sourcePath: migrationSourcePath
-    }
+    ...migrationArtifacts
   ];
 }
 

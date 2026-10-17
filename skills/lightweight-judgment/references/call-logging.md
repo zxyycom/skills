@@ -10,10 +10,10 @@
 | --- | --- |
 | `enabled` | `false`；关闭时推理不创建或访问数据库；stats 可只读历史库 |
 | `databasePath` | 用户目录下 `.local/share/lightweight-judgment/calls.sqlite3`；支持 `~/`，相对路径以选中配置文件所在目录为基准 |
-| `saveRequest` | `false`；开启时保存实际发送的完整 JSON 正文，包含补齐／覆盖后的 model，保留原生类型与键顺序；不保留输入文件的原始空白 |
+| `saveRequest` | `false`；开启时保存实际发送的完整 JSON 正文，包含补齐／覆盖后的 model；wire 与 carrier 不同时另存必要 carrier，同受此开关控制；不保留输入文件的原始空白 |
 | `saveResponse` | `true`；保存完整收到的 fetch 响应正文原始字节，包括成功响应、非 2xx 正文及无效 UTF-8／JSON，不保存响应头 |
 
-正文开关只在日志启用后生效。记录始终包含 ID、UTC 起止／更新时间、endpoint、请求／响应模型、问题数、留存开关、HTTP 状态、错误类别和耗时。schema v2 另保存本地 run ID／index／tags 与实际请求／完整响应字节数，不依赖正文留存开关；元数据参数见[统计契约](statistics.md#记录本地批次与标签)。仅对有效响应提取服务提供的非负 `input_tokens`、`output_tokens`、`cost`；缺失或无效值保存为 SQL NULL，不估算费用。
+正文开关只在日志启用后生效。记录始终包含 ID、UTC 起止／更新时间、endpoint、请求／响应模型、问题数、留存开关、HTTP 状态、错误类别和耗时。当前 schema v3 保存本地 run ID／index／tags 与实际请求／完整响应字节数，不依赖正文留存开关；元数据参数见[统计契约](statistics.md#记录本地批次与标签)。仅对有效响应提取服务提供的非负 `input_tokens`、`output_tokens`、`cost`；缺失或无效值保存为 SQL NULL，不估算费用。
 
 未完整收到的响应正文保存为 SQL NULL。非 2xx 响应已确认的 HTTP 错误和 `retryAfterMs` 不因正文读取失败或超时被覆盖；记录仍为 `failed`，保留 `http_status` 与 `error_kind`。正文接收失败本身不是数据库写入失败，`meta.persistence` 仍按实际写入结果报告。
 
@@ -29,7 +29,18 @@ CLI 不将错误消息、配置全文、API key 或鉴权头写入库。启用�
 
 ## 当前格式与旧库处理
 
-正常读写只接受 schema v2 的固定结构。`calls` 包含可空 `run_id`、`run_index`、`local_tags`（JSON 对象文本）、`request_bytes`、`response_bytes`。同一库内 `run_id` 非 NULL 时以唯一索引约束 `(run_id,run_index)`；CLI 保证两项成对、index 为正整数。
+正常读写只接受 schema v3 的固定结构。`calls` 新增可空 `adapter_contract` 与 `carrier_json`，并包含可空 `run_id`、`run_index`、`local_tags`（JSON 对象文本）、`request_bytes`、`response_bytes`。同一库内 `run_id` 非 NULL 时以唯一索引约束 `(run_id,run_index)`；CLI 保证两项成对、index 为正整数。
+
+各层正文与身份按下表留存；carrier、wire、原答与统一结果的定义见[数据层](protocol-adapters.md#数据层与读取范围)。
+
+| 列 | 新调用的来源与开关 |
+| --- | --- |
+| `adapter_contract` | 始终记录实际版本化合同，不依赖正文开关；迁移历史的 NULL 表示未知，不按 endpoint/model 或当前配置猜测 |
+| `request_json` | `saveRequest=true` 时保存实际 wire；关闭时为 NULL |
+| `carrier_json` | `saveRequest=true` 且 wire 与 carrier 不同时保存原问题载体；原生直通无需重复同一正文，或关闭请求留存时为 NULL |
+| `response_body` | `saveResponse=true` 且完整收到时保存原始响应字节；不保存替换后的 normalized |
+
+normalized 可由已知历史合同、完整原问题和有效原答重新建立，但数据库不单独保存它；读取 BLOB 或迁移成功本身不完成这种验证。
 
 新库直接创建当前结构。已有库的版本或结构不符时以 storage／退出 4 拒绝；推理在发送前停止，统计不返回结果，正常调用不修改旧库。关闭日志的推理不访问库。
 
@@ -51,7 +62,7 @@ CLI 不将错误消息、配置全文、API key 或鉴权头写入库。启用�
 | --- | --- |
 | `started` | 发送意图已提交；可能仍执行、尚未发送或已发送后中断，不能据此认定服务未处理 |
 | `response_received` | 完整正文已接收并更新记录，但最终校验／状态尚未提交；正文是否留存取决于 `saveResponse` |
-| `succeeded` | 响应通过协议校验且最终记录已提交，不代表业务答案一定正确 |
+| `succeeded` | 响应通过协议校验且最终记录已提交，仅表示技术成功；可包括合法混合／全拒答，不代表全部题目得到答案或业务正确 |
 | `failed` | 已记录 HTTP 或协议失败，`error_kind` 区分原因 |
 | `indeterminate` | 已记录超时或网络失败，远端是否处理完成可能未知 |
 
@@ -62,7 +73,7 @@ CLI 不将错误消息、配置全文、API key 或鉴权头写入库。启用�
 已提交的记录独立于原 CLI 进程存活，可由新进程使用已有 SQLite 工具只读查询。进程强制终止后，恢复按以下边界处理：
 
 1. 结合进程和服务状态核对不完整记录；“没有完成记录”不构成安全重发依据。CLI 不自动重试或重放，也不保证远端恰好处理一次。
-2. 需要采用 `response_received` 的正文时，取得完整原请求，按[响应校验契约](cli.md#输出与校验)离线验证并关联原问题，再进入语义复核；`saveRequest: false` 时需另有原请求来源。
+2. 需要采用 `response_received` 的正文时，取得已记录 adapter_contract、完整原问题（carrier_json，或足以恢复的原生 request_json），按[响应校验契约](cli.md#输出与校验)离线验证并关联原问题，再进入语义复核；先复验该历史合同原生响应，再建立 normalized。`saveRequest: false`、wire 无法恢复原题且 carrier 缺失、或历史合同未知时，须补足可信外部来源；不得用当前配置补猜或把 BLOB 可读当作已验证。
 3. 当前 CLI 没有校验已有响应的离线命令。缺少原请求或可用的离线校验手段时，停在“已取回记录／正文，答案尚未验证”，说明缺口；`json`／`ask` 的正式调用会发送新请求，不能代替恢复校验。
 4. 未收到或未提交的响应无法恢复；无效正文按 BLOB 检查，不假定能转换为文本。持久性依赖 SQLite 与底层存储；进程终止测试不证明断电或介质损坏时仍可恢复。
 
@@ -76,7 +87,7 @@ WHERE status IN ('started', 'response_received', 'indeterminate')
 ORDER BY started_at;
 
 -- 已成功调用的可选正文；关闭对应留存开关时该列为 NULL
-SELECT id, request_json, CAST(response_body AS TEXT) AS response_json
+SELECT id, adapter_contract, carrier_json, request_json, CAST(response_body AS TEXT) AS response_json
 FROM calls WHERE status = 'succeeded' ORDER BY started_at DESC LIMIT 20;
 ```
 

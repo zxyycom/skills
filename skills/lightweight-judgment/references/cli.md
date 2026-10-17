@@ -8,7 +8,7 @@
 
 CLI 负责配置、输入、鉴权、请求发送、响应校验、可选调用持久化与结构化输出；业务问题、结果采用和后续动作由 agent 负责。
 
-默认通道为 OpenRouter `https://openrouter.ai/api/v1/systemone`，默认模型 `typesafe/jev-1.13`；自定义 endpoint 也须兼容原生 System One 请求与响应。每次 `json` 或 `ask` 接收一个 state 与一组问题，本地校验通过后发送一次 HTTP 请求。不同 state 分次调用；拆题、后续调用与模型／服务选择由调用方显式决定。
+接入合同由可信配置 `adapter` 选择，完整能力与转换见[接入合同与模态](protocol-adapters.md)。缺省为 `openrouter-systemone`：OpenRouter `https://openrouter.ai/api/v1/systemone`、模型 `typesafe/jev-1.13`，保持旧文本行为。每次 `json` 或 `ask` 接收一个 state 与一组问题，本地校验通过后发送一次 HTTP 请求。不同 state 分次调用；拆题、后续调用与模型／服务选择由调用方显式决定。
 
 首次正式调用按“配置 → `doctor` → `json --dry-run`／`ask --dry-run` → 正式调用 → 检查输出与退出码”核对。只需预览请求时直接使用 `--dry-run`，无需密钥或先通过 `doctor`。`doctor` 和预览均离线，不能证明服务可用；历史统计按 `stats` 路径执行。
 
@@ -22,10 +22,13 @@ CLI 负责配置、输入、鉴权、请求发送、响应校验、可选调用�
 2. 环境变量 `LIGHTWEIGHT_JUDGMENT_CONFIG`。
 3. 用户目录的 `.config/lightweight-judgment/config.json`。
 
-显式选择的文件缺失时报错；默认文件缺失时使用默认值。选中的现有文件不可读或无效均报错。字段可省略，未知字段拒绝；默认值如下：
+显式选择的文件缺失时报错；默认文件缺失时使用默认值。选中的现有文件不可读或无效均报错。未知字段拒绝；缺省 adapter 的兼容默认值如下：
 
 ```json
 {
+  "adapter": "openrouter-systemone",
+  "images": false,
+  "longContext": false,
   "endpoint": "https://openrouter.ai/api/v1/systemone",
   "model": "typesafe/jev-1.13",
   "apiKeyEnv": "OPENROUTER_API_KEY",
@@ -39,9 +42,22 @@ CLI 负责配置、输入、鉴权、请求发送、响应校验、可选调用�
 }
 ```
 
+`adapter` 另可为 `typesafe`、`openrouter-decisions`、`openai-decisions`。这些新合同必须显式提供 endpoint、model，以及 apiKey 或 apiKeyEnv；不继承旧地址、模型或密钥变量。选合同后再验证各来源，未知合同与非法组合在发送前拒绝。`images`、`longContext` 均为布尔值，默认 false，仅由可信配置设置，没有同名推理 CLI 开关；支持组合见[模态合同](protocol-adapters.md)。
+
+例如仓库外 OAI 私有配置（地址与 model 仍须按实际账号核对，本例不证明可用）：
+
+```json
+{
+  "adapter": "openai-decisions",
+  "endpoint": "https://api.openai.com/v1/decisions",
+  "model": "gpt-6-luna",
+  "apiKeyEnv": "OPENAI_API_KEY"
+}
+```
+
 ### 连接与凭据
 
-`endpoint` 须为完整 URL，不自动拼接路径；`--endpoint <URL>` 可覆盖本次调用，配置值仍须合法。允许 HTTPS，以及 `localhost`、`127.0.0.1`、`[::1]` 的 HTTP；拒绝 URL 中的用户名、密码、查询参数与片段。自定义服务仍须满足本契约的请求、响应和 JEV 型号规则；更换接收方须先确认外发授权。
+`endpoint` 须为完整 URL，不自动拼接路径；`--endpoint <URL>` 可覆盖本次调用，配置值仍须合法。允许 HTTPS，以及 `localhost`、`127.0.0.1`、`[::1]` 的 HTTP；拒绝 URL 中的用户名、密码、查询参数与片段。自定义服务仍须兼容所选 adapter；endpoint 覆盖不重选合同或凭据，不由 hostname 推断协议；更换接收方须先确认外发授权。
 
 凭据来源按以下顺序选择：
 
@@ -54,7 +70,7 @@ CLI 负责配置、输入、鉴权、请求发送、响应校验、可选调用�
 
 ### 模型与超时
 
-`model` 接受 bare `jev-*`、作者前缀 `typesafe/jev-*` 与 namespaced alias `~typesafe/jev-*` 形状的 JEV 标识，原样发送；本地形状校验不证明该标识当前可用。
+JEV 模型接受 bare `jev-*`、作者前缀 `typesafe/jev-*` 与 namespaced alias `~typesafe/jev-*` 形状的 JEV 标识，原样发送；`openrouter-decisions` 另支持 `openai/gpt-6-luna-decisions` 并按其模型级能力门禁，见[选择合同](protocol-adapters.md#选择合同)。直接 OAI 使用自身模型标识，不把 JEV 名翻译为 OAI 名。本地形状校验不证明标识当前可用。
 
 `model` 优先级为 `--model` > 请求中的 model > 配置；各来源须先通过自身校验，覆盖只决定发送值。实际版本以响应为准。
 
@@ -75,7 +91,7 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs doctor
 node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs --config /absolute/private/judgment.json doctor
 ```
 
-成功时报告配置位置、endpoint、模型、超时、密钥变量名、`credentialSource`（config／environment）、密钥存在及解析后的 logging 设置；秘密值、长度和前后缀均不输出。配置非法或本地密钥缺失／无效时返回 `configuration`、退出 2，attempts 为 0；普通推理具有同一前置行为。此命令只证明本地配置与凭据前置满足，不证明服务可用或存储可写。
+成功时报告配置位置、adapterContract、images／longContext 设置、endpoint、模型、超时、密钥变量名、`credentialSource`（config／environment）、密钥存在及解析后的 logging 设置；秘密值、长度和前后缀均不输出。配置非法或本地密钥缺失／无效时返回 `configuration`、退出 2，attempts 为 0；普通推理具有同一前置行为。此命令只证明本地配置与凭据前置满足，不证明服务可用或存储可写。
 
 ### `json`：完整请求
 
@@ -87,10 +103,10 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json -
 node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json --json '{"state":"请回退版本","questions":{"rollback":{"type":"noul","instructions":"是否明确请求回退版本？"}}}'
 ```
 
-输入为 UTF-8 单个 JSON 对象，不接受 JSONL；顶层接受 `state`、非空 `questions` 和可选 `model`。CLI 补齐 model 后发送原生 System One 请求，保留输入类型、文本与候选顺序，不增加聊天 messages 包装或隐式转换 state。
+输入为 UTF-8 单个 JSON 对象，不接受 JSONL；顶层接受 `state`、非空 `questions` 和可选 `model`。CLI 补齐 model 后按 adapter 编译，保留输入类型、文本与候选顺序；OAI 结构化文本转换、题目映射及模态拒绝见[编译合同](protocol-adapters.md#文本与结构化输入)。请求不接受 assets、adapter、images 或连接配置。
 
 - `state` 为字符串、对象或数组；其中的路径与 URL 仅作数据，不触发文件读取或网络抓取。
-- 每题仅接受 `type`、`instructions`、`criteria`；必填前两项，`instructions` 为字符串、对象或数组。`type` 为 `choice`、`score` 或 `noul`，对应 criteria 如下。
+- 每题仅接受 `type`、`instructions`、`criteria`；必填前两项，`instructions` 为字符串、对象或数组。`type` 为 `choice`、`score`、`noul` 或 `box`，对应 criteria 如下。
 - JSON 最大嵌套 128 层；数值须有限、整数须安全且能按十进制值无损往返 JSON；拒绝下溢、负零与额外精度。需要精确数值时使用字符串。
 - 非法 UTF-8、非法 JSON、重复对象键、封闭字段集合中的未知字段、非法 state、空问题集合、非法题型或 criteria 均拒绝，错误定位字段路径；超出实现精度或范围的值拒绝而非改写。
 
@@ -99,6 +115,7 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json -
 | `choice` | 必填候选映射，1–255 个候选；候选值为字符串、对象、数组或 null |
 | `score` | 必填有序等级数组，2–10 个等级；等级为字符串、对象或数组 |
 | `noul` | 可省略；提供时为只含 `true`／`false` 的对象，两字段均可省略，条件为字符串、对象或数组 |
+| `box` | 不接受 criteria；须满足[模型／图片前置](protocol-adapters.md#jev-box) |
 
 双题示例：比较两份共同适用的规范，分别判断是否冲突、是否各有独有要求。以下为虚构的完整材料，两题共享 state；可保存为 JSON 后通过 `json --file` 发送：
 
@@ -142,7 +159,7 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json -
 
 ### `ask`：单题参数
 
-必填 `--type choice|score|noul` 与 `--question <text>`；`--id` 默认 `answer`，仅关联结果。
+必填 `--type choice|score|noul|box` 与 `--question <text>`；`--id` 默认 `answer`，仅关联结果。
 
 上下文恰选一种：`--text`、`--text-file` 形成字符串 state；`--state-json`、`--state-file` 按 JSON 解析并保留原生形状。解析模式由参数而非扩展名决定。
 
@@ -167,7 +184,7 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs ask --
   --question "是否明确请求回退版本？"
 ```
 
-Choice 重复 `--option key=description`，按第一个等号分隔，键唯一；Score 重复 `--level`，顺序即等级。不同题型的 criteria 参数不可混用。复杂 instructions、结构化 criteria、Noul 的 true／false 定义及多题使用 `json`。
+Choice 重复 `--option key=description`，按第一个等号分隔，键唯一；Score 重复 `--level`，顺序即等级。不同题型的 criteria 参数不可混用。Box 不接受 criteria；复杂 instructions、图片 state、结构化 criteria、Noul 的 true／false 定义及多题使用 `json`。
 
 ### `stats`：离线日志统计
 
@@ -179,12 +196,12 @@ Choice 重复 `--option key=description`，按第一个等号分隔，键唯一�
 
 | 参数 | 行为 |
 | --- | --- |
-| `--endpoint <URL>` | 覆盖本次完整 System One 地址，受连接规则约束 |
-| `--model <id>` | 覆盖本次 JEV 请求标识 |
+| `--endpoint <URL>` | 覆盖所选合同的本次完整地址；不切换合同或凭据，受连接规则约束 |
+| `--model <id>` | 覆盖本次所选合同的原生模型标识 |
 | `--timeout-ms <positive-integer>` | 1–2147483647 毫秒，从发送到完整响应的本次等待上限 |
 | `--run-id <id>` / `--run-index <n>` | 仅 json／ask，成对提供的本地批次 ID／从 1 开始的顺序；留存与校验见[本地元数据](statistics.md#记录本地批次与标签) |
 | `--tag key=value` | 可重复的本地标签；留存与校验见[本地元数据](statistics.md#记录本地批次与标签) |
-| `--dry-run` | 仅用于 `json`／`ask`：解析配置与输入、补齐 model、本地校验，输出 endpoint 与最终请求；不读取环境密钥、不要求密钥存在、不联网或建库 |
+| `--dry-run` | 仅用于 `json`／`ask`：解析配置与输入、补齐 model、本地校验，输出所选合同、endpoint、最终 wire 请求及非秘密 header；不读取环境密钥、不要求密钥存在、不联网或建库 |
 | `--help` | 展示命令、配置来源、离线示例和退出语义，不读取配置、输入或凭据，不联网 |
 
 例如 `node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json --file /absolute/path/request.json --dry-run`。预览仍读取并校验选中的配置文件，包括其中可选的 apiKey，但不将密钥放入输出；输出含待发正文。长文本与敏感材料优先通过文件或 stdin 输入，输出按数据权限处理，避免命令历史和公共日志泄露。
@@ -202,18 +219,35 @@ Choice 重复 `--option key=description`，按第一个等号分隔，键唯一�
     "model": "typesafe/jev-1.13-20260917",
     "answers": { "answer": { "type": "noul", "noul": 0.03 } }
   },
+  "normalized": {
+    "version": "1",
+    "adapterContract": "openrouter-systemone/v1",
+    "model": "typesafe/jev-1.13-20260917",
+    "completion": "complete",
+    "answers": { "answer": { "status": "answered", "type": "noul", "noul": 0.03 } }
+  },
   "meta": { "requestModel": "typesafe/jev-1.13", "elapsedMs": 350, "attempts": 1 },
   "error": null
 }
 ```
 
 - `result` 保留完整有效响应：实际 model、answers、各原语的概率／confidence／legend，以及服务端提供的 usage、id、provider。缺失的字段、费用、解释或 confidence 不予补造。
-- `meta.elapsedMs` 为本次客户端请求耗时，`attempts` 为实际发送次数。
+- 顶层 `normalized` 为统一结果，结构与拒答见[原答与采用](protocol-adapters.md#原答统一结果与采用)；`openai-decisions` 的原生 `result.answers` 为数组，不能套用 JEV map shape；OpenRouter 指定 OpenAI 路由仍按自己的 answers map 合同处理。
+- `meta.elapsedMs` 为发送前开始计时，至原生校验／统一结果或失败处理完成、最终日志 finish 前冻结的耗时；日志与输出共用，不含输入编译、最终落盘或 stdout。`attempts` 为实际发送次数。
 - 推理进入日志写入阶段后，`meta.persistence.status` 为 `recorded` 或 `failed`，表示本次持久化是否完整成功；有调用记录时用 `callId` 关联数据库。存储失败的退出与结果保留规则见下方。
-- `stats` 的 result 为[只读统计](statistics.md#输出与统计口径)，attempts 为 0，不带 `meta.persistence`。`doctor` 的 result 为配置诊断；`--dry-run` 的 result 为 `{ "endpoint": ..., "request": ... }`。二者 attempts 为 0，不含 answers。
-- 否定、`unclear` 或低 confidence 仍是有效结果；`ok` 只代表调用有效，业务采用与语义正确性由 agent 复核。
+- 否定、`unclear`、低 confidence 与直接 `openai-decisions` 的合法混合／全拒答仍可为有效结果；OR 指定 OpenAI 路由不继承该拒答合同。`ok` 只代表调用有效，业务采用与语义正确性由 agent 复核。
 
-有效响应须满足：
+本地命令的 `meta.attempts` 均为 0，不含推理答案；按命令读取 `result`：
+
+| 命令 | `result` 与留存状态 |
+| --- | --- |
+| `doctor` | 本地配置与凭据前置诊断，不输出凭据值 |
+| `json/ask --dry-run` | `{endpoint,adapterContract,request,headers,manifest}`；`request` 是实际 wire，`headers` 仅含非秘密实验头 |
+| `stats` | [只读统计](statistics.md#输出与统计口径)，不带 `meta.persistence` |
+
+预览的 `manifest` 包含 renderer、题目 ID／ordinal／type／可选 wire name、图片 path／reference／scope／width／height／bytes 及 longContext，不含凭据。wire 和 manifest 中的输入材料仍受正文权限约束。
+
+原生响应先由所选 adapter 校验，再生成 normalized。直接 `openai-decisions` 按数组顺序和不透明题名关联，predicate／choice／score／refusal 分流，概率按 value 关联而非按返回顺序配对。下列为 state/questions answers map 合同的校验基线：
 
 1. 可解析且 model 可识别；答案 ID 集合与请求一致，type 对应问题。
 2. Noul 为有限 0–1 数值；Choice 选中项与概率键对应候选；Score 范围、概率键和 legend 对应等级。
@@ -221,7 +255,7 @@ Choice 重复 `--option key=description`，按第一个等号分隔，键唯一�
 
 CLI 只校验响应 schema 及其与请求的对应关系，不校验概率总和、`choice` 是否为最大概率项或 `score` 是否等于概率加权结果。`score`、`choice`、`probabilities` 和 `confidence` 均原样保留，不重算、归一化或补造；schema 有效不证明模型判断正确。
 
-Score legend 键须为 `"0"` 至 `"n-1"`，值须为字符串；字符串等级精确对应，结构化等级只检查键与值类型。
+Score legend 键须为 `"0"` 至 `"n-1"`；字符串等级精确对应，结构化等级匹配与原值保留规则由[原答与统一结果合同](protocol-adapters.md#原答统一结果与采用)承接。
 
 违反上述条件返回 `invalid_response`；不通过改选、归一化或重发制造有效答案。
 
@@ -229,7 +263,7 @@ Score legend 键须为 `"0"` 至 `"n-1"`，值须为字符串；字符串等级�
 
 ## 技术失败
 
-推理／前置失败返回 `ok: false`、`result: null`。日志写入失败另按退出 4 处理，不丢弃已经获得的有效服务结果。以下为虚构响应：
+推理／前置失败返回 `ok: false`、`result: null`，不提供可采用的 normalized。日志写入失败另按退出 4 处理，不丢弃已经获得的有效服务结果。以下为虚构响应：
 
 ```json
 {
@@ -266,4 +300,4 @@ Score legend 键须为 `"0"` 至 `"n-1"`，值须为字符串；字符串等级�
 
 日志状态仅证明其已提交内容，故障后的可恢复范围按[调用日志](call-logging.md#恢复与只读核对)核对。后续调用、数据保留策略、统计解读和业务动作仍由调用方负责。
 
-维护接口或核对兼容性时查 [System One 兼容通道](https://openrouter.ai/docs/guides/community/typesafe-sdk)、[API reference](https://docs.typesafe.ai/api) 与 [Primitives](https://docs.typesafe.ai/primitives)，并分别核对当前通道支持与实际响应。
+维护接口或核对兼容性时，分别核对所选 adapter 的专用协议；JEV 查 [System One 兼容通道](https://openrouter.ai/docs/guides/community/typesafe-sdk)、[API reference](https://docs.typesafe.ai/api) 与 [Primitives](https://docs.typesafe.ai/primitives)，并分别核对当前通道支持与实际响应。

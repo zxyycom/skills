@@ -39,6 +39,23 @@ function sameKeys(
   );
 }
 
+// Object member order is representation, not legend value identity. Neither
+// request nor response objects are reordered while comparing their own data keys.
+function equivalentJson(left: JsonValue, right: JsonValue): boolean {
+  if (left === right) return true;
+  if (Array.isArray(left)) {
+    if (!Array.isArray(right)) return false;
+    if (left.length !== right.length) return false;
+    return left.every((item, index) => equivalentJson(item, right[index]));
+  }
+  if (!record(left) || !record(right)) return false;
+  const keys = Object.keys(left);
+  return (
+    sameKeys(right, keys) &&
+    keys.every((key) => equivalentJson(left[key], right[key]))
+  );
+}
+
 function distributionEntries(keys: readonly string[]) {
   const probability = probabilitySchema("概率须为 0–1 有限数值");
   return {
@@ -90,18 +107,23 @@ function scoreResponseSchema(question: Extract<Question, { type: "score" }>) {
         v.maxValue(keys.length - 1, "score 超出等级范围")
       ),
       legend: v.pipe(
-        v.custom<Readonly<Record<string, string>>>(
+        v.custom<Readonly<Record<string, JsonValue>>>(
           (value) =>
             record(value) &&
-            Object.values(value).every((item) => typeof item === "string"),
-          "需要字符串 legend 映射"
+            Object.values(value).every(
+              (item) =>
+                typeof item === "string" || record(item) || Array.isArray(item)
+            ),
+          "需要字符串或结构化 legend 映射"
         ),
         v.check((value) => sameKeys(value, keys), "legend 键不匹配"),
         v.check(
           (value) =>
-            question.criteria.every(
-              (level, index) =>
-                typeof level !== "string" || value[String(index)] === level
+            question.criteria.every((level, index) =>
+              typeof level === "string"
+                ? value[String(index)] === level
+                : typeof value[String(index)] === "string" ||
+                  equivalentJson(value[String(index)], level)
             ),
           "legend 与字符串等级不对应"
         )
@@ -111,8 +133,35 @@ function scoreResponseSchema(question: Extract<Question, { type: "score" }>) {
   );
 }
 
+function boxResponseSchema() {
+  return protocolObject(
+    {
+      type: v.literal("box", "答案 type 不匹配"),
+      confidence: probabilitySchema("confidence 须为 0–1 有限数值"),
+      box: v.pipe(
+        protocolObject(
+          {
+            top: probabilitySchema("box 坐标须为 0–1 有限数值"),
+            bottom: probabilitySchema("box 坐标须为 0–1 有限数值"),
+            left: probabilitySchema("box 坐标须为 0–1 有限数值"),
+            right: probabilitySchema("box 坐标须为 0–1 有限数值")
+          },
+          "需要 box 坐标对象"
+        ),
+        v.check(
+          (box) => box.left < box.right && box.top < box.bottom,
+          "box 须为非退化正向框"
+        )
+      )
+    },
+    "需要答案对象"
+  );
+}
+
 function answerSchema(question: Question) {
   switch (question.type) {
+    case "box":
+      return boxResponseSchema();
     case "noul":
       return protocolObject(
         {
@@ -172,7 +221,7 @@ function validateSchema<Schema extends v.GenericSchema>(
   return parsed.output;
 }
 
-function parseResponse(text: string): JsonValue {
+export function parseResponse(text: string): JsonValue {
   try {
     return parseJson(text, "invalid_response", "response");
   } catch (error) {
@@ -188,7 +237,25 @@ function validateResponseObject(
   raw: JsonValue,
   request: Request
 ): asserts raw is ValidatedResponse {
-  const { answers } = validateSchema(responseSchema, raw, "response");
+  const schema =
+    request.model === "openai/gpt-6-luna-decisions"
+      ? protocolObject(
+          {
+            model: v.pipe(
+              v.string(),
+              v.regex(
+                /^openai\/gpt-6-luna(?:-decisions)?(?:-[A-Za-z0-9._-]+)?$/u
+              )
+            ),
+            answers: v.custom<Readonly<Record<string, unknown>>>(
+              record,
+              "需要答案映射"
+            )
+          },
+          "需要响应对象"
+        )
+      : responseSchema;
+  const { answers } = validateSchema(schema, raw, "response");
   if (!sameKeys(answers, Object.keys(request.questions))) {
     fail("invalid_response", "response.answers", "答案 ID 集合不匹配");
   }

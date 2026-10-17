@@ -699,6 +699,23 @@
       "IR-TRACE-FRONTIER-001": "sha256:c605bc45d5df9caf4a7a158ba7dfea7172d6bfa499a11d6bafb6f1fb0d0ff652",
       "IR-TRACE-RENDER-001": "sha256:407986a520d18dd6836dedca273b4f310be4b31ac038258ac9ff9a328738a3ec",
       "IR-TRACE-REUSE-001": "sha256:db36bf31402578857a5681cfbfaf88cecd09f801b781994ea23137990643c73d",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-001": "sha256:32fae873cb8d510905a7078f82ff2e0407c90de7185e8add4f38e4ea60041ff2",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-002": "sha256:1a88b30c1f33526ea7ee1de919542f6d1a64ffca934a23d5661e90e6eef62de9",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-003": "sha256:717834062b46a9358d640b846ccfb9cfcd289ba92d3cbe9eed327ffcaab20abd",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-004": "sha256:fc4c11e369ef07c9e7f945d885df9297642693043d3bc62070b32b49e5a3d228",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-005": "sha256:0629ef7b35fd13de5982714868eab14deffb1406d0b44ad37fc6972a705f5349",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-006": "sha256:d16ae9790ed667bb4c2814d4110231090ed32d7c555a806b5a568029ecbd2ed4",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-007": "sha256:0db4fa5a1ba583fbc2fb0316959f50606e6675e074a6aa9890aeec6d6ec17e26",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-008": "sha256:738f43e6c414ff63a2ce2c2762c05f7c5e8dd8fc4d45b25f7b4bf9291ae754a6",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-009": "sha256:0d2d180f299d7c0e4eef93bd2ac79d7964d485f086f8c773de913eaadaccc0e0",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-010": "sha256:b09d748148416be39a3aabbaef4244b26c20b5cc729ad9571d3889ffb41cf4a7",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-011": "sha256:b4b70e1762cc222df918d63efd2a823269b2586f50d981796e027c32d368946c",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-012": "sha256:f9ae377fba988deae713429999f48d0ce83aee5d112954601206ba02fb6d9395",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-013": "sha256:93bcb9acbc231826038226c3d91950452bcc096befaa56741ad29b9f4d7bc749",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-014": "sha256:710d0e557f5267a6f775c284eb1ad9cff36db90baa67758ba23bb1ca8f9988df",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-015": "sha256:61c3953f336ea3d8779c099fd2085638878223b4dcf59b1696a40ca36e8f4cd0",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-016": "sha256:dc5787e80284fc152b7c55699ef0f3ce43d1a554ad8d2b513e26a8bc94d9b196",
+      "LIGHTWEIGHT-JUDGMENT-ADAPTER-017": "sha256:d8de3e3bbb23f1b15869d68717c2466da3bafd6b2b58e687861dd2e619a68ae7",
       "LIGHTWEIGHT-JUDGMENT-CLI-001": "sha256:6deabc8f60e96044dba3a18f8a6c22f8bc360ccde63593157d56764ade83b58d",
       "LIGHTWEIGHT-JUDGMENT-CLI-002": "sha256:eb2f722f8a813e4e02bb88fb1b3e1d845fd19349c89a4cc7698aa4c1f71fc50a",
       "LIGHTWEIGHT-JUDGMENT-CLI-003": "sha256:4820e5e4d92b0c40842468ec83e5ec9d1ab54f44ea72b48be4bd87f2882ebc6c",
@@ -751,7 +768,7 @@
       "LIGHTWEIGHT-JUDGMENT-STATS-LEGACY-001": "sha256:79fd0e946e4dc148c7b4989ecdcf17c53efe0fdb5365540b9d7b91a0e56edabc",
       "LIGHTWEIGHT-JUDGMENT-STATS-METADATA-001": "sha256:8df348b37844bbcc7e385223b84ff9b3d3fb636edae3dfd15be3c02676921247",
       "LIGHTWEIGHT-JUDGMENT-STATS-METRICS-001": "sha256:39f38e39a030a5bf3e8358b00497a5adfad9afd62f4a672dba1e36c4b9b7d609",
-      "LIGHTWEIGHT-JUDGMENT-STATS-MIGRATION-001": "sha256:33af5eb493c2dacdffc8f99f3d393bea7905b3dcf22c98b50fad09639b56ed10",
+      "LIGHTWEIGHT-JUDGMENT-STATS-MIGRATION-001": "sha256:7a82fd5b6cf05cdde3c53858366ae3a6145d71ba8bec1a74c4c2e5dfd9472fed",
       "LIGHTWEIGHT-JUDGMENT-STATS-NULL-TAGS-001": "sha256:98465722f922eb856d6b4a51a1a372f4f41a9b32fc4c8e2b0d1d8590098ad747",
       "LIGHTWEIGHT-JUDGMENT-STATS-OFFLINE-001": "sha256:ed65fcb8a47991fbd8a19aafe2572e025d07566e652b09c61f38bb695cdb3b0e",
       "LIGHTWEIGHT-JUDGMENT-STATS-PARTIAL-001": "sha256:5e29261c5744a5cf062922ae5f2a6055f2405eee0ce9db8b9ca296272eae1919",
@@ -8202,6 +8219,176 @@
       ],
       "testIds": [
         "test:7a988e5ad0704d0ace22f584ac78434e7415c3d42286c98668b221148a666144"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-001": {
+      "title": "适配合同与凭据隔离",
+      "sourcePath": "cases/lightweight-judgment-adapter-config-isolation.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:87aa775692550a9a2ee8961603e06ba81cb2ec40f4bda9eed01aab5e71bceab3"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-002": {
+      "title": "JEV 载体编译与结构保真",
+      "sourcePath": "cases/lightweight-judgment-adapter-openai-carrier-mapping.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:2b2831ad651f6275c6d51403c5caa6231e9d8410f923e08d10f6e91f9f82c5c6"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-003": {
+      "title": "原生结果与统一结果分离",
+      "sourcePath": "cases/lightweight-judgment-adapter-openai-normalized.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:72154e44277f82278d1a5cbba20b4d040d9d59826ae264cec46378439bf831c2"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-004": {
+      "title": "OpenAI 答案关联与协议失败",
+      "sourcePath": "cases/lightweight-judgment-adapter-openai-response-validation.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:dc25c3de7e348af80ff562abb1f1d4b67340944a05548458e76235a21953c46f"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-005": {
+      "title": "图片识别与零发送门禁",
+      "sourcePath": "cases/lightweight-judgment-adapter-image-permission.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:aa38040efdcf5fb437f1dcb704e694fb228c5d51badef83c1c617b87e1e9f5b9"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-006": {
+      "title": "TypeSafe 资产与 OR 长上下文",
+      "sourcePath": "cases/lightweight-judgment-adapter-image-native-wire.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:6df3087ce1a65b5939ac880e8961f9f4bf64aa2c5dc34edd95deea56e1514ba0"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-007": {
+      "title": "OpenAI 图像作用域与容量门禁",
+      "sourcePath": "cases/lightweight-judgment-adapter-openai-image-scope.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:9e26b02cd2ba011a704a134fc75a6c3ab682d5221318d12dc7bb4926d49e2b3d"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-008": {
+      "title": "Box 与结构化等级响应",
+      "sourcePath": "cases/lightweight-judgment-adapter-box-structured-legend.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:b3b9635fb4788bacade618d6df4f5f5fda7bfa994ab8d85d0f9dfe37d3ee99ff"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-009": {
+      "title": "多协议日志留存与拒答成功",
+      "sourcePath": "cases/lightweight-judgment-adapter-log-retention.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:0fe646d23041eb16909483174d4bb710802661f79718c9800c128e6c8a8f24d4"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-010": {
+      "title": "显式 v2 到 v3 迁移与未知合同",
+      "sourcePath": "cases/lightweight-judgment-adapter-log-migration.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:49c66d26c6a0284455419ac9252a51d68ddc54ed652e7af264e1c73915d96f4f"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-011": {
+      "title": "独立 Node 原生协议传输",
+      "sourcePath": "cases/lightweight-judgment-adapter-standalone-http.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:5b451aeaf55a355c141606a36716fdd2ab189e570e6de1d059c28f06a0f3d1f6"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-012": {
+      "title": "选定合同的真实发送表示",
+      "sourcePath": "cases/lightweight-judgment-adapter-wire-credentials.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:aadb7ffd1303434b134a2287d021d63ca561e793f68f0a4ffda1ee8477951017"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-013": {
+      "title": "大图 Base64 的独立 Node 校验",
+      "sourcePath": "cases/lightweight-judgment-adapter-large-inline-png-node.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:c16b5bcc847f5966749c1a1b98aedce5f730432726d4fff2ee5e2e7f095aab3b"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-014": {
+      "title": "Base64 字母表与规范 padding",
+      "sourcePath": "cases/lightweight-judgment-adapter-canonical-base64-validation.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:0e1deb9d332f9d5e12983188a45ab66014ebbd36124b9b3b7921f4971271b93b"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-015": {
+      "title": "结构化 legend 对象值等价",
+      "sourcePath": "cases/lightweight-judgment-adapter-structured-legend-object-order.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:24c24b23d97fb52b14ce264b7465b9c2206ddeee1b0e74ea0573ec065daa0b27"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-016": {
+      "title": "结构化 legend 的数组与值边界",
+      "sourcePath": "cases/lightweight-judgment-adapter-structured-legend-value-mismatch.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:a47e5cf79d05321c586335162b4f27012dbde415780e2af7d725a7e45a05e82c"
+      ]
+    },
+    "LIGHTWEIGHT-JUDGMENT-ADAPTER-017": {
+      "title": "图片头部尺寸的领域含义",
+      "sourcePath": "cases/lightweight-judgment-adapter-image-dimensions.md",
+      "tags": [
+        "lightweight-judgment"
+      ],
+      "testIds": [
+        "test:09ea90ef28ebb19955f7a406a3dcaefbdf3ad71d3c38e2d1efc535a0b6cf4d76"
       ]
     },
     "LIGHTWEIGHT-JUDGMENT-CLI-001": {

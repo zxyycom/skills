@@ -516,6 +516,33 @@
       ],
       "title": "JEV 载体跨协议运行时：配置隔离、日志恢复与统计边界"
     },
+    "261017-openrouter-decision-live-protocols": {
+      "formedAt": "2026-10-17T03:37:06Z",
+      "name": "openrouter-decision-live-protocols",
+      "question": "当前 OpenRouter 的 legacy 与 alpha 实际接受哪些 Jev 输入、返回哪些结构，OpenAI Decisions 上游能否在当前账号验证？",
+      "relations": [
+        {
+          "summary": "以受权真实合成调用补充文档级接入边界",
+          "target": "261017-decision-model-multimodal-long-context-integration",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261017-openrouter-decision-live-protocols/blue-square.png",
+        "261017-openrouter-decision-live-protocols/cli-e2e-evidence.json",
+        "261017-openrouter-decision-live-protocols/evidence.json",
+        "261017-openrouter-decision-live-protocols/red-square.png"
+      ],
+      "sourcePath": "openrouter-decision-live-protocols.md",
+      "tags": [
+        "decision-models",
+        "lightweight-judgment",
+        "live-protocol",
+        "model-api",
+        "multimodal"
+      ],
+      "title": "OpenRouter Decisions 真实协议取证：Jev 图片、Box、结构化等级与有限长上下文"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -1189,6 +1216,7 @@
       "261017-decision-model-multimodal-long-context-integration": "sha256:d0ef103bfbbc3739a23153c50be7be642e57a2dca48165dd1d061edcee989275",
       "261017-jev-carrier-openai-decisions-mapping": "sha256:a4532d576333c29a51136d99fbb3cfd0fdee973ddce6265632b2cb6cd88dfddd",
       "261017-lightweight-judgment-multi-protocol-runtime-boundaries": "sha256:832411cf080a2703c050dcd8490c4d34d8d3f1a42d2af5c952375580052ff242",
+      "261017-openrouter-decision-live-protocols": "sha256:6c5b0fd11c69d628626288d378f221673c88cd7ec72f37b3ed2274361bb0e91b",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

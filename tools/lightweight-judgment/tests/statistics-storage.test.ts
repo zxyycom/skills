@@ -70,7 +70,7 @@ test("stats reads current summaries without exposing retained bodies or deriving
     });
     const before = fs.readFileSync(fixture.databasePath);
     const result = await fixture.stats();
-    assert.equal(result.schemaVersion, 2);
+    assert.equal(result.schemaVersion, 3);
     assert.equal(summary(result).calls, 1);
     assert.equal(metric(result, "inputTokens").sum, 7);
     assert.equal(metric(result, "outputTokens").sum, 0);
@@ -170,7 +170,7 @@ test("stats sees committed active WAL data and preserves a consistent transactio
     assert.deepEqual(fs.readFileSync(fixture.databasePath), before);
     assert.equal(
       fixture.database.prepare("PRAGMA user_version").get()?.user_version,
-      2
+      3
     );
     assert.equal(
       fixture.database.prepare("PRAGMA journal_mode").get()?.journal_mode,
@@ -210,7 +210,7 @@ test("current NULL tags never inherit prototype names during grouping", async ()
       }
       const result = await fixture.stats(flags);
       const groups = array(result.groups);
-      assert.equal(result.schemaVersion, 2);
+      assert.equal(result.schemaVersion, 3);
       assert.equal(groups.length, 1);
       assert.deepEqual(object(object(groups[0]).key), {
         "tag:constructor": null,

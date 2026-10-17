@@ -106,7 +106,7 @@ test("invalid protocol never repairs or retries and hides remote answer payloads
         probabilities: { "0": 0.2, "1": 0.8 }
       }),
       location: "response.answers[0].legend",
-      reason: "需要字符串 legend 映射"
+      reason: "需要字符串或结构化 legend 映射"
     },
     {
       question: noul,

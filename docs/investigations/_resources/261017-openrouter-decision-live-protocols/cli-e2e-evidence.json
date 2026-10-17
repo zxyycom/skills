@@ -1,0 +1,1830 @@
+{
+  "format": "one-off-public-cli-e2e-evidence/v1",
+  "checkedAt": "2026-10-17T03:48:04Z",
+  "entry": "bun run lightweight-judgment -- <arguments>",
+  "bundleSHA256": "7f87b3f63d449ee6e960f20ed001e99845e88d91fafb641734791156e908a18a",
+  "skillVersion": "9",
+  "handling": "Temporary configuration used apiKeyEnv only; key injected into child environment, never persisted. Only isolated SQLite used. Temporary configuration/database paths omitted from doctor/stats. Client script and DB not retained; rows checked read-only and summarized. All inference outputs are safe synthetic material; no HTTP403 retried.",
+  "realRequests": 3,
+  "checks": [
+    {
+      "name": "media",
+      "status": "succeeded",
+      "adapterContract": "openrouter-decisions/v1",
+      "carrierIsNull": true,
+      "wireMatchesCarrierWithModel": true,
+      "responseMatchesRaw": true,
+      "elapsedMatches": true,
+      "elapsedMs": 935,
+      "requestBytes": 13361,
+      "responseBytes": 5946
+    },
+    {
+      "name": "long",
+      "status": "succeeded",
+      "adapterContract": "openrouter-decisions/v1",
+      "carrierIsNull": true,
+      "wireMatchesCarrierWithModel": true,
+      "responseMatchesRaw": true,
+      "elapsedMatches": true,
+      "elapsedMs": 1658,
+      "requestBytes": 280301,
+      "responseBytes": 301
+    },
+    {
+      "name": "legacy",
+      "status": "succeeded",
+      "adapterContract": "openrouter-systemone/v1",
+      "carrierIsNull": true,
+      "wireMatchesCarrierWithModel": true,
+      "responseMatchesRaw": true,
+      "elapsedMatches": true,
+      "elapsedMs": 733,
+      "requestBytes": 615,
+      "responseBytes": 612
+    }
+  ],
+  "requestCount": 3,
+  "costSum": 0.001807092,
+  "inputTokens": 43026,
+  "outputTokens": 264,
+  "preflight": {
+    "doctor": {
+      "ok": true,
+      "result": {
+        "adapterContract": "openrouter-decisions/v1",
+        "images": true,
+        "longContext": true,
+        "endpoint": "https://openrouter.ai/api/alpha/decisions",
+        "model": "typesafe/jev-1.14",
+        "timeoutMs": 90000,
+        "apiKeyEnv": "OR_CLI_E2E_KEY",
+        "credentialSource": "environment",
+        "logging": {
+          "enabled": true,
+          "saveRequest": true,
+          "saveResponse": true
+        },
+        "hasApiKey": true,
+        "offline": true
+      },
+      "meta": {
+        "elapsedMs": 0,
+        "attempts": 0
+      },
+      "error": null
+    },
+    "preview": {
+      "ok": true,
+      "result": {
+        "endpoint": "https://openrouter.ai/api/alpha/decisions",
+        "adapterContract": "openrouter-decisions/v1",
+        "request": {
+          "state": {
+            "message": "Please roll back this release immediately now.",
+            "photo": {
+              "type": "image_url",
+              "image_url": {
+                "url": "data:image/png;base64,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"
+              }
+            }
+          },
+          "questions": {
+            "color": {
+              "type": "choice",
+              "instructions": "What color is the square in state.photo?",
+              "criteria": {
+                "red": "red",
+                "blue": "blue",
+                "green": "green"
+              }
+            },
+            "bounds": {
+              "type": "box",
+              "instructions": "the red square in state.photo"
+            },
+            "exists": {
+              "type": "noul",
+              "instructions": "There is a red square in state.photo."
+            },
+            "local_color": {
+              "type": "choice",
+              "instructions": [
+                "What color is the square in this question image?",
+                {
+                  "type": "image_url",
+                  "image_url": {
+                    "url": "data:image/png;base64,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"
+                  }
+                }
+              ],
+              "criteria": {
+                "red": "red",
+                "blue": "blue",
+                "green": "green"
+              }
+            },
+            "image_legend": {
+              "type": "score",
+              "instructions": [
+                "Select the level whose image matches the red square.",
+                {
+                  "type": "image_url",
+                  "image_url": {
+                    "url": "data:image/png;base64,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"
+                  }
+                }
+              ],
+              "criteria": [
+                {
+                  "name": "red-reference",
+                  "picture": {
+                    "type": "image_url",
+                    "image_url": {
+                      "url": "data:image/png;base64,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"
+                    }
+                  }
+                },
+                {
+                  "name": "blue-reference",
+                  "picture": {
+                    "type": "image_url",
+                    "image_url": {
+                      "url": "data:image/png;base64,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"
+                    }
+                  }
+                }
+              ]
+            },
+            "text_explicit": {
+              "type": "noul",
+              "instructions": "The message explicitly asks to roll back the release."
+            },
+            "text_urgency": {
+              "type": "score",
+              "instructions": "How urgent is the explicit request?",
+              "criteria": [
+                {
+                  "label": "routine",
+                  "details": [
+                    "No urgency stated"
+                  ]
+                },
+                {
+                  "label": "urgent",
+                  "details": [
+                    "As soon as possible"
+                  ]
+                },
+                {
+                  "label": "immediate",
+                  "details": [
+                    "Immediately now"
+                  ]
+                }
+              ]
+            }
+          },
+          "model": "typesafe/jev-1.14"
+        },
+        "headers": {},
+        "manifest": {
+          "renderer": "jev-carrier/v1",
+          "questions": [
+            {
+              "id": "color",
+              "ordinal": 0,
+              "type": "choice"
+            },
+            {
+              "id": "bounds",
+              "ordinal": 1,
+              "type": "box"
+            },
+            {
+              "id": "exists",
+              "ordinal": 2,
+              "type": "noul"
+            },
+            {
+              "id": "local_color",
+              "ordinal": 3,
+              "type": "choice"
+            },
+            {
+              "id": "image_legend",
+              "ordinal": 4,
+              "type": "score"
+            },
+            {
+              "id": "text_explicit",
+              "ordinal": 5,
+              "type": "noul"
+            },
+            {
+              "id": "text_urgency",
+              "ordinal": 6,
+              "type": "score"
+            }
+          ],
+          "images": [
+            {
+              "path": "$[\"state\"][\"photo\"]",
+              "reference": "e5f41909-9c1b-4a59-a780-239c0c9b636a",
+              "scope": "state",
+              "width": 320,
+              "height": 320,
+              "bytes": 1788
+            },
+            {
+              "path": "$[\"questions\"][\"local_color\"][\"instructions\"][1]",
+              "reference": "930be2e0-f511-4327-afc2-0c619aef5956",
+              "scope": "question",
+              "width": 320,
+              "height": 320,
+              "bytes": 1788
+            },
+            {
+              "path": "$[\"questions\"][\"image_legend\"][\"instructions\"][1]",
+              "reference": "a7ea5e69-a48b-4b3d-a462-670a0ef36d64",
+              "scope": "question",
+              "width": 320,
+              "height": 320,
+              "bytes": 1788
+            },
+            {
+              "path": "$[\"questions\"][\"image_legend\"][\"criteria\"][0][\"picture\"]",
+              "reference": "b222d9da-276d-4ef4-ac04-7c250d09ecd6",
+              "scope": "question",
+              "width": 320,
+              "height": 320,
+              "bytes": 1788
+            },
+            {
+              "path": "$[\"questions\"][\"image_legend\"][\"criteria\"][1][\"picture\"]",
+              "reference": "6d159e4b-17af-4d13-ab9a-58819c71669c",
+              "scope": "question",
+              "width": 320,
+              "height": 320,
+              "bytes": 1788
+            }
+          ],
+          "longContext": true
+        }
+      },
+      "meta": {
+        "requestModel": "typesafe/jev-1.14",
+        "elapsedMs": 0,
+        "attempts": 0,
+        "adapterContract": "openrouter-decisions/v1"
+      },
+      "error": null
+    },
+    "imagesDisabled": {
+      "ok": false,
+      "result": null,
+      "meta": {
+        "requestModel": "typesafe/jev-1.14",
+        "elapsedMs": 0,
+        "attempts": 0
+      },
+      "error": {
+        "kind": "input",
+        "message": "images: 发现图片节点；需要可信配置 images=true，关闭时不会原样透传",
+        "httpStatus": null
+      }
+    },
+    "imagesDisabledDatabaseAbsent": true
+  },
+  "inference": [
+    {
+      "name": "media",
+      "request": {
+        "state": {
+          "message": "Please roll back this release immediately now.",
+          "photo": {
+            "type": "image_url",
+            "image_url": {
+              "url": "data:image/png;base64,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"
+            }
+          }
+        },
+        "questions": {
+          "color": {
+            "type": "choice",
+            "instructions": "What color is the square in state.photo?",
+            "criteria": {
+              "red": "red",
+              "blue": "blue",
+              "green": "green"
+            }
+          },
+          "bounds": {
+            "type": "box",
+            "instructions": "the red square in state.photo"
+          },
+          "exists": {
+            "type": "noul",
+            "instructions": "There is a red square in state.photo."
+          },
+          "local_color": {
+            "type": "choice",
+            "instructions": [
+              "What color is the square in this question image?",
+              {
+                "type": "image_url",
+                "image_url": {
+                  "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAFACAIAAABC8jL9AAAGw0lEQVR4nO3TgQkDMAwEsey/dLtDwRj3JG6APDjvA5z1th8A/M4HhsN8YDjMB4bDfGA4zAeGw3xgOMwHhsN8YDjMB4bDfGA4zAeGw3xgOMwHhsN8YDjMB4bDfGA4zAeGw3xgOMwHhsN8YDjMB4bDfGA4zAeGw3xgOMwHhsN8YDjMB4bDfGA4zAeGw3xgOMwHhsN8YDjMB4bDfGA4zAeGw3xgOMwHhsN8YDjMB4bDfGA4zAeGw3xgOMwHhsN8YDjMB4bDfGA4zAeGw3xgOMwHhsN8YDjMB4bDfGA4zAeGw3xgOMwHhsN8YDjMB4bDfGA4zAeGw3xgOMwHhsN8YDjMB4bDfGA4zAeGw3xgOMwHhsN8YDjMB4bDfGA4zAeGw3xgOMwHhsN8YDjMB4bDfGA4zAeGw3xgOCz3gd/TP1eTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq8ktXr8wjVaTW7x+YRqtJrd4/cI0Wk1u8fqFabSa3OL1C9NoNbnF6xem0Wpyi9cvTKPV5BavX5hGq+kthj/iA8NhPjAc5gPDYT4wHOYDw2E+MBzmA8NhPjAc5gPDYT4wHOYDw2E+MBzmA8NhPjAc5gPDYT4wHOYDw2E+MBzmA8NhPjAc5gPDYT4wHOYDw2E+MBzmA8NhPjAc5gPDYT4wHOYDw2E+MBzmA8NhPjAc5gPDYT4wHOYDw2E+MBzmA8NhPjAc5gPDYT4wHOYDw2E+MBzmA8NhPjAc5gPDYT4wHOYDw2E+MBzmA8NhPjAc5gPDYT4wHOYDw2E+MBzmA8NhPjAc5gPDYT4wHOYDw2E+MBzmA8NhPjAc5gPDYT4wHOYDw2E+MBzmA8NhPjAc5gPDYT4wHOYDw2E+MBzmA8NhPjAc5gPDYT4wHOYDw2E+MBzmA8NhX3xJUl1yr+g9AAAAAElFTkSuQmCC"
+                }
+              }
+            ],
+            "criteria": {
+              "red": "red",
+              "blue": "blue",
+              "green": "green"
+            }
+          },
+          "image_legend": {
+            "type": "score",
+            "instructions": [
+              "Select the level whose image matches the red square.",
+              {
+                "type": "image_url",
+                "image_url": {
+                  "url": "data:image/png;base64,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"
+                }
+              }
+            ],
+            "criteria": [
+              {
+                "name": "red-reference",
+                "picture": {
+                  "type": "image_url",
+                  "image_url": {
+                    "url": "data:image/png;base64,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"
+                  }
+                }
+              },
+              {
+                "name": "blue-reference",
+                "picture": {
+                  "type": "image_url",
+                  "image_url": {
+                    "url": "data:image/png;base64,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"
+                  }
+                }
+              }
+            ]
+          },
+          "text_explicit": {
+            "type": "noul",
+            "instructions": "The message explicitly asks to roll back the release."
+          },
+          "text_urgency": {
+            "type": "score",
+            "instructions": "How urgent is the explicit request?",
+            "criteria": [
+              {
+                "label": "routine",
+                "details": [
+                  "No urgency stated"
+                ]
+              },
+              {
+                "label": "urgent",
+                "details": [
+                  "As soon as possible"
+                ]
+              },
+              {
+                "label": "immediate",
+                "details": [
+                  "Immediately now"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "output": {
+        "ok": true,
+        "result": {
+          "model": "typesafe/jev-1.14-20261014",
+          "answers": {
+            "color": {
+              "type": "choice",
+              "choice": "red",
+              "probabilities": {
+                "red": 1,
+                "blue": 0,
+                "green": 0
+              },
+              "confidence": 1
+            },
+            "bounds": {
+              "type": "box",
+              "box": {
+                "top": 0.1,
+                "bottom": 0.96,
+                "left": 0.19,
+                "right": 0.59
+              },
+              "confidence": 0.19
+            },
+            "exists": {
+              "type": "noul",
+              "noul": 0.99
+            },
+            "local_color": {
+              "type": "choice",
+              "choice": "blue",
+              "probabilities": {
+                "red": 0.3,
+                "blue": 0.7,
+                "green": 0
+              },
+              "confidence": 0.55
+            },
+            "image_legend": {
+              "type": "score",
+              "score": 0.01,
+              "legend": {
+                "0": {
+                  "name": "red-reference",
+                  "picture": {
+                    "type": "image_url",
+                    "image_url": {
+                      "url": "data:image/png;base64,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"
+                    }
+                  }
+                },
+                "1": {
+                  "name": "blue-reference",
+                  "picture": {
+                    "type": "image_url",
+                    "image_url": {
+                      "url": "data:image/png;base64,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"
+                    }
+                  }
+                }
+              },
+              "probabilities": {
+                "0": 0.99,
+                "1": 0.01
+              },
+              "confidence": 0.98
+            },
+            "text_explicit": {
+              "type": "noul",
+              "noul": 0.99
+            },
+            "text_urgency": {
+              "type": "score",
+              "score": 2,
+              "legend": {
+                "0": {
+                  "label": "routine",
+                  "details": [
+                    "No urgency stated"
+                  ]
+                },
+                "1": {
+                  "label": "urgent",
+                  "details": [
+                    "As soon as possible"
+                  ]
+                },
+                "2": {
+                  "label": "immediate",
+                  "details": [
+                    "Immediately now"
+                  ]
+                }
+              },
+              "probabilities": {
+                "0": 0,
+                "1": 0,
+                "2": 1
+              },
+              "confidence": 1
+            }
+          },
+          "usage": {
+            "input_tokens": 2224,
+            "output_tokens": 156,
+            "cost": 0.000093408
+          },
+          "id": "gen-dec-1792208889-w1UwiZghDDKbWidCY176",
+          "provider": "TypeSafe"
+        },
+        "normalized": {
+          "version": "1",
+          "adapterContract": "openrouter-decisions/v1",
+          "model": "typesafe/jev-1.14-20261014",
+          "completion": "complete",
+          "answers": {
+            "color": {
+              "status": "answered",
+              "type": "choice",
+              "choice": "red",
+              "probabilities": {
+                "red": 1,
+                "blue": 0,
+                "green": 0
+              },
+              "confidence": 1
+            },
+            "bounds": {
+              "status": "answered",
+              "type": "box",
+              "box": {
+                "top": 0.1,
+                "bottom": 0.96,
+                "left": 0.19,
+                "right": 0.59
+              },
+              "confidence": 0.19
+            },
+            "exists": {
+              "status": "answered",
+              "type": "noul",
+              "noul": 0.99
+            },
+            "local_color": {
+              "status": "answered",
+              "type": "choice",
+              "choice": "blue",
+              "probabilities": {
+                "red": 0.3,
+                "blue": 0.7,
+                "green": 0
+              },
+              "confidence": 0.55
+            },
+            "image_legend": {
+              "status": "answered",
+              "type": "score",
+              "score": 0.01,
+              "probabilities": {
+                "0": 0.99,
+                "1": 0.01
+              },
+              "confidence": 0.98,
+              "legend": {
+                "0": {
+                  "name": "red-reference",
+                  "picture": {
+                    "type": "image_url",
+                    "image_url": {
+                      "url": "data:image/png;base64,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"
+                    }
+                  }
+                },
+                "1": {
+                  "name": "blue-reference",
+                  "picture": {
+                    "type": "image_url",
+                    "image_url": {
+                      "url": "data:image/png;base64,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"
+                    }
+                  }
+                }
+              },
+              "requestRubric": [
+                {
+                  "name": "red-reference",
+                  "picture": {
+                    "type": "image_url",
+                    "image_url": {
+                      "url": "data:image/png;base64,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"
+                    }
+                  }
+                },
+                {
+                  "name": "blue-reference",
+                  "picture": {
+                    "type": "image_url",
+                    "image_url": {
+                      "url": "data:image/png;base64,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"
+                    }
+                  }
+                }
+              ]
+            },
+            "text_explicit": {
+              "status": "answered",
+              "type": "noul",
+              "noul": 0.99
+            },
+            "text_urgency": {
+              "status": "answered",
+              "type": "score",
+              "score": 2,
+              "probabilities": {
+                "0": 0,
+                "1": 0,
+                "2": 1
+              },
+              "confidence": 1,
+              "legend": {
+                "0": {
+                  "label": "routine",
+                  "details": [
+                    "No urgency stated"
+                  ]
+                },
+                "1": {
+                  "label": "urgent",
+                  "details": [
+                    "As soon as possible"
+                  ]
+                },
+                "2": {
+                  "label": "immediate",
+                  "details": [
+                    "Immediately now"
+                  ]
+                }
+              },
+              "requestRubric": [
+                {
+                  "label": "routine",
+                  "details": [
+                    "No urgency stated"
+                  ]
+                },
+                {
+                  "label": "urgent",
+                  "details": [
+                    "As soon as possible"
+                  ]
+                },
+                {
+                  "label": "immediate",
+                  "details": [
+                    "Immediately now"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "meta": {
+          "requestModel": "typesafe/jev-1.14",
+          "elapsedMs": 935,
+          "attempts": 1,
+          "adapterContract": "openrouter-decisions/v1",
+          "persistence": {
+            "callId": "b47cee5d-ffb0-41ec-bad4-fe714b1715f2",
+            "status": "recorded"
+          }
+        },
+        "error": null
+      }
+    },
+    {
+      "name": "long",
+      "requestRecipe": "Same carrier as initial direct HTTP evidence record 08 (40000 repetitions of filler and end marker); model from configuration typesafe/jev-1.14.",
+      "output": {
+        "ok": true,
+        "result": {
+          "model": "typesafe/jev-1.14-20261014",
+          "answers": {
+            "marker": {
+              "type": "choice",
+              "choice": "correct",
+              "probabilities": {
+                "correct": 1,
+                "wrong": 0,
+                "missing": 0
+              },
+              "confidence": 1
+            }
+          },
+          "usage": {
+            "input_tokens": 40358,
+            "output_tokens": 38,
+            "cost": 0.001695036
+          },
+          "id": "gen-dec-1792208890-USjMyPpOON6dsWTuqt12",
+          "provider": "TypeSafe"
+        },
+        "normalized": {
+          "version": "1",
+          "adapterContract": "openrouter-decisions/v1",
+          "model": "typesafe/jev-1.14-20261014",
+          "completion": "complete",
+          "answers": {
+            "marker": {
+              "status": "answered",
+              "type": "choice",
+              "choice": "correct",
+              "probabilities": {
+                "correct": 1,
+                "wrong": 0,
+                "missing": 0
+              },
+              "confidence": 1
+            }
+          }
+        },
+        "meta": {
+          "requestModel": "typesafe/jev-1.14",
+          "elapsedMs": 1658,
+          "attempts": 1,
+          "adapterContract": "openrouter-decisions/v1",
+          "persistence": {
+            "callId": "39a5d6aa-72e6-4414-8cc1-da9e62dcb9b9",
+            "status": "recorded"
+          }
+        },
+        "error": null
+      }
+    },
+    {
+      "name": "legacy",
+      "request": {
+        "state": "Please roll back this release immediately now.",
+        "questions": {
+          "exists": {
+            "type": "noul",
+            "instructions": "The message explicitly asks to roll back the release."
+          },
+          "category": {
+            "type": "choice",
+            "instructions": "Classify the explicit request.",
+            "criteria": {
+              "rollback": "Roll back a release",
+              "new_feature": "Add a feature",
+              "other": "Other"
+            }
+          },
+          "urgency": {
+            "type": "score",
+            "instructions": "How urgent is the explicit request?",
+            "criteria": [
+              {
+                "label": "routine",
+                "details": [
+                  "No urgency stated"
+                ]
+              },
+              {
+                "label": "urgent",
+                "details": [
+                  "As soon as possible"
+                ]
+              },
+              {
+                "label": "immediate",
+                "details": [
+                  "Immediately now"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "output": {
+        "ok": true,
+        "result": {
+          "model": "typesafe/jev-1.14-20261014",
+          "answers": {
+            "exists": {
+              "type": "noul",
+              "noul": 0.99
+            },
+            "category": {
+              "type": "choice",
+              "choice": "rollback",
+              "probabilities": {
+                "rollback": 1,
+                "new_feature": 0,
+                "other": 0
+              },
+              "confidence": 1
+            },
+            "urgency": {
+              "type": "score",
+              "score": 2,
+              "legend": {
+                "0": {
+                  "label": "routine",
+                  "details": [
+                    "No urgency stated"
+                  ]
+                },
+                "1": {
+                  "label": "urgent",
+                  "details": [
+                    "As soon as possible"
+                  ]
+                },
+                "2": {
+                  "label": "immediate",
+                  "details": [
+                    "Immediately now"
+                  ]
+                }
+              },
+              "probabilities": {
+                "0": 0,
+                "1": 0,
+                "2": 1
+              },
+              "confidence": 1
+            }
+          },
+          "usage": {
+            "input_tokens": 444,
+            "output_tokens": 70,
+            "cost": 0.000018648
+          },
+          "id": "gen-dec-1792208891-eJJEy6Xyw4UmU8o734YE",
+          "provider": "TypeSafe"
+        },
+        "normalized": {
+          "version": "1",
+          "adapterContract": "openrouter-systemone/v1",
+          "model": "typesafe/jev-1.14-20261014",
+          "completion": "complete",
+          "answers": {
+            "exists": {
+              "status": "answered",
+              "type": "noul",
+              "noul": 0.99
+            },
+            "category": {
+              "status": "answered",
+              "type": "choice",
+              "choice": "rollback",
+              "probabilities": {
+                "rollback": 1,
+                "new_feature": 0,
+                "other": 0
+              },
+              "confidence": 1
+            },
+            "urgency": {
+              "status": "answered",
+              "type": "score",
+              "score": 2,
+              "probabilities": {
+                "0": 0,
+                "1": 0,
+                "2": 1
+              },
+              "confidence": 1,
+              "legend": {
+                "0": {
+                  "label": "routine",
+                  "details": [
+                    "No urgency stated"
+                  ]
+                },
+                "1": {
+                  "label": "urgent",
+                  "details": [
+                    "As soon as possible"
+                  ]
+                },
+                "2": {
+                  "label": "immediate",
+                  "details": [
+                    "Immediately now"
+                  ]
+                }
+              },
+              "requestRubric": [
+                {
+                  "label": "routine",
+                  "details": [
+                    "No urgency stated"
+                  ]
+                },
+                {
+                  "label": "urgent",
+                  "details": [
+                    "As soon as possible"
+                  ]
+                },
+                {
+                  "label": "immediate",
+                  "details": [
+                    "Immediately now"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "meta": {
+          "requestModel": "typesafe/jev-1.14",
+          "elapsedMs": 733,
+          "attempts": 1,
+          "adapterContract": "openrouter-systemone/v1",
+          "persistence": {
+            "callId": "53705b7e-12f6-464e-bfd9-cd126a9c3731",
+            "status": "recorded"
+          }
+        },
+        "error": null
+      }
+    }
+  ],
+  "stats": {
+    "ok": true,
+    "result": {
+      "schemaVersion": 3,
+      "method": {
+        "snapshot": "single-read-transaction",
+        "time": "UTC-started-at-[from,to)",
+        "quantiles": "nearest-rank-ceil(p/100*n)",
+        "elapsed": "client-send-through-full-response-and-validation-excluding-log-finish;not-TTFT-or-process-wall-time",
+        "repetitions": "retained",
+        "tokens": "request-level-service-reported-null-not-zero",
+        "cost": "service-reported-endpoint-isolated-unspecified-unit",
+        "batchOrder": "caller-provided-index-not-inferred-send-order-or-cold-start",
+        "maxRows": 100000
+      },
+      "filters": {
+        "tags": {}
+      },
+      "percentiles": [
+        50,
+        90,
+        95,
+        99
+      ],
+      "groupBy": [
+        "adapterContract"
+      ],
+      "summary": {
+        "calls": 3,
+        "statuses": {
+          "started": 0,
+          "response_received": 0,
+          "succeeded": 3,
+          "failed": 0,
+          "indeterminate": 0
+        },
+        "errors": [],
+        "unfinished": 0,
+        "metrics": {
+          "elapsedMs": {
+            "count": 3,
+            "missing": 0,
+            "sum": 3326,
+            "mean": 1108.6666666666667,
+            "min": 733,
+            "max": 1658,
+            "percentiles": {
+              "50": 935,
+              "90": 1658,
+              "95": 1658,
+              "99": 1658
+            }
+          },
+          "inputTokens": {
+            "count": 3,
+            "missing": 0,
+            "sum": 43026,
+            "mean": 14342,
+            "min": 444,
+            "max": 40358,
+            "percentiles": {
+              "50": 2224,
+              "90": 40358,
+              "95": 40358,
+              "99": 40358
+            }
+          },
+          "outputTokens": {
+            "count": 3,
+            "missing": 0,
+            "sum": 264,
+            "mean": 88,
+            "min": 38,
+            "max": 156,
+            "percentiles": {
+              "50": 70,
+              "90": 156,
+              "95": 156,
+              "99": 156
+            }
+          },
+          "requestBytes": {
+            "count": 3,
+            "missing": 0,
+            "sum": 294277,
+            "mean": 98092.33333333333,
+            "min": 615,
+            "max": 280301,
+            "percentiles": {
+              "50": 13361,
+              "90": 280301,
+              "95": 280301,
+              "99": 280301
+            }
+          },
+          "responseBytes": {
+            "count": 3,
+            "missing": 0,
+            "sum": 6859,
+            "mean": 2286.3333333333335,
+            "min": 301,
+            "max": 5946,
+            "percentiles": {
+              "50": 612,
+              "90": 5946,
+              "95": 5946,
+              "99": 5946
+            }
+          },
+          "questionCount": {
+            "count": 3,
+            "missing": 0,
+            "sum": 11,
+            "mean": 3.6666666666666665,
+            "min": 1,
+            "max": 7,
+            "percentiles": {
+              "50": 3,
+              "90": 7,
+              "95": 7,
+              "99": 7
+            }
+          }
+        },
+        "reportedCostByEndpoint": [
+          {
+            "endpoint": "https://openrouter.ai/api/alpha/decisions",
+            "unit": "service-reported-unspecified",
+            "distribution": {
+              "count": 2,
+              "missing": 0,
+              "sum": 0.001788444,
+              "mean": 0.000894222,
+              "min": 0.000093408,
+              "max": 0.001695036,
+              "percentiles": {
+                "50": 0.000093408,
+                "90": 0.001695036,
+                "95": 0.001695036,
+                "99": 0.001695036
+              }
+            }
+          },
+          {
+            "endpoint": "https://openrouter.ai/api/v1/systemone",
+            "unit": "service-reported-unspecified",
+            "distribution": {
+              "count": 1,
+              "missing": 0,
+              "sum": 0.000018648,
+              "mean": 0.000018648,
+              "min": 0.000018648,
+              "max": 0.000018648,
+              "percentiles": {
+                "50": 0.000018648,
+                "90": 0.000018648,
+                "95": 0.000018648,
+                "99": 0.000018648
+              }
+            }
+          }
+        ],
+        "buckets": []
+      },
+      "groups": [
+        {
+          "key": {
+            "adapterContract": "openrouter-decisions/v1"
+          },
+          "summary": {
+            "calls": 2,
+            "statuses": {
+              "started": 0,
+              "response_received": 0,
+              "succeeded": 2,
+              "failed": 0,
+              "indeterminate": 0
+            },
+            "errors": [],
+            "unfinished": 0,
+            "metrics": {
+              "elapsedMs": {
+                "count": 2,
+                "missing": 0,
+                "sum": 2593,
+                "mean": 1296.5,
+                "min": 935,
+                "max": 1658,
+                "percentiles": {
+                  "50": 935,
+                  "90": 1658,
+                  "95": 1658,
+                  "99": 1658
+                }
+              },
+              "inputTokens": {
+                "count": 2,
+                "missing": 0,
+                "sum": 42582,
+                "mean": 21291,
+                "min": 2224,
+                "max": 40358,
+                "percentiles": {
+                  "50": 2224,
+                  "90": 40358,
+                  "95": 40358,
+                  "99": 40358
+                }
+              },
+              "outputTokens": {
+                "count": 2,
+                "missing": 0,
+                "sum": 194,
+                "mean": 97,
+                "min": 38,
+                "max": 156,
+                "percentiles": {
+                  "50": 38,
+                  "90": 156,
+                  "95": 156,
+                  "99": 156
+                }
+              },
+              "requestBytes": {
+                "count": 2,
+                "missing": 0,
+                "sum": 293662,
+                "mean": 146831,
+                "min": 13361,
+                "max": 280301,
+                "percentiles": {
+                  "50": 13361,
+                  "90": 280301,
+                  "95": 280301,
+                  "99": 280301
+                }
+              },
+              "responseBytes": {
+                "count": 2,
+                "missing": 0,
+                "sum": 6247,
+                "mean": 3123.5,
+                "min": 301,
+                "max": 5946,
+                "percentiles": {
+                  "50": 301,
+                  "90": 5946,
+                  "95": 5946,
+                  "99": 5946
+                }
+              },
+              "questionCount": {
+                "count": 2,
+                "missing": 0,
+                "sum": 8,
+                "mean": 4,
+                "min": 1,
+                "max": 7,
+                "percentiles": {
+                  "50": 1,
+                  "90": 7,
+                  "95": 7,
+                  "99": 7
+                }
+              }
+            },
+            "reportedCostByEndpoint": [
+              {
+                "endpoint": "https://openrouter.ai/api/alpha/decisions",
+                "unit": "service-reported-unspecified",
+                "distribution": {
+                  "count": 2,
+                  "missing": 0,
+                  "sum": 0.001788444,
+                  "mean": 0.000894222,
+                  "min": 0.000093408,
+                  "max": 0.001695036,
+                  "percentiles": {
+                    "50": 0.000093408,
+                    "90": 0.001695036,
+                    "95": 0.001695036,
+                    "99": 0.001695036
+                  }
+                }
+              }
+            ],
+            "buckets": []
+          }
+        },
+        {
+          "key": {
+            "adapterContract": "openrouter-systemone/v1"
+          },
+          "summary": {
+            "calls": 1,
+            "statuses": {
+              "started": 0,
+              "response_received": 0,
+              "succeeded": 1,
+              "failed": 0,
+              "indeterminate": 0
+            },
+            "errors": [],
+            "unfinished": 0,
+            "metrics": {
+              "elapsedMs": {
+                "count": 1,
+                "missing": 0,
+                "sum": 733,
+                "mean": 733,
+                "min": 733,
+                "max": 733,
+                "percentiles": {
+                  "50": 733,
+                  "90": 733,
+                  "95": 733,
+                  "99": 733
+                }
+              },
+              "inputTokens": {
+                "count": 1,
+                "missing": 0,
+                "sum": 444,
+                "mean": 444,
+                "min": 444,
+                "max": 444,
+                "percentiles": {
+                  "50": 444,
+                  "90": 444,
+                  "95": 444,
+                  "99": 444
+                }
+              },
+              "outputTokens": {
+                "count": 1,
+                "missing": 0,
+                "sum": 70,
+                "mean": 70,
+                "min": 70,
+                "max": 70,
+                "percentiles": {
+                  "50": 70,
+                  "90": 70,
+                  "95": 70,
+                  "99": 70
+                }
+              },
+              "requestBytes": {
+                "count": 1,
+                "missing": 0,
+                "sum": 615,
+                "mean": 615,
+                "min": 615,
+                "max": 615,
+                "percentiles": {
+                  "50": 615,
+                  "90": 615,
+                  "95": 615,
+                  "99": 615
+                }
+              },
+              "responseBytes": {
+                "count": 1,
+                "missing": 0,
+                "sum": 612,
+                "mean": 612,
+                "min": 612,
+                "max": 612,
+                "percentiles": {
+                  "50": 612,
+                  "90": 612,
+                  "95": 612,
+                  "99": 612
+                }
+              },
+              "questionCount": {
+                "count": 1,
+                "missing": 0,
+                "sum": 3,
+                "mean": 3,
+                "min": 3,
+                "max": 3,
+                "percentiles": {
+                  "50": 3,
+                  "90": 3,
+                  "95": 3,
+                  "99": 3
+                }
+              }
+            },
+            "reportedCostByEndpoint": [
+              {
+                "endpoint": "https://openrouter.ai/api/v1/systemone",
+                "unit": "service-reported-unspecified",
+                "distribution": {
+                  "count": 1,
+                  "missing": 0,
+                  "sum": 0.000018648,
+                  "mean": 0.000018648,
+                  "min": 0.000018648,
+                  "max": 0.000018648,
+                  "percentiles": {
+                    "50": 0.000018648,
+                    "90": 0.000018648,
+                    "95": 0.000018648,
+                    "99": 0.000018648
+                  }
+                }
+              }
+            ],
+            "buckets": []
+          }
+        }
+      ],
+      "batchComparison": {
+        "runs": 1,
+        "unbatchedCalls": 0,
+        "ambiguousRuns": 0,
+        "comparableRuns": 1,
+        "firstElapsedMs": {
+          "count": 1,
+          "missing": 0,
+          "sum": 935,
+          "mean": 935,
+          "min": 935,
+          "max": 935,
+          "percentiles": {
+            "50": 935,
+            "90": 935,
+            "95": 935,
+            "99": 935
+          }
+        },
+        "laterElapsedMs": {
+          "count": 2,
+          "missing": 0,
+          "sum": 2391,
+          "mean": 1195.5,
+          "min": 733,
+          "max": 1658,
+          "percentiles": {
+            "50": 733,
+            "90": 1658,
+            "95": 1658,
+            "99": 1658
+          }
+        },
+        "firstMinusLaterP50Ms": {
+          "count": 1,
+          "missing": 0,
+          "sum": 202,
+          "mean": 202,
+          "min": 202,
+          "max": 202,
+          "percentiles": {
+            "50": 202,
+            "90": 202,
+            "95": 202,
+            "99": 202
+          }
+        },
+        "firstOverLaterP50": {
+          "count": 1,
+          "missing": 0,
+          "sum": 1.2755798090040928,
+          "mean": 1.2755798090040928,
+          "min": 1.2755798090040928,
+          "max": 1.2755798090040928,
+          "percentiles": {
+            "50": 1.2755798090040928,
+            "90": 1.2755798090040928,
+            "95": 1.2755798090040928,
+            "99": 1.2755798090040928
+          }
+        },
+        "batches": [
+          {
+            "runId": "safe-cli-e2e",
+            "selectedCalls": 3,
+            "totalCalls": 3,
+            "partial": false,
+            "ambiguous": false,
+            "firstState": "measured",
+            "first": {
+              "callId": "b47cee5d-ffb0-41ec-bad4-fe714b1715f2",
+              "status": "succeeded",
+              "adapterContract": "openrouter-decisions/v1",
+              "endpoint": "https://openrouter.ai/api/alpha/decisions",
+              "requestModel": "typesafe/jev-1.14",
+              "responseModel": "typesafe/jev-1.14-20261014",
+              "elapsedMs": 935
+            },
+            "selectedLaterCalls": 2,
+            "laterMeasuredCalls": 2,
+            "laterP50Ms": 733,
+            "firstMinusLaterP50Ms": 202,
+            "firstOverLaterP50": 1.2755798090040928,
+            "dimensions": [
+              {
+                "adapterContract": "openrouter-decisions/v1",
+                "endpoint": "https://openrouter.ai/api/alpha/decisions",
+                "requestModel": "typesafe/jev-1.14",
+                "responseModel": "typesafe/jev-1.14-20261014"
+              },
+              {
+                "adapterContract": "openrouter-systemone/v1",
+                "endpoint": "https://openrouter.ai/api/v1/systemone",
+                "requestModel": "typesafe/jev-1.14",
+                "responseModel": "typesafe/jev-1.14-20261014"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "meta": {
+      "elapsedMs": 0,
+      "attempts": 0
+    },
+    "error": null
+  },
+  "filtered": {
+    "ok": true,
+    "result": {
+      "schemaVersion": 3,
+      "method": {
+        "snapshot": "single-read-transaction",
+        "time": "UTC-started-at-[from,to)",
+        "quantiles": "nearest-rank-ceil(p/100*n)",
+        "elapsed": "client-send-through-full-response-and-validation-excluding-log-finish;not-TTFT-or-process-wall-time",
+        "repetitions": "retained",
+        "tokens": "request-level-service-reported-null-not-zero",
+        "cost": "service-reported-endpoint-isolated-unspecified-unit",
+        "batchOrder": "caller-provided-index-not-inferred-send-order-or-cold-start",
+        "maxRows": 100000
+      },
+      "filters": {
+        "adapterContract": "openrouter-decisions/v1",
+        "tags": {}
+      },
+      "percentiles": [
+        50,
+        90,
+        95,
+        99
+      ],
+      "groupBy": [
+        "adapterContract"
+      ],
+      "summary": {
+        "calls": 2,
+        "statuses": {
+          "started": 0,
+          "response_received": 0,
+          "succeeded": 2,
+          "failed": 0,
+          "indeterminate": 0
+        },
+        "errors": [],
+        "unfinished": 0,
+        "metrics": {
+          "elapsedMs": {
+            "count": 2,
+            "missing": 0,
+            "sum": 2593,
+            "mean": 1296.5,
+            "min": 935,
+            "max": 1658,
+            "percentiles": {
+              "50": 935,
+              "90": 1658,
+              "95": 1658,
+              "99": 1658
+            }
+          },
+          "inputTokens": {
+            "count": 2,
+            "missing": 0,
+            "sum": 42582,
+            "mean": 21291,
+            "min": 2224,
+            "max": 40358,
+            "percentiles": {
+              "50": 2224,
+              "90": 40358,
+              "95": 40358,
+              "99": 40358
+            }
+          },
+          "outputTokens": {
+            "count": 2,
+            "missing": 0,
+            "sum": 194,
+            "mean": 97,
+            "min": 38,
+            "max": 156,
+            "percentiles": {
+              "50": 38,
+              "90": 156,
+              "95": 156,
+              "99": 156
+            }
+          },
+          "requestBytes": {
+            "count": 2,
+            "missing": 0,
+            "sum": 293662,
+            "mean": 146831,
+            "min": 13361,
+            "max": 280301,
+            "percentiles": {
+              "50": 13361,
+              "90": 280301,
+              "95": 280301,
+              "99": 280301
+            }
+          },
+          "responseBytes": {
+            "count": 2,
+            "missing": 0,
+            "sum": 6247,
+            "mean": 3123.5,
+            "min": 301,
+            "max": 5946,
+            "percentiles": {
+              "50": 301,
+              "90": 5946,
+              "95": 5946,
+              "99": 5946
+            }
+          },
+          "questionCount": {
+            "count": 2,
+            "missing": 0,
+            "sum": 8,
+            "mean": 4,
+            "min": 1,
+            "max": 7,
+            "percentiles": {
+              "50": 1,
+              "90": 7,
+              "95": 7,
+              "99": 7
+            }
+          }
+        },
+        "reportedCostByEndpoint": [
+          {
+            "endpoint": "https://openrouter.ai/api/alpha/decisions",
+            "unit": "service-reported-unspecified",
+            "distribution": {
+              "count": 2,
+              "missing": 0,
+              "sum": 0.001788444,
+              "mean": 0.000894222,
+              "min": 0.000093408,
+              "max": 0.001695036,
+              "percentiles": {
+                "50": 0.000093408,
+                "90": 0.001695036,
+                "95": 0.001695036,
+                "99": 0.001695036
+              }
+            }
+          }
+        ],
+        "buckets": []
+      },
+      "groups": [
+        {
+          "key": {
+            "adapterContract": "openrouter-decisions/v1"
+          },
+          "summary": {
+            "calls": 2,
+            "statuses": {
+              "started": 0,
+              "response_received": 0,
+              "succeeded": 2,
+              "failed": 0,
+              "indeterminate": 0
+            },
+            "errors": [],
+            "unfinished": 0,
+            "metrics": {
+              "elapsedMs": {
+                "count": 2,
+                "missing": 0,
+                "sum": 2593,
+                "mean": 1296.5,
+                "min": 935,
+                "max": 1658,
+                "percentiles": {
+                  "50": 935,
+                  "90": 1658,
+                  "95": 1658,
+                  "99": 1658
+                }
+              },
+              "inputTokens": {
+                "count": 2,
+                "missing": 0,
+                "sum": 42582,
+                "mean": 21291,
+                "min": 2224,
+                "max": 40358,
+                "percentiles": {
+                  "50": 2224,
+                  "90": 40358,
+                  "95": 40358,
+                  "99": 40358
+                }
+              },
+              "outputTokens": {
+                "count": 2,
+                "missing": 0,
+                "sum": 194,
+                "mean": 97,
+                "min": 38,
+                "max": 156,
+                "percentiles": {
+                  "50": 38,
+                  "90": 156,
+                  "95": 156,
+                  "99": 156
+                }
+              },
+              "requestBytes": {
+                "count": 2,
+                "missing": 0,
+                "sum": 293662,
+                "mean": 146831,
+                "min": 13361,
+                "max": 280301,
+                "percentiles": {
+                  "50": 13361,
+                  "90": 280301,
+                  "95": 280301,
+                  "99": 280301
+                }
+              },
+              "responseBytes": {
+                "count": 2,
+                "missing": 0,
+                "sum": 6247,
+                "mean": 3123.5,
+                "min": 301,
+                "max": 5946,
+                "percentiles": {
+                  "50": 301,
+                  "90": 5946,
+                  "95": 5946,
+                  "99": 5946
+                }
+              },
+              "questionCount": {
+                "count": 2,
+                "missing": 0,
+                "sum": 8,
+                "mean": 4,
+                "min": 1,
+                "max": 7,
+                "percentiles": {
+                  "50": 1,
+                  "90": 7,
+                  "95": 7,
+                  "99": 7
+                }
+              }
+            },
+            "reportedCostByEndpoint": [
+              {
+                "endpoint": "https://openrouter.ai/api/alpha/decisions",
+                "unit": "service-reported-unspecified",
+                "distribution": {
+                  "count": 2,
+                  "missing": 0,
+                  "sum": 0.001788444,
+                  "mean": 0.000894222,
+                  "min": 0.000093408,
+                  "max": 0.001695036,
+                  "percentiles": {
+                    "50": 0.000093408,
+                    "90": 0.001695036,
+                    "95": 0.001695036,
+                    "99": 0.001695036
+                  }
+                }
+              }
+            ],
+            "buckets": []
+          }
+        }
+      ],
+      "batchComparison": {
+        "runs": 1,
+        "unbatchedCalls": 0,
+        "ambiguousRuns": 0,
+        "comparableRuns": 1,
+        "firstElapsedMs": {
+          "count": 1,
+          "missing": 0,
+          "sum": 935,
+          "mean": 935,
+          "min": 935,
+          "max": 935,
+          "percentiles": {
+            "50": 935,
+            "90": 935,
+            "95": 935,
+            "99": 935
+          }
+        },
+        "laterElapsedMs": {
+          "count": 1,
+          "missing": 0,
+          "sum": 1658,
+          "mean": 1658,
+          "min": 1658,
+          "max": 1658,
+          "percentiles": {
+            "50": 1658,
+            "90": 1658,
+            "95": 1658,
+            "99": 1658
+          }
+        },
+        "firstMinusLaterP50Ms": {
+          "count": 1,
+          "missing": 0,
+          "sum": -723,
+          "mean": -723,
+          "min": -723,
+          "max": -723,
+          "percentiles": {
+            "50": -723,
+            "90": -723,
+            "95": -723,
+            "99": -723
+          }
+        },
+        "firstOverLaterP50": {
+          "count": 1,
+          "missing": 0,
+          "sum": 0.5639324487334137,
+          "mean": 0.5639324487334137,
+          "min": 0.5639324487334137,
+          "max": 0.5639324487334137,
+          "percentiles": {
+            "50": 0.5639324487334137,
+            "90": 0.5639324487334137,
+            "95": 0.5639324487334137,
+            "99": 0.5639324487334137
+          }
+        },
+        "batches": [
+          {
+            "runId": "safe-cli-e2e",
+            "selectedCalls": 2,
+            "totalCalls": 3,
+            "partial": true,
+            "ambiguous": false,
+            "firstState": "measured",
+            "first": {
+              "callId": "b47cee5d-ffb0-41ec-bad4-fe714b1715f2",
+              "status": "succeeded",
+              "adapterContract": "openrouter-decisions/v1",
+              "endpoint": "https://openrouter.ai/api/alpha/decisions",
+              "requestModel": "typesafe/jev-1.14",
+              "responseModel": "typesafe/jev-1.14-20261014",
+              "elapsedMs": 935
+            },
+            "selectedLaterCalls": 1,
+            "laterMeasuredCalls": 1,
+            "laterP50Ms": 1658,
+            "firstMinusLaterP50Ms": -723,
+            "firstOverLaterP50": 0.5639324487334137,
+            "dimensions": [
+              {
+                "adapterContract": "openrouter-decisions/v1",
+                "endpoint": "https://openrouter.ai/api/alpha/decisions",
+                "requestModel": "typesafe/jev-1.14",
+                "responseModel": "typesafe/jev-1.14-20261014"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "meta": {
+      "elapsedMs": 0,
+      "attempts": 0
+    },
+    "error": null
+  }
+}

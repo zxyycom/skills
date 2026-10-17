@@ -15,6 +15,7 @@ export const numericFields = [
 ] as const;
 export type NumericField = (typeof numericFields)[number];
 export const groupFields = [
+  "adapterContract",
   "endpoint",
   "requestModel",
   "responseModel",
@@ -38,6 +39,7 @@ export type StatisticsOptions = Readonly<{
   maxRows: number;
 }>;
 export type StatisticsFilters = Readonly<{
+  adapterContract?: string;
   endpoint?: string;
   requestModel?: string;
   responseModel?: string;
@@ -47,6 +49,7 @@ export type StatisticsFilters = Readonly<{
   to?: string;
 }>;
 export const statisticsFlags = [
+  "adapter-contract",
   "config",
   "database",
   "from",
@@ -194,6 +197,7 @@ function filters(values: StatsValues): StatisticsOptions["filters"] {
     fail("input", "--status", "未知调用状态");
   }
   return {
+    adapterContract: values["adapter-contract"],
     endpoint: values.endpoint,
     requestModel: values["request-model"],
     responseModel: values["response-model"],

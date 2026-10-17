@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { validateAdapterModel, type Adapter } from "./adapter-contract.ts";
 import { fail, type FailureKind } from "./failure.ts";
 import {
   orderedKeys,
@@ -19,6 +20,7 @@ export type Question = Readonly<
       instructions: Structured;
       criteria: Readonly<Record<string, Structured | null>>;
     }
+  | { type: "box"; instructions: Structured }
   | { type: "score"; instructions: Structured; criteria: readonly Structured[] }
   | {
       type: "noul";
@@ -28,7 +30,7 @@ export type Question = Readonly<
 >;
 
 export type Request = Readonly<{
-  model: JevModel;
+  model: string;
   state: Structured;
   questions: Readonly<Record<string, Question>>;
 }>;
@@ -76,6 +78,7 @@ const choiceCriteria = v.pipe(
 );
 
 const questionSchema = v.variant("type", [
+  v.strictObject({ type: v.literal("box"), instructions: structuredSchema }),
   v.strictObject({
     type: v.literal("choice"),
     instructions: structuredSchema,
@@ -129,7 +132,8 @@ const requestSchema = v.strictObject({
 export function validateRequest(
   input: JsonValue,
   modelOverride: string | undefined,
-  configModel: JevModel
+  configModel: string,
+  adapter: Adapter = "openrouter-systemone"
 ): Request {
   if (!hasOnlyFields(input, ["state", "questions", "model"])) {
     fail("input", "$", "请求不是对象或包含未知顶层字段");
@@ -158,11 +162,11 @@ export function validateRequest(
   const requestModel =
     parsed.output.model === undefined
       ? undefined
-      : validateModel(parsed.output.model, "input", "$.model");
+      : validateAdapterModel(parsed.output.model, adapter, "input", "$.model");
   const overrideModel =
     modelOverride === undefined
       ? undefined
-      : validateModel(modelOverride, "input", "--model");
+      : validateAdapterModel(modelOverride, adapter, "input", "--model");
   return {
     state: parsed.output.state,
     questions: validated,

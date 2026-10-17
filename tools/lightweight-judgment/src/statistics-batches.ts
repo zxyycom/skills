@@ -30,6 +30,7 @@ type Comparison = Readonly<{
   ratio: number | null;
 }>;
 type Dimension = Readonly<{
+  adapterContract: string | null;
   endpoint: string;
   requestModel: string;
   responseModel: string | null;
@@ -132,6 +133,7 @@ function dimensions(calls: readonly StatisticsRow[]): readonly Dimension[] {
   const result = new Map<string, Dimension>();
   for (const row of calls) {
     const dimension = {
+      adapterContract: row.adapterContract,
       endpoint: row.endpoint,
       requestModel: row.requestModel,
       responseModel: row.responseModel
@@ -155,6 +157,7 @@ function firstReport(first: StatisticsRow | undefined): FirstReport | null {
   return {
     callId: first.id,
     status: first.status,
+    adapterContract: first.adapterContract,
     endpoint: first.endpoint,
     requestModel: first.requestModel,
     responseModel: first.responseModel,

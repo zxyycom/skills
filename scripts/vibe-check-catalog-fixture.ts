@@ -16,7 +16,7 @@ export const expectedSemanticChecks: readonly (readonly [
   [
     "test:lightweight-judgment:public-distribution",
     "bun",
-    "./tools/lightweight-judgment/tests/distribution.test.ts"
+    "./tools/lightweight-judgment/tests/checks/public-distribution.ts"
   ],
   [
     "test:change-plan:artifact-and-active-plan-gates",

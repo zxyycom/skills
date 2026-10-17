@@ -16,6 +16,14 @@ const upgradeSql = fs.readFileSync(
   "utf8"
 );
 
+const upgradeV3 = fs.readFileSync(
+  new URL(
+    "../../../skills/lightweight-judgment/migrations/log-v2-to-v3/migrate.sql",
+    import.meta.url
+  ),
+  "utf8"
+);
+
 test("bundled migration SQL upgrades a v1 copy while preserving original rows and enabling current reads and writes", async () => {
   const fixture = statisticsFixture(1);
   try {
@@ -52,10 +60,11 @@ test("bundled migration SQL upgrades a v1 copy while preserving original rows an
           response_bytes: null
         }))
       );
+      copy.exec(upgradeV3);
       const stats = await runCli(["stats", "--database", copyPath], runtime());
       assert.equal(stats.exitCode, 0, stats.stdout);
       const result = decodeSuccess(stats.stdout).result;
-      assert.equal(result.schemaVersion, 2);
+      assert.equal(result.schemaVersion, 3);
       assert.equal(summary(result).calls, 1);
       const outcome = await runCli(
         [...args, "--run-id", "new", "--run-index", "1"],
@@ -139,6 +148,7 @@ test("bundled migration SQL backfills exact retained bytes without inventing loc
         }
       );
     }
+    fixture.database.exec(upgradeV3);
     const result = await fixture.stats();
     assert.equal(summary(result).calls, 4);
     assert.equal(metric(result, "requestBytes").count, 2);
@@ -212,8 +222,8 @@ test("stats missing foreign unsupported and malformed databases fail without cre
     assert.match(missingResult.stderr, /不创建数据库/u);
     for (const change of [
       "PRAGMA application_id=0",
-      "PRAGMA application_id=1246058033; PRAGMA user_version=3",
-      "PRAGMA user_version=2; ALTER TABLE calls ADD COLUMN foreign_column TEXT"
+      "PRAGMA application_id=1246058033; PRAGMA user_version=4",
+      "PRAGMA user_version=3; ALTER TABLE calls ADD COLUMN foreign_column TEXT"
     ]) {
       fixture.database.exec(change);
       const before = fs.readFileSync(fixture.databasePath);
@@ -297,7 +307,7 @@ test("stats and writer reject altered fixed index layouts without mutating datab
       assert.deepEqual(fs.readFileSync(fixture.databasePath), before);
       assert.equal(
         fixture.database.prepare("PRAGMA user_version").get()?.user_version,
-        2
+        3
       );
     } finally {
       fixture.cleanup();

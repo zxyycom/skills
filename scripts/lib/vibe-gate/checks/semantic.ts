@@ -44,7 +44,9 @@ export const semanticGateChecks = [
     dependsOn: ["script:check:lightweight-judgment-cli"],
     displayName: "Lightweight Judgment standalone distribution",
     requiredTag: undefined,
-    command: bunTest("./tools/lightweight-judgment/tests/distribution.test.ts")
+    command: bunTest(
+      "./tools/lightweight-judgment/tests/checks/public-distribution.ts"
+    )
   },
   {
     checkId: "test:change-plan:artifact-and-active-plan-gates",

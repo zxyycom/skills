@@ -17,6 +17,7 @@ const rowSchema = v.strictObject({
   id: v.string(),
   startedAt: v.string(),
   endpoint: v.string(),
+  adapterContract: v.nullable(v.string()),
   requestModel: v.string(),
   responseModel: v.nullable(v.string()),
   status: v.picklist(callStatuses),
@@ -42,6 +43,7 @@ export type Selection = Readonly<{
 }>;
 
 const filterColumns = [
+  { field: "adapterContract", column: "adapter_contract", operator: "=" },
   { field: "endpoint", column: "endpoint", operator: "=" },
   { field: "requestModel", column: "request_model", operator: "=" },
   { field: "responseModel", column: "response_model", operator: "=" },
@@ -125,7 +127,7 @@ export function selectedRows(
   const rows: StatisticsRow[] = [];
   // Only metadata is selected: request_json and response_body never cross the reader boundary.
   for (const row of database
-    .prepare(`SELECT id, started_at AS startedAt, endpoint, request_model AS requestModel,
+    .prepare(`SELECT id, started_at AS startedAt, adapter_contract AS adapterContract, endpoint, request_model AS requestModel,
     response_model AS responseModel, status, error_kind AS errorKind, elapsed_ms AS elapsedMs,
     input_tokens AS inputTokens, output_tokens AS outputTokens, cost, question_count AS questionCount,
     run_id AS runId, run_index AS runIndex, local_tags AS tagsJson,

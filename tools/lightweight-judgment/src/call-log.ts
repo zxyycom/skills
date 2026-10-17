@@ -7,7 +7,8 @@ import { record } from "./json.ts";
 import type { LocalMetadata } from "./local-metadata.ts";
 import { stringifyJson } from "./json.ts";
 import type { Request } from "./request.ts";
-import type { ValidatedResponse } from "./response.ts";
+import type { AdapterResponse } from "./adapter-response.ts";
+import type { PreparedRequest } from "./adapter-request.ts";
 
 export type PersistenceMeta = Readonly<{
   callId?: string;
@@ -15,7 +16,7 @@ export type PersistenceMeta = Readonly<{
 }>;
 
 export type CallCompletion = Readonly<
-  | { ok: true; result: ValidatedResponse }
+  | { ok: true; result: AdapterResponse["result"] }
   | { ok: false; error: JudgmentFailure }
 >;
 
@@ -42,7 +43,7 @@ function nonnegative(value: unknown, integer: boolean): number | null {
     : null;
 }
 
-function summary(result: ValidatedResponse | undefined): UsageSummary {
+function summary(result: AdapterResponse["result"] | undefined): UsageSummary {
   const model = result?.model ?? null;
   const usage = record(result?.usage) ? result.usage : {};
   return {
@@ -67,8 +68,8 @@ export class CallLog {
   static start(
     config: Configuration,
     request: Request,
-    body: string,
-    metadata: LocalMetadata
+    metadata: LocalMetadata,
+    prepared: PreparedRequest
   ): CallLog {
     const database = openCallDatabase(config.logging.databasePath);
     const log = new CallLog(database, config.logging);
@@ -77,8 +78,8 @@ export class CallLog {
       const written = database
         .prepare(`INSERT INTO calls
         (id, started_at, updated_at, status, endpoint, request_model, question_count,
-         save_request, save_response, request_json, run_id, run_index, local_tags, request_bytes)
-        VALUES (?, ?, ?, 'started', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+         save_request, save_response, request_json, run_id, run_index, local_tags, request_bytes, adapter_contract, carrier_json)
+        VALUES (?, ?, ?, 'started', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
         .run(
           log.id,
           now,
@@ -88,11 +89,13 @@ export class CallLog {
           Object.keys(request.questions).length,
           Number(config.logging.saveRequest),
           Number(config.logging.saveResponse),
-          config.logging.saveRequest ? body : null,
+          config.logging.saveRequest ? prepared.body : null,
           metadata.runId,
           metadata.runIndex,
           stringifyJson(metadata.tags),
-          Buffer.byteLength(body, "utf8")
+          Buffer.byteLength(prepared.body, "utf8"),
+          prepared.adapterContract,
+          config.logging.saveRequest ? prepared.carrierJson : null
         );
       requireChange(written.changes);
       return log;

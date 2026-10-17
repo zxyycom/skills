@@ -2,6 +2,8 @@ import { normalizeFailure } from "./failure.ts";
 import type { ApiKey } from "./configuration.ts";
 import { stringifyJson, type JsonValue } from "./json.ts";
 import type { PersistenceMeta } from "./call-log.ts";
+import type { AdapterContract } from "./adapter-contract.ts";
+import type { NormalizedResponse } from "./adapter-response.ts";
 
 export type CliOutcome = Readonly<{
   exitCode: 0 | 2 | 3 | 4;
@@ -15,6 +17,9 @@ export type InvocationState = {
   requestModel: string | undefined;
   apiKey: ApiKey | undefined;
   persistence?: PersistenceMeta;
+  elapsedMs?: number;
+  adapterContract?: AdapterContract;
+  normalized?: NormalizedResponse;
 };
 
 type InvocationMeta = Readonly<{
@@ -22,19 +27,25 @@ type InvocationMeta = Readonly<{
   elapsedMs: number;
   attempts: 0 | 1;
   persistence?: PersistenceMeta;
+  adapterContract?: AdapterContract;
 }>;
 
 function meta(state: Readonly<InvocationState>, now: number): InvocationMeta {
   const elapsedMs =
-    state.started === undefined
-      ? 0
-      : Math.max(0, Math.round(now - state.started));
+    state.elapsedMs !== undefined
+      ? state.elapsedMs
+      : state.started === undefined
+        ? 0
+        : Math.max(0, Math.round(now - state.started));
   return {
     ...(state.requestModel === undefined
       ? {}
       : { requestModel: state.requestModel }),
     elapsedMs,
     attempts: state.attempts,
+    ...(state.adapterContract === undefined
+      ? {}
+      : { adapterContract: state.adapterContract }),
     ...(state.persistence === undefined
       ? {}
       : { persistence: state.persistence })
@@ -48,9 +59,16 @@ export function successOutcome(
 ): CliOutcome {
   // The API key is never inserted into this envelope. Preserve valid response fields;
   // do not mutate JSON tokens, keys, or data because a short key matches their text.
+  const envelope = {
+    ok: true,
+    result,
+    ...(state.normalized === undefined ? {} : { normalized: state.normalized }),
+    meta: meta(state, now),
+    error: null
+  };
   return {
     exitCode: state.persistence?.status === "failed" ? 4 : 0,
-    stdout: `${stringifyJson({ ok: true, result, meta: meta(state, now), error: null })}\n`,
+    stdout: `${stringifyJson(envelope)}\n`,
     stderr: persistenceDiagnostic(state)
   };
 }
@@ -77,9 +95,15 @@ export function failureOutcome(
   if (["input", "configuration"].includes(failure.kind)) exitCode = 2;
   if (failure.kind === "storage" || state.persistence?.status === "failed")
     exitCode = 4;
+  const envelope = {
+    ok: false,
+    result: null,
+    meta: meta(state, now),
+    error: detail
+  };
   return {
     exitCode,
-    stdout: `${stringifyJson({ ok: false, result: null, meta: meta(state, now), error: detail })}\n`,
+    stdout: `${stringifyJson(envelope)}\n`,
     stderr: `${message}\n${persistenceDiagnostic(state)}`
   };
 }

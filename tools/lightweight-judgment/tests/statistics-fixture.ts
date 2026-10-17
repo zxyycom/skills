@@ -22,7 +22,7 @@ ALTER TABLE calls ADD COLUMN response_bytes INTEGER;
 CREATE UNIQUE INDEX calls_run_index ON calls(run_id,run_index) WHERE run_id IS NOT NULL; PRAGMA user_version=2;`;
 
 export function statisticsFixture(
-  version: 1 | 2 = 2,
+  version: 1 | 2 | 3 = 3,
   encoding: "UTF-8" | "UTF-16le" = "UTF-8"
 ) {
   const fixture = logFixture();
@@ -30,7 +30,11 @@ export function statisticsFixture(
   try {
     database.exec(`PRAGMA encoding = '${encoding}'`);
     database.exec(legacy);
-    if (version === 2) database.exec(metadata);
+    if (version >= 2) database.exec(metadata);
+    if (version === 3)
+      database.exec(
+        "ALTER TABLE calls ADD COLUMN adapter_contract TEXT; ALTER TABLE calls ADD COLUMN carrier_json TEXT; PRAGMA user_version=3"
+      );
     fs.chmodSync(fixture.databasePath, 0o600);
   } catch (error) {
     try {

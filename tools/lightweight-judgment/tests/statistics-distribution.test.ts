@@ -37,12 +37,12 @@ test("standalone Node stats reads current schema and active WAL without configur
     const output = decodeSuccess(child.stdout);
     assert.equal(output.meta.attempts, 0);
     assert.equal(summary(output.result).calls, 1);
-    assert.equal(output.result.schemaVersion, 2);
+    assert.equal(output.result.schemaVersion, 3);
     assert.equal(output.meta.persistence, undefined);
     assert.deepEqual(fs.readFileSync(fixture.databasePath), before);
     assert.equal(
       fixture.database.prepare("PRAGMA user_version").get()?.user_version,
-      2
+      3
     );
     const absent = path.join(fixture.directory, "absent.db");
     const blocked = spawnSync(

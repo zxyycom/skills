@@ -1,12 +1,19 @@
 import { JudgmentFailure } from "./failure.ts";
 import type { Request } from "./request.ts";
-import { validateResponse, type ValidatedResponse } from "./response.ts";
+import {
+  validateAdapterResponse,
+  type AdapterResponse
+} from "./adapter-response.ts";
+import type { Adapter } from "./adapter-contract.ts";
 import type { ApiKey } from "./configuration.ts";
 
 export type Fetch = (url: string, init: RequestInit) => Promise<Response>;
 
 export type TransportOptions = Readonly<{
   endpoint: string;
+  adapter: Adapter;
+  responseRequest: Request;
+  headers: Readonly<Record<string, string>>;
   body: string;
   apiKey: ApiKey;
   timeoutMs: number;
@@ -81,13 +88,14 @@ async function exchange(
   fetch: Fetch,
   signal: AbortSignal,
   received: (head: ResponseHead) => void
-): Promise<ValidatedResponse> {
+): Promise<AdapterResponse> {
   let response: Response;
   try {
     response = await fetch(options.endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...options.headers,
         Authorization: `Bearer ${options.apiKey}`
       },
       body: options.body,
@@ -116,7 +124,12 @@ async function exchange(
   if (failure !== undefined) throw failure;
   const body = decodedBody(bytes, response.status);
   try {
-    return validateResponse(body, request);
+    return validateAdapterResponse(
+      body,
+      request,
+      options.adapter,
+      options.responseRequest
+    );
   } catch (error) {
     if (error instanceof JudgmentFailure && error.validation !== undefined) {
       // validateResponse supplies fixed protocol paths and ordinals, never remote keys or IDs.
@@ -137,7 +150,7 @@ export async function sendRequest(
   request: Request,
   options: TransportOptions,
   fetch: Fetch
-): Promise<ValidatedResponse> {
+): Promise<AdapterResponse> {
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
   let head: ResponseHead | undefined;

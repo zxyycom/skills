@@ -2,7 +2,12 @@ import path from "node:path";
 import * as v from "valibot";
 import { fail, JudgmentFailure } from "./failure.ts";
 import { parseJson, hasOnlyFields } from "./json.ts";
-import { defaultModel, validateModel, type JevModel } from "./request.ts";
+import { defaultModel } from "./request.ts";
+import {
+  adapters,
+  validateAdapterModel,
+  type Adapter
+} from "./adapter-contract.ts";
 
 const defaultEndpoint = "https://openrouter.ai/api/v1/systemone";
 
@@ -23,7 +28,10 @@ export type LoggingConfiguration = Readonly<{
 
 export type Configuration = Readonly<{
   path: string;
-  model: JevModel;
+  model: string;
+  adapter: Adapter;
+  images: boolean;
+  longContext: boolean;
   apiKeyEnv: string;
   apiKey?: ApiKey;
   endpoint: string;
@@ -88,22 +96,22 @@ const loggingSchema = v.strictObject({
 });
 
 const configurationSchema = v.strictObject({
-  model: v.optional(v.string(), defaultModel),
-  endpoint: v.optional(v.string(), defaultEndpoint),
+  adapter: v.optional(v.picklist(adapters), "openrouter-systemone"),
+  images: v.optional(v.boolean(), false),
+  longContext: v.optional(v.boolean(), false),
+  model: v.optional(v.string()),
+  endpoint: v.optional(v.string()),
   apiKey: v.optional(apiKeySchema),
   apiKeyEnv: v.optional(
-    v.pipe(v.string(), v.regex(/^[A-Za-z_][A-Za-z0-9_]*$/u)),
-    "OPENROUTER_API_KEY"
+    v.pipe(v.string(), v.regex(/^[A-Za-z_][A-Za-z0-9_]*$/u))
   ),
   timeoutMs: v.optional(timeoutSchema, 15000),
   logging: v.optional(loggingSchema, {})
 });
 
-function validateConfiguration(
-  raw: unknown,
-  file: string,
-  home: string
-): Configuration {
+function parseConfiguration(
+  raw: unknown
+): v.InferOutput<typeof configurationSchema> {
   if (!hasOnlyFields(raw, Object.keys(configurationSchema.entries))) {
     fail("configuration", "config", "配置不是对象或包含未知字段");
   }
@@ -121,18 +129,84 @@ function validateConfiguration(
       "配置字段须为合法 model、endpoint、apiKey、apiKeyEnv、timeoutMs、logging"
     );
   }
+  return parsed.output;
+}
+
+function validateExplicitAdapter(
+  values: v.InferOutput<typeof configurationSchema>
+): void {
+  if (
+    values.model === undefined ||
+    values.endpoint === undefined ||
+    (values.apiKey === undefined && values.apiKeyEnv === undefined)
+  )
+    fail(
+      "configuration",
+      "config",
+      "新 adapter 必须显式配置 model、endpoint 和 apiKey 或 apiKeyEnv"
+    );
+}
+
+function validateAdapterOptions(
+  values: v.InferOutput<typeof configurationSchema>
+): void {
+  if (values.adapter === "openrouter-systemone") {
+    if (values.images || values.longContext)
+      fail(
+        "configuration",
+        "config",
+        "兼容 systemone adapter 不支持实验图片或长上下文开关"
+      );
+    return;
+  }
+  validateExplicitAdapter(values);
+  if (values.adapter === "openai-decisions" && values.longContext)
+    fail(
+      "configuration",
+      "config.longContext",
+      "OpenAI Decisions 没有长上下文 opt-in；不得使用 TypeSafe 开关"
+    );
+}
+
+function credentialConfiguration(
+  values: Pick<
+    v.InferOutput<typeof configurationSchema>,
+    "apiKey" | "apiKeyEnv"
+  >
+): Pick<Configuration, "apiKey" | "apiKeyEnv"> {
+  return {
+    apiKeyEnv: values.apiKeyEnv ?? "OPENROUTER_API_KEY",
+    ...(values.apiKey === undefined ? {} : { apiKey: values.apiKey })
+  };
+}
+
+function validateConfiguration(
+  raw: unknown,
+  file: string,
+  home: string
+): Configuration {
+  const values = parseConfiguration(raw);
+  validateAdapterOptions(values);
   return {
     path: file,
-    model: validateModel(parsed.output.model, "configuration", "config.model"),
-    apiKeyEnv: parsed.output.apiKeyEnv,
-    ...(parsed.output.apiKey === undefined
-      ? {}
-      : { apiKey: parsed.output.apiKey }),
-    endpoint: validateEndpoint(parsed.output.endpoint, "configuration"),
-    timeoutMs: parsed.output.timeoutMs,
+    adapter: values.adapter,
+    images: values.images,
+    longContext: values.longContext,
+    model: validateAdapterModel(
+      values.model ?? defaultModel,
+      values.adapter,
+      "configuration",
+      "config.model"
+    ),
+    ...credentialConfiguration(values),
+    endpoint: validateEndpoint(
+      values.endpoint ?? defaultEndpoint,
+      "configuration"
+    ),
+    timeoutMs: values.timeoutMs,
     logging: {
-      ...parsed.output.logging,
-      databasePath: loggingPath(parsed.output.logging.databasePath, file, home)
+      ...values.logging,
+      databasePath: loggingPath(values.logging.databasePath, file, home)
     }
   };
 }
@@ -185,7 +259,7 @@ function validateEndpoint(
   try {
     url = new URL(value);
   } catch {
-    return fail(kind, "endpoint", "需要完整的 System One HTTP(S) URL");
+    return fail(kind, "endpoint", "需要完整的 adapter HTTP(S) URL");
   }
   const loopback = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
   if (

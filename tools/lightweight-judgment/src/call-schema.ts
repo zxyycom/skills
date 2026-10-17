@@ -2,7 +2,7 @@ import type { DatabaseSync } from "node:sqlite";
 import { JudgmentFailure } from "./failure.ts";
 
 export const applicationId = 1246058033;
-export const callSchemaVersion = 2;
+export const callSchemaVersion = 3;
 export const callStatuses = [
   "started",
   "response_received",
@@ -65,7 +65,9 @@ const callColumns = [
   ["run_index", "INTEGER", 0, 0],
   ["local_tags", "TEXT", 0, 0],
   ["request_bytes", "INTEGER", 0, 0],
-  ["response_bytes", "INTEGER", 0, 0]
+  ["response_bytes", "INTEGER", 0, 0],
+  ["adapter_contract", "TEXT", 0, 0],
+  ["carrier_json", "TEXT", 0, 0]
 ] as const;
 export const schema = `
 CREATE TABLE calls (
@@ -92,7 +94,9 @@ CREATE TABLE calls (
   run_index INTEGER,
   local_tags TEXT,
   request_bytes INTEGER,
-  response_bytes INTEGER
+  response_bytes INTEGER,
+  adapter_contract TEXT,
+  carrier_json TEXT
 ) STRICT;
 ${callIndexes.map((index) => index.sql).join(";\n")};
 PRAGMA application_id = ${applicationId};

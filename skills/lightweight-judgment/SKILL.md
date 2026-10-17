@@ -3,9 +3,9 @@ name: lightweight-judgment
 description: >-
   仅在用户点名 lightweight-judgment 时启用。
   用低成本、低延迟的结构化判断处理分类、候选选择、相关性筛选、命题判断
-  和程度评分；按 JEV 特点准备输入、复核类型化结果，再继续原任务。
+  和程度评分；以 JEV 载体调用 JEV 或 OpenAI Decisions，复核类型化结果后继续原任务。
 metadata:
-  version: "8"
+  version: "9"
 ---
 
 # Lightweight Judgment
@@ -14,7 +14,7 @@ metadata:
 
 用户点名 `$lightweight-judgment` 或明确要求使用该 skill 后，在指定任务范围内启用；一般分类、筛选或评分请求本身不触发它。Codex 的显式调用策略由 [agents/openai.yaml](agents/openai.yaml) 声明。
 
-把输出空间明确的局部语义判断交给 JEV，取得类别、候选、概率或分数，供当前 agent 继续原任务。agent 负责取得材料、定义问题、复核结果和完成后续动作；CLI 负责单次请求与协议校验。
+把输出空间明确的局部语义判断交给所选 JEV 或 OpenAI Decisions 合同，取得类别、候选、概率、分数或 JEV 图像定位框，供当前 agent 继续原任务。agent 负责取得材料、定义问题、复核结果和完成后续动作；CLI 负责单次请求与协议校验。
 
 配套 CLI 随 skill 分发，通过 Node.js 直接运行 `scripts/lightweight-judgment.mjs`；运行时前置和完整用法见 [CLI 操作契约](references/cli.md)。
 
@@ -24,14 +24,16 @@ metadata:
 
 | 当前任务 | 执行与读取路径 |
 | --- | --- |
-| 发起新的语义判断 | 按下方任务选择与判断流程执行；初次调用、配置变化或处理技术错误时，读取 [CLI 操作契约](references/cli.md) |
+| 发起新的语义判断 | 按下方任务选择与判断流程执行；初次调用或配置变化时先读[合同选择](references/protocol-adapters.md#选择合同)与 [CLI 配置](references/cli.md#配置)，再核对命令和输出 |
+| 使用图片、Box 或长输入 | 读取[接入合同与模态](references/protocol-adapters.md)，核对所选 adapter、模型与可信配置门禁后再准备请求 |
+| 处理有效原答或拒答 | 读取[原答、统一结果与采用](references/protocol-adapters.md#原答统一结果与采用)；技术错误另按 [CLI 技术失败](references/cli.md#技术失败)处理 |
 | 核对配置 | 按 [CLI 操作契约](references/cli.md#doctor本地前置检查)运行 `doctor`，检查配置与凭据；此检查不发送请求 |
 | 预览请求 | 按判断流程的步骤 1、2 准备请求，再用 `json --dry-run`／`ask --dry-run`；[预览](references/cli.md#推理参数与帮助)离线执行，无需密钥或先通过 `doctor` |
 | 核对或恢复已有记录 | 按[调用日志](references/call-logging.md#恢复与只读核对)读取已提交状态与正文，区分可采用结果和待验证内容 |
 | 统计已有调用 | 按[离线调用统计](references/statistics.md)运行 `stats`；直接读取已有库，无需凭据检查或新推理 |
 | 日志结构不受支持 | 无需历史时按[旧库处理](references/call-logging.md#当前格式与旧库处理)重新建库；需要保留历史时才读取对应版本的迁移说明 |
 
-判断任务适用性、调整输入表示或分析异常时，按主题读取 [JEV 使用边界与任务验证](references/jev-characteristics.md)；日常使用以本文流程为起点。
+判断任务适用性、调整输入表示或分析异常时，按主题读取 [JEV 使用边界与任务验证](references/jev-characteristics.md)；其中 JEV 模型特性不外推到 OpenAI。上述参考均随 skill 分发，执行不依赖仓库调查报告。
 
 ## 任务选择
 
@@ -52,8 +54,9 @@ metadata:
 | 要判断的内容 | 原语与 criteria | 结果含义 |
 | --- | --- | --- |
 | 单选结果，如类别、首选候选，或成立／不成立／证据不足 | Choice；候选到含义的映射 | `choice`、各候选 `probabilities`；`confidence` 概括分布集中程度 |
-| 同一维度达到什么程度，如主题贴合程度 | Score；从低到高的等级数组 | `score` 表示等级索引的概率加权位置，可落在等级之间；保留分布、`legend`、`confidence` |
+| 同一维度达到什么程度，如主题贴合程度 | Score；从低到高的等级数组 | `score` 表示等级索引的概率加权位置，可落在等级之间；保留分布、原请求量尺、`confidence` 与所选合同的等级字段 |
 | 一个明确命题的肯定概率 | Noul；可用 true／false 条件澄清含义 | `noul` 为 0–1 的肯定概率，无单独 confidence |
+| JEV 图中目标的位置 | Box；instructions 指明目标，无 criteria | 归一化边坐标与 confidence；框不证明目标存在，需先核对[模态前置](references/protocol-adapters.md#jev-box) |
 
 可以同时成立的标签或性质分别提问；择优单选时说明选择标准。例如“局部冲突”和“各有独有内容”可同时成立，拆成两题，见 [CLI 双题示例](references/cli.md#json完整请求)。
 
@@ -61,10 +64,10 @@ Noul 接近 0.5 只表示肯定与否定概率相近，不表示程度中等或�
 
 ### 2. 准备证据与请求
 
-JEV 接收文本或 JSON `state` 与类型化 `questions`，返回结构化 `answers`。
+统一载体为文本或 JSON `state` 与类型化 `questions`；CLI 按可信配置选择 adapter，必要时自动编译为目标 wire。信息保留不保证模型行为等价。
 
 1. **核对前提**：字段存在、身份对应、集合成员等确定性检查交给代码；必要材料缺失时先补取或记为待处理项。例如先确认摘要存在，再判断它是否忠实于原文。
-2. **取得证据**：内部一致性看被审查文本，相对变化看两端，完整覆盖看完整参与集合。比较结论时说明共同适用的对象、时间与条件；当前适用性需当前事实，历史认识按形成条件解释。提供实际内容，非文本材料先转换并保留来源；路径与 URL 本身不代替内容。
+2. **取得证据**：内部一致性看被审查文本，相对变化看两端，完整覆盖看完整参与集合。比较结论时说明共同适用的对象、时间与条件；当前适用性需当前事实，历史认识按形成条件解释。提供实际内容并保留来源；图片按[显式节点与作用域](references/protocol-adapters.md#图片节点与作用域)提交内联像素，其他非文本材料先转换。路径与 URL 本身不代替内容，不触发读取或抓取。
 3. **组织 state**：保留必要原文、类型、条件和稳定候选 ID。沿用任务语言，输入直接且相关；JSON 文件传输与将 state 编码成字符串是不同操作。类型、语言或排列调整的收益按目标数据验证。
 4. **写清题意**：`instructions` 指明依据哪些字段、比较什么、按什么条件判断；结构化材料使用字段路径，问题 ID 用于关联答案。criteria 与题意一致；如主题相关性看实质讨论的对象或机制，而非仅看词形相近。
 5. **组合问题**：同 state 的独立题合并到 `questions`；各题看不到其他题的答案，依赖前题结果时分次调用。不同 state 分开请求，答案由代码按原任务规则组合。
@@ -85,7 +88,7 @@ JEV 接收文本或 JSON `state` 与类型化 `questions`，返回结构化 `ans
 node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json --file /absolute/path/request.json
 ```
 
-正常有效请求一次发送。先检查退出码与 `ok`，再按问题 ID 读取 `result.answers`。CLI 按[输出与校验契约](references/cli.md#输出与校验)检查 schema 与题目对应；协议异常按技术失败处理，原始响应保持不变。
+正常有效请求一次发送。先检查退出码与 `ok`，再检查 `normalized.completion`，按原问题 ID 读取 `normalized.answers` 的逐题 status 与值；`result` 为未改写的 provider 原答。直接 `openai-decisions` 支持的合法拒答不等于技术失败，也不提供数值答案；不能按模型家族向其他 adapter 外推拒答合同。CLI 按[输出与校验契约](references/cli.md#输出与校验)检查 schema 与题目对应；协议异常按技术失败处理，原始响应保持不变。
 
 配置或输入错误先修正，其余技术失败按 `error.kind` 处理。CLI 不自动重试；再次发送须有理由和次数上限，超时后服务端是否已处理或计费可能未知。
 

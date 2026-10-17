@@ -13,3 +13,10 @@ await import("../statistics-storage.test.ts");
 await import("../statistics-schema.test.ts");
 await import("../statistics-summary.test.ts");
 await import("../statistics-batches.test.ts");
+
+await import("../adapter-configuration.test.ts");
+await import("../adapter-openai.test.ts");
+await import("../adapter-images.test.ts");
+await import("../adapter-jev.test.ts");
+await import("../adapter-logging.test.ts");
+await import("../adapter-transport.test.ts");
