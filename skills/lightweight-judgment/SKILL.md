@@ -5,7 +5,7 @@ description: >-
   用低成本、低延迟的结构化判断处理分类、候选选择、相关性筛选、命题判断
   和程度评分；以 JEV 载体调用 JEV 或 OpenAI Decisions，复核类型化结果后继续原任务。
 metadata:
-  version: "9"
+  version: "10"
 ---
 
 # Lightweight Judgment
@@ -24,6 +24,7 @@ metadata:
 
 | 当前任务 | 执行与读取路径 |
 | --- | --- |
+| 首次选模型、升级或比较替代方案 | 先读[模型对照与选择](references/model-comparison.md)，比较基础能力、效果证据、校准、耗时与费用，再核对所需接入合同 |
 | 发起新的语义判断 | 按下方任务选择与判断流程执行；初次调用或配置变化时先读[合同选择](references/protocol-adapters.md#选择合同)与 [CLI 配置](references/cli.md#配置)，再核对命令和输出 |
 | 使用图片、Box 或长输入 | 读取[接入合同与模态](references/protocol-adapters.md)，核对所选 adapter、模型与可信配置门禁后再准备请求 |
 | 处理有效原答或拒答 | 读取[原答、统一结果与采用](references/protocol-adapters.md#原答统一结果与采用)；技术错误另按 [CLI 技术失败](references/cli.md#技术失败)处理 |
@@ -78,7 +79,9 @@ Noul 接近 0.5 只表示肯定与否定概率相近，不表示程度中等或�
 
 确认数据外发、接收方、调用规模与费用在已有授权内；扩大范围时重新核对。密钥通过环境变量或私有配置注入，不进入请求正文、仓库或用户输出。预算、期限与服务限额按实际通道核对。
 
-首次正式调用或连接／凭据配置变化时，按 [CLI 操作契约](references/cli.md)完成 `doctor` 与请求预览；日常调用复用配置。前置缺失时报告缺口并保留已准备的请求。
+首次选择或更换模型时，按[模型对照与选择](references/model-comparison.md)确定候选与选择依据；模型切换由调用方显式决定，日常复用已有配置。
+
+首次正式调用或连接／凭据配置变化时，按 [CLI 操作契约](references/cli.md)完成 `doctor` 与请求预览。前置缺失时报告缺口并保留已准备的请求。
 
 日志默认关闭。需要留存时按[调用日志](references/call-logging.md#开启与留存)确认正文开关、私有位置与数据权限；需要后续批次或标签对照时，在发送前启用日志并提供[本地元数据](references/statistics.md#记录本地批次与标签)。
 
