@@ -133,6 +133,23 @@
       ],
       "title": "定位 Gate 工具链漂移导致的级联失败"
     },
+    "260920-laya-decision-model-evidence": {
+      "formedAt": "2026-09-20T08:06:39+08:00",
+      "name": "laya-decision-model-evidence",
+      "question": "Laya 与 Jev 的接口、实现、性能和开放程度有何差异，哪些证据支持本地类型化判断试验？",
+      "relations": [],
+      "resourceIds": [
+        "260920-laya-decision-model-evidence/source-inventory.md"
+      ],
+      "sourcePath": "laya-decision-model-evidence.md",
+      "tags": [
+        "decision-models",
+        "lightweight-judgment",
+        "local-inference",
+        "model-evaluation"
+      ],
+      "title": "Laya 开源决策模型：实现、性能证据与使用边界"
+    },
     "260923-stale-skill-release-after-failed-ci": {
       "formedAt": "2026-09-23T09:00:25Z",
       "name": "stale-skill-release-after-failed-ci",
@@ -151,6 +168,21 @@
         "validation-boundaries"
       ],
       "title": "定位失败构建后滚动 Skill Release 不补发"
+    },
+    "260926-intern-decision-clm-evidence": {
+      "formedAt": "2026-09-26T14:37:39Z",
+      "name": "intern-decision-clm-evidence",
+      "question": "Intern-Decision 与 CLM-8B 的接口、模型特征、校准和性能有哪些证据，能否作为 Jev 的本地替代候选？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "intern-decision-clm-evidence.md",
+      "tags": [
+        "decision-models",
+        "lightweight-judgment",
+        "local-inference",
+        "model-evaluation"
+      ],
+      "title": "Intern-Decision、CLM-8B 与 Jev：协议、校准与性能证据"
     },
     "261004-jev-record-maintenance-boundaries": {
       "formedAt": "2026-10-04T15:30:13Z",
@@ -199,6 +231,34 @@
         "version-control"
       ],
       "title": "调查暂存的文件表示误判与保真修复"
+    },
+    "261009-openai-decisions-api-contract": {
+      "formedAt": "2026-10-09T05:57:54Z",
+      "name": "openai-decisions-api-contract",
+      "question": "OpenAI Decisions API 公测的调用协议、类型语义、输入限制与费用条件是什么？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "openai-decisions-api-contract.md",
+      "tags": [
+        "decision-models",
+        "lightweight-judgment",
+        "model-api"
+      ],
+      "title": "OpenAI Decisions API：官方接口、接入与限制"
+    },
+    "261009-openai-decisions-jev-comparison": {
+      "formedAt": "2026-10-09T06:51:13Z",
+      "name": "openai-decisions-jev-comparison",
+      "question": "公开评测支持 OpenAI Decisions 相对 Jev 处于什么水平，哪些性能和采用结论仍未得到证明？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "openai-decisions-jev-comparison.md",
+      "tags": [
+        "decision-models",
+        "lightweight-judgment",
+        "model-evaluation"
+      ],
+      "title": "OpenAI Decisions 与 Jev：质量、校准、延迟和成本证据"
     },
     "261009-skill-cli-repeated-process-and-source-access": {
       "formedAt": "2026-10-09T03:33:16Z",
@@ -382,6 +442,79 @@
         "semantic-fidelity"
       ],
       "title": "完整事件、关系筛选与终端图的重复扫描收敛"
+    },
+    "261015-jev-1-14-capabilities-and-comparison": {
+      "formedAt": "2026-10-15T09:02:40Z",
+      "name": "jev-1-14-capabilities-and-comparison",
+      "question": "Jev 1.14 的版本、图像、Box 和长上下文能力有何变化，公开证据如何影响与 Decisions 的比较？",
+      "relations": [
+        {
+          "summary": "新版与实验能力开放后复核模型对比结论",
+          "target": "261009-openai-decisions-jev-comparison",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "jev-1-14-capabilities-and-comparison.md",
+      "tags": [
+        "decision-models",
+        "lightweight-judgment",
+        "model-api",
+        "model-evaluation"
+      ],
+      "title": "Jev 1.14：新版能力、实验限制与 Decisions 对比"
+    },
+    "261017-decision-model-multimodal-long-context-integration": {
+      "formedAt": "2026-10-17T02:40:36Z",
+      "name": "decision-model-multimodal-long-context-integration",
+      "question": "以 JEV 为基础接入 TypeSafe、OpenRouter 与 OpenAI Decisions 时，图片、Box 和长上下文哪些可执行转换，哪些必须在发送前拒绝？",
+      "relations": [
+        {
+          "summary": "补充图片传输、Box拒绝和长上下文接入边界",
+          "target": "261015-jev-1-14-capabilities-and-comparison",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "decision-model-multimodal-long-context-integration.md",
+      "tags": [
+        "decision-models",
+        "lightweight-judgment",
+        "model-api",
+        "multimodal",
+        "semantic-fidelity"
+      ],
+      "title": "决策模型图片、Box 与长上下文的传输及转换边界"
+    },
+    "261017-jev-carrier-openai-decisions-mapping": {
+      "formedAt": "2026-10-17T02:38:12Z",
+      "name": "jev-carrier-openai-decisions-mapping",
+      "question": "以 JEV 为统一请求载体时，哪些字段可无损或显式转换到 Decisions，哪些必须拒绝，如何保留原始与统一结果？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "jev-carrier-openai-decisions-mapping.md",
+      "tags": [
+        "decision-models",
+        "lightweight-judgment",
+        "model-api",
+        "protocol-adaptation"
+      ],
+      "title": "JEV 载体到 OpenAI Decisions：语义保真映射与结果边界"
+    },
+    "261017-lightweight-judgment-multi-protocol-runtime-boundaries": {
+      "formedAt": "2026-10-17T02:39:15Z",
+      "name": "lightweight-judgment-multi-protocol-runtime-boundaries",
+      "question": "以 JEV 为基础载体接入 OpenAI Decisions、图片、Box 与长上下文时，当前 CLI 的配置、留存、统计和离线验收需要哪些最小正确边界？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "lightweight-judgment-multi-protocol-runtime-boundaries.md",
+      "tags": [
+        "lightweight-judgment",
+        "model-api",
+        "runtime-contract",
+        "sqlite"
+      ],
+      "title": "JEV 载体跨协议运行时：配置隔离、日志恢复与统计边界"
     },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
@@ -1036,10 +1169,14 @@
       "260911-explain-ci-cold-proof-test-failure": "sha256:2bb1a591998082c1ad39c3ae51daa73842a0195022a690601061b80827845a42",
       "260912-isolate-ci-version-control-test-load": "sha256:676088ae4f676fbdb7d86544680808b9544199fb698037e875c760316e497c25",
       "260919-gate-toolchain-drift": "sha256:6ae61d9a98622da92e811e803fd84805bd8161223ae8d6edd40ff2323c07a169",
+      "260920-laya-decision-model-evidence": "sha256:656c245f5186d72a311ee311ed02c5794256b5c65a9bd6c1b4e95ecbad1ecf5a",
       "260923-stale-skill-release-after-failed-ci": "sha256:30f5274c8658ca3684d44997f7f3e2ee09d3552a1d1a4dc6a975be58878e4299",
+      "260926-intern-decision-clm-evidence": "sha256:3eaad52e82e9a7dd283cf19f7088defef281d20f8d0fd5f094a8f0b3ce4317b6",
       "261004-jev-record-maintenance-boundaries": "sha256:168f6931ca8b9f1392643ec7606dd8dfad06f87eacd4d26c4c23c8c676024046",
       "261004-lightweight-judgment-wal-init-contention": "sha256:3dc57830e8c2b5f466922ea241f86702a776ea8ebcb091018705157c8933fde7",
       "261005-pending-file-representation-conflict": "sha256:2fb0c701b837460cb5324b091afd36bf4035307b1cc40eee180cf7358a2558d1",
+      "261009-openai-decisions-api-contract": "sha256:2c69c76427b9905bdbe6c5a71818802a546fbc4f469b02f8b38c457a154c1f37",
+      "261009-openai-decisions-jev-comparison": "sha256:770e68e8124f5dda7c6eeeb1f66ce714a046fb62fca3a209c515cb41d5106830",
       "261009-skill-cli-repeated-process-and-source-access": "sha256:c36ef47b219d7f4c7c8ce1496b70aeee91958106a01835275793a8fe0eca64be",
       "261010-investigation-acquisition-performance-recheck": "sha256:363386f7d53281c571fabb6682fb3f8e69c28be86b0437033e7f37751efba60a",
       "261010-investigation-local-stage-and-single-read-check": "sha256:a1ed5d551d2dea05dbcfd4e3bf928adcb60cb82d25a604524a2170f278fc81aa",
@@ -1048,6 +1185,10 @@
       "261011-decision-snapshot-stage-and-event-costs": "sha256:c8b5d3aaa42896e3be0d0aeb96387cbd22256535f2ea57d987812880758d9aff",
       "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints": "sha256:ce79cceb5f8d0fff03dc278874c5b834743c27bf7c9e87ab569af2df608c3e8c",
       "261011-investigation-event-query-and-trace-rendering": "sha256:4936145c3049f56c27e26ed025729c7a31172bd8fbb9425f95fa82a0c2739915",
+      "261015-jev-1-14-capabilities-and-comparison": "sha256:58569c00abae2b334d0f29cd876a3ad20e599a5273caab530eb03f52e994d16b",
+      "261017-decision-model-multimodal-long-context-integration": "sha256:d0ef103bfbbc3739a23153c50be7be642e57a2dca48165dd1d061edcee989275",
+      "261017-jev-carrier-openai-decisions-mapping": "sha256:a4532d576333c29a51136d99fbb3cfd0fdee973ddce6265632b2cb6cd88dfddd",
+      "261017-lightweight-judgment-multi-protocol-runtime-boundaries": "sha256:832411cf080a2703c050dcd8490c4d34d8d3f1a42d2af5c952375580052ff242",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",
