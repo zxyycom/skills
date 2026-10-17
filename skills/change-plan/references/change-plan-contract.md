@@ -1,22 +1,21 @@
 # Change Plan 固定结构与 CLI 契约
 
-本文件是 Change 目录、`.change-plan.json`、artifact 结构、合法 stage、严格 active metadata、Git
-距离和 CLI 机械行为的唯一精确契约。`SKILL.md` 负责 `Outcome`、`Intended Change` 与
-`Resulting Impacts` 的内容判断、语义审阅和授权门禁；本文件只固定工具能够确定性执行的边界。
+本文件唯一承接 Change 目录、metadata、artifact 结构、Git 距离与 CLI 机械行为。
+内容判断、完成声明、执行流程与授权边界由 [`SKILL.md`](../SKILL.md) 承接。
 
 ## 状态模型
 
-Change 只有仍在工作区中维护的内容 stage：`draft` 或 `plan`。生命周期是
-`draft -> plan --finalize--> directory absent`；`finalize` 成功的效果是删除目录，而不是写入持久
-`finalized` status。Readiness、Implementation 和
-Verification checkbox 只表达 active Plan 内任务进度。
+当前 Change 的内容 stage 为 `draft` 或 `plan`，生命周期为
+`draft -> plan --finalize--> directory absent`。`finalized` 是命令 outcome，退出后的历史由 Git 恢复。
+Readiness、Implementation 和 Verification checkbox 记录 Plan 内任务进度；其完成含义与执行义务
+见[任务与结项契约](../SKILL.md#任务与结项契约)。
 
 ## Change 目录与 metadata
 
 1. 每个 Change 使用独立目录，目录名必须是小写英文、数字和连字符组成的 kebab-case。
 2. Change 根目录优先服从目标项目约定；项目没有约定时使用 `changes/`。
 3. Change 根目录的直接普通目录表示当前 Change；根下 `.change-plan-tombstones/` 是 finalize 的私有
-   清理根，catalog 无条件跳过、不递归、不读取也不输出：
+   清理根，排除在 catalog 的发现、读取与输出范围之外：
 
    ```text
    <change-root>/
@@ -81,8 +80,7 @@ Plan：
 
 Active reader、规范 parser 与 writer 使用同一个 runtime schema。读取边界按 lstat、读取、JSON
 parse、schema parse 的顺序完成一次校验；writer 在同目录完成整个临时文件后直接发布到 metadata
-路径，不解析或写入符号链接的外部目标。Writer 只属于内部持久化边界。Change Plan 不生成 metadata
-JSON Schema 或分发类型声明。
+路径，不解析或写入符号链接的外部目标。Writer 属于内部持久化边界。
 
 ## Artifact 结构
 
@@ -140,9 +138,11 @@ Draft proposal 不要求 `Scope`；追加 `Scope` 时，该章节仍使用通用
 <一句话说明当前设计方向以及它如何兑现 proposal。>
 
 ## Context
+
 <已确认事实、约束和必要假设；事实引用原 owner。>
 
 ## Goals / Non-Goals
+
 <设计目标与明确不承担的内容。>
 
 ## Decisions
@@ -154,9 +154,11 @@ Draft proposal 不要求 `Scope`；追加 `Scope` 时，该章节仍使用通用
 <逐项说明由 Intended Change 引起的影响、局部约束、处理决定与验证要求；没有时明确写“无”。>
 
 ## Risks / Trade-offs
+
 <会改变后续设计、实施、权限或验证的风险与取舍。>
 
 ## Open Questions
+
 <会改变范围、方案、权限或验收且仍需核对的问题；没有时明确写“无”。>
 ```
 
@@ -176,9 +178,11 @@ Plan 检查使用扩展后的 `proposal.md` 和完整 `tasks.md`。
 <一句话说明 Change 的目标和 proposal 的临时计划性质。>
 
 ## Why
+
 <当前问题与开展 Change 的理由。>
 
 ## Outcome
+
 <完成后可以观察到的结果。>
 
 ## Scope
@@ -190,9 +194,11 @@ Plan 检查使用扩展后的 `proposal.md` 和完整 `tasks.md`。
 <逐项说明由 Intended Change 产生且实现 Outcome 必须处理的影响范围；没有时明确写“无”。>
 
 ## Success Criteria
+
 <可检查的完成条件。>
 
 ## Affected Owners
+
 <需要读取、修改或验证的稳定 owner。>
 ```
 
@@ -204,12 +210,15 @@ Plan 检查使用扩展后的 `proposal.md` 和完整 `tasks.md`。
 <一句话说明任务顺序和完成出口。>
 
 ## Readiness
+
 - [ ] 0.1 <实施前的范围、owner、方案或开放问题审计。>
 
 ## Implementation
+
 - [ ] 1.1 <具有明确产物或行为结果的实施任务。>
 
 ## Verification
+
 - [ ] 2.1 <能够证明受影响边界的验证任务。>
 ```
 
@@ -219,7 +228,7 @@ Tasks 规则：
 2. Checkbox 语法为 `- [ ] <id> <description>` 或 `- [x] <id> <description>`。
 3. `<id>` 使用至少两段的层级数字，例如 `0.1`、`1.2` 或 `2.1.1`，并在整个文件内唯一。
 4. Checkbox 只能位于 `Readiness`、`Implementation` 或 `Verification`；CLI 分别统计三个区段及整体进度。
-5. 任务全部勾选只是机械事实，不表示语义验收或完成授权已经完成。
+5. CLI 验证语法并统计声明；工作与验收证据由执行者按[任务与结项契约](../SKILL.md#任务与结项契约)核实。
 
 ## Plan Git 距离
 
@@ -269,6 +278,11 @@ node <change-plan-cli> plan <change-directory> [--json]
 node <change-plan-cli> finalize <change-directory> [--preflight] [--json]
 ```
 
+`show`、`check`、`plan` 与 `finalize` 的显式目录必须是项目约定 Change 根（未约定时
+`changes/`）的直接 active member。单目录命令从目标父目录推导该根，不进行跨根名称搜索；目标父目录
+或任一祖先是另一个 Change 的 metadata 边界时视为嵌套路径。`.change-plan-tombstones` 及其 child
+和任何嵌套路径都返回 `change-directory-not-active-member`，不会读取或写入其内容。
+
 ### 查询命令
 
 | 命令 | 选择与机械结果 |
@@ -280,12 +294,6 @@ node <change-plan-cli> finalize <change-directory> [--preflight] [--json]
 
 `list` 与 `check-all` 只发现 Change 根的直接成员，按 Change 名称排序；`.change-plan-tombstones`
 始终忽略。
-
-`show`、`check`、`plan` 与 `finalize` 的显式目录必须是项目约定 Change 根（未约定时
-`changes/`）的直接 active member。单目录命令从目标父目录推导该根，不进行跨根名称搜索；目标父目录
-或任一祖先是另一个 Change 的 metadata 边界时视为嵌套路径。`.change-plan-tombstones` 及其 child
-和任何嵌套路径都返回
-`change-directory-not-active-member`，不会读取或写入其内容。
 
 ### 结构化查询结果
 
@@ -340,19 +348,24 @@ version-control-failed
 | `plan` | 规范 Draft 或 Plan；目标 Plan 的三个 artifacts 结构有效，当前仓库存在 `HEAD`。不以任何 checkbox 进度为门禁。 | 原子写入 `{ "stage": "plan", "baseCommit": "<当前 HEAD>" }`。 |
 | `finalize` | 结构有效、基线可用且全部 checkbox 已完成的 Plan；完整 physical tree 必须与当前 `HEAD` 的同一路径 Git tree 精确匹配。 | 删除 Change 目录；或在 cleanup 无法证明完成时保留 tombstone child。 |
 
-两个命令都接受显式直接 active Change 目录，并从目标父目录推导项目约定根，不进行跨根名称搜索。
-`plan` 的现有 Plan 必须先由操作者完成语义复核，刷新基线只记录调用时的 `HEAD`，不证明审阅、实施或授权已经完成。
+Git-tree 门禁确保当前 `HEAD` 保留全部任务完成的最终 Plan 与恢复所需内容；版本保存由执行者按
+当前授权和项目流程完成。
+
+对现有 Plan 运行 `plan` 前，由操作者完成语义复核；命令将调用时的 `HEAD` 记录为新基线。
 
 `finalize --preflight` 执行与实际删除相同的 Plan、任务、Git-tree、同设备、tombstone target 和
-identity 准备，但零写入且不保存 receipt。实际 finalize 先在 Change root 下创建私有
-`.change-plan-tombstones`（如尚不存在），再重新读取完整 Plan/任务/base/HEAD 门禁并重新准备；两次
-lifecycle 与 HEAD snapshot 必须一致。声明 tombstone child 前重验 root/source/tombstone identity、当前
-`HEAD`、完整 physical member 和 target absence。它只接受 Git regular file mode `100644`、
-`100755`，并要求每个 physical file 的字节及 owner executable bit 一致；symlink、submodule、特殊
-文件、空/未知目录、已修改、未跟踪或忽略成员都被拒绝。target 以独占目录声明，逐项以不覆盖复制建立
-验证快照；POSIX `rename()` 不作为 no-overwrite 目录移动原语。只在复制快照与 source 均仍精确匹配后，
-才 unlink 已预演 files，再从深到浅 `rmdir` 已预演目录，绝不递归删除。任何并发 target 或成员漂移都不
-覆盖、不删除外来内容。
+identity 准备，零写入且不保存 receipt。实际 finalize 按以下顺序执行：
+
+1. 在 Change root 下创建私有 `.change-plan-tombstones`（如尚不存在），重新读取完整
+   Plan/任务/base/HEAD 门禁并准备；两次 lifecycle 与 HEAD snapshot 必须一致。
+2. 声明 tombstone child 前，重验 root/source/tombstone identity、当前 `HEAD`、完整 physical member
+   和 target absence。只接受 Git regular file mode `100644`、`100755`，且每个 physical file 的字节及
+   owner executable bit 一致；symlink、submodule、特殊文件、空/未知目录、已修改、未跟踪或忽略成员
+   均被拒绝。
+3. 以独占目录声明 target，逐项以不覆盖复制建立验证快照；POSIX `rename()` 不作为 no-overwrite
+   目录移动原语。
+4. 在复制快照与 source 均仍精确匹配后，unlink 已预演 files，再从深到浅 `rmdir` 已预演目录，绝不
+   递归删除。并发 target 或成员漂移均不覆盖、不删除外来内容。
 
 `finalize --json` 始终返回 `sourceDirectory`、`check`、`changed`、`outcome`、`headCommit`、
 `memberCount`、`tombstoneDirectory` 与 `error`。`outcome` 为：
@@ -362,8 +375,7 @@ lifecycle 与 HEAD snapshot 必须一致。声明 tombstone child 前重验 root
   内容，`tombstoneDirectory` 指向只可人工检查的未提交声明路径。
 - `finalized`：已验证复制且 source 与 tombstone 都已精确清理，`changed: true`、`tombstoneDirectory: null`。
 - `committed-cleanup-pending`：已建立可验证 tombstone 副本，但 source 或 tombstone 的精确清理无法完成，
-  `changed: true`，`tombstoneDirectory` 是
-  唯一可操作的恢复位置。
+  `changed: true`，`tombstoneDirectory` 是唯一可操作的恢复位置。
 
 finalize 不 stage、commit、reset、revert 或自动 Git restore；`headCommit` 是维护者可用普通 Git
 恢复 source 的 revision。source 删除前失败不删除 source 成员；建立验证副本后失败不是 rollback 或完成，
@@ -375,7 +387,7 @@ finalize 不 stage、commit、reset、revert 或自动 Git restore；`headCommit
    `finalize` 的 `preflight`、`finalized` 或 `committed-cleanup-pending` 也成功并在文本中明确 outcome。
 2. `1`：查询根或目标不可用、结构或 Plan 基线无效、`check-all` 的任一成员无效，或 `plan` / `finalize`
    的领域门禁、准备、重验或写入失败。
-3. `2`：CLI 参数无效，包含调用六个命令之外的名称（包括旧 `complete`、`archive`）、`--archived` 或 `--all`。
+3. `2`：CLI 参数无效，或命令不在上述六个命令中。
 
 文本模式把成功结果写入 stdout，把诊断和失败写入 stderr。`committed-cleanup-pending` 在 stdout 明确输出
 outcome、source、HEAD recovery revision、member count 与 precise tombstone，并在 stderr 输出 cleanup

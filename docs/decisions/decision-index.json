@@ -101,7 +101,7 @@
       "260912-separate-relation-summary-consumption-by-reading-task": "sha256:2093bfefc99214415a4837aa63e194facca4dd82562ca523181abd6d8f7b33d6",
       "260912-support-per-successor-complete-relation-replacements": "sha256:9f9070118c7255359e629a86ce2b305ff13f19d120207182a50b18147ea59811",
       "260919-require-gate-environment-check-prerequisite": "sha256:db3732c22c98b1fc4928766205a789ae61724b60b4fa0d8af3d4fd899d028cf5",
-      "260920-finalize-change-plans-by-deletion": "sha256:749fd0234c34a6ac151962cee7bfc9de1d3359e876d3cdcac5f9b6b1547fa72e",
+      "260920-finalize-change-plans-by-deletion": "sha256:10cf6690d9ae70af12a38dc54996b809086e14a58c7311812c93d0715c87ba7e",
       "260922-front-load-record-context-recovery": "sha256:457ea886d899da2a9d80e4118b33afc814f5ce3951b0f64f168a96d2ec244785",
       "260922-unify-cli-workspace-location-and-help": "sha256:5a823ce3607c76af0f0bb9b735fba8e04d2a517e245c9e8e69dcf67f4a498a01",
       "260922-unify-formal-relation-maintenance-actions": "sha256:404749283553846c1b7ef56d267c4b2982efe08b29b55ce343fd62c503993ee1",
@@ -130,6 +130,7 @@
       "261010-retain-complete-validation-with-selected-content": "sha256:bc20db4275ae8bfd460f168c2c676dd66f5f6da9c3fdd849207905a6557e39db",
       "261010-separate-investigation-query-and-validation-acquisition": "sha256:5669fdde0cbe2d1f86188ef5ed606f836f32660c960a2554b4c48083afc4a70a",
       "261011-publish-decision-index-query-snapshots": "sha256:e70725985c320e52778936cb0db50357a238154a47596c051e63d6d9c689bbed",
+      "261017-complete-change-plans-through-task-declarations": "sha256:de38af27e41917cae426abb4903d4b20492b7c84f0b5b6643753b714b309f2bb",
       "261017-lightweight-judgment-faithful-protocol-adapters": "sha256:bb4a453ec6fb6159f865a3b5b3307e5ff5b0585a3aa9481a78919fd79ebc40b3",
       "261017-route-record-documentation-by-consumer-task": "sha256:45930827a933def1ad4df38f87547f0418e595912280f7ae9e03f3e3d7d0884a",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
@@ -2352,9 +2353,9 @@
     },
     "260920-finalize-change-plans-by-deletion": {
       "name": "finalize-change-plans-by-deletion",
-      "sourcePath": "finalize-change-plans-by-deletion.md",
+      "sourcePath": "archive/finalize-change-plans-by-deletion.md",
       "title": "以结项删除 Change Plan",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-20T03:31:37Z",
       "purpose": "用 finalize 作为唯一最终生命周期动作，并保留进度、验收与删除的责任边界。",
@@ -2966,6 +2967,32 @@
         "source-artifact-separation"
       ],
       "relations": []
+    },
+    "261017-complete-change-plans-through-task-declarations": {
+      "name": "complete-change-plans-through-task-declarations",
+      "sourcePath": "complete-change-plans-through-task-declarations.md",
+      "title": "以任务完成声明驱动 Change 连续结项",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-17T06:51:26Z",
+      "purpose": "让任务清单完整承载实质完成条件，全勾后连续保存完成记录并安全删除计划。",
+      "background": "全勾后另设业务验收会使任务声明不完整，而删除前缺少最终 Git 快照会丢失完成记录。",
+      "decision": "以如实勾选承载工作与验收，连续执行 Git 保存和 finalize，并保留授权及删除恢复保障。",
+      "tags": [
+        "change-plan",
+        "git-integration",
+        "naming",
+        "record-lifecycle",
+        "responsibility-boundaries",
+        "validation-boundaries"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260920-finalize-change-plans-by-deletion",
+          "summary": "以任务声明统一验收并接续保留完成态的安全删除"
+        }
+      ]
     },
     "261017-lightweight-judgment-faithful-protocol-adapters": {
       "name": "lightweight-judgment-faithful-protocol-adapters",

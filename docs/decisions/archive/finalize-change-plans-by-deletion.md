@@ -1,7 +1,7 @@
 ---
 title: 以结项删除 Change Plan
 id: 260920-finalize-change-plans-by-deletion
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-20T03:31:37Z
 purpose: 用 finalize 作为唯一最终生命周期动作，并保留进度、验收与删除的责任边界。

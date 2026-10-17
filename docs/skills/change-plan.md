@@ -1,39 +1,26 @@
 # Change Plan
 
-`change-plan` 为明确 Change 保存可版本化、可审阅和可交接的临时实施上下文。当前 Change
-只使用 `draft` 与 `plan` 两种 stage；`finalize` 结项时删除 Change 目录，历史只经普通 Git 恢复。
-结项前由 `finalize` 执行最后一次 Plan、任务和 Git-tree 门禁。
+`change-plan` 为跨文件、owner 或验证阶段的明确变更保存可版本化、可审阅和可交接的临时计划，
+帮助项目持续回答为什么做、采用什么设计、如何推进，以及怎样证明完成。
 
-## 为什么需要它
+## 工作方式
 
-项目文档拥有稳定事实和行为，长期决策保存跨 Change 的方向与理由，但一次 Change 仍需要在
-对话之外持续回答为什么做、采用什么设计、按什么顺序实施以及怎样验证。`change-plan` 用
-proposal、design 和 tasks 把这些内容组织成一个可恢复的实施单元。
+1. Draft：用 `proposal.md` 明确 Outcome，用初始 `design.md` 收敛方案。
+2. Plan：补全范围、设计和成功标准，派生 `tasks.md`，在同一计划内完成准备、实施与验证。
+   `Intended Change` 表达预期调整，`Resulting Impacts` 表达由其引起且必须处理的影响。
+3. 结项：全部 checkbox 如实完成后，在当前授权范围内连续保存 Git 完成态，再由 `finalize` 删除目录。
+   当前 Git `HEAD` 必须能精确恢复最终计划；退出后历史由普通 Git 恢复。
 
-固定 artifact 结构在 proposal 的 `Scope` 与 design 的 `Decisions` 中使用
-`Intended Change` 记录预期调整，使用 `Resulting Impacts` 记录由该调整产生且实现 `Outcome`
-必须处理的影响。两部分继续共享同一套 tasks、stage 与进度。
+任务或其验收条件完整承接成功标准、必要影响、owner 同步与必要知识交接；每次勾选都声明对应
+工作及其验收已有证据。版本保存与安全删除是全勾后的收尾动作，业务验收已经随任务完成。
 
-Draft 保存最小 proposal 与初始 design；Plan 保存完整 proposal、design 与 tasks。
-Readiness、Implementation 和 Verification 都在 Plan 内推进，其 checkbox 表达实际任务进度，
-不会派生新的生命周期状态。
+## 查询与边界
 
-## 主要能力
+- `list` 发现计划，`show` 展开当前状态，`check` 与 `check-all` 检查单项或集合。
+- Plan 查询提供 Git 基线后的提交数和目录外累计变化行数，帮助确定复核深度。
+- 项目文档拥有稳定事实和行为，长期决策拥有跨 Change 的方向与理由；Change Plan 承接本次实施上下文。
+- CLI 提供结构检查与删除保护，执行者负责工作证据与当前授权。只创建、查询或审阅计划时，即使
+  发现全勾也保持原有操作范围；提交、清理故障与取消退出按各自执行路径处理。
 
-1. `list` 发现当前 Change；`show` 展开当前状态；`check` 与 `check-all` 门禁当前 Change。
-2. `plan` 确认 Draft，或在重新审阅现有 Plan 后刷新 Git 基线；`finalize` 删除已通过语义验收且可由 Git 恢复的 Plan。
-3. Plan 查询直接提供基线后的 first-parent 提交数和 Change 目录外累计变化行数，帮助操作者决定需要怎样复核当前计划；可用距离只提供上下文，不驱动生命周期。
-4. Active metadata 只接受规范 Draft 或具有非空 Git 基线的规范 Plan；无效 metadata 所在目录仍可发现，但不能投影为合法 stage 或由写入命令自动迁移。
-5. 结项不写入持久 status；成功后目录不存在，因而不再进入 catalog、checker 或历史 reader。稳定事实、长期方向和独立调查材料在结项前交接给各自 owner。
-6. 随包 MJS 同时提供 CLI 和随当前实现变化的直接 import 表面；需要稳定交互时使用固定 CLI 契约与 JSON 结果。
-
-## 能力边界
-
-项目 owner 继续拥有稳定事实、接口和验证语义，长期判断进入项目已有决策 owner。Change
-artifacts、机械检查、语义审阅与当前任务授权提供不同证据：`plan` 记录基线，`finalize` 删除可恢复目录，
-两者都不代替实施或删除授权。不再实施的 active Change 只在明确授权后按项目的文件系统与版本控制
-流程移除整个目录，并以 `list` 不再发现该 active member 作为退出结果。
-
-实际 skill 位于 [`skills/change-plan/`](../../skills/change-plan/)。Agent 行为从
-[`SKILL.md`](../../skills/change-plan/SKILL.md) 进入；字段、严格 metadata 边界、六个命令、输出和机械门禁以
-[固定契约](../../skills/change-plan/references/change-plan-contract.md) 为准。
+Agent 从 [`SKILL.md`](../../skills/change-plan/SKILL.md) 进入；目录、metadata、模板、CLI 与恢复边界
+由[固定契约](../../skills/change-plan/references/change-plan-contract.md)承接。

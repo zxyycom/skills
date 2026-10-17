@@ -5,42 +5,45 @@ description: >-
   design.md、tasks.md 和 .change-plan.json 维护明确 Change 的目标、设计、任务、
   验证与 draft/plan stage，并在结项时删除短期计划目录。
 metadata:
-  version: "36"
+  version: "37"
 ---
 
 # Change Plan
 
 ## 目标
 
-让一个以明确 `Outcome` 组织的 Change 从可持续改写的 Draft 收敛为 Plan，在 Plan 内完成准备、
-实施与验证，并通过结项删除目录。固定 artifact 结构以 `Intended Change` 记录为实现 `Outcome`
-采用的预期调整，以 `Resulting Impacts` 记录由该调整产生且实现 `Outcome` 必须处理的影响；design
-和 tasks 将两者落实为同一生命周期中的决定、工作与验证。Draft 与 Plan 表达内容成熟度，tasks 的
-checkbox 表达 Plan 内进度；任务全选不产生可查询的持久生命周期 status。
+以明确 `Outcome` 组织一个 Change 的目标、设计、实施与验证。Draft 用于收敛方案，Plan 用于
+推进任务；全部任务完成后保存 Git 完成态，并以 `finalize` 删除临时计划。
 
-机械检查只作用于当前 Change；`finalize` 前由完整 Plan、任务和 Git 可恢复 tree 共同保护删除。
-结项后的历史只通过普通 Git 恢复；稳定事实、长期方向和独立调查材料必须在语义验收后、结项前交接给各自 owner。
-
-Change artifacts、机械检查、内容审阅和当前任务授权分别提供不同证据。CLI 成功只证明固定机械条件
-成立；开始实施和结项删除仍以当前任务授权及执行者的语义判断为准。
+`proposal.md` 表达结果、范围和成功标准，`design.md` 记录方案与取舍，`tasks.md` 承接工作与
+验收；`.change-plan.json` 记录 Draft/Plan 内容成熟度与 Plan 的 Git 基线。
 
 ## 使用条件
 
-1. 用户明确要求创建、查询、更新、审阅或结项一个持久 Change 计划时使用。
-2. 工作跨越多个文件、owner 或验证阶段，需要在对话之外保存范围、设计、任务进度和交接信息时使用。
-3. 当前对话中的简短步骤、尚未形成实施 Change 的探索、长期决策和稳定事实分别留在当前任务或对应
-   owner；已经明确要求直接完成的局部改动不因存在本 skill 而自动建立 Change。
+- 用户明确要求创建、查询、更新、审阅或结项一个持久 Change 计划。
+- 工作跨越多个文件、owner 或验证阶段，需要在对话之外保存范围、设计、进度和交接信息。
+- 简短步骤、尚未形成实施 Change 的探索、长期决策和稳定事实留在当前任务或对应 owner；明确要求
+  直接完成的局部改动不因存在本 skill 而自动建立 Change。
 
-## 内容 owner 与读取路径
+## 读取路径与职责
 
-1. 本文件承接触发、上下文恢复、内容写作、Plan 内任务推进、语义审阅和授权门禁。
-2. [固定结构与 CLI 契约](references/change-plan-contract.md) 唯一承接 Change 目录、
-   `.change-plan.json`、artifact 结构、合法 stage、严格 metadata、Git 距离、六个命令、finalize
-   删除准备、结构化输出和退出码。操作 Change 前完整读取。
-3. `scripts/change-plan.mjs` 实现固定契约，也允许直接 import 当前底层函数；这些导出是随当前实现
-   变化的复用表面，不是稳定 SDK。脚本不判断目标、方案、事实、长期决策、验证证据或授权是否正确。
-4. 项目文档继续拥有当前稳定事实和行为；项目已有长期决策 owner 时，跨 Change 持续有效的理由与方向
-   进入该 owner。Change Plan 只拥有当前 Change 的临时实施上下文。
+- 本文件承接内容判断、任务完成声明、执行流程与授权边界。
+- 操作 Change 前完整读取[固定结构与 CLI 契约](references/change-plan-contract.md)。它唯一承接
+  目录、metadata、artifact 结构、Git 距离及随包 `scripts/change-plan.mjs` 的机械行为。
+- Change Plan 保存临时实施上下文；稳定事实与行为归项目文档，跨 Change 的长期理由与方向归项目
+  已有决策 owner。执行者核实实际工作与验收证据，CLI 核实结构和删除安全条件。
+
+## 任务与结项契约
+
+- 清单：`tasks.md` 完整承接成功标准、预期调整、必要影响、阻塞验收的问题、稳定 owner 同步与必要
+  知识交接。将这些条件落实到任务或其验收条件，优先由现有任务承接。
+- 勾选：`[x]` 声明对应工作及其验收已完成且有证据。语义审阅、验证与必要交接在勾选前完成；发现
+  遗漏、误勾或证据不足时，同步修正清单与状态。
+- 结项：Plan 全部任务如实完成即接续版本保存与安全退出，业务验收已经随任务完成。保存最终全勾
+  Plan 和 `finalize` 属于结项动作，不列为全勾的前置 checkbox，以免形成循环。
+- 授权：接手实施时，依据当前任务与项目规则恢复实施、提交和正常结项删除的授权范围，缺失且影响
+  交付时尽早确认；完整交付按已有授权连续结项。只创建、查询或审阅计划时，即使发现全勾也不自动
+  提交或删除；checkbox、metadata 和命令成功均不授予额外权限。
 
 ## 工作流程
 
@@ -49,85 +52,73 @@ Change 根和 tombstone 路径的命名空间稳定，不与其他操作者或�
 
 ### 1. 定位或建立 Change
 
-1. 读取目标工作区指令、固定契约以及与 Change 直接相关的事实 owner；项目已有决策、调查或测试
-   证据入口时，只读取当前范围需要的材料。
+1. 读取目标工作区指令与相关事实 owner，按当前范围补读项目已有的决策、调查或测试证据。
 2. 将用户目标压缩成一句 `Outcome`，确定预期调整，并从事实 owner 与现有依赖恢复由该调整产生且
    实现 `Outcome` 必须处理的影响，据此确定范围、非目标、成功标准和受影响 owner。具有独立
    `Outcome` 或生命周期的事项建立独立 Change。
-3. 使用用户指定的 Change 目录；未指定时遵循项目已有约定，项目没有约定时使用
-   `changes/<kebab-case-name>/`。
-4. 需要选择现有 Change 时先运行 `list`；目标确定后运行 `show`。当前 Change 根据 stage、任务进度、
-   诊断和距离证据恢复上下文。
-5. 新建 Change 时，按固定契约写入 Draft metadata、最小 `proposal.md` 和初始 `design.md`，暂不创建
-   `tasks.md`。目标、范围或会改变 public contract、架构边界、兼容性和验收的关键选择无法可靠判断时，
-   只确认会改变结果的最小问题。
+3. 使用用户指定目录，其次遵循项目约定，项目没有约定时使用 `changes/<kebab-case-name>/`。
+   选择现有 Change 时先 `list` 再 `show`，从 stage、任务进度、诊断与 Git 距离恢复上下文。
+4. 新建时写入 Draft metadata、最小 `proposal.md` 与初始 `design.md`；`tasks.md` 在形成 Plan 时
+   派生。目标、范围或涉及 public contract、架构、兼容性、验收的关键选择无法可靠判断时，只确认
+   会改变结果的最小问题。
 
 ### 2. 将 Draft 收敛为 Plan
 
-1. Draft proposal 说明 `Why` 与 `Outcome`；初始 design 保存当前上下文、目标、设计方向、取舍与
-   开放问题。两者可以持续修订，暂定选择保持显式。
-2. 准备形成 Plan 时，按固定契约在 `Scope` 与 `Decisions` 中分别填写 `Intended Change` 和
-   `Resulting Impacts`；补全成功标准和受影响 owner，再从 design 派生 `tasks.md`，使 Implementation
-   与 Verification 覆盖预期调整和必要影响。所有任务继续使用同一进度模型。
-3. Readiness、Implementation 与 Verification 共同表达 Plan 内进度。只按实际证据勾选任务，并在目标、
-   设计或新事实变化时同步修订相应 artifacts。
-4. 三个 artifacts 已经能够作为 Plan 使用时，运行：
+1. 持续修订 Draft 的 `Why`、`Outcome` 与 design，保存当前上下文、目标、方向、取舍和开放问题，
+   显式标记暂定选择。
+2. 在 proposal 的 `Scope` 与 design 的 `Decisions` 中，用 `Intended Change` 表达预期调整，
+   用 `Resulting Impacts` 表达由该调整产生且实现 Outcome 必须处理的影响；补全成功标准与受影响 owner。
+3. 从 design 派生 `tasks.md`，用 Readiness、Implementation 与 Verification 组织工作，使实施与验证
+   覆盖预期调整及必要影响，并符合任务与结项契约。三个 artifacts 已具备 Plan 内容时运行：
 
    ```text
    node <change-plan-cli> plan <change-directory>
    ```
 
-   `plan` 记录命令运行时的 `HEAD` 并写入规范 Plan metadata；当前 checklist 进度如实保留在
-   `tasks.md`，不产生另一 stage。成功后按项目版本控制流程保存三个 artifacts 与 metadata。
+   `plan` 将运行时的 `HEAD` 写为基线并保留任务进度。成功后按项目版本控制流程保存三个 artifacts
+   与 metadata。
 
 ### 3. 在 Plan 内实施、查询与复核
 
 1. 按 tasks 的依赖顺序完成 Readiness、Implementation 与 Verification。新发现的必要影响同步进入
    proposal 与 design 的 `Resulting Impacts` 及 tasks；预期调整变化时同步 `Intended Change`，预期结果
    变化时同步 `Outcome` 与 Goals。方案变化时更新 design 和受影响的任务与验证。
-2. 使用 `show` 恢复当前 Change，使用 `check` 门禁单个 Change，使用 `list` 发现集合，使用
-   `check-all` 门禁全部直接成员。查询命令只报告结果；写入只由显式 `plan` 或 `finalize` 完成。
-3. Plan 距离可用时，根据从 `baseCommit` 到当前 `HEAD` 的 first-parent 提交数和 Change 目录外累计变化
-   行数判断复核深度。零距离只表示自计划基线以来未统计到 Change 目录外的项目变化；非零距离表示继续前
-   需要确认这些项目变化未影响当前计划。可用距离本身不阻断检查或结项。
-4. Plan 基线不可追溯时，重新审阅当前 Plan 后运行 `plan` 刷新基线；版本控制查询失败时，先恢复仓库
-   访问或 Git 状态，再执行同一审阅路径。现有 Plan 主动刷新基线时也先完成语义复核。
-5. metadata 只接受固定契约中的规范 Draft 与 Plan。目录存在但 metadata 无效时仍可由集合查询发现，但
-   stage 不成立且检查失败；先通过普通文件与版本控制流程显式修复 metadata，再进入正常 `plan` 或
-   `finalize` 流程。
-6. 新发现只影响本次实施时进入 design 或 tasks；改变稳定事实时更新对应项目 owner；形成跨 Change
-   长期方向时交给项目已有决策 owner。附加说明和证据可以放在 Change 目录，但不能替代固定 artifacts。
+2. 实施观察进入 design 或 tasks，稳定事实更新到项目 owner，长期方向交给已有决策 owner；附加说明
+   和证据可放在 Change 目录，固定 artifacts 仍按契约维护。
+3. 使用 `show` 恢复当前 Change、`check` 检查单项、`list` 发现集合、`check-all` 检查全部直接成员。
+   根据 Git 距离确定复核深度，确认项目演进仍与计划一致；可用距离本身不阻断检查或结项。
+4. 按诊断恢复输入与基线：
+   - metadata 无效：通过普通文件与版本控制流程显式修复，再进入 `plan` 或 `finalize`。
+   - 基线不可追溯或主动刷新：先完成当前 Plan 的语义复核，再运行 `plan`。
+   - Git 查询失败：先恢复仓库访问或 Git 状态，再执行上述审阅与基线刷新路径。
 
-### 4. 结项并删除
+### 4. 保存完成态并结项删除
 
-1. 逐项确认 proposal 的成功标准已满足，稳定事实 owner 已同步，design 的开放问题不阻塞结项，所有
-   task 勾选都有实际实施与验证证据。
-2. 完成语义审阅并获得当前任务的删除授权后，先使用 `finalize --preflight` 审阅机械门禁和预计恢复
-   revision；通过后运行：
+1. 在实施或完成 Change 的任务中，全勾后按项目版本控制流程保存当前任务改动。确保完整 Change
+   目录，包括最终 artifacts、metadata 与必要附加证据，与当前 `HEAD` 精确匹配；已有相同快照时
+   无需重复提交。保留无关工作区与暂存改动。
+2. 先预检机械门禁与预计恢复 revision，预检通过后执行删除：
 
    ```text
+   node <change-plan-cli> finalize <change-directory> --preflight
    node <change-plan-cli> finalize <change-directory>
    ```
 
-3. `finalize` 只删除能够由当前 `HEAD` 精确恢复的 Plan 目录，不替代上述语义审阅、owner 交接或授权。
-   `committed-cleanup-pending` 表示已建立经验证的 tombstone 副本，但 source 或 tombstone cleanup 未能证明
-   清理完成；将其作为等待清理的 outcome，检查报告路径，或从报告的 Git revision 按普通 Git 流程恢复。
-4. 不再实施的 Change 先判断其内容是否仍有独立价值，并把稳定事实、长期方向或调查结果交给对应 owner。
-   只有当前任务已经明确授权删除且 finalize 门禁通过时，才运行该命令；随后运行 `list`，确认目录不再
-   作为当前 member 出现。后续工作需要新计划时建立新的 Change。
+3. 运行 `list` 确认目录已退出当前成员集合。以 outcome 为 `finalized` 且退出已确认作为结项完成证据。
 
-## 完成标准
+## 故障与取消
 
-1. Draft 或 Plan 的 artifacts 共同表达同一 `Outcome`；`Resulting Impacts` 中的每项影响都能回溯到
-   `Intended Change`，并符合固定结构；metadata 表达当前内容成熟度。
-2. Plan 内每项任务的状态都有事实支持，成功标准、稳定 owner、长期决策和验证证据已按实际结果同步。
-3. 当前 Change 查询中的任务进度、Git 距离或阻断诊断已得到处理，metadata 已通过严格规范解析；无效
-   输入通过普通文件与版本控制流程显式修复，已授权结项的 Change 经 finalize 和 `list` 确认退出。
-4. 机械检查、内容审阅、实施授权和删除授权在交付中分别说明，没有用 metadata、checkbox 或命令成功
-   代替授权。
+- 版本保存、机械门禁或清理失败时，按[写入命令契约](references/change-plan-contract.md#写入命令)
+  处理 outcome 与恢复路径，解除原因后继续；需要外部条件或额外授权时报告具体阻塞。任务状态仍
+  按工作与验收事实记录。`committed-cleanup-pending` 表示仍待清理，应检查报告的 tombstone 路径，
+  或从报告的 Git revision 恢复。
+- 取消实施时，判断内容的独立价值，完成必要 owner 交接与历史保存，再在明确授权范围内按项目
+  文件系统与版本控制流程移除目录，并以 `list` 确认退出。后续工作需要计划时建立新的 Change。
 
-## 交付
+## 验收与交付
 
-简要说明 Change 名称与路径、适用 stage、三个 artifacts 和 metadata 的当前作用；另行说明任务进度、
-Plan 距离或基线诊断、实际运行的命令与检查结果。若运行 finalize，明确其 outcome、HEAD recovery
-revision、tombstone 边界以及仍需用户决定或下游处理的事项。
+- 核对 artifacts 是否表达同一 Outcome、必要影响能否回溯到预期调整、任务覆盖与证据是否符合上述
+  契约，以及 metadata 和机械检查的实际结果。
+- 简要说明 Change 名称、路径、stage、任务进度、Git 距离或基线诊断，以及实际命令与检查结果。
+  运行 `finalize` 时另报 outcome、HEAD recovery revision、tombstone 边界与下一步；有阻塞时区分
+  未完成的实质工作和结项执行故障。
