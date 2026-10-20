@@ -6,7 +6,7 @@ description: >-
   选择、领取并收敛任务；少量固定顺序步骤继续使用当前对话计划。
 compatibility: "Requires Node.js ^22.22.2 || ^24.15.0 || >=26.0.0 and Git for pending staging; workspace task-index mutations require a caller-provisioned compatible native runtime."
 metadata:
-  version: "25"
+  version: "26"
 ---
 
 # Task Graph
@@ -31,10 +31,23 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 3. 工作目标只是选择、创建、配置或审计执行者；task graph 只维护任务协调事实，不决定执行者或执行方式。
 4. 个人长期 TODO、项目排期、通知或跨项目任务管理。
 
+## 工具运行前置
+
+运行下文公开 `.ts` CLI/import 或自更新入口时，使用 Node.js `^22.22.2 || ^24.15.0 || >=26.0.0` 的原生类型擦除。
+依赖沿 Node 正常解析，可复用宿主兼容版本，不要求本地 `node_modules` 或与锁文件精确版本一致。
+依赖缺失、实际不兼容或需要复现随包基线时，使用随包 `package.json` 固定的 pnpm 显式安装：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行、import、help 和检查不自动安装。安装副本中的 `scripts/runtime/tools/` 可直接修改，无需构建；
+更新会覆盖正式包中的同路径定制文件。领域操作的其他前置仍由各自操作契约承接。
+
 ## 内容 owner 与工具
 
 1. 本文件承接触发、任务记录判断、调度流程、权限边界、恢复和交接。
-2. `scripts/task-graph.mjs` 同时是 CLI 和程序化导入模块。Service 与 dispatch 先产生结构化 raw result object；CLI 再按已识别的操作选择 JSON serializer、task-list renderer 或 task-index stage renderer。程序化调用直接导入同一份公开导出，不经过文本 renderer、JSON 往返或另一套 SDK 实现。
+2. `scripts/task-graph.ts` 同时是 CLI 和程序化导入模块。Service 与 dispatch 先产生结构化 raw result object；CLI 再按已识别的操作选择 JSON serializer、task-list renderer 或 task-index stage renderer。程序化调用直接导入同一份公开导出，不经过文本 renderer、JSON 往返或另一套 SDK 实现。
 3. `scripts/task-graph.d.mts` 及其包内声明树从同一 TypeScript 实现机械生成。[task index Schema](references/task-graph-index.schema.json) 描述权威索引结构。精确命令、参数、是否需要 native runtime、raw result 和错误结构以 JSON help 的 `requiresMutationRuntime`、公开声明及 Schema 为准；调用前使用 `help` 或 `help <command-path>` 恢复当前契约。
 4. 目标仓库的 `docs/task-graph/task-graph-index.json` 是该工作区任务图的唯一权威索引，只能通过工具事务化修改。系统临时目录中的空锁文件与原子写临时文件都不是事实源。
 
@@ -87,7 +100,7 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 
 ### 1. 恢复索引与任务图
 
-1. 让 shell 当前目录位于目标仓库根目录，并从本 skill 的实际安装路径调用 `scripts/task-graph.mjs`。相对 `--root` 和默认索引路径按目标工作区解析。
+1. 让 shell 当前目录位于目标仓库根目录，并从本 skill 的实际安装路径调用 `scripts/task-graph.ts`。相对 `--root` 和默认索引路径按目标工作区解析。
 2. 先调用 `index info`，读取 revision、`valid`、`canonical` 和 diagnostics。只有 `valid: true` 且 `canonical: true` 才继续。收到 `INDEX_NOT_FOUND` 时，在 runtime 前置满足后调用 `index init`，再重新查询。其他读取、Schema 或规范化失败必须停止，不能手写、覆盖或隐式迁移索引。
 3. 使用默认 `task list` 恢复全量分层任务视图；需要 revision、完整关系来源、完整 blocker 或自动处理时使用 `task list --json` 或程序化 `listTasks()`。使用 `actionable` 恢复当前合法下一动作；按需用 `task show <task-id>` 读取完整任务和投影。索引文件本身已经界定工作区，不再要求额外容器或标签才能定位任务。
 
@@ -171,3 +184,9 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 5. 工作区索引 mutation runtime 已通过当前平台探针；不再需要的终态任务只有在结果交付、关系闭合并获得显式清理确认后才删除，其余任务可以继续保留。
 6. 默认 `task list` 的 track、dependency layer、folding 与独立 run mutex 没有改变持久拓扑或调度语义；需要完整机器语义的调用方使用同一 raw projection 或显式 `--json`，不从显示布局反推领域状态。
 7. 分段暂存目标使用候选索引的根级水位、选中候选 task 与未选中基线 task，并通过完整校验；工作区、索引外 pending 和另一批 task 的 pending 变化没有被覆盖。
+
+## 自更新
+
+在本 skill 目录运行 `node scripts/update-skill.ts`，运行前置与依赖修复见[工具运行前置](#工具运行前置)。
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。
+更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

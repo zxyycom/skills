@@ -1,7 +1,7 @@
 ### Case SKILL-UPDATER-EMPTY-TARGET-001: Updater 可安装到空目录
 
 Tests:
-- `test:6b75b990dc41b611ba02bc5e28d21ab4251ca5f12be5ce526e3d837018a2f881`
+- `test:8d336aad79d96dc2c4813e54f0c3f76ab1464a94d95312a662aee0d9812ca0be`
 
 Tags:
 - `skill-updater`

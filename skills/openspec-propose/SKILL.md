@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires openspec CLI.
 metadata:
   author: openspec
-  version: "4"
+  version: "5"
   generatedBy: "1.3.1"
 ---
 
@@ -222,3 +222,14 @@ OpenSpec change name 和 capability ID 是不同概念：
 3. 状态：说明是否已满足 apply-ready；如未满足，列出阻塞原因和需要用户补充的问题。
 4. 审计门禁：说明阻塞级审计任务是否已完成；未完成时明确不能进入实现执行。
 5. 下一步：审计未完成、存在未回答问题或已收敛歧义时先完成确认；确认完成后再进入实现流程。
+
+## 自更新
+
+本 skill 的指令使用不需要安装依赖。仅在本 skill 目录运行自更新入口 `node scripts/update-skill.ts` 时，需满足随包 `package.json` 的 Node 版本与兼容依赖。
+已有兼容宿主依赖即可复用；普通运行、导入与检查不自动安装。依赖不可用时，使用随包 manifest 固定的 pnpm 显式执行：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

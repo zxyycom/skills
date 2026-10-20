@@ -133,6 +133,7 @@
       "261017-complete-change-plans-through-task-declarations": "sha256:de38af27e41917cae426abb4903d4b20492b7c84f0b5b6643753b714b309f2bb",
       "261017-lightweight-judgment-faithful-protocol-adapters": "sha256:bb4a453ec6fb6159f865a3b5b3307e5ff5b0585a3aa9481a78919fd79ebc40b3",
       "261017-route-record-documentation-by-consumer-task": "sha256:45930827a933def1ad4df38f87547f0418e595912280f7ae9e03f3e3d7d0884a",
+      "261020-distribute-editable-typescript-runtimes": "sha256:1f3f89abb9f4de19cf2818812bb003d16a7a02d6a457b65cae31190bb401fb52",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -207,7 +208,7 @@
       "form-proposal-and-initial-design-in-draft": "sha256:b335593195f691badf808dea33aee6ca4b8c56a0f29884d0d76508fd386db824",
       "gate-change-implementation-by-review": "sha256:18b4630003cf4dd09da217b4b38fa1ef10817cf8f3bca2feafb546f701e423d9",
       "gate-packaging-on-selected-checks": "sha256:623cad196539240323645044e8404d67de3e89e480017f69121ca3ce03a307f2",
-      "generate-and-check-import-safe-tool-artifacts": "sha256:4efad8dd211b99ceeb51f0819fd272917aeda5395f7b2153d41ec9932118065d",
+      "generate-and-check-import-safe-tool-artifacts": "sha256:10283c1a490f1befe93676928f9746abf8824b532a68792fa4a1c359b2005b45",
       "generate-import-safe-self-contained-tool-artifacts": "sha256:85ae105988a1067c9138711063644b23629ce5fdbaed2f6bd899cd5718eb3558",
       "generate-index-from-self-contained-decisions": "sha256:9cdfa7da4b3434c3743788a5c3bf3d7d81e31f9713d5beef452d4156440ce3d7",
       "generate-query-index-from-topic-files": "sha256:57c225acbb5c9b7363d19f484ca53ecc6a3f4b8289e69ecd4044f7959f55a404",
@@ -3034,6 +3035,31 @@
         }
       ]
     },
+    "261020-distribute-editable-typescript-runtimes": {
+      "name": "distribute-editable-typescript-runtimes",
+      "sourcePath": "distribute-editable-typescript-runtimes.md",
+      "title": "分发可就地修改的独立 TypeScript 运行时",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-20T03:28:09Z",
+      "purpose": "让单个 skill 可独立安装、直接运行和修改源码，同时保留唯一维护源与可核对分发边界。",
+      "background": "单文件内联制品隐藏模块关系并要求修改后重新构建，标准 Node 类型擦除和独立包依赖可消除这条反馈障碍。",
+      "decision": "以包内 TS 模块闭包分发领域工具与 updater，独立 pnpm 锁定安装保底，允许标准 Node 解析复用宿主兼容依赖。",
+      "tags": [
+        "build-portability",
+        "build-reproducibility",
+        "dependency-boundary-design",
+        "project-tooling",
+        "source-artifact-separation"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "generate-and-check-import-safe-tool-artifacts",
+          "summary": "保留单源与安全导入，改为TS模块及独立依赖安装。"
+        }
+      ]
+    },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",
       "sourcePath": "archive/activate-release-gate-checks-by-tag.md",
@@ -4572,9 +4598,9 @@
     },
     "generate-and-check-import-safe-tool-artifacts": {
       "name": "generate-and-check-import-safe-tool-artifacts",
-      "sourcePath": "generate-and-check-import-safe-tool-artifacts.md",
+      "sourcePath": "archive/generate-and-check-import-safe-tool-artifacts.md",
       "title": "生成并核对可独立导入的工具产物",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-11T04:14:54Z",
       "purpose": "让独立 skill 获得不依赖主仓库路径且可安全导入，并能从唯一源码重建核对的工具产物。",

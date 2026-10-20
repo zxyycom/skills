@@ -1,3 +1,4 @@
+import { copyRuntimeScriptsSync } from "../../shared/tests/distribution-fixture.ts";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
@@ -9,10 +10,17 @@ import { logFixture, rows } from "./log-fixture.ts";
 import { request } from "./runtime-fixture.ts";
 
 function isolatedWorker(directory: string, databasePath: string): string {
-  const bundle = path.join(directory, "judgment.mjs");
+  const bundle = path.join(directory, "judgment.ts");
+  copyRuntimeScriptsSync(
+    new URL(
+      "../../../skills/lightweight-judgment/scripts/lightweight-judgment.ts",
+      import.meta.url
+    ),
+    path.dirname(bundle)
+  );
   fs.copyFileSync(
     new URL(
-      "../../../skills/lightweight-judgment/scripts/lightweight-judgment.mjs",
+      "../../../skills/lightweight-judgment/scripts/lightweight-judgment.ts",
       import.meta.url
     ),
     bundle

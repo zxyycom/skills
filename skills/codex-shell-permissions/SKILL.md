@@ -6,7 +6,7 @@ description: >-
   CreateProcessAsUserW failed: 5、EPERM/EACCES/Access denied、permission denied，
   或 allow/prompt/block 规则问题时使用。
 metadata:
-  version: "5"
+  version: "6"
 ---
 
 # Codex Shell Permissions
@@ -56,3 +56,14 @@ metadata:
 | 目标程序已启动，但文件或目录操作被权限拒绝 | [path-permission-diagnosis.md](references/path-permission-diagnosis.md) |
 | 用户已要求或批准维护 `allow/prompt/block`、`prefix_rule` 或 `execpolicy` | [permission-rules-maintenance.md](references/permission-rules-maintenance.md) |
 | 当前组合与既有试验形态相近，需要核对形成时观察和证据状态 | [command-examples.md](references/command-examples.md)；该文件是证据记录，不是当前规则 owner |
+
+## 自更新
+
+本 skill 的指令使用不需要安装依赖。仅在本 skill 目录运行自更新入口 `node scripts/update-skill.ts` 时，需满足随包 `package.json` 的 Node 版本与兼容依赖。
+已有兼容宿主依赖即可复用；普通运行、导入与检查不自动安装。依赖不可用时，使用随包 manifest 固定的 pnpm 显式执行：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

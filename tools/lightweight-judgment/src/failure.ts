@@ -15,14 +15,23 @@ export type ValidationDiagnostic = Readonly<{
 }>;
 
 export class JudgmentFailure extends Error {
+  readonly kind: FailureKind;
+  readonly httpStatus: number | null;
+  readonly retryAfterMs?: number;
+  readonly validation?: ValidationDiagnostic;
+
   constructor(
-    readonly kind: FailureKind,
+    kind: FailureKind,
     message: string,
-    readonly httpStatus: number | null = null,
-    readonly retryAfterMs?: number,
-    readonly validation?: ValidationDiagnostic
+    httpStatus: number | null = null,
+    retryAfterMs?: number,
+    validation?: ValidationDiagnostic
   ) {
     super(message);
+    this.kind = kind;
+    this.httpStatus = httpStatus;
+    this.retryAfterMs = retryAfterMs;
+    this.validation = validation;
   }
 }
 

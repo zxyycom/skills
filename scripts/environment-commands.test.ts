@@ -9,37 +9,60 @@ import {
   workspaceRoot
 } from "./environment-test-process.ts";
 import { createRepository } from "./environment-test-repository.ts";
-import {
-  maintenanceCliPackageScripts,
-  type MaintenanceCliCommand
-} from "./validators/project-config.ts";
+import type { MaintenanceCliCommand } from "./validators/project-config.ts";
 
-test("repository maintenance short commands invoke their owned skill CLIs", () => {
-  const commandHelpPatterns = {
-    "novel-cards": /Novel Cards/u,
-    "lightweight-judgment": /Lightweight Judgment/u,
-    "change-plan": /change-plan\.mjs check-all/u,
-    "decision-records": /Query and maintain agent-oriented decision records/u,
-    "investigation-report":
-      /Check, query, and maintain flat Investigation Report/u,
-    "task-graph": /"commands":\[/u,
-    "test-evidence": /Validate, query, and stage Case test evidence/u,
-    "validate-skill": /Validate the portable structure contract/u
-  } satisfies Readonly<Record<MaintenanceCliCommand, RegExp>>;
+const commandHelpPatterns = {
+  "novel-cards": /Novel Cards/u,
+  "lightweight-judgment": /Lightweight Judgment/u,
+  "change-plan": /change-plan\.ts check-all/u,
+  "decision-records": /Query and maintain agent-oriented decision records/u,
+  "investigation-report":
+    /Check, query, and maintain flat Investigation Report/u,
+  "task-graph": /"commands":\[/u,
+  "test-evidence": /Validate, query, and stage Case test evidence/u,
+  "validate-skill": /Validate the portable structure contract/u
+} satisfies Readonly<Record<MaintenanceCliCommand, RegExp>>;
 
-  const commands = Object.keys(
-    maintenanceCliPackageScripts
-  ) as MaintenanceCliCommand[];
-  for (const script of commands) {
-    const expectedOutput = commandHelpPatterns[script];
-    const result = run(
-      "bun",
-      ["run", "--silent", script, "--", "--help"],
-      workspaceRoot
-    );
-    requireSuccess(result, `bun run ${script} -- --help`);
-    assert.match(result.stdout, expectedOutput);
-  }
+function checkMaintenanceCliHelp(script: MaintenanceCliCommand): void {
+  const result = run(
+    "bun",
+    ["run", "--silent", script, "--", "--help"],
+    workspaceRoot
+  );
+  requireSuccess(result, `bun run ${script} -- --help`);
+  assert.match(result.stdout, commandHelpPatterns[script]);
+}
+
+test("repository short command novel-cards invokes its owned skill CLI", () => {
+  checkMaintenanceCliHelp("novel-cards");
+});
+
+test("repository short command lightweight-judgment invokes its owned skill CLI", () => {
+  checkMaintenanceCliHelp("lightweight-judgment");
+});
+
+test("repository short command change-plan invokes its owned skill CLI", () => {
+  checkMaintenanceCliHelp("change-plan");
+});
+
+test("repository short command decision-records invokes its owned skill CLI", () => {
+  checkMaintenanceCliHelp("decision-records");
+});
+
+test("repository short command investigation-report invokes its owned skill CLI", () => {
+  checkMaintenanceCliHelp("investigation-report");
+});
+
+test("repository short command task-graph invokes its owned skill CLI", () => {
+  checkMaintenanceCliHelp("task-graph");
+});
+
+test("repository short command test-evidence invokes its owned skill CLI", () => {
+  checkMaintenanceCliHelp("test-evidence");
+});
+
+test("repository short command validate-skill invokes its owned skill CLI", () => {
+  checkMaintenanceCliHelp("validate-skill");
 });
 
 test("task-graph package command defaults to the main root and accepts an explicit project root", async () => {

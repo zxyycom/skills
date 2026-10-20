@@ -133,7 +133,7 @@ test("project package script validation preserves maintenance CLI delegations an
       maintenanceCliPackageScripts["decision-records"];
     const invalidPackageJson = validPackageJson.replace(
       JSON.stringify(expectedDecisionCommand),
-      JSON.stringify("node scripts/wrong-decision-entry.mjs")
+      JSON.stringify("node scripts/wrong-decision-entry.ts")
     );
     assert.notEqual(invalidPackageJson, validPackageJson);
     await fs.writeFile(packageJsonPath, invalidPackageJson, "utf8");
@@ -152,7 +152,7 @@ test("project package script validation preserves maintenance CLI delegations an
     const invalidProjectCheckPackageJson = validPackageJson.replace(
       JSON.stringify(expectedProjectCheckCommand),
       JSON.stringify(
-        "node skills/test-evidence-review/scripts/test-evidence-catalog.mjs check --root ."
+        "node skills/test-evidence-review/scripts/test-evidence-catalog.ts check --root ."
       )
     );
     assert.notEqual(invalidProjectCheckPackageJson, validPackageJson);

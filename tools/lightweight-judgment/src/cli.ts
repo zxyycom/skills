@@ -39,7 +39,7 @@ import { sendRequest, type Fetch } from "./transport.ts";
 export type { CliOutcome } from "./output.ts";
 
 export const help = `Lightweight Judgment — Node.js >=24.18
-Usage: node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs [--config path] doctor|json|ask|stats [options]
+Usage: node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts [--config path] doctor|json|ask|stats [options]
 将示例中的绝对路径替换为实际 skill 和输入文件路径。
 
 命令：
@@ -78,8 +78,8 @@ Usage: node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs
   doctor 只报告本地配置、密钥存在与日志设置，不建库，不验证鉴权或余额。
 
 离线试跑：
-  node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json --file /absolute/path/request.json --dry-run
-  node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs ask --type noul --text "请回退版本。" --question "是否明确请求回退版本？" --dry-run
+  node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts json --file /absolute/path/request.json --dry-run
+  node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts ask --type noul --text "请回退版本。" --question "是否明确请求回退版本？" --dry-run
   取得外发与费用授权后，去掉 --dry-run 才发送请求。
   长文本与敏感材料优先使用文件或 stdin；预览输出仍包含待发正文。
 

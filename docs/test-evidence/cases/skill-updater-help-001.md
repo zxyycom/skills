@@ -1,7 +1,7 @@
 ### Case SKILL-UPDATER-HELP-001: Updater 帮助公开稳定 CLI 契约
 
 Tests:
-- `test:1b9fd4e8a767cf9a01cbd24748127c60f934e5672baab226a6ce544352cd0364`
+- `test:bbee7c7ea425de41c53d2a2f09536a83ce97f3c794750bb0a330a163f605a529`
 
 Tags:
 - `skill-updater`

@@ -7,7 +7,7 @@ description: >-
   技术判断, 形成可执行的最小工程动作。目标、责任和路径已经清楚的机械任务
   保持局部并直接执行。
 metadata:
-  version: "4"
+  version: "5"
 ---
 
 # Product & Architecture Judgment
@@ -101,3 +101,14 @@ metadata:
 3. 是否定位责任 owner、事实源、关键边界、数据流和合适抽象层?
 4. 选定动作是否直接兑现目标、范围最小, 且由现实证据支持?
 5. 是否完成当前任务要求的分析、设计、修改、验证或审查, 并遵守用户授权与任务 owner?
+
+## 自更新
+
+本 skill 的指令使用不需要安装依赖。仅在本 skill 目录运行自更新入口 `node scripts/update-skill.ts` 时，需满足随包 `package.json` 的 Node 版本与兼容依赖。
+已有兼容宿主依赖即可复用；普通运行、导入与检查不自动安装。依赖不可用时，使用随包 manifest 固定的 pnpm 显式执行：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

@@ -6,7 +6,7 @@ description: >-
   审查其 Contract 与 Proves，再维护可检索的 Case-only 账本。
   工程校验、仅运行既有测试或只修改被测对象不使用。
 metadata:
-  version: "37"
+  version: "38"
 ---
 
 # Test Evidence Review
@@ -27,6 +27,19 @@ Case 以测试意图而非一对一实体关系组织：一个 Case 可以在 `T
 4. 工作区仍有旧 topic/`Entry:` 目录时，读取契约中的迁移边界与[旧 Topic 账本升级](references/upgrade-from-legacy-topic-catalog.md)；旧布局只由显式迁移入口处理，不由正常查询兼容读取。其他历史布局不在当前入口或迁移器的支持范围内，先人工恢复为受支持的旧布局或另行建立迁移方案。
 
 核心工具只读写固定 Case 根和派生索引；它不扫描测试源码、执行测试、运行采集命令、调用网络或自动登记 Case。项目可以产生实体快照并实行“所有发现实体都有 Case”等项目覆盖策略，但这不是通用 skill 或核心引用检查的责任。
+
+## 工具运行前置
+
+运行下文公开 `.ts` CLI/import 或自更新入口时，使用 Node.js `>=24.18` 的原生类型擦除。
+依赖沿 Node 正常解析，可复用宿主兼容版本，不要求本地 `node_modules` 或与锁文件精确版本一致。
+依赖缺失、实际不兼容或需要复现随包基线时，使用随包 `package.json` 固定的 pnpm 显式安装：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行、import、help 和检查不自动安装。安装副本中的 `scripts/runtime/tools/` 可直接修改，无需构建；
+更新会覆盖正式包中的同路径定制文件。领域操作的其他前置仍由各自操作契约承接。
 
 ## 证据审查
 
@@ -66,13 +79,13 @@ Case 以测试意图而非一对一实体关系组织：一个 Case 可以在 `T
 常用维护命令：
 
 ```text
-node scripts/test-evidence-catalog.mjs check --root <workspace-root>
-node scripts/test-evidence-catalog.mjs list --tag <tag> --root <workspace-root>
-node scripts/test-evidence-catalog.mjs tags --root <workspace-root>
-node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root>
-node scripts/test-evidence-catalog.mjs search <text> --root <workspace-root>
-node scripts/test-evidence-catalog.mjs sync-index --write --root <workspace-root>
-node scripts/test-evidence-catalog.mjs stage-index <case-id...> --root <workspace-root>
+node scripts/test-evidence-catalog.ts check --root <workspace-root>
+node scripts/test-evidence-catalog.ts list --tag <tag> --root <workspace-root>
+node scripts/test-evidence-catalog.ts tags --root <workspace-root>
+node scripts/test-evidence-catalog.ts show <case-id> --root <workspace-root>
+node scripts/test-evidence-catalog.ts search <text> --root <workspace-root>
+node scripts/test-evidence-catalog.ts sync-index --write --root <workspace-root>
+node scripts/test-evidence-catalog.ts stage-index <case-id...> --root <workspace-root>
 ```
 
 ## 完成标准
@@ -90,3 +103,9 @@ node scripts/test-evidence-catalog.mjs stage-index <case-id...> --root <workspac
 - 选择性暂存时，Case IDs 和 pending 范围已核对，未把其他 Case、测试或项目文件误称为已暂存。
 
 交付说明实际改动、测试和目录验证、未运行环境及残余风险。
+
+## 自更新
+
+在本 skill 目录运行 `node scripts/update-skill.ts`，运行前置与依赖修复见[工具运行前置](#工具运行前置)。
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。
+更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

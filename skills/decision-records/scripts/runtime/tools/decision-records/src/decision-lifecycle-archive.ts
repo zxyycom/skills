@@ -1,0 +1,159 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/decision-records/src/decision-lifecycle-archive.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/decision-records/src/decision-lifecycle-archive.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/decision-records/src/decision-lifecycle-archive.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
+ * Rebuild: bun run sync:decision-records-cli
+ */
+import {
+  findEstablishedDecisionRecord,
+  type DecisionRecordLookup
+} from "./decision-record-lookup.ts";
+import {
+  prepareUnrecordedHistoryAttention,
+  type DecisionHistoryBaseline
+} from "./decision-history-baseline.ts";
+import { prepareArchivedDecisionChange } from "./decision-lifecycle-change.ts";
+import {
+  prepareDecisionRelationTransaction,
+  type DecisionRelationTransactionRequest
+} from "./decision-relation-transaction.ts";
+import {
+  currentDecisionTimestamp,
+  plainFailure
+} from "./decision-lifecycle-support.ts";
+import type {
+  DecisionLifecyclePreparation,
+  DecisionLifecycleRequest
+} from "./decision-lifecycle-service.ts";
+import type { DecisionFileChange } from "./decision-transaction.ts";
+import type {
+  DecisionId,
+  DecisionScan,
+  EstablishedDecisionRecord
+} from "./types.ts";
+
+export function prepareArchive(
+  lookup: DecisionRecordLookup,
+  decisionIds: readonly DecisionId[],
+  keepUnrecordedHistory: boolean,
+  historyBaseline: DecisionHistoryBaseline | null
+): DecisionLifecyclePreparation {
+  const records = archiveRecords(lookup, decisionIds);
+  if (!Array.isArray(records)) return records;
+  const attention = archiveHistoryAttention(
+    records,
+    keepUnrecordedHistory,
+    historyBaseline
+  );
+  if (attention !== null) return attention;
+  const changes = archiveChanges(records);
+  if (!Array.isArray(changes)) return changes;
+  return {
+    changes,
+    message:
+      "Archived " + records.map((record) => record.decisionId).join(", ") + ".",
+    status: "ok"
+  };
+}
+
+function archiveRecords(
+  lookup: DecisionRecordLookup,
+  decisionIds: readonly DecisionId[]
+): EstablishedDecisionRecord[] | DecisionLifecyclePreparation {
+  if (decisionIds.length === 0) {
+    return plainFailure("At least one established Decision ID is required.");
+  }
+  const archivedIds = new Set<DecisionId>();
+  const records: EstablishedDecisionRecord[] = [];
+  for (const decisionId of decisionIds) {
+    const record = archiveRecord(lookup, decisionId, archivedIds);
+    if (!("source" in record)) return record;
+    records.push(record);
+  }
+  return records;
+}
+
+function archiveRecord(
+  lookup: DecisionRecordLookup,
+  decisionId: DecisionId,
+  archivedIds: Set<DecisionId>
+): EstablishedDecisionRecord | DecisionLifecyclePreparation {
+  const record = findEstablishedDecisionRecord(lookup, decisionId);
+  if (record === null)
+    return plainFailure("Established decision does not exist: " + decisionId);
+  if (record.source.document.status === "archived")
+    return plainFailure("Decision is already archived: " + record.sourcePath);
+  if (archivedIds.has(record.decisionId))
+    return plainFailure("Decision ID is repeated: " + record.decisionId);
+  archivedIds.add(record.decisionId);
+  return record;
+}
+
+function archiveHistoryAttention(
+  records: readonly EstablishedDecisionRecord[],
+  keepUnrecordedHistory: boolean,
+  historyBaseline: DecisionHistoryBaseline | null
+): DecisionLifecyclePreparation | null {
+  return prepareUnrecordedHistoryAttention(
+    records.map((record) => ({
+      decisionId: record.decisionId,
+      kind: "archive"
+    })),
+    keepUnrecordedHistory,
+    historyBaseline
+  );
+}
+
+function archiveChanges(
+  records: readonly EstablishedDecisionRecord[]
+): DecisionFileChange[] | DecisionLifecyclePreparation {
+  const changes: DecisionFileChange[] = [];
+  for (const record of records) {
+    const prepared = prepareArchivedDecisionChange(record);
+    if (prepared.status === "error") return prepared;
+    changes.push(prepared.change);
+  }
+  return changes;
+}
+
+export function prepareDiscard(
+  scan: DecisionScan,
+  decisionId: DecisionId,
+  deleteRecorded: boolean,
+  historyBaseline: DecisionHistoryBaseline | null,
+  records: DecisionRecordLookup
+): DecisionLifecyclePreparation {
+  const prepared = prepareDecisionRelationTransaction(
+    scan,
+    discardRelationTransactionRequest({
+      action: "discard",
+      decisionId,
+      deleteRecorded
+    }),
+    currentDecisionTimestamp,
+    historyBaseline,
+    records
+  );
+  if (prepared.status !== "ok") return prepared;
+  return {
+    changes: prepared.changes,
+    message: "Discarded decision " + prepared.discardedRecord?.sourcePath + ".",
+    status: "ok"
+  };
+}
+
+export function discardRelationTransactionRequest(
+  request: Extract<DecisionLifecycleRequest, { action: "discard" }>
+): DecisionRelationTransactionRequest {
+  return {
+    discardId: request.decisionId,
+    deleteRecorded: request.deleteRecorded,
+    kind: "discard",
+    keepUnrecordedHistory: false,
+    relationOverride: { kind: "source" },
+    successors: []
+  };
+}

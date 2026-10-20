@@ -6,7 +6,7 @@ description: >-
   使用。按场景义务和消费者共同依赖检验候选。契约已明确的机械转换或
   单一局部实现不使用。
 metadata:
-  version: "4"
+  version: "5"
 ---
 
 # Common Denominator Design
@@ -70,3 +70,14 @@ metadata:
 1. 场景集合、消费者、责任层、目标操作和证据边界清楚; “没有公约数”与“证据不足”没有混淆。
 2. 最终结构通过候选检验, 数量与分层由现实差异支持, 并能解释合并和拆分的反事实成本。
 3. 交付内容足以继续当前任务, 且未知项和验证义务明确。
+
+## 自更新
+
+本 skill 的指令使用不需要安装依赖。仅在本 skill 目录运行自更新入口 `node scripts/update-skill.ts` 时，需满足随包 `package.json` 的 Node 版本与兼容依赖。
+已有兼容宿主依赖即可复用；普通运行、导入与检查不自动安装。依赖不可用时，使用随包 manifest 固定的 pnpm 显式执行：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

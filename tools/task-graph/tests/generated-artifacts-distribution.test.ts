@@ -1,3 +1,4 @@
+import { copyRuntimeScripts } from "../../shared/tests/distribution-fixture.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -21,6 +22,16 @@ test("generated distribution matches current source API, schema bytes, and metad
   const generatedApi = await import(pathToFileURL(generatedScriptPath).href);
   assert.deepEqual(Object.keys(sourceApi).sort(), [...publicRuntimeExports]);
   assert.deepEqual(Object.keys(generatedApi).sort(), [...publicRuntimeExports]);
+  const runtime = await import(
+    pathToFileURL(
+      path.join(
+        path.dirname(generatedScriptPath),
+        "runtime/tools/task-graph/src/cli.ts"
+      )
+    ).href
+  );
+  assert.equal(generatedApi.TaskGraphService, runtime.TaskGraphService);
+  assert.equal(generatedApi.runTaskGraphCli, runtime.runTaskGraphCli);
 
   const sourceOutput: string[] = [];
   const generatedOutput: string[] = [];
@@ -41,7 +52,7 @@ test("generated distribution matches current source API, schema bytes, and metad
     /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/tools\/task-graph\/src\/cli\.ts/u
   );
   assert.match(script, /Rebuild: bun run sync:task-graph-cli/u);
-  assert.match(script, /sourceMappingURL=task-graph\.mjs\.map/u);
+  assert.match(script, /runtime\/tools\/task-graph\/src\/cli\.ts/u);
   assert.doesNotMatch(script, /debugId=/u);
 
   const declaration = await fs.readFile(generatedDeclarationPath, "utf8");
@@ -147,32 +158,30 @@ test("generated distribution matches current source API, schema bytes, and metad
   );
 
   await withTempWorkspace(async (root) => {
-    await fs.copyFile(generatedScriptPath, path.join(root, "task-graph.mjs"));
-    await fs.copyFile(
-      generatedDeclarationPath,
-      path.join(root, "task-graph.d.mts")
-    );
-    await fs.cp(
-      generatedDeclarationDirectory,
-      path.join(root, "task-graph-sdk"),
-      { recursive: true }
-    );
+    await copyRuntimeScripts(generatedScriptPath, root);
     const consumerPath = path.join(root, "consumer.mts");
     await fs.writeFile(
       consumerPath,
       [
-        'import { TaskGraphService, runTaskGraphCli } from "./task-graph.mjs";',
-        'import type { TaskContentInput, TaskGraphCliOptions, TaskIndexStageResult, TaskListItem } from "./task-graph.mjs";',
+        'import { TaskGraphService, runTaskGraphCli } from "./task-graph.ts";',
+        'import type { TaskContentInput, TaskGraphCliOptions, TaskIndexStageResult, TaskListItem } from "./task-graph.ts";',
         "// @ts-expect-error removed summary alias is not part of the SDK entry",
-        'import type { TaskSummary } from "./task-graph.mjs";',
+        'import type { TaskSummary } from "./task-graph.ts";',
         "// @ts-expect-error internal store is not part of the SDK entry",
-        'import type { TaskGraphStore } from "./task-graph.mjs";',
+        'import type { TaskGraphStore } from "./task-graph.ts";',
         "// @ts-expect-error redundant service factory is not part of the SDK entry",
-        'import { createTaskGraphService } from "./task-graph.mjs";',
+        'import { createTaskGraphService } from "./task-graph.ts";',
         'const content: TaskContentInput = { title: "candidate", goal: "do work" };',
         "const options: TaskGraphCliOptions = {};",
         "const listItem: TaskListItem | null = null;",
         "const service = new TaskGraphService();",
+        "const typedService: TaskGraphService = service; void typedService;",
+        "// @ts-expect-error internal store must remain hidden for direct TS consumers",
+        "void service.store;",
+        "// @ts-expect-error internal constructor options must remain hidden",
+        "new TaskGraphService({ loadNativeLock: async () => null });",
+        "// @ts-expect-error internal CLI runtime injection must remain hidden",
+        "runTaskGraphCli([], { commandRunner: async () => null });",
         'void service.stageTaskIndex(["task-000001"]);',
         "function stageChanged(result: TaskIndexStageResult): boolean {",
         '  if (result.state === "staged") {',
@@ -207,6 +216,9 @@ test("generated distribution matches current source API, schema bytes, and metad
         "--moduleResolution",
         "NodeNext",
         "--strict",
+        "--types",
+        "node",
+        "--allowImportingTsExtensions",
         "--skipLibCheck",
         "false",
         consumerPath
@@ -215,76 +227,18 @@ test("generated distribution matches current source API, schema bytes, and metad
     );
   });
 
-  const externalSourceMap: unknown = JSON.parse(
-    await fs.readFile(`${generatedScriptPath}.map`, "utf8")
+  const copiedRenderer = await fs.readFile(
+    path.join(
+      path.dirname(generatedScriptPath),
+      "runtime/tools/task-graph/src/task-list-renderer.ts"
+    ),
+    "utf8"
   );
-  if (
-    typeof externalSourceMap !== "object" ||
-    externalSourceMap === null ||
-    Array.isArray(externalSourceMap) ||
-    !("sourceRoot" in externalSourceMap) ||
-    typeof externalSourceMap.sourceRoot !== "string" ||
-    !("sources" in externalSourceMap) ||
-    !Array.isArray(externalSourceMap.sources) ||
-    !("sourcesContent" in externalSourceMap) ||
-    !Array.isArray(externalSourceMap.sourcesContent)
-  ) {
-    assert.fail(
-      "generated source map must contain sourceRoot, sources, and sourcesContent"
-    );
-  }
-  const sources: string[] = [];
-  for (const source of externalSourceMap.sources) {
-    if (typeof source !== "string") {
-      assert.fail("generated source map sources must contain only strings");
-    }
-    sources.push(source);
-  }
-  const sourcesContent: Array<string | null> = [];
-  for (const sourceContent of externalSourceMap.sourcesContent) {
-    if (sourceContent !== null && typeof sourceContent !== "string") {
-      assert.fail(
-        "generated source map sourcesContent must contain strings or null"
-      );
-    }
-    sourcesContent.push(sourceContent);
-  }
-  const sourceMap = {
-    sourceRoot: externalSourceMap.sourceRoot,
-    sources,
-    sourcesContent
-  };
-  assert.equal(Object.hasOwn(externalSourceMap, "debugId"), false);
-  assert.equal(sourceMap.sourceRoot, "../../../");
-  assert.ok(sourceMap.sources.includes("tools/task-graph/src/cli.ts"));
-  assert.ok(
-    sourceMap.sources.includes("tools/task-graph/src/task-list-renderer.ts")
+  assert.match(copiedRenderer, /Synced TypeScript runtime/u);
+  await assert.rejects(
+    fs.stat(generatedScriptPath.replace(/\.ts$/u, ".mjs.map")),
+    { code: "ENOENT" }
   );
-  assert.ok(
-    sourceMap.sources.some((source) => source.includes("write-file-atomic"))
-  );
-  assert.ok(
-    sourceMap.sources.every(
-      (source) => !source.includes("fs-native-extensions")
-    )
-  );
-  assert.ok(
-    sourceMap.sources.every(
-      (source) => !path.isAbsolute(source) && !source.includes("\\")
-    )
-  );
-  const writeFileAtomicSourceIndex = sourceMap.sources.findIndex((source) =>
-    source.endsWith("write-file-atomic/lib/index.js")
-  );
-  assert.notEqual(writeFileAtomicSourceIndex, -1);
-  const writeFileAtomicSource =
-    sourceMap.sourcesContent[writeFileAtomicSourceIndex];
-  assert.equal(typeof writeFileAtomicSource, "string");
-  assert.match(
-    writeFileAtomicSource ?? "",
-    /node_modules\/write-file-atomic\/lib\/index\.js/u
-  );
-  assert.doesNotMatch(writeFileAtomicSource ?? "", /\b__filename\b/u);
   assert.equal(script.includes(repositoryRoot), false);
   assert.equal(script.includes(repositoryRoot.replaceAll("\\", "\\\\")), false);
 

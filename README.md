@@ -8,7 +8,9 @@
 
 `skills` 不是一个随手收集 prompt 的仓库。它更像一组面向 agent 协作的基础能力实验：把高频、可复用、会影响长期工作质量的协作方式，整理成能独立演进的 skill。
 
-这些 skills 集中在同一仓库，以复用维护工具链并提供统一的分发入口。使用者按需选择自己大致了解的 skill，不需要整套安装；聚合 release 和随包 updater 只提供获取与更新便利。完整边界见 [仓库模型](docs/repository-model.md)。
+这些 skills 集中在同一仓库，以复用维护工具链并提供统一的分发入口。使用者按需选择自己大致了解的 skill，不需要整套安装；聚合 release 和随包 updater 只提供获取与更新便利。
+
+带工具的 skill 以可直接运行和修改的 TypeScript 分发。按随包指引使用固定 pnpm 安装锁定依赖，或复用宿主的兼容依赖；知识型 skill 的指令使用无需安装 updater 依赖。选择与分发边界见 [仓库模型](docs/repository-model.md)，维护入口见 [项目工具链](docs/tooling.md)。
 
 维护仓库内容时，从 [仓库导航](docs/navigation.md) 按任务定位先读内容和对应 owner。
 
@@ -28,7 +30,7 @@
 
 [Novel Cards](docs/skills/novel-cards.md) 用详情与递归总结组织原创或续写：先改卡并从最高受影响层下传，再依据细纲与导演视角写作，正文反推只产出对照报告。章节按编号或标题定位，稳定身份不随重排变化；旧卡快照与统一变迁连接故事演进和作者修订，本地 CLI 自动查询跨卡关联。实际 skill 位于 [`skills/novel-cards/`](skills/novel-cards/)。
 
-[Lightweight Judgment](docs/skills/lightweight-judgment.md) 在用户点名该 skill 后，以 JEV 载体调用 JEV 或 OpenAI Decisions，低成本、低延迟地完成局部分类、候选选择、相关性筛选和评分，再回到原任务。它把模型实测特点、请求组织与结果处理交给 agent，配套自包含 CLI 提供本地检查、离线预览与单次请求。实际 skill 位于 [`skills/lightweight-judgment/`](skills/lightweight-judgment/)。
+[Lightweight Judgment](docs/skills/lightweight-judgment.md) 在用户点名该 skill 后，以 JEV 载体调用 JEV 或 OpenAI Decisions，低成本、低延迟地完成局部分类、候选选择、相关性筛选和评分，再回到原任务。它把模型实测特点、请求组织与结果处理交给 agent，配套随包 TS CLI 提供本地检查、离线预览与单次请求。实际 skill 位于 [`skills/lightweight-judgment/`](skills/lightweight-judgment/)。
 
 [Skill Design Discovery](docs/skills/skill-design-discovery.md) 用于创建、显著扩展或大幅重构 skill 前的深度设计发现。它从现实案例、现有材料和行为证据中恢复目标、端到端流程、潜藏决策、约束来源、人机权限与验证义务，形成可交给实现入口的设计契约。实际 skill 位于 [`skills/skill-design-discovery/`](skills/skill-design-discovery/)。
 

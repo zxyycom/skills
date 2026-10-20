@@ -64,6 +64,9 @@ const scriptOwnerRules = [
   {
     matches: (relativePath: string) =>
       relativePath.includes("generated-") ||
+      relativePath.startsWith("scripts/lib/source-runtime") ||
+      relativePath === "scripts/lib/skill-runtime.ts" ||
+      relativePath === "scripts/lib/native-cli-entry.ts" ||
       relativePath === "scripts/lib/oxc-config.ts" ||
       relativePath === "scripts/lib/source-map.ts" ||
       relativePath === "scripts/lint.ts",

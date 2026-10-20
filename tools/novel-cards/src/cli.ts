@@ -10,15 +10,15 @@ import { expandCards, selectCard, findCards, historyFor } from "./query.ts";
 import { parseOptions, type Options } from "./options.ts";
 
 export const help = `Novel Cards — Node.js >=24.18
-node <skill>/scripts/novel-cards.mjs check --root <project>
-node <skill>/scripts/novel-cards.mjs sync-index --write --root <project>
-node <skill>/scripts/novel-cards.mjs show <id> --root <project> [--include-reference]
-node <skill>/scripts/novel-cards.mjs expand <id> --root <project> [--depth 0..20] [--max-cards 1..1000] [--include-reference]
-node <skill>/scripts/novel-cards.mjs find --title TEXT | --chapter N [--scope ID]
-node <skill>/scripts/novel-cards.mjs history <id[@N]> --root <project>
-node <skill>/scripts/novel-cards.mjs new-id
-node <skill>/scripts/novel-cards.mjs apply-transition --input FILE --write --root <project>
-node <skill>/scripts/novel-cards.mjs recover --write --root <project>
+node <skill>/scripts/novel-cards.ts check --root <project>
+node <skill>/scripts/novel-cards.ts sync-index --write --root <project>
+node <skill>/scripts/novel-cards.ts show <id> --root <project> [--include-reference]
+node <skill>/scripts/novel-cards.ts expand <id> --root <project> [--depth 0..20] [--max-cards 1..1000] [--include-reference]
+node <skill>/scripts/novel-cards.ts find --title TEXT | --chapter N [--scope ID]
+node <skill>/scripts/novel-cards.ts history <id[@N]> --root <project>
+node <skill>/scripts/novel-cards.ts new-id
+node <skill>/scripts/novel-cards.ts apply-transition --input FILE --write --root <project>
+node <skill>/scripts/novel-cards.ts recover --write --root <project>
 除 --help 外 stdout 为单个 JSON；失败 stderr 诊断。退出0成功，1来源/索引/引用错误，2参数错误。
 索引不存在或陈旧时显式 sync-index --write；同步不证明摘要语义。`;
 

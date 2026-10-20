@@ -14,7 +14,7 @@ export const generatedScriptPath = path.join(
   "skills",
   "task-graph",
   "scripts",
-  "task-graph.mjs"
+  "task-graph.ts"
 );
 export const generatedDeclarationPath = path.join(
   repositoryRoot,

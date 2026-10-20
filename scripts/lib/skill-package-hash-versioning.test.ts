@@ -185,3 +185,26 @@ test("aggregate hashes retain raw source map and declaration bytes", () => {
     baseHash
   );
 });
+
+test("TS runtime, manifest and lockfile bytes carry independent package versions", async () => {
+  const baselineFiles = {
+    ...alphaBaselineFiles(),
+    "skills/alpha/scripts/runtime/tool.ts": "export const value = 1;\n",
+    "skills/alpha/package.json": '{"type":"module"}\n',
+    "skills/alpha/pnpm-lock.yaml": "lockfileVersion: '9.0'\n"
+  };
+  const base = skillPackageSnapshotFromBaseline(baselineFiles);
+  const baseHash = calculateSkillPackageSnapshotHash(base).aggregateHash;
+  for (const filePath of [
+    "scripts/runtime/tool.ts",
+    "package.json",
+    "pnpm-lock.yaml"
+  ]) {
+    const changed = replaceSnapshotFile(base, filePath, "changed bytes\n");
+    assert.notEqual(
+      calculateSkillPackageSnapshotHash(changed).aggregateHash,
+      baseHash
+    );
+    assert.equal((await versionIssues(changed, baselineFiles)).length, 1);
+  }
+});

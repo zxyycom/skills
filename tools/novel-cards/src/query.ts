@@ -55,12 +55,18 @@ class Expansion {
   private readonly queue: QueuedCard[];
   private readonly scheduled: Set<string>;
   private readonly byId: ReadonlyMap<string, CardRecord>;
+  private readonly records: readonly CardRecord[];
+  private readonly anchorId: string;
+  private readonly limits: ExpansionLimits;
 
   constructor(
-    private readonly records: readonly CardRecord[],
-    private readonly anchorId: string,
-    private readonly limits: ExpansionLimits
+    records: readonly CardRecord[],
+    anchorId: string,
+    limits: ExpansionLimits
   ) {
+    this.records = records;
+    this.anchorId = anchorId;
+    this.limits = limits;
     this.byId = identityMap(records);
     const anchor = selectCard(records, anchorId, limits.includeReference);
     this.queue = [{ id: anchorId, level: 0 }];

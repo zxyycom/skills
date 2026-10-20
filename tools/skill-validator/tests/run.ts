@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import {
   runSkillValidatorCli,
   validateSkillDirectory as validateBundledSkillDirectory
-} from "../../../skills/skill-maintainer/scripts/validate-skill.mjs";
+} from "../../../skills/skill-maintainer/scripts/validate-skill.ts";
 import { validateSkillDirectory } from "../src/validation.ts";
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -18,7 +18,7 @@ const generatedValidatorPath = path.join(
   "skills",
   "skill-maintainer",
   "scripts",
-  "validate-skill.mjs"
+  "validate-skill.ts"
 );
 const generatedDeclarationPath = path.join(
   rootDir,
@@ -222,7 +222,7 @@ test("validator CLI help and argument errors use stable exit contracts", () => {
     encoding: "utf8"
   });
   assert.equal(help.status, 0, help.stderr);
-  assert.match(help.stdout, /Usage: validate-skill\.mjs/);
+  assert.match(help.stdout, /Usage: validate-skill\.ts/);
 
   const extraArgument = spawnSync(
     "node",
@@ -244,7 +244,10 @@ test("generated validator artifacts expose declarations and portable metadata", 
     /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/tools\/skill-validator\/src\/cli\.ts/
   );
   assert.match(validatorSource, /Rebuild: bun run sync:skill-validator/);
-  assert.match(validatorSource, /sourceMappingURL=validate-skill\.mjs\.map/);
+  assert.match(
+    validatorSource,
+    /runtime\/tools\/skill-validator\/src\/cli\.ts/u
+  );
   const declarationSource = await fs.readFile(generatedDeclarationPath, "utf8");
   assert.match(
     declarationSource,
@@ -253,17 +256,8 @@ test("generated validator artifacts expose declarations and portable metadata", 
   assert.match(declarationSource, /validateSkillDirectory/);
   assert.match(declarationSource, /runSkillValidatorCli/);
 
-  const sourceMap = JSON.parse(
-    await fs.readFile(`${generatedValidatorPath}.map`, "utf8")
-  ) as {
-    sourceRoot: string;
-    sources: string[];
-  };
-  assert.equal(sourceMap.sourceRoot, "../../../");
-  assert.ok(sourceMap.sources.includes("tools/skill-validator/src/cli.ts"));
-  assert.ok(
-    sourceMap.sources.every(
-      (source) => !path.isAbsolute(source) && !source.includes("\\")
-    )
+  await assert.rejects(
+    fs.stat(generatedValidatorPath.replace(/\.ts$/u, ".mjs.map")),
+    { code: "ENOENT" }
   );
 });

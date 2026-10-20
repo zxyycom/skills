@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 - `new --help` 区分 name-or-ID 输入，把 `--formed-at` 标为可选，并说明当前 UTC 默认值；缺参诊断不再要求该选项。
-- Node 运行的分发 bundle 可在无 `--formed-at` 时创建候选，生成时间落在调用窗口内，且 ID 日期与该时间的 UTC 日期一致。
+- Node 运行的分发 TS 运行时 可在无 `--formed-at` 时创建候选，生成时间落在调用窗口内，且 ID 日期与该时间的 UTC 日期一致。

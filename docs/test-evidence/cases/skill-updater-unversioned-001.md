@@ -1,7 +1,7 @@
 ### Case SKILL-UPDATER-UNVERSIONED-001: Check 报告未版本化安装
 
 Tests:
-- `test:d891eac11bd4ad7ee784dff5c2ec3d99915f4f4e92741ac6ef97b23d4307bf41`
+- `test:c2225d3f2819fdc846cd10342b3b29483602e2839d9b4b3d23dd844559567a06`
 
 Tags:
 - `skill-updater`

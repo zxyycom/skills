@@ -12,18 +12,36 @@
 4. 远端与本地版本一致时返回成功；`--check` 发现缺失、未版本化或版本不同的目标时返回失败，但不下载 zip、不写文件。
 5. 需要更新时下载对应 zip，并要求其中的 `SKILL.md` frontmatter `name` 与配置身份一致、`metadata.version` 与 release manifest 一致。zip 内每个文件必须一一映射到唯一的 skill 内相对路径；路径穿越、别名路径和当前平台上的重复目标会在写入前被拒绝。
 6. 确认前分别列出将覆盖的现有文件和将新增的文件，并说明其他本地文件会被保留。普通更新需要交互确认，`--yes` 显式跳过确认但仍输出文件清单。
-7. 更新只覆盖 zip 中出现的路径，不删除远端包中不存在的本地文件；同名本地文件的自定义内容会被覆盖。
-8. 默认目标目录相对分发模块自身的 `import.meta.url` 定位，不受导入方入口影响。
+7. 更新只覆盖 zip 中出现的路径，不删除远端包中不存在的本地文件；同名本地文件的自定义内容会被覆盖，包括包内 TS 定制。
+8. 默认目标目录由公开 `scripts/update-skill.ts` 显式传入自身的 `import.meta.url` 定位，不受 runtime 所处层级、当前目录或导入方入口影响。
 9. 私有仓库或更高 GitHub API 限额使用 `GITHUB_TOKEN` 或 `GH_TOKEN`。
+10. 普通更新失败会尝试用本次临时备份恢复已覆盖文件，并移除本次新增文件；此行为不保证进程被终止、系统崩溃或回滚本身失败时自动恢复。更新与依赖安装期间暂停领域操作，失败后核对当前文件状态再重试。
 
-分发模块可被导入而不执行 CLI。公共 exports 是 `skillUpdaterConfig` 和返回退出码的 `runSkillUpdaterCli(argv)`。
+公开 TS 入口可被导入而不执行 CLI、下载或安装依赖。公共 exports 是 `skillUpdaterConfig`、`UpdaterConfig` 类型和返回退出码的 `runSkillUpdaterCli(argv)`。调用时先加载完整 updater 模块图，再进行覆盖；静态加载完成的模块允许本次运行更新其自身 TS 文件，后续运行使用新内容。
+
+## 运行前置与恢复
+
+知识型 skill 的指令使用不需要安装依赖；其 TS updater 和领域工具一样需要满足随包 manifest 声明的 Node 运行前置和兼容依赖。依赖使用 Node 正常解析，可复用兼容宿主环境，不要求 skill 内存在 `node_modules`，也不要求与随包锁文件精确版本相同。
+
+需要独立安装、复现基线或修复依赖时，显式运行：
+
+```bash
+pnpm --dir "<skill-directory>" install \
+  --ignore-workspace --prod --frozen-lockfile \
+  --config.node-linker=isolated
+```
+
+普通 import、help、检查和更新均不隐式安装。公开入口在实际加载 runtime 失败时保留诊断，并给出上述安装命令；运行中的普通操作错误继续保留其原始诊断。安装失败时先按 pnpm 诊断恢复权限、网络或依赖，再重跑 frozen 安装；manifest/锁文件或运行时本身损坏时，重新获取完整 skill 后再安装并重试。
+
+文件更新成功只说明源码已覆盖，不证明现有依赖适用于新源码。新包需要不同依赖时，在更新后显式执行 frozen 安装。已有自包含 MJS updater 可以安装当前 TS zip；完成后使用新的 TS 入口。保留在本地的旧入口不代表当前包继续支持它。
 
 ## 维护与分发
 
-1. 运行时源码位于 `src/`，公共声明源位于 `api/`，测试位于 `tests/`。
-2. `scripts/build/skill-updaters.ts` 按 `skills/` 发现结果注入 repo、source path、release manifest 和 zip asset 配置。
-3. 每个 skill 只保存生成的 `scripts/update-skill.mjs`、`update-skill.d.mts` 和 source map；产物可脱离主仓库的 Bun、pnpm、TypeScript 和源码依赖运行。
-4. 生成头和 `--help` 输出必须提供仓库、维护源码、skill 源目录、release manifest、release asset 和重建入口，维护者不直接修改分发产物。
+1. 运行时源码和公开类型位于 `src/`，测试位于 `tests/`。
+2. `scripts/build/skill-updaters.ts` 提供无执行副作用的 entry/config factory；共享 skill 适配将领域和 updater 的入口、依赖及受管文件合并后一次同步，避免分别生成 manifest 或清理对方模块。
+3. 每个 skill 保存公开 `scripts/update-skill.ts`、`scripts/runtime/tools/` 下所需自有 TS、独立 manifest/锁文件及忽略规则。第三方依赖不打入源码副本；安装状态、store 与缓存不进入正式制品。
+4. 生成头和 `--help` 提供仓库、维护源码、skill 源目录、release manifest、release asset 和同步入口。仓库维护修改源码 owner 再同步；安装者可以直接修改包内 TS，无需构建，同名更新会覆盖定制。
+5. 同步只清理仓库中显式退役或带受管标记的生成文件；这一维护动作不改变客户端“只覆盖正式 zip 路径、保留其他文件”的更新契约。
 
 维护命令：
 
@@ -33,15 +51,15 @@ bun run sync:skill-updaters
 bun run check:skill-updaters
 ```
 
-`sync:skill-updaters` 会改变每个 skill 的生成文件，因此可能改变多个 skill hash；`check:skill-updaters` 只读检查生成漂移。
+`sync:skill-updaters` 同步各 skill 的完整运行时，因此可能改变多个 skill hash；`check:skill-updaters` 只读检查生成漂移及 manifest/锁文件的直接依赖声明一致性，不代替真实 frozen 安装验证。
 
 ## 已安装 skill 的入口
 
 在对应 skill 目录运行：
 
 ```bash
-node scripts/update-skill.mjs --check
-node scripts/update-skill.mjs
-node scripts/update-skill.mjs --yes
-node scripts/update-skill.mjs --release-tag <tag> --check
+node scripts/update-skill.ts --check
+node scripts/update-skill.ts
+node scripts/update-skill.ts --yes
+node scripts/update-skill.ts --release-tag <tag> --check
 ```

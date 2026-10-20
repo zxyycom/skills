@@ -1,5 +1,6 @@
 import {
   packageScriptCheckId,
+  packageScriptDependencies,
   releaseBunTestPackageFiles
 } from "./checks/package-script.ts";
 import { semanticGateChecks } from "./checks/semantic.ts";
@@ -39,14 +40,21 @@ export const releaseTestBatchGroups: readonly ReleaseTestBatchGroup[] =
           files: Object.freeze([requiredTestFile(command.args)])
         })
       ),
-    ...Object.entries(releaseBunTestPackageFiles).map(([script, files]) =>
-      Object.freeze({
-        checkId: packageScriptCheckId(
-          script as keyof typeof releaseBunTestPackageFiles
-        ),
-        files: Object.freeze([...files])
-      })
-    )
+    ...Object.entries(releaseBunTestPackageFiles)
+      .filter(
+        ([script]) =>
+          packageScriptDependencies[
+            script as keyof typeof packageScriptDependencies
+          ] === undefined
+      )
+      .map(([script, files]) =>
+        Object.freeze({
+          checkId: packageScriptCheckId(
+            script as keyof typeof releaseBunTestPackageFiles
+          ),
+          files: Object.freeze([...files])
+        })
+      )
   ]);
 
 export const releaseTestBatchLeaderCheckId =

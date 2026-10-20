@@ -17,7 +17,7 @@ test("decision CLI resolves a relative root from injected cwd", async () => {
 
   await program.parseAsync([
     "node",
-    "decision-records.mjs",
+    "decision-records.ts",
     "check",
     "--root",
     "."
@@ -108,7 +108,7 @@ test("decision CLI normalizes the configured relative decisions directory", asyn
 
   await program.parseAsync([
     "node",
-    "decision-records.mjs",
+    "decision-records.ts",
     "check",
     "--decisions-dir",
     "./docs/decisions/"

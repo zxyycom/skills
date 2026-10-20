@@ -6,7 +6,7 @@ description: >-
   改善 AI 阅读或使用效果，或当前任务依赖的文档因目标、结构、关系、范围、
   权威性、重复、冲突、模糊或历史残留而妨碍 AI 使用时触发。
 metadata:
-  version: "7"
+  version: "8"
 ---
 
 # AI-Ready Docs
@@ -59,3 +59,14 @@ metadata:
 编辑任务按授权范围写入；审阅任务交付问题、影响、建议及理由。高风险边界、更高优先级指令或明确契约冲突时先确认路径；缺失信息会实质改变结果时说明缺口并只问一个具体问题。其他可逆取舍按用户目标处理并说明。交付区分文档侧改动、外部交付链路状态、已验证结果和残余风险。
 
 完成前核对：主承诺、骨架和 owner 是否一致；AI 能否恢复必要语义并完成任务；原意、精确边界和风险约束是否保留；重复、冲突、模糊与历史残留是否收敛。
+
+## 自更新
+
+本 skill 的指令使用不需要安装依赖。仅在本 skill 目录运行自更新入口 `node scripts/update-skill.ts` 时，需满足随包 `package.json` 的 Node 版本与兼容依赖。
+已有兼容宿主依赖即可复用；普通运行、导入与检查不自动安装。依赖不可用时，使用随包 manifest 固定的 pnpm 显式执行：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

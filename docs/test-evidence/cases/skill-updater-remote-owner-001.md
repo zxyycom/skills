@@ -1,7 +1,7 @@
 ### Case SKILL-UPDATER-REMOTE-OWNER-001: Updater 拒绝其他 owner 的远端包
 
 Tests:
-- `test:45287ca166be3532a54c564bd6e52269396202317996226244b36c3687ad6d18`
+- `test:e09665c4779c0701afedf543c700104350d147a9e552f1538ddd09b5922e9436`
 
 Tags:
 - `skill-updater`

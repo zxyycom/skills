@@ -132,14 +132,17 @@ test("public distribution Checks require successful generation Checks", async ()
   await withTemporaryDirectory(
     "skills-vibe-distribution-prerequisites-",
     async (directory) => {
-      for (const [
-        consumerCheckId,
-        prerequisites
-      ] of expectedSemanticPrerequisites) {
+      for (const [consumerCheckId, prerequisites] of [
+        ...expectedSemanticPrerequisites,
+        ["script:test:skill-updater", ["script:check:skill-updaters"]] as const
+      ]) {
         const [prerequisite] = prerequisites;
-        const consumerPath = expectedSemanticChecks.find(
-          ([checkId]) => checkId === consumerCheckId
-        )?.[2];
+        const consumerPath =
+          consumerCheckId === "script:test:skill-updater"
+            ? "./tools/skill-updater/tests/run.ts"
+            : expectedSemanticChecks.find(
+                ([checkId]) => checkId === consumerCheckId
+              )?.[2];
         if (consumerPath === undefined) {
           throw new Error(
             `missing consumer command path for ${consumerCheckId}`
@@ -185,10 +188,14 @@ test("public distribution Checks require successful generation Checks", async ()
           );
 
           assert.equal(outcomeFor(result, prerequisite).status, behavior);
+          const consumerOutcome = outcomeFor(result, consumerCheckId);
           assert.equal(
-            outcomeFor(result, consumerCheckId).status,
+            consumerOutcome.status,
             behavior === "passed" ? "passed" : "unavailable"
           );
+          if (consumerOutcome.status === "unavailable") {
+            assert.equal(consumerOutcome.reason.code, "dependency-not-passed");
+          }
           assert.equal(
             calls.filter(
               (invocation) =>
@@ -202,8 +209,10 @@ test("public distribution Checks require successful generation Checks", async ()
             calls.filter(
               (invocation) =>
                 invocation.command === "bun" &&
-                invocation.args[0] === "test" &&
-                invocation.args[1] === consumerPath
+                ((invocation.args[0] === "test" &&
+                  invocation.args[1] === consumerPath) ||
+                  scriptForCommand(invocation) ===
+                    consumerCheckId.slice("script:".length))
             ).length,
             behavior === "passed" ? 1 : 0,
             `${consumerCheckId} execution after ${prerequisite} ${behavior}`

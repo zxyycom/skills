@@ -39,7 +39,11 @@ interface IOption<T> {
 }
 
 class Some<T> implements IOption<T> {
-  constructor(private readonly value: T) {}
+  private readonly value: T;
+
+  constructor(value: T) {
+    this.value = value;
+  }
 
   isSome(): this is Some<T> {
     return true;

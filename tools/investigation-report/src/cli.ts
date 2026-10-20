@@ -42,7 +42,7 @@ export async function runInvestigationReportCheckCli(
   );
 
   try {
-    await program.parseAsync(["node", "check-investigations.mjs", ...argv]);
+    await program.parseAsync(["node", "check-investigations.ts", ...argv]);
   } catch (error) {
     if (error instanceof CommanderError) return error.exitCode === 0 ? 0 : 2;
     throw error;

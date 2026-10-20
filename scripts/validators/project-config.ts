@@ -20,18 +20,18 @@ import {
 } from "../../tools/skill-package/src/version.ts";
 
 export const maintenanceCliPackageScripts = {
-  "novel-cards": "node skills/novel-cards/scripts/novel-cards.mjs",
+  "novel-cards": "node skills/novel-cards/scripts/novel-cards.ts",
   "lightweight-judgment":
-    "node skills/lightweight-judgment/scripts/lightweight-judgment.mjs",
-  "change-plan": "node skills/change-plan/scripts/change-plan.mjs",
+    "node skills/lightweight-judgment/scripts/lightweight-judgment.ts",
+  "change-plan": "node skills/change-plan/scripts/change-plan.ts",
   "decision-records":
-    "node skills/decision-records/scripts/decision-records.mjs",
+    "node skills/decision-records/scripts/decision-records.ts",
   "investigation-report":
-    "node skills/investigation-report/scripts/check-investigations.mjs",
+    "node skills/investigation-report/scripts/check-investigations.ts",
   "task-graph": "node scripts/task-graph.js",
   "test-evidence":
-    "node skills/test-evidence-review/scripts/test-evidence-catalog.mjs",
-  "validate-skill": "node skills/skill-maintainer/scripts/validate-skill.mjs"
+    "node skills/test-evidence-review/scripts/test-evidence-catalog.ts",
+  "validate-skill": "node skills/skill-maintainer/scripts/validate-skill.ts"
 } as const satisfies Readonly<Record<string, string>>;
 
 export type MaintenanceCliCommand = keyof typeof maintenanceCliPackageScripts;

@@ -9,12 +9,12 @@ import type { ChangePlanCliIo } from "./cli.ts";
 export function helpText(): string {
   return [
     "Usage:",
-    "  change-plan.mjs list [change-root] [--stage <stage>] [--json]",
-    "  change-plan.mjs show <change-directory> [--json]",
-    "  change-plan.mjs check <change-directory> [--json]",
-    "  change-plan.mjs check-all [change-root] [--json]",
-    "  change-plan.mjs plan <change-directory> [--json]",
-    "  change-plan.mjs finalize <change-directory> [--preflight] [--json]",
+    "  change-plan.ts list [change-root] [--stage <stage>] [--json]",
+    "  change-plan.ts show <change-directory> [--json]",
+    "  change-plan.ts check <change-directory> [--json]",
+    "  change-plan.ts check-all [change-root] [--json]",
+    "  change-plan.ts plan <change-directory> [--json]",
+    "  change-plan.ts finalize <change-directory> [--preflight] [--json]",
     "",
     "Manage active Draft and Plan artifacts, checks, Git distance, and finalize-and-delete delivery.",
     "Check commands apply mechanical gates only; they do not approve plans or judge semantics.",

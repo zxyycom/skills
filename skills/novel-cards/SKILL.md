@@ -6,7 +6,7 @@ description: >-
   提取细纲、导演视角和模拟读者视角后分阶段对照目标卡；配套本地 CLI
   检查卡片身份、引用与索引并有界读取。
 metadata:
-  version: "6"
+  version: "7"
 ---
 
 # Novel Cards
@@ -21,6 +21,19 @@ metadata:
 2. 调用工具前读 [本地 CLI 操作契约](references/local-cli.md)：命令、批量输入、索引、恢复与运行时边界由它承接。
 3. 正文反推或检查前读 [反推与对照报告](references/review-report.md)，按提取、对照与回查阶段执行。
 4. 本地工具需要 Node.js >=24.18，无其他 skill 运行时依赖。实际稿件、卡片与报告保存在小说项目；已安装 skill 提供通用流程、契约与 CLI。
+
+## 工具运行前置
+
+运行下文公开 `.ts` CLI/import 或自更新入口时，使用 Node.js `>=24.18` 的原生类型擦除。
+依赖沿 Node 正常解析，可复用宿主兼容版本，不要求本地 `node_modules` 或与锁文件精确版本一致。
+依赖缺失、实际不兼容或需要复现随包基线时，使用随包 `package.json` 固定的 pnpm 显式安装：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行、import、help 和检查不自动安装。安装副本中的 `scripts/runtime/tools/` 可直接修改，无需构建；
+更新会覆盖正式包中的同路径定制文件。领域操作的其他前置仍由各自操作契约承接。
 
 ## 卡片模型
 
@@ -81,3 +94,9 @@ metadata:
 - 批量变迁保存完整旧卡，历史关联自动派生；演进、作者修订、撤回与预期效力明确。正文对应保存在外部报告，快照的版本锁定与未保证历史语境可辨。
 - 本次机械校验与语义复核分别说明：身份、引用和索引正确不证明因果、人物理解或文学质量；读取预算与未读 `frontier` 明确呈现。
 - 报告引用正文定位，缺漏有回查记录，提取与对照隔离程度如实呈现；卡或正文修订由作者决定。
+
+## 自更新
+
+在本 skill 目录运行 `node scripts/update-skill.ts`，运行前置与依赖修复见[工具运行前置](#工具运行前置)。
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。
+更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

@@ -7,7 +7,7 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- 仓库 task-graph package 命令默认从 Git 结构发现当前项目中央 root；唯一显式 root 则切换到目标项目自己的 CLI 和 canonical index。
+- 仓库 task-graph package 命令默认从 Git 结构发现当前项目中央 root；唯一显式 root 则切换到目标项目自己的 TS CLI 和 canonical index。
 
 Proves:
 - linked worktree 中省略 root 时，package 命令实际从主 worktree 运行中央 CLI，并向其传入同一个绝对 `--root`。

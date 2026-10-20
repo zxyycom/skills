@@ -1,3 +1,4 @@
+import { copyRuntimeScriptsSync } from "../../shared/tests/distribution-fixture.ts";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
@@ -85,10 +86,17 @@ test("Node standalone accepts large canonical inline PNG without regex stack ove
     assert.deepEqual(inflateSync(png.compressed), png.pixels);
     const base64 = png.bytes.toString("base64");
     assert.ok(base64.length > 5_000_000);
-    const entry = path.join(fixture.directory, "judgment.mjs");
+    const entry = path.join(fixture.directory, "judgment.ts");
+    copyRuntimeScriptsSync(
+      new URL(
+        "../../../skills/lightweight-judgment/scripts/lightweight-judgment.ts",
+        import.meta.url
+      ),
+      path.dirname(entry)
+    );
     fs.copyFileSync(
       new URL(
-        "../../../skills/lightweight-judgment/scripts/lightweight-judgment.mjs",
+        "../../../skills/lightweight-judgment/scripts/lightweight-judgment.ts",
         import.meta.url
       ),
       entry

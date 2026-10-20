@@ -1,0 +1,15 @@
+{
+  "name": "@skills/minimal-implementation",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.18"
+  },
+  "packageManager": "pnpm@11.7.0",
+  "dependencies": {
+    "@types/node": "^26.0.1",
+    "fflate": "^0.8.3",
+    "valibot": "^1.4.2",
+    "yaml": "^2.9.0"
+  }
+}

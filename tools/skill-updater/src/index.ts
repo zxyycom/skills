@@ -1,6 +1,5 @@
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { isMainModule } from "../../shared/src/node/main-module.ts";
 import {
   confirmUpdate,
   getUpdaterLinks,
@@ -22,15 +21,6 @@ import type {
   SkillUpdatePlanEntry,
   UpdaterConfig
 } from "./types.ts";
-
-declare const __SKILL_UPDATE_CONFIG__: UpdaterConfig;
-
-const UPDATE_CONFIG = __SKILL_UPDATE_CONFIG__;
-const updaterScriptPath = fileURLToPath(import.meta.url);
-
-export const skillUpdaterConfig: Readonly<UpdaterConfig> = Object.freeze({
-  ...UPDATE_CONFIG
-});
 
 function formatLocalVersion(state: LocalSkillState): string {
   if (state.state === "versioned") {
@@ -65,8 +55,11 @@ function printUpdatePlan(plan: readonly SkillUpdatePlanEntry[]): void {
 }
 
 export async function runSkillUpdaterCli(
+  skillUpdaterConfig: Readonly<UpdaterConfig>,
+  updaterModuleUrl: string,
   argv: readonly string[] = process.argv.slice(2)
 ): Promise<number> {
+  const updaterScriptPath = fileURLToPath(updaterModuleUrl);
   const options = parseCliOptions(skillUpdaterConfig, argv, updaterScriptPath);
   if (options.help) {
     printHelp(skillUpdaterConfig, updaterScriptPath);
@@ -138,13 +131,4 @@ export async function runSkillUpdaterCli(
   await installSkillFiles(remoteFiles, options.targetDir);
   console.log("Updated skill successfully.");
   return 0;
-}
-
-if (isMainModule(import.meta.url)) {
-  try {
-    process.exitCode = await runSkillUpdaterCli();
-  } catch (error) {
-    console.error(error instanceof Error ? error.message : String(error));
-    process.exitCode = 1;
-  }
 }

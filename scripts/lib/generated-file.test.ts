@@ -234,3 +234,67 @@ test("generated declaration cleanup only removes verified stale declaration file
     });
   }
 });
+
+test("source runtime synchronization detects drift read-only and preserves unowned files", async () => {
+  const { syncSourceRuntimeArtifacts } = await import("./source-runtime.ts");
+  const { rootDir } = await import("./project.ts");
+  const root = await fs.mkdtemp(
+    path.join(rootDir, "skills/.source-runtime-test-")
+  );
+  const skillName = path.basename(root);
+  const expectedPath = path.join(
+    root,
+    "scripts/runtime/tools/example/src/index.ts"
+  );
+  const stalePath = path.join(root, "scripts/runtime/tools/example/src/old.ts");
+  const customPath = path.join(root, "scripts/runtime/local-notes.txt");
+  try {
+    await fs.mkdir(path.dirname(expectedPath), { recursive: true });
+    await fs.writeFile(expectedPath, "drift\n");
+    await fs.writeFile(
+      stalePath,
+      "/*\n * Synced TypeScript runtime; stale\n */\n"
+    );
+    await fs.writeFile(customPath, "local customization\n");
+    const artifacts = [
+      { path: expectedPath, content: "export const value = 1;\n" }
+    ];
+    assert.equal(
+      await syncSourceRuntimeArtifacts(artifacts, {
+        mode: "check",
+        skillName,
+        retiredPaths: []
+      }),
+      true
+    );
+    assert.equal(await fs.readFile(expectedPath, "utf8"), "drift\n");
+    assert.equal((await fs.stat(stalePath)).isFile(), true);
+    assert.equal(
+      await syncSourceRuntimeArtifacts(artifacts, {
+        mode: "write",
+        skillName,
+        retiredPaths: []
+      }),
+      true
+    );
+    assert.equal(
+      await fs.readFile(expectedPath, "utf8"),
+      artifacts[0]?.content
+    );
+    await assert.rejects(fs.stat(stalePath), { code: "ENOENT" });
+    assert.equal(
+      await fs.readFile(customPath, "utf8"),
+      "local customization\n"
+    );
+    assert.equal(
+      await syncSourceRuntimeArtifacts(artifacts, {
+        mode: "check",
+        skillName,
+        retiredPaths: []
+      }),
+      false
+    );
+  } finally {
+    await fs.rm(root, { recursive: true, force: true });
+  }
+});

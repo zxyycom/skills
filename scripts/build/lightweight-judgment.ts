@@ -2,56 +2,20 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import {
   buildGeneratedFileHeader,
-  bundleWithBun,
-  parseGeneratedFileMode,
-  syncGeneratedArtifacts,
-  type GeneratedArtifact
+  type GeneratedArtifact,
+  type GeneratedFileMode
 } from "../lib/generated-file.ts";
+import { nativeCliEntry } from "../lib/native-cli-entry.ts";
+import {
+  buildSkillRuntimeArtifacts,
+  syncSkillRuntimeArtifacts,
+  runRuntimeAdapter
+} from "../lib/skill-runtime.ts";
 import { githubRepository, rootDir } from "../lib/project.ts";
-
 const rebuildCommand = "bun run sync:lightweight-judgment-cli";
 const skillSourcePath = "skills/lightweight-judgment";
-const sourceRelativePath = "tools/lightweight-judgment/src/cli.ts";
-const outputRelativePath =
-  "skills/lightweight-judgment/scripts/lightweight-judgment.mjs";
 const migrations = ["log-v1-to-v2", "log-v2-to-v3"] as const;
-
-async function buildArtifacts(): Promise<GeneratedArtifact[]> {
-  const bundle = await bundleWithBun({
-    banner: buildGeneratedFileHeader({
-      artifactName: "lightweight judgment inference CLI",
-      rebuildCommand,
-      repository: githubRepository,
-      skillSourcePath,
-      sourcePath: sourceRelativePath
-    }),
-    cwd: rootDir,
-    entryPath: path.join(rootDir, sourceRelativePath),
-    format: "esm",
-    keepNames: true,
-    minify: true,
-    outputFileName: path.basename(outputRelativePath),
-    sourceMapBaseDirectory: path.dirname(
-      path.join(rootDir, outputRelativePath)
-    ),
-    sourceMap: true
-  });
-  if (bundle.sourceMap === null) {
-    throw new Error(
-      "Lightweight Judgment CLI bundle must include a source map"
-    );
-  }
-  const serializedWorkspacePath = JSON.stringify(rootDir).slice(1, -1);
-  if (
-    bundle.code.includes(rootDir) ||
-    bundle.code.includes(serializedWorkspacePath)
-  ) {
-    throw new Error(
-      "Lightweight Judgment CLI bundle contains an absolute workspace path"
-    );
-  }
-
-  const outputPath = path.join(rootDir, outputRelativePath);
+export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
   const migrationArtifacts = await Promise.all(
     migrations.map(async (migration): Promise<GeneratedArtifact> => {
       const sourcePath = `tools/lightweight-judgment/migrations/${migration}.sql`;
@@ -72,36 +36,30 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
       };
     })
   );
-  return [
-    {
-      content: bundle.code,
-      path: outputPath,
-      sourcePath: sourceRelativePath
-    },
-    {
-      content: bundle.sourceMap,
-      path: `${outputPath}.map`,
-      sourcePath: sourceRelativePath
-    },
-    ...migrationArtifacts
-  ];
-}
-
-async function main(): Promise<void> {
-  const mode = parseGeneratedFileMode(process.argv.slice(2));
-  const changed = await syncGeneratedArtifacts(
-    await buildArtifacts(),
+  const artifacts = await buildSkillRuntimeArtifacts({
+    skillName: "lightweight-judgment",
+    rebuildCommand,
+    nodeEngine: ">=24.18",
+    entries: [
+      await nativeCliEntry({
+        sourcePath: "tools/lightweight-judgment/src/cli.ts",
+        outputName: "lightweight-judgment.ts",
+        runner: "runCli",
+        invocation: `const outcome = await runtime.runCli(process.argv.slice(2), runtime.productionRuntime());
+    process.stdout.write(outcome.stdout);
+    process.stderr.write(outcome.stderr);
+    process.exitCode = outcome.exitCode;`
+      })
+    ]
+  });
+  artifacts.push(...migrationArtifacts);
+  return await syncSkillRuntimeArtifacts(artifacts, {
     mode,
-    rootDir,
-    sourceRelativePath
-  );
-
-  if (mode === "check" && changed) {
-    process.exit(1);
-  }
-  if (!changed) {
-    console.log("Lightweight Judgment generated artifacts are current.");
-  }
+    skillName: "lightweight-judgment",
+    retiredPaths: [
+      "scripts/lightweight-judgment.mjs",
+      "scripts/lightweight-judgment.mjs.map"
+    ]
+  });
 }
-
-await main();
+await runRuntimeAdapter(import.meta.url, syncRuntime);

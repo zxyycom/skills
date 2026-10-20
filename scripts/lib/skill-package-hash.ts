@@ -1,3 +1,4 @@
+import { readSkillPackageFile } from "./skill-package-files.ts";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import {
@@ -85,13 +86,11 @@ function resolvePendingSkillFile(
     return null;
   }
 
-  return {
-    file: {
-      data: Buffer.from(file.data),
-      path: packagePath.slice(separatorIndex + 1)
-    },
-    skillName
-  };
+  const packageFile = readSkillPackageFile(
+    file,
+    packagePath.slice(separatorIndex + 1)
+  );
+  return packageFile === null ? null : { file: packageFile, skillName };
 }
 
 export async function readPendingSkillPackageSnapshot(
@@ -194,10 +193,13 @@ export async function collectSkillPackageFileSets(
       );
     }
 
-    skillFiles.push({
-      data: Buffer.from(file.data),
-      path: file.path.slice(`${tree.treePath}/`.length)
-    });
+    const packageFile = readSkillPackageFile(
+      file,
+      file.path.slice(`${tree.treePath}/`.length)
+    );
+    if (packageFile !== null) {
+      skillFiles.push(packageFile);
+    }
   }
   for (const skillFiles of filesBySkill.values()) {
     skillFiles.sort((left, right) => left.path.localeCompare(right.path));

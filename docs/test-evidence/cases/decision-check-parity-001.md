@@ -1,4 +1,4 @@
-### Case DECISION-CHECK-PARITY-001: Check 保持源码、bundle 与进程 CLI 一致
+### Case DECISION-CHECK-PARITY-001: Check 保持源码、TS 运行时 与进程 CLI 一致
 
 Tests:
 - `test:94c7e8fe02ba5bc415a54c5d01c68e108a6d02b0fa86da0b321627485c398c63`

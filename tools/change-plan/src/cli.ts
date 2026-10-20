@@ -176,7 +176,7 @@ async function runPlan(
 
 function invalidArguments(message: string, io: ChangePlanCliIo): number {
   writeLine(io.stderr, message);
-  writeLine(io.stderr, "Run change-plan.mjs --help for usage.");
+  writeLine(io.stderr, "Run change-plan.ts --help for usage.");
   return 2;
 }
 
@@ -224,7 +224,7 @@ export async function runChangePlanCli(
   if (command === "list") {
     if (operands.length > 1 || operands[0]?.trim().length === 0 || preflight)
       return invalidArguments(
-        "Expected: change-plan.mjs list [change-root] [--stage <stage>] [--json]",
+        "Expected: change-plan.ts list [change-root] [--stage <stage>] [--json]",
         io
       );
     return await runList(
@@ -244,7 +244,7 @@ export async function runChangePlanCli(
       preflight
     )
       return invalidArguments(
-        "Expected: change-plan.mjs check-all [change-root] [--json]",
+        "Expected: change-plan.ts check-all [change-root] [--json]",
         io
       );
     return await runCollectionCheck(

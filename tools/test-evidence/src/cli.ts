@@ -207,7 +207,7 @@ export async function runTestEvidenceCatalogCli(
     output(this, result, result.status === "ok");
   });
   try {
-    await program.parseAsync(["node", "test-evidence-catalog.mjs", ...argv]);
+    await program.parseAsync(["node", "test-evidence-catalog.ts", ...argv]);
   } catch (error) {
     if (error instanceof InvalidArgumentError) {
       io.stderr(`error: ${error.message}\n`);

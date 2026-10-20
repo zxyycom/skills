@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires openspec CLI.
 metadata:
   author: openspec
-  version: "4"
+  version: "5"
   generatedBy: "1.3.1"
 ---
 
@@ -84,3 +84,14 @@ metadata:
 1. 本轮可处理任务已完成，checkbox 已同步，验证已运行或原因已说明。
 2. 所有任务已完成，并提示可进入 archive。
 3. 存在开放问题、必须由用户确认的歧义、设计取舍或环境阻塞，且已暂停并给出具体下一步。
+
+## 自更新
+
+本 skill 的指令使用不需要安装依赖。仅在本 skill 目录运行自更新入口 `node scripts/update-skill.ts` 时，需满足随包 `package.json` 的 Node 版本与兼容依赖。
+已有兼容宿主依赖即可复用；普通运行、导入与检查不自动安装。依赖不可用时，使用随包 manifest 固定的 pnpm 显式执行：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

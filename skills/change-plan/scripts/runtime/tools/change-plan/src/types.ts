@@ -1,0 +1,210 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/change-plan/src/types.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/change-plan/src/types.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/change-plan/src/types.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/change-plan
+ * Rebuild: bun run sync:change-plan-cli
+ */
+import type { ChangePlanMetadata } from "./metadata.ts";
+
+export const changePlanArtifactNames = [
+  "proposal.md",
+  "design.md",
+  "tasks.md"
+] as const;
+
+export const changePlanMetadataName = ".change-plan.json" as const;
+export const tombstoneDirectoryName = ".change-plan-tombstones";
+
+export type ChangePlanArtifactName = (typeof changePlanArtifactNames)[number];
+
+export type ChangePlanMetadataName = typeof changePlanMetadataName;
+
+export type ChangePlanFileName =
+  | ChangePlanArtifactName
+  | ChangePlanMetadataName;
+
+export type ChangePlanStage = ChangePlanMetadata["stage"];
+
+export type { ChangePlanMetadata } from "./metadata.ts";
+
+export type GitDistanceEvidence = Readonly<{
+  baseCommit: string;
+  changedLines: number;
+  commitCount: number;
+  headCommit: string;
+}>;
+
+export type ChangePlanTaskSection =
+  | "readiness"
+  | "implementation"
+  | "verification";
+
+export type ChangePlanTaskHeading =
+  | "Readiness"
+  | "Implementation"
+  | "Verification";
+
+export type ChangePlanArtifactHeading =
+  | "Why"
+  | "Outcome"
+  | "Scope"
+  | "Success Criteria"
+  | "Affected Owners"
+  | "Context"
+  | "Goals / Non-Goals"
+  | "Decisions"
+  | "Risks / Trade-offs"
+  | "Open Questions"
+  | ChangePlanTaskHeading;
+
+export type ChangePlanArtifactTitle = "Proposal" | "Design" | "Tasks";
+
+export type ChangePlanArtifactSubheading =
+  | "Intended Change"
+  | "Resulting Impacts";
+
+export type ChangePlanArtifactSubsectionOwner = "Decisions" | "Scope";
+
+export type ArtifactSubsectionContract = {
+  ownerSection: ChangePlanArtifactSubsectionOwner;
+  requiredSubsections: readonly ChangePlanArtifactSubheading[];
+};
+
+export type ChangePlanTaskSectionProgress = {
+  completedTaskCount: number;
+  taskCount: number;
+};
+
+export type ChangePlanTaskProgress = Record<
+  ChangePlanTaskSection,
+  ChangePlanTaskSectionProgress
+>;
+
+export type ChangePlanDiagnosticCode =
+  | "change-directory-not-active-member"
+  | "change-directory-not-found"
+  | "change-directory-read-failed"
+  | "change-path-not-directory"
+  | "change-root-contains-repository"
+  | "change-root-read-failed"
+  | "duplicate-section"
+  | "duplicate-task-id"
+  | "empty-introduction"
+  | "empty-section"
+  | "file-read-failed"
+  | "invalid-change-name"
+  | "invalid-h1"
+  | "invalid-metadata"
+  | "invalid-task-syntax"
+  | "missing-required-file"
+  | "missing-section"
+  | "missing-task"
+  | "base-commit-unavailable"
+  | "required-path-not-file"
+  | "section-order"
+  | "task-outside-required-section"
+  | "version-control-failed";
+
+export type ChangePlanDiagnostic = {
+  code: ChangePlanDiagnosticCode;
+  file: ChangePlanFileName | null;
+  line?: number;
+  message: string;
+};
+
+export type ChangePlanCheckResult = {
+  changeDirectory: string;
+  changeName: string;
+  completedTaskCount: number;
+  diagnostics: ChangePlanDiagnostic[];
+  distance: GitDistanceEvidence | null;
+  metadata: ChangePlanMetadata | null;
+  stage: ChangePlanStage | null;
+  taskCount: number;
+  taskProgress: ChangePlanTaskProgress;
+  valid: boolean;
+};
+
+export type ChangePlanCollectionOptions = Readonly<{
+  changeRoot?: string;
+}>;
+
+export type ChangePlanListOptions = Readonly<{
+  changeRoot?: string;
+  stage?: ChangePlanStage;
+}>;
+
+export type ChangePlanListEntry = ChangePlanCheckResult;
+
+export type ChangePlanListResult = {
+  changeRoot: string;
+  entries: ChangePlanListEntry[];
+  errors: string[];
+};
+
+export type ChangePlanCollectionCheckResult = {
+  changeRoot: string;
+  checkedCount: number;
+  entries: ChangePlanListEntry[];
+  errors: string[];
+  invalidCount: number;
+  valid: boolean;
+  validCount: number;
+};
+
+export type ChangePlanArtifactContents = Record<
+  ChangePlanArtifactName,
+  string | null
+>;
+
+export type ChangePlanShowResult = {
+  artifacts: ChangePlanArtifactContents;
+  check: ChangePlanCheckResult;
+};
+
+export type ChangePlanLifecycleAction = "plan";
+
+export type ChangePlanLifecycleErrorCode =
+  | "artifact-check-failed"
+  | "base-commit-unavailable"
+  | "invalid-source-stage"
+  | "metadata-write-failed"
+  | "version-control-failed";
+
+export type ChangePlanLifecycleSuccess = {
+  action: ChangePlanLifecycleAction;
+  fromStage: ChangePlanStage;
+  metadata: ChangePlanMetadata;
+  success: true;
+};
+
+export type ChangePlanLifecycleFailure = {
+  action: ChangePlanLifecycleAction;
+  diagnostics: ChangePlanDiagnostic[];
+  error: string;
+  errorCode: ChangePlanLifecycleErrorCode;
+  fromStage: ChangePlanStage | null;
+  success: false;
+};
+
+export type ChangePlanLifecycleResult =
+  | ChangePlanLifecycleSuccess
+  | ChangePlanLifecycleFailure;
+
+export type ArtifactStructureContract = {
+  file: ChangePlanArtifactName;
+  h1: ChangePlanArtifactTitle;
+  requiredSections: readonly ChangePlanArtifactHeading[];
+  subsectionContracts?: readonly ArtifactSubsectionContract[];
+  taskSections?: readonly ChangePlanTaskHeading[];
+};
+
+export type ArtifactValidationResult = {
+  completedTaskCount: number;
+  diagnostics: ChangePlanDiagnostic[];
+  taskCount: number;
+  taskProgress: ChangePlanTaskProgress;
+};

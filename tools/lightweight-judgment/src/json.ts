@@ -19,10 +19,12 @@ const numberToken = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/u;
 // A local parser owns cursor/depth/key order, before JSON.parse can discard lexical information.
 class JsonParser {
   private cursor = 0;
-  constructor(
-    private readonly text: string,
-    private readonly kind: FailureKind
-  ) {}
+  private readonly text: string;
+  private readonly kind: FailureKind;
+  constructor(text: string, kind: FailureKind) {
+    this.text = text;
+    this.kind = kind;
+  }
   private error(path: string, reason: string): never {
     return fail(this.kind, path, reason);
   }

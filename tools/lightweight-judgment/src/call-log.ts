@@ -59,11 +59,13 @@ function summary(result: AdapterResponse["result"] | undefined): UsageSummary {
 export class CallLog {
   readonly id = randomUUID();
   private failed = false;
+  private readonly database: DatabaseSync;
+  private readonly config: LoggingConfiguration;
 
-  private constructor(
-    private readonly database: DatabaseSync,
-    private readonly config: LoggingConfiguration
-  ) {}
+  private constructor(database: DatabaseSync, config: LoggingConfiguration) {
+    this.database = database;
+    this.config = config;
+  }
 
   static start(
     config: Configuration,

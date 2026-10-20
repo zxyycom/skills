@@ -7,7 +7,7 @@ Tags:
 - `skill-validator`
 
 Contract:
-- 结构和链接合法的可移植 skill 必须通过源码、bundled API 与 CLI。
+- 结构和链接合法的可移植 skill 必须通过源码、TS 运行时d API 与 CLI。
 
 Proves:
 - 三个入口均成功且报告相同 Markdown 文件数量。

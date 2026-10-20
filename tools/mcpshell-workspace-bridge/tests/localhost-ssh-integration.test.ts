@@ -24,7 +24,7 @@ const distributedRuntime = path.join(
   "skills",
   "mcpshell-workspace-tools",
   "scripts",
-  "mcpshell-workspace.mjs"
+  "mcpshell-workspace.ts"
 );
 const distributedTools = path.join(
   repositoryRoot,
@@ -64,7 +64,7 @@ test(
       await fs.mkdir(path.join(fixture.skill, "scripts"), { recursive: true });
       await fs.copyFile(
         distributedRuntime,
-        path.join(fixture.skill, "scripts", "mcpshell-workspace.mjs")
+        path.join(fixture.skill, "scripts", "mcpshell-workspace.ts")
       );
       await fs.copyFile(
         distributedTools,

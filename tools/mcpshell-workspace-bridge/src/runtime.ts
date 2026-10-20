@@ -73,7 +73,9 @@ function modeInput(mode: RuntimeMode): RuntimeInput {
   }
 }
 
-async function main(): Promise<void> {
+export async function runWorkspaceCli(
+  scriptUrl: string = import.meta.url
+): Promise<void> {
   const mode = process.argv[2] as RuntimeMode | undefined;
   if (
     mode !== "shell" &&
@@ -82,13 +84,13 @@ async function main(): Promise<void> {
     mode !== "get-file"
   ) {
     throw new Error(
-      "usage: mcpshell-workspace.mjs <shell|apply-patch|put-file|get-file>"
+      "usage: mcpshell-workspace.ts <shell|apply-patch|put-file|get-file>"
     );
   }
   let result: BridgeResult;
   try {
     const config = await readBridgeConfig(
-      skillDirectoryFromScriptUrl(import.meta.url)
+      skillDirectoryFromScriptUrl(scriptUrl)
     );
     result = await runWorkspaceOperation(mode, modeInput(mode), config);
   } catch (error) {
@@ -104,5 +106,5 @@ async function main(): Promise<void> {
 }
 
 if (isMainModule(import.meta.url)) {
-  await main();
+  await runWorkspaceCli();
 }

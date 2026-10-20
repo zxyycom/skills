@@ -21,7 +21,7 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
       /Usage: investigation-report \[options\] \[command\]/u
     );
     assert.match(help.stdout, /Exit status: 0 success; 1/u);
-    assert.doesNotMatch(help.stdout, /check-investigations\.mjs/u);
+    assert.doesNotMatch(help.stdout, /check-investigations\.ts/u);
     assert.doesNotMatch(help.stdout, /--category/u);
 
     const commandHelp = await runInvestigationCli(root, ["trace", "--help"]);

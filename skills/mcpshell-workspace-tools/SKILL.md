@@ -6,7 +6,7 @@ description: >-
   双向单文件 tools。查看文件和执行命令优先用 shell，修改文本优先用 patch，
   put/get 只传输文件实体；已有等价 workspace tools 时直接使用。
 metadata:
-  version: "8"
+  version: "9"
 ---
 
 # MCPShell Workspace Tools
@@ -33,6 +33,19 @@ agent project (rules, skills, MCP registration)
 
 普通查看使用 shell。文本编辑先读取上下文后提交最小 patch，再用 shell 查看内容和 Git diff。put/get 仅传输单个文件实体（例如二进制、较大文件或已生成产物），不替代浏览或文本编辑。
 
+## 工具运行前置
+
+运行下文公开 `.ts` CLI/import 或自更新入口时，使用 Node.js `>=24.18` 的原生类型擦除。
+依赖沿 Node 正常解析，可复用宿主兼容版本，不要求本地 `node_modules` 或与锁文件精确版本一致。
+依赖缺失、实际不兼容或需要复现随包基线时，使用随包 `package.json` 固定的 pnpm 显式安装：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行、import、help 和检查不自动安装。安装副本中的 `scripts/runtime/tools/` 可直接修改，无需构建；
+更新会覆盖正式包中的同路径定制文件。领域操作的其他前置仍由各自操作契约承接。
+
 ## 建立或恢复 tools
 
 ### 1. 保留原任务并恢复位置
@@ -56,8 +69,8 @@ server identity 是创建、恢复和精确移除这组 tools 的稳定名称。
 **在本 skill 目录中**先运行只读 preview。配置输入只有两种合法形式：三项 flag 全部提供，或三项都省略并从有效 env 恢复 registration。
 
 ```text
-node scripts/init-mcpshell-workspace.mjs preview --identity <server-identity> --backend <ssh-host-or-alias> --project-root <remote-posix-absolute-root> --staging-root <local-absolute-root>
-node scripts/init-mcpshell-workspace.mjs preview --identity <server-identity>
+node scripts/init-mcpshell-workspace.ts preview --identity <server-identity> --backend <ssh-host-or-alias> --project-root <remote-posix-absolute-root> --staging-root <local-absolute-root>
+node scripts/init-mcpshell-workspace.ts preview --identity <server-identity>
 ```
 
 成功 preview 对 env 和受管 registration 分别给出不含敏感值的 `create`、`update` 或 `unchanged` action，且永不写入。部分提供 flag、缺失或无效 env，或 definitions/ignore rule 前置条件失败时，在任何写入前停止。只有当前任务明确授权修改 agent 项目时，才将同一命令的 `preview` 改为 `apply`；apply 只写 action 中实际改变的 resource。initializer 仅维护带自身拥有标记的 `[mcp_servers.<identity>]` table；同名非受管 table 不覆盖。移除由用户明确请求触发，`--remove-env` 才删除本机 env。
@@ -107,3 +120,9 @@ runtime deadline 为 shell/patch 110 秒、put/get 290 秒；对应 YAML outer t
 2. 四项 tools 的实际名称和固定 roots 已恢复；shell 的 root 与失败结果已验证。
 3. 后续查看、修改与传输按“选择 tool”执行，目标项目只收到原任务要求的内容。
 4. 原任务所需的可观察结果已按所用 tool 的完成证据核验：shell 看 stdout、stderr、退出状态和 root，patch 看内容与 Git diff，file 看两端路径、byte count 和 SHA-256。
+
+## 自更新
+
+在本 skill 目录运行 `node scripts/update-skill.ts`，运行前置与依赖修复见[工具运行前置](#工具运行前置)。
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。
+更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

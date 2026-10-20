@@ -7,7 +7,7 @@ description: >-
   范围和当前可兑现的契约，使后续变化能够集中处理。单一实现也可以建立
   具体边界。调用仍然局部且责任清楚，或只需按既定契约实施时不使用。
 metadata:
-  version: "4"
+  version: "5"
 ---
 
 # Dependency Boundary Design
@@ -112,3 +112,14 @@ metadata:
    为成功标准。
 3. 明确边界不自动保证底层可替换；替换范围由消费者契约和验证证据决定。
 4. 安全、权限、不可逆操作和外部状态变更继续服从当前任务与运行环境授权。
+
+## 自更新
+
+本 skill 的指令使用不需要安装依赖。仅在本 skill 目录运行自更新入口 `node scripts/update-skill.ts` 时，需满足随包 `package.json` 的 Node 版本与兼容依赖。
+已有兼容宿主依赖即可复用；普通运行、导入与检查不自动安装。依赖不可用时，使用随包 manifest 固定的 pnpm 显式执行：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

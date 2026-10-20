@@ -9,10 +9,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object";
 }
 
-function isUnknownArray(value: unknown): value is unknown[] {
-  return Array.isArray(value);
-}
-
 test("generated runtime stays directly importable with portable source metadata", async () => {
   const cliSource = await fs.readFile(generatedCliPath, "utf8");
   assert.match(
@@ -20,7 +16,8 @@ test("generated runtime stays directly importable with portable source metadata"
     /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/tools\/change-plan\/src\/cli\.ts/u
   );
   assert.match(cliSource, /Rebuild: bun run sync:change-plan-cli/u);
-  assert.match(cliSource, /sourceMappingURL=change-plan\.mjs\.map/u);
+  assert.match(cliSource, /runtime\/tools\/change-plan\/src\/cli\.ts/u);
+  assert.match(cliSource, /Installed skill copies may be edited directly/u);
   assert.equal(cliSource.includes(repositoryRoot), false);
   assert.doesNotMatch(
     cliSource,
@@ -48,31 +45,17 @@ test("generated runtime stays directly importable with portable source metadata"
     assert.equal(typeof runtime[runtimeExport], "function");
   }
 
-  const sourceMap: unknown = JSON.parse(
-    await fs.readFile(`${generatedCliPath}.map`, "utf8")
+  await assert.rejects(
+    fs.stat(`${generatedCliPath.replace(/\.ts$/u, ".mjs")}.map`),
+    { code: "ENOENT" }
   );
-  assert.ok(isRecord(sourceMap));
-  assert.equal(sourceMap.sourceRoot, "../../../");
-  assert.ok(isUnknownArray(sourceMap.sources));
-  assert.ok(sourceMap.sources.includes("tools/change-plan/src/cli.ts"));
-  assert.ok(sourceMap.sources.includes("tools/change-plan/src/lifecycle.ts"));
-  assert.ok(sourceMap.sources.includes("tools/change-plan/src/metadata.ts"));
-  assert.ok(isUnknownArray(sourceMap.sourcesContent));
-  assert.equal(sourceMap.sourcesContent.length, sourceMap.sources.length);
-  assert.equal(
-    sourceMap.sources.some(
-      (source) =>
-        typeof source === "string" &&
-        source.endsWith("write-file-atomic/lib/index.js")
+  const copiedLifecycle = await fs.readFile(
+    path.join(
+      path.dirname(generatedCliPath),
+      "runtime/tools/change-plan/src/lifecycle.ts"
     ),
-    false
+    "utf8"
   );
-  assert.ok(
-    sourceMap.sources.every(
-      (source) =>
-        typeof source === "string" &&
-        !path.isAbsolute(source) &&
-        !source.includes("\\")
-    )
-  );
+  assert.match(copiedLifecycle, /Synced TypeScript runtime/u);
+  assert.match(copiedLifecycle, /from "\.\/metadata\.ts"/u);
 });

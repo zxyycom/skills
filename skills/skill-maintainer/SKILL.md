@@ -6,7 +6,7 @@ description: >-
   还是其他 owner 承接，确定一个或多个 skill 的分发组合，并处理能力之间
   的触发、依赖、职责或交付重叠。
 metadata:
-  version: "9"
+  version: "10"
 ---
 
 # Skill Maintainer
@@ -41,17 +41,30 @@ Skill 是在特定使用场景下为 agent 提供可复用行为的能力单元�
 
 一个 skill 可以兼具多种特征；以主承诺占比最高的类型决定正文重心、资源选择和验证方式。
 
+## 工具运行前置
+
+运行下文公开 `.ts` CLI/import 或自更新入口时，使用 Node.js `>=24.18` 的原生类型擦除。
+依赖沿 Node 正常解析，可复用宿主兼容版本，不要求本地 `node_modules` 或与锁文件精确版本一致。
+依赖缺失、实际不兼容或需要复现随包基线时，使用随包 `package.json` 固定的 pnpm 显式安装：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行、import、help 和检查不自动安装。安装副本中的 `scripts/runtime/tools/` 可直接修改，无需构建；
+更新会覆盖正式包中的同路径定制文件。领域操作的其他前置仍由各自操作契约承接。
+
 ## 结构验证器
 
-本 skill 随包提供 `scripts/validate-skill.mjs`。它机械检查单个 skill 的可移植结构基线：skill 目录、`SKILL.md`、YAML frontmatter、`name` 与 `description`、名称与目录一致性、正文、资源目录和内部 Markdown 链接。
+本 skill 随包提供 `scripts/validate-skill.ts`。它机械检查单个 skill 的可移植结构基线：skill 目录、`SKILL.md`、YAML frontmatter、`name` 与 `description`、名称与目录一致性、正文、资源目录和内部 Markdown 链接。
 
 从本 skill 目录运行，或使用脚本的绝对路径：
 
 ```text
-node scripts/validate-skill.mjs <skill-directory>
+node scripts/validate-skill.ts <skill-directory>
 ```
 
-需要在现有 ESM 进程中复用时，从本 skill 的实际安装路径直接导入同一个 `scripts/validate-skill.mjs`。模块导入不会执行 CLI，导出 `validateSkillDirectory` 和返回退出码的 `runSkillValidatorCli(argv)`；相邻的 `validate-skill.d.mts` 提供 TypeScript 声明。
+需要在现有 ESM 进程中复用时，从本 skill 的实际安装路径直接导入同一个 `scripts/validate-skill.ts`。模块导入不会执行 CLI，导出 `validateSkillDirectory` 和返回退出码的 `runSkillValidatorCli(argv)`；相邻的 `validate-skill.d.mts` 提供 TypeScript 声明。
 
 该脚本不推断分发单元，也不验证跨 skill 依赖。分发单元的成员完整性、内部依赖、metadata、索引、打包和安装契约由当前环境的对应入口补充验证；没有机械入口时逐项人工检查，并在交付中说明证据和残余风险。
 
@@ -87,7 +100,7 @@ node scripts/validate-skill.mjs <skill-directory>
 
 ### 4. 验证并交付
 
-1. 对每个受影响成员运行 `validate-skill.mjs` 检查通用结构，再运行当前环境已有的聚合分发验证入口；没有机械入口时逐项人工检查并记录未自动化的证明。
+1. 对每个受影响成员运行 `validate-skill.ts` 检查通用结构，再运行当前环境已有的聚合分发验证入口；没有机械入口时逐项人工检查并记录未自动化的证明。
 2. 检查成员清单、独立制品与版本、必装或可选关系、内部引用、交接输入、共享资源和兼容性约束；任何真实依赖都要写明前置条件和缺失路径。
 3. 实际运行新增或修改的脚本，并覆盖会改变结果的代表性分支。
 4. 用现实请求验证单个成员的触发和声明的聚合工作流；允许选装时验证合法成员子集，存在真实依赖时验证成员缺失后的失败或降级路径。
@@ -106,3 +119,9 @@ node scripts/validate-skill.mjs <skill-directory>
 3. 分发单元明确成员、共享资源、聚合交付关系以及必装或可选边界；真实依赖明确，没有从聚合关系推断未声明的成员可用性。
 4. 每个成员的结构验证与当前环境已有的单元集成验证均已通过；没有机械入口时已报告人工证据和残余风险。
 5. 实际验证证据、未执行项和残余风险已经报告。
+
+## 自更新
+
+在本 skill 目录运行 `node scripts/update-skill.ts`，运行前置与依赖修复见[工具运行前置](#工具运行前置)。
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。
+更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

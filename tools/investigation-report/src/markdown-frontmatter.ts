@@ -182,14 +182,22 @@ export function compareInvestigationRelations(
 
 class FrontmatterCursor {
   public index: number;
+  private readonly lines: readonly string[];
+  private readonly end: number;
+  private readonly id: string;
+  private readonly errors: string[];
 
   public constructor(
-    private readonly lines: readonly string[],
+    lines: readonly string[],
     start: number,
-    private readonly end: number,
-    private readonly id: string,
-    private readonly errors: string[]
+    end: number,
+    id: string,
+    errors: string[]
   ) {
+    this.lines = lines;
+    this.end = end;
+    this.id = id;
+    this.errors = errors;
     this.index = start;
   }
 

@@ -16,8 +16,10 @@ export type {
   InitializerResult
 } from "./initializer-contract.ts";
 
-async function main(): Promise<void> {
-  const skillDirectory = skillDirectoryFromScriptUrl(import.meta.url);
+export async function runInitializerCli(
+  scriptUrl: string = import.meta.url
+): Promise<void> {
+  const skillDirectory = skillDirectoryFromScriptUrl(scriptUrl);
   const result = await runInitializer(readCliRequest(), {
     agentProjectDirectory:
       agentProjectDirectoryFromSkillDirectory(skillDirectory),
@@ -25,4 +27,4 @@ async function main(): Promise<void> {
   });
   process.stdout.write(`${JSON.stringify(result)}\n`);
 }
-if (isMainModule(import.meta.url)) await main();
+if (isMainModule(import.meta.url)) await runInitializerCli();

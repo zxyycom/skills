@@ -79,6 +79,7 @@ export async function createHashHookRepository(
     "scripts/lib/oxc-config.ts",
     "scripts/lib/project.ts",
     "scripts/lib/skill-package-hash.ts",
+    "scripts/lib/skill-package-files.ts",
     "scripts/lib/skill-package-release.ts",
     "scripts/lib/skill-package-tree.ts",
     "scripts/lib/skill-package-version-baseline.ts",

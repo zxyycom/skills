@@ -1,0 +1,226 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/index-runtime/src/schemas.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/index-runtime/src/schemas.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/index-runtime/src/schemas.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+ * Rebuild: bun run sync:investigation-report-check
+ */
+import * as v from "valibot";
+import { isJsonObject, type JsonObject } from "./json.ts";
+import { createSafeRecordSchema } from "./record.ts";
+
+export const stateIndexSchemaVersion = 4 as const;
+export const stateIndexQueryDefaultLimit = 50;
+export const stateIndexQueryMaximumLimit = 1_000;
+
+const namespacePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
+const keyNamePattern = /^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$/u;
+const stateIndexTextPattern =
+  // oxlint-disable-next-line no-control-regex -- State-index text intentionally excludes C0 control characters and DEL at its external-data boundary.
+  /^(?![\s\S]*[\u0000-\u001f\u007f])\S(?:[\s\S]*\S)?$/;
+// oxlint-disable-next-line no-control-regex -- Keep the same boundary as stateIndexTextSchema.
+const controlCharacterPattern = /[\u0000-\u001f\u007f]/u;
+
+export const stateIndexTextSchema = v.pipe(
+  v.string("must be a string"),
+  v.minLength(
+    1,
+    "must be non-empty text without surrounding whitespace or control characters"
+  ),
+  v.regex(
+    stateIndexTextPattern,
+    "must be non-empty text without surrounding whitespace or control characters"
+  )
+);
+const nonNegativeIntegerSchema = v.pipe(
+  v.number("must be a number"),
+  v.integer("must be an integer"),
+  v.safeInteger("must be a safe integer"),
+  v.minValue(0, "must not be negative")
+);
+const positiveIntegerSchema = v.pipe(
+  nonNegativeIntegerSchema,
+  v.minValue(1, "must be greater than zero")
+);
+
+export const stateIndexNamespaceSchema = v.pipe(
+  stateIndexTextSchema,
+  v.regex(namespacePattern, "must be a kebab-case namespace")
+);
+export const stateIndexKeyNameSchema = v.pipe(
+  stateIndexTextSchema,
+  v.regex(keyNamePattern, "must be a lowercase key name")
+);
+export const stateIndexIdSchema = stateIndexTextSchema;
+export const stateIndexRevisionSchema = stateIndexTextSchema;
+export const stateIndexKeyScalarSchema = v.union([
+  v.boolean("must be a boolean, finite number, or string"),
+  v.pipe(
+    v.number("must be a boolean, finite number, or string"),
+    v.finite("must be finite")
+  ),
+  stateIndexTextSchema
+]);
+export const stateIndexRangeScalarSchema = v.union([
+  v.pipe(
+    v.number("must be a finite number or string"),
+    v.finite("must be finite")
+  ),
+  stateIndexTextSchema
+]);
+const jsonObjectSchema = v.custom<JsonObject>(
+  isJsonObject,
+  "must be a JSON object containing only finite JSON values"
+);
+
+export function createStateSourceRevisionSchema<
+  const IdSchema extends v.GenericSchema<string, string>,
+  const FingerprintSchema extends v.GenericSchema<string, string>
+>(options: { fingerprint: FingerprintSchema; id: IdSchema }) {
+  return v.strictObject({
+    entries: createSafeRecordSchema(
+      options.id,
+      options.fingerprint,
+      "must be an object keyed by state id"
+    ),
+    metadata: options.fingerprint
+  });
+}
+export const stateSourceRevisionSchema = v.strictObject({
+  entries: createSafeRecordSchema(
+    stateIndexIdSchema,
+    stateIndexRevisionSchema,
+    "must be an object keyed by state id"
+  ),
+  metadata: stateIndexRevisionSchema
+});
+export const stateIndexSchema = v.strictObject({
+  definitionVersion: positiveIntegerSchema,
+  entries: createSafeRecordSchema(
+    stateIndexIdSchema,
+    jsonObjectSchema,
+    "must be an object keyed by state id"
+  ),
+  metadata: jsonObjectSchema,
+  namespace: stateIndexNamespaceSchema,
+  schemaVersion: v.literal(stateIndexSchemaVersion, "must be 4"),
+  sourceRevision: stateSourceRevisionSchema
+});
+
+export function createStateIndexSchema<
+  const DefinitionVersion extends number,
+  const IdSchema extends v.GenericSchema<string, string>,
+  const MetadataSchema extends v.GenericSchema,
+  const Namespace extends string,
+  const SourceRevisionSchema extends v.GenericSchema,
+  const StateSchema extends v.GenericSchema
+>(options: {
+  definitionVersion: DefinitionVersion;
+  id: IdSchema;
+  metadata: MetadataSchema;
+  namespace: Namespace;
+  sourceRevision: SourceRevisionSchema;
+  state: StateSchema;
+}) {
+  return v.strictObject({
+    definitionVersion: v.literal(options.definitionVersion),
+    entries: createSafeRecordSchema(
+      options.id,
+      options.state,
+      "must be an object keyed by state id"
+    ),
+    metadata: options.metadata,
+    namespace: v.literal(options.namespace),
+    schemaVersion: v.literal(stateIndexSchemaVersion),
+    sourceRevision: options.sourceRevision
+  });
+}
+
+const exactFilterSchema = v.strictObject({
+  key: stateIndexKeyNameSchema,
+  kind: v.literal("exact"),
+  operator: v.picklist(["all", "any", "none"]),
+  values: v.pipe(
+    v.array(stateIndexKeyScalarSchema),
+    v.minLength(1, "must contain at least one value")
+  )
+});
+const rangeFilterSchema = v.strictObject({
+  key: stateIndexKeyNameSchema,
+  kind: v.literal("range"),
+  operator: v.picklist(["eq", "gt", "gte", "lt", "lte"]),
+  value: stateIndexRangeScalarSchema
+});
+const textFilterSchema = v.strictObject({
+  key: stateIndexKeyNameSchema,
+  kind: v.literal("text"),
+  operator: v.picklist(["all", "any"]),
+  text: stateIndexTextSchema
+});
+const existsFilterSchema = v.strictObject({
+  key: stateIndexKeyNameSchema,
+  kind: v.literal("exists"),
+  value: v.boolean()
+});
+export const stateIndexFilterSchema = v.variant("kind", [
+  exactFilterSchema,
+  rangeFilterSchema,
+  textFilterSchema,
+  existsFilterSchema
+]);
+export const stateIndexSortSchema = v.strictObject({
+  direction: v.picklist(["asc", "desc"]),
+  key: stateIndexKeyNameSchema
+});
+export const stateIndexQuerySchema = v.strictObject({
+  filters: v.optional(v.array(stateIndexFilterSchema), []),
+  limit: v.optional(
+    v.pipe(
+      positiveIntegerSchema,
+      v.maxValue(
+        stateIndexQueryMaximumLimit,
+        `must not exceed ${stateIndexQueryMaximumLimit}`
+      )
+    ),
+    stateIndexQueryDefaultLimit
+  ),
+  offset: v.optional(nonNegativeIntegerSchema, 0),
+  sort: v.optional(
+    v.pipe(
+      v.array(stateIndexSortSchema),
+      v.minLength(1, "must contain at least one sort rule")
+    )
+  )
+});
+
+export type StateIndex = v.InferOutput<typeof stateIndexSchema>;
+export type StateSourceRevision = v.InferOutput<
+  typeof stateSourceRevisionSchema
+>;
+export type StateIndexFilter = v.InferOutput<typeof stateIndexFilterSchema>;
+export type StateIndexKeyMode = "exact" | "range" | "text";
+export type StateIndexKeyScalar = v.InferOutput<
+  typeof stateIndexKeyScalarSchema
+>;
+export type StateIndexQuery = v.InferInput<typeof stateIndexQuerySchema>;
+export type StateIndexQueryValue = v.InferOutput<typeof stateIndexQuerySchema>;
+export type StateIndexRangeScalar = v.InferOutput<
+  typeof stateIndexRangeScalarSchema
+>;
+export type StateIndexSort = v.InferOutput<typeof stateIndexSortSchema>;
+
+export function isStateIndexNamespace(value: string): boolean {
+  return namespacePattern.test(value);
+}
+export function isStateIndexKeyName(value: string): boolean {
+  return keyNamePattern.test(value);
+}
+export function isStateIndexText(value: string): boolean {
+  return (
+    value.length > 0 &&
+    value.trim() === value &&
+    !controlCharacterPattern.test(value)
+  );
+}

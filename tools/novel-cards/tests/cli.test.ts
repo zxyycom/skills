@@ -1,3 +1,4 @@
+import { copyRuntimeScripts } from "../../shared/tests/distribution-fixture.ts";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
@@ -8,7 +9,7 @@ import { runCli } from "../src/cli.ts";
 import { cli, markdown, project, put } from "./test-support.ts";
 const entry = path.resolve(
   import.meta.dirname,
-  "../../../skills/novel-cards/scripts/novel-cards.mjs"
+  "../../../skills/novel-cards/scripts/novel-cards.ts"
 );
 
 test("CLI rejects invalid usage and reports missing index with stable channels", async () => {
@@ -78,10 +79,10 @@ test("CLI rejects invalid usage and reports missing index with stable channels",
   });
 });
 
-test("distributed CLI runs without workspace dependencies and importing has no side effects", async () => {
+test("distributed TS CLI runs with compatible dependencies and importing has no side effects", async () => {
   await project(async (root) => {
-    const standalone = path.join(root, "novel-cards.mjs");
-    await fs.copyFile(entry, standalone);
+    const standalone = path.join(root, "novel-cards.ts");
+    await copyRuntimeScripts(entry, root);
     const imported = spawnSync(
       "node",
       [

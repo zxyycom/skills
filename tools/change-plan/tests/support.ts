@@ -181,7 +181,7 @@ const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
 export const repositoryRoot = path.resolve(testsDirectory, "../../..");
 export const generatedCliPath = path.join(
   repositoryRoot,
-  "skills/change-plan/scripts/change-plan.mjs"
+  "skills/change-plan/scripts/change-plan.ts"
 );
 
 export async function withTempRoot(

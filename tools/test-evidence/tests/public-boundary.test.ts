@@ -4,11 +4,11 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import * as publicApi from "../../../skills/test-evidence-review/scripts/test-evidence-catalog.mjs";
+import * as publicApi from "../../../skills/test-evidence-review/scripts/test-evidence-catalog.ts";
 
 const publicCli = path.resolve(
   process.cwd(),
-  "skills/test-evidence-review/scripts/test-evidence-catalog.mjs"
+  "skills/test-evidence-review/scripts/test-evidence-catalog.ts"
 );
 
 type CliResult = Readonly<{
@@ -85,7 +85,7 @@ async function writeIndex(root: string): Promise<void> {
   assertPublicSchema("testEvidenceSyncResultSchema", json(result));
 }
 
-test("distributed MJS imports in Node without side effects and exposes only the current public API", async () => {
+test("distributed TS imports in Node without side effects and exposes only the current public API", async () => {
   const root = await fixture();
   try {
     const program = [

@@ -7,7 +7,7 @@ import type {
 } from "./initializer-contract.ts";
 
 const usage =
-  "usage: init-mcpshell-workspace.mjs [preview|apply|remove] --identity <name> [...]";
+  "usage: init-mcpshell-workspace.ts [preview|apply|remove] --identity <name> [...]";
 
 type CliValues = Readonly<{
   backend?: string;

@@ -1,0 +1,331 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/investigation-report/src/query-report.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/investigation-report/src/query-report.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/investigation-report/src/query-report.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+ * Rebuild: bun run sync:investigation-report-check
+ */
+import fs from "node:fs/promises";
+import path from "node:path";
+import { err, errAsync, ok, ResultAsync, type Result } from "neverthrow";
+import {
+  diagnosticFromError,
+  diagnosticFromStateIndexDiagnostic
+} from "./diagnostics.ts";
+import { investigationIdFromMarkdown } from "./markdown.ts";
+import {
+  investigationIndexDiagnosticMessages,
+  investigationIndexFileName,
+  loadInvestigationIndex
+} from "./investigation-state-index.ts";
+import {
+  persistedSnapshotBodyWarning,
+  shownInvestigationStale
+} from "./index-staleness.ts";
+import {
+  parseInvestigationReportShowOptions,
+  parseInvestigationReportTraceOptions
+} from "./options.ts";
+import {
+  canonicalizeInvestigationsDirectory,
+  resolveInvestigationsDirectory
+} from "./report-path.ts";
+import { resolveInvestigationSelector } from "./investigation-selector.ts";
+import {
+  normalizeInvestigationTraceOptions,
+  traceLoadedInvestigation
+} from "./query-trace.ts";
+import {
+  defaultInvestigationIndexPath,
+  investigationIndexPathForOptions,
+  queryFailure,
+  showFailure,
+  traceFailure
+} from "./query-results.ts";
+import {
+  prepareQuery,
+  queryValidatedInvestigationIndex,
+  type LoadedInvestigationIndex
+} from "./query-index.ts";
+import type {
+  InvestigationIndexQueryResult,
+  InvestigationReportShowOptions,
+  InvestigationReportShowResult,
+  InvestigationReportTraceResult
+} from "./types.ts";
+import type {
+  InvestigationIndexQueryFailure,
+  QueryOperationFailure
+} from "./query.ts";
+
+export function executeInvestigationIndexQuery(
+  input: unknown
+): ResultAsync<InvestigationIndexQueryResult, InvestigationIndexQueryFailure> {
+  const prepared = prepareQuery(input);
+  if (prepared.isErr()) {
+    return errAsync(prepared.error);
+  }
+  return canonicalizeInvestigationsDirectory(prepared.value.resolved)
+    .mapErr((errors) =>
+      queryFailure({
+        errors,
+        indexPath: prepared.value.indexPath,
+        kind: "operation",
+        limit: prepared.value.validated.limit,
+        offset: prepared.value.validated.offset
+      })
+    )
+    .andThen((canonical) =>
+      queryValidatedInvestigationIndex(
+        canonical.investigationsDirectory,
+        prepared.value.validated
+      ).mapErr((failure) =>
+        queryFailure({
+          diagnostics: failure.diagnostics,
+          errors: failure.errors,
+          indexPath: path.join(
+            canonical.investigationsDirectory,
+            investigationIndexFileName
+          ),
+          kind: "operation",
+          limit: prepared.value.validated.limit,
+          offset: prepared.value.validated.offset
+        })
+      )
+    );
+}
+
+export async function showInvestigationReport(
+  input: unknown
+): Promise<InvestigationReportShowResult> {
+  const parsed = parseInvestigationReportShowOptions(input);
+  const rawId = rawStringField(input, "id") ?? "";
+  if (parsed.isErr())
+    return showFailure(rawId, defaultInvestigationIndexPath(), parsed.error);
+  const { id: selector } = parsed.value;
+  const loaded = await loadIndexedInvestigationContext(
+    parsed.value,
+    "correct the reported derived-index problem, then retry showing the report"
+  );
+  if (loaded.isErr()) {
+    return showFailure(
+      selector,
+      loaded.error.indexPath,
+      loaded.error.errors,
+      loaded.error.diagnostics
+    );
+  }
+  const context = loaded.value;
+  const { index, indexPath, investigationsDirectory } = context;
+  const selected = selectInvestigationEntry(context, selector);
+  if (selected.isErr()) return selected.error;
+  const { id, entry } = selected.value;
+  const shown = await readShownInvestigation(
+    investigationsDirectory,
+    indexPath,
+    id,
+    entry
+  );
+  return shown.status === "error"
+    ? shown
+    : {
+        ...shown,
+        warnings: shownInvestigationStale(index, {
+          id,
+          sourcePath: entry.sourcePath,
+          text: shown.markdown
+        })
+          ? [persistedSnapshotBodyWarning]
+          : []
+      };
+}
+
+type CurrentInvestigationIndex = Extract<
+  LoadedInvestigationIndex,
+  { status: "ok" }
+>["value"];
+type IndexedInvestigationContext = Readonly<{
+  index: CurrentInvestigationIndex;
+  indexPath: string;
+  investigationsDirectory: string;
+}>;
+type IndexedInvestigationFailure = QueryOperationFailure & {
+  indexPath: string;
+};
+type InvestigationQueryLocationOptions = Pick<
+  InvestigationReportShowOptions,
+  "investigationsDir" | "workspaceRoot"
+>;
+
+type SelectedInvestigationEntry = Readonly<{
+  id: string;
+  entry: NonNullable<InvestigationReportShowResult["state"]>;
+}>;
+
+function selectInvestigationEntry(
+  context: IndexedInvestigationContext,
+  selector: string
+): Result<SelectedInvestigationEntry, InvestigationReportShowResult> {
+  const resolved = resolveInvestigationSelector(
+    Object.entries(context.index.entries).map(([id, state]) => ({
+      id,
+      name: state.name
+    })),
+    selector
+  );
+  if (resolved.status === "error")
+    return err(showFailure(selector, context.indexPath, resolved.errors));
+  const { id } = resolved;
+  return ok({ entry: context.index.entries[id]!, id });
+}
+
+async function loadIndexedInvestigationContext(
+  options: InvestigationQueryLocationOptions,
+  recovery: string
+): Promise<Result<IndexedInvestigationContext, IndexedInvestigationFailure>> {
+  const fallbackIndexPath = investigationIndexPathForOptions(options);
+  const resolved = resolveInvestigationsDirectory(
+    options.workspaceRoot,
+    options.investigationsDir
+  );
+  if (resolved.isErr()) {
+    return err({
+      diagnostics: [],
+      errors: resolved.error,
+      indexPath: fallbackIndexPath
+    });
+  }
+  const canonical = await canonicalizeInvestigationsDirectory(resolved.value);
+  if (canonical.isErr()) {
+    return err({
+      diagnostics: [],
+      errors: canonical.error,
+      indexPath: fallbackIndexPath
+    });
+  }
+  const investigationsDirectory = canonical.value.investigationsDirectory;
+  const indexPath = path.join(
+    investigationsDirectory,
+    investigationIndexFileName
+  );
+  const loaded = await loadInvestigationIndex({
+    investigationsDirectory
+  });
+  if (loaded.status === "error") {
+    return err({
+      diagnostics: loaded.diagnostics.map((diagnostic) =>
+        diagnosticFromStateIndexDiagnostic(diagnostic, {
+          recovery,
+          target: indexPath
+        })
+      ),
+      errors: investigationIndexDiagnosticMessages(
+        loaded.diagnostics,
+        indexPath
+      ),
+      indexPath
+    });
+  }
+  return ok({ index: loaded.value, indexPath, investigationsDirectory });
+}
+
+async function readShownInvestigation(
+  investigationsDirectory: string,
+  indexPath: string,
+  id: string,
+  state: NonNullable<InvestigationReportShowResult["state"]>
+): Promise<InvestigationReportShowResult> {
+  const target = path.join(investigationsDirectory, state.sourcePath);
+  try {
+    const markdown = await readShownMarkdown(target, id);
+    return {
+      errors: [],
+      diagnostics: [],
+      id,
+      indexPath,
+      markdown,
+      state,
+      status: "ok",
+      warnings: []
+    };
+  } catch (error) {
+    return showFailure(
+      id,
+      indexPath,
+      [`${id} could not be read`],
+      [
+        diagnosticFromError({
+          code: "investigation-report.report-read-failed",
+          error,
+          reason: "the selected investigation report could not be read",
+          recovery: "restore read access to the report, then retry show",
+          target
+        })
+      ]
+    );
+  }
+}
+
+async function readShownMarkdown(target: string, id: string): Promise<string> {
+  const entry = await fs.lstat(target);
+  if (!entry.isFile() || entry.isSymbolicLink())
+    throw new Error("selected report must be a regular non-symbolic-link file");
+  const markdown = await fs.readFile(target, "utf8");
+  if (investigationIdFromMarkdown(markdown) !== id) {
+    throw new Error(
+      "frontmatter Investigation ID does not match the requested ID"
+    );
+  }
+  return markdown;
+}
+
+export async function traceInvestigationReports(
+  input: unknown
+): Promise<InvestigationReportTraceResult> {
+  const parsed = parseInvestigationReportTraceOptions(input);
+  const rawId = rawStringField(input, "id") ?? "";
+  if (parsed.isErr()) {
+    return traceFailure(rawId, defaultInvestigationIndexPath(), [
+      ...parsed.error
+    ]);
+  }
+  const options = parsed.value;
+  const selector = options.id;
+  const traceOptions = normalizeInvestigationTraceOptions(options);
+  if ("errors" in traceOptions) {
+    return traceFailure(
+      selector,
+      investigationIndexPathForOptions(parsed.value),
+      traceOptions.errors
+    );
+  }
+  const loaded = await loadIndexedInvestigationContext(
+    options,
+    "correct the reported derived-index problem, then retry tracing reports"
+  );
+  if (loaded.isErr()) {
+    return traceFailure(
+      selector,
+      loaded.error.indexPath,
+      loaded.error.errors,
+      loaded.error.diagnostics
+    );
+  }
+  const traced = traceLoadedInvestigation(
+    loaded.value.index,
+    loaded.value.indexPath,
+    selector,
+    traceOptions.value
+  );
+  if (traced.status === "error") return traced;
+  return traced;
+}
+
+function rawStringField(input: unknown, field: string): string | undefined {
+  if (typeof input !== "object" || input === null || Array.isArray(input))
+    return undefined;
+  const value = Reflect.get(input, field);
+  return typeof value === "string" ? value : undefined;
+}

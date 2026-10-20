@@ -25,5 +25,7 @@ Proves:
 - `script:test:check` 的直接输入显式包含 `maintained-code`：稳定工作区下其 receipt 保持复用，而修改 `tools/<owner>/tests/run.ts` 语义聚合入口内容即以 `inputs-changed` 失效并重跑 Gate 自身测试套件。
 - 根配置、声明环境或工具/依赖图身份变化使全部有效输入证明失效，只承载父 shell 记账的 `_` 变化不影响证明；必要工具探测失败形成带原因的全量 fallback，不能缓存 unavailable 占位值。
 - 损坏 receipt 按 miss 全量重算；未通过 Check、不可写 cache、结束快照不可用与开始/结束快照漂移不发布证明，release 激活全部 68 项，起始快照不可用的 base 路径执行基础环境 Check 与全部 64 个 impact Checks。
-- 已命中成功 receipt 后，单独修改 Lightweight Judgment 的 mjs 或 source map 都以 inputs-changed 激活生成漂移和独立分发两个 consumer，未把包内产物变化误判为可复用。
-- Novel Cards 生成与语义 consumer 的成功 `receipt` 在 Index Runtime、`shared-tools`、`build-system` 及本 skill 的 MJS/source map 任一输入改变时均以 `inputs-changed` 失效，未由生成前置替代跨运行输入闭包。
+- 已命中成功 receipt 后，单独修改 Lightweight Judgment 的公开 TS 入口 都以 inputs-changed 激活生成漂移和独立分发两个 consumer，未把包内产物变化误判为可复用。
+- Novel Cards 生成与语义 consumer 的成功 `receipt` 在 Index Runtime、`shared-tools`、`build-system` 及本 skill 的 TS 入口、manifest 或锁文件任一输入改变时均以 `inputs-changed` 失效，未由生成前置替代跨运行输入闭包。
+- 已有 provider receipt 而 updater consumer receipt 缺失时，生成 provider 仍以 `dependency-required` 重新激活；`source-runtime.ts`、`source-runtime-sync.ts` 、`skill-runtime.ts` 与 `native-cli-entry.ts` 归入 build-system 并使生成 consumer 失效。
+- 领域生成检查消费联合 updater 输入，updater 源码变化会使领域生成检查失效；全 skill 的 updater 生成检查也随领域源码变化失效。

@@ -20,10 +20,10 @@ Skill 是行为单元；分发单元是需要共同说明安装、更新、兼�
 
 ## 结构验证
 
-Skill 包内提供自包含的 `scripts/validate-skill.mjs`，可在只有 Node 和目标 skill 目录的环境中检查可移植结构基线：
+Skill 包内提供 `scripts/validate-skill.ts` 与所需模块。按[工具运行前置](../../skills/skill-maintainer/SKILL.md#工具运行前置)准备 Node 和兼容依赖后，可检查目标 skill 的可移植结构基线：
 
 ```text
-node scripts/validate-skill.mjs <skill-directory>
+node scripts/validate-skill.ts <skill-directory>
 ```
 
 同一模块也可以从已安装 skill 的实际路径直接导入，使用 `validateSkillDirectory` 获取结构化结果，或使用 `runSkillValidatorCli` 在当前进程中复用 CLI 语义；导入不会自动运行校验，相邻的 `validate-skill.d.mts` 提供 TypeScript 类型。

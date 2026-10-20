@@ -15,7 +15,7 @@ mcp:
       constraints:
         - "command.size() <= 65536"
       run:
-        command: "node skills/mcpshell-workspace-tools/scripts/mcpshell-workspace.mjs shell"
+        command: "node skills/mcpshell-workspace-tools/scripts/mcpshell-workspace.ts shell"
         env:
           - "MCPSHELL_WORKSPACE_COMMAND={{ .command }}"
         timeout: "2m"
@@ -29,7 +29,7 @@ mcp:
       constraints:
         - "patch.size() <= 65536"
       run:
-        command: "node skills/mcpshell-workspace-tools/scripts/mcpshell-workspace.mjs apply-patch"
+        command: "node skills/mcpshell-workspace-tools/scripts/mcpshell-workspace.ts apply-patch"
         env:
           - "MCPSHELL_WORKSPACE_PATCH={{ .patch }}"
         timeout: "2m"
@@ -49,7 +49,7 @@ mcp:
           description: "是否原子替换已存在的 destination；默认 false。"
           default: false
       run:
-        command: "node skills/mcpshell-workspace-tools/scripts/mcpshell-workspace.mjs put-file"
+        command: "node skills/mcpshell-workspace-tools/scripts/mcpshell-workspace.ts put-file"
         env:
           - "MCPSHELL_WORKSPACE_SOURCE_PATH={{ .source_path }}"
           - "MCPSHELL_WORKSPACE_DESTINATION_PATH={{ .destination_path }}"
@@ -71,7 +71,7 @@ mcp:
           description: "是否原子替换已存在的 destination；默认 false。"
           default: false
       run:
-        command: "node skills/mcpshell-workspace-tools/scripts/mcpshell-workspace.mjs get-file"
+        command: "node skills/mcpshell-workspace-tools/scripts/mcpshell-workspace.ts get-file"
         env:
           - "MCPSHELL_WORKSPACE_SOURCE_PATH={{ .source_path }}"
           - "MCPSHELL_WORKSPACE_DESTINATION_PATH={{ .destination_path }}"

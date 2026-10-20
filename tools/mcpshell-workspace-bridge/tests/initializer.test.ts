@@ -364,7 +364,7 @@ test("initializer previews and applies the same update actions", async () => {
 test("initializer requires complete CLI configuration flags", () => {
   const omitted = readCliRequest([
     "node",
-    "init-mcpshell-workspace.mjs",
+    "init-mcpshell-workspace.ts",
     "preview",
     "--identity",
     "workspace_bridge"
@@ -374,7 +374,7 @@ test("initializer requires complete CLI configuration flags", () => {
     () =>
       readCliRequest([
         "node",
-        "init-mcpshell-workspace.mjs",
+        "init-mcpshell-workspace.ts",
         "apply",
         "--identity",
         "workspace_bridge",

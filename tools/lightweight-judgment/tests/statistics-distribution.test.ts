@@ -1,3 +1,4 @@
+import { copyRuntimeScriptsSync } from "../../shared/tests/distribution-fixture.ts";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
@@ -6,7 +7,7 @@ import { test } from "node:test";
 import { statisticsFixture, summary } from "./statistics-fixture.ts";
 import { decodeSuccess, decodeFailure } from "./output.ts";
 
-test("standalone Node stats reads current schema and active WAL without configuration keys network or workspace packages", async () => {
+test("standalone Node TS stats reads current schema and active WAL without configuration keys or network", async () => {
   const fixture = statisticsFixture();
   try {
     fixture.database.exec(
@@ -15,9 +16,10 @@ test("standalone Node stats reads current schema and active WAL without configur
     fixture.insert({ input_tokens: 9 });
     const entry = path.resolve(
       import.meta.dirname,
-      "../../../skills/lightweight-judgment/scripts/lightweight-judgment.mjs"
+      "../../../skills/lightweight-judgment/scripts/lightweight-judgment.ts"
     );
-    const standalone = path.join(fixture.directory, "judgment.mjs");
+    const standalone = path.join(fixture.directory, "judgment.ts");
+    copyRuntimeScriptsSync(entry, fixture.directory);
     fs.copyFileSync(entry, standalone);
     const env = {
       PATH: process.env.PATH,

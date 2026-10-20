@@ -1,7 +1,7 @@
 ### Case SKILL-UPDATER-PUBLIC-CONTRACT-001: Updater 配置公开稳定契约
 
 Tests:
-- `test:dc2915f34c89ea0bd0f5ba55c5155a2e0defe816600b79a009e3ffbd3dfb322e`
+- `test:db609fc1ef02c06e3c32543420e9c745bf172b339be750a525e67124f18116e8`
 
 Tags:
 - `skill-updater`

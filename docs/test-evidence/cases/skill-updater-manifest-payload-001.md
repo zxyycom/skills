@@ -1,7 +1,7 @@
 ### Case SKILL-UPDATER-MANIFEST-PAYLOAD-001: Updater 报告无效 manifest
 
 Tests:
-- `test:0583bb427e63fa60c9326cb02fe72e20f8173a656f2dc3666c9f26f660168278`
+- `test:a69e6eec8f117be374a740c0ae9d022b48106d99de9dc9e4322ddaf87a7656b8`
 
 Tags:
 - `skill-updater`

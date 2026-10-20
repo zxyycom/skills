@@ -1,0 +1,136 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/investigation-report/src/query-search.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/investigation-report/src/query-search.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/investigation-report/src/query-search.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+ * Rebuild: bun run sync:investigation-report-check
+ */
+import path from "node:path";
+import { canonicalizeInvestigationsDirectory } from "./report-path.ts";
+import {
+  investigationIndexFileName,
+  loadCurrentInvestigationIndex
+} from "./investigation-state-index.ts";
+import { diagnosticFromStateIndexDiagnostic } from "./diagnostics.ts";
+import { collectValidatedInvestigationCollection } from "./validation.ts";
+import {
+  searchFailure,
+  defaultInvestigationIndexPath
+} from "./query-results.ts";
+import { prepareSearch } from "./query-options.ts";
+import { searchInvestigationMetadata } from "./query-search-metadata.ts";
+import { searchSnapshot } from "./query-search-content.ts";
+import type { InvestigationSearchResult } from "./types.ts";
+
+export async function searchInvestigationReports(
+  input: unknown
+): Promise<InvestigationSearchResult> {
+  const prepared = prepareSearch(input);
+  if (prepared.isErr())
+    return searchFailure({
+      errors: prepared.error,
+      indexPath: defaultInvestigationIndexPath(),
+      failureKind: "invalid-options"
+    });
+  const canonical = await canonicalizeInvestigationsDirectory(
+    prepared.value.resolved
+  );
+  if (canonical.isErr())
+    return searchFailure({
+      errors: canonical.error,
+      indexPath: prepared.value.indexPath,
+      failureKind: "operation"
+    });
+  const investigationsDirectory = canonical.value.investigationsDirectory;
+  const indexPath = path.join(
+    investigationsDirectory,
+    investigationIndexFileName
+  );
+  return prepared.value.in === "metadata"
+    ? await searchInvestigationMetadata(
+        investigationsDirectory,
+        indexPath,
+        prepared.value
+      )
+    : await searchContent(investigationsDirectory, indexPath, prepared.value);
+}
+
+async function searchContent(
+  investigationsDirectory: string,
+  indexPath: string,
+  prepared: import("./query.ts").PreparedSearch
+): Promise<InvestigationSearchResult> {
+  const loaded = await loadCurrentInvestigationIndex({
+    investigationsDirectory
+  });
+  return loaded.status === "ok"
+    ? await searchSnapshot({
+        entries: Object.entries(loaded.value.entries).map(([id, state]) => ({
+          id,
+          state
+        })),
+        indexPath,
+        investigationsDirectory,
+        prepared,
+        source: {
+          kind: "validated-source",
+          currentness: "current",
+          fallback: false
+        },
+        warnings: []
+      })
+    : await searchValidatedFallback(
+        investigationsDirectory,
+        indexPath,
+        prepared,
+        loaded.diagnostics.map((diagnostic) =>
+          diagnosticFromStateIndexDiagnostic(diagnostic, {
+            recovery:
+              "restore the derived index or correct the formal collection before retrying search",
+            target: indexPath
+          })
+        )
+      );
+}
+
+async function searchValidatedFallback(
+  investigationsDirectory: string,
+  indexPath: string,
+  prepared: import("./query.ts").PreparedSearch,
+  diagnostics: readonly import("./diagnostics.ts").InvestigationDiagnostic[]
+): Promise<InvestigationSearchResult> {
+  const collection = await collectValidatedInvestigationCollection(
+    investigationsDirectory,
+    { allowEmptyCollection: true }
+  );
+  if (collection.errors.length > 0 || collection.snapshot === null) {
+    return searchFailure({
+      errors:
+        collection.errors.length > 0
+          ? collection.errors
+          : ["the formal investigation collection could not be validated"],
+      indexPath,
+      diagnostics,
+      failureKind: "operation"
+    });
+  }
+  return await searchSnapshot({
+    entries: Object.entries(collection.snapshot.states).map(([id, state]) => ({
+      id,
+      state
+    })),
+    indexPath,
+    investigationsDirectory,
+    prepared,
+    source: {
+      kind: "validated-source",
+      currentness: "current",
+      fallback: true
+    },
+    warnings: [
+      "search source: validated-source fallback; the persisted Investigation index is unavailable or stale; search used a validated in-memory source projection of the current formal Markdown. Run sync-index to publish the current projection."
+    ]
+  });
+}

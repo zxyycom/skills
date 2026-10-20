@@ -70,16 +70,31 @@ const tagDependencies: Readonly<
   Partial<Record<GateImpactTag, readonly GateImpactTag[]>>
 > = Object.freeze({
   "build-system": ["shared-tools"],
-  "change-plan": ["build-system", "shared-tools"],
-  "decision-records": ["build-system", "index-runtime", "shared-tools"],
+  "change-plan": ["build-system", "shared-tools", "skill-updater"],
+  "decision-records": [
+    "build-system",
+    "index-runtime",
+    "shared-tools",
+    "skill-updater"
+  ],
   environment: ["shared-tools", "skill-release"],
   "index-runtime": ["shared-tools"],
-  "investigation-report": ["build-system", "index-runtime", "shared-tools"],
+  "investigation-report": [
+    "build-system",
+    "index-runtime",
+    "shared-tools",
+    "skill-updater"
+  ],
   "skill-release": ["shared-tools"],
   "skill-updater": ["build-system", "shared-tools", "skill-release"],
-  "skill-validator": ["build-system", "shared-tools"],
-  "task-graph": ["build-system", "shared-tools"],
-  "test-evidence": ["build-system", "index-runtime", "shared-tools"]
+  "skill-validator": ["build-system", "shared-tools", "skill-updater"],
+  "task-graph": ["build-system", "shared-tools", "skill-updater"],
+  "test-evidence": [
+    "build-system",
+    "index-runtime",
+    "shared-tools",
+    "skill-updater"
+  ]
 });
 
 const contract = (
@@ -128,17 +143,31 @@ const packageContracts = [
   contract("script:check:lightweight-judgment-cli", [
     "global",
     "build-system",
+    "skill-updater",
     "skills"
   ]),
   contract("script:check:novel-cards-cli", [
     "global",
     "build-system",
     "index-runtime",
+    "skill-updater",
     "skills"
   ]),
   contract("script:check:decision-records-cli", ["decision-records"]),
   contract("script:check:task-graph-cli", ["task-graph"]),
-  contract("script:check:skill-updaters", ["skill-release", "skill-updater"]),
+  contract("script:check:skill-updaters", [
+    "build-system",
+    "change-plan",
+    "decision-records",
+    "index-runtime",
+    "investigation-report",
+    "skill-release",
+    "skill-updater",
+    "skill-validator",
+    "skills",
+    "task-graph",
+    "test-evidence"
+  ]),
   contract("script:test:generated-file", ["build-system", "shared-tools"]),
   contract("script:format:check", ["maintained-code"]),
   contract("script:check:task-graph-index", ["task-graph"])

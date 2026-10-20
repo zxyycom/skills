@@ -38,8 +38,8 @@
 来源完整、满足当前 definition 且已取得维护授权后，在目标工作区根目录用实际安装脚本的绝对路径执行全量重建：
 
 ```text
-node <skill绝对路径>/scripts/decision-records.mjs sync-index
-node <skill绝对路径>/scripts/decision-records.mjs check
+node <skill绝对路径>/scripts/decision-records.ts sync-index
+node <skill绝对路径>/scripts/decision-records.ts check
 ```
 
 当前目录默认是工作区根；从 skill 安装目录或其他目录调用时，为两条命令在 command 前提供相同的 `--root <workspace-root>`。项目提供维护短命令时优先使用该入口。自定义目录时，两条命令使用相同工作区内相对 `--decisions-dir`。definition 过期但来源合法时，完整同步建立新投影；不使用 `--select`，也不把旧索引作为正常 reader 或来源。已建立来源的 alignment 无效时，同步和检查均失败并保持零写入，不能只修索引。完成后按需用 `list --status all --alignment all`、`show` 或 `trace` 核对预期身份、位置、内容、非空 alignment 与关系。
@@ -62,7 +62,7 @@ node <skill绝对路径>/scripts/decision-records.mjs check
 ## 工具恢复
 
 - Node 不可用但有兼容运行时时，可用该运行时执行同一 CLI，在目标工作区用该运行时调用实际安装脚本的绝对路径。
-- 分发文件损坏时，优先通过相邻 `scripts/update-skill.mjs` 检查并按更新授权恢复完整 skill，使 CLI、声明和 Schema 保持同一分发单元。
+- 依赖损坏时先按随包锁文件显式 frozen 安装；updater 的兼容依赖和运行时完整时，才用相邻 `scripts/update-skill.ts` 检查并按更新授权恢复完整 skill。运行时或 manifest/锁文件本身损坏时重新获取 skill，保持 CLI、声明和 Schema 同一分发单元。
 - 入口仍不可用时，保留全部来源，停止索引和状态维护，交付已确认的故障与阻塞范围。
 
 ## 恢复验收

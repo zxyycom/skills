@@ -1,7 +1,7 @@
 ### Case SKILL-UPDATER-REPLACE-PRESERVE-001: Updater 替换包文件并保留本地自定义
 
 Tests:
-- `test:af03c760cd9fbc1655d13c501697e9281d0bb2b32e0b0cf2e0c1fe370a0d8c70`
+- `test:09122aeebf21da75cac4ad8de3794f32401152e68461c1e7bec1c9daebcab664`
 
 Tags:
 - `skill-updater`

@@ -7,7 +7,7 @@ Tags:
 - `mcpshell-workspace-bridge`
 
 Contract:
-- 分发 `.mjs` 可被 Node import，不读 env、不执行 CLI 且不产生写入副作用。
+- 分发 `.ts` 可被 Node import，不读 env、不执行 CLI 且不产生写入副作用。
 
 Proves:
 - initializer 与 runtime module 都在独立 Node import 进程中以 status 0 结束。

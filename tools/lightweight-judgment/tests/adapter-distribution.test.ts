@@ -1,3 +1,4 @@
+import { copyRuntimeScriptsSync } from "../../shared/tests/distribution-fixture.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { spawn } from "node:child_process";
@@ -9,7 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import http from "node:http";
 
-test("standalone Node bundle performs one native Decisions HTTP exchange without workspace dependencies and preserves raw plus normalized", async () => {
+test("standalone Node TS performs one native Decisions HTTP exchange with compatible dependencies and preserves raw plus normalized", async () => {
   const fixture = logFixture();
   let count = 0;
   const server = http.createServer((req, res) => {
@@ -62,10 +63,17 @@ test("standalone Node bundle performs one native Decisions HTTP exchange without
     });
     const address = server.address();
     assert.ok(address && typeof address !== "string");
-    const entry = path.join(fixture.directory, "judgment.mjs");
+    const entry = path.join(fixture.directory, "judgment.ts");
+    copyRuntimeScriptsSync(
+      new URL(
+        "../../../skills/lightweight-judgment/scripts/lightweight-judgment.ts",
+        import.meta.url
+      ),
+      path.dirname(entry)
+    );
     fs.copyFileSync(
       new URL(
-        "../../../skills/lightweight-judgment/scripts/lightweight-judgment.mjs",
+        "../../../skills/lightweight-judgment/scripts/lightweight-judgment.ts",
         import.meta.url
       ),
       entry

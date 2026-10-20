@@ -8,7 +8,7 @@ description: >-
   报告更小方案。前置未决时只暴露缺口；普通机械修改、一般 correctness
   review 和纯可读性重构不使用。
 metadata:
-  version: "4"
+  version: "5"
 ---
 
 # Minimal Implementation
@@ -135,3 +135,14 @@ Finding 使用：
 3. 选定方案通过正确性门槛，并在可行候选中具有更小的总维护面。
 4. 交付内容和验证与当前授权出口一致。
 5. 最终 diff、建议或 finding 没有引入范围外通用化，也没有接管相邻 owner。
+
+## 自更新
+
+本 skill 的指令使用不需要安装依赖。仅在本 skill 目录运行自更新入口 `node scripts/update-skill.ts` 时，需满足随包 `package.json` 的 Node 版本与兼容依赖。
+已有兼容宿主依赖即可复用；普通运行、导入与检查不自动安装。依赖不可用时，使用随包 manifest 固定的 pnpm 显式执行：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

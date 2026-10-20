@@ -1,15 +1,15 @@
-import fs from "node:fs/promises";
+import { nativeCliEntry } from "../lib/native-cli-entry.ts";
+import {
+  buildSkillRuntimeArtifacts,
+  syncSkillRuntimeArtifacts,
+  runRuntimeAdapter
+} from "../lib/skill-runtime.ts";
+import type { GeneratedFileMode } from "../lib/generated-file.ts";
 import path from "node:path";
-import process from "node:process";
 import { toJsonSchema } from "@valibot/to-json-schema";
 import {
-  buildGeneratedFileHeader,
   buildGeneratedTypeScriptDeclarationArtifacts,
-  bundleWithBun,
-  parseGeneratedFileMode,
   removeStaleGeneratedTypeScriptDeclarations,
-  syncGeneratedArtifacts,
-  type BunBuildPlugin,
   type GeneratedArtifact
 } from "../lib/generated-file.ts";
 import { githubRepository, rootDir } from "../lib/project.ts";
@@ -27,7 +27,6 @@ const publishedScriptsDirectory = path.join(
   skillSourcePath,
   "scripts"
 );
-const cliOutputPath = path.join(publishedScriptsDirectory, "task-graph.mjs");
 const declarationOutputDirectory = path.join(
   publishedScriptsDirectory,
   "task-graph-sdk"
@@ -39,142 +38,36 @@ const schemaOutputPath = path.join(
   "task-graph-index.schema.json"
 );
 
-const portableWriteFileAtomicFilename =
-  "node_modules/write-file-atomic/lib/index.js";
-
-function createPortableWriteFileAtomicPlugin(): {
-  assertApplied(): void;
-  plugin: BunBuildPlugin;
-} {
-  let loadCount = 0;
-  return {
-    assertApplied() {
-      if (loadCount !== 1) {
-        throw new Error(
-          `Expected one write-file-atomic transform, received ${loadCount}`
-        );
-      }
-    },
-    plugin: {
-      name: "portable-write-file-atomic-filename",
-      setup(builder) {
-        builder.onLoad(
-          { filter: /write-file-atomic[\\/]lib[\\/]index\.js$/u },
-          async ({ path: sourcePath }) => {
-            loadCount += 1;
-            if (loadCount !== 1) {
-              throw new Error(
-                "write-file-atomic transform matched more than one module"
-              );
-            }
-            const realSourcePath = await fs.realpath(sourcePath);
-            if (
-              !/[\\/]write-file-atomic[\\/]lib[\\/]index\.js$/u.test(
-                realSourcePath
-              )
-            ) {
-              throw new Error(
-                "write-file-atomic transform received an unexpected real path"
-              );
-            }
-            const manifest = JSON.parse(
-              await fs.readFile(
-                path.join(path.dirname(realSourcePath), "..", "package.json"),
-                "utf8"
-              )
-            ) as { name?: unknown; version?: unknown };
-            if (
-              manifest.name !== "write-file-atomic" ||
-              manifest.version !== "8.0.0"
-            ) {
-              throw new Error(
-                "write-file-atomic transform received an unexpected package"
-              );
-            }
-            const source = await fs.readFile(realSourcePath, "utf8");
-            const filenameMatches = source.match(/\b__filename\b/gu) ?? [];
-            if (filenameMatches.length !== 1) {
-              throw new Error(
-                `Expected one write-file-atomic __filename token, received ${filenameMatches.length}`
-              );
-            }
-            return {
-              contents: source.replace(
-                /\b__filename\b/u,
-                JSON.stringify(portableWriteFileAtomicFilename)
-              ),
-              loader: "js"
-            };
-          }
-        );
-      }
-    }
-  };
-}
-
-function removeBundleDebugId(
-  code: string,
-  sourceMapText: string
-): { code: string; sourceMap: string } {
-  const debugIdMatch =
-    /\/\/# debugId=([A-F0-9]{32})\r?\n\/\/# sourceMappingURL=task-graph\.mjs\.map\r?\n?$/u.exec(
-      code
-    );
-  if (debugIdMatch === null) {
-    throw new Error(
-      "Task graph CLI bundle must end with paired debugId and source map lines"
-    );
-  }
-  const sourceMap = JSON.parse(sourceMapText) as Record<string, unknown>;
-  if (sourceMap.debugId !== debugIdMatch[1]) {
-    throw new Error("Task graph CLI and source map Bun debugIds must match");
-  }
-  delete sourceMap.debugId;
-  return {
-    code: code.replace(
-      /\/\/# debugId=[A-F0-9]{32}\r?\n(?=\/\/# sourceMappingURL=task-graph\.mjs\.map\r?\n?$)/u,
-      ""
-    ),
-    sourceMap: `${JSON.stringify(sourceMap)}\n`
-  };
-}
+const publicRuntimeExports = [
+  "TaskGraphError",
+  "TaskGraphService",
+  "applyTaskGraphOperations",
+  "cancelTask",
+  "claimTask",
+  "completeTask",
+  "defaultTaskGraphIndexPath",
+  "emptyTaskIndex",
+  "failTask",
+  "parseTaskGraphApplyRequest",
+  "parseTaskIndex",
+  "projectTaskGraph",
+  "releaseTask",
+  "removeTasks",
+  "renewTaskLease",
+  "retryTask",
+  "runTaskGraphCli",
+  "serializeTaskIndex",
+  "taskControlModes",
+  "taskEffectiveStates",
+  "taskExecutionPhases",
+  "taskGraphRuntimeProtocolVersion",
+  "taskGraphSchemaVersion",
+  "taskGraphSupportedNodeRange",
+  "taskGraphVersion",
+  "validateTaskIndexGraph"
+];
 
 async function buildArtifacts(): Promise<GeneratedArtifact[]> {
-  const portableDependency = createPortableWriteFileAtomicPlugin();
-  const bundle = await bundleWithBun({
-    banner: buildGeneratedFileHeader({
-      artifactName: "task graph JSON CLI",
-      rebuildCommand,
-      repository: githubRepository,
-      skillSourcePath,
-      sourcePath: cliSourcePath
-    }),
-    cwd: rootDir,
-    entryPath: path.join(rootDir, cliSourcePath),
-    format: "esm",
-    keepNames: true,
-    minify: true,
-    outputFileName: path.basename(cliOutputPath),
-    plugins: [portableDependency.plugin],
-    sourceMapBaseDirectory: publishedScriptsDirectory,
-    sourceMap: true,
-    unsupportedOptionalPackages: ["supports-color"]
-  });
-  portableDependency.assertApplied();
-  if (bundle.sourceMap === null) {
-    throw new Error("Task graph CLI bundle must include a source map");
-  }
-  const portableBundle = removeBundleDebugId(bundle.code, bundle.sourceMap);
-  const serializedWorkspacePath = JSON.stringify(rootDir).slice(1, -1);
-  if (
-    portableBundle.code.includes(rootDir) ||
-    portableBundle.code.includes(serializedWorkspacePath)
-  ) {
-    throw new Error(
-      "Task graph CLI bundle contains an absolute workspace path"
-    );
-  }
-
   const declarationArtifacts =
     await buildGeneratedTypeScriptDeclarationArtifacts({
       declarationArtifactName: "task graph SDK TypeScript declaration",
@@ -207,16 +100,20 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
     title: "TaskGraphIndex"
   };
   return [
-    {
-      content: portableBundle.code,
-      path: cliOutputPath,
-      sourcePath: cliSourcePath
-    },
-    {
-      content: portableBundle.sourceMap,
-      path: `${cliOutputPath}.map`,
-      sourcePath: cliSourcePath
-    },
+    ...(await buildSkillRuntimeArtifacts({
+      skillName: "task-graph",
+      rebuildCommand,
+      nodeEngine: "^22.22.2 || ^24.15.0 || >=26.0.0",
+      entries: [
+        await nativeCliEntry({
+          sourcePath: cliSourcePath,
+          outputName: "task-graph.ts",
+          runner: "runTaskGraphCli",
+          declarationName: "task-graph.d.mts",
+          typedExports: publicRuntimeExports
+        })
+      ]
+    })),
     ...declarationArtifacts,
     {
       content: `${JSON.stringify(jsonSchema, null, 2)}\n`,
@@ -226,15 +123,13 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
   ];
 }
 
-async function main(): Promise<void> {
-  const mode = parseGeneratedFileMode(process.argv.slice(2));
+export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
   const artifacts = await buildArtifacts();
-  const changedArtifacts = await syncGeneratedArtifacts(
-    artifacts,
+  const changedArtifacts = await syncSkillRuntimeArtifacts(artifacts, {
     mode,
-    rootDir,
-    cliSourcePath
-  );
+    skillName: "task-graph",
+    retiredPaths: ["scripts/task-graph.mjs", "scripts/task-graph.mjs.map"]
+  });
   const expectedDeclarationPaths = new Set(
     artifacts
       .map((artifact) => artifact.path)
@@ -251,16 +146,8 @@ async function main(): Promise<void> {
     sourcePath: cliSourcePath,
     workspaceRoot: rootDir
   });
-  const changed = changedArtifacts || staleDeclarations.changed;
-  if (
-    staleDeclarations.hasUnsupportedEntries ||
-    (mode === "check" && changed)
-  ) {
-    process.exit(1);
-  }
-  if (!changed) {
-    console.log("Task graph generated artifacts are current.");
-  }
+  if (staleDeclarations.hasUnsupportedEntries)
+    throw new Error("Unsupported declaration files");
+  return changedArtifacts || staleDeclarations.changed;
 }
-
-await main();
+await runRuntimeAdapter(import.meta.url, syncRuntime);

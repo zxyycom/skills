@@ -7,7 +7,7 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- 仓库 task-graph package 命令接受显式项目 root 前必须确认目标同时拥有 canonical index 入口和项目自己的 task-graph CLI。
+- 仓库 task-graph package 命令接受显式项目 root 前必须确认目标同时拥有 canonical index 入口和项目自己的 `task-graph.ts` CLI。
 
 Proves:
 - 显式 root 指向不存在的项目时，launcher 在子进程启动前报告目标缺少 task index。

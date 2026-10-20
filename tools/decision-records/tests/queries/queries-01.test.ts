@@ -289,7 +289,7 @@ test("decision check preserves source, bundled API, and process CLI parity", () 
   withFixtureWorkspace("query-parity", async (workspaceRoot) => {
     const source = await validateDecisionRecords({ workspaceRoot });
     const bundled =
-      await import("../../../../skills/decision-records/scripts/decision-records.mjs");
+      await import("../../../../skills/decision-records/scripts/decision-records.ts");
     const bundledResult = await bundled.validateDecisionRecords({
       workspaceRoot
     });
@@ -297,7 +297,7 @@ test("decision check preserves source, bundled API, and process CLI parity", () 
     const output = execFileSync(
       "node",
       [
-        "skills/decision-records/scripts/decision-records.mjs",
+        "skills/decision-records/scripts/decision-records.ts",
         "check",
         "--root",
         workspaceRoot

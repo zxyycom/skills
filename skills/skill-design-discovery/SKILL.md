@@ -5,7 +5,7 @@ description: >-
   约束来源、人机权限或验证方式仍然隐含或冲突时使用。从案例、现有材料和
   行为证据恢复可实现的设计契约；目标、边界和验收已经清楚的局部维护不使用。
 metadata:
-  version: "4"
+  version: "5"
 ---
 
 # Skill Design Discovery
@@ -75,3 +75,14 @@ metadata:
 4. `SKILL.md`、references、scripts、assets 与外部 owner 的归位建议没有重复事实源。
 5. 验证义务覆盖会改变结果的触发、分支、依赖、权限和约束，并能追溯到当前目标与证据；采用行为探测时，已经区分 skill 的实际采用证据、产物表现、事后自述和干扰因素。
 6. 设计状态、未运行验证和后续实现输入已经说明。
+
+## 自更新
+
+本 skill 的指令使用不需要安装依赖。仅在本 skill 目录运行自更新入口 `node scripts/update-skill.ts` 时，需满足随包 `package.json` 的 Node 版本与兼容依赖。
+已有兼容宿主依赖即可复用；普通运行、导入与检查不自动安装。依赖不可用时，使用随包 manifest 固定的 pnpm 显式执行：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

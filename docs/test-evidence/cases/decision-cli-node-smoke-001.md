@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- 生成的 Decision Records MJS CLI 必须可由真实 Node 进程启动，并保留 help 成功和参数失败的 stdout/stderr 分流及退出状态。
+- 生成的 Decision Records TS CLI 必须可由真实 Node 进程启动，并保留 help 成功和参数失败的 stdout/stderr 分流及退出状态。
 
 Proves:
 - `--help` 以退出码 `0` 输出当前命令说明且 stderr 为空。

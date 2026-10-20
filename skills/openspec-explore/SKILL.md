@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires openspec CLI.
 metadata:
   author: openspec
-  version: "4"
+  version: "5"
   generatedBy: "1.3.1"
 ---
 
@@ -99,3 +99,14 @@ Explore 是一种思考姿态，不是实现工作流。你可以阅读文件、
 3. 已按用户要求把关键结论写入 OpenSpec artifact。
 4. 明确剩余未知点，并给出下一步调查或验证方式。
 5. 用户决定暂停、转向或进入实现流程。
+
+## 自更新
+
+本 skill 的指令使用不需要安装依赖。仅在本 skill 目录运行自更新入口 `node scripts/update-skill.ts` 时，需满足随包 `package.json` 的 Node 版本与兼容依赖。
+已有兼容宿主依赖即可复用；普通运行、导入与检查不自动安装。依赖不可用时，使用随包 manifest 固定的 pnpm 显式执行：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

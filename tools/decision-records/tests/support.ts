@@ -13,7 +13,7 @@ import type {
   DecisionIndex,
   DecisionIndexState
 } from "../src/types.ts";
-import { runDecisionRecordsCli as runBundledDecisionRecordsCli } from "../../../skills/decision-records/scripts/decision-records.mjs";
+import { runDecisionRecordsCli as runBundledDecisionRecordsCli } from "../../../skills/decision-records/scripts/decision-records.ts";
 export { withGitFixtureWorkspace } from "./support-git-fixture.ts";
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -25,7 +25,7 @@ export const generatedCliPath = path.join(
   "skills",
   "decision-records",
   "scripts",
-  "decision-records.mjs"
+  "decision-records.ts"
 );
 export const generatedDeclarationPath = path.join(
   rootDirectory,

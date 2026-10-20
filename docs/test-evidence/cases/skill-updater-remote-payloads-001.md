@@ -1,7 +1,7 @@
 ### Case SKILL-UPDATER-REMOTE-PAYLOADS-001: Updater 报告无效 release
 
 Tests:
-- `test:2e8e3575a722865117badcaef3dfe2a5fc2330b16daefe5e9bd5733b7b2e6ab7`
+- `test:0d132a95a6a5072624679df6cb24dfdef0109a943003855f5345f0f8140d1562`
 
 Tags:
 - `skill-updater`

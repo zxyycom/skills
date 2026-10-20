@@ -107,12 +107,13 @@ export type CardFailureCode =
   | "transaction-failed";
 
 export class CardFailure extends Error {
-  constructor(
-    readonly code: CardFailureCode,
-    readonly file: string,
-    message: string
-  ) {
+  readonly code: CardFailureCode;
+  readonly file: string;
+
+  constructor(code: CardFailureCode, file: string, message: string) {
     super(message);
+    this.code = code;
+    this.file = file;
     this.name = "CardFailure";
   }
 }

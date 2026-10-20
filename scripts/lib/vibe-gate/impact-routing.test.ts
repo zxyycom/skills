@@ -19,8 +19,13 @@ test("incremental Gate invalidates Novel Cards consumers for every shared and di
       "tools/index-runtime/src/value.ts",
       "tools/shared/src/value.ts",
       "scripts/lib/generated-file.ts",
-      "skills/novel-cards/scripts/novel-cards.mjs",
-      "skills/novel-cards/scripts/novel-cards.mjs.map"
+      "scripts/lib/source-runtime.ts",
+      "scripts/lib/source-runtime-sync.ts",
+      "scripts/lib/skill-runtime.ts",
+      "scripts/lib/native-cli-entry.ts",
+      "skills/novel-cards/scripts/novel-cards.ts",
+      "skills/novel-cards/package.json",
+      "skills/novel-cards/pnpm-lock.yaml"
     ]) {
       await writeImpactFixture(fixture.directory, source, "initial input\n");
       await publishFixtureReceipts(
@@ -124,7 +129,34 @@ test("incremental Gate propagates skill-package and build-system changes", async
       )
     );
 
-    for (const extension of ["mjs", "mjs.map"]) {
+    await publishFixtureReceipts(fixture, buildSystemChange);
+    await writeImpactFixture(
+      fixture.directory,
+      "tools/skill-updater/src/cli.ts",
+      "export const updater = 1;\n"
+    );
+    const updaterChange = await prepareFixtureActivation(fixture);
+    for (const checkId of [
+      "script:check:change-plan-cli",
+      "script:check:decision-records-cli",
+      "script:check:novel-cards-cli",
+      "script:check:skill-updaters"
+    ]) {
+      assert.ok(updaterChange.activeCheckIds.includes(checkId), checkId);
+    }
+    await publishFixtureReceipts(fixture, updaterChange);
+    await writeImpactFixture(
+      fixture.directory,
+      "tools/task-graph/src/value.ts",
+      "export const domain = 1;\n"
+    );
+    assert.ok(
+      (await prepareFixtureActivation(fixture)).activeCheckIds.includes(
+        "script:check:skill-updaters"
+      )
+    );
+
+    for (const extension of ["ts"]) {
       const bundle = `skills/lightweight-judgment/scripts/lightweight-judgment.${extension}`;
       await writeImpactFixture(fixture.directory, bundle, "initial artifact\n");
       await publishFixtureReceipts(

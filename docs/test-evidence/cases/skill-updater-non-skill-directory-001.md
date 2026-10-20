@@ -1,7 +1,7 @@
 ### Case SKILL-UPDATER-NON-SKILL-DIRECTORY-001: Updater 拒绝非空非 skill 目录
 
 Tests:
-- `test:dc92ff8f30d97ccfd0847ee7cc09a748f60d13e861d1ca78384cf1ba000d8207`
+- `test:744cfc9761d902c7ba6ce9608ffb7132bcd62dbe0ea7dde45386c4b81450bf04`
 
 Tags:
 - `skill-updater`

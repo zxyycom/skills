@@ -2,7 +2,7 @@
 
 本文是随 skill 分发的 CLI 操作 owner，定义运行、配置、输入输出、校验和错误处理。可选 SQLite 留存与恢复由 [调用日志](call-logging.md) 承接，离线统计由[统计契约](statistics.md)承接。
 
-使用 Node.js 24.18 或更新版本直接运行 `scripts/lightweight-judgment.mjs`，无需全局安装或项目依赖。下列绝对路径均为占位示例，调用前替换为实际路径。
+使用 Node.js 24.18 或更新版本直接运行 `scripts/lightweight-judgment.ts`；兼容依赖复用与独立安装见[工具运行前置](../SKILL.md#工具运行前置)。下列绝对路径均为占位示例，调用前替换为实际路径。
 
 ## 职责与通道
 
@@ -87,8 +87,8 @@ JEV 模型接受 bare `jev-*`、作者前缀 `typesafe/jev-*` 与 namespaced ali
 ### `doctor`：本地前置检查
 
 ```bash
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs doctor
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs --config /absolute/private/judgment.json doctor
+node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts doctor
+node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts --config /absolute/private/judgment.json doctor
 ```
 
 成功时报告配置位置、adapterContract、images／longContext 设置、endpoint、模型、超时、密钥变量名、`credentialSource`（config／environment）、密钥存在及解析后的 logging 设置；秘密值、长度和前后缀均不输出。配置非法或本地密钥缺失／无效时返回 `configuration`、退出 2，attempts 为 0；普通推理具有同一前置行为。此命令只证明本地配置与凭据前置满足，不证明服务可用或存储可写。
@@ -98,9 +98,9 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs --conf
 输入恰选一种，stdin 须显式指定 `-`：
 
 ```bash
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json --file /absolute/path/request.json
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json - < /absolute/path/request.json
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json --json '{"state":"请回退版本","questions":{"rollback":{"type":"noul","instructions":"是否明确请求回退版本？"}}}'
+node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts json --file /absolute/path/request.json
+node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts json - < /absolute/path/request.json
+node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts json --json '{"state":"请回退版本","questions":{"rollback":{"type":"noul","instructions":"是否明确请求回退版本？"}}}'
 ```
 
 输入为 UTF-8 单个 JSON 对象，不接受 JSONL；顶层接受 `state`、非空 `questions` 和可选 `model`。CLI 补齐 model 后按 adapter 编译，保留输入类型、文本与候选顺序；OAI 结构化文本转换、题目映射及模态拒绝见[编译合同](protocol-adapters.md#文本与结构化输入)。请求不接受 assets、adapter、images 或连接配置。
@@ -164,7 +164,7 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json -
 上下文恰选一种：`--text`、`--text-file` 形成字符串 state；`--state-json`、`--state-file` 按 JSON 解析并保留原生形状。解析模式由参数而非扩展名决定。
 
 ```bash
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs ask --type choice \
+node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts ask --type choice \
   --text-file /absolute/path/message.txt \
   --question "这段文本主要属于哪类请求？" \
   --option "bug=报告软件故障" \
@@ -172,14 +172,14 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs ask --
   --option "other=信息足够，但不属于以上类别" \
   --option "unclear=信息不足"
 
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs ask --type score \
+node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts ask --type score \
   --text-file /absolute/path/message.txt \
   --question "这段文本表达的紧迫程度如何？" \
   --level "未提出时限或急迫要求" \
   --level "希望尽快处理，但未要求立即处理" \
   --level "明确要求立即处理"
 
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs ask --type noul \
+node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts ask --type noul \
   --text "请把刚才的版本回退。" \
   --question "是否明确请求回退版本？"
 ```
@@ -204,7 +204,7 @@ Choice 重复 `--option key=description`，按第一个等号分隔，键唯一�
 | `--dry-run` | 仅用于 `json`／`ask`：解析配置与输入、补齐 model、本地校验，输出所选合同、endpoint、最终 wire 请求及非秘密 header；不读取环境密钥、不要求密钥存在、不联网或建库 |
 | `--help` | 展示命令、配置来源、离线示例和退出语义，不读取配置、输入或凭据，不联网 |
 
-例如 `node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json --file /absolute/path/request.json --dry-run`。预览仍读取并校验选中的配置文件，包括其中可选的 apiKey，但不将密钥放入输出；输出含待发正文。长文本与敏感材料优先通过文件或 stdin 输入，输出按数据权限处理，避免命令历史和公共日志泄露。
+例如 `node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts json --file /absolute/path/request.json --dry-run`。预览仍读取并校验选中的配置文件，包括其中可选的 apiKey，但不将密钥放入输出；输出含待发正文。长文本与敏感材料优先通过文件或 stdin 输入，输出按数据权限处理，避免命令历史和公共日志泄露。
 
 ## 输出与校验
 

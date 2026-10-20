@@ -1,0 +1,306 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/shared/src/graph/relations.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/shared/src/graph/relations.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/shared/src/graph/relations.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+ * Rebuild: bun run sync:investigation-report-check
+ */
+/** A directed, typed relationship from a successor to a direct predecessor. */
+export type RelationEdge<Id extends string, Type extends string> = {
+  source: Id;
+  /** Optional descriptive text that does not participate in graph identity. */
+  summary?: string;
+  target: Id;
+  type: Type;
+};
+
+export type RelationGraph<Id extends string, Type extends string> = {
+  edges: readonly RelationEdge<Id, Type>[];
+  edgesBySource: ReadonlyMap<Id, readonly RelationEdge<Id, Type>[]>;
+  edgesByTarget: ReadonlyMap<Id, readonly RelationEdge<Id, Type>[]>;
+  ids: ReadonlySet<Id>;
+};
+
+export type RelationGraphTraceDirection =
+  | "both"
+  | "predecessors"
+  | "successors";
+
+export type RelationGraphTraceOptions = {
+  direction: RelationGraphTraceDirection;
+  maxDepth: number | null;
+};
+
+export type RelationGraphTrace<Id extends string, Type extends string> = {
+  edges: readonly RelationEdge<Id, Type>[];
+  ids: ReadonlySet<Id>;
+};
+
+export { selectRelationGraphTrace } from "./trace-selection.ts";
+export type {
+  RelationGraphTraceAdmissionAdapter,
+  RelationGraphTraceAdmissionUnit,
+  RelationGraphTraceBlockedEvent,
+  RelationGraphTraceEventKind,
+  RelationGraphTraceExpansionDirection,
+  RelationGraphTraceFrontier,
+  RelationGraphTraceSelection,
+  RelationGraphTraceSelectionOptions
+} from "./trace-contract.ts";
+
+export type RelationGraphStructuralIssue<
+  Id extends string,
+  Type extends string
+> =
+  | {
+      edge: RelationEdge<Id, Type>;
+      kind: "missing-target";
+    }
+  | {
+      edge: RelationEdge<Id, Type>;
+      kind: "self-edge";
+    }
+  | {
+      edge: RelationEdge<Id, Type>;
+      kind: "duplicate-edge";
+      repeatedEdge: RelationEdge<Id, Type>;
+    }
+  | {
+      cycle: readonly Id[];
+      kind: "cycle";
+    };
+
+/**
+ * Returns a new edge collection in source, type, then target UTF-16 code-unit
+ * order. Building a graph preserves its supplied edge order; callers opt into
+ * this ordering when their output contract requires it.
+ */
+export function sortRelationEdges<Id extends string, Type extends string>(
+  edges: Iterable<RelationEdge<Id, Type>>
+): RelationEdge<Id, Type>[] {
+  return [...edges].sort(compareRelationEdges);
+}
+
+/**
+ * Normalizes a relationship collection into forward and reverse indexes while
+ * preserving its supplied edge order. Domain validation remains responsible
+ * for relation-type meaning and any lifecycle or chronology rules.
+ */
+export function buildRelationGraph<Id extends string, Type extends string>(
+  ids: Iterable<Id>,
+  edges: Iterable<RelationEdge<Id, Type>>
+): RelationGraph<Id, Type> {
+  const graphIds = new Set(ids);
+  const graphEdges = [...edges].map(({ source, summary, target, type }) => ({
+    source,
+    ...(summary === undefined ? {} : { summary }),
+    target,
+    type
+  }));
+  return {
+    edges: graphEdges,
+    edgesBySource: indexEdges(graphEdges, (edge) => edge.source),
+    edgesByTarget: indexEdges(graphEdges, (edge) => edge.target),
+    ids: graphIds
+  };
+}
+
+/** Returns the subgraph reachable from one node in the requested direction. */
+export function traceRelationGraph<Id extends string, Type extends string>(
+  graph: RelationGraph<Id, Type>,
+  startId: Id,
+  options: RelationGraphTraceOptions
+): RelationGraphTrace<Id, Type> {
+  const ids = new Set<Id>();
+  const traversalQueue = [{ id: startId, depth: 0 }];
+
+  for (let index = 0; index < traversalQueue.length; index += 1) {
+    const item = traversalQueue[index];
+    if (item === undefined || !graph.ids.has(item.id) || ids.has(item.id)) {
+      continue;
+    }
+
+    ids.add(item.id);
+    if (options.maxDepth !== null && item.depth >= options.maxDepth) {
+      continue;
+    }
+
+    if (options.direction !== "successors") {
+      traversalQueue.push(
+        ...(graph.edgesBySource.get(item.id) ?? []).map((edge) => ({
+          depth: item.depth + 1,
+          id: edge.target
+        }))
+      );
+    }
+    if (options.direction !== "predecessors") {
+      traversalQueue.push(
+        ...(graph.edgesByTarget.get(item.id) ?? []).map((edge) => ({
+          depth: item.depth + 1,
+          id: edge.source
+        }))
+      );
+    }
+  }
+
+  return {
+    edges: graph.edges.filter(
+      (edge) =>
+        graph.ids.has(edge.source) &&
+        graph.ids.has(edge.target) &&
+        ids.has(edge.source) &&
+        ids.has(edge.target)
+    ),
+    ids
+  };
+}
+
+/**
+ * Detects graph-wide structural defects without assigning domain-specific
+ * meaning or formatting diagnostics.
+ */
+export function relationGraphStructuralIssues<
+  Id extends string,
+  Type extends string
+>(graph: RelationGraph<Id, Type>): RelationGraphStructuralIssue<Id, Type>[] {
+  const missingTargetIssues: RelationGraphStructuralIssue<Id, Type>[] = [];
+  const selfEdgeIssues: RelationGraphStructuralIssue<Id, Type>[] = [];
+  const duplicateEdgeIssues: RelationGraphStructuralIssue<Id, Type>[] = [];
+  const firstEdgeBySourceAndTarget = new Map<
+    Id,
+    Map<Id, RelationEdge<Id, Type>>
+  >();
+
+  for (const edge of graph.edges) {
+    if (!graph.ids.has(edge.target)) {
+      missingTargetIssues.push({ edge, kind: "missing-target" });
+    }
+    if (edge.source === edge.target) {
+      selfEdgeIssues.push({ edge, kind: "self-edge" });
+    }
+
+    const firstEdgeByTarget = firstEdgeBySourceAndTarget.get(edge.source);
+    const repeatedEdge = firstEdgeByTarget?.get(edge.target);
+    if (repeatedEdge === undefined) {
+      if (firstEdgeByTarget === undefined) {
+        firstEdgeBySourceAndTarget.set(
+          edge.source,
+          new Map([[edge.target, edge]])
+        );
+      } else {
+        firstEdgeByTarget.set(edge.target, edge);
+      }
+    } else {
+      duplicateEdgeIssues.push({ edge, kind: "duplicate-edge", repeatedEdge });
+    }
+  }
+
+  return [
+    ...missingTargetIssues,
+    ...selfEdgeIssues,
+    ...duplicateEdgeIssues,
+    ...relationGraphCycleIssues(graph)
+  ];
+}
+
+function indexEdges<Id extends string, Type extends string>(
+  edges: readonly RelationEdge<Id, Type>[],
+  selectId: (edge: RelationEdge<Id, Type>) => Id
+): ReadonlyMap<Id, readonly RelationEdge<Id, Type>[]> {
+  const index = new Map<Id, RelationEdge<Id, Type>[]>();
+  for (const edge of edges) {
+    const id = selectId(edge);
+    const indexedEdges = index.get(id);
+    if (indexedEdges === undefined) {
+      index.set(id, [edge]);
+    } else {
+      indexedEdges.push(edge);
+    }
+  }
+  return index;
+}
+
+function compareRelationEdges<Id extends string, Type extends string>(
+  left: RelationEdge<Id, Type>,
+  right: RelationEdge<Id, Type>
+): number {
+  return (
+    compareStrings(left.source, right.source) ||
+    compareStrings(left.type, right.type) ||
+    compareStrings(left.target, right.target)
+  );
+}
+
+/** Compares text by locale-independent UTF-16 code-unit order. */
+function compareStrings(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function relationGraphCycleIssues<Id extends string, Type extends string>(
+  graph: RelationGraph<Id, Type>
+): RelationGraphStructuralIssue<Id, Type>[] {
+  const issues: RelationGraphStructuralIssue<Id, Type>[] = [];
+  const visitState = new Map<Id, "visiting" | "visited">();
+  const idStack: Id[] = [];
+  const frames: {
+    readonly id: Id;
+    readonly targets: readonly Id[];
+    nextTargetIndex: number;
+  }[] = [];
+
+  function enter(id: Id): void {
+    visitState.set(id, "visiting");
+    idStack.push(id);
+    frames.push({ id, targets: cycleTargets(graph, id), nextTargetIndex: 0 });
+  }
+
+  function visit(id: Id): void {
+    enter(id);
+    while (frames.length > 0) {
+      const frame = frames[frames.length - 1]!;
+      const target = frame.targets[frame.nextTargetIndex];
+      if (target === undefined) {
+        frames.pop();
+        idStack.pop();
+        visitState.set(frame.id, "visited");
+        continue;
+      }
+      // Advance before entering a child so the paused parent resumes at its next edge.
+      frame.nextTargetIndex += 1;
+      const targetState = visitState.get(target);
+      if (targetState === "visiting") {
+        const cycleStart = idStack.indexOf(target);
+        issues.push({
+          cycle: [...idStack.slice(cycleStart), target],
+          kind: "cycle"
+        });
+      } else if (targetState !== "visited") {
+        enter(target);
+      }
+    }
+  }
+
+  for (const id of [...graph.ids].sort(compareStrings)) {
+    if (!visitState.has(id)) {
+      visit(id);
+    }
+  }
+  return issues;
+}
+
+function cycleTargets<Id extends string, Type extends string>(
+  graph: RelationGraph<Id, Type>,
+  id: Id
+): Id[] {
+  return [
+    ...new Set(
+      (graph.edgesBySource.get(id) ?? [])
+        .filter((edge) => edge.source !== edge.target)
+        .map((edge) => edge.target)
+    )
+  ]
+    .filter((target) => graph.ids.has(target))
+    .sort(compareStrings);
+}

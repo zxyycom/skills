@@ -10,4 +10,4 @@ Contract:
 - Validator 分发制品必须暴露声明、公共 API 和可移植来源元数据。
 
 Proves:
-- 生成脚本、声明及 source map 包含约定导出和仓库相对路径。
+- 生成 TS 入口、声明与包内运行闭包包含约定导出和可移植路径；旧 MJS map 已移除。

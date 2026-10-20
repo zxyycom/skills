@@ -20,8 +20,8 @@
 ## 工具分工
 
 1. pnpm 负责安装依赖；固定版本来自 `package.json#packageManager`，锁文件是 `pnpm-lock.yaml`，CI 使用 `pnpm install --frozen-lockfile`。
-2. Bun 负责 package scripts 调度、分发 bundle 生成和仓库中其余 TypeScript 脚本运行；bundle 字节与测试运行时语义会随 Bun 版本变化，因此本地、hook 和 CI 必须使用 `package.json#engines.bun` 固定的精确版本，并优先通过 `bun run <script>` 使用稳定入口。环境入口从同一边界诊断 Bun，不在本文复制版本数值。
-3. Node.js 负责运行 `@zxyycom/vibe-check` 的 Gate 入口及其原生测试；最低兼容版本由 `package.json#engines.node` 定义，`bun run check` 与 `bun run test:check` 仍是稳定的人工作业入口。
+2. Bun 负责 package scripts 调度、源码同步适配和仓库中其余 TypeScript 脚本运行；同步工具与测试运行时语义会随 Bun 版本变化，因此本地、hook 和 CI 必须使用 `package.json#engines.bun` 固定的精确版本，并优先通过 `bun run <script>` 使用稳定入口。环境入口从同一边界诊断 Bun，不在本文复制版本数值。
+3. Node.js 负责运行分发 TS 入口、`@zxyycom/vibe-check` 的 Gate 入口及其原生测试；最低兼容版本由 `package.json#engines.node` 定义，`bun run check` 与 `bun run test:check` 仍是稳定的人工作业入口。
 4. tsgo 负责类型检查；`typecheck` 使用固定版本的 `@typescript/native-preview`，对应 release-age 例外记录在 `pnpm-workspace.yaml`。
 5. 常见格式、协议、解析和压缩能力优先使用成熟依赖；项目领域规则才由本仓库直接实现。
 
@@ -115,7 +115,7 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 
 1. 每个起始快照恰好执行一次 `git ls-files --cached --others --exclude-standard -z`，对返回的普通文件各读取一次内容并记录 path、kind、mode、size 与 SHA-256；symlink 只记录链接文本，已删除 tracked path 记录为 missing。文件数超过 20,000、普通文件总量超过 512 MiB、Git 枚举失败、非 UTF-8 或越界路径、读取失败时不猜测部分结果，退化为执行全部 64 个 base Check。
 2. 稳定路径规则为同一文件派生可重叠的 owner、`maintained-code`、`markdown`、`json`、`secret-surface` 与 `path-inventory` 标签。项目配置和 Gate 实现进入 `global`；无法分类的新路径也进入 `global`。`path-inventory` 只摘要 path/kind 和 symlink 目标，使 Markdown 目标增删或重定向传播，但普通非 Markdown 文件的内容变化不会无理由重跑链接检查。
-3. 显式标签依赖把 `shared-tools` 传播给当前工具与 build-system consumer，把 `index-runtime` 传播给 Decision Records、Investigation Report、Test Evidence 和 Novel Cards，把 `skill-release` 传播给 Environment、Skill Updater 与项目 validate consumer；build adapter 的变化再传播给使用它的生成一致性 Check。每个 base Check 的有效输入指纹由 Check ID、impact contract/version、直接与传递标签摘要以及下条定义的工具链身份共同形成；标签命中本身不构成跳过依据。
+3. 显式标签依赖把 `shared-tools` 传播给当前工具与 build-system consumer，把 `index-runtime` 传播给 Decision Records、Investigation Report、Test Evidence 和 Novel Cards，把 `skill-release` 传播给 Environment、Skill Updater 与项目 validate consumer；共享源码同步器与联合适配器归入 `build-system`；各领域生成 Check 同时消费 updater 输入，覆盖全 skill 的 `check:skill-updaters` 消费全部领域源码、包内内容和共享生成输入。build adapter 的变化再传播给使用它的生成一致性 Check。每个 base Check 的有效输入指纹由 Check ID、impact contract/version、直接与传递标签摘要以及下条定义的工具链身份共同形成；标签命中本身不构成跳过依据。
 4. 工具链身份覆盖当前 Node 进程版本、平台和架构，Git 版本与完整配置，Bun 版本和 `bun pm ls --all` 报告的已安装依赖图，以及 ast-grep、Oxfmt、Oxlint、SCC、tsgo 的实际版本探测。Git、Node、Bun、pnpm 或 SCC 的基础要求由每次执行的 `gate-environment` Check 失败闭合；activation snapshot 中的依赖图或其他必要探测仍可能先失败并形成全量 fallback，但不能把 `unavailable` 固化为可复用身份。当前进程环境除 `_`、`OLDPWD`、`SHLVL` 这三个仓库不读取的父 shell 记账变量外全部进入摘要。原始 `node_modules` 字节不逐文件进入快照；这项证明依赖“依赖由 pnpm frozen lock 安装且不在包管理器外手工改写”的工作区前提，破坏该前提时先运行环境 setup，而不能把 receipt 当作依赖防篡改证明。
 5. 只有该指纹精确命中 `.log/vibe-check/cache/incremental-gate-v2/receipts.json` 中格式合法且 outcome 为 passed 的最近证明时才复用。首次运行、缺项、损坏、指纹变化或未知路径带来的 `global` 变化都执行；consumer 激活时，其 `dependsOn` provider 即使已有跨运行证明也在本次重新执行，供 Vibe 形成真实 dependency outcome。
 6. 只有 Vibe 返回 completed/passed，且本次实际执行项都 passed 时才重新取得结束快照；workspace/toolchain fingerprint 与起始值一致后，才把精确复用的旧证明与本次通过的新证明合并为当前 64 项 manifest 并原子替换。失败、取消、output failure、漂移、结束快照失败或 cache 写入失败不发布证明；cache 不可用只扩大执行，不改变质量结果。64 项全部复用时，`gate-environment` 仍进入 effective aggregate 并真实通过；基础环境 Check 不写入这份 impact receipt。
@@ -188,7 +188,7 @@ Vibe 从 Check admission 到任意 settlement 原子持有全部 claims；这些
 
 Check catalog 以“它证明什么、失败后由谁处理”为分组条件：例如领域记录/索引、生命周期事务、按稳定 ID 的 pending-stage、调用协议和可分发制品可以是不同 Check；共同证明一个契约的多个原生测试文件保留在同一 Check。不得为均衡耗时把 Check 拆成每个测试，也不得把一个工具的全部测试重新合并为单一 Check。package scripts 继续是面向维护者的稳定手动聚合入口，但语义 Check 不再以 package script 身份作为 leaf。失败结果给出的直接命令是重跑该 Check 的权威路径；需要完整领域回归时仍可运行相应 `test:*` 聚合命令。
 
-Release 测试批次有两个输入来源：没有生成前置的 Bun semantic Check 自动进入；Bun test package Check 只有显式登记在 `releaseBunTestPackageFiles` 时才进入。`test:version-control` 保持 release-required，但不登记在该批次 catalog 中，因此 `script:test:version-control` 独立执行且不属于批次成功证明。
+Release 测试批次有两个输入来源：没有生成前置的 Bun semantic Check 自动进入；Bun test package Check 只有显式登记在 `releaseBunTestPackageFiles` 且没有生成前置时才进入。`test:version-control` 保持 release-required，但不登记在该批次 catalog 中，因此 `script:test:version-control` 独立执行且不属于批次成功证明。
 
 Definition 对批次文件取稳定并集后轮转分成最多四份，同时启动四个独立 Bun 进程；每个文件只属于一个分区，每个进程在自己的分区内顺序执行，不使用单进程 `bun test --parallel`。每份 JUnit 必须恰好覆盖自己的请求容器且不得重复，合并后每个 Check 只按自己的文件集合结算；单组失败不阻止其他观察 leader 终态的投影 Check。Leader transcript 汇总四个 worker 的完整输出，原始 worker transcript 保留在其 artifact 子目录。版本管理测试、Node 测试、带生成前置的分发测试与非测试命令保持独立进程。报告缺失、畸形、覆盖不完整，或进程非零退出却没有失败 suite 时全部 fail closed。
 
@@ -209,12 +209,15 @@ release tag 同时验证工作区正确性与 release snapshot，但两者输入
 
 函数指标区的普通上限依次为 NLOC、CCN、nesting depth、参数数：产品源码 `45/10/5/5`，自动化脚本 `80/16/8/7`，测试 `100/20/10/8`。低复杂度 NLOC allowance 分别为 CCN 严格低于 `5/7/8` 时允许到 `120/220/250`。文件指标与三个函数区域都使用 blocking policy；阈值差异用于把同一 measurement 转换为符合代码责任的维护信号。阻断要求在验收前处置每条信号，但不跳过[编码规范](coding-style.md#6-保持局部可推理并按责任组织代码)要求的责任复核，也不以批量 waiver 隐藏现状。
 
-三个消费当前工作树分发制品的 public-distribution semantic Check 必须先验证对应的唯一生成一致性 Check：
+消费当前工作树分发制品的 Check 必须先验证对应的生成一致性 Check；语义与 package-script provider 都进入增量激活的依赖闭包，有生成前置的 consumer 不进入 release Bun 测试批次：
 
 | public-distribution Check | 生成前置 | 稳定重跑入口 |
 | --- | --- | --- |
 | `test:change-plan:public-distribution` | `script:check:change-plan-cli` | `bun run check:change-plan-cli`、`bun run test:change-plan-cli` |
 | `test:decision-records:public-distribution` | `script:check:decision-records-cli` | `bun run check:decision-records-cli`、`bun run test:decision-records-cli` |
+| `script:test:skill-updater` | `script:check:skill-updaters` | `bun run check:skill-updaters`、`bun run test:skill-updater` |
+| `test:novel-cards:card-and-query-contract` | `script:check:novel-cards-cli` | `bun run check:novel-cards-cli`、`bun run test:novel-cards-cli` |
+| `test:lightweight-judgment:public-distribution` | `script:check:lightweight-judgment-cli` | `bun run check:lightweight-judgment-cli`、`bun run test:lightweight-judgment-cli` |
 | `test:task-graph:public-distribution` | `script:check:task-graph-cli` | `bun run check:task-graph-cli`、`bun run test:task-graph-cli` |
 
 `dependsOn` 向 Vibe 声明成功前置：只有直接 provider 全部 `passed` 才进入 dependent callback；前置 failed 或 unavailable 时，Vibe 不启动 consumer，并结算为 `unavailable / dependency-not-passed`。项目 adapter 不重复读取或翻译 provider status；确需消费 provider final data 的 Check 才在 callback 内通过 `dependencies.get(...)` 做数据边界校验。此前置表达当前制品的信任边界，避免失败后的无效 consumer 输出并改善归因；它不减少成功路径中既有的单次生成/漂移检查，也不得据此宣称 happy-path 加速。
@@ -324,11 +327,11 @@ Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维
 
 1. `scripts/` 只承接主仓库命令编排、构建适配、校验、打包、Git 和 CI 自动化。
 2. 顶层脚本只保留入口与编排；`scripts/build/` 承接生成适配，`scripts/lib/` 承接跨脚本共享能力，`scripts/validators/` 承接项目校验项。各目录可以按命令阶段或独立不变量拆分内部模块；稳定的维护命令和明确保留的入口/导出才是跨 owner 消费边界，内部文件名或拆分层级不是文档契约。
-3. `tools/<tool-name>/src/` 承接需要构建后随 skill 分发的运行时源码，`api/` 承接确需独立维护的公共声明源，`tests/` 承接源码、分发模块和 fixture 验证。skill 的公开程序化边界由生成制品及其声明入口确定，不包括任意 `src/` 子模块。构建适配器选择的源码入口则是维护源码与生成制品的边界：移动或替换该入口时，同步更新 `scripts/build/` 映射、生成头和对应 `sync:*`/`check:*`，而仅拆分入口相邻的内部职责模块不需要在本文另建文件索引。Task Graph 按其[局部决策](decisions/derive-sdk-declarations-from-runtime-source.md)从运行时公开导出机械生成声明，不维护重复的 `api/` 源。Change Plan 只生成可直接 import 的当前 MJS 运行时，不建立稳定 SDK 或声明源。
+3. `tools/<tool-name>/src/` 承接同步后随 skill 分发的运行时源码，`api/` 承接确需独立维护的公共声明源，`tests/` 承接源码、分发模块和 fixture 验证。skill 的公开程序化边界由生成制品及其声明入口确定，不包括任意 `src/` 子模块。构建适配器选择的源码入口则是维护源码与生成制品的边界：移动或替换该入口时，同步更新 `scripts/build/` 映射、生成头和对应 `sync:*`/`check:*`，而仅拆分入口相邻的内部职责模块不需要在本文另建文件索引。Task Graph 按其[局部决策](decisions/derive-sdk-declarations-from-runtime-source.md)从运行时公开导出机械生成声明，不维护重复的 `api/` 源。Change Plan 只同步可直接 import 的当前 TS 运行时，不建立稳定 SDK 或声明源。
 4. `tools/shared/` 承接多个工具已经真实共享的运行时不变量，以及项目明确选定并预置、具有独立契约的基础实现原语；预置原语不降低其他共享代码的准入条件。当前共享职责包括版本管理、文件文本检索、关系图、Markdown/Node 基础原语和 [`Option`](../tools/shared/src/option.ts)；具体入口与局部契约由源码目录承接。[版本管理中间层](../tools/shared/version-control.md)完整说明版本管理语义，[关系图基础能力](../tools/shared/src/graph/relations.ts)负责保序建图、显式边排序、节点 trace 和结构问题；其源码与测试分别承接实现和验证。关系类型、生命周期、时序和诊断映射仍由领域工具负责。
 5. `tools/skill-package/` 承接 skill 版本以及发布端与 updater 共用的 release manifest 协议；仓库专用的临时 package hash 留在 `scripts/lib/`。[Index Runtime](../tools/index-runtime/README.md) 承接已经建立的跨领域派生索引协议。
 6. 领域工具可以依赖自身源码、`tools/shared/`、`tools/skill-package/`、明确建立的跨领域协议、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个领域工具。
-7. 根目录 `tsconfig.json` 统一提供 IDE 与类型检查配置；仓库源码运行、构建和普通测试由 Bun 负责。Task-graph 真实 native lock 集成测试和分发 CLI 是明确例外，使用其 skill frontmatter 与 help 公布的固定 Node.js engine。
+7. 根目录 `tsconfig.json` 统一提供 IDE 与类型检查配置；仓库源码运行、同步适配和普通测试由 Bun 负责。真实 Node smoke、Task-graph native lock 集成测试和分发 CLI 是明确例外，使用对应 skill manifest 与 help 公布的 Node.js engine。
 8. 外部 JSON 在边界做运行时收窄。同一结构被多个入口消费或需要稳定字段诊断时，以 Valibot Schema 为结构真源；跨语言契约从同一 Schema 生成 JSON Schema 和分发声明。
 9. 校验器检查长期源文件、链接和项目约束，不解析或正则匹配 GitHub Actions workflow 内部结构；workflow 行为由代码审查和实际运行验证。
 
@@ -336,38 +339,70 @@ Case 使用 Tests、可选 tags、Contract 与 Proves，由测试改动显式维
 
 ## 生成与分发
 
-可分发工具统一遵守：
+### 源码、入口与使用者
 
-1. TypeScript 源码以及确需独立维护的声明源位于 `tools/`，读取仓库配置并写入 skill 的适配器位于 `scripts/build/`。
-2. `sync:*` 至少生成自包含单文件 ESM `.mjs` 和 linked source map。只有行为 owner 明确建立稳定程序化接口时才同时生成 `.d.mts` 声明入口；声明需要拆分时，其余生成声明保留在同一 skill 的包内目录并只由入口引用。只有 owner 明确需要跨语言机器契约时才生成 JSON Schema 和 Schema 派生声明。
-3. 生成模块可被导入而不执行 CLI、修改退出状态或产生文件和网络副作用；只有作为主模块运行时进入 CLI。
-4. 分发产物只能依赖目标运行时和包内内容。构建器遵守以下边界：
-   - 构建期解析不得从 workspace 或测试 fixture 的祖先目录吸收依赖树外模块。
-   - 共享源码由构建器内联，不形成跨 skill 运行时前置。
-   - 明确不随制品分发的 optional peer 由对应 build adapter 声明，并由共享 bundler 固定解析到仓库内的不可用替身（unavailable stub），不留给分发运行时解析。
-   - Task-graph 的包内 ESM 保持自包含；mutation 另行加载调用方按该 skill 指引配置、并由 CLI 探测的 native runtime 扩展。该扩展不属于 skill 制品，也不改变通用 updater 或其他工具的分发边界。
-5. 可嵌入注释的生成产物必须写明禁止直接编辑、仓库与维护源码、skill 源目录和重建命令；生成头不写时间戳或本机绝对路径。
-6. `check:*` 在临时目录重建产物，并在把 CRLF 规范为 LF 后比较文本内容；除行尾形式外的差异视为生成漂移。`pack:skills` 不临时构建，只收集已经进入版本管理 `pending` 快照的 `skills/<skill-name>/` 稳定分发输入。
+- `tools/` 保存 TypeScript 运行时与必要声明源；`scripts/build/` 适配器组合领域入口、updater、可达模块与资源，统一同步每个 skill 的受管文件和 manifest。
+- 自有入口与运行时全部以 `.ts` 分发，模块关系保留在包内 `scripts/runtime/`；第三方依赖由包管理器安装。必要的 `.d.mts` 公开声明及 Schema 继续由领域 owner 维护或生成，普通源码子模块不因此成为稳定 SDK。
+- 公开 TS 模块可导入而不执行 CLI、修改退出状态或产生文件和网络副作用；作为主模块运行时才进入 CLI。消费者使用 Node 原生类型擦除，无需 Bun、tsx 或构建工具。静态语法约束见[编码规范](coding-style.md#4-用类型表达领域含义)，运行兼容性仍由真实 Node smoke 验证。
+- 仓库维护修改 `tools/` 源码 owner 后运行对应 `sync:*`；安装者可直接修改包内 TS，无需构建，但更新会覆盖正式制品中的同路径定制。生成头标明维护源码、skill 来源与同步命令，不写时间戳或本机绝对路径。
 
-当前映射：
+### 依赖安装与恢复
+
+每个 skill 随包提供独立 `package.json`、`pnpm-lock.yaml` 与 `.gitignore`。manifest 声明实际源码闭包的依赖、Node engine 和固定 pnpm；同步器维护 manifest 与忽略规则，锁文件由维护者显式刷新。
+
+已有兼容宿主依赖时可直接运行。Node 按标准模块规则解析，不按 manifest 范围选择版本；兼容性由支持范围和实际 API/行为契约判断，不以依赖来源、安装目录、本地 `node_modules` 或锁文件精确版本设额外门槛。native/optional 能力继续由领域 owner 声明和验证。
+
+需要独立安装、复现基线或修复依赖时，使用随包 manifest 固定的 pnpm：
+
+```bash
+pnpm --dir "<skill-directory>" install \
+  --ignore-workspace --prod --frozen-lockfile \
+  --config.node-linker=isolated
+```
+
+该命令保持单 skill 的安装边界。仅在具体依赖确需配置时添加 `pnpm-workspace.yaml`，由相应 owner 说明配置并验证固定 pnpm 的实际行为。
+
+启动、help、普通 import 和检查不隐式安装。updater 自身无法加载时，先显式修复依赖；运行时、manifest 或锁文件损坏时，重新获取完整 skill 后再安装。知识型 skill 的指令使用无需安装其 updater 依赖。源码更新与依赖兼容性分别核对，完整更新与恢复契约见 [Skill Updater](../tools/skill-updater/README.md#运行前置与恢复)。
+
+### 同步与只读检查
+
+`sync:*` 和 `check:*` 使用同一源码、入口、资源、manifest 与忽略规则的受管集合和生成路径。同步写入预期产物并清理已知过期受管文件；检查只读重建、规范化 CRLF 后比较，受管集合中缺失、过期或内容变化均是漂移。仓库同步的清理责任不改变客户端 updater 保留其他本地文件的契约。
+
+manifest 依赖变化后，使用固定 pnpm 显式刷新相应 skill 的锁文件：
+
+```bash
+pnpm --dir "<skill-directory>" install \
+  --ignore-workspace --lockfile-only \
+  --config.node-linker=isolated
+```
+
+同步检查只核对 manifest 与锁文件中的直接依赖声明一致；完整依赖解析可用性由独立 frozen 安装证明。`sync:skill-updaters` 与 `check:skill-updaters` 覆盖全部 skill 的联合运行时，包括同时带领域工具的 skill。
+
+### 打包输入
+
+`pack:skills` 不临时构建或安装，只收集版本管理 `pending` 快照中的稳定分发输入。hash 与 zip 使用同一清单，排除依赖目录、pnpm store、缓存及安装残留；强制暂存这些内容也不能带入制品。
+
+### 源码与分发映射
 
 | 维护源码 | 分发目标 |
 | --- | --- |
-| `tools/novel-cards/` | `skills/novel-cards/scripts/novel-cards.mjs` 与 linked source map；构建适配为 `scripts/build/novel-cards.ts` |
-| `tools/lightweight-judgment/` | `skills/lightweight-judgment/scripts/lightweight-judgment.mjs` 与 `lightweight-judgment.mjs.map`；`migrations/log-v1-to-v2.sql` 同步到该 skill 的 `migrations/log-v1-to-v2/migrate.sql`，迁移记录手工维护；构建适配为 `scripts/build/lightweight-judgment.ts` |
-| `tools/change-plan/` | `skills/change-plan/scripts/change-plan.mjs` 与 `change-plan.mjs.map` |
+| `tools/novel-cards/` | `skills/novel-cards/scripts/novel-cards.ts` 与包内运行时；构建适配为 `scripts/build/novel-cards.ts` |
+| `tools/lightweight-judgment/` | `skills/lightweight-judgment/scripts/lightweight-judgment.ts` 与包内运行时；`migrations/log-v1-to-v2.sql` 同步到该 skill 的 `migrations/log-v1-to-v2/migrate.sql`，迁移记录手工维护；构建适配为 `scripts/build/lightweight-judgment.ts` |
+| `tools/change-plan/` | `skills/change-plan/scripts/change-plan.ts` 与包内运行时 |
 | `tools/decision-records/` | `skills/decision-records/scripts/decision-records.*` 和索引 Schema |
 | `tools/investigation-report/` | `skills/investigation-report/scripts/check-investigations.*` 和索引 Schema |
 | `tools/task-graph/` | `skills/task-graph/scripts/task-graph.*`、包内 SDK 声明树和 task index Schema |
 | `tools/skill-validator/` | `skills/skill-maintainer/scripts/validate-skill.*` |
 | `tools/test-evidence/` | `skills/test-evidence-review/scripts/` 与 `references/schemas/` 中的生成产物 |
-| `tools/skill-updater/` | 每个 skill 的 `scripts/update-skill.*`；具体契约见 [Skill Updater](../tools/skill-updater/README.md) |
-| `tools/index-runtime/` | 不独立分发，由当前领域构建器内联到对应自包含模块 |
-| `tools/mcpshell-workspace-bridge/` | `skills/mcpshell-workspace-tools/scripts/{init-mcpshell-workspace,mcpshell-workspace}.mjs`、关联 source maps 与 `references/mcpshell-tools.yaml` |
+| `tools/skill-updater/` | 每个 skill 的 `scripts/update-skill.ts` 与包内运行时；具体契约见 [Skill Updater](../tools/skill-updater/README.md) |
+| `tools/index-runtime/` | 不独立分发，由当前领域同步器复制到对应包内模块闭包 |
+| `tools/mcpshell-workspace-bridge/` | `skills/mcpshell-workspace-tools/scripts/{init-mcpshell-workspace,mcpshell-workspace}.ts`、包内运行时与 `references/mcpshell-tools.yaml` |
 
 修改 `tools/shared/`、`tools/index-runtime/`、`tools/skill-package/` 或其他跨领域维护源码时，先按上表和实际导入关系定位受影响的领域 consumer；对每个受影响 consumer 依次运行对应全部 `sync:*`，再运行对应 `check:*`。共享目录不因没有独立分发目标而免于同步，也不因其共享身份无条件运行全部 `sync:*`。
 
-Skill hash 和 zip 使用相同的版本管理 `pending` 快照，只覆盖最终进入 `skills/<skill-name>/` zip 的文件。默认 Git 实现把 `pending` 映射到 index，避免工作区覆盖和跨平台换行改变待提交制品。聚合 hash、zip 和 release 检测始终纳入每个包内文件的原始字节；这保证 source map、声明及其他制品字节改变都能得到不同的制品身份。每个 `SKILL.md` frontmatter 的 `metadata.version` 是手动维护的正整数字符串独立版本；版本门禁只对版本承载变化要求提升：`scripts/` 内由相邻 `.mjs` 的最后一个非空行以完整 `//# sourceMappingURL=<basename>` 指令链接的生成 `.mjs.map` 调试元数据编辑、新增或删除不承载版本，成对存在的 `.d.mts` 声明以根目录 `.oxfmtrc.json` 的配置规范化后比较，纯格式差异不承载版本；运行时 `.mjs`、声明语义、普通包内容以及声明的新增或删除仍承载版本，必须提升版本。
+### 制品身份与独立版本
+
+Skill hash 和 zip 使用相同的版本管理 `pending` 快照，只覆盖最终进入 `skills/<skill-name>/` zip 的文件。默认 Git 实现把 `pending` 映射到 index，避免工作区覆盖和跨平台换行改变待提交制品。聚合 hash、zip 和 release 检测始终纳入每个包内文件的原始字节；这保证源码、锁文件、声明及其他制品字节改变都能得到不同的制品身份。每个 `SKILL.md` frontmatter 的 `metadata.version` 是手动维护的正整数字符串独立版本；版本门禁只对版本承载变化要求提升：`scripts/` 内由相邻 `.mjs` 的最后一个非空行以完整 `//# sourceMappingURL=<basename>` 指令链接的生成 `.mjs.map` 调试元数据编辑、新增或删除不承载版本，成对存在的 `.d.mts` 声明以根目录 `.oxfmtrc.json` 的配置规范化后比较，纯格式差异不承载版本；运行时 `.ts`、manifest、锁文件、声明语义、普通包内容以及声明的新增或删除仍承载版本，必须提升版本。
 
 `hash:skills` 只在本次命令运行期间计算全部 skill 的聚合 hash，不把 hash 或 lock 写入仓库。它将 Git `pending` 快照中发生的版本承载变化与指定 Git 基线 `SKILL.md` 中的 `metadata.version` 比较；pre-commit hook 默认使用 `HEAD`。release Gate 将 `--baseline-ref <ref>` 交给 prepare；prepare 在普通 Check 结算期间解析该基线并运行版本分析，authorization 只消费 prepare 保留的结果。本地 release Gate 缺省基线为 `HEAD`，CI 传入事件基线。hash 用于标识本次制品，既不是 updater 输入，也不是长期状态。
 

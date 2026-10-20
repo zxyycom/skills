@@ -6,7 +6,7 @@ import process from "node:process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { resolveInstalledPackageRoot, withTempWorkspace } from "./helpers.ts";
+import { withTempWorkspace } from "./helpers.ts";
 
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -17,84 +17,16 @@ const repositoryRoot = path.resolve(
 const execFileAsync = promisify(execFile);
 const ambientOptionalPeerMarker = "ambient-optional-peer";
 
-function packageDependencyNames(manifestContent: string): readonly string[] {
-  const manifest: unknown = JSON.parse(manifestContent);
-  if (
-    manifest === null ||
-    typeof manifest !== "object" ||
-    Array.isArray(manifest) ||
-    !("dependencies" in manifest) ||
-    manifest.dependencies === undefined
-  ) {
-    return [];
-  }
-  const { dependencies } = manifest;
-  if (
-    dependencies === null ||
-    typeof dependencies !== "object" ||
-    Array.isArray(dependencies) ||
-    !Object.values(dependencies).every(
-      (dependencyVersion) => typeof dependencyVersion === "string"
-    )
-  ) {
-    throw new Error("Package dependencies must map package names to strings");
-  }
-  return Object.keys(dependencies).sort();
-}
-
-async function copyInstalledPackageClosure(
-  packageNames: readonly string[],
-  fromManifestPath: string,
-  targetNodeModules: string
-): Promise<void> {
-  const installed = new Map<string, string>();
-  const pending = packageNames.map((packageName) => ({
-    packageName,
-    fromManifestPath
-  }));
-  while (pending.length > 0) {
-    const next = pending.shift();
-    if (next === undefined) break;
-    const sourcePackageRoot = await resolveInstalledPackageRoot(
-      next.packageName,
-      next.fromManifestPath
-    );
-    const existingSource = installed.get(next.packageName);
-    if (existingSource !== undefined) {
-      if (existingSource !== sourcePackageRoot) {
-        throw new Error(
-          `Build fixture requires conflicting versions of ${next.packageName}`
-        );
-      }
-      continue;
-    }
-    installed.set(next.packageName, sourcePackageRoot);
-    const targetPackageRoot = path.join(
-      targetNodeModules,
-      ...next.packageName.split("/")
-    );
-    await fs.mkdir(path.dirname(targetPackageRoot), { recursive: true });
-    await fs.cp(sourcePackageRoot, targetPackageRoot, { recursive: true });
-    const sourceManifestPath = path.join(sourcePackageRoot, "package.json");
-    for (const dependency of packageDependencyNames(
-      await fs.readFile(sourceManifestPath, "utf8")
-    )) {
-      pending.push({
-        packageName: dependency,
-        fromManifestPath: sourceManifestPath
-      });
-    }
-  }
-}
-
 async function copyTaskGraphBuildCheckout(targetRoot: string): Promise<void> {
   for (const relativePath of [
     "package.json",
     "pnpm-lock.yaml",
     "pnpm-workspace.yaml",
-    "scripts/build/task-graph.ts",
+    "scripts/build",
     "scripts/lib",
     "tools/shared/src",
+    "tools/skill-updater/src",
+    "tools/skill-package/src",
     "tools/task-graph/src"
   ]) {
     const source = path.join(repositoryRoot, relativePath);
@@ -102,29 +34,10 @@ async function copyTaskGraphBuildCheckout(targetRoot: string): Promise<void> {
     await fs.mkdir(path.dirname(target), { recursive: true });
     await fs.cp(source, target, { recursive: true });
   }
-  const rootManifestPath = path.join(repositoryRoot, "package.json");
-  await copyInstalledPackageClosure(
-    [
-      "@types/node",
-      "@types/write-file-atomic",
-      "@typescript/native-preview",
-      "@valibot/to-json-schema",
-      "fast-glob",
-      "simple-git",
-      "valibot",
-      "write-file-atomic"
-    ],
-    rootManifestPath,
-    path.join(targetRoot, "node_modules")
-  );
-  const compilerRoot = await resolveInstalledPackageRoot(
-    "@typescript/native-preview",
-    rootManifestPath
-  );
-  await copyInstalledPackageClosure(
-    [`@typescript/native-preview-${process.platform}-${process.arch}`],
-    path.join(compilerRoot, "package.json"),
-    path.join(targetRoot, "node_modules")
+  await fs.symlink(
+    path.join(repositoryRoot, "node_modules"),
+    path.join(targetRoot, "node_modules"),
+    process.platform === "win32" ? "junction" : "dir"
   );
 }
 
@@ -175,19 +88,13 @@ test(
         "skills",
         "task-graph",
         "scripts",
-        "task-graph.mjs"
+        "task-graph.ts"
       );
       const shortBundle = await fs.readFile(
         path.join(shortCheckout, relativeOutput)
       );
       const longBundle = await fs.readFile(
         path.join(longCheckout, relativeOutput)
-      );
-      const shortSourceMap = await fs.readFile(
-        path.join(shortCheckout, `${relativeOutput}.map`)
-      );
-      const longSourceMap = await fs.readFile(
-        path.join(longCheckout, `${relativeOutput}.map`)
       );
       const relativeDeclaration = path.join(
         "skills",
@@ -219,7 +126,7 @@ test(
         ).sort()
       );
       assert.deepEqual(shortBundle, longBundle);
-      assert.deepEqual(shortSourceMap, longSourceMap);
+
       assert.deepEqual(shortDeclaration, longDeclaration);
       for (const filename of declarationFiles) {
         assert.deepEqual(
@@ -232,17 +139,36 @@ test(
         );
       }
       assert.equal(shortBundle.includes(Buffer.from("debugId=")), false);
-      assert.equal(shortSourceMap.includes(Buffer.from("debugId")), false);
+
       assert.equal(
         shortBundle.includes(Buffer.from(ambientOptionalPeerMarker)),
         false
       );
-      assert.equal(
-        shortBundle.includes(
-          Buffer.from("node_modules/write-file-atomic/lib/index.js")
-        ),
-        true
-      );
+      const runtimePath = path.join("skills/task-graph/scripts/runtime");
+      const runtimeFiles = (
+        await fs.readdir(path.join(shortCheckout, runtimePath), {
+          recursive: true,
+          withFileTypes: true
+        })
+      ).filter((entry) => entry.isFile());
+      for (const entry of runtimeFiles) {
+        const relative = path.relative(
+          path.join(shortCheckout, runtimePath),
+          path.join(entry.parentPath, entry.name)
+        );
+        const shortSource = await fs.readFile(
+          path.join(shortCheckout, runtimePath, relative)
+        );
+        const longSource = await fs.readFile(
+          path.join(longCheckout, runtimePath, relative)
+        );
+        assert.deepEqual(shortSource, longSource);
+        assert.equal(shortSource.includes(Buffer.from(shortCheckout)), false);
+        assert.equal(
+          shortSource.includes(Buffer.from(ambientOptionalPeerMarker)),
+          false
+        );
+      }
     });
   }
 );

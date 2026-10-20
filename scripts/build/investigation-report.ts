@@ -2,98 +2,87 @@ import path from "node:path";
 import {
   buildGeneratedDeclaration,
   buildGeneratedFileHeader,
-  bundleWithBun,
-  parseGeneratedFileMode,
-  syncGeneratedArtifacts,
-  type BunBundleResult
+  type GeneratedFileMode
 } from "../lib/generated-file.ts";
+import { nativeCliEntry } from "../lib/native-cli-entry.ts";
+import {
+  buildSkillRuntimeArtifacts,
+  syncSkillRuntimeArtifacts,
+  runRuntimeAdapter
+} from "../lib/skill-runtime.ts";
 import { githubRepository, rootDir } from "../lib/project.ts";
 import { investigationIndexJsonSchema } from "../../tools/investigation-report/src/investigation-index-json-schema.ts";
 
-const sourceRelativePath = "tools/investigation-report/src/cli.ts";
-const declarationSourceRelativePath =
+const skillName = "investigation-report";
+const sourcePath = "tools/investigation-report/src/cli.ts";
+const declarationSource =
   "tools/investigation-report/api/check-investigations.d.mts";
-const outputRelativePath =
-  "skills/investigation-report/scripts/check-investigations.mjs";
-const declarationOutputRelativePath =
-  "skills/investigation-report/scripts/check-investigations.d.mts";
-const schemaSourceRelativePath =
-  "tools/investigation-report/src/investigation-index-json-schema.ts";
-const schemaOutputRelativePath =
-  "skills/investigation-report/references/investigation-index.schema.json";
-
-async function buildArtifact(): Promise<BunBundleResult> {
-  return await bundleWithBun({
-    banner: buildGeneratedFileHeader({
-      artifactName: "investigation report checker and index synchronizer",
-      rebuildCommand: "bun run sync:investigation-report-check",
-      repository: githubRepository,
-      skillSourcePath: "skills/investigation-report",
-      sourcePath: sourceRelativePath
-    }),
-    cwd: rootDir,
-    entryPath: path.join(rootDir, sourceRelativePath),
-    format: "esm",
-    keepNames: true,
-    minify: true,
-    outputFileName: path.basename(outputRelativePath),
-    sourceMapBaseDirectory: path.dirname(
-      path.join(rootDir, outputRelativePath)
-    ),
-    sourceMap: true,
-    unsupportedOptionalPackages: ["supports-color"]
+const rebuildCommand = "bun run sync:investigation-report-check";
+export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
+  const entry = await nativeCliEntry({
+    sourcePath,
+    outputName: "check-investigations.ts",
+    runner: "runInvestigationReportCheckCli",
+    declarationName: "check-investigations.d.mts",
+    typedExports: [
+      "createInvestigationCandidate",
+      "discardInvestigationRecord",
+      "listInvestigationCandidates",
+      "publishInvestigationCandidates",
+      "queryInvestigationIndex",
+      "renameInvestigationRecord",
+      "runInvestigationReportCheckCli",
+      "searchInvestigationReports",
+      "setInvestigationRelations",
+      "showInvestigationCandidate",
+      "showInvestigationReport",
+      "stageInvestigationReports",
+      "synchronizeInvestigationIndex",
+      "traceInvestigationReports",
+      "validateInvestigationReports"
+    ]
   });
-}
-
-async function main(): Promise<void> {
-  const mode = parseGeneratedFileMode(process.argv.slice(2));
-  const outputPath = path.join(rootDir, outputRelativePath);
-  const expected = await buildArtifact();
-  const expectedDeclaration = await buildGeneratedDeclaration({
-    banner: buildGeneratedFileHeader({
-      artifactName: "investigation report checker TypeScript declarations",
-      rebuildCommand: "bun run sync:investigation-report-check",
-      repository: githubRepository,
-      skillSourcePath: "skills/investigation-report",
-      sourcePath: declarationSourceRelativePath
-    }),
-    sourcePath: path.join(rootDir, declarationSourceRelativePath)
+  const artifacts = await buildSkillRuntimeArtifacts({
+    skillName,
+    rebuildCommand,
+    nodeEngine: ">=24.18",
+    entries: [entry]
   });
-  const expectedSchema = `${JSON.stringify(investigationIndexJsonSchema, null, 2)}\n`;
-  if (expected.sourceMap === null) {
-    throw new Error(
-      "Investigation report checker bundle must include a source map"
-    );
-  }
-
-  const changed = await syncGeneratedArtifacts(
-    [
-      { content: expected.code, path: outputPath },
-      { content: expected.sourceMap, path: `${outputPath}.map` },
-      {
-        content: expectedDeclaration,
-        path: path.join(rootDir, declarationOutputRelativePath),
-        sourcePath: declarationSourceRelativePath
-      },
-      {
-        content: expectedSchema,
-        path: path.join(rootDir, schemaOutputRelativePath),
-        sourcePath: schemaSourceRelativePath
-      }
-    ],
-    mode,
-    rootDir,
-    sourceRelativePath
+  artifacts.push(
+    {
+      content: await buildGeneratedDeclaration({
+        banner: buildGeneratedFileHeader({
+          artifactName: "investigation report checker TypeScript declarations",
+          rebuildCommand,
+          repository: githubRepository,
+          skillSourcePath: `skills/${skillName}`,
+          sourcePath: declarationSource
+        }),
+        sourcePath: path.join(rootDir, declarationSource)
+      }),
+      path: path.join(
+        rootDir,
+        "skills/investigation-report/scripts/check-investigations.d.mts"
+      ),
+      sourcePath: declarationSource
+    },
+    {
+      content: `${JSON.stringify(investigationIndexJsonSchema, null, 2)}\n`,
+      path: path.join(
+        rootDir,
+        "skills/investigation-report/references/investigation-index.schema.json"
+      ),
+      sourcePath:
+        "tools/investigation-report/src/investigation-index-json-schema.ts"
+    }
   );
-
-  if (mode === "check" && changed) {
-    process.exit(1);
-  }
-  if (!changed) {
-    console.log(
-      "Investigation report checker generated artifacts are current."
-    );
-  }
+  return await syncSkillRuntimeArtifacts(artifacts, {
+    mode,
+    skillName,
+    retiredPaths: [
+      "scripts/check-investigations.mjs",
+      "scripts/check-investigations.mjs.map"
+    ]
+  });
 }
-
-await main();
+await runRuntimeAdapter(import.meta.url, syncRuntime);

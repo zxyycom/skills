@@ -1,0 +1,72 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/change-plan/src/finalize-result.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/change-plan/src/finalize-result.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/change-plan/src/finalize-result.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/change-plan
+ * Rebuild: bun run sync:change-plan-cli
+ */
+import type { ChangePlanCheckResult } from "./types.ts";
+import type { ChangeDeletionOutcome } from "./change-deletion-types.ts";
+
+export type ChangePlanFinalizeResult = Readonly<{
+  changed: boolean;
+  check: ChangePlanCheckResult | null;
+  error: string | null;
+  headCommit: string | null;
+  memberCount: number;
+  outcome: ChangeDeletionOutcome | "preflight";
+  sourceDirectory: string;
+  tombstoneDirectory: string | null;
+}>;
+
+export function finalizeGateError(check: ChangePlanCheckResult): string | null {
+  if (!check.valid) return "change plan must pass check before finalize";
+  if (check.stage !== "plan")
+    return "change plan must be a plan before finalize";
+  return check.completedTaskCount === check.taskCount
+    ? null
+    : `all tasks must be completed before finalize: ${check.completedTaskCount}/${check.taskCount}`;
+}
+export function matchesFinalizationSnapshot(
+  check: ChangePlanCheckResult,
+  headCommit: string
+): boolean {
+  return (
+    check.stage === "plan" &&
+    check.metadata?.stage === "plan" &&
+    check.distance?.headCommit === headCommit
+  );
+}
+export function sameFinalizationLifecycle(
+  initial: ChangePlanCheckResult,
+  refreshed: ChangePlanCheckResult
+): boolean {
+  return (
+    initial.stage === refreshed.stage &&
+    initial.taskCount === refreshed.taskCount &&
+    initial.completedTaskCount === refreshed.completedTaskCount &&
+    initial.metadata?.stage === refreshed.metadata?.stage &&
+    planBaseCommit(initial) === planBaseCommit(refreshed)
+  );
+}
+export function finalizeFailure(
+  sourceDirectory: string,
+  check: ChangePlanCheckResult | null,
+  error: string
+): ChangePlanFinalizeResult {
+  return {
+    changed: false,
+    check,
+    error,
+    headCommit: null,
+    memberCount: 0,
+    outcome: "no-change",
+    sourceDirectory,
+    tombstoneDirectory: null
+  };
+}
+function planBaseCommit(check: ChangePlanCheckResult): string | null {
+  return check.metadata?.stage === "plan" ? check.metadata.baseCommit : null;
+}

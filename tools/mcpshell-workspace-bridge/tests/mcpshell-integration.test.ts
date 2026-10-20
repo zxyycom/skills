@@ -167,9 +167,10 @@ async function copyGeneratedSkill(targetSkill: string): Promise<void> {
     path.join(distributedSkill, "references", "mcpshell-tools.yaml"),
     path.join(targetSkill, "references", "mcpshell-tools.yaml")
   );
-  await fs.copyFile(
-    path.join(distributedSkill, "scripts", "mcpshell-workspace.mjs"),
-    path.join(targetSkill, "scripts", "mcpshell-workspace.mjs")
+  await fs.cp(
+    path.join(distributedSkill, "scripts"),
+    path.join(targetSkill, "scripts"),
+    { recursive: true }
   );
 }
 

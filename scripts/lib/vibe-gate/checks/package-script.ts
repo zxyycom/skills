@@ -69,6 +69,13 @@ export const releaseBunTestPackageFiles = {
   Readonly<Record<GatePackageScript, readonly string[]>>
 >;
 
+// Providers establish the trust boundary for tests that import distributed files.
+export const packageScriptDependencies: Readonly<
+  Partial<Record<GatePackageScript, readonly GatePackageScriptCheckId[]>>
+> = {
+  "test:skill-updater": ["script:check:skill-updaters"]
+};
+
 export function packageScriptCheckId(
   script: GatePackageScript
 ): GatePackageScriptCheckId {
@@ -82,6 +89,9 @@ export function createPackageScriptCheck(
   return defineCheck({
     checkId: packageScriptCheckId(script),
     displayName: `Script: ${script}`,
+    ...(packageScriptDependencies[script] === undefined
+      ? {}
+      : { dependsOn: packageScriptDependencies[script] }),
     resourceClaims: externalProcessClaim,
     async execution({ artifactDirectory, project, signal }) {
       return await executeGateCommand({

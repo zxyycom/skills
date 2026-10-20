@@ -8,3 +8,5 @@ await import("./lifecycle.test.ts");
 await import("./markdown.test.ts");
 await import("./metadata.test.ts");
 await import("./repository-boundary.test.ts");
+
+await import("./source-distribution.test.ts");

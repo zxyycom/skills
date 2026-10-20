@@ -72,7 +72,7 @@ function runTaskGraph(argv) {
     "skills",
     "task-graph",
     "scripts",
-    "task-graph.mjs"
+    "task-graph.ts"
   );
   if (!existsSync(cliPath)) {
     throw new Error(`the selected project has no task-graph CLI at ${cliPath}`);

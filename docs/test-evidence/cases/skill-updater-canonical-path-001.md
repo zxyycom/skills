@@ -1,7 +1,7 @@
 ### Case SKILL-UPDATER-CANONICAL-PATH-001: Updater 拒绝非规范包路径别名
 
 Tests:
-- `test:fd09e9c0d5af946bd76072598991e9e97e108e2db2b9be989c30bdc8dd0f8270`
+- `test:384b917b7fb93a436532f1d38be2d9a4031ede5495c73a6a876a73036956d703`
 
 Tags:
 - `skill-updater`

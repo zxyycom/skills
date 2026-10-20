@@ -1,3 +1,4 @@
+import { copyRuntimeScriptsSync } from "../../shared/tests/distribution-fixture.ts";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
@@ -12,10 +13,17 @@ import { request } from "./runtime-fixture.ts";
 type Contention = "release" | "held" | "error" | "not-wal";
 
 function journalWorker(directory: string, databasePath: string): string {
-  const bundle = path.join(directory, "judgment.mjs");
+  const bundle = path.join(directory, "judgment.ts");
+  copyRuntimeScriptsSync(
+    new URL(
+      "../../../skills/lightweight-judgment/scripts/lightweight-judgment.ts",
+      import.meta.url
+    ),
+    path.dirname(bundle)
+  );
   fs.copyFileSync(
     new URL(
-      "../../../skills/lightweight-judgment/scripts/lightweight-judgment.mjs",
+      "../../../skills/lightweight-judgment/scripts/lightweight-judgment.ts",
       import.meta.url
     ),
     bundle
@@ -59,7 +67,7 @@ function controlledJournal(
       [
         worker,
         mode,
-        path.join(directory, "judgment.mjs"),
+        path.join(directory, "judgment.ts"),
         path.join(directory, "config.json"),
         path.join(directory, "continue"),
         JSON.stringify(request)

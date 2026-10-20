@@ -1,3 +1,7 @@
+import {
+  isSkillPackagePath,
+  readSkillPackageFile
+} from "./skill-package-files.ts";
 import { format, type FormatConfig } from "oxfmt";
 import {
   openVersionControl,
@@ -183,7 +187,9 @@ function groupBaselinePathsBySkill(
       baselinePath === tree.treePath
         ? ""
         : baselinePath.slice(`${tree.treePath}/`.length);
-    pathsBySkill.get(tree.skillName)?.push(relativePath);
+    if (isSkillPackagePath(relativePath)) {
+      pathsBySkill.get(tree.skillName)?.push(relativePath);
+    }
   }
   for (const skillPaths of pathsBySkill.values()) {
     skillPaths.sort((left, right) => left.localeCompare(right));
@@ -213,10 +219,7 @@ async function readChangedSkillBaselineVersion(
         `Baseline revision ${options.revision} did not return listed file ${baselinePath}`
       );
     }
-    return {
-      data: Buffer.from(baselineFile.data),
-      path: skillBaselinePath
-    };
+    return readSkillPackageFile(baselineFile, skillBaselinePath) ?? undefined;
   }
 
   if (

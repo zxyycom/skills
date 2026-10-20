@@ -264,7 +264,7 @@ first-parent 历史上、当前仓库没有 `HEAD` 或版本控制操作失败�
 
 脚本安装位置与 Change 路径解析基准彼此独立。保持 shell 当前工作目录在目标项目根目录，并用 skill
 的实际安装路径调用脚本；以下 `<change-plan-cli>` 表示
-`<skill-directory>/scripts/change-plan.mjs`。默认根目录和所有相对路径参数都相对 shell 当前
+`<skill-directory>/scripts/change-plan.ts`。默认根目录和所有相对路径参数都相对 shell 当前
 工作目录解析。
 
 CLI 仅提供以下六个命令：
@@ -394,10 +394,10 @@ outcome、source、HEAD recovery revision、member count 与 precise tombstone�
 diagnostic；JSON 保留同一结构并以 0 退出。
 `--json` 把成功和领域失败的结构结果写入 stdout；非法参数始终写入 stderr。
 
-### MJS 直接导入边界
+### TS 直接导入边界
 
-`scripts/change-plan.mjs` 可以作为 ESM 直接 import，当前运行时导出 list、show、单项 check、集合
+`scripts/change-plan.ts` 可以作为 ESM 直接 import，当前运行时导出 list、show、单项 check、集合
 check、plan、finalize、metadata 解析与读取以及 CLI runner 对应的底层函数。该能力用于直接复用当前
-实现，不建立稳定 SDK：`change-plan.mjs` 不配套生成 `.d.mts`、SDK 声明树或 metadata JSON Schema，
+实现，不建立稳定 SDK：`change-plan.ts` 不配套生成 `.d.mts`、SDK 声明树或 metadata JSON Schema，
 也不承诺导出集合和函数签名跨版本兼容。需要稳定交互时使用本节定义的 CLI 与 JSON 输出；直接 import
 的调用方需随当前实现同步调整。

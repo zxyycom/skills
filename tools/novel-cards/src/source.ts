@@ -66,7 +66,10 @@ function verifyUnchanged(stat: Stats, after: Stats, file: string): void {
 class SourceScanner {
   private readonly records: CardRecord[] = [];
   private totalBytes = 0;
-  constructor(private readonly root: string) {}
+  private readonly root: string;
+  constructor(root: string) {
+    this.root = root;
+  }
 
   async read(): Promise<Source> {
     await requireDirectory(this.root);

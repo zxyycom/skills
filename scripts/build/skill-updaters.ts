@@ -1,192 +1,75 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import {
-  buildGeneratedDeclaration,
-  buildGeneratedFileHeader,
-  bundleWithBun,
-  parseGeneratedFileMode,
-  syncGeneratedArtifacts,
-  type BunBundleResult,
-  type GeneratedFileMode
-} from "../lib/generated-file.ts";
-import {
-  discoverSkillPackages,
-  githubRepository,
-  rootDir,
-  type SkillPackage
-} from "../lib/project.ts";
-import { pathExists, toPosix } from "../../tools/shared/src/node/filesystem.ts";
+import { isMainModule } from "../../tools/shared/src/node/main-module.ts";
+import { parseGeneratedFileMode } from "../lib/generated-file.ts";
+import { githubRepository } from "../lib/project.ts";
+import type { SourceRuntimeOptions } from "../lib/source-runtime.ts";
 import { skillReleaseManifestFileName } from "../../tools/skill-package/src/release-manifest.ts";
 import type { UpdaterConfig } from "../../tools/skill-updater/src/types.ts";
 
-const templateRelativePath = "tools/skill-updater/src/index.ts";
-const declarationSourceRelativePath =
-  "tools/skill-updater/api/update-skill.d.mts";
-const updaterRelativePath = path.join("scripts", "update-skill.mjs");
-const declarationRelativePath = path.join("scripts", "update-skill.d.mts");
-const skillNameTemplateToken = "__CODEX_SKILL_NAME__";
-const legacyUpdaterRelativePaths = [
-  path.join("scripts", "update-skill.cjs"),
-  path.join("scripts", "update-skill.cjs.map"),
-  path.join("scripts", "update-skill.d.cts"),
-  path.join("scripts", "update-skill.js"),
-  path.join("scripts", "update-skill.js.map")
+export const updaterRetiredPaths: readonly string[] = [
+  "scripts/update-skill.mjs",
+  "scripts/update-skill.mjs.map",
+  "scripts/update-skill.d.mts",
+  "scripts/update-skill.cjs",
+  "scripts/update-skill.cjs.map",
+  "scripts/update-skill.d.cts",
+  "scripts/update-skill.js",
+  "scripts/update-skill.js.map"
 ];
 
-type UpdaterArtifacts = {
-  bundle: BunBundleResult;
-  declaration: string;
-};
-
-function buildConfig(skill: SkillPackage): UpdaterConfig {
-  return {
-    releaseAssetName: `${skill.name}.zip`,
+/** The caller combines this entry with all domain entries before one sync. */
+export function buildSkillUpdaterEntry(
+  skillName: string
+): SourceRuntimeOptions["entries"][number] {
+  const config: UpdaterConfig = {
+    releaseAssetName: `${skillName}.zip`,
     releaseManifestAssetName: skillReleaseManifestFileName,
     repo: githubRepository,
-    skillName: skill.name,
-    sourcePath: toPosix(path.relative(rootDir, skill.directory))
+    skillName,
+    sourcePath: `skills/${skillName}`
   };
-}
-
-async function buildUpdater(
-  skill: SkillPackage,
-  config: UpdaterConfig
-): Promise<UpdaterArtifacts> {
-  const header = buildGeneratedFileHeader({
-    additionalLines: [
-      `Release manifest asset: https://github.com/${config.repo}/releases/latest/download/${config.releaseManifestAssetName}`,
-      `Release asset: https://github.com/${config.repo}/releases/latest/download/${config.releaseAssetName}`
-    ],
-    artifactName: "skill self-updater",
-    rebuildCommand: "bun run sync:skill-updaters",
-    repository: config.repo,
-    skillSourcePath: config.sourcePath,
-    sourcePath: templateRelativePath
-  });
-  const bundle = await bundleWithBun({
-    banner: `${header}\nvar __SKILL_UPDATE_CONFIG__=${JSON.stringify(config)};`,
-    cwd: rootDir,
-    entryPath: path.join(rootDir, templateRelativePath),
-    format: "esm",
-    keepNames: true,
-    minify: true,
-    outputFileName: path.basename(updaterRelativePath),
-    sourceMapBaseDirectory: path.dirname(
-      path.join(skill.directory, updaterRelativePath)
-    ),
-    sourceMap: true
-  });
-  const declaration = await buildGeneratedDeclaration({
-    banner: buildGeneratedFileHeader({
-      artifactName: "skill self-updater TypeScript declarations",
-      rebuildCommand: "bun run sync:skill-updaters",
-      repository: config.repo,
-      skillSourcePath: config.sourcePath,
-      sourcePath: declarationSourceRelativePath
-    }),
-    sourcePath: path.join(rootDir, declarationSourceRelativePath)
-  });
-  return { bundle, declaration };
-}
-
-function renderUpdater(
-  template: UpdaterArtifacts,
-  skillName: string
-): UpdaterArtifacts {
-  const render = (content: string): string =>
-    content.replaceAll(skillNameTemplateToken, skillName);
   return {
-    bundle: {
-      code: render(template.bundle.code),
-      sourceMap:
-        template.bundle.sourceMap === null
-          ? null
-          : render(template.bundle.sourceMap)
-    },
-    declaration: render(template.declaration)
+    sourcePath: "tools/skill-updater/src/index.ts",
+    outputName: "update-skill.ts",
+    body: `// Release manifest asset: https://github.com/${config.repo}/releases/latest/download/${config.releaseManifestAssetName}
+// Release asset: https://github.com/${config.repo}/releases/latest/download/${config.releaseAssetName}
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import type { UpdaterConfig } from "./runtime/tools/skill-updater/src/types.ts";
+export type { UpdaterConfig } from "./runtime/tools/skill-updater/src/types.ts";
+
+export const skillUpdaterConfig: Readonly<UpdaterConfig> = Object.freeze(${JSON.stringify(config, null, 2)});
+
+export async function runSkillUpdaterCli(
+  argv: readonly string[] = process.argv.slice(2)
+): Promise<number> {
+  let runtime: typeof import("./runtime/tools/skill-updater/src/index.ts");
+  const skillDirectory = fileURLToPath(new URL("../", import.meta.url));
+  const installCommand = 'pnpm --dir ' + JSON.stringify(skillDirectory) + ' install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated';
+  try {
+    // Load the complete updater before any package files can be overwritten.
+    runtime = await import("./runtime/tools/skill-updater/src/index.ts");
+  } catch (error) {
+    const diagnostic = error instanceof Error ? error.message : String(error);
+    throw new Error('Unable to load skill updater runtime: ' + diagnostic + '\\nRestore compatible dependencies explicitly:\\n  ' + installCommand + '\\nIf runtime files or the manifest/lockfile are damaged, re-obtain this skill and retry. No installation was attempted.', { cause: error });
+  }
+  return await runtime.runSkillUpdaterCli(skillUpdaterConfig, import.meta.url, argv);
+}
+
+if (process.argv[1] !== undefined && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
+  try {
+    process.exitCode = await runSkillUpdaterCli();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
+}`
   };
 }
 
-async function syncSkillUpdater(
-  skill: SkillPackage,
-  expected: UpdaterArtifacts,
-  mode: GeneratedFileMode
-): Promise<boolean> {
-  const outputPath = path.join(skill.directory, updaterRelativePath);
-  let changed = false;
-
-  for (const legacyRelativePath of legacyUpdaterRelativePaths) {
-    const legacyOutputPath = path.join(skill.directory, legacyRelativePath);
-    if (!(await pathExists(legacyOutputPath))) {
-      continue;
-    }
-
-    if (mode === "check") {
-      console.error(
-        `${toPosix(path.relative(rootDir, legacyOutputPath))} should be removed; ` +
-          "updater modules are generated as update-skill.mjs"
-      );
-      changed = true;
-    } else {
-      await fs.rm(legacyOutputPath);
-      console.log(
-        `Removed ${toPosix(path.relative(rootDir, legacyOutputPath))}`
-      );
-      changed = true;
-    }
-  }
-
-  if (expected.bundle.sourceMap === null) {
-    throw new Error(
-      `Bundled ${templateRelativePath} must include a source map`
-    );
-  }
-
-  return (
-    (await syncGeneratedArtifacts(
-      [
-        { content: expected.bundle.code, path: outputPath },
-        { content: expected.bundle.sourceMap, path: `${outputPath}.map` },
-        {
-          content: expected.declaration,
-          path: path.join(skill.directory, declarationRelativePath),
-          sourcePath: declarationSourceRelativePath
-        }
-      ],
-      mode,
-      rootDir,
-      templateRelativePath
-    )) || changed
-  );
-}
-
-const mode = parseGeneratedFileMode(process.argv.slice(2));
-const discovery = await discoverSkillPackages(rootDir);
-if (discovery.errors.length > 0) {
-  throw new Error(
-    `Cannot sync skill updaters:\n- ${discovery.errors.join("\n- ")}`
-  );
-}
-
-let changed = false;
-const templateSkill: SkillPackage = {
-  directory: path.join(rootDir, "skills", skillNameTemplateToken),
-  name: skillNameTemplateToken
-};
-const updaterTemplate = await buildUpdater(
-  templateSkill,
-  buildConfig(templateSkill)
-);
-
-for (const skill of discovery.skills) {
-  const expected = renderUpdater(updaterTemplate, skill.name);
-  changed = (await syncSkillUpdater(skill, expected, mode)) || changed;
-}
-
-if (mode === "check" && changed) {
-  process.exit(1);
-}
-
-if (!changed) {
-  console.log("Skill updater scripts are current.");
+if (isMainModule(import.meta.url)) {
+  const mode = parseGeneratedFileMode(process.argv.slice(2));
+  // The registry owns each skill's complete entry set, including its updater.
+  const { syncAllSkillRuntimes } = await import("../lib/skill-runtime.ts");
+  const changed = await syncAllSkillRuntimes(mode);
+  if (mode === "check" && changed) process.exitCode = 1;
 }

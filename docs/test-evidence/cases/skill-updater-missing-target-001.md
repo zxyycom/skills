@@ -1,7 +1,7 @@
 ### Case SKILL-UPDATER-MISSING-TARGET-001: Updater 可安装到缺失目录
 
 Tests:
-- `test:476914cc0b2f59c15f5d39d5c2f039d2694e3724c2ead91c097751946e286b1a`
+- `test:ec13734eb726012e6dc26bf788037ee0d621e1d5111b56f1eb005f798959ddae`
 
 Tags:
 - `skill-updater`

@@ -1,13 +1,13 @@
-### Case SKILL-UPDATER-DECLARATIONS-001: Updater 声明公开稳定 API 契约
+### Case SKILL-UPDATER-DECLARATIONS-001: Updater TS 入口公开稳定 API 与类型
 
 Tests:
-- `test:96898b3e00bed891551e79cbdeb29d8329eee86f93624a6161ad7036b36ec95c`
+- `test:9882e1a719d7e6eaa21598fe221a3751b2053ccdbeb78ea383c841b9592f7b7b`
 
 Tags:
 - `skill-updater`
 
 Contract:
-- 生成声明必须指向维护源并公开配置字段、目标名称约束和执行入口。
+- 公开 TS 入口必须追溯维护源，并提供 updater 配置、执行入口和 UpdaterConfig 类型。
 
 Proves:
-- 声明包含 manifest 资产、期望 skill 名称、CLI 函数与配置导出。
+- 入口明确导出公共 API；独立 TS 消费者通过原生可擦除语法类型检查，配置与函数签名兼容公开契约。

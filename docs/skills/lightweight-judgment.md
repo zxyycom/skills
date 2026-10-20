@@ -12,7 +12,7 @@ agent 负责选择局部任务、组织输入、复核结果并继续原任务�
 
 调用日志默认关闭。手动开启后，本地 SQLite 保存调用状态及选定的请求／响应正文，供进程中断后核对。离线 `stats` 汇总已有日志的用量／耗时，支持分层、分桶与批次首条对照；每次推理仍直接调用，不自动重放。
 
-skill 包含行为文档、自包含 CLI／source map、Codex 调用策略与通用 updater。分发后使用 Node.js 直接运行；仓库内可从 `bun run lightweight-judgment -- --help` 开始。
+skill 包含行为文档、TS CLI 与模块源码、Codex 调用策略和通用 updater。分发后按[工具运行前置](../../skills/lightweight-judgment/SKILL.md#工具运行前置)复用兼容依赖或显式安装，再使用 Node.js 直接运行；仓库内可从 `bun run lightweight-judgment -- --help` 开始。
 
 ## 阅读入口
 

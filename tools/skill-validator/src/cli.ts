@@ -7,7 +7,7 @@ import { validateSkillDirectory } from "./validation.ts";
 function printHelp(): void {
   console.log(
     [
-      "Usage: validate-skill.mjs [skill-directory]",
+      "Usage: validate-skill.ts [skill-directory]",
       "",
       "Validate the portable structure contract of a Codex skill.",
       "The current directory is used when skill-directory is omitted.",

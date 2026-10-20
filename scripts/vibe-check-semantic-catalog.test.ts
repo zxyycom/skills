@@ -8,6 +8,7 @@ import {
   releaseTestBatchGroups,
   semanticGateChecks
 } from "./lib/vibe-gate.ts";
+import { packageScriptDependencies } from "./lib/vibe-gate/checks/package-script.ts";
 import { expectedSemanticChecks } from "./vibe-check-catalog-fixture.ts";
 import { repositoryRoot } from "./vibe-check-test-support.ts";
 
@@ -153,9 +154,14 @@ test("release test batch catalog matches command and package manifests", async (
           (check) => check.command.command === "bun" && !("dependsOn" in check)
         )
         .map(({ checkId }) => checkId),
-      ...Object.keys(releaseBunTestPackageFiles).map(
-        (script) => `script:${script}`
-      )
+      ...Object.keys(releaseBunTestPackageFiles)
+        .filter(
+          (script) =>
+            packageScriptDependencies[
+              script as keyof typeof packageScriptDependencies
+            ] === undefined
+        )
+        .map((script) => `script:${script}`)
     ]
   );
 });

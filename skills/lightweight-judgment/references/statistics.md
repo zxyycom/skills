@@ -9,9 +9,9 @@
 3. 检查退出码与 `ok`，成功后先核对调用数、指标覆盖与批次完整性，再解读分布。
 
 ```bash
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs stats
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs stats --database /absolute/private/calls.sqlite3
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs stats \
+node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts stats
+node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts stats --database /absolute/private/calls.sqlite3
+node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts stats \
   --database /absolute/private/calls.sqlite3 \
   --from 2026-10-01T00:00:00Z --to 2026-10-02T00:00:00Z \
   --group-by adapterContract,endpoint,responseModel,status,tag:suite \
@@ -81,7 +81,7 @@ stdout 为 `{ ok, result, meta, error }`，`meta.attempts: 0` 且无 `meta.persi
 需要后续批次对照时，在已获授权的 `json`／`ask` 调用中提供本地元数据；它们保存到启用的日志，不进入 HTTP 请求。以下批次 ID 与标签仅为示例，实际值由当前比较目标确定：
 
 ```bash
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json \
+node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts json \
   --file /absolute/path/request.json --run-id batch-20261001 --run-index 1 \
   --tag suite=classification --tag variant=original
 ```

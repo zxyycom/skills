@@ -7,8 +7,8 @@ Tags:
 - `task-graph`
 
 Contract:
-- portable-build 只证明 Task Graph 生成入口不受 checkout 绝对路径和 checkout 依赖树外的祖先 optional peer 影响：bundle、source map、声明入口和完整声明树必须逐字节一致。
-- 它不承接运行时导出、SDK 声明可消费性、Schema 或分发依赖边界；这些公共分发契约由 `TASK-GRAPH-DISTRIBUTION-001` 承接。
+- TS 生成不受 checkout 绝对路径或祖先 optional peer 影响；自有运行时、声明入口和闭包内容保持可移植。
 
 Proves:
-- 在共同祖先目录预置 checkout 依赖树之外的 `supports-color` fixture 后，两个不同长度的隔离源码与依赖树分别执行真实生成入口；`task-graph.mjs`、`.map`、根声明和声明树仍逐字节一致，bundle 不包含祖先 fixture，且 bundle 与 source map 不保留构建相关 debug ID。
+- 两个不同长度的独立源码检出复用显式准备的构建依赖，实际生成公开 TS、完整运行树、声明入口与声明树，逐字节相同。
+- 生成内容没有检出绝对路径、祖先 supports-color fixture 或构建 debug ID；不约束实际运行时正常解析兼容宿主依赖。

@@ -5,7 +5,7 @@ description: >-
   用低成本、低延迟的结构化判断处理分类、候选选择、相关性筛选、命题判断
   和程度评分；以 JEV 载体调用 JEV 或 OpenAI Decisions，复核类型化结果后继续原任务。
 metadata:
-  version: "10"
+  version: "11"
 ---
 
 # Lightweight Judgment
@@ -16,7 +16,7 @@ metadata:
 
 把输出空间明确的局部语义判断交给所选 JEV 或 OpenAI Decisions 合同，取得类别、候选、概率、分数或 JEV 图像定位框，供当前 agent 继续原任务。agent 负责取得材料、定义问题、复核结果和完成后续动作；CLI 负责单次请求与协议校验。
 
-配套 CLI 随 skill 分发，通过 Node.js 直接运行 `scripts/lightweight-judgment.mjs`；运行时前置和完整用法见 [CLI 操作契约](references/cli.md)。
+配套 CLI 随 skill 分发，通过 Node.js 直接运行 `scripts/lightweight-judgment.ts`；运行时前置和完整用法见 [CLI 操作契约](references/cli.md)。
 
 ## 任务入口与读取
 
@@ -35,6 +35,19 @@ metadata:
 | 日志结构不受支持 | 无需历史时按[旧库处理](references/call-logging.md#当前格式与旧库处理)重新建库；需要保留历史时才读取对应版本的迁移说明 |
 
 判断任务适用性、调整输入表示或分析异常时，按主题读取 [JEV 使用边界与任务验证](references/jev-characteristics.md)；其中 JEV 模型特性不外推到 OpenAI。上述参考均随 skill 分发，执行不依赖仓库调查报告。
+
+## 工具运行前置
+
+运行下文公开 `.ts` CLI/import 或自更新入口时，使用 Node.js `>=24.18` 的原生类型擦除。
+依赖沿 Node 正常解析，可复用宿主兼容版本，不要求本地 `node_modules` 或与锁文件精确版本一致。
+依赖缺失、实际不兼容或需要复现随包基线时，使用随包 `package.json` 固定的 pnpm 显式安装：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行、import、help 和检查不自动安装。安装副本中的 `scripts/runtime/tools/` 可直接修改，无需构建；
+更新会覆盖正式包中的同路径定制文件。领域操作的其他前置仍由各自操作契约承接。
 
 ## 任务选择
 
@@ -88,7 +101,7 @@ Noul 接近 0.5 只表示肯定与否定概率相近，不表示程度中等或�
 复杂正文用文件或 stdin，简单单题用参数；精确用法见 CLI 契约。以下绝对路径为占位示例，调用前替换为实际路径：
 
 ```bash
-node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json --file /absolute/path/request.json
+node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts json --file /absolute/path/request.json
 ```
 
 正常有效请求一次发送。先检查退出码与 `ok`，再检查 `normalized.completion`，按原问题 ID 读取 `normalized.answers` 的逐题 status 与值；`result` 为未改写的 provider 原答。直接 `openai-decisions` 支持的合法拒答不等于技术失败，也不提供数值答案；不能按模型家族向其他 adapter 外推拒答合同。CLI 按[输出与校验契约](references/cli.md#输出与校验)检查 schema 与题目对应；协议异常按技术失败处理，原始响应保持不变。
@@ -110,3 +123,9 @@ node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs json -
 - 发起判断时，委托范围、输入、输出空间和数据外发与原任务一致；响应通过协议检查，模型原始判断与最终采用方式可区分，并已交回原任务。
 - 本地检查／预览交付本地结果；统计交付筛选范围、指标覆盖与汇总；记录核对区分已取回、已验证与仍不确定的内容。这些任务不以新增推理为完成条件。
 - 技术失败、前置缺口与不确定项有明确出口；仅准备请求或离线预览时，不宣称模型判断已完成。
+
+## 自更新
+
+在本 skill 目录运行 `node scripts/update-skill.ts`，运行前置与依赖修复见[工具运行前置](#工具运行前置)。
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。
+更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

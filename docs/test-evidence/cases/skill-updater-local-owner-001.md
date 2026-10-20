@@ -1,7 +1,7 @@
 ### Case SKILL-UPDATER-LOCAL-OWNER-001: Updater 拒绝其他 skill 拥有的目录
 
 Tests:
-- `test:e669da5d2933c6d5e14ab4e19c7808c7d6cddb55d998f3d4a22824d4b0333cb7`
+- `test:fe0e287c0e398a425d998deff1fdcf4eb9959b01722b9aac2aa6bf2566153371`
 
 Tags:
 - `skill-updater`

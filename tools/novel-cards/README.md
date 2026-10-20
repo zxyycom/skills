@@ -36,4 +36,4 @@ bun run sync:novel-cards-cli
 bun run check:novel-cards-cli
 ```
 
-构建适配 `scripts/build/novel-cards.ts` 生成 skill 包内 MJS 和 linked source map。生成物不手工编辑，无稳定 SDK 承诺；模块 import 不进入 CLI 或写入。测试临时目录由测试创建并在结束清理。
+同步适配 `scripts/build/novel-cards.ts` 将公开 TS 入口和所需模块写入 skill 包。仓库维护修改本目录源码后再同步；安装者可直接修改包内 TS，无需构建，但同路径更新会覆盖定制。公开入口无稳定 SDK 承诺，模块 import 不进入 CLI 或写入；运行前置见 [Skill](../../skills/novel-cards/SKILL.md#工具运行前置)。测试临时目录由测试创建并在结束清理。

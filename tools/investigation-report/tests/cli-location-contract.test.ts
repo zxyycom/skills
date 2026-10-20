@@ -216,7 +216,7 @@ test("investigation CLI normalizes the configured relative investigations direct
 
   await program.parseAsync([
     "node",
-    "check-investigations.mjs",
+    "check-investigations.ts",
     "check",
     "--investigations-dir",
     "./docs/investigations/"

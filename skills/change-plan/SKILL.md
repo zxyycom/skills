@@ -5,7 +5,7 @@ description: >-
   design.md、tasks.md 和 .change-plan.json 维护明确 Change 的目标、设计、任务、
   验证与 draft/plan stage，并在结项时删除短期计划目录。
 metadata:
-  version: "37"
+  version: "38"
 ---
 
 # Change Plan
@@ -29,9 +29,22 @@ metadata:
 
 - 本文件承接内容判断、任务完成声明、执行流程与授权边界。
 - 操作 Change 前完整读取[固定结构与 CLI 契约](references/change-plan-contract.md)。它唯一承接
-  目录、metadata、artifact 结构、Git 距离及随包 `scripts/change-plan.mjs` 的机械行为。
+  目录、metadata、artifact 结构、Git 距离及随包 `scripts/change-plan.ts` 的机械行为。
 - Change Plan 保存临时实施上下文；稳定事实与行为归项目文档，跨 Change 的长期理由与方向归项目
   已有决策 owner。执行者核实实际工作与验收证据，CLI 核实结构和删除安全条件。
+
+## 运行前置
+
+运行下文公开 `.ts` CLI/import 或自更新入口时，使用 Node.js `>=24.18` 的原生类型擦除。
+依赖沿 Node 正常解析，可复用宿主兼容版本，不要求本地 `node_modules` 或与锁文件精确版本一致。
+依赖缺失、实际不兼容或需要复现随包基线时，使用随包 `package.json` 固定的 pnpm 显式安装：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行、import、help 和检查不自动安装。安装副本中的 `scripts/runtime/tools/` 可直接修改，无需构建；
+更新会覆盖正式包中的同路径定制文件。领域操作的其他前置仍由各自操作契约承接。
 
 ## 任务与结项契约
 
@@ -122,3 +135,9 @@ Change 根和 tombstone 路径的命名空间稳定，不与其他操作者或�
 - 简要说明 Change 名称、路径、stage、任务进度、Git 距离或基线诊断，以及实际命令与检查结果。
   运行 `finalize` 时另报 outcome、HEAD recovery revision、tombstone 边界与下一步；有阻塞时区分
   未完成的实质工作和结项执行故障。
+
+## 自更新
+
+在本 skill 目录运行 `node scripts/update-skill.ts`，运行前置与依赖修复见[工具运行前置](#运行前置)。
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。
+更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

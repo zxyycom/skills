@@ -1,0 +1,662 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/investigation-report/src/types.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/investigation-report/src/types.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/investigation-report/src/types.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+ * Rebuild: bun run sync:investigation-report-check
+ */
+import type {
+  StateIndexDiagnostic,
+  StateIndexEntryStageResult,
+  StateIndexPendingMutation
+} from "../../index-runtime/src/index.ts";
+import type {
+  InvestigationDiagnostic,
+  InvestigationMutationDiagnostic
+} from "./diagnostics.ts";
+
+export const investigationRelationTypes = [
+  "补充",
+  "复查",
+  "修正",
+  "推翻",
+  "归并",
+  "拆分"
+] as const;
+
+export type InvestigationRelationType =
+  (typeof investigationRelationTypes)[number];
+
+export type InvestigationRelation = Readonly<{
+  type: InvestigationRelationType;
+  target: string;
+  summary?: string;
+}>;
+
+export type InvestigationCandidateReadiness = Readonly<{
+  bodyReady: boolean;
+  resourceReady: boolean;
+  scaffoldValid: boolean;
+}>;
+
+export type InvestigationCandidate = Readonly<{
+  diagnostics: InvestigationDiagnostic[];
+  errors: string[];
+  id: string;
+  markdown: string | null;
+  path: string;
+  readiness: InvestigationCandidateReadiness;
+  warnings: string[];
+}>;
+
+export type InvestigationCandidateCreateOptions = Readonly<{
+  formedAt?: string;
+  id: string;
+  investigationsDir?: string;
+  question: string;
+  relations: readonly InvestigationRelation[];
+  tags: readonly string[];
+  title: string;
+  workspaceRoot: string;
+}>;
+
+export type InvestigationCandidateCreateResult =
+  | Readonly<{
+      candidate: InvestigationCandidate;
+      changed: true;
+      diagnostics: InvestigationDiagnostic[];
+      errors: [];
+      status: "ok";
+      warnings: string[];
+    }>
+  | Readonly<{
+      candidate: null;
+      changed: false;
+      diagnostics: InvestigationDiagnostic[];
+      errors: string[];
+      status: "invalid-options" | "error";
+      warnings: string[];
+    }>;
+
+export type InvestigationCandidateListOptions = Readonly<{
+  investigationsDir?: string;
+  workspaceRoot: string;
+}>;
+
+export type InvestigationCandidateListResult =
+  | Readonly<{
+      candidates: InvestigationCandidate[];
+      diagnostics: InvestigationDiagnostic[];
+      errors: [];
+      status: "ok";
+      warnings: string[];
+    }>
+  | Readonly<{
+      candidates: InvestigationCandidate[];
+      diagnostics: InvestigationDiagnostic[];
+      errors: string[];
+      status: "error";
+      warnings: string[];
+    }>;
+
+export type InvestigationCandidateShowOptions = Readonly<{
+  id: string;
+  investigationsDir?: string;
+  workspaceRoot: string;
+}>;
+
+export type InvestigationCandidateShowResult =
+  | Readonly<{
+      candidate: InvestigationCandidate;
+      diagnostics: InvestigationDiagnostic[];
+      errors: [];
+      status: "ok";
+      warnings: string[];
+    }>
+  | Readonly<{
+      candidate: null;
+      diagnostics: InvestigationDiagnostic[];
+      errors: string[];
+      status: "error";
+      warnings: string[];
+    }>;
+
+export type InvestigationCandidatePublishOptions = Readonly<{
+  ids: readonly string[];
+  investigationsDir?: string;
+  preflight?: boolean;
+  workspaceRoot: string;
+}>;
+
+export type InvestigationRelationReviewPhase = "preflight" | "committed";
+export type InvestigationRelationReviewAction =
+  | "establish"
+  | "replace"
+  | "unchanged";
+export type InvestigationRelationReviewSource = Readonly<{
+  sourceId: string;
+  action: InvestigationRelationReviewAction;
+  before: readonly InvestigationRelation[];
+  after: readonly InvestigationRelation[];
+}>;
+export type InvestigationRelationReview = Readonly<{
+  phase: InvestigationRelationReviewPhase;
+  sources: readonly InvestigationRelationReviewSource[];
+}>;
+
+export type InvestigationCandidatePublishResult = Readonly<{
+  changed: boolean;
+  diagnostics: InvestigationDiagnostic[];
+  errors: string[];
+  ids: string[];
+  indexPath: string;
+  mutation?: InvestigationMutationDiagnostic;
+  preflight: boolean;
+  relationReview?: InvestigationRelationReview;
+  warnings: string[];
+}>;
+
+export type InvestigationCandidateDiscardOptions = Readonly<{
+  deleteOwnedResources?: boolean;
+  deleteRecorded?: boolean;
+  id: string;
+  investigationsDir?: string;
+  workspaceRoot: string;
+}>;
+
+export type InvestigationCandidateDiscardResult = Readonly<{
+  changed: boolean;
+  deletedResourceIds: string[];
+  diagnostics: InvestigationDiagnostic[];
+  errors: string[];
+  id: string;
+  mutation?: InvestigationMutationDiagnostic;
+  requiresRecordedDeletionConfirmation: boolean;
+}>;
+
+export type InvestigationReportCheckOptions = {
+  ids?: readonly string[];
+  investigationsDir?: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationReportCheckResult = {
+  availableReportCount: number;
+  diagnostics: InvestigationDiagnostic[];
+  errors: string[];
+  indexChecked: boolean;
+  indexPath: string;
+  selectedReportCount: number;
+  warnings: string[];
+};
+
+export type InvestigationIndexSyncOptions = {
+  investigationsDir?: string;
+  preflight?: boolean;
+  selectors?: readonly string[];
+  workspaceRoot: string;
+};
+
+export type InvestigationIndexSyncResult = {
+  changed: boolean;
+  changedIds: string[];
+  diagnostics: InvestigationDiagnostic[];
+  errors: string[];
+  indexPath: string;
+  mutation?: InvestigationMutationDiagnostic;
+  reportCount: number;
+  scope: "all" | "selected";
+  selectedIds: string[];
+  selectors: string[];
+  state: string;
+  warnings: string[];
+};
+
+/**
+ * Selects which pending paths one stage transaction writes: the derived index
+ * projection together with the formal report Markdown and its complete owner
+ * resource tree (`all`, the default), only the index projection (`index`), or
+ * only the report Markdown and owner resources while the pending index stays
+ * byte-identical (`domain`).
+ */
+export type InvestigationStageScope = "all" | "index" | "domain";
+
+export type InvestigationStageOptions = {
+  investigationsDir?: string;
+  reportIds: readonly string[];
+  scope?: InvestigationStageScope;
+  workspaceRoot: string;
+};
+
+export type InvestigationStageDiagnostic = StateIndexDiagnostic;
+
+export type InvestigationStageSuccess = Readonly<{
+  callerOwnedPaths: readonly string[];
+  changed: boolean;
+  diagnostics: readonly InvestigationStageDiagnostic[];
+  indexPath: string;
+  namespace: string;
+  preservedPendingPaths: readonly string[];
+  scope: InvestigationStageScope;
+  selectedIds: string[];
+  state: "staged" | "unchanged";
+  status: "ok";
+  writtenPaths: readonly string[];
+}>;
+
+/**
+ * Reports metadata-only index staging or locally validated domain staging.
+ * Unselected source health is not a staging precondition.
+ */
+export type InvestigationStageResult =
+  | InvestigationStageSuccess
+  | (Extract<StateIndexEntryStageResult, { status: "error" }> & {
+      scope: InvestigationStageScope;
+    })
+  | Readonly<{
+      changed: false;
+      diagnostics: readonly InvestigationStageDiagnostic[];
+      indexPath: string;
+      namespace: string;
+      pending?: StateIndexPendingMutation;
+      scope: InvestigationStageScope;
+      selectedIds: string[];
+      state:
+        | "collection-changed"
+        | "domain-stage-failed"
+        | "index-path-invalid"
+        | "index-stale"
+        | "pending-conflict"
+        | "pending-recovery-failed"
+        | "pending-write-failed"
+        | "revision-index-invalid"
+        | "selection-invalid"
+        | "source-drift"
+        | "target-invalid"
+        | "workspace-index-invalid";
+      status: "error";
+    }>;
+
+export type InvestigationIndexQueryOptions = {
+  direction?: "predecessors" | "successors" | "both";
+  formedAtFrom?: string;
+  formedAtTo?: string;
+  investigationsDir?: string;
+  limit?: number;
+  offset?: number;
+  relatedTo?: string;
+  relationType?: InvestigationRelationType;
+  tags?: readonly string[];
+  workspaceRoot: string;
+};
+
+export type InvestigationFilterRelation = Readonly<{
+  sourceId: string;
+  type: InvestigationRelationType;
+  target: string;
+  summary?: string;
+}>;
+export type InvestigationRelationFilterContext = Readonly<{
+  filterRelations?: readonly InvestigationFilterRelation[];
+}>;
+export type InvestigationIndexQueryEntry = Readonly<{
+  id: string;
+  state: InvestigationIndexState;
+}> &
+  InvestigationRelationFilterContext;
+
+export type InvestigationListTagFacet = Readonly<{
+  count: number;
+  tag: string;
+}>;
+
+export type InvestigationListMonthFacet = Readonly<{
+  count: number;
+  month: string;
+}>;
+
+export type InvestigationListTimeFacets = Readonly<{
+  earliest: string | null;
+  latest: string | null;
+  months: readonly InvestigationListMonthFacet[];
+}>;
+
+export type InvestigationListFacets = Readonly<{
+  formedAt: InvestigationListTimeFacets;
+  recordCount: number;
+  tags: readonly InvestigationListTagFacet[];
+}>;
+
+export type InvestigationListAppliedFilters = Readonly<{
+  direction?: "predecessors" | "successors" | "both";
+  formedAtFrom?: string;
+  formedAtTo?: string;
+  relatedTo?: string;
+  relationType?: InvestigationRelationType;
+  tags: readonly string[];
+}>;
+
+export type InvestigationIndexQueryResult = {
+  appliedFilters: InvestigationListAppliedFilters | null;
+  diagnostics: InvestigationDiagnostic[];
+  entries: InvestigationIndexQueryEntry[];
+  errors: string[];
+  facets: InvestigationListFacets | null;
+  indexPath: string;
+  limit: number;
+  offset: number;
+  total: number;
+  warnings: string[];
+};
+
+export type InvestigationSearchOptions = Readonly<{
+  direction?: "predecessors" | "successors" | "both";
+  formedAtFrom?: string;
+  formedAtTo?: string;
+  in?: "content" | "metadata";
+  investigationsDir?: string;
+  limit?: number;
+  match?: "all" | "any" | "phrase";
+  query: string;
+  relatedTo?: string;
+  relationType?: InvestigationRelationType;
+  tags?: readonly string[];
+  workspaceRoot: string;
+}>;
+export type InvestigationContentSearchEntry = Readonly<{
+  formedAt: string;
+  id: string;
+  previews: readonly Readonly<{
+    column: number | null;
+    line: number;
+    preview: string;
+  }>[];
+  question: string;
+  sourcePath: string;
+  tags: readonly string[];
+  title: string;
+}> &
+  InvestigationRelationFilterContext;
+export const investigationMetadataSearchFields = [
+  "id",
+  "name",
+  "title",
+  "question",
+  "tags"
+] as const;
+export type InvestigationMetadataSearchField =
+  (typeof investigationMetadataSearchFields)[number];
+export type InvestigationMetadataMatchedRelation = Readonly<{
+  summary: string;
+  target: string;
+  type: InvestigationRelationType;
+}>;
+export type InvestigationMetadataSearchEntry = Readonly<{
+  formedAt: string;
+  id: string;
+  matchedFields: readonly InvestigationMetadataSearchField[];
+  matchedRelations: readonly InvestigationMetadataMatchedRelation[];
+  question: string;
+  sourcePath: string;
+  tags: readonly string[];
+  title: string;
+}> &
+  InvestigationRelationFilterContext;
+export type InvestigationSearchEntry =
+  | InvestigationContentSearchEntry
+  | InvestigationMetadataSearchEntry;
+export type InvestigationSearchFilters = Readonly<{
+  tags: readonly string[];
+  formedAtFrom?: string;
+  formedAtTo?: string;
+  relatedTo?: string;
+  direction?: "predecessors" | "successors" | "both";
+  relationType?: InvestigationRelationType;
+}>;
+export type InvestigationSearchInfo = Readonly<{
+  query: Readonly<{
+    text: string;
+    in: "content" | "metadata";
+    match: "all" | "any" | "phrase";
+    filters: InvestigationSearchFilters;
+    limits: Readonly<{
+      maxRecords: number | null;
+      resources: Readonly<{
+        maxCandidateFiles: number;
+        maxFileBytes: number;
+        maxTotalBytes: number;
+      }> | null;
+      preview: Readonly<{
+        contextLines: number;
+        maxMatchesPerFile: number;
+        maxPreviewCharacters: number;
+      }> | null;
+    }>;
+  }>;
+  source:
+    | Readonly<{
+        kind: "published-index";
+        currentness: "unchecked";
+        fallback: false;
+      }>
+    | Readonly<{
+        kind: "validated-source";
+        currentness: "current";
+        fallback: boolean;
+      }>;
+  counts: Readonly<{
+    matched: Readonly<{ value: number; precision: "exact" | "lower-bound" }>;
+    returned: number;
+  }>;
+  coverage: Readonly<{
+    scanComplete: boolean;
+    resultsComplete: boolean;
+    previewsComplete: boolean | null;
+    reasons: readonly (
+      | "max-records"
+      | "match-previews"
+      | "preview-characters"
+    )[];
+  }>;
+}>;
+export type InvestigationSearchResult = InvestigationSearchResultBase &
+  (
+    | Readonly<{ status: "ok"; searchInfo: InvestigationSearchInfo }>
+    | Readonly<{
+        status: "error";
+        searchInfo: null;
+        failureKind: "invalid-options" | "operation";
+      }>
+  );
+type InvestigationSearchResultBase = Readonly<{
+  diagnostics: readonly InvestigationDiagnostic[];
+  entries: readonly InvestigationSearchEntry[];
+  errors: readonly string[];
+  indexPath: string;
+  truncation: Readonly<{
+    files: boolean;
+    matches: boolean;
+    previewCharacters: boolean;
+  }>;
+  warnings: readonly string[];
+}>;
+
+export type InvestigationReportShowOptions = {
+  id: string;
+  investigationsDir?: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationReportShowResult =
+  | Readonly<{
+      errors: string[];
+      diagnostics: InvestigationDiagnostic[];
+      id: string;
+      indexPath: string;
+      markdown: string;
+      state: InvestigationIndexState;
+      status: "ok";
+      warnings: string[];
+    }>
+  | Readonly<{
+      errors: string[];
+      diagnostics: InvestigationDiagnostic[];
+      id: string;
+      indexPath: string;
+      markdown: null;
+      state: null;
+      status: "error";
+    }>;
+
+export type InvestigationTraceDirection =
+  | "predecessors"
+  | "successors"
+  | "both";
+
+export type InvestigationReportTraceOptions = {
+  direction?: InvestigationTraceDirection;
+  id: string;
+  investigationsDir?: string;
+  maxDepth?: number | null;
+  maxRecords?: number;
+  workspaceRoot: string;
+};
+
+export type InvestigationRelationEdge = Readonly<{
+  source: string;
+  target: string;
+  type: InvestigationRelationType;
+  summary?: string;
+}>;
+
+export type InvestigationTraceEntry = Readonly<{
+  title: string;
+  formedAt: string;
+  question: string;
+  tags: readonly string[];
+  relations: readonly InvestigationRelation[];
+}>;
+
+export type InvestigationReportTraceSuccess = Readonly<{
+  status: "ok";
+  anchorId: string;
+  direction: InvestigationTraceDirection;
+  limits: Readonly<{ depth: number | "all"; maxRecords: number }>;
+  coverage: Readonly<{
+    complete: boolean;
+    stoppedBy: readonly ("depth" | "max-records")[];
+  }>;
+  traceIds: readonly string[];
+  contextIds: readonly string[];
+  frontier: readonly Readonly<{
+    fromId: string;
+    direction: "predecessors" | "successors";
+    reason: "depth" | "max-records";
+    nextIds: readonly string[];
+  }>[];
+  blockedEvent?: Readonly<{
+    kind: "split" | "merge";
+    recordIds: readonly string[];
+    requiredMaxRecords: number;
+  }>;
+  entries: Readonly<Record<string, InvestigationTraceEntry>>;
+  warnings: readonly string[];
+}>;
+
+export type InvestigationReportTraceResult =
+  | InvestigationReportTraceSuccess
+  | Readonly<{
+      edges: InvestigationRelationEdge[];
+      diagnostics: InvestigationDiagnostic[];
+      errors: string[];
+      id: string;
+      indexPath: string;
+      reportIds: string[];
+      status: "error";
+    }>;
+
+export type InvestigationRelationReplacement = Readonly<{
+  relations: readonly InvestigationRelation[];
+  source: string;
+}>;
+
+export type InvestigationRelationSetOptions = {
+  investigationsDir?: string;
+  preflight?: boolean;
+  replacements: readonly InvestigationRelationReplacement[];
+  workspaceRoot: string;
+};
+
+export type InvestigationRelationSetResult = Readonly<{
+  changed: boolean;
+  diagnostics: InvestigationDiagnostic[];
+  errors: string[];
+  indexPath: string;
+  mutation?: InvestigationMutationDiagnostic;
+  preflight: boolean;
+  relationReview?: InvestigationRelationReview;
+  sourceIds: string[];
+}>;
+
+export type InvestigationReportDiscardOptions = {
+  deleteOwnedResources?: boolean;
+  deleteRecorded?: boolean;
+  id: string;
+  investigationsDir?: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationReportDiscardResult = Readonly<{
+  changed: boolean;
+  deletedResourceIds: string[];
+  diagnostics: InvestigationDiagnostic[];
+  errors: string[];
+  id: string;
+  indexPath: string;
+  mutation?: InvestigationMutationDiagnostic;
+  requiresRecordedDeletionConfirmation: boolean;
+}>;
+
+export type InvestigationIndexMetadata = Record<string, never>;
+
+export type InvestigationIndexState = Readonly<{
+  formedAt: string;
+  name: string;
+  question: string;
+  relations: readonly InvestigationRelation[];
+  resourceIds: readonly string[];
+  sourcePath: string;
+  tags: readonly string[];
+  title: string;
+}>;
+
+export type InvestigationSource = Readonly<{
+  id: string;
+  sourcePath: string;
+  text: string;
+}>;
+
+export type ParsedInvestigationReport = Readonly<{
+  bodyErrors: string[];
+  errors: string[];
+  frontmatterErrors: string[];
+  report: ParsedInvestigationReportDocument | null;
+  resourceErrors: string[];
+}>;
+
+export type ParsedInvestigationReportDocument = Readonly<{
+  formedAt: string;
+  frontmatter: Readonly<{
+    endLine: number;
+    relationsEndLine: number;
+    relationsStartLine: number;
+  }>;
+  question: string;
+  id: string;
+  relations: InvestigationRelation[];
+  resourceIds: string[];
+  tags: string[];
+  title: string;
+}>;

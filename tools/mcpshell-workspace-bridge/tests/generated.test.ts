@@ -23,8 +23,8 @@ afterEach(async () => {
 
 test("generated bridge modules import without configuration side effects", async () => {
   for (const script of [
-    "init-mcpshell-workspace.mjs",
-    "mcpshell-workspace.mjs"
+    "init-mcpshell-workspace.ts",
+    "mcpshell-workspace.ts"
   ]) {
     const result = spawnSync(
       process.execPath,
@@ -39,6 +39,33 @@ test("generated bridge modules import without configuration side effects", async
     );
     assert.equal(result.status, 0, result.stderr);
   }
+});
+
+test("distributed MCPShell ignore rules preserve environment safety and public initializer preview", async () => {
+  const ignore = await fs.readFile(path.join(skill, ".gitignore"), "utf8");
+  assert.equal(
+    ignore.split("\n").filter((line) => line === "/.env.mcpshell").length,
+    1
+  );
+  assert.match(ignore, /node_modules\//u);
+  const preview = spawnSync(
+    "node",
+    [
+      path.join(skill, "scripts/init-mcpshell-workspace.ts"),
+      "preview",
+      "--identity",
+      "distribution_check",
+      "--backend",
+      "fixture",
+      "--project-root",
+      "/project",
+      "--staging-root",
+      "/tmp/mcpshell-distribution-check"
+    ],
+    { encoding: "utf8" }
+  );
+  assert.equal(preview.status, 0, preview.stderr);
+  assert.equal(JSON.parse(preview.stdout).ok, true);
 });
 
 test("generated MCPShell definitions expose the four fixed-root operations", async () => {
@@ -81,19 +108,11 @@ test("generated Node initializer and runtime execute from an installed skill lay
   fixtures.push(fixture);
   const scripts = path.join(fixture.skill, "scripts");
   await fs.mkdir(scripts, { recursive: true });
-  for (const name of [
-    "init-mcpshell-workspace.mjs",
-    "mcpshell-workspace.mjs"
-  ]) {
-    await fs.copyFile(
-      path.join(skill, "scripts", name),
-      path.join(scripts, name)
-    );
-  }
+  await fs.cp(path.join(skill, "scripts"), scripts, { recursive: true });
   const init = spawnSync(
     process.execPath,
     [
-      path.join(scripts, "init-mcpshell-workspace.mjs"),
+      path.join(scripts, "init-mcpshell-workspace.ts"),
       "apply",
       "--identity",
       "workspace_bridge",
@@ -114,7 +133,7 @@ test("generated Node initializer and runtime execute from an installed skill lay
   assert.equal(init.stdout.includes("MCPSHELL_BACKEND_HANDLE=fixture"), false);
   const shell = spawnSync(
     process.execPath,
-    [path.join(scripts, "mcpshell-workspace.mjs"), "shell"],
+    [path.join(scripts, "mcpshell-workspace.ts"), "shell"],
     {
       encoding: "utf8",
       env: {
@@ -137,11 +156,8 @@ test("generated runtime renders missing and malformed configuration as JSON enve
   fixtures.push(fixture);
   const scripts = path.join(fixture.skill, "scripts");
   await fs.mkdir(scripts, { recursive: true });
-  const runtimePath = path.join(scripts, "mcpshell-workspace.mjs");
-  await fs.copyFile(
-    path.join(skill, "scripts", "mcpshell-workspace.mjs"),
-    runtimePath
-  );
+  const runtimePath = path.join(scripts, "mcpshell-workspace.ts");
+  await fs.cp(path.join(skill, "scripts"), scripts, { recursive: true });
   for (const environmentSource of [undefined, "MCPSHELL_BACKEND_HANDLE=\n"]) {
     const environmentPath = path.join(fixture.skill, ".env.mcpshell");
     if (environmentSource === undefined) {

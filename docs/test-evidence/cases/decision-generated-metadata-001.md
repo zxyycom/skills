@@ -1,13 +1,14 @@
-### Case DECISION-GENERATED-METADATA-001: 生成决策 bundle 与 source map 元数据保持可移植
+### Case DECISION-GENERATED-METADATA-001: 生成决策 TS 闭包元数据保持可移植
 
 Tests:
-- `test:f99e40bcc8cd314e65f01dfecd6890e7e494542f4a7de81110f3b42b205561c5`
+- `test:e37f04bf16fa5168eb567f8c5b01aea3c97a7283e456cca40caa61a43f929fb6`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 分发 bundle 与 source map 必须保留可定位的维护来源和不依赖 checkout 绝对路径的元数据。
+- 分发 TS 必须保留维护来源与重建入口，不依赖 checkout 绝对路径；公开值仍引用同一运行实现。
 
 Proves:
-- bundle 标示 CLI 源、重建入口和 source map；source map 只含相对的正斜杠 workspace 路径。
+- TS 公开入口标示维护来源与重建命令、引用包内闭包且不含本机绝对路径；旧 MJS map 已移除。
+- 公开 scan/rename 函数严格等于包内实际运行模块的函数引用。

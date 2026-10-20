@@ -18,28 +18,12 @@ import {
 
 const execFileAsync = promisify(execFile);
 
-type SourceMapMetadata = {
-  sourceRoot: string;
-  sources: string[];
-};
-
 type DecisionIndexFixture = {
   entries: Record<string, Record<string, unknown>>;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isSourceMapMetadata(value: unknown): value is SourceMapMetadata {
-  return (
-    isRecord(value) &&
-    "sourceRoot" in value &&
-    typeof value.sourceRoot === "string" &&
-    "sources" in value &&
-    Array.isArray(value.sources) &&
-    value.sources.every((source) => typeof source === "string")
-  );
 }
 
 test("generated decision declarations expose a portable CLI API", async () => {
@@ -108,28 +92,30 @@ test("generated decision declarations expose a portable CLI API", async () => {
     path.join(os.tmpdir(), "decision-records-declaration-consumer-")
   );
   try {
-    await fs.copyFile(
-      generatedCliPath,
-      path.join(temporaryDirectory, "decision-records.mjs")
+    await fs.cp(path.dirname(generatedCliPath), temporaryDirectory, {
+      recursive: true
+    });
+    await fs.symlink(
+      path.join(
+        path.resolve(path.dirname(generatedCliPath), "../../.."),
+        "node_modules"
+      ),
+      path.join(temporaryDirectory, "node_modules"),
+      process.platform === "win32" ? "junction" : "dir"
     );
-    await fs.copyFile(
-      generatedDeclarationPath,
-      path.join(temporaryDirectory, "decision-records.d.mts")
-    );
-    await fs.cp(
-      generatedDeclarationDirectory,
-      path.join(temporaryDirectory, "decision-records-sdk"),
-      { recursive: true }
+    await fs.writeFile(
+      path.join(temporaryDirectory, "package.json"),
+      '{"type":"module"}'
     );
     const consumerPath = path.join(temporaryDirectory, "consumer.mts");
     await fs.writeFile(
       consumerPath,
       [
-        'import { renameDecisionRecord, runDecisionRecordsCli, scanDecisionRecords, validateDecisionRecords } from "./decision-records.mjs";',
+        'import { renameDecisionRecord, runDecisionRecordsCli, scanDecisionRecords, validateDecisionRecords } from "./decision-records.ts";',
         "import type {",
         "  DecisionId, DecisionIndex, DecisionIndexEntry, DecisionIndexState, DecisionTag,",
         "  DecisionRenameOptions, DecisionRenamePlan, DecisionRenameResult, DecisionScan, DecisionScanOptions, DecisionSourceRevision, DecisionValidationResult",
-        '} from "./decision-records.mjs";',
+        '} from "./decision-records.ts";',
         "declare const decisionId: DecisionId;",
         "declare const index: DecisionIndex;",
         "declare const indexEntry: DecisionIndexEntry;",
@@ -180,6 +166,9 @@ test("generated decision declarations expose a portable CLI API", async () => {
         "--moduleResolution",
         "NodeNext",
         "--strict",
+        "--types",
+        "node",
+        "--allowImportingTsExtensions",
         "--skipLibCheck",
         "false",
         consumerPath
@@ -253,25 +242,34 @@ test("generated decision schema matches the runtime index schema", async () => {
   }
 });
 
-test("generated decision bundle and source map retain portable metadata", async () => {
+test("generated decision TS closure retains portable metadata", async () => {
   const cliSource = await fs.readFile(generatedCliPath, "utf8");
   assert.match(cliSource, /Source path: tools\/decision-records\/src\/cli\.ts/);
   assert.match(cliSource, /Rebuild: bun run sync:decision-records-cli/);
-  assert.match(cliSource, /sourceMappingURL=decision-records\.mjs\.map/);
-
-  const sourceMap: unknown = JSON.parse(
-    await fs.readFile(`${generatedCliPath}.map`, "utf8")
+  const entry = await import(
+    new URL(
+      "../../../skills/decision-records/scripts/decision-records.ts",
+      import.meta.url
+    ).href
   );
-  if (!isSourceMapMetadata(sourceMap)) {
-    assert.fail(
-      "Generated decision records source map must expose sourceRoot and sources"
-    );
-  }
-  assert.equal(sourceMap.sourceRoot, "../../../");
-  assert.ok(sourceMap.sources.includes("tools/decision-records/src/cli.ts"));
-  assert.ok(
-    sourceMap.sources.every(
-      (source) => !path.isAbsolute(source) && !source.includes("\\")
-    )
+  const runtime = await import(
+    new URL(
+      "../../../skills/decision-records/scripts/runtime/tools/decision-records/src/cli.ts",
+      import.meta.url
+    ).href
+  );
+  assert.equal(entry.scanDecisionRecords, runtime.scanDecisionRecords);
+  assert.equal(entry.renameDecisionRecord, runtime.renameDecisionRecord);
+
+  assert.match(cliSource, /runtime\/tools\/decision-records\/src\/cli\.ts/u);
+  await assert.rejects(
+    fs.stat(generatedCliPath.replace(/\.ts$/u, ".mjs.map")),
+    { code: "ENOENT" }
+  );
+  assert.equal(
+    cliSource.includes(
+      path.resolve(path.dirname(generatedCliPath), "../../..")
+    ),
+    false
   );
 });

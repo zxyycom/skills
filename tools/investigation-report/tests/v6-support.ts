@@ -30,7 +30,7 @@ export type InvestigationCliResult = Readonly<{
 
 const generatedCliPath = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  "../../../skills/investigation-report/scripts/check-investigations.mjs"
+  "../../../skills/investigation-report/scripts/check-investigations.ts"
 );
 
 export function reportMarkdown(input: ReportFixture): string {

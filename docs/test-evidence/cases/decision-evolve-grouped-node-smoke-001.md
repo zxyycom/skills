@@ -10,4 +10,4 @@ Contract:
 - 分发制品必须能由真实 Node argv 解析逐 successor 分组并执行 preflight 边界。
 
 Proves:
-- 自包含 Node CLI 对闭合分组拆分返回成功的 preflight review，并保持 stderr 为空。
+- 分发 Node CLI 对闭合分组拆分返回成功的 preflight review，并保持 stderr 为空。

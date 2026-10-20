@@ -31,16 +31,16 @@ docs/test-evidence/
 
 ## 常用操作
 
-从 skill 的分发目录或项目维护入口执行：
+满足[工具运行前置](../../skills/test-evidence-review/SKILL.md#工具运行前置)后，从 skill 分发目录执行以下命令；项目已有维护入口时优先使用该入口：
 
 ```text
-node scripts/test-evidence-catalog.mjs check --root <project>
-node scripts/test-evidence-catalog.mjs list --tag <tag> --root <project>
-node scripts/test-evidence-catalog.mjs tags --root <project>
-node scripts/test-evidence-catalog.mjs show <case-id> --root <project>
-node scripts/test-evidence-catalog.mjs search <text> --root <project>
-node scripts/test-evidence-catalog.mjs sync-index --write --root <project>
-node scripts/test-evidence-catalog.mjs stage-index <case-id...> --root <project>
+node scripts/test-evidence-catalog.ts check --root <project>
+node scripts/test-evidence-catalog.ts list --tag <tag> --root <project>
+node scripts/test-evidence-catalog.ts tags --root <project>
+node scripts/test-evidence-catalog.ts show <case-id> --root <project>
+node scripts/test-evidence-catalog.ts search <text> --root <project>
+node scripts/test-evidence-catalog.ts sync-index --write --root <project>
+node scripts/test-evidence-catalog.ts stage-index <case-id...> --root <project>
 ```
 
 `stage-index` 只暂存所选 Case 的派生索引条目，不会暂存 Case Markdown、测试或产品代码；跨 index definition 的首次迁移必须整体暂存索引。

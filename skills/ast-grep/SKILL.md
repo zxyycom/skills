@@ -6,7 +6,7 @@ description: >-
   审查或迁移代码时使用。普通文本搜索、自然语言语义搜索、符号引用或调用图
   查询、类型感知重命名，以及无需结构匹配的局部编辑不使用。
 metadata:
-  version: "3"
+  version: "4"
 ---
 
 # ast-grep
@@ -147,3 +147,14 @@ ast-grep outline src --items exports --view signatures --json=stream
 3. 结果包含可复核的命令或 rule、范围和代表证据，没有把语法匹配夸大为语义证明。
 4. 发生重写时，先预览后应用，最终 diff 和项目级 formatter、检查或测试已经验证。
 5. CLI、子命令或外部语义能力缺失时已采用明确降级或报告前置，不自行安装、升级或扩大写入范围。
+
+## 自更新
+
+本 skill 的指令使用不需要安装依赖。仅在本 skill 目录运行自更新入口 `node scripts/update-skill.ts` 时，需满足随包 `package.json` 的 Node 版本与兼容依赖。
+已有兼容宿主依赖即可复用；普通运行、导入与检查不自动安装。依赖不可用时，使用随包 manifest 固定的 pnpm 显式执行：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

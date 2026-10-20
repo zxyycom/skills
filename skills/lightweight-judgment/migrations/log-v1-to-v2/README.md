@@ -64,7 +64,7 @@ sqlite3 -bail /absolute/private/calls-v2.sqlite3 \
 3. 用支持目标 schema v2 的 CLI 严格检查副本结构并读取统计，命令须退出 0；核对旧字段统计与字节指标的有效／缺失数量：
 
    ```bash
-   node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.mjs stats \
+   node /absolute/path/lightweight-judgment/scripts/lightweight-judgment.ts stats \
      --database /absolute/private/calls-v2.sqlite3
    ```
 

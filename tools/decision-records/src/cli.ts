@@ -50,7 +50,7 @@ export async function runDecisionRecordsCli(
   );
 
   try {
-    await program.parseAsync(["node", "decision-records.mjs", ...argv]);
+    await program.parseAsync(["node", "decision-records.ts", ...argv]);
   } catch (error) {
     if (error instanceof CommanderError) {
       return error.exitCode === 0 ? 0 : 2;

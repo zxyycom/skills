@@ -1,0 +1,358 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/decision-records/src/cli-lifecycle-execution.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/decision-records/src/cli-lifecycle-execution.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/decision-records/src/cli-lifecycle-execution.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
+ * Rebuild: bun run sync:decision-records-cli
+ */
+import { createDecisionRecordLookup } from "./decision-record-lookup.ts";
+import {
+  decisionDiagnosticFromReason,
+  decisionFailure,
+  type DecisionApplicationFailure,
+  type DecisionMutationOutcome
+} from "./application-result.ts";
+import {
+  DecisionCollectionLockError,
+  withDecisionCollectionMutationLock
+} from "./decision-collection-mutation-lock.ts";
+import {
+  loadDecisionHistoryBaseline,
+  type DecisionHistoryBaseline
+} from "./decision-history-baseline.ts";
+import {
+  prepareDecisionLifecycle,
+  requiresDecisionHistoryBaseline,
+  type DecisionLifecyclePreparation,
+  type DecisionLifecycleRequest
+} from "./decision-lifecycle-service.ts";
+import {
+  applyDecisionChanges,
+  applyLockedDecisionChanges,
+  decisionTransactionLockFailure
+} from "./decision-transaction.ts";
+import { compareDecisionRecords, type DecisionScan } from "./types.ts";
+import { scanDecisionRecords } from "./scan.ts";
+import { validateDecisionScan } from "./index.ts";
+import {
+  printCandidateWarnings,
+  printDecisionAttention,
+  printDecisionFailure
+} from "./cli-output.ts";
+import { printDecisionRelationReview } from "./cli-output-relation-review.ts";
+import type { DecisionRecordsCliIo } from "./cli-io.ts";
+import {
+  decisionScanOptions,
+  type DecisionLocationArgs
+} from "./cli-location.ts";
+import { loadLifecycleScan } from "./cli-lifecycle-commands.ts";
+
+type LockedLifecycleOperationResult = {
+  committed: boolean;
+  exitCode: number;
+  outcome: DecisionMutationOutcome;
+};
+
+export async function applyLockedCandidateLifecycle(
+  args: DecisionLocationArgs,
+  initialScan: DecisionScan,
+  request: Extract<
+    DecisionLifecycleRequest,
+    { action: "evolve" | "publish" | "set-relations" }
+  >,
+  io: DecisionRecordsCliIo
+): Promise<number> {
+  let completed: Extract<
+    DecisionLifecyclePreparation,
+    { status: "ok" }
+  > | null = null;
+  try {
+    const result = await withDecisionCollectionMutationLock(
+      initialScan.indexPath,
+      async () => {
+        const lockedScan = await loadLifecycleScan(
+          args,
+          { allowEmptyDecisionSet: true },
+          io
+        );
+        if (lockedScan === null) return noChangeLifecycleResult();
+        const prepared = await prepareLifecycleWithCurrentHistory(
+          lockedScan,
+          request,
+          io
+        );
+        if (prepared === null) return noChangeLifecycleResult();
+        completed = prepared;
+        return await applyPreparedLifecycle({
+          args,
+          deferSuccessOutput: true,
+          io,
+          lockHeld: true,
+          prepared,
+          scan: lockedScan
+        });
+      }
+    );
+    if (result.exitCode === 0 && completed !== null) {
+      printLifecycleCompletion(completed, io);
+      const updatedScan = await scanDecisionRecords(decisionScanOptions(args));
+      printCandidateWarnings(
+        updatedScan.records
+          .filter((record) => record.activationCandidate)
+          .sort(compareDecisionRecords)
+          .map((record) => record.sourcePath),
+        io
+      );
+    }
+    return result.exitCode;
+  } catch (error) {
+    const transaction = lifecycleLockFailure(error);
+    printDecisionFailure(decisionFailure(transaction.diagnostics), io);
+    return 1;
+  }
+}
+
+export async function prepareLifecycleWithCurrentHistory(
+  scan: DecisionScan,
+  request: DecisionLifecycleRequest,
+  io: DecisionRecordsCliIo
+): Promise<Extract<DecisionLifecyclePreparation, { status: "ok" }> | null> {
+  const records = createDecisionRecordLookup(scan.records);
+  let historyBaseline: DecisionHistoryBaseline | null = null;
+  if (requiresDecisionHistoryBaseline(scan, request, records)) {
+    const loadedBaseline = await loadDecisionHistoryBaseline(scan);
+    if (loadedBaseline.status === "error") {
+      printDecisionFailure(withLifecycleNoChange(loadedBaseline), io);
+      return null;
+    }
+    historyBaseline = loadedBaseline.baseline;
+  }
+  const prepared = prepareDecisionLifecycle(scan, request, {
+    historyBaseline,
+    records
+  });
+  if (prepared.status === "attention") {
+    printDecisionAttention(prepared, io);
+    return null;
+  }
+  if (prepared.status === "error") {
+    printDecisionFailure(withLifecycleNoChange(prepared), io);
+    return null;
+  }
+  return prepared;
+}
+
+export function printLifecyclePreflight(
+  action: "evolve" | "publish" | "reactivate" | "set-relations",
+  prepared: Extract<DecisionLifecyclePreparation, { status: "ok" }>,
+  io: DecisionRecordsCliIo
+): number {
+  io.stdout(
+    "Decision " + action + " preflight passed: " + prepared.message + "\n"
+  );
+  if (prepared.relationReview !== undefined)
+    printDecisionRelationReview(prepared.relationReview, io);
+  io.stdout(
+    "No Decision Markdown, derived index, or pending state was changed. Re-run the lifecycle command with the complete current parameters to establish it.\n"
+  );
+  return 0;
+}
+
+export async function applyPreparedLifecycle(options: {
+  args: DecisionLocationArgs;
+  deferSuccessOutput?: boolean;
+  io: DecisionRecordsCliIo;
+  lockHeld: boolean;
+  prepared: Extract<DecisionLifecyclePreparation, { status: "ok" }>;
+  scan: DecisionScan;
+}): Promise<LockedLifecycleOperationResult> {
+  const { args, io, lockHeld, prepared, scan } = options;
+  const transaction = await applyLifecycleTransaction(
+    args,
+    scan,
+    prepared,
+    lockHeld
+  );
+  if (transaction.status === "error") {
+    printDecisionFailure(decisionFailure(transaction.diagnostics), io);
+    return { committed: false, exitCode: 1, outcome: transaction.outcome };
+  }
+  const updatedScan = await scanDecisionRecords(decisionScanOptions(args));
+  const validationFailure = await postMutationValidationFailure(
+    updatedScan,
+    transaction.changed,
+    io
+  );
+  if (validationFailure !== null) return validationFailure;
+  if (options.deferSuccessOutput !== true)
+    printLifecycleSuccess(prepared, updatedScan, io);
+  return { committed: transaction.changed, exitCode: 0, outcome: "no-change" };
+}
+
+function applyLifecycleTransaction(
+  args: DecisionLocationArgs,
+  scan: DecisionScan,
+  prepared: Extract<DecisionLifecyclePreparation, { status: "ok" }>,
+  lockHeld: boolean
+) {
+  const options = {
+    changes: prepared.changes,
+    originalScan: scan,
+    scanOptions: decisionScanOptions(args)
+  };
+  return lockHeld
+    ? applyLockedDecisionChanges(options)
+    : applyDecisionChanges(options);
+}
+
+async function postMutationValidationFailure(
+  updatedScan: DecisionScan,
+  changed: boolean,
+  io: DecisionRecordsCliIo
+): Promise<LockedLifecycleOperationResult | null> {
+  const updatedValidation = await validateDecisionScan(updatedScan, {
+    allowEmptyDecisionSet: !updatedScan.records.some(
+      (record) => record.source.kind === "established"
+    )
+  });
+  if (updatedValidation.errors.length > 0) {
+    printDecisionFailure(
+      decisionFailure(
+        updatedValidation.errors.map((reason) =>
+          decisionDiagnosticFromReason(
+            {
+              code: "decision-records.post-mutation-scan-failed",
+              outcome: "partial-or-unknown" as const,
+              recovery:
+                "Inspect and reconcile the decision files and derived index before retrying another mutation.",
+              scope: "Decision Markdown files and derived decision index",
+              target: "Post-mutation decision collection validation"
+            },
+            reason
+          )
+        )
+      ),
+      io
+    );
+    return {
+      committed: changed,
+      exitCode: 1,
+      outcome: "partial-or-unknown"
+    };
+  }
+  return null;
+}
+
+function printLifecycleSuccess(
+  prepared: Extract<DecisionLifecyclePreparation, { status: "ok" }>,
+  updatedScan: DecisionScan,
+  io: DecisionRecordsCliIo
+): void {
+  printLifecycleCompletion(prepared, io);
+  printCandidateWarnings(
+    updatedScan.records
+      .filter((record) => record.activationCandidate)
+      .sort(compareDecisionRecords)
+      .map((record) => record.sourcePath),
+    io
+  );
+}
+
+function printLifecycleCompletion(
+  prepared: Extract<DecisionLifecyclePreparation, { status: "ok" }>,
+  io: DecisionRecordsCliIo
+): void {
+  io.stdout(prepared.message + "\n");
+  if (prepared.relationReview !== undefined)
+    printDecisionRelationReview(
+      { ...prepared.relationReview, phase: "committed" },
+      io
+    );
+}
+
+function noChangeLifecycleResult(): LockedLifecycleOperationResult {
+  return { committed: false, exitCode: 1, outcome: "no-change" };
+}
+
+function lifecycleLockFailure(error: unknown) {
+  const transaction = decisionTransactionLockFailure(error);
+  const operation = lockedLifecycleOperationResult(
+    error instanceof DecisionCollectionLockError ? error.operationResult : null
+  );
+  if (
+    error instanceof DecisionCollectionLockError &&
+    error.kind === "release-failed" &&
+    operation !== null
+  ) {
+    const outcome = operation.committed
+      ? "committed-cleanup-pending"
+      : operation.outcome;
+    const diagnostics = transaction.diagnostics.map((diagnostic) => ({
+      ...diagnostic,
+      outcome
+    }));
+    return {
+      ...transaction,
+      diagnostics,
+      errors: diagnostics.map((diagnostic) => diagnostic.reason),
+      outcome
+    };
+  }
+  return transaction;
+}
+
+function lockedLifecycleOperationResult(
+  value: unknown
+): LockedLifecycleOperationResult | null {
+  if (value === null || typeof value !== "object") return null;
+  const result = value as Partial<LockedLifecycleOperationResult>;
+  if (
+    typeof result.committed !== "boolean" ||
+    typeof result.exitCode !== "number" ||
+    (result.outcome !== "committed-cleanup-pending" &&
+      result.outcome !== "no-change" &&
+      result.outcome !== "partial-or-unknown" &&
+      result.outcome !== "rolled-back")
+  ) {
+    return null;
+  }
+  return result as LockedLifecycleOperationResult;
+}
+
+export function lifecyclePreflightFailure(
+  errors: readonly string[]
+): DecisionApplicationFailure {
+  return decisionFailure(
+    errors.map((reason) =>
+      decisionDiagnosticFromReason(
+        {
+          code: "decision-records.lifecycle-preflight-failed",
+          outcome: "no-change",
+          recovery:
+            "Correct the reported decision collection problem. For an established alignment, restore the trusted historical alignment, run sync-index, then retry the command.",
+          scope: "Decision Markdown files and derived decision index",
+          target: "Decision lifecycle preflight"
+        },
+        reason
+      )
+    )
+  );
+}
+
+function withLifecycleNoChange(
+  failure: DecisionApplicationFailure
+): DecisionApplicationFailure {
+  return {
+    ...failure,
+    diagnostics: failure.diagnostics.map((diagnostic) => ({
+      ...diagnostic,
+      ...(diagnostic.code === "decision-records.command-failed"
+        ? { code: "decision-records.lifecycle-preflight-failed" }
+        : {}),
+      outcome: "no-change" as const,
+      scope: "Decision Markdown files and derived decision index"
+    }))
+  };
+}

@@ -1,0 +1,335 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/investigation-report/src/staging-domain-context.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/investigation-report/src/staging-domain-context.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/investigation-report/src/staging-domain-context.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
+ * Rebuild: bun run sync:investigation-report-check
+ */
+import path from "node:path";
+import type {
+  RevisionId,
+  VersionControlRepository
+} from "../../shared/src/version-control/index.ts";
+import { openVersionControl } from "../../shared/src/version-control/index.ts";
+import {
+  defineStateIndexDefinition,
+  expectationOf,
+  hasEntry,
+  parseStateIndex,
+  serializeStateIndex,
+  type StateIndexDefinition
+} from "../../index-runtime/src/index.ts";
+import {
+  investigationIndexFileName,
+  loadInvestigationIndex
+} from "./investigation-state-index.ts";
+import {
+  domainSourceSelection,
+  type DomainSourceSelection
+} from "./staging-domain-sources.ts";
+import { createInvestigationStageIndexDefinition } from "./staging-domain-index.ts";
+import { resolveInvestigationStageSelectors } from "./staging-selectors.ts";
+import {
+  compareText,
+  decodeUtf8,
+  stageDiagnostic,
+  type DomainStageControl,
+  type DomainStep,
+  type InvestigationDomainStageInput,
+  type InvestigationIndex
+} from "./staging-domain-support.ts";
+import {
+  domainFailure,
+  domainFailureDiagnostics
+} from "./staging-domain-failures.ts";
+import type {
+  InvestigationIndexMetadata,
+  InvestigationIndexState
+} from "./types.ts";
+
+type CanonicalInvestigationIndexDefinition = StateIndexDefinition<
+  InvestigationIndexState,
+  InvestigationIndexMetadata
+>;
+
+export type DomainRepository = Readonly<{
+  investigationsScope: string;
+  repository: VersionControlRepository;
+  repositoryIndexPath: string;
+}>;
+
+export type DomainSnapshot = Readonly<{
+  baseline: InvestigationIndex | null;
+  canonicalDefinition: CanonicalInvestigationIndexDefinition;
+  revision: RevisionId | null;
+  workspaceIndex: InvestigationIndex;
+}>;
+
+export type DomainSelection = Readonly<{
+  selectedIds: readonly string[];
+  sourceSelection: DomainSourceSelection;
+}>;
+
+/** Workspace metadata is mutable; the fixed revision baseline is not reloaded. */
+export async function verifyDomainIndex(
+  snapshot: DomainSnapshot,
+  control: DomainStageControl
+): Promise<
+  | Readonly<{ status: "ok" }>
+  | Readonly<{
+      status: "error";
+      diagnostics: import("../../index-runtime/src/index.ts").StateIndexDiagnostic[];
+    }>
+> {
+  const loaded = await loadInvestigationIndex({
+    investigationsDirectory: control.input.investigationsDirectory
+  });
+  if (loaded.status === "error")
+    return { status: "error", diagnostics: loaded.diagnostics };
+  if (
+    serializeStateIndex(loaded.value, snapshot.canonicalDefinition) !==
+    serializeStateIndex(snapshot.workspaceIndex, snapshot.canonicalDefinition)
+  )
+    return {
+      status: "error",
+      diagnostics: [
+        stageDiagnostic(
+          "investigation-report.stage-source-drift",
+          "the published workspace index changed before the write; reread it before retrying",
+          control.indexPath
+        )
+      ]
+    };
+  return { status: "ok" };
+}
+
+export function domainStageControl(
+  input: InvestigationDomainStageInput
+): DomainStageControl {
+  return {
+    indexPath: path.join(
+      input.investigationsDirectory,
+      investigationIndexFileName
+    ),
+    input
+  };
+}
+
+export async function openDomainRepository(
+  control: DomainStageControl
+): Promise<DomainStep<DomainRepository>> {
+  let repository: Awaited<ReturnType<typeof openVersionControl>>;
+  try {
+    repository = await openVersionControl(
+      control.input.investigationsDirectory
+    );
+  } catch (error) {
+    return {
+      status: "error",
+      result: domainFailure(control, "repository-unavailable", error)
+    };
+  }
+  const investigationsScope = repositoryScopePath(
+    repository,
+    control.input.investigationsDirectory
+  );
+  return {
+    status: "ok",
+    value: {
+      investigationsScope,
+      repository,
+      repositoryIndexPath: path.posix.join(
+        investigationsScope,
+        investigationIndexFileName
+      )
+    }
+  };
+}
+
+function repositoryScopePath(
+  repository: VersionControlRepository,
+  investigationsDirectory: string
+): string {
+  const relativePath = path.relative(
+    repository.rootDirectory,
+    investigationsDirectory
+  );
+  if (
+    relativePath.length === 0 ||
+    path.isAbsolute(relativePath) ||
+    relativePath === ".." ||
+    relativePath.startsWith(".." + path.sep)
+  ) {
+    throw new Error(
+      `Investigation directory must be inside, and below the root of, its version-controlled repository: ${investigationsDirectory}`
+    );
+  }
+  return relativePath.split(path.sep).join("/");
+}
+
+/**
+ * Loads the fresh workspace index plus the `HEAD` baseline index so selector
+ * resolution can cover additions, updates, and baseline-only deletions.
+ */
+export async function loadDomainSnapshot(
+  domain: DomainRepository,
+  control: DomainStageControl
+): Promise<DomainStep<DomainSnapshot>> {
+  const workspaceIndex = await loadInvestigationIndex({
+    investigationsDirectory: control.input.investigationsDirectory
+  });
+  if (workspaceIndex.status === "error") {
+    return {
+      status: "error",
+      result: domainFailureDiagnostics(
+        control,
+        "workspace-index-invalid",
+        workspaceIndex.diagnostics
+      )
+    };
+  }
+  const definition = createInvestigationStageIndexDefinition();
+  try {
+    definition.validateIndex?.(workspaceIndex.value);
+  } catch (error) {
+    return {
+      status: "error",
+      result: domainFailure(control, "workspace-index-invalid", error)
+    };
+  }
+  const canonicalDefinition = defineStateIndexDefinition(definition);
+  const baseline = await domainBaselineIndex(
+    domain,
+    canonicalDefinition,
+    control
+  );
+  if (baseline.status === "error") return baseline;
+  return {
+    status: "ok",
+    value: {
+      baseline: baseline.value.baseline,
+      canonicalDefinition,
+      revision: baseline.value.revision,
+      workspaceIndex: workspaceIndex.value
+    }
+  };
+}
+
+type DomainBaseline = Readonly<{
+  baseline: InvestigationIndex | null;
+  revision: RevisionId | null;
+}>;
+
+type BaselineOutcome = DomainStep<DomainBaseline>;
+
+type ParsedBaselineIndex = ReturnType<
+  typeof parseStateIndex<InvestigationIndexState, InvestigationIndexMetadata>
+>;
+
+/** Returns null when no revision exists or the baseline has no index yet. */
+async function revisionBaselineIndex(
+  domain: DomainRepository,
+  canonicalDefinition: CanonicalInvestigationIndexDefinition,
+  revision: RevisionId | null
+): Promise<ParsedBaselineIndex | null> {
+  if (revision === null) return null;
+  const revisionFile = await domain.repository.readRevisionFile(
+    revision,
+    domain.repositoryIndexPath
+  );
+  if (revisionFile === null) return null;
+  return parseStateIndex({
+    definition: canonicalDefinition,
+    expectation: expectationOf(canonicalDefinition),
+    sourcePath: domain.repositoryIndexPath,
+    text: decodeUtf8(revisionFile.data)
+  });
+}
+
+async function domainBaselineIndex(
+  domain: DomainRepository,
+  canonicalDefinition: CanonicalInvestigationIndexDefinition,
+  control: DomainStageControl
+): Promise<BaselineOutcome> {
+  let revision: RevisionId | null;
+  let parsed: ParsedBaselineIndex | null = null;
+  try {
+    revision = await domain.repository.getCurrentRevision();
+    parsed = await revisionBaselineIndex(domain, canonicalDefinition, revision);
+  } catch (error) {
+    return {
+      status: "error",
+      result: domainFailure(control, "revision-read-failed", error)
+    };
+  }
+  if (parsed?.status === "error") {
+    return {
+      status: "error",
+      result: domainFailureDiagnostics(
+        control,
+        "revision-index-invalid",
+        parsed.diagnostics
+      )
+    };
+  }
+  return {
+    status: "ok",
+    value: { baseline: parsed?.value ?? null, revision }
+  };
+}
+
+/**
+ * Resolves selectors against the workspace and `HEAD` baseline ID union;
+ * every resolved ID must exist on at least one side so a typo stops the
+ * transaction instead of staging a partial selection.
+ */
+export function resolveDomainSelection(
+  snapshot: DomainSnapshot,
+  control: DomainStageControl
+): DomainStep<DomainSelection> {
+  const resolved = resolveInvestigationStageSelectors({
+    baseline: snapshot.baseline,
+    selectedIds: [...control.input.reportIds],
+    workspace: snapshot.workspaceIndex
+  });
+  if (resolved.status === "error") {
+    return {
+      status: "error",
+      result: domainFailureDiagnostics(
+        control,
+        "selection-invalid",
+        resolved.diagnostics
+      )
+    };
+  }
+  const selectedIds = [...new Set(resolved.value)].sort(compareText);
+  const missingId = selectedIds.find(
+    (id) =>
+      !hasEntry(snapshot.baseline, id) && !hasEntry(snapshot.workspaceIndex, id)
+  );
+  if (missingId !== undefined) {
+    return {
+      status: "error",
+      result: domainFailureDiagnostics(control, "selection-invalid", [
+        stageDiagnostic(
+          "state-index.selected-id-missing",
+          `selected state id ${JSON.stringify(missingId)} is absent from both indexes`,
+          control.indexPath,
+          missingId
+        )
+      ])
+    };
+  }
+  return {
+    status: "ok",
+    value: {
+      selectedIds,
+      sourceSelection: domainSourceSelection(
+        snapshot.workspaceIndex,
+        selectedIds
+      )
+    }
+  };
+}

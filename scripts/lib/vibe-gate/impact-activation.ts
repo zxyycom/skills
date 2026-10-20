@@ -1,6 +1,7 @@
 import path from "node:path";
 import { operationErrorDetail } from "../../../tools/shared/src/node/error-detail.ts";
 import { rootDir } from "../project.ts";
+import { packageScriptDependencies } from "./checks/package-script.ts";
 import { semanticGateChecks } from "./checks/semantic.ts";
 import {
   baseGateCheckIds,
@@ -100,12 +101,15 @@ type PrepareGateActivationOptions = Readonly<{
 }>;
 
 function baseDependencyMap(): ReadonlyMap<string, readonly string[]> {
-  return new Map(
-    semanticGateChecks.map(
+  return new Map([
+    ...Object.entries(packageScriptDependencies).map(
+      ([script, dependencies]) => [`script:${script}`, dependencies] as const
+    ),
+    ...semanticGateChecks.map(
       (check) =>
         [check.checkId, "dependsOn" in check ? check.dependsOn : []] as const
     )
-  );
+  ]);
 }
 
 function closeRequiredDependencies(

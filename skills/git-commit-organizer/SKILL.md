@@ -2,7 +2,7 @@
 name: git-commit-organizer
 description: 按一套有明确偏好的项目级风格，将可归因于当前任务的 Git 改动整理成范围准确、语义清楚且信息可追踪的提交。用于用户要求整理或创建一个或多个提交，尤其是工作区还存在其他会话、人员或自动化的并行改动时。
 metadata:
-  version: "6"
+  version: "7"
 ---
 
 # Git Commit Organizer
@@ -156,3 +156,14 @@ plan：整理 CLI 参数兼容 change 说明
 - 生成物处理：提交前查看生成物、缓存或日志来源；与请求无关时保留不提交。
 - 历史操作：默认创建新提交；只有用户明确要求 amend、rebase 或 reset 时，才执行历史改写类操作。
 - 验证表述：最终回复和提交正文只陈述实际运行过的验证。
+
+## 自更新
+
+本 skill 的指令使用不需要安装依赖。仅在本 skill 目录运行自更新入口 `node scripts/update-skill.ts` 时，需满足随包 `package.json` 的 Node 版本与兼容依赖。
+已有兼容宿主依赖即可复用；普通运行、导入与检查不自动安装。依赖不可用时，使用随包 manifest 固定的 pnpm 显式执行：
+
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
+```
+
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

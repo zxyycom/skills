@@ -1,7 +1,7 @@
 ### Case SKILL-UPDATER-CURRENT-CHECK-001: 当前安装版本被识别为无需更新
 
 Tests:
-- `test:afaae01f8146b50f26080ac338820ceb3fb3fd369d4949957ff1dc107f394064`
+- `test:91b40f495b9946b7b1159029deae0e81dfd3a9b113b788e810bce2e8e690df99`
 
 Tags:
 - `skill-updater`

@@ -1,0 +1,163 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/decision-records/src/index.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/decision-records/src/index.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/decision-records/src/index.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
+ * Rebuild: bun run sync:decision-records-cli
+ */
+import {
+  decisionIndexDiagnosticMessages,
+  syncDecisionIndex
+} from "./decision-state-index.ts";
+import { scanDecisionRecords } from "./scan.ts";
+import {
+  isEstablishedDecisionRecord,
+  type DecisionId,
+  type DecisionScan,
+  type DecisionScanOptions,
+  type DecisionValidationResult
+} from "./types.ts";
+
+export type DecisionValidationContext = {
+  result: DecisionValidationResult;
+};
+
+export type DecisionValidationOptions = {
+  allowEmptyDecisionSet?: boolean;
+  checkIndexText?: boolean;
+  scanErrorPolicy?: "omit" | "source-only";
+};
+
+export type EstablishedDecisionIdSelection = {
+  decisionIds: DecisionId[];
+  errors: string[];
+};
+
+export function selectEstablishedDecisionIds(
+  scan: DecisionScan
+): EstablishedDecisionIdSelection {
+  const errors: string[] = [];
+  const decisionIds = scan.records
+    .filter(isEstablishedDecisionRecord)
+    .map((record) => record.decisionId);
+
+  if (decisionIds.length === 0) {
+    errors.push("Cannot generate an empty decision index");
+  }
+
+  return { decisionIds, errors };
+}
+
+export async function validateDecisionRecords(
+  options: DecisionScanOptions = {}
+): Promise<DecisionValidationResult> {
+  return (
+    await loadDecisionValidationContext(options, {
+      allowEmptyDecisionSet: true
+    })
+  ).result;
+}
+
+export async function loadDecisionValidationContext(
+  options: DecisionScanOptions = {},
+  validationOptions: DecisionValidationOptions = {}
+): Promise<DecisionValidationContext> {
+  const scan = await scanDecisionRecords(options);
+  return {
+    result: await validateDecisionScan(scan, validationOptions)
+  };
+}
+
+export async function validateDecisionScan(
+  scan: DecisionScan,
+  options: DecisionValidationOptions = {}
+): Promise<DecisionValidationResult> {
+  const errors =
+    options.scanErrorPolicy === "omit"
+      ? []
+      : options.scanErrorPolicy === "source-only"
+        ? [...scan.sourceErrors]
+        : [...scan.errors];
+  const hasEstablishedDecision = scan.records.some(isEstablishedDecisionRecord);
+  const selection =
+    options.allowEmptyDecisionSet && !hasEstablishedDecision
+      ? { decisionIds: [], errors: [] }
+      : selectEstablishedDecisionIds(scan);
+  errors.push(...selection.errors);
+  await validateDecisionIndexText(scan, selection.decisionIds, options, errors);
+
+  const establishedRecords = scan.records.filter(
+    (record) => record.document !== null
+  );
+
+  return decisionValidationSummary(scan, establishedRecords, errors);
+}
+
+async function validateDecisionIndexText(
+  scan: DecisionScan,
+  decisionIds: readonly DecisionId[],
+  options: DecisionValidationOptions,
+  errors: string[]
+): Promise<void> {
+  if (
+    options.checkIndexText === false ||
+    decisionIds.length === 0 ||
+    scan.sourceErrors.length > 0
+  ) {
+    return;
+  }
+  const checked = await syncDecisionIndex({
+    decisionsDirectory: scan.decisionsDirectory,
+    mode: "check"
+  });
+  if (checked.status !== "error") return;
+  if (
+    checked.state === "index-invalid" ||
+    checked.state === "index-missing" ||
+    checked.state === "index-stale"
+  ) {
+    errors.push(scan.indexRelativePath + " is out of sync; run sync-index");
+    return;
+  }
+  errors.push(
+    ...decisionIndexDiagnosticMessages(
+      checked.diagnostics,
+      scan.indexRelativePath
+    )
+  );
+}
+
+function decisionValidationSummary(
+  scan: DecisionScan,
+  establishedRecords: readonly DecisionScan["records"][number][],
+  errors: string[]
+): DecisionValidationResult {
+  return {
+    activationCandidateCount: scan.records.filter(
+      (record) => record.activationCandidate
+    ).length,
+    bodyReadyCandidateCount: scan.records.filter(
+      (record) => record.scaffoldValid && record.bodyReady
+    ).length,
+    activeCount: establishedRecords.filter(
+      (record) => record.status === "active"
+    ).length,
+    alignedCount: establishedRecords.filter(
+      (record) => record.status === "active" && record.alignment === "aligned"
+    ).length,
+    archivedCount: establishedRecords.filter(
+      (record) => record.status === "archived"
+    ).length,
+    decisionCount: establishedRecords.length,
+    errors,
+    scan,
+    scaffoldCandidateCount: scan.records.filter(
+      (record) => record.scaffoldValid
+    ).length,
+    unalignedCount: establishedRecords.filter(
+      (record) => record.status === "active" && record.alignment === "unaligned"
+    ).length
+  };
+}

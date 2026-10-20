@@ -1,0 +1,187 @@
+/*
+ * Synced TypeScript runtime; repository maintenance edits tools/decision-records/src/cli-args.ts.
+ * Installed skill copies may be edited directly; updates overwrite matching files.
+ * Repository: https://github.com/zxyycom/skills
+ * Source path: tools/decision-records/src/cli-args.ts
+ * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/decision-records/src/cli-args.ts
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
+ * Rebuild: bun run sync:decision-records-cli
+ */
+import type { DecisionStageScope } from "./decision-stage-contracts.ts";
+import type {
+  DecisionAlignment,
+  DecisionId,
+  DecisionListAlignment,
+  DecisionListStatus,
+  DecisionRelation,
+  DecisionRelationOverride,
+  DecisionRelationOverrideGroup,
+  DecisionRelationSummary,
+  DecisionRelationType,
+  DecisionSuccessor,
+  DecisionTag,
+  DecisionTraceDirection
+} from "./types.ts";
+
+export type Command =
+  | "archive"
+  | "candidates"
+  | "check"
+  | "discard"
+  | "evolve"
+  | "list"
+  | "mark-aligned"
+  | "new"
+  | "publish"
+  | "reactivate"
+  | "rename"
+  | "search"
+  | "set-relations"
+  | "show"
+  | "show-candidate"
+  | "stage"
+  | "sync-index"
+  | "trace";
+
+type LocatedCommand<
+  TCommand extends Command,
+  TOptions extends object = Record<never, never>
+> = TOptions & {
+  command: TCommand;
+  decisionsDir: string;
+  workspaceRoot: string;
+};
+
+export type CliArgs =
+  | LocatedCommand<
+      "archive",
+      {
+        decisionIds: DecisionId[];
+        keepUnrecordedHistory: boolean;
+      }
+    >
+  | LocatedCommand<"candidates">
+  | LocatedCommand<"check">
+  | LocatedCommand<
+      "discard",
+      { decisionId: DecisionId; deleteRecorded: boolean }
+    >
+  | LocatedCommand<
+      "evolve",
+      {
+        deleteRecorded: boolean;
+        discardId: DecisionId | null;
+        keepUnrecordedHistory: boolean;
+        preflight: boolean;
+        relationOverride: DecisionRelationOverride;
+        relationOverrideGroups: DecisionRelationOverrideGroup[];
+        successors: DecisionSuccessor[];
+      }
+    >
+  | LocatedCommand<
+      "list",
+      {
+        alignment: DecisionListAlignment;
+        createdAtFrom?: string;
+        createdAtTo?: string;
+        detail: boolean;
+        direction?: DecisionTraceDirection;
+        fullTime: boolean;
+        limit: number;
+        offset: number;
+        relatedTo?: string;
+        relationType?: DecisionRelationType;
+        status: DecisionListStatus;
+        tags: DecisionTag[];
+      }
+    >
+  | LocatedCommand<"mark-aligned", { decisionId: DecisionId }>
+  | LocatedCommand<
+      "new",
+      {
+        background: string;
+        decision: string;
+        decisionId: DecisionId;
+        preflightAlignment: DecisionAlignment | null;
+        purpose: string;
+        relations: DecisionRelation[];
+        relationSummaries: DecisionRelationSummary[];
+        tags: DecisionTag[];
+        title: string;
+      }
+    >
+  | LocatedCommand<
+      "publish",
+      {
+        alignment: DecisionAlignment;
+        decisionId: DecisionId;
+        keepUnrecordedHistory: boolean;
+        preflight: boolean;
+      }
+    >
+  | LocatedCommand<
+      "reactivate",
+      {
+        alignment: DecisionAlignment;
+        decisionId: DecisionId;
+        preflight: boolean;
+      }
+    >
+  | LocatedCommand<
+      "rename",
+      {
+        preflight: boolean;
+        renameRecordedDecision: boolean;
+        source: string;
+        target: string;
+      }
+    >
+  | LocatedCommand<
+      "set-relations",
+      {
+        preflight: boolean;
+        relationOverrideGroups: DecisionRelationOverrideGroup[];
+      }
+    >
+  | LocatedCommand<
+      "search",
+      {
+        alignment: DecisionListAlignment;
+        direction?: DecisionTraceDirection;
+        in: "content" | "metadata";
+        match: "all" | "any" | "phrase";
+        relatedTo?: string;
+        relationType?: DecisionRelationType;
+        status: DecisionListStatus;
+        tags: DecisionTag[];
+        text: string;
+      }
+    >
+  | LocatedCommand<"show", { decisionId: DecisionId }>
+  | LocatedCommand<"show-candidate", { decisionId: DecisionId }>
+  | LocatedCommand<
+      "stage",
+      { decisionIds: DecisionId[]; scope: DecisionStageScope }
+    >
+  | LocatedCommand<
+      "sync-index",
+      { preflight: boolean; selectors?: readonly string[] }
+    >
+  | LocatedCommand<
+      "trace",
+      {
+        decisionId: DecisionId;
+        traceDepth?: number | null;
+        traceJson: boolean;
+        traceDirection?: DecisionTraceDirection;
+        traceMaxRecords?: number;
+      }
+    >;
+
+export type CliArgsFor<TCommand extends Command> = Extract<
+  CliArgs,
+  { command: TCommand }
+>;
+
+export { createCliProgram } from "./cli-program.ts";
+export type { CreateCliProgramOptions } from "./cli-command-arguments.ts";

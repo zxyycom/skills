@@ -4,7 +4,7 @@
 
 ## 调用与前置检查
 
-分发入口：`node <skill-directory>/scripts/novel-cards.mjs <arguments>`。本仓库维护入口：`bun run novel-cards -- <arguments>`。`--root <project>` 默认当前目录；所有命令都不联网、不写稿件。
+分发入口：`node <skill-directory>/scripts/novel-cards.ts <arguments>`。本仓库维护入口：`bun run novel-cards -- <arguments>`。`--root <project>` 默认当前目录；所有命令都不联网、不写稿件。
 
 1. 先运行 `check`。索引缺失、陈旧或协议旧版时，核对来源并在写入授权下运行 `sync-index --write`，再查询；非法来源先按诊断修复。
 2. 留有未结算事务 journal 时，按下方恢复流程处理，其他读写命令保持阻断。

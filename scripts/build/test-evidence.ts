@@ -1,12 +1,16 @@
+import { nativeCliEntry } from "../lib/native-cli-entry.ts";
+import {
+  buildSkillRuntimeArtifacts,
+  syncSkillRuntimeArtifacts,
+  runRuntimeAdapter
+} from "../lib/skill-runtime.ts";
+import type { GeneratedFileMode } from "../lib/generated-file.ts";
 import path from "node:path";
 import { toJsonSchema } from "@valibot/to-json-schema";
 import { compile } from "json-schema-to-typescript";
 import {
   buildGeneratedDeclaration,
   buildGeneratedFileHeader,
-  bundleWithBun,
-  parseGeneratedFileMode,
-  syncGeneratedArtifacts,
   type GeneratedArtifact
 } from "../lib/generated-file.ts";
 import { githubRepository, rootDir } from "../lib/project.ts";
@@ -39,11 +43,11 @@ const publishedSchemasDirectory = path.join(
   "schemas"
 );
 
-const bundleSpec = {
+const runtimeSpec = {
   artifactName: "test evidence catalog CLI",
   declarationSource: "tools/test-evidence/api/test-evidence-catalog.d.mts",
   entrySource: "tools/test-evidence/src/cli.ts",
-  outputName: "test-evidence-catalog.mjs"
+  outputName: "test-evidence-catalog.ts"
 } as const;
 
 const schemaSpecs = [
@@ -119,61 +123,49 @@ const schemaSpecs = [
   }
 ] as const;
 
-async function buildBundle(): Promise<GeneratedArtifact[]> {
-  const bundle = await bundleWithBun({
-    banner: buildGeneratedFileHeader({
-      artifactName: bundleSpec.artifactName,
-      rebuildCommand,
-      repository: githubRepository,
-      skillSourcePath,
-      sourcePath: bundleSpec.entrySource
-    }),
-    cwd: rootDir,
-    entryPath: path.join(rootDir, bundleSpec.entrySource),
-    format: "esm",
-    keepNames: true,
-    minify: true,
-    outputFileName: bundleSpec.outputName,
-    sourceMapBaseDirectory: publishedScriptsDirectory,
-    sourceMap: true,
-    unsupportedOptionalPackages: ["supports-color"]
+async function buildRuntimeArtifacts(): Promise<GeneratedArtifact[]> {
+  const runtime = await buildSkillRuntimeArtifacts({
+    skillName: "test-evidence-review",
+    rebuildCommand,
+    nodeEngine: ">=24.18",
+    entries: [
+      await nativeCliEntry({
+        sourcePath: runtimeSpec.entrySource,
+        outputName: runtimeSpec.outputName,
+        runner: "runTestEvidenceCatalogCli",
+        declarationName: "test-evidence-catalog.d.mts",
+        typedExports: [
+          "runTestEvidenceCatalogCli",
+          "listTestEvidenceTags",
+          "queryTestEvidence",
+          "searchTestEvidence",
+          "showTestEvidenceCase",
+          "stageTestEvidenceIndex",
+          "syncTestEvidenceIndex",
+          "validateTestEvidence",
+          "validateTestEvidenceReferences"
+        ]
+      })
+    ]
   });
-  if (bundle.sourceMap === null) {
-    throw new Error(
-      `${bundleSpec.outputName} bundle must include a source map`
-    );
-  }
-  const outputPath = path.join(
-    publishedScriptsDirectory,
-    bundleSpec.outputName
-  );
   return [
-    {
-      content: bundle.code,
-      path: outputPath,
-      sourcePath: bundleSpec.entrySource
-    },
-    {
-      content: bundle.sourceMap,
-      path: `${outputPath}.map`,
-      sourcePath: bundleSpec.entrySource
-    },
+    ...runtime,
     {
       content: await buildGeneratedDeclaration({
         banner: buildGeneratedFileHeader({
-          artifactName: `${bundleSpec.artifactName} TypeScript declarations`,
+          artifactName: `${runtimeSpec.artifactName} TypeScript declarations`,
           rebuildCommand,
           repository: githubRepository,
           skillSourcePath,
-          sourcePath: bundleSpec.declarationSource
+          sourcePath: runtimeSpec.declarationSource
         }),
-        sourcePath: path.join(rootDir, bundleSpec.declarationSource)
+        sourcePath: path.join(rootDir, runtimeSpec.declarationSource)
       }),
       path: path.join(
         publishedScriptsDirectory,
-        bundleSpec.outputName.replace(/\.mjs$/u, ".d.mts")
+        runtimeSpec.outputName.replace(/\.ts$/u, ".d.mts")
       ),
-      sourcePath: bundleSpec.declarationSource
+      sourcePath: runtimeSpec.declarationSource
     }
   ];
 }
@@ -246,24 +238,18 @@ async function buildSchemaArtifacts(): Promise<GeneratedArtifact[]> {
   return artifacts;
 }
 
-async function main(): Promise<void> {
-  const mode = parseGeneratedFileMode(process.argv.slice(2));
+export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
   const artifacts = [
-    ...(await buildBundle()),
+    ...(await buildRuntimeArtifacts()),
     ...(await buildSchemaArtifacts())
   ];
-  const changed = await syncGeneratedArtifacts(
-    artifacts,
+  return await syncSkillRuntimeArtifacts(artifacts, {
     mode,
-    rootDir,
-    schemaSourcePath
-  );
-  if (mode === "check" && changed) {
-    process.exit(1);
-  }
-  if (!changed) {
-    console.log("Test evidence generated artifacts are current.");
-  }
+    skillName: "test-evidence-review",
+    retiredPaths: [
+      "scripts/test-evidence-catalog.mjs",
+      "scripts/test-evidence-catalog.mjs.map"
+    ]
+  });
 }
-
-await main();
+await runRuntimeAdapter(import.meta.url, syncRuntime);
