@@ -26,7 +26,8 @@ import type {
   DecisionQueryRequest,
   DecisionQueryResult,
   DecisionSearchFilters,
-  IndexedDecisionRecord
+  IndexedDecisionRecord,
+  IndexedDecisionState
 } from "./decision-query-contract.ts";
 import { decisionMetadataSearchFields } from "./decision-query-contract.ts";
 import { indexedRecord } from "./decision-query-records.ts";
@@ -50,10 +51,24 @@ export async function searchDecisionMetadata(
   const persisted = await loadDecisionIndex({ decisionsDirectory });
   if (persisted.status === "error")
     return metadataIndexFailure(persisted, indexRelativePath);
+  return projectDecisionMetadata(
+    Object.entries(persisted.value.entries).map(([id, state]) => ({
+      id,
+      state
+    })),
+    request
+  );
+}
+
+/** 从已验证的发布快照计算元数据命中与搜索事实，不读取来源。 */
+export function projectDecisionMetadata(
+  entries: readonly IndexedDecisionState[],
+  request: Extract<DecisionQueryRequest, { command: "search" }>
+): DecisionQueryResult {
   const matcher = metadataMatcher(request);
   if (matcher.status === "error") return matcher.failure;
-  const selected = Object.entries(persisted.value.entries)
-    .map(([id, state]) => indexedRecord({ id, state }))
+  const selected = entries
+    .map(indexedRecord)
     .sort((left, right) => left.sourcePath.localeCompare(right.sourcePath));
   const filtered = filterSearchRecords(selected, request);
   if (filtered.status === "error") return filtered.failure;

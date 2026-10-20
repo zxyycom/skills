@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { validateDecisionBody } from "../src/record.ts";
+import { decisionScanFromSources } from "./domain-fixture.ts";
 import { validateDecisionRecords } from "../src/index.ts";
 import { decisionIdFromSourcePath } from "../src/decision-path.ts";
 import {
@@ -11,13 +13,11 @@ import {
 import type { DecisionRelationConsistencyRecord } from "../src/relation-graph.ts";
 import { normalizeRelationSummary } from "../src/relation-summary.ts";
 import {
-  archivedRelativePath,
   candidateDecisionBody,
   currentRelativePath,
   decisionFilePath,
   findIndexEntry,
   readIndex,
-  runSuccessfulSourceCli,
   withFixtureWorkspace
 } from "./support.ts";
 
@@ -105,224 +105,136 @@ test("candidate relations are checked prospectively without entering the establi
     assert.equal(findIndexEntry(index, currentRelativePath).status, "active");
   }));
 
-test("candidate reallocation relations remain prospective until a complete transaction", () =>
-  withFixtureWorkspace(
-    "candidate-reallocation-preview",
-    async (workspaceRoot) => {
-      const candidateRelativePath = "use-forward-looking-reallocation";
-      await fs.writeFile(
-        decisionFilePath(workspaceRoot, candidateRelativePath),
-        candidateDecisionBody({
-          relations: [{ type: "重划", target: currentRelativePath }]
-        }),
-        "utf8"
-      );
+test("candidate reallocation relations remain prospective until a complete transaction", async () => {
+  const scan = await decisionScanFromSources([
+    { id: "predecessor", status: "active" },
+    { id: "candidate", relations: [{ type: "重划", target: "predecessor" }] }
+  ]);
+  assert.deepEqual(scan.sourceErrors, []);
+  assert.equal(
+    scan.records.filter((record) => record.activationCandidate).length,
+    1
+  );
+  assert.equal(
+    scan.records.find((record) => record.decisionId === "predecessor")?.status,
+    "active"
+  );
+});
 
-      const validation = await validateDecisionRecords({ workspaceRoot });
-      assert.deepEqual(validation.errors, []);
-      assert.equal(validation.activationCandidateCount, 1);
+test("candidate relation validation rejects missing targets", async () => {
+  const errors: string[] = [];
+  const document = await validateDecisionBody({
+    body: candidateDecisionBody({
+      id: "candidate",
+      relations: [{ type: "修订", target: "missing-target" }]
+    }),
+    errors,
+    sourcePath: "candidate.md",
+    targetExists: (target) => target === "predecessor"
+  });
+  assert.equal(document, null);
+  assert.match(errors.join("\n"), /target does not exist/u);
+});
+
+test("candidate relation validation rejects self references", async () => {
+  const errors: string[] = [];
+  const document = await validateDecisionBody({
+    body: candidateDecisionBody({
+      id: "candidate",
+      relations: [{ type: "修订", target: "candidate" }]
+    }),
+    errors,
+    sourcePath: "candidate.md",
+    targetExists: (target) => target === "predecessor"
+  });
+  assert.equal(document, null);
+  assert.match(errors.join("\n"), /must not relate to itself/u);
+});
+
+test("candidate relation validation rejects repeated targets", async () => {
+  const errors: string[] = [];
+  const document = await validateDecisionBody({
+    body: candidateDecisionBody({
+      id: "candidate",
+      relations: [
+        { type: "修订", target: "predecessor" },
+        { type: "替代", target: "predecessor" }
+      ]
+    }),
+    errors,
+    sourcePath: "candidate.md",
+    targetExists: (target) => target === "predecessor"
+  });
+  assert.equal(document, null);
+  assert.match(errors.join("\n"), /repeats relationship target/u);
+});
+
+test("strict relation checks reject undersized pure merges", async () => {
+  const scan = await decisionScanFromSources([
+    { id: "predecessor", status: "archived" },
+    { id: "another-predecessor", status: "archived" },
+    {
+      id: "successor",
+      status: "active",
+      relations: [{ type: "归并", target: "predecessor" }]
     }
-  ));
+  ]);
+  assert.match(
+    scan.sourceErrors.join("\n"),
+    /pure 归并 relation set must have at least two/u
+  );
+});
 
-test("candidate relation validation rejects missing targets", () =>
-  withFixtureWorkspace(
-    "candidate-relation-missing-target",
-    async (workspaceRoot) => {
-      const invalidRelativePath = "use-missing-relation-target";
-      await fs.writeFile(
-        decisionFilePath(workspaceRoot, invalidRelativePath),
-        candidateDecisionBody({
-          relations: [
-            {
-              type: "修订",
-              target: "missing-target"
-            }
-          ]
-        }),
-        "utf8"
-      );
-
-      assert.ok(
-        (await validateDecisionRecords({ workspaceRoot })).errors.some(
-          (error) => error.includes("target does not exist")
-        )
-      );
+test("strict relation checks reject open splits", async () => {
+  const scan = await decisionScanFromSources([
+    { id: "predecessor", status: "archived" },
+    { id: "another-predecessor", status: "archived" },
+    {
+      id: "successor",
+      status: "active",
+      relations: [{ type: "拆分", target: "predecessor" }]
     }
-  ));
+  ]);
+  assert.match(
+    scan.sourceErrors.join("\n"),
+    /at least two direct 拆分 successors/u
+  );
+});
 
-test("candidate relation validation rejects self references", () =>
-  withFixtureWorkspace(
-    "candidate-relation-self-reference",
-    async (workspaceRoot) => {
-      const invalidRelativePath = "use-self-relation";
-      await fs.writeFile(
-        decisionFilePath(workspaceRoot, invalidRelativePath),
-        candidateDecisionBody({
-          relations: [{ type: "修订", target: invalidRelativePath }]
-        }),
-        "utf8"
-      );
-
-      assert.ok(
-        (await validateDecisionRecords({ workspaceRoot })).errors.some(
-          (error) => error.includes("must not relate to itself")
-        )
-      );
+test("strict relation checks reject impure split successors", async () => {
+  const scan = await decisionScanFromSources([
+    { id: "predecessor", status: "archived" },
+    { id: "another-predecessor", status: "archived" },
+    {
+      id: "successor",
+      status: "active",
+      relations: [
+        { type: "拆分", target: "predecessor" },
+        { type: "修订", target: "another-predecessor" }
+      ]
     }
-  ));
+  ]);
+  assert.match(
+    scan.sourceErrors.join("\n"),
+    /拆分 successor must have exactly one direct 拆分 relation/u
+  );
+});
 
-test("candidate relation validation rejects repeated targets", () =>
-  withFixtureWorkspace(
-    "candidate-relation-repeated-target",
-    async (workspaceRoot) => {
-      const invalidRelativePath = "use-repeated-relation-target";
-      await fs.writeFile(
-        decisionFilePath(workspaceRoot, invalidRelativePath),
-        candidateDecisionBody({
-          relations: [
-            { type: "修订", target: currentRelativePath },
-            { type: "替代", target: currentRelativePath }
-          ]
-        }),
-        "utf8"
-      );
-
-      assert.ok(
-        (await validateDecisionRecords({ workspaceRoot })).errors.some(
-          (error) => error.includes("repeats relationship target")
-        )
-      );
+test("strict relation checks reject undersized reallocation components", async () => {
+  const scan = await decisionScanFromSources([
+    { id: "predecessor", status: "archived" },
+    { id: "another-predecessor", status: "archived" },
+    {
+      id: "successor",
+      status: "active",
+      relations: [{ type: "重划", target: "predecessor" }]
     }
-  ));
-
-test("strict relation checks reject undersized pure merges", () =>
-  withFixtureWorkspace("relation-static-merge", async (workspaceRoot) => {
-    const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
-    const currentText = await fs.readFile(currentPath, "utf8");
-    const relationMarker =
-      "relations:\n  - type: 修订\n    target: " + archivedRelativePath;
-    assert.ok(currentText.includes(relationMarker));
-    await fs.writeFile(
-      currentPath,
-      currentText.replace(
-        relationMarker,
-        "relations:\n  - type: 归并\n    target: " + archivedRelativePath
-      ),
-      "utf8"
-    );
-
-    assert.ok(
-      (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>
-        error.includes("pure 归并 relation set must have at least two")
-      )
-    );
-  }));
-
-test("strict relation checks reject open splits", () =>
-  withFixtureWorkspace("relation-static-open-split", async (workspaceRoot) => {
-    const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
-    const currentText = await fs.readFile(currentPath, "utf8");
-    const relationMarker =
-      "relations:\n  - type: 修订\n    target: " + archivedRelativePath;
-    assert.ok(currentText.includes(relationMarker));
-    await fs.writeFile(
-      currentPath,
-      currentText.replace(
-        relationMarker,
-        "relations:\n  - type: 拆分\n    target: " + archivedRelativePath
-      ),
-      "utf8"
-    );
-
-    assert.ok(
-      (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>
-        error.includes("at least two direct 拆分 successors")
-      )
-    );
-  }));
-
-test("strict relation checks reject impure split successors", () =>
-  withFixtureWorkspace(
-    "relation-static-impure-split",
-    async (workspaceRoot) => {
-      const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
-      const currentText = await fs.readFile(currentPath, "utf8");
-      const secondArchivedRelativePath = "use-second-archived-predecessor";
-      await fs.writeFile(
-        decisionFilePath(workspaceRoot, secondArchivedRelativePath),
-        candidateDecisionBody(),
-        "utf8"
-      );
-      await runSuccessfulSourceCli([
-        "publish",
-        secondArchivedRelativePath,
-        "--alignment",
-        "aligned",
-        "--root",
-        workspaceRoot
-      ]);
-      await runSuccessfulSourceCli([
-        "archive",
-        secondArchivedRelativePath,
-        "--root",
-        workspaceRoot
-      ]);
-      const relationMarker =
-        "relations:\n  - type: 修订\n    target: " + archivedRelativePath;
-      assert.ok(currentText.includes(relationMarker));
-      await fs.writeFile(
-        currentPath,
-        currentText.replace(
-          relationMarker,
-          "relations:\n" +
-            "  - type: 拆分\n" +
-            "    target: " +
-            archivedRelativePath +
-            "\n" +
-            "  - type: 修订\n" +
-            "    target: " +
-            secondArchivedRelativePath
-        ),
-        "utf8"
-      );
-
-      assert.ok(
-        (await validateDecisionRecords({ workspaceRoot })).errors.some(
-          (error) =>
-            error.includes(
-              "拆分 successor must have exactly one direct 拆分 relation"
-            )
-        )
-      );
-    }
-  ));
-
-test("strict relation checks reject undersized reallocation components", () =>
-  withFixtureWorkspace(
-    "relation-static-undersized-reallocation",
-    async (workspaceRoot) => {
-      const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
-      const currentText = await fs.readFile(currentPath, "utf8");
-      const relationMarker =
-        "relations:\n  - type: 修订\n    target: " + archivedRelativePath;
-      assert.ok(currentText.includes(relationMarker));
-      await fs.writeFile(
-        currentPath,
-        currentText.replace(
-          relationMarker,
-          "relations:\n  - type: 重划\n    target: " + archivedRelativePath
-        ),
-        "utf8"
-      );
-
-      assert.ok(
-        (await validateDecisionRecords({ workspaceRoot })).errors.some(
-          (error) =>
-            error.includes("重划 component must have at least two direct")
-        )
-      );
-    }
-  ));
+  ]);
+  assert.match(
+    scan.sourceErrors.join("\n"),
+    /重划 component must have at least two direct/u
+  );
+});
 
 function decisionId(value: string) {
   const decisionId = decisionIdFromSourcePath(value);

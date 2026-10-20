@@ -1,11 +1,12 @@
-import { defineCheck } from "@zxyycom/vibe-check";
-import type { Check } from "@zxyycom/vibe-check";
-import { externalProcessClaim, type GateTag } from "../contracts.ts";
+import { commandCheck } from "@zxyycom/vibe-check";
 import {
-  executeGateCommand,
-  type GateCommand,
-  type GateCommandRunner
-} from "../command-runner.ts";
+  externalProcessClaim,
+  gateCheckDeclaration,
+  projectActivationFlag,
+  type GateCheckConfiguration,
+  type GateTag
+} from "../contracts.ts";
+import { gateCommandPolicy, type GateCommand } from "../command-runner.ts";
 import type { GatePackageScriptCheckId } from "./package-script.ts";
 
 export type SemanticGateCheck = Readonly<{
@@ -24,7 +25,7 @@ const bunTest = (file: string): GateCommand => ({
 export const semanticGateChecks = [
   {
     checkId: "test:novel-cards:card-and-query-contract",
-    dependsOn: ["script:check:novel-cards-cli"],
+    dependsOn: ["script:check:skill-updaters"],
     displayName: "Novel Cards card integrity and standalone query",
     requiredTag: undefined,
     command: bunTest(
@@ -41,7 +42,7 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:lightweight-judgment:public-distribution",
-    dependsOn: ["script:check:lightweight-judgment-cli"],
+    dependsOn: ["script:check:skill-updaters"],
     displayName: "Lightweight Judgment standalone distribution",
     requiredTag: undefined,
     command: bunTest(
@@ -64,7 +65,7 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:change-plan:public-distribution",
-    dependsOn: ["script:check:change-plan-cli"],
+    dependsOn: ["script:check:skill-updaters"],
     displayName: "Change Plan public distribution",
     requiredTag: undefined,
     command: bunTest("./tools/change-plan/tests/checks/public-distribution.ts")
@@ -101,7 +102,7 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:decision-records:public-distribution",
-    dependsOn: ["script:check:decision-records-cli"],
+    dependsOn: ["script:check:skill-updaters"],
     displayName: "Decision Records public distribution",
     requiredTag: undefined,
     command: bunTest(
@@ -189,7 +190,7 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:task-graph:public-distribution",
-    dependsOn: ["script:check:task-graph-cli"],
+    dependsOn: ["script:check:skill-updaters"],
     displayName: "Task Graph public distribution",
     requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/checks/public-distribution.ts")
@@ -229,27 +230,38 @@ export const semanticGateChecks = [
     displayName: "Test Evidence migration",
     requiredTag: undefined,
     command: bunTest("./scripts/test-evidence/migrate.test.ts")
-  }
+  },
+  ...(["initializer", "runtime", "public-distribution"] as const).map(
+    (name) => ({
+      checkId: `test:mcpshell:${name}` as const,
+      displayName: `MCPShell ${name}`,
+      requiredTag: undefined,
+      command: bunTest(
+        `./tools/mcpshell-workspace-bridge/tests/${name === "public-distribution" ? "generated" : name}.test.ts`
+      ),
+      ...(name === "public-distribution"
+        ? { dependsOn: ["script:check:skill-updaters"] as const }
+        : {})
+    })
+  )
 ] as const satisfies readonly SemanticGateCheck[];
 
 export function createSemanticGateCheck(
   check: SemanticGateCheck,
-  runner: GateCommandRunner
-): Check {
-  return defineCheck({
+  configuration: GateCheckConfiguration = {}
+) {
+  return commandCheck({
     checkId: check.checkId,
-    ...(check.dependsOn === undefined ? {} : { dependsOn: check.dependsOn }),
     displayName: check.displayName,
-    resourceClaims: externalProcessClaim,
-    async execution({ artifactDirectory, project, signal }) {
-      return await executeGateCommand({
-        artifactDirectory,
-        command: check.command,
-        projectRoot: project.root,
-        runner,
-        context: { kind: "gate-command" },
-        signal
-      });
-    }
+    ...gateCheckDeclaration(
+      check.checkId,
+      configuration,
+      externalProcessClaim,
+      check.dependsOn,
+      check.requiredTag ?? projectActivationFlag(check.checkId, configuration)
+    ),
+    ...gateCommandPolicy,
+    executable: check.command.command,
+    arguments: check.command.args
   });
 }

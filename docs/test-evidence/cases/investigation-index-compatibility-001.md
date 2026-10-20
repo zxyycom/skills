@@ -10,4 +10,4 @@ Contract:
 - Investigation index 只接受当前 definition 版本。
 
 Proves:
-- 旧 definition 使公共 query 返回 definition 诊断。
+- 真实索引解析器按当前领域 definition 和 expectation 解析内存 JSON 时，拒绝旧 definition 并返回 definition 诊断。

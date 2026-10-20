@@ -12,5 +12,5 @@ Contract:
 - type-only 匹配边按 UTF-16 的 `(sourceId, type, target)` 顺序投影；CLI 默认预览前三条并报告余量，`--detail` 展开全部匹配边。
 
 Proves:
-- 前驱和后继结果分别保留正确 source 方向、type、target 与可选摘要；无筛选结果不含 `filterRelations`，CLI 显示筛选依据。
-- 四条 type-only 匹配边完整且有序；紧凑输出只显示前三条并报告 `+1`，detail 显示第四条。
+- 前驱和后继结果分别保留正确 source 方向、type、target 与可选摘要；无筛选结果不含 `filterRelations`，列表 renderer 显示同一内存快照的筛选依据。
+- 真实领域投影保留四条完整且有序的 type-only 匹配边；renderer 紧凑输出只显示前三条并报告 `+1`，detail 显示第四条。

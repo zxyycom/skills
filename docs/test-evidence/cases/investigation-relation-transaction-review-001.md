@@ -12,5 +12,5 @@ Contract:
 - 无法准备事务的失败结果不携带成功 relationReview。
 
 Proves:
-- 逐次替换展示 summary 的 before/after，清空和多来源结果显示 source、action 与最终集合，重复写入标记 unchanged；空 replacements 的错误结果使 `relationReview` 为 undefined。
-- CLI 分别展示 source-qualified summary 清除、清空移除与新增边，使用完整三段边格式和缺省摘要标记。
+- 关系 review 纯分类函数在 summary 增加、变更、移除和清空时保留 before/after；多来源按 ID 排序，对象副本但内容相同标记 unchanged。公开 API 对空 replacements 预检返回完整 source 组错误、changed=false 且 `relationReview` 为 undefined。
+- 关系 review renderer 直接向 stdout writer 输出 source-qualified summary 清除、清空移除与新增边，使用完整三段边格式和缺省摘要标记，且不写 stderr；不经 CLI 或文件事务。

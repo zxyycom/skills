@@ -1,10 +1,11 @@
-import { defineCheck } from "@zxyycom/vibe-check";
-import type { Check } from "@zxyycom/vibe-check";
-import { externalProcessClaim } from "../contracts.ts";
+import { commandCheck } from "@zxyycom/vibe-check";
 import {
-  executeGateCommand,
-  type GateCommandRunner
-} from "../command-runner.ts";
+  externalProcessClaim,
+  gateCheckDeclaration,
+  projectActivationFlag,
+  type GateCheckConfiguration
+} from "../contracts.ts";
+import { gateCommandPolicy } from "../command-runner.ts";
 
 export const compatibilityTestPackageScripts = [
   "test:decision-records-cli",
@@ -32,15 +33,7 @@ export const releaseRequiredPackageScripts = [
   "validate",
   "check:investigations",
   "check:decisions",
-  "check:test-evidence-cli",
   "check:test-evidence-catalog",
-  "check:skill-validator",
-  "check:investigation-report-check",
-  "check:change-plan-cli",
-  "check:lightweight-judgment-cli",
-  "check:novel-cards-cli",
-  "check:decision-records-cli",
-  "check:task-graph-cli",
   "check:skill-updaters",
   "test:generated-file",
   "format:check",
@@ -50,24 +43,6 @@ export const releaseRequiredPackageScripts = [
 export type GatePackageScript = (typeof releaseRequiredPackageScripts)[number];
 
 export type GatePackageScriptCheckId = `script:${GatePackageScript}`;
-
-export const releaseBunTestPackageFiles = {
-  "test:environment": [
-    "./scripts/auto-push.test.ts",
-    "./scripts/environment.test.ts",
-    "./scripts/validators/project-config.test.ts"
-  ],
-  "test:index-runtime": ["./tools/index-runtime/tests/run.ts"],
-  "test:skill-updater": ["./tools/skill-updater/tests/run.ts"],
-  "test:skill-validator": ["./tools/skill-validator/tests/run.ts"],
-  "test:relation-graph": ["./tools/shared/tests/relation-graph.test.ts"],
-  "test:file-text-search": ["./tools/shared/tests/file-text-search.test.ts"],
-  "test:skill-package-hash": ["./scripts/lib/skill-package-hash.test.ts"],
-  "test:skill-release-publisher": ["./scripts/publish-skills.test.ts"],
-  "test:generated-file": ["./scripts/lib/generated-file.test.ts"]
-} as const satisfies Partial<
-  Readonly<Record<GatePackageScript, readonly string[]>>
->;
 
 // Providers establish the trust boundary for tests that import distributed files.
 export const packageScriptDependencies: Readonly<
@@ -84,24 +59,21 @@ export function packageScriptCheckId(
 
 export function createPackageScriptCheck(
   script: GatePackageScript,
-  runner: GateCommandRunner
-): Check {
-  return defineCheck({
-    checkId: packageScriptCheckId(script),
+  configuration: GateCheckConfiguration = {}
+) {
+  const checkId = packageScriptCheckId(script);
+  return commandCheck({
+    checkId,
     displayName: `Script: ${script}`,
-    ...(packageScriptDependencies[script] === undefined
-      ? {}
-      : { dependsOn: packageScriptDependencies[script] }),
-    resourceClaims: externalProcessClaim,
-    async execution({ artifactDirectory, project, signal }) {
-      return await executeGateCommand({
-        artifactDirectory,
-        command: { args: ["run", script], command: "bun" },
-        projectRoot: project.root,
-        runner,
-        context: { kind: "package-script", script },
-        signal
-      });
-    }
+    ...gateCheckDeclaration(
+      checkId,
+      configuration,
+      externalProcessClaim,
+      packageScriptDependencies[script],
+      projectActivationFlag(checkId, configuration)
+    ),
+    ...gateCommandPolicy,
+    executable: "bun",
+    arguments: ["run", script]
   });
 }

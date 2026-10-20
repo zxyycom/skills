@@ -1,33 +1,44 @@
-import fs from "node:fs/promises";
 import path from "node:path";
 import type { AstGrepMatch, TestCommand } from "./snapshot-types.ts";
+import type { SnapshotModuleScan } from "./snapshot-ast-scan.ts";
 import { commandKey } from "./snapshot-commands.ts";
-import { astGrepJson, moduleClosure } from "./snapshot-ast-scan.ts";
+import { astGrepPatternsJson } from "./snapshot-ast-scan.ts";
 import {
   posixRelative,
   resolveAstGrep,
   snapshotFailure
 } from "./snapshot-files.ts";
 
+const unsupportedPatterns = [
+  "t.test($$$)",
+  "it($$$)",
+  "suite($$$)",
+  "test($$$, () => { $$$ test($$$) $$$ })",
+  "test($$$, async () => { $$$ test($$$) $$$ })"
+];
+const staticPattern = "test($NAME, $$$)";
+const parameterizedPattern =
+  "for (const $VALUE of $VALUES) { $$$ test($NAME, $$$) $$$ }";
+
 export async function assertSupportedRegistrationShape(
   workspaceRoot: string,
-  commands: readonly TestCommand[]
-): Promise<void> {
+  commands: readonly TestCommand[],
+  modules: SnapshotModuleScan
+): Promise<ReadonlyMap<string, readonly AstGrepMatch[]>> {
   const executable = await resolveAstGrep(workspaceRoot);
   const entries = commands.flatMap(({ files }) =>
     files.map((file) => path.resolve(workspaceRoot, file))
   );
-  const closure = await moduleClosure(workspaceRoot, [...new Set(entries)]);
-  for (const pattern of [
-    "t.test($$$)",
-    "it($$$)",
-    "suite($$$)",
-    "test($$$, () => { $$$ test($$$) $$$ })",
-    "test($$$, async () => { $$$ test($$$) $$$ })"
-  ]) {
-    const firstMatch = (
-      await astGrepJson(executable, workspaceRoot, pattern, closure)
-    )[0];
+  const closure = await modules.closure([...new Set(entries)]);
+  const matches = await astGrepPatternsJson(
+    executable,
+    workspaceRoot,
+    [...unsupportedPatterns, staticPattern, parameterizedPattern],
+    closure,
+    modules
+  );
+  for (const pattern of unsupportedPatterns) {
+    const firstMatch = matches.get(pattern)?.[0];
     if (firstMatch !== undefined) {
       throw snapshotFailure(
         `unsupported registration shape ${pattern} in ${firstMatch.sourcePath}`
@@ -35,7 +46,7 @@ export async function assertSupportedRegistrationShape(
     }
   }
   for (const filePath of closure) {
-    const source = await fs.readFile(filePath, "utf8");
+    const source = await modules.source(filePath);
     if (
       /from\s*["'](?:node|bun):test["']/u.test(source) &&
       /\b(?:test|describe)\s+as\s+/u.test(source)
@@ -45,18 +56,19 @@ export async function assertSupportedRegistrationShape(
       );
     }
   }
+  return matches;
 }
 
 export async function registrationClosures(
   workspaceRoot: string,
-  commands: readonly TestCommand[]
+  commands: readonly TestCommand[],
+  modules: SnapshotModuleScan
 ): Promise<ReadonlyMap<string, readonly string[]>> {
   const byCommand = new Map<string, readonly string[]>();
   for (const command of commands) {
     byCommand.set(
       commandKey(command),
-      await moduleClosure(
-        workspaceRoot,
+      await modules.closure(
         command.files.map((file) => path.resolve(workspaceRoot, file))
       )
     );
@@ -115,15 +127,10 @@ function parameterizedTestNames(match: AstGrepMatch): readonly string[] {
 
 export async function registrationDefinitions(
   workspaceRoot: string,
-  closures: ReadonlyMap<string, readonly string[]>
+  closures: ReadonlyMap<string, readonly string[]>,
+  matches: ReadonlyMap<string, readonly AstGrepMatch[]>
 ): Promise<ReadonlyMap<string, ReadonlyMap<string, readonly string[]>>> {
-  const executable = await resolveAstGrep(workspaceRoot);
-  const files = new Set<string>();
-  for (const closure of closures.values()) {
-    for (const file of closure) files.add(file);
-  }
   const definitionsByName = new Map<string, Set<string>>();
-  const filePaths = [...files].sort();
   const addDefinitions = (
     sourcePath: string,
     names: readonly string[]
@@ -134,22 +141,12 @@ export async function registrationDefinitions(
       definitionsByName.set(name, paths);
     }
   };
-  const staticMatches = await astGrepJson(
-    executable,
-    workspaceRoot,
-    "test($NAME, $$$)",
-    filePaths
-  );
+  const staticMatches = matches.get(staticPattern) ?? [];
   for (const match of staticMatches) {
     const name = testNameFromAstMatch(match);
     if (name !== null) addDefinitions(match.sourcePath, [name]);
   }
-  const parameterizedMatches = await astGrepJson(
-    executable,
-    workspaceRoot,
-    "for (const $VALUE of $VALUES) { $$$ test($NAME, $$$) $$$ }",
-    filePaths
-  );
+  const parameterizedMatches = matches.get(parameterizedPattern) ?? [];
   for (const match of parameterizedMatches) {
     addDefinitions(match.sourcePath, parameterizedTestNames(match));
   }

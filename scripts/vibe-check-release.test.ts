@@ -3,7 +3,6 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import {
-  createGateDefinition,
   gateEnvironmentCheckId,
   releaseRequiredCheckIds,
   releaseSnapshotCheckId
@@ -13,7 +12,7 @@ import {
   prepareSkillPackageRelease
 } from "./lib/skill-package-release.ts";
 import {
-  completedScript,
+  createReleaseTestDefinition,
   createReleaseRepository,
   fileExists,
   outcomeFor,
@@ -30,11 +29,9 @@ test("release prepare runs before terminal authorization and package", async () 
     "skills-vibe-release-timing-",
     async (directory) => {
       await createReleaseRepository(directory);
-      const definition = createGateDefinition(["release"], {
+      const definition = createReleaseTestDefinition({
         baselineRef: "HEAD",
-        batchReleaseTests: false,
-        nativeChecks: passingNativeChecks(),
-        runCommand: completedScript()
+        nativeChecks: passingNativeChecks()
       });
       const prepare = definition.checks.find(
         ({ checkId }) => checkId === releaseSnapshotCheckId
@@ -67,8 +64,7 @@ test("release authorization and package use the snapshot captured before the ind
       await stageSkillMarkdown(directory, 2, "captured content");
       let packCalls = 0;
       const result = await runDefinition(
-        createGateDefinition(["release"], {
-          batchReleaseTests: false,
+        createReleaseTestDefinition({
           nativeChecks: passingNativeChecks(),
           prepareRelease: async (workspaceRoot, baselineRef) => {
             const prepared = await prepareSkillPackageRelease(
@@ -84,8 +80,7 @@ test("release authorization and package use the snapshot captured before the ind
               prepared.snapshot,
               path.join(workspaceRoot, "dist")
             );
-          },
-          runCommand: completedScript()
+          }
         }),
         directory,
         ["release"]
@@ -115,10 +110,8 @@ test("release preparation or version failure blocks packaging", async () => {
         "content changed without version bump"
       );
       const versionFailed = await runDefinition(
-        createGateDefinition(["release"], {
-          batchReleaseTests: false,
-          nativeChecks: passingNativeChecks(),
-          runCommand: completedScript()
+        createReleaseTestDefinition({
+          nativeChecks: passingNativeChecks()
         }),
         directory,
         ["release"]
@@ -143,13 +136,11 @@ test("release preparation or version failure blocks packaging", async () => {
       assert.equal(await fileExists(path.join(directory, "dist")), false);
 
       const unavailable = await runDefinition(
-        createGateDefinition(["release"], {
-          batchReleaseTests: false,
+        createReleaseTestDefinition({
           nativeChecks: passingNativeChecks(),
           prepareRelease: async () => {
             throw new Error("Git resolver unavailable");
-          },
-          runCommand: completedScript()
+          }
         }),
         directory,
         ["release"]
@@ -159,6 +150,88 @@ test("release preparation or version failure blocks packaging", async () => {
         "unavailable"
       );
       assert.notEqual(outcomeFor(unavailable, "pack:skills").status, "passed");
+    }
+  );
+});
+
+test("release typed handoff retains the same private reference and never reuses it across Runs", async () => {
+  await withTemporaryDirectory(
+    "gate-release-private-handoff-",
+    async (directory) => {
+      await createReleaseRepository(directory);
+      const references: object[] = [];
+      let failPreparation = false;
+      let packCalls = 0;
+      const definition = createReleaseTestDefinition({
+        prepareRelease: async (root, baseline) => {
+          if (failPreparation) throw new Error("second Run preparation failed");
+          const prepared = await prepareSkillPackageRelease(root, baseline);
+          references.push(prepared);
+          return prepared;
+        },
+        packRelease: async (prepared) => {
+          packCalls += 1;
+          assert.equal(prepared, references.at(-1));
+        }
+      });
+      const first = await runDefinition(definition, directory, ["release"]);
+      assert.equal(first.aggregate, "passed");
+      assert.equal(JSON.stringify(first.snapshot).includes('"handoff"'), false);
+      assert.equal(
+        JSON.stringify(first.snapshot).includes('"snapshot"'),
+        false
+      );
+      const second = await runDefinition(definition, directory, ["release"]);
+      assert.equal(second.aggregate, "passed");
+      assert.notEqual(references[0], references[1]);
+      failPreparation = true;
+      const failed = await runDefinition(definition, directory, ["release"]);
+      assert.equal(failed.aggregate, "failed");
+      assert.equal(packCalls, 2);
+      assert.notEqual(outcomeFor(failed, "pack:skills").status, "passed");
+    }
+  );
+});
+
+test("release packaging failure and cancellation cannot produce successful delivery", async () => {
+  const { run } = await import("@zxyycom/vibe-check");
+  const { noOutput } = await import("./vibe-check-test-support.ts");
+  await withTemporaryDirectory(
+    "gate-release-final-failure-",
+    async (directory) => {
+      await createReleaseRepository(directory);
+      const failed = await runDefinition(
+        createReleaseTestDefinition({
+          packRelease: async () => {
+            throw new Error("fixture pack failed");
+          }
+        }),
+        directory,
+        ["release"]
+      );
+      assert.equal(outcomeFor(failed, "pack:skills").status, "failed");
+      const controller = new AbortController();
+      let packed = false;
+      const cancelled = await run(
+        createReleaseTestDefinition({
+          prepareRelease: async (root, baseline) => {
+            const prepared = await prepareSkillPackageRelease(root, baseline);
+            controller.abort();
+            return prepared;
+          },
+          packRelease: async () => {
+            packed = true;
+          }
+        }),
+        {
+          flags: ["release"],
+          projectRoot: directory,
+          signal: controller.signal,
+          outputs: noOutput
+        }
+      );
+      assert.equal(cancelled.kind, "cancelled");
+      assert.equal(packed, false);
     }
   );
 });

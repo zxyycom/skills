@@ -12,7 +12,6 @@ import {
 
 test("CLI exposes only report-level commands and rejects old topic options", async () => {
   await withTempRoot("cli", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
     const help = await runInvestigationCli(root, ["--help"]);
     assert.equal(help.status, 0);
     assert.equal(help.stderr, "");
@@ -88,14 +87,14 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
 
 test("CLI new defaults formedAt to the current UTC second when omitted", async () => {
   await withTempRoot("cli-default-formed-at", async (root) => {
-    const help = runGeneratedInvestigationCliSmoke(root, ["new", "--help"]);
+    const help = await runInvestigationCli(root, ["new", "--help"]);
     assert.equal(help.status, 0);
     assert.match(help.stdout, /Usage: investigation-report new/u);
     assert.match(help.stdout, /\[name-or-id\]/u);
     assert.match(help.stdout, /--formed-at <rfc3339>/u);
     assert.match(help.stdout, /default: current UTC time/u);
 
-    const missingIdentity = runGeneratedInvestigationCliSmoke(root, [
+    const missingIdentity = await runInvestigationCli(root, [
       "new",
       "--title",
       "缺少身份",
@@ -110,7 +109,7 @@ test("CLI new defaults formedAt to the current UTC second when omitted", async (
       /new requires exactly one Investigation name or ID/u
     );
 
-    const missingQuestion = runGeneratedInvestigationCliSmoke(root, [
+    const missingQuestion = await runInvestigationCli(root, [
       "new",
       "missing-question",
       "--title",
@@ -139,7 +138,7 @@ test("CLI new defaults formedAt to the current UTC second when omitted", async (
     const after = Math.floor(Date.now() / 1000) * 1000;
     assert.equal(created.status, 0, created.stderr);
 
-    const shown = runGeneratedInvestigationCliSmoke(root, [
+    const shown = await runInvestigationCli(root, [
       "show-candidate",
       "cli-default-formed-at"
     ]);
@@ -191,7 +190,6 @@ test("CLI set-relations prints a human-readable result and rejects JSON output",
 
 test("CLI set-relations rejects relations that do not follow a source", async () => {
   await withTempRoot("cli-relations-invalid", async (root) => {
-    await writeCollection(root, [{ id: "base" }, { id: "next" }]);
     const malformed = await runInvestigationCli(root, [
       "set-relations",
       "--relation",
@@ -205,7 +203,6 @@ test("CLI set-relations rejects relations that do not follow a source", async ()
 
 test("CLI set-relations rejects repeated sources and targets as invalid arguments", async () => {
   await withTempRoot("cli-relations-duplicates", async (root) => {
-    await writeCollection(root, [{ id: "base" }, { id: "next" }]);
     const repeatedSource = await runInvestigationCli(root, [
       "set-relations",
       "--source",
@@ -387,7 +384,6 @@ test("CLI set-relations scopes summaries to complete source groups", async () =>
 
 test("CLI rejects invalid relation and trace enum values", async () => {
   await withTempRoot("cli-raw-enums", async (root) => {
-    await writeCollection(root, [{ id: "base" }, { id: "next" }]);
     const relation = await runInvestigationCli(root, [
       "set-relations",
       "--source",
@@ -413,18 +409,16 @@ test("CLI rejects invalid relation and trace enum values", async () => {
 
 test("CLI discard rejects malformed investigation IDs as argument errors", async () => {
   await withTempRoot("cli-discard-invalid", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
     const result = await runInvestigationCli(root, ["discard", "./report.md"]);
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
     assert.match(result.stderr, /discard id must use an Investigation ID/u);
-    await fs.access(path.join(investigationRoot(root), "report.md"));
+    assert.deepEqual(await fs.readdir(root), []);
   });
 });
 
 test("CLI exposes one discard action and rejects removed candidate-specific commands and flags", async () => {
   await withTempRoot("cli-discard-surface", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
     const help = await runInvestigationCli(root, ["discard", "--help"]);
     assert.equal(help.status, 0);
     assert.match(help.stdout, /--delete-recorded/u);

@@ -1,6 +1,6 @@
 # Gate 声明与去留清单
 
-本表承接 68 个基线身份的质量义务、重跑入口与目标映射。
+本表对照 68 个基线身份的质量义务与已接入的 64 项 catalog，保存重跑入口、归并与依赖映射。
 基线为提交 `7bd8a96754ef9226ee369a6a1d9dd364183d3370`：
 环境 1、原生 7、package-script 28、语义 29、release 3。
 
@@ -8,14 +8,14 @@
 
 按独立验收结果、真实输入、失败 owner 和重跑边界判断保留或归并，
 接入遵循 design 的[必要性标准](design.md#最小基线与特殊结构的必要性)。
-先按类别读取全部基线义务，再按目标映射实施。
+基线表用于覆盖对照，当前数量和后继见“目标身份映射”。
 
-## 环境与原生：8 项
+## 基线环境与原生：8 项
 
 环境每次执行并作为其余结果的成功前置，重跑为 `node scripts/environment.js gate`；
 七项原生结果迁移构造声明与文件选择，维持当前质量政策。
 
-| 当前身份 | 质量义务 |
+| 基线身份 | 质量义务 |
 | --- | --- |
 | `gate-environment` | 基础工具链与运行环境 |
 | `duplicate-detection` | 重复片段，150-token blocking 边界 |
@@ -26,13 +26,13 @@
 | `file-metrics` | 文件级体量与密度 |
 | `function-metrics` | 函数体量、CCN、嵌套及参数，按现行区域阈值 |
 
-## Package-script：28 项
+## 基线 Package-script：28 项
 
 重跑规则：去掉 ID 的 `script:` 前缀，以 `bun run <script-name>` 执行。
 下表记录现有义务；八项领域生成检查归并到统一前置，其余项目结果独立结算。
 Gate 自测随结构变化保留项目 consumer 契约。
 
-| 当前身份 | 质量义务 |
+| 基线身份 | 质量义务 |
 | --- | --- |
 | `script:test:environment` | 自举、hook 与环境配置行为 |
 | `script:test:index-runtime` | 共享索引运行时 |
@@ -63,12 +63,12 @@ Gate 自测随结构变化保留项目 consumer 契约。
 | `script:format:check` | 代码格式 |
 | `script:check:task-graph-index` | 当前任务图状态的领域约束 |
 
-## 语义结果：29 项
+## 基线语义结果：29 项
 
 默认重跑：`test:<tool>:<case>` 对应 `bun test ./tools/<tool>/tests/checks/<case>.ts`，
 例外列在表后。兼容性聚合入口未重复列入这些语义叶子。
 
-| 当前身份 | 质量义务 |
+| 基线身份 | 质量义务 |
 | --- | --- |
 | `test:novel-cards:card-and-query-contract` | 卡片完整性、独立查询与分发输入 |
 | `test:lightweight-judgment:request-and-response` | 请求/响应边界 |
@@ -118,7 +118,7 @@ Gate 自测随结构变化保留项目 consumer 契约。
 重跑为 `bun run check --tag release --cold`。基线 base 范围为 65 项（含环境），release 为全部 68 项；
 三项 release 的授权和交付责任保持独立。
 
-| 当前身份 | 质量义务与计划接线 |
+| 基线身份 | 质量义务与接线 |
 | --- | --- |
 | `release:skill-prepare` | 一次捕获 pending snapshot，环境之后准备 typed handoff |
 | `release:skill-version` | required Checks 成功后，直接读取并授权同一 snapshot |
@@ -126,7 +126,7 @@ Gate 自测随结构变化保留项目 consumer 契约。
 
 ## 目标身份映射
 
-实施 1.6 按以下后继接入：
+实施 1.6 已按以下后继接入，完整运行结果仍由 tasks 验收：
 
 - 八项旧身份均归并到 `script:check:skill-updaters`：
   `script:check:test-evidence-cli`、`script:check:skill-validator`、
@@ -149,7 +149,7 @@ Gate 自测随结构变化保留项目 consumer 契约。
 
 所有结果继续依赖 `gate-environment`。下列分发结果改用 `script:check:skill-updaters` 作为统一生成前置：
 
-| 消费结果 | 当前前置 | 计划前置 |
+| 消费结果 | 基线前置 | 已接入前置 |
 | --- | --- | --- |
 | `test:change-plan:public-distribution` | `script:check:change-plan-cli` | `script:check:skill-updaters` |
 | `test:decision-records:public-distribution` | `script:check:decision-records-cli` | `script:check:skill-updaters` |

@@ -23,6 +23,7 @@ export async function captureCommand(
     const child = spawn(command, arguments_, {
       cwd,
       stdio: ["ignore", "pipe", "pipe"],
+      timeout: 30_000,
       windowsHide: true
     });
     const stdout: Buffer[] = [];
@@ -54,15 +55,6 @@ export async function captureCommand(
   });
 }
 
-async function commandIdentity(
-  runCommand: CommandCapture,
-  command: string,
-  arguments_: readonly string[],
-  workspaceRoot: string
-): Promise<string> {
-  return sha256([await runCommand(command, arguments_, workspaceRoot)]);
-}
-
 export async function toolchainFingerprint(
   workspaceRoot: string,
   dependencies: CaptureDependencies
@@ -77,66 +69,38 @@ export async function toolchainFingerprint(
         .sort(([left], [right]) => compareText(left, right))
     )
   ]);
-  const [bunToolchain, gitConfiguration, gitVersion, sccVersion] =
-    await Promise.all([
-      (async () => ({
-        astGrepVersion: await commandIdentity(
-          runCommand,
-          "bun",
-          ["x", "--no-install", "ast-grep", "--version"],
-          workspaceRoot
-        ),
-        bunDependencyState: await commandIdentity(
-          runCommand,
-          "bun",
-          ["pm", "ls", "--all"],
-          workspaceRoot
-        ),
-        bunVersion: await commandIdentity(
-          runCommand,
-          "bun",
-          ["--version"],
-          workspaceRoot
-        ),
-        oxfmtVersion: await commandIdentity(
-          runCommand,
-          "bun",
-          ["x", "--no-install", "oxfmt", "--version"],
-          workspaceRoot
-        ),
-        oxlintVersion: await commandIdentity(
-          runCommand,
-          "bun",
-          ["x", "--no-install", "oxlint", "--version"],
-          workspaceRoot
-        ),
-        tsgoVersion: await commandIdentity(
-          runCommand,
-          "bun",
-          ["x", "--no-install", "tsgo", "--version"],
-          workspaceRoot
-        )
-      }))(),
-      commandIdentity(
-        runCommand,
-        "git",
-        ["config", "--null", "--list"],
-        workspaceRoot
-      ),
-      commandIdentity(runCommand, "git", ["--version"], workspaceRoot),
-      commandIdentity(runCommand, "scc", ["--version"], workspaceRoot)
-    ]);
+  // Probe independent executables concurrently; dependency bytes use the frozen-lock trust boundary.
+  const probes = [
+    ["bun", ["--version"]],
+    ["node", ["--version"]],
+    ["pnpm", ["--version"]],
+    [
+      "python3",
+      ["-c", "import sys, tomllib; print(sys.version); print(sys.executable)"]
+    ],
+    ["git", ["config", "--null", "--list"]],
+    ["git", ["--version"]],
+    ["scc", ["--version"]],
+    ["bun", ["x", "--no-install", "ast-grep", "--version"]],
+    ["bun", ["x", "--no-install", "oxfmt", "--version"]],
+    ["bun", ["x", "--no-install", "oxlint", "--version"]],
+    ["bun", ["x", "--no-install", "tsgo", "--version"]]
+  ] as const;
+  const identities = await Promise.all(
+    probes.map(async ([command, arguments_]) => ({
+      command,
+      arguments_,
+      digest: sha256([await runCommand(command, arguments_, workspaceRoot)])
+    }))
+  );
   return sha256([
     JSON.stringify({
       arch: process.arch,
-      ...bunToolchain,
       environmentDigest,
       execPath: process.execPath,
-      gitConfiguration,
-      gitVersion,
       node: process.versions.node,
       platform: process.platform,
-      sccVersion
+      identities
     })
   ]);
 }

@@ -1,10 +1,9 @@
+import { assertEvolutionRejected } from "./domain-support.ts";
 import {
   archivedRelativePath,
   assert,
-  candidateDecisionBody,
   currentRelativePath,
   decisionFilePath,
-  establishAdditionalActivePredecessor,
   establishClosedReallocation,
   establishClosedSplit,
   findIndexEntry,
@@ -193,34 +192,20 @@ test("evolve performs a closed sparse reallocation with independently aligned su
     );
   }));
 
-test("evolve rejects a one-successor reallocation", () =>
-  withFixtureWorkspace(
-    "evolve-one-successor-reallocation",
-    async (workspaceRoot) => {
-      const predecessor =
-        await establishAdditionalActivePredecessor(workspaceRoot);
-      const successorRelativePath = "use-one-reallocation-successor";
-      await fs.writeFile(
-        decisionFilePath(workspaceRoot, successorRelativePath),
-        candidateDecisionBody({
-          relations: [
-            { type: "重划", target: currentRelativePath },
-            { type: "重划", target: predecessor }
-          ]
-        }),
-        "utf8"
-      );
-      const rejected = await runSourceLifecycleCli([
-        "evolve",
-        "--successor",
-        "aligned=" + successorRelativePath,
-        "--root",
-        workspaceRoot
-      ]);
-      assert.equal(rejected.exitCode, 1);
-      assert.match(
-        rejected.stderr,
-        /requires at least two explicitly selected/
-      );
-    }
-  ));
+test("evolve rejects a one-successor reallocation", async () => {
+  await assertEvolutionRejected(
+    [
+      { id: "predecessor", status: "active" },
+      { id: "another", status: "active" },
+      {
+        id: "first",
+        relations: [
+          { type: "重划", target: "predecessor" },
+          { type: "重划", target: "another" }
+        ]
+      }
+    ],
+    ["first"],
+    /requires at least two explicitly selected successors/u
+  );
+});

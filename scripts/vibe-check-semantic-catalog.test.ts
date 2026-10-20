@@ -3,12 +3,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import {
-  releaseBunTestPackageFiles,
   releaseRequiredPackageScripts,
-  releaseTestBatchGroups,
   semanticGateChecks
 } from "./lib/vibe-gate.ts";
-import { packageScriptDependencies } from "./lib/vibe-gate/checks/package-script.ts";
 import { expectedSemanticChecks } from "./vibe-check-catalog-fixture.ts";
 import { repositoryRoot } from "./vibe-check-test-support.ts";
 
@@ -93,14 +90,20 @@ test("semantic Gate catalog matches its aggregate native entry points", async ()
       aggregatePath
     );
     assert.deepEqual(
-      [...aggregateFiles].sort(),
+      [...aggregateFiles]
+        .filter(
+          (file) =>
+            tool !== "mcpshell-workspace-bridge" ||
+            !file.endsWith("-integration.test.ts")
+        )
+        .sort(),
       [...expectedAggregateFiles].sort(),
       aggregatePath
     );
   }
 });
 
-test("release test batch catalog matches command and package manifests", async () => {
+test("semantic commands match package manifests and retain dedicated integration boundaries", async () => {
   assert.ok(
     semanticGateChecks
       .filter(({ command }) => command.command === "bun")
@@ -138,30 +141,5 @@ test("release test batch catalog matches command and package manifests", async (
   assert.equal(
     releaseRequiredPackageScripts.includes("test:version-control"),
     true
-  );
-  assert.equal(
-    Object.hasOwn(releaseBunTestPackageFiles, "test:version-control"),
-    false
-  );
-  for (const [script, files] of Object.entries(releaseBunTestPackageFiles)) {
-    assert.equal(manifest.scripts[script], `bun test ${files.join(" ")}`);
-  }
-  assert.deepEqual(
-    releaseTestBatchGroups.map(({ checkId }) => checkId),
-    [
-      ...semanticGateChecks
-        .filter(
-          (check) => check.command.command === "bun" && !("dependsOn" in check)
-        )
-        .map(({ checkId }) => checkId),
-      ...Object.keys(releaseBunTestPackageFiles)
-        .filter(
-          (script) =>
-            packageScriptDependencies[
-              script as keyof typeof packageScriptDependencies
-            ] === undefined
-        )
-        .map((script) => `script:${script}`)
-    ]
   );
 });

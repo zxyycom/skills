@@ -22,7 +22,8 @@ const runtimeLockSchema = v.object({
 
 async function runtimeLockMatches(
   artifacts: readonly GeneratedArtifact[],
-  skillRoot: string
+  skillRoot: string,
+  workspaceRoot: string
 ): Promise<boolean> {
   const manifestArtifact = artifacts.find(
     (artifact) => artifact.path === path.join(skillRoot, "package.json")
@@ -54,7 +55,7 @@ async function runtimeLockMatches(
     );
   }
   console.error(
-    `Refresh explicitly: pnpm --dir "${path.relative(rootDir, skillRoot)}" install --ignore-workspace --lockfile-only --config.node-linker=isolated`
+    `Refresh explicitly: pnpm --dir "${path.relative(workspaceRoot, skillRoot)}" install --ignore-workspace --lockfile-only --config.node-linker=isolated`
   );
   return false;
 }
@@ -97,16 +98,19 @@ export async function syncSourceRuntimeArtifacts(
     mode: GeneratedFileMode;
     skillName: string;
     retiredPaths: readonly string[];
+    workspaceRoot?: string;
   }>
 ): Promise<boolean> {
+  const workspaceRoot = path.resolve(options.workspaceRoot ?? rootDir);
   let changed = await syncGeneratedArtifacts(
     artifacts,
     options.mode,
-    rootDir,
+    workspaceRoot,
     "tools/"
   );
-  const skillRoot = path.join(rootDir, "skills", options.skillName);
-  if (!(await runtimeLockMatches(artifacts, skillRoot))) changed = true;
+  const skillRoot = path.join(workspaceRoot, "skills", options.skillName);
+  if (!(await runtimeLockMatches(artifacts, skillRoot, workspaceRoot)))
+    changed = true;
   const stale = await staleRuntimeFiles(
     artifacts,
     skillRoot,
@@ -125,7 +129,9 @@ export async function syncSourceRuntimeArtifacts(
       throw error;
     }
     changed = true;
-    console.error(`Retired generated file: ${path.relative(rootDir, file)}`);
+    console.error(
+      `Retired generated file: ${path.relative(workspaceRoot, file)}`
+    );
     if (options.mode === "write") await fs.unlink(file);
   }
   return changed;

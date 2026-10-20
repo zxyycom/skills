@@ -10,4 +10,4 @@ Contract:
 - 选择性暂存对无效选择稳定返回可操作的 diagnostics。
 
 Proves:
-- 空选择返回 error 且 diagnostics 非空。
+- stage 纯准备函数对空选择返回 invalid-options、changed=false，且唯一诊断为 stage-report-ids-empty。

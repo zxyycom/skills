@@ -14,5 +14,5 @@ Contract:
 - Decision 与 Investigation 的 `set-relations` 对重复 source、组内重复 target、空分组、clear 混用与只含摘要按 CLI 参数错误分类；公开语法只保留目标参数。
 
 Proves:
-- Decision 与 Investigation CLI 对上述输入形态错误均以退出码 2 与用法诊断拒绝且无标准输出。
-- 被取代的 `--relations-for` 选项在 evolve 与 set-relations 中都是普通未知选项；set-relations help 只展示 `--source` 分组语法。
+- Decision 与 Investigation 的同进程 CLI 对重复 source、组内重复 target、空分组、clear 混用与只含摘要均返回退出码 2、用法诊断和空 stdout；不构造记录集合。
+- 同进程 CLI 将 `--relations-for` 在 evolve 与 set-relations 中按普通未知选项拒绝；set-relations help 只展示 `--source` 分组语法。

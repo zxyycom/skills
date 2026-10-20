@@ -10,212 +10,138 @@ import {
   releaseVersionCheckId
 } from "./checks/release.ts";
 import { semanticGateChecks } from "./checks/semantic.ts";
+import { commonGateInputPatterns } from "./impact-paths.ts";
 import type { GateWorkspaceSnapshot } from "./impact-snapshot.ts";
 import { compareText, sha256 } from "./impact-values.ts";
 
-export const gateImpactContractVersion = "incremental-gate-v2";
-
-export type GateImpactTag =
-  | "build-system"
-  | "change-plan"
-  | "decision-records"
-  | "documentation"
-  | "environment"
-  | "global"
-  | "index-runtime"
-  | "investigation-report"
-  | "json"
-  | "maintained-code"
-  | "markdown"
-  | "path-inventory"
-  | "secret-surface"
-  | "shared-tools"
-  | "skill-release"
-  | "skill-updater"
-  | "skill-validator"
-  | "skills"
-  | "task-graph"
-  | "test-evidence";
+export const gateImpactContractVersion = "project-input-receipts-v3";
 
 export type GateCheckImpactContract = Readonly<{
   checkId: string;
-  inputTags: readonly GateImpactTag[];
+  patterns: readonly string[];
   version: string;
 }>;
 
-export const allImpactTags = [
-  "build-system",
-  "change-plan",
-  "decision-records",
-  "documentation",
-  "environment",
-  "global",
-  "index-runtime",
-  "investigation-report",
-  "json",
-  "maintained-code",
-  "markdown",
-  "path-inventory",
-  "secret-surface",
-  "shared-tools",
-  "skill-release",
-  "skill-updater",
-  "skill-validator",
-  "skills",
-  "task-graph",
-  "test-evidence"
-] as const satisfies readonly GateImpactTag[];
-
-const tagDependencies: Readonly<
-  Partial<Record<GateImpactTag, readonly GateImpactTag[]>>
-> = Object.freeze({
-  "build-system": ["shared-tools"],
-  "change-plan": ["build-system", "shared-tools", "skill-updater"],
+// Shared feature inputs follow actual imports, including their transitive local modules.
+// New imports into another shared feature require the consuming owner declaration to change.
+const domainInputs: Readonly<Record<string, readonly string[]>> = {
+  "change-plan": [
+    "tools/change-plan/**",
+    "skills/change-plan/**",
+    "changes/**"
+  ],
   "decision-records": [
-    "build-system",
-    "index-runtime",
-    "shared-tools",
-    "skill-updater"
+    "tools/decision-records/**",
+    "skills/decision-records/**",
+    "docs/decisions/**",
+    "tools/shared/src/file-text-search/**",
+    "tools/shared/src/graph/**"
   ],
-  environment: ["shared-tools", "skill-release"],
-  "index-runtime": ["shared-tools"],
   "investigation-report": [
-    "build-system",
-    "index-runtime",
-    "shared-tools",
-    "skill-updater"
+    "tools/investigation-report/**",
+    "skills/investigation-report/**",
+    "docs/investigations/**",
+    "tools/shared/src/file-text-search/**",
+    "tools/shared/src/graph/**"
   ],
-  "skill-release": ["shared-tools"],
-  "skill-updater": ["build-system", "shared-tools", "skill-release"],
-  "skill-validator": ["build-system", "shared-tools", "skill-updater"],
-  "task-graph": ["build-system", "shared-tools", "skill-updater"],
+  "task-graph": [
+    "tools/task-graph/**",
+    "skills/task-graph/**",
+    "docs/task-graph/**"
+  ],
   "test-evidence": [
-    "build-system",
-    "index-runtime",
-    "shared-tools",
-    "skill-updater"
+    "tools/test-evidence/**",
+    "skills/test-evidence-review/**",
+    "docs/test-evidence/**",
+    "tools/shared/src/file-text-search/**",
+    "!tools/shared/src/file-text-search/record-search-output.ts"
+  ],
+  "novel-cards": ["tools/novel-cards/**", "skills/novel-cards/**"],
+  "lightweight-judgment": [
+    "tools/lightweight-judgment/**",
+    "skills/lightweight-judgment/**"
+  ],
+  mcpshell: [
+    "tools/mcpshell-workspace-bridge/**",
+    "skills/mcpshell-workspace-tools/**"
+  ],
+  "skill-validator": [
+    "tools/skill-validator/**",
+    "skills/skill-maintainer/**",
+    "skills/**/SKILL.md"
   ]
-});
+};
 
-const contract = (
-  checkId: string,
-  inputTags: readonly GateImpactTag[]
-): GateCheckImpactContract => ({
-  checkId,
-  inputTags,
-  version: "1"
-});
+const codeInputs = [...commonGateInputPatterns, "tools/**"];
 
-const packageContracts = [
-  contract("script:test:environment", [
-    "environment",
-    "shared-tools",
-    "skill-release"
-  ]),
-  contract("script:test:index-runtime", ["index-runtime"]),
-  contract("script:test:check", ["global", "maintained-code"]),
-  contract("script:test:skill-updater", ["skill-updater", "skill-release"]),
-  contract("script:test:skill-validator", ["skill-validator"]),
-  contract("script:test:relation-graph", ["shared-tools"]),
-  contract("script:test:file-text-search", ["shared-tools"]),
-  contract("script:test:version-control", ["shared-tools"]),
-  contract("script:test:skill-package-hash", ["build-system", "skill-release"]),
-  contract("script:test:skill-release-publisher", ["skill-release"]),
-  contract("script:typecheck", ["maintained-code"]),
-  contract("script:lint", ["maintained-code"]),
-  contract("script:validate", [
-    "shared-tools",
-    "skill-release",
-    "skill-validator",
-    "skills"
-  ]),
-  contract("script:check:investigations", ["investigation-report"]),
-  contract("script:check:decisions", ["decision-records"]),
-  contract("script:check:test-evidence-cli", ["test-evidence"]),
-  contract("script:check:test-evidence-catalog", [
-    "maintained-code",
-    "skills",
-    "test-evidence"
-  ]),
-  contract("script:check:skill-validator", ["skill-validator"]),
-  contract("script:check:investigation-report-check", ["investigation-report"]),
-  contract("script:check:change-plan-cli", ["change-plan"]),
-  contract("script:check:lightweight-judgment-cli", [
-    "global",
-    "build-system",
-    "skill-updater",
-    "skills"
-  ]),
-  contract("script:check:novel-cards-cli", [
-    "global",
-    "build-system",
-    "index-runtime",
-    "skill-updater",
-    "skills"
-  ]),
-  contract("script:check:decision-records-cli", ["decision-records"]),
-  contract("script:check:task-graph-cli", ["task-graph"]),
-  contract("script:check:skill-updaters", [
-    "build-system",
-    "change-plan",
-    "decision-records",
-    "index-runtime",
-    "investigation-report",
-    "skill-release",
-    "skill-updater",
-    "skill-validator",
-    "skills",
-    "task-graph",
-    "test-evidence"
-  ]),
-  contract("script:test:generated-file", ["build-system", "shared-tools"]),
-  contract("script:format:check", ["maintained-code"]),
-  contract("script:check:task-graph-index", ["task-graph"])
-] as const;
+const projectInputs: Readonly<Record<string, readonly string[]>> = {
+  // Broad repository consumers cover all material, not just source extensions.
+  "script:validate": ["**"],
+  "script:check:test-evidence-catalog": ["**"],
+  "script:test:check": [...commonGateInputPatterns, "tools/*/tests/**"],
+  "script:test:environment": commonGateInputPatterns,
+  "script:check:skill-updaters": [...codeInputs, "skills/**"],
+  "script:typecheck": codeInputs,
+  "script:lint": codeInputs,
+  "script:format:check": codeInputs,
+  // The updater tests import and copy this real distribution fixture (tests/support.ts).
+  "script:test:skill-updater": [
+    ...commonGateInputPatterns,
+    "skills/ai-ready-docs/**"
+  ],
+  // Shared utility and release tests consume their fixtures and project adapters.
+  "script:test:index-runtime": commonGateInputPatterns,
+  "script:test:relation-graph": [
+    ...commonGateInputPatterns,
+    "tools/shared/src/graph/**"
+  ],
+  "script:test:file-text-search": [
+    ...commonGateInputPatterns,
+    "tools/shared/src/file-text-search/**",
+    "!tools/shared/src/file-text-search/record-search-output.ts"
+  ],
+  "script:test:version-control": commonGateInputPatterns,
+  "script:test:generated-file": codeInputs,
+  "script:test:skill-package-hash": commonGateInputPatterns,
+  "script:test:skill-release-publisher": commonGateInputPatterns
+};
 
-const nativeContracts = [
-  contract("duplicate-detection", ["maintained-code"]),
-  contract("secret-detection", ["secret-surface"]),
-  contract("json-validation", ["json"]),
-  contract("json-schema-validation", ["task-graph", "test-evidence"]),
-  contract("markdown-link-validation", ["markdown", "path-inventory"]),
-  contract("file-metrics", ["maintained-code"]),
-  contract("function-metrics", ["maintained-code"])
-] as const;
-
-function semanticImpactTags(checkId: string): readonly GateImpactTag[] {
-  if (checkId.startsWith("test:novel-cards:")) {
-    return ["global", "build-system", "index-runtime", "skills"];
-  }
-  if (checkId === "test:lightweight-judgment:public-distribution") {
-    return ["global", "skills"];
-  }
-  if (checkId.startsWith("test:change-plan:")) return ["change-plan"];
-  if (checkId.startsWith("test:decision-records:")) {
-    return ["decision-records"];
-  }
-  if (checkId.startsWith("test:investigation-report:")) {
-    return ["investigation-report"];
-  }
-  if (checkId.startsWith("test:task-graph:")) return ["task-graph"];
-  if (checkId.startsWith("test:test-evidence:")) return ["test-evidence"];
-  return ["global"];
+function inputPatterns(checkId: string): readonly string[] {
+  const projectInput = projectInputs[checkId];
+  if (projectInput !== undefined) return projectInput;
+  const owner = Object.keys(domainInputs).find(
+    (name) =>
+      checkId.includes(name) ||
+      (name === "investigation-report" &&
+        checkId === "script:check:investigations") ||
+      (name === "decision-records" && checkId === "script:check:decisions")
+  );
+  if (owner !== undefined)
+    return [...commonGateInputPatterns, ...domainInputs[owner]!];
+  // A newly added Check without a reviewed closure must never reuse a proof.
+  return [];
 }
 
-const semanticContracts = semanticGateChecks.map(({ checkId }) =>
-  contract(checkId, semanticImpactTags(checkId))
-);
-
-export const baseGateImpactContracts = Object.freeze([
-  ...nativeContracts,
-  ...packageContracts,
-  ...semanticContracts
-]);
+export const baseGateImpactContracts: readonly GateCheckImpactContract[] =
+  Object.freeze(
+    [
+      ...releaseRequiredPackageScripts.map(packageScriptCheckId),
+      ...semanticGateChecks
+        .filter(
+          (check) =>
+            !("requiredTag" in check) || check.requiredTag === undefined
+        )
+        .map(({ checkId }) => checkId)
+    ].map((checkId) => ({
+      checkId,
+      patterns: inputPatterns(checkId),
+      version: "1"
+    }))
+  );
 
 export const baseGateCheckIds = Object.freeze(
   baseGateImpactContracts.map(({ checkId }) => checkId)
 );
-
 export const releaseGateCheckIds = Object.freeze([
   gateEnvironmentCheckId,
   releaseSnapshotCheckId,
@@ -226,19 +152,6 @@ export const releaseGateCheckIds = Object.freeze([
   packSkillsCheckId
 ]);
 
-function effectiveTagsForContract(
-  contract_: GateCheckImpactContract
-): readonly GateImpactTag[] {
-  const effective = new Set<GateImpactTag>(["global"]);
-  const visit = (tag: GateImpactTag): void => {
-    if (effective.has(tag)) return;
-    effective.add(tag);
-    for (const dependency of tagDependencies[tag] ?? []) visit(dependency);
-  };
-  for (const tag of contract_.inputTags) visit(tag);
-  return [...effective].sort(compareText);
-}
-
 export function gateCheckInputFingerprint(
   contract_: GateCheckImpactContract,
   snapshot: GateWorkspaceSnapshot
@@ -247,10 +160,8 @@ export function gateCheckInputFingerprint(
     JSON.stringify({
       checkId: contract_.checkId,
       contractVersion: gateImpactContractVersion,
-      inputs: effectiveTagsForContract(contract_).map((tag) => [
-        tag,
-        snapshot.tagDigests[tag]
-      ]),
+      inputDigest: snapshot.inputDigests[contract_.checkId],
+      patterns: contract_.patterns,
       toolchainFingerprint: snapshot.toolchainFingerprint,
       version: contract_.version
     })
@@ -259,10 +170,11 @@ export function gateCheckInputFingerprint(
 
 export function validateBaseGateImpactContracts(): readonly string[] {
   const expected = [
-    ...vibeNativeCheckIds,
     ...releaseRequiredPackageScripts.map(packageScriptCheckId),
     ...semanticGateChecks
-      .filter(({ requiredTag }) => requiredTag === undefined)
+      .filter(
+        (check) => !("requiredTag" in check) || check.requiredTag === undefined
+      )
       .map(({ checkId }) => checkId)
   ].sort(compareText);
   const actual = [...baseGateCheckIds].sort(compareText);
@@ -270,6 +182,6 @@ export function validateBaseGateImpactContracts(): readonly string[] {
     expected.every((checkId, index) => checkId === actual[index])
     ? []
     : [
-        "base Gate impact contracts do not exactly cover the base Check catalog"
+        "project input contracts do not exactly cover the project Check catalog"
       ];
 }

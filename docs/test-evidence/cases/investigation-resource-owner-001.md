@@ -10,4 +10,4 @@ Contract:
 - owner report 必须直接引用自己拥有的资源。
 
 Proves:
-- 仅 consumer 引用 owner 资源时返回 owner-reference 诊断。
+- 资源归属校验器对仅 consumer 引用、owner 无直接引用的映射，返回资源必须被 owner report 引用的诊断。

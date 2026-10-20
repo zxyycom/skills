@@ -10,4 +10,4 @@ Contract:
 - 结构合法但固定正文尚未完成的 candidate scaffold 必须作为可发现的 candidate 保留，且不能被误判为可建立的 activation candidate。
 
 Proves:
-- 严格验证没有错误并能找到该 candidate；其 scaffoldValid 为 true、bodyReady 与 activationCandidate 均为 false，类型守卫只承认 candidate 而不承认 activation candidate。
+- 来源扫描器解析内存 scaffold Markdown 无 sourceErrors 且能找到该 candidate；scaffoldValid=true、bodyReady=false、activationCandidate=false，activation candidate 数量为零，类型守卫只承认 candidate 而不承认 activation candidate。

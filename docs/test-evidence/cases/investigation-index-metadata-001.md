@@ -10,4 +10,4 @@ Contract:
 - 当前 Investigation index 的 metadata 必须是严格空对象。
 
 Proves:
-- 写入额外 metadata 后，公共 query 返回 metadata 诊断。
+- 真实索引解析器按当前领域 definition 解析含额外 metadata 的内存 JSON 时，返回 metadata 诊断。

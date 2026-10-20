@@ -10,4 +10,4 @@ Contract:
 - 当前报告集合不存在的 Investigation ID 不能被选择性暂存。
 
 Proves:
-- 缺失 ID 返回错误。
+- 纯 selector resolver 对两侧索引都不存在的 name 返回错误，并明确诊断其 absent from both indexes。

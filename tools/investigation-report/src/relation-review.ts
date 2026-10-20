@@ -30,6 +30,26 @@ export function relationReview(
   };
 }
 
+/** Classifies complete replacement sets before copying them into the review. */
+export function replacementRelationReview(
+  phase: InvestigationRelationReviewPhase,
+  sources: readonly Readonly<{
+    sourceId: string;
+    before: readonly InvestigationRelation[];
+    after: readonly InvestigationRelation[];
+  }>[]
+): InvestigationRelationReview {
+  return relationReview(
+    phase,
+    sources.map((source) => ({
+      ...source,
+      action: relationSetsEqual(source.before, source.after)
+        ? "unchanged"
+        : "replace"
+    }))
+  );
+}
+
 export function relationSetsEqual(
   left: readonly InvestigationRelation[],
   right: readonly InvestigationRelation[]

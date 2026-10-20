@@ -196,6 +196,35 @@ function parseLegacyCase(
       `${sourcePath} must start with a valid legacy Case heading`
     );
   }
+  const sections = parseLegacySections(lines.slice(1), sourcePath);
+  const entries = sections.Entry.map((value) => {
+    const match = value.match(/^`([^`\r\n]+)`$/u);
+    const entry = match?.[1]?.trim() ?? "";
+    if (entry === "")
+      throw new LegacyCatalogError(`${sourcePath} has an invalid Entry`);
+    return entry;
+  });
+  if (new Set(entries).size !== entries.length)
+    throw new LegacyCatalogError(`${sourcePath} has duplicate Entry values`);
+  for (const name of ["Contract", "Proves"] as const) {
+    if (sections[name].some((value) => value.trim() === ""))
+      throw new LegacyCatalogError(`${sourcePath} has an empty ${name} item`);
+  }
+  return {
+    contract: sections.Contract,
+    entries,
+    id: heading[1]!,
+    proves: sections.Proves,
+    sourcePath,
+    title: heading[2]!,
+    topicId
+  };
+}
+
+function parseLegacySections(
+  lines: readonly string[],
+  sourcePath: string
+): Record<"Entry" | "Contract" | "Proves", string[]> {
   const sections: Record<"Entry" | "Contract" | "Proves", string[]> = {
     Entry: [],
     Contract: [],
@@ -203,7 +232,7 @@ function parseLegacyCase(
   };
   const declarations = new Map<string, number>();
   let active: keyof typeof sections | null = null;
-  for (const rawLine of lines.slice(1)) {
+  for (const rawLine of lines) {
     const line = rawLine.replace(/\r$/u, "");
     const section = line.match(/^(Entry|Contract|Proves):\s*$/u)?.[1] as
       | keyof typeof sections
@@ -231,28 +260,7 @@ function parseLegacyCase(
       );
     }
   }
-  const entries = sections.Entry.map((value) => {
-    const match = value.match(/^`([^`\r\n]+)`$/u);
-    const entry = match?.[1]?.trim() ?? "";
-    if (entry === "")
-      throw new LegacyCatalogError(`${sourcePath} has an invalid Entry`);
-    return entry;
-  });
-  if (new Set(entries).size !== entries.length)
-    throw new LegacyCatalogError(`${sourcePath} has duplicate Entry values`);
-  for (const name of ["Contract", "Proves"] as const) {
-    if (sections[name].some((value) => value.trim() === ""))
-      throw new LegacyCatalogError(`${sourcePath} has an empty ${name} item`);
-  }
-  return {
-    contract: sections.Contract,
-    entries,
-    id: heading[1]!,
-    proves: sections.Proves,
-    sourcePath,
-    title: heading[2]!,
-    topicId
-  };
+  return sections;
 }
 
 async function readOrdinaryUtf8(

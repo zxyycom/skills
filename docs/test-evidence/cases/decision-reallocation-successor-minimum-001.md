@@ -10,4 +10,4 @@ Contract:
 - `重划` 是闭合的多前序多后继策略，不能以一个后继建立。
 
 Proves:
-- 只选择一个具有两个重划前序的候选时，evolve 报告至少需要两个显式 successor。
+- 纯事务准备对仅选择一个具有两个重划前序的候选返回 error、exitCode=1，诊断至少需要两个显式 successor，且不产生 changes。

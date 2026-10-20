@@ -10,4 +10,4 @@ Contract:
 - 报告索引 state 不投影资源字节。
 
 Proves:
-- 持久化报告 state 不含 `resourceBytes`。
+- 真实 Markdown 解析与 state 构建保留 resourceIds，但内存领域 state 不含 `resourceBytes`；不执行索引持久化。

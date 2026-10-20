@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { printInvestigationRelationReview } from "../src/relation-review-output.ts";
+import {
+  relationReview,
+  replacementRelationReview
+} from "../src/relation-review.ts";
 import { publishInvestigationCandidates } from "../src/publish.ts";
 import { setInvestigationRelations } from "../src/relation-transaction.ts";
 import {
@@ -103,149 +109,114 @@ test("CLI set-relations preflight renders the expected review without writes", a
 });
 
 test("relation reviews distinguish summary replacement, clear, unchanged, and multi-source sets", async () => {
-  await withTempRoot("relation-review-outcomes", async (root) => {
-    await writeCollection(root, [
-      { id: "base" },
-      { id: "other" },
-      { id: "first", relations: [{ target: "base", type: "补充" }] },
-      { id: "second", relations: [{ target: "base", type: "复查" }] }
+  const review = (
+    before: import("../src/types.ts").InvestigationRelation[],
+    after: import("../src/types.ts").InvestigationRelation[]
+  ) =>
+    replacementRelationReview("committed", [
+      { sourceId: "first", before, after }
     ]);
-    const replace = async (summary: string | undefined) =>
-      await setInvestigationRelations({
-        replacements: [
-          {
-            source: "first",
-            relations: [
-              {
-                target: "base",
-                type: "补充",
-                ...(summary === undefined ? {} : { summary })
-              }
-            ]
-          }
-        ],
-        workspaceRoot: root
-      });
-    const added = await replace("added");
-    assert.equal(added.relationReview?.sources[0]?.action, "replace");
-    assert.deepEqual(added.relationReview?.sources[0]?.before, [
-      { target: "base", type: "补充" }
+  const plain = [{ target: "base", type: "补充" as const }];
+  const added = [{ target: "base", type: "补充" as const, summary: "added" }];
+  const changed = [
+    { target: "base", type: "补充" as const, summary: "changed" }
+  ];
+  for (const [before, after] of [
+    [plain, added],
+    [added, changed],
+    [changed, plain],
+    [plain, []]
+  ]) {
+    assert.deepEqual(review(before!, after!).sources, [
+      { sourceId: "first", action: "replace", before, after }
     ]);
-    assert.deepEqual(added.relationReview?.sources[0]?.after, [
-      { target: "base", type: "补充", summary: "added" }
-    ]);
-    const changed = await replace("changed");
-    assert.equal(
-      changed.relationReview?.sources[0]?.before[0]?.summary,
-      "added"
-    );
-    assert.equal(
-      changed.relationReview?.sources[0]?.after[0]?.summary,
-      "changed"
-    );
-    const removed = await replace(undefined);
-    assert.equal(
-      removed.relationReview?.sources[0]?.before[0]?.summary,
-      "changed"
-    );
-    assert.equal(
-      removed.relationReview?.sources[0]?.after[0]?.summary,
-      undefined
-    );
-
-    const multi = await setInvestigationRelations({
-      replacements: [
-        { source: "second", relations: [] },
-        { source: "first", relations: [] }
-      ],
-      workspaceRoot: root
-    });
-    assert.deepEqual(
-      multi.relationReview?.sources.map((source) => ({
-        action: source.action,
-        after: source.after,
-        sourceId: source.sourceId
-      })),
-      [
-        { action: "replace", after: [], sourceId: "first" },
-        { action: "replace", after: [], sourceId: "second" }
-      ]
-    );
-    const unchanged = await setInvestigationRelations({
-      replacements: [
-        { source: "first", relations: [] },
-        { source: "second", relations: [] }
-      ],
-      workspaceRoot: root
-    });
-    assert.equal(unchanged.changed, false);
-    assert.deepEqual(
-      unchanged.relationReview?.sources.map((source) => source.action),
-      ["unchanged", "unchanged"]
-    );
-    const invalid = await setInvestigationRelations({
-      preflight: true,
-      replacements: [],
-      workspaceRoot: root
-    });
-    assert.ok(invalid.errors.length > 0);
-    assert.equal(invalid.relationReview, undefined);
+  }
+  assert.deepEqual(review(plain, structuredClone(plain)).sources, [
+    { sourceId: "first", action: "unchanged", before: plain, after: plain }
+  ]);
+  const multi = replacementRelationReview("preflight", [
+    {
+      sourceId: "second",
+      before: [{ target: "base", type: "复查" }],
+      after: []
+    },
+    { sourceId: "first", before: plain, after: [] }
+  ]);
+  assert.equal(multi.phase, "preflight");
+  assert.deepEqual(
+    multi.sources.map(({ sourceId, action, after }) => ({
+      sourceId,
+      action,
+      after
+    })),
+    [
+      { sourceId: "first", action: "replace", after: [] },
+      { sourceId: "second", action: "replace", after: [] }
+    ]
+  );
+  assert.deepEqual(
+    replacementRelationReview("committed", [
+      { sourceId: "second", before: [], after: [] },
+      { sourceId: "first", before: [], after: [] }
+    ]).sources.map((source) => source.action),
+    ["unchanged", "unchanged"]
+  );
+  const invalid = await setInvestigationRelations({
+    preflight: true,
+    replacements: [],
+    workspaceRoot: os.tmpdir()
   });
+  assert.deepEqual(invalid.errors, [
+    "set-relations requires at least one complete source group"
+  ]);
+  assert.equal(invalid.changed, false);
+  assert.equal(invalid.relationReview, undefined);
 });
 
-test("CLI relation reviews render complete source-qualified additions, removals, and summary clears", async () => {
-  await withTempRoot("relation-review-output", async (root) => {
-    await writeCollection(root, [
-      { id: "base" },
+test("CLI relation reviews render complete source-qualified additions, removals, and summary clears", () => {
+  const render = (
+    before: import("../src/types.ts").InvestigationRelation[],
+    after: import("../src/types.ts").InvestigationRelation[]
+  ) => {
+    let stdout = "";
+    printInvestigationRelationReview(
+      relationReview("committed", [
+        { sourceId: "next", action: "replace", before, after }
+      ]),
       {
-        id: "next",
-        relations: [{ target: "base", type: "补充", summary: "before" }]
+        stdout: (text) => {
+          stdout += text;
+        },
+        stderr: () => assert.fail("review renderer must not write stderr")
       }
-    ]);
-    const clearedSummary = await runInvestigationCli(root, [
-      "set-relations",
-      "--source",
-      "next",
-      "--relation",
-      "补充=base"
-    ]);
-    assert.equal(clearedSummary.status, 0, clearedSummary.stderr);
-    assert.match(
-      clearedSummary.stdout,
-      /before:\n      - next --补充--> base "before"/u
     );
-    assert.match(
-      clearedSummary.stdout,
-      /after:\n      - next --补充--> base \[无摘要\]/u
-    );
-    assert.match(
-      clearedSummary.stdout,
-      /summary changed: next --补充--> base "before" -> next --补充--> base \[无摘要\]/u
-    );
-
-    const removed = await runInvestigationCli(root, [
-      "set-relations",
-      "--source",
-      "next",
-      "--clear-relations"
-    ]);
-    assert.equal(removed.status, 0, removed.stderr);
-    assert.match(removed.stdout, /after: \[\]/u);
-    assert.match(removed.stdout, /removed: next --补充--> base \[无摘要\]/u);
-
-    const added = await runInvestigationCli(root, [
-      "set-relations",
-      "--source",
-      "next",
-      "--relation",
-      "补充=base",
-      "--relation-summary",
-      "base=added"
-    ]);
-    assert.equal(added.status, 0, added.stderr);
-    assert.match(added.stdout, /before: \[\]/u);
-    assert.match(added.stdout, /added: next --补充--> base "added"/u);
-  });
+    return stdout;
+  };
+  const clearedSummary = render(
+    [{ target: "base", type: "补充", summary: "before" }],
+    [{ target: "base", type: "补充" }]
+  );
+  assert.match(
+    clearedSummary,
+    /before:\n      - next --补充--> base "before"/u
+  );
+  assert.match(
+    clearedSummary,
+    /after:\n      - next --补充--> base \[无摘要\]/u
+  );
+  assert.match(
+    clearedSummary,
+    /summary changed: next --补充--> base "before" -> next --补充--> base \[无摘要\]/u
+  );
+  const removed = render([{ target: "base", type: "补充" }], []);
+  assert.match(removed, /after: \[\]/u);
+  assert.match(removed, /removed: next --补充--> base \[无摘要\]/u);
+  const added = render(
+    [],
+    [{ target: "base", type: "补充", summary: "added" }]
+  );
+  assert.match(added, /before: \[\]/u);
+  assert.match(added, /added: next --补充--> base "added"/u);
 });
 
 test("publish release cleanup failure preserves the committed result without a successful review", async () => {

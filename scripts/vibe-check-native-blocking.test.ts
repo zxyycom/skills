@@ -31,9 +31,7 @@ test("duplicate detection blocks findings and fails closed when unavailable", as
       codeAreas: {
         fixture: {
           files: {
-            exclude: [],
-            include: ["**/*.ts"],
-            source: "git-worktree"
+            patterns: ["**/*.ts"]
           },
           findingPolicy: "blocking",
           minimumLines: 2,
@@ -75,7 +73,7 @@ test("secret detection blocks private-key findings and fails closed when unavail
   ].join("\n");
   await assertNativeBlockingCheckContract({
     check: secretDetection({
-      files: { exclude: [], include: ["**/*.txt"], source: "git-worktree" }
+      files: { patterns: ["**/*.txt"] }
     }),
     async introduceFinding(directory) {
       await fs.writeFile(path.join(directory, "private-key.txt"), privateKey);
@@ -90,7 +88,7 @@ test("secret detection blocks private-key findings and fails closed when unavail
 test("JSON validation blocks findings and fails closed when unavailable", async () => {
   await assertNativeBlockingCheckContract({
     check: jsonValidation({
-      files: { exclude: [], include: ["**/*.json"], source: "git-worktree" }
+      files: { patterns: ["**/*.json"] }
     }),
     async introduceFinding(directory) {
       await fs.writeFile(path.join(directory, "broken.json"), "{\n", "utf8");
@@ -117,9 +115,7 @@ test("JSON schema validation blocks findings and fails closed when unavailable",
         }
       ],
       files: {
-        exclude: [],
-        include: ["schema.json", "instance.json"],
-        source: "git-worktree"
+        patterns: ["schema.json", "instance.json"]
       },
       schemaIdentity: { mode: "configuration-authoritative" },
       schemas: [{ id: "urn:fixture:schema", path: "schema.json" }]
@@ -156,7 +152,7 @@ test("JSON schema validation blocks findings and fails closed when unavailable",
 test("Markdown link validation blocks findings and fails closed when unavailable", async () => {
   await assertNativeBlockingCheckContract({
     check: markdownLinkValidation({
-      files: { exclude: [], include: ["**/*.md"], source: "git-worktree" },
+      files: { patterns: ["**/*.md"] },
       findingPolicy: "blocking"
     }),
     async introduceFinding(directory) {

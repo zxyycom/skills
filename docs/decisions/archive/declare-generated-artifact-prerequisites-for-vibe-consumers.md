@@ -1,7 +1,7 @@
 ---
 title: 为 Vibe 分发 consumer 声明生成前置
 id: declare-generated-artifact-prerequisites-for-vibe-consumers
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-01T06:31:41Z
 purpose: 让消费当前分发制品的 Vibe Check 只在对应生成结果可信时运行。

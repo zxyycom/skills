@@ -1,3 +1,4 @@
+import type { SourceRuntimeFacts } from "../lib/source-runtime.ts";
 import { nativeCliEntry } from "../lib/native-cli-entry.ts";
 import {
   buildSkillRuntimeArtifacts,
@@ -123,31 +124,36 @@ const schemaSpecs = [
   }
 ] as const;
 
-async function buildRuntimeArtifacts(): Promise<GeneratedArtifact[]> {
-  const runtime = await buildSkillRuntimeArtifacts({
-    skillName: "test-evidence-review",
-    rebuildCommand,
-    nodeEngine: ">=24.18",
-    entries: [
-      await nativeCliEntry({
-        sourcePath: runtimeSpec.entrySource,
-        outputName: runtimeSpec.outputName,
-        runner: "runTestEvidenceCatalogCli",
-        declarationName: "test-evidence-catalog.d.mts",
-        typedExports: [
-          "runTestEvidenceCatalogCli",
-          "listTestEvidenceTags",
-          "queryTestEvidence",
-          "searchTestEvidence",
-          "showTestEvidenceCase",
-          "stageTestEvidenceIndex",
-          "syncTestEvidenceIndex",
-          "validateTestEvidence",
-          "validateTestEvidenceReferences"
-        ]
-      })
-    ]
-  });
+async function buildRuntimeArtifacts(
+  facts?: SourceRuntimeFacts
+): Promise<GeneratedArtifact[]> {
+  const runtime = await buildSkillRuntimeArtifacts(
+    {
+      skillName: "test-evidence-review",
+      rebuildCommand,
+      nodeEngine: ">=24.18",
+      entries: [
+        await nativeCliEntry({
+          sourcePath: runtimeSpec.entrySource,
+          outputName: runtimeSpec.outputName,
+          runner: "runTestEvidenceCatalogCli",
+          declarationName: "test-evidence-catalog.d.mts",
+          typedExports: [
+            "runTestEvidenceCatalogCli",
+            "listTestEvidenceTags",
+            "queryTestEvidence",
+            "searchTestEvidence",
+            "showTestEvidenceCase",
+            "stageTestEvidenceIndex",
+            "syncTestEvidenceIndex",
+            "validateTestEvidence",
+            "validateTestEvidenceReferences"
+          ]
+        })
+      ]
+    },
+    facts
+  );
   return [
     ...runtime,
     {
@@ -238,9 +244,12 @@ async function buildSchemaArtifacts(): Promise<GeneratedArtifact[]> {
   return artifacts;
 }
 
-export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
+export async function syncRuntime(
+  mode: GeneratedFileMode,
+  facts?: SourceRuntimeFacts
+): Promise<boolean> {
   const artifacts = [
-    ...(await buildRuntimeArtifacts()),
+    ...(await buildRuntimeArtifacts(facts)),
     ...(await buildSchemaArtifacts())
   ];
   return await syncSkillRuntimeArtifacts(artifacts, {

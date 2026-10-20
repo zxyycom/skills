@@ -1,10 +1,14 @@
 import {
+  listProjection,
+  listSnapshotEntries,
+  renderedList
+} from "./domain-support.ts";
+import {
   archivedDecisionId,
   assert,
   candidateDecisionBody,
   currentDecisionId,
   decisionMatchLines,
-  executeDecisionQuery,
   fs,
   path,
   runSourceCli,
@@ -14,84 +18,76 @@ import {
   writeDecision
 } from "./support.ts";
 
-test("decision list status all includes both lifecycles and full timestamps", () =>
-  withFixtureWorkspace("query-list-all", async (workspaceRoot) => {
-    const listed = await runSuccessfulSourceCli([
-      "list",
-      "--status",
-      "all",
-      "--full-time",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.match(listed, new RegExp(currentDecisionId));
-    assert.match(listed, new RegExp(archivedDecisionId));
-    assert.match(listed, /active\/aligned/);
-    assert.match(listed, /archived\/unaligned/);
-    assert.doesNotMatch(listed, /unknown|null/);
-    assert.match(listed, /2026-07-11T14:15:16\+08:00/);
-    assert.match(listed, /2026-07-10T09:10:11\+08:00/);
-  }));
+test("decision list status all includes both lifecycles and full timestamps", async () => {
+  const listed = renderedList(
+    await listSnapshotEntries(),
+    { status: "all" },
+    true
+  );
+  assert.match(listed, new RegExp(currentDecisionId));
+  assert.match(listed, new RegExp(archivedDecisionId));
+  assert.match(listed, /active\/aligned/);
+  assert.match(listed, /archived\/unaligned/);
+  assert.doesNotMatch(listed, /unknown|null/);
+  assert.match(listed, /2026-07-11T14:15:16\+08:00/);
+  assert.match(listed, /2026-07-10T09:10:11\+08:00/);
+});
 
-test("decision list returns snapshot facets with recent stable pages and inclusive createdAt ranges", () =>
-  withFixtureWorkspace("query-list-recent", async (workspaceRoot) => {
-    await writeDecision(
-      workspaceRoot,
-      "alpha-tie.md",
-      candidateDecisionBody({
+test("decision list returns snapshot facets with recent stable pages and inclusive createdAt ranges", async () => {
+  const entries = await listSnapshotEntries([
+    {
+      id: "alpha-tie",
+      text: candidateDecisionBody({
+        id: "alpha-tie",
         tags: ["decision-records", "project-tooling"],
         title: "同一时刻的稳定排序记录"
       })
         .replace("status: candidate", "status: active")
         .replace("alignment: null", "alignment: aligned")
         .replace("createdAt: null", "createdAt: 2026-07-11T14:15:16+08:00")
-    );
-    const synced = await runSourceCli(["sync-index", "--root", workspaceRoot]);
-    assert.equal(synced.exitCode, 0, synced.stderr);
+    }
+  ]);
+  const first = listProjection(entries, {
+    alignment: "all",
+    command: "list",
+    createdAtFrom: "2026-07-11T06:15:16Z",
+    createdAtTo: "2026-07-11T14:15:16+08:00",
+    limit: 1,
+    offset: 0,
+    status: "active",
+    tags: []
+  });
+  assert.equal(first.status, "ok");
+  assert.equal(first.command, "list");
+  assert.equal(first.total, 2);
+  assert.deepEqual(first.facets.alignments, { aligned: 2, unaligned: 1 });
+  assert.doesNotMatch(JSON.stringify(first), /unknown|null/);
+  assert.deepEqual(
+    first.records.map((record) => record.decisionId),
+    ["alpha-tie"]
+  );
+  assert.deepEqual(first.facets.statuses, { active: 2, archived: 1 });
+  assert.deepEqual(first.facets.createdAt.months, [
+    { count: 3, month: "2026-07" }
+  ]);
 
-    const first = await executeDecisionQuery({
-      alignment: "all",
-      command: "list",
-      createdAtFrom: "2026-07-11T06:15:16Z",
-      createdAtTo: "2026-07-11T14:15:16+08:00",
-      limit: 1,
-      location: { decisionsDir: "docs/decisions", workspaceRoot },
-      offset: 0,
-      status: "active",
-      tags: []
-    });
-    assert.equal(first.status, "ok");
-    assert.equal(first.command, "list");
-    assert.equal(first.total, 2);
-    assert.deepEqual(first.facets.alignments, { aligned: 2, unaligned: 1 });
-    assert.doesNotMatch(JSON.stringify(first), /unknown|null/);
-    assert.deepEqual(
-      first.records.map((record) => record.decisionId),
-      ["alpha-tie"]
-    );
-    assert.deepEqual(first.facets.statuses, { active: 2, archived: 1 });
-    assert.deepEqual(first.facets.createdAt.months, [
-      { count: 3, month: "2026-07" }
-    ]);
-
-    const second = await executeDecisionQuery({
-      alignment: "all",
-      command: "list",
-      createdAtFrom: "2026-07-11T06:15:16Z",
-      createdAtTo: "2026-07-11T06:15:16Z",
-      limit: 1,
-      location: { decisionsDir: "docs/decisions", workspaceRoot },
-      offset: 1,
-      status: "active",
-      tags: []
-    });
-    assert.equal(second.status, "ok");
-    assert.equal(second.command, "list");
-    assert.deepEqual(
-      second.records.map((record) => record.decisionId),
-      [currentDecisionId]
-    );
-  }));
+  const second = listProjection(entries, {
+    alignment: "all",
+    command: "list",
+    createdAtFrom: "2026-07-11T06:15:16Z",
+    createdAtTo: "2026-07-11T06:15:16Z",
+    limit: 1,
+    offset: 1,
+    status: "active",
+    tags: []
+  });
+  assert.equal(second.status, "ok");
+  assert.equal(second.command, "list");
+  assert.deepEqual(
+    second.records.map((record) => record.decisionId),
+    [currentDecisionId]
+  );
+});
 
 test("decision CLI renders bounded compact and detailed list views without changing its index", () =>
   withFixtureWorkspace("query-list-rendering", async (workspaceRoot) => {
@@ -175,24 +171,61 @@ test("decision CLI renders bounded compact and detailed list views without chang
       /Showing 0 of 34 matches \(offset 99, limit 10\); 0 remaining\./u
     );
     assert.equal(await fs.readFile(indexPath, "utf8"), before);
-  }));
 
-test("decision list reports empty results for unmatched tag and alignment filters", () =>
-  withFixtureWorkspace("query-list-empty", async (workspaceRoot) => {
-    const unmatchedTag = await runSuccessfulSourceCli([
+    const fullTimestamp = "2026-10-20T12:34:56+08:00";
+    for (const { id, tags, alignment } of [
+      { id: "cli-filter-a", tags: ["filter-a"], alignment: "unaligned" },
+      {
+        id: "cli-filter-both-unaligned",
+        tags: ["filter-a", "filter-b"],
+        alignment: "unaligned"
+      },
+      { id: "cli-filter-b", tags: ["filter-b"], alignment: "unaligned" },
+      {
+        id: "cli-filter-both-aligned",
+        tags: ["filter-a", "filter-b"],
+        alignment: "aligned"
+      }
+    ]) {
+      await writeDecision(
+        workspaceRoot,
+        id,
+        candidateDecisionBody({ id, tags })
+          .replace("status: candidate", "status: active")
+          .replace("alignment: null", `alignment: ${alignment}`)
+          .replace("createdAt: null", `createdAt: ${fullTimestamp}`)
+      );
+    }
+    await runSuccessfulSourceCli(["sync-index", "--root", workspaceRoot]);
+    const beforeFiltered = await fs.readFile(indexPath, "utf8");
+    const filtered = await runSuccessfulSourceCli([
       "list",
       "--tag",
-      "unmatched-tag",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.match(unmatchedTag, /- none/);
-    const unmatchedAlignment = await runSuccessfulSourceCli([
-      "list",
+      "filter-a",
+      "--tag",
+      "filter-b",
       "--alignment",
       "unaligned",
+      "--full-time",
       "--root",
       workspaceRoot
     ]);
-    assert.match(unmatchedAlignment, /- none/);
+    assert.deepEqual(
+      [...decisionMatchLines(filtered).matchAll(/^- (\S+) /gmu)].map(
+        (match) => match[1]
+      ),
+      ["cli-filter-both-unaligned"]
+    );
+    assert.match(
+      filtered,
+      /Latest matches:\n- cli-filter-both-unaligned 2026-10-20T12:34:56\+08:00 active\/unaligned/u
+    );
+    assert.match(filtered, /Showing 1 of 1 matches/u);
+    assert.equal(await fs.readFile(indexPath, "utf8"), beforeFiltered);
   }));
+
+test("decision list reports empty results for unmatched tag and alignment filters", async () => {
+  const entries = await listSnapshotEntries();
+  assert.match(renderedList(entries, { tags: ["unmatched-tag"] }), /- none/u);
+  assert.match(renderedList(entries, { alignment: "unaligned" }), /- none/u);
+});

@@ -1,8 +1,6 @@
 import path from "node:path";
 import { operationErrorDetail } from "../../../tools/shared/src/node/error-detail.ts";
 import { rootDir } from "../project.ts";
-import { packageScriptDependencies } from "./checks/package-script.ts";
-import { semanticGateChecks } from "./checks/semantic.ts";
 import {
   baseGateCheckIds,
   baseGateImpactContracts,
@@ -23,7 +21,6 @@ import {
 export type GateActivationReason =
   | "cache-invalid"
   | "conservative-fallback"
-  | "dependency-required"
   | "first-run"
   | "inputs-changed"
   | "release-full"
@@ -35,7 +32,7 @@ export type GateActivationDecision = Readonly<
       action: "execute";
       checkId: string;
       fingerprint: null;
-      reason: "release-full" | "snapshot-unavailable";
+      reason: "release-full" | "snapshot-unavailable" | "conservative-fallback";
     }
   | {
       action: "execute";
@@ -44,7 +41,6 @@ export type GateActivationDecision = Readonly<
       reason:
         | "cache-invalid"
         | "conservative-fallback"
-        | "dependency-required"
         | "first-run"
         | "inputs-changed";
     }
@@ -89,7 +85,11 @@ export type GateReceiptPublication = Readonly<
     }
   | {
       published: false;
-      reason: "check-not-passed" | "not-incremental" | "workspace-drift";
+      reason:
+        | "check-not-passed"
+        | "not-incremental"
+        | "workspace-drift"
+        | "inputs-unclosed";
     }
 >;
 
@@ -100,50 +100,7 @@ type PrepareGateActivationOptions = Readonly<{
   workspaceRoot?: string;
 }>;
 
-function baseDependencyMap(): ReadonlyMap<string, readonly string[]> {
-  return new Map([
-    ...Object.entries(packageScriptDependencies).map(
-      ([script, dependencies]) => [`script:${script}`, dependencies] as const
-    ),
-    ...semanticGateChecks.map(
-      (check) =>
-        [check.checkId, "dependsOn" in check ? check.dependsOn : []] as const
-    )
-  ]);
-}
-
-function closeRequiredDependencies(
-  decisions: readonly GateActivationDecision[]
-): readonly GateActivationDecision[] {
-  const byCheckId = new Map(
-    decisions.map((decision) => [decision.checkId, decision])
-  );
-  const dependencies = baseDependencyMap();
-  const visit = (checkId: string): void => {
-    for (const dependency of dependencies.get(checkId) ?? []) {
-      const decision = byCheckId.get(dependency);
-      if (decision?.action === "reuse") {
-        byCheckId.set(dependency, {
-          ...decision,
-          action: "execute",
-          reason: "dependency-required"
-        });
-      }
-      visit(dependency);
-    }
-  };
-  for (const decision of decisions) {
-    if (decision.action === "execute") visit(decision.checkId);
-  }
-  return decisions.map(
-    (decision) => byCheckId.get(decision.checkId) ?? decision
-  );
-}
-
-function releasePlan(
-  cacheDirectory: string,
-  snapshot: GateWorkspaceSnapshot | null
-): GateActivationPlan {
+function releasePlan(cacheDirectory: string): GateActivationPlan {
   const decisions = releaseGateCheckIds.map((checkId) => ({
     action: "execute" as const,
     checkId,
@@ -155,7 +112,7 @@ function releasePlan(
     cacheDirectory,
     decisions,
     kind: "release",
-    snapshot
+    snapshot: null
   };
 }
 
@@ -184,7 +141,8 @@ export async function prepareGateActivation(
   const workspaceRoot = options.workspaceRoot ?? rootDir;
   const cacheDirectory =
     options.cacheDirectory ??
-    path.join(workspaceRoot, ".log/vibe-check/cache/incremental-gate-v2");
+    path.join(workspaceRoot, ".log/vibe-check/cache/project-input-receipts-v3");
+  if (options.release) return releasePlan(cacheDirectory);
   let snapshot: GateWorkspaceSnapshot;
   try {
     snapshot = await captureGateWorkspaceSnapshot(
@@ -192,13 +150,11 @@ export async function prepareGateActivation(
       options.captureDependencies
     );
   } catch (error) {
-    if (options.release) return releasePlan(cacheDirectory, null);
     return fallbackPlan(
       cacheDirectory,
       operationErrorDetail(error) ?? "workspace snapshot failed"
     );
   }
-  if (options.release) return releasePlan(cacheDirectory, snapshot);
   const receiptRead = await readReceiptManifest(cacheDirectory);
   const receipts = new Map(
     receiptRead.manifest?.receipts.map((receipt) => [
@@ -206,7 +162,19 @@ export async function prepareGateActivation(
       receipt
     ]) ?? []
   );
-  const rawDecisions = baseGateImpactContracts.map((contract_) => {
+  const decisions = baseGateImpactContracts.map((contract_) => {
+    if (
+      snapshot.unclassifiedPaths.length > 0 ||
+      contract_.patterns.length === 0 ||
+      snapshot.inputDigests[contract_.checkId] === undefined
+    ) {
+      return {
+        action: "execute" as const,
+        checkId: contract_.checkId,
+        fingerprint: null,
+        reason: "conservative-fallback" as const
+      };
+    }
     const fingerprint = gateCheckInputFingerprint(contract_, snapshot);
     const receipt = receipts.get(contract_.checkId);
     if (receipt?.fingerprint === fingerprint) {
@@ -222,9 +190,7 @@ export async function prepareGateActivation(
         ? "cache-invalid"
         : receipt === undefined
           ? "first-run"
-          : snapshot.unclassifiedPaths.length > 0
-            ? "conservative-fallback"
-            : "inputs-changed";
+          : "inputs-changed";
     return {
       action: "execute" as const,
       checkId: contract_.checkId,
@@ -232,7 +198,6 @@ export async function prepareGateActivation(
       reason
     };
   });
-  const decisions = closeRequiredDependencies(rawDecisions);
   return {
     activeCheckIds: decisions
       .filter(({ action }) => action === "execute")
@@ -256,21 +221,31 @@ export function gateActivationFlags(
 
 export async function publishGateReceipts(
   plan: GateActivationPlan,
-  passedCheckIds: ReadonlySet<string>,
+  result: Readonly<{
+    runSucceeded: boolean;
+    passedCheckIds: ReadonlySet<string>;
+  }>,
   workspaceRoot: string = rootDir,
   captureDependencies: CaptureDependencies = {}
 ): Promise<GateReceiptPublication> {
   if (plan.kind !== "incremental") {
     return { published: false, reason: "not-incremental" };
   }
+  if (!result.runSucceeded)
+    return { published: false, reason: "check-not-passed" };
   if (
     plan.decisions.some(
       ({ action, checkId }) =>
-        action === "execute" && !passedCheckIds.has(checkId)
+        action === "execute" && !result.passedCheckIds.has(checkId)
     )
   ) {
     return { published: false, reason: "check-not-passed" };
   }
+  if (
+    plan.snapshot.unclassifiedPaths.length > 0 ||
+    plan.decisions.some(({ fingerprint }) => fingerprint === null)
+  )
+    return { published: false, reason: "inputs-unclosed" };
   let finalSnapshot: GateWorkspaceSnapshot;
   try {
     finalSnapshot = await captureGateWorkspaceSnapshot(

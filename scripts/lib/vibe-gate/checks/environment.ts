@@ -1,30 +1,29 @@
-import { defineCheck } from "@zxyycom/vibe-check";
-import type { Check } from "@zxyycom/vibe-check";
-import { externalProcessClaim } from "../contracts.ts";
+import { commandCheck } from "@zxyycom/vibe-check";
 import {
-  executeGateCommand,
-  type GateCommandRunner
-} from "../command-runner.ts";
+  externalProcessClaim,
+  gateCheckDeclaration,
+  gateEnvironmentCheckId,
+  type GateCheckConfiguration
+} from "../contracts.ts";
+import { gateCommandPolicy } from "../command-runner.ts";
 
-export const gateEnvironmentCheckId = "gate-environment";
+export { gateEnvironmentCheckId } from "../contracts.ts";
 
-export function createGateEnvironmentCheck(runner: GateCommandRunner): Check {
-  return defineCheck({
+export function createGateEnvironmentCheck(
+  configuration: GateCheckConfiguration = {}
+) {
+  return commandCheck({
     checkId: gateEnvironmentCheckId,
     displayName: "Gate environment prerequisites",
-    resourceClaims: externalProcessClaim,
-    async execution({ artifactDirectory, project, signal }) {
-      return await executeGateCommand({
-        artifactDirectory,
-        command: {
-          args: ["scripts/environment.js", "gate"],
-          command: "node"
-        },
-        context: { kind: "gate-command" },
-        projectRoot: project.root,
-        runner,
-        signal
-      });
-    }
+    ...gateCheckDeclaration(
+      gateEnvironmentCheckId,
+      configuration,
+      externalProcessClaim
+    ),
+    ...gateCommandPolicy,
+    executable: "node",
+    arguments: ["scripts/environment.js", "gate"],
+    timeoutMs: 30_000,
+    outputByteLimit: 1024 * 1024
   });
 }

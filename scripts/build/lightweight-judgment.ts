@@ -1,3 +1,4 @@
+import type { SourceRuntimeFacts } from "../lib/source-runtime.ts";
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
@@ -15,7 +16,10 @@ import { githubRepository, rootDir } from "../lib/project.ts";
 const rebuildCommand = "bun run sync:lightweight-judgment-cli";
 const skillSourcePath = "skills/lightweight-judgment";
 const migrations = ["log-v1-to-v2", "log-v2-to-v3"] as const;
-export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
+export async function syncRuntime(
+  mode: GeneratedFileMode,
+  facts?: SourceRuntimeFacts
+): Promise<boolean> {
   const migrationArtifacts = await Promise.all(
     migrations.map(async (migration): Promise<GeneratedArtifact> => {
       const sourcePath = `tools/lightweight-judgment/migrations/${migration}.sql`;
@@ -36,22 +40,25 @@ export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
       };
     })
   );
-  const artifacts = await buildSkillRuntimeArtifacts({
-    skillName: "lightweight-judgment",
-    rebuildCommand,
-    nodeEngine: ">=24.18",
-    entries: [
-      await nativeCliEntry({
-        sourcePath: "tools/lightweight-judgment/src/cli.ts",
-        outputName: "lightweight-judgment.ts",
-        runner: "runCli",
-        invocation: `const outcome = await runtime.runCli(process.argv.slice(2), runtime.productionRuntime());
+  const artifacts = await buildSkillRuntimeArtifacts(
+    {
+      skillName: "lightweight-judgment",
+      rebuildCommand,
+      nodeEngine: ">=24.18",
+      entries: [
+        await nativeCliEntry({
+          sourcePath: "tools/lightweight-judgment/src/cli.ts",
+          outputName: "lightweight-judgment.ts",
+          runner: "runCli",
+          invocation: `const outcome = await runtime.runCli(process.argv.slice(2), runtime.productionRuntime());
     process.stdout.write(outcome.stdout);
     process.stderr.write(outcome.stderr);
     process.exitCode = outcome.exitCode;`
-      })
-    ]
-  });
+        })
+      ]
+    },
+    facts
+  );
   artifacts.push(...migrationArtifacts);
   return await syncSkillRuntimeArtifacts(artifacts, {
     mode,

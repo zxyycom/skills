@@ -10,4 +10,4 @@ Contract:
 - 单次重划不得把同一个 Decision ID 同时作为所选后继和直接前序，避免把两代关系折叠进一个事件。
 
 Proves:
-- 选择一个既有重划后继，同时让新候选指向它时，evolve 在写入前报告角色重叠。
+- 纯事务准备对选择既有重划后继、同时让新候选指向它的输入返回 error、exitCode=1 和 successor/predecessor 角色重叠诊断，且不产生 changes。

@@ -1,3 +1,4 @@
+import type { SourceRuntimeFacts } from "../lib/source-runtime.ts";
 import { nativeCliEntry } from "../lib/native-cli-entry.ts";
 import {
   buildSkillRuntimeArtifacts,
@@ -67,7 +68,9 @@ const publicRuntimeExports = [
   "validateTaskIndexGraph"
 ];
 
-async function buildArtifacts(): Promise<GeneratedArtifact[]> {
+async function buildArtifacts(
+  facts?: SourceRuntimeFacts
+): Promise<GeneratedArtifact[]> {
   const declarationArtifacts =
     await buildGeneratedTypeScriptDeclarationArtifacts({
       declarationArtifactName: "task graph SDK TypeScript declaration",
@@ -100,20 +103,23 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
     title: "TaskGraphIndex"
   };
   return [
-    ...(await buildSkillRuntimeArtifacts({
-      skillName: "task-graph",
-      rebuildCommand,
-      nodeEngine: "^22.22.2 || ^24.15.0 || >=26.0.0",
-      entries: [
-        await nativeCliEntry({
-          sourcePath: cliSourcePath,
-          outputName: "task-graph.ts",
-          runner: "runTaskGraphCli",
-          declarationName: "task-graph.d.mts",
-          typedExports: publicRuntimeExports
-        })
-      ]
-    })),
+    ...(await buildSkillRuntimeArtifacts(
+      {
+        skillName: "task-graph",
+        rebuildCommand,
+        nodeEngine: "^22.22.2 || ^24.15.0 || >=26.0.0",
+        entries: [
+          await nativeCliEntry({
+            sourcePath: cliSourcePath,
+            outputName: "task-graph.ts",
+            runner: "runTaskGraphCli",
+            declarationName: "task-graph.d.mts",
+            typedExports: publicRuntimeExports
+          })
+        ]
+      },
+      facts
+    )),
     ...declarationArtifacts,
     {
       content: `${JSON.stringify(jsonSchema, null, 2)}\n`,
@@ -123,8 +129,11 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
   ];
 }
 
-export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
-  const artifacts = await buildArtifacts();
+export async function syncRuntime(
+  mode: GeneratedFileMode,
+  facts?: SourceRuntimeFacts
+): Promise<boolean> {
+  const artifacts = await buildArtifacts(facts);
   const changedArtifacts = await syncSkillRuntimeArtifacts(artifacts, {
     mode,
     skillName: "task-graph",

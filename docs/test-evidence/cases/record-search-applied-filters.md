@@ -11,5 +11,5 @@ Contract:
 - 搜索保存实际结构筛选而非重解析 selector；关系目标以同一快照解析的完整 ID 回显，时间以等价 UTC 表达。
 
 Proves:
-- Decision 显示完整目标 ID、status/alignment/tags 与精确计数，无返回上限且 metadata 资源/预览为 null。
-- Investigation 保留规范化 tags、trim 后文本、等价 UTC 时间与默认 both；实际筛选返回正确关系邻居。
+- Decision 的真实 metadata 内存投影保留完整目标 ID、status/alignment/tags 与精确计数，无返回上限且 metadata 资源/预览为 null。
+- Investigation 的真实准备与 metadata 内存投影保留规范化 tags、trim 后文本、等价 UTC 时间与默认 both，实际筛选返回正确关系邻居。

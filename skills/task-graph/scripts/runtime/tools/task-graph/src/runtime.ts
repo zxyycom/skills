@@ -76,8 +76,10 @@ function isSupportedNodeVersion(nodeVersion: string): boolean {
   const minor = Number(match[2]);
   const patch = Number(match[3]);
   if (major >= 26) return true;
-  if (major === 24) return minor > 15 || (minor === 15 && patch >= 0);
-  return major === 22 && (minor > 22 || (minor === 22 && patch >= 2));
+  if (major === 24) return minor >= 15;
+  if (major !== 22) return false;
+  if (minor !== 22) return minor > 22;
+  return patch >= 2;
 }
 
 function runtimeHome(

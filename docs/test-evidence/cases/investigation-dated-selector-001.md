@@ -17,4 +17,4 @@ Contract:
 Proves:
 - 语义 name、标准 ID 和 `.md` 输入均收敛到完整 ID，且读取不依赖语义 sourcePath basename。
 - 重复 name 的候选以二进制 ID 顺序返回，非法日期前缀按 name 成功解析，不存在的标准 ID 不回退。
-- `stage --scope index` 在同一严格 HEAD/工作区索引事务且集合契约一致后，用两侧 state.name 并集解析 selector；它支持单侧删除和单侧新增，并在歧义或精确 ID 缺失时不写 pending。
+- stage 的纯准备与 resolver 组合将一个 Markdown 后缀及唯一 name 解析为标准 ID，歧义时给出排序后的完整候选。真实 Git 集成分别证明 baseline-only 删除和 workspace-only 新增进入 pending；精确 ID 缺失返回 selected-id-missing 诊断，不把纯解析断言当作 pending 零写证明。

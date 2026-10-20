@@ -138,7 +138,6 @@ test("investigation CLI without a command renders top-level help as an argument 
 
 test("investigation CLI rejects absolute and escaping investigation directories", async () => {
   await withTempRoot("cli-dir-boundary", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
     for (const investigationsDir of [
       "/tmp/investigations",
       "../investigations"
@@ -227,8 +226,6 @@ test("investigation CLI normalizes the configured relative investigations direct
 
 test("investigation CLI rejects removed commands and options as plain unknown input", async () => {
   await withTempRoot("cli-plain-unknown-input", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-
     const unknownCommand = await runCli(["topics"], { cwd: root });
     assert.equal(unknownCommand.status, 2);
     assert.equal(unknownCommand.stdout, "");

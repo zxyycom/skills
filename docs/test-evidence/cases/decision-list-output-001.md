@@ -11,3 +11,4 @@ Contract:
 
 Proves:
 - 34 条记录形成 35 个 tags 和 32 个 UTC 月份；紧凑输出只显示排序后的 30 个 tags 与 10 个月份并报告省略数量。limit 1 省略 sourcePath 多行字段并报告 next offset；detail 输出完整目录、sourcePath 与 purpose；offset 越界保留全局 facets、匹配总数和空页上下文，三个调用前后的索引字节一致。
+- 同进程源码 CLI 将合法重复 `--tag filter-a --tag filter-b`、`--alignment unaligned` 与 `--full-time` 一起接入查询；A-only、B-only、A+B aligned 对照均被排除，只返回 A+B unaligned 的唯一 ID、完整 `2026-10-20T12:34:56+08:00` 与 total=1，调用前后索引字节不变。

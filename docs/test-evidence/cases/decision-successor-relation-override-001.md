@@ -10,4 +10,4 @@ Contract:
 - 事务准备为每个 successor 采用 `successor.relationOverride ?? transaction.relationOverride`；局部 source 和空 replacement 都不得回退到事务默认 replacement。
 
 Proves:
-- 局部 source 保留原关系，局部空 replacement 清空关系，局部非空 replacement 取代事务默认集合。
+- 真实后继准备函数消费内存解析记录时，局部 source 保留原关系，局部空 replacement 清空关系，局部非空 replacement 取代事务默认集合；不经过文件事务或 CLI。

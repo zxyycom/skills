@@ -1,17 +1,22 @@
 import path from "node:path";
 import {
-  defaultProjectFileSelection,
   duplicateDetection,
   fileMetrics,
   functionMetrics,
   jsonSchemaValidation,
   jsonValidation,
   markdownLinkValidation,
+  markdownLint,
   secretDetection
 } from "@zxyycom/vibe-check";
 import type { Check } from "@zxyycom/vibe-check";
 import { rootDir } from "../../project.ts";
-import { repositoryProcessClaims, repositoryScanClaim } from "../contracts.ts";
+import {
+  gateCheckDeclaration,
+  type GateCheckConfiguration,
+  repositoryProcessClaims,
+  repositoryScanClaim
+} from "../contracts.ts";
 
 export const historicalContentExclusions = [
   "docs/investigations/_resources/**"
@@ -21,70 +26,73 @@ export const investigationAuthoringDocumentExclusions = [
   "docs/investigations/_candidate.*"
 ] as const;
 
-const projectExclusions = [
-  ...defaultProjectFileSelection.exclude,
-  ...historicalContentExclusions
-] as const;
+const projectExclusions = [...historicalContentExclusions] as const;
 
 export const maintainedCodeFiles = {
-  source: "git-worktree",
-  include: [
-    "scripts/**/*.js",
-    "scripts/**/*.ts",
-    "tools/**/*.js",
-    "tools/**/*.ts"
-  ],
-  exclude: projectExclusions
+  patterns: [
+    "scripts/**/*.{js,ts}",
+    "tools/**/*.{js,ts}",
+    ...projectExclusions.map((pattern) => `!${pattern}`)
+  ]
 } as const;
-
 export const productCodeFiles = {
-  source: "git-worktree",
-  include: ["tools/**/*.js", "tools/**/*.ts"],
-  exclude: [
-    ...projectExclusions,
-    "tools/**/tests/**",
-    "tools/**/*.test.js",
-    "tools/**/*.test.ts"
+  patterns: [
+    "tools/**/*.{js,ts}",
+    "!tools/**/tests/**",
+    "!tools/**/*.test.{js,ts}",
+    ...projectExclusions.map((pattern) => `!${pattern}`)
   ]
 } as const;
-
 export const testCodeFiles = {
-  source: "git-worktree",
-  include: [
-    "scripts/**/*.test.js",
-    "scripts/**/*.test.ts",
-    "tools/**/tests/**/*.js",
-    "tools/**/tests/**/*.ts",
-    "tools/**/*.test.js",
-    "tools/**/*.test.ts"
-  ],
-  exclude: projectExclusions
-} as const;
-
-export const automationCodeFiles = {
-  source: "git-worktree",
-  include: ["scripts/**/*.js", "scripts/**/*.ts"],
-  exclude: [
-    ...projectExclusions,
-    "scripts/**/*.test.js",
-    "scripts/**/*.test.ts"
+  patterns: [
+    "scripts/**/*.test.{js,ts}",
+    "tools/**/tests/**/*.{js,ts}",
+    "tools/**/*.test.{js,ts}",
+    ...projectExclusions.map((pattern) => `!${pattern}`)
   ]
 } as const;
-
-export const maintainedDocumentFiles = {
-  source: "git-worktree",
-  exclude: [...projectExclusions, ...investigationAuthoringDocumentExclusions]
+export const automationCodeFiles = {
+  patterns: [
+    "scripts/**/*.{js,ts}",
+    "!scripts/**/*.test.{js,ts}",
+    ...projectExclusions.map((pattern) => `!${pattern}`)
+  ]
 } as const;
-
+const maintainedDocumentExclusions = [
+  ...projectExclusions,
+  ...investigationAuthoringDocumentExclusions
+].map((pattern) => `!${pattern}`);
+const markdownSourcePatterns = [
+  "**/*.[mM][dD]",
+  "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"
+] as const;
+export const maintainedDocumentFiles = {
+  patterns: [
+    "**/*.json",
+    ...markdownSourcePatterns,
+    ...maintainedDocumentExclusions
+  ]
+} as const;
+export const maintainedMarkdownFiles = {
+  patterns: [
+    "**/*.[mM][dD]",
+    "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]",
+    ...[
+      ...projectExclusions,
+      ...investigationAuthoringDocumentExclusions,
+      "skills/**/references/upstream/**",
+      "skills/**/reference-original.md"
+    ].map((pattern) => `!${pattern}`)
+  ]
+} as const;
 export const maintainedSecretFiles = {
-  source: "git-worktree",
-  include: [
+  patterns: [
     "**/*.{code-workspace,example,html,js,json,jsonl,md,mjs,mts,rules,toml,ts,txt,yaml,yml}",
     "**/.gitattributes",
     "**/.gitignore",
-    ".githooks/*"
-  ],
-  exclude: projectExclusions
+    ".githooks/*",
+    ...projectExclusions.map((pattern) => `!${pattern}`)
+  ]
 } as const;
 
 const schemas = [
@@ -117,153 +125,190 @@ export const vibeNativeCheckIds = [
   "json-validation",
   "json-schema-validation",
   "markdown-link-validation",
+  "markdown-lint",
   "file-metrics",
   "function-metrics"
 ] as const;
 
-function withResourceClaims<
-  AuthoredOptions extends object,
-  PreparedOptions extends object
->(
-  check: Check<AuthoredOptions, PreparedOptions>,
-  resourceClaims: Readonly<Record<string, number>>
-): Check<AuthoredOptions, PreparedOptions> {
-  return { ...check, resourceClaims };
-}
-
 export function createVibeNativeChecks(
-  workspaceRoot: string = rootDir
+  workspaceRoot: string = rootDir,
+  configuration: GateCheckConfiguration = {}
 ): readonly Check[] {
   return [
-    withResourceClaims(
-      duplicateDetection({
-        cache: { enabled: false },
-        codeAreas: {
-          maintained: {
-            files: maintainedCodeFiles,
-            findingPolicy: "blocking",
-            minimumTokens: 150
+    duplicateDetection({
+      ...gateCheckDeclaration(
+        "duplicate-detection",
+        configuration,
+        repositoryScanClaim
+      ),
+      cache: {
+        enabled: true,
+        directory: path.join(
+          workspaceRoot,
+          ".log/vibe-check/cache/duplicate-fragments"
+        )
+      },
+      codeAreas: {
+        maintained: {
+          files: maintainedCodeFiles,
+          findingPolicy: "blocking",
+          minimumTokens: 150
+        }
+      }
+    }),
+    secretDetection({
+      ...gateCheckDeclaration(
+        "secret-detection",
+        configuration,
+        repositoryScanClaim
+      ),
+      files: maintainedSecretFiles,
+      findingWaivers: [],
+      maximumFileCount: 4_096,
+      maximumTotalBytes: 67_108_864
+    }),
+    jsonValidation({
+      ...gateCheckDeclaration(
+        "json-validation",
+        configuration,
+        repositoryScanClaim
+      ),
+      files: { patterns: ["**/*.json", ...maintainedDocumentExclusions] },
+      maximumBytes: 2_097_152
+    }),
+    jsonSchemaValidation({
+      ...gateCheckDeclaration(
+        "json-schema-validation",
+        configuration,
+        repositoryScanClaim
+      ),
+      bindings,
+      files: {
+        patterns: [
+          ...schemas.map(({ path }) => path),
+          ...bindings.map(({ instancePath }) => instancePath),
+          ...projectExclusions.map((pattern) => `!${pattern}`)
+        ]
+      },
+      maximumBytes: 2_097_152,
+      schemaIdentity: { mode: "configuration-authoritative" },
+      schemas
+    }),
+    markdownLinkValidation({
+      ...gateCheckDeclaration(
+        "markdown-link-validation",
+        configuration,
+        repositoryScanClaim
+      ),
+      cache: {
+        directory: path.join(
+          workspaceRoot,
+          ".log/vibe-check/cache/markdown-parse-facts"
+        ),
+        enabled: true
+      },
+      files: {
+        patterns: [...markdownSourcePatterns, ...maintainedDocumentExclusions]
+      },
+      findingPolicy: "blocking"
+    }),
+    markdownLint({
+      ...gateCheckDeclaration(
+        "markdown-lint",
+        configuration,
+        repositoryScanClaim
+      ),
+      files: maintainedMarkdownFiles,
+      findingPolicy: "blocking",
+      rules: [
+        "no-reversed-links",
+        "no-missing-space-atx",
+        "no-empty-links",
+        "no-alt-text",
+        "reference-links-images",
+        "table-column-count"
+      ],
+      cache: {
+        enabled: true,
+        directory: path.join(
+          workspaceRoot,
+          ".log/vibe-check/cache/markdown-lint-facts"
+        )
+      }
+    }),
+    fileMetrics({
+      ...gateCheckDeclaration(
+        "file-metrics",
+        configuration,
+        repositoryProcessClaims
+      ),
+      codeAreas: {
+        maintained: {
+          files: maintainedCodeFiles,
+          findingPolicy: "blocking"
+        }
+      },
+      findingPolicy: "blocking",
+      findingWaivers: []
+    }),
+    functionMetrics({
+      ...gateCheckDeclaration(
+        "function-metrics",
+        configuration,
+        repositoryScanClaim
+      ),
+      codeAreas: {
+        product: {
+          files: productCodeFiles,
+          findingPolicy: "blocking",
+          limits: {
+            codeLines: {
+              lowComplexityAllowance: {
+                cyclomaticComplexityBelow: 5,
+                maximum: 120
+              },
+              maximum: 45
+            },
+            cyclomaticComplexity: { maximum: 10 },
+            nestingDepth: { maximum: 5 },
+            parameters: { maximum: 5 }
+          }
+        },
+        automation: {
+          files: automationCodeFiles,
+          findingPolicy: "blocking",
+          limits: {
+            codeLines: {
+              lowComplexityAllowance: {
+                cyclomaticComplexityBelow: 7,
+                maximum: 220
+              },
+              maximum: 80
+            },
+            cyclomaticComplexity: { maximum: 16 },
+            nestingDepth: { maximum: 8 },
+            parameters: { maximum: 7 }
+          }
+        },
+        tests: {
+          files: testCodeFiles,
+          findingPolicy: "blocking",
+          limits: {
+            codeLines: {
+              lowComplexityAllowance: {
+                cyclomaticComplexityBelow: 8,
+                maximum: 250
+              },
+              maximum: 100
+            },
+            cyclomaticComplexity: { maximum: 20 },
+            nestingDepth: { maximum: 10 },
+            parameters: { maximum: 8 }
           }
         }
-      }),
-      repositoryScanClaim
-    ),
-    withResourceClaims(
-      secretDetection({
-        files: maintainedSecretFiles,
-        findingWaivers: [],
-        maximumFileCount: 4_096,
-        maximumTotalBytes: 67_108_864
-      }),
-      repositoryScanClaim
-    ),
-    withResourceClaims(
-      jsonValidation({
-        files: maintainedDocumentFiles,
-        maximumBytes: 2_097_152
-      }),
-      repositoryScanClaim
-    ),
-    withResourceClaims(
-      jsonSchemaValidation({
-        bindings,
-        files: {
-          source: "git-worktree",
-          include: [
-            ...schemas.map(({ path }) => path),
-            ...bindings.map(({ instancePath }) => instancePath)
-          ],
-          exclude: projectExclusions
-        },
-        maximumBytes: 2_097_152,
-        schemaIdentity: { mode: "configuration-authoritative" },
-        schemas
-      }),
-      repositoryScanClaim
-    ),
-    withResourceClaims(
-      markdownLinkValidation({
-        cache: {
-          directory: path.join(
-            workspaceRoot,
-            ".log/vibe-check/cache/markdown-parse-facts"
-          ),
-          enabled: true
-        },
-        files: maintainedDocumentFiles,
-        findingPolicy: "blocking"
-      }),
-      repositoryScanClaim
-    ),
-    withResourceClaims(
-      fileMetrics({
-        codeAreas: {
-          maintained: {
-            files: maintainedCodeFiles,
-            findingPolicy: "blocking"
-          }
-        },
-        findingPolicy: "blocking",
-        findingWaivers: []
-      }),
-      repositoryProcessClaims
-    ),
-    withResourceClaims(
-      functionMetrics({
-        codeAreas: {
-          product: {
-            files: productCodeFiles,
-            findingPolicy: "blocking",
-            limits: {
-              codeLines: {
-                lowComplexityAllowance: {
-                  cyclomaticComplexityBelow: 5,
-                  maximum: 120
-                },
-                maximum: 45
-              },
-              cyclomaticComplexity: { maximum: 10 },
-              nestingDepth: { maximum: 5 },
-              parameters: { maximum: 5 }
-            }
-          },
-          automation: {
-            files: automationCodeFiles,
-            findingPolicy: "blocking",
-            limits: {
-              codeLines: {
-                lowComplexityAllowance: {
-                  cyclomaticComplexityBelow: 7,
-                  maximum: 220
-                },
-                maximum: 80
-              },
-              cyclomaticComplexity: { maximum: 16 },
-              nestingDepth: { maximum: 8 },
-              parameters: { maximum: 7 }
-            }
-          },
-          tests: {
-            files: testCodeFiles,
-            findingPolicy: "blocking",
-            limits: {
-              codeLines: {
-                lowComplexityAllowance: {
-                  cyclomaticComplexityBelow: 8,
-                  maximum: 250
-                },
-                maximum: 100
-              },
-              cyclomaticComplexity: { maximum: 20 },
-              nestingDepth: { maximum: 10 },
-              parameters: { maximum: 8 }
-            }
-          }
-        },
-        findingPolicy: "blocking",
-        findingWaivers: []
-      }),
-      repositoryScanClaim
-    )
+      },
+      findingPolicy: "blocking",
+      findingWaivers: []
+    })
   ];
 }

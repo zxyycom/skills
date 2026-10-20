@@ -10,4 +10,4 @@ Contract:
 - 单个候选可预先声明重划关系，但完整多对多形状只在建立或修订事务及已建立图中校验。
 
 Proves:
-- 只有一条重划关系的候选通过前瞻检查并仍以 candidate 计数。
+- 来源扫描器与领域关系校验器解析内存 Markdown 后，单条重划关系的候选不产生 sourceErrors、仍以 candidate 计数，前序保持 active。

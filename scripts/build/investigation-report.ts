@@ -1,3 +1,4 @@
+import type { SourceRuntimeFacts } from "../lib/source-runtime.ts";
 import path from "node:path";
 import {
   buildGeneratedDeclaration,
@@ -18,7 +19,10 @@ const sourcePath = "tools/investigation-report/src/cli.ts";
 const declarationSource =
   "tools/investigation-report/api/check-investigations.d.mts";
 const rebuildCommand = "bun run sync:investigation-report-check";
-export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
+export async function syncRuntime(
+  mode: GeneratedFileMode,
+  facts?: SourceRuntimeFacts
+): Promise<boolean> {
   const entry = await nativeCliEntry({
     sourcePath,
     outputName: "check-investigations.ts",
@@ -42,12 +46,15 @@ export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
       "validateInvestigationReports"
     ]
   });
-  const artifacts = await buildSkillRuntimeArtifacts({
-    skillName,
-    rebuildCommand,
-    nodeEngine: ">=24.18",
-    entries: [entry]
-  });
+  const artifacts = await buildSkillRuntimeArtifacts(
+    {
+      skillName,
+      rebuildCommand,
+      nodeEngine: ">=24.18",
+      entries: [entry]
+    },
+    facts
+  );
   artifacts.push(
     {
       content: await buildGeneratedDeclaration({

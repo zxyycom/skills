@@ -71,6 +71,7 @@ const publicApiTypeCheck = (): void => {
 };
 void publicApiTypeCheck;
 
+await import("./case-source-parser.test.ts");
 await import("./core-query.test.ts");
 await import("./core-index.test.ts");
 await import("./core-cli-search.test.ts");

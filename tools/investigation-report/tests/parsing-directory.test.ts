@@ -77,70 +77,64 @@ test("relation summary Markdown accepts only normalized optional short text", ()
   );
 });
 
-test("validation enforces one report with fixed core and optional resource section", async () => {
-  await withTempRoot("structure", async (root) => {
-    await writeCollection(root, [{ id: "valid-report" }], false);
-    await fs.writeFile(
-      `${investigationRoot(root)}/old-topic.md`,
+test("validation enforces one report with fixed core and optional resource section", () => {
+  assert.ok(
+    parseInvestigationReport(
       "# 旧主题\n\n## 调查信息\n- 核心问题: 不允许\n",
-      "utf8"
-    );
-    const result = await validateInvestigationReports({ workspaceRoot: root });
-    assert.ok(result.errors.some((error) => error.includes("frontmatter")));
-    const valid = reportMarkdown({ id: "valid-report" });
-    const fencedHeadings = valid.replace(
-      "形成此报告时的已知事实和边界。",
-      "```markdown\n## fenced H2\n# fenced H1\n```\n形成此报告时的已知事实和边界。"
-    );
-    assert.deepEqual(
-      parseInvestigationReport(fencedHeadings, "valid-report").errors,
-      []
-    );
-    assert.deepEqual(
-      parseInvestigationReport(
-        `${valid}\n## 合规附加章节\n这里允许出现。\n`,
-        "valid-report"
-      ).errors,
-      []
-    );
-    const withResources = reportMarkdown({
-      id: "valid-report",
-      resources: ["valid-report/evidence.txt"]
-    });
-    assert.deepEqual(
-      parseInvestigationReport(
-        `${withResources}\n## 资源后的附加章节\n这里允许出现。\n`,
-        "valid-report"
-      ).errors,
-      []
-    );
-    assert.ok(
-      parseInvestigationReport(
-        valid.replace(
-          "## 调查目的",
-          "## 不允许插入\n这里不能位于核心之间。\n\n## 调查目的"
-        ),
-        "valid-report"
-      ).errors.some((error) => error.includes("H2 section"))
-    );
-    assert.ok(
-      parseInvestigationReport(
-        withResources.replace(
-          "## 随附资源",
-          "## 资源前附加章节\n这里不能位于资源之前。\n\n## 随附资源"
-        ),
-        "valid-report"
-      ).errors.some((error) => error.includes("immediately follow"))
-    );
-    assert.ok(
-      parseInvestigationReport(
-        withResources.replace("## 随附资源", "## 随附资源   "),
-        "valid-report"
-      ).errors.some((error) =>
-        error.includes("resource heading must be exactly")
-      )
-    );
+      "old-topic"
+    ).errors.some((error) => error.includes("frontmatter"))
+  );
+  const valid = reportMarkdown({ id: "valid-report" });
+  const fencedHeadings = valid.replace(
+    "形成此报告时的已知事实和边界。",
+    "```markdown\n## fenced H2\n# fenced H1\n```\n形成此报告时的已知事实和边界。"
+  );
+  assert.deepEqual(
+    parseInvestigationReport(fencedHeadings, "valid-report").errors,
+    []
+  );
+  assert.deepEqual(
+    parseInvestigationReport(
+      `${valid}\n## 合规附加章节\n这里允许出现。\n`,
+      "valid-report"
+    ).errors,
+    []
+  );
+  const withResources = reportMarkdown({
+    id: "valid-report",
+    resources: ["valid-report/evidence.txt"]
   });
+  assert.deepEqual(
+    parseInvestigationReport(
+      `${withResources}\n## 资源后的附加章节\n这里允许出现。\n`,
+      "valid-report"
+    ).errors,
+    []
+  );
+  assert.ok(
+    parseInvestigationReport(
+      valid.replace(
+        "## 调查目的",
+        "## 不允许插入\n这里不能位于核心之间。\n\n## 调查目的"
+      ),
+      "valid-report"
+    ).errors.some((error) => error.includes("H2 section"))
+  );
+  assert.ok(
+    parseInvestigationReport(
+      withResources.replace(
+        "## 随附资源",
+        "## 资源前附加章节\n这里不能位于资源之前。\n\n## 随附资源"
+      ),
+      "valid-report"
+    ).errors.some((error) => error.includes("immediately follow"))
+  );
+  assert.ok(
+    parseInvestigationReport(
+      withResources.replace("## 随附资源", "## 随附资源   "),
+      "valid-report"
+    ).errors.some((error) => error.includes("resource heading must be exactly"))
+  );
 });
 
 test("scoped validation selects report ids without claiming full graph proof", async () => {

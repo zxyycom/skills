@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
+import { parseInvestigationReport } from "../src/markdown.ts";
+import { buildInvestigationReportState } from "../src/report-validation.ts";
+import { validateInvestigationResourceOwnership } from "../src/resources.ts";
+import { reportMarkdown } from "./v6-support.ts";
 import { validateInvestigationReports } from "../src/validation.ts";
 import {
   investigationResourceIdFromLinkTarget,
@@ -10,7 +14,6 @@ import {
 } from "../src/resource-reference.ts";
 import {
   investigationRoot,
-  jsonObjectMember,
   parseJsonObject,
   withTempRoot,
   writeCollection
@@ -109,16 +112,17 @@ test("resource ID whitelist accepts report-owned names and rejects structural ha
   );
 });
 
-test("attached resource section rejects unsafe local targets", async () => {
-  await withTempRoot("unsafe-resource", async (root) => {
-    await writeCollection(
-      root,
-      [{ id: "report", resources: ["report/../escape.txt"] }],
-      false
-    );
-    const result = await validateInvestigationReports({ workspaceRoot: root });
-    assert.ok(result.errors.length > 0);
-  });
+test("attached resource section rejects unsafe local targets", () => {
+  const parsed = parseInvestigationReport(
+    reportMarkdown({ id: "report", resources: ["report/../escape.txt"] }),
+    "report"
+  );
+  assert.ok(
+    parsed.resourceErrors.some((error) =>
+      error.includes("safe, normalized resource id")
+    )
+  );
+  assert.deepEqual(parsed.report?.resourceIds, []);
 });
 
 test("attached resource links reject path casing mismatches", async () => {
@@ -175,56 +179,36 @@ test("attached resource targets must be regular files", async () => {
   });
 });
 
-test("owner report must exist for a report-owned resource", async () => {
-  await withTempRoot("missing-owner", async (root) => {
-    const resource = path.join(
-      investigationRoot(root),
-      "_resources",
-      "owner",
-      "evidence.txt"
-    );
-    await fs.mkdir(path.dirname(resource), { recursive: true });
-    await fs.writeFile(resource, "x");
-    await writeCollection(
-      root,
-      [{ id: "consumer", resources: ["owner/evidence.txt"] }],
-      false
-    );
-    const result = await validateInvestigationReports({ workspaceRoot: root });
-    assert.ok(result.errors.some((error) => error.includes("owner report")));
-  });
+test("owner report must exist for a report-owned resource", () => {
+  const errors = validateInvestigationResourceOwnership(
+    ["owner/evidence.txt"],
+    new Map([["consumer", new Set(["owner/evidence.txt"])]])
+  );
+  assert.deepEqual(errors, [
+    "_resources/owner/evidence.txt owner report owner does not exist"
+  ]);
 });
 
-test("owner report must directly reference its own resource", async () => {
-  await withTempRoot("owner-reference", async (root) => {
-    const resource = path.join(
-      investigationRoot(root),
-      "_resources",
-      "owner",
-      "evidence.txt"
-    );
-    await fs.mkdir(path.dirname(resource), { recursive: true });
-    await fs.writeFile(resource, "x");
-    await writeCollection(
-      root,
-      [{ id: "owner" }, { id: "consumer", resources: ["owner/evidence.txt"] }],
-      false
-    );
-    const result = await validateInvestigationReports({ workspaceRoot: root });
-    assert.ok(
-      result.errors.some((error) => error.includes("referenced by its owner"))
-    );
-  });
+test("owner report must directly reference its own resource", () => {
+  const errors = validateInvestigationResourceOwnership(
+    ["owner/evidence.txt"],
+    new Map([
+      ["owner", new Set<string>()],
+      ["consumer", new Set(["owner/evidence.txt"])]
+    ])
+  );
+  assert.deepEqual(errors, [
+    "_resources/owner/evidence.txt must be referenced by its owner report owner"
+  ]);
 });
 
-test("reports without attached resources remain valid", async () => {
-  await withTempRoot("no-resources", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    assert.deepEqual(
-      (await validateInvestigationReports({ workspaceRoot: root })).errors,
-      []
-    );
-  });
+test("reports without attached resources remain valid", () => {
+  const parsed = parseInvestigationReport(
+    reportMarkdown({ id: "report" }),
+    "report"
+  );
+  assert.deepEqual(parsed.errors, []);
+  assert.deepEqual(parsed.report?.resourceIds, []);
 });
 
 test("resource references use report IDs rather than topic paths or report indexes", async () => {
@@ -346,17 +330,16 @@ test("visible resource discovery rejects unsafe owner directory names", async ()
   });
 });
 
-test("resource resources are never projected as index source bytes", async () => {
-  await withTempRoot("source-boundary", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    const index = parseJsonObject(
-      await fs.readFile(
-        `${investigationRoot(root)}/investigation-index.json`,
-        "utf8"
-      )
-    );
-    const entries = jsonObjectMember(index, "entries");
-    const report = jsonObjectMember(entries, "report");
-    assert.equal("resourceBytes" in report, false);
-  });
+test("resource resources are never projected as index source bytes", () => {
+  const built = buildInvestigationReportState(
+    "report",
+    parseInvestigationReport(
+      reportMarkdown({ id: "report", resources: ["report/evidence.txt"] }),
+      "report"
+    ),
+    "report.md"
+  );
+  assert.equal(built.status, "valid");
+  assert.deepEqual(built.state.resourceIds, ["report/evidence.txt"]);
+  assert.equal("resourceBytes" in built.state, false);
 });

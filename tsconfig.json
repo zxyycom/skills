@@ -6,6 +6,8 @@
     "moduleResolution": "NodeNext",
     "allowImportingTsExtensions": true,
     "noEmit": true,
+    "incremental": true,
+    "tsBuildInfoFile": ".log/vibe-check/cache/typecheck/tsconfig.tsbuildinfo",
     "strict": true,
     "erasableSyntaxOnly": true,
     "verbatimModuleSyntax": true,

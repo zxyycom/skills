@@ -1,3 +1,5 @@
+import { buildDecisionIndexFromSnapshot } from "../src/decision-state-index.ts";
+import { listStateSnapshot } from "./queries/domain-support.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -75,29 +77,32 @@ test("scanner rejects status-position mismatches nested paths and duplicate deci
     );
   }));
 
-test("decision index is state-only and ID-keyed with empty metadata", () =>
-  withFixtureWorkspace("index-shape", async (workspaceRoot) => {
-    const index = await readIndex(workspaceRoot);
-    assert.equal(index.schemaVersion, 4);
-    assert.equal(index.namespace, "decisions");
-    assert.equal(index.definitionVersion, 11);
-    assert.deepEqual(index.metadata, {});
-    assert.deepEqual(Object.keys(index.entries), [
-      archivedDecisionId,
-      currentDecisionId
-    ]);
-    assert.equal(
-      findIndexEntry(index, currentDecisionId).sourcePath,
-      currentSourcePath
-    );
-    assert.deepEqual(findIndexEntry(index, currentDecisionId).tags, [
-      "project-tooling"
-    ]);
-    assert.deepEqual(Object.keys(index.sourceRevision.entries), [
-      archivedDecisionId,
-      currentDecisionId
-    ]);
-  }));
+test("decision index is state-only and ID-keyed with empty metadata", async () => {
+  const built = await buildDecisionIndexFromSnapshot(await listStateSnapshot());
+  assert.equal(built.status, "ok");
+  if (built.status !== "ok")
+    throw new Error("Expected in-memory index projection");
+  const index = built.value;
+  assert.equal(index.schemaVersion, 4);
+  assert.equal(index.namespace, "decisions");
+  assert.equal(index.definitionVersion, 11);
+  assert.deepEqual(index.metadata, {});
+  assert.deepEqual(Object.keys(index.entries), [
+    archivedDecisionId,
+    currentDecisionId
+  ]);
+  assert.equal(
+    findIndexEntry(index, currentDecisionId).sourcePath,
+    currentSourcePath
+  );
+  assert.deepEqual(findIndexEntry(index, currentDecisionId).tags, [
+    "project-tooling"
+  ]);
+  assert.deepEqual(Object.keys(index.sourceRevision.entries), [
+    archivedDecisionId,
+    currentDecisionId
+  ]);
+});
 
 test("index revision detects tag and sourcePath changes before accepting a rebuilt snapshot", () =>
   withFixtureWorkspace("index-revision", async (workspaceRoot) => {

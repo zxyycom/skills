@@ -236,24 +236,27 @@ test("stage --scope domain writes a deletion for a baseline-only ID without touc
     }
   ));
 
-test("stage rejects an invalid scope as a normal invalid argument", () =>
-  withGitFixtureWorkspace("stage-scope-invalid", async (workspaceRoot) => {
-    await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await runSourceCli([
-      "stage",
-      currentDecisionId,
-      "--scope",
-      "everything",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(staged.exitCode, 2);
-    assert.match(staged.stderr, /Allowed choices are all, index, domain/u);
-    assert.equal(
-      runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
-      ""
-    );
-  }));
+test("stage rejects an invalid scope as a normal invalid argument", async () => {
+  const args = ["stage", currentDecisionId, "--scope", "everything"];
+  const staged = await runSourceCli(args);
+  assert.equal(staged.exitCode, 2);
+  assert.equal(staged.stdout, "");
+  assert.match(staged.stderr, /Allowed choices are all, index, domain/u);
+  let dispatched = false;
+  const program = createCliProgram(
+    async () => {
+      dispatched = true;
+      throw new Error("Invalid scope must not dispatch stage");
+    },
+    () => {},
+    { io: { stdout: () => {}, stderr: () => {} } }
+  );
+  await assert.rejects(
+    program.parseAsync(["node", "decision-records.ts", ...args]),
+    /Allowed choices are all, index, domain/u
+  );
+  assert.equal(dispatched, false);
+});
 
 test("stage --scope domain preserves an unrelated pending index byte-for-byte after source drift is absent", () =>
   withTemporaryWorkspace(

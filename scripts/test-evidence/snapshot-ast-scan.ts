@@ -48,37 +48,74 @@ async function existingRegularFile(filePath: string): Promise<string | null> {
   }
 }
 
-export async function moduleClosure(
-  workspaceRoot: string,
-  entryFiles: readonly string[]
-): Promise<readonly string[]> {
-  const pending = [...entryFiles];
-  const seen = new Set<string>();
-  while (pending.length > 0) {
-    const candidate = pending.pop();
-    if (candidate === undefined || seen.has(candidate)) continue;
-    if (!isWithin(workspaceRoot, candidate)) {
-      throw snapshotFailure(`test import escapes the workspace: ${candidate}`);
-    }
-    const filePath = await existingRegularFile(candidate);
-    if (filePath === null) {
-      throw snapshotFailure(
-        `test import is not a regular file: ${posixRelative(workspaceRoot, candidate)}`
-      );
-    }
-    seen.add(filePath);
+type ModuleFacts = Readonly<{
+  source: string;
+  imports: readonly string[];
+}>;
+
+// 读取事实只属于本次快照；起止 source fingerprint 始终独立读取。
+export class SnapshotModuleScan {
+  private readonly workspaceRoot: string;
+  private readonly regularFiles = new Map<string, string | null>();
+  private readonly modules = new Map<string, ModuleFacts>();
+
+  constructor(workspaceRoot: string) {
+    this.workspaceRoot = workspaceRoot;
+  }
+
+  private async regularFile(filePath: string): Promise<string | null> {
+    const known = this.regularFiles.get(filePath);
+    if (known !== undefined) return known;
+    const existing = await existingRegularFile(filePath);
+    this.regularFiles.set(filePath, existing);
+    return existing;
+  }
+
+  private async moduleFacts(filePath: string): Promise<ModuleFacts> {
+    const known = this.modules.get(filePath);
+    if (known !== undefined) return known;
     const source = await fs.readFile(filePath, "utf8");
+    const imports: string[] = [];
     for (const specifier of importSpecifiers(source)) {
       for (const resolved of resolveRelativeImport(filePath, specifier)) {
-        const existing = await existingRegularFile(resolved);
+        const existing = await this.regularFile(resolved);
         if (existing !== null) {
-          pending.push(existing);
+          imports.push(existing);
           break;
         }
       }
     }
+    const facts = { source, imports };
+    this.modules.set(filePath, facts);
+    return facts;
   }
-  return [...seen].sort();
+
+  async source(filePath: string): Promise<string> {
+    return (await this.moduleFacts(filePath)).source;
+  }
+
+  async closure(entryFiles: readonly string[]): Promise<readonly string[]> {
+    const pending = [...entryFiles];
+    const seen = new Set<string>();
+    while (pending.length > 0) {
+      const candidate = pending.pop();
+      if (candidate === undefined || seen.has(candidate)) continue;
+      if (!isWithin(this.workspaceRoot, candidate)) {
+        throw snapshotFailure(
+          `test import escapes the workspace: ${candidate}`
+        );
+      }
+      const filePath = await this.regularFile(candidate);
+      if (filePath === null) {
+        throw snapshotFailure(
+          `test import is not a regular file: ${posixRelative(this.workspaceRoot, candidate)}`
+        );
+      }
+      seen.add(filePath);
+      pending.push(...(await this.moduleFacts(filePath)).imports);
+    }
+    return [...seen].sort();
+  }
 }
 
 function astGrepFileBatches(
@@ -119,15 +156,10 @@ function parseAstGrepMatches(
     throw snapshotFailure("ast-grep result is not an array");
   }
   return value.map((candidate) => {
-    if (
-      typeof candidate !== "object" ||
-      candidate === null ||
-      Array.isArray(candidate)
-    ) {
+    if (!isRecord(candidate)) {
       throw snapshotFailure("ast-grep result contains a non-object match");
     }
-    const match = candidate as Record<string, unknown>;
-    const file = match.file;
+    const file = candidate.file;
     if (typeof file !== "string" || file.length === 0 || file.includes("\0")) {
       throw snapshotFailure("ast-grep match does not identify a source file");
     }
@@ -138,44 +170,149 @@ function parseAstGrepMatches(
         `ast-grep returned an unexpected source file: ${file}`
       );
     }
-    const variables: Record<string, string> = {};
-    const metaVariables = match.metaVariables;
-    if (metaVariables === undefined) return { sourcePath, variables };
-    if (
-      typeof metaVariables !== "object" ||
-      metaVariables === null ||
-      Array.isArray(metaVariables)
-    ) {
-      throw snapshotFailure(
-        `ast-grep match has invalid meta variables: ${sourcePath}`
-      );
-    }
-    const single = (metaVariables as Record<string, unknown>).single;
-    if (single === undefined) return { sourcePath, variables };
-    if (
-      typeof single !== "object" ||
-      single === null ||
-      Array.isArray(single)
-    ) {
-      throw snapshotFailure(
-        `ast-grep match has invalid single variables: ${sourcePath}`
-      );
-    }
-    for (const [name, rawVariable] of Object.entries(single)) {
-      if (
-        typeof rawVariable !== "object" ||
-        rawVariable === null ||
-        Array.isArray(rawVariable) ||
-        typeof (rawVariable as Record<string, unknown>).text !== "string"
-      ) {
-        throw snapshotFailure(
-          `ast-grep match has an invalid ${name} variable: ${sourcePath}`
-        );
-      }
-      variables[name] = (rawVariable as { text: string }).text;
-    }
+    const variables = parseAstGrepVariables(
+      candidate.metaVariables,
+      sourcePath
+    );
     return { sourcePath, variables };
   });
+}
+
+function parseAstGrepVariables(
+  metaVariables: unknown,
+  sourcePath: string
+): Record<string, string> {
+  const variables: Record<string, string> = {};
+  if (metaVariables === undefined) return variables;
+  if (!isRecord(metaVariables)) {
+    throw snapshotFailure(
+      `ast-grep match has invalid meta variables: ${sourcePath}`
+    );
+  }
+  const single = metaVariables.single;
+  if (single === undefined) return variables;
+  if (!isRecord(single)) {
+    throw snapshotFailure(
+      `ast-grep match has invalid single variables: ${sourcePath}`
+    );
+  }
+  for (const [name, rawVariable] of Object.entries(single)) {
+    if (!isRecord(rawVariable) || typeof rawVariable.text !== "string") {
+      throw snapshotFailure(
+        `ast-grep match has an invalid ${name} variable: ${sourcePath}`
+      );
+    }
+    variables[name] = rawVariable.text;
+  }
+  return variables;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function parseAstGrepOutput(output: string, fileCount: number): unknown {
+  try {
+    return JSON.parse(output);
+  } catch (error) {
+    throw snapshotFailure(
+      `ast-grep returned invalid JSON for a ${fileCount}-file batch: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+}
+
+function appendRuleMatches(
+  value: unknown,
+  workspaceRoot: string,
+  expectedSourcePaths: ReadonlySet<string>,
+  byRule: ReadonlyMap<string, AstGrepMatch[]>
+): void {
+  const matches = parseAstGrepMatches(
+    value,
+    workspaceRoot,
+    expectedSourcePaths
+  );
+  if (!Array.isArray(value))
+    throw snapshotFailure("ast-grep result is not an array");
+  for (const [index, candidate] of value.entries()) {
+    const target =
+      isRecord(candidate) && typeof candidate.ruleId === "string"
+        ? byRule.get(candidate.ruleId)
+        : undefined;
+    const match = matches[index];
+    if (target === undefined || match === undefined) {
+      throw snapshotFailure("ast-grep scan match has an unexpected rule ID");
+    }
+    target.push(match);
+  }
+}
+
+export async function astGrepPatternsJson(
+  executable: string,
+  workspaceRoot: string,
+  patterns: readonly string[],
+  filePaths: readonly string[],
+  modules: SnapshotModuleScan
+): Promise<ReadonlyMap<string, readonly AstGrepMatch[]>> {
+  const combined: string[] = [];
+  const compatible: string[] = [];
+  for (const filePath of filePaths) {
+    // scan 会处理 suppression；这些文件与其他后缀继续使用原 run 契约。
+    const source = await modules.source(filePath);
+    (filePath.endsWith(".ts") && !source.includes("ast-grep-ignore")
+      ? combined
+      : compatible
+    ).push(filePath);
+  }
+  const byPattern = new Map(
+    patterns.map((pattern) => [pattern, [] as AstGrepMatch[]])
+  );
+  const byRule = new Map(
+    patterns.map((pattern, index) => [
+      `registration-${index}`,
+      byPattern.get(pattern) ?? []
+    ])
+  );
+  const rules = patterns
+    .map((pattern, index) =>
+      [
+        `id: registration-${index}`,
+        "language: TypeScript",
+        "severity: info",
+        "rule:",
+        `  pattern: ${JSON.stringify(pattern)}`
+      ].join("\n")
+    )
+    .join("\n---\n");
+  for (const batch of astGrepFileBatches(workspaceRoot, combined)) {
+    const result = await runSnapshotCommand(
+      executable,
+      ["scan", "--inline-rules", rules, ...batch, "--json=compact"],
+      workspaceRoot
+    );
+    // info 规则命中也应为 0；任何非零状态都是扫描失败。
+    if (result.exitCode !== 0) {
+      throw snapshotFailure(
+        `ast-grep scan failed for a ${batch.length}-file batch: ${result.output.trim()}`
+      );
+    }
+    appendRuleMatches(
+      parseAstGrepOutput(result.output, batch.length),
+      workspaceRoot,
+      new Set(batch),
+      byRule
+    );
+  }
+  if (compatible.length > 0) {
+    for (const pattern of patterns) {
+      byPattern
+        .get(pattern)
+        ?.push(
+          ...(await astGrepJson(executable, workspaceRoot, pattern, compatible))
+        );
+    }
+  }
+  return byPattern;
 }
 
 export async function astGrepJson(
@@ -203,16 +340,12 @@ export async function astGrepJson(
         `ast-grep failed for a ${batch.length}-file batch: ${result.output.trim()}`
       );
     }
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(result.output);
-    } catch (error) {
-      throw snapshotFailure(
-        `ast-grep returned invalid JSON for a ${batch.length}-file batch: ${error instanceof Error ? error.message : String(error)}`
-      );
-    }
     matches.push(
-      ...parseAstGrepMatches(parsed, workspaceRoot, expectedSourcePaths)
+      ...parseAstGrepMatches(
+        parseAstGrepOutput(result.output, batch.length),
+        workspaceRoot,
+        expectedSourcePaths
+      )
     );
   }
   return matches;

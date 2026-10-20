@@ -25,7 +25,7 @@ relations: []
 
 - Bun 同时承担 TypeScript 脚本运行与可分发 bundle 生成；以最低版本范围表达兼容性，却在 CI 固定单一版本，会允许本地产生不同 bundle 字节和运行时测试结果。
 - SCC 是 file metrics 的外部必需工具。mise shim 存在但未选择活动版本时，`scc --version` 会失败；旧 Gate 先把工具链快照标记为 unavailable 并执行全部 base Checks，随后才在 metrics 中暴露 unavailable，容易让并发出现的生成和测试失败掩盖根因。
-- [增量 Gate 决策](incremental-vibe-gate.md)仍需对依赖图、ast-grep、Oxfmt、Oxlint、tsgo 等起始快照探测失败保守回退；这类快照内部失败不同于能够独立验证的基础工具契约。本判断建立独立的 Check 前置边界，不替代增量选择、receipt、调度或 release 方向，因此不形成决策演进关系。
+- [形成此前置时的增量 Gate 判断](archive/incremental-vibe-gate.md)仍需对依赖图、ast-grep、Oxfmt、Oxlint、tsgo 等起始快照探测失败保守回退；这类快照内部失败不同于能够独立验证的基础工具契约。本判断建立独立的 Check 前置边界，不替代增量选择、receipt、调度或 release 方向，因此不形成决策演进关系。
 
 ## 决策
 
@@ -33,6 +33,6 @@ relations: []
 - 采用: `scripts/environment.js gate` 作为只读基础工具检查 action，只验证 Git、Node、精确 Bun、精确 pnpm 与精确 SCC；完整 `check` 与 `setup` 继续拥有 CodeGraph、依赖、仓库配置和索引责任。
 - 采用: `gate-environment` 是完整 Definition 中无 flag、不可 receipt 复用且每次执行的基础环境 Check；除自身外的所有 Check 都显式依赖它。该 Check 直接调用 `node scripts/environment.js gate`，不在 CLI 或 Check 内复制版本判断。
 - 采用: 基础环境失败由 Vibe 结算为真实 failed Check，完整探测输出进入 Check transcript，其他 Check 因前置未通过而不执行；activation plan 可以先完成保守选择，但环境失败时不发布成功 receipt。
-- 采用: 基础环境 Check 通过后，增量 impact layer 继续指纹化完整工具链；依赖图或其他快照探测失败仍按原决策全量执行，Vibe 继续独占 Check selection、调度、settlement 与 aggregate。
+- 采用: 基础环境 Check 通过后，增量 impact layer 继续指纹化完整工具链；必要工具链或其他快照探测失败仍按[当前输入证明契约](native-gate-execution-and-project-receipts.md)全量执行，Vibe 继续独占 Check selection、调度、settlement 与 aggregate。
 - 采用: 完整自举 `check` / `setup` 继续覆盖基础工具、CodeGraph、项目依赖、索引和仓库配置；Gate Check 只复用其中的窄 `gate` action，避免把开发便利条件或 Gate 自身依赖变成循环前置。尚未安装项目依赖、无法启动 Vibe 的新工作区仍先运行自举入口。
 - 采用: SCC 的恢复诊断表达“让精确版本在当前 PATH 活动”，并分别给出 mise 选择和普通安装路径；不能把可执行 shim 的非零退出误写为尚未安装。

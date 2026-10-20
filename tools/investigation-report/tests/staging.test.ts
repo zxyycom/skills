@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
+import { investigationIndexFixture } from "./index-fixture.ts";
+import { resolveInvestigationStageSelectors } from "../src/staging-selectors.ts";
+import { prepareInvestigationStage } from "../src/staging-options.ts";
+import os from "node:os";
 import { stageInvestigationReports } from "../src/staging.ts";
 import {
   git,
@@ -14,33 +18,28 @@ import {
   writeCollection
 } from "./v6-support.ts";
 
-test("stage --scope index selects entries by Investigation ID without staging reports", async () => {
-  await withTempRoot("stage", async (root) => {
-    await writeCollection(root, [{ id: "stage-report" }]);
-    initializeGit(root);
-    const result = await stageInvestigationReports({
-      reportIds: ["stage-report"],
-      scope: "index",
-      workspaceRoot: root
-    });
-    assert.equal(result.status, "ok");
-    assert.deepEqual(result.selectedIds, ["stage-report"]);
+test("stage --scope index resolves a unique Investigation name after one Markdown suffix", () => {
+  const id = "260828-stage-name";
+  const prepared = prepareInvestigationStage({
+    reportIds: ["stage-name.MD"],
+    scope: "index",
+    workspaceRoot: os.tmpdir()
   });
-});
-
-test("stage --scope index resolves a unique Investigation name after one Markdown suffix", async () => {
-  await withTempRoot("stage-name-selector", async (root) => {
-    const id = "260828-stage-name";
-    await writeCollection(root, [{ id }]);
-    initializeGit(root);
-    const result = await stageInvestigationReports({
-      reportIds: ["stage-name.MD"],
-      scope: "index",
-      workspaceRoot: root
-    });
-    assert.equal(result.status, "ok");
-    assert.deepEqual(result.selectedIds, [id]);
-  });
+  assert.ok(prepared.isOk());
+  if (prepared.isErr()) assert.fail(JSON.stringify(prepared.error));
+  const workspace = investigationIndexFixture([{ id }]);
+  assert.deepEqual(
+    resolveInvestigationStageSelectors({
+      baseline: workspace,
+      workspace,
+      selectedIds: prepared.value.reportIds
+    }),
+    {
+      status: "ok",
+      diagnostics: [],
+      value: [id]
+    }
+  );
 });
 
 test("stage --scope index treats a standard Investigation ID as exact", async () => {
@@ -63,26 +62,27 @@ test("stage --scope index treats a standard Investigation ID as exact", async ()
   });
 });
 
-test("stage --scope index rejects an ambiguous Investigation name", async () => {
-  await withTempRoot("stage-ambiguous-name", async (root) => {
-    await writeCollection(root, [
-      { id: "260828-stage-name" },
-      { id: "260829-stage-name", formedAt: "2026-08-29T12:00:00+00:00" }
-    ]);
-    initializeGit(root);
-    const result = await stageInvestigationReports({
-      reportIds: ["stage-name"],
-      scope: "index",
-      workspaceRoot: root
-    });
-    assert.equal(result.status, "error");
-    assert.ok(
-      result.diagnostics.some((diagnostic) =>
-        diagnostic.message.includes('report name "stage-name" is ambiguous')
-      )
-    );
-    assert.equal(git(root, ["diff", "--cached", "--name-only"]), "");
+test("stage --scope index rejects an ambiguous Investigation name", () => {
+  const workspace = investigationIndexFixture([
+    { id: "260828-stage-name" },
+    { id: "260829-stage-name", formedAt: "2026-08-29T12:00:00+00:00" }
+  ]);
+  const result = resolveInvestigationStageSelectors({
+    baseline: workspace,
+    workspace,
+    selectedIds: ["stage-name"]
   });
+  assert.equal(result.status, "error");
+  assert.deepEqual(
+    result.diagnostics.map(({ stateId, message }) => ({ stateId, message })),
+    [
+      {
+        stateId: "stage-name",
+        message:
+          'report name "stage-name" is ambiguous; choose one standard ID: 260828-stage-name, 260829-stage-name'
+      }
+    ]
+  );
 });
 
 test("stage --scope index resolves a baseline-only Investigation name as a deletion", async () => {
@@ -132,41 +132,34 @@ test("stage --scope index resolves a workspace-only Investigation name as an add
   });
 });
 
-test("stage --scope index rejects invalid or duplicate Investigation IDs", async () => {
-  await withTempRoot("stage-invalid", async (root) => {
-    await writeCollection(root, [{ id: "stage-report" }]);
-    const result = await stageInvestigationReports({
-      reportIds: [
-        "stage-report",
-        "stage-report",
-        "bad/path.md",
-        "./stage-report.md",
-        " stage-report.md "
-      ],
-      scope: "index",
-      workspaceRoot: root
-    });
-    assert.equal(result.status, "error");
-    assert.ok(
-      result.diagnostics.some(
-        (diagnostic) =>
-          diagnostic.code === "investigation-report.stage-report-id-duplicate"
-      )
-    );
-    assert.ok(
-      result.diagnostics.some(
-        (diagnostic) =>
-          diagnostic.code === "investigation-report.stage-report-id-invalid"
-      )
-    );
-    assert.ok(
-      result.diagnostics.some(
-        (diagnostic) =>
-          diagnostic.code === "investigation-report.stage-report-id-invalid" &&
-          diagnostic.message.includes("extensionless kebab-case text")
-      )
-    );
+test("stage --scope index rejects invalid or duplicate Investigation IDs", () => {
+  const result = prepareInvestigationStage({
+    reportIds: [
+      "stage-report",
+      "stage-report",
+      "bad/path.md",
+      "./stage-report.md",
+      " stage-report.md "
+    ],
+    scope: "index",
+    workspaceRoot: os.tmpdir()
   });
+  assert.ok(result.isErr());
+  if (result.isOk()) assert.fail("invalid selection was accepted");
+  assert.equal(result.error.kind, "invalid-options");
+  assert.equal(result.error.result.changed, false);
+  assert.deepEqual(
+    result.error.result.diagnostics.map((item) => item.code),
+    [
+      "investigation-report.stage-report-id-duplicate",
+      "investigation-report.stage-report-id-invalid",
+      "investigation-report.stage-report-id-invalid",
+      "investigation-report.stage-report-id-invalid"
+    ]
+  );
+  assert.ok(
+    result.error.result.diagnostics.every((item) => item.message.length > 0)
+  );
 });
 
 test("stage --scope index validates canonical Investigation IDs before repository access", async () => {
@@ -217,16 +210,23 @@ test("stage --scope index reports unavailable version control without working-tr
   });
 });
 
-test("stage --scope index rejects IDs missing from the current collection", async () => {
-  await withTempRoot("stage-missing", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    const result = await stageInvestigationReports({
-      reportIds: ["missing"],
-      scope: "index",
-      workspaceRoot: root
-    });
-    assert.equal(result.status, "error");
+test("stage --scope index rejects IDs missing from the current collection", () => {
+  const workspace = investigationIndexFixture([{ id: "report" }]);
+  const result = resolveInvestigationStageSelectors({
+    baseline: null,
+    workspace,
+    selectedIds: ["missing"]
   });
+  assert.equal(result.status, "error");
+  assert.deepEqual(
+    result.diagnostics.map(({ stateId, message }) => ({ stateId, message })),
+    [
+      {
+        stateId: "missing",
+        message: 'report name "missing" is absent from both indexes'
+      }
+    ]
+  );
 });
 
 test("stage --scope index keeps report Markdown outside selected index staging", async () => {
@@ -245,6 +245,7 @@ test("stage --scope index keeps report Markdown outside selected index staging",
     });
     assert.equal(result.status, "ok");
     assert.equal(result.changed, true);
+    assert.deepEqual(result.selectedIds, ["report"]);
     assert.deepEqual(
       git(root, ["diff", "--cached", "--name-only"]).trim(),
       indexRelativePath
@@ -288,9 +289,10 @@ test("stage --scope index accepts selected report additions in a current index",
     const pendingIndex = parseJsonObject(
       git(root, ["show", `:${indexRelativePath}`])
     );
+    assert.ok(Object.hasOwn(workspaceEntries, "added"));
     assert.deepEqual(
-      jsonObjectMember(pendingIndex, "entries")["added.md"],
-      workspaceEntries["added.md"]
+      jsonObjectMember(pendingIndex, "entries")["added"],
+      workspaceEntries["added"]
     );
     assert.deepEqual(
       git(root, ["diff", "--cached", "--name-only"]).trim(),
@@ -393,8 +395,10 @@ test("stage --scope index treats unrelated report resources as outside selected 
       git(root, ["show", `:${indexRelativePath}`])
     );
     const pendingEntries = jsonObjectMember(pendingIndex, "entries");
-    assert.deepEqual(pendingEntries["first.md"], workspaceEntries["first.md"]);
-    assert.deepEqual(pendingEntries["second.md"], baseEntries["second.md"]);
+    assert.ok(Object.hasOwn(workspaceEntries, "first"));
+    assert.ok(Object.hasOwn(baseEntries, "second"));
+    assert.deepEqual(pendingEntries["first"], workspaceEntries["first"]);
+    assert.deepEqual(pendingEntries["second"], baseEntries["second"]);
     assert.deepEqual(
       git(root, ["diff", "--cached", "--name-only"]).trim(),
       indexRelativePath
@@ -452,27 +456,40 @@ test("stage --scope index preserves strict current index definition requirements
   });
 });
 
-test("stage --scope index reports selection diagnostics deterministically", async () => {
-  await withTempRoot("stage-diagnostics", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    const result = await stageInvestigationReports({
-      reportIds: [],
-      scope: "index",
-      workspaceRoot: root
-    });
-    assert.equal(result.status, "error");
-    assert.equal(result.diagnostics.length > 0, true);
+test("stage --scope index reports selection diagnostics deterministically", () => {
+  const result = prepareInvestigationStage({
+    reportIds: [],
+    scope: "index",
+    workspaceRoot: os.tmpdir()
   });
+  assert.ok(result.isErr());
+  if (result.isOk()) assert.fail("invalid selection was accepted");
+  assert.equal(result.error.kind, "invalid-options");
+  assert.equal(result.error.result.changed, false);
+  assert.deepEqual(
+    result.error.result.diagnostics.map((item) => item.code),
+    ["investigation-report.stage-report-ids-empty"]
+  );
+  assert.ok(
+    result.error.result.diagnostics.every((item) => item.message.length > 0)
+  );
 });
 
-test("stage --scope index does not accept legacy topic path identifiers", async () => {
-  await withTempRoot("stage-legacy-path", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    const result = await stageInvestigationReports({
-      reportIds: ["category/report.md"],
-      scope: "index",
-      workspaceRoot: root
-    });
-    assert.equal(result.status, "error");
+test("stage --scope index does not accept legacy topic path identifiers", () => {
+  const result = prepareInvestigationStage({
+    reportIds: ["category/report.md"],
+    scope: "index",
+    workspaceRoot: os.tmpdir()
   });
+  assert.ok(result.isErr());
+  if (result.isOk()) assert.fail("invalid selection was accepted");
+  assert.equal(result.error.kind, "invalid-options");
+  assert.equal(result.error.result.changed, false);
+  assert.deepEqual(
+    result.error.result.diagnostics.map((item) => item.code),
+    ["investigation-report.stage-report-id-invalid"]
+  );
+  assert.ok(
+    result.error.result.diagnostics.every((item) => item.message.length > 0)
+  );
 });

@@ -12,4 +12,4 @@ Contract:
 
 Proves:
 - 默认图展示图层、普通前后继、拆分 context 的有向边、缺省标记与带引号摘要、受预算阻断的 coverage、frontier、blockedEvent，`--json` 仍保留原始 relation 和 contextIds。
-- 图层先按数值 depth 升序，再按成员 ID 稳定排列，因此词法更早的后继不会出现在 L0 anchor 之前。
+- 纯 Trace renderer 对给定完整 trace 先输出 L0 的 zeta anchor，再输出词法更早但深度为 L1 的 alpha 前序，不依赖 CLI 或来源获取。

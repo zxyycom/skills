@@ -10,4 +10,4 @@ Contract:
 - `拆分` 是至少包含两个显式后继的闭合一对多策略，单后继不能通过来源关系重新挂接粗前序。
 
 Proves:
-- 只选择一个带拆分来源关系的候选时，evolve 报告至少需要两个显式 successor。
+- 纯事务准备对仅选择一个带拆分关系的候选返回 error、exitCode=1，诊断至少需要两个显式 successor，且不产生 changes。

@@ -1,15 +1,15 @@
-### Case GATE-SCRIPT-ADAPTER-001: package-script adapter 映射终态且继续结算独立 Check
+### Case GATE-SCRIPT-ADAPTER-001: 项目命令配置与直接重跑 argv 保持明确边界
 
 Tests:
-- `test:395a2412f8e2e5c7ba222452167703393d8be37575f189531ca8abd276c1b60e`
+- `test:4650cb30529e64c99c1d7b59b265057fd337ce7569c9b743fc71bed3b80a83cc`
+- `test:c4c1c485929e0bfb0946f8a1ba1fc9749417ae77cd4c5ebe1f462a37e94e8d1e`
 
 Tags:
 - `repository-tooling`
 
 Contract:
-- 项目脚本必须以参数数组运行 `bun run <script>`；非零退出为 failed，无法启动等不可信终态为 unavailable，且一个脚本失败不能阻止无依赖的其他 Check 结算。命令诊断以一条主消息和至多四条单行尾部消息表示，不把换行嵌入单个 Vibe message。
+- package 与 semantic Check 仅声明原生命令的 executable、参数数组、继承环境和 transcript 策略；直接重跑提示必须保留含空格或单引号的 argv 边界。
 
 Proves:
-- 注入的非零退出使 aggregate failed，同时独立脚本仍 passed。
-- 注入的 unavailable 保留稳定 reason code 并使 aggregate failed；每次调用都使用 `bun` 和 `['run', script]` 参数数组。
-- 六行失败输出只保留末四行，首条以省略号标记；所有 Check message 都不含 CR、LF 或 Unicode 行分隔符，progress renderer 不会再把嵌入换行显示成字面 `\n`。
+- 全部 release-required package 命令精确使用 bun 与 run/script 参数，inherit、transcript、120 秒 timeout 和 16 MiB output byte limit；全部语义命令与其 catalog executable/argv 一致且使用 inherit 与 transcript。
+- 含空格和单引号的文件参数被格式化为保持单一参数的 shell 引用。

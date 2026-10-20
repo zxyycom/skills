@@ -21,7 +21,8 @@ import type {
   DecisionListAppliedFilters,
   DecisionQueryRequest,
   DecisionQueryResult,
-  IndexedDecisionRecord
+  IndexedDecisionRecord,
+  IndexedDecisionState
 } from "./decision-query-contract.ts";
 import { indexedRecords, indexFailure } from "./decision-query-records.ts";
 import { filterDecisionRelationRecords } from "./decision-query-relation-filter.ts";
@@ -44,7 +45,17 @@ export async function listDecisionRecords(
   const all = context.reader.all({ sort: [{ direction: "asc", key: "id" }] });
   if (all.status === "error")
     return indexFailure(all, context.indexRelativePath);
-  const allRecords = indexedRecords(all.value);
+  return projectDecisionList(all.value, request, prepared, context.warnings);
+}
+
+/** 从已验证的发布快照和已解析的查询条件投影列表，不加载集合文件。 */
+export function projectDecisionList(
+  entries: readonly IndexedDecisionState[],
+  request: Extract<DecisionQueryRequest, { command: "list" }>,
+  prepared: Extract<PreparedDecisionListRequest, { status: "ok" }>,
+  warnings: string[] = []
+): DecisionQueryResult {
+  const allRecords = indexedRecords(entries);
   const relationFilter = filterDecisionRelationRecords(allRecords, request);
   if (relationFilter.status === "error") return relationFilter.failure;
   const matching = relationFilter.records
@@ -58,13 +69,13 @@ export async function listDecisionRecords(
     appliedFilters: decisionListAppliedFilters(request),
     command: "list",
     source: decisionPublishedSnapshotSource,
-    facets: buildDecisionListFacets(all.value),
+    facets: buildDecisionListFacets(entries),
     limit: request.limit,
     offset: request.offset,
     records: matching.slice(request.offset, request.offset + request.limit),
     status: "ok",
     total: matching.length,
-    warnings: context.warnings
+    warnings
   };
 }
 
@@ -115,7 +126,7 @@ function beforeUpperBound(value: number, bound: number | null): boolean {
   return bound === null || value <= bound;
 }
 
-function prepareDecisionListRequest(
+export function prepareDecisionListRequest(
   request: Extract<DecisionQueryRequest, { command: "list" }>
 ): PreparedDecisionListRequest {
   const issues: string[] = [];

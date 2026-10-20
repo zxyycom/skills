@@ -10,4 +10,4 @@ Contract:
 - CLI 的非法 Investigation ID 是调用参数错误，不是领域操作失败。
 
 Proves:
-- 直接调用的源码 CLI 入口对 `./report.md` 返回 status 2、空 stdout，且报告未改。
+- 同进程源码 CLI 在空根对 `./report.md` 返回 status 2、空 stdout 和 ID 格式诊断，根目录仍为空。

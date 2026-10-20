@@ -7,7 +7,7 @@ Tags:
 - `investigation-report`
 
 Contract:
-- 选择性暂存只接受 Investigation ID，不接受旧路径式标识。
+- 选择性暂存不接受包含目录前缀的旧路径式标识。
 
 Proves:
-- 带目录前缀的 ID 返回错误。
+- stage 纯准备函数对带目录前缀的 ID 返回 invalid-options、changed=false，且唯一诊断为 stage-report-id-invalid。

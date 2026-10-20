@@ -1,3 +1,4 @@
+import type { SourceRuntimeFacts } from "../lib/source-runtime.ts";
 import path from "node:path";
 import {
   buildGeneratedTypeScriptDeclarationArtifacts,
@@ -20,7 +21,10 @@ const declarationOutputDirectory = path.join(
   rootDir,
   "skills/decision-records/scripts/decision-records-sdk"
 );
-export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
+export async function syncRuntime(
+  mode: GeneratedFileMode,
+  facts?: SourceRuntimeFacts
+): Promise<boolean> {
   const declarations = await buildGeneratedTypeScriptDeclarationArtifacts({
     declarationArtifactName: "decision records TypeScript declaration",
     declarationEntryOutputPath: path.join(
@@ -34,25 +38,28 @@ export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
     skillSourcePath: `skills/${skillName}`,
     workspaceRoot: rootDir
   });
-  const artifacts = await buildSkillRuntimeArtifacts({
-    skillName,
-    rebuildCommand,
-    nodeEngine: ">=24.18",
-    entries: [
-      await nativeCliEntry({
-        sourcePath,
-        outputName: "decision-records.ts",
-        runner: "runDecisionRecordsCli",
-        declarationName: "decision-records.d.mts",
-        typedExports: [
-          "renameDecisionRecord",
-          "runDecisionRecordsCli",
-          "scanDecisionRecords",
-          "validateDecisionRecords"
-        ]
-      })
-    ]
-  });
+  const artifacts = await buildSkillRuntimeArtifacts(
+    {
+      skillName,
+      rebuildCommand,
+      nodeEngine: ">=24.18",
+      entries: [
+        await nativeCliEntry({
+          sourcePath,
+          outputName: "decision-records.ts",
+          runner: "runDecisionRecordsCli",
+          declarationName: "decision-records.d.mts",
+          typedExports: [
+            "renameDecisionRecord",
+            "runDecisionRecordsCli",
+            "scanDecisionRecords",
+            "validateDecisionRecords"
+          ]
+        })
+      ]
+    },
+    facts
+  );
   artifacts.push(...declarations, {
     content: `${JSON.stringify(decisionIndexJsonSchema, null, 2)}\n`,
     path: path.join(

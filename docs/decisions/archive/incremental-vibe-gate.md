@@ -1,7 +1,7 @@
 ---
 title: 以输入证明增量激活日常 Vibe Gate
 id: 260909-incremental-vibe-gate
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-09T10:08:24Z
 purpose: 让日常门禁只执行缺少当前输入成功证明的 Check。

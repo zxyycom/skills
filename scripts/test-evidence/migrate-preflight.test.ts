@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { loadLegacyCatalog } from "./legacy.ts";
 import { MigrationError, planTestEvidenceMigration } from "./migrate.ts";
 import {
   expectedSource,
@@ -9,6 +10,60 @@ import {
   legacyCase,
   withLegacyWorkspace
 } from "./migrate-test-support.ts";
+
+void test("legacy sections preserve list order across blank lines and stop at prose", async () => {
+  await withLegacyWorkspace(async (workspaceRoot) => {
+    await fs.writeFile(
+      path.join(
+        workspaceRoot,
+        "docs/test-evidence/access-control/auth-role-access.md"
+      ),
+      legacyCase
+        .replace(
+          "- A guest mutation returns the forbidden result.\n- The resource remains unchanged.",
+          "1. First observation.\n\n* Second observation.\nOutside the list.\n- Not an observation."
+        )
+        .replace(/\n/gu, "\r\n")
+    );
+    const catalog = await loadLegacyCatalog(workspaceRoot);
+    assert.deepEqual(catalog.cases[0]?.proves, [
+      "First observation.",
+      "Second observation."
+    ]);
+  });
+});
+
+void test("legacy sections reject repeated, empty, and forbidden declarations", async () => {
+  const inputs = [
+    {
+      text: `${legacyCase}\nContract:\n- Repeated.\n`,
+      error: /exactly one non-empty Contract list/u
+    },
+    {
+      text: legacyCase.replace(
+        "Contract:\n- Resource mutation follows the caller role boundary.",
+        "Contract:"
+      ),
+      error: /exactly one non-empty Contract list/u
+    },
+    {
+      text: `${legacyCase}\nVerification:\n- Unsupported.\n`,
+      error: /must not declare Verification/u
+    }
+  ];
+  for (const input of inputs) {
+    await withLegacyWorkspace(async (workspaceRoot) => {
+      await fs.writeFile(
+        path.join(
+          workspaceRoot,
+          "docs/test-evidence/access-control/auth-role-access.md"
+        ),
+        input.text
+      );
+      await assert.rejects(loadLegacyCatalog(workspaceRoot), input.error);
+    });
+  }
+});
 
 void test("migration preflight maps exact legacy locators and preserves Case semantics", async () => {
   await withLegacyWorkspace(async (workspaceRoot) => {

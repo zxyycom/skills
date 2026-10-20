@@ -1,6 +1,17 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { test } from "node:test";
+import {
+  buildStateIndexFromSnapshot,
+  expectationOf,
+  parseStateIndex,
+  serializeStateIndex
+} from "../../index-runtime/src/index.ts";
+import { createInvestigationStateIndexDefinition } from "../src/investigation-index-definition.ts";
+import { prepareInvestigationSources } from "../src/investigation-source-revision.ts";
+import { parseInvestigationReport } from "../src/markdown.ts";
+import { buildInvestigationReportState } from "../src/report-validation.ts";
+import { investigationIndexFixture } from "./index-fixture.ts";
 import { investigationIndexJsonSchema } from "../src/investigation-index-json-schema.ts";
 import {
   queryInvestigationIndex,
@@ -9,6 +20,7 @@ import {
 import {} from "../src/report-path.ts";
 import { synchronizeInvestigationIndex } from "../src/validation.ts";
 import {
+  reportMarkdown,
   jsonObjectMember,
   parseJsonObject,
   withTempRoot,
@@ -50,72 +62,101 @@ test("index and show resolve a report ID independently from its semantic sourceP
   });
 });
 
-test("index state projects strict empty metadata and sourcePath", async () => {
-  await withTempRoot("metadata", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    const index = parseJsonObject(
-      await fs.readFile(
-        `${root}/docs/investigations/investigation-index.json`,
-        "utf8"
-      )
-    );
-    assert.deepEqual(index["metadata"], {});
-    const entries = jsonObjectMember(index, "entries");
-    const report = jsonObjectMember(entries, "report");
-    assert.equal(report["sourcePath"], "report.md");
-    assert.equal("state" in report, false);
-    assert.equal("keys" in report, false);
-    assert.equal("keyDefinitions" in index, false);
-    assert.equal(index["schemaVersion"], 4);
-    assert.deepEqual(investigationIndexJsonSchema.$defs.sourcePath, {
-      pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
+test("index state projects strict empty metadata and sourcePath", () => {
+  const source = {
+    id: "report",
+    sourcePath: "report.md",
+    text: reportMarkdown({ id: "report" })
+  };
+  const prepared = prepareInvestigationSources([source]);
+  const projected = buildInvestigationReportState(
+    source.id,
+    parseInvestigationReport(source.text, source.id),
+    source.sourcePath
+  );
+  if (projected.status !== "valid") assert.fail(projected.errors.join("\n"));
+  const definition = createInvestigationStateIndexDefinition();
+  const built = buildStateIndexFromSnapshot(definition, {
+    metadata: prepared.metadata,
+    sourceRevision: prepared.revision,
+    states: { report: projected.state }
+  });
+  assert.equal(built.status, "ok");
+  if (built.status !== "ok")
+    assert.fail("domain projection must build an index");
+  const index = parseJsonObject(serializeStateIndex(built.value, definition));
+  assert.deepEqual(index["metadata"], {});
+  const entries = jsonObjectMember(index, "entries");
+  const report = jsonObjectMember(entries, "report");
+  assert.equal(report["sourcePath"], "report.md");
+  assert.equal("state" in report, false);
+  assert.equal("keys" in report, false);
+  assert.equal("keyDefinitions" in index, false);
+  assert.equal(index["schemaVersion"], 4);
+  assert.deepEqual(investigationIndexJsonSchema.$defs.sourcePath, {
+    pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
+    type: "string"
+  });
+  assert.equal(
+    investigationIndexJsonSchema.$defs.state.properties.sourcePath.$ref,
+    "#/$defs/sourcePath"
+  );
+  assert.ok(
+    investigationIndexJsonSchema.$defs.state.required.includes("sourcePath")
+  );
+  assert.deepEqual(
+    investigationIndexJsonSchema.$defs.relation.properties.summary,
+    {
+      maxLength: 40,
+      minLength: 1,
+      pattern: "^(?!\\s)(?!.*[\\r\\n])[\\s\\S]*\\S$",
       type: "string"
-    });
-    assert.equal(
-      investigationIndexJsonSchema.$defs.state.properties.sourcePath.$ref,
-      "#/$defs/sourcePath"
-    );
-    assert.ok(
-      investigationIndexJsonSchema.$defs.state.required.includes("sourcePath")
-    );
-    assert.deepEqual(
-      investigationIndexJsonSchema.$defs.relation.properties.summary,
-      {
-        maxLength: 40,
-        minLength: 1,
-        pattern: "^(?!\\s)(?!.*[\\r\\n])[\\s\\S]*\\S$",
-        type: "string"
-      }
-    );
-    assert.deepEqual(investigationIndexJsonSchema.$defs.relation.required, [
-      "type",
-      "target"
-    ]);
-  });
+    }
+  );
+  assert.deepEqual(investigationIndexJsonSchema.$defs.relation.required, [
+    "type",
+    "target"
+  ]);
 });
 
-test("index rejects legacy definitions", async () => {
-  await withTempRoot("legacy-definition", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    const file = `${root}/docs/investigations/investigation-index.json`;
-    const index = parseJsonObject(await fs.readFile(file, "utf8"));
-    index["definitionVersion"] = 5;
-    await fs.writeFile(file, `${JSON.stringify(index)}\n`, "utf8");
-    const result = await queryInvestigationIndex({ workspaceRoot: root });
-    assert.ok(result.errors.some((error) => error.includes("definition")));
+test("index rejects legacy definitions", () => {
+  const definition = createInvestigationStateIndexDefinition();
+  const index = parseJsonObject(
+    serializeStateIndex(
+      investigationIndexFixture([{ id: "report" }]),
+      definition
+    )
+  );
+  index["definitionVersion"] = 5;
+  const result = parseStateIndex({
+    definition,
+    expectation: expectationOf(definition),
+    text: JSON.stringify(index),
+    sourcePath: "investigation-index.json"
   });
+  assert.equal(result.status, "error");
+  assert.ok(
+    result.diagnostics.some((item) => /definition/u.test(item.message))
+  );
 });
 
-test("index rejects additional metadata", async () => {
-  await withTempRoot("additional-metadata", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    const file = `${root}/docs/investigations/investigation-index.json`;
-    const index = parseJsonObject(await fs.readFile(file, "utf8"));
-    jsonObjectMember(index, "metadata")["legacy"] = true;
-    await fs.writeFile(file, `${JSON.stringify(index)}\n`, "utf8");
-    const result = await queryInvestigationIndex({ workspaceRoot: root });
-    assert.ok(result.errors.some((error) => error.includes("metadata")));
+test("index rejects additional metadata", () => {
+  const definition = createInvestigationStateIndexDefinition();
+  const index = parseJsonObject(
+    serializeStateIndex(
+      investigationIndexFixture([{ id: "report" }]),
+      definition
+    )
+  );
+  jsonObjectMember(index, "metadata")["legacy"] = true;
+  const result = parseStateIndex({
+    definition,
+    expectation: expectationOf(definition),
+    text: JSON.stringify(index),
+    sourcePath: "investigation-index.json"
   });
+  assert.equal(result.status, "error");
+  assert.ok(result.diagnostics.some((item) => /metadata/u.test(item.message)));
 });
 
 test("list serves the published snapshot without reading unreadable sources", async () => {

@@ -10,4 +10,4 @@ Contract:
 - 报告可以不声明随附资源。
 
 Proves:
-- 没有资源章节的合法报告通过验证。
+- Markdown 解析器接受无资源章节的合法报告，errors 与 resourceIds 均为空。

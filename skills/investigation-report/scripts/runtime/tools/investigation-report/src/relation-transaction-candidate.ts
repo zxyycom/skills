@@ -8,7 +8,7 @@
  * Rebuild: bun run sync:investigation-report-check
  */
 import { buildInvestigationReportState } from "./report-validation.ts";
-import { relationReview, relationSetsEqual } from "./relation-review.ts";
+import { replacementRelationReview } from "./relation-review.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
 import { buildRelationIndex } from "./relation-transaction-protection.ts";
 import {
@@ -217,7 +217,7 @@ function replacementReview(
   loaded: LoadedRelationContext,
   states: ReadonlyMap<string, InvestigationIndexState>
 ): import("./types.ts").InvestigationRelationReview {
-  return relationReview(
+  return replacementRelationReview(
     options.preflight ? "preflight" : "committed",
     loaded.sourceIds.map((sourceId) => {
       const before = requiredRelationState(
@@ -228,8 +228,7 @@ function replacementReview(
       return {
         sourceId,
         before,
-        after,
-        action: relationSetsEqual(before, after) ? "unchanged" : "replace"
+        after
       };
     })
   );

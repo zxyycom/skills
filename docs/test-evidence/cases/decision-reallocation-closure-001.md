@@ -10,4 +10,4 @@ Contract:
 - 重划关系的建立或修订必须选择最终连通分量中的全部已建立后继。
 
 Proves:
-- 已建立第三个连通后继后，仅选择原来的两个后继时，evolve 报告遗漏的 Decision ID。
+- 内存来源包含第三个已建立连通后继而仅选择原来两个时，纯事务准备返回 error、exitCode=1，诊断指出遗漏的 Decision ID，且不产生 changes。

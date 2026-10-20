@@ -8,37 +8,28 @@ import { unzipSync } from "fflate";
 import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 import type { Check, ProjectDefinition, RunResult } from "@zxyycom/vibe-check";
 import {
+  createGateDefinition,
   vibeNativeCheckIds,
-  type GateCommandInvocation,
-  type GateCommandRunner
+  type GateDefinitionDependencies
 } from "./lib/vibe-gate.ts";
+import type { CheckAggregation } from "@zxyycom/vibe-check";
 
 export const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   ".."
 );
 
-export const aggregateOptions = {
-  checks: "all",
-  empty: "failed",
-  mode: "all",
-  notApplicable: "fail",
-  unavailable: "fail"
-} as const;
+export const aggregateOptions: CheckAggregation = (checks) =>
+  checks.length > 0 &&
+  checks.every(({ outcome }) => outcome.status === "passed")
+    ? "passed"
+    : "failed";
 
 export const noOutput = {
   diagnosticLogging: { enabled: false },
   machinePublication: { enabled: false },
   progressRendering: { enabled: false }
 } as const;
-
-export function scriptForCommand(
-  invocation: GateCommandInvocation
-): string | null {
-  return invocation.command === "bun" && invocation.args[0] === "run"
-    ? (invocation.args[1] ?? null)
-    : null;
-}
 
 export async function withTemporaryDirectory<T>(
   prefix: string,
@@ -146,7 +137,9 @@ export function completed(result: RunResult) {
   if (result.kind === "completed") {
     return result;
   }
-  throw new Error("expected a completed Vibe result");
+  throw new Error(
+    `expected a completed Vibe result: ${JSON.stringify(result)}`
+  );
 }
 
 export async function runDefinition(
@@ -156,13 +149,30 @@ export async function runDefinition(
   signal: AbortSignal = new AbortController().signal
 ) {
   return completed(
-    await run(definition, {
-      checkAggregation: { ...aggregateOptions, checks: "effective" },
-      flags,
-      outputs: noOutput,
-      projectRoot,
-      signal
-    })
+    await run(
+      {
+        ...definition,
+        scheduler: {
+          ...definition.scheduler,
+          resourceCapacities: {
+            "external-process": 3,
+            "repository-scan": 2,
+            ...definition.scheduler.resourceCapacities
+          }
+        }
+      },
+      {
+        checkAggregation: aggregateOptions,
+        flags,
+        outputs: noOutput,
+        checkArtifactBaseDirectory: path.join(
+          projectRoot,
+          ".gate-test-artifacts"
+        ),
+        projectRoot,
+        signal
+      }
+    )
   );
 }
 
@@ -194,15 +204,32 @@ export function passingNativeChecks(): readonly Check[] {
     defineCheck({
       checkId,
       displayName: checkId,
-      execution() {
+      execute() {
         return { status: "passed", data: { checkId } };
       }
     })
   );
 }
 
-export function completedScript(exitCode = 0, output = ""): GateCommandRunner {
-  return async () => ({ exitCode, output, status: "completed" });
+export function createReleaseTestDefinition(
+  dependencies: GateDefinitionDependencies = {}
+) {
+  const definition = createGateDefinition(["release"], dependencies);
+  return {
+    ...definition,
+    checks: definition.checks.map((check) =>
+      check.checkId.startsWith("release:") || check.checkId === "pack:skills"
+        ? check
+        : defineCheck({
+            checkId: check.checkId,
+            displayName: check.displayName,
+            ...(check.dependsOn === undefined
+              ? {}
+              : { dependsOn: check.dependsOn }),
+            execute: () => ({ status: "passed" as const, data: {} })
+          })
+    )
+  };
 }
 
 export type NativeBlockingCheckFixture = Readonly<{

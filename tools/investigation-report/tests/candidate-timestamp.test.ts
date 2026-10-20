@@ -1,9 +1,6 @@
 import assert from "node:assert/strict";
-import fs from "node:fs/promises";
 import { test } from "node:test";
-import { createInvestigationCandidate } from "../src/candidate.ts";
 import { prepareCandidateCreate } from "../src/candidate-creation-input.ts";
-import { withTempRoot } from "./v6-support.ts";
 
 const candidateInput = {
   formedAt: "2026-09-02T12:00:00+00:00",
@@ -15,7 +12,7 @@ const candidateInput = {
   workspaceRoot: "/workspace"
 } as const;
 
-test("candidate API defaults formedAt exactly once and preserves explicit timestamp validation", async () => {
+test("candidate API defaults formedAt exactly once and preserves explicit timestamp validation", () => {
   const defaultInput = {
     id: candidateInput.id,
     question: candidateInput.question,
@@ -34,24 +31,6 @@ test("candidate API defaults formedAt exactly once and preserves explicit timest
   assert.equal(currentTimestampCalls, 1);
   assert.equal(defaulted.value.candidate.formedAt, "2026-09-03T00:00:01Z");
   assert.equal(defaulted.value.candidate.id, "260903-candidate-topic");
-
-  await withTempRoot("candidate-default-formed-at", async (workspaceRoot) => {
-    const created = await createInvestigationCandidate({
-      ...defaultInput,
-      workspaceRoot
-    });
-    if (created.status !== "ok") assert.fail(created.errors.join("\n"));
-    const markdown = await fs.readFile(created.candidate.path, "utf8");
-    const formedAt = markdown.match(
-      /^formedAt: "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)"$/mu
-    )?.[1];
-    if (formedAt === undefined) assert.fail("formedAt was not persisted");
-    const datePrefix = `${formedAt.slice(2, 4)}${formedAt.slice(5, 7)}${formedAt.slice(8, 10)}`;
-    assert.match(
-      markdown,
-      new RegExp(`^id: "${datePrefix}-candidate-topic"$`, "mu")
-    );
-  });
 
   const explicit = prepareCandidateCreate(candidateInput, () =>
     assert.fail("an explicit formedAt must not read the current time")

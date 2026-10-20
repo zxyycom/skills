@@ -1,13 +1,13 @@
-### Case GATE-COMMAND-TRANSCRIPT-001: 命令 Check 保存完整 transcript 并限制终端摘要
+### Case GATE-COMMAND-TRANSCRIPT-001: 项目命令使用项目根和继承环境并保留私有 transcript
 
 Tests:
-- `test:0b4fa632af0b475006cfe6822c46842c39a4cb312fe1bfe6befae595b9e99957`
+- `test:e0f7e526543ffc3a1be448071a3e0bbeff7e9fd6b4936cb16bd5e2d0868b2f29`
 
 Tags:
 - `repository-tooling`
 
 Contract:
-- 获得 Check artifact directory 的命令 runner 必须把完整 stdout、stderr 和终态写入专属 `process.log`，返回结果只保留有界诊断尾部并提供 invocation 相对 transcript 引用。
+- 项目 package 命令交给原生 command Check 执行，cwd 使用调用项目根并继承环境；子命令文本留在完整 transcript，不进入公开 outcome data 或 snapshot。
 
 Proves:
-- 超过 4000 字符的 stdout 在返回摘要中截短而完整保存在 transcript，stderr 与零退出终态也写入同一文件，结果引用稳定指向 `checks/<encoded-check-id>/process.log`；同名 transcript 已存在时命令不启动并结算为 unavailable。
+- 真实临时项目命令从项目根执行并读到继承的 PATH，退出 7 被报告为 failed；process.log 包含项目根和 stderr marker，公开 data 仅含 exitCode 且 snapshot 不含 marker。

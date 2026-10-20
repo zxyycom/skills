@@ -10,4 +10,4 @@ Contract:
 - Investigation list 从一次索引 snapshot 返回筛选外的全局 facets，默认按 formedAt 倒序取最新 10 条；紧凑 preview 最多显示 30 个 tags 和最近 10 个 UTC 月份，detail 展开完整目录和多行摘要但保持同一 limit 窗口。
 
 Proves:
-- 32 条跨月报告的 API 返回默认 10 条近期结果及完整 32 条 facets；紧凑 CLI 从 33 个 tags 和 32 个月份中分别显示 30 个和最近 10 个并报告省略数量及下一 offset，detail 的 limit 1 展开完整目录、title 与 question，offset 越界仍返回 facets、总数和空页上下文，索引字节始终不变。
+- 真实领域查询对内存中的 32 条跨月报告返回默认 10 条近期结果及完整 facets；列表 renderer 从 33 个 tags 和 32 个月份中分别预览 30 个和最近 10 个并报告余量及下一 offset，detail 的 limit 1 展开完整目录、title 与 question，offset 越界仍保留 facets、总数和空页上下文，输入索引对象始终不变。

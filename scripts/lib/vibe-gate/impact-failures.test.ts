@@ -30,7 +30,7 @@ test("incremental Gate fingerprints environment and toolchain identity", async (
         fixture.passedCheckIds,
         { ...fixture.captureDependencies, environment: changedEnvironment }
       ),
-      { published: true, receiptCount: 64 }
+      { published: true, receiptCount: baseGateCheckIds.length }
     );
     const shellBookkeepingChange = await prepareFixtureActivation(fixture, {
       ...fixture.captureDependencies,
@@ -121,7 +121,7 @@ test("incremental Gate rejects unavailable, drifting, and unwritable publication
       reason: "workspace-drift"
     });
 
-    const cacheFile = path.join(fixture.directory, "not-a-directory");
+    const cacheFile = path.join(fixture.directory, ".log", "not-a-directory");
     await fs.writeFile(cacheFile, "occupied\n");
     const cacheFixture = { ...fixture, cacheDirectory: cacheFile };
     const unavailableCache = await prepareFixtureActivation(cacheFixture);

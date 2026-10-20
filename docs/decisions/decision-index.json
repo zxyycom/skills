@@ -93,14 +93,14 @@
       "260908-separate-investigation-narrative-from-supporting-materials": "sha256:c3cc01ba4cb2a8cd26c96d78bbafbada621972e4ef60b7f8edcc78a9a1c14f44",
       "260909-adopt-vibe-check-0-0-2-gate-runtime": "sha256:af245cdf1ce1ee1e2cd3594fac65b0c3d27927a1db62c972112e256eba183a5c",
       "260909-batch-release-test-execution": "sha256:40c65db65eee894ce7379d05a973ea2564ad79f08b731d841c60646f983e9d91",
-      "260909-incremental-vibe-gate": "sha256:de0d00b748d1942e77cb2e9350663b12be4d3978583de0e9d19e5f2a779c05c7",
+      "260909-incremental-vibe-gate": "sha256:1f4be987daaa4ccf85701a295be7e485af25678fdc8d1276d045a6feef79db59",
       "260909-use-native-vibe-gate-controls": "sha256:a763ab0a06d44cf6d55adb54725b9a0bcf6bd4c3bdec6a76a5ea41f4c9ce149d",
       "260909-write-explanatory-relation-summaries": "sha256:ece110950bc41206998c14673cd9f3e88592c176feeeaa0e317352bad9d180ff",
       "260911-block-code-quality-metric-findings": "sha256:ab1bfd6fe1e0ec0e434341f490352afbd3f2b9cca6d6bd14cf30e99510d2e208",
-      "260912-isolate-release-version-control-resource-boundary": "sha256:ed7fd368f66dedcfa0789bd8ad7db8fe404c671649feafb27d3a4f9ab4c3f37a",
+      "260912-isolate-release-version-control-resource-boundary": "sha256:d0b1c3ab246caf6c5e955a1be034596feb1111ff3772a2a95c4f4d223b883c6d",
       "260912-separate-relation-summary-consumption-by-reading-task": "sha256:2093bfefc99214415a4837aa63e194facca4dd82562ca523181abd6d8f7b33d6",
       "260912-support-per-successor-complete-relation-replacements": "sha256:9f9070118c7255359e629a86ce2b305ff13f19d120207182a50b18147ea59811",
-      "260919-require-gate-environment-check-prerequisite": "sha256:db3732c22c98b1fc4928766205a789ae61724b60b4fa0d8af3d4fd899d028cf5",
+      "260919-require-gate-environment-check-prerequisite": "sha256:b97d811df8cdeffeb4f9221041a98e231575aecf70621f000c6d1fd37a8ac9e7",
       "260920-finalize-change-plans-by-deletion": "sha256:10cf6690d9ae70af12a38dc54996b809086e14a58c7311812c93d0715c87ba7e",
       "260922-front-load-record-context-recovery": "sha256:457ea886d899da2a9d80e4118b33afc814f5ce3951b0f64f168a96d2ec244785",
       "260922-unify-cli-workspace-location-and-help": "sha256:5a823ce3607c76af0f0bb9b735fba8e04d2a517e245c9e8e69dcf67f4a498a01",
@@ -134,6 +134,9 @@
       "261017-lightweight-judgment-faithful-protocol-adapters": "sha256:bb4a453ec6fb6159f865a3b5b3307e5ff5b0585a3aa9481a78919fd79ebc40b3",
       "261017-route-record-documentation-by-consumer-task": "sha256:45930827a933def1ad4df38f87547f0418e595912280f7ae9e03f3e3d7d0884a",
       "261020-distribute-editable-typescript-runtimes": "sha256:1f3f89abb9f4de19cf2818812bb003d16a7a02d6a457b65cae31190bb401fb52",
+      "261020-native-gate-execution-and-project-receipts": "sha256:6fe5fd00b0a0291105b55994dd7112e2011723cb04ead01bd4682e0c3bc6f02b",
+      "261020-retain-release-version-control-isolation": "sha256:3187831faf378e199547da7d80794b5918a132652d5ee6fdcc65d71c96003e83",
+      "261020-unify-gate-generated-artifact-prerequisite": "sha256:dadfc27ecd56b60a6042e853c9992988079247cb4be5e81481439b8520d6a682",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -172,7 +175,7 @@
       "concentrate-before-generalizing": "sha256:7dbbbad118daa8537af3cba3134a24292de6a969acbb3a7037b78ce0d19dfbd2",
       "converge-records-before-stable-baseline": "sha256:656c7f08074ed5d0372cbcac4312c87cf26e55f7a30525c717acfc179f47b350",
       "coordinate-task-execution-with-transactional-claims": "sha256:9ec3ad3d9cc1ad39666face65bff213f8ab0a3a6acca5e99d0bee253fa86e72f",
-      "declare-generated-artifact-prerequisites-for-vibe-consumers": "sha256:7ddbbd4a89c1ef258dd9c09c550645b947279114253ad024ed95daa11ce77d3c",
+      "declare-generated-artifact-prerequisites-for-vibe-consumers": "sha256:30e8a75f880b94db79de0adaa5f126e1b9c3f191a453e89c1af1d131ed519b10",
       "default-checks-to-warnings": "sha256:10031f9892fbfd52a5d85997690c2c1e8a66429abe5b1974f91b46205526c00b",
       "default-to-current-task-changes": "sha256:0e216c611c56a648e33b1db7c448a33c54b8cd7f34dc0d5be8204528ec02e33f",
       "defer-openspec-maintenance-during-removal-review": "sha256:1ede5e595a5a5ebe546c28d1ac29d6a20e399d58039e593e9b87c5b3f0371b12",
@@ -2173,9 +2176,9 @@
     },
     "260909-incremental-vibe-gate": {
       "name": "incremental-vibe-gate",
-      "sourcePath": "incremental-vibe-gate.md",
+      "sourcePath": "archive/incremental-vibe-gate.md",
       "title": "以输入证明增量激活日常 Vibe Gate",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-09T10:08:24Z",
       "purpose": "让日常门禁只执行缺少当前输入成功证明的 Check。",
@@ -2271,9 +2274,9 @@
     },
     "260912-isolate-release-version-control-resource-boundary": {
       "name": "isolate-release-version-control-resource-boundary",
-      "sourcePath": "isolate-release-version-control-resource-boundary.md",
+      "sourcePath": "archive/isolate-release-version-control-resource-boundary.md",
       "title": "为 Release 版本管理测试建立独立资源边界",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-12T02:53:01Z",
       "purpose": "在保留 Release 测试批次收益的同时隔离 Git 子进程密集测试，并保留直接失败诊断。",
@@ -3060,6 +3063,76 @@
         }
       ]
     },
+    "261020-native-gate-execution-and-project-receipts": {
+      "name": "native-gate-execution-and-project-receipts",
+      "sourcePath": "native-gate-execution-and-project-receipts.md",
+      "title": "以原生执行和项目完整输入证明组织 Gate",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-20T07:38:28Z",
+      "purpose": "降低 Gate 自建运行职责，同时可靠省略输入相同且已通过的项目命令。",
+      "background": "材料检查能原生结算，独立命令已能保存终态与诊断；项目仍需最近成功输入与最终发布事务。",
+      "decision": "原生材料每轮结算、项目命令独立执行，仅完整输入精确命中的项目 Check 可复用 receipt，release 与 CI 全执行。",
+      "tags": [
+        "project-tooling",
+        "responsibility-boundaries",
+        "vibe-gate"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260909-incremental-vibe-gate",
+          "summary": "保留成功输入事务，收窄为项目命令证明并以原生能力承接执行和材料结算"
+        }
+      ]
+    },
+    "261020-retain-release-version-control-isolation": {
+      "name": "retain-release-version-control-isolation",
+      "sourcePath": "retain-release-version-control-isolation.md",
+      "title": "独立命令执行下保留 Release 版本管理隔离",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-20T07:38:42Z",
+      "purpose": "让 Git 子进程密集测试保持独立失败归因，并避免与其他 Release CPU 工作竞争。",
+      "background": "独立原生命令取代共享批次后，版本管理测试的资源竞争风险仍不因执行容器变化消失。",
+      "decision": "版本管理测试保持独立命令和全部 Release CPU 容量，其他任务遵守统一资源预算与原生调度。",
+      "tags": [
+        "concurrency",
+        "environment-isolation",
+        "project-tooling",
+        "version-control"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260912-isolate-release-version-control-resource-boundary",
+          "summary": "保留版本管理CPU独占和诊断边界，将其从批次例外改为独立命令体系内的资源政策"
+        }
+      ]
+    },
+    "261020-unify-gate-generated-artifact-prerequisite": {
+      "name": "unify-gate-generated-artifact-prerequisite",
+      "sourcePath": "unify-gate-generated-artifact-prerequisite.md",
+      "title": "以统一生成结果作为 Gate 分发消费前置",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-20T07:38:35Z",
+      "purpose": "让所有分发消费者只在唯一完整生成检查通过后运行，并保留领域定位能力。",
+      "background": "统一生成入口已调用各领域相同适配器，重复 Gate 生成节点增加运行与依赖维护面。",
+      "decision": "Gate 只保留统一生成 provider，由原生 dependsOn 阻断不可信消费，领域检查和同步继续作为人工入口。",
+      "tags": [
+        "dependency-boundary-design",
+        "project-tooling",
+        "responsibility-boundaries"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "declare-generated-artifact-prerequisites-for-vibe-consumers",
+          "summary": "保留制品信任边界，将独立领域前置归并为完整统一检查并交给原生成功依赖"
+        }
+      ]
+    },
     "activate-release-gate-checks-by-tag": {
       "name": "activate-release-gate-checks-by-tag",
       "sourcePath": "archive/activate-release-gate-checks-by-tag.md",
@@ -3842,9 +3915,9 @@
     },
     "declare-generated-artifact-prerequisites-for-vibe-consumers": {
       "name": "declare-generated-artifact-prerequisites-for-vibe-consumers",
-      "sourcePath": "declare-generated-artifact-prerequisites-for-vibe-consumers.md",
+      "sourcePath": "archive/declare-generated-artifact-prerequisites-for-vibe-consumers.md",
       "title": "为 Vibe 分发 consumer 声明生成前置",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-01T06:31:41Z",
       "purpose": "让消费当前分发制品的 Vibe Check 只在对应生成结果可信时运行。",

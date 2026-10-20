@@ -21,7 +21,7 @@ function nativeCheckExclusions(
     `missing options for ${checkId}`
   );
   const directExclusions = stringArray(
-    optionsRecordOrNull(options.files)?.exclude
+    optionsRecordOrNull(options.files)?.patterns
   );
   if (directExclusions !== null) return directExclusions;
   const codeAreas = optionsRecord(
@@ -36,7 +36,7 @@ function nativeCheckExclusions(
     maintained.files,
     `missing maintained file selection for ${checkId}`
   );
-  return stringArray(maintainedFiles.exclude) ?? [];
+  return stringArray(maintainedFiles.patterns) ?? [];
 }
 
 function codeAreaOptions(
@@ -87,7 +87,7 @@ test("native file selections exclude historical content and authoring candidates
     const exclusions = nativeCheckExclusions(optionsById, checkId);
     for (const historicalExclusion of historicalContentExclusions) {
       assert.ok(
-        exclusions.includes(historicalExclusion),
+        exclusions.includes(`!${historicalExclusion}`),
         `${checkId} must exclude ${historicalExclusion}`
       );
     }
@@ -98,12 +98,15 @@ test("native file selections exclude historical content and authoring candidates
     ["tests", testCodeFiles]
   ] as const) {
     const area = codeAreaOptions(optionsById, "function-metrics", areaId);
-    assert.deepEqual(area.files, expectedFiles);
+    assert.deepEqual(area.files, {
+      ...expectedFiles,
+      useDefaultExcludes: true
+    });
     const exclusions = stringArray(
-      optionsRecord(area.files, `missing files for ${areaId}`).exclude
+      optionsRecord(area.files, `missing files for ${areaId}`).patterns
     );
     for (const historicalExclusion of historicalContentExclusions) {
-      assert.ok(exclusions?.includes(historicalExclusion));
+      assert.ok(exclusions?.includes(`!${historicalExclusion}`));
     }
   }
   assert.deepEqual(
@@ -123,9 +126,15 @@ test("native file selections exclude historical content and authoring candidates
   );
   for (const checkId of ["json-validation", "markdown-link-validation"]) {
     const exclusions = nativeCheckExclusions(optionsById, checkId);
+    assert.deepEqual(
+      exclusions.filter((pattern) => !pattern.startsWith("!")),
+      checkId === "json-validation"
+        ? ["**/*.json"]
+        : ["**/*.[mM][dD]", "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"]
+    );
     for (const candidateExclusion of investigationAuthoringDocumentExclusions) {
       assert.ok(
-        exclusions.includes(candidateExclusion),
+        exclusions.includes(`!${candidateExclusion}`),
         `${checkId} must exclude ${candidateExclusion}`
       );
     }
@@ -133,7 +142,7 @@ test("native file selections exclude historical content and authoring candidates
   assert.deepEqual(
     optionsRecord(optionsById.get("secret-detection"), "missing secret Check")
       .files,
-    maintainedSecretFiles
+    { ...maintainedSecretFiles, useDefaultExcludes: true }
   );
   const markdownOptions = optionsRecord(
     optionsById.get("markdown-link-validation"),
@@ -153,8 +162,63 @@ test("native file selections exclude historical content and authoring candidates
       ["json-validation", { "repository-scan": 1 }],
       ["json-schema-validation", { "repository-scan": 1 }],
       ["markdown-link-validation", { "repository-scan": 1 }],
+      ["markdown-lint", { "repository-scan": 1 }],
       ["file-metrics", { "external-process": 1, "repository-scan": 1 }],
       ["function-metrics", { "repository-scan": 1 }]
     ]
   );
+});
+
+test("project Markdown lint uses exactly the six approved rules and maintained scope", async () => {
+  const { defineConfig } = await import("@zxyycom/vibe-check");
+  const fs = await import("node:fs/promises");
+  const { runDefinition, outcomeFor, withTemporaryDirectory } =
+    await import("./vibe-check-test-support.ts");
+  await withTemporaryDirectory("gate-project-markdown-", async (directory) => {
+    const check = createVibeNativeChecks(directory).find(
+      ({ checkId }) => checkId === "markdown-lint"
+    );
+    assert.ok(check);
+    const options = optionsRecord(check.options, "missing lint options");
+    assert.equal(options.findingPolicy, "blocking");
+    assert.deepEqual(options.rules, [
+      "no-reversed-links",
+      "no-missing-space-atx",
+      "no-empty-links",
+      "no-alt-text",
+      "reference-links-images",
+      "table-column-count"
+    ]);
+    for (const excluded of [
+      "docs/investigations/_resources/a.md",
+      "docs/investigations/_candidate.md",
+      "skills/alpha/references/upstream/a.md",
+      "skills/alpha/reference-original.md"
+    ]) {
+      await fs.mkdir(path.dirname(path.join(directory, excluded)), {
+        recursive: true
+      });
+      await fs.writeFile(path.join(directory, excluded), "[broken]()\n");
+    }
+    await fs.writeFile(
+      path.join(directory, "maintained.MARKDOWN"),
+      "# Valid\n"
+    );
+    const passed = await runDefinition(
+      defineConfig({ checks: [check] }),
+      directory
+    );
+    assert.equal(passed.aggregate, "passed");
+    await fs.writeFile(
+      path.join(directory, "maintained.MARKDOWN"),
+      "[broken]()\n"
+    );
+    const failed = await runDefinition(
+      defineConfig({ checks: [check] }),
+      directory
+    );
+    assert.equal(outcomeFor(failed, "markdown-lint").status, "failed");
+    const data = outcomeFor(failed, "markdown-lint");
+    assert.equal(data.status === "failed" && data.data.sourceFileCount, 1);
+  });
 });

@@ -1,44 +1,60 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  activationFlagForCheck,
   createGateDefinition,
-  gateEnvironmentCheckId,
-  packageScriptCheckId
+  gateEnvironmentCheckId
 } from "./lib/vibe-gate.ts";
+import { createGateEnvironmentCheck } from "./lib/vibe-gate/checks/environment.ts";
+import { defineCheck, defineConfig } from "@zxyycom/vibe-check";
 import {
   outcomeFor,
-  passingNativeChecks,
-  repositoryRoot,
-  runDefinition
+  runDefinition,
+  withTemporaryDirectory
 } from "./vibe-check-test-support.ts";
 
-test("Gate environment failure blocks dependent Checks before their execution", async () => {
-  const invocations: string[] = [];
-  const typecheck = packageScriptCheckId("typecheck");
-  const definition = createGateDefinition([], {
-    activeCheckIds: [typecheck],
-    nativeChecks: passingNativeChecks(),
-    runCommand: async (invocation) => {
-      invocations.push([invocation.command, ...invocation.args].join(" "));
-      return {
-        exitCode: invocation.command === "node" ? 1 : 0,
-        output:
-          "Gate environment: fixture\n[mismatch] bun 1.4.3 - expected 1.4.2",
-        status: "completed"
-      };
-    }
-  });
-  const result = await runDefinition(definition, repositoryRoot, [
-    activationFlagForCheck(typecheck)
-  ]);
-  assert.equal(result.aggregate, "failed");
-  assert.deepEqual(invocations, ["node scripts/environment.js gate"]);
-  assert.equal(outcomeFor(result, gateEnvironmentCheckId).status, "failed");
-  const dependentOutcome = outcomeFor(result, typecheck);
-  assert.equal(dependentOutcome.status, "unavailable");
-  if (dependentOutcome.status !== "unavailable") {
-    throw new Error("expected the dependent Check to be unavailable");
+test("Gate environment is a bounded native command and every production result requires it", () => {
+  const check = createGateEnvironmentCheck();
+  assert.equal(check.options.executable, "node");
+  assert.deepEqual(check.options.arguments, ["scripts/environment.js", "gate"]);
+  assert.equal(check.options.environment.mode, "inherit");
+  assert.equal(check.options.output.mode, "transcript");
+  assert.equal(check.options.timeoutMs, 30_000);
+  assert.equal(check.options.outputByteLimit, 1024 * 1024);
+  for (const candidate of createGateDefinition(["release"]).checks) {
+    if (candidate.checkId !== gateEnvironmentCheckId)
+      assert.ok(
+        Array.isArray(candidate.dependsOn) &&
+          candidate.dependsOn.includes(gateEnvironmentCheckId),
+        candidate.checkId
+      );
   }
-  assert.equal(dependentOutcome.reason.code, "dependency-not-passed");
+});
+
+test("missing Gate environment prevents dependent project work", async () => {
+  await withTemporaryDirectory("gate-env-missing-", async (directory) => {
+    let executed = false;
+    const result = await runDefinition(
+      defineConfig({
+        checks: [
+          createGateEnvironmentCheck(),
+          defineCheck({
+            checkId: "consumer",
+            displayName: "consumer",
+            dependsOn: [gateEnvironmentCheckId],
+            execute: () => {
+              executed = true;
+              return { status: "passed", data: {} };
+            }
+          })
+        ]
+      }),
+      directory
+    );
+    assert.equal(result.aggregate, "failed");
+    assert.equal(executed, false);
+    assert.notEqual(
+      outcomeFor(result, gateEnvironmentCheckId).status,
+      "passed"
+    );
+  });
 });

@@ -78,24 +78,15 @@
 
 项目验证覆盖 helper 配置、任务可比身份、history 归属及实际回调调用，保留资源约束和最终结果消费。
 
-## 按替代价值采用的工具
+## 项目采用的路径能力
 
-| 能力 | 本项目采用边界 |
-| --- | --- |
-| canonicalizeJsonObject/Value | 替代 Gate 的 JSON 边界规范化，领域 schema 和私有 Map/bytes 保持各自责任。 |
-| canonicalJsonText/Bytes | 可用于内容身份；采用时更新 namespace，区分规范化内容与原始字节 hash。 |
-| snapshotExactClosedRecord / snapshotClosedArray | 可收口成功证明外壳检查；业务值、唯一 ID、版本及 hash 仍由项目校验。 |
-| createProjectFileRegionIndex | 可用于已声明路径关系和覆盖审计；输入读取、hash 与保守执行仍归项目。 |
-| DEFAULT_PROJECT_FILE_EXCLUDES | 替代对旧 selection.exclude 的取值。 |
-| cacheJsonByKey | 调用方提供完整 key 的计算事实缓存，成功证明事务仍归项目。 |
-| debugChangeFlags / formatChangeFlagDebugReport | 按需路径/token 诊断，与本次质量证据分开。 |
-
-以上能力限定根 Gate 开发依赖边界。inherit、direct dependsOn/observes、资源/mutex、
-finding 呈现/waiver、final-data parser 按各自契约使用；当前无实际消费者的 API 不扩大实施范围。
+`impact-snapshot.ts` 使用 `createProjectFileRegionIndex`，为已声明的 patterns 计算路径成员关系，
+再由项目对选中内容形成输入身份。输入读取、工具链探测、保守执行与最终成功发布仍归项目；
+该 region 关系不代替成功 receipt，也不自动推导跨 owner 的实际消费依赖。
 
 ## 包根变化核对
 
-静态具名 import 涉及 18 个脚本文件、19 个符号；两版包根类型声明与 ESM 导出比较如下：
+Readiness 的静态具名 import 审计涉及 18 个脚本文件、19 个符号；两版包根类型声明与 ESM 导出比较如下：
 
 | 导出 | 0.0.2 | 0.0.4 | 变化 |
 | --- | --- | --- | --- |

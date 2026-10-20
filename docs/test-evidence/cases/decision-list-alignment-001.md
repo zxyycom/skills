@@ -10,4 +10,4 @@ Contract:
 - alignment 选择器必须从持久索引返回对应状态。
 
 Proves:
-- unaligned 查询仅返回 unaligned 活动记录。
+- 真实 list 准备、内存快照投影及 renderer 对 unaligned 条件仅输出 unaligned 活动记录。

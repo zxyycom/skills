@@ -41,7 +41,15 @@ type ModuleReference = Readonly<{
   start: number;
   end: number;
 }>;
+/** 只在一次生成调用内共享的已读取事实；每次顶层调用重新采集。 */
+export type SourceRuntimeFacts = Readonly<{
+  workspaceRoot: string;
+  references: ReadonlyMap<string, readonly ModuleReference[]>;
+  packageManager: string;
+  dependencies: Readonly<Record<string, string>>;
+}>;
 export type SourceRuntimeOptions = Readonly<{
+  workspaceRoot?: string;
   skillName: string;
   entries: readonly Readonly<{
     sourcePath: string;
@@ -69,9 +77,9 @@ function runtimeHeader(
  */\n`;
 }
 
-async function sourceReferences(): Promise<
-  ReadonlyMap<string, readonly ModuleReference[]>
-> {
+async function sourceReferences(
+  workspaceRoot: string
+): Promise<ReadonlyMap<string, readonly ModuleReference[]>> {
   const { stdout } = await execFileAsync(
     path.join(
       rootDir,
@@ -87,7 +95,7 @@ async function sourceReferences(): Promise<
       "**/src/**/*.ts",
       "tools"
     ],
-    { cwd: rootDir, maxBuffer: 32 * 1024 * 1024 }
+    { cwd: workspaceRoot, maxBuffer: 32 * 1024 * 1024 }
   );
   const raw: unknown = JSON.parse(stdout);
   const matches = v.parse(importMatchSchema, raw);
@@ -99,7 +107,7 @@ async function sourceReferences(): Promise<
         `Unsupported escaped module specifier in ${match.file}: ${match.text}`
       );
     }
-    const file = path.resolve(rootDir, match.file);
+    const file = path.resolve(workspaceRoot, match.file);
     const references = byFile.get(file) ?? [];
     references.push({
       specifier: match.text.slice(1, -1),
@@ -108,6 +116,25 @@ async function sourceReferences(): Promise<
     byFile.set(file, references);
   }
   return byFile;
+}
+
+export async function captureSourceRuntimeFacts(
+  workspaceRoot: string = rootDir
+): Promise<SourceRuntimeFacts> {
+  const root = path.resolve(workspaceRoot);
+  const references = await sourceReferences(root);
+  const manifest = v.parse(
+    manifestSchema,
+    JSON.parse(
+      await fs.readFile(path.join(root, "package.json"), "utf8")
+    ) as unknown
+  );
+  return Object.freeze({
+    workspaceRoot: root,
+    references,
+    packageManager: manifest.packageManager,
+    dependencies: Object.freeze(manifest.devDependencies)
+  });
 }
 
 function packageName(specifier: string): string {
@@ -127,9 +154,10 @@ async function copyRuntimeModule(
   references: readonly ModuleReference[],
   options: SourceRuntimeOptions,
   rootDependencies: Readonly<Record<string, string>>,
-  dependencies: Record<string, string>
+  dependencies: Record<string, string>,
+  workspaceRoot: string
 ): Promise<CopiedRuntimeModule> {
-  const sourcePath = path.relative(rootDir, file).replaceAll("\\", "/");
+  const sourcePath = path.relative(workspaceRoot, file).replaceAll("\\", "/");
   if (!sourcePath.startsWith("tools/") || !sourcePath.endsWith(".ts")) {
     throw new Error(
       `Runtime source must be TypeScript owned by tools/: ${sourcePath}`
@@ -181,7 +209,7 @@ async function copyRuntimeModule(
     imports,
     artifact: {
       path: path.join(
-        rootDir,
+        workspaceRoot,
         "skills",
         options.skillName,
         "scripts/runtime",
@@ -196,9 +224,10 @@ async function copyRuntimeModule(
 function runtimeManifestArtifact(
   options: SourceRuntimeOptions,
   packageManager: string,
-  dependencies: Readonly<Record<string, string>>
+  dependencies: Readonly<Record<string, string>>,
+  workspaceRoot: string
 ): GeneratedArtifact {
-  const skillRoot = path.join(rootDir, "skills", options.skillName);
+  const skillRoot = path.join(workspaceRoot, "skills", options.skillName);
   return {
     path: path.join(skillRoot, "package.json"),
     content:
@@ -220,18 +249,18 @@ function runtimeManifestArtifact(
 }
 
 export async function buildSourceRuntimeArtifacts(
-  options: SourceRuntimeOptions
+  options: SourceRuntimeOptions,
+  facts?: SourceRuntimeFacts
 ): Promise<GeneratedArtifact[]> {
-  const references = await sourceReferences();
-  const rootManifest = v.parse(
-    manifestSchema,
-    JSON.parse(
-      await fs.readFile(path.join(rootDir, "package.json"), "utf8")
-    ) as unknown
+  const workspaceRoot = path.resolve(
+    options.workspaceRoot ?? facts?.workspaceRoot ?? rootDir
   );
-  const skillRoot = path.join(rootDir, "skills", options.skillName);
+  const inputs = facts ?? (await captureSourceRuntimeFacts(workspaceRoot));
+  if (inputs.workspaceRoot !== workspaceRoot)
+    throw new Error("Source runtime facts belong to another workspace");
+  const skillRoot = path.join(workspaceRoot, "skills", options.skillName);
   const pending = options.entries.map((entry) =>
-    path.join(rootDir, entry.sourcePath)
+    path.join(workspaceRoot, entry.sourcePath)
   );
   const seen = new Set<string>();
   const dependencies: Record<string, string> = {
@@ -244,10 +273,11 @@ export async function buildSourceRuntimeArtifacts(
     seen.add(file);
     const result = await copyRuntimeModule(
       file,
-      references.get(file) ?? [],
+      inputs.references.get(file) ?? [],
       options,
-      rootManifest.devDependencies,
-      dependencies
+      inputs.dependencies,
+      dependencies,
+      workspaceRoot
     );
     pending.push(...result.imports);
     artifacts.push(result.artifact);
@@ -264,13 +294,18 @@ export async function buildSourceRuntimeArtifacts(
       path: path.join(skillRoot, resource.outputPath),
       sourcePath: resource.sourcePath,
       content: await fs.readFile(
-        path.join(rootDir, resource.sourcePath),
+        path.join(workspaceRoot, resource.sourcePath),
         "utf8"
       )
     });
   }
   artifacts.push(
-    runtimeManifestArtifact(options, rootManifest.packageManager, dependencies)
+    runtimeManifestArtifact(
+      options,
+      inputs.packageManager,
+      dependencies,
+      workspaceRoot
+    )
   );
   artifacts.push({
     path: path.join(skillRoot, ".gitignore"),

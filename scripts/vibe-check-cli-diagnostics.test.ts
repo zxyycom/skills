@@ -69,13 +69,6 @@ test("CLI maps successful invocations and diagnostic log artifacts", async () =>
     tags: []
   });
   assert.deepEqual(diagnosticControls, {
-    checkAggregation: {
-      checks: "effective",
-      empty: "failed",
-      mode: "all",
-      notApplicable: "fail",
-      unavailable: "fail"
-    },
     ...gateInvocationOutputControls(invocationDirectory, true),
     flags: [],
     projectRoot: repositoryRoot
@@ -185,4 +178,42 @@ test("CLI maps usage, definition, runner, and gate failures to exit code one", a
     /Vibe Check invocation failed: /u
   );
   assert.deepEqual(configurationInformation, []);
+});
+
+test("CLI command failures provide direct rerun and transcript location without child text", async () => {
+  const fs = await import("node:fs/promises");
+  const { defineConfig } = await import("@zxyycom/vibe-check");
+  const { createPackageScriptCheck } =
+    await import("./lib/vibe-gate/checks/package-script.ts");
+  await withTemporaryDirectory(
+    "gate-cli-command-diagnostic-",
+    async (directory) => {
+      await fs.writeFile(
+        path.join(directory, "package.json"),
+        JSON.stringify({ scripts: { typecheck: "node probe.js" } })
+      );
+      await fs.writeFile(
+        path.join(directory, "probe.js"),
+        'console.error("private-child-marker"); process.exit(8)'
+      );
+      const capture = createCliCapture();
+      const definition = defineConfig({
+        checks: [createPackageScriptCheck("typecheck")],
+        scheduler: { resourceCapacities: { "external-process": 3 } }
+      });
+      assert.equal(
+        await runVibeCheck([], {
+          ...capturedCliDependencies(capture, definition),
+          createInvocationDirectory: () => path.join(directory, "invocation"),
+          runProject: (selected, controls) =>
+            runInProject(selected, controls, directory)
+        }),
+        1
+      );
+      const text = capture.diagnostics.join(" ");
+      assert.match(text, /rerun bun run typecheck/u);
+      assert.match(text, /process\.log/u);
+      assert.equal(text.includes("private-child-marker"), false);
+    }
+  );
 });

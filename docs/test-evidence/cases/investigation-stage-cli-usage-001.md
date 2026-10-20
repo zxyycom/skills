@@ -10,4 +10,4 @@ Contract:
 - 直接调用的源码 CLI 入口 `stage` 必须要求至少一个 Investigation ID。
 
 Proves:
-- 省略报告 ID 返回退出码 2、stdout 为空、stderr 给出用法诊断且派生 index 字节不变。
+- 同进程源码 CLI 在空根省略报告 ID 时返回退出码 2、stdout 为空、stderr 给出用法诊断，根目录仍为空。

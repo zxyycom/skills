@@ -10,4 +10,4 @@ Contract:
 - 非法 scope 值只走普通无效参数路径。
 
 Proves:
-- `--scope everything` 返回退出码 2 与允许值诊断，pending 保持零写入。
+- 同进程 CLI 对 `--scope everything` 返回退出码 2、空 stdout 与允许值诊断；真实 Commander parser 的 dispatch 次数为零，不声称直接观察 Git pending。

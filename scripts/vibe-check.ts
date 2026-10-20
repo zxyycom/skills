@@ -11,10 +11,15 @@ import { isMainModule } from "../tools/shared/src/node/main-module.ts";
 import { rootDir } from "./lib/project.ts";
 import {
   createGateDefinition,
+  commandText,
+  semanticGateChecks,
+  gateEnvironmentCheckId,
+  releaseRequiredPackageScripts,
   gateActivationFlags,
   prepareGateActivation,
   publishGateReceipts,
   type GateActivationPlan,
+  type GateCommand,
   type GateDefinitionDependencies,
   type GateReceiptPublication
 } from "./lib/vibe-gate.ts";
@@ -48,7 +53,10 @@ export type VibeCheckDependencies = Readonly<{
     | ((invocation: GateInvocation) => Promise<GateActivationPlan>);
   publishReceipts?: (
     plan: GateActivationPlan,
-    passedCheckIds: ReadonlySet<string>
+    result: Readonly<{
+      runSucceeded: boolean;
+      passedCheckIds: ReadonlySet<string>;
+    }>
   ) => Promise<GateReceiptPublication>;
   reportError?: (message: string) => void;
   reportInfo?: (message: string) => void;
@@ -64,7 +72,6 @@ type GateIncrementalSummary = Readonly<{
   fallbackDetail: string | null;
   mode: GateActivationPlan["kind"];
   publication: GateReceiptPublication;
-  releaseTestBatchProof: "cold" | "fresh" | "reused" | "unavailable" | null;
 }>;
 
 type GateActivationCounts = Readonly<{
@@ -156,42 +163,27 @@ export async function runVibeCheck(
     return 1;
   }
 
+  const forceFullExecution =
+    invocation.tags.includes("release") ||
+    invocation.cold ||
+    (dependencies.continuousIntegration ??
+      isContinuousIntegrationEnvironment(process.env.CI));
   const activationPlan =
     dependencies.prepareActivation === false
       ? null
       : await (dependencies.prepareActivation?.(invocation) ??
           prepareGateActivation({
-            release: invocation.tags.includes("release")
+            release: forceFullExecution
           }));
   if (activationPlan !== null)
     reportInfo(describeActivationPlan(activationPlan));
-  let releaseTestBatchProofReused = false;
-  const releaseTestBatchProofCold =
-    invocation.cold ||
-    (dependencies.continuousIntegration ??
-      isContinuousIntegrationEnvironment(process.env.CI));
   const definitionDependencies: GateDefinitionDependencies = {
+    ...(!forceFullExecution && activationPlan?.kind === "incremental"
+      ? { activeCheckIds: activationPlan.activeCheckIds }
+      : {}),
     ...(invocation.baselineRef === undefined
-      ? activationPlan?.kind === "incremental"
-        ? { activeCheckIds: activationPlan.activeCheckIds }
-        : {}
-      : { baselineRef: invocation.baselineRef }),
-    ...(activationPlan?.kind === "release" && activationPlan.snapshot !== null
-      ? {
-          releaseTestBatchProof: {
-            cacheDirectory: path.join(
-              path.dirname(activationPlan.cacheDirectory),
-              "release-test-batch-v1"
-            ),
-            cold: releaseTestBatchProofCold,
-            initialWorkspaceFingerprint:
-              activationPlan.snapshot.workspaceFingerprint,
-            onReuse: () => {
-              releaseTestBatchProofReused = true;
-            }
-          }
-        }
-      : {})
+      ? {}
+      : { baselineRef: invocation.baselineRef })
   };
   const definition =
     dependencies.createDefinition?.(
@@ -202,26 +194,27 @@ export async function runVibeCheck(
   const invocationDirectory =
     dependencies.createInvocationDirectory?.() ??
     createGateInvocationDirectory();
-  const result = await (dependencies.runProject ?? run)(definition, {
-    checkAggregation: {
-      checks: "effective",
-      empty: "failed",
-      mode: "all",
-      notApplicable: "fail",
-      unavailable: "fail"
-    },
-    flags: [
-      ...invocation.tags,
-      ...(activationPlan?.kind === "incremental"
-        ? gateActivationFlags(activationPlan)
-        : [])
-    ],
-    ...gateInvocationOutputControls(
-      invocationDirectory,
-      invocation.diagnosticLog
-    ),
-    projectRoot: rootDir
-  });
+  let result: RunResult;
+  try {
+    result = await (dependencies.runProject ?? run)(definition, {
+      flags: [
+        ...invocation.tags,
+        ...(!forceFullExecution && activationPlan?.kind === "incremental"
+          ? gateActivationFlags(activationPlan)
+          : [])
+      ],
+      ...gateInvocationOutputControls(
+        invocationDirectory,
+        invocation.diagnosticLog
+      ),
+      projectRoot: rootDir
+    });
+  } catch {
+    reportError(
+      "Vibe Check invocation rejected; no success receipts were published. Rerun bun run check and inspect invocation diagnostics."
+    );
+    return 1;
+  }
 
   if ("outputs" in result) {
     reportInfo(`Vibe Check artifacts: ${invocationDirectory}`);
@@ -234,24 +227,44 @@ export async function runVibeCheck(
       }
     }
   }
+  if ("snapshot" in result) {
+    for (const check of result.snapshot.checks) {
+      if (
+        check.outcome.status === "passed" ||
+        check.outcome.status === "not-applicable"
+      )
+        continue;
+      let command: GateCommand | undefined;
+      if (check.checkId === gateEnvironmentCheckId) {
+        command = { command: "node", args: ["scripts/environment.js", "gate"] };
+      } else {
+        command = semanticGateChecks.find(
+          (candidate) => candidate.checkId === check.checkId
+        )?.command;
+        if (command === undefined) {
+          const script = releaseRequiredPackageScripts.find(
+            (candidate) => `script:${candidate}` === check.checkId
+          );
+          if (script !== undefined)
+            command = { command: "bun", args: ["run", script] };
+        }
+      }
+      if (command !== undefined)
+        reportError(
+          `${check.checkId}: rerun ${commandText(command)} from ${rootDir}. Full command transcripts: ${path.join(invocationDirectory, "checks")}/**/process.log.`
+        );
+    }
+  }
   if (activationPlan !== null) {
-    const releaseTestBatchProof =
-      activationPlan.kind !== "release"
-        ? null
-        : activationPlan.snapshot === null
-          ? "unavailable"
-          : releaseTestBatchProofReused
-            ? "reused"
-            : releaseTestBatchProofCold
-              ? "cold"
-              : "fresh";
-    const publication =
-      result.kind === "completed" && result.aggregate === "passed"
-        ? await (dependencies.publishReceipts?.(
-            activationPlan,
-            passedCheckIds(result)
-          ) ?? publishGateReceipts(activationPlan, passedCheckIds(result)))
-        : ({ published: false, reason: "check-not-passed" } as const);
+    const publicationResult = {
+      runSucceeded:
+        result.kind === "completed" && result.aggregate === "passed",
+      passedCheckIds: passedCheckIds(result)
+    };
+    const publication = await (dependencies.publishReceipts?.(
+      activationPlan,
+      publicationResult
+    ) ?? publishGateReceipts(activationPlan, publicationResult));
     try {
       const summaryPath = await writeIncrementalSummary(invocationDirectory, {
         counts: activationCounts(activationPlan),
@@ -261,19 +274,9 @@ export async function runVibeCheck(
             ? activationPlan.fallbackDetail
             : null,
         mode: activationPlan.kind,
-        publication,
-        releaseTestBatchProof
+        publication
       });
       reportInfo(`Vibe Check incremental summary: ${summaryPath}`);
-      if (releaseTestBatchProof === "reused") {
-        reportInfo(
-          "Vibe Check reused the exact release test batch proof; no batched test process ran in this invocation."
-        );
-      } else if (releaseTestBatchProof === "cold") {
-        reportInfo(
-          "Vibe Check release test batch ran cold; a matching proof was not reused."
-        );
-      }
     } catch {
       reportInfo(
         "Vibe Check incremental summary unavailable; Gate outcomes are unchanged."

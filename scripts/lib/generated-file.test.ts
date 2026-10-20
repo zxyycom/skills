@@ -237,11 +237,11 @@ test("generated declaration cleanup only removes verified stale declaration file
 
 test("source runtime synchronization detects drift read-only and preserves unowned files", async () => {
   const { syncSourceRuntimeArtifacts } = await import("./source-runtime.ts");
-  const { rootDir } = await import("./project.ts");
-  const root = await fs.mkdtemp(
-    path.join(rootDir, "skills/.source-runtime-test-")
+  const workspaceRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "source-runtime-sync-test-")
   );
-  const skillName = path.basename(root);
+  const skillName = "example";
+  const root = path.join(workspaceRoot, "skills", skillName);
   const expectedPath = path.join(
     root,
     "scripts/runtime/tools/example/src/index.ts"
@@ -263,7 +263,8 @@ test("source runtime synchronization detects drift read-only and preserves unown
       await syncSourceRuntimeArtifacts(artifacts, {
         mode: "check",
         skillName,
-        retiredPaths: []
+        retiredPaths: [],
+        workspaceRoot
       }),
       true
     );
@@ -273,7 +274,8 @@ test("source runtime synchronization detects drift read-only and preserves unown
       await syncSourceRuntimeArtifacts(artifacts, {
         mode: "write",
         skillName,
-        retiredPaths: []
+        retiredPaths: [],
+        workspaceRoot
       }),
       true
     );
@@ -290,11 +292,94 @@ test("source runtime synchronization detects drift read-only and preserves unown
       await syncSourceRuntimeArtifacts(artifacts, {
         mode: "check",
         skillName,
-        retiredPaths: []
+        retiredPaths: [],
+        workspaceRoot
       }),
       false
     );
   } finally {
-    await fs.rm(root, { recursive: true, force: true });
+    await fs.rm(workspaceRoot, { recursive: true, force: true });
+  }
+});
+
+test("source runtime generation shares invocation facts and refreshes them for later source changes", async () => {
+  const { buildSourceRuntimeArtifacts, captureSourceRuntimeFacts } =
+    await import("./source-runtime.ts");
+  const fixture = await fs.mkdtemp(
+    path.join(os.tmpdir(), "source-runtime-facts-test-")
+  );
+  const sourceDirectory = path.join(fixture, "tools/example/src");
+  const entryPath = path.join(sourceDirectory, "index.ts");
+  const sourcePath = "tools/example/src/index.ts";
+  const options = {
+    workspaceRoot: fixture,
+    skillName: "source-runtime-facts-test-alpha",
+    rebuildCommand: "bun run sync:skill-updaters",
+    nodeEngine: ">=24.18",
+    entries: [{ sourcePath, outputName: "fixture.ts", body: "" }]
+  };
+  try {
+    await fs.mkdir(sourceDirectory, { recursive: true });
+    await fs.writeFile(
+      path.join(fixture, "package.json"),
+      JSON.stringify({ packageManager: "pnpm@11.7.0", devDependencies: {} })
+    );
+    await fs.writeFile(
+      path.join(sourceDirectory, "first.ts"),
+      "export const value = 1;\n"
+    );
+    await fs.writeFile(
+      path.join(sourceDirectory, "second.ts"),
+      "export const value = 2;\n"
+    );
+    await fs.writeFile(entryPath, 'export { value } from "./first.ts";\n');
+    const firstFacts = await captureSourceRuntimeFacts(fixture);
+    assert.equal(firstFacts.workspaceRoot, fixture);
+    assert.ok(
+      [...firstFacts.references.keys()].every((file) =>
+        file.startsWith(fixture + path.sep)
+      )
+    );
+    assert.equal(Object.isFrozen(firstFacts), true);
+    assert.equal(Object.isFrozen(firstFacts.dependencies), true);
+    await assert.rejects(
+      buildSourceRuntimeArtifacts(
+        { ...options, workspaceRoot: path.join(fixture, "other") },
+        firstFacts
+      ),
+      /another workspace/u
+    );
+    const alpha = await buildSourceRuntimeArtifacts(options, firstFacts);
+    assert.ok(
+      alpha.every((artifact) => artifact.path.startsWith(fixture + path.sep))
+    );
+    const beta = await buildSourceRuntimeArtifacts(
+      { ...options, skillName: "source-runtime-facts-test-beta" },
+      firstFacts
+    );
+    const sources = (artifacts: typeof alpha) =>
+      artifacts
+        .map((artifact) => artifact.sourcePath)
+        .filter((file) => file !== undefined);
+    assert.deepEqual(sources(alpha), sources(beta));
+    assert.ok(sources(alpha).some((file) => file.endsWith("/first.ts")));
+    assert.equal(
+      sources(alpha).some((file) => file.endsWith("/second.ts")),
+      false
+    );
+
+    await fs.writeFile(entryPath, 'export { value } from "./second.ts";\n');
+    const nextFacts = await captureSourceRuntimeFacts(fixture);
+    assert.notEqual(nextFacts, firstFacts);
+    assert.notEqual(nextFacts.references, firstFacts.references);
+    const refreshed = await buildSourceRuntimeArtifacts(options, nextFacts);
+    assert.ok(sources(refreshed).some((file) => file.endsWith("/second.ts")));
+    assert.equal(
+      sources(refreshed).some((file) => file.endsWith("/first.ts")),
+      false
+    );
+    assert.deepEqual(await buildSourceRuntimeArtifacts(options), refreshed);
+  } finally {
+    await fs.rm(fixture, { recursive: true, force: true });
   }
 });

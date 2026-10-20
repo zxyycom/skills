@@ -10,4 +10,4 @@ Contract:
 - 同一候选的直接关系集合中，每个目标只能出现一次，即使关系类型不同也不能重复。
 
 Proves:
-- 同一目标同时以修订和替代关系出现时，严格检查报告 repeats relationship target。
+- 正文校验器对同一目标同时出现修订与替代返回 repeats relationship target，document=null。

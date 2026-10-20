@@ -1,7 +1,7 @@
+import { assertEvolutionRejected } from "./domain-support.ts";
 import {
   assert,
   candidateDecisionBody,
-  currentRelativePath,
   decisionFilePath,
   establishClosedSplit,
   fs,
@@ -36,102 +36,44 @@ test("evolve rejects a split extension that omits an existing successor before w
     assert.equal(await fs.readFile(established.indexPath, "utf8"), indexBefore);
   }));
 
-test("evolve rejects one selected split successor", () =>
-  withFixtureWorkspace("evolve-single-split", async (workspaceRoot) => {
-    const successorRelativePath = "use-single-split";
-    await fs.writeFile(
-      decisionFilePath(workspaceRoot, successorRelativePath),
-      candidateDecisionBody({
-        relations: [{ type: "拆分", target: currentRelativePath }]
-      }),
-      "utf8"
-    );
-    const rejected = await runSourceLifecycleCli([
-      "evolve",
-      "--successor",
-      "aligned=" + successorRelativePath,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(rejected.exitCode, 1);
-    assert.match(rejected.stderr, /requires at least two explicitly selected/);
-  }));
+test("evolve rejects one selected split successor", async () => {
+  await assertEvolutionRejected(
+    [
+      { id: "predecessor", status: "active" },
+      { id: "first", relations: [{ type: "拆分", target: "predecessor" }] }
+    ],
+    ["first"],
+    /requires at least two explicitly selected/u
+  );
+});
 
-test("evolve rejects mixed split and non-split successor relations", () =>
-  withFixtureWorkspace("evolve-mixed-split", async (workspaceRoot) => {
-    const splitRelativePath = "use-mixed-split";
-    const revisionRelativePath = "use-mixed-revision";
-    await fs.writeFile(
-      decisionFilePath(workspaceRoot, splitRelativePath),
-      candidateDecisionBody({
-        relations: [{ type: "拆分", target: currentRelativePath }]
-      }),
-      "utf8"
-    );
-    await fs.writeFile(
-      decisionFilePath(workspaceRoot, revisionRelativePath),
-      candidateDecisionBody({
-        relations: [{ type: "修订", target: currentRelativePath }]
-      }),
-      "utf8"
-    );
-    const rejected = await runSourceLifecycleCli([
-      "evolve",
-      "--successor",
-      "aligned=" + splitRelativePath,
-      "--successor",
-      "aligned=" + revisionRelativePath,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(rejected.exitCode, 1);
-    assert.match(rejected.stderr, /exactly one 拆分 relation and no other/);
-  }));
+test("evolve rejects mixed split and non-split successor relations", async () => {
+  await assertEvolutionRejected(
+    [
+      { id: "predecessor", status: "active" },
+      { id: "first", relations: [{ type: "拆分", target: "predecessor" }] },
+      { id: "second", relations: [{ type: "修订", target: "predecessor" }] }
+    ],
+    ["first", "second"],
+    /exactly one 拆分 relation and no other/u
+  );
+});
 
-test("evolve rejects unsupported multi-successor shapes without split relations", () =>
-  withFixtureWorkspace("evolve-unsupported-multiple", async (workspaceRoot) => {
-    const firstRelativePath = "use-first-multiple";
-    const secondRelativePath = "use-second-multiple";
-    await fs.writeFile(
-      decisionFilePath(workspaceRoot, firstRelativePath),
-      candidateDecisionBody(),
-      "utf8"
-    );
-    await fs.writeFile(
-      decisionFilePath(workspaceRoot, secondRelativePath),
-      candidateDecisionBody(),
-      "utf8"
-    );
-    const rejected = await runSourceLifecycleCli([
-      "evolve",
-      "--successor",
-      "aligned=" + firstRelativePath,
-      "--successor",
-      "aligned=" + secondRelativePath,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(rejected.exitCode, 1);
-    assert.match(rejected.stderr, /supported only by the closed 拆分 strategy/);
-  }));
+test("evolve rejects unsupported multi-successor shapes without split relations", async () => {
+  await assertEvolutionRejected(
+    [{ id: "first" }, { id: "second" }],
+    ["first", "second"],
+    /supported only by the closed 拆分 strategy/u
+  );
+});
 
-test("evolve rejects a pure merge with fewer than two predecessors", () =>
-  withFixtureWorkspace("evolve-undersized-merge", async (workspaceRoot) => {
-    const successorRelativePath = "use-undersized-merge";
-    await fs.writeFile(
-      decisionFilePath(workspaceRoot, successorRelativePath),
-      candidateDecisionBody(),
-      "utf8"
-    );
-    const rejected = await runSourceLifecycleCli([
-      "evolve",
-      "--successor",
-      "aligned=" + successorRelativePath,
-      "--relation",
-      "归并=" + currentRelativePath,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(rejected.exitCode, 1);
-    assert.match(rejected.stderr, /requires at least two predecessors/);
-  }));
+test("evolve rejects a pure merge with fewer than two predecessors", async () => {
+  await assertEvolutionRejected(
+    [
+      { id: "predecessor", status: "active" },
+      { id: "first", relations: [{ type: "归并", target: "predecessor" }] }
+    ],
+    ["first"],
+    /requires at least two predecessors/u
+  );
+});

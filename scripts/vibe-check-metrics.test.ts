@@ -32,9 +32,7 @@ test("metric findings use blocking policy and measurement failures fail closed",
       "utf8"
     );
     const selection = {
-      exclude: [],
-      include: ["**/*.ts"],
-      source: "filesystem"
+      patterns: ["**/*.ts"]
     } as const;
     const fileCheck = fileMetrics({
       codeAreas: {
@@ -180,9 +178,7 @@ test("function metrics uses the bundled analyzer without an external scanner", a
                 codeAreas: {
                   fixture: {
                     files: {
-                      exclude: [],
-                      include: ["**/*.ts"],
-                      source: "filesystem"
+                      patterns: ["**/*.ts"]
                     }
                   }
                 }

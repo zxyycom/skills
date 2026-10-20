@@ -12,7 +12,6 @@ import {
   releaseGateResourceCapacities,
   type GateTagSet
 } from "./contracts.ts";
-import { runGateCommand, type GateCommandRunner } from "./command-runner.ts";
 import {
   createGateEnvironmentCheck,
   gateEnvironmentCheckId
@@ -35,76 +34,18 @@ import {
   releaseSnapshotCheckId,
   releaseVersionCheckId,
   type ReleasePacker,
-  type ReleasePreparer,
-  type ReleaseState
+  type ReleasePreparer
 } from "./checks/release.ts";
-import {
-  createReleaseTestBatchSession,
-  releaseTestBatchGroups,
-  releaseTestBatchLeaderCheckId,
-  releaseTestBatchResourceClaim,
-  type ReleaseTestBatchProofOptions,
-  type ReleaseTestBatchSession
-} from "./release-test-batch.ts";
-import {
-  activationFlagForCheck,
-  baseGateCheckIds,
-  validateBaseGateImpactContracts
-} from "./impact.ts";
-
-const learnedSchedulingVersion = "gate-scheduler-v3";
-const releaseExclusiveCpuCheckId = packageScriptCheckId("test:version-control");
+import { baseGateCheckIds, validateBaseGateImpactContracts } from "./impact.ts";
 
 export type GateDefinitionDependencies = Readonly<{
   activeCheckIds?: readonly string[];
   baselineRef?: string;
-  batchReleaseTests?: boolean;
   nativeChecks?: readonly Check[];
   packRelease?: ReleasePacker;
   prepareRelease?: ReleasePreparer;
-  runCommand?: GateCommandRunner;
-  releaseTestBatchProof?: ReleaseTestBatchProofOptions;
   schedulingStateDirectory?: string;
 }>;
-
-type GateCheckBuildContext = Readonly<{
-  incremental: boolean;
-  runner: GateCommandRunner;
-  testBatch: ReleaseTestBatchSession | null;
-}>;
-
-function batchedCheck(
-  check: Check,
-  checkId: string,
-  batch: ReleaseTestBatchSession | null
-): Check {
-  if (batch === null || !batch.has(checkId)) return check;
-  const { resourceClaims: _resourceClaims, ...projection } = check;
-  return checkId === releaseTestBatchLeaderCheckId
-    ? {
-        ...projection,
-        resourceClaims: releaseTestBatchResourceClaim
-      }
-    : {
-        ...projection,
-        observes: [releaseTestBatchLeaderCheckId]
-      };
-}
-
-function withReleaseCpuClaim(
-  check: Check,
-  batch: ReleaseTestBatchSession | null
-): Check {
-  if (batch?.has(check.checkId) === true) return check;
-  const cpuWork =
-    check.checkId === releaseExclusiveCpuCheckId
-      ? releaseGateResourceCapacities["cpu-work"]
-      : 1;
-  return {
-    ...check,
-    resourceClaims: { ...check.resourceClaims, "cpu-work": cpuWork }
-  };
-}
 
 export const releaseRequiredCheckIds = [
   gateEnvironmentCheckId,
@@ -125,186 +66,59 @@ export function gateCheckIds(): readonly string[] {
   ];
 }
 
-function withGateEnvironmentPrerequisite(check: Check): Check {
-  if (check.checkId === gateEnvironmentCheckId) return check;
-  if (check.dependsOn !== undefined && !Array.isArray(check.dependsOn)) {
-    throw new Error(
-      `Gate Check ${check.checkId} must declare concrete dependencies before the environment prerequisite is added`
-    );
-  }
-  const dependencies = (check.dependsOn ?? []) as readonly string[];
-  return {
-    ...check,
-    dependsOn: dependencies.includes(gateEnvironmentCheckId)
-      ? dependencies
-      : [gateEnvironmentCheckId, ...dependencies]
-  };
-}
-
-function enableGateCheckByFlag<
-  AuthoredOptions extends object,
-  PreparedOptions extends object
->(
-  check: Check<AuthoredOptions, PreparedOptions>,
-  flag: string | undefined
-): Check<AuthoredOptions, PreparedOptions> {
-  if (flag === undefined) return check;
-  return {
-    ...check,
-    enabledByFlags: {
-      flags: [flag],
-      mode: "all",
-      ...(check.dependsOn === undefined ? {} : { propagateDependsOn: true })
-    }
-  };
-}
-
 function validateIncrementalSelection(
   activeCheckIds: readonly string[] | undefined
 ): boolean {
   if (activeCheckIds === undefined) return false;
-  const contractErrors = validateBaseGateImpactContracts();
-  const baseCheckIdSet = new Set(baseGateCheckIds);
-  const invalidSelection = activeCheckIds.some(
-    (checkId) => !baseCheckIdSet.has(checkId)
-  );
-  if (contractErrors.length > 0 || invalidSelection) {
+  const errors = validateBaseGateImpactContracts();
+  const allowed = new Set(baseGateCheckIds);
+  if (errors.length > 0 || activeCheckIds.some((id) => !allowed.has(id))) {
     throw new Error(
-      contractErrors[0] ??
-        "incremental Gate activation selected a non-base Check"
+      errors[0] ?? "incremental Gate activation selected a non-base Check"
     );
   }
   return true;
-}
-
-function releaseTestBatch(
-  release: boolean,
-  dependencies: GateDefinitionDependencies,
-  runner: GateCommandRunner
-): ReleaseTestBatchSession | null {
-  if (!release || dependencies.batchReleaseTests === false) return null;
-  return createReleaseTestBatchSession(
-    runner,
-    releaseTestBatchGroups,
-    dependencies.releaseTestBatchProof
-  );
-}
-
-function runnerForCheck(
-  checkId: string,
-  context: GateCheckBuildContext
-): GateCommandRunner {
-  return context.testBatch?.has(checkId) === true
-    ? context.testBatch.runnerFor(checkId)
-    : context.runner;
-}
-
-function activationFlag(
-  checkId: string,
-  incremental: boolean
-): string | undefined {
-  return incremental ? activationFlagForCheck(checkId) : undefined;
-}
-
-function createSemanticChecks(
-  context: GateCheckBuildContext
-): readonly Check[] {
-  return semanticGateChecks.map((check) => {
-    const semantic = createSemanticGateCheck(
-      check,
-      runnerForCheck(check.checkId, context)
-    );
-    return enableGateCheckByFlag(
-      batchedCheck(semantic, check.checkId, context.testBatch),
-      check.requiredTag ?? activationFlag(check.checkId, context.incremental)
-    );
-  });
-}
-
-function createPackageChecks(context: GateCheckBuildContext): readonly Check[] {
-  return releaseRequiredPackageScripts.map((script) => {
-    const checkId = packageScriptCheckId(script);
-    const packageCheck = createPackageScriptCheck(
-      script,
-      runnerForCheck(checkId, context)
-    );
-    return enableGateCheckByFlag(
-      batchedCheck(packageCheck, checkId, context.testBatch),
-      activationFlag(checkId, context.incremental)
-    );
-  });
-}
-
-function createAuthoredChecks(
-  dependencies: GateDefinitionDependencies,
-  context: GateCheckBuildContext
-): readonly Check[] {
-  const releaseState: ReleaseState = { prepared: undefined };
-  const releasePrepareCheck = enableGateCheckByFlag(
-    createReleasePrepareCheck(
-      dependencies.baselineRef ?? "HEAD",
-      dependencies.prepareRelease,
-      releaseState
-    ),
-    "release"
-  );
-  return [
-    createGateEnvironmentCheck(context.runner),
-    releasePrepareCheck,
-    ...(dependencies.nativeChecks ?? createVibeNativeChecks()).map((check) =>
-      enableGateCheckByFlag(
-        check,
-        activationFlag(check.checkId, context.incremental)
-      )
-    ),
-    ...createPackageChecks(context),
-    ...createSemanticChecks(context),
-    enableGateCheckByFlag(
-      createReleaseVersionCheck(releaseState, releaseRequiredCheckIds),
-      "release"
-    ),
-    enableGateCheckByFlag(
-      createPackSkillsCheck(dependencies.packRelease, releaseState),
-      "release"
-    )
-  ].map(withGateEnvironmentPrerequisite);
-}
-
-function createSchedulerStrategy(
-  release: boolean,
-  dependencies: GateDefinitionDependencies
-) {
-  return createLearnedCriticalPathStrategy({
-    stateDirectory:
-      dependencies.schedulingStateDirectory ??
-      path.join(rootDir, ".log/vibe-check/cache/scheduler-history"),
-    identityForTask: (task) => ({
-      gateProfile: release ? "release" : "base",
-      implementationVersion: learnedSchedulingVersion,
-      taskId: task.taskId
-    })
-  });
 }
 
 export function createGateDefinition(
   activeTags: GateTagSet = [],
   dependencies: GateDefinitionDependencies = {}
 ): ProjectDefinition {
-  const tags = normalizeGateTags(activeTags);
-  const release = hasGateTag(tags, "release");
-  const incremental = validateIncrementalSelection(dependencies.activeCheckIds);
-  const runner = dependencies.runCommand ?? runGateCommand;
-  const testBatch = releaseTestBatch(release, dependencies, runner);
-  const authoredChecks = createAuthoredChecks(dependencies, {
-    incremental,
-    runner,
-    testBatch
-  });
-  const checks = release
-    ? authoredChecks.map((check) => withReleaseCpuClaim(check, testBatch))
-    : authoredChecks;
+  const release = hasGateTag(normalizeGateTags(activeTags), "release");
+  const configuration = {
+    environmentPrerequisite: true,
+    incremental: validateIncrementalSelection(dependencies.activeCheckIds),
+    release
+  };
+  const prepare = createReleasePrepareCheck(
+    dependencies.baselineRef ?? "HEAD",
+    dependencies.prepareRelease,
+    configuration
+  );
+  const authorization = createReleaseVersionCheck(
+    prepare,
+    releaseRequiredCheckIds,
+    configuration
+  );
   return defineConfig({
-    checks,
+    checks: [
+      createGateEnvironmentCheck(configuration),
+      prepare,
+      ...(dependencies.nativeChecks ??
+        createVibeNativeChecks(rootDir, configuration)),
+      ...releaseRequiredPackageScripts.map((script) =>
+        createPackageScriptCheck(script, configuration)
+      ),
+      ...semanticGateChecks.map((check) =>
+        createSemanticGateCheck(check, configuration)
+      ),
+      authorization,
+      createPackSkillsCheck(
+        dependencies.packRelease,
+        authorization,
+        configuration
+      )
+    ],
     outputs: {
       diagnosticLogging: { directory: ".log/vibe-check", enabled: false },
       machinePublication: {
@@ -316,7 +130,24 @@ export function createGateDefinition(
     scheduler: {
       admissionPolicy: {
         kind: "custom",
-        strategy: createSchedulerStrategy(release, dependencies)
+        strategy: createLearnedCriticalPathStrategy({
+          stateDirectory:
+            dependencies.schedulingStateDirectory ??
+            path.join(rootDir, ".log/vibe-check/cache/scheduler-history"),
+          identityForTask: (task) => ({
+            gateProfile: release ? "release" : "base",
+            implementationVersion: "gate-native-command-v4",
+            taskId: task.taskId,
+            runtime: {
+              node: process.version,
+              platform: process.platform,
+              arch: process.arch
+            },
+            capacity: release
+              ? releaseGateResourceCapacities
+              : gateResourceCapacities
+          })
+        })
       },
       maxParallel: 4,
       resourceCapacities: release

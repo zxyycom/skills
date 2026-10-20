@@ -10,4 +10,4 @@ Contract:
 - 重复 `--tag` 选择器必须取交集，而不是并集。
 
 Proves:
-- A、A+B、B 三条记录中，双 tag 仅返回 A+B。
+- 真实 list 准备、内存快照投影及 renderer 对双 tag 仅输出同时持有两者的记录，不返回只持有其中一个 tag 的记录。

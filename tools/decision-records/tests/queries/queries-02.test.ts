@@ -1,3 +1,4 @@
+import { listSnapshotEntries, renderedList } from "./domain-support.ts";
 import {
   archivedDecisionId,
   assert,
@@ -11,35 +12,24 @@ import {
   runSourceCli,
   runSuccessfulSourceCli,
   test,
-  withFixtureWorkspace,
-  writeDecision
+  withFixtureWorkspace
 } from "./support.ts";
 
-test("decision list filters lifecycle and tag selectors", () =>
-  withFixtureWorkspace("query-list", async (workspaceRoot) => {
-    const active = await runSuccessfulSourceCli([
-      "list",
-      "--status",
-      "active",
-      "--tag",
-      "project-tooling",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.match(active, new RegExp(currentDecisionId));
-    assert.doesNotMatch(active, new RegExp(archivedDecisionId));
-    const archived = await runSuccessfulSourceCli([
-      "list",
-      "--status",
-      "archived",
-      "--tag",
-      "decision-records",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.match(archived, new RegExp(archivedDecisionId));
-    assert.doesNotMatch(archived, new RegExp(currentDecisionId));
-  }));
+test("decision list filters lifecycle and tag selectors", async () => {
+  const entries = await listSnapshotEntries();
+  const active = renderedList(entries, {
+    status: "active",
+    tags: ["project-tooling"]
+  });
+  assert.match(active, new RegExp(currentDecisionId));
+  assert.doesNotMatch(active, new RegExp(archivedDecisionId));
+  const archived = renderedList(entries, {
+    status: "archived",
+    tags: ["decision-records"]
+  });
+  assert.match(archived, new RegExp(archivedDecisionId));
+  assert.doesNotMatch(archived, new RegExp(currentDecisionId));
+});
 
 test("decision show returns metadata and reports body read failures", () =>
   withFixtureWorkspace("query-show-read", async (workspaceRoot) => {
@@ -153,69 +143,43 @@ test("decision queries identify published snapshots without source warnings whil
     assert.notEqual(checked.exitCode, 0);
   }));
 
-test("decision list combines repeated tag selectors with AND semantics", () =>
-  withFixtureWorkspace("query-tags-and", async (workspaceRoot) => {
-    const bothId = "use-both-tags.md";
-    await writeDecision(
-      workspaceRoot,
-      bothId,
-      candidateDecisionBody({
+test("decision list combines repeated tag selectors with AND semantics", async () => {
+  const bothId = "use-both-tags";
+  const entries = await listSnapshotEntries([
+    {
+      id: bothId,
+      text: candidateDecisionBody({
+        id: bothId,
         tags: ["decision-records", "project-tooling"],
         title: "同时属于两个标签"
       })
         .replace("status: candidate", "status: active")
         .replace("alignment: null", "alignment: aligned")
         .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
-    );
-    assert.equal(
-      (await runSourceCli(["sync-index", "--root", workspaceRoot])).exitCode,
-      0
-    );
-    const listed = await runSuccessfulSourceCli([
-      "list",
-      "--status",
-      "all",
-      "--tag",
-      "decision-records",
-      "--tag",
-      "project-tooling",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.match(
-      decisionMatchLines(listed),
-      new RegExp(bothId.replace(/\.md$/u, ""))
-    );
-    assert.doesNotMatch(listed, new RegExp(currentDecisionId));
-    assert.doesNotMatch(listed, new RegExp(archivedDecisionId));
-  }));
+    }
+  ]);
+  const listed = renderedList(entries, {
+    status: "all",
+    tags: ["decision-records", "project-tooling"]
+  });
+  assert.match(decisionMatchLines(listed), new RegExp(bothId));
+  assert.doesNotMatch(listed, new RegExp(currentDecisionId));
+  assert.doesNotMatch(listed, new RegExp(archivedDecisionId));
+});
 
-test("decision list filters records by alignment selector", () =>
-  withFixtureWorkspace("query-alignment", async (workspaceRoot) => {
-    const unalignedId = "use-unaligned.md";
-    await writeDecision(
-      workspaceRoot,
-      unalignedId,
-      candidateDecisionBody({ title: "未对齐索引记录" })
+test("decision list filters records by alignment selector", async () => {
+  const unalignedId = "use-unaligned";
+  const entries = await listSnapshotEntries([
+    {
+      id: unalignedId,
+      text: candidateDecisionBody({ id: unalignedId, title: "未对齐索引记录" })
         .replace("status: candidate", "status: active")
         .replace("alignment: null", "alignment: unaligned")
         .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
-    );
-    assert.equal(
-      (await runSourceCli(["sync-index", "--root", workspaceRoot])).exitCode,
-      0
-    );
-    const listed = await runSuccessfulSourceCli([
-      "list",
-      "--alignment",
-      "unaligned",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.match(
-      decisionMatchLines(listed),
-      new RegExp(unalignedId.replace(/\.md$/u, ""))
-    );
-    assert.doesNotMatch(listed, new RegExp(currentDecisionId));
-    assert.doesNotMatch(listed, new RegExp(archivedDecisionId));
-  }));
+    }
+  ]);
+  const listed = renderedList(entries, { alignment: "unaligned" });
+  assert.match(decisionMatchLines(listed), new RegExp(unalignedId));
+  assert.doesNotMatch(listed, new RegExp(currentDecisionId));
+  assert.doesNotMatch(listed, new RegExp(archivedDecisionId));
+});

@@ -17,14 +17,8 @@ export {
   createGateEnvironmentCheck,
   gateEnvironmentCheckId
 } from "./vibe-gate/checks/environment.ts";
-export { runGateCommand } from "./vibe-gate/command-runner.ts";
-export type {
-  GateCommand,
-  GateCommandInvocation,
-  GateCommandRunner,
-  GateCommandRunResult,
-  GateCommandUnavailableReason
-} from "./vibe-gate/command-runner.ts";
+export { commandText } from "./vibe-gate/command-runner.ts";
+export type { GateCommand } from "./vibe-gate/command-runner.ts";
 export {
   automationCodeFiles,
   createVibeNativeChecks,
@@ -32,6 +26,7 @@ export {
   investigationAuthoringDocumentExclusions,
   maintainedCodeFiles,
   maintainedDocumentFiles,
+  maintainedMarkdownFiles,
   maintainedSecretFiles,
   productCodeFiles,
   testCodeFiles,
@@ -40,7 +35,6 @@ export {
 export {
   compatibilityTestPackageScripts,
   packageScriptCheckId,
-  releaseBunTestPackageFiles,
   releaseRequiredPackageScripts
 } from "./vibe-gate/checks/package-script.ts";
 export type {
@@ -49,18 +43,6 @@ export type {
 } from "./vibe-gate/checks/package-script.ts";
 export { semanticGateChecks } from "./vibe-gate/checks/semantic.ts";
 export type { SemanticGateCheck } from "./vibe-gate/checks/semantic.ts";
-export {
-  createReleaseTestBatchSession,
-  parseReleaseTestBatchReport,
-  releaseTestBatchGroups,
-  releaseTestBatchLeaderCheckId,
-  releaseTestBatchResourceClaim
-} from "./vibe-gate/release-test-batch.ts";
-export type {
-  ReleaseTestBatchGroup,
-  ReleaseTestBatchProofOptions,
-  ReleaseTestBatchSession
-} from "./vibe-gate/release-test-batch.ts";
 export {
   isReleaseBaselineRef,
   releaseSnapshotCheckId,
@@ -74,7 +56,6 @@ export {
   gateActivationFlags,
   gateCheckInputFingerprint,
   gateImpactContractVersion,
-  impactTagsForPath,
   prepareGateActivation,
   publishGateReceipts,
   validateBaseGateImpactContracts
@@ -84,7 +65,6 @@ export type {
   GateActivationPlan,
   GateActivationReason,
   GateCheckImpactContract,
-  GateImpactTag,
   GateReceiptPublication,
   GateWorkspaceFile,
   GateWorkspaceSnapshot

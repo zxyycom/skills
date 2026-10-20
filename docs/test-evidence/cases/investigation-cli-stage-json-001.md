@@ -10,4 +10,4 @@ Contract:
 - 直接调用的源码 CLI 入口不为 `stage` 提供 JSON 输出协议。
 
 Proves:
-- 传入 `--json` 返回退出码 2、stdout 为空、stderr 给出未知选项诊断，且派生 index 字节不变。
+- 同进程源码 CLI 在空根接收 `--json` 时返回退出码 2、stdout 为空、stderr 给出未知选项诊断，根目录仍为空。

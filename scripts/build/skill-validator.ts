@@ -1,3 +1,4 @@
+import type { SourceRuntimeFacts } from "../lib/source-runtime.ts";
 import path from "node:path";
 import {
   buildGeneratedDeclaration,
@@ -16,7 +17,10 @@ const declarationSourceRelativePath =
   "tools/skill-validator/api/validate-skill.d.mts";
 const declarationOutputRelativePath =
   "skills/skill-maintainer/scripts/validate-skill.d.mts";
-export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
+export async function syncRuntime(
+  mode: GeneratedFileMode,
+  facts?: SourceRuntimeFacts
+): Promise<boolean> {
   const expectedDeclaration = await buildGeneratedDeclaration({
     banner: buildGeneratedFileHeader({
       artifactName: "skill structure validator TypeScript declarations",
@@ -27,20 +31,23 @@ export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
     }),
     sourcePath: path.join(rootDir, declarationSourceRelativePath)
   });
-  const artifacts = await buildSkillRuntimeArtifacts({
-    skillName: "skill-maintainer",
-    rebuildCommand: "bun run sync:skill-validator",
-    nodeEngine: ">=24.18",
-    entries: [
-      await nativeCliEntry({
-        sourcePath: sourceRelativePath,
-        outputName: "validate-skill.ts",
-        runner: "runSkillValidatorCli",
-        declarationName: "validate-skill.d.mts",
-        typedExports: ["runSkillValidatorCli", "validateSkillDirectory"]
-      })
-    ]
-  });
+  const artifacts = await buildSkillRuntimeArtifacts(
+    {
+      skillName: "skill-maintainer",
+      rebuildCommand: "bun run sync:skill-validator",
+      nodeEngine: ">=24.18",
+      entries: [
+        await nativeCliEntry({
+          sourcePath: sourceRelativePath,
+          outputName: "validate-skill.ts",
+          runner: "runSkillValidatorCli",
+          declarationName: "validate-skill.d.mts",
+          typedExports: ["runSkillValidatorCli", "validateSkillDirectory"]
+        })
+      ]
+    },
+    facts
+  );
   artifacts.push({
     content: expectedDeclaration,
     path: path.join(rootDir, declarationOutputRelativePath),

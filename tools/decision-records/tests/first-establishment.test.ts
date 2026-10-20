@@ -1,3 +1,8 @@
+import { decisionScanFromSources } from "./domain-fixture.ts";
+import { candidateRecords } from "../src/decision-query-records.ts";
+import { prepareDecisionLifecycle } from "../src/decision-lifecycle-service.ts";
+import { buildDecisionStateSnapshotFromSources } from "../src/decision-state-index.ts";
+import { decisionIdForTest } from "./support.ts";
 import assert from "node:assert/strict";
 import path from "node:path";
 import test from "node:test";
@@ -35,32 +40,41 @@ test("first establishment creates a root Decision ID and definition-eleven index
     );
   }));
 
-test("date-shaped IDs and titles remain valid candidates and can be activated", () =>
-  withTemporaryWorkspace("date-shaped-candidate", async (workspaceRoot) => {
-    const decisionId = "2026-choice.md";
-    await writeDecision(
-      workspaceRoot,
+test("date-shaped IDs and titles remain valid candidates and can be activated", async () => {
+  const decisionId = "2026-choice";
+  const scan = await decisionScanFromSources([
+    {
+      id: decisionId,
+      text: candidateDecisionBody({
+        id: decisionId,
+        title: "2026-08-15 日期样式标题"
+      })
+    }
+  ]);
+  assert.deepEqual(scan.sourceErrors, []);
+  assert.deepEqual(
+    candidateRecords(scan).map((record) => record.decisionId),
+    [decisionId]
+  );
+  const result = prepareDecisionLifecycle(
+    scan,
+    {
+      action: "publish",
+      decisionId: decisionIdForTest(decisionId),
+      alignment: "aligned",
+      keepUnrecordedHistory: true
+    },
+    { historyBaseline: null, currentTimestamp: () => "2026-10-20T00:00:00Z" }
+  );
+  assert.equal(result.status, "ok");
+  if (result.status !== "ok") throw new Error("Expected publication plan");
+  assert.equal(result.changes.length, 1);
+  const snapshot = await buildDecisionStateSnapshotFromSources([
+    {
       decisionId,
-      candidateDecisionBody({ title: "2026-08-15 日期样式标题" })
-    );
-    const candidates = await runSourceCli([
-      "candidates",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(candidates.exitCode, 0, candidates.stderr);
-    assert.match(candidates.stdout, new RegExp(decisionId));
-    const activated = await runSourceCli([
-      "publish",
-      decisionId,
-      "--alignment",
-      "aligned",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(activated.exitCode, 0, activated.stderr);
-    assert.equal(
-      findIndexEntry(await readIndex(workspaceRoot), decisionId).title,
-      "2026-08-15 日期样式标题"
-    );
-  }));
+      sourcePath: `${decisionId}.md`,
+      text: result.changes[0]!.nextText!
+    }
+  ]);
+  assert.equal(snapshot.states[decisionId]?.title, "2026-08-15 日期样式标题");
+});

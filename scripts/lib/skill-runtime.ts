@@ -6,7 +6,9 @@ import {
 import { discoverSkillPackages } from "./project.ts";
 import {
   buildSourceRuntimeArtifacts,
+  captureSourceRuntimeFacts,
   syncSourceRuntimeArtifacts,
+  type SourceRuntimeFacts,
   type SourceRuntimeOptions
 } from "./source-runtime.ts";
 import {
@@ -16,12 +18,16 @@ import {
 } from "./generated-file.ts";
 
 export async function buildSkillRuntimeArtifacts(
-  options: SourceRuntimeOptions
+  options: SourceRuntimeOptions,
+  facts?: SourceRuntimeFacts
 ): Promise<GeneratedArtifact[]> {
-  return await buildSourceRuntimeArtifacts({
-    ...options,
-    entries: [...options.entries, buildSkillUpdaterEntry(options.skillName)]
-  });
+  return await buildSourceRuntimeArtifacts(
+    {
+      ...options,
+      entries: [...options.entries, buildSkillUpdaterEntry(options.skillName)]
+    },
+    facts
+  );
 }
 
 export async function syncSkillRuntimeArtifacts(
@@ -51,7 +57,10 @@ const domainAdapters: Readonly<Record<string, string>> = {
 };
 
 type DomainAdapter = Readonly<{
-  syncRuntime(mode: GeneratedFileMode): Promise<boolean>;
+  syncRuntime(
+    mode: GeneratedFileMode,
+    facts: SourceRuntimeFacts
+  ): Promise<boolean>;
 }>;
 function isDomainAdapter(value: unknown): value is DomainAdapter {
   return (
@@ -68,6 +77,7 @@ export async function syncAllSkillRuntimes(
 ): Promise<boolean> {
   const discovery = await discoverSkillPackages();
   if (discovery.errors.length > 0) throw new Error(discovery.errors.join("\n"));
+  const facts = await captureSourceRuntimeFacts();
   let changed = false;
   for (const skill of discovery.skills) {
     const adapterName = domainAdapters[skill.name];
@@ -75,7 +85,7 @@ export async function syncAllSkillRuntimes(
       const adapter: unknown = await import(`../build/${adapterName}.ts`);
       if (!isDomainAdapter(adapter))
         throw new Error(`Invalid domain runtime adapter: ${adapterName}`);
-      changed = (await adapter.syncRuntime(mode)) || changed;
+      changed = (await adapter.syncRuntime(mode, facts)) || changed;
       continue;
     }
     const options = {
@@ -84,7 +94,7 @@ export async function syncAllSkillRuntimes(
       nodeEngine: ">=24.18",
       rebuildCommand: "bun run sync:skill-updaters"
     };
-    const artifacts = await buildSkillRuntimeArtifacts(options);
+    const artifacts = await buildSkillRuntimeArtifacts(options, facts);
     changed =
       (await syncSkillRuntimeArtifacts(artifacts, {
         mode,

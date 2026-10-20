@@ -147,24 +147,40 @@ export const expectedSemanticChecks: readonly (readonly [
     "test:test-evidence:migration",
     "bun",
     "./scripts/test-evidence/migrate.test.ts"
+  ],
+  [
+    "test:mcpshell:initializer",
+    "bun",
+    "./tools/mcpshell-workspace-bridge/tests/initializer.test.ts"
+  ],
+  [
+    "test:mcpshell:runtime",
+    "bun",
+    "./tools/mcpshell-workspace-bridge/tests/runtime.test.ts"
+  ],
+  [
+    "test:mcpshell:public-distribution",
+    "bun",
+    "./tools/mcpshell-workspace-bridge/tests/generated.test.ts"
   ]
 ] as const;
 
 export const expectedSemanticPrerequisites = new Map<string, readonly string[]>(
   [
+    ["test:mcpshell:public-distribution", ["script:check:skill-updaters"]],
     [
       "test:novel-cards:card-and-query-contract",
-      ["script:check:novel-cards-cli"]
+      ["script:check:skill-updaters"]
     ],
     [
       "test:lightweight-judgment:public-distribution",
-      ["script:check:lightweight-judgment-cli"]
+      ["script:check:skill-updaters"]
     ],
-    ["test:change-plan:public-distribution", ["script:check:change-plan-cli"]],
+    ["test:change-plan:public-distribution", ["script:check:skill-updaters"]],
     [
       "test:decision-records:public-distribution",
-      ["script:check:decision-records-cli"]
+      ["script:check:skill-updaters"]
     ],
-    ["test:task-graph:public-distribution", ["script:check:task-graph-cli"]]
+    ["test:task-graph:public-distribution", ["script:check:skill-updaters"]]
   ]
 );

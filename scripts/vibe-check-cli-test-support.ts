@@ -18,7 +18,7 @@ export function passedDefinition(): ProjectDefinition {
       defineCheck({
         checkId: "passed",
         displayName: "passed",
-        execution: () => ({ status: "passed" as const, data: { value: true } })
+        execute: () => ({ status: "passed" as const, data: { value: true } })
       })
     ],
     outputs: noOutput
@@ -31,7 +31,7 @@ export function failedDefinition(): ProjectDefinition {
       defineCheck({
         checkId: "failed",
         displayName: "failed",
-        execution: () => ({ status: "failed" as const, data: { value: false } })
+        execute: () => ({ status: "failed" as const, data: { value: false } })
       })
     ],
     outputs: noOutput
@@ -44,12 +44,12 @@ export function invalidDefinition(): ProjectDefinition {
       defineCheck({
         checkId: "duplicate",
         displayName: "first duplicate",
-        execution: () => ({ status: "passed" as const, data: {} })
+        execute: () => ({ status: "passed" as const, data: {} })
       }),
       defineCheck({
         checkId: "duplicate",
         displayName: "second duplicate",
-        execution: () => ({ status: "passed" as const, data: {} })
+        execute: () => ({ status: "passed" as const, data: {} })
       })
     ],
     outputs: noOutput
@@ -63,7 +63,7 @@ export function unknownDependencyDefinition(): ProjectDefinition {
         checkId: "consumer",
         dependsOn: ["missing-prerequisite"],
         displayName: "consumer with an unknown prerequisite",
-        execution: () => ({ status: "passed" as const, data: {} })
+        execute: () => ({ status: "passed" as const, data: {} })
       })
     ],
     outputs: noOutput

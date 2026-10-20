@@ -19,6 +19,7 @@ import {
   selector
 } from "./snapshot-commands.ts";
 import { snapshotFailure } from "./snapshot-files.ts";
+import { SnapshotModuleScan } from "./snapshot-ast-scan.ts";
 import { collectRegistration } from "./snapshot-junit.ts";
 import {
   assertSupportedRegistrationShape,
@@ -134,9 +135,18 @@ export async function createRepositoryTestEvidenceSnapshot(
     options.outputPath
   );
   const commands = await parseRepositoryTestCommands(workspaceRoot);
-  await assertSupportedRegistrationShape(workspaceRoot, commands);
-  const closures = await registrationClosures(workspaceRoot, commands);
-  const definitions = await registrationDefinitions(workspaceRoot, closures);
+  const modules = new SnapshotModuleScan(workspaceRoot);
+  const matches = await assertSupportedRegistrationShape(
+    workspaceRoot,
+    commands,
+    modules
+  );
+  const closures = await registrationClosures(workspaceRoot, commands, modules);
+  const definitions = await registrationDefinitions(
+    workspaceRoot,
+    closures,
+    matches
+  );
   const before =
     options.expectedSource ??
     (await sourceFingerprint(workspaceRoot, excludedSourcePaths));

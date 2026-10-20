@@ -10,4 +10,4 @@ Contract:
 - 未选报告的资源变化不自动进入已选报告 index entry。
 
 Proves:
-- 真实 Git fixture 只选择 first report 时，second 的资源改动不进入 pending index，也不扩大 selected IDs。
+- 真实 Git fixture 只选择 first report 时，pending 的 first entry 等于工作区版本，second entry 等于 HEAD 基线；暂存路径只有 index，second 资源改动仍留在未暂存差异中。

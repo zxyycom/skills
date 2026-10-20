@@ -1,20 +1,20 @@
-### Case GATE-DEFINITION-CATALOG-001: Gate 完整 Definition 声明原生选择与资源调度
+### Case GATE-DEFINITION-CATALOG-001: Gate 完整 Definition 声明项目选择、前置和资源配置
 
 Tests:
-- `test:3a02dd3344b6548493b95e9cd08ddf801d580d86b7c64ab0dd8cd5fa82d38a60`
+- `test:8e920fe8f88eb19722fc115d8a63991e4ec60085181bc6e2ddefe6f91c953385`
 - `test:ac78e6545b501f8c286147702d2a23ffe0c03ca1015e15f3e0db2d36bece3526`
+- `test:b1ce2eeed949bfa203c61ded0ed50b96792ed7e1b95766e003841a1d4d62b93f`
 - `test:c5a44c669639a6f2b7c665b191f1559d2bad8b529dbc3906c607183ed70c4eb8`
 - `test:c8ae74a0d55cbd30418647a7e3f56bb6bd8b3094665ab73c0e833d3f812f837e`
-- `test:d3f9bdf3206b1880bbfb797a872f61f42df54089daa55d13b32a2d538170bc1e`
 
 Tags:
 - `repository-tooling`
 
 Contract:
-- 每次 Gate Definition 都必须包含同一完整稳定 Check ID 集合；一个每次执行的基础环境 Check、64 个 base impact Check 与三个 release 交付 Check 共同构成 68 项 catalog，其他所有 Check 显式依赖基础环境 Check，impact/release 项再以 `enabledByFlags` 声明选择和依赖传播；scheduler 使用原生 learned strategy 和四槽上限，base 使用三个外部进程容量，release 另以四个 `cpu-work` unit 隔离四路测试批次、版本管理测试与其他 CPU 工作。
+- base、release 与增量 Gate 使用同一完整 64 项 Definition；环境与八项原生材料 Check 不由项目 receipt 省略，项目 Check 声明 activation flag 与原生 dependsOn，三个交付 Check 仅在 release 激活。各命令独立执行，不以测试批次重分配结果。
 
 Proves:
-- 语义 catalog 的 Check ID、runner 与命令路径逐项匹配独立手写期望，且全部语义 Check 保持无 tag 的 base 归属；每个多文件 Check 的 wrapper 从磁盘实际导入且只导入自身 `tests/` 内的叶子测试文件，叶子文件在全部语义 Check 间不重复且真实存在；各工具 `tests/run.ts` 聚合入口恰好导入该工具全部 Bun 语义 Check 的叶子文件，唯一 Node runner Check（native-store）保持聚合之外独立执行。
-- base/release/增量 Definition Check ID 完全相同，`gate-environment` 始终有效，七项 Vibe 原生 Check、全部语义 Check 与普通 package Check 的内部 activation 条件和固定命令精确匹配独立期望；release prepare、version 和 pack 保持原 DAG 并共同依赖环境前置，带依赖的 Check 传播传递前置，非 base impact ID 不能进入日常 activation。
-- Definition 使用 learned custom admission 与 `maxParallel: 4`；base 声明三个外部进程和两个仓库扫描容量，release 保持这两个容量并增加四个 `cpu-work` unit。测试批次 leader 与 `script:test:version-control` 各声明 `cpu-work: 4` 和 `external-process: 1`，批次投影 Check 不声明资源，其他实际 Release Check 声明 `cpu-work: 1` 并保留原 resource claim。
-- `releaseBunTestPackageFiles` 声明可批处理的 Bun package test 并与 `package.json` 的显式文件参数一致；`test:version-control` 仍是 release-required package script，但不在批次 catalog 中。只有没有生成前置的 Bun package/semantic Check 才入批，updater package consumer 保持独立执行；版本管理测试、带生成前置的 Bun Check 和唯一 Node runner Check 保持独立执行。
+- 完整 Check ID 与独立期望一致，原生材料 Check 无 activation flag 且依赖环境，非 base 项不能进入增量选择；语义 Check 的 ID、runner 和入口逐项匹配独立 catalog。
+- 语义 wrapper 仅导入自身叶子测试、叶子不重复且存在，工具聚合入口覆盖全部 Bun 语义叶子；MCPShell 显式 integration 与 Task Graph Node native-store 保持独立边界，performance 不进入 release-required，version-control 仍进入。
+- scheduler 保持 learned custom admission 与 maxParallel 4；base 使用三个 external-process 和两个 repository-scan 容量，release 增加四个 cpu-work unit；每项 release Check 声明一个 cpu-work，version-control 声明四个，package 与 semantic 命令各声明一个 external-process。
+- prepare 依赖环境，version 依赖全部 61 项 release-required 与 prepare，pack 依赖环境与 version；release 三项带传播前置的 release flag；machine publication 启用且 diagnostic logging 默认关闭。

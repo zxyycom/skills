@@ -5,11 +5,7 @@ export {
   gateImpactContractVersion,
   validateBaseGateImpactContracts
 } from "./impact-catalog.ts";
-export type {
-  GateCheckImpactContract,
-  GateImpactTag
-} from "./impact-catalog.ts";
-export { impactTagsForPath } from "./impact-paths.ts";
+export type { GateCheckImpactContract } from "./impact-catalog.ts";
 export { captureGateWorkspaceSnapshot } from "./impact-snapshot.ts";
 export type {
   GateWorkspaceFile,

@@ -1,71 +1,64 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { validateDecisionRecords } from "../src/index.ts";
-import { scanDecisionRecords } from "../src/scan.ts";
 import {
   isActivationCandidateRecord,
   isDecisionCandidateRecord,
   isEstablishedDecisionRecord,
   type DecisionRecord
 } from "../src/types.ts";
-import {
-  candidateDecisionBody,
-  currentDecisionId,
-  withFixtureWorkspace,
-  writeDecision
-} from "./support.ts";
+import { decisionScanFromSources } from "./domain-fixture.ts";
+import { candidateDecisionBody, currentDecisionId } from "./support.ts";
 
-test("a valid candidate scaffold remains discoverable until its body is ready", () =>
-  withFixtureWorkspace(
-    "candidate-scaffold-readiness",
-    async (workspaceRoot) => {
-      const candidateId = "use-candidate-scaffold";
-      await writeDecision(
-        workspaceRoot,
-        candidateId,
-        emptyCandidateScaffold(candidateDecisionBody())
-      );
-
-      const validation = await validateDecisionRecords({ workspaceRoot });
-      const candidate = validation.scan.records.find(
-        (record) => record.decisionId === candidateId
-      );
-      assert.ok(candidate);
-      assert.deepEqual(validation.errors, []);
-      assert.equal(validation.activationCandidateCount, 0);
-      assert.equal(candidate.scaffoldValid, true);
-      assert.equal(candidate.bodyReady, false);
-      assert.equal(candidate.activationCandidate, false);
-      assert.equal(isDecisionCandidateRecord(candidate), true);
-      assert.equal(isActivationCandidateRecord(candidate), false);
+test("a valid candidate scaffold remains discoverable until its body is ready", async () => {
+  const candidateId = "use-candidate-scaffold";
+  const scan = await decisionScanFromSources([
+    {
+      id: candidateId,
+      text: emptyCandidateScaffold(candidateDecisionBody({ id: candidateId }))
     }
-  ));
+  ]);
+  const candidate = scan.records.find(
+    (record) => record.decisionId === candidateId
+  );
+  assert.ok(candidate);
+  assert.deepEqual(scan.sourceErrors, []);
+  assert.equal(
+    scan.records.filter((record) => record.activationCandidate).length,
+    0
+  );
+  assert.equal(candidate.scaffoldValid, true);
+  assert.equal(candidate.bodyReady, false);
+  assert.equal(candidate.activationCandidate, false);
+  assert.equal(isDecisionCandidateRecord(candidate), true);
+  assert.equal(isActivationCandidateRecord(candidate), false);
+});
 
-test("record type guards reject invalid identity fields from real candidate and established scans", () =>
-  withFixtureWorkspace("record-guard-identities", async (workspaceRoot) => {
-    const candidateId = "use-record-guard-candidate";
-    await writeDecision(workspaceRoot, candidateId, candidateDecisionBody());
-    const scan = await scanDecisionRecords({ workspaceRoot });
-    const candidate = scan.records.find(
-      (record) => record.decisionId === candidateId
-    );
-    const established = scan.records.find(
-      (record) => record.decisionId === currentDecisionId
-    );
-    assert.ok(candidate);
-    assert.ok(established);
-    assert.equal(isDecisionCandidateRecord(candidate), true);
-    assert.equal(isActivationCandidateRecord(candidate), true);
-    assert.equal(isEstablishedDecisionRecord(established), true);
-
-    for (const invalidRecord of invalidIdentityRecords(candidate)) {
-      assert.equal(isDecisionCandidateRecord(invalidRecord), false);
-      assert.equal(isActivationCandidateRecord(invalidRecord), false);
-    }
-    for (const invalidRecord of invalidIdentityRecords(established)) {
-      assert.equal(isEstablishedDecisionRecord(invalidRecord), false);
-    }
-  }));
+test("record type guards reject invalid identity fields from real candidate and established scans", async () => {
+  const candidateId = "use-record-guard-candidate";
+  const scan = await decisionScanFromSources([
+    { id: candidateId },
+    { id: currentDecisionId, status: "active" }
+  ]);
+  assert.deepEqual(scan.sourceErrors, []);
+  const candidate = scan.records.find(
+    (record) => record.decisionId === candidateId
+  );
+  const established = scan.records.find(
+    (record) => record.decisionId === currentDecisionId
+  );
+  assert.ok(candidate);
+  assert.ok(established);
+  assert.equal(isDecisionCandidateRecord(candidate), true);
+  assert.equal(isActivationCandidateRecord(candidate), true);
+  assert.equal(isEstablishedDecisionRecord(established), true);
+  for (const invalidRecord of invalidIdentityRecords(candidate)) {
+    assert.equal(isDecisionCandidateRecord(invalidRecord), false);
+    assert.equal(isActivationCandidateRecord(invalidRecord), false);
+  }
+  for (const invalidRecord of invalidIdentityRecords(established)) {
+    assert.equal(isEstablishedDecisionRecord(invalidRecord), false);
+  }
+});
 
 function invalidIdentityRecords(record: DecisionRecord): DecisionRecord[] {
   return [

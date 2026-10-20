@@ -1,12 +1,16 @@
 import fs from "node:fs/promises";
+import { createProjectFileRegionIndex } from "@zxyycom/vibe-check";
 import path from "node:path";
 import { rootDir } from "../project.ts";
 import {
-  allImpactTags,
-  gateImpactContractVersion,
-  type GateImpactTag
+  baseGateImpactContracts,
+  gateImpactContractVersion
 } from "./impact-catalog.ts";
-import { impactTagsForPath } from "./impact-paths.ts";
+import {
+  gateInputDirectories,
+  gateConfigurationFiles,
+  isKnownGateInput
+} from "./impact-paths.ts";
 import {
   captureCommand,
   toolchainFingerprint,
@@ -17,7 +21,12 @@ import { compareText, sha256 } from "./impact-values.ts";
 const maximumSnapshotFileCount = 20_000;
 const maximumSnapshotBytes = 536_870_912;
 
-type SnapshotFileKind = "file" | "missing" | "symlink" | "unsupported";
+type SnapshotFileKind =
+  | "directory"
+  | "file"
+  | "missing"
+  | "symlink"
+  | "unsupported";
 
 export type GateWorkspaceFile = Readonly<{
   digest: string;
@@ -25,12 +34,11 @@ export type GateWorkspaceFile = Readonly<{
   mode: number | null;
   path: string;
   size: number;
-  tags: readonly GateImpactTag[];
 }>;
 
 export type GateWorkspaceSnapshot = Readonly<{
   files: readonly GateWorkspaceFile[];
-  tagDigests: Readonly<Record<GateImpactTag, string>>;
+  inputDigests: Readonly<Record<string, string>>;
   toolchainFingerprint: string;
   unclassifiedPaths: readonly string[];
   workspaceFingerprint: string;
@@ -42,11 +50,12 @@ async function readSnapshotFile(
   reserveBytes: (size: number) => void
 ): Promise<GateWorkspaceFile> {
   const absolutePath = path.join(workspaceRoot, ...relativePath.split("/"));
-  const impact = impactTagsForPath(relativePath);
   try {
     const status = await fs.lstat(absolutePath);
     const mode = status.mode & 0o777;
     if (status.isFile()) {
+      if ((await fs.realpath(absolutePath)) !== absolutePath)
+        throw new Error(`Gate input traverses a symlink: ${relativePath}`);
       reserveBytes(status.size);
       const contents = await fs.readFile(absolutePath);
       if (contents.byteLength > status.size) {
@@ -57,18 +66,24 @@ async function readSnapshotFile(
         kind: "file",
         mode,
         path: relativePath,
-        size: contents.byteLength,
-        tags: impact.tags
+        size: contents.byteLength
       };
     }
+    if (status.isDirectory())
+      return {
+        digest: sha256(["directory"]),
+        kind: "directory",
+        mode,
+        path: relativePath,
+        size: 0
+      };
     if (status.isSymbolicLink()) {
       return {
         digest: sha256([await fs.readlink(absolutePath)]),
         kind: "symlink",
         mode,
         path: relativePath,
-        size: 0,
-        tags: impact.tags
+        size: 0
       };
     }
     return {
@@ -76,8 +91,7 @@ async function readSnapshotFile(
       kind: "unsupported",
       mode,
       path: relativePath,
-      size: 0,
-      tags: [...new Set([...impact.tags, "global" as const])].sort(compareText)
+      size: 0
     };
   } catch (error) {
     if (
@@ -91,8 +105,7 @@ async function readSnapshotFile(
         kind: "missing",
         mode: null,
         path: relativePath,
-        size: 0,
-        tags: impact.tags
+        size: 0
       };
     }
     throw error;
@@ -136,13 +149,9 @@ async function readSnapshotFiles(
   for (let offset = 0; offset < relativePaths.length; offset += 32) {
     const batch = relativePaths.slice(offset, offset + 32);
     const captured = await Promise.all(
-      batch.map(async (relativePath) => {
-        return await readSnapshotFile(
-          workspaceRoot,
-          relativePath,
-          reserveBytes
-        );
-      })
+      batch.map((relativePath) =>
+        readSnapshotFile(workspaceRoot, relativePath, reserveBytes)
+      )
     );
     files.push(...captured);
   }
@@ -166,49 +175,106 @@ function digestFileIdentities(files: readonly GateWorkspaceFile[]): string {
   );
 }
 
-function digestPathIdentities(files: readonly GateWorkspaceFile[]): string {
-  return sha256(
-    files.flatMap((file) => [
-      file.path,
-      "\0",
-      file.kind,
-      "\0",
-      file.kind === "symlink" ? file.digest : "",
-      "\0"
-    ])
-  );
+/** Walk the declared command input domain, independently of Git ignore rules. */
+async function diskInputPaths(
+  workspaceRoot: string
+): Promise<readonly string[]> {
+  const paths: string[] = [...gateConfigurationFiles];
+  const visit = async (relativePath: string): Promise<void> => {
+    paths.push(relativePath);
+    if (paths.length > maximumSnapshotFileCount)
+      throw new Error("Gate disk input count exceeded its safety limit");
+    const absolutePath = path.join(workspaceRoot, relativePath);
+    const children = await fs.readdir(absolutePath, { withFileTypes: true });
+    for (const child of children) {
+      const childPath = `${relativePath}/${child.name}`;
+      if (child.isDirectory()) await visit(childPath);
+      else paths.push(childPath);
+      if (paths.length > maximumSnapshotFileCount)
+        throw new Error("Gate disk input count exceeded its safety limit");
+    }
+  };
+  for (const directory of gateInputDirectories) {
+    const status = await fs
+      .lstat(path.join(workspaceRoot, directory))
+      .catch((error: unknown) => {
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "code" in error &&
+          error.code === "ENOENT"
+        )
+          return null;
+        throw error;
+      });
+    if (status?.isDirectory()) await visit(directory);
+    else paths.push(directory);
+  }
+  return paths;
 }
 
 export async function captureGateWorkspaceSnapshot(
   workspaceRoot: string = rootDir,
   dependencies: CaptureDependencies = {}
 ): Promise<GateWorkspaceSnapshot> {
+  workspaceRoot = await fs.realpath(workspaceRoot);
   const runCommand = dependencies.captureCommand ?? captureCommand;
-  const relativePaths = parseGitPaths(
-    await runCommand(
+  const [gitPaths, diskPaths] = await Promise.all([
+    runCommand(
       "git",
       ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
       workspaceRoot
-    )
+    ).then(parseGitPaths),
+    diskInputPaths(workspaceRoot)
+  ]);
+  const relativePaths = [...new Set([...gitPaths, ...diskPaths])].sort(
+    compareText
   );
+  if (relativePaths.length > maximumSnapshotFileCount)
+    throw new Error("Gate input count exceeded its safety limit");
   const [files, toolchain] = await Promise.all([
     readSnapshotFiles(workspaceRoot, relativePaths),
     toolchainFingerprint(workspaceRoot, dependencies)
   ]);
-  const tagDigests = Object.fromEntries(
-    allImpactTags.map((tag) => [
-      tag,
-      tag === "path-inventory"
-        ? digestPathIdentities(files)
-        : digestFileIdentities(files.filter((file) => file.tags.includes(tag)))
+  // Many Checks share a closure. Match and hash each distinct closure once.
+  const regions = new Map(
+    baseGateImpactContracts.map(({ patterns }) => {
+      const id = JSON.stringify(patterns);
+      return [id, { id, kind: "patterns" as const, patterns }] as const;
+    })
+  );
+  const membership = createProjectFileRegionIndex({
+    fileSources: [relativePaths],
+    regionSources: [[...regions.values()]]
+  });
+  const byPath = new Map(files.map((file) => [file.path, file]));
+  const digests = new Map(
+    [...regions.keys()].map((id) => [
+      id,
+      digestFileIdentities(
+        (membership.filesForRegion(id) ?? []).map((filePath) =>
+          byPath.get(filePath)!
+        )
+      )
     ])
-  ) as Record<GateImpactTag, string>;
+  );
+  const inputDigests = Object.fromEntries(
+    baseGateImpactContracts.map(({ checkId, patterns }) => [
+      checkId,
+      digests.get(JSON.stringify(patterns))!
+    ])
+  );
   const unclassifiedPaths = files
-    .filter(({ path: filePath }) => impactTagsForPath(filePath).unclassified)
-    .map(({ path: filePath }) => filePath);
+    .filter(
+      (file) =>
+        !isKnownGateInput(file.path) ||
+        file.kind === "symlink" ||
+        file.kind === "unsupported"
+    )
+    .map((file) => file.path);
   return {
     files,
-    tagDigests,
+    inputDigests,
     toolchainFingerprint: toolchain,
     unclassifiedPaths,
     workspaceFingerprint: sha256([

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { astGrepJson } from "./snapshot-ast-scan.ts";
 import {
   createRepositoryTestEvidenceSnapshot,
   parseSkippedJUnit,
@@ -17,6 +18,87 @@ const fixtureTest = [
   'test("fixture registration", () => {});',
   ""
 ].join("\n");
+
+test("ast-grep matches preserve optional and captured single variables", async () => {
+  await withSnapshotFixture(
+    {},
+    { "tests/fixture.test.ts": fixtureTest },
+    async (root) => {
+      const file = "tests/fixture.test.ts";
+      const executable = path.join(root, "node_modules/.bin/ast-grep");
+      const matches = [
+        { file },
+        { file, metaVariables: {} },
+        { file, metaVariables: { single: {} } },
+        {
+          file,
+          metaVariables: {
+            single: { NAME: { text: '"fixture registration"' } }
+          }
+        }
+      ];
+      await fs.writeFile(
+        executable,
+        `#!/usr/bin/env node\nprocess.stdout.write(${JSON.stringify(JSON.stringify(matches))});\n`
+      );
+      assert.deepEqual(
+        await astGrepJson(executable, root, "test($NAME, $$$)", [
+          path.join(root, file)
+        ]),
+        [
+          { sourcePath: file, variables: {} },
+          { sourcePath: file, variables: {} },
+          { sourcePath: file, variables: {} },
+          { sourcePath: file, variables: { NAME: '"fixture registration"' } }
+        ]
+      );
+    }
+  );
+});
+
+test("ast-grep decoding rejects invalid match and capture shapes", async () => {
+  await withSnapshotFixture(
+    {},
+    { "tests/fixture.test.ts": fixtureTest },
+    async (root) => {
+      const file = "tests/fixture.test.ts";
+      const executable = path.join(root, "node_modules/.bin/ast-grep");
+      const inputs = [
+        { value: {}, error: /result is not an array/u },
+        { value: [null], error: /non-object match/u },
+        { value: [{ file: "" }], error: /does not identify a source file/u },
+        {
+          value: [{ file: "unexpected.ts" }],
+          error: /unexpected source file/u
+        },
+        {
+          value: [{ file, metaVariables: [] }],
+          error: /invalid meta variables/u
+        },
+        {
+          value: [{ file, metaVariables: { single: null } }],
+          error: /invalid single variables/u
+        },
+        {
+          value: [{ file, metaVariables: { single: { NAME: { text: 1 } } } }],
+          error: /invalid NAME variable/u
+        }
+      ];
+      for (const input of inputs) {
+        await fs.writeFile(
+          executable,
+          `#!/usr/bin/env node\nprocess.stdout.write(${JSON.stringify(JSON.stringify(input.value))});\n`
+        );
+        await assert.rejects(
+          astGrepJson(executable, root, "test($NAME, $$$)", [
+            path.join(root, file)
+          ]),
+          input.error
+        );
+      }
+    }
+  );
+});
 
 test("repository test commands use the restricted Bun and Node forms", async () => {
   await withSnapshotFixture(
@@ -139,7 +221,8 @@ test("producer batches each ast-grep pattern across test files", async () => {
         astGrep,
         [
           "#!/bin/sh",
-          `printf '%s\\n' "$*" >> ${JSON.stringify(invocationLog)}`,
+          `printf '%s\\0' "$@" >> ${JSON.stringify(invocationLog)}`,
+          `printf '\\0' >> ${JSON.stringify(invocationLog)}`,
           `exec ${JSON.stringify(projectAstGrep)} "$@"`,
           ""
         ].join("\n"),
@@ -153,16 +236,90 @@ test("producer batches each ast-grep pattern across test files", async () => {
         "second registration"
       ]);
       const patternInvocations = (await fs.readFile(invocationLog, "utf8"))
-        .split("\n")
-        .filter((line) => line.startsWith("run --pattern "));
-      assert.equal(patternInvocations.length, 7);
+        .split("\0\0")
+        .map((record) => record.split("\0"))
+        .filter((args) => args[0] === "scan");
+      assert.equal(patternInvocations.length, 1);
+      assert.equal(patternInvocations[0]?.[2]?.split("\n---\n").length, 7);
       assert.ok(
         patternInvocations.every(
-          (line) =>
-            line.includes("tests/first.test.ts") &&
-            line.includes("tests/second.test.ts")
+          (args) =>
+            args.includes("tests/first.test.ts") &&
+            args.includes("tests/second.test.ts")
         )
       );
+    }
+  );
+});
+
+test("producer preserves suppressed TypeScript and MTS registrations", async () => {
+  await withSnapshotFixture(
+    { "test:fixture": "bun test ./tests/fixture.test.ts" },
+    {
+      "sgconfig.yml": "ruleDirs: [./not-loaded]\n",
+      "tests/fixture.test.ts":
+        'import "../scripts/shared.mts";\nimport "../scripts/suppressed.ts";\n',
+      "scripts/shared.mts": fixtureTest.replace(
+        "fixture registration",
+        "MTS registration"
+      ),
+      "scripts/suppressed.ts": fixtureTest.replace(
+        'test("fixture registration"',
+        '// ast-grep-ignore\ntest("suppressed registration"'
+      )
+    },
+    async (root) => {
+      const snapshot = await createRepositoryTestEvidenceSnapshot({
+        workspaceRoot: root
+      });
+      assert.deepEqual(snapshot.entities.map(({ name }) => name).sort(), [
+        "MTS registration",
+        "suppressed registration"
+      ]);
+      assert.ok(
+        snapshot.entities.some(({ locators }) =>
+          locators.includes("scripts/shared.mts > MTS registration")
+        )
+      );
+      assert.ok(
+        snapshot.entities.some(({ locators }) =>
+          locators.includes("scripts/suppressed.ts > suppressed registration")
+        )
+      );
+    }
+  );
+});
+
+test("producer rejects unidentified multi-rule matches and failed scan commands", async () => {
+  await withSnapshotFixture(
+    { "test:fixture": "bun test ./tests/fixture.test.ts" },
+    { "tests/fixture.test.ts": fixtureTest },
+    async (root) => {
+      const executable = path.join(root, "node_modules/.bin/ast-grep");
+      for (const scenario of [
+        {
+          code: 0,
+          output: JSON.stringify([
+            { file: "tests/fixture.test.ts", ruleId: "unknown" }
+          ]),
+          error: /unexpected rule ID/u
+        },
+        { code: 1, output: "[]", error: /ast-grep scan failed/u }
+      ]) {
+        await fs.writeFile(
+          executable,
+          [
+            "#!/usr/bin/env node",
+            'if (process.argv.includes("--version")) { process.stdout.write("ast-grep 0.45.1\\n"); }',
+            `else { process.stdout.write(${JSON.stringify(scenario.output)}); process.exitCode = ${scenario.code}; }`,
+            ""
+          ].join("\n")
+        );
+        await assert.rejects(
+          createRepositoryTestEvidenceSnapshot({ workspaceRoot: root }),
+          scenario.error
+        );
+      }
     }
   );
 });
@@ -289,6 +446,105 @@ test("producer merges duplicate registrations from distinct test containers", as
   );
 });
 
+test("producer keeps command-local registrations across shared cyclic imports", async () => {
+  await withSnapshotFixture(
+    {
+      "test:first": "bun test ./tests/first.test.ts",
+      "test:second": "bun test ./tests/second.test.ts"
+    },
+    {
+      "tests/first.test.ts": [
+        'import "../scripts/shared";',
+        'import test from "node:test";',
+        'test("command-local registration", () => {});'
+      ].join("\n"),
+      "tests/second.test.ts": [
+        'import "../scripts/shared";',
+        'import test from "node:test";',
+        'test("command-local registration", () => {});'
+      ].join("\n"),
+      "scripts/shared.ts": [
+        'import "./cycle.ts";',
+        'import test from "node:test";',
+        'test("shared registration", () => {});'
+      ].join("\n"),
+      "scripts/cycle.ts": 'import "./shared.ts";\n'
+    },
+    async (root) => {
+      const snapshot = await createRepositoryTestEvidenceSnapshot({
+        workspaceRoot: root
+      });
+      assert.equal(snapshot.entities.length, 3);
+      const directLocators = snapshot.entities.flatMap(({ locators }) =>
+        locators.filter((locator) => !locator.startsWith("bun test "))
+      );
+      assert.deepEqual(directLocators.sort(), [
+        "scripts/shared.ts > shared registration",
+        "tests/first.test.ts > command-local registration",
+        "tests/second.test.ts > command-local registration"
+      ]);
+      const shared = snapshot.entities.find(
+        ({ name }) => name === "shared registration"
+      );
+      assert.ok(
+        shared?.locators.some((locator) =>
+          locator.includes("./tests/first.test.ts ::")
+        )
+      );
+      assert.ok(
+        shared?.locators.some((locator) =>
+          locator.includes("./tests/second.test.ts ::")
+        )
+      );
+    }
+  );
+});
+
+test("producer refreshes shared import facts for each snapshot invocation", async () => {
+  await withSnapshotFixture(
+    {
+      "test:first": "bun test ./tests/first.test.ts",
+      "test:second": "bun test ./tests/second.test.ts"
+    },
+    {
+      "tests/first.test.ts": 'import "../scripts/shared.ts";\n',
+      "tests/second.test.ts": 'import "../scripts/shared.ts";\n',
+      "scripts/shared.ts": 'import "./initial.ts";\n',
+      "scripts/initial.ts": fixtureTest
+    },
+    async (root) => {
+      const before = await createRepositoryTestEvidenceSnapshot({
+        workspaceRoot: root
+      });
+      await fs.writeFile(
+        path.join(root, "scripts/added.ts"),
+        fixtureTest.replace("fixture registration", "added registration")
+      );
+      await fs.writeFile(
+        path.join(root, "scripts/shared.ts"),
+        'import "./added";\n'
+      );
+      const after = await createRepositoryTestEvidenceSnapshot({
+        workspaceRoot: root
+      });
+      assert.deepEqual(
+        before.entities.map(({ name }) => name),
+        ["fixture registration"]
+      );
+      assert.deepEqual(
+        after.entities.map(({ name }) => name),
+        ["added registration"]
+      );
+      assert.ok(
+        after.entities[0]?.locators.includes(
+          "scripts/added.ts > added registration"
+        )
+      );
+      assert.notEqual(before.source.revision, after.source.revision);
+    }
+  );
+});
+
 test("producer refuses dynamic names, nested registrations, missing reports, and registration failures", async () => {
   const failures = [
     {
@@ -308,6 +564,7 @@ test("producer refuses dynamic names, nested registrations, missing reports, and
       files: {
         "tests/nested.test.ts": [
           'import test from "node:test";',
+          "// ast-grep-ignore",
           'test("parent", () => { test("child", () => {}); });',
           ""
         ].join("\n")

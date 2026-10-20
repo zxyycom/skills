@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import fs from "node:fs/promises";
+import path from "node:path";
 import test from "node:test";
-import { baseGateCheckIds, impactTagsForPath } from "./impact.ts";
+import { baseGateCheckIds, captureGateWorkspaceSnapshot } from "./impact.ts";
 import {
   prepareFixtureActivation,
   publishFixtureReceipts,
@@ -11,10 +14,6 @@ import {
 
 test("incremental Gate invalidates Novel Cards consumers for every shared and distributed input", async () => {
   await withImpactFixture(async (fixture) => {
-    const consumerIds = [
-      "script:check:novel-cards-cli",
-      "test:novel-cards:card-and-query-contract"
-    ];
     for (const source of [
       "tools/index-runtime/src/value.ts",
       "tools/shared/src/value.ts",
@@ -24,31 +23,41 @@ test("incremental Gate invalidates Novel Cards consumers for every shared and di
       "scripts/lib/skill-runtime.ts",
       "scripts/lib/native-cli-entry.ts",
       "skills/novel-cards/scripts/novel-cards.ts",
+      "skills/novel-cards/scripts/runtime/value.ts",
       "skills/novel-cards/package.json",
-      "skills/novel-cards/pnpm-lock.yaml"
+      "skills/novel-cards/pnpm-lock.yaml",
+      "tools/novel-cards/tests/fixtures/input.log"
     ]) {
       await writeImpactFixture(fixture.directory, source, "initial input\n");
-      await publishFixtureReceipts(
-        fixture,
-        await prepareFixtureActivation(fixture)
+      assert.equal(
+        (
+          await publishFixtureReceipts(
+            fixture,
+            await prepareFixtureActivation(fixture)
+          )
+        ).published,
+        true
       );
       const warm = await prepareFixtureActivation(fixture);
-      for (const checkId of consumerIds)
+      for (const checkId of [
+        "script:check:skill-updaters",
+        "test:novel-cards:card-and-query-contract"
+      ]) {
         assert.equal(
           warm.decisions.find((item) => item.checkId === checkId)?.action,
           "reuse",
-          `${source}: ${checkId}`
+          source
         );
+      }
       await writeImpactFixture(fixture.directory, source, "changed input\n");
       const changed = await prepareFixtureActivation(fixture);
-      for (const checkId of consumerIds) {
-        const decision = changed.decisions.find(
-          (item) => item.checkId === checkId
-        );
-        assert.equal(decision?.action, "execute", `${source}: ${checkId}`);
+      for (const checkId of [
+        "script:check:skill-updaters",
+        "test:novel-cards:card-and-query-contract"
+      ]) {
         assert.equal(
-          decision?.reason,
-          "inputs-changed",
+          changed.decisions.find((item) => item.checkId === checkId)?.action,
+          "execute",
           `${source}: ${checkId}`
         );
       }
@@ -65,125 +74,61 @@ test("incremental Gate propagates documentation and shared owner changes", async
       "# Changed\n"
     );
     const documentationChange = await prepareFixtureActivation(fixture);
-    assert.deepEqual(
-      new Set(documentationChange.activeCheckIds),
-      new Set(["markdown-link-validation", "secret-detection"])
+    assert.equal(
+      documentationChange.decisions.find(
+        ({ checkId }) => checkId === "test:change-plan:lifecycle-finalize"
+      )?.action,
+      "reuse"
     );
-    assert.deepEqual(
-      await publishFixtureReceipts(fixture, documentationChange),
-      { published: true, receiptCount: 64 }
-    );
-
+    assert.ok(documentationChange.activeCheckIds.includes("script:validate"));
+    await publishFixtureReceipts(fixture, documentationChange);
     await writeImpactFixture(
       fixture.directory,
       "tools/shared/src/value.ts",
       "export const shared = 2;\n"
     );
     const sharedChange = await prepareFixtureActivation(fixture);
-    assert.ok(
-      sharedChange.activeCheckIds.includes(
-        "test:change-plan:lifecycle-finalize"
-      )
-    );
-    assert.ok(sharedChange.activeCheckIds.includes("script:check:decisions"));
-    assert.ok(sharedChange.activeCheckIds.includes("script:validate"));
+    assert.equal(sharedChange.activeCheckIds.length, baseGateCheckIds.length);
   });
 });
 
 test("incremental Gate propagates skill-package and build-system changes", async () => {
   await withImpactFixture(async (fixture) => {
-    await publishInitialFixtureReceipts(fixture);
-    await writeImpactFixture(
-      fixture.directory,
+    for (const input of [
       "tools/skill-package/src/value.ts",
-      "export const packageValue = 1;\n"
-    );
-    const skillPackageChange = await prepareFixtureActivation(fixture);
-    assert.ok(
-      skillPackageChange.activeCheckIds.includes("script:test:skill-updater")
-    );
-    assert.ok(
-      skillPackageChange.activeCheckIds.includes("script:test:environment")
-    );
-    assert.ok(skillPackageChange.activeCheckIds.includes("script:validate"));
-    assert.deepEqual(
-      await publishFixtureReceipts(fixture, skillPackageChange),
-      {
-        published: true,
-        receiptCount: 64
-      }
-    );
-
-    await writeImpactFixture(
-      fixture.directory,
-      "scripts/lib/generated-file.ts",
-      "export const generatedFile = 1;\n"
-    );
-    const buildSystemChange = await prepareFixtureActivation(fixture);
-    assert.ok(
-      buildSystemChange.activeCheckIds.includes("script:test:generated-file")
-    );
-    assert.ok(
-      buildSystemChange.activeCheckIds.includes(
-        "test:change-plan:lifecycle-finalize"
-      )
-    );
-
-    await publishFixtureReceipts(fixture, buildSystemChange);
-    await writeImpactFixture(
-      fixture.directory,
-      "tools/skill-updater/src/cli.ts",
-      "export const updater = 1;\n"
-    );
-    const updaterChange = await prepareFixtureActivation(fixture);
-    for (const checkId of [
-      "script:check:change-plan-cli",
-      "script:check:decision-records-cli",
-      "script:check:novel-cards-cli",
-      "script:check:skill-updaters"
+      "scripts/lib/skill-runtime.ts",
+      "scripts/build/mcpshell-workspace-bridge.ts",
+      "tools/skill-updater/src/cli.ts"
     ]) {
-      assert.ok(updaterChange.activeCheckIds.includes(checkId), checkId);
-    }
-    await publishFixtureReceipts(fixture, updaterChange);
-    await writeImpactFixture(
-      fixture.directory,
-      "tools/task-graph/src/value.ts",
-      "export const domain = 1;\n"
-    );
-    assert.ok(
-      (await prepareFixtureActivation(fixture)).activeCheckIds.includes(
-        "script:check:skill-updaters"
-      )
-    );
-
-    for (const extension of ["ts"]) {
-      const bundle = `skills/lightweight-judgment/scripts/lightweight-judgment.${extension}`;
-      await writeImpactFixture(fixture.directory, bundle, "initial artifact\n");
       await publishFixtureReceipts(
         fixture,
         await prepareFixtureActivation(fixture)
       );
-      const warm = await prepareFixtureActivation(fixture);
-      const consumerIds = [
-        "script:check:lightweight-judgment-cli",
-        "test:lightweight-judgment:public-distribution"
-      ];
-      for (const checkId of consumerIds) {
-        assert.equal(
-          warm.decisions.find((decision) => decision.checkId === checkId)
-            ?.action,
-          "reuse"
-        );
-      }
-      await writeImpactFixture(fixture.directory, bundle, "changed artifact\n");
+      await writeImpactFixture(fixture.directory, input, "changed input\n");
       const changed = await prepareFixtureActivation(fixture);
-      for (const checkId of consumerIds) {
-        const decision = changed.decisions.find(
-          (item) => item.checkId === checkId
-        );
-        assert.equal(decision?.action, "execute");
-        assert.equal(decision?.reason, "inputs-changed");
-      }
+      assert.equal(
+        changed.activeCheckIds.length,
+        baseGateCheckIds.length,
+        input
+      );
+    }
+    // The unified generation provider covers every skill and domain adapter, not just former eight providers.
+    for (const input of [
+      "skills/common-denominator-design/package.json",
+      "tools/mcpshell-workspace-bridge/references/mcpshell-tools.yaml",
+      "tools/novel-cards/src/index.ts"
+    ]) {
+      await publishFixtureReceipts(
+        fixture,
+        await prepareFixtureActivation(fixture)
+      );
+      await writeImpactFixture(fixture.directory, input, "changed material\n");
+      assert.ok(
+        (await prepareFixtureActivation(fixture)).activeCheckIds.includes(
+          "script:check:skill-updaters"
+        ),
+        input
+      );
     }
   });
 });
@@ -196,69 +141,182 @@ test("incremental Gate treats unknown paths and root configuration conservativel
       "unknown-owner.bin",
       "unknown\n"
     );
-    const unknownChange = await prepareFixtureActivation(fixture);
-    assert.equal(unknownChange.activeCheckIds.length, baseGateCheckIds.length);
+    const unknown = await prepareFixtureActivation(fixture);
+    assert.equal(unknown.activeCheckIds.length, baseGateCheckIds.length);
     assert.ok(
-      unknownChange.decisions.some(
-        ({ reason }) => reason === "conservative-fallback"
-      )
+      unknown.decisions.every(({ fingerprint }) => fingerprint === null)
     );
-    assert.deepEqual(await publishFixtureReceipts(fixture, unknownChange), {
-      published: true,
-      receiptCount: 64
+    assert.deepEqual(await publishFixtureReceipts(fixture, unknown), {
+      published: false,
+      reason: "inputs-unclosed"
     });
-    assert.deepEqual(
-      (await prepareFixtureActivation(fixture)).activeCheckIds,
-      []
+    assert.equal(
+      (await prepareFixtureActivation(fixture)).activeCheckIds.length,
+      baseGateCheckIds.length
     );
-
+    await fs.rm(path.join(fixture.directory, "unknown-owner.bin"));
     await writeImpactFixture(
       fixture.directory,
       "package.json",
       '{"private":false}\n'
     );
-    const configurationChange = await prepareFixtureActivation(fixture);
     assert.equal(
-      configurationChange.activeCheckIds.length,
+      (await prepareFixtureActivation(fixture)).activeCheckIds.length,
       baseGateCheckIds.length
     );
-    assert.deepEqual(impactTagsForPath("new-owner/value.bin"), {
-      tags: ["global", "path-inventory"],
-      unclassified: true
-    });
+    await writeImpactFixture(
+      fixture.directory,
+      "tools/unreviewed-owner/input.ts",
+      "export {};\n"
+    );
+    assert.ok(
+      (await prepareFixtureActivation(fixture)).decisions.every(
+        ({ fingerprint }) => fingerprint === null
+      )
+    );
   });
 });
 
 test("incremental Gate reruns the Gate test suite when a semantic aggregation entry changes", async () => {
   await withImpactFixture(async (fixture) => {
-    const aggregationEntry = "tools/task-graph/tests/run.ts";
+    await publishInitialFixtureReceipts(fixture);
     await writeImpactFixture(
       fixture.directory,
-      aggregationEntry,
+      "tools/task-graph/tests/run.ts",
       'await import("./schema-index.test.ts");\n'
     );
-    await publishFixtureReceipts(
-      fixture,
-      await prepareFixtureActivation(fixture)
-    );
-    const warm = await prepareFixtureActivation(fixture);
+    const changed = await prepareFixtureActivation(fixture);
     assert.equal(
-      warm.decisions.find(({ checkId }) => checkId === "script:test:check")
-        ?.action,
+      changed.decisions.find(({ checkId }) => checkId === "script:test:check")
+        ?.reason,
+      "inputs-changed"
+    );
+    assert.equal(
+      changed.decisions.find(
+        ({ checkId }) => checkId === "test:change-plan:lifecycle-finalize"
+      )?.action,
       "reuse"
     );
+  });
+});
 
+test("incremental Gate includes ignored fixtures and TS/MTS disk inputs", async () => {
+  await withImpactFixture(async (fixture) => {
     await writeImpactFixture(
       fixture.directory,
-      aggregationEntry,
-      'await import("./schema-index.test.ts");\nawait import("./store.test.ts");\n'
+      ".gitignore",
+      ".log/\n*.fixture\n*.mts\n"
     );
-    const aggregationChange = await prepareFixtureActivation(fixture);
-    const suiteDecision = aggregationChange.decisions.find(
-      ({ checkId }) => checkId === "script:test:check"
+    for (const input of [
+      "tools/change-plan/tests/input.fixture",
+      "tools/change-plan/src/input.mts",
+      "tools/change-plan/tests/fixtures/node_modules/value.ts"
+    ]) {
+      await writeImpactFixture(fixture.directory, input, "original\n");
+      await publishFixtureReceipts(
+        fixture,
+        await prepareFixtureActivation(fixture)
+      );
+      const before = await captureGateWorkspaceSnapshot(
+        fixture.directory,
+        fixture.captureDependencies
+      );
+      assert.ok(before.files.some(({ path: filePath }) => filePath === input));
+      await writeImpactFixture(fixture.directory, input, "changed\n");
+      const changed = await prepareFixtureActivation(fixture);
+      assert.ok(
+        changed.activeCheckIds.includes("test:change-plan:lifecycle-finalize"),
+        input
+      );
+      if (input.endsWith(".mts"))
+        assert.ok(changed.activeCheckIds.includes("script:typecheck"));
+    }
+  });
+});
+
+test("incremental Gate proves content across dirty clean commits deletion and rename", async () => {
+  await withImpactFixture(async (fixture) => {
+    await publishInitialFixtureReceipts(fixture);
+    const input = "tools/change-plan/src/value.ts";
+    await writeImpactFixture(
+      fixture.directory,
+      input,
+      "export const value = 2;\n"
     );
-    assert.equal(suiteDecision?.action, "execute");
-    assert.equal(suiteDecision?.reason, "inputs-changed");
-    assert.match(suiteDecision?.fingerprint ?? "", /^[a-f0-9]{64}$/u);
+    const dirty = await prepareFixtureActivation(fixture);
+    assert.ok(
+      dirty.activeCheckIds.includes("test:change-plan:lifecycle-finalize")
+    );
+    await publishFixtureReceipts(fixture, dirty);
+    for (const args of [
+      ["add", "."],
+      ["commit", "--quiet", "--message", "same content"]
+    ]) {
+      assert.equal(
+        spawnSync("git", args, { cwd: fixture.directory }).status,
+        0
+      );
+    }
+    assert.deepEqual(
+      (await prepareFixtureActivation(fixture)).activeCheckIds,
+      []
+    );
+    await fs.rm(path.join(fixture.directory, input));
+    const deleted = await prepareFixtureActivation(fixture);
+    assert.ok(
+      deleted.activeCheckIds.includes("test:change-plan:lifecycle-finalize")
+    );
+    assert.ok(
+      deleted.kind === "incremental" &&
+        deleted.snapshot.files.some(
+          (file) => file.path === input && file.kind === "missing"
+        )
+    );
+    await publishFixtureReceipts(fixture, deleted);
+    await writeImpactFixture(
+      fixture.directory,
+      "tools/change-plan/src/renamed.ts",
+      "export const value = 2;\n"
+    );
+    assert.ok(
+      (await prepareFixtureActivation(fixture)).activeCheckIds.includes(
+        "test:change-plan:lifecycle-finalize"
+      )
+    );
+  });
+});
+
+test("incremental Gate refuses symlink proofs and escaping ancestor reads", async () => {
+  await withImpactFixture(async (fixture) => {
+    await publishInitialFixtureReceipts(fixture);
+    const link = path.join(
+      fixture.directory,
+      "tools/change-plan/tests/link.ts"
+    );
+    await fs.mkdir(path.dirname(link), { recursive: true });
+    await fs.symlink("../src/value.ts", link);
+    const linked = await prepareFixtureActivation(fixture);
+    assert.ok(
+      linked.decisions.every(({ fingerprint }) => fingerprint === null)
+    );
+    assert.deepEqual(await publishFixtureReceipts(fixture, linked), {
+      published: false,
+      reason: "inputs-unclosed"
+    });
+    await fs.rm(link);
+    await fs.rename(
+      path.join(fixture.directory, "tools/change-plan/src"),
+      path.join(fixture.directory, "tools/change-plan/source")
+    );
+    await fs.symlink(
+      "source",
+      path.join(fixture.directory, "tools/change-plan/src")
+    );
+    const ancestor = await prepareFixtureActivation(fixture);
+    assert.equal(ancestor.kind, "fallback");
+    assert.ok(
+      ancestor.kind === "fallback" &&
+        ancestor.fallbackDetail.includes("symlink")
+    );
   });
 });

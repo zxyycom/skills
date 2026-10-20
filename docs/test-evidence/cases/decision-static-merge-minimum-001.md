@@ -10,4 +10,4 @@ Contract:
 - 已建立关系图中的纯归并关系集必须至少包含两个直接前序。
 
 Proves:
-- 把既有单前序修订改成单前序归并后，严格检查报告 pure 归并 relation set 数量不足。
+- 真实内存 Markdown 解析及领域图校验对只有一个前序的已建立纯归并返回 pure 归并 relation set 数量不足诊断。

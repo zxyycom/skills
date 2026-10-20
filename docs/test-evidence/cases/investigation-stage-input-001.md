@@ -7,7 +7,7 @@ Tags:
 - `investigation-report`
 
 Contract:
-- `stage --scope index` 拒绝重复或非 extensionless Investigation ID。
+- `stage --scope index` 拒绝重复选择、路径式标识与带首尾空白的 Investigation selector。
 
 Proves:
-- 重复 ID 返回 duplicate 诊断；路径、`./` 和首尾空白 ID 各返回明确 extensionless 契约的 invalid 诊断。
+- stage 纯准备函数对重复 ID、路径、`./` 和首尾空白 ID 按输入顺序返回 duplicate/invalid 诊断，结果为 invalid-options、changed=false。

@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
+import { renderInvestigationTrace } from "../src/trace-output.ts";
 import { fileURLToPath } from "node:url";
 import {
   investigationRoot,
@@ -14,7 +15,6 @@ import {
 
 test("CLI rejects repeated relation query options", async () => {
   await withTempRoot("cli-repeated-relation-query", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
     const repeated = ["related-to", "direction", "relation-type"] as const;
     for (const command of ["list", "search"] as const) {
       for (const option of repeated) {
@@ -43,12 +43,6 @@ test("CLI rejects repeated relation query options", async () => {
 
 test("CLI stage uses invalid-option exit status without report IDs", async () => {
   await withTempRoot("cli-stage-invalid", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    const indexPath = path.join(
-      investigationRoot(root),
-      "investigation-index.json"
-    );
-    const before = await fs.readFile(indexPath, "utf8");
     const result = await runInvestigationCli(root, ["stage"]);
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
@@ -56,7 +50,7 @@ test("CLI stage uses invalid-option exit status without report IDs", async () =>
       result.stderr,
       /stage requires at least one Investigation ID/u
     );
-    assert.equal(await fs.readFile(indexPath, "utf8"), before);
+    assert.deepEqual(await fs.readdir(root), []);
   });
 });
 
@@ -160,12 +154,6 @@ test("CLI stage --scope index preserves pending transaction facts", async () => 
 
 test("CLI stage rejects JSON output", async () => {
   await withTempRoot("cli-stage-json", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    const indexPath = path.join(
-      investigationRoot(root),
-      "investigation-index.json"
-    );
-    const before = await fs.readFile(indexPath, "utf8");
     const result = await runInvestigationCli(root, [
       "stage",
       "report.md",
@@ -174,13 +162,12 @@ test("CLI stage rejects JSON output", async () => {
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
     assert.match(result.stderr, /unknown option '--json'/u);
-    assert.equal(await fs.readFile(indexPath, "utf8"), before);
+    assert.deepEqual(await fs.readdir(root), []);
   });
 });
 
 test("CLI stage exposes the scope contract and rejects an invalid scope", async () => {
   await withTempRoot("cli-stage-scope", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
     const help = await runInvestigationCli(root, ["stage", "--help"]);
     assert.equal(help.status, 0, help.stderr);
     assert.match(help.stdout, /--scope <scope>/u);
@@ -214,7 +201,6 @@ test("CLI stage exposes the scope contract and rejects an invalid scope", async 
 
 test("CLI treats the removed stage-index entry as an unknown command", async () => {
   await withTempRoot("cli-stage-index-removed", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
     const result = await runInvestigationCli(root, ["stage-index", "report"]);
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
@@ -280,7 +266,6 @@ test("CLI stage --scope domain stages report Markdown and owner resources withou
 
 test("CLI show requires one Investigation ID", async () => {
   await withTempRoot("cli-show", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
     const result = await runInvestigationCli(root, ["show"]);
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
@@ -434,28 +419,38 @@ test("CLI trace renders a stable terminal graph by default and preserves JSON be
   });
 });
 
-test("CLI trace renders numeric depth layers before lexically earlier trace IDs", async () => {
-  await withTempRoot("cli-trace-layer-order", async (root) => {
-    await writeCollection(root, [
-      { id: "alpha", title: "前序" },
-      {
-        id: "zeta",
-        relations: [{ target: "alpha", type: "补充" }],
-        title: "锚点"
+test("CLI trace renders numeric depth layers before lexically earlier trace IDs", () => {
+  const output = renderInvestigationTrace({
+    status: "ok",
+    anchorId: "zeta",
+    direction: "predecessors",
+    limits: { depth: 5, maxRecords: 50 },
+    warnings: [],
+    coverage: { complete: true, stoppedBy: [] },
+    frontier: [],
+    traceIds: ["alpha", "zeta"],
+    contextIds: [],
+    entries: {
+      alpha: {
+        title: "前序",
+        formedAt: "2026-08-28T12:00:00Z",
+        question: "Q",
+        tags: ["test"],
+        relations: []
+      },
+      zeta: {
+        title: "锚点",
+        formedAt: "2026-08-28T12:00:00Z",
+        question: "Q",
+        tags: ["test"],
+        relations: [{ target: "alpha", type: "补充" }]
       }
-    ]);
-    const result = await runInvestigationCli(root, [
-      "trace",
-      "zeta",
-      "--direction",
-      "predecessors"
-    ]);
-    assert.equal(result.status, 0, result.stderr);
-    const anchor = result.stdout.indexOf("L0* [zeta]");
-    const predecessor = result.stdout.indexOf("L1* [alpha]");
-    assert.ok(anchor >= 0, result.stdout);
-    assert.ok(predecessor > anchor, result.stdout);
+    }
   });
+  const anchor = output.indexOf("L0* [zeta]");
+  const predecessor = output.indexOf("L1* [alpha]");
+  assert.ok(anchor >= 0, output);
+  assert.ok(predecessor > anchor, output);
 });
 
 test("generated Investigation Report CLI starts under Node with argv and stdout protocol", async () => {

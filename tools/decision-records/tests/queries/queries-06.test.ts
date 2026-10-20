@@ -1,3 +1,7 @@
+import os from "node:os";
+import { projectDecisionMetadata } from "../../src/decision-query-search-metadata.ts";
+import { printSearch } from "../../src/cli-output-search.ts";
+import { listSnapshotEntries } from "./domain-support.ts";
 import {
   archivedDecisionId,
   assert,
@@ -9,18 +13,15 @@ import {
   path,
   runSourceCli,
   test,
-  withFixtureWorkspace,
-  writeDecision
+  withFixtureWorkspace
 } from "./support.ts";
 
-test("decision metadata search matches published fields and source relation summaries", () =>
-  withFixtureWorkspace("query-search-metadata", async (workspaceRoot) => {
-    const sourcePath = "metadata-source.md";
-    const decisionId = "metadata-source";
-    await writeDecision(
-      workspaceRoot,
-      sourcePath,
-      candidateDecisionBody({
+test("decision metadata search matches published fields and source relation summaries", async () => {
+  const decisionId = "metadata-source";
+  const entries = await listSnapshotEntries([
+    {
+      id: decisionId,
+      text: candidateDecisionBody({
         id: decisionId,
         relations: [
           {
@@ -35,72 +36,52 @@ test("decision metadata search matches published fields and source relation summ
         .replace("status: candidate", "status: active")
         .replace("alignment: null", "alignment: aligned")
         .replace("createdAt: null", "createdAt: 2026-09-02T00:00:00Z")
-    );
-    assert.equal(
-      (await runSourceCli(["sync-index", "--root", workspaceRoot])).exitCode,
-      0
-    );
+    }
+  ]);
+  function renderMetadata(text: string, match: "all" | "phrase") {
+    const result = projectDecisionMetadata(entries, {
+      command: "search",
+      in: "metadata",
+      text,
+      match,
+      status: "active",
+      alignment: "all",
+      tags: [],
+      location: { decisionsDir: "docs/decisions", workspaceRoot: os.tmpdir() }
+    });
+    assert.ok(result.status === "ok" && result.command === "search");
+    let stdout = "";
+    printSearch(result, {
+      stdout: (value) => {
+        stdout += value;
+      },
+      stderr: () => {
+        throw new Error("Unexpected metadata search diagnostic");
+      }
+    });
+    return stdout;
+  }
+  const metadata = renderMetadata("ｍｅｔａ字段 metadata-tag", "all");
+  assert.match(metadata, new RegExp(decisionId));
+  assert.match(metadata, /matchedFields: title, tags/);
+  assert.match(metadata, /matchedRelations:\n    - none/);
+  assert.doesNotMatch(metadata, /previews:/);
 
-    const metadata = await runSourceCli([
-      "search",
-      "ｍｅｔａ字段 metadata-tag",
-      "--in",
-      "metadata",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(metadata.exitCode, 0, metadata.stderr);
-    assert.match(metadata.stdout, new RegExp(decisionId));
-    assert.match(metadata.stdout, /matchedFields: title, tags/);
-    assert.match(metadata.stdout, /matchedRelations:\n    - none/);
-    assert.doesNotMatch(metadata.stdout, /previews:/);
+  const phraseAcrossFields = renderMetadata("字段 metadata-tag", "phrase");
+  assert.match(phraseAcrossFields, /- none/);
 
-    const phraseAcrossFields = await runSourceCli([
-      "search",
-      "字段 metadata-tag",
-      "--in",
-      "metadata",
-      "--match",
-      "phrase",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(phraseAcrossFields.exitCode, 0, phraseAcrossFields.stderr);
-    assert.match(phraseAcrossFields.stdout, /- none/);
+  const relation = renderMetadata("仅来源关联摘要", "phrase");
+  assert.match(relation, new RegExp(decisionId));
+  assert.doesNotMatch(
+    relation,
+    new RegExp("- archived [^\\n]* " + archivedDecisionId)
+  );
+  assert.match(relation, /matchedFields: $/m);
+  assert.match(relation, /- 修订 260710-use-source-cli: 仅来源关联摘要/);
 
-    const relation = await runSourceCli([
-      "search",
-      "仅来源关联摘要",
-      "--in",
-      "metadata",
-      "--match",
-      "phrase",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(relation.exitCode, 0, relation.stderr);
-    assert.match(relation.stdout, new RegExp(decisionId));
-    assert.doesNotMatch(
-      relation.stdout,
-      new RegExp("- archived [^\\n]* " + archivedDecisionId)
-    );
-    assert.match(relation.stdout, /matchedFields: $/m);
-    assert.match(
-      relation.stdout,
-      /- 修订 260710-use-source-cli: 仅来源关联摘要/
-    );
-
-    const typeOnly = await runSourceCli([
-      "search",
-      "修订",
-      "--in",
-      "metadata",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(typeOnly.exitCode, 0, typeOnly.stderr);
-    assert.match(typeOnly.stdout, /- none/);
-  }));
+  const typeOnly = renderMetadata("修订", "all");
+  assert.match(typeOnly, /- none/);
+});
 
 test("decision metadata search uses only its published index and reports index recovery", () =>
   withFixtureWorkspace("query-search-metadata-index", async (workspaceRoot) => {

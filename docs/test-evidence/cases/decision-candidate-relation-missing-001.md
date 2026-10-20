@@ -10,4 +10,4 @@ Contract:
 - 候选关系的目标必须存在于可扫描的决策集合中。
 
 Proves:
-- 候选修订关系指向不存在的 Markdown 路径时，严格检查报告 target does not exist。
+- 正文校验器对显式可用目标集合之外的修订目标返回 target does not exist，document=null；不读取目标文件。

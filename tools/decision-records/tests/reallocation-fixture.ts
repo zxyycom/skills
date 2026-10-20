@@ -3,9 +3,10 @@ import path from "node:path";
 import { scanDecisionRecords } from "../src/scan.ts";
 import { isEstablishedDecisionRecord } from "../src/types.ts";
 import { candidateDecisionBody } from "./support.ts";
+import { decisionScanFromSources } from "./domain-fixture.ts";
 
 /** Complete Markdown ring: archived predecessors and sparse active successors. */
-export async function writeReallocationRing(root: string, count: number) {
+function reallocationRingSources(count: number) {
   const predecessorIds = Array.from(
     { length: count },
     (_, index) => `261001-p-${String(index).padStart(4, "0")}`
@@ -14,8 +15,7 @@ export async function writeReallocationRing(root: string, count: number) {
     { length: count },
     (_, index) => `261002-s-${String(index).padStart(4, "0")}`
   );
-  const directory = path.join(root, "docs/decisions");
-  await fs.mkdir(path.join(directory, "archive"), { recursive: true });
+  const sources = [];
   for (const [index, id] of [...predecessorIds, ...successorIds].entries()) {
     const archived = index < count;
     const relations = archived
@@ -34,8 +34,31 @@ export async function writeReallocationRing(root: string, count: number) {
         "createdAt: null",
         `createdAt: ${archived ? "2026-10-01" : "2026-10-02"}T00:00:00Z`
       );
+    sources.push({
+      id,
+      status: archived ? ("archived" as const) : ("active" as const),
+      text
+    });
+  }
+  return { sources, predecessorIds, successorIds };
+}
+
+export async function memoryReallocationRing(count: number) {
+  const { sources, predecessorIds, successorIds } =
+    reallocationRingSources(count);
+  const scan = await decisionScanFromSources(sources);
+  const records = scan.records.filter(isEstablishedDecisionRecord);
+  return { predecessorIds, successorIds, scan, records };
+}
+
+export async function writeReallocationRing(root: string, count: number) {
+  const { sources, predecessorIds, successorIds } =
+    reallocationRingSources(count);
+  const directory = path.join(root, "docs/decisions");
+  await fs.mkdir(path.join(directory, "archive"), { recursive: true });
+  for (const { id, status, text } of sources) {
     await fs.writeFile(
-      path.join(directory, archived ? "archive" : "", id + ".md"),
+      path.join(directory, status === "archived" ? "archive" : "", id + ".md"),
       text
     );
   }

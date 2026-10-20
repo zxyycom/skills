@@ -10,4 +10,4 @@ Contract:
 - 资源 ID 声明的 owner report 必须存在。
 
 Proves:
-- 缺少 owner report 返回错误。
+- 资源归属校验器从引用映射识别缺失 owner report，并返回包含资源 ID 与 owner ID 的错误。

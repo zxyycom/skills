@@ -42,19 +42,17 @@ function selectiveDefinition() {
         checkId: "passed",
         displayName: "passed",
         enabledByFlags: {
-          flags: [activationFlagForCheck("passed")],
-          mode: "all"
+          when: activationFlagForCheck("passed")
         },
-        execution: () => ({ status: "passed" as const, data: {} })
+        execute: () => ({ status: "passed" as const, data: {} })
       }),
       defineCheck({
         checkId: "reused",
         displayName: "reused",
         enabledByFlags: {
-          flags: [activationFlagForCheck("reused")],
-          mode: "all"
+          when: activationFlagForCheck("reused")
         },
-        execution() {
+        execute() {
           throw new Error("a reused Check must not execute");
         }
       })
@@ -74,6 +72,7 @@ test("CLI publishes incremental activation and receipt summaries", async () => {
       let publishedPassedIds: ReadonlySet<string> | null = null;
       assert.equal(
         await runVibeCheck([], {
+          continuousIntegration: false,
           createDefinition(_invocation, selectedPlan) {
             assert.equal(selectedPlan, activationPlan);
             return definition;
@@ -81,7 +80,7 @@ test("CLI publishes incremental activation and receipt summaries", async () => {
           createInvocationDirectory: () => invocationDirectory,
           prepareActivation: async () => activationPlan,
           publishReceipts: async (_plan, passedIds) => {
-            publishedPassedIds = passedIds;
+            publishedPassedIds = passedIds.passedCheckIds;
             return { published: true, receiptCount: 1 };
           },
           reportInfo: (message) => information.push(message),
@@ -110,8 +109,7 @@ test("CLI publishes incremental activation and receipt summaries", async () => {
         decisions: activationPlan.decisions,
         fallbackDetail: null,
         mode: "incremental",
-        publication: { published: true, receiptCount: 1 },
-        releaseTestBatchProof: null
+        publication: { published: true, receiptCount: 1 }
       });
     }
   );
@@ -167,4 +165,62 @@ test("CLI publishes conservative fallback reasons", async () => {
       assert.equal(summary.fallbackDetail, "required tool probe failed");
     }
   );
+});
+
+test("CLI rejects output failure, Run rejection and failed aggregates without publishing success", async () => {
+  await withTemporaryDirectory("gate-cli-final-result-", async (directory) => {
+    for (const mode of ["output", "rejected", "failed"] as const) {
+      const diagnostics: string[] = [];
+      let publicationCalls = 0;
+      const exitCode = await runVibeCheck([], {
+        continuousIntegration: false,
+        createDefinition: passedDefinition,
+        createInvocationDirectory: () => path.join(directory, mode),
+        prepareActivation: async () => incrementalPlan(directory),
+        publishReceipts: async (_plan, result) => {
+          publicationCalls += 1;
+          assert.equal(result.runSucceeded, false);
+          return { published: false, reason: "check-not-passed" };
+        },
+        reportError: (message) => diagnostics.push(message),
+        reportInfo: () => undefined,
+        async runProject(definition, controls) {
+          if (mode === "rejected") throw new Error("private rejection detail");
+          return run(
+            {
+              ...definition,
+              ...(mode === "output"
+                ? {
+                    scheduler: {
+                      ...definition.scheduler,
+                      terminalEffects: [
+                        () => {
+                          throw new Error("private terminal detail");
+                        }
+                      ]
+                    }
+                  }
+                : {}),
+              ...(mode === "failed"
+                ? {
+                    checks: [
+                      defineCheck({
+                        checkId: "failed",
+                        displayName: "failed",
+                        execute: () => ({ status: "failed", data: {} })
+                      })
+                    ]
+                  }
+                : {})
+            },
+            { ...controls, outputs: noOutput }
+          );
+        }
+      });
+      assert.equal(exitCode, 1, mode);
+      assert.equal(publicationCalls, mode === "rejected" ? 0 : 1, mode);
+      assert.ok(diagnostics.length > 0);
+      assert.equal(diagnostics.join(" ").includes("private"), false);
+    }
+  });
 });

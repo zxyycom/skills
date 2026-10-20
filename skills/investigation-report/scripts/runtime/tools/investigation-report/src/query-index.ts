@@ -150,7 +150,7 @@ type IndexQuerySelection = Readonly<{
   > | null;
 }>;
 
-function queryLoadedInvestigationIndex(
+export function queryLoadedInvestigationIndex(
   loaded: LoadedInvestigationIndex,
   validated: ValidatedQueryOptions,
   indexPath: string

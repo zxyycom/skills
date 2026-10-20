@@ -55,6 +55,11 @@ const sectionContracts: readonly SectionContract[] = [
   { header: "Proves:", itemKind: "text", name: "proves" }
 ];
 
+const tokenItemSchemas = {
+  tag: testEvidenceTagSchema,
+  test: testEvidenceTestIdSchema
+};
+
 export function parseCaseSource(
   source: CaseTextSource
 ): CaseSourceResult<ParsedCaseSource> {
@@ -211,16 +216,13 @@ function parseSectionItem(
 ): string | null {
   if (itemKind === "text") {
     const value = line.slice(2);
-    return value.length > 0 && value.trim() === value ? value : null;
+    if (value.length === 0 || value.trim() !== value) return null;
+    return value;
   }
   const value = /^- `([^`]+)`$/u.exec(line)?.[1] ?? null;
   if (value === null) return null;
-  return v.safeParse(
-    itemKind === "test" ? testEvidenceTestIdSchema : testEvidenceTagSchema,
-    value
-  ).success
-    ? value
-    : null;
+  if (!v.safeParse(tokenItemSchemas[itemKind], value).success) return null;
+  return value;
 }
 
 function validateOrderedUnique(
@@ -230,22 +232,7 @@ function validateOrderedUnique(
   diagnostics: TestEvidenceDiagnostic[]
 ): void {
   if (kind === "tests") {
-    const seen = new Set<string>();
-    for (const testId of values) {
-      if (seen.has(testId)) {
-        diagnostics.push(
-          diagnostic({
-            caseId: source.id,
-            category: "case",
-            code: "case.tests-duplicate",
-            message: `${source.path} repeats the ${source.id} -> ${testId} relation`,
-            path: source.path,
-            testId
-          })
-        );
-      }
-      seen.add(testId);
-    }
+    validateUniqueTests(values, source, diagnostics);
   } else if (new Set(values).size !== values.length) {
     diagnostics.push(
       diagnostic({
@@ -270,6 +257,29 @@ function validateOrderedUnique(
         path: source.path
       })
     );
+  }
+}
+
+function validateUniqueTests(
+  testIds: readonly string[],
+  source: IdentifiedCaseSource,
+  diagnostics: TestEvidenceDiagnostic[]
+): void {
+  const seen = new Set<string>();
+  for (const testId of testIds) {
+    if (seen.has(testId)) {
+      diagnostics.push(
+        diagnostic({
+          caseId: source.id,
+          category: "case",
+          code: "case.tests-duplicate",
+          message: `${source.path} repeats the ${source.id} -> ${testId} relation`,
+          path: source.path,
+          testId
+        })
+      );
+    }
+    seen.add(testId);
   }
 }
 

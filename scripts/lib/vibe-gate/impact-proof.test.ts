@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
 import test from "node:test";
 import { writeReceiptManifest } from "./impact-receipts.ts";
 import {
   baseGateCheckIds,
   gateActivationFlags,
+  publishGateReceipts,
   validateBaseGateImpactContracts
 } from "./impact.ts";
 import {
@@ -15,17 +17,16 @@ import {
 test("incremental Gate reuses only exact successful receipts", async () => {
   await withImpactFixture(async (fixture) => {
     assert.deepEqual(validateBaseGateImpactContracts(), []);
-    assert.equal(baseGateCheckIds.length, 64);
+    assert.ok(!baseGateCheckIds.includes("markdown-link-validation"));
+    assert.ok(!baseGateCheckIds.includes("environment"));
     await publishInitialFixtureReceipts(fixture);
-
     const warm = await prepareFixtureActivation(fixture);
     assert.deepEqual(warm.activeCheckIds, []);
     assert.equal(
       warm.decisions.filter(({ action }) => action === "reuse").length,
-      64
+      baseGateCheckIds.length
     );
     assert.deepEqual(gateActivationFlags(warm), []);
-    // A cached provider must execute again when its importing consumer has no receipt.
     await writeReceiptManifest(
       fixture.cacheDirectory,
       warm.decisions
@@ -35,16 +36,33 @@ test("incremental Gate reuses only exact successful receipts", async () => {
           return { checkId, fingerprint, outcome: "passed" as const };
         })
     );
-    const importingConsumer = await prepareFixtureActivation(fixture);
-    assert.deepEqual(
-      new Set(importingConsumer.activeCheckIds),
-      new Set(["script:test:skill-updater", "script:check:skill-updaters"])
+    // Only the missing project receipt is selected; native dependsOn propagation owns provider activation.
+    assert.deepEqual((await prepareFixtureActivation(fixture)).activeCheckIds, [
+      "script:test:skill-updater"
+    ]);
+  });
+});
+
+test("incremental Gate publishes nothing when the final Run did not succeed", async () => {
+  await withImpactFixture(async (fixture) => {
+    const plan = await prepareFixtureActivation(fixture);
+    const result = await publishGateReceipts(
+      plan,
+      { runSucceeded: false, passedCheckIds: fixture.passedCheckIds },
+      fixture.directory,
+      fixture.captureDependencies
+    );
+    assert.deepEqual(result, { published: false, reason: "check-not-passed" });
+    assert.equal(
+      await fs.stat(fixture.cacheDirectory).then(
+        () => true,
+        () => false
+      ),
+      false
     );
     assert.equal(
-      importingConsumer.decisions.find(
-        ({ checkId }) => checkId === "script:check:skill-updaters"
-      )?.reason,
-      "dependency-required"
+      (await prepareFixtureActivation(fixture)).activeCheckIds.length,
+      baseGateCheckIds.length
     );
   });
 });

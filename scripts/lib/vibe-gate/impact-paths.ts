@@ -1,134 +1,16 @@
-import type { GateImpactTag } from "./impact-catalog.ts";
-import { compareText } from "./impact-values.ts";
+/** Disk inputs read by project commands, including ignored fixtures and generated files. */
+export const gateInputDirectories = [
+  "scripts",
+  "tools",
+  "skills",
+  "docs",
+  "changes",
+  ".github",
+  ".githooks",
+  ".codex"
+] as const;
 
-const ownerTagsByName = new Map<string, GateImpactTag>([
-  ["change-plan", "change-plan"],
-  ["decision-records", "decision-records"],
-  ["index-runtime", "index-runtime"],
-  ["investigation-report", "investigation-report"],
-  ["skill-updater", "skill-updater"],
-  ["skill-updaters", "skill-updater"],
-  ["skill-validator", "skill-validator"],
-  ["task-graph", "task-graph"],
-  ["test-evidence", "test-evidence"]
-]);
-
-function ownerTagForName(value: string | undefined): GateImpactTag | null {
-  return value === undefined ? null : (ownerTagsByName.get(value) ?? null);
-}
-
-const documentationOwnerTags = new Map<string, GateImpactTag>([
-  ["decisions", "decision-records"],
-  ["investigations", "investigation-report"],
-  ["task-graph", "task-graph"],
-  ["test-evidence", "test-evidence"]
-]);
-
-function documentationOwnerTag(
-  second: string | undefined,
-  third: string | undefined
-): GateImpactTag {
-  if (second === "skills") return ownerTagForName(third) ?? "skills";
-  return second === undefined
-    ? "documentation"
-    : (documentationOwnerTags.get(second) ?? "documentation");
-}
-
-const toolOwnerTags = new Map<string, GateImpactTag>([
-  ["index-runtime", "index-runtime"],
-  ["mcpshell-workspace-bridge", "global"],
-  ["shared", "shared-tools"],
-  ["skill-package", "skill-release"]
-]);
-
-function toolOwnerTag(second: string | undefined): GateImpactTag | null {
-  if (second === undefined) return null;
-  return toolOwnerTags.get(second) ?? ownerTagForName(second);
-}
-
-const scriptOwnerRules = [
-  {
-    matches: (relativePath: string) =>
-      relativePath.includes("vibe-check") ||
-      relativePath.includes("vibe-gate") ||
-      relativePath === "scripts/lib/project.ts",
-    tag: "global"
-  },
-  {
-    matches: (relativePath: string) =>
-      ["environment", "auto-push", "project-config", "setup-"].some((name) =>
-        relativePath.includes(name)
-      ),
-    tag: "environment"
-  },
-  {
-    matches: (relativePath: string) =>
-      relativePath.includes("generated-") ||
-      relativePath.startsWith("scripts/lib/source-runtime") ||
-      relativePath === "scripts/lib/skill-runtime.ts" ||
-      relativePath === "scripts/lib/native-cli-entry.ts" ||
-      relativePath === "scripts/lib/oxc-config.ts" ||
-      relativePath === "scripts/lib/source-map.ts" ||
-      relativePath === "scripts/lint.ts",
-    tag: "build-system"
-  },
-  {
-    matches: (relativePath: string) =>
-      ["skill-package", "pack-skills", "publish-skills", "hash-skills"].some(
-        (name) => relativePath.includes(name)
-      ),
-    tag: "skill-release"
-  },
-  {
-    matches: (relativePath: string) => relativePath.includes("task-graph"),
-    tag: "task-graph"
-  },
-  {
-    matches: (relativePath: string) => relativePath.includes("validat"),
-    tag: "skill-validator"
-  }
-] as const satisfies readonly Readonly<{
-  matches: (relativePath: string) => boolean;
-  tag: GateImpactTag;
-}>[];
-
-function scriptOwnerTag(
-  relativePath: string,
-  second: string | undefined,
-  third: string | undefined
-): GateImpactTag | null {
-  if (second === "test-evidence") return "test-evidence";
-  if (second === "build") {
-    return ownerTagForName(third?.split(".")[0]) ?? "global";
-  }
-  return (
-    scriptOwnerRules.find(({ matches }) => matches(relativePath))?.tag ?? null
-  );
-}
-
-function ownerTagForPath(relativePath: string): GateImpactTag | null {
-  const [topLevel, second, third] = relativePath.split("/");
-  const fixedOwner = topLevelOwnerTags.get(topLevel ?? "");
-  if (fixedOwner !== undefined) return fixedOwner;
-  if (topLevel === "docs") return documentationOwnerTag(second, third);
-  if (topLevel === "scripts") {
-    return scriptOwnerTag(relativePath, second, third);
-  }
-  if (topLevel === "skills") return ownerTagForName(second) ?? "skills";
-  return topLevel === "tools" ? toolOwnerTag(second) : null;
-}
-
-const topLevelOwnerTags = new Map<string, GateImpactTag>([
-  [".codegraph", "global"],
-  [".codex", "global"],
-  [".github", "global"],
-  [".githooks", "environment"],
-  ["AGENTS.md", "documentation"],
-  ["README.md", "documentation"],
-  ["changes", "change-plan"]
-]);
-
-const rootConfigurationFiles = new Set([
+export const gateConfigurationFiles = [
   ".gitattributes",
   ".gitignore",
   ".oxfmtrc.json",
@@ -136,77 +18,54 @@ const rootConfigurationFiles = new Set([
   "package.json",
   "pnpm-lock.yaml",
   "pnpm-workspace.yaml",
+  "tsconfig.json",
   "skills.code-workspace",
-  "tsconfig.json"
-]);
+  "AGENTS.md",
+  "README.md"
+] as const;
 
-function isRootConfiguration(relativePath: string): boolean {
-  return (
-    relativePath.startsWith(".github/") ||
-    rootConfigurationFiles.has(relativePath)
-  );
-}
+export const commonGateInputPatterns = [
+  ...gateConfigurationFiles,
+  "scripts/**",
+  ".github/**",
+  ".githooks/**",
+  ".codex/**",
+  "tools/shared/**",
+  "!tools/shared/src/file-text-search/**",
+  "!tools/shared/src/graph/**",
+  "tools/index-runtime/**",
+  "tools/skill-package/**",
+  "tools/skill-updater/**"
+] as const;
 
-function isMaintainedCode(relativePath: string): boolean {
-  return (
-    (relativePath.startsWith("scripts/") ||
-      relativePath.startsWith("tools/")) &&
-    /\.(?:js|ts)$/u.test(relativePath)
-  );
-}
-
-function isSecretSurface(relativePath: string): boolean {
-  return (
-    /\.(?:code-workspace|example|html|js|json|jsonl|md|mjs|mts|rules|toml|ts|txt|yaml|yml)$/u.test(
-      relativePath
-    ) ||
-    relativePath === ".gitattributes" ||
-    relativePath === ".gitignore" ||
-    relativePath.startsWith(".githooks/")
-  );
-}
-
-const impactTagRules = [
-  {
-    matches: (relativePath: string) => relativePath.startsWith("skills/"),
-    tag: "skills"
-  },
-  { matches: isRootConfiguration, tag: "global" },
-  {
-    matches: (relativePath: string) => relativePath.startsWith(".githooks/"),
-    tag: "environment"
-  },
-  {
-    matches: (relativePath: string) =>
-      relativePath === "AGENTS.md" || relativePath === "README.md",
-    tag: "documentation"
-  },
-  { matches: isMaintainedCode, tag: "maintained-code" },
-  {
-    matches: (relativePath: string) => relativePath.endsWith(".md"),
-    tag: "markdown"
-  },
-  {
-    matches: (relativePath: string) => relativePath.endsWith(".json"),
-    tag: "json"
-  },
-  { matches: isSecretSurface, tag: "secret-surface" }
-] as const satisfies readonly Readonly<{
-  matches: (relativePath: string) => boolean;
-  tag: GateImpactTag;
-}>[];
-
-export function impactTagsForPath(relativePath: string): Readonly<{
-  tags: readonly GateImpactTag[];
-  unclassified: boolean;
-}> {
-  const tags = new Set<GateImpactTag>(["path-inventory"]);
-  const ownerTag = ownerTagForPath(relativePath);
-  if (ownerTag !== null) tags.add(ownerTag);
-  for (const rule of impactTagRules) {
-    if (rule.matches(relativePath)) tags.add(rule.tag);
+export function isKnownGateInput(relativePath: string): boolean {
+  if (relativePath.startsWith("tools/")) {
+    return [
+      "shared",
+      "index-runtime",
+      "skill-package",
+      "skill-updater",
+      "change-plan",
+      "decision-records",
+      "investigation-report",
+      "task-graph",
+      "test-evidence",
+      "novel-cards",
+      "lightweight-judgment",
+      "mcpshell-workspace-bridge",
+      "skill-validator"
+    ].some(
+      (owner) =>
+        relativePath === `tools/${owner}` ||
+        relativePath.startsWith(`tools/${owner}/`)
+    );
   }
-  const unclassified = ownerTag === null && !isRootConfiguration(relativePath);
-  if (unclassified) tags.add("global");
-  return { tags: [...tags].sort(compareText), unclassified };
+  return (
+    gateConfigurationFiles.some((file) => file === relativePath) ||
+    gateInputDirectories.some(
+      (directory) =>
+        relativePath === directory || relativePath.startsWith(`${directory}/`)
+    ) ||
+    relativePath.startsWith(".codegraph/")
+  );
 }

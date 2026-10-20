@@ -7,7 +7,7 @@ Tags:
 - `investigation-report`
 
 Contract:
-- CLI 必须在参数边界拒绝非法关系类型与 Trace direction。
+- CLI 必须拒绝非法关系类型与 Trace direction，并按各自边界返回退出结果。
 
 Proves:
-- 未知关系类型和 direction 均以退出码 2 结束，只向 stderr 返回参数诊断。
+- 同进程源码 CLI 对未知关系类型返回退出码 1 与 relation type 诊断；非法 Trace direction 返回退出码 2 与 direction 诊断，两者 stdout 均为空。

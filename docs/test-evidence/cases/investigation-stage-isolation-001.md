@@ -10,4 +10,4 @@ Contract:
 - `stage --scope index` 的暂存写入边界仅为派生 index，不包含报告 Markdown。
 
 Proves:
-- 真实 Git fixture 中暂存区只含 index；cached index 等于工作树 index，报告 Markdown 仅留在未暂存工作树差异中。
+- 真实 Git fixture 成功选择指定报告 ID，返回 changed=true；暂存区只含 index，cached index 等于工作树 index，报告 Markdown 无 cached 差异且仍留在未暂存工作树差异中。

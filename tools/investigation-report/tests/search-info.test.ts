@@ -2,89 +2,87 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import {
+  investigationIndexFixture,
+  searchIndexFixture
+} from "./index-fixture.ts";
 import { searchInvestigationReports } from "../src/query.ts";
 import {
   investigationRoot,
   reportMarkdown,
   runGeneratedInvestigationCliSmoke,
+  runInvestigationCli,
   withTempRoot,
   writeCollection
 } from "./v6-support.ts";
 
 test("investigation metadata search counts all matches and marks only returned-result limits", async () => {
-  await withTempRoot("search-info-metadata", async (root) => {
-    await writeCollection(root, [{ id: "one" }, { id: "two" }]);
-    const result = await searchInvestigationReports({
-      workspaceRoot: root,
-      query: "当前",
-      in: "metadata",
-      limit: 1
-    });
-    assert.equal(result.status, "ok");
-    assert.ok(result.searchInfo !== null);
-    assert.deepEqual(result.searchInfo.counts, {
-      matched: { value: 2, precision: "exact" },
-      returned: 1
-    });
-    assert.deepEqual(result.searchInfo.coverage, {
-      scanComplete: true,
-      resultsComplete: false,
-      previewsComplete: null,
-      reasons: ["max-records"]
-    });
-    assert.deepEqual(result.truncation, {
-      files: true,
-      matches: false,
-      previewCharacters: false
-    });
-    assert.deepEqual(result.warnings, ["search results limited: max-records"]);
-    const exactBudget = await searchInvestigationReports({
-      workspaceRoot: root,
-      query: "当前",
-      in: "metadata",
-      limit: 2
-    });
-    assert.ok(exactBudget.searchInfo !== null);
-    assert.equal(exactBudget.searchInfo.coverage.resultsComplete, true);
-    assert.deepEqual(exactBudget.warnings, []);
+  const index = investigationIndexFixture([{ id: "one" }, { id: "two" }]);
+  const result = searchIndexFixture(index, {
+    query: "当前",
+    in: "metadata",
+    limit: 1
   });
+  assert.equal(result.status, "ok");
+  assert.ok(result.searchInfo !== null);
+  assert.deepEqual(result.searchInfo.counts, {
+    matched: { value: 2, precision: "exact" },
+    returned: 1
+  });
+  assert.deepEqual(result.searchInfo.coverage, {
+    scanComplete: true,
+    resultsComplete: false,
+    previewsComplete: null,
+    reasons: ["max-records"]
+  });
+  assert.deepEqual(result.truncation, {
+    files: true,
+    matches: false,
+    previewCharacters: false
+  });
+  assert.deepEqual(result.warnings, ["search results limited: max-records"]);
+  const exactBudget = searchIndexFixture(index, {
+    query: "当前",
+    in: "metadata",
+    limit: 2
+  });
+  assert.ok(exactBudget.searchInfo !== null);
+  assert.equal(exactBudget.searchInfo.coverage.resultsComplete, true);
+  assert.deepEqual(exactBudget.warnings, []);
 });
 
 test("investigation search echoes validated UTC times tags and full resolved relation target", async () => {
-  await withTempRoot("search-info-filters", async (root) => {
-    await writeCollection(root, [
-      { id: "260828-base" },
-      {
-        id: "next",
-        relations: [{ type: "补充", target: "260828-base" }],
-        tags: ["alpha"]
-      }
-    ]);
-    const result = await searchInvestigationReports({
-      workspaceRoot: root,
-      query: " 当前 ",
-      in: "metadata",
-      tags: [" alpha ", "alpha"],
-      relatedTo: "base.MD",
-      relationType: "补充",
-      formedAtFrom: "2026-08-28T13:00:00+01:00",
-      formedAtTo: "2026-08-28T12:00:00Z"
-    });
-    assert.ok(result.status === "ok");
-    assert.deepEqual(result.searchInfo.query.filters, {
-      tags: ["alpha"],
-      formedAtFrom: "2026-08-28T12:00:00.000Z",
-      formedAtTo: "2026-08-28T12:00:00.000Z",
-      relationType: "补充",
-      relatedTo: "260828-base",
-      direction: "both"
-    });
-    assert.equal(result.searchInfo.query.text, "当前");
-    assert.deepEqual(
-      result.entries.map((entry) => entry.id),
-      ["next"]
-    );
+  const index = investigationIndexFixture([
+    { id: "260828-base" },
+    {
+      id: "next",
+      relations: [{ type: "补充", target: "260828-base" }],
+      tags: ["alpha"]
+    }
+  ]);
+  const result = searchIndexFixture(index, {
+    query: " 当前 ",
+    in: "metadata",
+    tags: [" alpha ", "alpha"],
+    relatedTo: "base.MD",
+    relationType: "补充",
+    formedAtFrom: "2026-08-28T13:00:00+01:00",
+    formedAtTo: "2026-08-28T12:00:00Z"
   });
+  assert.ok(result.status === "ok");
+  assert.deepEqual(result.searchInfo.query.filters, {
+    tags: ["alpha"],
+    formedAtFrom: "2026-08-28T12:00:00.000Z",
+    formedAtTo: "2026-08-28T12:00:00.000Z",
+    relationType: "补充",
+    relatedTo: "260828-base",
+    direction: "both"
+  });
+  assert.equal(result.searchInfo.query.text, "当前");
+  assert.deepEqual(
+    result.entries.map((entry) => entry.id),
+    ["next"]
+  );
 });
 
 test("investigation search complete zero hits separates content previews from metadata", async () => {
@@ -282,7 +280,7 @@ test("distributed investigation search prints exact metadata and lower-bound con
       metadata.stderr,
       /search previews limited|sync-index|resolve the warning|source problem/
     );
-    const content = runGeneratedInvestigationCliSmoke(root, [
+    const content = await runInvestigationCli(root, [
       "search",
       "当前",
       "--limit",
@@ -297,7 +295,7 @@ test("distributed investigation search prints exact metadata and lower-bound con
       content.stdout,
       /Coverage: scan=limited results=limited previews=complete reasons=max-records/
     );
-    const zero = runGeneratedInvestigationCliSmoke(root, ["search", "absent"]);
+    const zero = await runInvestigationCli(root, ["search", "absent"]);
     assert.equal(zero.status, 0, zero.stderr);
     assert.match(zero.stdout, /Counts: matched=0 precision=exact returned=0/);
     assert.match(

@@ -1,7 +1,7 @@
 ---
 title: 为 Release 版本管理测试建立独立资源边界
 id: 260912-isolate-release-version-control-resource-boundary
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-12T02:53:01Z
 purpose: 在保留 Release 测试批次收益的同时隔离 Git 子进程密集测试，并保留直接失败诊断。
@@ -27,7 +27,7 @@ relations:
 ## 背景
 
 - 前序决策把没有生成前置的 Bun semantic Check 和显式登记的 Bun test package Check 纳入同一批次，并让批次占用全部四个 `cpu-work` unit、其他非投影 Check 各占一个 unit。
-- [版本管理测试间歇失败调查](../investigations/isolate-ci-version-control-test-load.md)确认 `test:version-control` 跨提交重复失败；目标提交在匹配 CI 工具与环境的独立 clone、连续独立运行和并发压力对照中均未复现具体断言。压力对照同时表明该测试在竞争下显著变慢，且共享 batch transcript 无法提供直接失败用例。
+- [版本管理测试间歇失败调查](../../investigations/isolate-ci-version-control-test-load.md)确认 `test:version-control` 跨提交重复失败；目标提交在匹配 CI 工具与环境的独立 clone、连续独立运行和并发压力对照中均未复现具体断言。压力对照同时表明该测试在竞争下显著变慢，且共享 batch transcript 无法提供直接失败用例。
 - 现有证据不足以把资源竞争确定为唯一根因，但足以说明继续让这个 Git 子进程密集测试共享四路批次，会同时保留负载竞争和诊断遮蔽两项风险。修订应收窄执行边界，不改变测试内容或质量真值。
 
 ## 决策

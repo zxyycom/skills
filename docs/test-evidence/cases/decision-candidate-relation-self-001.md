@@ -10,4 +10,4 @@ Contract:
 - 候选不能以自身决策路径作为关系目标。
 
 Proves:
-- 候选修订关系指向自身时，严格检查报告 must not relate to itself。
+- 正文校验器对候选修订关系指向自身返回 must not relate to itself，document=null。

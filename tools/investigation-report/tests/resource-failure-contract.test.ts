@@ -16,12 +16,12 @@ import {
 } from "./v6-support.ts";
 
 const resourceId = "one/nested/member.txt";
-async function prepare(root: string): Promise<void> {
+async function prepare(root: string, recorded = true): Promise<void> {
   const target = path.join(investigationRoot(root), "_resources", resourceId);
   await fs.mkdir(path.dirname(target), { recursive: true });
   await fs.writeFile(target, "original\n");
   await writeCollection(root, [{ id: "one" }]);
-  initializeGit(root);
+  if (recorded) initializeGit(root);
   await fs.writeFile(target, "selected update\n");
 }
 
@@ -196,7 +196,7 @@ for (const failure of [
 
 test("resource inspectors keep default validation issues while detailed inspection retains real open failure", async () => {
   await withTempRoot("resource-default-issues", async (root) => {
-    await prepare(root);
+    await prepare(root, false);
     const prepared = await prepareInvestigationResourceRoot(
       investigationRoot(root)
     );
@@ -235,7 +235,7 @@ test("resource inspectors keep default validation issues while detailed inspecti
 
 test("resource inspectors do not invent filesystem categories for ordinary symlink validation", async () => {
   await withTempRoot("resource-validation-not-system", async (root) => {
-    await prepare(root);
+    await prepare(root, false);
     const target = targetFor(root, "terminal open");
     const saved = path.join(root, "saved-resource");
     await fs.rename(target, saved);

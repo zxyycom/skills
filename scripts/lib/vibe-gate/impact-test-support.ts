@@ -122,7 +122,7 @@ export async function publishFixtureReceipts(
 ) {
   return await publishGateReceipts(
     plan,
-    passedCheckIds,
+    { runSucceeded: true, passedCheckIds },
     fixture.directory,
     captureDependencies
   );
@@ -137,6 +137,6 @@ export async function publishInitialFixtureReceipts(
   assert.ok(first.decisions.every(({ action }) => action === "execute"));
   assert.deepEqual(await publishFixtureReceipts(fixture, first), {
     published: true,
-    receiptCount: 64
+    receiptCount: baseGateCheckIds.length
   });
 }

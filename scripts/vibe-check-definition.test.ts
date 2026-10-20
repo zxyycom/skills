@@ -1,20 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 import {
-  activationFlagForCheck,
   createGateDefinition,
   gateCheckIds,
   gateEnvironmentCheckId,
   gateResourceCapacities,
-  packageScriptCheckId,
   releaseGateResourceCapacities,
   releaseRequiredCheckIds,
-  releaseRequiredPackageScripts,
-  releaseSnapshotCheckId,
-  releaseTestBatchGroups,
-  releaseTestBatchLeaderCheckId,
-  releaseTestBatchResourceClaim,
   semanticGateChecks,
   vibeNativeCheckIds
 } from "./lib/vibe-gate.ts";
@@ -22,320 +14,107 @@ import {
   expectedSemanticChecks,
   expectedSemanticPrerequisites
 } from "./vibe-check-catalog-fixture.ts";
-import {
-  aggregateOptions,
-  completed,
-  completedScript,
-  noOutput,
-  outcomeFor,
-  passingNativeChecks,
-  releaseTerminalCheck,
-  repositoryRoot,
-  runDefinition
-} from "./vibe-check-test-support.ts";
 
-function catalogDefinitions() {
-  const runner = completedScript();
-  const nativeChecks = passingNativeChecks();
-  return {
-    baseDefinition: createGateDefinition([], {
-      nativeChecks,
-      runCommand: runner
-    }),
-    incrementalDefinition: createGateDefinition([], {
-      activeCheckIds: ["secret-detection"],
-      nativeChecks,
-      runCommand: runner
-    }),
-    nativeChecks,
-    releaseDefinition: createGateDefinition(["release"], {
-      nativeChecks,
-      runCommand: runner
-    }),
-    runner
-  };
-}
-
-test("gate Definition keeps the complete catalog and incremental selection", async () => {
-  const {
-    baseDefinition,
-    incrementalDefinition,
-    nativeChecks,
-    releaseDefinition,
-    runner
-  } = catalogDefinitions();
-  const expectedSemanticCheckIds = expectedSemanticChecks.map(
-    ([checkId]) => checkId
-  );
-  const expectedCheckIds = [
-    gateEnvironmentCheckId,
-    releaseSnapshotCheckId,
-    ...vibeNativeCheckIds,
-    ...releaseRequiredPackageScripts.map((script) => `script:${script}`),
-    ...expectedSemanticCheckIds,
-    "release:skill-version",
-    "pack:skills"
-  ];
+test("gate Definition keeps the complete catalog and incremental selection", () => {
+  const definition = createGateDefinition([], {
+    activeCheckIds: ["script:typecheck"]
+  });
+  assert.equal(gateCheckIds().length, 64);
   assert.deepEqual(
-    baseDefinition.checks.map(({ checkId }) => checkId),
-    expectedCheckIds
+    definition.checks.map(({ checkId }) => checkId),
+    gateCheckIds()
   );
+  for (const checkId of vibeNativeCheckIds) {
+    const check = definition.checks.find(
+      (candidate) => candidate.checkId === checkId
+    );
+    assert.equal(check?.enabledByFlags, undefined, checkId);
+    assert.deepEqual(check?.dependsOn, [gateEnvironmentCheckId], checkId);
+  }
   assert.deepEqual(
-    releaseDefinition.checks.map(({ checkId }) => checkId),
-    expectedCheckIds
-  );
-  assert.deepEqual(gateCheckIds(), expectedCheckIds);
-  assert.deepEqual(
-    incrementalDefinition.checks.find(
-      ({ checkId }) => checkId === "secret-detection"
-    )?.enabledByFlags,
-    {
-      flags: ["gate-activation:secret-detection"],
-      mode: "all"
-    }
-  );
-  assert.deepEqual(
-    incrementalDefinition.checks.find(
-      ({ checkId }) => checkId === "test:change-plan:public-distribution"
-    )?.enabledByFlags,
-    {
-      flags: ["gate-activation:test:change-plan:public-distribution"],
-      mode: "all",
-      propagateDependsOn: true
-    }
+    definition.checks.find(({ checkId }) => checkId === "script:typecheck")
+      ?.enabledByFlags,
+    { when: "gate-activation:script:typecheck", propagateDependsOn: true }
   );
   assert.throws(
     () =>
-      createGateDefinition([], {
-        activeCheckIds: ["release:skill-version"],
-        nativeChecks,
-        runCommand: runner
-      }),
+      createGateDefinition([], { activeCheckIds: ["release:skill-version"] }),
     /non-base Check/u
   );
-  const incrementalResult = await runDefinition(
-    incrementalDefinition,
-    repositoryRoot,
-    [activationFlagForCheck("secret-detection")]
+  assert.deepEqual(
+    semanticGateChecks.map(({ checkId, command }) => [
+      checkId,
+      command.command,
+      command.args.at(-1)
+    ]),
+    expectedSemanticChecks
   );
-  assert.equal(
-    outcomeFor(incrementalResult, "secret-detection").status,
-    "passed"
-  );
-  assert.equal(
-    outcomeFor(incrementalResult, "duplicate-detection").status,
-    "not-applicable"
-  );
-  assert.equal(
-    baseDefinition.checks.some(({ checkId }) => checkId === "pack:skills"),
-    true
-  );
-  assert.equal(
-    baseDefinition.checks.find(
-      ({ checkId }) => checkId === gateEnvironmentCheckId
-    )?.enabledByFlags,
-    undefined
-  );
-  for (const check of baseDefinition.checks) {
-    assert.equal(
-      check.checkId === gateEnvironmentCheckId ||
-        (Array.isArray(check.dependsOn) &&
-          check.dependsOn.includes(gateEnvironmentCheckId)),
-      true,
-      check.checkId
-    );
-  }
 });
 
 test("gate Definition keeps scheduler, output, and release DAG contracts", () => {
-  const { baseDefinition, releaseDefinition } = catalogDefinitions();
-  assert.equal(baseDefinition.scheduler.maxParallel, 4);
-  assert.equal(baseDefinition.scheduler.admissionPolicy.kind, "custom");
+  const base = createGateDefinition();
+  const release = createGateDefinition(["release"]);
+  assert.equal(base.scheduler.maxParallel, 4);
+  assert.equal(base.scheduler.admissionPolicy.kind, "custom");
+  assert.deepEqual(base.scheduler.resourceCapacities, gateResourceCapacities);
   assert.deepEqual(
-    baseDefinition.scheduler.resourceCapacities,
-    gateResourceCapacities
-  );
-  assert.equal(releaseDefinition.scheduler.maxParallel, 4);
-  assert.deepEqual(
-    releaseDefinition.scheduler.resourceCapacities,
+    release.scheduler.resourceCapacities,
     releaseGateResourceCapacities
   );
-  assert.deepEqual(baseDefinition.outputs, {
-    diagnosticLogging: { enabled: false, directory: ".log/vibe-check" },
-    machinePublication: {
-      enabled: true,
-      directory: ".log/vibe-check/publication"
-    },
-    progressRendering: {
-      enabled: true,
-      formatter: null,
-      messagePreviewLimit: 5,
-      recordPreviewLimit: 5,
-      textPreviewCodePointLimit: 240
-    }
-  });
-  assert.equal(releaseRequiredCheckIds.length, 65);
+  assert.equal(releaseRequiredCheckIds.length, 61);
   assert.deepEqual(
-    releaseDefinition.checks.find(
-      ({ checkId }) => checkId === releaseSnapshotCheckId
-    )?.dependsOn ?? [],
+    release.checks.find(({ checkId }) => checkId === "release:skill-prepare")
+      ?.dependsOn,
     [gateEnvironmentCheckId]
   );
   assert.deepEqual(
-    releaseDefinition.checks.find(
-      ({ checkId }) => checkId === "release:skill-version"
-    )?.dependsOn,
-    [...releaseRequiredCheckIds, releaseSnapshotCheckId]
-  );
-  assert.deepEqual(releaseTerminalCheck(releaseDefinition).dependsOn, [
-    gateEnvironmentCheckId,
-    "release:skill-version"
-  ]);
-  const releaseFlag = {
-    flags: ["release"],
-    mode: "all",
-    propagateDependsOn: true
-  };
-  assert.deepEqual(
-    releaseDefinition.checks.find(
-      ({ checkId }) => checkId === "release:skill-version"
-    )?.enabledByFlags,
-    releaseFlag
+    release.checks.find(({ checkId }) => checkId === "release:skill-version")
+      ?.dependsOn,
+    [...releaseRequiredCheckIds, "release:skill-prepare"]
   );
   assert.deepEqual(
-    releaseTerminalCheck(releaseDefinition).enabledByFlags,
-    releaseFlag
+    release.checks.find(({ checkId }) => checkId === "pack:skills")?.dependsOn,
+    [gateEnvironmentCheckId, "release:skill-version"]
   );
-  assert.deepEqual(
-    releaseDefinition.checks.find(
-      ({ checkId }) => checkId === releaseSnapshotCheckId
-    )?.enabledByFlags,
-    { flags: ["release"], mode: "all" }
-  );
-});
-
-test("gate Definition projects semantic prerequisites and batch resources", () => {
-  const { baseDefinition, releaseDefinition } = catalogDefinitions();
-  const versionControlCheckId = packageScriptCheckId("test:version-control");
-  assert.deepEqual(
-    semanticGateChecks.map((check) => [
-      check.checkId,
-      check.command.command,
-      check.command.args.at(-1),
-      "dependsOn" in check ? check.dependsOn : []
-    ]),
-    expectedSemanticChecks.map(([checkId, command, commandPath]) => [
-      checkId,
-      command,
-      commandPath,
-      expectedSemanticPrerequisites.get(checkId) ?? []
-    ])
-  );
-  assert.deepEqual(
-    releaseDefinition.checks
-      .filter(({ checkId }) => expectedSemanticPrerequisites.has(checkId))
-      .map(({ checkId, dependsOn }) => [
-        checkId,
-        Array.isArray(dependsOn)
-          ? dependsOn.filter(
-              (dependency) => dependency !== gateEnvironmentCheckId
-            )
-          : dependsOn
-      ]),
-    [...expectedSemanticPrerequisites]
-  );
-  const batchedIds = new Set(
-    releaseTestBatchGroups.map(({ checkId }) => checkId)
-  );
-  const batchLeader = releaseDefinition.checks.find(
-    ({ checkId }) => checkId === releaseTestBatchLeaderCheckId
-  );
-  assert.deepEqual(batchLeader?.resourceClaims, releaseTestBatchResourceClaim);
-  assert.equal(batchLeader?.observes, undefined);
-  for (const {
-    checkId,
-    observes,
-    resourceClaims
-  } of releaseDefinition.checks.filter(
-    ({ checkId }) =>
-      batchedIds.has(checkId) && checkId !== releaseTestBatchLeaderCheckId
-  )) {
-    assert.deepEqual(observes, [releaseTestBatchLeaderCheckId], checkId);
-    assert.equal(resourceClaims, undefined, checkId);
-  }
-  for (const { checkId, resourceClaims } of releaseDefinition.checks.filter(
-    ({ checkId }) =>
-      (checkId.startsWith("script:") || checkId.startsWith("test:")) &&
-      !batchedIds.has(checkId) &&
-      checkId !== versionControlCheckId
-  )) {
+  for (const id of [
+    "release:skill-prepare",
+    "release:skill-version",
+    "pack:skills"
+  ])
     assert.deepEqual(
-      resourceClaims,
-      { "external-process": 1, "cpu-work": 1 },
-      checkId
+      release.checks.find(({ checkId }) => checkId === id)?.enabledByFlags,
+      { when: "release", propagateDependsOn: true }
     );
-  }
-  assert.deepEqual(
-    releaseDefinition.checks.find(
-      ({ checkId }) => checkId === versionControlCheckId
-    )?.resourceClaims,
-    { "external-process": 1, "cpu-work": 4 }
-  );
-  for (const { checkId, resourceClaims } of baseDefinition.checks.filter(
-    ({ checkId }) =>
-      checkId.startsWith("script:") || checkId.startsWith("test:")
-  )) {
-    assert.deepEqual(resourceClaims, { "external-process": 1 }, checkId);
-  }
+  assert.equal(base.outputs.machinePublication.enabled, true);
+  assert.equal(base.outputs.diagnosticLogging.enabled, false);
 });
 
-test("native flag selection keeps inactive release Checks visible without starting Check work", async () => {
-  let originalPreflightCalls = 0;
-  let releaseExecutionCalls = 0;
-  const definition = defineConfig({
-    checks: [
-      defineCheck({
-        checkId: "base",
-        displayName: "base",
-        execution: () => ({ status: "passed" as const, data: {} })
-      }),
-      defineCheck({
-        checkId: "release",
-        displayName: "release",
-        enabledByFlags: { flags: ["release"], mode: "all" },
-        preflight: () => {
-          originalPreflightCalls += 1;
-          return { status: "success" as const, preparedOptions: {} };
-        },
-        execution: () => {
-          releaseExecutionCalls += 1;
-          return { status: "passed" as const, data: {} };
-        }
-      })
-    ],
-    outputs: noOutput
-  });
-  const result = completed(
-    await run(definition, {
-      checkAggregation: { ...aggregateOptions, checks: "effective" },
-      flags: [],
-      outputs: noOutput,
-      projectRoot: repositoryRoot
-    })
+test("gate Definition projects semantic prerequisites and independent command resources", () => {
+  const release = createGateDefinition(["release"]);
+  assert.deepEqual(
+    release.checks.find(
+      ({ checkId }) => checkId === "script:test:skill-updater"
+    )?.dependsOn,
+    [gateEnvironmentCheckId, "script:check:skill-updaters"]
   );
-  assert.equal(result.aggregate, "passed");
-  assert.equal(result.snapshot.checks.length, 2);
-  assert.equal(outcomeFor(result, "release").status, "not-applicable");
-  assert.equal(
-    result.checkDurations.find(({ checkId }) => checkId === "release")
-      ?.durationMs,
-    null
-  );
-  assert.equal(originalPreflightCalls, 0);
-  assert.equal(releaseExecutionCalls, 0);
-  const releaseOutcome = outcomeFor(result, "release");
-  if (releaseOutcome.status !== "not-applicable") {
-    throw new Error("expected inactive release Check to be not-applicable");
+  for (const check of release.checks) {
+    assert.equal(check.observes, undefined, check.checkId);
+    assert.equal(
+      check.resourceClaims?.["cpu-work"],
+      check.checkId === "script:test:version-control" ? 4 : 1,
+      check.checkId
+    );
+    if (
+      check.checkId.startsWith("script:") ||
+      check.checkId.startsWith("test:")
+    )
+      assert.equal(
+        check.resourceClaims?.["external-process"],
+        1,
+        check.checkId
+      );
+    const expected = expectedSemanticPrerequisites.get(check.checkId);
+    if (expected !== undefined)
+      assert.deepEqual(check.dependsOn, [gateEnvironmentCheckId, ...expected]);
   }
-  assert.equal(releaseOutcome.reason?.code, "flag-condition-not-matched");
 });

@@ -1,14 +1,13 @@
-### Case GATE-DISTRIBUTION-DEPENDENCY-001: Public distribution Checks 依赖当前生成 Check
+### Case GATE-DISTRIBUTION-DEPENDENCY-001: 公开分发 consumer 声明统一当前生成前置
 
 Tests:
-- `test:1373d858c910cb96d5feb720c97618ac622d32e3f67c5f48ede9a810f0cee70e`
+- `test:8e920fe8f88eb19722fc115d8a63991e4ec60085181bc6e2ddefe6f91c953385`
 
 Tags:
 - `repository-tooling`
 
 Contract:
-- 消费当前 skill 分发物的 semantic Check 与 updater package-script Check 只在对应的当前生成 Check 成功后运行；provider status 由 Vibe 原生 `dependsOn` 结算，项目 adapter 不重复翻译失败。
+- 公开分发语义 consumer 与 skill-updater package Check 依赖当前统一生成一致性 Check，provider 激活和失败结算由原生 dependsOn 负责，项目只声明前置。
 
 Proves:
-- Change Plan、Decision Records、Task Graph、Lightweight Judgment 与 Novel Cards 的 semantic consumer 分别依赖自身生成 Check，`script:test:skill-updater` 依赖 `script:check:skill-updaters`。
-- 生成 Check 通过时 consumer 恰好运行一次；生成 Check failed 或 unavailable 时，Vibe 将 consumer 结算为 `dependency-not-passed` unavailable 且不启动测试命令。
+- 全部独立声明的 semantic prerequisites 在生产 Definition 中都精确投影为环境与期望生成前置；script:test:skill-updater 的前置精确为 gate-environment 与 script:check:skill-updaters。

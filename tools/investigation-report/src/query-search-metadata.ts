@@ -43,13 +43,23 @@ export async function searchInvestigationMetadata(
   const loaded = await loadInvestigationIndex({ investigationsDirectory });
   if (loaded.status === "error")
     return metadataIndexFailure(loaded.diagnostics, indexPath);
+  return searchLoadedInvestigationMetadata(
+    Object.entries(loaded.value.entries).map(([id, state]) => ({ id, state })),
+    indexPath,
+    prepared
+  );
+}
+
+/** Projects metadata matches from one already validated published snapshot. */
+export function searchLoadedInvestigationMetadata(
+  entries: readonly InvestigationSnapshotEntry[],
+  indexPath: string,
+  prepared: PreparedSearch
+): InvestigationSearchResult {
   const matcher = metadataMatcher(prepared);
   if (matcher instanceof Error)
     return metadataMatcherFailure(matcher, indexPath);
-  const selected = selectSearchEntries(
-    Object.entries(loaded.value.entries).map(([id, state]) => ({ id, state })),
-    prepared
-  );
+  const selected = selectSearchEntries(entries, prepared);
   if (selected.isErr())
     return searchFailure({
       errors: selected.error,

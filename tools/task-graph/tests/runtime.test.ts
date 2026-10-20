@@ -89,6 +89,37 @@ test("runtime inspection rejects unsupported Node before installation state", as
   });
 });
 
+test("runtime inspection enforces each supported Node range boundary", async () => {
+  await withTempWorkspace(async (root) => {
+    const environment = { TASK_GRAPH_TOOL_HOME: path.join(root, "tool-home") };
+    for (const nodeVersion of [
+      "22.22.2",
+      "v22.23.0",
+      "v24.15.0",
+      "v24.16.0",
+      "v26.0.0",
+      "v28.0.0"
+    ]) {
+      const info = await getTaskGraphRuntimeInfo({ environment, nodeVersion });
+      assert.equal(info.state, "missing", nodeVersion);
+    }
+    for (const nodeVersion of [
+      "v22.21.9",
+      "v22.22.1",
+      "v23.0.0",
+      "v24.14.9",
+      "v25.0.0",
+      "v24.15",
+      "invalid"
+    ]) {
+      await expectTaskGraphRejection(
+        () => getTaskGraphRuntimeInfo({ environment, nodeVersion }),
+        "RUNTIME_UNSUPPORTED"
+      );
+    }
+  });
+});
+
 test("runtime missing and incompatible states fail closed", async () => {
   await withTempWorkspace(async (root) => {
     const toolHome = path.join(root, "tool-home");

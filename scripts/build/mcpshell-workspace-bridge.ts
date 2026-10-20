@@ -1,7 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { GeneratedFileMode } from "../lib/generated-file.ts";
-import type { SourceRuntimeOptions } from "../lib/source-runtime.ts";
+import type {
+  SourceRuntimeOptions,
+  SourceRuntimeFacts
+} from "../lib/source-runtime.ts";
 import {
   buildSkillRuntimeArtifacts,
   syncSkillRuntimeArtifacts,
@@ -34,13 +37,19 @@ if (process.argv[1] !== undefined && pathToFileURL(path.resolve(process.argv[1])
 }`
   };
 }
-export async function syncRuntime(mode: GeneratedFileMode): Promise<boolean> {
-  const artifacts = await buildSkillRuntimeArtifacts({
-    skillName,
-    rebuildCommand,
-    nodeEngine: ">=24.18",
-    entries: [entry(true), entry(false)]
-  });
+export async function syncRuntime(
+  mode: GeneratedFileMode,
+  facts?: SourceRuntimeFacts
+): Promise<boolean> {
+  const artifacts = await buildSkillRuntimeArtifacts(
+    {
+      skillName,
+      rebuildCommand,
+      nodeEngine: ">=24.18",
+      entries: [entry(true), entry(false)]
+    },
+    facts
+  );
   const ignore = artifacts.find(
     (artifact) =>
       artifact.path === path.join(rootDir, `skills/${skillName}/.gitignore`)

@@ -1,3 +1,5 @@
+import { projectDecisionMetadata } from "../src/decision-query-search-metadata.ts";
+import { listSnapshotEntries } from "./queries/domain-support.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -50,42 +52,41 @@ async function writeRecords(root: string, count: number, body = "needle") {
 }
 
 test("decision search metadata returns exact counts applied defaults and resolved relation filters", async () => {
-  await withFixtureWorkspace("search-info-filters", async (root) => {
-    const result = await executeDecisionSearch(
-      searchRequest(root, {
-        in: "metadata",
-        status: "all",
-        relatedTo: "use-generated-cli.MD",
-        direction: "predecessors",
-        text: "use-source-cli"
-      })
-    );
-    assert.ok(result.status === "ok" && result.command === "search");
-    assert.deepEqual(result.searchInfo.query.filters, {
+  const result = projectDecisionMetadata(
+    await listSnapshotEntries(),
+    searchRequest("unused-metadata-root", {
+      in: "metadata",
       status: "all",
-      alignment: "all",
-      tags: [],
-      relatedTo: currentDecisionId,
-      direction: "predecessors"
-    });
-    assert.deepEqual(
-      result.records.map((record) => record.decisionId),
-      [archivedDecisionId]
-    );
-    assert.deepEqual(result.searchInfo.source, {
-      kind: "published-index",
-      currentness: "unchecked",
-      fallback: false
-    });
-    assert.deepEqual(result.searchInfo.counts, {
-      matched: { value: 1, precision: "exact" },
-      returned: 1
-    });
-    assert.deepEqual(result.searchInfo.query.limits, {
-      maxRecords: null,
-      resources: null,
-      preview: null
-    });
+      relatedTo: "use-generated-cli.MD",
+      direction: "predecessors",
+      text: "use-source-cli"
+    })
+  );
+  assert.ok(result.status === "ok" && result.command === "search");
+  assert.deepEqual(result.searchInfo.query.filters, {
+    status: "all",
+    alignment: "all",
+    tags: [],
+    relatedTo: currentDecisionId,
+    direction: "predecessors"
+  });
+  assert.deepEqual(
+    result.records.map((record) => record.decisionId),
+    [archivedDecisionId]
+  );
+  assert.deepEqual(result.searchInfo.source, {
+    kind: "published-index",
+    currentness: "unchecked",
+    fallback: false
+  });
+  assert.deepEqual(result.searchInfo.counts, {
+    matched: { value: 1, precision: "exact" },
+    returned: 1
+  });
+  assert.deepEqual(result.searchInfo.query.limits, {
+    maxRecords: null,
+    resources: null,
+    preview: null
   });
 });
 

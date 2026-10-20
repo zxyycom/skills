@@ -1,12 +1,16 @@
 import path from "node:path";
-import { defineCheck } from "@zxyycom/vibe-check";
-import type { Check } from "@zxyycom/vibe-check";
+import { defineCheck, defineContextCallback } from "@zxyycom/vibe-check";
 import {
   packSkillPackageSnapshot,
   prepareSkillPackageRelease,
   type PreparedSkillPackageRelease
 } from "../../skill-package-release.ts";
-import { repositoryProcessClaims, repositoryScanClaim } from "../contracts.ts";
+import {
+  gateCheckDeclaration,
+  type GateCheckConfiguration,
+  repositoryProcessClaims,
+  repositoryScanClaim
+} from "../contracts.ts";
 import { diagnosticLines, diagnosticMessages } from "../diagnostics.ts";
 
 export type ReleasePacker = (
@@ -45,10 +49,6 @@ function prepareReleaseBaseline(
     : { status: "invalid" };
 }
 
-export type ReleaseState = {
-  prepared: PreparedSkillPackageRelease | undefined;
-};
-
 function releaseSnapshotUnavailable(message: string, error: unknown) {
   const detail = error instanceof Error ? error.message : String(error);
   const code = "release-snapshot-unavailable";
@@ -62,15 +62,22 @@ function releaseSnapshotUnavailable(message: string, error: unknown) {
 export function createReleasePrepareCheck(
   baselineRef: string,
   prepareRelease: ReleasePreparer | undefined,
-  state: ReleaseState
-): Check {
+  configuration: GateCheckConfiguration = {}
+) {
   const prepare = prepareRelease ?? prepareSkillPackageRelease;
   return defineCheck({
     checkId: releaseSnapshotCheckId,
     displayName: "Prepare skill release snapshot",
     options: { baselineRef },
-    resourceClaims: repositoryProcessClaims,
-    preflight(options: Readonly<{ baselineRef: string }>) {
+    ...gateCheckDeclaration(
+      releaseSnapshotCheckId,
+      configuration,
+      repositoryProcessClaims,
+      [],
+      "release"
+    ),
+    handoff: true,
+    prepare(options: Readonly<{ baselineRef: string }>) {
       const prepared = prepareReleaseBaseline(options.baselineRef);
       if (prepared.status === "invalid") {
         return {
@@ -92,67 +99,101 @@ export function createReleasePrepareCheck(
         preparedOptions: { baselineRef: prepared.baselineRef }
       };
     },
-    async execution({ options, project }) {
-      try {
-        state.prepared = await prepare(project.root, options.baselineRef);
-        return { status: "passed" as const, data: {} };
-      } catch (error) {
-        return releaseSnapshotUnavailable(
-          "Could not prepare the pending skill release snapshot. Fix the Git or skill-package input and rerun bun run check --tag release.",
-          error
-        );
+    execute: defineContextCallback("check.execute", {
+      contextNeeds: ["project", "signal"],
+      async callback(
+        options: Readonly<{ baselineRef: string }>,
+        { project, signal }
+      ) {
+        try {
+          const prepared = await prepare(project.root, options.baselineRef);
+          if (signal.aborted)
+            return releaseSnapshotUnavailable(
+              "Release preparation was cancelled.",
+              ""
+            );
+          return {
+            status: "passed" as const,
+            data: {
+              baselineRef: prepared.baselineRef,
+              versionIssueCount: prepared.versionIssues.length
+            },
+            handoff: prepared
+          };
+        } catch (error) {
+          return releaseSnapshotUnavailable(
+            "Could not prepare the pending skill release snapshot. Fix the Git or skill-package input and rerun bun run check --tag release.",
+            error
+          );
+        }
       }
-    }
+    })
   });
 }
 
 export function createReleaseVersionCheck(
-  state: ReleaseState,
-  requiredCheckIds: readonly string[]
-): Check {
+  provider: ReturnType<typeof createReleasePrepareCheck>,
+  requiredCheckIds: readonly string[],
+  configuration: GateCheckConfiguration = {}
+) {
   return defineCheck({
     checkId: releaseVersionCheckId,
     displayName: "Validate skill release versions",
-    dependsOn: [...requiredCheckIds, releaseSnapshotCheckId],
-    async execution() {
-      const prepared = state.prepared;
-      if (prepared === undefined) {
-        return releaseSnapshotUnavailable(
-          "Release version authorization did not receive a prepared snapshot. Rerun bun run check --tag release.",
-          ""
-        );
-      }
-      if (prepared.versionIssues.length === 0) {
-        return { status: "passed" as const, data: {} };
-      }
-      state.prepared = undefined;
-      const code = "release-version-invalid";
-      return {
-        status: "failed" as const,
-        data: { versionIssueCount: prepared.versionIssues.length },
-        messages: [
-          {
-            level: "error" as const,
-            code,
-            message: `Skill package versions are invalid against ${prepared.baselineRef}. Run bun run hash:skills -- --baseline-ref <ref> for the standalone diagnostic.`
-          },
-          ...prepared.versionIssues.flatMap((issue) =>
-            diagnosticLines(issue).map((message) => ({
+    ...gateCheckDeclaration(
+      releaseVersionCheckId,
+      configuration,
+      {},
+      [...requiredCheckIds, provider.checkId],
+      "release"
+    ),
+    handoff: true,
+    execute: defineContextCallback("check.execute", {
+      contextNeeds: ["dependencies"],
+      async callback(_options, { dependencies }) {
+        const read = dependencies.get(provider);
+        if (!read.ok) {
+          return releaseSnapshotUnavailable(
+            "Release version authorization did not receive a prepared snapshot. Rerun bun run check --tag release.",
+            ""
+          );
+        }
+        const prepared = read.handoff;
+        if (prepared.versionIssues.length === 0) {
+          return {
+            status: "passed" as const,
+            data: { baselineRef: prepared.baselineRef },
+            handoff: prepared
+          };
+        }
+        const code = "release-version-invalid";
+        return {
+          status: "failed" as const,
+          data: { versionIssueCount: prepared.versionIssues.length },
+          messages: [
+            {
               level: "error" as const,
-              code: `${code}-detail`,
-              message: `- ${message}`
-            }))
-          )
-        ]
-      };
-    }
+              code,
+              message: `Skill package versions are invalid against ${prepared.baselineRef}. Run bun run hash:skills -- --baseline-ref <ref> for the standalone diagnostic.`
+            },
+            ...prepared.versionIssues.flatMap((issue) =>
+              diagnosticLines(issue).map((message) => ({
+                level: "error" as const,
+                code: `${code}-detail`,
+                message: `- ${message}`
+              }))
+            )
+          ]
+        };
+      }
+    })
   });
 }
 
 export function createPackSkillsCheck(
   packRelease: ReleasePacker | undefined,
-  state: ReleaseState
-): Check {
+  provider: ReturnType<typeof createReleaseVersionCheck>,
+  configuration: GateCheckConfiguration = {}
+) {
   const pack =
     packRelease ??
     ((preparedRelease: PreparedSkillPackageRelease, workspaceRoot: string) =>
@@ -163,34 +204,45 @@ export function createPackSkillsCheck(
   return defineCheck({
     checkId: packSkillsCheckId,
     displayName: "Package skills",
-    dependsOn: [releaseVersionCheckId],
-    resourceClaims: repositoryScanClaim,
-    async execution({ project }) {
-      const prepared = state.prepared;
-      if (prepared === undefined) {
-        return releaseSnapshotUnavailable(
-          "Packaging did not receive a prepared snapshot. Rerun bun run check --tag release.",
-          ""
-        );
+    ...gateCheckDeclaration(
+      packSkillsCheckId,
+      configuration,
+      repositoryScanClaim,
+      [provider.checkId],
+      "release"
+    ),
+    execute: defineContextCallback("check.execute", {
+      contextNeeds: ["dependencies", "project", "signal"],
+      async callback(_options, { dependencies, project, signal }) {
+        const read = dependencies.get(provider);
+        if (!read.ok) {
+          return releaseSnapshotUnavailable(
+            "Packaging did not receive a prepared snapshot. Rerun bun run check --tag release.",
+            ""
+          );
+        }
+        try {
+          if (signal.aborted)
+            return releaseSnapshotUnavailable(
+              "Release packaging was cancelled.",
+              ""
+            );
+          await pack(read.handoff, project.root);
+          return { status: "passed" as const, data: {} };
+        } catch (error) {
+          const detail = error instanceof Error ? error.message : String(error);
+          const code = "release-pack-failed";
+          return {
+            status: "failed" as const,
+            data: {},
+            messages: diagnosticMessages(
+              code,
+              "Could not package the prepared skill release snapshot.",
+              detail
+            )
+          };
+        }
       }
-      try {
-        await pack(prepared, project.root);
-        return { status: "passed" as const, data: {} };
-      } catch (error) {
-        const detail = error instanceof Error ? error.message : String(error);
-        const code = "release-pack-failed";
-        return {
-          status: "failed" as const,
-          data: {},
-          messages: diagnosticMessages(
-            code,
-            "Could not package the prepared skill release snapshot.",
-            detail
-          )
-        };
-      } finally {
-        state.prepared = undefined;
-      }
-    }
+    })
   });
 }
