@@ -1,18 +1,23 @@
+import {
+  buildStateIndexFromSnapshot,
+  selectTargetSnapshot
+} from "../../index-runtime/src/index.ts";
+import { investigationIndexFixture } from "./index-fixture.ts";
+import { createInvestigationStageIndexDefinition } from "../src/staging-domain-index.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 import { stageInvestigationReports } from "../src/staging.ts";
+import { git, initializeGit } from "./git-support.ts";
 import {
-  git,
-  initializeGit,
   investigationRoot,
   jsonObjectMember,
   parseJsonObject,
   reportMarkdown,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 async function observeReads<T>(
   root: string,
@@ -113,32 +118,25 @@ test("local investigation stage acquires direct resource owners without staging 
   });
 });
 
-test("investigation index stage validates global metadata relations and the final selective projection without bodies", async () => {
-  await withTempRoot("stage-index-relations", async (root) => {
-    await writeCollection(root, [{ id: "one" }]);
-    initializeGit(root);
-    await writeCollection(root, [
-      { id: "one", relations: [{ type: "补充", target: "new" }] },
-      { id: "new" }
-    ]);
-    const observed = await observeReads(root, () => stage(root, "index"));
-    assert.equal(observed.result.status, "error");
-    assert.deepEqual(
-      observed.paths.filter((name) => name.endsWith(".md")),
-      []
-    );
-    assert.equal(git(root, ["diff", "--cached", "--name-only"]), "");
-    const target = path.join(
-      investigationRoot(root),
-      "investigation-index.json"
-    );
-    const index = parseJsonObject(await fs.readFile(target, "utf8"));
-    jsonObjectMember(jsonObjectMember(index, "entries"), "one").relations = [
-      { type: "补充", target: "missing" }
-    ];
-    await fs.writeFile(target, JSON.stringify(index));
-    assert.equal((await stage(root, "index")).status, "error");
-  });
+test("investigation index stage validates global metadata relations and the final selective projection without bodies", () => {
+  const baseline = investigationIndexFixture([{ id: "one" }]);
+  const workspace = investigationIndexFixture([
+    { id: "one", relations: [{ type: "补充", target: "new" }] },
+    { id: "new" }
+  ]);
+  const definition = createInvestigationStageIndexDefinition();
+  const target = buildStateIndexFromSnapshot(
+    definition,
+    selectTargetSnapshot(baseline, workspace, new Set(["one"]))
+  );
+  assert.equal(target.status, "error");
+  assert.ok(
+    target.diagnostics.some((diagnostic) => diagnostic.message.includes("new"))
+  );
+  const invalid = investigationIndexFixture([
+    { id: "one", relations: [{ type: "补充", target: "missing" }] }
+  ]);
+  assert.throws(() => definition.validateIndex?.(invalid), /missing/u);
 });
 
 test("local investigation stage rejects mutable published index drift before pending replacement", async () => {

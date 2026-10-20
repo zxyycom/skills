@@ -1,40 +1,28 @@
-import { assertEvolutionRejected } from "./domain-support.ts";
-import {
-  assert,
-  candidateDecisionBody,
-  decisionFilePath,
-  establishClosedSplit,
-  fs,
-  runSourceLifecycleCli,
-  test,
-  withFixtureWorkspace
-} from "./support.ts";
+import { assertLifecycleRejected, evolutionRequest } from "./domain-support.ts";
 
-test("evolve rejects a split extension that omits an existing successor before writing", () =>
-  withFixtureWorkspace("evolve-omit-split", async (workspaceRoot) => {
-    const established = await establishClosedSplit(workspaceRoot);
-    const thirdRelativePath = "omit-existing-split-slice";
-    const thirdPath = decisionFilePath(workspaceRoot, thirdRelativePath);
-    const thirdCandidate = candidateDecisionBody();
-    await fs.writeFile(thirdPath, thirdCandidate, "utf8");
-    const indexBefore = await fs.readFile(established.indexPath, "utf8");
-    const rejected = await runSourceLifecycleCli([
-      "evolve",
-      "--successor",
-      "aligned=" + established.alignedRelativePath,
-      "--successor",
-      "aligned=" + thirdRelativePath,
-      "--relation",
-      "拆分=" + established.coarseRelativePath,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(rejected.exitCode, 1);
-    assert.match(rejected.stderr, /selected successor set must equal/);
-    assert.match(rejected.stderr, /keep-future-split-slice/);
-    assert.equal(await fs.readFile(thirdPath, "utf8"), thirdCandidate);
-    assert.equal(await fs.readFile(established.indexPath, "utf8"), indexBefore);
-  }));
+import { assertEvolutionRejected } from "./domain-support.ts";
+import { test } from "./support.ts";
+
+test("evolve rejects a split extension that omits an existing successor before writing", async () => {
+  await assertLifecycleRejected(
+    [
+      { id: "coarse", status: "archived" },
+      {
+        id: "first",
+        status: "active",
+        relations: [{ type: "拆分", target: "coarse" }]
+      },
+      {
+        id: "second",
+        status: "active",
+        relations: [{ type: "拆分", target: "coarse" }]
+      },
+      { id: "third", relations: [{ type: "拆分", target: "coarse" }] }
+    ],
+    evolutionRequest(["first", "third"]),
+    /selected successor set must equal.*second/
+  );
+});
 
 test("evolve rejects one selected split successor", async () => {
   await assertEvolutionRejected(

@@ -10,4 +10,4 @@ Contract:
 - 同一 `evolve` 中，分组 replacement 仍须让全部 selected successor 共同形成有效的闭合策略；未分组 source 只能保留其自身完整关系，不能替代遗漏或错误的 replacement。
 
 Proves:
-- 缺少一个分组、两个分组使用不同 predecessor、或单一分组混入非拆分关系时，命令以领域诊断失败，不输出 review，且不修改任一候选 Markdown 或索引。
+- 纯生命周期准备对缺少分组、predecessor 不一致及单组混入非拆分关系分别返回明确领域错误，全部不含 changes。

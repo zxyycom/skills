@@ -1,3 +1,5 @@
+import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
+import { syncDecisionIndex } from "../../src/decision-state-index.ts";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
@@ -5,7 +7,6 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import test from "node:test";
-import { createCliProgram } from "../../src/cli-args.ts";
 import {
   archivedDecisionId,
   archivedSourcePath,
@@ -18,7 +19,6 @@ import {
   initializeGitRepository,
   runGit,
   runSourceCli,
-  withGitFixtureWorkspace,
   writeDecision
 } from "../support.ts";
 
@@ -28,7 +28,6 @@ export {
   assert,
   candidateDecisionBody,
   commitWorkspace,
-  createCliProgram,
   currentDecisionId,
   currentSourcePath,
   decisionFilePath,
@@ -134,6 +133,9 @@ export async function countGitInvocations<T>(
 export async function syncDecisionIndexBeforeStage(
   workspaceRoot: string
 ): Promise<void> {
-  const synced = await runSourceCli(["sync-index", "--root", workspaceRoot]);
-  assert.equal(synced.exitCode, 0, synced.stderr);
+  const synced = await syncDecisionIndex({
+    decisionsDirectory: path.join(workspaceRoot, "docs/decisions"),
+    mode: "write"
+  });
+  assert.equal(synced.status, "ok", JSON.stringify(synced));
 }

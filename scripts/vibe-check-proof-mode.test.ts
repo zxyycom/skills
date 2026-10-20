@@ -20,12 +20,13 @@ test("CLI release, cold and CI modes never activate receipt-based omission", asy
           prepareActivation: async () => ({
             kind: "incremental",
             activeCheckIds: [],
+            activeToolIds: [],
             decisions: [],
             cacheDirectory: path.join(directory, "cache"),
             snapshot: fixtureGateWorkspaceSnapshot()
           }),
           createDefinition(_invocation, _plan, dependencies) {
-            assert.equal(dependencies.activeCheckIds, undefined);
+            assert.equal(dependencies.activeToolIds, undefined);
             assert.equal("releaseTestBatchProof" in dependencies, false);
             return passedDefinition();
           },

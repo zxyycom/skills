@@ -5,7 +5,7 @@ import { test } from "node:test";
 import { parseInvestigationReport } from "../src/markdown.ts";
 import { buildInvestigationReportState } from "../src/report-validation.ts";
 import { validateInvestigationResourceOwnership } from "../src/resources.ts";
-import { reportMarkdown } from "./v6-support.ts";
+import { reportMarkdown } from "./fixture-support.ts";
 import { validateInvestigationReports } from "../src/validation.ts";
 import {
   investigationResourceIdFromLinkTarget,
@@ -15,9 +15,9 @@ import {
 import {
   investigationRoot,
   parseJsonObject,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("report-owned resources validate exact links and permit shared references", async () => {
   await withTempRoot("resources", async (root) => {
@@ -259,11 +259,28 @@ test("unreferenced resource members produce warnings without blocking report che
 test("scoped resource checks do not claim global unreferenced resource proof", async () => {
   await withTempRoot("scoped-resource", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
+    const unrelated = path.join(
+      investigationRoot(root),
+      "_resources",
+      "unused",
+      "evidence.txt"
+    );
+    await fs.mkdir(path.dirname(unrelated), { recursive: true });
+    await fs.writeFile(unrelated, "unused");
     const result = await validateInvestigationReports({
       ids: ["report.md"],
       workspaceRoot: root
     });
     assert.equal(result.indexChecked, false);
+    assert.ok(
+      !result.warnings.some((warning) =>
+        warning.includes("unused/evidence.txt")
+      )
+    );
+    const full = await validateInvestigationReports({ workspaceRoot: root });
+    assert.ok(
+      full.warnings.some((warning) => warning.includes("unused/evidence.txt"))
+    );
   });
 });
 
@@ -326,7 +343,11 @@ test("visible resource discovery rejects unsafe owner directory names", async ()
     await fs.mkdir(path.dirname(resource), { recursive: true });
     await fs.writeFile(resource, "x");
     const result = await validateInvestigationReports({ workspaceRoot: root });
-    assert.ok(result.warnings.length > 0);
+    assert.ok(
+      result.warnings.some(
+        (warning) => warning.includes("..bad") && warning.includes("safe")
+      )
+    );
   });
 });
 

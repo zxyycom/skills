@@ -2,12 +2,9 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import {
-  investigationRoot,
-  runInvestigationCli,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+import { investigationRoot, withTempRoot } from "./fixture-support.ts";
+import { runInvestigationCli } from "./cli-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("CLI selected sync publishes by default and keeps --preflight zero-write", async () => {
   await withTempRoot("cli-selected-sync", async (root) => {

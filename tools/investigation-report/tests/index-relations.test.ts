@@ -7,11 +7,9 @@ import {
 } from "../src/query.ts";
 import {} from "../src/report-path.ts";
 import { synchronizeInvestigationIndex } from "../src/validation.ts";
-import {
-  runInvestigationCli,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+import { runInvestigationCli } from "./cli-support.ts";
+import { withTempRoot } from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("list and search combine direct relation selectors with existing query boundaries", async () => {
   await withTempRoot("related-query", async (root) => {

@@ -2,25 +2,28 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { runInvestigationReportCheckCli } from "../src/cli.ts";
+import { ResourceInspectionError } from "../src/resource-inspection.ts";
+import {
+  readOwnedResourceFixture,
+  targetFor,
+  operationFor,
+  injectSecondPhaseFailure,
+  resourceFailureId as resourceId
+} from "./resource-phase-test-support.ts";
 import { prepareInvestigationResourceRoot } from "../src/resource-root.ts";
 import {
   directInvestigationResourceIssues,
   inspectDirectInvestigationResource
 } from "../src/resource-file-validation.ts";
-import {
-  initializeGit,
-  investigationRoot,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+import { initializeGit } from "./git-support.ts";
+import { investigationRoot, withTempRoot } from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
-const resourceId = "one/nested/member.txt";
 async function prepare(root: string, recorded = true): Promise<void> {
   const target = path.join(investigationRoot(root), "_resources", resourceId);
   await fs.mkdir(path.dirname(target), { recursive: true });
   await fs.writeFile(target, "original\n");
-  await writeCollection(root, [{ id: "one" }]);
+  if (recorded) await writeCollection(root, [{ id: "one" }]);
   if (recorded) initializeGit(root);
   await fs.writeFile(target, "selected update\n");
 }
@@ -33,141 +36,34 @@ function denied(): Error {
     { code: "EACCES" }
   );
 }
-function targetFor(root: string, failure: string): string {
-  const resources = path.join(investigationRoot(root), "_resources");
-  if (failure.startsWith("root")) return resources;
-  if (failure.startsWith("owner")) return path.join(resources, "one");
-  if (failure.startsWith("intermediate"))
-    return path.join(resources, "one/nested");
-  return path.join(resources, resourceId);
-}
-function operationFor(failure: string): string {
-  if (failure.endsWith("enumeration")) return "read resource directory";
-  if (failure.endsWith("resolution")) return "resolve resource root";
-  if (failure === "terminal open") return "open resource file";
-  return "inspect resource path";
-}
 
-/** Faults start only after the first complete source phase consumed its report. */
-function injectSecondPhaseFailure(
+async function expectResourceReadFailure(
   root: string,
-  failure: string,
-  error: Error
-): Readonly<{
-  injected: () => boolean;
-  restore: () => void;
-}> {
-  const target = targetFor(root, failure);
-  const source = path.join(investigationRoot(root), "one.md");
-  const readFile = fs.readFile;
-  let sourceReads = 0,
-    injected = false;
-  fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
-    const result = await readFile(...args);
-    if (args[0] === source) sourceReads += 1;
-    return result;
-  }) as typeof fs.readFile;
-  const fail = (candidate: unknown): void => {
-    if (candidate === target && sourceReads === 1 && !injected) {
-      injected = true;
-      throw error;
-    }
-  };
-  let restoreOperation: () => void;
-  if (failure.endsWith("enumeration")) {
-    const original = fs.readdir;
-    fs.readdir = (async (...args: Parameters<typeof fs.readdir>) => {
-      fail(args[0]);
-      return await original(...args);
-    }) as typeof fs.readdir;
-    restoreOperation = () => {
-      fs.readdir = original;
-    };
-  } else if (failure.endsWith("resolution")) {
-    const original = fs.realpath;
-    fs.realpath = (async (...args: Parameters<typeof fs.realpath>) => {
-      fail(args[0]);
-      return await original(...args);
-    }) as typeof fs.realpath;
-    restoreOperation = () => {
-      fs.realpath = original;
-    };
-  } else if (failure === "terminal open") {
-    const original = fs.open;
-    fs.open = (async (...args: Parameters<typeof fs.open>) => {
-      fail(args[0]);
-      return await original(...args);
-    }) as typeof fs.open;
-    restoreOperation = () => {
-      fs.open = original;
-    };
-  } else {
-    const original = fs.lstat;
-    fs.lstat = (async (...args: Parameters<typeof fs.lstat>) => {
-      fail(args[0]);
-      return await original(...args);
-    }) as typeof fs.lstat;
-    restoreOperation = () => {
-      fs.lstat = original;
-    };
-  }
-  return {
-    injected: () => injected,
-    restore: () => {
-      fs.readFile = readFile;
-      restoreOperation();
-    }
-  };
-}
-
-async function expectStageReadFailure(
-  root: string,
-  facts: Readonly<{
-    failure: string;
-    error: Error;
-    category: "access-denied" | "unknown";
-    recovery: string;
-  }>
+  failure: string
 ): Promise<void> {
-  await prepare(root);
-  const indexPath = path.join(root, ".git/index");
-  const before = await fs.readFile(indexPath);
-  const fault = injectSecondPhaseFailure(root, facts.failure, facts.error);
-  let stdout = "",
-    stderr = "";
+  await prepare(root, false);
+  const relative = "docs/investigations/_resources/" + resourceId;
+  assert.equal(
+    await readOwnedResourceFixture(root, relative),
+    "selected update\n"
+  );
+  const fault = injectSecondPhaseFailure(root, failure, denied(), 1);
   try {
-    const exit = await runInvestigationReportCheckCli(
-      ["--root", root, "stage", "one", "--scope", "domain"],
-      {
-        io: {
-          stdout: (value) => {
-            stdout += value;
-          },
-          stderr: (value) => {
-            stderr += value;
-          }
-        }
+    await assert.rejects(
+      readOwnedResourceFixture(root, relative),
+      (error: unknown) => {
+        assert.ok(error instanceof ResourceInspectionError);
+        assert.equal(error.diagnostic.causeCategory, "access-denied");
+        assert.equal(error.diagnostic.operation, operationFor(failure));
+        assert.equal(error.diagnostic.target, targetFor(root, failure));
+        assert.doesNotMatch(
+          JSON.stringify(error.diagnostic),
+          /private|ghp_|\\u001b/u
+        );
+        return true;
       }
     );
     assert.equal(fault.injected(), true);
-    assert.equal(exit, 1);
-    assert.equal(stdout, "");
-    assert.match(stderr, /state: source-drift; changed: false/u);
-    assert.ok(stderr.includes(`causeCategory: ${facts.category}`));
-    assert.ok(stderr.includes(`operation: ${operationFor(facts.failure)}`));
-    const relative = path
-      .relative(root, targetFor(root, facts.failure))
-      .split(path.sep)
-      .join("/");
-    assert.ok(
-      stderr.includes(
-        `[investigation-report.stage-source-read-failed] ${relative}\n`
-      )
-    );
-    assert.ok(stderr.includes(facts.recovery));
-    assert.ok(!stderr.includes(String.fromCharCode(27)));
-    assert.ok(!/private|ghp_|sync-index|scope: Pending/u.test(stderr));
-    assert.deepEqual(await fs.readFile(indexPath), before);
   } finally {
     fault.restore();
   }
@@ -182,14 +78,9 @@ for (const failure of [
   "file inspection",
   "terminal open"
 ]) {
-  test(`investigation stage preserves second-phase resource ${failure} failure facts without mutation`, async () => {
+  test(`resource validation preserves second-phase ${failure} failure facts`, async () => {
     await withTempRoot("resource-failure-facts", async (root) => {
-      await expectStageReadFailure(root, {
-        failure,
-        error: denied(),
-        category: "access-denied",
-        recovery: "restore access required"
-      });
+      await expectResourceReadFailure(root, failure);
     });
   });
 }
@@ -198,7 +89,8 @@ test("resource inspectors keep default validation issues while detailed inspecti
   await withTempRoot("resource-default-issues", async (root) => {
     await prepare(root, false);
     const prepared = await prepareInvestigationResourceRoot(
-      investigationRoot(root)
+      investigationRoot(root),
+      { mode: "file-system" }
     );
     assert.equal(prepared.status, "ready");
     if (prepared.status !== "ready") return;
@@ -241,7 +133,8 @@ test("resource inspectors do not invent filesystem categories for ordinary symli
     await fs.rename(target, saved);
     await fs.symlink(saved, target);
     const prepared = await prepareInvestigationResourceRoot(
-      investigationRoot(root)
+      investigationRoot(root),
+      { mode: "file-system" }
     );
     assert.equal(prepared.status, "ready");
     if (prepared.status !== "ready") return;
@@ -255,19 +148,5 @@ test("resource inspectors do not invent filesystem categories for ordinary symli
       await directInvestigationResourceIssues(prepared, resourceId),
       inspected.errors
     );
-  });
-});
-
-test("investigation stage keeps unknown real resource syscall failures distinct from ordinary validation", async () => {
-  await withTempRoot("resource-unknown-failure", async (root) => {
-    await expectStageReadFailure(root, {
-      failure: "terminal open",
-      error: Object.assign(
-        new Error("unsupported /private/resource token=private-value"),
-        { code: "ENOTSUP" }
-      ),
-      category: "unknown",
-      recovery: "resolve the reported filesystem read failure"
-    });
   });
 });

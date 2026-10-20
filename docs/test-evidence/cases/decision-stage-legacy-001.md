@@ -10,4 +10,4 @@ Contract:
 - 当前 Stage 不能把旧领域目录 revision 与当前 ID/布局来源混合为 pending snapshot。
 
 Proves:
-- 旧领域基线下 stage 失败且暂存区为空。
+- 纯 baseline 路径分类拒绝含 decision-domains.json 的旧领域目录范围，给出 unsupported file 错误。

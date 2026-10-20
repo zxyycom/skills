@@ -7,10 +7,10 @@ import {
   investigationRoot,
   jsonObjectMember,
   parseJsonObject,
-  runInvestigationCli,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { runInvestigationCli } from "./cli-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 function git(root: string, args: readonly string[]): string {
   return execFileSync("git", ["-C", root, ...args], {
@@ -308,7 +308,6 @@ test("CLI list returns a current report after resource byte changes", async () =
 
 test("CLI exposes bounded list controls and rejects malformed or repeated list options", async () => {
   await withTempRoot("cli-invalid", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
     const help = await runInvestigationCli(root, ["list", "--help"]);
     assert.equal(help.status, 0, help.stderr);
     assert.match(help.stdout, /default: 10, maximum: 1000/u);

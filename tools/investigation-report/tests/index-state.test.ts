@@ -1,3 +1,4 @@
+import { investigationSourceRevision } from "../src/investigation-source-revision.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { test } from "node:test";
@@ -11,7 +12,10 @@ import { createInvestigationStateIndexDefinition } from "../src/investigation-in
 import { prepareInvestigationSources } from "../src/investigation-source-revision.ts";
 import { parseInvestigationReport } from "../src/markdown.ts";
 import { buildInvestigationReportState } from "../src/report-validation.ts";
-import { investigationIndexFixture } from "./index-fixture.ts";
+import {
+  investigationIndexFixture,
+  queryIndexFixture
+} from "./index-fixture.ts";
 import { investigationIndexJsonSchema } from "../src/investigation-index-json-schema.ts";
 import {
   queryInvestigationIndex,
@@ -23,9 +27,9 @@ import {
   reportMarkdown,
   jsonObjectMember,
   parseJsonObject,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("index and show resolve a report ID independently from its semantic sourcePath", async () => {
   await withTempRoot("semantic-source-path", async (root) => {
@@ -159,40 +163,32 @@ test("index rejects additional metadata", () => {
   assert.ok(result.diagnostics.some((item) => /metadata/u.test(item.message)));
 });
 
-test("list serves the published snapshot without reading unreadable sources", async () => {
-  await withTempRoot("stale", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    await fs.writeFile(
-      `${root}/docs/investigations/report.md`,
-      "changed",
-      "utf8"
-    );
-    const result = await queryInvestigationIndex({ workspaceRoot: root });
-    assert.deepEqual(result.errors, []);
-    assert.deepEqual(
-      result.entries.map((entry) => entry.id),
-      ["report"]
-    );
-    assert.deepEqual(result.warnings, []);
-  });
+test("list projects the published snapshot independently from source acquisition", () => {
+  const result = queryIndexFixture(
+    investigationIndexFixture([{ id: "report" }])
+  );
+  assert.deepEqual(
+    result.entries.map((entry) => entry.id),
+    ["report"]
+  );
+  assert.deepEqual(result.warnings, []);
 });
 
-test("source revisions fingerprint report Markdown", async () => {
-  await withTempRoot("revision", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    const indexPath = `${root}/docs/investigations/investigation-index.json`;
-    const before = parseJsonObject(await fs.readFile(indexPath, "utf8"));
-    await fs.appendFile(`${root}/docs/investigations/report.md`, "\n", "utf8");
-    const drifted = await queryInvestigationIndex({ workspaceRoot: root });
-    assert.deepEqual(drifted.errors, []);
-    assert.deepEqual(drifted.warnings, []);
-    assert.deepEqual(
-      (await synchronizeInvestigationIndex({ workspaceRoot: root })).errors,
-      []
-    );
-    const after = parseJsonObject(await fs.readFile(indexPath, "utf8"));
-    assert.notDeepEqual(after["sourceRevision"], before["sourceRevision"]);
-  });
+test("source revisions fingerprint report Markdown", () => {
+  const source = { id: "report", sourcePath: "report.md", text: "original\n" };
+  const before = investigationSourceRevision([source]);
+  assert.notDeepEqual(
+    investigationSourceRevision([{ ...source, text: source.text + "\n" }]),
+    before
+  );
+  assert.deepEqual(
+    investigationSourceRevision([{ ...source, text: "original\r\n" }]),
+    before
+  );
+  assert.notDeepEqual(
+    investigationSourceRevision([{ ...source, sourcePath: "moved.md" }]),
+    before
+  );
 });
 
 test("full synchronization rejects an empty report collection", async () => {

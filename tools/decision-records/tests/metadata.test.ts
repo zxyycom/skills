@@ -5,7 +5,7 @@ import {
   replaceDecisionFrontmatter
 } from "../src/decision-metadata.ts";
 import { validateDecisionBody } from "../src/record.ts";
-import { candidateDecisionBody } from "./support.ts";
+import { candidateDecisionBody } from "./support-record-fixture.ts";
 
 test("decision Markdown requires sorted unique tag tokens", async () => {
   for (const replacement of [

@@ -3,7 +3,8 @@ import fs from "node:fs/promises";
 import { test } from "node:test";
 import { searchInvestigationReports } from "../src/query.ts";
 import {} from "../src/report-path.ts";
-import { reportMarkdown, withTempRoot, writeCollection } from "./v6-support.ts";
+import { reportMarkdown, withTempRoot } from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("search finds formal Markdown with all, any, phrase, and structural filters", async () => {
   await withTempRoot("search", async (root) => {

@@ -3,10 +3,8 @@ import {
   assert,
   candidateDecisionBody,
   currentDecisionId,
-  currentSourcePath,
   decisionFilePath,
   executeDecisionQuery,
-  execFileSync,
   fs,
   normalizeDecisionSelectorInput,
   parseDatedDecisionId,
@@ -15,19 +13,9 @@ import {
   runSuccessfulSourceCli,
   test,
   utcDecisionDate,
-  validateDecisionRecords,
   withFixtureWorkspace,
   withTemporaryWorkspace
 } from "./support.ts";
-
-test("decision check validates tagged root and archive records", () =>
-  withFixtureWorkspace("query-check", async (workspaceRoot) => {
-    const validation = await validateDecisionRecords({ workspaceRoot });
-    assert.deepEqual(validation.errors, []);
-    assert.equal(validation.decisionCount, 2);
-    assert.equal(validation.activeCount, 1);
-    assert.equal(validation.archivedCount, 1);
-  }));
 
 test("decision show returns tagged Markdown by stable ID", () =>
   withFixtureWorkspace("query-show", async (workspaceRoot) => {
@@ -265,44 +253,3 @@ test("decision trace rejects invalid direct query limits before loading its inde
     );
   }
 });
-
-test("check detects tagged source drift and sync-index accepts it", () =>
-  withFixtureWorkspace("query-drift", async (workspaceRoot) => {
-    const source = decisionFilePath(workspaceRoot, currentSourcePath);
-    await fs.writeFile(
-      source,
-      (await fs.readFile(source, "utf8")).replace(
-        "  - project-tooling",
-        "  - decision-records\n  - project-tooling"
-      ),
-      "utf8"
-    );
-    const check = await runSourceCli(["check", "--root", workspaceRoot]);
-    assert.notEqual(check.exitCode, 0);
-    assert.equal(
-      (await runSourceCli(["sync-index", "--root", workspaceRoot])).exitCode,
-      0
-    );
-  }));
-
-test("decision check preserves source, bundled API, and process CLI parity", () =>
-  withFixtureWorkspace("query-parity", async (workspaceRoot) => {
-    const source = await validateDecisionRecords({ workspaceRoot });
-    const bundled =
-      await import("../../../../skills/decision-records/scripts/decision-records.ts");
-    const bundledResult = await bundled.validateDecisionRecords({
-      workspaceRoot
-    });
-    assert.deepEqual(bundledResult, source);
-    const output = execFileSync(
-      "node",
-      [
-        "skills/decision-records/scripts/decision-records.ts",
-        "check",
-        "--root",
-        workspaceRoot
-      ],
-      { cwd: process.cwd(), encoding: "utf8" }
-    );
-    assert.match(output, /Decision records check passed/);
-  }));

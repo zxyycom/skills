@@ -5,6 +5,7 @@ import test from "node:test";
 import { baseGateCheckIds, prepareGateActivation } from "./impact.ts";
 import {
   captureFixtureCommand,
+  prepareChangedFixtureActivation,
   prepareFixtureActivation,
   publishFixtureReceipts,
   withImpactFixture,
@@ -131,101 +132,100 @@ test("incremental Gate scopes updater tests to the distributed skill they actual
   });
 });
 
+const sharedFeatureInputCases = [
+  ...[
+    "tools/shared/src/file-text-search/record-search-output.ts",
+    "skills/decision-records/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts",
+    "skills/investigation-report/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
+  ].map((input) => ({
+    input,
+    consumers: [
+      "test:decision-records:query-and-index-projection",
+      "test:decision-records:lifecycle-and-recovery",
+      "test:decision-records:public-distribution",
+      "test:investigation-report:cli-contract"
+    ],
+    unrelated: [
+      "test:decision-records:record-and-established-graph",
+      "test:decision-records:pending-stage",
+      "test:investigation-report:collection-and-resources",
+      "test:investigation-report:index-and-query",
+      "test:investigation-report:transactional-maintenance",
+      "test:investigation-report:pending-stage",
+      "script:test:file-text-search",
+      ...baseGateCheckIds.filter((id) => id.startsWith("test:test-evidence:")),
+      "script:test:relation-graph"
+    ],
+    toolId: "record-search-output"
+  })),
+  {
+    input: "tools/shared/src/file-text-search/index.ts",
+    consumers: [
+      "script:test:file-text-search",
+      ...baseGateCheckIds.filter((id) => id.startsWith("test:test-evidence:")),
+      "test:decision-records:query-and-index-projection",
+      "test:decision-records:lifecycle-and-recovery",
+      "test:decision-records:public-distribution",
+      "test:investigation-report:index-and-query",
+      "test:investigation-report:transactional-maintenance",
+      "test:investigation-report:pending-stage",
+      "test:investigation-report:cli-contract"
+    ],
+    unrelated: [
+      "test:decision-records:record-and-established-graph",
+      "test:decision-records:pending-stage",
+      "test:investigation-report:collection-and-resources",
+      "script:test:relation-graph"
+    ],
+    toolId: "file-text-search"
+  },
+  {
+    input: "tools/shared/src/graph/relations.ts",
+    consumers: [
+      "script:test:relation-graph",
+      ...baseGateCheckIds.filter(
+        (id) =>
+          id.startsWith("test:decision-records:") ||
+          id.startsWith("test:investigation-report:")
+      )
+    ],
+    unrelated: [
+      "script:test:file-text-search",
+      "test:test-evidence:case-runtime"
+    ],
+    toolId: "relation-graph"
+  }
+];
+
 test("incremental Gate preserves shared feature consumers without global owner invalidation", async () => {
   await withImpactFixture(async (fixture) => {
-    const groups = [
-      {
-        input: "tools/shared/src/file-text-search/record-search-output.ts",
-        consumers: [
-          "test:decision-records:query-and-index-projection",
-          "test:investigation-report:index-and-query"
-        ],
-        domainPrefixes: [
-          "test:decision-records:",
-          "test:investigation-report:"
-        ],
-        unrelated: [
-          "script:test:file-text-search",
-          ...baseGateCheckIds.filter((id) =>
-            id.startsWith("test:test-evidence:")
-          ),
-          "script:test:relation-graph",
-          "test:change-plan:lifecycle-finalize",
-          "test:novel-cards:card-and-query-contract",
-          "test:mcpshell:runtime"
-        ]
-      },
-      {
-        input: "tools/shared/src/file-text-search/index.ts",
-        consumers: [
-          "script:test:file-text-search",
-          "test:test-evidence:case-runtime"
-        ],
-        domainPrefixes: [
-          "test:decision-records:",
-          "test:investigation-report:",
-          "test:test-evidence:"
-        ],
-        unrelated: [
-          "script:test:relation-graph",
-          "test:change-plan:lifecycle-finalize",
-          "test:novel-cards:card-and-query-contract",
-          "test:mcpshell:runtime"
-        ]
-      },
-      {
-        input: "tools/shared/src/graph/relations.ts",
-        consumers: [
-          "script:test:relation-graph",
-          "test:decision-records:query-and-index-projection",
-          "test:investigation-report:index-and-query"
-        ],
-        domainPrefixes: [
-          "test:decision-records:",
-          "test:investigation-report:"
-        ],
-        unrelated: [
-          "script:test:file-text-search",
-          "test:test-evidence:case-runtime",
-          "test:change-plan:lifecycle-finalize",
-          "test:novel-cards:card-and-query-contract",
-          "test:mcpshell:runtime"
-        ]
-      }
-    ];
-    for (const group of groups) {
-      await writeImpactFixture(
-        fixture.directory,
-        group.input,
-        "export const value = 1;\n"
-      );
-      await publishFixtureReceipts(
+    for (const group of sharedFeatureInputCases) {
+      const changed = await prepareChangedFixtureActivation(
         fixture,
-        await prepareFixtureActivation(fixture)
+        group.input
       );
-      await writeImpactFixture(
-        fixture.directory,
-        group.input,
-        "export const value = 2;\n"
-      );
-      const changed = await prepareFixtureActivation(fixture);
-      for (const prefix of group.domainPrefixes)
+      assert.ok(changed.activeToolIds.includes(group.toolId));
+      if (group.toolId === "record-search-output") {
+        assert.ok(!changed.activeToolIds.includes("decision-cli"));
+        assert.ok(!changed.activeToolIds.includes("investigation-cli"));
+        assert.ok(!changed.activeToolIds.includes("decision-distribution"));
         assert.ok(
-          baseGateCheckIds.some((checkId) => checkId.startsWith(prefix))
+          !changed.activeToolIds.includes("investigation-distribution")
         );
-      const domainConsumers = baseGateCheckIds.filter((checkId) =>
-        group.domainPrefixes.some((prefix) => checkId.startsWith(prefix))
-      );
+      }
       for (const checkId of [
         ...group.consumers,
-        ...domainConsumers,
         "script:check:decisions",
         "script:check:investigations",
-        "script:format:check",
-        "script:test:generated-file",
+        ...(group.input.startsWith("tools/")
+          ? [
+              "script:format:check",
+              "script:test:generated-file",
+              "script:typecheck",
+              "script:lint"
+            ]
+          : []),
         "script:check:skill-updaters",
-        "script:typecheck",
-        "script:lint",
         "script:check:test-evidence-catalog",
         "script:validate"
       ]) {
@@ -235,13 +235,123 @@ test("incremental Gate preserves shared feature consumers without global owner i
           `${group.input}: ${checkId}`
         );
       }
-      for (const checkId of group.unrelated) {
+      for (const checkId of [
+        ...group.unrelated,
+        "test:change-plan:lifecycle-finalize",
+        "test:novel-cards:card-and-query-contract",
+        "test:mcpshell:runtime"
+      ]) {
         assert.equal(
           changed.decisions.find((item) => item.checkId === checkId)?.action,
           "reuse",
           `${group.input}: ${checkId}`
         );
       }
+    }
+  });
+});
+
+test("incremental Gate refuses orphan domain inputs despite repository-wide coverage", async () => {
+  await withImpactFixture(async (fixture) => {
+    await publishFixtureReceipts(
+      fixture,
+      await prepareFixtureActivation(fixture)
+    );
+    for (const input of [
+      "tools/decision-records/src/unreviewed.ts",
+      "tools/decision-records/tests/unreviewed.test.ts",
+      "tools/investigation-report/src/unreviewed.ts",
+      "tools/investigation-report/tests/unreviewed.fixture"
+    ]) {
+      await writeImpactFixture(fixture.directory, input, "unreviewed input\n");
+      const plan = await prepareFixtureActivation(fixture);
+      assert.equal(plan.kind, "incremental");
+      assert.ok(plan.snapshot.unclassifiedPaths.includes(input));
+      assert.equal(plan.activeCheckIds.length, baseGateCheckIds.length);
+      assert.deepEqual(await publishFixtureReceipts(fixture, plan), {
+        published: false,
+        reason: "inputs-unclosed"
+      });
+      await fs.rm(path.join(fixture.directory, input));
+    }
+  });
+});
+
+test("incremental Gate routes domain capability inputs only to their declared subscribers", async () => {
+  await withImpactFixture(async (fixture) => {
+    for (const group of [
+      {
+        input: "tools/decision-records/src/decision-stage-prepare.ts",
+        toolId: "decision-stage",
+        execute: [
+          "test:decision-records:pending-stage",
+          "test:decision-records:query-and-index-projection",
+          "test:decision-records:lifecycle-and-recovery",
+          "test:decision-records:public-distribution",
+          "script:check:decisions"
+        ],
+        reuse: [
+          "test:decision-records:record-and-established-graph",
+          "test:investigation-report:pending-stage"
+        ]
+      },
+      {
+        input: "tools/investigation-report/src/cli-query-commands.ts",
+        toolId: "investigation-cli",
+        execute: [
+          "test:investigation-report:cli-contract",
+          "script:check:investigations"
+        ],
+        reuse: [
+          "test:investigation-report:collection-and-resources",
+          "test:investigation-report:index-and-query",
+          "test:investigation-report:transactional-maintenance",
+          "test:investigation-report:pending-stage"
+        ]
+      },
+      {
+        input: "tools/investigation-report/src/query-search-content.ts",
+        toolId: "investigation-query",
+        execute: [
+          "test:investigation-report:index-and-query",
+          "test:investigation-report:transactional-maintenance",
+          "test:investigation-report:pending-stage",
+          "test:investigation-report:cli-contract",
+          "script:check:investigations"
+        ],
+        reuse: ["test:investigation-report:collection-and-resources"]
+      },
+      {
+        input:
+          "tools/investigation-report/tests/fixtures/staging-source-path/value.txt",
+        toolId: "investigation-stage",
+        execute: [
+          "test:investigation-report:index-and-query",
+          "test:investigation-report:pending-stage",
+          "test:investigation-report:cli-contract"
+        ],
+        reuse: [
+          "test:investigation-report:collection-and-resources",
+          "test:investigation-report:transactional-maintenance"
+        ]
+      }
+    ]) {
+      const plan = await prepareChangedFixtureActivation(fixture, group.input);
+      assert.ok(plan.activeToolIds.includes(group.toolId));
+      for (const checkId of group.execute)
+        assert.equal(
+          plan.decisions.find((decision) => decision.checkId === checkId)
+            ?.action,
+          "execute",
+          checkId
+        );
+      for (const checkId of group.reuse)
+        assert.equal(
+          plan.decisions.find((decision) => decision.checkId === checkId)
+            ?.action,
+          "reuse",
+          checkId
+        );
     }
   });
 });

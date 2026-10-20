@@ -8,7 +8,7 @@ import {
   discardInvestigationReport,
   discardInvestigationReportWithWriter
 } from "../src/discard.ts";
-import { executeInvestigationIndexQuery } from "../src/query.ts";
+import { executeInvestigationIndexQuery } from "../src/query-report.ts";
 import {
   executeInvestigationReportCheck,
   synchronizeInvestigationIndex
@@ -16,9 +16,9 @@ import {
 import {
   investigationRoot,
   reportMarkdown,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("discard rejects reports still used as relation targets or resource owners", async () => {
   await withTempRoot("discard-references", async (root) => {

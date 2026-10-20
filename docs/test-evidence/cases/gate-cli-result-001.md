@@ -20,6 +20,6 @@ Contract:
 Proves:
 - UTC timestamp 与 UUID 形成调用目录；tag、别名、基线、cold 与诊断参数按期望解析，重复、错位、未知或无效参数在创建 Definition 前被拒绝。
 - 成功调用将公开 flags、projectRoot 与对应 machine/progress/Check 输出路径交给 Vibe；diagnostic flag 开启固定 core/scheduler channel，已完成失败仍回显 artifact 与诊断路径，无 outputs 的配置失败不回显目录。
-- 增量摘要保存逐 Check 决策、execute/reuse/fallback 计数与 receipt 发布结果；fallback 保留可定位原因，并在终端提供执行与复用摘要。
+- 增量摘要保存 activeToolIds、所选工具 flags、逐 Check 决策、execute/reuse/fallback 计数与 receipt 发布结果；fallback 保留可定位原因，并在终端提供执行与复用摘要。
 - aggregate failed、输出终态失败与 Run rejection 返回退出码 1，不发布成功；允许调用发布器的失败结果明确携带 runSucceeded=false，rejection 不调用发布器，私有失败细节不进入诊断。
 - 真实项目 typecheck 退出失败时 CLI 给出 bun run typecheck 直接重跑提示和 process.log 定位，不转发 private-child-marker。

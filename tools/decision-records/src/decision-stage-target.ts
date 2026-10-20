@@ -29,24 +29,38 @@ export async function buildDecisionStageTarget(
     options.decisionsDirectory,
     options.decisionScope
   );
+  return await decisionStageTargetFromSources({
+    baseline,
+    filesystemCandidates,
+    selectedSelectors: options.selectedSelectors,
+    revision: options.revision
+  });
+}
+
+export async function decisionStageTargetFromSources(options: {
+  baseline: readonly DecisionStageSource[];
+  filesystemCandidates: FilesystemDecisionCandidates;
+  selectedSelectors: readonly string[];
+  revision: DecisionStageTarget["revision"];
+}): Promise<DecisionStageTarget> {
+  const { baseline, filesystemCandidates } = options;
   const selectedIds = resolveSelectedDecisionIds(
     options.selectedSelectors,
     baseline,
     filesystemCandidates
   );
-  const selectedOptions = { ...options, selectedIds };
   const sourceById = new Map(
     baseline.map((source) => [source.source.decisionId, source])
   );
   const selectedSources =
     options.revision === null || baseline.length === 0
       ? await mergeFilesystemDecisionSources(
-          selectedOptions,
+          selectedIds,
           sourceById,
           filesystemCandidates
         )
       : await mergeSelectedDecisionSources(
-          selectedOptions,
+          selectedIds,
           sourceById,
           filesystemCandidates
         );
@@ -63,13 +77,11 @@ export async function buildDecisionStageTarget(
 }
 
 async function mergeFilesystemDecisionSources(
-  options: Omit<DecisionStageTargetOptions, "selectedSelectors"> & {
-    selectedIds: readonly DecisionId[];
-  },
+  selectedIds: readonly DecisionId[],
   sourceById: Map<DecisionId, DecisionStageSource>,
   filesystem: FilesystemDecisionCandidates
 ): Promise<SelectedFilesystemSource[]> {
-  const selectedSources = options.selectedIds.map((decisionId) => ({
+  const selectedSources = selectedIds.map((decisionId) => ({
     decisionId,
     source: filesystem.sources.get(decisionId) ?? null
   }));
@@ -96,14 +108,12 @@ async function mergeFilesystemDecisionSources(
 }
 
 async function mergeSelectedDecisionSources(
-  options: Omit<DecisionStageTargetOptions, "selectedSelectors"> & {
-    selectedIds: readonly DecisionId[];
-  },
+  selectedIds: readonly DecisionId[],
   sourceById: Map<DecisionId, DecisionStageSource>,
   filesystem: FilesystemDecisionCandidates
 ): Promise<SelectedFilesystemSource[]> {
   const selectedSources = await Promise.all(
-    options.selectedIds.map(async (decisionId) => {
+    selectedIds.map(async (decisionId) => {
       if (filesystem.duplicateIds.has(decisionId)) {
         throw duplicateFilesystemDecisionIdError(decisionId);
       }
@@ -142,7 +152,7 @@ async function mergeSelectedDecisionSources(
   return selectedSources;
 }
 
-function resolveSelectedDecisionIds(
+export function resolveSelectedDecisionIds(
   selectors: readonly string[],
   baseline: readonly DecisionStageSource[],
   filesystem: FilesystemDecisionCandidates

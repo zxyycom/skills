@@ -1,13 +1,14 @@
-### Case DECISION-REALLOCATION-NODE-001: 生成 Node 重划 CLI 保留原子预算和完整遍历
+### Case DECISION-REALLOCATION-NODE-001: 分发同进程 trace 保留完整事件与默认预算阻断
 
 Tests:
-- `test:7a6e048fc15a0ab089a052d7f2216e1ef0b75983bf09c15176d82a26b5866f30`
+- `test:09edb1f734fffd9af0da4c2bb343c3f49185a6dc9abdfdb206342e229d2681e0`
 
 Tags:
 - `generated-runtime`
 
 Contract:
-- 生成 Node CLI 与领域 trace 共用方向、完整事件、预算阻断与快照来源契约。
+- 分发 CLI 与领域 trace 共用方向、完整事件、预算阻断与快照来源契约。
 
 Proves:
-- 真实生成 Node 对完整 Markdown d=100 稀疏圈，预算 200 返回全部成员，预算 50 原子阻断并要求 200；输出仍声明发布快照。
+- 对 52 个成员的真实稀疏事件，分发同进程 CLI 在预算 52 时返回全部成员、空 context 与完整 coverage，source 声明 published-index。
+- 省略 max-records 使用默认预算时只返回 anchor，requiredMaxRecords 为 52 且 coverage.complete=false；不启动 Node 子进程。

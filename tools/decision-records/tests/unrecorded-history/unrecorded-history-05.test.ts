@@ -1,3 +1,4 @@
+import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
 import {
   assert,
   candidateDecisionBody,
@@ -6,8 +7,7 @@ import {
   fs,
   readIndex,
   runSourceCli,
-  test,
-  withGitFixtureWorkspace
+  test
 } from "./support.ts";
 
 test("evolve probes group-only predecessors before writing", () =>

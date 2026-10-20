@@ -10,4 +10,4 @@ Contract:
 - 选择性暂存要求当前 index 定义完整合法。
 
 Proves:
-- 真实 Git fixture 中旧或错误 definition overlay 明确返回诊断，且 cached pending 保持不变。
+- 对当前索引定义运行纯 parser，旧 definitionVersion 被明确拒绝并返回 state-index.definition-version-mismatch。

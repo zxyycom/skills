@@ -1,9 +1,10 @@
+import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
+import { stageDecisionRecords } from "../../src/decision-stage-service.ts";
 import {
   archivedDecisionId,
   assert,
   candidateDecisionBody,
   commitWorkspace,
-  createCliProgram,
   currentDecisionId,
   currentSourcePath,
   decisionFilePath,
@@ -11,9 +12,7 @@ import {
   initializeGitRepository,
   path,
   runGit,
-  runSourceCli,
   test,
-  withGitFixtureWorkspace,
   withTemporaryWorkspace,
   writeDecision,
   syncDecisionIndexBeforeStage
@@ -31,16 +30,16 @@ test("stage --scope index writes only the derived index projection", () =>
       "utf8"
     );
     await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await runSourceCli([
-      "stage",
-      currentDecisionId,
-      "--scope",
-      "index",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(staged.exitCode, 0, staged.stderr);
-    assert.match(staged.stdout, /scope: index/u);
+    const staged = await stageDecisionRecords({
+      decisionIds: [currentDecisionId],
+      location: {
+        workspaceRoot: workspaceRoot,
+        decisionsDir: "docs/decisions"
+      },
+      scope: "index"
+    });
+    assert.equal(staged.status, "ok", JSON.stringify(staged));
+    assert.ok(staged.status === "ok" && staged.scope === "index");
     assert.deepEqual(
       runGit(workspaceRoot, ["diff", "--cached", "--name-only"]).trim(),
       "docs/decisions/decision-index.json"
@@ -77,26 +76,26 @@ test("stage --scope index rejects a pending index that already differs from the 
         "utf8"
       );
       await syncDecisionIndexBeforeStage(workspaceRoot);
-      const first = await runSourceCli([
-        "stage",
-        currentDecisionId,
-        "--scope",
-        "index",
-        "--root",
-        workspaceRoot
-      ]);
-      assert.equal(first.exitCode, 0, first.stderr);
-      const second = await runSourceCli([
-        "stage",
-        archivedDecisionId,
-        "--scope",
-        "index",
-        "--root",
-        workspaceRoot
-      ]);
-      assert.notEqual(second.exitCode, 0);
+      const first = await stageDecisionRecords({
+        decisionIds: [currentDecisionId],
+        location: {
+          workspaceRoot: workspaceRoot,
+          decisionsDir: "docs/decisions"
+        },
+        scope: "index"
+      });
+      assert.equal(first.status, "ok", JSON.stringify(first));
+      const second = await stageDecisionRecords({
+        decisionIds: [archivedDecisionId],
+        location: {
+          workspaceRoot: workspaceRoot,
+          decisionsDir: "docs/decisions"
+        },
+        scope: "index"
+      });
+      assert.equal(second.status, "error");
       assert.match(
-        second.stderr,
+        JSON.stringify(second),
         /pending decision index already differs from the current revision baseline/u
       );
     }
@@ -114,20 +113,20 @@ test("stage --scope domain writes only formal Markdown and preserves the pending
       "utf8"
     );
     await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await runSourceCli([
-      "stage",
-      currentDecisionId,
-      "--scope",
-      "domain",
-      "--root",
-      workspaceRoot
+    const staged = await stageDecisionRecords({
+      decisionIds: [currentDecisionId],
+      location: {
+        workspaceRoot: workspaceRoot,
+        decisionsDir: "docs/decisions"
+      },
+      scope: "domain"
+    });
+    assert.equal(staged.status, "ok", JSON.stringify(staged));
+    assert.ok(staged.status === "ok" && staged.scope === "domain");
+    assert.ok(staged.status === "ok");
+    assert.deepEqual(staged.callerOwnedPaths, [
+      "docs/decisions/decision-index.json"
     ]);
-    assert.equal(staged.exitCode, 0, staged.stderr);
-    assert.match(staged.stdout, /scope: domain/u);
-    assert.match(
-      staged.stdout,
-      /Preserved unrelated pending paths: none; caller-owned paths: docs\/decisions\/decision-index\.json/u
-    );
     const pendingPaths = runGit(workspaceRoot, [
       "diff",
       "--cached",
@@ -160,28 +159,28 @@ test("stage --scope domain composes with a previous index scope into the all sna
       "utf8"
     );
     await syncDecisionIndexBeforeStage(workspaceRoot);
-    const indexStaged = await runSourceCli([
-      "stage",
-      currentDecisionId,
-      "--scope",
-      "index",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(indexStaged.exitCode, 0, indexStaged.stderr);
+    const indexStaged = await stageDecisionRecords({
+      decisionIds: [currentDecisionId],
+      location: {
+        workspaceRoot: workspaceRoot,
+        decisionsDir: "docs/decisions"
+      },
+      scope: "index"
+    });
+    assert.equal(indexStaged.status, "ok", JSON.stringify(indexStaged));
     const stagedIndex = runGit(workspaceRoot, [
       "show",
       ":docs/decisions/decision-index.json"
     ]);
-    const domainStaged = await runSourceCli([
-      "stage",
-      currentDecisionId,
-      "--scope",
-      "domain",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(domainStaged.exitCode, 0, domainStaged.stderr);
+    const domainStaged = await stageDecisionRecords({
+      decisionIds: [currentDecisionId],
+      location: {
+        workspaceRoot: workspaceRoot,
+        decisionsDir: "docs/decisions"
+      },
+      scope: "domain"
+    });
+    assert.equal(domainStaged.status, "ok", JSON.stringify(domainStaged));
     assert.equal(
       runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"]),
       stagedIndex
@@ -205,15 +204,15 @@ test("stage --scope domain writes a deletion for a baseline-only ID without touc
     async (workspaceRoot) => {
       await fs.rm(decisionFilePath(workspaceRoot, currentSourcePath));
       await syncDecisionIndexBeforeStage(workspaceRoot);
-      const staged = await runSourceCli([
-        "stage",
-        currentDecisionId,
-        "--scope",
-        "domain",
-        "--root",
-        workspaceRoot
-      ]);
-      assert.equal(staged.exitCode, 0, staged.stderr);
+      const staged = await stageDecisionRecords({
+        decisionIds: [currentDecisionId],
+        location: {
+          workspaceRoot: workspaceRoot,
+          decisionsDir: "docs/decisions"
+        },
+        scope: "domain"
+      });
+      assert.equal(staged.status, "ok", JSON.stringify(staged));
       const pendingPaths = runGit(workspaceRoot, [
         "diff",
         "--cached",
@@ -236,28 +235,6 @@ test("stage --scope domain writes a deletion for a baseline-only ID without touc
     }
   ));
 
-test("stage rejects an invalid scope as a normal invalid argument", async () => {
-  const args = ["stage", currentDecisionId, "--scope", "everything"];
-  const staged = await runSourceCli(args);
-  assert.equal(staged.exitCode, 2);
-  assert.equal(staged.stdout, "");
-  assert.match(staged.stderr, /Allowed choices are all, index, domain/u);
-  let dispatched = false;
-  const program = createCliProgram(
-    async () => {
-      dispatched = true;
-      throw new Error("Invalid scope must not dispatch stage");
-    },
-    () => {},
-    { io: { stdout: () => {}, stderr: () => {} } }
-  );
-  await assert.rejects(
-    program.parseAsync(["node", "decision-records.ts", ...args]),
-    /Allowed choices are all, index, domain/u
-  );
-  assert.equal(dispatched, false);
-});
-
 test("stage --scope domain preserves an unrelated pending index byte-for-byte after source drift is absent", () =>
   withTemporaryWorkspace(
     "stage-scope-first-collection",
@@ -278,28 +255,28 @@ test("stage --scope domain preserves an unrelated pending index byte-for-byte af
           .replace("alignment: null", "alignment: aligned")
           .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
       );
-      const indexStaged = await runSourceCli([
-        "stage",
-        id,
-        "--scope",
-        "index",
-        "--root",
-        workspaceRoot
-      ]);
-      assert.equal(indexStaged.exitCode, 0, indexStaged.stderr);
+      const indexStaged = await stageDecisionRecords({
+        decisionIds: [id],
+        location: {
+          workspaceRoot: workspaceRoot,
+          decisionsDir: "docs/decisions"
+        },
+        scope: "index"
+      });
+      assert.equal(indexStaged.status, "ok", JSON.stringify(indexStaged));
       const stagedIndex = runGit(workspaceRoot, [
         "show",
         ":docs/decisions/decision-index.json"
       ]);
-      const domainStaged = await runSourceCli([
-        "stage",
-        id,
-        "--scope",
-        "domain",
-        "--root",
-        workspaceRoot
-      ]);
-      assert.equal(domainStaged.exitCode, 0, domainStaged.stderr);
+      const domainStaged = await stageDecisionRecords({
+        decisionIds: [id],
+        location: {
+          workspaceRoot: workspaceRoot,
+          decisionsDir: "docs/decisions"
+        },
+        scope: "domain"
+      });
+      assert.equal(domainStaged.status, "ok", JSON.stringify(domainStaged));
       assert.equal(
         runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"]),
         stagedIndex
@@ -310,19 +287,3 @@ test("stage --scope domain preserves an unrelated pending index byte-for-byte af
       );
     }
   ));
-
-test("help exposes the stage scope contract", () => {
-  const program = createCliProgram(
-    async () => 0,
-    () => undefined
-  );
-  const stage = program.commands.find(
-    (candidate) => candidate.name() === "stage"
-  );
-  assert.ok(stage);
-  assert.match(stage.helpInformation(), /--scope <scope>/u);
-  assert.match(
-    stage.helpInformation(),
-    /"all", "index", "domain", default: "all"/u
-  );
-});

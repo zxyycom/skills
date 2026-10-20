@@ -133,6 +133,7 @@
       "261017-complete-change-plans-through-task-declarations": "sha256:de38af27e41917cae426abb4903d4b20492b7c84f0b5b6643753b714b309f2bb",
       "261017-lightweight-judgment-faithful-protocol-adapters": "sha256:bb4a453ec6fb6159f865a3b5b3307e5ff5b0585a3aa9481a78919fd79ebc40b3",
       "261017-route-record-documentation-by-consumer-task": "sha256:45930827a933def1ad4df38f87547f0418e595912280f7ae9e03f3e3d7d0884a",
+      "261020-distinguish-tool-change-flags-from-check-subscriptions": "sha256:faa33756b3dde0c1991def69757c2997c1459fba6355d1d09390a43721d8ed5c",
       "261020-distribute-editable-typescript-runtimes": "sha256:1f3f89abb9f4de19cf2818812bb003d16a7a02d6a457b65cae31190bb401fb52",
       "261020-native-gate-execution-and-project-receipts": "sha256:6fe5fd00b0a0291105b55994dd7112e2011723cb04ead01bd4682e0c3bc6f02b",
       "261020-retain-release-version-control-isolation": "sha256:3187831faf378e199547da7d80794b5918a132652d5ee6fdcc65d71c96003e83",
@@ -3037,6 +3038,24 @@
           "summary": "保留领域与机器分工，按消费任务区分操作和实现契约"
         }
       ]
+    },
+    "261020-distinguish-tool-change-flags-from-check-subscriptions": {
+      "name": "distinguish-tool-change-flags-from-check-subscriptions",
+      "sourcePath": "distinguish-tool-change-flags-from-check-subscriptions.md",
+      "title": "以工具变更 flag 和 Check 订阅表达 Gate 影响范围",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-20T15:26:07Z",
+      "purpose": "让工具输入变化与检查验证责任分别维护，可靠减少无关领域回归。",
+      "background": "领域级输入闭包让单一搜索输出变化触发无关暂存与生命周期矩阵，按检查私有 flag 难以表达共享影响。",
+      "decision": "小工具拥有完整输入和变更 flag，Check 显式订阅，原生条件负责选择，成功证明仍按 Check 保存。",
+      "tags": [
+        "dependency-boundary-design",
+        "project-tooling",
+        "responsibility-boundaries",
+        "vibe-gate"
+      ],
+      "relations": []
     },
     "261020-distribute-editable-typescript-runtimes": {
       "name": "distribute-editable-typescript-runtimes",

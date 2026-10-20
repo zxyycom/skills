@@ -1,15 +1,12 @@
+import { readOwnedResourceFixture } from "./resource-phase-test-support.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 import { stageInvestigationReports } from "../src/staging.ts";
-import {
-  git,
-  initializeGit,
-  investigationRoot,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+import { git, initializeGit } from "./git-support.ts";
+import { investigationRoot, withTempRoot } from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 const resourceRelative =
   "docs/investigations/_resources/one/nested/unreferenced.txt";
@@ -30,13 +27,16 @@ function componentPath(root: string, component: string): string {
   }
 }
 
-async function prepareUnreferencedResource(root: string): Promise<void> {
+async function prepareUnreferencedResource(
+  root: string,
+  recorded = true
+): Promise<void> {
   await fs.mkdir(path.dirname(path.join(root, resourceRelative)), {
     recursive: true
   });
   await fs.writeFile(path.join(root, resourceRelative), "baseline bytes\n");
-  await writeCollection(root, [{ id: "one" }, { id: "other" }]);
-  initializeGit(root);
+  if (recorded) await writeCollection(root, [{ id: "one" }, { id: "other" }]);
+  if (recorded) initializeGit(root);
 }
 
 async function replaceWithSymlink(
@@ -84,71 +84,82 @@ async function observeResourceReads<T>(
 }
 
 for (const component of ["root", "owner", "intermediate", "file"]) {
-  test(`local investigation stage rejects initial unreferenced resource symlink at ${component}`, async () => {
-    await withTempRoot("stage-resource-initial-symlink", async (root) => {
-      await prepareUnreferencedResource(root);
+  test(`owned resource validation rejects initial unreferenced symlink at ${component}`, async () => {
+    await withTempRoot("resource-initial-symlink", async (root) => {
+      await prepareUnreferencedResource(root, false);
       await replaceWithSymlink(root, component, "external replacement bytes\n");
-      const before = await fs.readFile(path.join(root, ".git", "index"));
-      for (const scope of ["domain", "all"] as const) {
-        const observed = await observeResourceReads(root, () =>
-          stageInvestigationReports({
-            workspaceRoot: root,
-            reportIds: ["one"],
-            scope
-          })
-        );
-        assert.equal(observed.result.status, "error");
-        assert.equal(
-          observed.reads,
-          0,
-          "unsafe paths must be rejected before acquiring external bytes"
-        );
-        assert.deepEqual(
-          await fs.readFile(path.join(root, ".git", "index")),
-          before
-        );
-      }
+      const observed = await observeResourceReads(root, async () => {
+        await assert.rejects(readOwnedResourceFixture(root, resourceRelative));
+      });
+      assert.equal(
+        observed.reads,
+        0,
+        "unsafe paths must fail before external bytes"
+      );
     });
   });
 }
 
 for (const component of ["root", "owner", "intermediate", "file"]) {
-  test(`local investigation stage rejects same-byte unreferenced resource symlink replacement at ${component} between phases`, async () => {
-    for (const scope of ["domain", "all"] as const) {
-      await withTempRoot("stage-resource-phase-symlink", async (root) => {
+  test(`owned resource validation rejects same-byte symlink replacement at ${component} between phases`, async () => {
+    await withTempRoot("resource-phase-symlink", async (root) => {
+      if (component === "file") {
         await prepareUnreferencedResource(root);
-        const before = await fs.readFile(path.join(root, ".git", "index"));
+        const before = await fs.readFile(path.join(root, ".git/index"));
         const observed = await observeResourceReads(
           root,
           () =>
             stageInvestigationReports({
               workspaceRoot: root,
               reportIds: ["one"],
-              scope
+              scope: "domain"
             }),
           () => replaceWithSymlink(root, component, "baseline bytes\n")
         );
-        assert.equal(
-          observed.reads,
-          1,
-          "write-before validation must not reread through the replacement symlink"
-        );
         assert.equal(observed.result.status, "error");
         assert.equal(observed.result.state, "source-drift");
+        assert.equal(observed.reads, 1);
         assert.deepEqual(
-          await fs.readFile(path.join(root, ".git", "index")),
+          await fs.readFile(path.join(root, ".git/index")),
           before
         );
-      });
-    }
+        return;
+      }
+      await prepareUnreferencedResource(root, false);
+      const observed = await observeResourceReads(
+        root,
+        async () => {
+          assert.equal(
+            await readOwnedResourceFixture(root, resourceRelative),
+            "baseline bytes\n"
+          );
+          await assert.rejects(
+            readOwnedResourceFixture(root, resourceRelative)
+          );
+        },
+        () => replaceWithSymlink(root, component, "baseline bytes\n")
+      );
+      assert.equal(
+        observed.reads,
+        1,
+        "fresh validation must not reread through replacement"
+      );
+    });
   });
 }
 
 for (const component of ["root", "owner", "intermediate", "file"]) {
-  test(`local investigation stage preserves legitimate unreferenced resource deletion at ${component}`, async () => {
+  test(`owned resource deletion handles missing ${component} components`, async () => {
     await withTempRoot("stage-resource-safe-deletion", async (root) => {
-      await prepareUnreferencedResource(root);
+      await prepareUnreferencedResource(root, component === "file");
       await fs.rm(componentPath(root, component), { recursive: true });
+      if (component !== "file") {
+        assert.equal(
+          await readOwnedResourceFixture(root, resourceRelative),
+          null
+        );
+        return;
+      }
       const result = await stageInvestigationReports({
         workspaceRoot: root,
         reportIds: ["one"],
@@ -165,26 +176,15 @@ for (const component of ["root", "owner", "intermediate", "file"]) {
 }
 
 for (const component of ["root", "owner"]) {
-  test(`local investigation stage rejects empty selected resource ${component} symlink without direct references or HEAD members`, async () => {
-    await withTempRoot("stage-resource-empty-symlink", async (root) => {
-      await writeCollection(root, [{ id: "one" }]);
-      initializeGit(root);
+  test(`owned resource validation rejects empty ${component} symlink without direct references or HEAD members`, async () => {
+    await withTempRoot("resource-empty-symlink", async (root) => {
+      await fs.mkdir(investigationRoot(root), { recursive: true });
       const external = path.join(root, "external-empty");
       await fs.mkdir(external);
       const target = componentPath(root, component);
       await fs.mkdir(path.dirname(target), { recursive: true });
       await fs.symlink(external, target);
-      const before = await fs.readFile(path.join(root, ".git", "index"));
-      const result = await stageInvestigationReports({
-        workspaceRoot: root,
-        reportIds: ["one"],
-        scope: "domain"
-      });
-      assert.equal(result.status, "error");
-      assert.deepEqual(
-        await fs.readFile(path.join(root, ".git", "index")),
-        before
-      );
+      await assert.rejects(readOwnedResourceFixture(root, null));
     });
   });
 }

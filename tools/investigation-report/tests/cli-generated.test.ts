@@ -2,13 +2,9 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
-import {
-  investigationRoot,
-  runGeneratedInvestigationCliSmoke,
-  runInvestigationCli,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+import { investigationRoot, withTempRoot } from "./fixture-support.ts";
+import { runInvestigationCli } from "./cli-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("CLI exposes only report-level commands and rejects old topic options", async () => {
   await withTempRoot("cli", async (root) => {
@@ -51,13 +47,6 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
     assert.equal(removedWrite.status, 2);
     assert.equal(removedWrite.stdout, "");
     assert.match(removedWrite.stderr, /unknown option '--write'/u);
-
-    const generatedRemovedWrite = runGeneratedInvestigationCliSmoke(root, [
-      "sync-index",
-      "--write"
-    ]);
-    assert.equal(generatedRemovedWrite.status, 2);
-    assert.match(generatedRemovedWrite.stderr, /unknown option '--write'/u);
 
     const relationHelp = await runInvestigationCli(root, [
       "set-relations",
@@ -125,7 +114,7 @@ test("CLI new defaults formedAt to the current UTC second when omitted", async (
     assert.doesNotMatch(missingQuestion.stderr, /--formed-at/u);
 
     const before = Math.floor(Date.now() / 1000) * 1000;
-    const created = runGeneratedInvestigationCliSmoke(root, [
+    const created = await runInvestigationCli(root, [
       "new",
       "cli-default-formed-at",
       "--title",

@@ -1,10 +1,10 @@
 ### Case INVESTIGATION-STAGE-UNREFERENCED-SYMLINK-001: 零引用完整所选树拒绝初始符号链接
 
 Tests:
-- `test:2a5e5a147714f7b19eff3136f9b664f6e02465199eb97075d705aec7fad22995`
-- `test:3f24a4adc4aa62ec4032eb10d482343f5d2859265f99d32c2c64c84197c10d70`
-- `test:52acd92c426625dea312b37041325fe48ef747fa1b1e678131c9a70420fcf7b4`
-- `test:7379b594c28e973ef1e0a8219965a8b92651bc2514a140acb07b0a7ff8e0c72c`
+- `test:326e692a0a6bc445193ecd944b51cbb41257ae341c4b265a4f3a8734210a3acd`
+- `test:dace1cc8f773ea34e669dd1eac8967b61a2defcb61175b0c3113d4617a6a2fa9`
+- `test:e38d6bd0d1cc585b50e98cf3d1473385e39cade2aab6e30aac05514a3836ed69`
+- `test:f0059ec0cadbbc1fa7d6180f18372f51a30b6ad7e7c1ad90110c91265a711c38`
 
 Tags:
 - `investigation-report`
@@ -13,4 +13,4 @@ Contract:
 - 完整所选 owner 树的资源根、owner、路径分量与目标文件均不得为符号链接，即使报告没有资源引用。
 
 Proves:
-- root、owner、中间目录和文件初始替换均使 all/domain 在资源字节采集前失败，Git index 原始字节不变。
+- 真实文件系统的 root、owner、中间目录和文件初始替换均被资源验证器拒绝；资源字节读取计数为零。

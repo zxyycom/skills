@@ -36,10 +36,11 @@ import {
   type ReleasePacker,
   type ReleasePreparer
 } from "./checks/release.ts";
-import { baseGateCheckIds, validateBaseGateImpactContracts } from "./impact.ts";
+import { gateToolInputs } from "./impact-tools.ts";
+import { validateBaseGateImpactContracts } from "./impact.ts";
 
 export type GateDefinitionDependencies = Readonly<{
-  activeCheckIds?: readonly string[];
+  activeToolIds?: readonly string[];
   baselineRef?: string;
   nativeChecks?: readonly Check[];
   packRelease?: ReleasePacker;
@@ -67,14 +68,14 @@ export function gateCheckIds(): readonly string[] {
 }
 
 function validateIncrementalSelection(
-  activeCheckIds: readonly string[] | undefined
+  activeToolIds: readonly string[] | undefined
 ): boolean {
-  if (activeCheckIds === undefined) return false;
+  if (activeToolIds === undefined) return false;
   const errors = validateBaseGateImpactContracts();
-  const allowed = new Set(baseGateCheckIds);
-  if (errors.length > 0 || activeCheckIds.some((id) => !allowed.has(id))) {
+  const allowed = new Set(Object.keys(gateToolInputs));
+  if (errors.length > 0 || activeToolIds.some((id) => !allowed.has(id))) {
     throw new Error(
-      errors[0] ?? "incremental Gate activation selected a non-base Check"
+      errors[0] ?? "incremental Gate activation selected an unknown tool"
     );
   }
   return true;
@@ -87,7 +88,7 @@ export function createGateDefinition(
   const release = hasGateTag(normalizeGateTags(activeTags), "release");
   const configuration = {
     environmentPrerequisite: true,
-    incremental: validateIncrementalSelection(dependencies.activeCheckIds),
+    incremental: validateIncrementalSelection(dependencies.activeToolIds),
     release
   };
   const prepare = createReleasePrepareCheck(

@@ -9,9 +9,9 @@ import { validateInvestigationReports } from "../src/validation.ts";
 import {
   investigationRoot,
   reportMarkdown,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("validation enforces report frontmatter fields and canonical ordering", () => {
   const source = reportMarkdown({ id: "valid-report" });
@@ -167,28 +167,17 @@ test("validation enforces investigation directory path rules", async () => {
   assert.ok(result.errors.some((error) => error.includes("relative")));
 });
 
-test("validation reports malformed frontmatter fields in the selected report", async () => {
-  await withTempRoot("malformed", async (root) => {
-    await writeCollection(root, [{ id: "report" }], false);
-    const file = `${investigationRoot(root)}/report.md`;
-    await fs.writeFile(
-      file,
-      (await fs.readFile(file, "utf8")).replace(
-        /question: "[^"]+"/u,
-        'question: "bad\\rvalue"'
-      ),
-      "utf8"
-    );
-    const result = await validateInvestigationReports({
-      ids: ["report.md"],
-      workspaceRoot: root
-    });
-    assert.ok(
-      result.errors.some((error) =>
-        error.includes("question must be a non-empty")
-      )
-    );
-  });
+test("validation reports malformed frontmatter fields in the selected report", () => {
+  const source = reportMarkdown({ id: "report" }).replace(
+    /question: "[^"]+"/u,
+    'question: "bad\\rvalue"'
+  );
+  const parsed = parseInvestigationReport(source, "report");
+  assert.ok(
+    parsed.errors.some((error) =>
+      error.includes("question must be a non-empty")
+    )
+  );
 });
 
 test("full validation rejects nested report directories", async () => {

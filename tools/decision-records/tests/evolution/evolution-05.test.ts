@@ -1,116 +1,121 @@
+import { isEstablishedDecisionRecord } from "../../src/types.ts";
+import { decisionScanFromSources } from "../domain-fixture.ts";
+import {
+  decisionReallocationComponents,
+  decisionRelationConsistencyIssues
+} from "../../src/relation-graph.ts";
+import { assertLifecycleRejected, evolutionRequest } from "./domain-support.ts";
+import { decisionIdForTest } from "../support-record-fixture.ts";
 import {
   assert,
   candidateDecisionBody,
-  currentRelativePath,
   decisionFilePath,
-  establishClosedReallocation,
   establishClosedSplit,
   findIndexEntry,
   fs,
-  path,
   readIndex,
-  runSourceCli,
-  runSourceLifecycleCli,
   runSuccessfulSourceLifecycleCli,
   test,
   validateDecisionRecords,
   withFixtureWorkspace
 } from "./support.ts";
 
-test("evolve keeps a later reallocation separate from its archived predecessor event", () =>
-  withFixtureWorkspace(
-    "evolve-successive-reallocation",
-    async (workspaceRoot) => {
-      const established = await establishClosedReallocation(workspaceRoot);
-      await runSuccessfulSourceLifecycleCli([
-        "archive",
-        established.firstSuccessorRelativePath,
-        "--root",
-        workspaceRoot
-      ]);
-      const additionalPredecessor = "use-later-reallocation-predecessor";
-      await fs.writeFile(
-        decisionFilePath(workspaceRoot, additionalPredecessor),
-        candidateDecisionBody(),
-        "utf8"
-      );
-      await runSuccessfulSourceLifecycleCli([
-        "publish",
-        additionalPredecessor,
-        "--alignment",
-        "aligned",
-        "--root",
-        workspaceRoot
-      ]);
-      await runSuccessfulSourceLifecycleCli([
-        "archive",
-        additionalPredecessor,
-        "--root",
-        workspaceRoot
-      ]);
-      const firstSuccessor = "use-later-combined-reallocation-owner";
-      const secondSuccessor = "use-later-narrow-reallocation-owner";
-      await fs.writeFile(
-        decisionFilePath(workspaceRoot, firstSuccessor),
-        candidateDecisionBody({
-          relations: [
-            { type: "重划", target: established.firstSuccessorRelativePath },
-            { type: "重划", target: additionalPredecessor }
-          ]
-        }),
-        "utf8"
-      );
-      await fs.writeFile(
-        decisionFilePath(workspaceRoot, secondSuccessor),
-        candidateDecisionBody({
-          relations: [
-            { type: "重划", target: established.firstSuccessorRelativePath }
-          ]
-        }),
-        "utf8"
-      );
-      await runSuccessfulSourceLifecycleCli([
-        "evolve",
-        "--successor",
-        "aligned=" + firstSuccessor,
-        "--successor",
-        "aligned=" + secondSuccessor,
-        "--root",
-        workspaceRoot
-      ]);
-      assert.deepEqual(
-        (await validateDecisionRecords({ workspaceRoot })).errors,
-        []
-      );
+test("evolve keeps a later reallocation separate from its archived predecessor event", async () => {
+  const scan = await decisionScanFromSources([
+    { id: "prior-a", status: "archived" },
+    { id: "prior-b", status: "archived" },
+    {
+      id: "old-combined",
+      status: "archived",
+      relations: [
+        { type: "重划", target: "prior-a" },
+        { type: "重划", target: "prior-b" }
+      ]
+    },
+    {
+      id: "old-narrow",
+      status: "active",
+      relations: [{ type: "重划", target: "prior-a" }]
+    },
+    { id: "later-prior", status: "archived" },
+    {
+      id: "later-combined",
+      status: "active",
+      relations: [
+        { type: "重划", target: "old-combined" },
+        { type: "重划", target: "later-prior" }
+      ]
+    },
+    {
+      id: "later-narrow",
+      status: "active",
+      relations: [{ type: "重划", target: "old-combined" }]
     }
-  ));
+  ]);
+  assert.deepEqual(scan.sourceErrors, []);
+  assert.deepEqual(
+    decisionRelationConsistencyIssues(
+      scan.records.filter(isEstablishedDecisionRecord).map((record) => ({
+        ...record,
+        decisionId: decisionIdForTest(record.decisionId)
+      }))
+    ),
+    []
+  );
+  const components = decisionReallocationComponents(
+    scan.records.flatMap((record) =>
+      record.projection.relations.map((relation) => ({
+        source: decisionIdForTest(record.decisionId),
+        target: relation.target,
+        type: relation.type
+      }))
+    )
+  );
+  assert.deepEqual(
+    components
+      .map((c) => ({
+        predecessors: [...c.predecessorIds].sort(),
+        successors: [...c.successorIds].sort()
+      }))
+      .sort((a, b) =>
+        a.predecessors.join().localeCompare(b.predecessors.join())
+      ),
+    [
+      {
+        predecessors: ["later-prior", "old-combined"],
+        successors: ["later-combined", "later-narrow"]
+      },
+      {
+        predecessors: ["prior-a", "prior-b"],
+        successors: ["old-combined", "old-narrow"]
+      }
+    ]
+  );
+});
 
-test("discard rejects a split successor that would leave an open split", () =>
-  withFixtureWorkspace("discard-open-split", async (workspaceRoot) => {
-    const established = await establishClosedSplit(workspaceRoot);
-    const discardedPath = decisionFilePath(
-      workspaceRoot,
-      established.alignedRelativePath
-    );
-    const discardedText = await fs.readFile(discardedPath, "utf8");
-    const indexText = await fs.readFile(established.indexPath, "utf8");
-
-    const discarded = await runSourceCli([
-      "discard",
-      established.alignedRelativePath,
-      "--delete-recorded",
-      "--root",
-      workspaceRoot
-    ]);
-
-    assert.equal(discarded.exitCode, 1);
-    assert.match(
-      discarded.stderr,
-      /split target must have at least two direct/
-    );
-    assert.equal(await fs.readFile(discardedPath, "utf8"), discardedText);
-    assert.equal(await fs.readFile(established.indexPath, "utf8"), indexText);
-  }));
+test("discard rejects a split successor that would leave an open split", async () => {
+  await assertLifecycleRejected(
+    [
+      { id: "coarse", status: "archived" },
+      {
+        id: "first",
+        status: "active",
+        relations: [{ type: "拆分", target: "coarse" }]
+      },
+      {
+        id: "second",
+        status: "active",
+        relations: [{ type: "拆分", target: "coarse" }]
+      }
+    ],
+    {
+      action: "discard",
+      decisionId: decisionIdForTest("first"),
+      deleteRecorded: true
+    },
+    /split target must have at least two direct/
+  );
+});
 
 test("evolve discards one split successor when it replaces the complete closure", () =>
   withFixtureWorkspace(
@@ -196,37 +201,10 @@ test("evolve adds a split successor only when every existing successor is select
     );
   }));
 
-test("evolve rejects a discarded Decision ID selected as a successor without mutation", () =>
-  withFixtureWorkspace(
-    "evolve-discard-successor-conflict",
-    async (workspaceRoot) => {
-      const targetPath = decisionFilePath(workspaceRoot, currentRelativePath);
-      const targetText = await fs.readFile(targetPath, "utf8");
-      const indexPath = path.join(
-        workspaceRoot,
-        "docs",
-        "decisions",
-        "decision-index.json"
-      );
-      const indexText = await fs.readFile(indexPath, "utf8");
-
-      const rejected = await runSourceLifecycleCli([
-        "evolve",
-        "--successor",
-        "aligned=" + currentRelativePath,
-        "--discard",
-        currentRelativePath,
-        "--delete-recorded",
-        "--root",
-        workspaceRoot
-      ]);
-
-      assert.equal(rejected.exitCode, 1);
-      assert.match(
-        rejected.stderr,
-        /Discarded Decision ID must not also be a successor/
-      );
-      assert.equal(await fs.readFile(targetPath, "utf8"), targetText);
-      assert.equal(await fs.readFile(indexPath, "utf8"), indexText);
-    }
-  ));
+test("evolve rejects a discarded Decision ID selected as a successor without mutation", async () => {
+  await assertLifecycleRejected(
+    [{ id: "formal", status: "active" }],
+    evolutionRequest(["formal"], { discardId: decisionIdForTest("formal") }),
+    /Discarded Decision ID must not also be a successor/
+  );
+});

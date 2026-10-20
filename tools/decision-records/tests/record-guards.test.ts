@@ -7,7 +7,10 @@ import {
   type DecisionRecord
 } from "../src/types.ts";
 import { decisionScanFromSources } from "./domain-fixture.ts";
-import { candidateDecisionBody, currentDecisionId } from "./support.ts";
+import {
+  candidateDecisionBody,
+  currentDecisionId
+} from "./support-record-fixture.ts";
 
 test("a valid candidate scaffold remains discoverable until its body is ready", async () => {
   const candidateId = "use-candidate-scaffold";

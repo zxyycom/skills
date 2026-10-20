@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-CLI-001: candidate CLI separates creation success from readiness
 
 Tests:
-- `test:eba7a2d3e1becb4a6d609d61695e10e7b61a2f496b96d9ed9ba3a2709102e604`
+- `test:a3fb2d2fa9641cb2a56b08a77b3e028bf37ed7cf6907fc2b4ddb936f25db7ce6`
 
 Tags:
 - `investigation-report`

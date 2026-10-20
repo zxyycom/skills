@@ -1,6 +1,4 @@
 await import("../index-query.test.ts");
-await import("../index-reader.test.ts");
-await import("../index-relations.test.ts");
 await import("../index-search.test.ts");
 await import("../index-selectors.test.ts");
 await import("../index-state.test.ts");
@@ -11,3 +9,5 @@ await import("../candidate-read-failure.test.ts");
 await import("../snapshot-check-contract.test.ts");
 
 await import("../trace-output.test.ts");
+
+await import("../index-reader.test.ts");

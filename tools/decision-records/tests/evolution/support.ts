@@ -9,12 +9,10 @@ import {
   currentRelativePath,
   decisionFilePath,
   findIndexEntry,
-  generatedCliPath,
   readIndex,
   runSourceCli,
   runSourceLifecycleCli,
   runSuccessfulSourceLifecycleCli,
-  traceDecision,
   withFixtureWorkspace
 } from "../support.ts";
 
@@ -26,14 +24,12 @@ export {
   decisionFilePath,
   findIndexEntry,
   fs,
-  generatedCliPath,
   path,
   readIndex,
   runSourceCli,
   runSourceLifecycleCli,
   runSuccessfulSourceLifecycleCli,
   test,
-  traceDecision,
   validateDecisionRecords,
   withFixtureWorkspace
 };

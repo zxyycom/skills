@@ -12,5 +12,5 @@ Contract:
 - 多个 `--source` 分组在同一请求中形成单一事务；任一来源解析失败或最终图非法时整体不写入。
 
 Proves:
-- 双来源替换一次成功并共同更新索引。
-- 后续来源不存在或替换指向活动记录（target must be archived）时以领域失败退出，先前合法来源与索引字节保持原值。
+- 真实同进程 CLI 的双来源 replacement 成功共同更新索引；后续来源解析不存在时拒绝并保留来源与索引字节。
+- 纯生命周期准备对关系目标仍为 active 的非法图返回 target must be archived，且结果不含 changes。

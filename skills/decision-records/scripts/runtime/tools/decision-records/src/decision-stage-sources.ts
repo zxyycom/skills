@@ -45,22 +45,10 @@ export async function readDecisionBaseline(
     { pathScopes: [options.decisionScope] }
   );
   if (revisionPaths.length === 0) return [];
-  const sourcePaths: string[] = [];
-  for (const repositoryFilePath of revisionPaths) {
-    const sourcePath = decisionRelativePath(
-      options.decisionScope,
-      repositoryFilePath
-    );
-    if (sourcePath === decisionIndexFileName) {
-      continue;
-    }
-    if (!isDecisionSourcePath(sourcePath)) {
-      throw new Error(
-        "revision decision scope contains unsupported file: " + sourcePath
-      );
-    }
-    sourcePaths.push(repositoryFilePath);
-  }
+  const sourcePaths = decisionBaselineSourcePaths(
+    options.decisionScope,
+    revisionPaths
+  );
   if (sourcePaths.length === 0) return [];
   const files = await options.repository.readRevisionFiles(options.revision, {
     pathScopes: sourcePaths
@@ -71,6 +59,26 @@ export async function readDecisionBaseline(
       decisionRelativePath(options.decisionScope, file.path)
     )
   );
+}
+
+export function decisionBaselineSourcePaths(
+  decisionScope: string,
+  revisionPaths: readonly string[]
+): string[] {
+  const sourcePaths: string[] = [];
+  for (const repositoryFilePath of revisionPaths) {
+    const sourcePath = decisionRelativePath(decisionScope, repositoryFilePath);
+    if (sourcePath === decisionIndexFileName) {
+      continue;
+    }
+    if (!isDecisionSourcePath(sourcePath)) {
+      throw new Error(
+        "revision decision scope contains unsupported file: " + sourcePath
+      );
+    }
+    sourcePaths.push(repositoryFilePath);
+  }
+  return sourcePaths;
 }
 
 /** One phase-local discovery; selected resolution owns which failures matter. */
@@ -177,7 +185,7 @@ export async function verifySelectedFilesystemSources(
   }
 }
 
-function stageSourceFromFile(
+export function stageSourceFromFile(
   file: VersionControlFile,
   sourcePath: string
 ): DecisionStageSource {

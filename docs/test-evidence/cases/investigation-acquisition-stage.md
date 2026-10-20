@@ -12,4 +12,4 @@ Contract:
 
 Proves:
 - 准备与复核各调用一次 workspace 成员获取和一次批量来源读取，固定 HEAD 成员只取得一次并由只读 acquisition request 向后传递；新增资源成员与报告来源漂移和非法 UTF-8 被结构化拒绝。
-- 来源 revision 合法但正式资源 owner 引用非法的 stage 在 pending 写入前失败，pending 保持不变。
+- 纯 stage index 定义对正式资源未由其 owner 直接引用的 metadata 图给出明确拒绝；该断言不调用 Git 或证明 pending 写入。

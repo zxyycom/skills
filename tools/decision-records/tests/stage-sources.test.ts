@@ -1,3 +1,6 @@
+import { withGitFixtureWorkspace } from "./support-git-fixture.ts";
+import { syncDecisionIndexBeforeStage } from "./stage/support.ts";
+import { stageDecisionRecords } from "../src/decision-stage-service.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -13,10 +16,8 @@ import {
   currentDecisionId,
   currentSourcePath,
   decisionFilePath,
-  runSourceCli,
   runGit,
-  withTemporaryWorkspace,
-  withGitFixtureWorkspace
+  withTemporaryWorkspace
 } from "./support.ts";
 
 async function selectedFiles(
@@ -157,9 +158,9 @@ test("Decision stage fresh discovery rejects duplicates moves bytes and reappear
 });
 
 test("Decision stage all index and domain re-read selected bytes after preparation and keep pending unchanged on drift", async () => {
-  for (const scope of ["all", "index", "domain"]) {
+  for (const scope of ["all", "index", "domain"] as const) {
     await withGitFixtureWorkspace(`stage-fresh-${scope}`, async (root) => {
-      await runSourceCli(["sync-index", "--root", root]);
+      await syncDecisionIndexBeforeStage(root);
       const selectedPath = decisionFilePath(root, currentSourcePath);
       const before = runGit(root, ["write-tree"]);
       const readFile = fs.readFile;
@@ -177,16 +178,13 @@ test("Decision stage all index and domain re-read selected bytes after preparati
         }
       });
       try {
-        const staged = await runSourceCli([
-          "stage",
-          currentDecisionId,
-          "--scope",
-          scope,
-          "--root",
-          root
-        ]);
-        assert.equal(staged.exitCode, 1, staged.stderr);
-        assert.match(staged.stderr, /stage-source-changed/);
+        const staged = await stageDecisionRecords({
+          decisionIds: [currentDecisionId],
+          location: { workspaceRoot: root, decisionsDir: "docs/decisions" },
+          scope: scope
+        });
+        assert.equal(staged.status, "error");
+        assert.match(JSON.stringify(staged), /stage-source-changed/);
         assert.equal(selectedReads, 3);
         assert.equal(runGit(root, ["write-tree"]), before);
       } finally {

@@ -1,3 +1,6 @@
+import { createCliProgram } from "../../src/cli-args.ts";
+import { listSnapshotEntries, listProjection } from "./domain-support.ts";
+import type { DecisionListStatus } from "../../src/types.ts";
 import {
   archivedDecisionId,
   assert,
@@ -309,13 +312,22 @@ test("decision list and search combine direct relation conditions", () =>
     assert.equal(directionWithoutTarget.exitCode, 2);
   }));
 
-test("decision list defaults to active records without archived results", () =>
-  withFixtureWorkspace("query-list-default", async (workspaceRoot) => {
-    const listed = await runSuccessfulSourceCli([
-      "list",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.match(listed, new RegExp(currentDecisionId));
-    assert.doesNotMatch(listed, new RegExp(archivedDecisionId));
-  }));
+test("decision list defaults to active records without archived results", async () => {
+  let status: DecisionListStatus | undefined;
+  const parser = createCliProgram(
+    async (args) => {
+      assert.equal(args.command, "list");
+      if (args.command === "list") status = args.status;
+      return 0;
+    },
+    () => {}
+  );
+  await parser.parseAsync(["node", "decision-records.ts", "list"]);
+  assert.equal(status, "active");
+  const result = listProjection(await listSnapshotEntries(), { status });
+  assert.deepEqual(
+    result.records.map((r) => r.decisionId),
+    [currentDecisionId]
+  );
+  assert.ok(result.records.every((r) => r.status === "active"));
+});

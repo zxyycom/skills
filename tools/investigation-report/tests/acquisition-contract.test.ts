@@ -1,3 +1,5 @@
+import { investigationIndexFixture } from "./index-fixture.ts";
+import { createInvestigationStageIndexDefinition } from "../src/staging-domain-index.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -21,16 +23,14 @@ import {
   prepareDomainAcquisitionRequest,
   verifyDomainWrites
 } from "../src/staging-domain-writes.ts";
-import { stageInvestigationReports } from "../src/staging.ts";
 import { validateInvestigationReports } from "../src/validation.ts";
+import { git, initializeGit } from "./git-support.ts";
 import {
-  git,
-  initializeGit,
   investigationRoot,
   reportMarkdown,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 async function observeSourceReads<T>(
   root: string,
@@ -278,46 +278,15 @@ test("investigation domain preparation batches selected member and source reads 
   });
 });
 
-test("investigation stage rejects invalid formal resource ownership before pending writes", async () => {
-  await withTempRoot("stage-ownership", async (root) => {
-    await fs.mkdir(path.join(investigationRoot(root), "_resources", "owner"), {
-      recursive: true
-    });
-    await fs.writeFile(
-      path.join(investigationRoot(root), "_resources", "owner", "sample.txt"),
-      "sample\n"
-    );
-    await writeCollection(root, [
-      { id: "owner", resources: ["owner/sample.txt"] },
-      { id: "shared", resources: ["owner/sample.txt"] }
-    ]);
-    initializeGit(root);
-    await fs.writeFile(
-      path.join(investigationRoot(root), "owner.md"),
-      reportMarkdown({ id: "owner" })
-    );
-    // A manually forged fresh projection is not a proof of resource ownership.
-    const { readInvestigationStateSnapshot } =
-      await import("../src/investigation-index-source.ts");
-    const { syncInvestigationStateIndex } =
-      await import("../src/investigation-state-index.ts");
-    await syncInvestigationStateIndex({
-      investigationsDirectory: investigationRoot(root),
-      mode: "write",
-      snapshot: await readInvestigationStateSnapshot(investigationRoot(root))
-    });
-    const staged = await stageInvestigationReports({
-      workspaceRoot: root,
-      reportIds: ["shared"],
-      scope: "domain"
-    });
-    assert.equal(staged.status, "error");
-    assert.match(
-      staged.diagnostics.map((diagnostic) => diagnostic.message).join("\n"),
-      /must be referenced by its owner/u
-    );
-    assert.equal(git(root, ["diff", "--cached", "--name-only"]), "");
-  });
+test("investigation stage rejects invalid formal resource ownership before pending writes", () => {
+  const index = investigationIndexFixture([
+    { id: "owner" },
+    { id: "shared", resources: ["owner/sample.txt"] }
+  ]);
+  assert.throws(
+    () => createInvestigationStageIndexDefinition().validateIndex?.(index),
+    /must be referenced by its owner/u
+  );
 });
 
 test("investigation predecessor diagnostics skip Git without targets and never read all HEAD files for an empty report scope", async () => {

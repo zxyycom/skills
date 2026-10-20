@@ -11,5 +11,5 @@ Contract:
 - CLI 使用 `[global-options] <command> [command-options]` 语法；`--root` 与 `--investigations-dir` 可位于 command 之前或 command options 之后，省略 `--root` 时以进程当前目录为工作区根。
 
 Proves:
-- 同一 `check` 调用在全局选项前置、后置及两侧混合时得到相同的成功结果。
-- 在目标工作区内省略 `--root` 的 `check` 成功读取当前目录下的集合。
+- 纯 CLI parser 对全局 root 前置、后置及两侧混合形式，向处理函数传入相同 root，不调用集合检查。
+- 同进程 CLI 在真实目标集合中省略 --root 时，check 成功读取当前目录下的一份报告。

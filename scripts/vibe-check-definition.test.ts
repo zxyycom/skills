@@ -17,7 +17,7 @@ import {
 
 test("gate Definition keeps the complete catalog and incremental selection", () => {
   const definition = createGateDefinition([], {
-    activeCheckIds: ["script:typecheck"]
+    activeToolIds: ["repository-code"]
   });
   assert.equal(gateCheckIds().length, 64);
   assert.deepEqual(
@@ -34,12 +34,15 @@ test("gate Definition keeps the complete catalog and incremental selection", () 
   assert.deepEqual(
     definition.checks.find(({ checkId }) => checkId === "script:typecheck")
       ?.enabledByFlags,
-    { when: "gate-activation:script:typecheck", propagateDependsOn: true }
+    {
+      when: { kind: "any", conditions: ["gate-tool:repository-code"] },
+      propagateDependsOn: true
+    }
   );
   assert.throws(
     () =>
-      createGateDefinition([], { activeCheckIds: ["release:skill-version"] }),
-    /non-base Check/u
+      createGateDefinition([], { activeToolIds: ["release:skill-version"] }),
+    /unknown tool/u
   );
   assert.deepEqual(
     semanticGateChecks.map(({ checkId, command }) => [

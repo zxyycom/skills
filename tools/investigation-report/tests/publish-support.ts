@@ -1,11 +1,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
-import {
-  investigationRoot,
-  reportMarkdown,
-  runInvestigationCli
-} from "./v6-support.ts";
+import { investigationRoot, reportMarkdown } from "./fixture-support.ts";
+import { createInvestigationCandidate } from "../src/candidate-create.ts";
 
 export const candidatePath = (root: string, id: string): string =>
   path.join(investigationRoot(root), `_candidate.${id.replace(/\.md$/iu, "")}`);
@@ -16,19 +13,16 @@ export async function createReadyCandidate(
   options: Parameters<typeof reportMarkdown>[0] = { id }
 ): Promise<void> {
   const investigationId = id.replace(/\.md$/iu, "");
-  const created = await runInvestigationCli(root, [
-    "new",
-    investigationId,
-    "--title",
-    options.title ?? investigationId,
-    "--formed-at",
-    options.formedAt ?? "2026-08-28T12:00:00+00:00",
-    "--question",
-    options.question ?? "候选应如何建立？",
-    "--tag",
-    (options.tags ?? ["investigation-report"])[0]!
-  ]);
-  assert.equal(created.status, 0, created.stderr);
+  const created = await createInvestigationCandidate({
+    workspaceRoot: root,
+    id: investigationId,
+    title: options.title ?? investigationId,
+    formedAt: options.formedAt ?? "2026-08-28T12:00:00+00:00",
+    question: options.question ?? "候选应如何建立？",
+    tags: options.tags ?? ["investigation-report"],
+    relations: []
+  });
+  assert.equal(created.status, "ok", created.errors.join("; "));
   await fs.writeFile(
     candidatePath(root, investigationId),
     reportMarkdown({ ...options, id: investigationId }),

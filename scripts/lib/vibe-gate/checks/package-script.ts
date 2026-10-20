@@ -2,9 +2,10 @@ import { commandCheck } from "@zxyycom/vibe-check";
 import {
   externalProcessClaim,
   gateCheckDeclaration,
-  projectActivationFlag,
+  projectActivationCondition,
   type GateCheckConfiguration
 } from "../contracts.ts";
+import type { GateToolSubscription } from "../impact-tools.ts";
 import { gateCommandPolicy } from "../command-runner.ts";
 
 export const compatibilityTestPackageScripts = [
@@ -44,6 +45,49 @@ export type GatePackageScript = (typeof releaseRequiredPackageScripts)[number];
 
 export type GatePackageScriptCheckId = `script:${GatePackageScript}`;
 
+export const packageScriptToolSubscriptions = {
+  "test:environment": ["environment"],
+  "test:index-runtime": ["index-runtime"],
+  "test:check": ["gate-tests"],
+  "test:skill-updater": ["skill-updater"],
+  "test:skill-validator": ["skill-validator"],
+  "test:relation-graph": ["relation-graph"],
+  "test:file-text-search": ["file-text-search"],
+  "test:version-control": ["version-control"],
+  "test:skill-package-hash": ["skill-package-hash"],
+  "test:skill-release-publisher": ["skill-release-publisher"],
+  typecheck: ["repository-code"],
+  lint: ["repository-code"],
+  validate: ["repository-material"],
+  "check:investigations": [
+    "investigation-record",
+    "investigation-query",
+    "investigation-maintenance",
+    "investigation-stage",
+    "investigation-cli",
+    "investigation-collection",
+    "file-text-search",
+    "record-search-output",
+    "relation-graph"
+  ],
+  "check:decisions": [
+    "decision-record",
+    "decision-query",
+    "decision-maintenance",
+    "decision-stage",
+    "decision-cli",
+    "decision-collection",
+    "file-text-search",
+    "record-search-output",
+    "relation-graph"
+  ],
+  "check:test-evidence-catalog": ["repository-material"],
+  "check:skill-updaters": ["generated-artifacts"],
+  "test:generated-file": ["repository-code"],
+  "format:check": ["repository-code"],
+  "check:task-graph-index": ["task-graph"]
+} as const satisfies Readonly<Record<GatePackageScript, GateToolSubscription>>;
+
 // Providers establish the trust boundary for tests that import distributed files.
 export const packageScriptDependencies: Readonly<
   Partial<Record<GatePackageScript, readonly GatePackageScriptCheckId[]>>
@@ -70,7 +114,10 @@ export function createPackageScriptCheck(
       configuration,
       externalProcessClaim,
       packageScriptDependencies[script],
-      projectActivationFlag(checkId, configuration)
+      projectActivationCondition(
+        packageScriptToolSubscriptions[script],
+        configuration
+      )
     ),
     ...gateCommandPolicy,
     executable: "bun",

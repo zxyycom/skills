@@ -10,4 +10,4 @@ Contract:
 - basename 是存储位置而非身份；选择一个显式 ID 时，语义 sourcePath 改名与正文编辑一同进入 pending index，工具不伪造新 ID。
 
 Proves:
-- 暂存后同一 ID 保留编辑后的标题，并投影新的语义 sourcePath。
+- 纯 target 构造在同一 ID 下保留编辑后的标题、semantic-current.md 和对应 sourceFiles 路径；不执行 Git 暂存。

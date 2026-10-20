@@ -7,7 +7,7 @@ Tags:
 - `investigation-report`
 
 Contract:
-- source revision 指纹化报告 ID、sourcePath 与 Markdown；任一来源变化后重新同步产生新 revision。
+- source revision 指纹化报告来源身份、sourcePath 与规范化 Markdown。
 
 Proves:
-- 报告 Markdown 追加后快照查询返回零 error、零 warning；公共 synchronize 成功重建并更新 revision。
+- 纯 revision 函数对 Markdown 字节内容或 sourcePath 变化产生不同值，对 LF 与 CRLF 等价文本产生相同值。

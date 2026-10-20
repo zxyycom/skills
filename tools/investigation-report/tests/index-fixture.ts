@@ -16,7 +16,7 @@ import {
   type InvestigationIndexQueryOptions,
   type InvestigationSearchOptions
 } from "../src/types.ts";
-import type { ReportFixture } from "./v6-support.ts";
+import type { ReportFixture } from "./fixture-support.ts";
 
 /** Valid published data for projection tests, without Markdown, disk or Git acquisition. */
 export function investigationIndexFixture(reports: readonly ReportFixture[]) {

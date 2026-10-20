@@ -10,11 +10,10 @@ import { searchInvestigationReports } from "../src/query.ts";
 import {
   investigationRoot,
   reportMarkdown,
-  runGeneratedInvestigationCliSmoke,
-  runInvestigationCli,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+
+import { writeCollection } from "./collection-support.ts";
 
 test("investigation metadata search counts all matches and marks only returned-result limits", async () => {
   const index = investigationIndexFixture([{ id: "one" }, { id: "two" }]);
@@ -251,56 +250,6 @@ test("investigation content retains empty-preview hits and classifies preview re
     assert.equal(
       result.searchInfo.query.limits.resources?.maxCandidateFiles,
       2_000
-    );
-  });
-});
-
-test("distributed investigation search prints exact metadata and lower-bound content summaries on proper channels", async () => {
-  await withTempRoot("search-info-cli", async (root) => {
-    await writeCollection(root, [{ id: "a" }, { id: "b" }, { id: "c" }]);
-    const metadata = runGeneratedInvestigationCliSmoke(root, [
-      "search",
-      "当前",
-      "--in",
-      "metadata",
-      "--limit",
-      "1"
-    ]);
-    assert.equal(metadata.status, 0, metadata.stderr);
-    assert.deepEqual(metadata.stdout.split("\n").slice(0, 6), [
-      'Query: text="当前" in=metadata match=all',
-      'Filters: {"tags":[]}',
-      "Source: kind=published-index currentness=unchecked fallback=false",
-      "Limits: maxRecords=1",
-      "Counts: matched=3 precision=exact returned=1",
-      "Coverage: scan=complete results=limited previews=n/a reasons=max-records"
-    ]);
-    assert.match(metadata.stderr, /search results limited: max-records/);
-    assert.doesNotMatch(
-      metadata.stderr,
-      /search previews limited|sync-index|resolve the warning|source problem/
-    );
-    const content = await runInvestigationCli(root, [
-      "search",
-      "当前",
-      "--limit",
-      "1"
-    ]);
-    assert.equal(content.status, 0, content.stderr);
-    assert.match(
-      content.stdout,
-      /Counts: matched>=2 precision=lower-bound returned=1/
-    );
-    assert.match(
-      content.stdout,
-      /Coverage: scan=limited results=limited previews=complete reasons=max-records/
-    );
-    const zero = await runInvestigationCli(root, ["search", "absent"]);
-    assert.equal(zero.status, 0, zero.stderr);
-    assert.match(zero.stdout, /Counts: matched=0 precision=exact returned=0/);
-    assert.match(
-      zero.stdout,
-      /Coverage: scan=complete results=complete previews=complete reasons=none\nNo investigation reports matched/
     );
   });
 });

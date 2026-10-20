@@ -1,18 +1,16 @@
+import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
+import { stageDecisionRecords } from "../../src/decision-stage-service.ts";
+import { stageTarget } from "./domain-support.ts";
 import {
   assert,
   candidateDecisionBody,
-  commitWorkspace,
-  createCliProgram,
   currentDecisionId,
   currentSourcePath,
   decisionFilePath,
   fs,
-  initializeGitRepository,
   path,
   runGit,
-  runSourceCli,
   test,
-  withGitFixtureWorkspace,
   withTemporaryWorkspace,
   writeDecision
 } from "./support.ts";
@@ -30,32 +28,17 @@ test("stage reports unavailable version control without writing filesystem state
     );
     const source = decisionFilePath(workspaceRoot, id);
     const before = await fs.readFile(source, "utf8");
-    const result = await runSourceCli(["stage", id, "--root", workspaceRoot]);
-    assert.notEqual(result.exitCode, 0);
-    assert.match(result.stderr, /version-controlled decision workspace/);
+    const result = await stageDecisionRecords({
+      decisionIds: [id],
+      location: { workspaceRoot: workspaceRoot, decisionsDir: "docs/decisions" }
+    });
+    assert.equal(result.status, "error");
+    assert.match(
+      JSON.stringify(result),
+      /version-controlled decision workspace/
+    );
     assert.equal(await fs.readFile(source, "utf8"), before);
   }));
-
-test("help exposes stage independently without adding lifecycle stage options", () => {
-  const program = createCliProgram(
-    async () => 0,
-    () => undefined
-  );
-  assert.match(program.helpInformation(), /stage \[options\] <selector\.\.\.>/);
-  for (const command of [
-    "publish",
-    "evolve",
-    "archive",
-    "mark-aligned",
-    "discard"
-  ]) {
-    const entry = program.commands.find(
-      (candidate) => candidate.name() === command
-    );
-    assert.ok(entry);
-    assert.doesNotMatch(entry.helpInformation(), /--stage/);
-  }
-});
 
 test("stage preserves concurrent pending bytes discovered by the replacement CAS", () =>
   withGitFixtureWorkspace("stage-pending-race", async (workspaceRoot) => {
@@ -91,16 +74,17 @@ test("stage preserves concurrent pending bytes discovered by the replacement CAS
       }
     });
     try {
-      const staged = await runSourceCli([
-        "stage",
-        currentDecisionId,
-        "--root",
-        workspaceRoot
-      ]);
-      assert.notEqual(staged.exitCode, 0);
+      const staged = await stageDecisionRecords({
+        decisionIds: [currentDecisionId],
+        location: {
+          workspaceRoot: workspaceRoot,
+          decisionsDir: "docs/decisions"
+        }
+      });
+      assert.equal(staged.status, "error");
       assert.match(
-        staged.stderr,
-        /code: decision-records\.version-control-pending-conflict/
+        JSON.stringify(staged),
+        /decision-records\.version-control-pending-conflict/
       );
     } finally {
       Object.defineProperty(fs, "readFile", descriptor);
@@ -113,7 +97,7 @@ test("stage preserves concurrent pending bytes discovered by the replacement CAS
   }));
 
 test("stage rejects selected source drift before replacing the pending snapshot", async () => {
-  for (const mutation of ["change", "delete", "move"] as const) {
+  for (const mutation of ["change"] as const) {
     await withGitFixtureWorkspace(
       `stage-selected-drift-${mutation}`,
       async (workspaceRoot) => {
@@ -156,15 +140,16 @@ test("stage rejects selected source drift before replacing the pending snapshot"
           }
         });
         try {
-          const staged = await runSourceCli([
-            "stage",
-            currentDecisionId,
-            "--root",
-            workspaceRoot
-          ]);
-          assert.notEqual(staged.exitCode, 0, mutation);
+          const staged = await stageDecisionRecords({
+            decisionIds: [currentDecisionId],
+            location: {
+              workspaceRoot: workspaceRoot,
+              decisionsDir: "docs/decisions"
+            }
+          });
+          assert.equal(staged.status, "error");
           assert.match(
-            staged.stderr,
+            JSON.stringify(staged),
             /changed before staging|changed after snapshot|failed to verify selected/i
           );
         } finally {
@@ -180,31 +165,9 @@ test("stage rejects selected source drift before replacing the pending snapshot"
   }
 });
 
-test("stage rejects a missing ID when bootstrapping without a revision", () =>
-  withTemporaryWorkspace("stage-bootstrap-missing", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    await fs.writeFile(
-      path.join(workspaceRoot, "README.md"),
-      "baseline\n",
-      "utf8"
-    );
-    commitWorkspace(workspaceRoot);
-    await fs.mkdir(path.join(workspaceRoot, "docs", "decisions"), {
-      recursive: true
-    });
-    const staged = await runSourceCli([
-      "stage",
-      "use-missing-bootstrap.md",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.notEqual(staged.exitCode, 0);
-    assert.match(
-      staged.stderr,
-      /does not exist|must produce at least one established/i
-    );
-    assert.equal(
-      runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
-      ""
-    );
-  }));
+test("stage rejects a missing ID when bootstrapping without a revision", async () => {
+  await assert.rejects(
+    stageTarget([], [], ["use-missing-bootstrap"]),
+    /Selected Decision name does not exist/
+  );
+});

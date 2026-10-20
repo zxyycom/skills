@@ -10,4 +10,4 @@ Contract:
 - 单选 new ID 是 addition，单选 old ID 是 deletion；只有显式 old+new 同选才表达 rename，工具不从内容推断身份。
 
 Proves:
-- 选择旧 ID 后只暂存删除，未选择的替代文件不进入 pending。
+- 纯 target 构造将单选 old 记录为 source:null，最终来源为空，未选 replacement 不被加入。

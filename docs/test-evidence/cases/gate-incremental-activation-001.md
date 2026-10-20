@@ -28,9 +28,9 @@ Contract:
 - 日常 Gate 仅为 52 项项目命令维护输入成功 receipt，不省略原生材料与环境 Check。只有声明输入闭合、工具与环境身份精确、所选命令通过、最终 Run 成功且起止快照一致时才发布证明；release 全量执行，原生 dependsOn 负责必要前置激活。
 
 Proves:
-- 首次运行选择全部项目命令，成功后形成可复用 receipt；稳定输入可全部省略，单独缺少 updater consumer receipt 时只显式选择 consumer，不自行展开 provider。
+- 首次运行选择全部项目命令，成功后形成可复用 receipt；稳定输入可全部省略；缺少一个 Check receipt 会激活其工具及全部订阅者，生成前置显式进入执行集合，全部实际执行 Check 通过后才发布。
 - 路径模式、Git 可见路径与声明磁盘域共同覆盖源码、fixtures、runtime、manifest、锁文件和配置；ignored fixture、fixture 内 node_modules 与 TS/MTS 变化仍使对应项目命令失效，dirty 内容提交为相同 clean 内容可复用，删除和重命名重新执行。
-- 文档变化激活 validate 而不激活无关领域；shared、skill-package 与 build-system 输入变化使相关项目证明失效，语义聚合入口变化使 Gate 自测失效，领域生成统一消费全部 skill/updater 输入。
+- 文档变化激活其工具订阅者而不激活无关领域；shared、skill-package 与 build-system 输入变化使相关项目证明失效，语义聚合入口变化使 Gate 自测失效，领域生成统一消费全部 skill/updater 输入。
 - Novel Cards consumer 在 Index Runtime、shared、构建适配、公开入口、runtime、manifest、锁文件与 fixtures 变化时重新执行，统一生成 Check 同时按其真实输入失效。
 - 未知 owner 与叶子 symlink 使输入不闭合且每次执行，不能发布；symlink ancestor、Git 越界或非 UTF-8 路径、超过 20000 文件或 512 MiB 输入预算、EACCES 读取失败均 fallback，不缓存 unavailable 身份。
 - 环境或工具身份变化使全部项目命令失效，父 shell 的 _ 记账变化不影响身份；必要工具探测失败与非 Git 工作区执行全量 fallback，release 选择完整 64 项。

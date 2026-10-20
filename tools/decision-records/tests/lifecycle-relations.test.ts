@@ -1,3 +1,5 @@
+import { executeDecisionQuery } from "../src/decision-query-service.ts";
+import { decisionIdForTest } from "./support-record-fixture.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
@@ -15,7 +17,6 @@ import {
   readIndex,
   runSourceLifecycleCli,
   runSuccessfulSourceLifecycleCli,
-  traceDecision,
   withFixtureWorkspace,
   writeDecision
 } from "./support.ts";
@@ -112,9 +113,15 @@ test("relations resolve stable IDs across active and archived locations", () =>
         summary: "保留稳定 CLI 基线"
       }
     ]);
-    assert.match(
-      await traceDecision(candidateId, ["--json"], workspaceRoot),
-      /"summary": "保留稳定 CLI 基线"/u
+    const traced = await executeDecisionQuery({
+      command: "trace",
+      decisionId: decisionIdForTest(candidateId),
+      location: { workspaceRoot, decisionsDir: "docs/decisions" }
+    });
+    assert.ok(traced.status === "ok" && traced.command === "trace");
+    assert.equal(
+      traced.entries[candidateId]?.relations[0]?.summary,
+      "保留稳定 CLI 基线"
     );
   }));
 
@@ -182,8 +189,14 @@ test("evolve binds a CLI relation summary after resolving its target selector", 
         summary: "保留=稳定基线"
       }
     ]);
-    assert.match(
-      await traceDecision(candidateId, ["--json"], workspaceRoot),
-      /"summary": "保留=稳定基线"/u
+    const traced = await executeDecisionQuery({
+      command: "trace",
+      decisionId: decisionIdForTest(candidateId),
+      location: { workspaceRoot, decisionsDir: "docs/decisions" }
+    });
+    assert.ok(traced.status === "ok" && traced.command === "trace");
+    assert.equal(
+      traced.entries[candidateId]?.relations[0]?.summary,
+      "保留=稳定基线"
     );
   }));

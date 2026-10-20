@@ -1,13 +1,13 @@
-### Case DECISION-EVOLVE-GROUPED-NODE-SMOKE-001: 分发 Node CLI 接受分组 Evolve 参数
+### Case DECISION-EVOLVE-GROUPED-NODE-SMOKE-001: 分发 CLI 同进程解析分组 Evolve 参数
 
 Tests:
-- `test:78e557462f0af9ab38aa854a55b21f1f7fec42698480eb93609ce98843ee9a0e`
+- `test:ed35edc36c8de4a6c41105624779a826b79017ca95edd4c3ea3ca922c9bca1f8`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 分发制品必须能由真实 Node argv 解析逐 successor 分组并执行 preflight 边界。
+- 分发 CLI 入口解析逐 successor 分组并执行只读 preflight。
 
 Proves:
-- 分发 Node CLI 对闭合分组拆分返回成功的 preflight review，并保持 stderr 为空。
+- 对真实闭合拆分集合运行分发同进程 CLI，返回成功 preflight review 与空 stderr；该入口不启动 Node 子进程。

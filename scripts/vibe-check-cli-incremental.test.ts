@@ -4,7 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 import {
-  activationFlagForCheck,
+  activationFlagForTool,
   type GateActivationPlan
 } from "./lib/vibe-gate.ts";
 import { fixtureGateWorkspaceSnapshot } from "./lib/vibe-gate/test-support.ts";
@@ -15,6 +15,7 @@ import { noOutput, withTemporaryDirectory } from "./vibe-check-test-support.ts";
 function incrementalPlan(directory: string): GateActivationPlan {
   return {
     activeCheckIds: ["passed"],
+    activeToolIds: ["passed-tool"],
     cacheDirectory: path.join(directory, "cache"),
     decisions: [
       {
@@ -42,7 +43,7 @@ function selectiveDefinition() {
         checkId: "passed",
         displayName: "passed",
         enabledByFlags: {
-          when: activationFlagForCheck("passed")
+          when: activationFlagForTool("passed-tool")
         },
         execute: () => ({ status: "passed" as const, data: {} })
       }),
@@ -50,7 +51,7 @@ function selectiveDefinition() {
         checkId: "reused",
         displayName: "reused",
         enabledByFlags: {
-          when: activationFlagForCheck("reused")
+          when: activationFlagForTool("reused-tool")
         },
         execute() {
           throw new Error("a reused Check must not execute");
@@ -86,7 +87,7 @@ test("CLI publishes incremental activation and receipt summaries", async () => {
           reportInfo: (message) => information.push(message),
           async runProject(selectedDefinition, controls) {
             assert.deepEqual(controls.flags, [
-              activationFlagForCheck("passed")
+              activationFlagForTool("passed-tool")
             ]);
             return await run(selectedDefinition, {
               ...controls,
@@ -106,6 +107,7 @@ test("CLI publishes incremental activation and receipt summaries", async () => {
       );
       assert.deepEqual(summary, {
         counts: { execute: 1, fallback: 0, firstRun: 0, reuse: 1 },
+        activeToolIds: ["passed-tool"],
         decisions: activationPlan.decisions,
         fallbackDetail: null,
         mode: "incremental",
@@ -121,6 +123,7 @@ test("CLI publishes conservative fallback reasons", async () => {
     async (directory) => {
       const fallbackPlan: GateActivationPlan = {
         activeCheckIds: ["passed"],
+        activeToolIds: [],
         cacheDirectory: path.join(directory, "fallback-cache"),
         decisions: [
           {

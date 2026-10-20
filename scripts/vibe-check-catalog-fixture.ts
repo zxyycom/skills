@@ -181,6 +181,7 @@ export const expectedSemanticPrerequisites = new Map<string, readonly string[]>(
       "test:decision-records:public-distribution",
       ["script:check:skill-updaters"]
     ],
+    ["test:investigation-report:cli-contract", ["script:check:skill-updaters"]],
     ["test:task-graph:public-distribution", ["script:check:skill-updaters"]]
   ]
 );

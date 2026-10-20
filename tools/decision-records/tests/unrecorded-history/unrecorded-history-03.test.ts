@@ -1,3 +1,4 @@
+import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
 import {
   archivedRelativePath,
   assert,
@@ -14,8 +15,7 @@ import {
   runSourceCli,
   test,
   unrecordedIntermediateRelativePath,
-  withFixtureWorkspace,
-  withGitFixtureWorkspace
+  withFixtureWorkspace
 } from "./support.ts";
 
 test("evolve discard accepts source-empty final relations", () =>

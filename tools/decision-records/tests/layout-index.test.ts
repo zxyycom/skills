@@ -1,5 +1,6 @@
+import { syncDecisionIndex } from "../src/decision-state-index.ts";
 import { buildDecisionIndexFromSnapshot } from "../src/decision-state-index.ts";
-import { listStateSnapshot } from "./queries/domain-support.ts";
+import { listStateSnapshot } from "./queries/snapshot-fixture.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -14,7 +15,6 @@ import {
   decisionFilePath,
   findIndexEntry,
   readIndex,
-  runSourceCli,
   withFixtureWorkspace,
   writeDecision
 } from "./support.ts";
@@ -118,13 +118,33 @@ test("index revision detects tag and sourcePath changes before accepting a rebui
     const stale = await validateDecisionRecords({ workspaceRoot });
     assert.notEqual(stale.errors.length, 0);
 
-    const synced = await runSourceCli(["sync-index", "--root", workspaceRoot]);
-    assert.equal(synced.exitCode, 0, synced.stderr);
+    const synced = await syncDecisionIndex({
+      decisionsDirectory: path.join(workspaceRoot, "docs/decisions"),
+      mode: "write"
+    });
+    assert.equal(synced.status, "ok", JSON.stringify(synced));
     const rebuilt = await readIndex(workspaceRoot);
     assert.deepEqual(findIndexEntry(rebuilt, currentDecisionId).tags, [
       "decision-records",
       "project-tooling"
     ]);
+    const semanticPath = decisionFilePath(workspaceRoot, "semantic-current.md");
+    await fs.rename(currentPath, semanticPath);
+    assert.ok(
+      (await validateDecisionRecords({ workspaceRoot })).errors.some((e) =>
+        /out of sync/.test(e)
+      )
+    );
+    const resynced = await syncDecisionIndex({
+      decisionsDirectory: path.join(workspaceRoot, "docs/decisions"),
+      mode: "write"
+    });
+    assert.equal(resynced.status, "ok", JSON.stringify(resynced));
+    assert.equal(
+      findIndexEntry(await readIndex(workspaceRoot), currentDecisionId)
+        .sourcePath,
+      "semantic-current.md"
+    );
   }));
 
 test("decision index parser and check reject obsolete definition version", () =>
@@ -149,7 +169,10 @@ test("decision index parser and check reject obsolete definition version", () =>
       JSON.stringify(index, null, 2) + "\n",
       "utf8"
     );
-    const checked = await runSourceCli(["check", "--root", workspaceRoot]);
-    assert.notEqual(checked.exitCode, 0);
-    assert.match(checked.stderr, /definitionVersion|definition version/i);
+    const checked = await validateDecisionRecords({ workspaceRoot });
+    assert.ok(
+      checked.errors.some((error) =>
+        /definitionVersion|definition version/i.test(error)
+      )
+    );
   }));

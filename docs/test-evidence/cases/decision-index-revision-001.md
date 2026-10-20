@@ -10,4 +10,5 @@ Contract:
 - 标签或 sourcePath 变化必须使持久索引 revision 失效；只有重建后才接受新快照。
 
 Proves:
-- 改 tags 后严格验证失败；sync-index 后索引含排序后的新 tags。
+- 真实 Markdown tags 改动使严格验证失败；同步后持久索引保留排序的新 tags。
+- 来源改为 semantic-current.md 后再次报告 out of sync；同步后同一 ID 的索引 sourcePath 更新为新位置。

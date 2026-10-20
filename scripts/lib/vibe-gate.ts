@@ -49,7 +49,9 @@ export {
   releaseVersionPackageScript
 } from "./vibe-gate/checks/release.ts";
 export {
-  activationFlagForCheck,
+  activationFlagForTool,
+  gateToolInputs,
+  gateCheckToolFingerprints,
   baseGateCheckIds,
   baseGateImpactContracts,
   captureGateWorkspaceSnapshot,
@@ -61,6 +63,8 @@ export {
   validateBaseGateImpactContracts
 } from "./vibe-gate/impact.ts";
 export type {
+  GateToolId,
+  GateToolSubscription,
   GateActivationDecision,
   GateActivationPlan,
   GateActivationReason,

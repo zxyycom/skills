@@ -2,19 +2,13 @@ import { expectResourceRejectionBeforeBytes } from "./resource-phase-test-suppor
 import { test } from "node:test";
 import fs from "node:fs/promises";
 import path from "node:path";
-import {
-  initializeGit,
-  investigationRoot,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+
+import { investigationRoot, withTempRoot } from "./fixture-support.ts";
 
 const resource = "docs/investigations/_resources/one/nested/member.txt";
 async function prepare(root: string): Promise<void> {
   await fs.mkdir(path.dirname(path.join(root, resource)), { recursive: true });
   await fs.writeFile(path.join(root, resource), "identical bytes\n");
-  await writeCollection(root, [{ id: "one" }]);
-  initializeGit(root);
 }
 
 for (const component of ["root", "owner", "intermediate"]) {

@@ -10,4 +10,4 @@ Contract:
 - 分组 source 必须属于 selected successor，解析后不得重复；每个 relation-summary 都必须绑定该组完整关系中的目标。
 
 Proves:
-- 非 selected source、未命中摘要和解析后重复 source 都在领域预演阶段以可行动诊断失败，退出状态为 1，不输出 review，也不修改候选 Markdown 或索引。
+- 纯 selector 与生命周期准备对非 selected source、未命中摘要、解析后重复 source 及两个别名指向同一直接 predecessor 的关系集合分别给出明确错误，全部不含 changes。

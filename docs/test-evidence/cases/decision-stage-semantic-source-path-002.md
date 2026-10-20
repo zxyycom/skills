@@ -10,4 +10,4 @@ Contract:
 - 已索引的 Decision ID 按独立 sourcePath 选择；同名旧 ID basename 的未选择非法文件不参与身份匹配或阻断暂存。
 
 Proves:
-- 语义 sourcePath 的正文修改与索引进入 pending，未选择的旧 ID basename 不进入 pending。
+- 真实文件来源发现后，resolver 按显式 semantic sourcePath 返回选定 Markdown，忽略同 ID basename 下的未选择非法文本；不调用 Git 暂存。

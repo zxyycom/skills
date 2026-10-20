@@ -6,10 +6,5 @@ await import("../layout-index.test.ts");
 await import("../relation-validation.test.ts");
 await import("../trace-event-admission.test.ts");
 await import("../state-snapshot.test.ts");
-await import("../configured-decision-directory.test.ts");
-await import("../filesystem-boundaries.test.ts");
 
 await import("../trace-admission-complexity.test.ts");
-
-await import("../batch-lookup.test.ts");
-await import("../reallocation-member-complexity.test.ts");

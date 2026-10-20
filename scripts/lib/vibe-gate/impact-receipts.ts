@@ -3,13 +3,14 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { gateImpactContractVersion } from "./impact-catalog.ts";
 
-const receiptFormatVersion = 1;
+const receiptFormatVersion = 2;
 const receiptFileName = "receipts.json";
 
 export type GateReceipt = Readonly<{
   checkId: string;
   fingerprint: string;
   outcome: "passed";
+  toolFingerprints: Readonly<Record<string, string>>;
 }>;
 
 type GateReceiptManifest = Readonly<{
@@ -24,11 +25,30 @@ function isReceipt(value: unknown): value is GateReceipt {
   }
   const record = value as Record<string, unknown>;
   return (
-    Object.keys(record).sort().join(",") === "checkId,fingerprint,outcome" &&
+    Object.keys(record).sort().join(",") ===
+      "checkId,fingerprint,outcome,toolFingerprints" &&
     typeof record.checkId === "string" &&
     typeof record.fingerprint === "string" &&
     /^[a-f0-9]{64}$/u.test(record.fingerprint) &&
-    record.outcome === "passed"
+    record.outcome === "passed" &&
+    isToolFingerprints(record.toolFingerprints)
+  );
+}
+
+function isToolFingerprints(
+  value: unknown
+): value is Readonly<Record<string, string>> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.keys(value).length > 0 &&
+    Object.entries(value).every(
+      ([toolId, fingerprint]) =>
+        toolId.length > 0 &&
+        typeof fingerprint === "string" &&
+        /^[a-f0-9]{64}$/u.test(fingerprint)
+    )
   );
 }
 

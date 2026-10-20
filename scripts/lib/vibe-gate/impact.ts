@@ -2,6 +2,8 @@ export {
   baseGateCheckIds,
   baseGateImpactContracts,
   gateCheckInputFingerprint,
+  gateCheckToolFingerprints,
+  gateToolInputFingerprint,
   gateImpactContractVersion,
   validateBaseGateImpactContracts
 } from "./impact-catalog.ts";
@@ -12,7 +14,6 @@ export type {
   GateWorkspaceSnapshot
 } from "./impact-snapshot.ts";
 export {
-  activationFlagForCheck,
   gateActivationFlags,
   prepareGateActivation,
   publishGateReceipts
@@ -23,3 +24,6 @@ export type {
   GateActivationReason,
   GateReceiptPublication
 } from "./impact-activation.ts";
+
+export { activationFlagForTool, gateToolInputs } from "./impact-tools.ts";
+export type { GateToolId, GateToolSubscription } from "./impact-tools.ts";

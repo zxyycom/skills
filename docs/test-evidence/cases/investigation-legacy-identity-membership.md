@@ -3,7 +3,7 @@
 Tests:
 - `test:182fc7e9156d84ae00daf9f0d751609c54232cad58a255d9ba39fefb64a3a5dd`
 - `test:19cadd404cf31c4d32e34517246796dcdee6c569b4d2cdaad8c92de0c6538d12`
-- `test:1cef39e2c47246b5d53c079880d7f474f307362eea111bdf45e79a984c5086c6`
+- `test:9266655bfbf40d4eb8608c51749663cefeb83a2d74f6ce48ff15ee0d9ccb1742`
 
 Tags:
 - `investigation-report`
@@ -14,4 +14,4 @@ Contract:
 Proves:
 - 未发布的 constructor 正式报告可由局部身份发现检查，indexChecked=false。
 - 未索引的 constructor 正式 owner 直接引用资源时，候选可共享该资源并通过资源 readiness。
-- 删除 HEAD-only constructor 正式报告并同步后，domain stage 仅暂存该删除，保留其余报告。
+- 纯 domain selection 将当前索引没有自有成员的 constructor 归为 deletedIds，reportIds 与 resourceIds 为空；真实 baseline-only 删除接线由 domain stage 集成入口承接。

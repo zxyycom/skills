@@ -3,13 +3,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 import { stageInvestigationReports } from "../src/staging.ts";
-import {
-  git,
-  initializeGit,
-  investigationRoot,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+import { git, initializeGit } from "./git-support.ts";
+import { investigationRoot, withTempRoot } from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 async function writeScript(
   root: string,

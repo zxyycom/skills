@@ -11,7 +11,7 @@
 1. 明确证明契约、直接失败 owner、完整实际输入、稳定重跑命令、成功前置与 base/release 归属。
 2. 按下表选择原生、语义命令、包脚本、自定义或 release DAG Check。
 3. 在直接 owner 模块构造 Check，由完整 Definition 组合；身份、依赖、flags 与资源直接进入原生构造器。
-4. 项目命令补齐输入 patterns；同步 catalog fixture、受影响项目测试与 Test Evidence Case/index。
+4. 项目命令声明能力订阅，核对能力输入 patterns；同步 catalog fixture、受影响项目测试与 Test Evidence Case/index。
 5. 运行直接入口、Gate 接入测试和适用门禁，分别报告实际结果与未验证边界。
 
 | 实施前要明确的输入 | 完成标准 |
@@ -81,11 +81,11 @@
 
 原生材料与基础环境每轮实际执行，不进入项目 receipt 集合。语义与包脚本 Check 必须由 `impact-catalog.ts` 完整覆盖，只有已评审闭包才允许复用。
 
-1. 在 `projectInputs` 或领域 `domainInputs` 声明实际读取的 patterns，组合 `commonGateInputPatterns`；共享运行时、build adapters、fixtures、内部 ignored 文件、生成物、TS/MTS、manifest/lock 和配置均按真实消费纳入。新 Check 未识别时空 patterns 保守执行，不臆造安全复用。
-2. 新读取域不在现有采集范围时，同步 `impact-paths.ts` 的磁盘目录/配置及已知 owner 判定，覆盖 Git ignore 下仍被命令读取的材料。路径归属与匹配使用原生 region，成功前置仍由独立的 `dependsOn` 表达。
+1. 在 `impact-tools.ts#gateToolInputs` 按独立源码职责维护能力 ID 与实际读取的 patterns，组合 `commonGateInputPatterns`；共享运行时、build adapters、fixtures、内部 ignored 文件、生成物、TS/MTS、manifest/lock 和配置均按真实消费纳入。同一能力可有多个消费者；源码与其分发副本属于同一能力时共同声明。flag 由 ID 派生，无须另列。
+2. 在语义 Check 的 `toolIds` 或包脚本的 `packageScriptToolSubscriptions` 显式订阅所需能力。原生 `any(...)` 组合能力 flags，`dependsOn` 独立声明成功前置。新读取域不在现有采集范围时，同步 `impact-paths.ts` 的磁盘目录/配置及已知 owner 判定，覆盖 Git ignore 下仍被命令读取的材料。
 3. Check 读取新外部工具或环境时，核对 `impact-toolchain.ts`。必要 probe 失败扩大执行；基础环境 Check 只承接既定 Git/Node/Bun/pnpm/SCC 政策，业务测试前置不自动扩成全 Gate 环境要求。
-4. 跨 owner import、构建/测试入口或动态读取来源变化时，同步复核 consumer 的静态输入声明，纳入新依赖及其传递闭包。consumer 自身源码变化会使当轮执行，但只有声明完整，才会覆盖新依赖后续单独变化；闭包无法确认时使用较宽输入或保持保守执行。
-5. 输入含义变化时更新相应契约版本，防止旧 receipt 被误认。新增/收窄模式应验证受影响与不受影响场景、删除/重命名、ignored 输入、未知/symlink/错误和起止漂移；完整事务由[输入证明 owner](tooling.md#项目输入与成功证明)承接。
+4. 跨 owner import、构建/测试入口或动态读取来源变化时，同步复核 consumer 的订阅及能力 patterns，纳入传递闭包。consumer 自身源码变化会使当轮执行，但只有声明完整，才会覆盖新依赖后续单独变化；闭包无法确认时使用较宽输入或保持保守执行。两领域未归属文件检查是遗漏提示，不能代替依赖审查。
+5. 输入含义变化时按范围更新全局 `gateImpactContractVersion` 或逐 Check `version`。新增/收窄模式应验证受影响与不受影响场景、删除/重命名、ignored 输入、未知/symlink/错误、共享 flag 扩散、成功前置带入和起止漂移；带入项必须如实执行并通过后才可发布证明。receipt 形状与完整事务由[输入证明 owner](tooling.md#项目输入与成功证明)承接。
 
 ## 按类型接入
 
@@ -101,6 +101,7 @@
    ```ts
    {
      checkId: "test:<owner>:public-distribution",
+     toolIds: ["<existing-capability-id>"],
      displayName: "<Owner> public distribution",
      requiredTag: undefined,
      command: bunTest("./tools/<owner>/tests/checks/public-distribution.ts"),
@@ -108,7 +109,7 @@
    }
    ```
 
-3. 为该 ID 核对项目输入 patterns；精确 runner/路径直接来自实际 `command`，Bun 与 Node 均独立执行。
+3. 为该 ID 核对能力订阅与对应输入 patterns；精确 runner/路径直接来自实际 `command`，Bun 与 Node 均独立执行。上例的能力 ID 须替换为已声明的实际能力。
 4. 更新 `scripts/vibe-check-catalog-fixture.ts` 的 ID、runner、命令与前置期望；catalog 测试从 wrapper 的磁盘 imports 推导 leaf，并核对领域聚合入口，不另维护逐文件副本。
 5. 当前数量变化时同步[工具链 catalog 事实](tooling.md#catalog-与选择)，测试变化按 Test Evidence owner 同步 Case/index。
 
@@ -116,7 +117,7 @@
 
 1. 在 `package.json#scripts` 建立或确认稳定维护命令，将名称加入 `releaseRequiredPackageScripts`。
 2. 适配器构造独立 `commandCheck`；需要生成物时在 `packageScriptDependencies` 声明统一 provider。
-3. 补齐输入 patterns 与 Definition/package-adapter/catalog 测试期望。
+3. 在 `packageScriptToolSubscriptions` 声明能力订阅，核对其输入 patterns 与 Definition/package-adapter/catalog 测试期望。
 
 已有语义 Checks 完整覆盖的 `test:*` 聚合 script 保留人工领域回归入口，不重复登记 Gate leaf。统一生成入口已覆盖的领域生成命令也保留人工入口，由统一 Gate Check 承接。
 

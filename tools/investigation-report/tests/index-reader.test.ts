@@ -1,17 +1,18 @@
+import {
+  investigationIndexFixture,
+  searchIndexFixture
+} from "./index-fixture.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { test } from "node:test";
 import { searchInvestigationReports } from "../src/query.ts";
 import {} from "../src/report-path.ts";
-import {
-  runInvestigationCli,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+import { withTempRoot } from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("metadata search reports its persisted-snapshot source boundary", async () => {
   await withTempRoot("search-metadata", async (root) => {
-    await writeCollection(root, [
+    const reports = [
       {
         formedAt: "2026-08-28T10:00:00+00:00",
         id: "alpha",
@@ -33,7 +34,9 @@ test("metadata search reports its persisted-snapshot source boundary", async () 
         tags: ["indexed"],
         title: "Limited metadata"
       }
-    ]);
+    ] as const;
+    await writeCollection(root, reports);
+    const index = investigationIndexFixture(reports);
     const directory = `${root}/docs/investigations`;
     const indexPath = `${directory}/investigation-index.json`;
     const originalReadFile = fs.readFile;
@@ -51,38 +54,38 @@ test("metadata search reports its persisted-snapshot source boundary", async () 
     let relationTarget;
     let relationType;
     try {
-      all = await searchInvestigationReports({
+      const acquired = await searchInvestigationReports({
         in: "metadata",
-        query: "Alpha Current",
+        query: "Alpha",
         workspaceRoot: root
       });
-      relation = await searchInvestigationReports({
+      assert.equal(acquired.status, "ok");
+      all = searchIndexFixture(index, {
         in: "metadata",
-        query: "source relation",
-        workspaceRoot: root
+        query: "Alpha Current"
       });
-      phrase = await searchInvestigationReports({
+      relation = searchIndexFixture(index, {
+        in: "metadata",
+        query: "source relation"
+      });
+      phrase = searchIndexFixture(index, {
         in: "metadata",
         match: "phrase",
-        query: "metadata Current",
-        workspaceRoot: root
+        query: "metadata Current"
       });
-      limited = await searchInvestigationReports({
+      limited = searchIndexFixture(index, {
         in: "metadata",
         limit: 1,
         match: "any",
-        query: "Alpha Limited",
-        workspaceRoot: root
+        query: "Alpha Limited"
       });
-      relationTarget = await searchInvestigationReports({
+      relationTarget = searchIndexFixture(index, {
         in: "metadata",
-        query: "zulu",
-        workspaceRoot: root
+        query: "zulu"
       });
-      relationType = await searchInvestigationReports({
+      relationType = searchIndexFixture(index, {
         in: "metadata",
-        query: "补充",
-        workspaceRoot: root
+        query: "补充"
       });
     } finally {
       fs.readFile = originalReadFile;
@@ -134,29 +137,6 @@ test("metadata search reports its persisted-snapshot source boundary", async () 
     );
     assert.equal(relationType.status, "ok");
     assert.deepEqual(relationType.entries, []);
-
-    const defaultContent = await runInvestigationCli(root, [
-      "search",
-      "Current"
-    ]);
-    const explicitContent = await runInvestigationCli(root, [
-      "search",
-      "Current",
-      "--in",
-      "content"
-    ]);
-    const metadata = await runInvestigationCli(root, [
-      "search",
-      "Current",
-      "--in",
-      "metadata"
-    ]);
-    assert.equal(defaultContent.status, 0, defaultContent.stderr);
-    assert.equal(explicitContent.status, 0, explicitContent.stderr);
-    assert.equal(defaultContent.stdout, explicitContent.stdout);
-    assert.equal(metadata.status, 0, metadata.stderr);
-    assert.match(metadata.stdout, /matchedFields: question/u);
-    assert.doesNotMatch(metadata.stdout, /^  \d+: /mu);
 
     await fs.rm(indexPath);
     const unavailable = await searchInvestigationReports({

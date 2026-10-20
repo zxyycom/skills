@@ -5,6 +5,7 @@ import {
   baseGateCheckIds,
   baseGateImpactContracts,
   gateCheckInputFingerprint,
+  gateCheckToolFingerprints,
   releaseGateCheckIds
 } from "./impact-catalog.ts";
 import {
@@ -12,6 +13,11 @@ import {
   type GateWorkspaceSnapshot
 } from "./impact-snapshot.ts";
 import type { CaptureDependencies } from "./impact-toolchain.ts";
+import {
+  activationFlagForTool,
+  gateToolInputs,
+  type GateToolId
+} from "./impact-tools.ts";
 import { compareText } from "./impact-values.ts";
 import {
   readReceiptManifest,
@@ -25,7 +31,9 @@ export type GateActivationReason =
   | "inputs-changed"
   | "release-full"
   | "snapshot-unavailable"
-  | "unchanged-success";
+  | "unchanged-success"
+  | "tool-triggered"
+  | "prerequisite-triggered";
 
 export type GateActivationDecision = Readonly<
   | {
@@ -42,7 +50,9 @@ export type GateActivationDecision = Readonly<
         | "cache-invalid"
         | "conservative-fallback"
         | "first-run"
-        | "inputs-changed";
+        | "inputs-changed"
+        | "tool-triggered"
+        | "prerequisite-triggered";
     }
   | {
       action: "reuse";
@@ -54,6 +64,7 @@ export type GateActivationDecision = Readonly<
 
 type GateActivationPlanCommon = Readonly<{
   activeCheckIds: readonly string[];
+  activeToolIds: readonly string[];
   cacheDirectory: string;
   decisions: readonly GateActivationDecision[];
 }>;
@@ -109,6 +120,7 @@ function releasePlan(cacheDirectory: string): GateActivationPlan {
   }));
   return {
     activeCheckIds: releaseGateCheckIds,
+    activeToolIds: Object.keys(gateToolInputs),
     cacheDirectory,
     decisions,
     kind: "release",
@@ -122,6 +134,7 @@ function fallbackPlan(
 ): GateActivationPlan {
   return {
     activeCheckIds: baseGateCheckIds,
+    activeToolIds: Object.keys(gateToolInputs),
     cacheDirectory,
     decisions: baseGateCheckIds.map((checkId) => ({
       action: "execute" as const,
@@ -141,7 +154,7 @@ export async function prepareGateActivation(
   const workspaceRoot = options.workspaceRoot ?? rootDir;
   const cacheDirectory =
     options.cacheDirectory ??
-    path.join(workspaceRoot, ".log/vibe-check/cache/project-input-receipts-v3");
+    path.join(workspaceRoot, ".log/vibe-check/cache/project-tool-receipts-v4");
   if (options.release) return releasePlan(cacheDirectory);
   let snapshot: GateWorkspaceSnapshot;
   try {
@@ -162,46 +175,97 @@ export async function prepareGateActivation(
       receipt
     ]) ?? []
   );
-  const decisions = baseGateImpactContracts.map((contract_) => {
-    if (
-      snapshot.unclassifiedPaths.length > 0 ||
-      contract_.patterns.length === 0 ||
-      snapshot.inputDigests[contract_.checkId] === undefined
-    ) {
+  const changedToolIds = new Set<GateToolId>();
+  const candidates: readonly GateActivationDecision[] =
+    baseGateImpactContracts.map((contract_) => {
+      if (
+        snapshot.unclassifiedPaths.length > 0 ||
+        contract_.toolIds.length === 0 ||
+        contract_.toolIds.some(
+          (toolId) => snapshot.toolInputDigests[toolId] === undefined
+        )
+      ) {
+        for (const toolId of contract_.toolIds) changedToolIds.add(toolId);
+        return {
+          action: "execute" as const,
+          checkId: contract_.checkId,
+          fingerprint: null,
+          reason: "conservative-fallback" as const
+        };
+      }
+      const fingerprint = gateCheckInputFingerprint(contract_, snapshot);
+      const receipt = receipts.get(contract_.checkId);
+      const toolFingerprints = gateCheckToolFingerprints(contract_, snapshot);
+      if (
+        receipt?.fingerprint === fingerprint &&
+        Object.keys(receipt.toolFingerprints).length ===
+          contract_.toolIds.length &&
+        contract_.toolIds.every(
+          (toolId) =>
+            receipt.toolFingerprints[toolId] === toolFingerprints[toolId]
+        )
+      ) {
+        return {
+          action: "reuse" as const,
+          checkId: contract_.checkId,
+          fingerprint,
+          reason: "unchanged-success" as const
+        };
+      }
+      const changed = contract_.toolIds.filter(
+        (toolId) =>
+          receipt?.toolFingerprints[toolId] !== toolFingerprints[toolId]
+      );
+      // A missing proof or non-component contract change cannot justify a narrower trigger.
+      for (const toolId of changed.length > 0 ? changed : contract_.toolIds)
+        changedToolIds.add(toolId);
+      const reason: GateActivationReason =
+        receiptRead.state === "invalid"
+          ? "cache-invalid"
+          : receipt === undefined
+            ? "first-run"
+            : "inputs-changed";
       return {
         action: "execute" as const,
         checkId: contract_.checkId,
-        fingerprint: null,
-        reason: "conservative-fallback" as const
-      };
-    }
-    const fingerprint = gateCheckInputFingerprint(contract_, snapshot);
-    const receipt = receipts.get(contract_.checkId);
-    if (receipt?.fingerprint === fingerprint) {
-      return {
-        action: "reuse" as const,
-        checkId: contract_.checkId,
         fingerprint,
-        reason: "unchanged-success" as const
+        reason
       };
+    });
+  const toolDecisions: readonly GateActivationDecision[] = candidates.map(
+    (decision, index) => {
+      if (decision.action === "execute") return decision;
+      return baseGateImpactContracts[index]!.toolIds.some((toolId) =>
+        changedToolIds.has(toolId)
+      )
+        ? { ...decision, action: "execute", reason: "tool-triggered" }
+        : decision;
     }
-    const reason: GateActivationReason =
-      receiptRead.state === "invalid"
-        ? "cache-invalid"
-        : receipt === undefined
-          ? "first-run"
-          : "inputs-changed";
-    return {
-      action: "execute" as const,
-      checkId: contract_.checkId,
-      fingerprint,
-      reason
-    };
-  });
+  );
+  // Mirror only the catalog's declared success prerequisites for truthful plan
+  // diagnostics/publication. Vibe still owns selection, scheduling and execution.
+  const executing = new Set(
+    toolDecisions
+      .filter(({ action }) => action === "execute")
+      .map(({ checkId }) => checkId)
+  );
+  const contracts = new Map(
+    baseGateImpactContracts.map((contract_) => [contract_.checkId, contract_])
+  );
+  for (const checkId of executing)
+    for (const dependency of contracts.get(checkId)?.dependsOn ?? [])
+      if (contracts.has(dependency)) executing.add(dependency);
+  const decisions: readonly GateActivationDecision[] = toolDecisions.map(
+    (decision) =>
+      decision.action === "reuse" && executing.has(decision.checkId)
+        ? { ...decision, action: "execute", reason: "prerequisite-triggered" }
+        : decision
+  );
   return {
     activeCheckIds: decisions
       .filter(({ action }) => action === "execute")
       .map(({ checkId }) => checkId),
+    activeToolIds: [...changedToolIds].sort(compareText),
     cacheDirectory,
     decisions,
     kind: "incremental",
@@ -209,14 +273,10 @@ export async function prepareGateActivation(
   };
 }
 
-export function activationFlagForCheck(checkId: string): string {
-  return `gate-activation:${checkId}`;
-}
-
 export function gateActivationFlags(
   plan: GateActivationPlan
 ): readonly string[] {
-  return plan.activeCheckIds.map(activationFlagForCheck);
+  return plan.activeToolIds.map(activationFlagForTool);
 }
 
 export async function publishGateReceipts(
@@ -274,7 +334,13 @@ export async function publishGateReceipts(
     .map(({ checkId, fingerprint }) => ({
       checkId,
       fingerprint,
-      outcome: "passed" as const
+      outcome: "passed" as const,
+      toolFingerprints: gateCheckToolFingerprints(
+        baseGateImpactContracts.find(
+          (contract_) => contract_.checkId === checkId
+        )!,
+        plan.snapshot
+      )
     }))
     .sort((left, right) => compareText(left.checkId, right.checkId));
   try {

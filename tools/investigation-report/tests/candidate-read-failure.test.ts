@@ -9,9 +9,9 @@ import {
 import {
   investigationRoot,
   reportMarkdown,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("candidate read preparation failures report read-only access diagnostics", async () => {
   await withTempRoot("candidate-read-failure", async (root) => {

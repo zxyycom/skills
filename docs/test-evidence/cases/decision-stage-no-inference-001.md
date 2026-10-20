@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- CLI 不从文本相同的删除/新增推断身份改名。
+- Stage 不从文本相同的删除/新增推断身份改名。
 
 Proves:
-- 暂存条目保持独立 D/A，而非 rename。
+- 纯 target 构造保留 old 的删除标记与 new 的新增来源，最终来源仅含 new；不以 Git diff 格式证明分类。

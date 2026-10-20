@@ -10,5 +10,4 @@ Contract:
 - 仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系。
 
 Proves:
-- 目标和引用候选存在关系时，discard 返回 still referenced 诊断。
-- 被引用目标、引用来源与正式索引均保持不变。
+- 纯生命周期准备对被其他候选引用的目标返回 still referenced 错误，结果不含 changes。

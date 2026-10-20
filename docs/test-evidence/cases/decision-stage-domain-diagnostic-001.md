@@ -7,8 +7,8 @@ Tags:
 - `decision-records`
 
 Contract:
-- Stage 的 freshness gate 同步读取放行后，快照构建自己的来源扫描遇到同一 Decision ID 出现在 current 与 archive 两个来源时，这是领域来源冲突而非文件系统故障；诊断必须保留稳定领域 code 与受控 detail，不能伪报 filesystem unknown。
+- 来源发现遇到同一 Decision ID 对应多个路径时，这是领域来源冲突而非文件系统故障；Stage failure mapper 保留稳定领域 code 与受控 detail，不伪报 filesystem unknown。
 
 Proves:
-- CLI 以失败退出且 stdout 为空，输出 `decision-records.stage-snapshot-invalid` 与重复来源说明。
-- 输出不包含 `causeCategory: unknown`。
+- 真实来源发现与 resolver 对两条同 ID 路径拒绝，stage failure mapper 返回 stage-snapshot-invalid 与重复来源 detail。
+- 领域诊断不包含 causeCategory: unknown；该入口不启动 CLI。

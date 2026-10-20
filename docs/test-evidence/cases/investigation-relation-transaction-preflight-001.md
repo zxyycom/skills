@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-RELATION-TRANSACTION-PREFLIGHT-001: set-relations 预检返回完整关系核对且零写入
 
 Tests:
-- `test:116a8c6bad43e8c40cee5094b770a934941fbfda649cb3d1cfd76b4a8137ef1a`
+- `test:27e93f40b6c03233c690eca300058f594bc4cc564a651f87d18e29ecbef1fcc6`
 - `test:9e5c500c4651bfeeb5aaf2bc18d6fcde89dd35cbc17b9c4c22305ae45502dca6`
 
 Tags:

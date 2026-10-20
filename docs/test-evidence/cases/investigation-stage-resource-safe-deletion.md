@@ -1,10 +1,10 @@
 ### Case INVESTIGATION-STAGE-RESOURCE-SAFE-DELETION-001: 路径安全不阻断未引用资源合法删除
 
 Tests:
-- `test:4ec8c8ef253abfc83511c8abbf9e2059cfd47550d9ffcb0ac9f7a7684d22e3b8`
-- `test:62ca22f0ed9eab1abc06f2cc2ad38045eebfd1c976939cefb2944fe674b334e4`
-- `test:70acd3648bd0bcc0d13ec5fb067af81d24c1b6a507a850f7da0463afc8b29d6b`
-- `test:e8fcbd1d8f46e971aea77e6fa512a28d5ab02ae484f084fc09dba5359596c7a9`
+- `test:01b1e2a2c7d5a36b633f4e1c75f3d2047c82348e46c779d93aed505e1579d6de`
+- `test:7cbfbdfae01b6b13fba83244da4770c6873c3954a6f97c245f96ef05a1764e55`
+- `test:f4b57d786fae1f125ff614141e0aa840262fd4ce8b7d04b93bdcf1c77b215960`
+- `test:fc7353d2b230868f4dcae48249904427ebdc3820716777ea533d9b9db3a10034`
 
 Tags:
 - `investigation-report`
@@ -13,4 +13,5 @@ Contract:
 - 所选资源树用工作区与 HEAD 成员并集表达删除，未被直接引用的基线资源允许根、目录或文件缺失。
 
 Proves:
-- root、owner、中间目录和文件分别缺失时 domain 成功且只将对应基线资源写入 pending 删除。
+- 真实资源验证在 root、owner 或中间目录缺失时返回无资源，不把合法删除当作路径错误。
+- 文件缺失的真实 domain stage 代表成功，Git 暂存差异仅含对应基线资源删除。

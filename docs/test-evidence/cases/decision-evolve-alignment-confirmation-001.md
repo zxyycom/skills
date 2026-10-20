@@ -10,5 +10,4 @@ Contract:
 - 选择已建立后继时，`--successor` 中的 alignment 只能确认记录现有对齐状态，不能借关系事务改写对齐。
 
 Proves:
-- 与现状不一致的 alignment 返回明确失败诊断。
-- 拒绝路径逐字节保留目标 Markdown 和 decision-index.json。
+- 纯生命周期准备对与 established 记录现状不一致的 alignment 返回明确错误，且结果不含 changes。

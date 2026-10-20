@@ -1,21 +1,19 @@
+import { investigationIndexFixture } from "./index-fixture.ts";
+import { domainSourceSelection } from "../src/staging-domain-sources.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 import { showInvestigationCandidate } from "../src/candidate.ts";
-import { stageInvestigationReports } from "../src/staging.ts";
+
+import { validateInvestigationReports } from "../src/validation.ts";
+
 import {
-  synchronizeInvestigationIndex,
-  validateInvestigationReports
-} from "../src/validation.ts";
-import {
-  git,
-  initializeGit,
   investigationRoot,
   reportMarkdown,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("scoped investigation discovery treats an inherited legacy ID as absent from the published index", async () => {
   await withTempRoot("legacy-scoped-membership", async (root) => {
@@ -66,26 +64,14 @@ test("candidate resource visibility discovers an unindexed formal legacy owner i
   });
 });
 
-test("investigation domain staging deletes a HEAD-only legacy report without reading an inherited current entry", async () => {
-  await withTempRoot("legacy-stage-membership", async (root) => {
-    await writeCollection(root, [{ id: "constructor" }, { id: "keep" }]);
-    initializeGit(root);
-    await fs.rm(path.join(investigationRoot(root), "constructor.md"));
-    const synced = await synchronizeInvestigationIndex({ workspaceRoot: root });
-    assert.deepEqual(synced.errors, []);
-    const staged = await stageInvestigationReports({
-      workspaceRoot: root,
-      reportIds: ["constructor"],
-      scope: "domain"
-    });
-    assert.equal(staged.status, "ok");
-    assert.equal(
-      git(root, ["diff", "--cached", "--name-status", "--no-renames"]).trim(),
-      "D\tdocs/investigations/constructor.md"
-    );
-    assert.match(
-      git(root, ["show", ":docs/investigations/keep.md"]),
-      /id: "keep"/u
-    );
+test("investigation domain selection treats a HEAD-only inherited legacy ID as deleted", () => {
+  const selection = domainSourceSelection(
+    investigationIndexFixture([{ id: "keep" }]),
+    ["constructor"]
+  );
+  assert.deepEqual(selection, {
+    deletedIds: ["constructor"],
+    reportIds: [],
+    resourceIds: []
   });
 });

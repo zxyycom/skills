@@ -1,3 +1,4 @@
+import { syncDecisionIndex } from "../../src/decision-state-index.ts";
 import path from "node:path";
 import {
   applyDecisionChanges,
@@ -71,6 +72,27 @@ test("set-relations rejects drifted source bytes before writing anything", () =>
 test("set-relations succeeds again after the drift is rescanned", () =>
   withFixtureWorkspace("set-relations-drift-rescan", async (workspaceRoot) => {
     await establishMaintenanceDecision(workspaceRoot);
+    const sourcePath = decisionFilePath(workspaceRoot, maintenanceRelativePath);
+    const staleScan = await scanDecisionRecords({ workspaceRoot });
+    const before = await fs.readFile(sourcePath, "utf8");
+    const drifted = before.replace(
+      "验证 Markdown 生命周期独立定义候选和已建立状态。",
+      "实际漂移后重新扫描来源。"
+    );
+    await fs.writeFile(sourcePath, drifted);
+    const rejected = await applyDecisionChanges({
+      changes: [
+        { decisionPath: sourcePath, expectedText: before, nextText: before }
+      ],
+      originalScan: staleScan,
+      scanOptions: { workspaceRoot }
+    });
+    assert.equal(rejected.status, "error");
+    assert.equal(rejected.outcome, "no-change");
+    await syncDecisionIndex({
+      decisionsDirectory: path.join(workspaceRoot, "docs/decisions"),
+      mode: "write"
+    });
     const result = await runSourceLifecycleCli([
       "set-relations",
       "--source",

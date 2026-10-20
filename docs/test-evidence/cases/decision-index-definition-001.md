@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- 当前 ID 键索引只接受 definitionVersion 6，不能兼容 version 5。
+- 当前索引 parser 与严格 check 都拒绝旧 definitionVersion。
 
 Proves:
-- parser 返回 error，写入 version 5 后 strict check 非零并报告版本诊断。
+- 纯 parser 对旧 definitionVersion 返回 error；真实索引文件写入旧版本后，严格 API check 报告对应版本错误。

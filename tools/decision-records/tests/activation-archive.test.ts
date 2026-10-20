@@ -1,3 +1,9 @@
+import { executeDecisionQuery } from "../src/decision-query-service.ts";
+import { syncDecisionIndex } from "../src/decision-state-index.ts";
+import { prepareDecisionLifecycle } from "../src/decision-lifecycle-service.ts";
+import { scanDecisionRecords } from "../src/scan.ts";
+import { validateDecisionRecords } from "../src/index.ts";
+import { decisionIdForTest } from "./support-record-fixture.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -9,7 +15,6 @@ import {
   fileExists,
   findIndexEntry,
   readIndex,
-  runBundledCli,
   runSourceCli,
   withFixtureWorkspace
 } from "./support.ts";
@@ -27,38 +32,49 @@ test("publication and archive transitions preserve content and index atomicity",
     const establishedText = await fs.readFile(establishedPath, "utf8");
     const originalIndexText = await fs.readFile(indexPath, "utf8");
 
-    const rejectedActiveReactivation = await runBundledCli([
-      "reactivate",
-      currentRelativePath,
-      "--alignment",
-      "unaligned",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(rejectedActiveReactivation.exitCode, 1);
-    assert.match(
-      rejectedActiveReactivation.stderr,
-      /reactivate requires an archived decision/
+    const initialScan = await scanDecisionRecords({ workspaceRoot });
+    const rejectedActiveReactivation = prepareDecisionLifecycle(
+      initialScan,
+      {
+        action: "reactivate",
+        decisionId: currentRelativePath,
+        alignment: "unaligned"
+      },
+      { historyBaseline: null }
     );
-    const rejectedEstablishedPublish = await runBundledCli([
-      "publish",
-      currentRelativePath,
-      "--alignment",
-      "unaligned",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(rejectedEstablishedPublish.exitCode, 1);
-    assert.match(
-      rejectedEstablishedPublish.stderr,
-      /publish establishes a decision candidate; this decision is already an active formal record/
+    assert.equal(rejectedActiveReactivation.status, "error");
+    if (rejectedActiveReactivation.status === "error")
+      assert.match(
+        rejectedActiveReactivation.errors.join("\n"),
+        /reactivate requires an archived decision/
+      );
+    const rejectedEstablishedPublish = prepareDecisionLifecycle(
+      initialScan,
+      {
+        action: "publish",
+        decisionId: currentRelativePath,
+        alignment: "unaligned",
+        keepUnrecordedHistory: true
+      },
+      { historyBaseline: null }
     );
+    assert.equal(rejectedEstablishedPublish.status, "error");
+    if (rejectedEstablishedPublish.status === "error")
+      assert.match(
+        rejectedEstablishedPublish.errors.join("\n"),
+        /already an active formal record/
+      );
     assert.equal(await fs.readFile(establishedPath, "utf8"), establishedText);
     assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
 
     const lifecycleRelativePath = "use-markdown-establishment.md";
     const lifecyclePath = decisionFilePath(
       workspaceRoot,
+      lifecycleRelativePath
+    );
+    const archivedPath = path.join(
+      decisionsDirectory,
+      "archive",
       lifecycleRelativePath
     );
     await fs.mkdir(path.dirname(lifecyclePath), { recursive: true });
@@ -148,12 +164,7 @@ test("publication and archive transitions preserve content and index atomicity",
     assert.match(blockedWithInvalidIndex.stderr, /decision-index\.json/);
     assert.match(blockedWithInvalidIndex.stderr, /run sync-index/);
     assert.match(await fs.readFile(lifecyclePath, "utf8"), /status: active/);
-    assert.equal(
-      await fileExists(
-        path.join(decisionsDirectory, "archive", lifecycleRelativePath)
-      ),
-      false
-    );
+    assert.equal(await fileExists(archivedPath), false);
     assert.equal(await fs.readFile(indexPath, "utf8"), "{ invalid json\n");
 
     const republishedForArchive = await runSourceCli([
@@ -183,10 +194,7 @@ test("publication and archive transitions preserve content and index atomicity",
     assert.equal(archivedState.alignment, "aligned");
     assert.equal(archivedState.createdAt, createdAt);
 
-    const archivedSource = await fs.readFile(
-      path.join(decisionsDirectory, "archive", lifecycleRelativePath),
-      "utf8"
-    );
+    const archivedSource = await fs.readFile(archivedPath, "utf8");
     const archivedIndex = await fs.readFile(indexPath, "utf8");
     const missingReactivationConfirmation = await runSourceCli([
       "reactivate",
@@ -196,13 +204,7 @@ test("publication and archive transitions preserve content and index atomicity",
     ]);
     assert.equal(missingReactivationConfirmation.exitCode, 2);
     assert.equal(missingReactivationConfirmation.stdout, "");
-    assert.equal(
-      await fs.readFile(
-        path.join(decisionsDirectory, "archive", lifecycleRelativePath),
-        "utf8"
-      ),
-      archivedSource
-    );
+    assert.equal(await fs.readFile(archivedPath, "utf8"), archivedSource);
     assert.equal(await fs.readFile(indexPath, "utf8"), archivedIndex);
 
     const reactivated = await runSourceCli([
@@ -220,18 +222,33 @@ test("publication and archive transitions preserve content and index atomicity",
       createdAt
     );
 
-    for (const args of [
-      ["check", "--root", workspaceRoot],
-      ["list", "--root", workspaceRoot],
-      ["show", lifecycleRelativePath, "--root", workspaceRoot],
-      ["trace", lifecycleRelativePath, "--root", workspaceRoot],
-      ["sync-index", "--root", workspaceRoot]
-    ]) {
-      const result = await runBundledCli(args);
-      assert.equal(result.exitCode, 0, `${args[0]} failed: ${result.stderr}`);
-      assert.doesNotMatch(result.stdout, /pending/i);
-      assert.doesNotMatch(result.stderr, /Git HEAD|pending/i);
+    assert.deepEqual(
+      (await validateDecisionRecords({ workspaceRoot })).errors,
+      []
+    );
+    const location = { workspaceRoot, decisionsDir: "docs/decisions" };
+    const list = await executeDecisionQuery({
+      command: "list",
+      location,
+      alignment: "all",
+      status: "active",
+      tags: [],
+      limit: 10,
+      offset: 0
+    });
+    assert.equal(list.status, "ok");
+    for (const command of ["show", "trace"] as const) {
+      const result = await executeDecisionQuery({
+        command,
+        location,
+        decisionId: decisionIdForTest(lifecycleRelativePath)
+      });
+      assert.equal(result.status, "ok");
     }
+    assert.equal(
+      (await syncDecisionIndex({ decisionsDirectory, mode: "write" })).status,
+      "ok"
+    );
 
     const archivedAgain = await runSourceCli([
       "archive",
@@ -249,12 +266,7 @@ test("publication and archive transitions preserve content and index atomicity",
       workspaceRoot
     ]);
     assert.equal(discardedArchived.exitCode, 0, discardedArchived.stderr);
-    assert.equal(
-      await fileExists(
-        path.join(decisionsDirectory, "archive", lifecycleRelativePath)
-      ),
-      false
-    );
+    assert.equal(await fileExists(archivedPath), false);
     assert.equal(
       Object.hasOwn(
         (await readIndex(indexPath)).entries,

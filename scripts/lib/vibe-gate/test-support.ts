@@ -4,7 +4,7 @@ export function fixtureGateWorkspaceSnapshot(): GateWorkspaceSnapshot {
   const digest = "0".repeat(64);
   return {
     files: [],
-    inputDigests: {},
+    toolInputDigests: {},
     toolchainFingerprint: digest,
     unclassifiedPaths: [],
     workspaceFingerprint: digest

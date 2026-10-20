@@ -2,10 +2,8 @@ import fs from "node:fs/promises";
 import { createProjectFileRegionIndex } from "@zxyycom/vibe-check";
 import path from "node:path";
 import { rootDir } from "../project.ts";
-import {
-  baseGateImpactContracts,
-  gateImpactContractVersion
-} from "./impact-catalog.ts";
+import { gateImpactContractVersion } from "./impact-catalog.ts";
+import { gateToolInputs } from "./impact-tools.ts";
 import {
   gateInputDirectories,
   gateConfigurationFiles,
@@ -20,6 +18,8 @@ import { compareText, sha256 } from "./impact-values.ts";
 
 const maximumSnapshotFileCount = 20_000;
 const maximumSnapshotBytes = 536_870_912;
+const narrowedDomainInputPattern =
+  /^tools\/(?:decision-records|investigation-report)\/(?:src|tests)\//u;
 
 type SnapshotFileKind =
   | "directory"
@@ -38,7 +38,7 @@ export type GateWorkspaceFile = Readonly<{
 
 export type GateWorkspaceSnapshot = Readonly<{
   files: readonly GateWorkspaceFile[];
-  inputDigests: Readonly<Record<string, string>>;
+  toolInputDigests: Readonly<Record<string, string>>;
   toolchainFingerprint: string;
   unclassifiedPaths: readonly string[];
   workspaceFingerprint: string;
@@ -238,7 +238,7 @@ export async function captureGateWorkspaceSnapshot(
   ]);
   // Many Checks share a closure. Match and hash each distinct closure once.
   const regions = new Map(
-    baseGateImpactContracts.map(({ patterns }) => {
+    Object.values(gateToolInputs).map((patterns) => {
       const id = JSON.stringify(patterns);
       return [id, { id, kind: "patterns" as const, patterns }] as const;
     })
@@ -258,23 +258,39 @@ export async function captureGateWorkspaceSnapshot(
       )
     ])
   );
-  const inputDigests = Object.fromEntries(
-    baseGateImpactContracts.map(({ checkId, patterns }) => [
-      checkId,
+  const toolInputDigests = Object.fromEntries(
+    Object.entries(gateToolInputs).map(([toolId, patterns]) => [
+      toolId,
       digests.get(JSON.stringify(patterns))!
     ])
+  );
+  // The narrowed domains must have their own reviewed capability owner. A
+  // repository-wide formatter/typechecker region is not a semantic input proof.
+  const domainCapabilityPaths = new Set(
+    Object.entries(gateToolInputs)
+      .filter(
+        ([toolId]) =>
+          toolId.startsWith("decision-") || toolId.startsWith("investigation-")
+      )
+      .flatMap(
+        ([, patterns]) =>
+          membership.filesForRegion(JSON.stringify(patterns)) ?? []
+      )
   );
   const unclassifiedPaths = files
     .filter(
       (file) =>
         !isKnownGateInput(file.path) ||
         file.kind === "symlink" ||
-        file.kind === "unsupported"
+        file.kind === "unsupported" ||
+        (file.kind !== "directory" &&
+          narrowedDomainInputPattern.test(file.path) &&
+          !domainCapabilityPaths.has(file.path))
     )
     .map((file) => file.path);
   return {
     files,
-    inputDigests,
+    toolInputDigests,
     toolchainFingerprint: toolchain,
     unclassifiedPaths,
     workspaceFingerprint: sha256([

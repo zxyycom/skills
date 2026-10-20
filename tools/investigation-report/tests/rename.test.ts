@@ -8,11 +8,8 @@ import {
   renameInvestigationRecordWithHooks
 } from "../src/rename.ts";
 import { synchronizeInvestigationIndex } from "../src/validation.ts";
-import {
-  investigationRoot,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+import { investigationRoot, withTempRoot } from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("Investigation rename moves the report and owner resources while rewriting managed relations and links", async () => {
   await withTempRoot("rename-formal", async (workspaceRoot) => {

@@ -1,3 +1,4 @@
+import { withGitFixtureWorkspace } from "./support-git-fixture.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
@@ -8,8 +9,8 @@ import {
   decisionFilePath,
   readIndex,
   runSourceCli,
-  withFixtureWorkspace,
-  withGitFixtureWorkspace
+  runGit,
+  withFixtureWorkspace
 } from "./support.ts";
 import type { DecisionId } from "../src/types.ts";
 
@@ -250,6 +251,7 @@ test("Decision rename leaves an existing pending stage untouched by rejecting th
       workspaceRoot
     ]);
     assert.equal(staged.exitCode, 0, staged.stderr);
+    const pendingBefore = runGit(workspaceRoot, ["write-tree"]);
     const before = await fs.readFile(sourcePath, "utf8");
     const rename = await runSourceCli([
       "rename",
@@ -261,6 +263,7 @@ test("Decision rename leaves an existing pending stage untouched by rejecting th
     ]);
     assert.equal(rename.exitCode, 1);
     assert.match(rename.stderr, /rename-pending-stage-conflict/u);
+    assert.equal(runGit(workspaceRoot, ["write-tree"]), pendingBefore);
     assert.equal(await fs.readFile(sourcePath, "utf8"), before);
   }));
 

@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-SCOPE-INVALID-001: stage rejects an invalid scope as a normal invalid argument
 
 Tests:
-- `test:ab79677789a3bb76d9f9611567f1b3f43c40f19edf6db8c1d42d2152e6fc841b`
+- `test:5e3563b63a6b4567b468c550dfda5f1d8aee826b3d37689eaa052b5c26090a4f`
 
 Tags:
 - `decision-records`

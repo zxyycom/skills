@@ -1,19 +1,19 @@
+import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
+import { assertLifecycleRejected } from "../evolution/domain-support.ts";
+import { decisionIdForTest } from "../support-record-fixture.ts";
 import {
   assert,
   assertRejectedDiscardPreserves,
   candidateDecisionBody,
   commitWorkspace,
-  currentRelativePath,
   decisionFilePath,
   fileExists,
   fs,
   path,
   runGit,
   runSourceCli,
-  runSuccessfulSourceLifecycleCli,
   test,
-  withFixtureWorkspace,
-  withGitFixtureWorkspace
+  withFixtureWorkspace
 } from "./support.ts";
 
 test("discard rejects candidates with invalid relation targets without mutation", () =>
@@ -61,92 +61,35 @@ test("discard rejects candidates with invalid relation targets without mutation"
     }
   ));
 
-test("discard rejects a candidate that is still referenced without mutation", () =>
-  withFixtureWorkspace(
-    "candidate-discard-referenced",
-    async (workspaceRoot) => {
-      const indexPath = path.join(
-        workspaceRoot,
-        "docs",
-        "decisions",
-        "decision-index.json"
-      );
-      const targetRelativePath = "use-discard-candidate-target";
-      const targetPath = decisionFilePath(workspaceRoot, targetRelativePath);
-      const targetText = candidateDecisionBody();
-      await fs.writeFile(targetPath, targetText, "utf8");
+test("discard rejects a candidate that is still referenced without mutation", async () => {
+  await assertLifecycleRejected(
+    [
+      { id: "target", status: "candidate" },
+      { id: "source", relations: [{ type: "修订", target: "target" }] }
+    ],
+    {
+      action: "discard",
+      decisionId: decisionIdForTest("target"),
+      deleteRecorded: true
+    },
+    /still referenced/
+  );
+});
 
-      const sourceRelativePath = "use-candidate-target-discard-source";
-      const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
-      const sourceText = candidateDecisionBody({
-        relations: [{ type: "修订", target: targetRelativePath }]
-      });
-      await fs.writeFile(sourcePath, sourceText, "utf8");
-      await assertRejectedDiscardPreserves({
-        decisionPath: targetPath,
-        expectedError: /still referenced/,
-        indexPath,
-        relativePath: targetRelativePath,
-        workspaceRoot
-      });
-      assert.equal(await fs.readFile(targetPath, "utf8"), targetText);
-      assert.equal(await fs.readFile(sourcePath, "utf8"), sourceText);
-    }
-  ));
-
-test("discard rejects an established decision that is still referenced without mutation", () =>
-  withFixtureWorkspace(
-    "established-discard-referenced",
-    async (workspaceRoot) => {
-      const indexPath = path.join(
-        workspaceRoot,
-        "docs",
-        "decisions",
-        "decision-index.json"
-      );
-      const successorRelativePath = "use-established-discard-source";
-      const successorPath = decisionFilePath(
-        workspaceRoot,
-        successorRelativePath
-      );
-      await fs.writeFile(
-        successorPath,
-        candidateDecisionBody({
-          relations: [{ type: "修订", target: currentRelativePath }]
-        }),
-        "utf8"
-      );
-      await runSuccessfulSourceLifecycleCli([
-        "publish",
-        successorRelativePath,
-        "--alignment",
-        "aligned",
-        "--root",
-        workspaceRoot
-      ]);
-
-      const archivedTargetPath = decisionFilePath(
-        workspaceRoot,
-        "archive/" + currentRelativePath
-      );
-      const archivedTargetText = await fs.readFile(archivedTargetPath, "utf8");
-      const successorText = await fs.readFile(successorPath, "utf8");
-      const indexText = await fs.readFile(indexPath, "utf8");
-      await assertRejectedDiscardPreserves({
-        decisionPath: archivedTargetPath,
-        expectedError: /still referenced/,
-        indexPath,
-        relativePath: currentRelativePath,
-        workspaceRoot
-      });
-      assert.equal(
-        await fs.readFile(archivedTargetPath, "utf8"),
-        archivedTargetText
-      );
-      assert.equal(await fs.readFile(successorPath, "utf8"), successorText);
-      assert.equal(await fs.readFile(indexPath, "utf8"), indexText);
-    }
-  ));
+test("discard rejects an established decision that is still referenced without mutation", async () => {
+  await assertLifecycleRejected(
+    [
+      { id: "target", status: "archived" },
+      { id: "source", relations: [{ type: "修订", target: "target" }] }
+    ],
+    {
+      action: "discard",
+      decisionId: decisionIdForTest("target"),
+      deleteRecorded: true
+    },
+    /still referenced/
+  );
+});
 
 test("discard fails closed when Git HEAD cannot be read", () =>
   withGitFixtureWorkspace(

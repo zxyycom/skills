@@ -7,9 +7,9 @@ import { loadInvestigationIndex } from "../src/investigation-state-index.ts";
 import {
   investigationRoot,
   reportMarkdown,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("source batch discovers moved and unindexed identities once without turning unrelated layout errors into a scope gate", async () => {
   await withTempRoot("batch-discovery", async (root) => {

@@ -10,4 +10,4 @@ Contract:
 - 有 revision 时，未选择的非法 filesystem 内容不能阻断合法选择，也不能进入 pending；bootstrap 仍不放宽完整扫描。
 
 Proves:
-- 根目录中的非法 basename 保持未暂存，合法已修改 ID 和派生 index 正常进入 pending。
+- 真实来源扫描保留合法选定来源及非法未选路径的局部错误；只验证选定来源时成功，不把未选错误升级为全局失败。

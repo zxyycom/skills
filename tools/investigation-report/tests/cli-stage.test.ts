@@ -5,13 +5,12 @@ import path from "node:path";
 import { test } from "node:test";
 import { renderInvestigationTrace } from "../src/trace-output.ts";
 import { fileURLToPath } from "node:url";
+import { investigationRoot, withTempRoot } from "./fixture-support.ts";
 import {
-  investigationRoot,
   runGeneratedInvestigationCliSmoke,
-  runInvestigationCli,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  runInvestigationCli
+} from "./cli-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("CLI rejects repeated relation query options", async () => {
   await withTempRoot("cli-repeated-relation-query", async (root) => {
@@ -472,6 +471,15 @@ test("generated Investigation Report CLI starts under Node with argv and stdout 
       /Usage: investigation-report publish \[options\] \[investigation-id\.\.\.\]/u
     );
     assert.match(publishHelp.stdout, /--preflight/u);
+
+    const invalid = runGeneratedInvestigationCliSmoke(root, [
+      "stage",
+      "report",
+      "--json"
+    ]);
+    assert.equal(invalid.status, 2);
+    assert.equal(invalid.stdout, "");
+    assert.match(invalid.stderr, /unknown option '--json'/u);
 
     const declaration = await fs.readFile(
       path.resolve(

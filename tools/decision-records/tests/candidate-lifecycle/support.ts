@@ -1,3 +1,4 @@
+import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -18,7 +19,6 @@ import {
   runSuccessfulSourceCli,
   runSuccessfulSourceLifecycleCli,
   withFixtureWorkspace,
-  withGitFixtureWorkspace,
   withTemporaryWorkspace,
   writeDecision,
   writeIndex

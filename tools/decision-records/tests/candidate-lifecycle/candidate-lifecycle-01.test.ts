@@ -11,7 +11,6 @@ import {
   runSuccessfulSourceLifecycleCli,
   test,
   withFixtureWorkspace,
-  withGitFixtureWorkspace,
   withTemporaryWorkspace,
   writeDecision
 } from "./support.ts";
@@ -140,7 +139,7 @@ test("discard rejects invalid candidate lifecycle or body without mutation", () 
   ));
 
 test("discard preflights an invalid established source before touching a candidate", () =>
-  withGitFixtureWorkspace(
+  withFixtureWorkspace(
     "candidate-discard-invalid-established-source",
     async (workspaceRoot) => {
       const candidateId = "use-invalid-established-discard-candidate";

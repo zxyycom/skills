@@ -1,3 +1,5 @@
+import { parseStateIndex } from "../../index-runtime/src/index.ts";
+import { createInvestigationStageIndexDefinition } from "../src/staging-domain-index.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -7,16 +9,15 @@ import { resolveInvestigationStageSelectors } from "../src/staging-selectors.ts"
 import { prepareInvestigationStage } from "../src/staging-options.ts";
 import os from "node:os";
 import { stageInvestigationReports } from "../src/staging.ts";
+import { git, initializeGit } from "./git-support.ts";
 import {
-  git,
   indexRelativePath,
-  initializeGit,
   investigationRoot,
   jsonObjectMember,
   parseJsonObject,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("stage --scope index resolves a unique Investigation name after one Markdown suffix", () => {
   const id = "260828-stage-name";
@@ -42,24 +43,18 @@ test("stage --scope index resolves a unique Investigation name after one Markdow
   );
 });
 
-test("stage --scope index treats a standard Investigation ID as exact", async () => {
-  await withTempRoot("stage-exact-selector", async (root) => {
-    await writeCollection(root, [{ id: "260828-stage-name" }]);
-    initializeGit(root);
-    const result = await stageInvestigationReports({
-      reportIds: ["260829-stage-not-present"],
-      scope: "index",
-      workspaceRoot: root
-    });
-    assert.equal(result.status, "error");
-    assert.ok(
-      result.diagnostics.some(
-        (diagnostic) =>
-          diagnostic.code === "state-index.selected-id-missing" &&
-          diagnostic.stateId === "260829-stage-not-present"
-      )
-    );
+test("stage --scope index treats a standard Investigation ID as exact", () => {
+  const workspace = investigationIndexFixture([{ id: "260828-stage-name" }]);
+  const resolved = resolveInvestigationStageSelectors({
+    baseline: workspace,
+    workspace,
+    selectedIds: ["260829-stage-not-present"]
   });
+  assert.equal(resolved.status, "ok");
+  if (resolved.status !== "ok")
+    assert.fail("exact selector was rejected as a name");
+  assert.deepEqual(resolved.value, ["260829-stage-not-present"]);
+  assert.equal(Object.hasOwn(workspace.entries, resolved.value[0]!), false);
 });
 
 test("stage --scope index rejects an ambiguous Investigation name", () => {
@@ -427,33 +422,19 @@ test("stage --scope index treats unrelated report resources as outside selected 
   });
 });
 
-test("stage --scope index preserves strict current index definition requirements", async () => {
-  await withTempRoot("stage-definition", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    initializeGit(root);
-    const indexPath = `${investigationRoot(root)}/investigation-index.json`;
-    const cachedBefore = git(root, ["diff", "--cached", "--binary"]);
-    const stagedBefore = git(root, ["show", `:${indexRelativePath}`]);
-    const invalidIndex = parseJsonObject(await fs.readFile(indexPath, "utf8"));
-    invalidIndex["definitionVersion"] = 5;
-    const invalidText = `${JSON.stringify(invalidIndex, null, 2)}\n`;
-    await fs.writeFile(indexPath, invalidText, "utf8");
-    const result = await stageInvestigationReports({
-      reportIds: ["report"],
-      scope: "index",
-      workspaceRoot: root
-    });
-    assert.equal(result.status, "error");
-    assert.ok(
-      result.diagnostics.some(
-        (diagnostic) =>
-          diagnostic.code === "state-index.definition-version-mismatch"
-      )
-    );
-    assert.equal(git(root, ["diff", "--cached", "--binary"]), cachedBefore);
-    assert.equal(git(root, ["show", `:${indexRelativePath}`]), stagedBefore);
-    assert.equal(await fs.readFile(indexPath, "utf8"), invalidText);
+test("stage --scope index preserves strict current index definition requirements", () => {
+  const index = investigationIndexFixture([{ id: "report" }]);
+  const result = parseStateIndex({
+    text: JSON.stringify({ ...index, definitionVersion: 5 }),
+    definition: createInvestigationStageIndexDefinition(),
+    sourcePath: "investigation-index.json"
   });
+  assert.equal(result.status, "error");
+  assert.ok(
+    result.diagnostics.some(
+      (item) => item.code === "state-index.definition-version-mismatch"
+    )
+  );
 });
 
 test("stage --scope index reports selection diagnostics deterministically", () => {

@@ -6,11 +6,8 @@ import {} from "../src/diagnostics.ts";
 import { setInvestigationRelations } from "../src/relation-transaction.ts";
 import { parseInvestigationReport } from "../src/markdown.ts";
 import { synchronizeInvestigationIndex } from "../src/validation.ts";
-import {
-  investigationRoot,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+import { investigationRoot, withTempRoot } from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("sync-index preserves post-rename uncertainty when lock cleanup also fails", async () => {
   await withTempRoot("sync-post-rename-release-failure", async (root) => {

@@ -1,3 +1,15 @@
+import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
+import { stageSource, stageTarget } from "./domain-support.ts";
+import {
+  decisionBaselineSourcePaths,
+  readFilesystemDecisionCandidates,
+  resolveFilesystemDecisionSource
+} from "../../src/decision-stage-sources.ts";
+import {
+  decisionStageTargetFailure,
+  buildStageIndexText
+} from "../../src/decision-stage-prepare.ts";
+import { stageDecisionRecords } from "../../src/decision-stage-service.ts";
 import {
   archivedDecisionId,
   archivedSourcePath,
@@ -11,9 +23,7 @@ import {
   initializeGitRepository,
   path,
   runGit,
-  runSourceCli,
   test,
-  withGitFixtureWorkspace,
   withTemporaryWorkspace,
   writeDecision,
   syncDecisionIndexBeforeStage
@@ -44,15 +54,11 @@ test("stage applies selected additions modifications deletions and explicit rena
         .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
     await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await runSourceCli([
-      "stage",
-      currentDecisionId,
-      archivedDecisionId,
-      addedId,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(staged.exitCode, 0, staged.stderr);
+    const staged = await stageDecisionRecords({
+      decisionIds: [currentDecisionId, archivedDecisionId, addedId],
+      location: { workspaceRoot: workspaceRoot, decisionsDir: "docs/decisions" }
+    });
+    assert.equal(staged.status, "ok", JSON.stringify(staged));
     const pending = runGit(workspaceRoot, ["diff", "--cached", "--name-only"]);
     assert.match(pending, new RegExp(currentDecisionId));
     assert.match(pending, new RegExp(archivedDecisionId));
@@ -78,182 +84,107 @@ test("stage bootstraps the first pending decision collection", () =>
         .replace("alignment: null", "alignment: aligned")
         .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
-    const staged = await runSourceCli(["stage", id, "--root", workspaceRoot]);
-    assert.equal(staged.exitCode, 0, staged.stderr);
+    const staged = await stageDecisionRecords({
+      decisionIds: [id],
+      location: { workspaceRoot: workspaceRoot, decisionsDir: "docs/decisions" }
+    });
+    assert.equal(staged.status, "ok", JSON.stringify(staged));
     const pending = runGit(workspaceRoot, ["diff", "--cached", "--name-only"]);
     assert.match(pending, new RegExp(id));
     assert.match(pending, /decision-index\.json/);
   }));
 
-test("stage bootstraps a new Decision when revision contains only the derived index", () =>
-  withTemporaryWorkspace("stage-index-only-baseline", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
-    await fs.mkdir(decisionsDirectory, { recursive: true });
-    await fs.writeFile(
-      path.join(decisionsDirectory, "decision-index.json"),
-      "{}\n",
-      "utf8"
-    );
-    commitWorkspace(workspaceRoot);
+test("stage bootstraps a new Decision when revision contains only the derived index", async () => {
+  assert.deepEqual(
+    decisionBaselineSourcePaths("docs/decisions", [
+      "docs/decisions/decision-index.json"
+    ]),
+    []
+  );
+  const source = stageSource("selected");
+  const target = await stageTarget([], [source], ["selected"]);
+  const projected = await buildStageIndexText(
+    target.sources,
+    "docs/decisions/decision-index.json"
+  );
+  assert.equal(projected.status, "ok");
+  if (projected.status === "ok")
+    assert.ok(JSON.parse(projected.value).entries.selected);
+});
 
-    const decisionId = "use-index-only-baseline";
-    await writeDecision(
-      workspaceRoot,
-      decisionId,
-      candidateDecisionBody({ title: "从仅索引基线建立决策" })
-        .replace("status: candidate", "status: active")
-        .replace("alignment: null", "alignment: aligned")
-        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
-    );
-    await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await runSourceCli([
-      "stage",
-      decisionId,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(staged.exitCode, 0, staged.stderr);
-    const pending = JSON.parse(
-      runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"])
-    );
-    assert.ok(pending.entries[decisionId]);
-    assert.match(
-      runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
-      new RegExp(decisionId)
-    );
-  }));
-
-test("stage rejects invalid duplicate and missing paths without changing the pending snapshot", () =>
-  withGitFixtureWorkspace("stage-invalid-input", async (workspaceRoot) => {
-    const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
-    const indexPath = path.join(
-      workspaceRoot,
-      "docs",
-      "decisions",
-      "decision-index.json"
-    );
-    const sourceBefore = await fs.readFile(sourcePath, "utf8");
-    const indexBefore = await fs.readFile(indexPath, "utf8");
-    for (const { ids, expectedError } of [
-      {
-        expectedError: /must not repeat a Decision selector/,
-        ids: [currentDecisionId, currentDecisionId]
-      },
-      {
-        expectedError:
-          /Selected Decision name does not exist in the revision or filesystem: use-missing-stage/,
-        ids: ["use-missing-stage.md"]
-      },
-      {
-        expectedError:
-          /Decision selector is invalid; must be extensionless kebab-case text/,
-        ids: ["../outside.md"]
+test("stage rejects invalid duplicate and missing paths without changing the pending snapshot", async () => {
+  for (const ids of [
+    [currentDecisionId, currentDecisionId],
+    ["../outside.md"]
+  ]) {
+    const result = await stageDecisionRecords({
+      decisionIds: ids,
+      location: {
+        workspaceRoot: "missing-stage-root",
+        decisionsDir: "docs/decisions"
       }
-    ]) {
-      const result = await runSourceCli([
-        "stage",
-        ...ids,
-        "--root",
-        workspaceRoot
-      ]);
+    });
+    assert.equal(result.status, "error");
+    if (result.status === "error") {
       assert.equal(result.exitCode, 2);
-      assert.match(result.stderr, expectedError);
-    }
-    assert.equal(await fs.readFile(sourcePath, "utf8"), sourceBefore);
-    assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
-    assert.equal(
-      runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
-      ""
-    );
-  }));
-
-test("stage keeps duplicate selected source identities as a domain diagnostic", () =>
-  withGitFixtureWorkspace(
-    "stage-duplicate-source-identity",
-    async (workspaceRoot) => {
-      const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
-      const currentPath = decisionFilePath(workspaceRoot, currentSourcePath);
-      const archivePath = decisionFilePath(
-        workspaceRoot,
-        `archive/${currentDecisionId}`
+      assert.match(
+        JSON.stringify(result.diagnostics),
+        /must not be repeated|extensionless kebab-case/
       );
-      // The duplicate identity appears only after the freshness gate has
-      // read the synchronized sources; a duplicated collection must never
-      // be published as fresh state. The second decisions directory
-      // listing is the stage snapshot's own candidates scan, so
-      // materializing the duplicate before that listing makes the snapshot
-      // construction itself observe it, independent of the filesystem's
-      // entry order between the current source and the archive directory.
-      const descriptor = Object.getOwnPropertyDescriptor(fs, "readdir");
-      assert.ok(descriptor);
-      const readFile = fs.readFile.bind(fs);
-      const readdir = fs.readdir.bind(fs);
-      let listings = 0;
-      let injected = false;
-      Object.defineProperty(fs, "readdir", {
-        ...descriptor,
-        value: async (directory: string, options: { withFileTypes: true }) => {
-          if (
-            path.resolve(directory) === decisionsDirectory &&
-            ++listings === 2
-          ) {
-            injected = true;
-            await fs.mkdir(path.dirname(archivePath), { recursive: true });
-            await fs.writeFile(
-              archivePath,
-              await readFile(currentPath, "utf8"),
-              "utf8"
-            );
-          }
-          return await readdir(directory, options);
-        }
-      });
-      try {
-        const result = await runSourceCli([
-          "stage",
-          currentDecisionId,
-          "--root",
-          workspaceRoot
-        ]);
-
-        assert.equal(result.exitCode, 1);
-        assert.equal(result.stdout, "");
-        assert.match(
-          result.stderr,
-          /code: decision-records\.stage-snapshot-invalid/
-        );
-        assert.match(
-          result.stderr,
-          /Decision ID occurs in more than one filesystem source path/
-        );
-        assert.doesNotMatch(result.stderr, /causeCategory: unknown/);
-      } finally {
-        Object.defineProperty(fs, "readdir", descriptor);
-      }
-      assert.equal(injected, true);
     }
-  ));
+  }
+  await assert.rejects(
+    stageTarget([stageSource("existing")], [], ["missing"]),
+    /Selected Decision name does not exist/
+  );
+});
 
-test("stage rejects invalid candidate relation targets before pending writes", () =>
-  withGitFixtureWorkspace("stage-invalid-candidate", async (workspaceRoot) => {
-    const invalid = "use-invalid-relation";
-    await writeDecision(
-      workspaceRoot,
-      invalid,
-      candidateDecisionBody({
-        relations: [{ type: "修订", target: "use-missing-target" }]
-      })
+test("stage keeps duplicate selected source identities as a domain diagnostic", async () => {
+  await withTemporaryWorkspace("stage-duplicate-source", async (root) => {
+    const source = stageSource("selected");
+    await fs.writeFile(path.join(root, "first.md"), source.source.text);
+    await fs.writeFile(path.join(root, "second.md"), source.source.text);
+    const candidates = await readFilesystemDecisionCandidates(
+      root,
+      "docs/decisions"
     );
-    const result = await runSourceCli([
-      "stage",
-      invalid,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.notEqual(result.exitCode, 0);
-    assert.equal(
-      runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
-      ""
+    let failure;
+    try {
+      resolveFilesystemDecisionSource(candidates, source.source.decisionId);
+      assert.fail("duplicate source must fail");
+    } catch (error) {
+      failure = decisionStageTargetFailure(error);
+    }
+    assert.equal(failure.status, "error");
+    assert.match(JSON.stringify(failure.diagnostics), /stage-snapshot-invalid/);
+    assert.match(
+      JSON.stringify(failure.diagnostics),
+      /more than one filesystem source path/
     );
-  }));
+    assert.doesNotMatch(
+      JSON.stringify(failure.diagnostics),
+      /causeCategory.*unknown/
+    );
+  });
+});
+
+test("stage rejects invalid candidate relation targets before pending writes", async () => {
+  const source = stageSource("existing").source;
+  const invalid = {
+    ...stageSource("invalid").source,
+    text: candidateDecisionBody({
+      id: "invalid",
+      relations: [{ type: "修订", target: "missing-target" }]
+    })
+  };
+  const result = await buildStageIndexText(
+    [source, invalid],
+    "docs/decisions/decision-index.json"
+  );
+  assert.equal(result.status, "error");
+  if (result.status === "error")
+    assert.match(
+      JSON.stringify(result.diagnostics),
+      /target does not exist.*missing-target/
+    );
+});

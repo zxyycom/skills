@@ -10,4 +10,4 @@ Contract:
 - 可见资源发现拒绝不安全的 owner 目录名。
 
 Proves:
-- 不安全 owner 目录产生 warning。
+- 真实资源树中不安全的 ..bad owner 目录产生同时标识该名字与安全原因的 warning。

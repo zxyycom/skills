@@ -1,3 +1,4 @@
+import fs from "node:fs/promises";
 import assert from "node:assert/strict";
 import os from "node:os";
 import path from "node:path";
@@ -5,7 +6,8 @@ import process from "node:process";
 import { test } from "node:test";
 import { runInvestigationReportCheckCli } from "../src/cli.ts";
 import { createInvestigationCliProgram } from "../src/cli-program.ts";
-import { withTempRoot, writeCollection } from "./v6-support.ts";
+import { withTempRoot } from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 type CliExecution = Readonly<{
   status: number;
@@ -30,25 +32,24 @@ async function runCli(
 }
 
 test("investigation CLI accepts global options before and after the command", async () => {
-  await withTempRoot("cli-global-option-positions", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    const before = await runCli(["--root", root, "check"]);
-    assert.equal(before.status, 0, before.stderr);
-    assert.match(before.stdout, /1 reports checked/u);
-
-    const after = await runCli(["check", "--root", root]);
-    assert.equal(after.status, 0, after.stderr);
-    assert.match(after.stdout, /1 reports checked/u);
-
-    const bothSides = await runCli([
-      "--root",
-      root,
-      "check",
-      "--investigations-dir",
-      "docs/investigations"
-    ]);
-    assert.equal(bothSides.status, 0, bothSides.stderr);
-  });
+  const root = path.join(os.tmpdir(), "investigation-option-positions");
+  for (const args of [
+    ["--root", root, "check"],
+    ["check", "--root", root],
+    ["--root", root, "check", "--investigations-dir", "docs/investigations"]
+  ]) {
+    let parsedRoot: string | undefined;
+    const program = createInvestigationCliProgram(
+      async (input) => {
+        parsedRoot = input.values.get("root")?.[0];
+        return 0;
+      },
+      () => {},
+      { cwd: os.tmpdir(), io: { stdout: () => {}, stderr: () => {} } }
+    );
+    await program.parseAsync(["node", "check-investigations.ts", ...args]);
+    assert.equal(parsedRoot, root);
+  }
 });
 
 test("investigation CLI defaults the workspace root to the current directory", async () => {
@@ -250,8 +251,12 @@ test("investigation CLI rejects removed commands and options as plain unknown in
 test("investigation CLI checks a custom relative investigations directory from another directory", async () => {
   await withTempRoot("cli-custom-relative-dir", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
+    await fs.rename(
+      path.join(root, "docs/investigations"),
+      path.join(root, "notes")
+    );
     const result = await runCli(
-      ["check", "--root", root, "--investigations-dir", "docs/investigations"],
+      ["check", "--root", root, "--investigations-dir", "notes"],
       { cwd: os.tmpdir() }
     );
     assert.equal(result.status, 0, result.stderr);

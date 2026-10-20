@@ -6,6 +6,7 @@ import {
   runNodeCli,
   test
 } from "./support.ts";
+import { withFixtureWorkspace } from "../support.ts";
 
 test("decision CLI rejects removed split and positional evolve protocols", async () => {
   for (const args of [
@@ -234,20 +235,18 @@ test("positional Decision IDs are validated at every CLI command boundary", asyn
   }
 });
 
-test("generated Decision Records CLI preserves the Node success and failure protocol", () => {
-  const success = runNodeCli(["--help"]);
-  assert.equal(success.status, 0, success.stderr);
-  assert.match(
-    success.stdout,
-    /Query and maintain agent-oriented decision records/
-  );
-  assert.equal(success.stderr, "");
+test("generated Decision Records CLI preserves the Node success and failure protocol", () =>
+  withFixtureWorkspace("node-cli-protocol", async (workspaceRoot) => {
+    const success = runNodeCli(["check", "--root", workspaceRoot]);
+    assert.equal(success.status, 0, success.stderr);
+    assert.match(success.stdout, /Decision records check passed/);
+    assert.equal(success.stderr, "");
 
-  const failure = runNodeCli(["evolve"]);
-  assert.equal(failure.status, 2);
-  assert.equal(failure.stdout, "");
-  assert.match(failure.stderr, /required option '--successor/);
-});
+    const failure = runNodeCli(["evolve"]);
+    assert.equal(failure.status, 2);
+    assert.equal(failure.stdout, "");
+    assert.match(failure.stderr, /required option '--successor/);
+  }));
 
 test("trace rejects repeated bounded-query options", async () => {
   for (const [option, first, second] of [

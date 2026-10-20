@@ -1,3 +1,4 @@
+import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -13,8 +14,7 @@ import {
   currentSourcePath,
   decisionFilePath,
   runSourceCli,
-  withFixtureWorkspace,
-  withGitFixtureWorkspace
+  withFixtureWorkspace
 } from "../support.ts";
 
 export type UnsafeEntry = "directory" | "symlink";

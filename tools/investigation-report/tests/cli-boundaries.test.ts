@@ -6,10 +6,10 @@ import { runInvestigationReportCheckCli } from "../src/cli.ts";
 import {
   investigationRoot,
   reportMarkdown,
-  runInvestigationCli,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { runInvestigationCli } from "./cli-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("CLI rejects repeated single-value options before any collection access or candidate creation", async () => {
   await withTempRoot("cli-single-options", async (root) => {

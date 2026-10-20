@@ -1,4 +1,12 @@
-import type { CheckFlagEnablement } from "@zxyycom/vibe-check";
+import { any } from "@zxyycom/vibe-check";
+import type {
+  CheckFlagCondition,
+  CheckFlagEnablement
+} from "@zxyycom/vibe-check";
+import {
+  activationFlagForTool,
+  type GateToolSubscription
+} from "./impact-tools.ts";
 
 export const gateTags = ["release"] as const;
 export type GateTag = (typeof gateTags)[number];
@@ -40,7 +48,7 @@ export function gateCheckDeclaration(
   configuration: GateCheckConfiguration,
   resourceClaims: Readonly<Record<string, number>> = {},
   dependsOn: readonly string[] = [],
-  flag?: string
+  condition?: CheckFlagCondition
 ) {
   const dependencies =
     configuration.environmentPrerequisite && checkId !== gateEnvironmentCheckId
@@ -50,7 +58,9 @@ export function gateCheckDeclaration(
         ]
       : dependsOn;
   const enabledByFlags: CheckFlagEnablement | undefined =
-    flag === undefined ? undefined : { when: flag, propagateDependsOn: true };
+    condition === undefined
+      ? undefined
+      : { when: condition, propagateDependsOn: true };
   return {
     ...(dependencies.length === 0 ? {} : { dependsOn: dependencies }),
     ...(enabledByFlags === undefined ? {} : { enabledByFlags }),
@@ -63,9 +73,14 @@ export function gateCheckDeclaration(
   };
 }
 
-export function projectActivationFlag(
-  checkId: string,
+export function projectActivationCondition(
+  toolIds: GateToolSubscription,
   configuration: GateCheckConfiguration
-): string | undefined {
-  return configuration.incremental ? `gate-activation:${checkId}` : undefined;
+): CheckFlagCondition | undefined {
+  return configuration.incremental
+    ? any(
+        activationFlagForTool(toolIds[0]),
+        ...toolIds.slice(1).map(activationFlagForTool)
+      )
+    : undefined;
 }

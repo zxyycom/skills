@@ -1,3 +1,4 @@
+import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
 import {
   assert,
   candidateDecisionBody,
@@ -10,8 +11,7 @@ import {
   runSuccessfulSourceCli,
   test,
   unrecordedIntermediateRelativePath,
-  withFixtureWorkspace,
-  withGitFixtureWorkspace
+  withFixtureWorkspace
 } from "./support.ts";
 
 test("evolve discard flag still pauses for an unrecorded final predecessor", () =>

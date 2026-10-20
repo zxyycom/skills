@@ -1,5 +1,4 @@
 import {
-  archivedDecisionId,
   assert,
   currentRelativePath,
   decisionFilePath,
@@ -89,52 +88,6 @@ async function assertIndexDefinitionAndProjectionValidation({
   );
   await fs.rm(copiedContractPath);
 
-  await fs.writeFile(
-    indexPath,
-    JSON.stringify({ ...originalIndex, unsupported: true }, null, 2) + "\n",
-    "utf8"
-  );
-  const withUnsupportedIndexField = await validateDecisionRecords({
-    workspaceRoot
-  });
-  assert.ok(
-    withUnsupportedIndexField.errors.some((error) =>
-      error.includes(
-        'unsupported Invalid key: Expected never but received "unsupported"'
-      )
-    )
-  );
-
-  await fs.writeFile(
-    indexPath,
-    JSON.stringify({ schemaVersion: 2, records: [] }, null, 2) + "\n",
-    "utf8"
-  );
-  const withUnsupportedSchemaVersion = await validateDecisionRecords({
-    workspaceRoot
-  });
-  assert.ok(
-    withUnsupportedSchemaVersion.errors.some((error) =>
-      error.includes("schema version 2 is unsupported; expected 4")
-    )
-  );
-  const listWithInvalidIndex = await runSourceCli([
-    "list",
-    "--root",
-    workspaceRoot
-  ]);
-  assert.equal(listWithInvalidIndex.exitCode, 1);
-  assert.match(listWithInvalidIndex.stderr, /Decision records command failed/);
-
-  const invalidTimestampIndex = structuredClone(originalIndex);
-  invalidTimestampIndex.entries[firstEntryId]!.createdAt = "2026-07-10";
-  await writeIndex(indexPath, invalidTimestampIndex);
-  assert.ok(
-    (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>
-      error.includes("createdAt must be an RFC 3339 timestamp")
-    )
-  );
-
   const mismatchedPathIndex = {
     ...originalIndex,
     entries: {
@@ -149,70 +102,6 @@ async function assertIndexDefinitionAndProjectionValidation({
   assert.ok(
     (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>
       error.includes("sourcePath")
-    )
-  );
-
-  const invalidRevisionIndex = structuredClone(originalIndex);
-  invalidRevisionIndex.sourceRevision = {
-    ...invalidRevisionIndex.sourceRevision,
-    entries: {
-      ...invalidRevisionIndex.sourceRevision.entries,
-      [firstEntryId]: "not-a-sha256"
-    }
-  };
-  await writeIndex(indexPath, invalidRevisionIndex);
-  assert.ok(
-    (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>
-      error.includes("must be a sha256 decision source fingerprint")
-    )
-  );
-
-  const fractionalTimestampIndex = structuredClone(originalIndex);
-  fractionalTimestampIndex.entries[firstEntryId]!.createdAt =
-    "2026-07-10T09:10:11.123+08:00";
-  await writeIndex(indexPath, fractionalTimestampIndex);
-  assert.ok(
-    (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>
-      error.includes("precise to seconds")
-    )
-  );
-
-  for (const decisionId of [currentRelativePath, archivedDecisionId]) {
-    for (const invalidAlignment of ["missing", "null"] as const) {
-      const invalidAlignmentIndex = structuredClone(originalIndex);
-      const entry = findIndexEntry(invalidAlignmentIndex, decisionId) as {
-        alignment?: unknown;
-      };
-      if (invalidAlignment === "missing") {
-        delete entry.alignment;
-      } else {
-        entry.alignment = null;
-      }
-      await writeIndex(indexPath, invalidAlignmentIndex);
-      assert.ok(
-        (await validateDecisionRecords({ workspaceRoot })).errors.some(
-          (error) => /alignment/i.test(error)
-        ),
-        `${decisionId}/${invalidAlignment}`
-      );
-    }
-  }
-
-  const shortProjectionIndex = structuredClone(originalIndex);
-  shortProjectionIndex.entries[firstEntryId]!.title = "短";
-  await writeIndex(indexPath, shortProjectionIndex);
-  assert.ok(
-    (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>
-      error.includes("actual 1")
-    )
-  );
-
-  const longProjectionIndex = structuredClone(originalIndex);
-  longProjectionIndex.entries[firstEntryId]!.purpose = "长".repeat(101);
-  await writeIndex(indexPath, longProjectionIndex);
-  assert.ok(
-    (await validateDecisionRecords({ workspaceRoot })).errors.some((error) =>
-      error.includes("actual 101")
     )
   );
 }

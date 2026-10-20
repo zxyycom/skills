@@ -10,5 +10,4 @@ Contract:
 - 已建立决策仍被另一个已建立决策直接引用时不能删除；诊断应说明剩余引用，而不是把删除后的悬空 target 表现为普通图扫描错误。
 
 Proves:
-- 对已归档且仍被 active 后继引用的 Decision ID 执行 discard 返回 still referenced 诊断。
-- 被选记录、引用后继和正式索引均保持不变。
+- 纯生命周期准备拒绝仍被 active 后继引用的 archived 目标，返回 still referenced 错误且结果不含 changes。

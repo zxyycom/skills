@@ -140,3 +140,18 @@ export async function publishInitialFixtureReceipts(
     receiptCount: baseGateCheckIds.length
   });
 }
+
+/** Establish a successful input baseline before changing one declared input. */
+export async function prepareChangedFixtureActivation(
+  fixture: ImpactTestFixture,
+  input: string
+): Promise<GateActivationPlan> {
+  await writeImpactFixture(fixture.directory, input, "initial input\n");
+  const baseline = await prepareFixtureActivation(fixture);
+  assert.equal(
+    (await publishFixtureReceipts(fixture, baseline)).published,
+    true
+  );
+  await writeImpactFixture(fixture.directory, input, "changed input\n");
+  return await prepareFixtureActivation(fixture);
+}

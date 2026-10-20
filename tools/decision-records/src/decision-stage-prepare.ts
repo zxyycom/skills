@@ -1,3 +1,4 @@
+import type { DecisionApplicationFailure } from "./application-result.ts";
 import type {
   RevisionId,
   VersionControlFile,
@@ -105,28 +106,34 @@ export async function constructDecisionStageTarget(
   try {
     return { status: "ok", value: await buildDecisionStageTarget(options) };
   } catch (error) {
-    if (error instanceof DecisionStageInputError) {
-      return stageInputFailure([error.message], 2);
-    }
-    if (error instanceof DecisionStageFileSystemError) {
-      return stageFileSystemFailure(
-        "Failed to construct the selected decision snapshot.",
-        error.cause
-      );
-    }
-    if (error instanceof VersionControlError) {
-      return versionControlFailure(
-        "construct the selected decision snapshot",
-        error
-      );
-    }
-    return stageDomainFailure(
-      "decision-records.stage-snapshot-invalid",
-      "The selected decision snapshot is invalid.",
-      "Decision stage source selection",
+    return decisionStageTargetFailure(error);
+  }
+}
+
+export function decisionStageTargetFailure(
+  error: unknown
+): DecisionApplicationFailure {
+  if (error instanceof DecisionStageInputError) {
+    return stageInputFailure([error.message], 2);
+  }
+  if (error instanceof DecisionStageFileSystemError) {
+    return stageFileSystemFailure(
+      "Failed to construct the selected decision snapshot.",
+      error.cause
+    );
+  }
+  if (error instanceof VersionControlError) {
+    return versionControlFailure(
+      "construct the selected decision snapshot",
       error
     );
   }
+  return stageDomainFailure(
+    "decision-records.stage-snapshot-invalid",
+    "The selected decision snapshot is invalid.",
+    "Decision stage source selection",
+    error
+  );
 }
 
 export async function replacePendingDecisionFiles(

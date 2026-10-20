@@ -1,3 +1,5 @@
+import { executeDecisionQuery } from "../../src/decision-query-service.ts";
+import { decisionIdForTest } from "../support-record-fixture.ts";
 import { assertEvolutionRejected } from "./domain-support.ts";
 import {
   archivedRelativePath,
@@ -12,7 +14,6 @@ import {
   readIndex,
   runSourceLifecycleCli,
   test,
-  traceDecision,
   validateDecisionRecords,
   withFixtureWorkspace
 } from "./support.ts";
@@ -149,13 +150,24 @@ test("evolve performs a closed split with independently aligned successors", () 
       }
     ]);
 
-    const traced = await traceDecision(
-      established.coarseRelativePath,
-      ["--direction", "successors", "--depth", "1"],
-      workspaceRoot
+    const traced = await executeDecisionQuery({
+      command: "trace",
+      decisionId: decisionIdForTest(established.coarseRelativePath),
+      direction: "successors",
+      maxDepth: 1,
+      location: { workspaceRoot, decisionsDir: "docs/decisions" }
+    });
+    assert.ok(traced.status === "ok" && traced.command === "trace");
+    assert.ok(
+      traced.traceIds.includes(
+        decisionIdForTest(established.alignedRelativePath)
+      )
     );
-    assert.match(traced, /keep-current-split-slice/);
-    assert.match(traced, /keep-future-split-slice/);
+    assert.ok(
+      traced.traceIds.includes(
+        decisionIdForTest(established.unalignedRelativePath)
+      )
+    );
   }));
 
 test("evolve performs a closed sparse reallocation with independently aligned successors", () =>

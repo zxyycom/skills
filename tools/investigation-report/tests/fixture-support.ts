@@ -1,11 +1,7 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { runInvestigationReportCheckCli } from "../src/cli.ts";
-import { synchronizeInvestigationIndex } from "../src/validation.ts";
 import {
   investigationRelationTypes,
   type InvestigationRelation
@@ -21,17 +17,6 @@ export type ReportFixture = Readonly<{
   tags?: readonly string[];
   title?: string;
 }>;
-
-export type InvestigationCliResult = Readonly<{
-  status: number | null;
-  stderr: string;
-  stdout: string;
-}>;
-
-const generatedCliPath = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../skills/investigation-report/scripts/check-investigations.ts"
-);
 
 export function reportMarkdown(input: ReportFixture): string {
   const relations = [...(input.relations ?? [])].sort((left, right) => {
@@ -91,44 +76,6 @@ export function investigationRoot(workspaceRoot: string): string {
   return path.join(workspaceRoot, "docs", "investigations");
 }
 
-export function runGeneratedInvestigationCliSmoke(
-  workspaceRoot: string,
-  args: readonly string[]
-): InvestigationCliResult {
-  const result = spawnSync(
-    "node",
-    [generatedCliPath, ...args, "--root", workspaceRoot],
-    { encoding: "utf8" }
-  );
-  assert.equal(
-    result.error,
-    undefined,
-    `could not run generated investigation CLI with node: ${result.error?.message ?? "unknown spawn failure"}`
-  );
-  return {
-    status: result.status,
-    stderr: result.stderr ?? "",
-    stdout: result.stdout ?? ""
-  };
-}
-
-export async function runInvestigationCli(
-  workspaceRoot: string,
-  args: readonly string[]
-): Promise<InvestigationCliResult> {
-  const stdout: string[] = [];
-  const stderr: string[] = [];
-  const io = {
-    stderr: (text: string) => stderr.push(text),
-    stdout: (text: string) => stdout.push(text)
-  };
-  const status = await runInvestigationReportCheckCli(
-    [...args, "--root", workspaceRoot],
-    { io }
-  );
-  return { status, stderr: stderr.join(""), stdout: stdout.join("") };
-}
-
 export function parseJsonObject(text: string): Record<string, unknown> {
   const parsed: unknown = JSON.parse(text);
   assert.ok(isJsonObject(parsed), "expected JSON object");
@@ -144,51 +91,12 @@ export function jsonObjectMember(
   return value;
 }
 
-export async function writeCollection(
-  workspaceRoot: string,
-  reports: readonly ReportFixture[],
-  sync = true
-): Promise<void> {
-  const root = investigationRoot(workspaceRoot);
-  await fs.mkdir(root, { recursive: true });
-  for (const report of reports) {
-    await fs.writeFile(
-      path.join(root, report.sourcePath ?? `${report.id}.md`),
-      reportMarkdown(report),
-      "utf8"
-    );
-  }
-  if (sync) {
-    const result = await synchronizeInvestigationIndex({ workspaceRoot });
-    assert.deepEqual(result.errors, []);
-  }
-}
-
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function isJsonObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-/** Absolute path of the derived index inside one test workspace. */
-export const indexRelativePath = "docs/investigations/investigation-index.json";
-
-export function git(root: string, args: readonly string[]): string {
-  return execFileSync("git", ["-C", root, ...args], {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"]
-  });
-}
-
-/** Commits the current workspace tree so tests stage against a fixed baseline. */
-export function initializeGit(root: string): void {
-  git(root, ["init", "--quiet"]);
-  git(root, ["config", "user.email", "test@example.invalid"]);
-  git(root, ["config", "user.name", "Test"]);
-  git(root, ["add", "."]);
-  git(root, ["commit", "--quiet", "-m", "initial"]);
 }
 
 export async function withTempRoot(
@@ -204,3 +112,5 @@ export async function withTempRoot(
     await fs.rm(root, { force: true, recursive: true });
   }
 }
+
+export const indexRelativePath = "docs/investigations/investigation-index.json";

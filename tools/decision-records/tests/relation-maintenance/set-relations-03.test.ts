@@ -1,3 +1,5 @@
+import { assertLifecycleRejected } from "../evolution/domain-support.ts";
+import { decisionIdForTest } from "../support-record-fixture.ts";
 import path from "node:path";
 import {
   assert,
@@ -87,31 +89,25 @@ test("set-relations rejects an invalid later source without writing the valid on
     assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
   }));
 
-test("set-relations rejects a graph-invalid replacement without writing", () =>
-  withFixtureWorkspace("set-relations-graph-reject", async (workspaceRoot) => {
-    await establishMaintenanceDecision(workspaceRoot);
-    const sourcePath = decisionFilePath(workspaceRoot, maintenanceRelativePath);
-    const indexPath = path.join(
-      workspaceRoot,
-      "docs",
-      "decisions",
-      "decision-index.json"
-    );
-    const sourceBefore = await fs.readFile(sourcePath, "utf8");
-    const indexBefore = await fs.readFile(indexPath, "utf8");
-
-    const result = await runSourceLifecycleCli([
-      "set-relations",
-      "--source",
-      maintenanceRelativePath,
-      "--relation",
-      "修订=use-generated-cli",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(result.exitCode, 1);
-    assert.equal(result.stdout, "");
-    assert.match(result.stderr, /target must be archived/u);
-    assert.equal(await fs.readFile(sourcePath, "utf8"), sourceBefore);
-    assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
-  }));
+test("set-relations rejects a graph-invalid replacement without writing", async () => {
+  await assertLifecycleRejected(
+    [
+      { id: "source", status: "active" },
+      { id: "target", status: "active" }
+    ],
+    {
+      action: "set-relations",
+      preflight: false,
+      relationOverrideGroups: [
+        {
+          source: decisionIdForTest("source"),
+          relationOverride: {
+            kind: "replace",
+            relations: [{ target: decisionIdForTest("target"), type: "修订" }]
+          }
+        }
+      ]
+    },
+    /target must be archived/
+  );
+});

@@ -12,9 +12,9 @@ import { synchronizeInvestigationIndex } from "../src/validation.ts";
 import {
   investigationRoot,
   reportMarkdown,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("set-relations rejects source or index drift before publishing", async () => {
   await withTempRoot("drift", async (root) => {

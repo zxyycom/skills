@@ -1,3 +1,4 @@
+import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
 import {
   assert,
   candidateDecisionBody,
@@ -10,8 +11,7 @@ import {
   path,
   runSourceCli,
   test,
-  withFixtureWorkspace,
-  withGitFixtureWorkspace
+  withFixtureWorkspace
 } from "./support.ts";
 
 test("discard accepts a candidate with a valid active-target relation", () =>

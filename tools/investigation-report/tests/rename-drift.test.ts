@@ -1,3 +1,4 @@
+import { git } from "./git-support.ts";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
@@ -9,11 +10,8 @@ import {
   renameInvestigationRecordWithHooks
 } from "../src/rename.ts";
 import { synchronizeInvestigationIndex } from "../src/validation.ts";
-import {
-  investigationRoot,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+import { investigationRoot, withTempRoot } from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("Investigation rename rejects source drift before writing and restores its report and index after index publication failure", async () => {
   await withTempRoot("rename-recovery", async (workspaceRoot) => {
@@ -75,6 +73,12 @@ test("Investigation rename requires its recorded report or candidate confirmatio
   await withTempRoot("rename-recorded", async (workspaceRoot) => {
     await writeCollection(workspaceRoot, [{ id: "legacy" }]);
     initializeGit(workspaceRoot);
+    const reportHeadBefore = git(workspaceRoot, ["rev-parse", "HEAD"]);
+    const reportPendingBefore = git(workspaceRoot, [
+      "diff",
+      "--cached",
+      "--binary"
+    ]);
     const pausedReport = await renameInvestigationRecord({
       source: "legacy",
       target: "migrated",
@@ -89,6 +93,11 @@ test("Investigation rename requires its recorded report or candidate confirmatio
       workspaceRoot
     });
     assert.equal(report.status, "ok", report.errors.join("\n"));
+    assert.equal(git(workspaceRoot, ["rev-parse", "HEAD"]), reportHeadBefore);
+    assert.equal(
+      git(workspaceRoot, ["diff", "--cached", "--binary"]),
+      reportPendingBefore
+    );
     const candidate = await createInvestigationCandidate({
       formedAt: "2026-08-30T12:00:00+00:00",
       id: "candidate",
@@ -100,6 +109,12 @@ test("Investigation rename requires its recorded report or candidate confirmatio
     });
     assert.equal(candidate.status, "ok");
     commitAll(workspaceRoot, "add candidate");
+    const candidateHeadBefore = git(workspaceRoot, ["rev-parse", "HEAD"]);
+    const candidatePendingBefore = git(workspaceRoot, [
+      "diff",
+      "--cached",
+      "--binary"
+    ]);
     const pausedCandidate = await renameInvestigationRecord({
       source: "candidate",
       target: "renamed-candidate",
@@ -120,6 +135,14 @@ test("Investigation rename requires its recorded report or candidate confirmatio
       renamedCandidate.status,
       "ok",
       renamedCandidate.errors.join("\n")
+    );
+    assert.equal(
+      git(workspaceRoot, ["rev-parse", "HEAD"]),
+      candidateHeadBefore
+    );
+    assert.equal(
+      git(workspaceRoot, ["diff", "--cached", "--binary"]),
+      candidatePendingBefore
     );
   });
 });

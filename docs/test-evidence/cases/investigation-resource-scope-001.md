@@ -10,4 +10,4 @@ Contract:
 - scoped resource validation 不声明完成全局未引用资源与索引证明。
 
 Proves:
-- 按 ID 校验时 `indexChecked` 为 false。
+- 按 ID 校验时 indexChecked 为 false，忽略无关 owner 的未引用资源；同一 fixture 的完整校验会报告该资源。

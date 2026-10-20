@@ -1,25 +1,23 @@
-import { expectResourceRejectionBeforeBytes } from "./resource-phase-test-support.ts";
+import { prepareInvestigationResourceRoot } from "../src/resource-root.ts";
+import { inspectDirectInvestigationResource } from "../src/resource-file-validation.ts";
+import {
+  expectResourceRejectionBeforeBytes,
+  readOwnedResourceFixture
+} from "./resource-phase-test-support.ts";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { stageInvestigationReports } from "../src/staging.ts";
-import { runInvestigationReportCheckCli } from "../src/cli.ts";
 import { ResourceDirectoryFacts } from "../src/resource-directory-facts.ts";
-import {
-  git,
-  initializeGit,
-  investigationRoot,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+import { initializeGit } from "./git-support.ts";
+import { investigationRoot, withTempRoot } from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 const resource = "docs/investigations/_resources/one/nested/member.txt";
 async function prepare(root: string): Promise<void> {
   await fs.mkdir(path.dirname(path.join(root, resource)), { recursive: true });
   await fs.writeFile(path.join(root, resource), "same original bytes\n");
-  await writeCollection(root, [{ id: "one" }, { id: "other" }]);
-  initializeGit(root);
 }
 
 for (const component of ["root", "owner", "intermediate", "file"]) {
@@ -103,16 +101,9 @@ for (const activity of ["add", "remove"]) {
         return await lstat(...args);
       }) as typeof fs.lstat;
       try {
-        const result = await stageInvestigationReports({
-          workspaceRoot: root,
-          reportIds: ["one"],
-          scope: "domain"
-        });
+        const bytes = await readOwnedResourceFixture(root, resource);
         assert.equal(changed, true);
-        assert.equal(result.status, "ok");
-        assert.deepEqual(result.status === "ok" ? result.writtenPaths : [], [
-          resource
-        ]);
+        assert.equal(bytes, "selected update\n");
       } finally {
         fs.readdir = original;
         fs.lstat = lstat;
@@ -158,7 +149,6 @@ test("directory facts allow same-phase direct dependency sibling activity while 
       { id: "one", resources: ["other/shared.txt"] },
       { id: "other", resources: ["other/shared.txt"] }
     ]);
-    initializeGit(root);
     const original = fs.readdir;
     let changed = false;
     fs.readdir = (async (...args: Parameters<typeof fs.readdir>) => {
@@ -170,14 +160,19 @@ test("directory facts allow same-phase direct dependency sibling activity while 
       return entries;
     }) as typeof fs.readdir;
     try {
-      const result = await stageInvestigationReports({
-        workspaceRoot: root,
-        reportIds: ["one"],
-        scope: "domain"
+      const prepared = await prepareInvestigationResourceRoot(directory, {
+        mode: "version-control",
+        files: new Set(["other/shared.txt"])
       });
+      assert.equal(prepared.status, "ready");
+      if (prepared.status !== "ready") assert.fail("resource root unavailable");
+      const inspected = await inspectDirectInvestigationResource(
+        prepared,
+        "other/shared.txt"
+      );
+      await prepared.directories.assertCurrent();
       assert.equal(changed, true);
-      assert.equal(result.status, "ok");
-      assert.equal(git(root, ["diff", "--cached", "--name-only"]), "");
+      assert.deepEqual(inspected.errors, []);
     } finally {
       fs.readdir = original;
     }
@@ -211,55 +206,6 @@ test("directory facts enumerate each stable selected directory once per phase wi
       assert.equal(counts.get(owner), 2);
     } finally {
       fs.readdir = original;
-    }
-  });
-});
-
-test("investigation stage second-phase read failure retains private-safe category operation target and recovery", async () => {
-  await withTempRoot("phase-failure-facts", async (root) => {
-    await writeCollection(root, [{ id: "one" }]);
-    initializeGit(root);
-    const source = path.join(investigationRoot(root), "one.md");
-    const before = await fs.readFile(path.join(root, ".git/index"));
-    const original = fs.readFile;
-    let reads = 0,
-      stdout = "",
-      stderr = "";
-    fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
-      if (args[0] === source && ++reads === 2)
-        throw Object.assign(
-          new Error(
-            "denied /private/source token=ghp_123456789012345678901234567890"
-          ),
-          { code: "EACCES" }
-        );
-      return await original(...args);
-    }) as typeof fs.readFile;
-    try {
-      const exit = await runInvestigationReportCheckCli(
-        ["--root", root, "stage", "one", "--scope", "domain"],
-        {
-          io: {
-            stdout: (value) => {
-              stdout += value;
-            },
-            stderr: (value) => {
-              stderr += value;
-            }
-          }
-        }
-      );
-      assert.equal(exit, 1);
-      assert.equal(stdout, "");
-      assert.match(stderr, /state: source-drift/u);
-      assert.match(stderr, /causeCategory: access-denied/u);
-      assert.match(stderr, /operation: read a workspace file/u);
-      assert.match(stderr, /docs\/investigations\/one\.md/u);
-      assert.match(stderr, /restore access required/u);
-      assert.ok(!/private|ghp_|scope: Pending/u.test(stderr));
-      assert.deepEqual(await original(path.join(root, ".git/index")), before);
-    } finally {
-      fs.readFile = original;
     }
   });
 });

@@ -1,17 +1,17 @@
+import { investigationIdFromMarkdown } from "../src/markdown.ts";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { unrecordedPredecessorWarnings } from "../src/validation-history.ts";
 import { loadInvestigationIndex } from "../src/investigation-state-index.ts";
+import { git, initializeGit } from "./git-support.ts";
 import {
-  git,
-  initializeGit,
   investigationRoot,
   reportMarkdown,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 async function warnings(root: string): Promise<string[]> {
   const loaded = await loadInvestigationIndex({
@@ -25,24 +25,14 @@ async function warnings(root: string): Promise<string[]> {
 }
 
 for (const newline of ["lf", "crlf", "cr"]) {
-  test(`history bounded prefixes preserve ${newline} source identities without whole body decoding`, async () => {
-    await withTempRoot("history-prefix-newline", async (root) => {
-      await writeCollection(root, [
-        { id: "base" },
-        { id: "next", relations: [{ type: "补充", target: "base" }] }
-      ]);
-      const source = path.join(investigationRoot(root), "base.md");
-      const original = await fs.readFile(source, "utf8");
-      await fs.writeFile(
-        source,
-        (original + "\n" + "unneeded body bytes\n".repeat(2000)).replaceAll(
-          "\n",
-          newline === "lf" ? "\n" : newline === "crlf" ? "\r\n" : "\r"
-        )
-      );
-      initializeGit(root);
-      assert.deepEqual(await warnings(root), []);
-    });
+  test(`history identity accepts ${newline} first-three-line source prefixes`, () => {
+    const separator =
+      newline === "lf" ? "\n" : newline === "crlf" ? "\r\n" : "\r";
+    const text = (
+      '---\ntitle: "base"\nid: "base"\n' + "unneeded body bytes\n".repeat(2000)
+    ).replaceAll("\n", separator);
+    const prefix = Buffer.from(text).subarray(0, 16384).toString("utf8");
+    assert.equal(investigationIdFromMarkdown(prefix), "base");
   });
 }
 

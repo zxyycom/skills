@@ -3,16 +3,15 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 import { stageInvestigationReports } from "../src/staging.ts";
+import { git, initializeGit } from "./git-support.ts";
 import {
-  git,
   indexRelativePath,
-  initializeGit,
   investigationRoot,
   jsonObjectMember,
   parseJsonObject,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 async function writeResource(
   root: string,

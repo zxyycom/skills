@@ -4,12 +4,8 @@ import path from "node:path";
 import test from "node:test";
 import { createInvestigationCandidate } from "../src/candidate.ts";
 import { renameInvestigationRecord } from "../src/rename.ts";
-import {
-  investigationRoot,
-  runInvestigationCli,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+import { investigationRoot, withTempRoot } from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("Investigation candidate rename has a read-only preflight and retains formedAt date", async () => {
   await withTempRoot("rename-candidate", async (workspaceRoot) => {
@@ -81,38 +77,6 @@ test("Investigation rename rejects target date conflicts without writes", async 
       await fs.readFile(path.join(root, "legacy.md"), "utf8"),
       before
     );
-  });
-});
-
-test("Investigation rename uses dated source IDs exactly and reports ambiguous name selectors", async () => {
-  await withTempRoot("rename-selectors", async (workspaceRoot) => {
-    await writeCollection(workspaceRoot, [
-      { id: "260828-topic" },
-      { formedAt: "2026-08-29T12:00:00+00:00", id: "260829-topic" }
-    ]);
-    const ambiguous = await renameInvestigationRecord({
-      preflight: true,
-      source: "topic",
-      target: "renamed",
-      workspaceRoot
-    });
-    assert.equal(ambiguous.status, "error");
-    assert.match(ambiguous.errors.join("\n"), /source is ambiguous/u);
-    const targetConflict = await renameInvestigationRecord({
-      preflight: true,
-      source: "260828-topic",
-      target: "topic",
-      workspaceRoot
-    });
-    assert.equal(targetConflict.status, "error");
-    assert.match(targetConflict.errors.join("\n"), /name already exists/u);
-    const exact = await runInvestigationCli(workspaceRoot, [
-      "rename",
-      "260828-topic.md",
-      "renamed"
-    ]);
-    assert.equal(exact.status, 0, exact.stderr);
-    assert.match(exact.stdout, /260828-topic -> 260828-renamed/u);
   });
 });
 

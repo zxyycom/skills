@@ -10,4 +10,4 @@ Contract:
 - 候选的关系目标无效时 stage 不得写入 pending。
 
 Proves:
-- 候选引用不存在的稳定 ID 后失败且暂存区为空。
+- 纯 stage index 构造拒绝缺失 relation target 的候选，并返回指明 missing-target 的 error；不调用 pending 写入。

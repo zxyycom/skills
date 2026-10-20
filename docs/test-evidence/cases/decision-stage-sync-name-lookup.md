@@ -1,7 +1,7 @@
 ### Case DECISION-BATCH-NAMES-001: 暂存与选择性同步保留混合名字选择及错误
 
 Tests:
-- `test:4622f2a74d6d9869cb5110bab3fb7050ef38ebc61358a7ff72fe0326826d2ef2`
+- `test:83c440ac88106249ef3e36a24e4422971478b5db842d6e2122fbcddbc17533f4`
 
 Tags:
 - `selector`

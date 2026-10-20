@@ -8,7 +8,8 @@ import {
   normalizeInvestigationSelectorInput,
   parseDatedInvestigationId
 } from "../src/report-path.ts";
-import { withTempRoot, writeCollection } from "./v6-support.ts";
+import { withTempRoot } from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("show and trace resolve reports by investigation id", async () => {
   await withTempRoot("show-trace", async (root) => {

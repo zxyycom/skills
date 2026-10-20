@@ -1,54 +1,43 @@
+import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
+import { stageDecisionRecords } from "../../src/decision-stage-service.ts";
+import { stageSource, stageTarget } from "./domain-support.ts";
+import { decisionBaselineSourcePaths } from "../../src/decision-stage-sources.ts";
 import {
   assert,
   candidateDecisionBody,
   commitWorkspace,
   countGitInvocations,
   createStageScaleFixture,
-  currentDecisionId,
   decisionFilePath,
   fs,
   initializeGitRepository,
-  path,
   process,
   runGit,
-  runSourceCli,
   test,
-  withGitFixtureWorkspace,
   withTemporaryWorkspace,
   writeDecision,
   syncDecisionIndexBeforeStage
 } from "./support.ts";
 
-test("stage does not bind unrelated identical deletion and addition as a rename", () =>
-  withGitFixtureWorkspace(
-    "stage-unrelated-identical",
-    async (workspaceRoot) => {
-      const oldId = "use-old-candidate";
-      const newId = "use-new-candidate";
-      const body = candidateDecisionBody({ title: "相同但无关的候选" });
-      await writeDecision(workspaceRoot, oldId, body);
-      commitWorkspace(workspaceRoot);
-      await fs.rm(decisionFilePath(workspaceRoot, oldId));
-      await writeDecision(workspaceRoot, newId, body);
-      await syncDecisionIndexBeforeStage(workspaceRoot);
-      const staged = await runSourceCli([
-        "stage",
-        oldId,
-        newId,
-        "--root",
-        workspaceRoot
-      ]);
-      assert.equal(staged.exitCode, 0, staged.stderr);
-      const status = runGit(workspaceRoot, [
-        "diff",
-        "--cached",
-        "--name-status",
-        "--no-renames"
-      ]);
-      assert.match(status, new RegExp(`D\\tdocs/decisions/${oldId}`));
-      assert.match(status, new RegExp(`A\\tdocs/decisions/${newId}`));
-    }
-  ));
+test("stage does not bind unrelated identical deletion and addition as a rename", async () => {
+  const old = stageSource("old");
+  const added = stageSource("new");
+  const target = await stageTarget([old], [added], ["old", "new"]);
+  assert.deepEqual(
+    target.selectedSources.map((s) => [
+      s.decisionId,
+      s.source?.source.decisionId ?? null
+    ]),
+    [
+      ["old", null],
+      ["new", "new"]
+    ]
+  );
+  assert.deepEqual(
+    target.sources.map((s) => s.decisionId),
+    ["new"]
+  );
+});
 
 test("stage isolates unselected filesystem changes", () =>
   withGitFixtureWorkspace("stage-isolation", async (workspaceRoot) => {
@@ -61,16 +50,19 @@ test("stage isolates unselected filesystem changes", () =>
       candidateDecisionBody({ title: "未选择的暂存变更" })
     );
     await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await runSourceCli([
-      "stage",
-      selectedId,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(staged.exitCode, 0, staged.stderr);
+    const staged = await stageDecisionRecords({
+      decisionIds: [selectedId],
+      location: { workspaceRoot: workspaceRoot, decisionsDir: "docs/decisions" }
+    });
+    assert.equal(staged.status, "ok", JSON.stringify(staged));
     const pending = runGit(workspaceRoot, ["diff", "--cached", "--name-only"]);
     assert.match(pending, new RegExp(selectedId));
     assert.doesNotMatch(pending, new RegExp(unselectedId));
+    const pendingIndex = JSON.parse(
+      runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"])
+    );
+    assert.ok(pendingIndex.entries["use-generated-cli"]);
+    assert.equal(pendingIndex.entries[unselectedId], undefined);
   }));
 
 test(
@@ -93,18 +85,20 @@ test(
             workspaceRoot,
             decisionCount
           );
-          const synced = await runSourceCli([
-            "sync-index",
-            "--root",
-            workspaceRoot
-          ]);
-          assert.equal(synced.exitCode, 0, synced.stderr);
+          await syncDecisionIndexBeforeStage(workspaceRoot);
           commitWorkspace(workspaceRoot);
 
           const unchanged = await countGitInvocations(async () =>
-            runSourceCli(["stage", decisionIds[0]!, "--root", workspaceRoot])
+            stageDecisionRecords({
+              decisionIds: [decisionIds[0]!],
+              location: { workspaceRoot, decisionsDir: "docs/decisions" }
+            })
           );
-          assert.equal(unchanged.result.exitCode, 0, unchanged.result.stderr);
+          assert.equal(
+            unchanged.result.status,
+            "ok",
+            JSON.stringify(unchanged.result)
+          );
           assert.ok(
             unchanged.callCount <= 20,
             `${decisionCount} unchanged decisions used ${unchanged.callCount} Git invocations`
@@ -128,9 +122,16 @@ test(
           );
           await syncDecisionIndexBeforeStage(workspaceRoot);
           const changed = await countGitInvocations(async () =>
-            runSourceCli(["stage", decisionIds[0]!, "--root", workspaceRoot])
+            stageDecisionRecords({
+              decisionIds: [decisionIds[0]!],
+              location: { workspaceRoot, decisionsDir: "docs/decisions" }
+            })
           );
-          assert.equal(changed.result.exitCode, 0, changed.result.stderr);
+          assert.equal(
+            changed.result.status,
+            "ok",
+            JSON.stringify(changed.result)
+          );
           assert.ok(
             changed.callCount <= 25,
             `${decisionCount} changed decisions used ${changed.callCount} Git invocations`
@@ -169,55 +170,29 @@ test("stage rejects an existing pending decision index", () =>
   withGitFixtureWorkspace("stage-existing-pending", async (workspaceRoot) => {
     const selectedId = "use-existing-pending";
     await writeDecision(workspaceRoot, selectedId, candidateDecisionBody());
-    const first = await runSourceCli([
-      "stage",
-      selectedId,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(first.exitCode, 0, first.stderr);
-    const second = await runSourceCli([
-      "stage",
-      selectedId,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.notEqual(second.exitCode, 0);
-    assert.match(second.stderr, /pending snapshot already contains files/);
-  }));
-
-test("stage rejects an old domain revision before changing pending files", () =>
-  withGitFixtureWorkspace("stage-old-revision", async (workspaceRoot) => {
-    const decisionsRoot = path.join(workspaceRoot, "docs", "decisions");
-    await fs.rm(decisionsRoot, { force: true, recursive: true });
-    await fs.mkdir(`${decisionsRoot}/decision-records`, { recursive: true });
-    await fs.writeFile(
-      `${decisionsRoot}/decision-domains.json`,
-      '{"schemaVersion":1,"domains":[]}',
-      "utf8"
-    );
-    await fs.writeFile(
-      `${decisionsRoot}/decision-records/${currentDecisionId}`,
-      candidateDecisionBody(),
-      "utf8"
-    );
-    commitWorkspace(workspaceRoot);
-
-    await fs.rm(decisionsRoot, { force: true, recursive: true });
-    await writeDecision(
-      workspaceRoot,
-      currentDecisionId,
-      candidateDecisionBody()
-    );
-    const staged = await runSourceCli([
-      "stage",
-      currentDecisionId,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.notEqual(staged.exitCode, 0);
-    assert.equal(
-      runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
-      ""
+    const first = await stageDecisionRecords({
+      decisionIds: [selectedId],
+      location: { workspaceRoot: workspaceRoot, decisionsDir: "docs/decisions" }
+    });
+    assert.equal(first.status, "ok", JSON.stringify(first));
+    const second = await stageDecisionRecords({
+      decisionIds: [selectedId],
+      location: { workspaceRoot: workspaceRoot, decisionsDir: "docs/decisions" }
+    });
+    assert.equal(second.status, "error");
+    assert.match(
+      JSON.stringify(second),
+      /pending snapshot already contains files/
     );
   }));
+
+test("stage rejects an old domain revision before changing pending files", () => {
+  assert.throws(
+    () =>
+      decisionBaselineSourcePaths("docs/decisions", [
+        "docs/decisions/decision-domains.json",
+        "docs/decisions/decision-records/legacy.md"
+      ]),
+    /revision decision scope contains unsupported file: decision-domains.json/
+  );
+});

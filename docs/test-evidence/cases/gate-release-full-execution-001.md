@@ -11,5 +11,5 @@ Contract:
 - release 与 CI 模式不把项目 receipt 计划变成省略选择；release 即使传入 cold 也执行完整 Gate，且不采集或发布项目输入成功证明。
 
 Proves:
-- CI base、普通 full 与 cold full 向 Definition 传入 undefined activeCheckIds，命令 flags 保持 base/release 原意。
+- CI base、普通 full 与 cold full 向 Definition 传入 undefined activeCheckIds，命令 flags 保持 base/release 原意，且不携带 tool-changed flags。
 - release 计划选择完整 64 项、snapshot 为 null，禁止探测 receipt 的 captureCommand 未被调用，发布返回 not-incremental。

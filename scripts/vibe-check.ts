@@ -68,6 +68,7 @@ export type VibeCheckDependencies = Readonly<{
 
 type GateIncrementalSummary = Readonly<{
   counts: GateActivationCounts;
+  activeToolIds: readonly string[];
   decisions: GateActivationPlan["decisions"];
   fallbackDetail: string | null;
   mode: GateActivationPlan["kind"];
@@ -179,7 +180,7 @@ export async function runVibeCheck(
     reportInfo(describeActivationPlan(activationPlan));
   const definitionDependencies: GateDefinitionDependencies = {
     ...(!forceFullExecution && activationPlan?.kind === "incremental"
-      ? { activeCheckIds: activationPlan.activeCheckIds }
+      ? { activeToolIds: activationPlan.activeToolIds }
       : {}),
     ...(invocation.baselineRef === undefined
       ? {}
@@ -268,6 +269,7 @@ export async function runVibeCheck(
     try {
       const summaryPath = await writeIncrementalSummary(invocationDirectory, {
         counts: activationCounts(activationPlan),
+        activeToolIds: activationPlan.activeToolIds,
         decisions: activationPlan.decisions,
         fallbackDetail:
           activationPlan.kind === "fallback"

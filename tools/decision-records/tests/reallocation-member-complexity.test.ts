@@ -1,7 +1,5 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
 import test from "node:test";
-import * as v from "valibot";
 import {
   traceDecisionRelations,
   decisionRelationConsistencyIssues
@@ -10,15 +8,7 @@ import { relationStrategyFor } from "../src/decision-relation-transaction-strate
 import { prepareSuccessors } from "../src/decision-relation-transaction-successors.ts";
 import { createDecisionRecordLookup } from "../src/decision-record-lookup.ts";
 import { isDecisionId } from "../src/decision-path.ts";
-import {
-  generatedCliPath,
-  runSuccessfulSourceCli,
-  withTemporaryWorkspace
-} from "./support.ts";
-import {
-  memoryReallocationRing,
-  writeReallocationRing
-} from "./reallocation-fixture.ts";
+import { memoryReallocationRing } from "./reallocation-fixture.ts";
 
 test("Decision sparse reallocation shares full members once while completing direct traversal", async () => {
   for (const count of [10, 100, 300]) {
@@ -80,53 +70,4 @@ test("Decision sparse reallocation shares full members once while completing dir
     assert.ok(descriptors <= 2 * count, `descriptor=${descriptors}`);
     assert.ok(fullFilters <= 2 * count, `filter inputs=${fullFilters}`);
   }
-});
-
-test("Decision generated Node trace handles a complete sparse event and default atomic budget blockage", async () => {
-  await withTemporaryWorkspace("reallocation-node", async (root) => {
-    const { successorIds } = await writeReallocationRing(root, 100);
-    await runSuccessfulSourceCli(["sync-index", "--root", root]);
-    const traceOutput = v.object({
-      source: v.unknown(),
-      traceIds: v.array(v.string()),
-      contextIds: v.array(v.string()),
-      blockedEvent: v.optional(v.object({ requiredMaxRecords: v.number() })),
-      coverage: v.object({ complete: v.boolean() })
-    });
-    const run = (budget: number) =>
-      v.parse(
-        traceOutput,
-        JSON.parse(
-          execFileSync(
-            "node",
-            [
-              generatedCliPath,
-              "--root",
-              root,
-              "trace",
-              successorIds[0]!,
-              "--json",
-              "--depth",
-              "all",
-              "--max-records",
-              String(budget)
-            ],
-            { encoding: "utf8" }
-          )
-        ) as unknown
-      );
-    const complete = run(200);
-    assert.equal(complete.traceIds.length, 200);
-    assert.deepEqual(complete.contextIds, []);
-    assert.equal(complete.coverage.complete, true);
-    assert.deepEqual(complete.source, {
-      kind: "published-index",
-      currentness: "unchecked",
-      fallback: false
-    });
-    const blocked = run(50);
-    assert.equal(blocked.traceIds.length, 1);
-    assert.equal(blocked.blockedEvent?.requiredMaxRecords, 200);
-    assert.equal(blocked.coverage.complete, false);
-  });
 });

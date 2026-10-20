@@ -4,11 +4,8 @@ import path from "node:path";
 import test from "node:test";
 import { renameInvestigationRecordWithHooks } from "../src/rename.ts";
 import { synchronizeInvestigationIndex } from "../src/validation.ts";
-import {
-  investigationRoot,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+import { investigationRoot, withTempRoot } from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 test("Investigation rename never overwrites an owner target that appears after final validation", async () => {
   await withTempRoot("rename-resource-race", async (workspaceRoot) => {

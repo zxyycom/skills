@@ -10,9 +10,9 @@ import {
   investigationRoot,
   parseJsonObject,
   jsonObjectMember,
-  withTempRoot,
-  writeCollection
-} from "./v6-support.ts";
+  withTempRoot
+} from "./fixture-support.ts";
+import { writeCollection } from "./collection-support.ts";
 
 async function mutateAfterSourceRead<T>(source: string, run: () => Promise<T>) {
   const original = fs.readFile;

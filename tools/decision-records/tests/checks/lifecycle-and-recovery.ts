@@ -7,3 +7,8 @@ await import("../relation-maintenance.test.ts");
 await import("../rename.test.ts");
 await import("../transaction-recovery.test.ts");
 await import("../unrecorded-history.test.ts");
+
+await import("../filesystem-boundaries.test.ts");
+await import("../batch-lookup.test.ts");
+await import("../first-establishment.test.ts");
+await import("../reallocation-member-complexity.test.ts");

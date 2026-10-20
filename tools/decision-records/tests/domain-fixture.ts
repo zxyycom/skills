@@ -3,7 +3,10 @@ import os from "node:os";
 import path from "node:path";
 import { scanSourceFiles } from "../src/scan-records.ts";
 import { validateScannedRelationships } from "../src/scan-relations.ts";
-import { decisionIdForTest, candidateDecisionBody } from "./support.ts";
+import {
+  decisionIdForTest,
+  candidateDecisionBody
+} from "./support-record-fixture.ts";
 import type { DecisionScan } from "../src/types.ts";
 
 export type DecisionSourceFixture = Readonly<{

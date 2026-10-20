@@ -2,15 +2,17 @@ import { commandCheck } from "@zxyycom/vibe-check";
 import {
   externalProcessClaim,
   gateCheckDeclaration,
-  projectActivationFlag,
+  projectActivationCondition,
   type GateCheckConfiguration,
   type GateTag
 } from "../contracts.ts";
 import { gateCommandPolicy, type GateCommand } from "../command-runner.ts";
+import type { GateToolSubscription } from "../impact-tools.ts";
 import type { GatePackageScriptCheckId } from "./package-script.ts";
 
 export type SemanticGateCheck = Readonly<{
   checkId: `test:${string}`;
+  toolIds: GateToolSubscription;
   command: GateCommand;
   dependsOn?: readonly GatePackageScriptCheckId[];
   displayName: string;
@@ -25,6 +27,7 @@ const bunTest = (file: string): GateCommand => ({
 export const semanticGateChecks = [
   {
     checkId: "test:novel-cards:card-and-query-contract",
+    toolIds: ["novel-cards"],
     dependsOn: ["script:check:skill-updaters"],
     displayName: "Novel Cards card integrity and standalone query",
     requiredTag: undefined,
@@ -34,6 +37,7 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:lightweight-judgment:request-and-response",
+    toolIds: ["lightweight-judgment"],
     displayName: "Lightweight Judgment request and response boundary",
     requiredTag: undefined,
     command: bunTest(
@@ -42,6 +46,7 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:lightweight-judgment:public-distribution",
+    toolIds: ["lightweight-judgment"],
     dependsOn: ["script:check:skill-updaters"],
     displayName: "Lightweight Judgment standalone distribution",
     requiredTag: undefined,
@@ -51,6 +56,7 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:change-plan:artifact-and-active-plan-gates",
+    toolIds: ["change-plan"],
     displayName: "Change Plan artifact and active-plan gates",
     requiredTag: undefined,
     command: bunTest(
@@ -59,12 +65,14 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:change-plan:lifecycle-finalize",
+    toolIds: ["change-plan"],
     displayName: "Change Plan lifecycle and finalization",
     requiredTag: undefined,
     command: bunTest("./tools/change-plan/tests/checks/lifecycle-finalize.ts")
   },
   {
     checkId: "test:change-plan:public-distribution",
+    toolIds: ["change-plan"],
     dependsOn: ["script:check:skill-updaters"],
     displayName: "Change Plan public distribution",
     requiredTag: undefined,
@@ -72,6 +80,7 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:decision-records:record-and-established-graph",
+    toolIds: ["decision-record", "relation-graph"],
     displayName: "Decision Records record and established graph",
     requiredTag: undefined,
     command: bunTest(
@@ -80,6 +89,16 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:decision-records:query-and-index-projection",
+    toolIds: [
+      "decision-record",
+      "decision-query",
+      "decision-maintenance",
+      "decision-stage",
+      "decision-cli",
+      "file-text-search",
+      "record-search-output",
+      "relation-graph"
+    ],
     displayName: "Decision Records query and index projection",
     requiredTag: undefined,
     command: bunTest(
@@ -88,6 +107,16 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:decision-records:lifecycle-and-recovery",
+    toolIds: [
+      "decision-record",
+      "decision-query",
+      "decision-maintenance",
+      "decision-stage",
+      "decision-cli",
+      "file-text-search",
+      "record-search-output",
+      "relation-graph"
+    ],
     displayName: "Decision Records lifecycle and recovery",
     requiredTag: undefined,
     command: bunTest(
@@ -96,12 +125,24 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:decision-records:pending-stage",
+    toolIds: ["decision-record", "decision-stage", "relation-graph"],
     displayName: "Decision Records pending stage",
     requiredTag: undefined,
     command: bunTest("./tools/decision-records/tests/stage.test.ts")
   },
   {
     checkId: "test:decision-records:public-distribution",
+    toolIds: [
+      "decision-record",
+      "decision-query",
+      "decision-maintenance",
+      "decision-stage",
+      "decision-cli",
+      "decision-distribution",
+      "file-text-search",
+      "record-search-output",
+      "relation-graph"
+    ],
     dependsOn: ["script:check:skill-updaters"],
     displayName: "Decision Records public distribution",
     requiredTag: undefined,
@@ -111,6 +152,11 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:investigation-report:collection-and-resources",
+    toolIds: [
+      "investigation-record",
+      "investigation-maintenance",
+      "relation-graph"
+    ],
     displayName: "Investigation Report collection and resources",
     requiredTag: undefined,
     command: bunTest(
@@ -119,6 +165,14 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:investigation-report:index-and-query",
+    toolIds: [
+      "investigation-record",
+      "investigation-query",
+      "investigation-maintenance",
+      "investigation-stage",
+      "file-text-search",
+      "relation-graph"
+    ],
     displayName: "Investigation Report index and query",
     requiredTag: undefined,
     command: bunTest(
@@ -127,6 +181,13 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:investigation-report:transactional-maintenance",
+    toolIds: [
+      "investigation-record",
+      "investigation-query",
+      "investigation-maintenance",
+      "file-text-search",
+      "relation-graph"
+    ],
     displayName: "Investigation Report transactional maintenance",
     requiredTag: undefined,
     command: bunTest(
@@ -135,6 +196,14 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:investigation-report:pending-stage",
+    toolIds: [
+      "investigation-record",
+      "investigation-query",
+      "investigation-maintenance",
+      "investigation-stage",
+      "file-text-search",
+      "relation-graph"
+    ],
     displayName: "Investigation Report pending stage",
     requiredTag: undefined,
     command: bunTest(
@@ -143,6 +212,18 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:investigation-report:cli-contract",
+    dependsOn: ["script:check:skill-updaters"],
+    toolIds: [
+      "investigation-record",
+      "investigation-query",
+      "investigation-maintenance",
+      "investigation-stage",
+      "investigation-cli",
+      "investigation-distribution",
+      "file-text-search",
+      "record-search-output",
+      "relation-graph"
+    ],
     displayName: "Investigation Report CLI contract",
     requiredTag: undefined,
     command: bunTest(
@@ -151,24 +232,28 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:task-graph:index-and-projection",
+    toolIds: ["task-graph"],
     displayName: "Task Graph index and projection",
     requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/checks/index-and-projection.ts")
   },
   {
     checkId: "test:task-graph:task-lifecycle",
+    toolIds: ["task-graph"],
     displayName: "Task Graph task lifecycle",
     requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/checks/task-lifecycle.ts")
   },
   {
     checkId: "test:task-graph:runtime-and-store",
+    toolIds: ["task-graph"],
     displayName: "Task Graph runtime and store",
     requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/checks/runtime-and-store.ts")
   },
   {
     checkId: "test:task-graph:native-store",
+    toolIds: ["task-graph"],
     displayName: "Task Graph native store",
     requiredTag: undefined,
     command: {
@@ -178,18 +263,21 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:task-graph:cli-rendering",
+    toolIds: ["task-graph"],
     displayName: "Task Graph CLI rendering",
     requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/checks/cli-rendering.ts")
   },
   {
     checkId: "test:task-graph:pending-stage",
+    toolIds: ["task-graph"],
     displayName: "Task Graph pending stage",
     requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/staging.test.ts")
   },
   {
     checkId: "test:task-graph:public-distribution",
+    toolIds: ["task-graph"],
     dependsOn: ["script:check:skill-updaters"],
     displayName: "Task Graph public distribution",
     requiredTag: undefined,
@@ -197,36 +285,42 @@ export const semanticGateChecks = [
   },
   {
     checkId: "test:task-graph:portable-build",
+    toolIds: ["task-graph"],
     displayName: "Task Graph portable build",
     requiredTag: undefined,
     command: bunTest("./tools/task-graph/tests/portable-build.test.ts")
   },
   {
     checkId: "test:test-evidence:case-runtime",
+    toolIds: ["test-evidence"],
     displayName: "Test Evidence Case runtime",
     requiredTag: undefined,
     command: bunTest("./tools/test-evidence/tests/core.test.ts")
   },
   {
     checkId: "test:test-evidence:public-boundary",
+    toolIds: ["test-evidence"],
     displayName: "Test Evidence public API and CLI boundary",
     requiredTag: undefined,
     command: bunTest("./tools/test-evidence/tests/public-boundary.test.ts")
   },
   {
     checkId: "test:test-evidence:project-snapshot",
+    toolIds: ["test-evidence"],
     displayName: "Test Evidence project snapshot producer",
     requiredTag: undefined,
     command: bunTest("./scripts/test-evidence/snapshot.test.ts")
   },
   {
     checkId: "test:test-evidence:project-reference-check",
+    toolIds: ["test-evidence"],
     displayName: "Test Evidence project reference check",
     requiredTag: undefined,
     command: bunTest("./scripts/test-evidence/check.test.ts")
   },
   {
     checkId: "test:test-evidence:migration",
+    toolIds: ["test-evidence"],
     displayName: "Test Evidence migration",
     requiredTag: undefined,
     command: bunTest("./scripts/test-evidence/migrate.test.ts")
@@ -234,6 +328,7 @@ export const semanticGateChecks = [
   ...(["initializer", "runtime", "public-distribution"] as const).map(
     (name) => ({
       checkId: `test:mcpshell:${name}` as const,
+      toolIds: ["mcpshell"] as const,
       displayName: `MCPShell ${name}`,
       requiredTag: undefined,
       command: bunTest(
@@ -258,7 +353,8 @@ export function createSemanticGateCheck(
       configuration,
       externalProcessClaim,
       check.dependsOn,
-      check.requiredTag ?? projectActivationFlag(check.checkId, configuration)
+      check.requiredTag ??
+        projectActivationCondition(check.toolIds, configuration)
     ),
     ...gateCommandPolicy,
     executable: check.command.command,

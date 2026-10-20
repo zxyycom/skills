@@ -11,5 +11,5 @@ Contract:
 - `set-relations` 的 source 必须是已建立记录；候选关系继续在候选来源中维护。摘要必须命中该组最终关系集合。
 
 Proves:
-- 以候选为 source 的替换以领域失败拒绝且候选字节不变。
-- 摘要 target 不在最终关系集合时以 relation-summary 诊断拒绝且零写入。
+- 纯 selector 与生命周期准备拒绝候选 source，返回只允许 established 记录的领域错误且不含 changes。
+- 摘要 target 未命中最终完整关系集时，返回 relation-summary 错误且不含 changes。

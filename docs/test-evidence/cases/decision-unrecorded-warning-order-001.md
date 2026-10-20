@@ -10,4 +10,4 @@ Contract:
 - `evolve` 对多个尚未进入 Git HEAD 的直接前序暂停时，独立历史确认提示按 Decision ID 稳定排序。
 
 Proves:
-- 候选关系按 `z`、`a` 提供时，stderr 中 `a` 前序的确认提示先于 `z` 前序的确认提示。
+- 纯历史确认投影面对 z、a 顺序的输入时，以 a、z 顺序输出 Decision history 诊断 target，全部 outcome 为 no-change。

@@ -36,3 +36,12 @@ await import("./relation-filter-complexity.test.ts");
 
 await import("./batch-lookup.test.ts");
 await import("./reallocation-member-complexity.test.ts");
+
+await import("./cli-stage-contract.test.ts");
+
+await import("./cli-batch-selection.test.ts");
+await import("./cli-query-parity.test.ts");
+await import("./cli-grouped-evolve.test.ts");
+await import("./cli-reallocation.test.ts");
+
+await import("./index-schema.test.ts");

@@ -1,5 +1,9 @@
+import { decisionScanFromSources } from "../domain-fixture.ts";
+import { prepareDecisionLifecycle } from "../../src/decision-lifecycle-service.ts";
+import { parseDecisionMarkdown } from "../../src/decision-metadata.ts";
+import { assertLifecycleRejected, evolutionRequest } from "./domain-support.ts";
+import { decisionIdForTest } from "../support-record-fixture.ts";
 import {
-  archivedRelativePath,
   assert,
   candidateDecisionBody,
   currentRelativePath,
@@ -8,7 +12,6 @@ import {
   fs,
   path,
   readIndex,
-  runSourceLifecycleCli,
   runSuccessfulSourceLifecycleCli,
   test,
   withFixtureWorkspace
@@ -124,87 +127,58 @@ test("evolve replaces established relations while preserving body and lifecycle 
     assert.match(unchanged, /changes: unchanged/);
   }));
 
-test("evolve keeps an archived established successor archived during relation replacement", () =>
-  withFixtureWorkspace("evolve-archived-successor", async (workspaceRoot) => {
-    const successorRelativePath = "keep-archived-successor-state";
-    await fs.writeFile(
-      decisionFilePath(workspaceRoot, successorRelativePath),
-      candidateDecisionBody(),
-      "utf8"
-    );
-    await runSuccessfulSourceLifecycleCli([
-      "publish",
-      successorRelativePath,
-      "--alignment",
-      "unaligned",
-      "--root",
-      workspaceRoot
-    ]);
-    await runSuccessfulSourceLifecycleCli([
-      "archive",
-      successorRelativePath,
-      "--root",
-      workspaceRoot
-    ]);
-    const indexPath = path.join(
-      workspaceRoot,
-      "docs",
-      "decisions",
-      "decision-index.json"
-    );
-    const before = findIndexEntry(
-      await readIndex(indexPath),
-      successorRelativePath
-    );
-
-    await runSuccessfulSourceLifecycleCli([
-      "evolve",
-      "--successor",
-      "unaligned=" + successorRelativePath,
-      "--relation",
-      "修订=" + archivedRelativePath,
-      "--root",
-      workspaceRoot
-    ]);
-    const after = findIndexEntry(
-      await readIndex(indexPath),
-      successorRelativePath
-    );
-    assert.equal(after.status, "archived");
-    assert.equal(after.alignment, before.alignment);
-    assert.equal(after.createdAt, before.createdAt);
-    assert.deepEqual(after.relations, [
-      {
-        type: "修订",
-        target: archivedRelativePath
+test("evolve keeps an archived established successor archived during relation replacement", async () => {
+  const text = candidateDecisionBody({ id: "successor" })
+    .replace("status: candidate", "status: archived")
+    .replace("alignment: null", "alignment: unaligned")
+    .replace("createdAt: null", "createdAt: 2026-10-01T00:00:00Z");
+  const scan = await decisionScanFromSources([
+    { id: "prior", status: "archived" },
+    { id: "successor", status: "archived", text }
+  ]);
+  assert.deepEqual(scan.sourceErrors, []);
+  const result = prepareDecisionLifecycle(
+    scan,
+    evolutionRequest(["successor"], {
+      successors: [
+        { decisionId: decisionIdForTest("successor"), alignment: "unaligned" }
+      ],
+      relationOverride: {
+        kind: "replace",
+        relations: [{ type: "修订", target: decisionIdForTest("prior") }]
       }
+    }),
+    { historyBaseline: null }
+  );
+  assert.equal(result.status, "ok");
+  if (result.status === "ok") {
+    assert.equal(result.changes.length, 1);
+    const errors: string[] = [];
+    const after = parseDecisionMarkdown({
+      errors,
+      markdown: result.changes[0]!.nextText!,
+      relativePath: "archive/successor.md"
+    });
+    assert.deepEqual(errors, []);
+    assert.equal(after?.metadata.status, "archived");
+    assert.equal(after?.metadata.alignment, "unaligned");
+    assert.equal(after?.metadata.createdAt, "2026-10-01T00:00:00Z");
+    assert.deepEqual(after?.projection.relations, [
+      { type: "修订", target: "prior" }
     ]);
-  }));
+    assert.equal(result.changes[0]!.targetPath, undefined);
+  }
+});
 
-test("evolve rejects established successor alignment mismatches without mutation", () =>
-  withFixtureWorkspace(
-    "evolve-alignment-confirmation",
-    async (workspaceRoot) => {
-      const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
-      const indexPath = path.join(
-        workspaceRoot,
-        "docs",
-        "decisions",
-        "decision-index.json"
-      );
-      const currentBefore = await fs.readFile(currentPath, "utf8");
-      const indexBefore = await fs.readFile(indexPath, "utf8");
-      const rejected = await runSourceLifecycleCli([
-        "evolve",
-        "--successor",
-        "unaligned=" + currentRelativePath,
-        "--clear-relations",
-        "--root",
-        workspaceRoot
-      ]);
-      assert.equal(rejected.exitCode, 1);
-      assert.match(rejected.stderr, /alignment confirmation does not match/);
-      assert.equal(await fs.readFile(currentPath, "utf8"), currentBefore);
-      assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
-    }
-  ));
+test("evolve rejects established successor alignment mismatches without mutation", async () => {
+  await assertLifecycleRejected(
+    [{ id: "formal", status: "active" }],
+    evolutionRequest(["formal"], {
+      successors: [
+        { decisionId: decisionIdForTest("formal"), alignment: "unaligned" }
+      ],
+      relationOverride: { kind: "replace", relations: [] }
+    }),
+    /alignment confirmation does not match/
+  );
+});

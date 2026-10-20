@@ -1,17 +1,21 @@
+import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
+import { stageDecisionRecords } from "../../src/decision-stage-service.ts";
+import { stageSource, stageTarget } from "./domain-support.ts";
+import { normalizeDecisionSelectorInput } from "../../src/decision-path.ts";
+import {
+  readFilesystemDecisionCandidates,
+  resolveFilesystemDecisionSource
+} from "../../src/decision-stage-sources.ts";
 import {
   assert,
-  candidateDecisionBody,
-  commitWorkspace,
   currentDecisionId,
   currentSourcePath,
   decisionFilePath,
   fs,
   path,
   runGit,
-  runSourceCli,
   test,
-  withGitFixtureWorkspace,
-  writeDecision,
+  withTemporaryWorkspace,
   syncDecisionIndexBeforeStage
 } from "./support.ts";
 
@@ -34,13 +38,11 @@ test("stage selects one Decision ID when its sourcePath moves between root and a
     );
 
     await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await runSourceCli([
-      "stage",
-      currentDecisionId,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(staged.exitCode, 0, staged.stderr);
+    const staged = await stageDecisionRecords({
+      decisionIds: [currentDecisionId],
+      location: { workspaceRoot: workspaceRoot, decisionsDir: "docs/decisions" }
+    });
+    assert.equal(staged.status, "ok", JSON.stringify(staged));
     const pendingPaths = runGit(workspaceRoot, [
       "diff",
       "--cached",
@@ -53,202 +55,106 @@ test("stage selects one Decision ID when its sourcePath moves between root and a
       )
     );
     assert.match(pendingPaths, /docs\/decisions\/decision-index\.json/);
-  }));
-
-test("stage treats a selected new ID as an addition and preserves an unselected old ID", () =>
-  withGitFixtureWorkspace("stage-addition", async (workspaceRoot) => {
-    const addedId = "use-added-cli";
-    await writeDecision(
-      workspaceRoot,
-      addedId,
-      candidateDecisionBody({ title: "新增稳定 ID" })
-        .replace("status: candidate", "status: active")
-        .replace("alignment: null", "alignment: aligned")
-        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
-    );
-    await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await runSourceCli([
-      "stage",
-      addedId,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(staged.exitCode, 0, staged.stderr);
-    const pending = JSON.parse(
+    const pendingIndex = JSON.parse(
       runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"])
     );
-    assert.ok(pending.entries[currentDecisionId]);
-    assert.ok(pending.entries[addedId]);
-  }));
-
-test("stage resolves a unique Decision name after one Markdown suffix", () =>
-  withGitFixtureWorkspace("stage-name-selector", async (workspaceRoot) => {
-    await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await runSourceCli([
-      "stage",
-      "use-source-cli.MD",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(staged.exitCode, 0, staged.stderr);
-  }));
-
-test("stage treats a standard Decision ID as exact instead of falling back to a name", () =>
-  withGitFixtureWorkspace("stage-exact-selector", async (workspaceRoot) => {
-    await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await runSourceCli([
-      "stage",
-      "260801-stage-not-present",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(staged.exitCode, 2);
-    assert.match(
-      staged.stderr,
-      /Selected Decision ID does not exist in the revision or filesystem: 260801-stage-not-present/
-    );
-  }));
-
-test("stage reports ambiguous Decision names before writing pending files", () =>
-  withGitFixtureWorkspace("stage-ambiguous-name", async (workspaceRoot) => {
-    const duplicateId = "260711-use-source-cli";
-    await writeDecision(
-      workspaceRoot,
-      duplicateId,
-      candidateDecisionBody({ id: duplicateId, title: "同名候选" })
-    );
-    await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await runSourceCli([
-      "stage",
-      "use-source-cli",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(staged.exitCode, 2);
-    assert.match(staged.stderr, /Selected Decision name is ambiguous/);
     assert.equal(
-      runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
-      ""
+      pendingIndex.entries[currentDecisionId].sourcePath,
+      `archive/${currentDecisionId}.md`
     );
   }));
 
-test("stage resolves a filesystem-only Decision addition by name", () =>
-  withGitFixtureWorkspace("stage-filesystem-name", async (workspaceRoot) => {
-    const addedId = "260801-stage-filesystem-only";
-    await writeDecision(
-      workspaceRoot,
-      addedId,
-      candidateDecisionBody({ id: addedId, title: "工作树名称选择" })
-        .replace("status: candidate", "status: active")
-        .replace("alignment: null", "alignment: aligned")
-        .replace("createdAt: null", "createdAt: 2026-08-01T00:00:00Z")
-    );
-    await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await runSourceCli([
-      "stage",
-      "stage-filesystem-only",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(staged.exitCode, 0, staged.stderr);
-    const pending = JSON.parse(
-      runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"])
-    );
-    assert.ok(pending.entries[addedId]);
-  }));
+test("stage treats a selected new ID as an addition and preserves an unselected old ID", async () => {
+  const old = stageSource("old");
+  const added = stageSource("added");
+  const target = await stageTarget([old], [old, added], ["added"]);
+  assert.deepEqual(
+    target.sources.map((s) => s.decisionId),
+    ["added", "old"]
+  );
+});
 
-test("stage preserves one Decision ID when its semantic sourcePath is renamed", () =>
-  withGitFixtureWorkspace("stage-rename", async (workspaceRoot) => {
-    const renamedId = "use-renamed-cli";
-    const renamedPath = decisionFilePath(workspaceRoot, renamedId);
-    await fs.rename(
-      decisionFilePath(workspaceRoot, currentSourcePath),
-      renamedPath
+test("stage resolves a unique Decision name after one Markdown suffix", async () => {
+  const source = stageSource("260710-use-source-cli");
+  const target = await stageTarget(
+    [source],
+    [source],
+    [normalizeDecisionSelectorInput("use-source-cli.MD")]
+  );
+  assert.deepEqual(target.selectedIds, [source.source.decisionId]);
+});
+
+test("stage treats a standard Decision ID as exact instead of falling back to a name", async () => {
+  const source = stageSource("260710-stage-not-present");
+  await assert.rejects(
+    stageTarget([source], [source], ["260801-stage-not-present"]),
+    /Selected Decision ID does not exist in the revision or filesystem: 260801-stage-not-present/
+  );
+});
+
+test("stage reports ambiguous Decision names before writing pending files", async () => {
+  const first = stageSource("260710-use-source-cli");
+  const second = stageSource("260711-use-source-cli");
+  await assert.rejects(
+    stageTarget([first], [first, second], ["use-source-cli"]),
+    /Selected Decision name is ambiguous.*260710-use-source-cli, 260711-use-source-cli/
+  );
+});
+
+test("stage resolves a filesystem-only Decision addition by name", async () => {
+  const old = stageSource("old");
+  const added = stageSource("260801-stage-filesystem-only");
+  const target = await stageTarget(
+    [old],
+    [old, added],
+    ["stage-filesystem-only"]
+  );
+  assert.deepEqual(target.selectedIds, [added.source.decisionId]);
+  assert.deepEqual(
+    target.sources.map((s) => s.decisionId),
+    [added.source.decisionId, "old"]
+  );
+});
+
+test("stage preserves one Decision ID when its semantic sourcePath is renamed", async () => {
+  const before = stageSource("selected", "before.md");
+  const after = stageSource(
+    "selected",
+    "semantic-current.md",
+    "修改后的语义来源"
+  );
+  const target = await stageTarget([before], [after], ["selected"]);
+  assert.equal(target.sources.length, 1);
+  assert.equal(target.sources[0]?.sourcePath, "semantic-current.md");
+  assert.match(target.sources[0]?.text ?? "", /修改后的语义来源/);
+  assert.deepEqual(
+    target.sourceFiles.map((f) => f.path),
+    ["docs/decisions/semantic-current.md"]
+  );
+});
+
+test("stage ignores an invalid former ID basename after an ID keeps a semantic sourcePath", async () => {
+  await withTemporaryWorkspace("stage-former-basename", async (root) => {
+    const source = stageSource("selected", "semantic-current.md");
+    await fs.writeFile(
+      path.join(root, source.source.sourcePath),
+      source.source.text
     );
     await fs.writeFile(
-      renamedPath,
-      (await fs.readFile(renamedPath, "utf8")).replace(
-        "使用生成 CLI",
-        "重命名后编辑 CLI"
-      ),
-      "utf8"
+      path.join(root, "selected.md"),
+      "invalid former basename"
     );
-    await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await runSourceCli([
-      "stage",
-      currentDecisionId,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(staged.exitCode, 0, staged.stderr);
-    const pending = JSON.parse(
-      runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"])
+    const candidates = await readFilesystemDecisionCandidates(
+      root,
+      "docs/decisions"
     );
-    assert.equal(pending.entries[currentDecisionId].title, "重命名后编辑 CLI");
     assert.equal(
-      pending.entries[currentDecisionId].sourcePath,
-      `${renamedId}.md`
+      resolveFilesystemDecisionSource(
+        candidates,
+        source.source.decisionId,
+        "semantic-current.md"
+      )?.source.text,
+      source.source.text
     );
-  }));
-
-test("stage ignores an invalid former ID basename after an ID keeps a semantic sourcePath", () =>
-  withGitFixtureWorkspace("stage-former-basename", async (workspaceRoot) => {
-    const formerPath = decisionFilePath(workspaceRoot, currentSourcePath);
-    const semanticSourcePath = "semantic-current.md";
-    const semanticPath = decisionFilePath(workspaceRoot, semanticSourcePath);
-    await fs.rename(formerPath, semanticPath);
-    await syncDecisionIndexBeforeStage(workspaceRoot);
-    commitWorkspace(workspaceRoot);
-
-    // The former basename turns invalid and the semantic content moves on
-    // only after the freshness gate has read the synchronized sources; the
-    // gate itself must still see a collection in sync.
-    const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
-    assert.ok(descriptor);
-    const readFile = fs.readFile.bind(fs);
-    let reads = 0;
-    let injected = false;
-    Object.defineProperty(fs, "readFile", {
-      ...descriptor,
-      value: async (
-        filePath: string,
-        encoding: BufferEncoding
-      ): Promise<string> => {
-        if (path.resolve(filePath) === semanticPath && ++reads === 2) {
-          injected = true;
-          await fs.writeFile(formerPath, "not a Decision record\n", "utf8");
-          await fs.writeFile(
-            semanticPath,
-            (await readFile(semanticPath, "utf8")).replace(
-              "使用生成 CLI",
-              "语义路径的选择修改"
-            ),
-            "utf8"
-          );
-        }
-        return await readFile(filePath, encoding);
-      }
-    });
-    try {
-      const staged = await runSourceCli([
-        "stage",
-        currentDecisionId,
-        "--root",
-        workspaceRoot
-      ]);
-      assert.equal(staged.exitCode, 0, staged.stderr);
-    } finally {
-      Object.defineProperty(fs, "readFile", descriptor);
-    }
-    assert.equal(injected, true);
-    const pendingPaths = runGit(workspaceRoot, [
-      "diff",
-      "--cached",
-      "--name-only"
-    ]);
-    assert.match(pendingPaths, /docs\/decisions\/semantic-current\.md/);
-    assert.doesNotMatch(
-      pendingPaths,
-      new RegExp(`docs/decisions/${currentDecisionId}\\.md`)
-    );
-  }));
+  });
+});

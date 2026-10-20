@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-SCOPE-HELP-001: help exposes the stage scope contract
 
 Tests:
-- `test:947fc8e6a4523e7054a59a64ede072a9f343332a9066f64fefc6ae3aa2f5086f`
+- `test:76dc5001a3ee01c9107e05c727291a61c3fa7cae1a30c7048a5eef2dddf84a5c`
 
 Tags:
 - `decision-records`

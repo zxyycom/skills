@@ -1,4 +1,9 @@
-import { spawnSync } from "node:child_process";
+import type {
+  DecisionRelationOverrideGroup,
+  DecisionRelation
+} from "../../src/types.ts";
+import { assertLifecycleRejected, evolutionRequest } from "./domain-support.ts";
+import { decisionIdForTest } from "../support-record-fixture.ts";
 import {
   assert,
   candidateDecisionBody,
@@ -6,7 +11,6 @@ import {
   establishClosedSplit,
   findIndexEntry,
   fs,
-  generatedCliPath,
   readIndex,
   runSourceLifecycleCli,
   runSuccessfulSourceLifecycleCli,
@@ -73,218 +77,135 @@ test("evolve applies one grouped replacement while preserving ungrouped successo
     }
   ));
 
-test("evolve rejects invalid grouped sources and summaries without writing", () =>
-  withFixtureWorkspace(
-    "evolve-grouped-selection-errors",
-    async (workspaceRoot) => {
-      const successor = "grouped-selection-successor";
-      const successorPath = decisionFilePath(workspaceRoot, successor);
-      await fs.writeFile(successorPath, candidateDecisionBody(), "utf8");
-      const indexPath = `${workspaceRoot}/docs/decisions/decision-index.json`;
-      const candidateBefore = await fs.readFile(successorPath, "utf8");
-      const indexBefore = await fs.readFile(indexPath, "utf8");
-      for (const { args, diagnostic } of [
-        {
-          args: [
-            "--source",
-            "use-generated-cli",
-            "--relation",
-            "修订=use-generated-cli"
-          ],
-          diagnostic: /not a selected successor/u
-        },
-        {
-          args: [
-            "--source",
-            successor,
-            "--relation",
-            "修订=use-generated-cli",
-            "--relation-summary",
-            "260710-use-source-cli=未命中摘要"
-          ],
-          diagnostic:
-            /relation-summary target is not in the complete relation set/u
-        },
-        {
-          args: [
-            "--source",
-            successor,
-            "--relation",
-            "修订=260710-use-source-cli",
-            "--relation",
-            "替代=use-source-cli"
-          ],
-          diagnostic: /resolve to the same direct predecessor target/u
-        }
-      ]) {
-        const result = await runSourceLifecycleCli([
-          "evolve",
-          "--successor",
-          "aligned=" + successor,
-          ...args,
-          "--root",
-          workspaceRoot
-        ]);
-        assert.equal(result.exitCode, 1);
-        assert.equal(result.stdout, "");
-        assert.match(result.stderr, diagnostic);
-        assert.equal(await fs.readFile(successorPath, "utf8"), candidateBefore);
-        assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
-      }
-      const datedSuccessor = "260901-grouped-duplicate-source";
-      const datedPath = decisionFilePath(workspaceRoot, datedSuccessor);
-      await fs.writeFile(
-        datedPath,
-        candidateDecisionBody({ id: datedSuccessor }),
-        "utf8"
-      );
-      const datedBefore = await fs.readFile(datedPath, "utf8");
-      const duplicateSource = await runSourceLifecycleCli([
-        "evolve",
-        "--successor",
-        "aligned=" + datedSuccessor,
-        "--source",
-        datedSuccessor,
-        "--relation",
-        "修订=use-generated-cli",
-        "--source",
-        "grouped-duplicate-source",
-        "--relation",
-        "修订=use-generated-cli",
-        "--root",
-        workspaceRoot
-      ]);
-      assert.equal(duplicateSource.exitCode, 1);
-      assert.equal(duplicateSource.stdout, "");
-      assert.match(
-        duplicateSource.stderr,
-        /resolves to the same selected successor more than once/u
-      );
-      assert.equal(await fs.readFile(datedPath, "utf8"), datedBefore);
-    }
-  ));
-
-test("evolve rejects incomplete, mismatched, and impure grouped replacements without writing", () =>
-  withFixtureWorkspace(
-    "evolve-grouped-complete-replacement-errors",
-    async (workspaceRoot) => {
-      const firstSuccessor = "grouped-complete-first";
-      const secondSuccessor = "grouped-complete-second";
-      const firstPath = decisionFilePath(workspaceRoot, firstSuccessor);
-      const secondPath = decisionFilePath(workspaceRoot, secondSuccessor);
-      const indexPath = `${workspaceRoot}/docs/decisions/decision-index.json`;
-      await fs.writeFile(
-        firstPath,
-        candidateDecisionBody({
-          id: firstSuccessor,
-          relations: [{ target: "use-generated-cli", type: "修订" }]
-        }),
-        "utf8"
-      );
-      await fs.writeFile(
-        secondPath,
-        candidateDecisionBody({
-          id: secondSuccessor,
-          relations: [{ target: "260710-use-source-cli", type: "修订" }]
-        }),
-        "utf8"
-      );
-      const firstBefore = await fs.readFile(firstPath, "utf8");
-      const secondBefore = await fs.readFile(secondPath, "utf8");
-      const indexBefore = await fs.readFile(indexPath, "utf8");
-      const selected = [
-        "--successor",
-        "aligned=" + firstSuccessor,
-        "--successor",
-        "unaligned=" + secondSuccessor
-      ];
-      for (const { args, diagnostic } of [
-        {
-          args: [
-            "--source",
-            firstSuccessor,
-            "--relation",
-            "拆分=use-generated-cli"
-          ],
-          diagnostic: /Every successor in a 拆分 transaction/u
-        },
-        {
-          args: [
-            "--source",
-            firstSuccessor,
-            "--relation",
-            "拆分=use-generated-cli",
-            "--source",
-            secondSuccessor,
-            "--relation",
-            "拆分=260710-use-source-cli"
-          ],
-          diagnostic: /must use the same predecessor/u
-        },
-        {
-          args: [
-            "--source",
-            firstSuccessor,
-            "--relation",
-            "拆分=use-generated-cli",
-            "--relation",
-            "修订=260710-use-source-cli",
-            "--source",
-            secondSuccessor,
-            "--relation",
-            "拆分=use-generated-cli"
-          ],
-          diagnostic: /Every successor in a 拆分 transaction/u
-        }
-      ]) {
-        const result = await runSourceLifecycleCli([
-          "evolve",
-          ...selected,
-          ...args,
-          "--root",
-          workspaceRoot
-        ]);
-        assert.equal(result.exitCode, 1);
-        assert.equal(result.stdout, "");
-        assert.match(result.stderr, diagnostic);
-        assert.equal(await fs.readFile(firstPath, "utf8"), firstBefore);
-        assert.equal(await fs.readFile(secondPath, "utf8"), secondBefore);
-        assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
-      }
-    }
-  ));
-
-test("generated Node CLI accepts grouped evolve argv through preflight", () =>
-  withFixtureWorkspace("generated-grouped-evolve", async (workspaceRoot) => {
-    const established = await establishClosedSplit(workspaceRoot);
-    const result = spawnSync(
-      "node",
+test("evolve rejects invalid grouped sources and summaries without writing", async () => {
+  const id = decisionIdForTest;
+  const sources = [
+    { id: "260710-prior", status: "archived" as const },
+    { id: "260901-successor" }
+  ];
+  const cases: [DecisionRelationOverrideGroup[], RegExp][] = [
+    [
       [
-        generatedCliPath,
-        "evolve",
-        "--successor",
-        "aligned=" + established.alignedRelativePath,
-        "--successor",
-        "unaligned=" + established.unalignedRelativePath,
-        "--source",
-        established.alignedRelativePath,
-        "--relation",
-        "拆分=" + established.coarseRelativePath,
-        "--source",
-        established.unalignedRelativePath,
-        "--relation",
-        "拆分=" + established.coarseRelativePath,
-        "--keep-unrecorded-history",
-        "--preflight",
-        "--root",
-        workspaceRoot
+        {
+          source: id("prior"),
+          relationOverride: {
+            kind: "replace" as const,
+            relations: [{ type: "修订" as const, target: id("prior") }]
+          }
+        }
       ],
-      { cwd: workspaceRoot, encoding: "utf8" }
+      /not a selected successor/
+    ],
+    [
+      [
+        {
+          source: id("successor"),
+          relationOverride: {
+            kind: "replace" as const,
+            relations: [{ type: "修订" as const, target: id("prior") }],
+            relationSummaries: [
+              { target: id("260901-successor"), summary: "失配说明" }
+            ]
+          }
+        }
+      ],
+      /relation-summary target is not in the complete relation set/
+    ],
+    [
+      [
+        {
+          source: id("successor"),
+          relationOverride: {
+            kind: "replace" as const,
+            relations: [
+              { type: "修订" as const, target: id("260710-prior") },
+              { type: "替代" as const, target: id("prior") }
+            ]
+          }
+        }
+      ],
+      /resolve to the same direct predecessor target/
+    ],
+    [
+      [
+        {
+          source: id("260901-successor"),
+          relationOverride: { kind: "replace" as const, relations: [] }
+        },
+        {
+          source: id("successor"),
+          relationOverride: { kind: "replace" as const, relations: [] }
+        }
+      ],
+      /same selected successor more than once/
+    ]
+  ];
+  for (const [groups, expected] of cases) {
+    await assertLifecycleRejected(
+      sources,
+      evolutionRequest(["260901-successor"], {
+        relationOverrideGroups: groups
+      }),
+      expected
     );
-    assert.equal(result.status, 0, result.stderr);
-    assert.match(result.stdout, /Relation review \(preflight\):/);
-    assert.equal(result.stderr, "");
-  }));
+  }
+});
+
+test("evolve rejects incomplete, mismatched, and impure grouped replacements without writing", async () => {
+  const id = decisionIdForTest;
+  const sources = [
+    { id: "prior", status: "active" as const },
+    { id: "other", status: "archived" as const },
+    { id: "first", relations: [{ type: "修订", target: "prior" }] },
+    { id: "second", relations: [{ type: "修订", target: "other" }] }
+  ];
+  const cases: [DecisionRelation[], DecisionRelation[] | undefined, RegExp][] =
+    [
+      [
+        [{ type: "拆分" as const, target: id("prior") }],
+        undefined,
+        /Every successor in a 拆分 transaction/
+      ],
+      [
+        [{ type: "拆分" as const, target: id("prior") }],
+        [{ type: "拆分" as const, target: id("other") }],
+        /must use the same predecessor/
+      ],
+      [
+        [
+          { type: "拆分" as const, target: id("prior") },
+          { type: "修订" as const, target: id("other") }
+        ],
+        [{ type: "拆分" as const, target: id("prior") }],
+        /Every successor in a 拆分 transaction/
+      ]
+    ];
+  for (const [first, second, expected] of cases) {
+    await assertLifecycleRejected(
+      sources,
+      evolutionRequest(["first", "second"], {
+        relationOverrideGroups: [
+          {
+            source: id("first"),
+            relationOverride: { kind: "replace", relations: first }
+          },
+          ...(second === undefined
+            ? []
+            : [
+                {
+                  source: id("second"),
+                  relationOverride: {
+                    kind: "replace" as const,
+                    relations: second
+                  }
+                }
+              ])
+        ]
+      }),
+      expected
+    );
+  }
+});
 
 test("grouped evolve rolls back without printing a committed review after publication failure", () =>
   withFixtureWorkspace("grouped-evolve-recovery", async (workspaceRoot) => {
