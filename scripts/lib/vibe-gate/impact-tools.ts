@@ -43,7 +43,7 @@ const decisionRecordInputs = [
 const decisionQueryInputs = [
   "tools/decision-records/src/decision-query*.ts",
   "tools/decision-records/tests/{index-maintenance,list-facets,queries,cli-output-trace,query-snapshot,query-loaded-snapshot,relation-filter-complexity,index-schema,search-info}.test.ts",
-  "tools/decision-records/tests/{queries,index-maintenance}/**",
+  "tools/decision-records/tests/{queries,index-maintenance,lazy-relation-graph}/**",
   "tools/decision-records/tests/checks/query-and-index-projection.ts"
 ];
 const decisionMaintenanceInputs = [
@@ -67,7 +67,7 @@ const decisionCliInputs = [
   "tools/decision-records/tests/checks/public-distribution.ts"
 ];
 const investigationRecordInputs = [
-  "tools/investigation-report/src/{cli-io,collection-mutation-lock,diagnostics,investigation-*,markdown*,options,relation-summary,relation-validation,report*,resource*,timestamp,types,validation*}.ts",
+  "tools/investigation-report/src/{cli-io,collection-mutation-lock,diagnostics,investigation-*,markdown*,options,relation-context,relation-summary,relation-validation,report*,resource*,timestamp,types,validation*}.ts",
   "tools/investigation-report/tests/{fixture-support,collection-support,git-support,run}.ts",
   "tools/investigation-report/tests/{candidate,candidate-timestamp,candidate-read-context,parsing-directory,resources,relations,history-prefix-contract,history-pathspec-batching,batch-source-discovery}.test.ts",
   "tools/investigation-report/tests/checks/collection-and-resources.ts"
@@ -75,7 +75,8 @@ const investigationRecordInputs = [
 const investigationQueryInputs = [
   "tools/investigation-report/src/{index-staleness,list-*,query*,trace-output}.ts",
   "tools/investigation-report/tests/index-fixture.ts",
-  "tools/investigation-report/tests/{index-*,current-index,list-facets,acquisition-contract,identity-membership,candidate-read-failure,snapshot-check-contract,trace-output,search-info}.test.ts",
+  "tools/investigation-report/tests/{index-*,current-index,list-facets,acquisition-contract,identity-membership,candidate-read-failure,snapshot-check-contract,trace-output,search-info,relation-context,relation-order}.test.ts",
+  "tools/investigation-report/tests/relation-context-support.ts",
   "tools/investigation-report/tests/checks/index-and-query.ts"
 ];
 const investigationMaintenanceInputs = [
@@ -129,7 +130,7 @@ export const gateToolInputs = {
   "relation-graph": [...commonGateInputPatterns, "tools/shared/src/graph/**"],
   "relation-graph-tests": [
     ...commonGateInputPatterns,
-    "tools/shared/tests/{relation-*,trace-*}.test.ts"
+    "tools/shared/tests/{relation-*,trace-*,lazy-relation-graph}.test.ts"
   ],
   "file-text-search": [
     ...commonGateInputPatterns,

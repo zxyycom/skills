@@ -5,6 +5,7 @@ import "./vibe-check-semantic-catalog.test.ts";
 import "./vibe-check-cli-arguments.test.ts";
 import "./vibe-check-cli-diagnostics.test.ts";
 import "./vibe-check-cli-incremental.test.ts";
+import "./vibe-check-cli-input-closure.test.ts";
 import "./vibe-check-command-runner.test.ts";
 import "./vibe-check-metrics.test.ts";
 import "./vibe-check-native-blocking.test.ts";

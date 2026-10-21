@@ -10,6 +10,11 @@ import type {
 import { isMainModule } from "../tools/shared/src/node/main-module.ts";
 import { rootDir } from "./lib/project.ts";
 import {
+  gateInputClosureDiagnostic,
+  publicGateDiagnostic,
+  type GateInputClosureDiagnostic
+} from "./lib/vibe-gate/diagnostics.ts";
+import {
   createGateDefinition,
   commandText,
   semanticGateChecks,
@@ -71,6 +76,7 @@ type GateIncrementalSummary = Readonly<{
   activeToolIds: readonly string[];
   decisions: GateActivationPlan["decisions"];
   fallbackDetail: string | null;
+  unclosedInputs: GateInputClosureDiagnostic | null;
   mode: GateActivationPlan["kind"];
   publication: GateReceiptPublication;
 }>;
@@ -113,12 +119,23 @@ function activationCounts(plan: GateActivationPlan): GateActivationCounts {
   return { execute, fallback, firstRun, reuse };
 }
 
-function describeActivationPlan(plan: GateActivationPlan): string {
+function describeActivationPlan(
+  plan: GateActivationPlan,
+  unclosedInputs: GateInputClosureDiagnostic | null
+): string {
   const counts = activationCounts(plan);
   const summary = `Vibe Check plan: ${plan.kind}; execute ${counts.execute}, reuse ${counts.reuse}, fallback ${counts.fallback}, first-run ${counts.firstRun}.`;
-  return plan.kind === "fallback"
-    ? `${summary} Snapshot fallback: ${plan.fallbackDetail}.`
-    : summary;
+  if (plan.kind === "fallback")
+    return `${summary} Snapshot fallback: ${publicGateDiagnostic(plan.fallbackDetail)}.`;
+  if (unclosedInputs === null || unclosedInputs.total === 0) return summary;
+  const entries = unclosedInputs.entries
+    .map((entry) => `${entry.path} (${entry.reason})`)
+    .join("; ");
+  const omitted =
+    unclosedInputs.omittedCount > 0
+      ? `; ${unclosedInputs.omittedCount} more omitted`
+      : "";
+  return `${summary} Inputs unclosed (${unclosedInputs.total}): ${entries}${omitted}.`;
 }
 
 async function writeIncrementalSummary(
@@ -176,8 +193,12 @@ export async function runVibeCheck(
           prepareGateActivation({
             release: forceFullExecution
           }));
+  const unclosedInputs =
+    activationPlan?.kind === "incremental"
+      ? gateInputClosureDiagnostic(activationPlan.snapshot)
+      : null;
   if (activationPlan !== null)
-    reportInfo(describeActivationPlan(activationPlan));
+    reportInfo(describeActivationPlan(activationPlan, unclosedInputs));
   const definitionDependencies: GateDefinitionDependencies = {
     ...(!forceFullExecution && activationPlan?.kind === "incremental"
       ? { activeToolIds: activationPlan.activeToolIds }
@@ -273,10 +294,17 @@ export async function runVibeCheck(
         decisions: activationPlan.decisions,
         fallbackDetail:
           activationPlan.kind === "fallback"
-            ? activationPlan.fallbackDetail
+            ? publicGateDiagnostic(activationPlan.fallbackDetail)
             : null,
+        unclosedInputs,
         mode: activationPlan.kind,
-        publication
+        publication:
+          "detail" in publication
+            ? {
+                ...publication,
+                detail: publicGateDiagnostic(publication.detail)
+              }
+            : publication
       });
       reportInfo(`Vibe Check incremental summary: ${summaryPath}`);
     } catch {
@@ -291,7 +319,7 @@ export async function runVibeCheck(
         );
       } else if ("detail" in publication) {
         reportInfo(
-          `Vibe Check receipts not published (${publication.reason}): ${publication.detail}.`
+          `Vibe Check receipts not published (${publication.reason}): ${publicGateDiagnostic(publication.detail)}.`
         );
       }
     }

@@ -110,6 +110,7 @@ test("CLI publishes incremental activation and receipt summaries", async () => {
         activeToolIds: ["passed-tool"],
         decisions: activationPlan.decisions,
         fallbackDetail: null,
+        unclosedInputs: { entries: [], omittedCount: 0, total: 0 },
         mode: "incremental",
         publication: { published: true, receiptCount: 1 }
       });

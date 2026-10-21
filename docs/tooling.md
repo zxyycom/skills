@@ -164,10 +164,15 @@ Vibe 从 admission 到 settlement 原子持有全部 claims。版本管理测试
 | 产物 | 用途 |
 | --- | --- |
 | `machine/run.json`、`records.ndjson` | Vibe 本次 Run 与逐项事实。 |
-| `machine/gate-incremental.json` | 可复用 Check 的 execute/reuse/fallback/first-run 计数、逐项 reason、fallback detail 与 receipt 发布结果。`tool-triggered` 表示共享 flag 带入，`prerequisite-triggered` 表示成功前置带入，均计 execute。全执行模式的计划不表示未激活 release Check 已运行，实际结果以 Vibe snapshot 为准。 |
+| `machine/gate-incremental.json` | 可复用 Check 的 execute/reuse/fallback/first-run 计数、逐项 reason、`unclosedInputs`、fallback detail 与 receipt 发布结果。`tool-triggered` 表示共享 flag 带入，`prerequisite-triggered` 表示成功前置带入，均计 execute。全执行模式的计划不表示未激活 release Check 已运行，实际结果以 Vibe snapshot 为准。 |
 | `progress.log` | 原生终端 progress 副本。 |
 | `checks/**/process.log` | 各独立命令的完整 stdout/stderr transcript。 |
 | `diagnostics/core.log`、`scheduler.log` | 仅 `--diagnostic-log` 启用并回显。 |
+
+输入证明诊断按以下两种情况恢复；它们只帮助定位，不改变保守执行或拒绝发布部分证明的边界。公开路径与错误摘要先脱敏并归一化空白，再转义残留控制字符，最终每条最多 500 字符：
+
+- 快照可读取但输入未闭合：终端 `Inputs unclosed` 摘要与 machine `unclosedInputs.entries` 给出最多 5 条 `{ path, reason }`，路径为安全处理后的仓库相对路径。`unclosedInputs.total` 是未闭合路径总数，`unclosedInputs.omittedCount` 是未展示条数。`unknown-input` 表示输入域未知，`unowned-domain-input` 表示领域文件尚未归入能力，均需按[真实消费闭包](gate-check-authoring.md#项目输入证明)复核声明；`symlink` 与 `unsupported-file-kind` 需先修正输入身份。输入完整时该对象的计数为零，终端不追加此摘要。
+- 快照读取或工具探测失败：终端 `Snapshot fallback` 与 machine `fallbackDetail` 提供安全摘要。此时没有可投影的输入清单，`unclosedInputs` 为 `null`；全执行模式也不投影该清单。
 
 失败后先按 CLI 给出的命令从项目根独立重跑，再读取对应 transcript；需要全领域回归时使用相应 `test:*` 人工聚合入口。invocation、history 和 cache 都是可丢弃本地状态，当前不自动清理；可删除旧 invocation 或 cache 释放空间，缺少状态只增加下次执行成本。
 

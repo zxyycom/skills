@@ -391,6 +391,7 @@
       "GATE-JSON-SCHEMA-001": "sha256:1562d23cca2650b3dceb86fe937364b7bba56ddc08714ccc67bb7e6fe8908995",
       "GATE-JSON-VALIDATION-001": "sha256:1b495e9457d277c495c6beda633e5d588e2949366f62d44877511ca1824f6118",
       "GATE-LAYOUT-IDENTITIES-001": "sha256:8415e7ef09ce64a423ca2dcb3cfa226a66056a48e7a50847f91525bf81c7fceb",
+      "GATE-LAZY-RELATION-INPUT-OWNERSHIP-001": "sha256:eccd388239ec8ca5a32eed920217c795aa2ebfa1dc9be1229447a0dac47a4202",
       "GATE-MARKDOWN-LINK-001": "sha256:b084953dd2c12fff3217facf7a7485c54c71b84bef6c590c88d1912c2936864e",
       "GATE-MARKDOWN-LINT-001": "sha256:f257beff0a45c1ebcd519cb22a480fd66c6d19062f6c0179a65f1c5231fc8680",
       "GATE-MARKDOWN-NATIVE-FLAGS-001": "sha256:53791e37229e16b150930a7da904d5eca009037c768cbd2a6440dd1ef0287ad3",
@@ -421,8 +422,11 @@
       "GATE-RELEASE-VERSION-FAILURE-001": "sha256:aefc8919acdfdfeb79cea41d51459052ab6f770ea70b18bce1ebce2243b0c6e3",
       "GATE-SCRIPT-ADAPTER-001": "sha256:33ea16ddf3cd3dcf6484bf87e9abe1274a70fa80414078969f61797f7cbe7673",
       "GATE-SECRET-DETECTION-001": "sha256:442f0f33b7fbea4c28e0e4a5150d68da10a79c50022d40e019215628885d385b",
+      "GATE-SNAPSHOT-FALLBACK-DIAGNOSTIC-SAFETY-001": "sha256:be494c2e1e9b950189cdaf0300b5ad72d184a54080f8dfeab6df8bda52a33530",
       "GATE-TOOL-CAPABILITY-ROUTING-001": "sha256:a0adbd41beb2c35b55876d52011350bce534b5741feb4ee3267c0a9e04b797b9",
       "GATE-TOOL-PROOF-COMPONENTS-001": "sha256:53925e8fe320813946b9d83f166b913e92821f9ddd0460537d171a6799e6488e",
+      "GATE-UNCLOSED-INPUT-DIAGNOSTIC-SAFETY-001": "sha256:27fae9916dc1c51e7820a2712e047759cb9e7e1d914ad8915cc49d2348e08bf9",
+      "GATE-UNCLOSED-INPUT-DIAGNOSTICS-001": "sha256:38fbd3789ff27e5adab35f557b925a186f8ff4eed5c7fa56c4d542eb59a7b46c",
       "GATE-VALIDATION-INPUTS-001": "sha256:0aff9c51612f911548079ffc2d5759e5b5d9bf45c68031a81f74e4d8fbb5c511",
       "GENERATED-FILE-DECLARATION-001": "sha256:288495f474d1b91ca347075f9a93ce6ea910f9c84023ae9eb14bc0d4ebd0aa7f",
       "GENERATED-FILE-DECLARATION-CLEANUP-001": "sha256:26db2c3794331343d29730841c5ec2022567e394719a8d502049e517df15b43e",
@@ -5163,6 +5167,16 @@
         "test:6cb99e3c6561f8d297608b07d030acc6d9fd93d57f33b8cfe0230712f1695325"
       ]
     },
+    "GATE-LAZY-RELATION-INPUT-OWNERSHIP-001": {
+      "title": "延迟关系输入沿实际消费者进入既有能力闭包",
+      "sourcePath": "cases/gate-lazy-relation-input-ownership.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:b13f67230283c33eb5ed71939e5087bce7d5052ef207090f9fe18cdb9b43f2d6"
+      ]
+    },
     "GATE-MARKDOWN-LINK-001": {
       "title": "Markdown 链接校验阻断 finding 并对 unavailable fail closed",
       "sourcePath": "cases/gate-markdown-link-001.md",
@@ -5466,6 +5480,16 @@
         "test:6cd2e722e98f97de6feffd132bb929ac2df2588f698eaeab00eff7d15886ebed"
       ]
     },
+    "GATE-SNAPSHOT-FALLBACK-DIAGNOSTIC-SAFETY-001": {
+      "title": "采集失败上下文与未闭合路径分开且安全公开",
+      "sourcePath": "cases/gate-snapshot-fallback-diagnostic-safety.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:06766f8b5d918e2859c0f09b1c2e13eb573bb785f9167569895680f4a7fb1616"
+      ]
+    },
     "GATE-TOOL-CAPABILITY-ROUTING-001": {
       "title": "领域输入只激活明确工具订阅者并拒绝孤儿输入",
       "sourcePath": "cases/gate-tool-capability-routing-001.md",
@@ -5486,6 +5510,26 @@
       "testIds": [
         "test:451166b8fdc7af3f26103c4d06d7db8cc4d841825b3720f8834bf76c2f0d6d92",
         "test:d5fc4f368eebc344916b27b8e613766caf11dc4f09baecaabe58a6a75f1edbb8"
+      ]
+    },
+    "GATE-UNCLOSED-INPUT-DIAGNOSTIC-SAFETY-001": {
+      "title": "未闭合路径诊断保持安全有界并如实计数",
+      "sourcePath": "cases/gate-unclosed-input-diagnostic-safety.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:917e1d64162c6d5e852f5cb5d5084a7fe1ac54ff9afdb0bfd6953b940b55250d"
+      ]
+    },
+    "GATE-UNCLOSED-INPUT-DIAGNOSTICS-001": {
+      "title": "CLI 定位未闭合输入但不改变执行与证明语义",
+      "sourcePath": "cases/gate-unclosed-input-diagnostics.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:c29f4b34cdf30b5f22085aecfaf688556ad6e23d471b35f08b49963924173dce"
       ]
     },
     "GATE-VALIDATION-INPUTS-001": {
