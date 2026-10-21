@@ -69,7 +69,7 @@ const decisionCliInputs = [
 const investigationRecordInputs = [
   "tools/investigation-report/src/{cli-io,collection-mutation-lock,diagnostics,investigation-*,markdown*,options,relation-summary,relation-validation,report*,resource*,timestamp,types,validation*}.ts",
   "tools/investigation-report/tests/{fixture-support,collection-support,git-support,run}.ts",
-  "tools/investigation-report/tests/{candidate,candidate-timestamp,parsing-directory,resources,relations,history-prefix-contract,batch-source-discovery}.test.ts",
+  "tools/investigation-report/tests/{candidate,candidate-timestamp,parsing-directory,resources,relations,history-prefix-contract,history-pathspec-batching,batch-source-discovery}.test.ts",
   "tools/investigation-report/tests/checks/collection-and-resources.ts"
 ];
 const investigationQueryInputs = [

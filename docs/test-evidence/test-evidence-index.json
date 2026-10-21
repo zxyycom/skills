@@ -567,6 +567,7 @@
       "INVESTIGATION-EMPTY-COLLECTION-001": "sha256:bdfd865156bf9e003ceb784afed6d176c39753466d4c31ea936ea3c611c067e1",
       "INVESTIGATION-EMPTY-INDEX-SYNC-001": "sha256:77dfdbc15a1e5bb0b4f27766294049cb9b0343cce1f5d2a37b5bc0385dffdc4d",
       "INVESTIGATION-GENERATED-METADATA-002": "sha256:db2e0998912922aa904c1b076fef7638b7d63925fceb473799cfad8f96180790",
+      "INVESTIGATION-HISTORY-PATH-QUERY-BATCHING-001": "sha256:b2c77bd1088d9ae85ca8acdc63a106c66bee031285c7a794f5ebda9f66ff258a",
       "INVESTIGATION-HISTORY-PAYLOAD-INTEGRITY-001": "sha256:c46dab456129d4760a5541216d4cbf245b49df90d3b8f1455af2db4263bc840f",
       "INVESTIGATION-HISTORY-PREFIX-PRESENCE-001": "sha256:54206e966534b7656cc5b42670c7cbbd07b3b6a526fc819360ec0b624c5dc068",
       "INVESTIGATION-INDEX-COMPATIBILITY-001": "sha256:b3078104f748d4b1ce02e069728883cb0dd2031c9b505d3a75537f16c8bf56c5",
@@ -1131,6 +1132,12 @@
       "VERSION-CONTROL-GIT-FIXTURE-001": "sha256:2dc2a7c3342be7a5d18dcad6771fe5c1ff82283a2142a2c39e4adfe6278f4bfe",
       "VERSION-CONTROL-HEAD-001": "sha256:376d6072d65b12f922dae19c11e5e41211b7b1742c78ca9fedd56c87e491f64f",
       "VERSION-CONTROL-NUMSTAT-001": "sha256:bbf392dddc7c2d712b9b6cdf27586e78ee6a30dec8c876c21566d4a27f47d769",
+      "VERSION-CONTROL-PATH-QUERY-BUDGET-001": "sha256:8e979d7beaefb9d55ed530f2e1402b325504cbf79f669ab7b34dee1d85135cd9",
+      "VERSION-CONTROL-PATH-QUERY-DUPLICATE-001": "sha256:4e4c2e1007e3ba727f9456333f4c1627cde701c18887dfb42b045b7b3a6c2811",
+      "VERSION-CONTROL-PATH-QUERY-FAILURE-001": "sha256:d22407dcc541aa83015bf6f6a34b2678e63c2ec52415058b5e28a32109524e51",
+      "VERSION-CONTROL-PATH-QUERY-OVERSIZED-001": "sha256:1db221a6ef518bedf28c3d38e08220dc59fbd2bd5fe2491438c4e3fea35a84f6",
+      "VERSION-CONTROL-PATH-QUERY-SMALL-001": "sha256:161a3f50514ed179a05bace214839c11d1cb608f072545ddb190d5bd60ec718b",
+      "VERSION-CONTROL-PATH-QUERY-UNION-001": "sha256:d396859956f8c5d8a7271e333213f8509eb0c7528c8007c0299263432bf24b12",
       "VERSION-CONTROL-PENDING-CONFLICT-001": "sha256:b3c2a1da1e55e3d727bf7028e8784113396787ad6c7c1d2e7c6dbf171de7c002",
       "VERSION-CONTROL-PENDING-EXPECTATION-001": "sha256:761c7e8ae4840ff586eb1f1a81242367df1f78378c536a8272800522a08bdc79",
       "VERSION-CONTROL-PENDING-EXPECTATION-CONCURRENCY-001": "sha256:7430b30a1f61a07c920fba873e762ff7964ac55927f6e290e48fe2cf96421a8c",
@@ -6900,6 +6907,17 @@
         "test:04e0f7ce3749df06dd77c19fc8c546a790d25040c6cc33ca355ddbbc7d5a96d1"
       ]
     },
+    "INVESTIGATION-HISTORY-PATH-QUERY-BATCHING-001": {
+      "title": "前序历史核对支持大批 HEAD 来源",
+      "sourcePath": "cases/investigation-history-path-query-batching.md",
+      "tags": [
+        "investigation-report",
+        "version-control"
+      ],
+      "testIds": [
+        "test:94198fc118df8a82954bbbc2a636aff9e950a340aedc1737ec5449a2d5ce2046"
+      ]
+    },
     "INVESTIGATION-HISTORY-PAYLOAD-INTEGRITY-001": {
       "title": "有限历史保留不绕过全payload失败",
       "sourcePath": "cases/investigation-history-payload-integrity.md",
@@ -12631,6 +12649,69 @@
       ],
       "testIds": [
         "test:4643ff21735127ccc94d9cf09023c366ca0d7a5eacded95b172776e1673cc4c9"
+      ]
+    },
+    "VERSION-CONTROL-PATH-QUERY-BUDGET-001": {
+      "title": "Git 参数预算计入编码与固定开销",
+      "sourcePath": "cases/version-control-path-query-budget.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:3a14d8a02cb83c0469c5b80df9fdf906cccdb31b4a746221178b25d22e44a93b"
+      ]
+    },
+    "VERSION-CONTROL-PATH-QUERY-DUPLICATE-001": {
+      "title": "跨批合并保留批内重复",
+      "sourcePath": "cases/version-control-path-query-duplicate.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:d832b08605780c7a1c8ff6d0c5a8aacff775d9e008a4515b92081bfe339515e4"
+      ]
+    },
+    "VERSION-CONTROL-PATH-QUERY-FAILURE-001": {
+      "title": "任一 Git 批次失败拒绝整体结果",
+      "sourcePath": "cases/version-control-path-query-failure.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:2375f7a98f1b249dcd7dffaaef1f6ea47173b20aee7f62c14772c6c04d78317f"
+      ]
+    },
+    "VERSION-CONTROL-PATH-QUERY-OVERSIZED-001": {
+      "title": "不可分割的 Git 参数超限明确失败",
+      "sourcePath": "cases/version-control-path-query-oversized.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:7707ca24b0d799a5d5badc0a67c3902a3829e7d60123bc580b4aa71ea384eb20",
+        "test:c300aa13cac151767794086d7e087dc33fd316574b1bc016e2e007f94fb01051"
+      ]
+    },
+    "VERSION-CONTROL-PATH-QUERY-SMALL-001": {
+      "title": "短输入与空范围保持单批计划",
+      "sourcePath": "cases/version-control-path-query-small.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:66fd97c55f92832641f5edbde9f2cfa249a2cfc54ffd9a7f93ecd3d88f9da416"
+      ]
+    },
+    "VERSION-CONTROL-PATH-QUERY-UNION-001": {
+      "title": "Git 分批查询保留字面范围并集",
+      "sourcePath": "cases/version-control-path-query-union.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:821f5ce9b83640aed63a9de211e82861fa056a46c733399ab061568086bf2009",
+        "test:8bc84d5ecb6754f95962a8acc395dd7d0ae1ed12418da30b28c7ae18da53c465",
+        "test:e955ccbe0b92e49c8472ca27501d4b145e3f044f81c75e307d352c2e1059dd8c"
       ]
     },
     "VERSION-CONTROL-PENDING-CONFLICT-001": {

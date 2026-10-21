@@ -5,6 +5,7 @@ import {
   parseNullSeparatedPaths
 } from "./git-core.ts";
 import type { GitRepositoryContext } from "./git-context.ts";
+import { queryGitPathspecs } from "./git-pathspec-query.ts";
 import { getCurrentRevision, resolveRevision } from "./git-revision.ts";
 import { normalizeRepositoryPaths } from "./repository-path.ts";
 import type {
@@ -17,18 +18,14 @@ export async function listWorkspaceFiles(
   context: GitRepositoryContext,
   options: ListVersionControlFilesOptions = {}
 ): Promise<string[]> {
-  const scopes = pathspecs(options.pathScopes);
+  const scopes = normalizePathScopes(options.pathScopes ?? []);
   try {
     return parseNullSeparatedPaths(
-      await context.git.raw([
-        "ls-files",
-        "--cached",
-        "--others",
-        "--exclude-standard",
-        "-z",
-        "--",
-        ...scopes
-      ])
+      await queryGitPathspecs(
+        context,
+        ["ls-files", "--cached", "--others", "--exclude-standard", "-z", "--"],
+        scopes
+      )
     );
   } catch (error) {
     throw operationError(
@@ -96,19 +93,14 @@ export async function listPendingChangedPaths(
   options: ListPendingChangedPathsOptions
 ): Promise<string[]> {
   const from = await resolveRevision(context, options.from);
-  const scopes = pathspecs(options.pathScopes);
+  const scopes = normalizePathScopes(options.pathScopes ?? []);
   try {
     return parseNullSeparatedPaths(
-      await context.git.raw([
-        "diff",
-        "--cached",
-        "--name-only",
-        "--no-renames",
-        "-z",
-        from,
-        "--",
-        ...scopes
-      ])
+      await queryGitPathspecs(
+        context,
+        ["diff", "--cached", "--name-only", "--no-renames", "-z", from, "--"],
+        scopes
+      )
     );
   } catch (cause) {
     if (cause instanceof VersionControlError) throw cause;
@@ -118,8 +110,4 @@ export async function listPendingChangedPaths(
       { causeCategory: "command-failed" }
     );
   }
-}
-
-function pathspecs(scopes: readonly string[] | undefined): string[] {
-  return normalizePathScopes(scopes ?? []).map((scope) => `:(literal)${scope}`);
 }

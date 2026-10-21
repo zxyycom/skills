@@ -11,10 +11,7 @@ import { sameBytes } from "../node/bytes.ts";
 import fs from "node:fs/promises";
 import { VersionControlError } from "./errors.ts";
 import { readGitBlobs } from "./git-blob-batch.ts";
-import {
-  runGitForExitCode,
-  runGitWithInputForExitCode
-} from "./git-command.ts";
+import { runGitWithInputForExitCode } from "./git-command.ts";
 import {
   fileKindForGitMode,
   gitBlobModes,
@@ -26,6 +23,7 @@ import {
   parseObjectId
 } from "./git-core.ts";
 import type { GitRepositoryContext } from "./git-context.ts";
+import { queryGitPathspecs } from "./git-pathspec-query.ts";
 import { normalizeRepositoryPaths } from "./repository-path.ts";
 import type {
   ListVersionControlFilesOptions,
@@ -43,10 +41,7 @@ export async function readPendingFiles(
 ): Promise<VersionControlFile[]> {
   return await readPendingEntries(
     context,
-    await listPendingEntries(
-      context,
-      normalizePathScopes(options.pathScopes ?? [])
-    )
+    await listPendingEntries(context, options.pathScopes ?? [])
   );
 }
 
@@ -55,22 +50,18 @@ export async function listPendingEntries(
   pathScopes: readonly string[],
   pendingIndexPath?: string
 ): Promise<GitIndexEntry[]> {
-  const args = ["ls-files", "--stage", "-z", "--", ...pathSpecs(pathScopes)];
+  const scopes = normalizePathScopes(pathScopes);
   try {
-    if (pendingIndexPath === undefined)
-      return parseGitIndexEntries(await context.git.raw(args));
-    const result = await runGitForExitCode(
-      context.rootDirectory,
-      args,
-      pendingIndexEnvironment(pendingIndexPath)
+    return parseGitIndexEntries(
+      await queryGitPathspecs(
+        context,
+        ["ls-files", "--stage", "-z", "--"],
+        scopes,
+        pendingIndexPath === undefined
+          ? undefined
+          : pendingIndexEnvironment(pendingIndexPath)
+      )
     );
-    if (result.exitCode !== 0)
-      throw operationError(
-        "list files in the pending snapshot",
-        result.stderr,
-        { causeCategory: "command-failed" }
-      );
-    return parseGitIndexEntries(result.stdout);
   } catch (cause) {
     if (cause instanceof VersionControlError) throw cause;
     throw operationError("list files in the pending snapshot", cause, {
@@ -293,10 +284,6 @@ async function updatePendingIndex(
     throw operationError("write pending files", result.stderr, {
       causeCategory: "command-failed"
     });
-}
-
-function pathSpecs(scopes: readonly string[]): string[] {
-  return scopes.map((scope) => `:(literal)${scope}`);
 }
 
 function pendingIndexEnvironment(indexPath: string): NodeJS.ProcessEnv {

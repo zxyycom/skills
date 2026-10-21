@@ -567,6 +567,20 @@
       ],
       "title": "决策与调查工具剩余常数成本：重复获取、解析、校验与遍历"
     },
+    "261021-git-path-query-argument-batching": {
+      "formedAt": "2026-10-21T04:47:30Z",
+      "name": "git-path-query-argument-batching",
+      "question": "调查报告前序核对为何因批量路径失效，怎样在 Git adapter 内分批且保留查询与失败语义？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "git-path-query-argument-batching.md",
+      "tags": [
+        "git-integration",
+        "root-cause-analysis",
+        "skill-tooling"
+      ],
+      "title": "Git 路径查询超长参数的独立修复"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -1242,6 +1256,7 @@
       "261017-lightweight-judgment-multi-protocol-runtime-boundaries": "sha256:832411cf080a2703c050dcd8490c4d34d8d3f1a42d2af5c952375580052ff242",
       "261017-openrouter-decision-live-protocols": "sha256:6c5b0fd11c69d628626288d378f221673c88cd7ec72f37b3ed2274361bb0e91b",
       "261021-decision-investigation-constant-factor-audit": "sha256:aebf200dd653b679ceade0895bcd6114d42cc116824ad8b3857030fe1be1a25c",
+      "261021-git-path-query-argument-batching": "sha256:b0a83a2e09905a66d96de4fc384397d34af0d504a0b06d4d97c82f7a8aa08085",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

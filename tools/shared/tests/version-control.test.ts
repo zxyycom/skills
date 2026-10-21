@@ -7,6 +7,7 @@ import "./version-control-representation.test.ts";
 import "./version-control-pending.test.ts";
 import "./version-control-boundaries.test.ts";
 import "./version-control-workspace-batch.test.ts";
+import "./version-control-pathspec-query.test.ts";
 
 import "./version-control-snapshot.test.ts";
 

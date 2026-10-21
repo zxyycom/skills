@@ -11,6 +11,7 @@ import {
   parseObjectId
 } from "./git-core.ts";
 import type { GitRepositoryContext } from "./git-context.ts";
+import { queryGitPathspecs } from "./git-pathspec-query.ts";
 import { parseGitTreeEntries, type GitTreeEntry } from "./git-tree-entry.ts";
 import { normalizeRepositoryPath } from "./repository-path.ts";
 import type {
@@ -80,18 +81,14 @@ export async function listRevisionFiles(
   options: ListVersionControlFilesOptions = {}
 ): Promise<string[]> {
   const resolved = await resolveRevision(context, revision);
-  const scopes = pathspecs(options.pathScopes);
+  const scopes = normalizePathScopes(options.pathScopes ?? []);
   try {
     return parseNullSeparatedPaths(
-      await context.git.raw([
-        "ls-tree",
-        "-r",
-        "-z",
-        "--name-only",
-        resolved,
-        "--",
-        ...scopes
-      ])
+      await queryGitPathspecs(
+        context,
+        ["ls-tree", "-r", "-z", "--name-only", resolved, "--"],
+        scopes
+      )
     );
   } catch (cause) {
     if (cause instanceof VersionControlError) throw cause;
@@ -227,16 +224,19 @@ export async function listTreeEntries(
   query: TreeQuery
 ): Promise<GitTreeEntry[]> {
   const resolved = await resolveRevision(context, query.revision);
-  const pathspecArguments = pathspecs(query.scopes);
+  const scopes = normalizePathScopes(query.scopes);
   try {
     return parseGitTreeEntries(
-      await context.git.raw([
-        "ls-tree",
-        ...(query.recursive ? ["-r", "-z"] : ["-z"]),
-        resolved,
-        "--",
-        ...pathspecArguments
-      ])
+      await queryGitPathspecs(
+        context,
+        [
+          "ls-tree",
+          ...(query.recursive ? ["-r", "-z"] : ["-z"]),
+          resolved,
+          "--"
+        ],
+        scopes
+      )
     );
   } catch (error) {
     throw operationError(query.operation, error, {
@@ -266,10 +266,6 @@ async function readBlob(
       target
     });
   }
-}
-
-function pathspecs(scopes: readonly string[] | undefined): string[] {
-  return normalizePathScopes(scopes ?? []).map((scope) => `:(literal)${scope}`);
 }
 
 export function isReadableBlob(entry: GitTreeEntry): boolean {

@@ -41,6 +41,7 @@ await import("./staging-resource-safety.test.ts");
 await import("./phase-facts-contract.test.ts");
 
 await import("./history-prefix-contract.test.ts");
+await import("./history-pathspec-batching.test.ts");
 await import("./resource-identity-contract.test.ts");
 
 await import("./resource-failure-contract.test.ts");
