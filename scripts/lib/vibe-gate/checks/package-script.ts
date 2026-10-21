@@ -51,14 +51,14 @@ export const packageScriptToolSubscriptions = {
   "test:check": ["gate-tests"],
   "test:skill-updater": ["skill-updater"],
   "test:skill-validator": ["skill-validator"],
-  "test:relation-graph": ["relation-graph"],
-  "test:file-text-search": ["file-text-search"],
+  "test:relation-graph": ["relation-graph", "relation-graph-tests"],
+  "test:file-text-search": ["file-text-search", "file-text-search-tests"],
   "test:version-control": ["version-control"],
   "test:skill-package-hash": ["skill-package-hash"],
   "test:skill-release-publisher": ["skill-release-publisher"],
   typecheck: ["repository-code"],
   lint: ["repository-code"],
-  validate: ["repository-material"],
+  validate: ["repository-validation"],
   "check:investigations": [
     "investigation-record",
     "investigation-query",
@@ -67,7 +67,6 @@ export const packageScriptToolSubscriptions = {
     "investigation-cli",
     "investigation-collection",
     "file-text-search",
-    "record-search-output",
     "relation-graph"
   ],
   "check:decisions": [
@@ -78,12 +77,11 @@ export const packageScriptToolSubscriptions = {
     "decision-cli",
     "decision-collection",
     "file-text-search",
-    "record-search-output",
     "relation-graph"
   ],
   "check:test-evidence-catalog": ["repository-material"],
   "check:skill-updaters": ["generated-artifacts"],
-  "test:generated-file": ["repository-code"],
+  "test:generated-file": ["generated-file"],
   "format:check": ["repository-code"],
   "check:task-graph-index": ["task-graph"]
 } as const satisfies Readonly<Record<GatePackageScript, GateToolSubscription>>;

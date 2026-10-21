@@ -21,21 +21,26 @@ export const gateConfigurationFiles = [
   "tsconfig.json",
   "skills.code-workspace",
   "AGENTS.md",
-  "README.md"
+  "README.md",
+  "skill-package.hash",
+  "skill-package-lock.json"
 ] as const;
 
+// Invocation/Definition imports are common even when a command does not consume
+// the corresponding release implementation itself. Keep tests with their owner.
 export const commonGateInputPatterns = [
   ...gateConfigurationFiles,
-  "scripts/**",
+  "scripts/vibe-check{,-invocation}.ts",
+  "scripts/lib/vibe-gate.ts",
+  "scripts/lib/vibe-gate/!(*.test|*test-support).ts",
+  "scripts/lib/vibe-gate/checks/*.ts",
+  "scripts/lib/{oxc-config,project,skill-package-files,skill-package-hash,skill-package-release,skill-package-tree,skill-package-version-baseline,skill-package-versioning}.ts",
+  "scripts/environment*.js",
   ".github/**",
   ".githooks/**",
   ".codex/**",
-  "tools/shared/**",
-  "!tools/shared/src/file-text-search/**",
-  "!tools/shared/src/graph/**",
-  "tools/index-runtime/**",
-  "tools/skill-package/**",
-  "tools/skill-updater/**"
+  "tools/shared/src/{node,markdown,version-control}/**",
+  "tools/skill-package/src/**"
 ] as const;
 
 export function isKnownGateInput(relativePath: string): boolean {

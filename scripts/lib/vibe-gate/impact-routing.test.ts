@@ -16,7 +16,7 @@ test("incremental Gate invalidates Novel Cards consumers for every shared and di
   await withImpactFixture(async (fixture) => {
     for (const source of [
       "tools/index-runtime/src/value.ts",
-      "tools/shared/src/value.ts",
+      "tools/shared/src/node/filesystem.ts",
       "scripts/lib/generated-file.ts",
       "scripts/lib/source-runtime.ts",
       "scripts/lib/source-runtime-sync.ts",
@@ -80,11 +80,11 @@ test("incremental Gate propagates documentation and shared owner changes", async
       )?.action,
       "reuse"
     );
-    assert.ok(documentationChange.activeCheckIds.includes("script:validate"));
+    assert.ok(!documentationChange.activeCheckIds.includes("script:validate"));
     await publishFixtureReceipts(fixture, documentationChange);
     await writeImpactFixture(
       fixture.directory,
-      "tools/shared/src/value.ts",
+      "tools/shared/src/node/filesystem.ts",
       "export const shared = 2;\n"
     );
     const sharedChange = await prepareFixtureActivation(fixture);
@@ -106,9 +106,17 @@ test("incremental Gate propagates skill-package and build-system changes", async
       );
       await writeImpactFixture(fixture.directory, input, "changed input\n");
       const changed = await prepareFixtureActivation(fixture);
+      assert.ok(
+        changed.activeCheckIds.includes("script:check:skill-updaters"),
+        input
+      );
+      assert.ok(
+        changed.activeCheckIds.includes("test:change-plan:lifecycle-finalize"),
+        input
+      );
       assert.equal(
-        changed.activeCheckIds.length,
-        baseGateCheckIds.length,
+        changed.activeCheckIds.includes("script:test:index-runtime"),
+        input.startsWith("tools/skill-package/"),
         input
       );
     }

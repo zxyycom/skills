@@ -1,7 +1,7 @@
 ### Case DECISION-SEARCH-STATUS-001: Decision search 默认活动记录并可选择归档记录
 
 Tests:
-- `test:6a6d0c5552734fd58b6dbb21ace5a11339f5ae9ca4f86ad6e99ec190e305e3a7`
+- `test:6399c7671a72caeaef65686885229394311ae183f7b70c3cd3bafa903c432e8d`
 
 Tags:
 - `decision-records`

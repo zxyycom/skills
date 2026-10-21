@@ -59,7 +59,6 @@ test("incremental Gate reuses only exact successful receipts", async () => {
     assert.deepEqual(sharedTrigger.activeCheckIds, [
       "script:typecheck",
       "script:lint",
-      "script:test:generated-file",
       "script:format:check"
     ]);
     assert.equal(

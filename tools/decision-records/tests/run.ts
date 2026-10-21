@@ -45,3 +45,7 @@ await import("./cli-grouped-evolve.test.ts");
 await import("./cli-reallocation.test.ts");
 
 await import("./index-schema.test.ts");
+
+await import("./search-relations.test.ts");
+await import("./search-modes.test.ts");
+await import("./search-metadata.test.ts");

@@ -209,8 +209,8 @@
       "DECISION-MERGE-MINIMUM-001": "sha256:bf0913c10229b7ea90fadbd60aba808aca9530fb1acc9010943643bac1c9559c",
       "DECISION-MERGE-ORDINARY-INTERSECTION-001": "sha256:1c9724bc2483c62b70b8652dc1ad2de670ee24b6683759a1e89207ee6342865b",
       "DECISION-METADATA-REMOVED-001": "sha256:819209237e17d908016aeb03a95fe07f6db994a10a3a25b5efe20a2e514a1689",
-      "DECISION-METADATA-SEARCH-001": "sha256:7af1c78555c63a0b62a30f214e952103ca7ae5a9239853b7bb3fc36fafd10003",
-      "DECISION-METADATA-SEARCH-INDEX-001": "sha256:e5598efb77be57702753b788bf355f3b3470a4e77ad36ad5708ce4bb5363eaae",
+      "DECISION-METADATA-SEARCH-001": "sha256:40dfcfb67ca1af1eef6514c62d7257f0b696ab250b334993f3c422a49bb990c1",
+      "DECISION-METADATA-SEARCH-INDEX-001": "sha256:617baea23c6c3cca5b1a654a77cb5807b72bc09b074613246716bcd504ac4c9d",
       "DECISION-PUBLISHED-INDEX-FAIL-CLOSED-001": "sha256:9d5e03734ba5418d7c780bb0be739d841d369ff081047ec45962d3d7a29d55b2",
       "DECISION-PUBLISHED-QUERY-NO-SOURCE-001": "sha256:474520c2e7a72e87240d47cce48c8380710403849777a431804aee27e83149f7",
       "DECISION-QUERY-HELP-SEMANTICS-001": "sha256:a3cb65343993840370a09b0066f578120f9f3c1565b322fe97f597064edc07b4",
@@ -230,8 +230,8 @@
       "DECISION-REALLOCATION-SUCCESSOR-MINIMUM-001": "sha256:e5ed665d22b610a1e9991d35d09b41ffa8f340e59526e1ee5aa6dafa9ae94772",
       "DECISION-REALLOCATION-TRANSACTION-001": "sha256:c7a46ec1f859d565761205946a04ca586f3c41de1583045f1c29261deec4f781",
       "DECISION-RECORD-GUARD-IDENTITY-001": "sha256:6b89906291a6da244a528c6166a952c5046f06bd65b05144252eb628d1c9f4fd",
-      "DECISION-RELATION-FILTER-001": "sha256:23bb01f8902cbdde5747d01690a3226e6c6e086b6042bd1e4f94a9967143e05b",
-      "DECISION-RELATION-FILTER-EVIDENCE-001": "sha256:4bc920abad55ecc9852ac80eae91c9ff44836d5a54941283304e0c99aa5e8860",
+      "DECISION-RELATION-FILTER-001": "sha256:5fd2e3e5c59ead5cb5d651a01ee381a59cb108b1921f228980dca0c1cf51cfb5",
+      "DECISION-RELATION-FILTER-EVIDENCE-001": "sha256:3b67d886165177cd6a8914a103797d3bae122a1286964bab410d347da0d66509",
       "DECISION-RELATION-GRAPH-CYCLE-001": "sha256:005dbe8840be9769f7a99820bd1fbe1b7e9392d5b4f80412bb0380be5ffc1b28",
       "DECISION-RELATION-GRAPH-DUPLICATE-001": "sha256:b070d2e0fb5d03260bf478f955e719f852c9606d9f16dbd68bf98fa024771ac8",
       "DECISION-RELATION-GRAPH-INDEX-001": "sha256:f883003b8487f818b1bae16f0febceb797e7a857c957e3267c913e25e585dc5b",
@@ -254,11 +254,11 @@
       "DECISION-RENAME-RELATIONS-001": "sha256:1741d86009416ec3f4fc1885f6a5a5a557ac29479909fec985226e346702e911",
       "DECISION-RENAME-SELECTOR-001": "sha256:4e914bc56a8d44bb125836c4175e4139da740085607ef503c3ba4e4e6442a772",
       "DECISION-SCAN-FILESYSTEM-DIAGNOSTIC-001": "sha256:2585ae18736976feba5ecb25c138ef01ce9319015dbb1aa201b2ff1edf3de4e9",
-      "DECISION-SEARCH-FALLBACK-001": "sha256:b413e1e381a385dccd3e271a060c7345abdf3b66c58945d374daf8b0b04a4531",
+      "DECISION-SEARCH-FALLBACK-001": "sha256:55062798751d22321c12e0e3b6bf8dbff3fb0370a144529254ef63371417f2d3",
       "DECISION-SEARCH-HELP-001": "sha256:8422eb0dc35c2a1e4aca980da480ad1d8b4131f1d39f3ff43c84aadc554d6f4d",
-      "DECISION-SEARCH-MODES-001": "sha256:6445576c883ddab8998928dd88a1d2d6695b7310de0ed7f89693d819be5d7f87",
-      "DECISION-SEARCH-STATUS-001": "sha256:d0a5fde62131731f5fa8b5a5c1ee240834da040513088167ada696cd7dfc3e7e",
-      "DECISION-SEARCH-UNINDEXED-001": "sha256:83893d2eaa712c0508fac2b313fd8af7cee43cab5ca7e66c8547177c00f9c55b",
+      "DECISION-SEARCH-MODES-001": "sha256:adbf47fd93e39d70349a83388f2600f55e52f70b88f721c70f420baa27c9e232",
+      "DECISION-SEARCH-STATUS-001": "sha256:4ba79cb35432a9689f5a0bf0fb3d72c22d62ad9e2f23ae4f8795e050b1042fd4",
+      "DECISION-SEARCH-UNINDEXED-001": "sha256:d30cd6b18007b244efc609ceb263eeb560c9b557e95b4bab28b044efa63e971e",
       "DECISION-SELECTED-SYNC-001": "sha256:c0221b59520fce658ae65378a5d225aaf238e83382440b470f4bf1420fa19ec9",
       "DECISION-SELECTED-SYNC-MEMBERSHIP-001": "sha256:5b9691e3bb7333e255cd3b7de395098ebdac83d2ff973808fd898b7099623900",
       "DECISION-SET-RELATIONS-ATOMIC-001": "sha256:d67f0ce8978d7cfdaaa4db148360ed787bd5b850564ff12f7f726b684d06b4c8",
@@ -373,12 +373,16 @@
       "GATE-ENVIRONMENT-CHECK-001": "sha256:6114457bb02ec27e4ef2b8a26bafafa903499eccf222074be1f6bb9e5d4595ef",
       "GATE-FILE-SELECTION-001": "sha256:51cf9d2d007ddd27b9d8ecf7727614f6c5751d7f87e7a7a07cc172176458f4fd",
       "GATE-FUNCTION-ANALYZER-001": "sha256:183f53418eee552f7da2fd7371f817a16be8fefed2f3b810f0eec190ed3afbc4",
-      "GATE-INCREMENTAL-ACTIVATION-001": "sha256:d66e2283005dd61cf0ccf37311859533846e3f5ddc7c670623be2ec264455187",
+      "GATE-GENERATED-INPUTS-001": "sha256:c6345a171d8ef7233a28a0c341560c0e22614507d3fec4d071113780bda0ea69",
+      "GATE-INCREMENTAL-ACTIVATION-001": "sha256:e140a3b6d28d1c4d470e2c36d837fca6669b5f46f5061d678e6bb62d552beffe",
       "GATE-JSON-SCHEMA-001": "sha256:1562d23cca2650b3dceb86fe937364b7bba56ddc08714ccc67bb7e6fe8908995",
       "GATE-JSON-VALIDATION-001": "sha256:1b495e9457d277c495c6beda633e5d588e2949366f62d44877511ca1824f6118",
+      "GATE-LAYOUT-IDENTITIES-001": "sha256:8415e7ef09ce64a423ca2dcb3cfa226a66056a48e7a50847f91525bf81c7fceb",
       "GATE-MARKDOWN-LINK-001": "sha256:b084953dd2c12fff3217facf7a7485c54c71b84bef6c590c88d1912c2936864e",
       "GATE-MARKDOWN-LINT-001": "sha256:f257beff0a45c1ebcd519cb22a480fd66c6d19062f6c0179a65f1c5231fc8680",
       "GATE-METRICS-BLOCKING-001": "sha256:da0bb5bc57c92fd3a05316316e8401211820c65805d37519b45db94e3b438c0e",
+      "GATE-NARROW-PUBLICATION-001": "sha256:9b1a885feb71db99753fbeac953410dce6f4c1eae64cf770c51c599c877ad935",
+      "GATE-PUBLIC-TEST-INPUTS-001": "sha256:503b615ced983c514825e620607bf462ec5b8fa0148eda5db61350eacaa219b6",
       "GATE-RELEASE-FINAL-TIMING-001": "sha256:42c8946867d78f1237ae446f7e1477bc2d4aa7a80ed5a849bbaf17ae8089413b",
       "GATE-RELEASE-FULL-EXECUTION-001": "sha256:f803b70dbffcf6dca93cac7d3aa183186c0a73a4ec2df424bcbca1fdccb30b7c",
       "GATE-RELEASE-PRIVATE-HANDOFF-001": "sha256:5ebfb193d0d330677b9aa1d2cd7c6d099aece718f10866de542ae0c0cd5bae98",
@@ -386,8 +390,9 @@
       "GATE-RELEASE-VERSION-FAILURE-001": "sha256:aefc8919acdfdfeb79cea41d51459052ab6f770ea70b18bce1ebce2243b0c6e3",
       "GATE-SCRIPT-ADAPTER-001": "sha256:33ea16ddf3cd3dcf6484bf87e9abe1274a70fa80414078969f61797f7cbe7673",
       "GATE-SECRET-DETECTION-001": "sha256:442f0f33b7fbea4c28e0e4a5150d68da10a79c50022d40e019215628885d385b",
-      "GATE-TOOL-CAPABILITY-ROUTING-001": "sha256:1b370869f137cac8f52a3e542c17a9ab1bf4f2e549eb151ac17cfee2fb71a9fd",
+      "GATE-TOOL-CAPABILITY-ROUTING-001": "sha256:f3adac9ea599eac1496dd4b3b1cbab071d7030e7ba3102a78c8328300133a3e6",
       "GATE-TOOL-PROOF-COMPONENTS-001": "sha256:53925e8fe320813946b9d83f166b913e92821f9ddd0460537d171a6799e6488e",
+      "GATE-VALIDATION-INPUTS-001": "sha256:0aff9c51612f911548079ffc2d5759e5b5d9bf45c68031a81f74e4d8fbb5c511",
       "GENERATED-FILE-DECLARATION-001": "sha256:288495f474d1b91ca347075f9a93ce6ea910f9c84023ae9eb14bc0d4ebd0aa7f",
       "GENERATED-FILE-DECLARATION-CLEANUP-001": "sha256:26db2c3794331343d29730841c5ec2022567e394719a8d502049e517df15b43e",
       "GENERATED-FILE-DRIFT-001": "sha256:4e53dbd24a3fe5e22bc5b75a4bc335b605c5973bc0414f788cc46601ff1a0c88",
@@ -3237,7 +3242,7 @@
         "decision-records"
       ],
       "testIds": [
-        "test:0192300626e604494eeac9e11f8fc0793aa51dc0fabe0e64d0069fd464e4cdbe"
+        "test:a7b7237a4af08f6ed04b52a9f8cb56be43f3c10aad612d19d9781db8a1c3e4c6"
       ]
     },
     "DECISION-METADATA-SEARCH-INDEX-001": {
@@ -3247,7 +3252,7 @@
         "decision-records"
       ],
       "testIds": [
-        "test:fe27cd88f361b4ad235572e229440fc880a8688791354ccbde6a7a42f007a436"
+        "test:1e1c17cfe9b5f996261a8ef59cbaa83eceded11228d22fb106ce243b90c670ed"
       ]
     },
     "DECISION-PUBLISHED-INDEX-FAIL-CLOSED-001": {
@@ -3447,7 +3452,7 @@
         "decision-records"
       ],
       "testIds": [
-        "test:ff985a5cba85da53144e43a674377463d7d1db77ba9a603f2ea21746389ab8ac"
+        "test:c1070cfb2004704eb53c24a1e30ca9b2caea60dc56ed00aae36fd2b0b72db203"
       ]
     },
     "DECISION-RELATION-FILTER-EVIDENCE-001": {
@@ -3457,7 +3462,7 @@
         "decision-records"
       ],
       "testIds": [
-        "test:66a6fb23912b72338a83ce1ed678c8340e033eb7d2cfc8a4b450fbafc6c42714"
+        "test:aa3c19d12ddda4c83cbdd53bab59500e1deb098f63b80cc89cb55eae81cd0699"
       ]
     },
     "DECISION-RELATION-GRAPH-CYCLE-001": {
@@ -3688,7 +3693,7 @@
         "decision-records"
       ],
       "testIds": [
-        "test:29faf949af6180b0c19a7df0e6d2597c290353fb78ed66c8d43af84c02a66fe4"
+        "test:eda803331ff9784a7cc0a928a3859a9c33156bcf43b259cd91f64d114fbf51b4"
       ]
     },
     "DECISION-SEARCH-HELP-001": {
@@ -3708,7 +3713,7 @@
         "decision-records"
       ],
       "testIds": [
-        "test:fcf12b5b222d45faf800efa5fb97d74d68b8a57a63cac020c126c67cb6d9986f"
+        "test:4905ed2f8b5f5d3de1ea2083370ed962da78bf5ed56690bdab6c18975ca21179"
       ]
     },
     "DECISION-SEARCH-STATUS-001": {
@@ -3718,7 +3723,7 @@
         "decision-records"
       ],
       "testIds": [
-        "test:6a6d0c5552734fd58b6dbb21ace5a11339f5ae9ca4f86ad6e99ec190e305e3a7"
+        "test:6399c7671a72caeaef65686885229394311ae183f7b70c3cd3bafa903c432e8d"
       ]
     },
     "DECISION-SEARCH-UNINDEXED-001": {
@@ -3728,7 +3733,7 @@
         "decision-records"
       ],
       "testIds": [
-        "test:eda7e0d36af908a0ed1ae58b8c51eba83220c1e07519285ffe7960f76690468c"
+        "test:b9e25733b61653f2833646ec3828b7592b6f136b5e7cb0c8b44bd7a16c9fff00"
       ]
     },
     "DECISION-SELECTED-SYNC-001": {
@@ -4899,6 +4904,16 @@
         "test:4228fe5cc44b22e050d2f603fce943086aa243d7f1c3169995b3404cd27704bb"
       ]
     },
+    "GATE-GENERATED-INPUTS-001": {
+      "title": "生成原语测试保留完整局部模块闭包",
+      "sourcePath": "cases/gate-generated-file-inputs.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:e12dca21c0e6320282da2510b9a2b6646ee08017f6f79c080df0d84385c5eb75"
+      ]
+    },
     "GATE-INCREMENTAL-ACTIVATION-001": {
       "title": "项目增量 Gate 只省略输入闭合且精确命中成功证明的命令",
       "sourcePath": "cases/gate-incremental-activation-001.md",
@@ -4947,6 +4962,16 @@
         "test:0258860e302b2b5a8e0716b554af7fcb6caa95fa70add2b5c4795ca87fdbcfe9"
       ]
     },
+    "GATE-LAYOUT-IDENTITIES-001": {
+      "title": "目录身份覆盖布局新增删除重命名与类型变化",
+      "sourcePath": "cases/gate-validation-layout-identities.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:6cb99e3c6561f8d297608b07d030acc6d9fd93d57f33b8cfe0230712f1695325"
+      ]
+    },
     "GATE-MARKDOWN-LINK-001": {
       "title": "Markdown 链接校验阻断 finding 并对 unavailable fail closed",
       "sourcePath": "cases/gate-markdown-link-001.md",
@@ -4975,6 +5000,26 @@
       ],
       "testIds": [
         "test:3b9bbde0aaf1a54ed31f3c5ea20e4597008e20b5cb01e3f559b072701c7907f9"
+      ]
+    },
+    "GATE-NARROW-PUBLICATION-001": {
+      "title": "局部输入仍覆盖 ignored 材料且保持全快照漂移保护",
+      "sourcePath": "cases/gate-narrow-input-publication.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:1cf6a6d1a2b3d78d750d66998182ecc96562de7344646166c002f202b09a6ab2"
+      ]
+    },
+    "GATE-PUBLIC-TEST-INPUTS-001": {
+      "title": "共享运行时测试不扩散到领域消费者",
+      "sourcePath": "cases/gate-public-runtime-test-inputs.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:156a60e20495abe64570ab4e9c2193c8cf854a901da68e54d4afc4b2fd7686b9"
       ]
     },
     "GATE-RELEASE-FINAL-TIMING-001": {
@@ -5070,6 +5115,16 @@
       "testIds": [
         "test:451166b8fdc7af3f26103c4d06d7db8cc4d841825b3720f8834bf76c2f0d6d92",
         "test:d5fc4f368eebc344916b27b8e613766caf11dc4f09baecaabe58a6a75f1edbb8"
+      ]
+    },
+    "GATE-VALIDATION-INPUTS-001": {
+      "title": "仓库结构校验只订阅实际布局与内容输入",
+      "sourcePath": "cases/gate-repository-validation-inputs.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:9bff3192ef1cbd78cc63cc4122458c72b54c1d5f4a7d6b7ae1f36b65116b2ec8"
       ]
     },
     "GENERATED-FILE-DECLARATION-001": {

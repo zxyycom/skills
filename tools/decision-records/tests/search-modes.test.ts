@@ -12,7 +12,7 @@ import {
   test,
   withFixtureWorkspace,
   writeDecision
-} from "./support.ts";
+} from "./queries/support.ts";
 
 test("decision search finds full Markdown text with all, any, and phrase modes", () =>
   withFixtureWorkspace("query-search-modes", async (workspaceRoot) => {

@@ -1,7 +1,7 @@
 import os from "node:os";
-import { projectDecisionMetadata } from "../../src/decision-query-search-metadata.ts";
-import { printSearch } from "../../src/cli-output-search.ts";
-import { listSnapshotEntries } from "./domain-support.ts";
+import { projectDecisionMetadata } from "../src/decision-query-search-metadata.ts";
+import { printSearch } from "../src/cli-output-search.ts";
+import { listSnapshotEntries } from "./queries/domain-support.ts";
 import {
   archivedDecisionId,
   assert,
@@ -14,7 +14,7 @@ import {
   runSourceCli,
   test,
   withFixtureWorkspace
-} from "./support.ts";
+} from "./queries/support.ts";
 
 test("decision metadata search matches published fields and source relation summaries", async () => {
   const decisionId = "metadata-source";

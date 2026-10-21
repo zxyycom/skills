@@ -1,6 +1,35 @@
 import { commonGateInputPatterns } from "./impact-paths.ts";
 
-const codeInputs = [...commonGateInputPatterns, "tools/**"];
+const codeInputs = [...commonGateInputPatterns, "scripts/**", "tools/**"];
+// Domain/build consumers retain their existing script/runtime closure. Shared
+// test implementations are not runtime inputs; only imported fixture helpers are.
+const domainRuntimeInputs = [
+  ...commonGateInputPatterns,
+  "scripts/**",
+  "tools/index-runtime/src/**",
+  "tools/skill-updater/src/**",
+  "tools/shared/tests/{git-fixture,distribution-fixture}.ts",
+  "tools/shared/tests/fixtures/**"
+];
+const generatedFileInputs = [
+  ...commonGateInputPatterns,
+  "scripts/lib/{generated-file,generated-file-header,generated-typescript-declarations,source-map,source-runtime,source-runtime-sync,unsupported-optional-package}.ts",
+  "scripts/lib/generated-file.test.ts"
+];
+const repositoryValidationInputs = [
+  ...commonGateInputPatterns,
+  "scripts/validate.ts",
+  "scripts/validators/project-config.ts",
+  "scripts/lib/validation.ts",
+  "tools/skill-validator/src/**",
+  // Validation reads content only from SKILL.md, and stat/readdir identities for
+  // the top-level package/resource layout. Nested runtime bytes are not read.
+  "skills",
+  "skills/*",
+  "skills/*/{SKILL.md,references,scripts,assets}",
+  "docs/{tooling.md,skills}",
+  "scripts/{auto-push.ts,setup-git-hooks.js,setup-repository.js,task-graph.js,lint.ts,vibe-check.test.ts}"
+];
 const decisionRecordInputs = [
   "tools/decision-records/src/{application-result,index,list-facets,markdown,projection,record,relation-*,scan*,types,decision-{history-baseline,index-*,location,metadata*,path,record-lookup,source-revision,state-*,timestamp,trace-admission}}.ts",
   "tools/decision-records/src/decision-query-context.ts",
@@ -32,6 +61,7 @@ const decisionStageInputs = [
 const decisionCliInputs = [
   "tools/decision-records/src/cli*.ts",
   "tools/decision-records/tests/cli-*.ts",
+  "tools/decision-records/tests/search-{relations,modes,metadata}.test.ts",
   "tools/decision-records/tests/cli-args/**",
   "tools/decision-records/tests/configured-decision-directory.test.ts",
   "tools/decision-records/tests/checks/public-distribution.ts"
@@ -76,12 +106,25 @@ const searchOutputInputs = [
 export const gateToolInputs = {
   "repository-material": ["**"],
   "repository-code": codeInputs,
-  "gate-tests": [...commonGateInputPatterns, "tools/*/tests/**"],
-  environment: commonGateInputPatterns,
+  "gate-tests": [...commonGateInputPatterns, "scripts/**", "tools/*/tests/**"],
+  environment: [
+    ...commonGateInputPatterns,
+    "scripts/**",
+    "tools/shared/tests/git-fixture.ts",
+    "tools/shared/tests/fixtures/**"
+  ],
   "generated-artifacts": [...codeInputs, "skills/**"],
-  "skill-updater": [...commonGateInputPatterns, "skills/ai-ready-docs/**"],
-  "index-runtime": commonGateInputPatterns,
+  "skill-updater": [
+    ...generatedFileInputs,
+    "tools/skill-updater/**",
+    "skills/ai-ready-docs/**"
+  ],
+  "index-runtime": [...commonGateInputPatterns, "tools/index-runtime/**"],
   "relation-graph": [...commonGateInputPatterns, "tools/shared/src/graph/**"],
+  "relation-graph-tests": [
+    ...commonGateInputPatterns,
+    "tools/shared/tests/{relation-*,trace-*}.test.ts"
+  ],
   "file-text-search": [
     ...commonGateInputPatterns,
     "tools/shared/src/file-text-search/**",
@@ -89,61 +132,74 @@ export const gateToolInputs = {
     "!tools/shared/src/file-text-search/record-search-output.ts",
     "!skills/{decision-records,investigation-report}/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
   ],
-  "version-control": commonGateInputPatterns,
-  "skill-package-hash": commonGateInputPatterns,
-  "skill-release-publisher": commonGateInputPatterns,
-  "change-plan": [
+  "file-text-search-tests": [
     ...commonGateInputPatterns,
+    "tools/shared/tests/{file-text-search*,record-text-search.test}.ts"
+  ],
+  "version-control": [
+    ...commonGateInputPatterns,
+    "tools/shared/tests/{version-control*,git-fixture}.ts",
+    "tools/shared/tests/fixtures/**"
+  ],
+  "skill-package-hash": [
+    ...commonGateInputPatterns,
+    "scripts/lib/skill-package*.ts",
+    "tools/shared/tests/git-fixture.ts",
+    "tools/shared/tests/fixtures/**"
+  ],
+  "skill-release-publisher": [
+    ...commonGateInputPatterns,
+    "scripts/publish-skills{,.test}.ts",
+    "scripts/lib/publish-skills*.ts"
+  ],
+  "repository-validation": repositoryValidationInputs,
+  "generated-file": generatedFileInputs,
+  "change-plan": [
+    ...domainRuntimeInputs,
     "tools/change-plan/**",
     "skills/change-plan/**",
     "changes/**"
   ],
-  "record-search-output": [...commonGateInputPatterns, ...searchOutputInputs],
-  "decision-record": [...commonGateInputPatterns, ...decisionRecordInputs],
-  "decision-query": [...commonGateInputPatterns, ...decisionQueryInputs],
+  "record-search-output": [...domainRuntimeInputs, ...searchOutputInputs],
+  "decision-record": [...domainRuntimeInputs, ...decisionRecordInputs],
+  "decision-query": [...domainRuntimeInputs, ...decisionQueryInputs],
   "decision-maintenance": [
-    ...commonGateInputPatterns,
+    ...domainRuntimeInputs,
     ...decisionMaintenanceInputs
   ],
-  "decision-stage": [...commonGateInputPatterns, ...decisionStageInputs],
-  "decision-cli": [...commonGateInputPatterns, ...decisionCliInputs],
+  "decision-stage": [...domainRuntimeInputs, ...decisionStageInputs],
+  "decision-cli": [...domainRuntimeInputs, ...decisionCliInputs],
   "decision-distribution": [
-    ...commonGateInputPatterns,
+    ...domainRuntimeInputs,
     "tools/decision-records/api/**",
     "tools/decision-records/tests/generated-artifacts.test.ts",
     "skills/decision-records/**",
     "!skills/decision-records/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
   ],
-  "decision-collection": [...commonGateInputPatterns, "docs/decisions/**"],
+  "decision-collection": [...domainRuntimeInputs, "docs/decisions/**"],
   "investigation-record": [
-    ...commonGateInputPatterns,
+    ...domainRuntimeInputs,
     ...investigationRecordInputs
   ],
-  "investigation-query": [
-    ...commonGateInputPatterns,
-    ...investigationQueryInputs
-  ],
+  "investigation-query": [...domainRuntimeInputs, ...investigationQueryInputs],
   "investigation-maintenance": [
-    ...commonGateInputPatterns,
+    ...domainRuntimeInputs,
     ...investigationMaintenanceInputs
   ],
-  "investigation-stage": [
-    ...commonGateInputPatterns,
-    ...investigationStageInputs
-  ],
-  "investigation-cli": [...commonGateInputPatterns, ...investigationCliInputs],
+  "investigation-stage": [...domainRuntimeInputs, ...investigationStageInputs],
+  "investigation-cli": [...domainRuntimeInputs, ...investigationCliInputs],
   "investigation-distribution": [
-    ...commonGateInputPatterns,
+    ...domainRuntimeInputs,
     "tools/investigation-report/api/**",
     "skills/investigation-report/**",
     "!skills/investigation-report/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
   ],
   "investigation-collection": [
-    ...commonGateInputPatterns,
+    ...domainRuntimeInputs,
     "docs/investigations/**"
   ],
   "test-evidence": [
-    ...commonGateInputPatterns,
+    ...domainRuntimeInputs,
     "tools/test-evidence/**",
     "skills/test-evidence-review/**",
     "docs/test-evidence/**",
@@ -151,28 +207,28 @@ export const gateToolInputs = {
     "!tools/shared/src/file-text-search/record-search-output.ts"
   ],
   "task-graph": [
-    ...commonGateInputPatterns,
+    ...domainRuntimeInputs,
     "tools/task-graph/**",
     "skills/task-graph/**",
     "docs/task-graph/**"
   ],
   "novel-cards": [
-    ...commonGateInputPatterns,
+    ...domainRuntimeInputs,
     "tools/novel-cards/**",
     "skills/novel-cards/**"
   ],
   "lightweight-judgment": [
-    ...commonGateInputPatterns,
+    ...domainRuntimeInputs,
     "tools/lightweight-judgment/**",
     "skills/lightweight-judgment/**"
   ],
   mcpshell: [
-    ...commonGateInputPatterns,
+    ...domainRuntimeInputs,
     "tools/mcpshell-workspace-bridge/**",
     "skills/mcpshell-workspace-tools/**"
   ],
   "skill-validator": [
-    ...commonGateInputPatterns,
+    ...domainRuntimeInputs,
     "tools/skill-validator/**",
     "skills/skill-maintainer/**",
     "skills/**/SKILL.md"

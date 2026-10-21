@@ -140,12 +140,14 @@ const sharedFeatureInputCases = [
   ].map((input) => ({
     input,
     consumers: [
-      "test:decision-records:query-and-index-projection",
-      "test:decision-records:lifecycle-and-recovery",
       "test:decision-records:public-distribution",
       "test:investigation-report:cli-contract"
     ],
     unrelated: [
+      "script:check:decisions",
+      "script:check:investigations",
+      "test:decision-records:query-and-index-projection",
+      "test:decision-records:lifecycle-and-recovery",
       "test:decision-records:record-and-established-graph",
       "test:decision-records:pending-stage",
       "test:investigation-report:collection-and-resources",
@@ -166,6 +168,7 @@ const sharedFeatureInputCases = [
       "test:decision-records:query-and-index-projection",
       "test:decision-records:lifecycle-and-recovery",
       "test:decision-records:public-distribution",
+      "test:investigation-report:collection-and-resources",
       "test:investigation-report:index-and-query",
       "test:investigation-report:transactional-maintenance",
       "test:investigation-report:pending-stage",
@@ -174,7 +177,6 @@ const sharedFeatureInputCases = [
     unrelated: [
       "test:decision-records:record-and-established-graph",
       "test:decision-records:pending-stage",
-      "test:investigation-report:collection-and-resources",
       "script:test:relation-graph"
     ],
     toolId: "file-text-search"
@@ -215,19 +217,14 @@ test("incremental Gate preserves shared feature consumers without global owner i
       }
       for (const checkId of [
         ...group.consumers,
-        "script:check:decisions",
-        "script:check:investigations",
+        ...(group.toolId === "record-search-output"
+          ? []
+          : ["script:check:decisions", "script:check:investigations"]),
         ...(group.input.startsWith("tools/")
-          ? [
-              "script:format:check",
-              "script:test:generated-file",
-              "script:typecheck",
-              "script:lint"
-            ]
+          ? ["script:format:check", "script:typecheck", "script:lint"]
           : []),
         "script:check:skill-updaters",
-        "script:check:test-evidence-catalog",
-        "script:validate"
+        "script:check:test-evidence-catalog"
       ]) {
         assert.equal(
           changed.decisions.find((item) => item.checkId === checkId)?.action,
@@ -237,6 +234,8 @@ test("incremental Gate preserves shared feature consumers without global owner i
       }
       for (const checkId of [
         ...group.unrelated,
+        "script:validate",
+        "script:test:generated-file",
         "test:change-plan:lifecycle-finalize",
         "test:novel-cards:card-and-query-contract",
         "test:mcpshell:runtime"
@@ -299,11 +298,11 @@ test("incremental Gate routes domain capability inputs only to their declared su
         input: "tools/investigation-report/src/cli-query-commands.ts",
         toolId: "investigation-cli",
         execute: [
+          "test:investigation-report:collection-and-resources",
           "test:investigation-report:cli-contract",
           "script:check:investigations"
         ],
         reuse: [
-          "test:investigation-report:collection-and-resources",
           "test:investigation-report:index-and-query",
           "test:investigation-report:transactional-maintenance",
           "test:investigation-report:pending-stage"
@@ -313,27 +312,26 @@ test("incremental Gate routes domain capability inputs only to their declared su
         input: "tools/investigation-report/src/query-search-content.ts",
         toolId: "investigation-query",
         execute: [
+          "test:investigation-report:collection-and-resources",
           "test:investigation-report:index-and-query",
           "test:investigation-report:transactional-maintenance",
           "test:investigation-report:pending-stage",
           "test:investigation-report:cli-contract",
           "script:check:investigations"
         ],
-        reuse: ["test:investigation-report:collection-and-resources"]
+        reuse: []
       },
       {
         input:
           "tools/investigation-report/tests/fixtures/staging-source-path/value.txt",
         toolId: "investigation-stage",
         execute: [
+          "test:investigation-report:collection-and-resources",
           "test:investigation-report:index-and-query",
           "test:investigation-report:pending-stage",
           "test:investigation-report:cli-contract"
         ],
-        reuse: [
-          "test:investigation-report:collection-and-resources",
-          "test:investigation-report:transactional-maintenance"
-        ]
+        reuse: ["test:investigation-report:transactional-maintenance"]
       }
     ]) {
       const plan = await prepareChangedFixtureActivation(fixture, group.input);

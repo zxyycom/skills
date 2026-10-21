@@ -96,7 +96,6 @@ export const semanticGateChecks = [
       "decision-stage",
       "decision-cli",
       "file-text-search",
-      "record-search-output",
       "relation-graph"
     ],
     displayName: "Decision Records query and index projection",
@@ -114,7 +113,6 @@ export const semanticGateChecks = [
       "decision-stage",
       "decision-cli",
       "file-text-search",
-      "record-search-output",
       "relation-graph"
     ],
     displayName: "Decision Records lifecycle and recovery",
@@ -155,8 +153,14 @@ export const semanticGateChecks = [
     toolIds: [
       "investigation-record",
       "investigation-maintenance",
+      "investigation-query",
+      "investigation-stage",
+      "investigation-cli",
+      "investigation-distribution",
+      "file-text-search",
       "relation-graph"
     ],
+    dependsOn: ["script:check:skill-updaters"],
     displayName: "Investigation Report collection and resources",
     requiredTag: undefined,
     command: bunTest(

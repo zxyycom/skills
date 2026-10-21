@@ -7,7 +7,6 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import { renderRecordSearchSummary } from "../../shared/src/file-text-search/record-search-output.ts";
 import {
   executeInvestigationIndexQuery,
   searchInvestigationReports,
@@ -187,7 +186,7 @@ async function executeSearch(
 ): Promise<number> {
   const result = await searchInvestigationReports(searchOptions(input));
   if (result.status === "error") return printSearchFailure(result, io);
-  return printSearchSuccess(result, io);
+  return await printSearchSuccess(result, io);
 }
 
 function searchOptions(
@@ -220,10 +219,12 @@ function printSearchFailure(
   });
 }
 
-function printSearchSuccess(
+async function printSearchSuccess(
   result: Extract<InvestigationSearchResult, { status: "ok" }>,
   io: InvestigationReportCliIo
-): number {
+): Promise<number> {
+  const { renderRecordSearchSummary } =
+    await import("../../shared/src/file-text-search/record-search-output.ts");
   for (const warning of result.warnings) {
     writeLine(io.stderr, "[investigation-report.warning] " + warning);
   }

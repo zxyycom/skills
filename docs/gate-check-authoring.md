@@ -81,7 +81,10 @@
 
 原生材料与基础环境每轮实际执行，不进入项目 receipt 集合。语义与包脚本 Check 必须由 `impact-catalog.ts` 完整覆盖，只有已评审闭包才允许复用。
 
-1. 在 `impact-tools.ts#gateToolInputs` 按独立源码职责维护能力 ID 与实际读取的 patterns，组合 `commonGateInputPatterns`；共享运行时、build adapters、fixtures、内部 ignored 文件、生成物、TS/MTS、manifest/lock 和配置均按真实消费纳入。同一能力可有多个消费者；源码与其分发副本属于同一能力时共同声明。flag 由 ID 派生，无须另列。
+1. 在 `impact-tools.ts#gateToolInputs` 按独立源码职责维护能力 ID 与实际读取的 patterns，组合 `commonGateInputPatterns`；共享运行时、build adapters、fixtures、内部 ignored 文件、生成物、TS/MTS、manifest/lock 和配置均按真实消费纳入。flag 由 ID 派生，无须另列。声明时区分：
+   - 同一能力可有多个消费者；源码与其分发副本属于同一能力时共同声明。
+   - 公共运行时与独立测试被不同命令消费时，分别声明输入能力；共同输入承接实际公共加载闭包与配置，而非整个 `scripts/` 或共享工具目录。
+   - 只读取目录身份或文件存在性的命令，用对应路径身份建模；内容输入覆盖实际读取的文件字节。
 2. 在语义 Check 的 `toolIds` 或包脚本的 `packageScriptToolSubscriptions` 显式订阅所需能力。原生 `any(...)` 组合能力 flags，`dependsOn` 独立声明成功前置。新读取域不在现有采集范围时，同步 `impact-paths.ts` 的磁盘目录/配置及已知 owner 判定，覆盖 Git ignore 下仍被命令读取的材料。
 3. Check 读取新外部工具或环境时，核对 `impact-toolchain.ts`。必要 probe 失败扩大执行；基础环境 Check 只承接既定 Git/Node/Bun/pnpm/SCC 政策，业务测试前置不自动扩成全 Gate 环境要求。
 4. 跨 owner import、构建/测试入口或动态读取来源变化时，同步复核 consumer 的订阅及能力 patterns，纳入传递闭包。consumer 自身源码变化会使当轮执行，但只有声明完整，才会覆盖新依赖后续单独变化；闭包无法确认时使用较宽输入或保持保守执行。两领域未归属文件检查是遗漏提示，不能代替依赖审查。

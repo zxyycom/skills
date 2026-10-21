@@ -1,7 +1,7 @@
 ### Case DECISION-SEARCH-UNINDEXED-001: Decision search 不信任漏掉正式来源的索引
 
 Tests:
-- `test:eda7e0d36af908a0ed1ae58b8c51eba83220c1e07519285ffe7960f76690468c`
+- `test:b9e25733b61653f2833646ec3828b7592b6f136b5e7cb0c8b44bd7a16c9fff00`
 
 Tags:
 - `decision-records`

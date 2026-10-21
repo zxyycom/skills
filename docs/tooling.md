@@ -128,11 +128,15 @@ CLI 只接受以下参数，未知、缺值或重复参数在启动 Check 前以
 
 receipt 只证明某个项目 Check 在完整有效输入下曾通过，不按 branch、HEAD 或目录时间推断。项目承担的最小事务是“输入声明 → 内容与环境身份 → 精确 passed 记录 → 最终成功且无漂移发布”：
 
-1. `impact-tools.ts` 按可独立维护的源码职责声明能力 ID 与完整输入 patterns；`impact-catalog.ts` 将全部 52 项项目 Check 的稳定 ID、显式 `toolIds`、成功前置与逐项契约版本组成证明契约。共同配置、Gate 实现、源码、测试/fixture 和分发制品按实际消费纳入；宽消费者仍读取全部源码或材料。路径匹配由 Vibe `createProjectFileRegionIndex` 完成，输入含义由全局 `gateImpactContractVersion` 与逐 Check `version` 承载。
+1. `impact-tools.ts` 按可独立维护的源码职责声明能力 ID 与完整输入 patterns；`impact-catalog.ts` 将全部 52 项项目 Check 的稳定 ID、显式 `toolIds`、成功前置与逐项契约版本组成证明契约。路径匹配由 Vibe `createProjectFileRegionIndex` 完成，输入含义由全局 `gateImpactContractVersion` 与逐 Check `version` 承载。当前输入按以下消费边界组织，声明方法见 [Check 编写契约](gate-check-authoring.md#项目输入证明)：
+   - 公共输入：共同配置与 invocation/Definition 实际加载的 Gate、release 和共享运行时闭包。领域构建消费者保守保留脚本与共享运行时；公共工具的测试/fixture 只进入实际消费者。
+   - `repository-validation`：SKILL.md 内容、技能/资源目录身份、必需文件和校验实现，不消费嵌套运行时字节。
+   - `generated-file`：生成、声明、source-runtime 与临时 fixture 的实现闭包，不消费真实领域源码。
+   - 宽消费者：`repository-code`、统一生成与 Case 采集仍读取全部源码或材料。
 2. 起始采集联合一次 `git ls-files --cached --others --exclude-standard -z` 与 `impact-paths.ts` 声明的磁盘目录和配置；磁盘遍历不受 Git ignore 省略，因此覆盖实际读取的 TS/MTS、内部 ignored fixtures、runtime、manifest、lock、索引和生成物。记录 path、kind、mode、size 与内容 SHA-256，并保留 missing 和目录身份。
 3. 总量限制为 20,000 项、普通文件 512 MiB。未知路径、symlink 或不支持的文件类型使输入域未闭合；两领域 `src/`、`tests/` 中未归入本领域能力的文件也触发保守执行。该归属检查只发现未归属文件，实际 import、动态读取与传递依赖仍由维护者审查。越界、非 UTF-8 Git 路径、读取失败、超预算或必要工具链探测失败触发保守全执行，不发布部分证明。
 4. 工具链摘要覆盖当前 Node 进程、可执行路径、平台/架构，Node、Bun、pnpm、Python（须可 import `tomllib`）、Git 版本与配置，以及 SCC、ast-grep、Oxfmt、Oxlint、tsgo 的实际探测。Python 是 MCPShell initializer 离线测试的真实输入，探测失败扩大执行，不扩大基础环境 Check 的工具前置。进程环境除 `_`、`OLDPWD`、`SHLVL` 三项父 shell 记账变量外进入摘要；敏感原值不写入证明。
-5. 每个能力指纹绑定 ID、patterns、选中内容摘要、工具链摘要与全局契约版本；完整 Check 指纹另绑定 Check ID、订阅、成功前置与逐项版本。唯一 receipt 文件是 `.log/vibe-check/cache/project-tool-receipts-v4/receipts.json`：manifest 含 `contractVersion: "project-tool-receipts-v4"`、`formatVersion: 2` 与 `receipts`，每条记录含 `checkId`、`fingerprint`、`outcome: "passed"` 和 `toolFingerprints`。只有完整指纹及订阅能力指纹的集合与值均精确匹配，才形成复用候选。缺失、损坏或变化激活相关工具 flag；无法归因到能力的契约变化激活该 Check 的全部订阅。根依赖字节服从受信 `pnpm install --frozen-lockfile` 前提，不逐文件散列安装目录；包管理器外改写依赖后应先修复安装。
+5. 每个能力指纹绑定 ID、patterns、选中内容摘要、工具链摘要与全局契约版本；完整 Check 指纹另绑定 Check ID、订阅、成功前置与逐项版本。唯一 receipt 文件是 `.log/vibe-check/cache/project-tool-receipts-v5/receipts.json`：manifest 含 `contractVersion: "project-tool-receipts-v5"`、`formatVersion: 2` 与 `receipts`，每条记录含 `checkId`、`fingerprint`、`outcome: "passed"` 和 `toolFingerprints`。只有完整指纹及订阅能力指纹的集合与值均精确匹配，才形成复用候选。缺失、损坏或变化激活相关工具 flag；无法归因到能力的契约变化激活该 Check 的全部订阅。根依赖字节服从受信 `pnpm install --frozen-lockfile` 前提，不逐文件散列安装目录；包管理器外改写依赖后应先修复安装。
 6. 只有最终 Run completed/passed 且本次全部 execute 项（含共享 flag 和成功前置带入项）都 passed，才重取同一输入域。完整 workspace/toolchain 指纹不变后，将精确复用项与本次通过项合并，原子替换当前 52 项 receipt。能力指纹随每 Check 保存，不另维护工具成功缓存。失败、取消、rejection、output failure、未知输入、漂移、采集或写入失败均不发布；cache 不可用只扩大执行，不改变质量结果。release 与 CI 全执行路径不采集或发布 receipt。
 
 执行与证明取舍见[原生执行与项目输入证明决策](decisions/native-gate-execution-and-project-receipts.md)，能力与订阅归属见[工具变更 flag 决策](decisions/distinguish-tool-change-flags-from-check-subscriptions.md)。性能 history、原生计算事实 cache 与项目成功 receipt 分别维护：前者只影响任务选择偏好，计算事实仍须按本次材料和规则结算，只有 receipt 允许省略项目命令。
@@ -187,6 +191,7 @@ Vibe 从 admission 到 settlement 原子持有全部 claims。版本管理测试
 
 - `test:change-plan:public-distribution`、`test:decision-records:public-distribution`、`test:task-graph:public-distribution`。
 - `test:novel-cards:card-and-query-contract`、`test:lightweight-judgment:public-distribution`。
+- `test:investigation-report:collection-and-resources`、`test:investigation-report:cli-contract`。
 - `script:test:skill-updater`、`test:mcpshell:public-distribution`。
 
 Vibe 只在 provider passed 后启动 consumer；前置未通过时不执行并按依赖失败结算。统一 provider 扩大共同阻断范围，失败后按 artifact 路径或领域手动命令定位。MCPShell initializer、runtime 与 public-distribution 是三个独立离线结果；真实 localhost-SSH 集成与 Index Runtime 规模回归仍为专用入口，不由这些离线结果代替。生成信任边界见[统一生成前置决策](decisions/unify-gate-generated-artifact-prerequisite.md)。

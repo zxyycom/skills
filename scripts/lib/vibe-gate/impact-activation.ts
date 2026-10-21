@@ -154,7 +154,7 @@ export async function prepareGateActivation(
   const workspaceRoot = options.workspaceRoot ?? rootDir;
   const cacheDirectory =
     options.cacheDirectory ??
-    path.join(workspaceRoot, ".log/vibe-check/cache/project-tool-receipts-v4");
+    path.join(workspaceRoot, ".log/vibe-check/cache/project-tool-receipts-v5");
   if (options.release) return releasePlan(cacheDirectory);
   let snapshot: GateWorkspaceSnapshot;
   try {

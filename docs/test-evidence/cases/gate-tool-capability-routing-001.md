@@ -12,4 +12,5 @@ Contract:
 
 Proves:
 - Decision stage、Investigation CLI、query 与 stage fixture 输入变化分别激活对应工具及订阅 Check，无关领域 Check 保持 reuse。
+- Investigation CLI 变化同时重跑消费真实分发 CLI 的 collection-and-resources Check，不复用只适用于旧入口的通过结果。
 - 两领域未声明的源码或测试输入进入 unclassifiedPaths，全部项目 Check 执行且不能发布成功 receipt，原因为 inputs-unclosed。

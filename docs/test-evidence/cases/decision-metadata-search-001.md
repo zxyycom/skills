@@ -1,7 +1,7 @@
 ### Case DECISION-METADATA-SEARCH-001: Metadata search 只匹配已发布字段和来源关系摘要
 
 Tests:
-- `test:0192300626e604494eeac9e11f8fc0793aa51dc0fabe0e64d0069fd464e4cdbe`
+- `test:a7b7237a4af08f6ed04b52a9f8cb56be43f3c10aad612d19d9781db8a1c3e4c6`
 
 Tags:
 - `decision-records`

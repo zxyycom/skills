@@ -1,7 +1,7 @@
 ### Case DECISION-SEARCH-FALLBACK-001: Decision search 以只读来源投影处理陈旧索引
 
 Tests:
-- `test:29faf949af6180b0c19a7df0e6d2597c290353fb78ed66c8d43af84c02a66fe4`
+- `test:eda803331ff9784a7cc0a928a3859a9c33156bcf43b259cd91f64d114fbf51b4`
 
 Tags:
 - `decision-records`

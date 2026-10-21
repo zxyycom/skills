@@ -68,7 +68,7 @@ function printDiagnostic(
 
 type PrintableDecisionQuerySuccess = Exclude<
   DecisionQuerySuccess,
-  { command: "list" }
+  { command: "list" | "search" }
 >;
 type DecisionQuerySuccessPrinter = (
   result: PrintableDecisionQuerySuccess,
@@ -81,7 +81,7 @@ export function printDecisionQuerySuccess(
   io: DecisionRecordsCliIo = processDecisionRecordsCliIo,
   traceJson = false
 ): void {
-  if (result.command !== "search") printQueryWarnings(result.warnings, io);
+  printQueryWarnings(result.warnings, io);
   decisionQuerySuccessPrinters[result.command](result, io, traceJson);
 }
 
@@ -102,11 +102,6 @@ const decisionQuerySuccessPrinters: Readonly<
     printCheck(
       (result as Extract<PrintableDecisionQuerySuccess, { command: "check" }>)
         .summary,
-      io
-    ),
-  search: (result, io) =>
-    printSearch(
-      result as Extract<PrintableDecisionQuerySuccess, { command: "search" }>,
       io
     ),
   show: (result, io) =>
@@ -237,8 +232,6 @@ export {
   printDecisionListSuccess,
   type DecisionListOutputOptions
 } from "./cli-output-list.ts";
-
-import { printSearch } from "./cli-output-search.ts";
 
 function printShow(
   result: Extract<DecisionQuerySuccess, { command: "show" | "show-candidate" }>,

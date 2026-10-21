@@ -53,7 +53,12 @@ async function runQuery(
   if (result.command === "list") {
     throw new TypeError("Non-list Decision query returned a list result");
   }
-  printDecisionQuerySuccess(result, io, traceJson);
+  if (result.command === "search") {
+    const { printSearch } = await import("./cli-output-search.ts");
+    printSearch(result, io);
+  } else {
+    printDecisionQuerySuccess(result, io, traceJson);
+  }
   return 0;
 }
 

@@ -36,4 +36,4 @@ Proves:
 - 环境或工具身份变化使全部项目命令失效，父 shell 的 _ 记账变化不影响身份；必要工具探测失败与非 Git 工作区执行全量 fallback，release 选择完整 64 项。
 - 损坏 receipt、未通过命令、最终 Run 失败、不可写 cache、结束快照失败或起止漂移均不能发布成功证明；Run 失败时即使全部项目命令 passed，也不创建 receipt 目录。
 - updater 测试的分发包输入限定为实际加载的 ai-ready-docs：无关 MCPShell 包变化只使统一生成 provider 重新执行，updater 仍复用；ai-ready-docs 包字节变化使 updater 重新执行。
-- shared 的 file-text-search 与 graph 输入按真实 consumer 分别失效：record-search-output.ts 变化使 Decision Records、Investigation Report 与共用维护命令重新执行，Test Evidence 五项与专用 file-text-search 测试保持复用；index.ts 变化仍激活全部真实 file-text-search consumer；无关领域与另一子域测试保持复用。
+- shared 的 file-text-search 与 graph 输入按真实 consumer 分别失效：record-search-output.ts 变化只使实际搜索/分发消费者重新执行，Decision Records 非搜索查询/生命周期、两领域维护 check、Test Evidence 五项与专用 file-text-search 测试保持复用；index.ts 变化仍激活全部真实 file-text-search consumer；无关领域与另一子域测试保持复用。
