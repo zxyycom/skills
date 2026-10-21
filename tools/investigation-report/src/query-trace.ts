@@ -1,18 +1,13 @@
 import { resolveInvestigationSelector } from "./investigation-selector.ts";
 import { traceInvestigationRelations } from "./relation-validation.ts";
 import { compareText, traceFailure } from "./query-results.ts";
-import type { LoadedInvestigationIndex } from "./query-index.ts";
+import type { InvestigationRelationContext } from "./relation-context.ts";
 import type {
   InvestigationIndexState,
   InvestigationReportTraceOptions,
   InvestigationReportTraceResult,
   InvestigationTraceEntry
 } from "./types.ts";
-
-type InvestigationTraceIndex = Extract<
-  LoadedInvestigationIndex,
-  { status: "ok" }
->["value"];
 
 export type ValidatedInvestigationTraceOptions = Readonly<{
   direction: NonNullable<InvestigationReportTraceOptions["direction"]>;
@@ -35,13 +30,13 @@ export function normalizeInvestigationTraceOptions(
 }
 
 export function traceLoadedInvestigation(
-  index: InvestigationTraceIndex,
+  context: InvestigationRelationContext,
   indexPath: string,
   selector: string,
   options: ValidatedInvestigationTraceOptions
 ): InvestigationReportTraceResult {
   const resolved = resolveInvestigationSelector(
-    Object.entries(index.entries).map(([id, state]) => ({
+    context.entries.map(({ id, state }) => ({
       id,
       name: state.name
     })),
@@ -49,8 +44,7 @@ export function traceLoadedInvestigation(
   );
   if (resolved.status === "error")
     return traceFailure(selector, indexPath, resolved.errors);
-  const states = new Map(Object.entries(index.entries));
-  const trace = traceInvestigationRelations(states, resolved.id, options);
+  const trace = traceInvestigationRelations(context, resolved.id, options);
   return {
     status: "ok",
     anchorId: resolved.id,
@@ -64,7 +58,7 @@ export function traceLoadedInvestigation(
     contextIds: trace.contextIds,
     frontier: trace.frontier,
     ...traceBlockedEvent(trace.blockedEvent),
-    entries: traceInvestigationEntries(states, [
+    entries: traceInvestigationEntries(context.graph().states, [
       ...trace.traceIds,
       ...trace.contextIds
     ]),

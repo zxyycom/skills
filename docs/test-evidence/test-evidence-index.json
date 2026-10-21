@@ -194,6 +194,11 @@
       "DECISION-INDEX-REVISION-001": "sha256:c6a6597f62ef2e6bdb271633e9b6f04b2bcfa03ccf40cc1d12422d0245537c09",
       "DECISION-LAYOUT-INVALID-001": "sha256:caa361d4f105ee4d4dab8bf0734d587b230dd6f71da3397197274fed2d6b0552",
       "DECISION-LAYOUT-VALID-001": "sha256:2c35575fd830e51fe40f1d382d23afeb3b6dbd41cb7aed5005739adcd886cb21",
+      "DECISION-LAZY-GRAPH-CONTENT-001": "sha256:504e594aa59ca89cc7b4c82b1a8852a0fd500a8ea1342014ca6a366a6fdd60cf",
+      "DECISION-LAZY-GRAPH-CONTEXT-001": "sha256:802c676b98612ec870f5ca15fae9ffe3618f2ac6a623ba8125e9226feec2a788",
+      "DECISION-LAZY-GRAPH-FAILURES-001": "sha256:29c04da4445e145a1a92cb66d5a14e97f2f7b3dc83548658e4e71261f1553eb1",
+      "DECISION-LAZY-GRAPH-ISOLATION-001": "sha256:82a9fadba7ba5ecbb5dbbd3bbc8a5ce745db2216f3d2a2536a89dc42aebd53b8",
+      "DECISION-LAZY-GRAPH-PUBLISHED-001": "sha256:6548b26d5a41cab5a0ec7cce6045563a800237b081f7e0c4e5bbd4e22a09a247",
       "DECISION-LIFECYCLE-MOVE-001": "sha256:16d27f747a8655488a02262d1403fa9cc71a7885c2f83215cb7826d7786da13c",
       "DECISION-LIFECYCLE-POST-MUTATION-SCAN-001": "sha256:2970dac5db2da6c4dd820b91f1d24847c9adaeac31d668e1314effd74c568e6d",
       "DECISION-LIFECYCLE-PREFLIGHT-001": "sha256:d50b7ba08e71a910cbff07d9e85669fa881da1f3ace1b42a3b20de787e648adf",
@@ -608,6 +613,15 @@
       "INVESTIGATION-INDEX-METADATA-001": "sha256:a31f03b206bd50deffeb755bed5566e4fde20c2ab6259037bfd570c66e733d54",
       "INVESTIGATION-INDEX-QUERY-001": "sha256:6126e17cdf4e0159c039f3313874768868621e6d620dff408392e7bd729dc702",
       "INVESTIGATION-INDEX-RELATION-FILTER-001": "sha256:98cbf2d1850f43152095e1ccb9f75e89455ea0f06a3d8633b5935585c857c6b2",
+      "INVESTIGATION-LAZY-EVIDENCE-001": "sha256:b2ac121881266e76310886fd4dc3196a91e2ab583aa0c7407d8c89cc8402e556",
+      "INVESTIGATION-LAZY-FALLBACK-001": "sha256:4d9752152cf547407cb8742a50279818ebd8727100fa193779890e1623d3c246",
+      "INVESTIGATION-LAZY-INTERSECTION-001": "sha256:7d0d0b55091ddcaf2a1c51138a8d96b086d1ce998f7a3bc174380487bf91c8e3",
+      "INVESTIGATION-LAZY-QUERY-001": "sha256:a4ca1275f87bdeccc1ad4af8cc0ccb980ec8be323f98e5695f263bf43aa9bddc",
+      "INVESTIGATION-LAZY-SCOPE-001": "sha256:291388da6ff564906a5563c5f674e4434dc00867b5fb0ebf4e86813de60f2927",
+      "INVESTIGATION-LAZY-SELECTOR-001": "sha256:a97b48b512253a2596dd28807434856b573e4cf4a57be88dd9883c1f991157b7",
+      "INVESTIGATION-LAZY-SNAPSHOT-001": "sha256:973974061ae8c71aad15ef97687b84e77302dfa662713958c876d448b06d90b4",
+      "INVESTIGATION-LAZY-TRACE-001": "sha256:29088b9d0d4db35a0e11eaeb3fa53f10d82d2383990207ccb50f556613ee46ef",
+      "INVESTIGATION-LAZY-VALIDATION-001": "sha256:31880aa1248f87ca5bb7f93fa1b9fe8ab37ca8ea21773c57cac45202b3bf01fc",
       "INVESTIGATION-LEGACY-IDENTITY-001": "sha256:4f850d8f8df4fee73d4c39d9126056617950fae82a35b17f9bc6faef400db0e8",
       "INVESTIGATION-LIST-FACETS-001": "sha256:b44d17fbd4055509a1b8de6dc3fd734e3fa3ee30507ae7692affef55c606e75d",
       "INVESTIGATION-LIST-OUTPUT-001": "sha256:506416230ab661d7321da62270577c4b2dc406b22c1e72cb8bc4fb27166f1901",
@@ -908,6 +922,9 @@
       "RECORD-SEARCH-ZERO-001": "sha256:7611fe4210bc65a88b9c9cd5a3afe68cfe73e2160e1b10625d4f1ccc5190b0e0",
       "RECORD-SET-RELATIONS-CLI-CLASSIFICATION-001": "sha256:5390d067e2d3964a96c11556e7d7bd49e2e0cb4117fec923c16b382679c2cd6d",
       "RELATION-GRAPH-DEEP-DFS-001": "sha256:a2082a455d6f1b5db9b8b2268072101f04cdaeb55fc2bbda2f2608f03d37a1b8",
+      "RELATION-GRAPH-LAZY-SHARING-001": "sha256:16321de3277ea2778ddc9c047843e97fe7d50acbef504b6f2a10899cbe487d7b",
+      "RELATION-GRAPH-LAZY-SNAPSHOT-001": "sha256:25900a344ab93d1d90208ecc378da1e84044b4de830da84c733a1c4cf309af69",
+      "RELATION-GRAPH-LAZY-UNUSED-001": "sha256:922487b3627c422a3885422ec8620a4bb7cce022c7f4a55f3b39385d86e619b3",
       "RELATION-TRACE-SELECTION-001": "sha256:c129ed8df342774c949950b89ff27e815be45c5236524ac67ed76ae52a7392d3",
       "REPO-FORMAT-SCRIPTS-001": "sha256:57f46d4515a6c9a022fd26868d1b7d291d3812aa945c957583dba9957d54cae3",
       "REPO-LINT-PREFLIGHT-001": "sha256:b7db9512b7e996fccd5c74222f1cb62b3d957d806ff96c4c6cfb2c505c271455",
@@ -3125,6 +3142,56 @@
       ],
       "testIds": [
         "test:97c10e4ea00acc962f1c6ca800dfd15739d05896cebe0642c61281beb56deaf2"
+      ]
+    },
+    "DECISION-LAZY-GRAPH-CONTENT-001": {
+      "title": "正文搜索各读取阶段独立验证并共用所属图",
+      "sourcePath": "cases/decision-lazy-graph-content-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:fa6362e9e654b75ea675b69491c640a1a2b67d80d8bb15281ee2944a7bdb0227"
+      ]
+    },
+    "DECISION-LAZY-GRAPH-CONTEXT-001": {
+      "title": "稳定记录快照首次图需求才构建并复用邻接",
+      "sourcePath": "cases/decision-lazy-graph-context-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:b5eed17864037f58f913899c3b2cd0d4b3a1d5c50e7044de366870d85ac895c8"
+      ]
+    },
+    "DECISION-LAZY-GRAPH-FAILURES-001": {
+      "title": "图复用保持选项与完整关系错误优先级",
+      "sourcePath": "cases/decision-lazy-graph-failures-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:67df1bbbfdd6b411b0a1f041d3a1f421afa4a208f73c61a839091c5ed1c915d7"
+      ]
+    },
+    "DECISION-LAZY-GRAPH-ISOLATION-001": {
+      "title": "新加载快照隔离变更关系",
+      "sourcePath": "cases/decision-lazy-graph-isolation-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:27c6b073bc772a87f1d5f865f5df87a0ce6d06f153293b3399700c66762cf22d"
+      ]
+    },
+    "DECISION-LAZY-GRAPH-PUBLISHED-001": {
+      "title": "发布快照查询复用严格校验图",
+      "sourcePath": "cases/decision-lazy-graph-published-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:09f3e30368bfcb24cebe3640ddefc8f0b5fa993350ae98e7ac10eaca953c96bf"
       ]
     },
     "DECISION-LIFECYCLE-MOVE-001": {
@@ -7363,6 +7430,96 @@
         "test:b632b9a9ab82c78355f9fd5fa75b352dac8c625c86d7fa7b0c37fb84156d6bfe"
       ]
     },
+    "INVESTIGATION-LAZY-EVIDENCE-001": {
+      "title": "乱序构图保持关系证据顺序",
+      "sourcePath": "cases/investigation-lazy-unordered-evidence.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:028439ff5b1cae6b3b7d0c2eeec9849d724e83026cec4b03f3ce50c0516a66ee"
+      ]
+    },
+    "INVESTIGATION-LAZY-FALLBACK-001": {
+      "title": "正文降级搜索复用集合校验图",
+      "sourcePath": "cases/investigation-lazy-fallback-reuse.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:9dc52e829e3cdbc57cb2d3d3b3e1009278510e36541e85c98da89c6568bd27e0"
+      ]
+    },
+    "INVESTIGATION-LAZY-INTERSECTION-001": {
+      "title": "关系类型与目标在同一条边上取交集",
+      "sourcePath": "cases/investigation-lazy-same-edge-selection.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:9e5609665fee019ea1405c2bbc5290aac17a0086ff0af071f9c19a8490f9d1aa"
+      ]
+    },
+    "INVESTIGATION-LAZY-QUERY-001": {
+      "title": "普通列表与元数据搜索按需构图",
+      "sourcePath": "cases/investigation-lazy-no-graph-query.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:a74017fc519b8576289a71592d1c253786c0833456d27979c23521bf63d43986"
+      ]
+    },
+    "INVESTIGATION-LAZY-SCOPE-001": {
+      "title": "替换与回滚快照各自独立构图",
+      "sourcePath": "cases/investigation-lazy-scope-isolation.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:058222e67664cacfe94d0ac2681b75a3f44b8b8b95c0a73ddc2db9f257015a91"
+      ]
+    },
+    "INVESTIGATION-LAZY-SELECTOR-001": {
+      "title": "缺失与歧义选择器在构图前返回诊断",
+      "sourcePath": "cases/investigation-lazy-selector-before-graph.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:a229dda3f3f5f23b67341c2bb2a6148f4594d4c2d5cf3f80ead1d47c3d63b0d4"
+      ]
+    },
+    "INVESTIGATION-LAZY-SNAPSHOT-001": {
+      "title": "同一快照的校验筛选与追踪共用一张图",
+      "sourcePath": "cases/investigation-lazy-shared-snapshot.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:f767e7585891ccb9cef3a3c8f2bc02513857b54b72e1d6e133b59c89eff66089"
+      ]
+    },
+    "INVESTIGATION-LAZY-TRACE-001": {
+      "title": "乱序构图保持追踪事件与预算选择",
+      "sourcePath": "cases/investigation-lazy-unordered-trace.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:0bf2bbe332bda9792f6a60a72fea0e53fd54594114d3bfcbc8ad8b8f20cd41de"
+      ]
+    },
+    "INVESTIGATION-LAZY-VALIDATION-001": {
+      "title": "乱序构图保持完整校验诊断",
+      "sourcePath": "cases/investigation-lazy-unordered-validation.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:164bf11e3f4db78d6d6a8ab8704bd6d4ca8d30e0520c26381327cd34ffae50e7"
+      ]
+    },
     "INVESTIGATION-LEGACY-IDENTITY-001": {
       "title": "legacy 身份只按索引自有成员定位",
       "sourcePath": "cases/investigation-legacy-identity-membership.md",
@@ -10418,6 +10575,36 @@
         "test:0624f989b507228941bb397addef32333d31d51792bf8ebe35e67ec108c5c0da",
         "test:e77546d756ee13fee29ad9a2d3fe152613333858a045f565fdee00659b525793",
         "test:ef4707dd6c73170b11410758650e784e695e729825123ddca8a3d87f8e3351af"
+      ]
+    },
+    "RELATION-GRAPH-LAZY-SHARING-001": {
+      "title": "同一访问器的图操作复用首次构建结果",
+      "sourcePath": "cases/relation-graph-lazy-sharing.md",
+      "tags": [
+        "graph"
+      ],
+      "testIds": [
+        "test:6b4230f97cadcc8bfa4ff5b67faa3f00a8eaee23762e7a37d67b33c470b004a4"
+      ]
+    },
+    "RELATION-GRAPH-LAZY-SNAPSHOT-001": {
+      "title": "相同节点的新旧快照使用独立关系图",
+      "sourcePath": "cases/relation-graph-lazy-snapshot-isolation.md",
+      "tags": [
+        "graph"
+      ],
+      "testIds": [
+        "test:67e3fc91e8b1e7a3a88ad5b1b81b08ad8f37e2aba2af814b8f896d8f512b4360"
+      ]
+    },
+    "RELATION-GRAPH-LAZY-UNUSED-001": {
+      "title": "关系图在首次使用时才取得构建输入",
+      "sourcePath": "cases/relation-graph-lazy-unused.md",
+      "tags": [
+        "graph"
+      ],
+      "testIds": [
+        "test:83de7713cbb129ee66336a236b7f99dd69351b01ae6026037fad3a3582936d2d"
       ]
     },
     "RELATION-TRACE-SELECTION-001": {

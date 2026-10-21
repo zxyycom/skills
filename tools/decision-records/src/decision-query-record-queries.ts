@@ -1,3 +1,4 @@
+import type { DecisionIndexSnapshot } from "./decision-index-snapshot.ts";
 import { decisionPublishedSnapshotSource } from "./decision-query-contract.ts";
 import { decisionDiagnostic, decisionFailure } from "./application-result.ts";
 import { loadCandidateQueryContext } from "./decision-query-candidates.ts";
@@ -21,7 +22,7 @@ import type {
   DecisionQueryResult
 } from "./decision-query-contract.ts";
 import {
-  indexedRecords,
+  decisionIndexRecordSnapshot,
   sourceWarningsForRecord
 } from "./decision-query-records.ts";
 import { readDecisionBody } from "./decision-query-source.ts";
@@ -159,7 +160,7 @@ export async function traceDecisionRecord(
   );
   if (resolved.status === "error") return resolved.failure;
   const traced = traceDecisionResult(
-    indexedRecords(context.entries),
+    context,
     resolved.record.decisionId,
     options
   );
@@ -167,21 +168,17 @@ export async function traceDecisionRecord(
 }
 
 function traceDecisionResult(
-  records: readonly IndexedDecisionRecord[],
+  snapshot: DecisionIndexSnapshot,
   anchorId: DecisionId,
   options: Extract<ReturnType<typeof normalizeTraceOptions>, { status: "ok" }>
 ): Extract<DecisionQueryResult, { command: "trace"; status: "ok" }> {
   const { direction, maxDepth, maxRecords } = options;
-  const trace = traceDecisionRelations(
-    records.map((record) => ({
-      decisionId: record.decisionId,
-      projection: record.projection,
-      sourcePath: record.sourcePath,
-      status: record.status
-    })),
-    anchorId,
-    { direction, maxDepth, maxRecords }
-  );
+  const records = decisionIndexRecordSnapshot(snapshot).records;
+  const trace = traceDecisionRelations(snapshot.getRelationGraph, anchorId, {
+    direction,
+    maxDepth,
+    maxRecords
+  });
   const recordById = new Map(
     records.map((record) => [record.decisionId, record])
   );

@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import type { DecisionIndexSnapshot } from "./decision-index-snapshot.ts";
 import { decisionPublishedSnapshotSource } from "./decision-query-contract.ts";
 import { stateIndexQueryMaximumLimit } from "../../index-runtime/src/index.ts";
 import {
@@ -24,7 +25,7 @@ import type {
   IndexedDecisionRecord,
   IndexedDecisionState
 } from "./decision-query-contract.ts";
-import { indexedRecords } from "./decision-query-records.ts";
+import { decisionIndexRecordSnapshot } from "./decision-query-records.ts";
 import { filterDecisionRelationRecords } from "./decision-query-relation-filter.ts";
 
 type PreparedDecisionListRequest =
@@ -42,23 +43,18 @@ export async function listDecisionRecords(
   if (prepared.status === "error") return prepared.failure;
   const context = await loadDecisionQueryContext(request.location);
   if (context.status === "error") return context;
-  return projectDecisionList(
-    context.entries,
-    request,
-    prepared,
-    context.warnings
-  );
+  return projectDecisionList(context, request, prepared, context.warnings);
 }
 
 /** 从已验证的发布快照和已解析的查询条件投影列表，不加载集合文件。 */
 export function projectDecisionList(
-  entries: readonly IndexedDecisionState[],
+  source: readonly IndexedDecisionState[] | DecisionIndexSnapshot,
   request: Extract<DecisionQueryRequest, { command: "list" }>,
   prepared: Extract<PreparedDecisionListRequest, { status: "ok" }>,
   warnings: string[] = []
 ): DecisionQueryResult {
-  const allRecords = indexedRecords(entries);
-  const relationFilter = filterDecisionRelationRecords(allRecords, request);
+  const snapshot = decisionIndexRecordSnapshot(source);
+  const relationFilter = filterDecisionRelationRecords(snapshot, request);
   if (relationFilter.status === "error") return relationFilter.failure;
   const matching = relationFilter.records
     .map(timedDecisionListRecord)
@@ -71,7 +67,7 @@ export function projectDecisionList(
     appliedFilters: decisionListAppliedFilters(request),
     command: "list",
     source: decisionPublishedSnapshotSource,
-    facets: buildDecisionListFacets(entries),
+    facets: buildDecisionListFacets(snapshot.entries),
     limit: request.limit,
     offset: request.offset,
     records: matching.slice(request.offset, request.offset + request.limit),

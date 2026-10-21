@@ -9,3 +9,6 @@ await import("../query-loaded-snapshot.test.ts");
 await import("../relation-filter-complexity.test.ts");
 
 await import("../index-schema.test.ts");
+
+await import("../lazy-relation-graph/context.test.ts");
+await import("../lazy-relation-graph/queries.test.ts");

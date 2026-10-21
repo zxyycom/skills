@@ -1,3 +1,4 @@
+import type { DecisionRelationRecordSnapshot } from "./decision-query-records.ts";
 import type { DecisionApplicationFailure } from "./application-result.ts";
 import type {
   DecisionFilteredRecord,
@@ -8,7 +9,7 @@ import type {
 import { filterDecisionRelationRecords } from "./decision-query-relation-filter.ts";
 
 export function filterSearchRecords(
-  records: readonly IndexedDecisionRecord[],
+  source: readonly IndexedDecisionRecord[] | DecisionRelationRecordSnapshot,
   request: Pick<
     Extract<DecisionQueryRequest, { command: "search" }>,
     "alignment" | "direction" | "relatedTo" | "relationType" | "status" | "tags"
@@ -20,7 +21,7 @@ export function filterSearchRecords(
       status: "ok";
     }
   | { failure: DecisionApplicationFailure; status: "error" } {
-  const relationFiltered = filterDecisionRelationRecords(records, request);
+  const relationFiltered = filterDecisionRelationRecords(source, request);
   if (relationFiltered.status === "error") return relationFiltered;
   return {
     filters: {

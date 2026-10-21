@@ -33,6 +33,7 @@ import {
   resolveInvestigationsDirectory
 } from "./report-path.ts";
 import { resolveInvestigationSelector } from "./investigation-selector.ts";
+import { createInvestigationRelationContext } from "./relation-context.ts";
 import {
   normalizeInvestigationTraceOptions,
   traceLoadedInvestigation
@@ -314,7 +315,9 @@ export async function traceInvestigationReports(
     );
   }
   const traced = traceLoadedInvestigation(
-    loaded.value.index,
+    createInvestigationRelationContext(
+      Object.entries(loaded.value.index.entries)
+    ),
     loaded.value.indexPath,
     selector,
     traceOptions.value

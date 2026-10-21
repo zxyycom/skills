@@ -20,6 +20,8 @@
 
 list/trace 成功结果显式包含 `source={kind: "published-index", currentness: "unchecked", fallback: false}`；metadata search 在 searchInfo.source 中表达同一事实。正常 unchecked 不生成来源 warning。show 只用目标已读字节比较单条 revision，不扩大为全集验证。
 
+关系图由单次操作内的稳定快照持有惰性 provider：首次图需求构建，后续校验、trace 与关系筛选共用该图；无图需求不构建。严格索引加载本身仍执行完整关系校验，因此普通 list/show/metadata 查询保留一次构图。`related-to` 按同图 source/target 邻接查找；新加载、来源重读和事务投影各建独立 provider，不跨调用或状态缓存，也不把图写入索引。
+
 `filterRelations` 属于 Decision 内部 list/search 查询记录，不进入索引、Schema 或公开导出边界。只在传入 related-to 或 relation-type 时出现，来自同一筛选快照。按 `(sourceId, type, target)` 去重并用 UTF-16 code-unit 词法序排序；前驱边由 anchor 指向结果，后继边由结果指向 anchor，both 取并集，type-only 取结果来源的指定类型出边。记录排序、total 与分页不变，文本命中证据单独计算。
 
 ### trace

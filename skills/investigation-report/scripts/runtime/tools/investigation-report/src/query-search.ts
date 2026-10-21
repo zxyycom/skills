@@ -22,6 +22,7 @@ import {
 import { prepareSearch } from "./query-options.ts";
 import { searchInvestigationMetadata } from "./query-search-metadata.ts";
 import { searchSnapshot } from "./query-search-content.ts";
+import { createInvestigationRelationContext } from "./relation-context.ts";
 import type { InvestigationSearchResult } from "./types.ts";
 
 export async function searchInvestigationReports(
@@ -67,10 +68,9 @@ async function searchContent(
   });
   return loaded.status === "ok"
     ? await searchSnapshot({
-        entries: Object.entries(loaded.value.entries).map(([id, state]) => ({
-          id,
-          state
-        })),
+        relations: createInvestigationRelationContext(
+          Object.entries(loaded.value.entries)
+        ),
         indexPath,
         investigationsDirectory,
         prepared,
@@ -117,10 +117,7 @@ async function searchValidatedFallback(
     });
   }
   return await searchSnapshot({
-    entries: Object.entries(collection.snapshot.states).map(([id, state]) => ({
-      id,
-      state
-    })),
+    relations: collection.relations,
     indexPath,
     investigationsDirectory,
     prepared,

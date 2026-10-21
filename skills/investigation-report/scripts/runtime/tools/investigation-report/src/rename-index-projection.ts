@@ -15,6 +15,7 @@ import { createInvestigationStateSnapshot } from "./investigation-index-source.t
 import { parseInvestigationReport } from "./markdown.ts";
 import { createInvestigationStateIndexDefinition } from "./investigation-state-index.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
+import { createInvestigationRelationContext } from "./relation-context.ts";
 import { buildInvestigationReportState } from "./report-validation.ts";
 import type { RenameSource } from "./rename-contract.ts";
 import {
@@ -78,7 +79,9 @@ async function projectRenamedIndex(
       text: source.text
     });
   }
-  const relationErrors = validateInvestigationRelationGraph(states);
+  const relationErrors = validateInvestigationRelationGraph(
+    createInvestigationRelationContext(states)
+  );
   if (relationErrors.length > 0)
     return renameStepFailure(indexPath, relationErrors);
   return await serializeRenamedIndex(root, indexPath, formalSources, states);

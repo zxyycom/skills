@@ -1,3 +1,4 @@
+import { createLazyRelationGraph } from "../../shared/src/graph/lazy-relation-graph.ts";
 import {
   buildRelationGraph,
   relationGraphStructuralIssues,
@@ -35,16 +36,43 @@ export type DecisionRelationConsistencyIssue = {
   sourceIds: DecisionId[];
 };
 
-type DecisionRelationGraph = RelationGraph<DecisionId, DecisionRelationType> & {
-  recordById: Map<DecisionId, DecisionRelationConsistencyRecord>;
+export type DecisionRelationGraph = RelationGraph<
+  DecisionId,
+  DecisionRelationType
+> & {
+  readonly recordById: ReadonlyMap<
+    DecisionId,
+    DecisionRelationConsistencyRecord
+  >;
 };
 
-export type DecisionRelationConsistencyRecord = {
+export type DecisionRelationConsistencyRecord = Readonly<{
   decisionId: DecisionId;
   projection: DecisionProjection;
   sourcePath: string;
   status: EstablishedDecisionStatus;
-};
+}>;
+
+export type DecisionRelationGraphProvider = () => DecisionRelationGraph;
+
+type DecisionRelationGraphSource =
+  | readonly DecisionRelationConsistencyRecord[]
+  | DecisionRelationGraphProvider;
+
+/** provider 只属于当前稳定快照；新的记录状态必须另建 provider。 */
+export function createDecisionRelationGraphProvider(
+  records: readonly DecisionRelationConsistencyRecord[]
+): DecisionRelationGraphProvider {
+  return createLazyRelationGraph(() => buildDecisionRelationGraph(records));
+}
+
+function relationGraph(
+  source: DecisionRelationGraphSource
+): DecisionRelationGraph {
+  return typeof source === "function"
+    ? source()
+    : buildDecisionRelationGraph(source);
+}
 
 export function collectDecisionRelationEdges(
   records: readonly DecisionRelationConsistencyRecord[]
@@ -75,7 +103,7 @@ function buildDecisionRelationGraph(
 }
 
 export function traceDecisionRelations(
-  records: readonly DecisionRelationConsistencyRecord[],
+  source: DecisionRelationGraphSource,
   startDecisionId: DecisionId,
   options: {
     direction: DecisionTraceDirection;
@@ -83,7 +111,7 @@ export function traceDecisionRelations(
     maxRecords: number;
   }
 ): DecisionRelationTrace {
-  const graph = buildDecisionRelationGraph(records);
+  const graph = relationGraph(source);
   const reallocationComponents = decisionReallocationComponents(graph.edges);
   return selectRelationGraphTrace(
     graph,
@@ -113,9 +141,9 @@ export function decisionRelationConsistencyErrors(
 }
 
 export function decisionRelationConsistencyIssues(
-  records: readonly DecisionRelationConsistencyRecord[]
+  source: DecisionRelationGraphSource
 ): DecisionRelationConsistencyIssue[] {
-  const graph = buildDecisionRelationGraph(records);
+  const graph = relationGraph(source);
   const structuralIssues = relationGraphStructuralIssues(graph);
   return [
     ...relationEdgeConsistencyIssues(graph, structuralIssues),

@@ -8,18 +8,19 @@
  * Rebuild: bun run sync:investigation-report-check
  */
 import {
-  buildRelationGraph,
   relationGraphStructuralIssues,
   selectRelationGraphTrace,
-  sortRelationEdges,
   type RelationEdge,
-  type RelationGraph,
   type RelationGraphTraceAdmissionAdapter,
   type RelationGraphTraceAdmissionUnit,
   type RelationGraphTraceExpansionDirection,
   type RelationGraphTraceSelection,
   type RelationGraphTraceSelectionOptions
 } from "../../shared/src/graph/relations.ts";
+import type {
+  InvestigationRelationContext,
+  InvestigationRelationGraph
+} from "./relation-context.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import {
   investigationRelationTypes,
@@ -35,35 +36,13 @@ const ordinaryRelationTypes = new Set<InvestigationRelationType>([
   "推翻"
 ]);
 
-function investigationRelationEdges(
-  states: ReadonlyMap<string, InvestigationIndexState>
-): InvestigationRelationEdge[] {
-  return [...states.entries()].flatMap(([source, state]) =>
-    state.relations.map((relation) => ({
-      source,
-      target: relation.target,
-      type: relation.type,
-      ...(relation.summary === undefined ? {} : { summary: relation.summary })
-    }))
-  );
-}
-
-function buildInvestigationRelationGraph(
-  states: ReadonlyMap<string, InvestigationIndexState>
-): RelationGraph<string, InvestigationRelationType> {
-  return buildRelationGraph(
-    states.keys(),
-    sortRelationEdges(investigationRelationEdges(states))
-  );
-}
-
 /** Traces Investigation report relations through the shared graph traversal. */
 export function traceInvestigationRelations(
-  states: ReadonlyMap<string, InvestigationIndexState>,
+  context: InvestigationRelationContext,
   startId: string,
   options: RelationGraphTraceSelectionOptions
 ): RelationGraphTraceSelection<string> {
-  const graph = buildInvestigationRelationGraph(states);
+  const graph = context.graph();
   return selectRelationGraphTrace(
     graph,
     startId,
@@ -187,23 +166,19 @@ function frozenTraceEvent(
 }
 
 export function validateInvestigationRelationGraph(
-  states: ReadonlyMap<string, InvestigationIndexState>
+  context: InvestigationRelationContext
 ): string[] {
-  const ids = [...states.keys()].sort(compareText);
-  const graph = buildInvestigationRelationGraph(states);
+  const graph = context.graph();
+  const ids = [...graph.ids].sort(compareText);
   return uniqueSorted([
     ...structuralRelationErrors(graph),
-    ...chronologicalRelationErrors(states, graph.edges),
+    ...chronologicalRelationErrors(graph.states, graph.edges),
     ...ids.flatMap((id) =>
       relationShapeIssues(id, graph.edgesBySource.get(id) ?? [])
     ),
     ...splitPredecessorErrors(ids, graph)
   ]);
 }
-
-type InvestigationRelationGraph = ReturnType<
-  typeof buildInvestigationRelationGraph
->;
 
 function structuralRelationErrors(graph: InvestigationRelationGraph): string[] {
   const errors: string[] = [];

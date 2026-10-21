@@ -9,6 +9,7 @@ import {
 } from "../../index-runtime/src/index.ts";
 import { createInvestigationStateIndexDefinition } from "./investigation-state-index.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
+import { createInvestigationRelationContext } from "./relation-context.ts";
 import { validateInvestigationResourceOwnership } from "./resources.ts";
 import {
   stageDiagnostic,
@@ -34,7 +35,9 @@ export function createInvestigationStageIndexDefinition() {
         [...states].map(([id, state]) => [id, new Set(state.resourceIds)])
       );
       const errors = [
-        ...validateInvestigationRelationGraph(states),
+        ...validateInvestigationRelationGraph(
+          createInvestigationRelationContext(states)
+        ),
         ...validateInvestigationResourceOwnership(
           [...states.values()].flatMap((state) => state.resourceIds),
           references

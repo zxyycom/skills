@@ -1,6 +1,7 @@
 import { buildInvestigationReportState } from "./report-validation.ts";
 import { replacementRelationReview } from "./relation-review.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
+import { createInvestigationRelationContext } from "./relation-context.ts";
 import { buildRelationIndex } from "./relation-transaction-protection.ts";
 import {
   parseInvestigationReport,
@@ -62,7 +63,9 @@ function prepareRelationCandidate(
   >["value"]
 ): RelationPhase<PreparedRelationCandidate> {
   const { candidateSources, candidateStates } = candidateSet;
-  const relationErrors = validateInvestigationRelationGraph(candidateStates);
+  const relationErrors = validateInvestigationRelationGraph(
+    createInvestigationRelationContext(candidateStates)
+  );
   if (relationErrors.length > 0) {
     return relationPhaseResult(
       relationResult(false, loaded.sourceIds, options.indexPath, relationErrors)

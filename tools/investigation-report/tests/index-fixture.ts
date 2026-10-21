@@ -10,6 +10,7 @@ import {
 } from "../src/query-index.ts";
 import { prepareSearch } from "../src/query-options.ts";
 import { searchLoadedInvestigationMetadata } from "../src/query-search-metadata.ts";
+import { createInvestigationRelationContext } from "../src/relation-context.ts";
 import { investigationNameFromId } from "../src/report-path.ts";
 import {
   investigationRelationTypes,
@@ -86,7 +87,7 @@ export function searchIndexFixture(
   });
   if (prepared.isErr()) assert.fail(prepared.error.join("\n"));
   return searchLoadedInvestigationMetadata(
-    Object.entries(index.entries).map(([id, state]) => ({ id, state })),
+    createInvestigationRelationContext(Object.entries(index.entries)),
     prepared.value.indexPath,
     prepared.value
   );

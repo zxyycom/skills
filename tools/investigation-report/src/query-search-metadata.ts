@@ -12,6 +12,10 @@ import {
   diagnosticFromStateIndexDiagnostic
 } from "./diagnostics.ts";
 import { loadInvestigationIndex } from "./investigation-state-index.ts";
+import {
+  createInvestigationRelationContext,
+  type InvestigationRelationContext
+} from "./relation-context.ts";
 import { compareText, searchFailure } from "./query-results.ts";
 import { investigationMetadataSearchFields } from "./types.ts";
 import type {
@@ -44,7 +48,7 @@ export async function searchInvestigationMetadata(
   if (loaded.status === "error")
     return metadataIndexFailure(loaded.diagnostics, indexPath);
   return searchLoadedInvestigationMetadata(
-    Object.entries(loaded.value.entries).map(([id, state]) => ({ id, state })),
+    createInvestigationRelationContext(Object.entries(loaded.value.entries)),
     indexPath,
     prepared
   );
@@ -52,14 +56,14 @@ export async function searchInvestigationMetadata(
 
 /** Projects metadata matches from one already validated published snapshot. */
 export function searchLoadedInvestigationMetadata(
-  entries: readonly InvestigationSnapshotEntry[],
+  context: InvestigationRelationContext,
   indexPath: string,
   prepared: PreparedSearch
 ): InvestigationSearchResult {
   const matcher = metadataMatcher(prepared);
   if (matcher instanceof Error)
     return metadataMatcherFailure(matcher, indexPath);
-  const selected = selectSearchEntries(entries, prepared);
+  const selected = selectSearchEntries(context, prepared);
   if (selected.isErr())
     return searchFailure({
       errors: selected.error,

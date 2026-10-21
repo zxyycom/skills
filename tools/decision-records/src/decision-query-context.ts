@@ -1,3 +1,7 @@
+import {
+  loadDecisionIndexSnapshot,
+  type DecisionIndexSnapshot
+} from "./decision-index-snapshot.ts";
 import path from "node:path";
 import {
   decisionFailure,
@@ -6,26 +10,23 @@ import {
 import {
   decisionIndexFileName,
   decisionIndexDiagnostics,
-  decisionIndexRecovery,
-  loadDecisionIndex
+  decisionIndexRecovery
 } from "./decision-state-index.ts";
 import { displayDecisionPath } from "./decision-path.ts";
-import type { IndexedDecisionState } from "./decision-query-contract.ts";
-import type { DecisionIndex, DecisionScanOptions } from "./types.ts";
+import type { DecisionScanOptions } from "./types.ts";
 
 export type DecisionLocation = Readonly<{
   decisionsDir: string;
   workspaceRoot: string;
 }>;
 
-export type DecisionQueryContext = Readonly<{
-  decisionsDirectory: string;
-  index: DecisionIndex;
-  indexRelativePath: string;
-  entries: readonly IndexedDecisionState[];
-  status: "ok";
-  warnings: string[];
-}>;
+export type DecisionQueryContext = DecisionIndexSnapshot &
+  Readonly<{
+    decisionsDirectory: string;
+    indexRelativePath: string;
+    status: "ok";
+    warnings: string[];
+  }>;
 
 type ResolvedDecisionLocation = Readonly<{
   decisionsDirectory: string;
@@ -39,7 +40,7 @@ export async function loadDecisionQueryContext(
     resolveDecisionLocation(location);
   const indexPath = path.join(decisionsDirectory, decisionIndexFileName);
   const indexRelativePath = displayDecisionPath(workspaceRoot, indexPath);
-  const currentIndex = await loadDecisionIndex({
+  const currentIndex = await loadDecisionIndexSnapshot({
     decisionsDirectory
   });
   if (currentIndex.status === "error") {
@@ -56,12 +57,10 @@ export async function loadDecisionQueryContext(
   }
   return {
     decisionsDirectory,
-    index: currentIndex.value,
+    index: currentIndex.value.index,
+    getRelationGraph: currentIndex.value.getRelationGraph,
     indexRelativePath,
-    entries: Object.entries(currentIndex.value.entries).map(([id, state]) => ({
-      id,
-      state
-    })),
+    entries: currentIndex.value.entries,
     status: "ok",
     warnings: []
   };

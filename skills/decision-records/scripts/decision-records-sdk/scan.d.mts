@@ -6,7 +6,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
-import { type DecisionScan, type DecisionScanOptions } from "./types.mjs";
+import type { DecisionScan, DecisionScanOptions } from "./types.mjs";
 export { missingIndexedDecisionError, unindexedDecisionError } from "./scan-relations.mjs";
 export declare function decisionIndexRequiredError(indexRelativePath: string): string;
 export declare function scanDecisionRecords(options?: DecisionScanOptions): Promise<DecisionScan>;

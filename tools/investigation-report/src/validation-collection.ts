@@ -8,6 +8,10 @@ import { readCandidateAuthoringResourceReferences } from "./candidate.ts";
 import { investigationIndexFileName } from "./investigation-state-index.ts";
 import { parseInvestigationReport } from "./markdown.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
+import {
+  createInvestigationRelationContext,
+  type InvestigationRelationContext
+} from "./relation-context.ts";
 import { buildInvestigationReportState } from "./report-validation.ts";
 import {
   validateFullInvestigationResources,
@@ -29,6 +33,7 @@ export type ValidatedInvestigationCollection = Readonly<{
   errors: string[];
   indexPath: string;
   reportCount: number;
+  relations: InvestigationRelationContext;
   snapshot: InvestigationSnapshot | null;
   sources: InvestigationSource[];
   states: Map<string, InvestigationIndexState>;
@@ -42,7 +47,6 @@ export async function collectValidatedInvestigationCollection(
     layout?: InvestigationCollectionLayout;
   }> = {}
 ): Promise<ValidatedInvestigationCollection> {
-  const indexPath = path.join(investigationRoot, investigationIndexFileName);
   const layout =
     options.layout ??
     (await inspectInvestigationCollectionLayout(investigationRoot));
@@ -52,8 +56,9 @@ export async function collectValidatedInvestigationCollection(
   }
   const sources = layout.errors.length > 0 ? [] : layout.formalSources;
   const states = collectionStates(sources, errors);
+  const relations = createInvestigationRelationContext(states);
   if (errors.length === 0)
-    errors.push(...validateInvestigationRelationGraph(states));
+    errors.push(...validateInvestigationRelationGraph(relations));
   const referencesByReport: InvestigationResourceReferencesByReport = new Map(
     [...states.entries()].map(([id, state]) => [id, new Set(state.resourceIds)])
   );
@@ -72,8 +77,9 @@ export async function collectValidatedInvestigationCollection(
   const sortedErrors = uniqueSorted(errors);
   return {
     errors: sortedErrors,
-    indexPath,
+    indexPath: path.join(investigationRoot, investigationIndexFileName),
     reportCount: layout.reportIds.length,
+    relations,
     snapshot:
       sortedErrors.length === 0
         ? createInvestigationStateSnapshot(sources, [...states.values()])

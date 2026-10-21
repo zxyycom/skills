@@ -21,6 +21,7 @@ import {
 } from "./investigation-state-index.ts";
 import { resolveInvestigationSelector } from "./investigation-selector.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
+import { createInvestigationRelationContext } from "./relation-context.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import { collectValidatedInvestigationCollection } from "./validation.ts";
 import type {
@@ -276,7 +277,9 @@ function prepareDiscardCandidate(
   const states = new Map(
     [...collection.states].filter(([id]) => id !== options.id)
   );
-  const relationErrors = validateInvestigationRelationGraph(states);
+  const relationErrors = validateInvestigationRelationGraph(
+    createInvestigationRelationContext(states)
+  );
   return relationErrors.length > 0
     ? discardStepFailure(result(options, false, [], relationErrors))
     : discardStepValue({ sources, states });

@@ -10,6 +10,7 @@ import { FileTextSearchError } from "../../shared/src/file-text-search/index.ts"
 import { diagnosticFromError } from "./diagnostics.ts";
 import { searchFailure } from "./query-results.ts";
 import { selectSearchEntries } from "./query-search-selection.ts";
+import type { InvestigationRelationContext } from "./relation-context.ts";
 import type {
   InvestigationFilterRelation,
   InvestigationSearchEntry,
@@ -20,7 +21,7 @@ import type {
 import type { InvestigationSnapshotEntry, PreparedSearch } from "./query.ts";
 
 type SearchSnapshot = Readonly<{
-  entries: readonly InvestigationSnapshotEntry[];
+  relations: InvestigationRelationContext;
   indexPath: string;
   investigationsDirectory: string;
   prepared: PreparedSearch;
@@ -32,7 +33,7 @@ type SearchSnapshot = Readonly<{
 export async function searchSnapshot(
   snapshot: SearchSnapshot
 ): Promise<InvestigationSearchResult> {
-  const selected = selectSearchEntries(snapshot.entries, snapshot.prepared);
+  const selected = selectSearchEntries(snapshot.relations, snapshot.prepared);
   if (selected.isErr())
     return searchFailure({
       errors: selected.error,

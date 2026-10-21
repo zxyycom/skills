@@ -4,6 +4,7 @@ import {
   traceInvestigationRelations,
   validateInvestigationRelationGraph
 } from "../src/relation-validation.ts";
+import { createInvestigationRelationContext } from "../src/relation-context.ts";
 import type { InvestigationIndexState } from "../src/types.ts";
 
 function state(
@@ -46,45 +47,56 @@ test("relation graph accepts independent ordinary merge and split shapes", () =>
       state("2026-08-28T13:00:00+00:00", [{ target: "ordinary", type: "拆分" }])
     ]
   ]);
-  assert.deepEqual(validateInvestigationRelationGraph(states), []);
+  assert.deepEqual(
+    validateInvestigationRelationGraph(
+      createInvestigationRelationContext(states)
+    ),
+    []
+  );
 });
 
 test("relation graph rejects a missing target", () => {
   const errors = validateInvestigationRelationGraph(
-    new Map([
-      [
-        "missing",
-        state("2026-08-28T14:00:00+00:00", [{ target: "none", type: "补充" }])
-      ]
-    ])
+    createInvestigationRelationContext(
+      new Map([
+        [
+          "missing",
+          state("2026-08-28T14:00:00+00:00", [{ target: "none", type: "补充" }])
+        ]
+      ])
+    )
   );
   assert.ok(errors.some((error) => error.includes("does not exist")));
 });
 
 test("relation graph rejects a self target", () => {
   const errors = validateInvestigationRelationGraph(
-    new Map([
-      [
-        "self",
-        state("2026-08-28T14:00:00+00:00", [{ target: "self", type: "补充" }])
-      ]
-    ])
+    createInvestigationRelationContext(
+      new Map([
+        [
+          "self",
+          state("2026-08-28T14:00:00+00:00", [{ target: "self", type: "补充" }])
+        ]
+      ])
+    )
   );
   assert.ok(errors.some((error) => error.includes("must not target itself")));
 });
 
 test("relation graph rejects a repeated target", () => {
   const errors = validateInvestigationRelationGraph(
-    new Map([
-      ["base", state("2026-08-28T12:00:00+00:00")],
-      [
-        "duplicate",
-        state("2026-08-28T14:00:00+00:00", [
-          { target: "base", type: "补充" },
-          { target: "base", type: "复查" }
-        ])
-      ]
-    ])
+    createInvestigationRelationContext(
+      new Map([
+        ["base", state("2026-08-28T12:00:00+00:00")],
+        [
+          "duplicate",
+          state("2026-08-28T14:00:00+00:00", [
+            { target: "base", type: "补充" },
+            { target: "base", type: "复查" }
+          ])
+        ]
+      ])
+    )
   );
   assert.deepEqual(
     errors.filter((error) => error.includes("repeat target")),
@@ -94,29 +106,39 @@ test("relation graph rejects a repeated target", () => {
 
 test("relation graph rejects a target formed later", () => {
   const errors = validateInvestigationRelationGraph(
-    new Map([
-      [
-        "base",
-        state("2026-08-28T12:00:00+00:00", [{ target: "later", type: "补充" }])
-      ],
-      ["later", state("2026-08-28T13:00:00+00:00")]
-    ])
+    createInvestigationRelationContext(
+      new Map([
+        [
+          "base",
+          state("2026-08-28T12:00:00+00:00", [
+            { target: "later", type: "补充" }
+          ])
+        ],
+        ["later", state("2026-08-28T13:00:00+00:00")]
+      ])
+    )
   );
   assert.ok(errors.some((error) => error.includes("formed later")));
 });
 
 test("relation graph rejects a cycle", () => {
   const errors = validateInvestigationRelationGraph(
-    new Map([
-      [
-        "first",
-        state("2026-08-28T12:00:00+00:00", [{ target: "second", type: "补充" }])
-      ],
-      [
-        "second",
-        state("2026-08-28T13:00:00+00:00", [{ target: "first", type: "补充" }])
-      ]
-    ])
+    createInvestigationRelationContext(
+      new Map([
+        [
+          "first",
+          state("2026-08-28T12:00:00+00:00", [
+            { target: "second", type: "补充" }
+          ])
+        ],
+        [
+          "second",
+          state("2026-08-28T13:00:00+00:00", [
+            { target: "first", type: "补充" }
+          ])
+        ]
+      ])
+    )
   );
   assert.ok(errors.some((error) => error.includes("cycle")));
 });
@@ -133,35 +155,51 @@ test("relation trace selects deterministic predecessor successor and bidirection
     ["a", state("2026-08-28T10:00:00+00:00")]
   ]);
   assert.deepEqual(
-    traceInvestigationRelations(states, "b", {
-      direction: "predecessors",
-      maxDepth: null,
-      maxRecords: 50
-    }).traceIds,
+    traceInvestigationRelations(
+      createInvestigationRelationContext(states),
+      "b",
+      {
+        direction: "predecessors",
+        maxDepth: null,
+        maxRecords: 50
+      }
+    ).traceIds,
     ["a", "b"]
   );
   assert.deepEqual(
-    traceInvestigationRelations(states, "b", {
-      direction: "successors",
-      maxDepth: null,
-      maxRecords: 50
-    }).traceIds,
+    traceInvestigationRelations(
+      createInvestigationRelationContext(states),
+      "b",
+      {
+        direction: "successors",
+        maxDepth: null,
+        maxRecords: 50
+      }
+    ).traceIds,
     ["b", "c"]
   );
   assert.deepEqual(
-    traceInvestigationRelations(states, "b", {
-      direction: "both",
-      maxDepth: null,
-      maxRecords: 50
-    }).traceIds,
+    traceInvestigationRelations(
+      createInvestigationRelationContext(states),
+      "b",
+      {
+        direction: "both",
+        maxDepth: null,
+        maxRecords: 50
+      }
+    ).traceIds,
     ["a", "b", "c"]
   );
   assert.deepEqual(
-    traceInvestigationRelations(states, "b", {
-      direction: "both",
-      maxDepth: 0,
-      maxRecords: 50
-    }).frontier,
+    traceInvestigationRelations(
+      createInvestigationRelationContext(states),
+      "b",
+      {
+        direction: "both",
+        maxDepth: 0,
+        maxRecords: 50
+      }
+    ).frontier,
     [
       {
         direction: "predecessors",
@@ -173,11 +211,15 @@ test("relation trace selects deterministic predecessor successor and bidirection
     ]
   );
   assert.deepEqual(
-    traceInvestigationRelations(states, "b", {
-      direction: "both",
-      maxDepth: 0,
-      maxRecords: 50
-    }).traceIds,
+    traceInvestigationRelations(
+      createInvestigationRelationContext(states),
+      "b",
+      {
+        direction: "both",
+        maxDepth: 0,
+        maxRecords: 50
+      }
+    ).traceIds,
     ["b"]
   );
 });
@@ -194,11 +236,15 @@ test("relation trace closes split and merge events without treating context as t
       state("2026-08-28T11:00:00+00:00", [{ target: "base", type: "拆分" }])
     ]
   ]);
-  const split = traceInvestigationRelations(splitStates, "first-split", {
-    direction: "predecessors",
-    maxDepth: null,
-    maxRecords: 50
-  });
+  const split = traceInvestigationRelations(
+    createInvestigationRelationContext(splitStates),
+    "first-split",
+    {
+      direction: "predecessors",
+      maxDepth: null,
+      maxRecords: 50
+    }
+  );
   assert.deepEqual(split.traceIds, ["base", "first-split"]);
   assert.deepEqual(split.contextIds, ["second-split"]);
 
@@ -213,11 +259,15 @@ test("relation trace closes split and merge events without treating context as t
       ])
     ]
   ]);
-  const merge = traceInvestigationRelations(mergeStates, "first-source", {
-    direction: "successors",
-    maxDepth: null,
-    maxRecords: 50
-  });
+  const merge = traceInvestigationRelations(
+    createInvestigationRelationContext(mergeStates),
+    "first-source",
+    {
+      direction: "successors",
+      maxDepth: null,
+      maxRecords: 50
+    }
+  );
   assert.deepEqual(merge.traceIds, ["first-source", "merged"]);
   assert.deepEqual(merge.contextIds, ["second-source"]);
 });
@@ -234,11 +284,15 @@ test("relation trace blocks an oversized split event at the budget boundary", ()
       state("2026-08-28T11:00:00+00:00", [{ target: "base", type: "拆分" }])
     ]
   ]);
-  const trace = traceInvestigationRelations(states, "first-split", {
-    direction: "predecessors",
-    maxDepth: null,
-    maxRecords: 2
-  });
+  const trace = traceInvestigationRelations(
+    createInvestigationRelationContext(states),
+    "first-split",
+    {
+      direction: "predecessors",
+      maxDepth: null,
+      maxRecords: 2
+    }
+  );
   assert.deepEqual(trace.traceIds, ["first-split"]);
   assert.deepEqual(trace.contextIds, []);
   assert.deepEqual(trace.blockedEvent, {
@@ -278,13 +332,22 @@ test("relation summaries do not change graph identity or validation", () => {
     ]
   ]);
   assert.deepEqual(
-    validateInvestigationRelationGraph(withSummary),
-    validateInvestigationRelationGraph(withoutSummary)
+    validateInvestigationRelationGraph(
+      createInvestigationRelationContext(withSummary)
+    ),
+    validateInvestigationRelationGraph(
+      createInvestigationRelationContext(withoutSummary)
+    )
   );
-  assert.deepEqual(validateInvestigationRelationGraph(withSummary), [
-    "next ordinary relation report must have exactly one 补充、复查、修正 or 推翻 predecessor",
-    "next relations must not repeat target base"
-  ]);
+  assert.deepEqual(
+    validateInvestigationRelationGraph(
+      createInvestigationRelationContext(withSummary)
+    ),
+    [
+      "next ordinary relation report must have exactly one 补充、复查、修正 or 推翻 predecessor",
+      "next relations must not repeat target base"
+    ]
+  );
 });
 
 test("investigation graph accepts same-time deep ordinary chains and preserves late-cycle diagnostics", () => {
@@ -301,14 +364,24 @@ test("investigation graph accepts same-time deep ordinary chains and preserves l
       )
     ])
   );
-  assert.deepEqual(validateInvestigationRelationGraph(states), []);
+  assert.deepEqual(
+    validateInvestigationRelationGraph(
+      createInvestigationRelationContext(states)
+    ),
+    []
+  );
   states.set(
     ids[11999]!,
     state("2026-08-28T12:00:00Z", [{ target: ids[11997]!, type: "复查" }])
   );
-  assert.deepEqual(validateInvestigationRelationGraph(states), [
-    "investigation relations must not form a cycle: chain-11997 -> chain-11998 -> chain-11999 -> chain-11997"
-  ]);
+  assert.deepEqual(
+    validateInvestigationRelationGraph(
+      createInvestigationRelationContext(states)
+    ),
+    [
+      "investigation relations must not form a cycle: chain-11997 -> chain-11998 -> chain-11999 -> chain-11997"
+    ]
+  );
 });
 
 test("relation trace reuses complete events across both directions anchors and depth boundaries", () => {
@@ -332,24 +405,37 @@ test("relation trace reuses complete events across both directions anchors and d
           { type: "归并", target: "c" }
         ])
       );
-    assert.deepEqual(validateInvestigationRelationGraph(states), []);
+    assert.deepEqual(
+      validateInvestigationRelationGraph(
+        createInvestigationRelationContext(states)
+      ),
+      []
+    );
     for (const anchor of states.keys()) {
-      const complete = traceInvestigationRelations(states, anchor, {
-        direction: "both",
-        maxDepth: null,
-        maxRecords: 4
-      });
+      const complete = traceInvestigationRelations(
+        createInvestigationRelationContext(states),
+        anchor,
+        {
+          direction: "both",
+          maxDepth: null,
+          maxRecords: 4
+        }
+      );
       assert.deepEqual(complete, {
         contextIds: [],
         coverage: { complete: true, stoppedBy: [] },
         frontier: [],
         traceIds: ["a", "b", "c", "center"]
       });
-      const blocked = traceInvestigationRelations(states, anchor, {
-        direction: "both",
-        maxDepth: null,
-        maxRecords: 3
-      });
+      const blocked = traceInvestigationRelations(
+        createInvestigationRelationContext(states),
+        anchor,
+        {
+          direction: "both",
+          maxDepth: null,
+          maxRecords: 3
+        }
+      );
       assert.deepEqual(blocked.traceIds, [anchor]);
       assert.deepEqual(blocked.contextIds, []);
       assert.deepEqual(blocked.blockedEvent, {
@@ -358,11 +444,15 @@ test("relation trace reuses complete events across both directions anchors and d
         requiredMaxRecords: 4
       });
     }
-    const depth = traceInvestigationRelations(states, "a", {
-      direction: "both",
-      maxDepth: 1,
-      maxRecords: 4
-    });
+    const depth = traceInvestigationRelations(
+      createInvestigationRelationContext(states),
+      "a",
+      {
+        direction: "both",
+        maxDepth: 1,
+        maxRecords: 4
+      }
+    );
     assert.deepEqual(depth.traceIds, ["a", "center"]);
     assert.deepEqual(depth.contextIds, ["b", "c"]);
     assert.deepEqual(depth.frontier, [
@@ -391,12 +481,21 @@ test("relation trace retains already admitted event targets in a later budget fr
     ["q", state("2026-08-28T12:00:00Z")],
     ["a", state("2026-08-28T12:00:00Z", [{ type: "补充", target: "p" }])]
   ]);
-  assert.deepEqual(validateInvestigationRelationGraph(states), []);
-  const trace = traceInvestigationRelations(states, "z", {
-    direction: "both",
-    maxDepth: null,
-    maxRecords: 4
-  });
+  assert.deepEqual(
+    validateInvestigationRelationGraph(
+      createInvestigationRelationContext(states)
+    ),
+    []
+  );
+  const trace = traceInvestigationRelations(
+    createInvestigationRelationContext(states),
+    "z",
+    {
+      direction: "both",
+      maxDepth: null,
+      maxRecords: 4
+    }
+  );
   assert.deepEqual(trace.traceIds, ["b", "p", "q", "z"]);
   assert.deepEqual(trace.contextIds, []);
   assert.equal(trace.blockedEvent, undefined);

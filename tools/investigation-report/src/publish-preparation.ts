@@ -14,6 +14,7 @@ import {
   syncInvestigationStateIndex
 } from "./investigation-state-index.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
+import { createInvestigationRelationContext } from "./relation-context.ts";
 import {
   validateFullInvestigationResources,
   type InvestigationResourceReferencesByReport
@@ -227,7 +228,9 @@ async function validatePublishCollection(
   investigationsDirectory: string,
   context: CandidatePublishContext
 ): Promise<PublishPreparationStep<undefined>> {
-  const relationErrors = validateInvestigationRelationGraph(context.states);
+  const relationErrors = validateInvestigationRelationGraph(
+    createInvestigationRelationContext(context.states)
+  );
   if (relationErrors.length > 0) {
     return preparationFailure(relationErrors, [], context.warnings);
   }

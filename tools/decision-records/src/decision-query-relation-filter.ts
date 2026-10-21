@@ -1,4 +1,9 @@
 import {
+  decisionRelationRecordSnapshot,
+  type DecisionRelationRecordSnapshot
+} from "./decision-query-records.ts";
+import type { DecisionRelationEdge } from "./relation-graph.ts";
+import {
   decisionDiagnostic,
   decisionFailure,
   type DecisionApplicationFailure
@@ -31,18 +36,19 @@ type DecisionRelationFilter = Readonly<{
 }>;
 
 export function filterDecisionRelationRecords(
-  records: readonly IndexedDecisionRecord[],
+  source: readonly IndexedDecisionRecord[] | DecisionRelationRecordSnapshot,
   request: RelationFilterRequest
 ):
   | { records: DecisionFilteredRecord[]; relatedTo?: DecisionId; status: "ok" }
   | { failure: DecisionApplicationFailure; status: "error" } {
-  const filtered = resolveDecisionRelationFilter(records, request);
+  const snapshot = decisionRelationRecordSnapshot(source);
+  const filtered = resolveDecisionRelationFilter(snapshot, request);
   if (filtered.status === "error") return filtered;
   return {
     ...(filtered.value.relatedTo === undefined
       ? {}
       : { relatedTo: filtered.value.relatedTo }),
-    records: records.flatMap((record) => {
+    records: snapshot.records.flatMap((record) => {
       if (
         filtered.value.decisionIds !== null &&
         !filtered.value.decisionIds.has(record.decisionId)
@@ -61,46 +67,45 @@ export function filterDecisionRelationRecords(
 }
 
 export function resolveDecisionRelationFilter(
-  records: readonly IndexedDecisionRecord[],
+  source: readonly IndexedDecisionRecord[] | DecisionRelationRecordSnapshot,
   request: RelationFilterRequest
 ):
   | { status: "ok"; value: DecisionRelationFilter }
   | { failure: DecisionApplicationFailure; status: "error" } {
+  const snapshot = decisionRelationRecordSnapshot(source);
   if (request.relatedTo === undefined)
-    return relationFilterWithoutTarget(records, request);
+    return relationFilterWithoutTarget(snapshot, request);
   const target = resolveDecisionSelectorInRecords(
-    records,
+    snapshot.records,
     request.relatedTo,
     "Related decision"
   );
   if (target.status === "error") return target;
+  const graph = snapshot.getRelationGraph();
   const relationsByDecisionId = new Map<DecisionId, DecisionFilterRelation[]>();
   const direction = request.direction ?? "both";
   if (direction === "predecessors" || direction === "both") {
-    for (const relation of target.record.projection.relations) {
+    for (const relation of graph.edgesBySource.get(target.record.decisionId) ??
+      []) {
       if (relationMatches(relation, request)) {
         addRelation(
           relationsByDecisionId,
           relation.target,
-          filterRelation(target.record.decisionId, relation)
+          filterRelation(relation)
         );
       }
     }
   }
   if (direction === "successors" || direction === "both") {
-    for (const record of records) {
-      record.projection.relations.forEach((relation) => {
-        if (
-          relation.target === target.record.decisionId &&
-          relationMatches(relation, request)
-        ) {
-          addRelation(
-            relationsByDecisionId,
-            record.decisionId,
-            filterRelation(record.decisionId, relation)
-          );
-        }
-      });
+    for (const relation of graph.edgesByTarget.get(target.record.decisionId) ??
+      []) {
+      if (relationMatches(relation, request)) {
+        addRelation(
+          relationsByDecisionId,
+          relation.source,
+          filterRelation(relation)
+        );
+      }
     }
   }
   return {
@@ -113,7 +118,7 @@ export function resolveDecisionRelationFilter(
 }
 
 function relationFilterWithoutTarget(
-  records: readonly IndexedDecisionRecord[],
+  snapshot: DecisionRelationRecordSnapshot,
   request: RelationFilterRequest
 ):
   | { status: "ok"; value: DecisionRelationFilter }
@@ -135,17 +140,17 @@ function relationFilterWithoutTarget(
   if (request.relationType === undefined)
     return { status: "ok", value: emptyRelationFilter() };
   const relationsByDecisionId = new Map<DecisionId, DecisionFilterRelation[]>();
-  records.forEach((record) =>
-    record.projection.relations.forEach((relation) => {
+  for (const edges of snapshot.getRelationGraph().edgesBySource.values()) {
+    for (const relation of edges) {
       if (relation.type === request.relationType) {
         addRelation(
           relationsByDecisionId,
-          record.decisionId,
-          filterRelation(record.decisionId, relation)
+          relation.source,
+          filterRelation(relation)
         );
       }
-    })
-  );
+    }
+  }
   return { status: "ok", value: relationFilterFromMap(relationsByDecisionId) };
 }
 
@@ -154,11 +159,10 @@ function emptyRelationFilter(): DecisionRelationFilter {
 }
 
 function filterRelation(
-  sourceId: DecisionId,
-  relation: DecisionRelation
+  relation: DecisionRelationEdge
 ): DecisionFilterRelation {
   return {
-    sourceId,
+    sourceId: relation.source,
     ...(relation.summary === undefined ? {} : { summary: relation.summary }),
     target: relation.target,
     type: relation.type

@@ -1,4 +1,9 @@
 import {
+  createDecisionRelationGraphProvider,
+  type DecisionRelationGraphProvider
+} from "./relation-graph.ts";
+import type { DecisionIndexSnapshot } from "./decision-index-snapshot.ts";
+import {
   decisionDiagnostic,
   decisionDiagnosticFromReason,
   decisionFailure,
@@ -23,6 +28,38 @@ import type {
   IndexedDecisionRecord,
   IndexedDecisionState
 } from "./decision-query-contract.ts";
+
+export type DecisionRelationRecordSnapshot = Readonly<{
+  records: readonly IndexedDecisionRecord[];
+  getRelationGraph: DecisionRelationGraphProvider;
+}>;
+
+export function decisionRelationRecordSnapshot(
+  source: readonly IndexedDecisionRecord[] | DecisionRelationRecordSnapshot
+): DecisionRelationRecordSnapshot {
+  if ("getRelationGraph" in source) return source;
+  return {
+    records: source,
+    getRelationGraph: createDecisionRelationGraphProvider(source)
+  };
+}
+
+/** 将同一索引快照的 entries 与查询 records 一次投影，保留其校验图。 */
+export function decisionIndexRecordSnapshot(
+  source: readonly IndexedDecisionState[] | DecisionIndexSnapshot
+): DecisionRelationRecordSnapshot &
+  Readonly<{ entries: readonly IndexedDecisionState[] }> {
+  const entries = "index" in source ? source.entries : source;
+  const records = indexedRecords(entries);
+  return {
+    entries,
+    records,
+    getRelationGraph:
+      "index" in source
+        ? source.getRelationGraph
+        : createDecisionRelationGraphProvider(records)
+  };
+}
 
 export function indexedRecords(
   entries: readonly IndexedDecisionState[]

@@ -12,3 +12,5 @@ await import("../snapshot-check-contract.test.ts");
 await import("../trace-output.test.ts");
 
 await import("../index-reader.test.ts");
+await import("../relation-context.test.ts");
+await import("../relation-order.test.ts");

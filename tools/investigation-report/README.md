@@ -24,6 +24,8 @@
 
 ### 关系筛选与 trace
 
+同一不可变投影通过 `InvestigationRelationContext` 绑定条目和惰性关系图。第一次关系筛选、图校验或 trace 才构建正反向邻接和 ID 映射，后续图操作复用同一引用；无关系条件的 list/metadata 搜索不构图。构图不全量排序边，证据、诊断与 trace 各自在输出责任内维持确定顺序。content fallback 沿用本次集合校验的上下文；集合改变或进入新的准备、复核与恢复阶段时另建上下文，不跨调用缓存，也不替代阶段校验。
+
 - `filterRelations` 是公开 Investigation list/search entry API 的可选字段，只在有关系条件时出现，来自同一筛选快照。按 `(sourceId, type, target)` 去重并以 UTF-16 code-unit 词法序排序；前驱边由 anchor 指向结果，后继边由结果指向 anchor，both 取并集，type-only 取结果来源的指定类型出边。该字段不进入索引 Schema，记录排序、分页与 limit 不变。
 - trace 的两种 renderer 消费同一成功查询，不重读索引或重新选择。JSON 原样序列化稳定 envelope，含 anchorId、direction、limits；无限 depth 表示为 `"all"`。
 - `traceIds` 与 `contextIds` 互斥，并集等于 entries keys。context 后续实际到达时提升为 trace member；完整拆分或纯归并事件整体接纳，预算不足不能部分加入。

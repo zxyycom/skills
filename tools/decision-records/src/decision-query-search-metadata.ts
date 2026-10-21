@@ -1,3 +1,7 @@
+import {
+  loadDecisionIndexSnapshot,
+  type DecisionIndexSnapshot
+} from "./decision-index-snapshot.ts";
 import { decisionPublishedSnapshotSource } from "./decision-query-contract.ts";
 import { metadataSearchFacts } from "../../shared/src/file-text-search/record-search-info.ts";
 import path from "node:path";
@@ -14,8 +18,7 @@ import {
 import {
   decisionIndexDiagnostics,
   decisionIndexFileName,
-  decisionIndexRecovery,
-  loadDecisionIndex
+  decisionIndexRecovery
 } from "./decision-state-index.ts";
 import { decisionNameFromId, displayDecisionPath } from "./decision-path.ts";
 import { resolveDecisionLocation } from "./decision-query-context.ts";
@@ -30,7 +33,7 @@ import type {
   IndexedDecisionState
 } from "./decision-query-contract.ts";
 import { decisionMetadataSearchFields } from "./decision-query-contract.ts";
-import { indexedRecord } from "./decision-query-records.ts";
+import { decisionIndexRecordSnapshot } from "./decision-query-records.ts";
 import { filterSearchRecords } from "./decision-query-search-filter.ts";
 import type { StateIndexDiagnostic } from "../../index-runtime/src/index.ts";
 
@@ -48,32 +51,26 @@ export async function searchDecisionMetadata(
     workspaceRoot,
     path.join(decisionsDirectory, decisionIndexFileName)
   );
-  const persisted = await loadDecisionIndex({ decisionsDirectory });
+  const persisted = await loadDecisionIndexSnapshot({ decisionsDirectory });
   if (persisted.status === "error")
     return metadataIndexFailure(persisted, indexRelativePath);
-  return projectDecisionMetadata(
-    Object.entries(persisted.value.entries).map(([id, state]) => ({
-      id,
-      state
-    })),
-    request
-  );
+  return projectDecisionMetadata(persisted.value, request);
 }
 
 /** 从已验证的发布快照计算元数据命中与搜索事实，不读取来源。 */
 export function projectDecisionMetadata(
-  entries: readonly IndexedDecisionState[],
+  source: readonly IndexedDecisionState[] | DecisionIndexSnapshot,
   request: Extract<DecisionQueryRequest, { command: "search" }>
 ): DecisionQueryResult {
   const matcher = metadataMatcher(request);
   if (matcher.status === "error") return matcher.failure;
-  const selected = entries
-    .map(indexedRecord)
-    .sort((left, right) => left.sourcePath.localeCompare(right.sourcePath));
-  const filtered = filterSearchRecords(selected, request);
+  const snapshot = decisionIndexRecordSnapshot(source);
+  const filtered = filterSearchRecords(snapshot, request);
   if (filtered.status === "error") return filtered.failure;
   const records: DecisionMetadataSearchRecord[] = [];
-  for (const record of filtered.records) {
+  for (const record of [...filtered.records].sort((left, right) =>
+    left.sourcePath.localeCompare(right.sourcePath)
+  )) {
     const matched = metadataRecordMatches(matcher.value, record);
     if (matched.status === "error") return matched.failure;
     if (matched.value !== null) records.push(matched.value);

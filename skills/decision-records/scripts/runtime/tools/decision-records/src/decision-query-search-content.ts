@@ -7,6 +7,12 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { loadCurrentDecisionIndexSnapshot } from "./decision-index-snapshot.ts";
+import { scanDecisionSnapshot } from "./scan-snapshot.ts";
+import {
+  decisionIndexRecordSnapshot,
+  type DecisionRelationRecordSnapshot
+} from "./decision-query-records.ts";
 import {
   searchRecordText,
   type RecordTextSearchResult
@@ -21,14 +27,13 @@ import {
   decisionFailure,
   type DecisionApplicationFailure
 } from "./application-result.ts";
-import { loadDecisionValidationContext } from "./index.ts";
+import { validateDecisionScan } from "./index.ts";
 import {
   decisionScanOptions,
   resolveDecisionLocation,
   type DecisionLocation
 } from "./decision-query-context.ts";
 import {
-  loadCurrentDecisionIndex,
   loadDecisionIndex,
   syncDecisionIndex
 } from "./decision-state-index.ts";
@@ -41,7 +46,7 @@ import type {
   DecisionSearchFilters,
   IndexedDecisionRecord
 } from "./decision-query-contract.ts";
-import { indexedRecord, sourceFailure } from "./decision-query-records.ts";
+import { sourceFailure } from "./decision-query-records.ts";
 import { filterSearchRecords } from "./decision-query-search-filter.ts";
 import {
   isEstablishedDecisionRecord,
@@ -58,9 +63,10 @@ const decisionSearchPreviewPolicy = {
 export async function searchDecisionContent(
   request: Extract<DecisionQueryRequest, { command: "search" }>
 ): Promise<DecisionQueryResult> {
-  const snapshot = await loadDecisionSearchSnapshot(request.location);
-  if (snapshot.status === "error") return snapshot.failure;
-  const selected = filterSearchRecords(snapshot.value.entries, request);
+  const context = await loadDecisionSearchContext(request.location);
+  if (context.status === "error") return context.failure;
+  const snapshot = context.value.snapshot;
+  const selected = filterSearchRecords(context.value.records, request);
   if (selected.status === "error") return selected.failure;
   try {
     const searched = await searchRecordText({
@@ -88,7 +94,7 @@ export async function searchDecisionContent(
     return contentSearchSuccess(
       request,
       selected.filters,
-      snapshot.value,
+      snapshot,
       records,
       searched
     );
@@ -147,16 +153,34 @@ function searchedDecisionRecord(
   ]);
 }
 
+type DecisionSearchContext = Readonly<{
+  snapshot: DecisionSearchSnapshot;
+  records: DecisionRelationRecordSnapshot;
+}>;
+
+type DecisionSearchContextResult =
+  | { status: "ok"; value: DecisionSearchContext }
+  | { failure: DecisionApplicationFailure; status: "error" };
+
 export async function loadDecisionSearchSnapshot(
   location: DecisionLocation
 ): Promise<
   | { status: "ok"; value: DecisionSearchSnapshot }
   | { failure: DecisionApplicationFailure; status: "error" }
 > {
+  const context = await loadDecisionSearchContext(location);
+  return context.status === "error"
+    ? context
+    : { status: "ok", value: context.value.snapshot };
+}
+
+async function loadDecisionSearchContext(
+  location: DecisionLocation
+): Promise<DecisionSearchContextResult> {
   const { decisionsDirectory } = resolveDecisionLocation(location);
   const persisted = await loadDecisionIndex({ decisionsDirectory });
   if (persisted.status === "ok") {
-    const current = await loadCurrentDecisionIndex({
+    const current = await loadCurrentDecisionIndexSnapshot({
       decisionsDirectory,
       decisionIds: Object.keys(persisted.value.entries)
     });
@@ -165,21 +189,25 @@ export async function loadDecisionSearchSnapshot(
         ? await syncDecisionIndex({ decisionsDirectory, mode: "check" })
         : null;
     if (current.status === "ok" && checked?.status === "ok") {
-      const entries = Object.entries(current.value.entries)
-        .map(([id, state]) => indexedRecord({ id, state }))
-        .sort((left, right) => left.sourcePath.localeCompare(right.sourcePath));
+      const records = decisionIndexRecordSnapshot(current.value);
+      const entries = [...records.records].sort((left, right) =>
+        left.sourcePath.localeCompare(right.sourcePath)
+      );
       const mapped = decisionSearchMap(entries);
       if (mapped.status === "error") return mapped;
       return {
         status: "ok",
         value: {
-          entries,
-          sourcePathToRecord: mapped.value,
-          warnings: [],
-          source: {
-            kind: "validated-source",
-            currentness: "current",
-            fallback: false
+          records: { ...records, records: entries },
+          snapshot: {
+            entries,
+            sourcePathToRecord: mapped.value,
+            warnings: [],
+            source: {
+              kind: "validated-source",
+              currentness: "current",
+              fallback: false
+            }
           }
         }
       };
@@ -190,18 +218,13 @@ export async function loadDecisionSearchSnapshot(
 
 async function sourceSearchSnapshot(
   location: DecisionLocation
-): Promise<
-  | { status: "ok"; value: DecisionSearchSnapshot }
-  | { failure: DecisionApplicationFailure; status: "error" }
-> {
-  const { result } = await loadDecisionValidationContext(
-    decisionScanOptions(location),
-    {
-      allowEmptyDecisionSet: true,
-      checkIndexText: false,
-      scanErrorPolicy: "source-only"
-    }
-  );
+): Promise<DecisionSearchContextResult> {
+  const source = await scanDecisionSnapshot(decisionScanOptions(location));
+  const result = await validateDecisionScan(source.scan, {
+    allowEmptyDecisionSet: true,
+    checkIndexText: false,
+    scanErrorPolicy: "source-only"
+  });
   if (result.errors.length > 0)
     return {
       failure: sourceFailure(result.errors, "Decision search source"),
@@ -229,16 +252,19 @@ async function sourceSearchSnapshot(
   return {
     status: "ok",
     value: {
-      entries,
-      sourcePathToRecord: mapped.value,
-      source: {
-        kind: "validated-source",
-        currentness: "current",
-        fallback: true
-      },
-      warnings: [
-        "search source: validated-source fallback; the persisted Decision index was unavailable or stale; searched a read-only validated Decision source projection instead. Run sync-index to publish the current projection."
-      ]
+      records: { records: entries, getRelationGraph: source.getRelationGraph },
+      snapshot: {
+        entries,
+        sourcePathToRecord: mapped.value,
+        source: {
+          kind: "validated-source",
+          currentness: "current",
+          fallback: true
+        },
+        warnings: [
+          "search source: validated-source fallback; the persisted Decision index was unavailable or stale; searched a read-only validated Decision source projection instead. Run sync-index to publish the current projection."
+        ]
+      }
     }
   };
 }
