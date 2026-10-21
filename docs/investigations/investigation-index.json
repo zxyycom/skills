@@ -657,6 +657,42 @@
       ],
       "title": "决策与调查工具十万条规模性能调查"
     },
+    "261021-record-tools-all-operations-100k": {
+      "formedAt": "2026-10-21T17:07:37Z",
+      "name": "record-tools-all-operations-100k",
+      "question": "当前版本在十万条存量、单对象简单操作下，全部业务命令的真实 CLI 成本与容量边界是什么？",
+      "relations": [
+        {
+          "summary": "补齐当前版全业务命令与实际写入的十万条成本",
+          "target": "261021-record-tools-first-optimization-validation",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261021-record-tools-all-operations-100k/collector-smoke.json",
+        "261021-record-tools-all-operations-100k/command-help.txt",
+        "261021-record-tools-all-operations-100k/coverage-manifest.json",
+        "261021-record-tools-all-operations-100k/environment.json",
+        "261021-record-tools-all-operations-100k/fixtures.json",
+        "261021-record-tools-all-operations-100k/incident-evidence.json",
+        "261021-record-tools-all-operations-100k/methods.txt",
+        "261021-record-tools-all-operations-100k/observations.jsonl",
+        "261021-record-tools-all-operations-100k/protocol.md",
+        "261021-record-tools-all-operations-100k/source.sha256",
+        "261021-record-tools-all-operations-100k/static-audit.md",
+        "261021-record-tools-all-operations-100k/streams.jsonl",
+        "261021-record-tools-all-operations-100k/summary.json",
+        "261021-record-tools-all-operations-100k/verification.json"
+      ],
+      "sourcePath": "record-tools-all-operations-100k.md",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "performance",
+        "scale-testing"
+      ],
+      "title": "记录工具当前版本十万条存量全操作性能调查"
+    },
     "261021-record-tools-first-optimization-validation": {
       "formedAt": "2026-10-21T14:34:37Z",
       "name": "record-tools-first-optimization-validation",
@@ -1367,6 +1403,7 @@
       "261021-decision-investigation-first-batch-performance": "sha256:d7a5aa36f659472224a7741c965aff30309806671cb6a1a8769870d9b15a89f3",
       "261021-git-path-query-argument-batching": "sha256:b0a83a2e09905a66d96de4fc384397d34af0d504a0b06d4d97c82f7a8aa08085",
       "261021-record-tools-100k-performance": "sha256:90f583af3ff0bd21d2cd30332c33af6f480e2ffed737cf6d7f5d956ed891837b",
+      "261021-record-tools-all-operations-100k": "sha256:d55d495455ae2bd3217331bb0ec6c936995278a9a04a8e6945ec8673e97dfefc",
       "261021-record-tools-first-optimization-validation": "sha256:f8c79de193183cf5d861bfec77b4ddc8a49f9a44696dbf1c7047df7b131973b4",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",

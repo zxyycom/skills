@@ -1,0 +1,38 @@
+{
+  "at": "2026-10-21T17:06:54.018Z",
+  "largeOutput": {
+    "passed": true,
+    "stdoutBytes": 1048576,
+    "stderrBytes": 524288,
+    "boundedHeadBytes": 262144,
+    "fullHashesMatch": true
+  },
+  "launchFailure": {
+    "passed": true,
+    "code": "ENOENT"
+  },
+  "timeout": {
+    "passed": true,
+    "timedOut": true,
+    "signal": "SIGKILL",
+    "processStates": {
+      "parent": "gone",
+      "grandchild": "gone"
+    },
+    "wrapperWallMs": 5510.8843640000005
+  },
+  "wait4": {
+    "passed": true,
+    "usage": {
+      "startedAtUnixSeconds": 1792602413.9833071,
+      "wallMs": 29.264533,
+      "userSeconds": 0.003702,
+      "systemSeconds": 0.025915999999999998,
+      "maxRssKiB": 45440,
+      "childExitCode": 0,
+      "childSignal": null,
+      "metricsScope": "os.wait4 CLI child rusage; RSS is not simultaneous process-tree memory"
+    }
+  },
+  "scope": "Collector protocol smoke after the complete primary matrix; not a production test entry or performance observation."
+}

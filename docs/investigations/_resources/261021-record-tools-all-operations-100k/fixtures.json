@@ -1,0 +1,44 @@
+{
+  "decision": {
+    "marker": {
+      "kind": "decision-allops-100k-v1",
+      "root": "/tmp/record-tools-allops-100k.mTQrt5/datasets/decision",
+      "sourceRoot": "/tmp/record-tools-allops-100k.mTQrt5/source",
+      "formalCount": 100000,
+      "candidateCount": 2,
+      "archivedCount": 10001,
+      "activeCount": 89999,
+      "relationCount": 90000,
+      "formalBytes": {
+        "min": 1048,
+        "max": 1192,
+        "mean": 1134.40052,
+        "total": 113440052
+      },
+      "baselineHead": "b9c16b7144f47245a93af1d7e6151cc470a9de01",
+      "baselineIndexSha256": "be9950ab29d826283f2d19b0f4eed346c2e2e124dd9a40b2c7d1fed55ec9891f",
+      "createdAt": "2026-10-21T15:15:22.635Z"
+    },
+    "baselineIndexBytes": 77900293
+  },
+  "investigation": {
+    "marker": {
+      "kind": "record-tools-allops-100k/investigation/v1",
+      "root": "/tmp/record-tools-allops-100k.mTQrt5/datasets/investigation",
+      "count": 100000,
+      "baselineHead": "b98c00f4d85a8561dbd3b39ae76b148c8eea13be",
+      "sourceHead": "94f792e09efa39700005ace7e05be2bc14fb9579",
+      "fixtureDescription": {
+        "formalMarkdownBytes": 1024,
+        "candidates": 2,
+        "baselineResources": 5,
+        "resourceBytes": 96,
+        "relationships": "每10个formal构成一组，其余至多9个叶节点各以一条复查边指向组根；无跨组边",
+        "resourceDistribution": "formal 1/2/3/4和candidate-a各1个96B纯文本；背景formal无资源，资源数不随N增长",
+        "stageOperation": "只选formal 2；新增1个96B资源并修改既有资源；formal 4和域外路径有受保护pending",
+        "lifecycle": "root是本轮marker保护的独立Git仓库，baseline HEAD包含全部fixture；仅恢复显式清单，不使用git clean或主仓库Git"
+      }
+    },
+    "baselineIndexBytes": 64760458
+  }
+}

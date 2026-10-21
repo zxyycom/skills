@@ -1,0 +1,33 @@
+{
+  "recordedAt": "2026-10-21T15:22:58.932Z",
+  "source": "94f792e09efa39700005ace7e05be2bc14fb9579",
+  "node": "v26.8.2",
+  "bun": "1.4.2",
+  "python": "Python 3.14.7",
+  "git": "git version 2.53.0",
+  "platform": "linux",
+  "kernel": "6.18.33.2-microsoft-standard-WSL2",
+  "cpu": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+  "hostCpuCount": 6,
+  "hostTotalMemoryBytes": 8327917568,
+  "cpuMax": "400000 100000",
+  "memoryMax": "6442450944",
+  "nodeDefaultHeapLimitBytes": 2248146944,
+  "NODE_OPTIONS": null,
+  "cliSamplesPerScenario": 1,
+  "cliTimeoutMs": 600000,
+  "phaseTimeoutMs": 1800000,
+  "fixtureFormalRecords": 100000,
+  "fixtureCandidates": 2,
+  "cacheProtocol": "No explicit OS cache drop; sequential CLI processes with fresh fixture state; page cache may remain warm.",
+  "metricsProtocol": "os.wait4 actual Node CLI child; wall ends at exit; stdout/stderr full file+sha256, head256KiB; preparation/verification excluded. maxrss not simultaneous process-tree total.",
+  "workers": "Preparation/verification use explicit4GiB heap; measured CLI inherits default heap with no Node flags.",
+  "businessCommands": {
+    "decision": 18,
+    "investigation": 14
+  },
+  "scenarios": {
+    "decision": 25,
+    "investigation": 22
+  }
+}

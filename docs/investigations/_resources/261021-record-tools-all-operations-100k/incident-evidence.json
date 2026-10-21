@@ -1,0 +1,367 @@
+{
+  "decision-rename": {
+    "forensics": {
+      "recordedAt": "2026-10-21T15:48:16.981Z",
+      "root": "/tmp/record-tools-allops-100k.mTQrt5/datasets/decision",
+      "baselineHead": "b9c16b7144f47245a93af1d7e6151cc470a9de01",
+      "cliClassification": "node-heap-limit",
+      "cliSignal": "SIGABRT",
+      "worktreeDiff": "M\tdocs/decisions/decision-index.json\nD\tdocs/decisions/perf-000005.md",
+      "untracked": [
+        "docs/.decision-index.json.mutation.lock",
+        "docs/decisions/perf-renamed.md"
+      ],
+      "pendingDiff": "",
+      "persistedIndex": {
+        "bytes": 77900297,
+        "sha256": "fb6de9b7b7bf5a53b820b1a030d27e5e53ba45a6d8758b22a1fdf8a81f713bda",
+        "formalEntries": 100000,
+        "equalsExpectedFullRename": true
+      },
+      "renamedSource": {
+        "sha256": "1169506fdd1be35379467db57bf1280b9c94233f53cb7b9dab4842366ead4540",
+        "matchesExpected": true
+      },
+      "lock": {
+        "path": "docs/.decision-index.json.mutation.lock",
+        "bytes": 0,
+        "isFile": true,
+        "isSymbolicLink": false,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "interpretation": "Native heap OOM after visible source/index changes; not successful CLI completion. State inspection does not claim transaction success."
+    },
+    "recovery": {
+      "at": "2026-10-21T15:48:47.790Z",
+      "targetRoot": "/tmp/record-tools-allops-100k.mTQrt5/datasets/decision",
+      "action": "Archived forensics; verified CLI process gone and exact empty regular collection lock; unlinked only this lock. Next prepareScenario restores owned HEAD and removes only known perf-renamed path.",
+      "baseline": "b9c16b7144f47245a93af1d7e6151cc470a9de01",
+      "confirmedPreparation": {
+        "evidenceFile": "/tmp/record-tools-allops-100k.mTQrt5/results/decision/stage-index.1792597727844-2671811.prepare.stdout",
+        "phase": "prepare",
+        "ok": true,
+        "baselineHead": "b9c16b7144f47245a93af1d7e6151cc470a9de01",
+        "pendingTree": "9e0f2c6c672a114a13afdcc9fe6481e1db389239",
+        "worktreeChanges": [
+          "docs/decisions/decision-index.json",
+          "docs/decisions/perf-000007.md"
+        ],
+        "indexSha256": "c575354837656421deffecb846d215aac397200f163542ade96f900aca6ec99b",
+        "interpretation": "Next independent scenario preparation completed successfully after baseline restoration; expected O(1) stage edits then applied."
+      }
+    },
+    "confirmedNextPreparation": {
+      "domain": "decision",
+      "id": "stage-index",
+      "startedAt": "2026-10-21T15:48:47.847Z",
+      "exitCode": 0,
+      "verificationEnvelope": {
+        "phase": "prepare",
+        "ok": true,
+        "result": {
+          "scenarioId": "stage-index",
+          "baselineHead": "b9c16b7144f47245a93af1d7e6151cc470a9de01",
+          "indexSha256": "c575354837656421deffecb846d215aac397200f163542ade96f900aca6ec99b",
+          "pendingTree": "9e0f2c6c672a114a13afdcc9fe6481e1db389239",
+          "worktreeChanges": [
+            "docs/decisions/decision-index.json",
+            "docs/decisions/perf-000007.md"
+          ],
+          "candidateBytes": {
+            "261001-perf-candidate-publish": "3e24d6fc0bbd87b7a8402b60657f3e8118136a30c9225a290698a3c32a18231e",
+            "261001-perf-candidate-evolve": "eddffc034f689dd10013a5d2b1609c5f45a20686950c7a6682127682b7292622"
+          },
+          "formalCount": 100000,
+          "activeCount": 89999
+        }
+      },
+      "evidence": "observations.jsonl matching domain/id prepared field; originalPath in streams.jsonl"
+    }
+  },
+  "decision-publish": {
+    "forensics": {
+      "recordedAt": "2026-10-21T16:05:40.098Z",
+      "root": "/tmp/record-tools-allops-100k.mTQrt5/datasets/decision",
+      "id": "publish",
+      "baselineHead": "b9c16b7144f47245a93af1d7e6151cc470a9de01",
+      "cliClassification": "node-heap-limit",
+      "worktreeDiff": "M\tdocs/decisions/decision-index.json\nD\tdocs/decisions/perf-000003.md\nM\tdocs/decisions/perf-candidate-publish.md",
+      "untracked": [
+        "docs/.decision-index.json.mutation.lock",
+        "docs/decisions/archive/perf-000003.md"
+      ],
+      "pendingDiff": "",
+      "persistedIndex": {
+        "bytes": 77901158,
+        "sha256": "d60c88ddb584b016db6b7a5c57d7d053b9bf32957c10bfba0bcc7120c1e501af",
+        "formalEntries": 100001,
+        "expectedFullMutationSha256": "d60c88ddb584b016db6b7a5c57d7d053b9bf32957c10bfba0bcc7120c1e501af",
+        "equalsExpectedFullMutation": true
+      },
+      "checkedSources": [
+        {
+          "id": "261001-perf-candidate-publish",
+          "sourcePath": "perf-candidate-publish.md",
+          "sha256": "3012cde10d99faa99a25d3935961ba6722e10284444aed3f950520b86359e326",
+          "matchesExpected": true
+        },
+        {
+          "id": "261001-perf-000003",
+          "sourcePath": "archive/perf-000003.md",
+          "sha256": "3adff035a18fe1984635d89dc94da76e256265de1951bdf016c4ccc618ad9c38",
+          "matchesExpected": true
+        }
+      ],
+      "effectsError": null,
+      "lock": {
+        "path": "docs/.decision-index.json.mutation.lock",
+        "bytes": 0,
+        "isFile": true,
+        "isSymbolicLink": false
+      },
+      "interpretation": "Abnormal process exit, not a successful CLI; visible source/index effects inspected independently after failure."
+    },
+    "recovery": {
+      "at": "2026-10-21T16:23:11.235Z",
+      "root": "/tmp/record-tools-allops-100k.mTQrt5/datasets/decision",
+      "baseline": "b9c16b7144f47245a93af1d7e6151cc470a9de01",
+      "action": "Saved full expected-delta inspection; confirmed native CLI gone; unlinked exact empty regular fixture collection lock. Next guarded prepareScenario restores owned HEAD and known generated paths."
+    },
+    "confirmedNextPreparation": {
+      "domain": "decision",
+      "id": "reactivate",
+      "startedAt": "2026-10-21T16:23:11.290Z",
+      "exitCode": 0,
+      "verificationEnvelope": {
+        "phase": "prepare",
+        "ok": true,
+        "result": {
+          "scenarioId": "reactivate",
+          "baselineHead": "b9c16b7144f47245a93af1d7e6151cc470a9de01",
+          "indexSha256": "be9950ab29d826283f2d19b0f4eed346c2e2e124dd9a40b2c7d1fed55ec9891f",
+          "pendingTree": "9e0f2c6c672a114a13afdcc9fe6481e1db389239",
+          "worktreeChanges": [],
+          "candidateBytes": {
+            "261001-perf-candidate-publish": "3e24d6fc0bbd87b7a8402b60657f3e8118136a30c9225a290698a3c32a18231e",
+            "261001-perf-candidate-evolve": "eddffc034f689dd10013a5d2b1609c5f45a20686950c7a6682127682b7292622"
+          },
+          "formalCount": 100000,
+          "activeCount": 89999
+        }
+      },
+      "evidence": "observations.jsonl matching domain/id prepared field; originalPath in streams.jsonl"
+    }
+  },
+  "investigation-rename": {
+    "forensics": {
+      "at": "2026-10-21T16:13:51.229Z",
+      "root": "/tmp/record-tools-allops-100k.mTQrt5/datasets/investigation",
+      "baselineHead": "b98c00f4d85a8561dbd3b39ae76b148c8eea13be",
+      "classification": "node-heap-limit",
+      "worktreeDiff": "D\tdocs/investigations/_resources/261021-perf-000001/evidence.txt\nM\tdocs/investigations/investigation-index.json\nD\tdocs/investigations/perf-000001.md",
+      "untracked": [
+        "docs/.investigation-index.json.mutation.lock",
+        "docs/investigations/_resources/261021-perf-renamed/evidence.txt",
+        "docs/investigations/perf-renamed.md"
+      ],
+      "pendingDiff": "",
+      "persistedIndex": {
+        "bytes": 64760463,
+        "sha256": "507fba43d05dae1e34e0a2deafddd13d9630017fcb8c674af93c6d9c0fa54b6b",
+        "expectedFullRenameSha256": "507fba43d05dae1e34e0a2deafddd13d9630017fcb8c674af93c6d9c0fa54b6b",
+        "equalsExpectedFullRename": true,
+        "entries": 100000
+      },
+      "renamedSource": {
+        "matchesExpected": true,
+        "sha256": "57740152cedb60b2a880ce69619f5e7f71c3b317ad3141b0e9dd6b2f4dcdcd92"
+      },
+      "resource": {
+        "preserved": true,
+        "sha256": "a75e33f3d677849ccff66a4b12823d71c0b590185a943977918afb52a2ab70fd"
+      },
+      "lock": {
+        "path": "docs/.investigation-index.json.mutation.lock",
+        "bytes": 0,
+        "isFile": true,
+        "isSymbolicLink": false
+      },
+      "interpretation": "Visible source/resource rename and complete index inspected after SIGABRT; not normal CLI completion."
+    },
+    "recovery": {
+      "at": "2026-10-21T16:14:03.535Z",
+      "root": "/tmp/record-tools-allops-100k.mTQrt5/datasets/investigation",
+      "baselineHead": "b98c00f4d85a8561dbd3b39ae76b148c8eea13be",
+      "action": "Saved expected source/resource/index forensics, confirmed native CLI gone, removed exact empty regular fixture collection lock. Next guarded prepare restores HEAD and known renamed paths.",
+      "confirmedNextPreparation": {
+        "file": "/tmp/record-tools-allops-100k.mTQrt5/results/investigation/check-scoped.1792599243668-2684369.prepare.stdout",
+        "result": {
+          "phase": "prepare",
+          "ok": true,
+          "result": {
+            "id": "check-scoped",
+            "count": 100000,
+            "protectedPendingPaths": []
+          }
+        }
+      }
+    },
+    "confirmedNextPreparation": {
+      "domain": "investigation",
+      "id": "check-scoped",
+      "startedAt": "2026-10-21T16:14:03.670Z",
+      "exitCode": 0,
+      "verificationEnvelope": {
+        "phase": "prepare",
+        "ok": true,
+        "result": {
+          "id": "check-scoped",
+          "count": 100000,
+          "protectedPendingPaths": []
+        }
+      },
+      "evidence": "observations.jsonl matching domain/id prepared field; originalPath in streams.jsonl"
+    }
+  },
+  "decision-evolve": {
+    "forensics": {
+      "recordedAt": "2026-10-21T16:37:40.095Z",
+      "root": "/tmp/record-tools-allops-100k.mTQrt5/datasets/decision",
+      "id": "evolve",
+      "baselineHead": "b9c16b7144f47245a93af1d7e6151cc470a9de01",
+      "cliClassification": "node-heap-limit",
+      "worktreeDiff": "M\tdocs/decisions/decision-index.json\nD\tdocs/decisions/perf-000008.md\nM\tdocs/decisions/perf-candidate-evolve.md",
+      "untracked": [
+        "docs/.decision-index.json.mutation.lock",
+        "docs/decisions/archive/perf-000008.md"
+      ],
+      "pendingDiff": "",
+      "persistedIndex": {
+        "bytes": 77901154,
+        "sha256": "773e9a7cd3d76e07db7180fbbedc3964dcf3d3c0e32c6ab075ae19de1a1a22d3",
+        "formalEntries": 100001,
+        "expectedFullMutationSha256": "773e9a7cd3d76e07db7180fbbedc3964dcf3d3c0e32c6ab075ae19de1a1a22d3",
+        "equalsExpectedFullMutation": true
+      },
+      "checkedSources": [
+        {
+          "id": "261001-perf-candidate-evolve",
+          "sourcePath": "perf-candidate-evolve.md",
+          "sha256": "aab22aa75190cae6d6bc9d3a4f201942b76927710c45b2efac5cd35459a6a697",
+          "matchesExpected": true
+        },
+        {
+          "id": "261001-perf-000008",
+          "sourcePath": "archive/perf-000008.md",
+          "sha256": "acf7b8dc43bdf2ec6d79cd1550949c3660c94179843744cd27d2d6d4e54a7f5b",
+          "matchesExpected": true
+        }
+      ],
+      "effectsError": null,
+      "lock": {
+        "path": "docs/.decision-index.json.mutation.lock",
+        "bytes": 0,
+        "isFile": true,
+        "isSymbolicLink": false
+      },
+      "interpretation": "Abnormal process exit, not a successful CLI; visible source/index effects inspected independently after failure."
+    },
+    "recovery": {
+      "at": "2026-10-21T16:37:43.484Z",
+      "root": "/tmp/record-tools-allops-100k.mTQrt5/datasets/decision",
+      "baseline": "b9c16b7144f47245a93af1d7e6151cc470a9de01",
+      "action": "Saved full expected-delta inspection; confirmed native CLI gone; unlinked exact empty regular fixture collection lock. Next guarded prepareScenario restores owned HEAD and known generated paths."
+    },
+    "confirmedNextPreparation": {
+      "domain": "decision",
+      "id": "set-relations",
+      "startedAt": "2026-10-21T16:37:43.531Z",
+      "exitCode": 0,
+      "verificationEnvelope": {
+        "phase": "prepare",
+        "ok": true,
+        "result": {
+          "scenarioId": "set-relations",
+          "baselineHead": "b9c16b7144f47245a93af1d7e6151cc470a9de01",
+          "indexSha256": "be9950ab29d826283f2d19b0f4eed346c2e2e124dd9a40b2c7d1fed55ec9891f",
+          "pendingTree": "9e0f2c6c672a114a13afdcc9fe6481e1db389239",
+          "worktreeChanges": [],
+          "candidateBytes": {
+            "261001-perf-candidate-publish": "3e24d6fc0bbd87b7a8402b60657f3e8118136a30c9225a290698a3c32a18231e",
+            "261001-perf-candidate-evolve": "eddffc034f689dd10013a5d2b1609c5f45a20686950c7a6682127682b7292622"
+          },
+          "formalCount": 100000,
+          "activeCount": 89999
+        }
+      },
+      "evidence": "observations.jsonl matching domain/id prepared field; originalPath in streams.jsonl"
+    }
+  },
+  "decision-set-relations": {
+    "forensics": {
+      "recordedAt": "2026-10-21T16:43:33.712Z",
+      "root": "/tmp/record-tools-allops-100k.mTQrt5/datasets/decision",
+      "id": "set-relations",
+      "baselineHead": "b9c16b7144f47245a93af1d7e6151cc470a9de01",
+      "cliClassification": "node-heap-limit",
+      "worktreeDiff": "M\tdocs/decisions/decision-index.json\nM\tdocs/decisions/perf-000002.md",
+      "untracked": [
+        "docs/.decision-index.json.mutation.lock"
+      ],
+      "pendingDiff": "",
+      "persistedIndex": {
+        "bytes": 77900284,
+        "sha256": "665507b30327c9f4133fcd67a3e123095f0df940e9995f1f0bc83ebe51d41c6e",
+        "formalEntries": 100000,
+        "expectedFullMutationSha256": "665507b30327c9f4133fcd67a3e123095f0df940e9995f1f0bc83ebe51d41c6e",
+        "equalsExpectedFullMutation": true
+      },
+      "checkedSources": [
+        {
+          "id": "261001-perf-000002",
+          "sourcePath": "perf-000002.md",
+          "sha256": "3d48426450f7f022e1530bace3209992117b1b9cae5e9460421413b3e97237b9",
+          "matchesExpected": true
+        }
+      ],
+      "effectsError": null,
+      "lock": {
+        "path": "docs/.decision-index.json.mutation.lock",
+        "bytes": 0,
+        "isFile": true,
+        "isSymbolicLink": false
+      },
+      "interpretation": "Abnormal process exit, not a successful CLI; visible source/index effects inspected independently after failure."
+    },
+    "recovery": {
+      "at": "2026-10-21T16:43:45.529Z",
+      "root": "/tmp/record-tools-allops-100k.mTQrt5/datasets/decision",
+      "baseline": "b9c16b7144f47245a93af1d7e6151cc470a9de01",
+      "action": "Saved full expected-delta inspection; confirmed native CLI gone; unlinked exact empty regular fixture collection lock. Next guarded prepareScenario restores owned HEAD and known generated paths."
+    },
+    "confirmedNextPreparation": {
+      "domain": "decision",
+      "id": "mark-aligned",
+      "startedAt": "2026-10-21T16:43:45.576Z",
+      "exitCode": 0,
+      "verificationEnvelope": {
+        "phase": "prepare",
+        "ok": true,
+        "result": {
+          "scenarioId": "mark-aligned",
+          "baselineHead": "b9c16b7144f47245a93af1d7e6151cc470a9de01",
+          "indexSha256": "be9950ab29d826283f2d19b0f4eed346c2e2e124dd9a40b2c7d1fed55ec9891f",
+          "pendingTree": "9e0f2c6c672a114a13afdcc9fe6481e1db389239",
+          "worktreeChanges": [],
+          "candidateBytes": {
+            "261001-perf-candidate-publish": "3e24d6fc0bbd87b7a8402b60657f3e8118136a30c9225a290698a3c32a18231e",
+            "261001-perf-candidate-evolve": "eddffc034f689dd10013a5d2b1609c5f45a20686950c7a6682127682b7292622"
+          },
+          "formalCount": 100000,
+          "activeCount": 89999
+        }
+      },
+      "evidence": "observations.jsonl matching domain/id prepared field; originalPath in streams.jsonl"
+    }
+  }
+}

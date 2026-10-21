@@ -1,0 +1,542 @@
+{
+  "source": "94f792e09efa39700005ace7e05be2bc14fb9579",
+  "primaryMatrix": {
+    "scenarios": 47,
+    "businessCommands": 32,
+    "counts": {
+      "success": 40,
+      "nativeBudgetRejection": 2,
+      "nativeHeapOom": 5
+    },
+    "missing": [],
+    "commandIntervalsOverlap": false,
+    "allActualArgvMatchManifest": true,
+    "completeStreamArtifacts": 272,
+    "streamBytesAndSha256Match": true,
+    "verification": "python3 methods/finalize-evidence.py exited 0; expected-success/rejection each independently verified"
+  },
+  "collectorProtocol": {
+    "at": "2026-10-21T17:06:54.018Z",
+    "largeOutput": {
+      "passed": true,
+      "stdoutBytes": 1048576,
+      "stderrBytes": 524288,
+      "boundedHeadBytes": 262144,
+      "fullHashesMatch": true
+    },
+    "launchFailure": {
+      "passed": true,
+      "code": "ENOENT"
+    },
+    "timeout": {
+      "passed": true,
+      "timedOut": true,
+      "signal": "SIGKILL",
+      "processStates": {
+        "parent": "gone",
+        "grandchild": "gone"
+      },
+      "wrapperWallMs": 5510.8843640000005
+    },
+    "wait4": {
+      "passed": true,
+      "usage": {
+        "startedAtUnixSeconds": 1792602413.9833071,
+        "wallMs": 29.264533,
+        "userSeconds": 0.003702,
+        "systemSeconds": 0.025915999999999998,
+        "maxRssKiB": 45440,
+        "childExitCode": 0,
+        "childSignal": null,
+        "metricsScope": "os.wait4 CLI child rusage; RSS is not simultaneous process-tree memory"
+      }
+    },
+    "scope": "Collector protocol smoke after the complete primary matrix; not a production test entry or performance observation."
+  },
+  "preMeasurementSmoke": {
+    "decision": {
+      "fixtureN": 100,
+      "agentReportedPassed": 25,
+      "evidence": "methods/decision/smoke-results.json is separately included below",
+      "recordedResults": {
+        "kind": "small-fixture-correctness-smoke-not-performance",
+        "createdAt": "2026-10-21T15:14:57.912Z",
+        "marker": {
+          "kind": "decision-allops-100k-v1",
+          "root": "/tmp/record-tools-allops-100k.mTQrt5/methods/decision/smoke100-full",
+          "sourceRoot": "/tmp/record-tools-allops-100k.mTQrt5/source",
+          "formalCount": 100,
+          "candidateCount": 2,
+          "archivedCount": 11,
+          "activeCount": 89,
+          "relationCount": 90,
+          "formalBytes": {
+            "min": 1048,
+            "max": 1192,
+            "mean": 1134.92,
+            "total": 113492
+          },
+          "baselineHead": "737bcdd87832a23813565419ef98a7665881affe",
+          "baselineIndexSha256": "52d7d649818e922e3719bdea62f6800268d49db23cf3e221882919d0c93c779b",
+          "createdAt": "2026-10-21T15:14:39.505Z"
+        },
+        "results": [
+          {
+            "scenarioId": "check",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Decision records check passed (100 decisions, 89 active, 88 aligned, 1 unaligned, 11 archived, 2 candidate scaffolds, 2 body-ready candidates).\n",
+            "stderr": "",
+            "verification": {
+              "verified": true,
+              "scenarioId": "check",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "candidates",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Candidates:\n- candidate 261001-perf-candidate-evolve\n  sourcePath: perf-candidate-evolve.md\n  tags: performance\n  title: 单条候选后继性能夹具\n  purpose: 保持独立判断与清楚的维护边界\n  scaffoldValid: true\n  bodyReady: true\n- candidate 261001-perf-candidate-publish\n  sourcePath: perf-candidate-publish.md\n  tags: performance\n  title: 单条候选后继性能夹具\n  purpose: 保持独立判断与清楚的维护边界\n  scaffoldValid: true\n  bodyReady: true\n",
+            "stderr": "",
+            "verification": {
+              "verified": true,
+              "scenarioId": "candidates",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "list",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Index filters (100 records):\n  status: active=89, archived=11\n  alignment: aligned=99, unaligned=1\n  createdAt: 2026-10-01T00:00:00.000Z .. 2026-10-01T00:00:00.000Z\n  tags: performance=100\n  months (UTC): 2026-10=100\nSource: kind=published-index currentness=unchecked fallback=false\nApplied filters: status=active; alignment=all; tags=any; createdAt=any\nLatest matches:\n- 261001-perf-000002 2026-10-01 active/unaligned [performance] 性能夹具独立决策 000002\nShowing 1 of 89 matches (offset 0, limit 1); 88 remaining; next offset 1.\n",
+            "stderr": "",
+            "verification": {
+              "verified": true,
+              "scenarioId": "list",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "search-metadata",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Query: text=\"needleuniquerecordseven\" in=metadata match=all\nFilters: {\"status\":\"active\",\"alignment\":\"all\",\"tags\":[]}\nSource: kind=published-index currentness=unchecked fallback=false\nLimits: maxRecords=100\nCounts: matched=1 precision=exact returned=1\nCoverage: scan=complete results=complete previews=n/a reasons=none\nDecision search results:\n- active aligned 2026-10-01 261001-perf-000007\n  sourcePath: perf-000007.md\n  tags: performance\n  title: 性能夹具独立决策 000007\n  purpose: 保持独立判断与清楚的维护边界\n  matchedFields: decision\n  matchedRelations:\n    - none\n",
+            "stderr": "",
+            "verification": {
+              "verified": true,
+              "scenarioId": "search-metadata",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "search-content-default",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Query: text=\"needleuniquerecordseven\" in=content match=all\nFilters: {\"status\":\"active\",\"alignment\":\"all\",\"tags\":[]}\nSource: kind=validated-source currentness=current fallback=false\nLimits: maxRecords=20 maxCandidateFiles=10000 maxFileBytes=2097152 maxTotalBytes=20971520 contextLines=1 maxMatchesPerFile=3 maxPreviewCharacters=12000\nCounts: matched=1 precision=exact returned=1\nCoverage: scan=complete results=complete previews=complete reasons=none\nDecision search results:\n- active aligned 2026-10-01 261001-perf-000007\n  sourcePath: perf-000007.md\n  tags: performance\n  title: 性能夹具独立决策 000007\n  purpose: 保持独立判断与清楚的维护边界\n  previews:\n    8: background: 已有正式存量需要稳定恢复并按小范围维护\n    9:27: decision: 采用有界独立记录与稀疏小组演进 needleuniquerecordseven\n    10: tags:\n    25: ## 决策\n    26:23: - 采用: 采用有界独立记录与稀疏小组演进 needleuniquerecordseven。\n    27: - 单条记录保持独立身份，生命周期和小组关系可以单独核对；本夹具只表达模拟性能背景。\n",
+            "stderr": "",
+            "verification": {
+              "verified": true,
+              "scenarioId": "search-content-default",
+              "formalCount": 100,
+              "expectedExit": 0,
+              "assertedHardLimitRejection": false,
+              "smallFixtureSyntaxSmokeOnly": true
+            }
+          },
+          {
+            "scenarioId": "search-content-related",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Query: text=\"needleuniquerecordseven\" in=content match=all\nFilters: {\"status\":\"active\",\"alignment\":\"all\",\"tags\":[],\"relatedTo\":\"261001-perf-000001\",\"direction\":\"successors\"}\nSource: kind=validated-source currentness=current fallback=false\nLimits: maxRecords=20 maxCandidateFiles=10000 maxFileBytes=2097152 maxTotalBytes=20971520 contextLines=1 maxMatchesPerFile=3 maxPreviewCharacters=12000\nCounts: matched=1 precision=exact returned=1\nCoverage: scan=complete results=complete previews=complete reasons=none\nDecision search results:\n- active aligned 2026-10-01 261001-perf-000007\n  sourcePath: perf-000007.md\n  tags: performance\n  title: 性能夹具独立决策 000007\n  purpose: 保持独立判断与清楚的维护边界\n  relation-filter evidence:\n    - 261001-perf-000007 --修订--> 261001-perf-000001: \"保留小组前序并采用局部修订\"\n  previews:\n    8: background: 已有正式存量需要稳定恢复并按小范围维护\n    9:27: decision: 采用有界独立记录与稀疏小组演进 needleuniquerecordseven\n    10: tags:\n    25: ## 决策\n    26:23: - 采用: 采用有界独立记录与稀疏小组演进 needleuniquerecordseven。\n    27: - 单条记录保持独立身份，生命周期和小组关系可以单独核对；本夹具只表达模拟性能背景。\n",
+            "stderr": "",
+            "verification": {
+              "verified": true,
+              "scenarioId": "search-content-related",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "show",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "id: 261001-perf-000007\nsourcePath: perf-000007.md\ntags: performance\nstatus: active\nalignment: aligned\ncreatedAt: 2026-10-01T00:00:00Z\n\n---\ntitle: 性能夹具独立决策 000007\nid: 261001-perf-000007\nstatus: active\nalignment: aligned\ncreatedAt: 2026-10-01T00:00:00Z\npurpose: 保持独立判断与清楚的维护边界\nbackground: 已有正式存量需要稳定恢复并按小范围维护\ndecision: 采用有界独立记录与稀疏小组演进 needleuniquerecordseven\ntags:\n  - performance\nrelations:\n  - type: 修订\n    target: 261001-perf-000001\n    summary: 保留小组前序并采用局部修订\n---\n\n## 目的\n- 保持独立判断与清楚的维护边界。\n\n## 背景\n- 已有正式存量需要稳定恢复并按小范围维护。\n- bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail\n\n## 决策\n- 采用: 采用有界独立记录与稀疏小组演进 needleuniquerecordseven。\n- 单条记录保持独立身份，生命周期和小组关系可以单独核对；本夹具只表达模拟性能背景。\n",
+            "stderr": "",
+            "verification": {
+              "verified": true,
+              "scenarioId": "show",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "show-candidate",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "id: 261001-perf-candidate-publish\nsourcePath: perf-candidate-publish.md\ntags: performance\nstatus: candidate\nalignment: null\ncreatedAt: null\nscaffoldValid: true\nbodyReady: true\n\n---\ntitle: 单条候选后继性能夹具\nid: 261001-perf-candidate-publish\nstatus: candidate\nalignment: null\ncreatedAt: null\npurpose: 保持独立判断与清楚的维护边界\nbackground: 已有正式存量需要稳定恢复并按小范围维护\ndecision: 采用单条自包含后继并保留前序的独立回放价值\ntags:\n  - performance\nrelations:\n  - type: 修订\n    target: 261001-perf-000003\n    summary: 保留前序方向并进行局部修订\n---\n\n## 目的\n- 保持独立判断与清楚的维护边界。\n\n## 背景\n- 已有正式存量需要稳定恢复并按小范围维护。\n- bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail bounded-fixture-detail\n\n## 决策\n- 采用: 采用单条自包含后继并保留前序的独立回放价值。\n- 单条记录保持独立身份，生命周期和小组关系可以单独核对；本夹具只表达模拟性能背景。\n",
+            "stderr": "",
+            "verification": {
+              "verified": true,
+              "scenarioId": "show-candidate",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "trace",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "{\n  \"status\": \"ok\",\n  \"source\": {\n    \"kind\": \"published-index\",\n    \"currentness\": \"unchecked\",\n    \"fallback\": false\n  },\n  \"anchorId\": \"261001-perf-000002\",\n  \"direction\": \"predecessors\",\n  \"limits\": {\n    \"depth\": 2,\n    \"maxRecords\": 3\n  },\n  \"coverage\": {\n    \"complete\": true,\n    \"stoppedBy\": []\n  },\n  \"traceIds\": [\n    \"261001-perf-000001\",\n    \"261001-perf-000002\"\n  ],\n  \"contextIds\": [],\n  \"frontier\": [],\n  \"entries\": {\n    \"261001-perf-000001\": {\n      \"title\": \"性能夹具独立决策 000001\",\n      \"status\": \"archived\",\n      \"alignment\": \"aligned\",\n      \"createdAt\": \"2026-10-01T00:00:00Z\",\n      \"purpose\": \"保持独立判断与清楚的维护边界\",\n      \"background\": \"已有正式存量需要稳定恢复并按小范围维护\",\n      \"decision\": \"采用有界独立记录与稀疏小组演进\",\n      \"tags\": [\n        \"performance\"\n      ],\n      \"relations\": []\n    },\n    \"261001-perf-000002\": {\n      \"title\": \"性能夹具独立决策 000002\",\n      \"status\": \"active\",\n      \"alignment\": \"unaligned\",\n      \"createdAt\": \"2026-10-01T00:00:00Z\",\n      \"purpose\": \"保持独立判断与清楚的维护边界\",\n      \"background\": \"已有正式存量需要稳定恢复并按小范围维护\",\n      \"decision\": \"采用有界独立记录与稀疏小组演进\",\n      \"tags\": [\n        \"performance\"\n      ],\n      \"relations\": [\n        {\n          \"type\": \"修订\",\n          \"target\": \"261001-perf-000001\",\n          \"summary\": \"保留小组前序并采用局部修订\"\n        }\n      ]\n    }\n  }\n}\n",
+            "stderr": "",
+            "verification": {
+              "verified": true,
+              "scenarioId": "trace",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "sync-preview",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Decision index sync preflight passed; complete projection not published.\n",
+            "stderr": "Decision records command completed with warnings:\n- code: decision-records.candidate-remains\n  object: perf-candidate-evolve.md\n  reason: Decision candidate scaffold remains: perf-candidate-evolve.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n- code: decision-records.candidate-remains\n  object: perf-candidate-publish.md\n  reason: Decision candidate scaffold remains: perf-candidate-publish.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n",
+            "verification": {
+              "verified": true,
+              "scenarioId": "sync-preview",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "sync-write",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Rebuilt docs/decisions/decision-index.json from decision Markdown files.\n",
+            "stderr": "Decision records command completed with warnings:\n- code: decision-records.candidate-remains\n  object: perf-candidate-evolve.md\n  reason: Decision candidate scaffold remains: perf-candidate-evolve.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n- code: decision-records.candidate-remains\n  object: perf-candidate-publish.md\n  reason: Decision candidate scaffold remains: perf-candidate-publish.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n",
+            "verification": {
+              "verified": true,
+              "scenarioId": "sync-write",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "sync-noop",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Decision index is up to date.\n",
+            "stderr": "Decision records command completed with warnings:\n- code: decision-records.candidate-remains\n  object: perf-candidate-evolve.md\n  reason: Decision candidate scaffold remains: perf-candidate-evolve.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n- code: decision-records.candidate-remains\n  object: perf-candidate-publish.md\n  reason: Decision candidate scaffold remains: perf-candidate-publish.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n",
+            "verification": {
+              "verified": true,
+              "scenarioId": "sync-noop",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "sync-selected",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Selected Decision selectors: 261001-perf-000007.\nPublished the complete Decision index projection for resolved IDs: 261001-perf-000007.\n",
+            "stderr": "Decision records command completed with warnings:\n- code: decision-records.candidate-remains\n  object: perf-candidate-evolve.md\n  reason: Decision candidate scaffold remains: perf-candidate-evolve.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n- code: decision-records.candidate-remains\n  object: perf-candidate-publish.md\n  reason: Decision candidate scaffold remains: perf-candidate-publish.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n",
+            "verification": {
+              "verified": true,
+              "scenarioId": "sync-selected",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "new",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Created decision candidate scaffold: /tmp/record-tools-allops-100k.mTQrt5/methods/decision/smoke100-full/docs/decisions/perf-created.md\nDecision ID: 261021-perf-created\ntitle: 新增单条性能候选\nNo lifecycle state or derived decision index was changed.\nDecision candidate readiness after creation:\n- scaffoldValid: true\n- bodyReady: false\n- preflight: selection-incomplete (candidate remains created)\n- alignment: unresolved (no alignment projection was prepared)\n",
+            "stderr": "- Validated decision candidate is unavailable: perf-created.md\n",
+            "verification": {
+              "verified": true,
+              "scenarioId": "new",
+              "formalCount": 100,
+              "expectedExit": 0,
+              "createdId": "261021-perf-created"
+            }
+          },
+          {
+            "scenarioId": "rename",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Decision rename committed:\n- old ID: 261001-perf-000005\n- new ID: 261001-perf-renamed\n- old name: perf-000005\n- new name: perf-renamed\n- old sourcePath: perf-000005.md\n- new sourcePath: perf-renamed.md\n- affected relations: 0 (candidate 0, established 0)\n",
+            "stderr": "",
+            "verification": {
+              "verified": true,
+              "scenarioId": "rename",
+              "formalCount": 100,
+              "expectedExit": 0,
+              "renamedId": "261001-perf-renamed"
+            }
+          },
+          {
+            "scenarioId": "stage-index",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Staged a pending decision snapshot (scope: index) for 1 selected Decision ID(s): 1 files in the pending decision scope, including docs/decisions/decision-index.json.\nWritten paths: docs/decisions/decision-index.json.\nPreserved unrelated pending paths: none; caller-owned paths: docs/decisions/perf-000007.md.\n",
+            "stderr": "",
+            "verification": {
+              "verified": true,
+              "scenarioId": "stage-index",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "stage-domain",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Staged a pending decision snapshot (scope: domain) for 1 selected Decision ID(s): 103 files in the pending decision scope, including docs/decisions/decision-index.json.\nWritten paths: docs/decisions/perf-000007.md.\nPreserved unrelated pending paths: none; caller-owned paths: docs/decisions/decision-index.json.\n",
+            "stderr": "",
+            "verification": {
+              "verified": true,
+              "scenarioId": "stage-domain",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "stage-all",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Staged a pending decision snapshot (scope: all) for 1 selected Decision ID(s): 103 files in the pending decision scope, including docs/decisions/decision-index.json.\nWritten paths: docs/decisions/decision-index.json, docs/decisions/perf-000007.md.\nPreserved unrelated pending paths: none; caller-owned paths: none.\n",
+            "stderr": "",
+            "verification": {
+              "verified": true,
+              "scenarioId": "stage-all",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "publish",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Published new decision as aligned perf-candidate-publish.md and archived new active predecessors 261001-perf-000003.\nRelation review (committed):\n- 261001-perf-candidate-publish action=establish\n  before relations:\n    - 261001-perf-candidate-publish --修订--> 261001-perf-000003: \"保留前序方向并进行局部修订\"\n  after relations:\n    - 261001-perf-candidate-publish --修订--> 261001-perf-000003: \"保留前序方向并进行局部修订\"\n  changes: unchanged\n",
+            "stderr": "Decision records command completed with warnings:\n- code: decision-records.candidate-remains\n  object: perf-candidate-evolve.md\n  reason: Decision candidate scaffold remains: perf-candidate-evolve.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n",
+            "verification": {
+              "verified": true,
+              "scenarioId": "publish",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "reactivate",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Reactivated as aligned archive/perf-000004.md.\n",
+            "stderr": "Decision records command completed with warnings:\n- code: decision-records.candidate-remains\n  object: perf-candidate-evolve.md\n  reason: Decision candidate scaffold remains: perf-candidate-evolve.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n- code: decision-records.candidate-remains\n  object: perf-candidate-publish.md\n  reason: Decision candidate scaffold remains: perf-candidate-publish.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n",
+            "verification": {
+              "verified": true,
+              "scenarioId": "reactivate",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "evolve",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Evolved successors aligned perf-candidate-evolve.md and archived new active predecessors 261001-perf-000008.\nRelation review (committed):\n- 261001-perf-candidate-evolve action=establish\n  before relations:\n    - 261001-perf-candidate-evolve --修订--> 261001-perf-000008: \"保留前序方向并进行局部修订\"\n  after relations:\n    - 261001-perf-candidate-evolve --修订--> 261001-perf-000008: \"保留前序方向并进行局部修订\"\n  changes: unchanged\n",
+            "stderr": "Decision records command completed with warnings:\n- code: decision-records.candidate-remains\n  object: perf-candidate-publish.md\n  reason: Decision candidate scaffold remains: perf-candidate-publish.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n",
+            "verification": {
+              "verified": true,
+              "scenarioId": "evolve",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "set-relations",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Set relations for 261001-perf-000002.\nRelation review (committed):\n- 261001-perf-000002 action=replace\n  before relations:\n    - 261001-perf-000002 --修订--> 261001-perf-000001: \"保留小组前序并采用局部修订\"\n  after relations:\n    - 261001-perf-000002 --修订--> 261001-perf-000001: \"调整单条修订边的摘要\"\n  changes:\n    - summary changed 261001-perf-000002 --修订--> 261001-perf-000001: \"保留小组前序并采用局部修订\" -> \"调整单条修订边的摘要\"\n",
+            "stderr": "Decision records command completed with warnings:\n- code: decision-records.candidate-remains\n  object: perf-candidate-evolve.md\n  reason: Decision candidate scaffold remains: perf-candidate-evolve.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n- code: decision-records.candidate-remains\n  object: perf-candidate-publish.md\n  reason: Decision candidate scaffold remains: perf-candidate-publish.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n",
+            "verification": {
+              "verified": true,
+              "scenarioId": "set-relations",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "mark-aligned",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Marked aligned perf-000002.md.\n",
+            "stderr": "Decision records command completed with warnings:\n- code: decision-records.candidate-remains\n  object: perf-candidate-evolve.md\n  reason: Decision candidate scaffold remains: perf-candidate-evolve.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n- code: decision-records.candidate-remains\n  object: perf-candidate-publish.md\n  reason: Decision candidate scaffold remains: perf-candidate-publish.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n",
+            "verification": {
+              "verified": true,
+              "scenarioId": "mark-aligned",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "archive",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Archived 261001-perf-000009.\n",
+            "stderr": "Decision records command completed with warnings:\n- code: decision-records.candidate-remains\n  object: perf-candidate-evolve.md\n  reason: Decision candidate scaffold remains: perf-candidate-evolve.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n- code: decision-records.candidate-remains\n  object: perf-candidate-publish.md\n  reason: Decision candidate scaffold remains: perf-candidate-publish.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n",
+            "verification": {
+              "verified": true,
+              "scenarioId": "archive",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          },
+          {
+            "scenarioId": "discard",
+            "exitCode": 0,
+            "signal": null,
+            "stdout": "Discarded decision perf-000006.md.\n",
+            "stderr": "Decision records command completed with warnings:\n- code: decision-records.candidate-remains\n  object: perf-candidate-evolve.md\n  reason: Decision candidate scaffold remains: perf-candidate-evolve.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n- code: decision-records.candidate-remains\n  object: perf-candidate-publish.md\n  reason: Decision candidate scaffold remains: perf-candidate-publish.md\n  next: Use candidates to inspect readiness, then edit, publish, or discard it explicitly.\n",
+            "verification": {
+              "verified": true,
+              "scenarioId": "discard",
+              "formalCount": 100,
+              "expectedExit": 0
+            }
+          }
+        ]
+      }
+    },
+    "investigation": {
+      "fixtureN": 20,
+      "agentReportedPassed": 21,
+      "capN": 2001,
+      "capPassed": true,
+      "negativeGuardsAgentReported": [
+        "unselected formal source changed",
+        "unknown new file",
+        "unselected index title changed without revision change",
+        "root symlink alias"
+      ]
+    }
+  },
+  "review": {
+    "protocolAndMethodIndependentReadOnlyAudit": "passed before primary collection; IR delta/full-index guard strengthened before collection",
+    "incidentReadOnlyAudit": "Decision rename checked independently; no normal completion or automatic rollback claimed",
+    "aiReadyDocs": {
+      "state": "passed",
+      "scope": "Report focus, single bounded operation inputs, historical/protocol boundaries, necessary negative statements, complete numeric tables, resource routes and Markdown structure. Independent read-only final audit found metadata default discrepancy; report corrected to Decision100/Investigation50 and re-synced.",
+      "independentMatrixAudit": "32 commands,47 exact table rows,272 stream byte/hash checks,no overlapping CLI intervals,all5 incidents corroborated by later successful preparation; no remaining blockers."
+    },
+    "codingStyle": "No production source or maintained test changes. New collection methods were reviewed against docs/coding-style.md for explicit ownership, fixture guards, process/output boundaries, failure isolation, complete index/worktree/pending effects; protocol smoke passed. Archived methods are formation-time investigation evidence, not production code."
+  },
+  "repositoryGate": {
+    "command": "bun run check",
+    "state": "passed",
+    "execution": "completed",
+    "totalChecks": 64,
+    "passed": 11,
+    "failed": 0,
+    "notApplicable": 53,
+    "unavailable": 0,
+    "note": "Documentation-only scope; this does not claim all production test suites reran. Final snapshot is checked again before commit."
+  },
+  "productionChanges": false,
+  "historicalResourceScriptsExecutedOrModified": false,
+  "archivedSourceFiles": 1389,
+  "methodFiles": [
+    {
+      "path": "methods/collect.mjs",
+      "bytes": 6152,
+      "sha256": "704e72c575a0e096fcc20715a03bed94a05fbc4e619b63d459e9f96248d92db2"
+    },
+    {
+      "path": "methods/collector-smoke.mjs",
+      "bytes": 2975,
+      "sha256": "f498dcc9c8082cf1fa5d713616c1261ec9ca0755ca33faf2a3d6ede52aedc77d"
+    },
+    {
+      "path": "methods/decision/driver.mjs",
+      "bytes": 209,
+      "sha256": "ca019ca268f8c388ffbe2510fb65708434669756b016dee431ee054485de3426"
+    },
+    {
+      "path": "methods/decision/fixture.mjs",
+      "bytes": 10628,
+      "sha256": "209d1ca606cc331d3724061a08e03966aa98858cd4c9cc3ae8450f17d3fb9491"
+    },
+    {
+      "path": "methods/decision/scenarios.mjs",
+      "bytes": 5298,
+      "sha256": "93d30aef901d28401297aa8d1bccf63283925ae7f29d49993f9553604dcd1381"
+    },
+    {
+      "path": "methods/decision/smoke.mjs",
+      "bytes": 1528,
+      "sha256": "b70f60dfec8b73687e4987dbefe4f7c880c75cb8fa71df27078e255a47e0656f"
+    },
+    {
+      "path": "methods/decision/verification.mjs",
+      "bytes": 13187,
+      "sha256": "cf1a34bb912db63096453c347040cee87acbd009b8add2af3d856181ec227d3f"
+    },
+    {
+      "path": "methods/domain-step.mjs",
+      "bytes": 1356,
+      "sha256": "379a9f8779ed4d9d49aa8e06617728ad7fbd50813d76e20aa03d4df7c3357400"
+    },
+    {
+      "path": "methods/finalize-evidence.py",
+      "bytes": 5380,
+      "sha256": "b6decec91739c27a240785f18ee8fdcd66a0e624a350a63c3be13ad14d9dac36"
+    },
+    {
+      "path": "methods/inspect-decision-mutation.mjs",
+      "bytes": 5284,
+      "sha256": "2ad9861345810cb62018b1ef44b99c17f14b44a0f15c2ab3f8c4781eb385e75c"
+    },
+    {
+      "path": "methods/inspect-decision-rename.mjs",
+      "bytes": 2475,
+      "sha256": "1ab64750a74f532d214c57e3eb437cf2ca6004f125903e061e7aeb68d0ee3741"
+    },
+    {
+      "path": "methods/inspect-investigation-rename.mjs",
+      "bytes": 3472,
+      "sha256": "b67855543afd860e9f5a15dd3e94eb4e13675adc33bf31e0e3d3fa3c2eca7b96"
+    },
+    {
+      "path": "methods/investigation/scenarios.mjs",
+      "bytes": 27084,
+      "sha256": "f7dee42e30b27ccde42b64fa4911f5e8c3365ce8ad27a94c0749605ed929edfe"
+    },
+    {
+      "path": "methods/investigation/smoke.mjs",
+      "bytes": 1241,
+      "sha256": "bb9d89877d81249e52aea059c5ec2beb5dada196239d57b88a82734d72f09525"
+    },
+    {
+      "path": "methods/measure-process.py",
+      "bytes": 1576,
+      "sha256": "0fce03eb3ddc7ad4de75cf1ed2bab24af8929a5f39c0e6b6a072a51802dd941e"
+    },
+    {
+      "path": "methods/process-runner.mjs",
+      "bytes": 3404,
+      "sha256": "7f23c54f9efe3c6e6f0b50167b68395fa7a5504d0c275ae098e134d8144f33a2"
+    }
+  ],
+  "reportMechanicalChecks": {
+    "exactNumericRows": 47,
+    "sortedUniqueResourceLinks": 14,
+    "archivedFullStreamHashChecks": 272,
+    "investigationFullCheck": "70 reports checked; full index current",
+    "candidatePublish": "preflight and actual publish passed; metadata window wording correction re-synced and checked"
+  }
+}

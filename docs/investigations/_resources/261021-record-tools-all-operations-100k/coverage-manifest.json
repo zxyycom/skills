@@ -1,0 +1,543 @@
+{
+  "decision": [
+    {
+      "id": "check",
+      "args": [
+        "check"
+      ],
+      "description": "严格检查 N 条正式来源、2 条候选与当前完整索引",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "candidates",
+      "args": [
+        "candidates"
+      ],
+      "description": "发现常数 2 条 body-ready candidate",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "list",
+      "args": [
+        "list",
+        "--limit",
+        "1"
+      ],
+      "description": "读取发布索引，返回 1 条 active",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "search-metadata",
+      "args": [
+        "search",
+        "needleuniquerecordseven",
+        "--in",
+        "metadata"
+      ],
+      "description": "默认返回窗口扫描 metadata，精确命中并返回 1 条",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "search-content-default",
+      "args": [
+        "search",
+        "needleuniquerecordseven"
+      ],
+      "description": "默认 active 全集 content；100k 因 10000 候选文件硬限拒绝",
+      "expectedExit": 1,
+      "expectedChange": "none"
+    },
+    {
+      "id": "search-content-related",
+      "args": [
+        "search",
+        "needleuniquerecordseven",
+        "--related-to",
+        "261001-perf-000001",
+        "--direction",
+        "successors"
+      ],
+      "description": "完整来源验证后显式 related 小集合，仅扫描 8 条 active 直接后继且只返回 1 条匹配正文",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "show",
+      "args": [
+        "show",
+        "261001-perf-000007"
+      ],
+      "description": "索引定位并回读 1 条当前正文",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "show-candidate",
+      "args": [
+        "show-candidate",
+        "261001-perf-candidate-publish"
+      ],
+      "description": "读取 1 条候选并报告 readiness",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "trace",
+      "args": [
+        "trace",
+        "261001-perf-000002",
+        "--json",
+        "--direction",
+        "predecessors",
+        "--depth",
+        "2",
+        "--max-records",
+        "3"
+      ],
+      "description": "发布快照中遍历 2 节点、1 条修订边",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "sync-preview",
+      "args": [
+        "sync-index",
+        "--preflight"
+      ],
+      "description": "单正文合法变更后全量预演，索引不发布",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "sync-write",
+      "args": [
+        "sync-index"
+      ],
+      "description": "单正文合法变更后发布完整索引",
+      "expectedExit": 0,
+      "expectedChange": "index"
+    },
+    {
+      "id": "sync-noop",
+      "args": [
+        "sync-index"
+      ],
+      "description": "合法 current 集合执行全量无变化同步",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "sync-selected",
+      "args": [
+        "sync-index",
+        "--select",
+        "261001-perf-000007"
+      ],
+      "description": "只选择 1 个已变化 ID，完整验证并发布完整索引",
+      "expectedExit": 0,
+      "expectedChange": "index"
+    },
+    {
+      "id": "new",
+      "args": [
+        "new",
+        "perf-created",
+        "--title",
+        "新增单条性能候选",
+        "--purpose",
+        "保持单条候选的明确维护边界",
+        "--background",
+        "正式集合规模不应扩大操作输入",
+        "--decision",
+        "采用单条候选并独立完成后续审核",
+        "--tag",
+        "performance"
+      ],
+      "description": "以常数 metadata 创建 1 条新 scaffold（非 body-ready）",
+      "expectedExit": 0,
+      "expectedChange": "candidate"
+    },
+    {
+      "id": "rename",
+      "args": [
+        "rename",
+        "261001-perf-000005",
+        "perf-renamed",
+        "--rename-recorded-decision"
+      ],
+      "description": "更正 1 条已入 HEAD 的 active 叶节点身份，保留自身 1 条关系并更新完整索引",
+      "expectedExit": 0,
+      "expectedChange": "one-identity"
+    },
+    {
+      "id": "stage-index",
+      "args": [
+        "stage",
+        "261001-perf-000007",
+        "--scope",
+        "index"
+      ],
+      "description": "单条来源已编辑并同步，只暂存该条完整索引投影",
+      "expectedExit": 0,
+      "expectedChange": "pending-index"
+    },
+    {
+      "id": "stage-domain",
+      "args": [
+        "stage",
+        "261001-perf-000007",
+        "--scope",
+        "domain"
+      ],
+      "description": "单条来源已编辑并同步，只暂存该 MD、保留 pending 索引",
+      "expectedExit": 0,
+      "expectedChange": "pending-domain"
+    },
+    {
+      "id": "stage-all",
+      "args": [
+        "stage",
+        "261001-perf-000007",
+        "--scope",
+        "all"
+      ],
+      "description": "单条来源已编辑并同步，暂存该 MD 和索引投影",
+      "expectedExit": 0,
+      "expectedChange": "pending-index-and-domain"
+    },
+    {
+      "id": "publish",
+      "args": [
+        "publish",
+        "261001-perf-candidate-publish",
+        "--alignment",
+        "aligned"
+      ],
+      "description": "正式建立 1 条 body-ready candidate、归档其 1 条 active 前序",
+      "expectedExit": 0,
+      "expectedChange": "publish-and-one-archive"
+    },
+    {
+      "id": "reactivate",
+      "args": [
+        "reactivate",
+        "261001-perf-000004",
+        "--alignment",
+        "aligned"
+      ],
+      "description": "重新启用 1 条独立 archived，保留 createdAt",
+      "expectedExit": 0,
+      "expectedChange": "reactivate"
+    },
+    {
+      "id": "evolve",
+      "args": [
+        "evolve",
+        "--successor",
+        "aligned=261001-perf-candidate-evolve"
+      ],
+      "description": "显式选择 1 条候选后继，建立并归档其 1 条 active 前序",
+      "expectedExit": 0,
+      "expectedChange": "evolve-and-one-archive"
+    },
+    {
+      "id": "set-relations",
+      "args": [
+        "set-relations",
+        "--source",
+        "261001-perf-000002",
+        "--relation",
+        "修订=261001-perf-000001",
+        "--relation-summary",
+        "261001-perf-000001=调整单条修订边的摘要"
+      ],
+      "description": "完整替换 1 个 source 的 1 条正式边摘要，保留生命周期",
+      "expectedExit": 0,
+      "expectedChange": "one-relation-summary"
+    },
+    {
+      "id": "mark-aligned",
+      "args": [
+        "mark-aligned",
+        "261001-perf-000002"
+      ],
+      "description": "将 1 条 active unaligned 确认为 aligned",
+      "expectedExit": 0,
+      "expectedChange": "alignment"
+    },
+    {
+      "id": "archive",
+      "args": [
+        "archive",
+        "261001-perf-000009"
+      ],
+      "description": "归档 1 条已入 HEAD 的独立 active",
+      "expectedExit": 0,
+      "expectedChange": "archive"
+    },
+    {
+      "id": "discard",
+      "args": [
+        "discard",
+        "261001-perf-000006",
+        "--delete-recorded"
+      ],
+      "description": "明确确认删除 1 条已入 HEAD、无剩余引用的 active",
+      "expectedExit": 0,
+      "expectedChange": "delete"
+    }
+  ],
+  "investigation": [
+    {
+      "id": "new",
+      "args": [
+        "new",
+        "perf-created",
+        "--title",
+        "Fixture created candidate",
+        "--question",
+        "Can one candidate be created?",
+        "--tag",
+        "benchmark",
+        "--formed-at",
+        "2026-10-21T00:00:00+00:00"
+      ],
+      "description": "在大正式存量旁创建1份未完成候选",
+      "expectedExit": 0,
+      "expectedChange": "one candidate created; formal index and pending unchanged"
+    },
+    {
+      "id": "candidates",
+      "args": [
+        "candidates"
+      ],
+      "description": "列出固定2份ready候选",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "show-candidate",
+      "args": [
+        "show-candidate",
+        "261021-perf-candidate-a"
+      ],
+      "description": "读取1份带小资源的ready候选",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "publish",
+      "args": [
+        "publish",
+        "261021-perf-candidate-a"
+      ],
+      "description": "实际发布1份候选及其1条关系，保留另一候选",
+      "expectedExit": 0,
+      "expectedChange": "one candidate becomes formal; index updated; resource bytes and pending unchanged"
+    },
+    {
+      "id": "rename",
+      "args": [
+        "rename",
+        "261021-perf-000001",
+        "perf-renamed",
+        "--rename-recorded-report"
+      ],
+      "description": "实际更正1份HEAD已记录叶节点身份并迁移1个owner资源",
+      "expectedExit": 0,
+      "expectedChange": "one formal and one owner move; index updated; pending unchanged"
+    },
+    {
+      "id": "check-scoped",
+      "args": [
+        "check",
+        "--id",
+        "261021-perf-000001"
+      ],
+      "description": "局部检查1份报告和1个资源",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "check-full",
+      "args": [
+        "check"
+      ],
+      "description": "完整检查正式集合、关系、资源和索引",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "sync-preview",
+      "args": [
+        "sync-index",
+        "--preflight"
+      ],
+      "description": "对1份手改正文进行全量同步预检",
+      "expectedExit": 0,
+      "expectedChange": "none; stale index remains byte-identical"
+    },
+    {
+      "id": "sync-write",
+      "args": [
+        "sync-index"
+      ],
+      "description": "实际接纳1份手改正文并发布完整索引",
+      "expectedExit": 0,
+      "expectedChange": "index sourceRevision for exactly one formal updated"
+    },
+    {
+      "id": "sync-current",
+      "args": [
+        "sync-index"
+      ],
+      "description": "对current索引执行同步",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "sync-selected",
+      "args": [
+        "sync-index",
+        "--select",
+        "261021-perf-000001"
+      ],
+      "description": "显式选中并接纳唯一1份手改正文",
+      "expectedExit": 0,
+      "expectedChange": "index sourceRevision for selected formal updated"
+    },
+    {
+      "id": "list",
+      "args": [
+        "list"
+      ],
+      "description": "默认小窗口列表",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "search-metadata",
+      "args": [
+        "search",
+        "261021-perf-000001",
+        "--in",
+        "metadata"
+      ],
+      "description": "发布索引metadata搜索唯一ID，默认窗口返回1份报告",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "search-content-cap",
+      "args": [
+        "search",
+        "fixturecontent"
+      ],
+      "description": "默认content搜索在>2000个候选文件时按cap拒绝，不代表扫描100k正文",
+      "expectedExit": 1,
+      "expectedChange": "none; explicit resource-limit failure"
+    },
+    {
+      "id": "search-content-related",
+      "args": [
+        "search",
+        "fixturecontent",
+        "--related-to",
+        "261021-perf-000000",
+        "--direction",
+        "successors"
+      ],
+      "description": "显式关系筛选到首组9个小文件后执行content搜索",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "show",
+      "args": [
+        "show",
+        "261021-perf-000001"
+      ],
+      "description": "通过索引定位读取1份当前报告",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "trace",
+      "args": [
+        "trace",
+        "261021-perf-000000",
+        "--json"
+      ],
+      "description": "追溯一个10节点稀疏小组",
+      "expectedExit": 0,
+      "expectedChange": "none"
+    },
+    {
+      "id": "set-relations",
+      "args": [
+        "set-relations",
+        "--source",
+        "261021-perf-000001",
+        "--relation",
+        "复查=261021-perf-000000",
+        "--relation-summary",
+        "261021-perf-000000=本轮独立复核小组根节点"
+      ],
+      "description": "实际替换1条既有关系的summary",
+      "expectedExit": 0,
+      "expectedChange": "one formal relation summary and index updated; pending unchanged"
+    },
+    {
+      "id": "stage-index",
+      "args": [
+        "stage",
+        "261021-perf-000002",
+        "--scope",
+        "index"
+      ],
+      "description": "实际暂存1份变更的索引投影，保护未选pending",
+      "expectedExit": 0,
+      "expectedChange": "selected index projection only; domain and unselected pending protected"
+    },
+    {
+      "id": "stage-domain",
+      "args": [
+        "stage",
+        "261021-perf-000002",
+        "--scope",
+        "domain"
+      ],
+      "description": "实际暂存1份报告和常数owner资源树，pending索引保持HEAD",
+      "expectedExit": 0,
+      "expectedChange": "selected Markdown and two resource files staged; index and unselected pending protected"
+    },
+    {
+      "id": "stage-all",
+      "args": [
+        "stage",
+        "261021-perf-000002",
+        "--scope",
+        "all"
+      ],
+      "description": "实际暂存1份报告、其索引投影和常数owner资源树",
+      "expectedExit": 0,
+      "expectedChange": "selected Markdown, index projection and two resources staged; unselected pending protected"
+    },
+    {
+      "id": "discard",
+      "args": [
+        "discard",
+        "261021-perf-000003",
+        "--delete-owned-resources",
+        "--delete-recorded"
+      ],
+      "description": "实际删除1份已记录叶节点及其1个小owner资源",
+      "expectedExit": 0,
+      "expectedChange": "one formal and owner resource deleted; index updated; pending unchanged"
+    }
+  ]
+}

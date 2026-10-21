@@ -1,0 +1,1251 @@
+{
+  "primarySamples": 47,
+  "businessCommands": {
+    "decision": [
+      "archive",
+      "candidates",
+      "check",
+      "discard",
+      "evolve",
+      "list",
+      "mark-aligned",
+      "new",
+      "publish",
+      "reactivate",
+      "rename",
+      "search",
+      "set-relations",
+      "show",
+      "show-candidate",
+      "stage",
+      "sync-index",
+      "trace"
+    ],
+    "investigation": [
+      "candidates",
+      "check",
+      "discard",
+      "list",
+      "new",
+      "publish",
+      "rename",
+      "search",
+      "set-relations",
+      "show",
+      "show-candidate",
+      "stage",
+      "sync-index",
+      "trace"
+    ]
+  },
+  "counts": {
+    "decision": {
+      "expected-success": 20,
+      "expected-rejection": 1,
+      "node-heap-limit": 4
+    },
+    "investigation": {
+      "expected-success": 20,
+      "node-heap-limit": 1,
+      "expected-rejection": 1
+    }
+  },
+  "unmeasuredScenarios": [],
+  "observations": [
+    {
+      "domain": "decision",
+      "id": "list",
+      "command": "list",
+      "args": [
+        "list",
+        "--limit",
+        "1"
+      ],
+      "description": "读取发布索引，返回 1 条 active",
+      "classification": "expected-success",
+      "wallSeconds": 5.571778654,
+      "cpuSeconds": 6.9940809999999995,
+      "peakRssMiB": 875.01171875,
+      "preparedSeconds": 0.629799981,
+      "verificationSeconds": 0.7224863360000009,
+      "stdoutBytes": 563,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "check",
+      "command": "check",
+      "args": [
+        "check"
+      ],
+      "description": "严格检查 N 条正式来源、2 条候选与当前完整索引",
+      "classification": "expected-success",
+      "wallSeconds": 99.951477863,
+      "cpuSeconds": 91.198992,
+      "peakRssMiB": 1736.80859375,
+      "preparedSeconds": 0.569056021,
+      "verificationSeconds": 0.7645441009999923,
+      "stdoutBytes": 156,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 3221,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "candidates",
+      "command": "candidates",
+      "args": [
+        "candidates"
+      ],
+      "description": "发现常数 2 条 body-ready candidate",
+      "classification": "expected-success",
+      "wallSeconds": 37.740404282,
+      "cpuSeconds": 40.741743,
+      "peakRssMiB": 1135.359375,
+      "preparedSeconds": 0.5012582930000062,
+      "verificationSeconds": 0.836643991000019,
+      "stdoutBytes": 482,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "search-metadata",
+      "command": "search",
+      "args": [
+        "search",
+        "needleuniquerecordseven",
+        "--in",
+        "metadata"
+      ],
+      "description": "默认返回窗口扫描 metadata，精确命中并返回 1 条",
+      "classification": "expected-success",
+      "wallSeconds": 11.678708144,
+      "cpuSeconds": 13.2826,
+      "peakRssMiB": 881.78125,
+      "preparedSeconds": 0.5129637609999917,
+      "verificationSeconds": 0.7781824420000194,
+      "stdoutBytes": 591,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "search-content-default",
+      "command": "search",
+      "args": [
+        "search",
+        "needleuniquerecordseven"
+      ],
+      "description": "默认 active 全集 content；100k 因 10000 候选文件硬限拒绝",
+      "classification": "expected-rejection",
+      "wallSeconds": 120.564685654,
+      "cpuSeconds": 126.046862,
+      "peakRssMiB": 1553.796875,
+      "preparedSeconds": 0.4987134740000183,
+      "verificationSeconds": 0.7552194710000185,
+      "stdoutBytes": 0,
+      "stderrBytes": 236,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "search-content-related",
+      "command": "search",
+      "args": [
+        "search",
+        "needleuniquerecordseven",
+        "--related-to",
+        "261001-perf-000001",
+        "--direction",
+        "successors"
+      ],
+      "description": "完整来源验证后显式 related 小集合，仅扫描 8 条 active 直接后继且只返回 1 条匹配正文",
+      "classification": "expected-success",
+      "wallSeconds": 127.872881999,
+      "cpuSeconds": 132.56575899999999,
+      "peakRssMiB": 1556.53125,
+      "preparedSeconds": 0.48970068300003183,
+      "verificationSeconds": 1.1601842949999845,
+      "stdoutBytes": 1287,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 1111,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "show",
+      "command": "show",
+      "args": [
+        "show",
+        "261001-perf-000007"
+      ],
+      "description": "索引定位并回读 1 条当前正文",
+      "classification": "expected-success",
+      "wallSeconds": 5.216076823000001,
+      "cpuSeconds": 6.333965,
+      "peakRssMiB": 816.15234375,
+      "preparedSeconds": 0.542880375000008,
+      "verificationSeconds": 0.7383535790000461,
+      "stdoutBytes": 1327,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "show-candidate",
+      "command": "show-candidate",
+      "args": [
+        "show-candidate",
+        "261001-perf-candidate-publish"
+      ],
+      "description": "读取 1 条候选并报告 readiness",
+      "classification": "expected-success",
+      "wallSeconds": 34.164917548,
+      "cpuSeconds": 37.012977,
+      "peakRssMiB": 1200.65625,
+      "preparedSeconds": 0.4863174020000151,
+      "verificationSeconds": 0.7599345639999956,
+      "stdoutBytes": 1351,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "trace",
+      "command": "trace",
+      "args": [
+        "trace",
+        "261001-perf-000002",
+        "--json",
+        "--direction",
+        "predecessors",
+        "--depth",
+        "2",
+        "--max-records",
+        "3"
+      ],
+      "description": "发布快照中遍历 2 节点、1 条修订边",
+      "classification": "expected-success",
+      "wallSeconds": 6.693816874,
+      "cpuSeconds": 8.374693,
+      "peakRssMiB": 891.3359375,
+      "preparedSeconds": 0.5230645920000389,
+      "verificationSeconds": 0.8047264520000317,
+      "stdoutBytes": 1531,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "sync-preview",
+      "command": "sync-index",
+      "args": [
+        "sync-index",
+        "--preflight"
+      ],
+      "description": "单正文合法变更后全量预演，索引不发布",
+      "classification": "expected-success",
+      "wallSeconds": 115.597989467,
+      "cpuSeconds": 123.03113400000001,
+      "peakRssMiB": 1701.07421875,
+      "preparedSeconds": 0.5024149840000318,
+      "verificationSeconds": 0.890448200999992,
+      "stdoutBytes": 73,
+      "stderrBytes": 534,
+      "memoryEventDeltas": {
+        "max": 858,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "sync-write",
+      "command": "sync-index",
+      "args": [
+        "sync-index"
+      ],
+      "description": "单正文合法变更后发布完整索引",
+      "classification": "expected-success",
+      "wallSeconds": 120.029563406,
+      "cpuSeconds": 128.02363300000002,
+      "peakRssMiB": 1925.34375,
+      "preparedSeconds": 0.49673114899999926,
+      "verificationSeconds": 2.4983300670000026,
+      "stdoutBytes": 73,
+      "stderrBytes": 534,
+      "memoryEventDeltas": {
+        "max": 1786,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "sync-noop",
+      "command": "sync-index",
+      "args": [
+        "sync-index"
+      ],
+      "description": "合法 current 集合执行全量无变化同步",
+      "classification": "expected-success",
+      "wallSeconds": 117.32916817499999,
+      "cpuSeconds": 125.591777,
+      "peakRssMiB": 1752.53515625,
+      "preparedSeconds": 0.6745712930000154,
+      "verificationSeconds": 0.9075941309999908,
+      "stdoutBytes": 30,
+      "stderrBytes": 534,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "sync-selected",
+      "command": "sync-index",
+      "args": [
+        "sync-index",
+        "--select",
+        "261001-perf-000007"
+      ],
+      "description": "只选择 1 个已变化 ID，完整验证并发布完整索引",
+      "classification": "expected-success",
+      "wallSeconds": 127.145397586,
+      "cpuSeconds": 138.732937,
+      "peakRssMiB": 2024.9140625,
+      "preparedSeconds": 0.4990493269999279,
+      "verificationSeconds": 2.913502358999918,
+      "stdoutBytes": 136,
+      "stderrBytes": 534,
+      "memoryEventDeltas": {
+        "max": 547,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "new",
+      "command": "new",
+      "args": [
+        "new",
+        "perf-created",
+        "--title",
+        "新增单条性能候选",
+        "--purpose",
+        "保持单条候选的明确维护边界",
+        "--background",
+        "正式集合规模不应扩大操作输入",
+        "--decision",
+        "采用单条候选并独立完成后续审核",
+        "--tag",
+        "performance"
+      ],
+      "description": "以常数 metadata 创建 1 条新 scaffold（非 body-ready）",
+      "classification": "expected-success",
+      "wallSeconds": 109.078039332,
+      "cpuSeconds": 116.350505,
+      "peakRssMiB": 1642.6328125,
+      "preparedSeconds": 0.8403250659999904,
+      "verificationSeconds": 0.961777328999946,
+      "stdoutBytes": 457,
+      "stderrBytes": 63,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "rename",
+      "command": "rename",
+      "args": [
+        "rename",
+        "261001-perf-000005",
+        "perf-renamed",
+        "--rename-recorded-decision"
+      ],
+      "description": "更正 1 条已入 HEAD 的 active 叶节点身份，保留自身 1 条关系并更新完整索引",
+      "classification": "node-heap-limit",
+      "wallSeconds": 428.416529638,
+      "cpuSeconds": 521.238122,
+      "peakRssMiB": 2694.23828125,
+      "preparedSeconds": 0.516436815999914,
+      "verificationSeconds": null,
+      "stdoutBytes": 0,
+      "stderrBytes": 2381,
+      "memoryEventDeltas": {
+        "max": 4907,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "stage-index",
+      "command": "stage",
+      "args": [
+        "stage",
+        "261001-perf-000007",
+        "--scope",
+        "index"
+      ],
+      "description": "单条来源已编辑并同步，只暂存该条完整索引投影",
+      "classification": "expected-success",
+      "wallSeconds": 177.687005963,
+      "cpuSeconds": 191.59488,
+      "peakRssMiB": 1952.1171875,
+      "preparedSeconds": 6.4678598329999994,
+      "verificationSeconds": 1.3103808600000049,
+      "stdoutBytes": 309,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "stage-domain",
+      "command": "stage",
+      "args": [
+        "stage",
+        "261001-perf-000007",
+        "--scope",
+        "domain"
+      ],
+      "description": "单条来源已编辑并同步，只暂存该 MD、保留 pending 索引",
+      "classification": "expected-success",
+      "wallSeconds": 163.068342593,
+      "cpuSeconds": 185.833592,
+      "peakRssMiB": 1760.58984375,
+      "preparedSeconds": 5.984998647999979,
+      "verificationSeconds": 7.2120866889999595,
+      "stdoutBytes": 315,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "stage-all",
+      "command": "stage",
+      "args": [
+        "stage",
+        "261001-perf-000007",
+        "--scope",
+        "all"
+      ],
+      "description": "单条来源已编辑并同步，暂存该 MD 和索引投影",
+      "classification": "expected-success",
+      "wallSeconds": 193.110360808,
+      "cpuSeconds": 219.102049,
+      "peakRssMiB": 2100.21484375,
+      "preparedSeconds": 7.18147780199995,
+      "verificationSeconds": 6.392354801999987,
+      "stdoutBytes": 318,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "publish",
+      "command": "publish",
+      "args": [
+        "publish",
+        "261001-perf-candidate-publish",
+        "--alignment",
+        "aligned"
+      ],
+      "description": "正式建立 1 条 body-ready candidate、归档其 1 条 active 前序",
+      "classification": "node-heap-limit",
+      "wallSeconds": 384.217252278,
+      "cpuSeconds": 468.569969,
+      "peakRssMiB": 2678.50390625,
+      "preparedSeconds": 0.7777911899999017,
+      "verificationSeconds": null,
+      "stdoutBytes": 0,
+      "stderrBytes": 1189,
+      "memoryEventDeltas": {
+        "max": 7085,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "new",
+      "command": "new",
+      "args": [
+        "new",
+        "perf-created",
+        "--title",
+        "Fixture created candidate",
+        "--question",
+        "Can one candidate be created?",
+        "--tag",
+        "benchmark",
+        "--formed-at",
+        "2026-10-21T00:00:00+00:00"
+      ],
+      "description": "在大正式存量旁创建1份未完成候选",
+      "classification": "expected-success",
+      "wallSeconds": 79.523460275,
+      "cpuSeconds": 67.355152,
+      "peakRssMiB": 1601.54296875,
+      "preparedSeconds": 0.798565345,
+      "verificationSeconds": 1.1950984929999977,
+      "stdoutBytes": 327,
+      "stderrBytes": 665,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "candidates",
+      "command": "candidates",
+      "args": [
+        "candidates"
+      ],
+      "description": "列出固定2份ready候选",
+      "classification": "expected-success",
+      "wallSeconds": 4.409715072,
+      "cpuSeconds": 5.274502,
+      "peakRssMiB": 694.95703125,
+      "preparedSeconds": 0.5995467799999896,
+      "verificationSeconds": 1.3028442639999993,
+      "stdoutBytes": 156,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "show-candidate",
+      "command": "show-candidate",
+      "args": [
+        "show-candidate",
+        "261021-perf-candidate-a"
+      ],
+      "description": "读取1份带小资源的ready候选",
+      "classification": "expected-success",
+      "wallSeconds": 4.260757812,
+      "cpuSeconds": 5.2313979999999995,
+      "peakRssMiB": 680.0234375,
+      "preparedSeconds": 0.613848438999994,
+      "verificationSeconds": 1.2809426289999974,
+      "stdoutBytes": 1080,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "publish",
+      "command": "publish",
+      "args": [
+        "publish",
+        "261021-perf-candidate-a"
+      ],
+      "description": "实际发布1份候选及其1条关系，保留另一候选",
+      "classification": "expected-success",
+      "wallSeconds": 160.44797532500002,
+      "cpuSeconds": 167.097017,
+      "peakRssMiB": 2123.78125,
+      "preparedSeconds": 0.5870360570000048,
+      "verificationSeconds": 2.330605196999997,
+      "stdoutBytes": 354,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 1142,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "rename",
+      "command": "rename",
+      "args": [
+        "rename",
+        "261021-perf-000001",
+        "perf-renamed",
+        "--rename-recorded-report"
+      ],
+      "description": "实际更正1份HEAD已记录叶节点身份并迁移1个owner资源",
+      "classification": "node-heap-limit",
+      "wallSeconds": 177.32224211699997,
+      "cpuSeconds": 196.667579,
+      "peakRssMiB": 2444.765625,
+      "preparedSeconds": 0.9966173080000154,
+      "verificationSeconds": null,
+      "stdoutBytes": 0,
+      "stderrBytes": 1592,
+      "memoryEventDeltas": {
+        "max": 2251,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "check-scoped",
+      "command": "check",
+      "args": [
+        "check",
+        "--id",
+        "261021-perf-000001"
+      ],
+      "description": "局部检查1份报告和1个资源",
+      "classification": "expected-success",
+      "wallSeconds": 4.296830484,
+      "cpuSeconds": 5.169429,
+      "peakRssMiB": 730.37890625,
+      "preparedSeconds": 0.984282475,
+      "verificationSeconds": 1.3056381959999999,
+      "stdoutBytes": 83,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "check-full",
+      "command": "check",
+      "args": [
+        "check"
+      ],
+      "description": "完整检查正式集合、关系、资源和索引",
+      "classification": "expected-success",
+      "wallSeconds": 58.290140194,
+      "cpuSeconds": 61.478133,
+      "peakRssMiB": 1349.140625,
+      "preparedSeconds": 0.6091179689999999,
+      "verificationSeconds": 1.3184704809999968,
+      "stdoutBytes": 80,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "sync-preview",
+      "command": "sync-index",
+      "args": [
+        "sync-index",
+        "--preflight"
+      ],
+      "description": "对1份手改正文进行全量同步预检",
+      "classification": "expected-success",
+      "wallSeconds": 30.951652475,
+      "cpuSeconds": 31.797259999999998,
+      "peakRssMiB": 1637.09765625,
+      "preparedSeconds": 0.6377600109999912,
+      "verificationSeconds": 1.2198371819999885,
+      "stdoutBytes": 95,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "sync-write",
+      "command": "sync-index",
+      "args": [
+        "sync-index"
+      ],
+      "description": "实际接纳1份手改正文并发布完整索引",
+      "classification": "expected-success",
+      "wallSeconds": 31.064175852,
+      "cpuSeconds": 32.600557,
+      "peakRssMiB": 1663.21875,
+      "preparedSeconds": 0.5978656230000051,
+      "verificationSeconds": 2.1824156450000007,
+      "stdoutBytes": 51,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "sync-current",
+      "command": "sync-index",
+      "args": [
+        "sync-index"
+      ],
+      "description": "对current索引执行同步",
+      "classification": "expected-success",
+      "wallSeconds": 30.825010997,
+      "cpuSeconds": 31.666866999999996,
+      "peakRssMiB": 1624.80859375,
+      "preparedSeconds": 0.9725762329999997,
+      "verificationSeconds": 1.2596680489999998,
+      "stdoutBytes": 57,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "sync-selected",
+      "command": "sync-index",
+      "args": [
+        "sync-index",
+        "--select",
+        "261021-perf-000001"
+      ],
+      "description": "显式选中并接纳唯一1份手改正文",
+      "classification": "expected-success",
+      "wallSeconds": 40.287586200999996,
+      "cpuSeconds": 43.617940000000004,
+      "peakRssMiB": 1636.47265625,
+      "preparedSeconds": 0.6417985909999988,
+      "verificationSeconds": 2.178810188000003,
+      "stdoutBytes": 146,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "list",
+      "command": "list",
+      "args": [
+        "list"
+      ],
+      "description": "默认小窗口列表",
+      "classification": "expected-success",
+      "wallSeconds": 5.224141577999999,
+      "cpuSeconds": 6.227872,
+      "peakRssMiB": 785.7421875,
+      "preparedSeconds": 0.987238222999993,
+      "verificationSeconds": 1.2463419970000105,
+      "stdoutBytes": 1332,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "search-metadata",
+      "command": "search",
+      "args": [
+        "search",
+        "261021-perf-000001",
+        "--in",
+        "metadata"
+      ],
+      "description": "发布索引metadata搜索唯一ID，默认窗口返回1份报告",
+      "classification": "expected-success",
+      "wallSeconds": 10.680830869,
+      "cpuSeconds": 11.591845,
+      "peakRssMiB": 735.11328125,
+      "preparedSeconds": 0.6060949149999942,
+      "verificationSeconds": 1.2410078360000043,
+      "stdoutBytes": 556,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "search-content-cap",
+      "command": "search",
+      "args": [
+        "search",
+        "fixturecontent"
+      ],
+      "description": "默认content搜索在>2000个候选文件时按cap拒绝，不代表扫描100k正文",
+      "classification": "expected-rejection",
+      "wallSeconds": 16.378069292,
+      "cpuSeconds": 17.232553,
+      "peakRssMiB": 868.75390625,
+      "preparedSeconds": 0.6290207189999928,
+      "verificationSeconds": 1.2624362459999974,
+      "stdoutBytes": 0,
+      "stderrBytes": 420,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "search-content-related",
+      "command": "search",
+      "args": [
+        "search",
+        "fixturecontent",
+        "--related-to",
+        "261021-perf-000000",
+        "--direction",
+        "successors"
+      ],
+      "description": "显式关系筛选到首组9个小文件后执行content搜索",
+      "classification": "expected-success",
+      "wallSeconds": 16.326785085,
+      "cpuSeconds": 17.109637,
+      "peakRssMiB": 875.5390625,
+      "preparedSeconds": 0.5873364220000221,
+      "verificationSeconds": 1.3014525620000204,
+      "stdoutBytes": 6250,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "show",
+      "command": "show",
+      "args": [
+        "show",
+        "261021-perf-000001"
+      ],
+      "description": "通过索引定位读取1份当前报告",
+      "classification": "expected-success",
+      "wallSeconds": 4.153766038,
+      "cpuSeconds": 4.994852,
+      "peakRssMiB": 734.67578125,
+      "preparedSeconds": 0.6242960210000165,
+      "verificationSeconds": 1.2845530619999628,
+      "stdoutBytes": 1024,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "trace",
+      "command": "trace",
+      "args": [
+        "trace",
+        "261021-perf-000000",
+        "--json"
+      ],
+      "description": "追溯一个10节点稀疏小组",
+      "classification": "expected-success",
+      "wallSeconds": 4.268763556,
+      "cpuSeconds": 5.14942,
+      "peakRssMiB": 742.09765625,
+      "preparedSeconds": 0.6274778219999861,
+      "verificationSeconds": 1.2740828960000072,
+      "stdoutBytes": 5080,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "set-relations",
+      "command": "set-relations",
+      "args": [
+        "set-relations",
+        "--source",
+        "261021-perf-000001",
+        "--relation",
+        "复查=261021-perf-000000",
+        "--relation-summary",
+        "261021-perf-000000=本轮独立复核小组根节点"
+      ],
+      "description": "实际替换1条既有关系的summary",
+      "classification": "expected-success",
+      "wallSeconds": 70.01438844799999,
+      "cpuSeconds": 70.567054,
+      "peakRssMiB": 1958.41015625,
+      "preparedSeconds": 0.6095095950000105,
+      "verificationSeconds": 2.1671434069999957,
+      "stdoutBytes": 522,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "stage-index",
+      "command": "stage",
+      "args": [
+        "stage",
+        "261021-perf-000002",
+        "--scope",
+        "index"
+      ],
+      "description": "实际暂存1份变更的索引投影，保护未选pending",
+      "classification": "expected-success",
+      "wallSeconds": 15.086525221,
+      "cpuSeconds": 19.201481,
+      "peakRssMiB": 1401.88671875,
+      "preparedSeconds": 2.2843572830000194,
+      "verificationSeconds": 2.521693278999999,
+      "stdoutBytes": 513,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "stage-domain",
+      "command": "stage",
+      "args": [
+        "stage",
+        "261021-perf-000002",
+        "--scope",
+        "domain"
+      ],
+      "description": "实际暂存1份报告和常数owner资源树，pending索引保持HEAD",
+      "classification": "expected-success",
+      "wallSeconds": 21.423619214,
+      "cpuSeconds": 29.659275,
+      "peakRssMiB": 1757.16796875,
+      "preparedSeconds": 2.278839144000027,
+      "verificationSeconds": 10.986163072999974,
+      "stdoutBytes": 633,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "stage-all",
+      "command": "stage",
+      "args": [
+        "stage",
+        "261021-perf-000002",
+        "--scope",
+        "all"
+      ],
+      "description": "实际暂存1份报告、其索引投影和常数owner资源树",
+      "classification": "expected-success",
+      "wallSeconds": 25.921548314,
+      "cpuSeconds": 35.589753,
+      "peakRssMiB": 1936.1640625,
+      "preparedSeconds": 2.4149690040000134,
+      "verificationSeconds": 11.508353532999987,
+      "stdoutBytes": 636,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "investigation",
+      "id": "discard",
+      "command": "discard",
+      "args": [
+        "discard",
+        "261021-perf-000003",
+        "--delete-owned-resources",
+        "--delete-recorded"
+      ],
+      "description": "实际删除1份已记录叶节点及其1个小owner资源",
+      "classification": "expected-success",
+      "wallSeconds": 88.579338632,
+      "cpuSeconds": 90.495466,
+      "peakRssMiB": 1935.2421875,
+      "preparedSeconds": 0.9535075809999835,
+      "verificationSeconds": 2.104066649000044,
+      "stdoutBytes": 81,
+      "stderrBytes": 0,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "reactivate",
+      "command": "reactivate",
+      "args": [
+        "reactivate",
+        "261001-perf-000004",
+        "--alignment",
+        "aligned"
+      ],
+      "description": "重新启用 1 条独立 archived，保留 createdAt",
+      "classification": "expected-success",
+      "wallSeconds": 441.75833244,
+      "cpuSeconds": 480.833595,
+      "peakRssMiB": 2532.03515625,
+      "preparedSeconds": 0.8177518149999999,
+      "verificationSeconds": 2.5242891189999646,
+      "stdoutBytes": 47,
+      "stderrBytes": 534,
+      "memoryEventDeltas": {
+        "max": 39,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "evolve",
+      "command": "evolve",
+      "args": [
+        "evolve",
+        "--successor",
+        "aligned=261001-perf-candidate-evolve"
+      ],
+      "description": "显式选择 1 条候选后继，建立并归档其 1 条 active 前序",
+      "classification": "node-heap-limit",
+      "wallSeconds": 413.554755146,
+      "cpuSeconds": 485.211314,
+      "peakRssMiB": 2699.1171875,
+      "preparedSeconds": 0.7005784369999892,
+      "verificationSeconds": null,
+      "stdoutBytes": 0,
+      "stderrBytes": 2348,
+      "memoryEventDeltas": {
+        "max": 2467,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "set-relations",
+      "command": "set-relations",
+      "args": [
+        "set-relations",
+        "--source",
+        "261001-perf-000002",
+        "--relation",
+        "修订=261001-perf-000001",
+        "--relation-summary",
+        "261001-perf-000001=调整单条修订边的摘要"
+      ],
+      "description": "完整替换 1 个 source 的 1 条正式边摘要，保留生命周期",
+      "classification": "node-heap-limit",
+      "wallSeconds": 339.337651789,
+      "cpuSeconds": 424.569818,
+      "peakRssMiB": 2595.98828125,
+      "preparedSeconds": 0.6924113980000001,
+      "verificationSeconds": null,
+      "stdoutBytes": 0,
+      "stderrBytes": 2381,
+      "memoryEventDeltas": {
+        "max": 2328,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "mark-aligned",
+      "command": "mark-aligned",
+      "args": [
+        "mark-aligned",
+        "261001-perf-000002"
+      ],
+      "description": "将 1 条 active unaligned 确认为 aligned",
+      "classification": "expected-success",
+      "wallSeconds": 425.434444052,
+      "cpuSeconds": 475.78828599999997,
+      "peakRssMiB": 2575.25,
+      "preparedSeconds": 0.704905441,
+      "verificationSeconds": 2.7131666660000335,
+      "stdoutBytes": 31,
+      "stderrBytes": 534,
+      "memoryEventDeltas": {
+        "max": 214,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "archive",
+      "command": "archive",
+      "args": [
+        "archive",
+        "261001-perf-000009"
+      ],
+      "description": "归档 1 条已入 HEAD 的独立 active",
+      "classification": "expected-success",
+      "wallSeconds": 471.651414031,
+      "cpuSeconds": 531.069595,
+      "peakRssMiB": 2742.9296875,
+      "preparedSeconds": 0.7812724060000037,
+      "verificationSeconds": 2.3854548390000128,
+      "stdoutBytes": 29,
+      "stderrBytes": 534,
+      "memoryEventDeltas": {
+        "max": 1063,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    {
+      "domain": "decision",
+      "id": "discard",
+      "command": "discard",
+      "args": [
+        "discard",
+        "261001-perf-000006",
+        "--delete-recorded"
+      ],
+      "description": "明确确认删除 1 条已入 HEAD、无剩余引用的 active",
+      "classification": "expected-success",
+      "wallSeconds": 430.09830243799996,
+      "cpuSeconds": 481.865763,
+      "peakRssMiB": 2671.5859375,
+      "preparedSeconds": 0.7851879690000787,
+      "verificationSeconds": 2.4740477320000065,
+      "stdoutBytes": 35,
+      "stderrBytes": 534,
+      "memoryEventDeltas": {
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    }
+  ]
+}

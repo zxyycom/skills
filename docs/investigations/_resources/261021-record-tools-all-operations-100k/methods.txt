@@ -1,0 +1,1715 @@
+Formation-time investigation methods; read as evidence, not a maintained or standalone runnable package.
+Each FILE header records original relative path, byte size and SHA256; content follows verbatim.
+
+FILE methods/collect.mjs
+BYTES 6152
+SHA256 704e72c575a0e096fcc20715a03bed94a05fbc4e619b63d459e9f96248d92db2
+
+import assert from "node:assert/strict";
+import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import * as v from "valibot";
+import { base, loadDriver } from "./domain-step.mjs";
+import { readCgroupMemoryEvents, runCaptured } from "./process-runner.mjs";
+
+const metricsSchema = v.strictObject({
+  startedAtUnixSeconds: v.number(),
+  wallMs: v.number(),
+  userSeconds: v.number(),
+  systemSeconds: v.number(),
+  maxRssKiB: v.number(),
+  childExitCode: v.nullable(v.number()),
+  childSignal: v.nullable(v.string()),
+  metricsScope: v.string()
+});
+const [domain, ...selectedIds] = process.argv.slice(2);
+const driver = await loadDriver(domain);
+const scenarios = driver.manifest ?? driver.scenarios;
+const selected =
+  selectedIds.length === 0
+    ? scenarios
+    : scenarios.filter((item) => selectedIds.includes(item.id));
+assert.ok(
+  selected.length > 0 &&
+    selectedIds.every((id) => selected.some((item) => item.id === id))
+);
+const root = path.join(base, "datasets", domain);
+const sourceCli =
+  domain === "decision"
+    ? "skills/decision-records/scripts/decision-records.ts"
+    : "skills/investigation-report/scripts/check-investigations.ts";
+const commandLimitMs = 600000;
+const preparationLimitMs = 1800000;
+
+async function phase(name, scenario, prefix, resultFile) {
+  return await runCaptured({
+    command: process.execPath,
+    args: [
+      "--max-old-space-size=4096",
+      path.join(import.meta.dirname, "domain-step.mjs"),
+      domain,
+      name,
+      scenario.id,
+      root,
+      ...(resultFile ? [resultFile] : [])
+    ],
+    cwd: base,
+    timeoutMs: preparationLimitMs,
+    prefix: prefix + "." + name
+  });
+}
+
+async function usageOf(file) {
+  try {
+    return {
+      status: "ok",
+      value: v.parse(metricsSchema, JSON.parse(await readFile(file, "utf8")))
+    };
+  } catch (error) {
+    return { status: "unavailable", reason: error.message, value: null };
+  }
+}
+
+function classify(run, metrics, scenario) {
+  if (run.timedOut) return "command-timeout";
+  if (run.spawnError !== null) return "launch-failed";
+  if (
+    /JavaScript heap out of memory|Reached heap limit|Ineffective mark-compacts near heap limit/u.test(
+      run.stderr.head
+    )
+  )
+    return "node-heap-limit";
+  if (metrics.value?.childSignal || run.signal) return "command-signalled";
+  if (metrics.status !== "ok") return "measurement-unavailable";
+  if (run.exitCode === scenario.expectedExit)
+    return run.exitCode === 0 ? "expected-success" : "expected-rejection";
+  return "unexpected-exit";
+}
+
+for (const scenario of selected) {
+  const stamp = Date.now() + "-" + process.pid;
+  const prefix = path.join(base, "results", domain, scenario.id + "." + stamp);
+  console.log(
+    JSON.stringify({
+      event: "prepare-start",
+      domain,
+      id: scenario.id,
+      at: new Date().toISOString()
+    })
+  );
+  const prepared = await phase("prepare", scenario, prefix);
+  if (prepared.exitCode !== 0 || prepared.timedOut) {
+    await appendFile(
+      path.join(base, "results", "observations.jsonl"),
+      JSON.stringify({
+        domain,
+        id: scenario.id,
+        phase: "prepare",
+        classification: "preparation-failed",
+        prepared
+      }) + "\n"
+    );
+    throw new Error("preparation failed: " + scenario.id);
+  }
+  const before = await readCgroupMemoryEvents();
+  const usagePath = prefix + ".usage.json";
+  const args = [
+    path.join(import.meta.dirname, "measure-process.py"),
+    usagePath,
+    "--",
+    process.execPath,
+    path.join(base, "source", sourceCli),
+    "--root",
+    root,
+    ...scenario.args
+  ];
+  console.log(
+    JSON.stringify({
+      event: "command-start",
+      domain,
+      id: scenario.id,
+      at: new Date().toISOString()
+    })
+  );
+  const run = await runCaptured({
+    command: "python3",
+    args,
+    cwd: base,
+    timeoutMs: commandLimitMs,
+    prefix: prefix + ".command"
+  });
+  const metrics = await usageOf(usagePath);
+  const after = await readCgroupMemoryEvents();
+  let classification = classify(run, metrics, scenario);
+  let verified = null;
+  if (
+    classification === "expected-success" ||
+    classification === "expected-rejection"
+  ) {
+    const resultFile = prefix + ".cli-result.json";
+    await writeFile(
+      resultFile,
+      JSON.stringify({
+        exitCode: metrics.value?.childExitCode ?? run.exitCode,
+        signal: metrics.value?.childSignal ?? run.signal,
+        stdout: run.stdout.head,
+        stderr: run.stderr.head
+      })
+    );
+    verified = await phase("verify", scenario, prefix, resultFile);
+    if (verified.exitCode !== 0 || verified.timedOut)
+      classification = "effect-verification-failed";
+  }
+  const row = {
+    source: (await readFile(path.join(base, "source-ref.txt"), "utf8")).trim(),
+    domain,
+    id: scenario.id,
+    description: scenario.description,
+    argv: [
+      process.execPath,
+      path.join(base, "source", sourceCli),
+      "--root",
+      root,
+      ...scenario.args
+    ],
+    formalRecordsBefore: 100000,
+    expectedExit: scenario.expectedExit,
+    expectedChange: scenario.expectedChange,
+    phase: "command",
+    classification,
+    commandLimitMs,
+    metrics,
+    cgroupMemoryEvents: { before, after },
+    prepared,
+    run,
+    verified
+  };
+  await appendFile(
+    path.join(base, "results", "observations.jsonl"),
+    JSON.stringify(row) + "\n"
+  );
+  console.log(
+    JSON.stringify({
+      event: "command-end",
+      domain,
+      id: scenario.id,
+      classification,
+      wallMs: metrics.value?.wallMs ?? run.wrapperWallMs,
+      maxRssKiB: metrics.value?.maxRssKiB ?? null,
+      at: new Date().toISOString()
+    })
+  );
+  if (
+    classification !== "expected-success" && classification !== "expected-rejection"
+  ) {
+    await writeFile(
+      path.join(base, "results", domain + "-quarantine-required.json"),
+      JSON.stringify({
+        root,
+        id: scenario.id,
+        classification,
+        at: new Date().toISOString(),
+        note: "Entire process group terminated where needed; do not reuse fixture without forensic inspection and explicit baseline restoration."
+      })
+    );
+    break;
+  }
+}
+
+END FILE
+
+FILE methods/collector-smoke.mjs
+BYTES 2975
+SHA256 f498dcc9c8082cf1fa5d713616c1261ec9ca0755ca33faf2a3d6ede52aedc77d
+
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {readFile,writeFile} from 'node:fs/promises';
+import path from 'node:path';
+import {runCaptured} from './process-runner.mjs';
+const base=path.resolve(import.meta.dirname,'..');
+const hash=value=>createHash('sha256').update(value).digest('hex');
+const run=(id,command,args,timeoutMs=10000)=>runCaptured({command,args,cwd:base,timeoutMs,prefix:path.join(base,'results/collector-smoke',id)});
+const large=await run('large',process.execPath,['-e','process.stdout.write("X".repeat(1024*1024));process.stderr.write("Y".repeat(512*1024));']);
+assert.equal(large.exitCode,0);
+for(const [key,size,char] of [['stdout',1024*1024,'X'],['stderr',512*1024,'Y']]){
+ assert.equal(large[key].bytes,size);assert.equal(large[key].sha256,hash(Buffer.alloc(size,char)));
+ assert.equal(large[key].head.length,256*1024);assert.equal(large[key].headTruncated,true);
+ assert.equal(hash(await readFile(large[key].file)),large[key].sha256);
+}
+const failed=await run('launch-failure','/nonexistent-allops-program',[]);
+assert.equal(failed.spawnError.code,'ENOENT');
+const timeout=await run('timeout',process.execPath,['-e',`const{spawn}=require('node:child_process');process.on('SIGTERM',()=>{});const c=spawn(process.execPath,['-e',"process.on('SIGTERM',()=>{});setInterval(()=>{},1000)"],{stdio:'inherit'});console.log(JSON.stringify({parent:process.pid,grandchild:c.pid}));setInterval(()=>{},1000);`],500);
+assert.equal(timeout.timedOut,true);assert.equal(timeout.signal,'SIGKILL');
+const pids=JSON.parse(timeout.stdout.head.trim());
+const states={};
+for(const [role,pid]of Object.entries(pids)){
+ try{const stat=await readFile(`/proc/${pid}/stat`,'utf8');states[role]=stat.slice(stat.lastIndexOf(')')+2).split(' ')[0];assert.equal(states[role],'Z');}
+ catch(error){if(error.code!=='ENOENT')throw error;states[role]='gone';}
+}
+const usageFile=path.join(base,'results/collector-smoke/usage.json');
+const measured=await run('wait4','python3',[path.join(base,'methods/measure-process.py'),usageFile,'--',process.execPath,'-e','console.log("measured")']);
+const usage=JSON.parse(await readFile(usageFile,'utf8'));
+assert.equal(measured.exitCode,0);assert.equal(usage.childExitCode,0);assert.equal(usage.childSignal,null);assert.ok(usage.wallMs>0&&usage.maxRssKiB>0);
+const result={at:new Date().toISOString(),largeOutput:{passed:true,stdoutBytes:large.stdout.bytes,stderrBytes:large.stderr.bytes,boundedHeadBytes:256*1024,fullHashesMatch:true},launchFailure:{passed:true,code:failed.spawnError.code},timeout:{passed:true,timedOut:timeout.timedOut,signal:timeout.signal,processStates:states,wrapperWallMs:timeout.wrapperWallMs},wait4:{passed:true,usage},scope:'Collector protocol smoke after the complete primary matrix; not a production test entry or performance observation.'};
+await writeFile(path.join(base,'results/collector-smoke.json'),JSON.stringify(result,null,2)+'\n');
+console.log(JSON.stringify(result));
+
+END FILE
+
+FILE methods/decision/driver.mjs
+BYTES 209
+SHA256 ca019ca268f8c388ffbe2510fb65708434669756b016dee431ee054485de3426
+
+export { scenarios, manifest, cliPath, sourceRoot, helpExclusion } from './scenarios.mjs';
+export { prepareFixture, prepareScenario } from './fixture.mjs';
+export { verifyScenario } from './verification.mjs';
+
+END FILE
+
+FILE methods/decision/fixture.mjs
+BYTES 10628
+SHA256 209d1ca606cc331d3724061a08e03966aa98858cd4c9cc3ae8450f17d3fb9491
+
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { pathToFileURL } from 'node:url';
+import {
+  sourceRoot, cliPath, collectionPath, indexPath, recordId, recordName,
+  candidatePublishId, candidateEvolveId, token, editToken, getScenario,
+} from './scenarios.mjs';
+
+export const markerName = '.record-tools-decision-fixture.json';
+export const stateName = '.record-tools-decision-scenario.json';
+const fixtureKind = 'decision-allops-100k-v1';
+const timestamp = '2026-10-01T00:00:00Z';
+let runtimePromise;
+export function runtime() {
+  runtimePromise ??= import(pathToFileURL(`${sourceRoot}/skills/decision-records/scripts/runtime/tools/decision-records/src/decision-state-index.ts`).href);
+  return runtimePromise;
+}
+export const digest = (value) => createHash('sha256').update(value).digest('hex');
+export function git(root, args, options = {}) {
+  return execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', maxBuffer: 512 * 1024 * 1024, ...options });
+}
+export async function exists(file) {
+  try { await fs.access(file); return true; } catch (error) { if (error.code === 'ENOENT') return false; throw error; }
+}
+
+export function recordSpec(n) {
+  const groupRoot = Math.floor((n - 1) / 10) * 10 + 1;
+  const isRoot = n === groupRoot;
+  const status = isRoot || n === 4 ? 'archived' : 'active';
+  const id = recordId(n);
+  const name = recordName(n);
+  return {
+    decisionId: id,
+    sourcePath: `${status === 'archived' ? 'archive/' : ''}${name}.md`,
+    state: {
+      name, sourcePath: `${status === 'archived' ? 'archive/' : ''}${name}.md`,
+      title: `性能夹具独立决策 ${String(n).padStart(6, '0')}`,
+      status, alignment: n === 2 ? 'unaligned' : 'aligned', createdAt: timestamp,
+      purpose: '保持独立判断与清楚的维护边界',
+      background: '已有正式存量需要稳定恢复并按小范围维护',
+      decision: `采用有界独立记录与稀疏小组演进${n === 7 ? ` ${token}` : ''}`,
+      tags: ['performance'],
+      relations: isRoot ? [] : [{ type: '修订', target: recordId(groupRoot), summary: '保留小组前序并采用局部修订' }],
+    },
+  };
+}
+export function renderRecord(decisionId, state) {
+  const relations = state.relations.length === 0 ? ['relations: []'] : [
+    'relations:', ...state.relations.flatMap((r) => [`  - type: ${r.type}`, `    target: ${r.target}`, `    summary: ${r.summary}`]),
+  ];
+  return [
+    '---', `title: ${state.title}`, `id: ${decisionId}`, `status: ${state.status}`,
+    `alignment: ${state.alignment === null ? 'null' : state.alignment}`,
+    `createdAt: ${state.createdAt === null ? 'null' : state.createdAt}`,
+    `purpose: ${state.purpose}`, `background: ${state.background}`,
+    `decision: ${state.decision}`, 'tags:', '  - performance', ...relations, '---', '',
+    '## 目的', `- ${state.purpose}。`, '',
+    '## 背景', `- ${state.background}。`,
+    '- ' + 'bounded-fixture-detail '.repeat(16).trim(), '',
+    '## 决策', `- 采用: ${state.decision}。`,
+    '- 单条记录保持独立身份，生命周期和小组关系可以单独核对；本夹具只表达模拟性能背景。', '',
+  ].join('\n');
+}
+export function candidateSpec(id, target) {
+  const state = {
+    ...recordSpec(7).state, name: id.slice(7), sourcePath: `${id.slice(7)}.md`,
+    title: '单条候选后继性能夹具', status: 'candidate', alignment: null, createdAt: null,
+    decision: '采用单条自包含后继并保留前序的独立回放价值',
+    relations: [{ type: '修订', target: recordId(target), summary: '保留前序方向并进行局部修订' }],
+  };
+  return { decisionId: id, sourcePath: state.sourcePath, state };
+}
+export async function readMarker(root) {
+  root = path.resolve(root);
+  const marker = JSON.parse(await fs.readFile(path.join(root, markerName), 'utf8'));
+  assert.equal(marker.kind, fixtureKind, 'Not an owned Decision benchmark fixture');
+  assert.equal(marker.root, root, 'Fixture marker root mismatch');
+  assert.equal(await fs.realpath(root), root, 'Fixture root must not be a symlink');
+  assert.equal(marker.sourceRoot, sourceRoot, 'Pinned source mismatch');
+  assert.ok((await fs.lstat(path.join(root, '.git'))).isDirectory(), 'Fixture must own its local .git directory');
+  assert.equal(git(root, ['rev-parse', '--show-toplevel']).trim(), root);
+  assert.equal(git(root, ['rev-parse', 'HEAD']).trim(), marker.baselineHead, 'Fixture HEAD changed');
+  return marker;
+}
+
+export async function prepareFixture(root, count) {
+  assert.ok(Number.isSafeInteger(count) && count >= 20, 'Fixture count must be integer >=20');
+  root = path.resolve(root);
+  await fs.mkdir(root, { recursive: true });
+  assert.equal(await fs.realpath(root), root, 'Fixture root must not be a symlink');
+  assert.deepEqual(await fs.readdir(root), [], 'Refuse to overwrite a nonempty fixture root');
+  const directory = path.join(root, collectionPath);
+  await fs.mkdir(path.join(directory, 'archive'), { recursive: true });
+  const sources = [];
+  const states = {};
+  let minBytes = Infinity;
+  let maxBytes = 0;
+  let totalBytes = 0;
+  let relationCount = 0;
+  let archivedCount = 0;
+  for (let offset = 1; offset <= count; offset += 64) {
+    const batch = [];
+    for (let n = offset; n < Math.min(offset + 64, count + 1); n += 1) {
+      const { decisionId, sourcePath, state } = recordSpec(n);
+      const text = renderRecord(decisionId, state);
+      const bytes = Buffer.byteLength(text);
+      minBytes = Math.min(minBytes, bytes); maxBytes = Math.max(maxBytes, bytes); totalBytes += bytes;
+      relationCount += state.relations.length;
+      archivedCount += Number(state.status === 'archived');
+      sources.push({ decisionId, sourcePath, text });
+      states[decisionId] = state;
+      batch.push(fs.writeFile(path.join(directory, sourcePath), text, { flag: 'wx' }));
+    }
+    await Promise.all(batch);
+  }
+  for (const candidate of [candidateSpec(candidatePublishId, 3), candidateSpec(candidateEvolveId, 8)]) {
+    await fs.writeFile(path.join(directory, candidate.sourcePath), renderRecord(candidate.decisionId, candidate.state), { flag: 'wx' });
+  }
+  const sdk = await runtime();
+  const built = await sdk.buildDecisionIndexFromSnapshot({ metadata: {}, states, sourceRevision: sdk.decisionSourceRevision(sources) });
+  assert.equal(built.status, 'ok', JSON.stringify(built.status === 'error' ? built : null));
+  const indexText = sdk.serializeDecisionIndex(built.value);
+  await fs.writeFile(path.join(root, indexPath), indexText, { flag: 'wx' });
+  git(root, ['init', '--quiet']);
+  git(root, ['config', 'user.name', 'Performance Fixture']);
+  git(root, ['config', 'user.email', 'performance-fixture@example.invalid']);
+  git(root, ['config', 'core.autocrlf', 'false']);
+  git(root, ['config', 'core.hooksPath', '/dev/null']);
+  git(root, ['config', 'gc.auto', '0']);
+  await fs.writeFile(path.join(root, '.git/info/exclude'), `${markerName}\n${stateName}\n`);
+  git(root, ['add', '--', collectionPath]);
+  git(root, ['-c', 'commit.gpgsign=false', 'commit', '--quiet', '--message', 'Controlled Decision fixture baseline']);
+  const marker = {
+    kind: fixtureKind, root, sourceRoot, formalCount: count, candidateCount: 2,
+    archivedCount, activeCount: count - archivedCount, relationCount,
+    formalBytes: { min: minBytes, max: maxBytes, mean: totalBytes / count, total: totalBytes },
+    baselineHead: git(root, ['rev-parse', 'HEAD']).trim(), baselineIndexSha256: digest(indexText),
+    createdAt: new Date().toISOString(),
+  };
+  await fs.writeFile(path.join(root, markerName), `${JSON.stringify(marker, null, 2)}\n`, { flag: 'wx' });
+  return marker;
+}
+
+// Only paths that these scenarios can newly create. Existing tracked paths are restored by HEAD.
+export const generatedPaths = Object.freeze([
+  `${collectionPath}/perf-created.md`, `${collectionPath}/perf-renamed.md`,
+  `${collectionPath}/archive/${recordName(3)}.md`, `${collectionPath}/archive/${recordName(8)}.md`,
+  `${collectionPath}/archive/${recordName(9)}.md`, `${collectionPath}/${recordName(4)}.md`,
+]);
+export async function prepareScenario(root, id) {
+  getScenario(id);
+  const marker = await readMarker(root);
+  // Destructive reset is confined to the independently created fixture, verified above.
+  git(root, ['reset', '--hard', '--quiet', marker.baselineHead]);
+  for (const relative of generatedPaths) {
+    assert.equal(git(root, ['ls-files', '--', relative]), '', `Cleanup path unexpectedly tracked: ${relative}`);
+    await fs.rm(path.join(root, relative), { force: true });
+  }
+  if (id.startsWith('sync-') && id !== 'sync-noop' || id.startsWith('stage-')) {
+    const spec = recordSpec(7);
+    spec.state.decision += ` ${editToken}`;
+    const text = renderRecord(spec.decisionId, spec.state);
+    await fs.writeFile(path.join(root, collectionPath, spec.sourcePath), text);
+    if (id.startsWith('stage-')) {
+      const sdk = await runtime();
+      const indexed = JSON.parse(await fs.readFile(path.join(root, indexPath), 'utf8'));
+      indexed.entries[spec.decisionId] = spec.state;
+      indexed.sourceRevision.entries[spec.decisionId] = sdk.decisionSourceRevision([{ decisionId: spec.decisionId, sourcePath: spec.sourcePath, text }]).entries[spec.decisionId];
+      const serialized = sdk.serializeDecisionIndex(indexed);
+      const parsed = sdk.parseDecisionIndex(serialized, indexPath);
+      assert.equal(parsed.status, 'ok', 'Controlled stage projection failed pinned serializer validation');
+      await fs.writeFile(path.join(root, indexPath), serialized);
+    }
+  }
+  const before = {
+    scenarioId: id, baselineHead: marker.baselineHead,
+    indexSha256: digest(await fs.readFile(path.join(root, indexPath))),
+    pendingTree: git(root, ['write-tree']).trim(),
+    worktreeChanges: git(root, ['diff', '--name-only']).trim().split('\n').filter(Boolean).sort(),
+    candidateBytes: Object.fromEntries(await Promise.all([candidatePublishId, candidateEvolveId].map(async (candidateId) => {
+      const sourcePath = `${candidateId.slice(7)}.md`;
+      return [candidateId, digest(await fs.readFile(path.join(root, collectionPath, sourcePath)))];
+    }))),
+  };
+  await fs.writeFile(path.join(root, stateName), `${JSON.stringify(before, null, 2)}\n`);
+  return { ...before, formalCount: marker.formalCount, activeCount: marker.activeCount };
+}
+
+export async function runUntimedCli(root, args) {
+  return execFileSync(process.execPath, [cliPath, '--root', root, ...args], { cwd: root, encoding: 'utf8', maxBuffer: 1024 * 1024 });
+}
+
+END FILE
+
+FILE methods/decision/scenarios.mjs
+BYTES 5298
+SHA256 93d30aef901d28401297aa8d1bccf63283925ae7f29d49993f9553604dcd1381
+
+export const sourceRoot = '/tmp/record-tools-allops-100k.mTQrt5/source';
+export const cliPath = `${sourceRoot}/skills/decision-records/scripts/decision-records.ts`;
+export const collectionPath = 'docs/decisions';
+export const indexPath = `${collectionPath}/decision-index.json`;
+export const recordId = (n) => `261001-perf-${String(n).padStart(6, '0')}`;
+export const recordName = (n) => `perf-${String(n).padStart(6, '0')}`;
+export const candidatePublishId = '261001-perf-candidate-publish';
+export const candidateEvolveId = '261001-perf-candidate-evolve';
+export const token = 'needleuniquerecordseven';
+export const editToken = 'single-source-edited';
+
+const scenario = (id, args, description, expectedChange, expectedExit = 0) => Object.freeze({
+  id, args: Object.freeze(args), description, expectedExit, expectedChange,
+});
+
+/** expectedExit is the formal 100000 fixture expectation. Small smoke permits the documented content default exception. */
+export const scenarios = Object.freeze([
+  scenario('check', ['check'], '严格检查 N 条正式来源、2 条候选与当前完整索引', 'none'),
+  scenario('candidates', ['candidates'], '发现常数 2 条 body-ready candidate', 'none'),
+  scenario('list', ['list', '--limit', '1'], '读取发布索引，返回 1 条 active', 'none'),
+  scenario('search-metadata', ['search', token, '--in', 'metadata'], '默认返回窗口扫描 metadata，精确命中并返回 1 条', 'none'),
+  scenario('search-content-default', ['search', token], '默认 active 全集 content；100k 因 10000 候选文件硬限拒绝', 'none', 1),
+  scenario('search-content-related', ['search', token, '--related-to', recordId(1), '--direction', 'successors'], '完整来源验证后显式 related 小集合，仅扫描 8 条 active 直接后继且只返回 1 条匹配正文', 'none'),
+  scenario('show', ['show', recordId(7)], '索引定位并回读 1 条当前正文', 'none'),
+  scenario('show-candidate', ['show-candidate', candidatePublishId], '读取 1 条候选并报告 readiness', 'none'),
+  scenario('trace', ['trace', recordId(2), '--json', '--direction', 'predecessors', '--depth', '2', '--max-records', '3'], '发布快照中遍历 2 节点、1 条修订边', 'none'),
+  scenario('sync-preview', ['sync-index', '--preflight'], '单正文合法变更后全量预演，索引不发布', 'none'),
+  scenario('sync-write', ['sync-index'], '单正文合法变更后发布完整索引', 'index'),
+  scenario('sync-noop', ['sync-index'], '合法 current 集合执行全量无变化同步', 'none'),
+  scenario('sync-selected', ['sync-index', '--select', recordId(7)], '只选择 1 个已变化 ID，完整验证并发布完整索引', 'index'),
+  scenario('new', ['new', 'perf-created', '--title', '新增单条性能候选', '--purpose', '保持单条候选的明确维护边界', '--background', '正式集合规模不应扩大操作输入', '--decision', '采用单条候选并独立完成后续审核', '--tag', 'performance'], '以常数 metadata 创建 1 条新 scaffold（非 body-ready）', 'candidate'),
+  scenario('rename', ['rename', recordId(5), 'perf-renamed', '--rename-recorded-decision'], '更正 1 条已入 HEAD 的 active 叶节点身份，保留自身 1 条关系并更新完整索引', 'one-identity'),
+  scenario('stage-index', ['stage', recordId(7), '--scope', 'index'], '单条来源已编辑并同步，只暂存该条完整索引投影', 'pending-index'),
+  scenario('stage-domain', ['stage', recordId(7), '--scope', 'domain'], '单条来源已编辑并同步，只暂存该 MD、保留 pending 索引', 'pending-domain'),
+  scenario('stage-all', ['stage', recordId(7), '--scope', 'all'], '单条来源已编辑并同步，暂存该 MD 和索引投影', 'pending-index-and-domain'),
+  scenario('publish', ['publish', candidatePublishId, '--alignment', 'aligned'], '正式建立 1 条 body-ready candidate、归档其 1 条 active 前序', 'publish-and-one-archive'),
+  scenario('reactivate', ['reactivate', recordId(4), '--alignment', 'aligned'], '重新启用 1 条独立 archived，保留 createdAt', 'reactivate'),
+  scenario('evolve', ['evolve', '--successor', `aligned=${candidateEvolveId}`], '显式选择 1 条候选后继，建立并归档其 1 条 active 前序', 'evolve-and-one-archive'),
+  scenario('set-relations', ['set-relations', '--source', recordId(2), '--relation', `修订=${recordId(1)}`, '--relation-summary', `${recordId(1)}=调整单条修订边的摘要`], '完整替换 1 个 source 的 1 条正式边摘要，保留生命周期', 'one-relation-summary'),
+  scenario('mark-aligned', ['mark-aligned', recordId(2)], '将 1 条 active unaligned 确认为 aligned', 'alignment'),
+  scenario('archive', ['archive', recordId(9)], '归档 1 条已入 HEAD 的独立 active', 'archive'),
+  scenario('discard', ['discard', recordId(6), '--delete-recorded'], '明确确认删除 1 条已入 HEAD、无剩余引用的 active', 'delete'),
+]);
+
+export const manifest = scenarios;
+export const helpExclusion = 'help 与 --help 不读取集合状态，不是集合规模业务路径；本轮只采当前公开命令清单，不计时。';
+export function getScenario(id) {
+  const found = scenarios.find((entry) => entry.id === id);
+  if (!found) throw new Error(`Unknown Decision scenario: ${id}`);
+  return found;
+}
+
+END FILE
+
+FILE methods/decision/smoke.mjs
+BYTES 1528
+SHA256 b70f60dfec8b73687e4987dbefe4f7c880c75cb8fa71df27078e255a47e0656f
+
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { prepareFixture, prepareScenario, verifyScenario, scenarios, cliPath } from './driver.mjs';
+const root = process.argv[2];
+if (!root) throw new Error('Usage: node smoke.mjs <new-empty-root> [count=20]');
+const count = Number(process.argv[3] ?? 20);
+const marker = await prepareFixture(root, count);
+const results = [];
+for (const scenario of scenarios) {
+  await prepareScenario(root, scenario.id);
+  const processResult = spawnSync(process.execPath, [cliPath, '--root', root, ...scenario.args], { cwd: root, encoding: 'utf8', maxBuffer: 1024 * 1024 });
+  const result = { exitCode: processResult.status, signal: processResult.signal, stdout: processResult.stdout, stderr: processResult.stderr };
+  let verification;
+  try {
+    verification = await verifyScenario(root, scenario.id, result);
+    console.log('PASS', scenario.id, JSON.stringify(verification));
+  } catch (error) {
+    console.log('FAIL', scenario.id, error.stack, JSON.stringify(result));
+    verification = { verified: false, error: error.stack };
+  }
+  results.push({ scenarioId: scenario.id, ...result, verification });
+}
+const report = { kind: 'small-fixture-correctness-smoke-not-performance', createdAt: new Date().toISOString(), marker, results };
+await fs.writeFile(path.join(path.dirname(root), 'smoke-results.json'), JSON.stringify(report, null, 2) + '\n');
+if (results.some((r) => !r.verification.verified)) process.exitCode = 1;
+
+END FILE
+
+FILE methods/decision/verification.mjs
+BYTES 13187
+SHA256 cf1a34bb912db63096453c347040cee87acbd009b8add2af3d856181ec227d3f
+
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {
+  collectionPath, indexPath, recordId, recordName, candidatePublishId, candidateEvolveId,
+  token, editToken, getScenario,
+} from './scenarios.mjs';
+import {
+  readMarker, stateName, digest, git, exists, runtime, recordSpec, candidateSpec, renderRecord,
+} from './fixture.mjs';
+
+const paths = (text) => text.trim().split('\n').filter(Boolean).sort();
+const formalRelative = (n) => `${collectionPath}/${recordSpec(n).sourcePath}`;
+async function assertExists(root, relative, expected) {
+  assert.equal(await exists(path.join(root, relative)), expected, `${relative} existence`);
+}
+async function indexMatchesSources(root, actual, specs, deletedIds = []) {
+  const sdk = await runtime();
+  const baseline = JSON.parse(git(root, ['show', `HEAD:${indexPath}`]));
+  for (const id of deletedIds) {
+    delete baseline.entries[id];
+    delete baseline.sourceRevision.entries[id];
+  }
+  for (const spec of specs) {
+    const text = await fs.readFile(path.join(root, collectionPath, spec.sourcePath), 'utf8');
+    const expectedText = renderRecord(spec.decisionId, spec.state);
+    assert.equal(text, expectedText, `${spec.decisionId}: exact expected persisted Markdown`);
+    baseline.entries[spec.decisionId] = spec.state;
+    baseline.sourceRevision.entries[spec.decisionId] = sdk.decisionSourceRevision([
+      { decisionId: spec.decisionId, sourcePath: spec.sourcePath, text },
+    ]).entries[spec.decisionId];
+  }
+  const text = await fs.readFile(path.join(root, indexPath), 'utf8');
+  assert.equal(text, sdk.serializeDecisionIndex(baseline), 'Full index must equal expected changed sources with every other baseline entry preserved');
+  assert.deepEqual(actual, baseline);
+}
+function mutationSource(n, changes) {
+  const spec = recordSpec(n);
+  Object.assign(spec.state, changes);
+  if (changes.sourcePath) spec.sourcePath = changes.sourcePath;
+  return spec;
+}
+
+/** Throws on any failed effect assertion; returns a small auditable verification envelope. */
+export async function verifyScenario(root, id, result) {
+  const scenario = getScenario(id);
+  const marker = await readMarker(root);
+  const before = JSON.parse(await fs.readFile(path.join(root, stateName), 'utf8'));
+  assert.equal(before.scenarioId, id, 'Scenario was not prepared');
+  assert.equal(before.baselineHead, marker.baselineHead);
+  assert.equal(typeof result.stdout, 'string'); assert.equal(typeof result.stderr, 'string');
+  assert.equal(result.signal ?? null, null, 'CLI did not finish normally');
+  const exitCode = result.exitCode ?? result.status;
+  const smallContentSmoke = id === 'search-content-default' && marker.activeCount <= 10000;
+  assert.equal(exitCode, smallContentSmoke ? 0 : scenario.expectedExit, `${id}: exit code; stderr=${result.stderr}`);
+  const stdout = result.stdout;
+  const stderr = result.stderr;
+  const indexText = await fs.readFile(path.join(root, indexPath), 'utf8');
+  const index = JSON.parse(indexText);
+  assert.equal(Object.keys(index.entries).length,
+    marker.formalCount + Number(id === 'publish' || id === 'evolve') - Number(id === 'discard'), 'Formal index cardinality');
+  for (const candidateId of [candidatePublishId, candidateEvolveId]) {
+    if (id === 'publish' && candidateId === candidatePublishId || id === 'evolve' && candidateId === candidateEvolveId) continue;
+    const text = await fs.readFile(path.join(root, collectionPath, `${candidateId.slice(7)}.md`));
+    assert.equal(digest(text), before.candidateBytes[candidateId], 'Unselected candidate must remain byte-identical');
+    assert.equal(index.entries[candidateId], undefined, 'Unselected candidates excluded from formal index');
+  }
+  if (!['sync-write', 'sync-selected', 'rename', 'publish', 'reactivate', 'evolve', 'set-relations', 'mark-aligned', 'archive', 'discard'].includes(id)) {
+    assert.equal(digest(indexText), before.indexSha256, `${id}: current index bytes preserved`);
+  }
+  let expectedChanges = before.worktreeChanges;
+  let expectedPending = [];
+  let expectedUntracked = [];
+  let details = {};
+  switch (id) {
+    case 'check':
+      assert.match(stdout, new RegExp(`check passed \\(${marker.formalCount} decisions,`));
+      assert.match(stdout, /2 candidate scaffolds, 2 body-ready candidates/);
+      break;
+    case 'candidates':
+      assert.match(stdout, new RegExp(candidatePublishId)); assert.match(stdout, new RegExp(candidateEvolveId));
+      assert.equal((stdout.match(/  bodyReady: true/g) ?? []).length, 2);
+      break;
+    case 'list':
+      assert.match(stdout, new RegExp(recordId(2)));
+      assert.equal(new Set(stdout.match(/261001-perf-\d{6}/g) ?? []).size, 1, 'List returns one ID');
+      break;
+    case 'search-metadata':
+      assert.match(stdout, /Query:.*in=metadata/);
+      assert.match(stdout, /Counts:.*matched=1.*returned=1/);
+      assert.match(stdout, /currentness=unchecked/);
+      assert.match(stdout, new RegExp(recordId(7)));
+      break;
+    case 'search-content-default':
+      if (!smallContentSmoke) {
+        assert.match(stderr, /code: decision-records\.search-failed/);
+        assert.match(stderr, /File text search candidate file limit was exceeded\./);
+        assert.equal(stdout, '');
+        details = { assertedHardLimitRejection: true, activeCandidateFiles: marker.activeCount };
+      } else {
+        assert.match(stdout, /Counts:.*matched=1.*returned=1/);
+        assert.match(stdout, new RegExp(recordId(7)));
+        details = { assertedHardLimitRejection: false, smallFixtureSyntaxSmokeOnly: true };
+      }
+      break;
+    case 'search-content-related':
+      assert.match(stdout, /Query:.*in=content/);
+      assert.match(stdout, /Counts:.*matched=1.*returned=1/);
+      assert.match(stdout, /currentness=current/);
+      assert.match(stdout, /Coverage: scan=complete results=complete/);
+      assert.match(stdout, new RegExp(recordId(7)));
+      break;
+    case 'show':
+      assert.match(stdout, new RegExp(`^id: ${recordId(7)}`)); assert.ok(stdout.includes(token)); assert.match(stdout, /## 决策/);
+      break;
+    case 'show-candidate':
+      assert.match(stdout, new RegExp(`^id: ${candidatePublishId}`)); assert.match(stdout, /scaffoldValid: true/); assert.match(stdout, /bodyReady: true/);
+      break;
+    case 'trace': {
+      const trace = JSON.parse(stdout);
+      assert.equal(trace.status, 'ok'); assert.equal(trace.anchorId, recordId(2));
+      assert.deepEqual([...trace.traceIds].sort(), [recordId(1), recordId(2)]);
+      assert.equal(trace.contextIds.length, 0);
+      break;
+    }
+    case 'sync-preview':
+      assert.match(stdout, /sync preflight passed; complete projection not published/);
+      assert.equal(digest(indexText), marker.baselineIndexSha256);
+      assert.ok((await fs.readFile(path.join(root, formalRelative(7)), 'utf8')).includes(editToken));
+      break;
+    case 'sync-noop':
+      assert.match(stdout, /Decision index is up to date\./);
+      break;
+    case 'sync-write':
+    case 'sync-selected': {
+      assert.match(stdout, id === 'sync-write' ? /Rebuilt docs\/decisions\/decision-index\.json/ : /Published the complete Decision index projection for resolved IDs:/);
+      assert.notEqual(digest(indexText), before.indexSha256, 'Write must actually publish changed index bytes');
+      const changed = recordSpec(7); changed.state.decision += ` ${editToken}`;
+      await indexMatchesSources(root, index, [changed]);
+      expectedChanges = [formalRelative(7), indexPath].sort();
+      break;
+    }
+    case 'new': {
+      const candidateText = await fs.readFile(path.join(root, collectionPath, 'perf-created.md'), 'utf8');
+      const createdId = candidateText.match(/^id: (\d{6}-perf-created)$/m)?.[1];
+      assert.ok(createdId, 'New candidate declares dated identity');
+      assert.match(candidateText, /^status: candidate$/m); assert.match(candidateText, /^alignment: null$/m); assert.match(candidateText, /^createdAt: null$/m);
+      assert.ok(stdout.includes(createdId)); assert.equal(index.entries[createdId], undefined);
+      details = { createdId };
+      expectedUntracked = [`${collectionPath}/perf-created.md`];
+      break;
+    }
+    case 'rename': {
+      const renamed = mutationSource(5, { name: 'perf-renamed', sourcePath: 'perf-renamed.md' });
+      renamed.decisionId = '261001-perf-renamed';
+      await assertExists(root, formalRelative(5), false);
+      await indexMatchesSources(root, index, [renamed], [recordId(5)]);
+      assert.equal(index.entries[recordId(5)], undefined);
+      expectedChanges = [formalRelative(5), indexPath].sort();
+      // Newly named file is untracked; asserted separately below.
+      details = { renamedId: renamed.decisionId };
+      expectedUntracked = [`${collectionPath}/${renamed.sourcePath}`];
+      break;
+    }
+    case 'stage-index': case 'stage-domain': case 'stage-all': {
+      const source = formalRelative(7);
+      const wantIndex = id !== 'stage-domain';
+      const wantDomain = id !== 'stage-index';
+      assert.equal(git(root, ['show', `:${indexPath}`]), wantIndex ? indexText : git(root, ['show', `HEAD:${indexPath}`]));
+      assert.equal(git(root, ['show', `:${source}`]), wantDomain ? await fs.readFile(path.join(root, source), 'utf8') : git(root, ['show', `HEAD:${source}`]));
+      expectedPending = [wantIndex ? indexPath : null, wantDomain ? source : null].filter(Boolean).sort();
+      assert.notEqual(git(root, ['write-tree']).trim(), before.pendingTree, 'Stage must change pending tree');
+      // git diff (worktree vs pending) omits paths fully staged; compare against HEAD instead below.
+      expectedChanges = [source, indexPath].sort();
+      break;
+    }
+    case 'publish': case 'evolve': {
+      assert.match(stdout, /Relation review \(committed\):/);
+      const successorId = id === 'publish' ? candidatePublishId : candidateEvolveId;
+      const predecessor = id === 'publish' ? 3 : 8;
+      const successor = candidateSpec(successorId, predecessor);
+      const entry = index.entries[successorId]; assert.ok(entry);
+      assert.equal(entry.status, 'active'); assert.equal(entry.alignment, 'aligned');
+      assert.ok(Number.isFinite(Date.parse(entry.createdAt)), 'Establishment createdAt must be real');
+      Object.assign(successor.state, { status: 'active', alignment: 'aligned', createdAt: entry.createdAt });
+      const archived = mutationSource(predecessor, { status: 'archived', sourcePath: `archive/${recordName(predecessor)}.md` });
+      await assertExists(root, formalRelative(predecessor), false);
+      await indexMatchesSources(root, index, [successor, archived]);
+      expectedChanges = [`${collectionPath}/${successor.sourcePath}`, formalRelative(predecessor), indexPath].sort();
+      expectedUntracked = [`${collectionPath}/${archived.sourcePath}`];
+      break;
+    }
+    case 'reactivate': {
+      const reactivated = mutationSource(4, { status: 'active', sourcePath: `${recordName(4)}.md` });
+      await assertExists(root, formalRelative(4), false);
+      await indexMatchesSources(root, index, [reactivated]);
+      expectedChanges = [formalRelative(4), indexPath].sort();
+      expectedUntracked = [`${collectionPath}/${reactivated.sourcePath}`];
+      break;
+    }
+    case 'set-relations': {
+      assert.match(stdout, /Relation review \(committed\):/);
+      const changed = mutationSource(2, { relations: [{ type: '修订', target: recordId(1), summary: '调整单条修订边的摘要' }] });
+      await indexMatchesSources(root, index, [changed]);
+      expectedChanges = [formalRelative(2), indexPath].sort();
+      break;
+    }
+    case 'mark-aligned': {
+      await indexMatchesSources(root, index, [mutationSource(2, { alignment: 'aligned' })]);
+      expectedChanges = [formalRelative(2), indexPath].sort();
+      break;
+    }
+    case 'archive': {
+      const archived = mutationSource(9, { status: 'archived', sourcePath: `archive/${recordName(9)}.md` });
+      await assertExists(root, formalRelative(9), false);
+      await indexMatchesSources(root, index, [archived]);
+      expectedChanges = [formalRelative(9), indexPath].sort();
+      expectedUntracked = [`${collectionPath}/${archived.sourcePath}`];
+      break;
+    }
+    case 'discard':
+      await assertExists(root, formalRelative(6), false);
+      await indexMatchesSources(root, index, [], [recordId(6)]);
+      expectedChanges = [formalRelative(6), indexPath].sort();
+      break;
+    default: throw new Error(`No verifier for ${id}`);
+  }
+  assert.deepEqual(paths(git(root, ['diff', 'HEAD', '--name-only'])), expectedChanges, 'Tracked worktree changes match precisely');
+  assert.deepEqual(paths(git(root, ['ls-files', '--others', '--exclude-standard'])), expectedUntracked, 'New files match exact effect scope');
+  assert.deepEqual(paths(git(root, ['diff', '--cached', '--name-only'])), expectedPending, 'Pending paths match scope precisely');
+  if (!id.startsWith('stage-')) assert.equal(git(root, ['write-tree']).trim(), before.pendingTree, 'Non-stage command preserves pending snapshot');
+  return { verified: true, scenarioId: id, formalCount: marker.formalCount, expectedExit: smallContentSmoke ? 0 : scenario.expectedExit, ...details };
+}
+
+END FILE
+
+FILE methods/domain-step.mjs
+BYTES 1356
+SHA256 379a9f8779ed4d9d49aa8e06617728ad7fbd50813d76e20aa03d4df7c3357400
+
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import * as v from "valibot";
+
+export const base = path.resolve(import.meta.dirname, "..");
+export async function loadDriver(domain) {
+  if (domain === "decision") return await import("./decision/driver.mjs");
+  if (domain === "investigation")
+    return await import("./investigation/scenarios.mjs");
+  throw new Error("unknown domain");
+}
+
+const resultSchema = v.strictObject({
+  exitCode: v.nullable(v.number()),
+  signal: v.nullable(v.string()),
+  stdout: v.string(),
+  stderr: v.string()
+});
+
+async function main() {
+  const [domain, phase, id, root, resultFile] = process.argv.slice(2);
+  assert.ok(
+    root &&
+      path.resolve(root).startsWith(path.join(base, "datasets") + path.sep)
+  );
+  const driver = await loadDriver(domain);
+  let result;
+  if (phase === "prepare") result = await driver.prepareScenario(root, id);
+  else if (phase === "verify") {
+    const cli = v.parse(
+      resultSchema,
+      JSON.parse(await readFile(resultFile, "utf8"))
+    );
+    result = await driver.verifyScenario(root, id, cli);
+  } else throw new Error("unknown phase");
+  console.log(JSON.stringify({ phase, ok: true, result: result ?? null }));
+}
+
+if (process.argv[1] === path.join(import.meta.dirname, "domain-step.mjs"))
+  await main();
+
+END FILE
+
+FILE methods/finalize-evidence.py
+BYTES 5380
+SHA256 b6decec91739c27a240785f18ee8fdcd66a0e624a350a63c3be13ad14d9dac36
+
+"""Check this round's complete matrix and derive read-only review artifacts."""
+from __future__ import annotations
+
+from collections import Counter
+from hashlib import sha256
+import json
+from pathlib import Path
+
+BASE = Path(__file__).resolve().parent.parent
+RESULTS = BASE / "results"
+
+
+def save(name: str, value: object) -> None:
+    (RESULTS / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def main() -> None:
+    manifest = json.loads((RESULTS / "coverage-manifest.json").read_text())
+    rows = [json.loads(line) for line in (RESULTS / "observations.jsonl").read_text().splitlines()]
+    expected = {(domain, item["id"]): item for domain, items in manifest.items() for item in items}
+    actual = [(row["domain"], row["id"]) for row in rows]
+    assert len(rows) == len(expected) == 47, (len(rows), len(expected))
+    assert Counter(actual) == Counter(expected.keys()), "Each scenario must have exactly one primary observation"
+    streams = []
+    summary = []
+    previous_end = 0.0
+    for row in rows:
+        key = (row["domain"], row["id"])
+        item = expected[key]
+        assert row["phase"] == "command" and row["formalRecordsBefore"] == 100000
+        assert row["source"] == (BASE / "source-ref.txt").read_text().strip()
+        assert row["argv"][4:] == item["args"]
+        assert row["expectedExit"] == item["expectedExit"]
+        assert row["metrics"]["status"] == "ok", key
+        usage = row["metrics"]["value"]
+        assert usage["wallMs"] >= 0 and usage["maxRssKiB"] > 0
+        start = usage["startedAtUnixSeconds"]
+        assert start + 0.001 >= previous_end, "Measured commands overlap"
+        previous_end = start + usage["wallMs"] / 1000
+        if row["classification"] in ("expected-success", "expected-rejection"):
+            assert row["verified"]["exitCode"] == 0 and not row["verified"]["timedOut"]
+            assert usage["childExitCode"] == item["expectedExit"] and usage["childSignal"] is None
+        elif row["classification"] == "node-heap-limit":
+            assert usage["childSignal"] == "SIGABRT"
+            assert "heap out of memory" in row["run"]["stderr"]["head"]
+            assert row["verified"] is None
+            assert (RESULTS / f'{key[0]}-{key[1]}-forensics.json').is_file()
+        else:
+            raise AssertionError((key, row["classification"]))
+        for phase in ("prepared", "run", "verified"):
+            if row[phase] is None:
+                continue
+            for channel in ("stdout", "stderr"):
+                info = row[phase][channel]
+                original = Path(info["file"])
+                data = original.read_bytes()
+                assert len(data) == info["bytes"] and sha256(data).hexdigest() == info["sha256"]
+                streams.append({"domain": key[0], "id": key[1], "phase": phase, "channel": channel,
+                                "originalPath": str(original), "bytes": len(data),
+                                "sha256": info["sha256"], "text": data.decode("utf-8")})
+        before, after = row["cgroupMemoryEvents"]["before"], row["cgroupMemoryEvents"]["after"]
+        deltas = {name: after[name] - before[name] for name in ("max", "oom", "oom_kill", "oom_group_kill")}
+        summary.append({"domain": key[0], "id": key[1], "command": item["args"][0],
+                        "args": item["args"], "description": item["description"],
+                        "classification": row["classification"], "wallSeconds": usage["wallMs"] / 1000,
+                        "cpuSeconds": usage["userSeconds"] + usage["systemSeconds"],
+                        "peakRssMiB": usage["maxRssKiB"] / 1024,
+                        "preparedSeconds": row["prepared"]["wrapperWallMs"] / 1000,
+                        "verificationSeconds": None if row["verified"] is None else row["verified"]["wrapperWallMs"] / 1000,
+                        "stdoutBytes": row["run"]["stdout"]["bytes"], "stderrBytes": row["run"]["stderr"]["bytes"],
+                        "memoryEventDeltas": deltas})
+    command_sets = {domain: sorted({item["args"][0] for item in items}) for domain, items in manifest.items()}
+    assert len(command_sets["decision"]) == 18 and len(command_sets["investigation"]) == 14
+    counts = {domain: dict(Counter(row["classification"] for row in rows if row["domain"] == domain)) for domain in manifest}
+    save("summary.json", {"primarySamples": len(rows), "businessCommands": command_sets, "counts": counts,
+                          "unmeasuredScenarios": [], "observations": summary})
+    with (RESULTS / "streams.jsonl").open("w", encoding="utf-8") as output:
+        for stream in streams:
+            output.write(json.dumps(stream, ensure_ascii=False) + "\n")
+    incidents = {}
+    for row in rows:
+        if row["classification"] != "node-heap-limit":
+            continue
+        key = f'{row["domain"]}-{row["id"]}'
+        incidents[key] = {"forensics": json.loads((RESULTS / f"{key}-forensics.json").read_text()),
+                          "recovery": json.loads((RESULTS / f"{key}-recovery.json").read_text()) if (RESULTS / f"{key}-recovery.json").exists() else None}
+    save("incident-evidence.json", incidents)
+    print(json.dumps({"observations": len(rows), "streams": len(streams), "counts": counts, "incidents": list(incidents)}, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()
+
+END FILE
+
+FILE methods/inspect-decision-mutation.mjs
+BYTES 5284
+SHA256 2ad9861345810cb62018b1ef44b99c17f14b44a0f15c2ab3f8c4781eb385e75c
+
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {execFileSync} from 'node:child_process';
+import {readMarker,git,digest,recordSpec,candidateSpec,renderRecord,runtime} from './decision/fixture.mjs';
+import {candidatePublishId,candidateEvolveId,recordId,recordName} from './decision/scenarios.mjs';
+const [id,mode='inspect']=process.argv.slice(2);
+assert.ok(['publish','reactivate','evolve','set-relations','mark-aligned','archive','discard'].includes(id));
+assert.ok(['inspect','recover'].includes(mode));
+const base=path.resolve(import.meta.dirname,'..');
+const root=path.join(base,'datasets/decision');
+const marker=await readMarker(root);
+const outFile=path.join(base,'results',`decision-${id}-forensics.json`);
+const lock='docs/.decision-index.json.mutation.lock';
+if(mode==='recover'){
+  const f=JSON.parse(await fs.readFile(outFile,'utf8'));
+  assert.equal(f.root,root);assert.equal(f.persistedIndex.equalsExpectedFullMutation,true);
+  assert.equal(f.pendingDiff,'');
+  const processes=execFileSync('ps',['-eo','args'],{encoding:'utf8'});
+  assert.ok(!processes.split('\n').some(x=>x.startsWith('/home/dev/.local/share/mise/installs/node/26.8.2/bin/node '+base+'/source/skills/decision-records/scripts/decision-records.ts')));
+  const stat=await fs.lstat(path.join(root,lock));
+  assert.ok(stat.isFile()&&!stat.isSymbolicLink());assert.equal(stat.size,0);
+  await fs.copyFile(path.join(base,'results/decision-quarantine-required.json'),path.join(base,'results',`decision-${id}-quarantine.json`));
+  await fs.unlink(path.join(root,lock));
+  await fs.writeFile(path.join(base,'results',`decision-${id}-recovery.json`),JSON.stringify({at:new Date().toISOString(),root,baseline:marker.baselineHead,action:'Saved full expected-delta inspection; confirmed native CLI gone; unlinked exact empty regular fixture collection lock. Next guarded prepareScenario restores owned HEAD and known generated paths.'},null,2)+'\n',{flag:'wx'});
+  console.log(JSON.stringify({id,mode,ok:true}));
+  process.exit(0);
+}
+const sdk=await runtime();
+const indexPath='docs/decisions/decision-index.json';
+const expected=JSON.parse(git(root,['show',`HEAD:${indexPath}`]));
+const indexText=await fs.readFile(path.join(root,indexPath),'utf8');
+const actual=JSON.parse(indexText);
+const specs=[];const deleted=[];
+const modified=(n,values)=>{
+  const spec=recordSpec(n);Object.assign(spec.state,values);
+  spec.sourcePath=spec.state.sourcePath;return spec;
+};
+if(id==='publish'||id==='evolve'){
+  const successorId=id==='publish'?candidatePublishId:candidateEvolveId;
+  const predecessor=id==='publish'?3:8;
+  const successor=candidateSpec(successorId,predecessor);
+  Object.assign(successor.state,{status:'active',alignment:'aligned',createdAt:actual.entries[successorId]?.createdAt});
+  specs.push(successor,modified(predecessor,{status:'archived',sourcePath:`archive/${recordName(predecessor)}.md`}));
+}else if(id==='reactivate') specs.push(modified(4,{status:'active',alignment:'aligned',sourcePath:`${recordName(4)}.md`}));
+else if(id==='set-relations') specs.push(modified(2,{relations:[{type:'修订',target:recordId(1),summary:'调整单条修订边的摘要'}]}));
+else if(id==='mark-aligned') specs.push(modified(2,{alignment:'aligned'}));
+else if(id==='archive') specs.push(modified(9,{status:'archived',sourcePath:`archive/${recordName(9)}.md`}));
+else if(id==='discard') deleted.push(recordId(6));
+const checkedSources=[];
+let effectsError=null;
+try{
+  for(const d of deleted){delete expected.entries[d];delete expected.sourceRevision.entries[d];}
+  for(const spec of specs){
+    const text=await fs.readFile(path.join(root,'docs/decisions',spec.sourcePath),'utf8');
+    assert.equal(text,renderRecord(spec.decisionId,spec.state));
+    expected.entries[spec.decisionId]=spec.state;
+    expected.sourceRevision.entries[spec.decisionId]=sdk.decisionSourceRevision([{decisionId:spec.decisionId,sourcePath:spec.sourcePath,text}]).entries[spec.decisionId];
+    checkedSources.push({id:spec.decisionId,sourcePath:spec.sourcePath,sha256:digest(text),matchesExpected:true});
+  }
+}catch(error){effectsError={name:error.name,message:error.message.slice(0,1000)};}
+const expectedSha256=effectsError===null?digest(sdk.serializeDecisionIndex(expected)):null;
+const stat=await fs.lstat(path.join(root,lock));
+const out={recordedAt:new Date().toISOString(),root,id,baselineHead:marker.baselineHead,cliClassification:'node-heap-limit',worktreeDiff:git(root,['diff','HEAD','--name-status']).trim(),untracked:git(root,['ls-files','--others','--exclude-standard']).trim().split('\n').filter(Boolean),pendingDiff:git(root,['diff','--cached','--name-only']).trim(),persistedIndex:{bytes:Buffer.byteLength(indexText),sha256:digest(indexText),formalEntries:Object.keys(actual.entries).length,expectedFullMutationSha256:expectedSha256,equalsExpectedFullMutation:expectedSha256===digest(indexText)},checkedSources,effectsError,lock:{path:lock,bytes:stat.size,isFile:stat.isFile(),isSymbolicLink:stat.isSymbolicLink()},interpretation:'Abnormal process exit, not a successful CLI; visible source/index effects inspected independently after failure.'};
+await fs.writeFile(outFile,JSON.stringify(out,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify(out));
+
+END FILE
+
+FILE methods/inspect-decision-rename.mjs
+BYTES 2475
+SHA256 1ab64750a74f532d214c57e3eb437cf2ca6004f125903e061e7aeb68d0ee3741
+
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {readMarker,git,digest,recordSpec,renderRecord,runtime} from './decision/fixture.mjs';
+const base=path.resolve(import.meta.dirname,'..');
+const root=path.join(base,'datasets/decision');
+const marker=await readMarker(root);
+const sdk=await runtime();
+const indexPath='docs/decisions/decision-index.json';
+const before=JSON.parse(git(root,['show',`HEAD:${indexPath}`]));
+const changed=recordSpec(5);
+changed.decisionId='261001-perf-renamed';
+Object.assign(changed.state,{name:'perf-renamed',sourcePath:'perf-renamed.md'});
+changed.sourcePath='perf-renamed.md';
+const actualSource=await fs.readFile(path.join(root,'docs/decisions/perf-renamed.md'),'utf8');
+assert.equal(actualSource,renderRecord(changed.decisionId,changed.state));
+delete before.entries['261001-perf-000005'];
+delete before.sourceRevision.entries['261001-perf-000005'];
+before.entries[changed.decisionId]=changed.state;
+before.sourceRevision.entries[changed.decisionId]=sdk.decisionSourceRevision([{decisionId:changed.decisionId,sourcePath:changed.sourcePath,text:actualSource}]).entries[changed.decisionId];
+const indexText=await fs.readFile(path.join(root,indexPath),'utf8');
+const lock='docs/.decision-index.json.mutation.lock';
+const lockStat=await fs.lstat(path.join(root,lock));
+const out={recordedAt:new Date().toISOString(),root,baselineHead:marker.baselineHead,cliClassification:'node-heap-limit',cliSignal:'SIGABRT',worktreeDiff:git(root,['diff','HEAD','--name-status']).trim(),untracked:git(root,['ls-files','--others','--exclude-standard']).trim().split('\n'),pendingDiff:git(root,['diff','--cached','--name-only']).trim(),persistedIndex:{bytes:Buffer.byteLength(indexText),sha256:digest(indexText),formalEntries:Object.keys(JSON.parse(indexText).entries).length,equalsExpectedFullRename:digest(indexText)===digest(sdk.serializeDecisionIndex(before))},renamedSource:{sha256:digest(actualSource),matchesExpected:true},lock:{path:lock,bytes:lockStat.size,isFile:lockStat.isFile(),isSymbolicLink:lockStat.isSymbolicLink(),sha256:digest(await fs.readFile(path.join(root,lock)))},interpretation:'Native heap OOM after visible source/index changes; not successful CLI completion. State inspection does not claim transaction success.'};
+await fs.writeFile(path.join(base,'results/decision-rename-forensics.json'),JSON.stringify(out,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify(out));
+
+END FILE
+
+FILE methods/inspect-investigation-rename.mjs
+BYTES 3472
+SHA256 b67855543afd860e9f5a15dd3e94eb4e13675adc33bf31e0e3d3fa3c2eca7b96
+
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+const base=path.resolve(import.meta.dirname,'..');
+const root=path.join(base,'datasets/investigation');
+assert.equal(await fs.realpath(root),root);
+const marker=JSON.parse(await fs.readFile(path.join(root,'.allops-investigation-fixture.json'),'utf8'));
+assert.equal(marker.kind,'record-tools-allops-100k/investigation/v1');assert.equal(marker.root,root);
+const git=(args)=>execFileSync('git',['-C',root,...args],{encoding:'utf8',maxBuffer:256*1024*1024});
+assert.equal(git(['rev-parse','HEAD']).trim(),marker.baselineHead);
+const source=new URL('../source/',import.meta.url);
+const {buildInvestigationStateSnapshot}=await import(new URL('tools/investigation-report/src/investigation-index-source.ts',source));
+const {createInvestigationStateIndexDefinition}=await import(new URL('tools/investigation-report/src/investigation-index-definition.ts',source));
+const {serializeStateIndex}=await import(new URL('tools/index-runtime/src/index.ts',source));
+const hash=(value)=>createHash('sha256').update(value).digest('hex');
+const oldId='261021-perf-000001';const newId='261021-perf-renamed';
+const collection='docs/investigations';
+const indexPath=collection+'/investigation-index.json';
+const expected=JSON.parse(git(['show','HEAD:'+indexPath]));
+const text=git(['show',`HEAD:${collection}/perf-000001.md`]).replaceAll(oldId,newId);
+const actualText=await fs.readFile(path.join(root,collection,'perf-renamed.md'),'utf8');
+assert.equal(actualText,text);
+const snapshot=buildInvestigationStateSnapshot([{id:newId,sourcePath:'perf-renamed.md',text}]);
+delete expected.entries[oldId];delete expected.sourceRevision.entries[oldId];
+expected.entries[newId]=snapshot.states[newId];expected.sourceRevision.entries[newId]=snapshot.sourceRevision.entries[newId];
+const indexText=await fs.readFile(path.join(root,indexPath),'utf8');
+const indexSha=hash(indexText);const expectedSha=hash(serializeStateIndex(expected,createInvestigationStateIndexDefinition()));
+const resource=await fs.readFile(path.join(root,collection,'_resources',newId,'evidence.txt'));
+const oldResource=execFileSync('git',['-C',root,'show',`HEAD:${collection}/_resources/${oldId}/evidence.txt`]);
+const lock='docs/.investigation-index.json.mutation.lock';const stat=await fs.lstat(path.join(root,lock));
+const out={at:new Date().toISOString(),root,baselineHead:marker.baselineHead,classification:'node-heap-limit',worktreeDiff:git(['diff','HEAD','--name-status']).trim(),untracked:git(['ls-files','--others','--exclude-standard']).trim().split('\n'),pendingDiff:git(['diff','--cached','--name-only']).trim(),persistedIndex:{bytes:Buffer.byteLength(indexText),sha256:indexSha,expectedFullRenameSha256:expectedSha,equalsExpectedFullRename:indexSha===expectedSha,entries:Object.keys(JSON.parse(indexText).entries).length},renamedSource:{matchesExpected:true,sha256:hash(text)},resource:{preserved:resource.equals(oldResource),sha256:hash(resource)},lock:{path:lock,bytes:stat.size,isFile:stat.isFile(),isSymbolicLink:stat.isSymbolicLink()},interpretation:'Visible source/resource rename and complete index inspected after SIGABRT; not normal CLI completion.'};
+await fs.writeFile(path.join(base,'results/investigation-rename-forensics.json'),JSON.stringify(out,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify(out));
+
+END FILE
+
+FILE methods/investigation/scenarios.mjs
+BYTES 27084
+SHA256 f7dee42e30b27ccde42b64fa4911f5e8c3365ce8ad27a94c0749605ed929edfe
+
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+// 本轮调查方法，不是生产工具或长期测试。计时与进程资源采集由外部 runner 负责。
+export const sourceRoot = path.resolve(fileURLToPath(new URL("../../source/", import.meta.url)));
+export const cliPath = path.join(sourceRoot, "skills/investigation-report/scripts/check-investigations.ts");
+const temporaryRoot = path.dirname(sourceRoot);
+const sourceUrl = new URL("../../source/", import.meta.url);
+const { serializeInvestigationReportFrontmatter } = await import(new URL("tools/investigation-report/src/markdown.ts", sourceUrl));
+const { buildInvestigationStateSnapshot } = await import(new URL("tools/investigation-report/src/investigation-index-source.ts", sourceUrl));
+const { investigationSourceRevision } = await import(new URL("tools/investigation-report/src/investigation-source-revision.ts", sourceUrl));
+const { createInvestigationStateIndexDefinition } = await import(new URL("tools/investigation-report/src/investigation-index-definition.ts", sourceUrl));
+const { buildStateIndexFromSnapshot, serializeStateIndex } = await import(new URL("tools/index-runtime/src/index.ts", sourceUrl));
+
+const collection = "docs/investigations";
+const indexPath = `${collection}/investigation-index.json`;
+const formedAt = "2026-10-21T00:00:00+00:00";
+const markerPath = ".allops-investigation-fixture.json";
+const scenarioPath = ".allops-investigation-scenario.json";
+const markerKind = "record-tools-allops-100k/investigation/v1";
+const resourceOwners = new Set([1, 2, 3, 4]);
+const candidateA = "261021-perf-candidate-a";
+const candidateB = "261021-perf-candidate-b";
+const renamedId = "261021-perf-renamed";
+const createdId = "261021-perf-created";
+const definition = createInvestigationStateIndexDefinition();
+const formalId = (number) => `261021-perf-${String(number).padStart(6, "0")}`;
+const nameOf = (id) => id.slice(7);
+const reportPath = (number) => `${collection}/${nameOf(formalId(number))}.md`;
+const candidatePath = (id) => `${collection}/_candidate.${nameOf(id)}`;
+const resourcePath = (id, name = "evidence.txt") => `${collection}/_resources/${id}/${name}`;
+const hash = (value) => createHash("sha256").update(value).digest("hex");
+
+function scenario(id, args, description, expectedChange, expectedExit = 0) {
+  return Object.freeze({ id, args: Object.freeze(args), description, expectedExit, expectedChange });
+}
+
+export const manifest = Object.freeze([
+  scenario("new", ["new", nameOf(createdId), "--title", "Fixture created candidate", "--question", "Can one candidate be created?", "--tag", "benchmark", "--formed-at", formedAt], "在大正式存量旁创建1份未完成候选", "one candidate created; formal index and pending unchanged"),
+  scenario("candidates", ["candidates"], "列出固定2份ready候选", "none"),
+  scenario("show-candidate", ["show-candidate", candidateA], "读取1份带小资源的ready候选", "none"),
+  scenario("publish", ["publish", candidateA], "实际发布1份候选及其1条关系，保留另一候选", "one candidate becomes formal; index updated; resource bytes and pending unchanged"),
+  scenario("rename", ["rename", formalId(1), nameOf(renamedId), "--rename-recorded-report"], "实际更正1份HEAD已记录叶节点身份并迁移1个owner资源", "one formal and one owner move; index updated; pending unchanged"),
+  scenario("check-scoped", ["check", "--id", formalId(1)], "局部检查1份报告和1个资源", "none"),
+  scenario("check-full", ["check"], "完整检查正式集合、关系、资源和索引", "none"),
+  scenario("sync-preview", ["sync-index", "--preflight"], "对1份手改正文进行全量同步预检", "none; stale index remains byte-identical"),
+  scenario("sync-write", ["sync-index"], "实际接纳1份手改正文并发布完整索引", "index sourceRevision for exactly one formal updated"),
+  scenario("sync-current", ["sync-index"], "对current索引执行同步", "none"),
+  scenario("sync-selected", ["sync-index", "--select", formalId(1)], "显式选中并接纳唯一1份手改正文", "index sourceRevision for selected formal updated"),
+  scenario("list", ["list"], "默认小窗口列表", "none"),
+  scenario("search-metadata", ["search", formalId(1), "--in", "metadata"], "发布索引metadata搜索唯一ID，默认窗口返回1份报告", "none"),
+  scenario("search-content-cap", ["search", "fixturecontent"], "默认content搜索在>2000个候选文件时按cap拒绝，不代表扫描100k正文", "none; explicit resource-limit failure", 1),
+  scenario("search-content-related", ["search", "fixturecontent", "--related-to", formalId(0), "--direction", "successors"], "显式关系筛选到首组9个小文件后执行content搜索", "none"),
+  scenario("show", ["show", formalId(1)], "通过索引定位读取1份当前报告", "none"),
+  scenario("trace", ["trace", formalId(0), "--json"], "追溯一个10节点稀疏小组", "none"),
+  scenario("set-relations", ["set-relations", "--source", formalId(1), "--relation", `复查=${formalId(0)}`, "--relation-summary", `${formalId(0)}=本轮独立复核小组根节点`], "实际替换1条既有关系的summary", "one formal relation summary and index updated; pending unchanged"),
+  scenario("stage-index", ["stage", formalId(2), "--scope", "index"], "实际暂存1份变更的索引投影，保护未选pending", "selected index projection only; domain and unselected pending protected"),
+  scenario("stage-domain", ["stage", formalId(2), "--scope", "domain"], "实际暂存1份报告和常数owner资源树，pending索引保持HEAD", "selected Markdown and two resource files staged; index and unselected pending protected"),
+  scenario("stage-all", ["stage", formalId(2), "--scope", "all"], "实际暂存1份报告、其索引投影和常数owner资源树", "selected Markdown, index projection and two resources staged; unselected pending protected"),
+  scenario("discard", ["discard", formalId(3), "--delete-owned-resources", "--delete-recorded"], "实际删除1份已记录叶节点及其1个小owner资源", "one formal and owner resource deleted; index updated; pending unchanged"),
+]);
+
+export const fixtureDescription = Object.freeze({
+  formalMarkdownBytes: 1024,
+  candidates: 2,
+  baselineResources: 5,
+  resourceBytes: 96,
+  relationships: "每10个formal构成一组，其余至多9个叶节点各以一条复查边指向组根；无跨组边",
+  resourceDistribution: "formal 1/2/3/4和candidate-a各1个96B纯文本；背景formal无资源，资源数不随N增长",
+  stageOperation: "只选formal 2；新增1个96B资源并修改既有资源；formal 4和域外路径有受保护pending",
+  lifecycle: "root是本轮marker保护的独立Git仓库，baseline HEAD包含全部fixture；仅恢复显式清单，不使用git clean或主仓库Git",
+});
+
+function command(root, args, input) {
+  const result = spawnSync("git", ["-C", root, ...args], {
+    encoding: "utf8", input, maxBuffer: 256 * 1024 * 1024,
+    env: { ...process.env, GIT_CONFIG_NOSYSTEM: "1", GIT_TERMINAL_PROMPT: "0" },
+  });
+  assert.equal(result.status, 0, `fixture git ${args.join(" ")}: ${result.stderr ?? result.error}`);
+  return result.stdout;
+}
+
+async function write(root, relative, value) {
+  const target = path.join(root, relative);
+  await fs.mkdir(path.dirname(target), { recursive: true });
+  await fs.writeFile(target, value);
+}
+
+async function read(root, relative) {
+  return await fs.readFile(path.join(root, relative), "utf8");
+}
+
+async function fileHash(root, relative) {
+  try { return hash(await fs.readFile(path.join(root, relative))); }
+  catch (error) { if (error?.code === "ENOENT") return null; throw error; }
+}
+
+function resourceText(id, changed = false) {
+  const prefix = `${changed ? "changed" : "baseline"} evidence ${id}\n`;
+  return prefix + "x".repeat(95 - Buffer.byteLength(prefix)) + "\n";
+}
+
+function makeSource(id, sourcePath, relations, withResource) {
+  const metadata = {
+    id, title: `Fixture ${nameOf(id)}`, formedAt,
+    question: "Does one simple operation remain practical with a large report inventory?",
+    tags: ["benchmark", "investigation-report"], relations,
+  };
+  let text = [
+    serializeInvestigationReportFrontmatter(metadata), "",
+    "## 形成时背景", "", "fixturecontent. Fixed synthetic inventory; this report models one bounded investigation.", "",
+    "## 调查目的", "", "Measure one simple command against existing inventory, not a large requested operation.", "",
+    "## 调查范围与依据", "", "Pinned source and synthetic text only. Evidence is a tiny constant-sized text attachment where declared.", "",
+    "## 调查结果与边界", "", "The fixture is not a real finding and does not establish production performance.", "",
+    ...(withResource ? ["## 随附资源", "", `- [small evidence](./_resources/${id}/evidence.txt)`, ""] : []),
+  ].join("\n");
+  const padding = 1024 - Buffer.byteLength(text);
+  assert.ok(padding >= 1, `fixture Markdown overflow: ${id}`);
+  text = text.replace("fixturecontent.", `fixturecontent.${"p".repeat(padding)}`);
+  assert.equal(Buffer.byteLength(text), 1024);
+  return { id, sourcePath, text };
+}
+
+function formalSource(number) {
+  const relations = number % 10 === 0 ? [] : [{ type: "复查", target: formalId(number - number % 10), summary: "在独立小样本中复核组根" }];
+  return makeSource(formalId(number), `${nameOf(formalId(number))}.md`, relations, resourceOwners.has(number));
+}
+
+function serializeSources(sources) {
+  const snapshot = buildInvestigationStateSnapshot(sources);
+  const built = buildStateIndexFromSnapshot(definition, snapshot);
+  assert.equal(built.status, "ok", JSON.stringify(built.diagnostics));
+  return serializeStateIndex(built.value, definition);
+}
+
+function assertNewRoot(root) {
+  assert.equal(path.resolve(root), root, "fixture root must be absolute and normalized");
+  assert.ok(root.startsWith(temporaryRoot + path.sep), "fixture root must be inside this investigation temporary root");
+  assert.ok(!root.startsWith(sourceRoot), "never write pinned source");
+  assert.ok(!root.includes(".."));
+}
+
+export async function prepareFixture(root, count) {
+  assertNewRoot(root);
+  assert.ok(Number.isSafeInteger(count) && count >= 10, "N must be an integer >=10");
+  try { assert.deepEqual(await fs.readdir(root), [], "new fixture root must be empty"); }
+  catch (error) { if (error?.code !== "ENOENT") throw error; }
+  // 固定源码是root从Git导出的无.git快照；版本依据由同轮source-ref保存。
+  const sourceHead = (await fs.readFile(path.join(temporaryRoot, "source-ref.txt"), "utf8")).trim();
+  assert.ok(sourceHead.startsWith("94f792e0"), `unexpected fixed source HEAD ${sourceHead}`);
+  await fs.mkdir(root, { recursive: true });
+  command(root, ["init", "--quiet"]);
+  command(root, ["config", "core.hooksPath", "/dev/null"]);
+  command(root, ["config", "core.fileMode", "false"]);
+  command(root, ["config", "user.name", "Fixture benchmark"]);
+  command(root, ["config", "user.email", "fixture@example.invalid"]);
+  await fs.appendFile(path.join(root, ".git/info/exclude"), `\n/${markerPath}\n/${scenarioPath}\n`);
+  const sources = [];
+  for (let start = 0; start < count; start += 128) {
+    const batch = [];
+    for (let number = start; number < Math.min(count, start + 128); number++) {
+      const source = formalSource(number);
+      sources.push(source);
+      batch.push(write(root, `${collection}/${source.sourcePath}`, source.text));
+      if (resourceOwners.has(number)) batch.push(write(root, resourcePath(source.id), resourceText(source.id)));
+    }
+    await Promise.all(batch);
+  }
+  await write(root, indexPath, serializeSources(sources));
+  for (const id of [candidateA, candidateB]) {
+    const source = makeSource(id, nameOf(id), [{ type: "复查", target: formalId(0), summary: "在新条件下复核已有小组根" }], id === candidateA);
+    await write(root, candidatePath(id), source.text);
+  }
+  await write(root, resourcePath(candidateA), resourceText(candidateA));
+  await write(root, "unrelated.txt", "baseline unrelated content\n");
+  command(root, ["add", "--", collection, "unrelated.txt"]);
+  command(root, ["commit", "--quiet", "-m", "Synthetic investigation inventory baseline"]);
+  const baselineHead = command(root, ["rev-parse", "HEAD"]).trim();
+  const marker = { kind: markerKind, root, count, baselineHead, sourceHead, fixtureDescription };
+  await write(root, markerPath, JSON.stringify(marker, null, 2) + "\n");
+  return { count, candidates: 2, resources: 5, resourceBytes: 96, formalMarkdownBytes: 1024, baselineHead, sourceHead };
+}
+
+async function guardedMarker(root) {
+  assertNewRoot(root);
+  assert.equal(await fs.realpath(root), root, "fixture physical root must equal its declared root");
+  const gitDirectory = await fs.lstat(path.join(root, ".git"));
+  assert.ok(gitDirectory.isDirectory() && !gitDirectory.isSymbolicLink(), "fixture .git must be a real directory, not a link or worktree pointer");
+  const marker = JSON.parse(await read(root, markerPath));
+  assert.equal(marker.kind, markerKind);
+  assert.equal(marker.root, root);
+  assert.equal(command(root, ["rev-parse", "--show-toplevel"]).trim(), root);
+  assert.equal(command(root, ["rev-parse", "HEAD"]).trim(), marker.baselineHead, "fixture HEAD drift: do not restore");
+  assert.equal(command(root, ["remote"]).trim(), "", "fixture must not have remotes");
+  return marker;
+}
+
+const baselineMutablePaths = [
+  indexPath, ...[0, 1, 2, 3, 4].map(reportPath),
+  ...[1, 2, 3, 4].map((number) => resourcePath(formalId(number))),
+  candidatePath(candidateA), candidatePath(candidateB), resourcePath(candidateA), "unrelated.txt",
+];
+const newFiles = [
+  candidatePath(createdId), `${collection}/${nameOf(candidateA)}.md`,
+  `${collection}/${nameOf(renamedId)}.md`, resourcePath(renamedId),
+  resourcePath(formalId(2), "extra.txt"),
+];
+
+async function restore(root) {
+  await guardedMarker(root);
+  // 只恢复本模块会改动的已知tracked清单；不遍历清理其他未知文件。
+  command(root, ["restore", "--source=HEAD", "--staged", "--worktree", "--", ...baselineMutablePaths]);
+  command(root, ["rm", "--cached", "--ignore-unmatch", "--", ...newFiles]);
+  for (const relative of newFiles) {
+    const target = path.join(root, relative);
+    try {
+      const stat = await fs.lstat(target);
+      assert.ok(stat.isFile() && !stat.isSymbolicLink(), `unexpected fixture artifact type: ${relative}`);
+      await fs.unlink(target);
+    } catch (error) { if (error?.code !== "ENOENT") throw error; }
+  }
+  for (const id of [renamedId, createdId]) {
+    try { await fs.rmdir(path.join(root, `${collection}/_resources/${id}`)); }
+    catch (error) { if (error?.code !== "ENOENT" && error?.code !== "ENOTEMPTY") throw error; }
+  }
+  assert.equal(command(root, ["diff", "--cached", "--name-only"]).trim(), "", "unknown pending survived fixture restore");
+  assert.deepEqual(fullDeltaFiles(root), [], "unknown working-tree or untracked changes survived fixture restore");
+}
+
+async function patchSourcesIntoIndex(root, relatives) {
+  const index = JSON.parse(await read(root, indexPath));
+  for (const relative of relatives) {
+    const text = await read(root, relative);
+    const match = /^id: "([^"]+)"$/mu.exec(text);
+    assert.ok(match);
+    const source = { id: match[1], sourcePath: path.posix.basename(relative), text };
+    const snapshot = buildInvestigationStateSnapshot([source]);
+    index.entries[source.id] = snapshot.states[source.id];
+    index.sourceRevision.entries[source.id] = investigationSourceRevision([source]).entries[source.id];
+  }
+  await write(root, indexPath, serializeStateIndex(index, definition));
+}
+
+function pendingFiles(root) {
+  return command(root, ["diff", "--cached", "--name-only", "-z"]).split("\0").filter(Boolean).sort();
+}
+
+function pendingHash(root, relative) {
+  return hash(command(root, ["show", `:${relative}`]));
+}
+
+function fullDeltaFiles(root) {
+  // 不只检查操作清单：所有tracked差异及所有未跟踪文件（含ignored）都进入白名单核对。
+  const tracked = command(root, ["diff", "--no-renames", "HEAD", "--name-only", "-z"]).split("\0").filter(Boolean);
+  const untracked = command(root, ["ls-files", "--others", "-z"]).split("\0").filter(Boolean);
+  return [...new Set([...tracked, ...untracked])].filter((relative) => relative !== markerPath && relative !== scenarioPath).sort();
+}
+
+export async function prepareScenario(root, id) {
+  const selected = manifest.find((entry) => entry.id === id);
+  assert.ok(selected, `unknown investigation scenario ${id}`);
+  const marker = await guardedMarker(root);
+  if (id === "search-content-cap") assert.ok(marker.count > 2000, "cap refusal requires N>2000; skip this scenario in N20/100 smoke");
+  await restore(root);
+  if (["sync-preview", "sync-write", "sync-selected"].includes(id)) {
+    await write(root, reportPath(1), (await read(root, reportPath(1))).replace("The fixture is not", "One additional observation. The fixture is not"));
+  }
+  if (id.startsWith("stage-")) {
+    const targetId = formalId(2);
+    let selectedText = await read(root, reportPath(2));
+    selectedText = selectedText.replace(`title: "Fixture ${nameOf(targetId)}"`, `title: "Fixture ${nameOf(targetId)} staged"`);
+    selectedText += `- [new small evidence](./_resources/${targetId}/extra.txt)\n`;
+    // 资源按ID词法排序：evidence.txt位于extra.txt之前。
+    await write(root, reportPath(2), selectedText);
+    await write(root, resourcePath(targetId), resourceText(targetId, true));
+    await write(root, resourcePath(targetId, "extra.txt"), "new evidence\n".padEnd(95, "x") + "\n");
+    await write(root, reportPath(4), (await read(root, reportPath(4))).replace(`title: "Fixture ${nameOf(formalId(4))}"`, `title: "Fixture ${nameOf(formalId(4))} unrelated"`));
+    await write(root, resourcePath(formalId(4)), resourceText(formalId(4), true));
+    await write(root, "unrelated.txt", "unrelated pending must be preserved\n");
+    await patchSourcesIntoIndex(root, [reportPath(2), reportPath(4)]);
+    command(root, ["add", "--", reportPath(4), resourcePath(formalId(4)), "unrelated.txt"]);
+  }
+  const before = {};
+  for (const relative of [...baselineMutablePaths, ...newFiles]) before[relative] = await fileHash(root, relative);
+  const state = {
+    id, count: marker.count, before,
+    baselineDelta: fullDeltaFiles(root),
+    pendingTree: command(root, ["write-tree"]).trim(),
+    protectedPending: Object.fromEntries(pendingFiles(root).map((relative) => [relative, pendingHash(root, relative)])),
+  };
+  await write(root, scenarioPath, JSON.stringify(state, null, 2) + "\n");
+  return { id, count: marker.count, operationTargets: id.startsWith("stage-") ? [formalId(2)] : undefined, protectedPendingPaths: Object.keys(state.protectedPending) };
+}
+
+function assertIncludes(text, value) { assert.ok(text.includes(value), `expected output to include ${JSON.stringify(value)}; got ${text.slice(0, 1600)}`); }
+
+export async function verifyScenario(root, id, result) {
+  const marker = await guardedMarker(root);
+  const selected = manifest.find((entry) => entry.id === id);
+  assert.ok(selected);
+  const state = JSON.parse(await read(root, scenarioPath));
+  assert.equal(state.id, id);
+  assert.equal(result.signal, null, "CLI must not be terminated by signal");
+  assert.equal(result.exitCode, selected.expectedExit, `CLI ${id} failed: ${result.stderr}`);
+  const stdout = result.stdout;
+  const stderr = result.stderr;
+  const indexText = await read(root, indexPath);
+  const index = JSON.parse(indexText);
+  const baselineIndex = JSON.parse(command(root, ["show", `HEAD:${indexPath}`]));
+  const fullDelta = fullDeltaFiles(root);
+  const changedFiles = [];
+  for (const relative of new Set([...Object.keys(state.before), ...fullDelta])) {
+    if ((state.before[relative] ?? null) !== await fileHash(root, relative)) changedFiles.push(relative);
+  }
+  const expectFiles = (expected) => {
+    assert.deepEqual(changedFiles.sort(), [...expected].sort(), `unexpected working-tree changes for ${id}`);
+    assert.deepEqual(fullDelta, [...new Set([...state.baselineDelta, ...expected])].sort(), `full HEAD/untracked delta escaped whitelist for ${id}`);
+  };
+  const pendingSame = () => assert.equal(command(root, ["write-tree"]).trim(), state.pendingTree, "non-stage command changed pending");
+  const assertIndexDelta = (sources, removedIds = []) => {
+    // 只从固定HEAD应用预期的单对象delta，再比较完整规范字节，保护全部未选entries及metadata。
+    const expected = baselineIndex;
+    for (const removedId of removedIds) {
+      delete expected.entries[removedId];
+      delete expected.sourceRevision.entries[removedId];
+    }
+    for (const source of sources) {
+      const snapshot = buildInvestigationStateSnapshot([source]);
+      expected.entries[source.id] = snapshot.states[source.id];
+      expected.sourceRevision.entries[source.id] = snapshot.sourceRevision.entries[source.id];
+    }
+    assert.equal(hash(indexText), hash(serializeStateIndex(expected, definition)), `full index projection changed outside the expected delta for ${id}`);
+  };
+  if (id === "new") {
+    expectFiles([candidatePath(createdId)]);
+    assertIncludes(await read(root, candidatePath(createdId)), `id: "${createdId}"`);
+    assertIncludes(stdout, createdId);
+  } else if (id === "publish") {
+    expectFiles([candidatePath(candidateA), `${collection}/${nameOf(candidateA)}.md`, indexPath]);
+    assert.equal(index.entries[candidateA].resourceIds[0], `${candidateA}/evidence.txt`);
+    assert.equal(Object.keys(index.entries).length, marker.count + 1);
+    assert.equal(await fileHash(root, `${collection}/${nameOf(candidateA)}.md`), state.before[candidatePath(candidateA)]);
+    assertIndexDelta([{ id: candidateA, sourcePath: `${nameOf(candidateA)}.md`, text: await read(root, `${collection}/${nameOf(candidateA)}.md`) }]);
+    assertIncludes(stdout, "committed");
+  } else if (id === "rename") {
+    expectFiles([reportPath(1), resourcePath(formalId(1)), `${collection}/${nameOf(renamedId)}.md`, resourcePath(renamedId), indexPath]);
+    assert.equal(index.entries[formalId(1)], undefined);
+    assert.equal(index.entries[renamedId].resourceIds[0], `${renamedId}/evidence.txt`);
+    assert.equal(await fileHash(root, resourcePath(renamedId)), state.before[resourcePath(formalId(1))]);
+    assertIncludes(await read(root, `${collection}/${nameOf(renamedId)}.md`), `./_resources/${renamedId}/evidence.txt`);
+    const expectedText = command(root, ["show", `HEAD:${reportPath(1)}`]).replaceAll(formalId(1), renamedId);
+    assert.equal(await fileHash(root, `${collection}/${nameOf(renamedId)}.md`), hash(expectedText), "rename changed unrelated Markdown content");
+    assertIndexDelta([{ id: renamedId, sourcePath: `${nameOf(renamedId)}.md`, text: expectedText }], [formalId(1)]);
+  } else if (["sync-write", "sync-selected"].includes(id)) {
+    expectFiles([indexPath]);
+    const source = { id: formalId(1), sourcePath: path.posix.basename(reportPath(1)), text: await read(root, reportPath(1)) };
+    assert.equal(index.sourceRevision.entries[source.id], investigationSourceRevision([source]).entries[source.id]);
+    assertIndexDelta([source]);
+  } else if (id === "set-relations") {
+    expectFiles([reportPath(1), indexPath]);
+    assert.equal(index.entries[formalId(1)].relations[0].summary, "本轮独立复核小组根节点");
+    const expectedText = command(root, ["show", `HEAD:${reportPath(1)}`]).replace("在独立小样本中复核组根", "本轮独立复核小组根节点");
+    assert.equal(await fileHash(root, reportPath(1)), hash(expectedText), "set-relations changed unrelated Markdown content");
+    assertIndexDelta([{ id: formalId(1), sourcePath: path.posix.basename(reportPath(1)), text: expectedText }]);
+    assertIncludes(stdout, "committed");
+  } else if (id === "discard") {
+    expectFiles([reportPath(3), resourcePath(formalId(3)), indexPath]);
+    assert.equal(index.entries[formalId(3)], undefined);
+    assert.equal(Object.keys(index.entries).length, marker.count - 1);
+    assertIndexDelta([], [formalId(3)]);
+  } else if (id.startsWith("stage-")) {
+    expectFiles([]);
+    const scope = id.slice(6);
+    const domainPaths = [reportPath(2), resourcePath(formalId(2)), resourcePath(formalId(2), "extra.txt")];
+    const expected = [...Object.keys(state.protectedPending), ...(scope === "index" ? [] : domainPaths), ...(scope === "domain" ? [] : [indexPath])].sort();
+    assert.deepEqual(pendingFiles(root), expected, "stage scope wrote unexpected pending paths");
+    for (const [relative, beforeHash] of Object.entries(state.protectedPending)) assert.equal(pendingHash(root, relative), beforeHash, `unselected pending changed: ${relative}`);
+    if (scope !== "index") for (const relative of domainPaths) assert.equal(pendingHash(root, relative), await fileHash(root, relative), `selected pending is not current: ${relative}`);
+    const expectedIndex = baselineIndex;
+    if (scope !== "domain") {
+      expectedIndex.entries[formalId(2)] = index.entries[formalId(2)];
+      expectedIndex.sourceRevision.entries[formalId(2)] = index.sourceRevision.entries[formalId(2)];
+    }
+    assert.equal(pendingHash(root, indexPath), hash(serializeStateIndex(expectedIndex, definition)), "pending index did not preserve unselected published projection");
+    assertIncludes(stdout, formalId(2));
+  } else {
+    expectFiles([]);
+    if (id === "candidates") { assertIncludes(stdout, candidateA); assertIncludes(stdout, candidateB); }
+    if (id === "show-candidate") { assertIncludes(stdout, candidateA); assertIncludes(stdout, "true"); }
+    if (id === "check-scoped" || id === "check-full") assertIncludes(stdout, "check passed");
+    if (id === "sync-preview") assertIncludes(stdout, "preflight");
+    if (id === "sync-current") assertIncludes(stdout, "current");
+    if (id === "list") assertIncludes(stdout, formalId(0));
+    if (id === "search-metadata") { assertIncludes(stdout, "published-index"); assertIncludes(stdout, "matched=1 precision=exact returned=1"); assertIncludes(stdout, formalId(1)); }
+    if (id === "search-content-cap") assert.match(stderr, /candidate file limit was exceeded/u);
+    if (id === "search-content-related") { assertIncludes(stdout, "validated-source"); assertIncludes(stdout, "matched=9"); assertIncludes(stdout, "scan=complete results=complete previews=complete"); }
+    if (id === "show") assertIncludes(stdout, `id: "${formalId(1)}"`);
+    if (id === "trace") {
+      const trace = JSON.parse(stdout);
+      assert.equal(trace.anchorId, formalId(0));
+      assert.equal(Object.keys(trace.entries).length, 10);
+      assert.equal(trace.coverage.complete, true);
+    }
+  }
+  if (!id.startsWith("stage-")) pendingSame();
+  return { verified: true, id, changedFiles, pendingPaths: pendingFiles(root), formalCount: Object.keys(index.entries).length };
+}
+
+END FILE
+
+FILE methods/investigation/smoke.mjs
+BYTES 1241
+SHA256 bb9d89877d81249e52aea059c5ec2beb5dada196239d57b88a82734d72f09525
+
+import fs from "node:fs/promises";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { cliPath, manifest, prepareFixture, prepareScenario, verifyScenario } from "./scenarios.mjs";
+
+// 只验证方法与效果，不采集或声称正式性能计时。正式100k由root runner执行。
+const count = Number(process.argv[2] ?? "20");
+const root = fileURLToPath(new URL(`.smoke-${count}`, import.meta.url));
+try { await fs.access(`${root}/.allops-investigation-fixture.json`); }
+catch { console.log(JSON.stringify({ fixture: await prepareFixture(root, count) })); }
+for (const scenario of manifest) {
+  if (scenario.id === "search-content-cap" && count <= 2000) continue;
+  await prepareScenario(root, scenario.id);
+  const processResult = spawnSync(process.execPath, [cliPath, "--root", root, ...scenario.args], { encoding: "utf8", maxBuffer: 1024 * 1024 });
+  const result = { exitCode: processResult.status, signal: processResult.signal, stdout: processResult.stdout ?? "", stderr: processResult.stderr ?? "" };
+  try { console.log(JSON.stringify(await verifyScenario(root, scenario.id, result))); }
+  catch (error) { console.error(JSON.stringify({ id: scenario.id, result })); throw error; }
+}
+
+END FILE
+
+FILE methods/measure-process.py
+BYTES 1576
+SHA256 0fce03eb3ddc7ad4de75cf1ed2bab24af8929a5f39c0e6b6a072a51802dd941e
+
+"""Measure one real CLI child with wait4; stdout/stderr remain inherited pipes."""
+from __future__ import annotations
+
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import sys
+import time
+
+
+def main() -> int:
+    if len(sys.argv) < 4 or sys.argv[2] != "--":
+        raise SystemExit("usage: measure-process.py metrics.json -- executable [args...]")
+    destination = Path(sys.argv[1])
+    started_at = time.time()
+    start = time.perf_counter_ns()
+    child = subprocess.Popen(sys.argv[3:], stdin=subprocess.DEVNULL)
+    while True:
+        try:
+            _, status, usage = os.wait4(child.pid, 0)
+            break
+        except InterruptedError:
+            continue
+    elapsed_ms = (time.perf_counter_ns() - start) / 1_000_000
+    code = os.waitstatus_to_exitcode(status)
+    child.returncode = code
+    result = {
+        "startedAtUnixSeconds": started_at,
+        "wallMs": elapsed_ms,
+        "userSeconds": usage.ru_utime,
+        "systemSeconds": usage.ru_stime,
+        "maxRssKiB": usage.ru_maxrss,
+        "childExitCode": code if code >= 0 else None,
+        "childSignal": signal.Signals(-code).name if code < 0 else None,
+        "metricsScope": "os.wait4 CLI child rusage; RSS is not simultaneous process-tree memory",
+    }
+    temporary = destination.with_suffix(destination.suffix + ".tmp")
+    temporary.write_text(json.dumps(result, ensure_ascii=False) + "\n", encoding="utf-8")
+    temporary.replace(destination)
+    return code if code >= 0 else 128 - code
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+END FILE
+
+FILE methods/process-runner.mjs
+BYTES 3404
+SHA256 7f23c54f9efe3c6e6f0b50167b68395fa7a5504d0c275ae098e134d8144f33a2
+
+import { createHash } from "node:crypto";
+import fs from "node:fs";
+import { mkdir, readFile } from "node:fs/promises";
+import path from "node:path";
+import { spawn } from "node:child_process";
+import { finished } from "node:stream/promises";
+
+const captureLimit = 256 * 1024;
+
+function outputSink(file) {
+  const stream = fs.createWriteStream(file, { flags: "wx" });
+  const hash = createHash("sha256");
+  const captured = [];
+  let bytes = 0;
+  let capturedBytes = 0;
+  return {
+    push(chunk) {
+      hash.update(chunk);
+      bytes += chunk.length;
+      if (capturedBytes < captureLimit) {
+        const part = chunk.subarray(0, captureLimit - capturedBytes);
+        captured.push(part);
+        capturedBytes += part.length;
+      }
+      return stream.write(chunk);
+    },
+    drain: () => new Promise((resolve) => stream.once("drain", resolve)),
+    async close() {
+      stream.end();
+      await finished(stream);
+      return {
+        bytes,
+        sha256: hash.digest("hex"),
+        head: Buffer.concat(captured).toString("utf8"),
+        headTruncated: bytes > capturedBytes,
+        file
+      };
+    }
+  };
+}
+
+function signalGroup(child, signal) {
+  if (child.pid === undefined) return;
+  try {
+    process.kill(-child.pid, signal);
+  } catch (error) {
+    if (error.code !== "ESRCH") throw error;
+  }
+}
+
+export async function runCaptured({ command, args, cwd, timeoutMs, prefix }) {
+  await mkdir(path.dirname(prefix), { recursive: true });
+  const stdout = outputSink(prefix + ".stdout");
+  const stderr = outputSink(prefix + ".stderr");
+  const startedAt = new Date().toISOString();
+  const start = performance.now();
+  const child = spawn(command, args, {
+    cwd,
+    detached: true,
+    stdio: ["ignore", "pipe", "pipe"],
+    env: { ...process.env }
+  });
+  let timedOut = false;
+  let spawnError = null;
+  let forced = null;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    signalGroup(child, "SIGTERM");
+    forced = setTimeout(() => signalGroup(child, "SIGKILL"), 5000);
+  }, timeoutMs);
+  const consume = async (source, sink) => {
+    for await (const chunk of source) {
+      if (!sink.push(chunk)) await sink.drain();
+    }
+  };
+  const streams = Promise.all([
+    consume(child.stdout, stdout),
+    consume(child.stderr, stderr)
+  ]);
+  const status = await new Promise((resolve) => {
+    child.once("error", (error) => {
+      spawnError = { code: error.code ?? null, message: error.message };
+    });
+    child.once("close", (exitCode, signal) => resolve({ exitCode, signal }));
+  });
+  clearTimeout(timer);
+  if (forced !== null) clearTimeout(forced);
+  if (timedOut) signalGroup(child, "SIGKILL");
+  await streams;
+  return {
+    startedAt,
+    wrapperWallMs: performance.now() - start,
+    ...status,
+    timedOut,
+    spawnError,
+    stdout: await stdout.close(),
+    stderr: await stderr.close()
+  };
+}
+
+export async function readCgroupMemoryEvents() {
+  try {
+    const entries = (await readFile("/sys/fs/cgroup/memory.events", "utf8"))
+      .trim()
+      .split("\n")
+      .map((line) => {
+        const [key, raw] = line.split(/\s+/u);
+        const value = Number(raw);
+        if (!key || !Number.isSafeInteger(value) || value < 0)
+          throw new Error("invalid memory.events");
+        return [key, value];
+      });
+    return Object.fromEntries(entries);
+  } catch (error) {
+    return { unavailable: error.code ?? error.message };
+  }
+}
+
+END FILE

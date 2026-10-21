@@ -1,0 +1,65 @@
+Decision Records
+Usage: decision-records [options] [command]
+
+Query and maintain agent-oriented decision records and their lifecycle state.
+
+Options:
+  --root <path>                                           Workspace root. Defaults to the current directory. (default: "/workspace/skills")
+  --decisions-dir <path>                                  Decision directory, relative to the workspace root. (default: "docs/decisions")
+  -h, --help                                              display help for command
+
+Commands:
+  check                                                   Strictly validate Markdown metadata, tags, source locations, alignment, relations, candidate scaffold/body readiness, and the JSON index.
+  candidates                                              Discover candidate scaffolds directly from decision Markdown without adding them to the persisted decision index.
+  list [options]                                          List the persisted active decision snapshot by default, or filter its indexed state.
+  search [options] <text>                                 Search established Decision content by default, or the published index metadata.
+  show <selector>                                         Show decision metadata followed by the original Markdown body.
+  show-candidate <selector>                               Show one source-discovered candidate and its mechanical readiness before activation.
+  trace [options] <selector>                              Render a bounded relation graph from the published index snapshot without checking Markdown currentness; use --json for the machine-readable slice.
+  sync-index [options]                                    Rebuild and publish the complete JSON index from established Markdown.
+  new [options] <selector>                                Create one non-overwriting candidate scaffold. Edit its body and complete semantic review before lifecycle establishment.
+  rename [options] <source-selector> <target-name-or-id>  Rename one Decision ID and semantic name, then update all managed relation targets and the complete derived index.
+  stage [options] <selector...>                           Build a Git pending decision snapshot from the current revision and the explicitly selected Decision selectors.
+  publish [options] <selector>                            Establish one reviewed decision candidate as a formal record with its declared relations; active predecessors declared by the candidate are archived in the same transaction.
+  reactivate [options] <selector>                         Move one archived decision back to the active lifecycle location with its confirmed alignment; use evolve for combined lifecycle transactions.
+  evolve [options]                                        Replace complete successor relations, establish selected candidates, archive new active predecessors, and optionally discard one decision in the same recoverable transaction.
+  set-relations [options]                                 Replace the complete direct relations of one or more established decisions and republish the derived index in the same recoverable transaction, without changing any lifecycle state; use evolve to also establish successors, archive predecessors, or discard.
+  mark-aligned <selector>                                 Mark an active unaligned decision as aligned only after its complete direction has become current fact and been verified against the relevant fact sources.
+  archive [options] <selector...>                         Archive active decisions while preserving their last alignment and relations.
+  discard [options] <selector>                            Delete one complete, unreferenced candidate or established decision. Targets already recorded in Git HEAD require --delete-recorded.
+  help [command]                                          display help for command
+
+Decision selectors remove one terminal .md suffix, then resolve a calendar-valid YYMMDD-name ID exactly or a unique semantic name. Stable identities remain extensionless IDs.
+Candidates remain outside the index, are queried from source, and report scaffold and body readiness separately.
+Scaffold readiness validates candidate structure; body readiness validates required nonempty sections and the 采用 field. Neither grants semantic review or lifecycle establishment.
+Exit codes: 0 success (including a created scaffold with readiness findings), 1 paused lifecycle choice, blocking validation, or index failure, 2 invalid arguments.
+
+Investigation Report
+Usage: investigation-report [options] [command]
+
+Check, query, and maintain flat Investigation Report records and their derived
+index.
+
+Options:
+  --root <path>                                           Workspace root. Defaults to the current directory.
+  --investigations-dir <path>                             Investigation directory, relative to the workspace root.
+  -h, --help                                              display help for command
+
+Commands:
+  new [options] [name-or-id]                              Atomically create a non-formal authoring candidate. Creation succeeds independently of body, resource, or publish readiness.
+  candidates                                              List authoring candidates without reading or changing the formal derived index.
+  show-candidate [investigation-id]                       Print one authoring candidate and its mechanical readiness; this does not publish it.
+  publish [options] [investigation-id...]                 Validate and establish only explicitly selected candidates. --preflight is read-only and does not create a receipt.
+  rename [options] [source-selector] [target-name-or-id]  Rename one candidate or formal report identity, all managed relations and resource references, its owner directory, and the complete formal index.
+  check [options]                                         Validate the first-acquired report collection, complete relation graph, resource ownership, and full index projection without an end-of-check freshness promise. Scoped --id checks validate only selected reports and their declared resources.
+  sync-index [options]                                    Validate the full formal collection and rebuild and publish its complete derived index in the working tree; this is the explicit recovery and acceptance path for hand-written formal reports and ignores legal candidates.
+  list [options]                                          List reports from the validated published index snapshot.
+  search [options] [text]                                 Search formal report content by default, or only the published index metadata.
+  show [investigation-id]                                 Read one current ordinary report via its published index locator and verify its ID.
+  trace [options] [investigation-id]                      Trace predecessor and successor report relationships from the validated published index snapshot.
+  set-relations [options]                                 Atomically replace every selected source relation set and rebuild the workspace index; --preflight validates without writing or staging files.
+  stage [options] [investigation-id...]                   Build a Git pending Investigation snapshot from strict published metadata; domain sources and direct resource owners are validated locally, not the entire source collection: the derived index projection together with report Markdown and the complete owner resource tree (all), only the index projection (index), or only report Markdown and owner resources while the pending index stays unchanged (domain).
+  discard [options] [investigation-id]                    Delete one authoring candidate or established report after a full graph and resource preflight. Refuses remaining relation references and shared owner resources; records or owned resources in Git HEAD require --delete-recorded.
+  help [command]                                          display help for command
+
+Exit status: 0 success; 1 check, operation, or deletion-confirmation failure; 2 invalid CLI arguments.
