@@ -22,9 +22,15 @@
 
 `new` 在身份归一化前取得一次有效 formedAt；显式非法值失败，不能回退默认。stdout 只集中回显身份、标题、路径、三项 readiness 和独立辅助预检，warning/error 留在 stderr。readiness 不就绪不撤销已成功创建的候选。
 
-### 关系筛选与 trace
+### 关系图上下文
 
-同一不可变投影通过 `InvestigationRelationContext` 绑定条目和惰性关系图。第一次关系筛选、图校验或 trace 才构建正反向邻接和 ID 映射，后续图操作复用同一引用；无关系条件的 list/metadata 搜索不构图。构图不全量排序边，证据、诊断与 trace 各自在输出责任内维持确定顺序。content fallback 沿用本次集合校验的上下文；集合改变或进入新的准备、复核与恢复阶段时另建上下文，不跨调用缓存，也不替代阶段校验。
+单次操作内，每份不可变投影由独立的内部 [`InvestigationRelationContext`](src/relation-context.ts) 绑定条目和惰性关系图：
+
+- **按需复用**：首次实际访问图时构建正反向邻接和 ID 映射，后续图操作共用同一引用；无关系条件的 `list` 和 metadata 搜索不构图。
+- **顺序责任**：构图保留投影边序，证据、诊断与 `trace` 各自在输出时确定顺序。
+- **阶段边界**：content fallback 与本次集合校验共用上下文；集合变更或进入新的准备、复核与恢复阶段时，另建上下文并完成所属阶段的校验。图的生命周期止于本次快照。
+
+### 关系筛选与 trace
 
 - `filterRelations` 是公开 Investigation list/search entry API 的可选字段，只在有关系条件时出现，来自同一筛选快照。按 `(sourceId, type, target)` 去重并以 UTF-16 code-unit 词法序排序；前驱边由 anchor 指向结果，后继边由结果指向 anchor，both 取并集，type-only 取结果来源的指定类型出边。该字段不进入索引 Schema，记录排序、分页与 limit 不变。
 - trace 的两种 renderer 消费同一成功查询，不重读索引或重新选择。JSON 原样序列化稳定 envelope，含 anchorId、direction、limits；无限 depth 表示为 `"all"`。

@@ -64,6 +64,7 @@ test("Decision published queries reuse strict validation graphs and keep ordinar
       await withGraphBuildCount(async (count) => {
         const result = await executeDecisionQuery(request);
         assert.ok(result.status === "ok", JSON.stringify(result));
+        assert.equal(result.command, request.command);
         assert.deepEqual(result.warnings, []);
         assert.equal(
           count(),

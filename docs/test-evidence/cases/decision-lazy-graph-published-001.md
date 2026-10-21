@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 - 普通 list、show、trace、metadata search 与带关系条件的 list、metadata search 各实际构图一次。
-- 成员数、关系证据、trace coverage、正文与发布来源保持正确，公开结果不携带 provider。
+- 查询返回请求对应的命令；按各命令核对成员、边证据、coverage、正文与来源，结果顶层不含图访问器。
