@@ -1,0 +1,263 @@
+{
+  "kind": "historical-measurement-boundary-review",
+  "recordedAt": "2026-10-21T07:02:26.120Z",
+  "reviewDateUtc": "2026-10-21",
+  "timeMeaning": "审查及下列检查在本轮会话内完成；recordedAt 是本记录写入时点，不冒充未分别记录时间的各次命令执行时点。",
+  "reviewedCommit": "5443b7f5909b4328a613ac88c1d2d4271cd1bd0f",
+  "scope": "只审查该提交保留的四个测量 TypeScript 附件、first-run.json 与 measurement-verification.json；本文件是后续边界审查记录，不是新一轮性能测量或入口修复结果。",
+  "reviewedFiles": [
+    "docs/investigations/_resources/261021-decision-investigation-first-batch-performance/count-hook.ts",
+    "docs/investigations/_resources/261021-decision-investigation-first-batch-performance/counter-state.ts",
+    "docs/investigations/_resources/261021-decision-investigation-first-batch-performance/measure-worker.ts",
+    "docs/investigations/_resources/261021-decision-investigation-first-batch-performance/run-measurements.ts",
+    "docs/investigations/_resources/261021-decision-investigation-first-batch-performance/first-run.json",
+    "docs/investigations/_resources/261021-decision-investigation-first-batch-performance/measurement-verification.json"
+  ],
+  "reviewBasis": {
+    "codingStyle": "完整读取 docs/coding-style.md；不以严格类型、lint 或格式检查通过替代边界、类型、职责和失败语义审查。",
+    "relevantRules": [
+      {
+        "source": "docs/coding-style.md",
+        "lines": "48-64",
+        "meaning": "外部边界解析、校验、失败区分与可行动反馈。"
+      },
+      {
+        "source": "docs/coding-style.md",
+        "lines": "66-83",
+        "meaning": "区分原始输入、领域对象、输出与失败，并表达修改责任。"
+      },
+      {
+        "source": "docs/coding-style.md",
+        "lines": "116-141",
+        "meaning": "局部数据流、现实职责与抽象边界。"
+      },
+      {
+        "source": "docs/coding-style.md",
+        "lines": "159-171",
+        "meaning": "验证覆盖成功、失败、退出状态与输出契约。"
+      },
+      {
+        "source": "skills/investigation-report/references/investigation-report-contract.md",
+        "lines": "147-149",
+        "meaning": "新增实质材料另存资源，已保留样本与历史材料保持保真。"
+      }
+    ],
+    "sourceLocations": "下列 TypeScript 文件行号对应 reviewedCommit 中的原始附件字节；四个附件的当前字节也已与原始 scriptHashes 核对一致。"
+  },
+  "integrityChecks": {
+    "method": "使用 Node 标准库 SHA-256 对实际文件字节计算摘要；用 git show 读取指定提交的生产源码字节进行独立比对。",
+    "raw": {
+      "source": "docs/investigations/_resources/261021-decision-investigation-first-batch-performance/first-run.json",
+      "sha256": "e17b9cc1ae041f7659e05451e910acc410a027897e7a2b64245607cf06a2cebe",
+      "matchesVerificationRawSha256": true
+    },
+    "scripts": [
+      {
+        "file": "measure-worker.ts",
+        "sha256": "13f5333c8ada62f77f5ed3efc580976411030805b2a1a83725f6518da8a6dadd",
+        "matchesRawScriptHash": true
+      },
+      {
+        "file": "count-hook.ts",
+        "sha256": "bc4f037f97fd692efa52f7da084a137da4ef36937e3442f54bb570b704fd876d",
+        "matchesRawScriptHash": true
+      },
+      {
+        "file": "counter-state.ts",
+        "sha256": "edc7783747ef690cdcaeba4b421614191e732c421a12287164f9aec5bc37e011",
+        "matchesRawScriptHash": true
+      },
+      {
+        "file": "run-measurements.ts",
+        "sha256": "5b8e759e829aed8e99213e5a55585289d7264809c4cbc5739fa81306fe5de691",
+        "matchesRawScriptHash": true
+      }
+    ],
+    "productionManifests": {
+      "baselineRef": "acd4321cba0a7034ca993121b996b6253493ba19",
+      "baselineFilesChecked": 331,
+      "baselineMismatches": [],
+      "postChangeReference": "5443b7f5909b4328a613ac88c1d2d4271cd1bd0f",
+      "postChangeFilesChecked": 331,
+      "postChangeMismatches": [],
+      "rawRecordedCurrentHead": "4580beb6bfb2017c83a23c7726d2926b8895f8b3",
+      "interpretation": "测量记录的 currentHead 是当时 HEAD 指针；实施后源码内容以 currentManifest 标识。本次核对证明该 manifest 与 reviewedCommit 的相应源码相同，不把测量回填成在该提交形成后执行。"
+    },
+    "probeMarkers": {
+      "baselineAndPostChangeChecked": true,
+      "markerCountPerReference": 6,
+      "occurrencesPerMarker": 1,
+      "source": "docs/investigations/_resources/261021-decision-investigation-first-batch-performance/count-hook.ts:11-40",
+      "meaning": "该固定基线与实施后源码中的六个字符串插入标记各出现一次；不证明任意未来源码或其他运行时的探针有效性。"
+    }
+  },
+  "historicalResultChecks": {
+    "comparisonPairs": 52,
+    "completePublicJsonPairs": 48,
+    "internalSerializableProjectionPairs": 4,
+    "countPairs": 52,
+    "allRecordedEquivalentFlagsTrue": true,
+    "allBaselineCurrentSha256AndByteCountsEqual": true,
+    "timingOperations": 7,
+    "variantsPerOperation": 2,
+    "samplesPerVariant": 7,
+    "recomputedMedianMinMaxMatch": true,
+    "mismatches": [],
+    "method": "读取完整 first-run.json，逐项核对比较分类、equivalent、两端 SHA-256 与 bytes，重算全部计时分布的中位数及最小/最大值，并核对每组样本数。",
+    "limit": "未重跑52对条件或完整7次测量；摘要一致不等于从 hash 恢复或再次逐字段比较原始 payload。"
+  },
+  "parserCounterexamples": {
+    "source": "docs/investigations/_resources/261021-decision-investigation-first-batch-performance/run-measurements.ts",
+    "locations": [
+      {
+        "symbol": "isObservation",
+        "lines": "52-64"
+      },
+      {
+        "symbol": "parseWorker",
+        "lines": "66-74"
+      },
+      {
+        "symbol": "计数结果对照循环",
+        "lines": "194-225"
+      },
+      {
+        "symbol": "计时结果收集与统计",
+        "lines": "240-260"
+      }
+    ],
+    "method": "从原文件精确提取 function isRecord 至 function canonical 之前的代码，用 node:module 的 stripTypeScriptTypes 擦除类型后直接调用原 parseWorker；没有改写校验条件。",
+    "actualInputsAndResults": [
+      {
+        "name": "错误样本标识与空操作数组",
+        "input": {
+          "domain": "wrong",
+          "size": -1,
+          "mode": "wrong",
+          "observations": []
+        },
+        "accepted": true,
+        "returnedObservationCount": 0
+      },
+      {
+        "name": "负耗时与失败 payload",
+        "input": {
+          "observations": [
+            {
+              "name": "list",
+              "milliseconds": -1,
+              "counts": {},
+              "result": {
+                "status": "error",
+                "errors": [
+                  "fixture failed"
+                ]
+              }
+            }
+          ]
+        },
+        "accepted": true,
+        "returnedObservationCount": 1
+      },
+      {
+        "name": "重复操作名",
+        "input": {
+          "observations": [
+            {
+              "name": "list",
+              "milliseconds": 1,
+              "counts": {},
+              "result": {
+                "status": "error"
+              }
+            },
+            {
+              "name": "list",
+              "milliseconds": 1,
+              "counts": {},
+              "result": {
+                "status": "error"
+              }
+            }
+          ]
+        },
+        "accepted": true,
+        "returnedObservationCount": 2
+      }
+    ],
+    "codeReviewInference": "解析器没有绑定调用时的 domain、size、mode，也没有要求精确操作集合、唯一名称或非负耗时。后续对照只核对两端数量、次序和结果相等；若两端都没有操作，循环不会改变初值 equivalent=true；相同失败 payload 也不能自行证明预期成功条件成立。计时收集同样没有逐次核对操作集合或最终 repeats 个样本。",
+    "impactBoundary": "以上接纳结果是实际局部反例；完整 runner 的空对照或同失败成功报告风险来自代码路径审查，未通过向完整 runner 注入反例来另行生成产物。原 first-run.json 已实际保存52对操作与每组7个计时样本，不能用这些反例断言原测量发生了缺项或相同非预期失败。"
+  },
+  "workerCounterexample": {
+    "source": "docs/investigations/_resources/261021-decision-investigation-first-batch-performance/measure-worker.ts",
+    "locations": [
+      {
+        "symbol": "入口参数校验",
+        "lines": "37-48"
+      },
+      {
+        "symbol": "调查关系列表",
+        "lines": "268-275"
+      },
+      {
+        "symbol": "陈旧来源构造",
+        "lines": "316-325"
+      }
+    ],
+    "invocation": "node docs/investigations/_resources/261021-decision-investigation-first-batch-performance/measure-worker.ts investigation 1 counts",
+    "node": "v26.8.2",
+    "actualExitCode": 0,
+    "actualEnvelope": {
+      "domain": "investigation",
+      "size": 1,
+      "mode": "counts",
+      "observationCount": 12
+    },
+    "actualErrors": [
+      {
+        "operation": "list-related-predecessors",
+        "errors": [
+          "direction requires relatedTo"
+        ]
+      },
+      {
+        "operation": "list-related-both",
+        "errors": [
+          "direction requires relatedTo"
+        ]
+      },
+      {
+        "operation": "content-stale",
+        "status": "error",
+        "errors": [
+          "undefined.md must declare a valid frontmatter Investigation ID"
+        ]
+      },
+      {
+        "operation": "content-corrupt-index",
+        "status": "error",
+        "errors": [
+          "undefined.md must declare a valid frontmatter Investigation ID"
+        ]
+      }
+    ],
+    "cause": "入口允许 size=1，但调查 counts 场景读取 ids[1]；关系列表因此缺少 relatedTo，随后 appendFile 在隔离 fixture 中创建 undefined.md，使后续搜索变成非法来源错误，而不是预定的陈旧/损坏索引 fallback 条件。",
+    "scope": "该反例只核对参数、操作结果与进程退出状态；未加载 count-hook，不取得新的计数或性能结论，也没有与 baseline 重新对照。",
+    "cleanup": "worker 使用其 mkdtemp/finally 生命周期清理隔离 fixture；后续只读检查未发现该命名模式的剩余 fixture 目录。临时绝对路径不留存。"
+  },
+  "conclusionsAndDisposition": {
+    "fixedSamples": "原调查样本为20/200，纯发布索引样本为1000/1001/5000/10000；N=1反例不否定这些固定条件下已保存的结果。已有摘要、指纹与统计核对继续成立，但不外推为任意输入、未来版本或通用重跑入口保证。",
+    "codeQuality": "两个入口缺口尚未修复；类型、lint、格式通过不足以证明它们满足完整边界契约。本审查不把历史附件转换为受维护框架。",
+    "historicalFidelity": "四个原脚本已经作为实际测量方法被 first-run.json 的 scriptHashes 绑定；行为改进不属于准确恢复或格式修复。保留原脚本、原 raw 与原 verification 的字节，不重算旧 hash 冒充原测量依据。",
+    "currentAction": "只新增本审查记录，不行为改写四个原附件，不生成新测量结果。后续确需测量时应先另行明确并验证样本参数、子进程 envelope、预期操作及结果类别、计时样本完整性，再另存实际新证据。",
+    "organizationReview": "完整阅读四个脚本后，未发现仅因文件长度就应拆分的依据；hook、共享计数状态、fixture/操作 worker 与归档/对照入口分别承接现实职责。独立 mkdtemp、finally 清理及输出标签约束与 wx 防覆盖机制明确。"
+  },
+  "notCovered": [
+    "没有重跑完整性能测量、重新取得全部公开结果或证明原时点每一次命令的现场状态。",
+    "没有向完整 runner 注入恶意或缺项子进程输出；相关全流程危害为局部反例结合代码路径的推断。",
+    "没有实现或验证改进版入口，未覆盖所有非法参数、取消、超时、信号中断、清理失败及并发竞态。",
+    "没有验证其他 Node 版本、操作系统、依赖组合、真实用户集合、密集关系图、大附件、内存或CPU行为。",
+    "指纹审查覆盖 raw manifest 声明的四个工具 src 目录，不扩张为依赖、所有测试fixture或整仓库的历史快照证明。",
+    "本记录不代替领域原生测试、测试证据账本或项目Gate；其他并行审查及改动由其责任方交付。"
+  ]
+}

@@ -1,7 +1,9 @@
 ### Case DECISION-LOADED-SNAPSHOT-PAGINATION-001: 发布快照查询跨越 reader 页上限而不丢失记录
 
 Tests:
-- `test:4441023749eaa25260d450f304813b7ab406ab8692b775c2ef808bcf4f99f232`
+- `test:7cad947c245ad22b2c96f4294b9577edfb7a1062e1d4115e71654955a98491cd`
+- `test:be3ee35d0bec0ed1bdf0ce1607d992e48af230c7c04fd9a24ff02bcfb81d634b`
+- `test:fc654fced6f958c999ec5916692e2b101d616cedfe33905e3cda812899ea9379`
 
 Tags:
 - `decision-records`

@@ -1,7 +1,8 @@
 ### Case INVESTIGATION-CANDIDATE-PARTIAL-FAILURES-001: 局部候选读取拒绝不可读或重复 owner
 
 Tests:
-- `test:baf2c74febe9372b2664fdd896d6a402e7cb2c73a4e8bbc3444368ffb8da4a57`
+- `test:2bd0ccbfdd08467e72c4607e3c08d7341af5baa4f67e2b0142957f4523f6c4aa`
+- `test:8d0b7a1e1ebd2bb3aebcf6083364740755b898ca6840a89ea50cac8fa57e7773`
 
 Tags:
 - `investigation-report`

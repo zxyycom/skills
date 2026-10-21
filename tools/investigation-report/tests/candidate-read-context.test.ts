@@ -129,8 +129,8 @@ test("candidate partial layouts discover moved formal owners when the index is s
   });
 });
 
-test("candidate partial layouts preserve required owner access and duplicate identity failures", async () => {
-  await withTempRoot("candidate-owner-failure", async (root) => {
+test("candidate partial layouts preserve required owner access failures", async () => {
+  await withTempRoot("candidate-owner-access", async (root) => {
     await writeSharedCandidate(root);
     await writeCollection(root, [
       { id: "owner", resources: ["owner/sample.txt"] }
@@ -159,7 +159,17 @@ test("candidate partial layouts preserve required owner access and duplicate ide
     } finally {
       fs.readFile = original;
     }
-    await fs.rm(owner);
+  });
+});
+
+test("candidate partial layouts reject duplicate formal owner identities", async () => {
+  await withTempRoot("candidate-owner-duplicates", async (root) => {
+    await writeSharedCandidate(root);
+    await writeCollection(root, [
+      { id: "owner", resources: ["owner/sample.txt"] }
+    ]);
+    const directory = investigationRoot(root);
+    await fs.rm(path.join(directory, "owner.md"));
     for (const sourcePath of ["first.md", "second.md"])
       await fs.writeFile(
         path.join(directory, sourcePath),
