@@ -1,0 +1,3971 @@
+{
+  "audit": {
+    "expectedGroups": 124,
+    "actualGroups": 124,
+    "totalSamples": 340,
+    "failedSamples": 1
+  },
+  "operations": [
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "list",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 779.356068,
+        "min": 763.919179,
+        "max": 798.4978329999999
+      },
+      "processWallMs": {
+        "median": 994.960403000001,
+        "min": 964.9743659999986,
+        "max": 1006.8262949999989
+      },
+      "cpuMs": {
+        "median": 1118.228,
+        "min": 1088.657,
+        "max": 1144.143
+      },
+      "maxRssMiB": {
+        "median": 221.48828125,
+        "min": 216.30078125,
+        "max": 225.36328125
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "list-page",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 775.8718530000001,
+        "min": 772.687077,
+        "max": 780.1368889999999
+      },
+      "processWallMs": {
+        "median": 978.5489629999975,
+        "min": 975.4710309999973,
+        "max": 992.4935129999976
+      },
+      "cpuMs": {
+        "median": 1107.71,
+        "min": 1095.8590000000002,
+        "max": 1112.222
+      },
+      "maxRssMiB": {
+        "median": 216.28125,
+        "min": 215.60546875,
+        "max": 216.40234375
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "list-tag",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 800.293026,
+        "min": 790.977156,
+        "max": 826.228796
+      },
+      "processWallMs": {
+        "median": 997.4644919999992,
+        "min": 983.936061000004,
+        "max": 1033.9135330000063
+      },
+      "cpuMs": {
+        "median": 1125.8039999999999,
+        "min": 1120.288,
+        "max": 1170.3790000000001
+      },
+      "maxRssMiB": {
+        "median": 215.16796875,
+        "min": 215.1484375,
+        "max": 216.140625
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "list-related",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 841.8537130000001,
+        "min": 818.3001370000001,
+        "max": 861.381325
+      },
+      "processWallMs": {
+        "median": 1063.8446019999974,
+        "min": 1030.1311980000028,
+        "max": 1088.2236739999935
+      },
+      "cpuMs": {
+        "median": 1171.028,
+        "min": 1166.988,
+        "max": 1183.8429999999998
+      },
+      "maxRssMiB": {
+        "median": 216.30859375,
+        "min": 215.97265625,
+        "max": 224.71484375
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "list-type",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 872.459366,
+        "min": 856.4837379999999,
+        "max": 927.166765
+      },
+      "processWallMs": {
+        "median": 1092.7027880000023,
+        "min": 1089.2681589999993,
+        "max": 1141.0024420000045
+      },
+      "cpuMs": {
+        "median": 1213.424,
+        "min": 1201.132,
+        "max": 1287.094
+      },
+      "maxRssMiB": {
+        "median": 216.3359375,
+        "min": 216.1875,
+        "max": 216.87890625
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "show-id",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 746.188958,
+        "min": 740.151842,
+        "max": 754.7144020000001
+      },
+      "processWallMs": {
+        "median": 941.4434800000017,
+        "min": 939.349559000002,
+        "max": 959.6790620000029
+      },
+      "cpuMs": {
+        "median": 1062.122,
+        "min": 1057.07,
+        "max": 1068.955
+      },
+      "maxRssMiB": {
+        "median": 215.65625,
+        "min": 215.11328125,
+        "max": 221.83984375
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "show-name",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 761.293195,
+        "min": 708.286581,
+        "max": 837.140226
+      },
+      "processWallMs": {
+        "median": 964.1109859999997,
+        "min": 910.1010170000009,
+        "max": 1041.3947169999956
+      },
+      "cpuMs": {
+        "median": 1088.767,
+        "min": 1069.271,
+        "max": 1200.876
+      },
+      "maxRssMiB": {
+        "median": 215.3671875,
+        "min": 215.17578125,
+        "max": 226.53125
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "trace",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 775.8687600000001,
+        "min": 772.464054,
+        "max": 786.768192
+      },
+      "processWallMs": {
+        "median": 993.4997189999995,
+        "min": 977.7452269999994,
+        "max": 1000.7204130000027
+      },
+      "cpuMs": {
+        "median": 1097.241,
+        "min": 1096.549,
+        "max": 1108.068
+      },
+      "maxRssMiB": {
+        "median": 215.46484375,
+        "min": 215.40625,
+        "max": 215.46875
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "metadata-rare",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 1446.771593,
+        "min": 1358.817788,
+        "max": 1791.847119
+      },
+      "processWallMs": {
+        "median": 1664.3673479999998,
+        "min": 1565.375215,
+        "max": 2019.4824270000026
+      },
+      "cpuMs": {
+        "median": 1877.1,
+        "min": 1767.0339999999999,
+        "max": 2283.2110000000002
+      },
+      "maxRssMiB": {
+        "median": 231.03125,
+        "min": 229.47265625,
+        "max": 235.26171875
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "metadata-common",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 1566.803694,
+        "min": 1441.978957,
+        "max": 1611.600247
+      },
+      "processWallMs": {
+        "median": 1775.218869999997,
+        "min": 1644.9636860000028,
+        "max": 1837.2761889999965
+      },
+      "cpuMs": {
+        "median": 2039.123,
+        "min": 1874.056,
+        "max": 2106.751
+      },
+      "maxRssMiB": {
+        "median": 233.4921875,
+        "min": 232.140625,
+        "max": 237.11328125
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "metadata-zero",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 1557.8719070000002,
+        "min": 1385.355024,
+        "max": 1730.604834
+      },
+      "processWallMs": {
+        "median": 1778.635381,
+        "min": 1591.9766069999969,
+        "max": 1975.256033999991
+      },
+      "cpuMs": {
+        "median": 1983.931,
+        "min": 1774.363,
+        "max": 2213.025
+      },
+      "maxRssMiB": {
+        "median": 231.7890625,
+        "min": 229.26953125,
+        "max": 234.98046875
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "content-unfiltered-cap",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 14920.632330999999,
+        "min": 14696.421302,
+        "max": 15386.034922
+      },
+      "processWallMs": {
+        "median": 15152.570467000012,
+        "min": 14918.485010999997,
+        "max": 15626.384812000004
+      },
+      "cpuMs": {
+        "median": 16376.047999999999,
+        "min": 16059.179,
+        "max": 16703.924
+      },
+      "maxRssMiB": {
+        "median": 355.65234375,
+        "min": 346.34765625,
+        "max": 368.85546875
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "content-tag",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 12668.189918,
+        "min": 12383.028836,
+        "max": 12704.329486
+      },
+      "processWallMs": {
+        "median": 12891.434748000014,
+        "min": 12606.531560000003,
+        "max": 12927.235536000022
+      },
+      "cpuMs": {
+        "median": 13699.738,
+        "min": 13362.401,
+        "max": 13751.9
+      },
+      "maxRssMiB": {
+        "median": 355.0859375,
+        "min": 354.67578125,
+        "max": 356.1015625
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "content-related",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 12474.236861000001,
+        "min": 12380.025306,
+        "max": 12903.38378
+      },
+      "processWallMs": {
+        "median": 12706.329904000013,
+        "min": 12603.553709,
+        "max": 13155.273748999985
+      },
+      "cpuMs": {
+        "median": 13478.057999999999,
+        "min": 13362.512999999999,
+        "max": 13823.759999999998
+      },
+      "maxRssMiB": {
+        "median": 355.421875,
+        "min": 354.66015625,
+        "max": 355.91015625
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "check-full",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 11596.520859,
+        "min": 11453.411182,
+        "max": 11685.262451
+      },
+      "processWallMs": {
+        "median": 11818.10334999999,
+        "min": 11678.966473999986,
+        "max": 11911.230245999992
+      },
+      "cpuMs": {
+        "median": 12660.626,
+        "min": 12408.428,
+        "max": 12773.672
+      },
+      "maxRssMiB": {
+        "median": 376.3828125,
+        "min": 370.94140625,
+        "max": 396.45703125
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "sync-preflight",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 12771.137884,
+        "min": 12553.470786,
+        "max": 17291.130076999998
+      },
+      "processWallMs": {
+        "median": 13024.506254999986,
+        "min": 12794.753545000014,
+        "max": 17619.80339700004
+      },
+      "cpuMs": {
+        "median": 13571.485,
+        "min": 13493.387999999999,
+        "max": 18789.496
+      },
+      "maxRssMiB": {
+        "median": 386.62109375,
+        "min": 368.2421875,
+        "max": 387.5703125
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "sync-write",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 18504.880282000002,
+        "min": 17874.969979,
+        "max": 19800.662934
+      },
+      "processWallMs": {
+        "median": 18949.457307000004,
+        "min": 18349.725804999995,
+        "max": 20342.242874999996
+      },
+      "cpuMs": {
+        "median": 19951.881,
+        "min": 19272.097,
+        "max": 21308.779
+      },
+      "maxRssMiB": {
+        "median": 394.88671875,
+        "min": 393.75,
+        "max": 411.29296875
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "candidates",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 3994.932595,
+        "min": 3902.109177,
+        "max": 4215.4610569999995
+      },
+      "processWallMs": {
+        "median": 4224.118713999982,
+        "min": 4126.472139999969,
+        "max": 4476.6706689999555
+      },
+      "cpuMs": {
+        "median": 4766.89,
+        "min": 4673.953,
+        "max": 5081.067
+      },
+      "maxRssMiB": {
+        "median": 298.46484375,
+        "min": 297.85546875,
+        "max": 303.4765625
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "micro-index-read",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 16.83707000000001,
+        "min": 15.012742000000003,
+        "max": 17.60458299999999
+      },
+      "processWallMs": {
+        "median": 223.91813499998534,
+        "min": 213.7661949999747,
+        "max": 228.297927000036
+      },
+      "cpuMs": {
+        "median": 29.571,
+        "min": 24.927,
+        "max": 30.15
+      },
+      "maxRssMiB": {
+        "median": 133.203125,
+        "min": 133.015625,
+        "max": 133.3828125
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "micro-json-parse",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 20.30894600000002,
+        "min": 19.763040999999987,
+        "max": 26.94553399999998
+      },
+      "processWallMs": {
+        "median": 234.3899429999874,
+        "min": 229.0544510000036,
+        "max": 244.6879670000053
+      },
+      "cpuMs": {
+        "median": 20.482,
+        "min": 19.904,
+        "max": 27.14
+      },
+      "maxRssMiB": {
+        "median": 137.19921875,
+        "min": 136.17578125,
+        "max": 138.19140625
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "micro-parse-index",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 781.175254,
+        "min": 778.863292,
+        "max": 826.1021129999999
+      },
+      "processWallMs": {
+        "median": 1034.4646479999647,
+        "min": 995.9986229999922,
+        "max": 1058.6063999999897
+      },
+      "cpuMs": {
+        "median": 1114.8229999999999,
+        "min": 1097.188,
+        "max": 1160.298
+      },
+      "maxRssMiB": {
+        "median": 230.8828125,
+        "min": 227.2734375,
+        "max": 231.4765625
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "micro-load-index",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 827.239648,
+        "min": 750.834532,
+        "max": 905.089031
+      },
+      "processWallMs": {
+        "median": 1136.0450310000451,
+        "min": 967.9824190000072,
+        "max": 1157.3657529999618
+      },
+      "cpuMs": {
+        "median": 1190.1589999999999,
+        "min": 1079.163,
+        "max": 1293.874
+      },
+      "maxRssMiB": {
+        "median": 215.6171875,
+        "min": 214.79296875,
+        "max": 221.10546875
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "micro-source-revision",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 3347.2124909999998,
+        "min": 3289.684384,
+        "max": 3687.3775499999997
+      },
+      "processWallMs": {
+        "median": 3580.7825810000068,
+        "min": 3507.444536999974,
+        "max": 3898.4288400000078
+      },
+      "cpuMs": {
+        "median": 3623.621,
+        "min": 3576.6279999999997,
+        "max": 3968.121
+      },
+      "maxRssMiB": {
+        "median": 192.4296875,
+        "min": 191.2578125,
+        "max": 193.19140625
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "micro-markdown-parse",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 921.4060619999998,
+        "min": 895.1093740000001,
+        "max": 929.0165970000003
+      },
+      "processWallMs": {
+        "median": 2242.4055609999923,
+        "min": 2221.2006910000346,
+        "max": 2250.6158169999835
+      },
+      "cpuMs": {
+        "median": 1138.932,
+        "min": 1114.434,
+        "max": 1163.449
+      },
+      "maxRssMiB": {
+        "median": 209.9140625,
+        "min": 209.63671875,
+        "max": 210
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "micro-list-projection",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 29.336111000000074,
+        "min": 29.151624999999967,
+        "max": 29.483853000000067
+      },
+      "processWallMs": {
+        "median": 1019.5127109999885,
+        "min": 998.5046009999933,
+        "max": 1046.839769000013
+      },
+      "cpuMs": {
+        "median": 44.395,
+        "min": 38.809,
+        "max": 47.402
+      },
+      "maxRssMiB": {
+        "median": 221.28515625,
+        "min": 215.046875,
+        "max": 222.19140625
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "micro-relation-build",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 6.722633999999971,
+        "min": 6.485940000000028,
+        "max": 10.672322000000122
+      },
+      "processWallMs": {
+        "median": 1537.4635659999913,
+        "min": 1115.6801929999492,
+        "max": 1594.890898999991
+      },
+      "cpuMs": {
+        "median": 8.851,
+        "min": 8.334,
+        "max": 12.76
+      },
+      "maxRssMiB": {
+        "median": 215.7109375,
+        "min": 215.25390625,
+        "max": 227.37890625
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 10000,
+      "operation": "micro-relation-validate",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 16.77801599999998,
+        "min": 13.95640800000001,
+        "max": 18.46278499999994
+      },
+      "processWallMs": {
+        "median": 1339.8322480000206,
+        "min": 1301.8193179999944,
+        "max": 1647.3103180000326
+      },
+      "cpuMs": {
+        "median": 33.241,
+        "min": 27.718,
+        "max": 34.931999999999995
+      },
+      "maxRssMiB": {
+        "median": 215.1953125,
+        "min": 214.21875,
+        "max": 216.37890625
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "list",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 14495.630652,
+        "min": 14272.267212,
+        "max": 16018.99155
+      },
+      "processWallMs": {
+        "median": 15236.954009000096,
+        "min": 14773.383571999962,
+        "max": 16627.73744399997
+      },
+      "cpuMs": {
+        "median": 17144.419,
+        "min": 16513.996,
+        "max": 18441.514
+      },
+      "maxRssMiB": {
+        "median": 905.41015625,
+        "min": 891.5078125,
+        "max": 924
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "list-page",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 9087.767345,
+        "min": 7701.391073000001,
+        "max": 11351.645201
+      },
+      "processWallMs": {
+        "median": 9423.597553999978,
+        "min": 7978.308763999958,
+        "max": 11773.393287000014
+      },
+      "cpuMs": {
+        "median": 10721.088,
+        "min": 9273.755000000001,
+        "max": 13479.812
+      },
+      "maxRssMiB": {
+        "median": 887.61328125,
+        "min": 875.65625,
+        "max": 928.01171875
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "list-tag",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 7582.980769,
+        "min": 7488.978115,
+        "max": 7897.769848999999
+      },
+      "processWallMs": {
+        "median": 7852.321511000046,
+        "min": 7753.136149000027,
+        "max": 8158.1974850000115
+      },
+      "cpuMs": {
+        "median": 9182.148,
+        "min": 9096.149,
+        "max": 9355.332
+      },
+      "maxRssMiB": {
+        "median": 899.58984375,
+        "min": 886.70703125,
+        "max": 948.71875
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "list-related",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 7813.257969,
+        "min": 7676.192953000001,
+        "max": 9758.571857
+      },
+      "processWallMs": {
+        "median": 8088.156600999995,
+        "min": 7943.657938000048,
+        "max": 10025.55006899999
+      },
+      "cpuMs": {
+        "median": 9289.542,
+        "min": 9277.775,
+        "max": 11607.235
+      },
+      "maxRssMiB": {
+        "median": 927.23828125,
+        "min": 870.80859375,
+        "max": 927.62109375
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "list-type",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 7782.021835,
+        "min": 7733.700314,
+        "max": 7827.003983
+      },
+      "processWallMs": {
+        "median": 8059.111625999911,
+        "min": 7997.787495000055,
+        "max": 8101.01138000004
+      },
+      "cpuMs": {
+        "median": 9349.268999999998,
+        "min": 9306.214,
+        "max": 9452.644
+      },
+      "maxRssMiB": {
+        "median": 915.41796875,
+        "min": 902.26953125,
+        "max": 915.98828125
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "show-id",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 7240.612553,
+        "min": 7021.913407,
+        "max": 7422.906109
+      },
+      "processWallMs": {
+        "median": 7506.513869000017,
+        "min": 7285.4110740000615,
+        "max": 7686.278229999938
+      },
+      "cpuMs": {
+        "median": 8758.96,
+        "min": 8549.861,
+        "max": 8993.51
+      },
+      "maxRssMiB": {
+        "median": 899.2578125,
+        "min": 896.93359375,
+        "max": 913.40234375
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "show-name",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 7759.022362000001,
+        "min": 7578.670678,
+        "max": 7778.373141
+      },
+      "processWallMs": {
+        "median": 8023.188641000073,
+        "min": 7841.911742000026,
+        "max": 8041.312789999996
+      },
+      "cpuMs": {
+        "median": 9243.265,
+        "min": 9174.134,
+        "max": 9357.232
+      },
+      "maxRssMiB": {
+        "median": 889.86328125,
+        "min": 881.36328125,
+        "max": 911.69921875
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "trace",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 7540.177265,
+        "min": 7459.046566999999,
+        "max": 7796.958938
+      },
+      "processWallMs": {
+        "median": 7794.017700999975,
+        "min": 7724.746146999998,
+        "max": 8113.077886000043
+      },
+      "cpuMs": {
+        "median": 9299.824999999999,
+        "min": 8944.89,
+        "max": 9392.516
+      },
+      "maxRssMiB": {
+        "median": 904.953125,
+        "min": 898.984375,
+        "max": 998.64453125
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "metadata-rare",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 15432.767709,
+        "min": 14641.965384000001,
+        "max": 15567.521855
+      },
+      "processWallMs": {
+        "median": 15769.766140999971,
+        "min": 14930.345984000014,
+        "max": 15876.909864000045
+      },
+      "cpuMs": {
+        "median": 16999.222,
+        "min": 16393.803,
+        "max": 17429.217
+      },
+      "maxRssMiB": {
+        "median": 930.875,
+        "min": 885.89453125,
+        "max": 964.44921875
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "metadata-common",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 14237.486976999999,
+        "min": 13571.197947,
+        "max": 14624.669773
+      },
+      "processWallMs": {
+        "median": 14509.774517999962,
+        "min": 13850.932700000005,
+        "max": 14964.645423999988
+      },
+      "cpuMs": {
+        "median": 15973.37,
+        "min": 15286.140000000001,
+        "max": 16481.142
+      },
+      "maxRssMiB": {
+        "median": 905.28125,
+        "min": 881.4453125,
+        "max": 917.36328125
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "metadata-zero",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 13873.796722000001,
+        "min": 13150.911807,
+        "max": 14067.282646
+      },
+      "processWallMs": {
+        "median": 14146.605466999812,
+        "min": 13417.325927999802,
+        "max": 14334.477000999963
+      },
+      "cpuMs": {
+        "median": 15499.863,
+        "min": 14747.325,
+        "max": 15638.542
+      },
+      "maxRssMiB": {
+        "median": 907.2265625,
+        "min": 880.6015625,
+        "max": 911.921875
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "content-unfiltered-cap",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "error",
+      "actualStatuses": [
+        "error"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 126536.43553900001,
+        "min": 126536.43553900001,
+        "max": 126536.43553900001
+      },
+      "processWallMs": {
+        "median": 126929.24255800014,
+        "min": 126929.24255800014,
+        "max": 126929.24255800014
+      },
+      "cpuMs": {
+        "median": 133157.22999999998,
+        "min": 133157.22999999998,
+        "max": 133157.22999999998
+      },
+      "maxRssMiB": {
+        "median": 1868.8828125,
+        "min": 1868.8828125,
+        "max": 1868.8828125
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "content-tag",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 137905.639274,
+        "min": 137905.639274,
+        "max": 137905.639274
+      },
+      "processWallMs": {
+        "median": 138316.81469899998,
+        "min": 138316.81469899998,
+        "max": 138316.81469899998
+      },
+      "cpuMs": {
+        "median": 144558.979,
+        "min": 144558.979,
+        "max": 144558.979
+      },
+      "maxRssMiB": {
+        "median": 1836.1484375,
+        "min": 1836.1484375,
+        "max": 1836.1484375
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "content-related",
+      "n": 1,
+      "completed": 0,
+      "expectedStatus": "ok",
+      "actualStatuses": [],
+      "failures": [
+        {
+          "exitCode": null,
+          "signal": "SIGKILL",
+          "timedOut": true,
+          "stderr": ""
+        }
+      ],
+      "elapsedMs": null,
+      "processWallMs": {
+        "median": 180224.51661900012,
+        "min": 180224.51661900012,
+        "max": 180224.51661900012
+      },
+      "cpuMs": null,
+      "maxRssMiB": null
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "check-full",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 148626.909539,
+        "min": 148626.909539,
+        "max": 148626.909539
+      },
+      "processWallMs": {
+        "median": 149268.84297700017,
+        "min": 149268.84297700017,
+        "max": 149268.84297700017
+      },
+      "cpuMs": {
+        "median": 135838.57400000002,
+        "min": 135838.57400000002,
+        "max": 135838.57400000002
+      },
+      "maxRssMiB": {
+        "median": 2192.86328125,
+        "min": 2192.86328125,
+        "max": 2192.86328125
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "sync-preflight",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 136408.378203,
+        "min": 136408.378203,
+        "max": 136408.378203
+      },
+      "processWallMs": {
+        "median": 136883.8643110001,
+        "min": 136883.8643110001,
+        "max": 136883.8643110001
+      },
+      "cpuMs": {
+        "median": 142432.33299999998,
+        "min": 142432.33299999998,
+        "max": 142432.33299999998
+      },
+      "maxRssMiB": {
+        "median": 2105.5390625,
+        "min": 2105.5390625,
+        "max": 2105.5390625
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "sync-write",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 123698.510136,
+        "min": 123698.510136,
+        "max": 123698.510136
+      },
+      "processWallMs": {
+        "median": 124320.90573300002,
+        "min": 124320.90573300002,
+        "max": 124320.90573300002
+      },
+      "cpuMs": {
+        "median": 132733.09,
+        "min": 132733.09,
+        "max": 132733.09
+      },
+      "maxRssMiB": {
+        "median": 2191.8515625,
+        "min": 2191.8515625,
+        "max": 2191.8515625
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "candidates",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 76901.431027,
+        "min": 76901.431027,
+        "max": 76901.431027
+      },
+      "processWallMs": {
+        "median": 77477.62596800015,
+        "min": 77477.62596800015,
+        "max": 77477.62596800015
+      },
+      "cpuMs": {
+        "median": 79952.496,
+        "min": 79952.496,
+        "max": 79952.496
+      },
+      "maxRssMiB": {
+        "median": 1183.0390625,
+        "min": 1183.0390625,
+        "max": 1183.0390625
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "micro-index-read",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 214.25546000000003,
+        "min": 192.87440299999997,
+        "max": 343.214537
+      },
+      "processWallMs": {
+        "median": 577.5497920000926,
+        "min": 536.2276309998706,
+        "max": 804.4218610003591
+      },
+      "cpuMs": {
+        "median": 184.305,
+        "min": 160.661,
+        "max": 249.314
+      },
+      "maxRssMiB": {
+        "median": 359.515625,
+        "min": 358.73828125,
+        "max": 360.43359375
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "micro-json-parse",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 365.782809,
+        "min": 362.16615,
+        "max": 379.286471
+      },
+      "processWallMs": {
+        "median": 775.6581080001779,
+        "min": 726.1862759999931,
+        "max": 915.1737500000745
+      },
+      "cpuMs": {
+        "median": 453.23199999999997,
+        "min": 434.546,
+        "max": 463.173
+      },
+      "maxRssMiB": {
+        "median": 462.01953125,
+        "min": 461.6953125,
+        "max": 487.80078125
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "micro-parse-index",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 8066.501181,
+        "min": 7688.933393,
+        "max": 8436.184094999999
+      },
+      "processWallMs": {
+        "median": 8500.748114000075,
+        "min": 8116.985965999775,
+        "max": 8907.97352500027
+      },
+      "cpuMs": {
+        "median": 9299.221,
+        "min": 9021.130000000001,
+        "max": 9518.256
+      },
+      "maxRssMiB": {
+        "median": 1161.46875,
+        "min": 1154.3359375,
+        "max": 1188.296875
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "micro-load-index",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 8384.161112,
+        "min": 7848.9791510000005,
+        "max": 8871.613818
+      },
+      "processWallMs": {
+        "median": 8744.207115000114,
+        "min": 8150.661405999679,
+        "max": 9157.517605000176
+      },
+      "cpuMs": {
+        "median": 9663.288999999999,
+        "min": 9346.343,
+        "max": 10620.265
+      },
+      "maxRssMiB": {
+        "median": 881.50390625,
+        "min": 881.4296875,
+        "max": 911.5859375
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "micro-source-revision",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 31412.202039,
+        "min": 31412.202039,
+        "max": 31412.202039
+      },
+      "processWallMs": {
+        "median": 31690.606848999858,
+        "min": 31690.606848999858,
+        "max": 31690.606848999858
+      },
+      "cpuMs": {
+        "median": 31802.371,
+        "min": 31802.371,
+        "max": 31802.371
+      },
+      "maxRssMiB": {
+        "median": 544.25,
+        "min": 544.25,
+        "max": 544.25
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "micro-markdown-parse",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 9752.860405000001,
+        "min": 9752.860405000001,
+        "max": 9752.860405000001
+      },
+      "processWallMs": {
+        "median": 21951.40648699971,
+        "min": 21951.40648699971,
+        "max": 21951.40648699971
+      },
+      "cpuMs": {
+        "median": 10246.883999999998,
+        "min": 10246.883999999998,
+        "max": 10246.883999999998
+      },
+      "maxRssMiB": {
+        "median": 501.29296875,
+        "min": 501.29296875,
+        "max": 501.29296875
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "micro-list-projection",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 235.49258200000077,
+        "min": 218.94182899999942,
+        "max": 270.3672839999999
+      },
+      "processWallMs": {
+        "median": 10016.303518000059,
+        "min": 8020.387947999872,
+        "max": 10084.998854000121
+      },
+      "cpuMs": {
+        "median": 296.263,
+        "min": 266.871,
+        "max": 324.2
+      },
+      "maxRssMiB": {
+        "median": 902.09765625,
+        "min": 898.83203125,
+        "max": 925.703125
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "micro-relation-build",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 54.142141999999694,
+        "min": 48.40654100000029,
+        "max": 59.65576600000077
+      },
+      "processWallMs": {
+        "median": 8302.083023999818,
+        "min": 7731.110435000155,
+        "max": 8810.36921699997
+      },
+      "cpuMs": {
+        "median": 80.69399999999999,
+        "min": 73.673,
+        "max": 84.655
+      },
+      "maxRssMiB": {
+        "median": 898.4765625,
+        "min": 895.08203125,
+        "max": 917.66796875
+      }
+    },
+    {
+      "domain": "decision",
+      "size": 100000,
+      "operation": "micro-relation-validate",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 105.27605600000061,
+        "min": 104.99249700000018,
+        "max": 112.1502189999992
+      },
+      "processWallMs": {
+        "median": 8610.12148500001,
+        "min": 8212.550018000416,
+        "max": 8796.582488999702
+      },
+      "cpuMs": {
+        "median": 138.153,
+        "min": 137.334,
+        "max": 143.705
+      },
+      "maxRssMiB": {
+        "median": 912.109375,
+        "min": 907.92578125,
+        "max": 915.671875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "list",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 998.906117,
+        "min": 941.8911620000001,
+        "max": 1246.686453
+      },
+      "processWallMs": {
+        "median": 1298.605802999984,
+        "min": 1256.7260430000024,
+        "max": 1532.0090949999867
+      },
+      "cpuMs": {
+        "median": 1286.715,
+        "min": 1232.255,
+        "max": 1484.673
+      },
+      "maxRssMiB": {
+        "median": 215.29296875,
+        "min": 215.125,
+        "max": 217.796875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "list-page",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 1100.389956,
+        "min": 924.434306,
+        "max": 1289.288563
+      },
+      "processWallMs": {
+        "median": 1382.9904990000068,
+        "min": 1242.866268999991,
+        "max": 1722.734144999995
+      },
+      "cpuMs": {
+        "median": 1373.75,
+        "min": 1209.69,
+        "max": 1554.846
+      },
+      "maxRssMiB": {
+        "median": 215.0078125,
+        "min": 214.98046875,
+        "max": 240.03125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "list-tag",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 1489.591314,
+        "min": 1149.335947,
+        "max": 1516.30412
+      },
+      "processWallMs": {
+        "median": 1830.5276689999737,
+        "min": 1468.2595149999834,
+        "max": 2071.8984749999945
+      },
+      "cpuMs": {
+        "median": 1382.842,
+        "min": 1211.7910000000002,
+        "max": 1459.514
+      },
+      "maxRssMiB": {
+        "median": 214.3359375,
+        "min": 213.37109375,
+        "max": 215.63671875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "list-related",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 1144.506225,
+        "min": 913.895523,
+        "max": 1651.667106
+      },
+      "processWallMs": {
+        "median": 1411.3990150000318,
+        "min": 1170.3851710000308,
+        "max": 1930.8760279999697
+      },
+      "cpuMs": {
+        "median": 1258.054,
+        "min": 1217.026,
+        "max": 1362.068
+      },
+      "maxRssMiB": {
+        "median": 222.23828125,
+        "min": 214.421875,
+        "max": 242.5078125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "list-type",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 1058.387945,
+        "min": 1011.484815,
+        "max": 1365.720939
+      },
+      "processWallMs": {
+        "median": 1400.400697999983,
+        "min": 1267.6454739999608,
+        "max": 1779.545650999993
+      },
+      "cpuMs": {
+        "median": 1400.169,
+        "min": 1324.146,
+        "max": 1533.845
+      },
+      "maxRssMiB": {
+        "median": 216.31640625,
+        "min": 216.25390625,
+        "max": 216.6171875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "show-id",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 853.2372220000001,
+        "min": 653.117798,
+        "max": 897.160098
+      },
+      "processWallMs": {
+        "median": 1298.1341130000073,
+        "min": 977.0758650000207,
+        "max": 1370.7270100000314
+      },
+      "cpuMs": {
+        "median": 794.225,
+        "min": 734.2270000000001,
+        "max": 823.624
+      },
+      "maxRssMiB": {
+        "median": 212.03515625,
+        "min": 210.5625,
+        "max": 212.265625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "show-name",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 887.1112329999999,
+        "min": 844.073733,
+        "max": 952.568972
+      },
+      "processWallMs": {
+        "median": 1354.2219110000296,
+        "min": 1317.8649469999946,
+        "max": 1419.6930620000348
+      },
+      "cpuMs": {
+        "median": 791.889,
+        "min": 781.032,
+        "max": 813.501
+      },
+      "maxRssMiB": {
+        "median": 208.23828125,
+        "min": 200.921875,
+        "max": 214.8984375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "trace",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 474.59530899999993,
+        "min": 409.57256599999994,
+        "max": 504.7305779999999
+      },
+      "processWallMs": {
+        "median": 729.0977809999604,
+        "min": 635.519496999972,
+        "max": 783.5773959999788
+      },
+      "cpuMs": {
+        "median": 679.241,
+        "min": 616.8209999999999,
+        "max": 700.412
+      },
+      "maxRssMiB": {
+        "median": 213.8125,
+        "min": 213.14453125,
+        "max": 213.953125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "trace-capped",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 399.438708,
+        "min": 388.475053,
+        "max": 407.47098099999994
+      },
+      "processWallMs": {
+        "median": 634.638620999991,
+        "min": 620.4198719999986,
+        "max": 637.1588469999842
+      },
+      "cpuMs": {
+        "median": 597.6569999999999,
+        "min": 587.768,
+        "max": 614.584
+      },
+      "maxRssMiB": {
+        "median": 213.59375,
+        "min": 210.8203125,
+        "max": 215.06640625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "metadata-rare",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 791.6825739999999,
+        "min": 778.9876350000001,
+        "max": 841.5453600000001
+      },
+      "processWallMs": {
+        "median": 1024.8041199999861,
+        "min": 1017.886993000051,
+        "max": 1094.079934999987
+      },
+      "cpuMs": {
+        "median": 1036.029,
+        "min": 1033.921,
+        "max": 1097.709
+      },
+      "maxRssMiB": {
+        "median": 247.203125,
+        "min": 245.140625,
+        "max": 248.390625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "metadata-common",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 832.7263989999999,
+        "min": 830.5694060000001,
+        "max": 881.7494159999999
+      },
+      "processWallMs": {
+        "median": 1066.2397869999986,
+        "min": 1057.4525790000334,
+        "max": 1112.6568449999904
+      },
+      "cpuMs": {
+        "median": 1130.625,
+        "min": 1124.833,
+        "max": 1183.4
+      },
+      "maxRssMiB": {
+        "median": 246.62109375,
+        "min": 246.36328125,
+        "max": 248.453125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "metadata-zero",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 853.764168,
+        "min": 793.5498600000001,
+        "max": 1031.587381
+      },
+      "processWallMs": {
+        "median": 1095.6694399999687,
+        "min": 1048.3166480000364,
+        "max": 1266.9656299999915
+      },
+      "cpuMs": {
+        "median": 1120.048,
+        "min": 1053.632,
+        "max": 1344.6729999999998
+      },
+      "maxRssMiB": {
+        "median": 245.20703125,
+        "min": 243.8125,
+        "max": 247.80859375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "content-unfiltered",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "error",
+      "actualStatuses": [
+        "error"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 1683.720217,
+        "min": 1676.579466,
+        "max": 1686.298295
+      },
+      "processWallMs": {
+        "median": 1920.451073000033,
+        "min": 1914.6938209999935,
+        "max": 1930.656782999984
+      },
+      "cpuMs": {
+        "median": 1940.5520000000001,
+        "min": 1933.976,
+        "max": 1947.6639999999998
+      },
+      "maxRssMiB": {
+        "median": 228.59765625,
+        "min": 227.04296875,
+        "max": 229.0390625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "content-tag",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 2004.450331,
+        "min": 1991.3450990000001,
+        "max": 2007.178312
+      },
+      "processWallMs": {
+        "median": 2233.815523999976,
+        "min": 2217.0838999999687,
+        "max": 2242.876693999977
+      },
+      "cpuMs": {
+        "median": 2339.1639999999998,
+        "min": 2308.895,
+        "max": 2342.9080000000004
+      },
+      "maxRssMiB": {
+        "median": 232.33203125,
+        "min": 231.984375,
+        "max": 232.44140625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "content-related",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 1706.875372,
+        "min": 1628.191879,
+        "max": 1826.578148
+      },
+      "processWallMs": {
+        "median": 1935.6625760000315,
+        "min": 1857.5095030000084,
+        "max": 2053.431626000034
+      },
+      "cpuMs": {
+        "median": 1948.811,
+        "min": 1910.4879999999998,
+        "max": 2109.3469999999998
+      },
+      "maxRssMiB": {
+        "median": 226.3203125,
+        "min": 225.58203125,
+        "max": 229.2578125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "check-id",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 429.45900499999993,
+        "min": 424.693847,
+        "max": 430.932836
+      },
+      "processWallMs": {
+        "median": 677.4047269999865,
+        "min": 647.0335030000424,
+        "max": 706.529058999964
+      },
+      "cpuMs": {
+        "median": 636.308,
+        "min": 618.7529999999999,
+        "max": 638.22
+      },
+      "maxRssMiB": {
+        "median": 209.62109375,
+        "min": 207.7421875,
+        "max": 210.83203125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "check-full",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 2151.2553529999996,
+        "min": 1923.1833900000001,
+        "max": 2153.769467
+      },
+      "processWallMs": {
+        "median": 2396.563147000037,
+        "min": 2181.7307250000304,
+        "max": 2435.9766219999874
+      },
+      "cpuMs": {
+        "median": 2438.309,
+        "min": 2177.691,
+        "max": 2480.118
+      },
+      "maxRssMiB": {
+        "median": 272.15625,
+        "min": 268.4765625,
+        "max": 272.71875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "sync-preflight",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 3538.8791490000003,
+        "min": 3038.3440309999996,
+        "max": 3669.2233850000002
+      },
+      "processWallMs": {
+        "median": 3843.6055909999995,
+        "min": 3333.981692000001,
+        "max": 3955.192915999971
+      },
+      "cpuMs": {
+        "median": 3845.544,
+        "min": 3334.675,
+        "max": 3935.0409999999997
+      },
+      "maxRssMiB": {
+        "median": 292.91015625,
+        "min": 292.3203125,
+        "max": 293.1171875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "sync-current",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 3278.866154,
+        "min": 3102.84174,
+        "max": 3739.260069
+      },
+      "processWallMs": {
+        "median": 3704.764214999974,
+        "min": 3335.7594160000444,
+        "max": 4054.3915280000074
+      },
+      "cpuMs": {
+        "median": 3623.3360000000002,
+        "min": 3393.075,
+        "max": 4079.897
+      },
+      "maxRssMiB": {
+        "median": 292.70703125,
+        "min": 292.11328125,
+        "max": 295.20703125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "sync-write",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 2962.30975,
+        "min": 2917.518732,
+        "max": 3491.715486
+      },
+      "processWallMs": {
+        "median": 3186.2912979999674,
+        "min": 3159.525059000007,
+        "max": 3740.174650000001
+      },
+      "cpuMs": {
+        "median": 3292.893,
+        "min": 3211.493,
+        "max": 3955.178
+      },
+      "maxRssMiB": {
+        "median": 298.4296875,
+        "min": 298.1875,
+        "max": 315.86328125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "relations-preflight",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 3387.623907,
+        "min": 3362.1540139999997,
+        "max": 3529.787156
+      },
+      "processWallMs": {
+        "median": 3658.133400999999,
+        "min": 3615.4206240000203,
+        "max": 3819.416989999998
+      },
+      "cpuMs": {
+        "median": 3827.271,
+        "min": 3783.391,
+        "max": 3915.254
+      },
+      "maxRssMiB": {
+        "median": 362.42578125,
+        "min": 344.9140625,
+        "max": 362.45703125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "rename-preflight",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 4686.529409999999,
+        "min": 4613.271847,
+        "max": 4709.598437
+      },
+      "processWallMs": {
+        "median": 4930.883721999999,
+        "min": 4852.415289000026,
+        "max": 4956.095835999993
+      },
+      "cpuMs": {
+        "median": 5253.5419999999995,
+        "min": 5185.561,
+        "max": 5275.1849999999995
+      },
+      "maxRssMiB": {
+        "median": 389.85546875,
+        "min": 376.20703125,
+        "max": 390.4296875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "publish-preflight",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 4527.2728099999995,
+        "min": 4518.713750000001,
+        "max": 5462.561406
+      },
+      "processWallMs": {
+        "median": 4785.362366000016,
+        "min": 4764.839945999964,
+        "max": 5724.66169800004
+      },
+      "cpuMs": {
+        "median": 4959.082,
+        "min": 4915.031999999999,
+        "max": 5926.786
+      },
+      "maxRssMiB": {
+        "median": 371.85546875,
+        "min": 349.34765625,
+        "max": 379.68359375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "candidates",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 429.64239800000007,
+        "min": 410.372045,
+        "max": 433.76010199999996
+      },
+      "processWallMs": {
+        "median": 657.6899719999637,
+        "min": 639.9623230000725,
+        "max": 662.3922590001021
+      },
+      "cpuMs": {
+        "median": 645.106,
+        "min": 628.9459999999999,
+        "max": 684.435
+      },
+      "maxRssMiB": {
+        "median": 211.515625,
+        "min": 210.4921875,
+        "max": 211.65234375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "show-candidate",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 428.05856400000005,
+        "min": 404.886251,
+        "max": 438.639308
+      },
+      "processWallMs": {
+        "median": 675.6325120000402,
+        "min": 632.4729359999765,
+        "max": 678.2141469999915
+      },
+      "cpuMs": {
+        "median": 660.29,
+        "min": 610.701,
+        "max": 679.095
+      },
+      "maxRssMiB": {
+        "median": 212.7734375,
+        "min": 211.9375,
+        "max": 212.9140625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "micro-read-index",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 13.661968000000002,
+        "min": 13.385937000000013,
+        "max": 14.076513000000006
+      },
+      "processWallMs": {
+        "median": 242.07764000003226,
+        "min": 236.68790300004184,
+        "max": 246.5677700000815
+      },
+      "cpuMs": {
+        "median": 15.129,
+        "min": 15.097,
+        "max": 18.987000000000002
+      },
+      "maxRssMiB": {
+        "median": 126.2109375,
+        "min": 124.1484375,
+        "max": 127.6953125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "micro-json-parse",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 19.698363999999998,
+        "min": 18.48640899999998,
+        "max": 21.382472000000007
+      },
+      "processWallMs": {
+        "median": 248.6371269999072,
+        "min": 236.62775500002317,
+        "max": 262.59348599996883
+      },
+      "cpuMs": {
+        "median": 26.169,
+        "min": 22.935000000000002,
+        "max": 26.853
+      },
+      "maxRssMiB": {
+        "median": 129.6484375,
+        "min": 128.68359375,
+        "max": 130.19140625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "micro-parse-index",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 413.5564790000001,
+        "min": 403.94047299999994,
+        "max": 451.481426
+      },
+      "processWallMs": {
+        "median": 653.1948169999523,
+        "min": 634.8662710000062,
+        "max": 690.9260529999156
+      },
+      "cpuMs": {
+        "median": 621.6700000000001,
+        "min": 606.642,
+        "max": 687.046
+      },
+      "maxRssMiB": {
+        "median": 212.96484375,
+        "min": 210.70703125,
+        "max": 214.07421875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "micro-load-index",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 391.626012,
+        "min": 385.59419600000007,
+        "max": 442.290307
+      },
+      "processWallMs": {
+        "median": 624.7314099998912,
+        "min": 611.2025439999998,
+        "max": 673.8144489999395
+      },
+      "cpuMs": {
+        "median": 590.586,
+        "min": 582.546,
+        "max": 652.024
+      },
+      "maxRssMiB": {
+        "median": 208.7265625,
+        "min": 208.6328125,
+        "max": 208.8828125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "micro-read-sources",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 1132.9016709999999,
+        "min": 1119.615882,
+        "max": 1138.9541980000001
+      },
+      "processWallMs": {
+        "median": 1364.0824029999785,
+        "min": 1360.0496600000188,
+        "max": 1366.1362239998998
+      },
+      "cpuMs": {
+        "median": 1145.04,
+        "min": 1137.993,
+        "max": 1170.021
+      },
+      "maxRssMiB": {
+        "median": 156.703125,
+        "min": 156.12890625,
+        "max": 157.0390625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "micro-parse-markdown",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 116.64121599999999,
+        "min": 114.40082299999995,
+        "max": 127.82440399999996
+      },
+      "processWallMs": {
+        "median": 1523.2284479999216,
+        "min": 1469.6223890000256,
+        "max": 1533.5969970000442
+      },
+      "cpuMs": {
+        "median": 162.24800000000002,
+        "min": 157.41899999999998,
+        "max": 175.811
+      },
+      "maxRssMiB": {
+        "median": 191.95703125,
+        "min": 190.375,
+        "max": 192.18359375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "micro-query-loaded",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 353.281117,
+        "min": 347.57033,
+        "max": 353.777277
+      },
+      "processWallMs": {
+        "median": 969.0346150000114,
+        "min": 954.4909869999392,
+        "max": 1006.1894790000515
+      },
+      "cpuMs": {
+        "median": 473.78200000000004,
+        "min": 468.836,
+        "max": 476.495
+      },
+      "maxRssMiB": {
+        "median": 215.05078125,
+        "min": 213.40234375,
+        "max": 215.5546875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "micro-build-index",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 319.08570399999996,
+        "min": 277.87870799999996,
+        "max": 320.235499
+      },
+      "processWallMs": {
+        "median": 952.1796010000398,
+        "min": 944.8758480000542,
+        "max": 987.7457660000073
+      },
+      "cpuMs": {
+        "median": 424.104,
+        "min": 341,
+        "max": 446.9
+      },
+      "maxRssMiB": {
+        "median": 215.5234375,
+        "min": 215.3046875,
+        "max": 234.359375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "micro-graph-build",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 9.755892000000017,
+        "min": 9.487392999999997,
+        "max": 10.471001999999999
+      },
+      "processWallMs": {
+        "median": 633.6598440000089,
+        "min": 622.3424399999203,
+        "max": 680.0757759999251
+      },
+      "cpuMs": {
+        "median": 14.833,
+        "min": 14.338000000000001,
+        "max": 16.009
+      },
+      "maxRssMiB": {
+        "median": 210.07421875,
+        "min": 209.90234375,
+        "max": 211.02734375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 10000,
+      "operation": "micro-graph-validate",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 24.29703900000004,
+        "min": 23.561735,
+        "max": 26.328810999999973
+      },
+      "processWallMs": {
+        "median": 645.3750930000097,
+        "min": 643.5670829999726,
+        "max": 664.656886999961
+      },
+      "cpuMs": {
+        "median": 46.554,
+        "min": 45.619,
+        "max": 53.370999999999995
+      },
+      "maxRssMiB": {
+        "median": 218.26171875,
+        "min": 214.484375,
+        "max": 218.796875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "list",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 8955.055311999999,
+        "min": 7739.515189,
+        "max": 9205.727395
+      },
+      "processWallMs": {
+        "median": 9246.691825999878,
+        "min": 8049.286733999848,
+        "max": 9556.191820000298
+      },
+      "cpuMs": {
+        "median": 10448.185,
+        "min": 9152.754,
+        "max": 10666.094000000001
+      },
+      "maxRssMiB": {
+        "median": 803.5234375,
+        "min": 753.12109375,
+        "max": 845.78515625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "list-page",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 7963.175007,
+        "min": 7860.216059,
+        "max": 9331.425845
+      },
+      "processWallMs": {
+        "median": 8258.025876000058,
+        "min": 8148.476240000222,
+        "max": 9702.285372000188
+      },
+      "cpuMs": {
+        "median": 9366.908,
+        "min": 9219.325,
+        "max": 10921.381000000001
+      },
+      "maxRssMiB": {
+        "median": 775.7109375,
+        "min": 751.7890625,
+        "max": 790.70703125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "list-tag",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 7971.768689999999,
+        "min": 7439.767029000001,
+        "max": 8062.615444
+      },
+      "processWallMs": {
+        "median": 8282.087363000028,
+        "min": 7718.226011999883,
+        "max": 8340.039869000204
+      },
+      "cpuMs": {
+        "median": 9377.076000000001,
+        "min": 8721.678,
+        "max": 9550.803
+      },
+      "maxRssMiB": {
+        "median": 792.50390625,
+        "min": 755.18359375,
+        "max": 841.171875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "list-related",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 8002.315707999999,
+        "min": 7763.498892,
+        "max": 9087.456927
+      },
+      "processWallMs": {
+        "median": 8322.978077999782,
+        "min": 8039.39014799986,
+        "max": 9391.141871000174
+      },
+      "cpuMs": {
+        "median": 9450.148,
+        "min": 9154.615,
+        "max": 10724.426000000001
+      },
+      "maxRssMiB": {
+        "median": 796.09765625,
+        "min": 794.890625,
+        "max": 853.44140625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "list-type",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 7869.121005,
+        "min": 7767.294311,
+        "max": 8438.710821
+      },
+      "processWallMs": {
+        "median": 8176.4320640000515,
+        "min": 8043.676387000363,
+        "max": 8733.424099999946
+      },
+      "cpuMs": {
+        "median": 9320.338,
+        "min": 9217.797999999999,
+        "max": 9903.714
+      },
+      "maxRssMiB": {
+        "median": 820.25390625,
+        "min": 779.3515625,
+        "max": 827.19140625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "show-id",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 3843.508768,
+        "min": 3702.767549,
+        "max": 3924.8229269999997
+      },
+      "processWallMs": {
+        "median": 4117.264115999918,
+        "min": 3991.9673640001565,
+        "max": 4220.1658460004255
+      },
+      "cpuMs": {
+        "median": 4515.111,
+        "min": 4417.399,
+        "max": 4663.706999999999
+      },
+      "maxRssMiB": {
+        "median": 700.40625,
+        "min": 696.00390625,
+        "max": 711.71875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "show-name",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 3764.185385,
+        "min": 3591.909178,
+        "max": 4032.5011910000003
+      },
+      "processWallMs": {
+        "median": 4031.6390660000034,
+        "min": 3872.425685999915,
+        "max": 4343.2612310000695
+      },
+      "cpuMs": {
+        "median": 4504.81,
+        "min": 4260.113,
+        "max": 4874.4169999999995
+      },
+      "maxRssMiB": {
+        "median": 702.7578125,
+        "min": 679.3828125,
+        "max": 730.2734375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "trace",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 3840.5569450000003,
+        "min": 3575.8875989999997,
+        "max": 3952.908613
+      },
+      "processWallMs": {
+        "median": 4124.23573299963,
+        "min": 3865.7948389998637,
+        "max": 4227.207785999868
+      },
+      "cpuMs": {
+        "median": 4600.563999999999,
+        "min": 4315.08,
+        "max": 4763.75
+      },
+      "maxRssMiB": {
+        "median": 725.96484375,
+        "min": 713.609375,
+        "max": 743.8359375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "trace-capped",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 3733.119674,
+        "min": 3731.469353,
+        "max": 3793.835784
+      },
+      "processWallMs": {
+        "median": 4030.4838479999453,
+        "min": 4006.26172499964,
+        "max": 4065.7776850000955
+      },
+      "cpuMs": {
+        "median": 4492.169,
+        "min": 4454.1900000000005,
+        "max": 4558.0019999999995
+      },
+      "maxRssMiB": {
+        "median": 704.09765625,
+        "min": 695.1953125,
+        "max": 721.20703125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "metadata-rare",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 7564.2926640000005,
+        "min": 7555.252689,
+        "max": 8215.630473
+      },
+      "processWallMs": {
+        "median": 7852.002400999889,
+        "min": 7848.386633000337,
+        "max": 8500.401927999686
+      },
+      "cpuMs": {
+        "median": 8391.58,
+        "min": 8363.137,
+        "max": 9100.442000000001
+      },
+      "maxRssMiB": {
+        "median": 739.0859375,
+        "min": 733.14453125,
+        "max": 747.1640625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "metadata-common",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 8226.194194000002,
+        "min": 7987.947631000001,
+        "max": 11478.356220000001
+      },
+      "processWallMs": {
+        "median": 8540.911958999932,
+        "min": 8332.659767000005,
+        "max": 11778.946844999678
+      },
+      "cpuMs": {
+        "median": 9147.952,
+        "min": 8930.525,
+        "max": 12807.513
+      },
+      "maxRssMiB": {
+        "median": 757.25390625,
+        "min": 756.3984375,
+        "max": 777.4140625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "metadata-zero",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 7721.980419,
+        "min": 7658.328045,
+        "max": 8449.108848
+      },
+      "processWallMs": {
+        "median": 8016.7389030000195,
+        "min": 7977.761481999885,
+        "max": 8755.747291000094
+      },
+      "cpuMs": {
+        "median": 8502.863,
+        "min": 8485.769,
+        "max": 9339.055
+      },
+      "maxRssMiB": {
+        "median": 749.5859375,
+        "min": 747.25,
+        "max": 761.9140625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "content-unfiltered",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "error",
+      "actualStatuses": [
+        "error"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 15848.947337,
+        "min": 15682.932936000001,
+        "max": 20263.4034
+      },
+      "processWallMs": {
+        "median": 16127.450297000352,
+        "min": 15975.31279799994,
+        "max": 20599.307864999864
+      },
+      "cpuMs": {
+        "median": 16649.874,
+        "min": 16520.381,
+        "max": 20427.314
+      },
+      "maxRssMiB": {
+        "median": 815.70703125,
+        "min": 783.5703125,
+        "max": 854.84375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "content-tag",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "error",
+      "actualStatuses": [
+        "error"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 16184.709501,
+        "min": 15732.343333,
+        "max": 16916.817963
+      },
+      "processWallMs": {
+        "median": 16499.694674000144,
+        "min": 16053.26812699996,
+        "max": 17604.67295099981
+      },
+      "cpuMs": {
+        "median": 17118.652,
+        "min": 16622.773,
+        "max": 17742.033
+      },
+      "maxRssMiB": {
+        "median": 842.0078125,
+        "min": 790.88671875,
+        "max": 858.03515625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "content-related",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 15520.423244,
+        "min": 15396.846189,
+        "max": 17082.857959
+      },
+      "processWallMs": {
+        "median": 15811.971853000112,
+        "min": 15689.309340999927,
+        "max": 17454.640168000013
+      },
+      "cpuMs": {
+        "median": 16459.825,
+        "min": 16370.554,
+        "max": 17681.527000000002
+      },
+      "maxRssMiB": {
+        "median": 784.20703125,
+        "min": 783.2109375,
+        "max": 895.4375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "check-id",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 3854.0377740000004,
+        "min": 3841.983525,
+        "max": 3887.1247829999998
+      },
+      "processWallMs": {
+        "median": 4190.529068999924,
+        "min": 4131.709742999636,
+        "max": 4191.40340799978
+      },
+      "cpuMs": {
+        "median": 4633.911,
+        "min": 4577.624,
+        "max": 4635.767
+      },
+      "maxRssMiB": {
+        "median": 701.81640625,
+        "min": 701.74609375,
+        "max": 712.25
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "check-full",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 20844.358533,
+        "min": 20844.358533,
+        "max": 20844.358533
+      },
+      "processWallMs": {
+        "median": 21195.193099000026,
+        "min": 21195.193099000026,
+        "max": 21195.193099000026
+      },
+      "cpuMs": {
+        "median": 22360.686,
+        "min": 22360.686,
+        "max": 22360.686
+      },
+      "maxRssMiB": {
+        "median": 1279.1171875,
+        "min": 1279.1171875,
+        "max": 1279.1171875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "sync-preflight",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 31231.92444,
+        "min": 31231.92444,
+        "max": 31231.92444
+      },
+      "processWallMs": {
+        "median": 31626.791842000093,
+        "min": 31626.791842000093,
+        "max": 31626.791842000093
+      },
+      "cpuMs": {
+        "median": 32277.625,
+        "min": 32277.625,
+        "max": 32277.625
+      },
+      "maxRssMiB": {
+        "median": 1585.8125,
+        "min": 1585.8125,
+        "max": 1585.8125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "sync-current",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 29393.590931,
+        "min": 29393.590931,
+        "max": 29393.590931
+      },
+      "processWallMs": {
+        "median": 29756.012837999966,
+        "min": 29756.012837999966,
+        "max": 29756.012837999966
+      },
+      "cpuMs": {
+        "median": 30597.061999999998,
+        "min": 30597.061999999998,
+        "max": 30597.061999999998
+      },
+      "maxRssMiB": {
+        "median": 1596.09375,
+        "min": 1596.09375,
+        "max": 1596.09375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "sync-write",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 30926.67178,
+        "min": 30926.67178,
+        "max": 30926.67178
+      },
+      "processWallMs": {
+        "median": 31391.293518000282,
+        "min": 31391.293518000282,
+        "max": 31391.293518000282
+      },
+      "cpuMs": {
+        "median": 32640.733,
+        "min": 32640.733,
+        "max": 32640.733
+      },
+      "maxRssMiB": {
+        "median": 1537.265625,
+        "min": 1537.265625,
+        "max": 1537.265625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "relations-preflight",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 36561.022029,
+        "min": 36561.022029,
+        "max": 36561.022029
+      },
+      "processWallMs": {
+        "median": 37004.00746200001,
+        "min": 37004.00746200001,
+        "max": 37004.00746200001
+      },
+      "cpuMs": {
+        "median": 38148.022,
+        "min": 38148.022,
+        "max": 38148.022
+      },
+      "maxRssMiB": {
+        "median": 1867.8671875,
+        "min": 1867.8671875,
+        "max": 1867.8671875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "rename-preflight",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 48883.823457,
+        "min": 48883.823457,
+        "max": 48883.823457
+      },
+      "processWallMs": {
+        "median": 49393.106865999755,
+        "min": 49393.106865999755,
+        "max": 49393.106865999755
+      },
+      "cpuMs": {
+        "median": 51898.272,
+        "min": 51898.272,
+        "max": 51898.272
+      },
+      "maxRssMiB": {
+        "median": 1766.31640625,
+        "min": 1766.31640625,
+        "max": 1766.31640625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "publish-preflight",
+      "n": 1,
+      "completed": 1,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 49045.856586,
+        "min": 49045.856586,
+        "max": 49045.856586
+      },
+      "processWallMs": {
+        "median": 49405.43573300028,
+        "min": 49405.43573300028,
+        "max": 49405.43573300028
+      },
+      "cpuMs": {
+        "median": 50522.507,
+        "min": 50522.507,
+        "max": 50522.507
+      },
+      "maxRssMiB": {
+        "median": 1616.453125,
+        "min": 1616.453125,
+        "max": 1616.453125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "candidates",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 3966.0771689999997,
+        "min": 3790.056461,
+        "max": 4036.6751729999996
+      },
+      "processWallMs": {
+        "median": 4238.207858999725,
+        "min": 4066.203422999941,
+        "max": 4312.982990999706
+      },
+      "cpuMs": {
+        "median": 4874.849999999999,
+        "min": 4647.237999999999,
+        "max": 4923.6
+      },
+      "maxRssMiB": {
+        "median": 680.33984375,
+        "min": 673.578125,
+        "max": 688.91796875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "show-candidate",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 4044.1577029999994,
+        "min": 3873.602872,
+        "max": 4148.540703
+      },
+      "processWallMs": {
+        "median": 4400.224527999759,
+        "min": 4139.541143999901,
+        "max": 4415.276072000153
+      },
+      "cpuMs": {
+        "median": 4862.031000000001,
+        "min": 4711.771000000001,
+        "max": 5065.498
+      },
+      "maxRssMiB": {
+        "median": 681.71875,
+        "min": 651.734375,
+        "max": 688.55859375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "micro-read-index",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 101.893731,
+        "min": 98.93034800000001,
+        "max": 106.282287
+      },
+      "processWallMs": {
+        "median": 341.93364199995995,
+        "min": 332.0727170002647,
+        "max": 363.14748299960047
+      },
+      "cpuMs": {
+        "median": 123.38300000000001,
+        "min": 115.02799999999999,
+        "max": 126.423
+      },
+      "maxRssMiB": {
+        "median": 300.0390625,
+        "min": 299.578125,
+        "max": 300.4609375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "micro-json-parse",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 275.4351649999999,
+        "min": 231.44637799999998,
+        "max": 290.829296
+      },
+      "processWallMs": {
+        "median": 588.7044960004278,
+        "min": 536.6939729996957,
+        "max": 624.5675949999131
+      },
+      "cpuMs": {
+        "median": 339.069,
+        "min": 291.808,
+        "max": 437.028
+      },
+      "maxRssMiB": {
+        "median": 413.01171875,
+        "min": 412.96484375,
+        "max": 414.4921875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "micro-parse-index",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 4192.605833,
+        "min": 4101.833001,
+        "max": 4272.217177
+      },
+      "processWallMs": {
+        "median": 4562.458056000061,
+        "min": 4453.476702999789,
+        "max": 4643.695330999792
+      },
+      "cpuMs": {
+        "median": 5013.296,
+        "min": 4891.267,
+        "max": 5031.6720000000005
+      },
+      "maxRssMiB": {
+        "median": 736.6328125,
+        "min": 723.58203125,
+        "max": 737.76171875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "micro-load-index",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 3739.448747,
+        "min": 3688.022491,
+        "max": 4270.238493
+      },
+      "processWallMs": {
+        "median": 4034.34587199986,
+        "min": 3974.0322879999876,
+        "max": 4623.098182999995
+      },
+      "cpuMs": {
+        "median": 4486.394,
+        "min": 4419.26,
+        "max": 5117.762
+      },
+      "maxRssMiB": {
+        "median": 715.94140625,
+        "min": 708.5390625,
+        "max": 732.69140625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "micro-read-sources",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 10737.410481,
+        "min": 10700.471696,
+        "max": 11287.217043
+      },
+      "processWallMs": {
+        "median": 10991.60836099973,
+        "min": 10957.724623999558,
+        "max": 11594.678214000072
+      },
+      "cpuMs": {
+        "median": 10642.854,
+        "min": 10630.89,
+        "max": 11233.778
+      },
+      "maxRssMiB": {
+        "median": 400.45703125,
+        "min": 399.42578125,
+        "max": 400.96875
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "micro-parse-markdown",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 873.2941190000001,
+        "min": 838.4188180000001,
+        "max": 1219.0932950000006
+      },
+      "processWallMs": {
+        "median": 12673.09072499955,
+        "min": 12244.125329999719,
+        "max": 13540.487927999813
+      },
+      "cpuMs": {
+        "median": 994.197,
+        "min": 946.743,
+        "max": 1388.624
+      },
+      "maxRssMiB": {
+        "median": 417.2109375,
+        "min": 410.8125,
+        "max": 418.328125
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "micro-query-loaded",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 4313.916321,
+        "min": 4062.815308,
+        "max": 4386.518822999999
+      },
+      "processWallMs": {
+        "median": 8883.239459000062,
+        "min": 8314.649271000177,
+        "max": 9056.820175
+      },
+      "cpuMs": {
+        "median": 4986.994000000001,
+        "min": 4743.564,
+        "max": 5104.644
+      },
+      "maxRssMiB": {
+        "median": 785.2421875,
+        "min": 784.02734375,
+        "max": 842.97265625
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "micro-build-index",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 3519.520162,
+        "min": 3361.0263110000005,
+        "max": 3644.76242
+      },
+      "processWallMs": {
+        "median": 8032.200956000015,
+        "min": 7885.195753999986,
+        "max": 8078.034698000178
+      },
+      "cpuMs": {
+        "median": 4076.439,
+        "min": 3897.955,
+        "max": 4265.679
+      },
+      "maxRssMiB": {
+        "median": 806.34765625,
+        "min": 803.88671875,
+        "max": 846.984375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "micro-graph-build",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 96.0120649999999,
+        "min": 95.99620800000002,
+        "max": 96.77970800000003
+      },
+      "processWallMs": {
+        "median": 4412.359477000311,
+        "min": 4188.950823000167,
+        "max": 4743.675594999921
+      },
+      "cpuMs": {
+        "median": 125.76,
+        "min": 124.768,
+        "max": 127.171
+      },
+      "maxRssMiB": {
+        "median": 722.0859375,
+        "min": 718.58203125,
+        "max": 727.9609375
+      }
+    },
+    {
+      "domain": "investigation",
+      "size": 100000,
+      "operation": "micro-graph-validate",
+      "n": 3,
+      "completed": 3,
+      "expectedStatus": "ok",
+      "actualStatuses": [
+        "ok"
+      ],
+      "failures": [],
+      "elapsedMs": {
+        "median": 258.46214000000055,
+        "min": 236.88729800000056,
+        "max": 272.96405499999946
+      },
+      "processWallMs": {
+        "median": 4703.427254999988,
+        "min": 4540.276227999944,
+        "max": 4989.08478599973
+      },
+      "cpuMs": {
+        "median": 321.79499999999996,
+        "min": 307.332,
+        "max": 338.699
+      },
+      "maxRssMiB": {
+        "median": 744.85546875,
+        "min": 727.47265625,
+        "max": 793.32421875
+      }
+    }
+  ]
+}

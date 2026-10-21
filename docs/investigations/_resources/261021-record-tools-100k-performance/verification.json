@@ -1,0 +1,68 @@
+{
+  "status": "validated",
+  "methodStrictTypecheck": {
+    "status": "passed",
+    "files": 11,
+    "options": [
+      "strict",
+      "NodeNext",
+      "erasableSyntaxOnly",
+      "verbatimModuleSyntax",
+      "noEmit"
+    ]
+  },
+  "methodOxfmt": {
+    "status": "passed",
+    "files": 11
+  },
+  "independentRawStatisticsReview": {
+    "status": "passed",
+    "mainGroups": 124,
+    "mainSamples": 340,
+    "shapeSamples": 75
+  },
+  "semanticReview": "AI-Ready Docs reviewed; timing labels, scope, repetition, and priority clarified; no production code changes",
+  "reportPublication": {
+    "showCandidate": {
+      "scaffoldValid": true,
+      "bodyReady": true,
+      "resourceReady": true
+    },
+    "publishPreflight": "passed",
+    "publish": "committed",
+    "fullCheck": {
+      "status": "passed",
+      "reports": 68,
+      "indexCurrent": true
+    }
+  },
+  "projectCheck": {
+    "command": "bun run check",
+    "status": "passed",
+    "passed": 61,
+    "failed": 0,
+    "notApplicable": 3,
+    "unavailable": 0,
+    "elapsedSeconds": 78,
+    "completedAt": "2026-10-21T10:31:18.143332+00:00"
+  },
+  "measurementOutcomes": {
+    "observations": 439,
+    "mainCompleted": 339,
+    "shapeCompleted": 75,
+    "cliCompleted": 12,
+    "stageCompleted": 9,
+    "workerTimeouts": 4,
+    "nativeCandidateCapErrorsAreNotSuccessLatency": true
+  },
+  "productionSourceChanges": false,
+  "independentFinalReportReview": {
+    "status": "passed",
+    "scope": [
+      "439 observation inventory",
+      "raw/summary statistics",
+      "report numeric claims and measurement boundaries",
+      "resource fingerprints and links"
+    ]
+  }
+}

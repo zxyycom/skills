@@ -1,0 +1,34 @@
+{
+  "decision-10000": {
+    "exitCode": 0,
+    "signal": null,
+    "timedOut": false,
+    "processWallMs": 25915.902896,
+    "stdout": "{\"domain\":\"decision\",\"operation\":\"prepare\",\"size\":10000,\"status\":\"ok\",\"timing\":\"excluded\",\"records\":10000,\"active\":9000,\"archived\":1000,\"edges\":9000,\"tagVocabulary\":10,\"tagsPerRecord\":1,\"bodyBytes\":1077,\"indexBytes\":6915327}\n",
+    "stderr": ""
+  },
+  "decision-100000": {
+    "exitCode": 0,
+    "signal": null,
+    "timedOut": false,
+    "processWallMs": 262750.62070800003,
+    "stdout": "{\"domain\":\"decision\",\"operation\":\"prepare\",\"size\":100000,\"status\":\"ok\",\"timing\":\"excluded\",\"records\":100000,\"active\":90000,\"archived\":10000,\"edges\":90000,\"tagVocabulary\":10,\"tagsPerRecord\":1,\"bodyBytes\":1077,\"indexBytes\":69150957}\n",
+    "stderr": ""
+  },
+  "investigation-10000": {
+    "exitCode": 0,
+    "signal": null,
+    "timedOut": false,
+    "processWallMs": 7351.983650999959,
+    "stdout": "{\"domain\":\"investigation\",\"operation\":\"prepare\",\"size\":10000,\"summary\":{\"status\":\"ok\",\"formalRecords\":10000,\"candidateRecords\":1,\"edges\":9000,\"markdownBytes\":12579010,\"indexBytes\":5503272,\"setupNotMeasured\":true}}\n",
+    "stderr": ""
+  },
+  "investigation-100000": {
+    "exitCode": 0,
+    "signal": null,
+    "timedOut": false,
+    "processWallMs": 63488.12734499993,
+    "stdout": "{\"domain\":\"investigation\",\"operation\":\"prepare\",\"size\":100000,\"summary\":{\"status\":\"ok\",\"formalRecords\":100000,\"candidateRecords\":1,\"edges\":90000,\"markdownBytes\":125790100,\"indexBytes\":55030362,\"setupNotMeasured\":true}}\n",
+    "stderr": ""
+  }
+}

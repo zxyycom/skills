@@ -610,6 +610,53 @@
       ],
       "title": "Git 路径查询超长参数的独立修复"
     },
+    "261021-record-tools-100k-performance": {
+      "formedAt": "2026-10-21T09:01:29Z",
+      "name": "record-tools-100k-performance",
+      "question": "在10万条有效记录下，主要查询、图操作与维护操作的时间和内存开销在哪里，当前是否存在明显卡点或资源边界？",
+      "relations": [
+        {
+          "summary": "扩展到十万条有效记录，区分查询、图与维护成本",
+          "target": "261021-decision-investigation-first-batch-performance",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261021-record-tools-100k-performance/environment.txt",
+        "261021-record-tools-100k-performance/extra-summary.json",
+        "261021-record-tools-100k-performance/manifest.json",
+        "261021-record-tools-100k-performance/methods/cli-metrics.ts",
+        "261021-record-tools-100k-performance/methods/collector.ts",
+        "261021-record-tools-100k-performance/methods/decision-stage-worker.ts",
+        "261021-record-tools-100k-performance/methods/decision-worker.ts",
+        "261021-record-tools-100k-performance/methods/investigation-worker.ts",
+        "261021-record-tools-100k-performance/methods/measurement.ts",
+        "261021-record-tools-100k-performance/methods/shape-worker.ts",
+        "261021-record-tools-100k-performance/methods/stage-collector.ts",
+        "261021-record-tools-100k-performance/methods/summarize-extra.ts",
+        "261021-record-tools-100k-performance/methods/summarize.ts",
+        "261021-record-tools-100k-performance/methods/supplement.ts",
+        "261021-record-tools-100k-performance/observations.jsonl",
+        "261021-record-tools-100k-performance/preparation.json",
+        "261021-record-tools-100k-performance/protocol.md",
+        "261021-record-tools-100k-performance/stage.jsonl",
+        "261021-record-tools-100k-performance/static-audit.md",
+        "261021-record-tools-100k-performance/summary.csv",
+        "261021-record-tools-100k-performance/summary.json",
+        "261021-record-tools-100k-performance/supplement.jsonl",
+        "261021-record-tools-100k-performance/verification.json"
+      ],
+      "sourcePath": "record-tools-100k-performance.md",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "performance",
+        "relation-graph",
+        "scale-testing",
+        "skill-tooling"
+      ],
+      "title": "决策与调查工具十万条规模性能调查"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -1287,6 +1334,7 @@
       "261021-decision-investigation-constant-factor-audit": "sha256:aebf200dd653b679ceade0895bcd6114d42cc116824ad8b3857030fe1be1a25c",
       "261021-decision-investigation-first-batch-performance": "sha256:d7a5aa36f659472224a7741c965aff30309806671cb6a1a8769870d9b15a89f3",
       "261021-git-path-query-argument-batching": "sha256:b0a83a2e09905a66d96de4fc384397d34af0d504a0b06d4d97c82f7a8aa08085",
+      "261021-record-tools-100k-performance": "sha256:9523a88027b5be4b285661a65b0ee7854a6826814d980ec86a1e7baeabd884b6",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

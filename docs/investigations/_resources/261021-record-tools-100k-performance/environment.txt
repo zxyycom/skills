@@ -1,0 +1,15 @@
+Linux dev-container 6.18.33.2-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Thu Jun 18 21:54:43 UTC 2026 x86_64 GNU/Linux
+v26.8.2
+1.4.2
+git version 2.53.0
+6
+400000 100000
+6442450944
+               total        used        free      shared  buff/cache   available
+Mem:            7942        2420        1686           3        4062        5521
+Swap:           4096        1101        2994
+Filesystem     Type  1K-blocks      Used Available Use% Mounted on
+/dev/sdd       ext4 1055762868 101171404 900887992  11% /tmp
+/dev/sdd       ext4 1055762868 101171404 900887992  11% /workspace
+49db03d68dbb29333cf3171a59cebcda047ac6f1
+21eee404d05cf79c6f86e9181f01945ce817df63b99640d84c98ca47ff03a012  -

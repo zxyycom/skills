@@ -1,0 +1,138 @@
+{
+  "sourceRef": "5c95358bfd42d8da33d056500c707fc6d5e8069a",
+  "skillVersions": {
+    "decision-records": "85",
+    "investigation-report": "74"
+  },
+  "node": "26.8.2",
+  "bun": "1.4.2",
+  "pnpmLockSha256": "21eee404d05cf79c6f86e9181f01945ce817df63b99640d84c98ca47ff03a012",
+  "environmentCapturedAt": "2026-10-21T09:14:42Z",
+  "environmentWorkspaceHeadIsNotSourceRef": true,
+  "sourceSelection": [
+    "tools",
+    "skills/decision-records",
+    "skills/investigation-report",
+    "package.json",
+    "tsconfig.json",
+    ".oxlintrc.json",
+    ".oxfmtrc.json"
+  ],
+  "audit": {
+    "mainGroups": 124,
+    "mainSamples": 340,
+    "mainTimedOut": 1,
+    "shapeSamples": 75,
+    "cliSamples": 12,
+    "stageSamples": 12,
+    "stageTimedOut": 3
+  },
+  "resources": [
+    {
+      "path": "environment.txt",
+      "bytes": 694,
+      "sha256": "cd33725667df8c35804816e416f01ab87df4339668cdc024e18b6ba3621f7d11"
+    },
+    {
+      "path": "extra-summary.json",
+      "bytes": 89229,
+      "sha256": "b3691d9261bf251427337f3a2f1813d185e11ea1cb11e320f216e31b627d062d"
+    },
+    {
+      "path": "methods/cli-metrics.ts",
+      "bytes": 342,
+      "sha256": "c616a04f781fcc37dedf8222d5958d519f92e2f3caa6e6a9a5cb01f53ccfce81"
+    },
+    {
+      "path": "methods/collector.ts",
+      "bytes": 6369,
+      "sha256": "82a2cb598b9c88380fb145152267338b594778ddd5e13911aacb3f56847af4ee"
+    },
+    {
+      "path": "methods/decision-stage-worker.ts",
+      "bytes": 4308,
+      "sha256": "f8616be837fe8486e39b76d60563f2a0efcce5f02475180f25ea34af41bc6b46"
+    },
+    {
+      "path": "methods/decision-worker.ts",
+      "bytes": 20239,
+      "sha256": "218af84081be931ca57578fffe2c447e2fc7151e19adbddac1a1b0ea033c56d3"
+    },
+    {
+      "path": "methods/investigation-worker.ts",
+      "bytes": 26379,
+      "sha256": "0af7a56ccde398ad76e0141459cb66c3e5a974e104a3a2bf9ae0f2a3db0c3784"
+    },
+    {
+      "path": "methods/measurement.ts",
+      "bytes": 1534,
+      "sha256": "e6ea88bc103ce08440a7bcdbf4e07744009129ab404292abd554f1182462bb80"
+    },
+    {
+      "path": "methods/shape-worker.ts",
+      "bytes": 12754,
+      "sha256": "91f8bb5b659d618b05e4fb1956261256e5ef4358938ffe283b7225b05cd2c770"
+    },
+    {
+      "path": "methods/stage-collector.ts",
+      "bytes": 4244,
+      "sha256": "0f1d4950a37372ad455c3de1639c6bc51c333d4a1161e2824144a7668aa1680b"
+    },
+    {
+      "path": "methods/summarize-extra.ts",
+      "bytes": 4985,
+      "sha256": "1e68c58f7b6df7bdec714ad2810256a4b49efc63cc6cf750404f668bf18144d0"
+    },
+    {
+      "path": "methods/summarize.ts",
+      "bytes": 6269,
+      "sha256": "da4a906d667a907fa20c305d6a7b37929cab1361ac861a2203bdf6bd850c1e4e"
+    },
+    {
+      "path": "methods/supplement.ts",
+      "bytes": 6161,
+      "sha256": "3df07ee9cb37b3325f7979bff82aaee3f1f1e926c3b210e0c9fd9ab519263355"
+    },
+    {
+      "path": "observations.jsonl",
+      "bytes": 325016,
+      "sha256": "dde88373bfea39c80b5d17f789e8d3f7543e036b6169c48d4065510825943216"
+    },
+    {
+      "path": "preparation.json",
+      "bytes": 1684,
+      "sha256": "cdbf0ef3d306858c4599ba0649e87affe75ae8018d756adb0aba79e6bd387666"
+    },
+    {
+      "path": "protocol.md",
+      "bytes": 4027,
+      "sha256": "cbec511ed6b7501d3e88db7bb36d2e164f3bb13ee0817261147d2b9ebe599180"
+    },
+    {
+      "path": "stage.jsonl",
+      "bytes": 11577,
+      "sha256": "ba1f24a21c649b8ae380ca254e3f34d674ecc3acba5194c78101d4fd82b85bb8"
+    },
+    {
+      "path": "static-audit.md",
+      "bytes": 21223,
+      "sha256": "5f2932a431c3f757e5f9e30c36430289d1c574ff9373014677005b22a82629ae"
+    },
+    {
+      "path": "summary.csv",
+      "bytes": 14590,
+      "sha256": "f1f160867e481f3ef9505fc23417109e2af43f727829200069fb3a6a87df9811"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 89897,
+      "sha256": "dcd040c68e4bd9faaffc413635b337bc2ce9faec8cfae8dd47464239c9d230cc"
+    },
+    {
+      "path": "supplement.jsonl",
+      "bytes": 162097,
+      "sha256": "87f9a988f925d2eb38155144217c34270d2e038daf60247521d6e9cf053384ff"
+    }
+  ],
+  "fingerprintScope": "Frozen method and collected-evidence resources; report lists all resources. Manifest and final verification are outside this fingerprint list."
+}
