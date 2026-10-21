@@ -12,3 +12,5 @@ await import("../index-schema.test.ts");
 
 await import("../lazy-relation-graph/context.test.ts");
 await import("../lazy-relation-graph/queries.test.ts");
+
+await import("../search-metadata-window.test.ts");

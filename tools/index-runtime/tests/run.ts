@@ -8,6 +8,7 @@ await import("./protocol-query.test.ts");
 await import("./query.test.ts");
 await import("./runtime-schema.test.ts");
 await import("./runtime-reader.test.ts");
+await import("./reader-load.test.ts");
 await import("./runtime-refresh.test.ts");
 await import("./runtime-selected-sync.test.ts");
 await import("./staging-selection.test.ts");

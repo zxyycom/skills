@@ -23,6 +23,7 @@ await import("./staging-representation.test.ts");
 await import("./staging-source-path.test.ts");
 await import("./relations.test.ts");
 await import("./relation-context.test.ts");
+await import("./relation-dedup.test.ts");
 await import("./relation-order.test.ts");
 await import("./relation-review.test.ts");
 await import("./transaction.test.ts");

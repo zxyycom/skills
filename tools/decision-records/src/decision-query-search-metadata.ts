@@ -2,14 +2,22 @@ import {
   loadDecisionIndexSnapshot,
   type DecisionIndexSnapshot
 } from "./decision-index-snapshot.ts";
-import { decisionPublishedSnapshotSource } from "./decision-query-contract.ts";
-import { metadataSearchFacts } from "../../shared/src/file-text-search/record-search-info.ts";
+import {
+  decisionMetadataSearchDefaultLimit,
+  decisionPublishedSnapshotSource
+} from "./decision-query-contract.ts";
+import {
+  metadataSearchFacts,
+  searchLimitWarnings
+} from "../../shared/src/file-text-search/record-search-info.ts";
+import { stateIndexQueryMaximumLimit } from "../../index-runtime/src/index.ts";
 import path from "node:path";
 import {
   createTextSearchMatcher,
   matchTextSegments,
   TextSearchMatcherError
 } from "../../shared/src/file-text-search/index.ts";
+import type { TextSearchSegmentMatch } from "../../shared/src/file-text-search/segment-matcher.ts";
 import {
   decisionDiagnostic,
   decisionFailure,
@@ -41,9 +49,15 @@ type DecisionMetadataSegment =
   | Readonly<{ field: DecisionMetadataSearchField; kind: "field" }>
   | Readonly<{ kind: "relation"; relation: DecisionMetadataMatchedRelation }>;
 
+type DecisionMetadataSearchLimitResult =
+  | Readonly<{ status: "ok"; value: number }>
+  | Readonly<{ failure: DecisionApplicationFailure; status: "error" }>;
+
 export async function searchDecisionMetadata(
   request: Extract<DecisionQueryRequest, { command: "search" }>
 ): Promise<DecisionQueryResult> {
+  const limit = metadataSearchLimit(request.limit);
+  if (limit.status === "error") return limit.failure;
   const { decisionsDirectory, workspaceRoot } = resolveDecisionLocation(
     request.location
   );
@@ -54,7 +68,7 @@ export async function searchDecisionMetadata(
   const persisted = await loadDecisionIndexSnapshot({ decisionsDirectory });
   if (persisted.status === "error")
     return metadataIndexFailure(persisted, indexRelativePath);
-  return projectDecisionMetadata(persisted.value, request);
+  return projectMetadataWindow(persisted.value, request, limit.value);
 }
 
 /** 从已验证的发布快照计算元数据命中与搜索事实，不读取来源。 */
@@ -62,28 +76,51 @@ export function projectDecisionMetadata(
   source: readonly IndexedDecisionState[] | DecisionIndexSnapshot,
   request: Extract<DecisionQueryRequest, { command: "search" }>
 ): DecisionQueryResult {
+  const limit = metadataSearchLimit(request.limit);
+  if (limit.status === "error") return limit.failure;
+  return projectMetadataWindow(source, request, limit.value);
+}
+
+function projectMetadataWindow(
+  source: readonly IndexedDecisionState[] | DecisionIndexSnapshot,
+  request: Extract<DecisionQueryRequest, { command: "search" }>,
+  limit: number
+): DecisionQueryResult {
   const matcher = metadataMatcher(request);
   if (matcher.status === "error") return matcher.failure;
   const snapshot = decisionIndexRecordSnapshot(source);
   const filtered = filterSearchRecords(snapshot, request);
   if (filtered.status === "error") return filtered.failure;
   const records: DecisionMetadataSearchRecord[] = [];
+  let matchedCount = 0;
   for (const record of [...filtered.records].sort((left, right) =>
     left.sourcePath.localeCompare(right.sourcePath)
   )) {
     const matched = metadataRecordMatches(matcher.value, record);
     if (matched.status === "error") return matched.failure;
-    if (matched.value !== null) records.push(matched.value);
+    if (matched.value.length === 0) continue;
+    matchedCount += 1;
+    if (records.length < limit) {
+      records.push(metadataSearchRecord(record, matched.value));
+    }
   }
-  return metadataSearchSuccess(request, filtered.filters, records);
+  return metadataSearchSuccess(
+    request,
+    filtered.filters,
+    records,
+    matchedCount,
+    limit
+  );
 }
 
 function metadataSearchSuccess(
   request: Extract<DecisionQueryRequest, { command: "search" }>,
   filters: DecisionSearchFilters,
-  records: DecisionMetadataSearchRecord[]
+  records: DecisionMetadataSearchRecord[],
+  matched: number,
+  limit: number
 ): Extract<DecisionQueryResult, { command: "search"; in: "metadata" }> {
-  const facts = metadataSearchFacts(records.length, records.length, null);
+  const facts = metadataSearchFacts(matched, records.length, limit);
   return {
     searchInfo: {
       query: {
@@ -101,7 +138,32 @@ function metadataSearchSuccess(
     in: "metadata",
     records,
     status: "ok",
-    warnings: []
+    warnings: searchLimitWarnings(facts.coverage)
+  };
+}
+
+function metadataSearchLimit(
+  requested: number | undefined
+): DecisionMetadataSearchLimitResult {
+  const limit =
+    requested === undefined ? decisionMetadataSearchDefaultLimit : requested;
+  if (
+    Number.isSafeInteger(limit) &&
+    limit >= 1 &&
+    limit <= stateIndexQueryMaximumLimit
+  ) {
+    return { status: "ok", value: limit };
+  }
+  return {
+    status: "error",
+    failure: decisionFailure([
+      decisionDiagnostic({
+        code: "decision-records.invalid-search-options",
+        reason: `limit must be an integer from 1 to ${stateIndexQueryMaximumLimit}.`,
+        recovery: "Provide a valid metadata result limit, then retry.",
+        target: "Decision metadata search limit"
+      })
+    ])
   };
 }
 
@@ -127,30 +189,38 @@ function metadataRecordMatches(
   matcher: ReturnType<typeof createTextSearchMatcher>,
   record: IndexedDecisionRecord
 ):
-  | { status: "ok"; value: DecisionMetadataSearchRecord | null }
+  | {
+      status: "ok";
+      value: readonly TextSearchSegmentMatch<DecisionMetadataSegment>[];
+    }
   | { failure: DecisionApplicationFailure; status: "error" } {
   try {
-    const matches = matchTextSegments(matcher, metadataSegments(record));
-    if (matches.length === 0) return { status: "ok", value: null };
-    const matchedFields = new Set<DecisionMetadataSearchField>();
-    const matchedRelations: DecisionMetadataMatchedRelation[] = [];
-    for (const { identifier } of matches) {
-      if (identifier.kind === "field") matchedFields.add(identifier.field);
-      else matchedRelations.push(identifier.relation);
-    }
     return {
       status: "ok",
-      value: {
-        ...record,
-        matchedFields: decisionMetadataSearchFields.filter((field) =>
-          matchedFields.has(field)
-        ),
-        matchedRelations
-      }
+      value: matchTextSegments(matcher, metadataSegments(record))
     };
   } catch (error) {
     return { failure: metadataMatcherFailure(error), status: "error" };
   }
+}
+
+function metadataSearchRecord(
+  record: IndexedDecisionRecord,
+  matches: readonly TextSearchSegmentMatch<DecisionMetadataSegment>[]
+): DecisionMetadataSearchRecord {
+  const matchedFields = new Set<DecisionMetadataSearchField>();
+  const matchedRelations: DecisionMetadataMatchedRelation[] = [];
+  for (const { identifier } of matches) {
+    if (identifier.kind === "field") matchedFields.add(identifier.field);
+    else matchedRelations.push(identifier.relation);
+  }
+  return {
+    ...record,
+    matchedFields: decisionMetadataSearchFields.filter((field) =>
+      matchedFields.has(field)
+    ),
+    matchedRelations
+  };
 }
 
 function metadataSegments(

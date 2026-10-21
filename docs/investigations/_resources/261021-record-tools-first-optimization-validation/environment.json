@@ -1,0 +1,15 @@
+{
+  "recordedAt": "2026-10-21T14:37:25.006Z",
+  "node": "v26.8.2",
+  "bun": "1.4.2",
+  "platform": "linux",
+  "release": "6.18.33.2-microsoft-standard-WSL2",
+  "architecture": "x64",
+  "cpusVisible": 4,
+  "cpuModel": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+  "memoryMax": "6442450944",
+  "cpuMax": "400000 100000",
+  "filesystem": "ext2/ext3",
+  "baseline": "063115bdf290efa66a2d925b33d14ba33395b1a3",
+  "nodeMaxOldSpaceMiB": 4096
+}

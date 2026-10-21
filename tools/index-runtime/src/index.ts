@@ -19,7 +19,9 @@ export {
 } from "./runtime.ts";
 export {
   loadCurrentStateIndex,
+  loadCurrentStateIndexReader,
   loadStateIndex,
+  loadStateIndexReader,
   syncStateIndex
 } from "./storage.ts";
 export {

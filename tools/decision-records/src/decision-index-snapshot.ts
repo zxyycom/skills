@@ -5,9 +5,11 @@ import {
 } from "./relation-graph.ts";
 import { isDecisionId } from "./decision-path.ts";
 import {
-  loadCurrentStateIndex,
-  loadStateIndex,
+  loadCurrentStateIndexReader,
+  loadStateIndexReader,
+  parseStateIndex,
   queryStateIndex,
+  type ReadonlyStateIndex,
   type StateIndex,
   type StateIndexContext,
   type StateIndexResult
@@ -40,7 +42,7 @@ export async function loadDecisionIndexSnapshot(
   options: DecisionIndexLoadOptions
 ): Promise<StateIndexResult<DecisionIndexSnapshot>> {
   const indexPath = options.indexPath ?? decisionIndexFileName;
-  const loaded = await loadStateIndex({
+  const loaded = await loadStateIndexReader({
     context: {
       root: options.decisionsDirectory,
       ...(options.signal === undefined ? {} : { signal: options.signal })
@@ -54,7 +56,7 @@ export async function loadDecisionIndexSnapshot(
   });
   return loaded.status === "error"
     ? loaded
-    : validateDecisionIndexSnapshot(loaded.value, indexPath);
+    : decisionIndexSnapshotFromValidatedIndex(loaded.value.index, indexPath);
 }
 
 type CurrentDecisionIndexLoadOptions = DecisionIndexLoadOptions & {
@@ -72,7 +74,7 @@ export async function loadCurrentDecisionIndexSnapshot(
   const definition = createDecisionStateIndexDefinition({
     decisionIds: options.decisionIds
   });
-  const current = await loadCurrentStateIndex({
+  const current = await loadCurrentStateIndexReader({
     context,
     definition,
     indexPath
@@ -80,7 +82,10 @@ export async function loadCurrentDecisionIndexSnapshot(
   if (current.status === "error") {
     return current;
   }
-  const validated = validateDecisionIndexSnapshot(current.value, indexPath);
+  const validated = decisionIndexSnapshotFromValidatedIndex(
+    current.value.index,
+    indexPath
+  );
   if (validated.status === "error") {
     return validated;
   }
@@ -155,6 +160,37 @@ export function validateDecisionIndexSnapshot(
       value: null
     };
   }
+  return decisionIndexSnapshotFromValidatedIndex(index, sourcePath);
+}
+
+export function parseDecisionIndexSnapshot(
+  text: string,
+  sourcePath: string
+): StateIndexResult<DecisionIndexSnapshot> {
+  const parsed = parseStateIndex({
+    definition: createDecisionStateIndexDefinition(),
+    expectation: {
+      definitionVersion: decisionIndexDefinitionVersion,
+      namespace: decisionIndexNamespace
+    },
+    sourcePath,
+    text
+  });
+  return parsed.status === "error"
+    ? parsed
+    : decisionIndexSnapshotFromValidatedIndex(parsed.value, sourcePath);
+}
+
+function decisionIndexSnapshotFromValidatedIndex(
+  validatedIndex: ReadonlyStateIndex<DecisionIndexState, DecisionIndexMetadata>,
+  sourcePath: string
+): StateIndexResult<DecisionIndexSnapshot> {
+  // The strict parser/loader proved this domain shape. Existing query DTOs use
+  // mutable array types, while the snapshot's actual values stay frozen.
+  const index = validatedIndex as StateIndex<
+    DecisionIndexState,
+    DecisionIndexMetadata
+  >;
   const entries = Object.entries(index.entries).map(([id, state]) => ({
     id,
     state

@@ -222,6 +222,7 @@
       "DECISION-METADATA-REMOVED-001": "sha256:819209237e17d908016aeb03a95fe07f6db994a10a3a25b5efe20a2e514a1689",
       "DECISION-METADATA-SEARCH-001": "sha256:40dfcfb67ca1af1eef6514c62d7257f0b696ab250b334993f3c422a49bb990c1",
       "DECISION-METADATA-SEARCH-INDEX-001": "sha256:617baea23c6c3cca5b1a654a77cb5807b72bc09b074613246716bcd504ac4c9d",
+      "DECISION-METADATA-WINDOW-001": "sha256:157896aec521b28bbfd74ae36014736074db7a9da0e45d43044f6462d22102b4",
       "DECISION-PUBLISHED-INDEX-FAIL-CLOSED-001": "sha256:9d5e03734ba5418d7c780bb0be739d841d369ff081047ec45962d3d7a29d55b2",
       "DECISION-PUBLISHED-QUERY-NO-SOURCE-001": "sha256:474520c2e7a72e87240d47cce48c8380710403849777a431804aee27e83149f7",
       "DECISION-QUERY-HELP-SEMANTICS-001": "sha256:a3cb65343993840370a09b0066f578120f9f3c1565b322fe97f597064edc07b4",
@@ -265,6 +266,7 @@
       "DECISION-RENAME-RELATIONS-001": "sha256:1741d86009416ec3f4fc1885f6a5a5a557ac29479909fec985226e346702e911",
       "DECISION-RENAME-SELECTOR-001": "sha256:4e914bc56a8d44bb125836c4175e4139da740085607ef503c3ba4e4e6442a772",
       "DECISION-SCAN-FILESYSTEM-DIAGNOSTIC-001": "sha256:2585ae18736976feba5ecb25c138ef01ce9319015dbb1aa201b2ff1edf3de4e9",
+      "DECISION-SCAN-INDEX-REUSE-001": "sha256:e82d5e27a26444fdc1549ccd5f92f1cd2a323cd642be3ee883215b36f6ca00fd",
       "DECISION-SEARCH-FALLBACK-001": "sha256:55062798751d22321c12e0e3b6bf8dbff3fb0370a144529254ef63371417f2d3",
       "DECISION-SEARCH-HELP-001": "sha256:8422eb0dc35c2a1e4aca980da480ad1d8b4131f1d39f3ff43c84aadc554d6f4d",
       "DECISION-SEARCH-MODES-001": "sha256:adbf47fd93e39d70349a83388f2600f55e52f70b88f721c70f420baa27c9e232",
@@ -482,6 +484,7 @@
       "INDEX-RUNTIME-READER-001": "sha256:b9ddd566fb5f950636606ca9480dad766018f2a2275637c7a263c75427785ea0",
       "INDEX-RUNTIME-READER-002": "sha256:44c4c5d33930c9f198da63901bd7a0959ac77fb64a59b07fed6032de5c8257e4",
       "INDEX-RUNTIME-READER-003": "sha256:dbeae2832be5bab5b6927948dead61ca54393f6e6a24a333f1f0cec3b7024fbd",
+      "INDEX-RUNTIME-READER-LOAD-001": "sha256:7bf1ca6a8ab661b306ca758b2f72d706c7e8a0c1df9d4c52722f9c652760a550",
       "INDEX-RUNTIME-RUNTIME-001": "sha256:69c4367689a67d3ff483783f354b0e34fa766a02354acbd439e66425f39aed7c",
       "INDEX-RUNTIME-RUNTIME-OVERLAY-001": "sha256:76c413b0cc2c290113d07d331edf039ac6b766e87270cb33a1373f9969cc7056",
       "INDEX-RUNTIME-SCHEMA-001": "sha256:89ee8fc56a6e7c1054bc3ab72ed0c218c3091258d1556c6a830af6d5c7653603",
@@ -636,6 +639,7 @@
       "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:4591b6b6b59f39ba32510e9535bf7c3d4c96785abf6f5af844e431dc0de5c2f6",
       "INVESTIGATION-QUERY-SOURCE-PATH-001": "sha256:63ddff121b2792bf621e0f822464f149352164185dbda16008c05aab6b4d8e89",
       "INVESTIGATION-QUERY-STALENESS-001": "sha256:dc8f9862fe101da55252453dcf1774be5e2f1d1db232e288c0580ac8059bc551",
+      "INVESTIGATION-RELATION-DEDUP-001": "sha256:0a9f70fb833a88014a7df213b09163df84a8149331cdcd2ba27d294edb1ddbd9",
       "INVESTIGATION-RELATION-FILTER-002": "sha256:999a73884462e4540aa09fd1637e8c48a2693623bd17869769d1d76d722b1005",
       "INVESTIGATION-RELATION-FILTER-EVIDENCE-001": "sha256:9081bf4e8ecaf5bfa2bb604aa40a46d30f9296d2367743a2c68d9d71647590b1",
       "INVESTIGATION-RELATION-GIT-HEAD-001": "sha256:06c11cb696acbbd80f491e9ec2f0a4d89f486821d271ad065b34db6b00a67c02",
@@ -918,7 +922,7 @@
       "RECORD-SEARCH-COUNTS-001": "sha256:6e44dae3758168a1da9c56f4ff99d7ff7e6e6f876f4c5c636aff9e56111566a4",
       "RECORD-SEARCH-FAILURE-001": "sha256:7f4d1189861c5a8eea17aace062106c898ff89d18a2a5ed493517f7e1894460d",
       "RECORD-SEARCH-FALLBACK-001": "sha256:35cd34f80d78a97d3f152c43d7ca8b6c6f52f84a1a5dc8c27af5c5045fd22c86",
-      "RECORD-SEARCH-FILTERS-001": "sha256:f00a36c3cb1b145321565bccf2b62dae7a95a3c70d3fdef1eac7364bf353c383",
+      "RECORD-SEARCH-FILTERS-001": "sha256:8ffdf718a6925a3c7f55b55b4eda63c06b864dd3bf3895e24232b628d6d2cd73",
       "RECORD-SEARCH-OUTPUT-001": "sha256:4cde8b6651fad31415fed8996b5511767ba1289cd807f8ae48df8443e819666d",
       "RECORD-SEARCH-PREVIEWS-001": "sha256:a6072e6effe4a51ffe224468b199d911c3abda0f8e4a425d471106f8f0756e3f",
       "RECORD-SEARCH-SOURCE-001": "sha256:d48b47f0f65f58b64776a684309b6c5d7995bd91f2e46e01c38608dd940a50d6",
@@ -3430,6 +3434,22 @@
         "test:1e1c17cfe9b5f996261a8ef59cbaa83eceded11228d22fb106ce243b90c670ed"
       ]
     },
+    "DECISION-METADATA-WINDOW-001": {
+      "title": "元数据搜索限制返回窗口并保留全量精确匹配",
+      "sourcePath": "cases/decision-metadata-window-001.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:1c8a1de5c8b1c40878318059bc5a0fa1515f7361cc067d89919afdcc0076ea75",
+        "test:53ecb194fcac075da4b69fe3b90995a149d5dadbf7808dd34350d5db4b230724",
+        "test:7101133e78e6607537281920b215c10aa3ed71d31279a06b689dc1adbdf3aacc",
+        "test:88e7e0c971985c3387b3e2a7042621046b48fba64e1238d5d9548ec1df929752",
+        "test:ae21650f5a9238e78ae94bac0b5036ec4829105f882045354ed75ad303c79c5e",
+        "test:bc6b738e89eaa8e6b5e5b9a0baa75d5cb845f4325f75ace5ee807c03db8a8206",
+        "test:c0a474a591b9a45c247246b4d6958379b89d7535087bac35a01d7ddf8e14c4db"
+      ]
+    },
     "DECISION-PUBLISHED-INDEX-FAIL-CLOSED-001": {
       "title": "发布索引异常与非法领域图保持失败",
       "sourcePath": "cases/decision-published-index-fail-closed.md",
@@ -3859,6 +3879,19 @@
       ],
       "testIds": [
         "test:8540cb4dc025f7d40bd653258e221fe0a2031c1241f23b54622db8be1f5f0bfb"
+      ]
+    },
+    "DECISION-SCAN-INDEX-REUSE-001": {
+      "title": "同轮来源检查复用并保留独立漂移验证",
+      "sourcePath": "cases/decision-scan-index-reuse.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:10be3894f60837c5ad666daeb00cdf9813f0494bdc1d6ee0681549a7ce57b37c",
+        "test:55f02e74fefca13418ac704c03965cf8da8f810aaffa3f596b43f50f964d066e",
+        "test:6be46e3773a6916f8d5d11a8a08ea31c39683fa0c22f9d0f8bcf4278b652e5e3",
+        "test:becfd5c1b1a6cf6eff5c562c480afcee4d2f12cef1b577602f16717a7588247d"
       ]
     },
     "DECISION-SEARCH-FALLBACK-001": {
@@ -6091,6 +6124,19 @@
         "test:0f2aaac701c01caec77f91f41f17597093082adb256bb95dc22d9b14785b1e95"
       ]
     },
+    "INDEX-RUNTIME-READER-LOAD-001": {
+      "title": "严格加载并复用本次 reader 快照",
+      "sourcePath": "cases/index-runtime-reader-load-reuse.md",
+      "tags": [
+        "index-runtime"
+      ],
+      "testIds": [
+        "test:0b3ef6ec8312c1f18ed3734876364dfde1a7d39e823bcafa17f91691060a72dc",
+        "test:4f5e67794ff44803e0a733701d35036465801abad5e904657ae95c0f08a4b9aa",
+        "test:cd2c264bc20e024600e774a5468cb4ff56a77f02a75da6e869f6251d390e9ac0",
+        "test:d24d6566c477d2103267525d348caf8d2caf6cd303860752e7547eb739580666"
+      ]
+    },
     "INDEX-RUNTIME-RUNTIME-001": {
       "title": "通过直接操作查询并获取运行时状态",
       "sourcePath": "cases/index-runtime-runtime-001.md",
@@ -7664,6 +7710,18 @@
       ],
       "testIds": [
         "test:8003446d3824c4f6cce4f04fd3aae29e1b4db26552973b3a51769c7eab086ff5"
+      ]
+    },
+    "INVESTIGATION-RELATION-DEDUP-001": {
+      "title": "关系证据按三元组去重并保留首次投影",
+      "sourcePath": "cases/investigation-relation-dedup.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:8f596e1b735ece3e54a51cf5b66e9632d1ac073295e1c25cba940bd3f93cf2ff",
+        "test:a01c02ea94dcd668f3bda224ed352215f50fd979dd89dea6affcf7a0c59f07ec",
+        "test:d199bba1ea029785c99f28137fdf9db601761d8756611715208b9827c2e687b3"
       ]
     },
     "INVESTIGATION-RELATION-FILTER-002": {

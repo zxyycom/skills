@@ -114,7 +114,7 @@ export function queryMaterializedStateIndex<
   Metadata extends JsonObject
 >(options: {
   definition: StateIndexDefinition<State, Metadata>;
-  entries: MaterializedStateIndexEntry<State>[];
+  entries: readonly MaterializedStateIndexEntry<State>[];
   index: StateIndex<State, Metadata>;
   query?: StateIndexQuery;
 }): StateIndexResult<StateIndexQueryOutput<State, Metadata>> {
@@ -168,7 +168,13 @@ export function materializeEffectiveEntries<
   index: StateIndex<State, Metadata>;
   runtimeStates?: StateRecord<State>;
   staticEntries?: readonly MaterializedStateIndexEntry<State>[];
-}): StateIndexResult<MaterializedStateIndexEntry<State>[]> {
+}): StateIndexResult<readonly MaterializedStateIndexEntry<State>[]> {
+  if (
+    options.runtimeStates === undefined &&
+    options.staticEntries !== undefined
+  ) {
+    return { diagnostics: [], status: "ok", value: options.staticEntries };
+  }
   if (
     options.runtimeStates !== undefined &&
     !isPlainRecord(options.runtimeStates)

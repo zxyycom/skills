@@ -35,15 +35,16 @@ const decisionRecordInputs = [
   "tools/decision-records/src/decision-query-context.ts",
   "tools/decision-records/tests/{support,support-record-fixture,support-git-fixture,domain-fixture,run}.ts",
   "tools/decision-records/tests/fixtures/**",
-  "tools/decision-records/tests/{metadata,body-field-validation,type-path-invariants,record-guards,layout-index,relation-validation,trace-event-admission,state-snapshot,source-discovery,trace-admission-complexity}.test.ts",
+  "tools/decision-records/tests/{metadata,body-field-validation,type-path-invariants,record-guards,layout-index,relation-validation,trace-event-admission,state-snapshot,source-discovery,scan-index-reuse,trace-admission-complexity}.test.ts",
   "tools/decision-records/tests/{record-guards,metadata}/**",
   "tools/decision-records/tests/queries/snapshot-fixture.ts",
   "tools/decision-records/tests/checks/record-and-established-graph.ts"
 ];
 const decisionQueryInputs = [
   "tools/decision-records/src/decision-query*.ts",
-  "tools/decision-records/tests/{index-maintenance,list-facets,queries,cli-output-trace,query-snapshot,query-loaded-snapshot,relation-filter-complexity,index-schema,search-info}.test.ts",
+  "tools/decision-records/tests/{index-maintenance,list-facets,queries,cli-output-trace,query-snapshot,query-loaded-snapshot,relation-filter-complexity,index-schema,search-info,search-metadata-window}.test.ts",
   "tools/decision-records/tests/{queries,index-maintenance,lazy-relation-graph}/**",
+  "tools/decision-records/tests/search-metadata-window-fixture.ts",
   "tools/decision-records/tests/checks/query-and-index-projection.ts"
 ];
 const decisionMaintenanceInputs = [
@@ -75,7 +76,7 @@ const investigationRecordInputs = [
 const investigationQueryInputs = [
   "tools/investigation-report/src/{index-staleness,list-*,query*,trace-output}.ts",
   "tools/investigation-report/tests/index-fixture.ts",
-  "tools/investigation-report/tests/{index-*,current-index,list-facets,acquisition-contract,identity-membership,candidate-read-failure,snapshot-check-contract,trace-output,search-info,relation-context,relation-order}.test.ts",
+  "tools/investigation-report/tests/{index-*,current-index,list-facets,acquisition-contract,identity-membership,candidate-read-failure,snapshot-check-contract,trace-output,search-info,relation-context,relation-order,relation-dedup}.test.ts",
   "tools/investigation-report/tests/relation-context-support.ts",
   "tools/investigation-report/tests/checks/index-and-query.ts"
 ];

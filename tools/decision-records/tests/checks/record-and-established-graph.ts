@@ -9,3 +9,5 @@ await import("../state-snapshot.test.ts");
 await import("../source-discovery.test.ts");
 
 await import("../trace-admission-complexity.test.ts");
+
+await import("../scan-index-reuse.test.ts");

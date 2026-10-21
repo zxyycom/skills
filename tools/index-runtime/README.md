@@ -103,6 +103,8 @@ Valibot Schema 是索引外壳和查询输入的真源。持久索引固定为�
 
 `loadCurrentStateIndex` 和 `runtime.open()` 先用私有通用 envelope parser 校验 schema、definition identity、ID/revision 成员，再调用一次 `readRevision`。不 current 的 snapshot 在读取领域 state parser、字段提取或集合 validator 前快速失败；current snapshot 随后严格解析全部 metadata/state、验证全部查询字段和集合契约。
 
+`loadStateIndexReader` 与 `loadCurrentStateIndexReader` 分别在同一严格 load/current 边界内建立 reader，后者保持一次 revision 读取和 stale 优先顺序；`runtime.open()` 使用后者。需要在一次操作中同时检查索引投影和查询时，读取递归只读的 `reader.index` 并调用该 reader 的 `query/get/all`，不把已验证投影重新交给原始索引查询入口。reader 建立时固定 definition 和 snapshot，后续文件或调用方输入变化不影响它；公开原始索引入口仍各自严格校验，不以冻结状态或调用方声明代替验证。
+
 reader 为当前 snapshot 的每个 entry 物化私有 `{ id, state, queryValues }` 并缓存；查询值不进入持久索引或公开 entry。一个 reader 的后续 `get/query/all` 不再读取 revision，也不重复提取静态查询值。要观察新 revision，必须重新 `open`。公开 entry 始终只有 `{ id, state }`，公开 metadata、state 和完整索引 view 都是与调用方输入分离的递归冻结快照。
 
 查询支持：

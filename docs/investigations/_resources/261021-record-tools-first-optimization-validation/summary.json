@@ -1,0 +1,167 @@
+{
+  "verifiedAt": "2026-10-21T14:41:07.561331+00:00",
+  "observations": 26,
+  "summary": [
+    {
+      "operation": "ir-evidence",
+      "n": 1000,
+      "samplesPerVariant": 1,
+      "equivalence": "same full JSON SHA256",
+      "before": {
+        "medianMs": 6.809086000000008,
+        "minMs": 6.809086000000008,
+        "maxMs": 6.809086000000008,
+        "medianPeakRssMiB": 110.65625,
+        "jsonBytes": 110917,
+        "markdownReadCount": 0
+      },
+      "after": {
+        "medianMs": 3.797777999999994,
+        "minMs": 3.797777999999994,
+        "maxMs": 3.797777999999994,
+        "medianPeakRssMiB": 109.89453125,
+        "jsonBytes": 110917,
+        "markdownReadCount": 0
+      },
+      "reductionPercent": 44.22484897385656
+    },
+    {
+      "operation": "ir-evidence",
+      "n": 10000,
+      "samplesPerVariant": 1,
+      "equivalence": "same full JSON SHA256",
+      "before": {
+        "medianMs": 238.27212600000001,
+        "minMs": 238.27212600000001,
+        "maxMs": 238.27212600000001,
+        "medianPeakRssMiB": 129.78515625,
+        "jsonBytes": 1109917,
+        "markdownReadCount": 0
+      },
+      "after": {
+        "medianMs": 25.023248999999964,
+        "minMs": 25.023248999999964,
+        "maxMs": 25.023248999999964,
+        "medianPeakRssMiB": 134.22265625,
+        "jsonBytes": 1109917,
+        "markdownReadCount": 0
+      },
+      "reductionPercent": 89.49803763449864
+    },
+    {
+      "operation": "ir-evidence",
+      "n": 100000,
+      "samplesPerVariant": 1,
+      "equivalence": "same full JSON SHA256",
+      "before": {
+        "medianMs": 27927.295318,
+        "minMs": 27927.295318,
+        "maxMs": 27927.295318,
+        "medianPeakRssMiB": 308.61328125,
+        "jsonBytes": 11099917,
+        "markdownReadCount": 0
+      },
+      "after": {
+        "medianMs": 250.880491,
+        "minMs": 250.880491,
+        "maxMs": 250.880491,
+        "medianPeakRssMiB": 344.421875,
+        "jsonBytes": 11099917,
+        "markdownReadCount": 0
+      },
+      "reductionPercent": 99.10166563520278
+    },
+    {
+      "operation": "decision-list",
+      "n": 100000,
+      "samplesPerVariant": 3,
+      "equivalence": "same full JSON SHA256",
+      "before": {
+        "medianMs": 8009.3227449999995,
+        "minMs": 7667.3872010000005,
+        "maxMs": 8129.452279,
+        "medianPeakRssMiB": 932.03125,
+        "jsonBytes": 21024,
+        "markdownReadCount": 0
+      },
+      "after": {
+        "medianMs": 5869.822068,
+        "minMs": 5080.5563139999995,
+        "maxMs": 6252.600013,
+        "medianPeakRssMiB": 872.9609375,
+        "jsonBytes": 21024,
+        "markdownReadCount": 0
+      },
+      "reductionPercent": 26.71262908384645
+    },
+    {
+      "operation": "decision-metadata",
+      "n": 100000,
+      "samplesPerVariant": 3,
+      "equivalence": "same first100 and full exact count",
+      "before": {
+        "medianMs": 13027.206074,
+        "minMs": 13001.984862000001,
+        "maxMs": 15177.547127,
+        "medianPeakRssMiB": 849.15234375,
+        "jsonBytes": 50580512,
+        "markdownReadCount": 0
+      },
+      "after": {
+        "medianMs": 10738.418884,
+        "minMs": 10213.31381,
+        "maxMs": 11054.172115000001,
+        "medianPeakRssMiB": 871.87890625,
+        "jsonBytes": 56760,
+        "markdownReadCount": 0
+      },
+      "reductionPercent": 17.569286744976065
+    },
+    {
+      "operation": "ir-list",
+      "n": 100000,
+      "samplesPerVariant": 3,
+      "equivalence": "same full JSON SHA256",
+      "before": {
+        "medianMs": 7597.425955000001,
+        "minMs": 7521.708058,
+        "maxMs": 8146.96503,
+        "medianPeakRssMiB": 858.3515625,
+        "jsonBytes": 16847,
+        "markdownReadCount": 0
+      },
+      "after": {
+        "medianMs": 4859.635713,
+        "minMs": 4833.370010000001,
+        "maxMs": 5027.940610000001,
+        "medianPeakRssMiB": 762.08984375,
+        "jsonBytes": 16847,
+        "markdownReadCount": 0
+      },
+      "reductionPercent": 36.03576077234701
+    },
+    {
+      "operation": "decision-check",
+      "n": 100000,
+      "samplesPerVariant": 1,
+      "equivalence": "same full JSON SHA256",
+      "before": {
+        "medianMs": 125546.320101,
+        "minMs": 125546.320101,
+        "maxMs": 125546.320101,
+        "medianPeakRssMiB": 2812.30078125,
+        "jsonBytes": 339471186,
+        "markdownReadCount": 300000
+      },
+      "after": {
+        "medianMs": 72765.874726,
+        "minMs": 72765.874726,
+        "maxMs": 72765.874726,
+        "medianPeakRssMiB": 2690.47265625,
+        "jsonBytes": 339471186,
+        "markdownReadCount": 200000
+      },
+      "reductionPercent": 42.04061523471098
+    }
+  ]
+}

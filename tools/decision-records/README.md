@@ -20,6 +20,8 @@
 
 list/trace 成功结果显式包含 `source={kind: "published-index", currentness: "unchecked", fallback: false}`；metadata search 在 searchInfo.source 中表达同一事实。正常 unchecked 不生成来源 warning。show 只用目标已读字节比较单条 revision，不扩大为全集验证。
 
+严格加载后的领域投影复用本次冻结索引，保留完整关系校验；原始索引查询入口继续独立严格校验。完整来源检查把同轮已验证的正文投影与来源指纹交给索引文本检查，仍独立重读 revision 检测漂移，并比较完整预期索引文本。调用方持有的旧 scan 和独立同步操作各自重新读取来源。
+
 关系图以单次操作内的一份稳定快照为作用域，通过[惰性访问器](../shared/src/graph/lazy-relation-graph.ts)按需构建：
 
 - **按需复用**：首次实际访问图时构建，后续校验、`trace` 与关系筛选共用该图；`related-to` 使用同图的正反向邻接。
@@ -43,7 +45,7 @@ list/trace 成功结果显式包含 `source={kind: "published-index", currentnes
 
 | 范围 | source | limits |
 | --- | --- | --- |
-| metadata | published-index / unchecked / false | maxRecords、resources、preview 均为 null；返回全部命中。 |
+| metadata | published-index / unchecked / false | maxRecords 默认 100，`--limit` 接受 1..1000；resources、preview 为 null。 |
 | content | validated-source / current；降级时 fallback=true | maxRecords=20；扫描与预览预算如下。 |
 
 content 扫描预算为 maxCandidateFiles=10,000、maxFileBytes=2 MiB、maxTotalBytes=20 MiB；预览预算为 contextLines=1、maxMatchesPerFile=3、maxPreviewCharacters=12,000（UTF-16 字符）。
@@ -51,7 +53,7 @@ content 扫描预算为 maxCandidateFiles=10,000、maxFileBytes=2 MiB、maxTotal
 计数和覆盖分别维护：
 
 1. matched 按记录计数，包含已发现但无法返回的命中；precision 为 exact 或 lower-bound，returned 为实际返回数。
-2. metadata 完整计算并返回全部命中。content 返回预算满后，在首个不能返回的命中文件停止并计入 matched；还有未检查文件则 lower-bound，恰为最后一个则 exact 且 scanComplete，但 resultsComplete 仍为 false。
+2. metadata 全量匹配、精确计数，只保留窗口内完整结果；超限时 scanComplete 为 true、resultsComplete 为 false。content 返回预算满后，在首个不能返回的命中文件停止并计入 matched；还有未检查文件则 lower-bound，恰为最后一个则 exact 且 scanComplete，但 resultsComplete 仍为 false。
 3. 预览耗尽后继续在扫描与返回预算内识别命中，空 previews 保留身份；只有实际省略片段才标记预览受限，恰好用满预算或未返回记录均不影响 previewsComplete。
 4. 完整零命中为 exact 0、returned 0，扫描、结果及 content 预览完整；metadata 预览为 null。必需读取、资源错误和取消保持失败。
 5. coverage.reasons 按 max-records、match-previews、preview-characters 顺序去重，未限制为 `[]`。

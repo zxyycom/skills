@@ -17,6 +17,7 @@ import {
   parseTraceMaxRecords
 } from "./cli-option-parsers.ts";
 import { createSubcommand, singleQueryOption } from "./cli-program-options.ts";
+import { decisionMetadataSearchDefaultLimit } from "./decision-query-contract.ts";
 
 const decisionListDefaultLimit = 10;
 
@@ -83,12 +84,13 @@ const decisionSearchHelpAfter = [
   "  --in content (default) reads authoritative Markdown; --in metadata reads only the published index snapshot with unchecked currentness and no source warning. Structural filters apply before text matching.",
   "  --related-to resolves first; --direction and --relation-type qualify its direct edges, while --relation-type alone matches any direct edge of that type.",
   "  --match all requires every term, any requires one term, phrase requires one contiguous phrase.",
+  "  Metadata scans every selected record for exact matched counts, returning at most --limit results; the default is 100. Content keeps its fixed 20-record budget and rejects --limit.",
   "  The six-line summary reports applied query/filters, source, limits, counts, and independent scan/results/previews coverage; matched>=N is a lower bound.",
   "  Preview limits do not stop matching. Published metadata does not prove absence from current Markdown; content fallback and results warnings describe their own boundaries. Read returned IDs with show or tighten filters.",
   "  Identify a record here, then read its full body and direct relations with show <decision-id>.",
   "Examples:",
   '  decision-records search "record lifecycle" --match phrase --status archived',
-  '  decision-records search "索引" --in metadata --tag decision-records'
+  '  decision-records search "索引" --in metadata --tag decision-records --limit 200'
 ].join("\n");
 
 function registerListCommand(
@@ -216,6 +218,14 @@ function registerSearchCommand(
       )
         .choices([...decisionAlignments, "all"])
         .default("all")
+    )
+    .addOption(
+      singleQueryOption(
+        new Option(
+          "--limit <count>",
+          `Metadata result window only (default: ${decisionMetadataSearchDefaultLimit}, maximum: ${stateIndexQueryMaximumLimit}); requires --in metadata.`
+        ).argParser(parseListLimit)
+      )
     )
     .addOption(
       new Option("--status <value>", "Lifecycle status filter.")

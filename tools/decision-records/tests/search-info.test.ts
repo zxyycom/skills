@@ -84,7 +84,7 @@ test("decision search metadata returns exact counts applied defaults and resolve
     returned: 1
   });
   assert.deepEqual(result.searchInfo.query.limits, {
-    maxRecords: null,
+    maxRecords: 100,
     resources: null,
     preview: null
   });
@@ -239,7 +239,7 @@ test("distributed decision search prints six escaped summary lines before zero-h
       'Query: text="absent\\"term" in=metadata match=all',
       'Filters: {"status":"active","alignment":"all","tags":[]}',
       "Source: kind=published-index currentness=unchecked fallback=false",
-      "Limits: maxRecords=unlimited",
+      "Limits: maxRecords=100",
       "Counts: matched=0 precision=exact returned=0",
       "Coverage: scan=complete results=complete previews=n/a reasons=none"
     ]);

@@ -30,6 +30,16 @@ export function defaultOption<T>(value: T | undefined, fallback: T): T {
   return value === undefined ? fallback : value;
 }
 
+export function validateRelatedDirection(
+  options: Readonly<Pick<ParsedOptions, "direction" | "relatedTo">>
+): void {
+  if (options.direction !== undefined && options.relatedTo === undefined) {
+    throw new InvalidArgumentError(
+      "--direction requires --related-to <selector>"
+    );
+  }
+}
+
 export function requiredOption(
   value: string | undefined,
   name: string

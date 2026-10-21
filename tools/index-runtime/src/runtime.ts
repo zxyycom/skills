@@ -1,7 +1,6 @@
 import path from "node:path";
 import { defineStateIndexDefinition } from "./definition.ts";
-import { createStateIndexReaderFromSnapshot } from "./reader.ts";
-import { loadCurrentStateIndex, syncStateIndex } from "./storage.ts";
+import { loadCurrentStateIndexReader, syncStateIndex } from "./storage.ts";
 import {
   stageSelectedIndexEntries,
   type StateIndexEntrySelectionResolver
@@ -9,6 +8,7 @@ import {
 import type {
   DeepReadonly,
   JsonObject,
+  ReadonlyStateIndex,
   StateIndexContext,
   StateIndexDefinition,
   StateIndexEntry,
@@ -35,6 +35,7 @@ export type StateIndexReader<
   State extends object,
   Metadata extends JsonObject = JsonObject
 > = {
+  readonly index: ReadonlyStateIndex<State, Metadata>;
   all: (
     query?: StateIndexAllQuery,
     options?: StateIndexQueryOptions<State>
@@ -90,15 +91,9 @@ export function createStateIndexRuntime<
   async function open(): Promise<
     StateIndexResult<StateIndexReader<State, Metadata>>
   > {
-    const loaded = await loadCurrentStateIndex({
+    return await loadCurrentStateIndexReader({
       context,
       definition,
-      indexPath: options.indexPath
-    });
-    if (loaded.status === "error") return loaded;
-    return createStateIndexReaderFromSnapshot({
-      definition,
-      index: loaded.value,
       indexPath: options.indexPath
     });
   }

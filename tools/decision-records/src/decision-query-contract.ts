@@ -64,6 +64,8 @@ export type DecisionQueryRequest =
       command: "search";
       direction?: DecisionTraceDirection;
       in?: "content" | "metadata";
+      /** metadata 返回窗口；content 保持固定返回预算。 */
+      limit?: number;
       location: DecisionLocation;
       match: FileTextSearchMode;
       relatedTo?: string;
@@ -144,6 +146,7 @@ export const decisionMetadataSearchFields = [
   "decision",
   "tags"
 ] as const;
+export const decisionMetadataSearchDefaultLimit = 100;
 export type DecisionMetadataSearchField =
   (typeof decisionMetadataSearchFields)[number];
 export type DecisionMetadataMatchedRelation = Readonly<{

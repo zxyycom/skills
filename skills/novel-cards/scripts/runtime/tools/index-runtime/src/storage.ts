@@ -14,3 +14,7 @@ export {
   loadStateIndexAtResolvedPath
 } from "./storage-load.ts";
 export { syncStateIndex } from "./storage-sync.ts";
+export {
+  loadCurrentStateIndexReader,
+  loadStateIndexReader
+} from "./storage-reader.ts";

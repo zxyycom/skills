@@ -92,10 +92,11 @@ function filterTypeOnlyRelations(
 > {
   if (relationType === undefined) return ok(null);
   const relations = new Map<string, InvestigationFilterRelation[]>();
+  const relationKeys = new Map<string, Set<string>>();
   for (const [source, edges] of context.graph().edgesBySource)
     for (const edge of edges)
       if (edge.type === relationType)
-        addRelation(relations, source, relationProjection(edge));
+        addRelation(relations, relationKeys, source, relationProjection(edge));
   return ok(normalizeRelationMap(relations));
 }
 
@@ -110,11 +111,13 @@ function filterRelationsForRelatedTarget(
   const target = relatedTarget(context.entries, relatedTo);
   if (target.isErr()) return err(target.error);
   const relations = new Map<string, InvestigationFilterRelation[]>();
+  const relationKeys = new Map<string, Set<string>>();
   const direction = query.direction ?? "both";
   const graph = context.graph();
   if (direction !== "successors") {
     appendNeighborRelations(
       relations,
+      relationKeys,
       graph.edgesBySource.get(target.value.id) ?? [],
       query.relationType,
       "predecessors"
@@ -123,6 +126,7 @@ function filterRelationsForRelatedTarget(
   if (direction !== "predecessors") {
     appendNeighborRelations(
       relations,
+      relationKeys,
       graph.edgesByTarget.get(target.value.id) ?? [],
       query.relationType,
       "successors"
@@ -133,6 +137,7 @@ function filterRelationsForRelatedTarget(
 
 function appendNeighborRelations(
   relations: Map<string, InvestigationFilterRelation[]>,
+  relationKeys: Map<string, Set<string>>,
   edges: InvestigationRelationGraph["edges"],
   relationType: RelationQuery["relationType"],
   direction: "predecessors" | "successors"
@@ -141,6 +146,7 @@ function appendNeighborRelations(
     if (relationType !== undefined && edge.type !== relationType) continue;
     addRelation(
       relations,
+      relationKeys,
       direction === "predecessors" ? edge.target : edge.source,
       relationProjection(edge)
     );
@@ -160,21 +166,22 @@ function relationProjection(
 
 function addRelation(
   relations: Map<string, InvestigationFilterRelation[]>,
+  relationKeys: Map<string, Set<string>>,
   id: string,
   relation: InvestigationFilterRelation
 ): void {
+  const key = JSON.stringify([
+    relation.sourceId,
+    relation.type,
+    relation.target
+  ]);
+  const keys = relationKeys.get(id) ?? new Set<string>();
+  if (keys.has(key)) return;
+  keys.add(key);
+  relationKeys.set(id, keys);
   const current = relations.get(id) ?? [];
-  if (
-    !current.some(
-      (item) =>
-        item.sourceId === relation.sourceId &&
-        item.type === relation.type &&
-        item.target === relation.target
-    )
-  ) {
-    current.push(relation);
-    relations.set(id, current);
-  }
+  current.push(relation);
+  relations.set(id, current);
 }
 
 function normalizeRelationMap(

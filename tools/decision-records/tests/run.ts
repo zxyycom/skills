@@ -54,3 +54,9 @@ await import("./search-metadata.test.ts");
 
 await import("./lazy-relation-graph/context.test.ts");
 await import("./lazy-relation-graph/queries.test.ts");
+
+await import("./scan-index-reuse.test.ts");
+
+await import("./search-metadata-window.test.ts");
+
+await import("./cli-search-metadata-window.test.ts");

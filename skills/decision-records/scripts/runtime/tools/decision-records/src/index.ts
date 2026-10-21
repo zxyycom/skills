@@ -12,6 +12,7 @@ import {
   syncDecisionIndex
 } from "./decision-state-index.ts";
 import { scanDecisionRecords } from "./scan.ts";
+import { checkScannedDecisionIndex } from "./scan-index-check.ts";
 import {
   isEstablishedDecisionRecord,
   type DecisionId,
@@ -66,13 +67,30 @@ export async function loadDecisionValidationContext(
 ): Promise<DecisionValidationContext> {
   const scan = await scanDecisionRecords(options);
   return {
-    result: await validateDecisionScan(scan, validationOptions)
+    result: await validateScannedDecisionRecords(scan, validationOptions, () =>
+      checkScannedDecisionIndex(scan)
+    )
   };
 }
 
 export async function validateDecisionScan(
   scan: DecisionScan,
   options: DecisionValidationOptions = {}
+): Promise<DecisionValidationResult> {
+  return await validateScannedDecisionRecords(scan, options, () =>
+    syncDecisionIndex({
+      decisionsDirectory: scan.decisionsDirectory,
+      mode: "check"
+    })
+  );
+}
+
+type DecisionIndexCheck = () => ReturnType<typeof syncDecisionIndex>;
+
+async function validateScannedDecisionRecords(
+  scan: DecisionScan,
+  options: DecisionValidationOptions,
+  checkIndex: DecisionIndexCheck
 ): Promise<DecisionValidationResult> {
   const errors =
     options.scanErrorPolicy === "omit"
@@ -86,7 +104,13 @@ export async function validateDecisionScan(
       ? { decisionIds: [], errors: [] }
       : selectEstablishedDecisionIds(scan);
   errors.push(...selection.errors);
-  await validateDecisionIndexText(scan, selection.decisionIds, options, errors);
+  await validateDecisionIndexText({
+    scan,
+    decisionIds: selection.decisionIds,
+    options,
+    errors,
+    checkIndex
+  });
 
   const establishedRecords = scan.records.filter(
     (record) => record.document !== null
@@ -95,12 +119,14 @@ export async function validateDecisionScan(
   return decisionValidationSummary(scan, establishedRecords, errors);
 }
 
-async function validateDecisionIndexText(
-  scan: DecisionScan,
-  decisionIds: readonly DecisionId[],
-  options: DecisionValidationOptions,
-  errors: string[]
-): Promise<void> {
+async function validateDecisionIndexText(context: {
+  scan: DecisionScan;
+  decisionIds: readonly DecisionId[];
+  options: DecisionValidationOptions;
+  errors: string[];
+  checkIndex: DecisionIndexCheck;
+}): Promise<void> {
+  const { scan, decisionIds, options, errors, checkIndex } = context;
   if (
     options.checkIndexText === false ||
     decisionIds.length === 0 ||
@@ -108,10 +134,7 @@ async function validateDecisionIndexText(
   ) {
     return;
   }
-  const checked = await syncDecisionIndex({
-    decisionsDirectory: scan.decisionsDirectory,
-    mode: "check"
-  });
+  const checked = await checkIndex();
   if (checked.status !== "error") return;
   if (
     checked.state === "index-invalid" ||

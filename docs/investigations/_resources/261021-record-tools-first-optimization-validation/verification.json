@@ -1,0 +1,64 @@
+{
+  "baseline": "063115bdf290efa66a2d925b33d14ba33395b1a3",
+  "sourceFingerprintCheck": "sha256sum --check passed after all 26 timed operations",
+  "comparisons": {
+    "observations": 26,
+    "fullJsonSha256": "equal for both lists, full decision check and all three relation-evidence sizes",
+    "metadata": "same first100 record JSON hash and exact matched=90000; after scanComplete=true, resultsComplete=false, returned=100",
+    "batch": "same final index SHA256, 10 individual publications versus one batch publication"
+  },
+  "targetedTests": {
+    "decisionRecords": {
+      "command": "bun run test:decision-records-cli",
+      "passed": 324,
+      "failed": 0
+    },
+    "investigationReport": {
+      "command": "bun run test:investigation-report-check",
+      "passed": 321,
+      "failed": 0
+    },
+    "indexRuntime": {
+      "command": "bun run test:index-runtime",
+      "passed": 69,
+      "failed": 0
+    }
+  },
+  "staticChecks": [
+    "bun run typecheck",
+    "bun run lint",
+    "git diff --check"
+  ],
+  "independentReview": "coding-style and changed documentation reviewed; invalid Decision batch-publish guidance corrected to existing evolve/set-relations contracts",
+  "testInvocationBoundary": "A nonstandard direct multi-file Bun invocation encountered four shared fixture-after-cleanup failures. The repository aggregate run.ts entry subsequently passed all 323 Decision tests; no unrelated fixture lifecycle rewrite was made.",
+  "projectGate": {
+    "command": "bun run check",
+    "result": "passed",
+    "checks": 64,
+    "passed": 61,
+    "failed": 0,
+    "notApplicable": 3,
+    "unavailable": 0,
+    "elapsedSeconds": 58.5,
+    "notApplicableScope": "release snapshot, release version validation and packaging flags were not selected; no release was performed"
+  },
+  "postMeasurementEdits": {
+    "metadataReturnType": {
+      "verifiedAt": "2026-10-21T14:47:37.656Z",
+      "change": "Extracted an internal return type into a named readonly discriminated union; function body unchanged.",
+      "method": "Node stripTypeScriptTypes mode=strip plus identical Oxfmt formatting, exact emitted JavaScript comparison",
+      "measuredSourceSha256": "7527bc74b8d2d84197fa4c72b2de07b27c4da8609b28a4ab2c0dd5e42dce3b52",
+      "deliveredSourceSha256": "f730e04cfeaaf8708a32d6147b2938a35dbb23b2bbbeeb004f04907d308118bf",
+      "emittedJavaScriptSha256": "b5ed48b2edde61f3e9d1b90556b8958b5954e3fc92eb00dc1e1516d044a05795",
+      "equal": true
+    },
+    "cliOrganization": "Search argument construction and related-direction validation moved to CLI boundary owners; not on the measured SDK query/validation call paths. CLI behavior rechecked by tests.",
+    "gateIntegration": "New tests registered with existing semantic Check roots and input ownership. Projection/API and CLI tests separated by boundary; no threshold relaxed."
+  },
+  "verifiedAt": "2026-10-21T14:52:35.377955+00:00",
+  "caseCatalog": {
+    "entities": 1386,
+    "result": "passed by final project gate"
+  },
+  "gateCorrections": "Initial project gate found unregistered new test inputs and file/function density findings. Tests were registered with existing owners, search CLI construction and CLI/projection tests split at their responsibility boundaries, and an internal return type named. Thresholds and validation were not relaxed."
+}

@@ -147,6 +147,7 @@ async function runSearch(
       command: "search",
       ...(args.direction === undefined ? {} : { direction: args.direction }),
       in: args.in,
+      ...(args.limit === undefined ? {} : { limit: args.limit }),
       location: decisionLocation(args),
       match: args.match,
       ...(args.relatedTo === undefined ? {} : { relatedTo: args.relatedTo }),

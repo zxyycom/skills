@@ -10,12 +10,12 @@
 import {
   loadCurrentDecisionIndexSnapshot,
   loadDecisionIndexSnapshot,
+  parseDecisionIndexSnapshot,
   snapshotIndex,
   validateDecisionIndexSnapshot
 } from "./decision-index-snapshot.ts";
 import {
   buildStateIndex,
-  parseStateIndex,
   serializeStateIndex,
   syncStateIndex,
   type StateIndex,
@@ -68,19 +68,7 @@ export function parseDecisionIndex(
   text: string,
   sourcePath: string
 ): StateIndexResult<DecisionIndex> {
-  const parsed = parseStateIndex({
-    definition: createDecisionStateIndexDefinition(),
-    expectation: {
-      definitionVersion: decisionIndexDefinitionVersion,
-      namespace: decisionIndexNamespace
-    },
-    sourcePath,
-    text
-  });
-  if (parsed.status === "error") {
-    return parsed;
-  }
-  return validateDecisionIndex(parsed.value, sourcePath);
+  return snapshotIndex(parseDecisionIndexSnapshot(text, sourcePath));
 }
 
 export async function loadDecisionIndex(

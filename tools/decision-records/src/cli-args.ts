@@ -140,6 +140,7 @@ export type CliArgs =
         alignment: DecisionListAlignment;
         direction?: DecisionTraceDirection;
         in: "content" | "metadata";
+        limit?: number;
         match: "all" | "any" | "phrase";
         relatedTo?: string;
         relationType?: DecisionRelationType;

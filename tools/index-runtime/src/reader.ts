@@ -26,6 +26,7 @@ import type {
 } from "./types.ts";
 import { defineStateIndexDefinition, expectationOf } from "./definition.ts";
 import { diagnostic } from "./diagnostics.ts";
+import { readonlyFrozenStateIndex } from "./frozen-json.ts";
 import { validateStateIndexValue } from "./validation.ts";
 import type {
   StateIndexAllQuery,
@@ -95,7 +96,7 @@ export function createStateIndexReaderFromSnapshot<
   }
   function effectiveEntries(
     runtimeStates?: StateRecord<State>
-  ): StateIndexResult<MaterializedStateIndexEntry<State>[]> {
+  ): StateIndexResult<readonly MaterializedStateIndexEntry<State>[]> {
     return materializeEffectiveEntries({
       definition: options.definition,
       index: options.index,
@@ -196,6 +197,7 @@ export function createStateIndexReaderFromSnapshot<
     value: Object.freeze({
       all,
       get,
+      index: readonlyFrozenStateIndex(options.index),
       metadata: readonlyStateIndexMetadata(options.index),
       query
     })

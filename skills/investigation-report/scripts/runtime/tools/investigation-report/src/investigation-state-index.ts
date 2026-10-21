@@ -11,6 +11,7 @@ import {
   expectationOf,
   loadCurrentStateIndex,
   loadStateIndex,
+  loadStateIndexReader,
   syncStateIndex,
   type StateIndex,
   type StateIndexContext,
@@ -85,6 +86,20 @@ export async function loadInvestigationIndex(options: {
 > {
   const definition = createInvestigationStateIndexDefinition();
   return await loadStateIndex({
+    context: stateIndexContext(options.investigationsDirectory, options.signal),
+    definition,
+    expectation: expectationOf(definition),
+    indexPath: options.indexPath ?? investigationIndexFileName
+  });
+}
+
+export async function loadInvestigationIndexReader(options: {
+  investigationsDirectory: string;
+  indexPath?: string;
+  signal?: AbortSignal;
+}) {
+  const definition = createInvestigationStateIndexDefinition();
+  return await loadStateIndexReader({
     context: stateIndexContext(options.investigationsDirectory, options.signal),
     definition,
     expectation: expectationOf(definition),

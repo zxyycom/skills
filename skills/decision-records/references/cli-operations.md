@@ -26,16 +26,17 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 ### 搜索
 
 - content 匹配文件物理行；metadata 匹配发布快照的 ID、name、title、三项摘要、tags 与来源关系 summary。`all`/`any` 可跨同一记录的段，`phrase` 限于单段；匹配统一 NFKC、忽略大小写并按空白处理。
+- metadata 默认返回前 100 条，`--limit 1..1000` 调整返回窗口；始终扫描全部筛选记录并给出精确命中数。content 返回上限保持 20，不接受 `--limit`。
 - 关系条件返回的 `filterRelations` 是导致记录命中的边；文本证据单独报告。`matchedRelations: none` 不否定关系筛选命中。普通预览最多显示三条命中边，`list --detail` 展开当前页全部命中边；完整正文与关系用 `show`。
 - 先读六行 `Query`、`Filters`、`Source`、`Limits`、`Counts`、`Coverage`，确认实际条件、来源、计数和三类覆盖。`currentness=unchecked` 是正常发布快照边界；`current` 只表示本次已有验证，不承诺锁或跨文件原子快照。
 
 | 覆盖 | 含义 |
 | --- | --- |
 | `scanComplete` | 待匹配记录是否全部检查；未完成时 `matched` 为下界。 |
-| `resultsComplete` | 是否完整扫描并返回全部命中；metadata 完整计算并返回全部命中。 |
+| `resultsComplete` | 是否完整扫描并返回全部命中；metadata 超过返回窗口时为 false，精确命中数仍完整。 |
 | `previewsComplete` | 已返回记录的命中片段是否完整；metadata 不适用。仅预览受限不表示记录发现不完整。 |
 
-来源为发布快照或扫描未完成时，不能对当前全集作“没有相关决策”的结论。预算 warning 区分结果与预览限制，来源降级才需要恢复索引。需要更多命中时收紧筛选，完整内容用 `show`；外部展示仍可能截断 stdout。
+来源为发布快照或扫描未完成时，不能对当前全集作“没有相关决策”的结论。预算 warning 区分结果与预览限制，来源降级才需要恢复索引。需要更多命中时收紧筛选，或用 metadata `--limit` 扩大窗口；完整内容用 `show`，外部展示仍可能截断 stdout。
 
 ### 追溯演进
 
@@ -137,6 +138,8 @@ HEAD 已记录目标时，首次不带 `--delete-recorded` 的调用在其他条
 已知合法正式来源变化先 `sync-index` 再严格检查；未解释异常先检查诊断。来源合法而索引缺失、损坏、陈旧或 definition 过期时全量重建；非法来源先恢复，索引和默认值不能补造 alignment。
 
 `sync-index` 默认写入并发布完整索引，`--preflight` 对同一验证与漂移保护零持久写入预演。成功区分可重建但未发布、索引已 current 和实际已写入。
+
+同一工作批次的正文或 tags 编辑可共同完成，再统一 `sync-index` 和严格 `check`；进入依赖当前索引的事务前先同步。关系与生命周期变化按各自契约使用 `evolve` 或 `set-relations` 的多对象输入，减少重复全集准备。预检和正式执行各自重新验证，批次边界由调用方明确选择。
 
 选择性同步同样完整验证，适用于可信 baseline 上的已知合法变化：
 

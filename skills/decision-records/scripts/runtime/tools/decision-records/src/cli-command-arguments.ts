@@ -7,7 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
-import { Command as CommanderCommand, InvalidArgumentError } from "commander";
+import type { Command as CommanderCommand } from "commander";
 import type { CliArgs, CliArgsFor, Command } from "./cli-args.ts";
 import type { DecisionRecordsCliIo } from "./cli-io.ts";
 import type { ParsedOptions } from "./cli-command-options.ts";
@@ -16,9 +16,11 @@ import type { DecisionId } from "./types.ts";
 import {
   defaultOption,
   requiredDecisionAlignment,
-  requiredDecisionId
+  requiredDecisionId,
+  validateRelatedDirection
 } from "./cli-option-parsers.ts";
 import { newCommandArgs } from "./cli-new-arguments.ts";
+import { searchCommandArgs } from "./cli-search-arguments.ts";
 import {
   evolveRelationOverridesForCommand,
   setRelationsGroupsForCommand
@@ -95,8 +97,7 @@ const commandArgumentFactories: Readonly<
   publish: lifecycleArguments,
   reactivate: lifecycleArguments,
   rename: renameArguments,
-  search: ({ commanderCommand, location, options }) =>
-    searchCommandArgs(location, options, commanderCommand.args[0]),
+  search: searchCommandArgs,
   "set-relations": setRelationsArguments,
   show: singleDecisionArguments,
   "show-candidate": singleDecisionArguments,
@@ -320,46 +321,6 @@ function assignListFilters(
   if (options.relatedTo !== undefined) args.relatedTo = options.relatedTo;
   if (options.relationType !== undefined)
     args.relationType = options.relationType;
-}
-
-function searchCommandArgs(
-  location: CommandLocation,
-  options: ParsedOptions,
-  text: unknown
-): CliArgsFor<"search"> {
-  if (typeof text !== "string")
-    throw new InvalidArgumentError("Search text is required");
-  validateRelatedDirection(options);
-  const args: CliArgsFor<"search"> = {
-    ...location,
-    alignment: defaultOption(options.alignment, "all"),
-    command: "search",
-    in: defaultOption(options.in, "content"),
-    match: defaultOption(options.match, "all"),
-    status: defaultOption(options.status, "active"),
-    tags: defaultOption(options.tag, []),
-    text
-  };
-  assignSearchFilters(args, options);
-  return args;
-}
-
-function assignSearchFilters(
-  args: CliArgsFor<"search">,
-  options: ParsedOptions
-): void {
-  if (options.direction !== undefined) args.direction = options.direction;
-  if (options.relatedTo !== undefined) args.relatedTo = options.relatedTo;
-  if (options.relationType !== undefined)
-    args.relationType = options.relationType;
-}
-
-function validateRelatedDirection(options: ParsedOptions): void {
-  if (options.direction !== undefined && options.relatedTo === undefined) {
-    throw new InvalidArgumentError(
-      "--direction requires --related-to <selector>"
-    );
-  }
 }
 
 function secondDecisionSelector(decisionIds: readonly DecisionId[]): string {

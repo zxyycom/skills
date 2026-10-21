@@ -11,13 +11,17 @@ import path from "node:path";
 import { err, fromThrowable, ok, ResultAsync, type Result } from "neverthrow";
 import {
   queryStateIndex,
-  stateIndexQueryDefaultLimit
+  stateIndexQueryDefaultLimit,
+  type StateIndexQuery,
+  type StateIndexQueryOutput,
+  type StateIndexResult
 } from "../../index-runtime/src/index.ts";
 import {
   createInvestigationStateIndexDefinition,
   investigationIndexDiagnosticMessages,
   investigationIndexFileName,
-  loadInvestigationIndex
+  loadInvestigationIndex,
+  loadInvestigationIndexReader
 } from "./investigation-state-index.ts";
 import { diagnosticFromStateIndexDiagnostic } from "./diagnostics.ts";
 import { buildInvestigationListFacets } from "./list-facets.ts";
@@ -34,6 +38,8 @@ import {
 import { validateQueryOptions } from "./query-options.ts";
 import type {
   InvestigationFilterRelation,
+  InvestigationIndexMetadata,
+  InvestigationIndexState,
   InvestigationIndexQueryResult
 } from "./types.ts";
 import type {
@@ -124,16 +130,25 @@ export function queryValidatedInvestigationIndex(
     investigationIndexFileName
   );
   return ResultAsync.fromPromise(
-    loadInvestigationIndex({ investigationsDirectory }),
+    loadInvestigationIndexReader({ investigationsDirectory }),
     (error) =>
       queryOperationFailure(
         error,
         "the persisted index could not be loaded for the query",
         indexPath
       )
-  ).andThen((loaded) =>
-    queryLoadedInvestigationIndex(loaded, validated, indexPath)
-  );
+  ).andThen((loaded) => {
+    if (loaded.status === "error")
+      return err(indexQueryDiagnostics(loaded.diagnostics, indexPath));
+    // The loader validated and froze these states; the existing domain
+    // relation context consumes the same shape through its query DTO types.
+    const entries = Object.entries(loaded.value.index.entries) as Array<
+      [string, InvestigationIndexState]
+    >;
+    return queryInvestigationSnapshot(entries, validated, indexPath, (query) =>
+      loaded.value.query(query)
+    );
+  });
 }
 
 export type LoadedInvestigationIndex = Awaited<
@@ -155,9 +170,32 @@ export function queryLoadedInvestigationIndex(
 ) {
   if (loaded.status === "error")
     return err(indexQueryDiagnostics(loaded.diagnostics, indexPath));
-  const context = createInvestigationRelationContext(
-    Object.entries(loaded.value.entries)
+  return queryInvestigationSnapshot(
+    Object.entries(loaded.value.entries),
+    validated,
+    indexPath,
+    (query) =>
+      queryStateIndex({
+        definition: createInvestigationStateIndexDefinition(),
+        index: loaded.value,
+        query
+      })
   );
+}
+
+type InvestigationSnapshotQuery = (
+  query: StateIndexQuery
+) => StateIndexResult<
+  StateIndexQueryOutput<InvestigationIndexState, InvestigationIndexMetadata>
+>;
+
+function queryInvestigationSnapshot(
+  entries: readonly [string, InvestigationIndexState][],
+  validated: ValidatedQueryOptions,
+  indexPath: string,
+  query: InvestigationSnapshotQuery
+) {
+  const context = createInvestigationRelationContext(entries);
   const facets = buildInvestigationListFacets(context.entries);
   const filterRelations = filterRelationsByEntry(context, validated);
   if (filterRelations.isErr())
@@ -168,7 +206,7 @@ export function queryLoadedInvestigationIndex(
       : new Set(filterRelations.value.keys());
   if (related !== null && related.size === 0)
     return ok(emptyQueryResult(validated, indexPath, facets));
-  return runIndexQuery(loaded.value, validated, indexPath, {
+  return runIndexQuery(query, validated, indexPath, {
     filters: selectedFilters(validated, related),
     facets,
     filterRelations: filterRelations.value
@@ -212,25 +250,21 @@ function selectedFilters(
 }
 
 function runIndexQuery(
-  index: Extract<LoadedInvestigationIndex, { status: "ok" }>["value"],
+  query: InvestigationSnapshotQuery,
   validated: ValidatedQueryOptions,
   indexPath: string,
   selection: IndexQuerySelection
 ) {
   return fromThrowable(
     () =>
-      queryStateIndex({
-        definition: createInvestigationStateIndexDefinition(),
-        index,
-        query: {
-          filters: selection.filters,
-          limit: validated.limit,
-          offset: validated.offset,
-          sort: [
-            { direction: "desc", key: "formed-at" },
-            { direction: "asc", key: "id" }
-          ]
-        }
+      query({
+        filters: selection.filters,
+        limit: validated.limit,
+        offset: validated.offset,
+        sort: [
+          { direction: "desc", key: "formed-at" },
+          { direction: "asc", key: "id" }
+        ]
       }),
     (error) =>
       queryOperationFailure(
