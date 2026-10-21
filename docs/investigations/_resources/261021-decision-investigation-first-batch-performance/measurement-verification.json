@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-21T06:40:11.458Z",
+  "scope": "仅本目录测量脚本与证据；不代替领域原生测试或项目Gate。",
+  "checks": [
+    {
+      "command": "node_modules/.bin/tsgo --ignoreConfig --noEmit --strict --target ES2024 --module NodeNext --moduleResolution NodeNext --allowImportingTsExtensions --erasableSyntaxOnly --verbatimModuleSyntax --types node docs/investigations/_resources/261021-decision-investigation-first-batch-performance/*.ts",
+      "exitCode": 0
+    },
+    {
+      "command": "node_modules/.bin/oxlint -c .oxlintrc.json docs/investigations/_resources/261021-decision-investigation-first-batch-performance/*.ts",
+      "exitCode": 0
+    },
+    {
+      "command": "node_modules/.bin/oxfmt --check docs/investigations/_resources/261021-decision-investigation-first-batch-performance/*.ts",
+      "exitCode": 0
+    },
+    {
+      "command": "node docs/investigations/_resources/261021-decision-investigation-first-batch-performance/run-measurements.ts 7 first-run",
+      "exitCode": 0
+    }
+  ],
+  "result": {
+    "comparisonPairs": 52,
+    "completePublicJsonPairs": 48,
+    "internalSerializableProjectionPairs": 4,
+    "allEquivalent": true,
+    "timingSamplesPerVariant": 7,
+    "currentProductionManifestFinalMismatches": [],
+    "temporaryFixtureAndArchiveDirectoriesRemaining": []
+  },
+  "extraSmoke": "独立再次运行当前worker，确认published list/ID/name查询均ok、CLI list退出0且stderr空、损坏索引CLI退出1且stdout空；fresh content search source.currentness=current,fallback=false，stale/corrupt content search维持fallback=true及恢复warning。此smoke不属于计时样本。",
+  "rawSha256": "e17b9cc1ae041f7659e05451e910acc410a027897e7a2b64245607cf06a2cebe",
+  "lifecycle": "first-run.json、四个TS脚本与本验证记录是调查报告附件；固定基线archive和合成fixture为唯一mkdtemp临时物，均已finally清理。未创建worktree、未修改Git、未提交。",
+  "notCovered": "未测真实用户集合、其他平台、并发竞态、巨大附件、密集关系图、内存占用或CPU剖析；C8 empty/unknown/moved owner与漂移安全矩阵由领域原生测试负责。本脚本只直接比较partial-layout回退。内部投影不证明对象方法/私有状态或独立fixture真实inode相同。"
+}

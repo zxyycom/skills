@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
+import os from "node:os";
 import { test } from "node:test";
+import {
+  prepareQuery,
+  queryLoadedInvestigationIndex
+} from "../src/query-index.ts";
 import {
   investigationIndexFixture,
   queryIndexFixture,
@@ -219,4 +224,121 @@ test("relation-filter evidence preserves complete UTF-16 ordering and CLI previe
   assert.doesNotMatch(compact, /merged --归并--> delta/u);
   const detailed = renderIndexFixture(queried, true);
   assert.match(detailed, /merged --归并--> delta: "d"/u);
+});
+
+test("list relation selection preserves same-edge intersections direction facets and pagination", () => {
+  const index = investigationIndexFixture([
+    { id: "base" },
+    { id: "other" },
+    {
+      id: "center",
+      relations: [{ type: "补充", target: "base", summary: "evidence" }]
+    },
+    {
+      id: "mixed",
+      relations: [
+        { type: "补充", target: "other" },
+        { type: "复查", target: "base" }
+      ]
+    },
+    { id: "tail", relations: [{ type: "复查", target: "center" }] }
+  ]);
+  const unfiltered = queryIndexFixture(index);
+  assert.ok(unfiltered.entries.every((entry) => !("filterRelations" in entry)));
+  const typeOnly = queryIndexFixture(index, { relationType: "补充" });
+  assert.deepEqual(
+    typeOnly.entries.map((entry) => entry.id),
+    ["center", "mixed"]
+  );
+  assert.deepEqual(
+    typeOnly.entries.map((entry) => entry.filterRelations),
+    [
+      [
+        {
+          sourceId: "center",
+          target: "base",
+          type: "补充",
+          summary: "evidence"
+        }
+      ],
+      [{ sourceId: "mixed", target: "other", type: "补充" }]
+    ]
+  );
+  const sameEdge = queryIndexFixture(index, {
+    relatedTo: "base",
+    relationType: "补充"
+  });
+  assert.deepEqual(
+    sameEdge.entries.map((entry) => entry.id),
+    ["center"]
+  );
+  const both = queryIndexFixture(index, { relatedTo: "center" });
+  assert.deepEqual(
+    both.entries.map((entry) => entry.id),
+    ["base", "tail"]
+  );
+  assert.deepEqual(
+    both,
+    queryIndexFixture(index, { relatedTo: "center", direction: "both" })
+  );
+  const page = queryIndexFixture(index, {
+    relatedTo: "center",
+    limit: 1,
+    offset: 1
+  });
+  assert.equal(page.total, 2);
+  assert.deepEqual(page.entries, [both.entries[1]]);
+  assert.deepEqual(page.facets, unfiltered.facets);
+  const empty = queryIndexFixture(index, {
+    relatedTo: "center",
+    relationType: "复查",
+    direction: "predecessors",
+    limit: 1,
+    offset: 4
+  });
+  assert.deepEqual(empty.entries, []);
+  assert.equal(empty.total, 0);
+  assert.equal(empty.limit, 1);
+  assert.equal(empty.offset, 4);
+  assert.deepEqual(empty.facets, unfiltered.facets);
+});
+
+test("list reports selector ambiguity before empty tag filtering and preserves loaded-index failure precedence", () => {
+  const index = investigationIndexFixture([
+    { id: "260828-shared", formedAt: "2026-08-28T12:00:00+00:00" },
+    { id: "260829-shared", formedAt: "2026-08-29T12:00:00+00:00" }
+  ]);
+  const prepared = prepareQuery({
+    workspaceRoot: os.tmpdir(),
+    relatedTo: "shared",
+    tags: ["absent"]
+  });
+  assert.ok(prepared.isOk());
+  const ambiguous = queryLoadedInvestigationIndex(
+    { status: "ok", diagnostics: [], value: index },
+    prepared.value.validated,
+    "investigation-index.json"
+  );
+  assert.ok(ambiguous.isErr());
+  assert.match(ambiguous.error.errors.join("\n"), /ambiguous/u);
+  assert.deepEqual(ambiguous.error.diagnostics, []);
+  const failed = queryLoadedInvestigationIndex(
+    {
+      status: "error",
+      value: null,
+      diagnostics: [
+        {
+          code: "state-index.index-missing",
+          message: "missing index",
+          path: "investigation-index.json",
+          stateId: null
+        }
+      ]
+    },
+    prepared.value.validated,
+    "investigation-index.json"
+  );
+  assert.ok(failed.isErr());
+  assert.equal(failed.error.diagnostics[0]?.code, "state-index.index-missing");
+  assert.doesNotMatch(failed.error.errors.join("\n"), /ambiguous/u);
 });

@@ -31,7 +31,6 @@ import type {
 } from "./decision-query-contract.ts";
 import {
   indexedRecords,
-  indexFailure,
   sourceWarningsForRecord
 } from "./decision-query-records.ts";
 import { readDecisionBody } from "./decision-query-source.ts";
@@ -168,13 +167,8 @@ export async function traceDecisionRecord(
     "Established decision"
   );
   if (resolved.status === "error") return resolved.failure;
-  const queried = context.reader.all({
-    sort: [{ direction: "asc", key: "id" }]
-  });
-  if (queried.status === "error")
-    return indexFailure(queried, context.indexRelativePath);
   const traced = traceDecisionResult(
-    indexedRecords(queried.value),
+    indexedRecords(context.entries),
     resolved.record.decisionId,
     options
   );

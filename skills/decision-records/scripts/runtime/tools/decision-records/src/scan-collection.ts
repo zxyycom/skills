@@ -148,6 +148,7 @@ export async function validateSourceMembership(
         "utf8"
       );
       decisionId = decisionIdFromMarkdown(sourceFile.sourceText);
+      sourceFile.decisionId = decisionId;
     } catch {
       // Full source scanning reports the filesystem failure with its path.
     }

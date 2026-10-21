@@ -6,6 +6,7 @@ await import("./list-facets.test.ts");
 await import("./queries.test.ts");
 await import("./first-establishment.test.ts");
 await import("./state-snapshot.test.ts");
+await import("./source-discovery.test.ts");
 await import("./record-guards.test.ts");
 await import("./configured-decision-directory.test.ts");
 await import("./cli-args.test.ts");
@@ -29,6 +30,7 @@ await import("./generated-artifacts.test.ts");
 await import("./search-info.test.ts");
 
 await import("./query-snapshot.test.ts");
+await import("./query-loaded-snapshot.test.ts");
 
 await import("./trace-admission-complexity.test.ts");
 

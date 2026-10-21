@@ -24,7 +24,7 @@ import type {
   IndexedDecisionRecord,
   IndexedDecisionState
 } from "./decision-query-contract.ts";
-import { indexedRecords, indexFailure } from "./decision-query-records.ts";
+import { indexedRecords } from "./decision-query-records.ts";
 import { filterDecisionRelationRecords } from "./decision-query-relation-filter.ts";
 
 type PreparedDecisionListRequest =
@@ -42,10 +42,12 @@ export async function listDecisionRecords(
   if (prepared.status === "error") return prepared.failure;
   const context = await loadDecisionQueryContext(request.location);
   if (context.status === "error") return context;
-  const all = context.reader.all({ sort: [{ direction: "asc", key: "id" }] });
-  if (all.status === "error")
-    return indexFailure(all, context.indexRelativePath);
-  return projectDecisionList(all.value, request, prepared, context.warnings);
+  return projectDecisionList(
+    context.entries,
+    request,
+    prepared,
+    context.warnings
+  );
 }
 
 /** 从已验证的发布快照和已解析的查询条件投影列表，不加载集合文件。 */

@@ -13,6 +13,8 @@ export type DecisionStoredIndexEntry = DecisionIndex["entries"][DecisionId];
 
 export type SourceFile = {
   decisionPath: string;
+  /** Identity parsed from sourceText; null records an unsuccessful parse. */
+  decisionId?: DecisionId | null;
   sourcePath: string;
   sourceText?: string;
 };

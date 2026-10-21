@@ -1,5 +1,6 @@
 await import("./candidate.test.ts");
 await import("./candidate-timestamp.test.ts");
+await import("./candidate-read-context.test.ts");
 await import("./cli-generated.test.ts");
 await import("./cli-location-contract.test.ts");
 await import("./cli-index.test.ts");
@@ -11,6 +12,7 @@ await import("./index-search.test.ts");
 await import("./index-reader.test.ts");
 await import("./index-selectors.test.ts");
 await import("./index-state.test.ts");
+await import("./current-index.test.ts");
 await import("./list-facets.test.ts");
 await import("./parsing-directory.test.ts");
 await import("./publish.test.ts");

@@ -14,10 +14,7 @@ import type {
   StateSourceRevision
 } from "../../index-runtime/src/index.ts";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
-import {
-  decisionIdFromMarkdown,
-  isCandidateDecisionMarkdown
-} from "./decision-metadata.ts";
+import { decisionSourceIdentityFromMarkdown } from "./decision-metadata.ts";
 import { isDecisionId, isDecisionSourcePath } from "./decision-path.ts";
 import { decisionSourceRevision } from "./decision-source-revision.ts";
 import { buildDecisionStateSnapshotFromSources } from "./decision-state-snapshot.ts";
@@ -28,6 +25,9 @@ import type {
   DecisionSource,
   DecisionSourcePath
 } from "./types.ts";
+
+type DiscoveredDecisionSource = DecisionSource &
+  Readonly<{ isCandidate: boolean }>;
 
 export async function readDecisionSourceRevision(
   decisionsDirectory: string,
@@ -57,9 +57,7 @@ async function readDecisionSources(
 ): Promise<DecisionSource[]> {
   const discovered = await discoverDecisionSources(decisionsDirectory, signal);
   if (decisionIds === undefined) {
-    return discovered.filter(
-      (source) => !isCandidateDecisionMarkdown(source.text)
-    );
+    return discovered.filter((source) => !source.isCandidate);
   }
   const requestedIds = validatedUniqueDecisionIds(decisionIds);
   const sourceById = new Map(
@@ -96,9 +94,9 @@ function validatedUniqueDecisionIds(
 async function discoverDecisionSources(
   decisionsDirectory: string,
   signal?: AbortSignal
-): Promise<DecisionSource[]> {
+): Promise<DiscoveredDecisionSource[]> {
   const sourcePaths = await collectDecisionSourcePaths(decisionsDirectory);
-  const sources: DecisionSource[] = [];
+  const sources: DiscoveredDecisionSource[] = [];
   const seenIds = new Set<DecisionId>();
   for (const sourcePath of sourcePaths) {
     if (signal?.aborted === true) {
@@ -107,7 +105,8 @@ async function discoverDecisionSources(
     const sourceFile = path.join(decisionsDirectory, ...sourcePath.split("/"));
     await requireRegularSourceFile(sourceFile, sourcePath);
     const text = await fs.readFile(sourceFile, "utf8");
-    const decisionId = decisionIdFromMarkdown(text);
+    const { decisionId, isCandidate } =
+      decisionSourceIdentityFromMarkdown(text);
     if (decisionId === null) {
       throw new Error(
         `${sourcePath} must declare a valid frontmatter Decision ID`
@@ -121,6 +120,7 @@ async function discoverDecisionSources(
     seenIds.add(decisionId);
     sources.push({
       decisionId,
+      isCandidate,
       sourcePath: sourcePath as DecisionSourcePath,
       text
     });

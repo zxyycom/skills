@@ -14,10 +14,7 @@ import { diagnosticFromStateIndexDiagnostic } from "./diagnostics.ts";
 import { buildInvestigationListFacets } from "./list-facets.ts";
 import { parseInvestigationIndexQueryOptions } from "./options.ts";
 import { resolveInvestigationsDirectory } from "./report-path.ts";
-import {
-  filterRelationsByEntry,
-  relatedInvestigationIds
-} from "./query-search-selection.ts";
+import { filterRelationsByEntry } from "./query-search-selection.ts";
 import {
   defaultInvestigationIndexPath,
   investigationIndexPathForOptions,
@@ -153,15 +150,17 @@ export function queryLoadedInvestigationIndex(
     state
   }));
   const facets = buildInvestigationListFacets(entries);
-  const related = relatedInvestigationIds(entries, validated);
-  if (related.isErr()) return err({ diagnostics: [], errors: related.error });
   const filterRelations = filterRelationsByEntry(entries, validated);
   if (filterRelations.isErr())
     return err({ diagnostics: [], errors: filterRelations.error });
-  if (related.value !== null && related.value.size === 0)
+  const related =
+    filterRelations.value === null
+      ? null
+      : new Set(filterRelations.value.keys());
+  if (related !== null && related.size === 0)
     return ok(emptyQueryResult(validated, indexPath, facets));
   return runIndexQuery(loaded.value, validated, indexPath, {
-    filters: selectedFilters(validated, related.value),
+    filters: selectedFilters(validated, related),
     facets,
     filterRelations: filterRelations.value
   });

@@ -2,6 +2,7 @@ await import("../index-query.test.ts");
 await import("../index-search.test.ts");
 await import("../index-selectors.test.ts");
 await import("../index-state.test.ts");
+await import("../current-index.test.ts");
 await import("../list-facets.test.ts");
 await import("../acquisition-contract.test.ts");
 await import("../identity-membership.test.ts");

@@ -155,11 +155,11 @@ async function candidateFormalIdentity(
     ids: readonly string[];
   }>
 > {
+  if (layout.formalSources.length > 0) return { layout, ids: layout.reportIds };
   const loaded = await loadInvestigationIndex({ investigationsDirectory });
   const needsDiscovery =
-    layout.formalSources.length === 0 &&
-    (loaded.status === "error" ||
-      owners.some((id) => !references.has(id) && !hasEntry(loaded.value, id)));
+    loaded.status === "error" ||
+    owners.some((id) => !references.has(id) && !hasEntry(loaded.value, id));
   if (
     needsDiscovery &&
     (await fs.readdir(investigationsDirectory)).some(isInvestigationSourcePath)
@@ -173,7 +173,7 @@ async function candidateFormalIdentity(
   return {
     layout,
     ids:
-      layout.formalSources.length === 0 && loaded.status === "ok"
+      loaded.status === "ok"
         ? Object.keys(loaded.value.entries)
         : layout.reportIds
   };

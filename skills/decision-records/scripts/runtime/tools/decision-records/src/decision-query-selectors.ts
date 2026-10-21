@@ -25,10 +25,9 @@ import type {
 import {
   candidateRecords,
   indexedRecord,
-  indexFailure,
   selectorNotFound
 } from "./decision-query-records.ts";
-import type { DecisionScan } from "./types.ts";
+import type { DecisionId, DecisionScan } from "./types.ts";
 
 export function resolveIndexedDecisionSelector(
   context: Extract<
@@ -56,25 +55,17 @@ function indexedSelectorByName(
 ):
   | { record: IndexedDecisionRecord; status: "ok" }
   | { failure: DecisionApplicationFailure; status: "error" } {
-  const matched = context.reader.all({
-    filters: [
-      { key: "name", kind: "exact", operator: "all", values: [normalized] }
-    ],
-    sort: [{ direction: "asc", key: "id" }]
-  });
-  if (matched.status === "error")
-    return {
-      failure: indexFailure(matched, context.indexRelativePath),
-      status: "error"
-    };
-  if (matched.value.length === 0)
+  const matched = context.entries.filter(
+    (entry) => entry.state.name === normalized
+  );
+  if (matched.length === 0)
     return { failure: selectorNotFound(label, normalized), status: "error" };
-  if (matched.value.length === 1)
-    return { record: indexedRecord(matched.value[0]!), status: "ok" };
+  if (matched.length === 1)
+    return { record: indexedRecord(matched[0]!), status: "ok" };
   return ambiguousIndexedSelector(
     label,
     normalized,
-    matched.value.map((entry) => entry.id)
+    matched.map((entry) => entry.id).sort()
   );
 }
 function ambiguousIndexedSelector(
@@ -106,21 +97,18 @@ function indexedSelectorById(
     Awaited<ReturnType<typeof loadDecisionQueryContext>>,
     { status: "ok" }
   >,
-  decisionId: string,
+  decisionId: DecisionId,
   label: string,
   normalized: string
 ):
   | { record: IndexedDecisionRecord; status: "ok" }
   | { failure: DecisionApplicationFailure; status: "error" } {
-  const matched = context.reader.get(decisionId);
-  if (matched.status === "error")
-    return {
-      failure: indexFailure(matched, context.indexRelativePath),
-      status: "error"
-    };
-  return matched.value === null
+  const state = Object.hasOwn(context.index.entries, decisionId)
+    ? context.index.entries[decisionId]
+    : undefined;
+  return state === undefined
     ? { failure: selectorNotFound(label, normalized), status: "error" }
-    : { record: indexedRecord(matched.value), status: "ok" };
+    : { record: indexedRecord({ id: decisionId, state }), status: "ok" };
 }
 
 export function resolveCandidateDecisionSelector(

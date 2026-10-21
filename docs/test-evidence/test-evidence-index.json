@@ -143,6 +143,8 @@
       "DECISION-DISCARD-RECORDED-FLAG-001": "sha256:611689d3c9144ae91fd631ec8d25cf947965a14b9ca2860e45869134e32fb1ad",
       "DECISION-DISCARD-REFERENCED-ESTABLISHED-001": "sha256:a8d3d4429e2c9a5e69229464b8a71f9ed825398904ff395eb2f16a1e859ffb33",
       "DECISION-DISCARD-SPLIT-CLOSURE-001": "sha256:dae9a841d24e8d128deb3f3f355b22af4832dc21f487ab88719aef2c33b2ee05",
+      "DECISION-DISCOVERY-CANDIDATE-MEMBERSHIP-001": "sha256:dfd0bca56e8a476263f389f834a07f79eae034c1910606a806c2cd64db7ca49f",
+      "DECISION-DISCOVERY-YAML-IDENTITY-001": "sha256:9f1ec2f5a9042343c1a8106f7c53ed0b10ab6b02f29e2112f432305548f5cc9c",
       "DECISION-ESTABLISHED-ALIGNMENT-001": "sha256:d3291b80318291a9e414d1a95e45ca627d9969f59cc06b9fb603d0e2be82c941",
       "DECISION-EVOLUTION-RELATIONS-001": "sha256:4d4786b33c74dcefa08c24550ed9e8c615eb370564a75561894f0a2fdec3f067",
       "DECISION-EVOLVE-ALIGNMENT-CONFIRMATION-001": "sha256:65df7a91882ce9a10fdab9b4c7ce451cfbb2669be7eaf576a91b31caa051848e",
@@ -205,6 +207,10 @@
       "DECISION-LIST-OUTPUT-001": "sha256:e08a4690441fe6dc51cd2913131af7fa9214895e664437a49e97b7d03e5a39f1",
       "DECISION-LIST-PAGE-001": "sha256:0ed077f925add60cd55afa9e79ef3e34135ed06c76fb765d8f1ae3f6042d94ae",
       "DECISION-LIST-TAG-AND-001": "sha256:09909f2e2d8822c4cac01f748bdcce73156ec7603aff30c7a273bdda40953745",
+      "DECISION-LOADED-SNAPSHOT-PAGINATION-001": "sha256:4b6a7acbd140ec110407e0135232c23b7aa5e07d5c9bbc906042803122ac7ed4",
+      "DECISION-LOADED-SNAPSHOT-SELECTORS-001": "sha256:f913bdcd2071a0874f970460ff07cd70f636541550f06b104a548efeafda57a0",
+      "DECISION-MEMBERSHIP-INVALID-IDENTITY-001": "sha256:a97a52d335a1a7593ccde4663b37af21f34c100ea0cbe67091e1bfe58e457a12",
+      "DECISION-MEMBERSHIP-SOURCE-FACTS-001": "sha256:a70cdbf6b298353db3723c6c0f11af5a65ab38a07a2523fdbc545b46db5e0ab3",
       "DECISION-MEMORY-SOURCE-BOUNDARY-001": "sha256:eedbf47ce0abfc7fd13ad76e5d2809b7ef171ad2803455715d965756f83a288d",
       "DECISION-MERGE-MINIMUM-001": "sha256:bf0913c10229b7ea90fadbd60aba808aca9530fb1acc9010943643bac1c9559c",
       "DECISION-MERGE-ORDINARY-INTERSECTION-001": "sha256:1c9724bc2483c62b70b8652dc1ad2de670ee24b6683759a1e89207ee6342865b",
@@ -267,6 +273,7 @@
       "DECISION-SET-RELATIONS-PREFLIGHT-CLEAR-001": "sha256:116c994a9f2884f5f2d3876c3b0dd7ba1042eeebcec33367b6384a107cdd1aae",
       "DECISION-SET-RELATIONS-REPLACE-001": "sha256:d15c8d7964179f5feb95a88a272cb3434963599cc1bdddd9f20a38bd9b5aab43",
       "DECISION-SHOW-OUTPUT-001": "sha256:6035c7a462f00957af4d441437b165125bc1610b672cff2b5bf33bbb11015b7d",
+      "DECISION-SOURCE-REVISION-FRESH-001": "sha256:a435ce50d00403df555de97dd5fdf958a9de5eb35d347b2aefbd0aa92286dcd9",
       "DECISION-SPLIT-CLOSURE-001": "sha256:2e1cecf9a938e0439888efb8b1dfbe1426c304e75092089a58ca10fa9e3ffe2d",
       "DECISION-SPLIT-EXTENSION-001": "sha256:8feb8da97005d523f79cc711d48524510787040abd9b9839b330f61846222564",
       "DECISION-SPLIT-MIXED-RELATIONS-001": "sha256:86a2d98104f18bf4d5b21d5ed4dcd2eb8ca890ddceececb14f18b2ec8080d45b",
@@ -318,6 +325,7 @@
       "DECISION-STATIC-MERGE-MINIMUM-001": "sha256:91371c838e38053ce177b4da5e39297d67345b0f20215c7e6230e03af7afebfb",
       "DECISION-STATIC-SPLIT-PURITY-001": "sha256:5956b4c8d6330137f93fb69a0d10c985f88e03a5242501567bcac223ac702ae2",
       "DECISION-SUCCESSOR-RELATION-OVERRIDE-001": "sha256:0f080958572152ff4e146fc0feb69f9237bc0dac306825fe92c7e415ad9d850c",
+      "DECISION-SYNC-FINAL-REVISION-GUARD-001": "sha256:987aeda8faf0d5b0f689241618065c5ee7c0590dc2ee0231643e6ff2a7ea9803",
       "DECISION-SYNC-INDEX-002": "sha256:bf51a4a9d4a8dbe4d2d00095ca8fc34974e08348ce5029df4a2b8d2c86f2ec9e",
       "DECISION-SYNC-INDEX-003": "sha256:9354534909ca412d2834a106377c7e06b2672f448819a379686f87ef5d042e14",
       "DECISION-SYNC-INDEX-CLEANUP-001": "sha256:396da709c7766e1c4df3115cfb2248edbe725e6641bb23d5d174ccfc59b79a2e",
@@ -486,13 +494,17 @@
       "INVESTIGATION-BATCH-STAGE-SELECTORS-001": "sha256:06a660e60169589a8994838cd0f0c31d11f9ff83d271ba67bf31b698f20e8688",
       "INVESTIGATION-BUNDLED-PARITY-001": "sha256:76240ed4ea4e7e0ed70e2641cc189520fb221127f3e3e936f409a71bf561f933",
       "INVESTIGATION-CANDIDATE-CLI-001": "sha256:6ac92c9252ef1a28c29d5f9e2c37d67a54a18027ae8c020f6f947930471da94d",
+      "INVESTIGATION-CANDIDATE-COMPLETE-LAYOUT-001": "sha256:487a0da5f12b97afdee77e08e488cf8aada98a966bee513f8a24abdff9af837a",
       "INVESTIGATION-CANDIDATE-DEFAULT-FORMED-AT-001": "sha256:fe700767bd0003b166ce4a2310372bb42ac71634ccfe6ac4d96fe7cc244babc8",
       "INVESTIGATION-CANDIDATE-DISCARD-004": "sha256:cf32927cfeae36ef6d0108890933919123d8bc1e07ed168ccc1d95d57623883e",
       "INVESTIGATION-CANDIDATE-DISCARD-005": "sha256:446235f7e79b3b689d333a21c8fbd4dccbcd8eee821368df3f4157a4bc25d5d9",
       "INVESTIGATION-CANDIDATE-DISCARD-006": "sha256:d1683e0bc5749b81a8aab34f37abc2f4cb50a81cc02162205b792bcdeef02bf5",
+      "INVESTIGATION-CANDIDATE-EMPTY-LAYOUT-001": "sha256:92a35a04b6d4097f2ca953fdace887b8b3503c5386a934100616021588ca5dbf",
       "INVESTIGATION-CANDIDATE-MIGRATION-001": "sha256:72e97cc9e31498aa0b222ebe178bf417022900bfdbef1d8687c37f7b63c2b38c",
       "INVESTIGATION-CANDIDATE-NEW-001": "sha256:5baad70a85383afe3ade86da6592c13c312544345f6cd8d61091aaacef3d15f2",
       "INVESTIGATION-CANDIDATE-NEW-002": "sha256:9e2d3c49c57a2fe1cb4867b4f3bf73dc8ec582f42522c9a2fb957f08f349691a",
+      "INVESTIGATION-CANDIDATE-PARTIAL-DISCOVERY-001": "sha256:ea44c85cf2485cbcb85702fde5dad2b32502a6fc42be4d7d5ad00de65a34b917",
+      "INVESTIGATION-CANDIDATE-PARTIAL-FAILURES-001": "sha256:660bfe20f94be360c5375eb9be78d7c6b8979e9073cd35e860c34319126207d3",
       "INVESTIGATION-CANDIDATE-PUBLISH-001": "sha256:b2aa72292d09b0e0a23928b7b2b92a8e1035d9f703a6355209f12667506ba32e",
       "INVESTIGATION-CANDIDATE-PUBLISH-002": "sha256:c79a3f49582bc52eda7d890be3683e1b44a9d04c2da8023e8f518ab94c7bba95",
       "INVESTIGATION-CANDIDATE-PUBLISH-003": "sha256:b73f141ce6f994e0db2d4aba2ea532735014c6fd5749f0ac250e1b7c59b66054",
@@ -539,6 +551,9 @@
       "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:4935ae4676566a5a7b5bf1dbb17934a47358c9e391384de289c4c412f38decf4",
       "INVESTIGATION-COLLECTION-LOCK-DIAGNOSTICS-001": "sha256:fc4b666d43162a6d5c35641114a8a268483ebccb200832c8e8c6e2949a9c237f",
       "INVESTIGATION-COLLECTION-ROOT-001": "sha256:fc53e55e16011068012672a7e4ddd7db972ef27894a91a03bb87e59dbbdff317",
+      "INVESTIGATION-CURRENT-INDEX-FAILURES-001": "sha256:14e8c5968423ac1b749166b1167084654d01d613005810df104c7632c7b771f8",
+      "INVESTIGATION-CURRENT-INDEX-REUSE-001": "sha256:e7b98ab992abd853404e377d8ee2ac9f3ea36bfb032aab8e16b2fbb4f6da81fc",
+      "INVESTIGATION-CURRENT-INDEX-VALIDATION-001": "sha256:53dfd4290a41736d2ac64fa52b459b79f8c29f39de80e63d72d63f5b6aaaa795",
       "INVESTIGATION-DATED-SELECTOR-001": "sha256:902a221a6df05c8ebe42dd49e0ba1c4e884f68c1e5e231b42edfb7d856d24542",
       "INVESTIGATION-DEEP-RELATION-CHAIN-001": "sha256:a56a0a4ae8ccccf999b17739770b5a936d812d4b87d027e51de435881e665b7f",
       "INVESTIGATION-DIAGNOSTIC-SANITIZATION-001": "sha256:4b24284dd1f7b73b9321ddc57d1ea5b1442e1a4b3fe394c16697258381b73249",
@@ -578,6 +593,8 @@
       "INVESTIGATION-LEGACY-IDENTITY-001": "sha256:4f850d8f8df4fee73d4c39d9126056617950fae82a35b17f9bc6faef400db0e8",
       "INVESTIGATION-LIST-FACETS-001": "sha256:b44d17fbd4055509a1b8de6dc3fd734e3fa3ee30507ae7692affef55c606e75d",
       "INVESTIGATION-LIST-OUTPUT-001": "sha256:506416230ab661d7321da62270577c4b2dc406b22c1e72cb8bc4fb27166f1901",
+      "INVESTIGATION-LIST-RELATION-ERRORS-001": "sha256:fa3f01272c974e7e54d38142d9c0157d1a3a3c8b6dd2f04821b1d9e6a6791127",
+      "INVESTIGATION-LIST-RELATION-SELECTION-001": "sha256:4688b5663ee6c052cd0e0c00e40c4331e8c825679ff77e8abeba69545d73bf8c",
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:7c1c4d229f15339621b4e1dced9b498a9be967168bdea10c301cdffa7a477e8a",
       "INVESTIGATION-QUERY-HELP-SEMANTICS-001": "sha256:69eb99cd0b345558dc04f475e66cf199a33e7e33c907eb44614203600a00fcd2",
       "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:4591b6b6b59f39ba32510e9535bf7c3d4c96785abf6f5af844e431dc0de5c2f6",
@@ -2579,6 +2596,26 @@
         "test:482b8f8e1da000a8f40d9c67b76b56b697b21fb29bfaffa0d4b7ac716f727f66"
       ]
     },
+    "DECISION-DISCOVERY-CANDIDATE-MEMBERSHIP-001": {
+      "title": "排除候选前检查完整来源身份",
+      "sourcePath": "cases/decision-discovery-candidate-membership.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:5011b6c33eb5c22df6a2db281df24edc6ac6b0e791df8765334c6a1c7d2a8a29"
+      ]
+    },
+    "DECISION-DISCOVERY-YAML-IDENTITY-001": {
+      "title": "来源发现从同份 YAML 取得身份与候选状态",
+      "sourcePath": "cases/decision-discovery-yaml-identity.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:453dcdc8a6cf1b7640176c4c5998c5ef1df99707eb6e27f5d9dcd32536e14120"
+      ]
+    },
     "DECISION-ESTABLISHED-ALIGNMENT-001": {
       "title": "已建立记录要求明确对齐状态",
       "sourcePath": "cases/decision-established-alignment-001.md",
@@ -3200,6 +3237,46 @@
       ],
       "testIds": [
         "test:dfefe87d13b7da79839791cdc6e3583be7312ff7daad4e21b156adce1af0f76a"
+      ]
+    },
+    "DECISION-LOADED-SNAPSHOT-PAGINATION-001": {
+      "title": "发布快照查询跨越 reader 页上限而不丢失记录",
+      "sourcePath": "cases/decision-loaded-snapshot-pagination.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:4441023749eaa25260d450f304813b7ab406ab8692b775c2ef808bcf4f99f232"
+      ]
+    },
+    "DECISION-LOADED-SNAPSHOT-SELECTORS-001": {
+      "title": "发布快照选择器保留完整身份与名称歧义",
+      "sourcePath": "cases/decision-loaded-snapshot-selectors.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:f38f1947b4933cd5d240c0f85d60b6e814d4b592585341bcf4c4c0f99cc152bd"
+      ]
+    },
+    "DECISION-MEMBERSHIP-INVALID-IDENTITY-001": {
+      "title": "失败身份不冒充未发现且保留正文诊断",
+      "sourcePath": "cases/decision-membership-invalid-identity.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:172ce0e5d0d894c7a2be782b8a2424ffb885471b61616c72609c32152e7e2d7a"
+      ]
+    },
+    "DECISION-MEMBERSHIP-SOURCE-FACTS-001": {
+      "title": "同阶段扫描沿用成员发现的字节与身份",
+      "sourcePath": "cases/decision-membership-source-facts.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:1cadee8d4f7c99b1fb889fee0ba37c5c3520ffc0ffcd3c362691737cfe0f6259"
       ]
     },
     "DECISION-MEMORY-SOURCE-BOUNDARY-001": {
@@ -3829,6 +3906,16 @@
         "test:c5c37382a86b650ade735fe2ef9cbeb3f45e2954aff08edffc47c39fd9902315"
       ]
     },
+    "DECISION-SOURCE-REVISION-FRESH-001": {
+      "title": "独立来源发现重新观察字节身份与候选状态",
+      "sourcePath": "cases/decision-source-revision-fresh.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:737018312a8c42220cda1444fa0258bc40d7a7c719ceb8fd89a781508030ecda"
+      ]
+    },
     "DECISION-SPLIT-CLOSURE-001": {
       "title": "严格关系检查拒绝开放拆分",
       "sourcePath": "cases/decision-split-closure-001.md",
@@ -4341,6 +4428,16 @@
       ],
       "testIds": [
         "test:683bc9ad7b65829c45335d083232297fe6b1924fad74148dbd5c8e20ed77694c"
+      ]
+    },
+    "DECISION-SYNC-FINAL-REVISION-GUARD-001": {
+      "title": "同步结束独立检查来源漂移",
+      "sourcePath": "cases/decision-sync-final-revision-guard.md",
+      "tags": [
+        "decision-records"
+      ],
+      "testIds": [
+        "test:33bde5655ecf6e9db4235920d644f19a5b5acf7b3de6cfea4f5c338f4aae01a2"
       ]
     },
     "DECISION-SYNC-INDEX-002": {
@@ -6078,6 +6175,16 @@
         "test:a3fb2d2fa9641cb2a56b08a77b3e028bf37ed7cf6907fc2b4ddb936f25db7ce6"
       ]
     },
+    "INVESTIGATION-CANDIDATE-COMPLETE-LAYOUT-001": {
+      "title": "候选准备复用完整正式身份与 owner 字节",
+      "sourcePath": "cases/investigation-candidate-complete-layout-reuse.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:2d6ec414a92b7423a35e2f05073291213f7f1b77022e60e201d9395a4dc6a088"
+      ]
+    },
     "INVESTIGATION-CANDIDATE-DEFAULT-FORMED-AT-001": {
       "title": "candidate API resolves one effective formation timestamp",
       "sourcePath": "cases/investigation-candidate-default-formed-at-001.md",
@@ -6118,6 +6225,16 @@
         "test:72ac62042b2905cb0fa8f492ea6ad468b9bec318503fa3ef1e2ea2b640a70bd5"
       ]
     },
+    "INVESTIGATION-CANDIDATE-EMPTY-LAYOUT-001": {
+      "title": "无索引空正式集合支持首条候选",
+      "sourcePath": "cases/investigation-candidate-empty-layout.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:59ee787fc00b9c7d3c8810c2b3776bd180e68602d24e18cdca8b06e8b5468420"
+      ]
+    },
     "INVESTIGATION-CANDIDATE-MIGRATION-001": {
       "title": "new 在 legacy 同名冲突前要求显式迁移",
       "sourcePath": "cases/investigation-candidate-migration-001.md",
@@ -6146,6 +6263,26 @@
       ],
       "testIds": [
         "test:60b5eeed7f7bbf65d681b44c7b22ae58244df8efaa83a573d40e207122dddf86"
+      ]
+    },
+    "INVESTIGATION-CANDIDATE-PARTIAL-DISCOVERY-001": {
+      "title": "局部候选读取保留移动 owner 发现",
+      "sourcePath": "cases/investigation-candidate-partial-layout-discovery.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:9d1136e7099d8dff50bb83ae1f26f9c0e87c1c781bcb03afc55559de18673a42"
+      ]
+    },
+    "INVESTIGATION-CANDIDATE-PARTIAL-FAILURES-001": {
+      "title": "局部候选读取拒绝不可读或重复 owner",
+      "sourcePath": "cases/investigation-candidate-partial-layout-failures.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:baf2c74febe9372b2664fdd896d6a402e7cb2c73a4e8bbc3444368ffb8da4a57"
       ]
     },
     "INVESTIGATION-CANDIDATE-PUBLISH-001": {
@@ -6610,6 +6747,36 @@
         "test:27ddce8a4aad2b2e6dca10eecd09d719db3050790c94865fbde55a8decb60508"
       ]
     },
+    "INVESTIGATION-CURRENT-INDEX-FAILURES-001": {
+      "title": "Current 加载保留外部边界失败",
+      "sourcePath": "cases/investigation-current-index-failures.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:7e02fbe8fa9db76c58f20a6e0654489acc3acd276142b43ae0927700292ca5e2"
+      ]
+    },
+    "INVESTIGATION-CURRENT-INDEX-REUSE-001": {
+      "title": "Current 加载只解析一次索引并逐次核对来源",
+      "sourcePath": "cases/investigation-current-index-reuse.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:5454b785ae4b0e5bc3cdf0cc7e548f8f0ddfc3e790469111ce1f23b531f05467"
+      ]
+    },
+    "INVESTIGATION-CURRENT-INDEX-VALIDATION-001": {
+      "title": "Current 加载保留完整领域校验",
+      "sourcePath": "cases/investigation-current-index-validation.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:82bb4b2cf1ae5df2d7dd58a1526cefa9d6cace3f37af29362397a5340aa5b160"
+      ]
+    },
     "INVESTIGATION-DATED-SELECTOR-001": {
       "title": "普通 Investigation selector 先解析日期 ID 再查询名称",
       "sourcePath": "cases/investigation-dated-selector-001.md",
@@ -7025,6 +7192,26 @@
       ],
       "testIds": [
         "test:9c5802a66bc659ebcf985c6195ba4103400148f7f77da79464929b8e8efe328c"
+      ]
+    },
+    "INVESTIGATION-LIST-RELATION-ERRORS-001": {
+      "title": "关系名称歧义与索引失败保持原优先级",
+      "sourcePath": "cases/investigation-list-relation-error-precedence.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:584e2c3db49a100a822e6ebe14db4844e2f87bcba399b801f0bb59ec403241de"
+      ]
+    },
+    "INVESTIGATION-LIST-RELATION-SELECTION-001": {
+      "title": "列表关系选择复用依据并保持窗口边界",
+      "sourcePath": "cases/investigation-list-relation-selection.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:c605a43130bc05b05585903ae3b261367cf61798962e17c68796bd4be964bfa3"
       ]
     },
     "INVESTIGATION-PUBLIC-OPTIONS-001": {

@@ -84,7 +84,10 @@ async function scanReadableSourceFile(
   sourceText: string,
   context: ScanSourceContext
 ): Promise<DecisionRecord> {
-  const decisionId = decisionIdFromMarkdown(sourceText);
+  const decisionId =
+    sourceFile.decisionId === undefined
+      ? decisionIdFromMarkdown(sourceText)
+      : sourceFile.decisionId;
   const indexEntry = indexedSourceEntry(context.index, decisionId);
   const recordErrors: string[] = [];
   const sourceDocument = await validateDecisionBody({

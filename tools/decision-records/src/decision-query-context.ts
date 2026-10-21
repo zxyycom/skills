@@ -1,26 +1,17 @@
 import path from "node:path";
 import {
-  createStateIndexReader,
-  type StateIndexReader
-} from "../../index-runtime/src/index.ts";
-import {
   decisionFailure,
   type DecisionApplicationFailure
 } from "./application-result.ts";
 import {
-  createDecisionStateIndexDefinition,
   decisionIndexFileName,
   decisionIndexDiagnostics,
   decisionIndexRecovery,
   loadDecisionIndex
 } from "./decision-state-index.ts";
 import { displayDecisionPath } from "./decision-path.ts";
-import type {
-  DecisionIndex,
-  DecisionIndexMetadata,
-  DecisionIndexState,
-  DecisionScanOptions
-} from "./types.ts";
+import type { IndexedDecisionState } from "./decision-query-contract.ts";
+import type { DecisionIndex, DecisionScanOptions } from "./types.ts";
 
 export type DecisionLocation = Readonly<{
   decisionsDir: string;
@@ -31,7 +22,7 @@ export type DecisionQueryContext = Readonly<{
   decisionsDirectory: string;
   index: DecisionIndex;
   indexRelativePath: string;
-  reader: StateIndexReader<DecisionIndexState, DecisionIndexMetadata>;
+  entries: readonly IndexedDecisionState[];
   status: "ok";
   warnings: string[];
 }>;
@@ -67,11 +58,10 @@ export async function loadDecisionQueryContext(
     decisionsDirectory,
     index: currentIndex.value,
     indexRelativePath,
-    reader: createStateIndexReader({
-      definition: createDecisionStateIndexDefinition(),
-      index: currentIndex.value,
-      indexPath: indexRelativePath
-    }),
+    entries: Object.entries(currentIndex.value.entries).map(([id, state]) => ({
+      id,
+      state
+    })),
     status: "ok",
     warnings: []
   };

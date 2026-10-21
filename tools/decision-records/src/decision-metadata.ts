@@ -73,26 +73,26 @@ export function parseDecisionMarkdown(options: {
 
 /** Reads only the declared identity for source discovery before full validation. */
 export function decisionIdFromMarkdown(markdown: string): DecisionId | null {
-  const frontmatter = parseYamlFrontmatter(
-    markdown.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n")
-  );
-  return frontmatter === null || frontmatter.error !== null
-    ? null
-    : isDecisionId(frontmatter.values.id)
-      ? frontmatter.values.id
-      : null;
+  return decisionSourceIdentityFromMarkdown(markdown).decisionId;
 }
 
-/** Identifies a legal candidate's lifecycle without validating its body. */
-export function isCandidateDecisionMarkdown(markdown: string): boolean {
+/** Reads discovery identity and candidate status from the same source bytes. */
+export function decisionSourceIdentityFromMarkdown(markdown: string): Readonly<{
+  decisionId: DecisionId | null;
+  isCandidate: boolean;
+}> {
   const frontmatter = parseYamlFrontmatter(
     markdown.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n")
   );
-  return (
-    frontmatter !== null &&
-    frontmatter.error === null &&
-    frontmatter.values.status === "candidate"
-  );
+  if (frontmatter === null || frontmatter.error !== null) {
+    return { decisionId: null, isCandidate: false };
+  }
+  return {
+    decisionId: isDecisionId(frontmatter.values.id)
+      ? frontmatter.values.id
+      : null,
+    isCandidate: frontmatter.values.status === "candidate"
+  };
 }
 
 function validateFrontmatterKeys(
