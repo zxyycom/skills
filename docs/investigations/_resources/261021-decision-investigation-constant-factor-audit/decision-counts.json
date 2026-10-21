@@ -1,0 +1,874 @@
+{
+  "baselineHead": "d5f9fde2821f03088a2a1850a3c2819b23224db5",
+  "node": "v26.8.2",
+  "method": "fs/promises readFile and JSON.parse wrappers; V8 precise coverage for a whitelist of synchronous functions only. No timings. FileHandle.read used by content matching is not included in readFile totals.",
+  "runs": [
+    {
+      "fixture": {
+        "established": 12,
+        "candidates": 3,
+        "indexOnly": false
+      },
+      "observations": [
+        {
+          "operation": "scan",
+          "status": "scan",
+          "fileReads": {
+            "markdown": 15,
+            "json": 1,
+            "scan": 15,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "fullMarkdownParse": 15,
+            "idParse": 30,
+            "yamlParse": 45
+          }
+        },
+        {
+          "operation": "check",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 45,
+            "json": 2,
+            "scan": 15,
+            "snapshotBuild": 15,
+            "revisionGuard": 15,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "fullMarkdownParse": 27,
+            "idParse": 60,
+            "candidateStatusParse": 30,
+            "yamlParse": 117,
+            "idSelection": 1,
+            "validationSummary": 1
+          }
+        },
+        {
+          "operation": "candidates",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 15,
+            "json": 1,
+            "scan": 15,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "fullMarkdownParse": 15,
+            "idParse": 30,
+            "yamlParse": 45
+          }
+        },
+        {
+          "operation": "show-candidate",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 16,
+            "json": 1,
+            "scan": 15,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 1
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "fullMarkdownParse": 15,
+            "idParse": 31,
+            "yamlParse": 46
+          }
+        },
+        {
+          "operation": "show",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 1,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 1
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "idParse": 1,
+            "yamlParse": 1
+          }
+        },
+        {
+          "operation": "list",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 0,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "timestampParse": 24,
+            "readerEffectiveEntries": 1,
+            "readerQuery": 1
+          }
+        },
+        {
+          "operation": "trace",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 0,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "readerEffectiveEntries": 1,
+            "readerQuery": 1
+          }
+        },
+        {
+          "operation": "trace-name",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 0,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "readerEffectiveEntries": 2,
+            "readerQuery": 2
+          }
+        },
+        {
+          "operation": "metadata-search",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 0,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {}
+        },
+        {
+          "operation": "content-search",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 45,
+            "json": 3,
+            "scan": 0,
+            "snapshotBuild": 15,
+            "revisionGuard": 30,
+            "target": 0
+          },
+          "jsonParseCalls": 2,
+          "calls": {
+            "fullMarkdownParse": 12,
+            "idParse": 45,
+            "candidateStatusParse": 30,
+            "yamlParse": 87
+          }
+        },
+        {
+          "operation": "sync-preview",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 45,
+            "json": 2,
+            "scan": 15,
+            "snapshotBuild": 15,
+            "revisionGuard": 15,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "fullMarkdownParse": 27,
+            "idParse": 60,
+            "candidateStatusParse": 30,
+            "yamlParse": 117,
+            "idSelection": 3,
+            "validationSummary": 2
+          }
+        },
+        {
+          "operation": "sync-selected-preview",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 45,
+            "json": 3,
+            "scan": 15,
+            "snapshotBuild": 15,
+            "revisionGuard": 15,
+            "target": 0
+          },
+          "jsonParseCalls": 3,
+          "calls": {
+            "fullMarkdownParse": 27,
+            "idParse": 60,
+            "candidateStatusParse": 30,
+            "yamlParse": 117,
+            "idSelection": 3,
+            "validationSummary": 2
+          }
+        },
+        {
+          "operation": "maintenance-prepare",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 15,
+            "json": 1,
+            "scan": 15,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "fullMarkdownParse": 15,
+            "idParse": 30,
+            "yamlParse": 45
+          }
+        },
+        {
+          "operation": "new-many",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 15,
+            "json": 1,
+            "scan": 15,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "fullMarkdownParse": 15,
+            "idParse": 30,
+            "yamlParse": 45,
+            "newRelationSelector": 8,
+            "decision-candidate-service.ts#callback@191": 120,
+            "decision-candidate-validation.ts#callback@63": 15,
+            "decision-candidate-validation.ts#callback@98": 42
+          }
+        }
+      ]
+    },
+    {
+      "fixture": {
+        "established": 120,
+        "candidates": 3,
+        "indexOnly": false
+      },
+      "observations": [
+        {
+          "operation": "scan",
+          "status": "scan",
+          "fileReads": {
+            "markdown": 123,
+            "json": 1,
+            "scan": 123,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "fullMarkdownParse": 123,
+            "idParse": 246,
+            "yamlParse": 369
+          }
+        },
+        {
+          "operation": "check",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 369,
+            "json": 2,
+            "scan": 123,
+            "snapshotBuild": 123,
+            "revisionGuard": 123,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "fullMarkdownParse": 243,
+            "idParse": 492,
+            "candidateStatusParse": 246,
+            "yamlParse": 981,
+            "idSelection": 1,
+            "validationSummary": 1
+          }
+        },
+        {
+          "operation": "candidates",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 123,
+            "json": 1,
+            "scan": 123,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "fullMarkdownParse": 123,
+            "idParse": 246,
+            "yamlParse": 369
+          }
+        },
+        {
+          "operation": "show-candidate",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 124,
+            "json": 1,
+            "scan": 123,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 1
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "fullMarkdownParse": 123,
+            "idParse": 247,
+            "yamlParse": 370
+          }
+        },
+        {
+          "operation": "show",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 1,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 1
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "idParse": 1,
+            "yamlParse": 1
+          }
+        },
+        {
+          "operation": "list",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 0,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "timestampParse": 240,
+            "readerEffectiveEntries": 1,
+            "readerQuery": 1
+          }
+        },
+        {
+          "operation": "trace",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 0,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "readerEffectiveEntries": 1,
+            "readerQuery": 1
+          }
+        },
+        {
+          "operation": "trace-name",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 0,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "readerEffectiveEntries": 2,
+            "readerQuery": 2
+          }
+        },
+        {
+          "operation": "metadata-search",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 0,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {}
+        },
+        {
+          "operation": "content-search",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 369,
+            "json": 3,
+            "scan": 0,
+            "snapshotBuild": 123,
+            "revisionGuard": 246,
+            "target": 0
+          },
+          "jsonParseCalls": 2,
+          "calls": {
+            "fullMarkdownParse": 120,
+            "idParse": 369,
+            "candidateStatusParse": 246,
+            "yamlParse": 735
+          }
+        },
+        {
+          "operation": "sync-preview",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 369,
+            "json": 2,
+            "scan": 123,
+            "snapshotBuild": 123,
+            "revisionGuard": 123,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "fullMarkdownParse": 243,
+            "idParse": 492,
+            "candidateStatusParse": 246,
+            "yamlParse": 981,
+            "idSelection": 3,
+            "validationSummary": 2
+          }
+        },
+        {
+          "operation": "sync-selected-preview",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 369,
+            "json": 3,
+            "scan": 123,
+            "snapshotBuild": 123,
+            "revisionGuard": 123,
+            "target": 0
+          },
+          "jsonParseCalls": 3,
+          "calls": {
+            "fullMarkdownParse": 243,
+            "idParse": 492,
+            "candidateStatusParse": 246,
+            "yamlParse": 981,
+            "idSelection": 3,
+            "validationSummary": 2
+          }
+        },
+        {
+          "operation": "maintenance-prepare",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 123,
+            "json": 1,
+            "scan": 123,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "fullMarkdownParse": 123,
+            "idParse": 246,
+            "yamlParse": 369
+          }
+        },
+        {
+          "operation": "new-many",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 123,
+            "json": 1,
+            "scan": 123,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "fullMarkdownParse": 123,
+            "idParse": 246,
+            "yamlParse": 369,
+            "newRelationSelector": 8,
+            "decision-candidate-service.ts#callback@191": 984,
+            "decision-candidate-validation.ts#callback@63": 123,
+            "decision-candidate-validation.ts#callback@98": 474
+          }
+        }
+      ]
+    },
+    {
+      "fixture": {
+        "established": 1000,
+        "candidates": 0,
+        "indexOnly": true
+      },
+      "observations": [
+        {
+          "operation": "list",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 0,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "timestampParse": 2000,
+            "readerEffectiveEntries": 1,
+            "readerQuery": 1
+          }
+        },
+        {
+          "operation": "trace",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 0,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "readerEffectiveEntries": 1,
+            "readerQuery": 1
+          }
+        },
+        {
+          "operation": "trace-name",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 0,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "readerEffectiveEntries": 2,
+            "readerQuery": 2
+          }
+        }
+      ]
+    },
+    {
+      "fixture": {
+        "established": 1001,
+        "candidates": 0,
+        "indexOnly": true
+      },
+      "observations": [
+        {
+          "operation": "list",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 0,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "timestampParse": 2002,
+            "readerEffectiveEntries": 2,
+            "readerQuery": 2
+          }
+        },
+        {
+          "operation": "trace",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 0,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "readerEffectiveEntries": 2,
+            "readerQuery": 2
+          }
+        },
+        {
+          "operation": "trace-name",
+          "status": "ok",
+          "fileReads": {
+            "markdown": 0,
+            "json": 1,
+            "scan": 0,
+            "snapshotBuild": 0,
+            "revisionGuard": 0,
+            "target": 0
+          },
+          "jsonParseCalls": 1,
+          "calls": {
+            "readerEffectiveEntries": 3,
+            "readerQuery": 3
+          }
+        }
+      ]
+    }
+  ],
+  "exampleStackGroups": [
+    {
+      "operation": "check",
+      "readFile": [
+        {
+          "count": 1,
+          "stack": [
+            "at readRegularDecisionIndex (file://tools/decision-records/src/scan-index.ts:61:26)",
+            "at loadDecisionIndexForScan (file://tools/decision-records/src/scan-index.ts:28:10)",
+            "at async scanDecisionRecords (file://tools/decision-records/src/scan.ts:57:23)",
+            "at async loadDecisionValidationContext (file://tools/decision-records/src/index.ts:58:16)",
+            "at async checkDecisionRecords (file://tools/decision-records/src/decision-query-candidates.ts:29:22)",
+            "at async executeDecisionQuery (file://tools/decision-records/src/decision-query-service.ts:79:10)"
+          ]
+        },
+        {
+          "count": 1,
+          "stack": [
+            "at validateSourceMembership (file://tools/decision-records/src/scan-collection.ts:137:40)",
+            "at scanCollectedSourceFiles (file://tools/decision-records/src/scan.ts:114:38)",
+            "at scanDecisionRecords (file://tools/decision-records/src/scan.ts:63:25)",
+            "at async loadDecisionValidationContext (file://tools/decision-records/src/index.ts:58:16)",
+            "at async checkDecisionRecords (file://tools/decision-records/src/decision-query-candidates.ts:29:22)",
+            "at async executeDecisionQuery (file://tools/decision-records/src/decision-query-service.ts:79:10)"
+          ]
+        },
+        {
+          "count": 14,
+          "stack": [
+            "at validateSourceMembership (file://tools/decision-records/src/scan-collection.ts:137:40)",
+            "at async scanCollectedSourceFiles (file://tools/decision-records/src/scan.ts:114:32)",
+            "at async scanDecisionRecords (file://tools/decision-records/src/scan.ts:63:19)",
+            "at async loadDecisionValidationContext (file://tools/decision-records/src/index.ts:58:16)",
+            "at async checkDecisionRecords (file://tools/decision-records/src/decision-query-candidates.ts:29:22)",
+            "at async executeDecisionQuery (file://tools/decision-records/src/decision-query-service.ts:79:10)"
+          ]
+        },
+        {
+          "count": 15,
+          "stack": [
+            "at discoverDecisionSources (file://tools/decision-records/src/decision-index-source.ts:100:27)",
+            "at async readDecisionSources (file://tools/decision-records/src/decision-index-source.ts:49:22)",
+            "at async readDecisionStateSnapshot (file://tools/decision-records/src/decision-index-source.ts:39:5)",
+            "at async Object.read (file://tools/decision-records/src/decision-index-definition.ts:139:7)",
+            "at async buildStateIndex (file://tools/index-runtime/src/snapshot-builder.ts:49:16)",
+            "at async syncStateIndex (file://tools/index-runtime/src/storage-sync.ts:92:17)",
+            "at async syncDecisionIndex (file://tools/decision-records/src/decision-state-index.ts:135:10)"
+          ]
+        },
+        {
+          "count": 15,
+          "stack": [
+            "at discoverDecisionSources (file://tools/decision-records/src/decision-index-source.ts:100:27)",
+            "at async readDecisionSources (file://tools/decision-records/src/decision-index-source.ts:49:22)",
+            "at async readDecisionSourceRevision (file://tools/decision-records/src/decision-index-source.ts:29:5)",
+            "at async Object.readRevision (file://tools/decision-records/src/decision-index-definition.ts:145:7)",
+            "at async readSourceRevision (file://tools/index-runtime/src/storage-shared.ts:34:16)",
+            "at async syncStateIndex (file://tools/index-runtime/src/storage-sync.ts:96:27)",
+            "at async syncDecisionIndex (file://tools/decision-records/src/decision-state-index.ts:135:10)"
+          ]
+        },
+        {
+          "count": 1,
+          "stack": [
+            "at syncStateIndex (file://tools/index-runtime/src/storage-sync.ts:132:34)",
+            "at async syncDecisionIndex (file://tools/decision-records/src/decision-state-index.ts:135:10)",
+            "at async validateDecisionIndexText (file://tools/decision-records/src/index.ts:102:19)",
+            "at async validateDecisionScan (file://tools/decision-records/src/index.ts:80:3)",
+            "at async loadDecisionValidationContext (file://tools/decision-records/src/index.ts:60:13)",
+            "at async checkDecisionRecords (file://tools/decision-records/src/decision-query-candidates.ts:29:22)",
+            "at async executeDecisionQuery (file://tools/decision-records/src/decision-query-service.ts:79:10)"
+          ]
+        }
+      ],
+      "jsonParse": [
+        {
+          "count": 1,
+          "stack": [
+            "at parseStateIndexEnvelope (file://tools/index-runtime/src/snapshot-parser.ts:86:18)",
+            "at parseStateIndex (file://tools/index-runtime/src/snapshot-parser.ts:59:20)",
+            "at parseDecisionIndex (file://tools/decision-records/src/decision-state-index.ts:56:18)",
+            "at readRegularDecisionIndex (file://tools/decision-records/src/scan-index.ts:70:18)",
+            "at async scanDecisionRecords (file://tools/decision-records/src/scan.ts:57:23)"
+          ]
+        }
+      ]
+    },
+    {
+      "operation": "sync-selected-preview",
+      "readFile": [
+        {
+          "count": 1,
+          "stack": [
+            "at readRegularDecisionIndex (file://tools/decision-records/src/scan-index.ts:61:26)",
+            "at loadDecisionIndexForScan (file://tools/decision-records/src/scan-index.ts:28:10)",
+            "at async scanDecisionRecords (file://tools/decision-records/src/scan.ts:57:23)",
+            "at async loadDecisionValidationContext (file://tools/decision-records/src/index.ts:58:16)",
+            "at async syncIndexValidation (file://tools/decision-records/src/decision-query-sync.ts:108:22)",
+            "at async synchronizeLockedDecisionIndex (file://tools/decision-records/src/decision-query-sync.ts:62:22)",
+            "at async file://tools/decision-records/src/decision-query-sync.ts:52:19"
+          ]
+        },
+        {
+          "count": 1,
+          "stack": [
+            "at validateSourceMembership (file://tools/decision-records/src/scan-collection.ts:137:40)",
+            "at scanCollectedSourceFiles (file://tools/decision-records/src/scan.ts:114:38)",
+            "at scanDecisionRecords (file://tools/decision-records/src/scan.ts:63:25)",
+            "at async loadDecisionValidationContext (file://tools/decision-records/src/index.ts:58:16)",
+            "at async syncIndexValidation (file://tools/decision-records/src/decision-query-sync.ts:108:22)",
+            "at async synchronizeLockedDecisionIndex (file://tools/decision-records/src/decision-query-sync.ts:62:22)",
+            "at async file://tools/decision-records/src/decision-query-sync.ts:52:19"
+          ]
+        },
+        {
+          "count": 14,
+          "stack": [
+            "at validateSourceMembership (file://tools/decision-records/src/scan-collection.ts:137:40)",
+            "at async scanCollectedSourceFiles (file://tools/decision-records/src/scan.ts:114:32)",
+            "at async scanDecisionRecords (file://tools/decision-records/src/scan.ts:63:19)",
+            "at async loadDecisionValidationContext (file://tools/decision-records/src/index.ts:58:16)",
+            "at async syncIndexValidation (file://tools/decision-records/src/decision-query-sync.ts:108:22)",
+            "at async synchronizeLockedDecisionIndex (file://tools/decision-records/src/decision-query-sync.ts:62:22)",
+            "at async file://tools/decision-records/src/decision-query-sync.ts:52:19"
+          ]
+        },
+        {
+          "count": 1,
+          "stack": [
+            "at readIndexTextAtResolvedPath (file://tools/index-runtime/src/storage-load.ts:95:21)",
+            "at loadStateIndexAtResolvedPath (file://tools/index-runtime/src/storage-load.ts:57:22)",
+            "at loadStateIndex (file://tools/index-runtime/src/storage-load.ts:40:16)",
+            "at async loadDecisionIndex (file://tools/decision-records/src/decision-state-index.ts:77:18)",
+            "at async selectedDecisionSyncScope (file://tools/decision-records/src/decision-query-sync.ts:168:20)",
+            "at async synchronizeLockedDecisionIndex (file://tools/decision-records/src/decision-query-sync.ts:65:17)",
+            "at async file://tools/decision-records/src/decision-query-sync.ts:52:19"
+          ]
+        },
+        {
+          "count": 1,
+          "stack": [
+            "at readSelectedBaseline (file://tools/index-runtime/src/selected-sync.ts:292:21)",
+            "at syncSelectedStateIndex (file://tools/index-runtime/src/selected-sync.ts:47:26)",
+            "at syncStateIndex (file://tools/index-runtime/src/storage-sync.ts:85:18)",
+            "at async syncDecisionIndex (file://tools/decision-records/src/decision-state-index.ts:135:10)",
+            "at async synchronizeIndexScope (file://tools/decision-records/src/decision-query-sync.ts:131:10)",
+            "at async synchronizeLockedDecisionIndex (file://tools/decision-records/src/decision-query-sync.ts:72:24)",
+            "at async file://tools/decision-records/src/decision-query-sync.ts:52:19"
+          ]
+        },
+        {
+          "count": 15,
+          "stack": [
+            "at discoverDecisionSources (file://tools/decision-records/src/decision-index-source.ts:100:27)",
+            "at async readDecisionSources (file://tools/decision-records/src/decision-index-source.ts:49:22)",
+            "at async readDecisionStateSnapshot (file://tools/decision-records/src/decision-index-source.ts:39:5)",
+            "at async Object.read (file://tools/decision-records/src/decision-index-definition.ts:139:7)",
+            "at async buildStateIndex (file://tools/index-runtime/src/snapshot-builder.ts:49:16)",
+            "at async syncSelectedStateIndex (file://tools/index-runtime/src/selected-sync.ts:62:21)",
+            "at async syncStateIndex (file://tools/index-runtime/src/storage-sync.ts:85:12)"
+          ]
+        },
+        {
+          "count": 15,
+          "stack": [
+            "at discoverDecisionSources (file://tools/decision-records/src/decision-index-source.ts:100:27)",
+            "at async readDecisionSources (file://tools/decision-records/src/decision-index-source.ts:49:22)",
+            "at async readDecisionSourceRevision (file://tools/decision-records/src/decision-index-source.ts:29:5)",
+            "at async Object.readRevision (file://tools/decision-records/src/decision-index-definition.ts:145:7)",
+            "at async readSourceRevision (file://tools/index-runtime/src/storage-shared.ts:34:16)",
+            "at async syncSelectedStateIndex (file://tools/index-runtime/src/selected-sync.ts:72:27)",
+            "at async syncStateIndex (file://tools/index-runtime/src/storage-sync.ts:85:12)"
+          ]
+        }
+      ],
+      "jsonParse": [
+        {
+          "count": 1,
+          "stack": [
+            "at parseStateIndexEnvelope (file://tools/index-runtime/src/snapshot-parser.ts:86:18)",
+            "at parseStateIndex (file://tools/index-runtime/src/snapshot-parser.ts:59:20)",
+            "at parseDecisionIndex (file://tools/decision-records/src/decision-state-index.ts:56:18)",
+            "at readRegularDecisionIndex (file://tools/decision-records/src/scan-index.ts:70:18)",
+            "at async scanDecisionRecords (file://tools/decision-records/src/scan.ts:57:23)"
+          ]
+        },
+        {
+          "count": 1,
+          "stack": [
+            "at parseStateIndexEnvelope (file://tools/index-runtime/src/snapshot-parser.ts:86:18)",
+            "at parseStateIndex (file://tools/index-runtime/src/snapshot-parser.ts:59:20)",
+            "at loadStateIndexAtResolvedPath (file://tools/index-runtime/src/storage-load.ts:59:10)",
+            "at async loadStateIndex (file://tools/index-runtime/src/storage-load.ts:40:10)",
+            "at async loadDecisionIndex (file://tools/decision-records/src/decision-state-index.ts:77:18)"
+          ]
+        },
+        {
+          "count": 1,
+          "stack": [
+            "at parseStateIndexEnvelope (file://tools/index-runtime/src/snapshot-parser.ts:86:18)",
+            "at parseStateIndex (file://tools/index-runtime/src/snapshot-parser.ts:59:20)",
+            "at readSelectedBaseline (file://tools/index-runtime/src/selected-sync.ts:319:18)",
+            "at async syncSelectedStateIndex (file://tools/index-runtime/src/selected-sync.ts:47:20)",
+            "at async syncStateIndex (file://tools/index-runtime/src/storage-sync.ts:85:12)"
+          ]
+        }
+      ]
+    }
+  ]
+}

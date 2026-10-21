@@ -1,0 +1,248 @@
+{
+  "node": "v26.8.2",
+  "method": "isolated process per case; registerHooks inserts counters only in memory; no production edits",
+  "results": [
+    {
+      "scenario": "reader-all",
+      "count": 1000,
+      "returned": 1000,
+      "first": "item-00999",
+      "last": "item-00000",
+      "construction": {
+        "normalizeIndex": 1,
+        "projectState": 1000,
+        "materializeEntry": 2000,
+        "completeValidation": 1,
+        "readerMaterialization": 1,
+        "materializeEffectiveEntries": 1
+      },
+      "operation": {
+        "allPage": 1,
+        "readerQuery": 1,
+        "materializeEffectiveEntries": 1,
+        "queryMaterialized": 1,
+        "filterVisitedCalls": 1,
+        "filterVisited": 1000,
+        "sortVisitedCalls": 1,
+        "sortVisited": 1000
+      },
+      "sourceHashes": {
+        "tools/index-runtime/src/projection.ts": "98575a3141eb20266653c64769045fa7039def5cbf3d4a2dc9c015e484a0aeef",
+        "tools/index-runtime/src/query-fields.ts": "f652ea7f8f8a127ded92121466eeec34980d9d498088308dfaa8cbbb2c2f0ab2",
+        "tools/index-runtime/src/snapshot-parser.ts": "fad8cdb48f418359b3ad54384048c5dab54502a6d8f8b660587d4ff266d39332",
+        "tools/index-runtime/src/query.ts": "0e5c41d2177b21469c21f5d5afad8448a213fb4e657f6c401bf63dae55d31e61",
+        "tools/index-runtime/src/reader.ts": "f99bcbf851697af2c7a64cb626bf1d694e3eca641b32c00ad8ce658d2dac35cb"
+      }
+    },
+    {
+      "scenario": "reader-all",
+      "count": 1001,
+      "returned": 1001,
+      "first": "item-01000",
+      "last": "item-00000",
+      "construction": {
+        "normalizeIndex": 1,
+        "projectState": 1001,
+        "materializeEntry": 2002,
+        "completeValidation": 1,
+        "readerMaterialization": 1,
+        "materializeEffectiveEntries": 1
+      },
+      "operation": {
+        "allPage": 2,
+        "readerQuery": 2,
+        "materializeEffectiveEntries": 2,
+        "queryMaterialized": 2,
+        "filterVisitedCalls": 2,
+        "filterVisited": 2002,
+        "sortVisitedCalls": 2,
+        "sortVisited": 2002
+      },
+      "sourceHashes": {
+        "tools/index-runtime/src/projection.ts": "98575a3141eb20266653c64769045fa7039def5cbf3d4a2dc9c015e484a0aeef",
+        "tools/index-runtime/src/query-fields.ts": "f652ea7f8f8a127ded92121466eeec34980d9d498088308dfaa8cbbb2c2f0ab2",
+        "tools/index-runtime/src/snapshot-parser.ts": "fad8cdb48f418359b3ad54384048c5dab54502a6d8f8b660587d4ff266d39332",
+        "tools/index-runtime/src/query.ts": "0e5c41d2177b21469c21f5d5afad8448a213fb4e657f6c401bf63dae55d31e61",
+        "tools/index-runtime/src/reader.ts": "f99bcbf851697af2c7a64cb626bf1d694e3eca641b32c00ad8ce658d2dac35cb"
+      }
+    },
+    {
+      "scenario": "reader-all",
+      "count": 5000,
+      "returned": 5000,
+      "first": "item-04999",
+      "last": "item-00000",
+      "construction": {
+        "normalizeIndex": 1,
+        "projectState": 5000,
+        "materializeEntry": 10000,
+        "completeValidation": 1,
+        "readerMaterialization": 1,
+        "materializeEffectiveEntries": 1
+      },
+      "operation": {
+        "allPage": 5,
+        "readerQuery": 5,
+        "materializeEffectiveEntries": 5,
+        "queryMaterialized": 5,
+        "filterVisitedCalls": 5,
+        "filterVisited": 25000,
+        "sortVisitedCalls": 5,
+        "sortVisited": 25000
+      },
+      "sourceHashes": {
+        "tools/index-runtime/src/projection.ts": "98575a3141eb20266653c64769045fa7039def5cbf3d4a2dc9c015e484a0aeef",
+        "tools/index-runtime/src/query-fields.ts": "f652ea7f8f8a127ded92121466eeec34980d9d498088308dfaa8cbbb2c2f0ab2",
+        "tools/index-runtime/src/snapshot-parser.ts": "fad8cdb48f418359b3ad54384048c5dab54502a6d8f8b660587d4ff266d39332",
+        "tools/index-runtime/src/query.ts": "0e5c41d2177b21469c21f5d5afad8448a213fb4e657f6c401bf63dae55d31e61",
+        "tools/index-runtime/src/reader.ts": "f99bcbf851697af2c7a64cb626bf1d694e3eca641b32c00ad8ce658d2dac35cb"
+      }
+    },
+    {
+      "scenario": "reader-all",
+      "count": 10000,
+      "returned": 10000,
+      "first": "item-09999",
+      "last": "item-00000",
+      "construction": {
+        "normalizeIndex": 1,
+        "projectState": 10000,
+        "materializeEntry": 20000,
+        "completeValidation": 1,
+        "readerMaterialization": 1,
+        "materializeEffectiveEntries": 1
+      },
+      "operation": {
+        "allPage": 10,
+        "readerQuery": 10,
+        "materializeEffectiveEntries": 10,
+        "queryMaterialized": 10,
+        "filterVisitedCalls": 10,
+        "filterVisited": 100000,
+        "sortVisitedCalls": 10,
+        "sortVisited": 100000
+      },
+      "sourceHashes": {
+        "tools/index-runtime/src/projection.ts": "98575a3141eb20266653c64769045fa7039def5cbf3d4a2dc9c015e484a0aeef",
+        "tools/index-runtime/src/query-fields.ts": "f652ea7f8f8a127ded92121466eeec34980d9d498088308dfaa8cbbb2c2f0ab2",
+        "tools/index-runtime/src/snapshot-parser.ts": "fad8cdb48f418359b3ad54384048c5dab54502a6d8f8b660587d4ff266d39332",
+        "tools/index-runtime/src/query.ts": "0e5c41d2177b21469c21f5d5afad8448a213fb4e657f6c401bf63dae55d31e61",
+        "tools/index-runtime/src/reader.ts": "f99bcbf851697af2c7a64cb626bf1d694e3eca641b32c00ad8ce658d2dac35cb"
+      }
+    },
+    {
+      "scenario": "ir-list",
+      "total": 64,
+      "returned": 1,
+      "operation": {
+        "parseEnvelope": 1,
+        "normalizeIndex": 2,
+        "projectState": 128,
+        "materializeEntry": 192,
+        "completeValidation": 2,
+        "materializeEffectiveEntries": 1,
+        "queryMaterialized": 1,
+        "filterVisitedCalls": 1,
+        "filterVisited": 64,
+        "sortVisitedCalls": 1,
+        "sortVisited": 64
+      },
+      "sourceHashes": {
+        "tools/index-runtime/src/projection.ts": "98575a3141eb20266653c64769045fa7039def5cbf3d4a2dc9c015e484a0aeef",
+        "tools/index-runtime/src/query-fields.ts": "f652ea7f8f8a127ded92121466eeec34980d9d498088308dfaa8cbbb2c2f0ab2",
+        "tools/index-runtime/src/snapshot-parser.ts": "fad8cdb48f418359b3ad54384048c5dab54502a6d8f8b660587d4ff266d39332",
+        "tools/index-runtime/src/query.ts": "0e5c41d2177b21469c21f5d5afad8448a213fb4e657f6c401bf63dae55d31e61",
+        "tools/index-runtime/src/reader.ts": "f99bcbf851697af2c7a64cb626bf1d694e3eca641b32c00ad8ce658d2dac35cb",
+        "tools/shared/src/file-text-search/segment-matcher.ts": "4750838720fc05b1dbdbdcb2d51d1e083b3d0eb3049d3a774e175ded477093ae",
+        "tools/shared/src/file-text-search/previews.ts": "b1448d864c36b281ef6114ece20e793e61bda3e343c506f6d9b7724d76301bbc"
+      }
+    },
+    {
+      "scenario": "ir-metadata",
+      "total": 0,
+      "returned": 0,
+      "operation": {
+        "parseEnvelope": 1,
+        "normalizeIndex": 1,
+        "projectState": 64,
+        "materializeEntry": 64,
+        "completeValidation": 1,
+        "normalizeSegment": 528,
+        "mapSegment": 528,
+        "mapGrapheme": 14836
+      },
+      "sourceHashes": {
+        "tools/index-runtime/src/projection.ts": "98575a3141eb20266653c64769045fa7039def5cbf3d4a2dc9c015e484a0aeef",
+        "tools/index-runtime/src/query-fields.ts": "f652ea7f8f8a127ded92121466eeec34980d9d498088308dfaa8cbbb2c2f0ab2",
+        "tools/index-runtime/src/snapshot-parser.ts": "fad8cdb48f418359b3ad54384048c5dab54502a6d8f8b660587d4ff266d39332",
+        "tools/index-runtime/src/query.ts": "0e5c41d2177b21469c21f5d5afad8448a213fb4e657f6c401bf63dae55d31e61",
+        "tools/index-runtime/src/reader.ts": "f99bcbf851697af2c7a64cb626bf1d694e3eca641b32c00ad8ce658d2dac35cb",
+        "tools/shared/src/file-text-search/segment-matcher.ts": "4750838720fc05b1dbdbdcb2d51d1e083b3d0eb3049d3a774e175ded477093ae",
+        "tools/shared/src/file-text-search/previews.ts": "b1448d864c36b281ef6114ece20e793e61bda3e343c506f6d9b7724d76301bbc"
+      }
+    },
+    {
+      "scenario": "matcher-miss",
+      "count": 1000,
+      "textUtf16Units": 105000,
+      "matched": 0,
+      "returnedRangeCount": 0,
+      "operation": {
+        "normalizeSegment": 1000,
+        "mapSegment": 1000,
+        "mapGrapheme": 105000
+      },
+      "sourceHashes": {
+        "tools/shared/src/file-text-search/segment-matcher.ts": "4750838720fc05b1dbdbdcb2d51d1e083b3d0eb3049d3a774e175ded477093ae"
+      }
+    },
+    {
+      "scenario": "matcher-miss",
+      "count": 10000,
+      "textUtf16Units": 1050000,
+      "matched": 0,
+      "returnedRangeCount": 0,
+      "operation": {
+        "normalizeSegment": 10000,
+        "mapSegment": 10000,
+        "mapGrapheme": 1050000
+      },
+      "sourceHashes": {
+        "tools/shared/src/file-text-search/segment-matcher.ts": "4750838720fc05b1dbdbdcb2d51d1e083b3d0eb3049d3a774e175ded477093ae"
+      }
+    },
+    {
+      "scenario": "matcher-hit",
+      "count": 1000,
+      "textUtf16Units": 105000,
+      "matched": 1000,
+      "returnedRangeCount": 3000,
+      "operation": {
+        "normalizeSegment": 1000,
+        "mapSegment": 1000,
+        "mapGrapheme": 105000
+      },
+      "sourceHashes": {
+        "tools/shared/src/file-text-search/segment-matcher.ts": "4750838720fc05b1dbdbdcb2d51d1e083b3d0eb3049d3a774e175ded477093ae"
+      }
+    },
+    {
+      "scenario": "record-previews",
+      "lines": 5000,
+      "contentUtf16Units": 128890,
+      "matched": 1,
+      "previews": 4,
+      "operation": {
+        "splitPhysicalLinesCalls": 2,
+        "splitPhysicalLines": 257780,
+        "normalizeSegment": 5000,
+        "mapSegment": 5000,
+        "mapGrapheme": 123890
+      },
+      "sourceHashes": {
+        "tools/shared/src/file-text-search/segment-matcher.ts": "4750838720fc05b1dbdbdcb2d51d1e083b3d0eb3049d3a774e175ded477093ae",
+        "tools/shared/src/file-text-search/previews.ts": "b1448d864c36b281ef6114ece20e793e61bda3e343c506f6d9b7724d76301bbc"
+      }
+    }
+  ]
+}

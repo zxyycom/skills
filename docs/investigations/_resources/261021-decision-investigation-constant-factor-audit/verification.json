@@ -1,0 +1,112 @@
+{
+  "recordedAt": "2026-10-21T03:02:00.480Z",
+  "baselineHead": "d5f9fde2821f03088a2a1850a3c2819b23224db5",
+  "productionSourceHashesVerified": 293,
+  "changes": "report, evidence resources and derived investigation index only; no optimization implemented",
+  "completedCommands": [
+    {
+      "command": "bun run check:decision-records-cli",
+      "exitCode": 0
+    },
+    {
+      "command": "bun run check:investigation-report-check",
+      "exitCode": 0
+    },
+    {
+      "command": "bun run test:index-runtime",
+      "exitCode": 0
+    },
+    {
+      "command": "bun run test:decision-records-cli",
+      "exitCode": 0
+    },
+    {
+      "command": "bun run test:investigation-report-check",
+      "exitCode": 0
+    },
+    {
+      "command": "bun run investigation-report -- show-candidate 261021-decision-investigation-constant-factor-audit",
+      "exitCode": 0
+    },
+    {
+      "command": "bun run investigation-report -- publish 261021-decision-investigation-constant-factor-audit --preflight",
+      "exitCode": 0
+    },
+    {
+      "command": "bun run investigation-report -- publish 261021-decision-investigation-constant-factor-audit",
+      "exitCode": 0
+    },
+    {
+      "command": "bun run investigation-report -- check",
+      "exitCode": 0
+    },
+    {
+      "command": "node --check <three attached .mjs scripts>",
+      "exitCode": 0
+    },
+    {
+      "command": "bun run check",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  ],
+  "commandEvidence": "The five commands ran as one && chain; the process completed with exit code 0. Suites validate the unchanged baseline, not proposed optimizations.",
+  "experiments": {
+    "shared": {
+      "cases": 10,
+      "independentReplay": "identical saved output and all source hashes matched"
+    },
+    "investigation": {
+      "baselineCases": 19,
+      "probeCases": 19,
+      "publicSemanticHashesEqual": 17,
+      "internalPreparationObjectsNotCompared": 2
+    },
+    "decision": {
+      "fixtureSizes": [
+        12,
+        120,
+        1000,
+        1001
+      ],
+      "candidates": 3,
+      "indexOnlyForLargeFixtures": true
+    }
+  },
+  "publication": {
+    "status": "committed",
+    "id": "261021-decision-investigation-constant-factor-audit",
+    "showCandidate": {
+      "scaffoldValid": true,
+      "bodyReady": true,
+      "resourceReady": true
+    },
+    "preflightExitCode": 0,
+    "publishExitCode": 0,
+    "fullInvestigationCheckExitCode": 0
+  },
+  "repositoryCheck": {
+    "status": "passed",
+    "command": "bun run check",
+    "exitCode": 0,
+    "execution": "completed",
+    "totalChecks": 64,
+    "passed": 61,
+    "failed": 0,
+    "notApplicable": 3,
+    "unavailable": 0,
+    "elapsedSeconds": 61.9,
+    "releaseOnlyChecksExecuted": false
+  },
+  "gitActions": {
+    "stage": false,
+    "commit": false,
+    "push": false
+  },
+  "independentReportReview": "Numbers, evidence units, source hashes, resource links and low-complexity boundaries reviewed; zero-match all() formula corrected before publication.",
+  "finalRecordedAt": "2026-10-21T03:09:06.138Z",
+  "productionAndGeneratedHashesVerifiedAtEnd": 295
+}
