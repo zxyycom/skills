@@ -11,7 +11,7 @@
 1. 明确证明契约、直接失败 owner、完整实际输入、稳定重跑命令、成功前置与 base/release 归属。
 2. 按下表选择原生、语义命令、包脚本、自定义或 release DAG Check。
 3. 在直接 owner 模块构造 Check，由完整 Definition 组合；身份、依赖、flags 与资源直接进入原生构造器。
-4. 项目命令声明能力订阅，核对能力输入 patterns；同步 catalog fixture、受影响项目测试与 Test Evidence Case/index。
+4. 可复用 Check 声明能力订阅，核对能力输入 patterns；同步 catalog fixture、受影响项目测试与 Test Evidence Case/index。
 5. 运行直接入口、Gate 接入测试和适用门禁，分别报告实际结果与未验证边界。
 
 | 实施前要明确的输入 | 完成标准 |
@@ -36,7 +36,7 @@
 
 项目测试默认选语义命令 Check；包脚本保留稳定人工维护/聚合身份，不重复承载已有语义 leaf。普通外部命令直接使用 `commandCheck`；只有真实结构协议需要解析完整命令结果时才增加 `afterCommand`。
 
-当前 release-only 只有 prepare、version authorization 与 packaging。新增 release-only Check 改变[交付边界决策](decisions/native-gate-execution-and-project-receipts.md)，须先按 Decision Records 流程判断演进，再复核 release DAG、同快照授权与失败恢复。
+当前 release-only 只有 prepare、version authorization 与 packaging。新增 release-only Check 改变[交付边界决策](decisions/allow-markdown-lint-receipts.md)，须先按 Decision Records 流程判断演进，再复核 release DAG、同快照授权与失败恢复。
 
 ## 按需读取随包 API
 
@@ -79,13 +79,13 @@
 
 ### 项目输入证明
 
-原生材料与基础环境每轮实际执行，不进入项目 receipt 集合。语义与包脚本 Check 必须由 `impact-catalog.ts` 完整覆盖，只有已评审闭包才允许复用。
+语义命令、包脚本和 Markdown 内容 Check 由 `impact-catalog.ts` 完整覆盖；只有已评审完整输入闭包才允许复用 receipt。基础环境与其余七项原生材料每轮实际执行。
 
 1. 在 `impact-tools.ts#gateToolInputs` 按独立源码职责维护能力 ID 与实际读取的 patterns，组合 `commonGateInputPatterns`；共享运行时、build adapters、fixtures、内部 ignored 文件、生成物、TS/MTS、manifest/lock 和配置均按真实消费纳入。flag 由 ID 派生，无须另列。声明时区分：
    - 同一能力可有多个消费者；源码与其分发副本属于同一能力时共同声明。
    - 公共运行时与独立测试被不同命令消费时，分别声明输入能力；共同输入承接实际公共加载闭包与配置，而非整个 `scripts/` 或共享工具目录。
    - 只读取目录身份或文件存在性的命令，用对应路径身份建模；内容输入覆盖实际读取的文件字节。
-2. 在语义 Check 的 `toolIds` 或包脚本的 `packageScriptToolSubscriptions` 显式订阅所需能力。原生 `any(...)` 组合能力 flags，`dependsOn` 独立声明成功前置。新读取域不在现有采集范围时，同步 `impact-paths.ts` 的磁盘目录/配置及已知 owner 判定，覆盖 Git ignore 下仍被命令读取的材料。
+2. 在语义 Check 的 `toolIds`、包脚本的 `packageScriptToolSubscriptions` 或原生 lint 的 `markdownLintToolSubscription` 中显式订阅所需能力。原生 `any(...)` 组合能力 flags，`dependsOn` 独立声明成功前置。新读取域不在现有采集范围时，同步 `impact-paths.ts` 的磁盘目录/配置及已知 owner 判定，覆盖 Git ignore 下仍被命令读取的材料。
 3. Check 读取新外部工具或环境时，核对 `impact-toolchain.ts`。必要 probe 失败扩大执行；基础环境 Check 只承接既定 Git/Node/Bun/pnpm/SCC 政策，业务测试前置不自动扩成全 Gate 环境要求。
 4. 跨 owner import、构建/测试入口或动态读取来源变化时，同步复核 consumer 的订阅及能力 patterns，纳入传递闭包。consumer 自身源码变化会使当轮执行，但只有声明完整，才会覆盖新依赖后续单独变化；闭包无法确认时使用较宽输入或保持保守执行。两领域未归属文件检查是遗漏提示，不能代替依赖审查。
 5. 输入含义变化时按范围更新全局 `gateImpactContractVersion` 或逐 Check `version`。新增/收窄模式应验证受影响与不受影响场景、删除/重命名、ignored 输入、未知/symlink/错误、共享 flag 扩散、成功前置带入和起止漂移；带入项必须如实执行并通过后才可发布证明。receipt 形状与完整事务由[输入证明 owner](tooling.md#项目输入与成功证明)承接。
@@ -129,7 +129,7 @@
 1. 读取对应随包文档，确认完整 patterns、默认排除、finding policy、限制、waiver、工具及 unavailable 边界。
 2. 在 `createVibeNativeChecks()` 直接调用 package-root 构造器，以 `gateCheckDeclaration` 加入环境与资源声明；项目质量 finding 显式 blocking。
 3. 新增项将稳定 ID 加入 `vibeNativeCheckIds`；调整 options 时保留 ID，并核对完整 Definition 与 release-required 集合。
-4. 复用适合的 selection/exclusion；维护范围变化同时复核安全上限与历史材料边界。原生材料每次实际结算，计算事实缓存不替代规则判断。
+4. 复用适合的 selection/exclusion；维护范围变化同时复核安全上限与历史材料边界。Markdown 内容检查以同一 selection owner 的完整磁盘 source 集合纳入既有输入证明，覆盖 ignored、根目录与额外目录材料；通过原生 condition 选择，精确命中才可省略。其余原生材料每轮结算；计算事实缓存只复用执行中的计算，不充当 passed receipt。
 5. 使用现有 selection、blocking、metrics 或 Definition 测试验证项目配置、范围与阻断义务。
 
 ### 自定义与 release DAG Check

@@ -14,6 +14,7 @@ import {
 import { semanticGateChecks } from "./checks/semantic.ts";
 import {
   gateToolInputs,
+  markdownLintToolSubscription,
   type GateToolId,
   type GateToolSubscription
 } from "./impact-tools.ts";
@@ -31,6 +32,12 @@ export type GateCheckImpactContract = Readonly<{
 
 export const baseGateImpactContracts: readonly GateCheckImpactContract[] =
   Object.freeze([
+    {
+      checkId: "markdown-lint",
+      dependsOn: [],
+      toolIds: markdownLintToolSubscription,
+      version: "1"
+    },
     ...releaseRequiredPackageScripts.map((script) => ({
       checkId: packageScriptCheckId(script),
       dependsOn: packageScriptDependencies[script] ?? [],
@@ -108,6 +115,7 @@ export function gateCheckInputFingerprint(
 
 export function validateBaseGateImpactContracts(): readonly string[] {
   const expected = [
+    "markdown-lint",
     ...releaseRequiredPackageScripts.map(packageScriptCheckId),
     ...semanticGateChecks
       .filter(

@@ -20,6 +20,8 @@ Markdown 内容检查已有逐文件计算事实缓存，但每轮仍扫描和�
 
 同步输入声明与已知归属、catalog/selection/proof 测试及 Case；演进原生每轮执行的长期政策，并更新工具链和 Gate 接入说明。
 
+为使真实仓库的 receipt 事务可用，补齐基线中四个领域测试输入的既有能力归属；保持检查范围和 unknown 保守保护不变。
+
 ## Success Criteria
 
 - 无相关输入变化时 lint 精确复用；Markdown 新增、删除、重命名、内容、kind/mode、配置或工具链变化使相关检查执行。

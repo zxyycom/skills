@@ -199,3 +199,148 @@ test("incremental Gate captures ignored local inputs and rejects drift outside a
     });
   });
 });
+
+test("incremental Gate routes domain capability inputs only to their declared subscribers", async () => {
+  await withImpactFixture(async (fixture) => {
+    for (const group of [
+      {
+        input: "tools/decision-records/src/decision-stage-prepare.ts",
+        toolId: "decision-stage",
+        execute: [
+          "test:decision-records:pending-stage",
+          "test:decision-records:query-and-index-projection",
+          "test:decision-records:lifecycle-and-recovery",
+          "test:decision-records:public-distribution",
+          "script:check:decisions"
+        ],
+        reuse: [
+          "test:decision-records:record-and-established-graph",
+          "test:investigation-report:pending-stage"
+        ]
+      },
+      {
+        input: "tools/investigation-report/src/cli-query-commands.ts",
+        toolId: "investigation-cli",
+        execute: [
+          "test:investigation-report:collection-and-resources",
+          "test:investigation-report:cli-contract",
+          "script:check:investigations"
+        ],
+        reuse: [
+          "test:investigation-report:index-and-query",
+          "test:investigation-report:transactional-maintenance",
+          "test:investigation-report:pending-stage"
+        ]
+      },
+      {
+        input: "tools/decision-records/tests/source-discovery.test.ts",
+        toolId: "decision-record",
+        execute: [
+          "test:decision-records:record-and-established-graph",
+          "test:decision-records:query-and-index-projection",
+          "test:decision-records:lifecycle-and-recovery",
+          "test:decision-records:pending-stage",
+          "test:decision-records:public-distribution",
+          "script:check:decisions"
+        ],
+        reuse: [
+          "test:investigation-report:collection-and-resources",
+          "markdown-lint"
+        ]
+      },
+      {
+        input: "tools/decision-records/tests/query-loaded-snapshot.test.ts",
+        toolId: "decision-query",
+        execute: [
+          "test:decision-records:query-and-index-projection",
+          "test:decision-records:lifecycle-and-recovery",
+          "test:decision-records:public-distribution",
+          "script:check:decisions"
+        ],
+        reuse: [
+          "test:decision-records:record-and-established-graph",
+          "test:decision-records:pending-stage",
+          "test:investigation-report:index-and-query",
+          "markdown-lint"
+        ]
+      },
+      {
+        input:
+          "tools/investigation-report/tests/candidate-read-context.test.ts",
+        toolId: "investigation-record",
+        execute: [
+          "test:investigation-report:collection-and-resources",
+          "test:investigation-report:index-and-query",
+          "test:investigation-report:transactional-maintenance",
+          "test:investigation-report:pending-stage",
+          "test:investigation-report:cli-contract",
+          "script:check:investigations"
+        ],
+        reuse: [
+          "test:decision-records:record-and-established-graph",
+          "markdown-lint"
+        ]
+      },
+      {
+        input: "tools/investigation-report/tests/current-index.test.ts",
+        toolId: "investigation-query",
+        execute: [
+          "test:investigation-report:collection-and-resources",
+          "test:investigation-report:index-and-query",
+          "test:investigation-report:transactional-maintenance",
+          "test:investigation-report:pending-stage",
+          "test:investigation-report:cli-contract",
+          "script:check:investigations"
+        ],
+        reuse: [
+          "test:decision-records:query-and-index-projection",
+          "markdown-lint"
+        ]
+      },
+      {
+        input: "tools/investigation-report/src/query-search-content.ts",
+        toolId: "investigation-query",
+        execute: [
+          "test:investigation-report:collection-and-resources",
+          "test:investigation-report:index-and-query",
+          "test:investigation-report:transactional-maintenance",
+          "test:investigation-report:pending-stage",
+          "test:investigation-report:cli-contract",
+          "script:check:investigations"
+        ],
+        reuse: []
+      },
+      {
+        input:
+          "tools/investigation-report/tests/fixtures/staging-source-path/value.txt",
+        toolId: "investigation-stage",
+        execute: [
+          "test:investigation-report:collection-and-resources",
+          "test:investigation-report:index-and-query",
+          "test:investigation-report:pending-stage",
+          "test:investigation-report:cli-contract"
+        ],
+        reuse: ["test:investigation-report:transactional-maintenance"]
+      }
+    ]) {
+      const plan = await prepareChangedFixtureActivation(fixture, group.input);
+      assert.equal(plan.kind, "incremental");
+      assert.deepEqual(plan.snapshot.unclassifiedPaths, []);
+      assert.ok(plan.activeToolIds.includes(group.toolId));
+      for (const checkId of group.execute)
+        assert.equal(
+          plan.decisions.find((decision) => decision.checkId === checkId)
+            ?.action,
+          "execute",
+          checkId
+        );
+      for (const checkId of group.reuse)
+        assert.equal(
+          plan.decisions.find((decision) => decision.checkId === checkId)
+            ?.action,
+          "reuse",
+          checkId
+        );
+    }
+  });
+});

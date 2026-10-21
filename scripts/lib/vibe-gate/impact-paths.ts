@@ -1,3 +1,27 @@
+export const historicalContentExclusions = [
+  "docs/investigations/_resources/**"
+] as const;
+
+export const investigationAuthoringDocumentExclusions = [
+  "docs/investigations/_candidate.*"
+] as const;
+
+export const markdownSourcePatterns = [
+  "**/*.[mM][dD]",
+  "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"
+] as const;
+export const maintainedMarkdownFiles = {
+  patterns: [
+    ...markdownSourcePatterns,
+    ...[
+      ...historicalContentExclusions,
+      ...investigationAuthoringDocumentExclusions,
+      "skills/**/references/upstream/**",
+      "skills/**/reference-original.md"
+    ].map((pattern) => `!${pattern}`)
+  ]
+} as const;
+
 /** Disk inputs read by project commands, including ignored fixtures and generated files. */
 export const gateInputDirectories = [
   "scripts",

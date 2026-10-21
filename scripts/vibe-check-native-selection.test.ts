@@ -222,3 +222,66 @@ test("project Markdown lint uses exactly the six approved rules and maintained s
     assert.equal(data.status === "failed" && data.data.sourceFileCount, 1);
   });
 });
+
+test("project Markdown lint consumes only its receipt capability flag in incremental mode", async () => {
+  const { defineConfig } = await import("@zxyycom/vibe-check");
+  const fs = await import("node:fs/promises");
+  const { runDefinition, outcomeFor, withTemporaryDirectory } =
+    await import("./vibe-check-test-support.ts");
+  await withTemporaryDirectory(
+    "gate-markdown-receipt-flags-",
+    async (directory) => {
+      await fs.writeFile(path.join(directory, "document.md"), "[broken]()\n");
+      const check = createVibeNativeChecks(directory, {
+        incremental: true
+      }).find(({ checkId }) => checkId === "markdown-lint");
+      assert.ok(check);
+      const definition = defineConfig({ checks: [check] });
+      const reused = await runDefinition(definition, directory, [
+        "gate-tool:repository-code"
+      ]);
+      assert.equal(
+        outcomeFor(reused, "markdown-lint").status,
+        "not-applicable"
+      );
+      const executed = await runDefinition(definition, directory, [
+        "gate-tool:markdown-content"
+      ]);
+      assert.equal(outcomeFor(executed, "markdown-lint").status, "failed");
+    }
+  );
+});
+
+test("project Markdown links still observe non-Markdown target deletion without receipt flags", async () => {
+  const { defineConfig } = await import("@zxyycom/vibe-check");
+  const fs = await import("node:fs/promises");
+  const { runDefinition, outcomeFor, withTemporaryDirectory } =
+    await import("./vibe-check-test-support.ts");
+  await withTemporaryDirectory(
+    "gate-markdown-links-always-",
+    async (directory) => {
+      await fs.writeFile(
+        path.join(directory, "document.md"),
+        "[target](target.ts)\n"
+      );
+      await fs.writeFile(path.join(directory, "target.ts"), "export {};\n");
+      const check = createVibeNativeChecks(directory, {
+        incremental: true
+      }).find(({ checkId }) => checkId === "markdown-link-validation");
+      assert.ok(check);
+      assert.equal(check.enabledByFlags, undefined);
+      const definition = defineConfig({ checks: [check] });
+      const before = await runDefinition(definition, directory);
+      assert.equal(
+        outcomeFor(before, "markdown-link-validation").status,
+        "passed"
+      );
+      await fs.rm(path.join(directory, "target.ts"));
+      const after = await runDefinition(definition, directory);
+      assert.equal(
+        outcomeFor(after, "markdown-link-validation").status,
+        "failed"
+      );
+    }
+  );
+});

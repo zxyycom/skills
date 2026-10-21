@@ -1,7 +1,7 @@
 ---
 title: 以原生执行和项目完整输入证明组织 Gate
 id: 261020-native-gate-execution-and-project-receipts
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-20T07:38:28Z
 purpose: 降低 Gate 自建运行职责，同时可靠省略输入相同且已通过的项目命令。

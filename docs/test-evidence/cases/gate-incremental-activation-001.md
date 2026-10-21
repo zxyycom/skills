@@ -1,4 +1,4 @@
-### Case GATE-INCREMENTAL-ACTIVATION-001: 项目增量 Gate 只省略输入闭合且精确命中成功证明的命令
+### Case GATE-INCREMENTAL-ACTIVATION-001: 项目增量 Gate 只省略输入闭合且精确命中成功证明的 Check
 
 Tests:
 - `test:0b754daaf28974d25f9f2e41ded314d92db2bba419dd5a63c607ad9a2dee0b57`
@@ -25,10 +25,10 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- 日常 Gate 仅为 52 项项目命令维护输入成功 receipt，不省略原生材料与环境 Check。只有声明输入闭合、工具与环境身份精确、所选命令通过、最终 Run 成功且起止快照一致时才发布证明；release 全量执行，原生 dependsOn 负责必要前置激活。
+- 日常 Gate 为 52 项项目命令与 markdown-lint 共 53 项 Check 维护输入成功 receipt；其余七项原生材料与环境 Check 每轮实际执行。只有声明输入闭合、工具与环境身份精确、所选命令通过、最终 Run 成功且起止快照一致时才发布证明；release 全量执行，原生 dependsOn 负责必要前置激活。
 
 Proves:
-- 首次运行选择全部项目命令，成功后形成可复用 receipt；稳定输入可全部省略；缺少一个 Check receipt 会激活其工具及全部订阅者，生成前置显式进入执行集合，全部实际执行 Check 通过后才发布。
+- 首次运行选择全部有证明契约的 Check，成功后形成可复用 receipt；稳定输入可全部省略；缺少一个 Check receipt 会激活其工具及全部订阅者，生成前置显式进入执行集合，全部实际执行 Check 通过后才发布。
 - 路径模式、Git 可见路径与声明磁盘域共同覆盖源码、fixtures、runtime、manifest、锁文件和配置；ignored fixture、fixture 内 node_modules 与 TS/MTS 变化仍使对应项目命令失效，dirty 内容提交为相同 clean 内容可复用，删除和重命名重新执行。
 - 文档变化激活其工具订阅者而不激活无关领域；shared、skill-package 与 build-system 输入变化使相关项目证明失效，语义聚合入口变化使 Gate 自测失效，领域生成统一消费全部 skill/updater 输入。
 - Novel Cards consumer 在 Index Runtime、shared、构建适配、公开入口、runtime、manifest、锁文件与 fixtures 变化时重新执行，统一生成 Check 同时按其真实输入失效。

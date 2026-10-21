@@ -35,14 +35,14 @@ const decisionRecordInputs = [
   "tools/decision-records/src/decision-query-context.ts",
   "tools/decision-records/tests/{support,support-record-fixture,support-git-fixture,domain-fixture,run}.ts",
   "tools/decision-records/tests/fixtures/**",
-  "tools/decision-records/tests/{metadata,body-field-validation,type-path-invariants,record-guards,layout-index,relation-validation,trace-event-admission,state-snapshot,trace-admission-complexity}.test.ts",
+  "tools/decision-records/tests/{metadata,body-field-validation,type-path-invariants,record-guards,layout-index,relation-validation,trace-event-admission,state-snapshot,source-discovery,trace-admission-complexity}.test.ts",
   "tools/decision-records/tests/{record-guards,metadata}/**",
   "tools/decision-records/tests/queries/snapshot-fixture.ts",
   "tools/decision-records/tests/checks/record-and-established-graph.ts"
 ];
 const decisionQueryInputs = [
   "tools/decision-records/src/decision-query*.ts",
-  "tools/decision-records/tests/{index-maintenance,list-facets,queries,cli-output-trace,query-snapshot,relation-filter-complexity,index-schema,search-info}.test.ts",
+  "tools/decision-records/tests/{index-maintenance,list-facets,queries,cli-output-trace,query-snapshot,query-loaded-snapshot,relation-filter-complexity,index-schema,search-info}.test.ts",
   "tools/decision-records/tests/{queries,index-maintenance}/**",
   "tools/decision-records/tests/checks/query-and-index-projection.ts"
 ];
@@ -69,13 +69,13 @@ const decisionCliInputs = [
 const investigationRecordInputs = [
   "tools/investigation-report/src/{cli-io,collection-mutation-lock,diagnostics,investigation-*,markdown*,options,relation-summary,relation-validation,report*,resource*,timestamp,types,validation*}.ts",
   "tools/investigation-report/tests/{fixture-support,collection-support,git-support,run}.ts",
-  "tools/investigation-report/tests/{candidate,candidate-timestamp,parsing-directory,resources,relations,history-prefix-contract,history-pathspec-batching,batch-source-discovery}.test.ts",
+  "tools/investigation-report/tests/{candidate,candidate-timestamp,candidate-read-context,parsing-directory,resources,relations,history-prefix-contract,history-pathspec-batching,batch-source-discovery}.test.ts",
   "tools/investigation-report/tests/checks/collection-and-resources.ts"
 ];
 const investigationQueryInputs = [
   "tools/investigation-report/src/{index-staleness,list-*,query*,trace-output}.ts",
   "tools/investigation-report/tests/index-fixture.ts",
-  "tools/investigation-report/tests/{index-*,list-facets,acquisition-contract,identity-membership,candidate-read-failure,snapshot-check-contract,trace-output,search-info}.test.ts",
+  "tools/investigation-report/tests/{index-*,current-index,list-facets,acquisition-contract,identity-membership,candidate-read-failure,snapshot-check-contract,trace-output,search-info}.test.ts",
   "tools/investigation-report/tests/checks/index-and-query.ts"
 ];
 const investigationMaintenanceInputs = [
@@ -101,9 +101,15 @@ const searchOutputInputs = [
   "skills/{decision-records,investigation-report}/scripts/runtime/tools/shared/src/file-text-search/record-search-output.ts"
 ];
 
+export const markdownLintToolSubscription = ["markdown-content"] as const;
+
 // Each entry owns one reviewed input capability. Check subscriptions are declared
-// by the semantic/package catalog, not inferred from Check names or path proximity.
+// by the semantic/package catalog and native declarations, not inferred from
+// Check names or path proximity.
 export const gateToolInputs = {
+  // The snapshot unions these configuration inputs with the exact native
+  // maintainedMarkdownFiles collection, preserving its default excludes.
+  "markdown-content": commonGateInputPatterns,
   "repository-material": ["**"],
   "repository-code": codeInputs,
   "gate-tests": [...commonGateInputPatterns, "scripts/**", "tools/*/tests/**"],

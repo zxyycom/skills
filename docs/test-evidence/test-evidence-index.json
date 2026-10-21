@@ -375,30 +375,48 @@
       "FILE-TEXT-SEARCH-UNICODE-RANGE-001": "sha256:d7b1d476a2fe864ca543f15c6cf2e444d7f003bc96c9a05cfb3da3144a8911b6",
       "GATE-CLI-RESULT-001": "sha256:554acba26844a6ba3ca77ef23d20385e075c95fdc3a3ad38100ee18096eef10b",
       "GATE-COMMAND-TRANSCRIPT-001": "sha256:98e64a06ab7875feb6f2268b6bb4d5ed288ae5f336651c1192a2b5c14075aa94",
-      "GATE-DEFINITION-CATALOG-001": "sha256:0c3f33f600eb24d8adecfb235c45f80b2e5a8219c7151f726329a6feccb27abe",
+      "GATE-DEFINITION-CATALOG-001": "sha256:a19d6a0cb72afdd21d59787df13904f26c95c17791957f2c3c5ba8f6245cc3bf",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:840553137473ceae45cb978aadc8f5631a73b768df520bcd332e0a61f513739d",
       "GATE-DUPLICATE-DETECTION-001": "sha256:68116ffb4a1862c6d09fb298a74d4b02281727ca34815ef02cab2257b3f9e41d",
       "GATE-ENVIRONMENT-CHECK-001": "sha256:6114457bb02ec27e4ef2b8a26bafafa903499eccf222074be1f6bb9e5d4595ef",
       "GATE-FILE-SELECTION-001": "sha256:51cf9d2d007ddd27b9d8ecf7727614f6c5751d7f87e7a7a07cc172176458f4fd",
       "GATE-FUNCTION-ANALYZER-001": "sha256:183f53418eee552f7da2fd7371f817a16be8fefed2f3b810f0eec190ed3afbc4",
       "GATE-GENERATED-INPUTS-001": "sha256:c6345a171d8ef7233a28a0c341560c0e22614507d3fec4d071113780bda0ea69",
-      "GATE-INCREMENTAL-ACTIVATION-001": "sha256:e140a3b6d28d1c4d470e2c36d837fca6669b5f46f5061d678e6bb62d552beffe",
+      "GATE-INCREMENTAL-ACTIVATION-001": "sha256:34c79459d9a87889f0539c4b46122250a90e7f180babe92557c1e7a61057eb03",
       "GATE-JSON-SCHEMA-001": "sha256:1562d23cca2650b3dceb86fe937364b7bba56ddc08714ccc67bb7e6fe8908995",
       "GATE-JSON-VALIDATION-001": "sha256:1b495e9457d277c495c6beda633e5d588e2949366f62d44877511ca1824f6118",
       "GATE-LAYOUT-IDENTITIES-001": "sha256:8415e7ef09ce64a423ca2dcb3cfa226a66056a48e7a50847f91525bf81c7fceb",
       "GATE-MARKDOWN-LINK-001": "sha256:b084953dd2c12fff3217facf7a7485c54c71b84bef6c590c88d1912c2936864e",
       "GATE-MARKDOWN-LINT-001": "sha256:f257beff0a45c1ebcd519cb22a480fd66c6d19062f6c0179a65f1c5231fc8680",
+      "GATE-MARKDOWN-NATIVE-FLAGS-001": "sha256:53791e37229e16b150930a7da904d5eca009037c768cbd2a6440dd1ef0287ad3",
+      "GATE-MARKDOWN-NATIVE-LINKS-001": "sha256:294b95f2a41bd6faadcb79ecf95cb88f757ead172cd169cc8cfaafb15547d0d2",
+      "GATE-MARKDOWN-PROOF-ACQUISITION-001": "sha256:011d5ab7092a0ded91f92642ed4709d31c103ed08f6a3cb400b2c2de3ae4f2da",
+      "GATE-MARKDOWN-PROOF-COLLECTION-001": "sha256:90e64b3b62209d32d468efa10c535fc2fcb275205c7b8ce3218735297be8fdf0",
+      "GATE-MARKDOWN-PROOF-CONFIGURATION-001": "sha256:029d5b689f904bdf627578f978f85295148d38055ee967817ce1eab3de0353fd",
+      "GATE-MARKDOWN-PROOF-CONTENT-001": "sha256:75488bfecc5eaae9f7b7784be47537c3f7204fa8821ab0dd2e7deb1535b672a9",
+      "GATE-MARKDOWN-PROOF-DELETION-001": "sha256:5f3b049ce5adb61c7ced9645ccd4f9f6fab74dc71f993af4e4bf52edf48a0e66",
+      "GATE-MARKDOWN-PROOF-DRIFT-001": "sha256:9b12336afcb70a92cad137507092a7ccef15b4a907a09a747e508d85ec64a7c9",
+      "GATE-MARKDOWN-PROOF-EMPTY-001": "sha256:0c2bc18317698de232b58cfb3b7696ffc26fb440bfd4cee149dfdea65f42dd56",
+      "GATE-MARKDOWN-PROOF-EXCLUSIONS-001": "sha256:b03a54e6047323c8715d531d1fdd358f3c80a357a898dc809b6b1e71183ef114",
+      "GATE-MARKDOWN-PROOF-KIND-001": "sha256:afb78bcd75c25ad4707ed5e3e077f8b58d4dd0578723280979f8a76da10f5228",
+      "GATE-MARKDOWN-PROOF-MISSING-001": "sha256:6077bf70b53035422bfe67a77f6b484eb7fb0e1f92fbf6683ab0709a781056f2",
+      "GATE-MARKDOWN-PROOF-MISSINGEXCLUDED-001": "sha256:4c061c048f6fd466492b6d561b4581572d2e0aec2defe165536c8a21ac813b7a",
+      "GATE-MARKDOWN-PROOF-MODE-001": "sha256:fd1a960351de822e449fe7ff087b898d5a31dc874043bc4f4ee0971fd2a80827",
+      "GATE-MARKDOWN-PROOF-READ-001": "sha256:e5111286e822bd5edced380fe6d1f917c22349eea615af643cf73abb293cacb7",
+      "GATE-MARKDOWN-PROOF-RECEIPT-001": "sha256:a4644bd13974a58b93fef44ff478c84bea147a4b20df2af19e209d028c94fedf",
+      "GATE-MARKDOWN-PROOF-RENAME-001": "sha256:dbe700feaaefa2c89d5299c7fbdd2e359bb0e6693e1aab0d3afea9a6f0e8ce85",
+      "GATE-MARKDOWN-PROOF-ROUTING-001": "sha256:fa35a1ede3f185fc7293320f1bd35f78c7a8c7d44e2c297d66cf6fe13786d639",
       "GATE-METRICS-BLOCKING-001": "sha256:da0bb5bc57c92fd3a05316316e8401211820c65805d37519b45db94e3b438c0e",
       "GATE-NARROW-PUBLICATION-001": "sha256:9b1a885feb71db99753fbeac953410dce6f4c1eae64cf770c51c599c877ad935",
       "GATE-PUBLIC-TEST-INPUTS-001": "sha256:503b615ced983c514825e620607bf462ec5b8fa0148eda5db61350eacaa219b6",
       "GATE-RELEASE-FINAL-TIMING-001": "sha256:42c8946867d78f1237ae446f7e1477bc2d4aa7a80ed5a849bbaf17ae8089413b",
-      "GATE-RELEASE-FULL-EXECUTION-001": "sha256:f803b70dbffcf6dca93cac7d3aa183186c0a73a4ec2df424bcbca1fdccb30b7c",
+      "GATE-RELEASE-FULL-EXECUTION-001": "sha256:7b51fa26395cff92d40a122dcaca1384fea8b6acbfa29b0f7dad59fb72b03b5c",
       "GATE-RELEASE-PRIVATE-HANDOFF-001": "sha256:5ebfb193d0d330677b9aa1d2cd7c6d099aece718f10866de542ae0c0cd5bae98",
       "GATE-RELEASE-SNAPSHOT-TOCTOU-001": "sha256:ce8a7e7de4da0348eb484ea8527faabd1587456fadd73472d266702f91cb350c",
       "GATE-RELEASE-VERSION-FAILURE-001": "sha256:aefc8919acdfdfeb79cea41d51459052ab6f770ea70b18bce1ebce2243b0c6e3",
       "GATE-SCRIPT-ADAPTER-001": "sha256:33ea16ddf3cd3dcf6484bf87e9abe1274a70fa80414078969f61797f7cbe7673",
       "GATE-SECRET-DETECTION-001": "sha256:442f0f33b7fbea4c28e0e4a5150d68da10a79c50022d40e019215628885d385b",
-      "GATE-TOOL-CAPABILITY-ROUTING-001": "sha256:f3adac9ea599eac1496dd4b3b1cbab071d7030e7ba3102a78c8328300133a3e6",
+      "GATE-TOOL-CAPABILITY-ROUTING-001": "sha256:a0adbd41beb2c35b55876d52011350bce534b5741feb4ee3267c0a9e04b797b9",
       "GATE-TOOL-PROOF-COMPONENTS-001": "sha256:53925e8fe320813946b9d83f166b913e92821f9ddd0460537d171a6799e6488e",
       "GATE-VALIDATION-INPUTS-001": "sha256:0aff9c51612f911548079ffc2d5759e5b5d9bf45c68031a81f74e4d8fbb5c511",
       "GENERATED-FILE-DECLARATION-001": "sha256:288495f474d1b91ca347075f9a93ce6ea910f9c84023ae9eb14bc0d4ebd0aa7f",
@@ -5021,7 +5039,7 @@
       ]
     },
     "GATE-INCREMENTAL-ACTIVATION-001": {
-      "title": "项目增量 Gate 只省略输入闭合且精确命中成功证明的命令",
+      "title": "项目增量 Gate 只省略输入闭合且精确命中成功证明的 Check",
       "sourcePath": "cases/gate-incremental-activation-001.md",
       "tags": [
         "repository-tooling"
@@ -5096,6 +5114,186 @@
       ],
       "testIds": [
         "test:dc0260c357d7a91064efb5f301ae0ef4bd7fa04ac2918d84e5b204e07d48da79"
+      ]
+    },
+    "GATE-MARKDOWN-NATIVE-FLAGS-001": {
+      "title": "Markdown 原生选择",
+      "sourcePath": "cases/gate-markdown-native-flags-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:d09ac5d567b309566b59fb8e7aa32523ef89946f36a84f4c2f0ce718e16750eb"
+      ]
+    },
+    "GATE-MARKDOWN-NATIVE-LINKS-001": {
+      "title": "Markdown 链接继续结算",
+      "sourcePath": "cases/gate-markdown-native-links-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:1dd866c1cc7fe20d25027def1b7fc85ddd7476bdaa18356253029095b3c4331d"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-ACQUISITION-001": {
+      "title": "Markdown 内容证明的磁盘全集",
+      "sourcePath": "cases/gate-markdown-proof-acquisition-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:13bfd791f3f904e0ee61bc0b47cbc20007f95664dacd6c49016853ba9f67c293"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-COLLECTION-001": {
+      "title": "Markdown 内容证明的目录读取失败",
+      "sourcePath": "cases/gate-markdown-proof-collection-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:c90e5f76f8554783a0180502198be9d9a0a48b194106cc2792acfc6fb9e90674"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-CONFIGURATION-001": {
+      "title": "Markdown 内容证明的配置闭包",
+      "sourcePath": "cases/gate-markdown-proof-configuration-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:cf4d28b796814ada098f5b36310e91c7c40d1a0e93e048842d2ff63630913aff"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-CONTENT-001": {
+      "title": "Markdown 内容证明的正文变化",
+      "sourcePath": "cases/gate-markdown-proof-content-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:2f25369fa5fa8ac320d0f357727da154187d987e1bf7bde235df63501b9dee78"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-DELETION-001": {
+      "title": "Markdown 内容证明的删除集合",
+      "sourcePath": "cases/gate-markdown-proof-deletion-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:a642ea32c81afc610acc631103fce892fe82e9835a35a295823a022499ae4cb3"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-DRIFT-001": {
+      "title": "Markdown 内容证明的结束漂移",
+      "sourcePath": "cases/gate-markdown-proof-drift-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:7c3f8a031b8397c3e410db482b482b010fde07ea5c3dfa7cfaa4350c38ba6518"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-EMPTY-001": {
+      "title": "Markdown 内容证明的空源终态",
+      "sourcePath": "cases/gate-markdown-proof-empty-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:4cd1981ba34cb539a5bf1e4de03a0e6f7f14c21963dc872cd1467eff19aa15e6"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-EXCLUSIONS-001": {
+      "title": "Markdown 内容证明的原生排除",
+      "sourcePath": "cases/gate-markdown-proof-exclusions-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:2f0f0cf2b04cca359dd906317c6f04fa79e2092c529ef1cbc3c30da5f3275e8d"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-KIND-001": {
+      "title": "Markdown 内容证明的类型身份",
+      "sourcePath": "cases/gate-markdown-proof-kind-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:85eb5a2d779bb3f45f34c39d87ed824524c0b29a3da5325cb8e5404b92030ddc"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-MISSING-001": {
+      "title": "Markdown 内容证明的旧路径归属",
+      "sourcePath": "cases/gate-markdown-proof-missing-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:2fd4ea980e3ac01f25b56cdf1d998233e48d2584b3c67675fa2e0707ff3afb2a"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-MISSINGEXCLUDED-001": {
+      "title": "Markdown 内容证明的排除路径归属",
+      "sourcePath": "cases/gate-markdown-proof-missingexcluded-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:b222e3a2384febb3ff724611e914b171304a2c9e9290122053bde50e60d7ccf3"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-MODE-001": {
+      "title": "Markdown 内容证明的权限身份",
+      "sourcePath": "cases/gate-markdown-proof-mode-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:3043e2681c4840260f091ee6cc2e33c1b0a07c305bebc0700467827bd9f7d50e"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-READ-001": {
+      "title": "Markdown 内容证明的正文读取失败",
+      "sourcePath": "cases/gate-markdown-proof-read-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:00224e2880eb57b0a5fd940c07f7f45f79e5e3e900387596ad94d841584fede9"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-RECEIPT-001": {
+      "title": "Markdown 内容证明的成功证明",
+      "sourcePath": "cases/gate-markdown-proof-receipt-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:f4d3132df44896da41eac9ce650310c87c5422ea9f27fa1920aeebba5f7c6a42"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-RENAME-001": {
+      "title": "Markdown 内容证明的重命名与后缀",
+      "sourcePath": "cases/gate-markdown-proof-rename-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:825354c7b95fa8d74d18c5cbd0b88625ec4f821d08bd00574b5167a6f9e9423c"
+      ]
+    },
+    "GATE-MARKDOWN-PROOF-ROUTING-001": {
+      "title": "Markdown 内容证明的路由",
+      "sourcePath": "cases/gate-markdown-proof-routing-001.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:84555fa6a82b58ee090ae8f73fb00d27587f31ddc580b5af2b5c84d7d933aa08"
       ]
     },
     "GATE-METRICS-BLOCKING-001": {
@@ -5208,7 +5406,7 @@
         "repository-tooling"
       ],
       "testIds": [
-        "test:966a9ef9dfd1127e0e52c0b25334e89148540d8e69bf53936f9706ee815b3307",
+        "test:da36d0d60693208423ac53def4b8a41a0b0cd563580d571e4db94770835da7fb",
         "test:fe389c82da692fa25deee6686c3384179cc0ee14cb75788dd1c2361853f8d8cc"
       ]
     },

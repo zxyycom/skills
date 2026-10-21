@@ -100,7 +100,7 @@
       "260912-isolate-release-version-control-resource-boundary": "sha256:d0b1c3ab246caf6c5e955a1be034596feb1111ff3772a2a95c4f4d223b883c6d",
       "260912-separate-relation-summary-consumption-by-reading-task": "sha256:2093bfefc99214415a4837aa63e194facca4dd82562ca523181abd6d8f7b33d6",
       "260912-support-per-successor-complete-relation-replacements": "sha256:9f9070118c7255359e629a86ce2b305ff13f19d120207182a50b18147ea59811",
-      "260919-require-gate-environment-check-prerequisite": "sha256:b97d811df8cdeffeb4f9221041a98e231575aecf70621f000c6d1fd37a8ac9e7",
+      "260919-require-gate-environment-check-prerequisite": "sha256:3f58fad722875c7fc0d312bf1cee880bc4dd915c23dde99778e1fd7b3ec9e03a",
       "260920-finalize-change-plans-by-deletion": "sha256:10cf6690d9ae70af12a38dc54996b809086e14a58c7311812c93d0715c87ba7e",
       "260922-front-load-record-context-recovery": "sha256:457ea886d899da2a9d80e4118b33afc814f5ce3951b0f64f168a96d2ec244785",
       "260922-unify-cli-workspace-location-and-help": "sha256:5a823ce3607c76af0f0bb9b735fba8e04d2a517e245c9e8e69dcf67f4a498a01",
@@ -133,11 +133,12 @@
       "261017-complete-change-plans-through-task-declarations": "sha256:de38af27e41917cae426abb4903d4b20492b7c84f0b5b6643753b714b309f2bb",
       "261017-lightweight-judgment-faithful-protocol-adapters": "sha256:bb4a453ec6fb6159f865a3b5b3307e5ff5b0585a3aa9481a78919fd79ebc40b3",
       "261017-route-record-documentation-by-consumer-task": "sha256:45930827a933def1ad4df38f87547f0418e595912280f7ae9e03f3e3d7d0884a",
-      "261020-distinguish-tool-change-flags-from-check-subscriptions": "sha256:faa33756b3dde0c1991def69757c2997c1459fba6355d1d09390a43721d8ed5c",
+      "261020-distinguish-tool-change-flags-from-check-subscriptions": "sha256:4ee8bbddfe1313f99076a9f5a4156420cc9edff493be8dc140c97a72beaade81",
       "261020-distribute-editable-typescript-runtimes": "sha256:1f3f89abb9f4de19cf2818812bb003d16a7a02d6a457b65cae31190bb401fb52",
-      "261020-native-gate-execution-and-project-receipts": "sha256:6fe5fd00b0a0291105b55994dd7112e2011723cb04ead01bd4682e0c3bc6f02b",
+      "261020-native-gate-execution-and-project-receipts": "sha256:6b59ad5e84f83af741c18b98d44259d537d3d1c6fd4bc32d105f76419682a5fe",
       "261020-retain-release-version-control-isolation": "sha256:3187831faf378e199547da7d80794b5918a132652d5ee6fdcc65d71c96003e83",
       "261020-unify-gate-generated-artifact-prerequisite": "sha256:dadfc27ecd56b60a6042e853c9992988079247cb4be5e81481439b8520d6a682",
+      "261021-allow-markdown-lint-receipts": "sha256:56f179040497fadb6f56ee7672bb1e03e71e1aeedb879fe5c7a864f3b44e532f",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -3084,9 +3085,9 @@
     },
     "261020-native-gate-execution-and-project-receipts": {
       "name": "native-gate-execution-and-project-receipts",
-      "sourcePath": "native-gate-execution-and-project-receipts.md",
+      "sourcePath": "archive/native-gate-execution-and-project-receipts.md",
       "title": "以原生执行和项目完整输入证明组织 Gate",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-20T07:38:28Z",
       "purpose": "降低 Gate 自建运行职责，同时可靠省略输入相同且已通过的项目命令。",
@@ -3149,6 +3150,29 @@
           "type": "修订",
           "target": "declare-generated-artifact-prerequisites-for-vibe-consumers",
           "summary": "保留制品信任边界，将独立领域前置归并为完整统一检查并交给原生成功依赖"
+        }
+      ]
+    },
+    "261021-allow-markdown-lint-receipts": {
+      "name": "allow-markdown-lint-receipts",
+      "sourcePath": "allow-markdown-lint-receipts.md",
+      "title": "以完整输入证明复用 Markdown 内容检查",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-21T07:14:01Z",
+      "purpose": "保持全仓验证语义，同时让输入完全相同的 Markdown 内容检查复用成功证明。",
+      "background": "原生内容检查已有计算事实缓存；完整磁盘选集可纳入现有 receipt 事务，链接仍需本次目标观察。",
+      "decision": "保持原生执行与发布事务，仅将已闭合输入的 Markdown 内容检查纳入精确 receipt 复用。",
+      "tags": [
+        "project-tooling",
+        "responsibility-boundaries",
+        "vibe-gate"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261020-native-gate-execution-and-project-receipts",
+          "summary": "保留执行与发布边界，仅扩入完整输入已闭合的 Markdown 内容检查"
         }
       ]
     },

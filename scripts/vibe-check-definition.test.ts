@@ -28,7 +28,16 @@ test("gate Definition keeps the complete catalog and incremental selection", () 
     const check = definition.checks.find(
       (candidate) => candidate.checkId === checkId
     );
-    assert.equal(check?.enabledByFlags, undefined, checkId);
+    assert.deepEqual(
+      check?.enabledByFlags,
+      checkId === "markdown-lint"
+        ? {
+            when: { kind: "any", conditions: ["gate-tool:markdown-content"] },
+            propagateDependsOn: true
+          }
+        : undefined,
+      checkId
+    );
     assert.deepEqual(check?.dependsOn, [gateEnvironmentCheckId], checkId);
   }
   assert.deepEqual(

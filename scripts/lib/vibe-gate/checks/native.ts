@@ -13,18 +13,24 @@ import type { Check } from "@zxyycom/vibe-check";
 import { rootDir } from "../../project.ts";
 import {
   gateCheckDeclaration,
+  projectActivationCondition,
   type GateCheckConfiguration,
   repositoryProcessClaims,
   repositoryScanClaim
 } from "../contracts.ts";
 
-export const historicalContentExclusions = [
-  "docs/investigations/_resources/**"
-] as const;
-
-export const investigationAuthoringDocumentExclusions = [
-  "docs/investigations/_candidate.*"
-] as const;
+import {
+  historicalContentExclusions,
+  investigationAuthoringDocumentExclusions,
+  markdownSourcePatterns,
+  maintainedMarkdownFiles
+} from "../impact-paths.ts";
+import { markdownLintToolSubscription } from "../impact-tools.ts";
+export {
+  historicalContentExclusions,
+  investigationAuthoringDocumentExclusions,
+  maintainedMarkdownFiles
+} from "../impact-paths.ts";
 
 const projectExclusions = [...historicalContentExclusions] as const;
 
@@ -62,27 +68,11 @@ const maintainedDocumentExclusions = [
   ...projectExclusions,
   ...investigationAuthoringDocumentExclusions
 ].map((pattern) => `!${pattern}`);
-const markdownSourcePatterns = [
-  "**/*.[mM][dD]",
-  "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"
-] as const;
 export const maintainedDocumentFiles = {
   patterns: [
     "**/*.json",
     ...markdownSourcePatterns,
     ...maintainedDocumentExclusions
-  ]
-} as const;
-export const maintainedMarkdownFiles = {
-  patterns: [
-    "**/*.[mM][dD]",
-    "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]",
-    ...[
-      ...projectExclusions,
-      ...investigationAuthoringDocumentExclusions,
-      "skills/**/references/upstream/**",
-      "skills/**/reference-original.md"
-    ].map((pattern) => `!${pattern}`)
   ]
 } as const;
 export const maintainedSecretFiles = {
@@ -216,7 +206,9 @@ export function createVibeNativeChecks(
       ...gateCheckDeclaration(
         "markdown-lint",
         configuration,
-        repositoryScanClaim
+        repositoryScanClaim,
+        [],
+        projectActivationCondition(markdownLintToolSubscription, configuration)
       ),
       files: maintainedMarkdownFiles,
       findingPolicy: "blocking",

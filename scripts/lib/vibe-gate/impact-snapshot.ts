@@ -1,5 +1,9 @@
 import fs from "node:fs/promises";
-import { createProjectFileRegionIndex } from "@zxyycom/vibe-check";
+import {
+  collectProjectFiles,
+  createProjectFileRegionIndex,
+  DEFAULT_PROJECT_FILE_EXCLUDES
+} from "@zxyycom/vibe-check";
 import path from "node:path";
 import { rootDir } from "../project.ts";
 import { gateImpactContractVersion } from "./impact-catalog.ts";
@@ -7,7 +11,8 @@ import { gateToolInputs } from "./impact-tools.ts";
 import {
   gateInputDirectories,
   gateConfigurationFiles,
-  isKnownGateInput
+  isKnownGateInput,
+  maintainedMarkdownFiles
 } from "./impact-paths.ts";
 import {
   captureCommand,
@@ -108,7 +113,10 @@ async function readSnapshotFile(
         size: 0
       };
     }
-    throw error;
+    throw new Error(
+      `Could not read Gate input ${relativePath}: ${error instanceof Error ? error.message : "unknown filesystem failure"}`,
+      { cause: error }
+    );
   }
 }
 
@@ -185,7 +193,14 @@ async function diskInputPaths(
     if (paths.length > maximumSnapshotFileCount)
       throw new Error("Gate disk input count exceeded its safety limit");
     const absolutePath = path.join(workspaceRoot, relativePath);
-    const children = await fs.readdir(absolutePath, { withFileTypes: true });
+    const children = await fs
+      .readdir(absolutePath, { withFileTypes: true })
+      .catch((error: unknown) => {
+        throw new Error(
+          `Could not collect Gate input directory ${relativePath}: ${error instanceof Error ? error.message : "unknown filesystem failure"}`,
+          { cause: error }
+        );
+      });
     for (const child of children) {
       const childPath = `${relativePath}/${child.name}`;
       if (child.isDirectory()) await visit(childPath);
@@ -205,7 +220,10 @@ async function diskInputPaths(
           error.code === "ENOENT"
         )
           return null;
-        throw error;
+        throw new Error(
+          `Could not inspect Gate input directory ${directory}: ${error instanceof Error ? error.message : "unknown filesystem failure"}`,
+          { cause: error }
+        );
       });
     if (status?.isDirectory()) await visit(directory);
     else paths.push(directory);
@@ -219,17 +237,37 @@ export async function captureGateWorkspaceSnapshot(
 ): Promise<GateWorkspaceSnapshot> {
   workspaceRoot = await fs.realpath(workspaceRoot);
   const runCommand = dependencies.captureCommand ?? captureCommand;
-  const [gitPaths, diskPaths] = await Promise.all([
+  const [gitPaths, diskPaths, markdownPaths] = await Promise.all([
     runCommand(
       "git",
       ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
       workspaceRoot
     ).then(parseGitPaths),
-    diskInputPaths(workspaceRoot)
+    diskInputPaths(workspaceRoot),
+    Promise.resolve().then(() => {
+      try {
+        return collectProjectFiles({
+          projectRoot: workspaceRoot,
+          selection: maintainedMarkdownFiles
+        });
+      } catch (error) {
+        // Keep workspace-relative acquisition context before the publication
+        // boundary redacts absolute paths and other sensitive error details.
+        const detail =
+          error instanceof Error
+            ? error.message
+                .replaceAll(`${workspaceRoot}${path.sep}`, "")
+                .replaceAll(workspaceRoot, ".")
+            : "unknown filesystem failure";
+        throw new Error(`Could not collect Markdown sources: ${detail}`, {
+          cause: error
+        });
+      }
+    })
   ]);
-  const relativePaths = [...new Set([...gitPaths, ...diskPaths])].sort(
-    compareText
-  );
+  const relativePaths = [
+    ...new Set([...gitPaths, ...diskPaths, ...markdownPaths])
+  ].sort(compareText);
   if (relativePaths.length > maximumSnapshotFileCount)
     throw new Error("Gate input count exceeded its safety limit");
   const [files, toolchain] = await Promise.all([
@@ -245,7 +283,19 @@ export async function captureGateWorkspaceSnapshot(
   );
   const membership = createProjectFileRegionIndex({
     fileSources: [relativePaths],
-    regionSources: [[...regions.values()]]
+    regionSources: [
+      [...regions.values()],
+      [
+        {
+          id: "missing-markdown-ownership",
+          kind: "patterns",
+          patterns: [
+            ...maintainedMarkdownFiles.patterns,
+            ...DEFAULT_PROJECT_FILE_EXCLUDES.map((pattern) => `!${pattern}`)
+          ]
+        }
+      ]
+    ]
   });
   const byPath = new Map(files.map((file) => [file.path, file]));
   const digests = new Map(
@@ -264,6 +314,27 @@ export async function captureGateWorkspaceSnapshot(
       digests.get(JSON.stringify(patterns))!
     ])
   );
+  // Native collection owns both authored and default exclusions. Only its exact
+  // current members are Markdown source inputs; common configuration patterns
+  // remain independent, so document exclusions cannot cut that closure down.
+  const markdownInputs = new Set([
+    ...(membership.filesForRegion(
+      JSON.stringify(gateToolInputs["markdown-content"])
+    ) ?? []),
+    ...markdownPaths
+  ]);
+  toolInputDigests["markdown-content"] = digestFileIdentities(
+    [...markdownInputs]
+      .sort(compareText)
+      .map((filePath) => byPath.get(filePath)!)
+  );
+  const markdownSources = new Set(markdownPaths);
+  // Git may retain a deleted/renamed tracked path. It is still an owned
+  // Markdown identity, not a current source; its removal already changes the
+  // exact source-set digest. Never extend this exception to symlinks or kinds.
+  const missingMarkdownPaths = new Set(
+    membership.filesForRegion("missing-markdown-ownership")
+  );
   // The narrowed domains must have their own reviewed capability owner. A
   // repository-wide formatter/typechecker region is not a semantic input proof.
   const domainCapabilityPaths = new Set(
@@ -280,7 +351,9 @@ export async function captureGateWorkspaceSnapshot(
   const unclassifiedPaths = files
     .filter(
       (file) =>
-        !isKnownGateInput(file.path) ||
+        (!isKnownGateInput(file.path) &&
+          !markdownSources.has(file.path) &&
+          !(file.kind === "missing" && missingMarkdownPaths.has(file.path))) ||
         file.kind === "symlink" ||
         file.kind === "unsupported" ||
         (file.kind !== "directory" &&
