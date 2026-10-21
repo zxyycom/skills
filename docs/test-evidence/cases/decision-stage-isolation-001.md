@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- Stage 仅暂存选择的 Decision ID 与派生索引，不携带未选择的 filesystem 变更。
+- 领域 target 与派生索引只采用已选 ID 的当前来源；未选新增不进入结果，未选已有成员保持基线来源。
 
 Proves:
-- 未选 candidate 不进入暂存区。
+- 所选新增进入 target 与投影，未选新增被排除；未选已有成员虽有工作区修改，target 保留基线完整字节，索引保留基线标题。

@@ -1,3 +1,12 @@
+import {
+  domainStageControl,
+  resolveDomainSelection
+} from "../src/staging-domain-context.ts";
+import { createInvestigationStageIndexDefinition } from "../src/staging-domain-index.ts";
+import {
+  buildStateIndexFromSnapshot,
+  selectTargetSnapshot
+} from "../../index-runtime/src/index.ts";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { resolveInvestigationStageSelectors } from "../src/staging-selectors.ts";
@@ -76,5 +85,51 @@ test("stage batch ambiguous and missing names preserve selector order and sorted
         'report name "shared" is ambiguous; choose one standard ID: 261010-shared, 261011-shared'
       ]
     ]
+  );
+});
+
+test("domain selection composes an explicit rename from deletion and addition", () => {
+  const baseline = investigationIndexFixture([{ id: "old-name" }]);
+  const workspaceIndex = investigationIndexFixture([{ id: "new-name" }]);
+  const canonicalDefinition = createInvestigationStageIndexDefinition();
+  const snapshot = {
+    baseline,
+    workspaceIndex,
+    canonicalDefinition,
+    revision: null
+  };
+  const selection = resolveDomainSelection(
+    snapshot,
+    domainStageControl({
+      investigationsDirectory: "/workspace/docs/investigations",
+      reportIds: ["old-name", "new-name"],
+      scope: "domain"
+    })
+  );
+  assert.equal(selection.status, "ok");
+  if (selection.status !== "ok")
+    assert.fail("explicit rename selection failed");
+  assert.deepEqual(selection.value.selectedIds, ["new-name", "old-name"]);
+  assert.deepEqual(selection.value.sourceSelection, {
+    deletedIds: ["old-name"],
+    reportIds: ["new-name"],
+    resourceIds: []
+  });
+  assert.equal(baseline.entries["old-name"]?.sourcePath, "old-name.md");
+  assert.equal(workspaceIndex.entries["new-name"]?.sourcePath, "new-name.md");
+  const target = buildStateIndexFromSnapshot(
+    canonicalDefinition,
+    selectTargetSnapshot(
+      baseline,
+      workspaceIndex,
+      new Set(selection.value.selectedIds)
+    )
+  );
+  assert.equal(target.status, "ok");
+  if (target.status !== "ok") assert.fail("explicit rename projection failed");
+  assert.equal(Object.hasOwn(target.value.entries, "old-name"), false);
+  assert.deepEqual(
+    target.value.entries["new-name"],
+    workspaceIndex.entries["new-name"]
   );
 });

@@ -1,13 +1,13 @@
-### Case INVESTIGATION-STAGE-DOMAIN-DRIFT-001: stage rejects owner source drift before the pending write stays atomic
+### Case INVESTIGATION-STAGE-DOMAIN-DRIFT-001: 阶段比较拒绝 owner 资源字节漂移
 
 Tests:
-- `test:c00fcf40229db1edbeaf16b228f360460bc49045b225dbd281c6a261c0aba47c`
+- `test:13e48bbaee4eb256fdd1a2521a21305255d88d26ac37ade95d7ee3e4ae26af35`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 写前重读所选来源字节，漂移使事务零写入停止。
+- 领域写计划比较须拒绝两个阶段中所选来源或 owner 资源字节的漂移。
 
 Proves:
-- 注入资源读取间漂移后返回 source-drift；暂存区保持空，工作区漂移内容不被改写。
+- 对真实 owner 资源先后采集 after 与 drifted 字节，`verifyDomainWrites` 返回来源/owner 字节漂移，现场 drifted 字节不被覆盖。

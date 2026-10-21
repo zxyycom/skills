@@ -1,0 +1,2125 @@
+{
+  "sourceHead": "d5f9fde2821f03088a2a1850a3c2819b23224db5",
+  "scope": "24 lower + 16 duplicate Git portions; 7 unresolved untouched; 50 retained representatives",
+  "items": [
+    {
+      "key": "调查报告-01",
+      "file": "tools/investigation-report/tests/local-stage-contract.test.ts",
+      "name": "local investigation stage ignores unrelated malformed and missing bodies and reads selected sources once per phase",
+      "decision": "needs_evidence",
+      "intendedAction": "主要观察确为两阶段局部FS读取与计数，domain/all同一路径可缩重复，但当前acquireDomainPhase无条件readPendingSnapshot、collectDomainWrites无条件repository.readWorkspaceFiles。现有资源FS helper不执行该orchestration；在不新增mock/seam前提下，没有闭合原整节点的无Git替代。只可明确分离纯规则，不能直接建议整节点下沉。",
+      "overlaps": [
+        "调查报告-18",
+        "调查报告-09",
+        "调查报告-36"
+      ]
+    },
+    {
+      "key": "调查报告-02",
+      "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+      "name": "history prefixes use real source presence for moved HEAD identities",
+      "decision": "retain_git",
+      "intendedAction": "这是实际 HEAD 路径与身份脱钩的领域接线代表；不要求再为 HEAD index 的语法重复建仓",
+      "overlaps": [
+        "调查报告-35"
+      ]
+    },
+    {
+      "key": "调查报告-03",
+      "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+      "name": "history prefix UTF8 cutoff after complete identity lines does not cause a false missing warning",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "字节解码和前三行完整性规则，不是新 Git 状态；共享 prefix 完整性加 long fallback/moved 接线覆盖真实传输，保留字节规则在已有 Markdown/FS 层",
+      "overlaps": [
+        "调查报告-02",
+        "调查报告-34"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+            "name": "history identity survives UTF8 cutoff after complete identity lines",
+            "entityId": "test:d6f04791558284ce7d30ae39884b2b69acba7b040595f7e8362fecad857a03d8"
+          }
+        ],
+        "preservedObservations": [
+          "16384 字节前缀恰好截断 UTF8，末尾为 replacement character；前三行已完整时 investigationIdFromMarkdown 仍返回 base。"
+        ],
+        "nonGitEntryPoints": [
+          "investigationIdFromMarkdown"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+            "name": "history prefixes use real source presence for moved HEAD identities"
+          },
+          {
+            "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+            "name": "history long first-three-line prefixes fall back to the exact revision file and preserve EOF identity"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-04",
+      "file": "tools/investigation-report/tests/staging-domain.test.ts",
+      "name": "stage --scope domain preserves staged index pending bytes and reports the preserved scope",
+      "decision": "retain_git",
+      "intendedAction": "domain 的索引是 caller-owned 而非普通非所选文件，必须保留该 scope 接线；两次 stage 是创建前置 pending 与被测更新，不是参数重复",
+      "overlaps": [
+        "调查报告-17"
+      ]
+    },
+    {
+      "key": "调查报告-05",
+      "file": "tools/investigation-report/tests/phase-facts-contract.test.ts",
+      "name": "directory facts enumerate each stable selected directory once per phase with literal filenames",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "枚举计数在 ResourceDirectoryFacts，Git 只提供 membership；12 个文件不是 12 个 Git 边界；已有显式 membership FS helper 可直接承接，保留一处 stage 两阶段接线即可",
+      "overlaps": [
+        "调查报告-18",
+        "调查报告-23"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/phase-facts-contract.test.ts",
+            "name": "directory facts enumerate each stable selected directory once per phase with literal filenames",
+            "entityId": "test:176d0825a17ff9daafa756b1fcd60ac4b6eb81db19bb1dda1cb03fadf365435a"
+          }
+        ],
+        "preservedObservations": [
+          "12 个含空格 literal filename 作为显式 membership；每个 phase 独立 prepare + inspectOwned + assertCurrent；resource root 与 owner 的 readdir 各共两次。"
+        ],
+        "nonGitEntryPoints": [
+          "prepareInvestigationResourceRoot",
+          "inspectOwnedInvestigationResources",
+          "ResourceDirectoryFacts.assertCurrent"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging-domain.test.ts",
+            "name": "stage --scope domain writes the report and its complete owner resource tree"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging-resource-safety.test.ts",
+            "name": "owned resource validation rejects same-byte symlink replacement at file between phases"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-06",
+      "file": "tools/investigation-report/tests/staging-representation.test.ts",
+      "name": "stage keeps rejecting selected symlink resource sources without pending writes",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "拒绝是 FS 类型/安全验证，不是 Git index symlink 表示；已有初始 unreferenced symlink 四分量 FS 测试，stage 的二阶段拒绝代表另保留",
+      "overlaps": [
+        "调查报告-23"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/staging-representation.test.ts",
+            "name": "owned resource validation rejects selected symlink sources before byte reads",
+            "entityId": "test:7ac0dd172559dd3a0ff045b2245b4d03fd6080b08484eee2cff548b4e9297d72"
+          }
+        ],
+        "preservedObservations": [
+          "真实 selected owner 内未引用 symlink 被拒绝；资源 bytes 读取计数为 0；domainFailure 映射保留 error/domain-stage-failed/stage-source-read-failed；原脚本 bytes 不变。"
+        ],
+        "nonGitEntryPoints": [
+          "prepareInvestigationResourceRoot",
+          "inspectOwnedInvestigationResources",
+          "domainFailure"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging-resource-safety.test.ts",
+            "name": "owned resource validation rejects same-byte symlink replacement at file between phases"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-07",
+      "file": "tools/investigation-report/tests/staging-resource-safety.test.ts",
+      "name": "local investigation stage ignores unrelated symlink resource trees without inspecting their contents",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "局部 FS 访问范围与 Git owner path selection 可以分开证明；domain tree 代表验证选中成员真正写入，现有 phase-facts unrelated-owner FS 测试验证不触碰，无需为另一 sibling 形态独立 Git",
+      "overlaps": [
+        "调查报告-18"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/staging-resource-safety.test.ts",
+            "name": "owned resource validation ignores unrelated symlink trees without inspecting their contents",
+            "entityId": "test:f1227e95c011f2978c3cfba2478e20f62a0202a8158bb80d005c997244ba1141"
+          }
+        ],
+        "preservedObservations": [
+          "lstat/readdir hook 禁止访问 unrelated symlink owner 及 external tree；真实 FS 校验仍读取选中 changed bytes。"
+        ],
+        "nonGitEntryPoints": [
+          "readOwnedResourceFixture (existing FS support)"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging-domain.test.ts",
+            "name": "stage --scope domain writes the report and its complete owner resource tree"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-08",
+      "file": "tools/investigation-report/tests/staging-domain.test.ts",
+      "name": "stage --scope domain stages report deletion with the owner tree for a baseline-only ID",
+      "decision": "retain_git",
+      "intendedAction": "基线-only 选择触发 HEAD 索引读取、缺失资源成员并集和删除身份发现，是非普通更新的真实状态",
+      "overlaps": [
+        "调查报告-44"
+      ]
+    },
+    {
+      "key": "调查报告-09",
+      "file": "tools/investigation-report/tests/staging.test.ts",
+      "name": "stage --scope index keeps report Markdown outside selected index staging",
+      "decision": "retain_git",
+      "intendedAction": "保留 index adapter 与共享 runtime 的单条接线；不能由 all/domain 接线替代，因为 staging.ts 在 index 分支换运行时",
+      "overlaps": [
+        "调查报告-17"
+      ]
+    },
+    {
+      "key": "调查报告-10",
+      "file": "tools/investigation-report/tests/local-stage-contract.test.ts",
+      "name": "local investigation stage rechecks required owner and shared resource bytes before writing",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "两路径分别是必要 owner 投影与直接资源字节的 FS/领域事实，不是两种 Git 状态；已有 verifyDomainWrites 可直接比较 sourceFiles，保留二阶段失败阻写代表即可，不能因两路径不同要求两仓",
+      "overlaps": [
+        "调查报告-23",
+        "调查报告-26"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/local-stage-contract.test.ts",
+            "name": "domain phase comparison rechecks required owner and shared resource bytes",
+            "entityId": "test:b5da5579801f8b91765ea1beb97b3da309bf7a0cf226ab3fbab9d41d62c0e819"
+          }
+        ],
+        "preservedObservations": [
+          "owner.md 与直接共享 resource 分别发生真实 FS byte drift；每种输入两次 phase 读取；verifyDomainWrites 拒绝 required owner/source byte drift；验证保留现场新 bytes。"
+        ],
+        "nonGitEntryPoints": [
+          "verifyDomainWrites"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging-resource-safety.test.ts",
+            "name": "owned resource validation rejects same-byte symlink replacement at file between phases"
+          },
+          {
+            "file": "tools/investigation-report/tests/cli-stage-source-failure.test.ts",
+            "name": "investigation stage second-phase read failure retains private-safe category operation target and recovery"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-11",
+      "file": "tools/investigation-report/tests/staging-source-path.test.ts",
+      "name": "stage --scope domain updates the indexed sourcePath without staging an ID-named decoy",
+      "decision": "retain_git",
+      "intendedAction": "证明领域 sourcePath 到实际 pending path 的接线和防误选，不是纯字符串路径改名；代表 current-path 更新与 unselected 哨兵",
+      "overlaps": [
+        "调查报告-44"
+      ]
+    },
+    {
+      "key": "调查报告-12",
+      "file": "tools/investigation-report/tests/staging-representation.test.ts",
+      "name": "stage reports executable-bit-only changes and an unchanged repeat",
+      "decision": "retain_git",
+      "intendedAction": "representation-only change 与 unchanged/revert 是真实 index 状态不同，不是三条相同路径变体；保留一个领域 effective-mode 接线",
+      "overlaps": [
+        "调查报告-63"
+      ]
+    },
+    {
+      "key": "调查报告-13",
+      "file": "tools/investigation-report/tests/staging-representation.test.ts",
+      "name": "stage rejects executable-bit source drift before publishing pending",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "有效 mode 获取由 shared representation 测试证明；此处剩余责任是 verifyDomainWrites 比较 kind，与字节漂移同一比较器，不需额外真实仓",
+      "overlaps": [
+        "调查报告-12",
+        "调查报告-23"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/staging-representation.test.ts",
+            "name": "domain phase comparison rejects executable representation drift with identical bytes",
+            "entityId": "test:74524745539c56b8de2ed650383d3a3ea3eeaade82f1b25963cfc5ed9f15e753"
+          }
+        ],
+        "preservedObservations": [
+          "相同 path 与 bytes、仅 kind regular→executable；verifyDomainWrites 对相同 acquisition 接受，对 representation drift 拒绝。"
+        ],
+        "nonGitEntryPoints": [
+          "verifyDomainWrites"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging-representation.test.ts",
+            "name": "stage reports executable-bit-only changes and an unchanged repeat"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging-resource-safety.test.ts",
+            "name": "owned resource validation rejects same-byte symlink replacement at file between phases"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-14",
+      "file": "tools/investigation-report/tests/staging-source-path.test.ts",
+      "name": "stage --scope domain preserves both reports through selected sourcePath swaps",
+      "decision": "needs_evidence",
+      "intendedAction": "实际观察是两个selected IDs交换sourcePath后两个cached路径各含新ID；领域path-set写计划与Git传输可概念分开，但domainWrites当前私有，export collectDomainWrites仍无条件readWorkspaceFiles。现有decoy/relocation代表不覆盖交换特有的重叠集合规则；无新mock/seam的完整可操作替代尚未闭合，不能直接下沉整节点。",
+      "overlaps": [
+        "调查报告-11",
+        "调查报告-44"
+      ]
+    },
+    {
+      "key": "调查报告-15",
+      "file": "tools/investigation-report/tests/cli-candidate-workflows.test.ts",
+      "name": "candidate queries report readiness while formal sources and default checks ignore a candidate-owned resource",
+      "decision": "redundant_git_variant",
+      "intendedAction": "后半段只是 index-only 接线再加候选 sibling；候选排除规则已由前半段源投影证明，Git diff 检查的 _candidate.candidate-topic.md 与实际候选 basename 还不同，不是额外可靠边界",
+      "overlaps": [
+        "调查报告-09"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/cli-candidate-workflows.test.ts",
+            "name": "candidate queries report readiness while formal sources and default checks ignore a candidate-owned resource",
+            "entityId": "test:50ee266e01539af0aa70cea9b8fe2d1be99b91788869093a540083bd25cad9a6"
+          }
+        ],
+        "preservedObservations": [
+          "完整保留 Git 之前的 candidate readiness/list/show/trace/source revision/default check 领域断言；只删 index-only transport 尾段。"
+        ],
+        "nonGitEntryPoints": [
+          "existing candidate/query/check APIs"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging.test.ts",
+            "name": "stage --scope index keeps report Markdown outside selected index staging"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-16",
+      "file": "tools/investigation-report/tests/staging-source-path.test.ts",
+      "name": "stage --scope domain deletes a baseline-only report by its indexed sourcePath",
+      "decision": "redundant_git_variant",
+      "intendedAction": "HEAD 非ID sourcePath 已由 relocation 的 old-name.md 删除覆盖；baseline-only/owner 删除由 domain 删除代表覆盖，改 basename 不跨适配分支",
+      "overlaps": [
+        "调查报告-08",
+        "调查报告-44"
+      ],
+      "implementation": {
+        "action": "remove-redundant-native-and-use-existing-representatives",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/staging-domain.test.ts",
+            "name": "stage --scope domain stages report deletion with the owner tree for a baseline-only ID",
+            "entityId": "test:2b80afe43b214f7bf66f8ce3feb93b9aa2d7f113bba14397c8caffdba3b971d2"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging-source-path.test.ts",
+            "name": "stage --scope domain stages sourcePath relocation as old-path deletion and new-path addition",
+            "entityId": "test:b0d558deb5cf8ac67b946dee9ada6aac3c7a6fe8d2bc1e6fc630898a4658097a"
+          }
+        ],
+        "preservedObservations": [
+          "baseline-only 删除由 #8 保留，非 ID baseline sourcePath 删除由 #44 relocation 保留；没有仅属于 removed-report.md 这个字面 basename 的领域规则。"
+        ],
+        "nonGitEntryPoints": [],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging-domain.test.ts",
+            "name": "stage --scope domain stages report deletion with the owner tree for a baseline-only ID"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging-source-path.test.ts",
+            "name": "stage --scope domain stages sourcePath relocation as old-path deletion and new-path addition"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-17",
+      "file": "tools/investigation-report/tests/staging-domain.test.ts",
+      "name": "stage --scope all writes the index projection, report, and owner tree atomically",
+      "decision": "retain_git",
+      "intendedAction": "all 通过 domainIndexFile 增加索引 payload，与 domain 的 null index 分支不同；保留一个 all 组合接线。成功检查不独立证明中途失败的 atomic rollback",
+      "overlaps": [
+        "调查报告-04",
+        "调查报告-18"
+      ]
+    },
+    {
+      "key": "调查报告-18",
+      "file": "tools/investigation-report/tests/staging-domain.test.ts",
+      "name": "stage --scope domain writes the report and its complete owner resource tree",
+      "decision": "retain_git",
+      "intendedAction": "领域 Git membership scope 与 owner path 并集到 pending updates 的主要成功接线；不是仅 FS 树扫描",
+      "overlaps": [
+        "调查报告-17"
+      ]
+    },
+    {
+      "key": "调查报告-19",
+      "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+      "name": "history bounded retention keeps unavailable warnings for unrelated formal corrupt objects",
+      "decision": "retain_git",
+      "intendedAction": "真实 object 解压/全 payload 校验错误不能由普通 Markdown fixture 证明；保留一个 unrelated object 完整性→领域 warning 接线",
+      "overlaps": [
+        "调查报告-59"
+      ]
+    },
+    {
+      "key": "调查报告-20",
+      "file": "tools/investigation-report/tests/publish.test.ts",
+      "name": "discard identifies candidates and protects shared and recorded authoring resources without changing formal reports",
+      "decision": "retain_git",
+      "intendedAction": "candidate 作者态路径/资源的 recorded 确认接线区别正式报告；前半段共享规则不需 Git，后两次调用是拒绝/允许两状态",
+      "overlaps": [
+        "调查报告-61"
+      ]
+    },
+    {
+      "key": "调查报告-21",
+      "file": "tools/investigation-report/tests/cli-stage.test.ts",
+      "name": "CLI stage --scope index preserves pending transaction facts",
+      "decision": "retain_git",
+      "intendedAction": "保留 index runtime→CLI 的一个 pending 事实接线；不是把每种 errno 都真实 Git 重跑",
+      "overlaps": [
+        "调查报告-30"
+      ]
+    },
+    {
+      "key": "调查报告-22",
+      "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+      "name": "history prefixes use real source presence for missing-index HEAD identities",
+      "decision": "redundant_git_variant",
+      "intendedAction": "validation-history 从 HEAD 枚举 formal sources，根本不读 HEAD index；这是同 branch 的无关文件有无，不需独立仓",
+      "overlaps": [
+        "调查报告-02",
+        "调查报告-24",
+        "调查报告-35"
+      ],
+      "implementation": {
+        "action": "remove-redundant-native-and-use-existing-representatives",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+            "name": "history prefixes use real source presence for moved HEAD identities",
+            "entityId": "test:01a2c79ef223004496492bbc5c6142817b7c0016077ea1044ad17087a581b56e"
+          },
+          {
+            "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+            "name": "history prefixes use real source presence for legacy HEAD identities",
+            "entityId": "test:4af295ae9121c5da2587ab30323060733c13ce4fefb8afb8e9930a11fb7acc8a"
+          },
+          {
+            "file": "tools/investigation-report/tests/parsing-directory.test.ts",
+            "name": "full validation warns only for direct predecessors outside Git HEAD",
+            "entityId": "test:6dde42925601d2cab5e8acd11e3dfb6f741af99bf423ab3ae8ab7836fb8a7abd"
+          }
+        ],
+        "preservedObservations": [
+          "source-presence 权威性由 legacy/moved/inconsistent-index 和 direct predecessor 代表承接；缺失 HEAD index 是历史实现不读取的无关成员变体，不新造替代 fixture。"
+        ],
+        "nonGitEntryPoints": [],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+            "name": "history prefixes use real source presence for moved HEAD identities"
+          },
+          {
+            "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+            "name": "history prefixes use real source presence for legacy HEAD identities"
+          },
+          {
+            "file": "tools/investigation-report/tests/parsing-directory.test.ts",
+            "name": "full validation warns only for direct predecessors outside Git HEAD"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-23",
+      "file": "tools/investigation-report/tests/staging-resource-safety.test.ts",
+      "name": "owned resource validation rejects same-byte symlink replacement at file between phases",
+      "decision": "retain_git",
+      "intendedAction": "保留一个生产 FS 二阶段拒绝确实阻断 pending publication 的接线代表；其他分量已有 no-Git FS 测试，不因路径不同各留仓",
+      "overlaps": [
+        "调查报告-06",
+        "调查报告-13"
+      ]
+    },
+    {
+      "key": "调查报告-24",
+      "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+      "name": "history prefixes use real source presence for legacy HEAD identities",
+      "decision": "retain_git",
+      "intendedAction": "与 moved 的正文 ID 路径不同，真实 HEAD source 经 fallback 分支到警告结果的一处接线；HEAD index 语法变体不能增加这条必要性",
+      "overlaps": [
+        "调查报告-02",
+        "调查报告-58"
+      ]
+    },
+    {
+      "key": "调查报告-25",
+      "file": "tools/investigation-report/tests/staging-resource-safety.test.ts",
+      "name": "owned resource deletion handles missing file components",
+      "decision": "redundant_git_variant",
+      "intendedAction": "同一 HEAD/workspace owner 路径并集与 null update 已由 literal filename 的第二阶段删除和 owner deletion 覆盖；file 分量不是额外 Git 适配分支",
+      "overlaps": [
+        "调查报告-39",
+        "调查报告-64"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/staging-resource-safety.test.ts",
+            "name": "owned resource deletion handles missing file components",
+            "entityId": "test:fc7353d2b230868f4dcae48249904427ebdc3820716777ea533d9b9db3a10034"
+          }
+        ],
+        "preservedObservations": [
+          "file component 同 root/owner/intermediate 一样用真实 FS 删除后 inspectOwned 的 missing-allow/null 观察；真实 pending D 与 writtenPaths 由 #39/#64 保留。"
+        ],
+        "nonGitEntryPoints": [
+          "readOwnedResourceFixture (existing FS support)"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging-resource-safety.test.ts",
+            "name": "local investigation stage preserves ordinary unreferenced member filenames for writes and deletions"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging-domain.test.ts",
+            "name": "stage --scope domain stages owner resource deletions and ignores other owners"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-26",
+      "file": "tools/investigation-report/tests/cli-stage-source-failure.test.ts",
+      "name": "investigation stage second-phase read failure retains private-safe category operation target and recovery",
+      "decision": "needs_evidence",
+      "intendedAction": "Git 错误映射与 FS read 规则可以下沉，但本节点还独占 private stageRecovery 的 domain/versionControl 恢复接线；不能仅以共享错误测试或 index 未变宣称整节点可无损删除。可减少真实 Git 参数矩阵，当前无完整无Git替代已证",
+      "overlaps": [
+        "调查报告-21",
+        "调查报告-28",
+        "调查报告-67"
+      ]
+    },
+    {
+      "key": "调查报告-27",
+      "file": "tools/investigation-report/tests/rename-drift.test.ts",
+      "name": "Investigation rename requires its recorded report or candidate confirmation without rewriting Git history",
+      "decision": "retain_git",
+      "intendedAction": "recorded path 计算及 source.candidate 分支不同，不能当同名路径重复；同一仓里两种 authoring/formal 状态都有责任",
+      "overlaps": [
+        "调查报告-20",
+        "调查报告-61"
+      ]
+    },
+    {
+      "key": "调查报告-28",
+      "file": "tools/investigation-report/tests/cli-stage-resource-failure.test.ts",
+      "name": "investigation stage keeps unknown real resource syscall failures distinct from ordinary validation",
+      "decision": "needs_evidence",
+      "intendedAction": "与 report EACCES 不同错误载体/unknown recovery 分支，不是 errno 替换的同义测试；底层 syscall 矩阵可纯FS，现节点 unique stageRecovery glue 未被已有代表证明，不能无证降掉",
+      "overlaps": [
+        "调查报告-26",
+        "调查报告-67"
+      ]
+    },
+    {
+      "key": "调查报告-29",
+      "file": "tools/investigation-report/tests/transaction-recovery.test.ts",
+      "name": "set-relations leaves Git pending unchanged",
+      "decision": "retain_git",
+      "intendedAction": "保留该 mutation 自身不触碰 pending 的一个端到端安全哨兵，不能由 discard/rename 操作代替",
+      "overlaps": [
+        "调查报告-43",
+        "调查报告-27"
+      ]
+    },
+    {
+      "key": "调查报告-30",
+      "file": "tools/investigation-report/tests/staging-domain.test.ts",
+      "name": "stage --scope domain reports a busy pending boundary without workspace writes",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "共享 pending-lock 测试与 index CLI 代表已证明真实锁；domain 专属 pendingReplacementFailure 是已导出映射，可直接给 VersionControlError，不需再建仓仅看同 state",
+      "overlaps": [
+        "调查报告-21"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/staging-domain.test.ts",
+            "name": "domain pending failure maps a busy boundary to no-change conflict diagnostics",
+            "entityId": "test:70c610c954f32b51195d93ededc53b439c24442a26f86dfc1adfbc5674a61eb0"
+          }
+        ],
+        "preservedObservations": [
+          "pendingReplacementFailure 对真实 VersionControlError(code pending-conflict, category busy) 映射 error/pending-conflict、changed=false、domain、no-change outcome、diagnostic code/category/busy message。"
+        ],
+        "nonGitEntryPoints": [
+          "pendingReplacementFailure",
+          "VersionControlError"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/cli-stage.test.ts",
+            "name": "CLI stage --scope index preserves pending transaction facts"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-31",
+      "file": "tools/investigation-report/tests/cli-index.test.ts",
+      "name": "CLI check diagnoses stale sources while index stage uses the published projection",
+      "decision": "retain_git",
+      "intendedAction": "当前源码含三次 stage：未同步 index、未同步 domain、同步后 index；前两 scope 跨不同实现分支，有真实接线价值；第三次成功回显可由 index 主代表承担，不是整个节点每一步都必需 Git",
+      "overlaps": [
+        "调查报告-09",
+        "调查报告-17"
+      ]
+    },
+    {
+      "key": "调查报告-32",
+      "file": "tools/investigation-report/tests/staging-representation.test.ts",
+      "name": "stage --scope all preserves unselected executable and symlink pending representations",
+      "decision": "retain_git",
+      "intendedAction": "保留领域 complete pending snapshot 的一处 mode/symlink 哨兵；不是只比较文本 bytes。all 和 domain 共用 replacement，另一 scope 不需重复同模式矩阵",
+      "overlaps": [
+        "调查报告-55"
+      ]
+    },
+    {
+      "key": "调查报告-33",
+      "file": "tools/investigation-report/tests/staging.test.ts",
+      "name": "stage --scope index treats resource byte changes as outside report selection",
+      "decision": "redundant_git_variant",
+      "intendedAction": "这是 index-only representative 中 outside Markdown 的资源路径变体；资源指纹不进入 index 的规则可在 source revision FS 层证明，Git index 适配无变化",
+      "overlaps": [
+        "调查报告-09",
+        "调查报告-62"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/staging.test.ts",
+            "name": "investigation source revision and published index exclude resource byte changes",
+            "entityId": "test:c925427adbac6d79632b597719e5e376df1b407ba989208f6a098684bc002385"
+          }
+        ],
+        "preservedObservations": [
+          "resource before→after 不改变正式 report source revision 或发布 index bytes；当前 resource bytes 仍为 after。"
+        ],
+        "nonGitEntryPoints": [
+          "readInvestigationSourceRevision"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging.test.ts",
+            "name": "stage --scope index keeps report Markdown outside selected index staging"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-34",
+      "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+      "name": "history long first-three-line prefixes fall back to the exact revision file and preserve EOF identity",
+      "decision": "retain_git",
+      "intendedAction": "真正跨 readRevisionFilePrefixes 与 readRevisionFile fallback 的两条 I/O 路径；不同于完整前三行后的 UTF8尾部",
+      "overlaps": [
+        "调查报告-02",
+        "调查报告-03"
+      ]
+    },
+    {
+      "key": "调查报告-35",
+      "file": "tools/investigation-report/tests/parsing-directory.test.ts",
+      "name": "full validation warns only for direct predecessors outside Git HEAD",
+      "decision": "retain_git",
+      "intendedAction": "全量 validation→固定 HEAD source presence 主接线；警告生成/去重规则可独立证明，不要求每条 relation 真实 Git",
+      "overlaps": [
+        "调查报告-02"
+      ]
+    },
+    {
+      "key": "调查报告-36",
+      "file": "tools/investigation-report/tests/acquisition-contract.test.ts",
+      "name": "investigation domain preparation batches selected member and source reads but rereads before writing",
+      "decision": "needs_evidence",
+      "intendedAction": "verifyDomainWrites的纯比较可以无Git，但原节点五次acquisition中的listWorkspaceFiles/readWorkspaceFiles调用计数、固定HEAD读取复用及成员/来源复采仍依赖repository。可调用现存函数不等于现成无Git替代；若不新增repository替身/seam，原完整orchestration尚不能无损下沉。该节点本身没有执行pending写入，cached为空不构成独立写入安全证明。",
+      "overlaps": [
+        "调查报告-18",
+        "调查报告-23"
+      ]
+    },
+    {
+      "key": "调查报告-37",
+      "file": "tools/investigation-report/tests/publish.test.ts",
+      "name": "candidate discard rechecks Git HEAD immediately before deletion",
+      "decision": "retain_git",
+      "intendedAction": "实际 HEAD 在两阶段间推进，不等于静态 recorded/nonrecorded 参数变体；不能由普通确认测试代替",
+      "overlaps": [
+        "调查报告-20"
+      ]
+    },
+    {
+      "key": "调查报告-38",
+      "file": "tools/investigation-report/tests/staging-domain.test.ts",
+      "name": "stage --scope domain stages an explicit rename as deletion plus addition",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "变化是领域选择与写计划集合组合，不是 Git rename 魔法；现有 domain addition/deletion/relocation 接线与 shared snapshot patch 已证 A/D，保留显式旧新选择规则而不重复真实Git",
+      "overlaps": [
+        "调查报告-08",
+        "调查报告-44",
+        "调查报告-49"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/batch-stage-selectors.test.ts",
+            "name": "domain selection composes an explicit rename from deletion and addition",
+            "entityId": "test:44db96829247e0f20450515b512d2fc5cfec00b99c34558b5d83cba8230db90c"
+          }
+        ],
+        "preservedObservations": [
+          "resolveDomainSelection 对显式旧新 selector 返回排序后的 new-name/old-name；sourceSelection 是 old deleted/new report；baseline/current sourcePath 保留；selectTargetSnapshot + production definition 的投影无旧 ID、含当前新 ID；真实 A/D 及 index 不写入运输由 #8/#44/#49/#18 保留。"
+        ],
+        "nonGitEntryPoints": [
+          "resolveDomainSelection",
+          "domainSourceSelection (called by resolver)",
+          "selectTargetSnapshot",
+          "buildStateIndexFromSnapshot"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging-domain.test.ts",
+            "name": "stage --scope domain stages report deletion with the owner tree for a baseline-only ID"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging-source-path.test.ts",
+            "name": "stage --scope domain stages sourcePath relocation as old-path deletion and new-path addition"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging-source-path.test.ts",
+            "name": "stage --scope domain adds a report at its indexed sourcePath"
+          }
+        ],
+        "originalNativeRetainsRealGit": false,
+        "placementReason": "该节点只验证显式 selector 的旧新选择与投影，归入现有批量 selector 测试 owner；主体与断言不变。"
+      }
+    },
+    {
+      "key": "调查报告-39",
+      "file": "tools/investigation-report/tests/staging-resource-safety.test.ts",
+      "name": "local investigation stage preserves ordinary unreferenced member filenames for writes and deletions",
+      "decision": "retain_git",
+      "intendedAction": "带空格路径确实跨 Git 字面路径/tokenization 边界；两次 stage 分别写入/删除，不是同义参数重复",
+      "overlaps": [
+        "调查报告-18",
+        "调查报告-64"
+      ]
+    },
+    {
+      "key": "调查报告-40",
+      "file": "tools/investigation-report/tests/staging-source-path.test.ts",
+      "name": "stage --scope domain keeps the shared sourcePath when both renamed IDs are selected",
+      "decision": "needs_evidence",
+      "intendedAction": "实际观察是旧新IDs同指shared-name.md后仅cached M且内容为新ID；新增责任为baseline/current路径交集规则。domainWrites当前私有，export collectDomainWrites仍无条件repository.readWorkspaceFiles；普通update/relocation接线不能替代共享路径特有规则。在无新mock/seam前提下，完整无Git替代尚未闭合。",
+      "overlaps": [
+        "调查报告-11",
+        "调查报告-44"
+      ]
+    },
+    {
+      "key": "调查报告-41",
+      "file": "tools/investigation-report/tests/cli-stage.test.ts",
+      "name": "CLI stage --scope domain stages report Markdown and owner resources without the index",
+      "decision": "retain_git",
+      "intendedAction": "保留 CLI scope parser→领域 branch 的一个成功接线；owner resource 此例 bytes 未变，因此名称说 resources 不等于已证明资源内容更新",
+      "overlaps": [
+        "调查报告-18",
+        "调查报告-09"
+      ]
+    },
+    {
+      "key": "调查报告-42",
+      "file": "tools/investigation-report/tests/staging.test.ts",
+      "name": "stage --scope index resolves a baseline-only Investigation name as a deletion",
+      "decision": "retain_git",
+      "intendedAction": "这是 index runtime 载入 HEAD 基线后接入领域 selector 的代表；纯选择器测试并不证明正确传入 baseline",
+      "overlaps": [
+        "调查报告-09"
+      ]
+    },
+    {
+      "key": "调查报告-43",
+      "file": "tools/investigation-report/tests/discard.test.ts",
+      "name": "discard preserves existing Git pending content",
+      "decision": "retain_git",
+      "intendedAction": "discard 的实际事务路径与 relation/rename不同，保留每 mutation 的 pending 哨兵不是重复路径变体",
+      "overlaps": [
+        "调查报告-29",
+        "调查报告-27"
+      ]
+    },
+    {
+      "key": "调查报告-44",
+      "file": "tools/investigation-report/tests/staging-source-path.test.ts",
+      "name": "stage --scope domain stages sourcePath relocation as old-path deletion and new-path addition",
+      "decision": "retain_git",
+      "intendedAction": "HEAD 与 workspace 的 sourcePath 两套集合到实际 pending 的接线；旧/新不同不是同义目录参数，覆盖 baseline 非ID路径删除",
+      "overlaps": [
+        "调查报告-11",
+        "调查报告-16"
+      ]
+    },
+    {
+      "key": "调查报告-45",
+      "file": "tools/investigation-report/tests/parsing-directory.test.ts",
+      "name": "full validation skips unrecorded predecessor warnings without Git HEAD",
+      "decision": "retain_git",
+      "intendedAction": "三个实际 Git 可用性状态（无仓不建fixture、unborn、坏ref）有不同 adapter/error 分支，不应以三个输入当重复",
+      "overlaps": [
+        "调查报告-51",
+        "调查报告-57"
+      ]
+    },
+    {
+      "key": "调查报告-46",
+      "file": "tools/investigation-report/tests/staging-domain.test.ts",
+      "name": "stage --scope domain keeps unrelated staged deletions when staging another report",
+      "decision": "retain_git",
+      "intendedAction": "真实 pending 删除事实无法从当前成员字符串集合自证；共享 snapshot 也覆盖，但领域 preservedDomainPaths 使用专属 listPendingChangedPaths 接线需代表",
+      "overlaps": [
+        "调查报告-04"
+      ]
+    },
+    {
+      "key": "调查报告-47",
+      "file": "tools/investigation-report/tests/local-stage-contract.test.ts",
+      "name": "local investigation stage rejects mutable published index drift before pending replacement",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "verifyDomainIndex 本身导出、只读当前索引和比较序列化，不依赖真实 HEAD；二阶段阻写接线由 symlink漂移代表，保留 index compare 规则不需要再真实Git",
+      "overlaps": [
+        "调查报告-23",
+        "调查报告-31"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/local-stage-contract.test.ts",
+            "name": "domain index verification rejects mutable published index drift",
+            "entityId": "test:1d84c1d2129a73413968d72e51e2d1c466137d2715df0d554bd86560972219d2"
+          }
+        ],
+        "preservedObservations": [
+          "既有 verifyDomainIndex 对未变发布 index 接受；修改 title 后拒绝，保留 stage-source-drift diagnostic/message。"
+        ],
+        "nonGitEntryPoints": [
+          "verifyDomainIndex",
+          "loadInvestigationIndex"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging-resource-safety.test.ts",
+            "name": "owned resource validation rejects same-byte symlink replacement at file between phases"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-48",
+      "file": "tools/investigation-report/tests/staging.test.ts",
+      "name": "stage --scope index accepts selected report additions in a current index",
+      "decision": "redundant_git_variant",
+      "intendedAction": "共享 index-runtime 已测试 addition/modification/deletion，IR definition+selector 由index主代表/基线name代表接线；这里只变 entry 存在性，无新Git适配分支",
+      "overlaps": [
+        "调查报告-09",
+        "调查报告-42"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/staging.test.ts",
+            "name": "investigation index projection accepts selected report additions without changing Markdown",
+            "entityId": "test:5b78ce1a314da5bdd5e8e45ac81ac6d3d1227edc049714e30b0089cd3f3d2320"
+          }
+        ],
+        "preservedObservations": [
+          "生产 definition/selectTargetSnapshot 构建当前新增 added 的完整 entry；真实 FS added Markdown 前后逐字节不变；selector/addition transport 分别由 #50/#42/#9/#49 承接。"
+        ],
+        "nonGitEntryPoints": [
+          "selectTargetSnapshot",
+          "buildStateIndexFromSnapshot"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging.test.ts",
+            "name": "stage --scope index keeps report Markdown outside selected index staging"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging.test.ts",
+            "name": "stage --scope index resolves a baseline-only Investigation name as a deletion"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging-source-path.test.ts",
+            "name": "stage --scope domain adds a report at its indexed sourcePath"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-49",
+      "file": "tools/investigation-report/tests/staging-source-path.test.ts",
+      "name": "stage --scope domain adds a report at its indexed sourcePath",
+      "decision": "retain_git",
+      "intendedAction": "保留 domain 的 workspace-only/nonID-path 新来源接线；与 relocation 中同ID历史路径不同，但不需要 all 再复制相同场景",
+      "overlaps": [
+        "调查报告-18",
+        "调查报告-60"
+      ]
+    },
+    {
+      "key": "调查报告-50",
+      "file": "tools/investigation-report/tests/staging.test.ts",
+      "name": "stage --scope index resolves a workspace-only Investigation name as an addition",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "差异是已存在 resolveInvestigationStageSelectors 的纯 selector输入，不是新增Git模式；baseline-only代表证明双索引接线，shared runtime addition证明写入，保留此name规则不需真实Git",
+      "overlaps": [
+        "调查报告-42",
+        "调查报告-09"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/staging.test.ts",
+            "name": "stage selectors resolve a workspace-only Investigation name as an addition",
+            "entityId": "test:1a2917df30caf1808b4e0a6e6c59a31b64d3279484f7172ed9fd9d97596d6765"
+          }
+        ],
+        "preservedObservations": [
+          "baseline-only index 与新增 workspace-only 标准 ID；真正 resolveInvestigationStageSelectors 将唯一 name 解析为 addedId；选择后的生产 index 投影含该完整 entry。"
+        ],
+        "nonGitEntryPoints": [
+          "resolveInvestigationStageSelectors",
+          "selectTargetSnapshot",
+          "buildStateIndexFromSnapshot"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging.test.ts",
+            "name": "stage --scope index resolves a baseline-only Investigation name as a deletion"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging.test.ts",
+            "name": "stage --scope index keeps report Markdown outside selected index staging"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-51",
+      "file": "tools/investigation-report/tests/cli-stage.test.ts",
+      "name": "CLI stage preserves version-control diagnostic facts",
+      "decision": "retain_git",
+      "intendedAction": "0个有效仓fixture，但仍是真实 discovery失败与CLI字段接线代表；不把真实Git fixture=0误作没有Git调用",
+      "overlaps": [
+        "调查报告-54"
+      ]
+    },
+    {
+      "key": "调查报告-52",
+      "file": "tools/investigation-report/tests/staging-domain.test.ts",
+      "name": "stage rejects owner source drift before the pending write stays atomic",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "与 shared resource 漂移节点两路径中的资源路径同一比较/拒绝；sourceFiles字节比较无Git，真实阻写已由同字节symlink代表保留",
+      "overlaps": [
+        "调查报告-10",
+        "调查报告-23"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/staging-domain.test.ts",
+            "name": "domain phase comparison rejects owner resource byte drift without rewriting the source",
+            "entityId": "test:13e48bbaee4eb256fdd1a2521a21305255d88d26ac37ade95d7ee3e4ae26af35"
+          }
+        ],
+        "preservedObservations": [
+          "真实 owner resource phase bytes after→drifted；verifyDomainWrites 拒绝 source/owner byte drift；现场 drifted bytes 不被覆盖。"
+        ],
+        "nonGitEntryPoints": [
+          "verifyDomainWrites"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging-resource-safety.test.ts",
+            "name": "owned resource validation rejects same-byte symlink replacement at file between phases"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-53",
+      "file": "tools/investigation-report/tests/discard.test.ts",
+      "name": "discard rechecks ignored owner resource drift before publishing",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "原节点不能独立证明Git-ignore边界：discard-publication的sameResourceTree比较会因新增resourceIds直接失败，即使不检查Git-visible membership，也能得到相同断言。可下沉的是本节点实际FS树成员漂移保护：现有discardInvestigationReportWithWriter支持非仓FS事务，直接沿用其write回调及beforePublish回调新增成员，无需新mock/seam；不再初始化Git即可检查相同通用漂移。必须保留changed=false、通用资源变更错误、report和原resource仍存在这些完整删除保护观察，不能因ignore特有断言缺失而无条件删除节点。Git-ignore专属契约若要额外证明，仍需不同区分性观察。",
+      "overlaps": [
+        "调查报告-43"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/discard.test.ts",
+            "name": "discard rechecks owner resource membership drift before publishing",
+            "entityId": "test:0e5b71c36a9689f7b5ba93cbb9b69659c88fd4eeea3147308ea5a0200a5c2545"
+          }
+        ],
+        "preservedObservations": [
+          "不初始化 Git；沿用 discardInvestigationReportWithWriter 既有 beforePublish callback 新增 owner member；changed=false；通用 owned resources changed before discard publication 错误；report 与原 resource 保留。"
+        ],
+        "nonGitEntryPoints": [
+          "discardInvestigationReportWithWriter (existing write/beforePublish parameters)"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/discard.test.ts",
+            "name": "discard preserves existing Git pending content"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-54",
+      "file": "tools/investigation-report/tests/staging.test.ts",
+      "name": "stage --scope index reports unavailable version control without working-tree writes",
+      "decision": "redundant_git_variant",
+      "intendedAction": "与 CLI discovery失败代表同 runtime同路径，只弱断言status和FS未改；没有必要再单独Git进程探测",
+      "overlaps": [
+        "调查报告-51"
+      ],
+      "implementation": {
+        "action": "remove-redundant-native-and-use-existing-representatives",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/cli-stage.test.ts",
+            "name": "CLI stage preserves version-control diagnostic facts",
+            "entityId": "test:bb9c5998e4f22f451d05ce2d44e385f9cf72ad7d1edd80137b2b959d2194fe22"
+          }
+        ],
+        "preservedObservations": [
+          "error/exit 1 与 version-control diagnostics 由 #51 保留；把本节点 report/index before/after 逐字节不变的观察补入 #51，不丢弃 FS 保护。"
+        ],
+        "nonGitEntryPoints": [],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/cli-stage.test.ts",
+            "name": "CLI stage preserves version-control diagnostic facts"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-55",
+      "file": "tools/investigation-report/tests/staging-representation.test.ts",
+      "name": "stage --scope domain preserves unselected executable and symlink pending representations",
+      "decision": "redundant_git_variant",
+      "intendedAction": "scope确有是否写索引差异，但模式保留共用 stage-domain/writeDomainPending，不是第二种 mode适配；all模式代表+domain索引保留代表已覆盖，保留scope不等于两个完整模式矩阵都必要",
+      "overlaps": [
+        "调查报告-32",
+        "调查报告-04"
+      ],
+      "implementation": {
+        "action": "remove-redundant-native-and-use-existing-representatives",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/staging-representation.test.ts",
+            "name": "stage --scope all preserves unselected executable and symlink pending representations",
+            "entityId": "test:6680ae5d0e74ecd879c1cee82b5617a1040e302110d7a2b03fe178c1d0f6a237"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging-domain.test.ts",
+            "name": "stage --scope domain preserves staged index pending bytes and reports the preserved scope",
+            "entityId": "test:0b5d4f2a899fdc5ea3979c789f4b3669dce0ada6bef9eed5f17b05a6841772f0"
+          }
+        ],
+        "preservedObservations": [
+          "unselected executable/symlink 模式矩阵完整留在 #32 all 代表；domain pending index 保留责任由 #4；删除完全同 helper 的 domain 第二次运输。"
+        ],
+        "nonGitEntryPoints": [],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging-representation.test.ts",
+            "name": "stage --scope all preserves unselected executable and symlink pending representations"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging-domain.test.ts",
+            "name": "stage --scope domain preserves staged index pending bytes and reports the preserved scope"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-56",
+      "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+      "name": "history prefixes use real source presence for malformed-index HEAD identities",
+      "decision": "redundant_git_variant",
+      "intendedAction": "生产历史从不读HEAD index；与missing-index同无关文件变体，不能因参数名malformed而给独立Git必要性",
+      "overlaps": [
+        "调查报告-02",
+        "调查报告-24",
+        "调查报告-35"
+      ],
+      "implementation": {
+        "action": "remove-redundant-native-and-use-existing-representatives",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+            "name": "history prefixes use real source presence for moved HEAD identities",
+            "entityId": "test:01a2c79ef223004496492bbc5c6142817b7c0016077ea1044ad17087a581b56e"
+          },
+          {
+            "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+            "name": "history prefixes use real source presence for legacy HEAD identities",
+            "entityId": "test:4af295ae9121c5da2587ab30323060733c13ce4fefb8afb8e9930a11fb7acc8a"
+          },
+          {
+            "file": "tools/investigation-report/tests/parsing-directory.test.ts",
+            "name": "full validation warns only for direct predecessors outside Git HEAD",
+            "entityId": "test:6dde42925601d2cab5e8acd11e3dfb6f741af99bf423ab3ae8ab7836fb8a7abd"
+          }
+        ],
+        "preservedObservations": [
+          "同 #22，malformed HEAD index 是不被历史读取的无关成员，source-presence 权威性保留在既有代表。"
+        ],
+        "nonGitEntryPoints": [],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+            "name": "history prefixes use real source presence for moved HEAD identities"
+          },
+          {
+            "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+            "name": "history prefixes use real source presence for legacy HEAD identities"
+          },
+          {
+            "file": "tools/investigation-report/tests/parsing-directory.test.ts",
+            "name": "full validation warns only for direct predecessors outside Git HEAD"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-57",
+      "file": "tools/investigation-report/tests/discard.test.ts",
+      "name": "discard fails closed when a Git worktree cannot be inspected",
+      "decision": "retain_git",
+      "intendedAction": "无仓允许FS删除，损坏Git metadata必须拒绝；这个非not-repository分类接线不能由stage无仓失败替代。0个有效Git fixture，不是正常初始化仓",
+      "overlaps": [
+        "调查报告-61",
+        "调查报告-51"
+      ]
+    },
+    {
+      "key": "调查报告-58",
+      "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+      "name": "history prefixes use real source presence for inconsistent-index HEAD identities",
+      "decision": "retain_git",
+      "intendedAction": "与 moved/legacy 互补：证明有合法ID时不能回退basename；实际source identity改变，而不是仅HEAD index malformed，所以保留一个冲突优先级接线；其纯映射规则仍不要求每种索引状态Git",
+      "overlaps": [
+        "调查报告-02",
+        "调查报告-24"
+      ]
+    },
+    {
+      "key": "调查报告-59",
+      "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+      "name": "history bounded retention keeps unavailable warnings for unrelated formal missing objects",
+      "decision": "redundant_git_variant",
+      "intendedAction": "missing与corrupt确实不同Git故障，不称同义状态；但领域都从同一readRevisionFilePrefixes失败进入同一catch→unavailable，保留corrupt领域接线即可。共享GitBlobBatchReader已直接覆盖missing framing与none指纹模式，prefix函数使用同一readGitBlobSelections(...,none)；共享pending missing-object真实测试另证明实际Git missing传播。替代是组合证据，不声称共享已有完整IR history-missing集成节点。",
+      "overlaps": [
+        "调查报告-19"
+      ],
+      "implementation": {
+        "action": "remove-redundant-native-and-use-existing-representatives",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+            "name": "history bounded retention keeps unavailable warnings for unrelated formal corrupt objects",
+            "entityId": "test:4159a2ccb1c07df1df52b9c3307864622c9aafc81765cbcce9359b21784af33a"
+          }
+        ],
+        "preservedObservations": [
+          "领域 readRevisionFilePrefixes 失败→unavailable、不伪报 missing predecessor 的观察完整留在 #19 corrupt；missing framing 的纯协议与真实 Git missing 对象读取证据只引用既有共享测试，不声称已有完整 IR revision-prefix-missing 集成节点。"
+        ],
+        "nonGitEntryPoints": [],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/history-prefix-contract.test.ts",
+            "name": "history bounded retention keeps unavailable warnings for unrelated formal corrupt objects"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-60",
+      "file": "tools/investigation-report/tests/staging-source-path.test.ts",
+      "name": "stage --scope all adds a report at its indexed sourcePath",
+      "decision": "redundant_git_variant",
+      "intendedAction": "all增加index路径分支由all主代表证明；nonID sourcePath新增由domain代表证明，其余collect/write路径相同，无需同场景跨scope重跑",
+      "overlaps": [
+        "调查报告-49",
+        "调查报告-17"
+      ],
+      "implementation": {
+        "action": "remove-redundant-native-and-use-existing-representatives",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/staging-source-path.test.ts",
+            "name": "stage --scope domain adds a report at its indexed sourcePath",
+            "entityId": "test:b176d50808c037beb1b1df13d97ebf36cdf15c1900c2570141d774e7ad4559ce"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging-domain.test.ts",
+            "name": "stage --scope all writes the index projection, report, and owner tree atomically",
+            "entityId": "test:4663feccffbb111620ddc44318c917f32bb9a3c9232511b0403bd8a0d3d446a7"
+          }
+        ],
+        "preservedObservations": [
+          "非 ID sourcePath 新增及 resource bytes 完整保留 #49 domain；all 增加 index 写入由 #17 主代表承接，不再跨 scope 跑同一追加 fixture。"
+        ],
+        "nonGitEntryPoints": [],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging-source-path.test.ts",
+            "name": "stage --scope domain adds a report at its indexed sourcePath"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging-domain.test.ts",
+            "name": "stage --scope all writes the index projection, report, and owner tree atomically"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-61",
+      "file": "tools/investigation-report/tests/discard.test.ts",
+      "name": "discard pauses recorded reports until recorded deletion is explicitly confirmed",
+      "decision": "retain_git",
+      "intendedAction": "formal recorded保护接线；candidate路径/确认由另代表，不等于一个通用字符串参数测试",
+      "overlaps": [
+        "调查报告-20"
+      ]
+    },
+    {
+      "key": "调查报告-62",
+      "file": "tools/investigation-report/tests/staging.test.ts",
+      "name": "stage --scope index treats unrelated report resources as outside selected report entries",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "纯 selectTargetSnapshot/current definition 可直接证明 first/second混合规则；shared staging selection已检查pending混合，IR index接线由主代表覆盖，资源路径只是outside变体",
+      "overlaps": [
+        "调查报告-09",
+        "调查报告-33"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/staging.test.ts",
+            "name": "investigation selective index projection keeps unrelated report resources outside selected entries",
+            "entityId": "test:50d847a909fd5ca8c332abe1fbb871cfdf96edf619d81d1c8d54685f7cc33750"
+          }
+        ],
+        "preservedObservations": [
+          "生产 selectTargetSnapshot + definition 把 selected first 用 workspace entry、unselected second 用 baseline entry；第二条 workspace 还增加不同 title，增强混合投影观察。"
+        ],
+        "nonGitEntryPoints": [
+          "selectTargetSnapshot",
+          "buildStateIndexFromSnapshot"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging.test.ts",
+            "name": "stage --scope index keeps report Markdown outside selected index staging"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-63",
+      "file": "tools/investigation-report/tests/staging-representation.test.ts",
+      "name": "stage preserves executable representation for modified and newly added owner scripts",
+      "decision": "retain_git",
+      "intendedAction": "保留领域 readWorkspaceFiles effective-kind→pending 代表；新文件无pending mode基线，与旧文件路径不同是真实状态差异，不是扩展名不同要求两个Git仓",
+      "overlaps": [
+        "调查报告-12"
+      ]
+    },
+    {
+      "key": "调查报告-64",
+      "file": "tools/investigation-report/tests/staging-domain.test.ts",
+      "name": "stage --scope domain stages owner resource deletions and ignores other owners",
+      "decision": "retain_git",
+      "intendedAction": "当前report存在的资源删除，与baseline-only report/owner删除分支不同；保留一个working/HEAD成员并集与owner筛选代表，不能所有 missing分量都Git",
+      "overlaps": [
+        "调查报告-08",
+        "调查报告-39"
+      ]
+    },
+    {
+      "key": "调查报告-65",
+      "file": "tools/investigation-report/tests/local-stage-contract.test.ts",
+      "name": "local investigation stage acquires direct resource owners without staging dependencies and rejects their drift",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "主要责任为 domainSourceSelection/validateDomainReportSources 的依赖与owner声明规则；无实际dependency write反例，空cached不额外证明Git语义。现有纯metadata-owner规则、显式sourceFiles及FS读取边界可承接；保留成功owner写入与漂移阻写接线",
+      "overlaps": [
+        "调查报告-18",
+        "调查报告-23",
+        "调查报告-36"
+      ],
+      "implementation": {
+        "action": "migrate-native-to-existing-non-Git-boundary",
+        "finalNativeTests": [
+          {
+            "file": "tools/investigation-report/tests/local-stage-contract.test.ts",
+            "name": "domain source selection includes direct resource owners without selecting them for publication and rejects their drift",
+            "entityId": "test:1de304ad13f2065a23a62a9cbf6a14c6095928a84997421bd0325f6b09275499"
+          }
+        ],
+        "preservedObservations": [
+          "真实 resolveDomainSelection 返回 selectedIds=[one]，sourceSelection.reportIds=[one,owner]、resourceIds=[owner/sample.txt]，区分 publication selection 与验证依赖；传入显式真实 FS bytes 的 validateDomainReportSources 成功并排除 malformed other；owner 声明被改后领域验证拒绝且保留变更 bytes。"
+        ],
+        "nonGitEntryPoints": [
+          "resolveDomainSelection",
+          "validateDomainReportSources"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/investigation-report/tests/staging-domain.test.ts",
+            "name": "stage --scope domain writes the report and its complete owner resource tree"
+          },
+          {
+            "file": "tools/investigation-report/tests/staging-resource-safety.test.ts",
+            "name": "owned resource validation rejects same-byte symlink replacement at file between phases"
+          },
+          {
+            "file": "tools/investigation-report/tests/acquisition-contract.test.ts",
+            "name": "investigation domain preparation batches selected member and source reads but rereads before writing"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "调查报告-66",
+      "file": "tools/investigation-report/tests/acquisition-contract.test.ts",
+      "name": "investigation predecessor diagnostics skip Git without targets and never read all HEAD files for an empty report scope",
+      "decision": "retain_git",
+      "intendedAction": "此项观察真实命令是否发生，且空scoped路径不回退为全库读取；不是普通warning文本变体，可保留一处命令获取边界",
+      "overlaps": [
+        "调查报告-35"
+      ]
+    },
+    {
+      "key": "调查报告-67",
+      "file": "tools/investigation-report/tests/cli-stage.test.ts",
+      "name": "CLI stage renders filesystem diagnostics structurally",
+      "decision": "needs_evidence",
+      "intendedAction": "纯filesystemDiagnostic/diagnostic renderer可承接字段，然而index-runtime错误→IR CLI恢复接线与domain两载体不同；目前未证已有无Git测试覆盖完整printStageErrors，所以不将整节点直接判重复。它没有独立Git对象语义",
+      "overlaps": [
+        "调查报告-26",
+        "调查报告-28",
+        "调查报告-51"
+      ]
+    },
+    {
+      "key": "决策记录-01",
+      "file": "tools/decision-records/tests/candidate-lifecycle/candidate-lifecycle-02.test.ts",
+      "name": "discard fails closed when Git HEAD cannot be read",
+      "decision": "retain_git",
+      "intendedAction": "损坏ref改变真实revision可读性，走getCurrentRevision失败而非unborn分支，不是路径变体。 保留一个真实HEAD失败闭合代表，不推导全部Git故障类别。",
+      "overlaps": []
+    },
+    {
+      "key": "决策记录-02",
+      "file": "tools/decision-records/tests/candidate-lifecycle/candidate-lifecycle-02.test.ts",
+      "name": "discard flag deletes a recorded decision without reading Git HEAD",
+      "decision": "retain_git",
+      "intendedAction": "deleteRecorded改变共享requiresHistory分支；evolve source-empty版本无新Git后端差异。 保留direct bypass代表；evolve授权矩阵下沉现有requiresDecisionHistoryBaseline、prepareDecisionLifecycle，argv用createCliProgram回调。",
+      "overlaps": [
+        "决策记录-27"
+      ]
+    },
+    {
+      "key": "决策记录-03",
+      "file": "tools/decision-records/tests/candidate-lifecycle/candidate-lifecycle-03.test.ts",
+      "name": "discard deletes candidates absent from Git HEAD",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "candidate缺失改变领域membership，不改变getCurrentRevision或tree/blob适配器分支；有效tree缺失另有evolve代表。 用现有prepareDecisionLifecycle/prepareRecordedDiscardAttention显式git-head集合不含目标守规则；现有非Git CLI fixture守删除/索引不变，无需再建Git。",
+      "overlaps": [
+        "决策记录-05",
+        "决策记录-26"
+      ],
+      "implementation": {
+        "action": "lowered",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/candidate-lifecycle/candidate-lifecycle-03.test.ts",
+            "name": "discard deletes candidates omitted from the recorded baseline",
+            "entityId": "test:821b23c971c096d8f57acafcc80ba28d8492c8cd6d9098100238cfb9b0b4e020"
+          }
+        ],
+        "preservedObservations": [
+          "recorded 集合含其他 ID、不含候选时精确生成删除计划；非 Git CLI 实际删除并保持索引字节不变"
+        ],
+        "nonGitEntryPoints": [
+          "prepareDecisionLifecycle + decisionScanFromSources; existing non-Git CLI FS fixture"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/candidate-lifecycle/candidate-lifecycle-03.test.ts",
+            "name": "discard pauses before deleting a candidate recorded in Git HEAD"
+          },
+          {
+            "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-01.test.ts",
+            "name": "unrecorded decision evolution pauses until history is explicitly preserved"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "决策记录-04",
+      "file": "tools/decision-records/tests/candidate-lifecycle/candidate-lifecycle-03.test.ts",
+      "name": "discard deletes candidates in a Git worktree with unborn HEAD",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "unborn相对已有revision是真实Git状态差异，不是普通参数；本30项中同一loadDecisionHistoryBaseline→emptyHeadBaseline已由archive覆盖。 把空git-head集合允许discard的规则留在现有prepareDecisionLifecycle；unborn解析保留archive代表。",
+      "overlaps": [
+        "决策记录-25",
+        "决策记录-05"
+      ],
+      "implementation": {
+        "action": "lowered",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/candidate-lifecycle/candidate-lifecycle-03.test.ts",
+            "name": "discard prepares candidate deletion against an empty recorded baseline",
+            "entityId": "test:20c624af74c72be43ae4cc4757538d904b784e06a9261a47792a109c0fed525b"
+          }
+        ],
+        "preservedObservations": [
+          "空 recorded 集合时允许候选删除，changes 精确包含源路径/expectedText/nextText=null；unborn 解析由 archive Git 代表承担"
+        ],
+        "nonGitEntryPoints": [
+          "prepareDecisionLifecycle + explicit empty git-head baseline"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-01.test.ts",
+            "name": "archive pauses before preserving an unrecorded established decision"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "决策记录-05",
+      "file": "tools/decision-records/tests/candidate-lifecycle/candidate-lifecycle-03.test.ts",
+      "name": "discard pauses before deleting a candidate recorded in Git HEAD",
+      "decision": "retain_git",
+      "intendedAction": "recorded/absent只改变membership但需要一个从真实HEAD身份到discard门禁的正向代表；不为每个status各保留Git。 保留direct recorded授权接线；同级隔离/消息细节可由既有FS/domain入口维护。",
+      "overlaps": [
+        "决策记录-03",
+        "决策记录-28"
+      ]
+    },
+    {
+      "key": "决策记录-06",
+      "file": "tools/decision-records/tests/cli-batch-selection.test.ts",
+      "name": "Decision stage and selected sync resolve mixed short names without changing duplicate and missing-source errors",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "一个fixture；stage3次（duplicate/missing/success），10+10 records与混合names是selector规模/参数，不是新的Git边界。 stage用既有resolveSelectedDecisionIds/decisionStageTargetFromSources+decisionStageTargetFailure；sync argv可直接留withFixtureWorkspace（synchronizeDecisionIndex不读Git）；argv用createCliProgram回调。不新增mock。",
+      "overlaps": [
+        "决策记录-07",
+        "决策记录-24"
+      ],
+      "implementation": {
+        "action": "lowered",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/cli-batch-selection.test.ts",
+            "name": "Decision stage and selected sync resolve mixed short names without changing duplicate and missing-source errors",
+            "entityId": "test:83c440ac88106249ef3e36a24e4422971478b5db842d6e2122fbcddbc17533f4"
+          }
+        ],
+        "preservedObservations": [
+          "mixed name/full ID 完整选择；stage duplicate/missing 归类为 exit 2；sync-index 同类失败 exit 1；失败索引字节不变；scope=index 解析和完整 successor 投影"
+        ],
+        "nonGitEntryPoints": [
+          "createCliProgram + decisionStageTargetFromSources + decisionStageTargetFailure + buildStageIndexText; real sync-index CLI on non-Git FS fixture"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/cli-stage-contract.test.ts",
+            "name": "Decision stage argv preserves suffix normalization scope dispatch and caller-owned pending bytes"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "决策记录-07",
+      "file": "tools/decision-records/tests/cli-stage-contract.test.ts",
+      "name": "Decision stage argv preserves suffix normalization scope dispatch and caller-owned pending bytes",
+      "decision": "retain_git",
+      "intendedAction": "index替换单文件scope，domain替换目录scope，前置检查和目标范围确实不同；第二阶段确有pending index；后缀本身只是selector规则。 选为index/domain成功隔离+组合的唯一常规Git代表，兼含CLI接线；同义direct API无需重复Git。",
+      "overlaps": [
+        "决策记录-19",
+        "决策记录-22",
+        "决策记录-24",
+        "决策记录-06"
+      ]
+    },
+    {
+      "key": "决策记录-08",
+      "file": "tools/decision-records/tests/rename.test.ts",
+      "name": "Decision rename leaves an existing pending stage untouched by rejecting the rename",
+      "decision": "retain_git",
+      "intendedAction": "rename有独立pendingDecisionRenameFailure，不是stage重入门禁的参数变体。 保留rename到真实changedPaths的独立pending接线。",
+      "overlaps": []
+    },
+    {
+      "key": "决策记录-09",
+      "file": "tools/decision-records/tests/rename.test.ts",
+      "name": "Decision rename requires recorded-history confirmation without changing the source",
+      "decision": "retain_git",
+      "intendedAction": "rename独立prepareDecisionRenameAtCurrentState直接加载history，不经共享prepareLifecycleWithCurrentHistory，具有独立requireConfirmation判断。 保留一个rename历史确认接线；此用例不证明未重写历史或全部relations改写。",
+      "overlaps": []
+    },
+    {
+      "key": "决策记录-10",
+      "file": "tools/decision-records/tests/stage-sources.test.ts",
+      "name": "Decision stage all index and domain re-read selected bytes after preparation and keep pending unchanged on drift",
+      "decision": "retain_git",
+      "intendedAction": "一个native节点内部3套Git（all/index/domain）；三者在同prepareDecisionStage verifier失败，尚未到scope-specific index build或pending replace；前置Git基线虽不同，漂移观察没有新Git分支。 retain仅支持一个all代表，不支持内部3套Git必要性；index/domain成功dispatch由CLI代表承接，漂移形态由现有verifySelectedFilesystemSources FS测试承接。",
+      "overlaps": [
+        "决策记录-18",
+        "决策记录-07"
+      ]
+    },
+    {
+      "key": "决策记录-11",
+      "file": "tools/decision-records/tests/stage/stage-01.test.ts",
+      "name": "stage selects one Decision ID when its sourcePath moves between root and archive",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "root/archive只是普通path字符串；生产按ID Map替换source，并无root/archive专用Git分支；真实D/A运输已有overlay代表。 用现有stageTarget/decisionStageTargetFromSources和buildStageIndexText守同ID仅新路径与index定位；移除对上游Git R识别的依赖，不新增层。",
+      "overlaps": [
+        "决策记录-15"
+      ],
+      "implementation": {
+        "action": "lowered",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/stage/stage-01.test.ts",
+            "name": "stage selects one Decision ID when its sourcePath moves between root and archive",
+            "entityId": "test:d6c5b6a134f6e486713495e46865c80ad6cd1234061a752a98a0f4860d7f1030"
+          }
+        ],
+        "preservedObservations": [
+          "同一个 ID root→archive 后仅新来源路径进入 sourceFiles；投影唯一条目为 archived 且 sourcePath=archive/selected.md；不再断言上游 Git rename heuristic R"
+        ],
+        "nonGitEntryPoints": [
+          "stageTarget + buildStageIndexText"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/stage/stage-03.test.ts",
+            "name": "stage applies selected additions modifications deletions and explicit renames"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "决策记录-12",
+      "file": "tools/decision-records/tests/stage/stage-02.test.ts",
+      "name": "stage isolates unselected filesystem changes",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "selected/unselected决定领域target，ID和路径只是数据；all运输已有overlay代表。 既有stageTarget输入baseline/current/selected，再buildStageIndexText排除未选成员；all真实交付保留overlay，不为过滤再建Git。",
+      "overlaps": [
+        "决策记录-15",
+        "决策记录-07"
+      ],
+      "implementation": {
+        "action": "lowered",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/stage/stage-02.test.ts",
+            "name": "stage isolates unselected filesystem changes",
+            "entityId": "test:2d8b82b436ab90d41f1ca4f64885566bad3bbf7de619177048f15239d9f87c51"
+          }
+        ],
+        "preservedObservations": [
+          "selected addition 进入投影；未选 addition 被排除；未选 existing modification 保持 baseline 原字节和标题"
+        ],
+        "nonGitEntryPoints": [
+          "stageTarget + buildStageIndexText"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/stage/stage-03.test.ts",
+            "name": "stage applies selected additions modifications deletions and explicit renames"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "决策记录-13",
+      "file": "tools/decision-records/tests/stage/stage-02.test.ts",
+      "name": "stage keeps Git invocation counts bounded for complete decision snapshots",
+      "decision": "retain_git",
+      "intendedAction": "当前decisionCount仅[64]，1套repo2次stage，非多规模benchmark；unchanged复用/no-publish与changed publication有实际成本边界。 必要Git进程预算单列保留；不证明任意N渐近复杂度/耗时，本轮未执行。",
+      "overlaps": []
+    },
+    {
+      "key": "决策记录-14",
+      "file": "tools/decision-records/tests/stage/stage-02.test.ts",
+      "name": "stage rejects an existing pending decision index",
+      "decision": "retain_git",
+      "intendedAction": "all拒绝目录任何changedPaths；index只比index字节，domain允许index变化；前置真实不同。 保留all目录pending重入门禁，不拿index conflict或compose替代。",
+      "overlaps": [
+        "决策记录-23",
+        "决策记录-07"
+      ]
+    },
+    {
+      "key": "决策记录-15",
+      "file": "tools/decision-records/tests/stage/stage-03.test.ts",
+      "name": "stage applies selected additions modifications deletions and explicit renames",
+      "decision": "retain_git",
+      "intendedAction": "单fixture单stage并列A/M/D，不是多参数矩阵；标题含explicit renames但代码没有rename；没断言name-status或blob bytes。 保留all成功交付代表；纯stageTarget守A/M/D/路径规则；不把路径diff断言冒充rename或原子性证明。",
+      "overlaps": [
+        "决策记录-11",
+        "决策记录-12",
+        "决策记录-16",
+        "决策记录-21"
+      ]
+    },
+    {
+      "key": "决策记录-16",
+      "file": "tools/decision-records/tests/stage/stage-03.test.ts",
+      "name": "stage bootstraps the first pending decision collection",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "空baseline触发revisionPaths为空与mergeFilesystemDecisionSources；这是现有领域构造分支；缺失index Git创建已有first-collection index/domain代表。 stageTarget([],current,selected)+buildStageIndexText守bootstrap；first-collection真实Git+all transport分别保留，不为all参数再次建Git。",
+      "overlaps": [
+        "决策记录-20",
+        "决策记录-15"
+      ],
+      "implementation": {
+        "action": "lowered",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/stage/stage-03.test.ts",
+            "name": "stage bootstraps the first decision collection projection",
+            "entityId": "test:d49365a9ae5e022fb25b55f4da1869d35e9846cb8ee8b44beb5d2be537b061f6"
+          }
+        ],
+        "preservedObservations": [
+          "空基线 first collection 选择正确 Markdown 路径并生成唯一新 ID 的索引投影；实际 first-collection scope 组合仍由真实代表承担"
+        ],
+        "nonGitEntryPoints": [
+          "stageTarget([], current, selected) + buildStageIndexText"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/stage/stage-03.test.ts",
+            "name": "stage applies selected additions modifications deletions and explicit renames"
+          },
+          {
+            "file": "tools/decision-records/tests/stage/stage-06.test.ts",
+            "name": "stage --scope domain preserves an unrelated pending index byte-for-byte after source drift is absent"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "决策记录-17",
+      "file": "tools/decision-records/tests/stage/stage-04.test.ts",
+      "name": "stage preserves concurrent pending bytes discovered by the replacement CAS",
+      "decision": "retain_git",
+      "intendedAction": "真实pending并发变化触发锁内expectedFiles/entries CAS；与FS source drift还未到replace不同。 保留DR stage→真实Git CAS集成，不由empty diff/一般FS错误替代；本轮不跑上游机制测试。",
+      "overlaps": []
+    },
+    {
+      "key": "决策记录-18",
+      "file": "tools/decision-records/tests/stage/stage-04.test.ts",
+      "name": "stage rejects selected source drift before replacing the pending snapshot",
+      "decision": "redundant_git_variant",
+      "intendedAction": "替换title而非append只是字节变体；默认all与stage-sources(all)一致；后者断言精确tree identity和code更强。 归并stage-sources单all代表；change/delete/move规则由现有FS verifySelectedFilesystemSources守，不新增mock。",
+      "overlaps": [
+        "决策记录-10"
+      ],
+      "implementation": {
+        "action": "removed_redundant_native",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/stage-sources.test.ts",
+            "name": "Decision stage re-reads selected bytes after preparation and keeps pending unchanged on drift",
+            "entityId": "test:9d7437df8123231f3379ea4bf590d487f70ff9bf18efac8b98e76fda66a73811"
+          },
+          {
+            "file": "tools/decision-records/tests/stage-sources.test.ts",
+            "name": "Decision stage fresh discovery rejects duplicates moves bytes and reappearing deletions while tolerating unrelated invalid sources",
+            "entityId": "test:1270ea9c854bc87bc39e547788fd877dc852b2768491ce61def50a4c69e71a5c"
+          }
+        ],
+        "preservedObservations": [
+          "#10 第三读改字节→stage-source-changed→pending tree 不变；既有 FS 矩阵仍守 change/move/missing/reappearing deletion；不新增重复 verifier 节点"
+        ],
+        "nonGitEntryPoints": [
+          "existing FS verifier matrix plus retained third-read all Git node"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/stage-sources.test.ts",
+            "name": "Decision stage re-reads selected bytes after preparation and keeps pending unchanged on drift"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "决策记录-19",
+      "file": "tools/decision-records/tests/stage/stage-06.test.ts",
+      "name": "stage --scope domain composes with a previous index scope into the all snapshot",
+      "decision": "redundant_git_variant",
+      "intendedAction": "1 fixture2 stage，与CLI相同次序/基线/适配器分支，只换title和入口层级。 保留更强CLI argv代表；不用同义Git组合重复证明。",
+      "overlaps": [
+        "决策记录-07"
+      ],
+      "implementation": {
+        "action": "removed_redundant_native",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/cli-stage-contract.test.ts",
+            "name": "Decision stage argv preserves suffix normalization scope dispatch and caller-owned pending bytes",
+            "entityId": "test:dca3fbd723a76c5f76404de687ea00ed30673148c224a57535df8b257684c1ee"
+          }
+        ],
+        "preservedObservations": [
+          "真实 argv index→domain；domain 保持 caller-owned pending index 字节并写当前 Markdown；去除同义 API Git 组合"
+        ],
+        "nonGitEntryPoints": [
+          "retained real CLI index→domain composition"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/cli-stage-contract.test.ts",
+            "name": "Decision stage argv preserves suffix normalization scope dispatch and caller-owned pending bytes"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "决策记录-20",
+      "file": "tools/decision-records/tests/stage/stage-06.test.ts",
+      "name": "stage --scope domain preserves an unrelated pending index byte-for-byte after source drift is absent",
+      "decision": "retain_git",
+      "intendedAction": "indexScopeBaseline readRevisionFile(indexPath)真实返回null，expectedFiles=[]；普通index代表有existing blob。第二domain依然pending index查找成功，不走无HEAD fallback。 保留一个新集合/缺失index的真实Git scope代表；不为all bootstrap另加同义fixture。",
+      "overlaps": [
+        "决策记录-16",
+        "决策记录-19",
+        "决策记录-07"
+      ]
+    },
+    {
+      "key": "决策记录-21",
+      "file": "tools/decision-records/tests/stage/stage-06.test.ts",
+      "name": "stage --scope domain writes a deletion for a baseline-only ID without touching the pending index",
+      "decision": "redundant_git_variant",
+      "intendedAction": "domain/all同workspace控制器，删除只是sourceFiles缺一path，无scope专属Git删除分支；baseline index同样expectedFiles.find成功保留。 baseline-only删除用现有stageTarget(old,[],[old])（stage-05:25-33），删除运输由all overlay，domain保留由CLI；组合不需另跑Git。",
+      "overlaps": [
+        "决策记录-15",
+        "决策记录-07"
+      ],
+      "implementation": {
+        "action": "merged_into_existing_domain_native",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/stage/stage-05.test.ts",
+            "name": "stage treats a selected old ID as a deletion without inferring a rename",
+            "entityId": "test:e93a001bdc6122e6909c687e476c4d6e423991b8b0af29ac991e4dfe59857594"
+          },
+          {
+            "file": "tools/decision-records/tests/stage/stage-03.test.ts",
+            "name": "stage applies selected additions modifications deletions and explicit renames",
+            "entityId": "test:f55a11548dce7c1d02b56114f5abf8ff162f524938ba6a323b622ea4452fa042"
+          },
+          {
+            "file": "tools/decision-records/tests/cli-stage-contract.test.ts",
+            "name": "Decision stage argv preserves suffix normalization scope dispatch and caller-owned pending bytes",
+            "entityId": "test:dca3fbd723a76c5f76404de687ea00ed30673148c224a57535df8b257684c1ee"
+          }
+        ],
+        "preservedObservations": [
+          "baseline-only selected old ID 的 source=null，输出仅保留未选 baseline、不引入 replacement；索引同样排除 old/replacement；删除运输与 domain index 保留分别由真实代表承担"
+        ],
+        "nonGitEntryPoints": [
+          "stageTarget + buildStageIndexText; retained overlay and CLI transport"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/stage/stage-03.test.ts",
+            "name": "stage applies selected additions modifications deletions and explicit renames"
+          },
+          {
+            "file": "tools/decision-records/tests/cli-stage-contract.test.ts",
+            "name": "Decision stage argv preserves suffix normalization scope dispatch and caller-owned pending bytes"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "决策记录-22",
+      "file": "tools/decision-records/tests/stage/stage-06.test.ts",
+      "name": "stage --scope domain writes only formal Markdown and preserves the pending index",
+      "decision": "redundant_git_variant",
+      "intendedAction": "readPendingFiles返回完整entries含未变index，preservedPendingIndexFile仍expectedFiles.find成功；不是baseline fallback独有分支。 CLI代表已经证明domain保留调用方index/写Markdown并报告caller-owned；无需baseline字节矩阵Git。",
+      "overlaps": [
+        "决策记录-07",
+        "决策记录-19"
+      ],
+      "implementation": {
+        "action": "removed_redundant_native",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/cli-stage-contract.test.ts",
+            "name": "Decision stage argv preserves suffix normalization scope dispatch and caller-owned pending bytes",
+            "entityId": "test:dca3fbd723a76c5f76404de687ea00ed30673148c224a57535df8b257684c1ee"
+          }
+        ],
+        "preservedObservations": [
+          "domain scope 输出与 caller-owned paths 声明；真实 Markdown pending 更新且 index 字节保持；clean 与 modified index 变体未新增控制器分支"
+        ],
+        "nonGitEntryPoints": [
+          "retained real CLI scope wiring"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/cli-stage-contract.test.ts",
+            "name": "Decision stage argv preserves suffix normalization scope dispatch and caller-owned pending bytes"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "决策记录-23",
+      "file": "tools/decision-records/tests/stage/stage-06.test.ts",
+      "name": "stage --scope index rejects a pending index that already differs from the revision",
+      "decision": "retain_git",
+      "intendedAction": "仅index path读取/比较与all目录changedPaths门禁不同，不仅错误措辞差异。 保留indexScopeBaseline真实HEAD/pending字节比较门禁。",
+      "overlaps": [
+        "决策记录-14"
+      ]
+    },
+    {
+      "key": "决策记录-24",
+      "file": "tools/decision-records/tests/stage/stage-06.test.ts",
+      "name": "stage --scope index writes only the derived index projection",
+      "decision": "redundant_git_variant",
+      "intendedAction": "同baseline和index path scope，仅title/入口层级不同，无新Git状态/适配器分支。 真实index-only交付保留CLI代表；title投影下沉已有buildStageIndexText入口。",
+      "overlaps": [
+        "决策记录-07"
+      ],
+      "implementation": {
+        "action": "lowered_redundant_git_portion",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/stage/stage-06.test.ts",
+            "name": "stage projects the selected source title into the derived index",
+            "entityId": "test:13337f4e9b14593e0df8debc5dd9c6470a7e72160aaf36e0785cda7d21ef0373"
+          },
+          {
+            "file": "tools/decision-records/tests/cli-stage-contract.test.ts",
+            "name": "Decision stage argv preserves suffix normalization scope dispatch and caller-owned pending bytes",
+            "entityId": "test:dca3fbd723a76c5f76404de687ea00ed30673148c224a57535df8b257684c1ee"
+          }
+        ],
+        "preservedObservations": [
+          "selected title 修改进入派生投影；真实 index-only 运输仍只更新 index、不夹带 Markdown"
+        ],
+        "nonGitEntryPoints": [
+          "stageTarget + buildStageIndexText; retained real CLI index scope"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/cli-stage-contract.test.ts",
+            "name": "Decision stage argv preserves suffix normalization scope dispatch and caller-owned pending bytes"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "决策记录-25",
+      "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-01.test.ts",
+      "name": "archive pauses before preserving an unrecorded established decision",
+      "decision": "retain_git",
+      "intendedAction": "archive独立requiresHistory case和kind archive attention，不经relation transaction；unborn是真Git状态；discard空baseline动作差异可下沉。 保留一个archive+unborn代表，不为每种空baseline领域结果再跑Git。",
+      "overlaps": [
+        "决策记录-04",
+        "决策记录-26"
+      ]
+    },
+    {
+      "key": "决策记录-26",
+      "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-01.test.ts",
+      "name": "unrecorded decision evolution pauses until history is explicitly preserved",
+      "decision": "retain_git",
+      "intendedAction": "evolve是locked lifecycle按finalRelations取历史前序，与archive目标attention不同；其他evolve discard/group只改变已解析request，未加Git后端。 保留一个evolve最终关系→真实HEAD集合完整代表；授权组合/group矩阵用现有domain/CLI parser维护。",
+      "overlaps": [
+        "决策记录-28",
+        "决策记录-29",
+        "决策记录-30",
+        "决策记录-03"
+      ]
+    },
+    {
+      "key": "决策记录-27",
+      "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-03.test.ts",
+      "name": "evolve discard flag deletes a recorded decision without reading Git HEAD",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "action映射、空finalRelations+deleteRecorded=true使相同requiresHistory=false；locked apply相对direct unlocked是FS事务路径，不是Git控制器。 createCliProgram回调核对discardId/deleteRecorded；resolveDecisionLifecycleRequest+requiresDecisionHistoryBaseline/prepareDecisionLifecycle守false；本文件21-84已有非Git空关系成功删除/建立入口。",
+      "overlaps": [
+        "决策记录-02",
+        "决策记录-26"
+      ],
+      "implementation": {
+        "action": "lowered",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-03.test.ts",
+            "name": "evolve discard flag prepares deletion and establishment without a history baseline",
+            "entityId": "test:b83b49feb3611be972ed455041f6b8899d47112ff2f3df10aba7411d7f1ed26c"
+          },
+          {
+            "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-03.test.ts",
+            "name": "evolve discard accepts source-empty final relations",
+            "entityId": "test:b92b974d04348b5a4f2657373f788aceb5390963529b10731d8bc421e3757619"
+          }
+        ],
+        "preservedObservations": [
+          "argv deleteRecorded=true、keep=false、source relation override；history baseline 不需要且 null 下成功；恰好删除 intermediate 并建立 successor 两项 changes；最终 relations=[]；现有非 Git CLI 同源空关系实际删除/索引成功"
+        ],
+        "nonGitEntryPoints": [
+          "createCliProgram→resolveDecisionLifecycleRequest→requiresDecisionHistoryBaseline/prepareDecisionLifecycle; existing FS CLI source-empty node"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/candidate-lifecycle/candidate-lifecycle-02.test.ts",
+            "name": "discard flag deletes a recorded decision without reading Git HEAD"
+          },
+          {
+            "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-01.test.ts",
+            "name": "unrecorded decision evolution pauses until history is explicitly preserved"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "决策记录-28",
+      "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-03.test.ts",
+      "name": "evolve discard pauses before deleting a recorded decision",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "runEvolve只装配request，进入同prepareLifecycleWithCurrentHistory；锁内与否影响FS事务，不添Git读取实现；final predecessor current已在HEAD。 createCliProgram守evolve discard默认deleteRecorded=false；prepareDecisionLifecycle/prepareDecisionRelationTransaction显式recorded集合含目标守attention且无changes；保留direct recorded和evolve关系真实代表。",
+      "overlaps": [
+        "决策记录-05",
+        "决策记录-26"
+      ],
+      "implementation": {
+        "action": "lowered",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-03.test.ts",
+            "name": "evolve discard pauses before preparing deletion of a recorded decision",
+            "entityId": "test:9901b3b6971f5dde2bf71ec18714f54cce2e6e919a3126c98d41018f3db8270e"
+          }
+        ],
+        "preservedObservations": [
+          "argv deleteRecorded 默认 false；recorded 集合含删除目标时 attention、exit=1、无 changes/relationReview；stderr 提示 entered HEAD 与 delete-recorded、stdout 空；真实 FS 零写入由 direct/evolve Git 代表承担"
+        ],
+        "nonGitEntryPoints": [
+          "createCliProgram→resolveDecisionLifecycleRequest→requiresDecisionHistoryBaseline/prepareDecisionLifecycle + attention renderer"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/candidate-lifecycle/candidate-lifecycle-03.test.ts",
+            "name": "discard pauses before deleting a candidate recorded in Git HEAD"
+          },
+          {
+            "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-01.test.ts",
+            "name": "unrecorded decision evolution pauses until history is explicitly preserved"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "决策记录-29",
+      "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-04.test.ts",
+      "name": "evolve discard flag still pauses for an unrecorded final predecessor",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "deleteRecorded=true且finalRelations有established target是同requiresHistory(97-105)布尔优先级矩阵；recorded集合组合不触发新adapter分支。 用现有requiresDecisionHistoryBaseline/prepareDecisionLifecycle和显式baseline守delete不越权keep、attention无changes；argv用createCliProgram，真实FS暂停路径已有代表。",
+      "overlaps": [
+        "决策记录-02",
+        "决策记录-05",
+        "决策记录-26"
+      ],
+      "implementation": {
+        "action": "lowered",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-04.test.ts",
+            "name": "evolve discard flag still pauses for an unrecorded final predecessor",
+            "entityId": "test:ba6e872e1a22b7f42026e184b4cd670e06bcd4be5f1ff4cd7572015c52d24cf2"
+          }
+        ],
+        "preservedObservations": [
+          "deleteRecorded=true 且 recorded 集合含目标，仍因最终前序缺席而 requiresHistory=true 并 attention；exit1、no-change诊断、无 changes/relationReview；stdout空、keep提示"
+        ],
+        "nonGitEntryPoints": [
+          "createCliProgram→resolveDecisionLifecycleRequest→requiresDecisionHistoryBaseline/prepareDecisionLifecycle + attention renderer"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/candidate-lifecycle/candidate-lifecycle-02.test.ts",
+            "name": "discard flag deletes a recorded decision without reading Git HEAD"
+          },
+          {
+            "file": "tools/decision-records/tests/candidate-lifecycle/candidate-lifecycle-03.test.ts",
+            "name": "discard pauses before deleting a candidate recorded in Git HEAD"
+          },
+          {
+            "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-01.test.ts",
+            "name": "unrecorded decision evolution pauses until history is explicitly preserved"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    },
+    {
+      "key": "决策记录-30",
+      "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-05.test.ts",
+      "name": "evolve probes group-only predecessors before writing",
+      "decision": "lower_without_losing_contract",
+      "intendedAction": "grouped解析与attachSuccessorRelationOverrides确有独立分支，但在Git探测前已归一为successor.relationOverride；后端只读finalRelations，无新Git状态分支。 既有createCliProgram回调取得真实group args→resolveDecisionLifecycleRequest→requiresDecisionHistoryBaseline/prepareDecisionLifecycle（显式git-head baseline）守group-only需要history及attention；保留普通evolve Git代表，不加mock。",
+      "overlaps": [
+        "决策记录-26"
+      ],
+      "implementation": {
+        "action": "lowered",
+        "finalNativeTests": [
+          {
+            "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-05.test.ts",
+            "name": "evolve probes group-only predecessors before preparing changes",
+            "entityId": "test:c631a4216c677190057e4171db97975ade5e7348ac4dc6f0a056425a45919a66"
+          }
+        ],
+        "preservedObservations": [
+          "group-only 覆盖从 source 默认绑定到 successor replacement；前序只在该组中仍 requiresHistory；attention exit1、no-change、无 changes/review、stdout空、前序警告"
+        ],
+        "nonGitEntryPoints": [
+          "createCliProgram→resolveDecisionLifecycleRequest→requiresDecisionHistoryBaseline/prepareDecisionLifecycle + attention renderer"
+        ],
+        "gitRepresentatives": [
+          {
+            "file": "tools/decision-records/tests/unrecorded-history/unrecorded-history-01.test.ts",
+            "name": "unrecorded decision evolution pauses until history is explicitly preserved"
+          }
+        ],
+        "originalNativeRetainsRealGit": false
+      }
+    }
+  ]
+}

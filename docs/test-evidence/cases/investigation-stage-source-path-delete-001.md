@@ -1,14 +1,15 @@
 ### Case INVESTIGATION-STAGE-SOURCE-PATH-DELETE-001: 依据 HEAD 索引位置暂存已删除报告
 
 Tests:
-- `test:aab8d04e867991d1edac54e97c672ffad63a98071694a91af02c2a764736f448`
+- `test:2b80afe43b214f7bf66f8ce3feb93b9aa2d7f113bba14397c8caffdba3b971d2`
+- `test:b0d558deb5cf8ac67b946dee9ada6aac3c7a6fe8d2bc1e6fc630898a4658097a`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 按[调查报告暂存契约](../../../skills/investigation-report/references/investigation-report-contract.md#待提交快照)，所选 ID 已从工作区调查索引移除、但仍存在于 `HEAD` 调查索引时，`stage` 的 `all` 与 `domain` scope 使用 `HEAD` 中的 `sourcePath` 暂存报告删除。
+- 所选基线-only ID 可暂存删除；sourcePath 迁移时旧来源按 HEAD 索引位置删除，而非按 ID 拼接路径。
 
 Proves:
-- 工作区删除语义文件名的报告并同步调查索引后，domain stage 的 Git 暂存差异包含真实旧路径的删除，暂存区成员不再包含该路径。
-- 未选报告没有暂存差异；调查索引在 domain scope 下保持基线字节。
+- 真实 domain stage 删除基线-only 报告及其 owner 树，不携带未选报告。
+- 另一个真实 sourcePath 迁移入口将非 ID 的旧路径删除、当前新路径新增，暂存差异不包含其他来源。

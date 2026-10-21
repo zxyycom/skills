@@ -1,4 +1,9 @@
-import { parseStateIndex } from "../../index-runtime/src/index.ts";
+import { readInvestigationSourceRevision } from "../src/investigation-index-source.ts";
+import {
+  buildStateIndexFromSnapshot,
+  selectTargetSnapshot,
+  parseStateIndex
+} from "../../index-runtime/src/index.ts";
 import { createInvestigationStageIndexDefinition } from "../src/staging-domain-index.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
@@ -104,27 +109,28 @@ test("stage --scope index resolves a baseline-only Investigation name as a delet
   });
 });
 
-test("stage --scope index resolves a workspace-only Investigation name as an addition", async () => {
-  await withTempRoot("stage-workspace-name", async (root) => {
-    const baselineId = "260828-baseline";
-    const addedId = "260829-workspace-only";
-    await writeCollection(root, [{ id: baselineId }]);
-    initializeGit(root);
-    await writeCollection(root, [
-      { id: baselineId },
-      { id: addedId, formedAt: "2026-08-29T12:00:00+00:00" }
-    ]);
-    const result = await stageInvestigationReports({
-      reportIds: ["workspace-only"],
-      scope: "index",
-      workspaceRoot: root
-    });
-    assert.equal(result.status, "ok");
-    const pending = parseJsonObject(
-      git(root, ["show", `:${indexRelativePath}`])
-    );
-    assert.ok(Object.hasOwn(jsonObjectMember(pending, "entries"), addedId));
+test("stage selectors resolve a workspace-only Investigation name as an addition", () => {
+  const baseline = investigationIndexFixture([{ id: "260828-baseline" }]);
+  const addedId = "260829-workspace-only";
+  const workspace = investigationIndexFixture([
+    { id: "260828-baseline" },
+    { id: addedId, formedAt: "2026-08-29T12:00:00+00:00" }
+  ]);
+  const resolved = resolveInvestigationStageSelectors({
+    baseline,
+    workspace,
+    selectedIds: ["workspace-only"]
   });
+  assert.equal(resolved.status, "ok");
+  if (resolved.status !== "ok") assert.fail("workspace-only name was rejected");
+  assert.deepEqual(resolved.value, [addedId]);
+  const target = buildStateIndexFromSnapshot(
+    createInvestigationStageIndexDefinition(),
+    selectTargetSnapshot(baseline, workspace, new Set(resolved.value))
+  );
+  assert.equal(target.status, "ok");
+  if (target.status !== "ok") assert.fail("addition projection failed");
+  assert.deepEqual(target.value.entries[addedId], workspace.entries[addedId]);
 });
 
 test("stage --scope index rejects invalid or duplicate Investigation IDs", () => {
@@ -172,36 +178,6 @@ test("stage --scope index validates canonical Investigation IDs before repositor
       )
     );
     await assert.rejects(fs.access(missingRoot));
-  });
-});
-
-test("stage --scope index reports unavailable version control without working-tree writes", async () => {
-  await withTempRoot("stage-no-git", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    const reportPath = path.join(investigationRoot(root), "report.md");
-    const indexPath = path.join(
-      investigationRoot(root),
-      "investigation-index.json"
-    );
-    const before = await Promise.all(
-      [reportPath, indexPath].map(
-        async (file) => await fs.readFile(file, "utf8")
-      )
-    );
-    const result = await stageInvestigationReports({
-      reportIds: ["report"],
-      scope: "index",
-      workspaceRoot: root
-    });
-    assert.equal(result.status, "error");
-    assert.deepEqual(
-      await Promise.all(
-        [reportPath, indexPath].map(
-          async (file) => await fs.readFile(file, "utf8")
-        )
-      ),
-      before
-    );
   });
 });
 
@@ -257,169 +233,89 @@ test("stage --scope index keeps report Markdown outside selected index staging",
   });
 });
 
-test("stage --scope index accepts selected report additions in a current index", async () => {
-  await withTempRoot("stage-add", async (root) => {
+test("investigation index projection accepts selected report additions without changing Markdown", async () => {
+  await withTempRoot("stage-add-projection", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
-    initializeGit(root);
-    await writeCollection(root, [{ id: "report" }, { id: "added" }]);
-    const workspaceIndex = parseJsonObject(
-      await fs.readFile(
-        `${investigationRoot(root)}/investigation-index.json`,
-        "utf8"
-      )
-    );
-    const workspaceEntries = jsonObjectMember(workspaceIndex, "entries");
-    const addedMarkdown = await fs.readFile(
-      `${investigationRoot(root)}/added.md`,
-      "utf8"
-    );
-    const result = await stageInvestigationReports({
-      reportIds: ["added"],
-      scope: "index",
-      workspaceRoot: root
+    const definition = createInvestigationStageIndexDefinition();
+    const baseline = parseStateIndex({
+      text: await fs.readFile(path.join(root, indexRelativePath), "utf8"),
+      definition,
+      sourcePath: indexRelativePath
     });
-    assert.equal(result.status, "ok");
-    assert.equal(result.changed, true);
-    assert.deepEqual(result.selectedIds, ["added"]);
-    const pendingIndex = parseJsonObject(
-      git(root, ["show", `:${indexRelativePath}`])
+    assert.ok(baseline.status === "ok");
+    await writeCollection(root, [{ id: "report" }, { id: "added" }]);
+    const workspace = parseStateIndex({
+      text: await fs.readFile(path.join(root, indexRelativePath), "utf8"),
+      definition,
+      sourcePath: indexRelativePath
+    });
+    assert.ok(workspace.status === "ok");
+    const addedPath = path.join(investigationRoot(root), "added.md");
+    const markdown = await fs.readFile(addedPath, "utf8");
+    const target = buildStateIndexFromSnapshot(
+      definition,
+      selectTargetSnapshot(baseline.value, workspace.value, new Set(["added"]))
     );
-    assert.ok(Object.hasOwn(workspaceEntries, "added"));
+    assert.equal(target.status, "ok");
+    if (target.status !== "ok") assert.fail("addition projection failed");
+    assert.ok(Object.hasOwn(workspace.value.entries, "added"));
     assert.deepEqual(
-      jsonObjectMember(pendingIndex, "entries")["added"],
-      workspaceEntries["added"]
+      target.value.entries["added"],
+      workspace.value.entries["added"]
     );
-    assert.deepEqual(
-      git(root, ["diff", "--cached", "--name-only"]).trim(),
-      indexRelativePath
-    );
-    assert.equal(
-      git(root, ["diff", "--cached", "--", "docs/investigations/added.md"]),
-      ""
-    );
-    assert.equal(
-      await fs.readFile(`${investigationRoot(root)}/added.md`, "utf8"),
-      addedMarkdown
-    );
+    assert.equal(await fs.readFile(addedPath, "utf8"), markdown);
   });
 });
 
-test("stage --scope index treats resource byte changes as outside report selection", async () => {
+test("investigation source revision and published index exclude resource byte changes", async () => {
   await withTempRoot("stage-resource-byte", async (root) => {
-    const resourcePath = `${investigationRoot(root)}/_resources/report/evidence.txt`;
-    await fs.mkdir(`${investigationRoot(root)}/_resources/report`, {
-      recursive: true
-    });
-    await fs.writeFile(resourcePath, "before", "utf8");
+    const resourcePath = path.join(
+      investigationRoot(root),
+      "_resources/report/evidence.txt"
+    );
+    await fs.mkdir(path.dirname(resourcePath), { recursive: true });
+    await fs.writeFile(resourcePath, "before");
     await writeCollection(root, [
       { id: "report", resources: ["report/evidence.txt"] }
     ]);
-    initializeGit(root);
-    const cachedBefore = git(root, ["diff", "--cached", "--binary"]);
-    const indexBefore = await fs.readFile(
-      `${investigationRoot(root)}/investigation-index.json`,
-      "utf8"
+    const indexPath = path.join(root, indexRelativePath);
+    const indexBefore = await fs.readFile(indexPath, "utf8");
+    const revision = await readInvestigationSourceRevision(
+      investigationRoot(root)
     );
-    await fs.writeFile(resourcePath, "after", "utf8");
-    const result = await stageInvestigationReports({
-      reportIds: ["report"],
-      scope: "index",
-      workspaceRoot: root
-    });
-    assert.equal(result.status, "ok");
-    assert.equal(result.changed, false);
-    assert.equal(git(root, ["diff", "--cached", "--binary"]), cachedBefore);
-    assert.equal(
-      await fs.readFile(
-        `${investigationRoot(root)}/investigation-index.json`,
-        "utf8"
-      ),
-      indexBefore
+    await fs.writeFile(resourcePath, "after");
+    assert.deepEqual(
+      await readInvestigationSourceRevision(investigationRoot(root)),
+      revision
     );
-    assert.equal(
-      git(root, ["diff", "--cached", "--", "docs/investigations/report.md"]),
-      ""
-    );
-    assert.notEqual(
-      git(root, [
-        "diff",
-        "--",
-        "docs/investigations/_resources/report/evidence.txt"
-      ]),
-      ""
-    );
+    assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
+    assert.equal(await fs.readFile(resourcePath, "utf8"), "after");
   });
 });
 
-test("stage --scope index treats unrelated report resources as outside selected report entries", async () => {
-  await withTempRoot("stage-unrelated", async (root) => {
-    const resourcePath = `${investigationRoot(root)}/_resources/second/evidence.txt`;
-    await fs.mkdir(`${investigationRoot(root)}/_resources/second`, {
-      recursive: true
-    });
-    await fs.writeFile(resourcePath, "before", "utf8");
-    await writeCollection(root, [
-      { id: "first" },
-      { id: "second", resources: ["second/evidence.txt"] }
-    ]);
-    initializeGit(root);
-    await writeCollection(root, [
-      { id: "first", title: "Changed first" },
-      { id: "second", resources: ["second/evidence.txt"] }
-    ]);
-    const workspaceIndex = parseJsonObject(
-      await fs.readFile(
-        `${investigationRoot(root)}/investigation-index.json`,
-        "utf8"
-      )
-    );
-    const workspaceEntries = jsonObjectMember(workspaceIndex, "entries");
-    const baseIndex = parseJsonObject(
-      git(root, ["show", `HEAD:${indexRelativePath}`])
-    );
-    const baseEntries = jsonObjectMember(baseIndex, "entries");
-    await fs.writeFile(resourcePath, "after", "utf8");
-    const result = await stageInvestigationReports({
-      reportIds: ["first"],
-      scope: "index",
-      workspaceRoot: root
-    });
-    assert.equal(result.status, "ok");
-    assert.equal(result.changed, true);
-    const pendingIndex = parseJsonObject(
-      git(root, ["show", `:${indexRelativePath}`])
-    );
-    const pendingEntries = jsonObjectMember(pendingIndex, "entries");
-    assert.ok(Object.hasOwn(workspaceEntries, "first"));
-    assert.ok(Object.hasOwn(baseEntries, "second"));
-    assert.deepEqual(pendingEntries["first"], workspaceEntries["first"]);
-    assert.deepEqual(pendingEntries["second"], baseEntries["second"]);
-    assert.deepEqual(
-      git(root, ["diff", "--cached", "--name-only"]).trim(),
-      indexRelativePath
-    );
-    assert.equal(
-      git(root, ["diff", "--cached", "--", "docs/investigations/first.md"]),
-      ""
-    );
-    assert.equal(
-      git(root, [
-        "diff",
-        "--cached",
-        "--",
-        "docs/investigations/_resources/second/evidence.txt"
-      ]),
-      ""
-    );
-    assert.notEqual(
-      git(root, [
-        "diff",
-        "--",
-        "docs/investigations/_resources/second/evidence.txt"
-      ]),
-      ""
-    );
-  });
+test("investigation selective index projection keeps unrelated report resources outside selected entries", () => {
+  const baseline = investigationIndexFixture([
+    { id: "first" },
+    { id: "second", resources: ["second/evidence.txt"] }
+  ]);
+  const workspace = investigationIndexFixture([
+    { id: "first", title: "Changed first" },
+    {
+      id: "second",
+      title: "Unselected change",
+      resources: ["second/evidence.txt"]
+    }
+  ]);
+  const target = buildStateIndexFromSnapshot(
+    createInvestigationStageIndexDefinition(),
+    selectTargetSnapshot(baseline, workspace, new Set(["first"]))
+  );
+  assert.equal(target.status, "ok");
+  if (target.status !== "ok") assert.fail("selective projection failed");
+  assert.ok(Object.hasOwn(workspace.entries, "first"));
+  assert.ok(Object.hasOwn(baseline.entries, "second"));
+  assert.deepEqual(target.value.entries["first"], workspace.entries["first"]);
+  assert.deepEqual(target.value.entries["second"], baseline.entries["second"]);
 });
 
 test("stage --scope index preserves strict current index definition requirements", () => {

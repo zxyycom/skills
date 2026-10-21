@@ -7,7 +7,8 @@ Tags:
 - `selector`
 
 Contract:
-- stage 与 selected sync 仍按完整 ID 或唯一名字定位，并保留解析重复和缺失来源错误及 pending 保护。
+- stage 与 selected sync 按完整 ID 或唯一名字定位，并保留重复选择与缺失来源的错误分类；stage 的参数解析、选择与投影可独立验证。
 
 Proves:
-- 完整源稀疏圈混合 ID/name 同步预演与 index 暂存成功；两种入口的同 ID 双 selector 与日期 ID miss 返回各自错误/退出码，失败不改 pending。
+- 非 Git FS fixture 中，混合 ID/name 的实际 selected sync 预演成功；真实 argv 解析回调的 stage index 选择得到完整目标集合，生产索引投影包含全部后继 entry。
+- 同一 ID 的双 selector 与日期 ID miss 在 stage 领域失败映射中退出码为 2，实际 sync-index CLI 对应失败退出码为 1；正式索引完整字节保持不变。

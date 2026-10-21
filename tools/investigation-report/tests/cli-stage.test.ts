@@ -56,6 +56,12 @@ test("CLI stage uses invalid-option exit status without report IDs", async () =>
 test("CLI stage preserves version-control diagnostic facts", async () => {
   await withTempRoot("cli-stage-version-control", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
+    const sourcePaths = ["report.md", "investigation-index.json"].map((name) =>
+      path.join(investigationRoot(root), name)
+    );
+    const before = await Promise.all(
+      sourcePaths.map((file) => fs.readFile(file, "utf8"))
+    );
     const result = await runInvestigationCli(root, [
       "stage",
       "--scope",
@@ -70,6 +76,10 @@ test("CLI stage preserves version-control diagnostic facts", async () => {
     assert.match(
       result.stderr,
       /\[state-index\.repository-unavailable\] configured root/u
+    );
+    assert.deepEqual(
+      await Promise.all(sourcePaths.map((file) => fs.readFile(file, "utf8"))),
+      before
     );
   });
 });

@@ -151,25 +151,11 @@ for (const component of ["root", "owner", "intermediate", "file"]) {
 for (const component of ["root", "owner", "intermediate", "file"]) {
   test(`owned resource deletion handles missing ${component} components`, async () => {
     await withTempRoot("stage-resource-safe-deletion", async (root) => {
-      await prepareUnreferencedResource(root, component === "file");
+      await prepareUnreferencedResource(root, false);
       await fs.rm(componentPath(root, component), { recursive: true });
-      if (component !== "file") {
-        assert.equal(
-          await readOwnedResourceFixture(root, resourceRelative),
-          null
-        );
-        return;
-      }
-      const result = await stageInvestigationReports({
-        workspaceRoot: root,
-        reportIds: ["one"],
-        scope: "domain"
-      });
-      assert.equal(result.status, "ok");
-      assert.deepEqual(result.writtenPaths, [resourceRelative]);
       assert.equal(
-        git(root, ["diff", "--cached", "--name-status"]),
-        `D\t${resourceRelative}\n`
+        await readOwnedResourceFixture(root, resourceRelative),
+        null
       );
     });
   });
@@ -189,9 +175,9 @@ for (const component of ["root", "owner"]) {
   });
 }
 
-test("local investigation stage ignores unrelated symlink resource trees without inspecting their contents", async () => {
+test("owned resource validation ignores unrelated symlink trees without inspecting their contents", async () => {
   await withTempRoot("stage-resource-unrelated-symlink", async (root) => {
-    await prepareUnreferencedResource(root);
+    await prepareUnreferencedResource(root, false);
     const external = path.join(root, "external-other");
     await fs.mkdir(external);
     await fs.writeFile(
@@ -223,20 +209,9 @@ test("local investigation stage ignores unrelated symlink resource trees without
       return await originalReaddir(...args);
     }) as typeof fs.readdir;
     try {
-      const result = await stageInvestigationReports({
-        workspaceRoot: root,
-        reportIds: ["one"],
-        scope: "domain"
-      });
-      assert.equal(result.status, "ok");
-      assert.deepEqual(result.writtenPaths, [resourceRelative]);
       assert.equal(
-        git(root, ["show", `:${resourceRelative}`]),
+        await readOwnedResourceFixture(root, resourceRelative),
         "selected changed bytes\n"
-      );
-      assert.equal(
-        git(root, ["diff", "--cached", "--name-only"]),
-        resourceRelative + "\n"
       );
     } finally {
       fs.lstat = originalLstat;

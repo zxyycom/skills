@@ -1,4 +1,7 @@
 import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
+import { decisionScanFromSources } from "../domain-fixture.ts";
+import { prepareDecisionLifecycle } from "../../src/decision-lifecycle-service.ts";
+import { decisionIdForTest } from "../support-record-fixture.ts";
 import {
   assert,
   candidateDecisionBody,
@@ -7,7 +10,6 @@ import {
   decisionFilePath,
   fileExists,
   fs,
-  initializeGitRepository,
   path,
   runSourceCli,
   test,
@@ -110,8 +112,41 @@ test("discard pauses before deleting a candidate recorded in Git HEAD", () =>
     }
   ));
 
-test("discard deletes candidates absent from Git HEAD", () =>
-  withGitFixtureWorkspace(
+test("discard deletes candidates omitted from the recorded baseline", async () => {
+  const sourceId = "use-unrecorded-discard-candidate";
+  const scan = await decisionScanFromSources([
+    { id: sourceId },
+    { id: "recorded", status: "active" }
+  ]);
+  assert.deepEqual(scan.sourceErrors, []);
+  const prepared = prepareDecisionLifecycle(
+    scan,
+    {
+      action: "discard",
+      decisionId: decisionIdForTest(sourceId),
+      deleteRecorded: false
+    },
+    {
+      historyBaseline: {
+        kind: "git-head",
+        label: "Git HEAD",
+        recordedDecisionIds: new Set([decisionIdForTest("recorded")])
+      }
+    }
+  );
+  assert.equal(prepared.status, "ok", JSON.stringify(prepared));
+  if (prepared.status !== "ok") throw new Error("Expected unrecorded deletion");
+  assert.equal(scan.records[0]!.source.kind, "candidate");
+  if (scan.records[0]!.source.kind !== "candidate")
+    throw new Error("Expected candidate source");
+  assert.deepEqual(prepared.changes, [
+    {
+      decisionPath: scan.records[0]!.decisionPath,
+      expectedText: scan.records[0]!.source.text,
+      nextText: null
+    }
+  ]);
+  await withFixtureWorkspace(
     "candidate-discard-unrecorded",
     async (workspaceRoot) => {
       const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
@@ -132,25 +167,39 @@ test("discard deletes candidates absent from Git HEAD", () =>
       assert.equal(await fileExists(sourcePath), false);
       assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
     }
-  ));
+  );
+});
 
-test("discard deletes candidates in a Git worktree with unborn HEAD", () =>
-  withFixtureWorkspace(
-    "candidate-discard-unborn-head",
-    async (workspaceRoot) => {
-      initializeGitRepository(workspaceRoot);
-      const sourceRelativePath = "use-unborn-head-discard-candidate";
-      const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
-      await fs.writeFile(sourcePath, candidateDecisionBody(), "utf8");
-
-      const discarded = await runSourceCli([
-        "discard",
-        sourceRelativePath,
-        "--root",
-        workspaceRoot
-      ]);
-
-      assert.equal(discarded.exitCode, 0, discarded.stderr);
-      assert.equal(await fileExists(sourcePath), false);
+test("discard prepares candidate deletion against an empty recorded baseline", async () => {
+  const id = decisionIdForTest("use-unborn-head-discard-candidate");
+  const scan = await decisionScanFromSources([{ id }]);
+  assert.deepEqual(scan.sourceErrors, []);
+  const prepared = prepareDecisionLifecycle(
+    scan,
+    {
+      action: "discard",
+      decisionId: id,
+      deleteRecorded: false
+    },
+    {
+      historyBaseline: {
+        kind: "git-head",
+        label: "Git HEAD",
+        recordedDecisionIds: new Set()
+      }
     }
-  ));
+  );
+  assert.equal(prepared.status, "ok", JSON.stringify(prepared));
+  if (prepared.status !== "ok")
+    throw new Error("Expected empty-baseline deletion");
+  assert.equal(scan.records[0]!.source.kind, "candidate");
+  if (scan.records[0]!.source.kind !== "candidate")
+    throw new Error("Expected candidate source");
+  assert.deepEqual(prepared.changes, [
+    {
+      decisionPath: scan.records[0]!.decisionPath,
+      expectedText: scan.records[0]!.source.text,
+      nextText: null
+    }
+  ]);
+});

@@ -1,13 +1,13 @@
-### Case INVESTIGATION-STAGE-RESOURCE-BYTES-001: stage --scope index treats resource byte changes as outside report selection
+### Case INVESTIGATION-STAGE-RESOURCE-BYTES-001: 资源字节不参与正式来源 revision 与发布索引
 
 Tests:
-- `test:674e9dc410d25a1f0249c9887a5fb473fb836a926f0eabf8a2790b48675105cc`
+- `test:c925427adbac6d79632b597719e5e376df1b407ba989208f6a098684bc002385`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 资源字节变化不扩大报告 entry 的选择范围，也不使 source revision 失效。
+- 资源字节不进入正式报告 source revision，单独修改资源不改写已发布报告索引。
 
 Proves:
-- 真实资源从 `before` 改为 `after` 后，命令零变更、cached index 和工作树 index 保持原字节，资源改动仍只在未暂存工作树。
+- 真实资源由 before 改为 after 后，重新取得的正式 source revision 与发布 index 完整字节保持原值，资源仍为 after。

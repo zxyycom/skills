@@ -1,4 +1,5 @@
 import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
+import * as v from "valibot";
 import { stageSource, stageTarget } from "./domain-support.ts";
 import {
   decisionBaselineSourcePaths,
@@ -15,12 +16,10 @@ import {
   archivedSourcePath,
   assert,
   candidateDecisionBody,
-  commitWorkspace,
   currentDecisionId,
   currentSourcePath,
   decisionFilePath,
   fs,
-  initializeGitRepository,
   path,
   runGit,
   test,
@@ -66,33 +65,33 @@ test("stage applies selected additions modifications deletions and explicit rena
     assert.match(pending, /decision-index\.json/);
   }));
 
-test("stage bootstraps the first pending decision collection", () =>
-  withTemporaryWorkspace("stage-first-collection", async (workspaceRoot) => {
-    initializeGitRepository(workspaceRoot);
-    await fs.writeFile(
-      path.join(workspaceRoot, "README.md"),
-      "baseline\n",
-      "utf8"
-    );
-    commitWorkspace(workspaceRoot);
-    const id = "use-first-stage";
-    await writeDecision(
-      workspaceRoot,
-      id,
-      candidateDecisionBody()
-        .replace("status: candidate", "status: active")
-        .replace("alignment: null", "alignment: aligned")
-        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
-    );
-    const staged = await stageDecisionRecords({
-      decisionIds: [id],
-      location: { workspaceRoot: workspaceRoot, decisionsDir: "docs/decisions" }
-    });
-    assert.equal(staged.status, "ok", JSON.stringify(staged));
-    const pending = runGit(workspaceRoot, ["diff", "--cached", "--name-only"]);
-    assert.match(pending, new RegExp(id));
-    assert.match(pending, /decision-index\.json/);
-  }));
+test("stage bootstraps the first decision collection projection", async () => {
+  const source = stageSource("use-first-stage");
+  const target = await stageTarget([], [source], ["use-first-stage"]);
+  assert.deepEqual(target.selectedIds, ["use-first-stage"]);
+  assert.deepEqual(
+    target.sourceFiles.map((file) => file.path),
+    ["docs/decisions/use-first-stage.md"]
+  );
+  const projected = await buildStageIndexText(
+    target.sources,
+    "docs/decisions/decision-index.json"
+  );
+  assert.equal(projected.status, "ok", JSON.stringify(projected));
+  if (projected.status !== "ok")
+    throw new Error("Expected bootstrap projection");
+  const index = v.parse(
+    v.object({
+      entries: v.record(v.string(), v.object({ sourcePath: v.string() }))
+    }),
+    JSON.parse(projected.value) as unknown
+  );
+  assert.deepEqual(Object.keys(index.entries), ["use-first-stage"]);
+  assert.equal(
+    index.entries["use-first-stage"]?.sourcePath,
+    "use-first-stage.md"
+  );
+});
 
 test("stage bootstraps a new Decision when revision contains only the derived index", async () => {
   assert.deepEqual(

@@ -1,3 +1,15 @@
+import { validateDomainReportSources } from "../src/staging-domain-sources.ts";
+import {
+  domainStageControl,
+  resolveDomainSelection,
+  verifyDomainIndex
+} from "../src/staging-domain-context.ts";
+import {
+  verifyDomainWrites,
+  type DomainWritesAcquisition
+} from "../src/staging-domain-writes.ts";
+import { loadInvestigationIndex } from "../src/investigation-state-index.ts";
+import type { VersionControlFile } from "../../shared/src/version-control/index.ts";
 import {
   buildStateIndexFromSnapshot,
   selectTargetSnapshot
@@ -80,10 +92,10 @@ test("local investigation stage ignores unrelated malformed and missing bodies a
   });
 });
 
-test("local investigation stage acquires direct resource owners without staging dependencies and rejects their drift", async () => {
+test("domain source selection includes direct resource owners without selecting them for publication and rejects their drift", async () => {
   await withTempRoot("stage-owner-dependency", async (root) => {
     const resource = "owner/sample.txt";
-    await fs.mkdir(path.join(investigationRoot(root), "_resources", "owner"), {
+    await fs.mkdir(path.join(investigationRoot(root), "_resources/owner"), {
       recursive: true
     });
     await fs.writeFile(
@@ -95,26 +107,84 @@ test("local investigation stage acquires direct resource owners without staging 
       { id: "owner", resources: [resource] },
       { id: "other" }
     ]);
-    initializeGit(root);
+    const loaded = await loadInvestigationIndex({
+      investigationsDirectory: investigationRoot(root)
+    });
+    assert.ok(loaded.status === "ok");
     await fs.writeFile(
       path.join(investigationRoot(root), "other.md"),
       "unrelated malformed"
     );
-    const observed = await observeReads(root, () => stage(root, "domain"));
-    assert.equal(observed.result.status, "ok");
+    const resolved = resolveDomainSelection(
+      {
+        baseline: loaded.value,
+        workspaceIndex: loaded.value,
+        revision: null,
+        canonicalDefinition: createInvestigationStageIndexDefinition()
+      },
+      domainStageControl({
+        investigationsDirectory: investigationRoot(root),
+        reportIds: ["one"],
+        scope: "domain"
+      })
+    );
+    assert.equal(resolved.status, "ok");
+    if (resolved.status !== "ok") assert.fail("dependency selection failed");
+    assert.deepEqual(resolved.value.selectedIds, ["one"]);
+    const selection = resolved.value.sourceSelection;
+    assert.deepEqual(selection, {
+      deletedIds: [],
+      reportIds: ["one", "owner"],
+      resourceIds: [resource]
+    });
+    const observed = await observeReads(root, async () => {
+      for (let phase = 0; phase < 2; phase += 1) {
+        const files = new Map<string, VersionControlFile>();
+        for (const id of selection.reportIds) {
+          const relative = `docs/investigations/${loaded.value.entries[id]!.sourcePath}`;
+          files.set(relative, {
+            path: relative,
+            kind: "regular",
+            data: await fs.readFile(path.join(root, relative))
+          });
+        }
+        validateDomainReportSources({
+          files,
+          index: loaded.value,
+          investigationsScope: "docs/investigations",
+          selection
+        });
+      }
+    });
     assert.deepEqual(
       observed.paths.filter((name) => name.endsWith(".md")).sort(),
       ["one.md", "one.md", "owner.md", "owner.md"]
     );
-    assert.deepEqual(observed.result.selectedIds, ["one"]);
-    assert.deepEqual(observed.result.writtenPaths, []);
-    await fs.writeFile(
-      path.join(investigationRoot(root), "owner.md"),
+    const ownerPath = path.join(investigationRoot(root), "owner.md");
+    await fs.writeFile(ownerPath, reportMarkdown({ id: "owner" }));
+    const files = new Map<string, VersionControlFile>();
+    for (const id of selection.reportIds) {
+      const relative = `docs/investigations/${loaded.value.entries[id]!.sourcePath}`;
+      files.set(relative, {
+        path: relative,
+        kind: "regular",
+        data: await fs.readFile(path.join(root, relative))
+      });
+    }
+    assert.throws(
+      () =>
+        validateDomainReportSources({
+          files,
+          index: loaded.value,
+          investigationsScope: "docs/investigations",
+          selection
+        }),
+      /required owner changed from the published source/u
+    );
+    assert.equal(
+      await fs.readFile(ownerPath, "utf8"),
       reportMarkdown({ id: "owner" })
     );
-    const rejected = await stage(root, "domain");
-    assert.equal(rejected.status, "error");
-    assert.equal(git(root, ["diff", "--cached", "--name-only"]), "");
   });
 });
 
@@ -139,41 +209,57 @@ test("investigation index stage validates global metadata relations and the fina
   assert.throws(() => definition.validateIndex?.(invalid), /missing/u);
 });
 
-test("local investigation stage rejects mutable published index drift before pending replacement", async () => {
+test("domain index verification rejects mutable published index drift", async () => {
   await withTempRoot("stage-index-drift", async (root) => {
     await writeCollection(root, [{ id: "one" }]);
-    initializeGit(root);
-    let changed = false;
-    const observed = await observeReads(
-      root,
-      () => stage(root, "all"),
-      async (target) => {
-        if (changed || !target.endsWith("one.md")) return;
-        changed = true;
-        const indexPath = path.join(
-          investigationRoot(root),
-          "investigation-index.json"
-        );
-        const index = parseJsonObject(await fs.readFile(indexPath, "utf8"));
-        jsonObjectMember(jsonObjectMember(index, "entries"), "one").title =
-          "changed metadata";
-        await fs.writeFile(indexPath, JSON.stringify(index));
-      }
+    const loaded = await loadInvestigationIndex({
+      investigationsDirectory: investigationRoot(root)
+    });
+    assert.ok(loaded.status === "ok");
+    const snapshot = {
+      baseline: null,
+      revision: null,
+      workspaceIndex: loaded.value,
+      canonicalDefinition: createInvestigationStageIndexDefinition()
+    };
+    const control = domainStageControl({
+      investigationsDirectory: investigationRoot(root),
+      reportIds: ["one"],
+      scope: "all"
+    });
+    assert.deepEqual(await verifyDomainIndex(snapshot, control), {
+      status: "ok"
+    });
+    const indexPath = path.join(
+      investigationRoot(root),
+      "investigation-index.json"
     );
-    assert.equal(observed.result.status, "error");
-    assert.equal(observed.result.state, "source-drift");
-    assert.equal(git(root, ["diff", "--cached", "--name-only"]), "");
+    const index = parseJsonObject(await fs.readFile(indexPath, "utf8"));
+    jsonObjectMember(jsonObjectMember(index, "entries"), "one").title =
+      "changed metadata";
+    await fs.writeFile(indexPath, JSON.stringify(index));
+    const result = await verifyDomainIndex(snapshot, control);
+    assert.equal(result.status, "error");
+    if (result.status !== "error")
+      assert.fail("changed published index accepted");
+    assert.equal(
+      result.diagnostics[0]?.code,
+      "investigation-report.stage-source-drift"
+    );
+    assert.match(
+      result.diagnostics[0]?.message ?? "",
+      /published workspace index changed/u
+    );
   });
 });
 
-test("local investigation stage rechecks required owner and shared resource bytes before writing", async () => {
+test("domain phase comparison rechecks required owner and shared resource bytes", async () => {
   for (const driftingPath of ["owner.md", "_resources/owner/sample.txt"]) {
     await withTempRoot("stage-dependency-drift", async (root) => {
       const resource = "owner/sample.txt";
-      await fs.mkdir(
-        path.join(investigationRoot(root), "_resources", "owner"),
-        { recursive: true }
-      );
+      await fs.mkdir(path.join(investigationRoot(root), "_resources/owner"), {
+        recursive: true
+      });
       await fs.writeFile(
         path.join(investigationRoot(root), "_resources", resource),
         "sample\n"
@@ -182,28 +268,69 @@ test("local investigation stage rechecks required owner and shared resource byte
         { id: "one", resources: [resource] },
         { id: "owner", resources: [resource] }
       ]);
-      initializeGit(root);
       let changed = false;
       const observed = await observeReads(
         root,
-        () => stage(root, "domain"),
+        async () => {
+          const phases: DomainWritesAcquisition[] = [];
+          for (let phase = 0; phase < 2; phase += 1) {
+            const sourceFiles: VersionControlFile[] = [];
+            for (const relative of [
+              "one.md",
+              "owner.md",
+              "_resources/owner/sample.txt"
+            ]) {
+              sourceFiles.push({
+                path: `docs/investigations/${relative}`,
+                kind: "regular",
+                data: await fs.readFile(
+                  path.join(investigationRoot(root), relative)
+                )
+              });
+            }
+            phases.push({
+              status: "ok",
+              sourceFiles,
+              value: [sourceFiles[0]!],
+              pending: {
+                pathScope: "docs/investigations",
+                files: [],
+                members: []
+              }
+            });
+          }
+          return verifyDomainWrites(phases[0]!, phases[1]!);
+        },
         async (target) => {
           if (
-            changed ||
-            target !== path.join(investigationRoot(root), driftingPath)
-          )
-            return;
-          changed = true;
-          await fs.appendFile(target, "\ndependency drift\n");
+            target === path.join(investigationRoot(root), driftingPath) &&
+            !changed
+          ) {
+            changed = true;
+            await fs.appendFile(target, "\ndependency drift\n");
+          }
         }
       );
-      assert.equal(observed.result.status, "error");
-      assert.equal(observed.result.state, "source-drift");
+      assert.equal(observed.result.status, "drift");
+      if (observed.result.status !== "drift")
+        assert.fail("required source drift was accepted");
+      assert.match(
+        observed.result.reason,
+        /required owner bytes or representation changed/u
+      );
       assert.equal(
         observed.paths.filter((name) => name === driftingPath).length,
         2
       );
-      assert.equal(git(root, ["diff", "--cached", "--name-only"]), "");
+      assert.equal(changed, true);
+      assert.ok(
+        (
+          await fs.readFile(
+            path.join(investigationRoot(root), driftingPath),
+            "utf8"
+          )
+        ).endsWith("\ndependency drift\n")
+      );
     });
   }
 });

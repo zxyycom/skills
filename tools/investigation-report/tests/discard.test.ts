@@ -256,7 +256,7 @@ test("discard fails closed when a Git worktree cannot be inspected", async () =>
   });
 });
 
-test("discard rechecks ignored owner resource drift before publishing", async () => {
+test("discard rechecks owner resource membership drift before publishing", async () => {
   await withTempRoot("discard-resource-drift", async (root) => {
     const resource = path.join(
       investigationRoot(root),
@@ -269,28 +269,17 @@ test("discard rechecks ignored owner resource drift before publishing", async ()
     await writeCollection(root, [
       { id: "report", resources: ["report/evidence.txt"] }
     ]);
-    git(root, ["init", "--quiet"]);
-    git(root, ["config", "user.email", "test@example.invalid"]);
-    git(root, ["config", "user.name", "Test"]);
-    git(root, ["add", "."]);
-    git(root, ["commit", "--quiet", "-m", "initial"]);
-    await fs.writeFile(
-      path.join(root, ".gitignore"),
-      "docs/investigations/_resources/report/ignored.txt\n",
-      "utf8"
-    );
     const result = await discardInvestigationReportWithWriter(
       {
         deleteOwnedResources: true,
-        deleteRecorded: true,
         id: "report",
         workspaceRoot: root
       },
       async (target, text) => await fs.writeFile(target, text, "utf8"),
       async () => {
         await fs.writeFile(
-          path.join(path.dirname(resource), "ignored.txt"),
-          "ignored",
+          path.join(path.dirname(resource), "new-member.txt"),
+          "new member",
           "utf8"
         );
       }

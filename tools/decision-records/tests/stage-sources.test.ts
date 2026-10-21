@@ -157,39 +157,37 @@ test("Decision stage fresh discovery rejects duplicates moves bytes and reappear
   });
 });
 
-test("Decision stage all index and domain re-read selected bytes after preparation and keep pending unchanged on drift", async () => {
-  for (const scope of ["all", "index", "domain"] as const) {
-    await withGitFixtureWorkspace(`stage-fresh-${scope}`, async (root) => {
-      await syncDecisionIndexBeforeStage(root);
-      const selectedPath = decisionFilePath(root, currentSourcePath);
-      const before = runGit(root, ["write-tree"]);
-      const readFile = fs.readFile;
-      let selectedReads = 0;
-      Object.defineProperty(fs, "readFile", {
-        configurable: true,
-        value: async (...args: Parameters<typeof fs.readFile>) => {
-          if (
-            typeof args[0] === "string" &&
-            args[0] === selectedPath &&
-            ++selectedReads === 3
-          )
-            await fs.appendFile(selectedPath, "\n- fresh-phase drift\n");
-          return await readFile(...args);
-        }
-      });
-      try {
-        const staged = await stageDecisionRecords({
-          decisionIds: [currentDecisionId],
-          location: { workspaceRoot: root, decisionsDir: "docs/decisions" },
-          scope: scope
-        });
-        assert.equal(staged.status, "error");
-        assert.match(JSON.stringify(staged), /stage-source-changed/);
-        assert.equal(selectedReads, 3);
-        assert.equal(runGit(root, ["write-tree"]), before);
-      } finally {
-        fs.readFile = readFile;
+test("Decision stage re-reads selected bytes after preparation and keeps pending unchanged on drift", async () => {
+  await withGitFixtureWorkspace("stage-fresh-all", async (root) => {
+    await syncDecisionIndexBeforeStage(root);
+    const selectedPath = decisionFilePath(root, currentSourcePath);
+    const before = runGit(root, ["write-tree"]);
+    const readFile = fs.readFile;
+    let selectedReads = 0;
+    Object.defineProperty(fs, "readFile", {
+      configurable: true,
+      value: async (...args: Parameters<typeof fs.readFile>) => {
+        if (
+          typeof args[0] === "string" &&
+          args[0] === selectedPath &&
+          ++selectedReads === 3
+        )
+          await fs.appendFile(selectedPath, "\n- fresh-phase drift\n");
+        return await readFile(...args);
       }
     });
-  }
+    try {
+      const staged = await stageDecisionRecords({
+        decisionIds: [currentDecisionId],
+        location: { workspaceRoot: root, decisionsDir: "docs/decisions" },
+        scope: "all"
+      });
+      assert.equal(staged.status, "error");
+      assert.match(JSON.stringify(staged), /stage-source-changed/);
+      assert.equal(selectedReads, 3);
+      assert.equal(runGit(root, ["write-tree"]), before);
+    } finally {
+      fs.readFile = readFile;
+    }
+  });
 });

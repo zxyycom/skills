@@ -1,3 +1,13 @@
+import {
+  VersionControlError,
+  type VersionControlFile
+} from "../../shared/src/version-control/index.ts";
+import { pendingReplacementFailure } from "../src/staging-domain-failures.ts";
+import { domainStageControl } from "../src/staging-domain-context.ts";
+import {
+  verifyDomainWrites,
+  type DomainWritesAcquisition
+} from "../src/staging-domain-writes.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -202,31 +212,6 @@ test("stage --scope domain keeps unrelated staged deletions when staging another
   });
 });
 
-test("stage --scope domain stages an explicit rename as deletion plus addition", async () => {
-  await withTempRoot("stage-domain-rename", async (root) => {
-    await writeCollection(root, [{ id: "old-name" }]);
-    initializeGit(root);
-    await fs.rm(path.join(investigationRoot(root), "old-name.md"));
-    await writeCollection(root, [{ id: "new-name" }]);
-    const result = await stageInvestigationReports({
-      reportIds: ["old-name", "new-name"],
-      scope: "domain",
-      workspaceRoot: root
-    });
-    assert.equal(result.status, "ok");
-    assert.deepEqual(result.selectedIds, ["new-name", "old-name"]);
-    const pending = git(root, [
-      "diff",
-      "--cached",
-      "--name-status",
-      "--no-renames"
-    ]);
-    assert.match(pending, /D\tdocs\/investigations\/old-name\.md/u);
-    assert.match(pending, /A\tdocs\/investigations\/new-name\.md/u);
-    assert.equal(git(root, ["diff", "--cached", "--", indexRelativePath]), "");
-  });
-});
-
 test("stage --scope domain preserves staged index pending bytes and reports the preserved scope", async () => {
   await withTempRoot("stage-domain-preserve-index", async (root) => {
     await writeCollection(root, [{ id: "first" }, { id: "second" }]);
@@ -308,66 +293,70 @@ test("stage --scope all writes the index projection, report, and owner tree atom
   });
 });
 
-test("stage rejects owner source drift before the pending write stays atomic", async () => {
+test("domain phase comparison rejects owner resource byte drift without rewriting the source", async () => {
   await withTempRoot("stage-domain-drift", async (root) => {
-    await writeResource(root, "first/evidence.txt", "before\n");
-    await writeCollection(root, [
-      { id: "first", resources: ["first/evidence.txt"] }
-    ]);
-    initializeGit(root);
     await writeResource(root, "first/evidence.txt", "after\n");
-    await writeCollection(root, [
-      { id: "first", resources: ["first/evidence.txt"] }
-    ]);
     const driftPath = resourcePath(root, "first/evidence.txt");
-    const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
-    assert.ok(descriptor);
-    const readFile = fs.readFile.bind(fs);
-    let reads = 0;
-    let injected = false;
-    Object.defineProperty(fs, "readFile", {
-      ...descriptor,
-      value: async (...args: Parameters<typeof readFile>) => {
-        if (args[0] === driftPath && ++reads === 2 && !injected) {
-          injected = true;
-          await fs.writeFile(driftPath, "drifted\n", "utf8");
-        }
-        return await readFile(...args);
-      }
+    const relative = "docs/investigations/_resources/first/evidence.txt";
+    const expectedFile: VersionControlFile = {
+      path: relative,
+      kind: "regular",
+      data: await fs.readFile(driftPath)
+    };
+    const expected: DomainWritesAcquisition = {
+      status: "ok",
+      sourceFiles: [expectedFile],
+      value: [expectedFile],
+      pending: { pathScope: "docs/investigations", files: [], members: [] }
+    };
+    await fs.writeFile(driftPath, "drifted\n");
+    const currentFile: VersionControlFile = {
+      path: relative,
+      kind: "regular",
+      data: await fs.readFile(driftPath)
+    };
+    const result = verifyDomainWrites(expected, {
+      ...expected,
+      sourceFiles: [currentFile],
+      value: [currentFile]
     });
-    try {
-      const result = await stageInvestigationReports({
-        reportIds: ["first"],
-        scope: "domain",
-        workspaceRoot: root
-      });
-      assert.equal(result.status, "error");
-      assert.equal(result.state, "source-drift");
-    } finally {
-      Object.defineProperty(fs, "readFile", descriptor);
-    }
-    assert.equal(injected, true);
-    assert.equal(git(root, ["diff", "--cached", "--name-only"]), "");
+    assert.equal(result.status, "drift");
+    if (result.status !== "drift") assert.fail("owner byte drift was accepted");
+    assert.match(
+      result.reason,
+      /selected sources or required owner bytes or representation changed/u
+    );
     assert.equal(await fs.readFile(driftPath, "utf8"), "drifted\n");
   });
 });
 
-test("stage --scope domain reports a busy pending boundary without workspace writes", async () => {
-  await withTempRoot("stage-domain-busy", async (root) => {
-    await writeCollection(root, [{ id: "first" }]);
-    initializeGit(root);
-    const lockPath = path.join(root, ".git", "index.lock");
-    await fs.writeFile(lockPath, "held", "utf8");
-    try {
-      const result = await stageInvestigationReports({
-        reportIds: ["first"],
-        scope: "domain",
-        workspaceRoot: root
-      });
-      assert.equal(result.status, "error");
-      assert.equal(result.state, "pending-conflict");
-    } finally {
-      await fs.rm(lockPath, { force: true });
-    }
+test("domain pending failure maps a busy boundary to no-change conflict diagnostics", () => {
+  const control = domainStageControl({
+    investigationsDirectory: "/workspace/docs/investigations",
+    reportIds: ["first"],
+    scope: "domain"
   });
+  const result = pendingReplacementFailure(
+    control,
+    new VersionControlError({
+      code: "pending-conflict",
+      causeCategory: "busy",
+      operation: "replace pending files",
+      target: "pending snapshot"
+    })
+  );
+  assert.equal(result.status, "error");
+  assert.equal(result.state, "pending-conflict");
+  assert.equal(result.changed, false);
+  assert.equal(result.scope, "domain");
+  assert.deepEqual(result.pending, {
+    scope: "Pending investigation snapshot",
+    outcome: "no-change"
+  });
+  assert.equal(result.diagnostics[0]?.code, "state-index.pending-conflict");
+  assert.equal(result.diagnostics[0]?.versionControl?.causeCategory, "busy");
+  assert.match(
+    result.diagnostics[0]?.message ?? "",
+    /pending write boundary is busy/u
+  );
 });

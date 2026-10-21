@@ -1,4 +1,6 @@
 import { stageSource, stageTarget } from "./domain-support.ts";
+import * as v from "valibot";
+import { buildStageIndexText } from "../../src/decision-stage-prepare.ts";
 import {
   readFilesystemDecisionCandidates,
   verifySelectedFilesystemSources
@@ -25,11 +27,29 @@ test("stage isolates unselected invalid filesystem content from a selected revis
 test("stage treats a selected old ID as a deletion without inferring a rename", async () => {
   const old = stageSource("old");
   const replacement = stageSource("replacement");
-  const target = await stageTarget([old], [replacement], ["old"]);
-  assert.deepEqual(target.sources, []);
+  const retained = stageSource("retained");
+  const target = await stageTarget(
+    [old, retained],
+    [replacement, retained],
+    ["old"]
+  );
+  assert.deepEqual(target.sources, [retained.source]);
   assert.deepEqual(target.selectedSources, [
     { decisionId: "old", source: null }
   ]);
+  assert.deepEqual(target.sourceFiles, [retained.file]);
+  const projected = await buildStageIndexText(
+    target.sources,
+    "docs/decisions/decision-index.json"
+  );
+  assert.equal(projected.status, "ok", JSON.stringify(projected));
+  if (projected.status !== "ok")
+    throw new Error("Expected deletion projection");
+  const index = v.parse(
+    v.object({ entries: v.record(v.string(), v.unknown()) }),
+    JSON.parse(projected.value) as unknown
+  );
+  assert.deepEqual(Object.keys(index.entries), ["retained"]);
 });
 
 test("stage rejects a selected symlink source outside the decision root without writing pending", async (t) => {

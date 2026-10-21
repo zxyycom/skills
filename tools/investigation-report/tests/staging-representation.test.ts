@@ -1,3 +1,11 @@
+import {
+  verifyDomainWrites,
+  type DomainWritesAcquisition
+} from "../src/staging-domain-writes.ts";
+import { domainFailure } from "../src/staging-domain-failures.ts";
+import { domainStageControl } from "../src/staging-domain-context.ts";
+import { prepareInvestigationResourceRoot } from "../src/resource-root.ts";
+import { inspectOwnedInvestigationResources } from "../src/resource-file-validation.ts";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -88,10 +96,6 @@ test("stage --scope all preserves unselected executable and symlink pending repr
   await assertUnselectedRepresentationsPreserved("all");
 });
 
-test("stage --scope domain preserves unselected executable and symlink pending representations", async () => {
-  await assertUnselectedRepresentationsPreserved("domain");
-});
-
 test(
   "stage preserves executable representation for modified and newly added owner scripts",
   { skip: process.platform === "win32" },
@@ -180,54 +184,34 @@ test(
   }
 );
 
-test(
-  "stage rejects executable-bit source drift before publishing pending",
-  { skip: process.platform === "win32" },
-  async () => {
-    await withTempRoot("stage-mode-drift", async (root) => {
-      const script = await writeScript(root, "first", "measure.sh", "same\n");
-      await writeCollection(root, [
-        { id: "first", resources: ["first/measure.sh"] }
-      ]);
-      initializeGit(root);
-      git(root, ["config", "core.fileMode", "true"]);
-      const absolute = path.join(root, script);
-      const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
-      assert.ok(descriptor);
-      const readFile = fs.readFile.bind(fs);
-      let reads = 0;
-      Object.defineProperty(fs, "readFile", {
-        ...descriptor,
-        value: async (...args: Parameters<typeof readFile>) => {
-          const bytes = await readFile(...args);
-          if (args[0] === absolute && ++reads === 1)
-            await fs.chmod(absolute, 0o755);
-          return bytes;
-        }
-      });
-      const before = await readFile(path.join(root, ".git", "index"));
-      try {
-        const result = await stageInvestigationReports({
-          reportIds: ["first"],
-          scope: "domain",
-          workspaceRoot: root
-        });
-        assert.equal(result.status, "error");
-        assert.equal(result.state, "source-drift");
-      } finally {
-        Object.defineProperty(fs, "readFile", descriptor);
-      }
-      assert.equal(reads, 2);
-      assert.deepEqual(
-        await fs.readFile(path.join(root, ".git", "index")),
-        before
-      );
-    });
-  }
-);
+test("domain phase comparison rejects executable representation drift with identical bytes", () => {
+  const file = {
+    path: "docs/investigations/_resources/first/measure.sh",
+    kind: "regular" as const,
+    data: Buffer.from("same\n")
+  };
+  const expected: DomainWritesAcquisition = {
+    status: "ok",
+    sourceFiles: [file],
+    value: [file],
+    pending: { pathScope: "docs/investigations", files: [], members: [] }
+  };
+  const executable = { ...file, kind: "executable" as const };
+  assert.deepEqual(verifyDomainWrites(expected, expected), { status: "ok" });
+  assert.deepEqual(executable.data, file.data);
+  const result = verifyDomainWrites(expected, {
+    ...expected,
+    sourceFiles: [executable],
+    value: [executable]
+  });
+  assert.equal(result.status, "drift");
+  if (result.status !== "drift")
+    assert.fail("executable source drift was accepted");
+  assert.match(result.reason, /bytes or representation changed/u);
+});
 
 test(
-  "stage keeps rejecting selected symlink resource sources without pending writes",
+  "owned resource validation rejects selected symlink sources before byte reads",
   { skip: process.platform === "win32" },
   async () => {
     await withTempRoot("stage-symlink-source", async (root) => {
@@ -235,31 +219,62 @@ test(
       await writeCollection(root, [
         { id: "first", resources: ["first/measure.sh"] }
       ]);
-      initializeGit(root);
-      const link = path.join(
+      await fs.symlink(
+        "measure.sh",
+        path.join(investigationRoot(root), "_resources/first/link")
+      );
+      const prepared = await prepareInvestigationResourceRoot(
         investigationRoot(root),
-        "_resources",
-        "first",
-        "link"
+        {
+          mode: "version-control",
+          files: new Set(["first/measure.sh", "first/link"])
+        }
       );
-      await fs.symlink("measure.sh", link);
-      const before = await fs.readFile(path.join(root, ".git", "index"));
-      const result = await stageInvestigationReports({
-        reportIds: ["first"],
-        scope: "domain",
-        workspaceRoot: root
-      });
-      assert.equal(result.status, "error");
-      assert.equal(result.state, "domain-stage-failed");
+      assert.equal(prepared.status, "ready");
+      if (prepared.status !== "ready") assert.fail("resource root unavailable");
+      const original = fs.readFile;
+      let reads = 0;
+      fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
+        if (
+          args[0] === path.join(root, script) ||
+          args[0] ===
+            path.join(investigationRoot(root), "_resources/first/link")
+        )
+          reads += 1;
+        return await original(...args);
+      }) as typeof fs.readFile;
+      try {
+        const inspected = await inspectOwnedInvestigationResources(
+          prepared,
+          ["first"],
+          ["first/measure.sh", "first/link"]
+        );
+        assert.ok(
+          inspected.errors.some((error) => error.includes("symbolic link"))
+        );
+        const result = domainFailure(
+          domainStageControl({
+            investigationsDirectory: investigationRoot(root),
+            reportIds: ["first"],
+            scope: "domain"
+          }),
+          "source-read-failed",
+          new Error(inspected.errors.join("; "))
+        );
+        assert.equal(result.status, "error");
+        assert.equal(result.state, "domain-stage-failed");
+        assert.equal(
+          result.diagnostics[0]?.code,
+          "investigation-report.stage-source-read-failed"
+        );
+        assert.equal(reads, 0);
+      } finally {
+        fs.readFile = original;
+      }
       assert.equal(
-        result.diagnostics[0]?.code,
-        "investigation-report.stage-source-read-failed"
+        await fs.readFile(path.join(root, script), "utf8"),
+        "same\n"
       );
-      assert.deepEqual(
-        await fs.readFile(path.join(root, ".git", "index")),
-        before
-      );
-      assert.equal(git(root, ["show", `:${script}`]), "same\n");
     });
   }
 );

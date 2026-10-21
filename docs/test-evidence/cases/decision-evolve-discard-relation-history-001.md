@@ -10,4 +10,5 @@ Contract:
 - `--delete-recorded` 只确认删除目标；最终关系指向尚未进入 Git HEAD 的已建立前序时，仍须以 `--keep-unrecorded-history` 明确保留该独立历史。
 
 Proves:
-- CLI 返回前序历史 attention，且后继、删除目标、前序 Markdown 与索引均保持不变。
+- argv 解析和领域准备对 deleteRecorded=true、删除目标已记录但最终前序不在显式已记录集合的输入仍要求历史，返回 attention；不含 changes/relationReview，诊断 outcome 均为 no-change。
+- attention renderer 退出码 1、stdout 为空，stderr 指明未记录前序并提示 keep-unrecorded-history。

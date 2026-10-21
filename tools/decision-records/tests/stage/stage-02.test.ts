@@ -1,5 +1,7 @@
 import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
+import * as v from "valibot";
 import { stageDecisionRecords } from "../../src/decision-stage-service.ts";
+import { buildStageIndexText } from "../../src/decision-stage-prepare.ts";
 import { stageSource, stageTarget } from "./domain-support.ts";
 import { decisionBaselineSourcePaths } from "../../src/decision-stage-sources.ts";
 import {
@@ -39,31 +41,46 @@ test("stage does not bind unrelated identical deletion and addition as a rename"
   );
 });
 
-test("stage isolates unselected filesystem changes", () =>
-  withGitFixtureWorkspace("stage-isolation", async (workspaceRoot) => {
-    const selectedId = "use-selected-stage";
-    const unselectedId = "use-unselected-stage";
-    await writeDecision(workspaceRoot, selectedId, candidateDecisionBody());
-    await writeDecision(
-      workspaceRoot,
-      unselectedId,
-      candidateDecisionBody({ title: "未选择的暂存变更" })
-    );
-    await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await stageDecisionRecords({
-      decisionIds: [selectedId],
-      location: { workspaceRoot: workspaceRoot, decisionsDir: "docs/decisions" }
-    });
-    assert.equal(staged.status, "ok", JSON.stringify(staged));
-    const pending = runGit(workspaceRoot, ["diff", "--cached", "--name-only"]);
-    assert.match(pending, new RegExp(selectedId));
-    assert.doesNotMatch(pending, new RegExp(unselectedId));
-    const pendingIndex = JSON.parse(
-      runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"])
-    );
-    assert.ok(pendingIndex.entries["use-generated-cli"]);
-    assert.equal(pendingIndex.entries[unselectedId], undefined);
-  }));
+test("stage isolates unselected filesystem changes", async () => {
+  const baseline = stageSource("existing");
+  const modified = stageSource("existing", "existing.md", "未选中的修改");
+  const selected = stageSource("selected");
+  const unselected = stageSource("unselected");
+  const target = await stageTarget(
+    [baseline],
+    [modified, selected, unselected],
+    ["selected"]
+  );
+  assert.deepEqual(target.selectedIds, ["selected"]);
+  assert.deepEqual(
+    target.sources.map((source) => source.decisionId),
+    ["existing", "selected"]
+  );
+  assert.equal(
+    target.sources.find((source) => source.decisionId === "existing")?.text,
+    baseline.source.text
+  );
+  assert.deepEqual(
+    target.sourceFiles.map((file) => file.path),
+    ["docs/decisions/existing.md", "docs/decisions/selected.md"]
+  );
+  const projected = await buildStageIndexText(
+    target.sources,
+    "docs/decisions/decision-index.json"
+  );
+  assert.equal(projected.status, "ok", JSON.stringify(projected));
+  if (projected.status !== "ok")
+    throw new Error("Expected isolated projection");
+  const index = v.parse(
+    v.object({
+      entries: v.record(v.string(), v.object({ title: v.string() }))
+    }),
+    JSON.parse(projected.value) as unknown
+  );
+  assert.ok(index.entries.selected);
+  assert.equal(index.entries.existing?.title, "领域暂存来源");
+  assert.equal(index.entries.unselected, undefined);
+});
 
 test(
   "stage keeps Git invocation counts bounded for complete decision snapshots",

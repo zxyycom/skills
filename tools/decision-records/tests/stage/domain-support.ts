@@ -14,7 +14,10 @@ export function stageSource(
   title = "领域暂存来源"
 ) {
   const text = candidateDecisionBody({ id, title })
-    .replace("status: candidate", "status: active")
+    .replace(
+      "status: candidate",
+      `status: ${sourcePath.startsWith("archive/") ? "archived" : "active"}`
+    )
     .replace("alignment: null", "alignment: aligned")
     .replace("createdAt: null", "createdAt: 2026-10-20T00:00:00Z");
   return stageSourceFromFile(

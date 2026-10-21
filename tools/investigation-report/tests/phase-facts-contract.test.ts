@@ -1,5 +1,8 @@
 import { prepareInvestigationResourceRoot } from "../src/resource-root.ts";
-import { inspectDirectInvestigationResource } from "../src/resource-file-validation.ts";
+import {
+  inspectOwnedInvestigationResources,
+  inspectDirectInvestigationResource
+} from "../src/resource-file-validation.ts";
 import {
   expectResourceRejectionBeforeBytes,
   readOwnedResourceFixture
@@ -8,9 +11,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { stageInvestigationReports } from "../src/staging.ts";
 import { ResourceDirectoryFacts } from "../src/resource-directory-facts.ts";
-import { initializeGit } from "./git-support.ts";
 import { investigationRoot, withTempRoot } from "./fixture-support.ts";
 import { writeCollection } from "./collection-support.ts";
 
@@ -187,7 +188,6 @@ test("directory facts enumerate each stable selected directory once per phase wi
     for (let i = 0; i < 12; i += 1)
       await fs.writeFile(path.join(owner, `member ${i}.txt`), `unique ${i}\n`);
     await writeCollection(root, [{ id: "one" }]);
-    initializeGit(root);
     const original = fs.readdir;
     const counts = new Map<string, number>();
     fs.readdir = (async (...args: Parameters<typeof fs.readdir>) => {
@@ -196,12 +196,26 @@ test("directory facts enumerate each stable selected directory once per phase wi
       return await original(...args);
     }) as typeof fs.readdir;
     try {
-      const result = await stageInvestigationReports({
-        workspaceRoot: root,
-        reportIds: ["one"],
-        scope: "domain"
-      });
-      assert.equal(result.status, "ok");
+      const members = Array.from(
+        { length: 12 },
+        (_, i) => `one/member ${i}.txt`
+      );
+      for (let phase = 0; phase < 2; phase += 1) {
+        const prepared = await prepareInvestigationResourceRoot(directory, {
+          mode: "version-control",
+          files: new Set(members)
+        });
+        assert.equal(prepared.status, "ready");
+        if (prepared.status !== "ready")
+          assert.fail("resource root unavailable");
+        const inspected = await inspectOwnedInvestigationResources(
+          prepared,
+          ["one"],
+          members
+        );
+        assert.deepEqual(inspected.errors, []);
+        await prepared.directories.assertCurrent();
+      }
       assert.equal(counts.get(path.dirname(owner)), 2);
       assert.equal(counts.get(owner), 2);
     } finally {

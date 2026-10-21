@@ -1,7 +1,7 @@
 ### Case DECISION-STAGE-SCOPE-DOMAIN-001: stage --scope domain writes only formal Markdown and preserves the pending index
 
 Tests:
-- `test:101ec0b9ef6515e96fed773fc1ec3c9e86ef3a5b437fb7257b2c1bbfdf3bf32b`
+- `test:dca3fbd723a76c5f76404de687ea00ed30673148c224a57535df8b257684c1ee`
 
 Tags:
 - `decision-records`
@@ -10,4 +10,4 @@ Contract:
 - stage --scope domain 只写所选正式 Markdown，pending 索引按当前字节原样保留。
 
 Proves:
-- 暂存区只含所选 Markdown；索引无 cached 差异，结果报告 preserved 与 caller-owned 索引路径。
+- 真实 CLI 的 domain 步骤把所选当前 Markdown 写入 pending，保留先前 index 步骤的完整 pending 索引字节，并报告 domain scope 与 caller-owned 索引路径。

@@ -57,7 +57,7 @@ function assertPendingChanges(
   assert.deepEqual(actual.trim().split("\n").sort(), expected.sort());
 }
 
-for (const scope of ["all", "domain"]) {
+for (const scope of ["domain"]) {
   test(`stage --scope ${scope} adds a report at its indexed sourcePath`, async () => {
     await withSourcePathRepository(async (root) => {
       const owner = path.join(
@@ -129,28 +129,6 @@ for (const scope of ["domain"]) {
       assert.equal(
         git(root, ["show", ":docs/investigations/260828-selected.md"]),
         unrelatedPending
-      );
-    });
-  });
-}
-
-for (const scope of ["domain"]) {
-  test(`stage --scope ${scope} deletes a baseline-only report by its indexed sourcePath`, async () => {
-    await withSourcePathRepository(async (root) => {
-      await fs.rm(path.join(investigationRoot(root), "removed-report.md"));
-      await synchronizeCollection(root);
-      const result = await stageInvestigationReports({
-        workspaceRoot: root,
-        scope: scope as "all" | "domain",
-        reportIds: ["260828-removed"]
-      });
-      assert.equal(result.status, "ok", JSON.stringify(result));
-      assertPendingChanges(root, scope, [
-        "D\tdocs/investigations/removed-report.md"
-      ]);
-      assert.equal(
-        git(root, ["ls-files", "--", "docs/investigations/removed-report.md"]),
-        ""
       );
     });
   });

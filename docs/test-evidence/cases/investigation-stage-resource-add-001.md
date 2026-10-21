@@ -1,7 +1,7 @@
-### Case INVESTIGATION-STAGE-RESOURCE-ADD-001: stage --scope index treats unrelated report resources as outside selected report entries
+### Case INVESTIGATION-STAGE-RESOURCE-ADD-001: 选择性索引投影隔离未选报告资源与元数据
 
 Tests:
-- `test:ec4a918d59b60af7cb3faaa9e42c1b83cf292a849f7d0fb435d81992a6c9d295`
+- `test:50d847a909fd5ca8c332abe1fbb871cfdf96edf619d81d1c8d54685f7cc33750`
 
 Tags:
 - `investigation-report`
@@ -10,4 +10,4 @@ Contract:
 - 未选报告的资源变化不自动进入已选报告 index entry。
 
 Proves:
-- 真实 Git fixture 只选择 first report 时，pending 的 first entry 等于工作区版本，second entry 等于 HEAD 基线；暂存路径只有 index，second 资源改动仍留在未暂存差异中。
+- 对 first/second 同时发生元数据变化且 second 声明资源的快照，仅选择 first 时，生产索引投影的 first entry 等于工作区版本，second entry 仍等于基线版本。

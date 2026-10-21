@@ -1,4 +1,3 @@
-import { git, initializeGit } from "./git-support.ts";
 import assert from "node:assert/strict";
 
 import fs from "node:fs/promises";
@@ -12,7 +11,7 @@ import {
 
 import { candidatePathForInvestigationId } from "../src/candidate-path.ts";
 import { runInvestigationCli } from "./cli-support.ts";
-import { reportMarkdown, withTempRoot } from "./fixture-support.ts";
+import { withTempRoot } from "./fixture-support.ts";
 import { writeCollection } from "./collection-support.ts";
 import { readInvestigationSourceRevision } from "../src/investigation-index-source.ts";
 import { validateInvestigationReports } from "../src/validation.ts";
@@ -111,35 +110,6 @@ test("candidate queries report readiness while formal sources and default checks
       !checked.warnings.some((warning) =>
         warning.includes("candidate-topic does not exist")
       )
-    );
-
-    initializeGit(root);
-    await fs.writeFile(
-      path.join(root, "docs", "investigations", "formal.md"),
-      reportMarkdown({ id: "formal", title: "更新后的正式报告" }),
-      "utf8"
-    );
-    const resynchronized = await runInvestigationCli(root, ["sync-index"]);
-    assert.equal(resynchronized.status, 0, resynchronized.stderr);
-    const staged = await runInvestigationCli(root, [
-      "stage",
-      "--scope",
-      "index",
-      "formal.md"
-    ]);
-    assert.equal(staged.status, 0, staged.stderr);
-    assert.deepEqual(
-      git(root, ["diff", "--cached", "--name-only"]).trim(),
-      "docs/investigations/investigation-index.json"
-    );
-    assert.equal(
-      git(root, [
-        "diff",
-        "--cached",
-        "--",
-        "docs/investigations/_candidate.candidate-topic.md"
-      ]),
-      ""
     );
   });
 });

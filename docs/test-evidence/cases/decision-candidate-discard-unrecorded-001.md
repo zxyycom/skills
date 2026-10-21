@@ -1,14 +1,14 @@
-### Case DECISION-CANDIDATE-DISCARD-UNRECORDED-001: Discard 删除未进入 Git HEAD 的候选
+### Case DECISION-CANDIDATE-DISCARD-UNRECORDED-001: Discard 删除未被已记录集合包含的候选
 
 Tests:
-- `test:85a1b44d5858dc7569e1b3cfd25bc1d6a5cdcf3b8c8bbab4fb741b8ab58416aa`
+- `test:821b23c971c096d8f57acafcc80ba28d8492c8cd6d9098100238cfb9b0b4e020`
 
 Tags:
 - `decision-records`
 
 Contract:
-- Git 工作树已有已提交基线时，未进入 Git `HEAD` 的完整且未被引用 candidate 可由普通 `discard` 删除，不需要已记录候选删除参数。
+- 完整且未被引用的 candidate 不在给定已记录集合中时，普通 discard 允许删除，无需已记录候选删除确认。
 
 Proves:
-- 提交既有决策集合后新建 candidate，普通 discard 成功删除该文件。
-- 已建立成员的正式索引逐字节不变。
+- 显式已记录集合包含其他 ID 但不含候选时，领域准备产生该候选的精确删除计划，含原字节与 nextText=null。
+- 非 Git FS fixture 的实际 CLI discard 删除候选，已建立成员的正式索引完整字节不变。

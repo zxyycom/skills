@@ -1,12 +1,29 @@
-import { withGitFixtureWorkspace } from "./support-git-fixture.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 import * as v from "valibot";
-import { runSuccessfulSourceCli, runSourceCli, runGit } from "./support.ts";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { createCliProgram } from "../src/cli-args.ts";
+import { decisionStageTargetFromSources } from "../src/decision-stage-target.ts";
+import {
+  buildStageIndexText,
+  decisionStageTargetFailure
+} from "../src/decision-stage-prepare.ts";
+import { readFilesystemDecisionCandidates } from "../src/decision-stage-sources.ts";
+import {
+  runSuccessfulSourceCli,
+  runSourceCli,
+  withFixtureWorkspace
+} from "./support.ts";
 import { writeReallocationRing } from "./reallocation-fixture.ts";
 
 test("Decision stage and selected sync resolve mixed short names without changing duplicate and missing-source errors", async () => {
-  await withGitFixtureWorkspace("batch-stage-sync-names", async (root) => {
+  await withFixtureWorkspace("batch-stage-sync-names", async (root) => {
+    const directory = path.join(root, "docs/decisions");
+    const baseline = await readFilesystemDecisionCandidates(
+      directory,
+      "docs/decisions"
+    );
     const { predecessorIds, successorIds } = await writeReallocationRing(
       root,
       10
@@ -23,46 +40,105 @@ test("Decision stage and selected sync resolve mixed short names without changin
       ...selectors.flatMap((selector) => ["--select", selector])
     ]);
     for (const id of successorIds) assert.ok(synchronized.includes(id));
-    const before = runGit(root, ["write-tree"]);
-    for (const command of ["stage", "sync-index"]) {
-      const selected = [successorIds[0]!, successorIds[0]!.slice(7)];
-      const duplicate = await runSourceCli([
-        command,
-        ...(command === "stage"
-          ? selected
-          : selected.flatMap((id) => ["--select", id])),
+    const filesystemCandidates = await readFilesystemDecisionCandidates(
+      directory,
+      "docs/decisions"
+    );
+    const indexPath = path.join(directory, "decision-index.json");
+    const before = await fs.readFile(indexPath, "utf8");
+    for (const selected of [
+      [successorIds[0]!, successorIds[0]!.slice(7)],
+      ["261002-missing"]
+    ]) {
+      let dispatched = false;
+      const program = createCliProgram(
+        async (args) => {
+          assert.equal(args.command, "stage");
+          if (args.command !== "stage")
+            throw new Error("Expected stage dispatch");
+          dispatched = true;
+          assert.deepEqual(args.decisionIds, selected);
+          assert.equal(args.scope, "all");
+          let failure;
+          try {
+            await decisionStageTargetFromSources({
+              baseline: [...baseline.sources.values()],
+              filesystemCandidates,
+              selectedSelectors: args.decisionIds,
+              revision: "baseline"
+            });
+            assert.fail("Invalid selectors must fail");
+          } catch (error) {
+            failure = decisionStageTargetFailure(error);
+          }
+          assert.equal(failure.exitCode, 2);
+          assert.match(
+            failure.errors.join("\n"),
+            /repeated Decision ID|does not exist in the revision or filesystem/u
+          );
+          return failure.exitCode;
+        },
+        () => {},
+        { io: { stdout: () => {}, stderr: () => {} } }
+      );
+      await program.parseAsync([
+        "node",
+        "decision-records.ts",
+        "stage",
+        ...selected,
         "--root",
         root
       ]);
-      assert.equal(
-        duplicate.exitCode,
-        command === "stage" ? 2 : 1,
-        duplicate.stderr
-      );
-      assert.match(
-        duplicate.stderr,
-        /repeated Decision ID|selector-duplicate/u
-      );
-      const missing = await runSourceCli([
-        command,
-        ...(command === "stage"
-          ? ["261002-missing"]
-          : ["--select", "261002-missing"]),
+      assert.equal(dispatched, true);
+      const sync = await runSourceCli([
+        "sync-index",
+        ...selected.flatMap((id) => ["--select", id]),
         "--root",
         root
       ]);
-      assert.equal(
-        missing.exitCode,
-        command === "stage" ? 2 : 1,
-        missing.stderr
-      );
-      assert.match(
-        missing.stderr,
-        /does not exist in the revision or filesystem|selector-not-found/u
-      );
-      assert.equal(runGit(root, ["write-tree"]), before);
+      assert.equal(sync.exitCode, 1, sync.stderr);
+      assert.match(sync.stderr, /selector-duplicate|selector-not-found/u);
+      assert.equal(await fs.readFile(indexPath, "utf8"), before);
     }
-    await runSuccessfulSourceCli([
+    let staged = false;
+    const program = createCliProgram(
+      async (args) => {
+        assert.equal(args.command, "stage");
+        if (args.command !== "stage")
+          throw new Error("Expected stage dispatch");
+        assert.equal(args.scope, "index");
+        assert.deepEqual(args.decisionIds, selectors);
+        const target = await decisionStageTargetFromSources({
+          baseline: [...baseline.sources.values()],
+          filesystemCandidates,
+          selectedSelectors: args.decisionIds,
+          revision: "baseline"
+        });
+        assert.deepEqual(target.selectedIds, [
+          ...predecessorIds,
+          ...successorIds
+        ]);
+        const projected = await buildStageIndexText(
+          target.sources,
+          "docs/decisions/decision-index.json"
+        );
+        assert.equal(projected.status, "ok", JSON.stringify(projected));
+        if (projected.status !== "ok")
+          throw new Error("Expected selected index projection");
+        const pending = v.parse(
+          v.object({ entries: v.record(v.string(), v.unknown()) }),
+          JSON.parse(projected.value) as unknown
+        );
+        for (const id of successorIds) assert.ok(pending.entries[id]);
+        staged = true;
+        return 0;
+      },
+      () => {},
+      { io: { stdout: () => {}, stderr: () => {} } }
+    );
+    await program.parseAsync([
+      "node",
+      "decision-records.ts",
       "stage",
       ...selectors,
       "--scope",
@@ -70,12 +146,7 @@ test("Decision stage and selected sync resolve mixed short names without changin
       "--root",
       root
     ]);
-    const pending = v.parse(
-      v.object({ entries: v.record(v.string(), v.unknown()) }),
-      JSON.parse(
-        runGit(root, ["show", ":docs/decisions/decision-index.json"])
-      ) as unknown
-    );
-    for (const id of successorIds) assert.ok(pending.entries[id]);
+    assert.equal(staged, true);
+    assert.equal(await fs.readFile(indexPath, "utf8"), before);
   });
 });

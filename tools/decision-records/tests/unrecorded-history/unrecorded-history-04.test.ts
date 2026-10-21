@@ -1,95 +1,108 @@
-import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
+import { createCliProgram } from "../../src/cli-args.ts";
+import { resolveDecisionLifecycleRequest } from "../../src/cli-lifecycle-selection.ts";
+import {
+  prepareDecisionLifecycle,
+  requiresDecisionHistoryBaseline
+} from "../../src/decision-lifecycle-service.ts";
+import { printDecisionAttention } from "../../src/cli-output.ts";
+import { decisionScanFromSources } from "../domain-fixture.ts";
+import { decisionIdForTest } from "../support-record-fixture.ts";
 import {
   assert,
   candidateDecisionBody,
-  commitWorkspace,
   currentRelativePath,
   decisionFilePath,
   establishUnrecordedIntermediate,
   fs,
   runSourceCli,
-  runSuccessfulSourceCli,
   test,
   unrecordedIntermediateRelativePath,
   withFixtureWorkspace
 } from "./support.ts";
 
-test("evolve discard flag still pauses for an unrecorded final predecessor", () =>
-  withGitFixtureWorkspace(
-    "recorded-evolution-discard-flag-unrecorded-relation",
-    async (workspaceRoot) => {
-      const { indexPath, intermediatePath } =
-        await establishUnrecordedIntermediate(workspaceRoot);
-      commitWorkspace(workspaceRoot, "record intermediate decision");
-      const unrecordedPredecessorId = "use-unrecorded-final-predecessor";
-      const unrecordedPredecessorPath = decisionFilePath(
-        workspaceRoot,
-        unrecordedPredecessorId
-      );
-      await fs.writeFile(
-        unrecordedPredecessorPath,
-        candidateDecisionBody(),
-        "utf8"
-      );
-      await runSuccessfulSourceCli([
-        "publish",
-        unrecordedPredecessorId,
-        "--alignment",
-        "aligned",
-        "--root",
-        workspaceRoot
-      ]);
-      const successorRelativePath = "use-flagged-unrecorded-relation";
-      const successorPath = decisionFilePath(
-        workspaceRoot,
-        successorRelativePath
-      );
-      const successorCandidate = candidateDecisionBody();
-      await fs.writeFile(successorPath, successorCandidate, "utf8");
-      const intermediateBefore = await fs.readFile(intermediatePath, "utf8");
-      const predecessorBefore = await fs.readFile(
-        unrecordedPredecessorPath,
-        "utf8"
-      );
-      const indexBefore = await fs.readFile(indexPath, "utf8");
-
-      const paused = await runSourceCli([
-        "evolve",
-        "--successor",
-        "aligned=" + successorRelativePath,
-        "--discard",
-        unrecordedIntermediateRelativePath,
-        "--delete-recorded",
-        "--relation",
-        "修订=" + unrecordedPredecessorId,
-        "--root",
-        workspaceRoot
-      ]);
-      assert.equal(paused.exitCode, 1);
-      assert.match(
-        paused.stderr,
-        new RegExp(
-          "Predecessor decision " +
-            unrecordedPredecessorId +
-            " has not entered Git HEAD"
-        )
-      );
-      assert.match(paused.stderr, /--keep-unrecorded-history/);
-      assert.equal(
-        await fs.readFile(successorPath, "utf8"),
-        successorCandidate
-      );
-      assert.equal(
-        await fs.readFile(intermediatePath, "utf8"),
-        intermediateBefore
-      );
-      assert.equal(
-        await fs.readFile(unrecordedPredecessorPath, "utf8"),
-        predecessorBefore
-      );
-      assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
+test("evolve discard flag still pauses for an unrecorded final predecessor", async () => {
+  const scan = await decisionScanFromSources([
+    { id: "intermediate", status: "active" },
+    { id: "use-unrecorded-final-predecessor", status: "active" },
+    { id: "successor" }
+  ]);
+  assert.deepEqual(scan.sourceErrors, []);
+  let stdout = "";
+  let stderr = "";
+  let exitCode = -1;
+  const io = {
+    stdout: (text: string) => {
+      stdout += text;
+    },
+    stderr: (text: string) => {
+      stderr += text;
     }
-  ));
+  };
+  const program = createCliProgram(
+    async (args) => {
+      assert.equal(args.command, "evolve");
+      if (args.command !== "evolve")
+        throw new Error("Expected evolution dispatch");
+      assert.equal(args.discardId, "intermediate");
+      assert.equal(args.deleteRecorded, true);
+      assert.equal(args.keepUnrecordedHistory, false);
+      const selected = resolveDecisionLifecycleRequest(scan, {
+        ...args,
+        action: "evolve"
+      });
+      assert.equal(selected.status, "ok", JSON.stringify(selected));
+      if (selected.status !== "ok")
+        throw new Error("Expected resolved evolution");
+      assert.equal(
+        requiresDecisionHistoryBaseline(scan, selected.request),
+        true
+      );
+      const paused = prepareDecisionLifecycle(scan, selected.request, {
+        historyBaseline: {
+          kind: "git-head",
+          label: "Git HEAD",
+          recordedDecisionIds: new Set([decisionIdForTest("intermediate")])
+        }
+      });
+      assert.equal(paused.status, "attention", JSON.stringify(paused));
+      if (paused.status !== "attention")
+        throw new Error("Expected predecessor history attention");
+      assert.equal("changes" in paused, false);
+      assert.equal("relationReview" in paused, false);
+      assert.equal(
+        paused.diagnostics.every(
+          (diagnostic) => diagnostic.outcome === "no-change"
+        ),
+        true
+      );
+      printDecisionAttention(paused, io);
+      return paused.exitCode;
+    },
+    (code) => {
+      exitCode = code;
+    },
+    { io }
+  );
+  await program.parseAsync([
+    "node",
+    "decision-records.ts",
+    "evolve",
+    "--successor",
+    "aligned=successor",
+    "--discard",
+    "intermediate",
+    "--delete-recorded",
+    "--relation",
+    "修订=use-unrecorded-final-predecessor"
+  ]);
+  assert.equal(exitCode, 1);
+  assert.equal(stdout, "");
+  assert.match(
+    stderr,
+    /Predecessor decision use-unrecorded-final-predecessor has not entered Git HEAD/
+  );
+  assert.match(stderr, /--keep-unrecorded-history/);
+});
 
 test("evolve discard rejects a predecessor referenced by another candidate", () =>
   withFixtureWorkspace(

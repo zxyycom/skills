@@ -1,68 +1,46 @@
-import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
-import { stageDecisionRecords } from "../../src/decision-stage-service.ts";
+import { buildStageIndexText } from "../../src/decision-stage-prepare.ts";
+import * as v from "valibot";
 import { stageSource, stageTarget } from "./domain-support.ts";
 import { normalizeDecisionSelectorInput } from "../../src/decision-path.ts";
 import {
   readFilesystemDecisionCandidates,
   resolveFilesystemDecisionSource
 } from "../../src/decision-stage-sources.ts";
-import {
-  assert,
-  currentDecisionId,
-  currentSourcePath,
-  decisionFilePath,
-  fs,
-  path,
-  runGit,
-  test,
-  withTemporaryWorkspace,
-  syncDecisionIndexBeforeStage
-} from "./support.ts";
+import { assert, fs, path, test, withTemporaryWorkspace } from "./support.ts";
 
-test("stage selects one Decision ID when its sourcePath moves between root and archive", () =>
-  withGitFixtureWorkspace("stage-move", async (workspaceRoot) => {
-    const currentPath = decisionFilePath(workspaceRoot, currentSourcePath);
-    const archivedPath = decisionFilePath(
-      workspaceRoot,
-      `archive/${currentDecisionId}`
-    );
-    await fs.mkdir(path.dirname(archivedPath), { recursive: true });
-    await fs.rename(currentPath, archivedPath);
-    await fs.writeFile(
-      archivedPath,
-      (await fs.readFile(archivedPath, "utf8")).replace(
-        "status: active",
-        "status: archived"
-      ),
-      "utf8"
-    );
-
-    await syncDecisionIndexBeforeStage(workspaceRoot);
-    const staged = await stageDecisionRecords({
-      decisionIds: [currentDecisionId],
-      location: { workspaceRoot: workspaceRoot, decisionsDir: "docs/decisions" }
-    });
-    assert.equal(staged.status, "ok", JSON.stringify(staged));
-    const pendingPaths = runGit(workspaceRoot, [
-      "diff",
-      "--cached",
-      "--name-status"
-    ]);
-    assert.match(
-      pendingPaths,
-      new RegExp(
-        `R\\d+\\tdocs/decisions/${currentDecisionId}\\.md\\tdocs/decisions/archive/${currentDecisionId}\\.md`
+test("stage selects one Decision ID when its sourcePath moves between root and archive", async () => {
+  const before = stageSource("selected");
+  const after = stageSource("selected", "archive/selected.md");
+  const target = await stageTarget([before], [after], ["selected"]);
+  assert.deepEqual(target.selectedIds, ["selected"]);
+  assert.deepEqual(
+    target.sources.map((source) => source.sourcePath),
+    ["archive/selected.md"]
+  );
+  assert.deepEqual(
+    target.sourceFiles.map((file) => file.path),
+    ["docs/decisions/archive/selected.md"]
+  );
+  const projected = await buildStageIndexText(
+    target.sources,
+    "docs/decisions/decision-index.json"
+  );
+  assert.equal(projected.status, "ok", JSON.stringify(projected));
+  if (projected.status !== "ok")
+    throw new Error("Expected archived projection");
+  const index = v.parse(
+    v.object({
+      entries: v.record(
+        v.string(),
+        v.object({ sourcePath: v.string(), status: v.string() })
       )
-    );
-    assert.match(pendingPaths, /docs\/decisions\/decision-index\.json/);
-    const pendingIndex = JSON.parse(
-      runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"])
-    );
-    assert.equal(
-      pendingIndex.entries[currentDecisionId].sourcePath,
-      `archive/${currentDecisionId}.md`
-    );
-  }));
+    }),
+    JSON.parse(projected.value) as unknown
+  );
+  assert.deepEqual(Object.keys(index.entries), ["selected"]);
+  assert.equal(index.entries.selected?.sourcePath, "archive/selected.md");
+  assert.equal(index.entries.selected?.status, "archived");
+});
 
 test("stage treats a selected new ID as an addition and preserves an unselected old ID", async () => {
   const old = stageSource("old");

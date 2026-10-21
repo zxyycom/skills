@@ -1,13 +1,13 @@
-### Case INVESTIGATION-STAGE-INDEX-DRIFT-001: 局部暂存复核可变发布索引
+### Case INVESTIGATION-STAGE-INDEX-DRIFT-001: 领域索引验证拒绝可变发布索引漂移
 
 Tests:
-- `test:aa79eae626ce67d00f5e668a378d0b861914a9ee0b13d40794aa8934451008cb`
+- `test:1d84c1d2129a73413968d72e51e2d1c466137d2715df0d554bd86560972219d2`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- 固定 HEAD 复用不能取代工作区发布索引写前复核。
+- 领域索引验证须独立比较当前可变发布索引，固定历史快照不能替代此检查。
 
 Proves:
-- 准备读所选报告期间修改发布索引，all 暂存返回 source-drift 且 pending 不变。
+- `verifyDomainIndex` 接受未变的真实发布索引；修改其 title 后返回 stage-source-drift 诊断，并说明 published workspace index changed。

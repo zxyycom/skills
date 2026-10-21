@@ -1,13 +1,13 @@
-### Case DECISION-STAGE-SCOPE-COMPOSE-001: stage --scope domain composes with a previous index scope into the all snapshot
+### Case DECISION-STAGE-SCOPE-COMPOSE-001: index 与 domain 顺序组合索引和正文快照
 
 Tests:
-- `test:e1152624a7332ab99be225417cfe30c512d5531027f9009c5688b53820ba8731`
+- `test:dca3fbd723a76c5f76404de687ea00ed30673148c224a57535df8b257684c1ee`
 
 Tags:
 - `decision-records`
 
 Contract:
-- index 与 domain scope 可按序组合成与 all 等价的 pending 快照。
+- 先 index 后 domain 可组合所选派生索引投影与正式 Markdown，domain 步骤保留先前 pending 索引字节。
 
 Proves:
-- 先 index 后 domain 后，pending 索引字节与 index 结果一致，且所选 Markdown 进入 pending。
+- 真实 CLI argv 依次执行 index 与 domain，后一步保持先前 pending 索引完整字节，并使所选当前 Markdown 进入 pending。
