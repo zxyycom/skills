@@ -79,6 +79,7 @@ export function capturedCliDependencies(
   definition: ProjectDefinition = passedDefinition()
 ): VibeCheckDependencies {
   return {
+    continuousIntegration: false,
     createInvocationDirectory: () =>
       path.join(os.tmpdir(), `skills-vibe-cli-${process.pid}-${randomUUID()}`),
     createDefinition(invocation) {
