@@ -169,6 +169,67 @@ test("native file selections exclude historical content and authoring candidates
   );
 });
 
+test("project secret detection preserves complete coverage within its bounded file capacity", async () => {
+  const { defineConfig } = await import("@zxyycom/vibe-check");
+  const fs = await import("node:fs/promises");
+  const { runDefinition, outcomeFor, withTemporaryDirectory } =
+    await import("./vibe-check-test-support.ts");
+  await withTemporaryDirectory("gate-secret-capacity-", async (directory) => {
+    const check = createVibeNativeChecks(directory).find(
+      ({ checkId }) => checkId === "secret-detection"
+    );
+    assert.ok(check);
+    const options = optionsRecord(check.options, "missing secret options");
+    assert.equal(options.maximumFileCount, 5_120);
+    assert.equal(options.maximumFileBytes, 1_048_576);
+    assert.equal(options.maximumTotalBytes, 67_108_864);
+    assert.deepEqual(options.findingWaivers, []);
+    await fs.mkdir(path.join(directory, "scripts"));
+    for (let index = 0; index < 4_096; index += 1) {
+      await fs.writeFile(
+        path.join(directory, "scripts", `source-${index}.ts`),
+        "export {};\n"
+      );
+    }
+    await fs.writeFile(path.join(directory, "tsconfig.json"), "{}\n");
+    const definition = defineConfig({ checks: [check] });
+    const passed = await runDefinition(definition, directory);
+    assert.equal(passed.aggregate, "passed");
+    const passedOutcome = outcomeFor(passed, "secret-detection");
+    assert.equal(passedOutcome.status, "passed");
+    assert.deepEqual(
+      passedOutcome.status === "passed" ? { ...passedOutcome.data } : null,
+      {
+        selectedFileCount: 4_097,
+        scannedFileCount: 4_097,
+        findingCount: 0,
+        waivedFindingCount: 0,
+        coverageGapCount: 0
+      }
+    );
+    for (let index = 4_096; index < 5_120; index += 1) {
+      await fs.writeFile(
+        path.join(directory, "scripts", `source-${index}.ts`),
+        "export {};\n"
+      );
+    }
+    const failed = await runDefinition(definition, directory);
+    assert.equal(failed.aggregate, "failed");
+    const failedOutcome = outcomeFor(failed, "secret-detection");
+    assert.equal(failedOutcome.status, "failed");
+    assert.deepEqual(
+      failedOutcome.status === "failed" ? { ...failedOutcome.data } : null,
+      {
+        selectedFileCount: 5_121,
+        scannedFileCount: 5_120,
+        findingCount: 0,
+        waivedFindingCount: 0,
+        coverageGapCount: 1
+      }
+    );
+  });
+});
+
 test("project Markdown lint uses exactly the six approved rules and maintained scope", async () => {
   const { defineConfig } = await import("@zxyycom/vibe-check");
   const fs = await import("node:fs/promises");

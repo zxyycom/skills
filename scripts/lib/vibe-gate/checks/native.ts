@@ -154,7 +154,7 @@ export function createVibeNativeChecks(
       ),
       files: maintainedSecretFiles,
       findingWaivers: [],
-      maximumFileCount: 4_096,
+      maximumFileCount: 5_120,
       maximumTotalBytes: 67_108_864
     }),
     jsonValidation({

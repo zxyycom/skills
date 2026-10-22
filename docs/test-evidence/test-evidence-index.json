@@ -434,6 +434,7 @@
       "GATE-RELEASE-SNAPSHOT-TOCTOU-001": "sha256:ce8a7e7de4da0348eb484ea8527faabd1587456fadd73472d266702f91cb350c",
       "GATE-RELEASE-VERSION-FAILURE-001": "sha256:aefc8919acdfdfeb79cea41d51459052ab6f770ea70b18bce1ebce2243b0c6e3",
       "GATE-SCRIPT-ADAPTER-001": "sha256:33ea16ddf3cd3dcf6484bf87e9abe1274a70fa80414078969f61797f7cbe7673",
+      "GATE-SECRET-CAPACITY-001": "sha256:e3ba50390d6134ebebebb6b3d6c98673f0037120649fb4d7b3d62afeeeec1b90",
       "GATE-SECRET-DETECTION-001": "sha256:442f0f33b7fbea4c28e0e4a5150d68da10a79c50022d40e019215628885d385b",
       "GATE-SNAPSHOT-FALLBACK-DIAGNOSTIC-SAFETY-001": "sha256:be494c2e1e9b950189cdaf0300b5ad72d184a54080f8dfeab6df8bda52a33530",
       "GATE-TOOL-CAPABILITY-ROUTING-001": "sha256:0c535087585ec722ada7a7cf6b37b934903e563b00e2c165a473343a52fb7e24",
@@ -5636,6 +5637,16 @@
       "testIds": [
         "test:4650cb30529e64c99c1d7b59b265057fd337ce7569c9b743fc71bed3b80a83cc",
         "test:c4c1c485929e0bfb0946f8a1ba1fc9749417ae77cd4c5ebe1f462a37e94e8d1e"
+      ]
+    },
+    "GATE-SECRET-CAPACITY-001": {
+      "title": "密钥检测保持有界的完整文件覆盖",
+      "sourcePath": "cases/gate-secret-capacity.md",
+      "tags": [
+        "repository-tooling"
+      ],
+      "testIds": [
+        "test:f8096373ea46ea2008581faaa00d93a2b810a6443b5dc96f263e202baa78cc66"
       ]
     },
     "GATE-SECRET-DETECTION-001": {
