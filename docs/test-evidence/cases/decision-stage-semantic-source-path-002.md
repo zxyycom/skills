@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- 已索引的 Decision ID 按独立 sourcePath 选择；同名旧 ID basename 的未选择非法文件不参与身份匹配或阻断暂存。
+- 已索引的 Decision ID 按独立 sourcePath 选择；同名旧 ID basename 的未选择非法文件不阻断暂存。
 
 Proves:
-- 真实文件来源发现后，resolver 按显式 semantic sourcePath 返回选定 Markdown，忽略同 ID basename 下的未选择非法文本；不调用 Git 暂存。
+- 真实 stage 成功保留 semantic-current.md，非法 selected.md 未进入 pending。

@@ -540,20 +540,53 @@ export type InvestigationSearchInfo = Readonly<{
     filters: InvestigationSearchFilters;
     limits: Readonly<{
       maxRecords: number | null;
-      resources: Readonly<{ maxCandidateFiles: number; maxFileBytes: number; maxTotalBytes: number }> | null;
-      preview: Readonly<{ contextLines: number; maxMatchesPerFile: number; maxPreviewCharacters: number }> | null;
+      resources: Readonly<{
+        maxCandidateFiles: number;
+        maxFileBytes: number;
+        maxTotalBytes: number;
+      }> | null;
+      preview: Readonly<{
+        contextLines: number;
+        maxMatchesPerFile: number;
+        maxPreviewCharacters: number;
+      }> | null;
     }>;
   }>;
   source:
-    | Readonly<{ kind: "published-index"; currentness: "unchecked"; fallback: false }>
-    | Readonly<{ kind: "validated-source"; currentness: "current"; fallback: boolean }>;
-  counts: Readonly<{ matched: Readonly<{ value: number; precision: "exact" | "lower-bound" }>; returned: number }>;
-  coverage: Readonly<{ scanComplete: boolean; resultsComplete: boolean; previewsComplete: boolean | null; reasons: readonly ("max-records" | "match-previews" | "preview-characters")[] }>;
+    | Readonly<{
+        kind: "published-index";
+        currentness: "unchecked";
+        fallback: false;
+      }>
+    | Readonly<{
+        kind: "published-index+current-text";
+        currentness: "unchecked";
+        fallback: false;
+      }>;
+  counts: Readonly<{
+    matched: Readonly<{ value: number; precision: "exact" | "lower-bound" }>;
+    returned: number;
+  }>;
+  coverage: Readonly<{
+    scanComplete: boolean;
+    resultsComplete: boolean;
+    previewsComplete: boolean | null;
+    reasons: readonly (
+      | "max-records"
+      | "match-previews"
+      | "preview-characters"
+    )[];
+  }>;
 }>;
-export type InvestigationSearchResult = InvestigationSearchResultBase & (
-  | Readonly<{ status: "ok"; searchInfo: InvestigationSearchInfo }>
-  | Readonly<{ status: "error"; searchInfo: null; failureKind: "invalid-options" | "operation" }>
-);
+export type InvestigationSearchResult = InvestigationSearchResultBase &
+  (
+    | Readonly<{ status: "ok"; searchInfo: InvestigationSearchInfo }>
+    | Readonly<{
+        status: "error";
+        searchInfo: null;
+        failureKind: "invalid-options" | "operation";
+      }>
+  );
 type InvestigationSearchResultBase = Readonly<{
   entries: readonly InvestigationSearchEntry[];
   errors: readonly string[];

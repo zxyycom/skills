@@ -71,3 +71,7 @@ await import("./cli-stage-resource-failure.test.ts");
 await import("./cli-search-summary.test.ts");
 
 await import("./cli-search-defaults.test.ts");
+
+await import("./candidate-discard-transaction.test.ts");
+await import("./staging-pending-refresh.test.ts");
+await import("./staging-pending-deletion.test.ts");

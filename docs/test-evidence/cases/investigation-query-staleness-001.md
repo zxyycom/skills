@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 - 正文追加后 list、trace、metadata 成功且 stderr 为空，metadata 来源为 unchecked。
-- show 输出当前正文并警告该条 metadata 快照边界；content 命中新正文并保留 fallback 来源 warning 与恢复指引。
+- show 输出当前正文并警告该条 metadata 快照边界；content 命中新正文且 stderr 为空，来源明确为 published-index+current-text、unchecked、fallback=false。

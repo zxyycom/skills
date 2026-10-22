@@ -1,3 +1,4 @@
+import { acquireDomainPhase } from "../src/staging-domain-membership.ts";
 import { investigationIndexFixture } from "./index-fixture.ts";
 import { createInvestigationStageIndexDefinition } from "../src/staging-domain-index.ts";
 import assert from "node:assert/strict";
@@ -18,7 +19,6 @@ import {
 } from "../src/query.ts";
 import { domainSourceSelection } from "../src/staging-domain-sources.ts";
 import {
-  acquireDomainPhase,
   collectDomainWrites,
   prepareDomainAcquisitionRequest,
   verifyDomainWrites
@@ -239,6 +239,10 @@ test("investigation domain preparation batches selected member and source reads 
       return await originalSources.call(repository, paths, basis);
     };
     const options = await prepareDomainAcquisitionRequest({
+      pendingIndex: loaded.value,
+      pendingReportPaths: new Map(),
+      pendingResourcePaths: [],
+      scope: "all",
       repository,
       sourceSelection: domainSourceSelection(loaded.value, ["one", "two"]),
       baseline: loaded.value,

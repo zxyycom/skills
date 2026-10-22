@@ -104,7 +104,7 @@ test("decision search defaults to active and permits archived selection", () =>
     assert.doesNotMatch(archivedResults, /unknown|null/);
   }));
 
-test("decision search falls back to a read-only validated source projection", () =>
+test("decision search matches current text inside the published scope", () =>
   withFixtureWorkspace("query-search-fallback", async (workspaceRoot) => {
     const indexPath = path.join(
       workspaceRoot,
@@ -130,14 +130,11 @@ test("decision search falls back to a read-only validated source projection", ()
     ]);
     assert.equal(searched.exitCode, 0, searched.stderr);
     assert.match(searched.stdout, new RegExp(currentDecisionId));
-    assert.match(
-      searched.stderr,
-      /read-only validated Decision source projection/
-    );
+    assert.equal(searched.stderr, "");
     assert.equal(await fs.readFile(indexPath, "utf8"), before);
   }));
 
-test("decision search does not trust an index that omits a new established source", () =>
+test("decision search excludes unsynchronized established sources", () =>
   withFixtureWorkspace(
     "query-search-unindexed-source",
     async (workspaceRoot) => {
@@ -157,10 +154,8 @@ test("decision search does not trust an index that omits a new established sourc
         workspaceRoot
       ]);
       assert.equal(searched.exitCode, 0, searched.stderr);
-      assert.match(searched.stdout, /semantic-unindexed/);
-      assert.match(
-        searched.stderr,
-        /read-only validated Decision source projection/
-      );
+      assert.doesNotMatch(searched.stdout, /semantic-unindexed/);
+      assert.match(searched.stdout, /- none/);
+      assert.equal(searched.stderr, "");
     }
   ));

@@ -7,13 +7,6 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
-import { sameStateSourceRevision } from "../../index-runtime/src/index.ts";
-import {
-  decisionIndexDiagnosticMessages,
-  decisionIndexFileName,
-  loadDecisionIndex,
-  readDecisionSourceRevision
-} from "./decision-state-index.ts";
 import {
   resolveDecisionLocation,
   type DecisionLocation
@@ -25,14 +18,10 @@ import {
 import type { DecisionId } from "./types.ts";
 import type { DecisionStageScope } from "./decision-stage-contracts.ts";
 import type { DecisionApplicationFailure } from "./application-result.ts";
-import {
-  stageInputFailure,
-  staleStageFailure,
-  type StageStep
-} from "./decision-stage-support.ts";
+import { stageInputFailure } from "./decision-stage-support.ts";
 import { openStageRepository } from "./decision-stage-repository.ts";
-import { stageIndexProjection } from "./decision-stage-index-scope.ts";
-import { stageWorkspaceSnapshot } from "./decision-stage-workspace-scope.ts";
+import { refreshDecisionStage } from "./decision-stage-refresh.ts";
+import { decisionStageTargetFailure } from "./decision-stage-prepare.ts";
 
 export type DecisionStageSuccess = Readonly<{
   callerOwnedPaths: readonly string[];
@@ -50,46 +39,6 @@ export type DecisionStageResult =
   | DecisionApplicationFailure
   | DecisionStageSuccess;
 
-/**
- * Staging writes a complete pending snapshot, so it requires the persisted
- * index to match the authoritative Markdown. A missing index with no
- * established projection is the supported first-record bootstrap; every other
- * missing, invalid, or stale projection stops staging with the sync-index
- * recovery instead of guessing identities from a drifted snapshot.
- */
-async function stageFreshnessGate(
-  decisionsDirectory: string
-): Promise<StageStep<true>> {
-  const persisted = await loadDecisionIndex({ decisionsDirectory });
-  if (persisted.status === "error") {
-    if (
-      persisted.diagnostics.some(
-        (diagnostic) => diagnostic.code === "state-index.index-missing"
-      )
-    ) {
-      return { status: "ok", value: true };
-    }
-    return staleStageFailure(
-      decisionIndexDiagnosticMessages(persisted.diagnostics)
-    );
-  }
-  let stale = true;
-  try {
-    const revision = await readDecisionSourceRevision(
-      decisionsDirectory,
-      undefined
-    );
-    stale = !sameStateSourceRevision(persisted.value.sourceRevision, revision);
-  } catch {
-    // Stage must fail closed when current source evidence cannot be acquired.
-  }
-  return stale
-    ? staleStageFailure([
-        `${decisionIndexFileName} is out of sync; run sync-index`
-      ])
-    : { status: "ok", value: true };
-}
-
 export async function stageDecisionRecords(
   options: Readonly<{
     decisionIds: readonly string[];
@@ -101,18 +50,19 @@ export async function stageDecisionRecords(
   if (selectedSelectors.status === "error") return selectedSelectors;
   const scope = options.scope ?? "all";
   const location = resolveDecisionLocation(options.location);
-  const gate = await stageFreshnessGate(location.decisionsDirectory);
-  if (gate.status === "error") return gate;
   const opened = await openStageRepository(location.decisionsDirectory);
   if (opened.status === "error") return opened;
-  const context = {
-    location,
-    opened: opened.value,
-    selectedSelectors: selectedSelectors.value
-  };
-  return scope === "index"
-    ? await stageIndexProjection(context)
-    : await stageWorkspaceSnapshot(context, scope);
+  try {
+    return await refreshDecisionStage({
+      decisionsDirectory: location.decisionsDirectory,
+      workspaceRoot: location.workspaceRoot,
+      opened: opened.value,
+      selectors: selectedSelectors.value,
+      scope
+    });
+  } catch (error) {
+    return decisionStageTargetFailure(error);
+  }
 }
 
 function validateSelectedSelectors(

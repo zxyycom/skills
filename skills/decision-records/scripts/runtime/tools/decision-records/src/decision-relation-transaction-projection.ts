@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { isDecisionId } from "./decision-path.ts";
 import type { DecisionRelationConsistencyRecord } from "./relation-graph.ts";
 import type {
   DecisionRelationGraphPlan,
@@ -19,11 +20,11 @@ import {
   type DecisionId,
   type DecisionRecord,
   type EstablishedDecisionRecord,
-  type DecisionScan
+  type DecisionPreparationContext
 } from "./types.ts";
 
 export function projectDecisionRelationGraph(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   graphPlan: DecisionRelationGraphPlan
 ): DecisionRelationConsistencyRecord[] {
   const successorById = new Map<DecisionId, PreparedSuccessor>(
@@ -35,7 +36,7 @@ export function projectDecisionRelationGraph(
   const archivedIds = new Set<DecisionId>(
     graphPlan.archivedPredecessors.map((record) => record.decisionId)
   );
-  return scan.records.flatMap((record) => {
+  const projected = scan.records.flatMap((record) => {
     const projected = projectDecisionRelationRecord(
       record,
       graphPlan,
@@ -44,6 +45,7 @@ export function projectDecisionRelationGraph(
     );
     return projected === null ? [] : [projected];
   });
+  return completePublishedGraph(scan, projected);
 }
 
 function projectDecisionRelationRecord(
@@ -157,7 +159,7 @@ function projectedRelationDecisionId(
 }
 
 export function discardedDecisionReferenceErrors(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   graphPlan: DecisionRelationGraphPlan
 ): string[] {
   const discardedDecisionId = graphPlan.discardedRecord?.decisionId;
@@ -214,4 +216,29 @@ export function graphPlanOperationConflicts(
           discardedDecisionId
       ]
     : [];
+}
+
+export function completePublishedGraph(
+  context: DecisionPreparationContext,
+  selected: readonly DecisionRelationConsistencyRecord[]
+): DecisionRelationConsistencyRecord[] {
+  const readIds = new Set(context.records.map((record) => record.decisionId));
+  return [
+    ...Object.entries(context.publishedBaseline?.entries ?? {}).flatMap(
+      ([id, state]) => {
+        if (readIds.has(id)) return [];
+        if (!isDecisionId(id))
+          throw new TypeError("Invalid published Decision identity");
+        return [
+          {
+            decisionId: id,
+            projection: state,
+            sourcePath: state.sourcePath,
+            status: state.status
+          }
+        ];
+      }
+    ),
+    ...selected
+  ];
 }

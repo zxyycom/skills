@@ -1,81 +1,96 @@
-import { stageSource, stageTarget } from "./domain-support.ts";
-import * as v from "valibot";
-import { buildStageIndexText } from "../../src/decision-stage-prepare.ts";
+import { stageDecisionRecords } from "../../src/decision-stage-service.ts";
 import {
-  readFilesystemDecisionCandidates,
-  verifySelectedFilesystemSources
-} from "../../src/decision-stage-sources.ts";
-import { assert, fs, path, test, withTemporaryWorkspace } from "./support.ts";
+  stageSource,
+  withStageBaseline,
+  writeStageSources
+} from "./domain-support.ts";
+import { assert, fs, path, runGit, test } from "./support.ts";
 
 test("stage isolates unselected invalid filesystem content from a selected revision ID", async () => {
-  await withTemporaryWorkspace("stage-invalid-unselected", async (root) => {
-    const source = stageSource("selected");
-    await fs.writeFile(path.join(root, "selected.md"), source.source.text);
-    await fs.writeFile(path.join(root, "invalid.md"), "invalid");
-    const candidates = await readFilesystemDecisionCandidates(
-      root,
-      "docs/decisions"
-    );
-    assert.equal(candidates.sources.size, 1);
-    assert.ok("error" in candidates.paths.get("invalid.md")!);
-    await verifySelectedFilesystemSources(root, "docs/decisions", [
-      { decisionId: source.source.decisionId, source }
-    ]);
-  });
+  await withStageBaseline(
+    "stage-invalid-unselected",
+    [stageSource("selected")],
+    async (root) => {
+      await fs.writeFile(
+        path.join(root, "docs/decisions/invalid.md"),
+        "invalid"
+      );
+      const before = runGit(root, ["write-tree"]);
+      const result = await stageDecisionRecords({
+        decisionIds: ["selected"],
+        location: { workspaceRoot: root, decisionsDir: "docs/decisions" }
+      });
+      assert.equal(result.status, "ok", JSON.stringify(result));
+      assert.equal(runGit(root, ["write-tree"]), before);
+    }
+  );
 });
 
 test("stage treats a selected old ID as a deletion without inferring a rename", async () => {
-  const old = stageSource("old");
-  const replacement = stageSource("replacement");
-  const retained = stageSource("retained");
-  const target = await stageTarget(
-    [old, retained],
-    [replacement, retained],
-    ["old"]
+  await withStageBaseline(
+    "stage-no-inference",
+    [stageSource("old"), stageSource("retained")],
+    async (root) => {
+      await fs.rm(path.join(root, "docs/decisions/old.md"));
+      await writeStageSources(root, [stageSource("replacement")]);
+      const result = await stageDecisionRecords({
+        decisionIds: ["old"],
+        location: { workspaceRoot: root, decisionsDir: "docs/decisions" }
+      });
+      assert.equal(result.status, "ok", JSON.stringify(result));
+      assert.equal(
+        runGit(root, [
+          "ls-files",
+          "docs/decisions/old.md",
+          "docs/decisions/replacement.md"
+        ]),
+        ""
+      );
+      assert.match(
+        runGit(root, ["show", ":docs/decisions/retained.md"]),
+        /id: retained/
+      );
+      assert.doesNotMatch(
+        runGit(root, ["show", ":docs/decisions/decision-index.json"]),
+        /"old"|"replacement"/
+      );
+    }
   );
-  assert.deepEqual(target.sources, [retained.source]);
-  assert.deepEqual(target.selectedSources, [
-    { decisionId: "old", source: null }
-  ]);
-  assert.deepEqual(target.sourceFiles, [retained.file]);
-  const projected = await buildStageIndexText(
-    target.sources,
-    "docs/decisions/decision-index.json"
-  );
-  assert.equal(projected.status, "ok", JSON.stringify(projected));
-  if (projected.status !== "ok")
-    throw new Error("Expected deletion projection");
-  const index = v.parse(
-    v.object({ entries: v.record(v.string(), v.unknown()) }),
-    JSON.parse(projected.value) as unknown
-  );
-  assert.deepEqual(Object.keys(index.entries), ["retained"]);
 });
 
 test("stage rejects a selected symlink source outside the decision root without writing pending", async (t) => {
-  await withTemporaryWorkspace("stage-symlink-source", async (root) => {
-    const directory = path.join(root, "decisions");
-    await fs.mkdir(directory);
-    const source = stageSource("selected");
-    const outside = path.join(root, "outside.md");
-    await fs.writeFile(outside, source.source.text);
-    const selected = path.join(directory, "selected.md");
-    try {
-      await fs.symlink(outside, selected);
-    } catch (error) {
-      if (error instanceof Error && "code" in error && error.code === "EPERM") {
-        t.skip("symlinks unavailable");
-        return;
+  await withStageBaseline(
+    "stage-symlink-source",
+    [stageSource("selected")],
+    async (root) => {
+      const selected = path.join(root, "docs/decisions/selected.md");
+      const outside = path.join(root, "outside.md");
+      const original = await fs.readFile(selected, "utf8");
+      await fs.writeFile(outside, original);
+      await fs.rm(selected);
+      try {
+        await fs.symlink(outside, selected);
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          "code" in error &&
+          error.code === "EPERM"
+        ) {
+          t.skip("symlinks unavailable");
+          return;
+        }
+        throw error;
       }
-      throw error;
+      const before = runGit(root, ["write-tree"]);
+      const result = await stageDecisionRecords({
+        decisionIds: ["selected"],
+        location: { workspaceRoot: root, decisionsDir: "docs/decisions" }
+      });
+      assert.equal(result.status, "error");
+      assert.match(JSON.stringify(result), /regular non-symlink/);
+      assert.equal(runGit(root, ["write-tree"]), before);
+      assert.equal(await fs.readFile(outside, "utf8"), original);
+      assert.equal((await fs.lstat(selected)).isSymbolicLink(), true);
     }
-    await assert.rejects(
-      verifySelectedFilesystemSources(directory, "docs/decisions", [
-        { decisionId: source.source.decisionId, source }
-      ]),
-      /regular non-symlink/
-    );
-    assert.equal(await fs.readFile(outside, "utf8"), source.source.text);
-    assert.equal((await fs.lstat(selected)).isSymbolicLink(), true);
-  });
+  );
 });

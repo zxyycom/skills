@@ -25,7 +25,7 @@ import {
   isEstablishedDecisionRecord,
   type DecisionCandidateRecord,
   type DecisionId,
-  type DecisionScan,
+  type DecisionPreparationContext,
   type EstablishedDecisionRecord
 } from "./types.ts";
 
@@ -38,7 +38,7 @@ export type DiscardDecisionEligibility =
   | { record: DiscardableDecisionRecord | null; status: "ok" };
 
 export function prepareDiscardDecisionEligibility(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   decisionId: DecisionId | null,
   records?: DecisionRecordLookup
 ): DiscardDecisionEligibility {

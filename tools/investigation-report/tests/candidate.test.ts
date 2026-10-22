@@ -60,7 +60,7 @@ test("new atomically creates a canonical candidate scaffold without establishing
 
 test("new rejects invalid, duplicate, and formal-conflicting candidate identities without overwriting files", async () => {
   await withTempRoot("candidate-identities", async (root) => {
-    await writeCollection(root, [{ id: "formal-topic" }], false);
+    await writeCollection(root, [{ id: "formal-topic" }]);
     const invalid = await createInvestigationCandidate({
       ...candidateInput,
       id: "not a report",
@@ -344,5 +344,40 @@ test("candidate readiness requires every visible candidate-owned resource to hav
     );
     const checked = await validateInvestigationReports({ workspaceRoot: root });
     assert.deepEqual(checked.errors, []);
+  });
+});
+
+test("new and candidate show do not read unrelated formal sources without a published index", async () => {
+  await withTempRoot("candidate-local-draft", async (root) => {
+    await writeCollection(root, [{ id: "unrelated" }], false);
+    const formalPath = path.join(root, "docs/investigations/unrelated.md");
+    await fs.writeFile(formalPath, "unrelated malformed formal source\n");
+    const readFile = fs.readFile;
+    let formalReads = 0;
+    fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
+      if (args[0] === formalPath) {
+        formalReads += 1;
+        throw new Error("unrelated formal source must not be read");
+      }
+      return await readFile(...args);
+    }) as typeof fs.readFile;
+    try {
+      const created = await createInvestigationCandidate({
+        ...candidateInput,
+        workspaceRoot: root
+      });
+      assert.equal(created.status, "ok");
+      assert.equal(created.changed, true);
+      assert.equal(created.candidate.readiness.scaffoldValid, true);
+      assert.equal(created.candidate.readiness.bodyReady, false);
+      const shown = await showInvestigationCandidate({
+        workspaceRoot: root,
+        id: candidateId
+      });
+      assert.equal(shown.status, "ok");
+      assert.equal(formalReads, 0);
+    } finally {
+      fs.readFile = readFile;
+    }
   });
 });

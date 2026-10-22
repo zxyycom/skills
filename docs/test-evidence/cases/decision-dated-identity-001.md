@@ -16,5 +16,5 @@ Contract:
 
 Proves:
 - 精确日期 ID（含 `.MD`）可读取；重复 name 的错误按 ID 顺序列出，非法日期前缀仍按完整 name 解析，而不存在的标准 ID 不会回退。
-- 纯 stage target 在显式基线和当前来源并集内解析唯一 name；工作区单侧新增可选择，标准 ID 缺失不会回退，歧义列出排序后的完整候选。真实 argv/scope 接线由独立 Git 集成代表承接。
+- 真实 Git stage 解析唯一 name 和一次大小写不敏感的 Markdown 后缀；工作区已同步新增可选，标准 ID 缺失不回退，缺失与歧义失败保持 pending tree 不变。
 - name 创建的候选保留 UTC 日期 ID 但使用 name 路径；日期不一致与 legacy 同名创建返回对应诊断。

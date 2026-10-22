@@ -7,19 +7,19 @@ import {
   isEstablishedDecisionRecord,
   type DecisionId,
   type DecisionRecord,
-  type DecisionScan,
+  type DecisionPreparationContext,
   type EstablishedDecisionRecord
 } from "./types.ts";
 
 export function findRecord(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   value: DecisionId
 ): DecisionRecord | null {
   return scan.records.find((record) => record.decisionId === value) ?? null;
 }
 
 export function findEstablishedRecord(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   value: DecisionId
 ): EstablishedDecisionRecord | null {
   const record = findRecord(scan, value);

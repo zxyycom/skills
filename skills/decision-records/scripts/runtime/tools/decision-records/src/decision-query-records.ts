@@ -100,7 +100,7 @@ export function indexedRecord(
 }
 
 export function activationCandidates(
-  scan: DecisionScan
+  scan: Pick<DecisionScan, "records">
 ): DecisionCandidateRecord[] {
   return scan.records
     .filter(isActivationCandidateRecord)
@@ -108,7 +108,7 @@ export function activationCandidates(
 }
 
 export function candidateRecords(
-  scan: DecisionScan
+  scan: Pick<DecisionScan, "records">
 ): CandidateDecisionRecord[] {
   return scan.records
     .filter(isDecisionCandidateRecord)

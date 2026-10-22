@@ -1,0 +1,112 @@
+{
+  "formalScenarios": 78,
+  "formalSamples": 234,
+  "threeRunsPerVersionScenario": true,
+  "allIndependentPostconditionsPassed": true,
+  "statuses": {
+    "base": {
+      "samples": 117,
+      "success": 90,
+      "refusal": 27,
+      "otherExit": 0
+    },
+    "after": {
+      "samples": 117,
+      "success": 114,
+      "refusal": 3,
+      "otherExit": 0
+    }
+  },
+  "streamCount": 468,
+  "sourceContractChecks": [
+    {
+      "version": "base",
+      "domain": "decision",
+      "rep": 1,
+      "source": "Source: kind=validated-source currentness=current fallback=false"
+    },
+    {
+      "version": "base",
+      "domain": "decision",
+      "rep": 2,
+      "source": "Source: kind=validated-source currentness=current fallback=false"
+    },
+    {
+      "version": "base",
+      "domain": "decision",
+      "rep": 3,
+      "source": "Source: kind=validated-source currentness=current fallback=false"
+    },
+    {
+      "version": "base",
+      "domain": "investigation",
+      "rep": 1,
+      "source": "Source: kind=validated-source currentness=current fallback=false"
+    },
+    {
+      "version": "base",
+      "domain": "investigation",
+      "rep": 2,
+      "source": "Source: kind=validated-source currentness=current fallback=false"
+    },
+    {
+      "version": "base",
+      "domain": "investigation",
+      "rep": 3,
+      "source": "Source: kind=validated-source currentness=current fallback=false"
+    },
+    {
+      "version": "after",
+      "domain": "decision",
+      "rep": 1,
+      "source": "Source: kind=published-index+current-text currentness=unchecked fallback=false"
+    },
+    {
+      "version": "after",
+      "domain": "decision",
+      "rep": 2,
+      "source": "Source: kind=published-index+current-text currentness=unchecked fallback=false"
+    },
+    {
+      "version": "after",
+      "domain": "decision",
+      "rep": 3,
+      "source": "Source: kind=published-index+current-text currentness=unchecked fallback=false"
+    },
+    {
+      "version": "after",
+      "domain": "investigation",
+      "rep": 1,
+      "source": "Source: kind=published-index+current-text currentness=unchecked fallback=false"
+    },
+    {
+      "version": "after",
+      "domain": "investigation",
+      "rep": 2,
+      "source": "Source: kind=published-index+current-text currentness=unchecked fallback=false"
+    },
+    {
+      "version": "after",
+      "domain": "investigation",
+      "rep": 3,
+      "source": "Source: kind=published-index+current-text currentness=unchecked fallback=false"
+    }
+  ],
+  "sameInitialFixtureTrees": [
+    {
+      "domain": "decision",
+      "initialBytesSame": true,
+      "tree": "93c8ad7632713c80f267f90af0c470fe02c1eb8c"
+    },
+    {
+      "domain": "investigation",
+      "initialBytesSame": true,
+      "tree": "e234306131070fe7762852346d249d0468eb7497"
+    }
+  ],
+  "noOomOrTimeoutObserved": true,
+  "sourceAttribution": "Versions compared on frozen public Node CLI files; raw argv records exact entry and fixture. Hash manifests fingerprint source and generated distribution inputs.",
+  "gitPendingProtection": "Expected selected index/source/resource representations; all nonselected pending file identities and staged domain-external deletion protected. Old Decision/IR-index refusal verified zero mutation; old IR-all unselected revision explicitly expected HEAD, not counted as new guarantee.",
+  "uniqueStreamPayloads": 54,
+  "streamStorage": "Full stdout/stderr payloads deduplicated by SHA256; 468 stream records refer to 54 payload records in streams.jsonl. Original bytes/length retained, no excerpting."
+}

@@ -24,7 +24,11 @@ import {
   applyLockedDecisionChanges,
   decisionTransactionLockFailure
 } from "./decision-transaction.ts";
-import { compareDecisionRecords, type DecisionScan } from "./types.ts";
+import {
+  compareDecisionRecords,
+  type DecisionScan,
+  type DecisionPreparationContext
+} from "./types.ts";
 import { scanDecisionRecords } from "./scan.ts";
 import { validateDecisionScan } from "./index.ts";
 import {
@@ -106,7 +110,7 @@ export async function applyLockedCandidateLifecycle(
 }
 
 export async function prepareLifecycleWithCurrentHistory(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   request: DecisionLifecycleRequest,
   io: DecisionRecordsCliIo
 ): Promise<Extract<DecisionLifecyclePreparation, { status: "ok" }> | null> {
@@ -251,7 +255,7 @@ function printLifecycleSuccess(
   );
 }
 
-function printLifecycleCompletion(
+export function printLifecycleCompletion(
   prepared: Extract<DecisionLifecyclePreparation, { status: "ok" }>,
   io: DecisionRecordsCliIo
 ): void {

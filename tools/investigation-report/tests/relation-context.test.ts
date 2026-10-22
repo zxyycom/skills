@@ -306,7 +306,7 @@ test("investigation relation selection intersects type and target on one edge", 
   builds(1);
 });
 
-test("investigation content fallback reuses its validated collection graph", async (t) => {
+test("investigation content search reuses its supplied projection graph", async (t) => {
   await withTempRoot("lazy-fallback", async (root) => {
     await writeCollection(
       root,
@@ -338,14 +338,14 @@ test("investigation content fallback reuses its validated collection graph", asy
       investigationsDirectory: investigationRoot(root),
       prepared: prepared.value,
       source: {
-        kind: "validated-source",
-        currentness: "current",
-        fallback: true
+        kind: "published-index+current-text",
+        currentness: "unchecked",
+        fallback: false
       },
       warnings: []
     });
     assert.equal(result.status, "ok");
-    assert.equal(result.searchInfo?.source.fallback, true);
+    assert.equal(result.searchInfo?.source.fallback, false);
     assert.deepEqual(
       result.entries.map(({ id }) => id),
       ["next"]

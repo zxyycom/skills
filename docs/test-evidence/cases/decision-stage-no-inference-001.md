@@ -1,13 +1,13 @@
 ### Case DECISION-STAGE-NO-INFERENCE-001: Stage 不把无关的相同删除/新增绑定为改名
 
 Tests:
-- `test:c82be6e1a8e3eba1ba1849fec7789186b305dc8569569a9438cf59d0a2987bca`
+- `test:e93a001bdc6122e6909c687e476c4d6e423991b8b0af29ac991e4dfe59857594`
 
 Tags:
 - `decision-records`
 
 Contract:
-- Stage 不从文本相同的删除/新增推断身份改名。
+- Stage 不从文本差异或未选新增推断身份改名。
 
 Proves:
-- 纯 target 构造保留 old 的删除标记与 new 的新增来源，最终来源仅含 new；不以 Git diff 格式证明分类。
+- 真实 stage 单选已删除 old 时删除其 pending 正文和投影，未选 replacement 不进入 pending，retained 保持。

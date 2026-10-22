@@ -7,6 +7,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import path from "node:path";
+import { ensureDecisionDirectoryPath } from "./decision-source-path-safety.ts";
 import fs from "node:fs/promises";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
 import { displayDecisionPath } from "./decision-path.ts";
@@ -16,11 +18,11 @@ import type {
   DecisionFileChange,
   DecisionTransactionIssue
 } from "./decision-transaction.ts";
-import type { DecisionScan } from "./types.ts";
+import type { DecisionPreparationContext } from "./types.ts";
 
 export async function preflightDecisionChanges(
   changes: readonly DecisionFileChange[],
-  originalScan: DecisionScan
+  originalScan: DecisionPreparationContext
 ): Promise<DecisionChangePreflight> {
   const errors: DecisionTransactionIssue[] = [];
   const createdTargetPaths = new Set<string>();
@@ -28,6 +30,7 @@ export async function preflightDecisionChanges(
   const originalBodies = new Map<string, string>();
   for (const change of changes) {
     await preflightDecisionChange(change, originalScan.workspaceRoot, {
+      decisionsDirectory: originalScan.decisionsDirectory,
       errors,
       moveTargetPaths,
       originalBodies
@@ -38,6 +41,7 @@ export async function preflightDecisionChanges(
 }
 
 type DecisionChangePreflightContext = Readonly<{
+  decisionsDirectory: string;
   errors: DecisionTransactionIssue[];
   moveTargetPaths: Set<string>;
   originalBodies: Map<string, string>;
@@ -58,6 +62,10 @@ async function preflightDecisionChange(
     return;
   }
   try {
+    await ensureDecisionDirectoryPath(
+      context.decisionsDirectory,
+      path.dirname(change.decisionPath)
+    );
     const currentText = await readRegularDecisionFile(change.decisionPath);
     context.originalBodies.set(change.decisionPath, currentText);
     if (currentText !== change.expectedText) {
@@ -100,6 +108,11 @@ async function preflightDecisionMoveTarget(
   }
   context.moveTargetPaths.add(targetPath);
   try {
+    await ensureDecisionDirectoryPath(
+      context.decisionsDirectory,
+      path.dirname(targetPath),
+      true
+    );
     await fs.lstat(targetPath);
     context.errors.push(
       "Decision move target already exists: " +
@@ -120,7 +133,7 @@ async function preflightDecisionMoveTarget(
 }
 
 async function preflightDecisionIndex(
-  originalScan: DecisionScan,
+  originalScan: DecisionPreparationContext,
   errors: DecisionTransactionIssue[]
 ): Promise<void> {
   try {

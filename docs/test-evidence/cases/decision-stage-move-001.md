@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- 同一 ID 从 root 移到 archive 后，领域 target 仅选择当前 sourcePath，派生索引保持唯一 ID 与归档定位。
+- 同一 ID 从 root 移到 archive 后，stage 清理旧 pending 路径并暂存当前归档来源。
 
 Proves:
-- 纯 target 的来源与 sourceFiles 只含 archive/selected.md；生产索引投影唯一 entry 的 sourcePath 为 archive/selected.md，status 为 archived。
+- 真实 stage 成功暂存 archive/selected.md 的 archived 正文，并移除旧 selected.md 的 pending 路径。

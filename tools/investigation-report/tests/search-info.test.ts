@@ -106,8 +106,11 @@ test("investigation search complete zero hits separates content previews from me
       });
       assert.equal(result.searchInfo.query.limits.maxRecords, 50);
       assert.deepEqual(result.searchInfo.source, {
-        kind: scope === "metadata" ? "published-index" : "validated-source",
-        currentness: scope === "metadata" ? "unchecked" : "current",
+        kind:
+          scope === "metadata"
+            ? "published-index"
+            : "published-index+current-text",
+        currentness: "unchecked",
         fallback: false
       });
     }
@@ -149,23 +152,15 @@ test("investigation metadata search always reports an unchecked published snapsh
   });
 });
 
-test("investigation content validates fallback without writing an absent published index", async () => {
+test("investigation content rejects absent published indexes without implicit recovery", async () => {
   await withTempRoot("search-info-fallback", async (root) => {
     await writeCollection(root, [{ id: "one" }], false);
     const result = await searchInvestigationReports({
       workspaceRoot: root,
       query: "当前"
     });
-    assert.ok(result.status === "ok");
-    assert.deepEqual(result.searchInfo.source, {
-      kind: "validated-source",
-      currentness: "current",
-      fallback: true
-    });
-    assert.match(
-      result.warnings[0]!,
-      /^search source: validated-source fallback/
-    );
+    assert.equal(result.status, "error");
+    assert.equal(result.searchInfo, null);
     await assert.rejects(
       fs.access(path.join(investigationRoot(root), "investigation-index.json"))
     );
@@ -215,7 +210,7 @@ test("investigation content reports lower bounds and exact last-file overflow in
 
 test("investigation content retains empty-preview hits and classifies preview restrictions once", async () => {
   await withTempRoot("search-info-previews", async (root) => {
-    await writeCollection(root, [{ id: "a" }, { id: "b" }], false);
+    await writeCollection(root, [{ id: "a" }, { id: "b" }]);
     for (const id of ["a", "b"])
       await fs.appendFile(
         path.join(investigationRoot(root), `${id}.md`),
@@ -251,5 +246,29 @@ test("investigation content retains empty-preview hits and classifies preview re
       result.searchInfo.query.limits.resources?.maxCandidateFiles,
       2_000
     );
+  });
+});
+
+test("investigation content search checks nonmatching identity without validating current report semantics", async () => {
+  await withTempRoot("search-current-identity", async (root) => {
+    await writeCollection(root, [{ id: "one" }]);
+    const source = path.join(investigationRoot(root), "one.md");
+    const original = await fs.readFile(source, "utf8");
+    await fs.writeFile(source, original.replace("question:", "unknownField:"));
+    const valid = await searchInvestigationReports({
+      workspaceRoot: root,
+      query: "absent-unique-term"
+    });
+    assert.equal(valid.status, "ok");
+    await fs.writeFile(
+      source,
+      original.replace('id: "one"', 'id: "changed-identity"')
+    );
+    const invalid = await searchInvestigationReports({
+      workspaceRoot: root,
+      query: "absent-unique-term"
+    });
+    assert.equal(invalid.status, "error");
+    assert.match(JSON.stringify(invalid), /identity does not match/);
   });
 });

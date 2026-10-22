@@ -1,0 +1,25 @@
+{
+  "meaning": "Collector postcondition incorrectly required diagnostic to contain numeric 2000; actual CLI resource-limit refusal and unchanged state matched contract. Original attempt preserved and excluded from 234 formal samples; after correcting assertion all three scenario samples were recollected.",
+  "metrics": {
+    "argv": [
+      "node",
+      "/tmp/record-tools-contracts-1w.measurement/base/skills/investigation-report/scripts/check-investigations.ts",
+      "--root",
+      "/tmp/record-tools-contracts-1w.measurement/fixture-investigation-10000",
+      "search",
+      "fixturecontent"
+    ],
+    "wall": 1.858495827007573,
+    "user": 1.453329,
+    "system": 0.79387,
+    "maxrssKiB": 225116,
+    "exit": 1,
+    "NODE_OPTIONS": ""
+  },
+  "verification": {
+    "ok": false,
+    "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert(/2000|2,000/.test(stderr+stdout))\n\n    at verify (file:///tmp/record-tools-contracts-1w.measurement/run.mjs:34:258)\n    at async file:///tmp/record-tools-contracts-1w.measurement/run.mjs:37:423"
+  },
+  "stdout": "",
+  "stderr": "Investigation report search failed:\n- [investigation-report.file-search-resource-limit] /tmp/record-tools-contracts-1w.measurement/fixture-investigation-10000/docs/investigations/investigation-index.json\n-   reason: the selected investigation Markdown could not be searched\n-   next: restore the selected formal report and retry the search\n-   causeCategory: unknown\n-   detail: File text search candidate file limit was exceeded.\n"
+}

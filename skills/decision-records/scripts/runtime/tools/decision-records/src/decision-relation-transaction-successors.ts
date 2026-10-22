@@ -27,7 +27,7 @@ import {
   type DecisionCandidateRecord,
   type DecisionRecord,
   type DecisionRelationOverride,
-  type DecisionScan,
+  type DecisionPreparationContext,
   type DecisionSuccessor,
   type EstablishedDecisionRecord
 } from "./types.ts";
@@ -37,7 +37,10 @@ type PreparedSuccessors =
   | { establishedAt: string; records: PreparedSuccessor[]; status: "ok" };
 
 export function prepareSuccessors(
-  context: Readonly<{ scan: DecisionScan; records: DecisionRecordLookup }>,
+  context: Readonly<{
+    scan: DecisionPreparationContext;
+    records: DecisionRecordLookup;
+  }>,
   requestedSuccessors: readonly DecisionSuccessor[],
   relationOverride: DecisionRelationOverride,
   establishedAt: string,
@@ -78,7 +81,7 @@ export function prepareSuccessors(
 }
 
 function prepareSuccessorRecord(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   record: DecisionRecord,
   requested: DecisionSuccessor,
   relationOverride: DecisionRelationOverride

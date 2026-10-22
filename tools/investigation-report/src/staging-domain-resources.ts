@@ -12,10 +12,8 @@ import {
 } from "./resource-file-validation.ts";
 import { validateReferencedInvestigationResources } from "./resources.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
-import type {
-  DomainAcquisitionRequest,
-  DomainResourcePaths
-} from "./staging-domain-writes.ts";
+import type { DomainResourcePaths } from "./staging-domain-membership.ts";
+import type { DomainAcquisitionRequest } from "./staging-domain-writes.ts";
 
 export async function validateDomainResources(
   request: DomainAcquisitionRequest,

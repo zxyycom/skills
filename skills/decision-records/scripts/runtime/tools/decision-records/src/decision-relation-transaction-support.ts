@@ -25,7 +25,7 @@ import {
   isEstablishedDecisionRecord,
   type DecisionRelation,
   type DecisionRelationOverride,
-  type DecisionScan
+  type DecisionPreparationContext
 } from "./types.ts";
 
 export function cloneRelations(
@@ -78,7 +78,7 @@ export function plainRelationFailure(
 }
 
 export function decisionRelationTransactionRequiresHistoryBaseline(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   request: DecisionRelationTransactionRequest,
   records: DecisionRecordLookup = createDecisionRecordLookup(scan.records)
 ): boolean {

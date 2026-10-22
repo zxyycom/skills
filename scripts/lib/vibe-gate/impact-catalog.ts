@@ -52,7 +52,7 @@ export const baseGateImpactContracts: readonly GateCheckImpactContract[] =
         checkId: check.checkId,
         dependsOn: "dependsOn" in check ? (check.dependsOn ?? []) : [],
         toolIds: check.toolIds,
-        version: "1"
+        version: check.checkId.startsWith("test:decision-records:") ? "2" : "1"
       }))
   ]);
 

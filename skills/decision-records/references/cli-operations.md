@@ -18,7 +18,7 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 | --- | --- |
 | `list`、`trace`、`search --in metadata` | 结构合法的最后发布索引快照，不核对当前 Markdown；索引缺失、损坏或 definition 不符时失败并显式恢复。 |
 | `show` | 索引定位并确认当前文件仍声明目标 ID，返回当前正文；与发布 revision 不同则 warning。只证明所选记录。 |
-| 默认 content `search` | 权威 Markdown；索引不可用或陈旧时，完整验证来源后可用内存投影只读降级并 warning，持久索引仍待显式恢复。 |
+| 默认 content `search` | 发布索引选定范围内的当前文件文本；读取时核对 ID。未同步新增和筛选变化在同步后进入范围；索引不可用时明确恢复。 |
 | `candidates`、`show-candidate` | 从来源读取候选，分别报告结构与正文 readiness。单条非法来源可 warning 后跳过，显式目标非法或集合成员、索引前提错误仍失败。 |
 
 `list` 与 `search` 默认查 active、全部 alignment；查历史时显式筛选。状态、alignment、tags、时间和关系条件取交集，重复 tags 为 AND，时间边界包含端点。空页只说明本次筛选与窗口无结果。`--related-to` 的方向相对目标解释，type 与 target 同用时须命中同一条边。
@@ -28,7 +28,7 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 - content 匹配文件物理行；metadata 匹配发布快照的 ID、name、title、三项摘要、tags 与来源关系 summary。`all`/`any` 可跨同一记录的段，`phrase` 限于单段；匹配统一 NFKC、忽略大小写并按空白处理。
 - metadata 默认返回前 100 条，`--limit 1..1000` 调整返回窗口；始终扫描全部筛选记录并给出精确命中数。content 返回上限保持 20，不接受 `--limit`。
 - 关系条件返回的 `filterRelations` 是导致记录命中的边；文本证据单独报告。`matchedRelations: none` 不否定关系筛选命中。普通预览最多显示三条命中边，`list --detail` 展开当前页全部命中边；完整正文与关系用 `show`。
-- 先读六行 `Query`、`Filters`、`Source`、`Limits`、`Counts`、`Coverage`，确认实际条件、来源、计数和三类覆盖。`currentness=unchecked` 是正常发布快照边界；`current` 只表示本次已有验证，不承诺锁或跨文件原子快照。
+- 先读六行 `Query`、`Filters`、`Source`、`Limits`、`Counts`、`Coverage`，确认实际条件、来源、计数和三类覆盖。content 的 source 为 `published-index+current-text / unchecked / false`：范围来自发布投影，文本是本次读取，未验证全集来源新鲜度，也不承诺跨文件原子快照。
 
 | 覆盖 | 含义 |
 | --- | --- |
@@ -36,7 +36,7 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 | `resultsComplete` | 是否完整扫描并返回全部命中；metadata 超过返回窗口时为 false，精确命中数仍完整。 |
 | `previewsComplete` | 已返回记录的命中片段是否完整；metadata 不适用。仅预览受限不表示记录发现不完整。 |
 
-来源为发布快照或扫描未完成时，不能对当前全集作“没有相关决策”的结论。预算 warning 区分结果与预览限制，来源降级才需要恢复索引。需要更多命中时收紧筛选，或用 metadata `--limit` 扩大窗口；完整内容用 `show`，外部展示仍可能截断 stdout。
+发布范围或扫描未完成时，不能对当前全集作“没有相关决策”的结论。预算 warning 区分结果与预览限制；索引缺失、损坏或不兼容时显式恢复。需要更多命中时收紧筛选，或用 metadata `--limit` 扩大窗口；完整内容用 `show`，外部展示仍可能截断 stdout。
 
 ### 追溯演进
 
@@ -53,7 +53,8 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 2. 确认当前授权包含对象及影响；一般语义审核由 agent 自行完成，高风险删除仍需精确授权。readiness、预检和历史确认参数均不代替语义审核或授权。
 3. 工作区 mutation 共用集合锁，写前核对来源与相关版本。已建立记录的生命周期、alignment、关系、删除和身份通过 CLI 事务维护；正文与 tags 的编辑性修正按领域规则直接编辑后同步。
 4. `--preflight` 只预演本次完整输入，不保存执行凭据；正式执行重新提供参数、读取和验证。同步预检可使用短暂集合锁，但不写持久领域文件、索引或 pending。
-5. 按[结果与恢复](#结果与恢复)判断实际写入结果，已建立集合维护后严格 `check`。首次候选集合按恢复手册验收；非法 alignment 先按[原位字段恢复](maintenance-recovery.md#已建立-alignment-无效)处理。
+5. 普通 publish、无删除的 evolve、mark-aligned、archive、reactivate 和 set-relations 严格验证发布索引、所选来源与必要依赖及最终领域图；未读取来源的手改问题交给显式 check／sync 发现。已知正式手改先同步，删除、身份更正及其组合保持完整来源验收。
+6. 按[结果与恢复](#结果与恢复)判断实际写入，局部成功只证明声明范围。需要当前全集健康结论时在批次验收运行严格 `check`；起草与只读任务按实际覆盖交付。首次候选集合按恢复手册处理；非法 alignment 按[原位字段恢复](maintenance-recovery.md#已建立-alignment-无效)修复。
 
 ### Git 历史确认
 
@@ -67,9 +68,9 @@ CLI 自行检查 Git 门禁，调用方直接执行操作并响应实际诊断�
 
 创建前读[正文与候选准备](decision-record-rules.md#正文与候选准备)。`new` 从显式 metadata 原子、不覆盖地创建候选：name 自动加本次 UTC 日期，完整 ID 的日期须同日；同日同名冲突零写入，同名 legacy ID 冲突按 `migration-required` 显式处理。
 
-候选、active 与 archive 位置均可用时优先 name basename，否则用完整 ID。创建成功回显完整 ID、路径、scaffold/body readiness 和独立的辅助预检结论。随后继续编辑该候选；正文或辅助预检未就绪不撤销创建，也不表示决策已经建立。
+候选、active 与 archive 位置均可用时优先 name basename，否则用完整 ID。创建成功回显完整 ID、路径及 scaffold/body readiness；随后继续编辑该候选。创建只核对自身输入、安全路径和不覆盖条件，readiness 未就绪不撤销创建；全局身份与关系冲突由正式发布门禁确认。
 
-`show-candidate` 用于核对准备情况。候选结构、正文、语义审核和建立授权各自成立后，再进入生命周期操作。
+`show-candidate` 核对所选候选与必要直接依赖，不证明正式全集健康。候选结构、正文、语义审核和建立授权各自成立后，再进入生命周期操作。
 
 ## 建立与生命周期
 
@@ -83,7 +84,7 @@ CLI 自行检查 Git 门禁，调用方直接执行操作并响应实际诊断�
 | `archive` | 退出当前依据，保留最后 alignment 与历史；按实际 Git 门禁复核回放价值。 |
 | `reactivate` | archived → active，由参数显式确认 alignment，保留 createdAt 和既有关系，不接受关系覆盖。 |
 
-`publish`/`evolve --preflight` 用完整输入返回预计关系核对，正式执行重新验证。需要不同后继关系、替换摘要或清空时，继续读下一节；只修正式关系且生命周期不变时用 `set-relations`。
+已有合法空索引时以其为基线；首次 publish 无索引时须确认正式集合为空。已有正式来源却无有效索引时先显式恢复与同步。需要写前审阅预计关系时运行 `publish`/`evolve --preflight`，正式执行仍重新验证。需要不同后继关系、替换摘要或清空时继续读下一节；只修正式关系且生命周期不变时用 `set-relations`。
 
 ## 关系输入与核对
 
@@ -135,11 +136,11 @@ HEAD 已记录目标时，首次不带 `--delete-recorded` 的调用在其他条
 
 严格 `check` 验证 Markdown、身份、tags、状态位置、关系、索引结构与新鲜度，区分 scaffold 与 body-ready candidate。首次仅有候选的集合按[恢复手册](maintenance-recovery.md#状态分流)检查，不提前同步索引。
 
-已知合法正式来源变化先 `sync-index` 再严格检查；未解释异常先检查诊断。来源合法而索引缺失、损坏、陈旧或 definition 过期时全量重建；非法来源先恢复，索引和默认值不能补造 alignment。
+已知合法正式来源变化先 `sync-index`；任务要求当前全集结论或正在恢复集合时再严格检查。未解释异常先检查诊断。来源合法而索引缺失、损坏、陈旧或 definition 过期时全量重建；非法来源先恢复，索引和默认值不能补造 alignment。
 
 `sync-index` 默认写入并发布完整索引，`--preflight` 对同一验证与漂移保护零持久写入预演。成功区分可重建但未发布、索引已 current 和实际已写入。
 
-同一工作批次的正文或 tags 编辑可共同完成，再统一 `sync-index` 和严格 `check`；进入依赖当前索引的事务前先同步。关系与生命周期变化按各自契约使用 `evolve` 或 `set-relations` 的多对象输入，减少重复全集准备。预检和正式执行各自重新验证，批次边界由调用方明确选择。
+同一工作批次的正文或 tags 编辑可共同完成，再统一 `sync-index`，按任务的全集验收要求安排严格 `check`；进入依赖发布投影的事务前先同步。关系与生命周期变化使用 `evolve` 或 `set-relations` 的多对象输入，减少重复准备。预检和正式执行各自重新验证，批次边界由调用方明确选择。
 
 选择性同步同样完整验证，适用于可信 baseline 上的已知合法变化：
 
@@ -150,17 +151,23 @@ HEAD 已记录目标时，首次不带 `--delete-recorded` 的调用在其他条
 
 ## 待提交快照
 
-`stage <selector...> --scope ...` 只构造 Git pending 快照，不改变生命周期或代替同步。持久索引须与权威来源一致；缺失按首次建立路径处理，无效或陈旧则先诊断、恢复与同步。
+`stage <selector...> --scope ...` 只构造 Git pending，不改变生命周期或代替同步。显式选择即用当前完整版本刷新所选对象，未选 pending 保持；已有部分暂存会被该对象在指定 scope 内的完整版本取代。
 
-selector 在当前正式集合与 HEAD 基线的 ID 并集中解析。当前 ID 表示新增或更新，基线-only 旧 ID 表示删除；身份更正显式同选旧、新 ID，位置变化仍选同一 ID。
+从 HEAD、工作区发布投影与必要 pending 身份解析 ID／name；位置变化选同一 ID，删除选旧 ID，身份更正同选旧、新 ID。领域 scope 还识别仅 pending 存在的来源，并清理上次暂存留下的旧位置。
 
 | scope | 写入与保留 |
 | --- | --- |
-| `all`（默认） | 原子写入所选索引投影与所选正式 Markdown。 |
-| `index` | 只替换 pending 索引投影，要求 pending 索引与 HEAD 基线一致。 |
-| `domain` | 只写所选正式 Markdown，pending 索引保持原字节。 |
+| `all`（默认） | 原子组合所选发布投影与正式 Markdown；未选条目沿用 pending，而非 HEAD。 |
+| `index` | 只刷新所选发布投影及来源 revision，不读取工作区正文；调用方负责配套领域暂存。 |
+| `domain` | 只刷新所选正式 Markdown，保留 pending 索引原字节（即使损坏）或缺失状态。 |
 
-所有 scope 写前核对 HEAD、pending 与所选来源漂移，保护无关 pending 内容。结果报告实际写入路径、保留范围及仍由调用方负责的路径。stage 不提交或推送，commit 与 push 另按授权完成。
+HEAD 与工作区发布索引必须合法；index／all 还验证 pending 索引，并要求存在的三方索引具有相同集合 metadata、sourceRevision.metadata 与 definition。HEAD 与 pending 都无索引时从空发布基底组合；已有 HEAD 索引而 pending 将其删除时，index／all 提示先恢复该删除。坏基线走显式恢复，不隐式重建全部 HEAD 正文。
+
+所选现存正文须符合工作区发布投影；合法手改先同步。index／all 的最终合成图必须合法，必要依赖缺失时提示补选，不自动夹带未选对象。domain 只证明领域文件范围，不证明 pending 索引与正文已配套。stage 核对所选已知受管位置，未知位置的未同步身份重现由显式 check／sync 发现。
+
+准备后独立复核所选来源、工作区索引、HEAD 和完整 pending（含完整对象 payload，index scope 也适用）；漂移或读取失败停止，原子替换保护未选领域文件的字节、表示及 staged 删除。可连续 stage A、stage B，再修改 A 并重选 A；B 始终保留原 pending。索引 JSON 可规范化序列化，条目含义保持。
+
+结果报告实际写入路径、保留范围及调用方责任。成功只证明 scope，stage 不提交或推送。
 
 ## 结果与恢复
 

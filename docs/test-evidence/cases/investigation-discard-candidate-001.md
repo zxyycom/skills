@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-CANDIDATE-001: discard 识别候选并保护共享与已记录资源
 
 Tests:
-- `test:4271391679ccf3c2ba0679d123a65ce59dc02f2afeab5e659506d2789723476a`
+- `test:bba3191900593fbfd6b7963c19de20dc1a1ecab8a0529b59f9c3db88cada6b3a`
 
 Tags:
 - `investigation-report`

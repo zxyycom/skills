@@ -152,7 +152,7 @@ test("Decision query graph reuse preserves option and index failure priority and
   });
 });
 
-test("Decision content search reuses each independently validated snapshot graph without suppressing fresh source validation", async () => {
+test("Decision content search reuses the published graph while reading current text", async () => {
   await withFixtureWorkspace("lazy-graph-content", async (root) => {
     const base = searchRequest(root);
     for (const request of [
@@ -171,8 +171,8 @@ test("Decision content search reuses each independently validated snapshot graph
         assert.equal(result.records.length, "relatedTo" in request ? 1 : 2);
         assert.equal(
           count(),
-          3,
-          "published, current and independently reread sync-source snapshots each build once"
+          1,
+          "strict published graph validation is reused by relation selection"
         );
       });
     }
@@ -191,7 +191,25 @@ test("Decision content search reuses each independently validated snapshot graph
         relationType: "替代"
       });
       assert.ok(result.status === "ok" && result.command === "search");
-      assert.equal(result.searchInfo.source.fallback, true);
+      assert.deepEqual(result.searchInfo.source, {
+        kind: "published-index+current-text",
+        currentness: "unchecked",
+        fallback: false
+      });
+      assert.deepEqual(result.records, []);
+      assert.equal(
+        count(),
+        1,
+        "current relation edits do not replace the published graph"
+      );
+    });
+    await withGraphBuildCount(async (count) => {
+      const result = await executeDecisionQuery({
+        ...base,
+        relatedTo: archivedDecisionId,
+        relationType: "修订"
+      });
+      assert.ok(result.status === "ok" && result.command === "search");
       assert.deepEqual(
         result.records.map(({ decisionId }) => decisionId),
         [currentDecisionId]
@@ -199,15 +217,11 @@ test("Decision content search reuses each independently validated snapshot graph
       assert.deepEqual(result.records[0]?.filterRelations, [
         {
           sourceId: currentDecisionId,
-          type: "替代",
+          type: "修订",
           target: archivedDecisionId
         }
       ]);
-      assert.equal(
-        count(),
-        3,
-        "initial published, scanner published and current source snapshots remain independent"
-      );
+      assert.equal(count(), 1);
     });
     await fs.rm(path.join(root, "docs/decisions/decision-index.json"));
     await withGraphBuildCount(async (count) => {
@@ -216,16 +230,12 @@ test("Decision content search reuses each independently validated snapshot graph
         relatedTo: archivedDecisionId,
         relationType: "替代"
       });
-      assert.ok(result.status === "ok" && result.command === "search");
-      assert.equal(result.searchInfo.source.fallback, true);
-      assert.deepEqual(
-        result.records.map(({ decisionId }) => decisionId),
-        [currentDecisionId]
-      );
+      assert.ok(result.status === "error");
+      assert.equal("searchInfo" in result, false);
       assert.equal(
         count(),
-        1,
-        "only the validated current source graph exists when no index can load"
+        0,
+        "missing published index never builds a fallback source graph"
       );
     });
   });

@@ -1,0 +1,75 @@
+import path from "node:path";
+import type { VersionControlFile } from "../../shared/src/version-control/index.ts";
+import type { PendingSnapshot } from "../../shared/src/version-control/pending-snapshot.ts";
+import { investigationResourcesDirectoryName } from "./resource-reference.ts";
+import { validateDomainReportSources } from "./staging-domain-sources.ts";
+import type { DomainAcquisitionRequest } from "./staging-domain-writes.ts";
+import { sameDomainWriteValue } from "./staging-domain-support.ts";
+
+export function validatePendingDomainDependencies(
+  request: DomainAcquisitionRequest,
+  pending: PendingSnapshot,
+  filesByPath: ReadonlyMap<string, VersionControlFile>
+): void {
+  const pendingFiles = new Map(pending.files.map((file) => [file.path, file]));
+  validatePendingOwners(request, pendingFiles);
+  validatePendingResources(request, pendingFiles, filesByPath);
+}
+
+function validatePendingOwners(
+  request: DomainAcquisitionRequest,
+  pendingFiles: ReadonlyMap<string, VersionControlFile>
+): void {
+  const requiredOwners = request.sourceSelection.reportIds.filter(
+    (id) => !request.selectedIds.includes(id)
+  );
+  if (requiredOwners.length > 0) {
+    if (request.pendingIndex === null)
+      throw new Error(
+        `Required formal owners are missing from pending; explicitly select ${requiredOwners.join(", ")} as well`
+      );
+    try {
+      validateDomainReportSources({
+        files: pendingFiles,
+        index: request.pendingIndex,
+        investigationsScope: request.investigationsScope,
+        selection: {
+          reportIds: requiredOwners,
+          resourceIds: [],
+          deletedIds: []
+        }
+      });
+    } catch (error) {
+      throw new Error(
+        `Required formal owners are not ready in pending; explicitly select ${requiredOwners.join(", ")} as well`,
+        { cause: error }
+      );
+    }
+  }
+}
+function validatePendingResources(
+  request: DomainAcquisitionRequest,
+  pendingFiles: ReadonlyMap<string, VersionControlFile>,
+  filesByPath: ReadonlyMap<string, VersionControlFile>
+): void {
+  const prefix =
+    path.posix.join(
+      request.investigationsScope,
+      investigationResourcesDirectoryName
+    ) + "/";
+  for (const resourceId of request.sourceSelection.resourceIds) {
+    const owner = resourceId.slice(0, resourceId.indexOf("/"));
+    if (request.selectedIds.includes(owner)) continue;
+    const resourcePath = prefix + resourceId;
+    const current = filesByPath.get(resourcePath);
+    const staged = pendingFiles.get(resourcePath);
+    if (
+      current === undefined ||
+      staged === undefined ||
+      !sameDomainWriteValue(current, staged)
+    )
+      throw new Error(
+        `Required shared resource is not ready in pending: ${resourceId}; explicitly select owner ${owner} as well`
+      );
+  }
+}

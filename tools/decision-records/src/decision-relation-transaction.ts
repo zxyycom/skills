@@ -34,7 +34,7 @@ import type {
 } from "./decision-relation-transaction-types.ts";
 import { decisionRelationConsistencyIssues } from "./relation-graph.ts";
 import type { DecisionFileChange } from "./decision-transaction.ts";
-import type { DecisionScan } from "./types.ts";
+import type { DecisionPreparationContext } from "./types.ts";
 
 export type {
   DecisionRelationTransactionPreparation,
@@ -43,7 +43,7 @@ export type {
 export { decisionRelationTransactionRequiresHistoryBaseline } from "./decision-relation-transaction-support.ts";
 
 export function prepareDecisionRelationTransaction(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   request: DecisionRelationTransactionRequest,
   currentTimestamp: () => string,
   historyBaseline: DecisionHistoryBaseline | null,
@@ -96,7 +96,7 @@ export function prepareDecisionRelationTransaction(
 }
 
 function relationGraphFailure(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   graphPlan: DecisionRelationGraphPlan,
   predecessorErrors: readonly string[]
 ): DecisionApplicationFailure | null {

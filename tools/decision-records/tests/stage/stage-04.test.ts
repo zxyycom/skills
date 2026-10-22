@@ -1,6 +1,7 @@
 import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
 import { stageDecisionRecords } from "../../src/decision-stage-service.ts";
-import { stageTarget } from "./domain-support.ts";
+import { stageSource, writeStageSources } from "./domain-support.ts";
+import { initializeGitRepository } from "../support.ts";
 import {
   assert,
   candidateDecisionBody,
@@ -97,8 +98,16 @@ test("stage preserves concurrent pending bytes discovered by the replacement CAS
   }));
 
 test("stage rejects a missing ID when bootstrapping without a revision", async () => {
-  await assert.rejects(
-    stageTarget([], [], ["use-missing-bootstrap"]),
-    /Selected Decision name does not exist/
-  );
+  await withTemporaryWorkspace("stage-missing-bootstrap", async (root) => {
+    initializeGitRepository(root);
+    await writeStageSources(root, [stageSource("existing")]);
+    const before = runGit(root, ["write-tree"]);
+    const result = await stageDecisionRecords({
+      decisionIds: ["use-missing-bootstrap"],
+      location: { workspaceRoot: root, decisionsDir: "docs/decisions" }
+    });
+    assert.equal(result.status, "error");
+    assert.match(JSON.stringify(result), /missing or ambiguous/);
+    assert.equal(runGit(root, ["write-tree"]), before);
+  });
 });

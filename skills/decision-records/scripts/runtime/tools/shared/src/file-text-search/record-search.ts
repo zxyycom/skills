@@ -36,15 +36,20 @@ export type RecordTextSearchResult = FileTextSearchResult &
     preview: FileTextSearchPreviewPolicy;
   }>;
 
+type RecordTextSourceValidator = (
+  source: Readonly<{ sourcePath: string; content: string }>
+) => void;
+
 /** Counts matching files independently of the display budget; a first hidden hit bounds scanning. */
 export async function searchRecordText(
-  request: FileTextSearchRequest
+  request: FileTextSearchRequest,
+  validateSource?: RecordTextSourceValidator
 ): Promise<RecordTextSearchResult> {
   const validated = validateRequest(request);
   throwIfAborted(validated.signal);
   const root = await openRoot(validated.root, validated.signal);
   const sourcePaths = await selectSourcePaths(root, validated);
-  return await collectRecordHits(root, sourcePaths, validated);
+  return await collectRecordHits(root, sourcePaths, validated, validateSource);
 }
 
 type RecordSearchState = {
@@ -59,7 +64,8 @@ type RecordSearchState = {
 async function collectRecordHits(
   root: string,
   sourcePaths: readonly string[],
-  validated: ValidatedRequest
+  validated: ValidatedRequest,
+  validateSource: RecordTextSourceValidator | undefined
 ): Promise<RecordTextSearchResult> {
   const state: RecordSearchState = {
     hits: [],
@@ -70,7 +76,16 @@ async function collectRecordHits(
     previewCharacters: 0
   };
   for (const sourcePath of sourcePaths) {
-    if (!(await collectRecordHit(root, sourcePath, validated, state))) break;
+    if (
+      !(await collectRecordHit(
+        root,
+        sourcePath,
+        validated,
+        state,
+        validateSource
+      ))
+    )
+      break;
   }
   return {
     hits: state.hits,
@@ -87,7 +102,8 @@ async function collectRecordHit(
   root: string,
   sourcePath: string,
   validated: ValidatedRequest,
-  state: RecordSearchState
+  state: RecordSearchState,
+  validateSource: RecordTextSourceValidator | undefined
 ): Promise<boolean> {
   throwIfAborted(validated.signal);
   const read = await readSelectedFile(
@@ -97,6 +113,8 @@ async function collectRecordHit(
     state.scannedBytes,
     validated.signal
   );
+  validateSource?.({ sourcePath, content: read.content });
+  throwIfAborted(validated.signal);
   state.scannedBytes += read.byteLength;
   state.scannedFiles += 1;
   const matches = findLineMatches(

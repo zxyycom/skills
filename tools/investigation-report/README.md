@@ -22,7 +22,7 @@ list 从严格加载产生的本次 reader 取得冻结索引与查询结果，�
 
 同一查询阶段复用候选源字节、身份映射、引用与资源依据，正式共享 owner 按实际引用读取。没有可用索引或出现未知、移动 owner 时，身份发现可扩大，局部读取仍不证明正式全集健康。
 
-`new` 在身份归一化前取得一次有效 formedAt；显式非法值失败，不能回退默认。stdout 只集中回显身份、标题、路径、三项 readiness 和独立辅助预检，warning/error 留在 stderr。readiness 不就绪不撤销已成功创建的候选。
+`new` 在身份归一化前取得一次有效 formedAt；显式非法值失败，不能回退默认。stdout 只集中回显身份、标题、路径与三项 readiness，warning/error 留在 stderr；起草与候选读取不附带全集发布预检，readiness 不就绪不撤销已成功创建的候选。
 
 ### 关系图上下文
 
@@ -30,7 +30,7 @@ list 从严格加载产生的本次 reader 取得冻结索引与查询结果，�
 
 - **按需复用**：首次实际访问图时构建正反向邻接和 ID 映射，后续图操作共用同一引用；无关系条件的 `list` 和 metadata 搜索不构图。
 - **顺序责任**：构图保留投影边序，证据、诊断与 `trace` 各自在输出时确定顺序。
-- **阶段边界**：content fallback 与本次集合校验共用上下文；集合变更或进入新的准备、复核与恢复阶段时，另建上下文并完成所属阶段的校验。图的生命周期止于本次快照。
+- **阶段边界**：同次发布索引查询复用所属投影上下文；集合变更或进入新的准备、复核与恢复阶段时，另建上下文并完成所属阶段的校验。图的生命周期止于本次快照。
 
 ### 关系筛选与 trace
 
@@ -48,7 +48,7 @@ list 从严格加载产生的本次 reader 取得冻结索引与查询结果，�
 | 分组 | 实现要求 |
 | --- | --- |
 | query | 保存用于 matcher 的 text、in、match，以及规范化 filters、limits；未用可选条件省略。tags 默认 `[]`，时间回显等价 UTC，relatedTo 为同一筛选快照解析的完整 ID，direction 有目标时默认 both。 |
-| source | metadata 固定 published-index / unchecked / false；content 为 validated-source / current，是否降级由 fallback 表示。 |
+| source | metadata 固定 published-index / unchecked / false；content 固定 published-index+current-text / unchecked / false，表达发布范围与本次文本。 |
 | counts | matched 按记录计数，包含已发现但不能返回的命中；precision 为 exact 或 lower-bound，returned 是实际返回数。 |
 | coverage | 分别保存 scanComplete、resultsComplete、previewsComplete；reasons 按 max-records、match-previews、preview-characters 顺序去重，未限制为 `[]`。 |
 
@@ -59,13 +59,14 @@ list 从严格加载产生的本次 reader 取得冻结索引与查询结果，�
 
 metadata 保留切片前精确计数。content 返回预算满后，在首个不能返回的命中文件停止并将其计入 matched；仍有未检查文件时为 lower-bound，若该文件恰是最后一个则 exact 且 scanComplete，但 resultsComplete 仍为 false。
 
-预览耗尽后继续在扫描与返回预算内识别命中，空 previews 仍保留身份。只在实际省略片段时标记预览受限，恰好用满预算及未返回记录均不影响该字段。完整零命中为 exact 0、returned 0，扫描、结果和 content 预览完整；必需读取、资源错误或取消保持失败。
+预览耗尽后继续在扫描与返回预算内识别命中，空 previews 仍保留身份。只在实际省略片段时标记预览受限，恰好用满预算及未返回记录均不影响该字段。完整零命中为 exact 0、returned 0，扫描、结果和 content 预览完整；必需读取、身份或路径安全错误及取消保持失败。
 
 默认 stdout 的六行摘要均从同一结果生成：字符串 JSON 转义，Filters 紧凑 JSON，Limits 只展开适用预算，下界为 `matched>=N`。warning 保留领域前缀，每类仅一次写 stderr：
 
 - `search results limited: max-records`
 - `search previews limited: match-previews,preview-characters`，只列实际原因。
-- `search source: validated-source fallback`，附来源边界及同步恢复动作。
+
+content 使用严格发布索引与领域图选择范围，先判断候选预算，再安全读取所选文本并在匹配前核对同份字节的 ID。索引失败走显式恢复，读取与身份错误保持失败；当前文本不证明全集来源新鲜或跨文件原子快照。
 
 ## 写入与阶段事实
 
@@ -91,12 +92,12 @@ metadata 保留切片前精确计数。content 返回预算满后，在首个不
 
 1. 准备和写前复核阶段各自维护目录名字索引，使用时仍核对身份、类型和 canonical 路径。同身份目录 metadata 改变时重新枚举，核对相关 exact、casefold 和缺失匹配；发现相关匹配、完整树成员或目录替换，容许无关 sibling 活动。目录事实只在本阶段有效。
 2. 两阶段在获取资源字节前检查资源根、owner 及全部路径分量，零引用或空树也不跳过。引用路径按领域字符契约，未引用成员只按安全普通文件路径检查。
-3. all/domain 从所选发布声明确定正文、直接资源及正式 owner 依赖；每阶段读取相关报告并验证完整投影、指纹，读取完整 owner 树及直接共享资源。index 不读取正文。基线-only 删除额外发现身份以排除同 ID 重现。
+3. all/domain 从发布声明及已变化 pending 身份确定所选正文、旧位置、直接资源与正式 owner 依赖；每阶段验证相关来源投影、指纹与资源安全。index 不读取工作区正文。未同步工作区未知位置的身份重现由显式检查／同步发现，stage 只核对所选已知受管位置。
 4. 两阶段重新取得可变工作区成员、字节、文件表示、发布索引和全 pending 快照。每阶段至多读一次 core.fileMode，关闭时复用已取得的完整 pending 表示依据。固定 revision 的 HEAD 索引和资源成员可跨阶段复用，锁内仍核对当前 HEAD 指针及完整 pending 的路径、字节、表示。
 5. 完整 pending 保护使用共享层完整成员与实际内容身份，只保留所选更新路径的字节；准备、写前、锁内和写后均验证全部范围对象的完整 payload。节省保留与复制不减弱完整对象读取失败及深层腐败检查。
 6. 来源路径的真实系统失败与 symlink、case、成员问题分别承接。候选与查询的普通验证返回问题集合，stage 复核从详细检查取得 failure；无可靠信号时不猜类别或附会写入结果。
 
-all/domain 的 preservedPendingPaths 是本领域 scope 中相对固定 HEAD 已变化但不在目标内的 pending 路径，含 staged 删除；只从路径变化 metadata 取得，不为此读取全部 HEAD 正文。index 使用共享索引暂存结果的保留边界。局部来源访问随选中对象及必要依赖增长，完整索引、关系图和 pending 仍有集合级成本。
+all/domain 的 preservedPendingPaths 是本领域 scope 中相对固定 HEAD 已变化但不在目标内的 pending 路径，含 staged 删除；只从路径变化 metadata 取得，不为此读取全部 HEAD 正文。index/all 的索引以捕获的 pending 为基底组合选中投影，domain 保持 pending 索引字节或缺失状态。局部来源访问随所选对象、必要依赖及已暂存位置变化增长；完整索引、图和 pending 仍有集合级成本。
 
 ## 交付验证
 

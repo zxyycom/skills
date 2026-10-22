@@ -16,11 +16,21 @@ export function resolveInvestigationStageSelectors(
       InvestigationIndexState,
       InvestigationIndexMetadata
     > | null;
+    pending?: StateIndex<
+      InvestigationIndexState,
+      InvestigationIndexMetadata
+    > | null;
+    pendingIds?: readonly string[];
     selectedIds: readonly string[];
     workspace: StateIndex<InvestigationIndexState, InvestigationIndexMetadata>;
   }>
 ): StateIndexResult<string[]> {
-  const idsByName = stateIdsByName(options.baseline, options.workspace);
+  const idsByName = stateIdsByName(
+    options.baseline,
+    options.workspace,
+    options.pending,
+    options.pendingIds
+  );
   const diagnostics: StateIndexDiagnostic[] = [];
   const resolved = options.selectedIds.flatMap((selector) =>
     resolveStageSelector(selector, idsByName, diagnostics)
@@ -35,14 +45,20 @@ function stateIdsByName(
     InvestigationIndexState,
     InvestigationIndexMetadata
   > | null,
-  workspace: StateIndex<InvestigationIndexState, InvestigationIndexMetadata>
+  workspace: StateIndex<InvestigationIndexState, InvestigationIndexMetadata>,
+  pending?: StateIndex<
+    InvestigationIndexState,
+    InvestigationIndexMetadata
+  > | null,
+  pendingIds: readonly string[] = []
 ): ReadonlyMap<string, readonly string[]> {
   const namesById = new Map<string, string>();
-  for (const index of [baseline, workspace]) {
-    if (index === null) continue;
-    for (const [id, state] of Object.entries(index.entries))
-      namesById.set(id, state.name);
-  }
+  const entries = [baseline, pending, workspace].flatMap((index) =>
+    Object.entries(index?.entries ?? {})
+  );
+  for (const [id, state] of entries) namesById.set(id, state.name);
+  for (const id of pendingIds)
+    namesById.set(id, parseDatedInvestigationId(id)?.name ?? id);
   const idsByName = new Map<string, string[]>();
   for (const [id, name] of namesById) {
     const ids = idsByName.get(name);

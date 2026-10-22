@@ -191,17 +191,20 @@ test("CLI show-candidate exposes all readiness states and rejects only invalid s
   });
 });
 
-test("CLI new keeps creation successful when auxiliary preflight becomes unavailable", async () => {
+test("CLI new ends after local creation without an auxiliary publish preflight", async () => {
   await withTempRoot("cli-new-auxiliary-unavailable", async (root) => {
     const stdout: string[] = [];
     const stderr: string[] = [];
     let afterCreation = false;
+    let postCreationReads = 0;
     const original = fs.readdir;
     fs.readdir = (async (...args: Parameters<typeof fs.readdir>) => {
-      if (args[0] === investigationRoot(root) && afterCreation)
+      if (args[0] === investigationRoot(root) && afterCreation) {
+        postCreationReads += 1;
         throw Object.assign(new Error("collection access denied"), {
           code: "EACCES"
         });
+      }
       return await original(...args);
     }) as typeof fs.readdir;
     let status;
@@ -240,11 +243,9 @@ test("CLI new keeps creation successful when auxiliary preflight becomes unavail
       stdout.join(""),
       /Investigation candidate created: 200102-history/u
     );
-    assert.match(
-      stdout.join(""),
-      /preflight: unavailable \(candidate remains created\)/u
-    );
-    assert.match(stderr.join(""), /candidate-preflight-unavailable/u);
+    assert.doesNotMatch(stdout.join(""), /preflight/u);
+    assert.equal(postCreationReads, 0);
+    assert.doesNotMatch(stderr.join(""), /candidate-preflight-unavailable/u);
     assert.match(
       await fs.readFile(
         path.join(investigationRoot(root), "_candidate.history"),

@@ -139,7 +139,7 @@ test("candidate root safety failures block formal checks and candidate CLI keeps
     assert.match(created.stdout, /scaffoldValid: true/u);
     assert.match(created.stdout, /bodyReady: false/u);
     assert.match(created.stdout, /resourceReady: true/u);
-    assert.match(created.stdout, /preflight: needs attention/u);
+    assert.doesNotMatch(created.stdout, /preflight/u);
     assert.doesNotMatch(created.stderr + created.stdout, /next:/u);
     assert.doesNotMatch(created.stdout, /## 调查目的/u);
 

@@ -1,14 +1,13 @@
-### Case DECISION-SEARCH-UNINDEXED-001: Decision search 不信任漏掉正式来源的索引
+### Case DECISION-SEARCH-UNINDEXED-001: Decision search 按发布范围排除未同步来源
 
 Tests:
-- `test:b9e25733b61653f2833646ec3828b7592b6f136b5e7cb0c8b44bd7a16c9fff00`
+- `test:645485388a55505edf0f180c87aa44b41bc0fe159200e65feb247a883e1f7b86`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 发现新的已建立 Decision 来源但持久索引未收录时，搜索必须回退到已验证只读来源投影，而非把遗漏来源视为没有结果。
+- content 的范围来自发布索引，未同步新增不进入搜索范围。
 
 Proves:
-- 新正式 Markdown 中的稀有正文词返回其语义 Decision ID。
-- stderr 说明使用只读验证来源投影。
+- 新正式 Markdown 中的稀有正文词零命中，无隐式重建或降级提示。

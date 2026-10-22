@@ -1,3 +1,4 @@
+import { validateDecisionBody } from "./record.ts";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -20,6 +21,12 @@ export async function publishCandidateCreation(
   sourcePath: string
 ): Promise<NewDecisionCandidateResult> {
   const markdown = candidateScaffoldMarkdown(request);
+  const invalid = await validateCandidateScaffold(
+    request,
+    sourcePath,
+    markdown
+  );
+  if (invalid !== null) return creationFailure(invalid);
   let published: CandidatePublication;
   try {
     published = await publishNewDecisionCandidate(decisionPath, markdown);
@@ -64,6 +71,31 @@ export async function publishCandidateCreation(
     sourcePath,
     status: "ok"
   };
+}
+
+async function validateCandidateScaffold(
+  request: NewDecisionCandidateRequest,
+  sourcePath: string,
+  markdown: string
+): Promise<ReturnType<typeof decisionDiagnostic> | null> {
+  const errors: string[] = [];
+  const validated = await validateDecisionBody({
+    body: markdown,
+    decisionId: request.decisionId,
+    sourcePath,
+    errors,
+    targetExists: (target) =>
+      request.relations.some((relation) => relation.target === target)
+  });
+  if (validated === null || errors.length > 0)
+    return decisionDiagnostic({
+      code: "decision-records.new-input-invalid",
+      outcome: "no-change",
+      reason: errors.join("; ") || "Candidate scaffold input is invalid.",
+      recovery: "Correct the candidate fields before retrying.",
+      target: request.decisionId
+    });
+  return null;
 }
 
 function candidateScaffoldMarkdown(

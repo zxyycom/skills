@@ -7,10 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- 多个合法 candidate scaffold 可以等待正文与审核，并由源码查询发现；单条非法源码只被跳过并产生 warning，显式查看该非法目标时失败。Activate 只建立显式选择的 body-ready 目标，正式索引始终排除其余候选。
+- 候选列表发现来源集合，show-candidate 只报告所选与直接依赖问题；普通发布只建立所选 ready 候选，不默认重新验收或提醒无关来源。
 
 Proves:
-- 存在一条结构非法但声明目标纯 ID 的同级源码时，`candidates` 仍成功发现两个合法候选并报告带路径的 warning；`show-candidate` 仍能展示合法目标的 `candidate + null alignment + null createdAt`，显式查看非法目标时按该 ID 返回具体结构诊断。
-- 移除非法源码后，严格检查成功并分别计数合法 scaffold 与 body-ready candidate。
-- 第一次激活只索引目标并提醒剩余 candidate scaffold；普通 list 仍只读正式索引，sync-index 继续排除并提醒候选。
-- 第二次激活后两个审核目标都进入正式索引，严格检查保持通过。
+- show-candidate 不泄漏无关坏源警告；发布后索引只包含已选候选，未选候选由显式候选/检查入口继续发现。

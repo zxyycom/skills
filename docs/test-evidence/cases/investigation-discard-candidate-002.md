@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-CANDIDATE-002: discard 在移动 tombstone 前复查候选漂移
 
 Tests:
-- `test:066379b77812d266a9d83d2555222ca47e105788d64ddbbfcaef55a5c65caf13`
+- `test:3b63376647e96e9debea895f8e474e973dccb7f267971f2b26261f02359aae3a`
 
 Tags:
 - `investigation-report`

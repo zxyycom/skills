@@ -119,8 +119,8 @@ test("domain source selection includes direct resource owners without selecting 
       {
         baseline: loaded.value,
         workspaceIndex: loaded.value,
-        revision: null,
-        canonicalDefinition: createInvestigationStageIndexDefinition()
+        pendingIndex: loaded.value,
+        pendingReportPaths: new Map()
       },
       domainStageControl({
         investigationsDirectory: investigationRoot(root),

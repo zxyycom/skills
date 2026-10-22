@@ -126,7 +126,7 @@
       "261006-separate-novel-identity-and-versioned-transitions": "sha256:7b8bef472813e23dd8cb3d9a8538c9511d13501a67f51a3cadae38ac0d389188",
       "261008-maintain-record-quality-through-project-workflow": "sha256:804ad74dfa950e266e09648a62c29eed04fe1850971ced043c6a4ae632090f82",
       "261009-require-one-project-repository-for-change-roots": "sha256:ebcd33cdec3e750108043b1fa433ed0bddd7d0b9cfea1117374496f5ec9a8bfc",
-      "261010-investigation-local-validation-and-phase-facts": "sha256:8071ef58afd4dd61bbab63372a63c694e98c683cf711975ea9ffa5c437fcacfb",
+      "261010-investigation-local-validation-and-phase-facts": "sha256:575e7a38ac477ca6e3af84085c76bd101d3da1964efe38e595c15b62dd7fa840",
       "261010-retain-complete-validation-with-selected-content": "sha256:bc20db4275ae8bfd460f168c2c676dd66f5f6da9c3fdd849207905a6557e39db",
       "261010-separate-investigation-query-and-validation-acquisition": "sha256:5669fdde0cbe2d1f86188ef5ed606f836f32660c960a2554b4c48083afc4a70a",
       "261011-publish-decision-index-query-snapshots": "sha256:e70725985c320e52778936cb0db50357a238154a47596c051e63d6d9c689bbed",
@@ -139,6 +139,8 @@
       "261020-retain-release-version-control-isolation": "sha256:3187831faf378e199547da7d80794b5918a132652d5ee6fdcc65d71c96003e83",
       "261020-unify-gate-generated-artifact-prerequisite": "sha256:dadfc27ecd56b60a6042e853c9992988079247cb4be5e81481439b8520d6a682",
       "261021-allow-markdown-lint-receipts": "sha256:56f179040497fadb6f56ee7672bb1e03e71e1aeedb879fe5c7a864f3b44e532f",
+      "261022-refresh-selected-records-in-pending": "sha256:95e3b13c5798821dba502540218596ec991580c84329d270f718f9cff1a271af",
+      "261022-separate-record-local-operations-from-collection-audits": "sha256:8dfcdf36c8a1471db4d14aecd17889edddd5954626ba541148ac36c6f504d462",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
       "align-agent-lifecycle-with-task-slices": "sha256:4f902de0d52961fa76c9ba013d54186ad600e819d6ee93d215f3a41417e9cbc9",
@@ -2894,9 +2896,9 @@
     },
     "261010-investigation-local-validation-and-phase-facts": {
       "name": "investigation-local-validation-and-phase-facts",
-      "sourcePath": "investigation-local-validation-and-phase-facts.md",
+      "sourcePath": "archive/investigation-local-validation-and-phase-facts.md",
       "title": "以首次采集检查和局部依赖暂存调查报告",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-10T10:01:57Z",
       "purpose": "让调查只读检查验证本次对象，局部暂存只获取所选来源及必要依赖，同时保留写入漂移保护。",
@@ -3173,6 +3175,54 @@
           "type": "修订",
           "target": "261020-native-gate-execution-and-project-receipts",
           "summary": "保留执行与发布边界，仅扩入完整输入已闭合的 Markdown 内容检查"
+        }
+      ]
+    },
+    "261022-refresh-selected-records-in-pending": {
+      "name": "refresh-selected-records-in-pending",
+      "sourcePath": "refresh-selected-records-in-pending.md",
+      "title": "按显式选择刷新记录的独立暂存版本",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-22T04:28:32Z",
+      "purpose": "让连续暂存不同记录和重复刷新单条记录都保留未选工作。",
+      "background": "单文件索引中的不同记录需要独立组合，选中旧暂存不应成为静态冲突。",
+      "decision": "领域暂存以 pending 为基底，选中取当前完整版本，未选与并发状态受保护。",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "responsibility-boundaries",
+        "version-control"
+      ],
+      "relations": [
+        {
+          "type": "拆分",
+          "target": "261010-investigation-local-validation-and-phase-facts",
+          "summary": "独立承接局部依赖与阶段保护并采用选中刷新"
+        }
+      ]
+    },
+    "261022-separate-record-local-operations-from-collection-audits": {
+      "name": "separate-record-local-operations-from-collection-audits",
+      "sourcePath": "separate-record-local-operations-from-collection-audits.md",
+      "title": "分离记录工具的局部操作与全集验收",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-22T04:28:32Z",
+      "purpose": "让单对象操作只承担本次结果必需的来源与领域保证。",
+      "background": "存量增长使少量输入反复承担全集准备，需要明确日常结果的保证边界。",
+      "decision": "以合法发布图支持局部维护，全集当前健康由显式检查与同步承担。",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "product-architecture-judgment",
+        "responsibility-boundaries"
+      ],
+      "relations": [
+        {
+          "type": "拆分",
+          "target": "261010-investigation-local-validation-and-phase-facts",
+          "summary": "独立承接只读检查并扩展局部维护的来源责任"
         }
       ]
     },

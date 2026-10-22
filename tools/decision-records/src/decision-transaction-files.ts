@@ -8,7 +8,7 @@ import type {
   DecisionFileChange,
   DecisionTransactionIssue
 } from "./decision-transaction.ts";
-import type { DecisionScan } from "./types.ts";
+import type { DecisionPreparationContext } from "./types.ts";
 
 export async function applyDecisionChange(
   change: DecisionFileChange,
@@ -42,7 +42,7 @@ export async function applyDecisionChange(
 }
 
 export async function restoreDecisionChanges(
-  originalScan: DecisionScan,
+  originalScan: DecisionPreparationContext,
   preflight: DecisionChangePreflight
 ): Promise<DecisionTransactionIssue[]> {
   const errors: DecisionTransactionIssue[] = [];
@@ -53,7 +53,7 @@ export async function restoreDecisionChanges(
 }
 
 async function restoreCreatedMoveTargets(
-  originalScan: DecisionScan,
+  originalScan: DecisionPreparationContext,
   preflight: DecisionChangePreflight,
   errors: DecisionTransactionIssue[]
 ): Promise<void> {
@@ -74,7 +74,7 @@ async function restoreCreatedMoveTargets(
 }
 
 async function restoreOriginalDecisionBodies(
-  originalScan: DecisionScan,
+  originalScan: DecisionPreparationContext,
   preflight: DecisionChangePreflight,
   errors: DecisionTransactionIssue[]
 ): Promise<void> {
@@ -96,7 +96,7 @@ async function restoreOriginalDecisionBodies(
 }
 
 async function restoreOriginalDecisionIndex(
-  originalScan: DecisionScan,
+  originalScan: DecisionPreparationContext,
   errors: DecisionTransactionIssue[]
 ): Promise<void> {
   try {
@@ -121,7 +121,7 @@ async function restoreOriginalDecisionIndex(
 }
 
 function restoreFilesystemIssue(
-  originalScan: DecisionScan,
+  originalScan: DecisionPreparationContext,
   reason: string,
   filePath: string,
   error: unknown

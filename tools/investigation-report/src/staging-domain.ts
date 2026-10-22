@@ -1,3 +1,4 @@
+import { acquireDomainPhase } from "./staging-domain-membership.ts";
 import type { VersionControlFile } from "../../shared/src/version-control/index.ts";
 import {
   replacePendingSnapshot,
@@ -29,7 +30,6 @@ import {
   type InvestigationDomainStageInput
 } from "./staging-domain-support.ts";
 import {
-  acquireDomainPhase,
   collectDomainWrites,
   prepareDomainAcquisitionRequest,
   verifyDomainWrites,
@@ -63,6 +63,12 @@ export async function stageInvestigationDomain(
   try {
     request = await prepareDomainAcquisitionRequest({
       baseline: snapshot.value.baseline,
+      pendingIndex: snapshot.value.pendingIndex,
+      pendingReportPaths: snapshot.value.pendingReportPaths,
+      pendingResourcePaths: snapshot.value.pending.members.map(
+        (member) => member.path
+      ),
+      scope: input.scope,
       workspaceIndex: snapshot.value.workspaceIndex,
       revision: snapshot.value.revision,
       investigationsScope: opened.value.investigationsScope,
@@ -96,12 +102,12 @@ async function prepareDomainWrite(
   snapshot: DomainSnapshot,
   index: VersionControlFile | null
 ): Promise<DomainStep<PreparedDomainWrite>> {
-  const phase = await acquireDomainPhase(request);
-  if (phase.status === "error")
-    return {
-      status: "error",
-      result: domainFailure(control, phase.code, phase.error)
-    };
+  const phase = await acquireInitialDomainPhase(
+    control,
+    request,
+    snapshot.pending
+  );
+  if (phase.status === "error") return phase;
   const first = await collectDomainWrites(request, phase.value);
   if (first.status === "error")
     return {
@@ -261,6 +267,29 @@ async function reacquireVerifiedDomainPhase(
           control.indexPath
         )
       ])
+    };
+  return phase;
+}
+
+async function acquireInitialDomainPhase(
+  control: DomainStageControl,
+  request: DomainAcquisitionRequest,
+  expectedPending: PendingSnapshot
+): Promise<DomainStep<DomainPhaseFacts>> {
+  const phase = await acquireDomainPhase(request);
+  if (phase.status === "error")
+    return {
+      status: "error",
+      result: domainFailure(control, phase.code, phase.error)
+    };
+  if (!samePendingSnapshots(expectedPending, phase.value.pending))
+    return {
+      status: "error",
+      result: domainFailure(
+        control,
+        "pending-conflict",
+        new Error("The pending snapshot changed during preparation")
+      )
     };
   return phase;
 }

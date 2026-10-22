@@ -26,7 +26,7 @@ test("new creates a canonical incomplete scaffold without entering the establish
     );
     assert.match(created.stdout, /scaffoldValid: true/);
     assert.match(created.stdout, /bodyReady: false/);
-    assert.match(created.stdout, /preflight: selection-incomplete/);
+    assert.doesNotMatch(created.stdout + created.stderr, /preflight:/);
     assert.doesNotMatch(
       created.stderr + created.stdout,
       /next:|do not rerun new/i
@@ -125,25 +125,25 @@ test("new creates a canonical incomplete scaffold without entering the establish
       "new",
       "blocked-by-invalid-source.md",
       "--title",
-      "无效来源阻断创建",
+      "无关来源不阻断起草",
       "--purpose",
-      "已有无效 Markdown 不能被新脚手架掩盖。",
+      "无关正式来源问题由显式检查发现。",
       "--background",
-      "创建前必须读取当前候选集合。",
+      "起草只保证自身输入与安全路径。",
       "--decision",
-      "拒绝无效集合中的新增身份。",
+      "保留候选并推迟无关来源诊断。",
       "--tag",
       "decision-records",
       "--root",
       workspaceRoot
     ]);
-    assert.equal(invalidCollection.exitCode, 1);
-    assert.match(invalidCollection.stderr, /collection problem/);
+    assert.equal(invalidCollection.exitCode, 0, invalidCollection.stderr);
+    assert.doesNotMatch(invalidCollection.stderr, /collection problem/);
     assert.equal(
       await fileExists(
         decisionFilePath(workspaceRoot, "blocked-by-invalid-source.md")
       ),
-      false
+      true
     );
     await fs.rm(decisionFilePath(workspaceRoot, "invalid-existing-source.md"));
 

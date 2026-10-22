@@ -1,14 +1,9 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+
 import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
-import {
-  discardInvestigationCandidate,
-  discardInvestigationCandidateWithHook
-} from "../src/candidate-discard.ts";
-import { discardInvestigationRecord } from "../src/discard-entry.ts";
-import { discardInvestigationReport } from "../src/discard.ts";
+
 import {
   publishInvestigationCandidates,
   publishInvestigationCandidatesWithWriter
@@ -267,295 +262,112 @@ test("publish rechecks candidate, formal source, and index drift before changing
   });
 });
 
-test("discard identifies candidates and protects shared and recorded authoring resources without changing formal reports", async () => {
-  await withTempRoot("discard-candidate", async (root) => {
-    await writeCollection(root, [{ id: "formal" }]);
-    await createReadyCandidate(root, "candidate.md", {
-      id: "candidate",
-      resources: ["candidate/evidence.txt"]
+test("publish preserves unrelated published projections without reading their current sources or resources", async () => {
+  await withTempRoot("publish-local-baseline", async (root) => {
+    const directory = investigationRoot(root);
+    await fs.mkdir(path.join(directory, "_resources/unrelated"), {
+      recursive: true
     });
-    await createReadyCandidate(root, "consumer.md", {
-      id: "consumer",
-      resources: ["candidate/evidence.txt"]
+    const unrelatedResource = path.join(
+      directory,
+      "_resources/unrelated/resource.txt"
+    );
+    await fs.writeFile(unrelatedResource, "original resource\n");
+    await writeCollection(root, [
+      { id: "base" },
+      { id: "unrelated", resources: ["unrelated/resource.txt"] }
+    ]);
+    const indexPath = path.join(directory, "investigation-index.json");
+    const before = JSON.parse(await fs.readFile(indexPath, "utf8"));
+    const unrelatedSource = path.join(directory, "unrelated.md");
+    await fs.writeFile(unrelatedSource, "unrelated invalid current document\n");
+    await fs.rm(unrelatedResource);
+    await createReadyCandidate(root, "next.md", {
+      id: "next",
+      relations: [{ type: "补充", target: "base" }]
     });
-    const resource = path.join(
-      investigationRoot(root),
-      "_resources",
-      "candidate",
-      "evidence.txt"
-    );
-    await fs.mkdir(path.dirname(resource), { recursive: true });
-    await fs.writeFile(resource, "evidence", "utf8");
-    const shared = await discardInvestigationRecord({
-      deleteOwnedResources: true,
-      id: "candidate",
-      workspaceRoot: root
-    });
-    assert.ok(shared.errors.some((error) => error.includes("consumer")));
-    assert.equal(
-      await fs.readFile(
-        path.join(investigationRoot(root), "formal.md"),
-        "utf8"
-      ),
-      reportMarkdown({ id: "formal" })
-    );
-
-    await fs.rm(candidatePath(root, "consumer.md"));
-    initializeGit(root);
-    const recorded = await discardInvestigationCandidate({
-      deleteOwnedResources: true,
-      id: "candidate",
-      workspaceRoot: root
-    });
-    assert.equal(recorded.requiresRecordedDeletionConfirmation, true);
-    const discarded = await discardInvestigationRecord({
-      deleteOwnedResources: true,
-      deleteRecorded: true,
-      id: "candidate",
-      workspaceRoot: root
-    });
-    assert.deepEqual(discarded.errors, []);
-    await assert.rejects(fs.access(candidatePath(root, "candidate.md")));
-    await assert.rejects(fs.access(resource));
-    assert.equal(
-      await fs.readFile(
-        path.join(investigationRoot(root), "formal.md"),
-        "utf8"
-      ),
-      reportMarkdown({ id: "formal" })
-    );
-  });
-});
-
-test("candidate discard detects drift before committing its tombstone", async () => {
-  await withTempRoot("discard-candidate-drift", async (root) => {
-    await createReadyCandidate(root, "candidate.md");
-    const before = await fs.readFile(
-      candidatePath(root, "candidate.md"),
-      "utf8"
-    );
-    const discarded = await discardInvestigationCandidateWithHook(
-      { id: "candidate", workspaceRoot: root },
-      async () =>
-        await fs.appendFile(candidatePath(root, "candidate.md"), "\n", "utf8")
-    );
-    assert.ok(
-      discarded.errors.some((error) =>
-        error.includes("changed after discard preparation")
-      )
-    );
-    assert.equal(
-      await fs.readFile(candidatePath(root, "candidate.md"), "utf8"),
-      `${before}\n`
-    );
-  });
-});
-
-test("candidate discard reports pending cleanup after its tombstone commit", async () => {
-  await withTempRoot("discard-candidate-cleanup", async (root) => {
-    await createReadyCandidate(root, "candidate.md");
-    const originalUnlink = fs.unlink;
-    fs.unlink = (async (...args) => {
-      if (String(args[0]).includes(".investigation-candidate-discard-")) {
-        throw new Error("injected tombstone cleanup failure");
+    const readFile = fs.readFile;
+    const reads: string[] = [];
+    fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
+      if (args[0] === unrelatedSource || args[0] === unrelatedResource) {
+        reads.push(String(args[0]));
+        throw new Error("unrelated payload must not be read");
       }
-      return await originalUnlink(...args);
-    }) as typeof fs.unlink;
-    let discarded;
+      return await readFile(...args);
+    }) as typeof fs.readFile;
+    let result;
     try {
-      discarded = await discardInvestigationCandidate({
-        id: "candidate",
+      result = await publishInvestigationCandidates({
+        ids: ["next"],
         workspaceRoot: root
       });
     } finally {
-      fs.unlink = originalUnlink;
+      fs.readFile = readFile;
     }
-    assert.equal(discarded.changed, true);
+    assert.deepEqual(result.errors, []);
+    assert.equal(result.changed, true);
+    assert.deepEqual(reads, []);
+    const after = JSON.parse(await fs.readFile(indexPath, "utf8"));
+    assert.deepEqual(after.entries.unrelated, before.entries.unrelated);
+    assert.equal(
+      after.sourceRevision.entries.unrelated,
+      before.sourceRevision.entries.unrelated
+    );
+    assert.ok(after.entries.next);
+    assert.equal(
+      await fs.readFile(unrelatedSource, "utf8"),
+      "unrelated invalid current document\n"
+    );
     assert.ok(
-      discarded.errors.some((error) => error.includes("cleanup is pending"))
+      (await synchronizeInvestigationIndex({ workspaceRoot: root })).errors
+        .length > 0
     );
-    assert.deepEqual(discarded.mutation, {
-      outcome: "committed-cleanup-pending",
-      scope: "investigation candidate discard collection"
-    });
-    await assert.rejects(fs.access(candidatePath(root, "candidate.md")));
-    const tombstone = (await fs.readdir(path.join(root, "docs"))).find((name) =>
-      name.startsWith(".investigation-candidate-discard-")
-    );
-    assert.notEqual(tombstone, undefined);
-    await fs.rm(path.join(root, "docs", tombstone!), {
-      force: true,
-      recursive: true
-    });
   });
 });
 
-test("formal discard refuses owner resources still referenced by an authoring candidate", async () => {
-  await withTempRoot("formal-discard-candidate-reference", async (root) => {
-    await writeCollection(
-      root,
-      [{ id: "formal", resources: ["formal/evidence.txt"] }],
-      false
-    );
-    const resource = path.join(
+test("publish requires explicit recovery for missing or invalid existing baselines but accepts a published empty index", async () => {
+  await withTempRoot("publish-baseline-recovery", async (root) => {
+    await writeCollection(root, [{ id: "base" }]);
+    await createReadyCandidate(root, "next.md");
+    const indexPath = path.join(
       investigationRoot(root),
-      "_resources",
-      "formal",
-      "evidence.txt"
+      "investigation-index.json"
     );
-    await fs.mkdir(path.dirname(resource), { recursive: true });
-    await fs.writeFile(resource, "evidence", "utf8");
-    const synchronized = await synchronizeInvestigationIndex({
-      workspaceRoot: root
-    });
-    assert.deepEqual(synchronized.errors, []);
-    await createReadyCandidate(root, "candidate.md", {
-      id: "candidate",
-      resources: ["formal/evidence.txt"]
-    });
-    const candidateDiscard = await discardInvestigationReport({
-      id: "candidate",
-      workspaceRoot: root
-    });
-    assert.equal(candidateDiscard.changed, false);
-    assert.ok(
-      candidateDiscard.errors.some((error) => error.includes("does not exist"))
-    );
-    await fs.access(candidatePath(root, "candidate.md"));
-    const discarded = await discardInvestigationReport({
-      deleteOwnedResources: true,
-      id: "formal",
-      workspaceRoot: root
-    });
-    assert.ok(discarded.errors.some((error) => error.includes("candidate")));
-    assert.equal(await fs.readFile(resource, "utf8"), "evidence");
-  });
-});
-
-test("destructive discards fail closed when candidate resource references cannot be read", async () => {
-  await withTempRoot("candidate-reference-read-failure", async (root) => {
-    await writeCollection(
-      root,
-      [{ id: "formal", resources: ["formal/evidence.txt"] }],
-      false
-    );
-    const resource = path.join(
-      investigationRoot(root),
-      "_resources",
-      "formal",
-      "evidence.txt"
-    );
-    await fs.mkdir(path.dirname(resource), { recursive: true });
-    await fs.writeFile(resource, "evidence", "utf8");
-    const synchronized = await synchronizeInvestigationIndex({
-      workspaceRoot: root
-    });
-    assert.deepEqual(synchronized.errors, []);
-    await createReadyCandidate(root, "candidate.md");
-    await fs.writeFile(
-      candidatePath(root, "candidate.md"),
-      "invalid\n",
-      "utf8"
-    );
-
-    const discarded = await discardInvestigationReport({
-      deleteOwnedResources: true,
-      id: "formal",
-      workspaceRoot: root
-    });
-    assert.equal(discarded.changed, false);
-    assert.ok(discarded.errors.some((error) => error.includes("candidate")));
-    assert.equal(await fs.readFile(resource, "utf8"), "evidence");
-    await fs.access(path.join(investigationRoot(root), "formal.md"));
-  });
-});
-
-test("candidate discard fails closed when formal resource references are invalid", async () => {
-  await withTempRoot(
-    "candidate-discard-invalid-formal-reference",
-    async (root) => {
-      await writeCollection(root, [{ id: "formal" }]);
-      await createReadyCandidate(root, "candidate.md", {
-        id: "candidate",
-        resources: ["candidate/evidence.txt"]
-      });
-      const resource = path.join(
-        investigationRoot(root),
-        "_resources",
-        "candidate",
-        "evidence.txt"
-      );
-      await fs.mkdir(path.dirname(resource), { recursive: true });
-      await fs.writeFile(resource, "evidence", "utf8");
-      await fs.writeFile(
-        path.join(investigationRoot(root), "formal.md"),
-        reportMarkdown({
-          id: "formal",
-          resources: ["candidate/evidence.txt"]
-        }).replace("## 调查目的", "## 非法章节"),
+    const originalIndex = await fs.readFile(indexPath, "utf8");
+    for (const text of [
+      null,
+      "{}",
+      originalIndex.replace('"definitionVersion": 11', '"definitionVersion": 0')
+    ]) {
+      if (text === null) await fs.rm(indexPath, { force: true });
+      else await fs.writeFile(indexPath, text);
+      const beforeCandidate = await fs.readFile(
+        candidatePath(root, "next.md"),
         "utf8"
       );
-
-      const discarded = await discardInvestigationCandidate({
-        deleteOwnedResources: true,
-        id: "candidate",
+      const result = await publishInvestigationCandidates({
+        ids: ["next"],
         workspaceRoot: root
       });
-      assert.equal(discarded.changed, false);
-      assert.ok(discarded.errors.length > 0);
-      await fs.access(candidatePath(root, "candidate.md"));
-      assert.equal(await fs.readFile(resource, "utf8"), "evidence");
+      assert.equal(result.changed, false);
+      assert.ok(result.errors.some((error) => error.includes("sync-index")));
+      assert.equal(
+        await fs.readFile(candidatePath(root, "next.md"), "utf8"),
+        beforeCandidate
+      );
+      await assert.rejects(
+        fs.access(path.join(investigationRoot(root), "next.md"))
+      );
     }
-  );
-});
-
-test("candidate discard rechecks Git HEAD immediately before deletion", async () => {
-  await withTempRoot("candidate-discard-history-drift", async (root) => {
-    await fs.mkdir(investigationRoot(root), { recursive: true });
-    await fs.writeFile(path.join(root, "README.md"), "baseline\n", "utf8");
-    initializeGit(root);
-    await createReadyCandidate(root, "candidate.md");
-
-    const discarded = await discardInvestigationCandidateWithHook(
-      { id: "candidate", workspaceRoot: root },
-      async () => {
-        execFileSync(
-          "git",
-          [
-            "-C",
-            root,
-            "add",
-            path.join("docs", "investigations", "_candidate.candidate")
-          ],
-          { stdio: "ignore" }
-        );
-        execFileSync(
-          "git",
-          ["-C", root, "commit", "--quiet", "-m", "record candidate"],
-          { stdio: "ignore" }
-        );
-      }
-    );
-    assert.equal(discarded.changed, false);
-    assert.equal(discarded.requiresRecordedDeletionConfirmation, true);
-    assert.ok(
-      discarded.errors.some((error) => error.includes("entered Git HEAD"))
-    );
-    await fs.access(candidatePath(root, "candidate.md"));
+    await fs.writeFile(indexPath, originalIndex);
+    await fs.rm(path.join(investigationRoot(root), "base.md"));
+    const empty = await synchronizeInvestigationIndex({ workspaceRoot: root });
+    assert.deepEqual(empty.errors, []);
+    const published = await publishInvestigationCandidates({
+      ids: ["next"],
+      workspaceRoot: root
+    });
+    assert.deepEqual(published.errors, []);
+    assert.equal(published.changed, true);
   });
 });
-
-function initializeGit(root: string): void {
-  for (const args of [
-    ["init", "--quiet"],
-    ["config", "user.email", "test@example.invalid"],
-    ["config", "user.name", "Test"],
-    ["add", "."],
-    ["commit", "--quiet", "-m", "initial"]
-  ]) {
-    execFileSync("git", ["-C", root, ...args], {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "pipe"]
-    });
-  }
-}

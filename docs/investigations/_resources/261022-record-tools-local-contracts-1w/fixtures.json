@@ -1,0 +1,44 @@
+{
+  "decision": {
+    "domain": "decision",
+    "count": 10000,
+    "relations": 9000,
+    "candidates": 2,
+    "resources": 0,
+    "resourceBytes": 96,
+    "tree": "93c8ad7632713c80f267f90af0c470fe02c1eb8c",
+    "head": "9c15ef2e64d16e73b7b27bcde2f3d94190147ece",
+    "indexSha": "96b43b6ef98311ce4c99068743c8ec3b52b382f94f723b0f5713c0bee3221760",
+    "formalSourceBytes": {
+      "min": 768,
+      "max": 859,
+      "total": 8481004
+    },
+    "indexBytes": 7063269,
+    "initialResourceSizes": []
+  },
+  "investigation": {
+    "domain": "investigation",
+    "count": 10000,
+    "relations": 9000,
+    "candidates": 2,
+    "resources": 5,
+    "resourceBytes": 96,
+    "tree": "e234306131070fe7762852346d249d0468eb7497",
+    "head": "6db5dad212b2424abe5b755dbd3736c9bd474fb2",
+    "indexSha": "f4c02ae3d237ca7ad8e0db88a1b5f4efda8b674a5b38d53cfeebe76c7b39e454",
+    "formalSourceBytes": {
+      "min": 681,
+      "max": 845,
+      "total": 7629292
+    },
+    "indexBytes": 5893454,
+    "initialResourceSizes": [
+      96,
+      96,
+      96,
+      96,
+      96
+    ]
+  }
+}

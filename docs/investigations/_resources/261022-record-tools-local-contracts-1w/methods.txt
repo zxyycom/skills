@@ -1,0 +1,119 @@
+本轮实际使用的新写形成时方法，作为证据阅读，不是长期维护工具或测试入口。基线通过git archive独立提取，未执行/修复旧调查资源。辅助准备与核对不计入CLI指标。BENCH_FIXTURE_ROOT仅用于改后独立同字节副本。最终方法包含预算诊断断言修正；修正前真实尝试另存method-anomaly.json。
+
+FILE method.mjs
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+const home=import.meta.dirname, base=home+'/base';
+export const sha=x=>createHash('sha256').update(x).digest('hex');
+export const id=n=>`261001-perf-${String(n).padStart(5,'0')}`;
+const date='2026-10-01T00:00:00Z';
+export const git=(root,args,input)=>execFileSync('git',['-C',root,...args],{input,encoding:'utf8',maxBuffer:128*1024*1024});
+export const collection=d=>`docs/${d==='decision'?'decisions':'investigations'}`;
+export const indexFile=d=>`${collection(d)}/${d==='decision'?'decision':'investigation'}-index.json`;
+export const cli=(source,d)=>`${source}/skills/${d==='decision'?'decision-records':'investigation-report'}/scripts/${d==='decision'?'decision-records':'check-investigations'}.ts`;
+export function source(d,n,candidate=false){
+ const root=Math.floor(n/10)*10, own=d==='investigation'&&([1,2,3,4].includes(n)||candidate&&n===10000), identity=id(n);
+ const relations=candidate?[{type:d==='decision'?'修订':'复查',target:id(n===10000?3:8),summary:'保存前序的独立判断'}]:n===root?[]:[{type:d==='decision'?'修订':'复查',target:id(root),summary:'保存前序的独立判断'}];
+ let p=candidate?(d==='decision'?`perf-${String(n).padStart(5,'0')}.md`:`_candidate.perf-${String(n).padStart(5,'0')}`):`${d==='decision'&&(n===root||n===4)?'archive/':''}perf-${String(n).padStart(5,'0')}.md`;
+ let front={title:`独立记录 ${identity}`,id:identity,...d==='decision'?{status:candidate?'candidate':n===root||n===4?'archived':'active',alignment:candidate?null:n===2?'unaligned':'aligned',createdAt:candidate?null:date,purpose:'保存单条独立判断',background:'固定存量及有界操作',decision:'采用独立来源和稀疏小组关系'}:{formedAt:date,question:'有界操作在一万条存量的成本是多少？'},tags:['benchmark'],relations};
+ const yaml=(awaitYaml=>awaitYaml)(front);
+ let lines=['---'];
+ for(const [k,v] of Object.entries(yaml)){if(Array.isArray(v)){if(!v.length)lines.push(`${k}: []`);else{lines.push(k+':');for(const a of v){if(typeof a==='string')lines.push('  - '+JSON.stringify(a));else{let first=true;for(const [ak,av] of Object.entries(a)){lines.push(`  ${first?'- ':'  '}${ak}: ${JSON.stringify(av)}`);first=false;}}}}}else lines.push(`${k}: ${JSON.stringify(v)}`);}
+ const body=d==='decision'?'## 目的\n保存单条独立判断。\n\n## 背景\n固定存量及有界操作。\n\n## 决策\n- 采用: 独立来源和稀疏小组关系。':'## 形成时背景\n固定存量。\n\n## 调查目的\n成本对照。\n\n## 调查范围与依据\n合成来源。\n\n## 调查结果与边界\n不能外推生产。';
+ let text=lines.join('\n')+'\n---\n\n'+body+'\n\nfixturecontent '+('bounded-detail '.repeat(20))+'\n';
+ if(own)text+=`\n## 随附资源\n- [证据](./_resources/${identity}/evidence.txt)\n`;
+ return {id:identity,sourcePath:p,text,front,own};
+}
+export async function write(root,p,text){await fs.mkdir(path.dirname(root+'/'+p),{recursive:true});await fs.writeFile(root+'/'+p,text);}
+export async function buildIndex(d,sources){
+ if(d==='decision'){
+  const sdk=await import(base+'/tools/decision-records/src/decision-state-index.ts');
+  const states={};for(const s of sources){const {id,title,status,alignment,createdAt,purpose,background,decision,tags,relations}=s.front;states[id]={name:id.slice(7),sourcePath:s.sourcePath,title,status,alignment,createdAt,purpose,background,decision,tags,relations};}
+  const result=await sdk.buildDecisionIndexFromSnapshot({metadata:{},states,sourceRevision:sdk.decisionSourceRevision(sources.map(s=>({decisionId:s.id,sourcePath:s.sourcePath,text:s.text})))});assert.equal(result.status,'ok',JSON.stringify(result));return sdk.serializeDecisionIndex(result.value);
+ }
+ const {buildInvestigationStateSnapshot}=await import(base+'/tools/investigation-report/src/investigation-index-source.ts');
+ const {createInvestigationStateIndexDefinition}=await import(base+'/tools/investigation-report/src/investigation-index-definition.ts');
+ const {buildStateIndexFromSnapshot,serializeStateIndex}=await import(base+'/tools/index-runtime/src/index.ts');
+ const def=createInvestigationStateIndexDefinition(),result=buildStateIndexFromSnapshot(def,buildInvestigationStateSnapshot(sources));assert.equal(result.status,'ok',JSON.stringify(result));return serializeStateIndex(result.value,def);
+}
+export async function fixture(d,count){
+ const root=home+`/fixture-${d}-${count}`;await fs.mkdir(root);let sources=[];for(let n=0;n<count;n++){const s=source(d,n);sources.push(s);await write(root,collection(d)+'/'+s.sourcePath,s.text);if(s.own)await write(root,collection(d)+`/_resources/${s.id}/evidence.txt`,'x'.repeat(95)+'\n');}
+ for(let n=10000;n<10002;n++){const s=source(d,n,true);await write(root,collection(d)+'/'+s.sourcePath,s.text);if(s.own)await write(root,collection(d)+`/_resources/${s.id}/evidence.txt`,'x'.repeat(95)+'\n');}
+ await write(root,indexFile(d),await buildIndex(d,sources));await write(root,'outside.txt','baseline\n');await write(root,'delete-me.txt','protected deletion\n');git(root,['init','-q']);for(const [k,v]of [['user.name','Fixture'],['user.email','fixture@example.invalid'],['core.hooksPath','/dev/null'],['core.autocrlf','false'],['gc.auto','0']])git(root,['config',k,v]);git(root,['add','.']);git(root,['-c','commit.gpgsign=false','commit','-qm','isolated fixture']);
+ const manifest={domain:d,count,relations:count/10*9,candidates:2,resources:d==='investigation'?5:0,resourceBytes:96,tree:git(root,['rev-parse','HEAD^{tree}']).trim(),head:git(root,['rev-parse','HEAD']).trim(),indexSha:sha(await fs.readFile(root+'/'+indexFile(d)))};await fs.writeFile(home+`/fixture-${d}-${count}.json`,JSON.stringify(manifest,null,2));return root;
+}
+if(process.argv[2]==='fixture')console.log(await fixture(process.argv[3],Number(process.argv[4]||10000)));
+
+END FILE
+
+FILE run.mjs
+import fs from 'node:fs/promises';import assert from 'node:assert/strict';import {execFileSync}from'node:child_process';
+import {git,id,source,write,buildIndex,collection,indexFile,cli,sha}from'./method.mjs';
+const home=import.meta.dirname, [version,domain,countArg,...selected]=process.argv.slice(2),count=Number(countArg||10000),root=process.env.BENCH_FIXTURE_ROOT||home+`/fixture-${domain}-${count}`,src=version==='base'?home+'/base':home+'/after';
+const cp=collection(domain),ix=indexFile(domain),isD=domain==='decision';
+const stages=['index','domain','all'].flatMap(scope=>[{name:'stage-'+scope,args:['stage',id(7),'--scope',scope],scope},{name:'stage-'+scope+'-AB-continuous',args:['stage',id(7),'--scope',scope],scope,sequence:true},{name:'stage-'+scope+'-refresh',args:['stage',id(7),'--scope',scope],scope,sequence:true,refresh:true}]);
+const scenarios=[
+{name:'new',args:['new','perf-created','--title','New fixture','--tag','benchmark',...isD?['--purpose','Bounded purpose','--background','Bounded background','--decision','Bounded choice']:['--question','Bounded question','--formed-at','2026-10-01T00:00:00Z']]},
+{name:'candidates',args:['candidates']},{name:'show-candidate',args:['show-candidate',id(10000)]},
+{name:'content-related',args:['search','fixturecontent','--related-to',id(0),'--direction','successors']},
+...isD?[]:[{name:'content-cap',args:['search','fixturecontent'],exit:1}],
+{name:'workflow-check',args:['check']},{name:'workflow-preflight',args:['publish',id(10000),...isD?['--alignment','aligned']:[],'--preflight']},{name:'publish',args:['publish',id(10000),...isD?['--alignment','aligned']:[]]},
+...isD?[{name:'evolve',args:['evolve','--successor','aligned='+id(10001),'--source',id(10001),'--relation','修订='+id(8),'--relation-summary',id(8)+'=保存前序的独立判断']},{name:'mark-aligned',args:['mark-aligned',id(2)]},{name:'archive',args:['archive',id(9)]},{name:'reactivate',args:['reactivate',id(4),'--alignment','aligned']}]:[],
+{name:'set-relations',args:['set-relations','--source',id(7),'--relation',(isD?'修订=':'复查=')+id(0),'--relation-summary',id(0)+'=本轮替换摘要']},...stages];
+async function manifest(){const files=git(root,['ls-files','--cached','--others','--exclude-standard','-z']).split('\0').filter(Boolean);let result={};for(const p of files){try{result[p]=sha(await fs.readFile(root+'/'+p));}catch(e){if(e.code!=='ENOENT')throw e;}}return result;}
+function assertKeys(actual,expected,label){assert.deepEqual([...actual].sort(),[...expected].sort(),label);}
+async function restore(){assert(root.startsWith(home+'/fixture-'));assert.equal(git(root,['rev-parse','--show-toplevel']).trim(),root);const m=JSON.parse(await fs.readFile(home+`/fixture-${domain}-${count}.json`));assert.equal(git(root,['rev-parse','HEAD']).trim(),m.head);git(root,['reset','--hard','-q',m.head]);const extra=git(root,['ls-files','--others','--exclude-standard','-z']).split('\0').filter(Boolean);for(const p of extra){assert(p.startsWith(cp+'/'),'unexpected extra');await fs.rm(root+'/'+p,{force:true});}}
+async function edit(n,marker){let s=source(domain,n);s.text=s.text.replace('fixturecontent ',`fixturecontent ${marker} `);await write(root,cp+'/'+s.sourcePath,s.text);return s;}
+async function prepare(s){await restore();if(s.scope){let sources=[];for(let n=0;n<count;n++)sources.push(source(domain,n));if(s.sequence){sources[2]=await edit(2,'pending-A');await write(root,ix,await buildIndex(domain,sources));git(root,['add','--',ix,cp+'/'+sources[2].sourcePath]);if(s.refresh){sources[7]=await edit(7,'old-selected-B');await write(root,ix,await buildIndex(domain,sources));git(root,['add','--',ix,cp+'/'+sources[7].sourcePath]);}}
+ sources[7]=await edit(7,'selected-B');await write(root,ix,await buildIndex(domain,sources));await write(root,'outside.txt','protected pending\n');git(root,['add','--','outside.txt']);git(root,['rm','-q','--','delete-me.txt']);
+ if(domain==='investigation'){await write(root,cp+`/_resources/${id(7)}/extra.txt`,'z'.repeat(95)+'\n');} }
+ return {files:await manifest(),index:JSON.parse(await fs.readFile(root+'/'+ix)),pending:git(root,['write-tree']).trim(),pendingIndex:JSON.parse(git(root,['show',':'+ix])),pendingFiles:git(root,['ls-files','--stage','-z'])};}
+async function verify(s,before,prefix,metrics){let after=await manifest();const expectedRefusal=version==='base'&&s.sequence&&(isD||s.scope==='index');assert.equal(metrics.exit,expectedRefusal?1:s.exit||0,await fs.readFile(prefix+'.stderr','utf8'));if(expectedRefusal){assert.deepEqual(after,before.files);assert.equal(git(root,['write-tree']).trim(),before.pending);return {ok:true,expectedContractRefusal:true,unchangedWorktree:true,unchangedPending:true};}let index=JSON.parse(await fs.readFile(root+'/'+ix));let changed=Object.keys({...before.files,...after}).filter(p=>before.files[p]!==after[p]);let changedEntries=Object.keys({...before.index.entries,...index.entries}).filter(k=>JSON.stringify(before.index.entries[k])!==JSON.stringify(index.entries[k]));
+ const stage=!!s.scope, readOnly=['candidates','show-candidate','content-related','content-cap','workflow-check','workflow-preflight'].includes(s.name);
+ if(readOnly){assert.deepEqual(after,before.files);assert.deepEqual(index,before.index);}
+ else if(s.name==='new'){assert.equal(changed.length,1);assert(changed[0].startsWith(cp+'/'));const text=await fs.readFile(root+'/'+changed[0],'utf8');assert(text.includes('candidate')||changed[0].includes('_candidate.'));assert.deepEqual(index,before.index);}
+ else if(stage){assert.deepEqual(after,before.files,'stage must not change worktree');let pendingPaths=git(root,['diff','--cached','--name-only','-z']).split('\0').filter(Boolean);assert(pendingPaths.includes('outside.txt'));assert(pendingPaths.includes('delete-me.txt'));assert.equal(git(root,['show',':outside.txt']),'protected pending\n');assert.equal(git(root,['ls-files','--stage','--','delete-me.txt']),'');
+ const pendingAfter=git(root,['ls-files','--stage','-z']).split('\0').filter(Boolean);const pendingBefore=before.pendingFiles.split('\0').filter(Boolean);const selectedPath=cp+'/'+source(domain,7).sourcePath;const allowed=p=>p.endsWith('\t'+ix)||p.endsWith('\t'+selectedPath)||p.includes('\t'+cp+'/_resources/'+id(7)+'/');assert.deepEqual(pendingAfter.filter(p=>!allowed(p)),pendingBefore.filter(p=>!allowed(p)),'unselected pending byte identities protected');const pendingIx=JSON.parse(git(root,['show',':'+ix]));if(s.scope==='domain')assert.deepEqual(pendingIx,before.pendingIndex); // sequence baseline pending index is checked below separately
+ if(s.scope!=='domain'){assert.deepEqual(pendingIx.entries[id(7)],index.entries[id(7)]);assert.equal(pendingIx.sourceRevision.entries[id(7)],index.sourceRevision.entries[id(7)]);const expectedBase=version==='base'&&domain==='investigation'?JSON.parse(git(root,['show','HEAD:'+ix])):before.pendingIndex;for(const key of Object.keys(expectedBase.entries)){if(key===id(7))continue;assert.deepEqual(pendingIx.entries[key],expectedBase.entries[key]);assert.deepEqual(pendingIx.sourceRevision.entries[key],expectedBase.sourceRevision.entries[key]);}}
+ if(s.scope!=='index')assert.equal(git(root,['show',':'+cp+'/'+source(domain,7).sourcePath]),await fs.readFile(root+'/'+cp+'/'+source(domain,7).sourcePath,'utf8'));
+ }
+ else {const touched={publish:[10000,...isD?[3]:[]],evolve:[10001,8],'mark-aligned':[2],archive:[9],reactivate:[4],'set-relations':[7]}[s.name];assertKeys(changedEntries,touched.map(id),'index touched IDs');const revChanges=Object.keys({...before.index.sourceRevision.entries,...index.sourceRevision.entries}).filter(k=>JSON.stringify(before.index.sourceRevision.entries[k])!==JSON.stringify(index.sourceRevision.entries[k]));assertKeys(revChanges,touched.map(id),'revision touched IDs');assert.deepEqual(index.metadata,before.index.metadata);assert.deepEqual(index.definition,before.index.definition);for(const n of touched){const e=index.entries[id(n)];assert(e,'expected indexed entry');if(s.name==='mark-aligned')assert.equal(e.alignment,'aligned');if(s.name==='archive'||n===3||s.name==='evolve'&&n===8)assert.equal(e.status,'archived');if(s.name==='reactivate'||n>=10000&&isD)assert.equal(e.status,'active');if(s.name==='set-relations')assert.deepEqual(e.relations,[{type:isD?'修订':'复查',target:id(0),summary:'本轮替换摘要'}]);const path=cp+'/'+e.sourcePath;assert(after[path]);const text=await fs.readFile(root+'/'+path,'utf8');assert(text.includes(id(n)));if(isD)assert(text.includes(e.status));}
+ for(const p of changed){if(p===ix)continue;assert(touched.some(n=>p.includes('perf-'+String(n).padStart(5,'0'))),'unrelated source changed '+p);} }
+ if(!stage)assert.equal(git(root,['write-tree']).trim(),before.pending,'pending unchanged');
+ const stdout=await fs.readFile(prefix+'.stdout','utf8'),stderr=await fs.readFile(prefix+'.stderr','utf8');if(s.name==='content-related'){assert(stdout.includes(id(7)));assert(stdout.includes('source')||stdout.includes('Source'));}if(s.name==='content-cap')assert(/candidate file limit was exceeded|file-search-resource-limit/.test(stderr+stdout));
+ return {ok:true,changedFiles:changed,changedEntries,pendingTree:git(root,['write-tree']).trim(),stdoutSha:sha(stdout),stderrSha:sha(stderr),sourceLine:stdout.split('\n').filter(x=>/source|Source|来源/.test(x))};}
+await fs.mkdir(home+'/results',{recursive:true});
+for(const s of scenarios.filter(s=>!selected.length||selected.includes(s.name))){for(let rep=1;rep<=3;rep++){const b=await prepare(s),prefix=home+`/results/${version}-${domain}-${count}-${s.name}-${rep}`;console.log('START',prefix);execFileSync('python3',[home+'/measure.py',prefix,'node',cli(src,domain),'--root',root,...s.args],{timeout:620000});const m=JSON.parse(await fs.readFile(prefix+'.metrics.json'));let v;try{v=await verify(s,b,prefix,m);}catch(e){v={ok:false,error:e.stack};}await fs.writeFile(prefix+'.verification.json',JSON.stringify(v,null,2));console.log(JSON.stringify({scenario:s.name,rep,...m,verification:v}));if(!v.ok)process.exit(1);}}
+
+END FILE
+
+FILE measure.py
+import os,sys,time,json,signal
+# Only direct Node child is measured; orchestration/preparation excluded.
+prefix=sys.argv[1]; argv=sys.argv[2:]; start=time.monotonic(); pid=os.fork()
+if pid==0:
+ os.setsid()
+ out=os.open(prefix+'.stdout',os.O_WRONLY|os.O_CREAT|os.O_TRUNC,0o600);err=os.open(prefix+'.stderr',os.O_WRONLY|os.O_CREAT|os.O_TRUNC,0o600)
+ os.dup2(out,1);os.dup2(err,2);os.environ['NODE_OPTIONS']='';os.execvp(argv[0],argv)
+def timeout(*_):os.killpg(pid,signal.SIGKILL)
+signal.signal(signal.SIGALRM,timeout);signal.alarm(600)
+_,status,usage=os.wait4(pid,0);signal.alarm(0)
+json.dump({'argv':argv,'wall':time.monotonic()-start,'user':usage.ru_utime,'system':usage.ru_stime,'maxrssKiB':usage.ru_maxrss,'exit':os.waitstatus_to_exitcode(status),'NODE_OPTIONS':''},open(prefix+'.metrics.json','w'))
+
+END FILE
+
+FILE summarize.py
+import json,glob,os,statistics,collections
+home=os.path.dirname(os.path.abspath(__file__)); groups=collections.defaultdict(list)
+for f in sorted(glob.glob(home+'/results/*-10000-*.metrics.json')):
+ name=os.path.basename(f).removesuffix('.metrics.json'); parts=name.split('-'); version,domain=parts[:2]; scenario='-'.join(parts[3:-1]);rep=int(parts[-1]);m=json.load(open(f));vf=f.replace('.metrics.json','.verification.json');v=json.load(open(vf)) if os.path.exists(vf) else {'ok':False,'reason':'pending'};groups[version,domain,scenario].append({'rep':rep,**m,'verification':v})
+result=[]
+for (version,domain,scenario),runs in sorted(groups.items()):
+ result.append({'version':version,'domain':domain,'scenario':scenario,'n':len(runs),'verified':all(r['verification']['ok'] for r in runs),'median':{'wallSeconds':statistics.median(r['wall'] for r in runs),'cpuSeconds':statistics.median(r['user']+r['system'] for r in runs),'maxrssMiB':statistics.median(r['maxrssKiB']/1024 for r in runs)},'runs':runs})
+json.dump(result,open(home+'/summary.json','w'),ensure_ascii=False,indent=2)
+for r in result:print(r['version'],r['domain'],r['scenario'],r['n'],r['verified'],r['median'])
+
+END FILE

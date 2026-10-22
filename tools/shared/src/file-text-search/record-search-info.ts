@@ -6,7 +6,7 @@ import type {
 import type { RecordTextSearchResult } from "./record-search.ts";
 
 export type RecordSearchSource = Readonly<{
-  kind: "published-index" | "validated-source";
+  kind: "published-index" | "published-index+current-text";
   currentness: "current" | "stale" | "unchecked";
   fallback: boolean;
 }>;

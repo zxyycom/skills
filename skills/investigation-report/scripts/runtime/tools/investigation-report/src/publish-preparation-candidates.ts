@@ -61,7 +61,13 @@ export async function preparePublishCandidates(
   }
   return {
     status: "ok",
-    value: { ...formal, candidatePaths, candidateSources, states }
+    value: {
+      ...formal,
+      formal: { ...formal.formal, sources: [...readContext.formalSources] },
+      candidatePaths,
+      candidateSources,
+      states
+    }
   };
 }
 

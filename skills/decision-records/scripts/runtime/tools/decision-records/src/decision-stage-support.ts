@@ -91,7 +91,15 @@ export function versionControlFailure(
   );
 }
 
-export class DecisionStageInputError extends Error {}
+export class DecisionStageConflictError extends Error {
+  readonly kind: "pending" | "source";
+
+  constructor(kind: "pending" | "source", message: string) {
+    super(message);
+    this.name = "DecisionStageConflictError";
+    this.kind = kind;
+  }
+}
 
 export class DecisionStageFileSystemError extends Error {
   constructor(cause: unknown) {

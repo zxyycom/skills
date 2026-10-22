@@ -7,6 +7,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import type { PendingSnapshot } from "../../shared/src/version-control/pending-snapshot.ts";
+import { readDomainPending } from "./staging-pending.ts";
 import path from "node:path";
 import type {
   RevisionId,
@@ -62,6 +64,9 @@ export type DomainRepository = Readonly<{
 
 export type DomainSnapshot = Readonly<{
   baseline: InvestigationIndex | null;
+  pendingIndex: InvestigationIndex | null;
+  pending: PendingSnapshot;
+  pendingReportPaths: ReadonlyMap<string, readonly string[]>;
   canonicalDefinition: CanonicalInvestigationIndexDefinition;
   revision: RevisionId | null;
   workspaceIndex: InvestigationIndex;
@@ -74,7 +79,7 @@ export type DomainSelection = Readonly<{
 
 /** Workspace metadata is mutable; the fixed revision baseline is not reloaded. */
 export async function verifyDomainIndex(
-  snapshot: DomainSnapshot,
+  snapshot: Pick<DomainSnapshot, "workspaceIndex" | "canonicalDefinition">,
   control: DomainStageControl
 ): Promise<
   | Readonly<{ status: "ok" }>
@@ -169,10 +174,7 @@ function repositoryScopePath(
   return relativePath.split(path.sep).join("/");
 }
 
-/**
- * Loads the fresh workspace index plus the `HEAD` baseline index so selector
- * resolution can cover additions, updates, and baseline-only deletions.
- */
+/** Loads validated HEAD/workspace projections and this transaction's pending facts. */
 export async function loadDomainSnapshot(
   domain: DomainRepository,
   control: DomainStageControl
@@ -206,9 +208,24 @@ export async function loadDomainSnapshot(
     control
   );
   if (baseline.status === "error") return baseline;
+  let pendingFacts: Awaited<ReturnType<typeof readDomainPending>>;
+  try {
+    pendingFacts = await readDomainPending(
+      domain,
+      baseline.value,
+      canonicalDefinition,
+      control
+    );
+  } catch (error) {
+    return {
+      status: "error",
+      result: domainFailure(control, "pending-read-failed", error)
+    };
+  }
   return {
     status: "ok",
     value: {
+      ...pendingFacts,
       baseline: baseline.value.baseline,
       canonicalDefinition,
       revision: baseline.value.revision,
@@ -280,17 +297,18 @@ async function domainBaselineIndex(
   };
 }
 
-/**
- * Resolves selectors against the workspace and `HEAD` baseline ID union;
- * every resolved ID must exist on at least one side so a typo stops the
- * transaction instead of staging a partial selection.
- */
+/** Resolves the published/pending identity union before any selected object is written. */
 export function resolveDomainSelection(
-  snapshot: DomainSnapshot,
+  snapshot: Pick<
+    DomainSnapshot,
+    "baseline" | "workspaceIndex" | "pendingIndex" | "pendingReportPaths"
+  >,
   control: DomainStageControl
 ): DomainStep<DomainSelection> {
   const resolved = resolveInvestigationStageSelectors({
     baseline: snapshot.baseline,
+    pending: snapshot.pendingIndex,
+    pendingIds: [...snapshot.pendingReportPaths.keys()],
     selectedIds: [...control.input.reportIds],
     workspace: snapshot.workspaceIndex
   });
@@ -305,23 +323,8 @@ export function resolveDomainSelection(
     };
   }
   const selectedIds = [...new Set(resolved.value)].sort(compareText);
-  const missingId = selectedIds.find(
-    (id) =>
-      !hasEntry(snapshot.baseline, id) && !hasEntry(snapshot.workspaceIndex, id)
-  );
-  if (missingId !== undefined) {
-    return {
-      status: "error",
-      result: domainFailureDiagnostics(control, "selection-invalid", [
-        stageDiagnostic(
-          "state-index.selected-id-missing",
-          `selected state id ${JSON.stringify(missingId)} is absent from both indexes`,
-          control.indexPath,
-          missingId
-        )
-      ])
-    };
-  }
+  const missing = missingSelectionResult(snapshot, selectedIds, control);
+  if (missing !== null) return missing;
   return {
     status: "ok",
     value: {
@@ -332,4 +335,35 @@ export function resolveDomainSelection(
       )
     }
   };
+}
+
+function missingSelectionResult(
+  snapshot: Pick<
+    DomainSnapshot,
+    "baseline" | "workspaceIndex" | "pendingIndex" | "pendingReportPaths"
+  >,
+  selectedIds: readonly string[],
+  control: DomainStageControl
+): Extract<DomainStep<never>, { status: "error" }> | null {
+  const missingId = selectedIds.find(
+    (id) =>
+      !hasEntry(snapshot.baseline, id) &&
+      !hasEntry(snapshot.pendingIndex, id) &&
+      !snapshot.pendingReportPaths.has(id) &&
+      !hasEntry(snapshot.workspaceIndex, id)
+  );
+  if (missingId !== undefined) {
+    return {
+      status: "error",
+      result: domainFailureDiagnostics(control, "selection-invalid", [
+        stageDiagnostic(
+          "state-index.selected-id-missing",
+          `selected state id ${JSON.stringify(missingId)} is absent from the published and pending identity sets`,
+          control.indexPath,
+          missingId
+        )
+      ])
+    };
+  }
+  return null;
 }

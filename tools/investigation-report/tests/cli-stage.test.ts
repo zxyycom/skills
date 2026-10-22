@@ -70,12 +70,15 @@ test("CLI stage preserves version-control diagnostic facts", async () => {
     ]);
     assert.equal(result.status, 1);
     assert.equal(result.stdout, "");
-    assert.match(result.stderr, /state-index\.repository-unavailable/u);
+    assert.match(
+      result.stderr,
+      /investigation-report\.stage-repository-unavailable/u
+    );
     assert.match(result.stderr, /causeCategory: not-repository/u);
     assert.match(result.stderr, /operation: /u);
     assert.match(
       result.stderr,
-      /\[state-index\.repository-unavailable\] configured root/u
+      /\[investigation-report\.stage-repository-unavailable\] configured root/u
     );
     assert.deepEqual(
       await Promise.all(sourcePaths.map((file) => fs.readFile(file, "utf8"))),

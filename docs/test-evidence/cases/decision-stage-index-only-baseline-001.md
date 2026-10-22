@@ -7,8 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- revision 决策范围只含 `decision-index.json` 时，Stage 必须把它视为没有 Markdown 基线，并以选中的 filesystem Decision 构造首个完整 pending 快照。
+- HEAD 只有合法空发布索引时，stage 可选择工作区已发布的新对象并刷新 pending。
 
 Proves:
-- 纯 baseline 路径分类将仅含派生索引的范围映射为空来源集。
-- 从空基线与选定来源构造 target 后，可生成含该 ID 的合法索引投影；不执行 Git 暂存。
+- 真实 Git stage 从仅有空索引的 HEAD 成功暂存所选正文和新索引 entry。

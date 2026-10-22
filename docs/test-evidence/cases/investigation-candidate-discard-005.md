@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-DISCARD-005: candidate discard fails closed on invalid formal references
 
 Tests:
-- `test:a9daaa758352d30fe11b861a4547865802a6a25a26798567cbf2c99d2e0dc5d1`
+- `test:f0cebcec54ed3d44e701067d53b847d6caac14507583f0c9c19aa80b0ca11440`
 
 Tags:
 - `investigation-report`

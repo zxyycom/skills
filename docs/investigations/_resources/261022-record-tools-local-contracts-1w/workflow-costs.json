@@ -1,0 +1,113 @@
+{
+  "meaning": "逐次恢复相同fixture的独立命令测量按rep配对求和，非真实连续工作流或原子操作；省略双方共同候选readiness与语义审核。不相加RSS。",
+  "domains": {
+    "decision": {
+      "base": {
+        "commandCount": 3,
+        "components": [
+          "workflow-preflight",
+          "publish",
+          "workflow-check"
+        ],
+        "runs": [
+          {
+            "rep": 1,
+            "wallSeconds": 78.21152161902864,
+            "cpuSeconds": 81.94561
+          },
+          {
+            "rep": 2,
+            "wallSeconds": 78.1322291920078,
+            "cpuSeconds": 80.784763
+          },
+          {
+            "rep": 3,
+            "wallSeconds": 69.8818670110195,
+            "cpuSeconds": 75.121961
+          }
+        ],
+        "medianWallSeconds": 78.1322291920078,
+        "medianCpuSeconds": 80.784763
+      },
+      "after": {
+        "commandCount": 1,
+        "components": [
+          "publish"
+        ],
+        "runs": [
+          {
+            "rep": 1,
+            "wallSeconds": 6.178781106020324,
+            "cpuSeconds": 7.497149
+          },
+          {
+            "rep": 2,
+            "wallSeconds": 6.381124586012447,
+            "cpuSeconds": 7.77989
+          },
+          {
+            "rep": 3,
+            "wallSeconds": 6.5599909010052215,
+            "cpuSeconds": 7.832068
+          }
+        ],
+        "medianWallSeconds": 6.381124586012447,
+        "medianCpuSeconds": 7.77989
+      }
+    },
+    "investigation": {
+      "base": {
+        "commandCount": 3,
+        "components": [
+          "workflow-preflight",
+          "publish",
+          "workflow-check"
+        ],
+        "runs": [
+          {
+            "rep": 1,
+            "wallSeconds": 21.123441182018723,
+            "cpuSeconds": 23.751714
+          },
+          {
+            "rep": 2,
+            "wallSeconds": 19.115674422006123,
+            "cpuSeconds": 22.706708
+          },
+          {
+            "rep": 3,
+            "wallSeconds": 19.104982763004955,
+            "cpuSeconds": 22.712760000000003
+          }
+        ],
+        "medianWallSeconds": 19.115674422006123,
+        "medianCpuSeconds": 22.712760000000003
+      },
+      "after": {
+        "commandCount": 1,
+        "components": [
+          "publish"
+        ],
+        "runs": [
+          {
+            "rep": 1,
+            "wallSeconds": 4.945738456997788,
+            "cpuSeconds": 6.709941
+          },
+          {
+            "rep": 2,
+            "wallSeconds": 4.907184109004447,
+            "cpuSeconds": 6.646034
+          },
+          {
+            "rep": 3,
+            "wallSeconds": 4.904975232988363,
+            "cpuSeconds": 6.660672
+          }
+        ],
+        "medianWallSeconds": 4.907184109004447,
+        "medianCpuSeconds": 6.660672
+      }
+    }
+  }
+}

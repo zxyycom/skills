@@ -148,35 +148,29 @@ test("lifecycle rolls back and does not print success when its post-write index 
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
     const indexPath = path.join(decisionsDirectory, "decision-index.json");
     const renameDescriptor = Object.getOwnPropertyDescriptor(fs, "rename");
-    const readdirDescriptor = Object.getOwnPropertyDescriptor(fs, "readdir");
+    const readDescriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
     assert.ok(renameDescriptor);
-    assert.ok(readdirDescriptor);
+    assert.ok(readDescriptor);
     const rename = fs.rename.bind(fs);
-    const readdir = fs.readdir.bind(fs);
+    const readFile = fs.readFile.bind(fs);
     let indexWritten = false;
-    let rootReadsAfterIndexWrite = 0;
     Object.defineProperty(fs, "rename", {
       ...renameDescriptor,
       value: async (...args: Parameters<typeof fs.rename>) => {
         await rename(...args);
-        if (path.resolve(String(args[1])) === indexPath) {
-          indexWritten = true;
-        }
+        if (path.resolve(String(args[1])) === indexPath) indexWritten = true;
       }
     });
-    Object.defineProperty(fs, "readdir", {
-      ...readdirDescriptor,
-      value: async (...args: Parameters<typeof fs.readdir>) => {
+    Object.defineProperty(fs, "readFile", {
+      ...readDescriptor,
+      value: async (...args: Parameters<typeof fs.readFile>) => {
         if (
           indexWritten &&
-          path.resolve(String(args[0])) === decisionsDirectory
-        ) {
-          rootReadsAfterIndexWrite += 1;
-          if (rootReadsAfterIndexWrite === 2) {
-            throw new Error("simulated post-mutation decision scan failure");
-          }
-        }
-        return await readdir(...args);
+          typeof args[0] === "string" &&
+          path.resolve(args[0]) === indexPath
+        )
+          throw new Error("simulated post-mutation decision index failure");
+        return await readFile(...args);
       }
     });
     try {
@@ -193,6 +187,6 @@ test("lifecycle rolls back and does not print success when its post-write index 
       assert.match(result.stderr, /outcome: rolled-back/);
     } finally {
       Object.defineProperty(fs, "rename", renameDescriptor);
-      Object.defineProperty(fs, "readdir", readdirDescriptor);
+      Object.defineProperty(fs, "readFile", readDescriptor);
     }
   }));

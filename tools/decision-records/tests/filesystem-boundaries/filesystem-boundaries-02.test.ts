@@ -1,9 +1,4 @@
 import {
-  readFilesystemDecisionCandidates,
-  resolveFilesystemDecisionSource
-} from "../../src/decision-stage-sources.ts";
-import { decisionStageTargetFailure } from "../../src/decision-stage-prepare.ts";
-import {
   accessDeniedFileSystemError,
   applyDecisionChanges,
   assert,
@@ -17,6 +12,8 @@ import {
   path,
   scanDecisionRecords,
   test,
+  stageDecisionRecords,
+  withGitFixtureWorkspace,
   withFixtureWorkspace
 } from "./support.ts";
 
@@ -179,43 +176,36 @@ test("transaction classifies access denial and redacts filesystem error detail",
   ));
 
 test("stage classifies access denial and redacts filesystem error detail", () =>
-  withFixtureWorkspace("filesystem-diagnostic-stage", async (workspaceRoot) => {
-    const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
-    const original = fs.lstat;
-    Object.defineProperty(fs, "lstat", {
-      configurable: true,
-      value: (...args: Parameters<typeof fs.lstat>) => {
-        if (isTargetPath(args[0], sourcePath))
-          throw accessDeniedFileSystemError();
-        return original(...args);
-      }
-    });
-    try {
-      const candidates = await readFilesystemDecisionCandidates(
-        path.join(workspaceRoot, "docs/decisions"),
-        "docs/decisions"
-      );
-      let result;
-      try {
-        resolveFilesystemDecisionSource(
-          candidates,
-          currentDecisionId,
-          currentSourcePath
-        );
-        assert.fail("access denial must fail");
-      } catch (error) {
-        result = decisionStageTargetFailure(error);
-      }
-      const diagnostic = result.diagnostics.find(
-        (entry) => entry.causeCategory === "access-denied"
-      );
-      assert.ok(diagnostic);
-      assertRedactedAccessDeniedDiagnostic({
-        detail: diagnostic.detail,
-        expectedReason: "Failed to construct the selected decision snapshot.",
-        reason: diagnostic.reason
+  withGitFixtureWorkspace(
+    "filesystem-diagnostic-stage",
+    async (workspaceRoot) => {
+      const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
+      const original = fs.lstat;
+      Object.defineProperty(fs, "lstat", {
+        configurable: true,
+        value: (...args: Parameters<typeof fs.lstat>) => {
+          if (isTargetPath(args[0], sourcePath))
+            throw accessDeniedFileSystemError();
+          return original(...args);
+        }
       });
-    } finally {
-      fs.lstat = original;
+      try {
+        const result = await stageDecisionRecords({
+          decisionIds: [currentDecisionId],
+          location: { workspaceRoot, decisionsDir: "docs/decisions" }
+        });
+        assert.equal(result.status, "error");
+        const diagnostic = result.diagnostics.find(
+          (entry) => entry.causeCategory === "access-denied"
+        );
+        assert.ok(diagnostic);
+        assertRedactedAccessDeniedDiagnostic({
+          detail: diagnostic.detail,
+          expectedReason: "Failed to construct the selected decision snapshot.",
+          reason: diagnostic.reason
+        });
+      } finally {
+        fs.lstat = original;
+      }
     }
-  }));
+  ));

@@ -1,3 +1,4 @@
+import { investigationIdFromMarkdown } from "./markdown.ts";
 import {
   searchRecordText,
   type RecordTextSearchResult
@@ -49,10 +50,7 @@ export async function searchSnapshot(
       failureKind: "operation"
     });
   try {
-    const searched = await searchSelectedSources(
-      snapshot,
-      selected.value.entries
-    );
+    const searched = await searchSelectedSources(snapshot, sourceMap);
     const entries = searchHitEntries(
       searched.hits,
       sourceMap,
@@ -89,30 +87,44 @@ function sourceEntryMap(
 
 async function searchSelectedSources(
   snapshot: SearchSnapshot,
-  entries: readonly InvestigationSnapshotEntry[]
+  entriesBySourcePath: ReadonlyMap<string, InvestigationSnapshotEntry>
 ) {
-  return await searchRecordText({
-    limits: {
-      maxCandidateFiles: 2_000,
-      maxFileBytes: 2 * 1024 * 1024,
-      maxTotalBytes: 20 * 1024 * 1024
+  return await searchRecordText(
+    {
+      limits: {
+        maxCandidateFiles: 2_000,
+        maxFileBytes: 2 * 1024 * 1024,
+        maxTotalBytes: 20 * 1024 * 1024
+      },
+      preview: {
+        contextLines: 1,
+        maxFiles: snapshot.prepared.validated.limit,
+        maxMatchesPerFile: 3,
+        maxPreviewCharacters: 24_000
+      },
+      query: {
+        mode: snapshot.prepared.validated.match,
+        text: snapshot.prepared.query
+      },
+      root: snapshot.investigationsDirectory,
+      selection: {
+        kind: "files",
+        sourcePaths: [...entriesBySourcePath.keys()]
+      }
     },
-    preview: {
-      contextLines: 1,
-      maxFiles: snapshot.prepared.validated.limit,
-      maxMatchesPerFile: 3,
-      maxPreviewCharacters: 24_000
-    },
-    query: {
-      mode: snapshot.prepared.validated.match,
-      text: snapshot.prepared.query
-    },
-    root: snapshot.investigationsDirectory,
-    selection: {
-      kind: "files",
-      sourcePaths: entries.map((entry) => entry.state.sourcePath)
+    ({ sourcePath, content }) => {
+      if (
+        investigationIdFromMarkdown(content) !==
+        entriesBySourcePath.get(sourcePath)?.id
+      )
+        throw new FileTextSearchError({
+          code: "invalid-file",
+          sourcePath,
+          message:
+            "Investigation source identity does not match the published index."
+        });
     }
-  });
+  );
 }
 
 function searchHitEntries(

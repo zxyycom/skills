@@ -64,7 +64,7 @@ test("candidate API normalizes direct relation summaries without CLI-only inputs
         title: "程序化 relation summary",
         workspaceRoot
       });
-      assert.equal(created.status, "ok");
+      assert.equal(created.status, "ok", JSON.stringify(created));
       if (created.status !== "ok") return;
       const source = await fs.readFile(
         decisionFilePath(workspaceRoot, created.sourcePath),

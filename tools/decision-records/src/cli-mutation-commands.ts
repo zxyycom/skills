@@ -7,12 +7,9 @@ import type { CliArgs, CliArgsFor } from "./cli-args.ts";
 import type { QueryCliArgs } from "./cli-query-commands.ts";
 import { printDecisionAttention, printDecisionFailure } from "./cli-output.ts";
 import type { DecisionRecordsCliIo } from "./cli-io.ts";
-import { decisionLocation, decisionScanOptions } from "./cli-location.ts";
+import { decisionLocation } from "./cli-location.ts";
 import { createDecisionCandidate } from "./decision-candidate-service.ts";
-import {
-  prepareDecisionLifecycle,
-  type DecisionLifecyclePreparation
-} from "./decision-lifecycle-service.ts";
+import { readCandidateSelection } from "./decision-candidate-context.ts";
 import { renameDecisionRecord } from "./decision-rename.ts";
 import { stageDecisionRecords } from "./decision-stage-service.ts";
 import {
@@ -24,8 +21,6 @@ import {
   runReactivate,
   runSetRelations
 } from "./cli-lifecycle-commands.ts";
-import { loadDecisionValidationContext } from "./index.ts";
-import type { DecisionScan } from "./types.ts";
 
 export async function runNew(
   args: CliArgsFor<"new">,
@@ -67,93 +62,27 @@ async function printNewCandidateReadiness(
   args: CliArgsFor<"new">,
   io: DecisionRecordsCliIo
 ): Promise<void> {
-  io.stdout("Decision candidate readiness after creation:\n");
   try {
-    const { result } = await loadDecisionValidationContext(
-      decisionScanOptions(args),
-      { allowEmptyDecisionSet: true }
+    const selected = await readCandidateSelection(args, args.decisionId);
+    const candidate = selected.records[0];
+    io.stdout("Decision candidate readiness after creation:\n");
+    io.stdout(
+      "- scaffoldValid: " + (candidate?.scaffoldValid ?? "unavailable") + "\n"
     );
-    const candidate = result.scan.records.find(
-      (record) => record.decisionId === args.decisionId
-    );
-    printNewCandidateReadinessResult(
-      args,
-      candidate,
-      result.errors,
-      result.scan,
-      io
-    );
-  } catch (error) {
-    io.stdout("- scaffoldValid: unavailable\n");
-    io.stdout("- bodyReady: unavailable\n");
-    io.stderr(
-      "- preflight: unavailable (" + decisionFileSystemErrorText(error) + ")\n"
-    );
-    printNewCandidateAlignment(args, io);
-  }
-}
-
-function printNewCandidateReadinessResult(
-  args: CliArgsFor<"new">,
-  candidate: DecisionScan["records"][number] | undefined,
-  errors: readonly string[],
-  scan: DecisionScan,
-  io: DecisionRecordsCliIo
-): void {
-  if (candidate === undefined) {
-    io.stdout("- scaffoldValid: unavailable\n- bodyReady: unavailable\n");
-    io.stderr(
-      "- preflight: unavailable (created candidate could not be re-read)\n"
-    );
-  } else {
-    io.stdout("- scaffoldValid: " + candidate.scaffoldValid + "\n");
-    io.stdout("- bodyReady: " + candidate.bodyReady + "\n");
-    if (errors.length > 0)
-      io.stderr("- preflight: unavailable (" + errors[0] + ")\n");
-    else printNewCandidatePublishPreflight(args, scan, io);
-  }
-  printNewCandidateAlignment(args, io);
-}
-
-function printNewCandidatePublishPreflight(
-  args: CliArgsFor<"new">,
-  scan: DecisionScan,
-  io: DecisionRecordsCliIo
-): void {
-  const preparation = prepareDecisionLifecycle(
-    scan,
-    {
-      action: "publish",
-      alignment: args.preflightAlignment ?? "unaligned",
-      decisionId: args.decisionId,
-      keepUnrecordedHistory: false
-    },
-    { historyBaseline: null }
-  );
-  io.stdout("- preflight: selection-incomplete (candidate remains created)\n");
-  io.stderr("- " + readinessReason(preparation) + "\n");
-}
-
-function printNewCandidateAlignment(
-  args: CliArgsFor<"new">,
-  io: DecisionRecordsCliIo
-): void {
-  io.stdout(
-    args.preflightAlignment === null
-      ? "- alignment: unresolved (no alignment projection was prepared)\n"
-      : "- alignment preview: " +
+    io.stdout("- bodyReady: " + (candidate?.bodyReady ?? "unavailable") + "\n");
+    if (args.preflightAlignment !== null)
+      io.stdout(
+        "- alignment preview: " +
           args.preflightAlignment +
-          " (provided to auxiliary preparation; full projection waits for body readiness and is not written)\n"
-  );
-}
-
-function readinessReason(preparation: DecisionLifecyclePreparation): string {
-  if (preparation.status === "ok") {
-    return "the candidate body unexpectedly became ready during inspection";
+          " (not written; publish validates the final projection)\n"
+      );
+  } catch (error) {
+    io.stderr(
+      "Candidate readiness unavailable: " +
+        decisionFileSystemErrorText(error) +
+        "\n"
+    );
   }
-  return (
-    preparation.diagnostics[0]?.reason ?? "lifecycle selection is incomplete"
-  );
 }
 
 export async function runStage(

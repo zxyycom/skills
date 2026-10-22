@@ -10,7 +10,6 @@
 import path from "node:path";
 import { decisionIndexFileName } from "./decision-state-index.ts";
 import { displayDecisionPath } from "./decision-path.ts";
-import type { SelectedFilesystemSource } from "./decision-stage-contracts.ts";
 import { decisionRelativePath } from "./decision-stage-support.ts";
 import type { resolveDecisionLocation } from "./decision-query-context.ts";
 
@@ -32,24 +31,5 @@ export function displayRepositoryRelativePath(
   return displayDecisionPath(
     location.workspaceRoot,
     path.join(location.decisionsDirectory, ...relativePath.split("/"))
-  );
-}
-
-export function selectedSourceRelativePaths(
-  location: StageLocation,
-  selectedSources: readonly SelectedFilesystemSource[]
-): string[] {
-  return selectedSources.flatMap((selected) =>
-    selected.source === null
-      ? []
-      : [
-          displayDecisionPath(
-            location.workspaceRoot,
-            path.join(
-              location.decisionsDirectory,
-              ...selected.source.source.sourcePath.split("/")
-            )
-          )
-        ]
   );
 }

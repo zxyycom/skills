@@ -7,20 +7,13 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import { err, errAsync, ok, ResultAsync } from "neverthrow";
-import {
-  createStateIndexRuntime,
-  type StateIndexEntryStageResult
-} from "../../index-runtime/src/index.ts";
-import { investigationIndexFileName } from "./investigation-state-index.ts";
+import { errAsync, ok, ResultAsync } from "neverthrow";
 import {
   investigationStageDiagnosticCodes,
   prepareInvestigationStage,
   type InvestigationStageFailure
 } from "./staging-options.ts";
-import { resolveInvestigationStageSelectors } from "./staging-selectors.ts";
 import { stageInvestigationDomain } from "./staging-domain.ts";
-import { createInvestigationStageIndexDefinition } from "./staging-domain-index.ts";
 import { canonicalizeInvestigationsDirectory } from "./report-path.ts";
 import type {
   InvestigationStageOptions,
@@ -87,71 +80,15 @@ function stageValidatedInvestigationSelection(prepared: {
   reportIds: readonly string[];
   scope: InvestigationStageScope;
 }): ResultAsync<InvestigationStageSuccess, InvestigationStageFailure> {
-  if (prepared.scope !== "index") {
-    return ResultAsync.fromSafePromise(
-      stageInvestigationDomain({
-        investigationsDirectory: prepared.investigationsDirectory,
-        reportIds: prepared.reportIds,
-        scope: prepared.scope
-      })
-    ).andThen((result) =>
-      result.status === "ok"
-        ? ok(result)
-        : errAsync({ kind: "operation" as const, result })
-    );
-  }
-  const runtime = createStateIndexRuntime({
-    definition: createInvestigationStageIndexDefinition(),
-    indexPath: investigationIndexFileName,
-    resolveSelectedIds: resolveInvestigationStageSelectors,
-    root: prepared.investigationsDirectory
-  });
   return ResultAsync.fromSafePromise(
-    runtime.stageSelectedEntries(prepared.reportIds)
-  ).andThen((result) => {
-    const mapped = withDisplayIndexPath(result, prepared.indexPath);
-    return mapped.status === "error"
-      ? err({ kind: "operation" as const, result: mapped })
-      : ok(mapped);
-  });
-}
-
-function withDisplayIndexPath(
-  result: StateIndexEntryStageResult,
-  indexPath: string
-): InvestigationStageResult {
-  const scope = "index" as const;
-  if (result.status === "error") {
-    return {
-      ...result,
-      diagnostics: result.diagnostics.map((diagnostic) => ({
-        ...diagnostic,
-        path:
-          diagnostic.path === investigationIndexFileName
-            ? indexPath
-            : diagnostic.path
-      })),
-      indexPath,
-      scope
-    };
-  }
-  return {
-    callerOwnedPaths: [],
-    changed: result.changed,
-    diagnostics: result.diagnostics.map((diagnostic) => ({
-      ...diagnostic,
-      path:
-        diagnostic.path === investigationIndexFileName
-          ? indexPath
-          : diagnostic.path
-    })),
-    indexPath,
-    namespace: result.namespace,
-    preservedPendingPaths: [],
-    scope,
-    selectedIds: result.selectedIds,
-    state: result.state,
-    status: "ok",
-    writtenPaths: result.changed ? [indexPath] : []
-  };
+    stageInvestigationDomain({
+      investigationsDirectory: prepared.investigationsDirectory,
+      reportIds: prepared.reportIds,
+      scope: prepared.scope
+    })
+  ).andThen((result) =>
+    result.status === "ok"
+      ? ok(result)
+      : errAsync({ kind: "operation" as const, result })
+  );
 }

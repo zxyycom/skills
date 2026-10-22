@@ -145,10 +145,10 @@ test("CLI snapshot queries stay source-free while show and content report source
     ]);
     assert.equal(content.status, 0, content.stderr);
     assert.match(content.stdout, /260828-alpha/u);
-    assert.match(content.stderr, /unavailable or stale/u);
+    assert.equal(content.stderr, "");
     assert.match(
-      content.stderr,
-      /Run sync-index to publish the current projection/u
+      content.stdout,
+      /kind=published-index\+current-text currentness=unchecked fallback=false/u
     );
   });
 });

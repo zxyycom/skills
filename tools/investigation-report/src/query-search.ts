@@ -1,11 +1,11 @@
+import { publishedGraphErrors } from "./published-preparation.ts";
 import path from "node:path";
 import { canonicalizeInvestigationsDirectory } from "./report-path.ts";
 import {
   investigationIndexFileName,
-  loadCurrentInvestigationIndex
+  loadInvestigationIndex
 } from "./investigation-state-index.ts";
 import { diagnosticFromStateIndexDiagnostic } from "./diagnostics.ts";
-import { collectValidatedInvestigationCollection } from "./validation.ts";
 import {
   searchFailure,
   defaultInvestigationIndexPath
@@ -54,9 +54,16 @@ async function searchContent(
   indexPath: string,
   prepared: import("./query.ts").PreparedSearch
 ): Promise<InvestigationSearchResult> {
-  const loaded = await loadCurrentInvestigationIndex({
+  const loaded = await loadInvestigationIndex({
     investigationsDirectory
   });
+  if (loaded.status === "ok") {
+    const errors = publishedGraphErrors(
+      new Map(Object.entries(loaded.value.entries))
+    );
+    if (errors.length > 0)
+      return searchFailure({ errors, indexPath, failureKind: "operation" });
+  }
   return loaded.status === "ok"
     ? await searchSnapshot({
         relations: createInvestigationRelationContext(
@@ -66,59 +73,24 @@ async function searchContent(
         investigationsDirectory,
         prepared,
         source: {
-          kind: "validated-source",
-          currentness: "current",
+          kind: "published-index+current-text",
+          currentness: "unchecked",
           fallback: false
         },
         warnings: []
       })
-    : await searchValidatedFallback(
-        investigationsDirectory,
+    : searchFailure({
+        errors: [
+          "the published investigation index could not be loaded for content search"
+        ],
         indexPath,
-        prepared,
-        loaded.diagnostics.map((diagnostic) =>
+        diagnostics: loaded.diagnostics.map((diagnostic) =>
           diagnosticFromStateIndexDiagnostic(diagnostic, {
             recovery:
-              "restore the derived index or correct the formal collection before retrying search",
+              "Run check to diagnose the collection, then run sync-index after correcting the problem.",
             target: indexPath
           })
-        )
-      );
-}
-
-async function searchValidatedFallback(
-  investigationsDirectory: string,
-  indexPath: string,
-  prepared: import("./query.ts").PreparedSearch,
-  diagnostics: readonly import("./diagnostics.ts").InvestigationDiagnostic[]
-): Promise<InvestigationSearchResult> {
-  const collection = await collectValidatedInvestigationCollection(
-    investigationsDirectory,
-    { allowEmptyCollection: true }
-  );
-  if (collection.errors.length > 0 || collection.snapshot === null) {
-    return searchFailure({
-      errors:
-        collection.errors.length > 0
-          ? collection.errors
-          : ["the formal investigation collection could not be validated"],
-      indexPath,
-      diagnostics,
-      failureKind: "operation"
-    });
-  }
-  return await searchSnapshot({
-    relations: collection.relations,
-    indexPath,
-    investigationsDirectory,
-    prepared,
-    source: {
-      kind: "validated-source",
-      currentness: "current",
-      fallback: true
-    },
-    warnings: [
-      "search source: validated-source fallback; the persisted Investigation index is unavailable or stale; search used a validated in-memory source projection of the current formal Markdown. Run sync-index to publish the current projection."
-    ]
-  });
+        ),
+        failureKind: "operation"
+      });
 }

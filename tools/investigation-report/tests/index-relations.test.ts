@@ -184,12 +184,13 @@ test("list and search combine direct relation selectors with existing query boun
       relatedTo: "center",
       workspaceRoot: root
     });
-    assert.equal(fallback.status, "ok");
-    assert.deepEqual(
-      fallback.entries.map((entry) => entry.id),
-      ["predecessor", "successor"]
+    assert.equal(fallback.status, "error");
+    assert.deepEqual(fallback.entries, []);
+    assert.equal(fallback.searchInfo, null);
+    assert.match(
+      JSON.stringify(fallback.diagnostics),
+      /published investigation index|sync-index/u
     );
-    assert.equal(fallback.warnings.length, 1);
     assert.deepEqual(
       (await synchronizeInvestigationIndex({ workspaceRoot: root })).errors,
       []

@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- all、index、domain 均须在准备之后独立验证选中可变来源，漂移时不能替换 pending。
+- all/domain 两次独立准备读取所选正文，index 两次核对发布投影；任何 scope 的相关输入或完整 pending 漂移都在 pending 写入前阻断。
 
 Proves:
-- 真实 all scope 在第三次所选文件读取前注入字节变化，stage 以 stage-source-changed 失败；实际读取计数为三且 Git pending tree identity 未改变。
+- 第二次所选正文读取时注入变更，命令返回 stage-source-changed，读取确为两次且 Git pending tree 保持原样。

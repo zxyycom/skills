@@ -1,13 +1,13 @@
-### Case INVESTIGATION-LAZY-FALLBACK-001: 正文降级搜索复用集合校验图
+### Case INVESTIGATION-LAZY-FALLBACK-001: 正文搜索复用投影关系图
 
 Tests:
-- `test:9dc52e829e3cdbc57cb2d3d3b3e1009278510e36541e85c98da89c6568bd27e0`
+- `test:7270df03fdfeded7fce3734a34244f3b4318ab4094c038093533f628e4acca8f`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- content fallback 在完整集合验证成功后，继续使用同一投影及其关系图，不重新构图或弱化来源校验。
+- content 使用提供的发布投影关系上下文。
 
 Proves:
-- 真实集合采集与验证后 content 搜索返回正确后继和摘要、fallback 来源标记；搜索沿用图引用，未再投影原始 relations。
+- 返回正确后继与摘要和 published-index+current-text 来源，复用图引用。

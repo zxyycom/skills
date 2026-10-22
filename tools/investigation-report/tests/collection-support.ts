@@ -27,3 +27,16 @@ export async function writeCollection(
     assert.deepEqual(result.errors, []);
   }
 }
+
+export async function writeResource(
+  root: string,
+  id: string,
+  bytes: string
+): Promise<void> {
+  await fs.mkdir(path.dirname(resourcePath(root, id)), { recursive: true });
+  await fs.writeFile(resourcePath(root, id), bytes, "utf8");
+}
+
+export function resourcePath(root: string, id: string): string {
+  return path.join(investigationRoot(root), "_resources", id);
+}

@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- 无 revision 基线的首个集合也能分别使用 index 与 domain scope。
+- domain scope 只刷新选中领域来源，保持已经暂存的索引字节。
 
 Proves:
-- 新建 Decision 先 index 后 domain 后，pending 索引字节保持 index 结果，所选 Markdown 进入 pending。
+- 显式发布工作区投影后先 index 再 domain 暂存均成功，domain 更新目标正文但 pending 索引逐字节不变。

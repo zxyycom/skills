@@ -7,9 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- scaffold 不能通过 lifecycle 建立；body-ready candidate 的 preflight 必须零写入，正式 publish 必须独立执行建立。
+- 显式生命周期预检保留正文 ready 与只读保证；new 的可选 alignment 仅为未写入的提示，不构造发布投影。
 
 Proves:
-- new 的 alignment 辅助预检状态写 stdout；未完成 scaffold 的 publish preflight 失败且 Markdown 不变。
-- body-ready candidate 的 publish preflight 成功、不写 Markdown 或索引，并明确指出没有写入。
-- 随后非 preflight publish 才创建正式索引。
+- 未完成候选的显式 publish 预检失败、ready 后预检通过且正文和索引不变，正式发布才写入 alignment；new 不默认进行辅助发布准备。

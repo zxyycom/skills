@@ -12,3 +12,5 @@ await import("../filesystem-boundaries.test.ts");
 await import("../batch-lookup.test.ts");
 await import("../first-establishment.test.ts");
 await import("../reallocation-member-complexity.test.ts");
+
+await import("../local-operation-contracts.test.ts");

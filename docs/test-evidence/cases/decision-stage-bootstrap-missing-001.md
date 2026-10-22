@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- 没有 revision/baseline 的 bootstrap 不能把不存在的选择 ID 解释为空集合或写入 pending。
+- 没有 HEAD 的 stage 仍必须在工作区发布身份集合内解析选择，缺失 ID 不得写入 pending。
 
 Proves:
-- 空内存基线与来源集合的 target 构造拒绝不存在的选择 name，返回 Selected Decision name does not exist；不执行 Git 写入。
+- 真实 unborn Git stage 对缺失 name 返回选择失败，pending tree identity 保持不变。

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-DISCARD-CANDIDATE-003: formal discard protects candidate resource references
 
 Tests:
-- `test:48924ba6b74027b78da4bad59ab43ba6a0ecd927166544fe1ddbea9b51716bce`
+- `test:e8232e1bf891ea7bab412047cf35dd73b52511d7fe93154ea0d21dea2fb70b10`
 
 Tags:
 - `investigation-report`

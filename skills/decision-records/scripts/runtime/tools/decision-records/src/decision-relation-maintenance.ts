@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { completePublishedGraph } from "./decision-relation-transaction-projection.ts";
 import {
   createDecisionRecordLookup,
   findDecisionRecord,
@@ -25,7 +26,7 @@ import type { DecisionFileChange } from "./decision-transaction.ts";
 import type {
   DecisionId,
   DecisionRelationOverrideGroup,
-  DecisionScan,
+  DecisionPreparationContext,
   EstablishedDecisionRecord
 } from "./types.ts";
 import { isEstablishedDecisionRecord } from "./types.ts";
@@ -58,7 +59,7 @@ type DecisionSetRelationsPreparation =
  * already satisfy the established relation graph on its own.
  */
 export function prepareDecisionSetRelations(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   request: DecisionSetRelationsRequest,
   records: DecisionRecordLookup = createDecisionRecordLookup(scan.records)
 ): DecisionSetRelationsPreparation {
@@ -133,7 +134,7 @@ function setRelationsChange(
 }
 
 function setRelationsGraphFailure(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   sources: readonly PreparedSetRelationsSource[]
 ): DecisionApplicationFailure | null {
   const finalRelationsBySource = new Map(
@@ -156,7 +157,9 @@ function setRelationsGraphFailure(
         ]
       : []
   );
-  const issues = decisionRelationConsistencyIssues(previewRecords);
+  const issues = decisionRelationConsistencyIssues(
+    completePublishedGraph(scan, previewRecords)
+  );
   return issues.length === 0
     ? null
     : decisionFailure(issues.map((issue) => issue.message));

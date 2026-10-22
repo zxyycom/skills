@@ -1,13 +1,13 @@
 ### Case DECISION-STAGE-ISOLATION-001: Stage 隔离未选择的文件系统变更
 
 Tests:
-- `test:2d8b82b436ab90d41f1ca4f64885566bad3bbf7de619177048f15239d9f87c51`
+- `test:5e79a527cd7ed428352c98468a2e4ae9a7832028fa5603a9998f564db1f2bb1d`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 领域 target 与派生索引只采用已选 ID 的当前来源；未选新增不进入结果，未选已有成员保持基线来源。
+- 所选对象按 scope 采用当前完整版本，未选对象保持既有 pending 版本，而非重新套用 HEAD 或工作区版本。
 
 Proves:
-- 所选新增进入 target 与投影，未选新增被排除；未选已有成员虽有工作区修改，target 保留基线完整字节，索引保留基线标题。
+- 真实 stage 连续选择 A、B 后再次选择 A，A 更新为工作区新版本，B 的旧 pending 正文与标题保持，重复刷新无变化。

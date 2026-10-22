@@ -21,20 +21,11 @@ import {
   parseJsonObject,
   withTempRoot
 } from "./fixture-support.ts";
-import { writeCollection } from "./collection-support.ts";
-
-async function writeResource(
-  root: string,
-  id: string,
-  bytes: string
-): Promise<void> {
-  await fs.mkdir(path.dirname(resourcePath(root, id)), { recursive: true });
-  await fs.writeFile(resourcePath(root, id), bytes, "utf8");
-}
-
-function resourcePath(root: string, id: string): string {
-  return path.join(investigationRoot(root), "_resources", id);
-}
+import {
+  writeCollection,
+  writeResource,
+  resourcePath
+} from "./collection-support.ts";
 
 test("stage --scope domain writes the report and its complete owner resource tree", async () => {
   await withTempRoot("stage-domain-tree", async (root) => {

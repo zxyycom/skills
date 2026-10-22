@@ -180,3 +180,51 @@ test("record search match-range limits alone do not limit scanning or returned i
     }
   );
 });
+
+test("record search validates the same text before matching including nonmatching files", async () => {
+  await withFixture({ "a.md": "not a hit", "b.md": "needle" }, async (root) => {
+    const seen: string[] = [];
+    await assert.rejects(
+      searchRecordText(recordRequest(root, 2), (source) => {
+        seen.push(source.sourcePath);
+        assert.equal(source.content, "not a hit");
+        throw new FileTextSearchError({
+          code: "invalid-file",
+          sourcePath: source.sourcePath,
+          message: "identity mismatch"
+        });
+      }),
+      { code: "invalid-file", sourcePath: "a.md" }
+    );
+    assert.deepEqual(seen, ["a.md"]);
+    const plain = await searchRecordText(recordRequest(root, 2));
+    assert.deepEqual(
+      plain.hits.map((hit) => hit.sourcePath),
+      ["b.md"]
+    );
+  });
+});
+
+test("record search rejects candidate overflow before source validation or reads", async () => {
+  await withFixture({}, async (root) => {
+    const base = recordRequest(root, 2);
+    let validated = false;
+    await assert.rejects(
+      searchRecordText(
+        {
+          ...base,
+          limits: { maxCandidateFiles: 1 },
+          selection: {
+            kind: "files",
+            sourcePaths: ["missing-a.md", "missing-b.md"]
+          }
+        },
+        () => {
+          validated = true;
+        }
+      ),
+      { code: "resource-limit" }
+    );
+    assert.equal(validated, false);
+  });
+});

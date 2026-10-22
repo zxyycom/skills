@@ -136,17 +136,13 @@ test("decision search metadata always identifies the published snapshot without 
   });
 });
 
-test("decision search validated fallback remains read only and required source failure stays a failure", async () => {
+test("decision search rejects absent published indexes without implicit recovery", async () => {
   await withFixtureWorkspace("search-info-fallback", async (root) => {
     const index = path.join(root, "docs/decisions/decision-index.json");
     await fs.rm(index);
     const result = await executeDecisionSearch(searchRequest(root));
-    assert.ok(result.status === "ok" && result.command === "search");
-    assert.deepEqual(result.searchInfo.source, {
-      kind: "validated-source",
-      currentness: "current",
-      fallback: true
-    });
+    assert.equal(result.status, "error");
+    assert.equal("searchInfo" in result, false);
     await assert.rejects(fs.access(index));
     await fs.writeFile(
       decisionFilePath(root, currentSourcePath),
@@ -254,7 +250,7 @@ test("distributed decision preview warnings do not diagnose a current source as 
     assert.equal(result.exitCode, 0, result.stderr);
     assert.match(
       result.stdout,
-      /Source: kind=validated-source currentness=current fallback=false/
+      /Source: kind=published-index\+current-text currentness=unchecked fallback=false/
     );
     assert.match(
       result.stdout,
@@ -268,5 +264,29 @@ test("distributed decision preview warnings do not diagnose a current source as 
       result.stderr,
       /source problem|Decision query source|sync-index|Correct the reported/
     );
+  });
+});
+
+test("decision content search checks nonmatching source identity without full body validation", async () => {
+  await withFixtureWorkspace("search-identity-current-text", async (root) => {
+    const source = decisionFilePath(root, currentSourcePath);
+    const original = await fs.readFile(source, "utf8");
+    await fs.writeFile(
+      source,
+      original.replace("## 背景", "## changed heading")
+    );
+    const valid = await executeDecisionSearch(
+      searchRequest(root, { text: "absent-unique-term" })
+    );
+    assert.equal(valid.status, "ok");
+    await fs.writeFile(
+      source,
+      original.replace(`id: ${currentDecisionId}`, "id: changed-identity")
+    );
+    const invalid = await executeDecisionSearch(
+      searchRequest(root, { text: "absent-unique-term" })
+    );
+    assert.equal(invalid.status, "error");
+    assert.match(JSON.stringify(invalid), /identity does not match/);
   });
 });

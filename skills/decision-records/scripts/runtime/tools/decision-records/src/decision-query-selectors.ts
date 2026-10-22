@@ -112,7 +112,7 @@ function indexedSelectorById(
 }
 
 export function resolveCandidateDecisionSelector(
-  scan: DecisionScan,
+  scan: Pick<DecisionScan, "records">,
   selector: string
 ):
   | { record: CandidateDecisionRecord | null; status: "ok" }

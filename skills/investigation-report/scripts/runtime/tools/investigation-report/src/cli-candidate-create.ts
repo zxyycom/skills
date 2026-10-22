@@ -15,10 +15,7 @@ import {
   type InvestigationRelationSummaryInput
 } from "./relation-summary.ts";
 import type { InvestigationReportCliIo, ParsedCli } from "./cli-contract.ts";
-import {
-  printCandidateReadinessSummary,
-  printCandidatePreflightUnavailable
-} from "./cli-candidate-readiness.ts";
+import { printCandidateReadinessSummary } from "./cli-candidate-readiness.ts";
 import {
   cliInvalid,
   printResultErrors,
@@ -64,12 +61,6 @@ export async function runNew(
   printCandidateReadinessSummary(result.candidate.readiness, io);
   for (const warning of result.warnings)
     writeLine(io.stderr, `warning: ${warning}`);
-  await printNewCandidatePublishPreflight(
-    result.candidate.id,
-    location(input.values),
-    result.candidate.errors,
-    io
-  );
   return 0;
 }
 
@@ -206,38 +197,6 @@ function relationSummariesWithoutRelations(
   summaries: readonly unknown[]
 ): boolean {
   return relations.length === 0 && summaries.length > 0;
-}
-
-async function printNewCandidatePublishPreflight(
-  id: string,
-  candidateLocation: { investigationsDir?: string; workspaceRoot: string },
-  reportedErrors: readonly string[],
-  io: InvestigationReportCliIo
-): Promise<void> {
-  let preflight: Awaited<ReturnType<typeof publishInvestigationCandidates>>;
-  try {
-    preflight = await publishInvestigationCandidates({
-      ...candidateLocation,
-      ids: [id],
-      preflight: true
-    });
-  } catch (error) {
-    printCandidatePreflightUnavailable(id, error, io);
-    return;
-  }
-  if (preflight.errors.length === 0) {
-    writeLine(io.stdout, "Candidate publish preflight: ready (not published).");
-    printWarnings(preflight.warnings, io);
-    return;
-  }
-  writeLine(
-    io.stdout,
-    "Candidate publish preflight: needs attention (candidate remains created)."
-  );
-  for (const error of preflight.errors) {
-    if (!reportedErrors.includes(error)) writeLine(io.stderr, `- ${error}`);
-  }
-  printWarnings(preflight.warnings, io);
 }
 
 export async function runPublish(

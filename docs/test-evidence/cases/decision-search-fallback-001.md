@@ -1,14 +1,13 @@
-### Case DECISION-SEARCH-FALLBACK-001: Decision search 以只读来源投影处理陈旧索引
+### Case DECISION-SEARCH-FALLBACK-001: 发布范围内读取当前正文
 
 Tests:
-- `test:eda803331ff9784a7cc0a928a3859a9c33156bcf43b259cd91f64d114fbf51b4`
+- `test:2232aa07aad0753dd20c12316562e5839453ad5687237566e8a200c4cf978745`
 
 Tags:
 - `decision-records`
 
 Contract:
-- 搜索遇到陈旧 Decision 索引时，必须从已验证来源建立只读投影完成 sourcePath 到 ID 的反查，而不写回索引。
+- content 按发布范围读取当前文本，不检查全集新鲜度。
 
 Proves:
-- 索引未收录的新正文词仍返回现有 Decision ID。
-- stderr 报告只读来源投影，且持久索引字节保持不变。
+- 新正文词返回已有 Decision ID，stderr 无降级提示，索引字节不变。

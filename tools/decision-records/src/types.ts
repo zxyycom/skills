@@ -335,3 +335,18 @@ export type MarkdownSection = {
   heading: string;
   index: number;
 };
+
+/** Preparation consumes validated sources and, for local maintenance, a published graph.
+ * Unread published entries never impersonate source records.
+ */
+export type DecisionPreparationContext = Pick<
+  DecisionScan,
+  | "records"
+  | "sourceErrors"
+  | "decisionsDirectory"
+  | "workspaceRoot"
+  | "indexPath"
+  | "indexRelativePath"
+  | "indexText"
+  | "indexExists"
+> & { readonly publishedBaseline?: DecisionIndex };

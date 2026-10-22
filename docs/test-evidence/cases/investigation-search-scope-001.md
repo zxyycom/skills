@@ -1,14 +1,14 @@
-### Case INVESTIGATION-SEARCH-SCOPE-001: search 排除非正式文件并只读回退
+### Case INVESTIGATION-SEARCH-SCOPE-001: search 排除非正式文件并拒绝缺失索引
 
 Tests:
-- `test:8b983c2e7bd7010d0888bb6837f07a1a3456f45962ae130f6942071d573a84af`
+- `test:db93bed253bdccff83ac136808c35d706d742454c3c98e4059a9820308c0ac2d`
 
 Tags:
 - `investigation-report`
 
 Contract:
-- Investigation search 只搜索正式报告 Markdown，排除 candidate、随附资源和派生索引；索引缺失时从合法正式来源构建只读投影而不写回索引。
+- content 只搜索发布范围内的报告 Markdown，不包含候选、资源或索引文件；缺索引必须明确失败。
 
 Proves:
-- 只存在于 candidate 或资源文件的词不返回任何报告。
-- 删除派生索引后，正式 Markdown 的命中仍返回正式 Investigation ID、附带一个 warning，且不创建索引文件。
+- 只存在于 candidate 或资源文件的词零命中。
+- 删除索引后搜索失败，不创建索引文件。

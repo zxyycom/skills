@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- basename 是存储位置而非身份；选择一个显式 ID 时，语义 sourcePath 改名与正文编辑一同进入 pending index，工具不伪造新 ID。
+- basename 是存储位置而非身份；选择一个显式 ID 时，已同步的语义 sourcePath 改名和正文编辑共同刷新 pending。
 
 Proves:
-- 纯 target 构造在同一 ID 下保留编辑后的标题、semantic-current.md 和对应 sourceFiles 路径；不执行 Git 暂存。
+- 真实 stage 暂存 semantic-current.md 的新标题，并删除 before.md 的旧 pending 路径。

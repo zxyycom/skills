@@ -49,9 +49,8 @@ export function createInvestigationStageIndexDefinition() {
 }
 
 /**
- * Builds the derived index projection for the `all` scope from the fresh
- * workspace projection over the selected entries; changed collection metadata
- * stops the selective projection in favor of a complete index stage. The
+ * Replaces selected pending entries with their workspace published projections;
+ * changed collection metadata requires explicit complete-index handling. The
  * `domain` scope keeps `null` so the pending index stays byte-identical.
  */
 export function domainIndexFile(
@@ -60,15 +59,14 @@ export function domainIndexFile(
   selection: DomainSelection,
   control: DomainStageControl
 ): DomainStep<VersionControlFile | null> {
-  if (control.input.scope !== "all") {
+  if (control.input.scope === "domain") {
     return { status: "ok", value: null };
   }
-  const metadataChanged =
-    snapshot.baseline !== null &&
-    !sameStateIndexCollectionMetadata(
-      snapshot.baseline,
-      snapshot.workspaceIndex
-    );
+  const metadataChanged = [snapshot.baseline, snapshot.pendingIndex].some(
+    (index) =>
+      index !== null &&
+      !sameStateIndexCollectionMetadata(index, snapshot.workspaceIndex)
+  );
   if (metadataChanged) {
     return {
       status: "error",
@@ -91,7 +89,7 @@ function indexProjectionFile(
   control: DomainStageControl
 ): DomainStep<VersionControlFile> {
   const targetSnapshot = selectTargetSnapshot(
-    snapshot.baseline,
+    snapshot.pendingIndex,
     snapshot.workspaceIndex,
     new Set(selection.selectedIds)
   );
@@ -106,7 +104,10 @@ function indexProjectionFile(
       result: domainFailureDiagnostics(
         control,
         "target-invalid",
-        target.diagnostics
+        target.diagnostics.map((diagnostic) => ({
+          ...diagnostic,
+          message: `${diagnostic.message}; explicitly select the required reports or resource owners as well`
+        }))
       )
     };
   }

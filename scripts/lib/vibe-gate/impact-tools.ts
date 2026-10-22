@@ -31,7 +31,7 @@ const repositoryValidationInputs = [
   "scripts/{auto-push.ts,setup-git-hooks.js,setup-repository.js,task-graph.js,lint.ts,vibe-check.test.ts}"
 ];
 const decisionRecordInputs = [
-  "tools/decision-records/src/{application-result,index,list-facets,markdown,projection,record,relation-*,scan*,types,decision-{history-baseline,index-*,location,metadata*,path,record-lookup,source-revision,state-*,timestamp,trace-admission}}.ts",
+  "tools/decision-records/src/{application-result,index,list-facets,markdown,projection,record,relation-*,scan*,types,decision-{history-baseline,index-*,location,metadata*,path,record-lookup,source-{revision,dependencies,path-safety},state-*,timestamp,trace-admission}}.ts",
   "tools/decision-records/src/decision-query-context.ts",
   "tools/decision-records/tests/{support,support-record-fixture,support-git-fixture,domain-fixture,run}.ts",
   "tools/decision-records/tests/fixtures/**",
@@ -48,15 +48,17 @@ const decisionQueryInputs = [
   "tools/decision-records/tests/checks/query-and-index-projection.ts"
 ];
 const decisionMaintenanceInputs = [
-  "tools/decision-records/src/decision-{candidate*,collection*,discard*,lifecycle*,rename*,relation-*,transaction*}.ts",
-  "tools/decision-records/tests/{activation-archive,candidate-lifecycle,candidate-scaffold,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries,batch-lookup,first-establishment,reallocation-member-complexity,successor-relation-overrides}.test.ts",
+  "tools/decision-records/src/decision-{candidate*,collection*,discard*,lifecycle*,maintenance*,rename*,relation-*,transaction*}.ts",
+  "tools/decision-records/tests/{activation-archive,candidate-lifecycle,candidate-scaffold,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries,batch-lookup,first-establishment,reallocation-member-complexity,successor-relation-overrides,local-operation-contracts}.test.ts",
   "tools/decision-records/tests/reallocation-fixture.ts",
+  "tools/decision-records/tests/support-local-contracts.ts",
   "tools/decision-records/tests/{activation-archive,candidate-lifecycle,candidate-scaffold,evolution,lifecycle-relations,relation-maintenance,rename,transaction-recovery,unrecorded-history,filesystem-boundaries}/**",
   "tools/decision-records/tests/checks/lifecycle-and-recovery.ts"
 ];
 const decisionStageInputs = [
   "tools/decision-records/src/decision-stage*.ts",
-  "tools/decision-records/tests/{stage,stage-sources}.test.ts",
+  "tools/decision-records/tests/{stage,stage-sources,local-stage-contracts}.test.ts",
+  "tools/decision-records/tests/support-local-contracts.ts",
   "tools/decision-records/tests/stage/**"
 ];
 const decisionCliInputs = [
@@ -83,7 +85,7 @@ const investigationQueryInputs = [
 const investigationMaintenanceInputs = [
   "tools/investigation-report/src/{candidate*,discard*,publish*,relation-review*,relation-transaction*,rename*}.ts",
   "tools/investigation-report/tests/publish-support.ts",
-  "tools/investigation-report/tests/{transaction*,relation-review,discard,publish,rename*}.test.ts",
+  "tools/investigation-report/tests/{transaction*,relation-review,discard,publish,rename*,candidate-discard-transaction}.test.ts",
   "tools/investigation-report/tests/checks/transactional-maintenance.ts"
 ];
 const investigationStageInputs = [

@@ -1,7 +1,7 @@
 ### Case INVESTIGATION-CANDIDATE-DISCARD-004: destructive discards fail closed on invalid candidate references
 
 Tests:
-- `test:b8bc2cdeb1c4bfd79468b65e03c647f6c782c90b5d2ed2cfbdf4bdb2c89d012a`
+- `test:348e9e299ce246df663c20e1873e14397ff7c23a835c7c99506355c4d1983c45`
 
 Tags:
 - `investigation-report`

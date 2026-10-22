@@ -7,25 +7,24 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import fs from "node:fs/promises";
+import { prepareFormalPublishContext } from "./publish-preparation-formal.ts";
 import {
   buildStateIndex,
   serializeStateIndex
 } from "../../index-runtime/src/index.ts";
 import {
-  createInvestigationStateSnapshot,
   inspectInvestigationCollectionLayout,
   type InvestigationCollectionLayout
 } from "./investigation-index-source.ts";
 import {
   createInvestigationStateIndexDefinition,
-  investigationIndexDiagnosticMessages,
-  syncInvestigationStateIndex
+  investigationIndexDiagnosticMessages
 } from "./investigation-state-index.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
 import { createInvestigationRelationContext } from "./relation-context.ts";
 import {
-  validateFullInvestigationResources,
+  validateReferencedInvestigationResources,
+  validateInvestigationResourceOwnership,
   type InvestigationResourceReferencesByReport
 } from "./resources.ts";
 import {
@@ -33,13 +32,19 @@ import {
   snapshotReferencedInvestigationResources,
   type InvestigationPublishResourceIdentity
 } from "./publish-resource-snapshot.ts";
-import {
-  collectValidatedInvestigationCollection,
-  unrecordedPredecessorWarnings,
-  type ValidatedInvestigationCollection
-} from "./validation.ts";
+import { unrecordedPredecessorWarnings } from "./validation.ts";
 import type { InvestigationIndexState, InvestigationSource } from "./types.ts";
-import type { InvestigationDiagnostic } from "./diagnostics.ts";
+import {
+  diagnosticFromError,
+  type InvestigationDiagnostic
+} from "./diagnostics.ts";
+import {
+  publicationDependencyIds,
+  publicationSnapshot,
+  readPublishedInvestigationDependencies,
+  type PublishedInvestigationIndex,
+  type PublishedInvestigationSnapshot
+} from "./published-preparation.ts";
 import { preparePublishCandidates } from "./publish-preparation-candidates.ts";
 
 export type InvestigationPublishPreparation = Readonly<{
@@ -80,7 +85,13 @@ export type PublishPreparationStep<T> =
   | PublishPreparationFailure
   | { status: "ok"; value: T };
 export type FormalPublishContext = Readonly<{
-  formal: ValidatedInvestigationCollection;
+  formal: Readonly<{
+    indexPath: string;
+    sources: InvestigationSource[];
+    states: Map<string, InvestigationIndexState>;
+    snapshot: PublishedInvestigationSnapshot;
+    publishedIndex: PublishedInvestigationIndex | null;
+  }>;
   layout: InvestigationCollectionLayout;
   indexExisted: boolean;
   warnings: string[];
@@ -101,26 +112,44 @@ export async function prepareInvestigationPublish(
   ids: readonly string[]
 ): Promise<InvestigationPublishPreparationResult> {
   const layout = await readLayout(investigationsDirectory);
-  if ("errors" in layout) return layout;
+  if ("errors" in layout) {
+    return layout;
+  }
   const selectionErrors = selectedCandidateErrors(layout.value, ids);
-  if (selectionErrors.length > 0) return preparationFailure(selectionErrors);
+  if (selectionErrors.length > 0) {
+    return preparationFailure(selectionErrors);
+  }
   const formalStep = await prepareFormalPublishContext(
     investigationsDirectory,
     layout.value
   );
-  if (formalStep.status === "error") return formalStep;
+  if (formalStep.status === "error") {
+    return formalStep;
+  }
   const candidateStep = await preparePublishCandidates(
     investigationsDirectory,
     ids,
     formalStep.value
   );
-  if (candidateStep.status === "error") return candidateStep;
-  const context = candidateStep.value;
+  if (candidateStep.status === "error") {
+    return candidateStep;
+  }
+  const dependencyStep = await preparePublicationDependencies(
+    investigationsDirectory,
+    ids,
+    candidateStep.value
+  );
+  if (dependencyStep.status === "error") {
+    return dependencyStep;
+  }
+  const context = dependencyStep.value;
   const validation = await validatePublishCollection(
     investigationsDirectory,
     context
   );
-  if (validation.status === "error") return validation;
+  if (validation.status === "error") {
+    return validation;
+  }
   return await buildPreparedPublication(investigationsDirectory, context);
 }
 
@@ -131,9 +160,10 @@ async function buildPreparedPublication(
   const sources = [...context.formal.sources, ...context.candidateSources].sort(
     (left, right) => compareText(left.id, right.id)
   );
-  const snapshot = createInvestigationStateSnapshot(
-    sources,
-    sources.map((source) => requiredPublishState(context.states, source.id))
+  const snapshot = publicationSnapshot(
+    context.formal.snapshot,
+    context.states,
+    sources
   );
   const definition = createInvestigationStateIndexDefinition({ snapshot });
   const builtIndex = await buildStateIndex(definition, {
@@ -192,47 +222,6 @@ function requiredPublishState(
   return state;
 }
 
-async function prepareFormalPublishContext(
-  investigationsDirectory: string,
-  layout: InvestigationCollectionLayout
-): Promise<PublishPreparationStep<FormalPublishContext>> {
-  const formal = await collectValidatedInvestigationCollection(
-    investigationsDirectory,
-    { allowEmptyCollection: true, layout }
-  );
-  if (formal.errors.length > 0 || formal.snapshot === null) {
-    return preparationFailure(formal.errors, [], formal.warnings);
-  }
-  const indexExisted = await regularIndexExists(formal.indexPath);
-  if ("errors" in indexExisted) return indexExisted;
-  if (formal.reportCount > 0 || indexExisted.value) {
-    const freshness = await syncInvestigationStateIndex({
-      investigationsDirectory,
-      mode: "check",
-      snapshot: formal.snapshot
-    });
-    if (freshness.status === "error") {
-      return preparationFailure(
-        investigationIndexDiagnosticMessages(
-          freshness.diagnostics,
-          formal.indexPath
-        ),
-        [],
-        formal.warnings
-      );
-    }
-  }
-  return {
-    status: "ok",
-    value: {
-      formal,
-      layout,
-      indexExisted: indexExisted.value,
-      warnings: [...formal.warnings]
-    }
-  };
-}
-
 async function validatePublishCollection(
   investigationsDirectory: string,
   context: CandidatePublishContext
@@ -246,22 +235,31 @@ async function validatePublishCollection(
   const references: InvestigationResourceReferencesByReport = new Map(
     [...context.states].map(([id, state]) => [id, new Set(state.resourceIds)])
   );
-  const resourceValidation = await validateFullInvestigationResources(
-    investigationsDirectory,
+  const ownershipErrors = validateInvestigationResourceOwnership(
+    [...context.states.values()].flatMap((state) => state.resourceIds),
     references
   );
-  if (resourceValidation.errors.length > 0) {
+  const resourceErrors = await validateReferencedInvestigationResources(
+    investigationsDirectory,
+    context.candidateSources.flatMap(
+      (source) => context.states.get(source.id)!.resourceIds
+    )
+  );
+  if (ownershipErrors.length + resourceErrors.length > 0)
     return preparationFailure(
-      resourceValidation.errors,
+      [...ownershipErrors, ...resourceErrors],
       [],
-      [...context.warnings, ...resourceValidation.warnings]
+      context.warnings
     );
-  }
-  context.warnings.push(...resourceValidation.warnings);
   context.warnings.push(
     ...(await unrecordedPredecessorWarnings(
       investigationsDirectory,
-      context.states
+      new Map(
+        context.candidateSources.map((source) => [
+          source.id,
+          context.states.get(source.id)!
+        ])
+      )
     ))
   );
   return { status: "ok", value: undefined };
@@ -293,7 +291,8 @@ async function readLayout(
 > {
   try {
     const layout = await inspectInvestigationCollectionLayout(
-      investigationsDirectory
+      investigationsDirectory,
+      { readFormalSources: false }
     );
     return layout.errors.length === 0
       ? { status: "ok", value: layout }
@@ -322,24 +321,6 @@ function selectedCandidateErrors(
   return uniqueSorted(errors);
 }
 
-async function regularIndexExists(
-  indexPath: string
-): Promise<PublishPreparationStep<boolean>> {
-  try {
-    const entry = await fs.lstat(indexPath);
-    return entry.isFile() && !entry.isSymbolicLink()
-      ? { status: "ok", value: true }
-      : preparationFailure([
-          "investigation index must be a regular non-symbolic-link file"
-        ]);
-  } catch (error) {
-    if (isMissing(error)) return { status: "ok", value: false };
-    return preparationFailure([
-      "investigation index could not be inspected before publish"
-    ]);
-  }
-}
-
 export function preparationFailure(
   errors: readonly string[],
   diagnostics: readonly InvestigationDiagnostic[] = [],
@@ -353,18 +334,50 @@ export function preparationFailure(
   };
 }
 
-function isMissing(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    Reflect.get(error, "code") === "ENOENT"
-  );
-}
-
 function uniqueSorted(values: readonly string[]): string[] {
   return [...new Set(values)].sort(compareText);
 }
 
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
+}
+
+async function preparePublicationDependencies(
+  investigationsDirectory: string,
+  ids: readonly string[],
+  context: CandidatePublishContext
+): Promise<PublishPreparationStep<CandidatePublishContext>> {
+  if (context.formal.publishedIndex !== null) {
+    try {
+      const sources = await readPublishedInvestigationDependencies(
+        investigationsDirectory,
+        context.formal.publishedIndex,
+        publicationDependencyIds(context.states, new Set(ids)),
+        context.formal.sources
+      );
+      return {
+        status: "ok",
+        value: { ...context, formal: { ...context.formal, sources } }
+      };
+    } catch (error) {
+      return preparationFailure(
+        [
+          error instanceof Error
+            ? error.message
+            : "required published dependencies could not be read"
+        ],
+        [
+          diagnosticFromError({
+            code: "investigation-report.publish-dependency-read-failed",
+            error,
+            reason: "a selected publication dependency could not be validated",
+            recovery:
+              "restore the selected dependency and synchronize intentional formal edits before retrying publish",
+            target: investigationsDirectory
+          })
+        ]
+      );
+    }
+  }
+  return { status: "ok", value: context };
 }

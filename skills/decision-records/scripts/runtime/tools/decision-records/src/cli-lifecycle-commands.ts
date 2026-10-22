@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { runPublishedDecisionLifecycle } from "./cli-maintenance-execution.ts";
 import { printDecisionFailure } from "./cli-output.ts";
 import type { CliArgsFor } from "./cli-args.ts";
 import type { DecisionRecordsCliIo } from "./cli-io.ts";
@@ -33,6 +34,17 @@ export async function runPublish(
   args: CliArgsFor<"publish">,
   io: DecisionRecordsCliIo
 ): Promise<number> {
+  const local = await runPublishedDecisionLifecycle(
+    args,
+    {
+      action: "publish",
+      alignment: args.alignment,
+      keepUnrecordedHistory: args.keepUnrecordedHistory,
+      decisionId: args.decisionId
+    },
+    io
+  );
+  if (local !== null) return local;
   const scan = await loadLifecycleScan(
     args,
     {
@@ -74,6 +86,20 @@ export async function runEvolve(
   args: CliArgsFor<"evolve">,
   io: DecisionRecordsCliIo
 ): Promise<number> {
+  const local = await runPublishedDecisionLifecycle(
+    args,
+    {
+      action: "evolve",
+      discardId: args.discardId,
+      deleteRecorded: args.deleteRecorded,
+      keepUnrecordedHistory: args.keepUnrecordedHistory,
+      relationOverride: args.relationOverride,
+      relationOverrideGroups: args.relationOverrideGroups,
+      successors: args.successors
+    },
+    io
+  );
+  if (local !== null) return local;
   const scan = await loadLifecycleScan(
     args,
     {
@@ -103,6 +129,16 @@ export async function runSetRelations(
   args: CliArgsFor<"set-relations">,
   io: DecisionRecordsCliIo
 ): Promise<number> {
+  const local = await runPublishedDecisionLifecycle(
+    args,
+    {
+      action: "set-relations",
+      preflight: args.preflight,
+      relationOverrideGroups: args.relationOverrideGroups
+    },
+    io
+  );
+  if (local !== null) return local;
   const scan = await loadLifecycleScan(
     args,
     {
@@ -158,6 +194,8 @@ export async function runValidatedMaintenance(
   request: DecisionLifecycleRequest,
   io: DecisionRecordsCliIo
 ): Promise<number> {
+  const local = await runPublishedDecisionLifecycle(args, request, io);
+  if (local !== null) return local;
   const scan = await loadLifecycleScan(
     args,
     { allowEmptyDecisionSet: true },

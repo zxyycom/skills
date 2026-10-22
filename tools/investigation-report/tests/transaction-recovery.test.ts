@@ -20,7 +20,7 @@ test("set-relations rejects source or index drift before publishing", async () =
   await withTempRoot("drift", async (root) => {
     await writeCollection(root, [{ id: "base" }, { id: "next" }]);
     const indexPath = `${investigationRoot(root)}/investigation-index.json`;
-    await fs.appendFile(indexPath, "\n", "utf8");
+    await fs.writeFile(indexPath, "{}", "utf8");
     const indexDrift = await setInvestigationRelations({
       replacements: [
         {
@@ -60,9 +60,7 @@ test("set-relations rejects source or index drift before publishing", async () =
       }
     );
     assert.ok(
-      collectionDrift.errors.some((error) =>
-        error.includes("collection changed")
-      )
+      collectionDrift.errors.some((error) => error.includes("index changed"))
     );
     assert.equal(await fs.readFile(basePath, "utf8"), beforeBase);
     assert.equal(await fs.readFile(nextPath, "utf8"), beforeReport);
@@ -278,5 +276,79 @@ test("set-relations release cleanup failure preserves committed bytes without a 
       /target: "base"/u
     );
     await fs.rm(lockPath, { force: true });
+  });
+});
+
+test("set-relations preserves unrelated published entries while rejecting drift in a complete touched split event", async () => {
+  await withTempRoot("relations-local-dependencies", async (root) => {
+    await writeCollection(root, [
+      { id: "base" },
+      { id: "left", relations: [{ type: "拆分", target: "base" }] },
+      { id: "right", relations: [{ type: "拆分", target: "base" }] },
+      { id: "unrelated" }
+    ]);
+    const directory = investigationRoot(root);
+    const indexPath = `${directory}/investigation-index.json`;
+    const originalIndex = JSON.parse(await fs.readFile(indexPath, "utf8"));
+    await fs.writeFile(
+      `${directory}/unrelated.md`,
+      "unrelated malformed current body\n"
+    );
+    const input = {
+      replacements: [
+        {
+          source: "left",
+          relations: [{ type: "拆分", target: "base", summary: "refreshed" }]
+        }
+      ],
+      workspaceRoot: root
+    };
+    const readFile = fs.readFile;
+    let unrelatedReads = 0;
+    fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
+      if (args[0] === `${directory}/unrelated.md`) {
+        unrelatedReads += 1;
+        throw new Error("unrelated source must not be read");
+      }
+      return await readFile(...args);
+    }) as typeof fs.readFile;
+    let applied;
+    try {
+      applied = await setInvestigationRelations(input);
+    } finally {
+      fs.readFile = readFile;
+    }
+    assert.deepEqual(applied.errors, []);
+    assert.equal(applied.changed, true);
+    assert.equal(unrelatedReads, 0);
+    const currentIndex = await fs.readFile(indexPath, "utf8");
+    const parsedIndex = JSON.parse(currentIndex);
+    assert.deepEqual(
+      parsedIndex.entries.unrelated,
+      originalIndex.entries.unrelated
+    );
+    assert.equal(
+      parsedIndex.sourceRevision.entries.unrelated,
+      originalIndex.sourceRevision.entries.unrelated
+    );
+    await fs.appendFile(`${directory}/right.md`, "\nexternal drift\n");
+    const beforeLeft = await fs.readFile(`${directory}/left.md`, "utf8");
+    const rejected = await setInvestigationRelations({
+      ...input,
+      replacements: [
+        {
+          source: "left",
+          relations: [{ type: "拆分", target: "base", summary: "again" }]
+        }
+      ]
+    });
+    assert.equal(rejected.changed, false);
+    assert.ok(
+      rejected.errors.some(
+        (error) => error.includes("right") && error.includes("sync-index")
+      )
+    );
+    assert.equal(await fs.readFile(`${directory}/left.md`, "utf8"), beforeLeft);
+    assert.equal(await fs.readFile(indexPath, "utf8"), currentIndex);
   });
 });

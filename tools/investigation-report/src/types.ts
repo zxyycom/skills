@@ -433,9 +433,9 @@ export type InvestigationSearchInfo = Readonly<{
         fallback: false;
       }>
     | Readonly<{
-        kind: "validated-source";
-        currentness: "current";
-        fallback: boolean;
+        kind: "published-index+current-text";
+        currentness: "unchecked";
+        fallback: false;
       }>;
   counts: Readonly<{
     matched: Readonly<{ value: number; precision: "exact" | "lower-bound" }>;

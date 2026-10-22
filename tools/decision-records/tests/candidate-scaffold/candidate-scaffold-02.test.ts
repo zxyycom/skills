@@ -25,10 +25,7 @@ test("lifecycle preflight is read-only and still requires a body-ready candidate
         workspaceRoot
       ]);
       assert.equal(scaffold.exitCode, 0, scaffold.stderr);
-      assert.match(
-        scaffold.stdout,
-        /alignment preview: aligned \(provided to auxiliary preparation/
-      );
+      assert.match(scaffold.stdout, /alignment preview: aligned \(not written/);
       const candidatePath = decisionFilePath(workspaceRoot, candidateId);
       const incompleteText = await fs.readFile(candidatePath, "utf8");
       const incompletePreflight = await runSourceCli([

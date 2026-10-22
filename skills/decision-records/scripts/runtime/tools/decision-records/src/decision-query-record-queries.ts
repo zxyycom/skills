@@ -11,6 +11,7 @@ import type { DecisionIndexSnapshot } from "./decision-index-snapshot.ts";
 import { decisionPublishedSnapshotSource } from "./decision-query-contract.ts";
 import { decisionDiagnostic, decisionFailure } from "./application-result.ts";
 import { loadCandidateQueryContext } from "./decision-query-candidates.ts";
+import { readCandidateSelection } from "./decision-candidate-context.ts";
 import {
   normalizeDecisionSelectorInput,
   decisionNameFromId,
@@ -79,10 +80,18 @@ export async function showDecisionRecord(
 export async function showDecisionCandidate(
   request: Extract<DecisionQueryRequest, { command: "show-candidate" }>
 ): Promise<DecisionQueryResult> {
-  const context = await loadCandidateQueryContext(request.location);
-  if (context.status === "error") return context;
+  let selected;
+  try {
+    selected = await readCandidateSelection(
+      request.location,
+      request.decisionId
+    );
+  } catch (error) {
+    return decisionFailure([String(error)]);
+  }
+  const context = { scan: selected, warnings: selected.sourceErrors };
   const resolved = resolveCandidateDecisionSelector(
-    context.scan,
+    { records: context.scan.records },
     request.decisionId
   );
   if (resolved.status === "error") return resolved.failure;
@@ -96,10 +105,7 @@ export async function showDecisionCandidate(
 }
 
 async function candidateBodyResult(
-  context: Extract<
-    Awaited<ReturnType<typeof loadCandidateQueryContext>>,
-    { status: "ok" }
-  >,
+  context: { scan: { decisionsDirectory: string }; warnings: string[] },
   record: CandidateDecisionRecord
 ): Promise<DecisionQueryResult> {
   const body = await readDecisionBody(context.scan.decisionsDirectory, record);

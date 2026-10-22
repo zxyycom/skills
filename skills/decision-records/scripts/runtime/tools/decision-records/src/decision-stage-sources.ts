@@ -7,18 +7,11 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
-import { Buffer } from "node:buffer";
 import path from "node:path";
-import type {
-  RevisionId,
-  VersionControlFile,
-  VersionControlRepository
-} from "../../shared/src/version-control/index.ts";
+import type { VersionControlFile } from "../../shared/src/version-control/index.ts";
 import { decisionIdFromMarkdown } from "./decision-metadata.ts";
-import { decisionIndexFileName } from "./decision-state-index.ts";
 import { isDecisionSourcePath } from "./decision-path.ts";
 import {
-  decisionRelativePath,
   decodeUtf8,
   readStageDirectory,
   readStageFile,
@@ -26,60 +19,9 @@ import {
 } from "./decision-stage-support.ts";
 import type {
   DecisionStageSource,
-  FilesystemDecisionCandidates,
-  SelectedFilesystemSource
+  FilesystemDecisionCandidates
 } from "./decision-stage-contracts.ts";
 import type { DecisionId } from "./types.ts";
-
-export async function readDecisionBaseline(
-  options: Readonly<{
-    decisionsDirectory: string;
-    decisionScope: string;
-    repository: VersionControlRepository;
-    revision: RevisionId | null;
-  }>
-): Promise<readonly DecisionStageSource[]> {
-  if (options.revision === null) return [];
-  const revisionPaths = await options.repository.listRevisionFiles(
-    options.revision,
-    { pathScopes: [options.decisionScope] }
-  );
-  if (revisionPaths.length === 0) return [];
-  const sourcePaths = decisionBaselineSourcePaths(
-    options.decisionScope,
-    revisionPaths
-  );
-  if (sourcePaths.length === 0) return [];
-  const files = await options.repository.readRevisionFiles(options.revision, {
-    pathScopes: sourcePaths
-  });
-  return files.map((file) =>
-    stageSourceFromFile(
-      file,
-      decisionRelativePath(options.decisionScope, file.path)
-    )
-  );
-}
-
-export function decisionBaselineSourcePaths(
-  decisionScope: string,
-  revisionPaths: readonly string[]
-): string[] {
-  const sourcePaths: string[] = [];
-  for (const repositoryFilePath of revisionPaths) {
-    const sourcePath = decisionRelativePath(decisionScope, repositoryFilePath);
-    if (sourcePath === decisionIndexFileName) {
-      continue;
-    }
-    if (!isDecisionSourcePath(sourcePath)) {
-      throw new Error(
-        "revision decision scope contains unsupported file: " + sourcePath
-      );
-    }
-    sourcePaths.push(repositoryFilePath);
-  }
-  return sourcePaths;
-}
 
 /** One phase-local discovery; selected resolution owns which failures matter. */
 export async function readFilesystemDecisionCandidates(
@@ -88,10 +30,6 @@ export async function readFilesystemDecisionCandidates(
 ): Promise<FilesystemDecisionCandidates> {
   const sources = new Map<DecisionId, DecisionStageSource>();
   const duplicateIds = new Set<DecisionId>();
-  const paths = new Map<
-    string,
-    { source: DecisionStageSource } | { error: unknown }
-  >();
   const inspect = async (sourcePath: string): Promise<void> => {
     if (!isDecisionSourcePath(sourcePath)) return;
     try {
@@ -106,12 +44,11 @@ export async function readFilesystemDecisionCandidates(
         },
         sourcePath
       );
-      paths.set(sourcePath, { source });
       if (sources.has(source.source.decisionId))
         duplicateIds.add(source.source.decisionId);
       else sources.set(source.source.decisionId, source);
-    } catch (error) {
-      paths.set(sourcePath, { error });
+    } catch {
+      // Unidentifiable sources do not enter identity discovery; selected reads and full check validate them.
     }
   };
   for (const entry of await readStageDirectory(decisionsDirectory)) {
@@ -125,64 +62,7 @@ export async function readFilesystemDecisionCandidates(
       await inspect(entry.name);
     }
   }
-  return { duplicateIds, paths, sources };
-}
-
-/** Expected-path evidence takes precedence over another path declaring the ID. */
-export function resolveFilesystemDecisionSource(
-  filesystem: FilesystemDecisionCandidates,
-  decisionId: DecisionId,
-  expectedSourcePath?: string
-): DecisionStageSource | null {
-  if (expectedSourcePath !== undefined) {
-    const expected = filesystem.paths.get(expectedSourcePath);
-    if (expected !== undefined) {
-      if ("error" in expected) throw expected.error;
-      if (expected.source.source.decisionId !== decisionId) {
-        throw new Error(
-          `${expectedSourcePath} no longer declares the selected Decision ID ${decisionId}`
-        );
-      }
-    }
-  }
-  if (filesystem.duplicateIds.has(decisionId)) {
-    throw new Error(
-      "Decision ID occurs in more than one filesystem source path: " +
-        decisionId
-    );
-  }
-  return filesystem.sources.get(decisionId) ?? null;
-}
-
-export async function verifySelectedFilesystemSources(
-  decisionsDirectory: string,
-  decisionScope: string,
-  selectedSources: readonly SelectedFilesystemSource[]
-): Promise<void> {
-  const filesystem = await readFilesystemDecisionCandidates(
-    decisionsDirectory,
-    decisionScope
-  );
-  for (const selectedSource of selectedSources) {
-    const current = resolveFilesystemDecisionSource(
-      filesystem,
-      selectedSource.decisionId,
-      selectedSource.source?.source.sourcePath
-    );
-    if (selectedSource.source === null && current === null) {
-      continue;
-    }
-    if (
-      selectedSource.source === null ||
-      current === null ||
-      selectedSource.source.source.sourcePath !== current.source.sourcePath ||
-      !Buffer.from(selectedSource.source.file.data).equals(
-        Buffer.from(current.file.data)
-      )
-    ) {
-      throw new Error(selectedSource.decisionId);
-    }
-  }
+  return { duplicateIds, sources };
 }
 
 export function stageSourceFromFile(

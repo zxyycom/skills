@@ -12,5 +12,5 @@ Contract:
 - 基线-only ID 在 domain scope 写入正式 Markdown 删除，pending 索引不受影响。
 
 Proves:
-- 纯领域 target 将基线-only 所选旧 ID 记为 source:null，仅保留未选 baseline；派生投影排除旧 ID 与未选 replacement。
+- 真实 all stage 删除所选 old 的 pending 正文和投影，保留 retained，并排除未选 replacement。
 - 真实 all scope 的组合入口承接所选删除的 Git 运输；另一个真实 CLI index→domain 入口证明 domain 步骤保留先前 pending 索引字节。

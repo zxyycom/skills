@@ -1,12 +1,15 @@
-import type { DecisionId } from "../../src/types.ts";
 import { Buffer } from "node:buffer";
 import { candidateDecisionBody } from "../support-record-fixture.ts";
 import { stageSourceFromFile } from "../../src/decision-stage-sources.ts";
-import { decisionStageTargetFromSources } from "../../src/decision-stage-target.ts";
-import type {
-  DecisionStageSource,
-  FilesystemDecisionCandidates
-} from "../../src/decision-stage-contracts.ts";
+import type { DecisionStageSource } from "../../src/decision-stage-contracts.ts";
+import {
+  commitWorkspace,
+  initializeGitRepository,
+  withTemporaryWorkspace
+} from "../support.ts";
+import { syncDecisionIndexBeforeStage } from "./support.ts";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 export function stageSource(
   id: string,
@@ -30,34 +33,28 @@ export function stageSource(
   );
 }
 
-export function stageCandidates(
+export async function writeStageSources(
+  root: string,
   sources: readonly DecisionStageSource[]
-): FilesystemDecisionCandidates {
-  const byId = new Map<DecisionId, DecisionStageSource>();
-  const duplicateIds = new Set<DecisionId>();
-  for (const source of sources) {
-    if (byId.has(source.source.decisionId))
-      duplicateIds.add(source.source.decisionId);
-    else byId.set(source.source.decisionId, source);
+) {
+  await fs.mkdir(path.join(root, "docs/decisions"), { recursive: true });
+  for (const { source } of sources) {
+    const file = path.join(root, "docs/decisions", source.sourcePath);
+    await fs.mkdir(path.dirname(file), { recursive: true });
+    await fs.writeFile(file, source.text);
   }
-  return {
-    duplicateIds,
-    sources: byId,
-    paths: new Map(
-      sources.map((source) => [source.source.sourcePath, { source }])
-    )
-  };
+  await syncDecisionIndexBeforeStage(root);
 }
 
-export async function stageTarget(
-  baseline: readonly DecisionStageSource[],
-  current: readonly DecisionStageSource[],
-  selectedSelectors: readonly string[]
+export async function withStageBaseline(
+  label: string,
+  sources: readonly DecisionStageSource[],
+  operation: (root: string) => Promise<void>
 ) {
-  return await decisionStageTargetFromSources({
-    baseline,
-    filesystemCandidates: stageCandidates(current),
-    selectedSelectors,
-    revision: "baseline"
+  await withTemporaryWorkspace(label, async (root) => {
+    initializeGitRepository(root);
+    await writeStageSources(root, sources);
+    commitWorkspace(root);
+    await operation(root);
   });
 }

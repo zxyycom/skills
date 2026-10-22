@@ -24,6 +24,7 @@ import {
   uniqueSorted,
   writeCandidateAtomically
 } from "./candidate-support.ts";
+import { loadInvestigationIndex } from "./investigation-state-index.ts";
 import { readInvestigationCandidate } from "./candidate-document.ts";
 import { serializeInvestigationCandidate } from "./candidate-format.ts";
 import type {
@@ -114,12 +115,17 @@ async function createCandidateWithinLock(
   initialCandidate: PreparedInvestigationCandidateCreateOptions,
   relationSummaries: readonly InvestigationRelationSummaryInput[]
 ): Promise<InvestigationCandidateCreateResult> {
-  const layout = await safeCandidateLayout(investigationsDirectory);
+  const layout = await safeCandidateLayout(investigationsDirectory, {
+    readFormalSources: false
+  });
   if (layout.status === "error")
     return createCandidateFailure("error", layout.errors, layout.diagnostics);
+  const published = await loadInvestigationIndex({ investigationsDirectory });
+  const reportIds =
+    published.status === "ok" ? Object.keys(published.value.entries) : [];
   const resolved = resolveCandidateRelationSelectors(
     initialCandidate,
-    [...layout.value.reportIds, ...layout.value.candidateIds],
+    [...reportIds, ...layout.value.candidateIds],
     relationSummaries
   );
   if (resolved.status === "error")
@@ -127,7 +133,7 @@ async function createCandidateWithinLock(
   const candidate = resolved.candidate;
   const duplicate = duplicateCandidateError(
     candidate,
-    layout.value.reportIds,
+    reportIds,
     layout.value.candidateIds
   );
   if (duplicate !== null) return duplicate;

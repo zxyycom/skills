@@ -31,7 +31,7 @@ import type {
 import type { DecisionFileChange } from "./decision-transaction.ts";
 import type {
   DecisionId,
-  DecisionScan,
+  DecisionPreparationContext,
   EstablishedDecisionRecord
 } from "./types.ts";
 
@@ -120,7 +120,7 @@ function archiveChanges(
 }
 
 export function prepareDiscard(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   decisionId: DecisionId,
   deleteRecorded: boolean,
   historyBaseline: DecisionHistoryBaseline | null,

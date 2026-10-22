@@ -7,8 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- Decision lifecycle 的写后 index 检查失败时必须恢复事务；CLI 不能输出成功文本或以 0 退出，并且只报告该事务 owner 可证明的 `rolled-back` 范围。
+- 普通局部维护发布索引后复核本次发布字节，复核失败沿既有恢复责任撤销写入，不打印提交成功。
 
 Proves:
-- 在 index 写入后的来源检查注入读取失败时，CLI 退出 1 且 stdout 为空。
-- stderr 输出 `decision-records.transaction-failed` 和 `rolled-back`，而非 lifecycle 成功消息。
+- 索引原子发布后注入该索引的读取故障，archive 返回 transaction-failed / rolled-back 且 stdout 为空。

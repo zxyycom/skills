@@ -1,7 +1,4 @@
 import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
-import * as v from "valibot";
-import { stageSource, stageTarget } from "./domain-support.ts";
-import { buildStageIndexText } from "../../src/decision-stage-prepare.ts";
 import { stageDecisionRecords } from "../../src/decision-stage-service.ts";
 import {
   archivedDecisionId,
@@ -21,27 +18,7 @@ import {
   syncDecisionIndexBeforeStage
 } from "./support.ts";
 
-test("stage projects the selected source title into the derived index", async () => {
-  const before = stageSource("selected");
-  const after = stageSource("selected", "selected.md", "索引范围修改 CLI");
-  const target = await stageTarget([before], [after], ["selected"]);
-  const projected = await buildStageIndexText(
-    target.sources,
-    "docs/decisions/decision-index.json"
-  );
-  assert.equal(projected.status, "ok", JSON.stringify(projected));
-  if (projected.status !== "ok")
-    throw new Error("Expected selected title projection");
-  const index = v.parse(
-    v.object({
-      entries: v.record(v.string(), v.object({ title: v.string() }))
-    }),
-    JSON.parse(projected.value) as unknown
-  );
-  assert.equal(index.entries.selected?.title, "索引范围修改 CLI");
-});
-
-test("stage --scope index rejects a pending index that already differs from the revision", () =>
+test("stage --scope index composes with a pending index that already differs from the revision", () =>
   withGitFixtureWorkspace(
     "stage-scope-index-conflict",
     async (workspaceRoot) => {
@@ -72,10 +49,10 @@ test("stage --scope index rejects a pending index that already differs from the 
         },
         scope: "index"
       });
-      assert.equal(second.status, "error");
+      assert.equal(second.status, "ok", JSON.stringify(second));
       assert.match(
-        JSON.stringify(second),
-        /pending decision index already differs from the current revision baseline/u
+        runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"]),
+        /冲突范围修改 CLI/u
       );
     }
   ));
@@ -100,6 +77,7 @@ test("stage --scope domain preserves an unrelated pending index byte-for-byte af
           .replace("alignment: null", "alignment: aligned")
           .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
       );
+      await syncDecisionIndexBeforeStage(workspaceRoot);
       const indexStaged = await stageDecisionRecords({
         decisionIds: [id],
         location: {

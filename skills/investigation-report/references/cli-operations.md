@@ -18,7 +18,7 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 | --- | --- |
 | `list`、`trace`、`search --in metadata` | 结构合法的最后发布索引快照，不核对当前 Markdown；索引缺失、损坏或 definition 不符时失败并显式恢复。 |
 | `show` | 索引定位一个普通非符号链接文件并核对 frontmatter ID，返回当前正文；与发布指纹不同则 warning。只证明所选报告。 |
-| 默认 content `search` | 当前正式 Markdown；索引不可用或陈旧时，完整验证正式来源与资源后可用内存投影只读降级并 warning，持久索引仍待显式恢复。 |
+| 默认 content `search` | 发布索引选定范围内的当前文件文本；读取时核对 ID。未同步新增和筛选变化在同步后进入范围；索引不可用时明确恢复。 |
 | `candidates`、`show-candidate` | 未索引候选及其 readiness。局部读取不证明正式全集健康；单条非法候选可 warning 后跳过，显式目标非法或集合安全错误仍失败。 |
 
 `list` 与 `search` 只查正式报告。按需筛选和展开列表窗口；空页只说明本次条件和窗口无结果。重复 tags 为 AND，形成时间边界包含端点。关系条件和其他筛选取交集；`--related-to` 的方向相对目标解释，type 与 target 同用时须命中同一条边。
@@ -27,7 +27,7 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 
 - content 匹配当前文件的物理行；metadata 匹配发布快照的 ID、name、title、question、tags 与来源关系 summary。`all`/`any` 可跨同一报告的段，`phrase` 限于单段；匹配统一 NFKC、忽略大小写并按空白处理。
 - 关系条件返回的 `filterRelations` 是导致记录命中的边；文本证据单独报告。`matchedRelations: none` 只表示没有摘要文本命中，不否定关系筛选命中。普通预览最多展示三条命中边，`list --detail` 展开当前页全部命中边；完整正文与关系用 `show`。
-- 先读六行 `Query`、`Filters`、`Source`、`Limits`、`Counts`、`Coverage`，确认本次实际条件、来源、命中数及三类覆盖。`source.currentness=unchecked` 表示正常发布快照边界；`current` 只表示本次已验证，不承诺锁或跨文件原子快照。
+- 先读六行 `Query`、`Filters`、`Source`、`Limits`、`Counts`、`Coverage`，确认本次条件、来源、命中数及三类覆盖。content 的 source 为 `published-index+current-text / unchecked / false`：范围来自发布投影，文本是本次读取，未验证全集来源新鲜度，也不承诺跨文件原子快照。
 
 | 覆盖 | 含义 |
 | --- | --- |
@@ -35,7 +35,7 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 | `resultsComplete` | 是否已完整扫描且返回全部命中；扫描完整仍可能因 limit 少返回记录。 |
 | `previewsComplete` | 已返回记录的命中片段是否完整；metadata 不适用。仅预览受限不代表记录发现不完整。 |
 
-来源为发布快照或扫描未完成时，不能对当前全集作“没有相关报告”的结论。预算 warning 按实际限制区分结果、预览或来源降级；只有来源降级需要恢复索引。需要更多命中时收紧筛选或调整允许的 limit，完整内容通过 `show` 读取；search 不提供 offset 分页。外部展示还可能截断 stdout。
+发布范围或扫描未完成时，不能对当前全集作“没有相关报告”的结论。预算 warning 区分结果与预览限制；索引缺失、损坏或不兼容时显式恢复。需要更多命中时收紧筛选或调整允许的 limit，完整内容通过 `show` 读取；search 不提供 offset 分页。外部展示还可能截断 stdout。
 
 ### 追溯演进
 
@@ -50,9 +50,9 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 
 1. 按[定位与选择](#定位与选择)确认工作区、集合与完整 ID。读取固定契约中本次涉及的[身份](investigation-report-contract.md#身份与集合)、[关系](investigation-report-contract.md#认识演进关系)或[资源](investigation-report-contract.md#资源引用与归属)规则。
 2. 确认当前任务授权了哪些对象和影响。agent 自行完成语义审核；删除等高风险操作须有覆盖精确目标与范围的授权。CLI 的历史确认参数不代替授权。
-3. 工作区写入共用集合锁并在写前复核可变来源；Git pending 由 `stage` 独立维护。手工正式编辑先按“检查与同步”发布投影，再进入要求新鲜索引的操作。
+3. 工作区写入共用集合锁并在写前复核可变来源；Git pending 由 `stage` 独立维护。普通 publish／set-relations 严格验证发布索引、所选来源与必要依赖及最终领域图；无关正文手改问题由显式 check／sync 发现。已知手改先同步；删除、身份更正保持完整来源验收。
 4. `--preflight` 只预演本次完整输入，不保存执行凭据；正式执行重新读取与验证。同步预检可能使用短暂集合锁，但不写持久领域文件、索引、资源或 pending。
-5. 失败按[结果与恢复](#结果与恢复)判断实际写入范围。写入后运行默认全量 `check`，再完成内容语义审核；查询和预检成功不代替正式写入或授权。
+5. 按[结果与恢复](#结果与恢复)判断实际写入，局部成功只证明声明范围。需要当前全集健康结论时在批次验收运行全量 `check`；起草与只读任务按实际覆盖交付。内容语义、写入授权与机械验证分别判断。
 
 ## 候选创建与发布
 
@@ -64,14 +64,14 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 
 - 当前发生的调查传不含日期前缀的 name，省略 `--formed-at`，工具取一次当前 UTC 时间并派生完整 ID。已知形成时间或补录历史调查时显式提供；完整 ID 日期必须等于 formedAt 的 UTC 日。
 - 同日同名冲突零写入；同名 legacy ID 冲突按 `migration-required` 显式处理。位置可用时优先 name basename，否则用完整 ID。
-- 创建成功回显完整 ID、路径及 readiness；随后继续编辑该候选。正文或辅助预检未就绪不撤销创建，也不表示报告已经建立。
+- 创建核对自身输入、安全路径和不覆盖条件；成功回显完整 ID、路径及 readiness，随后继续编辑该候选。readiness 未就绪不撤销创建；全局身份与关系冲突由正式发布门禁确认。
 - `show-candidate` 始终分别报告 `scaffoldValid`、`bodyReady`、`resourceReady`。结构合法但正文或资源未就绪仍可成功读取，语义审核和建立授权另外判断。
 
 ### 发布
 
 1. 完成候选正文、直接关系与资源，独立审核内容可信、关系真实及资源必要安全。
-2. 正式报告非空时，持久索引须对全部正式 Markdown 有效且新鲜；已有空索引时须是合法当前空基线；正式报告和索引都不存在时可首次建立。手工来源变化或索引异常先按“检查与同步”处理。
-3. 用 `publish <selector...> --preflight` 预演显式候选最终集合。关系 target 来自正式基线或同批选中候选，未选候选不参与闭合。核对完整 `relationReview` 和当前 publish 授权。
+2. 读取结构与领域图合法的发布基线，核对所选候选、必要前序与资源 owner 依赖；已有合法空索引时以其为基线，正式报告和索引都不存在时可首次建立。已知手工变化或索引异常按“检查与同步”处理。
+3. 需要写前审阅预计影响时，用 `publish <selector...> --preflight` 预演显式候选最终集合。关系 target 来自正式基线或同批选中候选，未选候选不参与闭合。核对完整 `relationReview` 和当前 publish 授权。
 4. 正式 publish 在锁内重读并验证，以不覆盖改名建立报告，再发布完整索引。未选候选和其他工作不变。
 
 同一工作批次中已就绪且获准发布的候选优先一次 `publish <selector...>`，共同验证最终关系并只发布一次完整索引。批次不跨越需要独立验收的工作边界；各次调用仍自行读取和验证当前来源。
@@ -87,7 +87,7 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 - 每个 `--source` 开始一个组，直到下一个 source。每组提供完整最终 `--relation` 集合，或用 `--clear-relations` 明确清空。
 - `--relation-summary <selector=summary>` 绑定本组唯一 target，按首个 `=` 分隔；后续 `=` 属于摘要。摘要可在组内关系前后出现。
 - 完整替换不合并旧关系；未提供 summary 的边移除旧摘要。重复 source/target、空组、只含摘要、clear 混用或绑定失配按实际参数或领域诊断处理。
-- 用 `--preflight` 先看完整结果；正式事务只改所选关系及索引，其他 metadata、正文、资源与 pending 不变。全部关系与现值相同时零改写。
+- 需要写前审阅完整结果时用 `--preflight`；正式事务只改所选关系及索引，其他 metadata、正文、资源与 pending 不变。全部关系与现值相同时零改写。
 
 `publish` 与 `set-relations` 的预检及正式成功都返回 `relationReview`：每个 source 的完整 `before`、`after` 和 `action`，空集合为 `[]`。候选建立为 `establish`，正式记录为 `replace` 或 `unchanged`；只有 `phase=committed` 证明正式成功，`preflight` 是预计结果，失败不附成功 review。
 
@@ -124,7 +124,7 @@ selector 移除一次大小写不敏感的末尾 `.md` 后，标准日期 ID 只
 | 全量 `sync-index` | 完整验证来源后重建索引，接纳手工正式变化；可恢复缺失、损坏或陈旧索引，合法候选留在集合外。 |
 | `sync-index --select ...` | 同样完整验证，只接纳所选 ID 的已知合法变化，仍发布完整索引；要求可信 baseline 和未变的集合 metadata/revision。 |
 
-一批手工编辑可先共同完成，期间局部检查；在关系事务、正式删除、全量验收或暂存所选新来源前统一同步。已知合法变化先同步后全量检查；未解释异常先检查区分来源和索引问题。来源非法或成员安全问题先恢复来源。
+一批手工编辑可先共同完成，期间局部检查；在关系事务、正式删除、全量验收或暂存所选新来源前统一同步。已知合法变化先同步；任务要求当前全集结论或正在恢复集合时再全量检查。未解释异常先区分来源和索引问题，来源非法或成员安全问题先恢复来源。
 
 selected 同步从 baseline 与待发布投影的 name 映射并集解析 selector。全部变化 ID 必须被选择：新增选新 ID，删除选旧 ID，身份更正同选旧、新 ID。未选变化、未知 ID 或坏 baseline 零写入停止，补充选择或显式全量同步。
 
@@ -134,21 +134,25 @@ selected 同步从 baseline 与待发布投影的 name 映射并集解析 select
 
 ## 待提交快照
 
-先读[快照的领域边界](investigation-report-contract.md#待提交快照)。`stage <selector...> --scope ...` 在当前正式集合与固定 HEAD 基线 ID 并集中选择对象；候选不参与。sourcePath 改变仍选同一 ID，删除选旧 ID，rename 显式同选旧、新 ID。
+先读[快照的领域边界](investigation-report-contract.md#待提交快照)。`stage <selector...> --scope ...` 显式选择即用当前完整版本刷新所选对象，未选 pending 保持；已有部分暂存会被该对象在指定 scope 内的完整版本取代。
 
-所有 scope 都严格验证发布索引及 HEAD 基线的完整 metadata、关系与资源 owner 声明；索引缺失或无效时零写入停止。`all`/`domain` 的所选新来源须先同步，`index` 只使用已发布投影。
+从 HEAD、工作区发布投影及必要 pending 身份解析 ID／name；候选不参与。sourcePath 改变选同一 ID，删除选旧 ID，rename 同选旧、新 ID。领域 scope 识别仅 pending 存在的来源，并清理上次暂存留下的旧位置。
 
 | scope | 写入与验证范围 |
 | --- | --- |
-| `all`（默认） | 原子写入所选索引投影、正式 Markdown 与完整 owner 资源树；验证所选正文、直接资源、必要 owner 依赖与最终索引投影。 |
-| `index` | 只写所选索引投影；要求 pending 索引与 HEAD 基线一致。只证明索引暂存，不读取或证明当前正文与资源健康。 |
-| `domain` | 只写所选正式 Markdown 与完整 owner 资源树；所选来源与必要依赖验证同 all，pending 索引保持原字节。 |
+| `all`（默认） | 原子刷新所选发布投影、正式 Markdown 与完整 owner 树，未选条目沿用 pending；验证所选来源、直接资源、必要 owner 依赖及合成图。 |
+| `index` | 只刷新所选发布投影及来源 revision，不读取工作区正文；调用方负责配套领域暂存。 |
+| `domain` | 只刷新所选正式 Markdown 与完整 owner 树，保留 pending 索引原字节（即使损坏）或缺失状态；来源验证同 all，但不证明索引已配套。 |
 
-完整 owner 树取工作区与固定 HEAD 路径并集，包含未引用成员和已删除的基线资源。引用资源必须存在；缺失未引用基线成员可以表示删除。所有相关路径分量都须安全，空资源树也要检查根和 owner。所选常规文件保留尊重 Git `core.fileMode` 的有效执行位。
+HEAD 与工作区发布索引须通过字段、关系与资源 owner 声明验证；index／all 还验证 pending 索引，并要求存在的三方索引具有相同集合 metadata、sourceRevision.metadata 与 definition。HEAD 与 pending 都无索引时从空基底组合；已有 HEAD 索引却将 pending 索引删除时，index／all 提示先恢复该删除。损坏或不兼容走显式恢复。
 
-依赖报告和其他 owner 的共享资源只参与验证，不因此进入写入目标；无关非法或已删除正文不阻断局部暂存。基线-only 删除为排除同 ID 在别处重现，可能扩大身份发现。完整索引、关系图与 pending 保护仍有集合级成本。
+所选现存来源须符合工作区发布投影，合法手改先同步。owner 树取 HEAD、pending 与工作区的所选 owner 路径并集，包含未引用成员与待删除旧成员。引用资源须存在，全部相关路径分量须安全；空资源树仍检查根和 owner，文件表示尊重 Git `core.fileMode`。
 
-写前重新核对可变来源、成员、发布索引、HEAD 与完整 pending；漂移或读取失败保留现场。结果说明实际写入路径、保留的无关 pending 及调用方负责范围，`index` 成功不能外推为领域文件已暂存。stage 不提交或推送。
+必要报告和其他 owner 资源只参与验证；若最终待提交集合还缺依赖，提示显式补选，不自动暂存其他 owner。stage 不重建全部 HEAD 正文或重新发现全部未同步工作区身份；完整索引、图及 pending 保护仍有集合级成本。
+
+写前独立核对所选来源、成员、工作区索引、HEAD 与完整 pending（含完整对象 payload，index scope 也适用）；漂移或读取失败停止。原子更新保留未选领域文件的字节、表示及 staged 删除；可连续暂存不同对象，再重复选择以刷新某一对象。索引 JSON 可规范化序列化，未选条目含义保持。
+
+结果说明写入路径、保留的 pending 和调用方责任；成功只证明 scope，stage 不提交或推送。
 
 ## 结果与恢复
 

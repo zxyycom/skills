@@ -725,6 +725,38 @@
       ],
       "title": "记录工具第一轮常数优化的十万条验证"
     },
+    "261022-record-tools-local-contracts-1w": {
+      "formedAt": "2026-10-22T05:08:54Z",
+      "name": "record-tools-local-contracts-1w",
+      "question": "发布基线与选中刷新契约在一万条存量、小输入下改变了哪些成本和实际保证？",
+      "relations": [
+        {
+          "summary": "在批准的新契约与一万条代表负载下独立验证成本和保证变化",
+          "target": "261021-record-tools-all-operations-100k",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261022-record-tools-local-contracts-1w/environment.json",
+        "261022-record-tools-local-contracts-1w/fixtures.json",
+        "261022-record-tools-local-contracts-1w/input-fingerprints.json",
+        "261022-record-tools-local-contracts-1w/integrity.json",
+        "261022-record-tools-local-contracts-1w/method-anomaly.json",
+        "261022-record-tools-local-contracts-1w/methods.txt",
+        "261022-record-tools-local-contracts-1w/observations.jsonl",
+        "261022-record-tools-local-contracts-1w/streams.jsonl",
+        "261022-record-tools-local-contracts-1w/summary.json",
+        "261022-record-tools-local-contracts-1w/workflow-costs.json"
+      ],
+      "sourcePath": "record-tools-local-contracts-1w.md",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "performance",
+        "scale-testing"
+      ],
+      "title": "记录工具局部操作契约一万条前后成本验证"
+    },
     "adopt-native-lock-and-atomic-write-libraries": {
       "formedAt": "2026-08-07T01:45:30+08:00",
       "name": "adopt-native-lock-and-atomic-write-libraries",
@@ -1405,6 +1437,7 @@
       "261021-record-tools-100k-performance": "sha256:90f583af3ff0bd21d2cd30332c33af6f480e2ffed737cf6d7f5d956ed891837b",
       "261021-record-tools-all-operations-100k": "sha256:d55d495455ae2bd3217331bb0ec6c936995278a9a04a8e6945ec8673e97dfefc",
       "261021-record-tools-first-optimization-validation": "sha256:f8c79de193183cf5d861bfec77b4ddc8a49f9a44696dbf1c7047df7b131973b4",
+      "261022-record-tools-local-contracts-1w": "sha256:b4662c7c1cf3248491db6a5e9b9a44d2d353329d2242112ccda3f67954e050d2",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",
       "align-prompt-optimize-name-and-trigger": "sha256:e4e01b8bb7928330e3e81cf7fd359ddbfb90f1f229de8de540eefe9cb6c441e4",

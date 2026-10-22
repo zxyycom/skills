@@ -7,6 +7,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { ensureDecisionDirectoryPath } from "./decision-source-path-safety.ts";
+import { resolveWorkspaceDecisionLocation } from "./decision-location.ts";
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
@@ -34,7 +36,11 @@ import {
   utcDecisionDate
 } from "./decision-path.ts";
 import { decisionIndexFileName } from "./decision-state-index.ts";
-import { scanDecisionRecords } from "./scan.ts";
+import {
+  loadCandidateIdentityContext,
+  type CandidateIdentityContext
+} from "./decision-candidate-context.ts";
+
 import type {
   DecisionId,
   DecisionRelation,
@@ -62,29 +68,9 @@ export type NewDecisionCandidateResult =
 export async function createDecisionCandidate(
   request: NewDecisionCandidateRequest
 ): Promise<NewDecisionCandidateResult> {
-  const workspaceRoot = path.resolve(request.workspaceRoot ?? process.cwd());
-  const decisionsDirectory = path.resolve(
-    workspaceRoot,
-    request.decisionsDir ?? "docs/decisions"
-  );
-  try {
-    await fs.mkdir(decisionsDirectory, { recursive: true });
-  } catch (error) {
-    return creationFailure(
-      decisionFileSystemDiagnostic(
-        {
-          code: "decision-records.new-directory-failed",
-          outcome: "no-change",
-          reason: "Could not prepare the decision candidate directory.",
-          recovery:
-            "Make the configured decision directory available as a writable directory, then retry the command.",
-          scope: "Decision candidate scaffold",
-          target: decisionsDirectory
-        },
-        error
-      )
-    );
-  }
+  const directory = await prepareCandidateDirectory(request);
+  if (directory.status === "error") return directory;
+  const { decisionsDirectory } = directory;
   try {
     return await withDecisionCollectionMutationLock(
       path.join(decisionsDirectory, decisionIndexFileName),
@@ -99,34 +85,84 @@ export async function createDecisionCandidate(
   }
 }
 
+async function prepareCandidateDirectory(
+  request: NewDecisionCandidateRequest
+): Promise<
+  DecisionApplicationFailure | { status: "ok"; decisionsDirectory: string }
+> {
+  const location = resolveWorkspaceDecisionLocation({
+    cwd: request.workspaceRoot ?? process.cwd(),
+    ...(request.decisionsDir === undefined
+      ? {}
+      : { decisionsDir: request.decisionsDir })
+  });
+  if (location.error !== undefined)
+    return creationFailure(
+      decisionDiagnostic({
+        code: location.error.code,
+        outcome: "no-change",
+        reason: location.error.message,
+        recovery:
+          "Choose a workspace-relative decision directory within the workspace root.",
+        target: "Decision candidate directory"
+      })
+    );
+  const workspaceRoot = path.resolve(request.workspaceRoot ?? process.cwd());
+  const decisionsDirectory = path.resolve(
+    workspaceRoot,
+    request.decisionsDir ?? "docs/decisions"
+  );
+  try {
+    await ensureDecisionDirectoryPath(workspaceRoot, decisionsDirectory, true);
+    await fs.mkdir(decisionsDirectory, { recursive: true });
+    await ensureDecisionDirectoryPath(workspaceRoot, decisionsDirectory);
+  } catch (error) {
+    return candidateDirectoryFailure(error, decisionsDirectory);
+  }
+  return { status: "ok", decisionsDirectory };
+}
+
 async function createLockedDecisionCandidate(
   request: NewDecisionCandidateRequest
 ): Promise<NewDecisionCandidateResult> {
-  const scan = await scanDecisionRecords(request);
+  const decisionsDirectory = path.resolve(
+    request.workspaceRoot ?? process.cwd(),
+    request.decisionsDir ?? "docs/decisions"
+  );
+  const scan = await loadCandidateIdentityContext(decisionsDirectory);
   const prepared = prepareNewDecisionIdentity(request);
-  if (prepared.status === "error") return creationFailure(prepared.diagnostic);
+  if (prepared.status === "error") {
+    return creationFailure(prepared.diagnostic);
+  }
   const resolved = resolveCandidateRelationSelectors(scan, prepared.request);
-  if (resolved.status === "error") return creationFailure(resolved.diagnostic);
+  if (resolved.status === "error") {
+    return creationFailure(resolved.diagnostic);
+  }
   const validationFailure = validateCandidateCreationRequest(
     scan,
     resolved.request
   );
-  if (validationFailure !== null) return validationFailure;
+  if (validationFailure !== null) {
+    return validationFailure;
+  }
 
   const migration = legacyNameConflict(scan, resolved.request);
-  if (migration !== null) return creationFailure(migration);
+  if (migration !== null) {
+    return creationFailure(migration);
+  }
 
   const sourcePath = allocateCandidateSourcePath(scan, resolved.request);
 
+  const decisionPath = path.join(scan.decisionsDirectory, sourcePath);
   return await publishCandidateCreation(
     resolved.request,
-    path.join(scan.decisionsDirectory, sourcePath),
+    decisionPath,
     sourcePath
   );
 }
 
 function resolveCandidateRelationSelectors(
-  scan: Awaited<ReturnType<typeof scanDecisionRecords>>,
+  scan: CandidateIdentityContext,
   request: NewDecisionCandidateRequest
 ):
   | { request: NewDecisionCandidateRequest; status: "ok" }
@@ -138,7 +174,11 @@ function resolveCandidateRelationSelectors(
       return { diagnostic: normalized.error, status: "error" };
     const target = resolveDecisionRelationSelector(scan, relation.target);
     if (target.status === "error") return target;
-    relations.push({ ...relation, ...normalized, target: target.decisionId });
+    relations.push({
+      type: relation.type,
+      target: target.decisionId,
+      ...normalized
+    });
   }
   const relationSummaries: DecisionRelationSummary[] = [];
   for (const summary of request.relationSummaries ?? []) {
@@ -187,7 +227,7 @@ function normalizeCandidateRelationSummary(
 }
 
 function resolveDecisionRelationSelector(
-  scan: Awaited<ReturnType<typeof scanDecisionRecords>>,
+  scan: CandidateIdentityContext,
   selector: DecisionId
 ):
   | { decisionId: DecisionId; status: "ok" }
@@ -277,7 +317,7 @@ function prepareNewDecisionIdentity(
 }
 
 function legacyNameConflict(
-  scan: Awaited<ReturnType<typeof scanDecisionRecords>>,
+  scan: CandidateIdentityContext,
   request: NewDecisionCandidateRequest
 ): ReturnType<typeof decisionDiagnostic> | null {
   const name = decisionNameFromId(request.decisionId);
@@ -308,7 +348,7 @@ function legacyNameConflict(
 }
 
 function allocateCandidateSourcePath(
-  scan: Awaited<ReturnType<typeof scanDecisionRecords>>,
+  scan: CandidateIdentityContext,
   request: NewDecisionCandidateRequest
 ): ReturnType<typeof sourcePathForDecision> {
   const name = decisionNameFromId(request.decisionId);
@@ -318,4 +358,24 @@ function allocateCandidateSourcePath(
   return occupied.has(nameCandidate) || occupied.has(nameArchive)
     ? sourcePathForDecision(request.decisionId, "candidate")
     : nameCandidate;
+}
+
+function candidateDirectoryFailure(
+  error: unknown,
+  decisionsDirectory: string
+): DecisionApplicationFailure {
+  return creationFailure(
+    decisionFileSystemDiagnostic(
+      {
+        code: "decision-records.new-directory-failed",
+        outcome: "no-change",
+        reason: "Could not prepare the decision candidate directory.",
+        recovery:
+          "Make the configured decision directory available as a writable directory, then retry the command.",
+        scope: "Decision candidate scaffold",
+        target: decisionsDirectory
+      },
+      error
+    )
+  );
 }

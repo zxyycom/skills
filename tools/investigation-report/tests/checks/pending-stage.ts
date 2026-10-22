@@ -10,3 +10,6 @@ await import("../resource-identity-contract.test.ts");
 await import("../resource-failure-contract.test.ts");
 
 await import("../batch-stage-selectors.test.ts");
+
+await import("../staging-pending-refresh.test.ts");
+await import("../staging-pending-deletion.test.ts");

@@ -1,0 +1,938 @@
+[
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "archive",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 3.2929040860035457,
+      "cpuSeconds": 4.618981,
+      "maxrssMiB": 384.4921875
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "candidates",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 3.563175935007166,
+      "cpuSeconds": 4.287586,
+      "maxrssMiB": 261.8828125
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "content-related",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 0.7966361109865829,
+      "cpuSeconds": 1.1919300000000002,
+      "maxrssMiB": 220.21484375
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "evolve",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 6.47846243501408,
+      "cpuSeconds": 7.91247,
+      "maxrssMiB": 385.4296875
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "mark-aligned",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 1.613801187981153,
+      "cpuSeconds": 2.231696,
+      "maxrssMiB": 351.05078125
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "new",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 8.150762940989807,
+      "cpuSeconds": 9.126905,
+      "maxrssMiB": 272.1875
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "publish",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 6.381124586012447,
+      "cpuSeconds": 7.77989,
+      "maxrssMiB": 390.38671875
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "reactivate",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 1.4551231329969596,
+      "cpuSeconds": 2.016004,
+      "maxrssMiB": 349.05859375
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "set-relations",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 1.4955022019858006,
+      "cpuSeconds": 2.071577,
+      "maxrssMiB": 348.703125
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "show-candidate",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 4.005946454999503,
+      "cpuSeconds": 4.657503,
+      "maxrssMiB": 263.796875
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "stage-all",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 7.086904165014857,
+      "cpuSeconds": 10.268073999999999,
+      "maxrssMiB": 460.4765625
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "stage-all-AB-continuous",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 7.086942338006338,
+      "cpuSeconds": 10.396837999999999,
+      "maxrssMiB": 463.94921875
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "stage-all-refresh",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 7.12897115200758,
+      "cpuSeconds": 10.454927,
+      "maxrssMiB": 461.6171875
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "stage-domain",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 5.09132710902486,
+      "cpuSeconds": 7.865524000000001,
+      "maxrssMiB": 357.7890625
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "stage-domain-AB-continuous",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 5.116605725983391,
+      "cpuSeconds": 8.029391,
+      "maxrssMiB": 356.9453125
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "stage-domain-refresh",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 5.195787738019135,
+      "cpuSeconds": 8.267562,
+      "maxrssMiB": 323.30859375
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "stage-index",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 7.707766463980079,
+      "cpuSeconds": 11.245946,
+      "maxrssMiB": 442.05859375
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "stage-index-AB-continuous",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 7.645201571984217,
+      "cpuSeconds": 11.229797999999999,
+      "maxrssMiB": 440.296875
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "stage-index-refresh",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 7.116584913019324,
+      "cpuSeconds": 10.471945,
+      "maxrssMiB": 444.2578125
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "workflow-check",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 6.862172482011374,
+      "cpuSeconds": 7.740031999999999,
+      "maxrssMiB": 355.45703125
+    }
+  },
+  {
+    "version": "after",
+    "domain": "decision",
+    "scenario": "workflow-preflight",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 5.461593446001643,
+      "cpuSeconds": 6.600815,
+      "maxrssMiB": 298.28125
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "candidates",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 0.7319671440054663,
+      "cpuSeconds": 1.050934,
+      "maxrssMiB": 212.81640625
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "content-cap",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 0.7406604989955667,
+      "cpuSeconds": 1.116849,
+      "maxrssMiB": 215.0859375
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "content-related",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 0.7400760029850062,
+      "cpuSeconds": 1.161227,
+      "maxrssMiB": 215.25
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "new",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 1.0932784430042375,
+      "cpuSeconds": 1.4952729999999999,
+      "maxrssMiB": 226.296875
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "publish",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 4.907184109004447,
+      "cpuSeconds": 6.660672,
+      "maxrssMiB": 440.1953125
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "set-relations",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 1.1020927510107867,
+      "cpuSeconds": 1.580935,
+      "maxrssMiB": 267.796875
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "show-candidate",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 0.727905756997643,
+      "cpuSeconds": 1.0340239999999998,
+      "maxrssMiB": 211.8828125
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "stage-all",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 5.42058229498798,
+      "cpuSeconds": 7.970802,
+      "maxrssMiB": 417.60546875
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "stage-all-AB-continuous",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 5.42045389499981,
+      "cpuSeconds": 8.077299,
+      "maxrssMiB": 413.484375
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "stage-all-refresh",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 5.406328196986578,
+      "cpuSeconds": 8.040838,
+      "maxrssMiB": 414.14453125
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "stage-domain",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 4.822009158000583,
+      "cpuSeconds": 7.296911999999999,
+      "maxrssMiB": 354.8515625
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "stage-domain-AB-continuous",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 4.62268351498642,
+      "cpuSeconds": 7.20621,
+      "maxrssMiB": 355.11328125
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "stage-domain-refresh",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 4.642858117003925,
+      "cpuSeconds": 7.185124999999999,
+      "maxrssMiB": 353.80078125
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "stage-index",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 5.111400591995334,
+      "cpuSeconds": 7.698821,
+      "maxrssMiB": 414.51953125
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "stage-index-AB-continuous",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 4.898470701999031,
+      "cpuSeconds": 7.475777000000001,
+      "maxrssMiB": 415.9609375
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "stage-index-refresh",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 5.0217098759894725,
+      "cpuSeconds": 7.5867819999999995,
+      "maxrssMiB": 409.54296875
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "workflow-check",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 3.338639656023588,
+      "cpuSeconds": 4.258214000000001,
+      "maxrssMiB": 290.83984375
+    }
+  },
+  {
+    "version": "after",
+    "domain": "investigation",
+    "scenario": "workflow-preflight",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 2.641860007017385,
+      "cpuSeconds": 3.715658,
+      "maxrssMiB": 316.83203125
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "archive",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 49.309947519999696,
+      "cpuSeconds": 51.016152,
+      "maxrssMiB": 730.2421875
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "candidates",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 8.251545307022752,
+      "cpuSeconds": 9.665545,
+      "maxrssMiB": 267.0625
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "content-related",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 12.447794765990693,
+      "cpuSeconds": 13.291727999999999,
+      "maxrssMiB": 313.46484375
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "evolve",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 61.2622489699861,
+      "cpuSeconds": 62.402816,
+      "maxrssMiB": 842.09765625
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "mark-aligned",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 41.098678899987135,
+      "cpuSeconds": 42.190711,
+      "maxrssMiB": 661.9765625
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "new",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 11.68048085400369,
+      "cpuSeconds": 12.898714,
+      "maxrssMiB": 346.5546875
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "publish",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 60.58270456100581,
+      "cpuSeconds": 61.611592,
+      "maxrssMiB": 818.59375
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "reactivate",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 38.629429869994055,
+      "cpuSeconds": 40.436122,
+      "maxrssMiB": 603.50390625
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "set-relations",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 46.53853084801813,
+      "cpuSeconds": 48.773148,
+      "maxrssMiB": 873.328125
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "show-candidate",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 7.1510831539926585,
+      "cpuSeconds": 8.393307,
+      "maxrssMiB": 257.3359375
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "stage-all",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 15.734995278005954,
+      "cpuSeconds": 18.468376,
+      "maxrssMiB": 445.890625
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "stage-all-AB-continuous",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 4.392280079977354,
+      "cpuSeconds": 5.353474,
+      "maxrssMiB": 258.65234375
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "stage-all-refresh",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 4.369476445019245,
+      "cpuSeconds": 5.30043,
+      "maxrssMiB": 242.375
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "stage-domain",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 13.3347869310237,
+      "cpuSeconds": 15.779488999999998,
+      "maxrssMiB": 341.0390625
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "stage-domain-AB-continuous",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 4.423128246999113,
+      "cpuSeconds": 5.362882,
+      "maxrssMiB": 255.38671875
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "stage-domain-refresh",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 4.383250709011918,
+      "cpuSeconds": 5.321993,
+      "maxrssMiB": 255.76171875
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "stage-index",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 15.302562420984032,
+      "cpuSeconds": 17.18363,
+      "maxrssMiB": 371.03125
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "stage-index-AB-continuous",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 3.8751584230049048,
+      "cpuSeconds": 4.427606,
+      "maxrssMiB": 247.82421875
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "stage-index-refresh",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 3.8684833380102646,
+      "cpuSeconds": 4.435065,
+      "maxrssMiB": 251.3984375
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "workflow-check",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 7.740318602998741,
+      "cpuSeconds": 8.675345,
+      "maxrssMiB": 350.37890625
+    }
+  },
+  {
+    "version": "base",
+    "domain": "decision",
+    "scenario": "workflow-preflight",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 9.043635796988383,
+      "cpuSeconds": 10.497826,
+      "maxrssMiB": 358.58203125
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "candidates",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 0.7164320730080362,
+      "cpuSeconds": 1.0337649999999998,
+      "maxrssMiB": 210.96484375
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "content-cap",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 1.8940681819804013,
+      "cpuSeconds": 2.315273,
+      "maxrssMiB": 219.5078125
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "content-related",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 1.8955030959914438,
+      "cpuSeconds": 2.326069,
+      "maxrssMiB": 219.90625
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "new",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 6.458579008001834,
+      "cpuSeconds": 6.877395,
+      "maxrssMiB": 322.81640625
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "publish",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 10.117146364995278,
+      "cpuSeconds": 11.780403,
+      "maxrssMiB": 428.5859375
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "set-relations",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 6.59828349397867,
+      "cpuSeconds": 7.15935,
+      "maxrssMiB": 353.79296875
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "show-candidate",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 0.7233135770075023,
+      "cpuSeconds": 1.0523339999999999,
+      "maxrssMiB": 211.8203125
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "stage-all",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 4.303030181006761,
+      "cpuSeconds": 6.4676290000000005,
+      "maxrssMiB": 368.94140625
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "stage-all-AB-continuous",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 4.2839577779814135,
+      "cpuSeconds": 6.487106,
+      "maxrssMiB": 368.296875
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "stage-all-refresh",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 4.258806202997221,
+      "cpuSeconds": 6.469374,
+      "maxrssMiB": 367.859375
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "stage-domain",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 3.887041271023918,
+      "cpuSeconds": 5.8898969999999995,
+      "maxrssMiB": 366.33203125
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "stage-domain-AB-continuous",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 3.780929643980926,
+      "cpuSeconds": 5.861108,
+      "maxrssMiB": 363.26171875
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "stage-domain-refresh",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 3.8163280690205283,
+      "cpuSeconds": 5.895913999999999,
+      "maxrssMiB": 369.34765625
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "stage-index",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 1.5725803230016027,
+      "cpuSeconds": 2.223919,
+      "maxrssMiB": 316.8984375
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "stage-index-AB-continuous",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 1.520161009975709,
+      "cpuSeconds": 2.135347,
+      "maxrssMiB": 316.58984375
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "stage-index-refresh",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 1.5183748560084496,
+      "cpuSeconds": 2.141771,
+      "maxrssMiB": 315.828125
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "workflow-check",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 3.1304099730041344,
+      "cpuSeconds": 4.0135179999999995,
+      "maxrssMiB": 290.390625
+    }
+  },
+  {
+    "version": "base",
+    "domain": "investigation",
+    "scenario": "workflow-preflight",
+    "n": 3,
+    "verified": true,
+    "median": {
+      "wallSeconds": 5.823212543997215,
+      "cpuSeconds": 6.851301,
+      "maxrssMiB": 326.28125
+    }
+  }
+]

@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import { prepareCandidateResources } from "./candidate-read-resources.ts";
 import path from "node:path";
 import { hasEntry } from "../../index-runtime/src/index.ts";
 import {
@@ -8,10 +9,7 @@ import {
 } from "./investigation-index-source.ts";
 import { isInvestigationSourcePath } from "./report-path.ts";
 import { loadInvestigationIndex } from "./investigation-state-index.ts";
-import {
-  prepareInvestigationResourceRoot,
-  type ResourceRootPreparation
-} from "./resource-root.ts";
+import type { ResourceRootPreparation } from "./resource-root.ts";
 import {
   diagnosticFromError,
   type InvestigationDiagnostic
@@ -21,7 +19,6 @@ import { validateInvestigationBody } from "./markdown-body.ts";
 import { normalizeMarkdownNewlines } from "./markdown-values.ts";
 import {
   validateCandidateInvestigationResources,
-  validateFullInvestigationResources,
   type InvestigationResourceReferencesByReport
 } from "./resources.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
@@ -34,6 +31,7 @@ import type {
 
 export type CandidateReadContext = Readonly<{
   sources: ReadonlyMap<string, InvestigationSource>;
+  formalSources: readonly InvestigationSource[];
   parsed: ReadonlyMap<string, ParsedInvestigationReport>;
   references: InvestigationResourceReferencesByReport;
   resources: ResourceRootPreparation | undefined;
@@ -72,9 +70,11 @@ export async function prepareCandidateReadContext(
   const { resources, ownerWarnings } = await prepareCandidateResources(
     investigationsDirectory,
     selectedResources.length > 0,
-    references
+    references,
+    ids
   );
   return {
+    formalSources,
     sources,
     parsed,
     references,
@@ -158,7 +158,7 @@ async function candidateFormalIdentity(
   if (layout.formalSources.length > 0) return { layout, ids: layout.reportIds };
   const loaded = await loadInvestigationIndex({ investigationsDirectory });
   const needsDiscovery =
-    loaded.status === "error" ||
+    (owners.length > 0 && loaded.status === "error") ||
     owners.some((id) => !references.has(id) && !hasEntry(loaded.value, id));
   if (
     needsDiscovery &&
@@ -179,33 +179,6 @@ async function candidateFormalIdentity(
   };
 }
 
-async function prepareCandidateResources(
-  investigationsDirectory: string,
-  required: boolean,
-  references: InvestigationResourceReferencesByReport
-): Promise<Pick<CandidateReadContext, "resources" | "ownerWarnings">> {
-  if (!required) {
-    try {
-      await fs.lstat(
-        path.join(investigationsDirectory, investigationResourcesDirectoryName)
-      );
-    } catch (error) {
-      if (error instanceof Error && "code" in error && error.code === "ENOENT")
-        return { resources: undefined, ownerWarnings: [] };
-      throw error;
-    }
-  }
-  const resources = await prepareInvestigationResourceRoot(
-    investigationsDirectory
-  );
-  const validated = await validateFullInvestigationResources(
-    investigationsDirectory,
-    references,
-    { preparation: resources }
-  );
-  return { resources, ownerWarnings: validated.warnings };
-}
-
 type CandidateReadFailure = Readonly<{
   kind: "scaffold-invalid" | "operation";
   diagnostics: InvestigationDiagnostic[];
@@ -224,7 +197,9 @@ export async function readInvestigationCandidate(
       context ??
       (await prepareCandidateReadContext(
         investigationsDirectory,
-        await inspectInvestigationCollectionLayout(investigationsDirectory),
+        await inspectInvestigationCollectionLayout(investigationsDirectory, {
+          readFormalSources: false
+        }),
         [id]
       ));
     const source = prepared.sources.get(id);
@@ -341,10 +316,12 @@ async function candidateResourceErrors(
     const ownerPrefix = `${id}/`;
     errors.push(
       ...context.ownerWarnings
-        .filter((warning) =>
-          warning.startsWith(
-            `${investigationResourcesDirectoryName}/${ownerPrefix}`
-          )
+        .filter(
+          (warning) =>
+            warning.startsWith(
+              `${investigationResourcesDirectoryName}/${ownerPrefix}`
+            ) ||
+            warning.startsWith(`${investigationResourcesDirectoryName}/${id} `)
         )
         .map(
           (warning) =>

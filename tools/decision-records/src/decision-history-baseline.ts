@@ -19,7 +19,7 @@ import {
 import type {
   DecisionId,
   DecisionRelationType,
-  DecisionScan
+  DecisionPreparationContext
 } from "./types.ts";
 
 export type DecisionHistoryBaseline =
@@ -51,7 +51,7 @@ export type UnrecordedHistoryAttentionTarget =
     };
 
 export async function loadDecisionHistoryBaseline(
-  scan: DecisionScan
+  scan: DecisionPreparationContext
 ): Promise<DecisionHistoryBaselineResult> {
   let repository: VersionControlRepository;
   try {

@@ -83,7 +83,10 @@ test("candidate queries discover source records while activation indexes only re
         workspaceRoot
       ]);
       assert.equal(shownCandidate.exitCode, 0, shownCandidate.stderr);
-      assert.match(shownCandidate.stderr, /use-invalid-source-candidate\.md/);
+      assert.doesNotMatch(
+        shownCandidate.stderr,
+        /use-invalid-source-candidate\.md/
+      );
       assert.match(shownCandidate.stdout, /^status: candidate$/m);
       assert.match(shownCandidate.stdout, /^alignment: null$/m);
       assert.match(shownCandidate.stdout, /^createdAt: null$/m);
@@ -130,7 +133,7 @@ test("candidate queries discover source records while activation indexes only re
         multipleUnindexedActivation.stdout,
         /Published new decision as aligned use-first-unindexed\.md\./
       );
-      assert.match(
+      assert.doesNotMatch(
         multipleUnindexedActivation.stderr,
         /Decision candidate scaffold remains: use-second-unindexed\.md/
       );

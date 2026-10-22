@@ -7,11 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
-import type {
-  RevisionId,
-  VersionControlFile,
-  VersionControlRepository
-} from "../../shared/src/version-control/index.ts";
+import type { VersionControlFile } from "../../shared/src/version-control/index.ts";
 import type { DecisionId, DecisionSource } from "./types.ts";
 
 /**
@@ -28,31 +24,6 @@ export type DecisionStageSource = Readonly<{
 }>;
 
 export type FilesystemDecisionCandidates = Readonly<{
-  paths: ReadonlyMap<
-    string,
-    Readonly<{ source: DecisionStageSource }> | Readonly<{ error: unknown }>
-  >;
   duplicateIds: ReadonlySet<DecisionId>;
   sources: ReadonlyMap<DecisionId, DecisionStageSource>;
-}>;
-
-export type SelectedFilesystemSource = Readonly<{
-  decisionId: DecisionId;
-  source: DecisionStageSource | null;
-}>;
-
-export type DecisionStageTarget = Readonly<{
-  revision: RevisionId | null;
-  selectedIds: readonly DecisionId[];
-  selectedSources: readonly SelectedFilesystemSource[];
-  sourceFiles: readonly VersionControlFile[];
-  sources: readonly DecisionSource[];
-}>;
-
-export type DecisionStageTargetOptions = Readonly<{
-  decisionsDirectory: string;
-  decisionScope: string;
-  repository: VersionControlRepository;
-  revision: RevisionId | null;
-  selectedSelectors: readonly string[];
 }>;

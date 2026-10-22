@@ -95,6 +95,8 @@ test("domain selection composes an explicit rename from deletion and addition", 
   const snapshot = {
     baseline,
     workspaceIndex,
+    pendingIndex: baseline,
+    pendingReportPaths: new Map(),
     canonicalDefinition,
     revision: null
   };

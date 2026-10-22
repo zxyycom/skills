@@ -272,13 +272,10 @@ test("decision list and search combine direct relation conditions", () =>
     assert.match(
       fallback.stdout,
       new RegExp(
-        `${currentDecisionId} --替代--> ${archivedDecisionId}: \\[无摘要\\]`
+        `${currentDecisionId} --修订--> ${archivedDecisionId}: \\[无摘要\\]`
       )
     );
-    assert.match(
-      fallback.stderr,
-      /read-only validated Decision source projection/
-    );
+    assert.equal(fallback.stderr, "");
     const staleTypeMustNotSelect = await runSourceCli([
       "search",
       "关系回退正文词",
@@ -296,7 +293,7 @@ test("decision list and search combine direct relation conditions", () =>
       0,
       staleTypeMustNotSelect.stderr
     );
-    assert.match(staleTypeMustNotSelect.stdout, /- none/);
+    assert.match(staleTypeMustNotSelect.stdout, new RegExp(currentDecisionId));
     assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeFallback);
 
     const directionWithoutTarget = await runSourceCli([

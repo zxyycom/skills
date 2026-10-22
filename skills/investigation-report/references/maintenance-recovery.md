@@ -12,9 +12,9 @@
 
 | 当前结果或故障 | 下一步 |
 | --- | --- |
-| new 已成功，正文、资源或辅助预检有 warning | 候选已创建，继续编辑、show-candidate 或显式 publish preflight。 |
+| new 已成功，正文或资源 readiness 未就绪 | 候选已创建，继续编辑和 show-candidate；需要写前审阅预计影响时再显式 publish preflight。 |
 | 候选单独未就绪 | 用 show-candidate 或 publish preflight 核对正文、关系和直接资源，按具体缺口修正。 |
-| content 搜索以内存投影降级 | 可使用这次完整验证后的读取结果；需要发布当前投影或执行维护前，显式恢复持久索引。metadata 搜索不走此降级。 |
+| content 或 metadata 搜索报索引不可用 | 先修复来源并显式恢复索引；content 只匹配发布范围内的当前文本。 |
 | 搜索结果被截断 | 收紧筛选或调整允许的返回预算，保留记录发现的覆盖边界。 |
 | 只有搜索预览被截断 | 用 show 读取已返回 ID 的完整正文；预览不完整不代表记录发现不完整。 |
 | 手工正式来源变化，或索引缺失、损坏、陈旧 | 核对完整正式报告与资源后运行 `sync-index`（默认写入，`--preflight` 零写入预演）；publish 只处理所选候选，不接纳这些变化。 |

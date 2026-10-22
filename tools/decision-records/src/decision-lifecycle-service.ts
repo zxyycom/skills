@@ -35,7 +35,7 @@ import {
   type DecisionId,
   type DecisionRelationOverride,
   type DecisionRelationOverrideGroup,
-  type DecisionScan,
+  type DecisionPreparationContext,
   type DecisionSuccessor
 } from "./types.ts";
 import type { DecisionRelationReview } from "./decision-relation-transaction-types.ts";
@@ -78,7 +78,7 @@ export type DecisionLifecycleRequest =
   | DecisionSetRelationsRequest;
 
 export function requiresDecisionHistoryBaseline(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   request: DecisionLifecycleRequest,
   records: DecisionRecordLookup = createDecisionRecordLookup(scan.records)
 ): boolean {
@@ -142,7 +142,7 @@ export type DecisionLifecyclePreparation =
     };
 
 export function prepareDecisionLifecycle(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   request: DecisionLifecycleRequest,
   options: {
     currentTimestamp?: () => string;

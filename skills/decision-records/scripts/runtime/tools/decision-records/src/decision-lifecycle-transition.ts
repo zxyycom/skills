@@ -34,12 +34,12 @@ import {
   isActivationCandidateRecord,
   type DecisionId,
   type DecisionRecord,
-  type DecisionScan,
+  type DecisionPreparationContext,
   type EstablishedDecisionRecord
 } from "./types.ts";
 
 export function publicationRelationTransactionRequest(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   request: Extract<DecisionLifecycleRequest, { action: "publish" }>,
   records: DecisionRecordLookup = createDecisionRecordLookup(scan.records)
 ): DecisionRelationTransactionRequest | null {
@@ -63,7 +63,7 @@ export function publicationRelationTransactionRequest(
 }
 
 export function preparePublication(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   request: Extract<DecisionLifecycleRequest, { action: "publish" }>,
   currentTimestamp: () => string,
   historyBaseline: DecisionHistoryBaseline | null,
@@ -125,7 +125,7 @@ export function preparePublication(
 }
 
 export function prepareReactivation(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   request: Extract<DecisionLifecycleRequest, { action: "reactivate" }>
 ): DecisionLifecyclePreparation {
   const record = findRecord(scan, request.decisionId);
@@ -197,7 +197,7 @@ function reactivationResult(
 }
 
 export function prepareEvolution(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   request: Extract<DecisionLifecycleRequest, { action: "evolve" }>,
   currentTimestamp: () => string,
   historyBaseline: DecisionHistoryBaseline | null,
@@ -238,7 +238,7 @@ export function evolutionRelationTransactionRequest(
 }
 
 export function prepareMarkAligned(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   decisionId: DecisionId
 ): DecisionLifecyclePreparation {
   const record = findEstablishedRecord(scan, decisionId);

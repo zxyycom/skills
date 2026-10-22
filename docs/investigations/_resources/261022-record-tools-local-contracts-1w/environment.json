@@ -1,0 +1,44 @@
+{
+  "capturedAt": "2026-10-22T03:48:36.844901+00:00",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "node": "v26.8.2",
+  "NODE_OPTIONS": "",
+  "cpuMax": "400000 100000",
+  "memoryMax": "6442450944",
+  "baseCommit": "0a85d4139309657c1b2d0e985d40f0c57f7f71e7",
+  "cache": "No forced cache clearing; all fixtures constructed before measurement; each CLI fresh Node process; same serial ordering and restoration on both versions",
+  "measurement": "wait4 direct Node CLI; wall/user/system/maxrss; no preparation, verification or Bun wrapper included",
+  "dependencies": {
+    "commander": {
+      "name": "commander",
+      "version": "13.1.0"
+    },
+    "fast-glob": {
+      "name": "fast-glob",
+      "version": "3.3.3"
+    },
+    "fflate": {
+      "name": "fflate",
+      "version": "0.8.3"
+    },
+    "neverthrow": {
+      "name": "neverthrow",
+      "version": "8.2.0"
+    },
+    "simple-git": {
+      "name": "simple-git",
+      "version": "3.36.0"
+    },
+    "valibot": {
+      "name": "valibot",
+      "version": "1.4.2"
+    },
+    "yaml": {
+      "name": "yaml",
+      "version": "2.9.0"
+    }
+  },
+  "isolation": "Serial CLI measurements; other agents paused heavy tests/builds, but light editing and static reviews continued. Not whole-host isolation.",
+  "defaultHeapLimitBytes": 2248146944,
+  "git": "git version 2.53.0"
+}

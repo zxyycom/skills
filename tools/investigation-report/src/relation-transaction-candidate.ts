@@ -105,7 +105,8 @@ async function buildCandidateContext(
   const nextIndex = await buildRelationIndex(
     options,
     candidate.candidateSources,
-    candidate.candidateStates
+    candidate.candidateStates,
+    loaded.collection.snapshot
   );
   if ("errors" in nextIndex) {
     return relationPhaseResult(
@@ -138,7 +139,7 @@ function buildCandidateRelationSources(
     loaded.replacements.map((replacement) => [replacement.source, replacement])
   );
   const candidateSources: InvestigationSource[] = [];
-  const candidateStates = new Map<string, InvestigationIndexState>();
+  const candidateStates = new Map(loaded.collection.states);
   for (const source of loaded.collection.sources) {
     const candidate = candidateRelationSource(
       source,

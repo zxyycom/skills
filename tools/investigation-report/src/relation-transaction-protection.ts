@@ -6,19 +6,18 @@ import {
   buildStateIndex,
   serializeStateIndex
 } from "../../index-runtime/src/index.ts";
-import {
-  createInvestigationStateSnapshot,
-  sameInvestigationSources
-} from "./investigation-index-source.ts";
+import { sameInvestigationSources } from "./investigation-index-source.ts";
 import {
   createInvestigationStateIndexDefinition,
   investigationIndexDiagnosticMessages
 } from "./investigation-state-index.ts";
 import path from "node:path";
 import {
-  collectValidatedInvestigationCollection,
-  type ValidatedInvestigationCollection
-} from "./validation.ts";
+  publicationSnapshot,
+  readPublishedInvestigationDependencies,
+  type PublishedInvestigationSnapshot
+} from "./published-preparation.ts";
+import type { LoadedRelationContext } from "./relation-transaction-preparation.ts";
 import type {
   InvestigationIndexState,
   InvestigationRelationSetResult,
@@ -38,11 +37,13 @@ import type { RelationTransactionOptions } from "./relation-transaction-preparat
 export async function buildRelationIndex(
   options: RelationTransactionOptions,
   candidateSources: readonly InvestigationSource[],
-  candidateStates: ReadonlyMap<string, InvestigationIndexState>
+  candidateStates: ReadonlyMap<string, InvestigationIndexState>,
+  baseline: PublishedInvestigationSnapshot
 ): Promise<{ errors: string[] } | { text: string }> {
-  const snapshot = createInvestigationStateSnapshot(
-    candidateSources,
-    candidateSources.map((source) => candidateStates.get(source.id)!)
+  const snapshot = publicationSnapshot(
+    baseline,
+    candidateStates,
+    candidateSources
   );
   const definition = createInvestigationStateIndexDefinition({ snapshot });
   const builtIndex = await buildStateIndex(definition, { root: options.root });
@@ -59,59 +60,47 @@ export async function buildRelationIndex(
 export async function protectRelationCollection(
   options: RelationTransactionOptions,
   context: CandidateRelationContext
-): Promise<RelationPhase<ValidatedInvestigationCollection>> {
-  const protectedCollection = await collectValidatedInvestigationCollection(
-    options.root
-  );
-  if (
-    protectedCollection.errors.length > 0 ||
-    protectedCollection.snapshot === null
-  ) {
+): Promise<RelationPhase<LoadedRelationContext["collection"]>> {
+  let sources: InvestigationSource[];
+  try {
+    sources = await readPublishedInvestigationDependencies(
+      options.root,
+      context.collection.publishedIndex,
+      context.collection.sources.map((source) => source.id)
+    );
+  } catch (error) {
     return relationPhaseResult(
-      invalidProtectedRelationCollection(options, context, protectedCollection)
+      relationResult(
+        false,
+        context.sourceIds,
+        options.indexPath,
+        [
+          "investigation dependencies could not be revalidated before relation transaction; no files were written",
+          errorText(error)
+        ],
+        {
+          diagnostics: [
+            diagnosticFromError({
+              code: "investigation-report.relation-source-recheck-failed",
+              error,
+              mutation: relationMutation("no-change"),
+              reason:
+                "a required relation dependency could not be revalidated before publication",
+              recovery:
+                "restore the required dependency, then retry from the current published state",
+              target: options.root
+            })
+          ],
+          mutation: relationMutation("no-change")
+        }
+      )
     );
   }
-  if (
-    !sameInvestigationSources(
-      protectedCollection.sources,
-      context.collection.sources
-    )
-  ) {
+  if (!sameInvestigationSources(sources, context.collection.sources))
     return relationPhaseResult(
       driftedProtectedRelationCollection(options, context)
     );
-  }
-  return { status: "ready", value: protectedCollection };
-}
-
-function invalidProtectedRelationCollection(
-  options: RelationTransactionOptions,
-  context: CandidateRelationContext,
-  collection: ValidatedInvestigationCollection
-): InvestigationRelationSetResult {
-  return relationResult(
-    false,
-    context.sourceIds,
-    options.indexPath,
-    [
-      "investigation collection could not be revalidated before relation transaction; no files were written",
-      ...collection.errors
-    ],
-    {
-      diagnostics: [
-        genericInvestigationDiagnostic({
-          code: "investigation-report.relation-source-recheck-failed",
-          mutation: relationMutation("no-change"),
-          reason:
-            "the investigation collection could not be revalidated before relation publication",
-          recovery:
-            "correct the reported collection problem, then retry from the current collection state",
-          target: options.root
-        })
-      ],
-      mutation: relationMutation("no-change")
-    }
-  );
+  return { status: "ready", value: { ...context.collection, sources } };
 }
 
 function driftedProtectedRelationCollection(

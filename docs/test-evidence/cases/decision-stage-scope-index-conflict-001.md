@@ -1,13 +1,13 @@
-### Case DECISION-STAGE-SCOPE-INDEX-CONFLICT-001: stage --scope index rejects a pending index that already differs from the revision
+### Case DECISION-STAGE-SCOPE-INDEX-CONFLICT-001: stage --scope index composes with a pending index that already differs from the revision
 
 Tests:
-- `test:dcd1be75a84e408fd4f61b2a3a0ab7bc527cd68dc24e736025a2d5734e52da99`
+- `test:3513597d7cff8ceeddbbd10873e28b1782007e65952884f33a59597c48454799`
 
 Tags:
 - `decision-records`
 
 Contract:
-- index scope 要求 pending 索引与当前 revision 基线一致。
+- index scope 以合法 pending 索引为组合基底，用本次所选的发布投影替换对应条目，未选 pending 条目保持。
 
 Proves:
-- 已有索引 pending 与基线不同时，第二次 index scope 以零写入失败并提示先检查或解决。
+- 先暂存已变化对象的 index，再暂存另一对象，第二次成功且第一个对象的 pending 投影保留。

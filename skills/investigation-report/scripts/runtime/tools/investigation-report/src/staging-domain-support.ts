@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import type { PendingFileUpdate } from "../../shared/src/version-control/pending-snapshot.ts";
 import { sameBytes as equalBytes } from "../../shared/src/node/bytes.ts";
 import type {
   ReadonlyStateIndex,
@@ -26,7 +27,7 @@ export type InvestigationIndex = ReadonlyStateIndex<
 export type InvestigationDomainStageInput = Readonly<{
   investigationsDirectory: string;
   reportIds: readonly string[];
-  scope: "all" | "domain";
+  scope: "all" | "domain" | "index";
 }>;
 
 /** Locates one domain stage transaction for diagnostics and failure results. */
@@ -69,4 +70,13 @@ export function stageDiagnostic(
   stateId: string | null = null
 ): StateIndexDiagnostic {
   return { code, message, path: indexPath, stateId };
+}
+
+export function sameDomainWriteValue(
+  left: PendingFileUpdate,
+  right: PendingFileUpdate
+): boolean {
+  return left.data === null || right.data === null
+    ? left.data === right.data
+    : left.kind === right.kind && sameBytes(left.data, right.data);
 }

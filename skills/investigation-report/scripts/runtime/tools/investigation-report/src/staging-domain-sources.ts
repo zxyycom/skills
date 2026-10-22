@@ -7,17 +7,12 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import fs from "node:fs/promises";
 import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { hasEntry } from "../../index-runtime/src/index.ts";
 import type { VersionControlFile } from "../../shared/src/version-control/index.ts";
 import { investigationSourceRevision } from "./investigation-source-revision.ts";
-import {
-  investigationIdFromMarkdown,
-  parseInvestigationReport
-} from "./markdown.ts";
-import { isInvestigationSourcePath } from "./report-path.ts";
+import { parseInvestigationReport } from "./markdown.ts";
 import { buildInvestigationReportState } from "./report-validation.ts";
 import { investigationResourceOwnerReportId } from "./resource-reference.ts";
 import { validateInvestigationResourceOwnership } from "./resources.ts";
@@ -106,38 +101,4 @@ function validatedDomainReport(
       `Selected report or required owner changed from the published source: ${reportPath}; run scoped check and sync-index before retrying stage`
     );
   return built.state;
-}
-
-/** Only deletion selections need identity discovery to reject reappeared/moved IDs. */
-export async function verifyDeletedDomainSources(
-  investigationsDirectory: string,
-  selection: DomainSourceSelection,
-  acquired: ReadonlyMap<string, VersionControlFile>,
-  investigationsScope: string
-): Promise<void> {
-  if (selection.deletedIds.length === 0) return;
-  const deleted = new Set(selection.deletedIds);
-  const entries = await fs.readdir(investigationsDirectory, {
-    withFileTypes: true
-  });
-  for (const entry of entries) {
-    if (!isInvestigationSourcePath(entry.name)) continue;
-    if (!entry.isFile() || entry.isSymbolicLink())
-      throw new Error(
-        `Cannot discover deletion identities through non-ordinary source: ${entry.name}`
-      );
-    const file = acquired.get(path.posix.join(investigationsScope, entry.name));
-    const text =
-      file === undefined
-        ? await fs.readFile(
-            path.join(investigationsDirectory, entry.name),
-            "utf8"
-          )
-        : decodeUtf8(file.data);
-    const id = investigationIdFromMarkdown(text);
-    if (id !== null && deleted.has(id))
-      throw new Error(
-        `Deleted Investigation ID reappeared in workspace: ${id}; sync-index before retrying stage`
-      );
-  }
 }

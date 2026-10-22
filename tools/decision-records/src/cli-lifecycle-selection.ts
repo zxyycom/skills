@@ -20,7 +20,7 @@ import type {
   DecisionRelationOverride,
   DecisionRelationOverrideGroup,
   DecisionRelationSummary,
-  DecisionScan,
+  DecisionPreparationContext,
   DecisionSuccessor
 } from "./types.ts";
 
@@ -33,7 +33,7 @@ type LifecycleResolutionResult =
   | { failure: DecisionApplicationFailure; status: "error" };
 
 export function resolveDecisionLifecycleRequest(
-  scan: DecisionScan,
+  scan: DecisionPreparationContext,
   request: DecisionLifecycleRequest
 ): LifecycleResolutionResult {
   const resolution = lifecycleSelectorResolution(scan);
@@ -60,7 +60,7 @@ function resolveSingleDecisionRequest(
 }
 
 function lifecycleSelectorResolution(
-  scan: DecisionScan
+  scan: DecisionPreparationContext
 ): LifecycleSelectorResolution {
   const failures: DecisionApplicationFailure[] = [];
   const records = createDecisionRecordLookup(scan.records);

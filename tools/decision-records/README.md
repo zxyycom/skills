@@ -46,7 +46,7 @@ list/trace 成功结果显式包含 `source={kind: "published-index", currentnes
 | 范围 | source | limits |
 | --- | --- | --- |
 | metadata | published-index / unchecked / false | maxRecords 默认 100，`--limit` 接受 1..1000；resources、preview 为 null。 |
-| content | validated-source / current；降级时 fallback=true | maxRecords=20；扫描与预览预算如下。 |
+| content | published-index+current-text / unchecked / false | maxRecords=20；扫描与预览预算如下。 |
 
 content 扫描预算为 maxCandidateFiles=10,000、maxFileBytes=2 MiB、maxTotalBytes=20 MiB；预览预算为 contextLines=1、maxMatchesPerFile=3、maxPreviewCharacters=12,000（UTF-16 字符）。
 
@@ -55,14 +55,15 @@ content 扫描预算为 maxCandidateFiles=10,000、maxFileBytes=2 MiB、maxTotal
 1. matched 按记录计数，包含已发现但无法返回的命中；precision 为 exact 或 lower-bound，returned 为实际返回数。
 2. metadata 全量匹配、精确计数，只保留窗口内完整结果；超限时 scanComplete 为 true、resultsComplete 为 false。content 返回预算满后，在首个不能返回的命中文件停止并计入 matched；还有未检查文件则 lower-bound，恰为最后一个则 exact 且 scanComplete，但 resultsComplete 仍为 false。
 3. 预览耗尽后继续在扫描与返回预算内识别命中，空 previews 保留身份；只有实际省略片段才标记预览受限，恰好用满预算或未返回记录均不影响 previewsComplete。
-4. 完整零命中为 exact 0、returned 0，扫描、结果及 content 预览完整；metadata 预览为 null。必需读取、资源错误和取消保持失败。
+4. 完整零命中为 exact 0、returned 0，扫描、结果及 content 预览完整；metadata 预览为 null。必需读取、身份或路径安全错误及取消保持失败。
 5. coverage.reasons 按 max-records、match-previews、preview-characters 顺序去重，未限制为 `[]`。
 
 stdout 六行摘要均从同一结果渲染，字符串 JSON 转义，Filters 紧凑 JSON，Limits 只展示适用预算；无返回上限显示 `maxRecords=unlimited`，下界显示 `matched>=N`。warning 保留领域前缀，每类仅一次写 stderr：
 
 - `search results limited: max-records`
 - `search previews limited: match-previews,preview-characters`，只列实际原因。
-- `search source: validated-source fallback`，附来源边界及同步恢复动作。
+
+content 按严格发布索引选择范围，匹配当前文件文本；同份安全读取的字节在匹配前核对 ID。索引失败走显式恢复，必需读取或身份错误保持失败；未同步的新对象与筛选变化在同步后进入范围。来源字段和覆盖共同限制全集结论。
 
 ## 关系输入与诊断
 
@@ -78,7 +79,7 @@ set-relations 与 Investigation Report 使用同一分组输入协议，具体�
 
 relationReview 按规范 source ID 排序，覆盖全部所选成员，before 为同次准备读取的完整关系，after 为规范化完整最终集合。renderer 只从这些 before/after 派生边与摘要变化；预检 phase 为 preflight，正式成功为 committed，失败不附成功 review。
 
-`new` 的 stdout 只集中回显完整 ID、标题、路径、readiness 及独立辅助预检，不默认打印全文或固定下一步；warning/error 留在 stderr。即时输出不保存日志、遥测或 receipt，普通查询与参数错误不附会 mutation 结果。
+`new` 的 stdout 只集中回显完整 ID、标题、路径及自身 readiness，不默认打印全文或固定下一步；warning/error 留在 stderr。创建与候选读取不附带全集发布预检；即时输出不保存日志、遥测或 receipt，普通查询与参数错误不附会 mutation 结果。
 
 ## 交付验证
 

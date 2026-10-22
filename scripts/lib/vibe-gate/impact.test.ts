@@ -1,3 +1,4 @@
+import "./impact-decision-operation-inputs.test.ts";
 import "./impact-failures.test.ts";
 import "./impact-proof.test.ts";
 import "./impact-release.test.ts";

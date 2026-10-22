@@ -7,7 +7,7 @@ Tags:
 - `decision-records`
 
 Contract:
-- stage 选择的 ID 必须对应决策根内的普通 Markdown 文件；symlink 等非普通来源不得读取其外部字节或写入 pending。
+- stage 选择的 ID 必须对应普通非符号链接 Markdown 来源；不安全来源不得写入 pending。
 
 Proves:
-- 真实文件来源复核拒绝指向决策根外的 symlink，返回 regular non-symlink 错误，外部字节与 symlink 表示保持不变；不观察 Git index，平台不支持 symlink 时跳过。
+- 真实 stage 拒绝所选外部 symlink，返回 regular non-symlink 诊断；pending tree、外部字节及 symlink 保持不变，不支持 symlink 的平台跳过。

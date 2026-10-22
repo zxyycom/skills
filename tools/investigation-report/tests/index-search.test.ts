@@ -59,7 +59,7 @@ test("search finds formal Markdown with all, any, phrase, and structural filters
   });
 });
 
-test("search excludes candidates, resources, and index bytes and falls back read-only", async () => {
+test("search excludes candidates resources and index bytes and rejects a missing index", async () => {
   await withTempRoot("search-fallback", async (root) => {
     await writeCollection(root, [{ id: "formal" }]);
     const directory = `${root}/docs/investigations`;
@@ -101,12 +101,8 @@ test("search excludes candidates, resources, and index bytes and falls back read
       query: "当前",
       workspaceRoot: root
     });
-    assert.equal(fallback.status, "ok");
-    assert.deepEqual(
-      fallback.entries.map((entry) => entry.id),
-      ["formal"]
-    );
-    assert.equal(fallback.warnings.length, 1);
+    assert.equal(fallback.status, "error");
+    assert.deepEqual(fallback.entries, []);
     await assert.rejects(fs.access(indexPath));
   });
 });

@@ -10,7 +10,9 @@ export async function resolvePublishCandidateSelectors(
 ): Promise<
   { ids: string[]; status: "ok" } | { errors: string[]; status: "error" }
 > {
-  const layout = await inspectInvestigationCollectionLayout(root);
+  const layout = await inspectInvestigationCollectionLayout(root, {
+    readFormalSources: false
+  });
   if (layout.errors.length > 0)
     return { errors: layout.errors, status: "error" };
   const entries = investigationSelectorEntries(layout.candidateIds);

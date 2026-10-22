@@ -60,3 +60,5 @@ await import("./scan-index-reuse.test.ts");
 await import("./search-metadata-window.test.ts");
 
 await import("./cli-search-metadata-window.test.ts");
+
+await import("./local-operation-contracts.test.ts");

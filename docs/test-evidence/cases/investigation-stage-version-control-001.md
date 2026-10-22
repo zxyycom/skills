@@ -10,4 +10,4 @@ Contract:
 - 选择性暂存要求可用版本仓库，失败时不改写工作树。
 
 Proves:
-- 非 Git fixture 的真实 CLI stage 返回退出码 1 与 repository-unavailable 诊断；报告 Markdown 和派生 index 的完整字节保持不变。
+- 非 Git fixture 的真实 CLI stage 返回退出码 1 与 investigation-report.stage-repository-unavailable 诊断；报告 Markdown 和派生 index 的完整字节保持不变。
