@@ -1,0 +1,243 @@
+v3最终结构冻结后的实际形成时方法；独立Node源码API调用，不含CLI渲染；probe独立于正式计时。正文说明版本/口径与未覆盖范围。
+
+===== worker.ts =====
+import path from 'node:path';
+import {pathToFileURL} from 'node:url';
+const [code, root, domain, action, scope='index', selected='261001-perf-00000'] = process.argv.slice(2);
+const load = (file:string)=> import(pathToFileURL(path.join(code!,file)).href);
+if(action === 'sync') {
+ const r = domain === 'decision' ? await (await load('tools/decision-records/src/decision-state-index.ts')).syncDecisionIndex({decisionsDirectory:path.join(root!,'docs/decisions'),mode:'write'}) : await (await load('tools/investigation-report/src/validation.ts')).synchronizeInvestigationIndex({workspaceRoot:root});
+ if(r.status==='error'||r.errors?.length) throw Error(JSON.stringify(r));
+ console.log(JSON.stringify(r));
+} else {
+ const r = domain === 'decision' ? await (await load('tools/decision-records/src/decision-stage-service.ts')).stageDecisionRecords({decisionIds:[selected],scope,location:{workspaceRoot:root,decisionsDir:'docs/decisions'}}) : await (await load('tools/investigation-report/src/staging.ts')).stageInvestigationReports({workspaceRoot:root,reportIds:[selected],scope});
+ console.log(JSON.stringify(r));
+ if(r.status!=='ok') process.exitCode=1;
+}
+
+===== measure.py =====
+import os,sys,pathlib,subprocess,json,time,hashlib,shutil,statistics
+BASE=pathlib.Path(__file__).resolve().parent.parent
+WORKER=BASE/'methods/worker.ts'
+BASECODE=BASE/'baseline'
+N=10000
+ID=lambda i:f'261001-perf-{i:05d}'
+SOURCE=lambda d,i:('archive/' if d=='decision' and i%10!=9 else '')+ID(i)+'.md'
+DOM={'decision':('docs/decisions','decision-index.json'),'investigation':('docs/investigations','investigation-index.json')}
+def git(root,*a):return subprocess.check_output(['git','-C',str(root),*a])
+def worker(code,root,d,a,s='index'):return ['node',str(WORKER),str(code),str(root),d,a,s]
+def sync(root,d):
+ r=subprocess.run(worker(BASECODE,root,d,'sync'),capture_output=True,text=True)
+ if r.returncode:raise Exception(r.stdout+r.stderr)
+def text(d,i,changed=False):
+ ident=ID(i); title=('Changed ' if changed else '')+ident
+ if d=='decision':
+  rel=f'relations:\n  - type: 修订\n    target: {ID(i-1)}\n    summary: 性能固定关系\n' if i%10 else 'relations: []\n'
+  return f'''---
+title: {title}
+id: {ident}
+status: {'archived' if i%10!=9 else 'active'}
+alignment: unaligned
+createdAt: 2026-10-01T00:00:00Z
+purpose: 固定性能样本
+background: 有限代表数据
+decision: 保持局部刷新
+tags:
+  - performance
+{rel}---
+
+## 目的
+固定性能样本。
+
+## 背景
+有限代表数据。
+
+## 决策
+- 采用: 保持局部刷新。
+'''
+ rel=f'relations:\n  - type: "补充"\n    target: "{ID(i-1)}"\n    summary: "性能固定关系"\n' if i%10 else 'relations: []\n'
+ resources=[]
+ if i==0:resources=[ID(0)+'/keep.txt',ID(3)+'/shared.txt']
+ if i==3:resources=[ID(3)+'/shared.txt']
+ r='\n## 随附资源\n'+''.join(f'- [资源](./_resources/{x})\n' for x in resources) if resources else ''
+ return f'''---
+title: "{title}"
+id: "{ident}"
+formedAt: "2026-10-01T00:00:00Z"
+question: "固定性能样本？"
+tags:
+  - "performance"
+{rel}---
+
+## 形成时背景
+有限代表数据。
+
+## 调查目的
+固定单选。
+
+## 调查范围与依据
+隔离文件与固定边。
+
+## 调查结果与边界
+仅本次fixture。
+{r}'''
+def manifest(root):
+ return {str(p.relative_to(root)):{'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'mode':oct(p.stat().st_mode&0o777),'bytes':p.stat().st_size} for p in sorted(root.rglob('*')) if p.is_file() and '.git' not in p.relative_to(root).parts}
+def pending(root):
+ out={}
+ for l in git(root,'ls-files','--stage').decode().splitlines():
+  attrs,name=l.split('\t',1);mode,oid,stage=attrs.split();out[name]={'mode':mode,'oid':oid,'stage':stage}
+ return out
+def prep():
+ root=BASE/'fixture';root.mkdir()
+ git(root,'init','-q');git(root,'config','user.name','Stage Performance');git(root,'config','user.email','perf@example.invalid');git(root,'config','core.autocrlf','false');git(root,'config','core.filemode','true');git(root,'config','core.hooksPath','/dev/null');git(root,'config','gc.auto','0')
+ for d,(folder,index) in DOM.items():
+  dr=root/folder;dr.mkdir(parents=True);(dr/'archive').mkdir() if d=='decision' else None
+  for i in range(N):(dr/SOURCE(d,i)).write_text(text(d,i))
+  if d=='investigation':
+   for name in [ID(0)+'/keep.txt',ID(0)+'/deleted.txt',ID(3)+'/shared.txt']:
+    p=dr/'_resources'/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('resource payload '+name+'\n')
+  sync(root,d)
+ (root/'outside-keep.txt').write_text('HEAD outside\n');(root/'outside-delete.txt').write_text('delete me\n')
+ git(root,'add','.');git(root,'commit','-qm','Synthetic 10k per domain HEAD')
+ for d,(folder,index) in DOM.items():
+  dr=root/folder
+  (dr/SOURCE(d,31)).write_text(text(d,31).replace('有限代表数据。','Partial pending body.'))
+  git(root,'add',str(dr/SOURCE(d,31)));git(root,'update-index','--chmod=+x',folder+'/'+SOURCE(d,31));git(root,'rm','--cached','-q',folder+'/'+SOURCE(d,32))
+  for i in [0,31]:(dr/SOURCE(d,i)).write_text(text(d,i,True))
+  if d=='investigation':
+   resources=dr/'_resources'/ID(0)
+   (resources/'deleted.txt').unlink();(resources/'keep.txt').write_text('updated selected resource\n');(resources/'keep.txt').chmod(0o755);(resources/'added.txt').write_text('new unreferenced owner resource\n')
+  sync(root,d)
+ (root/'outside-keep.txt').write_text('pending outside\n');git(root,'add','outside-keep.txt');git(root,'rm','--cached','-q','outside-delete.txt');(root/'outside-keep.txt').write_text('workspace outside\n')
+ shutil.copyfile(root/'.git/index',BASE/'initial-index')
+ (BASE/'fixture-manifest.json').write_text(json.dumps(manifest(root),indent=2))
+ (BASE/'pending-before.json').write_text(json.dumps(pending(root),indent=2))
+ info={'countPerDomain':N,'edgesPerDomain':9000,'selectedPerInvocation':1,'HEAD':git(root,'rev-parse','HEAD').decode().strip(),'gitConfig':git(root,'config','--local','--list').decode(),'domainBytes':{d:sum(x['bytes'] for k,x in manifest(root).items() if k.startswith(v[0]+'/')) for d,v in DOM.items()},'node':subprocess.check_output(['node','--version']).decode().strip(),'git':subprocess.check_output(['git','--version']).decode().strip(),'platform':os.uname()._asdict() if hasattr(os.uname(),'_asdict') else list(os.uname()),'cgroup':{f:pathlib.Path('/sys/fs/cgroup/'+f).read_text() for f in ['cpu.max','memory.max'] if pathlib.Path('/sys/fs/cgroup/'+f).exists()}}
+ (BASE/'context.json').write_text(json.dumps(info,indent=2))
+def restore(root):shutil.copyfile(BASE/'initial-index',root/'.git/index')
+def verify(root,d,scope):
+ before=json.loads((BASE/'pending-before.json').read_text());after=pending(root);folder,index=DOM[d];idx=folder+'/'+index;selected=folder+'/'+SOURCE(d,0);allowed={idx} if scope=='index' else {selected}
+ if d=='investigation' and scope!='index':allowed|={folder+'/_resources/'+ID(0)+'/'+n for n in ['keep.txt','added.txt','deleted.txt']}
+ if scope=='all':allowed.add(idx)
+ assert {k:v for k,v in before.items() if k not in allowed}=={k:v for k,v in after.items() if k not in allowed},'unselected/mode/deletion/outside changed'
+ if scope!='domain':
+  p=json.loads(git(root,'show',':'+idx));w=json.loads((root/idx).read_bytes());old=json.loads(git(root,'show','HEAD:'+idx))
+  expected=json.loads(json.dumps(old));expected['entries'][ID(0)]=w['entries'][ID(0)];expected['sourceRevision']['entries'][ID(0)]=w['sourceRevision']['entries'][ID(0)]
+  assert p==expected,'full selective index state/revision mismatch'
+  source=root/folder/SOURCE(d,0)
+  fields=[ID(0),SOURCE(d,0),source.read_text().replace('\r\n','\n')]
+  label='decision-index-entry-v2' if d=='decision' else 'investigation-index-entry-v2'
+  h=hashlib.sha256((label+'\0').encode())
+  for field in fields:
+   data=field.encode();h.update(str(len(data)).encode()+b':'+data+b'\0')
+  assert p['sourceRevision']['entries'][ID(0)]=='sha256:'+h.hexdigest(),'independent selected source revision'
+ if scope!='index':
+  for name in allowed-{idx}:
+   if (root/name).exists():
+    assert git(root,'show',':'+name)==(root/name).read_bytes(),'selected bytes'
+    assert after[name]['mode']==('100755' if (root/name).stat().st_mode&0o111 else '100644'),'selected mode'
+   else:assert name not in after,'selected deletion'
+ assert manifest(root)==json.loads((BASE/'fixture-manifest.json').read_text()),'workspace source changed'
+ return {'pendingPreserved':True,'selectedStateRevision':scope!='domain','selectedBytesModesDeletions':scope!='index','workspaceUnchanged':True,'outsidePreserved':True}
+def runone(code,label,d,scope,number,group='native'):
+ root=BASE/'fixture';restore(root);out=BASE/'results'/f'{group}-{label}-{d}-{scope}-{number}.stdout';err=out.with_suffix('.stderr');argv=worker(code,root,d,'stage',scope)
+ start=time.monotonic();pid=os.fork()
+ if pid==0:
+  os.dup2(os.open(out,os.O_CREAT|os.O_WRONLY|os.O_TRUNC,0o644),1);os.dup2(os.open(err,os.O_CREAT|os.O_WRONLY|os.O_TRUNC,0o644),2);os.environ['NODE_OPTIONS']='';os.execvp(argv[0],argv)
+ _,status,usage=os.wait4(pid,0);wall=time.monotonic()-start
+ if status:raise Exception(out.read_text()+err.read_text())
+ result=json.loads(out.read_text());assert result['status']=='ok',result
+ observed={'group':group,'label':label,'domain':d,'scope':scope,'number':number,'wallSeconds':wall,'cpuSeconds':usage.ru_utime+usage.ru_stime,'peakRssKiB':usage.ru_maxrss,'argv':argv,'effect':verify(root,d,scope)}
+ with (BASE/'results/observations.jsonl').open('a') as f:f.write(json.dumps(observed)+'\n')
+ print(json.dumps(observed),flush=True)
+ return observed
+if __name__=='__main__':
+ if sys.argv[1]=='prepare':prep()
+ elif sys.argv[1]=='smoke':runone(BASECODE,'baseline','investigation','index',0,'smoke')
+ elif sys.argv[1]=='measure':
+  candidate=pathlib.Path(sys.argv[2])
+  for d in DOM:
+   for scope in ['index','all','domain']:
+    for label,code in [('baseline',BASECODE),('candidate',candidate)]:runone(code,label,d,scope,0,'warmup')
+   for number in range(1,4):
+    for label,code in ([('baseline',BASECODE),('candidate',candidate)] if number%2 else [('candidate',candidate),('baseline',BASECODE)]):runone(code,label,d,'index',number)
+   for scope in ['all','domain']:
+    for label,code in [('baseline',BASECODE),('candidate',candidate)]:runone(code,label,d,scope,1)
+
+===== run-v3.py =====
+import sys
+import measure as m
+c=m.BASE/'candidate-v3'
+if sys.argv[1]=='primary':
+ for d in m.DOM:
+  for label,code in [('baseline-v3',m.BASECODE),('candidate-v3',c)]:m.runone(code,label,d,'index',0,'warmup-v3')
+  for n in range(1,4):
+   for label,code in ([('baseline-v3',m.BASECODE),('candidate-v3',c)] if n%2 else [('candidate-v3',c),('baseline-v3',m.BASECODE)]):m.runone(code,label,d,'index',n,'native-v3')
+elif sys.argv[1]=='representative':
+ for d in m.DOM:
+  for scope in ['all','domain']:
+   for label,code in [('baseline-v3',m.BASECODE),('candidate-v3',c)]:m.runone(code,label,d,scope,0,'warmup-v3')
+   for label,code in [('baseline-v3',m.BASECODE),('candidate-v3',c)]:m.runone(code,label,d,scope,1,'representative-v3')
+
+===== instrument.py =====
+from pathlib import Path
+import sys,shutil
+src=Path(sys.argv[1]);dest=Path(sys.argv[2]);dest.mkdir();shutil.copytree(src/'tools',dest/'tools');(dest/'node_modules').symlink_to('/workspace/skills/node_modules')
+def edit(file,old,new,count=1):
+ p=dest/file;s=p.read_text();assert s.count(old)>=count,(file,old);p.write_text(s.replace(old,new,count))
+def log(label,extra=''):
+ return 'globalThis.__stageProbe('+repr(label)+(', '+extra if extra else '')+');\n  '
+edit('tools/index-runtime/src/snapshot-parser.ts','const definitionErrors = validateStateIndexDefinition(options.definition);',log('parseStateIndex','{path:options.sourcePath,bytes:Buffer.byteLength(options.text)}')+'const definitionErrors = validateStateIndexDefinition(options.definition);')
+edit('tools/index-runtime/src/snapshot-parser.ts','let value: unknown;',log('parseEnvelope','{path:options.sourcePath,bytes:Buffer.byteLength(options.text)}')+'let value: unknown;')
+edit('tools/index-runtime/src/snapshot-builder.ts','if (!isStateSnapshot(snapshot)) {',log('buildFromSnapshot')+'if (!isStateSnapshot(snapshot)) {')
+edit('tools/shared/src/graph/relations.ts','const graphIds = new Set(ids);',log('buildRelationGraph')+'const graphIds = new Set(ids);')
+edit('tools/shared/src/version-control/pending-snapshot.ts','const scope = normalizeRepositoryPath(options.pathScope);',log('pendingCapture','{pathScope:options.pathScope,payloadScope:options.payloadScope??"scope",contentPaths:options.contentPaths.length}')+'const scope = normalizeRepositoryPath(options.pathScope);')
+edit('tools/shared/src/version-control/git-pending.ts','const scopes = normalizePathScopes(pathScopes);',log('pendingEnumeration','{pathScopes,locked:pendingIndexPath!==undefined}')+'const scopes = normalizePathScopes(pathScopes);')
+edit('tools/shared/src/version-control/git-blob-batch.ts','return reader.finish();','const measured=reader.finish(); '+log('blobBatch','{objects:measured.size,bytes:[...measured.values()].reduce((s,b)=>s+b.size,0),retainedBytes:[...measured.values()].reduce((s,b)=>s+b.data.length,0),stack:new Error().stack?.split("\\n").slice(2,6)}')+'return measured;')
+edit('tools/shared/src/version-control/git-pending.ts','await options.handle.writeFile(indexData);',log('physicalIndexCopy','{bytes:indexData.length}')+'await options.handle.writeFile(indexData);')
+
+===== probe-preload.mjs =====
+import fs from 'node:fs/promises';
+globalThis.__stageProbe=(label,data={})=>process.stderr.write(JSON.stringify({probe:label,...data})+'\n');
+for(const name of ['readFile','readdir','lstat']) {
+ const original=fs[name];
+ fs[name]=async function(...args){
+  const value=await Reflect.apply(original,this,args);
+  const target=String(args[0]);
+  if(target.includes('/fixture/')&&!target.includes('/.git/'))globalThis.__stageProbe('workspace-'+name,{path:target,bytes:name==='readFile'?Buffer.byteLength(value):undefined,members:name==='readdir'?value.length:undefined});
+  return value;
+ };
+}
+
+===== probe-run-v3.py =====
+import sys,subprocess,json,collections
+from pathlib import Path
+import measure as m
+summaries=[]
+for domain,scope in [('decision','index'),('investigation','index'),('investigation','all')]:
+ for label,probe in [('baseline-v3','probe-baseline'),('candidate-v3','probe-candidate-v3')]:
+  root=m.BASE/'fixture';m.restore(root);argv=m.worker(m.BASE/probe,root,domain,'stage',scope);argv[1:1]=['--import',str(m.BASE/'methods/probe-preload.mjs')]
+  x=subprocess.run(argv,capture_output=True,text=True);(m.BASE/f'results/probe-{label}-{domain}-{scope}.jsonl').write_text(x.stderr);(m.BASE/f'results/probe-{label}-{domain}-{scope}.stdout').write_text(x.stdout);assert x.returncode==0,x.stdout+x.stderr;m.verify(root,domain,scope)
+  events=[json.loads(l) for l in x.stderr.splitlines()];counts=collections.Counter(e['probe'] for e in events);summary={'label':label,'domain':domain,'scope':scope,'counts':dict(counts),'blobBatches':[e for e in events if e['probe']=='blobBatch'],'workspaceReads':[e for e in events if e['probe']=='workspace-readFile'],'physicalCopies':[e for e in events if e['probe']=='physicalIndexCopy'],'parses':[e for e in events if e['probe']=='parseStateIndex'],'effectVerified':True};summaries.append(summary);print(json.dumps({k:v for k,v in summary.items() if k not in ['blobBatches','workspaceReads','physicalCopies','parses']}),flush=True)
+(m.BASE/'results/probe-summary-v3.json').write_text(json.dumps(summaries,indent=2))
+
+===== sequence-v3.py =====
+import sys,json,subprocess,shutil,hashlib
+from pathlib import Path
+import measure as m
+code=Path(sys.argv[1]);base=m.BASE
+out=[]
+for d in m.DOM:
+ m.BASE=base/('sequence-v3-'+d);m.BASE.mkdir();(m.BASE/'results').mkdir();m.N=100;m.prep();root=m.BASE/'fixture';folder,index=m.DOM[d];idx=folder+'/'+index
+ selected=[m.ID(0),m.ID(10)]
+ bp=root/folder/m.SOURCE(d,10);bp.write_text(m.text(d,10,True));m.sync(root,d)
+ initial=m.pending(root);original=json.loads(m.git(root,'show',':'+idx));expected=json.loads(json.dumps(original))
+ for ident in [selected[0],selected[1],selected[0]]:
+  if ident==selected[0] and len(out) and out[-1].get('domain')==d:
+   ap=root/folder/m.SOURCE(d,0);ap.write_text(m.text(d,0,True).replace('Changed ','Reselected '));m.sync(root,d)
+  workspace=m.manifest(root);w=json.loads((root/idx).read_bytes());expected['entries'][ident]=w['entries'][ident];expected['sourceRevision']['entries'][ident]=w['sourceRevision']['entries'][ident]
+  result=subprocess.run(m.worker(code,root,d,'stage')+[ident],capture_output=True,text=True);assert result.returncode==0,result.stdout+result.stderr
+  pending=m.pending(root);assert {k:v for k,v in initial.items() if k!=idx}=={k:v for k,v in pending.items() if k!=idx};assert json.loads(m.git(root,'show',':'+idx))==expected;assert m.manifest(root)==workspace
+  out.append({'domain':d,'selected':ident,'selectedTitle':w['entries'][ident]['title'],'pendingIndexSha256':hashlib.sha256(m.git(root,'show',':'+idx)).hexdigest(),'selectedAndPriorRevisionsExact':True,'unselectedBytesModeDeletionPreserved':True,'workspaceUnchanged':True})
+(base/'results/sequence-v3-effects.json').write_text(json.dumps(out,indent=2));print(json.dumps(out,indent=2))

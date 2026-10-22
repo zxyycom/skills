@@ -30,7 +30,7 @@ list 从严格加载产生的本次 reader 取得冻结索引与查询结果，�
 
 - **按需复用**：首次实际访问图时构建正反向邻接和 ID 映射，后续图操作共用同一引用；无关系条件的 `list` 和 metadata 搜索不构图。
 - **顺序责任**：构图保留投影边序，证据、诊断与 `trace` 各自在输出时确定顺序。
-- **阶段边界**：同次发布索引查询复用所属投影上下文；集合变更或进入新的准备、复核与恢复阶段时，另建上下文并完成所属阶段的校验。图的生命周期止于本次快照。
+- **阶段边界**：同次发布索引查询复用所属投影上下文；集合变更或进入新的准备、复核与恢复阶段时，另建上下文并完成所属阶段的校验。stage 的纯计算仅在[新鲜等价证据](../index-runtime/README.md#记录领域的内部暂存协调)成立后允许调用内复用，不省略本阶段真实来源、payload 与身份验收；不跨调用保留图。
 
 ### 关系筛选与 trace
 
@@ -88,17 +88,18 @@ content 使用严格发布索引与领域图选择范围，先判断候选预算
 
 ### stage 的目录与来源
 
-公开 scope、选择与安全前提见 [暂存操作契约](../../skills/investigation-report/references/cli-operations.md#待提交快照)。实现另外保持：
+公开 scope、选择与安全前提见 [暂存操作契约](../../skills/investigation-report/references/cli-operations.md#待提交快照)。共同 scope 策略、H/W/P 投影兼容、pending 基底选中刷新与准备→fresh 复核→发布顺序由 [Index Runtime 内部记录暂存协调器](../index-runtime/README.md#记录领域的内部暂存协调)承接，本领域保留以下适配责任：
+
+`staging-domain-adapter.ts` 的单调用适配器管理固定 H 的资源成员事实与各阶段所需保留路径；可变字节仍逐阶段取得。`staging-domain-index.ts` 承接工作区索引原始字节、解析复用与完整 stage 图验证；`staging-pending.ts` 发现已变化 pending 正文的身份／旧位置并接线 pending 投影。pending 捕获通过共同 `readRecordStagePending`，`staging-domain-membership.ts` 按所需保留路径决定复用本阶段 snapshot 或扩展保留集；身份发现与内容捕获各有明确入口。
 
 1. 准备和写前复核阶段各自维护目录名字索引，使用时仍核对身份、类型和 canonical 路径。同身份目录 metadata 改变时重新枚举，核对相关 exact、casefold 和缺失匹配；发现相关匹配、完整树成员或目录替换，容许无关 sibling 活动。目录事实只在本阶段有效。
 2. 两阶段在获取资源字节前检查资源根、owner 及全部路径分量，零引用或空树也不跳过。引用路径按领域字符契约，未引用成员只按安全普通文件路径检查。
 3. all/domain 从发布声明及已变化 pending 身份确定所选正文、旧位置、直接资源与正式 owner 依赖；每阶段验证相关来源投影、指纹与资源安全。index 不读取工作区正文。未同步工作区未知位置的身份重现由显式检查／同步发现，stage 只核对所选已知受管位置。
-4. index 准备阶段复用本次已捕获的 pending 快照；写前独立重取并复核工作区发布索引与 pending。all/domain 两阶段各自取得可变工作区成员、字节、文件表示、发布索引和完整 pending。每阶段至多读一次 core.fileMode，关闭时复用本阶段完整 pending 表示依据。固定 revision 的 HEAD 索引和资源成员可跨阶段复用，锁内仍核对当前 HEAD 指针及完整 pending 身份。
-5. index 通过共享 pending snapshot 显式选择 `payloadScope: "content-paths"`，`contentPaths` 只含目标索引，更新也限于该路径；all/domain 使用默认完整 payload 策略。准备、独立写前、锁内 CAS 与写后均保持完整成员的路径、模式和对象 ID 保护，并按所属策略验证实际 payload。共享 API 的身份、读取失败及替换边界由[版本管理中间层](../shared/version-control.md#pending-snapshot)承接。
-6. 来源路径的真实系统失败与 symlink、case、成员问题分别承接。候选与查询的普通验证返回问题集合，stage 复核从详细检查取得 failure；无可靠信号时不猜类别或附会写入结果。
+4. all/domain 的阶段适配分别取得并验收可变工作区成员、字节、文件表示与目录事实。每阶段至多读一次 `core.fileMode`，关闭时复用本阶段完整 pending 表示依据。固定 revision 的 HEAD 资源成员可跨阶段复用；纯计算复用须满足共同协调器的新鲜等价证据，可变目录上下文仅在本阶段有效。
+5. 来源路径的真实系统失败与 symlink、case、成员问题分别承接。候选与查询的普通验证返回问题集合，stage 复核从详细检查取得 failure；无可靠信号时不猜类别或附会写入结果。
 
 all/domain 的 preservedPendingPaths 是本领域 scope 中相对固定 HEAD 已变化但不在目标内的 pending 路径，含 staged 删除；只从路径变化 metadata 取得，不为此读取全部 HEAD 正文。index/all 的索引以捕获的 pending 为基底组合选中投影，domain 保持 pending 索引字节或缺失状态。局部来源访问随所选对象、必要依赖及已暂存位置变化增长；完整索引、图和 pending 仍有集合级成本。
 
 ## 交付验证
 
-按改动运行 `bun run test:investigation-report-check`；源码改动后用 `bun run sync:investigation-report-check` 生成，再运行 `bun run check:investigation-report-check`。涉及公开行为时同步对应 skill 文档与版本，测试改动维护 Case 账本；最终运行项目 `bun run check`，分别报告机械证据与语义审查。
+按改动运行 `bun run test:investigation-report-check`；源码改动后用 `bun run sync:investigation-report-check` 生成，再运行 `bun run check:investigation-report-check`。涉及公开行为时同步对应 skill 文档与版本，测试改动维护 Case 账本；最终运行项目 `bun run check:changed`，分别报告机械证据与语义审查。

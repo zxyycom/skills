@@ -1,7 +1,3 @@
-import {
-  verifyDomainWrites,
-  type DomainWritesAcquisition
-} from "../src/staging-domain-writes.ts";
 import { domainFailure } from "../src/staging-domain-failures.ts";
 import { domainStageControl } from "../src/staging-domain-context.ts";
 import { prepareInvestigationResourceRoot } from "../src/resource-root.ts";
@@ -184,31 +180,53 @@ test(
   }
 );
 
-test("domain phase comparison rejects executable representation drift with identical bytes", () => {
-  const file = {
-    path: "docs/investigations/_resources/first/measure.sh",
-    kind: "regular" as const,
-    data: Buffer.from("same\n")
-  };
-  const expected: DomainWritesAcquisition = {
-    status: "ok",
-    sourceFiles: [file],
-    value: [file],
-    pending: { pathScope: "docs/investigations", files: [], members: [] }
-  };
-  const executable = { ...file, kind: "executable" as const };
-  assert.deepEqual(verifyDomainWrites(expected, expected), { status: "ok" });
-  assert.deepEqual(executable.data, file.data);
-  const result = verifyDomainWrites(expected, {
-    ...expected,
-    sourceFiles: [executable],
-    value: [executable]
-  });
-  assert.equal(result.status, "drift");
-  if (result.status !== "drift")
-    assert.fail("executable source drift was accepted");
-  assert.match(result.reason, /bytes or representation changed/u);
-});
+test(
+  "domain phase comparison rejects executable representation drift with identical bytes",
+  { skip: process.platform === "win32" },
+  async () => {
+    await withTempRoot("stage-executable-drift", async (root) => {
+      const script = await writeScript(root, "first", "measure.sh", "same\n");
+      const absolute = path.join(root, script);
+      await fs.chmod(absolute, 0o644);
+      await writeCollection(root, [
+        { id: "first", resources: ["first/measure.sh"] }
+      ]);
+      initializeGit(root);
+      git(root, ["config", "core.fileMode", "true"]);
+      const before = git(root, ["ls-files", "--stage"]);
+      const original = fs.readFile;
+      let reads = 0;
+      fs.readFile = (async (...args: Parameters<typeof fs.readFile>) => {
+        const contents = await original(...args);
+        if (args[0] === absolute) {
+          reads += 1;
+          if (reads === 1) await fs.chmod(absolute, 0o755);
+        }
+        return contents;
+      }) as typeof fs.readFile;
+      try {
+        const result = await stageInvestigationReports({
+          reportIds: ["first"],
+          scope: "domain",
+          workspaceRoot: root
+        });
+        assert.equal(result.status, "error");
+        assert.equal(result.state, "source-drift");
+        assert.equal(result.changed, false);
+        assert.equal(
+          result.diagnostics[0]?.code,
+          "investigation-report.stage-source-drift"
+        );
+        assert.equal(reads, 2);
+      } finally {
+        fs.readFile = original;
+      }
+      assert.equal(git(root, ["ls-files", "--stage"]), before);
+      assert.equal(await fs.readFile(absolute, "utf8"), "same\n");
+      assert.notEqual((await fs.stat(absolute)).mode & 0o100, 0);
+    });
+  }
+);
 
 test(
   "owned resource validation rejects selected symlink sources before byte reads",

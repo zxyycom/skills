@@ -22,10 +22,7 @@ import {
   validateDomainReportSources,
   type DomainSourceSelection
 } from "./staging-domain-sources.ts";
-import {
-  sameDomainWriteValue,
-  type InvestigationIndex
-} from "./staging-domain-support.ts";
+import type { InvestigationIndex } from "./staging-domain-support.ts";
 
 export type DomainWrite = PendingFileUpdate;
 export type DomainWriteFailure = Readonly<{
@@ -156,56 +153,6 @@ function domainWrites(
       filesByPath.get(resourcePath) ?? { data: null, path: resourcePath }
     );
   return writes;
-}
-
-export type DomainWritesVerification =
-  | Readonly<{ status: "ok" }>
-  | Readonly<{ status: "drift"; reason: string }>
-  | DomainWriteFailure;
-/** Pure phase comparison preserves acquisition failures rather than disguising them as byte drift. */
-export function verifyDomainWrites(
-  expected: DomainWritesAcquisition,
-  current: DomainWritesResult
-): DomainWritesVerification {
-  if (current.status === "error") return current;
-  if (current.value.length !== expected.value.length)
-    return {
-      status: "drift",
-      reason:
-        "the selected owner resource members changed before the pending write"
-    };
-  if (!sameSourceFiles(expected.sourceFiles, current.sourceFiles))
-    return {
-      status: "drift",
-      reason:
-        "the selected sources or required owner bytes or representation changed before the pending write"
-    };
-  const byPath = new Map(current.value.map((write) => [write.path, write]));
-  for (const write of expected.value) {
-    const verified = byPath.get(write.path);
-    if (verified === undefined || !sameDomainWriteValue(write, verified))
-      return {
-        status: "drift",
-        reason: `${write.path} changed before the pending write`
-      };
-  }
-  return { status: "ok" };
-}
-function sameSourceFiles(
-  left: readonly VersionControlFile[],
-  right: readonly VersionControlFile[]
-): boolean {
-  return (
-    left.length === right.length &&
-    left.every((file, index) => {
-      const current = right[index];
-      return (
-        current !== undefined &&
-        file.path === current.path &&
-        sameDomainWriteValue(file, current)
-      );
-    })
-  );
 }
 
 function validateOldReportLocations(

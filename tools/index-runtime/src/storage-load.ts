@@ -86,10 +86,11 @@ export async function loadStateIndexEnvelope(options: {
   });
 }
 
-export async function readIndexTextAtResolvedPath(options: {
+/** Internal raw source evidence for operations that independently reacquire identical input. */
+export async function readIndexSourceAtResolvedPath(options: {
   indexPath: string;
   resolved: ResolvedIndexPath;
-}): Promise<StateIndexResult<string>> {
+}): Promise<StateIndexResult<Readonly<{ bytes: Uint8Array; text: string }>>> {
   let data: Buffer;
   try {
     data = await fs.readFile(options.resolved.targetPath);
@@ -110,7 +111,11 @@ export async function readIndexTextAtResolvedPath(options: {
     );
   }
   try {
-    return { diagnostics: [], status: "ok", value: decodeUtf8Text(data) };
+    return {
+      diagnostics: [],
+      status: "ok",
+      value: { bytes: data, text: decodeUtf8Text(data) }
+    };
   } catch {
     return failure(
       "state-index.index-encoding-invalid",
@@ -118,6 +123,16 @@ export async function readIndexTextAtResolvedPath(options: {
       { path: options.indexPath }
     );
   }
+}
+
+export async function readIndexTextAtResolvedPath(options: {
+  indexPath: string;
+  resolved: ResolvedIndexPath;
+}): Promise<StateIndexResult<string>> {
+  const source = await readIndexSourceAtResolvedPath(options);
+  return source.status === "error"
+    ? source
+    : { ...source, value: source.value.text };
 }
 
 export async function loadCurrentStateIndex<

@@ -1,0 +1,24 @@
+{
+  "countPerDomain": 10000,
+  "edgesPerDomain": 9000,
+  "selectedPerInvocation": 1,
+  "HEAD": "de1b2df5157b81de4f92ebda2021f7475f8af1c3",
+  "gitConfig": "core.repositoryformatversion=0\ncore.filemode=true\ncore.bare=false\ncore.logallrefupdates=true\ncore.autocrlf=false\ncore.hookspath=/dev/null\nuser.name=Stage Performance\nuser.email=perf@example.invalid\ngc.auto=0\n",
+  "domainBytes": {
+    "decision": 10944289,
+    "investigation": 9600722
+  },
+  "node": "v26.8.2",
+  "git": "git version 2.53.0",
+  "platform": [
+    "Linux",
+    "dev-container",
+    "6.18.33.2-microsoft-standard-WSL2",
+    "#1 SMP PREEMPT_DYNAMIC Thu Jun 18 21:54:43 UTC 2026",
+    "x86_64"
+  ],
+  "cgroup": {
+    "cpu.max": "400000 100000\n",
+    "memory.max": "6442450944\n"
+  }
+}

@@ -88,7 +88,7 @@ async function assertOrdinaryFixtureTree(root: string): Promise<void> {
   }
 }
 
-function runGit(
+export function runGit(
   workingDirectory: string,
   args: readonly string[],
   environment?: NodeJS.ProcessEnv

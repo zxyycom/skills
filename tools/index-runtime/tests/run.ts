@@ -19,3 +19,7 @@ await import("./staging-conflicts.test.ts");
 await import("./exact-membership.test.ts");
 
 await import("./preview.test.ts");
+
+await import("./record-staging.test.ts");
+
+await import("./storage-source.test.ts");

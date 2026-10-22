@@ -1,0 +1,92 @@
+{
+  "workspaceManifestCanonicalSha256": "2774c07d14b3fc8e769613c2db284347d806a87289091eb31127811912f3c506",
+  "workspaceFileCount": 20007,
+  "pendingManifestCanonicalSha256": "1bcea7d1d032021a14189602191866ca5d8274a51be5ee6676dc72d78717d79f",
+  "pendingFileCount": 20004,
+  "initialIndexSha256": "9680fa58f832263a513f93783d35ed8053a947feab741b60d5ca4f8528893b70",
+  "HEADTree": "58e51381293fb8a4322b34c7ca3ed3ccfbec6983",
+  "domains": {
+    "decision": {
+      "formalRecords": 10000,
+      "relations": 9000,
+      "sourceBytes": 4262016,
+      "bodyBytesMinMedianMax": [
+        358,
+        434.0,
+        442
+      ],
+      "indexBytes": 6682273,
+      "totalDomainBytes": 10944289,
+      "selected": [
+        "261001-perf-00000"
+      ],
+      "partialPending": "261001-perf-00031",
+      "stagedDeletion": "261001-perf-00032"
+    },
+    "investigation": {
+      "formalRecords": 10000,
+      "relations": 9000,
+      "sourceBytes": 4128210,
+      "bodyBytesMinMedianMax": [
+        339,
+        421.0,
+        492
+      ],
+      "indexBytes": 5472408,
+      "totalDomainBytes": 9600722,
+      "selected": [
+        "261001-perf-00000"
+      ],
+      "partialPending": "261001-perf-00031",
+      "stagedDeletion": "261001-perf-00032"
+    }
+  },
+  "resources": {
+    "docs/investigations/_resources/261001-perf-00000/added.txt": {
+      "sha256": "b55ba783fc188a1e4250592604b88be6cdd27232c06ec1780043eb6239e71f9f",
+      "mode": "0o664",
+      "bytes": 32
+    },
+    "docs/investigations/_resources/261001-perf-00000/keep.txt": {
+      "sha256": "bf8f7a23590378c2448e0fa8e1aa37ef7fed406d769be65f2f9ccaa36cd6b706",
+      "mode": "0o755",
+      "bytes": 26
+    },
+    "docs/investigations/_resources/261001-perf-00003/shared.txt": {
+      "sha256": "f14be240cd8a3d7864b54cbeb6798181b1ba37b0f1ffd746a2e31b5c2503b742",
+      "mode": "0o664",
+      "bytes": 46
+    }
+  },
+  "actualDependencies": {
+    "@ast-grep/cli": "0.45.1",
+    "@types/node": "26.0.1",
+    "@types/picomatch": "4.0.3",
+    "@types/write-file-atomic": "4.0.3",
+    "@typescript/native-preview": "7.0.0-dev.20260630.1",
+    "@valibot/to-json-schema": "1.7.1",
+    "@zxyycom/vibe-check": "0.0.4",
+    "ajv": "8.17.1",
+    "commander": "13.1.0",
+    "fast-glob": "3.3.3",
+    "fast-xml-parser": "5.3.3",
+    "fflate": "0.8.3",
+    "fs-native-extensions": "1.5.0",
+    "github-slugger": "2.0.0",
+    "json-schema-to-typescript": "15.0.4",
+    "mdast-util-from-markdown": "2.0.3",
+    "mdast-util-to-string": "4.0.0",
+    "mnemonist": "0.40.4",
+    "neverthrow": "8.2.0",
+    "oxfmt": "0.63.0",
+    "oxlint": "1.78.0",
+    "oxlint-tsgolint": "7.0.2001",
+    "picomatch": "4.0.5",
+    "remeda": "2.39.0",
+    "simple-git": "3.36.0",
+    "ts-pattern": "5.9.0",
+    "valibot": "1.4.2",
+    "write-file-atomic": "8.0.0",
+    "yaml": "2.9.0"
+  }
+}

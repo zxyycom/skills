@@ -7,22 +7,19 @@ import type {
 } from "../../shared/src/version-control/index.ts";
 import { openVersionControl } from "../../shared/src/version-control/index.ts";
 import {
-  defineStateIndexDefinition,
   expectationOf,
   hasEntry,
-  parseStateIndex,
-  serializeStateIndex,
-  type StateIndexDefinition
+  parseStateIndex
 } from "../../index-runtime/src/index.ts";
-import {
-  investigationIndexFileName,
-  loadInvestigationIndex
-} from "./investigation-state-index.ts";
+import { investigationIndexFileName } from "./investigation-state-index.ts";
 import {
   domainSourceSelection,
   type DomainSourceSelection
 } from "./staging-domain-sources.ts";
-import { createInvestigationStageIndexDefinition } from "./staging-domain-index.ts";
+import {
+  loadDomainWorkspace,
+  type DomainWorkspaceFacts
+} from "./staging-domain-index.ts";
 import { resolveInvestigationStageSelectors } from "./staging-selectors.ts";
 import {
   compareText,
@@ -42,10 +39,8 @@ import type {
   InvestigationIndexState
 } from "./types.ts";
 
-type CanonicalInvestigationIndexDefinition = StateIndexDefinition<
-  InvestigationIndexState,
-  InvestigationIndexMetadata
->;
+type CanonicalInvestigationIndexDefinition =
+  DomainWorkspaceFacts["canonicalDefinition"];
 
 export type DomainRepository = Readonly<{
   investigationsScope: string;
@@ -53,53 +48,19 @@ export type DomainRepository = Readonly<{
   repositoryIndexPath: string;
 }>;
 
-export type DomainSnapshot = Readonly<{
-  baseline: InvestigationIndex | null;
-  pendingIndex: InvestigationIndex | null;
-  pending: PendingSnapshot;
-  pendingReportPaths: ReadonlyMap<string, readonly string[]>;
-  canonicalDefinition: CanonicalInvestigationIndexDefinition;
-  revision: RevisionId | null;
-  workspaceIndex: InvestigationIndex;
-}>;
+export type DomainSnapshot = DomainWorkspaceFacts &
+  Readonly<{
+    baseline: InvestigationIndex | null;
+    pendingIndex: InvestigationIndex | null;
+    pending: PendingSnapshot;
+    pendingReportPaths: ReadonlyMap<string, readonly string[]>;
+    revision: RevisionId | null;
+  }>;
 
 export type DomainSelection = Readonly<{
   selectedIds: readonly string[];
   sourceSelection: DomainSourceSelection;
 }>;
-
-/** Workspace metadata is mutable; the fixed revision baseline is not reloaded. */
-export async function verifyDomainIndex(
-  snapshot: Pick<DomainSnapshot, "workspaceIndex" | "canonicalDefinition">,
-  control: DomainStageControl
-): Promise<
-  | Readonly<{ status: "ok" }>
-  | Readonly<{
-      status: "error";
-      diagnostics: import("../../index-runtime/src/index.ts").StateIndexDiagnostic[];
-    }>
-> {
-  const loaded = await loadInvestigationIndex({
-    investigationsDirectory: control.input.investigationsDirectory
-  });
-  if (loaded.status === "error")
-    return { status: "error", diagnostics: loaded.diagnostics };
-  if (
-    serializeStateIndex(loaded.value, snapshot.canonicalDefinition) !==
-    serializeStateIndex(snapshot.workspaceIndex, snapshot.canonicalDefinition)
-  )
-    return {
-      status: "error",
-      diagnostics: [
-        stageDiagnostic(
-          "investigation-report.stage-source-drift",
-          "the published workspace index changed before the write; reread it before retrying",
-          control.indexPath
-        )
-      ]
-    };
-  return { status: "ok" };
-}
 
 export function domainStageControl(
   input: InvestigationDomainStageInput
@@ -168,36 +129,21 @@ function repositoryScopePath(
 /** Loads validated HEAD/workspace projections and this transaction's pending facts. */
 export async function loadDomainSnapshot(
   domain: DomainRepository,
-  control: DomainStageControl
+  control: DomainStageControl,
+  fixed?: Pick<DomainSnapshot, "baseline" | "revision"> &
+    Readonly<{ contentPaths?: readonly string[]; previous?: DomainSnapshot }>
 ): Promise<DomainStep<DomainSnapshot>> {
-  const workspaceIndex = await loadInvestigationIndex({
-    investigationsDirectory: control.input.investigationsDirectory
-  });
-  if (workspaceIndex.status === "error") {
-    return {
-      status: "error",
-      result: domainFailureDiagnostics(
-        control,
-        "workspace-index-invalid",
-        workspaceIndex.diagnostics
-      )
-    };
-  }
-  const definition = createInvestigationStageIndexDefinition();
-  try {
-    definition.validateIndex?.(workspaceIndex.value);
-  } catch (error) {
-    return {
-      status: "error",
-      result: domainFailure(control, "workspace-index-invalid", error)
-    };
-  }
-  const canonicalDefinition = defineStateIndexDefinition(definition);
-  const baseline = await domainBaselineIndex(
-    domain,
-    canonicalDefinition,
-    control
+  const workspace = await loadDomainWorkspace(
+    control,
+    fixed?.previous,
+    fixed === undefined ? "prepare" : "verify"
   );
+  if (workspace.status === "error") return workspace;
+  const { canonicalDefinition } = workspace.value;
+  const baseline: BaselineOutcome =
+    fixed === undefined
+      ? await domainBaselineIndex(domain, canonicalDefinition, control)
+      : { status: "ok", value: fixed };
   if (baseline.status === "error") return baseline;
   let pendingFacts: Awaited<ReturnType<typeof readDomainPending>>;
   try {
@@ -205,7 +151,8 @@ export async function loadDomainSnapshot(
       domain,
       baseline.value,
       canonicalDefinition,
-      control
+      control,
+      { contentPaths: fixed?.contentPaths, previous: fixed?.previous }
     );
   } catch (error) {
     return {
@@ -218,9 +165,8 @@ export async function loadDomainSnapshot(
     value: {
       ...pendingFacts,
       baseline: baseline.value.baseline,
-      canonicalDefinition,
       revision: baseline.value.revision,
-      workspaceIndex: workspaceIndex.value
+      ...workspace.value
     }
   };
 }

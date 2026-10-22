@@ -158,14 +158,16 @@ HEAD 已记录目标时，首次不带 `--delete-recorded` 的调用在其他条
 | scope | 写入与保留 |
 | --- | --- |
 | `all`（默认） | 原子组合所选发布投影与正式 Markdown；未选条目沿用 pending，而非 HEAD。 |
-| `index` | 只刷新所选发布投影及来源 revision，不读取工作区正文；调用方负责配套领域暂存。 |
+| `index` | 只刷新所选发布投影及来源 revision；payload 验收限于本次消费或修改的索引文件，不读取工作区正文。调用方负责配套领域暂存与正文验证。 |
 | `domain` | 只刷新所选正式 Markdown，保留 pending 索引原字节（即使损坏）或缺失状态。 |
 
 HEAD 与工作区发布索引必须合法；index／all 还验证 pending 索引，并要求存在的三方索引具有相同集合 metadata、sourceRevision.metadata 与 definition。HEAD 与 pending 都无索引时从空发布基底组合；已有 HEAD 索引而 pending 将其删除时，index／all 提示先恢复该删除。坏基线走显式恢复，不隐式重建全部 HEAD 正文。
 
-所选现存正文须符合工作区发布投影；合法手改先同步。index／all 的最终合成图必须合法，必要依赖缺失时提示补选，不自动夹带未选对象。domain 只证明领域文件范围，不证明 pending 索引与正文已配套。stage 核对所选已知受管位置，未知位置的未同步身份重现由显式 check／sync 发现。
+`all`／`domain` 的所选现存正文须符合工作区发布投影；合法手改先同步。index／all 的最终合成图必须合法，必要依赖缺失时提示补选，不自动夹带未选对象。domain 只证明领域文件范围，不证明 pending 索引与正文已配套。stage 核对所选已知受管位置，未知位置的未同步身份重现由显式 check／sync 发现。
 
-准备后独立复核所选来源、工作区索引、HEAD 和完整 pending（含完整对象 payload，index scope 也适用）；漂移或读取失败停止，原子替换保护未选领域文件的字节、表示及 staged 删除。可连续 stage A、stage B，再修改 A 并重选 A；B 始终保留原 pending。索引 JSON 可规范化序列化，条目含义保持。
+准备阶段取得 scope 所需来源、成员、工作区索引、HEAD 与完整受管 pending 身份；写前独立重取可变事实，锁内执行 HEAD 与 pending 的比较并交换（CAS），写后验证目标并保护范围外状态。各阶段按 scope 验收 payload：`index` 只验收所需索引内容，其余 pending 成员以完整路径、文件模式与对象 ID 保护身份；`all`／`domain` 验收完整受管 pending 的实际 payload。所需读取失败或保护范围漂移时停止，未变化结果也须通过保护检查。
+
+原子更新保留未选领域文件的字节、表示及 staged 删除。`index` 的非索引保证限于身份保持，不证明这些 payload 即时可读或指纹有效，正文内容验证由调用方配套完成。可连续 stage A、stage B，再修改 A 并重选 A；B 始终保留原 pending。索引 JSON 可规范化序列化，未选条目含义保持。
 
 结果报告实际写入路径、保留范围及调用方责任。成功只证明 scope，stage 不提交或推送。
 

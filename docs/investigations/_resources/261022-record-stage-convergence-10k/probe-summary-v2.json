@@ -1,0 +1,879 @@
+[
+  {
+    "label": "baseline-v2",
+    "domain": "decision",
+    "scope": "index",
+    "counts": {
+      "workspace-lstat": 6,
+      "workspace-readFile": 2,
+      "parseStateIndex": 6,
+      "parseEnvelope": 6,
+      "buildRelationGraph": 8,
+      "blobBatch": 8,
+      "pendingCapture": 4,
+      "pendingEnumeration": 6,
+      "buildFromSnapshot": 2,
+      "physicalIndexCopy": 1
+    },
+    "blobBatches": [
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 6682257,
+        "retainedBytes": 6682257,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async readGitBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-blob-batch.ts:89:22)",
+          "    at async readBlob (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-revision.ts:256:19)",
+          "    at async readRevisionFile (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-revision.ts:126:16)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10000,
+        "bytes": 10943823,
+        "retainedBytes": 6682257,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async captureRefreshPending (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/decision-records/src/decision-stage-refresh-context.ts:159:20)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10000,
+        "bytes": 10943823,
+        "retainedBytes": 6682257,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async protectRefreshPendingDependencies (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/decision-records/src/decision-stage-refresh.ts:159:20)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 6682257,
+        "retainedBytes": 6682257,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async readGitBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-blob-batch.ts:89:22)",
+          "    at async readBlob (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-revision.ts:256:19)",
+          "    at async readRevisionFile (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-revision.ts:126:16)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10000,
+        "bytes": 10943823,
+        "retainedBytes": 6682257,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async captureRefreshPending (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/decision-records/src/decision-stage-refresh-context.ts:159:20)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10000,
+        "bytes": 10943823,
+        "retainedBytes": 6682257,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async protectRefreshPendingDependencies (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/decision-records/src/decision-stage-refresh.ts:159:20)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10000,
+        "bytes": 10943823,
+        "retainedBytes": 6682257,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async preparePendingPatch (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:218:17)",
+          "    at async file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:182:24"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10000,
+        "bytes": 10943831,
+        "retainedBytes": 6682265,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async writePendingPatch (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:270:24)",
+          "    at async file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:185:7"
+        ]
+      }
+    ],
+    "workspaceReads": [
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/decisions/decision-index.json",
+        "bytes": 6682273
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/decisions/decision-index.json",
+        "bytes": 6682273
+      }
+    ],
+    "physicalCopies": [
+      {
+        "probe": "physicalIndexCopy",
+        "bytes": 2152679
+      }
+    ],
+    "parses": [
+      {
+        "probe": "parseStateIndex",
+        "path": "workspace docs/decisions/decision-index.json",
+        "bytes": 6682273
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "docs/decisions/decision-index.json",
+        "bytes": 6682257
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "docs/decisions/decision-index.json",
+        "bytes": 6682257
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "workspace docs/decisions/decision-index.json",
+        "bytes": 6682273
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "docs/decisions/decision-index.json",
+        "bytes": 6682257
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "docs/decisions/decision-index.json",
+        "bytes": 6682257
+      }
+    ],
+    "effectVerified": true
+  },
+  {
+    "label": "candidate-v2",
+    "domain": "decision",
+    "scope": "index",
+    "counts": {
+      "blobBatch": 5,
+      "parseStateIndex": 3,
+      "parseEnvelope": 3,
+      "buildRelationGraph": 4,
+      "workspace-lstat": 6,
+      "workspace-readFile": 2,
+      "pendingCapture": 2,
+      "pendingEnumeration": 4,
+      "buildFromSnapshot": 1,
+      "physicalIndexCopy": 1
+    },
+    "blobBatches": [
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 6682257,
+        "retainedBytes": 6682257,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async readGitBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-blob-batch.ts:89:22)",
+          "    at async readBlob (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-revision.ts:256:19)",
+          "    at async readRevisionFile (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-revision.ts:126:16)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 6682257,
+        "retainedBytes": 6682257,
+        "stack": [
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async readRecordStagePending (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/index-runtime/src/record-staging.ts:86:10)",
+          "    at async captureRefreshPending (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/decision-records/src/decision-stage-refresh-context.ts:161:20)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 6682257,
+        "retainedBytes": 6682257,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async readRecordStagePending (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/index-runtime/src/record-staging.ts:86:10)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 6682257,
+        "retainedBytes": 6682257,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async preparePendingPatch (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:218:17)",
+          "    at async file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:182:24"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 6682265,
+        "retainedBytes": 6682265,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async writePendingPatch (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:270:24)",
+          "    at async file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:185:7"
+        ]
+      }
+    ],
+    "workspaceReads": [
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/decisions/decision-index.json",
+        "bytes": 6682273
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/decisions/decision-index.json",
+        "bytes": 6682273
+      }
+    ],
+    "physicalCopies": [
+      {
+        "probe": "physicalIndexCopy",
+        "bytes": 2152679
+      }
+    ],
+    "parses": [
+      {
+        "probe": "parseStateIndex",
+        "path": "docs/decisions/decision-index.json",
+        "bytes": 6682257
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "workspace docs/decisions/decision-index.json",
+        "bytes": 6682273
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "docs/decisions/decision-index.json",
+        "bytes": 6682257
+      }
+    ],
+    "effectVerified": true
+  },
+  {
+    "label": "baseline-v2",
+    "domain": "investigation",
+    "scope": "index",
+    "counts": {
+      "workspace-lstat": 2,
+      "workspace-readFile": 2,
+      "parseStateIndex": 4,
+      "parseEnvelope": 4,
+      "buildRelationGraph": 4,
+      "blobBatch": 5,
+      "pendingCapture": 2,
+      "pendingEnumeration": 4,
+      "buildFromSnapshot": 1,
+      "physicalIndexCopy": 1
+    },
+    "blobBatches": [
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 5472392,
+        "retainedBytes": 5472392,
+        "stack": [
+          "    at async readGitBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-blob-batch.ts:89:22)",
+          "    at async readBlob (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-revision.ts:256:19)",
+          "    at async readRevisionFile (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-revision.ts:126:16)",
+          "    at async GitVersionControlRepository.readRevisionFile (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-repository.ts:89:12)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 5472392,
+        "retainedBytes": 5472392,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async readDomainPending (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/investigation-report/src/staging-pending.ts:62:19)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 5472392,
+        "retainedBytes": 5472392,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async acquireDomainPhase (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/investigation-report/src/staging-domain-membership.ts:36:21)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 5472392,
+        "retainedBytes": 5472392,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async preparePendingPatch (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:218:17)",
+          "    at async file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:182:24"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 5472400,
+        "retainedBytes": 5472400,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async writePendingPatch (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:270:24)",
+          "    at async file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:185:7"
+        ]
+      }
+    ],
+    "workspaceReads": [
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "bytes": 5472408
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "bytes": 5472408
+      }
+    ],
+    "physicalCopies": [
+      {
+        "probe": "physicalIndexCopy",
+        "bytes": 2152679
+      }
+    ],
+    "parses": [
+      {
+        "probe": "parseStateIndex",
+        "path": "investigation-index.json",
+        "bytes": 5472408
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "docs/investigations/investigation-index.json",
+        "bytes": 5472392
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "docs/investigations/investigation-index.json",
+        "bytes": 5472392
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "investigation-index.json",
+        "bytes": 5472408
+      }
+    ],
+    "effectVerified": true
+  },
+  {
+    "label": "candidate-v2",
+    "domain": "investigation",
+    "scope": "index",
+    "counts": {
+      "workspace-lstat": 2,
+      "workspace-readFile": 2,
+      "parseStateIndex": 3,
+      "parseEnvelope": 3,
+      "buildRelationGraph": 4,
+      "blobBatch": 5,
+      "pendingCapture": 2,
+      "pendingEnumeration": 4,
+      "buildFromSnapshot": 1,
+      "physicalIndexCopy": 1
+    },
+    "blobBatches": [
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 5472392,
+        "retainedBytes": 5472392,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async readGitBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-blob-batch.ts:89:22)",
+          "    at async readBlob (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-revision.ts:256:19)",
+          "    at async readRevisionFile (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-revision.ts:126:16)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 5472392,
+        "retainedBytes": 5472392,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async readRecordStagePending (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/index-runtime/src/record-staging.ts:86:10)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 5472392,
+        "retainedBytes": 5472392,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async readRecordStagePending (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/index-runtime/src/record-staging.ts:86:10)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 5472392,
+        "retainedBytes": 5472392,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async preparePendingPatch (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:218:17)",
+          "    at async file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:182:24"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 5472400,
+        "retainedBytes": 5472400,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async writePendingPatch (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:270:24)",
+          "    at async file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:185:7"
+        ]
+      }
+    ],
+    "workspaceReads": [
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "bytes": 5472408
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "bytes": 5472408
+      }
+    ],
+    "physicalCopies": [
+      {
+        "probe": "physicalIndexCopy",
+        "bytes": 2152679
+      }
+    ],
+    "parses": [
+      {
+        "probe": "parseStateIndex",
+        "path": "investigation-index.json",
+        "bytes": 5472408
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "docs/investigations/investigation-index.json",
+        "bytes": 5472392
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "docs/investigations/investigation-index.json",
+        "bytes": 5472392
+      }
+    ],
+    "effectVerified": true
+  },
+  {
+    "label": "baseline-v2",
+    "domain": "investigation",
+    "scope": "all",
+    "counts": {
+      "workspace-lstat": 166,
+      "workspace-readFile": 12,
+      "parseStateIndex": 4,
+      "parseEnvelope": 4,
+      "buildRelationGraph": 4,
+      "blobBatch": 6,
+      "pendingCapture": 3,
+      "pendingEnumeration": 5,
+      "buildFromSnapshot": 1,
+      "workspace-readdir": 6,
+      "physicalIndexCopy": 1
+    },
+    "blobBatches": [
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 5472392,
+        "retainedBytes": 5472392,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async readGitBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-blob-batch.ts:89:22)",
+          "    at async readBlob (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-revision.ts:256:19)",
+          "    at async readRevisionFile (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-revision.ts:126:16)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10003,
+        "bytes": 9600302,
+        "retainedBytes": 5472813,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async readDomainPending (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/investigation-report/src/staging-pending.ts:62:19)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10003,
+        "bytes": 9600302,
+        "retainedBytes": 1091,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async acquireDomainPhase (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/investigation-report/src/staging-domain-membership.ts:36:21)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10003,
+        "bytes": 9600302,
+        "retainedBytes": 1091,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async acquireDomainPhase (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/investigation-report/src/staging-domain-membership.ts:36:21)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10003,
+        "bytes": 9600302,
+        "retainedBytes": 5472945,
+        "stack": [
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async preparePendingPatch (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:218:17)",
+          "    at async file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:182:24",
+          "    at async runPendingReplacement (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-replacement.ts:129:20)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10003,
+        "bytes": 9600285,
+        "retainedBytes": 5472928,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async writePendingPatch (file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:270:24)",
+          "    at async file:///tmp/record-stage-convergence-10k-261022/probe-baseline/tools/shared/src/version-control/pending-snapshot.ts:185:7"
+        ]
+      }
+    ],
+    "workspaceReads": [
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "bytes": 5472408
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/_resources/261001-perf-00000/added.txt",
+        "bytes": 32
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/_resources/261001-perf-00000/keep.txt",
+        "bytes": 26
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/_resources/261001-perf-00003/shared.txt",
+        "bytes": 46
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/261001-perf-00000.md",
+        "bytes": 470
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/261001-perf-00003.md",
+        "bytes": 492
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "bytes": 5472408
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/_resources/261001-perf-00000/added.txt",
+        "bytes": 32
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/_resources/261001-perf-00000/keep.txt",
+        "bytes": 26
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/_resources/261001-perf-00003/shared.txt",
+        "bytes": 46
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/261001-perf-00000.md",
+        "bytes": 470
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/261001-perf-00003.md",
+        "bytes": 492
+      }
+    ],
+    "physicalCopies": [
+      {
+        "probe": "physicalIndexCopy",
+        "bytes": 2152679
+      }
+    ],
+    "parses": [
+      {
+        "probe": "parseStateIndex",
+        "path": "investigation-index.json",
+        "bytes": 5472408
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "docs/investigations/investigation-index.json",
+        "bytes": 5472392
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "docs/investigations/investigation-index.json",
+        "bytes": 5472392
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "investigation-index.json",
+        "bytes": 5472408
+      }
+    ],
+    "effectVerified": true
+  },
+  {
+    "label": "candidate-v2",
+    "domain": "investigation",
+    "scope": "all",
+    "counts": {
+      "workspace-lstat": 166,
+      "workspace-readFile": 12,
+      "parseStateIndex": 3,
+      "parseEnvelope": 3,
+      "buildRelationGraph": 4,
+      "blobBatch": 6,
+      "pendingCapture": 3,
+      "pendingEnumeration": 5,
+      "buildFromSnapshot": 1,
+      "workspace-readdir": 6,
+      "physicalIndexCopy": 1
+    },
+    "blobBatches": [
+      {
+        "probe": "blobBatch",
+        "objects": 1,
+        "bytes": 5472392,
+        "retainedBytes": 5472392,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async readGitBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-blob-batch.ts:89:22)",
+          "    at async readBlob (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-revision.ts:256:19)",
+          "    at async readRevisionFile (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-revision.ts:126:16)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10003,
+        "bytes": 9600302,
+        "retainedBytes": 5472813,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async readRecordStagePending (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/index-runtime/src/record-staging.ts:86:10)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10003,
+        "bytes": 9600302,
+        "retainedBytes": 1091,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async readRecordStagePending (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/index-runtime/src/record-staging.ts:86:10)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10003,
+        "bytes": 9600302,
+        "retainedBytes": 5473904,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async readPendingSnapshot (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:76:17)",
+          "    at async readRecordStagePending (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/index-runtime/src/record-staging.ts:86:10)"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10003,
+        "bytes": 9600302,
+        "retainedBytes": 5472945,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async preparePendingPatch (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:218:17)",
+          "    at async file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:182:24"
+        ]
+      },
+      {
+        "probe": "blobBatch",
+        "objects": 10003,
+        "bytes": 9600285,
+        "retainedBytes": 5472928,
+        "stack": [
+          "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+          "    at async selectedPendingBlobs (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/git-pending-snapshot-content.ts:32:12)",
+          "    at async writePendingPatch (file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:270:24)",
+          "    at async file:///tmp/record-stage-convergence-10k-261022/probe-candidate-v2/tools/shared/src/version-control/pending-snapshot.ts:185:7"
+        ]
+      }
+    ],
+    "workspaceReads": [
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "bytes": 5472408
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/_resources/261001-perf-00000/added.txt",
+        "bytes": 32
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/_resources/261001-perf-00000/keep.txt",
+        "bytes": 26
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/_resources/261001-perf-00003/shared.txt",
+        "bytes": 46
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/261001-perf-00000.md",
+        "bytes": 470
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/261001-perf-00003.md",
+        "bytes": 492
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "bytes": 5472408
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/_resources/261001-perf-00000/added.txt",
+        "bytes": 32
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/_resources/261001-perf-00000/keep.txt",
+        "bytes": 26
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/_resources/261001-perf-00003/shared.txt",
+        "bytes": 46
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/261001-perf-00000.md",
+        "bytes": 470
+      },
+      {
+        "probe": "workspace-readFile",
+        "path": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/261001-perf-00003.md",
+        "bytes": 492
+      }
+    ],
+    "physicalCopies": [
+      {
+        "probe": "physicalIndexCopy",
+        "bytes": 2152679
+      }
+    ],
+    "parses": [
+      {
+        "probe": "parseStateIndex",
+        "path": "investigation-index.json",
+        "bytes": 5472408
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "docs/investigations/investigation-index.json",
+        "bytes": 5472392
+      },
+      {
+        "probe": "parseStateIndex",
+        "path": "docs/investigations/investigation-index.json",
+        "bytes": 5472392
+      }
+    ],
+    "effectVerified": true
+  }
+]

@@ -787,6 +787,48 @@
       ],
       "title": "调查索引暂存回退的分阶段归因"
     },
+    "261022-record-stage-convergence-10k": {
+      "formedAt": "2026-10-22T17:15:41Z",
+      "name": "record-stage-convergence-10k",
+      "question": "两域共同暂存机制在一万条存量单选下的成本、工作量与后验是否满足收敛目标？",
+      "relations": [
+        {
+          "summary": "共同协调机制新快照下独立复核单选暂存成本与效果",
+          "target": "261022-record-tools-local-contracts-1w",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261022-record-stage-convergence-10k/context.json",
+        "261022-record-stage-convergence-10k/fixture-integrity.json",
+        "261022-record-stage-convergence-10k/input-fingerprints-v3.json",
+        "261022-record-stage-convergence-10k/input-fingerprints.json",
+        "261022-record-stage-convergence-10k/methods-v3.txt",
+        "261022-record-stage-convergence-10k/methods.txt",
+        "261022-record-stage-convergence-10k/observations-v3.jsonl",
+        "261022-record-stage-convergence-10k/observations.jsonl",
+        "261022-record-stage-convergence-10k/probe-events-v3.json",
+        "261022-record-stage-convergence-10k/probe-events.json",
+        "261022-record-stage-convergence-10k/probe-summary-v1.json",
+        "261022-record-stage-convergence-10k/probe-summary-v2.json",
+        "261022-record-stage-convergence-10k/probe-summary-v3.json",
+        "261022-record-stage-convergence-10k/sequence-effects-v1.json",
+        "261022-record-stage-convergence-10k/sequence-effects-v2.json",
+        "261022-record-stage-convergence-10k/sequence-effects-v3.json",
+        "261022-record-stage-convergence-10k/streams-v3.json",
+        "261022-record-stage-convergence-10k/streams.json",
+        "261022-record-stage-convergence-10k/summary-v3.json",
+        "261022-record-stage-convergence-10k/summary.json"
+      ],
+      "sourcePath": "record-stage-convergence-10k.md",
+      "tags": [
+        "decision-records",
+        "investigation-report",
+        "performance",
+        "scale-testing"
+      ],
+      "title": "记录暂存共同协调机制一万条独立验收"
+    },
     "261022-record-tools-local-contracts-1w": {
       "formedAt": "2026-10-22T05:08:54Z",
       "name": "record-tools-local-contracts-1w",
@@ -1501,6 +1543,7 @@
       "261021-record-tools-first-optimization-validation": "sha256:f8c79de193183cf5d861bfec77b4ddc8a49f9a44696dbf1c7047df7b131973b4",
       "261022-ir-index-payload-optimization": "sha256:c96894e0db5b2c3bda5d7aed77545ab927253e0fe863c8a045de326dd9518766",
       "261022-ir-index-stage-regression-cause": "sha256:f4429711183d4192846574cae7ddafccec30140f35d7a0b54ff0c95d1dabc0ae",
+      "261022-record-stage-convergence-10k": "sha256:c8d51362bb46c8dda5b711e3fbdd3ac6f1ce92325005870f0501494cdb15067d",
       "261022-record-tools-local-contracts-1w": "sha256:b4662c7c1cf3248491db6a5e9b9a44d2d353329d2242112ccda3f67954e050d2",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",

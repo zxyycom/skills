@@ -1,7 +1,7 @@
 ---
 title: 按消费范围验证调查索引暂存的 payload
 id: 261022-scope-investigation-index-payload-validation
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-22T06:21:35Z
 purpose: 让调查索引暂存只承担索引内容验收，同时完整保护已有暂存身份与并发状态。
@@ -34,4 +34,4 @@ relations:
 - opaque snapshot 的比较要求 repository 实例、scope 与 payload 策略一致；按路径验收时还要求内容路径集合一致，默认完整验证允许不同保留集。策略内对象须完整读取并取得实际指纹，所需对象缺失、类型错误或腐败仍失败；按路径验收的更新限于原声明路径。
 - 准备阶段复用同次已捕获的 pending；写前独立复核可变事实，锁内核对 fresh HEAD 与完整 pending CAS，写后按原策略验证目标并保护范围外状态。单阶段复用不扩展为跨调用缓存，索引结构保持不变。
 - 其他 pending 消费者及调查 `all`／`domain` 继续完整验证实际 payload，仅保留所需字节。revision prefix 完整读取所选对象并显式报告内容是否完整；前缀不足以判断语义时，以同一固定 revision 补读。
-- 成本验收分别判断 payload I/O、保留与复制、完整成员及关系图、物理事务复制和条件补读；按路径验收不意味着全流程仅随所选对象增长。当前共享 API 与领域操作边界分别由[版本管理中间层](../../tools/shared/version-control.md#完整验证与选择性内容保留)及[调查暂存契约](../../skills/investigation-report/references/cli-operations.md#待提交快照)承接。
+- 成本验收分别判断 payload I/O、保留与复制、完整成员及关系图、物理事务复制和条件补读；按路径验收不意味着全流程仅随所选对象增长。当前共享 API 与领域操作边界分别由[版本管理中间层](../../../tools/shared/version-control.md#完整验证与选择性内容保留)及[调查暂存契约](../../../skills/investigation-report/references/cli-operations.md#待提交快照)承接。

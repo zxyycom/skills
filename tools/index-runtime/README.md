@@ -154,6 +154,22 @@ runtime state overlay 是 `id -> state`。同 ID 临时替换静态 entry，新 
 
 竞争返回 `pending-conflict` 且不覆盖 winner。可恢复写失败报告 `pending: { outcome: "no-change" }`；只有无法证明恢复完整时返回 `pending-recovery-failed` 与 `partial-or-unknown`，调用方必须通过版本管理公共 API 对账目标范围后再决定后续动作。
 
+## 记录领域的内部暂存协调
+
+`src/record-staging.ts` 是 Decision Records 与 Investigation Report 的内部接点，不从公共 `src/index.ts` 导出，也不改变上节通用 staging 的固定 revision 基底。`readRecordStagePending` 维护 scope 的 payload 策略，`stageRecordSelection` 维护共同投影与阶段顺序；领域普通查询与维护事务不接入此协调器。
+
+内部以 `prepareRecordStage` 组织每阶段准备，`sealRecordStagePhase` 固定不可变投影与选择，`sameRecordTargetInputs` 判断确定性目标是否可复用；这些具名责任都留在同一协调 owner，领域适配不接管阶段顺序。
+
+- **scope 策略**：index 使用完整 pending 身份及仅目标索引路径的 `content-paths` payload 验收；all/domain 使用默认完整受管 pending payload 验收。底层 snapshot 的比较、更新限制与恢复由[版本管理中间层](../shared/version-control.md#pending-snapshot)承接。
+- **发布投影**：核对存在的 HEAD、工作区与 pending 索引具有相同 namespace、definitionVersion、集合 metadata 与 `sourceRevision.metadata`。index/all 以捕获的 pending 为基底刷新选中 state 与逐 ID revision，再完整 build、校验并序列化；domain 不解析或改写 pending 索引。
+- **阶段顺序**：准备阶段取得本次 W/P 事实并复用已捕获 pending；所需保留路径已覆盖时不重复捕获，仅缺少领域依赖字节时允许同阶段扩展保留集，并核对 snapshot 等价。写前独立 fresh 按 scope 策略读取和验收本阶段真实 W/P payload、完整 snapshot 身份及所需来源、表示和目录事实，再比较准备结果，最后交给共享替换执行锁内 HEAD/P CAS、写后验证与范围外保护。unchanged 也完成保护。固定 H revision 的合法投影只读取一次，纯 H 派生事实可调用内复用。
+- **纯计算复用**：本阶段新鲜实际内容与完整身份、固定 definition／H 及选择均证明等价后，可复用本调用已验证的不可变解析与确定性目标，不机械重建相同图。仅有 OID 相同或旧阶段通过不足以复用；来源、文件表示和目录仍独立验收。差异或非法输入继续按原验证路径和错误优先级处理，不以旧 target 掩盖失败；不引入跨调用缓存。
+- **领域适配**：各域提供 definition、位置、selector 到完整 ID 的解析，以及领域写集与可比较来源证据；index 不调用正文／资源适配。Decision 保留状态／alignment、根与 archive 位置、演进闭合；Investigation 保留认识关系、正式来源、资源 owner、路径安全与完整 owner 树。协调器不理解领域关系类型、Markdown 或资源路径规则，Git 层也不接收这些责任。
+
+共同核心提供 snapshot 成员、实际变更路径与相对 H 的变化 metadata；各域将这些事实映射为既有诊断与结果 envelope。字段语义分别由 [Decision 适配](../decision-records/README.md#stage-的领域适配)和 [Investigation 适配](../investigation-report/README.md#stage-的目录与来源)承接，本接点不统一 DTO 或为显示补读正文。
+
+index 的非索引 payload 不可读但身份稳定不构成失败；所需索引 payload 失败、完整身份漂移或领域证据漂移仍拒绝发布。完整索引、图、pending 成员与物理事务复制仍有集合级成本。
+
 ## 诊断与验证
 
 `StateIndexDiagnostic` 始终包含稳定 `code`、`path` 和 `stateId`（不适用时为 `null`）。查询字段提取失败的 message 同时定位 entry ID、字段名和 source descriptor。明确的文件系统或版本管理失败可以附带净化后的 cause category、operation、target 和 detail；领域 parser/validator 异常不猜测为系统失败。

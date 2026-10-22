@@ -26,7 +26,7 @@ list/trace 成功结果显式包含 `source={kind: "published-index", currentnes
 
 - **按需复用**：首次实际访问图时构建，后续校验、`trace` 与关系筛选共用该图；`related-to` 使用同图的正反向邻接。
 - **加载校验**：严格索引加载执行完整关系校验，因此普通 `list`、`show` 和 metadata 搜索成功时也各构图一次。
-- **阶段边界**：新加载、来源重读和事务投影各建独立访问器，并完成所属阶段的校验。图与访问器仅由内部快照上下文持有。
+- **阶段边界**：新加载、来源重读和事务投影各建独立访问器，并完成所属阶段的校验。stage 的纯计算仅在[新鲜等价证据](../index-runtime/README.md#记录领域的内部暂存协调)成立后允许调用内复用，不省略本阶段真实来源、payload 与身份验收；图与访问器不跨调用保留。
 
 `filterRelations` 属于 Decision 内部 list/search 查询记录，不进入索引、Schema 或公开导出边界。只在传入 related-to 或 relation-type 时出现，来自同一筛选快照。按 `(sourceId, type, target)` 去重并用 UTF-16 code-unit 词法序排序；前驱边由 anchor 指向结果，后继边由结果指向 anchor，both 取并集，type-only 取结果来源的指定类型出边。记录排序、total 与分页不变，文本命中证据单独计算。
 
@@ -81,6 +81,16 @@ relationReview 按规范 source ID 排序，覆盖全部所选成员，before �
 
 `new` 的 stdout 只集中回显完整 ID、标题、路径及自身 readiness，不默认打印全文或固定下一步；warning/error 留在 stderr。创建与候选读取不附带全集发布预检；即时输出不保存日志、遥测或 receipt，普通查询与参数错误不附会 mutation 结果。
 
+## stage 的领域适配
+
+公开 scope、选择与结果保证见[暂存操作契约](../../skills/decision-records/references/cli-operations.md#待提交快照)。共同 scope 策略、H/W/P 投影兼容、pending 基底选中刷新与准备→fresh 复核→发布顺序由 [Index Runtime 内部记录暂存协调器](../index-runtime/README.md#记录领域的内部暂存协调)承接，本领域不另行维护同形流程。
+
+领域适配负责 ID／name 选择、status／alignment 与根或 archive 位置、正式正文的 ID／投影／来源指纹、已知旧位置及 pending-only 身份，并保留完整演进图闭合。index 不读取工作区正文；all/domain 每阶段独立验证所选来源及必要依赖，无关坏正文不作为局部门禁。未知位置的未同步身份重现由显式 check／sync 发现。
+
+可变来源与成员只在本阶段有效；固定 H 的不可变事实可调用内复用。Decision 所选正文仍按既有常规文件表示写入，不套用 Investigation 资源树的执行位策略。各 scope 的 payload 与完整 pending 身份保证由上述共同协调器承接。
+
+`decision-stage-refresh.ts` 的 `decisionStageSuccess` 将共同协调结果映射为本领域成功 envelope：`preservedPendingPaths` 是 scope 中所有未更新 snapshot 成员，`pendingFileCount` 计完整 scope 成员，不改成仅相对 H 的变化路径。来源失败、pending conflict 与恢复失败按真实阶段映射，不把普通失败附会为 mutation。
+
 ## 交付验证
 
-按改动运行 `bun run test:decision-records-cli`；源码改动后用 `bun run sync:decision-records-cli` 生成，再运行 `bun run check:decision-records-cli`。涉及公开行为时同步对应 skill 文档与版本，测试改动维护 Case 账本；最终运行项目 `bun run check`，分别报告机械证据与语义审查。
+按改动运行 `bun run test:decision-records-cli`；源码改动后用 `bun run sync:decision-records-cli` 生成，再运行 `bun run check:decision-records-cli`。涉及公开行为时同步对应 skill 文档与版本，测试改动维护 Case 账本；最终运行项目 `bun run check:changed`，分别报告机械证据与语义审查。

@@ -20,8 +20,7 @@ import {
 import { domainSourceSelection } from "../src/staging-domain-sources.ts";
 import {
   collectDomainWrites,
-  prepareDomainAcquisitionRequest,
-  verifyDomainWrites
+  prepareDomainAcquisitionRequest
 } from "../src/staging-domain-writes.ts";
 import { validateInvestigationReports } from "../src/validation.ts";
 import { git, initializeGit } from "./git-support.ts";
@@ -259,9 +258,7 @@ test("investigation domain preparation batches selected member and source reads 
     const prepared = await collect();
     assert.ok(prepared.status === "ok");
     assert.deepEqual(calls, { workspace: 1, head: 1, sources: 1 });
-    assert.deepEqual(verifyDomainWrites(prepared, await collect()), {
-      status: "ok"
-    });
+    assert.deepEqual(await collect(), prepared);
     assert.deepEqual(calls, { workspace: 2, head: 1, sources: 2 });
     await fs.mkdir(path.join(investigationRoot(root), "_resources", "one"), {
       recursive: true
@@ -270,9 +267,13 @@ test("investigation domain preparation batches selected member and source reads 
       path.join(investigationRoot(root), "_resources", "one", "new.txt"),
       "new member\n"
     );
-    const drift = verifyDomainWrites(prepared, await collect());
-    assert.ok(drift.status === "drift");
-    assert.match(drift.reason, /members changed/u);
+    const refreshed = await collect();
+    assert.ok(refreshed.status === "ok");
+    assert.deepEqual(refreshed.value.map((file) => file.path).sort(), [
+      "docs/investigations/_resources/one/new.txt",
+      "docs/investigations/one.md",
+      "docs/investigations/two.md"
+    ]);
     const source = path.join(investigationRoot(root), "one.md");
     await fs.appendFile(source, "changed source\n");
     assert.equal((await collect()).status, "error");

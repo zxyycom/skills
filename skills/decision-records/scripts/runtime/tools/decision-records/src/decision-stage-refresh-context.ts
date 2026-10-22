@@ -7,8 +7,12 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { sameBytes } from "../../shared/src/node/bytes.ts";
 import path from "node:path";
-import { isDeepStrictEqual } from "node:util";
+import {
+  readRecordStagePending,
+  sameRecordStagePendingIndex
+} from "../../index-runtime/src/record-staging.ts";
 import {
   readPendingSnapshot,
   type PendingSnapshot
@@ -50,6 +54,7 @@ export type RefreshContext = Readonly<{
   indexPath: string;
   revision: RevisionId | null;
   workspaceText: string;
+  workspaceBytes: Uint8Array;
   workspace: DecisionIndex;
   head: DecisionIndex | null;
   pending: DecisionIndex | null;
@@ -60,7 +65,9 @@ export type RefreshContext = Readonly<{
 
 /** Captures the validated three-way projection and changed pending identity facts for one phase. */
 export async function loadRefreshContext(
-  options: RefreshOptions
+  options: RefreshOptions,
+  fixed: Pick<RefreshContext, "head" | "revision">,
+  previous?: RefreshContext
 ): Promise<RefreshContext> {
   const { repository, decisionScope } = options.opened;
   await ensureDecisionDirectoryPath(
@@ -68,24 +75,19 @@ export async function loadRefreshContext(
     options.decisionsDirectory
   );
   const indexPath = repositoryPath(decisionScope, decisionIndexFileName);
-  const revision = await repository.getCurrentRevision();
-  const workspaceText = decodeUtf8(
-    await readStageFile(
-      path.join(options.decisionsDirectory, decisionIndexFileName)
-    ),
-    decisionIndexFileName
+  const { revision, head } = fixed;
+  const workspaceBytes = await readStageFile(
+    path.join(options.decisionsDirectory, decisionIndexFileName)
   );
-  const workspace = strictIndex(workspaceText, "workspace " + indexPath);
-  const headFile =
-    revision === null
-      ? null
-      : await repository.readRevisionFile(revision, indexPath);
-  const head = headFile === null ? null : indexFromFile(headFile);
-  compatible(head, workspace);
-
+  const workspaceText = decodeUtf8(workspaceBytes, decisionIndexFileName);
+  const workspace =
+    previous !== undefined && sameBytes(previous.workspaceBytes, workspaceBytes)
+      ? previous.workspace
+      : strictIndex(workspaceText, "workspace " + indexPath);
   const { snapshot, pending, pendingIds } = await captureRefreshPending(
     options,
-    { head, workspace, revision, indexPath }
+    { revision, indexPath },
+    previous
   );
   const selectedIds = selectRefreshIds(
     options.selectors,
@@ -96,6 +98,7 @@ export async function loadRefreshContext(
     indexPath,
     revision,
     workspaceText,
+    workspaceBytes,
     workspace,
     head,
     pending,
@@ -114,58 +117,59 @@ function strictIndex(text: string, label: string): DecisionIndex {
         parsed.diagnostics.map((item) => item.message).join("; ") +
         "; run check / sync-index for recovery."
     );
-  return parsed.value;
+  return Object.freeze(parsed.value);
 }
 function indexFromFile(file: VersionControlFile): DecisionIndex {
   if (file.kind !== "regular")
     throw new Error("Decision index must be a regular file: " + file.path);
   return strictIndex(decodeUtf8(file.data, file.path), file.path);
 }
-function compatible(
-  index: DecisionIndex | null,
-  workspace: DecisionIndex
-): void {
-  if (
-    index !== null &&
-    (!isDeepStrictEqual(index.metadata, workspace.metadata) ||
-      index.sourceRevision.metadata !== workspace.sourceRevision.metadata ||
-      index.definitionVersion !== workspace.definitionVersion)
-  ) {
-    throw new Error(
-      "Decision stage index metadata is incompatible; handle the complete index explicitly."
-    );
-  }
+export async function loadRefreshBaseline(
+  options: RefreshOptions
+): Promise<Pick<RefreshContext, "head" | "revision">> {
+  const { repository, decisionScope } = options.opened;
+  const revision = await repository.getCurrentRevision();
+  const file =
+    revision === null
+      ? null
+      : await repository.readRevisionFile(
+          revision,
+          repositoryPath(decisionScope, decisionIndexFileName)
+        );
+  return { revision, head: file === null ? null : indexFromFile(file) };
 }
 
 /** Captures full pending identity while retaining only index and changed-source bytes. */
 async function captureRefreshPending(
   options: RefreshOptions,
-  baseline: Pick<
-    RefreshContext,
-    "head" | "workspace" | "revision" | "indexPath"
-  >
+  baseline: Pick<RefreshContext, "revision" | "indexPath">,
+  previous?: RefreshContext
 ) {
   const { repository, decisionScope } = options.opened;
-  const { head, workspace, revision, indexPath } = baseline;
+  const { revision, indexPath } = baseline;
   // Only changed pending Markdown needs identity discovery; never rebuild HEAD Markdown.
   const initial =
-    revision === null
+    revision === null && options.scope !== "index"
       ? await readPendingSnapshot(repository, {
           pathScope: decisionScope,
           contentPaths: []
         })
       : null;
   const changed =
-    revision === null
-      ? initial!.members.map((file) => file.path)
-      : await repository.listPendingChangedPaths({
-          from: revision,
-          pathScopes: [decisionScope]
-        });
+    options.scope === "index"
+      ? []
+      : revision === null
+        ? initial!.members.map((file) => file.path)
+        : await repository.listPendingChangedPaths({
+            from: revision,
+            pathScopes: [decisionScope]
+          });
   const changedMarkdown = changed.filter((file) =>
     isDecisionSourcePath(decisionRelativePath(decisionScope, file))
   );
-  const snapshot = await readPendingSnapshot(repository, {
+  const snapshot = await readRecordStagePending(repository, {
+    scope: options.scope,
+    indexPath,
     pathScope: decisionScope,
     contentPaths: [
       indexPath,
@@ -174,18 +178,14 @@ async function captureRefreshPending(
   });
   const pendingFile = snapshot.files.find((file) => file.path === indexPath);
   const pending =
-    options.scope === "domain"
-      ? null
-      : pendingFile === undefined
+    previous !== undefined &&
+    sameRecordStagePendingIndex(previous.snapshot, snapshot, indexPath)
+      ? previous.pending
+      : options.scope === "domain"
         ? null
-        : indexFromFile(pendingFile);
-  if (options.scope !== "domain") {
-    if (head !== null && pending === null)
-      throw new Error(
-        "Pending decision index was deleted; restore that deletion before stage index/all."
-      );
-    compatible(pending, workspace);
-  }
+        : pendingFile === undefined
+          ? null
+          : indexFromFile(pendingFile);
   const pendingSources =
     options.scope === "index"
       ? []

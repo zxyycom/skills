@@ -7,308 +7,171 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import { acquireDomainPhase } from "./staging-domain-membership.ts";
-import type { VersionControlFile } from "../../shared/src/version-control/index.ts";
 import {
-  replacePendingSnapshot,
-  samePendingSnapshots,
-  type PendingSnapshot
-} from "../../shared/src/version-control/pending-snapshot.ts";
+  InvestigationStageAdapter,
+  DomainStagePreparationError,
+  type PhaseContext
+} from "./staging-domain-adapter.ts";
+import {
+  stageRecordSelection,
+  RecordStageError,
+  RecordStagePublicationError,
+  type RecordStageResult
+} from "../../index-runtime/src/record-staging.ts";
+import {
+  buildStateIndexFromSnapshot,
+  serializeStateIndex
+} from "../../index-runtime/src/index.ts";
 import { investigationIndexNamespace } from "./investigation-state-index.ts";
 import {
   domainStageControl,
   loadDomainSnapshot,
   openDomainRepository,
-  resolveDomainSelection,
-  verifyDomainIndex,
   type DomainRepository,
   type DomainSnapshot
 } from "./staging-domain-context.ts";
-import { domainIndexFile } from "./staging-domain-index.ts";
 import {
   domainFailure,
   domainFailureDiagnostics,
-  domainSourceReadFailure,
   pendingReplacementFailure
 } from "./staging-domain-failures.ts";
 import {
   compareText,
   stageDiagnostic,
   type DomainStageControl,
-  type DomainStep,
   type InvestigationDomainStageInput
 } from "./staging-domain-support.ts";
-import {
-  collectDomainWrites,
-  prepareDomainAcquisitionRequest,
-  verifyDomainWrites,
-  type DomainAcquisitionRequest,
-  type DomainPhaseFacts,
-  type DomainWrite,
-  type DomainWritesAcquisition
-} from "./staging-domain-writes.ts";
-import type { InvestigationStageResult } from "./types.ts";
+import type {
+  InvestigationStageResult,
+  InvestigationIndexState,
+  InvestigationIndexMetadata
+} from "./types.ts";
+import type { StateIndex } from "../../index-runtime/src/index.ts";
 export type { InvestigationDomainStageInput };
 
-/** Two fresh domain phases precede one complete-snapshot-guarded pending patch. */
+/** Domain safety adapts to the shared record-stage phase and publication owner. */
 export async function stageInvestigationDomain(
   input: InvestigationDomainStageInput
 ): Promise<InvestigationStageResult> {
   const control = domainStageControl(input);
   const opened = await openDomainRepository(control);
   if (opened.status === "error") return opened.result;
-  const snapshot = await loadDomainSnapshot(opened.value, control);
-  if (snapshot.status === "error") return snapshot.result;
-  const selection = resolveDomainSelection(snapshot.value, control);
-  if (selection.status === "error") return selection.result;
-  const index = domainIndexFile(
-    opened.value,
-    snapshot.value,
-    selection.value,
-    control
-  );
-  if (index.status === "error") return index.result;
-  let request: DomainAcquisitionRequest;
+  const domain = opened.value;
+  const loaded = await loadDomainSnapshot(domain, control);
+  if (loaded.status === "error") return loaded.result;
+  const initial = loaded.value;
+  const adapter = new InvestigationStageAdapter(domain, control, initial);
+  let preservedPaths: readonly string[];
   try {
-    request = await prepareDomainAcquisitionRequest({
-      baseline: snapshot.value.baseline,
-      pendingIndex: snapshot.value.pendingIndex,
-      pendingReportPaths: snapshot.value.pendingReportPaths,
-      pendingResourcePaths: snapshot.value.pending.members.map(
-        (member) => member.path
-      ),
+    preservedPaths = await changedDomainPendingPaths(domain, initial);
+  } catch (error) {
+    return domainFailure(control, "pending-read-failed", error);
+  }
+  try {
+    const staged = await stageRecordSelection<
+      InvestigationIndexState,
+      InvestigationIndexMetadata,
+      StateIndex<InvestigationIndexState, InvestigationIndexMetadata>,
+      PhaseContext
+    >({
+      repository: domain.repository,
+      revision: initial.revision,
       scope: input.scope,
-      workspaceIndex: snapshot.value.workspaceIndex,
-      revision: snapshot.value.revision,
-      investigationsScope: opened.value.investigationsScope,
-      repository: opened.value.repository,
-      selectedIds: selection.value.selectedIds,
-      sourceSelection: selection.value.sourceSelection
+      indexPath: domain.repositoryIndexPath,
+      acquire: adapter.acquire.bind(adapter),
+      build: (snapshot) =>
+        buildStateIndexFromSnapshot(
+          initial.canonicalDefinition,
+          snapshot,
+          domain.repositoryIndexPath
+        ),
+      serialize: (index) =>
+        serializeStateIndex(index, initial.canonicalDefinition),
+      prepareDomain: adapter.prepareDomain.bind(adapter)
     });
+    return investigationStageSuccess(
+      control,
+      domain.repositoryIndexPath,
+      staged,
+      preservedPaths
+    );
   } catch (error) {
-    return domainFailure(control, "revision-read-failed", error);
+    return recordStageFailure(control, error);
   }
-  const prepared = await prepareDomainWrite(
-    control,
-    request,
-    snapshot.value,
-    index.value
-  );
-  if (prepared.status === "error") return prepared.result;
-  return await writeDomainPending(control, opened.value, prepared.value);
 }
 
-type PreparedDomainWrite = Readonly<{
-  updates: readonly DomainWrite[];
-  pending: PendingSnapshot;
-  preservedPaths: readonly string[];
-  revision: DomainSnapshot["revision"];
-  selectedIds: readonly string[];
-}>;
-async function prepareDomainWrite(
+function investigationStageSuccess(
   control: DomainStageControl,
-  request: DomainAcquisitionRequest,
-  snapshot: DomainSnapshot,
-  index: VersionControlFile | null
-): Promise<DomainStep<PreparedDomainWrite>> {
-  const phase = await acquireInitialDomainPhase(
-    control,
-    request,
-    snapshot.pending
-  );
-  if (phase.status === "error") return phase;
-  const first = await collectDomainWrites(request, phase.value);
-  if (first.status === "error")
-    return {
-      status: "error",
-      result: domainFailure(control, first.code, first.error)
-    };
-  const preserved = await preservedDomainPaths(
-    control,
-    request,
-    snapshot,
-    first.pending
-  );
-  if (preserved.status === "error") return preserved;
-  const verified = await verifiedDomainWrite(control, request, snapshot, first);
-  if (verified.status === "error") return verified;
-  return {
-    status: "ok",
-    value: {
-      updates: index === null ? first.value : [...first.value, index],
-      pending: first.pending,
-      preservedPaths: preserved.value,
-      revision: snapshot.revision,
-      selectedIds: request.selectedIds
-    }
-  };
-}
-
-async function verifiedDomainWrite(
-  control: DomainStageControl,
-  request: DomainAcquisitionRequest,
-  snapshot: DomainSnapshot,
-  first: DomainWritesAcquisition
-): Promise<DomainStep<true>> {
-  const phase = await reacquireVerifiedDomainPhase(
-    control,
-    request,
-    snapshot,
-    first.pending
-  );
-  if (phase.status === "error") return phase;
-  const current = await collectDomainWrites(request, phase.value);
-  const compared = verifyDomainWrites(first, current);
-  if (compared.status === "error")
-    return {
-      status: "error",
-      result: domainSourceReadFailure(control, compared.error)
-    };
-  if (compared.status === "drift")
-    return {
-      status: "error",
-      result: domainSourceDrift(control, compared.reason)
-    };
-  return { status: "ok", value: true };
-}
-function domainSourceDrift(
-  control: DomainStageControl,
-  reason: string
+  repositoryIndexPath: string,
+  staged: RecordStageResult<
+    StateIndex<InvestigationIndexState, InvestigationIndexMetadata>,
+    PhaseContext
+  >,
+  preservedPaths: readonly string[]
 ): InvestigationStageResult {
-  return domainFailureDiagnostics(control, "source-drift", [
-    stageDiagnostic(
-      "investigation-report.stage-source-drift",
-      reason,
-      control.indexPath
-    )
-  ]);
-}
-async function writeDomainPending(
-  control: DomainStageControl,
-  domain: DomainRepository,
-  prepared: PreparedDomainWrite
-): Promise<InvestigationStageResult> {
-  let written: readonly string[];
-  try {
-    written = (
-      await replacePendingSnapshot(domain.repository, {
-        expectedRevision: prepared.revision,
-        expectedSnapshot: prepared.pending,
-        updates: prepared.updates
-      })
-    ).changedPaths;
-  } catch (error) {
-    return pendingReplacementFailure(control, error);
-  }
-  const paths = new Set(prepared.updates.map((update) => update.path));
+  const input = control.input;
+  const paths = new Set(staged.updates.map((update) => update.path));
+  const written = staged.replacement.changedPaths;
   return {
-    callerOwnedPaths:
-      control.input.scope === "domain" ? [domain.repositoryIndexPath] : [],
+    callerOwnedPaths: input.scope === "domain" ? [repositoryIndexPath] : [],
     changed: written.length > 0,
     diagnostics: [],
     indexPath: control.indexPath,
     namespace: investigationIndexNamespace,
-    preservedPendingPaths: prepared.preservedPaths
+    preservedPendingPaths: preservedPaths
       .filter((file) => !paths.has(file))
       .sort(compareText),
-    scope: control.input.scope,
-    selectedIds: [...prepared.selectedIds],
+    scope: input.scope,
+    selectedIds: [...staged.phase.selectedIds],
     state: written.length > 0 ? "staged" : "unchanged",
     status: "ok",
     writtenPaths: [...written]
   };
 }
 
-async function preservedDomainPaths(
+function recordStageFailure(
   control: DomainStageControl,
-  request: DomainAcquisitionRequest,
-  snapshot: DomainSnapshot,
-  pending: PendingSnapshot
-): Promise<DomainStep<readonly string[]>> {
-  try {
-    const value =
-      snapshot.revision === null
-        ? pending.members.map((member) => member.path)
-        : await request.repository.listPendingChangedPaths({
-            from: snapshot.revision,
-            pathScopes: [request.investigationsScope]
-          });
-    return { status: "ok", value };
-  } catch (error) {
-    return {
-      status: "error",
-      result: domainFailure(control, "pending-read-failed", error)
-    };
+  error: unknown
+): InvestigationStageResult {
+  if (error instanceof DomainStagePreparationError) {
+    return error.result;
   }
-}
-async function reacquireVerifiedDomainPhase(
-  control: DomainStageControl,
-  request: DomainAcquisitionRequest,
-  snapshot: DomainSnapshot,
-  pending: PendingSnapshot
-): Promise<DomainStep<DomainPhaseFacts>> {
-  const indexDrift = await verifyDomainIndex(snapshot, control);
-  if (indexDrift.status === "error")
-    return {
-      status: "error",
-      result: domainFailureDiagnostics(
-        control,
-        "source-drift",
-        indexDrift.diagnostics
-      )
-    };
-  const phase = await acquireDomainPhase(request);
-  if (phase.status === "error")
-    return {
-      status: "error",
-      result:
-        phase.code === "pending-read-failed"
-          ? domainFailure(control, phase.code, phase.error)
-          : domainSourceReadFailure(control, phase.error)
-    };
-  if (!samePendingSnapshots(pending, phase.value.pending))
-    return {
-      status: "error",
-      result: domainFailureDiagnostics(control, "pending-conflict", [
-        stageDiagnostic(
-          "state-index.pending-conflict",
-          "the pending snapshot changed before the write; reread it before retrying",
-          control.indexPath
-        )
-      ])
-    };
-  return phase;
+  if (error instanceof RecordStagePublicationError) {
+    return pendingReplacementFailure(control, error.cause);
+  }
+  if (!(error instanceof RecordStageError)) {
+    return domainFailure(control, "source-read-failed", error);
+  }
+  if (error.kind === "pending-deleted") {
+    return domainFailure(control, "pending-read-failed", error);
+  }
+  const code =
+    error.kind === "source-drift"
+      ? "investigation-report.stage-source-drift"
+      : error.kind === "pending-conflict"
+        ? "state-index.pending-conflict"
+        : "state-index.stage-collection-changed";
+  if (error.diagnostics.length === 0) {
+    return domainFailureDiagnostics(control, error.kind, [
+      stageDiagnostic(code, error.message, control.indexPath)
+    ]);
+  }
+  const diagnostics = error.diagnostics.map((item) => ({
+    ...item,
+    message: item.message + "; " + error.message
+  }));
+  return domainFailureDiagnostics(control, error.kind, diagnostics);
 }
 
-async function acquireInitialDomainPhase(
-  control: DomainStageControl,
-  request: DomainAcquisitionRequest,
-  expectedPending: PendingSnapshot
-): Promise<DomainStep<DomainPhaseFacts>> {
-  if (request.scope === "index")
-    return {
-      status: "ok",
-      value: {
-        resources: { paths: [], ownerPaths: [], workspacePaths: [] },
-        reportPaths: new Set(),
-        baselinePaths: new Set(),
-        pending: expectedPending
-      }
-    };
-  const phase = await acquireDomainPhase(request);
-  if (phase.status === "error")
-    return {
-      status: "error",
-      result: domainFailure(control, phase.code, phase.error)
-    };
-  if (!samePendingSnapshots(expectedPending, phase.value.pending))
-    return {
-      status: "error",
-      result: domainFailure(
-        control,
-        "pending-conflict",
-        new Error("The pending snapshot changed during preparation")
-      )
-    };
-  return phase;
+/** Result preservation uses changed-path metadata, never all fixed-H source payloads. */
+async function changedDomainPendingPaths(
+  domain: DomainRepository,
+  initial: DomainSnapshot
+): Promise<readonly string[]> {
+  return initial.revision === null
+    ? initial.pending.members.map((member) => member.path)
+    : await domain.repository.listPendingChangedPaths({
+        from: initial.revision,
+        pathScopes: [domain.investigationsScope]
+      });
 }

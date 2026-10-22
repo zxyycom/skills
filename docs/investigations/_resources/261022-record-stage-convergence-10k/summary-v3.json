@@ -1,0 +1,602 @@
+{
+  "warmup-v3|decision|index|baseline-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        6.872638647007989
+      ],
+      "median": 6.872638647007989,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        10.162128
+      ],
+      "median": 10.162128,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        474584
+      ],
+      "median": 474584,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "warmup-v3|decision|index|candidate-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        2.309886420989642
+      ],
+      "median": 2.309886420989642,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        3.170863
+      ],
+      "median": 3.170863,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        392244
+      ],
+      "median": 392244,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "native-v3|decision|index|baseline-v3": {
+    "n": 3,
+    "wallSeconds": {
+      "values": [
+        6.7125422199897,
+        6.8035572249791585,
+        6.663011178985471
+      ],
+      "median": 6.7125422199897,
+      "rangeOverMedian": 0.020937826740984468
+    },
+    "cpuSeconds": {
+      "values": [
+        9.92911,
+        10.074182,
+        9.871118000000001
+      ],
+      "median": 9.92911,
+      "rangeOverMedian": 0.020451379831626346
+    },
+    "peakRssKiB": {
+      "values": [
+        455624,
+        461752,
+        453356
+      ],
+      "median": 455624,
+      "rangeOverMedian": 0.01842747528663986
+    }
+  },
+  "native-v3|decision|index|candidate-v3": {
+    "n": 3,
+    "wallSeconds": {
+      "values": [
+        2.3420719490095507,
+        2.319708452996565,
+        2.3455259239999577
+      ],
+      "median": 2.3420719490095507,
+      "rangeOverMedian": 0.01102334666290281
+    },
+    "cpuSeconds": {
+      "values": [
+        3.291347,
+        3.2012469999999995,
+        3.298223
+      ],
+      "median": 3.291347,
+      "rangeOverMedian": 0.029463924648479974
+    },
+    "peakRssKiB": {
+      "values": [
+        409944,
+        390580,
+        421536
+      ],
+      "median": 409944,
+      "rangeOverMedian": 0.07551275296138009
+    }
+  },
+  "warmup-v3|investigation|index|baseline-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        2.5381876129831653
+      ],
+      "median": 2.5381876129831653,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        3.387168
+      ],
+      "median": 3.387168,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        389024
+      ],
+      "median": 389024,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "warmup-v3|investigation|index|candidate-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        2.280001495993929
+      ],
+      "median": 2.280001495993929,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        3.1149809999999998
+      ],
+      "median": 3.1149809999999998,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        379056
+      ],
+      "median": 379056,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "native-v3|investigation|index|baseline-v3": {
+    "n": 3,
+    "wallSeconds": {
+      "values": [
+        2.5002370130096097,
+        2.5330278869951144,
+        2.529475924995495
+      ],
+      "median": 2.529475924995495,
+      "rangeOverMedian": 0.012963505072918664
+    },
+    "cpuSeconds": {
+      "values": [
+        3.339778,
+        3.362869,
+        3.34699
+      ],
+      "median": 3.34699,
+      "rangeOverMedian": 0.006899034655018382
+    },
+    "peakRssKiB": {
+      "values": [
+        383256,
+        382068,
+        381844
+      ],
+      "median": 382068,
+      "rangeOverMedian": 0.003695677209292587
+    }
+  },
+  "native-v3|investigation|index|candidate-v3": {
+    "n": 3,
+    "wallSeconds": {
+      "values": [
+        2.1486875420087017,
+        2.1466676220006775,
+        2.1680397629970685
+      ],
+      "median": 2.1486875420087017,
+      "rangeOverMedian": 0.009946602555535458
+    },
+    "cpuSeconds": {
+      "values": [
+        2.932101,
+        2.905331,
+        2.974909
+      ],
+      "median": 2.932101,
+      "rangeOverMedian": 0.023729741915438765
+    },
+    "peakRssKiB": {
+      "values": [
+        349944,
+        371452,
+        351256
+      ],
+      "median": 351256,
+      "rangeOverMedian": 0.0612316942628738
+    }
+  },
+  "warmup-v3|decision|all|baseline-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        6.724735772993881
+      ],
+      "median": 6.724735772993881,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        9.881806000000001
+      ],
+      "median": 9.881806000000001,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        461576
+      ],
+      "median": 461576,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "warmup-v3|decision|all|candidate-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        5.083251400006702
+      ],
+      "median": 5.083251400006702,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        8.028401
+      ],
+      "median": 8.028401,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        416020
+      ],
+      "median": 416020,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "representative-v3|decision|all|baseline-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        6.759666172991274
+      ],
+      "median": 6.759666172991274,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        10.072017
+      ],
+      "median": 10.072017,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        478148
+      ],
+      "median": 478148,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "representative-v3|decision|all|candidate-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        5.165070959017612
+      ],
+      "median": 5.165070959017612,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        8.034054
+      ],
+      "median": 8.034054,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        410032
+      ],
+      "median": 410032,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "warmup-v3|decision|domain|baseline-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        4.821035322995158
+      ],
+      "median": 4.821035322995158,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        7.642018
+      ],
+      "median": 7.642018,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        320712
+      ],
+      "median": 320712,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "warmup-v3|decision|domain|candidate-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        3.214299587009009
+      ],
+      "median": 3.214299587009009,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        5.2492350000000005
+      ],
+      "median": 5.2492350000000005,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        322496
+      ],
+      "median": 322496,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "representative-v3|decision|domain|baseline-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        4.775152240996249
+      ],
+      "median": 4.775152240996249,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        7.620774
+      ],
+      "median": 7.620774,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        353824
+      ],
+      "median": 353824,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "representative-v3|decision|domain|candidate-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        3.1107791530084796
+      ],
+      "median": 3.1107791530084796,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        5.086583
+      ],
+      "median": 5.086583,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        322376
+      ],
+      "median": 322376,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "warmup-v3|investigation|all|baseline-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        5.131721955985995
+      ],
+      "median": 5.131721955985995,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        7.7474110000000005
+      ],
+      "median": 7.7474110000000005,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        412796
+      ],
+      "median": 412796,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "warmup-v3|investigation|all|candidate-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        4.807678839977598
+      ],
+      "median": 4.807678839977598,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        7.349976
+      ],
+      "median": 7.349976,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        383248
+      ],
+      "median": 383248,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "representative-v3|investigation|all|baseline-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        5.073495204997016
+      ],
+      "median": 5.073495204997016,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        7.713191
+      ],
+      "median": 7.713191,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        413184
+      ],
+      "median": 413184,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "representative-v3|investigation|all|candidate-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        4.605491431982955
+      ],
+      "median": 4.605491431982955,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        7.127008
+      ],
+      "median": 7.127008,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        364808
+      ],
+      "median": 364808,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "warmup-v3|investigation|domain|baseline-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        4.2212643130042125
+      ],
+      "median": 4.2212643130042125,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        6.6104330000000004
+      ],
+      "median": 6.6104330000000004,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        390940
+      ],
+      "median": 390940,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "warmup-v3|investigation|domain|candidate-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        3.8357550479995552
+      ],
+      "median": 3.8357550479995552,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        6.167493
+      ],
+      "median": 6.167493,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        316972
+      ],
+      "median": 316972,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "representative-v3|investigation|domain|baseline-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        4.145257621014025
+      ],
+      "median": 4.145257621014025,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        6.568825
+      ],
+      "median": 6.568825,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        359504
+      ],
+      "median": 359504,
+      "rangeOverMedian": 0.0
+    }
+  },
+  "representative-v3|investigation|domain|candidate-v3": {
+    "n": 1,
+    "wallSeconds": {
+      "values": [
+        3.866726584994467
+      ],
+      "median": 3.866726584994467,
+      "rangeOverMedian": 0.0
+    },
+    "cpuSeconds": {
+      "values": [
+        6.231437
+      ],
+      "median": 6.231437,
+      "rangeOverMedian": 0.0
+    },
+    "peakRssKiB": {
+      "values": [
+        318232
+      ],
+      "median": 318232,
+      "rangeOverMedian": 0.0
+    }
+  }
+}

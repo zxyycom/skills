@@ -57,8 +57,9 @@ const decisionMaintenanceInputs = [
 ];
 const decisionStageInputs = [
   "tools/decision-records/src/decision-stage*.ts",
-  "tools/decision-records/tests/{stage,stage-sources,local-stage-contracts}.test.ts",
+  "tools/decision-records/tests/{stage,stage-sources,stage-index-payload,local-stage-contracts}.test.ts",
   "tools/decision-records/tests/support-local-contracts.ts",
+  "tools/shared/tests/record-stage-evidence.ts",
   "tools/decision-records/tests/stage/**"
 ];
 const decisionCliInputs = [
@@ -92,6 +93,7 @@ const investigationStageInputs = [
   "tools/investigation-report/src/staging*.ts",
   "tools/investigation-report/tests/{staging*,local-stage-contract,phase-facts-contract,resource-*-contract,batch-stage-selectors}.test.ts",
   "tools/investigation-report/tests/resource-phase-test-support.ts",
+  "tools/shared/tests/record-stage-evidence.ts",
   "tools/investigation-report/tests/fixtures/staging-source-path/**",
   "tools/investigation-report/tests/checks/pending-stage.ts"
 ];

@@ -7,31 +7,37 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import { Buffer } from "node:buffer";
-import type { VersionControlFile } from "../../shared/src/version-control/index.ts";
+import { sameBytes } from "../../shared/src/node/bytes.ts";
+import { resolveIndexPath } from "../../index-runtime/src/index-path.ts";
+import { readIndexSourceAtResolvedPath } from "../../index-runtime/src/storage-load.ts";
 import {
-  buildStateIndexFromSnapshot,
-  defineStateIndexDefinition,
-  sameStateIndexCollectionMetadata,
-  selectTargetSnapshot,
-  serializeStateIndex
+  expectationOf,
+  parseStateIndex,
+  type StateIndexDiagnostic,
+  type StateIndexDefinition,
+  type StateIndexResult
 } from "../../index-runtime/src/index.ts";
+import { investigationIndexFileName } from "./investigation-state-index.ts";
+import { sanitizeInvestigationDiagnosticText } from "./diagnostics.ts";
+import {
+  domainFailure,
+  domainFailureDiagnostics
+} from "./staging-domain-failures.ts";
+import {
+  stageDiagnostic,
+  type DomainStageControl,
+  type DomainStep,
+  type InvestigationIndex
+} from "./staging-domain-support.ts";
+import type {
+  InvestigationIndexState,
+  InvestigationIndexMetadata
+} from "./types.ts";
+import { defineStateIndexDefinition } from "../../index-runtime/src/index.ts";
 import { createInvestigationStateIndexDefinition } from "./investigation-state-index.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
 import { createInvestigationRelationContext } from "./relation-context.ts";
 import { validateInvestigationResourceOwnership } from "./resources.ts";
-import {
-  stageDiagnostic,
-  type DomainStageControl,
-  type DomainStep
-} from "./staging-domain-support.ts";
-import type {
-  DomainRepository,
-  DomainSelection,
-  DomainSnapshot
-} from "./staging-domain-context.ts";
-import { domainFailureDiagnostics } from "./staging-domain-failures.ts";
-
 /** Stage validates the full metadata graph, without reading its source files. */
 export function createInvestigationStageIndexDefinition() {
   const definition = createInvestigationStateIndexDefinition();
@@ -57,78 +63,130 @@ export function createInvestigationStageIndexDefinition() {
   });
 }
 
-/**
- * Replaces selected pending entries with their workspace published projections;
- * changed collection metadata requires explicit complete-index handling. The
- * `domain` scope keeps `null` so the pending index stays byte-identical.
- */
-export function domainIndexFile(
-  domain: DomainRepository,
-  snapshot: DomainSnapshot,
-  selection: DomainSelection,
-  control: DomainStageControl
-): DomainStep<VersionControlFile | null> {
-  if (control.input.scope === "domain") {
-    return { status: "ok", value: null };
-  }
-  const metadataChanged = [snapshot.baseline, snapshot.pendingIndex].some(
-    (index) =>
-      index !== null &&
-      !sameStateIndexCollectionMetadata(index, snapshot.workspaceIndex)
-  );
-  if (metadataChanged) {
-    return {
-      status: "error",
-      result: domainFailureDiagnostics(control, "collection-changed", [
-        stageDiagnostic(
-          "state-index.stage-collection-changed",
-          "metadata or its source revision changed; stage the complete index instead",
-          control.indexPath
-        )
-      ])
-    };
-  }
-  return indexProjectionFile(domain, snapshot, selection, control);
-}
+export type DomainWorkspaceFacts = Readonly<{
+  workspaceIndex: InvestigationIndex;
+  workspaceBytes: Uint8Array;
+  canonicalDefinition: StateIndexDefinition<
+    InvestigationIndexState,
+    InvestigationIndexMetadata
+  >;
+}>;
 
-function indexProjectionFile(
-  domain: DomainRepository,
-  snapshot: DomainSnapshot,
-  selection: DomainSelection,
-  control: DomainStageControl
-): DomainStep<VersionControlFile> {
-  const targetSnapshot = selectTargetSnapshot(
-    snapshot.pendingIndex,
-    snapshot.workspaceIndex,
-    new Set(selection.selectedIds)
+/** Owns fresh workspace index bytes, parse reuse and complete stage graph validation. */
+export async function loadDomainWorkspace(
+  control: DomainStageControl,
+  previous: DomainWorkspaceFacts | undefined,
+  stage: "prepare" | "verify"
+): Promise<DomainStep<DomainWorkspaceFacts>> {
+  const resolved = await resolveIndexPath(
+    investigationIndexFileName,
+    control.input.investigationsDirectory
   );
-  const target = buildStateIndexFromSnapshot(
-    snapshot.canonicalDefinition,
-    targetSnapshot,
-    domain.repositoryIndexPath
+  const source =
+    resolved.status === "error"
+      ? resolved
+      : await readIndexSourceAtResolvedPath({
+          indexPath: investigationIndexFileName,
+          resolved: resolved.value
+        });
+  if (source.status === "error")
+    return workspaceFailure(control, source.diagnostics, stage);
+
+  const { unchangedWorkspace, workspaceIndex } = workspaceProjection(
+    source.value,
+    previous
   );
-  if (target.status === "error") {
-    return {
-      status: "error",
-      result: domainFailureDiagnostics(
-        control,
-        "target-invalid",
-        target.diagnostics.map((diagnostic) => ({
-          ...diagnostic,
-          message: `${diagnostic.message}; explicitly select the required reports or resource owners as well`
-        }))
-      )
-    };
+  if (workspaceIndex.status === "error") {
+    return workspaceFailure(control, workspaceIndex.diagnostics, stage);
+  }
+  const definition = createInvestigationStageIndexDefinition();
+  if (!unchangedWorkspace) {
+    const graph = validateWorkspaceGraph(
+      control,
+      definition,
+      workspaceIndex.value,
+      stage
+    );
+    if (graph.status === "error") return graph;
   }
   return {
     status: "ok",
     value: {
-      kind: "regular",
-      data: Buffer.from(
-        serializeStateIndex(target.value, snapshot.canonicalDefinition),
-        "utf8"
-      ),
-      path: domain.repositoryIndexPath
+      canonicalDefinition: defineStateIndexDefinition(definition),
+      workspaceIndex: workspaceIndex.value,
+      workspaceBytes: source.value.bytes
     }
   };
+}
+
+function workspaceFailure(
+  control: DomainStageControl,
+  diagnostics: readonly StateIndexDiagnostic[],
+  stage: "prepare" | "verify"
+): DomainStep<never> {
+  return {
+    status: "error",
+    result: domainFailureDiagnostics(
+      control,
+      stage === "prepare" ? "workspace-index-invalid" : "source-drift",
+      diagnostics
+    )
+  };
+}
+
+function validateWorkspaceGraph(
+  control: DomainStageControl,
+  definition: StateIndexDefinition<
+    InvestigationIndexState,
+    InvestigationIndexMetadata
+  >,
+  index: InvestigationIndex,
+  stage: "prepare" | "verify"
+): DomainStep<true> {
+  try {
+    definition.validateIndex?.(index);
+    return { status: "ok", value: true };
+  } catch (error) {
+    return {
+      status: "error",
+      result:
+        stage === "prepare"
+          ? domainFailure(control, "workspace-index-invalid", error)
+          : domainFailureDiagnostics(control, "source-drift", [
+              stageDiagnostic(
+                "investigation-report.stage-source-drift",
+                "the published workspace index changed before the write; " +
+                  sanitizeInvestigationDiagnosticText(error),
+                control.indexPath
+              )
+            ])
+    };
+  }
+}
+
+/** Parsing and its same-call reuse are owned by the actual workspace source bytes. */
+function workspaceProjection(
+  source: Readonly<{ bytes: Uint8Array; text: string }>,
+  previous: DomainWorkspaceFacts | undefined
+): Readonly<{
+  unchangedWorkspace: boolean;
+  workspaceIndex: StateIndexResult<InvestigationIndex>;
+}> {
+  const unchangedWorkspace =
+    previous !== undefined && sameBytes(source.bytes, previous.workspaceBytes);
+  const baseDefinition = createInvestigationStateIndexDefinition();
+  const workspaceIndex =
+    unchangedWorkspace && previous !== undefined
+      ? {
+          status: "ok" as const,
+          diagnostics: [],
+          value: previous.workspaceIndex
+        }
+      : parseStateIndex({
+          definition: baseDefinition,
+          expectation: expectationOf(baseDefinition),
+          sourcePath: investigationIndexFileName,
+          text: source.text
+        });
+  return { unchangedWorkspace, workspaceIndex };
 }

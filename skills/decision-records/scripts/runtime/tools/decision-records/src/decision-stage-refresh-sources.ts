@@ -30,20 +30,12 @@ import type { DecisionId, DecisionIndexState } from "./types.ts";
 export async function collectRefreshSourceUpdates(
   options: RefreshOptions,
   context: RefreshContext
-) {
+): Promise<ReadonlyMap<string, PendingFileUpdate>> {
   const { decisionScope } = options.opened;
   const { workspace, selectedIds } = context;
   const updates = new Map<string, PendingFileUpdate>();
-  const callerOwnedPaths: string[] = [];
   for (const id of selectedIds) {
     const current = workspace.entries[id];
-    if (options.scope === "index") {
-      if (current !== undefined)
-        callerOwnedPaths.push(
-          repositoryPath(decisionScope, current.sourcePath)
-        );
-      continue;
-    }
     const oldPaths = selectedOldSourcePaths(context, id, decisionScope);
     for (const oldPath of oldPaths)
       if (!updates.has(oldPath))
@@ -63,7 +55,7 @@ export async function collectRefreshSourceUpdates(
     );
     updates.set(file.path, file);
   }
-  return { updates, callerOwnedPaths };
+  return updates;
 }
 
 async function verifyRemovedSourcePath(

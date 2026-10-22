@@ -3,10 +3,6 @@ import {
   domainStageControl,
   resolveDomainSelection
 } from "../src/staging-domain-context.ts";
-import {
-  verifyDomainWrites,
-  type DomainWritesAcquisition
-} from "../src/staging-domain-writes.ts";
 import { loadInvestigationIndex } from "../src/investigation-state-index.ts";
 import type { VersionControlFile } from "../../shared/src/version-control/index.ts";
 import {
@@ -221,39 +217,12 @@ test("domain phase comparison rechecks required owner and shared resource bytes"
         { id: "one", resources: [resource] },
         { id: "owner", resources: [resource] }
       ]);
+      initializeGit(root);
+      const before = git(root, ["ls-files", "--stage"]);
       let changed = false;
       const observed = await observeReads(
         root,
-        async () => {
-          const phases: DomainWritesAcquisition[] = [];
-          for (let phase = 0; phase < 2; phase += 1) {
-            const sourceFiles: VersionControlFile[] = [];
-            for (const relative of [
-              "one.md",
-              "owner.md",
-              "_resources/owner/sample.txt"
-            ]) {
-              sourceFiles.push({
-                path: `docs/investigations/${relative}`,
-                kind: "regular",
-                data: await fs.readFile(
-                  path.join(investigationRoot(root), relative)
-                )
-              });
-            }
-            phases.push({
-              status: "ok",
-              sourceFiles,
-              value: [sourceFiles[0]!],
-              pending: {
-                pathScope: "docs/investigations",
-                files: [],
-                members: []
-              }
-            });
-          }
-          return verifyDomainWrites(phases[0]!, phases[1]!);
-        },
+        () => stage(root, "domain"),
         async (target) => {
           if (
             target === path.join(investigationRoot(root), driftingPath) &&
@@ -264,18 +233,21 @@ test("domain phase comparison rechecks required owner and shared resource bytes"
           }
         }
       );
-      assert.equal(observed.result.status, "drift");
-      if (observed.result.status !== "drift")
-        assert.fail("required source drift was accepted");
-      assert.match(
-        observed.result.reason,
-        /required owner bytes or representation changed/u
+      assert.equal(observed.result.status, "error");
+      assert.equal(observed.result.state, "source-drift");
+      assert.equal(observed.result.changed, false);
+      assert.equal(
+        observed.result.diagnostics[0]?.code,
+        driftingPath === "owner.md"
+          ? "investigation-report.stage-source-read-failed"
+          : "investigation-report.stage-source-drift"
       );
       assert.equal(
         observed.paths.filter((name) => name === driftingPath).length,
         2
       );
       assert.equal(changed, true);
+      assert.equal(git(root, ["ls-files", "--stage"]), before);
       assert.ok(
         (
           await fs.readFile(

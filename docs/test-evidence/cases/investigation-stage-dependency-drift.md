@@ -7,8 +7,8 @@ Tags:
 - `investigation-report`
 
 Contract:
-- 局部依赖只进入验证范围；已取得的两个阶段中必要 owner 或共享资源字节不同，领域写计划比较必须拒绝。
+- 局部依赖只进入验证范围；两阶段中必要 owner 或共享资源字节改变，stage 必须在来源复核或共同阶段比较中拒绝，不发布 pending。
 
 Proves:
-- 分别对必要 owner 正文和直接共享资源构造两份真实 FS 采集；漂移路径各读取两次，第二份采集包含改变后的字节。
-- `verifyDomainWrites` 返回必要 owner 字节或表示漂移，现场新字节不被覆盖。
+- 分别在真实 domain stage 准备阶段读取必要 owner 正文和直接共享资源后改变字节；漂移路径各读取两次，独立复核看到改变后的字节。
+- owner 正文指纹不符保留 source-read-failed 诊断，共享资源字节差异由共同协调器返回 source-drift；两者均报告 source-drift 状态，完整 pending 身份不变且现场新字节保留。

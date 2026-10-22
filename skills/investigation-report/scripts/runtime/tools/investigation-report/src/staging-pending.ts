@@ -7,6 +7,10 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import {
+  readRecordStagePending,
+  sameRecordStagePendingIndex
+} from "../../index-runtime/src/record-staging.ts";
 import path from "node:path";
 import type { VersionControlFile } from "../../shared/src/version-control/index.ts";
 import {
@@ -47,8 +51,48 @@ export async function readDomainPending(
     InvestigationIndexState,
     InvestigationIndexMetadata
   >,
-  control: DomainStageControl
+  control: DomainStageControl,
+  options: Readonly<{
+    contentPaths?: readonly string[];
+    previous?: Pick<DomainSnapshot, "pending" | "pendingIndex">;
+  }> = {}
 ): Promise<DomainPendingFacts> {
+  const { contentPaths = [], previous } = options;
+  const reportPaths = await changedPendingReportPaths(
+    domain,
+    baseline,
+    control
+  );
+  const pending = await readRecordStagePending(domain.repository, {
+    scope: control.input.scope,
+    indexPath: domain.repositoryIndexPath,
+    pathScope: domain.investigationsScope,
+    contentPaths: [...reportPaths, domain.repositoryIndexPath, ...contentPaths]
+  });
+  const pendingIndex =
+    previous !== undefined &&
+    sameRecordStagePendingIndex(
+      previous.pending,
+      pending,
+      domain.repositoryIndexPath
+    )
+      ? previous.pendingIndex
+      : parseDomainPendingIndex(
+          pending,
+          baseline.baseline,
+          domain.repositoryIndexPath,
+          definition,
+          control.input.scope
+        );
+  const pendingReportPaths = pendingReportOwnership(pending.files, reportPaths);
+  return { pending, pendingIndex, pendingReportPaths };
+}
+
+async function changedPendingReportPaths(
+  domain: DomainRepository,
+  baseline: Pick<DomainSnapshot, "revision">,
+  control: DomainStageControl
+): Promise<readonly string[]> {
   const changed =
     control.input.scope === "index"
       ? []
@@ -68,20 +112,7 @@ export async function readDomainPending(
       path.posix.relative(domain.investigationsScope, file)
     )
   );
-  const pending = await readPendingSnapshot(domain.repository, {
-    pathScope: domain.investigationsScope,
-    contentPaths: [...reportPaths, domain.repositoryIndexPath],
-    payloadScope: control.input.scope === "index" ? "content-paths" : "scope"
-  });
-  const pendingIndex = parseDomainPendingIndex(
-    pending,
-    baseline.baseline,
-    domain.repositoryIndexPath,
-    definition,
-    control.input.scope
-  );
-  const pendingReportPaths = pendingReportOwnership(pending.files, reportPaths);
-  return { pending, pendingIndex, pendingReportPaths };
+  return reportPaths;
 }
 
 function parseDomainPendingIndex(

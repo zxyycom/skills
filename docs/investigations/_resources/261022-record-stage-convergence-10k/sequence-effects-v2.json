@@ -1,0 +1,56 @@
+[
+  {
+    "domain": "decision",
+    "selected": "261001-perf-00000",
+    "selectedTitle": "Changed 261001-perf-00000",
+    "pendingIndexSha256": "300f872f01413702716cf838616ac6e13dad5ef8c29977c4758c731c45e28086",
+    "selectedAndPriorRevisionsExact": true,
+    "unselectedBytesModeDeletionPreserved": true,
+    "workspaceUnchanged": true
+  },
+  {
+    "domain": "decision",
+    "selected": "261001-perf-00010",
+    "selectedTitle": "Changed 261001-perf-00010",
+    "pendingIndexSha256": "8e78d28e0cab2088d0650aa3e4516ec020135d2622c7b9e4b23276b8a1b0af0c",
+    "selectedAndPriorRevisionsExact": true,
+    "unselectedBytesModeDeletionPreserved": true,
+    "workspaceUnchanged": true
+  },
+  {
+    "domain": "decision",
+    "selected": "261001-perf-00000",
+    "selectedTitle": "Reselected 261001-perf-00000",
+    "pendingIndexSha256": "07360981442c259dd7fd908a45a2186ab3d285ec920ad41ac1046260b80d5965",
+    "selectedAndPriorRevisionsExact": true,
+    "unselectedBytesModeDeletionPreserved": true,
+    "workspaceUnchanged": true
+  },
+  {
+    "domain": "investigation",
+    "selected": "261001-perf-00000",
+    "selectedTitle": "Changed 261001-perf-00000",
+    "pendingIndexSha256": "25e44fd551675afdb9eaaed73930c057d13c12dd7357527ad71b302ca47b6dc5",
+    "selectedAndPriorRevisionsExact": true,
+    "unselectedBytesModeDeletionPreserved": true,
+    "workspaceUnchanged": true
+  },
+  {
+    "domain": "investigation",
+    "selected": "261001-perf-00010",
+    "selectedTitle": "Changed 261001-perf-00010",
+    "pendingIndexSha256": "d0ef0fdb160a6ce541eda3b7f4fafaba2f441d7e167c18c56e2444648079f22c",
+    "selectedAndPriorRevisionsExact": true,
+    "unselectedBytesModeDeletionPreserved": true,
+    "workspaceUnchanged": true
+  },
+  {
+    "domain": "investigation",
+    "selected": "261001-perf-00000",
+    "selectedTitle": "Reselected 261001-perf-00000",
+    "pendingIndexSha256": "f144470c81a559256c3a6d06a565fa609ea5db748d67de8b958c74133b461cf0",
+    "selectedAndPriorRevisionsExact": true,
+    "unselectedBytesModeDeletionPreserved": true,
+    "workspaceUnchanged": true
+  }
+]

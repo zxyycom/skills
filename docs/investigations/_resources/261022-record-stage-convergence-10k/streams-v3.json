@@ -1,0 +1,1385 @@
+{
+  "treatment": "与streams.json相同的节选规则；本文件仅保存v3组，旧组保持原资源。",
+  "streams": [
+    {
+      "name": "native-v3-baseline-v3-decision-index-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "native-v3-baseline-v3-decision-index-1.stdout",
+      "bytes": 452269,
+      "sha256": "fe094beb4c2421788c78cdadf4487dc109370e3129c306d0f0a007876e9f62a2",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/decision-index.json"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9999,
+          "serializedSha256": "2d0f0eb588174d212894079d90c7fc40c79577ead6415dfa90f9ce07d793500e",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09996.md",
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md"
+          ]
+        },
+        "callerOwnedPaths": [
+          "docs/decisions/archive/261001-perf-00000.md"
+        ]
+      }
+    },
+    {
+      "name": "native-v3-baseline-v3-decision-index-2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "native-v3-baseline-v3-decision-index-2.stdout",
+      "bytes": 452269,
+      "sha256": "fe094beb4c2421788c78cdadf4487dc109370e3129c306d0f0a007876e9f62a2",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/decision-index.json"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9999,
+          "serializedSha256": "2d0f0eb588174d212894079d90c7fc40c79577ead6415dfa90f9ce07d793500e",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09996.md",
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md"
+          ]
+        },
+        "callerOwnedPaths": [
+          "docs/decisions/archive/261001-perf-00000.md"
+        ]
+      }
+    },
+    {
+      "name": "native-v3-baseline-v3-decision-index-3.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "native-v3-baseline-v3-decision-index-3.stdout",
+      "bytes": 452269,
+      "sha256": "fe094beb4c2421788c78cdadf4487dc109370e3129c306d0f0a007876e9f62a2",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/decision-index.json"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9999,
+          "serializedSha256": "2d0f0eb588174d212894079d90c7fc40c79577ead6415dfa90f9ce07d793500e",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09996.md",
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md"
+          ]
+        },
+        "callerOwnedPaths": [
+          "docs/decisions/archive/261001-perf-00000.md"
+        ]
+      }
+    },
+    {
+      "name": "native-v3-baseline-v3-investigation-index-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "native-v3-baseline-v3-investigation-index-1.stdout",
+      "bytes": 452,
+      "sha256": "4afb9aef734b4db1b9754f4bb0297396ce96fa7ebcb71d2d0a9e24f8e1b0ae2a",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "native-v3-baseline-v3-investigation-index-2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "native-v3-baseline-v3-investigation-index-2.stdout",
+      "bytes": 452,
+      "sha256": "4afb9aef734b4db1b9754f4bb0297396ce96fa7ebcb71d2d0a9e24f8e1b0ae2a",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "native-v3-baseline-v3-investigation-index-3.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "native-v3-baseline-v3-investigation-index-3.stdout",
+      "bytes": 452,
+      "sha256": "4afb9aef734b4db1b9754f4bb0297396ce96fa7ebcb71d2d0a9e24f8e1b0ae2a",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "native-v3-candidate-v3-decision-index-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "native-v3-candidate-v3-decision-index-1.stdout",
+      "bytes": 452269,
+      "sha256": "fe094beb4c2421788c78cdadf4487dc109370e3129c306d0f0a007876e9f62a2",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/decision-index.json"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9999,
+          "serializedSha256": "2d0f0eb588174d212894079d90c7fc40c79577ead6415dfa90f9ce07d793500e",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09996.md",
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md"
+          ]
+        },
+        "callerOwnedPaths": [
+          "docs/decisions/archive/261001-perf-00000.md"
+        ]
+      }
+    },
+    {
+      "name": "native-v3-candidate-v3-decision-index-2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "native-v3-candidate-v3-decision-index-2.stdout",
+      "bytes": 452269,
+      "sha256": "fe094beb4c2421788c78cdadf4487dc109370e3129c306d0f0a007876e9f62a2",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/decision-index.json"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9999,
+          "serializedSha256": "2d0f0eb588174d212894079d90c7fc40c79577ead6415dfa90f9ce07d793500e",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09996.md",
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md"
+          ]
+        },
+        "callerOwnedPaths": [
+          "docs/decisions/archive/261001-perf-00000.md"
+        ]
+      }
+    },
+    {
+      "name": "native-v3-candidate-v3-decision-index-3.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "native-v3-candidate-v3-decision-index-3.stdout",
+      "bytes": 452269,
+      "sha256": "fe094beb4c2421788c78cdadf4487dc109370e3129c306d0f0a007876e9f62a2",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/decision-index.json"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9999,
+          "serializedSha256": "2d0f0eb588174d212894079d90c7fc40c79577ead6415dfa90f9ce07d793500e",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09996.md",
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md"
+          ]
+        },
+        "callerOwnedPaths": [
+          "docs/decisions/archive/261001-perf-00000.md"
+        ]
+      }
+    },
+    {
+      "name": "native-v3-candidate-v3-investigation-index-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "native-v3-candidate-v3-investigation-index-1.stdout",
+      "bytes": 452,
+      "sha256": "4afb9aef734b4db1b9754f4bb0297396ce96fa7ebcb71d2d0a9e24f8e1b0ae2a",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "native-v3-candidate-v3-investigation-index-2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "native-v3-candidate-v3-investigation-index-2.stdout",
+      "bytes": 452,
+      "sha256": "4afb9aef734b4db1b9754f4bb0297396ce96fa7ebcb71d2d0a9e24f8e1b0ae2a",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "native-v3-candidate-v3-investigation-index-3.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "native-v3-candidate-v3-investigation-index-3.stdout",
+      "bytes": 452,
+      "sha256": "4afb9aef734b4db1b9754f4bb0297396ce96fa7ebcb71d2d0a9e24f8e1b0ae2a",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "probe-baseline-v3-decision-index.stdout",
+      "bytes": 452269,
+      "sha256": "fe094beb4c2421788c78cdadf4487dc109370e3129c306d0f0a007876e9f62a2",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/decision-index.json"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9999,
+          "serializedSha256": "2d0f0eb588174d212894079d90c7fc40c79577ead6415dfa90f9ce07d793500e",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09996.md",
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md"
+          ]
+        },
+        "callerOwnedPaths": [
+          "docs/decisions/archive/261001-perf-00000.md"
+        ]
+      }
+    },
+    {
+      "name": "probe-baseline-v3-investigation-all.stdout",
+      "bytes": 677,
+      "sha256": "1c11bf3a288f709cdbbd1b2b24682f0c335ea229894b1ecfe743910892fada7c",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "all",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/261001-perf-00000.md",
+          "docs/investigations/_resources/261001-perf-00000/added.txt",
+          "docs/investigations/_resources/261001-perf-00000/deleted.txt",
+          "docs/investigations/_resources/261001-perf-00000/keep.txt",
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "probe-baseline-v3-investigation-index.stdout",
+      "bytes": 452,
+      "sha256": "4afb9aef734b4db1b9754f4bb0297396ce96fa7ebcb71d2d0a9e24f8e1b0ae2a",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "probe-candidate-v3-decision-index.stdout",
+      "bytes": 452269,
+      "sha256": "fe094beb4c2421788c78cdadf4487dc109370e3129c306d0f0a007876e9f62a2",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/decision-index.json"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9999,
+          "serializedSha256": "2d0f0eb588174d212894079d90c7fc40c79577ead6415dfa90f9ce07d793500e",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09996.md",
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md"
+          ]
+        },
+        "callerOwnedPaths": [
+          "docs/decisions/archive/261001-perf-00000.md"
+        ]
+      }
+    },
+    {
+      "name": "probe-candidate-v3-investigation-all.stdout",
+      "bytes": 677,
+      "sha256": "1c11bf3a288f709cdbbd1b2b24682f0c335ea229894b1ecfe743910892fada7c",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "all",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/261001-perf-00000.md",
+          "docs/investigations/_resources/261001-perf-00000/added.txt",
+          "docs/investigations/_resources/261001-perf-00000/deleted.txt",
+          "docs/investigations/_resources/261001-perf-00000/keep.txt",
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "probe-candidate-v3-investigation-index.stdout",
+      "bytes": 452,
+      "sha256": "4afb9aef734b4db1b9754f4bb0297396ce96fa7ebcb71d2d0a9e24f8e1b0ae2a",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "representative-v3-baseline-v3-decision-all-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "representative-v3-baseline-v3-decision-all-1.stdout",
+      "bytes": 452222,
+      "sha256": "9c1f3bb7d035dd6f142a4e78764af0f04e5e67f96db87bd6489ba3b4d4983b6c",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "all",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/archive/261001-perf-00000.md",
+          "docs/decisions/decision-index.json"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9998,
+          "serializedSha256": "552baeed4fcb57a959e269690eb5914a3247473b1621f60f07a1604d6e30822a",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09996.md",
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md"
+          ]
+        },
+        "callerOwnedPaths": []
+      }
+    },
+    {
+      "name": "representative-v3-baseline-v3-decision-domain-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "representative-v3-baseline-v3-decision-domain-1.stdout",
+      "bytes": 452261,
+      "sha256": "8c88c250fe8471cca2073eac4be5eb9aa747fcd15fcfab854d08ea9797a1d7be",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "domain",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/archive/261001-perf-00000.md"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9999,
+          "serializedSha256": "0ba0c496a4d41cb8c25b87d177af3af86c0fcc1ca7bae14b0e992421a4141414",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md",
+            "docs/decisions/decision-index.json"
+          ]
+        },
+        "callerOwnedPaths": [
+          "docs/decisions/decision-index.json"
+        ]
+      }
+    },
+    {
+      "name": "representative-v3-baseline-v3-investigation-all-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "representative-v3-baseline-v3-investigation-all-1.stdout",
+      "bytes": 677,
+      "sha256": "1c11bf3a288f709cdbbd1b2b24682f0c335ea229894b1ecfe743910892fada7c",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "all",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/261001-perf-00000.md",
+          "docs/investigations/_resources/261001-perf-00000/added.txt",
+          "docs/investigations/_resources/261001-perf-00000/deleted.txt",
+          "docs/investigations/_resources/261001-perf-00000/keep.txt",
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "representative-v3-baseline-v3-investigation-domain-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "representative-v3-baseline-v3-investigation-domain-1.stdout",
+      "bytes": 679,
+      "sha256": "d4029fecdef717ffbb97c3ee737a77c0cff541aa12865158c835f23046791ce2",
+      "parsedOutput": {
+        "callerOwnedPaths": [
+          "docs/investigations/investigation-index.json"
+        ],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "domain",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/261001-perf-00000.md",
+          "docs/investigations/_resources/261001-perf-00000/added.txt",
+          "docs/investigations/_resources/261001-perf-00000/deleted.txt",
+          "docs/investigations/_resources/261001-perf-00000/keep.txt"
+        ]
+      }
+    },
+    {
+      "name": "representative-v3-candidate-v3-decision-all-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "representative-v3-candidate-v3-decision-all-1.stdout",
+      "bytes": 452222,
+      "sha256": "9c1f3bb7d035dd6f142a4e78764af0f04e5e67f96db87bd6489ba3b4d4983b6c",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "all",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/archive/261001-perf-00000.md",
+          "docs/decisions/decision-index.json"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9998,
+          "serializedSha256": "552baeed4fcb57a959e269690eb5914a3247473b1621f60f07a1604d6e30822a",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09996.md",
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md"
+          ]
+        },
+        "callerOwnedPaths": []
+      }
+    },
+    {
+      "name": "representative-v3-candidate-v3-decision-domain-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "representative-v3-candidate-v3-decision-domain-1.stdout",
+      "bytes": 452261,
+      "sha256": "8c88c250fe8471cca2073eac4be5eb9aa747fcd15fcfab854d08ea9797a1d7be",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "domain",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/archive/261001-perf-00000.md"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9999,
+          "serializedSha256": "0ba0c496a4d41cb8c25b87d177af3af86c0fcc1ca7bae14b0e992421a4141414",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md",
+            "docs/decisions/decision-index.json"
+          ]
+        },
+        "callerOwnedPaths": [
+          "docs/decisions/decision-index.json"
+        ]
+      }
+    },
+    {
+      "name": "representative-v3-candidate-v3-investigation-all-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "representative-v3-candidate-v3-investigation-all-1.stdout",
+      "bytes": 677,
+      "sha256": "1c11bf3a288f709cdbbd1b2b24682f0c335ea229894b1ecfe743910892fada7c",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "all",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/261001-perf-00000.md",
+          "docs/investigations/_resources/261001-perf-00000/added.txt",
+          "docs/investigations/_resources/261001-perf-00000/deleted.txt",
+          "docs/investigations/_resources/261001-perf-00000/keep.txt",
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "representative-v3-candidate-v3-investigation-domain-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "representative-v3-candidate-v3-investigation-domain-1.stdout",
+      "bytes": 679,
+      "sha256": "d4029fecdef717ffbb97c3ee737a77c0cff541aa12865158c835f23046791ce2",
+      "parsedOutput": {
+        "callerOwnedPaths": [
+          "docs/investigations/investigation-index.json"
+        ],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "domain",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/261001-perf-00000.md",
+          "docs/investigations/_resources/261001-perf-00000/added.txt",
+          "docs/investigations/_resources/261001-perf-00000/deleted.txt",
+          "docs/investigations/_resources/261001-perf-00000/keep.txt"
+        ]
+      }
+    },
+    {
+      "name": "warmup-v3-baseline-v3-decision-all-0.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "warmup-v3-baseline-v3-decision-all-0.stdout",
+      "bytes": 452222,
+      "sha256": "9c1f3bb7d035dd6f142a4e78764af0f04e5e67f96db87bd6489ba3b4d4983b6c",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "all",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/archive/261001-perf-00000.md",
+          "docs/decisions/decision-index.json"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9998,
+          "serializedSha256": "552baeed4fcb57a959e269690eb5914a3247473b1621f60f07a1604d6e30822a",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09996.md",
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md"
+          ]
+        },
+        "callerOwnedPaths": []
+      }
+    },
+    {
+      "name": "warmup-v3-baseline-v3-decision-domain-0.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "warmup-v3-baseline-v3-decision-domain-0.stdout",
+      "bytes": 452261,
+      "sha256": "8c88c250fe8471cca2073eac4be5eb9aa747fcd15fcfab854d08ea9797a1d7be",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "domain",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/archive/261001-perf-00000.md"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9999,
+          "serializedSha256": "0ba0c496a4d41cb8c25b87d177af3af86c0fcc1ca7bae14b0e992421a4141414",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md",
+            "docs/decisions/decision-index.json"
+          ]
+        },
+        "callerOwnedPaths": [
+          "docs/decisions/decision-index.json"
+        ]
+      }
+    },
+    {
+      "name": "warmup-v3-baseline-v3-decision-index-0.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "warmup-v3-baseline-v3-decision-index-0.stdout",
+      "bytes": 452269,
+      "sha256": "fe094beb4c2421788c78cdadf4487dc109370e3129c306d0f0a007876e9f62a2",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/decision-index.json"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9999,
+          "serializedSha256": "2d0f0eb588174d212894079d90c7fc40c79577ead6415dfa90f9ce07d793500e",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09996.md",
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md"
+          ]
+        },
+        "callerOwnedPaths": [
+          "docs/decisions/archive/261001-perf-00000.md"
+        ]
+      }
+    },
+    {
+      "name": "warmup-v3-baseline-v3-investigation-all-0.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "warmup-v3-baseline-v3-investigation-all-0.stdout",
+      "bytes": 677,
+      "sha256": "1c11bf3a288f709cdbbd1b2b24682f0c335ea229894b1ecfe743910892fada7c",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "all",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/261001-perf-00000.md",
+          "docs/investigations/_resources/261001-perf-00000/added.txt",
+          "docs/investigations/_resources/261001-perf-00000/deleted.txt",
+          "docs/investigations/_resources/261001-perf-00000/keep.txt",
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "warmup-v3-baseline-v3-investigation-domain-0.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "warmup-v3-baseline-v3-investigation-domain-0.stdout",
+      "bytes": 679,
+      "sha256": "d4029fecdef717ffbb97c3ee737a77c0cff541aa12865158c835f23046791ce2",
+      "parsedOutput": {
+        "callerOwnedPaths": [
+          "docs/investigations/investigation-index.json"
+        ],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "domain",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/261001-perf-00000.md",
+          "docs/investigations/_resources/261001-perf-00000/added.txt",
+          "docs/investigations/_resources/261001-perf-00000/deleted.txt",
+          "docs/investigations/_resources/261001-perf-00000/keep.txt"
+        ]
+      }
+    },
+    {
+      "name": "warmup-v3-baseline-v3-investigation-index-0.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "warmup-v3-baseline-v3-investigation-index-0.stdout",
+      "bytes": 452,
+      "sha256": "4afb9aef734b4db1b9754f4bb0297396ce96fa7ebcb71d2d0a9e24f8e1b0ae2a",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "warmup-v3-candidate-v3-decision-all-0.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "warmup-v3-candidate-v3-decision-all-0.stdout",
+      "bytes": 452222,
+      "sha256": "9c1f3bb7d035dd6f142a4e78764af0f04e5e67f96db87bd6489ba3b4d4983b6c",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "all",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/archive/261001-perf-00000.md",
+          "docs/decisions/decision-index.json"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9998,
+          "serializedSha256": "552baeed4fcb57a959e269690eb5914a3247473b1621f60f07a1604d6e30822a",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09996.md",
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md"
+          ]
+        },
+        "callerOwnedPaths": []
+      }
+    },
+    {
+      "name": "warmup-v3-candidate-v3-decision-domain-0.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "warmup-v3-candidate-v3-decision-domain-0.stdout",
+      "bytes": 452261,
+      "sha256": "8c88c250fe8471cca2073eac4be5eb9aa747fcd15fcfab854d08ea9797a1d7be",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "domain",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/archive/261001-perf-00000.md"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9999,
+          "serializedSha256": "0ba0c496a4d41cb8c25b87d177af3af86c0fcc1ca7bae14b0e992421a4141414",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md",
+            "docs/decisions/decision-index.json"
+          ]
+        },
+        "callerOwnedPaths": [
+          "docs/decisions/decision-index.json"
+        ]
+      }
+    },
+    {
+      "name": "warmup-v3-candidate-v3-decision-index-0.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "warmup-v3-candidate-v3-decision-index-0.stdout",
+      "bytes": 452269,
+      "sha256": "fe094beb4c2421788c78cdadf4487dc109370e3129c306d0f0a007876e9f62a2",
+      "parsedOutput": {
+        "status": "ok",
+        "command": "stage",
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "indexRelativePath": "docs/decisions/decision-index.json",
+        "pendingFileCount": 10000,
+        "writtenPaths": [
+          "docs/decisions/decision-index.json"
+        ],
+        "preservedPendingPaths": {
+          "excerpt": true,
+          "count": 9999,
+          "serializedSha256": "2d0f0eb588174d212894079d90c7fc40c79577ead6415dfa90f9ce07d793500e",
+          "first": [
+            "docs/decisions/261001-perf-00009.md",
+            "docs/decisions/261001-perf-00019.md",
+            "docs/decisions/261001-perf-00029.md"
+          ],
+          "last": [
+            "docs/decisions/archive/261001-perf-09996.md",
+            "docs/decisions/archive/261001-perf-09997.md",
+            "docs/decisions/archive/261001-perf-09998.md"
+          ]
+        },
+        "callerOwnedPaths": [
+          "docs/decisions/archive/261001-perf-00000.md"
+        ]
+      }
+    },
+    {
+      "name": "warmup-v3-candidate-v3-investigation-all-0.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "warmup-v3-candidate-v3-investigation-all-0.stdout",
+      "bytes": 677,
+      "sha256": "1c11bf3a288f709cdbbd1b2b24682f0c335ea229894b1ecfe743910892fada7c",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "all",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/261001-perf-00000.md",
+          "docs/investigations/_resources/261001-perf-00000/added.txt",
+          "docs/investigations/_resources/261001-perf-00000/deleted.txt",
+          "docs/investigations/_resources/261001-perf-00000/keep.txt",
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    },
+    {
+      "name": "warmup-v3-candidate-v3-investigation-domain-0.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "warmup-v3-candidate-v3-investigation-domain-0.stdout",
+      "bytes": 679,
+      "sha256": "d4029fecdef717ffbb97c3ee737a77c0cff541aa12865158c835f23046791ce2",
+      "parsedOutput": {
+        "callerOwnedPaths": [
+          "docs/investigations/investigation-index.json"
+        ],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "domain",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/261001-perf-00000.md",
+          "docs/investigations/_resources/261001-perf-00000/added.txt",
+          "docs/investigations/_resources/261001-perf-00000/deleted.txt",
+          "docs/investigations/_resources/261001-perf-00000/keep.txt"
+        ]
+      }
+    },
+    {
+      "name": "warmup-v3-candidate-v3-investigation-index-0.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    {
+      "name": "warmup-v3-candidate-v3-investigation-index-0.stdout",
+      "bytes": 452,
+      "sha256": "4afb9aef734b4db1b9754f4bb0297396ce96fa7ebcb71d2d0a9e24f8e1b0ae2a",
+      "parsedOutput": {
+        "callerOwnedPaths": [],
+        "changed": true,
+        "diagnostics": [],
+        "indexPath": "/tmp/record-stage-convergence-10k-261022/fixture/docs/investigations/investigation-index.json",
+        "namespace": "investigations",
+        "preservedPendingPaths": [
+          "docs/investigations/261001-perf-00031.md",
+          "docs/investigations/261001-perf-00032.md"
+        ],
+        "scope": "index",
+        "selectedIds": [
+          "261001-perf-00000"
+        ],
+        "state": "staged",
+        "status": "ok",
+        "writtenPaths": [
+          "docs/investigations/investigation-index.json"
+        ]
+      }
+    }
+  ]
+}
