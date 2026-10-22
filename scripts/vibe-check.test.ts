@@ -12,3 +12,6 @@ import "./vibe-check-native-selection.test.ts";
 import "./vibe-check-package-adapter.test.ts";
 import "./vibe-check-proof-mode.test.ts";
 import "./vibe-check-release.test.ts";
+
+import "./vibe-check-profiles.test.ts";
+import "./lib/vibe-gate/performance.test.ts";

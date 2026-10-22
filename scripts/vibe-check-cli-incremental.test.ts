@@ -72,7 +72,7 @@ test("CLI publishes incremental activation and receipt summaries", async () => {
       const invocationDirectory = path.join(directory, "invocation");
       let publishedPassedIds: ReadonlySet<string> | null = null;
       assert.equal(
-        await runVibeCheck([], {
+        await runVibeCheck(["--scope", "changed"], {
           continuousIntegration: false,
           createDefinition(_invocation, selectedPlan) {
             assert.equal(selectedPlan, activationPlan);
@@ -123,7 +123,7 @@ test("CLI rejects output failure, Run rejection and failed aggregates without pu
     for (const mode of ["output", "rejected", "failed"] as const) {
       const diagnostics: string[] = [];
       let publicationCalls = 0;
-      const exitCode = await runVibeCheck([], {
+      const exitCode = await runVibeCheck(["--scope", "changed"], {
         continuousIntegration: false,
         createDefinition: passedDefinition,
         createInvocationDirectory: () => path.join(directory, mode),

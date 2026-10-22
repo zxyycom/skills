@@ -38,6 +38,8 @@ export type MaintenanceCliCommand = keyof typeof maintenanceCliPackageScripts;
 
 export const authoritativeGatePackageScripts = {
   check: "node scripts/vibe-check.ts",
+  "check:changed": "bun run check --scope changed",
+  all: "bun run check:changed",
   "test:check": "node --test ./scripts/vibe-check.test.ts"
 } as const satisfies Readonly<Record<string, string>>;
 

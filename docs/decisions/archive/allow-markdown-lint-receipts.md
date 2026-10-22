@@ -1,7 +1,7 @@
 ---
 title: 以完整输入证明复用 Markdown 内容检查
 id: 261021-allow-markdown-lint-receipts
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-21T07:14:01Z
 purpose: 保持全仓验证语义，同时让输入完全相同的 Markdown 内容检查复用成功证明。

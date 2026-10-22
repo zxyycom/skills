@@ -1,8 +1,13 @@
-import { any } from "@zxyycom/vibe-check";
+import { all, any } from "@zxyycom/vibe-check";
 import type {
   CheckFlagCondition,
   CheckFlagEnablement
 } from "@zxyycom/vibe-check";
+import {
+  isQuickGateCheck,
+  outsideQuickScopeFlag,
+  type GateScope
+} from "./profiles.ts";
 import {
   activationFlagForTool,
   type GateToolSubscription
@@ -39,6 +44,7 @@ export const repositoryProcessClaims = {
 export type GateCheckConfiguration = Readonly<{
   environmentPrerequisite?: boolean;
   incremental?: boolean;
+  scope?: GateScope;
   release?: boolean;
 }>;
 
@@ -57,10 +63,16 @@ export function gateCheckDeclaration(
           ...dependsOn.filter((id) => id !== gateEnvironmentCheckId)
         ]
       : dependsOn;
+  const scopeCondition =
+    configuration.scope === "quick" && !isQuickGateCheck(checkId)
+      ? condition === undefined
+        ? outsideQuickScopeFlag
+        : all(outsideQuickScopeFlag, condition)
+      : condition;
   const enabledByFlags: CheckFlagEnablement | undefined =
-    condition === undefined
+    scopeCondition === undefined
       ? undefined
-      : { when: condition, propagateDependsOn: true };
+      : { when: scopeCondition, propagateDependsOn: true };
   return {
     ...(dependencies.length === 0 ? {} : { dependsOn: dependencies }),
     ...(enabledByFlags === undefined ? {} : { enabledByFlags }),

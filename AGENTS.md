@@ -73,6 +73,6 @@
 
 ## 验证与交付
 
-1. 修改主仓库维护文档、`scripts/`、`tools/`、CI、配置或 `skills/` 目录结构后, 优先运行 `bun run check`。
+1. 修改主仓库维护文档、`scripts/`、`tools/`、CI、配置或 `skills/` 目录结构后, 完成维护工作前运行 `bun run check:changed`（或 CI 全量门禁）；`bun run check` 只提供 quick 日常反馈, 成功不代替完整变更验收。范围与预算见[项目工具链](docs/tooling.md#权威-vibe-门禁)。
 2. 只改某个 skill 本体时, 根据该 skill 内容选择最小验证; 涉及打包输入、hash 或 updater 时同步运行主仓库相关检查。
 3. 提交或汇报前说明实际运行过的验证; 未运行验证时直接说明原因。

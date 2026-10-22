@@ -24,11 +24,16 @@ test("CLI maps successful invocations and diagnostic log artifacts", async () =>
   const dependencies = capturedCliDependencies(capture);
   assert.equal(await runVibeCheck([], dependencies), 0);
   assert.deepEqual(capture.selectedInvocation, {
+    scope: "quick",
     cold: false,
     diagnosticLog: false,
     tags: []
   });
-  assert.match(capture.information.at(-1) ?? "", /^Vibe Check artifacts: /u);
+  assert.ok(
+    capture.information.some((message) =>
+      message.startsWith("Vibe Check artifacts: ")
+    )
+  );
   assert.equal(
     await runVibeCheck(
       ["--full", "--baseline-ref", "origin/release"],
@@ -38,6 +43,7 @@ test("CLI maps successful invocations and diagnostic log artifacts", async () =>
   );
   assert.deepEqual(capture.selectedInvocation, {
     baselineRef: "origin/release",
+    scope: "release",
     cold: false,
     diagnosticLog: false,
     tags: ["release"]
@@ -64,6 +70,7 @@ test("CLI maps successful invocations and diagnostic log artifacts", async () =>
     }
   );
   assert.deepEqual(capture.selectedInvocation, {
+    scope: "quick",
     cold: false,
     diagnosticLog: true,
     tags: []
@@ -73,13 +80,19 @@ test("CLI maps successful invocations and diagnostic log artifacts", async () =>
     flags: [],
     projectRoot: repositoryRoot
   });
-  assert.match(capture.information.at(-3) ?? "", /^Vibe Check artifacts: /u);
+  const artifactMessages = capture.information.filter(
+    (message) =>
+      message.startsWith("Vibe Check artifacts:") ||
+      message.startsWith("Vibe Check diagnostic log (")
+  );
+  assert.equal(artifactMessages.length, 3);
+  assert.match(artifactMessages[0] ?? "", /^Vibe Check artifacts: /u);
   assert.match(
-    capture.information.at(-2) ?? "",
+    artifactMessages[1] ?? "",
     /^Vibe Check diagnostic log \(core\): .*core\.log$/u
   );
   assert.match(
-    capture.information.at(-1) ?? "",
+    artifactMessages[2] ?? "",
     /^Vibe Check diagnostic log \(scheduler\): .*scheduler\.log$/u
   );
 });
@@ -105,13 +118,19 @@ test("CLI reports diagnostic paths after a completed failing Gate", async () => 
     capture.diagnostics.at(-1) ?? "",
     /Vibe Check gate failed: failed/u
   );
-  assert.match(capture.information.at(-3) ?? "", /^Vibe Check artifacts: /u);
+  const artifactMessages = capture.information.filter(
+    (message) =>
+      message.startsWith("Vibe Check artifacts:") ||
+      message.startsWith("Vibe Check diagnostic log (")
+  );
+  assert.equal(artifactMessages.length, 3);
+  assert.match(artifactMessages[0] ?? "", /^Vibe Check artifacts: /u);
   assert.match(
-    capture.information.at(-2) ?? "",
+    artifactMessages[1] ?? "",
     /^Vibe Check diagnostic log \(core\): .*core\.log$/u
   );
   assert.match(
-    capture.information.at(-1) ?? "",
+    artifactMessages[2] ?? "",
     /^Vibe Check diagnostic log \(scheduler\): .*scheduler\.log$/u
   );
 });
@@ -135,7 +154,7 @@ test("CLI maps usage, definition, runner, and gate failures to exit code one", a
     );
     assert.match(
       capture.diagnostics.at(-1) ?? "",
-      /Usage: bun run check \[--tag release\]/u
+      /Usage: bun run check \[--scope quick\|changed\|full\] \[--tag release\]/u
     );
   }
   assert.equal(definitionCalls, 0);
@@ -177,7 +196,14 @@ test("CLI maps usage, definition, runner, and gate failures to exit code one", a
     capture.diagnostics.at(-1) ?? "",
     /Vibe Check invocation failed: /u
   );
-  assert.deepEqual(configurationInformation, []);
+  assert.equal(
+    configurationInformation.some(
+      (message) =>
+        message.startsWith("Vibe Check artifacts:") ||
+        message.startsWith("Vibe Check diagnostic log (")
+    ),
+    false
+  );
 });
 
 test("CLI command failures provide direct rerun and transcript location without child text", async () => {

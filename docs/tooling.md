@@ -21,7 +21,7 @@
 
 1. pnpm 负责安装依赖；固定版本来自 `package.json#packageManager`，锁文件是 `pnpm-lock.yaml`，CI 使用 `pnpm install --frozen-lockfile`。
 2. Bun 负责 package scripts 调度、源码同步适配和仓库中其余 TypeScript 脚本运行；同步工具与测试运行时语义会随 Bun 版本变化，因此本地、hook 和 CI 必须使用 `package.json#engines.bun` 固定的精确版本，并优先通过 `bun run <script>` 使用稳定入口。环境入口从同一边界诊断 Bun，不在本文复制版本数值。
-3. Node.js 负责运行分发 TS 入口、`@zxyycom/vibe-check` 的 Gate 入口及其原生测试；最低兼容版本由 `package.json#engines.node` 定义，`bun run check` 与 `bun run test:check` 仍是稳定的人工作业入口。
+3. Node.js 负责运行分发 TS 入口、`@zxyycom/vibe-check` 的 Gate 入口及其原生测试；最低兼容版本由 `package.json#engines.node` 定义，`bun run check`、`bun run check:changed` 与 `bun run test:check` 是稳定的人工作业入口。
 4. tsgo 负责类型检查；`typecheck` 使用固定版本的 `@typescript/native-preview`，对应 release-age 例外记录在 `pnpm-workspace.yaml`。
 5. 常见格式、协议、解析和压缩能力优先使用成熟依赖；项目领域规则才由本仓库直接实现。
 
@@ -51,7 +51,7 @@ node scripts/environment.js setup
 
 1. Git、满足 `package.json#engines.node` 的 Node.js、全局 CodeGraph 和 SCC 4.0.0 是前置条件；入口只诊断和复用它们，不安装或升级它们。Bun 与 pnpm 分别服从 manifest 中的精确版本。函数指标使用 Vibe 随包分析器，不再要求 Lizard。
 2. `check` 检查 Git、Node.js、Bun、pnpm、CodeGraph、SCC、索引状态、直接依赖、Git hook 和中央 task-graph root，不下载或修改环境。
-3. `gate` 只检查 Git、Node.js、精确 Bun、精确 pnpm 与精确 SCC，不要求 CodeGraph 索引、项目依赖、hook 或 task-graph root；`bun run check` 中每次执行的 `gate-environment` Check 调用同一入口，失败时保留工具探测结果，并通过依赖阻止其他 Check 执行，避免把基础环境漂移扩散成生成物、测试或指标的伪失败。
+3. `gate` 只检查 Git、Node.js、精确 Bun、精确 pnpm 与精确 SCC，不要求 CodeGraph 索引、项目依赖、hook 或 task-graph root；Gate 中每次执行的 `gate-environment` Check 调用同一入口，失败时保留工具探测结果，并通过依赖阻止其他 Check 执行，避免把基础环境漂移扩散成生成物、测试或指标的伪失败。
 4. `setup` 只会安装或切换 manifest 固定的精确 Bun 与 pnpm，运行 `pnpm install --frozen-lockfile`，调用已就绪的全局 CodeGraph 执行 `init` 和 `sync`，并配置当前 worktree；Git、Node.js、CodeGraph 或 SCC 缺失、版本不匹配或探测失败时会在任何安装前失败并给出恢复动作。
 5. 恢复外部指标工具时，必须让精确 SCC 版本进入 `PATH`。mise 用户可运行 `mise use go:github.com/boyter/scc/v4@4.0.0` 选择已安装版本；其他环境可运行 `go install github.com/boyter/scc/v4@v4.0.0` 安装。仅存在 mise shim 而未选择版本时，`scc --version` 会以非零状态退出，环境入口会保留该诊断而不是误报为指标 finding。环境入口不替代类型检查、测试、生成漂移检查或完整仓库检查。
 
@@ -88,21 +88,23 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
-| `bun run check [--diagnostic-log]` | 运行 base Gate：完整 Definition 保留 64 项；环境与七项原生材料 Check 每次执行，52 项项目命令与 Markdown 内容 Check 共 53 项按输入证明、共享工具 flag 与成功前置选择，三项 release 交付 Check 保持未激活。CI 不复用 receipt。 |
+| `bun run check [--diagnostic-log]` | 默认 quick：只承担下述十项必要 eligible 范围，强制快速性能预算；消费既有精确 receipt，不发布或清除 receipt。用于日常反馈，不代替完成验收。 |
+| `bun run check:changed`（或 `bun run all`） | changed：对完整 base 范围执行变更相关验收，沿用精确 receipt、共享工具 flag、成功前置和成功发布事务；完成维护工作前使用。 |
+| `bun run check --scope full` | 实际执行全部 61 项 base，不复用或发布 receipt；CI 的任意 base scope 均提升到 full。 |
 | `bun run check --tag release [--baseline-ref <ref>] [--cold] [--diagnostic-log]` | 运行完整 64 项 release Gate，不采集、读取或发布项目 receipt；环境前置通过后实际执行普通检查，再完成版本授权与打包。省略基线时使用 `HEAD`，CI 使用事件基线；`--cold` 明确表达全执行意图。 |
 
 `typecheck` 的根 `tsconfig.json` 启用编译器原生 incremental，build info 位于 `.log/vibe-check/cache/typecheck/tsconfig.tsbuildinfo`。命令仍为 `tsgo --noEmit`，每次调用都按当前完整 include 与质量选项结算诊断；编译事实可丢弃并重建，不作为项目成功 receipt 或缩小检查范围的依据。
 
 ### 权威 Vibe 门禁
 
-`bun run check` 是唯一权威门禁入口。根开发依赖与锁文件固定 `@zxyycom/vibe-check@0.0.4`；`pnpm-workspace.yaml` 对该精确版本声明 release-age 例外。项目直接调用 Vibe `run`，运行责任如下：
+`check`、`check:changed`、`all` 与 release 命令共用同一权威 Gate 实现；范围决定证明责任，quick 不替代完整变更验收。根开发依赖与锁文件固定 `@zxyycom/vibe-check@0.0.4`；`pnpm-workspace.yaml` 对该精确版本声明 release-age 例外。项目直接调用 Vibe `run`，运行责任如下：
 
 | Owner | 责任 |
 | --- | --- |
 | Vibe | 文件选择与材料检查、命令生命周期、Check selection、依赖、资源准入、调度、settlement、aggregate、progress 和 machine publication。 |
 | 项目 Definition | 完整 catalog、环境前置、原生质量政策、独立项目命令、生成前置、release DAG、资源容量和 learned strategy 身份。 |
 | 项目输入证明 | 为可省略的 Check 声明完整输入，采集身份、精确匹配成功 receipt，再交给原生 flags 选择；最终成功且无漂移才发布。 |
-| 项目 CLI | 参数校验、invocation 输出位置、直接重跑提示、最终 Run 结果与退出码，以及 receipt 发布调用。 |
+| 项目 CLI | 参数校验、invocation 输出位置、直接重跑提示、最终 Run 与性能政策的退出判定，以及 receipt 发布调用。 |
 
 新增、修改或移除 Check 时读取 [Gate Check 编写与接入](gate-check-authoring.md)；本文承接运行时事实。
 
@@ -112,21 +114,41 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 
 `gate-environment` 无 flag、每轮执行，复用 `node scripts/environment.js gate` 检查 Git、Node、精确 Bun、精确 pnpm 与精确 SCC；其余所有 Check 都显式依赖它。该窄 action 的工具版本 owner 和恢复路径见[环境自举](#环境自举)。环境失败作为真实 failed outcome 保留 transcript，其他 Check 因前置未通过而不启动。
 
-八项原生材料中，除 Markdown 内容外的七项每轮实际执行并按当前规则结算。52 项项目命令与 Markdown 内容 Check 共 53 项，在完整输入精确命中最近 passed receipt、且未被共享工具 flag 或成功前置带入时省略。工具能力 ID 与输入 patterns 由 `impact-tools.ts` 维护，内部 flag 统一派生为 `gate-tool:<toolId>`；语义 catalog 的 `toolIds`、包脚本的 `packageScriptToolSubscriptions` 与原生 lint 的 `markdownLintToolSubscription` 显式声明订阅。Vibe 通过原生 `any(...)`、`enabledByFlags` 与 `propagateDependsOn` 选择订阅者及成功前置。共享 flag 带入的其他订阅者、consumer 带入的 provider 即使已有精确 receipt，也如实计入本次执行。复用项在 machine snapshot 中保持未激活状态，不冒充本次 passed；完整 Definition 始终保留。
+CLI 使用以下执行范围；所有范围保持同一完整 Definition，实际执行由原生条件、flags 与成功前置决定：
 
-release 与 CI 实际执行当前 profile 的全部适用 Check，不使用项目 receipt；CI 的 base 调用仍不激活三项 release 交付。CLI 只有收到 `kind: "completed"` 且严格有效 aggregate 为 `passed` 才退出 0。有效集合中的 failed、unavailable 或意外 not-applicable 均阻断；rejection、取消、配置、planning、execution 或 output 失败退出 1，不发布成功证明。
+| 范围 | 证明责任与执行选择 |
+| --- | --- |
+| quick（默认） | eligible 固定为 `gate-environment`、`secret-detection`、`json-validation`、`json-schema-validation`、`markdown-link-validation`、`markdown-lint`、`script:typecheck`、`script:lint`、`script:format:check`、`script:validate`。这是可执行范围，精确 receipt 仍可省略其中适用项；不覆盖领域测试、生成漂移或完整质量材料。 |
+| changed | 完整 base 的变更相关验收。环境与除 Markdown 内容外的七项原生材料每轮结算；52 项项目命令与 Markdown 内容共 53 项按完整输入证明、共享工具 flag 与成功前置选择。 |
+| full / CI base | 全部 61 项 base 实际执行，不使用 receipt；CI 将显式 quick/changed 也提升到 full。 |
+| release | 全部 64 项实际执行，不使用 receipt，再完成同快照版本授权与打包。 |
 
-CLI 只接受以下参数，未知、缺值或重复参数在启动 Check 前以 usage 拒绝：
+工具能力 ID 与输入 patterns 由 `impact-tools.ts` 维护，内部 flag 派生为 `gate-tool:<toolId>`；语义 catalog 的 `toolIds`、包脚本的 `packageScriptToolSubscriptions` 与原生 lint 的 `markdownLintToolSubscription` 显式订阅。Vibe 通过原生条件、`enabledByFlags` 与 `propagateDependsOn` 选择适用订阅者及成功前置。共享 flag 带入的订阅者、consumer 带入的 provider 如实计入本次执行；复用项保持未激活，不冒充本次 passed。
 
+CLI 只有 Run `completed`、严格有效 aggregate `passed`，且[适用性能政策](#性能报告与快速预算)通过才退出 0。有效集合中的 failed、unavailable 或意外 not-applicable 均阻断；rejection、取消、配置、planning、execution 或原生 output 失败在所有范围均退出 1。quick 不发布成功证明；changed 的发布前提见[项目输入与成功证明](#项目输入与成功证明)。
+
+CLI 参数形状如下；未知、缺值或重复参数在启动 Check 前以 usage 拒绝：
+
+- `--scope quick|changed|full`：默认 quick；与 release tag 或 `--full` 互斥。CI base 的有效 scope 为 full。
 - `--tag release`：唯一公开 tag，每次最多一次。
-- `--full`：`--tag release` 的兼容别名，不能与该 tag 同用。
-- `--baseline-ref <ref>`：仅 release 可用。值须已 trim、非空，不以 `-` 开头且不含 NUL、CR、LF；默认 `HEAD`。CLI 只校验形状，Git revision 由 release prepare 解析。
-- `--cold`：仅 release 可用，每次最多一次；release 本身已全执行，此参数用于显式声明冷运行。
+- `--full`：`--tag release` 的兼容别名，不能与该 tag 同用；全 base 使用 `--scope full`。
+- `--baseline-ref <ref>`：仅 release 可用。值须已 trim、非空，不以 `-` 开头且不含 NUL、CR、LF；默认 `HEAD`。CLI 校验形状，Git revision 由 release prepare 解析。
+- `--cold`：仅 release 可用，每次最多一次；release 本身已全执行，用于显式声明冷运行。
 - `--diagnostic-log`：每次最多一次，只开启本次 diagnostic channels。
+
+#### 性能报告与快速预算
+
+每轮报告总墙钟和本轮实际执行 Check 的耗时统计。quick 必须同时满足 total < 30s、P90 < 10s、mean < 5s；任一达到或超过阈值即失败。changed、full、CI 与 release 只报告，不设硬预算。
+
+总墙钟使用单调时钟，从 `runVibeCheck` 入口、输入采集前开始，覆盖业务收尾（含 changed receipt 发布），在性能报告前采样。quick 初判通过时，在报告后末次采样；若此时达到总墙钟阈值，仅补写一次失败报告，不循环。末次采样后的打印、最终报告落盘和 return，以及函数前模块加载、父 Bun 启动均不计入；这不是强制超时终止承诺。
+
+Check 样本只取原生本轮实际 execution/settlement 时长：null、未执行和 receipt 复用项不补零，实际 0 保留；nearest-rank P90 为升序样本第 `ceil(0.9*n)` 项。无样本或非法测量如实报告，并使 quick 失败。
+
+性能政策补充 CLI 成功条件，不改写原生质量 aggregate。项目附加性能 summary 写入不可用时，quick 失败；其余范围明确 warning，不改变原生质量结论或 changed 的 receipt 成功事务。quick 不调用 receipt publisher，预算失败或报告后超限均不会新增通过证明。
 
 #### 项目输入与成功证明
 
-receipt 只证明某个纳入完整输入契约的 Check 在完整有效输入下曾通过，不按 branch、HEAD 或目录时间推断。项目承担的最小事务是“输入声明 → 内容与环境身份 → 精确 passed 记录 → 最终成功且无漂移发布”：
+quick 和 changed 可以消费既有 receipt；只有 changed 可以发布，quick 保留已有文件不作写入，full/CI/release 不采集或复用。receipt 只证明某个纳入完整输入契约的 Check 在完整有效输入下曾通过，不按 branch、HEAD 或目录时间推断。项目承担的最小事务是“输入声明 → 内容与环境身份 → 精确 passed 记录 → 最终成功且无漂移发布”：
 
 1. `impact-tools.ts` 按可独立维护的源码职责声明能力 ID 与完整输入 patterns；`impact-catalog.ts` 将 52 项项目命令与 Markdown 内容 Check 共 53 项的稳定 ID、显式 `toolIds`、成功前置与逐项契约版本组成证明契约。路径匹配由 Vibe `createProjectFileRegionIndex` 完成，输入含义由全局 `gateImpactContractVersion` 与逐 Check `version` 承载。当前输入按以下消费边界组织，声明方法见 [Check 编写契约](gate-check-authoring.md#项目输入证明)：
    - 公共输入：共同配置与 invocation/Definition 实际加载的 Gate、release 和共享运行时闭包。领域构建消费者保守保留脚本与共享运行时；公共工具的测试/fixture 只进入实际消费者。
@@ -135,12 +157,12 @@ receipt 只证明某个纳入完整输入契约的 Check 在完整有效输入�
    - 宽消费者：`repository-code`、统一生成与 Case 采集仍读取全部源码或材料。
    - `markdown-content`：公共输入加原生 Markdown 完整磁盘选集；选集与原生 lint 共用 `impact-paths.ts#maintainedMarkdownFiles`，包含根目录、额外目录与 ignored Markdown，并沿用原生默认排除。
 2. 起始采集联合一次 `git ls-files --cached --others --exclude-standard -z`、`impact-paths.ts` 声明的磁盘目录和配置，以及原生 `collectProjectFiles` 按 `maintainedMarkdownFiles` 选出的 Markdown；磁盘遍历不受 Git ignore 省略，因此覆盖实际读取的 TS/MTS、内部 ignored fixtures、runtime、manifest、lock、索引和生成物。记录 path、kind、mode、size 与内容 SHA-256，并保留 missing 和目录身份。Markdown 能力成员是公共 patterns 命中与原生精确 source 集合的并集，文档排除不裁剪公共输入。
-3. 总量限制为 20,000 项、普通文件 512 MiB。未知路径、symlink 或不支持的文件类型使输入域未闭合；两领域 `src/`、`tests/` 中未归入本领域能力的文件也触发保守执行。该归属检查只发现未归属文件，实际 import、动态读取与传递依赖仍由维护者审查。越界、非 UTF-8 Git 路径、读取失败、超预算或必要工具链探测失败触发保守全执行，不发布部分证明。
-4. 工具链摘要覆盖当前 Node 进程、可执行路径、平台/架构，Node、Bun、pnpm、Python（须可 import `tomllib`）、Git 版本与配置，以及 SCC、ast-grep、Oxfmt、Oxlint、tsgo 的实际探测。Python 是 MCPShell initializer 离线测试的真实输入，探测失败扩大执行，不扩大基础环境 Check 的工具前置。进程环境除 `_`、`OLDPWD`、`SHLVL` 三项父 shell 记账变量外进入摘要；敏感原值不写入证明。
+3. 总量限制为 20,000 项、普通文件 512 MiB。未知路径、symlink 或不支持的文件类型使输入域未闭合；两领域 `src/`、`tests/` 中未归入本领域能力的文件也触发保守执行。该归属检查只发现未归属文件，实际 import、动态读取与传递依赖仍由维护者审查。越界、非 UTF-8 Git 路径、读取失败、超预算或必要工具链探测失败时，在本次有效范围内保守执行，不发布部分证明；quick 不因此升级为完整 base。
+4. 工具链摘要覆盖当前 Node 进程、可执行路径、平台/架构，Node、Bun、pnpm、Python（须可 import `tomllib`）、Git 版本与配置，以及 SCC、ast-grep、Oxfmt、Oxlint、tsgo 的实际探测。Python 是 MCPShell initializer 离线测试的真实输入，探测失败扩大执行，不扩大基础环境 Check 的工具前置。进程环境除 `_`、`OLDPWD`、`SHLVL` 三项父 shell 记账变量外进入摘要；敏感原值不写入证明。为使嵌套 Bun 入口的真实子进程与证明使用一致环境，CLI 在参数通过后、采集与任意子进程前（计入总墙钟），按 Node `path.delimiter` 对实际 `process.env.PATH` 的条目字符串精确去重、保留首次顺序和空/相对项，缺失时不创建，不排序或解析真实路径，其余环境和指纹排除不变。
 5. 每个能力指纹绑定 ID、patterns、选中内容摘要、工具链摘要与全局契约版本；完整 Check 指纹另绑定 Check ID、订阅、成功前置与逐项版本。唯一 receipt 文件是 `.log/vibe-check/cache/project-tool-receipts-v5/receipts.json`：manifest 含 `contractVersion: "project-tool-receipts-v5"`、`formatVersion: 2` 与 `receipts`，每条记录含 `checkId`、`fingerprint`、`outcome: "passed"` 和 `toolFingerprints`。只有完整指纹及订阅能力指纹的集合与值均精确匹配，才形成复用候选。缺失、损坏或变化激活相关工具 flag；无法归因到能力的契约变化激活该 Check 的全部订阅。根依赖字节服从受信 `pnpm install --frozen-lockfile` 前提，不逐文件散列安装目录；包管理器外改写依赖后应先修复安装。
-6. 只有最终 Run completed/passed 且本次全部 execute 项（含共享 flag 和成功前置带入项）都 passed，才重取同一输入域。完整 workspace/toolchain 指纹不变后，将精确复用项与本次通过项合并，原子替换当前 53 项 receipt。能力指纹随每 Check 保存，不另维护工具成功缓存。失败、取消、rejection、output failure、未知输入、漂移、采集或写入失败均不发布；起止漂移只阻止发布，不额外改变本次 Gate 结算。cache 不可用只扩大执行，不改变质量结果。release 与 CI 全执行路径不采集或发布 receipt。
+6. 只有 changed 的最终 Run completed/passed 且本次全部 execute 项（含共享 flag 和成功前置带入项）都 passed，才重取同一输入域。完整 workspace/toolchain 指纹不变后，将精确复用项与本次通过项合并，原子替换当前 53 项 receipt。能力指纹随每 Check 保存，不另维护工具成功缓存。失败、取消、rejection、原生 output failure、未知输入、漂移、采集或 receipt 写入失败均不发布；起止漂移只阻止发布，不额外改变本次 Gate 结算。cache 不可用只扩大执行，不改变质量结果。full、release 与 CI 全执行路径不采集或发布 receipt。
 
-执行与证明取舍见[原生执行与项目输入证明决策](decisions/allow-markdown-lint-receipts.md)，能力与订阅归属见[工具变更 flag 决策](decisions/distinguish-tool-change-flags-from-check-subscriptions.md)。性能 history、原生计算事实 cache 与项目成功 receipt 分别维护：前者只影响任务选择偏好，计算事实仍须按本次材料和规则结算，只有完整输入精确命中的 receipt 允许省略项目命令或 Markdown 内容 Check。
+执行与证明取舍见[原生执行与项目输入证明决策](decisions/separate-quick-gate-from-complete-validation.md)，能力与订阅归属见[工具变更 flag 决策](decisions/distinguish-tool-change-flags-from-check-subscriptions.md)。性能 history、原生计算事实 cache 与项目成功 receipt 分别维护：前者只影响任务选择偏好，计算事实仍须按本次材料和规则结算，只有完整输入精确命中的 receipt 允许省略项目命令或 Markdown 内容 Check。
 
 #### 调度与命令执行
 
@@ -164,7 +186,8 @@ Vibe 从 admission 到 settlement 原子持有全部 claims。版本管理测试
 | 产物 | 用途 |
 | --- | --- |
 | `machine/run.json`、`records.ndjson` | Vibe 本次 Run 与逐项事实。 |
-| `machine/gate-incremental.json` | 可复用 Check 的 execute/reuse/fallback/first-run 计数、逐项 reason、`unclosedInputs`、fallback detail 与 receipt 发布结果。`tool-triggered` 表示共享 flag 带入，`prerequisite-triggered` 表示成功前置带入，均计 execute。全执行模式的计划不表示未激活 release Check 已运行，实际结果以 Vibe snapshot 为准。 |
+| `machine/gate-incremental.json` | 本次范围的 execute/reuse/fallback/first-run 计划计数、逐项 reason、`unclosedInputs`、fallback detail 与 receipt 发布结果。`tool-triggered` 表示共享 flag 带入，`prerequisite-triggered` 表示成功前置带入，均计 execute。quick 的 `counts` 覆盖必要 10 项（含不使用 receipt 的每轮检查），`decisions` 只投影其中可复用证明条目，`completeChangePlan` 保留完整原候选；full/CI 的 `counts`/`decisions` 覆盖 base 61 项，不含未激活的 release 3 项。计划不证明实际执行，结果以 Vibe snapshot 为准。 |
+| `machine/gate-performance.json` | 请求/有效 scope、计划选择计数、原生结果、计时边界、本轮实际执行样本统计及预算结论；计划执行数不表示 Check 已实际执行，实际结果以原生事实为准。 |
 | `progress.log` | 原生终端 progress 副本。 |
 | `checks/**/process.log` | 各独立命令的完整 stdout/stderr transcript。 |
 | `diagnostics/core.log`、`scheduler.log` | 仅 `--diagnostic-log` 启用并回显。 |
@@ -202,7 +225,7 @@ Vibe 从 admission 到 settlement 原子持有全部 claims。版本管理测试
 
 Vibe 只在 provider passed 后启动 consumer；前置未通过时不执行并按依赖失败结算。统一 provider 扩大共同阻断范围，失败后按 artifact 路径或领域手动命令定位。MCPShell initializer、runtime 与 public-distribution 是三个独立离线结果；真实 localhost-SSH 集成与 Index Runtime 规模回归仍为专用入口，不由这些离线结果代替。生成信任边界见[统一生成前置决策](decisions/unify-gate-generated-artifact-prerequisite.md)。
 
-普通检查的工作树输入与 release 制品输入分别核对：普通命令从项目根运行并依自身契约读取材料，原生材料检查从磁盘选择；release prepare 捕获一次 Git `pending` 快照，默认 Git 实现将其映射到 index。因此 release 通过不证明未暂存 skill 改动已进入制品。
+普通检查的工作树输入与 release 制品输入分别核对：普通命令从项目根运行并依自身契约读取材料，原生材料检查在适用范围内从磁盘选择；release prepare 捕获一次 Git `pending` 快照，默认 Git 实现将其映射到 index。因此 release 通过不证明未暂存 skill 改动已进入制品。
 
 release DAG 固定为环境前置通过后：
 
@@ -217,9 +240,11 @@ prepare 与 authorization 使用原生 typed handoff 传递同一个 `PreparedSk
 | 路径 | Owner |
 | --- | --- |
 | `scripts/environment*.js` | 独立自举、窄 Gate action 与 setup。 |
-| `scripts/vibe-check.ts`、`scripts/vibe-check-invocation.ts` | 参数、输出路径、最终 Run 消费、直接重跑提示和 receipt 事务调用。 |
+| `scripts/vibe-check.ts`、`scripts/vibe-check-invocation.ts` | 参数、输出路径、最终 Run 消费、直接重跑提示和 receipt 授权与发布事务调用。 |
+| `scripts/lib/vibe-gate/activation-output.ts` | 输入计划范围投影、安全终端摘要、gate-incremental 序列化与观测 I/O 诊断；只消费 receipt 发布结果，不持有授权或发布责任。 |
 | `scripts/lib/vibe-gate/definition.ts`、`scripts/lib/vibe-gate/contracts.ts` | 完整构造器组合、flags、资源与 learned strategy。 |
 | `scripts/lib/vibe-gate/checks/` | 原生配置、独立命令 catalog、环境与 release typed providers。 |
+| `scripts/lib/vibe-gate/profiles.ts`、`scripts/lib/vibe-gate/performance.ts`、`scripts/lib/vibe-gate/performance-output.ts` | 固定范围、测量政策与本轮性能报告；不改写原生 aggregate。 |
 | `scripts/lib/vibe-gate/command-runner.ts` | 项目命令类型、共享原生命令政策和重跑命令显示。 |
 | `scripts/lib/vibe-gate/impact-tools.ts`、`scripts/lib/vibe-gate/impact-catalog.ts`、`scripts/lib/vibe-gate/impact-paths.ts` | 工具能力输入、Check 订阅证明契约、已知磁盘域与配置。 |
 | `scripts/lib/vibe-gate/impact-snapshot.ts`、`scripts/lib/vibe-gate/impact-toolchain.ts` | 内容采集、原生 region 匹配、工具链与环境摘要。 |
@@ -291,7 +316,7 @@ Vibe 的原生 `markdown-link-validation` Check 是当前维护 Markdown 链接�
 
 ### 工具 CLI 与 Git fixture 测试边界
 
-`test:<tool>` 是工具行为与分发边界的稳定重跑入口；需要验证当前 Gate tag 集合时使用 `bun run check` 或 `bun run check --tag release`，不在维护说明中以测试文件路径替代这些 package scripts。
+`test:<tool>` 是工具行为与分发边界的稳定重跑入口；需要完整变更验收时使用 `bun run check:changed`，需要 release 范围时使用 `bun run check --tag release`，不在维护说明中以测试文件路径替代这些 package scripts。
 
 按待证明契约选择最小充分边界：规则矩阵使用领域/API，来源读取、文件系统身份、Git 历史/index/worktree 和恢复使用必要真实状态，命令接线使用 CLI，分发消费使用生成物。每个上层测试应说明降层后会丢失的不可替代观察；边界数量与执行成本分别报告，不以标签或数量代替证明。fixture-only、Git 与 CLI 支持按职责分离，顶层 import 也是实际输入；收窄 Gate 订阅前须核对完整加载闭包。
 

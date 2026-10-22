@@ -100,7 +100,7 @@
       "260912-isolate-release-version-control-resource-boundary": "sha256:d0b1c3ab246caf6c5e955a1be034596feb1111ff3772a2a95c4f4d223b883c6d",
       "260912-separate-relation-summary-consumption-by-reading-task": "sha256:2093bfefc99214415a4837aa63e194facca4dd82562ca523181abd6d8f7b33d6",
       "260912-support-per-successor-complete-relation-replacements": "sha256:9f9070118c7255359e629a86ce2b305ff13f19d120207182a50b18147ea59811",
-      "260919-require-gate-environment-check-prerequisite": "sha256:3f58fad722875c7fc0d312bf1cee880bc4dd915c23dde99778e1fd7b3ec9e03a",
+      "260919-require-gate-environment-check-prerequisite": "sha256:8811e7ee727269c7d250c17421eb2e7842c65fed7422f8769c36450f196694c1",
       "260920-finalize-change-plans-by-deletion": "sha256:10cf6690d9ae70af12a38dc54996b809086e14a58c7311812c93d0715c87ba7e",
       "260922-front-load-record-context-recovery": "sha256:457ea886d899da2a9d80e4118b33afc814f5ce3951b0f64f168a96d2ec244785",
       "260922-unify-cli-workspace-location-and-help": "sha256:5a823ce3607c76af0f0bb9b735fba8e04d2a517e245c9e8e69dcf67f4a498a01",
@@ -133,14 +133,15 @@
       "261017-complete-change-plans-through-task-declarations": "sha256:de38af27e41917cae426abb4903d4b20492b7c84f0b5b6643753b714b309f2bb",
       "261017-lightweight-judgment-faithful-protocol-adapters": "sha256:bb4a453ec6fb6159f865a3b5b3307e5ff5b0585a3aa9481a78919fd79ebc40b3",
       "261017-route-record-documentation-by-consumer-task": "sha256:45930827a933def1ad4df38f87547f0418e595912280f7ae9e03f3e3d7d0884a",
-      "261020-distinguish-tool-change-flags-from-check-subscriptions": "sha256:4ee8bbddfe1313f99076a9f5a4156420cc9edff493be8dc140c97a72beaade81",
+      "261020-distinguish-tool-change-flags-from-check-subscriptions": "sha256:363f90cc826c7fc64862aab4ee9c82febde91863eb6bd75a11d789db02ee10b8",
       "261020-distribute-editable-typescript-runtimes": "sha256:1f3f89abb9f4de19cf2818812bb003d16a7a02d6a457b65cae31190bb401fb52",
       "261020-native-gate-execution-and-project-receipts": "sha256:6b59ad5e84f83af741c18b98d44259d537d3d1c6fd4bc32d105f76419682a5fe",
       "261020-retain-release-version-control-isolation": "sha256:3187831faf378e199547da7d80794b5918a132652d5ee6fdcc65d71c96003e83",
       "261020-unify-gate-generated-artifact-prerequisite": "sha256:dadfc27ecd56b60a6042e853c9992988079247cb4be5e81481439b8520d6a682",
-      "261021-allow-markdown-lint-receipts": "sha256:56f179040497fadb6f56ee7672bb1e03e71e1aeedb879fe5c7a864f3b44e532f",
+      "261021-allow-markdown-lint-receipts": "sha256:cdfc74f1d08ac5007a57ff3df2d32daeb3e8fc89022b9d57c34c3dedd973dca5",
       "261022-refresh-selected-records-in-pending": "sha256:95e3b13c5798821dba502540218596ec991580c84329d270f718f9cff1a271af",
       "261022-scope-investigation-index-payload-validation": "sha256:1d753298621bc42f9dcf9e5c1e7dd0709d1656078141bc66d1c8dbf243c845e0",
+      "261022-separate-quick-gate-from-complete-validation": "sha256:38418e687ffc5adb5244d3f32cde7c41e304786bad7118b6e3f55fae8e8c2c78",
       "261022-separate-record-local-operations-from-collection-audits": "sha256:8dfcdf36c8a1471db4d14aecd17889edddd5954626ba541148ac36c6f504d462",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
@@ -3158,9 +3159,9 @@
     },
     "261021-allow-markdown-lint-receipts": {
       "name": "allow-markdown-lint-receipts",
-      "sourcePath": "allow-markdown-lint-receipts.md",
+      "sourcePath": "archive/allow-markdown-lint-receipts.md",
       "title": "以完整输入证明复用 Markdown 内容检查",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-21T07:14:01Z",
       "purpose": "保持全仓验证语义，同时让输入完全相同的 Markdown 内容检查复用成功证明。",
@@ -3224,6 +3225,30 @@
           "type": "修订",
           "target": "261010-retain-complete-validation-with-selected-content",
           "summary": "保留默认完整验证，仅调查index按消费范围验收payload"
+        }
+      ]
+    },
+    "261022-separate-quick-gate-from-complete-validation": {
+      "name": "separate-quick-gate-from-complete-validation",
+      "sourcePath": "separate-quick-gate-from-complete-validation.md",
+      "title": "分离快速 Gate 与完整验收并约束性能预算",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-22T09:57:42Z",
+      "purpose": "让日常反馈快速可控，同时保留完整变更验收、可信证明与发布授权。",
+      "background": "默认完整检查混合反馈与验收责任；原生输入证明和调度可继续复用，快速入口需独立性能及授权边界。",
+      "decision": "默认 quick 执行必要范围并强制预算；changed 完成变更验收，CI/full/release 全执行，quick 不发布证明。",
+      "tags": [
+        "project-tooling",
+        "responsibility-boundaries",
+        "validation-boundaries",
+        "vibe-gate"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261021-allow-markdown-lint-receipts",
+          "summary": "保留原生执行和完整输入证明，分离快速范围、验收与性能门槛"
         }
       ]
     },

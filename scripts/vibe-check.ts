@@ -1,6 +1,6 @@
 import process from "node:process";
-import fs from "node:fs/promises";
 import path from "node:path";
+import { performance } from "node:perf_hooks";
 import { run } from "@zxyycom/vibe-check";
 import type {
   ProjectDefinition,
@@ -9,11 +9,7 @@ import type {
 } from "@zxyycom/vibe-check";
 import { isMainModule } from "../tools/shared/src/node/main-module.ts";
 import { rootDir } from "./lib/project.ts";
-import {
-  gateInputClosureDiagnostic,
-  publicGateDiagnostic,
-  type GateInputClosureDiagnostic
-} from "./lib/vibe-gate/diagnostics.ts";
+import { gateInputClosureDiagnostic } from "./lib/vibe-gate/diagnostics.ts";
 import {
   createGateDefinition,
   commandText,
@@ -43,10 +39,21 @@ export {
 } from "./vibe-check-invocation.ts";
 export type { GateInvocation } from "./vibe-check-invocation.ts";
 
+import { reportGatePerformance } from "./lib/vibe-gate/performance-output.ts";
+import {
+  describeActivationPlan,
+  reportGateActivationOutcome
+} from "./lib/vibe-gate/activation-output.ts";
+
 type GateExitCode = 0 | 1;
 
 export type VibeCheckDependencies = Readonly<{
   continuousIntegration?: boolean;
+  nowMilliseconds?: () => number;
+  writePerformanceSummary?: (
+    summaryPath: string,
+    content: string
+  ) => Promise<void>;
   createDefinition?: (
     invocation: GateInvocation,
     activationPlan: GateActivationPlan | null,
@@ -71,23 +78,6 @@ export type VibeCheckDependencies = Readonly<{
   ) => Promise<RunResult>;
 }>;
 
-type GateIncrementalSummary = Readonly<{
-  counts: GateActivationCounts;
-  activeToolIds: readonly string[];
-  decisions: GateActivationPlan["decisions"];
-  fallbackDetail: string | null;
-  unclosedInputs: GateInputClosureDiagnostic | null;
-  mode: GateActivationPlan["kind"];
-  publication: GateReceiptPublication;
-}>;
-
-type GateActivationCounts = Readonly<{
-  execute: number;
-  fallback: number;
-  firstRun: number;
-  reuse: number;
-}>;
-
 function describeInvocationFailure(
   result: Exclude<RunResult, { readonly kind: "completed" }>
 ): string {
@@ -101,55 +91,6 @@ function describeInvocationFailure(
     case "planning":
       return `${result.kind}: ${result.diagnostic.code}`;
   }
-}
-
-function activationCounts(plan: GateActivationPlan): GateActivationCounts {
-  const execute = plan.decisions.filter(
-    ({ action }) => action === "execute"
-  ).length;
-  const reuse = plan.decisions.length - execute;
-  const firstRun = plan.decisions.filter(
-    ({ reason }) => reason === "first-run"
-  ).length;
-  const fallback = plan.decisions.filter(({ reason }) =>
-    ["cache-invalid", "conservative-fallback", "snapshot-unavailable"].includes(
-      reason
-    )
-  ).length;
-  return { execute, fallback, firstRun, reuse };
-}
-
-function describeActivationPlan(
-  plan: GateActivationPlan,
-  unclosedInputs: GateInputClosureDiagnostic | null
-): string {
-  const counts = activationCounts(plan);
-  const summary = `Vibe Check plan: ${plan.kind}; execute ${counts.execute}, reuse ${counts.reuse}, fallback ${counts.fallback}, first-run ${counts.firstRun}.`;
-  if (plan.kind === "fallback")
-    return `${summary} Snapshot fallback: ${publicGateDiagnostic(plan.fallbackDetail)}.`;
-  if (unclosedInputs === null || unclosedInputs.total === 0) return summary;
-  const entries = unclosedInputs.entries
-    .map((entry) => `${entry.path} (${entry.reason})`)
-    .join("; ");
-  const omitted =
-    unclosedInputs.omittedCount > 0
-      ? `; ${unclosedInputs.omittedCount} more omitted`
-      : "";
-  return `${summary} Inputs unclosed (${unclosedInputs.total}): ${entries}${omitted}.`;
-}
-
-async function writeIncrementalSummary(
-  invocationDirectory: string,
-  summary: GateIncrementalSummary
-): Promise<string> {
-  const summaryPath = path.join(
-    invocationDirectory,
-    "machine",
-    "gate-incremental.json"
-  );
-  await fs.mkdir(path.dirname(summaryPath), { recursive: true });
-  await fs.writeFile(summaryPath, `${JSON.stringify(summary, null, 2)}\n`);
-  return summaryPath;
 }
 
 function passedCheckIds(result: RunResult): ReadonlySet<string> {
@@ -171,17 +112,40 @@ export async function runVibeCheck(
   argv: readonly string[] = process.argv.slice(2),
   dependencies: VibeCheckDependencies = {}
 ): Promise<GateExitCode> {
+  const nowMilliseconds =
+    dependencies.nowMilliseconds ?? (() => performance.now());
+  const startedAt = nowMilliseconds();
   const reportError = dependencies.reportError ?? console.error;
   const reportInfo = dependencies.reportInfo ?? console.log;
-  const invocation = resolveGateInvocation(argv);
+  const requestedInvocation = resolveGateInvocation(argv);
+  const invocation =
+    requestedInvocation === null
+      ? null
+      : {
+          ...requestedInvocation,
+          scope:
+            (dependencies.continuousIntegration ??
+              isContinuousIntegrationEnvironment(process.env.CI)) &&
+            requestedInvocation.scope !== "release"
+              ? ("full" as const)
+              : requestedInvocation.scope
+        };
   if (invocation === null) {
     reportError(
-      "Usage: bun run check [--tag release] [--baseline-ref <ref>] [--cold] [--diagnostic-log] (compatibility: --full is --tag release)"
+      "Usage: bun run check [--scope quick|changed|full] [--tag release] [--baseline-ref <ref>] [--cold] [--diagnostic-log] (compatibility: --full is --tag release)"
     );
     return 1;
   }
 
+  // 嵌套包脚本会重复追加 PATH；实际子进程与输入证明共同使用同一搜索顺序。
+  if (process.env.PATH !== undefined) {
+    process.env.PATH = [
+      ...new Set(process.env.PATH.split(path.delimiter))
+    ].join(path.delimiter);
+  }
+
   const forceFullExecution =
+    invocation.scope === "full" ||
     invocation.tags.includes("release") ||
     invocation.cold ||
     (dependencies.continuousIntegration ??
@@ -198,8 +162,14 @@ export async function runVibeCheck(
       ? gateInputClosureDiagnostic(activationPlan.snapshot)
       : null;
   if (activationPlan !== null)
-    reportInfo(describeActivationPlan(activationPlan, unclosedInputs));
+    reportInfo(
+      describeActivationPlan(activationPlan, unclosedInputs, invocation.scope)
+    );
+  reportInfo(
+    `Vibe Check scope: ${invocation.scope}${invocation.scope === "quick" ? "; quick success does not replace bun run check:changed acceptance" : ""}.`
+  );
   const definitionDependencies: GateDefinitionDependencies = {
+    scope: invocation.scope,
     ...(!forceFullExecution && activationPlan?.kind === "incremental"
       ? { activeToolIds: activationPlan.activeToolIds }
       : {}),
@@ -233,7 +203,7 @@ export async function runVibeCheck(
     });
   } catch {
     reportError(
-      "Vibe Check invocation rejected; no success receipts were published. Rerun bun run check and inspect invocation diagnostics."
+      "Vibe Check invocation rejected; no success receipts were published. Rerun the same Gate command and inspect invocation diagnostics."
     );
     return 1;
   }
@@ -283,52 +253,43 @@ export async function runVibeCheck(
         result.kind === "completed" && result.aggregate === "passed",
       passedCheckIds: passedCheckIds(result)
     };
-    const publication = await (dependencies.publishReceipts?.(
-      activationPlan,
-      publicationResult
-    ) ?? publishGateReceipts(activationPlan, publicationResult));
-    try {
-      const summaryPath = await writeIncrementalSummary(invocationDirectory, {
-        counts: activationCounts(activationPlan),
-        activeToolIds: activationPlan.activeToolIds,
-        decisions: activationPlan.decisions,
-        fallbackDetail:
-          activationPlan.kind === "fallback"
-            ? publicGateDiagnostic(activationPlan.fallbackDetail)
-            : null,
-        unclosedInputs,
-        mode: activationPlan.kind,
-        publication:
-          "detail" in publication
-            ? {
-                ...publication,
-                detail: publicGateDiagnostic(publication.detail)
-              }
-            : publication
-      });
-      reportInfo(`Vibe Check incremental summary: ${summaryPath}`);
-    } catch {
-      reportInfo(
-        "Vibe Check incremental summary unavailable; Gate outcomes are unchanged."
-      );
-    }
-    if (!publication.published) {
-      if (publication.reason === "workspace-drift") {
-        reportInfo(
-          "Vibe Check receipts not published because the workspace changed during the run."
-        );
-      } else if ("detail" in publication) {
-        reportInfo(
-          `Vibe Check receipts not published (${publication.reason}): ${publicGateDiagnostic(publication.detail)}.`
-        );
-      }
-    }
+    const publication =
+      invocation.scope === "quick"
+        ? { published: false as const, reason: "quick-scope" as const }
+        : await (dependencies.publishReceipts?.(
+            activationPlan,
+            publicationResult
+          ) ?? publishGateReceipts(activationPlan, publicationResult));
+    await reportGateActivationOutcome({
+      plan: activationPlan,
+      scope: invocation.scope,
+      invocationDirectory,
+      unclosedInputs,
+      publication,
+      reportInfo
+    });
   }
+  const performanceReport = await reportGatePerformance({
+    invocationDirectory,
+    scope: invocation.scope,
+    requestedScope: requestedInvocation?.scope ?? invocation.scope,
+    activationPlan,
+    forceFullExecution,
+    result,
+    startedAt,
+    nowMilliseconds,
+    reportInfo,
+    reportError,
+    ...(dependencies.writePerformanceSummary === undefined
+      ? {}
+      : { writeSummary: dependencies.writePerformanceSummary })
+  });
+  if (performanceReport === null && invocation.scope === "quick") return 1;
   if (result.kind !== "completed") {
     reportError(
       "Vibe Check invocation failed: " +
         `${describeInvocationFailure(result)}. ` +
-        "Fix the reported invocation boundary and rerun bun run check."
+        "Fix the reported invocation boundary and rerun the same Gate command."
     );
     return 1;
   }
@@ -336,7 +297,13 @@ export async function runVibeCheck(
     reportError(
       "Vibe Check gate failed: " +
         `${result.aggregate ?? "no aggregate"}. ` +
-        "Fix the failed or unavailable check and rerun bun run check."
+        "Fix the failed or unavailable check and rerun the same Gate command."
+    );
+    return 1;
+  }
+  if (performanceReport !== null && !performanceReport.passed) {
+    reportError(
+      "Vibe Check quick performance budget failed or measurement unavailable; native Check outcomes are unchanged."
     );
     return 1;
   }

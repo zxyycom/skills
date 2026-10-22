@@ -49,7 +49,7 @@ test("CLI locates unclosed inputs and keeps conservative execution and publicati
       const information: string[] = [];
       const diagnostics: string[] = [];
       let observedFlags: readonly string[] | undefined;
-      const exitCode = await runVibeCheck([], {
+      const exitCode = await runVibeCheck(["--scope", "changed"], {
         continuousIntegration: false,
         createDefinition: passedDefinition,
         createInvocationDirectory: () => directory,
@@ -147,7 +147,7 @@ test("CLI bounds and sanitizes unclosed input diagnostics with exact omission co
       }
     };
     const information: string[] = [];
-    const exitCode = await runVibeCheck([], {
+    const exitCode = await runVibeCheck(["--scope", "changed"], {
       continuousIntegration: false,
       createDefinition: passedDefinition,
       createInvocationDirectory: () => directory,
@@ -213,7 +213,7 @@ test("CLI distinguishes safe snapshot acquisition failures from unclosed input d
         snapshot: null
       };
       const information: string[] = [];
-      const exitCode = await runVibeCheck([], {
+      const exitCode = await runVibeCheck(["--scope", "changed"], {
         continuousIntegration: false,
         createDefinition: passedDefinition,
         createInvocationDirectory: () => directory,
@@ -248,4 +248,59 @@ test("CLI distinguishes safe snapshot acquisition failures from unclosed input d
       }
     }
   });
+});
+
+test("CLI normalizes duplicate executable search entries before input capture and execution", async () => {
+  const originalPath = process.env.PATH;
+  try {
+    await withTemporaryDirectory("gate-cli-path-", async (directory) => {
+      const input = [
+        "first",
+        "",
+        "./relative",
+        "first",
+        "./relative",
+        "last",
+        ""
+      ].join(path.delimiter);
+      const expected = ["first", "", "./relative", "last"].join(path.delimiter);
+      for (const suppliedPath of [input, undefined]) {
+        if (suppliedPath === undefined) delete process.env.PATH;
+        else process.env.PATH = suppliedPath;
+        const observations: (string | undefined)[] = [];
+        assert.equal(
+          await runVibeCheck([], {
+            continuousIntegration: false,
+            nowMilliseconds: () => 0,
+            createInvocationDirectory: () => directory,
+            createDefinition: passedDefinition,
+            prepareActivation: async () => {
+              observations.push(process.env.PATH);
+              return {
+                kind: "incremental",
+                snapshot: fixtureGateWorkspaceSnapshot(),
+                cacheDirectory: path.join(directory, "cache"),
+                activeCheckIds: [],
+                activeToolIds: [],
+                decisions: []
+              };
+            },
+            async runProject(definition, controls) {
+              observations.push(process.env.PATH);
+              return run(definition, { ...controls, outputs: noOutput });
+            },
+            reportInfo: () => undefined,
+            reportError: () => undefined
+          }),
+          0
+        );
+        const normalized = suppliedPath === undefined ? undefined : expected;
+        assert.deepEqual(observations, [normalized, normalized]);
+        assert.equal(process.env.PATH, normalized);
+      }
+    });
+  } finally {
+    if (originalPath === undefined) delete process.env.PATH;
+    else process.env.PATH = originalPath;
+  }
 });

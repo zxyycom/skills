@@ -19,22 +19,26 @@ test("CLI parses release tags, diagnostics, baselines, and compatibility alias",
     )
   );
   assert.deepEqual(resolveGateInvocation([]), {
+    scope: "quick",
     cold: false,
     diagnosticLog: false,
     tags: []
   });
   assert.deepEqual(resolveGateInvocation(["--diagnostic-log"]), {
+    scope: "quick",
     cold: false,
     diagnosticLog: true,
     tags: []
   });
   assert.deepEqual(resolveGateInvocation(["--full"]), {
+    scope: "release",
     baselineRef: "HEAD",
     cold: false,
     diagnosticLog: false,
     tags: ["release"]
   });
   assert.deepEqual(resolveGateInvocation(["--tag", "release"]), {
+    scope: "release",
     baselineRef: "HEAD",
     cold: false,
     diagnosticLog: false,
@@ -48,6 +52,7 @@ test("CLI parses release tags, diagnostics, baselines, and compatibility alias",
       "--full"
     ]),
     {
+      scope: "release",
       baselineRef: "origin/release",
       cold: false,
       diagnosticLog: true,
@@ -55,6 +60,7 @@ test("CLI parses release tags, diagnostics, baselines, and compatibility alias",
     }
   );
   assert.deepEqual(resolveGateInvocation(["--full", "--cold"]), {
+    scope: "release",
     baselineRef: "HEAD",
     cold: true,
     diagnosticLog: false,

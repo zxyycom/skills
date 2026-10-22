@@ -36,11 +36,13 @@ import {
   type ReleasePacker,
   type ReleasePreparer
 } from "./checks/release.ts";
+import type { GateScope } from "./profiles.ts";
 import { gateToolInputs } from "./impact-tools.ts";
 import { validateBaseGateImpactContracts } from "./impact.ts";
 
 export type GateDefinitionDependencies = Readonly<{
   activeToolIds?: readonly string[];
+  scope?: GateScope;
   baselineRef?: string;
   nativeChecks?: readonly Check[];
   packRelease?: ReleasePacker;
@@ -88,6 +90,7 @@ export function createGateDefinition(
   const release = hasGateTag(normalizeGateTags(activeTags), "release");
   const configuration = {
     environmentPrerequisite: true,
+    ...(dependencies.scope === undefined ? {} : { scope: dependencies.scope }),
     incremental: validateIncrementalSelection(dependencies.activeToolIds),
     release
   };

@@ -8,7 +8,7 @@
 
 编辑前检查主仓库状态，读取[编码规范](coding-style.md)，确认目标 catalog、测试与 Case 可以安全延续。随后按顺序执行：
 
-1. 明确证明契约、直接失败 owner、完整实际输入、稳定重跑命令、成功前置与 base/release 归属。
+1. 明确证明契约、直接失败 owner、完整实际输入、稳定重跑命令、成功前置与执行范围归属。
 2. 按下表选择原生、语义命令、包脚本、自定义或 release DAG Check。
 3. 在直接 owner 模块构造 Check，由完整 Definition 组合；身份、依赖、flags 与资源直接进入原生构造器。
 4. 可复用 Check 声明能力订阅，核对能力输入 patterns；同步 catalog fixture、受影响项目测试与 Test Evidence Case/index。
@@ -20,7 +20,7 @@
 | 实际输入 | 覆盖源码、测试/fixtures、磁盘生成物、manifest/lock、配置、共享依赖及必要工具链/环境；未闭合时保守执行。 |
 | 重跑入口 | 一条精确 Bun/Node 命令可从项目根独立重现命令 Check。 |
 | Check 关系 | 区分成功前置、任意终态观察、数据交接与纯调度压力。 |
-| Profile | 普通产品验证进入 base，只有实际交付事务进入 release-only。 |
+| 执行范围 | 普通产品验证进入完整 base；quick 仅承接明确批准的必要 eligible 范围，只有实际交付事务进入 release-only。 |
 
 新验证与既有 Check 证明相同契约且失败 owner 相同，扩展原 Check；契约或失败 owner 独立时建立新稳定身份。粒度不按耗时均衡或进程数量决定。
 
@@ -36,7 +36,7 @@
 
 项目测试默认选语义命令 Check；包脚本保留稳定人工维护/聚合身份，不重复承载已有语义 leaf。普通外部命令直接使用 `commandCheck`；只有真实结构协议需要解析完整命令结果时才增加 `afterCommand`。
 
-当前 release-only 只有 prepare、version authorization 与 packaging。新增 release-only Check 改变[交付边界决策](decisions/allow-markdown-lint-receipts.md)，须先按 Decision Records 流程判断演进，再复核 release DAG、同快照授权与失败恢复。
+当前 release-only 只有 prepare、version authorization 与 packaging。新增 release-only Check 改变[交付边界决策](decisions/separate-quick-gate-from-complete-validation.md)，须先按 Decision Records 流程判断演进，再复核 release DAG、同快照授权与失败恢复。
 
 ## 按需读取随包 API
 
@@ -63,7 +63,7 @@
 ### 身份、构造与结果
 
 1. `checkId` 是稳定 machine 身份，显示名、顺序、耗时和资源变化不改语义身份。语义 Check 用 `test:<owner>:<contract>`，包脚本由适配器派生 `script:<package-script>`；`displayName` 用简短英文描述对象。
-2. 每次 invocation 保留相同完整 ID 集合。项目输入证明通过原生 flags 选择，不动态删除成员；新增公开 tag 需要独立产品契约设计。
+2. 每次 invocation 保留相同完整 ID 集合。scope、项目输入证明和成功前置通过原生条件与 flags 选择，不动态删除成员；新增 quick eligible 项改变反馈责任和性能预算的实际负载，应显式复核并测试，新增公开 tag 需要独立产品契约设计。
 3. 普通命令通过现有 `createSemanticGateCheck` / `createPackageScriptCheck` 构造独立 `commandCheck`，复用共享命令政策和 `gateCheckDeclaration`，取得环境前置及资源声明。argv 保持参数数组；cwd、继承环境、transcript、限额与失败重跑按[运行时 owner](tooling.md#调度与命令执行)维护。
 4. 自定义 Check 使用 `prepare` 验证/准备本项 options，使用 `execute` 运行并决定终态。第一业务参数是 options，需要框架字段时通过 `defineContextCallback` 声明第二参数的 context；不依赖未声明字段。
 5. `passed` 表示契约成立，`failed` 表示违反规则，带稳定 reason code 的 `unavailable` 表示无法形成可信结论，`not-applicable` 表示本次不适用。passed/failed 的 data 为 object；Records 只作补充事实。可等待 I/O 与子进程协作响应取消，不遗留未等待工作。
@@ -79,7 +79,7 @@
 
 ### 项目输入证明
 
-语义命令、包脚本和 Markdown 内容 Check 由 `impact-catalog.ts` 完整覆盖；只有已评审完整输入闭包才允许复用 receipt。基础环境与其余七项原生材料每轮实际执行。
+语义命令、包脚本和 Markdown 内容 Check 由 `impact-catalog.ts` 完整覆盖；只有已评审完整输入闭包才允许复用 receipt。各 scope 的适用范围与发布权限按[运行时 owner](tooling.md#项目输入与成功证明)维护。
 
 1. 在 `impact-tools.ts#gateToolInputs` 按独立源码职责维护能力 ID 与实际读取的 patterns，组合 `commonGateInputPatterns`；共享运行时、build adapters、fixtures、内部 ignored 文件、生成物、TS/MTS、manifest/lock 和配置均按真实消费纳入。flag 由 ID 派生，无须另列。声明时区分：
    - 同一能力可有多个消费者；源码与其分发副本属于同一能力时共同声明。
@@ -129,7 +129,7 @@
 1. 读取对应随包文档，确认完整 patterns、默认排除、finding policy、限制、waiver、工具及 unavailable 边界。
 2. 在 `createVibeNativeChecks()` 直接调用 package-root 构造器，以 `gateCheckDeclaration` 加入环境与资源声明；项目质量 finding 显式 blocking。
 3. 新增项将稳定 ID 加入 `vibeNativeCheckIds`；调整 options 时保留 ID，并核对完整 Definition 与 release-required 集合。
-4. 复用适合的 selection/exclusion；维护范围变化同时复核安全上限与历史材料边界。Markdown 内容检查以同一 selection owner 的完整磁盘 source 集合纳入既有输入证明，覆盖 ignored、根目录与额外目录材料；通过原生 condition 选择，精确命中才可省略。其余原生材料每轮结算；计算事实缓存只复用执行中的计算，不充当 passed receipt。
+4. 复用适合的 selection/exclusion；维护范围变化同时复核安全上限与历史材料边界。Markdown 内容检查以同一 selection owner 的完整磁盘 source 集合纳入既有输入证明，覆盖 ignored、根目录与额外目录材料；通过原生 condition 选择，精确命中才可省略。其余原生材料在适用范围中每轮结算；计算事实缓存只复用执行中的计算，不充当 passed receipt。
 5. 使用现有 selection、blocking、metrics 或 Definition 测试验证项目配置、范围与阻断义务。
 
 ### 自定义与 release DAG Check
@@ -146,9 +146,9 @@
 1. 运行新 Check 的精确 Bun/Node 命令；调用外部工具的测试先确认其真实前置。
 2. 修改 catalog、构造器配置、输入证明、CLI 或调度接线时运行 `bun run test:check`。
 3. 修改测试/Case 时按 [Test Evidence Review](../skills/test-evidence-review/SKILL.md)审查最小入口，再运行 `bun run sync:test-evidence-catalog` 与 `bun run check:test-evidence-catalog`。前者写派生索引，后者采集项目实体并检查引用和覆盖；需交接快照时用 `bun run snapshot:test-evidence -- --output <new-file>`。
-4. 运行唯一权威门禁 `bun run check`。
+4. 先以 `bun run check` 核对 quick 反馈和性能预算，完成工作前运行 `bun run check:changed` 取得完整变更验收；quick 成功不代替该证据。
 5. 改变 release DAG、全执行路径、版本授权或打包时，运行 `bun run check --tag release --cold`；先明确 pending snapshot 和版本基线，并保留无关 index 内容。
 
 项目测试验证实际传参、输入声明、依赖、领域结果、诊断及 CLI/release 消费。上游原生机制按精确包契约使用，发现具体 Bug 时做针对性复现。
 
-交付确认完整 Definition、输入 patterns、catalog fixture、依赖与资源、Test Evidence 及长期 owner 一致。直接命令、接入测试、base Gate、冷 release 和性能测量分别报告；未执行或未覆盖的平台/CI/发布边界明确保留。
+交付确认完整 Definition、输入 patterns、catalog fixture、依赖与资源、Test Evidence 及长期 owner 一致。直接命令、接入测试、quick、changed、全量 base、冷 release 和性能测量分别报告；未执行或未覆盖的平台/CI/发布边界明确保留。

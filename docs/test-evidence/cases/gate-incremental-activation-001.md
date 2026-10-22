@@ -26,7 +26,7 @@ Tags:
 - `repository-tooling`
 
 Contract:
-- 日常 Gate 为 52 项项目命令与 markdown-lint 共 53 项 Check 维护输入成功 receipt；其余七项原生材料与环境 Check 每轮实际执行。只有声明输入闭合、工具与环境身份精确、所选命令通过、最终 Run 成功且起止快照一致时才发布证明；release 全量执行，原生 dependsOn 负责必要前置激活。
+- changed 完整变更验收为 52 项项目命令与 markdown-lint 共 53 项 Check 维护输入成功 receipt；其余七项原生材料与环境 Check 每轮实际执行。只有声明输入闭合、工具与环境身份精确、所选命令通过、最终 Run 成功且起止快照一致时才发布证明；release 全量执行，原生 dependsOn 负责必要前置激活。
 
 Proves:
 - 首次运行选择全部有证明契约的 Check，成功后形成可复用 receipt；稳定输入可全部省略；缺少一个 Check receipt 会激活其工具及全部订阅者，生成前置显式进入执行集合，全部实际执行 Check 通过后才发布。

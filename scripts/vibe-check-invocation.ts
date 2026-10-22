@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import type { RunControls } from "@zxyycom/vibe-check";
+import { isGateScope, type GateScope } from "./lib/vibe-gate/profiles.ts";
 import { rootDir } from "./lib/project.ts";
 import {
   gateTags,
@@ -11,12 +12,14 @@ import {
 
 export type GateInvocation = Readonly<{
   baselineRef?: string;
+  scope: GateScope;
   cold: boolean;
   diagnosticLog: boolean;
   tags: readonly GateTag[];
 }>;
 
 type GateInvocationParserState = {
+  scope: Exclude<GateScope, "release"> | undefined;
   baselineRef: string | undefined;
   cold: boolean;
   diagnosticLog: boolean;
@@ -105,26 +108,40 @@ function applyGateArgument(
   argument: string | undefined,
   value: string | undefined
 ): 0 | 1 | null {
-  switch (argument) {
-    case "--tag":
-      return appendGateTag(state.tags, value) ? 1 : null;
-    case "--full":
-      return appendGateTag(state.tags, "release") ? 0 : null;
-    case "--diagnostic-log":
-      return enableDiagnosticLog(state);
-    case "--cold":
-      return enableCold(state);
-    case "--baseline-ref":
-      return setBaselineRef(state, value);
-    default:
+  if (argument === "--scope") {
+    if (
+      state.scope !== undefined ||
+      !isGateScope(value) ||
+      value === "release"
+    ) {
       return null;
+    }
+    state.scope = value;
+    return 1;
   }
+  if (argument === "--tag") {
+    return appendGateTag(state.tags, value) ? 1 : null;
+  }
+  if (argument === "--full") {
+    return appendGateTag(state.tags, "release") ? 0 : null;
+  }
+  if (argument === "--diagnostic-log") {
+    return enableDiagnosticLog(state);
+  }
+  if (argument === "--cold") {
+    return enableCold(state);
+  }
+  if (argument === "--baseline-ref") {
+    return setBaselineRef(state, value);
+  }
+  return null;
 }
 
 export function resolveGateInvocation(
   argv: readonly string[]
 ): GateInvocation | null {
   const state: GateInvocationParserState = {
+    scope: undefined,
     baselineRef: undefined,
     cold: false,
     diagnosticLog: false,
@@ -138,6 +155,8 @@ export function resolveGateInvocation(
     index += consumed;
   }
   const normalizedTags = normalizeGateTags(state.tags);
+  if (state.scope !== undefined && normalizedTags.includes("release"))
+    return null;
   if (
     (state.baselineRef !== undefined || state.cold) &&
     !normalizedTags.includes("release")
@@ -148,6 +167,9 @@ export function resolveGateInvocation(
     ...(normalizedTags.includes("release")
       ? { baselineRef: state.baselineRef ?? "HEAD" }
       : {}),
+    scope: normalizedTags.includes("release")
+      ? "release"
+      : (state.scope ?? "quick"),
     cold: state.cold,
     diagnosticLog: state.diagnosticLog,
     tags: normalizedTags
