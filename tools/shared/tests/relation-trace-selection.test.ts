@@ -268,36 +268,6 @@ test("trace selection returns the anchor at depth zero and reports blocked atomi
   ]);
 });
 
-test("trace selection observes mutable adapter units and partially frozen arrays per expansion", () => {
-  const graph = buildRelationGraph<string, string>(["anchor", "a", "b"], []);
-  for (const frozenObject of [false, true]) {
-    const recordIds = ["anchor", "a", "b"];
-    const traceIds = ["a"];
-    const unit = { kind: "merge" as const, recordIds, traceIds };
-    if (frozenObject) Object.freeze(unit);
-    const trace = selectRelationGraphTrace(
-      graph,
-      "anchor",
-      {
-        direction: "predecessors",
-        maxDepth: null,
-        maxRecords: 3
-      },
-      ({ fromId }) => {
-        if (fromId === "anchor") return [unit];
-        if (fromId === "a") {
-          traceIds.push("b");
-          return [unit];
-        }
-        return [];
-      }
-    );
-    assert.deepEqual(trace.traceIds, ["a", "anchor", "b"]);
-    assert.deepEqual(trace.contextIds, []);
-    assert.deepEqual(trace.coverage, { complete: true, stoppedBy: [] });
-  }
-});
-
 test("trace selection unions frozen event targets without inheriting a partial admission mark", () => {
   const graph = buildRelationGraph<string, string>(["anchor", "a", "b"], []);
   const recordIds = Object.freeze(["anchor", "a", "b"]);

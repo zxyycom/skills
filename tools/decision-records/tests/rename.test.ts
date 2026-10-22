@@ -18,6 +18,13 @@ const renamedCliId = "260711-renamed-cli" as DecisionId;
 
 test("Decision rename keeps the established date, moves its source, and rebuilds the complete index", () =>
   withFixtureWorkspace("rename-established", async (workspaceRoot) => {
+    const original = await fs.readFile(
+      decisionFilePath(workspaceRoot, "use-generated-cli.md"),
+      "utf8"
+    );
+    const originalEntry = (await readIndex(workspaceRoot)).entries[
+      currentDecisionId
+    ];
     const result = await runSourceCli([
       "rename",
       "use-generated-cli.md",
@@ -29,10 +36,11 @@ test("Decision rename keeps the established date, moves its source, and rebuilds
     assert.match(result.stdout, /old ID: use-generated-cli/u);
     assert.match(result.stdout, /new ID: 260711-renamed-cli/u);
     assert.equal(
-      await fs
-        .readFile(decisionFilePath(workspaceRoot, "renamed-cli.md"), "utf8")
-        .then(() => true),
-      true
+      await fs.readFile(
+        decisionFilePath(workspaceRoot, "renamed-cli.md"),
+        "utf8"
+      ),
+      original.replace("id: use-generated-cli", "id: 260711-renamed-cli")
     );
     await assert.rejects(
       fs.access(decisionFilePath(workspaceRoot, "use-generated-cli.md"))
@@ -41,6 +49,11 @@ test("Decision rename keeps the established date, moves its source, and rebuilds
     assert.ok(Object.hasOwn(index.entries, renamedCliId));
     assert.ok(!Object.hasOwn(index.entries, currentDecisionId));
     assert.equal(index.entries[renamedCliId]?.sourcePath, "renamed-cli.md");
+    assert.deepEqual(index.entries[renamedCliId], {
+      ...originalEntry,
+      name: "renamed-cli",
+      sourcePath: "renamed-cli.md"
+    });
     assert.equal(
       (await runSourceCli(["check", "--root", workspaceRoot])).exitCode,
       0
@@ -57,29 +70,44 @@ test("Decision rename rewrites candidate and established structured relation tar
         relations: [
           {
             summary: "保留前序的理由",
-            target: currentDecisionId,
+            target: archivedDecisionId,
             type: "修订"
           }
         ]
       }),
       "utf8"
     );
+    const establishedPath = decisionFilePath(
+      workspaceRoot,
+      "use-generated-cli.md"
+    );
+    await fs.writeFile(
+      establishedPath,
+      (await fs.readFile(establishedPath, "utf8")).replace(
+        "target: 260710-use-source-cli",
+        "target: 260710-use-source-cli\n    summary: 正式前序说明"
+      )
+    );
+    const synced = await runSourceCli(["sync-index", "--root", workspaceRoot]);
+    assert.equal(synced.exitCode, 0, synced.stderr);
     const result = await runSourceCli([
       "rename",
-      currentDecisionId,
-      "renamed-cli",
+      archivedDecisionId,
+      "renamed-source",
       "--root",
       workspaceRoot
     ]);
     assert.equal(result.exitCode, 0, result.stderr);
     const candidate = await fs.readFile(candidatePath, "utf8");
-    assert.match(candidate, /target: 260711-renamed-cli/u);
+    assert.match(candidate, /target: 260710-renamed-source/u);
     assert.match(candidate, /summary: 保留前序的理由/u);
+    const established = await fs.readFile(establishedPath, "utf8");
+    assert.match(established, /target: 260710-renamed-source/u);
+    assert.match(established, /summary: 正式前序说明/u);
     const index = await readIndex(workspaceRoot);
-    assert.equal(
-      index.entries[renamedCliId]?.relations[0]?.target,
-      "260710-use-source-cli"
-    );
+    assert.deepEqual(index.entries[currentDecisionId]?.relations, [
+      { type: "修订", target: "260710-renamed-source", summary: "正式前序说明" }
+    ]);
     assert.equal(
       (await runSourceCli(["check", "--root", workspaceRoot])).exitCode,
       0
@@ -93,6 +121,8 @@ test("Decision rename preflight is read-only and legacy candidates require an ex
       "use-generated-cli.md"
     );
     const before = await fs.readFile(originalPath, "utf8");
+    const indexPath = decisionFilePath(workspaceRoot, "decision-index.json");
+    const indexBefore = await fs.readFile(indexPath, "utf8");
     const preflight = await runSourceCli([
       "rename",
       "use-generated-cli",
@@ -103,6 +133,10 @@ test("Decision rename preflight is read-only and legacy candidates require an ex
     ]);
     assert.equal(preflight.exitCode, 0, preflight.stderr);
     assert.equal(await fs.readFile(originalPath, "utf8"), before);
+    assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
+    await assert.rejects(
+      fs.access(decisionFilePath(workspaceRoot, "renamed-cli.md"))
+    );
     const dateConflict = await runSourceCli([
       "rename",
       "use-generated-cli",
@@ -114,6 +148,10 @@ test("Decision rename preflight is read-only and legacy candidates require an ex
     assert.equal(dateConflict.exitCode, 1);
     assert.match(dateConflict.stderr, /rename-date-mismatch/u);
     assert.equal(await fs.readFile(originalPath, "utf8"), before);
+    assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
+    await assert.rejects(
+      fs.access(decisionFilePath(workspaceRoot, "renamed-cli.md"))
+    );
     const legacyCandidatePath = decisionFilePath(
       workspaceRoot,
       "legacy-candidate.md"

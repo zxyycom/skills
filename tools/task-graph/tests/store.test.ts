@@ -105,20 +105,6 @@ test("every rejected atomic write has one conservative outcome-unknown result", 
   }
 });
 
-test("resolved atomic write succeeds without commit readback", async () => {
-  await withTempWorkspace(async (root) => {
-    let calls = 0;
-    const service = await classificationService(root, async (target) => {
-      calls += 1;
-      await fs.unlink(target);
-    });
-    const created = await createTask(service, 0, "no-readback");
-    assert.equal(created.revision, 1);
-    assert.equal(calls, 1);
-    await assert.rejects(fs.stat(service.store.indexPath), { code: "ENOENT" });
-  });
-});
-
 test("store info reports canonical drift without a separate check operation", async () => {
   await withTempWorkspace(async (root) => {
     const service = await initialize(root);

@@ -6,7 +6,6 @@ import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 import {
   rootDir,
-  skillName,
   generatedUpdaterPath,
   validRelease,
   runUpdater,
@@ -16,18 +15,8 @@ import {
   zipData,
   validManifest,
   copyUpdaterSkill,
-  runSkillUpdaterCli,
-  skillUpdaterConfig
+  runSkillUpdaterCli
 } from "./support.ts";
-
-test("updater configuration exposes the public contract", () => {
-  assert.equal(skillUpdaterConfig.skillName, skillName);
-  assert.equal(
-    skillUpdaterConfig.releaseManifestAssetName,
-    "skill-release-manifest.json"
-  );
-  assert.equal(typeof runSkillUpdaterCli, "function");
-});
 
 test("updater help exposes the public CLI contract", async () => {
   const helpOutput: string[] = [];

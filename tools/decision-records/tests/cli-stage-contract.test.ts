@@ -10,43 +10,6 @@ import {
   fs,
   decisionFilePath
 } from "./stage/support.ts";
-test("help exposes stage independently without adding lifecycle stage options", () => {
-  const program = createCliProgram(
-    async () => 0,
-    () => undefined
-  );
-  assert.match(program.helpInformation(), /stage \[options\] <selector\.\.\.>/);
-  for (const command of [
-    "publish",
-    "evolve",
-    "archive",
-    "mark-aligned",
-    "discard"
-  ]) {
-    const entry = program.commands.find(
-      (candidate) => candidate.name() === command
-    );
-    assert.ok(entry);
-    assert.doesNotMatch(entry.helpInformation(), /--stage/);
-  }
-});
-
-test("help exposes the stage scope contract", () => {
-  const program = createCliProgram(
-    async () => 0,
-    () => undefined
-  );
-  const stage = program.commands.find(
-    (candidate) => candidate.name() === "stage"
-  );
-  assert.ok(stage);
-  assert.match(stage.helpInformation(), /--scope <scope>/u);
-  assert.match(
-    stage.helpInformation(),
-    /"all", "index", "domain", default: "all"/u
-  );
-});
-
 test("stage rejects an invalid scope as a normal invalid argument", async () => {
   const args = ["stage", currentDecisionId, "--scope", "everything"];
   const staged = await runSourceCli(args);

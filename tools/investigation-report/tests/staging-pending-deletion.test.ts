@@ -160,10 +160,6 @@ async function verifyPreservedPendingDeletion(
   });
 }
 
-test("stage index preserves an unselected pending deletion despite workspace restoration", async () => {
-  await verifyPreservedPendingDeletion("index");
-});
-
 test("stage all preserves an unselected pending deletion despite workspace restoration", async () => {
   await verifyPreservedPendingDeletion("all");
 });

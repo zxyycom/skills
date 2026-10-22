@@ -10,4 +10,4 @@ Contract:
 - 定义的读取器必须返回结构完整的源快照。
 
 Proves:
-- 返回空值的读取器使构建以错误结果结束。
+- 返回 null 的读取器使构建返回 value=null 与 `state-index.source-invalid`。

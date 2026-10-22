@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 - rename 后新文件使用目标 name basename，旧 sourcePath 不再存在。
-- 索引仅以新 ID 及新 sourcePath 投影该建立记录，严格检查通过。
+- 正文仅改写 id；索引 entry 仅改写派生 name/sourcePath，其余 metadata 与正文不变，严格检查通过。

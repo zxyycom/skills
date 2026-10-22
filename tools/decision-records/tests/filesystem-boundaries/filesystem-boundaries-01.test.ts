@@ -37,10 +37,28 @@ test("indexed source loading rejects symlink and non-regular decision files befo
           return;
         }
 
-        await assert.rejects(
-          readDecisionStateSnapshot(decisionsDirectory, [currentDecisionId]),
-          /regular non-symbolic-link file/
+        let reads = 0;
+        const readFile = fs.readFile;
+        const guard = t.mock.method(
+          fs,
+          "readFile",
+          (...args: Parameters<typeof fs.readFile>) => {
+            if (args[0] === sourcePath || args[0] === outsidePath) {
+              reads += 1;
+              throw new Error("unsafe source must not be read");
+            }
+            return readFile(...args);
+          }
         );
+        try {
+          await assert.rejects(
+            readDecisionStateSnapshot(decisionsDirectory, [currentDecisionId]),
+            /regular non-symbolic-link file/
+          );
+          assert.equal(reads, 0);
+        } finally {
+          guard.mock.restore();
+        }
         assert.equal(await fs.readFile(outsidePath, "utf8"), outsideText);
       }
     );
@@ -62,20 +80,39 @@ test("decision show rejects symlink and non-regular bodies without reading outsi
         throw new Error("test fixture has an invalid Decision ID");
       }
 
-      const result = await executeDecisionQuery({
-        command: "show",
-        decisionId: currentDecisionId,
-        location: { decisionsDir: "docs/decisions", workspaceRoot }
-      });
-      assert.equal(result.status, "error");
-      assert.equal(result.exitCode, 1);
-      assert.ok(
-        result.diagnostics.some(
-          (diagnostic) =>
-            diagnostic.code === "decision-records.decision-body-unavailable" &&
-            diagnostic.target === currentSourcePath
-        )
+      let reads = 0;
+      const readFile = fs.readFile;
+      const guard = t.mock.method(
+        fs,
+        "readFile",
+        (...args: Parameters<typeof fs.readFile>) => {
+          if (args[0] === sourcePath || args[0] === outsidePath) {
+            reads += 1;
+            throw new Error("unsafe source must not be read");
+          }
+          return readFile(...args);
+        }
       );
+      try {
+        const result = await executeDecisionQuery({
+          command: "show",
+          decisionId: currentDecisionId,
+          location: { decisionsDir: "docs/decisions", workspaceRoot }
+        });
+        assert.equal(result.status, "error");
+        assert.equal(result.exitCode, 1);
+        assert.ok(
+          result.diagnostics.some(
+            (diagnostic) =>
+              diagnostic.code ===
+                "decision-records.decision-body-unavailable" &&
+              diagnostic.target === currentSourcePath
+          )
+        );
+        assert.equal(reads, 0);
+      } finally {
+        guard.mock.restore();
+      }
       assert.equal(await fs.readFile(outsidePath, "utf8"), outsideText);
     });
   }
@@ -152,11 +189,15 @@ test("scan reports an empty decision index as an actionable index diagnostic", (
 
     const scan = await scanDecisionRecords({ workspaceRoot });
     assert.equal(scan.indexExists, true);
+    assert.equal(scan.index, null);
+    assert.equal(scan.indexText, "");
     assert.ok(
       scan.indexErrors.some(
         (error) =>
           error.includes("decision-index.json") &&
-          error.includes("JSON Parse error: Unexpected EOF")
+          /invalid JSON|parse|unexpected/iu.test(
+            error.replace("decision-index.json", "")
+          )
       )
     );
   }));

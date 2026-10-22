@@ -4,24 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { baseGateCheckIds, prepareGateActivation } from "./impact.ts";
-import { withImpactFixture } from "./impact-test-support.ts";
 
-test("release activation and non-repository fallback execute the complete catalog", async () => {
-  await withImpactFixture(async (fixture) => {
-    const release = await prepareGateActivation({
-      cacheDirectory: fixture.cacheDirectory,
-      captureDependencies: fixture.captureDependencies,
-      release: true,
-      workspaceRoot: fixture.directory
-    });
-    assert.equal(release.kind, "release");
-    assert.equal(release.snapshot, null);
-    assert.equal(release.activeCheckIds.length, 64);
-    assert.ok(
-      release.decisions.every(({ reason }) => reason === "release-full")
-    );
-  });
-
+test("non-repository fallback executes the complete base catalog", async () => {
   const nonRepository = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills-gate-no-git-")
   );

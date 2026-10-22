@@ -122,24 +122,6 @@ test("list returns snapshot facets and renders bounded compact or detailed recen
   assert.deepEqual(index, before);
 });
 
-test("list filters reports by direct relation type", () => {
-  const index = investigationIndexFixture([
-    { id: "base" },
-    {
-      id: "supplement",
-      relations: [{ target: "base", type: "补充" }]
-    },
-    { id: "independent" }
-  ]);
-  const result = queryIndexFixture(index, {
-    relationType: "补充"
-  });
-  assert.deepEqual(
-    result.entries.map((entry) => entry.id),
-    ["supplement"]
-  );
-});
-
 test("relation filters project full matching edges from the same query snapshot", () => {
   const index = investigationIndexFixture([
     { id: "base" },

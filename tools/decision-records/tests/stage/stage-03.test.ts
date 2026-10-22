@@ -20,7 +20,7 @@ import {
   syncDecisionIndexBeforeStage
 } from "./support.ts";
 
-test("stage applies selected additions modifications deletions and explicit renames", () =>
+test("stage applies selected additions modifications and deletions with exact pending payloads", () =>
   withGitFixtureWorkspace("stage-overlay", async (workspaceRoot) => {
     const modified = decisionFilePath(workspaceRoot, currentSourcePath);
     const deleted = decisionFilePath(workspaceRoot, archivedSourcePath);
@@ -45,16 +45,44 @@ test("stage applies selected additions modifications deletions and explicit rena
         .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
     await syncDecisionIndexBeforeStage(workspaceRoot);
+    const modifiedBefore = await fs.readFile(modified, "utf8");
+    const addedPath = decisionFilePath(workspaceRoot, addedId);
+    const addedBefore = await fs.readFile(addedPath, "utf8");
     const staged = await stageDecisionRecords({
       decisionIds: [currentDecisionId, archivedDecisionId, addedId],
       location: { workspaceRoot: workspaceRoot, decisionsDir: "docs/decisions" }
     });
     assert.equal(staged.status, "ok", JSON.stringify(staged));
-    const pending = runGit(workspaceRoot, ["diff", "--cached", "--name-only"]);
-    assert.match(pending, new RegExp(currentDecisionId));
-    assert.match(pending, new RegExp(archivedDecisionId));
-    assert.match(pending, new RegExp(addedId));
-    assert.match(pending, /decision-index\.json/);
+    assert.equal(
+      runGit(workspaceRoot, ["show", `:docs/decisions/${currentSourcePath}`]),
+      modifiedBefore
+    );
+    assert.equal(
+      runGit(workspaceRoot, ["show", `:docs/decisions/${addedId}.md`]),
+      addedBefore
+    );
+    assert.equal(
+      runGit(workspaceRoot, [
+        "ls-files",
+        "--",
+        `docs/decisions/${archivedSourcePath}`
+      ]),
+      ""
+    );
+    assert.equal(await fs.readFile(modified, "utf8"), modifiedBefore);
+    assert.equal(await fs.readFile(addedPath, "utf8"), addedBefore);
+    const index = JSON.parse(
+      runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"])
+    );
+    assert.deepEqual(
+      Object.keys(index.entries).sort(),
+      [currentDecisionId, addedId].sort()
+    );
+    assert.equal(index.entries[currentDecisionId].title, "使用修改 CLI");
+    assert.deepEqual(index.entries[currentDecisionId].relations, []);
+    assert.equal(index.entries[addedId].title, "使用新增 Stage");
+    assert.equal(index.entries[addedId].status, "active");
+    assert.equal(index.entries[addedId].alignment, "aligned");
   }));
 
 test("stage rejects invalid duplicate and missing paths without changing the pending snapshot", async () => {

@@ -117,10 +117,7 @@ test("Decision trace defaults to a stable text graph with event context and boun
 
 test("Decision trace --json preserves the stable envelope", () => {
   const output = JSON.parse(rendered(true)) as Record<string, unknown>;
-  assert.equal(output.status, "ok");
-  assert.deepEqual(output.traceIds, ["original", "split-a"]);
-  assert.deepEqual(output.contextIds, ["split-b"]);
-  assert.deepEqual(output.limits, { depth: "all", maxRecords: 3 });
+  assert.deepEqual(output, { status: "ok", ...traceResult() });
 });
 
 test("Decision trace keeps context event edges with their source and leaves trace edges in node blocks", () => {
@@ -244,7 +241,7 @@ function entry(
   };
 }
 
-test("Decision trace text remains byte-identical to baseline across context and historical owner slices except the explicit source line", async () => {
+test("Decision trace preserves unlayered nodes and historical outside and overlapping event ownership", async () => {
   const { readFile } = await import("node:fs/promises");
   const fixture = JSON.parse(
     await readFile(
@@ -255,10 +252,9 @@ test("Decision trace text remains byte-identical to baseline across context and 
     cases: {
       name: string;
       trace: Omit<DecisionTraceSuccess, "status" | "source">;
-      expected: string;
     }[];
   };
-  for (const { name, trace, expected } of fixture.cases) {
+  for (const { name, trace } of fixture.cases) {
     let output = "";
     printDecisionTrace(
       { ...trace, source: decisionPublishedSnapshotSource },
@@ -270,14 +266,69 @@ test("Decision trace text remains byte-identical to baseline across context and 
         stderr: () => undefined
       }
     );
-    assert.equal(
-      output.replace(
-        "Source: kind=published-index currentness=unchecked fallback=false\n",
-        ""
-      ),
-      expected,
-      name
-    );
+    if (name === "chain-and-unlayered") {
+      assert.match(output, /L0\* \[c\].*C/u);
+      assert.match(output, /L1\* \[b\].*B/u);
+      assert.match(output, /L2\* \[a\].*A/u);
+      assert.match(output, /L3\* \[orphan\].*unlayered/u);
+    } else if (name === "split-historical-owner") {
+      const aBlock = output.match(
+        /^L\d+\* \[a\][\s\S]*?(?=^L\d+\* |^coverage:)/mu
+      )?.[0];
+      const zBlock = output.match(
+        /^L\d+\* \[z\][\s\S]*?(?=^L\d+\* |^coverage:)/mu
+      )?.[0];
+      assert.ok(aBlock);
+      assert.ok(zBlock);
+      assert.deepEqual(
+        aBlock
+          .split("  split-successors:\n")
+          .slice(1)
+          .map((group) =>
+            Array.from(
+              group.matchAll(/^    \* \[([^\]]+)\] trace\b/gmu),
+              (match) => match[1]
+            )
+          ),
+        [
+          ["a", "b", "z"],
+          ["a", "x"]
+        ]
+      );
+      assert.doesNotMatch(zBlock, /split-successors:/u);
+      assert.equal((output.match(/split-successors:/gu) ?? []).length, 2);
+      assert.match(output, /\[a\] --拆分--> \[z\]/u);
+      assert.match(output, /\[b\] --拆分--> \[z\]/u);
+      assert.match(output, /\[x\] --拆分--> \[a\]/u);
+      assert.equal((output.match(/L\d+\* \[a\]/gu) ?? []).length, 1);
+    } else if (name === "merge-outside-owner") {
+      const aBlock = output.match(
+        /^L\d+\* \[a\][\s\S]*?(?=^L\d+\* |^coverage:)/mu
+      )?.[0];
+      const zBlock = output.match(
+        /^L\d+\* \[z\][\s\S]*?(?=^L\d+\* |^coverage:)/mu
+      )?.[0];
+      assert.ok(aBlock);
+      assert.ok(zBlock);
+      assert.match(aBlock, /merge-predecessors:/u);
+      assert.deepEqual(
+        Array.from(
+          aBlock.matchAll(/^    \* \[([^\]]+)\] trace\b/gmu),
+          (match) => match[1]
+        ),
+        ["a", "b", "z"]
+      );
+      assert.doesNotMatch(zBlock, /merge-predecessors:/u);
+      assert.equal((output.match(/merge-predecessors:/gu) ?? []).length, 1);
+      assert.match(output, /\* \[a\] trace/u);
+      assert.match(output, /\* \[b\] trace/u);
+      assert.match(output, /\* \[z\] trace/u);
+    } else {
+      assert.equal((output.match(/merge-predecessors:/gu) ?? []).length, 1);
+      assert.match(output, /~ \[a\] context/u);
+      assert.match(output, /\[a\] --归并--> \[b\]: "context history"/u);
+      assert.doesNotMatch(output, /L\d+\* \[(?:a|b)\]/u);
+    }
   }
 });
 

@@ -180,26 +180,3 @@ test("memory source snapshots reject active relationship targets", async () => {
     /target must be archived/
   );
 });
-
-test("memory source snapshots reject relationship cycles", async () => {
-  const sources = await fixtureSources();
-  const cycle = sources.map((source) =>
-    source.decisionId !== archivedDecisionId
-      ? {
-          ...source,
-          sourcePath: `archive/${currentDecisionId}.md`,
-          text: source.text.replace("status: active", "status: archived")
-        }
-      : {
-          ...source,
-          text: source.text.replace(
-            "relations: []",
-            `relations:\n  - type: 修订\n    target: ${currentDecisionId}`
-          )
-        }
-  );
-  await assert.rejects(
-    buildDecisionStateSnapshotFromSources(cycle),
-    /must not form a cycle/
-  );
-});

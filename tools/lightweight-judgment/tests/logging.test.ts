@@ -215,6 +215,13 @@ test("pre-send storage failure blocks HTTP and preserves unrelated databases", a
 
 test("post-send storage failure or removed row preserves service outcome and reports failed persistence", async () => {
   const fixture = logFixture();
+  const received = {
+    model: "typesafe/jev-1.13-20260917",
+    answers: { answer: { type: "noul", noul: 0.17 } },
+    id: "post-send-outcome",
+    provider: "typesafe",
+    usage: { input_tokens: 13, output_tokens: 0, cost: 0.000007 }
+  };
   try {
     for (const mode of ["write-error", "missing-row", "remote-error"]) {
       const file = path.join(fixture.directory, `${mode}.sqlite3`);
@@ -224,7 +231,7 @@ test("post-send storage failure or removed row preserves service outcome and rep
         fixture.runtime(
           { databasePath: file },
           {
-            fetch: async (url, init) => {
+            fetch: async () => {
               sent++;
               const database = new DatabaseSync(file);
               database.exec(
@@ -235,7 +242,7 @@ test("post-send storage failure or removed row preserves service outcome and rep
               database.close();
               if (mode === "remote-error")
                 return new Response("private-error", { status: 429 });
-              return await runtime().fetch(url, init);
+              return new Response(JSON.stringify(received));
             }
           }
         )
@@ -247,8 +254,20 @@ test("post-send storage failure or removed row preserves service outcome and rep
           : decodeSuccess(result.stdout);
       assert.equal(output.meta.persistence?.status, "failed");
       assert.ok(output.meta.persistence?.callId);
-      if (output.ok) assert.ok(output.result.answers);
-      else assert.equal(output.error.kind, "rate_limit");
+      if (output.ok) {
+        assert.deepEqual(output.result, received);
+        assert.deepEqual(output.normalized, {
+          version: "1",
+          adapterContract: "openrouter-systemone/v1",
+          model: received.model,
+          completion: "complete",
+          answers: { answer: { status: "answered", type: "noul", noul: 0.17 } }
+        });
+      } else {
+        assert.equal(output.result, null);
+        assert.equal(output.error.kind, "rate_limit");
+        assert.equal(output.error.httpStatus, 429);
+      }
       assert.equal(sent, 1);
       assert.ok(!result.stderr.includes("private-error"));
       if (mode === "missing-row") assert.deepEqual(rows(file), []);

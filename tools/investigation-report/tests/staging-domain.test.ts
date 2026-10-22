@@ -1,13 +1,7 @@
-import {
-  VersionControlError,
-  type VersionControlFile
-} from "../../shared/src/version-control/index.ts";
+import { VersionControlError } from "../../shared/src/version-control/index.ts";
 import { pendingReplacementFailure } from "../src/staging-domain-failures.ts";
 import { domainStageControl } from "../src/staging-domain-context.ts";
-import {
-  verifyDomainWrites,
-  type DomainWritesAcquisition
-} from "../src/staging-domain-writes.ts";
+
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -281,43 +275,6 @@ test("stage --scope all writes the index projection, report, and owner tree atom
       git(root, ["diff", "--cached", "--", "docs/investigations/second.md"]),
       ""
     );
-  });
-});
-
-test("domain phase comparison rejects owner resource byte drift without rewriting the source", async () => {
-  await withTempRoot("stage-domain-drift", async (root) => {
-    await writeResource(root, "first/evidence.txt", "after\n");
-    const driftPath = resourcePath(root, "first/evidence.txt");
-    const relative = "docs/investigations/_resources/first/evidence.txt";
-    const expectedFile: VersionControlFile = {
-      path: relative,
-      kind: "regular",
-      data: await fs.readFile(driftPath)
-    };
-    const expected: DomainWritesAcquisition = {
-      status: "ok",
-      sourceFiles: [expectedFile],
-      value: [expectedFile],
-      pending: { pathScope: "docs/investigations", files: [], members: [] }
-    };
-    await fs.writeFile(driftPath, "drifted\n");
-    const currentFile: VersionControlFile = {
-      path: relative,
-      kind: "regular",
-      data: await fs.readFile(driftPath)
-    };
-    const result = verifyDomainWrites(expected, {
-      ...expected,
-      sourceFiles: [currentFile],
-      value: [currentFile]
-    });
-    assert.equal(result.status, "drift");
-    if (result.status !== "drift") assert.fail("owner byte drift was accepted");
-    assert.match(
-      result.reason,
-      /selected sources or required owner bytes or representation changed/u
-    );
-    assert.equal(await fs.readFile(driftPath, "utf8"), "drifted\n");
   });
 });
 

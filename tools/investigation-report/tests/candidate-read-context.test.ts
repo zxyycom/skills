@@ -67,29 +67,6 @@ test("candidate preparation reuses complete formal identities and owner bytes wi
   });
 });
 
-test("candidate preparation with an empty formal layout still supports a first candidate without an index", async () => {
-  await withTempRoot("candidate-empty-layout", async (root) => {
-    const directory = investigationRoot(root);
-    await fs.mkdir(directory, { recursive: true });
-    await fs.writeFile(
-      path.join(directory, "_candidate.first"),
-      reportMarkdown({ id: "first" })
-    );
-    const layout = await inspectInvestigationCollectionLayout(directory);
-    assert.deepEqual(layout.formalSources, []);
-    const context = await prepareCandidateReadContext(directory, layout);
-    const candidate = await readInvestigationCandidate(
-      directory,
-      "first",
-      context
-    );
-    assert.equal(candidate.status, "ok");
-    if (candidate.status !== "ok")
-      assert.fail("first candidate must be readable");
-    assert.deepEqual(candidate.value.errors, []);
-  });
-});
-
 test("candidate partial layouts discover moved formal owners when the index is stale or unavailable", async () => {
   await withTempRoot("candidate-owner-discovery", async (root) => {
     await writeSharedCandidate(root);

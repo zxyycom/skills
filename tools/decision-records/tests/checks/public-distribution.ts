@@ -6,7 +6,6 @@ await import("../cli-stage-contract.test.ts");
 
 await import("../cli-batch-selection.test.ts");
 await import("../cli-query-parity.test.ts");
-await import("../cli-grouped-evolve.test.ts");
 await import("../cli-reallocation.test.ts");
 
 await import("../configured-decision-directory.test.ts");

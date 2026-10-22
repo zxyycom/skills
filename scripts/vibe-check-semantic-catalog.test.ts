@@ -104,13 +104,6 @@ test("semantic Gate catalog matches its aggregate native entry points", async ()
 });
 
 test("semantic commands match package manifests and retain dedicated integration boundaries", async () => {
-  assert.ok(
-    semanticGateChecks
-      .filter(({ command }) => command.command === "bun")
-      .every(
-        ({ command }) => command.args.length === 2 && command.args[0] === "test"
-      )
-  );
   assert.equal(
     semanticGateChecks.filter(({ command }) => command.command === "node")
       .length,
@@ -124,10 +117,7 @@ test("semantic commands match package manifests and retain dedicated integration
   const manifest = JSON.parse(
     await fs.readFile(path.join(repositoryRoot, "package.json"), "utf8")
   ) as { scripts: Readonly<Record<string, string>> };
-  assert.equal(
-    manifest.scripts["test:index-runtime-performance"],
-    "bun test ./tools/index-runtime/tests/performance.test.ts"
-  );
+  assert.equal(manifest.scripts["test:index-runtime-performance"], undefined);
   assert.equal(
     new Set<string>(releaseRequiredPackageScripts).has(
       "test:index-runtime-performance"

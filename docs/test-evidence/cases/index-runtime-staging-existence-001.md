@@ -1,15 +1,13 @@
-### Case INDEX-RUNTIME-STAGING-EXISTENCE-001: 注入仓储中用统一 ID 存在性规则表达条目变化
+### Case INDEX-RUNTIME-STAGING-EXISTENCE-001: 选中未变化条目保持无变化
 
 Tests:
-- `test:1084ae98fc59819b52077b5fb88a520f8548767432772e55c030714f56057a21`
+- `test:e6a666eb452db57a15607baee3c84d5796c8d3646d4b402ad26dfb7833e51d57`
 
 Tags:
 - `index-runtime`
 
 Contract:
-- 在注入的 repository 边界下，新增、删除、无变化和显式重命名都由选中 ID 在 revision 与工作区索引中的存在状态表达。
+- 选中 ID 的当前条目与基线相同时，选择性暂存返回无变化并保留条目。
 
 Proves:
-- 注入仓储记录的目标索引分别正确表达新增、删除和无变化。
-- 同时选择旧 ID 与新 ID 完成显式重命名，并安全处理 `__proto__` 与 `constructor` 身份。
-- 无实际变化返回 `unchanged`。
+- 选中未变化条目后 changed=false、state=unchanged，pending 索引条目内容保持不变。

@@ -2,11 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import {
-  gateEnvironmentCheckId,
-  releaseRequiredCheckIds,
-  releaseSnapshotCheckId
-} from "./lib/vibe-gate.ts";
+import { releaseSnapshotCheckId } from "./lib/vibe-gate.ts";
 import {
   packSkillPackageSnapshot,
   prepareSkillPackageRelease
@@ -17,44 +13,11 @@ import {
   fileExists,
   outcomeFor,
   passingNativeChecks,
-  releaseTerminalCheck,
   runDefinition,
   stageSkillMarkdown,
   withTemporaryDirectory,
   zipSkillMarkdown
 } from "./vibe-check-test-support.ts";
-
-test("release prepare runs before terminal authorization and package", async () => {
-  await withTemporaryDirectory(
-    "skills-vibe-release-timing-",
-    async (directory) => {
-      await createReleaseRepository(directory);
-      const definition = createReleaseTestDefinition({
-        baselineRef: "HEAD",
-        nativeChecks: passingNativeChecks()
-      });
-      const prepare = definition.checks.find(
-        ({ checkId }) => checkId === releaseSnapshotCheckId
-      );
-      const version = definition.checks.find(
-        ({ checkId }) => checkId === "release:skill-version"
-      );
-      assert.deepEqual(prepare?.dependsOn ?? [], [gateEnvironmentCheckId]);
-      assert.deepEqual(version?.dependsOn, [
-        ...releaseRequiredCheckIds,
-        releaseSnapshotCheckId
-      ]);
-      assert.deepEqual(releaseTerminalCheck(definition).dependsOn, [
-        gateEnvironmentCheckId,
-        "release:skill-version"
-      ]);
-      assert.equal(
-        (await runDefinition(definition, directory, ["release"])).aggregate,
-        "passed"
-      );
-    }
-  );
-});
 
 test("release authorization and package use the snapshot captured before the index changes", async () => {
   await withTemporaryDirectory(

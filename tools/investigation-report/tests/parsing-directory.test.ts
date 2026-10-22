@@ -155,6 +155,7 @@ test("scoped validation selects report ids without claiming full graph proof", a
       ids: ["./first-report.md", " second-report.md "],
       workspaceRoot: root
     });
+    assert.notEqual(nonCanonical.errors.length, 0);
     assert.ok(nonCanonical.errors.every((error) => error.includes("check id")));
   });
 });
@@ -165,19 +166,6 @@ test("validation enforces investigation directory path rules", async () => {
     workspaceRoot: "."
   });
   assert.ok(result.errors.some((error) => error.includes("relative")));
-});
-
-test("validation reports malformed frontmatter fields in the selected report", () => {
-  const source = reportMarkdown({ id: "report" }).replace(
-    /question: "[^"]+"/u,
-    'question: "bad\\rvalue"'
-  );
-  const parsed = parseInvestigationReport(source, "report");
-  assert.ok(
-    parsed.errors.some((error) =>
-      error.includes("question must be a non-empty")
-    )
-  );
 });
 
 test("full validation rejects nested report directories", async () => {

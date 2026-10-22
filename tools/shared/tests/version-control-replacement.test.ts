@@ -112,6 +112,7 @@ test(
           pathScope: "docs/tracked.md"
         })
       );
+      assert.equal(expectedPendingConflict.code, "pending-conflict");
       assert.equal(expectedPendingConflict.causeCategory, "unknown");
       assert.equal(
         expectedPendingConflict.operation,
@@ -174,6 +175,7 @@ test(
             pathScope: "docs/tracked.md"
           })
         );
+        assert.equal(conflict.code, "pending-conflict");
         assert.equal(conflict.causeCategory, "unknown");
         assert.equal(conflict.operation, "verify a pending replacement");
         assert.equal(conflict.target, "docs/tracked.md");

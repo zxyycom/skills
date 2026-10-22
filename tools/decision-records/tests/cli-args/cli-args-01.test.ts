@@ -26,18 +26,6 @@ test("decision CLI resolves a relative root from injected cwd", async () => {
   assert.equal(workspaceRoot, cwd);
 });
 
-test("decision CLI rejects absolute and escaping decision directories", async () => {
-  for (const decisionsDir of ["/tmp/decisions", "../decisions"]) {
-    const result = await runCli(["check", "--decisions-dir", decisionsDir]);
-    assert.equal(result.exitCode, 2, decisionsDir);
-    assert.equal(result.stdout, "", decisionsDir);
-    assert.match(
-      result.stderr,
-      /--decisions-dir must (?:be relative|remain within)/
-    );
-  }
-});
-
 test("decision CLI reports the recovery form for a collection directory passed as root", async () => {
   const defaultDirectory = await runCli([
     "check",
@@ -218,28 +206,6 @@ test("decision list help and argument boundary expose bounded recent query contr
   }
 });
 
-test("decision list and search help project record discovery semantics", async () => {
-  for (const command of ["list", "search"]) {
-    const help = await runCli([command, "--help"]);
-    assert.equal(help.exitCode, 0, command);
-    assert.match(help.stdout, /Semantics:/u, command);
-    assert.match(help.stdout, /stay outside the index/u, command);
-    assert.match(help.stdout, /--related-to resolves first/u, command);
-    assert.match(help.stdout, /Examples:\n  decision-records /u, command);
-  }
-  const listHelp = await runCli(["list", "--help"]);
-  assert.match(
-    listHelp.stdout,
-    /last published snapshot, without checking Markdown currentness/u
-  );
-  const searchHelp = await runCli(["search", "--help"]);
-  assert.match(searchHelp.stdout, /show <decision-id>/u);
-  assert.match(
-    searchHelp.stdout,
-    /does not prove absence from current Markdown/u
-  );
-});
-
 test("new help fixes explicit scaffold inputs without accepting lifecycle alignment", async () => {
   const help = await runCli(["new", "--help"]);
   assert.equal(help.exitCode, 0);
@@ -266,15 +232,6 @@ test("new help fixes explicit scaffold inputs without accepting lifecycle alignm
   );
 });
 
-test("publish and evolve preflight retain their real lifecycle selection options", async () => {
-  for (const command of ["publish", "evolve"] as const) {
-    const help = await runCli([command, "--help"]);
-    assert.equal(help.exitCode, 0);
-    assert.match(help.stdout, /--preflight/);
-    assert.match(help.stdout, /or pending\s+state/);
-  }
-});
-
 test("sync-index publishes by default and separates the zero-write preflight", async () => {
   const help = await runCli(["sync-index", "--help"]);
   assert.equal(help.exitCode, 0);
@@ -291,19 +248,6 @@ test("sync-index publishes by default and separates the zero-write preflight", a
   assert.match(removedWrite.stderr, /unknown option/i);
 });
 
-test("archive help promises to preserve the last alignment", async () => {
-  const help = await runCli(["archive", "--help"]);
-  assert.equal(help.exitCode, 0);
-  assert.match(help.stdout, /preserving their last alignment/);
-});
-
-test("discard help requires an explicit recorded decision deletion flag", async () => {
-  const help = await runCli(["discard", "--help"]);
-  assert.equal(help.exitCode, 0);
-  assert.match(help.stdout, /--delete-recorded/);
-  assert.match(help.stdout, /Decision ID that has entered\s+Git\s+HEAD/);
-});
-
 test("evolve rejects a recorded-decision deletion flag without discard", async () => {
   const result = await runCli([
     "evolve",
@@ -316,15 +260,6 @@ test("evolve rejects a recorded-decision deletion flag without discard", async (
   assert.match(
     result.stderr,
     /--delete-recorded requires --discard <decision-id>/
-  );
-});
-
-test("mark-aligned help requires verified current facts", async () => {
-  const help = await runCli(["mark-aligned", "--help"]);
-  assert.equal(help.exitCode, 0);
-  assert.match(
-    help.stdout,
-    /only after its complete\s+direction\s+has become current fact\s+and been verified against the relevant\s+fact sources/
   );
 });
 

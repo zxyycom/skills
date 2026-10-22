@@ -129,12 +129,15 @@ test("lifecycle rejects a source changed after its prewrite scan before moving e
   withFixtureWorkspace("lifecycle-drift", async (workspaceRoot) => {
     const currentPath = decisionFilePath(workspaceRoot, currentSourcePath);
     const originalText = await fs.readFile(currentPath, "utf8");
+    const indexPath = decisionFilePath(workspaceRoot, "decision-index.json");
+    const indexBefore = await fs.readFile(indexPath, "utf8");
     const originalScan = await scanDecisionRecords({ workspaceRoot });
-    await fs.writeFile(
-      currentPath,
-      originalText.replace("使用生成 CLI", "已漂移的生成 CLI"),
-      "utf8"
+    const driftedText = originalText.replace(
+      "使用生成 CLI",
+      "已漂移的生成 CLI"
     );
+    assert.notEqual(driftedText, originalText);
+    await fs.writeFile(currentPath, driftedText, "utf8");
     const result = await applyDecisionChanges({
       changes: [
         {
@@ -151,7 +154,8 @@ test("lifecycle rejects a source changed after its prewrite scan before moving e
       scanOptions: { workspaceRoot }
     });
     assert.equal(result.status, "error");
-    assert.equal(await fileExists(currentPath), true);
+    assert.equal(await fs.readFile(currentPath, "utf8"), driftedText);
+    assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
     assert.equal(
       await fileExists(
         decisionFilePath(workspaceRoot, `archive/${currentDecisionId}.md`)

@@ -10,4 +10,4 @@ Contract:
 - 索引读写路径必须限制在配置根目录内。
 
 Proves:
-- 父目录逃逸路径返回 `index-path-invalid`，且主动路径语义失败不虚构 `filesystem` 事实。
+- 父目录逃逸路径返回 `index-path-invalid`，不虚构 `filesystem` 事实；受控根外 sentinel 字节及目录成员保持不变。

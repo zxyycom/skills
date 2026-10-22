@@ -1,11 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { defineStateIndexDefinition } from "../src/index.ts";
-import { sameQueryFieldDefinitions } from "../src/definition.ts";
 import { compareStateIndexKeyScalars } from "../src/ordering.ts";
 import type { StateIndexKeyScalar } from "../src/types.ts";
 import { baseDefinition, revision, snapshot } from "./protocol-test-support.ts";
-test("orders query scalars and compares ordered field definitions", () => {
+test("orders typed query scalars", () => {
   const scalars: StateIndexKeyScalar[] = ["alpha", 10, true, 2, false, "beta"];
   assert.deepEqual(scalars.sort(compareStateIndexKeyScalars), [
     false,
@@ -15,23 +14,6 @@ test("orders query scalars and compares ordered field definitions", () => {
     "alpha",
     "beta"
   ]);
-
-  const definitions = [
-    { mode: "exact" as const, name: "status" },
-    { mode: "range" as const, name: "created-at" }
-  ];
-  assert.equal(sameQueryFieldDefinitions(definitions, [...definitions]), true);
-  assert.equal(
-    sameQueryFieldDefinitions(definitions, [...definitions].reverse()),
-    false
-  );
-  assert.equal(
-    sameQueryFieldDefinitions(definitions, [
-      definitions[0]!,
-      { mode: "text", name: "created-at" }
-    ]),
-    false
-  );
 });
 
 test("rejects invalid closed query field descriptors", () => {

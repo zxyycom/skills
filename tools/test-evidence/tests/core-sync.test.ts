@@ -10,18 +10,37 @@ test("selected sync validates every Case while updating only selected entries", 
     "docs/test-evidence/test-evidence-index.json"
   );
   await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" });
-  const before = JSON.parse(await fs.readFile(indexPath, "utf8"));
+  const beforeBytes = await fs.readFile(indexPath, "utf8");
+  const before = JSON.parse(beforeBytes);
+  const unselectedPath = path.join(root, "docs/test-evidence/cases/second.md");
+  const unselectedBefore = await fs.readFile(unselectedPath, "utf8");
   await fs.appendFile(
     path.join(root, "docs/test-evidence/cases/access.md"),
     "\n"
   );
+  await fs.appendFile(unselectedPath, "\n");
+  const unselected = await syncTestEvidenceIndex({
+    workspaceRoot: root,
+    mode: "write",
+    selectedCaseIds: ["AUTH-ROLE-ACCESS-001"]
+  });
+  assert.equal(unselected.status, "error");
+  assert.equal(unselected.state, "unselected-changes");
+  assert.ok(
+    unselected.diagnostics.some(
+      (entry) => entry.code === "state-index.unselected-changes"
+    )
+  );
+  assert.equal(await fs.readFile(indexPath, "utf8"), beforeBytes);
+  await fs.writeFile(unselectedPath, unselectedBefore);
   const selected = await syncTestEvidenceIndex({
     workspaceRoot: root,
     mode: "write",
     selectedCaseIds: ["AUTH-ROLE-ACCESS-001"]
   });
   assert.equal(selected.status, "ok");
-  const after = JSON.parse(await fs.readFile(indexPath, "utf8"));
+  const afterBytes = await fs.readFile(indexPath, "utf8");
+  const after = JSON.parse(afterBytes);
   assert.notEqual(
     after.sourceRevision.entries["AUTH-ROLE-ACCESS-001"],
     before.sourceRevision.entries["AUTH-ROLE-ACCESS-001"]
@@ -41,6 +60,7 @@ test("selected sync validates every Case while updating only selected entries", 
   });
   assert.equal(invalid.status, "error");
   assert.equal(invalid.state, "source-invalid");
+  assert.equal(await fs.readFile(indexPath, "utf8"), afterBytes);
 });
 
 test("selected sync rejects malformed Case IDs before writing an index", async () => {

@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { unzipSync } from "fflate";
-import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+import { defineCheck, run } from "@zxyycom/vibe-check";
 import type { Check, ProjectDefinition, RunResult } from "@zxyycom/vibe-check";
 import {
   createGateDefinition,
@@ -230,42 +230,4 @@ export function createReleaseTestDefinition(
           })
     )
   };
-}
-
-export type NativeBlockingCheckFixture = Readonly<{
-  readonly check: Check;
-  readonly introduceFinding: (directory: string) => Promise<void>;
-  readonly prefix: string;
-  readonly setup: (directory: string) => Promise<void>;
-}>;
-
-export async function assertNativeBlockingCheckContract(
-  fixture: NativeBlockingCheckFixture
-): Promise<void> {
-  await withTemporaryDirectory(fixture.prefix, async (directory) => {
-    await fixture.setup(directory);
-    runGit(directory, ["init"]);
-    runGit(directory, ["add", "."]);
-    const definition = defineConfig({
-      checks: [fixture.check],
-      outputs: noOutput
-    });
-
-    const passed = await runDefinition(definition, directory);
-    assert.equal(passed.aggregate, "passed");
-    assert.equal(passed.snapshot.checks[0]?.outcome.status, "passed");
-
-    await fixture.introduceFinding(directory);
-    runGit(directory, ["add", "."]);
-    const failed = await runDefinition(definition, directory);
-    assert.equal(failed.aggregate, "failed");
-    assert.equal(failed.snapshot.checks[0]?.outcome.status, "failed");
-
-    const unavailable = await runDefinition(
-      definition,
-      path.join(directory, "missing-root")
-    );
-    assert.equal(unavailable.aggregate, "failed");
-    assert.equal(unavailable.snapshot.checks[0]?.outcome.status, "unavailable");
-  });
 }

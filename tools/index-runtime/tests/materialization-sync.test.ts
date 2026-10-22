@@ -89,6 +89,7 @@ test("rejects a source revision that changes during synchronization", async () =
         (entry) => entry.code === "state-index.source-changed"
       )
     );
+    assert.deepEqual(await fs.readdir(tempRoot), []);
   });
 });
 

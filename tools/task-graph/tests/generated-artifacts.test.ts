@@ -261,6 +261,14 @@ test("generated Node CLI uses the isolated runtime for offline mutation", async 
     );
     assert.equal(initialized.stderr, "");
     assert.equal((JSON.parse(initialized.stdout) as { ok: boolean }).ok, true);
+    const indexText = await fs.readFile(
+      path.join(workspace, sourceApi.defaultTaskGraphIndexPath),
+      "utf8"
+    );
+    assert.equal(
+      indexText,
+      '{\n  "schemaVersion": 2,\n  "revision": 0,\n  "nextTaskId": 1,\n  "tasks": {}\n}\n'
+    );
     await assert.rejects(
       fs.stat(
         path.join(workspace, "docs", "task-graph", "task-graph-index.json.lock")

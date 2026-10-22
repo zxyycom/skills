@@ -10,4 +10,4 @@ Contract:
 - Check 模式按版本判断当前安装，不因本地正文定制误报过期。
 
 Proves:
-- 本地版本与 manifest 一致时报告 current 且不写入文件。
+- 本地正文已定制但版本与 manifest 一致时，退出 0 并报告本地版本 2 与 current。

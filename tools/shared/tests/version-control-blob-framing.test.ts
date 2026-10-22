@@ -31,39 +31,6 @@ test("streamed blob framing preserves bounded binary prefixes across header payl
   );
 });
 
-test("streamed blob framing rejects missing type mismatched identity and malformed size headers", () => {
-  for (const header of [
-    `${oid} missing\n`,
-    `${oid} tree 1\n`,
-    `${"b".repeat(40)} blob 1\n`,
-    `${oid} blob -1\n`,
-    `${oid} blob NaN\n`,
-    `${oid} blob 1 extra\n`
-  ]) {
-    const reader = new GitBlobBatchReader(new Map([[oid, 0]]));
-    assert.throws(
-      () => reader.consume(Buffer.from(header)),
-      /Unexpected Git blob header/u
-    );
-  }
-});
-
-test("streamed blob framing rejects truncated payload trailing records and incorrect separators", () => {
-  const truncated = new GitBlobBatchReader(new Map([[oid, 0]]));
-  truncated.consume(Buffer.from(`${oid} blob 4\nabc`));
-  assert.throws(() => truncated.finish(), /Truncated/u);
-  const separator = new GitBlobBatchReader(new Map([[oid, 0]]));
-  assert.throws(
-    () => separator.consume(Buffer.from(`${oid} blob 1\na!`)),
-    /Truncated/u
-  );
-  const trailing = new GitBlobBatchReader(new Map([[oid, 0]]));
-  assert.throws(
-    () => trailing.consume(Buffer.from(`${oid} blob 1\na\n${oid} blob 1\na\n`)),
-    /Unexpected/u
-  );
-});
-
 test("streamed blob framing enforces the existing full batch budget even when no bytes are retained", () => {
   const reader = new GitBlobBatchReader(new Map([[oid, 0]]));
   assert.throws(

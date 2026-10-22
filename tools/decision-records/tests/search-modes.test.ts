@@ -76,6 +76,21 @@ test("decision search finds full Markdown text with all, any, and phrase modes",
       workspaceRoot
     ]);
     assert.match(phrase, new RegExp(decisionId));
+    for (const [query, match] of [
+      ["不存在 稀有全文短语", "all"],
+      ["稀有 正文", "phrase"]
+    ] as const) {
+      const absent = await runSuccessfulSourceCli([
+        "search",
+        query,
+        "--match",
+        match,
+        "--root",
+        workspaceRoot
+      ]);
+      assert.doesNotMatch(absent, new RegExp(decisionId));
+      assert.match(absent, /- none/);
+    }
   }));
 
 test("decision search defaults to active and permits archived selection", () =>

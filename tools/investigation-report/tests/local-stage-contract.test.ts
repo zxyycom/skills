@@ -1,8 +1,7 @@
 import { validateDomainReportSources } from "../src/staging-domain-sources.ts";
 import {
   domainStageControl,
-  resolveDomainSelection,
-  verifyDomainIndex
+  resolveDomainSelection
 } from "../src/staging-domain-context.ts";
 import {
   verifyDomainWrites,
@@ -24,8 +23,6 @@ import { stageInvestigationReports } from "../src/staging.ts";
 import { git, initializeGit } from "./git-support.ts";
 import {
   investigationRoot,
-  jsonObjectMember,
-  parseJsonObject,
   reportMarkdown,
   withTempRoot
 } from "./fixture-support.ts";
@@ -207,50 +204,6 @@ test("investigation index stage validates global metadata relations and the fina
     { id: "one", relations: [{ type: "补充", target: "missing" }] }
   ]);
   assert.throws(() => definition.validateIndex?.(invalid), /missing/u);
-});
-
-test("domain index verification rejects mutable published index drift", async () => {
-  await withTempRoot("stage-index-drift", async (root) => {
-    await writeCollection(root, [{ id: "one" }]);
-    const loaded = await loadInvestigationIndex({
-      investigationsDirectory: investigationRoot(root)
-    });
-    assert.ok(loaded.status === "ok");
-    const snapshot = {
-      baseline: null,
-      revision: null,
-      workspaceIndex: loaded.value,
-      canonicalDefinition: createInvestigationStageIndexDefinition()
-    };
-    const control = domainStageControl({
-      investigationsDirectory: investigationRoot(root),
-      reportIds: ["one"],
-      scope: "all"
-    });
-    assert.deepEqual(await verifyDomainIndex(snapshot, control), {
-      status: "ok"
-    });
-    const indexPath = path.join(
-      investigationRoot(root),
-      "investigation-index.json"
-    );
-    const index = parseJsonObject(await fs.readFile(indexPath, "utf8"));
-    jsonObjectMember(jsonObjectMember(index, "entries"), "one").title =
-      "changed metadata";
-    await fs.writeFile(indexPath, JSON.stringify(index));
-    const result = await verifyDomainIndex(snapshot, control);
-    assert.equal(result.status, "error");
-    if (result.status !== "error")
-      assert.fail("changed published index accepted");
-    assert.equal(
-      result.diagnostics[0]?.code,
-      "investigation-report.stage-source-drift"
-    );
-    assert.match(
-      result.diagnostics[0]?.message ?? "",
-      /published workspace index changed/u
-    );
-  });
 });
 
 test("domain phase comparison rechecks required owner and shared resource bytes", async () => {

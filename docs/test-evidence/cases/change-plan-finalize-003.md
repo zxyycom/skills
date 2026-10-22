@@ -1,7 +1,7 @@
 ### Case CHANGE-PLAN-FINALIZE-003: Finalize 清理失败保留可恢复 tombstone
 
 Tests:
-- `test:7f9044f924b6d30d2e12fc12f3b84fc85b6033b709f3c3e6e3a5d9c922dea935`
+- `test:7942d4e57cfc952f436c7bc79f117dfc58424bba0186997ae7cc53006078a3b3`
 
 Tags:
 - `change-plan`
@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 - 注入 unlink 失败后结果是 `committed-cleanup-pending` 且 `changed: true`。
-- source 和报告的 tombstone child 都保留，维护者可从 HEAD 或 tombstone 对账恢复。
+- source 和报告的 tombstone child 均保留完整成员、原始字节与 owner executable bit，headCommit 等于实际 Git HEAD，维护者可从 HEAD 或 tombstone 对账恢复。

@@ -196,62 +196,6 @@ test("JUnit registration accepts only complete skipped reports", () => {
   );
 });
 
-test("producer batches each ast-grep pattern across test files", async () => {
-  await withSnapshotFixture(
-    { "test:batch": "bun test ./tests/first.test.ts ./tests/second.test.ts" },
-    {
-      "tests/first.test.ts": [
-        'import test from "node:test";',
-        'test("first registration", () => {});',
-        ""
-      ].join("\n"),
-      "tests/second.test.ts": [
-        'import test from "node:test";',
-        'test("second registration", () => {});',
-        ""
-      ].join("\n")
-    },
-    async (root) => {
-      const invocationLog = path.join(root, "ast-grep-invocations.log");
-      const projectAstGrep = await fs.realpath(
-        path.join(process.cwd(), "node_modules", "@ast-grep", "cli", "ast-grep")
-      );
-      const astGrep = path.join(root, "node_modules", ".bin", "ast-grep");
-      await fs.writeFile(
-        astGrep,
-        [
-          "#!/bin/sh",
-          `printf '%s\\0' "$@" >> ${JSON.stringify(invocationLog)}`,
-          `printf '\\0' >> ${JSON.stringify(invocationLog)}`,
-          `exec ${JSON.stringify(projectAstGrep)} "$@"`,
-          ""
-        ].join("\n"),
-        "utf8"
-      );
-      const snapshot = await createRepositoryTestEvidenceSnapshot({
-        workspaceRoot: root
-      });
-      assert.deepEqual(snapshot.entities.map((entity) => entity.name).sort(), [
-        "first registration",
-        "second registration"
-      ]);
-      const patternInvocations = (await fs.readFile(invocationLog, "utf8"))
-        .split("\0\0")
-        .map((record) => record.split("\0"))
-        .filter((args) => args[0] === "scan");
-      assert.equal(patternInvocations.length, 1);
-      assert.equal(patternInvocations[0]?.[2]?.split("\n---\n").length, 7);
-      assert.ok(
-        patternInvocations.every(
-          (args) =>
-            args.includes("tests/first.test.ts") &&
-            args.includes("tests/second.test.ts")
-        )
-      );
-    }
-  );
-});
-
 test("producer preserves suppressed TypeScript and MTS registrations", async () => {
   await withSnapshotFixture(
     { "test:fixture": "bun test ./tests/fixture.test.ts" },

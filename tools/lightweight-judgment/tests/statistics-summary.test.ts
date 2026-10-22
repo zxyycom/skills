@@ -61,20 +61,29 @@ test("stats fixed nearest rank quantiles NULL coverage and bucket boundaries rem
 test("stats UTC half open windows and combined exact filters exclude boundaries and SQL injection", async () => {
   const fixture = statisticsFixture();
   try {
-    fixture.insert({
-      started_at: "2026-10-01T00:00:00.000Z",
-      response_model: "real-a",
-      local_tags: '{"suite":"a"}'
-    });
-    fixture.insert({
+    const matching = {
       started_at: "2026-10-01T01:00:00.000Z",
-      response_model: "real-b",
-      status: "failed"
-    });
-    fixture.insert({
-      started_at: "2026-10-01T02:00:00.000Z",
+      response_model: "real-a",
+      request_model: "typesafe/jev-1.13",
+      endpoint: "https://first.test/systemone",
+      status: "succeeded",
       local_tags: '{"suite":"a"}'
-    });
+    };
+    for (const [started_at, elapsed_ms] of [
+      ["2026-09-30T23:59:59.999Z", 1],
+      ["2026-10-01T00:00:00.000Z", 10],
+      ["2026-10-01T01:59:59.999Z", 100],
+      ["2026-10-01T02:00:00.000Z", 1000]
+    ] as const)
+      fixture.insert({ ...matching, started_at, elapsed_ms });
+    for (const mismatch of [
+      { response_model: "real-b" },
+      { request_model: "typesafe/jev-other" },
+      { endpoint: "https://other.test/systemone" },
+      { status: "failed" },
+      { local_tags: '{"suite":"b"}' }
+    ])
+      fixture.insert({ ...matching, ...mismatch });
     const flags = [
       "--from",
       "2026-10-01T00:00:00Z",
@@ -91,7 +100,9 @@ test("stats UTC half open windows and combined exact filters exclude boundaries 
       "--tag",
       "suite=a"
     ];
-    assert.equal(summary(await fixture.stats(flags)).calls, 1);
+    const selected = await fixture.stats(flags);
+    assert.equal(summary(selected).calls, 2);
+    assert.equal(metric(selected, "elapsedMs").sum, 110);
     assert.equal(
       summary(await fixture.stats(["--endpoint", "' OR 1=1 --"])).calls,
       0
@@ -102,7 +113,7 @@ test("stats UTC half open windows and combined exact filters exclude boundaries 
     );
     assert.equal(
       fixture.database.prepare("SELECT COUNT(*) AS n FROM calls").get()?.n,
-      3
+      9
     );
   } finally {
     fixture.cleanup();

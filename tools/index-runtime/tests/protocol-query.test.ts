@@ -55,10 +55,12 @@ test("materializes an empty state and source-revision record", async () => {
 });
 
 test("reports malformed source snapshots", async () => {
-  assert.equal(
-    (await buildStateIndex(malformedReadDefinition(), { root: "." })).status,
-    "error"
-  );
+  const result = await buildStateIndex(malformedReadDefinition(), {
+    root: "."
+  });
+  assert.equal(result.status, "error");
+  assert.equal(result.value, null);
+  assert.equal(result.diagnostics[0]?.code, "state-index.source-invalid");
 });
 
 test("honors an already-aborted build signal", async () => {

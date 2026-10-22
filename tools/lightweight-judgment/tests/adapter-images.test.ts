@@ -117,13 +117,16 @@ test("image permissions scan every scope and malformed inline nodes refuse befor
 });
 
 test("native TypeSafe assets retain scoped image associations and OpenRouter alpha preserves inline nodes with model specific long context gates", async () => {
+  const stateImage = png(281, 282);
+  const instructionImage = png(283, 284);
+  const criteriaImage = png(285, 286);
   const source = input(
-    { items: [image(), "ordinary-path.png"] },
+    { items: [image(stateImage), "ordinary-path.png"] },
     {
       score: {
         type: "score",
-        instructions: [image(), "rate"],
-        criteria: [image(), "high"]
+        instructions: [image(instructionImage), "rate"],
+        criteria: [image(criteriaImage), "high"]
       },
       box: { type: "box", instructions: "locate target" }
     }
@@ -140,10 +143,52 @@ test("native TypeSafe assets retain scoped image associations and OpenRouter alp
   const assets = object(p.wire.assets);
   assert.equal(Object.keys(assets).length, 3);
   const manifest = array(p.manifest.images).map(object);
-  for (const entry of manifest) {
-    assert.equal(typeof entry.reference, "string");
-    assert.equal(Object.hasOwn(assets, String(entry.reference)), true);
-    assert.equal(String(entry.reference).includes("/"), false);
+  const question = object(object(p.wire.questions).score);
+  const expectedImages = [
+    {
+      reference: array(object(p.wire.state).items)[0],
+      path: '$["state"]["items"][0]',
+      scope: "state",
+      url: stateImage,
+      width: 281,
+      height: 282
+    },
+    {
+      reference: array(question.instructions)[0],
+      path: '$["questions"]["score"]["instructions"][0]',
+      scope: "question",
+      url: instructionImage,
+      width: 283,
+      height: 284
+    },
+    {
+      reference: array(question.criteria)[0],
+      path: '$["questions"]["score"]["criteria"][0]',
+      scope: "question",
+      url: criteriaImage,
+      width: 285,
+      height: 286
+    }
+  ];
+  assert.equal(manifest.length, expectedImages.length);
+  assert.equal(
+    new Set(expectedImages.map(({ reference }) => reference)).size,
+    3
+  );
+  for (const [index, expected] of expectedImages.entries()) {
+    assert.equal(typeof expected.reference, "string");
+    const reference = String(expected.reference);
+    assert.equal(reference.includes("/"), false);
+    const base64 = expected.url.split(",")[1];
+    assert.deepEqual(assets[reference], { data_base64: base64, format: "png" });
+    assert.deepEqual(manifest[index], {
+      reference,
+      path: expected.path,
+      scope: expected.scope,
+      width: expected.width,
+      height: expected.height,
+      bytes: Buffer.from(base64, "base64").length
+    });
   }
   assert.equal(object(object(p.wire.questions).box).type, "box");
   assert.equal(p.body.includes("data:image"), false);

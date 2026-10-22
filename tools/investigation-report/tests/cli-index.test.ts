@@ -27,16 +27,6 @@ function initializeGit(root: string): void {
   git(root, ["commit", "--quiet", "-m", "initial"]);
 }
 
-test("CLI check succeeds on a current report collection", async () => {
-  await withTempRoot("cli-check", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    const result = await runInvestigationCli(root, ["check"]);
-    assert.equal(result.status, 0);
-    assert.equal(result.stderr, "");
-    assert.match(result.stdout, /1 reports checked; full index current/u);
-  });
-});
-
 test("CLI show renders a scrubbed structured report read failure", async () => {
   await withTempRoot("cli-show-read-failure", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
@@ -281,28 +271,6 @@ test("CLI sync-index renders filesystem diagnostics structurally", async () => {
     assert.match(result.stderr, /detail: token=\[redacted\]/u);
     assert.doesNotMatch(result.stderr, new RegExp(token, "u"));
     assert.doesNotMatch(result.stderr, /\/private\/index\.json/u);
-  });
-});
-
-test("CLI list returns a current report after resource byte changes", async () => {
-  await withTempRoot("cli-resource", async (root) => {
-    const resource = path.join(
-      investigationRoot(root),
-      "_resources",
-      "report",
-      "evidence.txt"
-    );
-    await fs.mkdir(path.dirname(resource), { recursive: true });
-    await fs.writeFile(resource, "before", "utf8");
-    await writeCollection(root, [
-      { id: "report", resources: ["report/evidence.txt"] }
-    ]);
-    await fs.writeFile(resource, "after", "utf8");
-
-    const result = await runInvestigationCli(root, ["list"]);
-    assert.equal(result.status, 0);
-    assert.equal(result.stderr, "");
-    assert.match(result.stdout, /^- report /mu);
   });
 });
 

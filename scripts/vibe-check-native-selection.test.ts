@@ -1,16 +1,7 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import test from "node:test";
-import {
-  automationCodeFiles,
-  createVibeNativeChecks,
-  historicalContentExclusions,
-  investigationAuthoringDocumentExclusions,
-  maintainedSecretFiles,
-  productCodeFiles,
-  testCodeFiles,
-  vibeNativeCheckIds
-} from "./lib/vibe-gate.ts";
+import { createVibeNativeChecks, vibeNativeCheckIds } from "./lib/vibe-gate.ts";
 
 function nativeCheckExclusions(
   optionsById: ReadonlyMap<string, unknown>,
@@ -85,28 +76,35 @@ test("native file selections exclude historical content and authoring candidates
     (candidate) => candidate !== "function-metrics"
   )) {
     const exclusions = nativeCheckExclusions(optionsById, checkId);
-    for (const historicalExclusion of historicalContentExclusions) {
+    for (const historicalExclusion of ["docs/investigations/_resources/**"]) {
       assert.ok(
         exclusions.includes(`!${historicalExclusion}`),
         `${checkId} must exclude ${historicalExclusion}`
       );
     }
   }
-  for (const [areaId, expectedFiles] of [
-    ["product", productCodeFiles],
-    ["automation", automationCodeFiles],
-    ["tests", testCodeFiles]
+  for (const [areaId, requiredPatterns] of [
+    ["product", ["tools/**/*.{js,ts}", "!tools/**/tests/**"]],
+    ["automation", ["scripts/**/*.{js,ts}", "!scripts/**/*.test.{js,ts}"]],
+    ["tests", ["scripts/**/*.test.{js,ts}", "tools/**/tests/**/*.{js,ts}"]]
   ] as const) {
     const area = codeAreaOptions(optionsById, "function-metrics", areaId);
-    assert.deepEqual(area.files, {
-      ...expectedFiles,
-      useDefaultExcludes: true
-    });
+    assert.equal(
+      optionsRecord(area.files, `missing files for ${areaId}`)
+        .useDefaultExcludes,
+      true
+    );
     const exclusions = stringArray(
       optionsRecord(area.files, `missing files for ${areaId}`).patterns
     );
-    for (const historicalExclusion of historicalContentExclusions) {
-      assert.ok(exclusions?.includes(`!${historicalExclusion}`));
+    for (const pattern of [
+      ...requiredPatterns,
+      "!docs/investigations/_resources/**"
+    ]) {
+      assert.ok(
+        exclusions?.includes(pattern),
+        `${areaId} must select ${pattern}`
+      );
     }
   }
   assert.deepEqual(
@@ -132,18 +130,20 @@ test("native file selections exclude historical content and authoring candidates
         ? ["**/*.json"]
         : ["**/*.[mM][dD]", "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"]
     );
-    for (const candidateExclusion of investigationAuthoringDocumentExclusions) {
+    for (const candidateExclusion of ["docs/investigations/_candidate.*"]) {
       assert.ok(
         exclusions.includes(`!${candidateExclusion}`),
         `${checkId} must exclude ${candidateExclusion}`
       );
     }
   }
-  assert.deepEqual(
+  const secretFiles = optionsRecord(
     optionsRecord(optionsById.get("secret-detection"), "missing secret Check")
       .files,
-    { ...maintainedSecretFiles, useDefaultExcludes: true }
+    "missing secret files"
   );
+  assert.equal(secretFiles.useDefaultExcludes, true);
+  assert.ok(stringArray(secretFiles.patterns)?.includes(".githooks/*"));
   const markdownOptions = optionsRecord(
     optionsById.get("markdown-link-validation"),
     "missing Markdown Check"

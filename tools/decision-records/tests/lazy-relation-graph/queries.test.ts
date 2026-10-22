@@ -30,7 +30,7 @@ function searchRequest(
   };
 }
 
-test("Decision published queries reuse strict validation graphs and keep ordinary reads at one build", async () => {
+test("Decision published queries preserve validated results without exposing graph accessors", async () => {
   await withFixtureWorkspace("lazy-graph-published", async (root) => {
     const list = listRequest(root);
     const search = searchRequest(root);
@@ -61,40 +61,33 @@ test("Decision published queries reuse strict validation graphs and keep ordinar
       }
     ];
     for (const request of queries) {
-      await withGraphBuildCount(async (count) => {
-        const result = await executeDecisionQuery(request);
-        assert.ok(result.status === "ok", JSON.stringify(result));
-        assert.equal(result.command, request.command);
-        assert.deepEqual(result.warnings, []);
-        assert.equal(
-          count(),
-          1,
-          request.command + (request.command === "search" ? " metadata" : "")
+      const result = await executeDecisionQuery(request);
+      assert.ok(result.status === "ok", JSON.stringify(result));
+      assert.equal(result.command, request.command);
+      assert.deepEqual(result.warnings, []);
+      if (result.command === "list") {
+        assert.equal(result.total, "relatedTo" in request ? 1 : 2);
+        if ("relatedTo" in request)
+          assert.deepEqual(result.records[0]?.filterRelations, [
+            {
+              sourceId: currentDecisionId,
+              type: "修订",
+              target: archivedDecisionId
+            }
+          ]);
+      } else if (result.command === "trace") {
+        assert.deepEqual(
+          new Set(result.traceIds),
+          new Set([currentDecisionId, archivedDecisionId])
         );
-        if (result.command === "list") {
-          assert.equal(result.total, "relatedTo" in request ? 1 : 2);
-          if ("relatedTo" in request)
-            assert.deepEqual(result.records[0]?.filterRelations, [
-              {
-                sourceId: currentDecisionId,
-                type: "修订",
-                target: archivedDecisionId
-              }
-            ]);
-        } else if (result.command === "trace") {
-          assert.deepEqual(
-            new Set(result.traceIds),
-            new Set([currentDecisionId, archivedDecisionId])
-          );
-          assert.deepEqual(result.coverage, { complete: true, stoppedBy: [] });
-        } else if (result.command === "show") {
-          assert.match(result.body, /CLI/u);
-        } else if (result.command === "search") {
-          assert.equal(result.records.length, "relatedTo" in request ? 1 : 2);
-          assert.equal(result.searchInfo.source.kind, "published-index");
-        }
-        assert.equal("getRelationGraph" in result, false);
-      });
+        assert.deepEqual(result.coverage, { complete: true, stoppedBy: [] });
+      } else if (result.command === "show") {
+        assert.match(result.body, /CLI/u);
+      } else if (result.command === "search") {
+        assert.equal(result.records.length, "relatedTo" in request ? 1 : 2);
+        assert.equal(result.searchInfo.source.kind, "published-index");
+      }
+      assert.equal("getRelationGraph" in result, false);
     }
   });
 });

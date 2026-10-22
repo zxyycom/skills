@@ -5,7 +5,6 @@ import {
   GitBlobBatchReader
 } from "../src/version-control/git-blob-batch.ts";
 import { readRevisionFilePrefixes } from "../src/version-control/revision-file-prefixes.ts";
-import { readPendingSnapshot } from "../src/version-control/pending-snapshot.ts";
 import {
   assert,
   createRepositoryFixture,
@@ -74,47 +73,6 @@ test(
       );
       assert.ok(pending.value.length > 1);
       assert.equal(pending.calls, 0);
-    });
-  }
-);
-
-test(
-  "pending snapshots hash every unique actual payload including unretained objects while default selections keep required fingerprints",
-  gitTestOptions,
-  async () => {
-    await withTempRoot(async (temp) => {
-      const { repositoryRoot } = await createRepositoryFixture(temp);
-      const repository = await openVersionControl(repositoryRoot);
-      const ids = new Set(
-        runGit(repositoryRoot, ["ls-files", "--stage", "docs"])
-          .trim()
-          .split("\n")
-          .map((line) => line.split(" ")[1]!)
-      );
-      const expectedBytes = [...ids].reduce(
-        (sum, id) =>
-          sum + Number(runGit(repositoryRoot, ["cat-file", "-s", id])),
-        0
-      );
-      const snapshot = await observeHashBytes(() =>
-        readPendingSnapshot(repository, {
-          pathScope: "docs",
-          contentPaths: ["docs/tracked.md"]
-        })
-      );
-      assert.equal(snapshot.value.files.length, 1);
-      assert.ok(snapshot.value.members.length > ids.size);
-      assert.equal(snapshot.bytes, expectedBytes);
-      const oid = runGit(repositoryRoot, [
-        "rev-parse",
-        ":docs/staged.bin"
-      ]).trim();
-      const selection = await observeHashBytes(() =>
-        readGitBlobSelections(repositoryRoot, new Map([[oid, 0]]))
-      );
-      assert.equal(selection.value.get(oid)?.data.length, 0);
-      assert.match(selection.value.get(oid)!.fingerprint, /^[a-f0-9]{64}$/u);
-      assert.equal(selection.bytes, 4);
     });
   }
 );

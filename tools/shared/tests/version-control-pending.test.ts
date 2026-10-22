@@ -46,6 +46,7 @@ test(
           pathScope: "docs"
         })
       );
+      assert.equal(stale.code, "pending-conflict");
       assert.equal(stale.causeCategory, "unknown");
       assert.equal(stale.operation, "verify a pending replacement");
       assert.equal(stale.target, "docs");
@@ -61,6 +62,7 @@ test(
             pathScope: "docs"
           })
         );
+        assert.equal(busy.code, "pending-conflict");
         assert.equal(busy.causeCategory, "busy");
         assert.equal(busy.operation, "verify a pending replacement");
         assert.equal(busy.target, "docs");

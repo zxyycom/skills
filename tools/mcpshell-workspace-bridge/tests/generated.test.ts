@@ -22,6 +22,19 @@ afterEach(async () => {
 });
 
 test("generated bridge modules import without configuration side effects", async () => {
+  const fixture = await createBridgeFixture();
+  fixtures.push(fixture);
+  const scripts = path.join(fixture.skill, "scripts");
+  await fs.cp(path.join(skill, "scripts"), scripts, { recursive: true });
+  const beforePaths = (
+    await fs.readdir(fixture.agentProject, { recursive: true })
+  ).sort();
+  const beforeIgnore = await fs.readFile(
+    path.join(fixture.skill, ".gitignore")
+  );
+  const beforeDefinitions = await fs.readFile(
+    path.join(fixture.skill, "references", "mcpshell-tools.yaml")
+  );
   for (const script of [
     "init-mcpshell-workspace.ts",
     "mcpshell-workspace.ts"
@@ -31,13 +44,31 @@ test("generated bridge modules import without configuration side effects", async
       [
         "--input-type=module",
         "--eval",
-        `await import(${JSON.stringify(pathToFileURL(path.join(skill, "scripts", script)).href)});`
+        `await import(${JSON.stringify(pathToFileURL(path.join(scripts, script)).href)});`
       ],
       {
-        encoding: "utf8"
+        encoding: "utf8",
+        cwd: fixture.agentProject,
+        env: {}
       }
     );
     assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout, "");
+    assert.equal(result.stderr, "");
+    assert.deepEqual(
+      (await fs.readdir(fixture.agentProject, { recursive: true })).sort(),
+      beforePaths
+    );
+    assert.deepEqual(
+      await fs.readFile(path.join(fixture.skill, ".gitignore")),
+      beforeIgnore
+    );
+    assert.deepEqual(
+      await fs.readFile(
+        path.join(fixture.skill, "references", "mcpshell-tools.yaml")
+      ),
+      beforeDefinitions
+    );
   }
 });
 

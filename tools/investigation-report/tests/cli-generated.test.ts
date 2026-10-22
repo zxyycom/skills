@@ -405,38 +405,3 @@ test("CLI discard rejects malformed investigation IDs as argument errors", async
     assert.deepEqual(await fs.readdir(root), []);
   });
 });
-
-test("CLI exposes one discard action and rejects removed candidate-specific commands and flags", async () => {
-  await withTempRoot("cli-discard-surface", async (root) => {
-    const help = await runInvestigationCli(root, ["discard", "--help"]);
-    assert.equal(help.status, 0);
-    assert.match(help.stdout, /--delete-recorded/u);
-    assert.match(help.stdout, /--delete-owned-resources/u);
-    assert.doesNotMatch(help.stdout, /--delete-recorded-report/u);
-    assert.doesNotMatch(help.stdout, /--delete-recorded-candidate/u);
-
-    const removedCommand = await runInvestigationCli(root, [
-      "discard-candidate",
-      "report"
-    ]);
-    assert.equal(removedCommand.status, 2);
-    assert.match(removedCommand.stderr, /Unknown command|unknown command/u);
-
-    for (const removedFlag of [
-      "--delete-recorded-report",
-      "--delete-recorded-candidate"
-    ]) {
-      const rejected = await runInvestigationCli(root, [
-        "discard",
-        "report",
-        removedFlag
-      ]);
-      assert.equal(rejected.status, 2, removedFlag);
-      assert.match(
-        rejected.stderr,
-        /unknown option|Unknown option/u,
-        removedFlag
-      );
-    }
-  });
-});

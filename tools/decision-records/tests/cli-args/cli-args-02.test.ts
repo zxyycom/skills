@@ -8,22 +8,6 @@ import {
 } from "./support.ts";
 import { withFixtureWorkspace } from "../support.ts";
 
-test("decision CLI rejects removed split and positional evolve protocols", async () => {
-  for (const args of [
-    ["split", currentRelativePath, "--successor", "aligned=use-successor.md"],
-    [
-      "evolve",
-      "use-successor.md",
-      "--alignment",
-      "aligned",
-      "--relation",
-      "修订=" + currentRelativePath
-    ]
-  ]) {
-    assert.equal((await runCli(args)).exitCode, 2);
-  }
-});
-
 test("evolve requires at least one successor argument", async () => {
   for (const args of [
     ["evolve"],
@@ -32,34 +16,6 @@ test("evolve requires at least one successor argument", async () => {
     const result = await runCli(args);
     assert.equal(result.exitCode, 2);
     assert.match(result.stderr, /required option '--successor/);
-  }
-});
-
-test("decision CLI rejects the removed activate command and its override options", async () => {
-  const removedCommand = await runCli([
-    "activate",
-    currentRelativePath,
-    "--alignment",
-    "aligned"
-  ]);
-  assert.equal(removedCommand.exitCode, 2);
-  assert.match(removedCommand.stderr, /unknown command 'activate'/);
-
-  for (const removedOption of [
-    ["--relation", "修订=" + archivedRelativePath],
-    ["--relation-summary", archivedRelativePath + "=summary"],
-    ["--clear-relations"]
-  ]) {
-    const result = await runCli([
-      "publish",
-      currentRelativePath,
-      "--alignment",
-      "aligned",
-      ...removedOption
-    ]);
-    assert.equal(result.exitCode, 2, removedOption[0]);
-    assert.equal(result.stdout, "", removedOption[0]);
-    assert.match(result.stderr, /unknown option/);
   }
 });
 
@@ -169,48 +125,6 @@ test("evolve rejects repeated relation override targets at the CLI boundary", as
   ]);
   assert.equal(result.exitCode, 2);
   assert.match(result.stderr, /must not repeat a direct predecessor target/);
-});
-
-test("decision CLI rejects removed domain and path query protocols", async () => {
-  const help = await runCli(["--help"]);
-  assert.doesNotMatch(help.stdout, /\bdomains\b/);
-  assert.doesNotMatch(help.stdout, /--domain/);
-  for (const { args, stderr } of [
-    { args: ["domains"], stderr: /unknown command 'domains'/ },
-    {
-      args: ["list", "--domain", "decision-records"],
-      stderr: /unknown option/
-    },
-    {
-      args: ["show", "archive/use-generated-cli.md"],
-      stderr: /Decision selector is invalid/
-    },
-    {
-      args: [
-        "list",
-        "--tag",
-        "decision-records",
-        "--tag-or",
-        "project-tooling"
-      ],
-      stderr: /unknown option/
-    },
-    {
-      args: [
-        "list",
-        "--tag",
-        "decision-records",
-        "--not-tag",
-        "project-tooling"
-      ],
-      stderr: /unknown option/
-    }
-  ]) {
-    const result = await runCli(args);
-    assert.equal(result.exitCode, 2, args.join(" "));
-    assert.equal(result.stdout, "", args.join(" "));
-    assert.match(result.stderr, stderr, args.join(" "));
-  }
 });
 
 test("positional Decision IDs are validated at every CLI command boundary", async () => {

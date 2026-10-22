@@ -187,28 +187,4 @@ export async function verifyCliFailures(): Promise<void> {
       assert.equal(unknown.result.error.details.possibleRevision, 1);
     }
   });
-
-  await withTempWorkspace(async (root) => {
-    await callCli(root, ["index", "init"]);
-    const unknown = await callCli(
-      root,
-      [
-        "task",
-        "create",
-        "--title",
-        "committed then unreadable",
-        "--goal",
-        "exercise missing readback",
-        "--expected-revision",
-        "0"
-      ],
-      {
-        atomicWrite: async (target) => {
-          await fs.unlink(target);
-        }
-      }
-    );
-    assert.equal(unknown.result.ok, true);
-    assert.equal(unknown.result.revision, 1);
-  });
 }

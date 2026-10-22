@@ -147,6 +147,9 @@ test("lifecycle rolls back and does not print success when its post-write index 
   withFixtureWorkspace("post-mutation-scan", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
     const indexPath = path.join(decisionsDirectory, "decision-index.json");
+    const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
+    const sourceBefore = await fs.readFile(sourcePath, "utf8");
+    const indexBefore = await fs.readFile(indexPath, "utf8");
     const renameDescriptor = Object.getOwnPropertyDescriptor(fs, "rename");
     const readDescriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
     assert.ok(renameDescriptor);
@@ -189,4 +192,11 @@ test("lifecycle rolls back and does not print success when its post-write index 
       Object.defineProperty(fs, "rename", renameDescriptor);
       Object.defineProperty(fs, "readFile", readDescriptor);
     }
+    assert.equal(await fs.readFile(sourcePath, "utf8"), sourceBefore);
+    assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
+    await assert.rejects(
+      fs.access(
+        path.join(decisionsDirectory, "archive", `${currentDecisionId}.md`)
+      )
+    );
   }));

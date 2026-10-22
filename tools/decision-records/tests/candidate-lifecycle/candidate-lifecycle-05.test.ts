@@ -162,19 +162,6 @@ test("candidate collection serves sources while the established index is missing
   }
 });
 
-test("first candidate discovery succeeds with no established records and no index", () =>
-  withTemporaryWorkspace("candidate-first-discovery", async (workspaceRoot) => {
-    const candidateId = "use-first-candidate";
-    await writeDecision(workspaceRoot, candidateId, candidateDecisionBody());
-    const candidates = await runSourceCli([
-      "candidates",
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(candidates.exitCode, 0, candidates.stderr);
-    assert.match(candidates.stdout, new RegExp(candidateId));
-  }));
-
 test("candidate collection serves sources without relying on an empty published index", () =>
   withFixtureWorkspace("candidate-empty-index", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");

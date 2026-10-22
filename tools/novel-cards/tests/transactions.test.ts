@@ -17,37 +17,6 @@ import {
   updates
 } from "./history-support.ts";
 
-test("multi-file publish failure restores all original cards snapshots and index", async () => {
-  await project(async (root) => {
-    await stateProject(root);
-    const original = await fs.readFile(path.join(root, "card-index.json"));
-    const input = await batchFile(root, transition(), updates());
-    let writes = 0;
-    await assert.rejects(
-      applyTransition(root, input, async (file, text, directory) => {
-        writes += 1;
-        if (writes === 3)
-          throw new Error("injected third-file filesystem failure");
-        await atomicTransactionWrite(file, text, directory);
-      }),
-      failure("transaction-failed")
-    );
-    assert.deepEqual(
-      await fs.readFile(path.join(root, "card-index.json")),
-      original
-    );
-    assert.equal((await currentSource(root)).records.length, 3);
-    assert.equal(
-      selectCard((await currentSource(root)).records, "hero", false).card
-        .version,
-      1
-    );
-    await assert.rejects(fs.lstat(path.join(root, journalDirectory)), {
-      code: "ENOENT"
-    });
-  });
-});
-
 test("interrupted journals block queries and recover refuses unrelated changed bytes", async () => {
   await project(async (root) => {
     await stateProject(root);

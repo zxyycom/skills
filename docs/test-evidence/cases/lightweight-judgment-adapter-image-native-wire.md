@@ -10,4 +10,5 @@ Contract:
 - TypeSafe 图像按原作用域转换为 assets 引用；OR Jev 保留内联节点，明确接受其自动长上下文后才发送图片或较长请求。
 
 Proves:
-- 有效合成 PNG 的共享和题目局部图像分别转换为 UUID/assets 与专用头，carrier 保留；OR wire 原样保留节点且无 TypeSafe 头；Jev 模型、Box 与长输入组合门禁离线核对。
+- state、question instructions 与 criteria 的三张不同 PNG 分别转换为不同引用；各 asset 的 base64/format 及 manifest 的 path、scope、reference、尺寸与字节数逐项对应原图，carrier 与专用头保留。
+- OR wire 原样保留内联节点且无 TypeSafe 头；Jev 模型、Box 与长输入组合门禁离线核对。

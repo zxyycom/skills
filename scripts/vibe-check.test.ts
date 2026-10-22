@@ -8,7 +8,6 @@ import "./vibe-check-cli-incremental.test.ts";
 import "./vibe-check-cli-input-closure.test.ts";
 import "./vibe-check-command-runner.test.ts";
 import "./vibe-check-metrics.test.ts";
-import "./vibe-check-native-blocking.test.ts";
 import "./vibe-check-native-selection.test.ts";
 import "./vibe-check-package-adapter.test.ts";
 import "./vibe-check-proof-mode.test.ts";

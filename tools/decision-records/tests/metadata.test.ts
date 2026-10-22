@@ -8,16 +8,22 @@ import { validateDecisionBody } from "../src/record.ts";
 import { candidateDecisionBody } from "./support-record-fixture.ts";
 
 test("decision Markdown requires sorted unique tag tokens", async () => {
-  for (const replacement of [
-    "relations: []",
-    "tags:\nrelations: []",
-    "tags:\n  - invalid_tag\nrelations: []",
-    "tags:\n  - zeta\n  - alpha\nrelations: []",
-    "tags:\n  - alpha\n  - alpha\nrelations: []"
-  ]) {
+  for (const [replacement, diagnostic] of [
+    ["relations: []", /frontmatter tags must be a non-empty array/u],
+    ["tags:\nrelations: []", /frontmatter tags must be a non-empty array/u],
+    [
+      "tags:\n  - invalid_tag\nrelations: []",
+      /frontmatter tags\[0\] must be a kebab-case tag/u
+    ],
+    [
+      "tags:\n  - zeta\n  - alpha\nrelations: []",
+      /frontmatter tags must use lexical ascending order/u
+    ],
+    ["tags:\n  - alpha\n  - alpha\nrelations: []", /repeats tag alpha/u]
+  ] as const) {
     const errors: string[] = [];
     await validateDecisionBody({
-      body: candidateDecisionBody().replace(
+      body: candidateDecisionBody({ id: "use-tags" }).replace(
         "tags:\n  - decision-records\nrelations: []",
         replacement
       ),
@@ -26,7 +32,10 @@ test("decision Markdown requires sorted unique tag tokens", async () => {
       sourcePath: "use-tags.md",
       targetExists: () => false
     });
-    assert.notEqual(errors.length, 0, replacement);
+    assert.ok(
+      errors.some((error) => diagnostic.test(error)),
+      replacement
+    );
   }
 });
 
@@ -118,12 +127,18 @@ test("decision Markdown rejects removed domain fields and unknown frontmatter", 
   ]) {
     const errors: string[] = [];
     await validateDecisionBody({
-      body: candidateDecisionBody().replace("tags:", `${line}\ntags:`),
+      body: candidateDecisionBody({ id: "use-tags" }).replace(
+        "tags:",
+        `${line}\ntags:`
+      ),
       errors,
       decisionId: "use-tags",
       sourcePath: "use-tags.md",
       targetExists: () => false
     });
-    assert.notEqual(errors.length, 0, line);
+    assert.ok(
+      errors.some((error) => error.includes("unsupported keys")),
+      line
+    );
   }
 });

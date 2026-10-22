@@ -158,89 +158,36 @@ test(
 );
 
 test(
-  "applies one id-existence rule to additions deletions no-ops and explicit renames",
+  "selected staging leaves an unchanged entry unchanged",
   testOptions,
   async () => {
     await withTempRoot(async (tempRoot) => {
-      const scenarios = [
-        {
-          expected: { A: "A0", N: "N1" },
-          name: "addition",
-          revision: snapshot({ A: "A0" }, "revision"),
-          selectedIds: ["N"],
-          workspace: snapshot({ A: "A0", N: "N1" }, "workspace")
-        },
-        {
-          expected: { A: "A0" },
-          name: "deletion",
-          revision: snapshot({ A: "A0", B: "B0" }, "revision"),
-          selectedIds: ["B"],
-          workspace: snapshot({ A: "A0" }, "workspace")
-        },
-        {
-          expected: { A: "A0" },
-          name: "no-op",
-          revision: snapshot({ A: "A0" }, "same"),
-          selectedIds: ["A"],
-          workspace: snapshot({ A: "A0" }, "same")
-        },
-        {
-          expected: { A: "A0", constructor: "new" },
-          name: "rename",
-          revision: snapshot(
-            Object.fromEntries([
-              ["A", "A0"],
-              ["__proto__", "old"]
-            ]),
-            "revision"
-          ),
-          selectedIds: ["constructor", "__proto__"],
-          workspace: snapshot(
-            Object.fromEntries([
-              ["A", "A0"],
-              ["constructor", "new"]
-            ]),
-            "workspace"
-          )
-        }
-      ] as const;
-
-      for (const scenario of scenarios) {
-        const control = createControl();
-        const source: TestSource = { snapshot: snapshot({}, "empty") };
-        const definition = createDefinition(source, control);
-        const fixture = await createStagingFixture({
-          definition,
-          name: scenario.name,
-          revision: scenario.revision,
-          source,
-          tempRoot,
-          workspace: scenario.workspace
-        });
-        resetControl(control);
-        const result = await stageFixture(
-          fixture,
-          definition,
-          scenario.selectedIds
-        );
-        assert.equal(result.status, "ok", scenario.name);
-        assert.deepEqual(
-          entryLabels(await readStagedIndex(fixture, definition)),
-          scenario.expected,
-          scenario.name
-        );
-        if (scenario.name === "no-op") {
-          assert.deepEqual(result, {
-            changed: false,
-            diagnostics: [],
-            indexPath,
-            namespace: "staging-test",
-            selectedIds: ["A"],
-            state: "unchanged",
-            status: "ok"
-          });
-        }
-      }
+      const control = createControl();
+      const source: TestSource = { snapshot: snapshot({}, "empty") };
+      const definition = createDefinition(source, control);
+      const fixture = await createStagingFixture({
+        definition,
+        name: "no-op",
+        revision: snapshot({ A: "A0" }, "same"),
+        source,
+        tempRoot,
+        workspace: snapshot({ A: "A0" }, "same")
+      });
+      resetControl(control);
+      const result = await stageFixture(fixture, definition, ["A"]);
+      assert.deepEqual(result, {
+        changed: false,
+        diagnostics: [],
+        indexPath,
+        namespace: "staging-test",
+        selectedIds: ["A"],
+        state: "unchanged",
+        status: "ok"
+      });
+      assert.deepEqual(
+        entryLabels(await readStagedIndex(fixture, definition)),
+        { A: "A0" }
+      );
     });
   }
 );

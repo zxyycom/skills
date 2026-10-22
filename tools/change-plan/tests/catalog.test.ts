@@ -2,11 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import {
-  checkChangePlanCollection,
-  listChangePlans,
-  showChangePlanDirectory
-} from "../src/catalog.ts";
+import { checkChangePlanCollection, listChangePlans } from "../src/catalog.ts";
 import { checkChangePlanDirectory } from "../src/check.ts";
 import {
   git,
@@ -38,16 +34,6 @@ test("catalog lists direct active members and excludes private tombstones", asyn
     const collection = await checkChangePlanCollection({ changeRoot: changes });
     assert.equal(collection.checkedCount, 3);
     assert.equal(collection.valid, false);
-  });
-});
-
-test("show reads only active change artifacts through the current checker", async () => {
-  await withTempRoot("catalog-show", async (root) => {
-    const change = await writePlan(path.join(root, "changes"), "shown-plan");
-    const shown = await showChangePlanDirectory(change);
-    assert.equal(shown.check.changeName, "shown-plan");
-    assert.equal(shown.check.valid, true);
-    assert.notEqual(shown.artifacts["proposal.md"], null);
   });
 });
 

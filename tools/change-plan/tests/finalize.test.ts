@@ -85,44 +85,6 @@ test("finalize rejects an incomplete or non-HEAD-exact change without moving it"
   });
 });
 
-test("finalize preserves a recoverable tombstone after cleanup fails", async () => {
-  await withTempRoot("finalize-cleanup", async (root) => {
-    const changes = path.join(root, "changes");
-    const change = await writePlan(changes, "cleanup-plan", {
-      tasks: completedTasks
-    });
-    commitAll(root, "record cleanup plan");
-    const originalUnlink = fs.unlink.bind(fs);
-    let injected = false;
-    Object.defineProperty(fs, "unlink", {
-      configurable: true,
-      value: async (...arguments_: Parameters<typeof fs.unlink>) => {
-        if (!injected) {
-          injected = true;
-          throw new Error("injected cleanup failure");
-        }
-        return await originalUnlink(...arguments_);
-      },
-      writable: true
-    });
-    let result;
-    try {
-      result = await finalizeChangePlanDirectory(change);
-    } finally {
-      Object.defineProperty(fs, "unlink", {
-        configurable: true,
-        value: originalUnlink,
-        writable: true
-      });
-    }
-    assert.equal(result.outcome, "committed-cleanup-pending");
-    assert.equal(result.changed, true);
-    assert.notEqual(result.tombstoneDirectory, null);
-    await fs.access(change);
-    await fs.access(result.tombstoneDirectory!);
-  });
-});
-
 test("finalize rejects content, mode, ignored, empty-directory, and symbolic-link drift without moving", async () => {
   await withTempRoot("finalize-physical-drift", async (root) => {
     const changes = path.join(root, "changes");

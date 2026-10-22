@@ -99,8 +99,17 @@ test("keeps bound snapshots stable while runtime detects and refreshes staleness
       resultValue(reader.get(source.states[0]!.path))?.state.status,
       "active"
     );
-    assert.equal((await runtime.get(source.states[0]!.path)).status, "error");
+    const stale = await runtime.get(source.states[0]!.path);
+    assert.equal(stale.status, "error");
+    assert.equal(stale.diagnostics[0]?.code, "state-index.index-stale");
     assert.equal((await runtime.sync("write")).state, "written");
-    assert.equal((await runtime.get(source.states[0]!.path)).status, "ok");
+    assert.equal(
+      resultValue(await runtime.get(source.states[0]!.path))?.state.status,
+      "archived"
+    );
+    assert.equal(
+      resultValue(reader.get(source.states[0]!.path))?.state.status,
+      "active"
+    );
   });
 });

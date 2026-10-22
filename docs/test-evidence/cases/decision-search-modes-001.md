@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 - 位于正文的稀有词组在默认和显式 content 的 all 查询，以及默认 any 和 phrase 查询中都返回对应 Decision ID。
-- 输出含语义 sourcePath、previews 标记和正文命中片段。
+- all 加入缺失词时零命中，phrase 的非连续词组合零命中；输出含语义 sourcePath、previews 标记和正文命中片段。

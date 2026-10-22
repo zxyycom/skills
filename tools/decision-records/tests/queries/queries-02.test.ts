@@ -143,30 +143,6 @@ test("decision queries identify published snapshots without source warnings whil
     assert.notEqual(checked.exitCode, 0);
   }));
 
-test("decision list combines repeated tag selectors with AND semantics", async () => {
-  const bothId = "use-both-tags";
-  const entries = await listSnapshotEntries([
-    {
-      id: bothId,
-      text: candidateDecisionBody({
-        id: bothId,
-        tags: ["decision-records", "project-tooling"],
-        title: "同时属于两个标签"
-      })
-        .replace("status: candidate", "status: active")
-        .replace("alignment: null", "alignment: aligned")
-        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
-    }
-  ]);
-  const listed = renderedList(entries, {
-    status: "all",
-    tags: ["decision-records", "project-tooling"]
-  });
-  assert.match(decisionMatchLines(listed), new RegExp(bothId));
-  assert.doesNotMatch(listed, new RegExp(currentDecisionId));
-  assert.doesNotMatch(listed, new RegExp(archivedDecisionId));
-});
-
 test("decision list filters records by alignment selector", async () => {
   const unalignedId = "use-unaligned";
   const entries = await listSnapshotEntries([

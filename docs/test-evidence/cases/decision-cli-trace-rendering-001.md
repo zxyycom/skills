@@ -17,4 +17,4 @@ Contract:
 Proves:
 - 默认图回显范围、图层、trace/context、切片内的有向边、缺省标记、frontier 与 blockedEvent，且不把切片外 relation 渲染为图内边。
 - 归并和重划的 context source 边不归属到 context target；reallocation context 同时显示 Y→A、Y→B，并转义 summary 中的引号。
-- `--json` 保留 trace、context 与 limits 字段，供机器读取同一次查询结果；重复 `--json` 以参数错误退出且不写 stdout。
+- `--json` 的完整 envelope 与独立手写 fixture 精确一致，退出状态成功；重复 `--json` 以参数错误退出且不写 stdout。

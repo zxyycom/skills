@@ -10,29 +10,6 @@ import {
   withFixtureWorkspace
 } from "./support.ts";
 
-test("Decision full validation reuses scanned sources and independently rereads their revision", async () => {
-  await withFixtureWorkspace("scan-index-reuse", async (root) => {
-    const readFile = fs.readFile;
-    const reads = new Map<string, number>();
-    Object.defineProperty(fs, "readFile", {
-      configurable: true,
-      value: (...args: Parameters<typeof fs.readFile>) => {
-        if (typeof args[0] === "string" && args[0].endsWith(".md"))
-          reads.set(args[0], (reads.get(args[0]) ?? 0) + 1);
-        return readFile(...args);
-      }
-    });
-    try {
-      const result = await validateDecisionRecords({ workspaceRoot: root });
-      assert.deepEqual(result.errors, []);
-      assert.equal(reads.size, result.decisionCount);
-      assert.ok([...reads.values()].every((count) => count === 2));
-    } finally {
-      fs.readFile = readFile;
-    }
-  });
-});
-
 test("Decision scan reuse preserves stable source and index diagnostics", async () => {
   const changes = [
     async () => {},

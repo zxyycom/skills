@@ -77,24 +77,18 @@ test("search excludes candidates resources and index bytes and rejects a missing
       "resource-only-term",
       "utf8"
     );
-    assert.deepEqual(
-      (
-        await searchInvestigationReports({
-          query: "candidate-only-term",
-          workspaceRoot: root
-        })
-      ).entries,
-      []
-    );
-    assert.deepEqual(
-      (
-        await searchInvestigationReports({
-          query: "resource-only-term",
-          workspaceRoot: root
-        })
-      ).entries,
-      []
-    );
+    for (const query of ["candidate-only-term", "resource-only-term"]) {
+      const result = await searchInvestigationReports({
+        query,
+        workspaceRoot: root
+      });
+      assert.equal(result.status, "ok");
+      assert.deepEqual(result.entries, []);
+      assert.deepEqual(result.searchInfo?.counts, {
+        matched: { value: 0, precision: "exact" },
+        returned: 0
+      });
+    }
     const indexPath = `${directory}/investigation-index.json`;
     await fs.rm(indexPath);
     const fallback = await searchInvestigationReports({

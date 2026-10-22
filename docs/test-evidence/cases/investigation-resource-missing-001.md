@@ -10,4 +10,4 @@ Contract:
 - 被引用资源缺失是阻断错误，完全未引用的可见资源只产生 warning。
 
 Proves:
-- 缺失引用进入 errors，未引用资源进入 warnings。
+- 缺失引用的错误同时包含 `_resources/owner-report/missing.txt` 与 does not exist，未引用资源进入 warnings。

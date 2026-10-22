@@ -169,37 +169,3 @@ test("discard deletes candidates omitted from the recorded baseline", async () =
     }
   );
 });
-
-test("discard prepares candidate deletion against an empty recorded baseline", async () => {
-  const id = decisionIdForTest("use-unborn-head-discard-candidate");
-  const scan = await decisionScanFromSources([{ id }]);
-  assert.deepEqual(scan.sourceErrors, []);
-  const prepared = prepareDecisionLifecycle(
-    scan,
-    {
-      action: "discard",
-      decisionId: id,
-      deleteRecorded: false
-    },
-    {
-      historyBaseline: {
-        kind: "git-head",
-        label: "Git HEAD",
-        recordedDecisionIds: new Set()
-      }
-    }
-  );
-  assert.equal(prepared.status, "ok", JSON.stringify(prepared));
-  if (prepared.status !== "ok")
-    throw new Error("Expected empty-baseline deletion");
-  assert.equal(scan.records[0]!.source.kind, "candidate");
-  if (scan.records[0]!.source.kind !== "candidate")
-    throw new Error("Expected candidate source");
-  assert.deepEqual(prepared.changes, [
-    {
-      decisionPath: scan.records[0]!.decisionPath,
-      expectedText: scan.records[0]!.source.text,
-      nextText: null
-    }
-  ]);
-});

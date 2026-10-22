@@ -1,6 +1,7 @@
 import {
   assert,
   archivedDecisionId,
+  currentDecisionId,
   decisionFilePath,
   establishMaintenanceDecision,
   findIndexEntry,
@@ -15,7 +16,13 @@ import {
 
 test("set-relations replaces the complete relation set of an established decision and republishes the index", () =>
   withFixtureWorkspace("set-relations-replace", async (workspaceRoot) => {
-    await establishMaintenanceDecision(workspaceRoot);
+    await establishMaintenanceDecision(workspaceRoot, [
+      { type: "修订", target: currentDecisionId }
+    ]);
+    const before = findIndexEntry(
+      await readIndex(workspaceRoot),
+      maintenanceRelativePath
+    );
     const result = await runSourceLifecycleCli([
       "set-relations",
       "--source",
@@ -31,7 +38,11 @@ test("set-relations replaces the complete relation set of an established decisio
     assert.match(result.stdout, /Set relations for /u);
     assert.match(result.stdout, /Relation review \(committed\):/u);
     assert.match(result.stdout, /action=replace/u);
-    assert.match(result.stdout, /before relations: \[\]/u);
+    assert.ok(
+      result.stdout.includes(
+        `removed ${maintenanceRelativePath} --修订--> ${currentDecisionId}:`
+      )
+    );
     assert.match(
       result.stdout,
       new RegExp(
@@ -57,6 +68,8 @@ test("set-relations replaces the complete relation set of an established decisio
         type: "修订"
       }
     ]);
+    assert.deepEqual({ ...entry, relations: before.relations }, before);
+    assert.equal(markdown.includes(`target: ${currentDecisionId}\n`), false);
     assert.deepEqual(
       (await validateDecisionRecords({ workspaceRoot })).errors,
       []

@@ -10,5 +10,5 @@ Contract:
 - rename preflight 不得写入；legacy Decision candidate 的 name target 必须失败为 `date-required`，完整 dated target 才能明确迁移日期。
 
 Proves:
-- preflight 和日期不匹配 target 后原 Markdown 字节保持不变。
+- preflight 成功和日期不匹配 target 后，原 Markdown 与 index 字节均保持不变，新目标不存在。
 - legacy candidate 的 name target 返回 `rename-date-required`，完整 dated target 成功。

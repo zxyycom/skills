@@ -35,6 +35,16 @@ test("plan confirms drafts and reconfirms plans without task progress gates", ()
       }
     );
 
+    const directories = [draftDirectory, progressedPlanDirectory];
+    const tasksBefore = await Promise.all(
+      directories.map((directory) =>
+        fs.readFile(path.join(directory, "tasks.md"))
+      )
+    );
+    const head = spawnSync("git", ["-C", tempRoot, "rev-parse", "HEAD"], {
+      encoding: "utf8"
+    });
+    assert.equal(head.status, 0, head.stderr);
     const draftResult = await planChangePlanDirectory(draftDirectory);
     const planResult = await planChangePlanDirectory(progressedPlanDirectory);
 
@@ -45,7 +55,21 @@ test("plan confirms drafts and reconfirms plans without task progress gates", ()
     assert.equal(planResult.success, true);
     assert.equal(planResult.fromStage, "plan");
     assert.equal(planResult.metadata?.stage, "plan");
-    assert.ok(planResult.metadata?.baseCommit);
+    for (const [index, directory] of directories.entries()) {
+      assert.deepEqual(
+        JSON.parse(
+          await fs.readFile(path.join(directory, ".change-plan.json"), "utf8")
+        ),
+        {
+          stage: "plan",
+          baseCommit: head.stdout.trim()
+        }
+      );
+      assert.deepEqual(
+        await fs.readFile(path.join(directory, "tasks.md")),
+        tasksBefore[index]
+      );
+    }
   }));
 
 test("plan rejects noncanonical metadata without mutation", () =>

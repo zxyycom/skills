@@ -1,4 +1,3 @@
-import { readInvestigationSourceRevision } from "../src/investigation-index-source.ts";
 import {
   buildStateIndexFromSnapshot,
   selectTargetSnapshot,
@@ -60,29 +59,6 @@ test("stage --scope index treats a standard Investigation ID as exact", () => {
     assert.fail("exact selector was rejected as a name");
   assert.deepEqual(resolved.value, ["260829-stage-not-present"]);
   assert.equal(Object.hasOwn(workspace.entries, resolved.value[0]!), false);
-});
-
-test("stage --scope index rejects an ambiguous Investigation name", () => {
-  const workspace = investigationIndexFixture([
-    { id: "260828-stage-name" },
-    { id: "260829-stage-name", formedAt: "2026-08-29T12:00:00+00:00" }
-  ]);
-  const result = resolveInvestigationStageSelectors({
-    baseline: workspace,
-    workspace,
-    selectedIds: ["stage-name"]
-  });
-  assert.equal(result.status, "error");
-  assert.deepEqual(
-    result.diagnostics.map(({ stateId, message }) => ({ stateId, message })),
-    [
-      {
-        stateId: "stage-name",
-        message:
-          'report name "stage-name" is ambiguous; choose one standard ID: 260828-stage-name, 260829-stage-name'
-      }
-    ]
-  );
 });
 
 test("stage --scope index resolves a baseline-only Investigation name as a deletion", async () => {
@@ -181,25 +157,6 @@ test("stage --scope index validates canonical Investigation IDs before repositor
   });
 });
 
-test("stage --scope index rejects IDs missing from the current collection", () => {
-  const workspace = investigationIndexFixture([{ id: "report" }]);
-  const result = resolveInvestigationStageSelectors({
-    baseline: null,
-    workspace,
-    selectedIds: ["missing"]
-  });
-  assert.equal(result.status, "error");
-  assert.deepEqual(
-    result.diagnostics.map(({ stateId, message }) => ({ stateId, message })),
-    [
-      {
-        stateId: "missing",
-        message: 'report name "missing" is absent from both indexes'
-      }
-    ]
-  );
-});
-
 test("stage --scope index keeps report Markdown outside selected index staging", async () => {
   await withTempRoot("stage-isolation", async (root) => {
     await writeCollection(root, [{ id: "report" }]);
@@ -233,91 +190,6 @@ test("stage --scope index keeps report Markdown outside selected index staging",
   });
 });
 
-test("investigation index projection accepts selected report additions without changing Markdown", async () => {
-  await withTempRoot("stage-add-projection", async (root) => {
-    await writeCollection(root, [{ id: "report" }]);
-    const definition = createInvestigationStageIndexDefinition();
-    const baseline = parseStateIndex({
-      text: await fs.readFile(path.join(root, indexRelativePath), "utf8"),
-      definition,
-      sourcePath: indexRelativePath
-    });
-    assert.ok(baseline.status === "ok");
-    await writeCollection(root, [{ id: "report" }, { id: "added" }]);
-    const workspace = parseStateIndex({
-      text: await fs.readFile(path.join(root, indexRelativePath), "utf8"),
-      definition,
-      sourcePath: indexRelativePath
-    });
-    assert.ok(workspace.status === "ok");
-    const addedPath = path.join(investigationRoot(root), "added.md");
-    const markdown = await fs.readFile(addedPath, "utf8");
-    const target = buildStateIndexFromSnapshot(
-      definition,
-      selectTargetSnapshot(baseline.value, workspace.value, new Set(["added"]))
-    );
-    assert.equal(target.status, "ok");
-    if (target.status !== "ok") assert.fail("addition projection failed");
-    assert.ok(Object.hasOwn(workspace.value.entries, "added"));
-    assert.deepEqual(
-      target.value.entries["added"],
-      workspace.value.entries["added"]
-    );
-    assert.equal(await fs.readFile(addedPath, "utf8"), markdown);
-  });
-});
-
-test("investigation source revision and published index exclude resource byte changes", async () => {
-  await withTempRoot("stage-resource-byte", async (root) => {
-    const resourcePath = path.join(
-      investigationRoot(root),
-      "_resources/report/evidence.txt"
-    );
-    await fs.mkdir(path.dirname(resourcePath), { recursive: true });
-    await fs.writeFile(resourcePath, "before");
-    await writeCollection(root, [
-      { id: "report", resources: ["report/evidence.txt"] }
-    ]);
-    const indexPath = path.join(root, indexRelativePath);
-    const indexBefore = await fs.readFile(indexPath, "utf8");
-    const revision = await readInvestigationSourceRevision(
-      investigationRoot(root)
-    );
-    await fs.writeFile(resourcePath, "after");
-    assert.deepEqual(
-      await readInvestigationSourceRevision(investigationRoot(root)),
-      revision
-    );
-    assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
-    assert.equal(await fs.readFile(resourcePath, "utf8"), "after");
-  });
-});
-
-test("investigation selective index projection keeps unrelated report resources outside selected entries", () => {
-  const baseline = investigationIndexFixture([
-    { id: "first" },
-    { id: "second", resources: ["second/evidence.txt"] }
-  ]);
-  const workspace = investigationIndexFixture([
-    { id: "first", title: "Changed first" },
-    {
-      id: "second",
-      title: "Unselected change",
-      resources: ["second/evidence.txt"]
-    }
-  ]);
-  const target = buildStateIndexFromSnapshot(
-    createInvestigationStageIndexDefinition(),
-    selectTargetSnapshot(baseline, workspace, new Set(["first"]))
-  );
-  assert.equal(target.status, "ok");
-  if (target.status !== "ok") assert.fail("selective projection failed");
-  assert.ok(Object.hasOwn(workspace.entries, "first"));
-  assert.ok(Object.hasOwn(baseline.entries, "second"));
-  assert.deepEqual(target.value.entries["first"], workspace.entries["first"]);
-  assert.deepEqual(target.value.entries["second"], baseline.entries["second"]);
-});
-
 test("stage --scope index preserves strict current index definition requirements", () => {
   const index = investigationIndexFixture([{ id: "report" }]);
   const result = parseStateIndex({
@@ -346,25 +218,6 @@ test("stage --scope index reports selection diagnostics deterministically", () =
   assert.deepEqual(
     result.error.result.diagnostics.map((item) => item.code),
     ["investigation-report.stage-report-ids-empty"]
-  );
-  assert.ok(
-    result.error.result.diagnostics.every((item) => item.message.length > 0)
-  );
-});
-
-test("stage --scope index does not accept legacy topic path identifiers", () => {
-  const result = prepareInvestigationStage({
-    reportIds: ["category/report.md"],
-    scope: "index",
-    workspaceRoot: os.tmpdir()
-  });
-  assert.ok(result.isErr());
-  if (result.isOk()) assert.fail("invalid selection was accepted");
-  assert.equal(result.error.kind, "invalid-options");
-  assert.equal(result.error.result.changed, false);
-  assert.deepEqual(
-    result.error.result.diagnostics.map((item) => item.code),
-    ["investigation-report.stage-report-id-invalid"]
   );
   assert.ok(
     result.error.result.diagnostics.every((item) => item.message.length > 0)

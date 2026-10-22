@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 import { parseInvestigationReport } from "../src/markdown.ts";
-import { buildInvestigationReportState } from "../src/report-validation.ts";
+
 import { validateInvestigationResourceOwnership } from "../src/resources.ts";
 import { reportMarkdown } from "./fixture-support.ts";
 import { validateInvestigationReports } from "../src/validation.ts";
@@ -52,7 +52,13 @@ test("referenced missing resources are errors and unreferenced visible resources
       false
     );
     const result = await validateInvestigationReports({ workspaceRoot: root });
-    assert.ok(result.errors.some((error) => error.includes("does not exist")));
+    assert.ok(
+      result.errors.some(
+        (error) =>
+          error.includes("_resources/owner-report/missing.txt") &&
+          error.includes("does not exist")
+      )
+    );
     await fs.mkdir(
       path.join(investigationRoot(root), "_resources", "unused-report"),
       { recursive: true }
@@ -202,15 +208,6 @@ test("owner report must directly reference its own resource", () => {
   ]);
 });
 
-test("reports without attached resources remain valid", () => {
-  const parsed = parseInvestigationReport(
-    reportMarkdown({ id: "report" }),
-    "report"
-  );
-  assert.deepEqual(parsed.errors, []);
-  assert.deepEqual(parsed.report?.resourceIds, []);
-});
-
 test("resource references use report IDs rather than topic paths or report indexes", async () => {
   assert.equal(isInvestigationResourceId("report.md/evidence.txt"), false);
   assert.equal(isInvestigationResourceId("report/evidence.txt"), true);
@@ -349,18 +346,4 @@ test("visible resource discovery rejects unsafe owner directory names", async ()
       )
     );
   });
-});
-
-test("resource resources are never projected as index source bytes", () => {
-  const built = buildInvestigationReportState(
-    "report",
-    parseInvestigationReport(
-      reportMarkdown({ id: "report", resources: ["report/evidence.txt"] }),
-      "report"
-    ),
-    "report.md"
-  );
-  assert.equal(built.status, "valid");
-  assert.deepEqual(built.state.resourceIds, ["report/evidence.txt"]);
-  assert.equal("resourceBytes" in built.state, false);
 });

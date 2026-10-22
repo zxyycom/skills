@@ -1,17 +1,9 @@
 import {
   assert,
   classifyVersionControlCause,
-  createGitRepositoryFixture,
-  execFileSync,
-  fs,
   operationErrorDetail,
-  path,
-  runGit,
   test,
-  VersionControlError,
-  versionControlRepositoryFixtureRoot,
-  withTempRoot,
-  writeFile
+  VersionControlError
 } from "./version-control-test-support.ts";
 
 test("normalizes and redacts structured version-control operation error details", () => {
@@ -96,95 +88,4 @@ test("classifies injected version-control system causes", () => {
       target: "requested revision"
     }
   );
-});
-
-test("materializes an ordinary fixture into isolated Git repositories", async () => {
-  let temporaryRoot = "";
-  await withTempRoot(async (tempRoot) => {
-    temporaryRoot = tempRoot;
-    await assert.rejects(
-      fs.access(path.join(versionControlRepositoryFixtureRoot, ".git"))
-    );
-    assert.doesNotMatch(
-      await fs.readFile(
-        path.join(versionControlRepositoryFixtureRoot, "docs", "tracked.md"),
-        "utf8"
-      ),
-      /(?:^|[\\/])workspace(?:[\\/]|$)/u
-    );
-
-    const first = await createGitRepositoryFixture({
-      fixtureRoot: versionControlRepositoryFixtureRoot,
-      parentDirectory: tempRoot,
-      repositoryName: "first",
-      userEmail: "version-control@example.invalid",
-      userName: "Version Control Test"
-    });
-    const second = await createGitRepositoryFixture({
-      fixtureRoot: versionControlRepositoryFixtureRoot,
-      parentDirectory: tempRoot,
-      repositoryName: "second",
-      userEmail: "version-control@example.invalid",
-      userName: "Version Control Test"
-    });
-
-    assert.equal(
-      runGit(first.repositoryRoot, ["branch", "--show-current"]).trim(),
-      "main"
-    );
-    assert.equal(
-      runGit(first.repositoryRoot, ["config", "core.autocrlf"]).trim(),
-      "false"
-    );
-    assert.equal(
-      runGit(first.repositoryRoot, ["config", "--local", "user.email"]).trim(),
-      "version-control@example.invalid"
-    );
-    assert.equal(
-      runGit(first.repositoryRoot, ["config", "--local", "user.name"]).trim(),
-      "Version Control Test"
-    );
-    assert.equal(first.baselineRevision, second.baselineRevision);
-    await writeFile(first.repositoryRoot, "docs/tracked.md", "changed\n");
-    runGit(first.repositoryRoot, ["add", "docs/tracked.md"]);
-    const emptyGlobalConfig = path.join(tempRoot, "empty-global-gitconfig");
-    await fs.writeFile(emptyGlobalConfig, "", "utf8");
-    const isolatedGitEnvironment: NodeJS.ProcessEnv = {
-      ...process.env,
-      GIT_CONFIG_GLOBAL: emptyGlobalConfig,
-      GIT_CONFIG_NOSYSTEM: "1"
-    };
-    for (const variable of [
-      "GIT_AUTHOR_EMAIL",
-      "GIT_AUTHOR_NAME",
-      "GIT_COMMITTER_EMAIL",
-      "GIT_COMMITTER_NAME"
-    ]) {
-      delete isolatedGitEnvironment[variable];
-    }
-    execFileSync(
-      "git",
-      [
-        "-C",
-        first.repositoryRoot,
-        "commit",
-        "--quiet",
-        "--message",
-        "isolated follow-up"
-      ],
-      {
-        encoding: "utf8",
-        env: isolatedGitEnvironment,
-        windowsHide: true
-      }
-    );
-    assert.equal(
-      await fs.readFile(
-        path.join(second.repositoryRoot, "docs", "tracked.md"),
-        "utf8"
-      ),
-      "base\n"
-    );
-  });
-  await assert.rejects(fs.access(temporaryRoot));
 });

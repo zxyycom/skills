@@ -107,14 +107,24 @@ test("detects stale sources and refreshes changed or removed states", async () =
 test("rejects index paths outside the configured root", async () => {
   await withTempRoot(async (tempRoot) => {
     const { definition } = await createDecisionFixture();
+    const root = path.join(tempRoot, "root");
+    await fs.mkdir(root);
+    const outsidePath = path.join(tempRoot, "outside.json");
+    await fs.writeFile(outsidePath, "outside sentinel\n");
     const result = await syncStateIndex({
-      context: { root: tempRoot },
+      context: { root },
       definition,
       indexPath: "../outside.json",
       mode: "write"
     });
     assert.equal(result.state, "index-path-invalid");
     assert.equal(result.diagnostics[0]?.filesystem, undefined);
+    assert.equal(await fs.readFile(outsidePath, "utf8"), "outside sentinel\n");
+    assert.deepEqual((await fs.readdir(tempRoot)).sort(), [
+      "outside.json",
+      "root"
+    ]);
+    assert.deepEqual(await fs.readdir(root), []);
   });
 });
 

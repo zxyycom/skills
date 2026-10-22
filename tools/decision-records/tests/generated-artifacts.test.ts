@@ -241,35 +241,3 @@ test("generated decision schema matches the runtime index schema", async () => {
     );
   }
 });
-
-test("generated decision TS closure retains portable metadata", async () => {
-  const cliSource = await fs.readFile(generatedCliPath, "utf8");
-  assert.match(cliSource, /Source path: tools\/decision-records\/src\/cli\.ts/);
-  assert.match(cliSource, /Rebuild: bun run sync:decision-records-cli/);
-  const entry = await import(
-    new URL(
-      "../../../skills/decision-records/scripts/decision-records.ts",
-      import.meta.url
-    ).href
-  );
-  const runtime = await import(
-    new URL(
-      "../../../skills/decision-records/scripts/runtime/tools/decision-records/src/cli.ts",
-      import.meta.url
-    ).href
-  );
-  assert.equal(entry.scanDecisionRecords, runtime.scanDecisionRecords);
-  assert.equal(entry.renameDecisionRecord, runtime.renameDecisionRecord);
-
-  assert.match(cliSource, /runtime\/tools\/decision-records\/src\/cli\.ts/u);
-  await assert.rejects(
-    fs.stat(generatedCliPath.replace(/\.ts$/u, ".mjs.map")),
-    { code: "ENOENT" }
-  );
-  assert.equal(
-    cliSource.includes(
-      path.resolve(path.dirname(generatedCliPath), "../../..")
-    ),
-    false
-  );
-});

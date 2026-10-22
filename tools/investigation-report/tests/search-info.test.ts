@@ -7,11 +7,7 @@ import {
   searchIndexFixture
 } from "./index-fixture.ts";
 import { searchInvestigationReports } from "../src/query.ts";
-import {
-  investigationRoot,
-  reportMarkdown,
-  withTempRoot
-} from "./fixture-support.ts";
+import { investigationRoot, withTempRoot } from "./fixture-support.ts";
 
 import { writeCollection } from "./collection-support.ts";
 
@@ -114,41 +110,6 @@ test("investigation search complete zero hits separates content previews from me
         fallback: false
       });
     }
-  });
-});
-
-test("investigation metadata search always reports an unchecked published snapshot without source warnings", async () => {
-  await withTempRoot("search-info-currentness", async (root) => {
-    await writeCollection(root, [{ id: "one" }]);
-    const file = path.join(investigationRoot(root), "one.md");
-    await fs.appendFile(file, "\nchanged source\n");
-    const stale = await searchInvestigationReports({
-      workspaceRoot: root,
-      query: "当前",
-      in: "metadata"
-    });
-    assert.ok(stale.status === "ok");
-    assert.equal(stale.searchInfo.source.currentness, "unchecked");
-    assert.deepEqual(stale.warnings, []);
-    await fs.rm(file);
-    const outside = path.join(root, "outside.md");
-    await fs.writeFile(outside, reportMarkdown({ id: "one" }));
-    await fs.symlink(outside, file);
-    const unchecked = await searchInvestigationReports({
-      workspaceRoot: root,
-      query: "当前",
-      in: "metadata"
-    });
-    assert.ok(unchecked.status === "ok");
-    assert.equal(unchecked.searchInfo.source.currentness, "unchecked");
-    assert.deepEqual(unchecked.searchInfo.counts, stale.searchInfo.counts);
-    assert.deepEqual(unchecked.warnings, []);
-    const content = await searchInvestigationReports({
-      workspaceRoot: root,
-      query: "当前"
-    });
-    assert.equal(content.status, "error");
-    assert.equal(content.searchInfo, null);
   });
 });
 

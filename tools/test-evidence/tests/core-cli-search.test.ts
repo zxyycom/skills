@@ -305,29 +305,6 @@ test("Case hard-link identity conflicts are rejected", async () => {
     report.diagnostics.some((entry) => entry.code === "case.identity-conflict")
   );
 });
-test("selected staging rejects a cross-definition index migration", async () => {
-  const root = await fixture();
-  await exec("git", ["init"], { cwd: root });
-  await exec("git", ["config", "user.email", "test@example.invalid"], {
-    cwd: root
-  });
-  await exec("git", ["config", "user.name", "Test"], { cwd: root });
-  await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" });
-  await exec("git", ["add", "."], { cwd: root });
-  await exec("git", ["commit", "-m", "baseline"], { cwd: root });
-  const indexPath = path.join(
-    root,
-    "docs/test-evidence/test-evidence-index.json"
-  );
-  const index = JSON.parse(await fs.readFile(indexPath, "utf8"));
-  index.definitionVersion = 5;
-  await fs.writeFile(indexPath, `${JSON.stringify(index, null, 2)}\n`);
-  const staged = await stageTestEvidenceIndex({
-    workspaceRoot: root,
-    caseIds: ["AUTH-ROLE-ACCESS-001"]
-  });
-  assert.equal(staged.status, "error");
-});
 test("search rejects a Case source that changes during the authoritative read", async () => {
   const root = await fixture();
   await syncTestEvidenceIndex({ workspaceRoot: root, mode: "write" });

@@ -10,4 +10,4 @@ Contract:
 - 当前 frontmatter 只接受定义字段；已移除的 domain/domains 及未知字段必须失败。
 
 Proves:
-- 对 domain、domains、extra 三种字段均产生验证错误。
+- 在 ID 匹配的合法正文中加入 domain、domains、extra 三种字段，分别产生 unsupported keys 专属诊断。

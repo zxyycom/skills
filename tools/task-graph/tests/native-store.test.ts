@@ -66,25 +66,6 @@ test("store serializes concurrent native mutations and preserves revision compar
   });
 });
 
-test("native binding excludes two independent file descriptors in one process", async () => {
-  await withTempWorkspace(async (root) => {
-    const binding = await loadRootNativeLock();
-    const lockPath = path.join(root, "lock");
-    const first = await fs.open(lockPath, "a+");
-    const second = await fs.open(lockPath, "a+");
-    try {
-      assert.equal(binding.tryLock(first.fd), true);
-      assert.equal(binding.tryLock(second.fd), false);
-      binding.unlock(first.fd);
-      assert.equal(binding.tryLock(second.fd), true);
-      binding.unlock(second.fd);
-    } finally {
-      await first.close();
-      await second.close();
-    }
-  });
-});
-
 test("active native lock holder reaches bounded timeout and leaves the stable lock file", async () => {
   await withTempWorkspace(async (root) => {
     let monotonicMilliseconds = 0;

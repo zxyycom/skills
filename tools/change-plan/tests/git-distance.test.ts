@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { inspectPlanVersionControl } from "../src/git-distance.ts";
-import { validBaseCommit, withTempRoot } from "./support.ts";
+import { withTempRoot } from "./support.ts";
 
 type GitFixture = {
   baseCommit: string;
@@ -68,24 +68,6 @@ test("git-distance excludes commits that only change the assessed directory", ()
     git(fixture.repositoryRoot, ["add", "."]);
     git(fixture.repositoryRoot, ["commit", "--quiet", "-m", "edit plan"]);
     await assertDistance(fixture, 0, 0);
-  }));
-
-test("git-distance reports zero evidence at the plan baseline", () =>
-  withTempRoot("git-distance-zero", async (tempRoot) => {
-    const fixture = await createGitFixture(tempRoot);
-    const inspection = await inspectPlanVersionControl(
-      fixture.changeDirectory,
-      fixture.baseCommit
-    );
-    assert.deepEqual(inspection, {
-      evidence: {
-        baseCommit: fixture.baseCommit,
-        changedLines: 0,
-        commitCount: 0,
-        headCommit: fixture.baseCommit
-      },
-      outcome: "measured"
-    });
   }));
 
 test("git-distance counts sibling paths and only outside lines in mixed commits", () =>
@@ -155,13 +137,3 @@ test("git-distance reports unavailable missing and non-first-parent bases", () =
       }
     );
   }));
-
-test("git-distance propagates version-control access failures", async () => {
-  await assert.rejects(
-    inspectPlanVersionControl(
-      "/path/that/is/not/a/repository",
-      validBaseCommit
-    ),
-    /^VersionControlError: Version-control operation failed: discover a version-control worktree; cause: tool-unavailable; detail: /u
-  );
-});

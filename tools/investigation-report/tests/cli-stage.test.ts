@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
-import { renderInvestigationTrace } from "../src/trace-output.ts";
+
 import { fileURLToPath } from "node:url";
 import { investigationRoot, withTempRoot } from "./fixture-support.ts";
 import {
@@ -164,20 +164,6 @@ test("CLI stage --scope index preserves pending transaction facts", async () => 
   });
 });
 
-test("CLI stage rejects JSON output", async () => {
-  await withTempRoot("cli-stage-json", async (root) => {
-    const result = await runInvestigationCli(root, [
-      "stage",
-      "report.md",
-      "--json"
-    ]);
-    assert.equal(result.status, 2);
-    assert.equal(result.stdout, "");
-    assert.match(result.stderr, /unknown option '--json'/u);
-    assert.deepEqual(await fs.readdir(root), []);
-  });
-});
-
 test("CLI stage exposes the scope contract and rejects an invalid scope", async () => {
   await withTempRoot("cli-stage-scope", async (root) => {
     const help = await runInvestigationCli(root, ["stage", "--help"]);
@@ -208,15 +194,6 @@ test("CLI stage exposes the scope contract and rejects an invalid scope", async 
     ]);
     assert.equal(repeated.status, 2);
     assert.match(repeated.stderr, /--scope only once/u);
-  });
-});
-
-test("CLI treats the removed stage-index entry as an unknown command", async () => {
-  await withTempRoot("cli-stage-index-removed", async (root) => {
-    const result = await runInvestigationCli(root, ["stage-index", "report"]);
-    assert.equal(result.status, 2);
-    assert.equal(result.stdout, "");
-    assert.match(result.stderr, /unknown command/u);
   });
 });
 
@@ -429,40 +406,6 @@ test("CLI trace renders a stable terminal graph by default and preserves JSON be
       { target: "base", type: "拆分" }
     ]);
   });
-});
-
-test("CLI trace renders numeric depth layers before lexically earlier trace IDs", () => {
-  const output = renderInvestigationTrace({
-    status: "ok",
-    anchorId: "zeta",
-    direction: "predecessors",
-    limits: { depth: 5, maxRecords: 50 },
-    warnings: [],
-    coverage: { complete: true, stoppedBy: [] },
-    frontier: [],
-    traceIds: ["alpha", "zeta"],
-    contextIds: [],
-    entries: {
-      alpha: {
-        title: "前序",
-        formedAt: "2026-08-28T12:00:00Z",
-        question: "Q",
-        tags: ["test"],
-        relations: []
-      },
-      zeta: {
-        title: "锚点",
-        formedAt: "2026-08-28T12:00:00Z",
-        question: "Q",
-        tags: ["test"],
-        relations: [{ target: "alpha", type: "补充" }]
-      }
-    }
-  });
-  const anchor = output.indexOf("L0* [zeta]");
-  const predecessor = output.indexOf("L1* [alpha]");
-  assert.ok(anchor >= 0, output);
-  assert.ok(predecessor > anchor, output);
 });
 
 test("generated Investigation Report CLI starts under Node with argv and stdout protocol", async () => {

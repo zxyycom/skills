@@ -1,9 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {
-  decisionMetadataSearchFields,
-  type DecisionQueryRequest
-} from "../src/decision-query-contract.ts";
+import { type DecisionQueryRequest } from "../src/decision-query-contract.ts";
 import { isDecisionTag } from "../src/decision-path.ts";
 import { projectDecisionMetadata } from "../src/decision-query-search-metadata.ts";
 import { executeDecisionSearch } from "../src/decision-query-search.ts";
@@ -62,45 +59,6 @@ test("Decision metadata window distinguishes zero exact boundary and overflow wi
         (_, index) => `261021-window-${String(index).padStart(4, "0")}`
       )
     );
-  }
-});
-
-test("Decision metadata custom window constructs only returned hit evidence while counting every match", async () => {
-  const entries = await metadataEntries(7);
-  const descriptor = Object.getOwnPropertyDescriptor(
-    decisionMetadataSearchFields,
-    "filter"
-  );
-  const filter = decisionMetadataSearchFields.filter.bind(
-    decisionMetadataSearchFields
-  );
-  let projected = 0;
-  Object.defineProperty(decisionMetadataSearchFields, "filter", {
-    configurable: true,
-    value: (...args: Parameters<typeof filter>) => {
-      projected += 1;
-      return filter(...args);
-    }
-  });
-  try {
-    const result = projectDecisionMetadata(
-      entries,
-      metadataRequest({ limit: 2 })
-    );
-    assert.ok(result.status === "ok" && result.command === "search");
-    assert.equal(result.records.length, 2);
-    assert.equal(projected, 2);
-    assert.deepEqual(result.searchInfo.counts, {
-      matched: { value: 7, precision: "exact" },
-      returned: 2
-    });
-    assert.equal(result.searchInfo.query.limits.maxRecords, 2);
-  } finally {
-    if (descriptor === undefined) {
-      Reflect.deleteProperty(decisionMetadataSearchFields, "filter");
-    } else {
-      Object.defineProperty(decisionMetadataSearchFields, "filter", descriptor);
-    }
   }
 });
 

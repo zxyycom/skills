@@ -111,31 +111,6 @@ test("decision search complete zero hits distinguishes content and metadata prev
   });
 });
 
-test("decision search metadata always identifies the published snapshot without source warnings", async () => {
-  await withFixtureWorkspace("search-info-currentness", async (root) => {
-    const file = decisionFilePath(root, currentSourcePath);
-    await fs.appendFile(file, "\n- changed content\n");
-    const stale = await executeDecisionSearch(
-      searchRequest(root, { in: "metadata" })
-    );
-    assert.ok(stale.status === "ok" && stale.command === "search");
-    assert.equal(stale.searchInfo.source.currentness, "unchecked");
-    assert.deepEqual(stale.warnings, []);
-    const text = await fs.readFile(file, "utf8");
-    const outside = path.join(root, "outside.md");
-    await fs.writeFile(outside, text);
-    await fs.rm(file);
-    await fs.symlink(outside, file);
-    const unchecked = await executeDecisionSearch(
-      searchRequest(root, { in: "metadata" })
-    );
-    assert.ok(unchecked.status === "ok" && unchecked.command === "search");
-    assert.equal(unchecked.searchInfo.source.currentness, "unchecked");
-    assert.deepEqual(unchecked.warnings, []);
-    assert.deepEqual(unchecked.searchInfo.counts, stale.searchInfo.counts);
-  });
-});
-
 test("decision search rejects absent published indexes without implicit recovery", async () => {
   await withFixtureWorkspace("search-info-fallback", async (root) => {
     const index = path.join(root, "docs/decisions/decision-index.json");

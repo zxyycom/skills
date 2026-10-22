@@ -1,13 +1,13 @@
-### Case DECISION-TRACE-RENDER-BASELINE-001: 渲染字节保留历史 owner 与上下文摘要
+### Case DECISION-TRACE-RENDER-BASELINE-001: 渲染保留无层级节点与历史事件归属
 
 Tests:
-- `test:1e6f826bd468b4a381c9d8d0af38a4bef0aeb80d4f17990e1833a6c206a56489`
+- `test:b531a63a9b25deb098d500f4802666f7f611b3327caef2bbb27460b6bc553fe9`
 
 Tags:
 - `decision-records`
 
 Contract:
-- renderer 只解释既有切片，不改变事件归属、稳定顺序、摘要转义、覆盖和成员事实；发布 Source 行是独立快照语义变化。
+- renderer 只解释既有切片，保留节点层级、事件归属、边与成员事实，不重复渲染主体。
 
 Proves:
-- 对基线实际 renderer 生成的七份完整 goldens，chain/unlayered、split、多事件、重划 context、两种历史 owner 陷阱与重叠 context 边除新增 Source 行外逐字节一致。
+- 四种独有切片场景中，无层级节点、历史范围外 owner、历史 owner 已在切片内及重叠事件的节点层级、边、owner 与成员按独立语义期望渲染，主体不重复。

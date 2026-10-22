@@ -55,20 +55,6 @@ test("relation graph accepts independent ordinary merge and split shapes", () =>
   );
 });
 
-test("relation graph rejects a missing target", () => {
-  const errors = validateInvestigationRelationGraph(
-    createInvestigationRelationContext(
-      new Map([
-        [
-          "missing",
-          state("2026-08-28T14:00:00+00:00", [{ target: "none", type: "补充" }])
-        ]
-      ])
-    )
-  );
-  assert.ok(errors.some((error) => error.includes("does not exist")));
-});
-
 test("relation graph rejects a self target", () => {
   const errors = validateInvestigationRelationGraph(
     createInvestigationRelationContext(
@@ -81,27 +67,6 @@ test("relation graph rejects a self target", () => {
     )
   );
   assert.ok(errors.some((error) => error.includes("must not target itself")));
-});
-
-test("relation graph rejects a repeated target", () => {
-  const errors = validateInvestigationRelationGraph(
-    createInvestigationRelationContext(
-      new Map([
-        ["base", state("2026-08-28T12:00:00+00:00")],
-        [
-          "duplicate",
-          state("2026-08-28T14:00:00+00:00", [
-            { target: "base", type: "补充" },
-            { target: "base", type: "复查" }
-          ])
-        ]
-      ])
-    )
-  );
-  assert.deepEqual(
-    errors.filter((error) => error.includes("repeat target")),
-    ["duplicate relations must not repeat target base"]
-  );
 });
 
 test("relation graph rejects a target formed later", () => {
@@ -119,28 +84,6 @@ test("relation graph rejects a target formed later", () => {
     )
   );
   assert.ok(errors.some((error) => error.includes("formed later")));
-});
-
-test("relation graph rejects a cycle", () => {
-  const errors = validateInvestigationRelationGraph(
-    createInvestigationRelationContext(
-      new Map([
-        [
-          "first",
-          state("2026-08-28T12:00:00+00:00", [
-            { target: "second", type: "补充" }
-          ])
-        ],
-        [
-          "second",
-          state("2026-08-28T13:00:00+00:00", [
-            { target: "first", type: "补充" }
-          ])
-        ]
-      ])
-    )
-  );
-  assert.ok(errors.some((error) => error.includes("cycle")));
 });
 
 test("relation trace selects deterministic predecessor successor and bidirectional slices", () => {

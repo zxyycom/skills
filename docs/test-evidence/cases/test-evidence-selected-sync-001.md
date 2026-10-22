@@ -7,7 +7,8 @@ Tags:
 - `test-evidence`
 
 Contract:
-- selected sync 只更新所选 Case 条目，但仍完整校验 Case-only 目录。
+- selected sync 完整校验 Case-only 目录，仅接纳所选 Case 变化；未选 Case 漂移必须先恢复或全量同步。
 
 Proves:
-- 所选 Case 变化只改变自身 revision；目录中存在无效 Case 时 selected sync 以 source-invalid 阻断。
+- 所选与未选 Case 同时变化时返回 unselected-changes，索引字节不变；恢复未选 Case 后只更新所选 revision。
+- 目录中存在无效 Case 时返回 source-invalid，索引字节仍不变。

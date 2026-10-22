@@ -1,15 +1,14 @@
-### Case GATE-METRICS-BLOCKING-001: 指标 finding 与测量失效统一 fail closed
+### Case GATE-METRICS-BLOCKING-001: 生产指标使用 blocking 政策与随包函数分析器
 
 Tests:
-- `test:3b9bbde0aaf1a54ed31f3c5ea20e4597008e20b5cb01e3f559b072701c7907f9`
+- `test:481f2b51899a4df37a0e686a409b77a5b1c86617f87ba2623a27dfb4841d7f1d`
 
 Tags:
 - `repository-tooling`
 
 Contract:
-- 文件与函数指标是 required blocking：可信 finding、SCC 不可用或没有预期输入都必须阻断 aggregate；函数指标使用随包分析器而不依赖 PATH scanner。
+- 生产文件与函数指标的 code area 必须采用 blocking 政策且不配置 waiver；函数指标使用随包分析器，不声明外部 scanner。
 
 Proves:
-- 生产 file/function Check 的全部 code area 都配置 blocking policy，文件 waiver 保持空数组。
-- 严格阈值产生真实 finding 时两个 Check 均 failed，blocking finding 数等于完整 finding 数。
-- 缺失 SCC scanner 使文件指标 unavailable，同时函数 finding 仍 failed；空输入使函数指标 not-applicable；这些状态都使 aggregate failed。
+- 生产 file/function Check 的全部 code area 都配置 blocking policy，两项 findingWaivers 均为空数组。
+- function-metrics 的生产 options 不含 scanner 字段。

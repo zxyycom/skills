@@ -1,13 +1,7 @@
 import { randomUUID } from "node:crypto";
 import os from "node:os";
 import path from "node:path";
-import {
-  assert,
-  archivedDecisionId,
-  currentRelativePath,
-  runSourceCli,
-  test
-} from "./support.ts";
+import { assert, archivedDecisionId, runSourceCli, test } from "./support.ts";
 
 test("set-relations rejects incomplete and mixed relation groups at the CLI boundary", async () => {
   const workspaceRoot = path.join(
@@ -87,34 +81,6 @@ test("set-relations rejects incomplete and mixed relation groups at the CLI boun
     assert.equal(result.exitCode, 2, args.join(" "));
     assert.equal(result.stdout, "", args.join(" "));
     assert.match(result.stderr, message, args.join(" "));
-  }
-});
-
-test("evolve and set-relations reject the removed --relations-for option as an unknown option", async () => {
-  const workspaceRoot = path.join(
-    os.tmpdir(),
-    `decision-cli-args-${randomUUID()}`
-  );
-  for (const command of ["set-relations", "evolve"] as const) {
-    const args =
-      command === "evolve"
-        ? [
-            "evolve",
-            "--successor",
-            "aligned=" + currentRelativePath,
-            "--relations-for",
-            currentRelativePath
-          ]
-        : ["set-relations", "--relations-for", currentRelativePath];
-    const result = await runSourceCli([
-      ...args,
-      "--relation",
-      "修订=" + archivedDecisionId,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(result.exitCode, 2, command);
-    assert.match(result.stderr, /unknown option '--relations-for'/u, command);
   }
 });
 

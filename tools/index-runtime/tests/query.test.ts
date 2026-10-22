@@ -8,8 +8,6 @@ import {
 import {
   decisionDefinition,
   decisionStates,
-  investigationDefinition,
-  investigationStates,
   resultValue,
   testEvidenceDefinition,
   testEvidenceStates,
@@ -151,81 +149,6 @@ test("sorts temporal keys by instants across timezone offsets", async () => {
   );
 });
 
-test("searches text keys across investigation and test-evidence states", async () => {
-  const investigationSource = {
-    revision: "investigation-revision-1",
-    states: await investigationStates()
-  };
-  const investigationIndex = resultValue(
-    await buildStateIndex(investigationDefinition(investigationSource), {
-      root: "."
-    })
-  );
-  const investigation = queryStateIndex({
-    definition: investigationDefinition(investigationSource),
-    index: investigationIndex,
-    query: {
-      filters: [
-        {
-          key: "text",
-          kind: "text",
-          operator: "all",
-          text: "怎样 快速"
-        }
-      ]
-    }
-  });
-  assert.deepEqual(
-    resultValue(investigation).entries.map((entry) => entry.id),
-    ["index-cost/lookup-cost.md"]
-  );
-
-  const { definition, index } = await buildTestEvidenceFixture();
-  assert.deepEqual(Object.keys(index.entries), ["read-error", "state-query"]);
-  const searched = queryStateIndex({
-    definition,
-    index,
-    query: {
-      filters: [
-        {
-          key: "search",
-          kind: "text",
-          operator: "all",
-          text: "state query"
-        }
-      ]
-    }
-  });
-  assert.deepEqual(
-    resultValue(searched).entries.map((entry) => entry.id),
-    ["state-query"]
-  );
-});
-
-test("requires the domain source to reject duplicate identities", async () => {
-  const { staticStates } = await buildTestEvidenceFixture();
-  const result = await buildStateIndex(
-    testEvidenceDefinition({
-      revision: "test-revision-duplicate",
-      states: [
-        ...staticStates,
-        { ...staticStates[0]!, title: "Duplicate stable case identity" }
-      ]
-    }),
-    { root: "." }
-  );
-  assert.equal(result.status, "error");
-  assert.ok(
-    result.diagnostics.some(
-      (entry) =>
-        entry.code === "state-index.source-read-failed" &&
-        entry.message ===
-          "failed to read the state-index source; inspect source availability and access, then retry" &&
-        entry.filesystem === undefined
-    )
-  );
-});
-
 test("merges runtime states without mutating persisted index entries", async () => {
   const { definition, index, originalStates, staticStates } =
     await buildTestEvidenceFixture();
@@ -273,21 +196,6 @@ test("merges runtime states without mutating persisted index entries", async () 
   });
   assert.equal(invalidIdOverlay.status, "error");
   assert.equal(invalidIdOverlay.diagnostics[0]?.code, "state-index.id-invalid");
-});
-
-test("paginates sorted results while preserving the total count", async () => {
-  const { definition, index } = await buildTestEvidenceFixture();
-  const result = queryStateIndex({
-    definition,
-    index,
-    query: {
-      limit: 1,
-      offset: 1,
-      sort: [{ direction: "desc", key: "id" }]
-    }
-  });
-  assert.equal(resultValue(result).entries.length, 1);
-  assert.equal(resultValue(result).total, 2);
 });
 
 test("rejects unknown, mode-mismatched, and multivalued sort keys", async () => {

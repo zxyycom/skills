@@ -11,5 +11,5 @@ Contract:
 - `set-relations` 按 `--source` 分组完整替换已建立记录的直接关系，并在同一事务重建派生索引；完整替换不合并旧关系或旧摘要。
 
 Proves:
-- 合法替换写入 Markdown 关系与摘要、更新索引条目，并以 committed review 显示完整 before/after 与变化。
+- 合法替换后 Markdown 与索引只保留新的 archived 关系及摘要；review 显示 removed 旧关系及完整 before/after，entry 其他字段保持不变。
 - 再次替换未提供摘要时旧摘要被移除，review 报告 summary 变化。

@@ -19,12 +19,11 @@ const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "../../.."
 );
-const distributedRuntime = path.join(
+const distributedScripts = path.join(
   repositoryRoot,
   "skills",
   "mcpshell-workspace-tools",
-  "scripts",
-  "mcpshell-workspace.ts"
+  "scripts"
 );
 const distributedTools = path.join(
   repositoryRoot,
@@ -39,9 +38,14 @@ const mcpshell = process.env.MCPSHELL_BIN ?? "";
 
 type JsonObject = Readonly<Record<string, unknown>>;
 function workspaceEnvelope(value: unknown, label: string): JsonObject {
-  if (typeof value !== "object" || value === null || Array.isArray(value))
-    assert.fail(`${label} must be an object`);
-  return value as JsonObject;
+  const result = requireObject(value, `${label} MCP result`);
+  assert.notEqual(result.isError, true, JSON.stringify(result));
+  assert.ok(Array.isArray(result.content), `${label} content must be an array`);
+  assert.equal(result.content.length, 1, `${label} has one text result`);
+  const content = requireObject(result.content[0], `${label} content`);
+  assert.equal(content.type, "text");
+  assert.equal(typeof content.text, "string");
+  return requireObject(JSON.parse(content.text as string), `${label} envelope`);
 }
 function localhostE2ESkip(): false | string {
   if (!localhostSshSmokeEnabled)
@@ -62,10 +66,9 @@ test(
     let client: McpShellStdioSmokeClient | undefined;
     try {
       await fs.mkdir(path.join(fixture.skill, "scripts"), { recursive: true });
-      await fs.copyFile(
-        distributedRuntime,
-        path.join(fixture.skill, "scripts", "mcpshell-workspace.ts")
-      );
+      await fs.cp(distributedScripts, path.join(fixture.skill, "scripts"), {
+        recursive: true
+      });
       await fs.copyFile(
         distributedTools,
         path.join(fixture.skill, "references", "mcpshell-tools.yaml")

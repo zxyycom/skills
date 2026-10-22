@@ -5,17 +5,21 @@ import test from "node:test";
 import { resolveDecisionLifecycleRequest } from "../src/cli-lifecycle-selection.ts";
 import {
   createDecisionRecordLookup,
-  findDecisionRecord,
-  findEstablishedDecisionRecord
+  findDecisionRecord
 } from "../src/decision-record-lookup.ts";
 import { prepareDecisionLifecycle } from "../src/decision-lifecycle-service.ts";
 import { directPredecessors } from "../src/decision-relation-transaction-predecessors.ts";
 import { prepareSuccessors } from "../src/decision-relation-transaction-successors.ts";
-import { decisionScanFromSources } from "./domain-fixture.ts";
 import { scanDecisionRecords } from "../src/scan.ts";
 import { isDecisionId } from "../src/decision-path.ts";
 import type { DecisionId } from "../src/types.ts";
-import { withTemporaryWorkspace } from "./support.ts";
+import {
+  withTemporaryWorkspace,
+  withFixtureWorkspace,
+  writeDecision,
+  candidateDecisionBody,
+  runSourceCli
+} from "./support.ts";
 import {
   memoryReallocationRing,
   writeReallocationRing
@@ -30,57 +34,48 @@ function archive(ids: readonly string[]) {
   };
 }
 
-test("Decision batch selectors preserve complete ID priority, ambiguous names and duplicate first-record facts", async () => {
-  const { scan, records } = await memoryReallocationRing(2);
-  const first = records[0]!;
-  const ids = ["261001-shared", "261002-shared", "shared", "261332-legacy"];
-  const selected = {
-    ...scan,
-    records: ids.map((decisionId) => ({ ...first, decisionId }))
-  };
-  const result = resolveDecisionLifecycleRequest(
-    selected,
-    archive(["shared.MD"])
-  );
-  assert.equal(result.status, "error");
-  if (result.status === "error")
-    assert.match(
-      JSON.stringify(result.failure),
-      /261001-shared, 261002-shared, shared/u
-    );
-  assert.equal(
-    resolveDecisionLifecycleRequest(selected, archive(["261003-shared"]))
-      .status,
-    "error"
-  );
-  for (const id of ["261001-shared", "261332-legacy"]) {
-    const resolved = resolveDecisionLifecycleRequest(
+test("Decision batch selectors preserve complete ID priority and ambiguous names", async () => {
+  await withFixtureWorkspace("batch-lookup-selectors", async (root) => {
+    const ids = ["261001-shared", "261002-shared", "shared", "261332-legacy"];
+    for (const id of ids) {
+      await writeDecision(
+        root,
+        id,
+        candidateDecisionBody({ id })
+          .replace("status: candidate", "status: active")
+          .replace("alignment: null", "alignment: aligned")
+          .replace("createdAt: null", "createdAt: 2026-10-01T00:00:00Z")
+      );
+    }
+    const synced = await runSourceCli(["sync-index", "--root", root]);
+    assert.equal(synced.exitCode, 0, synced.stderr);
+    const selected = await scanDecisionRecords({ workspaceRoot: root });
+    assert.deepEqual(selected.errors, []);
+    const result = resolveDecisionLifecycleRequest(
       selected,
-      archive([id + ".md"])
+      archive(["shared.MD"])
     );
-    assert.equal(resolved.status, "ok");
-    if (resolved.status === "ok" && resolved.request.action === "archive")
-      assert.deepEqual(resolved.request.decisionIds, [id]);
-  }
-  const fresh = await decisionScanFromSources([{ id: "candidate" }]);
-  const candidate = fresh.records.find(
-    (record) => record.decisionId === "candidate"
-  )!;
-  const duplicate = {
-    ...scan,
-    records: [{ ...candidate, decisionId: first.decisionId }, first]
-  };
-  const lookup = createDecisionRecordLookup(duplicate.records);
-  assert.equal(
-    findDecisionRecord(lookup, first.decisionId),
-    duplicate.records[0]
-  );
-  assert.equal(findEstablishedDecisionRecord(lookup, first.decisionId), null);
-  assert.equal(
-    resolveDecisionLifecycleRequest(duplicate, archive([first.decisionId]))
-      .status,
-    "error"
-  );
+    assert.equal(result.status, "error");
+    if (result.status === "error")
+      assert.match(
+        JSON.stringify(result.failure),
+        /261001-shared, 261002-shared, shared/u
+      );
+    assert.equal(
+      resolveDecisionLifecycleRequest(selected, archive(["261003-shared"]))
+        .status,
+      "error"
+    );
+    for (const id of ["261001-shared", "261332-legacy"]) {
+      const resolved = resolveDecisionLifecycleRequest(
+        selected,
+        archive([id + ".md"])
+      );
+      assert.equal(resolved.status, "ok");
+      if (resolved.status === "ok" && resolved.request.action === "archive")
+        assert.deepEqual(resolved.request.decisionIds, [id]);
+    }
+  });
 });
 
 test("Decision batch resolution and fresh preparation perform linear record lookup independently of selection and edge counts", async () => {

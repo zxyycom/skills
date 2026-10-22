@@ -1,4 +1,3 @@
-import { withGitFixtureWorkspace } from "../support-git-fixture.ts";
 import { stageDecisionRecords } from "../../src/decision-stage-service.ts";
 import {
   assert,
@@ -115,19 +114,3 @@ test(
     }
   }
 );
-
-test("stage refreshes an already selected pending decision without changes", () =>
-  withGitFixtureWorkspace("stage-existing-pending", async (workspaceRoot) => {
-    const selectedId = "use-generated-cli";
-    const first = await stageDecisionRecords({
-      decisionIds: [selectedId],
-      location: { workspaceRoot: workspaceRoot, decisionsDir: "docs/decisions" }
-    });
-    assert.equal(first.status, "ok", JSON.stringify(first));
-    const second = await stageDecisionRecords({
-      decisionIds: [selectedId],
-      location: { workspaceRoot: workspaceRoot, decisionsDir: "docs/decisions" }
-    });
-    assert.equal(second.status, "ok", JSON.stringify(second));
-    if (second.status === "ok") assert.deepEqual(second.writtenPaths, []);
-  }));

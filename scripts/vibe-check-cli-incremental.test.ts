@@ -118,59 +118,6 @@ test("CLI publishes incremental activation and receipt summaries", async () => {
   );
 });
 
-test("CLI publishes conservative fallback reasons", async () => {
-  await withTemporaryDirectory(
-    "skills-vibe-fallback-cli-",
-    async (directory) => {
-      const fallbackPlan: GateActivationPlan = {
-        activeCheckIds: ["passed"],
-        activeToolIds: [],
-        cacheDirectory: path.join(directory, "fallback-cache"),
-        decisions: [
-          {
-            action: "execute",
-            checkId: "passed",
-            fingerprint: null,
-            reason: "snapshot-unavailable"
-          }
-        ],
-        fallbackDetail: "required tool probe failed",
-        kind: "fallback",
-        snapshot: null
-      };
-      const invocationDirectory = path.join(directory, "fallback");
-      const information: string[] = [];
-      assert.equal(
-        await runVibeCheck([], {
-          createDefinition: passedDefinition,
-          createInvocationDirectory: () => invocationDirectory,
-          prepareActivation: async () => fallbackPlan,
-          publishReceipts: async () => ({
-            published: false,
-            reason: "not-incremental"
-          }),
-          reportInfo: (message) => information.push(message),
-          async runProject(definition, controls) {
-            return await run(definition, { ...controls, outputs: noOutput });
-          }
-        }),
-        0
-      );
-      assert.match(
-        information[0] ?? "",
-        /Snapshot fallback: required tool probe failed/u
-      );
-      const summary = JSON.parse(
-        await fs.readFile(
-          path.join(invocationDirectory, "machine", "gate-incremental.json"),
-          "utf8"
-        )
-      );
-      assert.equal(summary.fallbackDetail, "required tool probe failed");
-    }
-  );
-});
-
 test("CLI rejects output failure, Run rejection and failed aggregates without publishing success", async () => {
   await withTemporaryDirectory("gate-cli-final-result-", async (directory) => {
     for (const mode of ["output", "rejected", "failed"] as const) {

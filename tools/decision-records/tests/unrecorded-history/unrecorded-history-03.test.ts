@@ -57,39 +57,6 @@ test("evolve discard accepts source-empty final relations", () =>
     }
   ));
 
-test("evolve discard accepts an explicitly empty final relation set", () =>
-  withFixtureWorkspace(
-    "unrecorded-evolution-empty-relations",
-    async (workspaceRoot) => {
-      const { indexPath, intermediatePath } =
-        await establishUnrecordedIntermediate(workspaceRoot);
-      const successorRelativePath = "drop-discard-upstream-history";
-      const successorPath = decisionFilePath(
-        workspaceRoot,
-        successorRelativePath
-      );
-      await fs.writeFile(successorPath, candidateDecisionBody(), "utf8");
-      const discarded = await runSourceCli([
-        "evolve",
-        "--successor",
-        "aligned=" + successorRelativePath,
-        "--discard",
-        unrecordedIntermediateRelativePath,
-        "--clear-relations",
-        "--delete-recorded",
-        "--root",
-        workspaceRoot
-      ]);
-      assert.equal(discarded.exitCode, 0, discarded.stderr);
-      assert.equal(await fileExists(intermediatePath), false);
-      assert.deepEqual(
-        findIndexEntry(await readIndex(indexPath), successorRelativePath)
-          .relations,
-        []
-      );
-    }
-  ));
-
 test("evolve discard accepts an unrelated archived final relation", () =>
   withFixtureWorkspace(
     "unrecorded-evolution-relation-boundary",

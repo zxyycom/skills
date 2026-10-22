@@ -275,7 +275,7 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 | Test Evidence | `test:test-evidence-cli`、`test:test-evidence-project` | `sync:test-evidence-cli`、`sync:test-evidence-catalog` | `check:test-evidence-cli`、`check:test-evidence-catalog` |
 | Skill Updater | `test:skill-updater` | `sync:skill-updaters` | `check:skill-updaters` |
 | MCPShell Workspace Bridge | `test:mcpshell-workspace-bridge` | `sync:mcpshell-workspace-bridge` | `check:mcpshell-workspace-bridge` |
-| 共享基础设施 | `test:check`、`test:environment`、`test:generated-file`、`test:index-runtime`、`test:index-runtime-performance`、`test:relation-graph`、`test:skill-package-hash`、`test:version-control` | — | — |
+| 共享基础设施 | `test:check`、`test:environment`、`test:generated-file`、`test:index-runtime`、`test:relation-graph`、`test:skill-package-hash`、`test:version-control` | — | — |
 
 Vibe 的原生 `markdown-link-validation` Check 是当前维护 Markdown 链接的唯一全仓 owner；它沿用 blocking、fail-closed 和文件选择，并排除 `docs/investigations/_resources/**`。该目录是 Investigation Report 保存的形成时字节，仍由资源引用与完整性门禁维护。根 `bun run validate` 校验全部 skill 的结构和主仓库配置，不扫描链接。只有显式 `bun run validate-skill -- <skill-directory>` 才校验所指单个 skill 的内部链接。
 
@@ -285,7 +285,7 @@ Vibe 的原生 `markdown-link-validation` Check 是当前维护 Markdown 链接�
 2. `sync:*` 是显式写入口，只在维护对应生成源时运行，不由完整检查自动写回。
 3. `check:*` 只读验证仓库内容或生成产物；生成工具的 `sync:*` 与 `check:*` 必须使用同一构建路径。
 
-`test:index-runtime-performance` 是按需运行的宽松退化基准，不属于 base 或 release Gate；`test:index-runtime` 只聚合确定性功能测试。纯规模用例不能因为数据量大就进入 Gate，只有触发真实分页上限等不同功能路径，或声明并验证独立性能契约时才保留对应入口。
+`test:index-runtime` 只聚合确定性功能测试。纯规模用例不能因为数据量大就进入 Gate，只有触发真实分页上限等不同功能路径，或声明并验证独立性能契约时才保留对应入口。
 
 只有具备独立维护操作、完整检查消费者或生成写入责任的命令才保留为 package script。`scripts/validators/project-config.ts` 检查这些稳定入口仍存在于 `package.json`。
 

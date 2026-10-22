@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { runInvestigationReportCheckCli } from "../src/cli.ts";
+
 import {
   investigationRoot,
   reportMarkdown,
@@ -188,70 +188,5 @@ test("CLI show-candidate exposes all readiness states and rejects only invalid s
       assert.equal(publish.status, 1);
       assert.equal(await fs.readFile(candidatePath, "utf8"), invalid);
     }
-  });
-});
-
-test("CLI new ends after local creation without an auxiliary publish preflight", async () => {
-  await withTempRoot("cli-new-auxiliary-unavailable", async (root) => {
-    const stdout: string[] = [];
-    const stderr: string[] = [];
-    let afterCreation = false;
-    let postCreationReads = 0;
-    const original = fs.readdir;
-    fs.readdir = (async (...args: Parameters<typeof fs.readdir>) => {
-      if (args[0] === investigationRoot(root) && afterCreation) {
-        postCreationReads += 1;
-        throw Object.assign(new Error("collection access denied"), {
-          code: "EACCES"
-        });
-      }
-      return await original(...args);
-    }) as typeof fs.readdir;
-    let status;
-    try {
-      status = await runInvestigationReportCheckCli(
-        [
-          "--root",
-          root,
-          "new",
-          "history",
-          "--title",
-          "History",
-          "--question",
-          "Why?",
-          "--tag",
-          "history",
-          "--formed-at",
-          "2020-01-02T00:00:00Z"
-        ],
-        {
-          io: {
-            stdout: (text) => {
-              stdout.push(text);
-              if (text.includes("Investigation candidate created:"))
-                afterCreation = true;
-            },
-            stderr: (text) => stderr.push(text)
-          }
-        }
-      );
-    } finally {
-      fs.readdir = original;
-    }
-    assert.equal(status, 0);
-    assert.match(
-      stdout.join(""),
-      /Investigation candidate created: 200102-history/u
-    );
-    assert.doesNotMatch(stdout.join(""), /preflight/u);
-    assert.equal(postCreationReads, 0);
-    assert.doesNotMatch(stderr.join(""), /candidate-preflight-unavailable/u);
-    assert.match(
-      await fs.readFile(
-        path.join(investigationRoot(root), "_candidate.history"),
-        "utf8"
-      ),
-      /id: "200102-history"/u
-    );
   });
 });

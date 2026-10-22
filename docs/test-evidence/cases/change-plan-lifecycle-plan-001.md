@@ -10,5 +10,5 @@ Contract:
 - `plan` 以完整 Plan artifacts 和当前 Git HEAD 确认内容状态，tasks 中的 checkbox 继续只表达 Plan 内进度。
 
 Proves:
-- Draft 成功确认成带非空基线的 Plan。
-- Readiness 尚未完成且 Implementation、Verification 已有完成证据的 Plan 仍成功重确认成 Plan。
+- Draft 确认后的 Plan metadata 基线等于独立读取的 Git HEAD，tasks 原始字节不变。
+- Readiness 尚未完成且 Implementation、Verification 已有完成证据的 Plan 仍可重确认；基线等于当时 Git HEAD，tasks 原始字节不变。

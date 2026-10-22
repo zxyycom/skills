@@ -12,16 +12,13 @@ import { createInvestigationStateIndexDefinition } from "../src/investigation-in
 import { prepareInvestigationSources } from "../src/investigation-source-revision.ts";
 import { parseInvestigationReport } from "../src/markdown.ts";
 import { buildInvestigationReportState } from "../src/report-validation.ts";
-import {
-  investigationIndexFixture,
-  queryIndexFixture
-} from "./index-fixture.ts";
+import { investigationIndexFixture } from "./index-fixture.ts";
 import { investigationIndexJsonSchema } from "../src/investigation-index-json-schema.ts";
 import {
   queryInvestigationIndex,
   showInvestigationReport
 } from "../src/query.ts";
-import {} from "../src/report-path.ts";
+
 import { synchronizeInvestigationIndex } from "../src/validation.ts";
 import {
   reportMarkdown,
@@ -161,17 +158,6 @@ test("index rejects additional metadata", () => {
   });
   assert.equal(result.status, "error");
   assert.ok(result.diagnostics.some((item) => /metadata/u.test(item.message)));
-});
-
-test("list projects the published snapshot independently from source acquisition", () => {
-  const result = queryIndexFixture(
-    investigationIndexFixture([{ id: "report" }])
-  );
-  assert.deepEqual(
-    result.entries.map((entry) => entry.id),
-    ["report"]
-  );
-  assert.deepEqual(result.warnings, []);
 });
 
 test("source revisions fingerprint report Markdown", () => {

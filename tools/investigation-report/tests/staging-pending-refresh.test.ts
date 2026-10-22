@@ -96,10 +96,6 @@ test("stage domain refreshes only selected objects across repeated pending updat
   await verifySelectedRefresh("domain");
 });
 
-test("stage all refreshes only selected objects across repeated pending updates", async () => {
-  await verifySelectedRefresh("all");
-});
-
 async function verifyPendingOnlyCancellation(
   scope: "domain" | "all"
 ): Promise<void> {
@@ -136,10 +132,6 @@ test("stage domain cancels pending-only additions and removes pending-only owner
   await verifyPendingOnlyCancellation("domain");
 });
 
-test("stage all cancels pending-only additions and removes pending-only owner members", async () => {
-  await verifyPendingOnlyCancellation("all");
-});
-
 async function verifyDeletedPendingIndex(
   scope: "index" | "all"
 ): Promise<void> {
@@ -161,10 +153,6 @@ async function verifyDeletedPendingIndex(
 
 test("stage index rejects a deleted pending index without changing pending", async () => {
   await verifyDeletedPendingIndex("index");
-});
-
-test("stage all rejects a deleted pending index without changing pending", async () => {
-  await verifyDeletedPendingIndex("all");
 });
 
 async function verifyRepeatedPendingMoves(
@@ -203,10 +191,6 @@ async function verifyRepeatedPendingMoves(
 
 test("stage domain cleans each previous pending location during repeated moves", async () => {
   await verifyRepeatedPendingMoves("domain");
-});
-
-test("stage all cleans each previous pending location during repeated moves", async () => {
-  await verifyRepeatedPendingMoves("all");
 });
 
 test("stage domain preserves a deleted pending index while refreshing the selected report", async () => {

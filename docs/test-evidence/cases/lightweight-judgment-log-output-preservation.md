@@ -10,5 +10,5 @@ Contract:
 - 发送后的日志失败使用独立持久化状态与退出码，不丢弃已知服务结果、不把缺失行视为写入成功、不重发。
 
 Proves:
-- 更新触发器拒绝写入或调用行被删除时退出 4，meta.persistence 为 failed 且保留 callId；有效 answers 或远端 rate_limit 原错误仍在输出中，fetch 仅调用一次。
+- 更新触发器拒绝写入或调用行被删除时退出 4，meta.persistence 为 failed 且保留 callId；服务成功分支的完整原始 result 与手写 normalized 值均保持不变；远端失败分支保留 rate_limit、HTTP 429 与 null result，fetch 仅调用一次。
 - 数据库分别保持 started 或无行，底层异常私有文本不进入 stderr。

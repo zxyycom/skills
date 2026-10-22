@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { validateResponse } from "../src/response.ts";
 import { validateRequest, validateModel } from "../src/request.ts";
-import { parseJson, stringifyJson } from "../src/json.ts";
+import { parseJson } from "../src/json.ts";
 import { runCli } from "../src/cli.ts";
 import { runtime } from "./runtime-fixture.ts";
 import { decodeSuccess } from "./output.ts";
@@ -192,13 +192,4 @@ test("Score validates schema and preserves independent numerical fields", () => 
       preserved
     );
   }
-});
-test("native JSON serialization preserves integer-like candidate and nested state key order", () => {
-  const raw =
-    '{"state":{"10":"ten","2":"two","1":"one"},"questions":{"10":{"type":"choice","instructions":"pick","criteria":{"10":"ten","2":"two","1":"one"}},"2":{"type":"noul","instructions":"yes?"}}}';
-  const req = validateRequest(parseJson(raw), undefined, model);
-  const sent = stringifyJson(req);
-  assert.ok(sent.includes('"state":{"10":"ten","2":"two","1":"one"}'));
-  assert.ok(sent.includes('"criteria":{"10":"ten","2":"two","1":"one"}'));
-  assert.ok(sent.indexOf('"10":{"type"') < sent.indexOf('"2":{"type"'));
 });

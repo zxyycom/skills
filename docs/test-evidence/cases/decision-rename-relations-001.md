@@ -10,5 +10,5 @@ Contract:
 - Decision rename 必须把 candidate 与 established 记录中指向旧 ID 的结构化 relation target 改为新完整 ID。
 
 Proves:
-- candidate Markdown relation 保存新 ID。
-- 建立索引中的 relation state 保存新 ID，集合检查通过。
+- candidate 与 established Markdown 的 relation 均保存新 target，并保留各自摘要。
+- 发布索引的 established relation state 精确匹配新 target 与原摘要，集合检查通过。

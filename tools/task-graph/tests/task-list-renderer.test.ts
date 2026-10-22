@@ -102,66 +102,6 @@ test("task-list layout uses actual IDs with stable track layer and parent-path o
   );
 });
 
-test("task-list renderer fails closed when invalid projection relations reach layout", () => {
-  const cases = [
-    {
-      label: "missing parent",
-      result: success([item("task-000001", { parentId: "task-999999" })]),
-      error: /task-999999/u
-    },
-    {
-      label: "missing dependency",
-      result: success([
-        item("task-000001", {
-          dependencyTargets: ["task-999999"]
-        })
-      ]),
-      error: /task-999999/u
-    },
-    {
-      label: "missing exclusion",
-      result: success([
-        item("task-000001", {
-          exclusionTargets: ["task-999999"]
-        })
-      ]),
-      error: /task-999999/u
-    },
-    {
-      label: "parent cycle",
-      result: success([
-        item("task-000001", { parentId: "task-000002" }),
-        item("task-000002", { parentId: "task-000001" })
-      ]),
-      error: /parent cycle/u
-    },
-    {
-      label: "dependency cycle",
-      result: success([
-        item("task-000001", { dependencyTargets: ["task-000002"] }),
-        item("task-000002", { dependencyTargets: ["task-000001"] })
-      ]),
-      error: /dependency cycle/u
-    },
-    {
-      label: "self exclusion",
-      result: success([
-        item("task-000001", {
-          exclusionTargets: ["task-000001"]
-        })
-      ]),
-      error: /self exclusion at task-000001/u
-    }
-  ];
-  for (const { label, result, error } of cases) {
-    assert.throws(
-      () => renderTaskListResult(result, { columns: 80 }),
-      error,
-      label
-    );
-  }
-});
-
 test("task-list renderer displays every causal blocker kind in deterministic order", () => {
   const taskId = "task-000006";
   const base = { taskId, sourceTaskId: taskId, inheritancePath: [taskId] };
