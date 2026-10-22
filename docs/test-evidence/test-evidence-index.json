@@ -789,6 +789,12 @@
       "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": "sha256:7450667bcd6556b0e131933672fedcea1e408c6e9e78bb85db6b1ef39eeb3768",
       "INVESTIGATION-TRACE-LIMITS-001": "sha256:1e8c09f591fce4216b445ff88a58f4196605deb56b54b133a7d88ebee403999a",
       "INVESTIGATION-VALIDATION-WARNINGS-001": "sha256:57f359db45efe9842a2027c7f436c0d0462510afcc5328e322fbf0b3d5d88375",
+      "IR-INDEX-PAYLOAD-PENDING-RECHECK-001": "sha256:0de5611c782e6e77f9bfc6d8f2b4612ac8b57bfb6531ea85e9b37515a2022c6e",
+      "IR-INDEX-PAYLOAD-PHASE-001": "sha256:96d1e54d676b0ad498126d96ef7f73cea22103903356ae577ebd33845f47c2c2",
+      "IR-INDEX-PAYLOAD-PRESERVATION-001": "sha256:5c609d3a9d903c560b05ba7ad3474e6082eeda99f32f86365963b6d6ca7200a5",
+      "IR-INDEX-PAYLOAD-REQUIRED-FAILURE-001": "sha256:a03531b624f6bb274b9e89da3d774dec11cbc1a0b314bd588ced7af80bd1705e",
+      "IR-INDEX-PAYLOAD-SCOPE-001": "sha256:40f1b6395c7a7b860da9ec8b8594860f94fc875b27f683f09e2c4c0c41eaeb8f",
+      "IR-INDEX-PAYLOAD-WORKSPACE-RECHECK-001": "sha256:db67d287a3da4efb1421d644c91968c1e925a3c5d090ee6c22262296d75714d2",
       "IR-TRACE-BOUNDARY-001": "sha256:f32fbd5ae01f18a6084c9491a18f0950971f14f5ec31b577696137aa2ce5c8e4",
       "IR-TRACE-FRONTIER-001": "sha256:c605bc45d5df9caf4a7a158ba7dfea7172d6bfa499a11d6bafb6f1fb0d0ff652",
       "IR-TRACE-RENDER-001": "sha256:407986a520d18dd6836dedca273b4f310be4b31ac038258ac9ff9a328738a3ec",
@@ -1209,10 +1215,18 @@
       "TEST-EVIDENCE-UNREADABLE-INDEX-001": "sha256:944aef3f8c8a64062ba1fdd99b77c1f42dd012fad750dec22a080787e6a9765b",
       "VERSION-CONTROL-CHANGES-001": "sha256:5b1fe598d4464b20379d21833cecad0af5ab38559b5cb30f845a0d898c048578",
       "VERSION-CONTROL-CONFLICT-001": "sha256:ad6aa700635cd403c4cc8bf9d21911eb893dfc0abe52721475f12b62280d23d2",
+      "VERSION-CONTROL-CONTENT-PAYLOAD-BOUNDARY-001": "sha256:130fa3ed5a0a2ce6643f57cf507a71ef67c60dea442f1620e59a16271b37ce13",
+      "VERSION-CONTROL-CONTENT-PAYLOAD-CAS-001": "sha256:5777c936955a0387d85c62f3688dfb031c3d38e5cb3c4df9e6c7b2cd6205b74d",
+      "VERSION-CONTROL-CONTENT-PAYLOAD-DEFAULTS-001": "sha256:b34670c6601f621fadae5755ab22550ef08390d609d0223a04d5f44bd28fc082",
+      "VERSION-CONTROL-CONTENT-PAYLOAD-EMPTY-001": "sha256:3a98f095cabb1d52bd2fe25bcaf3d113e035a325828554bf236c57d3ec4c7bf4",
+      "VERSION-CONTROL-CONTENT-PAYLOAD-EXCLUSION-001": "sha256:aea47816d7fd450d2574e4ec68e5cfe66099e90b8f96d07d5014c22199558730",
+      "VERSION-CONTROL-CONTENT-PAYLOAD-FAILURE-001": "sha256:e6664f4f2a45a48eef7cd0a73ce9cbec33f5fcaf76452c5e34f976ee1ce828d5",
+      "VERSION-CONTROL-CONTENT-PAYLOAD-FINGERPRINT-001": "sha256:afe448ef2e322f8ed21c46bbc7a2a1989b6f8ab71124a95dcaa7f1026e246d25",
+      "VERSION-CONTROL-CONTENT-PAYLOAD-READBACK-001": "sha256:d75d56171e83da0065814c17a3c4bd5be3d6528bd8e4cd11c150e9e1ab3c102e",
       "VERSION-CONTROL-CORRUPTION-001": "sha256:94dd66b5d140d18d841a6b59afa201784e2bfd177211cad0ec8563d4c756ab80",
       "VERSION-CONTROL-DISCOVERY-FAILURE-001": "sha256:74ef03d4531bfb0be98b9be9872336a911383c623e69ea05a26b3ebad94480a1",
       "VERSION-CONTROL-ERROR-DETAIL-001": "sha256:2603ba673019655d615eb175f6dd778763943ebd0dc8a3b5085787f2641085b6",
-      "VERSION-CONTROL-FINGERPRINT-DEMAND-001": "sha256:422c52f40a7bf423d6d10b36b45c96ef5abd42baa6c9d1ba668af067c5d94b06",
+      "VERSION-CONTROL-FINGERPRINT-DEMAND-001": "sha256:90289baa4f1a5bc695b5a2bf4579a2e91d575a5fb884f28169a062656a4e4261",
       "VERSION-CONTROL-FINGERPRINT-MODE-FRAMING-001": "sha256:3283e53a7cd97194ec30942e2658545370fcab2e8aea6edc9b5f99ad2239c329",
       "VERSION-CONTROL-FIRST-PARENT-001": "sha256:a1683f4979fd355852bfd0ddd4dbbf3bea04eafddeaa53d777dce121c9cab5e0",
       "VERSION-CONTROL-FIRST-PARENT-FAILURE-001": "sha256:5650bbb6fccdce83ecdf661b2ac04c3393d1141a2e141864ae6640d647f3668c",
@@ -9279,6 +9293,71 @@
         "test:f82faae2f91cd7d9ac0d3ca5797e6f9b8c8300ab97c0a987b9af5298e2a29b5a"
       ]
     },
+    "IR-INDEX-PAYLOAD-PENDING-RECHECK-001": {
+      "title": "index独立写前复核全域pending身份",
+      "sourcePath": "cases/investigation-index-payload-independent-pending.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:6ae766a9c17110f13e4a38d2be04ef12fd3acb85b2075bd05b1fb9c029f06e44",
+        "test:7e8b02954cb4dcf3f9227112c0018622abab26a5cbf938244fd7700d01596c32",
+        "test:ddd6f77fe0f17e0926cc6cbbc4c20741ed39750ae9c95ea72b566c7d8cc477ce"
+      ]
+    },
+    "IR-INDEX-PAYLOAD-PHASE-001": {
+      "title": "index准备获取合并但独立保护保留",
+      "sourcePath": "cases/investigation-index-payload-phase-budget.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:ccfdc888bf69ef67e043afdd4d1ca86d75a4c2c6a67fd482e29133dbb6b41b13"
+      ]
+    },
+    "IR-INDEX-PAYLOAD-PRESERVATION-001": {
+      "title": "index保留未选部分暂存表示与删除",
+      "sourcePath": "cases/investigation-index-payload-preservation.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:8a792301272f007a9bfc0d4e71462adcf868938b00af6e7ff82f64ab885513a9"
+      ]
+    },
+    "IR-INDEX-PAYLOAD-REQUIRED-FAILURE-001": {
+      "title": "index必需payload准备与写前失败",
+      "sourcePath": "cases/investigation-index-payload-required-failure.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:16797b2dd8d9f604b0faf9ed9cc91b7a162c9e6ab0ab0ea0e7642b07571b0de0",
+        "test:5f1c7c4a245b1b68addf5bfcccb763283fbbe2f51f48ad876f2568f2f37f522f"
+      ]
+    },
+    "IR-INDEX-PAYLOAD-SCOPE-001": {
+      "title": "index仅验收索引payload而完整范围不降级",
+      "sourcePath": "cases/investigation-index-payload-scope.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:34cb2ef530e8623c83cedf7e9b4939ea7fbe74877ee18d124dc45123bb8fdafb",
+        "test:e74e3595576527217b56f96ced4c8b6b8ea21eb4e4bc28f91824d0de9af6e904",
+        "test:efcf8efe61a70e506e30a27f7a106849dfbb139f97e7bc2918f8bd1626dc4aeb"
+      ]
+    },
+    "IR-INDEX-PAYLOAD-WORKSPACE-RECHECK-001": {
+      "title": "index独立写前重读工作区索引",
+      "sourcePath": "cases/investigation-index-payload-independent-workspace.md",
+      "tags": [
+        "investigation-report"
+      ],
+      "testIds": [
+        "test:afcb713e95c7d33613aa7f6771a6ae407ddfc8cba950a420117234ea2d9d63ae"
+      ]
+    },
     "IR-TRACE-BOUNDARY-001": {
       "title": "终端事件与预算边界文本保持完整",
       "sourcePath": "cases/investigation-trace-render-boundary.md",
@@ -13525,6 +13604,93 @@
       ],
       "testIds": [
         "test:85413c260c16304e0430facc676e56bd9d13eb19cd9166c263be56a8b50382c4"
+      ]
+    },
+    "VERSION-CONTROL-CONTENT-PAYLOAD-BOUNDARY-001": {
+      "title": "payload策略与精确选集绑定",
+      "sourcePath": "cases/version-control-content-payload-boundary.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:4cca32e83fcbcb536b12a228ba65f1aac5834abc59feab4cf7034dfb6ae332dd"
+      ]
+    },
+    "VERSION-CONTROL-CONTENT-PAYLOAD-CAS-001": {
+      "title": "选择性payload仍保护完整成员身份",
+      "sourcePath": "cases/version-control-content-payload-member-cas.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:5df9539bd1b91ae1d83897a7b539efd797492227135d56e21c5622af70b31a0b",
+        "test:7771171c7c6e0c4c54bc2751c1219971925d6e30034491c17e4ee395a387acba",
+        "test:a1ce2cf3ef8baf4c2bdddfe3828bf59070f0ce52f964b2f5b9346c6dd50d8566"
+      ]
+    },
+    "VERSION-CONTROL-CONTENT-PAYLOAD-DEFAULTS-001": {
+      "title": "显式payload范围与完整默认验收",
+      "sourcePath": "cases/version-control-content-payload-defaults.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:3ee2fa24585ea4fa2544e9826707a478f613630603f1329eafe56d622ecb8eb2",
+        "test:b030c1e463213f8c6e6c418cf46a40844346c51a864abe6465026fa9e0ab84f2",
+        "test:fadd77b41bec90606e6c8875dfe5614e675acfc8d33e89b64aea5944cc9049ac"
+      ]
+    },
+    "VERSION-CONTROL-CONTENT-PAYLOAD-EMPTY-001": {
+      "title": "空范围与选择路径生命周期",
+      "sourcePath": "cases/version-control-content-payload-empty-and-delete.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:30e9ea569940793387e9976b23a301986bdc3fa5ec9ef097914ba5dbfbe9f964"
+      ]
+    },
+    "VERSION-CONTROL-CONTENT-PAYLOAD-EXCLUSION-001": {
+      "title": "未选payload字节验收的明确排除",
+      "sourcePath": "cases/version-control-content-payload-unselected-bytes.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:4e947e9bc40534d307f2a017bb66f2308b88b03498d092a6446dfcde7bf9bb3a"
+      ]
+    },
+    "VERSION-CONTROL-CONTENT-PAYLOAD-FAILURE-001": {
+      "title": "所选payload各阶段读取失败阻断",
+      "sourcePath": "cases/version-control-content-payload-read-failures.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:4480822c5bc40bd0d96175542abfc3c3d741136ac990c70ed1a8436527b2a105",
+        "test:469ffde31f2085248c060d07039767f2269f8ee73e8c332ef8ccee91c2fb09ca",
+        "test:8497897c7be0e2bdd1d71c76ad91d6a71dbc75e85bcea5a26cc147c8f6280596"
+      ]
+    },
+    "VERSION-CONTROL-CONTENT-PAYLOAD-FINGERPRINT-001": {
+      "title": "选中实际payload指纹独立于OID",
+      "sourcePath": "cases/version-control-content-payload-selected-fingerprint.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:5d9367fe9e350d8241dab079f2d00f11e00642db4287741826e0c00df114c8fa"
+      ]
+    },
+    "VERSION-CONTROL-CONTENT-PAYLOAD-READBACK-001": {
+      "title": "写后校验更新与保留所选实际字节",
+      "sourcePath": "cases/version-control-content-payload-readback-fingerprint.md",
+      "tags": [
+        "version-control"
+      ],
+      "testIds": [
+        "test:abaafa1eb5e10f62b8cc833d93bc9efeb581db593886b77094e00d5a704b50d2",
+        "test:e42071eeae3aa23bf78c28fa36010778e1262dc46695a7a0ca77398c987313e3"
       ]
     },
     "VERSION-CONTROL-CORRUPTION-001": {

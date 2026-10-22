@@ -75,7 +75,7 @@ readonly request、fresh phase facts、prepared writes 与判别 verification �
 
 资源 readdir EACCES 曾在详细检查转为 issues 字符串时丢失系统事实，独立复现闭合了该原因。资源文件系统边界现在同时保留原 issues 与真实 failure；root 检查／解析、owner／intermediate 枚举、文件检查与 terminal open 已由独立回归验证。默认候选和查询仍消费原 issues；普通 symlink、case 与成员问题没有系统类别，无法分类的真实 syscall 则保留 unknown、实际操作／目标和针对读取的恢复动作。
 
-稳定责任分别由[共享版本管理契约](../../tools/shared/version-control.md)、[IR 固定契约](../../skills/investigation-report/references/investigation-report-contract.md)及[完整验证与选择性保留决策](../decisions/retain-complete-validation-with-selected-content.md)承接。
+稳定责任分别由[共享版本管理契约](../../tools/shared/version-control.md)、[IR 固定契约](../../skills/investigation-report/references/investigation-report-contract.md)及[完整验证与选择性保留决策](../decisions/archive/retain-complete-validation-with-selected-content.md)承接。
 
 ### 前后实际结果
 

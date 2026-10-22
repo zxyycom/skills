@@ -725,6 +725,68 @@
       ],
       "title": "记录工具第一轮常数优化的十万条验证"
     },
+    "261022-ir-index-payload-optimization": {
+      "formedAt": "2026-10-22T06:09:01Z",
+      "name": "ir-index-payload-optimization",
+      "question": "一万条单选 index 暂存采用授权的非index payload范围收窄与准备合并后，实际收益与连续刷新效果如何？",
+      "relations": [
+        {
+          "summary": "在授权收窄条件下验证正式优化的成本与副作用",
+          "target": "261022-ir-index-stage-regression-cause",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261022-ir-index-payload-optimization/context.json",
+        "261022-ir-index-payload-optimization/methods.txt",
+        "261022-ir-index-payload-optimization/observations.jsonl",
+        "261022-ir-index-payload-optimization/pre-gate/context.json",
+        "261022-ir-index-payload-optimization/pre-gate/methods.txt",
+        "261022-ir-index-payload-optimization/pre-gate/observations.jsonl",
+        "261022-ir-index-payload-optimization/pre-gate/streams.json",
+        "261022-ir-index-payload-optimization/pre-gate/summary.json",
+        "261022-ir-index-payload-optimization/pre-gate/workload.json",
+        "261022-ir-index-payload-optimization/streams.json",
+        "261022-ir-index-payload-optimization/summary.json",
+        "261022-ir-index-payload-optimization/workload.json"
+      ],
+      "sourcePath": "ir-index-payload-optimization.md",
+      "tags": [
+        "investigation-report",
+        "performance",
+        "version-control"
+      ],
+      "title": "授权收窄与准备合并后的索引暂存实测"
+    },
+    "261022-ir-index-stage-regression-cause": {
+      "formedAt": "2026-10-22T05:43:55Z",
+      "name": "ir-index-stage-regression-cause",
+      "question": "一万条单选 index 暂存为何从1.57秒回退至5.11秒，哪些新增工作与重复成本占主导？",
+      "relations": [
+        {
+          "summary": "为既有暂存成本回退增加分阶段与受控干预归因",
+          "target": "261022-record-tools-local-contracts-1w",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261022-ir-index-stage-regression-cause/context.json",
+        "261022-ir-index-stage-regression-cause/interventions.txt",
+        "261022-ir-index-stage-regression-cause/methods.txt",
+        "261022-ir-index-stage-regression-cause/observations.jsonl",
+        "261022-ir-index-stage-regression-cause/phases.json",
+        "261022-ir-index-stage-regression-cause/streams.json",
+        "261022-ir-index-stage-regression-cause/summary.json"
+      ],
+      "sourcePath": "ir-index-stage-regression-cause.md",
+      "tags": [
+        "investigation-report",
+        "performance",
+        "root-cause-analysis",
+        "version-control"
+      ],
+      "title": "调查索引暂存回退的分阶段归因"
+    },
     "261022-record-tools-local-contracts-1w": {
       "formedAt": "2026-10-22T05:08:54Z",
       "name": "record-tools-local-contracts-1w",
@@ -1421,7 +1483,7 @@
       "261009-skill-cli-repeated-process-and-source-access": "sha256:c36ef47b219d7f4c7c8ce1496b70aeee91958106a01835275793a8fe0eca64be",
       "261010-investigation-acquisition-performance-recheck": "sha256:363386f7d53281c571fabb6682fb3f8e69c28be86b0437033e7f37751efba60a",
       "261010-investigation-local-stage-and-single-read-check": "sha256:a1ed5d551d2dea05dbcfd4e3bf928adcb60cb82d25a604524a2170f278fc81aa",
-      "261010-investigation-phase-facts-and-streamed-content": "sha256:3d01be251aeb0eccdfbb8140a582cc44ccd84f5c6b227eb804a82838ea6bb0e1",
+      "261010-investigation-phase-facts-and-streamed-content": "sha256:45ba304c2b187ad2916e7746c3ba4aca3805381904dd01595c4d7ca7191fbb11",
       "261011-decision-batch-lookup-and-stable-event-members": "sha256:a93fa43bf87a2afc1fc79b29cf5e315fc5baae1fbfee4afcf7ef60329155ce7d",
       "261011-decision-snapshot-stage-and-event-costs": "sha256:c8b5d3aaa42896e3be0d0aeb96387cbd22256535f2ea57d987812880758d9aff",
       "261011-investigation-batch-lookup-iterative-graph-and-demanded-fingerprints": "sha256:ce79cceb5f8d0fff03dc278874c5b834743c27bf7c9e87ab569af2df608c3e8c",
@@ -1437,6 +1499,8 @@
       "261021-record-tools-100k-performance": "sha256:90f583af3ff0bd21d2cd30332c33af6f480e2ffed737cf6d7f5d956ed891837b",
       "261021-record-tools-all-operations-100k": "sha256:d55d495455ae2bd3217331bb0ec6c936995278a9a04a8e6945ec8673e97dfefc",
       "261021-record-tools-first-optimization-validation": "sha256:f8c79de193183cf5d861bfec77b4ddc8a49f9a44696dbf1c7047df7b131973b4",
+      "261022-ir-index-payload-optimization": "sha256:c96894e0db5b2c3bda5d7aed77545ab927253e0fe863c8a045de326dd9518766",
+      "261022-ir-index-stage-regression-cause": "sha256:f4429711183d4192846574cae7ddafccec30140f35d7a0b54ff0c95d1dabc0ae",
       "261022-record-tools-local-contracts-1w": "sha256:b4662c7c1cf3248491db6a5e9b9a44d2d353329d2242112ccda3f67954e050d2",
       "adopt-native-lock-and-atomic-write-libraries": "sha256:b9042fc49b903134213a1b8fef789c2362be054b57d1c50a8ccdc75b3501094b",
       "adopt-preflight-warning-and-single-predecessor-collapse": "sha256:343e4b0b69f8d4a7c6c86076b32e6ccaed33de6e1d7ce2b1c3da47c7af6ad81a",

@@ -17,22 +17,26 @@ import {
   type GitIndexEntry
 } from "./git-core.ts";
 import type { GitRepositoryContext } from "./git-context.ts";
+import type { PendingPayloadScope } from "./pending-snapshot.ts";
 import type { VersionControlFile } from "./types.ts";
 
-/** Complete payload validation chooses retention per unique object, then materializes only requested paths. */
+/** Payload scope selects validated objects; retention remains explicit per unique object. */
 export async function selectedPendingBlobs(
   context: GitRepositoryContext,
   entries: readonly GitIndexEntry[],
-  paths: ReadonlySet<string>
+  paths: ReadonlySet<string>,
+  payloadScope: PendingPayloadScope = "scope"
 ): Promise<ReadonlyMap<string, GitBlobSelection>> {
   const selections = new Map<string, number | null>();
-  for (const entry of entries)
+  for (const entry of entries) {
+    if (payloadScope === "content-paths" && !paths.has(entry.path)) continue;
     selections.set(
       entry.objectId,
       paths.has(entry.path) || selections.get(entry.objectId) === null
         ? null
         : 0
     );
+  }
   try {
     return await readGitBlobSelections(context.rootDirectory, selections);
   } catch (error) {
@@ -63,4 +67,23 @@ export function materializedFiles(
         data: blob.data
       };
     });
+}
+
+/** Project actual payload identity without retaining content in the opaque snapshot. */
+export function payloadFingerprints(
+  blobs: ReadonlyMap<string, GitBlobSelection>
+): ReadonlyMap<string, string> {
+  const fingerprints = new Map<string, string>();
+  for (const [id, blob] of blobs) fingerprints.set(id, blob.fingerprint);
+  return fingerprints;
+}
+
+export function sameFingerprints(
+  left: ReadonlyMap<string, string>,
+  right: ReadonlyMap<string, string>
+): boolean {
+  if (left.size !== right.size) return false;
+  for (const [id, fingerprint] of left)
+    if (right.get(id) !== fingerprint) return false;
+  return true;
 }

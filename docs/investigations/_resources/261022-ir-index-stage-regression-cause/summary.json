@@ -1,0 +1,336 @@
+{
+  "native": {
+    "base": {
+      "count": 3,
+      "wallMedian": 1.6738843380007893,
+      "cpuMedian": 2.379053,
+      "rssMiBMedian": 317.51953125
+    },
+    "current": {
+      "count": 3,
+      "wallMedian": 5.481878453021636,
+      "cpuMedian": 8.257374,
+      "rssMiBMedian": 411.3984375
+    },
+    "merge": {
+      "count": 3,
+      "wallMedian": 4.714911130984547,
+      "cpuMedian": 7.010472,
+      "rssMiBMedian": 408.65234375
+    },
+    "narrow": {
+      "count": 3,
+      "wallMedian": 2.677405030000955,
+      "cpuMedian": 3.5297409999999996,
+      "rssMiBMedian": 384.4453125
+    },
+    "merge-narrow": {
+      "count": 3,
+      "wallMedian": 2.6302845680038445,
+      "cpuMedian": 3.4555439999999997,
+      "rssMiBMedian": 378.12109375
+    }
+  },
+  "phases": {
+    "base": {
+      "validateInvestigationRelationGraph": {
+        "countPerRun": [
+          3,
+          3,
+          3
+        ],
+        "wallMsMedian": 96.01788899999985,
+        "nodeCpuMsMedian": 141.666
+      },
+      "parseStateIndex": {
+        "countPerRun": [
+          2,
+          2,
+          2
+        ],
+        "wallMsMedian": 828.209466,
+        "nodeCpuMsMedian": 1177.4009999999998
+      },
+      "readGitBlobSelections": {
+        "countPerRun": [
+          3,
+          3,
+          3
+        ],
+        "wallMsMedian": 49.25356300000021,
+        "nodeCpuMsMedian": 47.182
+      },
+      "serializeStateIndex": {
+        "countPerRun": [
+          1,
+          1,
+          1
+        ],
+        "wallMsMedian": 69.631216,
+        "nodeCpuMsMedian": 87.002
+      },
+      "volumes": [
+        {
+          "label": "blob-volume",
+          "count": 1,
+          "bytes": 5893454
+        },
+        {
+          "label": "blob-volume",
+          "count": 1,
+          "bytes": 5893454
+        },
+        {
+          "label": "blob-volume",
+          "count": 1,
+          "bytes": 5893454
+        }
+      ],
+      "pendingStages": {},
+      "nodeTotalCpuMsMedian": 2273.862
+    },
+    "current": {
+      "parseStateIndex": {
+        "countPerRun": [
+          4,
+          4,
+          4
+        ],
+        "wallMsMedian": 1406.9933810000002,
+        "nodeCpuMsMedian": 1842.5
+      },
+      "validateInvestigationRelationGraph": {
+        "countPerRun": [
+          4,
+          4,
+          4
+        ],
+        "wallMsMedian": 132.78243599999985,
+        "nodeCpuMsMedian": 219.66
+      },
+      "readGitBlobSelections": {
+        "countPerRun": [
+          6,
+          6,
+          6
+        ],
+        "wallMsMedian": 2503.4829609999992,
+        "nodeCpuMsMedian": 1910.458
+      },
+      "loadDomainSnapshot": {
+        "countPerRun": [
+          1,
+          1,
+          1
+        ],
+        "wallMsMedian": 1758.680219,
+        "nodeCpuMsMedian": 2166.8
+      },
+      "writePendingPatch": {
+        "countPerRun": [
+          1,
+          1,
+          1
+        ],
+        "wallMsMedian": 535.6409170000006,
+        "nodeCpuMsMedian": 379.073
+      },
+      "serializeStateIndex": {
+        "countPerRun": [
+          3,
+          3,
+          3
+        ],
+        "wallMsMedian": 163.6149100000007,
+        "nodeCpuMsMedian": 192.515
+      },
+      "verifyDomainIndex": {
+        "countPerRun": [
+          1,
+          1,
+          1
+        ],
+        "wallMsMedian": 433.0740820000001,
+        "nodeCpuMsMedian": 500.749
+      },
+      "readPendingSnapshot": {
+        "countPerRun": [
+          3,
+          3,
+          3
+        ],
+        "wallMsMedian": 1589.2298940000003,
+        "nodeCpuMsMedian": 1291.719
+      },
+      "preparePendingPatch": {
+        "countPerRun": [
+          1,
+          1,
+          1
+        ],
+        "wallMsMedian": 565.6198140000001,
+        "nodeCpuMsMedian": 396.945
+      },
+      "volumes": [
+        {
+          "label": "blob-volume",
+          "count": 1,
+          "bytes": 5893454
+        },
+        {
+          "label": "blob-volume",
+          "count": 10004,
+          "bytes": 13524459
+        },
+        {
+          "label": "blob-volume",
+          "count": 10004,
+          "bytes": 13524459
+        },
+        {
+          "label": "blob-volume",
+          "count": 10004,
+          "bytes": 13524459
+        },
+        {
+          "label": "blob-volume",
+          "count": 10004,
+          "bytes": 13524459
+        },
+        {
+          "label": "blob-volume",
+          "count": 10004,
+          "bytes": 13524459
+        }
+      ],
+      "pendingStages": {
+        "0": {
+          "wallMsMedian": 522.566763,
+          "nodeCpuMsMedian": 461.961
+        },
+        "1": {
+          "wallMsMedian": 545.4313969999998,
+          "nodeCpuMsMedian": 446.17
+        },
+        "2": {
+          "wallMsMedian": 520.0808740000002,
+          "nodeCpuMsMedian": 412.674
+        }
+      },
+      "nodeTotalCpuMsMedian": 5264.797
+    }
+  },
+  "notes": [
+    "All phase CPU timers use process.cpuUsage (Node only); CLI CPU uses wait4 including Git descendants. Nested timings are inclusive and not additive.",
+    "First current-probe sample overlapped tmp variant-copy preparation; retained in raw log but excluded from clean phase summary.",
+    "Uninstrumented variants have no timing helper. narrow loses non-index P payload-read/deep-corruption protection; merge is unproven timing/diagnostic equivalence."
+  ],
+  "pairedMerge": {
+    "differences": [
+      {
+        "wall": 0.672371516993735,
+        "cpu": 1.0751050000000006
+      },
+      {
+        "wall": 0.2941354989889078,
+        "cpu": 0.5295050000000003
+      },
+      {
+        "wall": 1.5847500560048502,
+        "cpu": 2.3362429999999996
+      }
+    ],
+    "wallMedianSaving": 0.672371516993735,
+    "cpuMedianSaving": 1.0751050000000006
+  },
+  "interventionCounters": {
+    "merge": {
+      "counts": {
+        "parseStateIndex": 4,
+        "validateInvestigationRelationGraph": 4,
+        "blob-volume": 5,
+        "readGitBlobSelections": 5,
+        "readPendingSnapshot": 2,
+        "loadDomainSnapshot": 1,
+        "serializeStateIndex": 3,
+        "verifyDomainIndex": 1,
+        "preparePendingPatch": 1,
+        "writePendingPatch": 1
+      },
+      "volumes": [
+        {
+          "label": "blob-volume",
+          "count": 1,
+          "bytes": 5893454
+        },
+        {
+          "label": "blob-volume",
+          "count": 10004,
+          "bytes": 13524459
+        },
+        {
+          "label": "blob-volume",
+          "count": 10004,
+          "bytes": 13524459
+        },
+        {
+          "label": "blob-volume",
+          "count": 10004,
+          "bytes": 13524459
+        },
+        {
+          "label": "blob-volume",
+          "count": 10004,
+          "bytes": 13524459
+        }
+      ]
+    },
+    "narrow": {
+      "counts": {
+        "parseStateIndex": 4,
+        "validateInvestigationRelationGraph": 4,
+        "blob-volume": 6,
+        "readGitBlobSelections": 6,
+        "readPendingSnapshot": 3,
+        "loadDomainSnapshot": 1,
+        "serializeStateIndex": 3,
+        "verifyDomainIndex": 1,
+        "preparePendingPatch": 1,
+        "writePendingPatch": 1
+      },
+      "volumes": [
+        {
+          "label": "blob-volume",
+          "count": 1,
+          "bytes": 5893454
+        },
+        {
+          "label": "blob-volume",
+          "count": 1,
+          "bytes": 5893454
+        },
+        {
+          "label": "blob-volume",
+          "count": 1,
+          "bytes": 5893454
+        },
+        {
+          "label": "blob-volume",
+          "count": 1,
+          "bytes": 5893454
+        },
+        {
+          "label": "blob-volume",
+          "count": 1,
+          "bytes": 5893454
+        },
+        {
+          "label": "blob-volume",
+          "count": 1,
+          "bytes": 5893454
+        }
+      ]
+    }
+  },
+  "interpretationBoundary": "原notes中的deep-corruption仅指共享Git blob完整读取边界中能暴露的对象缺失、读取失败、传输截断等；不表示未选Markdown语义验证或独立重算Git对象SHA/OID一致性。"
+}

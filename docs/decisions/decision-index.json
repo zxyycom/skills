@@ -127,7 +127,7 @@
       "261008-maintain-record-quality-through-project-workflow": "sha256:804ad74dfa950e266e09648a62c29eed04fe1850971ced043c6a4ae632090f82",
       "261009-require-one-project-repository-for-change-roots": "sha256:ebcd33cdec3e750108043b1fa433ed0bddd7d0b9cfea1117374496f5ec9a8bfc",
       "261010-investigation-local-validation-and-phase-facts": "sha256:575e7a38ac477ca6e3af84085c76bd101d3da1964efe38e595c15b62dd7fa840",
-      "261010-retain-complete-validation-with-selected-content": "sha256:bc20db4275ae8bfd460f168c2c676dd66f5f6da9c3fdd849207905a6557e39db",
+      "261010-retain-complete-validation-with-selected-content": "sha256:277160a97f3f3f37b38dd891a842e36f56883686291617de3af7c2ca4cd79fea",
       "261010-separate-investigation-query-and-validation-acquisition": "sha256:5669fdde0cbe2d1f86188ef5ed606f836f32660c960a2554b4c48083afc4a70a",
       "261011-publish-decision-index-query-snapshots": "sha256:e70725985c320e52778936cb0db50357a238154a47596c051e63d6d9c689bbed",
       "261017-complete-change-plans-through-task-declarations": "sha256:de38af27e41917cae426abb4903d4b20492b7c84f0b5b6643753b714b309f2bb",
@@ -140,6 +140,7 @@
       "261020-unify-gate-generated-artifact-prerequisite": "sha256:dadfc27ecd56b60a6042e853c9992988079247cb4be5e81481439b8520d6a682",
       "261021-allow-markdown-lint-receipts": "sha256:56f179040497fadb6f56ee7672bb1e03e71e1aeedb879fe5c7a864f3b44e532f",
       "261022-refresh-selected-records-in-pending": "sha256:95e3b13c5798821dba502540218596ec991580c84329d270f718f9cff1a271af",
+      "261022-scope-investigation-index-payload-validation": "sha256:1d753298621bc42f9dcf9e5c1e7dd0709d1656078141bc66d1c8dbf243c845e0",
       "261022-separate-record-local-operations-from-collection-audits": "sha256:8dfcdf36c8a1471db4d14aecd17889edddd5954626ba541148ac36c6f504d462",
       "activate-release-gate-checks-by-tag": "sha256:c149011e8923bd0524897d264597087f1ea7448ce39d2eeca47fb9b6d37ef5be",
       "aggregate-parent-task-completion": "sha256:f7e64043c31dcdc9d9b45166238e5295b1f04fa3b33dd74ee10bc918268275f9",
@@ -2920,9 +2921,9 @@
     },
     "261010-retain-complete-validation-with-selected-content": {
       "name": "retain-complete-validation-with-selected-content",
-      "sourcePath": "retain-complete-validation-with-selected-content.md",
+      "sourcePath": "archive/retain-complete-validation-with-selected-content.md",
       "title": "完整内容验证与选择性保留分离",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-10T18:05:07Z",
       "purpose": "在减小快照内存与复制成本时保留完整范围失败和漂移保护。",
@@ -3199,6 +3200,30 @@
           "type": "拆分",
           "target": "261010-investigation-local-validation-and-phase-facts",
           "summary": "独立承接局部依赖与阶段保护并采用选中刷新"
+        }
+      ]
+    },
+    "261022-scope-investigation-index-payload-validation": {
+      "name": "scope-investigation-index-payload-validation",
+      "sourcePath": "scope-investigation-index-payload-validation.md",
+      "title": "按消费范围验证调查索引暂存的 payload",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-22T06:21:35Z",
+      "purpose": "让调查索引暂存只承担索引内容验收，同时完整保护已有暂存身份与并发状态。",
+      "background": "只修改索引的操作需要保留完整暂存身份，但不需要证明所有非索引对象即时可读。",
+      "decision": "仅调查 index scope 按所需索引路径验收 payload，其他范围保持默认完整验证与阶段保护。",
+      "tags": [
+        "investigation-report",
+        "responsibility-boundaries",
+        "validation-boundaries",
+        "version-control"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261010-retain-complete-validation-with-selected-content",
+          "summary": "保留默认完整验证，仅调查index按消费范围验收payload"
         }
       ]
     },

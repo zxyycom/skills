@@ -1,0 +1,235 @@
+本轮实际新写方法，作为阅读证据归档，不是维护工具或独立可执行入口。
+未执行前序methods.txt；归档只供恢复动作与推理，不附fixture、源码副本或node_modules。
+初始probe及最后variant计数probe的helper未记录node-total-cpu；clean probe使用下附probe-clean.mjs形态加入Node总CPU事件。instrument-variants.py重新写回初始helper，其余计时边界一致。
+
+FILE prepare.mjs
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+const home=import.meta.dirname, root=home+'/fixture', cp='docs/investigations', ix=cp+'/investigation-index.json';
+const git=(args)=>execFileSync('git',['-C',root,...args],{encoding:'utf8',maxBuffer:64*1024*1024});
+const id=n=>`261001-perf-${String(n).padStart(5,'0')}`;
+const write=async(p,data)=>{await fs.mkdir(path.dirname(root+'/'+p),{recursive:true});await fs.writeFile(root+'/'+p,data);};
+function source(n,candidate=false){
+ const identity=id(n), own=[1,2,3,4].includes(n)||(candidate&&n===10000), group=n-n%10;
+ const relations=candidate?[{type:'复查',target:id(n===10000?3:8),summary:'保存前序的独立判断'}]:n===group?[]:[{type:'复查',target:id(group),summary:'保存前序的独立判断'}];
+ const front={title:`独立记录 ${identity}`,id:identity,formedAt:'2026-10-01T00:00:00Z',question:'有界操作在一万条存量的成本是多少？',tags:['benchmark'],relations};
+ const lines=['---'];
+ for(const [key,value] of Object.entries(front)){
+  if(!Array.isArray(value)){lines.push(`${key}: ${JSON.stringify(value)}`);continue;}
+  if(!value.length){lines.push(`${key}: []`);continue;}
+  lines.push(key+':');
+  for(const item of value){if(typeof item==='string')lines.push('  - '+JSON.stringify(item));else Object.entries(item).forEach(([k,v],i)=>lines.push(`  ${i===0?'- ':'  '}${k}: ${JSON.stringify(v)}`));}
+ }
+ let text=lines.join('\n')+'\n---\n\n## 形成时背景\n固定存量。\n\n## 调查目的\n成本对照。\n\n## 调查范围与依据\n合成来源。\n\n## 调查结果与边界\n不能外推生产。\n\nfixturecontent '+'bounded-detail '.repeat(20)+'\n';
+ if(own)text+=`\n## 随附资源\n- [证据](./_resources/${identity}/evidence.txt)\n`;
+ return {id:identity,sourcePath:candidate?`_candidate.perf-${String(n).padStart(5,'0')}`:`perf-${String(n).padStart(5,'0')}.md`,text,own};
+}
+const {buildInvestigationStateSnapshot}=await import('./base/tools/investigation-report/src/investigation-index-source.ts');
+const {createInvestigationStateIndexDefinition}=await import('./base/tools/investigation-report/src/investigation-index-definition.ts');
+const {buildStateIndexFromSnapshot,serializeStateIndex}=await import('./base/tools/index-runtime/src/index.ts');
+function index(sources){const def=createInvestigationStateIndexDefinition();const result=buildStateIndexFromSnapshot(def,buildInvestigationStateSnapshot(sources));assert.equal(result.status,'ok');return serializeStateIndex(result.value,def);}
+await fs.mkdir(root,{recursive:true});
+const sources=[];
+for(let n=0;n<10002;n++){const s=source(n,n>=10000);if(n<10000)sources.push(s);await write(cp+'/'+s.sourcePath,s.text);if(s.own)await write(cp+`/_resources/${s.id}/evidence.txt`,'x'.repeat(95)+'\n');}
+const original=index(sources);await write(ix,original);await write('outside.txt','baseline\n');await write('delete-me.txt','protected deletion\n');
+git(['init','-q']);for(const[k,v]of Object.entries({'user.name':'Fixture','user.email':'fixture@example.invalid','core.hooksPath':'/dev/null','core.autocrlf':'false','gc.auto':'0'}))git(['config',k,v]);git(['add','.']);git(['-c','commit.gpgsign=false','commit','-qm','isolated fixture']);
+const tree=git(['rev-parse','HEAD^{tree}']).trim();assert.equal(tree,'e234306131070fe7762852346d249d0468eb7497');
+sources[7].text=sources[7].text.replace('fixturecontent ','fixturecontent selected-B ');await write(cp+'/'+sources[7].sourcePath,sources[7].text);await write(ix,index(sources));await write(cp+`/_resources/${id(7)}/extra.txt`,'z'.repeat(95)+'\n');await write('outside.txt','protected pending\n');git(['add','--','outside.txt']);git(['rm','-q','--','delete-me.txt']);
+await fs.copyFile(root+'/'+ix,home+'/workspace-index.json');await fs.writeFile(home+'/fixture-facts.json',JSON.stringify({tree,indexSha:createHash('sha256').update(original).digest('hex'),indexBytes:Buffer.byteLength(original),count:10000,edges:9000},null,2));
+console.log(tree);
+
+END FILE prepare.mjs
+
+FILE measure.py
+import os,sys,time,json,subprocess,hashlib
+from pathlib import Path
+home=Path(__file__).parent; root=home/'fixture'; ix='docs/investigations/investigation-index.json'
+def git(*args): return subprocess.check_output(['git','-C',str(root),*args])
+def manifest():
+ result={}
+ for p in root.rglob('*'):
+  if '.git' in p.parts or not p.is_file():continue
+  result[str(p.relative_to(root))]=hashlib.sha256(p.read_bytes()).hexdigest()
+ return result
+version=sys.argv[1]; reps=int(sys.argv[2]); extra=sys.argv[3:]
+for rep in range(1,reps+1):
+ git('reset','-q','HEAD','--',ix)
+ before=manifest(); pending=git('ls-files','--stage','-z').split(b'\0'); baseline=json.loads(git('show','HEAD:'+ix)); workspace=json.loads((root/ix).read_bytes())
+ command=['node',*extra,str(home/version/'skills/investigation-report/scripts/check-investigations.ts'),'--root',str(root),'stage','261001-perf-00007','--scope','index']
+ prefix=home/f'{os.environ.get("RUN_TAG",version)}-{rep}'; env=dict(os.environ,NODE_OPTIONS='');
+ if 'IR_PROBE' in env:env['IR_PROBE']=env['IR_PROBE'].replace('{rep}',str(rep))
+ start=time.monotonic()
+ with open(str(prefix)+'.stdout','wb')as out,open(str(prefix)+'.stderr','wb')as err:
+  pid=os.fork()
+  if pid==0:
+   os.dup2(out.fileno(),1);os.dup2(err.fileno(),2);os.execvpe('node',command,env)
+  _,status,usage=os.wait4(pid,0)
+ wall=time.monotonic()-start
+ assert status==0,(prefix,status)
+ current=json.loads(git('show',':'+ix)); expected=baseline.copy();expected['entries']=dict(baseline['entries']);expected['sourceRevision']=dict(baseline['sourceRevision']);expected['sourceRevision']['entries']=dict(baseline['sourceRevision']['entries'])
+ expected['entries']['261001-perf-00007']=workspace['entries']['261001-perf-00007'];expected['sourceRevision']['entries']['261001-perf-00007']=workspace['sourceRevision']['entries']['261001-perf-00007'];assert current==expected
+ assert before==manifest()
+ after=git('ls-files','--stage','-z').split(b'\0');exclude=lambda entries:[p for p in entries if not p.endswith(b'\t'+ix.encode())];assert exclude(pending)==exclude(after)
+ row={'runTag':os.environ.get('RUN_TAG',version),'version':version,'rep':rep,'argv':command,'wall':wall,'cpu':usage.ru_utime+usage.ru_stime,'user':usage.ru_utime,'system':usage.ru_stime,'maxrssKiB':usage.ru_maxrss,'effects':{'ok':True,'workspaceUnchanged':True,'onlySelectedIndexRefreshed':True,'otherPendingEntriesPreserved':True,'tree':git('write-tree').decode().strip()},'NODE_OPTIONS':''}
+ with open(home/'observations.jsonl','a')as f:f.write(json.dumps(row)+'\n')
+ print(json.dumps(row),flush=True)
+
+END FILE measure.py
+
+FILE probe.mjs
+import fs from 'node:fs';
+const events=[];
+export function begin(label,detail=null){return {label,detail,start:performance.now(),cpu:process.cpuUsage()};}
+export function end(item){const cpu=process.cpuUsage(item.cpu);events.push({label:item.label,detail:item.detail,wallMs:performance.now()-item.start,cpuMs:(cpu.user+cpu.system)/1000});}
+export function blobs(result){events.push({label:'blob-volume',count:result.size,bytes:[...result.values()].reduce((sum,b)=>sum+b.size,0)});return result;}
+process.on('exit',()=>fs.writeFileSync(process.env.IR_PROBE,JSON.stringify(events,null,2)));
+
+END FILE probe.mjs
+
+FILE instrument.py
+from pathlib import Path
+import shutil
+home=Path(__file__).parent
+helper=home/'probe.mjs'
+helper.write_text('''import fs from 'node:fs';
+const events=[];
+export function begin(label,detail=null){return {label,detail,start:performance.now(),cpu:process.cpuUsage()};}
+export function end(item){const cpu=process.cpuUsage(item.cpu);events.push({label:item.label,detail:item.detail,wallMs:performance.now()-item.start,cpuMs:(cpu.user+cpu.system)/1000});}
+export function blobs(result){events.push({label:'blob-volume',count:result.size,bytes:[...result.values()].reduce((sum,b)=>sum+b.size,0)});return result;}
+process.on('exit',()=>fs.writeFileSync(process.env.IR_PROBE,JSON.stringify(events,null,2)));
+''')
+targets={
+ 'tools/shared/src/version-control/git-blob-batch.ts':[('readGitBlobSelections','  if (selections.size === 0)', 'selections.size')],
+ 'tools/shared/src/version-control/pending-snapshot.ts':[('readPendingSnapshot','  const scope = normalizeRepositoryPath(options.pathScope);','options.contentPaths.length'),('preparePendingPatch','  const { scope, expected, paths, files, updates } = patch;','null'),('writePendingPatch','  const { scope, paths, files, expected } = patch;','null')],
+ 'tools/index-runtime/src/snapshot-parser.ts':[('parseStateIndex','  const definitionErrors =','options.sourcePath'),('serializeStateIndex','  return `${JSON.stringify','null')],
+ 'tools/investigation-report/src/staging-domain-context.ts':[('loadDomainSnapshot','  const workspaceIndex =','null'),('verifyDomainIndex','  const loaded =','null')],
+ 'tools/investigation-report/src/relation-validation.ts':[('validateInvestigationRelationGraph','  const graph = context.graph();','null')],
+}
+# Locate body by exact first statement after function declaration; closing brace is top-level.
+for version in ['base','current']:
+ dest=home/(version+'-probe');shutil.copytree(home/version,dest,symlinks=True,dirs_exist_ok=True)
+ runtime=dest/'skills/investigation-report/scripts/runtime'
+ for relative,functions in targets.items():
+  file=runtime/relative
+  if not file.exists():continue
+  text=file.read_text();changed=False
+  for name,anchor,detail in functions:
+   import re
+   match=re.search(r'function '+name+r'(?:[<(])',text)
+   if not match:continue
+   try:start=text.index(anchor,match.end());end=text.index('\n}',start)
+   except ValueError:continue
+   body=text[start:end]
+   text=text[:start]+f'  const __p=__begin({name!r},{detail});\n  try {{\n'+body+'\n  } finally { __end(__p); }'+text[end:]
+   changed=True
+  if relative.endswith('git-blob-batch.ts'):text=text.replace('return reader.finish();','return __blobs(reader.finish());')
+  if changed:file.write_text(f'import {{begin as __begin,end as __end,blobs as __blobs}} from "{helper}";\n'+text)
+
+END FILE instrument.py
+
+FILE instrument-variants.py
+from pathlib import Path
+import shutil
+home=Path(__file__).parent
+helper=home/'probe.mjs'
+helper.write_text('''import fs from 'node:fs';
+const events=[];
+export function begin(label,detail=null){return {label,detail,start:performance.now(),cpu:process.cpuUsage()};}
+export function end(item){const cpu=process.cpuUsage(item.cpu);events.push({label:item.label,detail:item.detail,wallMs:performance.now()-item.start,cpuMs:(cpu.user+cpu.system)/1000});}
+export function blobs(result){events.push({label:'blob-volume',count:result.size,bytes:[...result.values()].reduce((sum,b)=>sum+b.size,0)});return result;}
+process.on('exit',()=>fs.writeFileSync(process.env.IR_PROBE,JSON.stringify(events,null,2)));
+''')
+targets={
+ 'tools/shared/src/version-control/git-blob-batch.ts':[('readGitBlobSelections','  if (selections.size === 0)', 'selections.size')],
+ 'tools/shared/src/version-control/pending-snapshot.ts':[('readPendingSnapshot','  const scope = normalizeRepositoryPath(options.pathScope);','options.contentPaths.length'),('preparePendingPatch','  const { scope, expected, paths, files, updates } = patch;','null'),('writePendingPatch','  const { scope, paths, files, expected } = patch;','null')],
+ 'tools/index-runtime/src/snapshot-parser.ts':[('parseStateIndex','  const definitionErrors =','options.sourcePath'),('serializeStateIndex','  return `${JSON.stringify','null')],
+ 'tools/investigation-report/src/staging-domain-context.ts':[('loadDomainSnapshot','  const workspaceIndex =','null'),('verifyDomainIndex','  const loaded =','null')],
+ 'tools/investigation-report/src/relation-validation.ts':[('validateInvestigationRelationGraph','  const graph = context.graph();','null')],
+}
+# Locate body by exact first statement after function declaration; closing brace is top-level.
+for version in ['merge','narrow']:
+ dest=home/(version+'-probe');shutil.copytree(home/version,dest,symlinks=True,dirs_exist_ok=True)
+ runtime=dest/'skills/investigation-report/scripts/runtime'
+ for relative,functions in targets.items():
+  file=runtime/relative
+  if not file.exists():continue
+  text=file.read_text();changed=False
+  for name,anchor,detail in functions:
+   import re
+   match=re.search(r'function '+name+r'(?:[<(])',text)
+   if not match:continue
+   try:start=text.index(anchor,match.end());end=text.index('\n}',start)
+   except ValueError:continue
+   body=text[start:end]
+   text=text[:start]+f'  const __p=__begin({name!r},{detail});\n  try {{\n'+body+'\n  } finally { __end(__p); }'+text[end:]
+   changed=True
+  if relative.endswith('git-blob-batch.ts'):text=text.replace('return reader.finish();','return __blobs(reader.finish());')
+  if changed:file.write_text(f'import {{begin as __begin,end as __end,blobs as __blobs}} from "{helper}";\n'+text)
+
+END FILE instrument-variants.py
+
+FILE variants.py
+from pathlib import Path
+import shutil
+home=Path(__file__).parent
+for name in ['merge','narrow','merge-narrow']:
+ dest=home/name;shutil.copytree(home/'current',dest,symlinks=True,dirs_exist_ok=True)
+ runtime=dest/'skills/investigation-report/scripts/runtime/tools'
+ if 'merge' in name:
+  file=runtime/'investigation-report/src/staging-domain.ts';text=file.read_text();old='''  const phase = await acquireInitialDomainPhase(
+    control,
+    request,
+    snapshot.pending
+  );''';assert text.count(old)==1
+  text=text.replace(old,'''  // Diagnostic only: index fixture reuses already acquired preparation P.
+  const phase = {status: "ok" as const, value: {
+    resources: {paths: [], ownerPaths: [], workspacePaths: []},
+    reportPaths: new Set<string>(), baselinePaths: new Set<string>(),
+    pending: snapshot.pending
+  }};''');file.write_text(text)
+ if 'narrow' in name:
+  file=runtime/'shared/src/version-control/git-pending-snapshot-content.ts';text=file.read_text();text=text.replace('for (const entry of entries)','for (const entry of entries.filter((item) => item.path.endsWith("/investigation-index.json")))');text=text.replace('.filter((entry) => paths.has(entry.path))','.filter((entry) => paths.has(entry.path) && entry.path.endsWith("/investigation-index.json"))');file.write_text(text)
+
+END FILE variants.py
+
+FILE summarize.py
+from pathlib import Path
+import json,statistics,collections,hashlib,subprocess
+home=Path(__file__).parent
+rows=[json.loads(line)for line in (home/'observations.jsonl').read_text().splitlines()]
+summary={'native':{},'phases':{},'notes':['All phase CPU timers use process.cpuUsage (Node only); CLI CPU uses wait4 including Git descendants. Nested timings are inclusive and not additive.','First current-probe sample overlapped tmp variant-copy preparation; retained in raw log but excluded from clean phase summary.','Uninstrumented variants have no timing helper. narrow loses non-index P payload-read/deep-corruption protection; merge is unproven timing/diagnostic equivalence.']}
+for version in ['base','current','merge','narrow','merge-narrow']:
+ selected=[r for r in rows if r['version']==version and 'runTag'not in r]
+ summary['native'][version]={'count':len(selected),'wallMedian':statistics.median(r['wall']for r in selected),'cpuMedian':statistics.median(r['cpu']for r in selected),'rssMiBMedian':statistics.median(r['maxrssKiB']/1024 for r in selected)}
+for version in ['base','current']:
+ events=[json.loads((home/f'{version}-phase-clean-{n}.json').read_text())for n in range(1,4)]
+ labels=set(e['label']for run in events for e in run)
+ phases={}
+ for label in labels:
+  grouped=[[e for e in run if e['label']==label]for run in events]
+  if 'wallMs'in grouped[0][0]:phases[label]={'countPerRun':[len(g)for g in grouped],'wallMsMedian':statistics.median(sum(e['wallMs']for e in g)for g in grouped),'nodeCpuMsMedian':statistics.median(sum(e['cpuMs']for e in g)for g in grouped)}
+ phases['volumes']=[e for e in events[0]if e['label']=='blob-volume']
+ phases['pendingStages']={str(n):{'wallMsMedian':statistics.median([e for e in run if e['label']=='readPendingSnapshot'][n]['wallMs']for run in events),'nodeCpuMsMedian':statistics.median([e for e in run if e['label']=='readPendingSnapshot'][n]['cpuMs']for run in events)}for n in range(3)}if version=='current'else{}
+ phases['nodeTotalCpuMsMedian']=statistics.median(sum(next(e for e in run if e['label']=='node-total-cpu')['cpu'].values())/1000 for run in events)
+ summary['phases'][version]=phases
+paired=[r for r in rows if r.get('runTag','').startswith('current-paired-')or r.get('runTag','').startswith('merge-paired-')]
+if len(paired)==6:
+ differences=[{'wall':paired[n]['wall']-paired[n+1]['wall'],'cpu':paired[n]['cpu']-paired[n+1]['cpu']}for n in [0,2,4]]
+ summary['pairedMerge']={'differences':differences,'wallMedianSaving':statistics.median(r['wall']for r in differences),'cpuMedianSaving':statistics.median(r['cpu']for r in differences)}
+(home/'summary.json').write_text(json.dumps(summary,indent=2))
+print(json.dumps(summary,indent=2))
+
+END FILE summarize.py
+
+FILE probe-clean.mjs
+import fs from 'node:fs';
+const events=[];
+export function begin(label,detail=null){return {label,detail,start:performance.now(),cpu:process.cpuUsage()};}
+export function end(item){const cpu=process.cpuUsage(item.cpu);events.push({label:item.label,detail:item.detail,wallMs:performance.now()-item.start,cpuMs:(cpu.user+cpu.system)/1000});}
+export function blobs(result){events.push({label:'blob-volume',count:result.size,bytes:[...result.values()].reduce((sum,b)=>sum+b.size,0)});return result;}
+process.on('exit',()=>{events.push({label:'node-total-cpu',cpu:process.cpuUsage()});fs.writeFileSync(process.env.IR_PROBE,JSON.stringify(events,null,2));});
+
+END FILE probe-clean.mjs

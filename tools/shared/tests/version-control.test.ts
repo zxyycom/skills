@@ -16,3 +16,6 @@ await import("./version-control-prefix-integrity.test.ts");
 await import("./version-control-pending-target.test.ts");
 
 await import("./version-control-fingerprint-demand.test.ts");
+
+await import("./version-control-scoped-payload.test.ts");
+await import("./version-control-scoped-payload-integrity.test.ts");

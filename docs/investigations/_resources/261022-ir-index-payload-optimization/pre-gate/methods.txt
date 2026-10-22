@@ -1,0 +1,260 @@
+本轮实际新写并执行的方法，作为阅读证据归档，不是维护工具或独立执行入口。
+未执行历史资源方法；fixture/源码副本/依赖不归档。counter-only插桩仅用于独立workload-probe组，不影响正式native比较。
+环境与源字节清单见context.json；计量/后验方法见experiment.py；汇总是对observations的分组median，配对差及比例见summary.json；workload是原始成功batch事件加总。
+资源落盘后不再执行本methods.txt。原始stdout/stderr按SHA-256去重保留全文，observations每行保存两个流的sha引用。
+
+FILE prepare.py
+"""New experiment setup; no historical methods are imported or executed."""
+from pathlib import Path
+import hashlib,json,subprocess
+HOME=Path(__file__).resolve().parent
+ROOT=HOME/'fixture'
+COL='docs/investigations'
+INDEX=COL+'/investigation-index.json'
+def git(*args):
+    return subprocess.check_output(['git','-C',str(ROOT),*args]).decode().strip()
+def write(relative,content):
+    dest=ROOT/relative
+    dest.parent.mkdir(parents=True,exist_ok=True)
+    dest.write_text(content)
+def identity(number): return f'261001-perf-{number:05}'
+def document(number):
+    candidate=number>=10000
+    report_id=identity(number)
+    owner=number in (1,2,3,4,10000)
+    target=(3 if number==10000 else 8) if candidate else number-number%10
+    rel=[] if not candidate and number%10==0 else [{'type':'复查','target':identity(target),'summary':'保存前序的独立判断'}]
+    values={'title':f'独立记录 {report_id}','id':report_id,'formedAt':'2026-10-01T00:00:00Z','question':'有界操作在一万条存量的成本是多少？','tags':['benchmark'],'relations':rel}
+    lines=['---']
+    for key,value in values.items():
+        if not isinstance(value,list): lines.append(key+': '+json.dumps(value,ensure_ascii=False))
+        elif not value: lines.append(key+': []')
+        else:
+            lines.append(key+':')
+            for item in value:
+                if isinstance(item,str): lines.append('  - '+json.dumps(item,ensure_ascii=False))
+                else:
+                    for pos,(rk,rv) in enumerate(item.items()): lines.append(('  - ' if pos==0 else '    ')+rk+': '+json.dumps(rv,ensure_ascii=False))
+    text='\n'.join(lines)+'\n---\n\n## 形成时背景\n固定存量。\n\n## 调查目的\n成本对照。\n\n## 调查范围与依据\n合成来源。\n\n## 调查结果与边界\n不能外推生产。\n\nfixturecontent '+'bounded-detail '*20+'\n'
+    if owner: text+=f'\n## 随附资源\n- [证据](./_resources/{report_id}/evidence.txt)\n'
+    name=(f'_candidate.perf-{number:05}' if candidate else f'perf-{number:05}.md')
+    return report_id,name,text,owner
+ROOT.mkdir()
+for number in range(10002):
+    report_id,name,text,owner=document(number)
+    write(COL+'/'+name,text)
+    if owner: write(COL+f'/_resources/{report_id}/evidence.txt','x'*95+'\n')
+write('outside.txt','baseline\n')
+write('delete-me.txt','protected deletion\n')
+subprocess.run(['node',str(HOME/'make-index.mjs')],check=True)
+git('init','-q')
+for key,value in {'user.name':'Fixture','user.email':'fixture@example.invalid','core.hooksPath':'/dev/null','core.autocrlf':'false','gc.auto':'0'}.items(): git('config',key,value)
+git('add','.')
+git('-c','commit.gpgsign=false','commit','-qm','isolated fixture')
+facts={'headTree':git('rev-parse','HEAD^{tree}'),'headIndexSha256':hashlib.sha256((ROOT/INDEX).read_bytes()).hexdigest(),'headIndexBytes':(ROOT/INDEX).stat().st_size,'reports':10000,'edges':9000,'candidates':2,'headResources':'5 x 96B'}
+assert facts['headTree']=='e234306131070fe7762852346d249d0468eb7497',facts
+(HOME/'fixture-facts.json').write_text(json.dumps(facts,indent=2))
+print(json.dumps(facts),flush=True)
+
+END FILE prepare.py
+
+FILE make-index.mjs
+// New fixture-only index construction. Used outside the native timing window.
+import fs from 'node:fs/promises';
+import {buildInvestigationStateSnapshot} from './baseline/investigation-report/scripts/runtime/tools/investigation-report/src/investigation-index-source.ts';
+import {createInvestigationStateIndexDefinition} from './baseline/investigation-report/scripts/runtime/tools/investigation-report/src/investigation-index-definition.ts';
+import {buildStateIndexFromSnapshot,serializeStateIndex} from './baseline/investigation-report/scripts/runtime/tools/index-runtime/src/index.ts';
+const folder=import.meta.dirname+'/fixture/docs/investigations';
+const sources=[];
+for(const file of (await fs.readdir(folder)).filter(name=>name.endsWith('.md')).sort()){
+ const text=await fs.readFile(folder+'/'+file,'utf8');
+ const id=JSON.parse(text.match(/^id: (.+)$/m)[1]);
+ sources.push({id,sourcePath:file,text});
+}
+const definition=createInvestigationStateIndexDefinition();
+const result=buildStateIndexFromSnapshot(definition,buildInvestigationStateSnapshot(sources));
+if(result.status!=='ok')throw new Error(JSON.stringify(result));
+await fs.writeFile(folder+'/investigation-index.json',serializeStateIndex(result.value,definition));
+
+END FILE make-index.mjs
+
+FILE experiment.py
+"""Fresh 1W measurement and independent effect oracle; no product check in oracle."""
+import copy,hashlib,json,os,platform,statistics,subprocess,sys,time
+from pathlib import Path
+HOME=Path(__file__).resolve().parent
+ROOT=HOME/'fixture'
+COL='docs/investigations'
+IX=COL+'/investigation-index.json'
+ENV=dict(os.environ,NODE_OPTIONS='')
+NODE=subprocess.check_output(['which','node'],text=True).strip()
+def sha(raw): return hashlib.sha256(raw).hexdigest()
+def git(*args): return subprocess.check_output(['git','-C',str(ROOT),*args])
+def write(relative,data):
+    dest=ROOT/relative
+    dest.parent.mkdir(exist_ok=True,parents=True)
+    dest.write_bytes(data if isinstance(data,bytes) else data.encode())
+def doc(number): return COL+f'/perf-{number:05}.md'
+def ident(number): return f'261001-perf-{number:05}'
+def revision(number,text):
+    digest=hashlib.sha256(b'investigation-index-entry-v2\0')
+    for field in (ident(number),f'perf-{number:05}.md',text.replace('\r\n','\n').replace('\r','\n')):
+        data=field.encode(); digest.update(str(len(data)).encode()+b':'+data+b'\0')
+    return 'sha256:'+digest.hexdigest()
+def members():
+    # Raw native Git member tuples preserve path, mode, stage and OID (including deletions).
+    return git('ls-files','--stage','-z').split(b'\0')
+def without_index(rows): return [row for row in rows if not row.endswith(b'\t'+IX.encode())]
+def workspace():
+    return {str(p.relative_to(ROOT)):{'sha256':sha(p.read_bytes()),'mode':p.stat().st_mode & 0o777} for p in ROOT.rglob('*') if '.git' not in p.parts and p.is_file()}
+def pending_index(): return json.loads(git('show',':'+IX))
+def publish(raw): write(IX,json.dumps(raw,ensure_ascii=False,indent=2)+'\n')
+def update_workspace(number,marker,title=None):
+    text=(ROOT/doc(number)).read_text()
+    text=text.replace('fixturecontent ',f'fixturecontent {marker} ',1)
+    if title: text=text.replace(f'title: "独立记录 {ident(number)}"',f'title: "{title}"')
+    write(doc(number),text)
+    raw=json.loads((ROOT/IX).read_bytes())
+    if title: raw['entries'][ident(number)]['title']=title
+    raw['sourceRevision']['entries'][ident(number)]=revision(number,text)
+    publish(raw)
+def pristine():
+    # Only this owned fixture is restored. No workspace outside ROOT is touched.
+    git('read-tree','--reset','-u','HEAD')
+    for p in (ROOT/COL/'_resources').rglob('extra.txt'): p.unlink()
+    write('outside.txt','protected pending\n');git('add','--','outside.txt');git('rm','-q','--','delete-me.txt')
+def native_prepare():
+    pristine();update_workspace(7,'selected-B')
+    write(COL+f'/_resources/{ident(7)}/extra.txt','z'*95+'\n')
+def projected(before,number):
+    expected=copy.deepcopy(before); working=json.loads((ROOT/IX).read_bytes())
+    expected['entries'][ident(number)]=working['entries'][ident(number)]
+    expected['sourceRevision']['entries'][ident(number)]=working['sourceRevision']['entries'][ident(number)]
+    return expected
+
+def run(version,group,number,label):
+    prior=pending_index(); expected=projected(prior,number)
+    before_members=members(); before_workspace=workspace()
+    argv=[NODE,str(HOME/version/'investigation-report/scripts/check-investigations.ts'),'--root',str(ROOT),'stage',ident(number),'--scope','index']
+    prefix=HOME/label
+    with open(str(prefix)+'.stdout','wb') as out,open(str(prefix)+'.stderr','wb') as err:
+        start=time.perf_counter();pid=os.fork()
+        if pid==0:
+            os.dup2(out.fileno(),1);os.dup2(err.fileno(),2);os.execve(NODE,argv,ENV)
+        _,status,usage=os.wait4(pid,0)
+        wall=time.perf_counter()-start
+    stdout=Path(str(prefix)+'.stdout').read_bytes();stderr=Path(str(prefix)+'.stderr').read_bytes()
+    actual=pending_index()
+    effects={'exitSuccess':os.waitstatus_to_exitcode(status)==0,'fullTargetJsonMatches':actual==expected,'nonIndexPendingMembersModesOidsPreserved':without_index(before_members)==without_index(members()),'allWorkspaceBytesAndModesUnchanged':before_workspace==workspace(),'outsidePendingRetained':git('show',':outside.txt')==b'protected pending\n','stagedDeletionRetained':b'delete-me.txt' not in git('ls-files','-z').split(b'\0'),'scopeIndexDeclared':b'(scope: index)' in stdout and b'Report Markdown and attached resources remain outside this operation.' in stdout}
+    row={'group':group,'version':version,'label':label,'selectedId':ident(number),'argv':argv,'wallSeconds':wall,'cpuSeconds':usage.ru_utime+usage.ru_stime,'userSeconds':usage.ru_utime,'systemSeconds':usage.ru_stime,'maxRssKiB':usage.ru_maxrss,'exitCode':os.waitstatus_to_exitcode(status),'stdoutSha256':sha(stdout),'stderrSha256':sha(stderr),'expectedTargetJsonSha256':sha(json.dumps(expected,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()),'actualTargetJsonSha256':sha(json.dumps(actual,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()),'pendingTree':git('write-tree').decode().strip(),'effects':effects,'effectsPassed':all(effects.values()),'NODE_OPTIONS':''}
+    with (HOME/'observations.jsonl').open('a') as out: out.write(json.dumps(row,ensure_ascii=False)+'\n')
+    print(json.dumps(row,ensure_ascii=False),flush=True)
+    assert row['effectsPassed'],row
+    return row
+
+def native():
+    native_prepare()
+    for pair in range(1,4):
+        for version in ('baseline','final'):
+            git('reset','-q','HEAD','--',IX)
+            run(version,'native-basic',7,f'native-pair{pair}-{version}')
+def continuous(version):
+    pristine()
+    # Real P differs from H: staged A report/resource, pending publication and B refreshes.
+    update_workspace(1,'first-A','连续A第一版')
+    git('add','--',doc(1))
+    write(COL+f'/_resources/{ident(1)}/extra.txt','A-owned staged member\n')
+    git('add','--',COL+f'/_resources/{ident(1)}/extra.txt')
+    run(version,'continuous-effects',1,f'continuous-{version}-A1')
+    update_workspace(7,'first-B','连续B第一版')
+    git('add','--',doc(7))
+    run(version,'continuous-effects',7,f'continuous-{version}-B1')
+    update_workspace(1,'refresh-A','连续A第二版')
+    run(version,'continuous-effects',1,f'continuous-{version}-A2')
+    update_workspace(7,'refresh-B','连续B第二版')
+    run(version,'continuous-effects',7,f'continuous-{version}-B2')
+
+def summary():
+    rows=[json.loads(line) for line in (HOME/'observations.jsonl').read_text().splitlines()]
+    groups={}
+    for group in sorted({r['group'] for r in rows}):
+        groups[group]={}
+        for version in sorted({r['version'] for r in rows if r['group']==group}):
+            selection=[r for r in rows if r['group']==group and r['version']==version]
+            groups[group][version]={'count':len(selection),'wallMedianSeconds':statistics.median(r['wallSeconds'] for r in selection),'cpuMedianSeconds':statistics.median(r['cpuSeconds'] for r in selection),'rssMedianMiB':statistics.median(r['maxRssKiB']/1024 for r in selection),'allEffectsPassed':all(r['effectsPassed'] for r in selection)}
+    (HOME/'summary.json').write_text(json.dumps({'groups':groups,'allEffectsPassed':all(r['effectsPassed'] for r in rows)},ensure_ascii=False,indent=2)+'\n')
+    streams={}
+    for row in rows:
+        for kind in ('stdout','stderr'):
+            raw=(HOME/(row['label']+'.'+kind)).read_bytes();streams.setdefault(sha(raw),raw.decode())
+    (HOME/'streams.json').write_text(json.dumps(streams,ensure_ascii=False,indent=2)+'\n')
+    print(json.dumps(groups,indent=2))
+
+if __name__=='__main__':
+    action=sys.argv[1]
+    if action=='native':native()
+    elif action=='continuous':
+        for version in ('baseline','final'):continuous(version)
+    elif action=='summary':summary()
+    else:raise ValueError(action)
+
+END FILE experiment.py
+
+FILE prepare-probes.py
+"""Fresh counter-only variants, separate from the unmodified native comparison."""
+from pathlib import Path
+import shutil
+home=Path(__file__).resolve().parent
+for version in ('baseline','final'):
+    target=home/(version+'-probe')
+    shutil.copytree(home/version,target)
+    file=target/'investigation-report/scripts/runtime/tools/shared/src/version-control/git-blob-batch.ts'
+    text=file.read_text()
+    anchor='    return reader.finish();'
+    assert text.count(anchor)==1
+    text='import { appendFileSync as recordIrExperimentEvent } from "node:fs";\n'+text.replace(anchor,'''    const completed = reader.finish();
+    if (process.env.IR_EXPERIMENT_EVENTS !== undefined) {
+      recordIrExperimentEvent(process.env.IR_EXPERIMENT_EVENTS, JSON.stringify({
+        requestedObjects: selections.size,
+        fingerprint,
+        completedObjects: completed.size,
+        payloadBytes: [...completed.values()].reduce((sum, blob) => sum + blob.size, 0),
+        retainedBytes: [...completed.values()].reduce((sum, blob) => sum + blob.data.length, 0)
+      }) + "\\n");
+    }
+    return completed;''')
+    file.write_text(text)
+
+END FILE prepare-probes.py
+
+FILE probe.py
+from pathlib import Path
+import experiment as e
+for version in ('baseline','final'):
+    e.native_prepare()
+    e.ENV['IR_EXPERIMENT_EVENTS']=str(e.HOME/(version+'-blob-events.jsonl'))
+    e.run(version+'-probe','workload-probe',7,'probe-'+version)
+
+END FILE probe.py
+
+FILE archive-evidence.py
+"""Persist only reviewable small evidence, never fixture/source/dependency copies."""
+from pathlib import Path
+import hashlib,json,shutil
+home=Path(__file__).resolve().parent
+owner=Path('/workspace/skills/docs/investigations/_resources/261022-ir-index-payload-optimization')
+owner.mkdir(parents=True,exist_ok=False)
+for name in ('context.json','observations.jsonl','streams.json','summary.json','workload.json'):
+    shutil.copyfile(home/name,owner/name)
+methods=['本轮实际新写并执行的方法，作为阅读证据归档，不是维护工具或独立执行入口。',
+'未执行历史资源方法；fixture/源码副本/依赖不归档。counter-only插桩仅用于独立workload-probe组，不影响正式native比较。',
+'环境与源字节清单见context.json；计量/后验方法见experiment.py；汇总是对observations的分组median，配对差及比例见summary.json；workload是原始成功batch事件加总。',
+'资源落盘后不再执行本methods.txt。原始stdout/stderr按SHA-256去重保留全文，observations每行保存两个流的sha引用。','']
+for name in ('prepare.py','make-index.mjs','experiment.py','prepare-probes.py','probe.py','archive-evidence.py'):
+    methods.extend(['FILE '+name,(home/name).read_text(),'END FILE '+name,''])
+(owner/'methods.txt').write_text('\n'.join(methods))
+fingerprints={p.name:{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(owner.iterdir()) if p.is_file()}
+(home/'archive-fingerprints.json').write_text(json.dumps(fingerprints,indent=2)+'\n')
+print(json.dumps(fingerprints,indent=2))
+
+END FILE archive-evidence.py

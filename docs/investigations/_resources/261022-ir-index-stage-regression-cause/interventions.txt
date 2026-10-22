@@ -1,0 +1,105 @@
+诊断变体相对current公开runtime的完整最小diff；仅用于归因，不是可采用修复。空diff表示该模块未变。
+
+FILE merge-narrow-payload.diff
+--- /tmp/ir-index-cause-20261022/current/skills/investigation-report/scripts/runtime/tools/shared/src/version-control/git-pending-snapshot-content.ts	2026-10-20 03:27:16.593770472 +0000
++++ /tmp/ir-index-cause-20261022/merge-narrow/skills/investigation-report/scripts/runtime/tools/shared/src/version-control/git-pending-snapshot-content.ts	2026-10-22 05:37:48.450708522 +0000
+@@ -26,7 +26,7 @@
+   paths: ReadonlySet<string>
+ ): Promise<ReadonlyMap<string, GitBlobSelection>> {
+   const selections = new Map<string, number | null>();
+-  for (const entry of entries)
++  for (const entry of entries.filter((item) => item.path.endsWith("/investigation-index.json")))
+     selections.set(
+       entry.objectId,
+       paths.has(entry.path) || selections.get(entry.objectId) === null
+@@ -48,7 +48,7 @@
+   paths: ReadonlySet<string>
+ ): VersionControlFile[] {
+   return entries
+-    .filter((entry) => paths.has(entry.path))
++    .filter((entry) => paths.has(entry.path) && entry.path.endsWith("/investigation-index.json"))
+     .map((entry) => {
+       const blob = blobs.get(entry.objectId);
+       if (blob === undefined)
+
+END FILE
+
+FILE merge-narrow-stage.diff
+--- /tmp/ir-index-cause-20261022/current/skills/investigation-report/scripts/runtime/tools/investigation-report/src/staging-domain.ts	2026-10-22 04:47:18.521648045 +0000
++++ /tmp/ir-index-cause-20261022/merge-narrow/skills/investigation-report/scripts/runtime/tools/investigation-report/src/staging-domain.ts	2026-10-22 05:37:48.450598778 +0000
+@@ -111,11 +111,12 @@
+   snapshot: DomainSnapshot,
+   index: VersionControlFile | null
+ ): Promise<DomainStep<PreparedDomainWrite>> {
+-  const phase = await acquireInitialDomainPhase(
+-    control,
+-    request,
+-    snapshot.pending
+-  );
++  // Diagnostic only: index fixture reuses already acquired preparation P.
++  const phase = {status: "ok" as const, value: {
++    resources: {paths: [], ownerPaths: [], workspacePaths: []},
++    reportPaths: new Set<string>(), baselinePaths: new Set<string>(),
++    pending: snapshot.pending
++  }};
+   if (phase.status === "error") return phase;
+   const first = await collectDomainWrites(request, phase.value);
+   if (first.status === "error")
+
+END FILE
+
+FILE merge-payload.diff
+
+END FILE
+
+FILE merge-stage.diff
+--- /tmp/ir-index-cause-20261022/current/skills/investigation-report/scripts/runtime/tools/investigation-report/src/staging-domain.ts	2026-10-22 04:47:18.521648045 +0000
++++ /tmp/ir-index-cause-20261022/merge/skills/investigation-report/scripts/runtime/tools/investigation-report/src/staging-domain.ts	2026-10-22 05:37:47.572052027 +0000
+@@ -111,11 +111,12 @@
+   snapshot: DomainSnapshot,
+   index: VersionControlFile | null
+ ): Promise<DomainStep<PreparedDomainWrite>> {
+-  const phase = await acquireInitialDomainPhase(
+-    control,
+-    request,
+-    snapshot.pending
+-  );
++  // Diagnostic only: index fixture reuses already acquired preparation P.
++  const phase = {status: "ok" as const, value: {
++    resources: {paths: [], ownerPaths: [], workspacePaths: []},
++    reportPaths: new Set<string>(), baselinePaths: new Set<string>(),
++    pending: snapshot.pending
++  }};
+   if (phase.status === "error") return phase;
+   const first = await collectDomainWrites(request, phase.value);
+   if (first.status === "error")
+
+END FILE
+
+FILE narrow-payload.diff
+--- /tmp/ir-index-cause-20261022/current/skills/investigation-report/scripts/runtime/tools/shared/src/version-control/git-pending-snapshot-content.ts	2026-10-20 03:27:16.593770472 +0000
++++ /tmp/ir-index-cause-20261022/narrow/skills/investigation-report/scripts/runtime/tools/shared/src/version-control/git-pending-snapshot-content.ts	2026-10-22 05:37:48.034621638 +0000
+@@ -26,7 +26,7 @@
+   paths: ReadonlySet<string>
+ ): Promise<ReadonlyMap<string, GitBlobSelection>> {
+   const selections = new Map<string, number | null>();
+-  for (const entry of entries)
++  for (const entry of entries.filter((item) => item.path.endsWith("/investigation-index.json")))
+     selections.set(
+       entry.objectId,
+       paths.has(entry.path) || selections.get(entry.objectId) === null
+@@ -48,7 +48,7 @@
+   paths: ReadonlySet<string>
+ ): VersionControlFile[] {
+   return entries
+-    .filter((entry) => paths.has(entry.path))
++    .filter((entry) => paths.has(entry.path) && entry.path.endsWith("/investigation-index.json"))
+     .map((entry) => {
+       const blob = blobs.get(entry.objectId);
+       if (blob === undefined)
+
+END FILE
+
+FILE narrow-stage.diff
+
+END FILE

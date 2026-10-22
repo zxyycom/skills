@@ -9,9 +9,10 @@
  */
 import {
   selectedPendingBlobs,
-  materializedFiles
+  materializedFiles,
+  payloadFingerprints,
+  sameFingerprints
 } from "./git-pending-snapshot-content.ts";
-import type { GitBlobSelection } from "./git-blob-batch.ts";
 import { sameBytes } from "../node/bytes.ts";
 import type { GitRepositoryContext } from "./git-context.ts";
 import {
@@ -48,6 +49,7 @@ import type {
 export type PendingFileUpdate =
   | VersionControlFile
   | Readonly<{ path: string; data: null }>;
+export type PendingPayloadScope = "scope" | "content-paths";
 export type PendingSnapshot = Readonly<{
   pathScope: string;
   members: readonly Pick<VersionControlFile, "path" | "kind">[];
@@ -57,22 +59,34 @@ export type PendingSnapshot = Readonly<{
 type SnapshotIdentity = Readonly<{
   repository: VersionControlRepository;
   pathScope: string;
+  payloadScope: PendingPayloadScope;
+  contentPaths: ReadonlySet<string>;
   entries: readonly GitIndexEntry[];
   fingerprints: ReadonlyMap<string, string>;
 }>;
 const identities = new WeakMap<PendingSnapshot, SnapshotIdentity>();
 
-/** Complete readable scope identity with only explicitly selected content retained. */
+/** Complete member identity; payload validation is full-scope unless explicitly narrowed. */
 export async function readPendingSnapshot(
   repository: VersionControlRepository,
-  options: Readonly<{ pathScope: string; contentPaths: readonly string[] }>
+  options: Readonly<{
+    pathScope: string;
+    contentPaths: readonly string[];
+    payloadScope?: PendingPayloadScope;
+  }>
 ): Promise<PendingSnapshot> {
   const scope = normalizeRepositoryPath(options.pathScope);
   const paths = normalizedContentPaths(options.contentPaths, scope);
+  const payloadScope = options.payloadScope ?? "scope";
   const context = gitContextForRepository(repository);
   const entries = await listPendingEntries(context, [scope]);
   validatePendingEntries(entries);
-  const blobs = await selectedPendingBlobs(context, entries, paths);
+  const blobs = await selectedPendingBlobs(
+    context,
+    entries,
+    paths,
+    payloadScope
+  );
   const snapshot: PendingSnapshot = Object.freeze({
     pathScope: scope,
     members: Object.freeze(
@@ -88,6 +102,8 @@ export async function readPendingSnapshot(
   identities.set(snapshot, {
     repository,
     pathScope: scope,
+    payloadScope,
+    contentPaths: paths,
     entries,
     fingerprints: payloadFingerprints(blobs)
   });
@@ -105,6 +121,12 @@ export function samePendingSnapshots(
     after !== undefined &&
     before.repository === after.repository &&
     before.pathScope === after.pathScope &&
+    before.payloadScope === after.payloadScope &&
+    (before.payloadScope === "scope" ||
+      (before.contentPaths.size === after.contentPaths.size &&
+        [...before.contentPaths].every((path) =>
+          after.contentPaths.has(path)
+        ))) &&
     sameGitIndexEntries(before.entries, after.entries) &&
     sameFingerprints(before.fingerprints, after.fingerprints)
   );
@@ -117,7 +139,7 @@ export type PendingSnapshotReplacementResult = Readonly<{
   changedPaths: readonly string[];
 }>;
 
-/** Patch only declared paths; the opaque complete snapshot protects every scoped member. */
+/** Patch declared paths with complete member identity and the captured payload boundary. */
 export async function replacePendingSnapshot(
   repository: VersionControlRepository,
   options: Readonly<{
@@ -138,7 +160,7 @@ export async function replacePendingSnapshot(
       "unknown",
       "the pending snapshot does not belong to this repository"
     );
-  const updates = normalizeUpdates(options.updates, scope);
+  const updates = normalizeUpdates(options.updates, expected);
   const normalized = normalizePendingReplacement({
     expectedRevision: options.expectedRevision,
     pathScope: scope,
@@ -201,7 +223,12 @@ async function preparePendingPatch(
       "the pending range identity differs from the expected snapshot"
     );
   validatePendingEntries(previous);
-  const blobs = await selectedPendingBlobs(context, previous, paths);
+  const blobs = await selectedPendingBlobs(
+    context,
+    previous,
+    expected.payloadScope === "scope" ? paths : expected.contentPaths,
+    expected.payloadScope
+  );
   if (!sameFingerprints(expected.fingerprints, payloadFingerprints(blobs)))
     throw pendingConflictError(
       scope,
@@ -248,7 +275,12 @@ async function writePendingPatch(
       scope,
       "the pending range did not match the written target"
     );
-  const writtenBlobs = await selectedPendingBlobs(context, written, paths);
+  const writtenBlobs = await selectedPendingBlobs(
+    context,
+    written,
+    expected.payloadScope === "scope" ? paths : expected.contentPaths,
+    expected.payloadScope
+  );
   if (
     !sameVersionControlFiles(
       materializedFiles(written, writtenBlobs, paths),
@@ -261,7 +293,12 @@ async function writePendingPatch(
     );
   const retainedIds = new Set(
     previous
-      .filter((entry) => !paths.has(entry.path))
+      .filter(
+        (entry) =>
+          !paths.has(entry.path) &&
+          (expected.payloadScope === "scope" ||
+            expected.contentPaths.has(entry.path))
+      )
       .map((entry) => entry.objectId)
   );
   for (const id of retainedIds)
@@ -272,23 +309,6 @@ async function writePendingPatch(
       );
 }
 
-/** Project actual payload identity without retaining content in the opaque snapshot. */
-function payloadFingerprints(
-  blobs: ReadonlyMap<string, GitBlobSelection>
-): ReadonlyMap<string, string> {
-  const fingerprints = new Map<string, string>();
-  for (const [id, blob] of blobs) fingerprints.set(id, blob.fingerprint);
-  return fingerprints;
-}
-function sameFingerprints(
-  left: ReadonlyMap<string, string>,
-  right: ReadonlyMap<string, string>
-): boolean {
-  if (left.size !== right.size) return false;
-  for (const [id, fingerprint] of left)
-    if (right.get(id) !== fingerprint) return false;
-  return true;
-}
 function normalizedContentPaths(
   paths: readonly string[],
   scope: string
@@ -305,10 +325,11 @@ function normalizedContentPaths(
 }
 function normalizeUpdates(
   updates: readonly PendingFileUpdate[],
-  scope: string
+  expected: SnapshotIdentity
 ): PendingFileUpdate[] {
+  const scope = expected.pathScope;
   const paths = new Set<string>();
-  return updates.map((update) => {
+  const normalized = updates.map((update) => {
     const filePath = normalizeRepositoryPath(update.path);
     if (
       paths.has(filePath) ||
@@ -323,6 +344,16 @@ function normalizeUpdates(
       ? { path: filePath, data: null }
       : { ...update, path: filePath };
   });
+  if (
+    expected.payloadScope === "content-paths" &&
+    normalized.some((update) => !expected.contentPaths.has(update.path))
+  )
+    throw pendingConflictError(
+      scope,
+      "unknown",
+      "an update is outside the snapshot payload boundary"
+    );
+  return normalized;
 }
 function changedUpdatePaths(
   previous: readonly GitIndexEntry[],

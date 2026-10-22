@@ -8,7 +8,7 @@ Tags:
 - `version-control`
 
 Contract:
-- 普通完整读与prefix仅消费内容和size；opaque pending snapshot依赖全部unique实际payload指纹。
+- 普通完整读与prefix仅消费内容和size；opaque pending snapshot默认scope策略依赖全部unique实际payload指纹。
 
 Proves:
 - 真实full-read、prefix与默认pending读取不调用Hash.update且字节/complete正常；重复OID完整读只返回唯一对象。

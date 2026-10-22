@@ -1,0 +1,75 @@
+{
+  "groups": {
+    "continuous-effects": {
+      "baseline": {
+        "count": 4,
+        "wallMedianSeconds": 5.115189110510983,
+        "cpuMedianSeconds": 7.822772,
+        "rssMedianMiB": 414.86328125,
+        "allEffectsPassed": true
+      },
+      "final": {
+        "count": 4,
+        "wallMedianSeconds": 2.6923636435094522,
+        "cpuMedianSeconds": 3.637435,
+        "rssMedianMiB": 383.216796875,
+        "allEffectsPassed": true
+      }
+    },
+    "native-basic": {
+      "baseline": {
+        "count": 3,
+        "wallMedianSeconds": 5.689341538993176,
+        "cpuMedianSeconds": 8.599696,
+        "rssMedianMiB": 417.3125,
+        "allEffectsPassed": true
+      },
+      "final": {
+        "count": 3,
+        "wallMedianSeconds": 2.9749997460166924,
+        "cpuMedianSeconds": 3.965591,
+        "rssMedianMiB": 382.46875,
+        "allEffectsPassed": true
+      }
+    },
+    "workload-probe": {
+      "baseline-probe": {
+        "count": 1,
+        "wallMedianSeconds": 8.823066945013124,
+        "cpuMedianSeconds": 12.859611000000001,
+        "rssMedianMiB": 409.578125,
+        "allEffectsPassed": true
+      },
+      "final-probe": {
+        "count": 1,
+        "wallMedianSeconds": 4.3975865640095435,
+        "cpuMedianSeconds": 5.745610999999999,
+        "rssMedianMiB": 380.5390625,
+        "allEffectsPassed": true
+      }
+    }
+  },
+  "allEffectsPassed": true,
+  "nativeComparison": {
+    "wallDecreasePercent": 47.709243229170454,
+    "wallSpeedupRatio": 1.912383873851011,
+    "cpuDecreasePercent": 53.886846697836766,
+    "rssDecreaseMiB": 34.84375,
+    "pairedWallDecreasesSeconds": [
+      2.388756962987827,
+      4.461286988982465,
+      2.7787668789969757
+    ],
+    "pairedFinalToBaselineWallRatio": [
+      0.5801347226887423,
+      0.40006522771839154,
+      0.4819493713893975
+    ]
+  },
+  "sampleInterpretation": {
+    "native-basic": "6 post-gate-convergence observations, baseline/final alternating 3 pairs. Only this group supports final end-to-end comparison. No samples excluded.",
+    "continuous-effects": "8 observations, each version A1/B1/A2/B2. Heterogeneous steps; timing retained as observation only.",
+    "workload-probe": "2 one-off instrumented observations, excluded from native medians.",
+    "pre-gate": "Earlier 16 observations remain under pre-gate evidence, never mixed with final measurements."
+  }
+}

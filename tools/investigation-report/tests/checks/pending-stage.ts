@@ -13,3 +13,4 @@ await import("../batch-stage-selectors.test.ts");
 
 await import("../staging-pending-refresh.test.ts");
 await import("../staging-pending-deletion.test.ts");
+await import("../staging-index-payload.test.ts");

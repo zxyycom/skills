@@ -1,6 +1,7 @@
 import path from "node:path";
 import { hasEntry } from "../../index-runtime/src/index.ts";
 import { readPendingSnapshot } from "../../shared/src/version-control/pending-snapshot.ts";
+import { investigationIndexFileName } from "./investigation-state-index.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import {
   compareText,
@@ -34,16 +35,13 @@ export async function acquireDomainPhase(
     validateSelectedPathOwnership(request, baselinePaths);
     const pending = await readPendingSnapshot(request.repository, {
       pathScope: request.investigationsScope,
-      contentPaths: [
-        ...reportPaths,
-        ...baselinePaths,
-        ...resources.paths,
-        ...selectedReportPaths(
-          request.pendingIndex,
-          request.sourceSelection.reportIds,
-          request.investigationsScope
-        )
-      ]
+      payloadScope: request.scope === "index" ? "content-paths" : "scope",
+      contentPaths: selectedPendingContentPaths(
+        request,
+        reportPaths,
+        baselinePaths,
+        resources.paths
+      )
     });
     return {
       status: "ok",
@@ -52,6 +50,29 @@ export async function acquireDomainPhase(
   } catch (error) {
     return { status: "error", code: "pending-read-failed", error };
   }
+}
+
+/** Retain only index content for index scope, or the sources consumed by domain validation. */
+function selectedPendingContentPaths(
+  request: DomainAcquisitionRequest,
+  reportPaths: ReadonlySet<string>,
+  baselinePaths: ReadonlySet<string>,
+  resourcePaths: readonly string[]
+): readonly string[] {
+  if (request.scope === "index")
+    return [
+      path.posix.join(request.investigationsScope, investigationIndexFileName)
+    ];
+  return [
+    ...reportPaths,
+    ...baselinePaths,
+    ...resourcePaths,
+    ...selectedReportPaths(
+      request.pendingIndex,
+      request.sourceSelection.reportIds,
+      request.investigationsScope
+    )
+  ];
 }
 
 function selectedBaselinePaths(

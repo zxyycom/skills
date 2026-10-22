@@ -141,16 +141,18 @@ selected 同步从 baseline 与待发布投影的 name 映射并集解析 select
 | scope | 写入与验证范围 |
 | --- | --- |
 | `all`（默认） | 原子刷新所选发布投影、正式 Markdown 与完整 owner 树，未选条目沿用 pending；验证所选来源、直接资源、必要 owner 依赖及合成图。 |
-| `index` | 只刷新所选发布投影及来源 revision，不读取工作区正文；调用方负责配套领域暂存。 |
+| `index` | 只刷新所选发布投影及来源 revision；payload 验收限于本次消费或修改的索引文件，不读取工作区正文。调用方负责配套领域暂存与正文验证。 |
 | `domain` | 只刷新所选正式 Markdown 与完整 owner 树，保留 pending 索引原字节（即使损坏）或缺失状态；来源验证同 all，但不证明索引已配套。 |
 
 HEAD 与工作区发布索引须通过字段、关系与资源 owner 声明验证；index／all 还验证 pending 索引，并要求存在的三方索引具有相同集合 metadata、sourceRevision.metadata 与 definition。HEAD 与 pending 都无索引时从空基底组合；已有 HEAD 索引却将 pending 索引删除时，index／all 提示先恢复该删除。损坏或不兼容走显式恢复。
 
-所选现存来源须符合工作区发布投影，合法手改先同步。owner 树取 HEAD、pending 与工作区的所选 owner 路径并集，包含未引用成员与待删除旧成员。引用资源须存在，全部相关路径分量须安全；空资源树仍检查根和 owner，文件表示尊重 Git `core.fileMode`。
+`all`／`domain` 的所选现存来源须符合工作区发布投影，合法手改先同步。owner 树取 HEAD、pending 与工作区的所选 owner 路径并集，包含未引用成员与待删除旧成员。引用资源须存在，全部相关路径分量须安全；空资源树仍检查根和 owner，文件表示尊重 Git `core.fileMode`。
 
 必要报告和其他 owner 资源只参与验证；若最终待提交集合还缺依赖，提示显式补选，不自动暂存其他 owner。stage 不重建全部 HEAD 正文或重新发现全部未同步工作区身份；完整索引、图及 pending 保护仍有集合级成本。
 
-写前独立核对所选来源、成员、工作区索引、HEAD 与完整 pending（含完整对象 payload，index scope 也适用）；漂移或读取失败停止。原子更新保留未选领域文件的字节、表示及 staged 删除；可连续暂存不同对象，再重复选择以刷新某一对象。索引 JSON 可规范化序列化，未选条目含义保持。
+准备阶段取得 scope 所需来源、成员、工作区索引、HEAD 与完整受管 pending 身份；写前独立重取可变事实，锁内执行 HEAD 与 pending 的比较并交换（CAS），写后验证目标并保护范围外状态。各阶段按 scope 验收 payload：`index` 只验收所需索引内容，其余 pending 成员以完整路径、文件模式与对象 ID 保护身份；`all`／`domain` 验收完整受管 pending 的实际 payload。所需读取失败或保护范围漂移时停止。
+
+原子更新保留未选领域文件的字节、表示及 staged 删除。`index` 的非索引保证限于身份保持，正文及资源的内容验证由调用方配套完成；它不证明这些 payload 即时可读或指纹有效。可连续暂存不同对象，再重复选择以刷新某一对象。索引 JSON 可规范化序列化，未选条目含义保持。
 
 结果说明写入路径、保留的 pending 和调用方责任；成功只证明 scope，stage 不提交或推送。
 

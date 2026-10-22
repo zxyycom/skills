@@ -1,0 +1,1370 @@
+{
+  "processing": "原始timer JSON按本次capture名合并，未修改事件；clean仅使用6份phase-clean。初始current-phase与variant复制准备短暂重叠，保留但排除clean归因。",
+  "captures": {
+    "base-phase-clean-1.json": [
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 19.06150100000002,
+        "cpuMs": 20.163
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 40.15441299999998,
+        "cpuMs": 68.36
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 540.2138719999999,
+        "cpuMs": 816.139
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 29.417146000000002,
+        "cpuMs": 43.088
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 375.387204,
+        "cpuMs": 499.484
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 30.91980999999987,
+        "cpuMs": 35.121
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 69.631216,
+        "cpuMs": 87.002
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 15.84021000000007,
+        "cpuMs": 14.698
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 15.796516999999994,
+        "cpuMs": 15.354
+      },
+      {
+        "label": "node-total-cpu",
+        "cpu": {
+          "user": 2082287,
+          "system": 348822
+        }
+      }
+    ],
+    "base-phase-clean-2.json": [
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 16.812854000000016,
+        "cpuMs": 16.681
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 32.626531,
+        "cpuMs": 58.972
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 466.495266,
+        "cpuMs": 703.77
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 33.78961099999992,
+        "cpuMs": 47.436
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 361.7142,
+        "cpuMs": 473.631
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 29.601746999999932,
+        "cpuMs": 35.258
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 72.54421000000002,
+        "cpuMs": 91.316
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 17.000514000000067,
+        "cpuMs": 16.077
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 15.44019500000013,
+        "cpuMs": 14.422
+      },
+      {
+        "label": "node-total-cpu",
+        "cpu": {
+          "user": 1945676,
+          "system": 328186
+        }
+      }
+    ],
+    "base-phase-clean-3.json": [
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 15.01750100000001,
+        "cpuMs": 16.679
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 33.33077199999991,
+        "cpuMs": 59.692
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 449.327112,
+        "cpuMs": 676.766
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 30.78438099999994,
+        "cpuMs": 43.88
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 348.581873,
+        "cpuMs": 458.564
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 25.40927499999998,
+        "cpuMs": 29.041
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 64.93625900000006,
+        "cpuMs": 83.231
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 16.56572499999993,
+        "cpuMs": 16.498
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 15.012144999999919,
+        "cpuMs": 14.005
+      },
+      {
+        "label": "node-total-cpu",
+        "cpu": {
+          "user": 1959944,
+          "system": 241223
+        }
+      }
+    ],
+    "base-phase.json": [
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 14.129287000000033,
+        "cpuMs": 14.59
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 33.65961299999992,
+        "cpuMs": 60.137
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 433.30671300000006,
+        "cpuMs": 662.584
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 42.435539999999946,
+        "cpuMs": 58.108
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 367.758149,
+        "cpuMs": 484.054
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 27.24546999999984,
+        "cpuMs": 31.093
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 68.79562099999998,
+        "cpuMs": 87.686
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 15.934538000000202,
+        "cpuMs": 15.304
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 16.81355499999995,
+        "cpuMs": 15.772
+      }
+    ],
+    "current-phase-clean-1.json": [
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 399.54033,
+        "cpuMs": 609.623
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 43.275667,
+        "cpuMs": 92.502
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 14.837337000000048,
+        "cpuMs": 14.577
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 39.38991199999987,
+        "cpuMs": 64.308
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "docs/investigations/investigation-index.json",
+        "wallMs": 409.26912100000004,
+        "cpuMs": 544.507
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 501.5553379999999,
+        "cpuMs": 439.202
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 538.966754,
+        "cpuMs": 488.933
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 28.533106999999973,
+        "cpuMs": 42.89
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "docs/investigations/investigation-index.json",
+        "wallMs": 349.787053,
+        "cpuMs": 429.688
+      },
+      {
+        "label": "loadDomainSnapshot",
+        "detail": null,
+        "wallMs": 1830.561982,
+        "cpuMs": 2264.538
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 30.69601899999998,
+        "cpuMs": 35.821
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 54.97515499999963,
+        "cpuMs": 63.864
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 514.859798,
+        "cpuMs": 397.297
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 549.6052790000003,
+        "cpuMs": 446.17
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 303.5990489999999,
+        "cpuMs": 352.844
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 54.758016999999654,
+        "cpuMs": 64.141
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 49.54776999999967,
+        "cpuMs": 58.474
+      },
+      {
+        "label": "verifyDomainIndex",
+        "detail": null,
+        "wallMs": 433.0740820000001,
+        "cpuMs": 500.749
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 487.60938499999975,
+        "cpuMs": 367.005
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 514.0305549999998,
+        "cpuMs": 398.043
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 494.21306599999934,
+        "cpuMs": 345.634
+      },
+      {
+        "label": "preparePendingPatch",
+        "detail": null,
+        "wallMs": 565.6198140000001,
+        "cpuMs": 416.566
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 490.40803700000015,
+        "cpuMs": 346.743
+      },
+      {
+        "label": "writePendingPatch",
+        "detail": null,
+        "wallMs": 535.6409170000006,
+        "cpuMs": 379.073
+      },
+      {
+        "label": "node-total-cpu",
+        "cpu": {
+          "user": 4464726,
+          "system": 920054
+        }
+      }
+    ],
+    "current-phase-clean-2.json": [
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 392.193608,
+        "cpuMs": 603.727
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 36.55918899999995,
+        "cpuMs": 79.377
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 14.659677000000102,
+        "cpuMs": 14.176
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 31.069486000000097,
+        "cpuMs": 46.764
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "docs/investigations/investigation-index.json",
+        "wallMs": 371.70197199999996,
+        "cpuMs": 489.143
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 492.842936,
+        "cpuMs": 421.819
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 522.566763,
+        "cpuMs": 461.961
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 29.525805999999875,
+        "cpuMs": 37.893
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "docs/investigations/investigation-index.json",
+        "wallMs": 349.27083300000004,
+        "cpuMs": 425.695
+      },
+      {
+        "label": "loadDomainSnapshot",
+        "detail": null,
+        "wallMs": 1758.680219,
+        "cpuMs": 2166.8
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 29.768653000000086,
+        "cpuMs": 45.207
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 50.7475800000002,
+        "cpuMs": 65.513
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 497.61611600000015,
+        "cpuMs": 368.819
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 521.881821,
+        "cpuMs": 399.944
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 283.06869300000017,
+        "cpuMs": 323.935
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 63.659180000000106,
+        "cpuMs": 68.582
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 49.20815000000039,
+        "cpuMs": 58.42
+      },
+      {
+        "label": "verifyDomainIndex",
+        "detail": null,
+        "wallMs": 418.91777200000024,
+        "cpuMs": 474.004
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 516.2195510000001,
+        "cpuMs": 378.149
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 544.7813100000003,
+        "cpuMs": 415.264
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 526.9668879999999,
+        "cpuMs": 360.261
+      },
+      {
+        "label": "preparePendingPatch",
+        "detail": null,
+        "wallMs": 579.3393490000003,
+        "cpuMs": 393.892
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 555.0315909999999,
+        "cpuMs": 375.933
+      },
+      {
+        "label": "writePendingPatch",
+        "detail": null,
+        "wallMs": 596.8660140000002,
+        "cpuMs": 405.468
+      },
+      {
+        "label": "node-total-cpu",
+        "cpu": {
+          "user": 4245302,
+          "system": 997439
+        }
+      }
+    ],
+    "current-phase-clean-3.json": [
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 371.523891,
+        "cpuMs": 557.099
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 35.29446199999995,
+        "cpuMs": 80.005
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 15.213878000000022,
+        "cpuMs": 14.521
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 31.54054300000007,
+        "cpuMs": 52.992
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "docs/investigations/investigation-index.json",
+        "wallMs": 349.003511,
+        "cpuMs": 464.109
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 439.31698800000004,
+        "cpuMs": 382.254
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 472.650175,
+        "cpuMs": 429.946
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 32.33024,
+        "cpuMs": 48.486
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "docs/investigations/investigation-index.json",
+        "wallMs": 369.2291670000002,
+        "cpuMs": 455.033
+      },
+      {
+        "label": "loadDomainSnapshot",
+        "detail": null,
+        "wallMs": 1683.980244,
+        "cpuMs": 2082.448
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 33.61719099999982,
+        "cpuMs": 38.177
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 60.232268000000204,
+        "cpuMs": 69.614
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 514.3873619999999,
+        "cpuMs": 403.462
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 545.4313969999998,
+        "cpuMs": 449.099
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 317.2368120000001,
+        "cpuMs": 361.61
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 60.259078000000045,
+        "cpuMs": 70.429
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 49.59446599999956,
+        "cpuMs": 58.751
+      },
+      {
+        "label": "verifyDomainIndex",
+        "detail": null,
+        "wallMs": 451.1240680000001,
+        "cpuMs": 514.92
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 493.87444300000016,
+        "cpuMs": 382.987
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 520.0808740000002,
+        "cpuMs": 412.674
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 466.51789499999995,
+        "cpuMs": 343.962
+      },
+      {
+        "label": "preparePendingPatch",
+        "detail": null,
+        "wallMs": 527.9974350000002,
+        "cpuMs": 396.945
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 469.69896999999946,
+        "cpuMs": 339.276
+      },
+      {
+        "label": "writePendingPatch",
+        "detail": null,
+        "wallMs": 514.9038789999995,
+        "cpuMs": 371.929
+      },
+      {
+        "label": "node-total-cpu",
+        "cpu": {
+          "user": 4345357,
+          "system": 919440
+        }
+      }
+    ],
+    "current-phase.json": [
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 436.39893000000006,
+        "cpuMs": 639.519
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 37.656688999999915,
+        "cpuMs": 69.823
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 17.099964,
+        "cpuMs": 17.083
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 34.387526999999864,
+        "cpuMs": 51.762
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "docs/investigations/investigation-index.json",
+        "wallMs": 370.60109599999987,
+        "cpuMs": 470.031
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 836.6217179999999,
+        "cpuMs": 633.925
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 871.2829470000001,
+        "cpuMs": 674.978
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 42.13564399999996,
+        "cpuMs": 54.372
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "docs/investigations/investigation-index.json",
+        "wallMs": 606.821402,
+        "cpuMs": 721.721
+      },
+      {
+        "label": "loadDomainSnapshot",
+        "detail": null,
+        "wallMs": 2420.825544,
+        "cpuMs": 2705.596
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 40.83268300000009,
+        "cpuMs": 63.903
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 65.51587100000006,
+        "cpuMs": 82.417
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 562.720386,
+        "cpuMs": 443.914
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 600.6235729999999,
+        "cpuMs": 488.914
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 493.95799499999976,
+        "cpuMs": 576.316
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 92.53373900000042,
+        "cpuMs": 101.029
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 82.83380000000034,
+        "cpuMs": 95.468
+      },
+      {
+        "label": "verifyDomainIndex",
+        "detail": null,
+        "wallMs": 705.480094,
+        "cpuMs": 809.256
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 564.9232840000004,
+        "cpuMs": 463.521
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 609.5796339999997,
+        "cpuMs": 511.738
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 532.5101030000005,
+        "cpuMs": 421.597
+      },
+      {
+        "label": "preparePendingPatch",
+        "detail": null,
+        "wallMs": 603.1120229999997,
+        "cpuMs": 475.805
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 504.95102899999983,
+        "cpuMs": 364.372
+      },
+      {
+        "label": "writePendingPatch",
+        "detail": null,
+        "wallMs": 564.2725209999999,
+        "cpuMs": 426.224
+      }
+    ],
+    "merge-phase.json": [
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 456.64038700000003,
+        "cpuMs": 667.262
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 36.52157900000009,
+        "cpuMs": 66.399
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 15.999235999999996,
+        "cpuMs": 15.87
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 30.567682999999988,
+        "cpuMs": 44.788
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "docs/investigations/investigation-index.json",
+        "wallMs": 389.09742400000016,
+        "cpuMs": 510.177
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 476.360193,
+        "cpuMs": 417.25
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 507.63132199999995,
+        "cpuMs": 457.496
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 29.129249000000073,
+        "cpuMs": 36.505
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "docs/investigations/investigation-index.json",
+        "wallMs": 375.27789000000007,
+        "cpuMs": 458.925
+      },
+      {
+        "label": "loadDomainSnapshot",
+        "detail": null,
+        "wallMs": 1865.4695289999997,
+        "cpuMs": 2291.631
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 32.475629000000026,
+        "cpuMs": 50.395
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 57.34264200000007,
+        "cpuMs": 65.218
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 303.41151899999977,
+        "cpuMs": 355.479
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 66.35196899999983,
+        "cpuMs": 74.792
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 49.59537100000034,
+        "cpuMs": 58.312
+      },
+      {
+        "label": "verifyDomainIndex",
+        "detail": null,
+        "wallMs": 443.0727069999998,
+        "cpuMs": 512.411
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 477.8950840000002,
+        "cpuMs": 377.651
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 507.2549759999997,
+        "cpuMs": 413.696
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 487.9257069999999,
+        "cpuMs": 346.471
+      },
+      {
+        "label": "preparePendingPatch",
+        "detail": null,
+        "wallMs": 543.4204800000002,
+        "cpuMs": 389.953
+      },
+      {
+        "label": "blob-volume",
+        "count": 10004,
+        "bytes": 13524459
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 10004,
+        "wallMs": 553.8316850000001,
+        "cpuMs": 373.432
+      },
+      {
+        "label": "writePendingPatch",
+        "detail": null,
+        "wallMs": 596.8505419999992,
+        "cpuMs": 405.903
+      }
+    ],
+    "narrow-phase.json": [
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 497.25412700000004,
+        "cpuMs": 741.303
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 36.240256000000045,
+        "cpuMs": 66.096
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 20.121246999999926,
+        "cpuMs": 20.125
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 29.851675000000114,
+        "cpuMs": 44.321
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "docs/investigations/investigation-index.json",
+        "wallMs": 361.35615600000006,
+        "cpuMs": 471.433
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 17.586742999999842,
+        "cpuMs": 18.242
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 43.07573100000013,
+        "cpuMs": 51.398
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 27.551756999999952,
+        "cpuMs": 35.759
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "docs/investigations/investigation-index.json",
+        "wallMs": 341.59390200000007,
+        "cpuMs": 412.754
+      },
+      {
+        "label": "loadDomainSnapshot",
+        "detail": null,
+        "wallMs": 1379.683956,
+        "cpuMs": 1870.179
+      },
+      {
+        "label": "validateInvestigationRelationGraph",
+        "detail": null,
+        "wallMs": 34.55302700000016,
+        "cpuMs": 51.031
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 65.52242800000022,
+        "cpuMs": 83.927
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 17.877502000000277,
+        "cpuMs": 17.609
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 45.415508000000045,
+        "cpuMs": 54.987
+      },
+      {
+        "label": "parseStateIndex",
+        "detail": "investigation-index.json",
+        "wallMs": 341.6844289999999,
+        "cpuMs": 387.122
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 74.78013199999987,
+        "cpuMs": 84.736
+      },
+      {
+        "label": "serializeStateIndex",
+        "detail": null,
+        "wallMs": 53.335259999999835,
+        "cpuMs": 70.549
+      },
+      {
+        "label": "verifyDomainIndex",
+        "detail": null,
+        "wallMs": 496.92282699999987,
+        "cpuMs": 569.713
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 17.75773500000014,
+        "cpuMs": 16.696
+      },
+      {
+        "label": "readPendingSnapshot",
+        "detail": 1,
+        "wallMs": 43.82882100000006,
+        "cpuMs": 43.874
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 25.68485899999996,
+        "cpuMs": 30.078
+      },
+      {
+        "label": "preparePendingPatch",
+        "detail": null,
+        "wallMs": 94.63422499999979,
+        "cpuMs": 77.368
+      },
+      {
+        "label": "blob-volume",
+        "count": 1,
+        "bytes": 5893454
+      },
+      {
+        "label": "readGitBlobSelections",
+        "detail": 1,
+        "wallMs": 19.25879599999962,
+        "cpuMs": 20.21
+      },
+      {
+        "label": "writePendingPatch",
+        "detail": null,
+        "wallMs": 67.51348599999983,
+        "cpuMs": 56.15
+      }
+    ]
+  }
+}

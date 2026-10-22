@@ -93,8 +93,8 @@ content 使用严格发布索引与领域图选择范围，先判断候选预算
 1. 准备和写前复核阶段各自维护目录名字索引，使用时仍核对身份、类型和 canonical 路径。同身份目录 metadata 改变时重新枚举，核对相关 exact、casefold 和缺失匹配；发现相关匹配、完整树成员或目录替换，容许无关 sibling 活动。目录事实只在本阶段有效。
 2. 两阶段在获取资源字节前检查资源根、owner 及全部路径分量，零引用或空树也不跳过。引用路径按领域字符契约，未引用成员只按安全普通文件路径检查。
 3. all/domain 从发布声明及已变化 pending 身份确定所选正文、旧位置、直接资源与正式 owner 依赖；每阶段验证相关来源投影、指纹与资源安全。index 不读取工作区正文。未同步工作区未知位置的身份重现由显式检查／同步发现，stage 只核对所选已知受管位置。
-4. 两阶段重新取得可变工作区成员、字节、文件表示、发布索引和全 pending 快照。每阶段至多读一次 core.fileMode，关闭时复用已取得的完整 pending 表示依据。固定 revision 的 HEAD 索引和资源成员可跨阶段复用，锁内仍核对当前 HEAD 指针及完整 pending 的路径、字节、表示。
-5. 完整 pending 保护使用共享层完整成员与实际内容身份，只保留所选更新路径的字节；准备、写前、锁内和写后均验证全部范围对象的完整 payload。节省保留与复制不减弱完整对象读取失败及深层腐败检查。
+4. index 准备阶段复用本次已捕获的 pending 快照；写前独立重取并复核工作区发布索引与 pending。all/domain 两阶段各自取得可变工作区成员、字节、文件表示、发布索引和完整 pending。每阶段至多读一次 core.fileMode，关闭时复用本阶段完整 pending 表示依据。固定 revision 的 HEAD 索引和资源成员可跨阶段复用，锁内仍核对当前 HEAD 指针及完整 pending 身份。
+5. index 通过共享 pending snapshot 显式选择 `payloadScope: "content-paths"`，`contentPaths` 只含目标索引，更新也限于该路径；all/domain 使用默认完整 payload 策略。准备、独立写前、锁内 CAS 与写后均保持完整成员的路径、模式和对象 ID 保护，并按所属策略验证实际 payload。共享 API 的身份、读取失败及替换边界由[版本管理中间层](../shared/version-control.md#pending-snapshot)承接。
 6. 来源路径的真实系统失败与 symlink、case、成员问题分别承接。候选与查询的普通验证返回问题集合，stage 复核从详细检查取得 failure；无可靠信号时不猜类别或附会写入结果。
 
 all/domain 的 preservedPendingPaths 是本领域 scope 中相对固定 HEAD 已变化但不在目标内的 pending 路径，含 staged 删除；只从路径变化 metadata 取得，不为此读取全部 HEAD 正文。index/all 的索引以捕获的 pending 为基底组合选中投影，domain 保持 pending 索引字节或缺失状态。局部来源访问随所选对象、必要依赖及已暂存位置变化增长；完整索引、图和 pending 仍有集合级成本。

@@ -61,7 +61,8 @@ export async function readDomainPending(
   );
   const pending = await readPendingSnapshot(domain.repository, {
     pathScope: domain.investigationsScope,
-    contentPaths: [...reportPaths, domain.repositoryIndexPath]
+    contentPaths: [...reportPaths, domain.repositoryIndexPath],
+    payloadScope: control.input.scope === "index" ? "content-paths" : "scope"
   });
   const pendingIndex = parseDomainPendingIndex(
     pending,

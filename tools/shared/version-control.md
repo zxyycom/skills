@@ -97,9 +97,9 @@ Git adapter 按 `core.fileMode` 确定有效执行位：
 
 ### 完整验证与选择性内容保留
 
-共享层将完整验证与内容保留分开。Investigation Report 使用下方 pending snapshot 与
-revision prefix 专用子模块减少内容保留、复制和解码，保留完整实际 payload 读取与失败责任；
-通用 full-read/full-replacement 默认入口不变。
+共享层分别声明身份保护、payload 验证与内容保留范围。下方 pending snapshot 默认完整验证，
+也允许消费者显式选择所需 payload；revision prefix 始终完整验证所选对象。
+这些专用子模块不改变通用 full-read/full-replacement 默认入口。
 
 #### Blob 指纹模式
 
@@ -121,11 +121,19 @@ separator、EOF 和输出预算检查；缺失、腐败、输入失败及进程�
 
 #### Pending snapshot
 
-`pending-snapshot.ts` 提供 `readPendingSnapshot(repository, { pathScope, contentPaths })`、`samePendingSnapshots` 与 `replacePendingSnapshot`。
+`pending-snapshot.ts` 提供 `readPendingSnapshot(repository, { pathScope, contentPaths, payloadScope? })`、`samePendingSnapshots` 与 `replacePendingSnapshot`。
 
-- **读取与消费**：验证 scope 内全部成员的唯一文件表示，以及每个 unique 对象的完整实际 payload；返回全部成员的 `path`、`kind`，仅保留显式 `contentPaths` 的字节。调用方不得修改返回的内容字节。
-- **身份与比较**：共享层保存完整成员、表示与实际 payload 指纹，并把 snapshot 绑定到取得它的 repository 实例与 scope。只有该原始 snapshot 能参与同边界比较与替换；普通对象、其他 adapter 或其他 scope 的事实不能代替它。对象标识不能代替实际字节可读性与漂移证据。
-- **替换与发布**：调用方提供原 snapshot、当前 revision 期望和显式 updates（文件或 `data: null` 删除）。边界取得更新目标的自有字节，变化路径与写入内容使用同一目标。锁内先核对完整成员及表示，再验证全部实际内容身份；只更新声明路径，保留其余条目。写后完整验证对象、更新内容与保留内容身份，再发布。范围外由原事务复制保护，失败及恢复服从范围替换契约。
+读取始终核对 scope 内完整成员及其唯一文件表示，返回全部成员的 `path`、`kind`，仅保留显式 `contentPaths` 的字节。`PendingPayloadScope` 决定实际 payload 的读取、指纹与失败边界：
+
+| `payloadScope` | 验证责任 |
+| --- | --- |
+| 省略或 `scope` | 验证 scope 内每个 unique 对象的完整实际 payload。 |
+| `content-paths` | 只验证 `contentPaths` 对象的完整实际 payload；其余成员以完整路径、模式及对象 ID 保护身份，不验收其即时可读性与内容指纹。 |
+
+- **身份与比较**：共享层保存完整成员身份及策略内 payload 的实际指纹。比较须使用同一 repository 实例、scope 与 payload 策略取得的原始 opaque snapshot；`content-paths` 还要求 `contentPaths` 集合相同，默认 `scope` 允许不同的内容保留集。普通对象不能代替原始 snapshot，调用方不得修改返回的内容字节。
+- **替换与发布**：调用方提供原 snapshot、当前 revision 期望和显式 updates（文件或 `data: null` 删除）。`content-paths` 的 updates 必须位于原 `contentPaths`，避免写入扩大验收边界。边界取得更新目标的自有字节，变化路径与写入内容使用同一目标。锁内核对完整成员身份及策略内的实际内容指纹，只更新声明路径并保留其余条目；写后按相同策略验证目标再发布。范围外由原事务复制保护，失败及恢复服从范围替换契约。
+
+Investigation Report 仅在 `stage --scope index` 显式选择 `content-paths`，内容路径只含目标索引；其 `all`／`domain` 及其他消费者继续使用默认完整 payload 验证。
 
 #### Revision prefix
 

@@ -1,7 +1,7 @@
 ---
 title: 完整内容验证与选择性保留分离
 id: 261010-retain-complete-validation-with-selected-content
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-10T18:05:07Z
 purpose: 在减小快照内存与复制成本时保留完整范围失败和漂移保护。
@@ -31,4 +31,4 @@ relations: []
 3. 前缀原语显式返回内容完整性。消费者按该事实判断语义是否足够，不足时以同一确定 revision 补读。专用原语不扩展通用 repository 接口，通用 full-read/full-replacement 保持默认契约。
 4. 性能验收分别核对 payload I/O、内容保留与复制、完整成员与关系图、物理事务复制及条件 fallback；不把选择性保留解释为全流程成本仅随选中对象增长。
 
-当前 API 与失败契约由[版本管理中间层](../../tools/shared/version-control.md#完整验证与选择性内容保留)承接；选择依据的反例和测量条件见[调查报告](../investigations/investigation-phase-facts-and-streamed-content.md)。
+当前 API 与失败契约由[版本管理中间层](../../../tools/shared/version-control.md#完整验证与选择性内容保留)承接；选择依据的反例和测量条件见[调查报告](../../investigations/investigation-phase-facts-and-streamed-content.md)。

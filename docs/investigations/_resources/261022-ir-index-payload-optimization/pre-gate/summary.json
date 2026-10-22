@@ -1,0 +1,74 @@
+{
+  "groups": {
+    "continuous-effects": {
+      "baseline": {
+        "count": 4,
+        "wallMedianSeconds": 5.418406551994849,
+        "cpuMedianSeconds": 8.2219835,
+        "rssMedianMiB": 421.0625,
+        "allEffectsPassed": true
+      },
+      "final": {
+        "count": 4,
+        "wallMedianSeconds": 2.820662167505361,
+        "cpuMedianSeconds": 3.743263,
+        "rssMedianMiB": 384.408203125,
+        "allEffectsPassed": true
+      }
+    },
+    "native-basic": {
+      "baseline": {
+        "count": 3,
+        "wallMedianSeconds": 5.62077976600267,
+        "cpuMedianSeconds": 8.512268,
+        "rssMedianMiB": 420.8671875,
+        "allEffectsPassed": true
+      },
+      "final": {
+        "count": 3,
+        "wallMedianSeconds": 2.750040306011215,
+        "cpuMedianSeconds": 3.661201,
+        "rssMedianMiB": 381.078125,
+        "allEffectsPassed": true
+      }
+    },
+    "workload-probe": {
+      "baseline-probe": {
+        "count": 1,
+        "wallMedianSeconds": 5.046919232991058,
+        "cpuMedianSeconds": 7.7822569999999995,
+        "rssMedianMiB": 364.2734375,
+        "allEffectsPassed": true
+      },
+      "final-probe": {
+        "count": 1,
+        "wallMedianSeconds": 2.5411515710002277,
+        "cpuMedianSeconds": 3.3860289999999997,
+        "rssMedianMiB": 383.82421875,
+        "allEffectsPassed": true
+      }
+    }
+  },
+  "allEffectsPassed": true,
+  "nativeComparison": {
+    "wallDecreasePercent": 51.07368691716307,
+    "wallSpeedupRatio": 2.0438899581640344,
+    "cpuDecreasePercent": 56.98912440256816,
+    "rssDecreaseMiB": 39.7890625,
+    "pairedWallDecreasesSeconds": [
+      3.1008769220206887,
+      2.6937025950173847,
+      2.585445290984353
+    ],
+    "pairedFinalToBaselineWallRatio": [
+      0.46539209356371863,
+      0.5207599822162993,
+      0.5154245580870414
+    ]
+  },
+  "sampleInterpretation": {
+    "native-basic": "6 observations, baseline/final alternating 3 pairs. Only this group supports main end-to-end comparison.",
+    "continuous-effects": "8 observations, each version A1/B1/A2/B2. Heterogeneous steps, not 8 repetitions of one performance workload. Timing retained as observation only.",
+    "workload-probe": "2 one-off instrumented observations, separately report work counts, excluded from native medians."
+  }
+}

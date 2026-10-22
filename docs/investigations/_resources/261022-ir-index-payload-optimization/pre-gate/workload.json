@@ -1,0 +1,98 @@
+{
+  "method": "Counter-only temporary variants; each success emits completed Git batch count and summed declared blob sizes/retained byte sizes; no stage timers; not included in native comparison.",
+  "runs": {
+    "baseline": {
+      "events": [
+        {
+          "requestedObjects": 1,
+          "fingerprint": "none",
+          "completedObjects": 1,
+          "payloadBytes": 5893454,
+          "retainedBytes": 5893454
+        },
+        {
+          "requestedObjects": 10004,
+          "fingerprint": "sha256",
+          "completedObjects": 10004,
+          "payloadBytes": 13524459,
+          "retainedBytes": 5893454
+        },
+        {
+          "requestedObjects": 10004,
+          "fingerprint": "sha256",
+          "completedObjects": 10004,
+          "payloadBytes": 13524459,
+          "retainedBytes": 772
+        },
+        {
+          "requestedObjects": 10004,
+          "fingerprint": "sha256",
+          "completedObjects": 10004,
+          "payloadBytes": 13524459,
+          "retainedBytes": 772
+        },
+        {
+          "requestedObjects": 10004,
+          "fingerprint": "sha256",
+          "completedObjects": 10004,
+          "payloadBytes": 13524459,
+          "retainedBytes": 5893454
+        },
+        {
+          "requestedObjects": 10004,
+          "fingerprint": "sha256",
+          "completedObjects": 10004,
+          "payloadBytes": 13524459,
+          "retainedBytes": 5893454
+        }
+      ],
+      "batches": 6,
+      "objectsTotal": 50021,
+      "payloadBytesTotal": 73515749,
+      "retainedBytesTotal": 23575360
+    },
+    "final": {
+      "events": [
+        {
+          "requestedObjects": 1,
+          "fingerprint": "none",
+          "completedObjects": 1,
+          "payloadBytes": 5893454,
+          "retainedBytes": 5893454
+        },
+        {
+          "requestedObjects": 1,
+          "fingerprint": "sha256",
+          "completedObjects": 1,
+          "payloadBytes": 5893454,
+          "retainedBytes": 5893454
+        },
+        {
+          "requestedObjects": 1,
+          "fingerprint": "sha256",
+          "completedObjects": 1,
+          "payloadBytes": 5893454,
+          "retainedBytes": 5893454
+        },
+        {
+          "requestedObjects": 1,
+          "fingerprint": "sha256",
+          "completedObjects": 1,
+          "payloadBytes": 5893454,
+          "retainedBytes": 5893454
+        },
+        {
+          "requestedObjects": 1,
+          "fingerprint": "sha256",
+          "completedObjects": 1,
+          "payloadBytes": 5893454,
+          "retainedBytes": 5893454
+        }
+      ],
+      "batches": 5,
+      "objectsTotal": 5,
+      "payloadBytesTotal": 29467270,
+      "retainedBytesTotal": 29467270
+    }
+  }
+}

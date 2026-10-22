@@ -276,6 +276,16 @@ async function acquireInitialDomainPhase(
   request: DomainAcquisitionRequest,
   expectedPending: PendingSnapshot
 ): Promise<DomainStep<DomainPhaseFacts>> {
+  if (request.scope === "index")
+    return {
+      status: "ok",
+      value: {
+        resources: { paths: [], ownerPaths: [], workspacePaths: [] },
+        reportPaths: new Set(),
+        baselinePaths: new Set(),
+        pending: expectedPending
+      }
+    };
   const phase = await acquireDomainPhase(request);
   if (phase.status === "error")
     return {
